@@ -1,47 +1,45 @@
+*,*:before,*:after{
+    -webkit-box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -ms-box-sizing:border-box;
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
     font-family:"Helvetica";
     font-size: 1em;
 }
+
 .flexbox {
     display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
     display: -ms-flexbox;     /* TWEENER - IE 10 */
     display: -webkit-flex;     /* NEW - Chrome */
+    display: -moz-box;
     display: flex;
-}
-
-.column {
-    -webkit-flex-flow: column;
-    -ms-flex-flow: column;
-    flex-flow: column;
-}
-.wrap {
     -webkit-flex-wrap: wrap;
+    -moz-flex-wrap: wrap;
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
 }
+
+.column {
+    display:inline-block;
+    -webkit-flex-flow: column;
+    -moz-flex-flow : column;
+    -ms-flex-flow: column;
+    flex-flow: column;
+}
+
 .stretch{
     -webkit-align-items:stretch;
     -ms-align-items:stretch;
     align-items:stretch;
 }
-.center{
-    -webkit-align-items:center;
-    -ms-align-items:center;
-    align-items:center;
-}
-.space{
-    -webkit-align-content:space-around;
-    -ms-align-content:space-around;
-    align-content:space-around;
-}
-.extend{
-    -webkit-flex-grow:1;
-    -ms-flex-grow:1;
-    flex-grow:1;
-}
+
 .icone{
-    width : 49%;
+    display:inline-block;
+    width : 48%;
     height : 70px;
 }
 
@@ -66,12 +64,21 @@ body{
     min-height:calc(100% - 30px);
     background:#ccc; /*rgba(200,200,255,0.1);*/
     border:gray 1px solid;
+    -webkit-flex : 0 0 150px;
+    -ms-flex : 0 0 150px;
+    flex : 0 0 150px;
 }
 #canvas{
     width:calc(100% - 150px);
     border : 1px solid #000;
+    -webkit-flex : 1 1 75%;
+    -ms-flex : 1 1 75%;
+    flex : 1 1 75%;
 }
 .action_button{
     font-weight:bold;
     height:30px;
+    width: 100%;
 }
+
+
