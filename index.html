@@ -4,8 +4,8 @@
         <title>Apprenti géomètre 3</title>
         <link href="css/style.css" rel="stylesheet">
     </head>
-    <body>
-        <nav id="menu" class="flexbox">
+    <body ng-app="AG">
+        <nav id="menu">
             <div class="item">Fichier</div>
             <div class="item">Fenêtre</div>
             <div class="item">Edition</div>
@@ -18,28 +18,29 @@
             <div class="item">Aide</div>
             <div class="item">Configuration</div>
         </nav>
-        <div class="flexbox">
-            <section id="toolbar" class="flexbox column space">
-                <div class="flexbox column">
-                    <button class="action_button">Annuler</button>
-                    <button class="action_button">Modifier</button>
+        <div id="main">
+            <section id="toolbar">
+                <div>
+                    <button class="action-button">Annuler</button>
+                    <button class="action-button">Modifier</button>
                 </div>
-                <div class="flexbox column">
+                <div>
                     <strong>Mouvements</strong>
-                    <button class="action_button">Glisser</button>
-                    <button class="action_button">Tourner</button>
-                    <button class="action_button">Retourner</button>
-                    <button class="action_button">Zoomer</button>
+                    <button class="action-button">Glisser</button>
+                    <button class="action-button">Tourner</button>
+                    <button class="action-button">Retourner</button>
+                    <button class="action-button">Zoomer</button>
                 </div>
                 <div>
                     <strong>Formes standard</strong>
                     <div class="">
-                        <button class="icone"><img src="">icone</button>
-                        <button class="icone"><img src="">icone</button>
-                        <button class="icone"><img src="">icone</button>
-                        <button class="icone"><img src="">icone</button>
+                        <canvas class="toolbar-item"></canvas>
+                        <canvas class="toolbar-item"></canvas>
+                        <canvas class="toolbar-item"></canvas>
+                        <canvas class="toolbar-item"></canvas>
                     </div>
                 </div>
+<!--
                 <div>
                     <strong>Formes libres</strong>
                     <div class="">
@@ -52,9 +53,11 @@
                         <button class="icone"><img src="">icone</button>
                     </div>
                 </div>
+-->
             </section>
             <canvas id="canvas">Votre navigateur ne supporte pas canvas</canvas>
         </div>
     </body>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
     <script src="js/main.js"></script>
 </html>

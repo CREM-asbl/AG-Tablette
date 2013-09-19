@@ -6,22 +6,23 @@
 }
 
 body{
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction:column;
+    flex-direction:column;
+    height:100%;
     margin:0;
     font-family:"Helvetica";
     font-size: 1em;
 }
 
-.flexbox {
-    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
-    display: -ms-flexbox;     /* TWEENER - IE 10 */
-    display: -webkit-flex;     /* NEW - Chrome */
+/*.flexbox {
+    display: -webkit-box;      
+    display: -ms-flexbox;     
+    display: -webkit-flex;     
     display: -moz-box;
     display: flex;
-    -webkit-flex-wrap: wrap;
-    -moz-flex-wrap: wrap;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-}
+ }
 
 .column {
     display:inline-block;
@@ -35,7 +36,7 @@ body{
     -webkit-align-items:stretch;
     -ms-align-items:stretch;
     align-items:stretch;
-}
+}*/
 
 .icone{
     display:inline-block;
@@ -45,6 +46,8 @@ body{
 
 /******* STRUCTURE *******/
 #menu{
+    display: -ms-flexbox;
+    display: flex;
     height:30px;
     background-color:#eee;
     border-bottom:gray 2px solid;
@@ -58,15 +61,24 @@ body{
     background-color:rgba(230,240,255,1);
     border: rgba(200,210,255,1) 1px solid;
 }
+#main{
+    display:-ms-flexbox;
+    display:flex;
+    -ms-flex:1;
+    flex:1;
+}
 #toolbar{
     padding:5px;
     width:150px;
     min-height:calc(100% - 30px);
     background:#ccc; /*rgba(200,200,255,0.1);*/
     border:gray 1px solid;
-    -webkit-flex : 0 0 150px;
-    -ms-flex : 0 0 150px;
-    flex : 0 0 150px;
+}
+.toolbar-item{
+    background: #fff;
+    width : 48%;
+    height : 60px;
+    border:gray;
 }
 #canvas{
     width:calc(100% - 150px);
@@ -75,7 +87,7 @@ body{
     -ms-flex : 1 1 75%;
     flex : 1 1 75%;
 }
-.action_button{
+.action-button{
     font-weight:bold;
     height:30px;
     width: 100%;
