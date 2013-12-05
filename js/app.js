@@ -3,7 +3,7 @@
 //context.fillRect(5,5,100,100);
 //console.log(myCanvas);
 
-angular.module('AG', [])
+angular.module('AG', ['canvas'])
 
 .directive('actionButton',function(){
     return{
