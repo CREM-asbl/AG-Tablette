@@ -1,8 +1,3 @@
-//var myCanvas = document.querySelector('.toolbar-item');
-//var context = myCanvas.getContext('2d');
-//context.fillRect(5,5,100,100);
-//console.log(myCanvas);
-
 angular.module('AG', ['canvas'])
 
 .directive('actionButton',function(){
