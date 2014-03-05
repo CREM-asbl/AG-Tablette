@@ -1,13 +1,13 @@
-angular.module('AG', [])
+angular.module('AG')
 
 .directive('actionButton',function(){
     return{
         restrict : 'AC',
-//         templateUrl : 'js/interface/action-button/action-button.html',
+        scope : {action : '@'},
         link : function(scope,element,attr){
             element.bind('click',function(){
-                alert('click');
+                alert(scope.action);
             });
         }
     };
-})
+});

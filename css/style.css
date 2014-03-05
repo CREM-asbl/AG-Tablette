@@ -12,7 +12,7 @@ body{
     -webkit-box-orient : vertical;
     -ms-flex-direction:column;
     flex-direction:column;
-    height:100%;
+    /* height:100%; */
     margin:0;
     font-family:"Helvetica";
     font-size: 1em;
@@ -51,10 +51,10 @@ body{
     display: -webkit-box;
     display: -ms-flexbox;
     display: flex;
-    height:30px;
+    height: 30px;
     background-color:#eee;
     border-bottom:gray 2px solid;
-    font-size:0.8em;
+    font-size: 0.8rem;
 }
 .item{
     padding:5px;
@@ -78,18 +78,22 @@ body{
     background:#ccc; /*rgba(200,200,255,0.1);*/
     border:gray 1px solid;
 }
-.toolbar-item{
+.canvas-button{
     background: #fff;
     width : 48%;
     height : 60px;
     border:gray;
 }
-#canvas{
-    -webkit-box-flex: 1 1 75%;
-    -webkit-flex : 1 1 75%;
-    -ms-flex : 1 1 75%;
-    flex : 1 1 75%;
+.canvas{
+    -webkit-box-flex: 1;
+    -webkit-flex : 1;
+    -ms-flex : 1;
+    flex : 1;
     border : 1px solid #000;
+}
+.canvas-main{
+    width: 100%;
+    height: 100%;
 }
 .action-button{
     font-weight:bold;

@@ -21,45 +21,49 @@
         <div id="main">
             <section id="toolbar">
                 <div>
-                    <button class="action-button">Annuler</button>
-                    <button class="action-button">Modifier</button>
+                    <button class="action-button" data-action="annuler">Annuler</button>
+                    <button class="action-button" data-action="modifier">Modifier</button>
                 </div>
                 <div>
                     <strong>Mouvements</strong>
-                    <button class="action-button">Glisser</button>
-                    <button class="action-button">Tourner</button>
-                    <button class="action-button">Retourner</button>
-                    <button class="action-button">Zoomer</button>
+                    <button class="action-button" data-action="glisser">Glisser</button>
+                    <button class="action-button" data-action="tourner">Tourner</button>
+                    <button class="action-button" data-action="retourner">Retourner</button>
+                    <button class="action-button" data-action="zoomer">Zoomer</button>
                 </div>
                 <div>
                     <strong>Formes standard</strong>
                     <div class="">
-                        <canvas class="toolbar-item"></canvas>
-                        <canvas class="toolbar-item"></canvas>
-                        <canvas class="toolbar-item"></canvas>
-                        <canvas class="toolbar-item"></canvas>
+                        <canvas class="canvas-button"></canvas>
+                        <canvas class="canvas-button"></canvas>
+                        <canvas class="canvas-button"></canvas>
+                        <canvas class="canvas-button"></canvas>
                     </div>
                 </div>
-<!--
-                <div>
-                    <strong>Formes libres</strong>
-                    <div class="">
-                        <button class="icone"><img src="">icone</button>
-                        <button class="icone"><img src="">icone</button>
-                        <button class="icone"><img src="">icone</button>
-                        <button class="icone"><img src="">icone</button>
-                        <button class="icone"><img src="">icone</button>
-                        <button class="icone"><img src="">icone</button>
-                        <button class="icone"><img src="">icone</button>
-                    </div>
-                </div>
--->
+                <!--
+                                <div>
+                                    <strong>Formes libres</strong>
+                                    <div class="">
+                                        <button class="icone"><img src="">icone</button>
+                                        <button class="icone"><img src="">icone</button>
+                                        <button class="icone"><img src="">icone</button>
+                                        <button class="icone"><img src="">icone</button>
+                                        <button class="icone"><img src="">icone</button>
+                                        <button class="icone"><img src="">icone</button>
+                                        <button class="icone"><img src="">icone</button>
+                                    </div>
+                                </div>
+                -->
             </section>
-            <canvas id="canvas">Votre navigateur ne supporte pas canvas</canvas>
+            <section class="canvas">
+                <canvas class="canvas-main">Votre navigateur ne supporte pas canvas</canvas>
+            </section>
         </div>
     </body>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.4/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/canvas.js"></script>
-<!--     <script src="js/interface/action-button/action-button.js"></script> -->
+    <script src="js/interface/canvas-main.js"></script>
+    <script src="js/interface/action-button.js"></script>
+    <script src="js/interface/canvas-button.js"></script>
+    <script src="js/services/standardKitService.js"></script>
 </html>
