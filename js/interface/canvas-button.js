@@ -3,6 +3,7 @@ angular.module('AG')
 .directive('canvasButton',function(standardKitService){
     return{
         restrict : 'C',
+        scope : {famille : '@'},
         link : function(scope,element,attr){
             var canvas = element[0];
             var graphic = canvas.getContext('2d');
@@ -10,11 +11,13 @@ angular.module('AG')
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
             
-            standardKitService.getStandardShape(1,1)
-                    .paint(graphic);
+            var figure = standardKitService.getStandardShape(scope.famille,1);
+            if(figure){
+                figure.paint(graphic);
+            }
             
             element.on('click', function(){
-               alert('constructShape'); 
+               standardKitService.setSelectedShape(scope.famille,1);
             });
         }
     };

@@ -13,12 +13,12 @@ angular.module('AG')
             
                        
             function paint(){
-//                graphic.strokeStyle = "magenta";
-//                graphic.arc(event.clientX-canvas.offsetLeft,event.clientY-canvas.offsetTop,2,0,2*Math.PI,true);
-//                graphic.stroke();
-                 var forme = standardKitService.getStandardShape(1,1);
-                 forme.setCoordonnees(event.clientX-canvas.offsetLeft, event.clientY-canvas.offsetTop);
-                 forme.paint(graphic);
+                 var forme = standardKitService.getSelectedShape();
+                 console.log(forme);
+                 if (forme){
+                    forme.setCoordonnees(event.clientX-canvas.offsetLeft, event.clientY-canvas.offsetTop);
+                    forme.paint(graphic);
+                }
             }
             canvas.width = canvas.offsetWidth;
             canvas.height = canvas.offsetHeight;
@@ -27,9 +27,9 @@ angular.module('AG')
                 paint(event);
             });
             
-            element.on('mousemove',function(event){
-                console.log('('+event.clientX+','+event.clientY+')');
-            });
+//            element.on('mousemove',function(event){
+//                console.log('('+event.clientX+','+event.clientY+')');
+//            });
          }
     };
 });

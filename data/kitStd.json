@@ -1,0 +1,19 @@
+{
+    "name" : "kitStd",
+    "familles" : [
+        {"famille" : "carre",
+            "formes" : [
+                {
+                    "name" : "carre",
+                    "type" : "polygone regulier",
+                    "points" : [
+                        {"x" : 0,"y" : 0},
+                        {"x" : 1,"y" : 0},
+                        {"x" : 1,"y" : 1},
+                        {"x" : 0,"y" : 0}
+                    ]
+                }
+            ]
+        }
+    ]
+}
