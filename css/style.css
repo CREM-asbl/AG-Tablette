@@ -92,6 +92,8 @@ body{
     -webkit-flex : 1;
     -ms-flex : 1;
     flex : 1;
+    
+    background: #fff;
     border : 1px solid #000;
 }
 .canvas-main{

@@ -14,6 +14,7 @@ angular.module('AG')
                        
             function paint(){
                  var forme = standardKitService.getSelectedShape();
+                console.log(canvas.offsetLeft+","+canvas.offsetTop);
                  console.log(forme);
                  if (forme){
                     forme.setCoordonnees(event.clientX-canvas.offsetLeft, event.clientY-canvas.offsetTop);
@@ -25,6 +26,10 @@ angular.module('AG')
                       
             element.on('click', function(event){
                 paint(event);
+            });
+            
+            element.on('resize', function(){
+                alert('resize');
             });
             
 //            element.on('mousemove',function(event){
