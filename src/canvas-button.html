@@ -1,0 +1,56 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<dom-module id="canvas-button">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            canvas {
+                width: 100%;
+                height: 100%;
+                background: #fff;
+                border: 1px solid gray;
+            }
+        </style>
+        <canvas id="canvas" width="50" height="50"></canvas>
+    </template>
+    <script>
+        Polymer({
+            is: 'canvas-button',
+            properties: {
+                graphic: Object
+            },
+            ready() {
+                this.graphic = this.$.canvas.getContext('2d');
+                this.graphic.globalAlpha = 0.5;
+                this.graphic.globalCompositeOperation = "lighter";
+                this.graphic.fillStyle = "red";
+                var x = 5;
+                var y = 45;
+                this.graphic.beginPath();
+                this.graphic.moveTo(x, y);
+                this.graphic.lineTo(x + 40, y);
+                this.graphic.lineTo(x + 40, y - 40);
+                this.graphic.lineTo(x, y - 40);
+                this.graphic.closePath();
+                this.graphic.fill();
+                this.graphic.stroke();
+            }
+        });
+    </script>
+</dom-module>
+<!--  var canvas = element[0];
+            var graphic = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            var figure = standardKitService.getStandardShape(scope.famille,1);
+            if(figure){
+                figure.paint(graphic);
+            }
+            
+            element.on('click', function(){
+               standardKitService.setSelectedShape(scope.famille,1);
+            }); -->
