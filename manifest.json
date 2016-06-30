@@ -2,7 +2,7 @@
   "name": "Apprenti Géomètre",
   "short_name": "AG",
     "icons": [{
-      "src": "images/app-icon-32.png",
+      "src": "images/app-icon.svg",
       "type": "image/png",
       "sizes": "32x32"
     }, {
@@ -10,7 +10,7 @@
       "sizes": "128x128",
       "type": "image/svg"
     }, {
-      "src": "images/app-icon-144.png",
+      "src": "images/app-icon.svg",
       "sizes": "144x144",
       "type": "image/png"
     }, {

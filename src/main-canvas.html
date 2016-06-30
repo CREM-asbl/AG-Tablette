@@ -11,7 +11,7 @@
                 height: 100%;
             }
         </style>
-        <canvas id="mainCanvas" width="1200" height="800" on-tap="paint">Votre navigateur ne supporte pas canvas</canvas>
+        <canvas id="mainCanvas" on-tap="paint">Votre navigateur ne supporte pas canvas</canvas>
     </template>
     <script>
         Polymer({
@@ -19,7 +19,9 @@
             properties: {
                 graphic: Object,
                 offsetX: Number,
-                offsetY: Number
+                offsetY: Number,
+                width: Number,
+                height: Number
             },
             ready() {
                 this.graphic = this.$.mainCanvas.getContext('2d');
@@ -27,18 +29,24 @@
                 this.graphic.globalCompositeOperation = "lighter";
             },
             paint(event) {
-                var x = event.detail.x;
-                var y = event.detail.y;
+                //solution provisoire
+                this.$.mainCanvas.width = this.offsetWidth;
+                this.$.mainCanvas.height = this.offsetHeight;
+                //********
+                var x = (event.detail.x - 250) * this.$.mainCanvas.width/this.offsetWidth;
+                var y = (event.detail.y - this.offsetTop) * this.$.mainCanvas.height/this.offsetHeight;
+                console.log(this.$.mainCanvas.width + "," + this.$.mainCanvas.height);
                 this.graphic.fillStyle = "red";
                 this.graphic.beginPath();
                 this.graphic.moveTo(x, y);
-                this.graphic.lineTo(x + 10, y);
-                this.graphic.lineTo(x + 10, y - 10);
-                this.graphic.lineTo(x, y - 10);
+                this.graphic.lineTo(x + 40, y);
+                this.graphic.lineTo(x + 40, y - 40);
+                this.graphic.lineTo(x, y - 40);
                 this.graphic.closePath();
                 this.graphic.fill();
                 this.graphic.stroke();
             }
+            
         });
     </script>
 </dom-module>
