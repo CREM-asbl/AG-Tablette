@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <dom-module id="main-canvas">
     <template>
         <style>
@@ -18,24 +19,31 @@
             is: 'main-canvas',
             properties: {
                 graphic: Object,
-                offsetX: Number,
-                offsetY: Number,
-                width: Number,
-                height: Number
+                narrow: {
+                    type: Boolean,
+                    observer: '_narrowChanged'
+                },
+                marginLeft: Number
+            },
+            behaviors: [Polymer.IronResizableBehavior],
+            listeners: {
+                'iron-resize': '_onResize'
             },
             ready() {
                 this.graphic = this.$.mainCanvas.getContext('2d');
                 this.graphic.globalAlpha = 0.5;
                 this.graphic.globalCompositeOperation = "lighter";
             },
-            paint(event) {
-                //solution provisoire
+            _onResize() {
                 this.$.mainCanvas.width = this.offsetWidth;
                 this.$.mainCanvas.height = this.offsetHeight;
-                //********
-                var x = (event.detail.x - 250) * this.$.mainCanvas.width/this.offsetWidth;
-                var y = (event.detail.y - this.offsetTop) * this.$.mainCanvas.height/this.offsetHeight;
-                console.log(this.$.mainCanvas.width + "," + this.$.mainCanvas.height);
+            },
+            _narrowChanged(narrow) {
+                this.marginLeft = narrow ? 0 : 256;
+            },
+            paint(event) {
+                var x = (event.detail.x - this.marginLeft) * this.$.mainCanvas.width / this.offsetWidth;
+                var y = (event.detail.y - this.offsetTop) * this.$.mainCanvas.height / this.offsetHeight;
                 this.graphic.fillStyle = "red";
                 this.graphic.beginPath();
                 this.graphic.moveTo(x, y);
@@ -46,7 +54,6 @@
                 this.graphic.fill();
                 this.graphic.stroke();
             }
-            
         });
     </script>
 </dom-module>
