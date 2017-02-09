@@ -6,7 +6,7 @@
             :host {
                 display: block;
             }
-
+            
             canvas {
                 width: 100%;
                 height: 100%;
@@ -23,7 +23,8 @@
                     type: Boolean,
                     observer: '_narrowChanged'
                 },
-                marginLeft: Number
+                marginLeft: Number,
+                family: Number
             },
             behaviors: [Polymer.IronResizableBehavior],
             listeners: {
@@ -44,15 +45,41 @@
             paint(event) {
                 var x = (event.detail.x - this.marginLeft) * this.$.mainCanvas.width / this.offsetWidth;
                 var y = (event.detail.y - this.offsetTop) * this.$.mainCanvas.height / this.offsetHeight;
-                this.graphic.fillStyle = "red";
-                this.graphic.beginPath();
-                this.graphic.moveTo(x, y);
-                this.graphic.lineTo(x + 40, y);
-                this.graphic.lineTo(x + 40, y - 40);
-                this.graphic.lineTo(x, y - 40);
-                this.graphic.closePath();
-                this.graphic.fill();
-                this.graphic.stroke();
+                      if (this.family === 1) {
+                    this.graphic.fillStyle = "yellow";
+                    this.graphic.beginPath();
+                    this.graphic.moveTo(x, y);
+                    this.graphic.lineTo(x + 40, y);
+                    this.graphic.lineTo(x + 20, y - 40);
+                    this.graphic.closePath();
+                    this.graphic.fill();
+                    this.graphic.stroke();
+                }
+
+                if (this.family === 2) {
+                    this.graphic.fillStyle = "red";
+                    this.graphic.beginPath();
+                    this.graphic.moveTo(x, y);
+                    this.graphic.lineTo(x + 40, y);
+                    this.graphic.lineTo(x + 40, y - 40);
+                    this.graphic.lineTo(x, y - 40);
+                    this.graphic.closePath();
+                    this.graphic.fill();
+                    this.graphic.stroke();
+                }
+
+                 if (this.family === 3) {
+                    this.graphic.fillStyle = "green";
+                    this.graphic.beginPath();
+                    this.graphic.moveTo(x, y);
+                    this.graphic.lineTo(x + 40, y);
+                    this.graphic.lineTo(x + 60, y - 20);
+                    this.graphic.lineTo(x + 20, y - 40);
+                    this.graphic.lineTo(x - 20 , y - 20);
+                    this.graphic.closePath();
+                    this.graphic.fill();
+                    this.graphic.stroke();
+                }
             }
         });
     </script>

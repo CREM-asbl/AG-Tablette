@@ -70,9 +70,9 @@
                 <div>
                     <strong>Formes standard</strong>
                     <div class="grid">
-                        <canvas-button></canvas-button>
-                        <canvas-button></canvas-button>
-                        <canvas-button></canvas-button>
+                        <canvas-button family="1" on-selected="setFamily"></canvas-button>
+                        <canvas-button family="2" on-selected="setFamily"></canvas-button>
+                        <canvas-button family="3" on-selected="setFamily"></canvas-button>
                         <canvas-button></canvas-button>
                     </div>
                 </div>
@@ -96,13 +96,19 @@
                         <div class="item">Configuration</div> -->
                     </app-toolbar>
                 </app-header>
-                <main-canvas narrow="{{narrow}}"></main-canvas>
+                <main-canvas narrow="{{narrow}}" family="[[currentFamily]]"></main-canvas>
             </app-header-layout>
         </app-drawer-layout>
     </template>
     <script>
         Polymer({
             is: 'my-app',
+            properties: {
+                currentFamily: Number
+            },
+            setFamily: function (event) {
+                this.currentFamily = event.detail
+            }
         });
     </script>
 </dom-module>
