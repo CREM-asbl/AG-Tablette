@@ -1,0 +1,37 @@
+<dom-module id="formes-standard">
+    <script>
+        Polymer({
+            is: 'formes-standard',
+            properties: {
+                family: Number
+            },
+            paint: function (graphic, x, y) {
+                graphic.beginPath()
+                if (this.family === 1) {
+                    graphic.fillStyle = "yellow"
+                    graphic.moveTo(x, y)
+                    graphic.lineTo(x + 40, y)
+                    graphic.lineTo(x + 20, y - 40)
+                }
+
+                if (this.family === 2) {
+                    graphic.fillStyle = "red"
+                    graphic.moveTo(x, y)
+                    graphic.lineTo(x + 40, y)
+                    graphic.lineTo(x + 40, y - 40)
+                    graphic.lineTo(x, y - 40)
+                    
+                }
+
+                if (this.family === 3) {
+                    graphic.fillStyle = "green"
+                    graphic.arc(x, y, 20, 0, 2 * 314)
+
+                }
+                graphic.closePath()
+                graphic.fill()
+                graphic.stroke()
+            }
+        })
+    </script>
+</dom-module>

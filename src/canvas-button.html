@@ -1,4 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="formes-standard.html">
+
 <dom-module id="canvas-button">
     <template>
         <style>
@@ -13,6 +15,7 @@
                 border: 1px solid gray;
             }
         </style>
+        <formes-standard id="shape" family="[[family]]"></formes-standard>
         <canvas id="canvas" width="50" height="50" on-tap="_selected"></canvas>
     </template>
     <script>
@@ -30,43 +33,13 @@
                 var x = 5;
                 var y = 45;
 
-                 if (this.family === 1) {
-                    this.graphic.fillStyle = "yellow";
-                    this.graphic.beginPath();
-                    this.graphic.moveTo(x, y);
-                    this.graphic.lineTo(x + 40, y);
-                    this.graphic.lineTo(x + 20, y - 40);
-                    this.graphic.closePath();
-                    this.graphic.fill();
-                    this.graphic.stroke();
+                if (this.family === 3) {
+                    x += 20
+                    y -= 20
                 }
 
-                if (this.family === 2) {
-                    this.graphic.fillStyle = "red";
-                    this.graphic.beginPath();
-                    this.graphic.moveTo(x, y);
-                    this.graphic.lineTo(x + 40, y);
-                    this.graphic.lineTo(x + 40, y - 40);
-                    this.graphic.lineTo(x, y - 40);
-                    this.graphic.closePath();
-                    this.graphic.fill();
-                    this.graphic.stroke();
-                }
-
-                 if (this.family === 3) {
-                    this.graphic.fillStyle = "green";
-                    this.graphic.beginPath();
-                    this.graphic.moveTo(x, y);
-                    this.graphic.lineTo(x + 40, y);
-                    this.graphic.lineTo(x + 60, y - 20);
-                    this.graphic.lineTo(x + 20, y - 40);
-                    this.graphic.lineTo(x - 20 , y - 20);
-                    this.graphic.closePath();
-                    this.graphic.fill();
-                    this.graphic.stroke();
-                }
-
-               
+                this.$.shape.paint(this.graphic, x, y)
+              
             },
 
             _selected: function () {
