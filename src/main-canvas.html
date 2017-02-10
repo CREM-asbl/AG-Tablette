@@ -33,19 +33,19 @@
             listeners: {
                 'iron-resize': '_onResize'
             },
-            ready() {
+            ready: function () {
                 this.graphic = this.$.mainCanvas.getContext('2d');
                 this.graphic.globalAlpha = 0.5;
                 this.graphic.globalCompositeOperation = "lighter";
             },
-            _onResize() {
+            _onResize: function () {
                 this.$.mainCanvas.width = this.offsetWidth;
                 this.$.mainCanvas.height = this.offsetHeight;
             },
-            _narrowChanged(narrow) {
+            _narrowChanged: function (narrow) {
                 this.marginLeft = narrow ? 0 : 256;
             },
-            paint(event) {
+            paint: function (event) {
                 var x = (event.detail.x - this.marginLeft) * this.$.mainCanvas.width / this.offsetWidth;
                 var y = (event.detail.y - this.offsetTop) * this.$.mainCanvas.height / this.offsetHeight;
                 this.$.shape.paint(this.graphic, x, y)

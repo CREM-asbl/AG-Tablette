@@ -25,7 +25,7 @@
                 graphic: Object,
                 family: Number
             },
-            ready() {
+            ready: function() {
                 this.graphic = this.$.canvas.getContext('2d');
                 this.graphic.globalAlpha = 0.5;
                 this.graphic.globalCompositeOperation = "lighter";
