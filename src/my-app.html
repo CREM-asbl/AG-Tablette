@@ -1,4 +1,4 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
@@ -11,10 +11,11 @@
 <link rel="import" href="my-icons.html">
 <link rel="import" href="main-canvas.html">
 <link rel="import" href="canvas-button.html">
+
 <dom-module id="my-app">
     <template>
         <style>
-            :host {
+             :host {
                 display: block;
                 --app-primary-color: #4285f4;
                 --app-secondary-color: black;
@@ -52,9 +53,10 @@
                 @apply --layout-around-justified;
             }
         </style>
+        My-APP
         <app-drawer-layout fullbleed narrow="{{narrow}}">
             <!-- Drawer content -->
-            <app-drawer>
+            <app-drawer slot="drawer">
                 <app-toolbar>Menu</app-toolbar>
                 <div>
                     <button class="action-button" data-action="annuler">Annuler</button>
@@ -79,7 +81,7 @@
             </app-drawer>
             <!-- Main content -->
             <app-header-layout has-scrolling-region>
-                <app-header condenses reveals effects="waterfall">
+                <app-header slot="header" condenses reveals effects="waterfall">
                     <app-toolbar>
                         <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
                         <div title>Apprenti Géomètre</div>
@@ -101,14 +103,17 @@
         </app-drawer-layout>
     </template>
     <script>
-        Polymer({
-            is: 'my-app',
-            properties: {
-                currentFamily: Number
-            },
-            setFamily: function (event) {
+        class MyApp extends Polymer.Element {
+            static get is() { return 'my-app' }
+            static get properties() {
+                return {
+                    currentFamily: Number
+                }
+            }
+            setFamily(event) {
                 this.currentFamily = event.detail
             }
-        });
+        }
+        customElements.define(MyApp.is, MyApp)
     </script>
 </dom-module>
