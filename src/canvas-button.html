@@ -4,7 +4,7 @@
 <dom-module id="canvas-button">
     <template>
         <style>
-            :host {
+             :host {
                 display: block;
             }
             
@@ -12,40 +12,45 @@
                 width: 100%;
                 height: 100%;
                 background: #fff;
-                border: 1px solid gray;
+                border: 1px solid black;
             }
         </style>
         <formes-standard id="shape" family="[[family]]"></formes-standard>
-        <canvas id="canvas" width="50" height="50" on-tap="_selected"></canvas>
+        <canvas id="canvas" width="50" height="50" on-click="_selected"></canvas>
     </template>
+
     <script>
-        Polymer({
-            is: 'canvas-button',
-            properties: {
-                graphic: Object,
-                family: Number
-            },
-            ready: function() {
-                this.graphic = this.$.canvas.getContext('2d');
-                this.graphic.globalAlpha = 0.5;
-                this.graphic.globalCompositeOperation = "lighter";
+        class CanvasButton extends Polymer.Element {
+            static get is() { return 'canvas-button' }
 
-                var x = 5;
-                var y = 45;
+            static get properties() {
+                return {
+                    graphic: Object,
+                    family: Number
+                }
+            }
+            
+            ready() {
+                super.ready()
+                this.graphic = this.$.canvas.getContext('2d')
+                this.graphic.globalAlpha = 0.5
+                this.graphic.globalCompositeOperation = "lighter"
 
+                var x = 5
+                var y = 45
                 if (this.family === 3) {
                     x += 20
                     y -= 20
                 }
-
                 this.$.shape.paint(this.graphic, x, y)
-              
-            },
 
-            _selected: function () {
-                this.fire("selected", this.family)
             }
 
-        });
+            _selected() {
+                window.currentFamily = this.family
+            }
+
+        }
+        customElements.define(CanvasButton.is, CanvasButton)
     </script>
 </dom-module>

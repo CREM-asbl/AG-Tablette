@@ -1,14 +1,4 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
-<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="my-icons.html">
 <link rel="import" href="main-canvas.html">
 <link rel="import" href="canvas-button.html">
 
@@ -16,76 +6,71 @@
     <template>
         <style>
              :host {
+                position: relative;
                 display: block;
+                height: 100vh;
                 --app-primary-color: #4285f4;
                 --app-secondary-color: black;
             }
-            
-            app-header {
-                background-color: var(--app-primary-color);
-                color: #fff;
-            }
-            
-            app-header paper-icon-button {
-                --paper-icon-button-ink-color: white;
-            }
-            
+
             main-canvas {
                 width: 100%;
                 height: 100%;
-                background: white;
             }
-            
+
+            .toolbar {
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 200px;
+                padding: 16px;
+                background-color: rgba(30, 30, 30, .5);
+                color: white;
+            }
+
             .action-button {
                 display: block;
+                box-sizing: border-box;
                 width: 100%;
                 height: 30px;
+                margin: 8px 0;
             }
-            
+
             canvas-button {
                 display: inline-block;
                 width: 50px;
                 height: 50px;
-            }
-            
-            .grid {
-                @apply --layout-horizontal;
-                @apply --layout-around-justified;
+                margin: 4px;
             }
         </style>
-        My-APP
-        <app-drawer-layout fullbleed narrow="{{narrow}}">
-            <!-- Drawer content -->
-            <app-drawer slot="drawer">
-                <app-toolbar>Menu</app-toolbar>
+
+        <main-canvas></main-canvas>
+
+        <div class="toolbar">
+            <div>
+                <button class="action-button" data-action="annuler">Annuler</button>
+                <button class="action-button" data-action="modifier">Modifier</button>
+            </div>
+            <div>
+                <strong>Mouvements</strong>
+                <button class="action-button" data-action="glisser">Glisser</button>
+                <button class="action-button" data-action="tourner">Tourner</button>
+                <button class="action-button" data-action="retourner">Retourner</button>
+                <button class="action-button" data-action="zoomer">Zoomer</button>
+            </div>
+            <div>
+                <strong>Formes standard</strong>
                 <div>
-                    <button class="action-button" data-action="annuler">Annuler</button>
-                    <button class="action-button" data-action="modifier">Modifier</button>
+                    <canvas-button family="1" on-selected="setFamily"></canvas-button>
+                    <canvas-button family="2" on-selected="setFamily"></canvas-button>
+                    <canvas-button family="3" on-selected="setFamily"></canvas-button>
+                    <canvas-button></canvas-button>
                 </div>
-                <div>
-                    <strong>Mouvements</strong>
-                    <button class="action-button" data-action="glisser">Glisser</button>
-                    <button class="action-button" data-action="tourner">Tourner</button>
-                    <button class="action-button" data-action="retourner">Retourner</button>
-                    <button class="action-button" data-action="zoomer">Zoomer</button>
-                </div>
-                <div>
-                    <strong>Formes standard</strong>
-                    <div class="grid">
-                        <canvas-button family="1" on-selected="setFamily"></canvas-button>
-                        <canvas-button family="2" on-selected="setFamily"></canvas-button>
-                        <canvas-button family="3" on-selected="setFamily"></canvas-button>
-                        <canvas-button></canvas-button>
-                    </div>
-                </div>
-            </app-drawer>
-            <!-- Main content -->
-            <app-header-layout has-scrolling-region>
-                <app-header slot="header" condenses reveals effects="waterfall">
-                    <app-toolbar>
-                        <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-                        <div title>Apprenti Géomètre</div>
-                        <!--                         <div class="item">Fichier</div>
+            </div>
+        </div>
+
+                  <!--                         <div class="item">Fichier</div>
                         <div class="item">Fenêtre</div>
                         <div class="item">Edition</div>
                         <div class="item">Outils</div>
@@ -96,23 +81,11 @@
                         <div class="item">Notes</div>
                         <div class="item">Aide</div>
                         <div class="item">Configuration</div> -->
-                    </app-toolbar>
-                </app-header>
-                <main-canvas narrow="{{narrow}}" family="[[currentFamily]]"></main-canvas>
-            </app-header-layout>
-        </app-drawer-layout>
+            
     </template>
     <script>
         class MyApp extends Polymer.Element {
             static get is() { return 'my-app' }
-            static get properties() {
-                return {
-                    currentFamily: Number
-                }
-            }
-            setFamily(event) {
-                this.currentFamily = event.detail
-            }
         }
         customElements.define(MyApp.is, MyApp)
     </script>

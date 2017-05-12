@@ -1,55 +1,65 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<!--<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">-->
 <link rel="import" href="formes-standard.html">
 
 <dom-module id="main-canvas">
     <template>
         <style>
-            :host {
+             :host {
                 display: block;
             }
-            
+
             canvas {
                 width: 100%;
                 height: 100%;
+                background-color: white;
             }
         </style>
         <formes-standard id="shape" family="[[family]]"></formes-standard>
-        <canvas id="mainCanvas" on-tap="paint">Votre navigateur ne supporte pas canvas</canvas>
+        <canvas id="mainCanvas" on-click="paint" on-mousemove="setPosition"></canvas>
     </template>
     <script>
-        Polymer({
-            is: 'main-canvas',
-            properties: {
-                graphic: Object,
-                narrow: {
-                    type: Boolean,
-                    observer: '_narrowChanged'
-                },
-                marginLeft: Number,
-                family: Number
-            },
-            behaviors: [Polymer.IronResizableBehavior],
-            listeners: {
-                'iron-resize': '_onResize'
-            },
-            ready: function () {
-                this.graphic = this.$.mainCanvas.getContext('2d');
-                this.graphic.globalAlpha = 0.5;
-                this.graphic.globalCompositeOperation = "lighter";
-            },
-            _onResize: function () {
-                this.$.mainCanvas.width = this.offsetWidth;
-                this.$.mainCanvas.height = this.offsetHeight;
-            },
-            _narrowChanged: function (narrow) {
-                this.marginLeft = narrow ? 0 : 256;
-            },
-            paint: function (event) {
-                var x = (event.detail.x - this.marginLeft) * this.$.mainCanvas.width / this.offsetWidth;
-                var y = (event.detail.y - this.offsetTop) * this.$.mainCanvas.height / this.offsetHeight;
-                this.$.shape.paint(this.graphic, x, y)
+        class MainCanvas extends Polymer.Element {
+
+            static get is() { return 'main-canvas' }
+
+            static get properties() {
+                return {
+                    graphic: Object,
+                    family: Number
+                }
             }
-        });
+
+            // static get behaviors() {
+            //     return [Polymer.IronResizableBehavior]
+            // }
+
+            // static get listeners() {
+            //     return { 'iron-resize': '_onResize' }
+            // }
+
+            ready() {
+                super.ready()
+                this.graphic = this.$.mainCanvas.getContext('2d')
+                this.graphic.globalAlpha = 0.5
+                this.graphic.globalCompositeOperation = "lighter"
+                this._onResize()
+            }
+
+            _onResize() {
+                this.$.mainCanvas.width = this.offsetWidth
+                this.$.mainCanvas.height = this.offsetHeight
+            }
+
+            paint(event) {
+                this.family = window.currentFamily
+                this.$.shape.paint(this.graphic, event.x, event.y)
+            }
+
+            setPosition(event) {
+                // console.log('(' + event.x + ',' +event.y + ')')
+            }
+        }
+        customElements.define(MainCanvas.is, MainCanvas)
     </script>
 </dom-module>

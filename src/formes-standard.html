@@ -1,11 +1,16 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
 <dom-module id="formes-standard">
     <script>
-        Polymer({
-            is: 'formes-standard',
-            properties: {
-                family: Number
-            },
-            paint: function (graphic, x, y) {
+        class FormesStandard extends Polymer.Element {
+            static get is() { return 'formes-standard' }
+            static get properties() {
+                return {
+                    family: Number
+                }
+            }
+
+            paint(graphic, x, y) {
                 graphic.beginPath()
                 if (this.family === 1) {
                     graphic.fillStyle = "yellow"
@@ -20,7 +25,7 @@
                     graphic.lineTo(x + 40, y)
                     graphic.lineTo(x + 40, y - 40)
                     graphic.lineTo(x, y - 40)
-                    
+
                 }
 
                 if (this.family === 3) {
@@ -28,10 +33,12 @@
                     graphic.arc(x, y, 20, 0, 2 * 314)
 
                 }
+
                 graphic.closePath()
                 graphic.fill()
                 graphic.stroke()
             }
-        })
+        }
+        customElements.define(FormesStandard.is, FormesStandard)
     </script>
 </dom-module>
