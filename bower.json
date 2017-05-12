@@ -5,16 +5,6 @@
   ],
   "private": true,
   "dependencies": {
-    "app-layout": "polymerelements/app-layout#2.0-preview",
-    "app-route": "polymerelements/app-route#2.0-preview",
-    "iron-flex-layout": "polymerelements/iron-flex-layout#2.0-preview",
-    "iron-icon": "polymerelements/iron-icon#2.0-preview",
-    "iron-iconset-svg": "polymerelements/iron-iconset-svg#2.0-preview",
-    "iron-localstorage": "polymerelements/iron-localstorage#2.0-preview",
-    "iron-media-query": "polymerelements/iron-media-query#2.0-preview",
-    "iron-pages": "polymerelements/iron-pages#2.0-preview",
-    "iron-selector": "polymerelements/iron-selector#2.0-preview",
-    "paper-icon-button": "PolymerElements/paper-icon-button#2.0-preview",
     "polymer": "polymer/polymer#^2.0.0-rc.8",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0-rc.4"
   },

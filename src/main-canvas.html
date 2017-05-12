@@ -16,7 +16,7 @@
             }
         </style>
         <formes-standard id="shape" family="[[family]]"></formes-standard>
-        <canvas id="mainCanvas" on-click="paint" on-mousemove="setPosition"></canvas>
+        <canvas id="mainCanvas" on-click="paint"></canvas>
     </template>
     <script>
         class MainCanvas extends Polymer.Element {
@@ -54,10 +54,6 @@
             paint(event) {
                 this.family = window.currentFamily
                 this.$.shape.paint(this.graphic, event.x, event.y)
-            }
-
-            setPosition(event) {
-                // console.log('(' + event.x + ',' +event.y + ')')
             }
         }
         customElements.define(MainCanvas.is, MainCanvas)
