@@ -1,7 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="main-canvas.html">
 <link rel="import" href="canvas-button.html">
-<link rel="import" href="selected-shape.html">
 
 <dom-module id="my-app">
     <template>
@@ -30,7 +29,7 @@
                 color: white;
             }
 
-            .action-button {
+            .data-action-button {
                 display: block;
                 box-sizing: border-box;
                 width: 100%;
@@ -50,15 +49,15 @@
 
         <div class="toolbar">
             <div>
-                <button class="action-button" data-action="annuler">Annuler</button>
-                <button class="action-button" data-action="modifier">Modifier</button>
+                <button class="data-action-button" data-action="annuler" on-click='_data-actionHandle'>Annuler</button>
+                <button class="data-action-button" data-action="modifier">Modifier</button>
             </div>
             <div>
                 <strong>Mouvements</strong>
-                <button class="action-button" data-action="glisser">Glisser</button>
-                <button class="action-button" data-action="tourner">Tourner</button>
-                <button class="action-button" data-action="retourner">Retourner</button>
-                <button class="action-button" data-action="zoomer">Zoomer</button>
+                <button class="data-action-button" data-action="glisser" on-click='_actionHandle'>Glisser</button>
+                <button class="data-action-button" data-action="tourner">Tourner</button>
+                <button class="data-action-button" data-action="retourner">Retouner</button>
+                <button class="data-action-button" data-action="zoomer">Zoomer</button>
             </div>
             <div>
                 <strong>Formes standard</strong>
@@ -71,7 +70,7 @@
             </div>
         </div>
 
-                  <!--                         <div class="item">Fichier</div>
+        <!--                         <div class="item">Fichier</div>
                         <div class="item">Fenêtre</div>
                         <div class="item">Edition</div>
                         <div class="item">Outils</div>
@@ -82,11 +81,15 @@
                         <div class="item">Notes</div>
                         <div class="item">Aide</div>
                         <div class="item">Configuration</div> -->
-      <selected-shape></selected-shape>      
     </template>
     <script>
         class MyApp extends Polymer.Element {
             static get is() { return 'my-app' }
+
+            _actionHandle(event) {
+                console.log(event.target)
+                window.currentFamily = null
+            }
         }
         customElements.define(MyApp.is, MyApp)
     </script>

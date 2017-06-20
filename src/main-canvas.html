@@ -1,6 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<!--<link rel="import" href="../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">-->
-<link rel="import" href="formes-standard.html">
+<!--<link rel="import" href="formes-standard.html">-->
 
 <dom-module id="main-canvas">
     <template>
@@ -9,51 +8,71 @@
                 display: block;
             }
 
-            canvas {
+            svg {
                 width: 100%;
                 height: 100%;
                 background-color: white;
             }
         </style>
-        <formes-standard id="shape" family="[[family]]"></formes-standard>
-        <canvas id="mainCanvas" on-click="paint"></canvas>
+
+        <svg id="svg" on-click="_clickHandle" on-swipe="_swipeHandle">
+        </svg>
     </template>
     <script>
         class MainCanvas extends Polymer.Element {
 
             static get is() { return 'main-canvas' }
 
-            static get properties() {
-                return {
-                    graphic: Object,
-                    family: Number
+            addElement(element) {
+                this.$.svg.appendChild(element)
+            }
+
+            _clickHandle(event) {
+                console.log(event)
+                if (!window.currentFamily) { return }
+
+                let element = {}
+                switch (window.currentFamily) {
+                    case 1:
+                        element = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+                        element.setAttribute('points', event.x + ',' + event.y + ' ' + (event.x+25) + ',' + (event.y-50) + ' ' + (event.x+50) + ',' + event.y)
+                        element.setAttribute('fill', 'yellow')
+                        element.setAttribute('stroke-width', 2)
+                        element.setAttribute('stroke', 'black')
+                        element.setAttribute('opacity', .75)
+                        break
+                    case 2:
+                        element = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+                        element.setAttribute('x', event.x)
+                        element.setAttribute('y', event.y)
+                        element.setAttribute('width', 50)
+                        element.setAttribute('height', 50)
+                        element.setAttribute('fill', 'red')
+                        element.setAttribute('stroke-width', 2)
+                        element.setAttribute('stroke', 'black')
+                        element.setAttribute('opacity', .75)
+                        break
+                    case 3:
+                        element = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+                        element.setAttribute('cx', event.x)
+                        element.setAttribute('cy', event.y)
+                        element.setAttribute('r', 25)
+                        element.setAttribute('fill', 'green')
+                        element.setAttribute('stroke-width', 2)
+                        element.setAttribute('stroke', 'black')
+                        element.setAttribute('opacity', .75)
+                        break
                 }
+                this.addElement(element)
+                //je modifie un élément
+                // this.$.test.setAttribute('cx', event.x)
+                // this.$.test.setAttribute('cy', event.y)
+                // this.$.test.setAttribute('fill', 'blue')
+                
             }
 
-            // static get behaviors() {
-            //     return [Polymer.IronResizableBehavior]
-            // }
-
-            // static get listeners() {
-            //     return { 'iron-resize': '_onResize' }
-            // }
-
-            ready() {
-                super.ready()
-                this.graphic = this.$.mainCanvas.getContext('2d')
-                this.graphic.globalAlpha = 0.5
-                this.graphic.globalCompositeOperation = "lighter"
-                this._onResize()
-            }
-
-            _onResize() {
-                this.$.mainCanvas.width = this.offsetWidth
-                this.$.mainCanvas.height = this.offsetHeight
-            }
-
-            paint(event) {
-                this.family = window.currentFamily
-                this.$.shape.paint(this.graphic, event.x, event.y)
+            _swipeHandle(event) {
+                alert('swipe')
             }
         }
         customElements.define(MainCanvas.is, MainCanvas)
