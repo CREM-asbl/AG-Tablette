@@ -15,7 +15,8 @@
             }
         </style>
 
-        <svg id="svg" on-click="_clickHandle" on-swipe="_swipeHandle">
+        <svg id="svg" on-click="_clickHandle" on-swipe="_swipeHandle" on-mousemove="_mouseMoveHandle">
+            <!--<rect id="test" x="300" y="200" width="50" height="50">-->
         </svg>
     </template>
     <script>
@@ -28,47 +29,20 @@
             }
 
             _clickHandle(event) {
-                console.log(event)
-                if (!window.currentFamily) { return }
-
-                let element = {}
-                switch (window.currentFamily) {
-                    case 1:
-                        element = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-                        element.setAttribute('points', event.x + ',' + event.y + ' ' + (event.x+25) + ',' + (event.y-50) + ' ' + (event.x+50) + ',' + event.y)
-                        element.setAttribute('fill', 'yellow')
-                        element.setAttribute('stroke-width', 2)
-                        element.setAttribute('stroke', 'black')
-                        element.setAttribute('opacity', .75)
-                        break
-                    case 2:
-                        element = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-                        element.setAttribute('x', event.x)
-                        element.setAttribute('y', event.y)
-                        element.setAttribute('width', 50)
-                        element.setAttribute('height', 50)
-                        element.setAttribute('fill', 'red')
-                        element.setAttribute('stroke-width', 2)
-                        element.setAttribute('stroke', 'black')
-                        element.setAttribute('opacity', .75)
-                        break
-                    case 3:
-                        element = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-                        element.setAttribute('cx', event.x)
-                        element.setAttribute('cy', event.y)
-                        element.setAttribute('r', 25)
-                        element.setAttribute('fill', 'green')
-                        element.setAttribute('stroke-width', 2)
-                        element.setAttribute('stroke', 'black')
-                        element.setAttribute('opacity', .75)
-                        break
+                //Une possibilité est de changer la fonction à exécuter en fonction de l'action en cours
+                //AG.currentAction.click(event) par exemple
+                //ou une autre façon de faire est que l'objet ajoute un addEventListener sur le svg
+                //Comment bien définir les actions ???
+                if (window.currentAction) {
+                    window.currentAction.click(event)
                 }
-                this.addElement(element)
-                //je modifie un élément
-                // this.$.test.setAttribute('cx', event.x)
-                // this.$.test.setAttribute('cy', event.y)
-                // this.$.test.setAttribute('fill', 'blue')
-                
+              
+            }
+
+            _mouseMoveHandle() {
+                 if (window.currentAction && window.currentAction.mouseMove) {
+                    window.currentAction.mouseMove(event)
+                }
             }
 
             _swipeHandle(event) {

@@ -14,6 +14,10 @@
                 background: #fff;
                 border: 1px solid black;
             }
+
+            svg[active] {
+                border: 1px solid red;
+            }
         </style>
 
         <svg width="50" height="50" on-click="_clickHandle">
@@ -22,10 +26,10 @@
                     <polygon points="25,5 45,45 5,45" stroke="black" stroke-width="2" fill="yellow" />
                 </g>
                 <g id="standardCarre">
-                    <rect x="5" y="5"width="40" height="40" stroke="black" stroke-width="2" fill="red" />
+                    <rect x="5" y="5" width="40" height="40" stroke="black" stroke-width="2" fill="red" />
                 </g>
                 <g id="standardCircle">
-                    <circle cx="25" cy="25" r="20" stroke="black" stroke-width="2" fill="green" opacity=".5" />
+                    <circle cx="25" cy="25" r="20" stroke="black" stroke-width="2" fill="green" />
                 </g>
             </defs>
             <use href$="[[_ref(family)]]"></use>
@@ -55,7 +59,39 @@
             }
 
             _clickHandle() {
-                console.log('new contructShape')
+                window.currentAction = {
+                    name: "constructShape",
+                    family: this.family,
+                    click(event) {
+                        let element = {}
+                        switch (this.family) {
+                            case 1:
+                                element = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+                                element.setAttribute('points', event.x + ',' + event.y + ' ' + (event.x + 25) + ',' + (event.y - 50) + ' ' + (event.x + 50) + ',' + event.y)
+                                element.setAttribute('fill', 'yellow')
+                                break
+                            case 2:
+                                element = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+                                element.setAttribute('x', event.x)
+                                element.setAttribute('y', event.y)
+                                element.setAttribute('width', 50)
+                                element.setAttribute('height', 50)
+                                element.setAttribute('fill', 'red')
+                                break
+                            case 3:
+                                element = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+                                element.setAttribute('cx', event.x)
+                                element.setAttribute('cy', event.y)
+                                element.setAttribute('r', 25)
+                                element.setAttribute('fill', 'green')
+                                break
+                        }
+                        element.setAttribute('stroke-width', 2)
+                        element.setAttribute('stroke', 'black')
+                        element.setAttribute('opacity', .75)
+                        event.target.appendChild(element)
+                    }
+                }
                 window.currentFamily = this.family
             }
 

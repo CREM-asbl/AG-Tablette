@@ -29,7 +29,7 @@
                 color: white;
             }
 
-            .data-action-button {
+            .action-button {
                 display: block;
                 box-sizing: border-box;
                 width: 100%;
@@ -49,22 +49,22 @@
 
         <div class="toolbar">
             <div>
-                <button class="data-action-button" data-action="annuler" on-click='_data-actionHandle'>Annuler</button>
-                <button class="data-action-button" data-action="modifier">Modifier</button>
+                <button class="action-button" name="annuler" on-click='_actionHandle'>Annuler</button>
+                <button class="action-button" name="modifier" on-click='_actionHandle'>Modifier</button>
             </div>
             <div>
                 <strong>Mouvements</strong>
-                <button class="data-action-button" data-action="glisser" on-click='_actionHandle'>Glisser</button>
-                <button class="data-action-button" data-action="tourner">Tourner</button>
-                <button class="data-action-button" data-action="retourner">Retouner</button>
-                <button class="data-action-button" data-action="zoomer">Zoomer</button>
+                <button class="action-button" name="glisser" on-click='_actionHandle'>Glisser</button>
+                <button class="action-button" name="tourner" on-click='_actionHandle'>Tourner</button>
+                <button class="action-button" name="retourner" on-click='_actionHandle'>Retouner</button>
+                <button class="action-button" name="zoomer" on-click='_actionHandle'>Zoomer</button>
             </div>
             <div>
                 <strong>Formes standard</strong>
                 <div>
-                    <canvas-button family="1" on-selected="setFamily"></canvas-button>
-                    <canvas-button family="2" on-selected="setFamily"></canvas-button>
-                    <canvas-button family="3" on-selected="setFamily"></canvas-button>
+                    <canvas-button family="1"></canvas-button>
+                    <canvas-button family="2"></canvas-button>
+                    <canvas-button family="3"></canvas-button>
                     <canvas-button></canvas-button>
                 </div>
             </div>
@@ -87,8 +87,13 @@
             static get is() { return 'my-app' }
 
             _actionHandle(event) {
-                console.log(event.target)
-                window.currentFamily = null
+                window.currentAction = {
+                    name: event.target.name,
+                    click(event) {
+                        console.log(this.name)
+                        console.log(event.target)
+                    }
+                }
             }
         }
         customElements.define(MyApp.is, MyApp)
