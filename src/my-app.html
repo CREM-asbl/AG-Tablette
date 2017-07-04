@@ -87,11 +87,23 @@
             static get is() { return 'my-app' }
 
             _actionHandle(event) {
+                //ne traite pour l'instant que du cas de glisser un carré
+                //faut-il créer un composant ? 
                 window.currentAction = {
                     name: event.target.name,
+                    shape: null,
                     click(event) {
-                        console.log(this.name)
-                        console.log(event.target)
+                        if(!this.shape) { 
+                            this.shape = event.target 
+                        }
+                        else {
+                            this.shape = null
+                        }
+                    },
+                    mouseMove(event) {
+                        if (!this.shape) { return }
+                        this.shape.setAttribute('x', event.x)
+                        this.shape.setAttribute('y', event.y)
                     }
                 }
             }
