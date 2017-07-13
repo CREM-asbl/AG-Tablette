@@ -8,9 +8,11 @@
 
         click(event) {
             if (!this.shape) {
+                if (event.target.id === "svg") { return }
                 this.shape = event.target
                 this.startX = event.x
                 this.startY = event.y
+                this.oldTransform = this.shape.getAttribute('transform')
             }
             else {
                 this.glisser(event.x, event.y)
@@ -24,14 +26,13 @@
         }
 
         glisser(x, y) {
-            //ne traite pour l'instant que du cas de glisser un carré
-            // this.shape.setAttribute('x', x)
-            // this.shape.setAttribute('y', y)
-
-            //le transform est fonctionnel quelque soit la forme mais repart à chaque fois de l'origine
             let translateX = x - this.startX
             let translateY = y - this.startY
-            this.shape.setAttribute('transform', 'translate(' + translateX + ',' + translateY + ')')
+            //on récupère l'attribut transform et on ajoute la nouvelle transformation
+            let current = 'translate(' + translateX + ',' + translateY + ')'
+            let transform =  this.oldTransform ? this.oldTransform + ' ' + current : current
+            this.shape.setAttribute('transform', transform)
         }
     }
+
 </script>
