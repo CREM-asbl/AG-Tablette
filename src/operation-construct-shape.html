@@ -1,10 +1,10 @@
 <script>
     class ConstructShape {
 
-        constructor(family) {
+        constructor(family, canvas) {
             this.name = 'constructShape'
             this.family = family
-            console.log(family)
+            this.canvas = canvas
         }
 
         click(event) {
@@ -34,7 +34,7 @@
             element.setAttribute('stroke-width', 2)
             element.setAttribute('stroke', 'black')
             element.setAttribute('opacity', .75)
-            event.target.appendChild(element)
+            this.canvas.addShape(element)
         }
     }
 </script>

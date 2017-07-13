@@ -93,7 +93,7 @@
             }
 
             _addShape(event) {
-                window.currentAction = new ConstructShape(event.target.family)
+                window.currentAction = new ConstructShape(event.target.family, this.$.mainCanvas)
             }
         }
         customElements.define(MyApp.is, MyApp)
