@@ -15,7 +15,7 @@
             }
         </style>
         <!--<circle-standard x="300" y="300"></circle-standard>-->
-        <svg id="svg" on-click="_clickHandle" on-swipe="_swipeHandle" on-mousemove="_mouseMoveHandle">
+        <svg id="main-svg" on-click="_clickHandle" on-swipe="_swipeHandle" on-mousemove="_mouseMoveHandle">
             <!--<circle-standard x="200" y="200"></circle-standard>-->
         </svg>
     </template>
@@ -24,8 +24,8 @@
 
             static get is() { return 'main-canvas' }
 
-            addElement(element) {
-                this.$.svg.appendChild(element)
+            addShape(shape) {
+                this.$.svg.appendChild(shape)
             }
 
             _clickHandle(event) {

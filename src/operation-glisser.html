@@ -1,37 +1,37 @@
 <script>
-class Glisser {
+    class Glisser {
 
-constructor() {
-    this.name = 'glisser'
-    this.shape = null
-}
+        constructor() {
+            this.name = 'glisser'
+            this.shape = null
+        }
 
-click(event) {
-    if (!this.shape) {
-        this.shape = event.target
-        this.startX = event.x
-        this.startY = event.y
+        click(event) {
+            if (!this.shape) {
+                this.shape = event.target
+                this.startX = event.x
+                this.startY = event.y
+            }
+            else {
+                this.glisser(event.x, event.y)
+                this.shape = null
+            }
+        }
+
+        mouseMove(event) {
+            if (!this.shape) { return }
+            this.glisser(event.x, event.y)
+        }
+
+        glisser(x, y) {
+            //ne traite pour l'instant que du cas de glisser un carré
+            // this.shape.setAttribute('x', x)
+            // this.shape.setAttribute('y', y)
+
+            //le transform est fonctionnel quelque soit la forme mais repart à chaque fois de l'origine
+            let translateX = x - this.startX
+            let translateY = y - this.startY
+            this.shape.setAttribute('transform', 'translate(' + translateX + ',' + translateY + ')')
+        }
     }
-    else {
-        this.glisser(event.x, event.y)
-        this.shape = null
-    }
-}
-
-mouseMove(event) {
-    if (!this.shape) { return }
-    this.glisser(event.x, event.y)
-}
-
-glisser(x, y) {
-    //ne traite pour l'instant que du cas de glisser un carré
-    // this.shape.setAttribute('x', x)
-    // this.shape.setAttribute('y', y)
-
-    //le transform est fonctionnel quelque soit la forme mais repart à chaque fois de l'origine
-    let translateX = x - this.startX
-    let translateY = y - this.startY
-    this.shape.setAttribute('transform', 'translate(' + translateX + ',' + translateY + ')')
-}
-}
 </script>

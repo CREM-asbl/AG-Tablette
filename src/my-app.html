@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="main-canvas.html">
 <link rel="import" href="canvas-button.html">
+<link rel="import" href="operation-construct-shape.html">
 <link rel="import" href="operation-glisser.html">
 
 <dom-module id="my-app">
@@ -63,9 +64,9 @@
             <div>
                 <strong>Formes standard</strong>
                 <div>
-                    <canvas-button family="1"></canvas-button>
-                    <canvas-button family="2"></canvas-button>
-                    <canvas-button family="3"></canvas-button>
+                    <canvas-button family="1" on-click="_addShape"></canvas-button>
+                    <canvas-button family="2" on-click="_addShape"></canvas-button>
+                    <canvas-button family="3" on-click="_addShape"></canvas-button>
                     <canvas-button></canvas-button>
                 </div>
             </div>
@@ -89,6 +90,10 @@
 
             _actionHandle() {
                 window.currentAction = new Glisser()
+            }
+
+            _addShape(event) {
+                window.currentAction = new ConstructShape(event.target.family)
             }
         }
         customElements.define(MyApp.is, MyApp)
