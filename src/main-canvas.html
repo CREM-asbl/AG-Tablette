@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="circle-standard.html">
 
 <dom-module id="main-canvas">
     <template>
@@ -13,9 +14,9 @@
                 background-color: white;
             }
         </style>
-
+        <!--<circle-standard x="300" y="300"></circle-standard>-->
         <svg id="svg" on-click="_clickHandle" on-swipe="_swipeHandle" on-mousemove="_mouseMoveHandle">
-            <!--<rect id="test" x="300" y="200" width="50" height="50">-->
+            <!--<circle-standard x="200" y="200"></circle-standard>-->
         </svg>
     </template>
     <script>
@@ -32,14 +33,23 @@
                 //AG.currentAction.click(event) par exemple
                 //ou une autre façon de faire est que l'objet ajoute un addEventListener sur le svg
                 //Comment bien définir les actions ???
+                
+                // let svg = this.$.svg
+                // console.log(svg)
+                // //cette instruction ne fonctionne pas (???)
+                // svg.title = 'main-canvas'
+                // console.log(svg)
+                // svg = document.querySelector('#svg')
+                // console.log(svg)
+
                 if (window.currentAction) {
                     window.currentAction.click(event)
                 }
-              
+
             }
 
             _mouseMoveHandle() {
-                 if (window.currentAction && window.currentAction.mouseMove) {
+                if (window.currentAction && window.currentAction.mouseMove) {
                     window.currentAction.mouseMove(event)
                 }
             }

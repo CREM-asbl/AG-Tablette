@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="main-canvas.html">
 <link rel="import" href="canvas-button.html">
+<link rel="import" href="operation-glisser.html">
 
 <dom-module id="my-app">
     <template>
@@ -45,12 +46,12 @@
             }
         </style>
 
-        <main-canvas></main-canvas>
+        <main-canvas id="mainCanvas"></main-canvas>
 
         <div class="toolbar">
             <div>
                 <button class="action-button" name="annuler" on-click='_actionHandle'>Annuler</button>
-                <button class="action-button" name="modifier" on-click='_actionHandle'>Modifier</button>
+                <!--<button class="action-button" name="modifier" on-click='_actionHandle'>Modifier</button>-->
             </div>
             <div>
                 <strong>Mouvements</strong>
@@ -86,26 +87,8 @@
         class MyApp extends Polymer.Element {
             static get is() { return 'my-app' }
 
-            _actionHandle(event) {
-                //ne traite pour l'instant que du cas de glisser un carré
-                //faut-il créer un composant ? 
-                window.currentAction = {
-                    name: event.target.name,
-                    shape: null,
-                    click(event) {
-                        if(!this.shape) { 
-                            this.shape = event.target 
-                        }
-                        else {
-                            this.shape = null
-                        }
-                    },
-                    mouseMove(event) {
-                        if (!this.shape) { return }
-                        this.shape.setAttribute('x', event.x)
-                        this.shape.setAttribute('y', event.y)
-                    }
-                }
+            _actionHandle() {
+                window.currentAction = new Glisser()
             }
         }
         customElements.define(MyApp.is, MyApp)

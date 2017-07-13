@@ -1,4 +1,4 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 
 <dom-module id="canvas-button">
     <template>
@@ -88,6 +88,9 @@
                         element.setAttribute('stroke-width', 2)
                         element.setAttribute('stroke', 'black')
                         element.setAttribute('opacity', .75)
+                        //il faut remplacer par main-canvas mais comment récupérer ???
+                        //une idée est de créer un événement dont le parent commun intercepte pour envoyer sur min-canvas
+                        //ex.: this.dispatchEvent('add-shape', { detail: element }) 
                         event.target.appendChild(element)
                     }
                 }
