@@ -52,15 +52,15 @@
 
         <div class="toolbar">
             <div>
-                <button class="action-button" name="annuler" on-click='_actionHandle'>Annuler</button>
+                <button class="action-button" name="annuler" on-click='_actionHandle' disabled>Annuler</button>
                 <!--<button class="action-button" name="modifier" on-click='_actionHandle'>Modifier</button>-->
             </div>
             <div>
                 <strong>Mouvements</strong>
                 <button class="action-button" name="glisser" on-click='_actionHandle'>Glisser</button>
                 <button class="action-button" name="tourner" on-click='_actionHandle'>Tourner</button>
-                <button class="action-button" name="retourner" on-click='_actionHandle'>Retouner</button>
-                <button class="action-button" name="zoomer" on-click='_actionHandle'>Zoomer</button>
+                <!-- <button class="action-button" name="retourner" on-click='_actionHandle'>Retouner</button> -->
+                <!-- <button class="action-button" name="zoomer" on-click='_actionHandle'>Zoomer</button> -->
             </div>
             <div>
                 <strong>Formes standard</strong>
@@ -68,7 +68,7 @@
                     <canvas-button family="1" on-click="_addShape"></canvas-button>
                     <canvas-button family="2" on-click="_addShape"></canvas-button>
                     <canvas-button family="3" on-click="_addShape"></canvas-button>
-                    <canvas-button></canvas-button>
+                    <!-- <canvas-button></canvas-button> -->
                 </div>
             </div>
         </div>
