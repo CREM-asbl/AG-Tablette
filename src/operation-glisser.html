@@ -7,6 +7,7 @@
         }
 
         click(event) {
+            //selectShape
             if (!this.shape) {
                 if (event.target.id === "svg") { return }
                 this.shape = event.target
@@ -30,9 +31,8 @@
             let translateY = y - this.startY
             //on récupère l'attribut transform et on ajoute la nouvelle transformation
             let current = 'translate(' + translateX + ',' + translateY + ')'
-            let transform =  this.oldTransform ? this.oldTransform + ' ' + current : current
-            this.shape.setAttribute('transform', transform)
+            let transform = this.oldTransform ? this.oldTransform + ' ' + current : current
+            this.shape.setAttribute('transform', transform)  
         }
     }
-
 </script>

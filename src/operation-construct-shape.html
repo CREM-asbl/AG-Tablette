@@ -34,6 +34,12 @@
             element.setAttribute('stroke-width', 2)
             element.setAttribute('stroke', 'black')
             element.setAttribute('opacity', .75)
+            element.getCG = function () {
+                let box = this.getBoundingClientRect()
+                let cx = box.x + box.width / 2
+                let cy = box.y + box.height / 2
+                return { x: cx, y: cy }
+            }
             this.canvas.addShape(element)
         }
     }

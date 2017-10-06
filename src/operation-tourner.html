@@ -1,0 +1,41 @@
+<script>
+    class Tourner {
+
+        constructor() {
+            this.name = 'tourner'
+            this.shape = null
+        }
+
+        click(event) {
+            //selectShape
+            if (!this.shape) {
+                if (event.target.id === "svg") { return }
+                this.shape = event.target
+                this.startX = event.x
+                this.startY = event.y
+                this.oldTransform = this.shape.getAttribute('transform')
+                this.center = this.shape.getCG()
+            }
+            else {
+                this.tourner(event.x, event.y)
+                this.shape = null
+            }
+        }
+
+        mouseMove(event) {
+            if (!this.shape) { return }
+            this.tourner(event.x, event.y)
+        }
+
+        tourner(x, y) {
+            let angle = Math.atan2(this.startX - this.center.x, this.startY - this.center.y) - Math.atan2(x - this.center.x, y - this.center.y)
+            angle = angle * 180/Math.PI
+            //on récupère l'attribut transform et on ajoute la nouvelle transformation
+            let current = `rotate(${angle}, ${this.center.x}, ${this.center.y})`
+            let transform =  this.oldTransform ? this.oldTransform + ' ' + current : current
+            this.shape.setAttribute('transform', transform)
+             //la méthode transform n'est pas une très bonne solution car on modifie le repère du bloc svg 
+             // => une rotation suivie d'une translation : la translation se fait sur le repère de ce svg
+    }
+
+</script>

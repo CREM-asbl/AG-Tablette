@@ -3,11 +3,12 @@
 <link rel="import" href="canvas-button.html">
 <link rel="import" href="operation-construct-shape.html">
 <link rel="import" href="operation-glisser.html">
+<link rel="import" href="operation-tourner.html">
 
 <dom-module id="my-app">
     <template>
         <style>
-             :host {
+            :host {
                 position: relative;
                 display: block;
                 height: 100vh;
@@ -88,8 +89,17 @@
         class MyApp extends Polymer.Element {
             static get is() { return 'my-app' }
 
-            _actionHandle() {
-                window.currentAction = new Glisser()
+            _actionHandle(event) {
+                switch (event.target.name) {
+                    case 'glisser':
+                        window.currentAction = new Glisser()
+                        break
+
+                    case 'tourner':
+                        window.currentAction = new Tourner()
+                        break
+                }
+
             }
 
             _addShape(event) {
