@@ -38,6 +38,8 @@
                 let box = this.getBoundingClientRect()
                 let cx = box.x + box.width / 2
                 let cy = box.y + box.height / 2
+                console.log(box)
+                console.log({ x: cx, y: cy })
                 return { x: cx, y: cy }
             }
             this.canvas.addShape(element)

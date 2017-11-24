@@ -11,12 +11,12 @@
             if (!this.shape) {
                 if (event.target.id === "svg") { return }
                 this.shape = event.target
-                this.startX = event.x
-                this.startY = event.y
-                this.oldTransform = this.shape.getAttribute('transform')
+                this.start = { x: event.x, y: event.y }
+                this.translate = { x: 0, y: 0 }
             }
             else {
                 this.glisser(event.x, event.y)
+                this.shape.translate = this.translate
                 this.shape = null
             }
         }
@@ -27,12 +27,24 @@
         }
 
         glisser(x, y) {
-            let translateX = x - this.startX
-            let translateY = y - this.startY
-            //on récupère l'attribut transform et on ajoute la nouvelle transformation
-            let current = 'translate(' + translateX + ',' + translateY + ')'
-            let transform = this.oldTransform ? this.oldTransform + ' ' + current : current
-            this.shape.setAttribute('transform', transform)  
+            console.log('***Glisser***')
+            this.translate = { x: x - this.start.x, y: y - this.start.y }
+            if (this.shape.translate) {
+                this.translate.x += this.shape.translate.x
+                this.translate.y += this.shape.translate.y
+            }
+            console.log(this.translate)
+            console.log(this.shape.getScreenCTM())
+            let transform = `translate(${this.translate.x},${this.translate.y})`
+            if (this.shape.angle) {
+                // on modifie l'élément rotation car CG a été déplacé
+                // essayer de trouver une méthode plus propre
+                let center = this.shape.getCG()
+                transform += ` rotate(${this.shape.angle}, ${center.x}, ${center.y})`
+            }
+            this.shape.setAttribute('transform', transform)
+            console.log(this.shape)
+            console.log('*******')
         }
     }
 </script>
