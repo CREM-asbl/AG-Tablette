@@ -30,14 +30,17 @@
 
         tourner(x, y) {
             console.log('***Tourner***')
+            this.shape.resetTransform()
             this.angle = Math.atan2(this.startX - this.center.x, this.startY - this.center.y) - Math.atan2(x - this.center.x, y - this.center.y)
             this.angle = this.angle * 180/Math.PI
             this.angle = this.shape.angle + this.angle || this.angle
+            // placer dans un computeTransform ??? mais voir avec glisser
             let transform = `rotate(${this.angle}, ${this.center.x}, ${this.center.y})`
             if (this.shape.translate) {
                 transform += ` translate(${this.shape.translate.x},${this.shape.translate.y})`
             } 
             this.shape.setAttribute('transform', transform)
+            //****//
             console.log(this.shape)
             console.log('*******')
         }

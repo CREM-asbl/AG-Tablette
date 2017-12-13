@@ -28,13 +28,13 @@
 
         glisser(x, y) {
             console.log('***Glisser***')
+            this.shape.resetTransform()
             this.translate = { x: x - this.start.x, y: y - this.start.y }
             if (this.shape.translate) {
                 this.translate.x += this.shape.translate.x
                 this.translate.y += this.shape.translate.y
             }
-            console.log(this.translate)
-            console.log(this.shape.getScreenCTM())
+            // placer dans un computeTransform ??? mais voir avec tourner
             let transform = `translate(${this.translate.x},${this.translate.y})`
             if (this.shape.angle) {
                 // on modifie l'élément rotation car CG a été déplacé
@@ -43,6 +43,7 @@
                 transform += ` rotate(${this.shape.angle}, ${center.x}, ${center.y})`
             }
             this.shape.setAttribute('transform', transform)
+            //****//
             console.log(this.shape)
             console.log('*******')
         }

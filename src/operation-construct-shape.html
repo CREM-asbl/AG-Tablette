@@ -42,6 +42,9 @@
                 console.log({ x: cx, y: cy })
                 return { x: cx, y: cy }
             }
+            element.resetTransform = function() {
+                this.removeAttribute('transform')
+            }
             this.canvas.addShape(element)
         }
     }
