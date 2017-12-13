@@ -11,12 +11,14 @@
             if (!this.shape) {
                 if (event.target.id === "svg") { return }
                 this.shape = event.target
+                this.shape.select()
                 this.start = { x: event.x, y: event.y }
                 this.translate = { x: 0, y: 0 }
             }
             else {
                 this.glisser(event.x, event.y)
                 this.shape.translate = this.translate
+                this.shape.unselect()
                 this.shape = null
             }
         }

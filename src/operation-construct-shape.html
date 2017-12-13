@@ -45,6 +45,12 @@
             element.resetTransform = function() {
                 this.removeAttribute('transform')
             }
+            element.select = function() {
+                element.setAttribute('stroke', 'magenta')
+            }
+            element.unselect = function() {
+                element.setAttribute('stroke', 'black')
+            }
             this.canvas.addShape(element)
         }
     }

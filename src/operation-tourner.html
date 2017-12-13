@@ -12,13 +12,15 @@
             if (!this.shape) {
                 if (event.target.id === "svg") { return }
                 this.shape = event.target
+                this.shape.select()
                 this.startX = event.x
                 this.startY = event.y
                 this.center = this.shape.getCG()
             }
             else {
                 this.tourner(event.x, event.y)
-                this.shape.angle = this.angle;
+                this.shape.angle = this.angle
+                this.shape.unselect()
                 this.shape = null
             }
         }
