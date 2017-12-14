@@ -12,30 +12,40 @@
                 if (event.target.id === "svg") { return }
                 this.shape = event.target
                 this.shape.select()
-                this.start = { x: event.x, y: event.y }
+                this.start = { x: event.clientX, y: event.clientY }
                 this.translate = { x: 0, y: 0 }
             }
             else {
-                this.glisser(event.x, event.y)
-                this.shape.translate = this.translate
-                this.shape.unselect()
-                this.shape = null
+                this.glisser(event.clientX, event.clientY)
+                this.end()
             }
         }
 
         mouseMove(event) {
             if (!this.shape) { return }
-            this.glisser(event.x, event.y)
+            this.glisser(event.clientX, event.clientY)
         }
 
-        glisser(x, y) {
-            console.log('***Glisser***')
-            this.shape.resetTransform()
-            this.translate = { x: x - this.start.x, y: y - this.start.y }
+        end() {
+            if (!this.shape) { return }
+            this.computeRealTranslate()
+            this.shape.translate = this.translate
+            this.shape.unselect()
+            this.shape = null
+        }
+
+        computeRealTranslate() {
             if (this.shape.translate) {
                 this.translate.x += this.shape.translate.x
                 this.translate.y += this.shape.translate.y
             }
+        }
+
+        glisser(x, y) {
+            // console.log('***Glisser***')
+            this.shape.resetTransform()
+            this.translate = { x: x - this.start.x, y: y - this.start.y }
+            this.computeRealTranslate()
             // placer dans un computeTransform ??? mais voir avec tourner
             let transform = `translate(${this.translate.x},${this.translate.y})`
             if (this.shape.angle) {
@@ -46,8 +56,8 @@
             }
             this.shape.setAttribute('transform', transform)
             //****//
-            console.log(this.shape)
-            console.log('*******')
+            // console.log(this.shape)
+            // console.log('*******')
         }
     }
 </script>

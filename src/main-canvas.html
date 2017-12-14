@@ -1,10 +1,9 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="circle-standard.html">
 
 <dom-module id="main-canvas">
     <template>
         <style>
-             :host {
+            :host {
                 display: block;
             }
 
@@ -14,7 +13,7 @@
                 background-color: white;
             }
         </style>
-        <svg id="svg" on-click="_clickHandle" on-swipe="_swipeHandle" on-mousemove="_mouseMoveHandle">
+        <svg id="svg" on-click="_handleClick" on-mousemove="_handleMove">
         </svg>
     </template>
     <script>
@@ -26,26 +25,35 @@
                 this.$.svg.appendChild(shape)
             }
 
-            _clickHandle(event) {
-                //Une possibilité est de changer la fonction à exécuter en fonction de l'action en cours
-                //AG.currentAction.click(event) par exemple
-                //ou une autre façon de faire est que l'objet ajoute un addEventListener sur le svg
-                //Comment bien définir les actions ???
+            ready() {
+                super.ready()
+                //test gestion touch
+                this.addEventListener('touchmove', this._handleTouch.bind(this), false)
+                // this.addEventListener("touchstart", this._handleStart.bind(this), false);
+                this.addEventListener("touchend", this._handleEnd.bind(this), false);
+                // addEventListener("touchcancel", handleCancel, false);
+                // addEventListener("touchleave", handleLeave, false);
+            }
 
-                if (window.currentAction) {
-                    window.currentAction.click(event)
-                }
+            _handleClick(event) {
+                if (!window.currentAction) { return }
+                window.currentAction.click(event)
 
             }
 
-            _mouseMoveHandle(event) {
-                if (window.currentAction && window.currentAction.mouseMove) {
-                    window.currentAction.mouseMove(event)
-                }
+            _handleMove(event) {
+                if (!window.currentAction) { return }
+                window.currentAction.mouseMove(event)
             }
 
-            _swipeHandle(event) {
-                alert('swipe')
+            _handleTouch(event) {
+                if (!window.currentAction) { return }
+                this._handleMove(event.touches[0])
+            }
+
+            _handleEnd() {
+                if (!window.currentAction) { return }
+                window.currentAction.end()
             }
         }
         customElements.define(MainCanvas.is, MainCanvas)

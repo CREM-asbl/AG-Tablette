@@ -13,38 +13,42 @@
                 if (event.target.id === "svg") { return }
                 this.shape = event.target
                 this.shape.select()
-                this.startX = event.x
-                this.startY = event.y
+                this.startX = event.clientX
+                this.startY = event.clientY
                 this.center = this.shape.getCG()
             }
             else {
-                this.tourner(event.x, event.y)
-                this.shape.angle = this.angle
-                this.shape.unselect()
-                this.shape = null
+                this.end(event)
             }
         }
 
         mouseMove(event) {
             if (!this.shape) { return }
-            this.tourner(event.x, event.y)
+            this.tourner(event.clientX, event.clientY)
+        }
+
+        end(event) {
+            if (!this.shape) { return }
+            this.shape.angle = this.shape.angle + this.angle || this.angle
+            this.shape.unselect()
+            this.shape = null
         }
 
         tourner(x, y) {
-            console.log('***Tourner***')
+            // console.log('***Tourner***')
             this.shape.resetTransform()
             this.angle = Math.atan2(this.startX - this.center.x, this.startY - this.center.y) - Math.atan2(x - this.center.x, y - this.center.y)
-            this.angle = this.angle * 180/Math.PI
+            this.angle = this.angle * 180 / Math.PI
             this.angle = this.shape.angle + this.angle || this.angle
             // placer dans un computeTransform ??? mais voir avec glisser
             let transform = `rotate(${this.angle}, ${this.center.x}, ${this.center.y})`
             if (this.shape.translate) {
                 transform += ` translate(${this.shape.translate.x},${this.shape.translate.y})`
-            } 
+            }
             this.shape.setAttribute('transform', transform)
             //****//
-            console.log(this.shape)
-            console.log('*******')
+            // console.log(this.shape)
+            // console.log('*******')
         }
     }
 

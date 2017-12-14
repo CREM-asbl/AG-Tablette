@@ -40,6 +40,10 @@
                 margin: 8px 0;
             }
 
+            .action-button.active {
+                font-weight: bold;
+            }
+
             canvas-button {
                 display: inline-block;
                 width: 50px;
@@ -90,6 +94,7 @@
             static get is() { return 'my-app' }
 
             _actionHandle(event) {
+                // event.target.classList.add('active')
                 switch (event.target.name) {
                     case 'glisser':
                         window.currentAction = new Glisser()
@@ -99,7 +104,6 @@
                         window.currentAction = new Tourner()
                         break
                 }
-
             }
 
             _addShape(event) {
