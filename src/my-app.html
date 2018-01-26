@@ -97,11 +97,11 @@
                 // event.target.classList.add('active')
                 switch (event.target.name) {
                     case 'glisser':
-                        window.currentAction = new Glisser()
+                        window.currentAction = new Glisser(this.$.mainCanvas)
                         break
 
                     case 'tourner':
-                        window.currentAction = new Tourner()
+                        window.currentAction = new Tourner(this.$.mainCanvas)
                         break
                 }
             }

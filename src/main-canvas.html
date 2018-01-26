@@ -21,14 +21,15 @@
 
             static get is() { return 'main-canvas' }
 
-            addShape(shape) {
-                this.$.svg.appendChild(shape)
+            static get properties() {
+                return {
+                    currentPosition : Object,
+                    currentShape : Object,
+                }
             }
 
-            getShape(shape) {
-                if (shape.id === "svg") { return }
-                this.shape = shape
-                this.shape.select()
+            addShape(shape) {
+                this.$.svg.appendChild(shape)
             }
 
             ready() {
@@ -41,25 +42,36 @@
                 // addEventListener("touchleave", handleLeave, false);
             }
 
+            _updateData(event) {
+                
+                this.currentPosition = event.touches ? {x : event.touches[0].clientX, y : event.touches[0].clientY } : {x : event.clientX, y : event.clientY };
+
+                if (!event.target) { return }
+                this.currentShape = event.target.id === "svg" ? null : event.target
+            }
+
             _handleClick(event) {
+                this._updateData(event)
                 if (!window.currentAction) { return }
-                window.currentAction.click(event)
+                window.currentAction.click(this.currentPosition)
 
             }
 
             _handleMove(event) {
+                this._updateData(event)
                 if (!window.currentAction) { return }
-                window.currentAction.mouseMove(event)
+                window.currentAction.mouseMove(this.currentPosition)
             }
 
             _handleTouch(event) {
+                this._updateData(event)
                 if (!window.currentAction) { return }
-                this._handleMove(event.touches[0])
+                window.currentAction.mouseMove(this.currentPosition)
             }
 
-            _handleEnd(end) {
+            _handleEnd() {
                 if (!window.currentAction) { return }
-                window.currentAction.click(event.touches[0])
+                window.currentAction.end(this.currentPosition)
             }
         }
         customElements.define(MainCanvas.is, MainCanvas)

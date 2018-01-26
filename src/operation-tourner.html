@@ -1,34 +1,35 @@
 <script>
     class Tourner {
 
-        constructor() {
+        constructor(canvas) {
             this.name = 'tourner'
             this.shape = null
             this.angle = 0
+            this.canvas = canvas
         }
 
-        click(event) {
-            //selectShape
+        click(position) {
             if (!this.shape) {
-                if (event.target.id === "svg") { return }
-                this.shape = event.target
-                this.shape.select()
-                this.startX = event.clientX
-                this.startY = event.clientY
-                this.center = this.shape.getCG()
+                this.shape = this.canvas.currentShape
+                if (this.shape) {
+                    this.start = position
+                    this.shape.select()
+                    this.center = this.shape.getCG()
+                }
             }
             else {
-                this.end(event)
+                this.end(position)
             }
         }
 
-        mouseMove(event) {
+        mouseMove(position) {
             if (!this.shape) { return }
-            this.tourner(event.clientX, event.clientY)
+            this.tourner(position.x, position.y)
         }
 
-        end() {
+        end(position) {
             if (!this.shape) { return }
+            this.tourner(position.x, position.y)
             this.shape.angle = this.angle
             this.shape.unselect()
             this.shape = null
@@ -37,7 +38,7 @@
         tourner(x, y) {
             // console.log('***Tourner***')
             this.shape.resetTransform()
-            this.angle = Math.atan2(this.startX - this.center.x, this.startY - this.center.y) - Math.atan2(x - this.center.x, y - this.center.y)
+            this.angle = Math.atan2(this.start.x - this.center.x, this.start.y - this.center.y) - Math.atan2(x - this.center.x, y - this.center.y)
             this.angle = this.angle * 180 / Math.PI
             this.angle = this.shape.angle + this.angle || this.angle
             // placer dans un computeTransform ??? mais voir avec glisser

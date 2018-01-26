@@ -1,33 +1,34 @@
 <script>
     class Glisser {
 
-        constructor() {
+        constructor(canvas) {
             this.name = 'glisser'
+            this.canvas = canvas
             this.shape = null
+            this.translate = { x: 0, y: 0 }
         }
 
-        click(event) {
-            //selectShape
+        click(position) {
             if (!this.shape) {
-                if (event.target.id === "svg") { return }
-                this.shape = event.target
-                this.shape.select()
-                this.start = { x: event.clientX, y: event.clientY }
-                this.translate = { x: 0, y: 0 }
+                this.shape = this.canvas.currentShape
+                if (this.shape) {
+                    this.start = position
+                    this.shape.select()
+                }
             }
             else {
-                this.glisser(event.clientX, event.clientY)
-                this.end()
+                this.end(position)
             }
         }
 
-        mouseMove(event) {
+        mouseMove(position) {
             if (!this.shape) { return }
-            this.glisser(event.clientX, event.clientY)
+            this.glisser(position.x, position.y)
         }
 
-        end() {
+        end(position) {
             if (!this.shape) { return }
+            this.glisser(position.x, position.y)
             this.shape.translate = this.translate
             this.shape.unselect()
             this.shape = null

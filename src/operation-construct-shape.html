@@ -7,26 +7,26 @@
             this.canvas = canvas
         }
 
-        click(event) {
+        click(position) {
             let element = {}
             switch (this.family) {
                 case 1:
                     element = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-                    element.setAttribute('points', event.clientX + ',' + event.clientY + ' ' + (event.clientX + 25) + ',' + (event.clientY - 50) + ' ' + (event.clientX + 50) + ',' + event.clientY)
+                    element.setAttribute('points', position.x + ',' + position.y + ' ' + (position.x + 25) + ',' + (position.y - 50) + ' ' + (position.x + 50) + ',' + position.y)
                     element.setAttribute('fill', 'yellow')
                     break
                 case 2:
                     element = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-                    element.setAttribute('x', event.clientX)
-                    element.setAttribute('y', event.clientY)
+                    element.setAttribute('x', position.x)
+                    element.setAttribute('y', position.y)
                     element.setAttribute('width', 50)
                     element.setAttribute('height', 50)
                     element.setAttribute('fill', 'red')
                     break
                 case 3:
                     element = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-                    element.setAttribute('cx', event.clientX)
-                    element.setAttribute('cy', event.clientY)
+                    element.setAttribute('cx', position.x)
+                    element.setAttribute('cy', position.y)
                     element.setAttribute('r', 25)
                     element.setAttribute('fill', 'green')
                     break
