@@ -27,9 +27,9 @@
             this.tourner(event.clientX, event.clientY)
         }
 
-        end(event) {
+        end() {
             if (!this.shape) { return }
-            this.shape.angle = this.shape.angle + this.angle || this.angle
+            this.shape.angle = this.angle
             this.shape.unselect()
             this.shape = null
         }
@@ -46,8 +46,6 @@
                 transform += ` translate(${this.shape.translate.x},${this.shape.translate.y})`
             }
             this.shape.setAttribute('transform', transform)
-            //****//
-            // console.log(this.shape)
             // console.log('*******')
         }
     }

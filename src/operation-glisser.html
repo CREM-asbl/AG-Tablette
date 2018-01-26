@@ -28,7 +28,6 @@
 
         end() {
             if (!this.shape) { return }
-            this.computeRealTranslate()
             this.shape.translate = this.translate
             this.shape.unselect()
             this.shape = null
@@ -55,8 +54,6 @@
                 transform += ` rotate(${this.shape.angle}, ${center.x}, ${center.y})`
             }
             this.shape.setAttribute('transform', transform)
-            //****//
-            // console.log(this.shape)
             // console.log('*******')
         }
     }

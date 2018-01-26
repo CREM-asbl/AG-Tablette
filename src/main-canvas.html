@@ -25,6 +25,12 @@
                 this.$.svg.appendChild(shape)
             }
 
+            getShape(shape) {
+                if (shape.id === "svg") { return }
+                this.shape = shape
+                this.shape.select()
+            }
+
             ready() {
                 super.ready()
                 //test gestion touch
@@ -51,9 +57,9 @@
                 this._handleMove(event.touches[0])
             }
 
-            _handleEnd() {
+            _handleEnd(end) {
                 if (!window.currentAction) { return }
-                window.currentAction.end()
+                window.currentAction.click(event.touches[0])
             }
         }
         customElements.define(MainCanvas.is, MainCanvas)
