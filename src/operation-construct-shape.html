@@ -12,13 +12,13 @@
             switch (this.family) {
                 case 1:
                     element = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-                    element.setAttribute('points', position.x + ',' + position.y + ' ' + (position.x + 25) + ',' + (position.y - 50) + ' ' + (position.x + 50) + ',' + position.y)
+                    element.setAttribute('points', (position.x - 25 ) + ',' + (position.y + 25) + ' ' + position.x + ',' + (position.y - 25) + ' ' + (position.x + 25) + ',' + (position.y + 25))
                     element.setAttribute('fill', 'yellow')
                     break
                 case 2:
                     element = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-                    element.setAttribute('x', position.x)
-                    element.setAttribute('y', position.y)
+                    element.setAttribute('x', position.x - 25)
+                    element.setAttribute('y', position.y - 25)
                     element.setAttribute('width', 50)
                     element.setAttribute('height', 50)
                     element.setAttribute('fill', 'red')
