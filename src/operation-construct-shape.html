@@ -1,6 +1,6 @@
 <!-- <script src="formes-standard.js"></script> -->
 <script>
-    // import test from "formes-standard.js"
+
     class ConstructShape {
 
         constructor(family, canvas) {
@@ -11,11 +11,10 @@
 
         click(position) {
             let element = {}
-            // console.log(getStdShape(this.family))
             switch (this.family) {
                 case 1:
                     element = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-                    element.setAttribute('points', (position.x - 25 ) + ',' + (position.y + 25) + ' ' + position.x + ',' + (position.y - 17.5) + ' ' + (position.x + 25) + ',' + (position.y + 25))
+                    element.setAttribute('points', (position.x - 25) + ',' + (position.y + 25) + ' ' + position.x + ',' + (position.y - 17.5) + ' ' + (position.x + 25) + ',' + (position.y + 25))
                     element.setAttribute('fill', 'yellow')
                     break
                 case 2:
@@ -43,19 +42,19 @@
                 let cy = box.y + box.height / 2
                 return { x: cx, y: cy }
             }
-            element.resetTransform = function() {
+            element.resetTransform = function () {
                 this.removeAttribute('transform')
             }
-            element.select = function() {
+            element.select = function () {
                 element.setAttribute('stroke', 'magenta')
             }
-            element.unselect = function() {
+            element.unselect = function () {
                 element.setAttribute('stroke', 'black')
             }
             this.canvas.addShape(element)
         }
 
-        mouseMove() {}
-        end() {}
+        mouseMove() { }
+        end() { }
     }
 </script>

@@ -1,4 +1,5 @@
-<script>
+<script src="formules.js"></script>
+<script>    
     class Tourner {
 
         constructor(canvas) {
@@ -38,7 +39,7 @@
         tourner(x, y) {
             // console.log('***Tourner***')
             this.shape.resetTransform()
-            this.angle = Math.atan2(this.start.x - this.center.x, this.start.y - this.center.y) - Math.atan2(x - this.center.x, y - this.center.y)
+            this.angle = calculateAngle(this.start, {x: x, y: y}, this.center)
             this.angle = this.angle * 180 / Math.PI
             this.angle = this.shape.angle + this.angle || this.angle
             // placer dans un computeTransform ??? mais voir avec glisser

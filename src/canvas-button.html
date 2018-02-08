@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<script src="formes-standard.js"></script>
 
 <dom-module id="canvas-button">
     <template>
@@ -19,20 +20,7 @@
             }
         </style>
 
-        <svg width="50" height="50">
-            <defs>
-                <g id="standardTriangle">
-                    <polygon points="25,11 45,45 5,45" stroke="black" stroke-width="2" fill="yellow" />
-                </g>
-                <g id="standardCarre">
-                    <rect x="5" y="5" width="40" height="40" stroke="black" stroke-width="2" fill="red" />
-                </g>
-                <g id="standardCircle">
-                    <circle cx="25" cy="25" r="20" stroke="black" stroke-width="2" fill="green" />
-                </g>
-            </defs>
-            <use href$="[[_ref(family)]]"></use>
-        </svg>
+        <svg id="svg"></svg>
     </template>
 
     <script>
@@ -41,20 +29,17 @@
 
             static get properties() {
                 return {
-                    family: Number
+                    family: {
+                        type: Number,
+                        observer: '_draw'
+                    }
                 }
             }
 
-            _ref(family) {
-                switch (family) {
-                    case 1:
-                        return "#standardTriangle"
-                    case 2:
-                        return "#standardCarre"
-                    case 3:
-                        return "#standardCircle"
-
-                }
+            _draw(family) {
+                let shape = getStdShape(family)
+                shape.setAttribute('transform','translate(5,5) scale(.8)')
+                this.$.svg.appendChild(shape)
             }
         }
         customElements.define(CanvasButton.is, CanvasButton)
