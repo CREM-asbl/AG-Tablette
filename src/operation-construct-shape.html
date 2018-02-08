@@ -1,4 +1,4 @@
-<!-- <script src="formes-standard.js"></script> -->
+<script src="formes-standard.js"></script>
 <script>
 
     class ConstructShape {
@@ -10,48 +10,14 @@
         }
 
         click(position) {
-            let element = {}
-            switch (this.family) {
-                case 1:
-                    element = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-                    element.setAttribute('points', (position.x - 25) + ',' + (position.y + 25) + ' ' + position.x + ',' + (position.y - 17.5) + ' ' + (position.x + 25) + ',' + (position.y + 25))
-                    element.setAttribute('fill', 'yellow')
-                    break
-                case 2:
-                    element = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-                    element.setAttribute('x', position.x - 25)
-                    element.setAttribute('y', position.y - 25)
-                    element.setAttribute('width', 50)
-                    element.setAttribute('height', 50)
-                    element.setAttribute('fill', 'red')
-                    break
-                case 3:
-                    element = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-                    element.setAttribute('cx', position.x)
-                    element.setAttribute('cy', position.y)
-                    element.setAttribute('r', 25)
-                    element.setAttribute('fill', 'green')
-                    break
-            }
-            element.setAttribute('stroke-width', 2)
-            element.setAttribute('stroke', 'black')
-            element.setAttribute('opacity', .75)
-            element.getCG = function () {
-                let box = this.getBoundingClientRect()
-                let cx = box.x + box.width / 2
-                let cy = box.y + box.height / 2
-                return { x: cx, y: cy }
-            }
-            element.resetTransform = function () {
-                this.removeAttribute('transform')
-            }
-            element.select = function () {
-                element.setAttribute('stroke', 'magenta')
-            }
-            element.unselect = function () {
-                element.setAttribute('stroke', 'black')
-            }
-            this.canvas.addShape(element)
+            let shape = getStdShape(this.family)
+
+            //remplacer par un shapeTranslate (voir formes-standard.js)
+            shape.translate = {x: position.x - 25, y: position.y - 25}
+            shape.setAttribute('transform', `translate(${position.x - 25}, ${position.y - 25})`)
+
+          
+            this.canvas.addShape(shape)
         }
 
         mouseMove() { }

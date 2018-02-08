@@ -12,6 +12,7 @@
         click(position) {
             if (!this.shape) {
                 this.shape = this.canvas.currentShape
+                console.log(this.shape)
                 if (this.shape) {
                     this.start = position
                     this.shape.select()
@@ -40,7 +41,6 @@
             // console.log('***Tourner***')
             this.shape.resetTransform()
             this.angle = calculateAngle(this.start, {x: x, y: y}, this.center)
-            this.angle = this.angle * 180 / Math.PI
             this.angle = this.shape.angle + this.angle || this.angle
             // placer dans un computeTransform ??? mais voir avec glisser
             let transform = `rotate(${this.angle}, ${this.center.x}, ${this.center.y})`
