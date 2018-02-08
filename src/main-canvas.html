@@ -66,6 +66,7 @@
                 this._updateData(event)
                 if (!window.currentAction) { return }
                 window.currentAction.mouseMove(this.currentPosition)
+                event.preventDefault()
             }
 
             _handleEnd() {
