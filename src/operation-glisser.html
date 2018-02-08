@@ -1,3 +1,4 @@
+<script src="formes-standard.js"></script>
 <script>
     class Glisser {
 
@@ -5,16 +6,12 @@
             this.name = 'glisser'
             this.canvas = canvas
             this.shape = null
-            this.translate = { x: 0, y: 0 }
         }
 
         click(position) {
             if (!this.shape) {
                 this.shape = this.canvas.currentShape
-                if (this.shape) {
-                    this.start = position
-                    this.shape.select()
-                }
+                if (this.shape) { selectShape(this.shape) }
             }
             else {
                 this.end(position)
@@ -23,39 +20,13 @@
 
         mouseMove(position) {
             if (!this.shape) { return }
-            this.glisser(position.x, position.y)
+            translateShape(this.shape, position)
         }
 
         end(position) {
             if (!this.shape) { return }
-            this.glisser(position.x, position.y)
-            this.shape.translate = this.translate
-            this.shape.unselect()
+            unselectShape(this.shape)
             this.shape = null
-        }
-
-        computeRealTranslate() {
-            if (this.shape.translate) {
-                this.translate.x += this.shape.translate.x
-                this.translate.y += this.shape.translate.y
-            }
-        }
-
-        glisser(x, y) {
-            // console.log('***Glisser***')
-            this.shape.resetTransform()
-            this.translate = { x: x - this.start.x, y: y - this.start.y }
-            this.computeRealTranslate()
-            // placer dans un computeTransform ??? mais voir avec tourner
-            let transform = `translate(${this.translate.x},${this.translate.y})`
-            if (this.shape.angle) {
-                // on modifie l'élément rotation car CG a été déplacé
-                // essayer de trouver une méthode plus propre
-                let center = this.shape.getCG()
-                transform += ` rotate(${this.shape.angle}, ${center.x}, ${center.y})`
-            }
-            this.shape.setAttribute('transform', transform)
-            // console.log('*******')
         }
     }
 </script>

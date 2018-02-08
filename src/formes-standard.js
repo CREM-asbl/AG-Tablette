@@ -1,3 +1,6 @@
+//actuellement librairie de manipulation des formes-standard qui centralise les opérations sur les shape
+//le temps de trouver une meilleure solution et pouvoir exploiter les imports javascript
+
 function getStdShape(family) {
     //définition avec une longueur de 50px et construit à l'origine
     //1: triangle équilatéral
@@ -36,32 +39,39 @@ function getStdShape(family) {
     shape.setAttribute('stroke-width', 2)
     shape.setAttribute('stroke', 'black')
     shape.setAttribute('opacity', .75)
-
-    //les fonctions suivantes ne sont pas 'propres' car avec this est dépendant du contexte
-    // faut-il créer une fonction getCG(shape) à part par exemple ? 
-    // ou alors une classe mais du coup, pas trop de données pour canvas-button ?
-    shape.getCG = function () {
-        let box = this.getBoundingClientRect()
-        let cx = box.x + box.width / 2
-        let cy = box.y + box.height / 2
-        return { x: cx, y: cy }
-    }
-
-    shape.resetTransform = function () { this.removeAttribute('transform') }
-
-    shape.updateTransform = function () {
-        this.setAttribute('transform', `translate(${this.translate.x},${this.translate.y}) rotate(${this.angle}, ${this.center.x}, ${this.center.y})`)
-    }
-
-    shape.translate = function (point) {
-        this.translate.x += point.x
-        this.translate.y += point.y
-
-    }
-
-    shape.select = function () { this.setAttribute('stroke', 'magenta') }
-
-    shape.unselect = function () { this.setAttribute('stroke', 'black') }
-
+    
     return shape
+}
+
+function getCGShape(shape) {
+    let box = shape.getBoundingClientRect()
+    let cx = box.x + box.width / 2
+    let cy = box.y + box.height / 2
+    return { x: cx, y: cy }
+}
+
+function updateTransformShape(shape) { 
+    let transforms = []
+    shape.removeAttribute('transform')
+    if (shape.translate) { transforms.push(`translate(${shape.translate.x},${shape.translate.y})`)}
+    if (shape.angle) { 
+        let center = getCGShape(shape)
+        transforms.push(`rotate(${shape.angle}, ${center.x}, ${center.y})`)
+    }
+    if (!transforms.length) { return }
+    shape.setAttribute('transform', transforms.join(' ') )
+}
+
+function selectShape(shape) { shape.setAttribute('stroke', 'magenta') }
+
+function unselectShape(shape) { shape.setAttribute('stroke', 'black') }
+
+function translateShape(shape, position) {
+    shape.translate = {x: position.x - 25, y: position.y - 25}
+    updateTransformShape(shape)
+}
+
+function rotateShape(shape, angle) {
+    shape.angle = shape.angle + angle || angle
+    updateTransformShape(shape)
 }

@@ -1,22 +1,21 @@
 <script src="formules.js"></script>
+<script src="formes-standard.js"></script>
 <script>    
     class Tourner {
 
         constructor(canvas) {
             this.name = 'tourner'
             this.shape = null
-            this.angle = 0
             this.canvas = canvas
         }
 
         click(position) {
             if (!this.shape) {
                 this.shape = this.canvas.currentShape
-                console.log(this.shape)
                 if (this.shape) {
+                    selectShape(this.shape)
+                    this.center = getCGShape(this.shape)
                     this.start = position
-                    this.shape.select()
-                    this.center = this.shape.getCG()
                 }
             }
             else {
@@ -26,29 +25,15 @@
 
         mouseMove(position) {
             if (!this.shape) { return }
-            this.tourner(position.x, position.y)
+            let angle = calculateAngle(this.center, this.start, { x: position.x, y: position.y } )
+            rotateShape(this.shape, angle)
+            this.start = position
         }
 
         end(position) {
             if (!this.shape) { return }
-            this.tourner(position.x, position.y)
-            this.shape.angle = this.angle
-            this.shape.unselect()
+            unselectShape(this.shape)
             this.shape = null
-        }
-
-        tourner(x, y) {
-            // console.log('***Tourner***')
-            this.shape.resetTransform()
-            this.angle = calculateAngle(this.start, {x: x, y: y}, this.center)
-            this.angle = this.shape.angle + this.angle || this.angle
-            // placer dans un computeTransform ??? mais voir avec glisser
-            let transform = `rotate(${this.angle}, ${this.center.x}, ${this.center.y})`
-            if (this.shape.translate) {
-                transform += ` translate(${this.shape.translate.x},${this.shape.translate.y})`
-            }
-            this.shape.setAttribute('transform', transform)
-            // console.log('*******')
         }
     }
 

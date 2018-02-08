@@ -11,12 +11,7 @@
 
         click(position) {
             let shape = getStdShape(this.family)
-
-            //remplacer par un shapeTranslate (voir formes-standard.js)
-            shape.translate = {x: position.x - 25, y: position.y - 25}
-            shape.setAttribute('transform', `translate(${position.x - 25}, ${position.y - 25})`)
-
-          
+            translateShape(shape, position)
             this.canvas.addShape(shape)
         }
 
