@@ -1,45 +1,93 @@
 //actuellement librairie de manipulation des formes-standard qui centralise les opérations sur les shape
 //le temps de trouver une meilleure solution et pouvoir exploiter les imports javascript
 
+const pathPolygonReg = (n, size) => {
+    let path = `M 0 ${size}`
+    let angle = 2 * Math.PI / n
+    let x = 0
+    let y = size
+
+    for (let i = 0; i < n - 1 ; i++) {
+        nextAngle = angle*i
+        console.log(nextAngle)
+        x += size * Math.cos(nextAngle)
+        y -= size * Math.sin(nextAngle)
+        path += ` L ${x} ${y}`
+    }
+    path += ` Z`
+    return path
+}
+
+//définition avec une longueur de 50px taille d'un canvas-button (bonne idée ?)
+//utilisation de path qui est plus souple pour les définitions
+//P = petit et G = grand
+//premier jet à améliorer et à uniformiser
+const stdShapes = {
+    'Triangle équilatéral': {
+        color: 'yellow',
+        shapes: {
+            'TriangEqui': 'M 25 7.5 L 50 50 H 0 Z',
+            'PTriangIso': 'M 25 28.33 L 50 50 H 0 Z',
+            'TriangRect': 'M 25 7.5 L 50 50 H 25 25 Z',
+            'Losange': 'M 0 7.5 H 50 L 75 50 H 25 Z',
+            'TrapRect': 'M 25 7.5 L 50 50 H 0 V 7.5 Z',
+            'TrapIso': 'M 25 7.5 H 75 L 100 50 H 0 Z',
+            'HexaReg': 'M 25 7.5 H 75 L 100 50 L 75 92.5 H 25 L 0 50Z',
+            'GTriangIso': 'M 0 50 H 50 L 25 -43.3 Z',
+            'PLosan': 'M 0 50 L 50 50 L 93.30 25 L 43.30 25 Z',
+            'DodecaReg': 'M 0 50 L 50 50 L 93.30127018922194 25 L 118.30127018922195 -18.301270189221928 L 118.30127018922195 -68.30127018922192 L 93.30127018922197 -111.60254037844386 L 50.00000000000004 -136.60254037844388 L 4.263256414560601e-14 -136.60254037844388 L -43.301270189221896 -111.60254037844389 L -68.30127018922192 -68.30127018922197 L -68.30127018922194 -18.301270189221967 L -43.30127018922197 24.999999999999986 Z',
+            'PDisque': 'M 25 0 A 1 1 0 0 0 25 60 A 1 1 0 0 0 25 0 Z',
+            'GDisque': 'M 25 7.5 A 1 1 0 0 0 75 92.5 A 1 1 0 0 0 25 7.5 Z'
+        }
+    },
+    'Carré': {
+        color: 'red',
+        shapes: {
+            'Carre': 'M 0 0 H 50 V 50 H 0 Z',
+            'TriangIso': 'M 0 60 H 50 L 25 0 Z',
+            'PTriangRectIso': 'M 25 25 L 50 50 H 0 Z',
+            'TriangRectIso': 'M 0 0 V 50 H 25 Z',
+            'PTriangRect': 'M 25 0 V 50 H 0 Z',
+            'Parallelogram': 'M 0 0 H 50 L 100 50 H 50 Z',
+            'Losan': 'M 35 0 H 85 L 50 35 H 0 Z',
+            'OctoReg': 'M 35 0 H 85 L 120 35 V 85 L 85 120 H 35 L 0 85 V 35 Z',
+            'Disque': 'M 0 0 A 1 1 0 0 0 50 50 A 1 1 0 0 0 0 0 Z'
+        }
+    },
+    'Pentagone régulier': {
+        color: 'green',
+        shapes: {
+            'PentaReg': 'M 0 50 H 50 L 65.45 2.45 L 25 -26.93 L -15.45 2.45 Z',
+            'TriangIso': 'M 0 50 H 50 L 25 15.6 Z',
+            'GTriangIso': 'M 0 50 H 50 L 25 -26.94 Z',
+            'TriangObtu': 'M 0 50 H 50 L 65.45 2.45 Z',
+            'PLosan': 'M 0 50 H 50 L 90.45 20.61 H 40.45 Z',
+            'DecaReg': 'M 0 50 H 50 L 90.45 20.61 L 105.9 -27.55 L 90.45 -75.10 L 50 -104.49 L 0 -104.49 L -40.45 -75.10 L -55.9 -27.55 L -40.45 20.61 Z',
+            'Disque': 'M 0 50 A 1 1 0 0 0 50 -104.49 A 1 1 0 0 0 0 50 Z'
+        }
+    }
+}
+
 function getStdShape(family) {
-    //définition avec une longueur de 50px et construit à l'origine
-    //1: triangle équilatéral
-    //2: carré
-    //3: cercle
-    //Maintenant comment bien exploiter ces définitions et créer les autres 
-    //le souci est la gestion de la position lors de la construction
-    // => différencier définition et construction ?
-    // exemple carré std = construction d'un carré de 50x50  
-    let shape = ''
+    let shapesFamily = Object.values(stdShapes)[family - 1]
+    let shape = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     switch (family) {
         case 1:
-            shape = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
-            shape.setAttribute('points', '25,7.5 50,50 0,50')
-            shape.setAttribute('fill', 'yellow')
-            // shape = `<polygon points="25,11 45,45 5,45" stroke="black" stroke-width="2" fill="yellow" />`
+            shape.setAttribute('d', shapesFamily.shapes.TriangEqui )
             break
         case 2:
-            shape = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-            shape.setAttribute('x', 0)
-            shape.setAttribute('y', 0)
-            shape.setAttribute('width', 50)
-            shape.setAttribute('height', 50)
-            shape.setAttribute('fill', 'red')
-            // shape = `<rect x="5" y="5" width="40" height="40" stroke="black" stroke-width="2" fill="red" />`
+            shape.setAttribute('d', shapesFamily.shapes.Carre)
             break
         case 3:
-            shape = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-            shape.setAttribute('cx', 25)
-            shape.setAttribute('cy', 25)
-            shape.setAttribute('r', 25)
-            shape.setAttribute('fill', 'green')
-            // shape = `<circle cx="25" cy="25" r="20" stroke="black" stroke-width="2" fill="green" />`
+            shape.setAttribute('d', shapesFamily.shapes.DecaReg)
             break
     }
+    // shape = `<path d="M 25 7.5 L 50,50 H 0 Z" stroke="black" stroke-width="2" fill="yellow" />`
+    shape.setAttribute('fill', shapesFamily.color)
     shape.setAttribute('stroke-width', 2)
     shape.setAttribute('stroke', 'black')
     shape.setAttribute('opacity', .75)
-    
+
     return shape
 }
 
@@ -50,16 +98,16 @@ function getCGShape(shape) {
     return { x: cx, y: cy }
 }
 
-function updateTransformShape(shape) { 
+function updateTransformShape(shape) {
     let transforms = []
     shape.removeAttribute('transform')
-    if (shape.translate) { transforms.push(`translate(${shape.translate.x},${shape.translate.y})`)}
-    if (shape.angle) { 
+    if (shape.translate) { transforms.push(`translate(${shape.translate.x},${shape.translate.y})`) }
+    if (shape.angle) {
         let center = getCGShape(shape)
         transforms.push(`rotate(${shape.angle}, ${center.x}, ${center.y})`)
     }
     if (!transforms.length) { return }
-    shape.setAttribute('transform', transforms.join(' ') )
+    shape.setAttribute('transform', transforms.join(' '))
 }
 
 function selectShape(shape) { shape.setAttribute('stroke', 'magenta') }
@@ -67,7 +115,7 @@ function selectShape(shape) { shape.setAttribute('stroke', 'magenta') }
 function unselectShape(shape) { shape.setAttribute('stroke', 'black') }
 
 function translateShape(shape, position) {
-    shape.translate = {x: position.x - 25, y: position.y - 25}
+    shape.translate = { x: position.x - 25, y: position.y - 25 }
     updateTransformShape(shape)
 }
 
