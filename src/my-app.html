@@ -74,7 +74,7 @@
             </div>
 
             <template is="dom-repeat" items="[[_getFamilies()]]">
-                <canvas-button family="[[item]]" on-click="_addShape"></canvas-button>
+                <canvas-button family="[[item]]" current="[[currentFamily]]" on-click="_addShape"></canvas-button>
             </template>
         </div>
 

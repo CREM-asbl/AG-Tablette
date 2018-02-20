@@ -14,7 +14,7 @@
                 border: 1px solid black;
             }
 
-            svg[active] {
+            svg.active {
                 border: 1px solid red;
             }
         </style>
@@ -29,8 +29,13 @@
             static get properties() {
                 return {
                     family: {
-                        type: Number,
+                        type: String,
                         observer: '_draw'
+                    },
+
+                    current: {
+                        type: String,
+                        observer: '_isActive'
                     }
                 }
             }
@@ -39,6 +44,14 @@
                 let shape = getStdShape(family)
                 shape.setAttribute('transform','translate(5,5) scale(.8)')
                 this.$.svg.appendChild(shape)
+            }
+
+            _isActive(current) {
+                if (current === this.family) { 
+                    this.$.svg.classList.add('active')
+                    return
+                }
+                this.$.svg.classList.remove('active')
             }
         }
         customElements.define(CanvasButton.is, CanvasButton)
