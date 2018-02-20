@@ -1,0 +1,48 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="shapes-list">
+    <template>
+        <style>
+            :host {
+                position: absolute;
+                top: 50px;
+                left: 251px;
+                box-shadow: 1px 1px 2px gray;
+                width: 150px;
+                padding: 1px;
+            }
+
+            h2 {
+                margin: 0;
+                text-align: center;
+                background: gray;
+                color: white;
+            }
+
+            button {
+                width: 100%;
+            }
+        </style>
+        <h2>Formes</h2>
+        <template is="dom-repeat" items="[[shapes(family)]]">
+            <button>[[item]]</button>
+        </template>
+    </template>
+    <script>
+        class ShapesList extends Polymer.Element {
+            static get is() { return 'shapes-list' }
+
+            static get properties() {
+                return {
+                    family: String
+                }
+            }
+
+            shapes(family) {
+                if (!family) { return }
+                return Object.keys(stdShapes[family].shapes)
+            }
+        }
+        customElements.define('shapes-list', ShapesList) 
+    </script>
+</dom-module>

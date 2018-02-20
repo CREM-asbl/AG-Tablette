@@ -1,4 +1,4 @@
-//actuellement librairie de manipulation des formes-standard qui centralise les opérations sur les shape
+//actuellement librairie de manipulation des formes-standard qui centralise les opérations sur les shapes
 //le temps de trouver une meilleure solution et pouvoir exploiter les imports javascript
 
 const pathPolygonReg = (n, size) => {
@@ -7,8 +7,8 @@ const pathPolygonReg = (n, size) => {
     let x = 0
     let y = size
 
-    for (let i = 0; i < n - 1 ; i++) {
-        nextAngle = angle*i
+    for (let i = 0; i < n - 1; i++) {
+        nextAngle = angle * i
         console.log(nextAngle)
         x += size * Math.cos(nextAngle)
         y -= size * Math.sin(nextAngle)
@@ -68,30 +68,34 @@ const stdShapes = {
     }
 }
 
-function getStdShape(family) {
-    let shapesFamily = Object.values(stdShapes)[family - 1]
+const getStdShape = (family) => {
+
+    let shapesFamily = stdShapes[family]
     let shape = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+
+    let forme = ''
     switch (family) {
-        case 1:
-            shape.setAttribute('d', shapesFamily.shapes.TriangEqui )
+        case 'Triangle équilatéral':
+            forme = 'TriangEqui'
             break
-        case 2:
-            shape.setAttribute('d', shapesFamily.shapes.Carre)
+        case 'Carré':
+            forme = 'Carre'
             break
-        case 3:
-            shape.setAttribute('d', shapesFamily.shapes.DecaReg)
+        case 'Pentagone régulier':
+            forme = 'PentaReg' 
             break
     }
+
+    shape.setAttribute('d', shapesFamily.shapes[forme])
     // shape = `<path d="M 25 7.5 L 50,50 H 0 Z" stroke="black" stroke-width="2" fill="yellow" />`
     shape.setAttribute('fill', shapesFamily.color)
     shape.setAttribute('stroke-width', 2)
     shape.setAttribute('stroke', 'black')
     shape.setAttribute('opacity', .75)
-
     return shape
 }
 
-function getCGShape(shape) {
+const getCGShape = (shape) => {
     let box = shape.getBoundingClientRect()
     let cx = box.x + box.width / 2
     let cy = box.y + box.height / 2

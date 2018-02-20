@@ -4,6 +4,8 @@
 <link rel="import" href="operation-construct-shape.html">
 <link rel="import" href="operation-glisser.html">
 <link rel="import" href="operation-tourner.html">
+<link rel="import" href="shapes-list.html">
+<script src="formes-standard.js"></script>
 
 <dom-module id="my-app">
     <template>
@@ -61,21 +63,22 @@
             </div>
             <div>
                 <strong>Mouvements</strong>
-                <button class="action-button" name="glisser" on-click='_actionHandle'>Glisser</button>
-                <button class="action-button" name="tourner" on-click='_actionHandle'>Tourner</button>
-                <!-- <button class="action-button" name="retourner" on-click='_actionHandle'>Retouner</button> -->
-                <!-- <button class="action-button" name="zoomer" on-click='_actionHandle'>Zoomer</button> -->
             </div>
+            <button class="action-button" name="glisser" on-click='_actionHandle'>Glisser</button>
+            <button class="action-button" name="tourner" on-click='_actionHandle'>Tourner</button>
+            <!-- <button class="action-button" name="retourner" on-click='_actionHandle'>Retouner</button> -->
+            <!-- <button class="action-button" name="zoomer" on-click='_actionHandle'>Zoomer</button> -->
+
             <div>
                 <strong>Formes standard</strong>
-                <div>
-                    <canvas-button family="1" on-click="_addShape"></canvas-button>
-                    <canvas-button family="2" on-click="_addShape"></canvas-button>
-                    <canvas-button family="3" on-click="_addShape"></canvas-button>
-                    <!-- <canvas-button></canvas-button> -->
-                </div>
             </div>
+
+            <template is="dom-repeat" items="[[_getFamilies()]]">
+                <canvas-button family="[[item]]" on-click="_addShape"></canvas-button>
+            </template>
         </div>
+
+        <shapes-list family="[[currentFamily]]"></shapes-list>
 
         <!--                         <div class="item">Fichier</div>
                         <div class="item">Fenêtre</div>
@@ -93,8 +96,13 @@
         class MyApp extends Polymer.Element {
             static get is() { return 'my-app' }
 
+            static get properties() {
+                return {
+                    currentFamily: String
+                }
+            }
+
             _actionHandle(event) {
-                // event.target.classList.add('active')
                 switch (event.target.name) {
                     case 'glisser':
                         window.currentAction = new Glisser(this.$.mainCanvas)
@@ -106,8 +114,13 @@
                 }
             }
 
+            _getFamilies() {
+                return Object.keys(stdShapes)
+            }
+
             _addShape(event) {
-                window.currentAction = new ConstructShape(event.target.family, this.$.mainCanvas)
+                this.currentFamily = event.target.family
+                window.currentAction = new ConstructShape(this.currentFamily, this.$.mainCanvas)
             }
         }
         customElements.define(MyApp.is, MyApp)
