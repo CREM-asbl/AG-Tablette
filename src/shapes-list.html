@@ -22,10 +22,14 @@
             button {
                 width: 100%;
             }
+
+            button:hover {
+                color: gray;
+            }
         </style>
         <h2>Formes</h2>
         <template is="dom-repeat" items="[[shapes(family)]]">
-            <button>[[item]]</button>
+            <button on-click="_clickHandle">[[item]]</button>
         </template>
     </template>
     <script>
@@ -42,6 +46,12 @@
                 if (!family) { return }
                 return Object.keys(stdShapes[family].shapes)
             }
+
+            _clickHandle(event) {
+                let shape = event.target.innerHTML
+                window.currentAction = new ConstructShape(this.family, shape)
+            }
+
         }
         customElements.define('shapes-list', ShapesList) 
     </script>

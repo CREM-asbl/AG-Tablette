@@ -19,7 +19,7 @@
             }
         </style>
 
-        <svg id="svg"></svg>
+        <svg id="svg" on-click="_clickHandle"></svg>
     </template>
 
     <script>
@@ -33,15 +33,20 @@
                         observer: '_draw'
                     },
 
-                    current: {
+                    active: {
                         type: String,
+                        notify: true,
                         observer: '_isActive'
                     }
                 }
             }
 
+            _clickHandle(event) {
+                this.set('active', this.family)
+            }
+
             _draw(family) {
-                let shape = getStdShape(family)
+                let shape = createShape(family, getFirstFamilyShape(family))
                 shape.setAttribute('transform','translate(5,5) scale(.8)')
                 this.$.svg.appendChild(shape)
             }

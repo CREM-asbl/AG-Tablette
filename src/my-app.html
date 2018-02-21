@@ -74,7 +74,7 @@
             </div>
 
             <template is="dom-repeat" items="[[_getFamilies()]]">
-                <canvas-button family="[[item]]" current="[[currentFamily]]" on-click="_addShape"></canvas-button>
+                <canvas-button family="[[item]]" active="{{currentFamily}}"></canvas-button>
             </template>
         </div>
 
@@ -118,10 +118,6 @@
                 return Object.keys(stdShapes)
             }
 
-            _addShape(event) {
-                this.currentFamily = event.target.family
-                window.currentAction = new ConstructShape(this.currentFamily, this.$.mainCanvas)
-            }
         }
         customElements.define(MyApp.is, MyApp)
     </script>

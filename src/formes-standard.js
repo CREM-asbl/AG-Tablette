@@ -68,31 +68,32 @@ const stdShapes = {
     }
 }
 
-const getStdShape = (family) => {
-
-    let shapesFamily = stdShapes[family]
-    let shape = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-
-    let forme = ''
+const getFirstFamilyShape = (family) => {
+    let shape = ''
     switch (family) {
         case 'Triangle équilatéral':
-            forme = 'TriangEqui'
+            shape = 'TriangEqui'
             break
         case 'Carré':
-            forme = 'Carre'
+            shape = 'Carre'
             break
         case 'Pentagone régulier':
-            forme = 'PentaReg' 
+            shape = 'PentaReg'
             break
     }
-
-    shape.setAttribute('d', shapesFamily.shapes[forme])
-    // shape = `<path d="M 25 7.5 L 50,50 H 0 Z" stroke="black" stroke-width="2" fill="yellow" />`
-    shape.setAttribute('fill', shapesFamily.color)
-    shape.setAttribute('stroke-width', 2)
-    shape.setAttribute('stroke', 'black')
-    shape.setAttribute('opacity', .75)
     return shape
+}
+
+const createShape = (family, shape) => {
+    let shapesFamily = stdShapes[family]
+    let element = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    element.setAttribute('d', shapesFamily.shapes[shape])
+    // shape = `<path d="M 25 7.5 L 50,50 H 0 Z" stroke="black" stroke-width="2" fill="yellow" />`
+    element.setAttribute('fill', shapesFamily.color)
+    element.setAttribute('stroke-width', 2)
+    element.setAttribute('stroke', 'black')
+    element.setAttribute('opacity', .75)
+    return element
 }
 
 const getCGShape = (shape) => {

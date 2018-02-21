@@ -52,7 +52,7 @@
             _handleClick(event) {
                 this._updateData(event)
                 if (!window.currentAction) { return }
-                window.currentAction.click(this.currentPosition)
+                window.currentAction.click(this.currentPosition, this)
 
             }
 

@@ -1,16 +1,16 @@
 <script>
     class ConstructShape {
 
-        constructor(family, canvas) {
+        constructor(family, shape) {
             this.name = 'constructShape'
             this.family = family
-            this.canvas = canvas
+            this.shape = shape
         }
 
-        click(position) {
-            let shape = getStdShape(this.family)
+        click(position, canvas) {
+            let shape = createShape(this.family, this.shape)
             translateShape(shape, position)
-            this.canvas.addShape(shape)
+            canvas.addShape(shape)
         }
 
         mouseMove() { }
