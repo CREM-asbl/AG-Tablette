@@ -15,7 +15,7 @@
             }
 
             svg.active {
-                border: 1px solid red;
+                border: 2px solid red;
             }
         </style>
 
@@ -47,7 +47,7 @@
 
             _draw(family) {
                 let shape = createShape(family, getFirstFamilyShape(family))
-                shape.setAttribute('transform','translate(5,5) scale(.8)')
+                shape.setAttribute('transform','translate(10,18) scale(.6)')
                 this.$.svg.appendChild(shape)
             }
 

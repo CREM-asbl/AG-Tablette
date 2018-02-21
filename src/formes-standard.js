@@ -88,11 +88,11 @@ const createShape = (family, shape) => {
     let shapesFamily = stdShapes[family]
     let element = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     element.setAttribute('d', shapesFamily.shapes[shape])
-    // shape = `<path d="M 25 7.5 L 50,50 H 0 Z" stroke="black" stroke-width="2" fill="yellow" />`
     element.setAttribute('fill', shapesFamily.color)
     element.setAttribute('stroke-width', 2)
     element.setAttribute('stroke', 'black')
     element.setAttribute('opacity', .75)
+    // shape = `<path d="M 25 7.5 L 50,50 H 0 Z" stroke="black" stroke-width="2" fill="yellow" />`
     return element
 }
 
@@ -103,7 +103,7 @@ const getCGShape = (shape) => {
     return { x: cx, y: cy }
 }
 
-function updateTransformShape(shape) {
+const updateTransformShape = (shape) => {
     let transforms = []
     shape.removeAttribute('transform')
     if (shape.translate) { transforms.push(`translate(${shape.translate.x},${shape.translate.y})`) }
@@ -115,16 +115,16 @@ function updateTransformShape(shape) {
     shape.setAttribute('transform', transforms.join(' '))
 }
 
-function selectShape(shape) { shape.setAttribute('stroke', 'magenta') }
+const selectShape = (shape) => { shape.setAttribute('stroke', 'magenta') }
 
-function unselectShape(shape) { shape.setAttribute('stroke', 'black') }
+const unselectShape = (shape) => { shape.setAttribute('stroke', 'black') }
 
-function translateShape(shape, position) {
+const translateShape = (shape, position) => {
     shape.translate = { x: position.x - 25, y: position.y - 25 }
     updateTransformShape(shape)
 }
 
-function rotateShape(shape, angle) {
+const rotateShape = (shape, angle) => {
     shape.angle = shape.angle + angle || angle
     updateTransformShape(shape)
 }

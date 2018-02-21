@@ -14,8 +14,8 @@
                 position: relative;
                 display: block;
                 height: 100vh;
-                --app-primary-color: #4285f4;
-                --app-secondary-color: black;
+                /* --app-primary-color: #4285f4;
+                --app-secondary-color: black; */
             }
 
             main-canvas {
@@ -42,7 +42,8 @@
                 margin: 8px 0;
             }
 
-            .action-button.active {
+            .action-button:hover,
+            .action-button:focus {
                 font-weight: bold;
             }
 
@@ -103,6 +104,7 @@
             }
 
             _actionHandle(event) {
+                this.currentFamily = ''
                 switch (event.target.name) {
                     case 'glisser':
                         window.currentAction = new Glisser(this.$.mainCanvas)

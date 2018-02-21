@@ -4,6 +4,7 @@
     <template>
         <style>
             :host {
+                display: none;
                 position: absolute;
                 top: 50px;
                 left: 251px;
@@ -21,15 +22,17 @@
 
             button {
                 width: 100%;
+                padding: 8px;
             }
 
-            button:hover {
-                color: gray;
+            button:hover,
+            button:focus {
+                font-weight: bold;
             }
         </style>
         <h2>Formes</h2>
         <template is="dom-repeat" items="[[shapes(family)]]">
-            <button on-click="_clickHandle">[[item]]</button>
+            <button on-click="_clickHandle" >[[item]]</button>
         </template>
     </template>
     <script>
@@ -43,11 +46,16 @@
             }
 
             shapes(family) {
-                if (!family) { return }
+                if (!family) { 
+                    this.style.display = 'none'
+                    return 
+                }
+                this.style.display = 'block'
                 return Object.keys(stdShapes[family].shapes)
             }
 
             _clickHandle(event) {
+                event.target.focus()
                 let shape = event.target.innerHTML
                 window.currentAction = new ConstructShape(this.family, shape)
             }
