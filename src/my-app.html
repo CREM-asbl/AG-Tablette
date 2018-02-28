@@ -1,11 +1,13 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="main-canvas.html">
 <link rel="import" href="canvas-button.html">
-<link rel="import" href="operation-construct-shape.html">
-<link rel="import" href="operation-glisser.html">
-<link rel="import" href="operation-tourner.html">
 <link rel="import" href="shapes-list.html">
 <script src="formes-standard.js"></script>
+<script src="formules.js"></script>
+<script src="operation-construct-shape.js"></script>
+<script src="operation-glisser.js"></script>
+<script src="operation-tourner.js"></script>
+
 
 <dom-module id="my-app">
     <template>
@@ -14,8 +16,6 @@
                 position: relative;
                 display: block;
                 height: 100vh;
-                /* --app-primary-color: #4285f4;
-                --app-secondary-color: black; */
             }
 
             main-canvas {
@@ -94,6 +94,7 @@
                         <div class="item">Configuration</div> -->
     </template>
     <script>
+
         class MyApp extends Polymer.Element {
             static get is() { return 'my-app' }
 
@@ -101,6 +102,11 @@
                 return {
                     currentFamily: String
                 }
+            }
+
+            ready() {
+                super.ready()
+                window.mainCanvas = this.$.mainCanvas
             }
 
             _actionHandle(event) {

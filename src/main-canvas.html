@@ -23,8 +23,8 @@
 
             static get properties() {
                 return {
-                    currentPosition : Object,
-                    currentShape : Object,
+                    currentPosition: Object,
+                    currentShape: Object,
                 }
             }
 
@@ -42,8 +42,8 @@
             }
 
             _updateData(event) {
-                
-                this.currentPosition = event.touches ? {x : event.touches[0].clientX, y : event.touches[0].clientY } : {x : event.clientX, y : event.clientY };
+
+                this.currentPosition = event.touches ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : { x: event.clientX, y: event.clientY };
 
                 if (!event.target) { return }
                 this.currentShape = event.target.id === "svg" ? null : event.target
@@ -53,7 +53,6 @@
                 this._updateData(event)
                 if (!window.currentAction) { return }
                 window.currentAction.click(this.currentPosition, this)
-
             }
 
             _handleMove(event) {

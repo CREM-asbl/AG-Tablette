@@ -1,0 +1,17 @@
+class ConstructShape {
+
+    constructor(family, shape) {
+        this.name = 'constructShape'
+        this.family = family
+        this.shape = shape
+    }
+
+    click(position, canvas) {
+        let shape = createShape(this.family, this.shape)
+        translateShape(shape, position)
+        canvas.addShape(shape)
+    }
+
+    mouseMove() { }
+    end() { }
+}
