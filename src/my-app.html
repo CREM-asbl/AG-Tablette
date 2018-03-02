@@ -4,9 +4,11 @@
 <link rel="import" href="shapes-list.html">
 <script src="formes-standard.js"></script>
 <script src="formules.js"></script>
-<script src="operation-construct-shape.js"></script>
-<script src="operation-glisser.js"></script>
-<script src="operation-tourner.js"></script>
+<script src="operations/mode.js"></script>
+<script src="operations/select.js"></script>
+<script src="operations/construct.js"></script>
+<script src="operations/translate.js"></script>
+<script src="operations/rotation.js"></script>
 
 
 <dom-module id="my-app">
@@ -65,8 +67,8 @@
             <div>
                 <strong>Mouvements</strong>
             </div>
-            <button class="action-button" name="glisser" on-click='_actionHandle'>Glisser</button>
-            <button class="action-button" name="tourner" on-click='_actionHandle'>Tourner</button>
+            <button class="action-button" name="Glisser" on-click='_actionHandle'>Glisser</button>
+            <button class="action-button" name="Tourner" on-click='_actionHandle'>Tourner</button>
             <!-- <button class="action-button" name="retourner" on-click='_actionHandle'>Retouner</button> -->
             <!-- <button class="action-button" name="zoomer" on-click='_actionHandle'>Zoomer</button> -->
 
@@ -94,7 +96,6 @@
                         <div class="item">Configuration</div> -->
     </template>
     <script>
-
         class MyApp extends Polymer.Element {
             static get is() { return 'my-app' }
 
@@ -106,18 +107,18 @@
 
             ready() {
                 super.ready()
-                window.mainCanvas = this.$.mainCanvas
+                window.mainCanvas = this.$.mainCanvas.$.svg
             }
 
             _actionHandle(event) {
                 this.currentFamily = ''
                 switch (event.target.name) {
-                    case 'glisser':
-                        window.currentAction = new Glisser(this.$.mainCanvas)
+                    case 'Glisser':
+                        setMode(translateMode)
                         break
 
-                    case 'tourner':
-                        window.currentAction = new Tourner(this.$.mainCanvas)
+                    case 'Tourner':
+                        setMode(rotationMode)
                         break
                 }
             }

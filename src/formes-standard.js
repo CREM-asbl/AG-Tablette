@@ -96,6 +96,7 @@ const createShape = (family, shape) => {
     return element
 }
 
+//à améliorer pour toutes les formes
 const getCGShape = (shape) => {
     let box = shape.getBoundingClientRect()
     let cx = box.x + box.width / 2
@@ -115,16 +116,7 @@ const updateTransformShape = (shape) => {
     shape.setAttribute('transform', transforms.join(' '))
 }
 
-const selectShape = (shape) => { shape.setAttribute('stroke', 'magenta') }
 
-const unselectShape = (shape) => { shape.setAttribute('stroke', 'black') }
 
-const translateShape = (shape, position) => {
-    shape.translate = { x: position.x - 25, y: position.y - 25 }
-    updateTransformShape(shape)
-}
 
-const rotateShape = (shape, angle) => {
-    shape.angle = shape.angle + angle || angle
-    updateTransformShape(shape)
-}
+

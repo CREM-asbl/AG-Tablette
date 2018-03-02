@@ -57,7 +57,9 @@
             _clickHandle(event) {
                 event.target.focus()
                 let shape = event.target.innerHTML
-                window.currentAction = new ConstructShape(this.family, shape)
+                window.currentFamily = this.family
+                window.constructingShape = shape
+                setMode(constructMode)
             }
 
         }
