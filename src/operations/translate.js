@@ -8,6 +8,7 @@ const translateMode = {
     run: event => {
         let position = currentPosition(event)
         translateShape(currentSelectedShape, position)
+        event.preventDefault()
     },
 
     reset: event => {

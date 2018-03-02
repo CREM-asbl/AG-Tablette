@@ -1,6 +1,6 @@
-const rotateShape = (shape, angle) => {
-    shape.angle = shape.angle + angle || angle
-    updateTransformShape(shape)
+const rotateShape = (angle) => {
+    currentSelectedShape.angle = currentSelectedShape.angle + angle || angle
+    updateTransformShape(currentSelectedShape)
 }
 
 const rotationMode = {
@@ -9,9 +9,10 @@ const rotationMode = {
         let center = getCGShape(currentSelectedShape)
         if (rotationMode.startPosition) {
             let angle = calculateAngle(center, rotationMode.startPosition, position)
-            rotateShape(currentSelectedShape, angle)
+            rotateShape(angle)
         }
         rotationMode.startPosition = position
+        event.preventDefault()
     },
 
     reset: event => {
