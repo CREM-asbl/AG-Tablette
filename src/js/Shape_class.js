@@ -55,22 +55,50 @@ Shape.prototype.setSourceShape = function(shape) {
 };
 
 /**
- * Define the source shape of this shape
+ * Compute an approximated path of the shape, using only lines (no arc or curves)
  * @param shape: the source shape (Shape)
+ * @return the list of lines ([{"x": float, "y": float}])
  */
 Shape.prototype.getApproximatedPointsList = function() {
 	var pointsList = [ {"x": this.buildSteps[0].x, "y": this.buildSteps[0].y} ];
 	for (var i = 1; i < this.buildSteps.length; i++) {
 		if(this.buildSteps[i].getType()=="line") {
-			pointsList.push({"x": this.buildSteps[0].x, "y": this.buildSteps[0].y});
+			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
 		} else if(this.buildSteps[i].getType()=="arc") {
-			pointsList.push({"x": this.buildSteps[0].x, "y": this.buildSteps[0].y});
+			var x = this.buildSteps[i].x,
+				y = this.buildSteps[i].y,
+				start_pos = {"x": this.buildSteps[i-1].x, "y": this.buildSteps[i-1].y},
+				angle = this.buildSteps[i].angle,
+				direction = this.buildSteps[i].direction;
+
+			var rayon = Math.sqrt(Math.pow(x - start_pos.x, 2) + Math.pow(y - start_pos.y, 2));
+			var start_angle = window.app.getAngleBetweenPoints(start_pos, {"x": x, "y": y});
+			var end_angle = start_angle+angle*Math.PI/180;
+			var step_angle = 10 *Math.PI/180;
+
+			if(direction) {
+				var tmp = start_angle + Math.PI*2;
+				start_angle = end_angle;
+				end_angle = tmp;
+			}
+
+			var cur_angle = start_angle;
+			while(cur_angle+step_angle < end_angle) {
+				cur_angle += step_angle;
+
+				var posX = rayon * Math.sin(cur_angle) + x,
+					posY = rayon * Math.cos(cur_angle) + y;
+
+				pointsList.push({"x": posX,"y": posY});
+
+			}
+
 		} else if(this.buildSteps[i].getType()=="quadraticCurve") {
 			//todo: compute a better approximation
-			pointsList.push({"x": this.buildSteps[0].x, "y": this.buildSteps[0].y});
+			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
 		} else if(this.buildSteps[i].getType()=="cubicCurve") {
 			//todo: compute a better approximation
-			pointsList.push({"x": this.buildSteps[0].x, "y": this.buildSteps[0].y});
+			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
 		} else{
 			console.log("Shape.getApproximatedPointsList: unknown buildStep type");
 			return null;

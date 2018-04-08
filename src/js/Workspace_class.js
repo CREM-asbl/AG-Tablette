@@ -45,6 +45,7 @@ Workspace.prototype.shapesOnPoint = function(point){
 		if(this.shapesList[i].containsPoint(point))
 			list.push(this.shapesList[i]);
 	}
+	console.log(list);
 	return list;
 };
 
@@ -89,21 +90,24 @@ Workspace.prototype.addMenuAFamilies = function(){
 	f1.addShape("Triangle équilatéral",[
 		ShapeStep.getLine(25 - 25, 7.5 -25),
 		ShapeStep.getLine(50 -25, 50 -25),
-		ShapeStep.getLine(0 -25, 50 -25)
+		ShapeStep.getLine(0 -25, 50 -25),
+		ShapeStep.getLine(25 - 25, 7.5 -25)
 	]);
 
 	f1.addShape("Losange",[
 		ShapeStep.getLine(0 -25, 7.5 -25),
 		ShapeStep.getLine(50 -25, 7.5 -25),
 		ShapeStep.getLine(75 -25, 50 -25),
-		ShapeStep.getLine(25 -25, 50 -25)
+		ShapeStep.getLine(25 -25, 50 -25),
+		ShapeStep.getLine(0 -25, 7.5 -25)
 	]);
 
 	f1.addShape("Trapèze isocèle",[
 		ShapeStep.getLine(25 - 25, 7.5 - 25),
 		ShapeStep.getLine(75 - 25, 7.5 - 25),
 		ShapeStep.getLine(100 - 25, 50 - 25),
-		ShapeStep.getLine(0 - 25, 50 - 25)
+		ShapeStep.getLine(0 - 25, 50 - 25),
+		ShapeStep.getLine(25 - 25, 7.5 - 25)
 	]);
 
 	f1.addShape("Hexagone régulier",[
@@ -112,26 +116,30 @@ Workspace.prototype.addMenuAFamilies = function(){
 		ShapeStep.getLine(100 - 25, 50 - 25),
 		ShapeStep.getLine(75 - 25, 92.5 - 25),
 		ShapeStep.getLine(25 - 25, 92.5 - 25),
-		ShapeStep.getLine(0 - 25, 50 - 25)
+		ShapeStep.getLine(0 - 25, 50 - 25),
+		ShapeStep.getLine(25 - 25, 7.5 - 25)
 	]);
 
 	f1.addShape("Triangle isocèle",[
-		ShapeStep.getLine(25, 28.33),
+		ShapeStep.getLine(25 - 25, 28.33 - 25),
 		ShapeStep.getLine(50 - 25, 50 - 25),
-		ShapeStep.getLine(0 - 25, 50 - 25)
+		ShapeStep.getLine(0 - 25, 50 - 25),
+		ShapeStep.getLine(25 - 25, 28.33 - 25)
 	]);
 
 	f1.addShape("Triangle rectangle",[
 		ShapeStep.getLine(25 - 25, 7.5 - 25),
 		ShapeStep.getLine(50 - 25, 50 - 25),
-		ShapeStep.getLine(25 - 25, 50 - 25)
+		ShapeStep.getLine(25 - 25, 50 - 25),
+		ShapeStep.getLine(25 - 25, 7.5 - 25)
 	]);
 
 	f1.addShape("Trapèze rectangle",[
 		ShapeStep.getLine(25 - 25, 7.5 - 25),
 		ShapeStep.getLine(50 - 25, 50 - 25),
 		ShapeStep.getLine(0 - 25, 50 - 25),
-		ShapeStep.getLine(0 - 25, 7.5 - 25)
+		ShapeStep.getLine(0 - 25, 7.5 - 25),
+		ShapeStep.getLine(25 - 25, 7.5 - 25)
 	]);
 
 	f1.addShape("Dodécagone régulier",[
@@ -146,48 +154,43 @@ Workspace.prototype.addMenuAFamilies = function(){
 		ShapeStep.getLine(-43.301270189221896 - 25, -111.60254037844389 - 25),
 		ShapeStep.getLine(-68.30127018922192 - 25, -68.30127018922197 - 25),
 		ShapeStep.getLine(-68.30127018922194 - 25, -18.301270189221967 - 25),
-		ShapeStep.getLine(-43.30127018922197 - 25, 24.999999999999986 - 25)
+		ShapeStep.getLine(-43.30127018922197 - 25, 24.999999999999986 - 25),
+		ShapeStep.getLine(0 - 25, 50 - 25)
 	]);
 
 	f1.addShape("Grand triangle isocèle",[
 		ShapeStep.getLine(0 - 25, 50 - 25),
 		ShapeStep.getLine(50 - 25, 50 - 25),
-		ShapeStep.getLine(25 - 25, -43.3 - 25)
+		ShapeStep.getLine(25 - 25, -43.3 - 25),
+		ShapeStep.getLine(0 - 25, 50 - 25)
 	]);
 
 	f1.addShape("Petit losange",[
 		ShapeStep.getLine(0 - 25, 50 - 25),
 		ShapeStep.getLine(50 - 25, 50 - 25),
 		ShapeStep.getLine(93.30 - 25, 25 - 25),
-		ShapeStep.getLine(43.30 - 25, 25 - 25)
+		ShapeStep.getLine(43.30 - 25, 25 - 25),
+		ShapeStep.getLine(0 - 25, 50 - 25)
 	]);
 
-	/*f1.addShape("Petit disque",[
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-	]);*/
+	f1.addShape("Petit disque",[
+		ShapeStep.getLine(0 - 25, 0 - 25),
+		ShapeStep.getArc(25 - 25, 30 - 25, 360, false)
+	]);
 
-	/* H: le Y ne change pas!   V: le X ne change pas!
-            'PDisque': 'M 25 0 A 1 1 0 0 0 25 60 A 1 1 0 0 0 25 0 Z',
+	f1.addShape("Grand disque",[
+		ShapeStep.getLine(0 - 25, 0 - 25),
+		ShapeStep.getArc(75 - 25, 60 - 25, 360, false)
+	]);
 
-	//TODO! +formes-standard.js de la démo
-            'GDisque': 'M 25 7.5 A 1 1 0 0 0 75 92.5 A 1 1 0 0 0 25 7.5 Z'
-	
+	/*
 	f1.addShape("AAAAAAAA",[
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
-		{"x": , "y": },
+		ShapeStep.getLine(XXXXX, YYYYY),
+		ShapeStep.getLine(XXXXX, YYYYY),
+		ShapeStep.getLine(XXXXX, YYYYY),
+		ShapeStep.getLine(XXXXX, YYYYY),
+		ShapeStep.getLine(XXXXX, YYYYY),
+		ShapeStep.getLine(XXXXX, YYYYY),
 	]);
 	*/
 

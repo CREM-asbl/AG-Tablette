@@ -32,7 +32,7 @@ Family.prototype.addShape = function(name, buildSteps, color){
 
 	this.shapesList.push({
 		"name": name,
-		"steps": buildSteps,
+		"buildSteps": buildSteps,
 		"color": color
 	});
 };
@@ -47,12 +47,12 @@ Family.prototype.getShapeData = function(name){
 		if(this.shapesList[i].name==name) {
 			var copy = {
 				"name": name,
-				"steps": [],
+				"buildSteps": [],
 				"color": this.shapesList[i].color
 			};
-			for (var j = 0; j < this.shapesList[i].steps.length; j++) {
-				var p = this.shapesList[i].steps[j];
-				copy.steps.push(p.getCopy());
+			for (var j = 0; j < this.shapesList[i].buildSteps.length; j++) {
+				var p = this.shapesList[i].buildSteps[j];
+				copy.buildSteps.push(p.getCopy());
 			}
 			return this.shapesList[i];
 		}

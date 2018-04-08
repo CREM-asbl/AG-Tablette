@@ -54,3 +54,16 @@ App.prototype.start = function(){
 		that.getCanvas().refresh();
 	};
 };
+
+/**
+ * Get the angle (in radians) between two points
+ * @param a: first point ({x: float, y:float})
+ * @param b: second point ({x: float, y:float})
+ * @return: the angle
+ */
+App.prototype.getAngleBetweenPoints = function(a, b) {
+	var angle = Math.atan2(a.x-b.x, a.y-b.y);
+	if(angle<0)
+		angle += 2*Math.PI;
+	return angle;
+}

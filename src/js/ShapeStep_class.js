@@ -98,10 +98,10 @@ ShapeStep.prototype.setLine = function(x, y) {
 
 /**
  * the step is an arc
- * @param x: x coordinate of the line's second point
- * @param y: y coordinate of the line's second point
+ * @param x: x coordinate of the arc's center
+ * @param y: y coordinate of the arc's center
  * @param angle: angle of the arc (in degrees)
- * @param direction: true if the angle is drawn clockwise, false if anticlockwise
+ * @param direction: true if the angle is drawn counterclockwise, false if clockwise
  */
 ShapeStep.prototype.setArc = function(x, y, angle, direction) {
 	this.type = "arc";

@@ -64,16 +64,23 @@ Canvas.prototype.drawShape = function(shape) {
 	ctx.rotate(-shape.rotateAngle);
 
 	ctx.beginPath();
-	var firstPoint = shape.steps[0];
+	var firstPoint = shape.buildSteps[0];
 
 	ctx.moveTo(firstPoint.x, firstPoint.y);
-	for (var i = 1; i < shape.steps.length; i++) {
-		if(steps.getType()=="line") {
-			ctx.lineTo(shape.steps[i].x, shape.steps[i].y);
+	for (var i = 1; i < shape.buildSteps.length; i++) {
+		var s = shape.buildSteps[i];
+		if(s.getType()=="line") {
+			ctx.lineTo(s.x, s.y);
+		} else if(s.getType()=="arc") {
+			var start_pos = {"x": shape.buildSteps[i-1].x, "y": shape.buildSteps[i-1].y};
+			var rayon = Math.sqrt(Math.pow(s.x - start_pos.x, 2) + Math.pow(s.y - start_pos.y, 2));
+
+			var start_angle = this.app.getAngleBetweenPoints(start_pos, s);
+			ctx.arc(s.x, s.y, rayon, start_angle, start_angle+s.angle*Math.PI/180, s.direction);
 		} else {
 			//todo
 			console.log("Canvas.drawShape: missed one step:");
-			console.log(shape.steps[i]);
+			console.log(shape.buildSteps[i]);
 		}
 	}
 	ctx.lineTo(firstPoint.x, firstPoint.y);
