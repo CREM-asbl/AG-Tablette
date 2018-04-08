@@ -1,0 +1,106 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="div-main-canvas.html">
+<link rel="import" href="css/canvas-view.html">
+<link rel="import" href="shapes-list.html">
+<link rel="import" href="canvas-button.html">
+
+<dom-module id="ag-tablette-app">
+  <template>
+    <style include="canvas-view">
+        .action-button {
+            display: block;
+            box-sizing: border-box;
+            width: 100%;
+            height: 30px;
+            margin: 8px 0;
+        }
+
+        .action-button:hover,
+        .action-button:focus {
+            font-weight: bold;
+        }
+
+        canvas-button {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            margin: 4px;
+        }
+    </style>
+
+    <!-- todo: autre vues (menu principal lorsqu'on ouvre l'app, options, ...) -->
+    <div id="app-canvas-view">
+
+      <div id="app-canvas-view-toolbar" class="toolbar">
+
+        <div>
+            <button class="action-button" name="annuler" on-click='_actionHandle' disabled>Annuler</button>
+            <!--<button class="action-button" name="modifier" on-click='_actionHandle'>Modifier</button>-->
+        </div>
+        <div>
+            <strong>Mouvements</strong>
+        </div>
+        <button class="action-button" name="move" on-click='_actionHandle'>Glisser</button>
+        <button class="action-button" name="rotate" on-click='_actionHandle'>Tourner</button>
+        <button class="action-button" name="reverse" on-click='_actionHandle'>Retouner</button>
+        <button class="action-button" name="zoom" on-click='_actionHandle'>Zoomer</button>
+        <button class="action-button" name="delete" on-click='_actionHandle'>Supprimer</button>
+
+        <div>
+            <strong>Formes standard</strong>
+        </div>
+
+        <template is="dom-repeat" items="[[_getFamilies()]]">
+            <canvas-button family="[[item]]" active="{{currentFamily}}"></canvas-button>
+        </template>
+
+        <shapes-list family="[[currentFamily]]"></shapes-list>
+
+      </div>
+
+      <div-main-canvas id="div-main-canvas"></div-main-canvas>
+    </div>
+    
+  </template>
+
+  <script>
+    /**
+     * Menu event handlers
+     */
+    class AGTabletteApp extends Polymer.Element {
+        static get is() { return 'ag-tablette-app'; }
+
+        static get properties() {
+            return {
+                currentFamily: String
+            }
+        }
+
+        /**
+         * Main event handler
+         */
+        _actionHandle(event) {
+            this.currentFamily = ''
+            switch (event.target.name) {
+                case 'move':
+                    window.app.state.setMoving();
+                    break;
+
+                case 'rotate':
+                    
+                    break;
+            }
+        }
+
+        /**
+         * Get the family names list
+         * @return family names ([String]) 
+         */
+        _getFamilies() {
+            return Workspace.getMenuAFamiliesNames();
+        }
+    }
+
+    window.customElements.define(AGTabletteApp.is, AGTabletteApp);
+  </script>
+</dom-module>

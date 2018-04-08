@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Démonstration de l'utilisation du canvas</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="css/menu.css">
+	<style type="text/css">
+		
+	</style>
+</head>
+<body>
+
+	<div id="main_div">
+		<div id="left_menu">
+			<button id="leftmenu_btn1">Mode Ajout de Carrés</button> <br>
+			<button id="leftmenu_btn2">Mode Rotation</button> <br>
+			<button id="leftmenu_btn3">Mode Interaction</button>
+		</div>
+		<div id="canvas_div">
+			<!-- The size is updated by javascript, at startup 
+				 and when the window is resized -->
+			<canvas id="main_canvas" width="10px" height="10px">
+			</canvas>
+
+		</div><!-- end #canvas_div -->
+	</div><!-- end #main_div -->
+
+	<noscript>Javascript doit être activé pour pouvoir utiliser cette application.</noscript>
+	<!--  TODO: ajouter un lien expliquant comment activer JS ou comment mettre à jour le navigateur -->
+
+
+
+	<!-- ######################################################## -->
+	<!-- ###################### JAVASCRIPT ###################### -->
+	<!-- ######################################################## -->
+
+	<script src="js/main/utilities.js"></script>				<!-- Some useful functions 	-->
+	<script src="js/classes/Shape_class.js"></script>			<!-- The Shape Class 		-->
+	<script src="js/main/app.js" defer></script>				<!-- Main application 		-->
+	<script src="js/canvas/menu_events.js" defer></script>		<!-- Menu events 			-->
+	<script src="js/canvas/canvas_events.js" defer></script>	<!-- Canvas events 			-->
+	<script src="js/canvas/drawer.js" defer></script>
+	<script src="js/main/rotation.js" defer></script>
+
+	<script src="js/main/launch_app.js" defer></script>
+</body>
+</html>

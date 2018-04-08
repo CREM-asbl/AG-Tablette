@@ -7,25 +7,22 @@
                 display: block;
             }
 
-            canvas {
+            svg {
                 width: 100%;
                 height: 100%;
                 background: #fff;
                 border: 1px solid black;
             }
 
-            canvas.active {
+            svg.active {
                 border: 2px solid red;
             }
         </style>
 
-        <canvas id="canvas" width="60px" height="60px" on-click="_clickHandle"></canvas>
+        <svg id="svg" on-click="_clickHandle"></svg>
     </template>
 
     <script>
-        /**
-         * Families buttons event handlers
-         */
         class CanvasButton extends Polymer.Element {
             static get is() { return 'canvas-button' }
 
@@ -48,25 +45,18 @@
                 this.set('active', this.family)
             }
 
-            /**
-             * draw the image on the button
-             */
             _draw(family) {
-                var ctx = this.$.canvas.getContext("2d");
-                ctx.fillStyle = "orange";
-                ctx.strokeStyle = "red";
-                ctx.fillRect(10,10,40,40); //todo draw anything else
+                let shape = createShape(family, getFirstFamilyShape(family))
+                shape.setAttribute('transform','translate(10,18) scale(.6)')
+                this.$.svg.appendChild(shape)
             }
 
-            /**
-             * set the clicked button as active
-             */
             _isActive(current) {
                 if (current === this.family) { 
-                    this.$.canvas.classList.add('active')
+                    this.$.svg.classList.add('active')
                     return
                 }
-                this.$.canvas.classList.remove('active')
+                this.$.svg.classList.remove('active')
             }
         }
         customElements.define(CanvasButton.is, CanvasButton)

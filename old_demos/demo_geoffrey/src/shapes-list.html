@@ -7,7 +7,7 @@
                 display: none;
                 position: absolute;
                 top: 50px;
-                left: 33%;
+                left: 251px;
                 box-shadow: 1px 1px 2px gray;
                 width: 150px;
                 padding: 1px;
@@ -32,7 +32,7 @@
         </style>
         <h2>Formes</h2>
         <template is="dom-repeat" items="[[shapes(family)]]">
-            <button on-click="_clickHandle" name="[[item]]" >[[item]]</button>
+            <button on-click="_clickHandle" >[[item]]</button>
         </template>
     </template>
     <script>
@@ -45,28 +45,19 @@
                 }
             }
 
-            /**
-             * Get the family's shapes names list
-             * @return shapes names list ([String])
-             */
             shapes(family) {
                 if (!family) { 
                     this.style.display = 'none'
                     return 
                 }
                 this.style.display = 'block'
-                return window.app.workspace.getFamily(family).getShapesNames();
+                return Object.keys(stdShapes[family].shapes)
             }
 
-            /**
-             * Update the app state when clicking on a shape's name
-             */
             _clickHandle(event) {
-                var familyRef = window.app.workspace.getFamily(this.family);
-                var shapeRef = familyRef.getShapeData(event.target.name);
-                event.target.focus();
-
-                window.app.state.setCreating(familyRef, shapeRef);
+                event.target.focus()
+                let shape = event.target.innerHTML
+                window.currentAction = new ConstructShape(this.family, shape)
             }
 
         }

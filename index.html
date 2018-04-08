@@ -1,77 +1,52 @@
-<!doctype html>
-<html lang="fr">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>AG-tablette</title>
+    <meta name="description" content="Apprenti Géomètre pour tablettes !">
 
-  <title>Apprenti Géomètre</title>
+    <!-- See https://goo.gl/OOhYW5 -->
+    <link rel="manifest" href="/manifest.json">
 
-  <meta name="description" content="Apprenti Géomètre">
-  <meta name="author" content="Geoffrey Pliez">
+    <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
 
-  <link rel="icon" href="/images/favicon.ico">
+    <link rel="import" href="/src/AG-tablette-app.html">
 
-  <!-- See https://goo.gl/OOhYW5 -->
-  <link rel="manifest" href="/manifest.json">
+    <style type="text/css">
+      html, body, ag-tablette-app {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="src/js/App_class.js"></script>
+    <script src="src/js/Canvas_class.js"></script>
+    <script src="src/js/Family_class.js"></script>
+    <script src="src/js/Menu_class.js"></script>
+    <script src="src/js/Shape_class.js"></script>
+    <script src="src/js/State_class.js"></script>
+    <script src="src/js/Workspace_class.js"></script>
 
-  <!-- See https://goo.gl/qRE0vM -->
-  <meta name="theme-color" content="#3f51b5">
+    <script src="src/js/Actions/Create_class.js"></script>
+    <script src="src/js/Actions/Delete_class.js"></script>
+    <script src="src/js/Actions/Move_class.js"></script>
+    <script src="src/js/Actions/Reverse_class.js"></script>
+    <script src="src/js/Actions/Rotate_class.js"></script>
+    <ag-tablette-app></ag-tablette-app>
 
-  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="Apprenti Géomètre">
-
-  <!-- Add to homescreen for Safari on iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Apprenti Géomètre">
-
-  <!-- Homescreen icons -->
-  <link rel="apple-touch-icon" href="/images/manifest/icon.svg">
-  <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72.png">
-  <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon.svg">
-  <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon.svg">
-  <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon.svg">
-
-  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
-  <meta name="msapplication-TileImage" content="/images/manifest/icon-144.png">
-  <meta name="msapplication-TileColor" content="#3f51b5">
-  <meta name="msapplication-tap-highlight" content="no">
-
-  <!-- Load and register pre-caching Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/service-worker.js');
-      });
-    }
-  </script>
-
-
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Roboto', 'Noto', sans-serif;
-      line-height: 1.5;
-      min-height: 100vh;
-      background-color: #eee;
-    }
-  </style>
-
-</head>
-
-<body>
-
-  <my-app>loading ...</my-app>
-  
-  <noscript>
-    Javascript est nécessaire au fonctionnement de l'application
-  </noscript>
-  <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
-
-  <link rel="import" href="/src/my-app.html">
-
-</body>
-
+    
+    <script>
+      var canvasDiv = document.getElementsByTagName("ag-tablette-app")[0].shadowRoot.getElementById("div-main-canvas");
+      //var canvasLeftShift = document.getElementsByTagName("ag-tablette-app")[0].shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
+      //var canvasTopShift = 0;
+      var canvas = canvasDiv.shadowRoot.getElementById("mainCanvas");
+      var app = new App(canvasDiv, canvas);
+      app.start();
+    </script>
+  </body>
 </html>

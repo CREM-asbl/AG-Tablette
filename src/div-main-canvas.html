@@ -1,0 +1,114 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="div-main-canvas">
+    <template>
+        <style>
+            canvas {
+                background-color: white;
+            }
+        </style>
+        <canvas id="mainCanvas"></canvas>
+    </template>
+    <script>
+        /**
+         * Canvas event handler
+         */
+        class DivMainCanvas extends Polymer.Element {
+
+            static get is() { return 'div-main-canvas' }
+
+            /**
+             * Define the <canvas> width and height attributes. Must be called on page load and when the page is resized.
+             */
+            setCanvasSize() {
+                var cvs = this.$.mainCanvas;
+                //set canvas fixed size
+                cvs.setAttribute("height", this.parentElement.clientHeight);
+                cvs.setAttribute("width", this.parentElement.clientWidth*0.7);
+            }
+
+            /**
+             * Get the mouse coordinates from an event reference
+             * @param event: event reference (Event)
+             * @return mouse coordinates ({x: int, y: int})
+             * @Error: if the coordinates were not found, an alert() is triggered and the function returns null
+             */
+            getMousePos(event) {
+                var response = null;
+                if(event.offsetX!==undefined) {
+                    response = [event.offsetX, event.offsetY];
+                } else if(event.layerX!==undefined) {
+                    response = [event.layerX, event.layerY];
+                } else if(event.clientX!==undefined) {
+                    response = [event.clientX, event.clientY];
+                } else if(event.layerX!==undefined) {
+                    response = [event.pageX, event.pageY];
+                } else if(event.x!==undefined) {
+                    response = [event.x, event.y];
+                } else {
+                    alert("navigator not compatible, to do: use clientX/Y to get mouse position");
+                    return null;
+                }
+                
+                return {"x": response[0], "y": response[1]};
+            }
+
+            /**
+             * Set the <canvas> events handlers
+             */
+            ready() {
+                super.ready();
+
+                this.setCanvasSize();
+                var cvs = this.$.mainCanvas
+                cvs.addEventListener('click', this._handleClick.bind(this), false);
+                cvs.addEventListener('mousemove', this._handleMove.bind(this), false);
+
+                cvs.addEventListener('touchmove', this._handleTouch.bind(this), false);
+                // this.addEventListener("touchstart", this._handleStart.bind(this), false);
+                cvs.addEventListener("touchend", this._handleEnd.bind(this), false);
+                // addEventListener("touchcancel", handleCancel, false);
+                // addEventListener("touchleave", handleLeave, false);
+            }
+
+            /**
+             * <canvas> click event handler
+             */
+            _handleClick(event) {
+                if(window.app.state.isCreating) {
+                    window.app.actions.create.do(this.getMousePos(event));
+                }
+                if(window.app.state.isMoving) {
+                    var point = this.getMousePos(event);
+                    var list = window.app.workspace.shapesOnPoint(point);
+                    if(list.length>0) {
+                        window.app.actions.move.start(list.pop());
+                    }
+                    
+                }
+            }
+
+            /**
+             * <canvas> mousemove event handler
+             */
+            _handleMove(event) {
+                //console.log("handle move");
+            }
+
+            /**
+             * <canvas> ? event handler
+             */
+            _handleTouch(event) {
+                console.log("handle touch");
+            }
+
+            /**
+             * <canvas> ? event handler
+             */
+            _handleEnd() {
+                console.log("handle end");
+            }
+        }
+        customElements.define(DivMainCanvas.is, DivMainCanvas);
+    </script>
+</dom-module>

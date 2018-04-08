@@ -1,62 +1,33 @@
-# Apprenti Géomètre Tablette
+# \<AG-tablette\>
 
-Cette version se base sur le framework Polymer
+Apprenti Géomètre pour tablettes !
 
-The PRPL pattern, in a nutshell:
+## Install the Polymer-CLI
 
-* **Push** components required for the initial route
-* **Render** initial route ASAP
-* **Pre-cache** components for remaining routes
-* **Lazy-load** and progressively upgrade next routes on-demand
+First, make sure you have the [Polymer CLI](https://www.npmjs.com/package/polymer-cli) installed. Then run `polymer serve` to serve your application locally.
 
-### Setup
+## Viewing Your Application
 
-##### Prerequisites
+```
+$ polymer serve
+```
 
-Install [polymer-cli](https://github.com/Polymer/polymer-cli):
+## Building Your Application
 
-    npm install -g polymer-cli
+```
+$ polymer build
+```
 
-### Start the development server
+This will create builds of your application in the `build/` directory, optimized to be served in production. You can then serve the built versions by giving `polymer serve` a folder to serve from:
 
-This command serves the app at `http://localhost:8080` and provides basic URL
-routing for the app:
+```
+$ polymer serve build/default
+```
 
-    polymer serve
+## Running Tests
 
+```
+$ polymer test
+```
 
-### Build
-
-This command performs HTML, CSS, and JS minification on the application
-dependencies, and generates a service-worker.js file with code to pre-cache the
-dependencies based on the entrypoint and fragments specified in `polymer.json`.
-The minified files are output to the `build/unbundled` folder, and are suitable
-for serving from a HTTP/2+Push compatible server.
-
-In addition the command also creates a fallback `build/bundled` folder,
-generated using fragment bundling, suitable for serving from non
-H2/push-compatible servers or to clients that do not support H2/Push.
-
-    polymer build
-
-### Test the build
-
-This command serves the minified version of the app in an unbundled state, as it would
-be served by a push-compatible server:
-
-    polymer serve build/unbundled
-
-This command serves the minified version of the app generated using fragment bundling:
-
-    polymer serve build/bundled
-
-### Extend
-
-You can extend the app by adding more elements that will be demand-loaded
-e.g. based on the route, or to progressively render non-critical sections
-of the application.  Each new demand-loaded fragment should be added to the
-list of `fragments` in the included `polymer.json` file.  This will ensure
-those components and their dependencies are added to the list of pre-cached
-components (and will have bundles created in the fallback `bundled` build).
-
-
+Your application is already set up to be tested via [web-component-tester](https://github.com/Polymer/web-component-tester). Run `polymer test` to run your application's test suite locally.
