@@ -26,11 +26,20 @@ Canvas.prototype.getDiv = function(){
 /**
  * Re-draw everything on the canvas
  */
-Canvas.prototype.refresh = function() {
+Canvas.prototype.refresh = function(mouseCoordinates) {
+	var state = this.app.state;
+
 	this.drawBackground();
+	
 	var shapes = this.app.workspace.shapesList;
-	for (var i = 0; i < shapes.length; i++) {
+	for (var i = 0; i < shapes.length; i++) { //todo: draw in the good order (see order-array in workspace)
+		if(state.isMoving && state.moveData.isShapeSelected && state.moveData.shape.id==shapes[i].id)
+			continue;
 		this.drawShape(shapes[i]);
+	}
+
+	if(state.isMoving && state.moveData.isShapeSelected) {
+		this.drawMovingShape(state.moveData.shape, mouseCoordinates);
 	}
 };
 
@@ -92,4 +101,11 @@ Canvas.prototype.drawShape = function(shape) {
 
 	ctx.rotate(shape.rotateAngle);
 	ctx.translate(-shape.x, -shape.y);
+};
+
+Canvas.prototype.drawMovingShape = function(shape, mouseCoordinates) {
+	var coords = shape.getCoordinates();
+	shape.setCoordinates(mouseCoordinates);
+	this.drawShape(shape);
+	shape.setCoordinates(coords);
 };

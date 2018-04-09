@@ -8,13 +8,13 @@
 function State() {
 	this.isRotating = false;
 	this.rotateData = {
-		"shapeId": null,
+		"shape": null,
 		"startAngle": null
 	};
 
 	this.isMoving = false;
 	this.moveData = {
-		"shapeId": null
+		"shape": null
 	};
 
 	this.isDeleting = false;
@@ -60,18 +60,17 @@ State.prototype.setMoving = function() {
 	this.unsetCreating();
 
 	this.isMoving = true;
+	this.moveData.isShapeSelected = false;
 
-	this.moveData.shapeId = null;
+	this.moveData.shape = null;
 };
 
 /**
  * Update the app state (terminate moving context)
  */
 State.prototype.unsetMoving = function() {
-	if(this.moveData.shapeId!=null) {
-		//todo: do anything? or not?
-	}
-	this.moveData.shapeId = null;
+	this.moveData.shape = null;
+	this.moveData.isShapeSelected = false;
 	this.isMoving = false;
 };
 

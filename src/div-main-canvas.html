@@ -80,11 +80,14 @@
                 }
                 if(window.app.state.isMoving) {
                     var point = this.getMousePos(event);
-                    var list = window.app.workspace.shapesOnPoint(point);
-                    if(list.length>0) {
-                        window.app.actions.move.start(list.pop());
+                    if(window.app.state.moveData.isShapeSelected) { //end the move!
+                        window.app.actions.move.end(point);
+                    } else { //begin a move ?
+                        var list = window.app.workspace.shapesOnPoint(point);
+                        if(list.length>0) {
+                            window.app.actions.move.start(list.pop()); //move the shape!
+                        }
                     }
-                    
                 }
             }
 
@@ -92,7 +95,7 @@
              * <canvas> mousemove event handler
              */
             _handleMove(event) {
-                //console.log("handle move");
+                window.app.getCanvas().refresh(this.getMousePos(event));
             }
 
             /**

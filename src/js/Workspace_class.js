@@ -45,7 +45,6 @@ Workspace.prototype.shapesOnPoint = function(point){
 		if(this.shapesList[i].containsPoint(point))
 			list.push(this.shapesList[i]);
 	}
-	console.log(list);
 	return list;
 };
 
@@ -75,6 +74,7 @@ Workspace.prototype.addFamily = function(family){
  * @param shape: the shape (Shape)
  */
 Workspace.prototype.addShape = function(shape){
+	shape.setId(this.nextShapeId++);
 	this.shapesList.push(shape);
 	//todo update shapesShowOrder and points
 };

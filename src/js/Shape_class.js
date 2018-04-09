@@ -162,3 +162,20 @@ Shape.prototype.containsPoint = function(point) {
 	}
 	return false;
 };
+
+/**
+ * get the position of the shape
+ * @return the position ({x: float, y: float})
+ */
+Shape.prototype.getCoordinates = function() {
+	return {"x": this.x, "y": this.y};
+};
+
+/**
+ * set the position of the shape
+ * @param coordinates: the position ({x: float, y: float})
+ */
+Shape.prototype.setCoordinates = function(coordinates) {
+	this.x = coordinates.x;
+	this.y = coordinates.y;
+};
