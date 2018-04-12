@@ -2,6 +2,9 @@
 
 Apprenti Géomètre pour tablettes !
 
+Voir le répertorie old_demos pour retrouver les 2 démo sur lesquelles est basée cette version.
+
+
 ## Install the Polymer-CLI
 
 First, make sure you have the [Polymer CLI](https://www.npmjs.com/package/polymer-cli) installed. Then run `polymer serve` to serve your application locally.
