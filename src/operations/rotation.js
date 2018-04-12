@@ -1,4 +1,4 @@
-const rotateShape = (angle) => {
+const rotateShape = angle => {
     currentSelectedShape.angle = currentSelectedShape.angle + angle || angle
     updateTransformShape(currentSelectedShape)
 }
