@@ -1,3 +1,7 @@
+import { createShape } from '../formes-standard'
+import { currentPosition } from '../formules'
+import { translateShape } from './translate'
+
 const constructShape = event => {
     let shape = createShape(currentFamily, constructingShape)
     let position = currentPosition(event)
@@ -5,7 +9,7 @@ const constructShape = event => {
     mainCanvas.appendChild(shape)
 }
 
-const constructMode = {
+export const constructMode = {
     start: () => {
         mainCanvas.addEventListener('click', constructShape)
     },

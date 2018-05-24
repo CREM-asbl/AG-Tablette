@@ -1,9 +1,14 @@
+import { updateTransformShape, getCGShape } from '../formes-standard'
+import { selectMode, currentSelectedShape, unselectShape } from './select'
+import { currentPosition, calculateAngle } from '../formules'
+
+
 const rotateShape = angle => {
     currentSelectedShape.angle = currentSelectedShape.angle + angle || angle
     updateTransformShape(currentSelectedShape)
 }
 
-const rotationMode = {
+export const rotationMode = {
     run: event => {
         let position = currentPosition(event)
         let center = getCGShape(currentSelectedShape)

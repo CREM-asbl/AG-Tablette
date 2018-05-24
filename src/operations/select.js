@@ -1,9 +1,11 @@
+export let currentSelectedShape = {}
+
 const selectShape = (shape) => { 
     shape.setAttribute('stroke', 'magenta') 
     currentSelectedShape = shape
 }
 
-const unselectShape = () => { 
+export const unselectShape = () => { 
     if (!currentSelectedShape) { return }
     currentSelectedShape.setAttribute('stroke', 'black')
     currentSelectedShape = null
@@ -19,7 +21,7 @@ const selectShapeOperation = event => {
     }
 }
 
-const selectMode = {
+export const selectMode = {
     start: () => mainCanvas.addEventListener('click', selectShapeOperation),
     stop: () => mainCanvas.removeEventListener('click', selectShapeOperation)
 }

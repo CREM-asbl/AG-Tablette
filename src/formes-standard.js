@@ -1,7 +1,7 @@
 //actuellement librairie de manipulation des formes-standard qui centralise les opérations sur les shapes
 //le temps de trouver une meilleure solution et pouvoir exploiter les imports javascript
 
-const pathPolygonReg = (n, size) => {
+export const pathPolygonReg = (n, size) => {
     let path = `M 0 ${size}`
     let angle = 2 * Math.PI / n
     let x = 0
@@ -22,7 +22,7 @@ const pathPolygonReg = (n, size) => {
 //utilisation de path qui est plus souple pour les définitions
 //P = petit et G = grand
 //premier jet à améliorer et à uniformiser
-const stdShapes = {
+export const stdShapes = {
     'Triangle équilatéral': {
         color: 'yellow',
         shapes: {
@@ -68,7 +68,7 @@ const stdShapes = {
     }
 }
 
-const getFirstFamilyShape = (family) => {
+export const getFirstFamilyShape = (family) => {
     let shape = ''
     switch (family) {
         case 'Triangle équilatéral':
@@ -84,7 +84,7 @@ const getFirstFamilyShape = (family) => {
     return shape
 }
 
-const createShape = (family, shape) => {
+export const createShape = (family, shape) => {
     let shapesFamily = stdShapes[family]
     let element = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     element.setAttribute('d', shapesFamily.shapes[shape])
@@ -97,14 +97,14 @@ const createShape = (family, shape) => {
 }
 
 //à améliorer pour toutes les formes
-const getCGShape = (shape) => {
+export const getCGShape = (shape) => {
     let box = shape.getBoundingClientRect()
     let cx = box.x + box.width / 2
     let cy = box.y + box.height / 2
     return { x: cx, y: cy }
 }
 
-const updateTransformShape = (shape) => {
+export const updateTransformShape = (shape) => {
     let transforms = []
     shape.removeAttribute('transform')
     if (shape.translate) { transforms.push(`translate(${shape.translate.x},${shape.translate.y})`) }

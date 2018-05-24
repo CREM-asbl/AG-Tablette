@@ -5,49 +5,51 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
-  <title>Apprenti Géomètre</title>
+  <title>Smart Gestion</title>
 
-  <meta name="description" content="Apprenti Géomètre">
-  <meta name="author" content="Geoffrey Pliez">
+    <link rel="icon" href="/images/favicon.ico">
 
-  <link rel="icon" href="/images/favicon.ico">
+    <!-- See https://goo.gl/OOhYW5 -->
+    <link rel="manifest" href="/manifest.json">
 
-  <!-- See https://goo.gl/OOhYW5 -->
-  <link rel="manifest" href="/manifest.json">
+    <!-- See https://goo.gl/qRE0vM -->
+    <meta name="theme-color" content="black">
 
-  <!-- See https://goo.gl/qRE0vM -->
-  <meta name="theme-color" content="#3f51b5">
+    <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="My App">
 
-  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="Apprenti Géomètre">
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="My App">
 
-  <!-- Add to homescreen for Safari on iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Apprenti Géomètre">
+    <!-- Homescreen icons -->
+    <link rel="apple-touch-icon" href="/images/manifest/icon-48x48.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon-192x192.png">
 
-  <!-- Homescreen icons -->
-  <link rel="apple-touch-icon" href="/images/manifest/icon.svg">
-  <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72.png">
-  <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon.svg">
-  <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon.svg">
-  <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon.svg">
-
-  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
-  <meta name="msapplication-TileImage" content="/images/manifest/icon-144.png">
-  <meta name="msapplication-TileColor" content="#3f51b5">
-  <meta name="msapplication-tap-highlight" content="no">
-
+    <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="/images/manifest/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="#3f51b5">
+    <meta name="msapplication-tap-highlight" content="no">
+    
   <!-- Load and register pre-caching Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/service-worker.js');
-      });
-    }
-  </script>
+  <script type="module">
+import '/src/my-app.js';
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('/service-worker.js');
+  });
+}
+</script>
 
+  <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
+  <script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+
+  <script type="module" src="/src/my-app.js"></script>
 
   <style>
     body {
@@ -63,14 +65,9 @@
 
 <body>
 
-  <my-app>loading ...</my-app>
-  
-  <noscript>
-    Javascript est nécessaire au fonctionnement de l'application
-  </noscript>
-  <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
-
-  <link rel="import" href="/src/my-app.html">
+  <my-app>
+    Chargement en cours ...
+  </my-app>
 
 </body>
 

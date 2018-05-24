@@ -1,18 +1,15 @@
-<link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="main-canvas.html">
-<link rel="import" href="canvas-button.html">
-<link rel="import" href="shapes-list.html">
-<script src="formes-standard.js"></script>
-<script src="formules.js"></script>
-<script src="operations/mode.js"></script>
-<script src="operations/select.js"></script>
-<script src="operations/construct.js"></script>
-<script src="operations/translate.js"></script>
-<script src="operations/rotation.js"></script>
+import { PolymerElement, html } from '@polymer/polymer';
+import './main-canvas.js';
+import './canvas-button.js';
+import './shapes-list.js';
+import { stdShapes } from './formes-standard'
+import { setMode } from './operations/mode'
+import { translateMode } from './operations/translate'
+import { rotationMode } from './operations/rotation'
 
-
-<dom-module id="my-app">
-    <template>
+class MyApp extends PolymerElement {
+    static get template() {
+        return html`
         <style>
             :host {
                 position: relative;
@@ -61,14 +58,14 @@
 
         <div class="toolbar">
             <div>
-                <button class="action-button" name="annuler" on-click='_actionHandle' disabled>Annuler</button>
+                <button class="action-button" name="annuler" on-click="_actionHandle" disabled="">Annuler</button>
                 <!--<button class="action-button" name="modifier" on-click='_actionHandle'>Modifier</button>-->
             </div>
             <div>
                 <strong>Mouvements</strong>
             </div>
-            <button class="action-button" name="Glisser" on-click='_actionHandle'>Glisser</button>
-            <button class="action-button" name="Tourner" on-click='_actionHandle'>Tourner</button>
+            <button class="action-button" name="Glisser" on-click="_actionHandle">Glisser</button>
+            <button class="action-button" name="Tourner" on-click="_actionHandle">Tourner</button>
             <!-- <button class="action-button" name="retourner" on-click='_actionHandle'>Retouner</button> -->
             <!-- <button class="action-button" name="zoomer" on-click='_actionHandle'>Zoomer</button> -->
 
@@ -94,40 +91,37 @@
                         <div class="item">Notes</div>
                         <div class="item">Aide</div>
                         <div class="item">Configuration</div> -->
-    </template>
-    <script>
-        class MyApp extends Polymer.Element {
-            static get is() { return 'my-app' }
+`;
+    }
 
-            static get properties() {
-                return {
-                    currentFamily: String
-                }
-            }
+    static get is() { return 'my-app' }
 
-            ready() {
-                super.ready()
-                window.mainCanvas = this.$.mainCanvas.$.svg
-            }
-
-            _actionHandle(event) {
-                this.currentFamily = ''
-                switch (event.target.name) {
-                    case 'Glisser':
-                        setMode(translateMode)
-                        break
-
-                    case 'Tourner':
-                        setMode(rotationMode)
-                        break
-                }
-            }
-
-            _getFamilies() {
-                return Object.keys(stdShapes)
-            }
-
+    static get properties() {
+        return {
+            currentFamily: String
         }
-        customElements.define(MyApp.is, MyApp)
-    </script>
-</dom-module>
+    }
+
+    ready() {
+        super.ready()
+        window.mainCanvas = this.$.mainCanvas.$.svg
+    }
+
+    _actionHandle(event) {
+        this.currentFamily = ''
+        switch (event.target.name) {
+            case 'Glisser':
+                setMode(translateMode)
+                break
+
+            case 'Tourner':
+                setMode(rotationMode)
+                break
+        }
+    }
+
+    _getFamilies() {
+        return Object.keys(stdShapes)
+    }
+}
+customElements.define('my-app', MyApp)

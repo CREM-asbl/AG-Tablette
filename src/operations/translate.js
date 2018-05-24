@@ -1,9 +1,13 @@
-const translateShape = (shape, position) => {
+import { updateTransformShape } from '../formes-standard'
+import { selectMode, currentSelectedShape, unselectShape } from './select'
+import { currentPosition } from '../formules'
+
+export const translateShape = (shape, position) => {
     shape.translate = { x: position.x - 25, y: position.y - 25 }
     updateTransformShape(shape)
 }
 
-const translateMode = {
+export const translateMode = {
 
     run: event => {
         let position = currentPosition(event)

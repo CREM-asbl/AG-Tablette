@@ -17,10 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../bower_components/web-component-tester/browser.js"></script>
 
-  <!-- Import the element to test -->
-  <link rel="import" href="../src/my-view1.html">
-
-</head>
+<script src="../../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>head>
 <body>
 
   <test-fixture id="basic">
@@ -35,14 +32,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       setup(function() {
         home = fixture('basic');
-      });
+  <script type="module">
+import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
+suite('my-view1 tests', function() {
+  var home;
 
-      test('Number in circle should be 1', function() {
-        var circle = Polymer.dom(home.root).querySelector('.circle');
-        assert.equal(circle.textContent, '1');
-      })
-    });
-  </script>
+  setup(function() {
+    home = fixture('basic');
+  });
 
-</body>
-</html>
+  test('Number in circle should be 1', function() {
+    var circle = dom(home.root).querySelector('.circle');
+    assert.equal(circle.textContent, '1');
+  })
+});
+</script>
