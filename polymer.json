@@ -1,6 +1,6 @@
 {
   "entrypoint": "index.html",
-  "shell": "src/my-app.html",
+  "shell": "src/my-app.js",
   "fragments": [],
    "sources": [
    "src/**/*",
@@ -13,12 +13,14 @@
     "bower_components/webcomponentsjs/webcomponents-lite.js"
   ],
    "lint": {
-    "rules": ["polymer-2"]
+    "rules": ["polymer-3"]
   },
   "builds": [{
     "addServiceWorker": true,
     "js": {"compile": true, "minify": true},
     "css": {"minify": true},
     "html": {"minify": true}
-  }]
+  }],
+  "moduleResolution": "node",
+  "npm": true
 }
