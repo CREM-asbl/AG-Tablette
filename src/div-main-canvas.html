@@ -41,15 +41,15 @@
                     response = [event.layerX, event.layerY];
                 } else if(event.clientX!==undefined) {
                     response = [event.clientX, event.clientY];
-                } else if(event.layerX!==undefined) {
+                } else if(event.pageX!==undefined) {
                     response = [event.pageX, event.pageY];
                 } else if(event.x!==undefined) {
                     response = [event.x, event.y];
                 } else {
-                    alert("navigator not compatible, to do: use clientX/Y to get mouse position");
+                    alert("navigator not compatible");
                     return null;
                 }
-                
+
                 return {"x": response[0], "y": response[1]};
             }
 
@@ -75,27 +75,14 @@
              * <canvas> click event handler
              */
             _handleClick(event) {
-                if(window.app.state.isCreating) {
-                    window.app.actions.create.do(this.getMousePos(event));
-                }
-                if(window.app.state.isMoving) {
-                    var point = this.getMousePos(event);
-                    if(window.app.state.moveData.isShapeSelected) { //end the move!
-                        window.app.actions.move.end(point);
-                    } else { //begin a move ?
-                        var list = window.app.workspace.shapesOnPoint(point);
-                        if(list.length>0) {
-                            window.app.actions.move.start(list.pop()); //move the shape!
-                        }
-                    }
-                }
+                window.app.handleEvent("click", this.getMousePos(event));
             }
 
             /**
              * <canvas> mousemove event handler
              */
             _handleMove(event) {
-                window.app.getCanvas().refresh(this.getMousePos(event));
+                window.app.canvas.refresh(this.getMousePos(event));
             }
 
             /**

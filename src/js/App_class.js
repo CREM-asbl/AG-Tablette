@@ -1,69 +1,106 @@
 /**
- * The main application class
+ * La classe principale de l'application
  */
 
 /**
- * Constructor
- * @param divRef: the <div> containing the <canvas> (HTML element)
- * @param canvasRef: the <canvas> (HTML element)
+ * Constructeur, initialise l'application
+ * @param divRef: le <div> contenant l'élément HTML <canvas>
+ * @param canvasRef: l'élément HTML <canvas>
  */
 function App(divRef, canvasRef) {
-	this.cvs = new Canvas(divRef, canvasRef, this);
+	this.canvas = new Canvas(divRef, canvasRef, this);
 
-	this.state = new State();
+	this.state = {name: null};
 
 	this.workspace = new Workspace(this);
 	this.workspace.addMenuAFamilies();
 
 	this.menu = new Menu(this);
 
-	this.actions = {
-		"create": new Create(this),
-		"delete": new Delete(this),
-		"move": new Move(this),
-		"reverse": new Reverse(this),
-		"rotate": new Rotate(this),
+	this.states = {
+		"create_shape": new CreateState(this),
+		"delete": null,
+		"move_shape": null,
+		"reverse": null,
+		"rotate": null,
+	};
+
+	this.events = {
+		"click": null
 	};
 }
 
+App.prototype.handleEvent = function(eventName, eventObj){
+	this.events[eventName](eventObj);
+};
+
+App.prototype.setState = function(stateName, params){
+	var that = this;
+	if(this.state.name!=null) {
+		//this.canvas.getCanvas().removeEventListener("click", function(e){that.state.click(e);});
+
+
+		this.state.abort();
+	}
+
+	this.state = this.states[stateName];
+	this.state.reset();
+	this.state.start(params);
+
+	this.events.click = function(e){console.log(e);that.state.click(e);}
+	//this.canvas.getCanvas().addEventListener("click", );
+
+};
+
 /**
- * Getter: get the app version
- * @return app version (String)
+ * Récupérer la version de l'application
+ * @return la version (Chaîne de caractères)
  */
 App.prototype.getVersion = function(){
 	return "0.0.1";
 };
 
 /**
- * Getter: get the canvas reference
- * @return canvas reference (Canvas)
+ * Récupérer une référence vers le canvas
+ * @return un objet de type Canvas
  */
 App.prototype.getCanvas = function(){
-	return this.cvs;
+	return this.canvas;
 };
 
 /**
- * Start the application. Called when the page is loaded
+ * Démarre l'application; fonction appelée lorsque la page est chargée
  */
 App.prototype.start = function(){
 	var that = this;
 
-	//when the window is resized, update canvas size
+	//quand la fenêtre est redimensionnée, mettre à jour la taille du canvas
 	window.onresize = function(e){
-		that.getCanvas().getDiv().setCanvasSize();
-		that.getCanvas().refresh();
+		that.canvas.getDiv().setCanvasSize();
+		that.canvas.refresh();
 	};
 };
 
 /**
- * Get the angle (in radians) between two points
- * @param a: first point ({x: float, y:float})
+ * Récupérer l'angle (en radians) entre 2 points
+ * @param a: premier point ({x: float, y:float})
  * @param b: second point ({x: float, y:float})
- * @return: the angle
+ * @return: l'angle
  */
 App.prototype.getAngleBetweenPoints = function(a, b) {
 	var angle = Math.atan2(a.x-b.x, a.y-b.y);
 	if(angle<0)
 		angle += 2*Math.PI;
 	return angle;
+};
+
+/**
+ * Méthode statique: faire hériter une classe d'une autre
+ *	-> copie le prototype de la classe mère
+ * @param child: le prototype de la classe Fille
+ * @param parent: le prototype de la classe mère
+ */
+App.heriter = function(child, parent) {
+		for(var elem in parent)
+    		child[elem]=parent[elem];
 }

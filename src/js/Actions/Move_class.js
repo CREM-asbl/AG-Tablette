@@ -14,5 +14,16 @@ Move.prototype.end = function(coordinates) {
 };
 
 Move.prototype.cancel = function(coordinates) {
-	
+
+};
+
+Move.prototype.click = function(coordinates){
+	if(window.app.state.moveData.isShapeSelected) { //end the move!
+		window.app.actions.move.end(coordinates);
+	} else { //begin a move ?
+		var list = window.app.workspace.shapesOnPoint(coordinates);
+		if(list.length>0) {
+			window.app.actions.move.start(list.pop()); //move the shape!
+		}
+	}
 };

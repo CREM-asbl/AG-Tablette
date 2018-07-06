@@ -1,9 +1,9 @@
 /**
- * Represents the <canvas>, contains draw methods
+ * Représente le <canvas>, contient les méthodes de dessin
  */
 
 /**
- * Constructor
+ * Constructeur
  * @param divRef: the <div> containing the <canvas> (HTML element)
  * @param canvasRef: the <canvas> (HTML element)
  * @param app: the app reference (App)
@@ -16,11 +16,19 @@ function Canvas(divRef, canvasRef, app) {
 }
 
 /**
- * get the <div> containing the <canvas>
- * @return the div (HTML element)
+ * Renvoie le <div> contenant le <canvas>
+ * @return le div (élément HTML)
  */
 Canvas.prototype.getDiv = function(){
 	return this.divRef;
+};
+
+/**
+ * Renvoie l'élément html <canvas>
+ * @return <canvas (élément HTML)
+ */
+Canvas.prototype.getCanvas = function(){
+	return this.cvsRef;
 };
 
 /**
@@ -30,16 +38,20 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 	var state = this.app.state;
 
 	this.drawBackground();
-	
+
 	var shapes = this.app.workspace.shapesList;
 	for (var i = 0; i < shapes.length; i++) { //todo: draw in the good order (see order-array in workspace)
-		if(state.isMoving && state.moveData.isShapeSelected && state.moveData.shape.id==shapes[i].id)
+		if(state.name=="move_shape" && state.moveData.isShapeSelected && state.moveData.shape.id==shapes[i].id)
 			continue;
 		this.drawShape(shapes[i]);
 	}
 
-	if(state.isMoving && state.moveData.isShapeSelected) {
+	if(state.name=="move_shape" && state.moveData_isShapeSelected) { //TODO
 		this.drawMovingShape(state.moveData.shape, mouseCoordinates);
+	}
+
+	if(state.name=="create_shape") {
+		this.drawMovingShape(state.selectedShape, mouseCoordinates);
 	}
 };
 
@@ -94,7 +106,7 @@ Canvas.prototype.drawShape = function(shape) {
 	}
 	ctx.lineTo(firstPoint.x, firstPoint.y);
 	ctx.closePath();
-	
+
 	ctx.fill();
 	ctx.stroke();
 	ctx.globalAlpha = 1;

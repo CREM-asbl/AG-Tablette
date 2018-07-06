@@ -60,7 +60,7 @@
 
       <div-main-canvas id="div-main-canvas"></div-main-canvas>
     </div>
-    
+
   </template>
 
   <script>
@@ -83,18 +83,18 @@
             this.currentFamily = ''
             switch (event.target.name) {
                 case 'move':
-                    window.app.state.setMoving();
+                    window.app.setState("move_shape");
                     break;
 
                 case 'rotate':
-                    
+                    //TODO
                     break;
             }
         }
 
         /**
          * Get the family names list
-         * @return family names ([String]) 
+         * @return family names ([String])
          */
         _getFamilies() {
             return Workspace.getMenuAFamiliesNames();

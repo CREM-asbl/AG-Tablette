@@ -1,22 +1,22 @@
 /**
- * Represent a project: one canvas view with an object list (shapes, points, ...).
+ * Représente un projet: un canvas avec une liste d'objets (formes, points, ...).
  */
 
 /**
- * Constructor
- * @param app: app reference (App)
+ * Constructeur
+ * @param app: Référence vers l'application (App)
  */
 function Workspace(app) {
 	this.app = app;
 	this.appVersion = this.app.getVersion();
 
-	//the id of the next shape that will be created
+	//L'id de la prochaine forme qui sera créée
 	this.nextShapeId = 1;
-	
-	this.history = null; //todo: class
 
-	//the selected menu (A, B, C, AB, AC)
-	this.menuId = "A"; //todo: edit this when other menu will be developed
+	this.history = null; //TODO
+
+	//Le menu sélectionné (A, B, C, AB, AC)
+	this.menuId = "A"; //à modifier lorsque d'autres menus seront développés
 
 	//the list of shapes in this project ([Shape])
 	this.shapesList = [];
@@ -86,7 +86,7 @@ Workspace.prototype.addMenuAFamilies = function(){
 	var base = 50;
 
 	var f1 = new Family("Triangle équilatéral", "#FF0");
-	
+
 	f1.addShape("Triangle équilatéral",[
 		ShapeStep.getLine(25 - 25, 7.5 -25),
 		ShapeStep.getLine(50 -25, 50 -25),
@@ -203,7 +203,7 @@ Workspace.prototype.addMenuAFamilies = function(){
 
 	var f3 = new Family("Pentagone régulier", "#0F0");
 	this.addFamily(f3);
-	
+
 
 };
 

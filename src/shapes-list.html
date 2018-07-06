@@ -50,9 +50,9 @@
              * @return shapes names list ([String])
              */
             shapes(family) {
-                if (!family) { 
+                if (!family) {
                     this.style.display = 'none'
-                    return 
+                    return
                 }
                 this.style.display = 'block'
                 return window.app.workspace.getFamily(family).getShapesNames();
@@ -63,13 +63,18 @@
              */
             _clickHandle(event) {
                 var familyRef = window.app.workspace.getFamily(this.family);
-                var shapeRef = familyRef.getShapeData(event.target.name);
+                console.log(familyRef);
+                var shapeRef = familyRef.getShape(event.target.name);
                 event.target.focus();
+                console.log(shapeRef);
 
-                window.app.state.setCreating(familyRef, shapeRef);
+                window.app.setState("create_shape", {
+                  "family": familyRef,
+                  "shape": shapeRef
+                });
             }
 
         }
-        customElements.define('shapes-list', ShapesList) 
+        customElements.define('shapes-list', ShapesList)
     </script>
 </dom-module>

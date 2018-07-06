@@ -38,26 +38,28 @@ Family.prototype.addShape = function(name, buildSteps, color){
 };
 
 /**
- * get the name, vertices and color of a shape of the family
- * @param name: the shape's name
- * @return the data in question ({name: String, buildSteps: [ShapeStep], color: "#AABBCC"})
+ * Renvoie une forme d'une famille à partir de son nom
+ * @param name: le nom de la forme
+ * @return Objet de type Shape (sans coordonnées)
  */
-Family.prototype.getShapeData = function(name){
+Family.prototype.getShape = function(name){
 	for (var i = 0; i < this.shapesList.length; i++) {
 		if(this.shapesList[i].name==name) {
-			var copy = {
-				"name": name,
-				"buildSteps": [],
-				"color": this.shapesList[i].color
-			};
+			var buildSteps = [];
+
 			for (var j = 0; j < this.shapesList[i].buildSteps.length; j++) {
 				var p = this.shapesList[i].buildSteps[j];
-				copy.buildSteps.push(p.getCopy());
+				buildSteps.push(p.getCopy());
 			}
-			return this.shapesList[i];
+
+			var shape = new Shape(
+				this.name, name, //nom de la famille et de la forme
+				null, null, //coordonnées
+				buildSteps, this.shapesList[i].color);
+			return shape;
 		}
 	}
-	console.log("Family.getShapeData: shape not found");
+	console.log("Family.getShape: shape not found");
 	return null;
 }
 

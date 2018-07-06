@@ -19,6 +19,7 @@ function Shape(familyName, name, x, y, buildSteps, color){
 	this.name = name;
 	this.buildSteps = buildSteps;
 	this.id = null;
+	this.showOrder = null; //numéro d'ordre d'affichage de la forme (=quelle forme est au dessus de quelle autre; plus le numéro est grand, plus la forme est en haut)
 
 	//if this shape has been created from another, contains the reference of this other shape
 	this.sourceShape = null;
@@ -44,6 +45,7 @@ function Shape(familyName, name, x, y, buildSteps, color){
  */
 Shape.prototype.setId = function(id) {
 	this.id = id;
+	this.showOrder = id;
 };
 
 /**
@@ -114,6 +116,7 @@ Shape.prototype.getApproximatedPointsList = function() {
  * @author: https://sidvind.com/wiki/Point-in-polygon:_Jordan_Curve_Theorem
  */
 Shape.prototype.containsPoint = function(point) {
+	//TODO: ne calculer qu'une fois les points approximatifs si la forme ne change pas
 	var points = this.getApproximatedPointsList();
 	point = {"x": point.x - this.x, "y": point.y - this.y};
 
@@ -132,7 +135,7 @@ Shape.prototype.containsPoint = function(point) {
             x1 = points[(i+1)%nb_pts].x;
             x2 = points[i].x;
         }
-       
+
         /* First check if the ray is possible to cross the line */
         if ( point.x > x1 && point.x <= x2 && ( point.y < points[i].y || point.y <= points[(i+1)%nb_pts].y ) ) {
             var eps = 0.000001;
@@ -149,7 +152,7 @@ Shape.prototype.containsPoint = function(point) {
             }
 
             var m = points[i].y - k * points[i].x;
-           
+
             /* Find if the ray crosses the line */
             var y2 = k * point.x + m;
             if ( point.y <= y2 ){
