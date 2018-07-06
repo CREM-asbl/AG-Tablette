@@ -60,8 +60,24 @@
                 super.ready();
 
                 this.setCanvasSize();
-                var cvs = this.$.mainCanvas
-                cvs.addEventListener('click', this._handleClick.bind(this), false);
+                var cvs = this.$.mainCanvas;
+                var that = this;
+
+                //cvs.addEventListener('click', this._handleClick.bind(this), false);
+                cvs.addEventListener('click', function(event){
+                    window.app.handleEvent("click", that.getMousePos(event));
+                }, false);
+
+                cvs.addEventListener('mousedown', function(event){
+                    window.app.handleEvent("mousedown", that.getMousePos(event));
+                }, false);
+
+                cvs.addEventListener('mouseup', function(event){
+                    window.app.handleEvent("mouseup", that.getMousePos(event));
+                }, false);
+
+
+
                 cvs.addEventListener('mousemove', this._handleMove.bind(this), false);
 
                 cvs.addEventListener('touchmove', this._handleTouch.bind(this), false);
@@ -75,7 +91,7 @@
              * <canvas> click event handler
              */
             _handleClick(event) {
-                window.app.handleEvent("click", this.getMousePos(event));
+
             }
 
             /**

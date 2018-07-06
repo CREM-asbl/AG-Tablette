@@ -18,11 +18,13 @@ function Shape(familyName, name, x, y, buildSteps, color){
 	this.familyName = familyName;
 	this.name = name;
 	this.buildSteps = buildSteps;
+	this.points = [];
+
 	this.id = null;
 	this.showOrder = null; //numéro d'ordre d'affichage de la forme (=quelle forme est au dessus de quelle autre; plus le numéro est grand, plus la forme est en haut)
 
 	//if this shape has been created from another, contains the reference of this other shape
-	this.sourceShape = null;
+	this.sourceShape = null; //TODO: utilisé ?
 
 	//angle of rotation of the shape (in degrees)
 	this.rotateAngle = 0;
@@ -33,10 +35,12 @@ function Shape(familyName, name, x, y, buildSteps, color){
 	//the scale of the shape, 1 by default
 	this.zoomRate = 1;
 
-	//the list of shapes linked to this one (shapes can be linked together)
-	this.linkedShapes = [];
+	//Forme à laquelle celle-ci est liée
+	this.linkedShape = null;
 
 	this.color = color;
+
+	this.computePoints();
 }
 
 /**
@@ -54,6 +58,45 @@ Shape.prototype.setId = function(id) {
  */
 Shape.prototype.setSourceShape = function(shape) {
 	this.sourceShape = shape;
+};
+
+
+Shape.prototype.computePoints = function(){
+	for (var i = 1; i < this.buildSteps.length; i++) {
+		var s = this.buildSteps[i];
+		if(s.getType()=="line") {
+			this.points.push({
+				"x": s.x,
+				"y": s.y,
+				"absX": this.x + s.x,
+				"absY": this.y + s.y,
+				"link": null,
+				"shape": this
+			});
+		} else if(s.getType()=="arc") {
+			if(this.buildSteps.length==2) {
+				//ne rien faire: c'est un cercle.
+			} else {
+				// à implémenter si certaines formes contiennent un arc de cercle.
+				console.log("Shape.computePoints(): le point n'a pas pu être déterminé");
+			}
+		} else {
+			// à implémenter si certaines formes contiennent des courbes
+			console.log("Shape.computePoints(): le point n'a pas pu être déterminé (2)");
+		}
+	}
+};
+
+//recalcule les coordonnées absolues des points (sont modifiées si
+//la forme est déplacée, zoomée, retournée ou tournée).
+Shape.prototype.recomputePoints = function(){
+	//déplacement (position absolue sans transformation):
+	for(var i=0;i<this.points.length;i++) {
+		this.points[i].absX = this.x + this.points[i].x;
+		this.points[i].absY = this.y + this.points[i].y;
+	}
+
+	//TODO: check rotate angle!
 };
 
 /**

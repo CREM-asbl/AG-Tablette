@@ -17,16 +17,20 @@ function App(divRef, canvasRef) {
 
 	this.menu = new Menu(this);
 
+	this.magnetismDistance = 6;
+
 	this.states = {
 		"create_shape": new CreateState(this),
 		"delete": null,
-		"move_shape": null,
+		"move_shape": new MoveState(this),
 		"reverse": null,
 		"rotate": null,
 	};
 
 	this.events = {
-		"click": null
+		"click": function(){},
+		"mousedown": function(){},
+		"mouseup": function(){}
 	};
 }
 
@@ -37,9 +41,6 @@ App.prototype.handleEvent = function(eventName, eventObj){
 App.prototype.setState = function(stateName, params){
 	var that = this;
 	if(this.state.name!=null) {
-		//this.canvas.getCanvas().removeEventListener("click", function(e){that.state.click(e);});
-
-
 		this.state.abort();
 	}
 
@@ -47,9 +48,9 @@ App.prototype.setState = function(stateName, params){
 	this.state.reset();
 	this.state.start(params);
 
-	this.events.click = function(e){console.log(e);that.state.click(e);}
-	//this.canvas.getCanvas().addEventListener("click", );
-
+	this.events.click = function(e){ that.state.click(e); };
+	this.events.mousedown = function(e){ that.state.mousedown(e); };
+	this.events.mouseup = function(e){ that.state.mouseup(e); };
 };
 
 /**

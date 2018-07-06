@@ -1,9 +1,9 @@
 /**
  * This abstract class represents a possible state of the application
  */
-function State(app, name) {
-  this.app = app;
-  this.name = name;
+function State() {
+  this.app = null;
+  this.name = null;
 }
 
 /**
@@ -29,8 +29,22 @@ State.prototype.start = function(params){
 };
 
 /**
- * Appelée lorsque l'utilisateur clique sur le canvas
+ * Appelée lorsque l'événement click est déclanché sur le canvas
  */
 State.prototype.click = function(){
   console.log("click() not implemented");
+};
+
+/**
+* Appelée lorsque l'événement mousedown est déclanché sur le canvas
+ */
+State.prototype.mousedown = function(){
+  console.log("mousedown() not implemented");
+};
+
+/**
+* Appelée lorsque l'événement mouseup est déclanché sur le canvas
+ */
+State.prototype.mouseup = function(){
+  console.log("mouseup() not implemented");
 };

@@ -23,7 +23,7 @@ Move.prototype.click = function(coordinates){
 	} else { //begin a move ?
 		var list = window.app.workspace.shapesOnPoint(coordinates);
 		if(list.length>0) {
-			window.app.actions.move.start(list.pop()); //move the shape!
+			window.app.actions.move.start(); //move the shape!
 		}
 	}
 };
