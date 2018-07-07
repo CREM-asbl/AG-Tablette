@@ -135,7 +135,6 @@ Workspace.prototype.addShape = function(shape){
 		 */
 		var group = this.getShapeGroup(shape.linkedShape, "system");
 		if(group) {//un groupe existe déjà avec la forme à laquelle la nouvelle est liée
-			console.log(group);
 			group.push(shape);
 		} else //on crée un nouveau groupe
 			this.systemShapeGroups.push([shape.linkedShape, shape]);
@@ -155,100 +154,100 @@ Workspace.prototype.addMenuAFamilies = function(){
 	var f1 = new Family("Triangle équilatéral", "#FF0");
 
 	f1.addShape("Triangle équilatéral",[
-		ShapeStep.getLine(25, 7.5 -50),
-		ShapeStep.getLine(50, 50 -50),
-		ShapeStep.getLine(0, 50 -50),
-		ShapeStep.getLine(25, 7.5 -50)
-	]);
+		ShapeStep.getLine(25-25, -42.5+14.1666666666666667),
+		ShapeStep.getLine(50-25, 0+14.1666666666666667),
+		ShapeStep.getLine(0-25, 0+14.1666666666666667),
+		ShapeStep.getLine(25-25, -42.5+14.1666666666666667)
+	], {"x": -25, "y": 14.1666666666666667});
 
 	f1.addShape("Losange",[
-		ShapeStep.getLine(0 -25, 7.5 -50),
-		ShapeStep.getLine(50 -25, 7.5 -50),
-		ShapeStep.getLine(75 -25, 50 -50),
-		ShapeStep.getLine(25 -25, 50 -50),
-		ShapeStep.getLine(0 -25, 7.5 -50)
-	]);
+		ShapeStep.getLine(-25-12.5, -42.5+21.25),
+		ShapeStep.getLine(25-12.5, -42.5+21.25),
+		ShapeStep.getLine(50-12.5, 0+21.25),
+		ShapeStep.getLine(0-12.5, 0+21.25),
+		ShapeStep.getLine(-25-12.5, -42.5+21.25)
+	], {"x": -12.5, "y": 21.25});
 
 	f1.addShape("Trapèze isocèle",[
-		ShapeStep.getLine(25 - 0, 7.5 - 50),
-		ShapeStep.getLine(75 - 0, 7.5 - 50),
-		ShapeStep.getLine(100 - 0, 50 - 50),
-		ShapeStep.getLine(0 - 0, 50 - 50),
-		ShapeStep.getLine(25 - 0, 7.5 - 50)
-	]);
+		ShapeStep.getLine(25-50, -42.5+21.25),
+		ShapeStep.getLine(75-50, -42.5+21.25),
+		ShapeStep.getLine(100-50, 0+21.25),
+		ShapeStep.getLine(0-50, 0+21.25),
+		ShapeStep.getLine(25-50, -42.5+21.25)
+	], {"x": -50, "y": 21.25});
 
 	f1.addShape("Hexagone régulier",[
-		ShapeStep.getLine(25 - 25, 7.5 - 92.5),
-		ShapeStep.getLine(75 - 25, 7.5 - 92.5),
-		ShapeStep.getLine(100 - 25, 50 - 92.5),
-		ShapeStep.getLine(75 - 25, 92.5 - 92.5),
-		ShapeStep.getLine(25 - 25, 92.5 - 92.5),
-		ShapeStep.getLine(0 - 25, 50 - 92.5),
-		ShapeStep.getLine(25 - 25, 7.5 - 92.5)
-	]);
+		ShapeStep.getLine(0-25, -85+42.5),
+		ShapeStep.getLine(50-25, -85+42.5),
+		ShapeStep.getLine(75-25, -42.5+42.5),
+		ShapeStep.getLine(50-25, 0+42.5),
+		ShapeStep.getLine(0-25, 0+42.5),
+		ShapeStep.getLine(-25-25, -42.5+42.5),
+		ShapeStep.getLine(0-25, -85+42.5)
+	], {"x": -25, "y": 42.5});
 
 	f1.addShape("Triangle isocèle",[
-		ShapeStep.getLine(25 - 0, 28.33 - 50),
-		ShapeStep.getLine(50 - 0, 50 - 50),
-		ShapeStep.getLine(0 - 0, 50 - 50),
-		ShapeStep.getLine(25 - 0, 28.33 - 50)
-	]);
+		ShapeStep.getLine(25-25, -21.67+7.22333333333333),
+		ShapeStep.getLine(50-25, 0+7.22333333333333),
+		ShapeStep.getLine(0-25, 0+7.22333333333333),
+		ShapeStep.getLine(25-25, -21.67+7.22333333333333)
+	], {"x": -25, "y": 7.22333333333333});
 
 	f1.addShape("Triangle rectangle",[
-		ShapeStep.getLine(25 - 25, 7.5 - 50),
-		ShapeStep.getLine(50 - 25, 50 - 50),
-		ShapeStep.getLine(25 - 25, 50 - 50),
-		ShapeStep.getLine(25 - 25, 7.5 - 50)
-	]);
+		ShapeStep.getLine(0-8.3333333333333, -42.5 +14.166666666667),
+		ShapeStep.getLine(25-8.3333333333333, 0 +14.166666666667),
+		ShapeStep.getLine(0-8.3333333333333, 0 +14.166666666667),
+		ShapeStep.getLine(0-8.3333333333333, -42.5+14.166666666667)
+	], {"x": -8.3333333333333, "y": 14.166666666667});
 
 	f1.addShape("Trapèze rectangle",[
-		ShapeStep.getLine(25 - 0, 7.5 - 50),
-		ShapeStep.getLine(50 - 0, 50 - 50),
-		ShapeStep.getLine(0 - 0, 50 - 50),
-		ShapeStep.getLine(0 - 0, 7.5 - 50),
-		ShapeStep.getLine(25 - 0, 7.5 - 50)
-	]);
+		ShapeStep.getLine(25-19.121449612403, -42.5+19.987071317829),
+		ShapeStep.getLine(50-19.121449612403, 0+19.987071317829),
+		ShapeStep.getLine(0-19.121449612403, 0+19.987071317829),
+		ShapeStep.getLine(0-19.121449612403, -42.5+19.987071317829),
+		ShapeStep.getLine(25-19.121449612403, -42.5+19.987071317829)
+	], {"x": -19.121449612403, "y": 19.987071317829}); //chouette à calculer...
 
 	f1.addShape("Dodécagone régulier",[
-		ShapeStep.getLine(0 - 0, 50 - 50),
-		ShapeStep.getLine(50 - 0, 50 - 50),
-		ShapeStep.getLine(93.30127018922194 - 0, 25 - 50),
-		ShapeStep.getLine(118.30127018922195 - 0, -18.301270189221928 - 50),
-		ShapeStep.getLine(118.30127018922195 - 0, -68.30127018922192 - 50),
-		ShapeStep.getLine(93.30127018922197 - 0, -111.60254037844386 - 50),
-		ShapeStep.getLine(50.00000000000004 - 0, -136.60254037844388 - 50),
-		ShapeStep.getLine(4.263256414560601e-14 - 0, -136.60254037844388 - 50),
-		ShapeStep.getLine(-43.301270189221896 - 0, -111.60254037844389 - 50),
-		ShapeStep.getLine(-68.30127018922192 - 0, -68.30127018922197 - 50),
-		ShapeStep.getLine(-68.30127018922194 - 0, -18.301270189221967 - 50),
-		ShapeStep.getLine(-43.30127018922197 - 0, 24.999999999999986 - 50),
-		ShapeStep.getLine(0 - 0, 50 - 50)
-	]);
+		ShapeStep.getLine(0-25, 0+93.3012701892),
+		ShapeStep.getLine(50-25, 0+93.3012701892),
+		ShapeStep.getLine(93.30127018922194-25, -25+93.3012701892),
+		ShapeStep.getLine(118.30127018922195-25, -68.301270189221928+93.3012701892),
+		ShapeStep.getLine(118.30127018922195-25, -118.30127018922192+93.3012701892),
+		ShapeStep.getLine(93.30127018922197-25, -161.60254037844386+93.3012701892),
+		ShapeStep.getLine(50.00000000000004-25, -186.60254037844388+93.3012701892),
+		ShapeStep.getLine(4.263256414560601e-14-25, -186.60254037844388+93.3012701892),
+		ShapeStep.getLine(-43.301270189221896-25, -161.60254037844389+93.3012701892),
+		ShapeStep.getLine(-68.30127018922192-25, -118.30127018922197+93.3012701892),
+		ShapeStep.getLine(-68.30127018922194-25, -68.301270189221967+93.3012701892),
+		ShapeStep.getLine(-43.30127018922197-25, -25+93.3012701892),
+		ShapeStep.getLine(0-25, 0+93.3012701892)
+	], {"x": -25, "y": 93.3012701892});
 
 	f1.addShape("Grand triangle isocèle",[
-		ShapeStep.getLine(0 - 0, 50 - 50),
-		ShapeStep.getLine(50 - 0, 50 - 50),
-		ShapeStep.getLine(25 - 0, -43.3 - 50),
-		ShapeStep.getLine(0 - 0, 50 - 50)
-	]);
+		ShapeStep.getLine(0-25, 0+31.1),
+		ShapeStep.getLine(50-25, 0+31.1),
+		ShapeStep.getLine(25-25, -93.3+31.1),
+		ShapeStep.getLine(0-25, 0+31.1)
+	], {"x": -25, "y": 31.1});
 
 	f1.addShape("Petit losange",[
-		ShapeStep.getLine(0 - 0, 50 - 50),
-		ShapeStep.getLine(50 - 0, 50 - 50),
-		ShapeStep.getLine(93.30 - 0, 25 - 50),
-		ShapeStep.getLine(43.30 - 0, 25 - 50),
-		ShapeStep.getLine(0 - 0, 50 - 50)
-	]);
+		ShapeStep.getLine(0-46.65, 0+12.5),
+		ShapeStep.getLine(50-46.65, 0+12.5),
+		ShapeStep.getLine(93.30-46.65, -25+12.5),
+		ShapeStep.getLine(43.30-46.65, -25+12.5),
+		ShapeStep.getLine(0-46.65, 0+12.5)
+	], {"x": -46.65, "y": 12.5});
 
 	f1.addShape("Petit disque",[
-		ShapeStep.getLine(0 - 25, 0 - 25),
-		ShapeStep.getArc(25 - 25, 25 - 25, 360, false)
-	]);
+		ShapeStep.getLine(-25, -25),
+		ShapeStep.getArc(0, 0, 360, false)
+	], {"x": 0, "y": 0});
 
 	f1.addShape("Grand disque",[
-		ShapeStep.getLine(0 - 75, 0 - 75),
-		ShapeStep.getArc(75 - 75, 75 - 75, 360, false)
-	]);
+		ShapeStep.getLine(-75, -75),
+		ShapeStep.getArc(0, 0, 360, false)
+	], {"x": 0, "y": 0});
 
 	/*
 	f1.addShape("AAAAAAAA",[

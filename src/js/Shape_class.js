@@ -1,17 +1,18 @@
 /**
- * This class represent a shape on the canvas
+ * Cette classe représente une forme sur le canvas
  */
 
 /**
- * Constructor
- * @param familyName: the name of the family of the shape (String)
- * @param name: the name/type of shape (String)
- * @param x: the x coordinate (int)
- * @param y: the y coordinate (int)
- * @param buildSteps: list of the build steps of the shape ([ShapeStep]). The first one must be a line (=first point)
+ * Constructeur
+ * @param familyName: le nom de la famille de la forme (String)
+ * @param name: le nom/type de la forme (String)
+ * @param x: la coordonnée x (int)
+ * @param y: la coordonnée y (int)
+ * @param buildSteps: liste des étapes de construction ([ShapeStep]). la première étape doit être une ligne (correspond au point de départ). Les coordonnées sont relatives.
  * @param color: the color of the shape (String: "#AABBCC")
+ * @param refPoint: coordonnées relatives du point de référence de la forme (point en bas à gauche), utilisé pour ajouter une forme.
  */
-function Shape(familyName, name, x, y, buildSteps, color){
+function Shape(familyName, name, x, y, buildSteps, color, refPoint){
 
 	this.x = x;
 	this.y = y;
@@ -26,7 +27,7 @@ function Shape(familyName, name, x, y, buildSteps, color){
 	//if this shape has been created from another, contains the reference of this other shape
 	this.sourceShape = null; //TODO: utilisé ?
 
-	//angle of rotation of the shape (in degrees)
+	//angle of rotation of the shape (in radian)
 	this.rotateAngle = 0;
 
 	//true if the shape is reversed
@@ -36,9 +37,11 @@ function Shape(familyName, name, x, y, buildSteps, color){
 	this.zoomRate = 1;
 
 	//Forme à laquelle celle-ci est liée
-	this.linkedShape = null;
+	this.linkedShape = null; //TODO: utilisé ?
 
 	this.color = color;
+
+	this.refPoint = refPoint; //relatif au centre (0,0)
 
 	this.computePoints();
 }
@@ -56,20 +59,18 @@ Shape.prototype.setId = function(id) {
  * Define the source shape of this shape
  * @param shape: the source shape (Shape)
  */
-Shape.prototype.setSourceShape = function(shape) {
+Shape.prototype.setSourceShape = function(shape) { //TODO: utilisé?
 	this.sourceShape = shape;
 };
 
-
+//points utilisés dans le workspace pour lier des formes entres elles lors de l'ajout de formes
 Shape.prototype.computePoints = function(){
 	for (var i = 1; i < this.buildSteps.length; i++) {
 		var s = this.buildSteps[i];
 		if(s.getType()=="line") {
 			this.points.push({
-				"x": s.x,
-				"y": s.y,
-				"absX": this.x + s.x,
-				"absY": this.y + s.y,
+				"x": s.x, "y": s.y, //x et y relatifs
+				"absX": this.x + s.x, "absY": this.y + s.y, //x et y absolus, avec rotation
 				"link": null,
 				"shape": this
 			});
@@ -89,21 +90,28 @@ Shape.prototype.computePoints = function(){
 
 //recalcule les coordonnées absolues des points (sont modifiées si
 //la forme est déplacée, zoomée, retournée ou tournée).
+//TODO: faire tourner le refPoint ? ou pas ? est-il utile après création?
 Shape.prototype.recomputePoints = function(){
-	//déplacement (position absolue sans transformation):
-	for(var i=0;i<this.points.length;i++) {
-		this.points[i].absX = this.x + this.points[i].x;
-		this.points[i].absY = this.y + this.points[i].y;
-	}
+	var s = Math.sin(-this.rotateAngle);
+    var c = Math.cos(-this.rotateAngle);
 
-	//TODO: check rotate angle!
+	for(var i=0;i<this.points.length;i++) {
+		var x = this.points[i].x;
+		var y = this.points[i].y;
+
+		var newX = x * c - y * s;
+		var newY = x * s + y * c;
+
+		this.points[i].absX = this.x + newX;
+		this.points[i].absY = this.y + newY;
+	}
 };
 
 /**
  * Compute an approximated path of the shape, using only lines (no arc or curves)
  * @param shape: the source shape (Shape)
  * @return the list of lines ([{"x": float, "y": float}])
- */
+ */ //TODO performance: stocker cette liste tant que la forme n'est pas modifiée?
 Shape.prototype.getApproximatedPointsList = function() {
 	var pointsList = [ {"x": this.buildSteps[0].x, "y": this.buildSteps[0].y} ];
 	for (var i = 1; i < this.buildSteps.length; i++) {
@@ -139,16 +147,37 @@ Shape.prototype.getApproximatedPointsList = function() {
 			}
 
 		} else if(this.buildSteps[i].getType()=="quadraticCurve") {
-			//todo: compute a better approximation
+			//TODO: compute a better approximation
 			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
 		} else if(this.buildSteps[i].getType()=="cubicCurve") {
-			//todo: compute a better approximation
+			//TODO: compute a better approximation
 			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
 		} else{
 			console.log("Shape.getApproximatedPointsList: unknown buildStep type");
 			return null;
 		}
 	}
+
+
+	//rotate the points
+	var s = Math.sin(-this.rotateAngle);
+    var c = Math.cos(-this.rotateAngle);
+
+	for(var i=0;i<pointsList.length;i++) {
+		// translater le point au centre:
+	    var x = pointsList[i].x;
+	    var y = pointsList[i].y;
+
+	    // effectuer la rotation
+	    var newX = x * c - y * s;
+	    var newY = x * s + y * c;
+
+	    // retranslater le point à sa position d'origine
+	    pointsList[i].x = newX;
+	    pointsList[i].y = newY;
+	}
+
+
 	return pointsList;
 }
 

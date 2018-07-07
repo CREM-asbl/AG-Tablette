@@ -20,7 +20,7 @@ function Family(name, defaultColor) {
  * @param buildSteps: the shape's builds steps ([ShapeStep])
  * @param color: the shape color ("#AABBCC"). Can be null (in this case, the family default color will be used)
  */
-Family.prototype.addShape = function(name, buildSteps, color){
+Family.prototype.addShape = function(name, buildSteps, refPoint, color){
 	//Check arguments
 	if(buildSteps.length<1) {
 		console.log("Family.addShape error: buildSteps.length is 0");
@@ -29,11 +29,11 @@ Family.prototype.addShape = function(name, buildSteps, color){
 	if(color===undefined)
 		color = this.defaultColor;
 
-
 	this.shapesList.push({
 		"name": name,
 		"buildSteps": buildSteps,
-		"color": color
+		"color": color,
+		"refPoint": refPoint
 	});
 };
 
@@ -51,11 +51,12 @@ Family.prototype.getShape = function(name){
 				var p = this.shapesList[i].buildSteps[j];
 				buildSteps.push(p.getCopy());
 			}
-
+			var refPoint = this.shapesList[i].refPoint;
 			var shape = new Shape(
 				this.name, name, //nom de la famille et de la forme
 				null, null, //coordonnées
-				buildSteps, this.shapesList[i].color);
+				buildSteps, this.shapesList[i].color,
+				{"x": refPoint.x, "y": refPoint.y});
 			return shape;
 		}
 	}

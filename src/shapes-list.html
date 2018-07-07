@@ -63,10 +63,8 @@
              */
             _clickHandle(event) {
                 var familyRef = window.app.workspace.getFamily(this.family);
-                console.log(familyRef);
                 var shapeRef = familyRef.getShape(event.target.name);
                 event.target.focus();
-                console.log(shapeRef);
 
                 window.app.setState("create_shape", {
                   "family": familyRef,

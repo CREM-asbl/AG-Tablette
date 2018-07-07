@@ -1,5 +1,5 @@
 /**
- * Cette classe permet de déplacer une forme (ou un ensemble de formesl iées) sur le canvas
+ * Cette classe permet de déplacer une forme (ou un ensemble de formes liées) sur le canvas
  */
 function MoveState(app) {
     this.app = app;
@@ -30,23 +30,10 @@ MoveState.prototype.reset = function(){
 };
 
 /**
- * Annuler l'action en cours
+* Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */
-MoveState.prototype.abort = function(){};
-
-
-/**
- * démarrer l'état
- */
-MoveState.prototype.start = function(){};
-
-
-MoveState.prototype.click = function(){};
-
-
 MoveState.prototype.mousedown = function(point){
     var list = window.app.workspace.shapesOnPoint(point);
-    console.log(list);
     if(list.length>0) {
         this.isMoving = true;
         this.clickCoordinates = point;
@@ -56,10 +43,12 @@ MoveState.prototype.mousedown = function(point){
             this.shapesList = group;
         else
             this.shapesList = [this.selectedShape];
-        console.log(this.shapesList);
     }
 };
 
+/**
+* Appelée lorsque l'événement mouseup est déclanché sur le canvas
+ */
 MoveState.prototype.mouseup = function(point){
     if(this.isMoving) {
         for(var i=0;i<this.shapesList.length;i++) {
@@ -67,14 +56,28 @@ MoveState.prototype.mouseup = function(point){
             var xDiff = this.clickCoordinates.x - this.shapesList[i].x;
             var yDiff = this.clickCoordinates.y - this.shapesList[i].y;
 
+            //nouvelles coordonnées de la forme: la position de la souris - le décalage.
             var newX = point.x - xDiff;
 			var newY = point.y - yDiff;
-            console.log("old: "+this.shapesList[i].x+" "+this.shapesList[i].y);
 
             this.shapesList[i].setCoordinates({"x": newX, "y": newY});
             this.shapesList[i].recomputePoints();
-            console.log("new: "+this.shapesList[i].x+" "+this.shapesList[i].y);
         }
         this.reset();
     }
 };
+
+/**
+ * Annuler l'action en cours
+ */
+MoveState.prototype.abort = function(){};
+
+/**
+ * démarrer l'état
+ */
+MoveState.prototype.start = function(){};
+
+/**
+ * Appelée lorsque l'événement click est déclanché sur le canvas
+ */
+MoveState.prototype.click = function(){};

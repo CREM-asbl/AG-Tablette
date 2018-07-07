@@ -39,13 +39,18 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 
 	this.drawBackground();
 
+	//dessine les formes
 	var shapes = this.app.workspace.shapesList;
-	for (var i = 0; i < shapes.length; i++) { //todo: draw in the good order (see order-array in workspace)
+	for (var i = 0; i < shapes.length; i++) { //TODO: draw in the good order (see order-array in workspace)
 		if(state.name=="move_shape" && state.isMoving && state.shapesList.indexOf(shapes[i])!=-1)
 			continue;
+		if(state.name=="rotate_shape" && state.isRotating && state.shapesList.indexOf(shapes[i])!=-1)
+			continue;
+
 		this.drawShape(shapes[i]);
 	}
 
+	//dessine la forme/le groupe de formes qui est en train d'être bougé
 	if(state.name=="move_shape" && state.isMoving) {
 		for(var i=0;i<state.shapesList.length;i++) {
 			//calculer le décalage X et Y entre le centre de la forme et le click de départ de la translation
@@ -55,32 +60,34 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 			var newX = mouseCoordinates.x - xDiff;
 			var newY = mouseCoordinates.y - yDiff;
 
-			console.log("NEW:");
-			console.log(state.clickCoordinates.x+" "+state.clickCoordinates.y);
-			console.log(state.shapesList[i].x+" "+state.shapesList[i].y);
-			console.log(mouseCoordinates.x +" "+mouseCoordinates.y);
-			console.log(xDiff+" "+yDiff);
-			console.log(newX+" "+newY);
-			console.log("END.");
-			console.log(" ");
-
-
 			this.drawMovingShape(state.shapesList[i], {"x": newX, "y": newY});
 		}
 
 	}
 
+	//dessine la forme qui est en train d'être ajoutée
 	if(state.name=="create_shape") {
-		this.drawMovingShape(state.selectedShape, mouseCoordinates);
+		this.drawMovingShape(state.selectedShape, {
+			"x": mouseCoordinates.x - state.selectedShape.refPoint.x,
+			"y": mouseCoordinates.y - state.selectedShape.refPoint.y
+		});
 
 		//afficher le point sur lequel la forme va se coller le cas échéant
 		var pointsNear = this.app.workspace.pointsNearPoint(mouseCoordinates);
 	    if(pointsNear.length>0) {
-	        console.log("points near found!");
 	        var last = pointsNear[pointsNear.length-1];
 			var pos = {"x": last.absX, "y": last.absY};
 			this.drawPoint(pos, "#F00");
 			this.drawCircle(pos, "#000", 6);
+		}
+	}
+
+	//dessine la forme/le groupe de formes qui est en train d'être tourné
+	if(state.name=="rotate_shape" && state.isRotating) {
+		var AngleDiff = this.app.getAngleBetweenPoints(state.selectedShape, mouseCoordinates) - state.startAngle;
+		for(var i=0;i<state.shapesList.length;i++) {
+			var pos = state.computeNewShapePos(state.shapesList[i], AngleDiff);
+			this.drawRotatingShape(state.shapesList[i], pos, AngleDiff);
 		}
 	}
 };
@@ -114,6 +121,7 @@ Canvas.prototype.drawShape = function(shape) {
 	ctx.translate(shape.x, shape.y);
 	ctx.rotate(-shape.rotateAngle);
 
+	//dessine le chemin principal
 	ctx.beginPath();
 	var firstPoint = shape.buildSteps[0];
 
@@ -130,7 +138,7 @@ Canvas.prototype.drawShape = function(shape) {
 			var start_angle = this.app.getAngleBetweenPoints(start_pos, s);
 			ctx.arc(s.x, s.y, rayon, start_angle, start_angle+s.angle*Math.PI/180, s.direction);
 		} else {
-			//todo
+			//TODO
 			console.log("Canvas.drawShape: missed one step:");
 			console.log(shape.buildSteps[i]);
 		}
@@ -141,7 +149,7 @@ Canvas.prototype.drawShape = function(shape) {
 	ctx.fill();
 	ctx.stroke();
 
-	//draw points
+	//dessine les points (noirs) de la forme
 	for(var i=0;i<shape.points.length;i++) {
 		this.drawPoint(shape.points[i], "#000");
 	}
@@ -149,6 +157,7 @@ Canvas.prototype.drawShape = function(shape) {
 	ctx.globalAlpha = 1;
 
 	ctx.rotate(shape.rotateAngle);
+
 	ctx.translate(-shape.x, -shape.y);
 };
 
@@ -180,4 +189,11 @@ Canvas.prototype.drawMovingShape = function(shape, point) {
 	shape.setCoordinates(point);
 	this.drawShape(shape);
 	shape.setCoordinates(coords);
+};
+
+Canvas.prototype.drawRotatingShape = function(shape, point, angle) {
+	var saveAngle = shape.rotateAngle;
+	shape.rotateAngle += angle;
+	this.drawMovingShape(shape, point);
+	shape.rotateAngle = saveAngle;
 };

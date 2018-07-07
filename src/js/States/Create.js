@@ -23,13 +23,8 @@ CreateState.prototype.reset = function(){
 };
 
 /**
- * Annuler l'action en cours
- */
-CreateState.prototype.abort = function(){};
-
-
-/**
  * démarrer l'état
+ * @param params: {family: Family, shape: Shape}
  */
 CreateState.prototype.start = function(params){
   this.setFamily(params.family);
@@ -41,21 +36,25 @@ CreateState.prototype.start = function(params){
  * @param coordinates: {x: int, y: int}
  */
 CreateState.prototype.click = function(coordinates) {
-    console.log(this);
     var pointsNear = this.app.workspace.pointsNearPoint(coordinates);
     if(pointsNear.length>0) {
-        console.log("points near found!");
         var last = pointsNear[pointsNear.length-1];
         coordinates = {
             "x": last.absX,
             "y": last.absY
         };
     }
+    //coordonnées de la forme: ajouter le décalage entre le centre et le point de référence.
+    //les coordonnées de base sont celles du point en bas à gauche, et non celles
+    //du centre de la forme.
+    var x = coordinates.x-this.selectedShape.refPoint.x;
+    var y = coordinates.y-this.selectedShape.refPoint.y;
 
 	var shape = new Shape(
 		this.selectedFamily.name, this.selectedShape.name,
-		coordinates.x, coordinates.y,
-		this.selectedShape.buildSteps, this.selectedShape.color);
+		x, y,
+		this.selectedShape.buildSteps, this.selectedShape.color,
+        {"x": this.selectedShape.refPoint.x, "y": this.selectedShape.refPoint.y});
 
 
     if(pointsNear.length>0) {
@@ -64,7 +63,7 @@ CreateState.prototype.click = function(coordinates) {
         //lier le point correspondant dans la nouvelle forme à ce point
         var linked = false;
         for(var i=0;i<shape.points.length;i++) {
-            if(shape.points[i].x==0 && shape.points[i].y==0) {
+            if(shape.points[i].x-this.selectedShape.refPoint.x==0 && shape.points[i].y-this.selectedShape.refPoint.y==0) {
                 linked = true;
                 shape.points[i].link = last;
             }
@@ -94,7 +93,17 @@ CreateState.prototype.setShape = function(shape) {
   this.selectedShape = shape;
 };
 
+/**
+ * Annuler l'action en cours
+ */
+CreateState.prototype.abort = function(){};
 
+/**
+* Appelée lorsque l'événement mousedown est déclanché sur le canvas
+ */
+ CreateState.prototype.mousedown = function(){};
 
-CreateState.prototype.mousedown = function(){};
-CreateState.prototype.mouseup = function(){};
+/**
+* Appelée lorsque l'événement mouseup est déclanché sur le canvas
+ */
+ CreateState.prototype.mouseup = function(){};
