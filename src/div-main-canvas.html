@@ -33,7 +33,7 @@
              * @return mouse coordinates ({x: int, y: int})
              * @Error: if the coordinates were not found, an alert() is triggered and the function returns null
              */
-            getMousePos(event) {
+            getMousePos(event, appRef) {
                 var response = null;
                 if(event.offsetX!==undefined) {
                     response = [event.offsetX, event.offsetY];
@@ -50,7 +50,7 @@
                     return null;
                 }
 
-                return {"x": response[0], "y": response[1]};
+                return {"x": response[0] / appRef.workspace.zoomLevel, "y": response[1] / appRef.workspace.zoomLevel};
             }
 
             /**
@@ -65,15 +65,15 @@
 
                 //cvs.addEventListener('click', this._handleClick.bind(this), false);
                 cvs.addEventListener('click', function(event){
-                    window.app.handleEvent("click", that.getMousePos(event));
+                    window.app.handleEvent("click", that.getMousePos(event, window.app));
                 }, false);
 
                 cvs.addEventListener('mousedown', function(event){
-                    window.app.handleEvent("mousedown", that.getMousePos(event));
+                    window.app.handleEvent("mousedown", that.getMousePos(event, window.app));
                 }, false);
 
                 cvs.addEventListener('mouseup', function(event){
-                    window.app.handleEvent("mouseup", that.getMousePos(event));
+                    window.app.handleEvent("mouseup", that.getMousePos(event, window.app));
                 }, false);
 
 
@@ -98,7 +98,7 @@
              * <canvas> mousemove event handler
              */
             _handleMove(event) {
-                window.app.canvas.refresh(this.getMousePos(event));
+                window.app.canvas.refresh(this.getMousePos(event, window.app));
             }
 
             /**

@@ -21,10 +21,11 @@ function App(divRef, canvasRef) {
 
 	this.states = {
 		"create_shape": new CreateState(this),
-		"delete": null, //TODO
+		"delete_shape": new DeleteState(this),
 		"move_shape": new MoveState(this),
 		"reverse": null, //TODO
 		"rotate_shape": new RotateState(this),
+		"global_zoom": new GlobalZoomState(this),
 	};
 
 	this.events = {

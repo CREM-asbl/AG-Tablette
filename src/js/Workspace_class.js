@@ -39,6 +39,9 @@ function Workspace(app) {
 
 	//Groupes de formes qui ont été liées par l'utilisateur après leur création.
 	this.userShapeGroups = []; //TODO remplir, et utiliser pour les déplacements/suppressions?
+
+	//niveau de zoom de l'interface
+	this.zoomLevel = 1;
 }
 
 /**
@@ -46,7 +49,7 @@ function Workspace(app) {
  * @param shape: la forme en question
  * @param type: vaut system (groupe par lien entre points) ou user (groupe créé par l'utilisateur)
  * @return: le groupe ([Shape]), ou null si pas de groupe trouvé
- */
+ */ //TODO: une forme ne peut normalement pas faire partie de 2 groupes ? (voir user/system!)
 Workspace.prototype.getShapeGroup = function(shape, type){
 	if(type=="system") {
 		for(var i=0;i<this.systemShapeGroups.length;i++) {
@@ -92,7 +95,7 @@ Workspace.prototype.pointsNearPoint = function(point) {
 	var response = [];
 	for(var i=0;i<this.points.length;i++) {
 		var p = this.points[i];
-		var maxDist = this.app.magnetismDistance;
+		var maxDist = this.app.magnetismDistance / this.zoomLevel;
 		if(maxDist*maxDist>=(point.x-p.absX)*(point.x-p.absX) + (point.y-p.absY)*(point.y-p.absY)) {
 			response.push(p);
 		}
@@ -143,6 +146,82 @@ Workspace.prototype.addShape = function(shape){
 		this.points.push(shape.points[i]);
 	}
 	//TODO update shapesShowOrder? or not ?
+};
+
+Workspace.prototype.getShapeIndex = function(shape){
+	var index = -1;
+	for(var i=0;i<this.shapesList.length;i++) {
+		if(this.shapesList[i]==shape) {
+			return i;
+		}
+	}
+	return null;
+};
+
+/**
+ * supprime une forme
+ * @param shape: la forme (Shape)
+ */
+Workspace.prototype.removeShape = function(shape) {
+	var shapeIndex = this.getShapeIndex(shape);
+	if(shapeIndex==null) {
+		console.log("Workspace.removeShape: couldn't remove the shape");
+		return;
+	}
+	//supprime la forme
+	this.shapesList.splice(shapeIndex, 1);
+
+	//supprime les formes créées après la forme supprimée et qui sont (indirectement)
+	//liées à cette forme par un point.
+	//TODO: attention aux user groups ?
+
+	var that = this;
+	var removeLinkedShapes = function(list, srcShape) {
+		var to_remove = [];
+		for(var i=0;i<list.length;i++) {
+			if(list[i].linkedShape==srcShape) { //la forme est liée à la forme supprimée (srcShape)
+				var s = list.splice(i, 1)[0]; //la supprimer de la liste du groupe
+				var shapeIndex = that.getShapeIndex(s);
+				if(shapeIndex==null) {
+					console.log("Workspace.removeShape: couldn't remove the linked shape");
+				} else {
+					that.shapesList.splice(shapeIndex, 1); //la supprimer de la liste des formes
+				}
+
+				to_remove.push(	s ); //ajouter la forme pour la récursion
+				i--;
+			}
+		}
+		for(var i=0;i<to_remove.length;i++)
+			removeLinkedShapes(list, to_remove[i]); //supprimer les formes liées à chacune des formes supprimées dans la boucle précédente.
+	};
+
+	var groupLists = [this.systemShapeGroups, this.userShapeGroups];
+	for(var g=0;g<groupLists.length;g++) {
+		var groupList = groupLists[g];
+		//parcours des groupes d'un certain type:
+		for(var i=0;i<groupList.length;i++) {
+			var group = groupList[i];
+			//parcours d'un groupe:
+			var found = false;
+			for(var j=0;j<group.length;j++) {
+				if(group[j]==shape) { //on a trouvé la forme dans le groupe
+					found = true;
+					group.splice(j, 1); //supprimer cette forme du groupe
+					break;
+				}
+			}
+			if(found) {
+				removeLinkedShapes(group, shape); //supprimer (récursivement) les formes liées à la forme supprimée
+			}
+
+			if(group.length<=1) {
+				groupList.splice(i, 1);
+				i--;
+			}
+		}
+	}
+
 };
 
 /**
@@ -297,4 +376,26 @@ Workspace.prototype.getFamily = function(name) {
 	}
 	console.log("Workspace.getFamily: family not found");
 	return null;
+};
+
+/**
+ * définir le niveau de zoom général du canvas
+ * @param newZoomLevel: le niveau de zoom, entre 0.1 et 10 (float)
+ * @param doRefresh (@default true): si vaut false, ne va pas mettre le canvas à jour
+ */
+Workspace.prototype.setZoomLevel = function(newZoomLevel, doRefresh) {
+	if(newZoomLevel<0.1)
+		newZoomLevel = 0.1;
+	if(newZoomLevel>10)
+		newZoomLevel = 10
+
+
+	var oldZoomLevel = this.zoomLevel;
+
+	this.app.canvas.updateRelativeScaleLevel(1 / oldZoomLevel);
+	this.app.canvas.updateRelativeScaleLevel(newZoomLevel);
+
+	this.zoomLevel = newZoomLevel;
+	if(doRefresh!==false)
+		this.app.canvas.refresh();
 };

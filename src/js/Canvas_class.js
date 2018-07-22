@@ -37,6 +37,32 @@ Canvas.prototype.getCanvas = function(){
 Canvas.prototype.refresh = function(mouseCoordinates) {
 	var state = this.app.state;
 
+
+	if(this.previousMouseCoordinates!==undefined && mouseCoordinates==undefined)
+		mouseCoordinates = this.previousMouseCoordinates;
+	if(mouseCoordinates!==undefined) {
+		this.previousMouseCoordinates = mouseCoordinates;
+
+		if(state.name=="global_zoom" && state.isZooming) {
+			var newDist = Math.sqrt( Math.pow(mouseCoordinates.x, 2) + Math.pow(mouseCoordinates.y, 2));
+			var oldDist = state.baseDistance;
+
+			if(newDist==0) newDist=0.1;
+			if(oldDist==0) oldDist=0.1;
+
+			var baseZoom = this.app.workspace.zoomLevel;
+			if(newDist>=oldDist) {
+				baseZoom *= newDist/oldDist;
+			} else {
+				baseZoom *= newDist/oldDist;
+			}
+
+			this.app.workspace.setZoomLevel(baseZoom, false);
+
+		}
+
+	}
+
 	this.drawBackground();
 
 	//dessine les formes
@@ -49,6 +75,9 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 
 		this.drawShape(shapes[i]);
 	}
+
+	if(mouseCoordinates==undefined)
+		return;
 
 	//dessine la forme/le groupe de formes qui est en train d'être bougé
 	if(state.name=="move_shape" && state.isMoving) {
@@ -90,6 +119,7 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 			this.drawRotatingShape(state.shapesList[i], pos, AngleDiff);
 		}
 	}
+
 };
 
 /**
@@ -103,7 +133,7 @@ Canvas.prototype.drawBackground = function() {
 	//white rectangle:
 	ctx.fillStyle = "white";
 	ctx.strokeStyle = "white";
-	ctx.fillRect(0,0,canvasWidth,canvasHeight);
+	ctx.fillRect(0,0,canvasWidth*10,canvasHeight*10); //TODO: utiliser maxZoomLevel...
 };
 
 /**
@@ -115,7 +145,7 @@ Canvas.prototype.drawShape = function(shape) {
 
 	ctx.fillStyle = shape.color;
 	ctx.strokeStyle = "#000";
-	ctx.lineWidth = "2";
+	ctx.lineWidth = (new Number( 2 / this.app.workspace.zoomLevel )).toString();
 	ctx.globalAlpha = 0.7;
 
 	ctx.translate(shape.x, shape.y);
@@ -168,7 +198,7 @@ Canvas.prototype.drawPoint = function(point, color) {
 	ctx.fillStyle = color;
 	ctx.beginPath();
 	ctx.moveTo(point.x, point.y);
-	ctx.arc(point.x, point.y, 2, 0, 2*Math.PI, 0);
+	ctx.arc(point.x, point.y, 2 / this.app.workspace.zoomLevel, 0, 2*Math.PI, 0);
 	ctx.closePath();
 	ctx.fill();
 }
@@ -179,7 +209,7 @@ Canvas.prototype.drawCircle = function(point, color, radius) {
 	ctx.globalAlpha = 1;
 	ctx.fillStyle = color;
 	ctx.beginPath();
-	ctx.arc(point.x, point.y, radius, 0, 2*Math.PI, 0);
+	ctx.arc(point.x, point.y, radius / this.app.workspace.zoomLevel, 0, 2*Math.PI, 0);
 	ctx.closePath();
 	ctx.stroke();
 }
@@ -197,3 +227,11 @@ Canvas.prototype.drawRotatingShape = function(shape, point, angle) {
 	this.drawMovingShape(shape, point);
 	shape.rotateAngle = saveAngle;
 };
+
+/**
+ * Modifie l'échelle du canvas de manière relative.
+ * @param newScale: nouvelle échelle relative (float)
+ */
+Canvas.prototype.updateRelativeScaleLevel = function(newScale) {
+	this.ctx.scale(newScale, newScale);
+}
