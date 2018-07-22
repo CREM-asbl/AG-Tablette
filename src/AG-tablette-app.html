@@ -31,31 +31,56 @@
     <!-- todo: autre vues (menu principal lorsqu'on ouvre l'app, options, ...) -->
     <div id="app-canvas-view">
 
-      <div id="app-canvas-view-toolbar" class="toolbar">
+      <div id="app-canvas-view-toolbar" class="toolbar" style="display:table; table-layout:fixed; height:100%; max-height:100%;">
+        <div id="app-canvas-view-toolbar-p1" style="padding-bottom: 15px;display:table-row;height:1%;">
+            <div  style="display:table-cell;">
+                <div>
+                    <button class="action-button" name="annuler" on-click='_actionHandle' disabled>Annuler</button>
+                </div>
 
-        <div>
-            <button class="action-button" name="annuler" on-click='_actionHandle' disabled>Annuler</button>
-            <!--<button class="action-button" name="modifier" on-click='_actionHandle'>Modifier</button>-->
+                <div>
+                    <strong>Formes standard</strong>
+                </div>
+                <template is="dom-repeat" items="[[_getFamilies()]]">
+                    <canvas-button family="[[item]]" active="{{currentFamily}}"></canvas-button>
+                </template>
+                <shapes-list family="[[currentFamily]]"></shapes-list>
+
+                <hr>
+            </div>
         </div>
-        <div>
-            <strong>Mouvements</strong>
+
+        <div id="app-canvas-view-toolbar-p2" style="display:table-row;">
+        <div style="display:table-cell;">
+        <div style="height:100%;overflow-y:auto;">
+
+            <div >
+                <strong>Mouvements</strong>
+            </div>
+            <button class="action-button" name="move" on-click='_actionHandle'>Glisser</button>
+            <button class="action-button" name="rotate" on-click='_actionHandle'>Tourner</button>
+            <button class="action-button" name="reverse" on-click='_actionHandle'>Retouner</button>
+            <button class="action-button" name="zoom" on-click='_actionHandle'>Zoomer</button>
+
+            <div style="margin-top: 25px">
+                <strong>Outils</strong>
+            </div>
+            <button class="action-button" name="name" on-click='_actionHandle'>Nommer</button>
+            <button class="action-button" name="delete" on-click='_actionHandle'>Supprimer</button>
+            <button class="action-button" name="background_color" on-click='_actionHandle'>Couleur de fond</button>
+            <button class="action-button" name="border_color" on-click='_actionHandle'>Couleur des bords</button>
+
+            <div style="margin-top: 25px">
+                <strong>Opérations</strong>
+            </div>
+            <button class="action-button" name="merge" on-click='_actionHandle'>Fusionner</button>
+            <button class="action-button" name="divide" on-click='_actionHandle'>Diviser</button>
+            <button class="action-button" name="cut" on-click='_actionHandle'>Découper</button>
+            <button class="action-button" name="duplicate" on-click='_actionHandle'>Dupliquer</button>
+            <button class="action-button" name="create_center" on-click='_actionHandle'>Construire le centre</button>
         </div>
-        <button class="action-button" name="move" on-click='_actionHandle'>Glisser</button>
-        <button class="action-button" name="rotate" on-click='_actionHandle'>Tourner</button>
-        <button class="action-button" name="reverse" on-click='_actionHandle'>Retouner</button>
-        <button class="action-button" name="zoom" on-click='_actionHandle'>Zoomer</button>
-        <button class="action-button" name="delete" on-click='_actionHandle'>Supprimer</button>
-
-        <div>
-            <strong>Formes standard</strong>
         </div>
-
-        <template is="dom-repeat" items="[[_getFamilies()]]">
-            <canvas-button family="[[item]]" active="{{currentFamily}}"></canvas-button>
-        </template>
-
-        <shapes-list family="[[currentFamily]]"></shapes-list>
-
+        </div>
       </div>
 
       <div-main-canvas id="div-main-canvas"></div-main-canvas>
@@ -96,6 +121,14 @@
 
                 case 'delete':
                     window.app.setState("delete_shape");
+                    break;
+
+                case 'background_color':
+                    window.app.setState("background_color");
+                    break;
+
+                case 'border_color':
+                    window.app.setState("border_color");
                     break;
             }
         }

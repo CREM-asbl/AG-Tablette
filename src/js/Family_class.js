@@ -55,8 +55,8 @@ Family.prototype.getShape = function(name){
 			var shape = new Shape(
 				this.name, name, //nom de la famille et de la forme
 				null, null, //coordonnées
-				buildSteps, this.shapesList[i].color,
-				{"x": refPoint.x, "y": refPoint.y});
+				buildSteps, this.shapesList[i].color, "#000",
+				{"x": refPoint.x, "y": refPoint.y}, true);
 			return shape;
 		}
 	}

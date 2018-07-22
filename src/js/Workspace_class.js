@@ -42,6 +42,11 @@ function Workspace(app) {
 
 	//niveau de zoom de l'interface
 	this.zoomLevel = 1;
+
+	this.areShapesPointed = true;
+
+	//max 16 colors
+	this.previousSelectedColors = ["#aa0000", "#00aa00", "#0000aa"];
 }
 
 /**

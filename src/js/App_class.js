@@ -26,6 +26,8 @@ function App(divRef, canvasRef) {
 		"reverse": null, //TODO
 		"rotate_shape": new RotateState(this),
 		"global_zoom": new GlobalZoomState(this),
+		"border_color": new BorderColorState(this),
+		"background_color": new BackgroundColorState(this)
 	};
 
 	this.events = {
@@ -33,6 +35,8 @@ function App(divRef, canvasRef) {
 		"mousedown": function(){},
 		"mouseup": function(){}
 	};
+
+	this.colorpicker = new ColorPicker(this);
 }
 
 App.prototype.handleEvent = function(eventName, eventObj){

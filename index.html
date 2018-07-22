@@ -9,6 +9,7 @@
 
     <!-- See https://goo.gl/OOhYW5 -->
     <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" type="text/css" href="src/colorpicker/color-picker.min.css">
 
     <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
 
@@ -22,9 +23,35 @@
         padding: 0px;
         overflow-y: hidden;
       }
+      #color-picker-popup {
+          position:absolute;
+          left:35%;
+          top:150px;
+          padding: 10px;
+          border-radius: 10px;
+          border: 2px solid gray;
+          background-color: #ddd;
+          height: 300px;
+          width: 265px;
+      }
+      #color-picker-previous-colors {
+          margin-bottom: 15px;
+          height: 60px;
+          border: 1px solid #aaa;
+      }
+      #color-picker-previous-colors > .color-picker-previous-color {
+          border: 1px solid black;
+          border-radius: 3px;
+          width: 20px;
+          height: 20px;
+          float:left;
+          margin: 4px;
+          cursor: pointer;
+      }
     </style>
   </head>
   <body>
+    <script src="src/colorpicker/color-picker.min.js"></script>
     <script src="src/js/App_class.js"></script>
     <script src="src/js/Canvas_class.js"></script>
     <script src="src/js/Family_class.js"></script>
@@ -32,6 +59,7 @@
     <script src="src/js/Shape_class.js"></script>
     <script src="src/js/ShapeStep_class.js"></script>
     <script src="src/js/Workspace_class.js"></script>
+    <script src="src/js/ColorPicker_class.js"></script>
 
     <script src="src/js/States/State.js"></script>
     <script src="src/js/States/Create.js"></script>
@@ -39,7 +67,22 @@
     <script src="src/js/States/Rotate.js"></script>
     <script src="src/js/States/GlobalZoom.js"></script>
     <script src="src/js/States/Delete.js"></script>
+    <script src="src/js/States/BackgroundColor.js"></script>
+    <script src="src/js/States/BorderColor.js"></script>
     <ag-tablette-app></ag-tablette-app>
+
+    <div id="color-picker-popup" style="display:none">
+        <div>Couleurs précédentes:</div>
+        <div id="color-picker-previous-colors">
+            <div class="color-picker-previous-color" style="background-color:#eee"></div>
+            <div class="color-picker-previous-color" style="background-color:#aaa"></div>
+            <div class="color-picker-previous-color" style="background-color:#ccc"></div>
+            <div class="color-picker-previous-color" style="background-color:#555"></div>
+        </div>
+        <div>Choisir une couleur:</div>
+        <input id="color-picker-input" type="text" />
+        <button type="button" id="color-picker-input-ok" onclick='window.app.colorpicker.__validate()'>Valider</button>
+    </div>
 
 
     <script>

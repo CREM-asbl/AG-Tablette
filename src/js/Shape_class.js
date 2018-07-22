@@ -12,7 +12,7 @@
  * @param color: the color of the shape (String: "#AABBCC")
  * @param refPoint: coordonnées relatives du point de référence de la forme (point en bas à gauche), utilisé pour ajouter une forme.
  */
-function Shape(familyName, name, x, y, buildSteps, color, refPoint){
+function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint, isPointed){
 
 	this.x = x;
 	this.y = y;
@@ -39,9 +39,19 @@ function Shape(familyName, name, x, y, buildSteps, color, refPoint){
 	//Forme à laquelle celle-ci est liée
 	this.linkedShape = null; //TODO: utilisé ?
 
+	//la couleur de la forme. Vaut, par défaut, celle de la famille.
 	this.color = color;
 
+	//la couleur des bords de la forme. //TODO: initialiser la valeur lors de la création à partir de la famille?
+	this.borderColor = borderColor;
+
 	this.refPoint = refPoint; //relatif au centre (0,0)
+
+	//La forme a-t-elle 2 faces (-> 2 couleurs différentes) ou pas ? La couleur de l'autre face, le cas échéant, est le complément de la couleur de base.
+	this.isSided = false;
+
+	//Les sommets de la forme sont-ils affichés ?
+	this.isPointed = isPointed;
 
 	this.computePoints();
 }

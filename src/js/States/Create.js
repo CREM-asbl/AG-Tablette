@@ -53,8 +53,9 @@ CreateState.prototype.click = function(coordinates) {
 	var shape = new Shape(
 		this.selectedFamily.name, this.selectedShape.name,
 		x, y,
-		this.selectedShape.buildSteps, this.selectedShape.color,
-        {"x": this.selectedShape.refPoint.x, "y": this.selectedShape.refPoint.y});
+		this.selectedShape.buildSteps, this.selectedShape.color, "#000",
+        {"x": this.selectedShape.refPoint.x, "y": this.selectedShape.refPoint.y},
+        this.app.workspace.areShapesPointed);
 
 
     if(pointsNear.length>0) {

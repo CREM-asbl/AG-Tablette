@@ -144,7 +144,7 @@ Canvas.prototype.drawShape = function(shape) {
 	var ctx = this.ctx;
 
 	ctx.fillStyle = shape.color;
-	ctx.strokeStyle = "#000";
+	ctx.strokeStyle = shape.borderColor;
 	ctx.lineWidth = (new Number( 2 / this.app.workspace.zoomLevel )).toString();
 	ctx.globalAlpha = 0.7;
 
@@ -179,9 +179,11 @@ Canvas.prototype.drawShape = function(shape) {
 	ctx.fill();
 	ctx.stroke();
 
-	//dessine les points (noirs) de la forme
-	for(var i=0;i<shape.points.length;i++) {
-		this.drawPoint(shape.points[i], "#000");
+	if(shape.isPointed) {
+		//dessine les points (noirs) de la forme
+		for(var i=0;i<shape.points.length;i++) {
+			this.drawPoint(shape.points[i], "#000");
+		}
 	}
 
 	ctx.globalAlpha = 1;
