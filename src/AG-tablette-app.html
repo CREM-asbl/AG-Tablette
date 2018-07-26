@@ -65,6 +65,7 @@
             <div style="margin-top: 25px">
                 <strong>Outils</strong>
             </div>
+            <button class="action-button" name="link" on-click='_actionHandle'>Lier des formes</button>
             <button class="action-button" name="name" on-click='_actionHandle'>Nommer</button>
             <button class="action-button" name="delete" on-click='_actionHandle'>Supprimer</button>
             <button class="action-button" name="background_color" on-click='_actionHandle'>Couleur de fond</button>
@@ -130,6 +131,12 @@
                 case 'border_color':
                     window.app.setState("border_color");
                     break;
+
+                case 'link':
+                    window.app.setState("link_shapes");
+                    break;
+
+
             }
         }
 

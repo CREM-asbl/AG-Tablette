@@ -28,6 +28,7 @@ DeleteState.prototype.click = function(coordinates) {
     if(list.length==0)
         return;
     var shape = list.pop(); //TODO: utiliser l'ordre d'affichage ?
+    //TODO: au survol, entourer les formes que l'on va supprimer!
 
     this.app.workspace.removeShape(shape);
 	this.app.getCanvas().refresh(coordinates);

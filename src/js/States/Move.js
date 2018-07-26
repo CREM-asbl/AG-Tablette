@@ -31,7 +31,7 @@ MoveState.prototype.reset = function(){
 
 /**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
- */
+ */ //TODO: au survol, entourer les formes que l'on va déplacer!
 MoveState.prototype.mousedown = function(point){
     var list = window.app.workspace.shapesOnPoint(point);
     if(list.length>0) {
@@ -40,9 +40,25 @@ MoveState.prototype.mousedown = function(point){
         this.selectedShape = list.pop();
         var group = this.app.workspace.getShapeGroup(this.selectedShape, "system");
         if(group)
-            this.shapesList = group;
+            this.shapesList = group.slice();
         else
             this.shapesList = [this.selectedShape];
+
+        var group = this.app.workspace.getShapeGroup(this.selectedShape, "user");
+        if(group) {
+            for(var i=0;i<group.length;i++) {
+                var g = this.app.workspace.getShapeGroup(group[i], "system");
+                if(g) {
+                    for(var j=0;j<g.length;j++) {
+                        if(this.shapesList.indexOf(g[j])==-1)
+                            this.shapesList.push(g[j]);
+                    }
+                } else {
+                    if(this.shapesList.indexOf(group[i])==-1)
+                        this.shapesList.push(group[i]);
+                }
+            }
+        }
     }
 };
 

@@ -58,7 +58,6 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 			}
 
 			this.app.workspace.setZoomLevel(baseZoom, false);
-
 		}
 
 	}
@@ -68,12 +67,25 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 	//dessine les formes
 	var shapes = this.app.workspace.shapesList;
 	for (var i = 0; i < shapes.length; i++) { //TODO: draw in the good order (see order-array in workspace)
-		if(state.name=="move_shape" && state.isMoving && state.shapesList.indexOf(shapes[i])!=-1)
+		var shape = shapes[i];
+		if(state.name=="move_shape" && state.isMoving && state.shapesList.indexOf(shape)!=-1)
 			continue;
-		if(state.name=="rotate_shape" && state.isRotating && state.shapesList.indexOf(shapes[i])!=-1)
+		if(state.name=="rotate_shape" && state.isRotating && state.shapesList.indexOf(shape)!=-1)
 			continue;
 
-		this.drawShape(shapes[i]);
+		this.drawShape(shape);
+
+		//affiche les user-groups (texte)
+		if(state.name=="link_shapes") {
+			var group = this.app.workspace.getShapeGroup(shape, 'user');
+			var pos = {"x": shape.x - 25, "y": shape.y};
+			if(group!==null) {
+				var groupIndex = this.app.workspace.getGroupIndex(group, 'user');
+				this.drawText("Groupe "+(groupIndex+1), pos, '#000');
+			} else if(shape==state.firstShape) {
+				this.drawText("Groupe "+(this.app.workspace.userShapeGroups.length+1), pos, '#666');
+			}
+		}
 	}
 
 	if(mouseCoordinates==undefined)
@@ -119,6 +131,7 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 			this.drawRotatingShape(state.shapesList[i], pos, AngleDiff);
 		}
 	}
+
 
 };
 
@@ -235,5 +248,16 @@ Canvas.prototype.drawRotatingShape = function(shape, point, angle) {
  * @param newScale: nouvelle échelle relative (float)
  */
 Canvas.prototype.updateRelativeScaleLevel = function(newScale) {
-	this.ctx.scale(newScale, newScale);
+	var ctx = this.ctx;
+
+	ctx.scale(newScale, newScale);
+}
+
+Canvas.prototype.drawText = function(text, point, color) {
+	var ctx = this.ctx;
+
+	ctx.fillStyle = color;
+	ctx.font = "13px Arial";
+	ctx.fillText(text, point.x, point.y);
+
 }

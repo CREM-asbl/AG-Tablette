@@ -34,11 +34,18 @@ function Workspace(app) {
 	//list of existing families ([Family])
 	this.families = [];
 
+	/**
+	 * Groupes. Une forme fait partie de 0 ou 1 'systemGroup', et de 0 ou 1 'userGroup'
+	 * Les systemGroup sont créés automatiquement lorsqu'un utilisateur crée une forme en cliquant
+	 * sur un point d'une autre forme (ce qui implique que les 2 formes seront liées).
+	 * Les userGroup sont créés manuellement par l'utilisateur en sélectionnant plusieurs formes.
+	 */
+
 	//Groupes de formes qui sont liées par des points
 	this.systemShapeGroups = [];
 
 	//Groupes de formes qui ont été liées par l'utilisateur après leur création.
-	this.userShapeGroups = []; //TODO remplir, et utiliser pour les déplacements/suppressions?
+	this.userShapeGroups = []; //TODO et utiliser pour les déplacements/rotations/suppressions?
 
 	//niveau de zoom de l'interface
 	this.zoomLevel = 1;
@@ -46,7 +53,7 @@ function Workspace(app) {
 	this.areShapesPointed = true;
 
 	//max 16 colors
-	this.previousSelectedColors = ["#aa0000", "#00aa00", "#0000aa"];
+	this.previousSelectedColors = ["#FF0000", "#00FF00", "#0000FF"];
 }
 
 /**
@@ -54,11 +61,12 @@ function Workspace(app) {
  * @param shape: la forme en question
  * @param type: vaut system (groupe par lien entre points) ou user (groupe créé par l'utilisateur)
  * @return: le groupe ([Shape]), ou null si pas de groupe trouvé
- */ //TODO: une forme ne peut normalement pas faire partie de 2 groupes ? (voir user/system!)
+ */ //TODO: fonction pour retourner un groupe virtuel contenant la fusion des groupes user et system ?
 Workspace.prototype.getShapeGroup = function(shape, type){
-	if(type=="system") {
-		for(var i=0;i<this.systemShapeGroups.length;i++) {
-			var group = this.systemShapeGroups[i];
+	if(type=="system" || type=="user") {
+		var groupList = type=='user' ? this.userShapeGroups : this.systemShapeGroups;
+		for(var i=0;i<groupList.length;i++) {
+			var group = groupList[i];
 			for(var j=0;j<group.length;j++) {
 				if(group[j]==shape) {
 					return group;
@@ -66,15 +74,31 @@ Workspace.prototype.getShapeGroup = function(shape, type){
 			}
 		}
 		return null;
-	} else if(type=="user") {
-		console.log("Workspace.getShapeGroup: à implémenter");
-		return null;
 	} else {
 		console.log("Workspace.getShapeGroup: bad type");
 		return null;
 	}
 };
 
+/**
+ * Renvoie l'index du groupe (d'un certain type) reçu en paramètre.
+ * @param groupe: le groupe en question
+ * @param type: vaut system (groupe par lien entre points) ou user (groupe créé par l'utilisateur)
+ * @return: l'index du groupe (int), ou -1 si le groupe n'a pas été trouvé
+ */
+Workspace.prototype.getGroupIndex = function(group, type) {
+	if(type=="system" || type=="user") {
+		var groupList = type=='user' ? this.userShapeGroups : this.systemShapeGroups;
+		for(var i=0;i<groupList.length;i++) {
+			if(groupList[i] == group)
+				return i;
+		}
+		return -1;
+	} else {
+		console.log("Workspace.getShapeGroup: bad type");
+		return null;
+	}
+}
 
 /**
  * Renvoie la liste des formes contenant un certain point
@@ -168,6 +192,7 @@ Workspace.prototype.getShapeIndex = function(shape){
  * @param shape: la forme (Shape)
  */
 Workspace.prototype.removeShape = function(shape) {
+	//TODO: adapter pour utiliser userGroup!
 	var shapeIndex = this.getShapeIndex(shape);
 	if(shapeIndex==null) {
 		console.log("Workspace.removeShape: couldn't remove the shape");

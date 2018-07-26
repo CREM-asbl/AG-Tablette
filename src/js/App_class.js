@@ -27,7 +27,8 @@ function App(divRef, canvasRef) {
 		"rotate_shape": new RotateState(this),
 		"global_zoom": new GlobalZoomState(this),
 		"border_color": new BorderColorState(this),
-		"background_color": new BackgroundColorState(this)
+		"background_color": new BackgroundColorState(this),
+		"link_shapes": new LinkerState(this)
 	};
 
 	this.events = {
