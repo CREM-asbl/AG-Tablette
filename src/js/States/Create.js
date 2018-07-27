@@ -50,10 +50,15 @@ CreateState.prototype.click = function(coordinates) {
     var x = coordinates.x-this.selectedShape.refPoint.x;
     var y = coordinates.y-this.selectedShape.refPoint.y;
 
+    var buildStepsCopy = [];
+    for(var i=0;i<this.selectedShape.buildSteps.length;i++) {
+        buildStepsCopy.push(this.selectedShape.buildSteps[i].getCopy());
+    }
+
 	var shape = new Shape(
 		this.selectedFamily.name, this.selectedShape.name,
 		x, y,
-		this.selectedShape.buildSteps, this.selectedShape.color, "#000",
+		buildStepsCopy, this.selectedShape.color, "#000",
         {"x": this.selectedShape.refPoint.x, "y": this.selectedShape.refPoint.y},
         this.app.workspace.areShapesPointed);
 

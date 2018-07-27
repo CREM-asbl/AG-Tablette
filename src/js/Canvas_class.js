@@ -4,15 +4,17 @@
 
 /**
  * Constructeur
- * @param divRef: the <div> containing the <canvas> (HTML element)
- * @param canvasRef: the <canvas> (HTML element)
- * @param app: the app reference (App)
+ * @param divRef: le <div> contenant le <canvas> (balise HTML)
+ * @param canvasRef: le <canvas> (balise HTML)
+ * @param app: référence vers l'application (App)
  */
 function Canvas(divRef, canvasRef, app) {
 	this.app = app;
 	this.divRef = divRef;
 	this.cvsRef = canvasRef;
 	this.ctx = canvasRef.getContext("2d");
+	//this.isAnimating = false; //si vaut vrai, c'est qu'une animation (ex retournement) est en cours.
+	//TODO: utiliser ça ? pour ne plus mettre à jour avec mousemove pendant ce temps là.
 }
 
 /**
@@ -32,11 +34,13 @@ Canvas.prototype.getCanvas = function(){
 };
 
 /**
- * Re-draw everything on the canvas
+ * Dessine le canvas
  */
-Canvas.prototype.refresh = function(mouseCoordinates) {
+Canvas.prototype.refresh = function(mouseCoordinates/*, options*/) {
 	var state = this.app.state;
-
+	/*if(options===undefined) options = {};
+	if(this.isAnimating && options.animation!==true)
+		return;*/
 
 	if(this.previousMouseCoordinates!==undefined && mouseCoordinates==undefined)
 		mouseCoordinates = this.previousMouseCoordinates;
@@ -59,7 +63,6 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 
 			this.app.workspace.setZoomLevel(baseZoom, false);
 		}
-
 	}
 
 	this.drawBackground();
@@ -72,10 +75,12 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 			continue;
 		if(state.name=="rotate_shape" && state.isRotating && state.shapesList.indexOf(shape)!=-1)
 			continue;
+		if(state.name=="reverse_shape" && state.isReversing && state.shapesList.indexOf(shape)!=-1)
+			continue;
 
 		this.drawShape(shape);
 
-		//affiche les user-groups (texte)
+		//affiche les user-groups sur les formes (texte)
 		if(state.name=="link_shapes") {
 			var group = this.app.workspace.getShapeGroup(shape, 'user');
 			var pos = {"x": shape.x - 25, "y": shape.y};
@@ -90,6 +95,8 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 
 	if(mouseCoordinates==undefined)
 		return;
+
+	//TODO: déplacer ça dans les classes des états ?
 
 	//dessine la forme/le groupe de formes qui est en train d'être bougé
 	if(state.name=="move_shape" && state.isMoving) {
@@ -132,7 +139,31 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 		}
 	}
 
+	/**
+	 * Dessine l'axe de symétrie si l'on est en mode retournement et que l'on
+	 * survolle une forme, sans qu'une animation soit en cours
+	 */
+	if(state.name=="reverse_shape" && !state.isReversing) {
+		var list = window.app.workspace.shapesOnPoint(mouseCoordinates);
+	    if(list.length>0) {
+			var shape = list.pop();
+			var axis = state.getSymmetryAxis(shape, mouseCoordinates);
+			this.drawLine(axis[0], axis[1]);
+		}
+	}
 
+	//Dessine les formes qui sont en train d'être retournées (animation)
+	if(state.name=="reverse_shape" && state.isReversing) {
+		//Dessiner les formes:
+		for(var i=0;i<state.shapesList.length;i++) {
+			this.drawReversingShape(state.shapesList[i], state.axe, state.getProgress());
+		}
+
+		//Dessiner l'axe de symétrie:
+		var shape = state.selectedShape;
+		var axis = state.getSymmetryAxis(shape, state.clickCoordinates);
+		this.drawLine(axis[0], axis[1]);
+	}
 };
 
 /**
@@ -150,8 +181,8 @@ Canvas.prototype.drawBackground = function() {
 };
 
 /**
- * draw a shape on the canvas
- * @param shape: the shape to draw (Shape)
+ * Dessine une forme sur le canvas
+ * @param shape: la forme à dessiner (Shape)
  */
 Canvas.prototype.drawShape = function(shape) {
 	var ctx = this.ctx;
@@ -162,7 +193,7 @@ Canvas.prototype.drawShape = function(shape) {
 	ctx.globalAlpha = 0.7;
 
 	ctx.translate(shape.x, shape.y);
-	ctx.rotate(-shape.rotateAngle);
+	//TODO remove ctx.rotate(-shape.rotateAngle);
 
 	//dessine le chemin principal
 	ctx.beginPath();
@@ -199,13 +230,119 @@ Canvas.prototype.drawShape = function(shape) {
 		}
 	}
 
+	if(this.app.state.name == "rotate_shape" && this.app.state.selectedShape==shape) {
+		this.drawPoint({"x": 0, "y": 0}, "#000");
+	}
+
 	ctx.globalAlpha = 1;
 
-	ctx.rotate(shape.rotateAngle);
+	//TODO remove ctx.rotate(shape.rotateAngle);
 
 	ctx.translate(-shape.x, -shape.y);
 };
 
+/**
+ * Dessine une forme qui est en train d'être bougée
+ * @param shape: la forme à dessiner (Shape)
+ * @param point: la position de la forme ({'x': int, 'y': int})
+ */
+Canvas.prototype.drawMovingShape = function(shape, point) {
+	var coords = shape.getCoordinates();
+	shape.setCoordinates(point);
+	this.drawShape(shape);
+	shape.setCoordinates(coords);
+};
+
+/**
+ * Dessine une forme qui est en train d'être tournée
+ * @param shape: la forme à dessiner (Shape)
+ * @param point: la position de la forme ({'x': int, 'y': int})
+ * @param angle: l'angle de la forme (float, en radians)
+ */
+Canvas.prototype.drawRotatingShape = function(shape, point, angle) {
+	var tmpBuildSteps = [];
+	for(var i=0;i<shape.buildSteps.length;i++) {
+		var transformation = this.app.state.computePointPosition(shape.buildSteps[i], angle);
+		tmpBuildSteps.push([ shape.buildSteps[i].x, shape.buildSteps[i].y ]);
+		shape.buildSteps[i].x = transformation.x;
+		shape.buildSteps[i].y = transformation.y;
+	}
+	shape.recomputePoints();
+
+	this.drawMovingShape(shape, point);
+
+	for(var i=0;i<tmpBuildSteps.length;i++) {
+		shape.buildSteps[i].x = tmpBuildSteps[i][0];
+		shape.buildSteps[i].y = tmpBuildSteps[i][1];
+	}
+	shape.recomputePoints();
+};
+
+/**
+ * Dessine une forme qui est en train d'être retournée (animation)
+ * @param shape: la forme à dessiner (Shape)
+ * @param axe: l'axe de symétrie (Object, voir ReverseState.axe)
+ * @param progress: l'avancement de l'animation (float, entre 0 et 1)
+ */
+Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
+	var saveShapeCenter = {'x': shape.x, 'y': shape.y};
+	var saveAxeCenter = axe.center;
+
+	var newShapeCenter = this.app.state.computePointPosition(shape, axe, progress);
+	axe.center = {'x': 0, 'y': 0};
+	shape.x = newShapeCenter.x;
+	shape.y = newShapeCenter.y;
+
+	var tmpBuildSteps = [];
+	for(var i=0;i<shape.buildSteps.length;i++) {
+		var transformation = this.app.state.computePointPosition(shape.buildSteps[i], axe, progress);
+		tmpBuildSteps.push([ shape.buildSteps[i].x, shape.buildSteps[i].y ]);
+		shape.buildSteps[i].x = transformation.x;
+		shape.buildSteps[i].y = transformation.y;
+	}
+	shape.recomputePoints();
+
+	this.drawShape(shape);
+
+	axe.center = saveAxeCenter;
+	shape.x = saveShapeCenter.x;
+	shape.y = saveShapeCenter.y;
+	for(var i=0;i<tmpBuildSteps.length;i++) {
+		shape.buildSteps[i].x = tmpBuildSteps[i][0];
+		shape.buildSteps[i].y = tmpBuildSteps[i][1];
+	}
+	shape.recomputePoints();
+};
+
+/**
+ * Modifie l'échelle du canvas de manière relative.
+ * @param newScale: nouvelle échelle relative (float)
+ */
+Canvas.prototype.updateRelativeScaleLevel = function(newScale) {
+	var ctx = this.ctx;
+	ctx.scale(newScale, newScale);
+};
+
+/**
+ * Dessine un texte
+ * @param text: le texte
+ * @param point: la position ({'x': int, 'y': int})
+ * @param color: la couleur du texte
+ */
+Canvas.prototype.drawText = function(text, point, color) {
+	var ctx = this.ctx;
+
+	ctx.fillStyle = color;
+	ctx.font = "13px Arial";
+	ctx.fillText(text, point.x, point.y);
+
+};
+
+/**
+ * Dessine un point
+ * @param point: la position ({'x': int, 'y': int})
+ * @param color: la couleur du point
+ */
 Canvas.prototype.drawPoint = function(point, color) {
 	var ctx = this.ctx;
 
@@ -216,8 +353,14 @@ Canvas.prototype.drawPoint = function(point, color) {
 	ctx.arc(point.x, point.y, 2 / this.app.workspace.zoomLevel, 0, 2*Math.PI, 0);
 	ctx.closePath();
 	ctx.fill();
-}
+};
 
+/**
+ * Dessine un cercle
+ * @param point: la position ({'x': int, 'y': int})
+ * @param color: la couleur du texte
+ * @param radius: le rayon du cercle (float)
+ */
 Canvas.prototype.drawCircle = function(point, color, radius) {
 	var ctx = this.ctx;
 
@@ -227,37 +370,18 @@ Canvas.prototype.drawCircle = function(point, color, radius) {
 	ctx.arc(point.x, point.y, radius / this.app.workspace.zoomLevel, 0, 2*Math.PI, 0);
 	ctx.closePath();
 	ctx.stroke();
-}
-
-Canvas.prototype.drawMovingShape = function(shape, point) {
-	var coords = shape.getCoordinates();
-	shape.setCoordinates(point);
-	this.drawShape(shape);
-	shape.setCoordinates(coords);
-};
-
-Canvas.prototype.drawRotatingShape = function(shape, point, angle) {
-	var saveAngle = shape.rotateAngle;
-	shape.rotateAngle += angle;
-	this.drawMovingShape(shape, point);
-	shape.rotateAngle = saveAngle;
 };
 
 /**
- * Modifie l'échelle du canvas de manière relative.
- * @param newScale: nouvelle échelle relative (float)
+ * Dessine un segment
+ * @param fromPoint: le point de départ ({'x': int, 'y': int})
+ * @param toPoint: le point d'arrivée ({'x': int, 'y': int})
  */
-Canvas.prototype.updateRelativeScaleLevel = function(newScale) {
+Canvas.prototype.drawLine = function(fromPoint, toPoint) {
 	var ctx = this.ctx;
-
-	ctx.scale(newScale, newScale);
-}
-
-Canvas.prototype.drawText = function(text, point, color) {
-	var ctx = this.ctx;
-
-	ctx.fillStyle = color;
-	ctx.font = "13px Arial";
-	ctx.fillText(text, point.x, point.y);
-
-}
+	ctx.beginPath();
+	ctx.moveTo(fromPoint.x, fromPoint.y);
+	ctx.lineTo(toPoint.x, toPoint.y);
+	ctx.closePath();
+	ctx.stroke();
+};

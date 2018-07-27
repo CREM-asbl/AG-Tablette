@@ -72,12 +72,13 @@ RotateState.prototype.mousedown = function(point){
             }
         }
     }
+    this.app.canvas.refresh(point);
 };
 
 /**
  * Calcule les nouvelles coordonnées du centre de la forme
  *  ->elles ne changent pas si la forme en question est celle qui a été sélectionnée
- *   pour la rotation, mais elles changent s'il s'agit d'une forme attachée à cette
+ *   pour la rotation, mais changent s'il s'agit d'une forme attachée à cette
  *   dernière.
  * @param shape: Shape
  * @param angle: l'angle de rotation actuel (en radians)
@@ -98,20 +99,46 @@ RotateState.prototype.computeNewShapePos = function(shape, angle){
 };
 
 /**
+ * Calculer la nouvelle d'un position d'un point qui a subi une rotation de centre (0,0)
+ * @param point: le point ({'x': int, 'y': int})
+ * @param angle: l'angle (float, en radians)
+ */
+RotateState.prototype.computePointPosition = function(point, angle) {
+    var s = Math.sin(-angle);
+    var c = Math.cos(-angle);
+
+    var x = point.x;
+    var y = point.y;
+
+    // effectuer la rotation
+    var newX = x * c - y * s;
+    var newY = x * s + y * c;
+
+
+    return {"x": newX, "y": newY};
+};
+
+/**
  * Appelée lorsque l'événement mouseup est déclanché sur le canvas
  */
 RotateState.prototype.mouseup = function(point){
     if(this.isRotating) {
         var AngleDiff = this.app.getAngleBetweenPoints(this.center, point) - this.startAngle;
         for(var i=0;i<this.shapesList.length;i++) {
-            var newPos = this.computeNewShapePos(this.shapesList[i], AngleDiff);
+            var shape = this.shapesList[i];
+            var newPos = this.computeNewShapePos(shape, AngleDiff);
             this.shapesList[i].setCoordinates(newPos);
-            this.shapesList[i].rotateAngle += AngleDiff;
 
-            this.shapesList[i].recomputePoints(AngleDiff);
+        	for(var j=0;j<shape.buildSteps.length;j++) {
+        		var transformation = this.computePointPosition(shape.buildSteps[j], AngleDiff);
+        		shape.buildSteps[j].x = transformation.x;
+        		shape.buildSteps[j].y = transformation.y;
+        	}
+        	shape.recomputePoints();
         }
         this.reset();
     }
+    this.app.canvas.refresh(point);
 };
 
 /**

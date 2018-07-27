@@ -28,7 +28,8 @@ function App(divRef, canvasRef) {
 		"global_zoom": new GlobalZoomState(this),
 		"border_color": new BorderColorState(this),
 		"background_color": new BackgroundColorState(this),
-		"link_shapes": new LinkerState(this)
+		"link_shapes": new LinkerState(this),
+		"reverse_shape": new ReverseState(this)
 	};
 
 	this.events = {
@@ -86,6 +87,17 @@ App.prototype.start = function(){
 		that.canvas.getDiv().setCanvasSize();
 		that.canvas.refresh();
 	};
+
+	window.requestAnimFrame = (function(){
+    	return window.requestAnimationFrame
+			|| window.webkitRequestAnimationFrame
+			|| window.mozRequestAnimationFrame
+			|| window.oRequestAnimationFrame
+			|| window.msRequestAnimationFrame
+			|| function(callback) {
+			       window.setTimeout(callback,1000/20);
+			   };
+    })();
 };
 
 /**

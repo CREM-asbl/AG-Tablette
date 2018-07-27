@@ -27,11 +27,8 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 	//if this shape has been created from another, contains the reference of this other shape
 	this.sourceShape = null; //TODO: utilisé ?
 
-	//angle of rotation of the shape (in radian)
-	this.rotateAngle = 0;
-
-	//true if the shape is reversed
-	this.isReversed = false; //todo: doit se faire autrement (retenir l'axe de symétrie utilisé)
+	//vrai si la forme a été retournée (pour savoir quelle face est visible)
+	this.isReversed = false;
 
 	//the scale of the shape, 1 by default
 	this.zoomRate = 1;
@@ -75,6 +72,7 @@ Shape.prototype.setSourceShape = function(shape) { //TODO: utilisé?
 
 //points utilisés dans le workspace pour lier des formes entres elles lors de l'ajout de formes
 Shape.prototype.computePoints = function(){
+	this.points = [];
 	for (var i = 1; i < this.buildSteps.length; i++) {
 		var s = this.buildSteps[i];
 		if(s.getType()=="line") {
@@ -102,18 +100,15 @@ Shape.prototype.computePoints = function(){
 //la forme est déplacée, zoomée, retournée ou tournée).
 //TODO: faire tourner le refPoint ? ou pas ? est-il utile après création?
 Shape.prototype.recomputePoints = function(){
-	var s = Math.sin(-this.rotateAngle);
-    var c = Math.cos(-this.rotateAngle);
-
 	for(var i=0;i<this.points.length;i++) {
-		var x = this.points[i].x;
-		var y = this.points[i].y;
+		var x = this.buildSteps[i].x;
+		var y = this.buildSteps[i].y;
 
-		var newX = x * c - y * s;
-		var newY = x * s + y * c;
+		this.points[i].x = x;
+		this.points[i].y = y;
 
-		this.points[i].absX = this.x + newX;
-		this.points[i].absY = this.y + newY;
+		this.points[i].absX = this.x + x;
+		this.points[i].absY = this.y + y;
 	}
 };
 
@@ -168,7 +163,7 @@ Shape.prototype.getApproximatedPointsList = function() {
 		}
 	}
 
-
+	/* //TODO remove
 	//rotate the points
 	var s = Math.sin(-this.rotateAngle);
     var c = Math.cos(-this.rotateAngle);
@@ -186,7 +181,7 @@ Shape.prototype.getApproximatedPointsList = function() {
 	    pointsList[i].x = newX;
 	    pointsList[i].y = newY;
 	}
-
+	*/
 
 	return pointsList;
 }
