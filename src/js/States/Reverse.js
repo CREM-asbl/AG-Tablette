@@ -7,7 +7,7 @@ function ReverseState(app) {
     this.name = "reverse_shape";
 
     //Durée en secondes de l'animation de retournement
-    this.duration = 1;
+    this.duration = 4;
 
     //La forme que l'on a sélectionnée
     this.selectedShape = null;
@@ -136,7 +136,7 @@ ReverseState.prototype.animate = function(){
 
 /**
  * Modifie effectivement les coordonnées des formes.
- */ //TODO
+ */
 ReverseState.prototype.reverseShapes = function () {
     for(var i=0;i<this.shapesList.length;i++) {
         var shape = this.shapesList[i];

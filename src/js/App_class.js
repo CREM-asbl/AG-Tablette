@@ -29,7 +29,9 @@ function App(divRef, canvasRef) {
 		"border_color": new BorderColorState(this),
 		"background_color": new BackgroundColorState(this),
 		"link_shapes": new LinkerState(this),
-		"reverse_shape": new ReverseState(this)
+		"reverse_shape": new ReverseState(this),
+		"build_shape_center": new BuildCenterState(this),
+		"duplicate_shape": new DuplicateState(this)
 	};
 
 	this.events = {

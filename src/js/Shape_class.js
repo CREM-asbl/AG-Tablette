@@ -25,7 +25,7 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 	this.showOrder = null; //numéro d'ordre d'affichage de la forme (=quelle forme est au dessus de quelle autre; plus le numéro est grand, plus la forme est en haut)
 
 	//if this shape has been created from another, contains the reference of this other shape
-	this.sourceShape = null; //TODO: utilisé ?
+	this.sourceShape = null; //TODO: utilisé ? apparemment non.
 
 	//vrai si la forme a été retournée (pour savoir quelle face est visible)
 	this.isReversed = false;
@@ -34,7 +34,7 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 	this.zoomRate = 1;
 
 	//Forme à laquelle celle-ci est liée
-	this.linkedShape = null; //TODO: utilisé ?
+	this.linkedShape = null; //TODO: utilisé ? oui!
 
 	//la couleur de la forme. Vaut, par défaut, celle de la famille.
 	this.color = color;
@@ -49,6 +49,9 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 
 	//Les sommets de la forme sont-ils affichés ?
 	this.isPointed = isPointed;
+
+	//Est-ce que le point du centre de la forme doit être affiché ?
+	this.isCenterShown = false;
 
 	this.computePoints();
 }
@@ -258,4 +261,32 @@ Shape.prototype.getCoordinates = function() {
 Shape.prototype.setCoordinates = function(coordinates) {
 	this.x = coordinates.x;
 	this.y = coordinates.y;
+};
+
+/**
+ *
+ * Note: attention, la forme n'a pas d'id!
+ * Notes: laisse sourceShape à null, linkedShape à null
+ */
+Shape.prototype.getCopy = function(copyId) {
+	var buildStepsCopy = [];
+    for(var i=0;i<this.buildSteps.length;i++) {
+        buildStepsCopy.push(this.buildSteps[i].getCopy());
+    }
+
+	var shape = new Shape(
+		this.familyName,
+		this.name,
+		this.x, this.y,
+		buildStepsCopy,
+		this.color,
+		this.borderColor,
+        {"x": this.refPoint.x, "y": this.refPoint.y},
+        this.isPointed);
+	shape.isReversed = this.isReversed;
+	shape.zoomRate = this.zoomRate;
+	shape.isSided = this.isSided;
+	shape.isPointed = this.isPointed;
+	shape.isCenterShown = this.isCenterShown;
+	return shape;
 };

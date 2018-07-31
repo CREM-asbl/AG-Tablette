@@ -110,7 +110,18 @@ Canvas.prototype.refresh = function(mouseCoordinates/*, options*/) {
 
 			this.drawMovingShape(state.shapesList[i], {"x": newX, "y": newY});
 		}
+	}
 
+	//dessine la forme qui est en train d'être bougée lors d'une duplication
+	if(state.name=="duplicate_shape" && state.isDuplicating) {
+		//calculer le décalage X et Y entre le centre de la forme et le click de départ de la translation
+		var xDiff = state.clickCoordinates.x - state.newShape.x;
+		var yDiff = state.clickCoordinates.y - state.newShape.y;
+
+		var newX = mouseCoordinates.x - xDiff;
+		var newY = mouseCoordinates.y - yDiff;
+
+		this.drawMovingShape(state.newShape, {"x": newX, "y": newY});
 	}
 
 	//dessine la forme qui est en train d'être ajoutée
@@ -230,7 +241,7 @@ Canvas.prototype.drawShape = function(shape) {
 		}
 	}
 
-	if(this.app.state.name == "rotate_shape" && this.app.state.selectedShape==shape) {
+	if((this.app.state.name == "rotate_shape" && this.app.state.selectedShape==shape) || shape.isCenterShown) {
 		this.drawPoint({"x": 0, "y": 0}, "#000");
 	}
 
