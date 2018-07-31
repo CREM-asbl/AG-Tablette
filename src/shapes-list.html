@@ -46,8 +46,9 @@
             }
 
             /**
-             * Get the family's shapes names list
-             * @return shapes names list ([String])
+             * Renvoie la liste des noms des formes d'une famille
+             * @param family: le nom de la famille
+             * @return liste des noms des formes ([String])
              */
             shapes(family) {
                 if (!family) {
@@ -59,7 +60,7 @@
             }
 
             /**
-             * Update the app state when clicking on a shape's name
+             * Met à jour l'état de l'application lorsque l'on clique sur le nom d'une forme
              */
             _clickHandle(event) {
                 var familyRef = window.app.workspace.getFamily(this.family);
@@ -70,8 +71,8 @@
                   "family": familyRef,
                   "shape": shapeRef
                 });
+                this.dispatchEvent(new CustomEvent('selected-shape'));
             }
-
         }
         customElements.define('shapes-list', ShapesList)
     </script>

@@ -8,17 +8,13 @@
  * @param canvasRef: l'élément HTML <canvas>
  */
 function App(divRef, canvasRef) {
+	//Classe qui gère le canvas
 	this.canvas = new Canvas(divRef, canvasRef, this);
 
-	this.state = {name: null};
+	//Classe représentant l'état de l'application
+	this.state = {'name': null};
 
-	this.workspace = new Workspace(this);
-	this.workspace.addMenuAFamilies();
-
-	this.menu = new Menu(this);
-
-	this.magnetismDistance = 6;
-
+	//Liste des classes d'états possible
 	this.states = {
 		"create_shape": new CreateState(this),
 		"delete_shape": new DeleteState(this),
@@ -34,23 +30,50 @@ function App(divRef, canvasRef) {
 		"duplicate_shape": new DuplicateState(this)
 	};
 
+	//Représente un projet, qui peut être sauvegardé
+	this.workspace = new Workspace(this);
+	this.workspace.addMenuAFamilies();
+
+	/**
+	 * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
+	 */
+	this.magnetismDistance = 6;
+
+	//Niveau de zoom maximal de l'interface
+	this.maxZoomLevel = 10;
+
+	//Niveau de zoom minimal de l'interface
+	this.minZoomLevel = 0.1;
+
+	//Liste des événements que l'application transmet à la classe de l'état actuel
 	this.events = {
 		"click": function(){},
 		"mousedown": function(){},
 		"mouseup": function(){}
 	};
 
+	//Classe permettant de sélectionner visuellement une couleur
 	this.colorpicker = new ColorPicker(this);
 }
 
+/**
+ * Transmet les événements à l'état
+ * @param eventName: le nom de l'événement (click, mousedown, ...)
+ * @param eventObj: référence vers l'objet Event
+ */
 App.prototype.handleEvent = function(eventName, eventObj){
 	this.events[eventName](eventObj);
 };
 
+/**
+ * Définir l'état de l'application
+ * @param stateName: le nom du nouvel état
+ * @param params: objet envoyé en paramètre à la méthode start() du nouvel état
+ */
 App.prototype.setState = function(stateName, params){
 	var that = this;
 	if(this.state.name!=null) {
-		this.state.abort();
+		this.state.abort(); //Annuler les actions en cours de l'état courant
 	}
 
 	this.state = this.states[stateName];
@@ -67,15 +90,7 @@ App.prototype.setState = function(stateName, params){
  * @return la version (Chaîne de caractères)
  */
 App.prototype.getVersion = function(){
-	return "0.0.1";
-};
-
-/**
- * Récupérer une référence vers le canvas
- * @return un objet de type Canvas
- */
-App.prototype.getCanvas = function(){
-	return this.canvas;
+	return "0.1.0";
 };
 
 /**
@@ -86,10 +101,11 @@ App.prototype.start = function(){
 
 	//quand la fenêtre est redimensionnée, mettre à jour la taille du canvas
 	window.onresize = function(e){
-		that.canvas.getDiv().setCanvasSize();
+		that.canvas.divRef.setCanvasSize();
 		that.canvas.refresh();
 	};
 
+	//Utilisé pour les animations.
 	window.requestAnimFrame = (function(){
     	return window.requestAnimationFrame
 			|| window.webkitRequestAnimationFrame
@@ -100,6 +116,10 @@ App.prototype.start = function(){
 			       window.setTimeout(callback,1000/20);
 			   };
     })();
+
+	//Mettre à jour le formulaire <html> des options
+	var form = document.getElementsByTagName("app-settings")[0].shadowRoot.getElementById("app-settings-view");
+	form.dispatchEvent(new CustomEvent('update-request'));
 };
 
 /**
@@ -116,12 +136,44 @@ App.prototype.getAngleBetweenPoints = function(a, b) {
 };
 
 /**
+ * Calcule la couleur complémentaire d'une couleur.
+ * @param color: couleur (RGB) sous la forme #xxxxxx ou #xxx (lettres minuscules ou majuscules)
+ */
+App.prototype.getComplementaryColor = function(color) {
+	var regex = /^#([0-9a-fA-F]{3}){1,2}$/;
+	if(!regex.test(color)) {
+		console.log("App.getComplementaryColor: la couleur n'a pas été reconnue: "+color);
+		return;
+	}
+	if(color.length==4) //transforme #abc en #aabbcc
+		color = '#'+color[1]+''+color[1]+''+color[2]+''+color[2]+''+color[3]+''+color[3];
+	color = color.toUpperCase();
+
+	var hexTodec = function(hex) { //transforme un nombre hexadécimal à 2 chiffres en un nombre décimal
+		var conversion = { '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7,
+			'8': 8, '9': 9, 'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15};
+		return conversion[hex[0]]*16 + conversion[hex[1]];
+	};
+	var decToHex = function(dec) { //transforme un nombre décimal de 0 à 255 en hexadécimal
+		var conversion = ['0', '1', '2', '3', '4', '5', '6', '7',
+			'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+		return conversion[dec % 16]+conversion[parseInt(dec / 16)];
+	}
+
+	var red = 255 - hexTodec(color[1]+color[2]),
+		green = 255 - hexTodec(color[3]+color[4]),
+		blue = 255 -hexTodec(color[5]+color[6]);
+
+	return '#'+decToHex(red)+decToHex(green)+decToHex(blue);
+};
+
+/**
  * Méthode statique: faire hériter une classe d'une autre
  *	-> copie le prototype de la classe mère
  * @param child: le prototype de la classe Fille
  * @param parent: le prototype de la classe mère
  */
 App.heriter = function(child, parent) {
-		for(var elem in parent)
-    		child[elem]=parent[elem];
-}
+	for(var elem in parent)
+		child[elem]=parent[elem];
+};

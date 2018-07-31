@@ -1,7 +1,6 @@
 /**
  * Cette classe permet d'effectuer une rotation sur une forme (ou un ensemble de formes liées) sur le canvas
  */
-
 function RotateState(app) {
     this.app = app;
     this.name = "rotate_shape";
@@ -19,7 +18,7 @@ function RotateState(app) {
     this.isRotating = false;
 
     this.center = null;
- }
+}
 
 App.heriter(RotateState.prototype, State.prototype);
 
@@ -139,6 +138,20 @@ RotateState.prototype.mouseup = function(point){
         this.reset();
     }
     this.app.canvas.refresh(point);
+};
+
+/**
+ * Appelée par la fonction de dessin, après avoir dessiné les formes
+ * @param canvas: référence vers la classe Canvas
+ */
+RotateState.prototype.draw = function(canvas, mouseCoordinates){
+    //dessine la forme/le groupe de formes qui est en train d'être tourné
+
+    var AngleDiff = canvas.app.getAngleBetweenPoints(this.selectedShape, mouseCoordinates) - this.startAngle;
+    for(var i=0;i<this.shapesList.length;i++) {
+        var pos = this.computeNewShapePos(this.shapesList[i], AngleDiff);
+        canvas.drawRotatingShape(this.shapesList[i], pos, AngleDiff);
+    }
 };
 
 /**

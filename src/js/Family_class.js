@@ -1,13 +1,14 @@
 /**
- * Represent a family of shapes
+ * Représente une famille de formes
  */
 
 /**
- * Constructor
- * @param name: the family name (String)
- * @param defaultColor: the color of the shapes (if the shape has not a specific color)
+ * Constructeur
+ * @param name: le nom de la famille (String)
+ * @param defaultColor: la couleur par défaut des formes
  */
-function Family(name, defaultColor) {
+function Family(app, name, defaultColor) {
+	this.app = app;
 	this.name = name;
 	this.shapesList = [];
 	this.defaultColor = defaultColor;
@@ -15,13 +16,13 @@ function Family(name, defaultColor) {
 }
 
 /**
- * add a shape to the family
- * @param name: the shape's name (String)
- * @param buildSteps: the shape's builds steps ([ShapeStep])
- * @param color: the shape color ("#AABBCC"). Can be null (in this case, the family default color will be used)
+ * Ajouter une forme à la famille
+ * @param name: nom de la forme (String)
+ * @param buildSteps: étapes de construction de la forme ([ShapeStep])
+ * @param color: la couleur de la forme ("#AABBCC"). Peut être nulle (la couleur par défaut sera alors utilisée)
  */
 Family.prototype.addShape = function(name, buildSteps, refPoint, color){
-	//Check arguments
+	//Vérifier les arguments
 	if(buildSteps.length<1) {
 		console.log("Family.addShape error: buildSteps.length is 0");
 		return;
@@ -51,12 +52,16 @@ Family.prototype.getShape = function(name){
 				var p = this.shapesList[i].buildSteps[j];
 				buildSteps.push(p.getCopy());
 			}
+
 			var refPoint = this.shapesList[i].refPoint;
 			var shape = new Shape(
 				this.name, name, //nom de la famille et de la forme
 				null, null, //coordonnées
 				buildSteps, this.shapesList[i].color, "#000",
-				{"x": refPoint.x, "y": refPoint.y}, true);
+				{"x": refPoint.x, "y": refPoint.y},
+				this.app.workspace.areShapesPointed,
+				this.app.workspace.areShapesPointed,
+				this.app.workspace.shapesOpacity);
 			return shape;
 		}
 	}
@@ -65,16 +70,16 @@ Family.prototype.getShape = function(name){
 }
 
 /**
- * set the id of the family
- * @param id: the id (int)
+ * Défini l'id de la famille
+ * @param id: l'id (int)
  */
 Family.prototype.setId = function(id) {
 	this.id = id;
 };
 
 /**
- * get the list of the shape's names
- * @return the list in question
+ * récupérer la liste des noms des formes de la famille
+ * @return liste ([String])
  */
 Family.prototype.getShapesNames = function() {
 	var names = [];

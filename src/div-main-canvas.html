@@ -11,27 +11,26 @@
     </template>
     <script>
         /**
-         * Canvas event handler
+         * Event handler du canvas
          */
         class DivMainCanvas extends Polymer.Element {
 
             static get is() { return 'div-main-canvas' }
 
             /**
-             * Define the <canvas> width and height attributes. Must be called on page load and when the page is resized.
+             * Défini les attributs width and height du <canvas>. Doit être appelé au démarrage et lorsque la page est redimensionnée.
              */
             setCanvasSize() {
                 var cvs = this.$.mainCanvas;
-                //set canvas fixed size
                 cvs.setAttribute("height", this.parentElement.clientHeight);
                 cvs.setAttribute("width", this.parentElement.clientWidth*0.7);
             }
 
             /**
-             * Get the mouse coordinates from an event reference
-             * @param event: event reference (Event)
-             * @return mouse coordinates ({x: int, y: int})
-             * @Error: if the coordinates were not found, an alert() is triggered and the function returns null
+             * Récupère les coordonnées de la souris à partir d'un événement javascript
+             * @param event: référence vers l'événement (Event)
+             * @return coordonnées de la souris ({x: int, y: int})
+             * @Error: si les coordonnées n'ont pas été trouvées, une alerte (alert()) est déclanchée et la fonction retourne null
              */
             getMousePos(event, appRef) {
                 var response = null;
@@ -54,7 +53,7 @@
             }
 
             /**
-             * Set the <canvas> events handlers
+             * Défini les event-handlers du <canvas>
              */
             ready() {
                 super.ready();
@@ -63,7 +62,6 @@
                 var cvs = this.$.mainCanvas;
                 var that = this;
 
-                //cvs.addEventListener('click', this._handleClick.bind(this), false);
                 cvs.addEventListener('click', function(event){
                     window.app.handleEvent("click", that.getMousePos(event, window.app));
                 }, false);
@@ -76,44 +74,21 @@
                     window.app.handleEvent("mouseup", that.getMousePos(event, window.app));
                 }, false);
 
-
-
                 cvs.addEventListener('mousemove', this._handleMove.bind(this), false);
-
-                cvs.addEventListener('touchmove', this._handleTouch.bind(this), false);
-                // this.addEventListener("touchstart", this._handleStart.bind(this), false);
-                cvs.addEventListener("touchend", this._handleEnd.bind(this), false);
-                // addEventListener("touchcancel", handleCancel, false);
-                // addEventListener("touchleave", handleLeave, false);
+                //cvs.addEventListener('touchmove', this._handleTouch.bind(this), false);
+                //cvs.addEventListener("touchstart", this._handleStart.bind(this), false);
+                //cvs.addEventListener("touchend", this._handleEnd.bind(this), false);
+                //cvs.addEventListener("touchcancel", handleCancel, false);
+                //cvs.addEventListener("touchleave", handleLeave, false);
             }
 
             /**
-             * <canvas> click event handler
-             */
-            _handleClick(event) {
-
-            }
-
-            /**
-             * <canvas> mousemove event handler
+             * Appelée lorsque l'événement mousemove est déclanché sur le canvas
              */
             _handleMove(event) {
                 window.app.canvas.refresh(this.getMousePos(event, window.app));
             }
 
-            /**
-             * <canvas> ? event handler
-             */
-            _handleTouch(event) {
-                console.log("handle touch");
-            }
-
-            /**
-             * <canvas> ? event handler
-             */
-            _handleEnd() {
-                console.log("handle end");
-            }
         }
         customElements.define(DivMainCanvas.is, DivMainCanvas);
     </script>

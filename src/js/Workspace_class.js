@@ -7,31 +7,31 @@
  * @param app: Référence vers l'application (App)
  */
 function Workspace(app) {
+	//référence vers l'application
 	this.app = app;
+
+	//Version de l'application dans laquelle ce projet a été créé
 	this.appVersion = this.app.getVersion();
 
 	//L'id de la prochaine forme qui sera créée
 	this.nextShapeId = 1;
 
+	//Représente l'historique
 	this.history = null; //TODO
 
 	//Le menu sélectionné (A, B, C, AB, AC)
 	this.menuId = "A"; //à modifier lorsque d'autres menus seront développés
 
-	//the list of shapes in this project ([Shape])
+	//liste des formes du projet ([Shape])
 	this.shapesList = [];
 
-	//the list of shapes ids, ordered by show order. synchronized with shapesList
-	this.shapesShowOrder = []; // todo -> shapesList
-	//TODO: variable inutile ? utiliser Shape.showOrder ?
+	//liste des points de toutes les formes ajoutées. (synchronisé avec shapesList)
+	this.points = [];
 
-	//the list of vertices of all shapes. synchronized with shapesList
-	this.points = []; // todo -> shapesList
-
-	//the id of the next family that will be created
+	//L'id de la prochaine famille qui sera créée
 	this.nextFamilyId = 1;
 
-	//list of existing families ([Family])
+	//Liste des familles existantes ([Family])
 	this.families = [];
 
 	/**
@@ -45,12 +45,22 @@ function Workspace(app) {
 	this.systemShapeGroups = [];
 
 	//Groupes de formes qui ont été liées par l'utilisateur après leur création.
-	this.userShapeGroups = []; //TODO et utiliser pour les déplacements/rotations/suppressions?
+	this.userShapeGroups = [];
 
 	//niveau de zoom de l'interface
 	this.zoomLevel = 1;
 
-	this.areShapesPointed = true;
+	//true si les formes ajoutées à l'avenir auront leurs sommets visibles
+	this.areShapesPointed = false; // (défini dans les paramètres de l'application)
+
+	//true si les formes ajoutées à l'avenir seront bifaces
+	this.areShapesSided = false; // (défini dans les paramètres de l'application)
+
+	//opacité des formes qui seront ajoutées
+	this.shapesOpacity = 0.7; //0, 0.7, 1 (défini dans les paramètres de l'application)
+
+	//taille des formes qui seront ajoutées
+	this.shapesSize = 1; //1,2,3 (défini dans les paramètres de l'application)
 
 	//max 16 colors
 	this.previousSelectedColors = ["#FF0000", "#00FF00", "#0000FF"];
@@ -120,7 +130,6 @@ Workspace.prototype.shapesOnPoint = function(point){
  * @return la liste des points ([{shape: Shape, x: int, y: int}])
  */
 Workspace.prototype.pointsNearPoint = function(point) {
-	//TODO: les renvoyer dans l'ordre d'affichage des formes ?
 	var response = [];
 	for(var i=0;i<this.points.length;i++) {
 		var p = this.points[i];
@@ -133,7 +142,7 @@ Workspace.prototype.pointsNearPoint = function(point) {
 };
 
 /**
- * Static method: get the list of existing families names
+ * Méthode statique: renvoie la liste des noms des familles existantes
  * @return families names
  */
 Workspace.getMenuAFamiliesNames = function(){
@@ -145,8 +154,20 @@ Workspace.getMenuAFamiliesNames = function(){
 };
 
 /**
- * add a family to the workspace
- * @param family: the family (Family)
+ * Renvoie la liste des noms des familles existantes
+ * @return list of the names ([String])
+ */
+Workspace.prototype.getFamiliesNames = function() {
+	var names = [];
+	for (var i = 0; i < this.families.length; i++) {
+		names.push(this.families[i].name);
+	}
+	return names;
+};
+
+/**
+ * ajoute une famille au workspace
+ * @param family: la famille (Family)
  */
 Workspace.prototype.addFamily = function(family){
 	family.setId(this.nextFamilyId++);
@@ -154,8 +175,8 @@ Workspace.prototype.addFamily = function(family){
 };
 
 /**
- * add a shape to the workspace
- * @param shape: the shape (Shape)
+ * ajoute une forme au workspace
+ * @param shape: la forme (Shape)
  */
 Workspace.prototype.addShape = function(shape){
 	shape.setId(this.nextShapeId++);
@@ -174,9 +195,13 @@ Workspace.prototype.addShape = function(shape){
 	for(var i=0; i<shape.points.length;i++) {
 		this.points.push(shape.points[i]);
 	}
-	//TODO update shapesShowOrder? or not ?
 };
 
+/**
+ * Renvoie l'index d'une forme
+ * @param shape: la forme (Shape)
+ * @return: l'id (int)
+ */
 Workspace.prototype.getShapeIndex = function(shape){
 	var index = -1;
 	for(var i=0;i<this.shapesList.length;i++) {
@@ -192,7 +217,6 @@ Workspace.prototype.getShapeIndex = function(shape){
  * @param shape: la forme (Shape)
  */
 Workspace.prototype.removeShape = function(shape) {
-	//TODO: adapter pour utiliser userGroup!
 	var shapeIndex = this.getShapeIndex(shape);
 	if(shapeIndex==null) {
 		console.log("Workspace.removeShape: couldn't remove the shape");
@@ -203,7 +227,6 @@ Workspace.prototype.removeShape = function(shape) {
 
 	//supprime les formes créées après la forme supprimée et qui sont (indirectement)
 	//liées à cette forme par un point.
-	//TODO: attention aux user groups ?
 
 	var that = this;
 	var removeLinkedShapes = function(list, srcShape) {
@@ -255,12 +278,12 @@ Workspace.prototype.removeShape = function(shape) {
 };
 
 /**
- * create the Menu A Families and add them to this workspace
+ * Crée les familles du menu A et les ajoute au workspace
  */
 Workspace.prototype.addMenuAFamilies = function(){
 	var base = 50;
 
-	var f1 = new Family("Triangle équilatéral", "#FF0");
+	var f1 = new Family(this.app, "Triangle équilatéral", "#FF0");
 
 	f1.addShape("Triangle équilatéral",[
 		ShapeStep.getLine(25-25, -42.5+14.1666666666666667),
@@ -372,32 +395,20 @@ Workspace.prototype.addMenuAFamilies = function(){
 	this.addFamily(f1);
 
 
-	var f2 = new Family("Carré", "#F00");
+	var f2 = new Family(this.app, "Carré", "#F00");
 	this.addFamily(f2);
 
 
-	var f3 = new Family("Pentagone régulier", "#0F0");
+	var f3 = new Family(this.app, "Pentagone régulier", "#0F0");
 	this.addFamily(f3);
 
 
 };
 
 /**
- * get the list of the existing families names
- * @return list of the names ([String])
- */
-Workspace.prototype.getFamiliesNames = function() {
-	var names = [];
-	for (var i = 0; i < this.families.length; i++) {
-		names.push(this.families[i].name);
-	}
-	return names;
-};
-
-/**
- * get a family object from the family name
- * @param name: the family name (String)
- * @return the family object (Family)
+ * Récupère une famille à partir de son nom
+ * @param name: le nom de la famille (String)
+ * @return la famille (Family)
  */
 Workspace.prototype.getFamily = function(name) {
 	for (var i = 0; i < this.families.length; i++) {
@@ -414,11 +425,10 @@ Workspace.prototype.getFamily = function(name) {
  * @param doRefresh (@default true): si vaut false, ne va pas mettre le canvas à jour
  */
 Workspace.prototype.setZoomLevel = function(newZoomLevel, doRefresh) {
-	if(newZoomLevel<0.1)
-		newZoomLevel = 0.1;
-	if(newZoomLevel>10)
-		newZoomLevel = 10
-
+	if(newZoomLevel<this.app.minZoomLevel)
+		newZoomLevel = this.app.minZoomLevel;
+	if(newZoomLevel>this.app.maxZoomLevel)
+		newZoomLevel = this.app.maxZoomLevel;
 
 	var oldZoomLevel = this.zoomLevel;
 

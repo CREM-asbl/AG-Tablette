@@ -88,8 +88,27 @@ LinkerState.prototype.click = function(coordinates) {
         }
     }
 
-    this.app.getCanvas().refresh(coordinates);
+    this.app.canvas.refresh(coordinates);
     return;
+};
+
+/**
+ * Appelée par la fonction de dessin, après avoir dessiné une forme
+ * @param canvas: référence vers la classe Canvas
+ * @param mouseCoordinates: coordonnées de la souris
+ * @param shape: objet Shape
+ */
+LinkerState.prototype.draw = function(canvas, mouseCoordinates, shape){
+    //affiche les user-groups sur les formes (texte)
+
+    var group = this.app.workspace.getShapeGroup(shape, 'user');
+    var pos = {"x": shape.x - 25, "y": shape.y};
+    if(group!==null) {
+        var groupIndex = this.app.workspace.getGroupIndex(group, 'user');
+        canvas.drawText("Groupe "+(groupIndex+1), pos, '#000');
+    } else if(shape==this.firstShape) {
+        canvas.drawText("Groupe "+(this.app.workspace.userShapeGroups.length+1), pos, '#666');
+    }
 };
 
 /**
@@ -100,9 +119,9 @@ LinkerState.prototype.abort = function(){};
 /**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */
- LinkerState.prototype.mousedown = function(){};
+LinkerState.prototype.mousedown = function(){};
 
 /**
 * Appelée lorsque l'événement mouseup est déclanché sur le canvas
  */
- LinkerState.prototype.mouseup = function(){};
+LinkerState.prototype.mouseup = function(){};

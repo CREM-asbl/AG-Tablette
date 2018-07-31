@@ -14,6 +14,7 @@
     <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
 
     <link rel="import" href="/src/AG-tablette-app.html">
+    <link rel="import" href="/src/settings.html">
 
     <style type="text/css">
       html, body, ag-tablette-app {
@@ -48,6 +49,43 @@
           margin: 4px;
           cursor: pointer;
       }
+      #settings-popup-gray {
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.5);
+          position:absolute;
+          top:0px;
+          left:0px;
+      }
+      #settings-popup {
+          position:absolute;
+          left:2%;
+          top:2%;
+          padding: 20px;
+          border-radius: 10px;
+          border: 2px solid gray;
+          background-color: #ddd;
+          height: 90%;
+          width: 90%;
+          overflow-y: auto;
+      }
+      #settings-popup-close {
+          position: relative;
+          font-size: 60px;
+          float: right;
+          cursor: pointer;
+          color: #555;
+          box-sizing: content-box;
+          width: 30px;
+          height: 30px;
+          overflow: hidden;
+          line-height: 40%;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -o-user-select: none;
+          user-select: none; // Default
+      }
     </style>
   </head>
   <body>
@@ -55,7 +93,6 @@
     <script src="src/js/App_class.js"></script>
     <script src="src/js/Canvas_class.js"></script>
     <script src="src/js/Family_class.js"></script>
-    <script src="src/js/Menu_class.js"></script>
     <script src="src/js/Shape_class.js"></script>
     <script src="src/js/ShapeStep_class.js"></script>
     <script src="src/js/Workspace_class.js"></script>
@@ -86,6 +123,13 @@
         <div>Choisir une couleur:</div>
         <input id="color-picker-input" type="text" />
         <button type="button" id="color-picker-input-ok" onclick='window.app.colorpicker.__validate()'>Valider</button>
+    </div>
+
+    <div id="settings-popup-gray" style="display:none">
+        <div id="settings-popup">
+            <div id="settings-popup-close" onclick="document.getElementById('settings-popup-gray').style.display='none';">&times;</div>
+            <app-settings></app-settings>
+        </div>
     </div>
 
 

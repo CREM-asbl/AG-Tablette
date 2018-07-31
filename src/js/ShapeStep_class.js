@@ -1,9 +1,9 @@
 /**
- * represent a build step of a shape
+ * Représente une étape de construction d'une forme
  */
 
 /**
- * Constructor
+ * Constructeur
  */
 function ShapeStep() {
 	this.type = null;
@@ -21,7 +21,7 @@ function ShapeStep() {
 }
 
 /**
- * Static method: Get a new instance of ShapeStep on which setLine was called
+ * Méthode statique: récupérer une nouvelle instance de ShapeStep sur laquelle setLine a été appelé
  */
 ShapeStep.getLine = function(x, y) {
 	var n = new ShapeStep();
@@ -30,7 +30,7 @@ ShapeStep.getLine = function(x, y) {
 };
 
 /**
- * Static method: Get a new instance of ShapeStep on which setArc was called
+ * Méthode statique: récupérer une nouvelle instance de ShapeStep sur laquelle setArc a été appelé
  */
 ShapeStep.getArc = function(x, y, angle, direction) {
 	var n = new ShapeStep();
@@ -39,7 +39,7 @@ ShapeStep.getArc = function(x, y, angle, direction) {
 };
 
 /**
- * Static method: Get a new instance of ShapeStep on which setQuadraticBezierCurve was called
+ * Méthode statique: récupérer une nouvelle instance de ShapeStep sur laquelle setQuadraticBezierCurve a été appelé
  */
 ShapeStep.getQuadraticBezierCurve = function(x, y, cp1X, cp1Y) {
 	var n = new ShapeStep();
@@ -48,7 +48,7 @@ ShapeStep.getQuadraticBezierCurve = function(x, y, cp1X, cp1Y) {
 };
 
 /**
- * Static method: Get a new instance of ShapeStep on which setCubicBezierCurve was called
+ * Méthode statique: récupérer une nouvelle instance de ShapeStep sur laquelle setCubicBezierCurve a été appelé
  */
 ShapeStep.getCubicBezierCurve = function(x, y, cp1X, cp1Y, cp2X, cp2Y) {
 	var n = new ShapeStep();
@@ -57,7 +57,7 @@ ShapeStep.getCubicBezierCurve = function(x, y, cp1X, cp1Y, cp2X, cp2Y) {
 };
 
 /**
- * get the type of the step
+ * Récupérer le type d'étape
  * @return the type
  */
 ShapeStep.prototype.getType = function() {
@@ -65,8 +65,8 @@ ShapeStep.prototype.getType = function() {
 };
 
 /**
- * get the type of the step
- * @return the type
+ * récupérer une copie de l'étape
+ * @return la copie (ShapeStep)
  */
 ShapeStep.prototype.getCopy = function() {
 	if(this.type=="line") {
@@ -85,9 +85,9 @@ ShapeStep.prototype.getCopy = function() {
 
 
 /**
- * the step is a line
- * @param x: x coordinate of the line's second point
- * @param y: y coordinate of the line's second point
+ * l'étape est une ligne
+ * @param x: coordonnée x du second point de la ligne
+ * @param y: coordonnée y du second point de la ligne
  */
 ShapeStep.prototype.setLine = function(x, y) {
 	this.type = "line";
@@ -97,11 +97,11 @@ ShapeStep.prototype.setLine = function(x, y) {
 };
 
 /**
- * the step is an arc
- * @param x: x coordinate of the arc's center
- * @param y: y coordinate of the arc's center
- * @param angle: angle of the arc (in degrees)
- * @param direction: true if the angle is drawn counterclockwise, false if clockwise
+ * l'étape est un arc de cercle
+ * @param x: coordonnée x du centre de l'arc de cercle
+ * @param y: coordonnée y du centre de l'arc de cercle
+ * @param angle: angle de l'arc de cercle (en degrés ?)
+ * @param direction: vrai si l'arc est dessiné dans le sens anti-horloger, false sinon
  */
 ShapeStep.prototype.setArc = function(x, y, angle, direction) {
 	this.type = "arc";
@@ -113,11 +113,11 @@ ShapeStep.prototype.setArc = function(x, y, angle, direction) {
 };
 
 /**
- * the step is a quadratic Bezier curve
- * @param x: x coordinate of the curve's final point
- * @param y: y coordinate of the curve's final point
- * @param cp1X: x coordinate of the control point
- * @param cp1Y: y coordinate of the control point
+ * l'étape est une courbe de bézier quadratique
+ * @param x: coordonnée x du point final de la courbe
+ * @param y: coordonnée y du point final de la courbe
+ * @param cp1X: coordonnée x du point de contrôle
+ * @param cp1Y: coordonnée y du point de contrôle
  */
 ShapeStep.prototype.setQuadraticBezierCurve = function(x, y, cp1X, cp1Y) {
 	this.type = "quadraticCurve";
@@ -129,13 +129,13 @@ ShapeStep.prototype.setQuadraticBezierCurve = function(x, y, cp1X, cp1Y) {
 };
 
 /**
- * the step is a cubic Bezier curve
- * @param x: x coordinate of the curve's final point
- * @param y: y coordinate of the curve's final point
- * @param cp1X: x coordinate of the first control point
- * @param cp1Y: y coordinate of the first control point
- * @param cp2X: x coordinate of the second control point
- * @param cp2Y: y coordinate of the second control point
+ * l'étape est une courbe de bézier cubique
+ * @param x: coordonnée x du point final de la courbe
+ * @param y: coordonnée y du point final de la courbe
+ * @param cp1X: coordonnée x du premier point de contrôle
+ * @param cp1Y: coordonnée y du premier point de contrôle
+ * @param cp2X: coordonnée x du second point de contrôle
+ * @param cp2Y: coordonnée y du second point de contrôle
  */
 ShapeStep.prototype.setCubicBezierCurve = function(x, y, cp1X, cp1Y, cp2X, cp2Y) {
 	this.type = "cubicCurve";

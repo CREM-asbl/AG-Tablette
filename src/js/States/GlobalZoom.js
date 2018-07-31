@@ -10,7 +10,7 @@ function GlobalZoomState(app) {
     this.baseDistance = null;
     this.isZooming = false;
 
- }
+}
 
 App.heriter(GlobalZoomState.prototype, State.prototype);
 
@@ -40,6 +40,21 @@ GlobalZoomState.prototype.mouseup = function(point){
         //this.app.workspace.
         this.reset();
     }
+};
+
+/**
+ * Appelée par la fonction de dessin, avant avoir dessiné les formes
+ * @param canvas: référence vers la classe Canvas
+ */
+GlobalZoomState.prototype.updateZoomLevel = function(canvas, mouseCoordinates){
+    var newDist = Math.sqrt( Math.pow(mouseCoordinates.x, 2) + Math.pow(mouseCoordinates.y, 2));
+    var oldDist = this.baseDistance;
+
+    if(newDist==0) newDist=0.1;
+    if(oldDist==0) oldDist=0.1;
+
+    var baseZoom = this.app.workspace.zoomLevel * newDist/oldDist;
+    this.app.workspace.setZoomLevel(baseZoom, false);
 };
 
 /**

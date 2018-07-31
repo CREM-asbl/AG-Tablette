@@ -36,7 +36,7 @@ DuplicateState.prototype.mousedown = function(point) {
     this.newShape = sourceShape.getCopy();
 
     this.app.workspace.addShape(this.newShape);
-	this.app.getCanvas().refresh(point);
+	this.app.canvas.refresh(point);
 };
 
 /**
@@ -71,19 +71,20 @@ DuplicateState.prototype.mouseup = function(point){
 };
 
 /**
- * Défini la famille sélectionnée
- * @param family: objet de type Family
+ * Appelée par la fonction de dessin, après avoir dessiné les formes
+ * @param canvas: référence vers la classe Canvas
  */
-DuplicateState.prototype.setFamily = function(family) {
-  this.selectedFamily = family;
-};
+DuplicateState.prototype.draw = function(canvas, mouseCoordinates){
+    //dessine la forme qui est en train d'être bougée lors d'une duplication
 
-/**
- * Défini la forme sélectionnée
- * @param shape: objet de type Shape
- */
-DuplicateState.prototype.setShape = function(shape) {
-  this.selectedShape = shape;
+    //calculer le décalage X et Y entre le centre de la forme et le click de départ de la translation
+    var xDiff = this.clickCoordinates.x - this.newShape.x;
+    var yDiff = this.clickCoordinates.y - this.newShape.y;
+
+    var newX = mouseCoordinates.x - xDiff;
+    var newY = mouseCoordinates.y - yDiff;
+
+    canvas.drawMovingShape(this.newShape, {"x": newX, "y": newY});
 };
 
 /**

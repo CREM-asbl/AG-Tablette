@@ -9,17 +9,6 @@ function DeleteState(app) {
 App.heriter(DeleteState.prototype, State.prototype);
 
 /**
- * Réinitialiser l'état
- */
-DeleteState.prototype.reset = function(){
-};
-
-/**
- * démarrer l'état
- */
-DeleteState.prototype.start = function(){};
-
-/**
  * Supprime la forme aux coordonnées indiquées (s'il y en a une)
  * @param coordinates: {x: int, y: int}
  */
@@ -31,7 +20,7 @@ DeleteState.prototype.click = function(coordinates) {
     //TODO: au survol, entourer les formes que l'on va supprimer!
 
     this.app.workspace.removeShape(shape);
-	this.app.getCanvas().refresh(coordinates);
+	this.app.canvas.refresh(coordinates);
 };
 
 /**
@@ -42,9 +31,19 @@ DeleteState.prototype.abort = function(){};
 /**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */
- DeleteState.prototype.mousedown = function(){};
+DeleteState.prototype.mousedown = function(){};
 
 /**
 * Appelée lorsque l'événement mouseup est déclanché sur le canvas
  */
- DeleteState.prototype.mouseup = function(){};
+DeleteState.prototype.mouseup = function(){};
+
+/**
+ * Réinitialiser l'état
+ */
+DeleteState.prototype.reset = function(){};
+
+/**
+ * démarrer l'état
+ */
+DeleteState.prototype.start = function(){};

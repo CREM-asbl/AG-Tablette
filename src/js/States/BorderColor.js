@@ -7,7 +7,7 @@ function BorderColorState(app) {
 
    //La couleur sélectionnée
    this.selectedColor = null;
- }
+}
 
 App.heriter(BorderColorState.prototype, State.prototype);
 
@@ -15,7 +15,7 @@ App.heriter(BorderColorState.prototype, State.prototype);
  * Réinitialiser l'état
  */
 BorderColorState.prototype.reset = function(){
-  this.selectedColor = null;
+    this.selectedColor = null;
 };
 
 /**
@@ -40,7 +40,7 @@ BorderColorState.prototype.click = function(coordinates) {
         var shape = list.pop();
         shape.borderColor = this.selectedColor;
     }
-	this.app.getCanvas().refresh(coordinates);
+	this.app.canvas.refresh(coordinates);
 };
 
 /**
@@ -48,7 +48,7 @@ BorderColorState.prototype.click = function(coordinates) {
  * @param color: la couleur ("#xxxxxx")
  */
 BorderColorState.prototype.setColor = function(color) {
-  this.selectedColor = color;
+    this.selectedColor = color;
 };
 
 /**
@@ -59,9 +59,9 @@ BorderColorState.prototype.abort = function(){};
 /**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */
- BorderColorState.prototype.mousedown = function(){};
+BorderColorState.prototype.mousedown = function(){};
 
 /**
 * Appelée lorsque l'événement mouseup est déclanché sur le canvas
  */
- BorderColorState.prototype.mouseup = function(){};
+BorderColorState.prototype.mouseup = function(){};

@@ -17,10 +17,9 @@ BuildCenterState.prototype.click = function(coordinates) {
     if(list.length==0)
         return;
     var shape = list.pop(); //TODO: utiliser l'ordre d'affichage ?
-    //TODO: au survol, entourer la forme dont on va créer le centre
 
     shape.isCenterShown = true;
-	this.app.getCanvas().refresh(coordinates);
+	this.app.canvas.refresh(coordinates);
 };
 
 /**

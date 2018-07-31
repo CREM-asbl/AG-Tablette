@@ -1,4 +1,6 @@
-
+/**
+ * Classe permettant de sélectionner visuellement une couleur
+ */
 function ColorPicker(app) {
     this.app = app;
 
@@ -9,6 +11,11 @@ function ColorPicker(app) {
     this.callback = null;
 }
 
+/**
+ * Lancer le colorpicker (le faire apparaître)
+ * @param callback: fonction qui sera appelée lorsque l'utilisateur aura choisi la couleur.
+ *                  Celle-ci sera transmise en paramètre à la fonction.
+ */
 ColorPicker.prototype.start = function(callback){
     if(!callback)
         return;
@@ -29,10 +36,16 @@ ColorPicker.prototype.start = function(callback){
     this.callback = callback;
 };
 
+/**
+ * Définir la couleur de l'outil visuel.
+ */
 ColorPicker.prototype.setColor = function(color) {
     this.picker.target.value = color;
 }
 
+/**
+ * Appelée lorsque l'utilisateur clique sur valider
+ */
 ColorPicker.prototype.__validate = function () {
     var cb = this.callback, val = this.picker.target.value;
 

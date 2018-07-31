@@ -15,7 +15,7 @@ function MoveState(app) {
     this.clickCoordinates = null;
 
     this.isMoving = false;
- }
+}
 
 App.heriter(MoveState.prototype, State.prototype);
 
@@ -31,7 +31,7 @@ MoveState.prototype.reset = function(){
 
 /**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
- */ //TODO: au survol, entourer les formes que l'on va déplacer!
+ */
 MoveState.prototype.mousedown = function(point){
     var list = window.app.workspace.shapesOnPoint(point);
     if(list.length>0) {
@@ -80,6 +80,24 @@ MoveState.prototype.mouseup = function(point){
             this.shapesList[i].recomputePoints();
         }
         this.reset();
+    }
+};
+
+/**
+ * Appelée par la fonction de dessin, après avoir dessiné les formes
+ * @param canvas: référence vers la classe Canvas
+ */
+MoveState.prototype.draw = function(canvas, mouseCoordinates){
+    //dessine la forme/le groupe de formes qui est en train d'être bougé
+    for(var i=0;i<this.shapesList.length;i++) {
+        //calculer le décalage X et Y entre le centre de la forme et le click de départ de la translation
+        var xDiff = this.clickCoordinates.x - this.shapesList[i].x;
+        var yDiff = this.clickCoordinates.y - this.shapesList[i].y;
+
+        var newX = mouseCoordinates.x - xDiff;
+        var newY = mouseCoordinates.y - yDiff;
+
+        canvas.drawMovingShape(this.shapesList[i], {"x": newX, "y": newY});
     }
 };
 

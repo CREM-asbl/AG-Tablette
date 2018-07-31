@@ -13,55 +13,23 @@ function Canvas(divRef, canvasRef, app) {
 	this.divRef = divRef;
 	this.cvsRef = canvasRef;
 	this.ctx = canvasRef.getContext("2d");
-	//this.isAnimating = false; //si vaut vrai, c'est qu'une animation (ex retournement) est en cours.
-	//TODO: utiliser ça ? pour ne plus mettre à jour avec mousemove pendant ce temps là.
 }
-
-/**
- * Renvoie le <div> contenant le <canvas>
- * @return le div (élément HTML)
- */
-Canvas.prototype.getDiv = function(){
-	return this.divRef;
-};
-
-/**
- * Renvoie l'élément html <canvas>
- * @return <canvas (élément HTML)
- */
-Canvas.prototype.getCanvas = function(){
-	return this.cvsRef;
-};
 
 /**
  * Dessine le canvas
  */
-Canvas.prototype.refresh = function(mouseCoordinates/*, options*/) {
+Canvas.prototype.refresh = function(mouseCoordinates) {
 	var state = this.app.state;
-	/*if(options===undefined) options = {};
-	if(this.isAnimating && options.animation!==true)
-		return;*/
 
 	if(this.previousMouseCoordinates!==undefined && mouseCoordinates==undefined)
 		mouseCoordinates = this.previousMouseCoordinates;
+
+	//met à jour le niveau de zoom si nécessaire
 	if(mouseCoordinates!==undefined) {
 		this.previousMouseCoordinates = mouseCoordinates;
 
 		if(state.name=="global_zoom" && state.isZooming) {
-			var newDist = Math.sqrt( Math.pow(mouseCoordinates.x, 2) + Math.pow(mouseCoordinates.y, 2));
-			var oldDist = state.baseDistance;
-
-			if(newDist==0) newDist=0.1;
-			if(oldDist==0) oldDist=0.1;
-
-			var baseZoom = this.app.workspace.zoomLevel;
-			if(newDist>=oldDist) {
-				baseZoom *= newDist/oldDist;
-			} else {
-				baseZoom *= newDist/oldDist;
-			}
-
-			this.app.workspace.setZoomLevel(baseZoom, false);
+			state.updateZoomLevel(this, mouseCoordinates);
 		}
 	}
 
@@ -69,7 +37,7 @@ Canvas.prototype.refresh = function(mouseCoordinates/*, options*/) {
 
 	//dessine les formes
 	var shapes = this.app.workspace.shapesList;
-	for (var i = 0; i < shapes.length; i++) { //TODO: draw in the good order (see order-array in workspace)
+	for (var i = 0; i < shapes.length; i++) {
 		var shape = shapes[i];
 		if(state.name=="move_shape" && state.isMoving && state.shapesList.indexOf(shape)!=-1)
 			continue;
@@ -80,115 +48,38 @@ Canvas.prototype.refresh = function(mouseCoordinates/*, options*/) {
 
 		this.drawShape(shape);
 
-		//affiche les user-groups sur les formes (texte)
+
 		if(state.name=="link_shapes") {
-			var group = this.app.workspace.getShapeGroup(shape, 'user');
-			var pos = {"x": shape.x - 25, "y": shape.y};
-			if(group!==null) {
-				var groupIndex = this.app.workspace.getGroupIndex(group, 'user');
-				this.drawText("Groupe "+(groupIndex+1), pos, '#000');
-			} else if(shape==state.firstShape) {
-				this.drawText("Groupe "+(this.app.workspace.userShapeGroups.length+1), pos, '#666');
-			}
+			state.draw(this, mouseCoordinates, shape);
 		}
 	}
 
 	if(mouseCoordinates==undefined)
 		return;
 
-	//TODO: déplacer ça dans les classes des états ?
-
-	//dessine la forme/le groupe de formes qui est en train d'être bougé
-	if(state.name=="move_shape" && state.isMoving) {
-		for(var i=0;i<state.shapesList.length;i++) {
-			//calculer le décalage X et Y entre le centre de la forme et le click de départ de la translation
-			var xDiff = state.clickCoordinates.x - state.shapesList[i].x;
-			var yDiff = state.clickCoordinates.y - state.shapesList[i].y;
-
-			var newX = mouseCoordinates.x - xDiff;
-			var newY = mouseCoordinates.y - yDiff;
-
-			this.drawMovingShape(state.shapesList[i], {"x": newX, "y": newY});
-		}
-	}
-
-	//dessine la forme qui est en train d'être bougée lors d'une duplication
-	if(state.name=="duplicate_shape" && state.isDuplicating) {
-		//calculer le décalage X et Y entre le centre de la forme et le click de départ de la translation
-		var xDiff = state.clickCoordinates.x - state.newShape.x;
-		var yDiff = state.clickCoordinates.y - state.newShape.y;
-
-		var newX = mouseCoordinates.x - xDiff;
-		var newY = mouseCoordinates.y - yDiff;
-
-		this.drawMovingShape(state.newShape, {"x": newX, "y": newY});
-	}
-
-	//dessine la forme qui est en train d'être ajoutée
-	if(state.name=="create_shape") {
-		this.drawMovingShape(state.selectedShape, {
-			"x": mouseCoordinates.x - state.selectedShape.refPoint.x,
-			"y": mouseCoordinates.y - state.selectedShape.refPoint.y
-		});
-
-		//afficher le point sur lequel la forme va se coller le cas échéant
-		var pointsNear = this.app.workspace.pointsNearPoint(mouseCoordinates);
-	    if(pointsNear.length>0) {
-	        var last = pointsNear[pointsNear.length-1];
-			var pos = {"x": last.absX, "y": last.absY};
-			this.drawPoint(pos, "#F00");
-			this.drawCircle(pos, "#000", 6);
-		}
-	}
-
-	//dessine la forme/le groupe de formes qui est en train d'être tourné
-	if(state.name=="rotate_shape" && state.isRotating) {
-		var AngleDiff = this.app.getAngleBetweenPoints(state.selectedShape, mouseCoordinates) - state.startAngle;
-		for(var i=0;i<state.shapesList.length;i++) {
-			var pos = state.computeNewShapePos(state.shapesList[i], AngleDiff);
-			this.drawRotatingShape(state.shapesList[i], pos, AngleDiff);
-		}
-	}
-
-	/**
-	 * Dessine l'axe de symétrie si l'on est en mode retournement et que l'on
-	 * survolle une forme, sans qu'une animation soit en cours
-	 */
-	if(state.name=="reverse_shape" && !state.isReversing) {
-		var list = window.app.workspace.shapesOnPoint(mouseCoordinates);
-	    if(list.length>0) {
-			var shape = list.pop();
-			var axis = state.getSymmetryAxis(shape, mouseCoordinates);
-			this.drawLine(axis[0], axis[1]);
-		}
-	}
-
-	//Dessine les formes qui sont en train d'être retournées (animation)
-	if(state.name=="reverse_shape" && state.isReversing) {
-		//Dessiner les formes:
-		for(var i=0;i<state.shapesList.length;i++) {
-			this.drawReversingShape(state.shapesList[i], state.axe, state.getProgress());
-		}
-
-		//Dessiner l'axe de symétrie:
-		var shape = state.selectedShape;
-		var axis = state.getSymmetryAxis(shape, state.clickCoordinates);
-		this.drawLine(axis[0], axis[1]);
+	//Appelle la fonction de dessin de l'état actuel
+	if(		(state.name=="move_shape" && state.isMoving)
+		 || (state.name=="duplicate_shape" && state.isDuplicating)
+		 || (state.name=="create_shape")
+		 || (state.name=="rotate_shape" && state.isRotating)
+		 || (state.name=="reverse_shape")
+	 ) {
+		state.draw(this, mouseCoordinates);
 	}
 };
 
 /**
- * draw the background of the canvas
+ * Dessine le fond du canvas
  */
 Canvas.prototype.drawBackground = function() {
 	var ctx = this.ctx;
 	var canvasWidth = this.cvsRef.clientWidth;
 	var canvasHeight = this.cvsRef.clientHeight;
 
-	//white rectangle:
+	//rectangle blanc:
 	ctx.fillStyle = "white";
 	ctx.strokeStyle = "white";
-	ctx.fillRect(0,0,canvasWidth*10,canvasHeight*10); //TODO: utiliser maxZoomLevel...
+	ctx.fillRect(0,0,canvasWidth*this.app.maxZoomLevel,canvasHeight*this.app.maxZoomLevel);
 };
 
 /**
@@ -198,13 +89,25 @@ Canvas.prototype.drawBackground = function() {
 Canvas.prototype.drawShape = function(shape) {
 	var ctx = this.ctx;
 
-	ctx.fillStyle = shape.color;
+	//Choix de la couleur
+	if(shape.isReversed && shape.isSided) {
+		ctx.fillStyle = this.app.getComplementaryColor(shape.color);
+	} else {
+		ctx.fillStyle = shape.color;
+	}
+
 	ctx.strokeStyle = shape.borderColor;
 	ctx.lineWidth = (new Number( 2 / this.app.workspace.zoomLevel )).toString();
-	ctx.globalAlpha = 0.7;
+
+	//Choix de l'opacité
+	if(shape.opacity>0.05)
+		ctx.globalAlpha = shape.opacity;
+	else {
+		ctx.globalAlpha = 1;
+		ctx.fillStyle = 'rgba(0,0,0,0)';
+	}
 
 	ctx.translate(shape.x, shape.y);
-	//TODO remove ctx.rotate(-shape.rotateAngle);
 
 	//dessine le chemin principal
 	ctx.beginPath();
@@ -223,7 +126,7 @@ Canvas.prototype.drawShape = function(shape) {
 			var start_angle = this.app.getAngleBetweenPoints(start_pos, s);
 			ctx.arc(s.x, s.y, rayon, start_angle, start_angle+s.angle*Math.PI/180, s.direction);
 		} else {
-			//TODO
+			//Pour les formes contenant des courbes de bézier
 			console.log("Canvas.drawShape: missed one step:");
 			console.log(shape.buildSteps[i]);
 		}
@@ -235,19 +138,18 @@ Canvas.prototype.drawShape = function(shape) {
 	ctx.stroke();
 
 	if(shape.isPointed) {
-		//dessine les points (noirs) de la forme
+		//dessine les points (noirs) des sommets de la forme
 		for(var i=0;i<shape.points.length;i++) {
 			this.drawPoint(shape.points[i], "#000");
 		}
 	}
 
+	//afficher le centre
 	if((this.app.state.name == "rotate_shape" && this.app.state.selectedShape==shape) || shape.isCenterShown) {
 		this.drawPoint({"x": 0, "y": 0}, "#000");
 	}
 
 	ctx.globalAlpha = 1;
-
-	//TODO remove ctx.rotate(shape.rotateAngle);
 
 	ctx.translate(-shape.x, -shape.y);
 };
@@ -313,7 +215,13 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 	}
 	shape.recomputePoints();
 
+	if(progress>=0.5)
+		shape.isReversed = !shape.isReversed;
+
 	this.drawShape(shape);
+
+	if(progress>=0.5)
+		shape.isReversed = !shape.isReversed;
 
 	axe.center = saveAxeCenter;
 	shape.x = saveShapeCenter.x;

@@ -9,10 +9,14 @@
  * @param x: la coordonnée x (int)
  * @param y: la coordonnée y (int)
  * @param buildSteps: liste des étapes de construction ([ShapeStep]). la première étape doit être une ligne (correspond au point de départ). Les coordonnées sont relatives.
- * @param color: the color of the shape (String: "#AABBCC")
+ * @param color: couleur de la forme (String: "#AABBCC")
+ * @param borderColor: couleur des bords de la forme (String: "#AABBCC")
  * @param refPoint: coordonnées relatives du point de référence de la forme (point en bas à gauche), utilisé pour ajouter une forme.
+ * @param isPointed: si les sommets doivent être affichés ou non
+ * @param isSided: si la forme a 2 faces ou non
+ * @param opacity: opacité de la forme (int entre 0 et 1)
  */
-function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint, isPointed){
+function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint, isPointed, isSided, opacity){
 
 	this.x = x;
 	this.y = y;
@@ -24,31 +28,29 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 	this.id = null;
 	this.showOrder = null; //numéro d'ordre d'affichage de la forme (=quelle forme est au dessus de quelle autre; plus le numéro est grand, plus la forme est en haut)
 
-	//if this shape has been created from another, contains the reference of this other shape
-	this.sourceShape = null; //TODO: utilisé ? apparemment non.
-
 	//vrai si la forme a été retournée (pour savoir quelle face est visible)
 	this.isReversed = false;
 
-	//the scale of the shape, 1 by default
-	this.zoomRate = 1;
-
 	//Forme à laquelle celle-ci est liée
-	this.linkedShape = null; //TODO: utilisé ? oui!
+	this.linkedShape = null;
 
 	//la couleur de la forme. Vaut, par défaut, celle de la famille.
 	this.color = color;
 
-	//la couleur des bords de la forme. //TODO: initialiser la valeur lors de la création à partir de la famille?
+	//la couleur des bords de la forme.
 	this.borderColor = borderColor;
 
-	this.refPoint = refPoint; //relatif au centre (0,0)
+	//point de référence de la forme (utilisé lors de l'ajout d'une forme), relatif au centre (0,0)
+	this.refPoint = refPoint;
 
 	//La forme a-t-elle 2 faces (-> 2 couleurs différentes) ou pas ? La couleur de l'autre face, le cas échéant, est le complément de la couleur de base.
-	this.isSided = false;
+	this.isSided = isSided;
 
 	//Les sommets de la forme sont-ils affichés ?
 	this.isPointed = isPointed;
+
+	//l'opacité de la forme, entre 0 et 1
+	this.opacity = opacity;
 
 	//Est-ce que le point du centre de la forme doit être affiché ?
 	this.isCenterShown = false;
@@ -57,8 +59,8 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 }
 
 /**
- * Define the uniq id of the shape
- * @param id: the id (int)
+ * Définir l'identifiant unique de la forme
+ * @param id: l'id (int)
  */
 Shape.prototype.setId = function(id) {
 	this.id = id;
@@ -66,14 +68,9 @@ Shape.prototype.setId = function(id) {
 };
 
 /**
- * Define the source shape of this shape
- * @param shape: the source shape (Shape)
+ * Calcule la liste des points de la forme à partir des étapes de construction.
+ * Note: ces points sont utilisés dans le workspace pour lier des formes entres elles lors de l'ajout de formes
  */
-Shape.prototype.setSourceShape = function(shape) { //TODO: utilisé?
-	this.sourceShape = shape;
-};
-
-//points utilisés dans le workspace pour lier des formes entres elles lors de l'ajout de formes
 Shape.prototype.computePoints = function(){
 	this.points = [];
 	for (var i = 1; i < this.buildSteps.length; i++) {
@@ -99,9 +96,10 @@ Shape.prototype.computePoints = function(){
 	}
 };
 
-//recalcule les coordonnées absolues des points (sont modifiées si
-//la forme est déplacée, zoomée, retournée ou tournée).
-//TODO: faire tourner le refPoint ? ou pas ? est-il utile après création?
+/**
+ * Recalcule les coordonnées absolues des points.
+ * Note: nécessaire si la forme est déplacée, zoomée, retournée ou tournée).
+ */
 Shape.prototype.recomputePoints = function(){
 	for(var i=0;i<this.points.length;i++) {
 		var x = this.buildSteps[i].x;
@@ -116,11 +114,16 @@ Shape.prototype.recomputePoints = function(){
 };
 
 /**
- * Compute an approximated path of the shape, using only lines (no arc or curves)
- * @param shape: the source shape (Shape)
- * @return the list of lines ([{"x": float, "y": float}])
- */ //TODO performance: stocker cette liste tant que la forme n'est pas modifiée?
+ * Calcule les sommets d'un polygone approximant la forme
+ * @return liste de points ([{"x": float, "y": float}])
+ */
 Shape.prototype.getApproximatedPointsList = function() {
+	/**
+	 * TODO performance:
+	 * Stocker la liste calculée dans une variable, et utiliser cette variable les fois suivantes tant que la forme
+	 * n'a pas été modifiée (buildSteps). Nécessite de savoir quand buildSteps est modifié...
+	 */
+
 	var pointsList = [ {"x": this.buildSteps[0].x, "y": this.buildSteps[0].y} ];
 	for (var i = 1; i < this.buildSteps.length; i++) {
 		if(this.buildSteps[i].getType()=="line") {
@@ -155,10 +158,10 @@ Shape.prototype.getApproximatedPointsList = function() {
 			}
 
 		} else if(this.buildSteps[i].getType()=="quadraticCurve") {
-			//TODO: compute a better approximation
+			console.log("Shape.getApproximatedPointsList: quadraticCurve, no approximation made");
 			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
 		} else if(this.buildSteps[i].getType()=="cubicCurve") {
-			//TODO: compute a better approximation
+			console.log("Shape.getApproximatedPointsList: cubicCurve, no approximation made");
 			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
 		} else{
 			console.log("Shape.getApproximatedPointsList: unknown buildStep type");
@@ -166,37 +169,16 @@ Shape.prototype.getApproximatedPointsList = function() {
 		}
 	}
 
-	/* //TODO remove
-	//rotate the points
-	var s = Math.sin(-this.rotateAngle);
-    var c = Math.cos(-this.rotateAngle);
-
-	for(var i=0;i<pointsList.length;i++) {
-		// translater le point au centre:
-	    var x = pointsList[i].x;
-	    var y = pointsList[i].y;
-
-	    // effectuer la rotation
-	    var newX = x * c - y * s;
-	    var newY = x * s + y * c;
-
-	    // retranslater le point à sa position d'origine
-	    pointsList[i].x = newX;
-	    pointsList[i].y = newY;
-	}
-	*/
-
 	return pointsList;
 }
 
 /**
- * Check if a point is in a shape or not
- * @param point: the point ({x: int, y: int})
- * @return true if the point is in the shape, false otherwise
+ * Vérifie si un point est dans la forme ou non
+ * @param point: le point ({x: int, y: int})
+ * @return true si le point est dans la forme, false sinon
  * @author: https://sidvind.com/wiki/Point-in-polygon:_Jordan_Curve_Theorem
  */
 Shape.prototype.containsPoint = function(point) {
-	//TODO: ne calculer qu'une fois les points approximatifs si la forme ne change pas
 	var points = this.getApproximatedPointsList();
 	point = {"x": point.x - this.x, "y": point.y - this.y};
 
@@ -247,16 +229,16 @@ Shape.prototype.containsPoint = function(point) {
 };
 
 /**
- * get the position of the shape
- * @return the position ({x: float, y: float})
+ * récupère les coordonnées de la forme
+ * @return les coordonnées ({x: float, y: float})
  */
 Shape.prototype.getCoordinates = function() {
 	return {"x": this.x, "y": this.y};
 };
 
 /**
- * set the position of the shape
- * @param coordinates: the position ({x: float, y: float})
+ * défini les coordonnées de la forme
+ * @param coordinates: les coordonnées ({x: float, y: float})
  */
 Shape.prototype.setCoordinates = function(coordinates) {
 	this.x = coordinates.x;
@@ -264,11 +246,10 @@ Shape.prototype.setCoordinates = function(coordinates) {
 };
 
 /**
- *
- * Note: attention, la forme n'a pas d'id!
- * Notes: laisse sourceShape à null, linkedShape à null
+ * Récupérer une copie de la forme.
+ * Notes: La forme n'aura pas d'id. Le champ linkedShape n'est pas copié et est laissé à null.
  */
-Shape.prototype.getCopy = function(copyId) {
+Shape.prototype.getCopy = function() {
 	var buildStepsCopy = [];
     for(var i=0;i<this.buildSteps.length;i++) {
         buildStepsCopy.push(this.buildSteps[i].getCopy());
@@ -282,10 +263,10 @@ Shape.prototype.getCopy = function(copyId) {
 		this.color,
 		this.borderColor,
         {"x": this.refPoint.x, "y": this.refPoint.y},
-        this.isPointed);
+        this.isPointed,
+		this.isSided,
+		this.opacity);
 	shape.isReversed = this.isReversed;
-	shape.zoomRate = this.zoomRate;
-	shape.isSided = this.isSided;
 	shape.isPointed = this.isPointed;
 	shape.isCenterShown = this.isCenterShown;
 	return shape;

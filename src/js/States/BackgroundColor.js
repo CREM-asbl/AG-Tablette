@@ -5,9 +5,9 @@ function BackgroundColorState(app) {
     this.app = app;
     this.name = "background_color";
 
-   //La couleur sélectionnée
-   this.selectedColor = null;
- }
+    //La couleur sélectionnée
+    this.selectedColor = null;
+}
 
 App.heriter(BackgroundColorState.prototype, State.prototype);
 
@@ -15,7 +15,7 @@ App.heriter(BackgroundColorState.prototype, State.prototype);
  * Réinitialiser l'état
  */
 BackgroundColorState.prototype.reset = function(){
-  this.selectedColor = null;
+    this.selectedColor = null;
 };
 
 /**
@@ -40,7 +40,7 @@ BackgroundColorState.prototype.click = function(coordinates) {
         var shape = list.pop();
         shape.color = this.selectedColor;
     }
-	this.app.getCanvas().refresh(coordinates);
+	this.app.canvas.refresh(coordinates);
 };
 
 /**
@@ -48,7 +48,7 @@ BackgroundColorState.prototype.click = function(coordinates) {
  * @param color: la couleur ("#xxxxxx")
  */
 BackgroundColorState.prototype.setColor = function(color) {
-  this.selectedColor = color;
+    this.selectedColor = color;
 };
 
 /**
@@ -59,9 +59,9 @@ BackgroundColorState.prototype.abort = function(){};
 /**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */
- BackgroundColorState.prototype.mousedown = function(){};
+BackgroundColorState.prototype.mousedown = function(){};
 
 /**
 * Appelée lorsque l'événement mouseup est déclanché sur le canvas
  */
- BackgroundColorState.prototype.mouseup = function(){};
+BackgroundColorState.prototype.mouseup = function(){};

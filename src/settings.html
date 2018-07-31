@@ -1,0 +1,175 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="app-settings">
+  <template>
+    <style>
+        .action-button {
+            display: block;
+            box-sizing: border-box;
+            width: 100%;
+            height: 30px;
+            margin: 8px 0;
+        }
+
+        .action-button:hover,
+        .action-button:focus {
+            font-weight: bold;
+        }
+
+        canvas-button {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            margin: 4px;
+        }
+        select {
+            height: 37px;
+            display: block;
+            font-size: 24px;
+            width: 150px;
+        }
+        input {
+            height: 25px;
+            display: block;
+            width: 25px;
+        }
+        label {
+            display: block;
+            float: left;
+            font-size: 24px;
+            margin-right: 20px;
+        }
+    </style>
+
+    <div id="app-settings-view" on-update-request='_updateHTMLForm'>
+
+        <h2>Paramètres</h2>
+
+        <fieldset>
+            <legend>Général</legend>
+
+            <label for="settings_adapt_shapes_position">Activer ajustement automatique: </label>
+            <input type="checkbox" name="settings_adapt_shapes_position" id="settings_adapt_shapes_position" on-change='_actionHandle' />
+
+            <br />
+
+            <label for="settings_show_grid">Activer la grille: </label>
+            <input type="checkbox" name="settings_show_grid" id="settings_show_grid" on-change='_actionHandle' />
+
+            <br />
+
+            <div id="settings_grid_bloc">
+                <label for="settings_grid_type">Type de grille: </label>
+                <select name="settings_grid_type" id="settings_grid_type" on-change='_actionHandle'>
+                    <option value="square" selected>Carrés</option>
+                    <option value="triangle">Triangles</option>
+                </select>
+            </div>
+
+        </fieldset>
+
+        <br />
+
+        <fieldset>
+            <legend>Formes</legend>
+
+            <label for="settings_shapes_size">Taille des formes: </label>
+            <select name="settings_shapes_size" id="settings_shapes_size" on-change='_actionHandle'>
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+
+            <br />
+
+            <label for="settings_pointed_shapes">Activer formes pointées: </label>
+            <input type="checkbox" name="settings_pointed_shapes" id="settings_pointed_shapes" on-change='_actionHandle' />
+
+            <br />
+
+            <label for="settings_sided_shapes">Formes bifaces: </label>
+            <input type="checkbox" name="settings_sided_shapes" id="settings_sided_shapes" on-change='_actionHandle' />
+
+            <br />
+
+            <label for="settings_shapes_opacity">Opacité: </label>
+            <select name="settings_shapes_opacity" id="settings_shapes_opacity" on-change='_actionHandle'>
+                <option value="0">transparent</option>
+                <option value="0.7" selected>semi-transparent</option>
+                <option value="1">opaque</option>
+            </select>
+        </fieldset>
+
+    </div>
+
+  </template>
+
+  <script>
+    /**
+     * Event handlers des paramètres
+     */
+    class Settings extends Polymer.Element {
+        static get is() { return 'app-settings'; }
+
+        static get properties() {
+            return {}
+        }
+
+        /**
+         * Met à jour le formulaire <html> des options en fonction des valeurs stockées dans le workspace actuel.
+         */
+        _updateHTMLForm() {
+            var ws = window.app.workspace;
+            this.shadowRoot.getElementById('settings_shapes_size').value = ws.shapesSize;
+            this.shadowRoot.getElementById('settings_pointed_shapes').checked = ws.areShapesPointed;
+            this.shadowRoot.getElementById('settings_sided_shapes').checked = ws.areShapesSided;
+            this.shadowRoot.getElementById('settings_shapes_opacity').value = (new Number(ws.shapesOpacity)).toString();
+        }
+
+        /**
+         * event handler principal
+         */
+        _actionHandle(event) {
+            if(window.app.state.name)
+                window.app.state.abort();
+            window.app.state = {'name': null};
+
+            switch (event.target.name) {
+                case 'settings_adapt_shapes_position':
+
+                    break;
+
+                case 'settings_show_grid':
+
+                    break;
+
+                case 'settings_grid_type':
+
+                    break;
+
+                case 'settings_shapes_size':
+                    window.app.workspace.shapesSize = parseInt(event.target.value);
+                    break;
+
+                case 'settings_pointed_shapes':
+                    window.app.workspace.areShapesPointed = event.target.checked;
+                    break;
+
+                case 'settings_sided_shapes':
+                    window.app.workspace.areShapesSided = event.target.checked;
+                    break;
+
+                case 'settings_shapes_opacity':
+                    window.app.workspace.shapesOpacity = parseFloat(event.target.value);
+                    break;
+
+                default:
+                    console.log("Settings: paramètre inconnu: "+ event.target.name+' '+event.target.value+' '+event.target.checked);
+            }
+        }
+
+    }
+
+    window.customElements.define(Settings.is, Settings);
+  </script>
+</dom-module>
