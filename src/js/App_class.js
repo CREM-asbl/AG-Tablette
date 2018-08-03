@@ -80,9 +80,9 @@ App.prototype.setState = function(stateName, params){
 	this.state.reset();
 	this.state.start(params);
 
-	this.events.click = function(e){ that.state.click(e); };
-	this.events.mousedown = function(e){ that.state.mousedown(e); };
-	this.events.mouseup = function(e){ that.state.mouseup(e); };
+	this.events.click = function(e){ if(that.state.name) that.state.click(e); };
+	this.events.mousedown = function(e){ if(that.state.name) that.state.mousedown(e); };
+	this.events.mouseup = function(e){ if(that.state.name) that.state.mouseup(e); };
 };
 
 /**
@@ -132,6 +132,7 @@ App.prototype.getAngleBetweenPoints = function(a, b) {
 	var angle = Math.atan2(a.x-b.x, a.y-b.y);
 	if(angle<0)
 		angle += 2*Math.PI;
+
 	return angle;
 };
 

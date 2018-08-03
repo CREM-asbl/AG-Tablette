@@ -28,7 +28,7 @@
             font-size: 24px;
             width: 150px;
         }
-        input {
+        input[type=checkbox] {
             height: 25px;
             display: block;
             width: 25px;
@@ -58,13 +58,20 @@
 
             <br />
 
-            <div id="settings_grid_bloc">
-                <label for="settings_grid_type">Type de grille: </label>
-                <select name="settings_grid_type" id="settings_grid_type" on-change='_actionHandle'>
-                    <option value="square" selected>Carrés</option>
-                    <option value="triangle">Triangles</option>
-                </select>
-            </div>
+            <label for="settings_grid_type">Type de grille: </label>
+            <select name="settings_grid_type" id="settings_grid_type" on-change='_actionHandle' disabled>
+                <option value="square">Carrés</option>
+                <option value="triangle">Triangles</option>
+            </select>
+
+            <br />
+
+            <label for="settings_grid_size">Taille de la grille: </label>
+            <input type="number" max="10" min="0.1" step="0.1" disabled name="settings_grid_size" id="settings_grid_size" on-change='_gridSize' style='font-size:20px;'>
+
+            <br /><br />
+
+
 
         </fieldset>
 
@@ -75,7 +82,7 @@
 
             <label for="settings_shapes_size">Taille des formes: </label>
             <select name="settings_shapes_size" id="settings_shapes_size" on-change='_actionHandle'>
-                <option value="1" selected>1</option>
+                <option value="1">1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
             </select>
@@ -95,7 +102,7 @@
             <label for="settings_shapes_opacity">Opacité: </label>
             <select name="settings_shapes_opacity" id="settings_shapes_opacity" on-change='_actionHandle'>
                 <option value="0">transparent</option>
-                <option value="0.7" selected>semi-transparent</option>
+                <option value="0.7">semi-transparent</option>
                 <option value="1">opaque</option>
             </select>
         </fieldset>
@@ -120,6 +127,13 @@
          */
         _updateHTMLForm() {
             var ws = window.app.workspace;
+            //Général
+            this.shadowRoot.getElementById('settings_adapt_shapes_position').checked = ws.automaticAdjustment;
+            this.shadowRoot.getElementById('settings_show_grid').checked = ws.isGridShown;
+            this.shadowRoot.getElementById('settings_grid_type').value = ws.gridOptions.type;
+            this.shadowRoot.getElementById('settings_grid_size').value = ws.gridOptions.size;
+
+            //Formes
             this.shadowRoot.getElementById('settings_shapes_size').value = ws.shapesSize;
             this.shadowRoot.getElementById('settings_pointed_shapes').checked = ws.areShapesPointed;
             this.shadowRoot.getElementById('settings_sided_shapes').checked = ws.areShapesSided;
@@ -140,11 +154,22 @@
                     break;
 
                 case 'settings_show_grid':
+                    this.shadowRoot.getElementById("settings_grid_type").disabled = !event.target.checked;
+                    this.shadowRoot.getElementById("settings_grid_size").disabled = !event.target.checked;
+                    window.app.workspace.isGridShown = event.target.checked;
+                    window.app.workspace.gridOptions.type = this.shadowRoot.getElementById("settings_grid_type").value;
+                    window.app.workspace.gridOptions.size = this.shadowRoot.getElementById("settings_grid_size").value;
+                    window.app.canvas.refresh();
+                    break;
 
+                case 'settings_grid_size':
+                    window.app.workspace.gridOptions.size = this.shadowRoot.getElementById("settings_grid_size").value;
+                    window.app.canvas.refresh();
                     break;
 
                 case 'settings_grid_type':
-
+                    window.app.workspace.gridOptions.type = this.shadowRoot.getElementById("settings_grid_type").value;
+                    window.app.canvas.refresh();
                     break;
 
                 case 'settings_shapes_size':
@@ -168,6 +193,15 @@
             }
         }
 
+        _gridSize(event) {
+            if(event.target.value > 10)
+                event.target.value = 10;
+            if(event.target.value < 0.1)
+                event.target.value = 0.1;
+            event.target.value = parseInt(event.target.value*10)/10;
+
+            this._actionHandle(event);
+        }
     }
 
     window.customElements.define(Settings.is, Settings);

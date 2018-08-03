@@ -35,6 +35,9 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 
 	this.drawBackground();
 
+	if(this.app.workspace.isGridShown)
+		this.drawGrid();
+
 	//dessine les formes
 	var shapes = this.app.workspace.shapesList;
 	for (var i = 0; i < shapes.length; i++) {
@@ -80,6 +83,39 @@ Canvas.prototype.drawBackground = function() {
 	ctx.fillStyle = "white";
 	ctx.strokeStyle = "white";
 	ctx.fillRect(0,0,canvasWidth*this.app.maxZoomLevel,canvasHeight*this.app.maxZoomLevel);
+};
+
+/**
+ * Dessiner la grille de points
+ */
+Canvas.prototype.drawGrid = function() {
+	//Dessiner les points entre (0, 0) et (canvasWidth*this.app.maxZoomLevel, canvasHeight*this.app.maxZoomLevel)
+	//TODO: utiliser le niveau de zoom actuel pour ne pas dessiner des points qui ne seront pas affichés ?
+
+	var canvasWidth = this.cvsRef.clientWidth;
+	var canvasHeight = this.cvsRef.clientHeight;
+	var gridOpts = this.app.workspace.gridOptions;
+	var max = {'x': canvasWidth*this.app.maxZoomLevel, 'y': canvasHeight*this.app.maxZoomLevel};
+	if(gridOpts.type=="square") {
+		for(var x = 10; x<= max.x; x += 50*gridOpts.size) {
+			for(var y = 10; y<= max.y; y += 50*gridOpts.size) {
+				this.drawPoint({"x": x, "y": y}, "#F00");
+			}
+		}
+	} else if(gridOpts.type=="triangle") {
+		for(var x = 10; x<= max.x; x += 50*gridOpts.size) {
+			for(var y = 10; y<= max.y; y += 85*gridOpts.size) {
+				this.drawPoint({"x": x, "y": y}, "#F00");
+			}
+		}
+		for(var x = 10 + 50*gridOpts.size/2; x<= max.x; x += 50*gridOpts.size) {
+			for(var y =10 +  42.5*gridOpts.size; y<= max.y; y += 85*gridOpts.size) {
+				this.drawPoint({"x": x, "y": y}, "#F00");
+			}
+		}
+	} else {
+		console.log("Canvas.drawGrid: unknown type: "+gridOpts.type);
+	}
 };
 
 /**

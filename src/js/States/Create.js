@@ -46,7 +46,9 @@ CreateState.prototype.start = function(params){
  * @param coordinates: {x: int, y: int}
  */
 CreateState.prototype.click = function(coordinates) {
-    var pointsNear = this.app.workspace.pointsNearPoint(coordinates);
+
+    //move the shape ?
+    var pointsNear = this.app.workspace.pointsNearPoint(this.app.workspace.points, coordinates);
     if(pointsNear.length>0) {
         var last = pointsNear[pointsNear.length-1];
         coordinates = {
@@ -73,6 +75,14 @@ CreateState.prototype.click = function(coordinates) {
         this.app.workspace.areShapesPointed,
         this.app.workspace.areShapesSided,
         this.app.workspace.shapesOpacity);
+
+    if(pointsNear.length==0 && this.app.workspace.isGridShown) {
+        var t = this.app.workspace.getClosestGridPoint([shape]);
+        x += t.grid.x - t.shape.x;
+        y += t.grid.y - t.shape.y;
+        shape.setCoordinates({'x': x, 'y': y});
+        shape.recomputePoints();
+    }
 
 
     if(pointsNear.length>0) {
@@ -124,7 +134,7 @@ CreateState.prototype.draw = function(canvas, mouseCoordinates){
     });
 
     //afficher le point sur lequel la forme va se coller le cas échéant
-    var pointsNear = canvas.app.workspace.pointsNearPoint(mouseCoordinates);
+    var pointsNear = this.app.workspace.pointsNearPoint(this.app.workspace.points, mouseCoordinates);
     if(pointsNear.length>0) {
         var last = pointsNear[pointsNear.length-1];
         var pos = {"x": last.absX, "y": last.absY};

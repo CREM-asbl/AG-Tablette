@@ -64,14 +64,112 @@ function Workspace(app) {
 
 	//max 16 colors
 	this.previousSelectedColors = ["#FF0000", "#00FF00", "#0000FF"];
+
+	/**
+	 * Paramètres d'affichage de la grille.
+	 * Le point de référence de la grille est le point (10,10).
+	 * Si grille carrée: le côté du carré est de 50 unités. (-> ex de points: (60, 60), (60,10), (10,60), ...)
+	 * Si grille triangulaire: la base du triangle est de 50 unités, et le triangle est équilatéral.
+	 * 		(-> Ex de points: (-15, 52.5), (35, 52.5), (60, 10), ...)
+	 */
+	this.isGridShown = false;
+	this.gridOptions = {
+		'type': 'square', //square ou triangle
+		'size': 1 //1 par défaut
+	};
+
+	//Ajustement automatique des formes activé ?
+	this.automaticAdjustment = true;
+
 }
+
+/**
+ * Renvoie le point de la grille le plus proche d'un point quelconque d'un groupe de forme
+ * @param  {[Shape]} shapesList liste des formes
+ * @return {{'grid': point, 'shape': point}} le point de la grille le plus proche, et le point correspondant du groupe de forme.
+ * Note: l'objet shape peut également être un objet n'ayant que la propriété "points", contenant une liste d'objets ayant les propriétés absX et absY.
+ */
+Workspace.prototype.getClosestGridPoint = function (shapesList) {
+	var pointsList = [];
+	for(var i=0;i<shapesList.length;i++) {
+		for(var j=0;j<shapesList[i].points.length;j++) {
+			pointsList.push({'x': shapesList[i].points[j].absX, 'y': shapesList[i].points[j].absY});
+		}
+	}
+	var that = this;
+	var getClosestPoint = function(point){
+		var possibilities = [];
+		var gridSize = that.gridOptions.size;
+		if(that.gridOptions.type=='square') {
+			var topleft = {
+				'x': point.x - ( (point.x - 10) % (50*that.gridOptions.size) ),
+				'y': point.y - ( (point.y - 10) % (50*that.gridOptions.size) )
+			};
+			possibilities.push(topleft);
+			possibilities.push({'x': topleft.x, 'y': topleft.y+50*that.gridOptions.size});
+			possibilities.push({'x': topleft.x+50*that.gridOptions.size, 'y': topleft.y});
+			possibilities.push({'x': topleft.x+50*that.gridOptions.size, 'y': topleft.y+50*that.gridOptions.size});
+		} else if(that.gridOptions.type=='triangle') {
+			var topleft1 = {
+				'x': point.x - ( (point.x - 10) % (50*that.gridOptions.size) ),
+				'y': point.y - ( (point.y - 10) % (85*that.gridOptions.size) )
+			};
+			var topleft2 = {
+				'x': point.x - ( (point.x - (10+25*that.gridOptions.size)) % (50*that.gridOptions.size) ),
+				'y': point.y - ( (point.y - (10+ 42.5*that.gridOptions.size)) % (85*that.gridOptions.size) )
+			};
+			possibilities.push(topleft1);
+			possibilities.push({'x': topleft1.x, 'y': topleft1.y+85*that.gridOptions.size});
+			possibilities.push({'x': topleft1.x+50*that.gridOptions.size, 'y': topleft1.y});
+			possibilities.push({'x': topleft1.x+50*that.gridOptions.size, 'y': topleft1.y+85*that.gridOptions.size});
+
+			possibilities.push(topleft2);
+			possibilities.push({'x': topleft2.x, 'y': topleft2.y+85*that.gridOptions.size});
+			possibilities.push({'x': topleft2.x+50*that.gridOptions.size, 'y': topleft2.y});
+			possibilities.push({'x': topleft2.x+50*that.gridOptions.size, 'y': topleft2.y+85*that.gridOptions.size});
+		} else {
+			console.log("Workspace.getClosestGridPoint: unknown type: "+that.gridOptions.type);
+			return null;
+		}
+
+		var closest = possibilities[0];
+		var smallestSquareDist = Math.pow(closest.x-point.x, 2) + Math.pow(closest.y-point.y, 2);
+		for(var i=1;i<possibilities.length;i++) {
+			var d = Math.pow(possibilities[i].x-point.x, 2) + Math.pow(possibilities[i].y-point.y, 2);
+			if(d<smallestSquareDist) {
+				smallestSquareDist = d;
+				closest = possibilities[i];
+			}
+		}
+
+		return {'dist': Math.sqrt(smallestSquareDist), 'point': closest};
+	};
+
+	var bestShapePoint = pointsList[0];
+	var t = getClosestPoint(bestShapePoint);
+	var bestDist = t.dist;
+	var bestGridPoint = t.point;
+	for(var i=0;i<pointsList.length;i++) {
+		var t = getClosestPoint(pointsList[i]);
+		if(t.dist < bestDist) {
+			bestDist = t.dist;
+			bestGridPoint = t.point;
+			bestShapePoint = pointsList[i];
+		}
+	}
+
+	return {
+		'grid': bestGridPoint,
+		'shape': bestShapePoint
+	};
+};
 
 /**
  * Renvoie le groupe (d'un certain type) dont fait partie une forme, ou null si elle ne fait pas partie d'un groupe.
  * @param shape: la forme en question
  * @param type: vaut system (groupe par lien entre points) ou user (groupe créé par l'utilisateur)
  * @return: le groupe ([Shape]), ou null si pas de groupe trouvé
- */ //TODO: fonction pour retourner un groupe virtuel contenant la fusion des groupes user et system ?
+ */
 Workspace.prototype.getShapeGroup = function(shape, type){
 	if(type=="system" || type=="user") {
 		var groupList = type=='user' ? this.userShapeGroups : this.systemShapeGroups;
@@ -125,14 +223,15 @@ Workspace.prototype.shapesOnPoint = function(point){
 };
 
 /**
- * Renvoie la liste des points des formes existantes qui sont proches (< distance de magnétisme) d'un point donné
+ * Renvoie la liste des points de la liste qui sont proches (< distance de magnétisme) d'un point donné
+ * @param pointsList: la liste des points ([{x: int, y: int}])
  * @param point: le point ({x: int, y: int})
  * @return la liste des points ([{shape: Shape, x: int, y: int}])
  */
-Workspace.prototype.pointsNearPoint = function(point) {
+Workspace.prototype.pointsNearPoint = function(pointsList, point) {
 	var response = [];
-	for(var i=0;i<this.points.length;i++) {
-		var p = this.points[i];
+	for(var i=0;i<pointsList.length;i++) {
+		var p = pointsList[i];
 		var maxDist = this.app.magnetismDistance / this.zoomLevel;
 		if(maxDist*maxDist>=(point.x-p.absX)*(point.x-p.absX) + (point.y-p.absY)*(point.y-p.absY)) {
 			response.push(p);
@@ -279,6 +378,7 @@ Workspace.prototype.removeShape = function(shape) {
 
 /**
  * Crée les familles du menu A et les ajoute au workspace
+ * TODO: déplacer ça ailleurs ?
  */
 Workspace.prototype.addMenuAFamilies = function(){
 	var base = 50;

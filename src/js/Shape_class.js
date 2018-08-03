@@ -78,8 +78,8 @@ Shape.prototype.computePoints = function(){
 		if(s.getType()=="line") {
 			this.points.push({
 				"x": s.x, "y": s.y, //x et y relatifs
-				"absX": this.x + s.x, "absY": this.y + s.y, //x et y absolus, avec rotation
-				"link": null,
+				"absX": this.x + s.x, "absY": this.y + s.y, //x et y absolus
+				"link": null, //pas utilisé ? pas sûr.
 				"shape": this
 			});
 		} else if(s.getType()=="arc") {
@@ -243,6 +243,7 @@ Shape.prototype.getCoordinates = function() {
 Shape.prototype.setCoordinates = function(coordinates) {
 	this.x = coordinates.x;
 	this.y = coordinates.y;
+	//TODO: retirer certains shape.recomputePoints() du code, et appeler cette méthode ici.
 };
 
 /**

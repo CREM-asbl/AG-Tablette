@@ -81,17 +81,22 @@ RotateState.prototype.mousedown = function(point){
  *   dernière.
  * @param shape: Shape
  * @param angle: l'angle de rotation actuel (en radians)
+ * Note: utilisée dans Move. en faire une copie dans la classe Move?
  */
-RotateState.prototype.computeNewShapePos = function(shape, angle){
+RotateState.prototype.computeNewShapePos = function(shape, angle, center){
+    if(center==undefined) {
+        center = this.center;
+    }
+
     var s = Math.sin(-angle);
     var c = Math.cos(-angle);
 
-    var x = shape.x - this.center.x;
-    var y = shape.y - this.center.y;
+    var x = shape.x - center.x;
+    var y = shape.y - center.y;
 
     // effectuer la rotation
-    var newX = x * c - y * s + this.center.x;
-    var newY = x * s + y * c + this.center.y;
+    var newX = x * c - y * s + center.x;
+    var newY = x * s + y * c + center.y;
 
 
     return {"x": newX, "y": newY};
