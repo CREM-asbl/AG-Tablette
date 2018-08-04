@@ -151,7 +151,6 @@ MoveState.prototype.mouseup = function(point){
                 }
 
                 //Faire une rotation du groupe de formes, ayant pour centre otherShapeSegment[0]
-                //F
                 bestSegment[1].x -= bestSegment[0].x;
                 bestSegment[1].y -= bestSegment[0].y;
                 var t = {'x': otherShapeSegment[1].x-otherShapeSegment[0].x, 'y': otherShapeSegment[1].y-otherShapeSegment[0].y};
@@ -172,6 +171,44 @@ MoveState.prototype.mouseup = function(point){
                     this.shapesList[i].recomputePoints();
                 }
 
+            } else { //Aucun segment commun avec une autre forme n'a été trouvé. Peut être y a-t-il au moins un point commun ?
+                var bestPoint = null; //point du groupe de forme qui va être rapproché d'un point d'une forme externe.
+                var otherShapePoint = null; //le point de la forme externe correspondante.
+                var pointScore = 1000*1000*1000; //carrés de la distance entre les 2 points.
+
+                for(var i=0;i<this.shapesList.length;i++) { //Pour chacune des formes en cours de déplacement:
+                    var shape = this.shapesList[i];
+                    for(var j=0; j<shape.points.length; j++) { //pour chaque segment de la forme
+                        var pts = this.app.workspace.pointsNearPoint(this.app.workspace.points, {'x': shape.points[j].absX, 'y': shape.points[j].absY});
+
+                        for(var k=0;k<pts.length;k++) { //pour chacun des points proches du point de la forme
+                            if(this.shapesList.indexOf(pts[k].shape)!=-1) //le point appartient à une des formes du groupe de forme.
+                                continue;
+                            var score = Math.pow(pts[k].absX - shape.points[j].absX, 2) + Math.pow(pts[k].absY - shape.points[j].absY, 2);
+                            if(score < pointScore) {
+                                pointScore = score;
+                                otherShapePoint = {
+                                    'x': pts[k].absX,
+                                    'y': pts[k].absY
+                                };
+                                bestPoint = {
+                                    'x': shape.points[j].absX,
+                                    'y': shape.points[j].absY
+                                };
+                            }
+                        }
+                    }
+                }
+
+                if(bestPoint) {
+                    //Translater le groupe de formes pour que les 2 points soient identiques.
+                    for(var i=0;i<this.shapesList.length;i++) {
+                        this.shapesList[i].x += otherShapePoint.x - bestPoint.x;
+                        this.shapesList[i].y += otherShapePoint.y - bestPoint.y;
+
+                        this.shapesList[i].recomputePoints();
+                    }
+                }
             }
         }
 

@@ -180,8 +180,15 @@ Canvas.prototype.drawShape = function(shape) {
 		}
 	}
 
+	for(var i=0;i<shape.segmentPoints.length;i++) {
+		this.drawPoint(shape.segmentPoints[i], "#000");
+	}
+	for(var i=0;i<shape.otherPoints.length;i++) {
+		this.drawPoint(shape.otherPoints[i], "#000");
+	}
+
 	//afficher le centre
-	if((this.app.state.name == "rotate_shape" && this.app.state.selectedShape==shape) || shape.isCenterShown) {
+	if((this.app.state.name == "rotate_shape" && this.app.state.selectedShape==shape)) {
 		this.drawPoint({"x": 0, "y": 0}, "#000");
 	}
 

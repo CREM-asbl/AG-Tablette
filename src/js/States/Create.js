@@ -93,7 +93,7 @@ CreateState.prototype.click = function(coordinates) {
         for(var i=0;i<shape.points.length;i++) {
             if(shape.points[i].x-this.selectedShape.refPoint.x==0 && shape.points[i].y-this.selectedShape.refPoint.y==0) {
                 linked = true;
-                shape.points[i].link = last;
+                shape.points[i].link = last; //TODO: utilisé qqpart ?
             }
         }
         if(linked==false) {

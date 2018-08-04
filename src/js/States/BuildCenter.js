@@ -18,7 +18,12 @@ BuildCenterState.prototype.click = function(coordinates) {
         return;
     var shape = list.pop(); //TODO: utiliser l'ordre d'affichage ?
 
-    shape.isCenterShown = true;
+    for(var i=0;i<shape.otherPoints.length;i++) {
+        if(shape.otherPoints[i].x==0&&shape.otherPoints[i].y==0) {
+            return;
+        }
+    }
+    shape.otherPoints.push({'x': 0, 'y': 0});
 	this.app.canvas.refresh(coordinates);
 };
 

@@ -19,7 +19,6 @@ function App(divRef, canvasRef) {
 		"create_shape": new CreateState(this),
 		"delete_shape": new DeleteState(this),
 		"move_shape": new MoveState(this),
-		"reverse": null, //TODO
 		"rotate_shape": new RotateState(this),
 		"global_zoom": new GlobalZoomState(this),
 		"border_color": new BorderColorState(this),
@@ -27,7 +26,8 @@ function App(divRef, canvasRef) {
 		"link_shapes": new LinkerState(this),
 		"reverse_shape": new ReverseState(this),
 		"build_shape_center": new BuildCenterState(this),
-		"duplicate_shape": new DuplicateState(this)
+		"duplicate_shape": new DuplicateState(this),
+		"divide_segment": new DivideState(this)
 	};
 
 	//Représente un projet, qui peut être sauvegardé

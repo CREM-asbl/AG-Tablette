@@ -81,6 +81,8 @@ function Workspace(app) {
 	//Ajustement automatique des formes activé ?
 	this.automaticAdjustment = true;
 
+	this.divideStateNumberOfParts = 2;
+
 }
 
 /**

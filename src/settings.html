@@ -58,16 +58,24 @@
 
             <br />
 
-            <label for="settings_grid_type">Type de grille: </label>
-            <select name="settings_grid_type" id="settings_grid_type" on-change='_actionHandle' disabled>
-                <option value="square">Carrés</option>
-                <option value="triangle">Triangles</option>
-            </select>
+            <div style="margin-left:30px">
+                <label for="settings_grid_type">Type de grille: </label>
+                <select name="settings_grid_type" id="settings_grid_type" on-change='_actionHandle' disabled>
+                    <option value="square">Carrés</option>
+                    <option value="triangle">Triangles</option>
+                </select>
 
-            <br />
+                <br />
 
-            <label for="settings_grid_size">Taille de la grille: </label>
-            <input type="number" max="10" min="0.1" step="0.1" disabled name="settings_grid_size" id="settings_grid_size" on-change='_gridSize' style='font-size:20px;'>
+                <label for="settings_grid_size">Taille de la grille: </label>
+                <input type="number" max="10" min="0.1" step="0.1" disabled name="settings_grid_size" id="settings_grid_size" on-change='_gridSize' style='font-size:20px;'>
+            </div>
+
+            <br /><br />
+
+            <label for="settings_divide_number_of_parts">Option de découpage - découpage en </label>
+            <input type="number" max="10" min="2" step="1" name="settings_divide_number_of_parts" id="settings_divide_number_of_parts" on-change='_numOfParts' style='font-size:20px;'>
+            <span> parties</span>
 
             <br /><br />
 
@@ -132,6 +140,7 @@
             this.shadowRoot.getElementById('settings_show_grid').checked = ws.isGridShown;
             this.shadowRoot.getElementById('settings_grid_type').value = ws.gridOptions.type;
             this.shadowRoot.getElementById('settings_grid_size').value = ws.gridOptions.size;
+            this.shadowRoot.getElementById('settings_divide_number_of_parts').value = ws.divideStateNumberOfParts;
 
             //Formes
             this.shadowRoot.getElementById('settings_shapes_size').value = ws.shapesSize;
@@ -150,7 +159,7 @@
 
             switch (event.target.name) {
                 case 'settings_adapt_shapes_position':
-
+                    window.app.workspace.automaticAdjustment = event.target.checked;
                     break;
 
                 case 'settings_show_grid':
@@ -164,6 +173,11 @@
 
                 case 'settings_grid_size':
                     window.app.workspace.gridOptions.size = this.shadowRoot.getElementById("settings_grid_size").value;
+                    window.app.canvas.refresh();
+                    break;
+
+                case 'settings_divide_number_of_parts':
+                    window.app.workspace.divideStateNumberOfParts = this.shadowRoot.getElementById("settings_divide_number_of_parts").value;
                     window.app.canvas.refresh();
                     break;
 
@@ -199,6 +213,16 @@
             if(event.target.value < 0.1)
                 event.target.value = 0.1;
             event.target.value = parseInt(event.target.value*10)/10;
+
+            this._actionHandle(event);
+        }
+
+        _numOfParts(event) {
+            if(event.target.value > 10)
+                event.target.value = 10;
+            if(event.target.value < 2)
+                event.target.value = 2;
+            event.target.value = parseInt(event.target.value);
 
             this._actionHandle(event);
         }

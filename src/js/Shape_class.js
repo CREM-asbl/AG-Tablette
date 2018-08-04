@@ -23,7 +23,12 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 	this.familyName = familyName;
 	this.name = name;
 	this.buildSteps = buildSteps;
-	this.points = [];
+	this.points = []; //les sommets de la forme
+
+	this.segmentPoints = []; //liste de points qui se trouvent sur le contour de la forme
+
+	//Liste de points situés dans ou en dehors de la forme (par ex le centre)
+	this.otherPoints = [];
 
 	this.id = null;
 	this.showOrder = null; //numéro d'ordre d'affichage de la forme (=quelle forme est au dessus de quelle autre; plus le numéro est grand, plus la forme est en haut)
@@ -51,9 +56,6 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 
 	//l'opacité de la forme, entre 0 et 1
 	this.opacity = opacity;
-
-	//Est-ce que le point du centre de la forme doit être affiché ?
-	this.isCenterShown = false;
 
 	this.computePoints();
 }
@@ -269,6 +271,6 @@ Shape.prototype.getCopy = function() {
 		this.opacity);
 	shape.isReversed = this.isReversed;
 	shape.isPointed = this.isPointed;
-	shape.isCenterShown = this.isCenterShown;
+	//TODO: compléter avec les autres tableaux de points.
 	return shape;
 };
