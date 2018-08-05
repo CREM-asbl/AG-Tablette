@@ -18,6 +18,9 @@ function ShapeStep() {
 
 	this.cp2X = null;
 	this.cp2Y = null;
+
+	//numéro incrémenté à chaque fois que les coordonnées sont modifiées:
+	this.updateId = 0;
 }
 
 /**
@@ -55,6 +58,15 @@ ShapeStep.getCubicBezierCurve = function(x, y, cp1X, cp1Y, cp2X, cp2Y) {
 	n.setCubicBezierCurve(x, y, cp1X, cp1Y, cp2X, cp2Y);
 	return n;
 };
+
+/**
+ * Définir les coordonnées x et y.
+ */
+ShapeStep.prototype.setCoordinates = function(x, y) {
+    this.x = x;
+    this.y = y;
+	this.updateId++;
+}
 
 /**
  * Récupérer le type d'étape

@@ -13,20 +13,17 @@ function Workspace(app) {
 	//Version de l'application dans laquelle ce projet a été créé
 	this.appVersion = this.app.getVersion();
 
-	//L'id de la prochaine forme qui sera créée
-	this.nextShapeId = 1;
-
 	//Représente l'historique
 	this.history = null; //TODO
 
 	//Le menu sélectionné (A, B, C, AB, AC)
 	this.menuId = "A"; //à modifier lorsque d'autres menus seront développés
 
+	//L'id de la prochaine forme qui sera créée
+	this.nextShapeId = 1;
+
 	//liste des formes du projet ([Shape])
 	this.shapesList = [];
-
-	//liste des points de toutes les formes ajoutées. (synchronisé avec shapesList)
-	this.points = [];
 
 	//L'id de la prochaine famille qui sera créée
 	this.nextFamilyId = 1;
@@ -37,7 +34,8 @@ function Workspace(app) {
 	/**
 	 * Groupes. Une forme fait partie de 0 ou 1 'systemGroup', et de 0 ou 1 'userGroup'
 	 * Les systemGroup sont créés automatiquement lorsqu'un utilisateur crée une forme en cliquant
-	 * sur un point d'une autre forme (ce qui implique que les 2 formes seront liées).
+	 * sur un point d'une autre forme (ce qui implique que les 2 formes seront liées), ou en utilisant
+	 * la fonction diviser en sélectionnant 2 points de 2 formes différentes
 	 * Les userGroup sont créés manuellement par l'utilisateur en sélectionnant plusieurs formes.
 	 */
 
@@ -50,101 +48,74 @@ function Workspace(app) {
 	//niveau de zoom de l'interface
 	this.zoomLevel = 1;
 
-	//true si les formes ajoutées à l'avenir auront leurs sommets visibles
-	this.areShapesPointed = false; // (défini dans les paramètres de l'application)
-
-	//true si les formes ajoutées à l'avenir seront bifaces
-	this.areShapesSided = false; // (défini dans les paramètres de l'application)
-
-	//opacité des formes qui seront ajoutées
-	this.shapesOpacity = 0.7; //0, 0.7, 1 (défini dans les paramètres de l'application)
-
-	//taille des formes qui seront ajoutées
-	this.shapesSize = 1; //1,2,3 (défini dans les paramètres de l'application)
-
 	//max 16 colors
 	this.previousSelectedColors = ["#FF0000", "#00FF00", "#0000FF"];
-
-	/**
-	 * Paramètres d'affichage de la grille.
-	 * Le point de référence de la grille est le point (10,10).
-	 * Si grille carrée: le côté du carré est de 50 unités. (-> ex de points: (60, 60), (60,10), (10,60), ...)
-	 * Si grille triangulaire: la base du triangle est de 50 unités, et le triangle est équilatéral.
-	 * 		(-> Ex de points: (-15, 52.5), (35, 52.5), (60, 10), ...)
-	 */
-	this.isGridShown = false;
-	this.gridOptions = {
-		'type': 'square', //square ou triangle
-		'size': 1 //1 par défaut
-	};
-
-	//Ajustement automatique des formes activé ?
-	this.automaticAdjustment = true;
-
-	this.divideStateNumberOfParts = 2;
-
 }
 
 /**
- * Renvoie le point de la grille le plus proche d'un point quelconque d'un groupe de forme
+ * Grille: Renvoie le point de la grille (grid) le plus proche d'un point quelconque d'un groupe de forme
  * @param  {[Shape]} shapesList liste des formes
  * @return {{'grid': point, 'shape': point}} le point de la grille le plus proche, et le point correspondant du groupe de forme.
- * Note: l'objet shape peut également être un objet n'ayant que la propriété "points", contenant une liste d'objets ayant les propriétés absX et absY.
  */
 Workspace.prototype.getClosestGridPoint = function (shapesList) {
 	var pointsList = [];
 	for(var i=0;i<shapesList.length;i++) {
 		for(var j=0;j<shapesList[i].points.length;j++) {
-			pointsList.push({'x': shapesList[i].points[j].absX, 'y': shapesList[i].points[j].absY});
+			pointsList.push(shapesList[i].points[j]);
 		}
 	}
+
 	var that = this;
 	var getClosestPoint = function(point){
+		var x = point.getAbsoluteCoordinates().x,
+			y = point.getAbsoluteCoordinates().y;
+
 		var possibilities = [];
-		var gridSize = that.gridOptions.size;
-		if(that.gridOptions.type=='square') {
+		var gridType = that.app.settings.get('gridType');
+		var gridSize = that.app.settings.get('gridSize');
+		if(gridType=='square') {
 			var topleft = {
-				'x': point.x - ( (point.x - 10) % (50*that.gridOptions.size) ),
-				'y': point.y - ( (point.y - 10) % (50*that.gridOptions.size) )
+				'x': x - ( (x - 10) % (50*gridSize) ),
+				'y': y - ( (y - 10) % (50*gridSize) )
 			};
 			possibilities.push(topleft);
-			possibilities.push({'x': topleft.x, 'y': topleft.y+50*that.gridOptions.size});
-			possibilities.push({'x': topleft.x+50*that.gridOptions.size, 'y': topleft.y});
-			possibilities.push({'x': topleft.x+50*that.gridOptions.size, 'y': topleft.y+50*that.gridOptions.size});
-		} else if(that.gridOptions.type=='triangle') {
+			possibilities.push({'x': topleft.x, 'y': topleft.y+50*gridSize});
+			possibilities.push({'x': topleft.x+50*gridSize, 'y': topleft.y});
+			possibilities.push({'x': topleft.x+50*gridSize, 'y': topleft.y+50*gridSize});
+		} else if(gridType=='triangle') {
 			var topleft1 = {
-				'x': point.x - ( (point.x - 10) % (50*that.gridOptions.size) ),
-				'y': point.y - ( (point.y - 10) % (85*that.gridOptions.size) )
+				'x': x - ( (x - 10) % (50*gridSize) ),
+				'y': y - ( (y - 10) % (85*gridSize) )
 			};
 			var topleft2 = {
-				'x': point.x - ( (point.x - (10+25*that.gridOptions.size)) % (50*that.gridOptions.size) ),
-				'y': point.y - ( (point.y - (10+ 42.5*that.gridOptions.size)) % (85*that.gridOptions.size) )
+				'x': x - ( (x - (10+25*gridSize)) % (50*gridSize) ),
+				'y': y - ( (y - (10+ 42.5*gridSize)) % (85*gridSize) )
 			};
 			possibilities.push(topleft1);
-			possibilities.push({'x': topleft1.x, 'y': topleft1.y+85*that.gridOptions.size});
-			possibilities.push({'x': topleft1.x+50*that.gridOptions.size, 'y': topleft1.y});
-			possibilities.push({'x': topleft1.x+50*that.gridOptions.size, 'y': topleft1.y+85*that.gridOptions.size});
+			possibilities.push({'x': topleft1.x, 'y': topleft1.y+85*gridSize});
+			possibilities.push({'x': topleft1.x+50*gridSize, 'y': topleft1.y});
+			possibilities.push({'x': topleft1.x+50*gridSize, 'y': topleft1.y+85*gridSize});
 
 			possibilities.push(topleft2);
-			possibilities.push({'x': topleft2.x, 'y': topleft2.y+85*that.gridOptions.size});
-			possibilities.push({'x': topleft2.x+50*that.gridOptions.size, 'y': topleft2.y});
-			possibilities.push({'x': topleft2.x+50*that.gridOptions.size, 'y': topleft2.y+85*that.gridOptions.size});
+			possibilities.push({'x': topleft2.x, 'y': topleft2.y+85*gridSize});
+			possibilities.push({'x': topleft2.x+50*gridSize, 'y': topleft2.y});
+			possibilities.push({'x': topleft2.x+50*gridSize, 'y': topleft2.y+85*gridSize});
 		} else {
-			console.log("Workspace.getClosestGridPoint: unknown type: "+that.gridOptions.type);
+			console.log("Workspace.getClosestGridPoint: unknown type: "+gridType);
 			return null;
 		}
 
 		var closest = possibilities[0];
-		var smallestSquareDist = Math.pow(closest.x-point.x, 2) + Math.pow(closest.y-point.y, 2);
+		var smallestSquareDist = Math.pow(closest.x-x, 2) + Math.pow(closest.y-y, 2);
 		for(var i=1;i<possibilities.length;i++) {
-			var d = Math.pow(possibilities[i].x-point.x, 2) + Math.pow(possibilities[i].y-point.y, 2);
+			var d = Math.pow(possibilities[i].x-x, 2) + Math.pow(possibilities[i].y-y, 2);
 			if(d<smallestSquareDist) {
 				smallestSquareDist = d;
 				closest = possibilities[i];
 			}
 		}
 
-		return {'dist': Math.sqrt(smallestSquareDist), 'point': closest};
+		return {'dist': Math.sqrt(smallestSquareDist), 'point': new Point(closest.x, closest.y, "grid", null)};
 	};
 
 	var bestShapePoint = pointsList[0];
@@ -212,7 +183,7 @@ Workspace.prototype.getGroupIndex = function(group, type) {
 
 /**
  * Renvoie la liste des formes contenant un certain point
- * @param point: le point ({x: int, y: int})
+ * @param point: le point (Point)
  * @return la liste des formes ([Shape])
  */
 Workspace.prototype.shapesOnPoint = function(point){
@@ -226,20 +197,31 @@ Workspace.prototype.shapesOnPoint = function(point){
 
 /**
  * Renvoie la liste des points de la liste qui sont proches (< distance de magnétisme) d'un point donné
- * @param pointsList: la liste des points ([{x: int, y: int}])
- * @param point: le point ({x: int, y: int})
- * @return la liste des points ([{shape: Shape, x: int, y: int}])
+ * @param point: le point (Point)
+ * @return la liste des points ([Point])
  */
-Workspace.prototype.pointsNearPoint = function(pointsList, point) {
-	var response = [];
-	for(var i=0;i<pointsList.length;i++) {
-		var p = pointsList[i];
-		var maxDist = this.app.magnetismDistance / this.zoomLevel;
-		if(maxDist*maxDist>=(point.x-p.absX)*(point.x-p.absX) + (point.y-p.absY)*(point.y-p.absY)) {
-			response.push(p);
+Workspace.prototype.pointsNearPoint = function(point) {
+	var responses = [];
+	var pointCoordinates = point.getAbsoluteCoordinates();
+	var maxSquareDist = Math.pow(this.app.settings.get('magnetismDistance') / this.zoomLevel, 2);
+
+	for(var i=0;i<this.shapesList.length;i++) {
+		var shape = this.shapesList[i];
+		var arrays = ['points', 'segmentPoints', 'otherPoints'];
+		for(var j=0;j<arrays.length;j++) {
+			var arr = shape[arrays[j]];
+			for(var k=0;k<arr.length;k++) {
+				var p = arr[k];
+
+				var pCoordinates = p.getAbsoluteCoordinates();
+
+				if(maxSquareDist>Math.pow(pointCoordinates.x - pCoordinates.x, 2)+Math.pow(pointCoordinates.y - pCoordinates.y, 2))
+					responses.push(p);
+			}
 		}
 	}
-	return response;
+
+	return responses;
 };
 
 /**
@@ -292,9 +274,6 @@ Workspace.prototype.addShape = function(shape){
 			group.push(shape);
 		} else //on crée un nouveau groupe
 			this.systemShapeGroups.push([shape.linkedShape, shape]);
-	}
-	for(var i=0; i<shape.points.length;i++) {
-		this.points.push(shape.points[i]);
 	}
 };
 
@@ -375,6 +354,8 @@ Workspace.prototype.removeShape = function(shape) {
 			}
 		}
 	}
+
+	//TODO: supprimer certains points qui sont liées aux points de otherPoints et segmentPoints
 
 };
 
@@ -527,10 +508,10 @@ Workspace.prototype.getFamily = function(name) {
  * @param doRefresh (@default true): si vaut false, ne va pas mettre le canvas à jour
  */
 Workspace.prototype.setZoomLevel = function(newZoomLevel, doRefresh) {
-	if(newZoomLevel<this.app.minZoomLevel)
-		newZoomLevel = this.app.minZoomLevel;
-	if(newZoomLevel>this.app.maxZoomLevel)
-		newZoomLevel = this.app.maxZoomLevel;
+	if(newZoomLevel<this.app.settings.get('minZoomLevel'))
+		newZoomLevel = this.app.settings.get('minZoomLevel');
+	if(newZoomLevel>this.app.settings.get('maxZoomLevel'))
+		newZoomLevel = this.app.settings.get('maxZoomLevel');
 
 	var oldZoomLevel = this.zoomLevel;
 

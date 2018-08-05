@@ -35,7 +35,7 @@ BackgroundColorState.prototype.start = function(){
 BackgroundColorState.prototype.click = function(coordinates) {
     if(this.selectedColor == null)
         return;
-    var list = window.app.workspace.shapesOnPoint(coordinates);
+    var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(list.length>0) {
         var shape = list.pop();
         shape.color = this.selectedColor;

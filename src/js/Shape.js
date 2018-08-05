@@ -23,30 +23,11 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 	this.familyName = familyName;
 	this.name = name;
 	this.buildSteps = buildSteps;
-	this.points = []; //les sommets de la forme
-
-	this.segmentPoints = []; //liste de points qui se trouvent sur le contour de la forme
-
-	//Liste de points situés dans ou en dehors de la forme (par ex le centre)
-	this.otherPoints = [];
-
-	this.id = null;
-	this.showOrder = null; //numéro d'ordre d'affichage de la forme (=quelle forme est au dessus de quelle autre; plus le numéro est grand, plus la forme est en haut)
-
-	//vrai si la forme a été retournée (pour savoir quelle face est visible)
-	this.isReversed = false;
-
-	//Forme à laquelle celle-ci est liée
-	this.linkedShape = null;
-
-	//la couleur de la forme. Vaut, par défaut, celle de la famille.
-	this.color = color;
-
-	//la couleur des bords de la forme.
-	this.borderColor = borderColor;
+	this.color = color; //la couleur de la forme. Vaut, par défaut, celle de la famille.
+	this.borderColor = borderColor; //la couleur des bords de la forme.
 
 	//point de référence de la forme (utilisé lors de l'ajout d'une forme), relatif au centre (0,0)
-	this.refPoint = refPoint;
+	this.refPoint = refPoint; //Pour l'instant: {'x': float, 'y': float} (-> Point?)
 
 	//La forme a-t-elle 2 faces (-> 2 couleurs différentes) ou pas ? La couleur de l'autre face, le cas échéant, est le complément de la couleur de base.
 	this.isSided = isSided;
@@ -57,7 +38,49 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 	//l'opacité de la forme, entre 0 et 1
 	this.opacity = opacity;
 
-	this.computePoints();
+	this.id = null; //L'id est défini lorsqu'une forme est ajoutée à un workspace.
+
+	//vrai si la forme a été retournée (pour savoir quelle face est visible en cas de forme biface)
+	this.isReversed = false;
+
+	/**
+	 * Forme à laquelle celle-ci est liée. Une forme B est liée à une forme A si
+	 * B a été créée en cliquant sur l'un des sommets (ou autres points?) de A.
+	 * Cette relation n'est donc pas réciproque (Si B est liée à A, a n'est pas liée à B)
+	 */
+	this.linkedShape = null;
+
+	//les sommets de la forme
+	this.points = [];
+	for (var i = 1; i < this.buildSteps.length; i++) {
+		var s = this.buildSteps[i];
+		if(s.getType()=="line") {
+			this.points.push(new Point(s.x, s.y, "vertex", this));
+		} else if(s.getType()=="arc") {
+			if(this.buildSteps.length==2) {
+				//ne rien faire, c'est un cercle: il n'y a pas de sommets.
+			} else {
+				// à implémenter si certaines formes contiennent un arc de cercle.
+				console.log("Shape.computePoints(): le point n'a pas pu être déterminé");
+			}
+		} else {
+			// à implémenter si certaines formes contiennent des courbes
+			console.log("Shape.computePoints(): le point n'a pas pu être déterminé (2)");
+		}
+	}
+
+	//liste de points qui se trouvent sur le contour de la forme
+	this.segmentPoints = [];
+
+	//Liste de points situés dans ou en dehors de la forme (par ex le centre)
+	this.otherPoints = [];
+
+	/**
+	 * numéro d'ordre d'affichage de la forme (=quelle forme est au dessus de quelle autre; plus le numéro est grand, plus la forme est en haut)
+	 * TODO.
+	 * Idée: si on doit juste pouvoir mettre une forme tout devant ou tout derrière, utiliser id (utiliser valeur négative, ou la future valeur de id (et incrémenter cette valeur de 1)
+	 */
+	this.showOrder = null;
 }
 
 /**
@@ -70,62 +93,62 @@ Shape.prototype.setId = function(id) {
 };
 
 /**
- * Calcule la liste des points de la forme à partir des étapes de construction.
- * Note: ces points sont utilisés dans le workspace pour lier des formes entres elles lors de l'ajout de formes
- */
-Shape.prototype.computePoints = function(){
-	this.points = [];
-	for (var i = 1; i < this.buildSteps.length; i++) {
-		var s = this.buildSteps[i];
-		if(s.getType()=="line") {
-			this.points.push({
-				"x": s.x, "y": s.y, //x et y relatifs
-				"absX": this.x + s.x, "absY": this.y + s.y, //x et y absolus
-				"link": null, //pas utilisé ? pas sûr.
-				"shape": this
-			});
-		} else if(s.getType()=="arc") {
-			if(this.buildSteps.length==2) {
-				//ne rien faire: c'est un cercle.
-			} else {
-				// à implémenter si certaines formes contiennent un arc de cercle.
-				console.log("Shape.computePoints(): le point n'a pas pu être déterminé");
-			}
-		} else {
-			// à implémenter si certaines formes contiennent des courbes
-			console.log("Shape.computePoints(): le point n'a pas pu être déterminé (2)");
-		}
-	}
-};
-
-/**
- * Recalcule les coordonnées absolues des points.
- * Note: nécessaire si la forme est déplacée, zoomée, retournée ou tournée).
+ * Recalcule les coordonnées des points sur base de BuildSteps
  */
 Shape.prototype.recomputePoints = function(){
-	for(var i=0;i<this.points.length;i++) {
+	for(var i=1;i<this.buildSteps.length;i++) {
 		var x = this.buildSteps[i].x;
 		var y = this.buildSteps[i].y;
-
-		this.points[i].x = x;
-		this.points[i].y = y;
-
-		this.points[i].absX = this.x + x;
-		this.points[i].absY = this.y + y;
+		this.points[i-1].setCoordinates(x, y);
 	}
 };
 
 /**
- * Calcule les sommets d'un polygone approximant la forme
- * @return liste de points ([{"x": float, "y": float}])
+ * Ajouter un point lié à la forme
+ * @param  {String} type segment ou other
+ * @param  {float} x    coordonnée x
+ * @param  {float} y    coordonnée y
+ */
+Shape.prototype.addPoint = function (type, x, y) {
+	if(['segment', 'other'].indexOf(type)==1) {
+		console.log("Shape.addPoint: unknown type");
+		return;
+	}
+	var arr = (type=='segment') ? this.segmentPoints : this.otherPoints;
+
+	arr.push(new Point(x, y, 'division', this));
+};
+
+/**
+ * Calcule les sommets (relatifs) d'un polygone approximant la forme
+ * @return liste de points ([Point])
  */
 Shape.prototype.getApproximatedPointsList = function() {
-	/**
-	 * TODO performance:
-	 * Stocker la liste calculée dans une variable, et utiliser cette variable les fois suivantes tant que la forme
-	 * n'a pas été modifiée (buildSteps). Nécessite de savoir quand buildSteps est modifié...
-	 */
 
+	//Vérifier si la forme a été modifiée.
+	var edited = false;
+
+	var newUpdateIdList = [];
+	for(var i=0;i<this.buildSteps.length;i++) {
+		newUpdateIdList.push(this.buildSteps[i].updateId);
+		if(this._buildStepsUpdateIdList==undefined
+			|| this._buildStepsUpdateIdList.length != this.buildSteps.length
+			||this.buildSteps[i].updateId != this._buildStepsUpdateIdList[i]) {
+			edited = true;
+		}
+	}
+	this._buildStepsUpdateIdList = newUpdateIdList;
+
+	//Si pas modifiée, renvoyer le tableau déjà calculé
+	if(!edited) {
+		var pointsList = [];
+		for(var i=0;i<this._approximatedPointsList.length;i++) {
+			pointsList.push(this._approximatedPointsList[i]);
+		}
+		return pointsList;
+	}
+
+	//Calculer le polygone approximé.
 	var pointsList = [ {"x": this.buildSteps[0].x, "y": this.buildSteps[0].y} ];
 	for (var i = 1; i < this.buildSteps.length; i++) {
 		if(this.buildSteps[i].getType()=="line") {
@@ -155,34 +178,36 @@ Shape.prototype.getApproximatedPointsList = function() {
 				var posX = rayon * Math.sin(cur_angle) + x,
 					posY = rayon * Math.cos(cur_angle) + y;
 
-				pointsList.push({"x": posX,"y": posY});
+				pointsList.push(new Point(posX, posY, null, this));
 
 			}
 
 		} else if(this.buildSteps[i].getType()=="quadraticCurve") {
 			console.log("Shape.getApproximatedPointsList: quadraticCurve, no approximation made");
-			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
+			pointsList.push(new Point(this.buildSteps[i].x, this.buildSteps[i].y, null, this));
 		} else if(this.buildSteps[i].getType()=="cubicCurve") {
 			console.log("Shape.getApproximatedPointsList: cubicCurve, no approximation made");
-			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
+			pointsList.push(new Point(this.buildSteps[i].x, this.buildSteps[i].y, null, this));
 		} else{
 			console.log("Shape.getApproximatedPointsList: unknown buildStep type");
 			return null;
 		}
 	}
 
+	this._approximatedPointsList = pointsList;
 	return pointsList;
 }
 
 /**
  * Vérifie si un point est dans la forme ou non
- * @param point: le point ({x: int, y: int})
+ * @param point: le point ({x: int, y: int}) (coordonnées absolues)
  * @return true si le point est dans la forme, false sinon
  * @author: https://sidvind.com/wiki/Point-in-polygon:_Jordan_Curve_Theorem
  */
 Shape.prototype.containsPoint = function(point) {
 	var points = this.getApproximatedPointsList();
-	point = {"x": point.x - this.x, "y": point.y - this.y};
+	var pos = point.getAbsoluteCoordinates();
+	point = {"x": pos.x - this.x, "y": pos.y - this.y}; //calculer le point en position relative
 
 	/* Iterate through each line */
 	var crossings = 0;
@@ -235,6 +260,7 @@ Shape.prototype.containsPoint = function(point) {
  * @return les coordonnées ({x: float, y: float})
  */
 Shape.prototype.getCoordinates = function() {
+
 	return {"x": this.x, "y": this.y};
 };
 
@@ -245,7 +271,6 @@ Shape.prototype.getCoordinates = function() {
 Shape.prototype.setCoordinates = function(coordinates) {
 	this.x = coordinates.x;
 	this.y = coordinates.y;
-	//TODO: retirer certains shape.recomputePoints() du code, et appeler cette méthode ici.
 };
 
 /**
@@ -271,6 +296,15 @@ Shape.prototype.getCopy = function() {
 		this.opacity);
 	shape.isReversed = this.isReversed;
 	shape.isPointed = this.isPointed;
-	//TODO: compléter avec les autres tableaux de points.
+
+	var arrays = [this.segmentPoints, this.otherPoints];
+	for(var i=0;i<arrays.length;i++) {
+		var arr = arrays[i];
+		for(var j=0;j<arr.length;j++) {
+			var pos = arr[i].getRelativeCoordinates();
+			shape.addPoint(['segment', 'other'][i], pos.x, pos.y);
+		}
+	}
+
 	return shape;
 };

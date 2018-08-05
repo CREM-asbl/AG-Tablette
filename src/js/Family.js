@@ -59,9 +59,9 @@ Family.prototype.getShape = function(name){
 				null, null, //coordonnées
 				buildSteps, this.shapesList[i].color, "#000",
 				{"x": refPoint.x, "y": refPoint.y},
-				this.app.workspace.areShapesPointed,
-				this.app.workspace.areShapesPointed,
-				this.app.workspace.shapesOpacity);
+				this.app.settings.get('areShapesPointed'),
+				this.app.settings.get('areShapesSided'),
+				this.app.settings.get('shapesOpacity'));
 			return shape;
 		}
 	}

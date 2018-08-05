@@ -38,7 +38,7 @@ RotateState.prototype.reset = function(){
  * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */ //TODO: au survol, entourer les formes que l'on va tourner!
 RotateState.prototype.mousedown = function(point){
-    var list = window.app.workspace.shapesOnPoint(point);
+    var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
     if(list.length>0) {
         this.isRotating = true;
         this.clickCoordinates = point;
@@ -107,12 +107,9 @@ RotateState.prototype.computeNewShapePos = function(shape, angle, center){
  * @param point: le point ({'x': int, 'y': int})
  * @param angle: l'angle (float, en radians)
  */
-RotateState.prototype.computePointPosition = function(point, angle) {
+RotateState.prototype.computePointPosition = function(x, y, angle) {
     var s = Math.sin(-angle);
     var c = Math.cos(-angle);
-
-    var x = point.x;
-    var y = point.y;
 
     // effectuer la rotation
     var newX = x * c - y * s;
@@ -134,11 +131,20 @@ RotateState.prototype.mouseup = function(point){
             this.shapesList[i].setCoordinates(newPos);
 
         	for(var j=0;j<shape.buildSteps.length;j++) {
-        		var transformation = this.computePointPosition(shape.buildSteps[j], AngleDiff);
-        		shape.buildSteps[j].x = transformation.x;
-        		shape.buildSteps[j].y = transformation.y;
+        		var transformation = this.computePointPosition(shape.buildSteps[j].x, shape.buildSteps[j].y, AngleDiff);
+        		shape.buildSteps[j].setCoordinates(transformation.x, transformation.y);
         	}
         	shape.recomputePoints();
+        	for(var j=0;j<shape.segmentPoints.length;i++) {
+        		var pos = shape.segmentPoints[j].getRelativeCoordinates();
+        		var transformation = this.computePointPosition(pos.x, pos.y, AngleDiff);
+        		shape.segmentPoints[j].setCoordinates(transformation.x, transformation.y);
+        	}
+        	for(var j=0;j<shape.otherPoints.length;j++) {
+        		var pos = shape.otherPoints[j].getRelativeCoordinates();
+        		var transformation = this.computePointPosition(pos.x, pos.y, AngleDiff);
+        		shape.otherPoints[j].setCoordinates(transformation.x, transformation.y);
+        	}
         }
         this.reset();
     }

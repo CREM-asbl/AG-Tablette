@@ -53,7 +53,7 @@ ReverseState.prototype.reset = function(){
  * @param point: les coordonnées du click
  */
 ReverseState.prototype.click = function(point){
-    var list = window.app.workspace.shapesOnPoint(point);
+    var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
     if(list.length==0)
         return;
     this.selectedShape = list.pop();
@@ -139,23 +139,34 @@ ReverseState.prototype.reverseShapes = function () {
     for(var i=0;i<this.shapesList.length;i++) {
         var shape = this.shapesList[i];
         var saveAxeCenter = this.axe.center;
-        var newShapeCenter = this.app.state.computePointPosition(shape, this.axe, 1);
+        var newShapeCenter = this.computePointPosition(shape.x, shape.y, this.axe, 1);
         this.axe.center = {'x': 0, 'y': 0};
     	shape.x = newShapeCenter.x;
     	shape.y = newShapeCenter.y;
 
         for(var j=0;j<shape.buildSteps.length;j++) {
-    		var transformation = this.app.state.computePointPosition(shape.buildSteps[j], this.axe, 1);
-    		shape.buildSteps[j].x = transformation.x;
-    		shape.buildSteps[j].y = transformation.y;
+    		var transformation = this.computePointPosition(shape.buildSteps[j].x, shape.buildSteps[j].y, this.axe, 1);
+    		shape.buildSteps[j].setCoordinates(transformation.x, transformation.y);
     	}
     	shape.recomputePoints();
+
+    	for(var j=0;j<shape.segmentPoints.length;j++) {
+    		var pos = shape.segmentPoints[j].getRelativeCoordinates();
+    		var transformation = this.computePointPosition(pos.x, pos.y, this.axe, 1);
+    		shape.segmentPoints[j].setCoordinates(transformation.x, transformation.y);
+    	}
+    	for(var j=0;j<shape.otherPoints.length;j++) {
+    		var pos = shape.otherPoints[j].getRelativeCoordinates();
+    		var transformation = this.computePointPosition(pos.x, pos.y, this.axe, 1);
+    		shape.otherPoints[j].setCoordinates(transformation.x, transformation.y);
+    	}
 
         this.axe.center = saveAxeCenter;
         shape.isReversed = !shape.isReversed;
 
     }
     this.reset();
+    this.app.canvas.refresh();
 };
 
 /**
@@ -184,7 +195,7 @@ ReverseState.prototype.getSymmetryAxis = function(shape, mouseCoordinates) {
  * @param axe: l'axe de symétrie (Object, voir ReverseState.axe)
  * @param progress: l'avancement de l'animation (float, entre 0 et 1)
  */
-ReverseState.prototype.computePointPosition = function(point, axe, progress) {
+ReverseState.prototype.computePointPosition = function(x, y, axe, progress) {
     var center;
     var p1x = axe.center.x + axe.p1.x,
         p1y = axe.center.y + axe.p1.y,
@@ -193,23 +204,23 @@ ReverseState.prototype.computePointPosition = function(point, axe, progress) {
 
     //Calculer la projection du point sur l'axe.
     if(axe.type=='V') {
-        center = {'x': p1x, 'y': point.y};
+        center = {'x': p1x, 'y': y};
     } else if(axe.type=='H') {
-        center = {'x': point.x, 'y': p1y};
+        center = {'x': x, 'y': p1y};
     } else { // axe.type=='NW' || axe.type=='SW'
         var f_a = (p1y - p2y) / (p1x - p2x);
         var f_b = p2y - f_a * p2x;
-        var x = (point.x + point.y*f_a - f_a*f_b) / (f_a*f_a +1);
-        var y = f_a * x + f_b;
+        var x2 = (x + y*f_a - f_a*f_b) / (f_a*f_a +1);
+        var y2 = f_a * x2 + f_b;
         center = {
-            'x': x,
-            'y': y
+            'x': x2,
+            'y': y2
         };
     }
     //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
     var transformation = {
-        'x': point.x + (2* (center.x - point.x) * progress),
-        'y': point.y + (2* (center.y - point.y) * progress)
+        'x': x + (2* (center.x - x) * progress),
+        'y': y + (2* (center.y - y) * progress)
     };
     return transformation;
 };
@@ -244,7 +255,7 @@ ReverseState.prototype.abort = function(){
 ReverseState.prototype.draw = function(canvas, mouseCoordinates){
 	if(!this.isReversing) {
         //Dessine l'axe de symétrie
-		var list = window.app.workspace.shapesOnPoint(mouseCoordinates);
+		var list = window.app.workspace.shapesOnPoint(new Point(mouseCoordinates.x, mouseCoordinates.y, null, null));
 	    if(list.length>0) {
 			var shape = list.pop();
 			var axis = this.getSymmetryAxis(shape, mouseCoordinates);

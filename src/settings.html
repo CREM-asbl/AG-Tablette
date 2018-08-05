@@ -123,7 +123,7 @@
     /**
      * Event handlers des paramètres
      */
-    class Settings extends Polymer.Element {
+    class PolymerAppSettings extends Polymer.Element {
         static get is() { return 'app-settings'; }
 
         static get properties() {
@@ -136,17 +136,17 @@
         _updateHTMLForm() {
             var ws = window.app.workspace;
             //Général
-            this.shadowRoot.getElementById('settings_adapt_shapes_position').checked = ws.automaticAdjustment;
-            this.shadowRoot.getElementById('settings_show_grid').checked = ws.isGridShown;
-            this.shadowRoot.getElementById('settings_grid_type').value = ws.gridOptions.type;
-            this.shadowRoot.getElementById('settings_grid_size').value = ws.gridOptions.size;
-            this.shadowRoot.getElementById('settings_divide_number_of_parts').value = ws.divideStateNumberOfParts;
+            this.shadowRoot.getElementById('settings_adapt_shapes_position').checked = window.app.settings.get('automaticAdjustment');
+            this.shadowRoot.getElementById('settings_show_grid').checked = window.app.settings.get('isGridShown');
+            this.shadowRoot.getElementById('settings_grid_type').value = window.app.settings.get('gridType');
+            this.shadowRoot.getElementById('settings_grid_size').value = parseInt(window.app.settings.get('gridSize'));
+            this.shadowRoot.getElementById('settings_divide_number_of_parts').value = window.app.settings.get('divideStateNumberOfParts');
 
             //Formes
-            this.shadowRoot.getElementById('settings_shapes_size').value = ws.shapesSize;
-            this.shadowRoot.getElementById('settings_pointed_shapes').checked = ws.areShapesPointed;
-            this.shadowRoot.getElementById('settings_sided_shapes').checked = ws.areShapesSided;
-            this.shadowRoot.getElementById('settings_shapes_opacity').value = (new Number(ws.shapesOpacity)).toString();
+            this.shadowRoot.getElementById('settings_shapes_size').value = parseInt(window.app.settings.get('shapesSize'));
+            this.shadowRoot.getElementById('settings_pointed_shapes').checked = window.app.settings.get('areShapesPointed');
+            this.shadowRoot.getElementById('settings_sided_shapes').checked = window.app.settings.get('areShapesSided');
+            this.shadowRoot.getElementById('settings_shapes_opacity').value = (new Number(window.app.settings.get('shapesOpacity'))).toString();
         }
 
         /**
@@ -159,47 +159,47 @@
 
             switch (event.target.name) {
                 case 'settings_adapt_shapes_position':
-                    window.app.workspace.automaticAdjustment = event.target.checked;
+                    window.app.settings.update('automaticAdjustment', event.target.checked);
                     break;
 
                 case 'settings_show_grid':
                     this.shadowRoot.getElementById("settings_grid_type").disabled = !event.target.checked;
                     this.shadowRoot.getElementById("settings_grid_size").disabled = !event.target.checked;
-                    window.app.workspace.isGridShown = event.target.checked;
-                    window.app.workspace.gridOptions.type = this.shadowRoot.getElementById("settings_grid_type").value;
-                    window.app.workspace.gridOptions.size = this.shadowRoot.getElementById("settings_grid_size").value;
+                    window.app.settings.update('isGridShown', event.target.checked);
+                    window.app.settings.update('gridType', this.shadowRoot.getElementById("settings_grid_type").value);
+                    window.app.settings.update('gridSize', this.shadowRoot.getElementById("settings_grid_size").value);
                     window.app.canvas.refresh();
                     break;
 
                 case 'settings_grid_size':
-                    window.app.workspace.gridOptions.size = this.shadowRoot.getElementById("settings_grid_size").value;
+                    window.app.settings.update('gridSize', this.shadowRoot.getElementById("settings_grid_size").value);
                     window.app.canvas.refresh();
                     break;
 
                 case 'settings_divide_number_of_parts':
-                    window.app.workspace.divideStateNumberOfParts = this.shadowRoot.getElementById("settings_divide_number_of_parts").value;
+                    window.app.settings.update('divideStateNumberOfParts', this.shadowRoot.getElementById("settings_divide_number_of_parts").value);
                     window.app.canvas.refresh();
                     break;
 
                 case 'settings_grid_type':
-                    window.app.workspace.gridOptions.type = this.shadowRoot.getElementById("settings_grid_type").value;
+                    window.app.settings.update('gridType', this.shadowRoot.getElementById("settings_grid_type").value);
                     window.app.canvas.refresh();
                     break;
 
                 case 'settings_shapes_size':
-                    window.app.workspace.shapesSize = parseInt(event.target.value);
+                    window.app.settings.update('shapesSize', parseInt(event.target.value));
                     break;
 
                 case 'settings_pointed_shapes':
-                    window.app.workspace.areShapesPointed = event.target.checked;
+                    window.app.settings.update('areShapesPointed', event.target.checked);
                     break;
 
                 case 'settings_sided_shapes':
-                    window.app.workspace.areShapesSided = event.target.checked;
+                    window.app.settings.update('areShapesSided', event.target.checked);
                     break;
 
                 case 'settings_shapes_opacity':
-                    window.app.workspace.shapesOpacity = parseFloat(event.target.value);
+                    window.app.settings.update('shapesOpacity', parseFloat(event.target.value));
                     break;
 
                 default:
@@ -228,6 +228,6 @@
         }
     }
 
-    window.customElements.define(Settings.is, Settings);
+    window.customElements.define(PolymerAppSettings.is, PolymerAppSettings);
   </script>
 </dom-module>

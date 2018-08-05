@@ -35,7 +35,7 @@ Canvas.prototype.refresh = function(mouseCoordinates) {
 
 	this.drawBackground();
 
-	if(this.app.workspace.isGridShown)
+	if(this.app.settings.get('isGridShown'))
 		this.drawGrid();
 
 	//dessine les formes
@@ -82,7 +82,7 @@ Canvas.prototype.drawBackground = function() {
 	//rectangle blanc:
 	ctx.fillStyle = "white";
 	ctx.strokeStyle = "white";
-	ctx.fillRect(0,0,canvasWidth*this.app.maxZoomLevel,canvasHeight*this.app.maxZoomLevel);
+	ctx.fillRect(0,0,canvasWidth*this.app.settings.get('maxZoomLevel'),canvasHeight*this.app.settings.get('maxZoomLevel'));
 };
 
 /**
@@ -91,30 +91,32 @@ Canvas.prototype.drawBackground = function() {
 Canvas.prototype.drawGrid = function() {
 	//Dessiner les points entre (0, 0) et (canvasWidth*this.app.maxZoomLevel, canvasHeight*this.app.maxZoomLevel)
 	//TODO: utiliser le niveau de zoom actuel pour ne pas dessiner des points qui ne seront pas affichés ?
+	//TODO: dessiner ça sur un autre canvas, et ne pas redessiner à chaque refresh!
 
 	var canvasWidth = this.cvsRef.clientWidth;
 	var canvasHeight = this.cvsRef.clientHeight;
-	var gridOpts = this.app.workspace.gridOptions;
-	var max = {'x': canvasWidth*this.app.maxZoomLevel, 'y': canvasHeight*this.app.maxZoomLevel};
-	if(gridOpts.type=="square") {
-		for(var x = 10; x<= max.x; x += 50*gridOpts.size) {
-			for(var y = 10; y<= max.y; y += 50*gridOpts.size) {
+	var gridType = this.app.settings.get('gridType');
+	var gridSize = this.app.settings.get('gridSize');
+	var max = {'x': canvasWidth*this.app.settings.get('maxZoomLevel'), 'y': canvasHeight*this.app.settings.get('maxZoomLevel')};
+	if(gridType=="square") {
+		for(var x = 10; x<= max.x; x += 50*gridSize) {
+			for(var y = 10; y<= max.y; y += 50*gridSize) {
 				this.drawPoint({"x": x, "y": y}, "#F00");
 			}
 		}
-	} else if(gridOpts.type=="triangle") {
-		for(var x = 10; x<= max.x; x += 50*gridOpts.size) {
-			for(var y = 10; y<= max.y; y += 85*gridOpts.size) {
+	} else if(gridType=="triangle") {
+		for(var x = 10; x<= max.x; x += 50*gridSize) {
+			for(var y = 10; y<= max.y; y += 85*gridSize) {
 				this.drawPoint({"x": x, "y": y}, "#F00");
 			}
 		}
-		for(var x = 10 + 50*gridOpts.size/2; x<= max.x; x += 50*gridOpts.size) {
-			for(var y =10 +  42.5*gridOpts.size; y<= max.y; y += 85*gridOpts.size) {
+		for(var x = 10 + 50*gridSize/2; x<= max.x; x += 50*gridSize) {
+			for(var y =10 +  42.5*gridSize; y<= max.y; y += 85*gridSize) {
 				this.drawPoint({"x": x, "y": y}, "#F00");
 			}
 		}
 	} else {
-		console.log("Canvas.drawGrid: unknown type: "+gridOpts.type);
+		console.log("Canvas.drawGrid: unknown type: "+gridType);
 	}
 };
 
@@ -176,15 +178,15 @@ Canvas.prototype.drawShape = function(shape) {
 	if(shape.isPointed) {
 		//dessine les points (noirs) des sommets de la forme
 		for(var i=0;i<shape.points.length;i++) {
-			this.drawPoint(shape.points[i], "#000");
+			this.drawPoint(shape.points[i].getRelativeCoordinates(), "#000");
 		}
 	}
 
 	for(var i=0;i<shape.segmentPoints.length;i++) {
-		this.drawPoint(shape.segmentPoints[i], "#000");
+		this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#000");
 	}
 	for(var i=0;i<shape.otherPoints.length;i++) {
-		this.drawPoint(shape.otherPoints[i], "#000");
+		this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#000");
 	}
 
 	//afficher le centre
@@ -218,18 +220,35 @@ Canvas.prototype.drawMovingShape = function(shape, point) {
 Canvas.prototype.drawRotatingShape = function(shape, point, angle) {
 	var tmpBuildSteps = [];
 	for(var i=0;i<shape.buildSteps.length;i++) {
-		var transformation = this.app.state.computePointPosition(shape.buildSteps[i], angle);
+		var transformation = this.app.state.computePointPosition(shape.buildSteps[i].x, shape.buildSteps[i].y, angle);
 		tmpBuildSteps.push([ shape.buildSteps[i].x, shape.buildSteps[i].y ]);
-		shape.buildSteps[i].x = transformation.x;
-		shape.buildSteps[i].y = transformation.y;
+		shape.buildSteps[i].setCoordinates(transformation.x, transformation.y);
 	}
 	shape.recomputePoints();
+	var tmpSegmentPoints = [], tmpOtherPoints = [];
+	for(var i=0;i<shape.segmentPoints.length;i++) {
+		var pos = shape.segmentPoints[i].getRelativeCoordinates();
+		var transformation = this.app.state.computePointPosition(pos.x, pos.y, angle);
+		tmpBuildSteps.push([ pos.x, pos.y ]);
+		shape.segmentPoints[i].setCoordinates(transformation.x, transformation.y);
+	}
+	for(var i=0;i<shape.otherPoints.length;i++) {
+		var pos = shape.otherPoints[i].getRelativeCoordinates();
+		var transformation = this.app.state.computePointPosition(pos.x, pos.y, angle);
+		tmpOtherPoints.push([ pos.x, pos.y ]);
+		shape.otherPoints[i].setCoordinates(transformation.x, transformation.y);
+	}
 
 	this.drawMovingShape(shape, point);
 
 	for(var i=0;i<tmpBuildSteps.length;i++) {
-		shape.buildSteps[i].x = tmpBuildSteps[i][0];
-		shape.buildSteps[i].y = tmpBuildSteps[i][1];
+		shape.buildSteps[i].setCoordinates(tmpBuildSteps[i][0], tmpBuildSteps[i][1]);
+	}
+	for(var i=0;i<tmpSegmentPoints.length;i++) {
+		shape.segmentPoints[i].setCoordinates(tmpSegmentPoints[i][0], tmpSegmentPoints[i][1]);
+	}
+	for(var i=0;i<tmpOtherPoints.length;i++) {
+		shape.otherPoints[i].setCoordinates(tmpOtherPoints[i][0], tmpOtherPoints[i][1]);
 	}
 	shape.recomputePoints();
 };
@@ -244,19 +263,31 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 	var saveShapeCenter = {'x': shape.x, 'y': shape.y};
 	var saveAxeCenter = axe.center;
 
-	var newShapeCenter = this.app.state.computePointPosition(shape, axe, progress);
+	var newShapeCenter = this.app.state.computePointPosition(shape.x, shape.y, axe, progress);
 	axe.center = {'x': 0, 'y': 0};
 	shape.x = newShapeCenter.x;
 	shape.y = newShapeCenter.y;
 
 	var tmpBuildSteps = [];
 	for(var i=0;i<shape.buildSteps.length;i++) {
-		var transformation = this.app.state.computePointPosition(shape.buildSteps[i], axe, progress);
+		var transformation = this.app.state.computePointPosition(shape.buildSteps[i].x, shape.buildSteps[i].y, axe, progress);
 		tmpBuildSteps.push([ shape.buildSteps[i].x, shape.buildSteps[i].y ]);
-		shape.buildSteps[i].x = transformation.x;
-		shape.buildSteps[i].y = transformation.y;
+		shape.buildSteps[i].setCoordinates(transformation.x, transformation.y);
 	}
 	shape.recomputePoints();
+	var tmpSegmentPoints = [], tmpOtherPoints = [];
+	for(var i=0;i<shape.segmentPoints.length;i++) {
+		var pos = shape.segmentPoints[i].getRelativeCoordinates();
+		var transformation = this.app.state.computePointPosition(pos.x, pos.y, axe, progress);
+		tmpBuildSteps.push([ pos.x, pos.y ]);
+		shape.segmentPoints[i].setCoordinates(transformation.x, transformation.y);
+	}
+	for(var i=0;i<shape.otherPoints.length;i++) {
+		var pos = shape.otherPoints[i].getRelativeCoordinates();
+		var transformation = this.app.state.computePointPosition(pos.x, pos.y, axe, progress);
+		tmpOtherPoints.push([ pos.x, pos.y ]);
+		shape.otherPoints[i].setCoordinates(transformation.x, transformation.y);
+	}
 
 	if(progress>=0.5)
 		shape.isReversed = !shape.isReversed;
@@ -270,8 +301,13 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 	shape.x = saveShapeCenter.x;
 	shape.y = saveShapeCenter.y;
 	for(var i=0;i<tmpBuildSteps.length;i++) {
-		shape.buildSteps[i].x = tmpBuildSteps[i][0];
-		shape.buildSteps[i].y = tmpBuildSteps[i][1];
+		shape.buildSteps[i].setCoordinates(tmpBuildSteps[i][0], tmpBuildSteps[i][1]);
+	}
+	for(var i=0;i<tmpSegmentPoints.length;i++) {
+		shape.segmentPoints[i].setCoordinates(tmpSegmentPoints[i][0], tmpSegmentPoints[i][1]);
+	}
+	for(var i=0;i<tmpOtherPoints.length;i++) {
+		shape.otherPoints[i].setCoordinates(tmpOtherPoints[i][0], tmpOtherPoints[i][1]);
 	}
 	shape.recomputePoints();
 };

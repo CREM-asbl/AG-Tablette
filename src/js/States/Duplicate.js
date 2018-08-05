@@ -26,7 +26,7 @@ DuplicateState.prototype.reset = function(){
  * @param point: {x: int, y: int}
  */
 DuplicateState.prototype.mousedown = function(point) {
-    var list = window.app.workspace.shapesOnPoint(point);
+    var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
     if(list.length==0)
         return;
     this.isDuplicating = true;
@@ -64,7 +64,6 @@ DuplicateState.prototype.mouseup = function(point){
 			var newY = point.y - yDiff;
 
             this.newShape.setCoordinates({"x": newX, "y": newY});
-            this.newShape.recomputePoints();
         }
         this.reset();
     }

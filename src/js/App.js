@@ -34,17 +34,6 @@ function App(divRef, canvasRef) {
 	this.workspace = new Workspace(this);
 	this.workspace.addMenuAFamilies();
 
-	/**
-	 * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
-	 */
-	this.magnetismDistance = 6;
-
-	//Niveau de zoom maximal de l'interface
-	this.maxZoomLevel = 10;
-
-	//Niveau de zoom minimal de l'interface
-	this.minZoomLevel = 0.1;
-
 	//Liste des événements que l'application transmet à la classe de l'état actuel
 	this.events = {
 		"click": function(){},
@@ -54,6 +43,9 @@ function App(divRef, canvasRef) {
 
 	//Classe permettant de sélectionner visuellement une couleur
 	this.colorpicker = new ColorPicker(this);
+
+	//Paramètres de l'application
+	this.settings = new Settings(this);
 }
 
 /**

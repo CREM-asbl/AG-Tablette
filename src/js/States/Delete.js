@@ -13,7 +13,7 @@ App.heriter(DeleteState.prototype, State.prototype);
  * @param coordinates: {x: int, y: int}
  */
 DeleteState.prototype.click = function(coordinates) {
-    var list = window.app.workspace.shapesOnPoint(coordinates);
+    var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(list.length==0)
         return;
     var shape = list.pop(); //TODO: utiliser l'ordre d'affichage ?

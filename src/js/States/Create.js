@@ -28,11 +28,10 @@ CreateState.prototype.reset = function(){
  */
 CreateState.prototype.start = function(params){
     //update the shape size:
-    var size = this.app.workspace.shapesSize;
+    var size = this.app.settings.get('shapesSize');
     for(var i=0;i<params.shape.buildSteps.length;i++) {
         var step = params.shape.buildSteps[i];
-        step.x *= size;
-        step.y *= size;
+        step.setCoordinates(step.x * size, step.y * size);
     }
     params.shape.refPoint.x *= size;
     params.shape.refPoint.y *= size;
@@ -48,12 +47,12 @@ CreateState.prototype.start = function(params){
 CreateState.prototype.click = function(coordinates) {
 
     //move the shape ?
-    var pointsNear = this.app.workspace.pointsNearPoint(this.app.workspace.points, coordinates);
+    var pointsNear = this.app.workspace.pointsNearPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(pointsNear.length>0) {
-        var last = pointsNear[pointsNear.length-1];
+        var last = pointsNear[pointsNear.length-1].getAbsoluteCoordinates();
         coordinates = {
-            "x": last.absX,
-            "y": last.absY
+            "x": last.x,
+            "y": last.y
         };
     }
     //coordonnées de la forme: ajouter le décalage entre le centre et le point de référence.
@@ -72,16 +71,17 @@ CreateState.prototype.click = function(coordinates) {
 		x, y,
 		buildStepsCopy, this.selectedShape.color, "#000",
         {"x": this.selectedShape.refPoint.x, "y": this.selectedShape.refPoint.y},
-        this.app.workspace.areShapesPointed,
-        this.app.workspace.areShapesSided,
-        this.app.workspace.shapesOpacity);
+        this.app.settings.get('areShapesPointed'),
+        this.app.settings.get('areShapesSided'),
+        this.app.settings.get('shapesOpacity'));
 
-    if(pointsNear.length==0 && this.app.workspace.isGridShown) {
+    if(pointsNear.length==0 && this.app.settings.get('isGridShown')) {
         var t = this.app.workspace.getClosestGridPoint([shape]);
-        x += t.grid.x - t.shape.x;
-        y += t.grid.y - t.shape.y;
+        var gridCoords = t.grid.getAbsoluteCoordinates(),
+            shapeCoords = t.shape.getAbsoluteCoordinates();
+        x += gridCoords.x - shapeCoords.x;
+        y += gridCoords.y - shapeCoords.y;
         shape.setCoordinates({'x': x, 'y': y});
-        shape.recomputePoints();
     }
 
 
@@ -91,12 +91,13 @@ CreateState.prototype.click = function(coordinates) {
         //lier le point correspondant dans la nouvelle forme à ce point
         var linked = false;
         for(var i=0;i<shape.points.length;i++) {
-            if(shape.points[i].x-this.selectedShape.refPoint.x==0 && shape.points[i].y-this.selectedShape.refPoint.y==0) {
+            var pos = shape.points[i].getRelativeCoordinates();
+            if(pos.x-this.selectedShape.refPoint.x==0 && pos.y-this.selectedShape.refPoint.y==0) {
                 linked = true;
-                shape.points[i].link = last; //TODO: utilisé qqpart ?
+                shape.points[i].link = last;
             }
         }
-        if(linked==false) {
+        if(linked==false && shape.points.length>0) { //si=0, c'est que c'est un cercle.
             console.log("CreateState.click() error: point of the new shape to link with the other shape has not been found");
         }
     }
@@ -119,6 +120,7 @@ CreateState.prototype.setFamily = function(family) {
  */
 CreateState.prototype.setShape = function(shape) {
     this.selectedShape = shape;
+    shape.recomputePoints();
 };
 
 /**
@@ -134,10 +136,10 @@ CreateState.prototype.draw = function(canvas, mouseCoordinates){
     });
 
     //afficher le point sur lequel la forme va se coller le cas échéant
-    var pointsNear = this.app.workspace.pointsNearPoint(this.app.workspace.points, mouseCoordinates);
+    var pointsNear = this.app.workspace.pointsNearPoint(new Point(mouseCoordinates.x, mouseCoordinates.y, null, null));
     if(pointsNear.length>0) {
-        var last = pointsNear[pointsNear.length-1];
-        var pos = {"x": last.absX, "y": last.absY};
+        var last = pointsNear[pointsNear.length-1].getAbsoluteCoordinates();
+        var pos = {"x": last.x, "y": last.y};
         canvas.drawPoint(pos, "#F00");
         canvas.drawCircle(pos, "#000", 6);
     }

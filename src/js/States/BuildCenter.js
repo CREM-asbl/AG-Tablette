@@ -13,17 +13,18 @@ App.heriter(BuildCenterState.prototype, State.prototype);
  * @param coordinates: {x: int, y: int}
  */
 BuildCenterState.prototype.click = function(coordinates) {
-    var list = window.app.workspace.shapesOnPoint(coordinates);
+    var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(list.length==0)
         return;
     var shape = list.pop(); //TODO: utiliser l'ordre d'affichage ?
 
     for(var i=0;i<shape.otherPoints.length;i++) {
-        if(shape.otherPoints[i].x==0&&shape.otherPoints[i].y==0) {
+        var pos = shape.otherPoints[i].getRelativeCoordinates();
+        if(pos.x==0 && pos.y==0) {
             return;
         }
     }
-    shape.otherPoints.push({'x': 0, 'y': 0});
+    shape.otherPoints.push(new Point(0, 0, 'center', shape));
 	this.app.canvas.refresh(coordinates);
 };
 

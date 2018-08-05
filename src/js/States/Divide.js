@@ -36,8 +36,8 @@ DivideState.prototype.start = function(){};
  * @param coordinates: {x: int, y: int}
  */
 DivideState.prototype.click = function(coordinates) {
-    var pointsNear = this.app.workspace.pointsNearPoint(this.app.workspace.points, coordinates);
-    var nb_parts = this.app.workspace.divideStateNumberOfParts;
+    var pointsNear = this.app.workspace.pointsNearPoint(new Point(coordinates.x, coordinates.y, null, null));
+    var nb_parts = this.app.settings.get('divideStateNumberOfParts');
     if(this.firstPoint) { //Si on a déjà ajouté un premier point
         if(pointsNear.length==0)
             return;
@@ -46,6 +46,8 @@ DivideState.prototype.click = function(coordinates) {
 
         var shape = this.firstPoint.shape;
         var first = this.firstPoint;
+        var firstCoords = first.getRelativeCoordinates(),
+            lastCoords = last.getRelativeCoordinates();
 
         //vérifier si les 2 points sont les extrémités d'une arrête d'une forme
         var on_segment = false;
@@ -53,9 +55,9 @@ DivideState.prototype.click = function(coordinates) {
 
             shape.points.push(shape.points[0]);
             for(var i=1;i<shape.points.length;i++) {
-                var p1 = shape.points[i-1], p2 = shape.points[i];
-                if( (p1.x == last.x && p1.y == last.y && p2.x == first.x && p2.y == first.y)
-                    || (p1.x == first.x && p1.y == first.y && p2.x == last.x && p2.y == last.y)) {
+                var p1 = shape.points[i-1].getRelativeCoordinates(), p2 = shape.points[i].getRelativeCoordinates();
+                if( (p1.x == lastCoords.x && p1.y == lastCoords.y && p2.x == firstCoords.x && p2.y == firstCoords.y)
+                    || (p1.x == firstCoords.x && p1.y == firstCoords.y && p2.x == lastCoords.x && p2.y == lastCoords.y)) {
                     //si formes contenant arc de cercle: vérifier qu'entre les 2 points c'est bien une droite et pas un arc de cercle (dans buildSteps)
                     on_segment = true;
                     break;
@@ -66,24 +68,19 @@ DivideState.prototype.click = function(coordinates) {
 
         var pointsArray = on_segment ? shape.segmentPoints : shape.otherPoints;
         var diff = {
-            'x': (last.x+last.shape.x)-(this.firstPoint.x+this.firstPoint.shape.x),
-            'y': (last.y+last.shape.y)-(this.firstPoint.y+this.firstPoint.shape.y)
+            'x': (lastCoords.x+last.shape.x)-(firstCoords.x+this.firstPoint.shape.x),
+            'y': (lastCoords.y+last.shape.y)-(firstCoords.y+this.firstPoint.shape.y)
         };
         for(var i=1;i<nb_parts;i++) {
-            var x = this.firstPoint.x + i*(1.0/nb_parts)*diff.x,
-                y = this.firstPoint.y + i*(1.0/nb_parts)*diff.y;
+            var x = firstCoords.x + i*(1.0/nb_parts)*diff.x,
+                y = firstCoords.y + i*(1.0/nb_parts)*diff.y;
             var shape2 = null;
             if(last.shape != first.shape)
                 shape2 = last.shape;
-            var pt = {
-				"x": x, "y": y, //x et y relatifs
-				"absX": shape.x + x, "absY": shape.y + y, //x et y absolus
-				"link": null, //pas utilisé ? pas sûr.
-				"shape": shape,
-                "shape2": shape2 //quand on supprime une forme, si un point a cette forme comme shape2, on le supprime aussi.
-			};
+            var pt = new Point(x, y, "division", shape);
+            pt.sourcepoint1 = this.firstPoint;
+            pt.sourcepoint2 = last;
             pointsArray.push(pt);
-            this.app.workspace.points.push(pt);
         }
 
         if(last.shape != first.shape) {
@@ -124,7 +121,7 @@ DivideState.prototype.click = function(coordinates) {
         var last = pointsNear[pointsNear.length-1];
         this.firstPoint = last;
     } else {
-        var list = window.app.workspace.shapesOnPoint(coordinates);
+        var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
         if(list.length==0)
             return;
         var shape = list.pop();
@@ -152,7 +149,7 @@ DivideState.prototype.click = function(coordinates) {
             };
 
             var dist = Math.sqrt(Math.pow(proj.x-(coordinates.x - shape.x), 2) + Math.pow(proj.y-(coordinates.y - shape.y), 2));
-            if(dist<this.app.magnetismDistance) {
+            if(dist<this.app.settings.get('magnetismDistance')) {
                 segment_selected = true;
                 var p1 = shape.buildSteps[i-1],
                     p2 = shape.buildSteps[i];
@@ -165,8 +162,10 @@ DivideState.prototype.click = function(coordinates) {
         				"link": null, //pas utilisé ? pas sûr.
         				"shape": shape
         			};
+                    var pt = new Point(x, y, "division", shape);
+                    pt.sourcepoint1 = shape.points[i-1];
+                    pt.sourcepoint2 = shape.points[i % shape.points.length]; //i peut valoir shape.points.length max, car il y a une buildStep en plus.
                     shape.segmentPoints.push(pt);
-                    this.app.workspace.points.push(pt);
                 }
                 break;
             }

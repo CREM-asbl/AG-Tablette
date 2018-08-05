@@ -33,7 +33,7 @@ MoveState.prototype.reset = function(){
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */
 MoveState.prototype.mousedown = function(point){
-    var list = window.app.workspace.shapesOnPoint(point);
+    var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
     if(list.length>0) {
         this.isMoving = true;
         this.clickCoordinates = point;
@@ -79,17 +79,17 @@ MoveState.prototype.mouseup = function(point){
 
 
             this.shapesList[i].setCoordinates({"x": newX, "y": newY});
-            this.shapesList[i].recomputePoints();
         }
 
-        if(this.app.workspace.isGridShown) {
+        if(this.app.settings.get('isGridShown')) {
             var t = this.app.workspace.getClosestGridPoint(this.shapesList);
+            var gridCoords = t.grid.getAbsoluteCoordinates(),
+                shapeCoords = t.shape.getAbsoluteCoordinates();
             for(var i=0;i<this.shapesList.length;i++) {
-                this.shapesList[i].x += t.grid.x - t.shape.x;
-                this.shapesList[i].y += t.grid.y - t.shape.y;
-                this.shapesList[i].recomputePoints();
+                this.shapesList[i].x += gridCoords.x - shapeCoords.x;
+                this.shapesList[i].y += gridCoords.y - shapeCoords.y;
             }
-        } else if(this.app.workspace.automaticAdjustment) {
+        } else if(this.app.settings.get('automaticAdjustment')) {
             var bestSegment = null; //segment du groupe de forme qui va être rapproché d'un segment d'une forme externe.
             var otherShapeSegment = null; //le segment de la forme externe correspondante.
             var segmentScore = 1000*1000*1000; //somme des carrés des distances entre les sommets des 2 segments ci-dessus.
@@ -98,38 +98,42 @@ MoveState.prototype.mouseup = function(point){
             for(var i=0;i<this.shapesList.length;i++) { //Pour chacune des formes en cours de déplacement:
                 var shape = this.shapesList[i];
                 var p1;
-                var p2 = this.app.workspace.pointsNearPoint(this.app.workspace.points, {'x': shape.points[0].absX, 'y': shape.points[0].absY});
+                var p2 = this.app.workspace.pointsNearPoint(shape.points[0]);
                 shape.points.push(shape.points[0]);
                 for(var j=1; j<shape.points.length; j++) { //pour chaque segment de la forme
                     p1 = p2;
-                    p2 = this.app.workspace.pointsNearPoint(this.app.workspace.points, {'x': shape.points[j].absX, 'y': shape.points[j].absY});
+                    p2 = this.app.workspace.pointsNearPoint(shape.points[j]);
+                    var pos1 = shape.points[j-1].getAbsoluteCoordinates(),
+                        pos2 = shape.points[j].getAbsoluteCoordinates();
 
-                    var seg_length = Math.sqrt(Math.pow(shape.points[j].absX - shape.points[j-1].absX, 2) + Math.pow(shape.points[j].absY - shape.points[j-1].absY, 2));
+                    var seg_length = Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
                     for(var k=0;k<p1.length;k++) { //pour chacun des points proches du premier point du segment (points[j-1])
                         if(this.shapesList.indexOf(p1[k].shape)!=-1)
                             continue;
                         for(var l=0;l<p2.length;l++) { //pour chacun des points proches du second point du segment (points[j])
                             if(this.shapesList.indexOf(p2[l].shape)!=-1)
                                 continue;
+                            var p1k_pos = p1[k].getAbsoluteCoordinates(),
+                                p2l_pos = p2[l].getAbsoluteCoordinates();
                             if(p1[k].shape==p2[l].shape) {
-                                var len = Math.sqrt(Math.pow(p1[k].absX - p2[l].absX, 2) + Math.pow(p1[k].absY - p2[l].absY, 2));
+                                var len = Math.sqrt(Math.pow(p1k_pos.x - p2l_pos.x, 2) + Math.pow(p1k_pos.y - p2l_pos.y, 2));
                                 var diff = Math.abs(len-seg_length);
                                 if(diff<=2) {
                                     //Segment élligible.
                                     total_elligible_segments++;
 
-                                    var score = Math.pow(p1[k].absX - shape.points[j-1].absX, 2) + Math.pow(p1[k].absY - shape.points[j-1].absY, 2);
-                                    score    += Math.pow(p2[l].absX - shape.points[j].absX, 2) + Math.pow(p2[l].absY - shape.points[j].absY, 2);
+                                    var score = Math.pow(p1k_pos.x - pos1.x, 2) + Math.pow(p1k_pos.y - pos1.y, 2);
+                                    score    += Math.pow(p2l_pos.x - pos2.x, 2) + Math.pow(p2l_pos.y - pos2.y, 2);
 
                                     if(score < segmentScore) {
                                         segmentScore = score;
                                         otherShapeSegment = [
-                                            {'x': p1[k].absX, 'y': p1[k].absY},
-                                            {'x': p2[l].absX, 'y': p2[l].absY}
+                                            {'x': p1k_pos.x, 'y': p1k_pos.y},
+                                            {'x': p2l_pos.x, 'y': p2l_pos.y}
                                         ];
                                         bestSegment = [
-                                            {'x': shape.points[j-1].absX, 'y': shape.points[j-1].absY},
-                                            {'x': shape.points[j].absX, 'y': shape.points[j].absY}
+                                            {'x': pos1.x, 'y': pos1.y},
+                                            {'x': pos2.x, 'y': pos2.y}
                                         ];
                                     }
                                 }
@@ -147,7 +151,6 @@ MoveState.prototype.mouseup = function(point){
                     this.shapesList[i].x += otherShapeSegment[0].x - bestSegment[0].x;
                     this.shapesList[i].y += otherShapeSegment[0].y - bestSegment[0].y;
 
-                    this.shapesList[i].recomputePoints();
                 }
 
                 //Faire une rotation du groupe de formes, ayant pour centre otherShapeSegment[0]
@@ -164,9 +167,8 @@ MoveState.prototype.mouseup = function(point){
                     this.shapesList[i].y = n.y;
 
                     for(var j=0;j<this.shapesList[i].buildSteps.length;j++) {
-                		var transformation = this.app.states.rotate_shape.computePointPosition(this.shapesList[i].buildSteps[j], angle, otherShapeSegment[0]);
-                		this.shapesList[i].buildSteps[j].x = transformation.x;
-                		this.shapesList[i].buildSteps[j].y = transformation.y;
+                		var transformation = this.app.states.rotate_shape.computePointPosition(this.shapesList[i].buildSteps[j].x, this.shapesList[i].buildSteps[j].y, angle);
+                		this.shapesList[i].buildSteps[j].setCoordinates(transformation.x, transformation.y);
                 	}
                     this.shapesList[i].recomputePoints();
                 }
@@ -179,21 +181,23 @@ MoveState.prototype.mouseup = function(point){
                 for(var i=0;i<this.shapesList.length;i++) { //Pour chacune des formes en cours de déplacement:
                     var shape = this.shapesList[i];
                     for(var j=0; j<shape.points.length; j++) { //pour chaque segment de la forme
-                        var pts = this.app.workspace.pointsNearPoint(this.app.workspace.points, {'x': shape.points[j].absX, 'y': shape.points[j].absY});
+                        var pts = this.app.workspace.pointsNearPoint(shape.points[j]);
+                        var shape_ptj_pos = shape.points[j].getAbsoluteCoordinates();
 
                         for(var k=0;k<pts.length;k++) { //pour chacun des points proches du point de la forme
                             if(this.shapesList.indexOf(pts[k].shape)!=-1) //le point appartient à une des formes du groupe de forme.
                                 continue;
-                            var score = Math.pow(pts[k].absX - shape.points[j].absX, 2) + Math.pow(pts[k].absY - shape.points[j].absY, 2);
+                            var pts_k_pos = pts[k].getAbsoluteCoordinates();
+                            var score = Math.pow(pts_k_pos.x - shape_ptj_pos.x, 2) + Math.pow(pts_k_pos.y - shape_ptj_pos.y, 2);
                             if(score < pointScore) {
                                 pointScore = score;
                                 otherShapePoint = {
-                                    'x': pts[k].absX,
-                                    'y': pts[k].absY
+                                    'x': pts_k_pos.x,
+                                    'y': pts_k_pos.y
                                 };
                                 bestPoint = {
-                                    'x': shape.points[j].absX,
-                                    'y': shape.points[j].absY
+                                    'x': shape_ptj_pos.x,
+                                    'y': shape_ptj_pos.y
                                 };
                             }
                         }
@@ -205,8 +209,6 @@ MoveState.prototype.mouseup = function(point){
                     for(var i=0;i<this.shapesList.length;i++) {
                         this.shapesList[i].x += otherShapePoint.x - bestPoint.x;
                         this.shapesList[i].y += otherShapePoint.y - bestPoint.y;
-
-                        this.shapesList[i].recomputePoints();
                     }
                 }
             }
