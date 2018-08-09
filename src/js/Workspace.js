@@ -519,6 +519,9 @@ Workspace.prototype.setZoomLevel = function(newZoomLevel, doRefresh) {
 	this.app.canvas.updateRelativeScaleLevel(newZoomLevel);
 
 	this.zoomLevel = newZoomLevel;
-	if(doRefresh!==false)
+	if(doRefresh!==false) {
 		this.app.canvas.refresh();
+
+	}
+	this.app.canvas.refreshBackgroundCanvas();
 };

@@ -135,7 +135,7 @@ RotateState.prototype.mouseup = function(point){
         		shape.buildSteps[j].setCoordinates(transformation.x, transformation.y);
         	}
         	shape.recomputePoints();
-        	for(var j=0;j<shape.segmentPoints.length;i++) {
+        	for(var j=0;j<shape.segmentPoints.length;j++) {
         		var pos = shape.segmentPoints[j].getRelativeCoordinates();
         		var transformation = this.computePointPosition(pos.x, pos.y, AngleDiff);
         		shape.segmentPoints[j].setCoordinates(transformation.x, transformation.y);

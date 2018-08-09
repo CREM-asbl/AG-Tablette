@@ -68,7 +68,7 @@
                 <br />
 
                 <label for="settings_grid_size">Taille de la grille: </label>
-                <input type="number" max="10" min="0.1" step="0.1" disabled name="settings_grid_size" id="settings_grid_size" on-change='_gridSize' style='font-size:20px;'>
+                <input type="number" max="10" min="0.2" step="0.1" disabled name="settings_grid_size" id="settings_grid_size" on-change='_gridSize' style='font-size:20px;'>
             </div>
 
             <br /><br />
@@ -168,12 +168,12 @@
                     window.app.settings.update('isGridShown', event.target.checked);
                     window.app.settings.update('gridType', this.shadowRoot.getElementById("settings_grid_type").value);
                     window.app.settings.update('gridSize', this.shadowRoot.getElementById("settings_grid_size").value);
-                    window.app.canvas.refresh();
+                    window.app.canvas.refreshBackgroundCanvas();
                     break;
 
                 case 'settings_grid_size':
                     window.app.settings.update('gridSize', this.shadowRoot.getElementById("settings_grid_size").value);
-                    window.app.canvas.refresh();
+                    window.app.canvas.refreshBackgroundCanvas();
                     break;
 
                 case 'settings_divide_number_of_parts':
@@ -183,7 +183,7 @@
 
                 case 'settings_grid_type':
                     window.app.settings.update('gridType', this.shadowRoot.getElementById("settings_grid_type").value);
-                    window.app.canvas.refresh();
+                    window.app.canvas.refreshBackgroundCanvas();
                     break;
 
                 case 'settings_shapes_size':
@@ -210,8 +210,8 @@
         _gridSize(event) {
             if(event.target.value > 10)
                 event.target.value = 10;
-            if(event.target.value < 0.1)
-                event.target.value = 0.1;
+            if(event.target.value < 0.2)
+                event.target.value = 0.2;
             event.target.value = parseInt(event.target.value*10)/10;
 
             this._actionHandle(event);

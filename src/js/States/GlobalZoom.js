@@ -37,7 +37,6 @@ GlobalZoomState.prototype.mousedown = function(point){
  */
 GlobalZoomState.prototype.mouseup = function(point){
     if(this.isZooming) {
-        //this.app.workspace.
         this.reset();
     }
 };

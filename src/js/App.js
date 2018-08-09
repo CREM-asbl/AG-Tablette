@@ -7,9 +7,9 @@
  * @param divRef: le <div> contenant l'élément HTML <canvas>
  * @param canvasRef: l'élément HTML <canvas>
  */
-function App(divRef, canvasRef) {
+function App(divRef, canvasRef, backgroundCanvasRef) {
 	//Classe qui gère le canvas
-	this.canvas = new Canvas(divRef, canvasRef, this);
+	this.canvas = new Canvas(divRef, canvasRef, backgroundCanvasRef, this);
 
 	//Classe représentant l'état de l'application
 	this.state = {'name': null};
@@ -95,6 +95,7 @@ App.prototype.start = function(){
 	window.onresize = function(e){
 		that.canvas.divRef.setCanvasSize();
 		that.canvas.refresh();
+		that.canvas.refreshBackgroundCanvas();
 	};
 
 	//Utilisé pour les animations.
@@ -112,7 +113,35 @@ App.prototype.start = function(){
 	//Mettre à jour le formulaire <html> des options
 	var form = document.getElementsByTagName("app-settings")[0].shadowRoot.getElementById("app-settings-view");
 	form.dispatchEvent(new CustomEvent('update-request'));
+
+	//Cacher le popup "settings" quand on appuie sur escape.
+	window.onkeyup = function(e){
+		if(e.key == "Escape" || e.key == "Esc" || e.keyCode == 27) {
+			document.getElementById('settings-popup-gray').style.display='none';
+		}
+	};
+
 };
+
+
+/**
+ * OUTILS
+ */
+
+/**
+ * Renvoie l'angle correspondant dans l'intervalle ]-PI, PI]
+ * @param  {float} angle l'angle (en radians)
+ * @return {float}       l'angle correspondant
+ */
+App.prototype.getAngle = function(angle) {
+	angle = angle % (Math.PI*2);
+	if(angle<0)
+		angle += Math.PI*2;
+	//on a un angle entre 0 et 2*Math.PI
+	if(angle>Math.PI)
+		angle -= Math.PI*2;
+	return angle;
+}
 
 /**
  * Récupérer l'angle (en radians) entre 2 points
@@ -158,6 +187,44 @@ App.prototype.getComplementaryColor = function(color) {
 		blue = 255 -hexTodec(color[5]+color[6]);
 
 	return '#'+decToHex(red)+decToHex(green)+decToHex(blue);
+};
+
+/**
+ * Renvoie une liste de points qui approximent un arc de cercle (précision: angleStep).
+ * @param  {float} center       coordonnée du centre du cercle
+ * @param  {float} p1         	coordonnées du point de départ
+ * @param  {float} angle     	l'angle de dessin du cercle (en degrés!)
+ * @param  {boolean} direction 	sens de l'arc de cercle
+ * @param  {[type]} angleStep 	la précision de découpage (angle, en degrés)
+ * @return {[{'x': float, 'y': float}]}           	liste des points qui approximent l'arc.
+ */
+App.prototype.getApproximatedArc = function(center, p1, angle, direction, angleStep) {
+	var rayon = Math.sqrt(Math.pow(center.x - p1.x, 2) + Math.pow(center.y - p1.y, 2)),
+		start_angle = this.getAngleBetweenPoints(p1, center),
+		end_angle = start_angle+angle*Math.PI/180,
+		step_angle = angleStep *Math.PI/180,
+		pointsList = [];
+
+	if(direction) {
+		step_angle = -step_angle;
+		end_angle = start_angle-angle*Math.PI/180
+	}
+
+	var cur_angle = start_angle;
+	while((!direction && cur_angle+step_angle < end_angle) || (direction && cur_angle-step_angle > end_angle)) {
+		cur_angle += step_angle;
+
+		var posX = rayon * Math.sin(cur_angle) + center.x,
+			posY = rayon * Math.cos(cur_angle) + center.y;
+
+		pointsList.push(new Point(posX, posY, null, this));
+
+	}
+	var posX = rayon * Math.sin(end_angle) + center.x,
+		posY = rayon * Math.cos(end_angle) + center.y;
+	pointsList.push(new Point(posX, posY, null, this));
+
+	return pointsList;
 };
 
 /**

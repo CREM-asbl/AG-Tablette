@@ -53,6 +53,8 @@ ReverseState.prototype.reset = function(){
  * @param point: les coordonnées du click
  */
 ReverseState.prototype.click = function(point){
+    if(this.isReversing)
+        return;
     var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
     if(list.length==0)
         return;
@@ -147,6 +149,9 @@ ReverseState.prototype.reverseShapes = function () {
         for(var j=0;j<shape.buildSteps.length;j++) {
     		var transformation = this.computePointPosition(shape.buildSteps[j].x, shape.buildSteps[j].y, this.axe, 1);
     		shape.buildSteps[j].setCoordinates(transformation.x, transformation.y);
+            if(shape.buildSteps[j].type=="arc") {
+                shape.buildSteps[j].direction = !shape.buildSteps[j].direction;
+            }
     	}
     	shape.recomputePoints();
 

@@ -48,7 +48,7 @@
                 <template is="dom-repeat" items="[[_getFamilies()]]">
                     <canvas-button family="[[item]]" active="{{currentFamily}}"></canvas-button>
                 </template>
-                <shapes-list family="[[currentFamily]]" name="choose_shape_in_list" on-selected-shape='_actionHandle'></shapes-list>
+                <shapes-list style="position:absolute;z-index:100000" family="[[currentFamily]]" name="choose_shape_in_list" on-selected-shape='_actionHandle'></shapes-list>
 
                 <hr>
             </div>
@@ -88,7 +88,7 @@
         </div>
       </div>
 
-      <div-main-canvas id="div-main-canvas"></div-main-canvas>
+      <div-main-canvas style="position:absolute;top:0px;background-color: rgba(0,0,0,0);" id="div-main-canvas"></div-main-canvas>
     </div>
 
   </template>

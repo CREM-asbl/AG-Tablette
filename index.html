@@ -141,7 +141,8 @@
       //var canvasLeftShift = document.getElementsByTagName("ag-tablette-app")[0].shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
       //var canvasTopShift = 0;
       var canvas = canvasDiv.shadowRoot.getElementById("mainCanvas");
-      var app = new App(canvasDiv, canvas);
+      var backgroundCanvas = canvasDiv.shadowRoot.getElementById("backgroundCanvas");
+      var app = new App(canvasDiv, canvas, backgroundCanvas);
       app.start();
     </script>
   </body>

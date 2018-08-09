@@ -3,10 +3,17 @@
 <dom-module id="div-main-canvas">
     <template>
         <style>
-            canvas {
-                background-color: white;
+            canvas#mainCanvas {
+                background-color: rgba(0,0,0,0);
+                position: absolute;
+                top: 0px;
+            }
+            canvas#backgroundCanvas {
+                position: absolute;
+                top: 0px;
             }
         </style>
+        <canvas id="backgroundCanvas"></canvas>
         <canvas id="mainCanvas"></canvas>
     </template>
     <script>
@@ -24,6 +31,9 @@
                 var cvs = this.$.mainCanvas;
                 cvs.setAttribute("height", this.parentElement.clientHeight);
                 cvs.setAttribute("width", this.parentElement.clientWidth*0.7);
+                var backgroundCvs = this.$.backgroundCanvas;
+                backgroundCvs.setAttribute("height", this.parentElement.clientHeight);
+                backgroundCvs.setAttribute("width", this.parentElement.clientWidth*0.7);
             }
 
             /**
@@ -86,7 +96,7 @@
              * Appelée lorsque l'événement mousemove est déclanché sur le canvas
              */
             _handleMove(event) {
-                window.app.canvas.refresh(this.getMousePos(event, window.app));
+                window.app.canvas.refresh(this.getMousePos(event, window.app), {'event_type': 'mousemove'});
             }
 
         }

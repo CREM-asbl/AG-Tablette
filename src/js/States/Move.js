@@ -81,15 +81,9 @@ MoveState.prototype.mouseup = function(point){
             this.shapesList[i].setCoordinates({"x": newX, "y": newY});
         }
 
-        if(this.app.settings.get('isGridShown')) {
-            var t = this.app.workspace.getClosestGridPoint(this.shapesList);
-            var gridCoords = t.grid.getAbsoluteCoordinates(),
-                shapeCoords = t.shape.getAbsoluteCoordinates();
-            for(var i=0;i<this.shapesList.length;i++) {
-                this.shapesList[i].x += gridCoords.x - shapeCoords.x;
-                this.shapesList[i].y += gridCoords.y - shapeCoords.y;
-            }
-        } else if(this.app.settings.get('automaticAdjustment')) {
+        var movedWithAutomaticAdjustment = false;
+
+        if(this.app.settings.get('automaticAdjustment')) {
             var bestSegment = null; //segment du groupe de forme qui va être rapproché d'un segment d'une forme externe.
             var otherShapeSegment = null; //le segment de la forme externe correspondante.
             var segmentScore = 1000*1000*1000; //somme des carrés des distances entre les sommets des 2 segments ci-dessus.
@@ -97,6 +91,8 @@ MoveState.prototype.mouseup = function(point){
             var total_elligible_segments = 0;
             for(var i=0;i<this.shapesList.length;i++) { //Pour chacune des formes en cours de déplacement:
                 var shape = this.shapesList[i];
+                if(shape.points.length==0)
+                    continue;
                 var p1;
                 var p2 = this.app.workspace.pointsNearPoint(shape.points[0]);
                 shape.points.push(shape.points[0]);
@@ -173,6 +169,7 @@ MoveState.prototype.mouseup = function(point){
                     this.shapesList[i].recomputePoints();
                 }
 
+                movedWithAutomaticAdjustment = true;
             } else { //Aucun segment commun avec une autre forme n'a été trouvé. Peut être y a-t-il au moins un point commun ?
                 var bestPoint = null; //point du groupe de forme qui va être rapproché d'un point d'une forme externe.
                 var otherShapePoint = null; //le point de la forme externe correspondante.
@@ -210,10 +207,20 @@ MoveState.prototype.mouseup = function(point){
                         this.shapesList[i].x += otherShapePoint.x - bestPoint.x;
                         this.shapesList[i].y += otherShapePoint.y - bestPoint.y;
                     }
+                    movedWithAutomaticAdjustment = true;
                 }
             }
         }
 
+        if(this.app.settings.get('isGridShown') && !movedWithAutomaticAdjustment) {
+            var t = this.app.workspace.getClosestGridPoint(this.shapesList);
+            var gridCoords = t.grid.getAbsoluteCoordinates(),
+                shapeCoords = t.shape.getAbsoluteCoordinates();
+            for(var i=0;i<this.shapesList.length;i++) {
+                this.shapesList[i].x += gridCoords.x - shapeCoords.x;
+                this.shapesList[i].y += gridCoords.y - shapeCoords.y;
+            }
+        }
         this.reset();
         this.app.canvas.refresh();
     }

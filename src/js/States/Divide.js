@@ -5,8 +5,8 @@
  *
  * Utilisation:
  * -sélectionner 2 points d'une même forme ou de 2 formes différentes
- *      -> si les 2 formes sont différentes, elles deviennent liées (voir workspace;systemShapeGroups[])
- *      ->cela divise le segment en X parts (-> crée x-1 points)
+ *      -> si les 2 formes sont différentes, elles deviennent liées (voir workspace.systemShapeGroups[])
+ *      ->cela divise le segment en X parts (-> crée x-1 nouveaux points)
  * -sélectionner un segment d'une forme. Résultat idem.
  * -sélectionner une forme (si cette forme est un cercle). divise le contour du cercle en X.
  */
@@ -66,6 +66,7 @@ DivideState.prototype.click = function(coordinates) {
             shape.points.pop();
         }
 
+        //Ajouter les points à la forme
         var pointsArray = on_segment ? shape.segmentPoints : shape.otherPoints;
         var diff = {
             'x': (lastCoords.x+last.shape.x)-(firstCoords.x+this.firstPoint.shape.x),
@@ -83,11 +84,11 @@ DivideState.prototype.click = function(coordinates) {
             pointsArray.push(pt);
         }
 
+        //Lier les 2 formes ensembles
         if(last.shape != first.shape) {
             var g1 = this.app.workspace.getShapeGroup(first.shape, 'system');
             var g2 = this.app.workspace.getShapeGroup(last.shape, 'system');
             if(!g1 && !g2) {
-                last.shape.linkedShape = first.shape;
                 this.app.workspace.systemShapeGroups.push([first.shape, last.shape]);
             } else if (g1 && g2) {
                 //fusionner les 2 systemgroups...
@@ -156,12 +157,6 @@ DivideState.prototype.click = function(coordinates) {
                 for(var j=1;j<nb_parts;j++) {
                     var x = p1.x + j*(1.0/nb_parts)*(p2.x-p1.x),
                         y = p1.y + j*(1.0/nb_parts)*(p2.y-p1.y);
-                    var pt = {
-        				"x": x, "y": y, //x et y relatifs
-        				"absX": shape.x + x, "absY": shape.y + y, //x et y absolus
-        				"link": null, //pas utilisé ? pas sûr.
-        				"shape": shape
-        			};
                     var pt = new Point(x, y, "division", shape);
                     pt.sourcepoint1 = shape.points[i-1];
                     pt.sourcepoint2 = shape.points[i % shape.points.length]; //i peut valoir shape.points.length max, car il y a une buildStep en plus.
@@ -172,12 +167,48 @@ DivideState.prototype.click = function(coordinates) {
         }
 
         if(!segment_selected) {
-            //cercle ? ou forme avec arc de cercle? ou juste rien de sélectionné.
-            if(shape.buildSteps.length==2 && shape.buildSteps[1].type=="arc") {
-                //Cercle!
-                //ajouter des points autour du cercle.
-                console.log("TODO cercle");
+            //Arc de cercle ?
+            var arc_selected = false;
+            for(var i=1;i<shape.buildSteps.length;i++) {
+                if(shape.buildSteps[i].type!="arc")
+                    continue;
+                var x = coordinates.x - shape.getCoordinates().x,
+                    y = coordinates.y - shape.getCoordinates().y;
+                var center_dist = Math.sqrt(Math.pow(x-shape.buildSteps[i].x, 2) + Math.pow(y-shape.buildSteps[i].y, 2));
+                var rayon = Math.sqrt(Math.pow(shape.buildSteps[i-1].x-shape.buildSteps[i].x, 2) + Math.pow(shape.buildSteps[i-1].y-shape.buildSteps[i].y, 2));
+
+                var start_angle = Math.atan2(shape.buildSteps[i-1].y-shape.buildSteps[i].y, shape.buildSteps[i-1].x-shape.buildSteps[i].x);
+    			//var start_angle = -this.app.getAngleBetweenPoints(s, start_pos);
+    			var end_angle = this.app.getAngle(start_angle+shape.buildSteps[i].angle*Math.PI/180) + 2*Math.PI;
+                var direction = shape.buildSteps[i].direction
+    			if(direction) {
+    				end_angle = this.app.getAngle(start_angle-shape.buildSteps[i].angle*Math.PI/180) - 2*Math.PI;
+    			}
+
+                var angle = Math.atan2(y-shape.buildSteps[i].y, x-shape.buildSteps[i].x);
+                //TODO: pour des arc de cercles, vérifier si cela fonctionne aussi (si l'angle est bon).
+
+
+                if(Math.abs(rayon-center_dist) < this.app.settings.get('magnetismDistance') || shape.buildSteps.length==2 /*cercle*/) { //distance entre le centre du cercle et le point égale au rayon
+                    if((start_angle >= angle && angle >= end_angle) || (start_angle <= angle && angle <= end_angle)) {
+                        arc_selected = true;
+
+                        var angle_step = shape.buildSteps[i].angle*(Math.PI/180)/nb_parts;
+                        if(direction) angle_step *= -1;
+                        for(var j=0;j<nb_parts;j++) { //j=0 si cercle entier, =1 sinon? TODO
+                            var a = start_angle + j*angle_step,
+                                x = shape.buildSteps[i].x + rayon * Math.cos(a),
+                                y = shape.buildSteps[i].y + rayon * Math.sin(a);
+                            var pt = new Point(x, y, "division", shape);
+                            shape.segmentPoints.push(pt);
+                        }
+
+                        //console.log("arc ! " + start_angle+" "+end_angle+" "+angle);
+                    }
+                    //console.log("bad angle! " + start_angle+" "+end_angle+" "+angle);
+                }
             }
+
         }
 
 

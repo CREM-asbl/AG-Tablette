@@ -52,6 +52,24 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 
 	//les sommets de la forme
 	this.points = [];
+	this.__computePoints();
+
+	//liste de points qui se trouvent sur le contour de la forme
+	this.segmentPoints = [];
+
+	//Liste de points situés dans ou en dehors de la forme (par ex le centre)
+	this.otherPoints = [];
+
+	/**
+	 * numéro d'ordre d'affichage de la forme (=quelle forme est au dessus de quelle autre; plus le numéro est grand, plus la forme est en haut)
+	 * TODO.
+	 * Idée: si on doit juste pouvoir mettre une forme tout devant ou tout derrière, utiliser id (utiliser valeur négative, ou la future valeur de id (et incrémenter cette valeur de 1)
+	 */
+	this.showOrder = null;
+}
+
+Shape.prototype.__computePoints = function(){
+	this.points = [];
 	for (var i = 1; i < this.buildSteps.length; i++) {
 		var s = this.buildSteps[i];
 		if(s.getType()=="line") {
@@ -68,20 +86,7 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 			console.log("Shape.computePoints(): le point n'a pas pu être déterminé (2)");
 		}
 	}
-
-	//liste de points qui se trouvent sur le contour de la forme
-	this.segmentPoints = [];
-
-	//Liste de points situés dans ou en dehors de la forme (par ex le centre)
-	this.otherPoints = [];
-
-	/**
-	 * numéro d'ordre d'affichage de la forme (=quelle forme est au dessus de quelle autre; plus le numéro est grand, plus la forme est en haut)
-	 * TODO.
-	 * Idée: si on doit juste pouvoir mettre une forme tout devant ou tout derrière, utiliser id (utiliser valeur négative, ou la future valeur de id (et incrémenter cette valeur de 1)
-	 */
-	this.showOrder = null;
-}
+};
 
 /**
  * Définir l'identifiant unique de la forme
@@ -96,10 +101,13 @@ Shape.prototype.setId = function(id) {
  * Recalcule les coordonnées des points sur base de BuildSteps
  */
 Shape.prototype.recomputePoints = function(){
+	var pointIndex = 0;
 	for(var i=1;i<this.buildSteps.length;i++) {
-		var x = this.buildSteps[i].x;
-		var y = this.buildSteps[i].y;
-		this.points[i-1].setCoordinates(x, y);
+		if(this.buildSteps.type=="line") {
+			var x = this.buildSteps[i].x;
+			var y = this.buildSteps[i].y;
+			this.points[pointIndex++].setCoordinates(x, y);
+		}
 	}
 };
 
@@ -140,7 +148,7 @@ Shape.prototype.getApproximatedPointsList = function() {
 	this._buildStepsUpdateIdList = newUpdateIdList;
 
 	//Si pas modifiée, renvoyer le tableau déjà calculé
-	if(!edited) {
+	if(!edited && false) {
 		var pointsList = [];
 		for(var i=0;i<this._approximatedPointsList.length;i++) {
 			pointsList.push(this._approximatedPointsList[i]);
@@ -152,36 +160,16 @@ Shape.prototype.getApproximatedPointsList = function() {
 	var pointsList = [ {"x": this.buildSteps[0].x, "y": this.buildSteps[0].y} ];
 	for (var i = 1; i < this.buildSteps.length; i++) {
 		if(this.buildSteps[i].getType()=="line") {
-			pointsList.push({"x": this.buildSteps[i].x, "y": this.buildSteps[i].y});
+			pointsList.push(new Point(this.buildSteps[i].x, this.buildSteps[i].y, null, this));
 		} else if(this.buildSteps[i].getType()=="arc") {
-			var x = this.buildSteps[i].x,
-				y = this.buildSteps[i].y,
-				start_pos = {"x": this.buildSteps[i-1].x, "y": this.buildSteps[i-1].y},
+			var p1 = this.buildSteps[i-1],
+				center = this.buildSteps[i],
 				angle = this.buildSteps[i].angle,
 				direction = this.buildSteps[i].direction;
-
-			var rayon = Math.sqrt(Math.pow(x - start_pos.x, 2) + Math.pow(y - start_pos.y, 2));
-			var start_angle = window.app.getAngleBetweenPoints(start_pos, {"x": x, "y": y});
-			var end_angle = start_angle+angle*Math.PI/180;
-			var step_angle = 10 *Math.PI/180;
-
-			if(direction) {
-				var tmp = start_angle + Math.PI*2;
-				start_angle = end_angle;
-				end_angle = tmp;
+			var points = window.app.getApproximatedArc(center, p1, angle, direction, 10);
+			for(var j=0;j<points.length;j++) {
+				pointsList.push(new Point(points[j].x, points[j].y, null, this));
 			}
-
-			var cur_angle = start_angle;
-			while(cur_angle+step_angle < end_angle) {
-				cur_angle += step_angle;
-
-				var posX = rayon * Math.sin(cur_angle) + x,
-					posY = rayon * Math.cos(cur_angle) + y;
-
-				pointsList.push(new Point(posX, posY, null, this));
-
-			}
-
 		} else if(this.buildSteps[i].getType()=="quadraticCurve") {
 			console.log("Shape.getApproximatedPointsList: quadraticCurve, no approximation made");
 			pointsList.push(new Point(this.buildSteps[i].x, this.buildSteps[i].y, null, this));
