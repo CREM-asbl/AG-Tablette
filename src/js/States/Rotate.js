@@ -123,31 +123,36 @@ RotateState.prototype.computePointPosition = function(x, y, angle) {
  * Appelée lorsque l'événement mouseup est déclanché sur le canvas
  */
 RotateState.prototype.mouseup = function(point){
-    if(this.isRotating) {
-        var AngleDiff = this.app.getAngleBetweenPoints(this.center, point) - this.startAngle;
-        for(var i=0;i<this.shapesList.length;i++) {
-            var shape = this.shapesList[i];
-            var newPos = this.computeNewShapePos(shape, AngleDiff);
-            this.shapesList[i].setCoordinates(newPos);
+    if(!this.isRotating)
+        return;
 
-        	for(var j=0;j<shape.buildSteps.length;j++) {
-        		var transformation = this.computePointPosition(shape.buildSteps[j].x, shape.buildSteps[j].y, AngleDiff);
-        		shape.buildSteps[j].setCoordinates(transformation.x, transformation.y);
-        	}
-        	shape.recomputePoints();
-        	for(var j=0;j<shape.segmentPoints.length;j++) {
-        		var pos = shape.segmentPoints[j].getRelativeCoordinates();
-        		var transformation = this.computePointPosition(pos.x, pos.y, AngleDiff);
-        		shape.segmentPoints[j].setCoordinates(transformation.x, transformation.y);
-        	}
-        	for(var j=0;j<shape.otherPoints.length;j++) {
-        		var pos = shape.otherPoints[j].getRelativeCoordinates();
-        		var transformation = this.computePointPosition(pos.x, pos.y, AngleDiff);
-        		shape.otherPoints[j].setCoordinates(transformation.x, transformation.y);
-        	}
-        }
-        this.reset();
+    var shapesSave = [];
+    var AngleDiff = this.app.getAngleBetweenPoints(this.center, point) - this.startAngle;
+    for(var i=0;i<this.shapesList.length;i++) {
+        shapesSave.push(this.shapesList[i].getSaveData());
+        var shape = this.shapesList[i];
+        var newPos = this.computeNewShapePos(shape, AngleDiff);
+        this.shapesList[i].setCoordinates(newPos);
+
+    	for(var j=0;j<shape.buildSteps.length;j++) {
+    		var transformation = this.computePointPosition(shape.buildSteps[j].x, shape.buildSteps[j].y, AngleDiff);
+    		shape.buildSteps[j].setCoordinates(transformation.x, transformation.y);
+    	}
+    	shape.recomputePoints();
+    	for(var j=0;j<shape.segmentPoints.length;j++) {
+    		var pos = shape.segmentPoints[j].getRelativeCoordinates();
+    		var transformation = this.computePointPosition(pos.x, pos.y, AngleDiff);
+    		shape.segmentPoints[j].setCoordinates(transformation.x, transformation.y);
+    	}
+    	for(var j=0;j<shape.otherPoints.length;j++) {
+    		var pos = shape.otherPoints[j].getRelativeCoordinates();
+    		var transformation = this.computePointPosition(pos.x, pos.y, AngleDiff);
+    		shape.otherPoints[j].setCoordinates(transformation.x, transformation.y);
+    	}
     }
+    this.reset();
+
+    this.makeHistory(shapesSave);
     this.app.canvas.refresh(point);
 };
 
@@ -163,6 +168,51 @@ RotateState.prototype.draw = function(canvas, mouseCoordinates){
         var pos = this.computeNewShapePos(this.shapesList[i], AngleDiff);
         canvas.drawRotatingShape(this.shapesList[i], pos, AngleDiff);
     }
+};
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+RotateState.prototype.makeHistory = function(shapesSave){
+    var data = {
+        'shapesSave': shapesSave
+    };
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+RotateState.prototype.cancelAction = function(data, callback){
+    var ws = this.app.workspace;
+    for(var i=0;i<data.shapesSave.length;i++) {
+        var shape = ws.getShapeById(data.shapesSave[i].id);
+        if(!shape) {
+            console.log("RotateState.cancelAction: shape not found... "+i);
+            continue;
+        }
+
+        shape.setCoordinates({'x': data.shapesSave[i].x,'y': data.shapesSave[i].y});
+
+        for(var j=0;j<data.shapesSave[i].buildSteps.length;j++) {
+            var coords = data.shapesSave[i].buildSteps[j]
+            shape.buildSteps[j].setCoordinates(coords.x, coords.y);
+        }
+        shape.recomputePoints();
+
+        for(var j=0;j<data.shapesSave[i].segmentPoints.length;j++) {
+            var coords = data.shapesSave[i].segmentPoints[j]
+            shape.segmentPoints[j].setCoordinates(coords.x, coords.y);
+        }
+        for(var j=0;j<data.shapesSave[i].otherPoints.length;j++) {
+            var coords = data.shapesSave[i].otherPoints[j]
+            shape.otherPoints[j].setCoordinates(coords.x, coords.y);
+        }
+    }
+
+    callback();
 };
 
 /**

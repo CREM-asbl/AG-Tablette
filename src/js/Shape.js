@@ -103,12 +103,33 @@ Shape.prototype.setId = function(id) {
 Shape.prototype.recomputePoints = function(){
 	var pointIndex = 0;
 	for(var i=1;i<this.buildSteps.length;i++) {
-		if(this.buildSteps.type=="line") {
+		if(this.buildSteps[i].type=="line") {
 			var x = this.buildSteps[i].x;
 			var y = this.buildSteps[i].y;
 			this.points[pointIndex++].setCoordinates(x, y);
 		}
 	}
+};
+
+/**
+ * Renvoie un point à partir de son identifiant unique
+ * @param  {String} uniqId l'identifiant
+ * @return {Point}        l'objet de type Point
+ */
+Shape.prototype.getPointByUniqId = function(uniqId){
+	for(var i=0;i<this.points.length;i++) {
+		if(this.points[i].uniqId==uniqId)
+			return this.points[i];
+	}
+	for(var i=0;i<segmentPoints.length;i++) {
+		if(this.segmentPoints[i].uniqId==uniqId)
+			return this.segmentPoints[i];
+	}
+	for(var i=0;i<otherPoints.length;i++) {
+		if(this.otherPoints[i].uniqId==uniqId)
+			return this.otherPoints[i];
+	}
+	return null;
 };
 
 /**
@@ -118,7 +139,7 @@ Shape.prototype.recomputePoints = function(){
  * @param  {float} y    coordonnée y
  */
 Shape.prototype.addPoint = function (type, x, y) {
-	if(['segment', 'other'].indexOf(type)==1) {
+	if(['segment', 'other'].indexOf(type)==-1) {
 		console.log("Shape.addPoint: unknown type");
 		return;
 	}
@@ -295,4 +316,80 @@ Shape.prototype.getCopy = function() {
 	}
 
 	return shape;
+};
+
+/**
+ * Méthode statique. Crée un objet Shape à partir d'une sauvegarde (getSaveData).
+ * @param  {Object} saveData les données de sauvegarde
+ * @return {Shape}          le nouvel objet
+ */
+Shape.createFromSaveData = function(saveData) {
+	var buildSteps = [];
+	for(var i=0;i<saveData.buildSteps.length;i++)
+        buildSteps.push(ShapeStep.createFromSaveData(saveData.buildSteps[i]));
+
+	var shape = new Shape(
+		saveData.familyName,
+		saveData.name,
+		saveData.x, saveData.y,
+		buildSteps,
+		saveData.color,
+		saveData.borderColor,
+        {"x": saveData.refPoint.x, "y": saveData.refPoint.y},
+        saveData.isPointed,
+		saveData.isSided,
+		saveData.opacity);
+	shape.isReversed = saveData.isReversed;
+	shape.isPointed = saveData.isPointed;
+	shape.id = saveData.id;
+
+	shape.points = [];
+	for(var i=0;i<saveData.points.length;i++)
+        shape.points.push(Point.createFromSaveData(saveData.points[i]));
+	for(var i=0;i<saveData.segmentPoints.length;i++)
+        shape.segmentPoints.push(Point.createFromSaveData(saveData.segmentPoints[i]));
+	for(var i=0;i<saveData.otherPoints.length;i++)
+        shape.otherPoints.push(Point.createFromSaveData(saveData.otherPoints[i]));
+
+	return shape;
+}
+
+/**
+ * Renvoie toutes les informations nécessaires pour recréer cette forme. L'information nécessaire doit pouvoir être encodée en JSON.
+ * @return {Object} les données sur la forme.
+ */
+Shape.prototype.getSaveData = function(){
+	var buildStepsData = [];
+	for(var i=0;i<this.buildSteps.length;i++)
+        buildStepsData.push(this.buildSteps[i].getSaveData());
+	var pointsData = [];
+	for(var i=0;i<this.points.length;i++)
+        pointsData.push(this.points[i].getSaveData());
+	var segmentPointsData = [];
+	for(var i=0;i<this.segmentPoints.length;i++)
+        segmentPointsData.push(this.segmentPoints[i].getSaveData());
+	var otherPointsData = [];
+	for(var i=0;i<this.otherPoints.length;i++)
+        otherPointsData.push(this.otherPoints[i].getSaveData());
+
+	var saveData = {
+		'name': this.name,
+		'familyName': this.familyName,
+		'x': this.x, 'y': this.y,
+		'id': this.id,
+		'buildSteps': buildStepsData,
+		'points': pointsData,
+		'segmentPoints': segmentPointsData,
+		'otherPoints': otherPointsData,
+		'color': this.color,
+		'borderColor': this.borderColor,
+		'refPoint': {"x": this.refPoint.x, "y": this.refPoint.y},
+		'isPointed': this.isPointed,
+		'isSided': this.isSided,
+		'opacity': this.opacity,
+		'isReversed': this.isReversed,
+		'isPointed': this.isPointed
+	};
+
+	return saveData;
 };

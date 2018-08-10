@@ -14,7 +14,7 @@ function Workspace(app) {
 	this.appVersion = this.app.getVersion();
 
 	//Représente l'historique
-	this.history = null; //TODO
+	this.history = new AppHistory(this.app);
 
 	//Le menu sélectionné (A, B, C, AB, AC)
 	this.menuId = "A"; //à modifier lorsque d'autres menus seront développés
@@ -288,6 +288,20 @@ Workspace.prototype.getShapeIndex = function(shape){
 		if(this.shapesList[i]==shape) {
 			return i;
 		}
+	}
+	return null;
+};
+
+/**
+ * Renvoie la forme ayant un certain id
+ * @param  {int} shapeId l'id de la forme
+ * @return {Shape}         l'objet forme
+ */
+Workspace.prototype.getShapeById = function (shapeId) {
+	for(var i=0;i<this.shapesList.length;i++) {
+		var s = this.shapesList[i];
+		if(s.id==shapeId)
+			return s;
 	}
 	return null;
 };

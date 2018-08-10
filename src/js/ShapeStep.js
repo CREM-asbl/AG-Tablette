@@ -24,6 +24,45 @@ function ShapeStep() {
 }
 
 /**
+ * Méthode statique. Crée un objet ShapeStep à partir d'une sauvegarde (getSaveData).
+ * @param  {Object} saveData les données de sauvegarde
+ * @return {ShapeStep}          le nouvel objet
+ */
+ShapeStep.createFromSaveData = function(saveData) {
+	var shapeStep = null;
+	if(saveData.type=="line") {
+		shapeStep = this.getLine(saveData.x, saveData.y);
+	} else if(saveData.type=="arc") {
+		shapeStep = this.getArc(saveData.x, saveData.y, saveData.angle, saveData.direction);
+	} else if(saveData.type=="quadraticCurve") {
+		shapeStep = this.getQuadraticBezierCurve(saveData.x, saveData.y, saveData.cp1X, saveData.cp1Y);
+	} else { //cubicCurve
+		shapeStep = this.getCubicBezierCurve(saveData.x, saveData.y, saveData.cp1X, saveData.cp1Y, saveData.cp2X, saveData.cp2Y);
+	}
+	shapeStep.updateId = saveData.updateId;
+	return shapeStep;
+}
+
+/**
+ * Renvoie toutes les informations nécessaires pour recréer cette ShapeStep. L'information nécessaire doit pouvoir être encodée en JSON.
+ * @return {Object} les données sur la shapeStep.
+ */
+ShapeStep.prototype.getSaveData = function(){
+	return {
+		'type': this.type,
+		'x': this.x,
+		'y': this.y,
+		'angle': this.angle,
+		'direction': this.direction,
+		'updateId': this.updateId,
+		'cp1X': this.cp1X,
+		'cp1Y': this.cp1Y,
+		'cp2X': this.cp2X,
+		'cp2Y': this.cp2Y
+	};
+};
+
+/**
  * Méthode statique: récupérer une nouvelle instance de ShapeStep sur laquelle setLine a été appelé
  */
 ShapeStep.getLine = function(x, y) {

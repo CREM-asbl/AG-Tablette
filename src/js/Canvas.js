@@ -288,7 +288,8 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 	shape.x = newShapeCenter.x;
 	shape.y = newShapeCenter.y;
 
-	var tmpBuildSteps = shape.buildSteps;
+	var tmpBuildSteps = shape.buildSteps,
+		pointsSave = shape.points;
 	shape.buildSteps = [];
 	for(var i=0;i<tmpBuildSteps.length;i++) {
 		var b = tmpBuildSteps[i];
@@ -340,7 +341,7 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 	shape.y = saveShapeCenter.y;
 
 	shape.buildSteps = tmpBuildSteps;
-	shape.__computePoints();
+	shape.points = pointsSave;
 
 	for(var i=0;i<tmpSegmentPoints.length;i++) {
 		shape.segmentPoints[i].setCoordinates(tmpSegmentPoints[i][0], tmpSegmentPoints[i][1]);

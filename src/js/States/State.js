@@ -49,3 +49,21 @@ State.prototype.mousedown = function(){
 State.prototype.mouseup = function(){
     console.log("mouseup() not implemented");
 };
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+State.prototype.makeHistory = function(){
+    console.log("makeHistory() not implemented");
+    //this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+State.prototype.cancelAction = function(data, callback){
+    console.log("cancelAction() not implemented");
+    //callback();
+};

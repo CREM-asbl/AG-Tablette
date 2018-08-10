@@ -64,6 +64,7 @@ DuplicateState.prototype.mouseup = function(point){
 			var newY = point.y - yDiff;
 
             this.newShape.setCoordinates({"x": newX, "y": newY});
+            this.makeHistory(this.newShape);
         }
         this.reset();
     }
@@ -84,6 +85,33 @@ DuplicateState.prototype.draw = function(canvas, mouseCoordinates){
     var newY = mouseCoordinates.y - yDiff;
 
     canvas.drawMovingShape(this.newShape, {"x": newX, "y": newY});
+};
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+DuplicateState.prototype.makeHistory = function(shape){
+    var data = {
+        'shape_id': shape.id
+    };
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+DuplicateState.prototype.cancelAction = function(data, callback){
+    var ws = this.app.workspace;
+    var shape = ws.getShapeById(data.shape_id)
+    if(!shape) {
+        console.log("DuplicateState.cancelAction: shape not found...");
+        callback();
+        return;
+    }
+    ws.removeShape(shape);
+    callback();
 };
 
 /**

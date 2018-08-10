@@ -25,7 +25,44 @@ BuildCenterState.prototype.click = function(coordinates) {
         }
     }
     shape.otherPoints.push(new Point(0, 0, 'center', shape));
+    this.makeHistory(shape);
 	this.app.canvas.refresh(coordinates);
+};
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+BuildCenterState.prototype.makeHistory = function(shape){
+    var data = {
+        'shape_id': shape.id
+    };
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+BuildCenterState.prototype.cancelAction = function(data, callback){
+    var ws = this.app.workspace;
+    var shape = ws.getShapeById(data.shape_id)
+    if(!shape) {
+        console.log("BuildCenterState.cancelAction: shape not found...");
+        callback();
+        return;
+    }
+    for(var i=0;i<shape.otherPoints.length;i++) {
+        var pos = shape.otherPoints[i].getRelativeCoordinates();
+        if(pos.x==0 && pos.y==0) {
+            shape.otherPoints.splice(i, 1);
+            callback();
+            return;
+        }
+    }
+
+    console.log("BuildCenterState.cancelAction: point not found...");
+    callback();
 };
 
 /**

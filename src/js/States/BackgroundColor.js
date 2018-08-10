@@ -37,10 +37,13 @@ BackgroundColorState.prototype.click = function(coordinates) {
         return;
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(list.length>0) {
-        var shape = list.pop();
+        var shape = list.pop(),
+            oldColor = shape.color;
         shape.color = this.selectedColor;
+        this.app.canvas.refresh(coordinates);
+        this.makeHistory(shape, oldColor);
     }
-	this.app.canvas.refresh(coordinates);
+
 };
 
 /**
@@ -49,6 +52,34 @@ BackgroundColorState.prototype.click = function(coordinates) {
  */
 BackgroundColorState.prototype.setColor = function(color) {
     this.selectedColor = color;
+};
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+BackgroundColorState.prototype.makeHistory = function(shape, oldColor){
+    var data = {
+        'shape_id': shape.id,
+        'old_color': oldColor
+    };
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+BackgroundColorState.prototype.cancelAction = function(data, callback){
+    var ws = this.app.workspace;
+    var shape = ws.getShapeById(data.shape_id)
+    if(!shape) {
+        console.log("BackgroundColorState.cancelAction: shape not found...");
+        callback();
+        return;
+    }
+    shape.color = data.old_color;
+    callback();
 };
 
 /**

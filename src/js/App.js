@@ -128,6 +128,11 @@ App.prototype.start = function(){
  * OUTILS
  */
 
+
+App.prototype.uniqId = function() {
+ 	return (new Date().getTime() + Math.floor(Math.random() * 100000 + 42)).toString(16);
+};
+
 /**
  * Renvoie l'angle correspondant dans l'intervalle ]-PI, PI]
  * @param  {float} angle l'angle (en radians)

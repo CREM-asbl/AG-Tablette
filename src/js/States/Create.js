@@ -36,8 +36,9 @@ CreateState.prototype.start = function(params){
     params.shape.refPoint.x *= size;
     params.shape.refPoint.y *= size;
 
-    this.setFamily(params.family);
-    this.setShape(params.shape);
+    this.selectedFamily = params.family;
+    this.selectedShape = params.shape;
+    params.shape.recomputePoints();
 };
 
 /**
@@ -88,39 +89,11 @@ CreateState.prototype.click = function(coordinates) {
     if(pointsNear.length>0) {
         var last = pointsNear[pointsNear.length-1];
         shape.linkedShape = last.shape;
-        //lier le point correspondant dans la nouvelle forme à ce point
-        var linked = false;
-        for(var i=0;i<shape.points.length;i++) {
-            var pos = shape.points[i].getRelativeCoordinates();
-            if(pos.x-this.selectedShape.refPoint.x==0 && pos.y-this.selectedShape.refPoint.y==0) {
-                linked = true;
-                shape.points[i].link = last;
-            }
-        }
-        if(linked==false && shape.points.length>0) { //si=0, c'est que c'est un cercle.
-            console.log("CreateState.click() error: point of the new shape to link with the other shape has not been found");
-        }
     }
 
     this.app.workspace.addShape(shape);
 	this.app.canvas.refresh(coordinates);
-};
-
-/**
- * Défini la famille sélectionnée
- * @param family: objet de type Family
- */
-CreateState.prototype.setFamily = function(family) {
-    this.selectedFamily = family;
-};
-
-/**
- * Défini la forme sélectionnée
- * @param shape: objet de type Shape
- */
-CreateState.prototype.setShape = function(shape) {
-    this.selectedShape = shape;
-    shape.recomputePoints();
+    this.makeHistory(shape);
 };
 
 /**
@@ -143,6 +116,33 @@ CreateState.prototype.draw = function(canvas, mouseCoordinates){
         canvas.drawPoint(pos, "#F00");
         canvas.drawCircle(pos, "#000", 6);
     }
+};
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+CreateState.prototype.makeHistory = function(shape){
+    var data = {
+        'shape_id': shape.id
+    };
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+CreateState.prototype.cancelAction = function(data, callback){
+    var ws = this.app.workspace;
+    var shape = ws.getShapeById(data.shape_id)
+    if(!shape) {
+        console.log("CreateState.cancelAction: shape not found...");
+        callback();
+        return;
+    }
+    ws.removeShape(shape);
+    callback();
 };
 
 /**

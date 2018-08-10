@@ -95,6 +95,8 @@ DivideState.prototype.click = function(coordinates) {
                 var index1 = this.app.workspace.getGroupIndex(g1, 'system');
                 var index2 = this.app.workspace.getGroupIndex(g2, 'system');
                 if(index1==index2) { //elles sont déjà dans le même groupe.
+                    this.reset();
+                    this.app.canvas.refresh(coordinates);
                     return;
                 } else if(index1>index2) {
                     var t = g1;

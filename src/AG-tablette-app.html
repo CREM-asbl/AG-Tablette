@@ -35,7 +35,7 @@
             <div  style="display:table-cell;">
                 <div id="app-canvas-mode-text"><span style="color: gray;">Mode:</span> {{currentMode}}</div>
                 <div>
-                    <button class="action-button" name="annuler" on-click='_actionHandle' disabled>Annuler</button>
+                    <button class="action-button" name="annuler" on-click='_actionHandle'>Annuler</button>
                 </div>
 
                 <div>
@@ -127,11 +127,13 @@
                 'divide_segment': 'Diviser'
             };
 
-            if(states.hasOwnProperty(event.target.name)) {
+            if(states.hasOwnProperty(event.target.name) && !window.app.workspace.history.isRunning) {
                 window.app.setState(event.target.name);
                 this.currentMode = states[event.target.name];
             } else if(event.target.name=="settings") {
                 document.getElementById('settings-popup-gray').style.display='block';
+            } else if(event.target.name=="annuler") {
+                window.app.workspace.history.cancelLastStep();
             } else if(event.type=="selected-shape") {
                 this.currentMode = 'Ajouter forme';
             } else {
