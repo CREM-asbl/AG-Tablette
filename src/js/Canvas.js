@@ -115,12 +115,12 @@ Canvas.prototype.drawGrid = function() {
 		}
 	} else if(gridType=="triangle") {
 		for(var x = 10; x<= max.x; x += 50*gridSize) {
-			for(var y = 10; y<= max.y; y += 85*gridSize) {
+			for(var y = 10; y<= max.y; y += 43.3012701892*2*gridSize) {
 				this.drawPoint({"x": x, "y": y}, "#F00", ctx);
 			}
 		}
 		for(var x = 10 + 50*gridSize/2; x<= max.x; x += 50*gridSize) {
-			for(var y =10 +  42.5*gridSize; y<= max.y; y += 85*gridSize) {
+			for(var y =10 +  43.3012701892*gridSize; y<= max.y; y += 43.3012701892*2*gridSize) {
 				this.drawPoint({"x": x, "y": y}, "#F00", ctx);
 			}
 		}

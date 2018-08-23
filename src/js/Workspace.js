@@ -88,21 +88,21 @@ Workspace.prototype.getClosestGridPoint = function (shapesList) {
 		} else if(gridType=='triangle') {
 			var topleft1 = {
 				'x': x - ( (x - 10) % (50*gridSize) ),
-				'y': y - ( (y - 10) % (85*gridSize) )
+				'y': y - ( (y - 10) % (43.3012701892*2*gridSize) )
 			};
 			var topleft2 = {
 				'x': x - ( (x - (10+25*gridSize)) % (50*gridSize) ),
-				'y': y - ( (y - (10+ 42.5*gridSize)) % (85*gridSize) )
+				'y': y - ( (y - (10+ 43.3012701892*gridSize)) % (43.3012701892*2*gridSize) )
 			};
 			possibilities.push(topleft1);
-			possibilities.push({'x': topleft1.x, 'y': topleft1.y+85*gridSize});
+			possibilities.push({'x': topleft1.x, 'y': topleft1.y+43.3012701892*2*gridSize});
 			possibilities.push({'x': topleft1.x+50*gridSize, 'y': topleft1.y});
-			possibilities.push({'x': topleft1.x+50*gridSize, 'y': topleft1.y+85*gridSize});
+			possibilities.push({'x': topleft1.x+50*gridSize, 'y': topleft1.y+43.3012701892*2*gridSize});
 
 			possibilities.push(topleft2);
-			possibilities.push({'x': topleft2.x, 'y': topleft2.y+85*gridSize});
+			possibilities.push({'x': topleft2.x, 'y': topleft2.y+43.3012701892*2*gridSize});
 			possibilities.push({'x': topleft2.x+50*gridSize, 'y': topleft2.y});
-			possibilities.push({'x': topleft2.x+50*gridSize, 'y': topleft2.y+85*gridSize});
+			possibilities.push({'x': topleft2.x+50*gridSize, 'y': topleft2.y+43.3012701892*2*gridSize});
 		} else {
 			console.log("Workspace.getClosestGridPoint: unknown type: "+gridType);
 			return null;
@@ -438,123 +438,238 @@ Workspace.prototype.addMenuAFamilies = function(){
 	var f1 = new Family(this.app, "Triangle équilatéral", "#FF0");
 
 	f1.addShape("Triangle équilatéral",[
-		ShapeStep.getLine(25-25, -42.5+14.1666666666666667),
-		ShapeStep.getLine(50-25, 0+14.1666666666666667),
-		ShapeStep.getLine(0-25, 0+14.1666666666666667),
-		ShapeStep.getLine(25-25, -42.5+14.1666666666666667)
-	], {"x": -25, "y": 14.1666666666666667});
+		ShapeStep.getLine(25	-25, -43.3012701892	+14.433756729733),
+		ShapeStep.getLine(50	-25, 0				+14.433756729733),
+		ShapeStep.getLine(0		-25, 0				+14.433756729733),
+		ShapeStep.getLine(25	-25, -43.3012701892	+14.433756729733)
+	], {"x": -25, "y": +14.433756729733});
 
 	f1.addShape("Losange",[
-		ShapeStep.getLine(-25-12.5, -42.5+21.25),
-		ShapeStep.getLine(25-12.5, -42.5+21.25),
-		ShapeStep.getLine(50-12.5, 0+21.25),
-		ShapeStep.getLine(0-12.5, 0+21.25),
-		ShapeStep.getLine(-25-12.5, -42.5+21.25)
-	], {"x": -12.5, "y": 21.25});
+		ShapeStep.getLine(-25	-12.5, -43.3012701892	+21.650635094600),
+		ShapeStep.getLine(25	-12.5, -43.3012701892	+21.650635094600),
+		ShapeStep.getLine(50	-12.5, 0				+21.650635094600),
+		ShapeStep.getLine(0		-12.5, 0				+21.650635094600),
+		ShapeStep.getLine(-25	-12.5, -43.3012701892	+21.650635094600)
+	], {"x": -12.5, "y": +21.650635094600});
 
 	f1.addShape("Trapèze isocèle",[
-		ShapeStep.getLine(25-50, -42.5+21.25),
-		ShapeStep.getLine(75-50, -42.5+21.25),
-		ShapeStep.getLine(100-50, 0+21.25),
-		ShapeStep.getLine(0-50, 0+21.25),
-		ShapeStep.getLine(25-50, -42.5+21.25)
-	], {"x": -50, "y": 21.25});
+		ShapeStep.getLine(25	-50, -43.3012701892	+21.650635094600),
+		ShapeStep.getLine(75	-50, -43.3012701892	+21.650635094600),
+		ShapeStep.getLine(100	-50, 0				+21.650635094600),
+		ShapeStep.getLine(0		-50, 0				+21.650635094600),
+		ShapeStep.getLine(25	-50, -43.3012701892	+21.650635094600)
+	], {"x": -50, "y": +21.650635094600});
 
 	f1.addShape("Hexagone régulier",[
-		ShapeStep.getLine(0-25, -85+42.5),
-		ShapeStep.getLine(50-25, -85+42.5),
-		ShapeStep.getLine(75-25, -42.5+42.5),
-		ShapeStep.getLine(50-25, 0+42.5),
-		ShapeStep.getLine(0-25, 0+42.5),
-		ShapeStep.getLine(-25-25, -42.5+42.5),
-		ShapeStep.getLine(0-25, -85+42.5)
-	], {"x": -25, "y": 42.5});
+		ShapeStep.getLine(0		-25, -86.6025403784	+43.3012701892),
+		ShapeStep.getLine(50	-25, -86.6025403784	+43.3012701892),
+		ShapeStep.getLine(75	-25, -43.3012701892	+43.3012701892),
+		ShapeStep.getLine(50	-25, 0				+43.3012701892),
+		ShapeStep.getLine(0		-25, 0				+43.3012701892),
+		ShapeStep.getLine(-25	-25, -43.3012701892	+43.3012701892),
+		ShapeStep.getLine(0		-25, -86.6025403784	+43.3012701892)
+	], {"x": -25, "y": +43.3012701892});
 
 	f1.addShape("Triangle isocèle",[
-		ShapeStep.getLine(25-25, -21.67+7.22333333333333),
-		ShapeStep.getLine(50-25, 0+7.22333333333333),
-		ShapeStep.getLine(0-25, 0+7.22333333333333),
-		ShapeStep.getLine(25-25, -21.67+7.22333333333333)
-	], {"x": -25, "y": 7.22333333333333});
+		ShapeStep.getLine(25	-25, -14.433756729747	+4.811252243249),
+		ShapeStep.getLine(50	-25, 0					+4.811252243249),
+		ShapeStep.getLine(0		-25, 0					+4.811252243249),
+		ShapeStep.getLine(25	-25, -14.433756729747	+4.811252243249)
+	], {"x": -25, "y": +4.811252243249});
 
 	f1.addShape("Triangle rectangle",[
-		ShapeStep.getLine(0-8.3333333333333, -42.5 +14.166666666667),
-		ShapeStep.getLine(25-8.3333333333333, 0 +14.166666666667),
-		ShapeStep.getLine(0-8.3333333333333, 0 +14.166666666667),
-		ShapeStep.getLine(0-8.3333333333333, -42.5+14.166666666667)
-	], {"x": -8.3333333333333, "y": 14.166666666667});
+		ShapeStep.getLine(0		-8.3333333333333, -43.3012701892	+14.433756729733),
+		ShapeStep.getLine(25	-8.3333333333333, 0					+14.433756729733),
+		ShapeStep.getLine(0		-8.3333333333333, 0					+14.433756729733),
+		ShapeStep.getLine(0		-8.3333333333333, -43.3012701892	+14.433756729733)
+	], {"x": -8.3333333333333, "y": +14.433756729733});
 
 	f1.addShape("Trapèze rectangle",[
-		ShapeStep.getLine(25-19.121449612403, -42.5+19.987071317829),
-		ShapeStep.getLine(50-19.121449612403, 0+19.987071317829),
-		ShapeStep.getLine(0-19.121449612403, 0+19.987071317829),
-		ShapeStep.getLine(0-19.121449612403, -42.5+19.987071317829),
-		ShapeStep.getLine(25-19.121449612403, -42.5+19.987071317829)
-	], {"x": -19.121449612403, "y": 19.987071317829}); //chouette à calculer...
+		ShapeStep.getLine(25	-18.75, -43.3012701892	+21.650635094600),
+		ShapeStep.getLine(50	-18.75, 0				+21.650635094600),
+		ShapeStep.getLine(0		-18.75, 0				+21.650635094600),
+		ShapeStep.getLine(0		-18.75, -43.3012701892	+21.650635094600),
+		ShapeStep.getLine(25	-18.75, -43.3012701892	+21.650635094600)
+	], {"x": -18.75, "y": +21.650635094600});
 
 	f1.addShape("Dodécagone régulier",[
-		ShapeStep.getLine(0-25, 0+93.3012701892),
-		ShapeStep.getLine(50-25, 0+93.3012701892),
-		ShapeStep.getLine(93.30127018922194-25, -25+93.3012701892),
-		ShapeStep.getLine(118.30127018922195-25, -68.301270189221928+93.3012701892),
-		ShapeStep.getLine(118.30127018922195-25, -118.30127018922192+93.3012701892),
-		ShapeStep.getLine(93.30127018922197-25, -161.60254037844386+93.3012701892),
-		ShapeStep.getLine(50.00000000000004-25, -186.60254037844388+93.3012701892),
-		ShapeStep.getLine(4.263256414560601e-14-25, -186.60254037844388+93.3012701892),
-		ShapeStep.getLine(-43.301270189221896-25, -161.60254037844389+93.3012701892),
-		ShapeStep.getLine(-68.30127018922192-25, -118.30127018922197+93.3012701892),
-		ShapeStep.getLine(-68.30127018922194-25, -68.301270189221967+93.3012701892),
-		ShapeStep.getLine(-43.30127018922197-25, -25+93.3012701892),
-		ShapeStep.getLine(0-25, 0+93.3012701892)
-	], {"x": -25, "y": 93.3012701892});
+		ShapeStep.getLine(0					-25, 0					+93.301270189200),
+		ShapeStep.getLine(50				-25, 0					+93.301270189200),
+		ShapeStep.getLine(93.301270189200	-25, -25				+93.301270189200),
+		ShapeStep.getLine(118.301270189200	-25, -68.301270189200	+93.301270189200),
+		ShapeStep.getLine(118.301270189200	-25, -118.301270189200	+93.301270189200),
+		ShapeStep.getLine(93.301270189200	-25, -161.602540378400	+93.301270189200),
+		ShapeStep.getLine(50				-25, -186.602540378400	+93.301270189200),
+		ShapeStep.getLine(0					-25, -186.602540378400	+93.301270189200),
+		ShapeStep.getLine(-43.301270189200	-25, -161.602540378400	+93.301270189200),
+		ShapeStep.getLine(-68.301270189200	-25, -118.301270189200	+93.301270189200),
+		ShapeStep.getLine(-68.301270189200	-25, -68.301270189200	+93.301270189200),
+		ShapeStep.getLine(-43.301270189200	-25, -25				+93.301270189200),
+		ShapeStep.getLine(0					-25, 0					+93.301270189200)
+	], {"x": -25, "y": +93.301270189200});
 
 	f1.addShape("Grand triangle isocèle",[
-		ShapeStep.getLine(0-25, 0+31.1),
-		ShapeStep.getLine(50-25, 0+31.1),
-		ShapeStep.getLine(25-25, -93.3+31.1),
-		ShapeStep.getLine(0-25, 0+31.1)
-	], {"x": -25, "y": 31.1});
+		ShapeStep.getLine(0		-25, 0					+31.100423396400),
+		ShapeStep.getLine(50	-25, 0					+31.100423396400),
+		ShapeStep.getLine(25	-25, -93.301270189200	+31.100423396400),
+		ShapeStep.getLine(0		-25, 0					+31.100423396400)
+	], {"x": -25, "y": +31.100423396400});
 
 	f1.addShape("Petit losange",[
-		ShapeStep.getLine(0-46.65, 0+12.5),
-		ShapeStep.getLine(50-46.65, 0+12.5),
-		ShapeStep.getLine(93.30-46.65, -25+12.5),
-		ShapeStep.getLine(43.30-46.65, -25+12.5),
-		ShapeStep.getLine(0-46.65, 0+12.5)
-	], {"x": -46.65, "y": 12.5});
+		ShapeStep.getLine(0					-46.650635094600, 0		+12.5),
+		ShapeStep.getLine(50				-46.650635094600, 0		+12.5),
+		ShapeStep.getLine(93.301270189200	-46.650635094600, -25	+12.5),
+		ShapeStep.getLine(43.301270189200	-46.650635094600, -25	+12.5),
+		ShapeStep.getLine(0					-46.650635094600, 0		+12.5)
+	], {"x": -46.650635094600, "y": +12.5});
 
 	f1.addShape("Petit disque",[
-		ShapeStep.getLine(-25, -25),
+		ShapeStep.getLine(0, -28.867513459466),
 		ShapeStep.getArc(0, 0, 360, false)
 	], {"x": 0, "y": 0});
 
 	f1.addShape("Grand disque",[
-		ShapeStep.getLine(-75, -75),
+		ShapeStep.getLine(0, -50),
 		ShapeStep.getArc(0, 0, 360, false)
 	], {"x": 0, "y": 0});
-
-	/*
-	f1.addShape("AAAAAAAA",[
-		ShapeStep.getLine(XXXXX, YYYYY),
-		ShapeStep.getLine(XXXXX, YYYYY),
-		ShapeStep.getLine(XXXXX, YYYYY),
-		ShapeStep.getLine(XXXXX, YYYYY),
-		ShapeStep.getLine(XXXXX, YYYYY),
-		ShapeStep.getLine(XXXXX, YYYYY),
-	]);
-	*/
 
 	this.addFamily(f1);
 
 
 	var f2 = new Family(this.app, "Carré", "#F00");
+
+	f2.addShape("Carré",[
+		ShapeStep.getLine(0		-25, 0		+25),
+		ShapeStep.getLine(50	-25, 0		+25),
+		ShapeStep.getLine(50	-25, -50	+25),
+		ShapeStep.getLine(0		-25, -50	+25),
+		ShapeStep.getLine(0		-25, 0		+25)
+	], {"x": -25, "y": +25});
+
+	f2.addShape("Triangle isocèle",[
+		ShapeStep.getLine(0		-25, 0					+20.118446353109),
+		ShapeStep.getLine(50	-25, 0					+20.118446353109),
+		ShapeStep.getLine(25	-25, -60.355339059329	+20.118446353109),
+		ShapeStep.getLine(0		-25, 0					+20.118446353109)
+	], {"x": -25, "y": +20.118446353109});
+
+	f2.addShape("Petit triangle rectangle isocèle",[
+		ShapeStep.getLine(0		-25, 0		+12.5),
+		ShapeStep.getLine(50	-25, 0		+12.5),
+		ShapeStep.getLine(25	-25, -25	+12.5),
+		ShapeStep.getLine(0		-25, 0		+12.5)
+	], {"x": -25, "y": +12.5});
+
+	f2.addShape("Triangle rectangle isocèle",[
+		ShapeStep.getLine(0		-16.666666666666, 0		+16.666666666666),
+		ShapeStep.getLine(50	-16.666666666666, 0		+16.666666666666),
+		ShapeStep.getLine(0		-16.666666666666, -50	+16.666666666666),
+		ShapeStep.getLine(0		-16.666666666666, 0		+16.666666666666)
+	], {"x": -16.666666666666, "y": +16.666666666666});
+
+	f2.addShape("Petit triangle rectangle",[
+		ShapeStep.getLine(0		-16.666666666666, 0		+16.666666666666),
+		ShapeStep.getLine(25	-16.666666666666, 0		+16.666666666666),
+		ShapeStep.getLine(25	-16.666666666666, -50	+16.666666666666),
+		ShapeStep.getLine(0		-16.666666666666, 0		+16.666666666666)
+	], {"x": -16.666666666666, "y": +16.666666666666});
+
+	f2.addShape("Parallélogramme",[
+		ShapeStep.getLine(0, 0		+25),
+		ShapeStep.getLine(50, 0		+25),
+		ShapeStep.getLine(0, -50	+25),
+		ShapeStep.getLine(-50, -50	+25),
+		ShapeStep.getLine(0, 0		+25)
+	], {"x": 0, "y": +25});
+
+	f2.addShape("Petit losange",[
+		ShapeStep.getLine(0					-17.677669529664, 0					+17.677669529664),
+		ShapeStep.getLine(50				-17.677669529664, 0					+17.677669529664),
+		ShapeStep.getLine(85.355339059329	-17.677669529664, -35.355339059329	+17.677669529664),
+		ShapeStep.getLine(35.355339059329	-17.677669529664, -35.355339059329	+17.677669529664),
+		ShapeStep.getLine(0					-17.677669529664, 0					+17.677669529664)
+	], {"x": -17.677669529664, "y": +17.677669529664});
+
+	f2.addShape("Octogone régulier",[
+		ShapeStep.getLine(0					-25, 0					+60.355339059329),
+		ShapeStep.getLine(50				-25, 0					+60.355339059329),
+		ShapeStep.getLine(85.355339059329	-25, -35.355339059329	+60.355339059329),
+		ShapeStep.getLine(85.355339059329	-25, -85.355339059329	+60.355339059329),
+		ShapeStep.getLine(50				-25, -120.710678118658	+60.355339059329),
+		ShapeStep.getLine(0					-25, -120.710678118658	+60.355339059329),
+		ShapeStep.getLine(-35.355339059329	-25, -85.355339059329	+60.355339059329),
+		ShapeStep.getLine(-35.355339059329	-25, -35.355339059329	+60.355339059329),
+		ShapeStep.getLine(0					-25, 0					+60.355339059329)
+	], {"x": -25, "y": +60.355339059329});
+
+	f2.addShape("Disque",[
+		ShapeStep.getLine(0, -35.355339059327),
+		ShapeStep.getArc(0, 0, 360, false)
+	], {"x": 0, "y": 0});
+
 	this.addFamily(f2);
 
 
 	var f3 = new Family(this.app, "Pentagone régulier", "#0F0");
+
+	f3.addShape("Pentagone régulier",[
+		ShapeStep.getLine(0					-25, 0					+34.409548011750),
+		ShapeStep.getLine(50				-25, 0					+34.409548011750),
+		ShapeStep.getLine(65.450849718737	-25, -47.552825814750	+34.409548011750),
+		ShapeStep.getLine(25				-25, -76.942088429350	+34.409548011750),
+		ShapeStep.getLine(-15.450849718737	-25, -47.552825814750	+34.409548011750),
+		ShapeStep.getLine(0					-25, 0					+34.409548011750)
+	], {"x": -25, "y": +34.409548011750});
+
+	f3.addShape("Petit triangle isocèle",[
+		ShapeStep.getLine(0		-25, 0					+11.469849337250),
+		ShapeStep.getLine(50	-25, 0					+11.469849337250),
+		ShapeStep.getLine(25	-25, -34.409548011750	+11.469849337250),
+		ShapeStep.getLine(0		-25, 0					+11.469849337250)
+	], {"x": -25, "y": +11.469849337250});
+
+	f3.addShape("Grand triangle isocèle",[
+		ShapeStep.getLine(0		-25, 0					+25.647362809800),
+		ShapeStep.getLine(50	-25, 0					+25.647362809800),
+		ShapeStep.getLine(25	-25, -76.942088429400	+25.647362809800),
+		ShapeStep.getLine(0		-25, 0					+25.647362809800)
+	], {"x": -25, "y": +25.647362809800});
+
+	f3.addShape("Triangle obtusangle",[
+		ShapeStep.getLine(0					-16.666666666666, 0					+31.701883876500),
+		ShapeStep.getLine(65.450849718737	-16.666666666666, -47.552825814750	+31.701883876500),
+		ShapeStep.getLine(-15.450849718737	-16.666666666666, -47.552825814750	+31.701883876500),
+		ShapeStep.getLine(0					-16.666666666666, 0					+31.701883876500)
+	], {"x": -16.666666666666, "y": +31.701883876500});
+
+	f3.addShape("Petit losange",[
+		ShapeStep.getLine(0				-45.225424859350, 0					+14.694631307300),
+		ShapeStep.getLine(50			-45.225424859350, 0					+14.694631307300),
+		ShapeStep.getLine(90.4508497187	-45.225424859350, -29.3892626146	+14.694631307300),
+		ShapeStep.getLine(40.4508497187	-45.225424859350, -29.3892626146	+14.694631307300),
+		ShapeStep.getLine(0				-45.225424859350, 0					+14.694631307300)
+	], {"x": -45.225424859350, "y": +14.694631307300});
+
+	f3.addShape("Décagone régulier",[
+		ShapeStep.getLine(0					-25, 0					+76.942088429400),
+		ShapeStep.getLine(50				-25, 0					+76.942088429400),
+		ShapeStep.getLine(90.4508497187		-25, -29.3892626146		+76.942088429400),
+		ShapeStep.getLine(105.9016994374	-25, -76.9420884294		+76.942088429400),
+		ShapeStep.getLine(90.4508497187		-25, -124.4949142442	+76.942088429400),
+		ShapeStep.getLine(50				-25, -153.8841768588	+76.942088429400),
+		ShapeStep.getLine(0					-25, -153.8841768588	+76.942088429400),
+		ShapeStep.getLine(-40.4508497187	-25, -124.4949142442	+76.942088429400),
+		ShapeStep.getLine(-55.9016994374	-25, -76.9420884294		+76.942088429400),
+		ShapeStep.getLine(-40.4508497187	-25, -29.3892626146		+76.942088429400),
+		ShapeStep.getLine(0					-25, 0					+76.942088429400)
+	], {"x": -25, "y": +76.942088429400});
+
+	f3.addShape("Disque",[
+		ShapeStep.getLine(0, -42.5325404176),
+		ShapeStep.getArc(0, 0, 360, false)
+	], {"x": 0, "y": 0});
+
 	this.addFamily(f3);
-
-
 };
 
 /**
