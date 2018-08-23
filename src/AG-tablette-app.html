@@ -70,6 +70,7 @@
                 <strong>Outils</strong>
             </div>
             <button class="action-button" name="link_shapes" on-click='_actionHandle'>Lier des formes</button>
+            <button class="action-button" name="unlink_shapes" on-click='_actionHandle'>Délier</button>
             <button class="action-button" name="name_shape" on-click='_actionHandle'>Nommer TODO</button>
             <button class="action-button" name="delete_shape" on-click='_actionHandle'>Supprimer</button>
             <button class="action-button" name="background_color" on-click='_actionHandle'>Couleur de fond</button>
@@ -121,20 +122,29 @@
                 'background_color': 'Couleur de fond',
                 'border_color': 'Couleur des bords',
                 'link_shapes': 'Lier des formes',
+                'unlink_shapes': 'Délier des formes',
                 'reverse_shape': 'Retourner',
                 'build_shape_center': 'Construire le centre',
                 'duplicate_shape': 'Dupliquer',
                 'divide_segment': 'Diviser'
             };
 
-            if(states.hasOwnProperty(event.target.name) && !window.app.workspace.history.isRunning) {
+            if(states.hasOwnProperty(event.target.name)) {
+                window.app.colorpicker.cancel();
+                if(window.app.workspace.history.isRunning) {
+                    console.log("history is running, skipping action");
+                    return;
+                }
                 window.app.setState(event.target.name);
                 this.currentMode = states[event.target.name];
             } else if(event.target.name=="settings") {
+                window.app.colorpicker.cancel();
                 document.getElementById('settings-popup-gray').style.display='block';
             } else if(event.target.name=="annuler") {
+                window.app.colorpicker.cancel();
                 window.app.workspace.history.cancelLastStep();
             } else if(event.type=="selected-shape") {
+                window.app.colorpicker.cancel();
                 this.currentMode = 'Ajouter forme';
             } else {
                 console.log("AGTabletteApp._actionHandle: received unknown event:");

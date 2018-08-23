@@ -45,46 +45,60 @@ LinkerState.prototype.click = function(coordinates) {
         return;
     var shape = list.pop();
 
-    var group = this.app.workspace.getShapeGroup(shape, 'user');
-    if(group!=null) { //La nouvelle forme fait déjà partie d'un groupe
-        if(this.group!=null) { //On a déjà créé un nouveau groupe.
-            var index1 = this.app.workspace.getGroupIndex(this.group, 'user');
-            var index2 = this.app.workspace.getGroupIndex(group, 'user');
-            if(index1==index2) { //La forme fait déjà partie du groupe
-                return;
-            } else if(index1>index2) {
-                var t = this.group;
-                this.group = group;
-                group = t;
+    var shapesToAdd = [shape];
+    var sysGroup = this.app.workspace.getShapeGroup(shape, 'system');
+    if(sysGroup) {
+        shapesToAdd = [];
+        for(var i=0;i<sysGroup.length;i++)
+            shapesToAdd.push(sysGroup[i]);
+    }
+    console.log("list: ");
+    console.log(shapesToAdd);
 
-                t = index1;
-                index1 = index2;
-                index2 = t;
+    for(var i=0;i<shapesToAdd.length;i++) { //Pour chaque forme à ajouter au groupe:
+        var shape = shapesToAdd[i];
+        var uGroup = this.app.workspace.getShapeGroup(shape, 'user');
+
+        if(uGroup!=null) { //La nouvelle forme fait déjà partie d'un groupe
+            if(this.group!=null) { //On a déjà créé un nouveau groupe.
+                var index1 = this.app.workspace.getGroupIndex(this.group, 'user');
+                var index2 = this.app.workspace.getGroupIndex(uGroup, 'user');
+                if(index1==index2) { //La forme fait déjà partie du groupe
+                    continue;
+                } else if(index1>index2) {
+                    var t = this.group;
+                    this.group = uGroup;
+                    uGroup = t;
+
+                    t = index1;
+                    index1 = index2;
+                    index2 = t;
+                }
+                //this.group référence le groupe que l'on va garder, et index1 son index.
+
+                //on fusionne les 2 groupes.
+                this.app.workspace.userShapeGroups[index1] = this.app.workspace.userShapeGroups[index1].concat(uGroup);
+                this.group = this.app.workspace.userShapeGroups[index1];
+                this.app.workspace.userShapeGroups.splice(index2, 1); //on supprime l'autre groupe.
+            } else if(this.firstShape!=null) { //On avait déjà sélectionné une première forme.
+                this.group = uGroup;
+                this.group.push(this.firstShape);
+                this.firstShape = null;
+            } else {
+                this.group = uGroup;
             }
-            //this.group référence le groupe que l'on va garder, et index1 son index.
-
-            //on fusionne les 2 groupes.
-            this.app.workspace.userShapeGroups[index1] = this.app.workspace.userShapeGroups[index1].concat(group);
-            this.group = this.app.workspace.userShapeGroups[index1];
-            this.app.workspace.userShapeGroups.splice(index2, 1); //on supprime l'autre groupe.
-        } else if(this.firstShape!=null) { //On avait déjà sélectionné une première forme.
-            this.group = group;
-            this.group.push(this.firstShape);
-            this.firstShape = null;
         } else {
-            this.group = group;
-        }
-    } else {
-        if(this.group!=null) {
-            this.group.push(shape);
-        } else if(this.firstShape==null) {
-            this.firstShape = shape;
-        } else {
-            //On crée un nouveau groupe.
-            var uSG = this.app.workspace.userShapeGroups;
-            uSG.push([this.firstShape, shape]);
-            this.group = uSG[uSG.length-1];
-            this.firstShape = null;
+            if(this.group!=null) { //on a déjà créé un groupe.
+                this.group.push(shape);
+            } else if(this.firstShape==null) {
+                this.firstShape = shape;
+            } else {
+                //On crée un nouveau groupe.
+                var uSG = this.app.workspace.userShapeGroups;
+                uSG.push([this.firstShape, shape]);
+                this.group = uSG[uSG.length-1];
+                this.firstShape = null;
+            }
         }
     }
 

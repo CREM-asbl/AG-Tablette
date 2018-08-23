@@ -58,3 +58,8 @@ ColorPicker.prototype.__validate = function () {
     document.querySelector("#color-picker-popup").style.display = "none";
     cb(val);
 };
+
+ColorPicker.prototype.cancel = function(){
+    this.picker.exit();
+    document.querySelector("#color-picker-popup").style.display = "none";
+};

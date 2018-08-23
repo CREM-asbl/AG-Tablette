@@ -48,8 +48,11 @@ function Workspace(app) {
 	//niveau de zoom de l'interface
 	this.zoomLevel = 1;
 
-	//max 16 colors
+	//max 16 couleurs
 	this.previousSelectedColors = ["#FF0000", "#00FF00", "#0000FF"];
+
+	//Utilisé par l'historique lorsque la suppression d'une forme est annulée, pour pouvoir accéder à cette forme via son id pendant la recréation.
+	this.tmpCreatingShape = undefined;
 }
 
 /**
@@ -224,6 +227,29 @@ Workspace.prototype.pointsNearPoint = function(point) {
 	return responses;
 };
 
+Workspace.prototype.getPointsAtCoordinates = function(x, y) {
+	var responses = [];
+	var pointCoordinates = point.getAbsoluteCoordinates();
+
+	for(var i=0;i<this.shapesList.length;i++) {
+		var shape = this.shapesList[i];
+		var arrays = ['points', 'segmentPoints', 'otherPoints'];
+		for(var j=0;j<arrays.length;j++) {
+			var arr = shape[arrays[j]];
+			for(var k=0;k<arr.length;k++) {
+				var p = arr[k];
+
+				var pCoordinates = p.getAbsoluteCoordinates();
+
+				if(pointCoordinates.x == pCoordinates.x && pointCoordinates.y == pCoordinates.y)
+					responses.push(p);
+			}
+		}
+	}
+
+	return responses;
+}
+
 /**
  * Méthode statique: renvoie la liste des noms des familles existantes
  * @return families names
@@ -260,9 +286,15 @@ Workspace.prototype.addFamily = function(family){
 /**
  * ajoute une forme au workspace
  * @param shape: la forme (Shape)
+ * @param id: facultatif, l'id de la forme (si non précisé, crée un nouvel id)
  */
-Workspace.prototype.addShape = function(shape){
-	shape.setId(this.nextShapeId++);
+Workspace.prototype.addShape = function(shape, id){
+	if(id!==undefined) {
+		shape.setId(id);
+	} else {
+		shape.setId(this.nextShapeId++);
+	}
+
 	this.shapesList.push(shape);
 
 	if(shape.linkedShape) {
@@ -303,6 +335,8 @@ Workspace.prototype.getShapeById = function (shapeId) {
 		if(s.id==shapeId)
 			return s;
 	}
+	if(this.tmpCreatingShape && this.tmpCreatingShape.id==shapeId)
+		return this.tmpCreatingShape;
 	return null;
 };
 
@@ -311,6 +345,7 @@ Workspace.prototype.getShapeById = function (shapeId) {
  * @param shape: la forme (Shape)
  */
 Workspace.prototype.removeShape = function(shape) {
+	var removedShapes = [shape]; //pour l'historique
 	var shapeIndex = this.getShapeIndex(shape);
 	if(shapeIndex==null) {
 		console.log("Workspace.removeShape: couldn't remove the shape");
@@ -324,10 +359,12 @@ Workspace.prototype.removeShape = function(shape) {
 
 	var that = this;
 	var removeLinkedShapes = function(list, srcShape) {
+		var local_removed = [];
 		var to_remove = [];
 		for(var i=0;i<list.length;i++) {
 			if(list[i].linkedShape==srcShape) { //la forme est liée à la forme supprimée (srcShape)
 				var s = list.splice(i, 1)[0]; //la supprimer de la liste du groupe
+				local_removed.push(s);
 				var shapeIndex = that.getShapeIndex(s);
 				if(shapeIndex==null) {
 					console.log("Workspace.removeShape: couldn't remove the linked shape");
@@ -340,8 +377,11 @@ Workspace.prototype.removeShape = function(shape) {
 			}
 		}
 		for(var i=0;i<to_remove.length;i++)
-			removeLinkedShapes(list, to_remove[i]); //supprimer les formes liées à chacune des formes supprimées dans la boucle précédente.
+			local_removed = local_removed.concat(removeLinkedShapes(list, to_remove[i])); //supprimer les formes liées à chacune des formes supprimées dans la boucle précédente.
+		return local_removed;
 	};
+
+	var userShapeGroup = {'exists': false, 'ids': []};
 
 	var groupLists = [this.systemShapeGroups, this.userShapeGroups];
 	for(var g=0;g<groupLists.length;g++) {
@@ -359,18 +399,32 @@ Workspace.prototype.removeShape = function(shape) {
 				}
 			}
 			if(found) {
-				removeLinkedShapes(group, shape); //supprimer (récursivement) les formes liées à la forme supprimée
+				var tmp_removed = removeLinkedShapes(group, shape); //supprimer (récursivement) les formes liées à la forme supprimée
+
+				if(g==1) { //c'est le userShapeGroup:
+					userShapeGroup.exists = true;
+					for(var j=0;j<group.length;j++) {
+						userShapeGroup.ids.push(group[j].id);
+					}
+				}
+
+				if(group.length<=1) {
+					groupList.splice(i, 1);
+					i--;
+				}
+
+				removedShapes = removedShapes.concat(tmp_removed);
 			}
 
-			if(group.length<=1) {
-				groupList.splice(i, 1);
-				i--;
-			}
 		}
 	}
 
-	//TODO: supprimer certains points qui sont liées aux points de otherPoints et segmentPoints
+	//TODO: supprimer certains points qui sont liées aux points de otherPoints et segmentPoints. Et enregistrer cela dans l'historique.
 
+	return {
+		"shapesInfo": removedShapes,
+		"userGroupInfo": userShapeGroup
+	};
 };
 
 /**

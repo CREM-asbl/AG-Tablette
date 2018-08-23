@@ -17,6 +17,8 @@
  * @param opacity: opacité de la forme (int entre 0 et 1)
  */
 function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint, isPointed, isSided, opacity){
+	window.app.workspace.tmpCreatingShape = this;
+	this.id = null; //L'id est défini lorsqu'une forme est ajoutée à un workspace.
 
 	this.x = x;
 	this.y = y;
@@ -38,7 +40,7 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 	//l'opacité de la forme, entre 0 et 1
 	this.opacity = opacity;
 
-	this.id = null; //L'id est défini lorsqu'une forme est ajoutée à un workspace.
+
 
 	//vrai si la forme a été retournée (pour savoir quelle face est visible en cas de forme biface)
 	this.isReversed = false;
@@ -351,6 +353,15 @@ Shape.createFromSaveData = function(saveData) {
 	for(var i=0;i<saveData.otherPoints.length;i++)
         shape.otherPoints.push(Point.createFromSaveData(saveData.otherPoints[i]));
 
+	//LinkedShape:
+	if(saveData.linkedShapeId!==undefined && saveData.linkedShapeId!==null) {
+		var linkedShape = app.workspace.getShapeById(saveData.linkedShapeId)
+	    if(!linkedShape)
+	        console.log("Shape.createFromSaveData: linked Shape not found...");
+	    else
+			shape.linkedShape = linkedShape;
+	}
+
 	return shape;
 }
 
@@ -388,7 +399,8 @@ Shape.prototype.getSaveData = function(){
 		'isSided': this.isSided,
 		'opacity': this.opacity,
 		'isReversed': this.isReversed,
-		'isPointed': this.isPointed
+		'isPointed': this.isPointed,
+		'linkedShapeId': (this.linkedShape ? this.linkedShape.id : null)
 	};
 
 	return saveData;

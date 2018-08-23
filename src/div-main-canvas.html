@@ -85,9 +85,19 @@
                 }, false);
 
                 cvs.addEventListener('mousemove', this._handleMove.bind(this), false);
-                //cvs.addEventListener('touchmove', this._handleTouch.bind(this), false);
-                //cvs.addEventListener("touchstart", this._handleStart.bind(this), false);
-                //cvs.addEventListener("touchend", this._handleEnd.bind(this), false);
+
+                //Tablette:
+                cvs.addEventListener('touchmove', this._handleMove.bind(this), false);
+
+                cvs.addEventListener('touchstart', function(event){
+                    window.app.handleEvent("mousedown", that.getMousePos(event, window.app));
+                }, false);
+
+                cvs.addEventListener('touchend', function(event){
+                    window.app.handleEvent("mouseup", that.getMousePos(event, window.app));
+                }, false);
+
+                //TODO?
                 //cvs.addEventListener("touchcancel", handleCancel, false);
                 //cvs.addEventListener("touchleave", handleLeave, false);
             }

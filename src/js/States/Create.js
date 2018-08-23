@@ -89,6 +89,10 @@ CreateState.prototype.click = function(coordinates) {
     if(pointsNear.length>0) {
         var last = pointsNear[pointsNear.length-1];
         shape.linkedShape = last.shape;
+        var uGroup = this.app.workspace.getShapeGroup(last.shape, 'user');
+        if(uGroup) {
+            uGroup.push(shape);
+        }
     }
 
     this.app.workspace.addShape(shape);

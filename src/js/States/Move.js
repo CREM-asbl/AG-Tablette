@@ -69,8 +69,8 @@ MoveState.prototype.mouseup = function(point){
     if(!this.isMoving)
         return;
 
+    //Appliquer le déplacement:
     var shapesSave = [];
-
     for(var i=0;i<this.shapesList.length;i++) {
         shapesSave.push(this.shapesList[i].getSaveData());
 
@@ -85,9 +85,23 @@ MoveState.prototype.mouseup = function(point){
         this.shapesList[i].setCoordinates({"x": newX, "y": newY});
     }
 
-    var movedWithAutomaticAdjustment = false;
+    //déplacer si la grille est là.
+    if(this.app.settings.get('isGridShown')) {
+        var t = this.app.workspace.getClosestGridPoint(this.shapesList);
+        var gridCoords = t.grid.getAbsoluteCoordinates(),
+            shapeCoords = t.shape.getAbsoluteCoordinates();
+        for(var i=0;i<this.shapesList.length;i++) {
+            this.shapesList[i].x += gridCoords.x - shapeCoords.x;
+            this.shapesList[i].y += gridCoords.y - shapeCoords.y;
+        }
 
-    if(this.app.settings.get('automaticAdjustment')) {
+        if(this.app.settings.get('automaticAdjustment')) {
+            //Est-ce qu'il y a un segment dont l'une des extrémités est le point sélectionné de la grille
+            //TODO HERE: trouver un segment autour du point, pour une rotation ?
+        }
+
+
+    } else if(this.app.settings.get('automaticAdjustment')) {
         var bestSegment = null; //segment du groupe de forme qui va être rapproché d'un segment d'une forme externe.
         var otherShapeSegment = null; //le segment de la forme externe correspondante.
         var segmentScore = 1000*1000*1000; //somme des carrés des distances entre les sommets des 2 segments ci-dessus.
@@ -167,74 +181,65 @@ MoveState.prototype.mouseup = function(point){
                 this.shapesList[i].y = n.y;
 
                 for(var j=0;j<this.shapesList[i].buildSteps.length;j++) {
-            		var transformation = this.app.states.rotate_shape.computePointPosition(this.shapesList[i].buildSteps[j].x, this.shapesList[i].buildSteps[j].y, angle);
-            		this.shapesList[i].buildSteps[j].setCoordinates(transformation.x, transformation.y);
-            	}
+                    var transformation = this.app.states.rotate_shape.computePointPosition(this.shapesList[i].buildSteps[j].x, this.shapesList[i].buildSteps[j].y, angle);
+                    this.shapesList[i].buildSteps[j].setCoordinates(transformation.x, transformation.y);
+                }
                 this.shapesList[i].recomputePoints();
                 for(var j=0;j<this.shapesList[i].segmentPoints.length;j++) {
-            		var pos = this.shapesList[i].segmentPoints[j].getRelativeCoordinates();
-            		var transformation = this.app.states.rotate_shape.computePointPosition(pos.x, pos.y, angle);
-            		this.shapesList[i].segmentPoints[j].setCoordinates(transformation.x, transformation.y);
-            	}
-            	for(var j=0;j<this.shapesList[i].otherPoints.length;j++) {
-            		var pos = this.shapesList[i].otherPoints[j].getRelativeCoordinates();
-            		var transformation = this.app.states.rotate_shape.computePointPosition(pos.x, pos.y, angle);
-            		this.shapesList[i].otherPoints[j].setCoordinates(transformation.x, transformation.y);
-            	}
+                    var pos = this.shapesList[i].segmentPoints[j].getRelativeCoordinates();
+                    var transformation = this.app.states.rotate_shape.computePointPosition(pos.x, pos.y, angle);
+                    this.shapesList[i].segmentPoints[j].setCoordinates(transformation.x, transformation.y);
+                }
+                for(var j=0;j<this.shapesList[i].otherPoints.length;j++) {
+                    var pos = this.shapesList[i].otherPoints[j].getRelativeCoordinates();
+                    var transformation = this.app.states.rotate_shape.computePointPosition(pos.x, pos.y, angle);
+                    this.shapesList[i].otherPoints[j].setCoordinates(transformation.x, transformation.y);
+                }
             }
+        }
 
-            movedWithAutomaticAdjustment = true;
-        } else { //Aucun segment commun avec une autre forme n'a été trouvé. Peut être y a-t-il au moins un point commun ?
-            var bestPoint = null; //point du groupe de forme qui va être rapproché d'un point d'une forme externe.
-            var otherShapePoint = null; //le point de la forme externe correspondante.
-            var pointScore = 1000*1000*1000; //carrés de la distance entre les 2 points.
+    } else {
+        //Trouver un point proche ?
+        var bestPoint = null; //point du groupe de forme qui va être rapproché d'un point d'une forme externe.
+        var otherShapePoint = null; //le point de la forme externe correspondante.
+        var pointScore = 1000*1000*1000; //carrés de la distance entre les 2 points.
 
-            for(var i=0;i<this.shapesList.length;i++) { //Pour chacune des formes en cours de déplacement:
-                var shape = this.shapesList[i];
-                for(var j=0; j<shape.points.length; j++) { //pour chaque segment de la forme
-                    var pts = this.app.workspace.pointsNearPoint(shape.points[j]);
-                    var shape_ptj_pos = shape.points[j].getAbsoluteCoordinates();
+        for(var i=0;i<this.shapesList.length;i++) { //Pour chacune des formes en cours de déplacement:
+            var shape = this.shapesList[i];
+            for(var j=0; j<shape.points.length; j++) { //pour chaque point de la forme
+                var pts = this.app.workspace.pointsNearPoint(shape.points[j]);
+                var shape_ptj_pos = shape.points[j].getAbsoluteCoordinates();
 
-                    for(var k=0;k<pts.length;k++) { //pour chacun des points proches du point de la forme
-                        if(this.shapesList.indexOf(pts[k].shape)!=-1) //le point appartient à une des formes du groupe de forme.
-                            continue;
-                        var pts_k_pos = pts[k].getAbsoluteCoordinates();
-                        var score = Math.pow(pts_k_pos.x - shape_ptj_pos.x, 2) + Math.pow(pts_k_pos.y - shape_ptj_pos.y, 2);
-                        if(score < pointScore) {
-                            pointScore = score;
-                            otherShapePoint = {
-                                'x': pts_k_pos.x,
-                                'y': pts_k_pos.y
-                            };
-                            bestPoint = {
-                                'x': shape_ptj_pos.x,
-                                'y': shape_ptj_pos.y
-                            };
-                        }
+                for(var k=0;k<pts.length;k++) { //pour chacun des points proches du point de la forme
+                    if(this.shapesList.indexOf(pts[k].shape)!=-1) //le point appartient à une des formes du groupe de forme.
+                        continue;
+                    var pts_k_pos = pts[k].getAbsoluteCoordinates();
+                    var score = Math.pow(pts_k_pos.x - shape_ptj_pos.x, 2) + Math.pow(pts_k_pos.y - shape_ptj_pos.y, 2);
+                    if(score < pointScore) {
+                        pointScore = score;
+                        otherShapePoint = {
+                            'x': pts_k_pos.x,
+                            'y': pts_k_pos.y
+                        };
+                        bestPoint = {
+                            'x': shape_ptj_pos.x,
+                            'y': shape_ptj_pos.y
+                        };
                     }
                 }
             }
+        }
 
-            if(bestPoint) {
-                //Translater le groupe de formes pour que les 2 points soient identiques.
-                for(var i=0;i<this.shapesList.length;i++) {
-                    this.shapesList[i].x += otherShapePoint.x - bestPoint.x;
-                    this.shapesList[i].y += otherShapePoint.y - bestPoint.y;
-                }
-                movedWithAutomaticAdjustment = true;
+        if(bestPoint) {
+            //Translater le groupe de formes pour que les 2 points soient identiques.
+            for(var i=0;i<this.shapesList.length;i++) {
+                this.shapesList[i].x += otherShapePoint.x - bestPoint.x;
+                this.shapesList[i].y += otherShapePoint.y - bestPoint.y;
             }
+            movedWithAutomaticAdjustment = true;
         }
     }
 
-    if(this.app.settings.get('isGridShown') && !movedWithAutomaticAdjustment) {
-        var t = this.app.workspace.getClosestGridPoint(this.shapesList);
-        var gridCoords = t.grid.getAbsoluteCoordinates(),
-            shapeCoords = t.shape.getAbsoluteCoordinates();
-        for(var i=0;i<this.shapesList.length;i++) {
-            this.shapesList[i].x += gridCoords.x - shapeCoords.x;
-            this.shapesList[i].y += gridCoords.y - shapeCoords.y;
-        }
-    }
     this.makeHistory(shapesSave);
     this.reset();
     this.app.canvas.refresh();

@@ -23,7 +23,7 @@ function Point(x, y, type, shape) {
  */
 Point.createFromSaveData = function(saveData) {
     var ws = window.app.workspace;
-    var shape = ws.getShapeById(data.shape_id)
+    var shape = ws.getShapeById(saveData.shape_id)
     if(!shape) {
         console.log("Point.createFromSaveData: shape not found...");
         return;
@@ -32,30 +32,34 @@ Point.createFromSaveData = function(saveData) {
     point.uniqId = saveData.uniqId;
 
     //sourcepoint1:
-    shape = ws.getShapeById(data.sourcepoint1.shape_id);
-    if(!shape) {
-        console.log("Point.createFromSaveData: shape not found... (2)");
-        return;
+    if(saveData.sourcepoint1) {
+        shape = ws.getShapeById(saveData.sourcepoint1.shape_id);
+        if(!shape) {
+            console.log("Point.createFromSaveData: shape not found... (2)");
+            return;
+        }
+        var sourcepoint1 = shape.getPointByUniqId(saveData.sourcepoint1.uniq_id);
+        if(!sourcepoint1) {
+            console.log("Point.createFromSaveData: point not found...");
+            return;
+        }
+        point.sourcepoint1 = sourcepoint1;
     }
-    var sourcepoint1 = shape.getPointByUniqId(data.sourcepoint1.uniq_id);
-    if(!sourcepoint1) {
-        console.log("Point.createFromSaveData: point not found...");
-        return;
-    }
-    point.sourcepoint1 = sourcepoint1;
 
     //sourcepoint2:
-    shape = ws.getShapeById(data.sourcepoint2.shape_id);
-    if(!shape) {
-        console.log("Point.createFromSaveData: shape not found... (3)");
-        return;
+    if(saveData.sourcepoint2) {
+        shape = ws.getShapeById(saveData.sourcepoint2.shape_id);
+        if(!shape) {
+            console.log("Point.createFromSaveData: shape not found... (3)");
+            return;
+        }
+        var sourcepoint2 = shape.getPointByUniqId(saveData.sourcepoint2.uniq_id);
+        if(!sourcepoint2) {
+            console.log("Point.createFromSaveData: point not found... (2)");
+            return;
+        }
+        point.sourcepoint2 = sourcepoint2;
     }
-    var sourcepoint2 = shape.getPointByUniqId(data.sourcepoint2.uniq_id);
-    if(!sourcepoint2) {
-        console.log("Point.createFromSaveData: point not found... (2)");
-        return;
-    }
-    point.sourcepoint2 = sourcepoint2;
 
     return point;
 }
@@ -85,7 +89,7 @@ Point.prototype.getSaveData = function(){
 		'type': this.type,
 		'x': this.x,
 		'y': this.y,
-		'shape': this.shape,
+		'shape_id': this.shape.id,
         'uniq_id': this.uniqId,
 		'sourcepoint1': sourcepoint1,
 		'sourcepoint2': sourcepoint2

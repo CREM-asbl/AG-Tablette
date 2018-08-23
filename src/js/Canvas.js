@@ -73,7 +73,7 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 		this.drawShape(shape);
 
 
-		if(state.name=="link_shapes") {
+		if(state.name=="link_shapes" || state.name=="unlink_shapes") {
 			state.draw(this, mouseCoordinates, shape);
 		}
 	}
@@ -309,7 +309,8 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 				shape.buildSteps.push(ShapeStep.getLine(transformation.x, transformation.y));
 			}
 		} else {
-			console.log("drawRotatingShape: curve!");
+			console.log("drawReversingShape: curve! ");
+			console.log(b);
 		}
 	}
 	shape.__computePoints();
@@ -318,7 +319,7 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 	for(var i=0;i<shape.segmentPoints.length;i++) {
 		var pos = shape.segmentPoints[i].getRelativeCoordinates();
 		var transformation = this.app.state.computePointPosition(pos.x, pos.y, axe, progress);
-		tmpBuildSteps.push([ pos.x, pos.y ]);
+		tmpSegmentPoints.push([ pos.x, pos.y ]);
 		shape.segmentPoints[i].setCoordinates(transformation.x, transformation.y);
 	}
 	for(var i=0;i<shape.otherPoints.length;i++) {

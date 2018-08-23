@@ -27,7 +27,8 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
 		"reverse_shape": new ReverseState(this),
 		"build_shape_center": new BuildCenterState(this),
 		"duplicate_shape": new DuplicateState(this),
-		"divide_segment": new DivideState(this)
+		"divide_segment": new DivideState(this),
+		"unlink_shapes": new UnlinkerState(this)
 	};
 
 	//Représente un projet, qui peut être sauvegardé

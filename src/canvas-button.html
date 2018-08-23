@@ -45,6 +45,7 @@
             }
 
             _clickHandle(event) {
+                window.app.colorpicker.cancel();
                 this.set('active', this.family)
             }
 
@@ -57,10 +58,10 @@
                 if(family=="Triangle équilatéral") {
                     ctx.fillStyle = "#FF0";
                     ctx.beginPath();
-                    ctx.moveTo(7,50);
-                    ctx.lineTo(30, 9);
-                    ctx.lineTo(53,50);
-                    ctx.lineTo(7,50);
+                    ctx.moveTo(7,52);
+                    ctx.lineTo(30, 11);
+                    ctx.lineTo(53,52);
+                    ctx.lineTo(7,52);
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
