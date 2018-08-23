@@ -10,6 +10,7 @@
 function DivideState(app) {
     this.app = app;
     this.name = "divide_segment";
+    this.nb_parts = null;
 }
 
 App.heriter(DivideState.prototype, State.prototype);
@@ -18,6 +19,8 @@ App.heriter(DivideState.prototype, State.prototype);
  * @param coordinates: {x: int, y: int}
  */
 DivideState.prototype.click = function(coordinates) {
+    if(this.nb_parts==null)
+        return;
     var nb_parts = this.app.settings.get('divideStateNumberOfParts');
 
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
@@ -53,9 +56,9 @@ DivideState.prototype.click = function(coordinates) {
             segment_selected = true;
             var p1 = shape.buildSteps[i-1],
                 p2 = shape.buildSteps[i];
-            for(var j=1;j<nb_parts;j++) {
-                var x = p1.x + j*(1.0/nb_parts)*(p2.x-p1.x),
-                    y = p1.y + j*(1.0/nb_parts)*(p2.y-p1.y);
+            for(var j=1;j<this.nb_parts;j++) {
+                var x = p1.x + j*(1.0/this.nb_parts)*(p2.x-p1.x),
+                    y = p1.y + j*(1.0/this.nb_parts)*(p2.y-p1.y);
                 var pt = new Point(x, y, "division", shape);
                 pt.sourcepoint1 = shape.points[i-1];
                 pt.sourcepoint2 = shape.points[i % shape.points.length]; //i peut valoir shape.points.length max, car il y a une buildStep en plus.
@@ -92,9 +95,9 @@ DivideState.prototype.click = function(coordinates) {
                 if((start_angle >= angle && angle >= end_angle) || (start_angle <= angle && angle <= end_angle)) {
                     arc_selected = true;
 
-                    var angle_step = shape.buildSteps[i].angle*(Math.PI/180)/nb_parts;
+                    var angle_step = shape.buildSteps[i].angle*(Math.PI/180)/this.nb_parts;
                     if(direction) angle_step *= -1;
-                    for(var j=0;j<nb_parts;j++) { //j=0 si cercle entier, =1 sinon? TODO
+                    for(var j=0;j<this.nb_parts;j++) { //j=0 si cercle entier, =1 sinon? TODO
                         var a = start_angle + j*angle_step,
                             x = shape.buildSteps[i].x + rayon * Math.cos(a),
                             y = shape.buildSteps[i].y + rayon * Math.sin(a);
@@ -115,12 +118,17 @@ DivideState.prototype.click = function(coordinates) {
 /**
  * Réinitialiser l'état
  */
-DivideState.prototype.reset = function(){};
+DivideState.prototype.reset = function(){
+    this.nb_parts = null;
+};
 
 /**
  * démarrer l'état
  */
-DivideState.prototype.start = function(){};
+DivideState.prototype.start = function(){
+    this.nb_parts = null;
+    document.getElementById('divide-popup-gray').style.display='block';
+};
 
 /**
  * Annuler l'action en cours

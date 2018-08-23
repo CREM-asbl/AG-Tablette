@@ -25,7 +25,7 @@ function Settings(app) {
 	 * 		(-> Ex de points: (-15, 52.5), (35, 52.5), (60, 10), ...)
 	 */
 	this.add("isGridShown", false, true);
-    this.add("gridSize", 1, true);
+    this.add("gridSize", 0.333333333333333, true);
     this.add("gridType", 'square', true); //square ou triangle
 
 	//Ajustement automatique des formes activé ?

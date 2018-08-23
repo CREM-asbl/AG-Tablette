@@ -72,10 +72,11 @@ App.prototype.setState = function(stateName, params){
 	this.state = this.states[stateName];
 	this.state.reset();
 	this.state.start(params);
+	var historyRunning = this.workspace.history.isRunning
 
-	this.events.click = function(e){ if(that.state.name) that.state.click(e); };
-	this.events.mousedown = function(e){ if(that.state.name) that.state.mousedown(e); };
-	this.events.mouseup = function(e){ if(that.state.name) that.state.mouseup(e); };
+	this.events.click = function(e){ if(that.state.name && !historyRunning) that.state.click(e); };
+	this.events.mousedown = function(e){ if(that.state.name && !historyRunning) that.state.mousedown(e); };
+	this.events.mouseup = function(e){ if(that.state.name && !historyRunning) that.state.mouseup(e); };
 };
 
 /**

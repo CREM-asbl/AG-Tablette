@@ -68,16 +68,16 @@
                 <br />
 
                 <label for="settings_grid_size">Taille de la grille: </label>
-                <input type="number" max="10" min="0.2" step="0.1" disabled name="settings_grid_size" id="settings_grid_size" on-change='_gridSize' style='font-size:20px;'>
+                <select name="settings_grid_size" id="settings_grid_size" on-change='_actionHandle' disabled>
+                    <option value="1/3">1/3</option>
+                    <option value="1/2">1/2</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
             </div>
 
-            <br /><br />
-
-            <label for="settings_divide_number_of_parts">Option de découpage - découpage en </label>
-            <input type="number" max="10" min="2" step="1" name="settings_divide_number_of_parts" id="settings_divide_number_of_parts" on-change='_numOfParts' style='font-size:20px;'>
-            <span> parties</span>
-
-            <br /><br />
+            <br />
 
 
 
@@ -139,8 +139,16 @@
             this.shadowRoot.getElementById('settings_adapt_shapes_position').checked = window.app.settings.get('automaticAdjustment');
             this.shadowRoot.getElementById('settings_show_grid').checked = window.app.settings.get('isGridShown');
             this.shadowRoot.getElementById('settings_grid_type').value = window.app.settings.get('gridType');
-            this.shadowRoot.getElementById('settings_grid_size').value = parseInt(window.app.settings.get('gridSize'));
-            this.shadowRoot.getElementById('settings_divide_number_of_parts').value = window.app.settings.get('divideStateNumberOfParts');
+
+            var value = window.app.settings.get('gridSize');
+            if(value==0.5 || value==1 || value==2 || value==3) {
+                var transform = { "0.5": "1/2", "1": "1", "2": "2", "3": "3"};
+                this.shadowRoot.getElementById('settings_grid_size').value = transform[ (new Number(value)).toString() ];
+            } else if(value>0.333 && value<0.334){ //0.333333333333333
+                this.shadowRoot.getElementById('settings_grid_size').value = "1/3";
+            } else {
+                this.shadowRoot.getElementById('settings_grid_size').value = "";
+            }
 
             //Formes
             this.shadowRoot.getElementById('settings_shapes_size').value = parseInt(window.app.settings.get('shapesSize'));
@@ -167,18 +175,17 @@
                     this.shadowRoot.getElementById("settings_grid_size").disabled = !event.target.checked;
                     window.app.settings.update('isGridShown', event.target.checked);
                     window.app.settings.update('gridType', this.shadowRoot.getElementById("settings_grid_type").value);
-                    window.app.settings.update('gridSize', this.shadowRoot.getElementById("settings_grid_size").value);
+                    var value = this.shadowRoot.getElementById("settings_grid_size").value;
+                    var transform = {"1/3": 0.333333333333333, "1/2": 0.5, "1": 1, "2": 2, "3": 3};
+                    window.app.settings.update('gridSize', transform[value]);
                     window.app.canvas.refreshBackgroundCanvas();
                     break;
 
                 case 'settings_grid_size':
-                    window.app.settings.update('gridSize', this.shadowRoot.getElementById("settings_grid_size").value);
+                    var value = this.shadowRoot.getElementById("settings_grid_size").value;
+                    var transform = {"1/3": 0.333333333333333, "1/2": 0.5, "1": 1, "2": 2, "3": 3};
+                    window.app.settings.update('gridSize', transform[value]);
                     window.app.canvas.refreshBackgroundCanvas();
-                    break;
-
-                case 'settings_divide_number_of_parts':
-                    window.app.settings.update('divideStateNumberOfParts', this.shadowRoot.getElementById("settings_divide_number_of_parts").value);
-                    window.app.canvas.refresh();
                     break;
 
                 case 'settings_grid_type':
@@ -207,25 +214,6 @@
             }
         }
 
-        _gridSize(event) {
-            if(event.target.value > 10)
-                event.target.value = 10;
-            if(event.target.value < 0.2)
-                event.target.value = 0.2;
-            event.target.value = parseInt(event.target.value*10)/10;
-
-            this._actionHandle(event);
-        }
-
-        _numOfParts(event) {
-            if(event.target.value > 10)
-                event.target.value = 10;
-            if(event.target.value < 2)
-                event.target.value = 2;
-            event.target.value = parseInt(event.target.value);
-
-            this._actionHandle(event);
-        }
     }
 
     window.customElements.define(PolymerAppSettings.is, PolymerAppSettings);

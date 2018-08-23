@@ -229,7 +229,8 @@ Workspace.prototype.pointsNearPoint = function(point) {
 
 Workspace.prototype.getPointsAtCoordinates = function(x, y) {
 	var responses = [];
-	var pointCoordinates = point.getAbsoluteCoordinates();
+	var pointCoordinates = {'x': x, 'y': y};
+	var maxSquareDist = Math.pow(1.5 / this.zoomLevel, 2); //précision d'1,5 pixel
 
 	for(var i=0;i<this.shapesList.length;i++) {
 		var shape = this.shapesList[i];
@@ -241,7 +242,7 @@ Workspace.prototype.getPointsAtCoordinates = function(x, y) {
 
 				var pCoordinates = p.getAbsoluteCoordinates();
 
-				if(pointCoordinates.x == pCoordinates.x && pointCoordinates.y == pCoordinates.y)
+				if(maxSquareDist>Math.pow(pointCoordinates.x - pCoordinates.x, 2)+Math.pow(pointCoordinates.y - pCoordinates.y, 2))
 					responses.push(p);
 			}
 		}
