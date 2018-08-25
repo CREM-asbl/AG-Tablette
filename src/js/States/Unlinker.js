@@ -48,6 +48,26 @@ UnlinkerState.prototype.draw = function(canvas, mouseCoordinates, shape){
 };
 
 /**
+ * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
+ * @param  {Shape} overflownShape La forme qui est survolée par la souris
+ * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
+ */
+UnlinkerState.prototype.getElementsToHighlight = function(overflownShape){
+    var data = {
+        'shapes': [],
+        'segments': [],
+        'points': []
+    };
+
+    var uGroup = this.app.workspace.getShapeGroup(overflownShape, 'user');
+    if(uGroup) {
+        data.shapes = uGroup
+    }
+
+    return data;
+};
+
+/**
  * Réinitialiser l'état
  */
 UnlinkerState.prototype.reset = function(){};

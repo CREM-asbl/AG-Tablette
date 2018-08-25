@@ -67,3 +67,13 @@ State.prototype.cancelAction = function(data, callback){
     console.log("cancelAction() not implemented");
     //callback();
 };
+
+/**
+ * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
+ * @param  {Shape} overflownShape La forme qui est survolée par la souris
+ * @param {{'x': float, 'y': float}} clickCoordinates Les coordonnées de la souris
+ * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
+ */
+State.prototype.getElementsToHighlight = function (overflownShape, clickCoordinates) {
+    console.log("getElementsToHighlight() not implemented");
+};

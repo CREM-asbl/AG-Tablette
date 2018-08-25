@@ -86,6 +86,7 @@ MoveState.prototype.mouseup = function(point){
     }
 
     //déplacer si la grille est là.
+    var bestSegment;
     if(this.app.settings.get('isGridShown')) {
         var t = this.app.workspace.getClosestGridPoint(this.shapesList);
         var gridCoords = t.grid.getAbsoluteCoordinates(),
@@ -102,7 +103,7 @@ MoveState.prototype.mouseup = function(point){
 
 
     } else if(this.app.settings.get('automaticAdjustment')) {
-        var bestSegment = null; //segment du groupe de forme qui va être rapproché d'un segment d'une forme externe.
+        bestSegment = null; //segment du groupe de forme qui va être rapproché d'un segment d'une forme externe.
         var otherShapeSegment = null; //le segment de la forme externe correspondante.
         var segmentScore = 1000*1000*1000; //somme des carrés des distances entre les sommets des 2 segments ci-dessus.
 
@@ -198,7 +199,8 @@ MoveState.prototype.mouseup = function(point){
             }
         }
 
-    } else {
+    }
+    if(!this.app.settings.get('isGridShown') && !bestSegment) {
         //Trouver un point proche ?
         var bestPoint = null; //point du groupe de forme qui va être rapproché d'un point d'une forme externe.
         var otherShapePoint = null; //le point de la forme externe correspondante.
@@ -236,7 +238,6 @@ MoveState.prototype.mouseup = function(point){
                 this.shapesList[i].x += otherShapePoint.x - bestPoint.x;
                 this.shapesList[i].y += otherShapePoint.y - bestPoint.y;
             }
-            movedWithAutomaticAdjustment = true;
         }
     }
 
@@ -307,6 +308,31 @@ MoveState.prototype.cancelAction = function(data, callback){
     }
 
     callback();
+};
+
+/**
+ * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
+ * @param  {Shape} overflownShape La forme qui est survolée par la souris
+ * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
+ */
+MoveState.prototype.getElementsToHighlight = function(overflownShape){
+    var data = {
+        'shapes': [],
+        'segments': [],
+        'points': []
+    };
+
+    var uGroup = this.app.workspace.getShapeGroup(overflownShape, 'user');
+    var sGroup = this.app.workspace.getShapeGroup(overflownShape, 'system');
+    if(uGroup) {
+        data.shapes = uGroup
+    } else if(sGroup) {
+        data.shapes = sGroup;
+    } else {
+        data.shapes.push(overflownShape);
+    }
+
+    return data;
 };
 
 /**

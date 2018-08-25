@@ -115,6 +115,21 @@ DuplicateState.prototype.cancelAction = function(data, callback){
 };
 
 /**
+ * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
+ * @param  {Shape} overflownShape La forme qui est survolée par la souris
+ * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
+ */
+DuplicateState.prototype.getElementsToHighlight = function(overflownShape){
+    var data = {
+        'shapes': [overflownShape],
+        'segments': [],
+        'points': []
+    };
+
+    return data;
+};
+
+/**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */
 DuplicateState.prototype.click = function(){};

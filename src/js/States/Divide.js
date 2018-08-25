@@ -16,26 +16,18 @@ function DivideState(app) {
 App.heriter(DivideState.prototype, State.prototype);
 
 /**
- * @param coordinates: {x: int, y: int}
+ * Renvoie le segment actuellement sélectionné, ou null s'il n'y a pas de segment sélectionné.
+ * @param  {Shape} shape            la forme actuelle
+ * @param  {{'x': float, 'y': float}} clickCoordinates coordonnées de la souris.
+ * @return {{'p1': float, 'p2': float, 'sourcepoint1': Point, 'sourcepoint2': Point}}  le segment (ou null).
  */
-DivideState.prototype.click = function(coordinates) {
-    if(this.nb_parts==null)
-        return;
-    var nb_parts = this.app.settings.get('divideStateNumberOfParts');
-
-    var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-    if(list.length==0)
-        return;
-    var shape = list.pop();
-
-    //a-t-on sélectionné un segment de la forme ?
-    var segment_selected = false;
+DivideState.prototype.getSelectedSegment = function(shape, clickCoordinates){
     for(var i=1;i<shape.buildSteps.length;i++) {
         if(shape.buildSteps[i].type!="line")
             continue;
         var u = {
-            'x': (coordinates.x - shape.x) - shape.buildSteps[i-1].x,
-            'y': (coordinates.y - shape.y) - shape.buildSteps[i-1].y
+            'x': (clickCoordinates.x - shape.x) - shape.buildSteps[i-1].x,
+            'y': (clickCoordinates.y - shape.y) - shape.buildSteps[i-1].y
         };
         var v = {
             'x': shape.buildSteps[i].x - shape.buildSteps[i-1].x,
@@ -50,26 +42,47 @@ DivideState.prototype.click = function(coordinates) {
             'y': produit_scalaire*v.y /norme_v +shape.buildSteps[i-1].y
         };
 
-        var dist = Math.sqrt(Math.pow(proj.x-(coordinates.x - shape.x), 2) + Math.pow(proj.y-(coordinates.y - shape.y), 2));
+        var dist = Math.sqrt(Math.pow(proj.x-(clickCoordinates.x - shape.x), 2) + Math.pow(proj.y-(clickCoordinates.y - shape.y), 2));
         if(dist<this.app.settings.get('magnetismDistance')) {
             //Ce segment est sélectionné!
-            segment_selected = true;
-            var p1 = shape.buildSteps[i-1],
-                p2 = shape.buildSteps[i];
-            for(var j=1;j<this.nb_parts;j++) {
-                var x = p1.x + j*(1.0/this.nb_parts)*(p2.x-p1.x),
-                    y = p1.y + j*(1.0/this.nb_parts)*(p2.y-p1.y);
-                var pt = new Point(x, y, "division", shape);
-                pt.sourcepoint1 = shape.points[i-1];
-                pt.sourcepoint2 = shape.points[i % shape.points.length]; //i peut valoir shape.points.length max, car il y a une buildStep en plus.
-                shape.segmentPoints.push(pt);
-            }
-            break;
+            return {
+                'p1': shape.buildSteps[i-1],
+                'p2': shape.buildSteps[i],
+                'sourcepoint1': shape.points[i-1],
+                'sourcepoint2': shape.points[i % shape.points.length], //i peut valoir shape.points.length max, car il y a une buildStep en plus.
+                'index': i
+            };
         }
     }
+    return null;
+};
 
-    //Arc de cercle ?
-    if(!segment_selected) {
+/**
+ * @param coordinates: {x: int, y: int}
+ */
+DivideState.prototype.click = function(coordinates) {
+    if(this.nb_parts==null)
+        return;
+    var nb_parts = this.app.settings.get('divideStateNumberOfParts');
+
+    var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
+    if(list.length==0)
+        return;
+    var shape = list.pop();
+
+    //a-t-on sélectionné un segment de la forme ?
+    var seg = this.getSelectedSegment(shape, coordinates);
+    if(seg) {
+        for(var j=1;j<this.nb_parts;j++) {
+            var x = seg.p1.x + j*(1.0/this.nb_parts)*(seg.p2.x-seg.p1.x),
+                y = seg.p1.y + j*(1.0/this.nb_parts)*(seg.p2.y-seg.p1.y);
+            var pt = new Point(x, y, "division", shape);
+            pt.sourcepoint1 = seg.sourcepoint1;
+            pt.sourcepoint2 = seg.sourcepoint2;
+            shape.segmentPoints.push(pt);
+        }
+    } else {
+        //Arc de cercle ?
 
         var arc_selected = false;
         for(var i=1;i<shape.buildSteps.length;i++) {
@@ -105,7 +118,7 @@ DivideState.prototype.click = function(coordinates) {
                         shape.segmentPoints.push(pt);
                     }
 
-                    //console.log("arc ! " + start_angle+" "+end_angle+" "+angle);
+                    //console.log("arc found: " + start_angle+" "+end_angle+" "+angle);
                 }
                 //console.log("bad angle! " + start_angle+" "+end_angle+" "+angle);
             }
@@ -128,6 +141,26 @@ DivideState.prototype.reset = function(){
 DivideState.prototype.start = function(){
     this.nb_parts = null;
     document.getElementById('divide-popup-gray').style.display='block';
+};
+
+/**
+ * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
+ * @param  {Shape} overflownShape La forme qui est survolée par la souris
+ * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
+ */
+DivideState.prototype.getElementsToHighlight = function(overflownShape, coordinates){
+    var data = {
+        'shapes': [],
+        'segments': [],
+        'points': []
+    };
+
+    var seg = this.getSelectedSegment(overflownShape, coordinates);
+    if(seg) {
+        data.segments.push({'shape': overflownShape, 'segmentId': seg.index});
+    }
+
+    return data;
 };
 
 /**

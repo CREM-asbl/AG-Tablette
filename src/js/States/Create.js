@@ -46,7 +46,6 @@ CreateState.prototype.start = function(params){
  * @param coordinates: {x: int, y: int}
  */
 CreateState.prototype.click = function(coordinates) {
-
     //move the shape ?
     var pointsNear = this.app.workspace.pointsNearPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(pointsNear.length>0) {
@@ -147,6 +146,21 @@ CreateState.prototype.cancelAction = function(data, callback){
     }
     ws.removeShape(shape);
     callback();
+};
+
+/**
+ * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
+ * @param  {Shape} overflownShape La forme qui est survolée par la souris
+ * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
+ */
+CreateState.prototype.getElementsToHighlight = function(overflownShape){
+    var data = {
+        'shapes': [],
+        'segments': [],
+        'points': []
+    };
+
+    return data;
 };
 
 /**

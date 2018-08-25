@@ -59,6 +59,21 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 		maxY = canvasHeight*this.app.settings.get('maxZoomLevel');
 	ctx.clearRect(0, 0, maxX, maxY);
 
+	// Calcul des éléments à mettre en évidence.
+	// Optimisation possible: déplacer ce travail dans un "thread" secondaire.
+	var shapesToHighlight = [],
+		segmentsToHighlight = [],
+		pointsToHighlight = [];
+	if(mouseCoordinates!==undefined) {
+		var shapes = this.app.workspace.shapesOnPoint(new Point(mouseCoordinates.x, mouseCoordinates.y));
+		if(shapes.length>0) {
+			var data = this.app.state.getElementsToHighlight(shapes[shapes.length-1], mouseCoordinates);
+			shapesToHighlight = data.shapes;
+			segmentsToHighlight = data.segments; // [{shape: Shape, segmentId: int}] -> segmentId: numéro de buildStep. Ex pour colorier le premier segment: 1. le second: 2.
+			pointsToHighlight = data.points; //[{shape: Shape, pointId: int}]. -> pointId: numéro de buildStep (ne pas utiliser le 0!). Ex pour colorier le premier point: 1.
+		}
+	}
+
 	//dessine les formes
 	var shapes = this.app.workspace.shapesList;
 	for (var i = 0; i < shapes.length; i++) {
@@ -70,7 +85,17 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 		if(state.name=="reverse_shape" && state.isReversing && state.shapesList.indexOf(shape)!=-1)
 			continue;
 
-		this.drawShape(shape);
+		var highlightInfo = {
+			'shape': false,
+			'segments': [],
+			'points': []
+		};
+		if(shapesToHighlight.indexOf(shape)!==-1)
+			highlightInfo.shape = true;
+		highlightInfo.segments = segmentsToHighlight.filter(function(val, i){ return val.shape == shape }).map(function(val){ return val.segmentId; });
+		highlightInfo.points = pointsToHighlight.filter(function(val, i){ return val.shape == shape }).map(function(val){ return val.pointId; });
+
+		this.drawShape(shape, highlightInfo);
 
 
 		if(state.name=="link_shapes" || state.name=="unlink_shapes") {
@@ -133,7 +158,9 @@ Canvas.prototype.drawGrid = function() {
  * Dessine une forme sur le canvas
  * @param shape: la forme à dessiner (Shape)
  */
-Canvas.prototype.drawShape = function(shape) {
+Canvas.prototype.drawShape = function(shape, highlightInfo) {
+	if(highlightInfo===undefined)
+		highlightInfo = {'shape': false, 'segments': [], 'points': []};
 	var ctx = this.ctx;
 
 	//Choix de la couleur
@@ -145,6 +172,11 @@ Canvas.prototype.drawShape = function(shape) {
 
 	ctx.strokeStyle = shape.borderColor;
 	ctx.lineWidth = (new Number( 2 / this.app.workspace.zoomLevel )).toString();
+
+	if(highlightInfo.shape===true) { //il faut mettre la forme en évidence
+		ctx.lineWidth = ((new Number(ctx.lineWidth)) * 1.7).toString();
+		ctx.strokeStyle = '#E90CC8';
+	}
 
 	//Choix de l'opacité
 	if(shape.opacity>0.05)
@@ -163,9 +195,9 @@ Canvas.prototype.drawShape = function(shape) {
 	ctx.moveTo(firstPoint.x, firstPoint.y);
 	for (var i = 1; i < shape.buildSteps.length; i++) {
 		var s = shape.buildSteps[i];
+
 		if(s.getType()=="line") {
 			ctx.lineTo(s.x, s.y);
-
 		} else if(s.getType()=="arc") {
 			var start_pos = {"x": shape.buildSteps[i-1].x, "y": shape.buildSteps[i-1].y};
 			var rayon = Math.sqrt(Math.pow(s.x - start_pos.x, 2) + Math.pow(s.y - start_pos.y, 2));
@@ -195,10 +227,42 @@ Canvas.prototype.drawShape = function(shape) {
 	ctx.fill();
 	ctx.stroke();
 
+	if(highlightInfo.shape===true) { //il faut mettre la forme en évidence
+		ctx.lineWidth = ((new Number(ctx.lineWidth)) * (1/1.7)).toString();
+	}
+
+	//Highlight segment(s):
+	var strokeSave = ctx.strokeStyle;
+	ctx.strokeStyle = '#E90CC8';
+	ctx.lineWidth = ((new Number(ctx.lineWidth)) * (1.7)).toString();
+	for(var i=0;i<highlightInfo.segments.length;i++) {
+		var bs = shape.buildSteps[ highlightInfo.segments[i] ];
+		var sourcept = shape.buildSteps[ highlightInfo.segments[i] -1 ];
+
+		ctx.beginPath();
+		if(bs.getType()=="line") {
+			ctx.moveTo(sourcept.x, sourcept.y);
+			ctx.lineTo(bs.x, bs.y);
+			ctx.lineTo(sourcept.x, sourcept.y);
+		} else if(bs.getType()=="arc") {
+
+		}
+
+		ctx.fill();
+		ctx.stroke();
+	}
+	ctx.lineWidth = ((new Number(ctx.lineWidth)) * (1/1.7)).toString();
+	ctx.strokeStyle = strokeSave;
+
+
 	if(shape.isPointed) {
 		//dessine les points (noirs) des sommets de la forme
 		for(var i=0;i<shape.points.length;i++) {
-			this.drawPoint(shape.points[i].getRelativeCoordinates(), "#000");
+			if(highlightInfo.points.indexOf(i+1)!==-1) { //Il faut mettre ce point en évidence
+				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8");
+			} else {
+				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#000");
+			}
 		}
 	}
 

@@ -77,6 +77,8 @@ App.prototype.setState = function(stateName, params){
 	this.events.click = function(e){ if(that.state.name && !historyRunning) that.state.click(e); };
 	this.events.mousedown = function(e){ if(that.state.name && !historyRunning) that.state.mousedown(e); };
 	this.events.mouseup = function(e){ if(that.state.name && !historyRunning) that.state.mouseup(e); };
+
+	this.canvas.refresh();
 };
 
 /**
@@ -94,11 +96,13 @@ App.prototype.start = function(){
 	var that = this;
 
 	//quand la fenêtre est redimensionnée, mettre à jour la taille du canvas
-	window.onresize = function(e){
+	var f_onresize = function(e){
 		that.canvas.divRef.setCanvasSize();
 		that.canvas.refresh();
 		that.canvas.refreshBackgroundCanvas();
 	};
+	window.onresize = f_onresize;
+	window.onorientationchange = f_onresize;
 
 	//Utilisé pour les animations.
 	window.requestAnimFrame = (function(){

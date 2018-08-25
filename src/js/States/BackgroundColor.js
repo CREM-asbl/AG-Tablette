@@ -83,6 +83,21 @@ BackgroundColorState.prototype.cancelAction = function(data, callback){
 };
 
 /**
+ * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
+ * @param  {Shape} overflownShape La forme qui est survolée par la souris
+ * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
+ */
+BackgroundColorState.prototype.getElementsToHighlight = function(overflownShape){
+    var data = {
+        'shapes': [overflownShape],
+        'segments': [],
+        'points': []
+    };
+
+    return data;
+};
+
+/**
  * Annuler l'action en cours
  */
 BackgroundColorState.prototype.abort = function(){};

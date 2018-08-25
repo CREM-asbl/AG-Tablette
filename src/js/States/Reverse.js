@@ -280,6 +280,31 @@ ReverseState.prototype.draw = function(canvas, mouseCoordinates){
 };
 
 /**
+ * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
+ * @param  {Shape} overflownShape La forme qui est survolée par la souris
+ * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
+ */
+ReverseState.prototype.getElementsToHighlight = function(overflownShape){
+    var data = {
+        'shapes': [],
+        'segments': [],
+        'points': []
+    };
+
+    var uGroup = this.app.workspace.getShapeGroup(overflownShape, 'user');
+    var sGroup = this.app.workspace.getShapeGroup(overflownShape, 'system');
+    if(uGroup) {
+        data.shapes = uGroup
+    } else if(sGroup) {
+        data.shapes = sGroup;
+    } else {
+        data.shapes.push(overflownShape);
+    }
+
+    return data;
+};
+
+/**
  * démarrer l'état
  */
 ReverseState.prototype.start = function(){};

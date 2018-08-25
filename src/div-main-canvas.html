@@ -54,8 +54,23 @@
                     response = [event.pageX, event.pageY];
                 } else if(event.x!==undefined) {
                     response = [event.x, event.y];
+                } else if(event.changedTouches && event.changedTouches[0] && event.changedTouches[0].clientX!==undefined) {
+                    response = [event.changedTouches[0].clientX - window.canvasLeftShift, event.changedTouches[0].clientY];
                 } else {
                     alert("navigator not compatible");
+                    var str = event.type;
+                    for (var property1 in event) {
+                        str+= " | "+property1+" : "+ event[property1];
+                    }
+                    alert(str);
+
+                    if(event.touches) {
+                        str = "touches: "+event.touches.length+"";
+                        for (var property1 in event["touches"][0]) {
+                            str+= " | "+property1+" : "+ ["touches"][0][property1];
+                        }
+                        alert(str);
+                    }
                     return null;
                 }
 
@@ -87,19 +102,39 @@
                 cvs.addEventListener('mousemove', this._handleMove.bind(this), false);
 
                 //Tablette:
-                cvs.addEventListener('touchmove', this._handleMove.bind(this), false);
-
                 cvs.addEventListener('touchstart', function(event){
+                    if(event.touches.length > 1)
+                        return;
+                    event.preventDefault();
                     window.app.handleEvent("mousedown", that.getMousePos(event, window.app));
                 }, false);
 
+                cvs.addEventListener('touchmove', function(event){
+                    event.preventDefault();
+                    that._handleMove(event);
+                }, false);
+
                 cvs.addEventListener('touchend', function(event){
+                    var pos = that.getMousePos(event, window.app);
+                    window.app.handleEvent("mouseup", pos);
+                    window.app.handleEvent("click", pos);
+                }, false);
+
+                cvs.addEventListener('touchleave', function(event){
+                    var pos = that.getMousePos(event, window.app);
+                    window.app.handleEvent("mouseup", pos);
+                    window.app.handleEvent("click", pos);
+                }, false);
+
+                cvs.addEventListener("touchcancel", function(event){
+                    event.preventDefault();
                     window.app.handleEvent("mouseup", that.getMousePos(event, window.app));
                 }, false);
 
+
+
                 //TODO?
                 //cvs.addEventListener("touchcancel", handleCancel, false);
-                //cvs.addEventListener("touchleave", handleLeave, false);
             }
 
             /**

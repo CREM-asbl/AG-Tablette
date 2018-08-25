@@ -53,7 +53,7 @@ DeleteState.prototype.cancelAction = function(data, callback){
     }
 
     /**
-     * TODO HERE!
+     * TODO HERE! (pour l'historique). (update: terminé ? )
      * Quand on supprime une forme, on supprime aussi toutes les formes qui sont liées (directement ou indirectement) à cette forme.
      * -> pour chacune des formes supprimées: elles font peut être partie d'un userShapeGroup, si c'est le cas il faut enregistrer la liste des ids
      *      qui sont dans ce userShapeGroup au moment où on supprime la forme de ce groupe. quand on recrée la forme, on retrouve/recrée ce groupe.
@@ -103,70 +103,49 @@ DeleteState.prototype.cancelAction = function(data, callback){
 
     }
 
-    /* //TODO à supprimer
-    //groupes:
-    for(var i=0;i<data.groupsInfo.length;i++) {
-        var ginfo = data.groupsInfo[i];
-        var groupsList = this.app.workspace[ ginfo.gtype ]; //'systemShapeGroups', 'userShapeGroups'
-
-        //récupérer le groupe
-        var group = null;
-        if(ginfo.deleted) {
-            group = []; //nouveau groupe
-            if(ginfo.remaining_shapes.length==1) {
-                var shape = this.app.workspace.getShapeById(ginfo.remaining_shapes[0])
-                if(!shape) {
-                    console.log("DeleteState.cancelAction: shape to add in group not found...");
-                    callback();
-                    return;
-                }
-                group.push(shape);
-            }
-            groupsList.push(group);
-        } else {
-            for(var j=0;j<groupsList.length;j++) { //pour chaque groupe possible:
-                //est-ce ce groupe ?
-                var group_ok = true;
-                for(var k=0;k<ginfo.remaining_shapes.length;k++) { //pour chaque élément qui doit être dans le groupe
-                    var elem_found = false;
-                    for(var l=0;l<groupsList[j].length;l++) {
-                        if(groupsList[j][l].id==ginfo.remaining_shapes[k]) {
-                            elem_found = true;
-                            break;
-                        }
-                    }
-                    if(!elem_found) { //un élément devant être dans le groupe n'a pas été trouvé, ce n'est donc pas ce groupe.
-                        group_ok = false;
-                        break;
-                    }
-                }
-
-                if(group_ok) {
-                    group = groupsList[j];
-                    break;
-                }
-            }
-        }
-        if(!group){
-            console.log("DeleteState.cancelAction: group not found...");
-            callback();
-            return;
-        }
-
-        //Ajouter les formes au groupe.
-        for(var j=0;j<ginfo.deleted_ids.length;j++) {
-            var shape = this.app.workspace.getShapeById(ginfo.deleted_ids[j])
-            if(!shape) {
-                console.log("DeleteState.cancelAction: recreated shape not found...");
-                callback();
-                return;
-            }
-            group.push(shape);
-        }
-    }
-    */
-
     callback();
+};
+
+/**
+ * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
+ * @param  {Shape} overflownShape La forme qui est survolée par la souris
+ * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
+ */
+DeleteState.prototype.getElementsToHighlight = function(overflownShape){
+    var data = {
+        'shapes': [overflownShape],
+        'segments': [],
+        'points': []
+    };
+
+    var that = this;
+	var findLinkedShapes = function(list, srcShape) {
+		var to_visit = [];
+		for(var i=0;i<list.length;i++) {
+			if(list[i].linkedShape==srcShape) { //la forme est liée à la forme supprimée (srcShape)
+				data.shapes.push(list[i]);
+
+				to_visit.push(	list[i] ); //ajouter la forme pour la récursion
+				
+			}
+		}
+		for(var i=0;i<to_visit.length;i++)
+			findLinkedShapes(list, to_visit[i])
+	};
+
+	for(var i=0;i<this.app.workspace.systemShapeGroups.length;i++) {
+		var group = this.app.workspace.systemShapeGroups[i];
+		//parcours d'un groupe:
+		var found = false;
+		for(var j=0;j<group.length;j++) {
+			if(group[j]==overflownShape) { //on a trouvé la forme dans le groupe
+				findLinkedShapes(group, overflownShape);
+                return data;
+			}
+		}
+	}
+
+    return data;
 };
 
 /**
