@@ -153,6 +153,8 @@ ReverseState.prototype.reverseShapes = function () {
                 shape.buildSteps[j].direction = !shape.buildSteps[j].direction;
             }
     	}
+        shape.buildSteps.reverse();
+        shape.points.reverse();
     	shape.recomputePoints();
 
     	for(var j=0;j<shape.segmentPoints.length;j++) {

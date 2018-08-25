@@ -79,7 +79,7 @@
             <div style="margin-top: 25px">
                 <strong>Opérations</strong>
             </div>
-            <button class="action-button" name="merge_shape" on-click='_actionHandle'>Fusionner TODO</button>
+            <button class="action-button" name="merge_shapes" on-click='_actionHandle'>Fusionner</button>
             <button class="action-button" name="divide_segment" on-click='_actionHandle'>Diviser</button>
             <button class="action-button" name="cut_shape" on-click='_actionHandle'>Découper TODO</button>
             <button class="action-button" name="duplicate_shape" on-click='_actionHandle'>Dupliquer</button>
@@ -126,7 +126,8 @@
                 'reverse_shape': 'Retourner',
                 'build_shape_center': 'Construire le centre',
                 'duplicate_shape': 'Dupliquer',
-                'divide_segment': 'Diviser'
+                'divide_segment': 'Diviser',
+                'merge_shapes': 'Fusionner'
             };
 
             if(states.hasOwnProperty(event.target.name)) {

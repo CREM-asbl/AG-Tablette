@@ -9,13 +9,18 @@ function Settings(app) {
     /**
 	 * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
 	 */
-	this.add("magnetismDistance", 6, false);
+	this.add("magnetismDistance", 6,               false);
+
+    /**
+     * La précision, en pixels. (2 poitns à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )
+     */
+    this.add("precision", 1.5,              false);
 
 	//Niveau de zoom maximal de l'interface
-	this.add("maxZoomLevel", 10, false);
+	this.add("maxZoomLevel", 10,               false);
 
 	//Niveau de zoom minimal de l'interface
-	this.add("minZoomLevel", 0.1, false);
+	this.add("minZoomLevel", 0.1,              false);
 
     /**
 	 * Paramètres d'affichage de la grille.
@@ -24,27 +29,27 @@ function Settings(app) {
 	 * Si grille triangulaire: la base du triangle est de 50 unités, et le triangle est équilatéral.
 	 * 		(-> Ex de points: (-15, 52.5), (35, 52.5), (60, 10), ...)
 	 */
-	this.add("isGridShown", false, true);
-    this.add("gridSize", 0.333333333333333, true);
-    this.add("gridType", 'square', true); //square ou triangle
+	this.add("isGridShown", false,                 true);
+    this.add("gridSize", 0.333333333333333,                 true);
+    this.add("gridType", 'square',              true); //square ou triangle
 
 	//Ajustement automatique des formes activé ?
-	this.add("automaticAdjustment", true, true);
+	this.add("automaticAdjustment", true,              true);
 
     //Pour l'opération diviser, défini en combien de partie un segment est divisé.
-	this.add("divideStateNumberOfParts", 2, true);
+	this.add("divideStateNumberOfParts", 2,                true);
 
     //true si les formes ajoutées à l'avenir auront leurs sommets visibles
-	this.add("areShapesPointed", false, true);
+	this.add("areShapesPointed", true,                 true);
 
 	//true si les formes ajoutées à l'avenir seront bifaces
-	this.add("areShapesSided", false, true);
+	this.add("areShapesSided", false,              true);
 
 	//opacité des formes qui seront ajoutées
-	this.add("shapesOpacity", 0.7, true); //0, 0.7, 1
+	this.add("shapesOpacity", 0.7,                 true); //0, 0.7, 1
 
 	//taille des formes qui seront ajoutées
-	this.add("shapesSize", 1, true); //1,2,3
+	this.add("shapesSize", 1,              true); //1,2,3
 }
 
 /**

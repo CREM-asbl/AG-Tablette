@@ -37,6 +37,8 @@ function Workspace(app) {
 	 * sur un point d'une autre forme (ce qui implique que les 2 formes seront liées), ou en utilisant
 	 * la fonction diviser en sélectionnant 2 points de 2 formes différentes
 	 * Les userGroup sont créés manuellement par l'utilisateur en sélectionnant plusieurs formes.
+	 * Si l'une des formes faisant partie d'un systemGroup fait aussi partie d'un userGroup, les autres
+	 * formes de ce systemGroup font d'office également partie du même userGroup.
 	 */
 
 	//Groupes de formes qui sont liées par des points
@@ -230,7 +232,7 @@ Workspace.prototype.pointsNearPoint = function(point) {
 Workspace.prototype.getPointsAtCoordinates = function(x, y) {
 	var responses = [];
 	var pointCoordinates = {'x': x, 'y': y};
-	var maxSquareDist = Math.pow(1.5 / this.zoomLevel, 2); //précision d'1,5 pixel
+	var maxSquareDist = Math.pow(this.app.settings.get('precision') / this.zoomLevel, 2); //précision d'1,5 pixel
 
 	for(var i=0;i<this.shapesList.length;i++) {
 		var shape = this.shapesList[i];
@@ -439,56 +441,56 @@ Workspace.prototype.addMenuAFamilies = function(){
 
 	f1.addShape("Triangle équilatéral",[
 		ShapeStep.getLine(25	-25, -43.3012701892	+14.433756729733),
-		ShapeStep.getLine(50	-25, 0				+14.433756729733),
 		ShapeStep.getLine(0		-25, 0				+14.433756729733),
+		ShapeStep.getLine(50	-25, 0				+14.433756729733),
 		ShapeStep.getLine(25	-25, -43.3012701892	+14.433756729733)
 	], {"x": -25, "y": +14.433756729733});
 
 	f1.addShape("Losange",[
 		ShapeStep.getLine(-25	-12.5, -43.3012701892	+21.650635094600),
-		ShapeStep.getLine(25	-12.5, -43.3012701892	+21.650635094600),
-		ShapeStep.getLine(50	-12.5, 0				+21.650635094600),
 		ShapeStep.getLine(0		-12.5, 0				+21.650635094600),
+		ShapeStep.getLine(50	-12.5, 0				+21.650635094600),
+		ShapeStep.getLine(25	-12.5, -43.3012701892	+21.650635094600),
 		ShapeStep.getLine(-25	-12.5, -43.3012701892	+21.650635094600)
 	], {"x": -12.5, "y": +21.650635094600});
 
 	f1.addShape("Trapèze isocèle",[
 		ShapeStep.getLine(25	-50, -43.3012701892	+21.650635094600),
-		ShapeStep.getLine(75	-50, -43.3012701892	+21.650635094600),
-		ShapeStep.getLine(100	-50, 0				+21.650635094600),
 		ShapeStep.getLine(0		-50, 0				+21.650635094600),
+		ShapeStep.getLine(100	-50, 0				+21.650635094600),
+		ShapeStep.getLine(75	-50, -43.3012701892	+21.650635094600),
 		ShapeStep.getLine(25	-50, -43.3012701892	+21.650635094600)
 	], {"x": -50, "y": +21.650635094600});
 
 	f1.addShape("Hexagone régulier",[
 		ShapeStep.getLine(0		-25, -86.6025403784	+43.3012701892),
-		ShapeStep.getLine(50	-25, -86.6025403784	+43.3012701892),
-		ShapeStep.getLine(75	-25, -43.3012701892	+43.3012701892),
-		ShapeStep.getLine(50	-25, 0				+43.3012701892),
-		ShapeStep.getLine(0		-25, 0				+43.3012701892),
 		ShapeStep.getLine(-25	-25, -43.3012701892	+43.3012701892),
+		ShapeStep.getLine(0		-25, 0				+43.3012701892),
+		ShapeStep.getLine(50	-25, 0				+43.3012701892),
+		ShapeStep.getLine(75	-25, -43.3012701892	+43.3012701892),
+		ShapeStep.getLine(50	-25, -86.6025403784	+43.3012701892),
 		ShapeStep.getLine(0		-25, -86.6025403784	+43.3012701892)
 	], {"x": -25, "y": +43.3012701892});
 
 	f1.addShape("Triangle isocèle",[
 		ShapeStep.getLine(25	-25, -14.433756729747	+4.811252243249),
-		ShapeStep.getLine(50	-25, 0					+4.811252243249),
 		ShapeStep.getLine(0		-25, 0					+4.811252243249),
+		ShapeStep.getLine(50	-25, 0					+4.811252243249),
 		ShapeStep.getLine(25	-25, -14.433756729747	+4.811252243249)
 	], {"x": -25, "y": +4.811252243249});
 
 	f1.addShape("Triangle rectangle",[
 		ShapeStep.getLine(0		-8.3333333333333, -43.3012701892	+14.433756729733),
-		ShapeStep.getLine(25	-8.3333333333333, 0					+14.433756729733),
 		ShapeStep.getLine(0		-8.3333333333333, 0					+14.433756729733),
+		ShapeStep.getLine(25	-8.3333333333333, 0					+14.433756729733),
 		ShapeStep.getLine(0		-8.3333333333333, -43.3012701892	+14.433756729733)
 	], {"x": -8.3333333333333, "y": +14.433756729733});
 
 	f1.addShape("Trapèze rectangle",[
 		ShapeStep.getLine(25	-18.75, -43.3012701892	+21.650635094600),
-		ShapeStep.getLine(50	-18.75, 0				+21.650635094600),
-		ShapeStep.getLine(0		-18.75, 0				+21.650635094600),
 		ShapeStep.getLine(0		-18.75, -43.3012701892	+21.650635094600),
+		ShapeStep.getLine(0		-18.75, 0				+21.650635094600),
+		ShapeStep.getLine(50	-18.75, 0				+21.650635094600),
 		ShapeStep.getLine(25	-18.75, -43.3012701892	+21.650635094600)
 	], {"x": -18.75, "y": +21.650635094600});
 
