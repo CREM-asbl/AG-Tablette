@@ -45,6 +45,17 @@ LinkerState.prototype.click = function(coordinates) {
         return;
     var shape = list.pop();
 
+    //Sauvegarde des userShapeGroups:
+    var data = [];
+    for(var i=0;i<this.app.workspace.userShapeGroups.length;i++) {
+        var groupSave = [],
+            gRef = this.app.workspace.userShapeGroups[i];
+        for(var j=0;j<gRef.length;j++) {
+            groupSave.push(gRef[j].id);
+        }
+        data.push(groupSave);
+    }
+
     var shapesToAdd = [shape];
     var sysGroup = this.app.workspace.getShapeGroup(shape, 'system');
     if(sysGroup) {
@@ -52,6 +63,8 @@ LinkerState.prototype.click = function(coordinates) {
         for(var i=0;i<sysGroup.length;i++)
             shapesToAdd.push(sysGroup[i]);
     }
+
+    var hasDoneAnything = false;
 
     for(var i=0;i<shapesToAdd.length;i++) { //Pour chaque forme à ajouter au groupe:
         var shape = shapesToAdd[i];
@@ -78,16 +91,19 @@ LinkerState.prototype.click = function(coordinates) {
                 this.app.workspace.userShapeGroups[index1] = this.app.workspace.userShapeGroups[index1].concat(uGroup);
                 this.group = this.app.workspace.userShapeGroups[index1];
                 this.app.workspace.userShapeGroups.splice(index2, 1); //on supprime l'autre groupe.
+                hasDoneAnything = true;
             } else if(this.firstShape!=null) { //On avait déjà sélectionné une première forme.
                 this.group = uGroup;
                 this.group.push(this.firstShape);
                 this.firstShape = null;
+                hasDoneAnything = true;
             } else {
                 this.group = uGroup;
             }
         } else {
             if(this.group!=null) { //on a déjà créé un groupe.
                 this.group.push(shape);
+                hasDoneAnything = true;
             } else if(this.firstShape==null) {
                 this.firstShape = shape;
             } else {
@@ -96,8 +112,13 @@ LinkerState.prototype.click = function(coordinates) {
                 uSG.push([this.firstShape, shape]);
                 this.group = uSG[uSG.length-1];
                 this.firstShape = null;
+                hasDoneAnything = true;
             }
         }
+    }
+
+    if(hasDoneAnything) {
+        this.makeHistory(data);
     }
 
     this.app.canvas.refresh(coordinates);
@@ -146,6 +167,42 @@ LinkerState.prototype.getElementsToHighlight = function(overflownShape){
     }
 
     return data;
+};
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+LinkerState.prototype.makeHistory = function(userGroupSave){
+    var data = {
+        'user_groups': userGroupSave
+    };
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+LinkerState.prototype.cancelAction = function(data, callback){
+    var ws = this.app.workspace;
+    ws.userShapeGroups.splice(0);
+
+    for(var i=0;i<data.user_groups.length;i++) {
+        var group = [];
+        for(var j=0;j<data.user_groups[i].length;j++) {
+            var shape = ws.getShapeById(data.user_groups[i][j]);
+            if(!shape) {
+                console.log("LinkerState.cancelAction: shape not found...");
+                callback();
+                return;
+            }
+            group.push(shape);
+        }
+        ws.userShapeGroups.push(group);
+    }
+    
+    callback();
 };
 
 /**

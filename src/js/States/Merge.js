@@ -115,6 +115,7 @@ MergeState.prototype.click = function(point){
                 'y': shape1.y - shape2.y
             };
 
+        //TODO: fusionner 2 arc de cercles qui sont côte à côte si c'est le même centre ?
         if(Math.abs(commonSegment.s1_index1-commonSegment.s1_index2)<=1) {
             //Début forme 1:
             for(var i=0; i<=Math.min(commonSegment.s1_index1,commonSegment.s1_index2); i++)
@@ -241,13 +242,29 @@ MergeState.prototype.click = function(point){
             val.setCoordinates(val.x - midX, val.y - midY);
         });
 
-
         var newShape = shape1.getCopy();
         newShape.buildSteps = newBS;
         newShape.__computePoints();
         newShape.color = this.app.getAverageColor(shape1.color, shape2.color);
         newShape.name = "Custom";
         newShape.familyName = "Custom";
+
+        newShape.otherPoints = []; //Supprime le point au centre (le centre change)
+        newShape.segmentPoints = [];
+        for(var i=0;i<shape1.segmentPoints.length;i++) {
+            var p = shape1.segmentPoints[i].getCopy();
+            p.x -= midX;
+            p.y -= midY;
+            newShape.segmentPoints.push(p);
+        }
+        for(var i=0;i<shape2.segmentPoints.length;i++) {
+            var p = shape2.segmentPoints[i].getCopy();
+            p.x -= midX + decalage.x;
+            p.y -= midY + decalage.y;
+            newShape.segmentPoints.push(p);
+        }
+        //TODO: supprimer les segmentPoints qui se trouvent sur le segment qui se fusionne (vu qu'il disparait)
+
         this.app.workspace.addShape(newShape);
         var coord = newShape.getCoordinates();
         newShape.setCoordinates({"x": coord.x - 30, "y": coord.y - 30});

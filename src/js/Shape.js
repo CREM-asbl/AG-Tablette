@@ -72,24 +72,32 @@ function Shape(familyName, name, x, y, buildSteps, color, borderColor, refPoint,
 
 Shape.prototype.__computePoints = function(){
 	this.points = [];
+	var final_point = null;
 	for (var i = 1; i < this.buildSteps.length; i++) {
+		final_point = this.buildSteps[i-1].getFinalPoint(final_point);
 		var s = this.buildSteps[i];
 		if(s.getType()=="line") {
-			this.points.push(new Point(s.x, s.y, "vertex", this));
+			var pt = new Point(s.x, s.y, "vertex", this);
+			if(s.isArtificial)
+				pt.hidden = true;
+			this.points.push(pt);
 		} else if(s.getType()=="arc") {
-			if(this.buildSteps.length==2) {
-				//ne rien faire, c'est un cercle: il n'y a pas de sommets.
-			} else {
-				// à implémenter si certaines formes contiennent un arc de cercle.
-				console.log("Shape.computePoints(): le point n'a pas pu être déterminé");
+			if(this.buildSteps.length>2) { //Ce n'est pas un cercle:
+				var coord = this.buildSteps[i].getFinalPoint(final_point),
+					pt = new Point(coord.x, coord.y, "vertex", this);
+				this.points.push(pt);
 			}
 		} else {
-			// à implémenter si certaines formes contiennent des courbes
-			console.log("Shape.computePoints(): le point n'a pas pu être déterminé (2)");
+			console.log("Shape.computePoints(): Unknown type");
 		}
 	}
 };
 
+//Permet de mettre à jour les propriétés __finalPoint des buildSteps
+Shape.prototype.__computeFinalBuildStepsPoints = function(){
+	for(var i=0,prev=null;i<this.buildSteps.length;i++)
+		prev = this.buildSteps[i].getFinalPoint(prev);
+};
 /**
  * Définir l'identifiant unique de la forme
  * @param id: l'id (int)
@@ -171,35 +179,31 @@ Shape.prototype.getApproximatedPointsList = function() {
 	this._buildStepsUpdateIdList = newUpdateIdList;
 
 	//Si pas modifiée, renvoyer le tableau déjà calculé
-	if(!edited && false) {
+	if(!edited && false) { //TODO retirer le false
 		var pointsList = [];
 		for(var i=0;i<this._approximatedPointsList.length;i++) {
-			pointsList.push(this._approximatedPointsList[i]);
+			pointsList.push(this._approximatedPointsList[i]); //.getCopy() ?
 		}
 		return pointsList;
 	}
 
 	//Calculer le polygone approximé.
-	var pointsList = [ {"x": this.buildSteps[0].x, "y": this.buildSteps[0].y} ];
+	var pointsList = [ new Point(this.buildSteps[0].x, this.buildSteps[0].y, null, this) ],
+		lastPoint = null;
 	for (var i = 1; i < this.buildSteps.length; i++) {
+		lastPoint = this.buildSteps[i-1].getFinalPoint(lastPoint);
 		if(this.buildSteps[i].getType()=="line") {
 			pointsList.push(new Point(this.buildSteps[i].x, this.buildSteps[i].y, null, this));
 		} else if(this.buildSteps[i].getType()=="arc") {
-			var p1 = this.buildSteps[i-1],
+			var p1 = lastPoint,
 				center = this.buildSteps[i],
 				angle = this.buildSteps[i].angle,
-				direction = this.buildSteps[i].direction;
-			var points = window.app.getApproximatedArc(center, p1, angle, direction, 10);
+				direction = this.buildSteps[i].direction,
+				points = window.app.getApproximatedArc(center, p1, angle, direction, 0.05*Math.PI);
 			for(var j=0;j<points.length;j++) {
 				pointsList.push(new Point(points[j].x, points[j].y, null, this));
 			}
-		} else if(this.buildSteps[i].getType()=="quadraticCurve") {
-			console.log("Shape.getApproximatedPointsList: quadraticCurve, no approximation made");
-			pointsList.push(new Point(this.buildSteps[i].x, this.buildSteps[i].y, null, this));
-		} else if(this.buildSteps[i].getType()=="cubicCurve") {
-			console.log("Shape.getApproximatedPointsList: cubicCurve, no approximation made");
-			pointsList.push(new Point(this.buildSteps[i].x, this.buildSteps[i].y, null, this));
-		} else{
+		} else {
 			console.log("Shape.getApproximatedPointsList: unknown buildStep type");
 			return null;
 		}
@@ -312,7 +316,7 @@ Shape.prototype.getCopy = function() {
 	for(var i=0;i<arrays.length;i++) {
 		var arr = arrays[i];
 		for(var j=0;j<arr.length;j++) {
-			var pos = arr[i].getRelativeCoordinates();
+			var pos = arr[j].getRelativeCoordinates();
 			shape.addPoint(['segment', 'other'][i], pos.x, pos.y);
 		}
 	}

@@ -22,36 +22,49 @@ App.heriter(DivideState.prototype, State.prototype);
  * @return {{'p1': float, 'p2': float, 'sourcepoint1': Point, 'sourcepoint2': Point}}  le segment (ou null).
  */
 DivideState.prototype.getSelectedSegment = function(shape, clickCoordinates){
+    var lastPoint = null;
     for(var i=1;i<shape.buildSteps.length;i++) {
+        lastPoint = shape.buildSteps[i-1].getFinalPoint(lastPoint);
         if(shape.buildSteps[i].type!="line")
             continue;
         var u = {
-            'x': (clickCoordinates.x - shape.x) - shape.buildSteps[i-1].x,
-            'y': (clickCoordinates.y - shape.y) - shape.buildSteps[i-1].y
+            'x': (clickCoordinates.x - shape.x) - lastPoint.x,
+            'y': (clickCoordinates.y - shape.y) - lastPoint.y
         };
         var v = {
-            'x': shape.buildSteps[i].x - shape.buildSteps[i-1].x,
-            'y':shape.buildSteps[i].y - shape.buildSteps[i-1].y
+            'x': shape.buildSteps[i].x - lastPoint.x,
+            'y':shape.buildSteps[i].y - lastPoint.y
         };
         //calculer la projection de u sur v.
         var produit_scalaire = u.x * v.x + u.y * v.y;
         var norme_v = v.x*v.x + v.y*v.y;
 
         var proj = {
-            'x': produit_scalaire*v.x /norme_v +shape.buildSteps[i-1].x,
-            'y': produit_scalaire*v.y /norme_v +shape.buildSteps[i-1].y
+            'x': produit_scalaire*v.x /norme_v +lastPoint.x,
+            'y': produit_scalaire*v.y /norme_v +lastPoint.y
         };
+
+        var pt1 = lastPoint,
+            pt2 = shape.buildSteps[i],
+            pt3 = proj,
+            precision = this.app.settings.get('precision');
 
         var dist = Math.sqrt(Math.pow(proj.x-(clickCoordinates.x - shape.x), 2) + Math.pow(proj.y-(clickCoordinates.y - shape.y), 2));
         if(dist<this.app.settings.get('magnetismDistance')) {
-            //Ce segment est sélectionné!
-            return {
-                'p1': shape.buildSteps[i-1],
-                'p2': shape.buildSteps[i],
-                'sourcepoint1': shape.points[i-1],
-                'sourcepoint2': shape.points[i % shape.points.length], //i peut valoir shape.points.length max, car il y a une buildStep en plus.
-                'index': i
-            };
+            //Vérifier que proj est bien entre shape
+            if(Math.abs((pt3.x-pt1.x) * (pt2.y-pt1.y) - (pt2.x-pt1.x) * (pt3.y-pt1.y))<precision) { //pt1,2,3 alignés
+                //déterminant de (AB, AC) est nul!
+                if((pt1.x-pt3.x) * (pt2.x-pt3.x) + (pt1.y-pt3.y) * (pt2.y-pt3.y) <= precision) { //pt3 entre pt1 et pt2
+                    //produit scalaire de CA, CB est négatif ou nul!
+                    return { //Ce segment est sélectionné!
+                        'p1': lastPoint,
+                        'p2': shape.buildSteps[i],
+                        'sourcepoint1': shape.points[i-1],
+                        'sourcepoint2': shape.points[i % shape.points.length], //i peut valoir shape.points.length max, car il y a une buildStep en plus.
+                        'index': i
+                    };
+                }
+            }
         }
     }
     return null;
@@ -65,10 +78,11 @@ DivideState.prototype.click = function(coordinates) {
         return;
     var nb_parts = this.app.settings.get('divideStateNumberOfParts');
 
-    var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
+    var list = this.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(list.length==0)
         return;
     var shape = list.pop();
+    var addedPoints = [];
 
     //a-t-on sélectionné un segment de la forme ?
     var seg = this.getSelectedSegment(shape, coordinates);
@@ -80,49 +94,55 @@ DivideState.prototype.click = function(coordinates) {
             pt.sourcepoint1 = seg.sourcepoint1;
             pt.sourcepoint2 = seg.sourcepoint2;
             shape.segmentPoints.push(pt);
+            addedPoints.push(pt);
         }
     } else {
         //Arc de cercle ?
 
-        var arc_selected = false;
+        var arc_selected = false,
+            lastPoint = null;
         for(var i=1;i<shape.buildSteps.length;i++) {
+            lastPoint = shape.buildSteps[i-1].getFinalPoint(lastPoint);
             if(shape.buildSteps[i].type!="arc")
                 continue;
-            var x = coordinates.x - shape.getCoordinates().x,
-                y = coordinates.y - shape.getCoordinates().y;
-            var center_dist = Math.sqrt(Math.pow(x-shape.buildSteps[i].x, 2) + Math.pow(y-shape.buildSteps[i].y, 2));
-            var rayon = Math.sqrt(Math.pow(shape.buildSteps[i-1].x-shape.buildSteps[i].x, 2) + Math.pow(shape.buildSteps[i-1].y-shape.buildSteps[i].y, 2));
 
-            var start_angle = Math.atan2(shape.buildSteps[i-1].y-shape.buildSteps[i].y, shape.buildSteps[i-1].x-shape.buildSteps[i].x);
-			//var start_angle = -this.app.getAngleBetweenPoints(s, start_pos);
-			var end_angle = this.app.getAngle(start_angle+shape.buildSteps[i].angle*Math.PI/180) + 2*Math.PI;
-            var direction = shape.buildSteps[i].direction
-			if(direction) {
-				end_angle = this.app.getAngle(start_angle-shape.buildSteps[i].angle*Math.PI/180) - 2*Math.PI;
-			}
+            var x = coordinates.x - shape.getCoordinates().x, //Coordonnées relatives du clic par rapport au centre de la forme
+                y = coordinates.y - shape.getCoordinates().y,
+                center = shape.buildSteps[i],
+                center_dist = Math.sqrt(Math.pow(x-center.x, 2) + Math.pow(y-center.y, 2)),
+                rayon = Math.sqrt(Math.pow(lastPoint.x-center.x, 2) + Math.pow(lastPoint.y-center.y, 2)),
+                start_angle = window.app.positiveAtan2(lastPoint.y-center.y, lastPoint.x-center.x),
+                end_angle = null,
+                angle = window.app.positiveAtan2(y-center.y, x-center.x);
 
-            var angle = Math.atan2(y-shape.buildSteps[i].y, x-shape.buildSteps[i].x);
-            //TODO: pour des arc de cercles, vérifier si cela fonctionne aussi (si l'angle est bon).
+            //Vérifier si la souris est dans le bon angle.
+            if(shape.buildSteps[i].direction) //sens anti-horloger
+                end_angle = window.app.positiveAngle(start_angle + center.angle);
+            else
+                end_angle = window.app.positiveAngle(start_angle - center.angle);
 
             if(Math.abs(rayon-center_dist) < this.app.settings.get('magnetismDistance') || shape.buildSteps.length==2 /*cercle*/) { //distance entre le centre du cercle et le point égale au rayon
-                if((start_angle >= angle && angle >= end_angle) || (start_angle <= angle && angle <= end_angle)) {
+                if(window.app.isAngleBetweenTwoAngles(start_angle, end_angle, shape.buildSteps[i].direction, angle)) {
                     arc_selected = true;
 
-                    var angle_step = shape.buildSteps[i].angle*(Math.PI/180)/this.nb_parts;
-                    if(direction) angle_step *= -1;
+                    var angle_step = shape.buildSteps[i].angle/this.nb_parts;
+                    if(shape.buildSteps[i].direction) angle_step *= -1;
                     for(var j=0;j<this.nb_parts;j++) { //j=0 si cercle entier, =1 sinon? TODO
                         var a = start_angle + j*angle_step,
                             x = shape.buildSteps[i].x + rayon * Math.cos(a),
                             y = shape.buildSteps[i].y + rayon * Math.sin(a);
                         var pt = new Point(x, y, "division", shape);
                         shape.segmentPoints.push(pt);
+                        addedPoints.push(pt);
                     }
-
-                    //console.log("arc found: " + start_angle+" "+end_angle+" "+angle);
+                    break; //on ne sélectionne qu'un arc.
                 }
-                //console.log("bad angle! " + start_angle+" "+end_angle+" "+angle);
             }
         }
+    }
+
+    if(addedPoints.length>0) {
+        this.makeHistory(shape, addedPoints);
     }
 
 	this.app.canvas.refresh(coordinates);
@@ -158,9 +178,55 @@ DivideState.prototype.getElementsToHighlight = function(overflownShape, coordina
     var seg = this.getSelectedSegment(overflownShape, coordinates);
     if(seg) {
         data.segments.push({'shape': overflownShape, 'segmentId': seg.index});
+    } else {
+        //Vérifier si on est sur un arc de cercle!
     }
 
     return data;
+};
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+DivideState.prototype.makeHistory = function(shape, pointsList){
+    var data = {
+        'shape_id': shape.id,
+        'points': pointsList
+    };
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+DivideState.prototype.cancelAction = function(data, callback){
+    var ws = this.app.workspace;
+    var shape = ws.getShapeById(data.shape_id)
+    if(!shape) {
+        console.log("DivideState.cancelAction: shape not found...");
+        callback();
+        return;
+    }
+
+    var nb_removed = 0;
+    for(var i=0;i<data.points.length;i++) {
+        var p = data.points[i];
+        for(var j=0; j<shape.segmentPoints.length; j++) {
+            var sp = shape.segmentPoints[j];
+            if(sp.x==p.x && sp.y==p.y) {
+                nb_removed++;
+                shape.segmentPoints.splice(j, 1);
+                break;
+            }
+        }
+    }
+    if(nb_removed!=data.points.length) {
+        console.log("DivideState.cancelAction: couldn't remove all points, some are missing.");
+    }
+
+    callback();
 };
 
 /**

@@ -81,7 +81,7 @@
             </div>
             <button class="action-button" name="merge_shapes" on-click='_actionHandle'>Fusionner</button>
             <button class="action-button" name="divide_segment" on-click='_actionHandle'>Diviser</button>
-            <button class="action-button" name="cut_shape" on-click='_actionHandle'>Découper TODO</button>
+            <button class="action-button" name="cut_shape" on-click='_actionHandle'>Découper</button>
             <button class="action-button" name="duplicate_shape" on-click='_actionHandle'>Dupliquer</button>
             <button class="action-button" name="build_shape_center" on-click='_actionHandle'>Construire le centre</button>
         </div>
@@ -127,7 +127,8 @@
                 'build_shape_center': 'Construire le centre',
                 'duplicate_shape': 'Dupliquer',
                 'divide_segment': 'Diviser',
-                'merge_shapes': 'Fusionner'
+                'merge_shapes': 'Fusionner',
+                'cut_shape': 'Découper'
             };
 
             if(states.hasOwnProperty(event.target.name)) {

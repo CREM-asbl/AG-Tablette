@@ -369,9 +369,7 @@ Workspace.prototype.removeShape = function(shape) {
 				var s = list.splice(i, 1)[0]; //la supprimer de la liste du groupe
 				local_removed.push(s);
 				var shapeIndex = that.getShapeIndex(s);
-				if(shapeIndex==null) {
-					console.log("Workspace.removeShape: couldn't remove the linked shape");
-				} else {
+				if(shapeIndex!==null) {
 					that.shapesList.splice(shapeIndex, 1); //la supprimer de la liste des formes
 				}
 
@@ -421,8 +419,6 @@ Workspace.prototype.removeShape = function(shape) {
 
 		}
 	}
-
-	//TODO: supprimer certains points qui sont liées aux points de otherPoints et segmentPoints. Et enregistrer cela dans l'historique.
 
 	return {
 		"shapesInfo": removedShapes,
@@ -527,12 +523,12 @@ Workspace.prototype.addMenuAFamilies = function(){
 
 	f1.addShape("Petit disque",[
 		ShapeStep.getLine(0, -28.867513459466),
-		ShapeStep.getArc(0, 0, 360, false)
+		ShapeStep.getArc(0, 0, 2*Math.PI, false)
 	], {"x": 0, "y": 0});
 
 	f1.addShape("Grand disque",[
 		ShapeStep.getLine(0, -50),
-		ShapeStep.getArc(0, 0, 360, false)
+		ShapeStep.getArc(0, 0, 2*Math.PI, false)
 	], {"x": 0, "y": 0});
 
 	this.addFamily(f1);
@@ -606,7 +602,7 @@ Workspace.prototype.addMenuAFamilies = function(){
 
 	f2.addShape("Disque",[
 		ShapeStep.getLine(0, -35.355339059327),
-		ShapeStep.getArc(0, 0, 360, false)
+		ShapeStep.getArc(0, 0, 2*Math.PI, false)
 	], {"x": 0, "y": 0});
 
 	this.addFamily(f2);
@@ -668,7 +664,7 @@ Workspace.prototype.addMenuAFamilies = function(){
 
 	f3.addShape("Disque",[
 		ShapeStep.getLine(0, -42.5325404176),
-		ShapeStep.getArc(0, 0, 360, false)
+		ShapeStep.getArc(0, 0, 2*Math.PI, false)
 	], {"x": 0, "y": 0});
 
 	this.addFamily(f3);

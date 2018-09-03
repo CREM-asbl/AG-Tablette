@@ -26,6 +26,9 @@ UnlinkerState.prototype.click = function(coordinates) {
     var index = this.app.workspace.getGroupIndex(uGroup, 'user');
     this.app.workspace.userShapeGroups.splice(index, 1);
 
+    var uGroupIds = uGroup.map(function(val){ return val.id; });
+    this.makeHistory(uGroupIds);
+
     this.app.canvas.refresh(coordinates);
     return;
 };
@@ -65,6 +68,38 @@ UnlinkerState.prototype.getElementsToHighlight = function(overflownShape){
     }
 
     return data;
+};
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+UnlinkerState.prototype.makeHistory = function(deletedGroup){
+    var data = {
+        'deleted_group': deletedGroup
+    };
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+UnlinkerState.prototype.cancelAction = function(data, callback){
+    var ws = this.app.workspace;
+    var shapes = [];
+    for(var i=0;i<data.deleted_group.length;i++) {
+        var shape = ws.getShapeById(data.deleted_group[i]);
+        if(!shape) {
+            console.log("UnlinkerState.cancelAction: shape not found...");
+            callback();
+            return;
+        }
+        shapes.push(shape);
+    }
+    this.app.workspace.userShapeGroups.push(shapes);
+
+    callback();
 };
 
 /**

@@ -45,21 +45,17 @@ DeleteState.prototype.makeHistory = function(data2){
  * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
  */
 DeleteState.prototype.cancelAction = function(data, callback){
-    var ws = this.app.workspace;
+    var ws = this.app.workspace,
+        newShapesList = [];
 
     for(var i=0;i<data.shapes.length;i++) {
         var shape = Shape.createFromSaveData(data.shapes[i]);
+        newShapesList.push(shape);
         ws.addShape(shape, shape.id);
     }
 
-    /**
-     * TODO HERE! (pour l'historique). (update: terminé ? )
-     * Quand on supprime une forme, on supprime aussi toutes les formes qui sont liées (directement ou indirectement) à cette forme.
-     * -> pour chacune des formes supprimées: elles font peut être partie d'un userShapeGroup, si c'est le cas il faut enregistrer la liste des ids
-     *      qui sont dans ce userShapeGroup au moment où on supprime la forme de ce groupe. quand on recrée la forme, on retrouve/recrée ce groupe.
-     */
-
-    //User group: (le systemGroup est recréé dans addShape s'il existait)
+    //Recrée le user group: (le systemGroup est recréé dans addShape s'il existait)
+    //Si les formes étaient dans un systemGroup, elles faisaient partie du même userGroup (dans le cas où elles faisaient partie d'un userGroup)
     if(data.userGroupInfo.exists) {
         var group = null;
         if(data.userGroupInfo.ids.length<=1){
@@ -100,7 +96,9 @@ DeleteState.prototype.cancelAction = function(data, callback){
             }
         }
 
-
+        for(var i=0;i<newShapesList.length;i++) {
+            group.push(newShapesList[i]);
+        }
     }
 
     callback();
@@ -126,7 +124,7 @@ DeleteState.prototype.getElementsToHighlight = function(overflownShape){
 				data.shapes.push(list[i]);
 
 				to_visit.push(	list[i] ); //ajouter la forme pour la récursion
-				
+
 			}
 		}
 		for(var i=0;i<to_visit.length;i++)

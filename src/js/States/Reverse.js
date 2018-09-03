@@ -1,5 +1,5 @@
 /**
- * Cette classe permet d'effectuer un retournement d'une une forme (ou d'un ensemble de formes liées) sur le canvas
+ * Cette classe permet d'effectuer un retournement d'une forme (ou d'un ensemble de formes liées) sur le canvas
  */
 function ReverseState(app) {
     this.app = app;
@@ -31,6 +31,10 @@ function ReverseState(app) {
 
     //timestamp en milliseconde du démarrage de l'animation
     this.startTime = null;
+
+    this.isHistory = false;
+    this.historyCallback = null;
+    this.historyData = null;
 }
 
 App.heriter(ReverseState.prototype, State.prototype);
@@ -46,6 +50,9 @@ ReverseState.prototype.reset = function(){
     this.axe = null;
     this.startTime = null;
     window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.isHistory = false;
+    this.historyCallback = null;
+    this.historyData = null;
 };
 
 /**
@@ -112,6 +119,16 @@ ReverseState.prototype.click = function(point){
         }
     }
 
+    this.historyData = {
+        "selectedShapeId": this.selectedShape.id,
+        "shapesList": [],
+        "clickCoordinates": this.clickCoordinates,
+        "axe": this.axe
+    };
+    for(var i=0;i<this.shapesList.length;i++) {
+        this.historyData.shapesList.push(this.shapesList[i].id);
+    }
+
     //start animation:
     this.animate();
 };
@@ -153,8 +170,8 @@ ReverseState.prototype.reverseShapes = function () {
                 shape.buildSteps[j].direction = !shape.buildSteps[j].direction;
             }
     	}
-        shape.buildSteps.reverse();
-        shape.points.reverse();
+        //shape.buildSteps.reverse(); //Si il faut faire un reverse: inverser les directions des arcs ? et garder la première buildstep identique!
+        //shape.points.reverse();
     	shape.recomputePoints();
 
     	for(var j=0;j<shape.segmentPoints.length;j++) {
@@ -172,6 +189,11 @@ ReverseState.prototype.reverseShapes = function () {
         shape.isReversed = !shape.isReversed;
 
     }
+
+    if(this.isHistory)
+        this.historyCallback();
+    else
+        this.makeHistory(this.historyData);
     this.reset();
     this.app.canvas.refresh();
 };
@@ -304,6 +326,61 @@ ReverseState.prototype.getElementsToHighlight = function(overflownShape){
     }
 
     return data;
+};
+
+/**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+ReverseState.prototype.makeHistory = function(data){
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+ReverseState.prototype.cancelAction = function(data, callback){
+    /*
+        var historyData = {
+            "selectedShapeId": .id,
+            "shapesList": [],
+        };
+        for(var i=0;i<this.shapesList.length;i++) {
+            historyData.shapesList.push(this.shapesList[i].id);
+        }
+     */
+
+    this.abort();
+    this.reset();
+    this.clickCoordinates = data.clickCoordinates;
+    this.axe = data.axe;
+
+    var shape = this.app.workspace.getShapeById(data.selectedShapeId)
+    if(!shape) {
+        console.log("ReverseState.cancelAction: shape not found...");
+        callback();
+        return;
+    }
+    this.selectedShape = shape;
+
+    for(var i=0;i<data.shapesList.length;i++) {
+        shape = this.app.workspace.getShapeById(data.shapesList[i])
+        if(!shape) {
+            console.log("ReverseState.cancelAction: shape not found...");
+            callback();
+            return;
+        }
+        this.shapesList.push(shape);
+    }
+    this.startTime = Date.now();
+    this.isReversing = true;
+
+    this.isHistory = true;
+    this.historyCallback = callback;
+
+
+    this.animate();
 };
 
 /**

@@ -36,6 +36,7 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 	/**
 	 * Pendant une animation, ne pas mettre le canvas à jour quand on bouge la
 	 * souris, car il est déjà mis à jour avec l'animationFrame.
+	 * -> TODO: faire la même chose si on est en train d'annuler (history) une action de type reverse
 	 */
 	if(state=="reverse_shape" && state.isReversing && options.event_type == 'mousemove')
 		return;
@@ -114,6 +115,10 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 		 || (state.name=="reverse_shape")
 	 ) {
 		state.draw(this, mouseCoordinates);
+	}
+	//Si on est en train d'annuler un retournement de forme
+	if(this.app.workspace.history.isRunning && this.app.workspace.history.runningState=="reverse_shape") {
+		this.app.states["reverse_shape"].draw(this, mouseCoordinates);
 	}
 };
 
@@ -208,9 +213,9 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 
 			var start_angle = Math.atan2(start_pos.y, start_pos.x);
 			//var start_angle = -this.app.getAngleBetweenPoints(s, start_pos);
-			var end_angle = start_angle+s.angle*Math.PI/180;
+			var end_angle = start_angle+s.angle;
 			if(s.direction) {
-				end_angle = start_angle-s.angle*Math.PI/180;
+				end_angle = start_angle-s.angle;
 			}
 
 			ctx.arc(s.x, s.y, rayon, start_angle, end_angle, s.direction);
@@ -226,6 +231,30 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 
 	ctx.fill();
 	ctx.stroke();
+
+	//Dessiner le polygone approximatif:
+	if(false) {
+		var tmp_stroke = ctx.strokeStyle;
+		ctx.strokeStyle = '#00F';
+		var tmp_pts = shape.getApproximatedPointsList();
+		ctx.beginPath();
+		ctx.moveTo(tmp_pts[0].x, tmp_pts[0].y);
+		for(var i=1;i<tmp_pts.length;i++) {
+			ctx.lineTo(tmp_pts[i].x, tmp_pts[i].y);
+		}
+		ctx.lineTo(tmp_pts[0].x, tmp_pts[0].y);
+		ctx.closePath();
+		ctx.fill();
+		ctx.stroke();
+
+		for(var i=0;i<tmp_pts.length;i++) {
+			this.drawPoint(tmp_pts[i].getRelativeCoordinates(), "#00"+(30+i)+"00");
+		}
+
+
+		ctx.strokeStyle = tmp_stroke;
+	}
+
 
 	if(highlightInfo.shape===true) { //il faut mettre la forme en évidence
 		ctx.lineWidth = ((new Number(ctx.lineWidth)) * (1/1.7)).toString();
@@ -244,9 +273,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 			ctx.moveTo(sourcept.x, sourcept.y);
 			ctx.lineTo(bs.x, bs.y);
 			ctx.lineTo(sourcept.x, sourcept.y);
-		} else if(bs.getType()=="arc") {
-
-		}
+		} else if(bs.getType()=="arc") { 		}
 
 		ctx.fill();
 		ctx.stroke();
@@ -258,6 +285,8 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	if(shape.isPointed) {
 		//dessine les points (noirs) des sommets de la forme
 		for(var i=0;i<shape.points.length;i++) {
+			if(shape.points[i].hidden)
+				continue;
 			if(highlightInfo.points.indexOf(i+1)!==-1) { //Il faut mettre ce point en évidence
 				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8");
 			} else {
@@ -347,7 +376,7 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 	var saveShapeCenter = {'x': shape.x, 'y': shape.y};
 	var saveAxeCenter = axe.center;
 
-	var newShapeCenter = this.app.state.computePointPosition(shape.x, shape.y, axe, progress);
+	var newShapeCenter = this.app.states.reverse_shape.computePointPosition(shape.x, shape.y, axe, progress);
 	axe.center = {'x': 0, 'y': 0};
 	shape.x = newShapeCenter.x;
 	shape.y = newShapeCenter.y;
@@ -358,7 +387,7 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 	for(var i=0;i<tmpBuildSteps.length;i++) {
 		var b = tmpBuildSteps[i];
 		if(b.type=="line") {
-			var transformation = this.app.state.computePointPosition(b.x, b.y, axe, progress);
+			var transformation = this.app.states.reverse_shape.computePointPosition(b.x, b.y, axe, progress);
 			var copy = b.getCopy();
 			copy.setCoordinates(transformation.x, transformation.y);
 			shape.buildSteps.push(copy);
@@ -367,10 +396,12 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 				center = b,
 				angle = b.angle,
 				direction = b.direction;
-			var points = this.app.getApproximatedArc(center, p1, angle, direction, 10);
+			var points = this.app.getApproximatedArc(center, p1, angle, direction, 0.05*Math.PI);
 			for(var j=0;j<points.length;j++) {
-				var transformation = this.app.state.computePointPosition(points[j].x, points[j].y, axe, progress);
-				shape.buildSteps.push(ShapeStep.getLine(transformation.x, transformation.y));
+				var transformation = this.app.states.reverse_shape.computePointPosition(points[j].x, points[j].y, axe, progress);
+				var tmp_shapestep = ShapeStep.getLine(transformation.x, transformation.y);
+				tmp_shapestep.isArtificial = true;
+				shape.buildSteps.push(tmp_shapestep);
 			}
 		} else {
 			console.log("drawReversingShape: curve! ");
@@ -382,13 +413,13 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 	var tmpSegmentPoints = [], tmpOtherPoints = [];
 	for(var i=0;i<shape.segmentPoints.length;i++) {
 		var pos = shape.segmentPoints[i].getRelativeCoordinates();
-		var transformation = this.app.state.computePointPosition(pos.x, pos.y, axe, progress);
+		var transformation = this.app.states.reverse_shape.computePointPosition(pos.x, pos.y, axe, progress);
 		tmpSegmentPoints.push([ pos.x, pos.y ]);
 		shape.segmentPoints[i].setCoordinates(transformation.x, transformation.y);
 	}
 	for(var i=0;i<shape.otherPoints.length;i++) {
 		var pos = shape.otherPoints[i].getRelativeCoordinates();
-		var transformation = this.app.state.computePointPosition(pos.x, pos.y, axe, progress);
+		var transformation = this.app.states.reverse_shape.computePointPosition(pos.x, pos.y, axe, progress);
 		tmpOtherPoints.push([ pos.x, pos.y ]);
 		shape.otherPoints[i].setCoordinates(transformation.x, transformation.y);
 	}

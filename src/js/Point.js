@@ -14,7 +14,16 @@ function Point(x, y, type, shape) {
     //Peuvent rester null (si c'est un cercle qui a été divisé par exemple)
     this.sourcepoint1 = null;
     this.sourcepoint2 = null;
+
+    this.hidden = false;//Si vaut true: ne sera pas affiché, même si la forme est pointée. (utilisé lors d'une animation ReverseState, pour un point qui est dans un arc de cercle)
 }
+
+Point.prototype.getCopy = function(){
+    var p = new Point(this.x, this.y, this.type, this.shape);
+    p.sourcepoint1 = this.sourcepoint1;
+    p.sourcepoint2 = this.sourcepoint2;
+    return p;
+};
 
 /**
  * Méthode statique. Crée un objet Point à partir d'une sauvegarde (getSaveData).

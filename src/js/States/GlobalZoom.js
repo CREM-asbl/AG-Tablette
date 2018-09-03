@@ -9,6 +9,7 @@ function GlobalZoomState(app) {
     this.clickCoordinates = null;
     this.baseDistance = null;
     this.isZooming = false;
+    this.originalZoomLevel = null;
 
 }
 
@@ -21,6 +22,7 @@ GlobalZoomState.prototype.reset = function(){
     this.clickCoordinates = null;
     this.baseDistance = null;
     this.isZooming = false;
+    this.originalZoomLevel = null;
 };
 
 /**
@@ -30,6 +32,7 @@ GlobalZoomState.prototype.mousedown = function(point){
     this.isZooming = true;
     this.clickCoordinates = point;
     this.baseDistance = Math.sqrt( Math.pow(point.x, 2) + Math.pow(point.y, 2));
+    this.originalZoomLevel = this.app.workspace.zoomLevel;
 };
 
 /**
@@ -37,6 +40,7 @@ GlobalZoomState.prototype.mousedown = function(point){
  */
 GlobalZoomState.prototype.mouseup = function(point){
     if(this.isZooming) {
+        this.makeHistory(this.originalZoomLevel);
         this.reset();
     }
 };
@@ -72,9 +76,29 @@ GlobalZoomState.prototype.getElementsToHighlight = function(overflownShape){
 };
 
 /**
+ * Ajoute l'action qui vient d'être effectuée dans l'historique
+ */
+GlobalZoomState.prototype.makeHistory = function(originalZoomLevel){
+    var data = {
+        'original_zoom': originalZoomLevel
+    };
+    this.app.workspace.history.addStep(this.name, data);
+};
+
+/**
+ * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
+ * @param  {Object} data        les données envoyées à l'historique par makeHistory
+ * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
+ */
+GlobalZoomState.prototype.cancelAction = function(data, callback){
+    this.app.workspace.setZoomLevel(data.original_zoom, true);
+    callback();
+};
+
+/**
  * Annuler l'action en cours
  */
-GlobalZoomState.prototype.abort = function(){};
+GlobalZoomState.prototype.abort = function(){}; //TODO: restaurer le zoom original ?
 
 /**
  * démarrer l'état
