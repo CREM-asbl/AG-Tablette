@@ -255,7 +255,7 @@ App.prototype.getApproximatedArc = function(center, p1, angle, direction, step_a
 		start_angle = this.positiveAtan2(p1.y - center.y, p1.x - center.x),
 		end_angle = null,
 		pointsList = [];
-	if(direction) { //sens anti-horloger
+	if(!direction) { //sens horloger
 		end_angle = this.positiveAngle(start_angle + angle);
 	} else
 		end_angle = this.positiveAngle(start_angle - angle);
@@ -264,7 +264,7 @@ App.prototype.getApproximatedArc = function(center, p1, angle, direction, step_a
 	while(true) {
 		//TODO: vérifier si cela fonctionne ? notamment lorsque les bornes sont proches de 0 ou 2 * PI
 		var save_cur_angle = cur_angle;
-		if(direction) {
+		if(!direction) {
 			cur_angle = this.positiveAngle(cur_angle + step_angle);
 			if(cur_angle<save_cur_angle) {
 				if(has_been_mod_2PI) {
@@ -315,6 +315,7 @@ App.prototype.positiveAtan2 = function(y, x) {
 	var val = Math.atan2(y, x);
 	if(val<0)
 		val += 2*Math.PI;
+	if(2*Math.PI-val<0.00001) val = 0;
 	return val;
 };
 
@@ -328,7 +329,7 @@ App.prototype.positiveAtan2 = function(y, x) {
  * @note: si srcAngle = dstAngle, l'angle est d'office compris entre les 2.
  */
 App.prototype.isAngleBetweenTwoAngles = function(srcAngle, dstAngle, direction, angle) {
-	if(direction) { //Sens anti-horloger (sens trigonométrique)
+	if(!direction) { //Sens horloger
 		if(dstAngle > srcAngle) { //situation normale
 			return (srcAngle <= angle && angle <= dstAngle);
 		} else { //l'angle de destination était plus grand que 2*Math.PI

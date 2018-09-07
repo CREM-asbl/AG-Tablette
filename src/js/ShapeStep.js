@@ -111,24 +111,28 @@ ShapeStep.prototype.getFinalPoint = function(srcPoint){
 		this.__finalPoint = {'x': this.x, 'y': this.y};
 		return this.__finalPoint;
 	} else if(this.type=="arc") {
-		//TODO: vérifier si ça fonctionne ?
+		if((typeof srcPoint)!=="object" || typeof srcPoint.x!=="number" || typeof srcPoint.y!=="number") {
+			console.error("le paramètre srcPoint n'a pas été défini!");
+			return null;
+		}
 		var center = {'x': this.x, 'y': this.y},
 			start_angle = window.app.positiveAtan2(srcPoint.y-center.y, srcPoint.x-center.x),
-			end_angle = null;
-		if(this.direction) { //sens anti-horloger
+			end_angle = null,
+			rayon = Math.sqrt(Math.pow(center.x-srcPoint.x, 2) + Math.pow(center.y-srcPoint.y, 2));
+		if(!this.direction) { //sens anti-horloger
 			end_angle = window.app.positiveAngle(start_angle + this.angle);
 		} else {
 			end_angle = window.app.positiveAngle(start_angle - this.angle);
 		}
 
 		this.__finalPoint = {
-			'x': Math.cos(end_angle) + center.x,
-			'y': Math.sin(end_angle) + center.y
+			'x': Math.cos(end_angle)*rayon + center.x,
+			'y': Math.sin(end_angle)*rayon + center.y
 		};
 
 		return this.__finalPoint;
 	} else {
-		console.log("ShapeStep.getFinalPoint: unknown type");
+		console.error("ShapeStep.getFinalPoint: unknown type");
 		return null;
 	}
 };

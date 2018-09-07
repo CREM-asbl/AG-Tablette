@@ -62,7 +62,7 @@ MergeState.prototype.click = function(point){
                 nextJ = (j==shape2.buildSteps.length-2) ? 0 : j+1,
                 prevI = i==0 ? shape1.buildSteps.length-2 : i-1,
                 prevJ = j==0 ? shape2.buildSteps.length-2 : j-1;
-
+            //TODO: remplacer buildSteps[prevI/J] par getFinalPoint!!
             if(maxSquareDist >= Math.pow(s1BS.x - s2BS.x, 2) + Math.pow(s1BS.y - s2BS.y, 2)) {
                 //Les 2 points sont au même endroit. Y a-t-il un segment commun à cet endroit ?
                 var s1BSprev = {'x': shape1.x+shape1.buildSteps[prevI].x, 'y': shape1.y+shape1.buildSteps[prevI].y},

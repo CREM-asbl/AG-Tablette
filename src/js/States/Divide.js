@@ -59,7 +59,7 @@ DivideState.prototype.getSelectedSegment = function(shape, clickCoordinates){
                     return { //Ce segment est sélectionné!
                         'p1': lastPoint,
                         'p2': shape.buildSteps[i],
-                        'sourcepoint1': shape.points[i-1],
+                        'sourcepoint1': shape.points[i-1], 
                         'sourcepoint2': shape.points[i % shape.points.length], //i peut valoir shape.points.length max, car il y a une buildStep en plus.
                         'index': i
                     };

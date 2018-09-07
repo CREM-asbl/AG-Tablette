@@ -198,20 +198,36 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	var firstPoint = shape.buildSteps[0];
 
 	ctx.moveTo(firstPoint.x, firstPoint.y);
+	var prevFinalPoint = null;
 	for (var i = 1; i < shape.buildSteps.length; i++) {
-		var s = shape.buildSteps[i];
+		var s = shape.buildSteps[i],
+			prevFinalPoint = shape.buildSteps[i-1].getFinalPoint(prevFinalPoint);
 
 		if(s.getType()=="line") {
 			ctx.lineTo(s.x, s.y);
 		} else if(s.getType()=="arc") {
-			var start_pos = {"x": shape.buildSteps[i-1].x, "y": shape.buildSteps[i-1].y};
+
+			var rayon = Math.sqrt(Math.pow(s.x - prevFinalPoint.x, 2) + Math.pow(s.y - prevFinalPoint.y, 2)),
+				start_angle = window.app.positiveAtan2(prevFinalPoint.y-s.y, prevFinalPoint.x-s.x),
+				end_angle;
+			if(!s.direction) { //sens horloger
+    			end_angle = start_angle + s.angle;
+    		} else {
+    			end_angle = start_angle - s.angle;
+    		}
+
+			ctx.arc(s.x, s.y, rayon, start_angle, end_angle, s.direction);
+
+			/*
+
+			var start_pos = {"x": prevFinalPoint.x, "y": prevFinalPoint.y};
 			var rayon = Math.sqrt(Math.pow(s.x - start_pos.x, 2) + Math.pow(s.y - start_pos.y, 2));
 
 			var a = this.app.getAngleBetweenPoints({'x': 0, 'y': 0}, start_pos);
 			var b = this.app.getAngleBetweenPoints({'x': 0, 'y': 0}, s);
 			//var start_angle = -a+b;
 
-			var start_angle = Math.atan2(start_pos.y, start_pos.x);
+			var start_angle = Math.atan2(start_pos.y, start_pos.x); //Attention, ne prend pas en compte le centre.
 			//var start_angle = -this.app.getAngleBetweenPoints(s, start_pos);
 			var end_angle = start_angle+s.angle;
 			if(s.direction) {
@@ -219,6 +235,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 			}
 
 			ctx.arc(s.x, s.y, rayon, start_angle, end_angle, s.direction);
+			*/
 		} else {
 			//Pour les formes contenant des courbes de bézier
 			console.log("Canvas.drawShape: missed one step:");
@@ -233,7 +250,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	ctx.stroke();
 
 	//Dessiner le polygone approximatif:
-	if(false) {
+	if(true) {
 		var tmp_stroke = ctx.strokeStyle;
 		ctx.strokeStyle = '#00F';
 		var tmp_pts = shape.getApproximatedPointsList();
