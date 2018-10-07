@@ -12,8 +12,8 @@ function AppHistory(app) {
 
 /**
  * Ajouter une action/étape à l'historique.
+ * @param {String} actionName   Le nom du type d'action
  * @param  {Object} data         Les données servant à annuler l'action. Celles-ci doivent pouvoir être sauvegardées au format JSON (donc pas de boucle de références)
- * @param  {Function} undoFunction fonction appelée pour annuler l'action. Elle reçoit 2 paramètres:
  *
  */
 AppHistory.prototype.addStep = function(actionName, data){

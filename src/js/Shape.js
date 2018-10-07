@@ -158,11 +158,11 @@ Shape.prototype.getPointByUniqId = function(uniqId){
 		if(this.points[i].uniqId==uniqId)
 			return this.points[i];
 	}
-	for(var i=0;i<segmentPoints.length;i++) {
+	for(var i=0;i<this.segmentPoints.length;i++) {
 		if(this.segmentPoints[i].uniqId==uniqId)
 			return this.segmentPoints[i];
 	}
-	for(var i=0;i<otherPoints.length;i++) {
+	for(var i=0;i<this.otherPoints.length;i++) {
 		if(this.otherPoints[i].uniqId==uniqId)
 			return this.otherPoints[i];
 	}
@@ -355,40 +355,50 @@ Shape.prototype.getCopy = function() {
 
 /**
  * Méthode statique. Crée un objet Shape à partir d'une sauvegarde (getSaveData).
- * @param  {Object} saveData les données de sauvegarde
- * @return {Shape}          le nouvel objet
+ * @param  {Object} saveData   Les données de sauvegarde
+ * @param  {Workspace} ws         Une référence vers le workspace à utiliser. Default: app.workspace
+ * @param  {Boolean} skipPoints Si true, ne va pas initialiser les points de la forme
+ * @param  {Shape} shape      Un objet Shape. Si non null, va utiliser cet objet et va uniquement initialiser les points
+ * @return {Shape}            La forme.
  */
-Shape.createFromSaveData = function(saveData) {
+Shape.createFromSaveData = function(saveData, ws, skipPoints, shape) {
+	if(!ws) ws = window.app.workspace;
 	var buildSteps = [];
 	for(var i=0;i<saveData.buildSteps.length;i++)
         buildSteps.push(ShapeStep.createFromSaveData(saveData.buildSteps[i]));
 
-	var shape = new Shape(
-		saveData.familyName,
-		saveData.name,
-		saveData.x, saveData.y,
-		buildSteps,
-		saveData.color,
-		saveData.borderColor,
-        {"x": saveData.refPoint.x, "y": saveData.refPoint.y},
-        saveData.isPointed,
-		saveData.isSided,
-		saveData.opacity);
-	shape.isReversed = saveData.isReversed;
-	shape.isPointed = saveData.isPointed;
-	shape.id = saveData.id;
+	if(!shape) {
+		var shape = new Shape(
+			saveData.familyName,
+			saveData.name,
+			saveData.x, saveData.y,
+			buildSteps,
+			saveData.color,
+			saveData.borderColor,
+	        {"x": saveData.refPoint.x, "y": saveData.refPoint.y},
+	        saveData.isPointed,
+			saveData.isSided,
+			saveData.opacity);
+		shape.isReversed = saveData.isReversed;
+		shape.isPointed = saveData.isPointed;
+		shape.id = saveData.id;
+	}
+
+
+	if(skipPoints===true)
+		return shape;
 
 	shape.points = [];
 	for(var i=0;i<saveData.points.length;i++)
-        shape.points.push(Point.createFromSaveData(saveData.points[i]));
+        shape.points.push(Point.createFromSaveData(saveData.points[i], ws));
 	for(var i=0;i<saveData.segmentPoints.length;i++)
-        shape.segmentPoints.push(Point.createFromSaveData(saveData.segmentPoints[i]));
+        shape.segmentPoints.push(Point.createFromSaveData(saveData.segmentPoints[i], ws));
 	for(var i=0;i<saveData.otherPoints.length;i++)
-        shape.otherPoints.push(Point.createFromSaveData(saveData.otherPoints[i]));
+        shape.otherPoints.push(Point.createFromSaveData(saveData.otherPoints[i], ws));
 
 	//LinkedShape:
 	if(saveData.linkedShapeId!==undefined && saveData.linkedShapeId!==null) {
-		var linkedShape = app.workspace.getShapeById(saveData.linkedShapeId)
+		var linkedShape = ws.getShapeById(saveData.linkedShapeId)
 	    if(!linkedShape)
 	        console.log("Shape.createFromSaveData: linked Shape not found...");
 	    else

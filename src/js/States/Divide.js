@@ -203,7 +203,9 @@ DivideState.prototype.getElementsToHighlight = function(overflownShape, coordina
 DivideState.prototype.makeHistory = function(shape, pointsList){
     var data = {
         'shape_id': shape.id,
-        'points': pointsList
+        'points': pointsList.map(function(val){
+            return val.getSaveData();
+        })
     };
     this.app.workspace.history.addStep(this.name, data);
 };
@@ -224,7 +226,7 @@ DivideState.prototype.cancelAction = function(data, callback){
 
     var nb_removed = 0;
     for(var i=0;i<data.points.length;i++) {
-        var p = data.points[i];
+        var p = Point.createFromSaveData(data.points[i]);
         for(var j=0; j<shape.segmentPoints.length; j++) {
             var sp = shape.segmentPoints[j];
             if(sp.x==p.x && sp.y==p.y) {
@@ -235,7 +237,7 @@ DivideState.prototype.cancelAction = function(data, callback){
         }
     }
     if(nb_removed!=data.points.length) {
-        console.log("DivideState.cancelAction: couldn't remove all points, some are missing.");
+        console.error("DivideState.cancelAction: couldn't remove all points, some are missing.");
     }
 
     callback();

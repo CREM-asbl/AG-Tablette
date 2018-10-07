@@ -30,15 +30,15 @@ Point.prototype.getCopy = function(){
  * @param  {Object} saveData les données de sauvegarde
  * @return {Point}          le nouvel objet
  */
-Point.createFromSaveData = function(saveData) {
-    var ws = window.app.workspace;
+Point.createFromSaveData = function(saveData, ws) {
+    if(!ws) ws = window.app.workspace;
     var shape = ws.getShapeById(saveData.shape_id)
     if(!shape) {
         console.log("Point.createFromSaveData: shape not found...");
         return;
     }
 	var point = new Point(saveData.x, saveData.y, saveData.type, shape);
-    point.uniqId = saveData.uniqId;
+    point.uniqId = saveData.uniq_id;
 
     //sourcepoint1:
     if(saveData.sourcepoint1) {

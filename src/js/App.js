@@ -49,6 +49,9 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
 
 	//Paramètres de l'application
 	this.settings = new Settings(this);
+
+	//Sauvegarde du Workspace:
+	this.storer = new Storer(this);
 }
 
 /**
@@ -88,7 +91,7 @@ App.prototype.setState = function(stateName, params){
  * @return la version (Chaîne de caractères)
  */
 App.prototype.getVersion = function(){
-	return "0.1.0";
+	return "1.0.0";
 };
 
 /**
@@ -130,6 +133,31 @@ App.prototype.start = function(){
 	};
 
 };
+
+/**
+ * Sauvegarde l'espace de travail actuel
+ * @param  {String} name Le nom du Workspace. Il peut y avoir plusieurs espaces de travail sauvegardés ayant le même nom.
+ */
+App.prototype.saveCurrentWorkspace = function(name) {
+	if(name===undefined)
+		name = "Workspace1";
+	this.storer.saveWorkspace(this.workspace, name);
+};
+
+/**
+ * Charge un workspace sauvegardé
+ * @param  {String} name Le nom du Workspace
+ */
+App.prototype.restoreWorkspace = function(name) {
+	var ws = this.storer.getWorkspaceByName(name);
+	if(!ws) {
+		console.log("Workspace non trouvé!");
+		return;
+	}
+
+	this.workspace = ws;
+	this.canvas.refresh();
+}
 
 
 /**
