@@ -59,11 +59,47 @@ DivideState.prototype.getSelectedSegment = function(shape, clickCoordinates){
                     return { //Ce segment est sélectionné!
                         'p1': lastPoint,
                         'p2': shape.buildSteps[i],
-                        'sourcepoint1': shape.points[i-1], 
+                        'sourcepoint1': shape.points[i-1],
                         'sourcepoint2': shape.points[i % shape.points.length], //i peut valoir shape.points.length max, car il y a une buildStep en plus.
                         'index': i
                     };
                 }
+            }
+        }
+    }
+    return null;
+};
+
+DivideState.prototype.getSelectedArc = function (shape, clickCoordinates) {
+    var lastPoint = null;
+    for(var i=1;i<shape.buildSteps.length;i++) {
+        lastPoint = shape.buildSteps[i-1].getFinalPoint(lastPoint);
+        if(shape.buildSteps[i].type!="arc")
+            continue;
+
+        var x = clickCoordinates.x - shape.getCoordinates().x, //Coordonnées relatives du clic par rapport au centre de la forme
+            y = clickCoordinates.y - shape.getCoordinates().y,
+            center = shape.buildSteps[i],
+            center_dist = Math.sqrt(Math.pow(x-center.x, 2) + Math.pow(y-center.y, 2)),
+            rayon = Math.sqrt(Math.pow(lastPoint.x-center.x, 2) + Math.pow(lastPoint.y-center.y, 2)),
+            start_angle = window.app.positiveAtan2(lastPoint.y-center.y, lastPoint.x-center.x),
+            end_angle = null,
+            angle = window.app.positiveAtan2(y-center.y, x-center.x);
+
+        //Vérifier si la souris est dans le bon angle.
+        if(shape.buildSteps[i].direction) //sens anti-horloger
+            end_angle = window.app.positiveAngle(start_angle - center.angle);
+        else
+            end_angle = window.app.positiveAngle(start_angle + center.angle);
+
+        if(Math.abs(rayon-center_dist) < this.app.settings.get('magnetismDistance') || shape.buildSteps.length==2 /*cercle*/) { //distance entre le centre du cercle et le point égale au rayon
+            if(window.app.isAngleBetweenTwoAngles(start_angle, end_angle, shape.buildSteps[i].direction, angle)) {
+                return { //Cet arc est sélectionné!
+                    'start_angle': start_angle,
+                    'rayon': rayon,
+                    'buildstep': shape.buildSteps[i],
+                    'buildstepIndex': i
+                };
             }
         }
     }
@@ -76,7 +112,6 @@ DivideState.prototype.getSelectedSegment = function(shape, clickCoordinates){
 DivideState.prototype.click = function(coordinates) {
     if(this.nb_parts==null)
         return;
-    var nb_parts = this.app.settings.get('divideStateNumberOfParts');
 
     var list = this.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(list.length==0)
@@ -98,47 +133,21 @@ DivideState.prototype.click = function(coordinates) {
         }
     } else {
         //Arc de cercle ?
-
-        var arc_selected = false,
-            lastPoint = null;
-        for(var i=1;i<shape.buildSteps.length;i++) {
-            lastPoint = shape.buildSteps[i-1].getFinalPoint(lastPoint);
-            if(shape.buildSteps[i].type!="arc")
-                continue;
-
-            var x = coordinates.x - shape.getCoordinates().x, //Coordonnées relatives du clic par rapport au centre de la forme
-                y = coordinates.y - shape.getCoordinates().y,
-                center = shape.buildSteps[i],
-                center_dist = Math.sqrt(Math.pow(x-center.x, 2) + Math.pow(y-center.y, 2)),
-                rayon = Math.sqrt(Math.pow(lastPoint.x-center.x, 2) + Math.pow(lastPoint.y-center.y, 2)),
-                start_angle = window.app.positiveAtan2(lastPoint.y-center.y, lastPoint.x-center.x),
-                end_angle = null,
-                angle = window.app.positiveAtan2(y-center.y, x-center.x);
-
-            //Vérifier si la souris est dans le bon angle.
-            if(shape.buildSteps[i].direction) //sens anti-horloger
-                end_angle = window.app.positiveAngle(start_angle + center.angle);
-            else
-                end_angle = window.app.positiveAngle(start_angle - center.angle);
-
-            if(Math.abs(rayon-center_dist) < this.app.settings.get('magnetismDistance') || shape.buildSteps.length==2 /*cercle*/) { //distance entre le centre du cercle et le point égale au rayon
-                if(window.app.isAngleBetweenTwoAngles(start_angle, end_angle, shape.buildSteps[i].direction, angle)) {
-                    arc_selected = true;
-
-                    var angle_step = shape.buildSteps[i].angle/this.nb_parts;
-                    if(shape.buildSteps[i].direction) angle_step *= -1;
-                    for(var j=0;j<this.nb_parts;j++) { //j=0 si cercle entier, =1 sinon? TODO
-                        var a = start_angle + j*angle_step,
-                            x = shape.buildSteps[i].x + rayon * Math.cos(a),
-                            y = shape.buildSteps[i].y + rayon * Math.sin(a);
-                        var pt = new Point(x, y, "division", shape);
-                        shape.segmentPoints.push(pt);
-                        addedPoints.push(pt);
-                    }
-                    break; //on ne sélectionne qu'un arc.
-                }
+        var arc = this.getSelectedArc(shape, coordinates);
+        if(arc) {
+            var angle_step = arc.buildstep.angle/this.nb_parts;
+            if(arc.buildstep.direction) angle_step *= -1;
+            for(var j=0;j<this.nb_parts;j++) { //j=0 si cercle entier, =1 sinon? TODO
+                var a = arc.start_angle + j*angle_step,
+                    x = arc.buildstep.x + arc.rayon * Math.cos(a),
+                    y = arc.buildstep.y + arc.rayon * Math.sin(a);
+                var pt = new Point(x, y, "division", shape);
+                shape.segmentPoints.push(pt);
+                addedPoints.push(pt);
             }
         }
+
+
     }
 
     if(addedPoints.length>0) {
@@ -177,9 +186,12 @@ DivideState.prototype.getElementsToHighlight = function(overflownShape, coordina
 
     var seg = this.getSelectedSegment(overflownShape, coordinates);
     if(seg) {
-        data.segments.push({'shape': overflownShape, 'segmentId': seg.index});
+        data.segments.push({'shape': overflownShape, 'segment': seg.p2});
     } else {
-        //Vérifier si on est sur un arc de cercle!
+        var arc = this.getSelectedArc(overflownShape, coordinates);
+        if(arc) {
+            data.segments.push({'shape': overflownShape, 'segment': arc.buildstep});
+        }
     }
 
     return data;
@@ -205,7 +217,7 @@ DivideState.prototype.cancelAction = function(data, callback){
     var ws = this.app.workspace;
     var shape = ws.getShapeById(data.shape_id)
     if(!shape) {
-        console.log("DivideState.cancelAction: shape not found...");
+        console.error("DivideState.cancelAction: shape not found...");
         callback();
         return;
     }

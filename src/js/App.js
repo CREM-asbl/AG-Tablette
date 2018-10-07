@@ -259,6 +259,8 @@ App.prototype.getApproximatedArc = function(center, p1, angle, direction, step_a
 		end_angle = this.positiveAngle(start_angle + angle);
 	} else
 		end_angle = this.positiveAngle(start_angle - angle);
+	if(angle>6.2831)
+		end_angle = start_angle; //pour éviter que end_angle soit un rien plus grand que start_angle (à cause de la précision)
 
 	var cur_angle = start_angle, has_been_mod_2PI = false;
 	while(true) {
@@ -306,7 +308,7 @@ App.prototype.getApproximatedArc = function(center, p1, angle, direction, step_a
 };
 
 /**
- * Renvoie un valeur dans l'intervalle  [0, 2*Math.PI[ de Math.atan2 . Attention aux arguments: y puis x (comme pour atan2).
+ * Renvoie un valeur de atan2 dans l'intervalle [0, 2*Math.PI[ de Math.atan2 . Attention aux arguments: y puis x (comme pour atan2).
  * @param  {[type]} y premier argument de Math.atan2
  * @param  {[type]} x second argument de Math.atan2
  * @return {[type]}	  l'angle en radians entre la partie positive de l'axe des x d'un plan, et le point (x,y) de ce plan.

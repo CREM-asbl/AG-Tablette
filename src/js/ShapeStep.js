@@ -111,7 +111,7 @@ ShapeStep.prototype.getFinalPoint = function(srcPoint){
 		this.__finalPoint = {'x': this.x, 'y': this.y};
 		return this.__finalPoint;
 	} else if(this.type=="arc") {
-		if((typeof srcPoint)!=="object" || typeof srcPoint.x!=="number" || typeof srcPoint.y!=="number") {
+		if(!srcPoint || (typeof srcPoint)!=="object" || typeof srcPoint.x!=="number" || typeof srcPoint.y!=="number") {
 			console.error("le paramètre srcPoint n'a pas été défini!");
 			return null;
 		}

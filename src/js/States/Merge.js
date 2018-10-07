@@ -37,72 +37,52 @@ MergeState.prototype.click = function(point){
     if(shape==this.firstShape) //on ne peut pas fusionner une forme avec elle même
         return;
 
-
     //Vérifier que les 2 formes ont un segment commun:
     var commonSegmentFound = false,
         commonSegment = {
-            's1_index1': null,
-            's1_index2': null,
+            's1_index1': null, //index de la buildstep dont le finalpoint est le début du segment
+            's1_index2': null, //index de la buildstep dont le finalpoint est la fin du segment
             's2_index1': null,
             's2_index2': null
         },
         maxSquareDist = Math.pow(this.app.settings.get('precision'), 2),
         shape1 = this.firstShape,
-        shape2 = shape;
+        shape2 = shape,
+        shape1StartPoint = null,
+        shape1EndPoint = null,
+        shape2StartPoint = null,
+        shape2EndPoint = null;
 
-    for(var i=0;i<shape1.buildSteps.length-1;i++) {
+    for(var i=1;i<shape1.buildSteps.length;i++) {
+        shape1StartPoint = shape1.buildSteps[i-1].getFinalPoint(shape1StartPoint);
+        shape1EndPoint = shape1.buildSteps[i].getFinalPoint(shape1StartPoint);
         if(shape1.buildSteps[i].type!='line') continue;
-        var s1BS = {'x': shape1.x + shape1.buildSteps[i].x, 'y': shape1.y+shape1.buildSteps[i].y};
 
-        for(var j=0;j<shape2.buildSteps.length-1;j++) {
+        for(var j=1;j<shape2.buildSteps.length;j++) {
+            shape2StartPoint = shape2.buildSteps[j-1].getFinalPoint(shape2StartPoint);
+            shape2EndPoint = shape2.buildSteps[j].getFinalPoint(shape2StartPoint);
             if(shape2.buildSteps[j].type != 'line') continue;
-            var s2BS = {'x': shape2.x + shape2.buildSteps[j].x, 'y': shape2.y+shape2.buildSteps[j].y};
 
-            var nextI = (i==shape1.buildSteps.length-2) ? 0 : i+1,
-                nextJ = (j==shape2.buildSteps.length-2) ? 0 : j+1,
-                prevI = i==0 ? shape1.buildSteps.length-2 : i-1,
-                prevJ = j==0 ? shape2.buildSteps.length-2 : j-1;
-            //TODO: remplacer buildSteps[prevI/J] par getFinalPoint!!
-            if(maxSquareDist >= Math.pow(s1BS.x - s2BS.x, 2) + Math.pow(s1BS.y - s2BS.y, 2)) {
-                //Les 2 points sont au même endroit. Y a-t-il un segment commun à cet endroit ?
-                var s1BSprev = {'x': shape1.x+shape1.buildSteps[prevI].x, 'y': shape1.y+shape1.buildSteps[prevI].y},
-                    s1BSnext = {'x': shape1.x+shape1.buildSteps[nextI].x, 'y': shape1.y+shape1.buildSteps[nextI].y},
-                    s2BSprev = {'x': shape2.x+shape2.buildSteps[prevJ].x, 'y': shape2.y+shape2.buildSteps[prevJ].y},
-                    s2BSnext = {'x': shape2.x+shape2.buildSteps[nextJ].x, 'y': shape2.y+shape2.buildSteps[nextJ].y};
-                if(maxSquareDist >= Math.pow(s1BSprev.x - s2BSprev.x, 2) + Math.pow(s1BSprev.y - s2BSprev.y, 2)) {
-                    commonSegmentFound = true;
-                    commonSegment = {
-                        's1_index1': i,
-                        's1_index2': prevI,
-                        's2_index1': j,
-                        's2_index2': prevJ
-                    };
-                } else if(maxSquareDist >= Math.pow(s1BSprev.x - s2BSnext.x, 2) + Math.pow(s1BSprev.y - s2BSnext.y, 2)) {
-                    commonSegmentFound = true;
-                    commonSegment = {
-                        's1_index1': i,
-                        's1_index2': prevI,
-                        's2_index1': j,
-                        's2_index2': nextJ
-                    };
-                } else if(maxSquareDist >= Math.pow(s1BSnext.x - s2BSprev.x, 2) + Math.pow(s1BSnext.y - s2BSprev.y, 2)) {
-                    commonSegmentFound = true;
-                    commonSegment = {
-                        's1_index1': i,
-                        's1_index2': nextI,
-                        's2_index1': j,
-                        's2_index2': prevJ
-                    };
-                } else if(maxSquareDist >= Math.pow(s1BSnext.x - s2BSnext.x, 2) + Math.pow(s1BSnext.y - s2BSnext.y, 2)) {
-                    commonSegmentFound = true;
-                    commonSegment = {
-                        's1_index1': i,
-                        's1_index2': nextI,
-                        's2_index1': j,
-                        's2_index2': nextJ
-                    };
-                }
+            if(maxSquareDist >= Math.pow(shape1.x+shape1StartPoint.x-shape2.x-shape2StartPoint.x, 2) + Math.pow(shape1.y+shape1StartPoint.y-shape2.y-shape2StartPoint.y, 2)
+              && maxSquareDist >= Math.pow(shape1.x+shape1EndPoint.x-shape2.x-shape2EndPoint.x, 2) + Math.pow(shape1.y+shape1EndPoint.y-shape2.y-shape2EndPoint.y, 2)) {
+                commonSegmentFound = true;
+                commonSegment = {
+                    's1_index1': i-1,
+                    's1_index2': i,
+                    's2_index1': j-1,
+                    's2_index2': j
+                };
+            } else if(maxSquareDist >= Math.pow(shape1.x+shape1StartPoint.x-shape2.x-shape2EndPoint.x, 2) + Math.pow(shape1.y+shape1StartPoint.y-shape2.y-shape2EndPoint.y, 2)
+              && maxSquareDist >= Math.pow(shape1.x+shape1EndPoint.x-shape2.x-shape2StartPoint.x, 2) + Math.pow(shape1.y+shape1EndPoint.y-shape2.y-shape2StartPoint.y, 2)) {
+                commonSegmentFound = true;
+                commonSegment = {
+                    's1_index1': i-1,
+                    's1_index2': i,
+                    's2_index1': j,
+                    's2_index2': j-1
+                };
             }
+
             if(commonSegmentFound) break;
         }
         if(commonSegmentFound) break;
@@ -115,121 +95,68 @@ MergeState.prototype.click = function(point){
                 'y': shape1.y - shape2.y
             };
 
-        //TODO: fusionner 2 arc de cercles qui sont côte à côte si c'est le même centre ?
-        if(Math.abs(commonSegment.s1_index1-commonSegment.s1_index2)<=1) {
-            //Début forme 1:
-            for(var i=0; i<=Math.min(commonSegment.s1_index1,commonSegment.s1_index2); i++)
-                newBS.push(shape1.buildSteps[i].getCopy());
-
-            //Forme 2:
-            var firstIndex = commonSegment.s1_index1 < commonSegment.s1_index2 ? commonSegment.s2_index1 : commonSegment.s2_index2;
-            var secondIndex = commonSegment.s1_index1 < commonSegment.s1_index2 ? commonSegment.s2_index2 : commonSegment.s2_index1;
-            if(Math.abs(commonSegment.s2_index1-commonSegment.s2_index2)<=1) {
-                if(firstIndex<secondIndex) {
-                    for(var i=firstIndex-1; i>=0; i--) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    for(var i=shape2.buildSteps.length-2; i>=secondIndex; i--) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    //console.log("case1");
-                } else {
-                    for(var i=firstIndex+1; i<shape2.buildSteps.length; i++) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    for(var i=1; i<secondIndex; i++) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    //console.log("case2");
-                }
-            } else {
-                if(firstIndex<secondIndex) { //firstIndex = 0, secondIndex = shape2.buildSteps.length - 2
-                    for(var i=1; i<shape2.buildSteps.length-2; i++) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    //console.log("case3");
-                } else {
-                    for(var i=shape2.buildSteps.length-3; i>=1; i--) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    //console.log("case4");
-                }
-            }
-
-            //Fin forme 1:
-            for(var i=Math.max(commonSegment.s1_index1,commonSegment.s1_index2); i<shape1.buildSteps.length; i++)
-                newBS.push(shape1.buildSteps[i].getCopy());
-        } else {
-            //index{1,2} = 0, index{2,1} = shape1.buildSteps.length - 2
-
-            //Début forme 1:
-            for(var i=0; i<=Math.max(commonSegment.s1_index1, commonSegment.s1_index2); i++)
-                newBS.push(shape1.buildSteps[i].getCopy());
-
-            //Forme 2:
-            var firstIndex = commonSegment.s1_index1 < commonSegment.s1_index2 ? commonSegment.s2_index2 : commonSegment.s2_index1;
-            var secondIndex = commonSegment.s1_index1 < commonSegment.s1_index2 ? commonSegment.s2_index1 : commonSegment.s2_index2;
-            if(Math.abs(commonSegment.s2_index1-commonSegment.s2_index2)<=1) {
-                if(firstIndex<secondIndex) {
-                    for(var i=firstIndex-1; i>=0; i--) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    for(var i=shape2.buildSteps.length-2; i>secondIndex; i--) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    //console.log("case5");
-                } else {
-                    for(var i=firstIndex+1; i<shape2.buildSteps.length; i++) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    for(var i=1; i<secondIndex; i++) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    //console.log("case6");
-                }
-            } else {
-                if(firstIndex<secondIndex) { //firstIndex = 0, secondIndex = shape2.buildSteps.length - 2
-                    for(var i=1; i<shape2.buildSteps.length-2; i++) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    //console.log("case7");
-                } else {
-                    for(var i=shape2.buildSteps.length-3; i>=1; i--) {
-                        var b = shape2.buildSteps[i].getCopy();
-                        b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                        newBS.push(b);
-                    }
-                    //console.log("case8");
-                }
-            }
-
-            //Fin forme1:
-            newBS.push(shape1.buildSteps[0].getCopy());
+        //Début forme 1:
+        for(var i=0; i<=commonSegment.s1_index1; i++) {
+            newBS.push(shape1.buildSteps[i].getCopy());
+            //console.log(shape1.buildSteps[i]);
         }
 
+        //console.log("next1");
+
+        //Forme 2:
+        if(commonSegment.s2_index1<commonSegment.s2_index2) {
+            for(var i=commonSegment.s2_index1; i>0; i--) { //pas >=0 ? pas index1-1 ?
+                var b = shape2.buildSteps[i].getCopy();
+                b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
+                if(b.type=="arc") {
+                    b.direction = !b.direction;
+                    newBS.push(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
+                    //console.log("new:");
+                    //console.log(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
+                }
+                newBS.push(b);
+                //console.log(b);
+            }
+            //console.log("next2");
+            for(var i=shape2.buildSteps.length-1; i>=commonSegment.s2_index2; i--) {
+                var b = shape2.buildSteps[i].getCopy();
+                b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
+                if(b.type=="arc") {
+                    b.direction = !b.direction;
+                    newBS.push(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
+                    //console.log("new:");
+                    //console.log(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
+                }
+                newBS.push(b);
+                //console.log(b);
+            }
+            //console.log("case1");
+        } else {
+            for(var i=commonSegment.s2_index1+1; i<shape2.buildSteps.length; i++) {
+                var b = shape2.buildSteps[i].getCopy();
+                b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
+                newBS.push(b);
+                //console.log(b);
+            }
+            //console.log("next2");
+            for(var i=1; i<=commonSegment.s2_index2; i++) { // = ?
+                var b = shape2.buildSteps[i].getCopy();
+                b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
+                newBS.push(b);
+                //console.log(b);
+            }
+            //console.log("case2");
+        }
+
+        //Fin forme 1:
+        for(var i=commonSegment.s1_index2; i<shape1.buildSteps.length; i++) {
+            newBS.push(shape1.buildSteps[i].getCopy());
+            console.log(shape1.buildSteps[i]);
+        }
+
+        //TODO: supprimer 2 buildstep "line" qui se suivent si elles sont identiques (ou quasi identique - précision)
         //Translation des buildSteps pour qu'elles soient centrées:
+        //TODO: fusionner 2 arc de cercles qui sont côte à côte si c'est le même centre ?
         var midX = 0, midY = 0;
         newBS.forEach(function(val, i){
             if(i==newBS.length-1){ return; }
@@ -242,6 +169,7 @@ MergeState.prototype.click = function(point){
             val.setCoordinates(val.x - midX, val.y - midY);
         });
 
+        //Création de la forme
         var newShape = shape1.getCopy();
         newShape.buildSteps = newBS;
         newShape.__computePoints();
@@ -255,6 +183,7 @@ MergeState.prototype.click = function(point){
             var p = shape1.segmentPoints[i].getCopy();
             p.x -= midX;
             p.y -= midY;
+            p.shape = newShape;
             newShape.segmentPoints.push(p);
         }
         for(var i=0;i<shape2.segmentPoints.length;i++) {

@@ -47,7 +47,10 @@ CutState.prototype.click = function(point) {
     }
     var pointObj = list.pop();
 
-    //TODO: pour les points suivants, vérifier qu'ils font partie de la forme sélectionnée...
+    if(pointObj.shape!=this.shape) {
+        console.log("Cutstate: le point ne fait pas partie de la forme sélectionnée");
+        return;
+    }
 
     //On ajoute le premier point (ce doit être un point sur un segment).
     if(!this.firstPoint && !this.centerPoint) {
@@ -83,6 +86,7 @@ CutState.prototype.click = function(point) {
 
 /**
  * Effectue le découpage.
+ * TODO: factoriser cette fonction...
  */
 CutState.prototype.cutShape = function() {
     this.shape.__computeFinalBuildStepsPoints();
@@ -90,12 +94,14 @@ CutState.prototype.cutShape = function() {
     /* Fonctionnement:
         1. Générer une liste ordonnée des points autour de la forme, composée
         des sommets (BuildStep de type "line"), des points sur les segments ou arcs de cercles (Point), et des
-        BuildStep de type 'arc' (qui ne représentent pas un point mais qui sont
-        tout de même dans la liste). La liste étant ordonnée, une buildStep de type
+        BuildStep de type 'arc' (qui ne représentent pas un point si la forme principale est un cercle)
+        La liste étant ordonnée, une buildStep de type
         'line' se trouve après les points qui se trouvent sur le segment reliant cette
         buildstep à la buildStep précédente. Une BuildStep de type 'arc' se trouve
-        avant les points qui se trouvent sur cet arc de cercle. La liste contient
-        des objets {'type': String, 'data': Object}. Type vaut buildstep, arcpoint ou linepoint.
+        avant les points qui se trouvent sur cet arc de cercle. Si la forme n'est pas
+        un cercle, après la buidlStep de type arc et les points se trouvant sur l'arc,
+        un point de type finalarcpoint est ajouté à la liste. La liste contient
+        des objets {'type': String, 'data': Object}. Type vaut buildstep, arcpoint, linepoint ou finalarcpoint.
 
         2. Retrouver les 2 objets de cette liste qui correspondent aux points de départ
         et d'arrivée. Il ne peut s'agir d'une BuildStep de type arc (un arc n'étant pas un objet
@@ -109,7 +115,8 @@ CutState.prototype.cutShape = function() {
 
 
     //Générer la liste ordonnée des points autour de la forme
-    var shapePointsList = [ {'type': 'buildstep', 'data': this.shape.buildSteps[0]} ];
+    var shapePointsList = [ {'type': 'buildstep', 'data': this.shape.buildSteps[0]} ],
+        isTheShapeACircle = (this.shape.buildSteps.length==2 && this.shape.buildSteps[1].type=="arc");
 
     var precision = this.app.settings.get('precision'),
         prevBSFinalPoint = null;
@@ -217,12 +224,17 @@ CutState.prototype.cutShape = function() {
             spList.forEach(function(val){
                 shapePointsList.push({'type': 'arcpoint', 'data': val.point});
             });
+
+            //Ajouter le point au bout de l'arc (sauf si c'est un cercle)
+            if(!isTheShapeACircle) {
+                var new_pt_coords = this.shape.buildSteps[i].getFinalPoint(prevBSFinalPoint),
+                    new_pt = new Point(new_pt_coords.x, new_pt_coords.y, 'vertex', this.shape);
+                shapePointsList.push({'type': 'finalarcpoint', 'data': new_pt});
+            }
         } else {
             console.log("unknown type");
         }
     }
-
-    console.log(shapePointsList);
 
     //Retrouver le point de début et de fin du découpage:
     var indexFirstPoint = -1,
@@ -231,7 +243,7 @@ CutState.prototype.cutShape = function() {
     var tmpSegId = -1, isOnSameSegment = false, firstSegId = -1, that = this;
     shapePointsList.forEach(function(val, index){
         if(val.type=="buildstep" && val.data.type=="arc") return;
-        if(val.type=="buildstep" && val.data.type=="line") tmpSegId++;
+        if((val.type=="buildstep" && val.data.type=="line") || val.type=="finalarcpoint") tmpSegId++;
 
         var found = false;
         if(val.data.x==that.firstPoint.x && val.data.y==that.firstPoint.y) {
@@ -252,7 +264,7 @@ CutState.prototype.cutShape = function() {
 
     });
     if(indexFirstPoint<0 || indexLastPoint<0) {
-        console.log("CutShape: point not found..."); //Ne devrait pas arriver!
+        console.error("CutShape: point not found..."); //Ne devrait pas arriver!
         return;
     }
 
@@ -278,6 +290,7 @@ CutState.prototype.cutShape = function() {
     //Construire les 2 formes
     //#######################
 
+    var createdShapesList = [];
     for(var _shapeIndex=0;_shapeIndex<2;_shapeIndex++) {
         var startIndex = (_shapeIndex==0) ? indexFirstPoint : indexLastPoint,
             stopIndex = (_shapeIndex==0) ? indexLastPoint : ((shapePointsList.length+1)/2) + indexFirstPoint-1;
@@ -298,6 +311,11 @@ CutState.prototype.cutShape = function() {
             firstCoords = {'x': cp.x, 'y': cp.y};
             bsFinalPoint = firstCoords;
         } else if(shapePointsList[startIndex].type=="linepoint") {
+            var bs = ShapeStep.getLine(shapePointsList[startIndex].data.x, shapePointsList[startIndex].data.y);
+            shapeBuildSteps.push(bs);
+            firstCoords = {'x': bs.x, 'y': bs.y};
+            bsFinalPoint = firstCoords;
+        } else if(shapePointsList[startIndex].type=="finalarcpoint") {
             var bs = ShapeStep.getLine(shapePointsList[startIndex].data.x, shapePointsList[startIndex].data.y);
             shapeBuildSteps.push(bs);
             firstCoords = {'x': bs.x, 'y': bs.y};
@@ -334,7 +352,7 @@ CutState.prototype.cutShape = function() {
     			end_angle = null;
     		if(!arc.direction) { //sens horloger
     			end_angle = window.app.positiveAngle(start_angle + arc.angle);
-                if(new_angle > start_angle) {
+                if(new_angle >= start_angle) { // 8/9: >=! (couper en 7, sélectionner point tout en haut puis pt en bas à gauche)
                     arc.angle -= (new_angle - start_angle);
                 } else {
                     arc.angle = end_angle - new_angle;
@@ -347,14 +365,12 @@ CutState.prototype.cutShape = function() {
                     arc.angle = new_angle - end_angle;
                 }
     		}
-            console.log("new angle1: "+arc.angle);
+            //console.log("new angle1: "+arc.angle);
             shapeBuildSteps.push(arc);
             bsFinalPoint = arc.getFinalPoint(bs);
 
             firstCoords = {'x': bs.x, 'y': bs.y};
         }
-
-
 
         //BuildStep dans la forme:
         for(var i=startIndex+1; i<stopIndex; i++) {
@@ -364,6 +380,8 @@ CutState.prototype.cutShape = function() {
                 bsFinalPoint = shapePointsList[i].data.getFinalPoint(bsFinalPoint);
                 shapeBuildSteps.push(cp);
                 editedArc = null;
+            } else if(shapePointsList[i].type=="finalarcpoint") {
+                continue;
             } else {
                 var pt = shapePointsList[i].data.getCopy();
                 pt.shape = shape;
@@ -379,15 +397,20 @@ CutState.prototype.cutShape = function() {
         } else if(shapePointsList[stopIndex].type=="linepoint") {
             var bs = ShapeStep.getLine(shapePointsList[stopIndex].data.x, shapePointsList[stopIndex].data.y);
             shapeBuildSteps.push(bs);
+        } else if(shapePointsList[stopIndex].type=="finalarcpoint") {
+            //rien à faire ?
         } else { //arcpoint
             //Trouver l'arc:
-            var arc = shapeBuildSteps.slice().reverse().find(function(val){
+            var arcIndex = shapeBuildSteps.slice().reverse().findIndex(function(val){
                 return val.type=="arc";
             });
-            if(arc===undefined) {
+            if(arcIndex===-1) {
                 console.error("Arc non trouvé...");
                 return;
             }
+            arcIndex = shapeBuildSteps.length-1-arcIndex;
+            var arc = shapeBuildSteps[arcIndex];
+
             //Trouver le point de départ original de l'arc
             var tmp_index = shapePointsList.slice(0, stopIndex).reverse().findIndex(function(val){
                 return val.type=="buildstep";
@@ -429,10 +452,34 @@ CutState.prototype.cutShape = function() {
                     arc.angle -= (new_angle + (2*Math.PI - end_angle));
                 }
             }
-            console.log("new angle2: "+arc.angle);
+
+            //Fix bug... à corriger autrement si possible.
+            if((!editedArc || editedArc!=shapePointsList[stopIndex-1-tmp_index].data) && (2*Math.PI - arc.angle)<=0.0001) {
+                shapeBuildSteps.splice(arcIndex, 1);
+            }
+            //console.log("new angle2: "+arc.angle);
         }
 
-        //TODO: si il y a un arc dont l'angle vaut 0 dans shapeBuildSteps, le retirer ici.
+        //Retirer les arcs dont l'angle vaut 0:
+        for(var i=0; i<shapeBuildSteps.length; i++) {
+            if(shapeBuildSteps[i].type=="arc" && shapeBuildSteps[i].angle <= 0.000001) {
+                shapeBuildSteps.splice(i, 1);
+                i--;
+            }
+        }
+
+        //Si 2 arcs de cercles qui se suivent ont le même centre, les fusionner:
+        for(var i=0; i<shapeBuildSteps.length-1; i++) {
+            var s1 = shapeBuildSteps[i],
+                s2 = shapeBuildSteps[i+1];
+            if(s1.type=="arc" && s2.type=="arc" && s1.x==s2.x && s1.y==s2.y && s1.direction==s2.direction) {
+                s1.angle += s2.angle;
+                s1.__finalPoint = s2.__finalPoint;
+                s1.updateId++;
+                shapeBuildSteps.splice(i+1, 1); //supprimer le second arc.
+                i--; //réanalyser ce nouvel arc avec le suivant.
+            }
+        }
 
         //Ajouter le point central:
         if(this.centerPoint) {
@@ -442,19 +489,23 @@ CutState.prototype.cutShape = function() {
         //Ajouter le point de départ:
         shapeBuildSteps.push(ShapeStep.getLine(firstCoords.x, firstCoords.y));
 
-         //TODO: modifier centre gravité de la forme. (faire fct dans shape).
+
         shape.buildSteps = shapeBuildSteps;
         shape.segmentPoints = shapeSegmentPoints;
         shape.otherPoints = [];
         shape.name = "Custom";
         shape.familyName = "Custom";
+        shape.centerShape(); //Définir le nouveau centre de la forme. (à améliorer?)
         shape.__computePoints();
         var coords = shape.getCoordinates();
         shape.x = coords.x - 20;
         shape.y = coords.y - 20;
 
         this.app.workspace.addShape(shape);
+        createdShapesList.push(shape);
     }
+
+    this.makeHistory(createdShapesList[0], createdShapesList[1]);
 
     this.app.canvas.refresh();
     this.reset();
@@ -482,9 +533,10 @@ CutState.prototype.draw = function(canvas, mouseCoordinates){
 /**
  * Ajoute l'action qui vient d'être effectuée dans l'historique
  */
-CutState.prototype.makeHistory = function(shape){
+CutState.prototype.makeHistory = function(shape1, shape2){
     var data = {
-        'shape_id': shape.id
+        'shape1_id': shape1.id,
+        'shape2_id': shape2.id
     };
     this.app.workspace.history.addStep(this.name, data);
 };
@@ -496,13 +548,17 @@ CutState.prototype.makeHistory = function(shape){
  */
 CutState.prototype.cancelAction = function(data, callback){
     var ws = this.app.workspace;
-    var shape = ws.getShapeById(data.shape_id)
-    if(!shape) {
-        console.log("DuplicateState.cancelAction: shape not found...");
-        callback();
-        return;
+
+    for(var i=1;i<=2;i++) {
+        var shape = ws.getShapeById(data['shape'+i+'_id']);
+        if(!shape) {
+            console.error("CutState.cancelAction: shape not found...");
+            callback();
+            return;
+        }
+        ws.removeShape(shape);
     }
-    ws.removeShape(shape);
+
     callback();
 };
 
@@ -511,12 +567,27 @@ CutState.prototype.cancelAction = function(data, callback){
  * @param  {Shape} overflownShape La forme qui est survolée par la souris
  * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
  */
-CutState.prototype.getElementsToHighlight = function(overflownShape){
+CutState.prototype.getElementsToHighlight = function(overflownShape, mouseCoordinates){
     var data = {
-        'shapes': [overflownShape],
+        'shapes': [],
         'segments': [],
         'points': []
     };
+
+    if(!this.shape) {
+        data.shapes.push(overflownShape);
+    } else {
+        var list = this.app.workspace.pointsNearPoint(new Point(mouseCoordinates.x, mouseCoordinates.y, null, null));
+        list.reverse();
+        for(var i=0;i<list.length;i++) {
+            var pt = list[i];
+            if(pt.shape==this.shape) {
+                data.points.push({'shape': this.shape, 'point': pt});
+                break;
+            } //TODO: si c'est pas un sommet ni un point de segment (= si c'est un otherPoint), ne pas le sélectionner si on a pas encore sélectionné le premier point.
+        }
+    }
+
 
     return data;
 };

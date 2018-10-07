@@ -108,15 +108,42 @@ Shape.prototype.setId = function(id) {
 };
 
 /**
+ * Centre la forme (moyenne des coordonnées -> estimation pour les arcs de cercle... mauvais! ne rend pas bien)
+ * @return le décalage effectué.
+ */ //TODO: trouver un autre système pour les arcs de cercles (ne pas les prendre en compte?)
+Shape.prototype.centerShape = function(){ //à améliorer.
+	var averageX = 0, averageY = 0,
+		approxPointsList = this.getApproximatedPointsList(0.2*Math.PI);
+	approxPointsList.forEach(function(point){
+		var relCoord = point.getRelativeCoordinates();
+		averageX += relCoord.x;
+		averageY += relCoord.y;
+	});
+	averageX /= approxPointsList.length;
+	averageY /= approxPointsList.length;
+
+	this.buildSteps.forEach(function(step){
+		step.setCoordinates(step.x - averageX, step.y - averageY);
+	});
+	this.segmentPoints.forEach(function(pt){
+		pt.setCoordinates(pt.x - averageX, pt.y - averageY);
+	});
+	this.otherPoints.forEach(function(pt){
+		pt.setCoordinates(pt.x - averageX, pt.y - averageY);
+	});
+	return {x: averageX, y: averageY};
+};
+
+/**
  * Recalcule les coordonnées des points sur base de BuildSteps
  */
 Shape.prototype.recomputePoints = function(){
-	var pointIndex = 0;
+	var pointIndex = 0,
+		final_point = this.buildSteps[0].getFinalPoint(null);
 	for(var i=1;i<this.buildSteps.length;i++) {
-		if(this.buildSteps[i].type=="line") {
-			var x = this.buildSteps[i].x;
-			var y = this.buildSteps[i].y;
-			this.points[pointIndex++].setCoordinates(x, y);
+		final_point = this.buildSteps[i].getFinalPoint(final_point);
+		if(this.buildSteps[i].type=="line" || this.buildSteps.length>2) { //Si arc mais que ce n'est pas un cercle (ex: arc de cercle)
+			this.points[pointIndex++].setCoordinates(final_point.x, final_point.y);
 		}
 	}
 };
@@ -162,7 +189,9 @@ Shape.prototype.addPoint = function (type, x, y) {
  * Calcule les sommets (relatifs) d'un polygone approximant la forme
  * @return liste de points ([Point])
  */
-Shape.prototype.getApproximatedPointsList = function() {
+Shape.prototype.getApproximatedPointsList = function(angleStep) {
+	if(angleStep===undefined)
+		angleStep = 0.05*Math.PI;
 
 	//Vérifier si la forme a été modifiée.
 	var edited = false;
@@ -182,7 +211,7 @@ Shape.prototype.getApproximatedPointsList = function() {
 	if(!edited && false) { //TODO retirer le false
 		var pointsList = [];
 		for(var i=0;i<this._approximatedPointsList.length;i++) {
-			pointsList.push(this._approximatedPointsList[i]); //.getCopy() ?
+			pointsList.push(this._approximatedPointsList[i]); //.getCopy()) ?
 		}
 		return pointsList;
 	}
@@ -199,7 +228,7 @@ Shape.prototype.getApproximatedPointsList = function() {
 				center = this.buildSteps[i],
 				angle = this.buildSteps[i].angle,
 				direction = this.buildSteps[i].direction,
-				points = window.app.getApproximatedArc(center, p1, angle, direction, 0.05*Math.PI);
+				points = window.app.getApproximatedArc(center, p1, angle, direction, angleStep);
 			for(var j=0;j<points.length;j++) {
 				pointsList.push(new Point(points[j].x, points[j].y, null, this));
 			}

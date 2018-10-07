@@ -70,8 +70,8 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 		if(shapes.length>0) {
 			var data = this.app.state.getElementsToHighlight(shapes[shapes.length-1], mouseCoordinates);
 			shapesToHighlight = data.shapes;
-			segmentsToHighlight = data.segments; // [{shape: Shape, segmentId: int}] -> segmentId: numéro de buildStep. Ex pour colorier le premier segment: 1. le second: 2.
-			pointsToHighlight = data.points; //[{shape: Shape, pointId: int}]. -> pointId: numéro de buildStep (ne pas utiliser le 0!). Ex pour colorier le premier point: 1.
+			segmentsToHighlight = data.segments; // [{shape: Shape, segment: BuildStep}]
+			pointsToHighlight = data.points; //[{shape: Shape, point: Point}]
 		}
 	}
 
@@ -93,8 +93,8 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 		};
 		if(shapesToHighlight.indexOf(shape)!==-1)
 			highlightInfo.shape = true;
-		highlightInfo.segments = segmentsToHighlight.filter(function(val, i){ return val.shape == shape }).map(function(val){ return val.segmentId; });
-		highlightInfo.points = pointsToHighlight.filter(function(val, i){ return val.shape == shape }).map(function(val){ return val.pointId; });
+		highlightInfo.segments = segmentsToHighlight.filter(function(val, i){ return val.shape == shape }).map(function(val){ return val.segment; });
+		highlightInfo.points = pointsToHighlight.filter(function(val, i){ return val.shape == shape }).map(function(val){ return val.point; });
 
 		this.drawShape(shape, highlightInfo);
 
@@ -206,7 +206,6 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 		if(s.getType()=="line") {
 			ctx.lineTo(s.x, s.y);
 		} else if(s.getType()=="arc") {
-
 			var rayon = Math.sqrt(Math.pow(s.x - prevFinalPoint.x, 2) + Math.pow(s.y - prevFinalPoint.y, 2)),
 				start_angle = window.app.positiveAtan2(prevFinalPoint.y-s.y, prevFinalPoint.x-s.x),
 				end_angle;
@@ -217,29 +216,9 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
     		}
 
 			ctx.arc(s.x, s.y, rayon, start_angle, end_angle, s.direction);
-
-			/*
-
-			var start_pos = {"x": prevFinalPoint.x, "y": prevFinalPoint.y};
-			var rayon = Math.sqrt(Math.pow(s.x - start_pos.x, 2) + Math.pow(s.y - start_pos.y, 2));
-
-			var a = this.app.getAngleBetweenPoints({'x': 0, 'y': 0}, start_pos);
-			var b = this.app.getAngleBetweenPoints({'x': 0, 'y': 0}, s);
-			//var start_angle = -a+b;
-
-			var start_angle = Math.atan2(start_pos.y, start_pos.x); //Attention, ne prend pas en compte le centre.
-			//var start_angle = -this.app.getAngleBetweenPoints(s, start_pos);
-			var end_angle = start_angle+s.angle;
-			if(s.direction) {
-				end_angle = start_angle-s.angle;
-			}
-
-			ctx.arc(s.x, s.y, rayon, start_angle, end_angle, s.direction);
-			*/
 		} else {
-			//Pour les formes contenant des courbes de bézier
-			console.log("Canvas.drawShape: missed one step:");
-			console.log(shape.buildSteps[i]);
+			console.error("unknown type");
+			return;
 		}
 	}
 
@@ -249,8 +228,8 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	ctx.fill();
 	ctx.stroke();
 
-	//Dessiner le polygone approximatif:
-	if(true) {
+	//Dessiner le polygone approximatif de la forme (pour le debugging des arcs de cercle)
+	if(false) {
 		var tmp_stroke = ctx.strokeStyle;
 		ctx.strokeStyle = '#00F';
 		var tmp_pts = shape.getApproximatedPointsList();
@@ -268,7 +247,6 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 			this.drawPoint(tmp_pts[i].getRelativeCoordinates(), "#00"+(30+i)+"00");
 		}
 
-
 		ctx.strokeStyle = tmp_stroke;
 	}
 
@@ -282,15 +260,30 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	ctx.strokeStyle = '#E90CC8';
 	ctx.lineWidth = ((new Number(ctx.lineWidth)) * (1.7)).toString();
 	for(var i=0;i<highlightInfo.segments.length;i++) {
-		var bs = shape.buildSteps[ highlightInfo.segments[i] ];
-		var sourcept = shape.buildSteps[ highlightInfo.segments[i] -1 ];
+		var bsIndex = shape.buildSteps.slice(1).findIndex(function(val){
+			return val == highlightInfo.segments[i];
+		});
+		var sourcept = shape.buildSteps[bsIndex].__finalPoint; //bsIndex: index de la buildStep précédente.
+		var bs = highlightInfo.segments[i];
 
 		ctx.beginPath();
 		if(bs.getType()=="line") {
 			ctx.moveTo(sourcept.x, sourcept.y);
 			ctx.lineTo(bs.x, bs.y);
-			ctx.lineTo(sourcept.x, sourcept.y);
-		} else if(bs.getType()=="arc") { 		}
+		} else if(bs.getType()=="arc") {
+			ctx.moveTo(sourcept.x, sourcept.y);
+			var rayon = Math.sqrt(Math.pow(bs.x - sourcept.x, 2) + Math.pow(bs.y - sourcept.y, 2)),
+				start_angle = window.app.positiveAtan2(sourcept.y-bs.y, sourcept.x-bs.x),
+				end_angle;
+			if(!bs.direction) { //sens horloger
+    			end_angle = start_angle + bs.angle;
+    		} else {
+    			end_angle = start_angle - bs.angle;
+    		}
+
+			ctx.arc(bs.x, bs.y, rayon, start_angle, end_angle, bs.direction);
+			ctx.arc(bs.x, bs.y, rayon, end_angle, start_angle, !bs.direction);
+		}
 
 		ctx.fill();
 		ctx.stroke();
@@ -304,7 +297,8 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 		for(var i=0;i<shape.points.length;i++) {
 			if(shape.points[i].hidden)
 				continue;
-			if(highlightInfo.points.indexOf(i+1)!==-1) { //Il faut mettre ce point en évidence
+			if(highlightInfo.points.some(function(val){ return val==shape.points[i]; })) {
+				//Il faut mettre ce point en évidence
 				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8");
 			} else {
 				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#000");
@@ -312,11 +306,26 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 		}
 	}
 
+	for(var i=0;i<shape.points.length;i++) {
+		if(highlightInfo.points.some(function(val){ return val==shape.points[i]; })) { //Il faut mettre ce point en évidence
+			console.log("highlight");
+			this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8");
+		}
+	}
 	for(var i=0;i<shape.segmentPoints.length;i++) {
-		this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#000");
+		if(highlightInfo.points.some(function(val){ return val==shape.segmentPoints[i]; })) { //Il faut mettre ce point en évidence
+			this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#E90CC8");
+			console.log("highlight");
+		} else {
+			this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#000");
+		}
 	}
 	for(var i=0;i<shape.otherPoints.length;i++) {
-		this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#000");
+		if(highlightInfo.points.some(function(val){ return val==shape.otherPoints[i]; })) { //Il faut mettre ce point en évidence
+			this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#E90CC8");
+		} else {
+			this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#000");
+		}
 	}
 
 	//afficher le centre
