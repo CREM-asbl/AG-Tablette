@@ -12,7 +12,7 @@ function Canvas(divRef, canvasRef, backgroundCanvasRef, app) {
 	this.app = app;
 	this.divRef = divRef;
 	this.cvsRef = canvasRef;
-	this.backgroundCanvasRef = backgroundCanvasRef;
+	this.backgroundCanvasRef = backgroundCanvasRef; //Un second <canvas> sur lequel la grille se dessine.
 	this.ctx = canvasRef.getContext("2d");
 }
 
@@ -127,8 +127,8 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
  */
 Canvas.prototype.drawGrid = function() {
 	//Dessiner les points entre (0, 0) et (canvasWidth*this.app.maxZoomLevel, canvasHeight*this.app.maxZoomLevel)
-	//TODO: utiliser le niveau de zoom actuel pour ne pas dessiner des points qui ne seront pas affichés ?
-	//TODO: dessiner ça sur un autre canvas, et ne pas redessiner à chaque refresh!
+	//TODO: utiliser le niveau de zoom actuel pour ne pas dessiner des points qui ne seront pas affichés !
+	//TODO: lorsque le zoom sera centré, adapter cette méthode pour dessiner la bonne partie.
 
 	var ctx = this.backgroundCanvasRef.getContext("2d");
 
@@ -136,7 +136,8 @@ Canvas.prototype.drawGrid = function() {
 	var canvasHeight = this.cvsRef.clientHeight;
 	var gridType = this.app.settings.get('gridType');
 	var gridSize = this.app.settings.get('gridSize');
-	var max = {'x': canvasWidth*this.app.settings.get('maxZoomLevel'), 'y': canvasHeight*this.app.settings.get('maxZoomLevel')};
+	var actualZoomLvl = this.app.workspace.zoomLevel;
+	var max = {'x': canvasWidth*(1/actualZoomLvl)*1.1, 'y': canvasHeight*(1/actualZoomLvl)*1.1};
 	if(gridType=="square") {
 		for(var x = 10; x<= max.x; x += 50*gridSize) {
 			for(var y = 10; y<= max.y; y += 50*gridSize) {
