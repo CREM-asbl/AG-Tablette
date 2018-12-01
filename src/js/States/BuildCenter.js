@@ -72,7 +72,7 @@ BuildCenterState.prototype.cancelAction = function(data, callback){
  */
 BuildCenterState.prototype.getElementsToHighlight = function(overflownShape){
     var data = {
-        'shapes': [overflownShape],
+        'shapes': [ overflownShape],
         'segments': [],
         'points': []
     };

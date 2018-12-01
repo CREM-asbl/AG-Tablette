@@ -72,10 +72,14 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 	if(mouseCoordinates!==undefined) {
 		var shapes = this.app.workspace.shapesOnPoint(new Point(mouseCoordinates.x, mouseCoordinates.y));
 		if(shapes.length>0) {
+			/*
+			//Pour une version PC:
 			var data = this.app.state.getElementsToHighlight(shapes[shapes.length-1], mouseCoordinates);
+
 			shapesToHighlight = data.shapes;
 			segmentsToHighlight = data.segments; // [{shape: Shape, segment: BuildStep}]
 			pointsToHighlight = data.points; //[{shape: Shape, point: Point}]
+			*/
 		}
 	}
 
@@ -105,6 +109,9 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 
 		if(state.name=="link_shapes" || state.name=="unlink_shapes") {
 			state.draw(this, mouseCoordinates, shape);
+		}
+		if(state.name=="reverse_shape" && !state.isReversing && state.selectedShape) {
+			state.drawSymAxis(this);
 		}
 	}
 

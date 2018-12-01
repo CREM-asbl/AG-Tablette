@@ -573,7 +573,7 @@ CutState.prototype.getElementsToHighlight = function(overflownShape, mouseCoordi
         'segments': [],
         'points': []
     };
-
+    
     if(!this.shape) {
         data.shapes.push(overflownShape);
     } else {
