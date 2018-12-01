@@ -9,7 +9,7 @@ function Settings(app) {
     /**
 	 * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
 	 */
-	this.add("magnetismDistance", 6,               false);
+	this.add("magnetismDistance", 10,               false);
 
     /**
      * La précision, en pixels. (2 poitns à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )

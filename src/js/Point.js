@@ -34,7 +34,7 @@ Point.createFromSaveData = function(saveData, ws) {
     if(!ws) ws = window.app.workspace;
     var shape = ws.getShapeById(saveData.shape_id)
     if(!shape) {
-        console.log("Point.createFromSaveData: shape not found...");
+        console.error("Point.createFromSaveData: shape not found...");
         return;
     }
 	var point = new Point(saveData.x, saveData.y, saveData.type, shape);

@@ -53,6 +53,12 @@ function Workspace(app) {
 	//niveau de zoom de l'interface
 	this.zoomLevel = 1;
 
+	/**
+	 * décalage du canvas (translation horizontale et verticale)
+	 * un chiffre positif signifie un décalage horizontal vers la droite ou vertical vers le bas.
+	 */
+	this.translateOffset = {'x': 0, 'y': 0};
+
 	//max 16 couleurs
 	this.previousSelectedColors = ["#FF0000", "#00FF00", "#0000FF"];
 
@@ -109,7 +115,7 @@ Workspace.prototype.getClosestGridPoint = function (shapesList) {
 			possibilities.push({'x': topleft2.x+50*gridSize, 'y': topleft2.y});
 			possibilities.push({'x': topleft2.x+50*gridSize, 'y': topleft2.y+43.3012701892*2*gridSize});
 		} else {
-			console.log("Workspace.getClosestGridPoint: unknown type: "+gridType);
+			console.error("Workspace.getClosestGridPoint: unknown type: "+gridType);
 			return null;
 		}
 
@@ -164,7 +170,7 @@ Workspace.prototype.getShapeGroup = function(shape, type){
 		}
 		return null;
 	} else {
-		console.log("Workspace.getShapeGroup: bad type");
+		console.error("Workspace.getShapeGroup: bad type");
 		return null;
 	}
 };
@@ -184,7 +190,7 @@ Workspace.prototype.getGroupIndex = function(group, type) {
 		}
 		return -1;
 	} else {
-		console.log("Workspace.getShapeGroup: bad type");
+		console.error("Workspace.getShapeGroup: bad type");
 		return null;
 	}
 }
@@ -354,7 +360,7 @@ Workspace.prototype.removeShape = function(shape) {
 	var removedShapes = [shape]; //pour l'historique
 	var shapeIndex = this.getShapeIndex(shape);
 	if(shapeIndex==null) {
-		console.log("Workspace.removeShape: couldn't remove the shape");
+		console.error("Workspace.removeShape: couldn't remove the shape");
 		return;
 	}
 	//supprime la forme
@@ -683,7 +689,7 @@ Workspace.prototype.getFamily = function(name) {
 		if(this.families[i].name==name)
 			return this.families[i];
 	}
-	console.log("Workspace.getFamily: family not found");
+	console.error("Workspace.getFamily: family not found");
 	return null;
 };
 

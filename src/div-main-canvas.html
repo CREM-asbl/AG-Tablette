@@ -74,7 +74,11 @@
                     return null;
                 }
 
-                return {"x": response[0] / appRef.workspace.zoomLevel, "y": response[1] / appRef.workspace.zoomLevel};
+                response = [response[0] / appRef.workspace.zoomLevel, response[1] / appRef.workspace.zoomLevel];
+
+                response = [response[0] - window.app.workspace.translateOffset.x, response[1] - window.app.workspace.translateOffset.y];
+                console.log("click: "); console.log(response);
+                return {"x": response[0], "y": response[1]};
             }
 
             /**
@@ -131,10 +135,6 @@
                     window.app.handleEvent("mouseup", that.getMousePos(event, window.app));
                 }, false);
 
-
-
-                //TODO?
-                //cvs.addEventListener("touchcancel", handleCancel, false);
             }
 
             /**

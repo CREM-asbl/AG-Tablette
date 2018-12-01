@@ -69,6 +69,8 @@
             <div style="margin-top: 25px">
                 <strong>Outils</strong>
             </div>
+
+            <button class="action-button" name="moveplane_state" on-click='_actionHandle'>Glisser le plan</button>
             <button class="action-button" name="link_shapes" on-click='_actionHandle'>Lier des formes</button>
             <button class="action-button" name="unlink_shapes" on-click='_actionHandle'>Délier</button>
             <button class="action-button" name="name_shape" on-click='_actionHandle'>Nommer TODO</button>
@@ -128,7 +130,8 @@
                 'duplicate_shape': 'Dupliquer',
                 'divide_segment': 'Diviser',
                 'merge_shapes': 'Fusionner',
-                'cut_shape': 'Découper'
+                'cut_shape': 'Découper',
+                'moveplane_state': 'Glisser le plan'
             };
 
             if(states.hasOwnProperty(event.target.name)) {
@@ -149,8 +152,8 @@
                 window.app.colorpicker.cancel();
                 this.currentMode = 'Ajouter forme';
             } else {
-                console.log("AGTabletteApp._actionHandle: received unknown event:");
-                console.log(event);
+                console.error("AGTabletteApp._actionHandle: received unknown event:");
+                console.error(event);
             }
         }
 
