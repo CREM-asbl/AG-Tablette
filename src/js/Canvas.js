@@ -82,6 +82,13 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 			*/
 		}
 	}
+	if(state.name == "cut_shape" && state.shape) {
+		shapesToHighlight.push(state.shape);
+		if(state.firstPoint)
+			pointsToHighlight.push({'shape': state.shape, 'point': state.firstPoint});
+		if(state.centerPoint)
+			pointsToHighlight.push({'shape': state.shape, 'point': state.centerPoint});
+	}
 
 	//dessine les formes
 	var shapes = this.app.workspace.shapesList;
@@ -329,7 +336,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 				continue;
 			if(highlightInfo.points.some(function(val){ return val==shape.points[i]; })) {
 				//Il faut mettre ce point en évidence
-				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8");
+				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8", undefined, 3);
 			} else {
 				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#000");
 			}
@@ -339,12 +346,12 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	for(var i=0;i<shape.points.length;i++) {
 		if(highlightInfo.points.some(function(val){ return val==shape.points[i]; })) { //Il faut mettre ce point en évidence
 			console.log("highlight");
-			this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8");
+			this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8", undefined, 3);
 		}
 	}
 	for(var i=0;i<shape.segmentPoints.length;i++) {
 		if(highlightInfo.points.some(function(val){ return val==shape.segmentPoints[i]; })) { //Il faut mettre ce point en évidence
-			this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#E90CC8");
+			this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#E90CC8", undefined, 3);
 			console.log("highlight");
 		} else {
 			this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#000");
@@ -352,7 +359,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	}
 	for(var i=0;i<shape.otherPoints.length;i++) {
 		if(highlightInfo.points.some(function(val){ return val==shape.otherPoints[i]; })) { //Il faut mettre ce point en évidence
-			this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#E90CC8");
+			this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#E90CC8", undefined, 3);
 		} else {
 			this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#000");
 		}
@@ -537,15 +544,16 @@ Canvas.prototype.drawText = function(text, point, color) {
  * @param point: la position ({'x': int, 'y': int})
  * @param color: la couleur du point
  */
-Canvas.prototype.drawPoint = function(point, color, ctx) {
+Canvas.prototype.drawPoint = function(point, color, ctx, size) {
 	ctx = ctx ? ctx : this.ctx;
+	size = size ? size : 1;
 
 	ctx.globalAlpha = 1;
 	ctx.fillStyle = color;
 	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 	ctx.beginPath();
 	ctx.moveTo(point.x, point.y);
-	ctx.arc(point.x, point.y, 2 / this.app.workspace.zoomLevel, 0, 2*Math.PI, 0);
+	ctx.arc(point.x, point.y, size * 2 / this.app.workspace.zoomLevel, 0, 2*Math.PI, 0);
 	ctx.closePath();
 	ctx.fill();
 	ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
