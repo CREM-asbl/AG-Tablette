@@ -165,7 +165,6 @@ class AGTabletteApp extends LitElement {
             this.currentMode = states[event.target.name];
         } else if(event.target.name=="settings") {
             window.app.colorpicker.cancel();
-            console.log(document.getElementById('settings-popup-gray'))
             document.getElementById('settings-popup-gray').style.display='block';
         } else if(event.target.name=="annuler") {
             window.app.colorpicker.cancel();
