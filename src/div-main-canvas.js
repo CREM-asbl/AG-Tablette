@@ -30,11 +30,6 @@ class DivMainCanvas extends LitElement {
 
         this.backgroundCvs = this.shadowRoot.querySelector('#backgroundCanvas')
 
-        // window.canvasDiv = this
-        // window.canvas = this.cvs
-        // window.backgroundCanvas = this.backgroundCvs
-        // console.log(window.canvas)
-
         window.app = new App(this, this.cvs, this.backgroundCvs);
         window.app.start();
 

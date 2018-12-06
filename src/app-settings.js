@@ -51,18 +51,18 @@ class AppSettings extends LitElement {
                 <legend>Général</legend>
 
                 <label for="settings_adapt_shapes_position">Activer ajustement automatique: </label>
-                <input type="checkbox" name="settings_adapt_shapes_position" id="settings_adapt_shapes_position" on-change='_actionHandle' />
+                <input type="checkbox" name="settings_adapt_shapes_position" id="settings_adapt_shapes_position" @change='${this._actionHandle}' />
 
                 <br />
 
                 <label for="settings_show_grid">Activer la grille: </label>
-                <input type="checkbox" name="settings_show_grid" id="settings_show_grid" on-change='_actionHandle' />
+                <input type="checkbox" name="settings_show_grid" id="settings_show_grid" @change='${this._actionHandle}' />
 
                 <br />
 
                 <div style="margin-left:30px">
                     <label for="settings_grid_type">Type de grille: </label>
-                    <select name="settings_grid_type" id="settings_grid_type" on-change='_actionHandle' disabled>
+                    <select name="settings_grid_type" id="settings_grid_type" @change='${this._actionHandle}' disabled>
                         <option value="square">Carrés</option>
                         <option value="triangle">Triangles</option>
                     </select>
@@ -70,7 +70,7 @@ class AppSettings extends LitElement {
                     <br />
 
                     <label for="settings_grid_size">Taille de la grille: </label>
-                    <select name="settings_grid_size" id="settings_grid_size" on-change='_actionHandle' disabled>
+                    <select name="settings_grid_size" id="settings_grid_size" @change='${this._actionHandle}' disabled>
                         <option value="1/3">1/3</option>
                         <option value="1/2">1/2</option>
                         <option value="1">1</option>
@@ -81,8 +81,6 @@ class AppSettings extends LitElement {
 
                 <br />
 
-
-
             </fieldset>
 
             <br />
@@ -91,7 +89,7 @@ class AppSettings extends LitElement {
                 <legend>Formes</legend>
 
                 <label for="settings_shapes_size">Taille des formes: </label>
-                <select name="settings_shapes_size" id="settings_shapes_size" on-change='_actionHandle'>
+                <select name="settings_shapes_size" id="settings_shapes_size" @change='${this._actionHandle}'>
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
@@ -100,17 +98,17 @@ class AppSettings extends LitElement {
                 <br />
 
                 <label for="settings_pointed_shapes">Activer formes pointées: </label>
-                <input type="checkbox" name="settings_pointed_shapes" id="settings_pointed_shapes" on-change='_actionHandle' />
+                <input type="checkbox" name="settings_pointed_shapes" id="settings_pointed_shapes" @change='${this._actionHandle}' />
 
                 <br />
 
                 <label for="settings_sided_shapes">Formes bifaces: </label>
-                <input type="checkbox" name="settings_sided_shapes" id="settings_sided_shapes" on-change='_actionHandle' />
+                <input type="checkbox" name="settings_sided_shapes" id="settings_sided_shapes" @change='${this._actionHandle}' />
 
                 <br />
 
                 <label for="settings_shapes_opacity">Opacité: </label>
-                <select name="settings_shapes_opacity" id="settings_shapes_opacity" on-change='_actionHandle'>
+                <select name="settings_shapes_opacity" id="settings_shapes_opacity" @change='${this._actionHandle}'>
                     <option value="0">transparent</option>
                     <option value="0.7">semi-transparent</option>
                     <option value="1">opaque</option>
