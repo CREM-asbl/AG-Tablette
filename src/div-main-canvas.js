@@ -28,21 +28,29 @@ class DivMainCanvas extends LitElement {
 
         this.cvs = this.shadowRoot.querySelector('#mainCanvas')
 
-        this.backgroundCvs = this.shadowRoot.querySelector('#backgroundCanvas');
+        this.backgroundCvs = this.shadowRoot.querySelector('#backgroundCanvas')
+
+        // window.canvasDiv = this
+        // window.canvas = this.cvs
+        // window.backgroundCanvas = this.backgroundCvs
+        // console.log(window.canvas)
+
+        window.app = new App(this, this.cvs, this.backgroundCvs);
+        window.app.start();
 
         this.setCanvasSize()
 
         this.cvs.addEventListener('click', function (event) {
             window.app.handleEvent("click", this.getMousePos(event, window.app));
-        }, false);
+        }.bind(this), false);
 
         this.cvs.addEventListener('mousedown', function (event) {
             window.app.handleEvent("mousedown", this.getMousePos(event, window.app));
-        }, false);
+        }.bind(this), false);
 
         this.cvs.addEventListener('mouseup', function (event) {
             window.app.handleEvent("mouseup", this.getMousePos(event, window.app));
-        }, false);
+        }.bind(this), false);
 
         this.cvs.addEventListener('mousemove', this._handleMove.bind(this), false);
 
@@ -51,8 +59,8 @@ class DivMainCanvas extends LitElement {
             if (event.touches.length > 1)
                 return;
             event.preventDefault();
-            window.app.handleEvent("mousedown", this.getMousePos(event, window.app));
-        }, false);
+            window.app.handleEvent("mousedown", e => this.getMousePos(event, window.app));
+        }.bind(this), false);
 
         this.cvs.addEventListener('touchmove', function (event) {
             event.preventDefault();
@@ -63,18 +71,18 @@ class DivMainCanvas extends LitElement {
             var pos = this.getMousePos(event, window.app);
             window.app.handleEvent("mouseup", pos);
             window.app.handleEvent("click", pos);
-        }, false);
+        }.bind(this), false);
 
         this.cvs.addEventListener('touchleave', function (event) {
             var pos = this.getMousePos(event, window.app);
             window.app.handleEvent("mouseup", pos);
             window.app.handleEvent("click", pos);
-        }, false);
+        }.bind(this), false);
 
         this.cvs.addEventListener("touchcancel", function (event) {
             event.preventDefault();
             window.app.handleEvent("mouseup", this.getMousePos(event, window.app));
-        }, false);
+        }.bind(this), false);
 
         //TODO?
         //cvs.addEventListener("touchcancel", handleCancel, false);
@@ -131,7 +139,6 @@ class DivMainCanvas extends LitElement {
             }
             return null;
         }
-
         return { "x": response[0] / appRef.workspace.zoomLevel, "y": response[1] / appRef.workspace.zoomLevel };
     }
 

@@ -9,8 +9,9 @@ class ShapesList extends LitElement {
     }
 
     render() {
+        
         if(!this.family || this.family === 'undefined') { 
-            return 
+            return html``
         }
 
         const shapes = window.app.workspace.getFamily(this.family).getShapesNames()
@@ -18,7 +19,6 @@ class ShapesList extends LitElement {
         return html`
         <style>
             :host {
-                display: none;
                 position: absolute;
                 top: 50px;
                 left: 33%;
@@ -47,7 +47,7 @@ class ShapesList extends LitElement {
 
         <h2>Formes</h2>
         ${shapes.map(shape => html`
-            <button on-click="${this._clickHandle.bind(this)}" name="${shape}">${shape}</button>
+            <button @click="${this._clickHandle.bind(this)}" name="${shape}">${shape}</button>
         `)}
         `
     }

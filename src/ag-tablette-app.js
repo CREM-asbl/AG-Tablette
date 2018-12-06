@@ -5,8 +5,16 @@ import './shapes-list'
 import './div-main-canvas'
 
 class AGTabletteApp extends LitElement {
+
+    static get properties() {
+        return {
+            currentFamily: String,
+            currentMode: String
+        }
+    }
     
     render() {
+        
         return html`
         <style>
             ${canvasViewCss}
@@ -71,7 +79,7 @@ class AGTabletteApp extends LitElement {
                         <shapes-list style="position:absolute;z-index:100000" 
                                      .family="${this.currentFamily}" 
                                      name="choose_shape_in_list" 
-                                     on-selected-shape='${this._actionHandle}'>
+                                     @selected-shape='${this._actionHandle}'>
                         </shapes-list>
 
                         <hr>
@@ -118,11 +126,9 @@ class AGTabletteApp extends LitElement {
         `
     }
 
-    static get properties() {
-        return {
-            currentFamily: String,
-            currentMode: String
-        }
+    firstUpdated() {
+        window.canvasLeftShift = this.shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
+        //var canvasTopShift = 0;
     }
 
     /**
@@ -165,6 +171,7 @@ class AGTabletteApp extends LitElement {
             window.app.colorpicker.cancel();
             window.app.workspace.history.cancelLastStep();
         } else if(event.type=="selected-shape") {
+            this.currentFamily = null
             window.app.colorpicker.cancel();
             this.currentMode = 'Ajouter forme';
         } else {
