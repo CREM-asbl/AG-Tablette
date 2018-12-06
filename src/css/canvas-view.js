@@ -1,8 +1,4 @@
-<!-- CSS for AG-tablette-app.html -->
-
-<dom-module id="canvas-view">
-  <template>
-    <style>
+export const canvasViewCss = `
         #app-canvas-view {
             width: 100%;
             margin: 0px;
@@ -22,6 +18,4 @@
         #app-canvas-view-toolbar-p2 {
             overflow-y: auto;
         }
-    </style>
-  </template>
-</dom-module>
+`

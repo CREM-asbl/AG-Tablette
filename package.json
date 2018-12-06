@@ -10,6 +10,7 @@
   },
   "author": "The Polymer Authors",
   "dependencies": {
+    "@polymer/lit-element": "^0.6.4",
     "@polymer/polymer": "^3.1.0",
     "@webcomponents/webcomponentsjs": "^2.2.1"
   },
