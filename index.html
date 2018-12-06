@@ -190,16 +190,9 @@
             val = parseInt(val);
             window.app.state.nb_parts = val;
         }
-        // var canvasDiv = document.getElementsByTagName("ag-tablette-app")[0].shadowRoot.getElementById("div-main-canvas");
-        // var canvasLeftShift = document.getElementsByTagName("ag-tablette-app")[0].shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
-        // //var canvasTopShift = 0;
-        // var canvas = canvasDiv.shadowRoot.getElementById("mainCanvas");
-        // var backgroundCanvas = canvasDiv.shadowRoot.getElementById("backgroundCanvas");
-        // var app = new App(canvasDiv, canvas, backgroundCanvas);
-        // app.start();
     </script>
 
-    <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 
     <script type="module" src="/src/ag-tablette-app.js" crossorigin></script>
     <script type="module" src="/src/app-settings.js" crossorigin></script>

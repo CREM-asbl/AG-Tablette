@@ -9,7 +9,7 @@ class ShapesList extends LitElement {
     }
 
     render() {
-        
+
         if(!this.family || this.family === 'undefined') { 
             return html``
         }
@@ -25,6 +25,7 @@ class ShapesList extends LitElement {
                 box-shadow: 1px 1px 2px gray;
                 width: 160px;
                 padding: 1px;
+                z-index: 100;
             }
 
             h2 {
