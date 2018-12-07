@@ -54,13 +54,13 @@ class DivMainCanvas extends LitElement {
             if (event.touches.length > 1)
                 return;
             event.preventDefault();
-            window.app.handleEvent("mousedown", e => this.getMousePos(event, window.app));
+            window.app.handleEvent("mousedown", this.getMousePos(event, window.app));
         }.bind(this), false);
 
         this.cvs.addEventListener('touchmove', function (event) {
             event.preventDefault();
             this._handleMove(event);
-        }, false);
+        }.bind(this), false);
 
         this.cvs.addEventListener('touchend', function (event) {
             var pos = this.getMousePos(event, window.app);
