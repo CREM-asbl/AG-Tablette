@@ -10,8 +10,9 @@
   },
   "author": "The Polymer Authors",
   "dependencies": {
-    "@polymer/polymer": "^3.0.0",
-    "@webcomponents/webcomponentsjs": "^2.0.0"
+    "@polymer/lit-element": "^0.6.4",
+    "@polymer/polymer": "^3.1.0",
+    "@webcomponents/webcomponentsjs": "^2.2.1"
   },
   "devDependencies": {
     "wct-browser-legacy": "^0.0.1-pre.11"

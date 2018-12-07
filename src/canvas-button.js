@@ -1,63 +1,87 @@
-import { PolymerElement, html } from '@polymer/polymer/polymer-element.js'
-import { createShape, getFirstFamilyShape } from './formes-standard'
+import { LitElement, html } from '@polymer/lit-element'
 
-class CanvasButton extends PolymerElement {
-  static get template() {
-    return html`
-        <style>
-             :host {
+class CanvasButton extends LitElement {
+    
+
+    static get properties() {
+        return {
+            family: String
+        }
+    }
+
+    render() {
+        return html`
+         <style>
+            :host {
                 display: block;
             }
 
-            svg {
+            :host([active]) canvas{
+                border: 2px solid red;
+            }
+
+            canvas {
                 width: 100%;
                 height: 100%;
                 background: #fff;
                 border: 1px solid black;
             }
-
-            svg.active {
-                border: 2px solid red;
-            }
         </style>
 
-        <svg id="svg" on-click="_clickHandle"></svg>
-`;
-  }
+        <canvas id="canvas" width="60px" height="60px"></canvas>
+        `
+    }
 
-  static get is() { return 'canvas-button' }
+    updated() {
+        this._draw(this.family)
+    }
 
-  static get properties() {
-      return {
-          family: {
-              type: String,
-              observer: '_draw'
-          },
+    /**
+     * dessine l'image sur le bouton
+     */
+    _draw(family) {
+        const ctx = this.shadowRoot.querySelector('canvas').getContext("2d");
+        ctx.strokeStyle = "#000";
+        if(family=="Triangle équilatéral") {
+            ctx.fillStyle = "#FF0";
+            ctx.beginPath();
+            ctx.moveTo(7,52);
+            ctx.lineTo(30, 11);
+            ctx.lineTo(53,52);
+            ctx.lineTo(7,52);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        } else if(family=="Carré") {
+            ctx.fillStyle = "red";
+            ctx.fillRect(7,7,46,46);
+            ctx.strokeRect(7,7,46,46);
+        } else if(family=="Pentagone régulier") {
+            ctx.fillStyle = "#0F0";
+            ctx.beginPath();
+            ctx.moveTo(15,50);
+            ctx.lineTo(7, 26);
+            ctx.lineTo(30,9);
+            ctx.lineTo(53,26);
+            ctx.lineTo(45,50);
+            ctx.lineTo(15,50);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        } else {
+            console.log("_draw(family): famille inconnue");
+        }
+    }
 
-          active: {
-              type: String,
-              notify: true,
-              observer: '_isActive'
-          }
-      }
-  }
-
-  _clickHandle(event) {
-      this.set('active', this.family)
-  }
-
-  _draw(family) {
-      let shape = createShape(family, getFirstFamilyShape(family))
-      shape.setAttribute('transform','translate(10,18) scale(.6)')
-      this.$.svg.appendChild(shape)
-  }
-
-  _isActive(current) {
-      if (current === this.family) { 
-          this.$.svg.classList.add('active')
-          return
-      }
-      this.$.svg.classList.remove('active')
-  }
+    /**
+     * définir le bouton comme étant le bouton actif
+     */
+    _isActive(current) {
+        if (current === this.family) {
+            this.shadowRoot.querySelector('canvas').classList.add('active')
+            return
+        }
+        this.shadowRoot.querySelector('canvas').classList.remove('active')
+    }
 }
-customElements.define(CanvasButton.is, CanvasButton)
+customElements.define('canvas-button', CanvasButton)

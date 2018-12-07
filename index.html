@@ -1,74 +1,205 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-  <title>Smart Gestion</title>
+    <title>AG-tablette</title>
+    <meta name="description" content="Apprenti Géomètre pour tablettes !">
 
     <link rel="icon" href="/images/favicon.ico">
 
-    <!-- See https://goo.gl/OOhYW5 -->
+    <!-- pwa data -->
     <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3f51b5">
 
-    <!-- See https://goo.gl/qRE0vM -->
-    <meta name="theme-color" content="black">
+    <link rel="stylesheet" type="text/css" href="src/colorpicker/color-picker.min.css">
 
-    <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="My App">
+    <style type="text/css">
+        html,
+        body,
+        ag-tablette-app {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow-y: hidden;
+        }
 
-    <!-- Add to homescreen for Safari on iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="My App">
+        #color-picker-popup {
+            position: absolute;
+            left: 35%;
+            top: 150px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid gray;
+            background-color: #ddd;
+            height: 300px;
+            width: 265px;
+        }
 
-    <!-- Homescreen icons -->
-    <link rel="apple-touch-icon" href="/images/manifest/icon-48x48.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/images/manifest/icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="96x96" href="/images/manifest/icon-96x96.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/images/manifest/icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/images/manifest/icon-192x192.png">
+        #color-picker-previous-colors {
+            margin-bottom: 15px;
+            height: 60px;
+            border: 1px solid #aaa;
+        }
 
-    <!-- Tile icon for Windows 8 (144x144 + tile color) -->
-    <meta name="msapplication-TileImage" content="/images/manifest/icon-144x144.png">
-    <meta name="msapplication-TileColor" content="#3f51b5">
-    <meta name="msapplication-tap-highlight" content="no">
-    
-  <!-- Load and register pre-caching Service Worker -->
-  <script type="module">
-import '/src/my-app.js';
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('/service-worker.js');
-  });
-}
-</script>
+        #color-picker-previous-colors>.color-picker-previous-color {
+            border: 1px solid black;
+            border-radius: 3px;
+            width: 20px;
+            height: 20px;
+            float: left;
+            margin: 4px;
+            cursor: pointer;
+        }
 
-  <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
-  <script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+        #settings-popup-gray,
+        #divide-popup-gray {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
 
-  <script type="module" src="/src/my-app.js"></script>
+        #settings-popup {
+            position: absolute;
+            left: 2%;
+            top: 2%;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid gray;
+            background-color: #ddd;
+            height: 90%;
+            width: 90%;
+            overflow-y: auto;
+        }
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Roboto', 'Noto', sans-serif;
-      line-height: 1.5;
-      min-height: 100vh;
-      background-color: #eee;
-    }
-  </style>
+        #divide-popup {
+            position: absolute;
+            left: 35%;
+            top: 35%;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid gray;
+            background-color: #ddd;
+            width: 30%;
+            overflow-y: auto;
+            text-align: center;
+        }
 
+        #settings-popup-close,
+        #divide-popup-close {
+            position: relative;
+            font-size: 60px;
+            float: right;
+            cursor: pointer;
+            color: #555;
+            box-sizing: content-box;
+            width: 30px;
+            height: 30px;
+            overflow: hidden;
+            line-height: 40%;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -o-user-select: none;
+            user-select: none;
+        }
+    </style>
 </head>
 
 <body>
+    <script src="src/colorpicker/color-picker.min.js"></script>
+    <script src="src/js/App.js"></script>
+    <script src="src/js/Canvas.js"></script>
+    <script src="src/js/Family.js"></script>
+    <script src="src/js/Shape.js"></script>
+    <script src="src/js/Point.js"></script>
+    <script src="src/js/ShapeStep.js"></script>
+    <script src="src/js/Workspace.js"></script>
+    <script src="src/js/ColorPicker.js"></script>
+    <script src="src/js/Settings.js"></script>
+    <script src="src/js/AppHistory.js"></script>
+    <script src="src/js/Storer.js"></script>
 
-  <my-app>
-    Chargement en cours ...
-  </my-app>
+    <script src="src/js/States/State.js"></script>
+    <script src="src/js/States/Create.js"></script>
+    <script src="src/js/States/Move.js"></script>
+    <script src="src/js/States/Rotate.js"></script>
+    <script src="src/js/States/GlobalZoom.js"></script>
+    <script src="src/js/States/Delete.js"></script>
+    <script src="src/js/States/BackgroundColor.js"></script>
+    <script src="src/js/States/BorderColor.js"></script>
+    <script src="src/js/States/Linker.js"></script>
+    <script src="src/js/States/Unlinker.js"></script>
+    <script src="src/js/States/Reverse.js"></script>
+    <script src="src/js/States/BuildCenter.js"></script>
+    <script src="src/js/States/Duplicate.js"></script>
+    <script src="src/js/States/Divide.js"></script>
+    <script src="src/js/States/Merge.js"></script>
+    <script src="src/js/States/Cut.js"></script>
+    <ag-tablette-app></ag-tablette-app>
 
+    <div id="color-picker-popup" style="display:none">
+        <div>Couleurs précédentes:</div>
+        <div id="color-picker-previous-colors">
+            <div class="color-picker-previous-color" style="background-color:#eee"></div>
+            <div class="color-picker-previous-color" style="background-color:#aaa"></div>
+            <div class="color-picker-previous-color" style="background-color:#ccc"></div>
+            <div class="color-picker-previous-color" style="background-color:#555"></div>
+        </div>
+        <div>Choisir une couleur:</div>
+        <input id="color-picker-input" type="text" />
+        <button type="button" id="color-picker-input-ok" onclick='window.app.colorpicker.__validate()'>Valider</button>
+    </div>
+
+    <div id="settings-popup-gray" style="display:none">
+        <div id="settings-popup">
+            <div id="settings-popup-close" onclick="document.getElementById('settings-popup-gray').style.display='none';">&times;</div>
+            <app-settings></app-settings>
+        </div>
+    </div>
+
+    <div id="divide-popup-gray" style="display:none">
+        <div id="divide-popup">
+            <div id="divide-popup-close" onclick="document.getElementById('divide-popup-gray').style.display='none';">&times;</div>
+
+            <label for="settings_divide_number_of_parts">Découpage en </label>
+            <input type="number" max="10" min="2" step="1" value="2" name="settings_divide_number_of_parts" id="settings_divide_number_of_parts"
+                on-change='_numOfParts' style='font-size:20px;'>
+            <span> parties</span>
+            <br><br>
+            <button onclick="dividePopupValidate()">Valider</button>
+        </div>
+    </div>
+
+
+    <script>
+        function dividePopupValidate() {
+            document.getElementById('divide-popup-gray').style.display = 'none';
+            var val = document.getElementById('settings_divide_number_of_parts').value;
+
+            if (val > 10)
+                val = 10;
+            if (val < 2)
+                val = 2;
+            val = parseInt(val);
+            window.app.state.nb_parts = val;
+        }
+    </script>
+
+    <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+
+    <script type="module" src="/src/ag-tablette-app.js" crossorigin></script>
+    <script type="module" src="/src/app-settings.js" crossorigin></script>
+
+    <noscript>
+        Veuillez activer javascript pour profiter de cette application
+    </noscript>
 </body>
 
 </html>

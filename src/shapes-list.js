@@ -1,22 +1,31 @@
-import '@polymer/polymer/polymer-legacy.js';
-import { PolymerElement, html } from '@polymer/polymer'
-import { stdShapes } from './formes-standard'
-import { setMode } from './operations/mode'
-import { constructMode } from './operations/construct'
+import { LitElement, html } from '@polymer/lit-element'
 
+class ShapesList extends LitElement {
 
-class ShapesList extends PolymerElement {
-  static get template() {
-    return html`
+    static get properties() {
+        return {
+            family: String
+        }
+    }
+
+    render() {
+
+        if(!this.family || this.family === 'undefined') { 
+            return html``
+        }
+
+        const shapes = window.app.workspace.getFamily(this.family).getShapesNames()
+
+        return html`
         <style>
             :host {
-                display: none;
                 position: absolute;
                 top: 50px;
-                left: 251px;
+                left: 33%;
                 box-shadow: 1px 1px 2px gray;
-                width: 150px;
+                width: 160px;
                 padding: 1px;
+                z-index: 100;
             }
 
             h2 {
@@ -29,6 +38,7 @@ class ShapesList extends PolymerElement {
             button {
                 width: 100%;
                 height: 30px;
+                padding: 8px;
             }
 
             button:hover,
@@ -36,36 +46,27 @@ class ShapesList extends PolymerElement {
                 font-weight: bold;
             }
         </style>
+
         <h2>Formes</h2>
-        <template is="dom-repeat" items="[[shapes(family)]]">
-            <button on-click="_clickHandle">[[item]]</button>
-        </template>
-`;
-  }
+        ${shapes.map(shape => html`
+            <button @click="${this._clickHandle.bind(this)}" name="${shape}">${shape}</button>
+        `)}
+        `
+    }
 
-  static get is() { return 'shapes-list' }
+    /**
+     * Met à jour l'état de l'application lorsque l'on clique sur le nom d'une forme
+     */
+    _clickHandle(event) {
+        const familyRef = window.app.workspace.getFamily(this.family);
+        const shapeRef = familyRef.getShape(event.target.name);
+        event.target.focus();
 
-  static get properties() {
-      return {
-          family: String
-      }
-  }
-
-  shapes(family) {
-      if (!family) { 
-          this.style.display = 'none'
-          return 
-      }
-      this.style.display = 'block'
-      return Object.keys(stdShapes[family].shapes)
-  }
-
-  _clickHandle(event) {
-      event.target.focus()
-      let shape = event.target.innerHTML
-      window.currentFamily = this.family
-      window.constructingShape = shape
-      setMode(constructMode)
-  }
+        window.app.setState("create_shape", {
+          "family": familyRef,
+          "shape": shapeRef
+        });
+        this.dispatchEvent(new CustomEvent('selected-shape'));
+    }
 }
 customElements.define('shapes-list', ShapesList)
