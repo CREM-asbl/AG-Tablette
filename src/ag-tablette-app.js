@@ -17,7 +17,16 @@ class AGTabletteApp extends LitElement {
         
         return html`
         <style>
+        
             ${canvasViewCss}
+
+            .toolbar {
+                display:table; 
+                table-layout:fixed; 
+                height:100%; 
+                max-height:100%;
+                background: blue;
+            }
 
             .action-button {
                 display: block;
@@ -38,11 +47,21 @@ class AGTabletteApp extends LitElement {
                 height: 50px;
                 margin: 4px;
             }
+
+            shapes-list {
+                position: absolute;
+                top: 1vh;
+                left: 31%;
+                width: 220px;
+                box-shadow: 0 1px 3px gray;
+                z-index: 100;
+                max-height: 80vh;
+            }
         </style>
 
         <div id="app-canvas-view">
 
-            <div id="app-canvas-view-toolbar" class="toolbar" style="display:table; table-layout:fixed; height:100%; max-height:100%;">
+            <div id="app-canvas-view-toolbar" class="toolbar">
                 <div id="app-canvas-view-toolbar-p1" style="padding-bottom: 15px;display:table-row;height:1%;">
                     <div  style="display:table-cell;">
                         <div id="app-canvas-mode-text">
@@ -75,12 +94,6 @@ class AGTabletteApp extends LitElement {
                                            >
                             </canvas-button>
                         `)}
-                            
-                        <shapes-list style="position:absolute;z-index:100000" 
-                                     .family="${this.currentFamily}" 
-                                     name="choose_shape_in_list" 
-                                     @selected-shape='${this._actionHandle}'>
-                        </shapes-list>
 
                         <hr>
                     </div>
@@ -121,8 +134,13 @@ class AGTabletteApp extends LitElement {
                 </div>
             </div>
 
-            <div-main-canvas style="position:absolute;top:0px;background-color: rgba(0,0,0,0);" id="div-main-canvas"></div-main-canvas>
+            <div-main-canvas id="div-main-canvas"></div-main-canvas>
         </div>
+
+        <shapes-list .family="${this.currentFamily}" 
+                     name="choose_shape_in_list" 
+                     @selected-shape='${this._actionHandle}'>
+        </shapes-list>
         `
     }
 

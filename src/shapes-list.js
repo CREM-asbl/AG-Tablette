@@ -19,13 +19,7 @@ class ShapesList extends LitElement {
         return html`
         <style>
             :host {
-                position: absolute;
-                top: 50px;
-                left: 33%;
-                box-shadow: 1px 1px 2px gray;
-                width: 160px;
-                padding: 1px;
-                z-index: 100;
+                overflow: auto;
             }
 
             h2 {
@@ -33,6 +27,12 @@ class ShapesList extends LitElement {
                 text-align: center;
                 background: gray;
                 color: white;
+            }
+
+            ul {
+                margin: 0;
+                padding: 0;
+                list-style: none;
             }
 
             button {
@@ -48,9 +48,13 @@ class ShapesList extends LitElement {
         </style>
 
         <h2>Formes</h2>
-        ${shapes.map(shape => html`
-            <button @click="${this._clickHandle.bind(this)}" name="${shape}">${shape}</button>
-        `)}
+        <ul>
+            ${shapes.map(shape => html`
+                <li>
+                    <button @click="${this._clickHandle.bind(this)}" name="${shape}">${shape}</button>
+                </li>
+            `)}
+        </ul>
         `
     }
 
