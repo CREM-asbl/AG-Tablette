@@ -62,7 +62,8 @@ class AGTabletteApp extends LitElement {
         <div id="app-canvas-view">
 
             <div id="app-canvas-view-toolbar" class="toolbar">
-                <div id="app-canvas-view-toolbar-p1" style="padding-bottom: 15px;display:table-row;height:1%;">
+                <div id="app-canvas-view-toolbar-p1" 
+                     style="padding-bottom: 15px;display:table-row;height:1%;">
                     <div  style="display:table-cell;">
                         <div id="app-canvas-mode-text">
                             <span style="color: gray;">Mode:</span> ${this.currentMode}
