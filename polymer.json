@@ -1,10 +1,22 @@
 {
-  "lint": {
-    "rules": [
-      "polymer-2"
-    ]
-  },
-
-  "builds":[{"addServiceWorker": true}]
-  
+  "entrypoint": "index.html",
+  "shell": "src/ag-tablette-app.js",
+  "fragments": [],
+   "sources": [
+   "images/**/*",
+   "src/**/*"
+  ],
+  "extraDependencies": [
+    "manifest.json",
+    "node_modules/@webcomponents/webcomponentsjs/**"
+  ],
+  "builds": [{
+    "addServiceWorker": true,
+    "js": {"compile": "es5", "minify": true , "transformModulesToAmd": true},
+    "css": {"minify": true},
+    "html": {"minify": true},
+    "bundle": false
+  }],
+  "moduleResolution": "node",
+  "npm": true
 }

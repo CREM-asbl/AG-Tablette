@@ -123,10 +123,6 @@ App.prototype.start = function(){
 			   };
     })();
 
-	//Mettre à jour le formulaire <html> des options
-	var form = document.getElementsByTagName("app-settings")[0].shadowRoot.getElementById("app-settings-view");
-	form.dispatchEvent(new CustomEvent('update-request'));
-
 	//Cacher le popup "settings" quand on appuie sur escape.
 	window.onkeyup = function(e){
 		if(e.key == "Escape" || e.key == "Esc" || e.keyCode == 27) {
