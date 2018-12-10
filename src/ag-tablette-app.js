@@ -51,12 +51,13 @@ class AGTabletteApp extends LitElement {
             shapes-list {
                 position: absolute;
                 top: 1vh;
-                left: 31%;
+                left: 21%;
                 width: 220px;
                 box-shadow: 0 1px 3px gray;
                 z-index: 100;
                 max-height: 80vh;
             }
+            
         </style>
 
         <div id="app-canvas-view">

@@ -92,9 +92,9 @@ class DivMainCanvas extends LitElement {
      */
     setCanvasSize() {
         this.cvs.setAttribute("height", this.parentElement.clientHeight);
-        this.cvs.setAttribute("width", this.parentElement.clientWidth * 0.7);
+        this.cvs.setAttribute("width", this.parentElement.clientWidth * 0.8);
         this.backgroundCvs.setAttribute("height", this.parentElement.clientHeight);
-        this.backgroundCvs.setAttribute("width", this.parentElement.clientWidth * 0.7);
+        this.backgroundCvs.setAttribute("width", this.parentElement.clientWidth * 0.8);
     }
 
     /**
