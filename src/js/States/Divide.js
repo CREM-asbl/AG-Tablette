@@ -4,8 +4,9 @@
  *
  *
  * Utilisation:
- * -sélectionner un segment d'une forme. Cela divise le segment en X parts (-> crée x-1 nouveaux points)
- * -sélectionner une forme (si cette forme est un cercle). divise le contour du cercle en X.
+ * -sélectionner une forme. Si c'est un cercle, cela divise le contour du cercle en X.
+ * Sinon, il faut ensuite sélectionner un segment de la forme. Cela divise le segment
+ * en X parts (-> crée x-1 nouveaux points)
  */
 function DivideState(app) {
     this.app = app;

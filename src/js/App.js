@@ -30,7 +30,8 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
 		"divide_segment": new DivideState(this),
 		"unlink_shapes": new UnlinkerState(this),
 		"merge_shapes": new MergeState(this),
-		"cut_shape": new CutState(this)
+		"cut_shape": new CutState(this),
+		"moveplane_state": new MovePlaneState(this)
 	};
 
 	//Représente un projet, qui peut être sauvegardé
@@ -103,6 +104,7 @@ App.prototype.start = function(){
 	//quand la fenêtre est redimensionnée, mettre à jour la taille du canvas
 	var f_onresize = function(e){
 		that.canvas.divRef.setCanvasSize();
+		window.canvasLeftShift = document.getElementsByTagName("ag-tablette-app")[0].shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
 		that.canvas.refresh();
 		that.canvas.refreshBackgroundCanvas();
 	};
@@ -204,7 +206,7 @@ App.prototype.getAngleBetweenPoints = function(a, b) {
 App.prototype.getComplementaryColor = function(color) {
 	var regex = /^#([0-9a-fA-F]{3}){1,2}$/;
 	if(!regex.test(color)) {
-		console.log("App.getComplementaryColor: la couleur n'a pas été reconnue: "+color);
+		console.error("App.getComplementaryColor: la couleur n'a pas été reconnue: "+color);
 		return;
 	}
 	if(color.length==4) //transforme #abc en #aabbcc
@@ -237,7 +239,7 @@ App.prototype.getComplementaryColor = function(color) {
 App.prototype.getAverageColor = function(color1, color2) {
 	var regex = /^#([0-9a-fA-F]{3}){1,2}$/;
 	if(!regex.test(color1) || !regex.test(color2)) {
-		console.log("App.getAverageColor: une couleur n'a pas été reconnue: "+color1+" "+color2);
+		console.error("App.getAverageColor: une couleur n'a pas été reconnue: "+color1+" "+color2);
 		return;
 	}
 	if(color1.length==4) //transforme #abc en #aabbcc

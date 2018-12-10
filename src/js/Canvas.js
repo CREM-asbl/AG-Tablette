@@ -44,12 +44,16 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 	if(this.previousMouseCoordinates!==undefined && mouseCoordinates==undefined)
 		mouseCoordinates = this.previousMouseCoordinates;
 
-	//met à jour le niveau de zoom si nécessaire
+	//met à jour le niveau de zoom et l'offset du canvas si nécessaire
 	if(mouseCoordinates!==undefined) {
 		this.previousMouseCoordinates = mouseCoordinates;
 
 		if(state.name=="global_zoom" && state.isZooming) {
 			state.updateZoomLevel(this, mouseCoordinates);
+		}
+
+		if(state.name=="moveplane_state" && state.isMoving) {
+			state.updateOffset(this, mouseCoordinates);
 		}
 	}
 
@@ -68,11 +72,22 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 	if(mouseCoordinates!==undefined) {
 		var shapes = this.app.workspace.shapesOnPoint(new Point(mouseCoordinates.x, mouseCoordinates.y));
 		if(shapes.length>0) {
+			/*
+			//Pour une version PC:
 			var data = this.app.state.getElementsToHighlight(shapes[shapes.length-1], mouseCoordinates);
+
 			shapesToHighlight = data.shapes;
 			segmentsToHighlight = data.segments; // [{shape: Shape, segment: BuildStep}]
 			pointsToHighlight = data.points; //[{shape: Shape, point: Point}]
+			*/
 		}
+	}
+	if(state.name == "cut_shape" && state.shape) {
+		shapesToHighlight.push(state.shape);
+		if(state.firstPoint)
+			pointsToHighlight.push({'shape': state.shape, 'point': state.firstPoint});
+		if(state.centerPoint)
+			pointsToHighlight.push({'shape': state.shape, 'point': state.centerPoint});
 	}
 
 	//dessine les formes
@@ -101,6 +116,9 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 
 		if(state.name=="link_shapes" || state.name=="unlink_shapes") {
 			state.draw(this, mouseCoordinates, shape);
+		}
+		if(state.name=="reverse_shape" && !state.isReversing && state.selectedShape) {
+			state.drawSymAxis(this);
 		}
 	}
 
@@ -132,26 +150,37 @@ Canvas.prototype.drawGrid = function() {
 
 	var ctx = this.backgroundCanvasRef.getContext("2d");
 
-	var canvasWidth = this.cvsRef.clientWidth;
-	var canvasHeight = this.cvsRef.clientHeight;
-	var gridType = this.app.settings.get('gridType');
-	var gridSize = this.app.settings.get('gridSize');
-	var actualZoomLvl = this.app.workspace.zoomLevel;
-	var max = {'x': canvasWidth*(1/actualZoomLvl)*1.1, 'y': canvasHeight*(1/actualZoomLvl)*1.1};
+	var canvasWidth = this.cvsRef.clientWidth,
+		canvasHeight = this.cvsRef.clientHeight,
+		gridType = this.app.settings.get('gridType'),
+		gridSize = this.app.settings.get('gridSize'),
+		offsetX = this.app.workspace.translateOffset.x,
+		offsetY = this.app.workspace.translateOffset.y,
+		actualZoomLvl = this.app.workspace.zoomLevel,
+		min = {'x': -offsetX,'y': -offsetY},
+		max = {'x': canvasWidth*(1/actualZoomLvl)*1.1-offsetX, 'y': canvasHeight*(1/actualZoomLvl)*1.1-offsetY};
+
 	if(gridType=="square") {
-		for(var x = 10; x<= max.x; x += 50*gridSize) {
-			for(var y = 10; y<= max.y; y += 50*gridSize) {
+		var startX = 10 + Math.ceil((min.x-10)/(50*gridSize)) * 50 * gridSize,
+			startY = 10 + Math.ceil((min.y-10)/(50*gridSize)) * 50 * gridSize;
+		for(var x = startX; x<= max.x; x += 50*gridSize) {
+			for(var y = startY; y<= max.y; y += 50*gridSize) {
 				this.drawPoint({"x": x, "y": y}, "#F00", ctx);
 			}
 		}
 	} else if(gridType=="triangle") {
-		for(var x = 10; x<= max.x; x += 50*gridSize) {
-			for(var y = 10; y<= max.y; y += 43.3012701892*2*gridSize) {
+		var startX = 10 + Math.ceil((min.x-10)/(50*gridSize)) * 50 * gridSize,
+			startY = 10 + Math.ceil((min.y-10)/(43.3012701892*2*gridSize)) * 43.3012701892*2 * gridSize;
+		for(var x = startX; x<= max.x; x += 50*gridSize) {
+			for(var y = startY; y<= max.y; y += 43.3012701892*2*gridSize) {
 				this.drawPoint({"x": x, "y": y}, "#F00", ctx);
 			}
 		}
-		for(var x = 10 + 50*gridSize/2; x<= max.x; x += 50*gridSize) {
-			for(var y =10 +  43.3012701892*gridSize; y<= max.y; y += 43.3012701892*2*gridSize) {
+
+		startX = 10 + 50*gridSize/2 + Math.ceil((min.x-10-50*gridSize/2)/(50*gridSize)) * 50 * gridSize;
+		startY = 10 + 43.3012701892*gridSize + Math.ceil((min.y-10-43.3012701892*gridSize)/(43.3012701892*2*gridSize)) * 43.3012701892*2 * gridSize;
+		for(var x = startX; x<= max.x; x += 50*gridSize) {
+			for(var y = startY; y<= max.y; y += 43.3012701892*2*gridSize) {
 				this.drawPoint({"x": x, "y": y}, "#F00", ctx);
 			}
 		}
@@ -192,6 +221,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 		ctx.fillStyle = 'rgba(0,0,0,0)';
 	}
 
+	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 	ctx.translate(shape.x, shape.y);
 
 	//dessine le chemin principal
@@ -229,8 +259,11 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	ctx.fill();
 	ctx.stroke();
 
+	ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
+
 	//Dessiner le polygone approximatif de la forme (pour le debugging des arcs de cercle)
 	if(false) {
+		ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 		var tmp_stroke = ctx.strokeStyle;
 		ctx.strokeStyle = '#00F';
 		var tmp_pts = shape.getApproximatedPointsList();
@@ -243,6 +276,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 		ctx.closePath();
 		ctx.fill();
 		ctx.stroke();
+		ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
 
 		for(var i=0;i<tmp_pts.length;i++) {
 			this.drawPoint(tmp_pts[i].getRelativeCoordinates(), "#00"+(30+i)+"00");
@@ -260,6 +294,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	var strokeSave = ctx.strokeStyle;
 	ctx.strokeStyle = '#E90CC8';
 	ctx.lineWidth = ((new Number(ctx.lineWidth)) * (1.7)).toString();
+	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 	for(var i=0;i<highlightInfo.segments.length;i++) {
 		var bsIndex = shape.buildSteps.slice(1).findIndex(function(val){
 			return val == highlightInfo.segments[i];
@@ -289,6 +324,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 		ctx.fill();
 		ctx.stroke();
 	}
+	ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
 	ctx.lineWidth = ((new Number(ctx.lineWidth)) * (1/1.7)).toString();
 	ctx.strokeStyle = strokeSave;
 
@@ -300,7 +336,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 				continue;
 			if(highlightInfo.points.some(function(val){ return val==shape.points[i]; })) {
 				//Il faut mettre ce point en évidence
-				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8");
+				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8", undefined, 3);
 			} else {
 				this.drawPoint(shape.points[i].getRelativeCoordinates(), "#000");
 			}
@@ -310,12 +346,12 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	for(var i=0;i<shape.points.length;i++) {
 		if(highlightInfo.points.some(function(val){ return val==shape.points[i]; })) { //Il faut mettre ce point en évidence
 			console.log("highlight");
-			this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8");
+			this.drawPoint(shape.points[i].getRelativeCoordinates(), "#E90CC8", undefined, 3);
 		}
 	}
 	for(var i=0;i<shape.segmentPoints.length;i++) {
 		if(highlightInfo.points.some(function(val){ return val==shape.segmentPoints[i]; })) { //Il faut mettre ce point en évidence
-			this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#E90CC8");
+			this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#E90CC8", undefined, 3);
 			console.log("highlight");
 		} else {
 			this.drawPoint(shape.segmentPoints[i].getRelativeCoordinates(), "#000");
@@ -323,7 +359,7 @@ Canvas.prototype.drawShape = function(shape, highlightInfo) {
 	}
 	for(var i=0;i<shape.otherPoints.length;i++) {
 		if(highlightInfo.points.some(function(val){ return val==shape.otherPoints[i]; })) { //Il faut mettre ce point en évidence
-			this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#E90CC8");
+			this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#E90CC8", undefined, 3);
 		} else {
 			this.drawPoint(shape.otherPoints[i].getRelativeCoordinates(), "#000");
 		}
@@ -481,7 +517,8 @@ Canvas.prototype.drawReversingShape = function(shape, axe, progress) {
 Canvas.prototype.updateRelativeScaleLevel = function(newScale) {
 	var ctx = this.ctx;
 	ctx.scale(newScale, newScale);
-
+	//TODO: ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y); ?
+	//TODO: translater du centre ?
 	ctx = this.backgroundCanvasRef.getContext('2d');
 	ctx.scale(newScale, newScale);
 };
@@ -497,8 +534,9 @@ Canvas.prototype.drawText = function(text, point, color) {
 
 	ctx.fillStyle = color;
 	ctx.font = "13px Arial";
+	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 	ctx.fillText(text, point.x, point.y);
-
+	ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
 };
 
 /**
@@ -506,16 +544,19 @@ Canvas.prototype.drawText = function(text, point, color) {
  * @param point: la position ({'x': int, 'y': int})
  * @param color: la couleur du point
  */
-Canvas.prototype.drawPoint = function(point, color, ctx) {
+Canvas.prototype.drawPoint = function(point, color, ctx, size) {
 	ctx = ctx ? ctx : this.ctx;
+	size = size ? size : 1;
 
 	ctx.globalAlpha = 1;
 	ctx.fillStyle = color;
+	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 	ctx.beginPath();
 	ctx.moveTo(point.x, point.y);
-	ctx.arc(point.x, point.y, 2 / this.app.workspace.zoomLevel, 0, 2*Math.PI, 0);
+	ctx.arc(point.x, point.y, size * 2 / this.app.workspace.zoomLevel, 0, 2*Math.PI, 0);
 	ctx.closePath();
 	ctx.fill();
+	ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
 };
 
 /**
@@ -529,10 +570,12 @@ Canvas.prototype.drawCircle = function(point, color, radius) {
 
 	ctx.globalAlpha = 1;
 	ctx.fillStyle = color;
+	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 	ctx.beginPath();
 	ctx.arc(point.x, point.y, radius / this.app.workspace.zoomLevel, 0, 2*Math.PI, 0);
 	ctx.closePath();
 	ctx.stroke();
+	ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
 };
 
 /**
@@ -542,9 +585,11 @@ Canvas.prototype.drawCircle = function(point, color, radius) {
  */
 Canvas.prototype.drawLine = function(fromPoint, toPoint) {
 	var ctx = this.ctx;
+	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 	ctx.beginPath();
 	ctx.moveTo(fromPoint.x, fromPoint.y);
 	ctx.lineTo(toPoint.x, toPoint.y);
 	ctx.closePath();
 	ctx.stroke();
+	ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
 };

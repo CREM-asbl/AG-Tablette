@@ -91,7 +91,7 @@ UnlinkerState.prototype.cancelAction = function(data, callback){
     for(var i=0;i<data.deleted_group.length;i++) {
         var shape = ws.getShapeById(data.deleted_group[i]);
         if(!shape) {
-            console.log("UnlinkerState.cancelAction: shape not found...");
+            console.error("UnlinkerState.cancelAction: shape not found...");
             callback();
             return;
         }

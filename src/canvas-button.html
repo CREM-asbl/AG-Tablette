@@ -1,0 +1,102 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="canvas-button">
+    <template>
+        <style>
+             :host {
+                display: block;
+            }
+
+            canvas {
+                width: 100%;
+                height: 100%;
+                background: #fff;
+                border: 1px solid black;
+            }
+
+            canvas.active {
+                border: 2px solid red;
+            }
+        </style>
+
+        <canvas id="canvas" width="60px" height="60px" on-click="_clickHandle"></canvas>
+    </template>
+
+    <script>
+        /**
+         * Event-handlers des boutons de familles
+         */
+        class CanvasButton extends Polymer.Element {
+            static get is() { return 'canvas-button' }
+
+            static get properties() {
+                return {
+                    family: {
+                        type: String,
+                        observer: '_draw'
+                    },
+
+                    active: {
+                        type: String,
+                        notify: true,
+                        observer: '_isActive'
+                    }
+                }
+            }
+
+            _clickHandle(event) {
+                window.app.colorpicker.cancel();
+                this.set('active', this.family)
+            }
+
+            /**
+             * dessine l'image sur le bouton
+             */
+            _draw(family) {
+                var ctx = this.$.canvas.getContext("2d");
+                ctx.strokeStyle = "#000";
+                if(family=="Triangle équilatéral") {
+                    ctx.fillStyle = "#FF0";
+                    ctx.beginPath();
+                    ctx.moveTo(7,52);
+                    ctx.lineTo(30, 11);
+                    ctx.lineTo(53,52);
+                    ctx.lineTo(7,52);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                } else if(family=="Carré") {
+                    ctx.fillStyle = "red";
+                    ctx.fillRect(7,7,46,46);
+                    ctx.strokeRect(7,7,46,46);
+                } else if(family=="Pentagone régulier") {
+                    ctx.fillStyle = "#0F0";
+                    ctx.beginPath();
+                    ctx.moveTo(15,50);
+                    ctx.lineTo(7, 26);
+                    ctx.lineTo(30,9);
+                    ctx.lineTo(53,26);
+                    ctx.lineTo(45,50);
+                    ctx.lineTo(15,50);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                } else {
+                    console.error("_draw(family): famille inconnue");
+                }
+            }
+
+            /**
+             * définir le bouton comme étant le bouton actif
+             */
+            _isActive(current) {
+                if (current === this.family) {
+                    this.$.canvas.classList.add('active')
+                    return
+                }
+                this.$.canvas.classList.remove('active')
+            }
+        }
+        customElements.define(CanvasButton.is, CanvasButton)
+    </script>
+</dom-module>

@@ -7,7 +7,7 @@ export const canvasViewCss = `
             height: 100%;
         }
         #app-canvas-view > .toolbar {
-            width: 30%;
+            width: 20%;
             float:left;
             padding: 5px;
             height: 100%;

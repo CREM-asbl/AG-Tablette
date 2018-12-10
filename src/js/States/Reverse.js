@@ -62,10 +62,20 @@ ReverseState.prototype.reset = function(){
 ReverseState.prototype.click = function(point){
     if(this.isReversing)
         return;
-    var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-    if(list.length==0)
+    if(!this.selectedShape) { //Premier clic: sélection de la forme.
+        var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
+        if(list.length==0)
+            return;
+        this.selectedShape = list.pop();
+        this.app.canvas.refresh();
         return;
-    this.selectedShape = list.pop();
+    }
+
+    //Second click.
+    if(Math.pow(this.selectedShape.x-point.x, 2) + Math.pow(this.selectedShape.y-point.y, 2) > 10000)
+        return; //click trop loin
+
+
     this.isReversing = true;
     this.clickCoordinates = point;
     this.axe = {
@@ -283,6 +293,7 @@ ReverseState.prototype.abort = function(){
  */
 ReverseState.prototype.draw = function(canvas, mouseCoordinates){
 	if(!this.isReversing) {
+        /*
         //Dessine l'axe de symétrie
 		var list = window.app.workspace.shapesOnPoint(new Point(mouseCoordinates.x, mouseCoordinates.y, null, null));
 	    if(list.length>0) {
@@ -290,6 +301,7 @@ ReverseState.prototype.draw = function(canvas, mouseCoordinates){
 			var axis = this.getSymmetryAxis(shape, mouseCoordinates);
 			canvas.drawLine(axis[0], axis[1]);
 		}
+        */
 	} else {
         //Dessiner les formes:
 		for(var i=0;i<this.shapesList.length;i++) {
@@ -304,6 +316,19 @@ ReverseState.prototype.draw = function(canvas, mouseCoordinates){
 };
 
 /**
+ * Appelée par la fonction de dessin, permet de dessiner les axes de symétrie
+ * possibles une fois qu'une forme est sélectionnée.
+ * @type {[type]}
+ */
+ReverseState.prototype.drawSymAxis = function(canvas){
+    var shape = this.selectedShape;
+    canvas.drawLine({'x': shape.x, 'y': shape.y-100}, {'x': shape.x, 'y': shape.y+100});
+    canvas.drawLine({'x': shape.x-68.3, 'y': shape.y-68.3}, {'x': shape.x+68.3, 'y': shape.y+68.3});
+    canvas.drawLine({'x': shape.x-100, 'y': shape.y}, {'x': shape.x+100, 'y': shape.y});
+    canvas.drawLine({'x': shape.x-68.3, 'y': shape.y+68.3}, {'x': shape.x+68.3, 'y': shape.y-68.3});
+};
+
+/**
  * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
  * @param  {Shape} overflownShape La forme qui est survolée par la souris
  * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
@@ -314,7 +339,7 @@ ReverseState.prototype.getElementsToHighlight = function(overflownShape){
         'segments': [],
         'points': []
     };
-
+    /* //pour une version PC.
     var uGroup = this.app.workspace.getShapeGroup(overflownShape, 'user');
     var sGroup = this.app.workspace.getShapeGroup(overflownShape, 'system');
     if(uGroup) {
@@ -323,7 +348,7 @@ ReverseState.prototype.getElementsToHighlight = function(overflownShape){
         data.shapes = sGroup;
     } else {
         data.shapes.push(overflownShape);
-    }
+    }*/
 
     return data;
 };

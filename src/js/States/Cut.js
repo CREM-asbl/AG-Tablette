@@ -31,12 +31,10 @@ CutState.prototype.click = function(point) {
     //On sélectionne la forme
     if(!this.shape) {
         var list = this.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-        if(list.length==0) {
-            console.log("CutState: Forme non sélectionnée");
-            return;
+        if(list.length>0) {
+            this.shape = list.pop();
+            this.app.canvas.refresh();
         }
-        console.log("CutState: Forme sélectionnée!");
-        this.shape = list.pop();
         return;
     }
 
@@ -56,6 +54,7 @@ CutState.prototype.click = function(point) {
     if(!this.firstPoint && !this.centerPoint) {
         if(pointObj.type=="vertex" || pointObj.type=="division") {
             this.firstPoint = pointObj;
+            this.app.canvas.refresh();
             console.log("CutState: sélection du premier point");
         } else {
             console.log("CutState: Le point doit être sur un segment");
@@ -66,6 +65,7 @@ CutState.prototype.click = function(point) {
     //On ajoute un second point qui est le centre
     if(!this.centerPoint && pointObj.type=="center") {
         this.centerPoint = pointObj;
+        this.app.canvas.refresh();
         console.log("CutState: sélection du centre!");
         return;
     }
@@ -495,20 +495,21 @@ CutState.prototype.cutShape = function() {
         shape.otherPoints = [];
         shape.name = "Custom";
         shape.familyName = "Custom";
-        shape.centerShape(); //Définir le nouveau centre de la forme. (à améliorer?)
+        var centerOffset = shape.centerShape(); //Définir le nouveau centre de la forme. (à améliorer?)
         shape.__computePoints();
         var coords = shape.getCoordinates();
-        shape.x = coords.x - 20;
-        shape.y = coords.y - 20;
-
+        shape.x = coords.x + 2*centerOffset.x +20;
+        shape.y = coords.y + 2*centerOffset.y +20;
+        
         this.app.workspace.addShape(shape);
         createdShapesList.push(shape);
     }
 
     this.makeHistory(createdShapesList[0], createdShapesList[1]);
 
-    this.app.canvas.refresh();
     this.reset();
+    this.app.canvas.refresh();
+
 
     return;
 };
