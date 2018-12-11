@@ -84,9 +84,8 @@ class AGTabletteApp extends LitElement {
                                            >
                             </canvas-button>
                         `)}
-
                 </div>
-                <hr>
+
                 <div id="app-canvas-view-toolbar-p2">
                     <div >
                         <strong>Mouvements</strong>

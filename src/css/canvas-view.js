@@ -20,7 +20,9 @@ export const canvasViewCss = `
         }
 
         #app-canvas-view-toolbar-p1 {
-            padding-bottom: 15px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid lightslategray;
+            margin-bottom: 16px;
         }
 
         #app-canvas-view-toolbar-p2 {
