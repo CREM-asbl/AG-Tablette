@@ -12,21 +12,13 @@ class AGTabletteApp extends LitElement {
             currentMode: String
         }
     }
-    
+
     render() {
-        
+
         return html`
         <style>
         
             ${canvasViewCss}
-
-            .toolbar {
-                display:table; 
-                table-layout:fixed; 
-                height:100%; 
-                max-height:100%;
-                background: blue;
-            }
 
             .action-button {
                 display: block;
@@ -56,16 +48,12 @@ class AGTabletteApp extends LitElement {
                 box-shadow: 0 1px 3px gray;
                 z-index: 100;
                 max-height: 80vh;
-            }
-            
+            }          
         </style>
 
         <div id="app-canvas-view">
-
             <div id="app-canvas-view-toolbar" class="toolbar">
-                <div id="app-canvas-view-toolbar-p1" 
-                     style="padding-bottom: 15px;display:table-row;height:1%;">
-                    <div  style="display:table-cell;">
+                <div id="app-canvas-view-toolbar-p1">
                         <div id="app-canvas-mode-text">
                             <span style="color: gray;">Mode:</span> ${this.currentMode}
                         </div>
@@ -97,14 +85,9 @@ class AGTabletteApp extends LitElement {
                             </canvas-button>
                         `)}
 
-                        <hr>
-                    </div>
                 </div>
-
-                <div id="app-canvas-view-toolbar-p2" style="display:table-row;">
-                <div style="display:table-cell;">
-                <div style="height:100%;overflow-y:auto;">
-
+                <hr>
+                <div id="app-canvas-view-toolbar-p2">
                     <div >
                         <strong>Mouvements</strong>
                     </div>
@@ -131,8 +114,6 @@ class AGTabletteApp extends LitElement {
                     <button class="action-button" name="cut_shape" @click='${this._actionHandle}'>Découper</button>
                     <button class="action-button" name="duplicate_shape" @click='${this._actionHandle}'>Dupliquer</button>
                     <button class="action-button" name="build_shape_center" @click='${this._actionHandle}'>Construire le centre</button>
-                </div>
-                </div>
                 </div>
             </div>
 
@@ -175,21 +156,21 @@ class AGTabletteApp extends LitElement {
             'cut_shape': 'Découper'
         };
 
-        if(states.hasOwnProperty(event.target.name)) {
+        if (states.hasOwnProperty(event.target.name)) {
             window.app.colorpicker.cancel();
-            if(window.app.workspace.history.isRunning) {
+            if (window.app.workspace.history.isRunning) {
                 console.log("history is running, skipping action");
                 return;
             }
             window.app.setState(event.target.name);
             this.currentMode = states[event.target.name];
-        } else if(event.target.name=="settings") {
+        } else if (event.target.name == "settings") {
             window.app.colorpicker.cancel();
-            document.getElementById('settings-popup-gray').style.display='block';
-        } else if(event.target.name=="annuler") {
+            document.getElementById('settings-popup-gray').style.display = 'block';
+        } else if (event.target.name == "annuler") {
             window.app.colorpicker.cancel();
             window.app.workspace.history.cancelLastStep();
-        } else if(event.type=="selected-shape") {
+        } else if (event.type == "selected-shape") {
             this.currentFamily = null
             window.app.colorpicker.cancel();
             this.currentMode = 'Ajouter forme';

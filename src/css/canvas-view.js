@@ -7,15 +7,24 @@ export const canvasViewCss = `
             height: 100%;
         }
         #app-canvas-view > .toolbar {
+            display: flex;
+            flex-flow: column;
             width: 20%;
+            min-width: 180px;
             float:left;
-            padding: 5px;
+            padding: 4px;
             height: 100%;
             box-sizing: border-box;
             border-right: 1px solid gray;
             background-color: #ddd;
         }
+
+        #app-canvas-view-toolbar-p1 {
+            padding-bottom: 15px;
+        }
+
         #app-canvas-view-toolbar-p2 {
+            flex: 1;
             overflow-y: auto;
         }
 `
