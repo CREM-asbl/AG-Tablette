@@ -104,8 +104,13 @@ class DivMainCanvas extends LitElement {
      * @Error: si les coordonnées n'ont pas été trouvées, une alerte (alert()) est déclanchée et la fonction retourne null
      */
     getMousePos(event, appRef) {
+
         var response = null;
-        if (event.offsetX !== undefined) {
+
+        if (event.changedTouches && event.changedTouches[0] && event.changedTouches[0].clientX !== undefined) {
+            response = [event.changedTouches[0].clientX - window.canvasLeftShift, event.changedTouches[0].clientY];
+        }
+        else if (event.offsetX !== undefined) {
             response = [event.offsetX, event.offsetY];
         } else if (event.layerX !== undefined) {
             response = [event.layerX, event.layerY];
@@ -115,8 +120,6 @@ class DivMainCanvas extends LitElement {
             response = [event.pageX, event.pageY];
         } else if (event.x !== undefined) {
             response = [event.x, event.y];
-        } else if (event.changedTouches && event.changedTouches[0] && event.changedTouches[0].clientX !== undefined) {
-            response = [event.changedTouches[0].clientX - window.canvasLeftShift, event.changedTouches[0].clientY];
         } else {
             alert("navigator not compatible");
             var str = event.type;
