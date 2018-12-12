@@ -14,6 +14,16 @@
     <!-- pwa data -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#3f51b5">
+    <script>
+            // Load and register pre-caching Service Worker
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js', {
+                  scope: '/',
+                });
+              });
+            }
+          </script>
 
     <link rel="stylesheet" type="text/css" href="src/colorpicker/color-picker.min.css">
 
