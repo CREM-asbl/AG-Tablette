@@ -43,8 +43,8 @@ MovePlaneState.prototype.updateOffset = function(canvas, mouseCoordinates){
 
     var mCoords = {'x': mouseCoordinates.x+this.app.workspace.translateOffset.x, 'y': mouseCoordinates.y+this.app.workspace.translateOffset.y};
 
-    var x = this.originalOffset.x + (mCoords.x-this.clickCoordinates.x),
-        y = this.originalOffset.y + (mCoords.y-this.clickCoordinates.y);
+    var x = this.originalOffset.x + (mCoords.x-this.clickCoordinatesWithoutOffset.x),
+        y = this.originalOffset.y + (mCoords.y-this.clickCoordinatesWithoutOffset.y);
 
     this.app.workspace.translateOffset = {'x': x, 'y': y};
 };
