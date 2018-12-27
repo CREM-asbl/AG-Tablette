@@ -49,6 +49,17 @@ class AGTabletteApp extends LitElement {
                 z-index: 100;
                 max-height: 80vh;
             }
+            div#app-canvas-view-toolbar-p2:before {
+                content:'';
+                display:block;
+                box-shadow:inset 0 -5px 10px gray;
+                position:absolute;
+                bottom:0;
+                left:0;
+                width:20%;
+                min-width: 180px;
+                height:10px;
+            }​
         </style>
 
         <div id="app-canvas-view">

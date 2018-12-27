@@ -92,6 +92,9 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 	if(state.name == "divide_segment" && state.selectedShape) {
 		shapesToHighlight.push(state.selectedShape);
 	}
+	if(state.name == "merge_shapes" && state.firstShape) {
+		shapesToHighlight.push(state.firstShape);
+	}
 
 	//dessine les formes
 	var shapes = this.app.workspace.shapesList;

@@ -86,8 +86,7 @@ MovePlaneState.prototype.makeHistory = function(originalOffset){
  * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
  */
 MovePlaneState.prototype.cancelAction = function(data, callback){
-    var ws = this.app.workspace;
-    //TODO
+    this.app.workspace.translateOffset = {'x': data.originalOffset.x, 'y': data.originalOffset.y};
 
     callback();
 };
