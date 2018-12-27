@@ -59,9 +59,6 @@ function Workspace(app) {
 	 */
 	this.translateOffset = {'x': 0, 'y': 0};
 
-	//max 16 couleurs
-	this.previousSelectedColors = ["#FF0000", "#00FF00", "#0000FF"];
-
 	//Utilisé par l'historique lorsque la suppression d'une forme est annulée, pour pouvoir accéder à cette forme via son id pendant la recréation.
 	this.tmpCreatingShape = undefined;
 }

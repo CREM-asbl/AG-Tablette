@@ -46,8 +46,8 @@
             border-radius: 10px;
             border: 2px solid gray;
             background-color: #ddd;
-            height: 300px;
-            width: 265px;
+            height: 60px;
+            width: 150px;
         }
 
         #color-picker-previous-colors {
@@ -158,15 +158,8 @@
     <ag-tablette-app></ag-tablette-app>
 
     <div id="color-picker-popup" style="display:none">
-        <div>Couleurs précédentes:</div>
-        <div id="color-picker-previous-colors">
-            <div class="color-picker-previous-color" style="background-color:#eee"></div>
-            <div class="color-picker-previous-color" style="background-color:#aaa"></div>
-            <div class="color-picker-previous-color" style="background-color:#ccc"></div>
-            <div class="color-picker-previous-color" style="background-color:#555"></div>
-        </div>
         <div>Choisir une couleur:</div>
-        <input id="color-picker-input" type="text" />
+        <input id="color-picker-input" type="color" />
         <button type="button" id="color-picker-input-ok" onclick='window.app.colorpicker.__validate()'>Valider</button>
     </div>
 
