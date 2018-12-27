@@ -108,7 +108,7 @@ CreateState.prototype.draw = function(canvas, mouseCoordinates){
     //dessine la forme qui est en train d'être ajoutée
     if(this.__draw_counter===undefined) this.__draw_counter = 0;
     if(this.__draw_counter++<1) return;
-    console.log("draw moving shape");
+    
     canvas.drawMovingShape(this.selectedShape, {
         "x": mouseCoordinates.x - this.selectedShape.refPoint.x,
         "y": mouseCoordinates.y - this.selectedShape.refPoint.y

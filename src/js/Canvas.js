@@ -73,7 +73,7 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 		var shapes = this.app.workspace.shapesOnPoint(new Point(mouseCoordinates.x, mouseCoordinates.y));
 		if(shapes.length>0) {
 			/*
-			//Pour une version PC:
+			//Pour une version PC. getElementsToHighlight n'est pas utilisé sur tablette.
 			var data = this.app.state.getElementsToHighlight(shapes[shapes.length-1], mouseCoordinates);
 
 			shapesToHighlight = data.shapes;
@@ -88,6 +88,9 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 			pointsToHighlight.push({'shape': state.shape, 'point': state.firstPoint});
 		if(state.centerPoint)
 			pointsToHighlight.push({'shape': state.shape, 'point': state.centerPoint});
+	}
+	if(state.name == "divide_segment" && state.selectedShape) {
+		shapesToHighlight.push(state.selectedShape);
 	}
 
 	//dessine les formes

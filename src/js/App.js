@@ -65,7 +65,8 @@ App.prototype.handleEvent = function(eventName, eventObj){
 };
 
 /**
- * Définir l'état de l'application
+ * Définir l'état de l'application. On appelle la méthode abort() de l'état actuel,
+ * on change l'état, et on appelle reset() puis start() du nouvel état.
  * @param stateName: le nom du nouvel état
  * @param params: objet envoyé en paramètre à la méthode start() du nouvel état
  */
