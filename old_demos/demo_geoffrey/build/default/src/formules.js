@@ -1,1 +1,0 @@
-var calculateAngle=function(a,b,c){var d=Math.atan2,e=d(b.x-a.x,b.y-a.y)-d(c.x-a.x,c.y-a.y);return 180*e/Math.PI};
