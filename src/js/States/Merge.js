@@ -21,11 +21,11 @@ MergeState.prototype.reset = function(){
 * Appelée lorsque l'événement click est déclanché sur le canvas
 * @param point: {x: int, y: int}
  */
-MergeState.prototype.click = function(point){
+MergeState.prototype.click = function(point, selection){
     var list = this.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-    if(list.length==0)
+    if(list.length==0 && !selection.shape)
         return;
-    var shape = list.pop();
+    var shape = selection.shape ? selection.shape : list.pop();
 
     if(!this.firstShape) { //On sélectionne la première forme
         this.firstShape = shape;

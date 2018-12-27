@@ -16,6 +16,7 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
 
 	//Liste des classes d'états possible
 	this.states = {
+		"no_state": { "reset": function(){}, 'start': function(){}},
 		"create_shape": new CreateState(this),
 		"delete_shape": new DeleteState(this),
 		"move_shape": new MoveState(this),
@@ -53,6 +54,11 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
 
 	//Sauvegarde du Workspace:
 	this.storer = new Storer(this);
+
+	//Souris virtuelle:
+	this.virtualMouse = new VirtualMouse(this);
+
+	this.setState("no_state");
 }
 
 /**
@@ -61,7 +67,7 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
  * @param eventObj: référence vers l'objet Event
  */
 App.prototype.handleEvent = function(eventName, eventObj){
-	this.events[eventName](eventObj);
+	this.events[eventName](eventObj, {'shape': null});
 };
 
 /**
@@ -69,21 +75,47 @@ App.prototype.handleEvent = function(eventName, eventObj){
  * on change l'état, et on appelle reset() puis start() du nouvel état.
  * @param stateName: le nom du nouvel état
  * @param params: objet envoyé en paramètre à la méthode start() du nouvel état
+ * @param options: {'do_reset': boolean = true, 'do_start': boolean = true}
  */
-App.prototype.setState = function(stateName, params){
+App.prototype.setState = function(stateName, params, options){
+	if(!options) options = {};
+
 	var that = this;
 	if(this.state.name!=null) {
 		this.state.abort(); //Annuler les actions en cours de l'état courant
 	}
 
 	this.state = this.states[stateName];
-	this.state.reset();
-	this.state.start(params);
-	var historyRunning = this.workspace.history.isRunning
+	if(options.do_reset!== false)
+		this.state.reset();
+	if(options.do_start!== false)
+		this.state.start(params);
+	var historyRunning = this.workspace.history.isRunning;
 
-	this.events.click = function(e){ if(that.state.name && !historyRunning) that.state.click(e); };
-	this.events.mousedown = function(e){ if(that.state.name && !historyRunning) that.state.mousedown(e); };
-	this.events.mouseup = function(e){ if(that.state.name && !historyRunning) that.state.mouseup(e); };
+	this.events.click = function(e, selection){
+		if(that.virtualMouse.isShown && that.virtualMouse.isPointOnMouse(new Point(e.x, e.y))) {
+			that.virtualMouse.click(e);
+			return;
+		}
+		if(that.state.name && !historyRunning)
+			that.state.click(e, selection);
+	};
+	this.events.mousedown = function(e, selection){
+		if(that.virtualMouse.isShown && that.virtualMouse.isPointOnMouse(new Point(e.x, e.y))) {
+			that.virtualMouse.mousedown(e);
+			return;
+		}
+		if(that.state.name && !historyRunning)
+			that.state.mousedown(e, selection);
+	};
+	this.events.mouseup = function(e, selection){
+		if(that.virtualMouse.isShown && that.virtualMouse.isMoving) {
+			that.virtualMouse.mouseup(e);
+			return;
+		}
+		if(that.state.name && !historyRunning)
+			that.state.mouseup(e, selection);
+	};
 
 	this.canvas.refresh();
 };
@@ -383,6 +415,61 @@ App.prototype.positiveAngle = function(angle){
 	if(val < 0) val += 2*Math.PI;
 	return (val==0) ? 0 : val; // éviter de retourner -0.
 };
+
+/**
+ * Renvoie true si le point est dans le polygone, false sinon.
+ * @param  {[{'x': float, 'y': float}]} polygon Coordonnées des points du polygone
+ * @param  {{'x': float, 'y': float}} point   Coordonnées du point
+ * @return {boolean}         true si le point est dans le polygone
+ * @copyright: https://sidvind.com/wiki/Point-in-polygon:_Jordan_Curve_Theorem
+ */
+App.prototype.isPointInPolygon = function(polygon, point) {
+
+	/* Iterate through each line */
+	var crossings = 0;
+	var nb_pts = polygon.length;
+
+	for(var i = 0; i < nb_pts; i++ ){
+       	var x1, x2;
+        /* This is done to ensure that we get the same result when
+           the line goes from left to right and right to left */
+        if ( polygon[i].x < polygon[ (i+1)%nb_pts ].x ){
+            x1 = polygon[i].x;
+            x2 = polygon[(i+1)%nb_pts].x;
+        } else {
+            x1 = polygon[(i+1)%nb_pts].x;
+            x2 = polygon[i].x;
+        }
+
+        /* First check if the ray is possible to cross the line */
+        if ( point.x > x1 && point.x <= x2 && ( point.y < polygon[i].y || point.y <= polygon[(i+1)%nb_pts].y ) ) {
+            var eps = 0.000001;
+
+            /* Calculate the equation of the line */
+            var dx = polygon[(i+1)%nb_pts].x - polygon[i].x;
+            var dy = polygon[(i+1)%nb_pts].y - polygon[i].y;
+            var k;
+
+            if ( Math.abs(dx) < eps ){
+                k = Infinity;   // math.h
+            } else {
+                k = dy/dx;
+            }
+
+            var m = polygon[i].y - k * polygon[i].x;
+
+            /* Find if the ray crosses the line */
+            var y2 = k * point.x + m;
+            if ( point.y <= y2 ){
+                crossings++;
+            }
+        }
+	}
+	if ( crossings % 2 == 1 ){
+        return true;
+	}
+	return false;
+}
 
 /**
  * Méthode statique: faire hériter une classe d'une autre

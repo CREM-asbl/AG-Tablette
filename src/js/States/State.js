@@ -31,22 +31,26 @@ State.prototype.start = function(params){
 
 /**
  * Appelée lorsque l'événement click est déclanché sur le canvas
+ * @param coordinates: {x: int, y: int}
+ * @param selection: {shape: Shape}. Objet sélectionné lors du clic.
  */
-State.prototype.click = function(){
+State.prototype.click = function(coordinates, selection){
     console.log("click() not implemented");
 };
 
 /**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
+* @param coordinates: {x: int, y: int}
  */
-State.prototype.mousedown = function(){
+State.prototype.mousedown = function(coordinates, selection){
     console.log("mousedown() not implemented");
 };
 
 /**
 * Appelée lorsque l'événement mouseup est déclanché sur le canvas
+* @param coordinates: {x: int, y: int}
  */
-State.prototype.mouseup = function(){
+State.prototype.mouseup = function(coordinates, selection){
     console.log("mouseup() not implemented");
 };
 
@@ -68,7 +72,7 @@ State.prototype.cancelAction = function(data, callback){
     //callback();
 };
 
-/**
+/** //N'est pas utilisée dans la version tablette!
  * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
  * @param  {Shape} overflownShape La forme qui est survolée par la souris
  * @param {{'x': float, 'y': float}} clickCoordinates Les coordonnées de la souris

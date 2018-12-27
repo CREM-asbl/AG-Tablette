@@ -120,6 +120,16 @@
             -o-user-select: none;
             user-select: none;
         }
+
+        div#open-virtual-mouse {
+            position: absolute;
+            z-index: 200;
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            right: 0px;
+            bottom: 0px;
+        }
     </style>
 </head>
 
@@ -136,6 +146,7 @@
     <script src="src/js/Settings.js"></script>
     <script src="src/js/AppHistory.js"></script>
     <script src="src/js/Storer.js"></script>
+    <script src="src/js/VirtualMouse.js"></script>
 
     <script src="src/js/States/State.js"></script>
     <script src="src/js/States/Create.js"></script>
@@ -181,6 +192,10 @@
             <br><br>
             <button onclick="dividePopupValidate()">Valider</button>
         </div>
+    </div>
+
+    <div id="open-virtual-mouse" onclick="window.app.virtualMouse.show()">
+        <!-- TODO dessiner une souris dans cette case (ou mettre une image de souris) -->
     </div>
 
 

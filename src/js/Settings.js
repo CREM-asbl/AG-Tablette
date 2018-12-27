@@ -50,6 +50,8 @@ function Settings(app) {
 
 	//taille des formes qui seront ajoutées
 	this.add("shapesSize", 1,              true); //1,2,3
+
+    this.add("virtualMouseSize", 1.5, false);
 }
 
 /**

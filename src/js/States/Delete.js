@@ -12,11 +12,11 @@ App.heriter(DeleteState.prototype, State.prototype);
  * Supprime la forme aux coordonnées indiquées (s'il y en a une)
  * @param coordinates: {x: int, y: int}
  */
-DeleteState.prototype.click = function(coordinates) {
+DeleteState.prototype.click = function(coordinates, selection) {
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-    if(list.length==0)
+    if(list.length==0 && !selection.shape)
         return;
-    var shape = list.pop(); //TODO: utiliser l'ordre d'affichage ?
+    var shape = selection.shape ? selection.shape : list.pop();
     //TODO: au survol, entourer les formes que l'on va supprimer!
 
 

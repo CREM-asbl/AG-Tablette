@@ -32,12 +32,12 @@ BorderColorState.prototype.start = function(){
  * Colorie les bords de la forme
  * @param coordinates: {x: int, y: int}
  */
-BorderColorState.prototype.click = function(coordinates) {
+BorderColorState.prototype.click = function(coordinates, selection) {
     if(this.selectedColor == null)
         return;
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-    if(list.length>0) {
-        var shape = list.pop(),
+    if(selection.shape || list.length>0) {
+        var shape = selection.shape ? selection.shape : list.pop(),
             oldColor = shape.borderColor;
         shape.borderColor = this.selectedColor;
         this.app.canvas.refresh(coordinates);

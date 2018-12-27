@@ -59,14 +59,14 @@ ReverseState.prototype.reset = function(){
  * Appelée lorsque l'événement click est déclanché sur le canvas
  * @param point: les coordonnées du click
  */
-ReverseState.prototype.click = function(point){
+ReverseState.prototype.click = function(point, selection){
     if(this.isReversing)
         return;
     if(!this.selectedShape) { //Premier clic: sélection de la forme.
         var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-        if(list.length==0)
+        if(list.length==0 && !selection.shape)
             return;
-        this.selectedShape = list.pop();
+        this.selectedShape = selection.shape ? selection.shape : list.pop();
         this.app.canvas.refresh();
         return;
     }

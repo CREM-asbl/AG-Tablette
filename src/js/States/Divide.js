@@ -111,15 +111,15 @@ DivideState.prototype.getSelectedArc = function (shape, clickCoordinates) {
 /**
  * @param coordinates: {x: int, y: int}
  */
-DivideState.prototype.click = function(coordinates) {
+DivideState.prototype.click = function(coordinates, selection) {
     if(this.nb_parts==null)
         return;
 
     if(!this.selectedShape) {
         var list = this.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-        if(list.length==0)
+        if(list.length==0 && !selection.shape)
             return;
-        this.selectedShape = list.pop();
+        this.selectedShape = selection.shape ? selection.shape : list.pop();
         this.app.canvas.refresh(coordinates);
         return;
     }

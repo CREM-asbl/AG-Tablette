@@ -12,11 +12,11 @@ App.heriter(BuildCenterState.prototype, State.prototype);
  * Créer le centre de la forme aux coordonnées indiquées (s'il y en a une)
  * @param coordinates: {x: int, y: int}
  */
-BuildCenterState.prototype.click = function(coordinates) {
+BuildCenterState.prototype.click = function(coordinates, selection) {
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-    if(list.length==0)
+    if(list.length==0 && !selection.shape)
         return;
-    var shape = list.pop(); //TODO: utiliser l'ordre d'affichage ?
+    var shape = selection.shape ? selection.shape : list.pop();
 
     for(var i=0;i<shape.otherPoints.length;i++) {
         var pos = shape.otherPoints[i].getRelativeCoordinates();

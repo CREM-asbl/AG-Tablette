@@ -128,22 +128,24 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 		}
 	}
 
-	if(mouseCoordinates==undefined)
-		return;
+	if(mouseCoordinates!=undefined) {
+		//Appelle la fonction de dessin de l'état actuel
+		if(		(state.name=="move_shape" && state.isMoving)
+			 || (state.name=="duplicate_shape" && state.isDuplicating)
+			 || (state.name=="create_shape")
+			 || (state.name=="rotate_shape" && state.isRotating)
+			 || (state.name=="reverse_shape")
+		 ) {
+			state.draw(this, mouseCoordinates);
+		}
+		//Si on est en train d'annuler un retournement de forme
+		if(this.app.workspace.history.isRunning && this.app.workspace.history.runningState=="reverse_shape") {
+			this.app.states["reverse_shape"].draw(this, mouseCoordinates);
+		}
+	}
 
-	//Appelle la fonction de dessin de l'état actuel
-	if(		(state.name=="move_shape" && state.isMoving)
-		 || (state.name=="duplicate_shape" && state.isDuplicating)
-		 || (state.name=="create_shape")
-		 || (state.name=="rotate_shape" && state.isRotating)
-		 || (state.name=="reverse_shape")
-	 ) {
-		state.draw(this, mouseCoordinates);
-	}
-	//Si on est en train d'annuler un retournement de forme
-	if(this.app.workspace.history.isRunning && this.app.workspace.history.runningState=="reverse_shape") {
-		this.app.states["reverse_shape"].draw(this, mouseCoordinates);
-	}
+	if(this.app.virtualMouse.isShown)
+		this.drawVirtualMouse(mouseCoordinates);
 };
 
 /**
@@ -194,6 +196,53 @@ Canvas.prototype.drawGrid = function() {
 		console.log("Canvas.drawGrid: unknown type: "+gridType);
 	}
 };
+
+/**
+ * Dessiner la souris virtuelle sur l'écran
+ * @return {[type]} [description]
+ */
+Canvas.prototype.drawVirtualMouse = function(mouseCoordinates){
+	var ctx = this.ctx,
+		vMouse = this.app.virtualMouse,
+		vMousePos = vMouse.getPosition(),
+		vMouseCoords = vMouse.getCoordinates();
+
+	console.log("dataaa");
+	console.log(vMousePos);
+	if(vMouse.isMoving) {
+		if(!mouseCoordinates) return;
+		vMousePos = {
+	        'x': vMousePos.x + mouseCoordinates.x - vMouse.movingData.startPos.x,
+	        'y': vMousePos.y + mouseCoordinates.y - vMouse.movingData.startPos.y
+	    };
+	}
+
+	console.log(vMousePos);
+
+
+	ctx.strokeStyle = "#333";
+	ctx.fillStyle = "#DDD";
+	ctx.lineWidth = (new Number( 4 / this.app.workspace.zoomLevel )).toString();
+
+	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
+	ctx.translate(vMousePos.x, vMousePos.y);
+
+	ctx.beginPath();
+	ctx.moveTo(vMouseCoords[0].x, vMouseCoords[0].y);
+
+	for(var i=1; i<vMouseCoords.length; i++) {
+		ctx.lineTo(vMouseCoords[i].x, vMouseCoords[i].y);
+	}
+
+	ctx.closePath();
+
+	ctx.fill();
+	ctx.stroke();
+
+	ctx.translate(-vMousePos.x, -vMousePos.y);
+	ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
+};
+
 
 /**
  * Dessine une forme sur le canvas

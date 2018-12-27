@@ -112,7 +112,6 @@ class AGTabletteApp extends LitElement {
                     <button class="action-button" name="moveplane_state" @click='${this._actionHandle}'>Glisser le plan</button>
                     <button class="action-button" name="link_shapes" @click='${this._actionHandle}'>Lier des formes</button>
                     <button class="action-button" name="unlink_shapes" @click='${this._actionHandle}'>Délier</button>
-                    <button class="action-button" name="name_shape" @click='${this._actionHandle}'>Nommer TODO</button>
                     <button class="action-button" name="delete_shape" @click='${this._actionHandle}'>Supprimer</button>
                     <button class="action-button" name="background_color" @click='${this._actionHandle}'>Couleur de fond</button>
                     <button class="action-button" name="border_color" @click='${this._actionHandle}'>Couleur des bords</button>

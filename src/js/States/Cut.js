@@ -27,12 +27,12 @@ CutState.prototype.reset = function(){
  * Click sur le canvas
  * @param point: {x: int, y: int}
  */
-CutState.prototype.click = function(point) {
+CutState.prototype.click = function(point, selection) {
     //On sélectionne la forme
     if(!this.shape) {
         var list = this.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-        if(list.length>0) {
-            this.shape = list.pop();
+        if(list.length>0 || selection.shape) {
+            this.shape = selection.shape ? selection.shape : list.pop();
             this.app.canvas.refresh();
         }
         return;

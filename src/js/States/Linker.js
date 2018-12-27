@@ -39,11 +39,11 @@ LinkerState.prototype.start = function(){};
  * Ajoute une forme au groupe (si on clique sur une forme)
  * @param coordinates: {x: int, y: int}
  */
-LinkerState.prototype.click = function(coordinates) {
+LinkerState.prototype.click = function(coordinates, selection) {
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-    if(list.length==0)
+    if(list.length==0 && !selection.shape)
         return;
-    var shape = list.pop();
+    var shape = selection.shape ? selection.shape : list.pop();
 
     //Sauvegarde des userShapeGroups:
     var data = [];
@@ -201,7 +201,7 @@ LinkerState.prototype.cancelAction = function(data, callback){
         }
         ws.userShapeGroups.push(group);
     }
-    
+
     callback();
 };
 
