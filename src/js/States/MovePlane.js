@@ -40,13 +40,13 @@ MovePlaneState.prototype.mousedown = function(point){
  * @param canvas: référence vers la classe Canvas
  */
 MovePlaneState.prototype.updateOffset = function(canvas, mouseCoordinates){
+
     var mCoords = {'x': mouseCoordinates.x+this.app.workspace.translateOffset.x, 'y': mouseCoordinates.y+this.app.workspace.translateOffset.y};
 
-    var x = this.originalOffset.x + (mCoords.x-this.clickCoordinatesWithoutOffset.x),
-        y = this.originalOffset.y + (mCoords.y-this.clickCoordinatesWithoutOffset.y);
+    var x = this.originalOffset.x + (mCoords.x-this.clickCoordinates.x),
+        y = this.originalOffset.y + (mCoords.y-this.clickCoordinates.y);
 
     this.app.workspace.translateOffset = {'x': x, 'y': y};
-
 };
 
 
@@ -73,9 +73,9 @@ MovePlaneState.prototype.draw = function(canvas, mouseCoordinates){};
 /**
  * Ajoute l'action qui vient d'être effectuée dans l'historique
  */
-MovePlaneState.prototype.makeHistory = function(shapesSave){
+MovePlaneState.prototype.makeHistory = function(originalOffset){
     var data = {
-        'shapesSave': shapesSave
+        'originalOffset': originalOffset
     };
     this.app.workspace.history.addStep(this.name, data);
 };
@@ -87,30 +87,7 @@ MovePlaneState.prototype.makeHistory = function(shapesSave){
  */
 MovePlaneState.prototype.cancelAction = function(data, callback){
     var ws = this.app.workspace;
-    for(var i=0;i<data.shapesSave.length;i++) {
-        var shape = ws.getShapeById(data.shapesSave[i].id);
-        if(!shape) {
-            console.log("MoveState.cancelAction: shape not found... "+i);
-            continue;
-        }
-
-        shape.setCoordinates({'x': data.shapesSave[i].x,'y': data.shapesSave[i].y});
-
-        for(var j=0;j<data.shapesSave[i].buildSteps.length;j++) {
-            var coords = data.shapesSave[i].buildSteps[j]
-            shape.buildSteps[j].setCoordinates(coords.x, coords.y);
-        }
-        shape.recomputePoints();
-
-        for(var j=0;j<data.shapesSave[i].segmentPoints.length;j++) {
-            var coords = data.shapesSave[i].segmentPoints[j]
-            shape.segmentPoints[j].setCoordinates(coords.x, coords.y);
-        }
-        for(var j=0;j<data.shapesSave[i].otherPoints.length;j++) {
-            var coords = data.shapesSave[i].otherPoints[j]
-            shape.otherPoints[j].setCoordinates(coords.x, coords.y);
-        }
-    }
+    //TODO
 
     callback();
 };
@@ -143,7 +120,7 @@ MovePlaneState.prototype.getElementsToHighlight = function(overflownShape){
 /**
  * Annuler l'action en cours
  */
-MovePlaneState.prototype.abort = function(){};
+MovePlaneState.prototype.abort = function(){}; //TODO?
 
 /**
  * démarrer l'état
