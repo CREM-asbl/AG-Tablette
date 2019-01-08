@@ -37,12 +37,12 @@ RotateState.prototype.reset = function(){
 /**
  * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */ //TODO: au survol, entourer les formes que l'on va tourner!
-RotateState.prototype.mousedown = function(point){
+RotateState.prototype.mousedown = function(point, selection){
     var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-    if(list.length>0) {
+    if(list.length>0 || selection.shape) {
         this.isRotating = true;
         this.clickCoordinates = point;
-        this.selectedShape = list.pop();
+        this.selectedShape = selection.shape ? selection.shape : list.pop();
         this.center = {
             "x": this.selectedShape.x,
             "y": this.selectedShape.y

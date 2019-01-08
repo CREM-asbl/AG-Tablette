@@ -27,12 +27,12 @@ CutState.prototype.reset = function(){
  * Click sur le canvas
  * @param point: {x: int, y: int}
  */
-CutState.prototype.click = function(point) {
+CutState.prototype.click = function(point, selection) {
     //On sélectionne la forme
     if(!this.shape) {
         var list = this.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-        if(list.length>0) {
-            this.shape = list.pop();
+        if(list.length>0 || selection.shape) {
+            this.shape = selection.shape ? selection.shape : list.pop();
             this.app.canvas.refresh();
         }
         return;
@@ -187,19 +187,20 @@ CutState.prototype.cutShape = function() {
 
             //Les trier
             var getAngleStatus = function(angle) {
+                var end_angle_min_start_angle = (end_angle - start_angle == 0) ? 2*Math.PI : end_angle - start_angle; //si end_angle = start_angle, on travaille sur un cercle entier (portion de cercle = 100% = 2*Math.PI)
                 if(!bs.direction) {
                     if(start_angle <= angle) {
-                        if(angle <= end_angle) return (angle-start_angle) / (end_angle - start_angle);
-                        else return (angle - start_angle) / (2*Math.PI - start_angle + end_angle);
+                        if(angle <= end_angle) return (angle-start_angle) / (end_angle_min_start_angle);
+                        else return (angle - start_angle) / (2*Math.PI +end_angle_min_start_angle);
                     } else {
-                        return (angle + 2*Math.PI - start_angle) / (2*Math.PI - start_angle + end_angle);
+                        return (angle + 2*Math.PI - start_angle) / (2*Math.PI +end_angle_min_start_angle);
                     }
                 } else {
                     if(start_angle >= angle) {
-                        if(angle >= end_angle) return (start_angle-angle) / (start_angle - end_angle);
-                        else return (start_angle-angle) / (start_angle + 2*Math.PI - end_angle);
+                        if(angle >= end_angle) return (start_angle-angle) / (-end_angle_min_start_angle);
+                        else return (start_angle-angle) / (2*Math.PI - end_angle_min_start_angle);
                     } else {
-                        return (-angle + 2*Math.PI + start_angle) / (2*Math.PI + start_angle - end_angle);
+                        return (-angle + 2*Math.PI + start_angle) / (2*Math.PI - end_angle_min_start_angle);
                     }
                 }
             };
@@ -284,7 +285,6 @@ CutState.prototype.cutShape = function() {
 
     //Dédoubler la liste:
     shapePointsList = shapePointsList.concat(shapePointsList.slice(1));
-
 
     //#######################
     //Construire les 2 formes
@@ -500,7 +500,7 @@ CutState.prototype.cutShape = function() {
         var coords = shape.getCoordinates();
         shape.x = coords.x + 2*centerOffset.x +20;
         shape.y = coords.y + 2*centerOffset.y +20;
-        
+
         this.app.workspace.addShape(shape);
         createdShapesList.push(shape);
     }

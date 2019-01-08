@@ -46,8 +46,8 @@
             border-radius: 10px;
             border: 2px solid gray;
             background-color: #ddd;
-            height: 300px;
-            width: 265px;
+            height: 60px;
+            width: 150px;
         }
 
         #color-picker-previous-colors {
@@ -120,6 +120,16 @@
             -o-user-select: none;
             user-select: none;
         }
+
+        div#open-virtual-mouse {
+            position: absolute;
+            z-index: 200;
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            right: 0px;
+            bottom: 0px;
+        }
     </style>
 </head>
 
@@ -136,6 +146,7 @@
     <script src="src/js/Settings.js"></script>
     <script src="src/js/AppHistory.js"></script>
     <script src="src/js/Storer.js"></script>
+    <script src="src/js/VirtualMouse.js"></script>
 
     <script src="src/js/States/State.js"></script>
     <script src="src/js/States/Create.js"></script>
@@ -158,15 +169,8 @@
     <ag-tablette-app></ag-tablette-app>
 
     <div id="color-picker-popup" style="display:none">
-        <div>Couleurs précédentes:</div>
-        <div id="color-picker-previous-colors">
-            <div class="color-picker-previous-color" style="background-color:#eee"></div>
-            <div class="color-picker-previous-color" style="background-color:#aaa"></div>
-            <div class="color-picker-previous-color" style="background-color:#ccc"></div>
-            <div class="color-picker-previous-color" style="background-color:#555"></div>
-        </div>
         <div>Choisir une couleur:</div>
-        <input id="color-picker-input" type="text" />
+        <input id="color-picker-input" type="color" />
         <button type="button" id="color-picker-input-ok" onclick='window.app.colorpicker.__validate()'>Valider</button>
     </div>
 
@@ -188,6 +192,10 @@
             <br><br>
             <button onclick="dividePopupValidate()">Valider</button>
         </div>
+    </div>
+
+    <div id="open-virtual-mouse" onclick="window.app.virtualMouse.show()">
+        <!-- TODO dessiner une souris dans cette case (ou mettre une image de souris) -->
     </div>
 
 

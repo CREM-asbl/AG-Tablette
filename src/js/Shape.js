@@ -246,57 +246,12 @@ Shape.prototype.getApproximatedPointsList = function(angleStep) {
  * Vérifie si un point est dans la forme ou non
  * @param point: le point ({x: int, y: int}) (coordonnées absolues)
  * @return true si le point est dans la forme, false sinon
- * @author: https://sidvind.com/wiki/Point-in-polygon:_Jordan_Curve_Theorem
  */
 Shape.prototype.containsPoint = function(point) {
-	var points = this.getApproximatedPointsList();
+	var polygon = this.getApproximatedPointsList();
 	var pos = point.getAbsoluteCoordinates();
 	point = {"x": pos.x - this.x, "y": pos.y - this.y}; //calculer le point en position relative
-
-	/* Iterate through each line */
-	var crossings = 0;
-	var nb_pts = points.length;
-
-	for(var i = 0; i < nb_pts; i++ ){
-       	var x1, x2;
-        /* This is done to ensure that we get the same result when
-           the line goes from left to right and right to left */
-        if ( points[i].x < points[ (i+1)%nb_pts ].x ){
-            x1 = points[i].x;
-            x2 = points[(i+1)%nb_pts].x;
-        } else {
-            x1 = points[(i+1)%nb_pts].x;
-            x2 = points[i].x;
-        }
-
-        /* First check if the ray is possible to cross the line */
-        if ( point.x > x1 && point.x <= x2 && ( point.y < points[i].y || point.y <= points[(i+1)%nb_pts].y ) ) {
-            var eps = 0.000001;
-
-            /* Calculate the equation of the line */
-            var dx = points[(i+1)%nb_pts].x - points[i].x;
-            var dy = points[(i+1)%nb_pts].y - points[i].y;
-            var k;
-
-            if ( Math.abs(dx) < eps ){
-                k = Infinity;   // math.h
-            } else {
-                k = dy/dx;
-            }
-
-            var m = points[i].y - k * points[i].x;
-
-            /* Find if the ray crosses the line */
-            var y2 = k * point.x + m;
-            if ( point.y <= y2 ){
-                crossings++;
-            }
-        }
-	}
-	if ( crossings % 2 == 1 ){
-        return true;
-	}
-	return false;
+	return window.app.isPointInPolygon(polygon, point);
 };
 
 /**

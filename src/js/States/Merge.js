@@ -21,14 +21,15 @@ MergeState.prototype.reset = function(){
 * Appelée lorsque l'événement click est déclanché sur le canvas
 * @param point: {x: int, y: int}
  */
-MergeState.prototype.click = function(point){
+MergeState.prototype.click = function(point, selection){
     var list = this.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-    if(list.length==0)
+    if(list.length==0 && !selection.shape)
         return;
-    var shape = list.pop();
+    var shape = selection.shape ? selection.shape : list.pop();
 
     if(!this.firstShape) { //On sélectionne la première forme
         this.firstShape = shape;
+        this.app.canvas.refresh(point);
         return;
     }
 
@@ -151,10 +152,10 @@ MergeState.prototype.click = function(point){
         //Fin forme 1:
         for(var i=commonSegment.s1_index2; i<shape1.buildSteps.length; i++) {
             newBS.push(shape1.buildSteps[i].getCopy());
-            console.log(shape1.buildSteps[i]);
+            //console.log(shape1.buildSteps[i]);
         }
 
-        //TODO: supprimer 2 buildstep "line" qui se suivent si elles sont identiques (ou quasi identique - précision)
+        //TODO: supprimer (fusionner??) 2 buildstep "line" qui se suivent si elles sont identiques (ou quasi identique - précision)
         //Translation des buildSteps pour qu'elles soient centrées:
         //TODO: fusionner 2 arc de cercles qui sont côte à côte si c'est le même centre ?
         var midX = 0, midY = 0;

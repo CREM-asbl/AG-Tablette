@@ -17,7 +17,7 @@ class AGTabletteApp extends LitElement {
 
         return html`
         <style>
-        
+
             ${canvasViewCss}
 
             .action-button {
@@ -48,7 +48,18 @@ class AGTabletteApp extends LitElement {
                 box-shadow: 0 1px 3px gray;
                 z-index: 100;
                 max-height: 80vh;
-            }          
+            }
+            div#app-canvas-view-toolbar-p2:before {
+                content:'';
+                display:block;
+                box-shadow:inset 0 -5px 10px gray;
+                position:absolute;
+                bottom:0;
+                left:0;
+                width:20%;
+                min-width: 180px;
+                height:10px;
+            }​
         </style>
 
         <div id="app-canvas-view">
@@ -58,16 +69,16 @@ class AGTabletteApp extends LitElement {
                             <span style="color: gray;">Mode:</span> ${this.currentMode}
                         </div>
                         <div>
-                            <button class="action-button" 
-                                    name="annuler" 
+                            <button class="action-button"
+                                    name="annuler"
                                     @click='${this._actionHandle}'>
                                     Annuler
                             </button>
                         </div>
 
                         <div>
-                            <button class="action-button" 
-                                    name="settings" 
+                            <button class="action-button"
+                                    name="settings"
                                     @click='${this._actionHandle}'>
                                     Paramètres
                             </button>
@@ -76,9 +87,9 @@ class AGTabletteApp extends LitElement {
                         <div>
                             <strong>Formes standard</strong>
                         </div>
-                        
+
                         ${this._getFamilies().map(family => html`
-                            <canvas-button .family="${family}" 
+                            <canvas-button .family="${family}"
                                            ?active="${family === this.currentFamily}"
                                            @click="${e => this.currentFamily = e.target.family}"
                                            >
@@ -98,9 +109,9 @@ class AGTabletteApp extends LitElement {
                     <div style="margin-top: 25px">
                         <strong>Outils</strong>
                     </div>
+                    <button class="action-button" name="moveplane_state" @click='${this._actionHandle}'>Glisser le plan</button>
                     <button class="action-button" name="link_shapes" @click='${this._actionHandle}'>Lier des formes</button>
                     <button class="action-button" name="unlink_shapes" @click='${this._actionHandle}'>Délier</button>
-                    <button class="action-button" name="name_shape" @click='${this._actionHandle}'>Nommer TODO</button>
                     <button class="action-button" name="delete_shape" @click='${this._actionHandle}'>Supprimer</button>
                     <button class="action-button" name="background_color" @click='${this._actionHandle}'>Couleur de fond</button>
                     <button class="action-button" name="border_color" @click='${this._actionHandle}'>Couleur des bords</button>
@@ -119,8 +130,8 @@ class AGTabletteApp extends LitElement {
             <div-main-canvas id="div-main-canvas"></div-main-canvas>
         </div>
 
-        <shapes-list .family="${this.currentFamily}" 
-                     name="choose_shape_in_list" 
+        <shapes-list .family="${this.currentFamily}"
+                     name="choose_shape_in_list"
                      @selected-shape='${this._actionHandle}'>
         </shapes-list>
         `
@@ -152,7 +163,8 @@ class AGTabletteApp extends LitElement {
             'duplicate_shape': 'Dupliquer',
             'divide_segment': 'Diviser',
             'merge_shapes': 'Fusionner',
-            'cut_shape': 'Découper'
+            'cut_shape': 'Découper',
+            'moveplane_state': 'Glisser le plan'
         };
 
         if (states.hasOwnProperty(event.target.name)) {
@@ -174,7 +186,7 @@ class AGTabletteApp extends LitElement {
             window.app.colorpicker.cancel();
             this.currentMode = 'Ajouter forme';
         } else {
-            console.log("AGTabletteApp.${this._actionHandle}: received unknown event:");
+            console.log("AGTabletteApp._actionHandle: received unknown event:");
             console.log(event);
         }
     }

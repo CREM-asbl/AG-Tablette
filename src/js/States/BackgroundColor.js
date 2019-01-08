@@ -32,12 +32,12 @@ BackgroundColorState.prototype.start = function(){
  * Colorie la forme
  * @param coordinates: {x: int, y: int}
  */
-BackgroundColorState.prototype.click = function(coordinates) {
+BackgroundColorState.prototype.click = function(coordinates, selection) {
     if(this.selectedColor == null)
         return;
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-    if(list.length>0) {
-        var shape = list.pop(),
+    if(selection.shape || list.length>0) {
+        var shape = selection.shape ? selection.shape : list.pop(),
             oldColor = shape.color;
         shape.color = this.selectedColor;
         this.app.canvas.refresh(coordinates);

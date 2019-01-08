@@ -25,14 +25,14 @@ DuplicateState.prototype.reset = function(){
  * Duplique la forme aux coordonnées données (s'il y en a une)
  * @param point: {x: int, y: int}
  */
-DuplicateState.prototype.mousedown = function(point) {
+DuplicateState.prototype.mousedown = function(point, selection) {
     var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-    if(list.length==0)
+    if(list.length==0 && !selection.shape)
         return;
     this.isDuplicating = true;
     this.clickCoordinates = point;
 
-    var sourceShape = list.pop();
+    var sourceShape = selection.shape ? selection.shape : list.pop();
     this.newShape = sourceShape.getCopy();
 
     this.app.workspace.addShape(this.newShape);

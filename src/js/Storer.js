@@ -40,8 +40,7 @@ Storer.prototype.saveWorkspace = function(workspace, name) {
         'menuId': workspace.menuId,
         'nextShapeId': workspace.nextShapeId,
         'nextFamilyId': workspace.nextFamilyId,
-        'zoomLevel': workspace.zoomLevel,
-        'previousSelectedColors': workspace.previousSelectedColors
+        'zoomLevel': workspace.zoomLevel
     };
 
     //history:
@@ -134,7 +133,6 @@ Storer.prototype.getWorkspace = function(uniqid) {
             ws.nextShapeId = wsdata.nextShapeId;
             ws.nextFamilyId = wsdata.nextFamilyId;
             ws.zoomLevel = wsdata.zoomLevel;
-            ws.previousSelectedColors = wsdata.previousSelectedColors;
 
             //history:
             ws.history.steps = wsdata.history;

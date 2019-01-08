@@ -86,7 +86,7 @@ class DivMainCanvas extends LitElement {
     // updated() {
     //     this.setCanvasSize()
     // }
-    
+
     /**
      * Défini les attributs width and height du <canvas>. Doit être appelé au démarrage et lorsque la page est redimensionnée.
      */
@@ -137,7 +137,10 @@ class DivMainCanvas extends LitElement {
             }
             return null;
         }
-        return { "x": response[0] / appRef.workspace.zoomLevel, "y": response[1] / appRef.workspace.zoomLevel };
+
+        response = [response[0] / appRef.workspace.zoomLevel, response[1] / appRef.workspace.zoomLevel];
+        response = [response[0] - window.app.workspace.translateOffset.x, response[1] - window.app.workspace.translateOffset.y];
+        return {"x": response[0], "y": response[1]};
     }
 
     /**

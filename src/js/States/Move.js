@@ -32,12 +32,12 @@ MoveState.prototype.reset = function(){
 /**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */
-MoveState.prototype.mousedown = function(point){
+MoveState.prototype.mousedown = function(point, selection){
     var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-    if(list.length>0) {
+    if(list.length>0 || selection.shape) {
         this.isMoving = true;
         this.clickCoordinates = point;
-        this.selectedShape = list.pop();
+        this.selectedShape = selection.shape ? selection.shape : list.pop();
         var group = this.app.workspace.getShapeGroup(this.selectedShape, "system");
         if(group)
             this.shapesList = group.slice();

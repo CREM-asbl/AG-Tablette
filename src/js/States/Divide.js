@@ -1,6 +1,6 @@
 /**
  * Cette classe permet de diviser un segment en plusieurs "parties" de tailles égales en créant des points entre ces parties.
- * Le segment peut être une arrête d'une forme, ou être défini par 2 points existants.
+ * Le segment peut être une arrête d'une forme, ou être défini par 2 points existants (les 2 points étant sur un même segment ou arc de cercle).
  *
  *
  * Utilisation:
@@ -12,6 +12,7 @@ function DivideState(app) {
     this.app = app;
     this.name = "divide_segment";
     this.nb_parts = null;
+    this.selectedShape = null;
 }
 
 App.heriter(DivideState.prototype, State.prototype);
@@ -110,31 +111,36 @@ DivideState.prototype.getSelectedArc = function (shape, clickCoordinates) {
 /**
  * @param coordinates: {x: int, y: int}
  */
-DivideState.prototype.click = function(coordinates) {
+DivideState.prototype.click = function(coordinates, selection) {
     if(this.nb_parts==null)
         return;
 
-    var list = this.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-    if(list.length==0)
+    if(!this.selectedShape) {
+        var list = this.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
+        if(list.length==0 && !selection.shape)
+            return;
+        this.selectedShape = selection.shape ? selection.shape : list.pop();
+        this.app.canvas.refresh(coordinates);
         return;
-    var shape = list.pop();
+    }
+
     var addedPoints = [];
 
     //a-t-on sélectionné un segment de la forme ?
-    var seg = this.getSelectedSegment(shape, coordinates);
+    var seg = this.getSelectedSegment(this.selectedShape, coordinates);
     if(seg) {
         for(var j=1;j<this.nb_parts;j++) {
             var x = seg.p1.x + j*(1.0/this.nb_parts)*(seg.p2.x-seg.p1.x),
                 y = seg.p1.y + j*(1.0/this.nb_parts)*(seg.p2.y-seg.p1.y);
-            var pt = new Point(x, y, "division", shape);
+            var pt = new Point(x, y, "division", this.selectedShape);
             pt.sourcepoint1 = seg.sourcepoint1;
             pt.sourcepoint2 = seg.sourcepoint2;
-            shape.segmentPoints.push(pt);
+            this.selectedShape.segmentPoints.push(pt);
             addedPoints.push(pt);
         }
     } else {
         //Arc de cercle ?
-        var arc = this.getSelectedArc(shape, coordinates);
+        var arc = this.getSelectedArc(this.selectedShape, coordinates);
         if(arc) {
             var angle_step = arc.buildstep.angle/this.nb_parts;
             if(arc.buildstep.direction) angle_step *= -1;
@@ -142,8 +148,8 @@ DivideState.prototype.click = function(coordinates) {
                 var a = arc.start_angle + j*angle_step,
                     x = arc.buildstep.x + arc.rayon * Math.cos(a),
                     y = arc.buildstep.y + arc.rayon * Math.sin(a);
-                var pt = new Point(x, y, "division", shape);
-                shape.segmentPoints.push(pt);
+                var pt = new Point(x, y, "division", this.selectedShape);
+                this.selectedShape.segmentPoints.push(pt);
                 addedPoints.push(pt);
             }
         }
@@ -152,7 +158,8 @@ DivideState.prototype.click = function(coordinates) {
     }
 
     if(addedPoints.length>0) {
-        this.makeHistory(shape, addedPoints);
+        this.makeHistory(this.selectedShape, addedPoints);
+        this.selectedShape = null;
     }
 
 	this.app.canvas.refresh(coordinates);
@@ -163,13 +170,13 @@ DivideState.prototype.click = function(coordinates) {
  */
 DivideState.prototype.reset = function(){
     this.nb_parts = null;
+    this.selectedShape = null;
 };
 
 /**
  * démarrer l'état
  */
 DivideState.prototype.start = function(){
-    this.nb_parts = null;
     document.getElementById('divide-popup-gray').style.display='block';
 };
 
