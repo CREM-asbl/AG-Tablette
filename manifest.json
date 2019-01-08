@@ -1,6 +1,7 @@
 {
   "name": "Apprenti Géomètre",
   "short_name": "AG",
+  "version": "0.3.0",
   "icons": [
     {
       "src": "images/manifest/icon-144.png",

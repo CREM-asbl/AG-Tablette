@@ -49,7 +49,12 @@ class AGTabletteApp extends LitElement {
                 z-index: 100;
                 max-height: 80vh;
             }
-            div#app-canvas-view-toolbar-p2:before {
+
+            #app-canvas-mode-text span{
+                color: gray;
+            }    
+        
+            #app-canvas-view-toolbar-p2:before {
                 content:'';
                 display:block;
                 box-shadow:inset 0 -5px 10px gray;
@@ -66,7 +71,7 @@ class AGTabletteApp extends LitElement {
             <div id="app-canvas-view-toolbar" class="toolbar">
                 <div id="app-canvas-view-toolbar-p1">
                         <div id="app-canvas-mode-text">
-                            <span style="color: gray;">Mode:</span> ${this.currentMode}
+                            <span>Mode:</span> ${this.currentMode}
                         </div>
                         <div>
                             <button class="action-button"

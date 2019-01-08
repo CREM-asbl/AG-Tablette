@@ -185,9 +185,9 @@
         <div id="divide-popup">
             <div id="divide-popup-close" onclick="document.getElementById('divide-popup-gray').style.display='none';">&times;</div>
 
-            <label for="settings_divide_number_of_parts">Découpage en </label>
+            <label for="settings_divide_number_of_parts">Diviser en </label>
             <input type="number" max="10" min="2" step="1" value="2" name="settings_divide_number_of_parts" id="settings_divide_number_of_parts"
-                on-change='_numOfParts' style='font-size:20px;'>
+                on-change='_numOfParts' style='font-size:20px;text-align:center;'>
             <span> parties</span>
             <br><br>
             <button onclick="dividePopupValidate()">Valider</button>
