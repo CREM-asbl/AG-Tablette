@@ -31,6 +31,9 @@ class AGTabletteApp extends LitElement {
             .action-button:hover,
             .action-button:focus {
                 font-weight: bold;
+                color: white;
+                background: gray;
+                outline: none;
             }
 
             canvas-button {

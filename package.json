@@ -11,7 +11,7 @@
   "author": "The Polymer Authors",
   "dependencies": {
     "@polymer/lit-element": "^0.6.5",
-    "@webcomponents/webcomponentsjs": "^2.2.1"
+    "@webcomponents/webcomponentsjs": "^2.2.4"
   },
   "devDependencies": {
     "wct-browser-legacy": "^0.0.1-pre.11"

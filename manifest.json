@@ -1,7 +1,7 @@
 {
-  "name": "Apprenti Géomètre",
+  "name": "Apprenti Géomètre Mobile",
   "short_name": "AG",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "icons": [
     {
       "src": "images/manifest/icon-144.png",
@@ -23,5 +23,5 @@
   "display": "fullscreen",
   "background_color": "#3f51b5",
   "theme_color": "#3f51b5",
-  "description": "Apprenti Géomètre pour tablettes"
+  "description": "Version mobile d'Apprenti Géomètre"
 }
