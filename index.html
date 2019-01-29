@@ -4,7 +4,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="google" content="notranslate">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport"
+        content="width=device-width, minimum-scale=1.0, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <title>AG Mobile v.0.3.1</title>
     <meta name="description" content="Version mobile d'Apprenti Géomètre">
@@ -15,15 +16,15 @@
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#3f51b5">
     <script>
-            // Load and register pre-caching Service Worker
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
+        // Load and register pre-caching Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
                 navigator.serviceWorker.register('service-worker.js', {
-                  scope: '/',
+                    scope: '/',
                 });
-              });
-            }
-          </script>
+            });
+        }
+    </script>
 
     <link rel="stylesheet" type="text/css" href="src/colorpicker/color-picker.min.css">
 
@@ -176,18 +177,25 @@
 
     <div id="settings-popup-gray" style="display:none">
         <div id="settings-popup">
-            <div id="settings-popup-close" onclick="document.getElementById('settings-popup-gray').style.display='none';">&times;</div>
+            <div id="settings-popup-close"
+                onclick="document.getElementById('settings-popup-gray').style.display='none';">&times;</div>
             <app-settings></app-settings>
         </div>
     </div>
 
     <div id="divide-popup-gray" style="display:none">
         <div id="divide-popup">
-            <div id="divide-popup-close" onclick="document.getElementById('divide-popup-gray').style.display='none';">&times;</div>
+            <div id="divide-popup-close" onclick="document.getElementById('divide-popup-gray').style.display='none';">
+                &times;</div>
 
             <label for="settings_divide_number_of_parts">Diviser en </label>
-            <input type="number" max="10" min="2" step="1" value="2" name="settings_divide_number_of_parts" id="settings_divide_number_of_parts"
-                on-change='_numOfParts' style='font-size:20px;text-align:center;'>
+            <select id="settings_divide_number_of_parts" style='font-size:20px'>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+            </select>
             <span> parties</span>
             <br><br>
             <button onclick="dividePopupValidate()">Valider</button>
@@ -195,21 +203,15 @@
     </div>
 
     <!-- <div id="open-virtual-mouse" onclick="window.app.virtualMouse.show()"> -->
-        <!-- TODO dessiner une souris dans cette case (ou mettre une image de souris) -->
+    <!-- TODO dessiner une souris dans cette case (ou mettre une image de souris) -->
     <!-- </div> -->
 
 
     <script>
         function dividePopupValidate() {
             document.getElementById('divide-popup-gray').style.display = 'none';
-            var val = document.getElementById('settings_divide_number_of_parts').value;
-
-            if (val > 10)
-                val = 10;
-            if (val < 2)
-                val = 2;
-            val = parseInt(val);
-            window.app.state.nb_parts = val;
+            const val = document.getElementById('settings_divide_number_of_parts').value;
+            window.app.state.nb_parts = parseInt(val);;
         }
     </script>
 
