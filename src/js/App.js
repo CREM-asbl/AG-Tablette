@@ -168,6 +168,17 @@ App.prototype.start = function () {
 };
 
 /**
+ * Créer un nouvel espace de travail
+ * Todo: Améliorer cette fonctionnalité
+ *	Solution provisoire le temps de proposer une solution plus complète (sauvegarde + "onglets")
+ */
+App.prototype.newWorkspace = function () {
+	this.workspace = new Workspace(this);
+	this.workspace.addMenuAFamilies();
+	this.canvas.refresh();
+};
+
+/**
  * Sauvegarde l'espace de travail actuel
  * @param  {String} name Le nom du Workspace. Il peut y avoir plusieurs espaces de travail sauvegardés ayant le même nom.
  */

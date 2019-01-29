@@ -78,6 +78,11 @@ class AGTabletteApp extends LitElement {
                         </div>
                         <div>
                             <button class="action-button"
+                                    name="nouveau"
+                                    @click="${() => window.app.newWorkspace()}">
+                                    Nouveau
+                            </button>
+                            <button class="action-button"
                                     name="annuler"
                                     @click='${this._actionHandle}'>
                                     Annuler
