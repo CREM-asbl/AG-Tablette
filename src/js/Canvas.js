@@ -637,9 +637,13 @@ Canvas.prototype.drawCircle = function(point, color, radius) {
  * Dessine un segment
  * @param fromPoint: le point de départ ({'x': int, 'y': int})
  * @param toPoint: le point d'arrivée ({'x': int, 'y': int})
- */
-Canvas.prototype.drawLine = function(fromPoint, toPoint) {
+ * @param color: couleur du segment
+ * */
+Canvas.prototype.drawLine = function(fromPoint, toPoint, color = null) {
 	var ctx = this.ctx;
+	if (color) {
+		ctx.strokeStyle = color;
+	}
 	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 	ctx.beginPath();
 	ctx.moveTo(fromPoint.x, fromPoint.y);
