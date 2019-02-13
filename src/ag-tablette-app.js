@@ -3,7 +3,7 @@ import { canvasViewCss } from './css/canvas-view'
 import './canvas-button'
 import './shapes-list'
 import './div-main-canvas'
-import './divide-popup'
+// import './divide-popup'
 
 class AGTabletteApp extends LitElement {
 
@@ -148,8 +148,6 @@ class AGTabletteApp extends LitElement {
                      name="choose_shape_in_list"
                      @selected-shape='${this._actionHandle}'>
         </shapes-list>
-
-        <divide-popup></divide-popup>
         `
     }
 

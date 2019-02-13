@@ -183,42 +183,17 @@
         </div>
     </div>
 
-    <div id="divide-popup-gray" style="display:none">
-        <div id="divide-popup">
-            <div id="divide-popup-close" onclick="document.getElementById('divide-popup-gray').style.display='none';">
-                &times;</div>
-
-            <label for="settings_divide_number_of_parts">Diviser en </label>
-            <select id="settings_divide_number_of_parts" style='font-size:20px'>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="10">10</option>
-            </select>
-            <span> parties</span>
-            <br><br>
-            <button onclick="dividePopupValidate()">Valider</button>
-        </div>
-    </div>
-
-    <!-- <div id="open-virtual-mouse" onclick="window.app.virtualMouse.show()"> -->
-    <!-- TODO dessiner une souris dans cette case (ou mettre une image de souris) -->
-    <!-- </div> -->
-
-
-    <script>
-        function dividePopupValidate() {
-            document.getElementById('divide-popup-gray').style.display = 'none';
-            const val = document.getElementById('settings_divide_number_of_parts').value;
-            window.app.state.nb_parts = parseInt(val);;
-        }
-    </script>
+    <!-- 
+        refactoring en composant
+        Celui-ci devrait être placé idéalement dans ag-tablette-app.js    
+    -->
+    <divide-popup></divide-popup>
 
     <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 
     <script type="module" src="/src/ag-tablette-app.js" crossorigin></script>
     <script type="module" src="/src/app-settings.js" crossorigin></script>
+    <script type="module" src="/src/divide-popup.js" crossorigin></script>
 
     <noscript>
         Veuillez activer javascript pour profiter de cette application

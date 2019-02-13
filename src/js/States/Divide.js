@@ -177,7 +177,7 @@ DivideState.prototype.reset = function(){
  * démarrer l'état
  */
 DivideState.prototype.start = function(){
-    document.getElementById('divide-popup-gray').style.display='block';
+    document.querySelector('divide-popup').style.display='block';
 };
 
 /**
