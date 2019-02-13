@@ -3,6 +3,7 @@ import { canvasViewCss } from './css/canvas-view'
 import './canvas-button'
 import './shapes-list'
 import './div-main-canvas'
+import './app-settings'
 // import './divide-popup'
 
 class AGTabletteApp extends LitElement {
@@ -148,6 +149,8 @@ class AGTabletteApp extends LitElement {
                      name="choose_shape_in_list"
                      @selected-shape='${this._actionHandle}'>
         </shapes-list>
+
+        <app-settings></app-settings>
         `
     }
 
@@ -191,7 +194,7 @@ class AGTabletteApp extends LitElement {
             this.currentMode = states[event.target.name];
         } else if (event.target.name == "settings") {
             window.app.colorpicker.cancel();
-            document.getElementById('settings-popup-gray').style.display = 'block';
+            this.shadowRoot.querySelector('app-settings').style.display = 'block';
         } else if (event.target.name == "annuler") {
             window.app.colorpicker.cancel();
             window.app.workspace.history.cancelLastStep();
