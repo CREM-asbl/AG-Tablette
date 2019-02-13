@@ -1,8 +1,7 @@
-import { LitElement, html } from '@polymer/lit-element'
+import { LitElement, html } from 'lit-element'
 
 class CanvasButton extends LitElement {
     
-
     static get properties() {
         return {
             family: String
