@@ -15,7 +15,7 @@ function ColorPicker(app) {
 ColorPicker.prototype.start = function(callback){
     if(!callback)
         return;
-    document.querySelector("#color-picker-popup").style.display = "block";
+    document.querySelector("#color-picker").click()
 
     this.callback = callback;
 };
@@ -24,13 +24,8 @@ ColorPicker.prototype.start = function(callback){
  * Appelée lorsque l'utilisateur clique sur valider
  */
 ColorPicker.prototype.__validate = function () {
-    var cb = this.callback, val = document.querySelector('input#color-picker-input').value;
+    var cb = this.callback, val = document.querySelector('#color-picker').value;
 
     this.callback = null;
-    document.querySelector("#color-picker-popup").style.display = "none";
     cb(val);
-};
-
-ColorPicker.prototype.cancel = function(){
-    document.querySelector("#color-picker-popup").style.display = "none";
 };

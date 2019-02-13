@@ -185,7 +185,6 @@ class AGTabletteApp extends LitElement {
         };
 
         if (states.hasOwnProperty(event.target.name)) {
-            window.app.colorpicker.cancel();
             if (window.app.workspace.history.isRunning) {
                 console.log("history is running, skipping action");
                 return;
@@ -193,14 +192,11 @@ class AGTabletteApp extends LitElement {
             window.app.setState(event.target.name);
             this.currentMode = states[event.target.name];
         } else if (event.target.name == "settings") {
-            window.app.colorpicker.cancel();
             this.shadowRoot.querySelector('app-settings').style.display = 'block';
         } else if (event.target.name == "annuler") {
-            window.app.colorpicker.cancel();
             window.app.workspace.history.cancelLastStep();
         } else if (event.type == "selected-shape") {
             this.currentFamily = null
-            window.app.colorpicker.cancel();
             this.currentMode = 'Ajouter forme';
         } else {
             console.log("AGTabletteApp._actionHandle: received unknown event:");
