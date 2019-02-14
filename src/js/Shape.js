@@ -108,12 +108,77 @@ Shape.prototype.setId = function(id) {
 };
 
 /**
+ * Vérifier si une forme contient au moins un arc
+ * @return {Boolean} true s'il y a au moins un arc de cercle.
+ */
+Shape.prototype.containsArc = function(){
+	for (var i = 1; i < this.buildSteps.length; i++) {
+		if(this.buildSteps[i].getType()=="arc")
+			return true;
+	}
+	return false;
+};
+
+/**
  * Centre la forme (moyenne des coordonnées -> estimation pour les arcs de cercle... mauvais! ne rend pas bien)
  * @return le décalage effectué.
  */ //TODO: trouver un autre système pour les arcs de cercles (ne pas les prendre en compte?)
 Shape.prototype.centerShape = function(){ //à améliorer.
-	var averageX = 0, averageY = 0,
+	var averageX = 0, averageY = 0, approxPointsList;
+
+	if(!this.containsArc()) {
 		approxPointsList = this.getApproximatedPointsList(0.2*Math.PI);
+		approxPointsList.shift();
+	} else {
+		//Calculer une approximation de la forme (transforme les arcs en liste de segments) qui a le même centre:
+		var approxPointsList = [],
+			lastPoint = null,
+			approx_len = 3;
+		for (var i = 1; i < this.buildSteps.length; i++) {
+			lastPoint = this.buildSteps[i-1].getFinalPoint(lastPoint);
+			if(this.buildSteps[i].getType()=="line") {
+				var p1 = {'x': lastPoint.x, 'y': lastPoint.y},
+					p2 = this.buildSteps[i],
+					len = Math.sqrt(Math.pow(p2.x-p1.x, 2) + Math.pow(p2.y-p1.y, 2));
+				var cursor1 = {'x': p1.x, 'y': p1.y},
+					cursor2 = {'x': p2.x, 'y': p2.y},
+					list1 = [],
+					list2 = [],
+					x_shift = (cursor2.x - cursor1.x)/(len/approx_len),
+					y_shift = (cursor2.y - cursor1.y)/(len/approx_len),
+					tmp = 0;
+				while(Math.sqrt(Math.pow(cursor1.x-cursor2.x, 2) + Math.pow(cursor1.y-cursor2.y, 2)) >=2.5*approx_len && tmp++<100) {
+					list1.push(new Point(cursor1.x, cursor1.y, null, this));
+					list2.unshift(new Point(cursor2.x, cursor2.y, null, this));
+					cursor1.x += x_shift;
+					cursor2.x -= x_shift;
+					cursor1.y += y_shift;
+					cursor2.y -= y_shift;
+				}
+				if(tmp>=100) {
+					console.error("Shape.centerShape: boucle infinie...");
+				}
+				if(Math.sqrt(Math.pow(cursor1.x-cursor2.x, 2) + Math.pow(cursor1.y-cursor2.y, 2)) >=1.5*approx_len) {
+					list1.push(new Point((cursor1.x+cursor2.x)/2, (cursor1.y+cursor2.y)/2, null, this));
+				}
+				approxPointsList = approxPointsList.concat(list1, list2);
+			} else if(this.buildSteps[i].getType()=="arc") {
+				var p1 = lastPoint,
+					center = this.buildSteps[i],
+					angle = this.buildSteps[i].angle,
+					rayon = Math.sqrt(Math.pow(this.buildSteps[i].x-p1.x, 2) + Math.pow(this.buildSteps[i].y-p1.y, 2)),
+					direction = this.buildSteps[i].direction,
+					points = window.app.getApproximatedArc(center, p1, angle, direction, approx_len/rayon);
+				for(var j=0;j<points.length;j++) {
+					approxPointsList.push(new Point(points[j].x, points[j].y, null, this));
+				}
+			} else {
+				console.log("Shape.getApproximatedPointsList: unknown buildStep type");
+				return null;
+			}
+		}
+	}
+
 	approxPointsList.forEach(function(point){
 		var relCoord = point.getRelativeCoordinates();
 		averageX += relCoord.x;
