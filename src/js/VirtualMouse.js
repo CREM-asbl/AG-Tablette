@@ -1,5 +1,6 @@
 /**
  * Représente la souris virtuelle, un outil d'aide à la sélection de formes.
+ * TODO: développement mis en pause.
  */
 
 /**
