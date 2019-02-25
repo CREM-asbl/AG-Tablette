@@ -10,9 +10,6 @@ function Workspace(app) {
 	//référence vers l'application
 	this.app = app;
 
-	//identifiant unique du workspace:
-	this.uniqid = this.app.uniqId();
-
 	//Version de l'application dans laquelle ce projet a été créé
 	this.appVersion = this.app.getVersion();
 

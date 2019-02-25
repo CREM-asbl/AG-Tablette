@@ -172,7 +172,10 @@ App.prototype.start = function () {
  * Todo: Améliorer cette fonctionnalité
  *	Solution provisoire le temps de proposer une solution plus complète (sauvegarde + "onglets")
  */
-App.prototype.newWorkspace = function () {
+App.prototype.newWorkspace = function (do_save_current_ws) {
+	if(do_save_current_ws!==false)
+		this.saveCurrentWorkspace("Workspace_"+this.storer.getAmountStoredWorkspaces());
+
 	this.workspace = new Workspace(this);
 	this.workspace.addMenuAFamilies();
 	this.canvas.refresh();
@@ -184,16 +187,16 @@ App.prototype.newWorkspace = function () {
  */
 App.prototype.saveCurrentWorkspace = function (name) {
 	if (name === undefined)
-		name = "Workspace1";
+		name = "Workspace_"+this.storer.getAmountStoredWorkspaces();
 	this.storer.saveWorkspace(this.workspace, name);
 };
 
 /**
  * Charge un workspace sauvegardé
- * @param  {String} name Le nom du Workspace
+ * @param  {String} uniqid L'id du Workspace
  */
-App.prototype.restoreWorkspace = function (name) {
-	var ws = this.storer.getWorkspaceByName(name);
+App.prototype.restoreWorkspace = function (uniqid) {
+	var ws = this.storer.getWorkspace(uniqid);
 	if (!ws) {
 		console.log("Workspace non trouvé!");
 		return;

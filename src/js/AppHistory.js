@@ -6,6 +6,7 @@ function AppHistory(app) {
 
     this.isRunning = false;
     this.runningState = null;
+    this.stepData = null;
 
     //vaut true si une action de l'historique est en train d'être annulée.
 }
@@ -39,15 +40,19 @@ AppHistory.prototype.cancelLastStep = function () {
 
     var step = this.steps.pop(),
         that = this,
-        f = function(){ that.__cancelIsDone(); };
+        f = function(){
+            that.__cancelIsDone();
+        };
     this.runningState = step.actionName;
-    //TODO: est-ce nécessaire d'appeler abort() sur l'état actuel avant, et de définir l'état actuel comme étant step.actionName ?
+    this.stepData = step.data;
     this.app.states[step.actionName].cancelAction(step.data, f);
+
 };
 
 AppHistory.prototype.__cancelIsDone = function(){
     this.isRunning = false;
     this.runningState = null;
+    this.stepData = null;
     this.app.canvas.refreshBackgroundCanvas();
     this.app.canvas.refresh();
 };

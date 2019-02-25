@@ -40,6 +40,8 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 	 */
 	if(state=="reverse_shape" && state.isReversing && options.event_type == 'mousemove')
 		return;
+	//if(this.app.workspace.history.isRunning && this.app.workspace.history.runningState == "reverse_shape"  && options.event_type == 'mousemove')
+	//	return;  //TODO: options n'est pas défini dans ce cas-ci. le définir là où refresh est appelé ?
 
 	if(this.previousMouseCoordinates!==undefined && mouseCoordinates==undefined)
 		mouseCoordinates = this.previousMouseCoordinates;
@@ -106,6 +108,11 @@ Canvas.prototype.refresh = function(mouseCoordinates, options) {
 			continue;
 		if(state.name=="reverse_shape" && state.isReversing && state.shapesList.indexOf(shape)!=-1)
 			continue;
+		if(this.app.workspace.history.isRunning	&& this.app.workspace.history.runningState == "reverse_shape") {
+			if(this.app.workspace.history.stepData.shapesList.indexOf(shape.id) !== -1) {
+				continue;
+			}
+		}
 
 		var highlightInfo = {
 			'shape': false,

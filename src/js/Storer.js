@@ -35,7 +35,7 @@ Storer.prototype.saveWorkspace = function(workspace, name) {
 
     var wsdata = {
         'name': name,
-        'uniqid': workspace.uniqid,
+        'uniqid': this.app.uniqId(),
         'appVersion': workspace.appVersion,
         'menuId': workspace.menuId,
         'nextShapeId': workspace.nextShapeId,
@@ -87,23 +87,16 @@ Storer.prototype.saveWorkspace = function(workspace, name) {
     //Store:
     var json_string = JSON.stringify(wsdata);
 
-    /*
-        S'il y a déjà un espace de travail enregistré ayant cet uniqid, l'écraser.
-        Sinon en ajouter un
-     */
-    var index = this.getWorkspaceIndex(workspace.uniqid);
-    if(index==-1) {
-        index = parseInt(window.localStorage.getItem("AG_WorkspacesAmount"));
-        window.localStorage.setItem("AG_WorkspacesAmount", index+1);
-    }
+    index = parseInt(window.localStorage.getItem("AG_WorkspacesAmount"));
+    window.localStorage.setItem("AG_WorkspacesAmount", index+1);
 
-    window.localStorage.setItem("AG_WSList_WS"+index+"_uniqid", workspace.uniqid);
+    window.localStorage.setItem("AG_WSList_WS"+index+"_uniqid", wsdata.uniqid);
     window.localStorage.setItem("AG_WSList_WS"+index+"_name", name);
     window.localStorage.setItem("AG_WSList_WS"+index+"_data", json_string);
 }
 
 Storer.prototype.getWorkspaceIndex = function(uniqid) {
-    var wsAmount = parseInt(window.localStorage.getItem("AG_WorkspacesAmount"));
+    var wsAmount = parseInt(window.localStorage.getItem("AG_WorkspacesAmount")); //TODO: si null
     for(var i=0; i<wsAmount; i++) {
         var val = window.localStorage.getItem("AG_WSList_WS"+i+"_uniqid");
         if(val==uniqid)
@@ -127,7 +120,6 @@ Storer.prototype.getWorkspace = function(uniqid) {
             var json_string = window.localStorage.getItem("AG_WSList_WS"+i+"_data");
             var wsdata = JSON.parse(json_string);
             var ws = new Workspace(app);
-            ws.uniqid = wsdata.uniqid;
             ws.appVersion = wsdata.appVersion;
             ws.menuId = wsdata.menuId;
             ws.nextShapeId = wsdata.nextShapeId;
@@ -154,7 +146,7 @@ Storer.prototype.getWorkspace = function(uniqid) {
                     data.defaultColor
                 );
                 family.shapesList = data.shapesList.map(function(data2){
-                    var shape = {
+                    return {
                         'color': data2.color,
                         'name': data2.name,
                         'refPoint': data2.refPoint,
@@ -203,4 +195,61 @@ Storer.prototype.getWorkspaceByName = function (name) {
         }
     }
     return null;
+};
+
+/**
+ * Renvoie le nombre de workspaces existants.
+ * @return {[type]} [description]
+ */
+Storer.prototype.getAmountStoredWorkspaces = function(){
+    return parseInt(window.localStorage.getItem("AG_WorkspacesAmount"));
+};
+
+/**
+ * Renvoie la liste des workspaces existants
+ * @return {[{'name': String, 'uniqid': String}]} workspaces existants
+ */
+Storer.prototype.getWorkspacesList = function () {
+    var len = this.getAmountStoredWorkspaces();
+    var list = [];
+    for(var i=0; i<len; i++) {
+        list.push({
+            'name': window.localStorage.getItem("AG_WSList_WS"+i+"_name"),
+            'uniqid': window.localStorage.getItem("AG_WSList_WS"+i+"_uniqid")
+        });
+    }
+    return list;
+};
+
+/**
+ * Supprimer un workspace
+ * @param  {[type]} uniqid id unique du workspace
+ * @return {Boolean}        false si le workspace n'existe pas, true sinon.
+ */
+Storer.prototype.deleteWorkspace = function (uniqid) {
+    var index = this.getWorkspaceIndex(uniqid);
+    if(index==-1) {
+        console.error("this Workspace does not exist");
+        return false;
+    }
+
+    //Décaler les workspace suivants de 1 vers la gauche dans la liste.
+    //Cela écrase le workspace qui doit être supprimé.
+    var len = this.getAmountStoredWorkspaces();
+    for(var i= index+1; i<len; i++) {
+        var json_string = window.localStorage.getItem("AG_WSList_WS"+i+"_data");
+        var name = window.localStorage.getItem("AG_WSList_WS"+i+"_data");
+        var uniqid = window.localStorage.getItem("AG_WSList_WS"+i+"_data");
+
+        window.localStorage.setItem("AG_WSList_WS"+(i-1)+"_uniqid", uniqid);
+        window.localStorage.setItem("AG_WSList_WS"+(i-1)+"_name", name);
+        window.localStorage.setItem("AG_WSList_WS"+(i-1)+"_data", json_string);
+    }
+    window.localStorage.removeItem("AG_WSList_WS"+(len-1)+"_uniqid");
+    window.localStorage.removeItem("AG_WSList_WS"+(len-1)+"_name");
+    window.localStorage.removeItem("AG_WSList_WS"+(len-1)+"_data");
+
+    window.localStorage.setItem("AG_WorkspacesAmount", len-1);
+
+    return true;
 };
