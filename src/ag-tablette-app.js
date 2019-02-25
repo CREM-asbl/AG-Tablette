@@ -65,7 +65,8 @@ class AGTabletteApp extends LitElement {
                 color: gray;
             }    
         
-            #app-canvas-view-toolbar-p2:before {
+            /* Est-ce vraiment utile ? */
+            /* #app-canvas-view-toolbar-p2::before {
                 content:'';
                 display:block;
                 box-shadow:inset 0 -5px 10px gray;
@@ -75,7 +76,7 @@ class AGTabletteApp extends LitElement {
                 width:20%;
                 min-width: 180px;
                 height:10px;
-            }​
+            }​ */
         </style>
 
         <div id="app-canvas-view">
