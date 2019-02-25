@@ -2,6 +2,11 @@ import { LitElement, html } from 'lit-element'
 
 class DividePopup extends LitElement {
 
+    constructor() {
+        super()
+        this.parts = 2
+    }
+
     static get properties() {
         return {
             parts: Number
