@@ -31,11 +31,17 @@ class AGTabletteApp extends LitElement {
             }
 
             .action-button:hover,
-            .action-button:focus {
+            .action-button:focus,
+            .action-button[active] {
                 font-weight: bold;
                 color: white;
                 background: gray;
                 outline: none;
+            }
+
+            .toolbar-separator {
+                font-weight: bold;
+                margin: 12px 0;
             }
 
             canvas-button {
@@ -99,9 +105,7 @@ class AGTabletteApp extends LitElement {
                             </button>
                         </div>
 
-                        <div>
-                            <strong>Formes standard</strong>
-                        </div>
+                        <div class="toolbar-separator">Formes standard</div>
 
                         ${this._getFamilies().map(family => html`
                             <canvas-button .family="${family}"
@@ -113,32 +117,101 @@ class AGTabletteApp extends LitElement {
                 </div>
 
                 <div id="app-canvas-view-toolbar-p2">
-                    <div >
-                        <strong>Mouvements</strong>
-                    </div>
-                    <button class="action-button" name="move_shape" @click='${this._actionHandle}'>Glisser</button>
-                    <button class="action-button" name="rotate_shape" @click='${this._actionHandle}'>Tourner</button>
-                    <button class="action-button" name="reverse_shape" @click='${this._actionHandle}'>Retouner</button>
-                    <button class="action-button" name="global_zoom" @click='${this._actionHandle}'>Zoomer</button>
+                    <div class="toolbar-separator">Mouvements</div>
+                    <button class="action-button" 
+                            name="move_shape" 
+                            ?active="${this.currentMode === 'Glisser'}"
+                            @click='${this._actionHandle}'>
+                            Glisser
+                    </button>
+                    <button class="action-button" 
+                            name="rotate_shape" 
+                            ?active="${this.currentMode === 'Tourner'}"
+                            @click='${this._actionHandle}'>
+                            Tourner
+                    </button>
+                    <button class="action-button" 
+                            name="reverse_shape" 
+                            ?active="${this.currentMode === 'Retourner'}"
+                            @click='${this._actionHandle}'>
+                            Retouner
+                    </button>
+                    <button class="action-button" 
+                            name="global_zoom" 
+                            ?active="${this.currentMode === 'Zoomer'}"
+                            @click='${this._actionHandle}'>
+                            Zoomer
+                    </button>
 
-                    <div style="margin-top: 25px">
-                        <strong>Outils</strong>
-                    </div>
-                    <button class="action-button" name="moveplane_state" @click='${this._actionHandle}'>Glisser le plan</button>
-                    <button class="action-button" name="link_shapes" @click='${this._actionHandle}'>Lier des formes</button>
-                    <button class="action-button" name="unlink_shapes" @click='${this._actionHandle}'>Délier</button>
-                    <button class="action-button" name="delete_shape" @click='${this._actionHandle}'>Supprimer</button>
-                    <button class="action-button" name="background_color" @click='${this._actionHandle}'>Couleur de fond</button>
-                    <button class="action-button" name="border_color" @click='${this._actionHandle}'>Couleur des bords</button>
+                    <div class="toolbar-separator">Outils</div>
+                    <button class="action-button" 
+                            name="moveplane_state" 
+                            ?active="${this.currentMode === 'Glisser le plan'}"
+                            @click='${this._actionHandle}'>
+                            Glisser le plan
+                    </button>
+                    <button class="action-button" 
+                            name="link_shapes" 
+                            ?active="${this.currentMode === 'Lier les formes'}"
+                            @click='${this._actionHandle}'>
+                            Lier des formes
+                    </button>
+                    <button class="action-button" 
+                            name="unlink_shapes" 
+                            ?active="${this.currentMode === 'Délier'}"
+                            @click='${this._actionHandle}'>
+                            Délier
+                    </button>
+                    <button class="action-button"
+                            name="delete_shape" 
+                            ?active="${this.currentMode === 'Supprimer'}"
+                            @click='${this._actionHandle}'>
+                            Supprimer
+                    </button>
+                    <button class="action-button" 
+                            name="background_color" 
+                            ?active="${this.currentMode === 'Couleur de fond'}"
+                            @click='${this._actionHandle}'>
+                            Couleur de fond
+                    </button>
+                    <button class="action-button" 
+                            name="border_color" 
+                            ?active="${this.currentMode === 'Couleur des bords'}"
+                            @click='${this._actionHandle}'>
+                            Couleur des bords
+                    </button>
 
-                    <div style="margin-top: 25px">
-                        <strong>Opérations</strong>
-                    </div>
-                    <button class="action-button" name="merge_shapes" @click='${this._actionHandle}'>Fusionner</button>
-                    <button class="action-button" name="divide_segment" @click='${this._actionHandle}'>Diviser</button>
-                    <button class="action-button" name="cut_shape" @click='${this._actionHandle}'>Découper</button>
-                    <button class="action-button" name="duplicate_shape" @click='${this._actionHandle}'>Dupliquer</button>
-                    <button class="action-button" name="build_shape_center" @click='${this._actionHandle}'>Construire le centre</button>
+                    <div class="toolbar-separator">Opérations</div>
+                    <button class="action-button" 
+                            name="merge_shapes" 
+                            ?active="${this.currentMode === 'Fusionner'}"
+                            @click='${this._actionHandle}'>
+                            Fusionner
+                    </button>
+                    <button class="action-button" 
+                            name="divide_segment" 
+                            ?active="${this.currentMode === 'Diviser'}"
+                            @click='${this._actionHandle}'>
+                            Diviser
+                    </button>
+                    <button class="action-button" 
+                            name="cut_shape" 
+                            ?active="${this.currentMode === 'Découper'}"
+                            @click='${this._actionHandle}'>
+                            Découper
+                    </button>
+                    <button class="action-button" 
+                            name="duplicate_shape" 
+                            ?active="${this.currentMode === 'Dupliquer'}"
+                            @click='${this._actionHandle}'>
+                            Dupliquer
+                    </button>
+                    <button class="action-button" 
+                            name="build_shape_center" 
+                            ?active="${this.currentMode === 'Construire le centre'}"
+                            @click='${this._actionHandle}'>
+                            Construire le centre
+                    </button>
                 </div>
             </div>
 
