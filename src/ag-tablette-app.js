@@ -109,9 +109,10 @@ class AGTabletteApp extends LitElement {
                         <div class="toolbar-separator">Formes standard</div>
 
                         ${this._getFamilies().map(family => html`
-                            <canvas-button .family="${family}"
+                            <canvas-button name="add_shape"
+                                          .family="${family}"
                                            ?active="${family === this.currentFamily}"
-                                           @click="${e => this.currentFamily = e.target.family}">
+                                           @click="${this._actionHandle}">
                             </canvas-button>
                         `)}
                 </div>
@@ -219,7 +220,7 @@ class AGTabletteApp extends LitElement {
         </div>
 
         <shapes-list .family="${this.currentFamily}"
-                     name="choose_shape_in_list"
+                     name="selected_shape"
                      @selected-shape='${this._actionHandle}'>
         </shapes-list>
 
@@ -267,11 +268,13 @@ class AGTabletteApp extends LitElement {
         } else if (event.target.name == "settings") {
             this.shadowRoot.querySelector('app-settings').style.display = 'block';
         } else if (event.target.name == "annuler") {
-            this.currentMode = ""
+            this.currentMode = ''
             window.app.workspace.history.cancelLastStep();
-        } else if (event.type == "selected-shape") {
+        } else if (event.target.name === 'add_shape') {
+            this.currentFamily = event.target.family
+            this.currentMode = 'Ajouter forme'
+        } else if (event.target.name == "selected_shape") {
             this.currentFamily = null
-            this.currentMode = 'Ajouter forme';
         } else {
             console.log("AGTabletteApp._actionHandle: received unknown event:");
             console.log(event);

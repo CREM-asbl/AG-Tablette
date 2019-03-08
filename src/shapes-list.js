@@ -4,7 +4,8 @@ class ShapesList extends LitElement {
 
     static get properties() {
         return {
-            family: String
+            family: String,
+            name: String
         }
     }
 
