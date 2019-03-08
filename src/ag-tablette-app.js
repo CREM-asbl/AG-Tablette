@@ -111,8 +111,7 @@ class AGTabletteApp extends LitElement {
                         ${this._getFamilies().map(family => html`
                             <canvas-button .family="${family}"
                                            ?active="${family === this.currentFamily}"
-                                           @click="${e => this.currentFamily = e.target.family}"
-                                           >
+                                           @click="${e => this.currentFamily = e.target.family}">
                             </canvas-button>
                         `)}
                 </div>
@@ -268,6 +267,7 @@ class AGTabletteApp extends LitElement {
         } else if (event.target.name == "settings") {
             this.shadowRoot.querySelector('app-settings').style.display = 'block';
         } else if (event.target.name == "annuler") {
+            this.currentMode = ""
             window.app.workspace.history.cancelLastStep();
         } else if (event.type == "selected-shape") {
             this.currentFamily = null
