@@ -97,7 +97,6 @@ CreateState.prototype.click = function(coordinates) {
     this.app.workspace.addShape(shape);
 	this.app.canvas.refresh(coordinates);
     this.makeHistory(shape);
-    this.__draw_counter = 0;
 };
 
 /**
@@ -105,15 +104,6 @@ CreateState.prototype.click = function(coordinates) {
  * @param canvas: référence vers la classe Canvas
  */
 CreateState.prototype.draw = function(canvas, mouseCoordinates){
-    //dessine la forme qui est en train d'être ajoutée
-    if(this.__draw_counter===undefined) this.__draw_counter = 0;
-    if(this.__draw_counter++<1) return;
-    
-    canvas.drawMovingShape(this.selectedShape, {
-        "x": mouseCoordinates.x - this.selectedShape.refPoint.x,
-        "y": mouseCoordinates.y - this.selectedShape.refPoint.y
-    });
-
     //afficher le point sur lequel la forme va se coller le cas échéant
     var pointsNear = this.app.workspace.pointsNearPoint(new Point(mouseCoordinates.x, mouseCoordinates.y, null, null));
     if(pointsNear.length>0) {
