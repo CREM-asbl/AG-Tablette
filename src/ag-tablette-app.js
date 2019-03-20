@@ -219,10 +219,7 @@ class AGTabletteApp extends LitElement {
             <div-main-canvas id="div-main-canvas"></div-main-canvas>
         </div>
 
-        <shapes-list .family="${this.currentFamily}"
-                     name="selected_shape"
-                     @selected-shape='${this._actionHandle}'>
-        </shapes-list>
+        <shapes-list></shapes-list>
 
         <app-settings></app-settings>
         `
@@ -230,15 +227,12 @@ class AGTabletteApp extends LitElement {
 
     firstUpdated() {
         window.canvasLeftShift = this.shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
-        //var canvasTopShift = 0;
     }
 
     /**
      * Main event handler
      */
     _actionHandle(event) {
-
-        this.currentFamily = ''
 
         var states = {
             'move_shape': 'Glisser',
@@ -265,16 +259,18 @@ class AGTabletteApp extends LitElement {
             }
             window.app.setState(event.target.name);
             this.currentMode = states[event.target.name];
+            this.currentFamily = ''
         } else if (event.target.name == "settings") {
             this.shadowRoot.querySelector('app-settings').style.display = 'block';
         } else if (event.target.name == "annuler") {
             this.currentMode = ''
             window.app.workspace.history.cancelLastStep();
         } else if (event.target.name === 'add_shape') {
+            //Todo : Uniformiser le create_shape comme les autres States
+            window.app.setState("no_state");
             this.currentFamily = event.target.family
             this.currentMode = 'Ajouter forme'
-        } else if (event.target.name == "selected_shape") {
-            this.currentFamily = null
+            this.shadowRoot.querySelector('shapes-list').family = this.currentFamily
         } else {
             console.log("AGTabletteApp._actionHandle: received unknown event:");
             console.log(event);

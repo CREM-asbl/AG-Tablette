@@ -17,7 +17,7 @@ class CanvasButton extends LitElement {
             }
 
             :host([active]) canvas{
-                border: 2px solid red;
+                border: 1px solid #F66;
             }
 
             canvas {

@@ -71,7 +71,8 @@ class ShapesList extends LitElement {
           "family": familyRef,
           "shape": shapeRef
         });
-        this.dispatchEvent(new CustomEvent('selected-shape'));
+
+        this.family = null
     }
 }
 customElements.define('shapes-list', ShapesList)
