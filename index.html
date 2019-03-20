@@ -46,6 +46,17 @@
             right: 0px;
             bottom: 0px;
         }
+
+        /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
+        input[type="color"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border: none;
+            background: transparent;
+        }
     </style>
 </head>
 
@@ -85,10 +96,10 @@
 
     <!-- 
         refactoring en composants
-        Ceux-xi devraient être placé idéalement dans ag-tablette-app.js    
+        Ceux-ci devraient être placé idéalement dans ag-tablette-app.js    
     -->
 
-    <input id="color-picker" type="color" hidden onchange="window.app.colorpicker.__validate()" />
+    <input id="color-picker" type="color" onchange="window.app.colorpicker.__validate()" />
 
     <divide-popup></divide-popup>
 
