@@ -5,6 +5,7 @@ import './shapes-list'
 import './div-main-canvas'
 import './app-settings'
 // import './divide-popup'
+import './js/Manifest'
 
 class AGTabletteApp extends LitElement {
 
@@ -78,7 +79,7 @@ class AGTabletteApp extends LitElement {
                 height:10px;
             }​ */
         </style>
-
+        
         <div id="app-canvas-view">
             <div id="app-canvas-view-toolbar" class="toolbar">
                 <div id="app-canvas-view-toolbar-p1">
@@ -225,7 +226,7 @@ class AGTabletteApp extends LitElement {
         `
     }
 
-    firstUpdated() {
+    async firstUpdated() {
         window.canvasLeftShift = this.shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
     }
 
