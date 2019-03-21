@@ -15,7 +15,8 @@ function ColorPicker(app) {
 ColorPicker.prototype.start = function(callback){
     if(!callback)
         return;
-    document.querySelector("#color-picker").click()
+    //Fix Edge (click ne fonctionne pas directement sur le input)
+    document.querySelector("#color-picker-label").click()
 
     this.callback = callback;
 };

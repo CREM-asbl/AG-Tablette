@@ -219,7 +219,7 @@ class AGTabletteApp extends LitElement {
             <div-main-canvas id="div-main-canvas"></div-main-canvas>
         </div>
 
-        <shapes-list></shapes-list>
+        <shapes-list .family="${this.currentFamily}"></shapes-list>
 
         <app-settings></app-settings>
         `
@@ -270,7 +270,6 @@ class AGTabletteApp extends LitElement {
             window.app.setState("no_state");
             this.currentFamily = event.target.family
             this.currentMode = 'Ajouter forme'
-            this.shadowRoot.querySelector('shapes-list').family = this.currentFamily
         } else {
             console.log("AGTabletteApp._actionHandle: received unknown event:");
             console.log(event);
