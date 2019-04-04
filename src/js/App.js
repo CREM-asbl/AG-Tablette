@@ -491,6 +491,9 @@ App.prototype.isPointInPolygon = function (polygon, point) {
 	return false;
 }
 
+App.prototype.distanceBetweenTwoPoints = (point1, point2) =>
+Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2)
+
 /**
  * Méthode statique: faire hériter une classe d'une autre
  *	-> copie le prototype de la classe mère

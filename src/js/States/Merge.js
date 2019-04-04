@@ -13,7 +13,7 @@ App.heriter(MergeState.prototype, State.prototype);
 /**
  * Réinitialiser l'état
  */
-MergeState.prototype.reset = function(){
+MergeState.prototype.reset = function () {
     this.firstShape = null;
 };
 
@@ -21,13 +21,13 @@ MergeState.prototype.reset = function(){
 * Appelée lorsque l'événement click est déclanché sur le canvas
 * @param point: {x: int, y: int}
  */
-MergeState.prototype.click = function(point, selection){
+MergeState.prototype.click = function (point, selection) {
     var list = this.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-    if(list.length==0 && !selection.shape)
+    if (list.length == 0 && !selection.shape)
         return;
     var shape = selection.shape ? selection.shape : list.pop();
 
-    if(!this.firstShape) { //On sélectionne la première forme
+    if (!this.firstShape) { //On sélectionne la première forme
         this.firstShape = shape;
         this.app.canvas.refresh(point);
         return;
@@ -35,8 +35,9 @@ MergeState.prototype.click = function(point, selection){
 
     //On sélectionne la seconde forme
 
-    if(shape==this.firstShape) //on ne peut pas fusionner une forme avec elle même
+    if (shape == this.firstShape) //on ne peut pas fusionner une forme avec elle même
         return;
+
 
     //Vérifier que les 2 formes ont un segment commun:
     var commonSegmentFound = false,
@@ -46,7 +47,6 @@ MergeState.prototype.click = function(point, selection){
             's2_index1': null,
             's2_index2': null
         },
-        maxSquareDist = Math.pow(this.app.settings.get('precision'), 2),
         shape1 = this.firstShape,
         shape2 = shape,
         shape1StartPoint = null,
@@ -54,42 +54,47 @@ MergeState.prototype.click = function(point, selection){
         shape2StartPoint = null,
         shape2EndPoint = null;
 
-    for(var i=1;i<shape1.buildSteps.length;i++) {
-        shape1StartPoint = shape1.buildSteps[i-1].getFinalPoint(shape1StartPoint);
+    for (var i = 1; i < shape1.buildSteps.length; i++) {
+        if (shape1.buildSteps[i].type != 'line') continue;
+        shape1StartPoint = shape1.buildSteps[i - 1].getFinalPoint(shape1StartPoint);
+        shape1StartPoint.x += shape1.x
+        shape1StartPoint.y += shape1.y
         shape1EndPoint = shape1.buildSteps[i].getFinalPoint(shape1StartPoint);
-        if(shape1.buildSteps[i].type!='line') continue;
+        shape1EndPoint.x += shape1.x
+        shape1EndPoint.y += shape1.y
 
-        for(var j=1;j<shape2.buildSteps.length;j++) {
-            shape2StartPoint = shape2.buildSteps[j-1].getFinalPoint(shape2StartPoint);
+        for (var j = 1; j < shape2.buildSteps.length; j++) {
+            if (shape2.buildSteps[j].type != 'line') continue;
+            shape2StartPoint = shape2.buildSteps[j - 1].getFinalPoint(shape2StartPoint);
+            shape2StartPoint.x += shape2.x
+            shape2StartPoint.y += shape2.y
             shape2EndPoint = shape2.buildSteps[j].getFinalPoint(shape2StartPoint);
-            if(shape2.buildSteps[j].type != 'line') continue;
+            shape2EndPoint.x += shape2.x
+            shape2EndPoint.y += shape2.y
 
-            if(maxSquareDist >= Math.pow(shape1.x+shape1StartPoint.x-shape2.x-shape2StartPoint.x, 2) + Math.pow(shape1.y+shape1StartPoint.y-shape2.y-shape2StartPoint.y, 2)
-              && maxSquareDist >= Math.pow(shape1.x+shape1EndPoint.x-shape2.x-shape2EndPoint.x, 2) + Math.pow(shape1.y+shape1EndPoint.y-shape2.y-shape2EndPoint.y, 2)) {
+            if (this.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)) {
                 commonSegmentFound = true;
                 commonSegment = {
-                    's1_index1': i-1,
+                    's1_index1': i - 1,
                     's1_index2': i,
-                    's2_index1': j-1,
+                    's2_index1': j - 1,
                     's2_index2': j
                 };
-            } else if(maxSquareDist >= Math.pow(shape1.x+shape1StartPoint.x-shape2.x-shape2EndPoint.x, 2) + Math.pow(shape1.y+shape1StartPoint.y-shape2.y-shape2EndPoint.y, 2)
-              && maxSquareDist >= Math.pow(shape1.x+shape1EndPoint.x-shape2.x-shape2StartPoint.x, 2) + Math.pow(shape1.y+shape1EndPoint.y-shape2.y-shape2StartPoint.y, 2)) {
+            } else if (this.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
                 commonSegmentFound = true;
                 commonSegment = {
-                    's1_index1': i-1,
+                    's1_index1': i - 1,
                     's1_index2': i,
                     's2_index1': j,
-                    's2_index2': j-1
+                    's2_index2': j - 1
                 };
             }
-
-            if(commonSegmentFound) break;
+            if (commonSegmentFound) break;
         }
-        if(commonSegmentFound) break;
+        if (commonSegmentFound) break;
     }
 
-    if(commonSegmentFound) {
+    if (commonSegmentFound) {
         var newBS = [],
             decalage = {
                 'x': shape1.x - shape2.x,
@@ -97,7 +102,7 @@ MergeState.prototype.click = function(point, selection){
             };
 
         //Début forme 1:
-        for(var i=0; i<=commonSegment.s1_index1; i++) {
+        for (var i = 0; i <= commonSegment.s1_index1; i++) {
             newBS.push(shape1.buildSteps[i].getCopy());
             //console.log(shape1.buildSteps[i]);
         }
@@ -105,11 +110,11 @@ MergeState.prototype.click = function(point, selection){
         //console.log("next1");
 
         //Forme 2:
-        if(commonSegment.s2_index1<commonSegment.s2_index2) {
-            for(var i=commonSegment.s2_index1; i>0; i--) { //pas >=0 ? pas index1-1 ?
+        if (commonSegment.s2_index1 < commonSegment.s2_index2) {
+            for (var i = commonSegment.s2_index1; i > 0; i--) { //pas >=0 ? pas index1-1 ?
                 var b = shape2.buildSteps[i].getCopy();
                 b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                if(b.type=="arc") {
+                if (b.type == "arc") {
                     b.direction = !b.direction;
                     newBS.push(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
                     //console.log("new:");
@@ -119,10 +124,10 @@ MergeState.prototype.click = function(point, selection){
                 //console.log(b);
             }
             //console.log("next2");
-            for(var i=shape2.buildSteps.length-1; i>=commonSegment.s2_index2; i--) {
+            for (var i = shape2.buildSteps.length - 1; i >= commonSegment.s2_index2; i--) {
                 var b = shape2.buildSteps[i].getCopy();
                 b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
-                if(b.type=="arc") {
+                if (b.type == "arc") {
                     b.direction = !b.direction;
                     newBS.push(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
                     //console.log("new:");
@@ -133,14 +138,14 @@ MergeState.prototype.click = function(point, selection){
             }
             //console.log("case1");
         } else {
-            for(var i=commonSegment.s2_index1+1; i<shape2.buildSteps.length; i++) {
+            for (var i = commonSegment.s2_index1 + 1; i < shape2.buildSteps.length; i++) {
                 var b = shape2.buildSteps[i].getCopy();
                 b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
                 newBS.push(b);
                 //console.log(b);
             }
             //console.log("next2");
-            for(var i=1; i<=commonSegment.s2_index2; i++) { // = ?
+            for (var i = 1; i <= commonSegment.s2_index2; i++) { // = ?
                 var b = shape2.buildSteps[i].getCopy();
                 b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
                 newBS.push(b);
@@ -150,7 +155,7 @@ MergeState.prototype.click = function(point, selection){
         }
 
         //Fin forme 1:
-        for(var i=commonSegment.s1_index2; i<shape1.buildSteps.length; i++) {
+        for (var i = commonSegment.s1_index2; i < shape1.buildSteps.length; i++) {
             newBS.push(shape1.buildSteps[i].getCopy());
             //console.log(shape1.buildSteps[i]);
         }
@@ -159,14 +164,14 @@ MergeState.prototype.click = function(point, selection){
         //Translation des buildSteps pour qu'elles soient centrées:
         //TODO: fusionner 2 arc de cercles qui sont côte à côte si c'est le même centre ?
         var midX = 0, midY = 0;
-        newBS.forEach(function(val, i){
-            if(i==newBS.length-1){ return; }
+        newBS.forEach(function (val, i) {
+            if (i == newBS.length - 1) { return; }
             midX += val.x;
             midY += val.y
         });
-        midX /= newBS.length-1;
-        midY /= newBS.length-1;
-        newBS.forEach(function(val, i){
+        midX /= newBS.length - 1;
+        midY /= newBS.length - 1;
+        newBS.forEach(function (val, i) {
             val.setCoordinates(val.x - midX, val.y - midY);
         });
 
@@ -180,14 +185,14 @@ MergeState.prototype.click = function(point, selection){
 
         newShape.otherPoints = []; //Supprime le point au centre (le centre change)
         newShape.segmentPoints = [];
-        for(var i=0;i<shape1.segmentPoints.length;i++) {
+        for (var i = 0; i < shape1.segmentPoints.length; i++) {
             var p = shape1.segmentPoints[i].getCopy();
             p.x -= midX;
             p.y -= midY;
             p.shape = newShape;
             newShape.segmentPoints.push(p);
         }
-        for(var i=0;i<shape2.segmentPoints.length;i++) {
+        for (var i = 0; i < shape2.segmentPoints.length; i++) {
             var p = shape2.segmentPoints[i].getCopy();
             p.x -= midX + decalage.x;
             p.y -= midY + decalage.y;
@@ -197,7 +202,7 @@ MergeState.prototype.click = function(point, selection){
 
         this.app.workspace.addShape(newShape);
         var coord = newShape.getCoordinates();
-        newShape.setCoordinates({"x": coord.x - 30, "y": coord.y - 30});
+        newShape.setCoordinates({ "x": coord.x - 30, "y": coord.y - 30 });
 
         this.makeHistory(newShape);
 
@@ -206,23 +211,85 @@ MergeState.prototype.click = function(point, selection){
     }
 };
 
+// Fonction qui vérifie que 2 segments sont communs
+MergeState.prototype.isCommonSegment = (point1, point2, point3, point4) => {
+    const maxSquareDist = Math.pow(app.settings.get('precision'), 2)
+    if (maxSquareDist >= app.distanceBetweenTwoPoints(point1, point3)
+        && maxSquareDist >= app.distanceBetweenTwoPoints(point2, point4)) {
+        return true
+    }
+
+    // if (maxSquareDist >= app.distanceBetweenTwoPoints(point1, point4)
+    //     && maxSquareDist >= app.distanceBetweenTwoPoints(point2, point3)) {
+    //     return true
+    // }
+
+    return false
+}
+
+// Fonction qui retourne tous les segments de 2 formes
+MergeState.prototype.getCommonsSegments = (shape1, shape2) => {
+
+    let commonsSegments = []
+    // let shape1StartPoint, shape1EndPoint, shape2StartPoint, shape1StartPoint
+
+    for (var i = 1; i < shape1.buildSteps.length; i++) {
+        if (shape1.buildSteps[i].type != 'line') continue;
+        shape1StartPoint = shape1.buildSteps[i - 1].getFinalPoint(shape1StartPoint);
+        shape1StartPoint.x += shape1.x
+        shape1StartPoint.y += shape1.y
+        shape1EndPoint = shape1.buildSteps[i].getFinalPoint(shape1StartPoint);
+        shape1EndPoint.x += shape1.x
+        shape1EndPoint.y += shape1.y
+
+        for (var j = 1; j < shape2.buildSteps.length; j++) {
+            if (shape2.buildSteps[j].type != 'line') continue;
+            shape2StartPoint = shape2.buildSteps[j - 1].getFinalPoint(shape2StartPoint);
+            shape2StartPoint.x += shape2.x
+            shape2StartPoint.y += shape2.y
+            shape2EndPoint = shape2.buildSteps[j].getFinalPoint(shape2StartPoint);
+            shape2EndPoint.x += shape2.x
+            shape2EndPoint.y += shape2.y
+
+            if (this.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)) {
+                commonsSegments.push({
+                    's1_index1': i - 1,
+                    's1_index2': i,
+                    's2_index1': j - 1,
+                    's2_index2': j
+                })
+            }
+
+            if (this.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
+                commonsSegments.push({
+                    's1_index1': i - 1,
+                    's1_index2': i,
+                    's2_index1': j,
+                    's2_index2': j - 1
+                })
+            }
+        }
+    }
+    console.log(commonsSegments)
+}
+
 /**
  * Annuler l'action en cours
  */
-MergeState.prototype.abort = function(){
-    if(this.newShape)
+MergeState.prototype.abort = function () {
+    if (this.newShape)
         this.app.workspace.removeShape(this.newShape);
 };
 
 /**
 * Appelée lorsque l'événement mouseup est déclanché sur le canvas
  */
-MergeState.prototype.mouseup = function(point){};
+MergeState.prototype.mouseup = function (point) { };
 
 /**
  * Ajoute l'action qui vient d'être effectuée dans l'historique
  */
-MergeState.prototype.makeHistory = function(shape){
+MergeState.prototype.makeHistory = function (shape) {
     var data = {
         'shape_id': shape.id
     };
@@ -234,10 +301,10 @@ MergeState.prototype.makeHistory = function(shape){
  * @param  {Object} data        les données envoyées à l'historique par makeHistory
  * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
  */
-MergeState.prototype.cancelAction = function(data, callback){
+MergeState.prototype.cancelAction = function (data, callback) {
     var ws = this.app.workspace;
     var shape = ws.getShapeById(data.shape_id)
-    if(!shape) {
+    if (!shape) {
         console.log("MergeState.cancelAction: shape not found...");
         callback();
         return;
@@ -251,7 +318,7 @@ MergeState.prototype.cancelAction = function(data, callback){
  * @param  {Shape} overflownShape La forme qui est survolée par la souris
  * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
  */
-MergeState.prototype.getElementsToHighlight = function(overflownShape){
+MergeState.prototype.getElementsToHighlight = function (overflownShape) {
     var data = {
         'shapes': [overflownShape],
         'segments': [],
@@ -265,11 +332,11 @@ MergeState.prototype.getElementsToHighlight = function(overflownShape){
  * Appelée par la fonction de dessin, après avoir dessiné les formes
  * @param canvas: référence vers la classe Canvas
  */
-MergeState.prototype.draw = function(canvas, mouseCoordinates){};
+MergeState.prototype.draw = function (canvas, mouseCoordinates) { };
 
 /**
  * démarrer l'état
  */
-MergeState.prototype.start = function(params){};
+MergeState.prototype.start = function (params) { };
 
-MergeState.prototype.mousedown = function(point) {};
+MergeState.prototype.mousedown = function (point) { };
