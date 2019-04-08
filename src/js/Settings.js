@@ -49,7 +49,7 @@ function Settings(app) {
 	this.add("shapesOpacity", 0.7,                 true); //0, 0.7, 1
 
 	//taille des formes qui seront ajoutées
-	this.add("shapesSize", 1,              true); //1,2,3
+	this.add("shapesSize", 2,              true); //1,2,3
 
     this.add("virtualMouseSize", 1.5, false);
 }
