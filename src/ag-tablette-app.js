@@ -6,6 +6,7 @@ import './div-main-canvas'
 import './app-settings'
 // import './divide-popup'
 import './js/Manifest'
+import './js/Geometry'
 
 class AGTabletteApp extends LitElement {
 

@@ -173,8 +173,8 @@ App.prototype.start = function () {
  *	Solution provisoire le temps de proposer une solution plus complète (sauvegarde + "onglets")
  */
 App.prototype.newWorkspace = function (do_save_current_ws) {
-	if(do_save_current_ws!==false)
-		this.saveCurrentWorkspace("Workspace_"+this.storer.getAmountStoredWorkspaces());
+	if (do_save_current_ws !== false)
+		this.saveCurrentWorkspace("Workspace_" + this.storer.getAmountStoredWorkspaces());
 
 	this.workspace = new Workspace(this);
 	this.workspace.addMenuAFamilies();
@@ -187,7 +187,7 @@ App.prototype.newWorkspace = function (do_save_current_ws) {
  */
 App.prototype.saveCurrentWorkspace = function (name) {
 	if (name === undefined)
-		name = "Workspace_"+this.storer.getAmountStoredWorkspaces();
+		name = "Workspace_" + this.storer.getAmountStoredWorkspaces();
 	this.storer.saveWorkspace(this.workspace, name);
 };
 
@@ -490,9 +490,6 @@ App.prototype.isPointInPolygon = function (polygon, point) {
 	}
 	return false;
 }
-
-App.prototype.distanceBetweenTwoPoints = (point1, point2) =>
-Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2)
 
 /**
  * Méthode statique: faire hériter une classe d'une autre

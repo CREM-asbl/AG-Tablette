@@ -40,6 +40,8 @@ MergeState.prototype.click = function (point, selection) {
 
 
     //Vérifier que les 2 formes ont un segment commun:
+    // Todo: remplacer par le code du dessous, si on doit retirer tous les segments communs
+    // Geometry.getCommonsSegments(this.firstShape, shape)[0]
     var commonSegmentFound = false,
         commonSegment = {
             's1_index1': null, //index de la buildstep dont le finalpoint est le début du segment
@@ -72,7 +74,7 @@ MergeState.prototype.click = function (point, selection) {
             shape2EndPoint.x += shape2.x
             shape2EndPoint.y += shape2.y
 
-            if (this.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)) {
+            if (Geometry.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)) {
                 commonSegmentFound = true;
                 commonSegment = {
                     's1_index1': i - 1,
@@ -80,7 +82,7 @@ MergeState.prototype.click = function (point, selection) {
                     's2_index1': j - 1,
                     's2_index2': j
                 };
-            } else if (this.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
+            } else if (Geometry.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
                 commonSegmentFound = true;
                 commonSegment = {
                     's1_index1': i - 1,
@@ -210,68 +212,6 @@ MergeState.prototype.click = function (point, selection) {
         this.app.canvas.refresh(point);
     }
 };
-
-// Fonction qui vérifie que 2 segments sont communs
-MergeState.prototype.isCommonSegment = (point1, point2, point3, point4) => {
-    const maxSquareDist = Math.pow(app.settings.get('precision'), 2)
-    if (maxSquareDist >= app.distanceBetweenTwoPoints(point1, point3)
-        && maxSquareDist >= app.distanceBetweenTwoPoints(point2, point4)) {
-        return true
-    }
-
-    // if (maxSquareDist >= app.distanceBetweenTwoPoints(point1, point4)
-    //     && maxSquareDist >= app.distanceBetweenTwoPoints(point2, point3)) {
-    //     return true
-    // }
-
-    return false
-}
-
-// Fonction qui retourne tous les segments de 2 formes
-MergeState.prototype.getCommonsSegments = (shape1, shape2) => {
-
-    let commonsSegments = []
-    // let shape1StartPoint, shape1EndPoint, shape2StartPoint, shape1StartPoint
-
-    for (var i = 1; i < shape1.buildSteps.length; i++) {
-        if (shape1.buildSteps[i].type != 'line') continue;
-        shape1StartPoint = shape1.buildSteps[i - 1].getFinalPoint(shape1StartPoint);
-        shape1StartPoint.x += shape1.x
-        shape1StartPoint.y += shape1.y
-        shape1EndPoint = shape1.buildSteps[i].getFinalPoint(shape1StartPoint);
-        shape1EndPoint.x += shape1.x
-        shape1EndPoint.y += shape1.y
-
-        for (var j = 1; j < shape2.buildSteps.length; j++) {
-            if (shape2.buildSteps[j].type != 'line') continue;
-            shape2StartPoint = shape2.buildSteps[j - 1].getFinalPoint(shape2StartPoint);
-            shape2StartPoint.x += shape2.x
-            shape2StartPoint.y += shape2.y
-            shape2EndPoint = shape2.buildSteps[j].getFinalPoint(shape2StartPoint);
-            shape2EndPoint.x += shape2.x
-            shape2EndPoint.y += shape2.y
-
-            if (this.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)) {
-                commonsSegments.push({
-                    's1_index1': i - 1,
-                    's1_index2': i,
-                    's2_index1': j - 1,
-                    's2_index2': j
-                })
-            }
-
-            if (this.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
-                commonsSegments.push({
-                    's1_index1': i - 1,
-                    's1_index2': i,
-                    's2_index1': j,
-                    's2_index2': j - 1
-                })
-            }
-        }
-    }
-    console.log(commonsSegments)
-}
 
 /**
  * Annuler l'action en cours
