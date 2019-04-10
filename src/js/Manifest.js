@@ -4,7 +4,7 @@
 //Todo: rendre l'accès à manifest plus global
 import { updateMetadata } from 'pwa-helpers/metadata';
 
-const loadManifest = async () => {
+export const loadManifest = async () => {
     const manifest_file = await fetch('./manifest.json')
     const manifest = await manifest_file.json()
     return manifest

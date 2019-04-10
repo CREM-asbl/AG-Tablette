@@ -1,4 +1,5 @@
 import { LitElement, html } from 'lit-element'
+import { loadManifest } from './js/Manifest'
 
 class AppSettings extends LitElement {
 
@@ -88,6 +89,9 @@ class AppSettings extends LitElement {
                 font-size: 24px;
                 margin-right: 20px;
             }
+            .version {
+                text-align: right;
+            }
         </style>
 
         <div id="app-settings-view" @update-request='_updateHTMLForm'>
@@ -98,7 +102,7 @@ class AppSettings extends LitElement {
             </div>  
             
             <h2>Paramètres</h2>
-
+            <div class="version">${this.version}</div>
             <div class="app-settings-form">
 
                 <fieldset>
@@ -173,6 +177,17 @@ class AppSettings extends LitElement {
             </div>
         </div>
         `
+    }
+
+    constructor() {
+        super()
+        loadManifest().then(manifest => this.version = `${manifest.short_name} ${manifest.version}`)
+    }
+
+    static get properties() {
+        return {
+            version: String
+        }
     }
 
     _updateHTMLForm() {
