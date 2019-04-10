@@ -90,7 +90,7 @@ class AppSettings extends LitElement {
             }
         </style>
 
-        <div id="app-settings-view" on-update-request='_updateHTMLForm'>
+        <div id="app-settings-view" @update-request='_updateHTMLForm'>
 
             <div id="popup-close" 
                 @click="${() => this.style.display = 'none'}">
@@ -143,9 +143,11 @@ class AppSettings extends LitElement {
                     <legend>Formes</legend>
 
                     <label for="settings_shapes_size">Taille des formes: </label>
-                    <select name="settings_shapes_size" id="settings_shapes_size" @change='${this._actionHandle}'>
+                    <select name="settings_shapes_size" 
+                            id="settings_shapes_size"
+                            @change='${this._actionHandle}'>
                         <option value="1">1</option>
-                        <option value="2">2</option>
+                        <option value="2" selected>2</option>
                         <option value="3">3</option>
                     </select>
 
@@ -174,6 +176,8 @@ class AppSettings extends LitElement {
     }
 
     _updateHTMLForm() {
+        // Cette fonction est-elle appelée ?
+        console.log('_updateHTMLForm')
         var ws = window.app.workspace;
         //Général
         this.shadowRoot.getElementById('settings_adapt_shapes_position').checked = window.app.settings.get('automaticAdjustment');

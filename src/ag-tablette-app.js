@@ -221,7 +221,7 @@ class AGTabletteApp extends LitElement {
             <div-main-canvas id="div-main-canvas"></div-main-canvas>
         </div>
 
-        <shapes-list .family="${this.currentFamily}"></shapes-list>
+        <shapes-list></shapes-list>
 
         <app-settings></app-settings>
         `
@@ -271,7 +271,9 @@ class AGTabletteApp extends LitElement {
             //Todo : Uniformiser le create_shape comme les autres States
             window.app.setState("no_state");
             this.currentFamily = event.target.family
-            this.currentMode = 'Ajouter forme'
+            this.currentMode = 'Ajouter forme'     
+            const shapesListPopup = this.shadowRoot.querySelector('shapes-list')
+            shapesListPopup.family = this.currentFamily   
         } else {
             console.log("AGTabletteApp._actionHandle: received unknown event:");
             console.log(event);
