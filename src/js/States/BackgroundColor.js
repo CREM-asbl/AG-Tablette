@@ -15,17 +15,15 @@ App.heriter(BackgroundColorState.prototype, State.prototype);
  * Réinitialiser l'état
  */
 BackgroundColorState.prototype.reset = function(){
-    this.selectedColor = null;
+    // this.selectedColor = null;
 };
 
 /**
  * démarrer l'état
  */
 BackgroundColorState.prototype.start = function(){
-    var that = this;
-    this.app.colorpicker.start(function(color){
-        that.setColor(color);
-    });
+    //Fix Edge (click ne fonctionne pas directement sur le input)
+    document.querySelector("#color-picker-label").click()
 };
 
 /**
@@ -33,8 +31,9 @@ BackgroundColorState.prototype.start = function(){
  * @param coordinates: {x: int, y: int}
  */
 BackgroundColorState.prototype.click = function(coordinates, selection) {
-    if(this.selectedColor == null)
-        return;
+
+    this.selectedColor = document.querySelector('#color-picker').value 
+
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(selection.shape || list.length>0) {
         var shape = selection.shape ? selection.shape : list.pop(),

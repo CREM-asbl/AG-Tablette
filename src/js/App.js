@@ -46,9 +46,6 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
 		"mouseup": function () { }
 	};
 
-	//Classe permettant de sélectionner visuellement une couleur
-	this.colorpicker = new ColorPicker(this);
-
 	//Paramètres de l'application
 	this.settings = new Settings(this);
 
