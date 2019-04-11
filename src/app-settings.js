@@ -4,6 +4,8 @@ import { loadManifest } from './js/Manifest'
 class AppSettings extends LitElement {
 
     render() {
+        const settings = window.app.settings
+
         return html`
         <style>
             :host {
@@ -20,12 +22,11 @@ class AppSettings extends LitElement {
                 position: absolute;
                 left: 2%;
                 top: 2%;
-                padding: 20px;
+                right: 2%;
+                bottom: 2%;
                 border-radius: 10px;
                 border: 2px solid gray;
                 background-color: #ddd;
-                height: 90%;
-                width: 90%;
                 overflow-y: hidden;
             }
         
@@ -38,63 +39,66 @@ class AppSettings extends LitElement {
                 box-sizing: content-box;
                 width: 30px;
                 height: 30px;
+                margin: 8px;
                 overflow: hidden;
                 line-height: 40%;
-                -webkit-user-select: none;
-                -khtml-user-select: none;
-                -moz-user-select: none;
-                -o-user-select: none;
-                user-select: none;
+            }
+
+            h2 {
+                padding: 16px;
+                margin: 0;
+                /* box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); */
             }
 
             .app-settings-form {
-                height: 90%;
+                height: calc(100% - 160px);
                 overflow: auto;
+                padding: 16px;
             }
 
-            .app
-            .action-button {
-                display: block;
-                box-sizing: border-box;
-                width: 100%;
-                height: 30px;
-                margin: 8px 0;
+            .field {
+                display: flex;
+                align-items: center;
+                padding: 8px 0;
             }
 
-            .action-button:hover,
-            .action-button:focus {
-                font-weight: bold;
-            }
-
-            canvas-button {
-                display: inline-block;
-                width: 50px;
-                height: 50px;
-                margin: 4px;
-            }
             select {
-                height: 37px;
-                display: block;
-                font-size: 24px;
+                height: 32px;
                 width: 150px;
             }
+
             input[type=checkbox] {
-                height: 25px;
-                display: block;
-                width: 25px;
+                height: 24px;
+                width: 24px;
             }
+
             label {
                 display: block;
-                float: left;
-                font-size: 24px;
-                margin-right: 20px;
+                margin: 0 16px;
+                font-weight: bold;
+                font-size: 1rem;
             }
+
+            footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px;
+                /* box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.2) */
+            }
+
             .version {
                 text-align: right;
+                font-size: .8rem;
+                color: gray;
+            }
+
+            button {
+                padding: 8px 16px;
             }
         </style>
 
-        <div id="app-settings-view" @update-request='_updateHTMLForm'>
+        <div id="app-settings-view">
 
             <div id="popup-close" 
                 @click="${() => this.style.display = 'none'}">
@@ -102,42 +106,70 @@ class AppSettings extends LitElement {
             </div>  
             
             <h2>Paramètres</h2>
-            <div class="version">${this.version}</div>
             <div class="app-settings-form">
 
                 <fieldset>
                     <legend>Général</legend>
 
-                    <label for="settings_adapt_shapes_position">Activer ajustement automatique: </label>
-                    <input type="checkbox" name="settings_adapt_shapes_position" id="settings_adapt_shapes_position" @change='${this._actionHandle}' />
-
-                    <br />
-
-                    <label for="settings_show_grid">Activer la grille: </label>
-                    <input type="checkbox" name="settings_show_grid" id="settings_show_grid" @change='${this._actionHandle}' />
-
-                    <br />
-
-                    <div style="margin-left:30px">
-                        <label for="settings_grid_type">Type de grille: </label>
-                        <select name="settings_grid_type" id="settings_grid_type" @change='${this._actionHandle}' disabled>
-                            <option value="square">Carrés</option>
-                            <option value="triangle">Triangles</option>
-                        </select>
-
-                        <br />
-
-                        <label for="settings_grid_size">Taille de la grille: </label>
-                        <select name="settings_grid_size" id="settings_grid_size" @change='${this._actionHandle}' disabled>
-                            <option value="1/3">1/3</option>
-                            <option value="1/2">1/2</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                        </select>
+                    <div class="field">
+                        <input type="checkbox" 
+                               name="settings_adapt_shapes_position" 
+                               id="settings_adapt_shapes_position"
+                               ?checked="${settings.get('automaticAdjustment')}" 
+                               @change='${this._actionHandle}' />
+                        <label for="settings_adapt_shapes_position">Ajustement automatique</label>                   
                     </div>
 
-                    <br />
+                    <div class="field">
+                        <input type="checkbox" 
+                               name="settings_show_grid" 
+                               id="settings_show_grid"
+                               ?checked="${settings.get('isGridShown')}"  
+                               @change='${this._actionHandle}' />
+                        <label for="settings_show_grid">Activer la grille</label>
+                    </div>
+
+                    <div class="field" style="margin-left:8px">
+                        <label for="settings_grid_type">Type de grille </label>
+                        <select name="settings_grid_type" 
+                                id="settings_grid_type" 
+                                @change='${this._actionHandle}' 
+                                disabled="${settings.get('isGridShown')}">
+                            <option value="square"
+                                    ?selected=${settings.get('gridType') === 'square'}>Carrés</option>
+                            <option value="triangle"
+                                    ?selected=${settings.get('gridType') === 'triangle'}>Triangles</option>
+                        </select>
+                    
+                    </div>
+
+                    <div class="field" style="margin-left:8px">
+                        <label for="settings_grid_size">Taille de la grille </label>
+                        <select name="settings_grid_size" id="settings_grid_size" 
+                                @change='${this._actionHandle}' 
+                                disabled="${settings.get('isGridShown')}">
+                            <option value="0.333333333333333" 
+                                    ?selected="${settings.get('gridSize') === 0.333333333333333}">
+                                    1/3
+                            </option>
+                            <option value="0.5"
+                                    ?selected="${settings.get('gridSize') === 0.5}">
+                                    1/2
+                            </option>
+                            <option value="1"
+                                    ?selected="${settings.get('gridSize') === 1}">
+                                    1
+                            </option>
+                            <option value="2"
+                                    ?selected="${settings.get('gridSize') === 2}">
+                                    2
+                            </option>
+                            <option value="3" 
+                                    ?selected="${settings.get('gridSize') === 3}">
+                                    3
+                            </option>
+                        </select>
+                    </div>
 
                 </fieldset>
 
@@ -146,35 +178,59 @@ class AppSettings extends LitElement {
                 <fieldset>
                     <legend>Formes</legend>
 
-                    <label for="settings_shapes_size">Taille des formes: </label>
-                    <select name="settings_shapes_size" 
-                            id="settings_shapes_size"
-                            @change='${this._actionHandle}'>
-                        <option value="1">1</option>
-                        <option value="2" selected>2</option>
-                        <option value="3">3</option>
-                    </select>
+                    <div class="field">
+                        <label for="settings_shapes_size">Taille des formes </label>
+                        <select name="settings_shapes_size" 
+                                id="settings_shapes_size"
+                                @change='${this._actionHandle}'>
+                            <option value="1">1</option>
+                            <option value="2" selected>2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
 
-                    <br />
+                    <div class="field">
+                        <input type="checkbox" 
+                               name="settings_pointed_shapes" 
+                               id="settings_pointed_shapes" 
+                               ?checked="${settings.get('areShapesPointed')}"
+                               @change='${this._actionHandle}' />
+                        <label for="settings_pointed_shapes">Formes pointées</label>
+                    </div>
 
-                    <label for="settings_pointed_shapes">Activer formes pointées: </label>
-                    <input type="checkbox" name="settings_pointed_shapes" id="settings_pointed_shapes" @change='${this._actionHandle}' />
+                    <div class="field">
+                        <input type="checkbox" 
+                               name="settings_sided_shapes" 
+                               id="settings_sided_shapes"
+                               ?checked="${settings.get('areShapesSided')}" 
+                               @change='${this._actionHandle}' />
+                        <label for="settings_sided_shapes">Formes bifaces</label>
+                    </div>
 
-                    <br />
+                    <div class="field">
+                        <label for="settings_shapes_opacity">Opacité </label>
+                        <select name="settings_shapes_opacity" id="settings_shapes_opacity" @change='${this._actionHandle}'>
+                            <option value="0"
+                                    ?selected="${settings.get('shapesOpacity') === 0}">
+                                    transparent
+                            </option>
+                            <option value="0.7"
+                                    ?selected="${settings.get('shapesOpacity') === 0.7}">
+                                semi-transparent
+                            </option>
+                            <option value="1"
+                                    ?selected="${settings.get('shapesOpacity') === 1}">
+                                opaque
+                            </option>
+                        </select>
+                    </div>
 
-                    <label for="settings_sided_shapes">Formes bifaces: </label>
-                    <input type="checkbox" name="settings_sided_shapes" id="settings_sided_shapes" @change='${this._actionHandle}' />
-
-                    <br />
-
-                    <label for="settings_shapes_opacity">Opacité: </label>
-                    <select name="settings_shapes_opacity" id="settings_shapes_opacity" @change='${this._actionHandle}'>
-                        <option value="0">transparent</option>
-                        <option value="0.7">semi-transparent</option>
-                        <option value="1">opaque</option>
-                    </select>
                 </fieldset>
             </div>
+            <footer>
+                <div class="version">${this.version}</div>
+                <button @click="${() => this.style.display = 'none'}">OK</button>
+            </footer>
         </div>
         `
     }
@@ -186,40 +242,16 @@ class AppSettings extends LitElement {
 
     static get properties() {
         return {
-            version: String
+            version: String,
+            settings: Object
         }
-    }
-
-    _updateHTMLForm() {
-        // Cette fonction est-elle appelée ?
-        console.log('_updateHTMLForm')
-        var ws = window.app.workspace;
-        //Général
-        this.shadowRoot.getElementById('settings_adapt_shapes_position').checked = window.app.settings.get('automaticAdjustment');
-        this.shadowRoot.getElementById('settings_show_grid').checked = window.app.settings.get('isGridShown');
-        this.shadowRoot.getElementById('settings_grid_type').value = window.app.settings.get('gridType');
-
-        var value = window.app.settings.get('gridSize');
-        if (value == 0.5 || value == 1 || value == 2 || value == 3) {
-            var transform = { "0.5": "1/2", "1": "1", "2": "2", "3": "3" };
-            this.shadowRoot.getElementById('settings_grid_size').value = transform[(new Number(value)).toString()];
-        } else if (value > 0.333 && value < 0.334) { //0.333333333333333
-            this.shadowRoot.getElementById('settings_grid_size').value = "1/3";
-        } else {
-            this.shadowRoot.getElementById('settings_grid_size').value = "";
-        }
-
-        //Formes
-        this.shadowRoot.getElementById('settings_shapes_size').value = parseInt(window.app.settings.get('shapesSize'));
-        this.shadowRoot.getElementById('settings_pointed_shapes').checked = window.app.settings.get('areShapesPointed');
-        this.shadowRoot.getElementById('settings_sided_shapes').checked = window.app.settings.get('areShapesSided');
-        this.shadowRoot.getElementById('settings_shapes_opacity').value = (new Number(window.app.settings.get('shapesOpacity'))).toString();
     }
 
     /**
      * event handler principal
      */
     _actionHandle(event) {
+        console.log(window.app.state.name)
         if (window.app.state.name)
             window.app.state.abort();
         window.app.state = { 'name': null };
@@ -233,22 +265,16 @@ class AppSettings extends LitElement {
                 this.shadowRoot.getElementById("settings_grid_type").disabled = !event.target.checked;
                 this.shadowRoot.getElementById("settings_grid_size").disabled = !event.target.checked;
                 window.app.settings.update('isGridShown', event.target.checked);
-                window.app.settings.update('gridType', this.shadowRoot.getElementById("settings_grid_type").value);
-                var value = this.shadowRoot.getElementById("settings_grid_size").value;
-                var transform = { "1/3": 0.333333333333333, "1/2": 0.5, "1": 1, "2": 2, "3": 3 };
-                window.app.settings.update('gridSize', transform[value]);
                 window.app.canvas.refreshBackgroundCanvas();
                 break;
 
             case 'settings_grid_size':
-                var value = this.shadowRoot.getElementById("settings_grid_size").value;
-                var transform = { "1/3": 0.333333333333333, "1/2": 0.5, "1": 1, "2": 2, "3": 3 };
-                window.app.settings.update('gridSize', transform[value]);
+                window.app.settings.update('gridSize', event.target.value);
                 window.app.canvas.refreshBackgroundCanvas();
                 break;
 
             case 'settings_grid_type':
-                window.app.settings.update('gridType', this.shadowRoot.getElementById("settings_grid_type").value);
+                window.app.settings.update('gridType', event.target.value);
                 window.app.canvas.refreshBackgroundCanvas();
                 break;
 
