@@ -265,6 +265,7 @@ class AGTabletteApp extends LitElement {
         } else if (event.target.name == "settings") {
             this.shadowRoot.querySelector('app-settings').style.display = 'block';
         } else if (event.target.name == "annuler") {
+            window.app.setState("no_state");
             this.currentMode = ''
             window.app.workspace.history.cancelLastStep();
         } else if (event.target.name === 'add_shape') {
