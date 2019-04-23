@@ -36,11 +36,18 @@ BorderColorState.prototype.click = function(coordinates, selection) {
 
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(selection.shape || list.length>0) {
-        var shape = selection.shape ? selection.shape : list.pop(),
-            oldColor = shape.borderColor;
-        shape.borderColor = this.selectedColor;
-        this.app.canvas.refresh(coordinates);
-        this.makeHistory(shape, oldColor);
+        var shape = selection.shape ? selection.shape : list.pop()
+        let uGroup = this.app.workspace.getShapeGroup(shape, 'user') || [shape]
+        let history = []
+        uGroup.forEach(s => {
+            history.push({
+                'shape_id': s.id,
+                'old_color': s.borderColor
+            })
+            s.borderColor = this.selectedColor
+        })
+        this.app.canvas.refresh(coordinates)
+        this.makeHistory(history)
     }
 
 };
@@ -56,12 +63,8 @@ BorderColorState.prototype.setColor = function(color) {
 /**
  * Ajoute l'action qui vient d'être effectuée dans l'historique
  */
-BorderColorState.prototype.makeHistory = function(shape, oldColor){
-    var data = {
-        'shape_id': shape.id,
-        'old_color': oldColor
-    };
-    this.app.workspace.history.addStep(this.name, data);
+BorderColorState.prototype.makeHistory = function(history){
+    this.app.workspace.history.addStep(this.name, history);
 };
 
 /**
@@ -71,13 +74,13 @@ BorderColorState.prototype.makeHistory = function(shape, oldColor){
  */
 BorderColorState.prototype.cancelAction = function(data, callback){
     var ws = this.app.workspace;
-    var shape = ws.getShapeById(data.shape_id)
-    if(!shape) {
-        console.log("BorderColorState.cancelAction: shape not found...");
-        callback();
-        return;
-    }
-    shape.borderColor = data.old_color;
+    data.forEach(modification => {
+        var shape = ws.getShapeById(modification.shape_id)
+        if (!shape) {
+            console.log("BackgroundColorState.cancelAction: shape not found...");
+        }
+        shape.borderColor = modification.old_color;
+    })
     callback();
 };
 
