@@ -7,6 +7,7 @@ import './app-settings'
 // import './divide-popup'
 import './js/Manifest'
 import './js/Geometry'
+import './new-popup'
 
 class AGTabletteApp extends LitElement {
 
@@ -89,8 +90,8 @@ class AGTabletteApp extends LitElement {
                         </div>
                         <div>
                             <button class="action-button"
-                                    name="nouveau"
-                                    @click="${() => window.app.newWorkspace()}">
+                                    name="new"
+                                    @click="${this._actionHandle}">
                                     Nouveau
                             </button>
                             <button class="action-button"
@@ -224,6 +225,8 @@ class AGTabletteApp extends LitElement {
         <shapes-list></shapes-list>
 
         <app-settings></app-settings>
+
+        <new-popup></new-popup>
         `
     }
 
@@ -262,20 +265,34 @@ class AGTabletteApp extends LitElement {
             window.app.setState(event.target.name);
             this.currentMode = states[event.target.name];
             this.currentFamily = ''
-        } else if (event.target.name == "settings") {
-            this.shadowRoot.querySelector('app-settings').style.display = 'block';
-        } else if (event.target.name == "annuler") {
+        }
+
+        else if (event.target.name == "settings") {
+            this.shadowRoot.querySelector('app-settings').style.display = 'block'
+        } 
+        
+        else if (event.target.name === "new") {
+            window.app.setState("no_state");
+            this.currentMode = ''
+            this.shadowRoot.querySelector('new-popup').open()
+        } 
+        
+        else if (event.target.name == "annuler") {
             window.app.setState("no_state");
             this.currentMode = ''
             window.app.workspace.history.cancelLastStep();
-        } else if (event.target.name === 'add_shape') {
+        } 
+        
+        else if (event.target.name === 'add_shape') {
             //Todo : Uniformiser le create_shape comme les autres States
             window.app.setState("no_state");
             this.currentFamily = event.target.family
-            this.currentMode = 'Ajouter forme'     
+            this.currentMode = 'Ajouter forme'
             const shapesListPopup = this.shadowRoot.querySelector('shapes-list')
-            shapesListPopup.family = this.currentFamily   
-        } else {
+            shapesListPopup.family = this.currentFamily
+        } 
+        
+        else {
             console.log("AGTabletteApp._actionHandle: received unknown event:");
             console.log(event);
         }
