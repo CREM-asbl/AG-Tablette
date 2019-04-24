@@ -65,21 +65,8 @@ class AGTabletteApp extends LitElement {
             }
 
             #app-canvas-mode-text span{
-                color: gray;
+                color: #444;
             }    
-        
-            /* Est-ce vraiment utile ? */
-            /* #app-canvas-view-toolbar-p2::before {
-                content:'';
-                display:block;
-                box-shadow:inset 0 -5px 10px gray;
-                position:absolute;
-                bottom:0;
-                left:0;
-                width:20%;
-                min-width: 180px;
-                height:10px;
-            }​ */
         </style>
         
         <div id="app-canvas-view">
