@@ -209,7 +209,7 @@ class AGTabletteApp extends LitElement {
             <div-main-canvas id="div-main-canvas"></div-main-canvas>
         </div>
 
-        <shapes-list></shapes-list>
+        <shapes-list family="${this.currentFamily}"></shapes-list>
 
         <app-settings></app-settings>
 
@@ -217,7 +217,7 @@ class AGTabletteApp extends LitElement {
         `
     }
 
-    async firstUpdated() {
+    firstUpdated() {
         window.canvasLeftShift = this.shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
     }
 
@@ -225,6 +225,10 @@ class AGTabletteApp extends LitElement {
      * Main event handler
      */
     _actionHandle(event) {
+
+        const shapesListPopup = this.shadowRoot.querySelector('shapes-list')
+        shapesListPopup.family = null
+        this.currentFamily = ''
 
         var states = {
             'move_shape': 'Glisser',
@@ -251,7 +255,6 @@ class AGTabletteApp extends LitElement {
             }
             window.app.setState(event.target.name);
             this.currentMode = states[event.target.name];
-            this.currentFamily = ''
         }
 
         else if (event.target.name == "settings") {
@@ -275,7 +278,6 @@ class AGTabletteApp extends LitElement {
             window.app.setState("no_state");
             this.currentFamily = event.target.family
             this.currentMode = 'Ajouter forme'
-            const shapesListPopup = this.shadowRoot.querySelector('shapes-list')
             shapesListPopup.family = this.currentFamily
         } 
         
