@@ -79,7 +79,7 @@ class AGTabletteApp extends LitElement {
                             <button class="action-button"
                                     name="new"
                                     @click="${this._actionHandle}">
-                                    Nouveau
+                                    Supprimer tout
                             </button>
                             <button class="action-button"
                                     name="annuler"
@@ -125,7 +125,7 @@ class AGTabletteApp extends LitElement {
                             name="reverse_shape" 
                             ?active="${this.currentMode === 'Retourner'}"
                             @click='${this._actionHandle}'>
-                            Retouner
+                            Retourner
                     </button>
                     <button class="action-button" 
                             name="global_zoom" 
@@ -145,7 +145,7 @@ class AGTabletteApp extends LitElement {
                             name="link_shapes" 
                             ?active="${this.currentMode === 'Lier les formes'}"
                             @click='${this._actionHandle}'>
-                            Lier des formes
+                            Lier
                     </button>
                     <button class="action-button" 
                             name="unlink_shapes" 
@@ -163,13 +163,13 @@ class AGTabletteApp extends LitElement {
                             name="background_color" 
                             ?active="${this.currentMode === 'Couleur de fond'}"
                             @click='${this._actionHandle}'>
-                            Couleur de fond
+                            Colorier les formes
                     </button>
                     <button class="action-button" 
                             name="border_color" 
                             ?active="${this.currentMode === 'Couleur des bords'}"
                             @click='${this._actionHandle}'>
-                            Couleur des bords
+                            Colorier les bords
                     </button>
 
                     <div class="toolbar-separator">Opérations</div>
