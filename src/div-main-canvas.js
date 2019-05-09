@@ -51,8 +51,10 @@ class DivMainCanvas extends LitElement {
 
         //Tablette:
         this.cvs.addEventListener('touchstart', function (event) {
+
             if (event.touches.length > 1)
                 return;
+
             event.preventDefault();
             window.app.handleEvent("mousedown", this.getMousePos(event, window.app));
         }.bind(this), false);
@@ -140,7 +142,7 @@ class DivMainCanvas extends LitElement {
 
         response = [response[0] / appRef.workspace.zoomLevel, response[1] / appRef.workspace.zoomLevel];
         response = [response[0] - window.app.workspace.translateOffset.x, response[1] - window.app.workspace.translateOffset.y];
-        return {"x": response[0], "y": response[1]};
+        return { "x": response[0], "y": response[1] };
     }
 
     /**
@@ -148,6 +150,12 @@ class DivMainCanvas extends LitElement {
      */
     _handleMove(event) {
         window.app.canvas.refresh(this.getMousePos(event, window.app), { 'event_type': 'mousemove' });
+    }
+
+    getScreenShot() {
+        let url = this.cvs.toDataURL()
+        // TODO: Remplacer par un vrai système d'enregistrement de fichier 
+        window.open(url, '_blank')
     }
 
 }

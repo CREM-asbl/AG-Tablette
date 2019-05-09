@@ -39,16 +39,20 @@ CutState.prototype.click = function(point, selection) {
     }
 
     var list = this.app.workspace.pointsNearPoint(new Point(point.x, point.y, null, null))
-    if(list.length==0){
+    
+    if(list.length === 0){
         console.log("CutState: Pas de point proche");
         return;
     }
-    var pointObj = list.pop();
 
-    if(pointObj.shape!=this.shape) {
+    var pointsPossibles = list.filter(point => point.shape === this.shape)
+
+    if(pointsPossibles.length === 0) {
         console.log("Cutstate: le point ne fait pas partie de la forme sélectionnée");
         return;
     }
+
+    pointObj = pointsPossibles[0]
 
     //On ajoute le premier point (ce doit être un point sur un segment).
     if(!this.firstPoint && !this.centerPoint) {
