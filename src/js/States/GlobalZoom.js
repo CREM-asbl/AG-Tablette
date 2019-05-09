@@ -31,7 +31,7 @@ class GlobalZoomState {
     /**
     * Appelée lorsque l'événement mousedown est déclanché sur le canvas
      */
-    mousedown = function (point) {
+    mousedown(point) {
         this.isZooming = true;
         this.clickCoordinates = point;
         this.baseDistance = Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2));
@@ -52,7 +52,7 @@ class GlobalZoomState {
      * Appelée par la fonction de dessin, avant avoir dessiné les formes
      * @param canvas: référence vers la classe Canvas
      */
-    updateZoomLevel = function (mouseCoordinates) {
+    updateZoomLevel(mouseCoordinates) {
         var newDist = Math.sqrt(Math.pow(mouseCoordinates.x, 2) + Math.pow(mouseCoordinates.y, 2));
         var oldDist = this.baseDistance;
 
@@ -68,7 +68,7 @@ class GlobalZoomState {
      * @param  {Shape} overflownShape La forme qui est survolée par la souris
      * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
      */
-    getElementsToHighlight = function (overflownShape) {
+    getElementsToHighlight(overflownShape) {
         var data = {
             'shapes': [],
             'segments': [],
@@ -113,7 +113,7 @@ class GlobalZoomState {
      */
     click() { };
 
-    touchStart = event => {
+    touchStart(event) {
         if (event.touches.length === 2) {
             // TODO: A améliorer
             // actuellement, je passe en no_state car "intéférences" avec la gestion
