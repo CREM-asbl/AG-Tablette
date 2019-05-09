@@ -32,7 +32,6 @@ Canvas.prototype.refreshBackgroundCanvas = function () {
  */
 Canvas.prototype.refresh = function (mouseCoordinates, options) {
 	var state = this.app.state;
-
 	/**
 	 * Pendant une animation, ne pas mettre le canvas à jour quand on bouge la
 	 * souris, car il est déjà mis à jour avec l'animationFrame.
@@ -51,7 +50,7 @@ Canvas.prototype.refresh = function (mouseCoordinates, options) {
 		this.previousMouseCoordinates = mouseCoordinates;
 
 		if (state.name == "global_zoom" && state.isZooming) {
-			state.updateZoomLevel(this, mouseCoordinates);
+			state.updateZoomLevel(mouseCoordinates);
 		}
 
 		if (state.name == "moveplane_state" && state.isMoving) {
@@ -259,8 +258,8 @@ Canvas.prototype.drawVirtualMouse = function (mouseCoordinates) {
 Canvas.prototype.drawShape = function (shape, highlightInfo) {
 	if (highlightInfo === undefined)
 		highlightInfo = { 'shape': false, 'segments': [], 'points': [] };
+		
 	var ctx = this.ctx;
-
 	//Choix de la couleur
 	if (shape.isReversed && shape.isSided) {
 		ctx.fillStyle = this.app.getComplementaryColor(shape.color);
@@ -269,7 +268,7 @@ Canvas.prototype.drawShape = function (shape, highlightInfo) {
 	}
 
 	ctx.strokeStyle = shape.borderColor;
-	ctx.lineWidth = (new Number(2 / this.app.workspace.zoomLevel)).toString();
+	ctx.lineWidth = 2;
 
 	if (highlightInfo.shape === true) { //il faut mettre la forme en évidence
 		ctx.lineWidth = ((new Number(ctx.lineWidth)) * 1.7).toString();
@@ -621,7 +620,7 @@ Canvas.prototype.drawPoint = function (point, color, ctx, size) {
 	ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
 	ctx.beginPath();
 	ctx.moveTo(point.x, point.y);
-	ctx.arc(point.x, point.y, size * 2 / this.app.workspace.zoomLevel, 0, 2 * Math.PI, 0);
+	ctx.arc(point.x, point.y, size * 2, 0, 2 * Math.PI, 0);
 	ctx.closePath();
 	ctx.fill();
 	ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);

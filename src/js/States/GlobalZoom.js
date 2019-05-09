@@ -52,7 +52,7 @@ class GlobalZoomState {
      * Appelée par la fonction de dessin, avant avoir dessiné les formes
      * @param canvas: référence vers la classe Canvas
      */
-    updateZoomLevel = function (canvas, mouseCoordinates) {
+    updateZoomLevel = function (mouseCoordinates) {
         var newDist = Math.sqrt(Math.pow(mouseCoordinates.x, 2) + Math.pow(mouseCoordinates.y, 2));
         var oldDist = this.baseDistance;
 
@@ -132,7 +132,7 @@ class GlobalZoomState {
             let point1 = { x: event.touches[0].clientX, y: event.touches[0].clientY }
             let point2 = { x: event.touches[1].clientX, y: event.touches[1].clientY }
             let distance = Geometry.distanceBetweenTwoPoints(point1, point2)
-            let ratio = distance / this.baseDistance
+            let ratio = (distance / this.baseDistance) * this.originalZoomLevel
             this.app.workspace.setZoomLevel(ratio, false);
         }
     }
