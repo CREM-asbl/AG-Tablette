@@ -29,7 +29,7 @@ class AGTabletteApp extends LitElement {
                 display: block;
                 box-sizing: border-box;
                 width: 100%;
-                height: 30px;
+                height: 32px;
                 margin: 8px 0;
             }
 

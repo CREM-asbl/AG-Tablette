@@ -38,7 +38,7 @@ class ShapesList extends LitElement {
 
             button {
                 width: 100%;
-                height: 30px;
+                height: 32px;
                 padding: 8px;
             }
 
