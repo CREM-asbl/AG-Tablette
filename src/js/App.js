@@ -21,7 +21,6 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
 		"delete_shape": new DeleteState(this),
 		"move_shape": new MoveState(this),
 		"rotate_shape": new RotateState(this),
-		"global_zoom": new GlobalZoomState(this),
 		"border_color": new BorderColorState(this),
 		"background_color": new BackgroundColorState(this),
 		"link_shapes": new LinkerState(this),
@@ -162,6 +161,7 @@ App.prototype.start = function () {
 		}
 	};
 
+		dispatchEvent(new CustomEvent('app-loaded'))
 };
 
 /**

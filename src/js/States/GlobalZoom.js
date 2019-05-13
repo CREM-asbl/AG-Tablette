@@ -4,8 +4,7 @@
 
 class GlobalZoomState {
 
-    constructor(app) {
-        this.app = app;
+    constructor() {
         this.name = "global_zoom";
 
         //coordonnées de la souris lorsque le déplacement a commencé
@@ -35,7 +34,7 @@ class GlobalZoomState {
         this.isZooming = true;
         this.clickCoordinates = point;
         this.baseDistance = Math.sqrt(Math.pow(point.x, 2) + Math.pow(point.y, 2));
-        this.originalZoomLevel = this.app.workspace.zoomLevel;
+        this.originalZoomLevel = app.workspace.zoomLevel;
     };
 
     /**
@@ -59,8 +58,8 @@ class GlobalZoomState {
         if (newDist == 0) newDist = 0.001;
         if (oldDist == 0) oldDist = 0.001;
 
-        var baseZoom = this.app.workspace.zoomLevel * newDist / oldDist;
-        this.app.workspace.setZoomLevel(baseZoom, false);
+        var baseZoom = app.workspace.zoomLevel * newDist / oldDist;
+        app.workspace.setZoomLevel(baseZoom, false);
     };
 
     /**
@@ -85,7 +84,7 @@ class GlobalZoomState {
         var data = {
             'original_zoom': originalZoomLevel
         };
-        this.app.workspace.history.addStep(this.name, data);
+        app.workspace.history.addStep(this.name, data);
     };
 
     /**
@@ -94,7 +93,7 @@ class GlobalZoomState {
      * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
      */
     cancelAction(data, callback) {
-        this.app.workspace.setZoomLevel(data.original_zoom, true);
+        app.workspace.setZoomLevel(data.original_zoom, true);
         callback();
     };
 
@@ -118,9 +117,9 @@ class GlobalZoomState {
             // TODO: A améliorer
             // actuellement, je passe en no_state car "intéférences" avec la gestion
             // à la souris quand on active le mode global_zoom  
-               this.app.setState('no_state')
+            app.setState('no_state')
             this.isZooming = true
-            this.originalZoomLevel = this.app.workspace.zoomLevel
+            this.originalZoomLevel = app.workspace.zoomLevel
             let point1 = { x: event.touches[0].clientX, y: event.touches[0].clientY }
             let point2 = { x: event.touches[1].clientX, y: event.touches[1].clientY }
             this.baseDistance = Geometry.distanceBetweenTwoPoints(point1, point2)
@@ -133,7 +132,7 @@ class GlobalZoomState {
             let point2 = { x: event.touches[1].clientX, y: event.touches[1].clientY }
             let distance = Geometry.distanceBetweenTwoPoints(point1, point2)
             let ratio = (distance / this.baseDistance) * this.originalZoomLevel
-            this.app.workspace.setZoomLevel(ratio, false);
+            app.workspace.setZoomLevel(ratio, false);
         }
     }
 
@@ -144,3 +143,6 @@ class GlobalZoomState {
         }
     }
 }
+
+// Todo: à supprimer quand l'import de toutes les classes sera en place
+addEventListener('app-loaded', () => window.app.states.global_zoom = new GlobalZoomState())
