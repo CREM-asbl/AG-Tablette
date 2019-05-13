@@ -29,7 +29,6 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
 		"duplicate_shape": new DuplicateState(this),
 		"divide_segment": new DivideState(this),
 		"unlink_shapes": new UnlinkerState(this),
-		"merge_shapes": new MergeState(this),
 		"cut_shape": new CutState(this),
 		"moveplane_state": new MovePlaneState(this)
 	};

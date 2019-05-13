@@ -9,6 +9,7 @@ import './js/Manifest'
 import './js/Geometry'
 import './new-popup'
 import './js/States/GlobalZoom'
+import './js/States/Merge'
 
 class AGTabletteApp extends LitElement {
 
