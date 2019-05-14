@@ -17,7 +17,6 @@ function App(divRef, canvasRef, backgroundCanvasRef) {
 	//Liste des classes d'états possible
 	this.states = {
 		"no_state": { "reset": function () { }, 'start': function () { } },
-		"create_shape": new CreateState(this),
 		"delete_shape": new DeleteState(this),
 		"move_shape": new MoveState(this),
 		"rotate_shape": new RotateState(this),

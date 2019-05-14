@@ -432,6 +432,7 @@ Workspace.prototype.removeShape = function (shape) {
 /**
  * Crée les familles du menu A et les ajoute au workspace
  * TODO: déplacer ça ailleurs ?
+ * TODO: rendre les définitions indépendantes du code
  */
 Workspace.prototype.addMenuAFamilies = function () {
 	var base = 50;

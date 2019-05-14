@@ -8,6 +8,7 @@ import './app-settings'
 import './js/Manifest'
 import './js/Geometry'
 import './new-popup'
+import './js/States/Create'
 import './js/States/GlobalZoom'
 import './js/States/Merge'
 
