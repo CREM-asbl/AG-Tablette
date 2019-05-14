@@ -1,5 +1,5 @@
 //script de récupération du fichier de configuration manifest.json 
-// et de la mise à jour de l'affichage de la version
+// et mise à jour de l'affichage de la version
 
 //Todo: rendre l'accès à manifest plus global
 import { updateMetadata } from 'pwa-helpers/metadata';

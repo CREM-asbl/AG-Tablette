@@ -1,3 +1,5 @@
+import { getCommonsSegments, isCommonSegment } from "../Geometry";
+
 /**
  * Cette classe permet de fusionner 2 formes (les 2 formes restent intactes, une nouvelle forme (la fusion des 2 formes) est créée)
  */
@@ -33,13 +35,12 @@ class MergeState {
 
         //On sélectionne la seconde forme
 
-        if (shape == this.firstShape) //on ne peut pas fusionner une forme avec elle même
+        if (shape === this.firstShape) //on ne peut pas fusionner une forme avec elle même
             return;
-
 
         //Vérifier que les 2 formes ont un segment commun:
         // Todo: remplacer par le code du dessous, si on doit retirer tous les segments communs
-        // Geometry.getCommonsSegments(this.firstShape, shape)[0]
+        console.log(getCommonsSegments(this.firstShape, shape))
         var commonSegmentFound = false,
             commonSegment = {
                 's1_index1': null, //index de la buildstep dont le finalpoint est le début du segment
@@ -72,7 +73,7 @@ class MergeState {
                 shape2EndPoint.x += shape2.x
                 shape2EndPoint.y += shape2.y
 
-                if (Geometry.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)) {
+                if (isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)) {
                     commonSegmentFound = true;
                     commonSegment = {
                         's1_index1': i - 1,
@@ -80,7 +81,7 @@ class MergeState {
                         's2_index1': j - 1,
                         's2_index2': j
                     };
-                } else if (Geometry.isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
+                } else if (isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
                     commonSegmentFound = true;
                     commonSegment = {
                         's1_index1': i - 1,
@@ -159,6 +160,17 @@ class MergeState {
                 newBS.push(shape1.buildSteps[i].getCopy());
                 //console.log(shape1.buildSteps[i]);
             }
+
+            // for (let i = 0; i < shape1.buildSteps.length; i++) {
+            //     newBS.push(shape1.buildSteps[i].getCopy());
+            // }
+
+            // for (let i = 0; i < shape2.buildSteps.length; i++) {
+            //     let b = shape2.buildSteps[i].getCopy();
+            //     b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
+            //     newBS.push(b);
+            // }
+            // console.log(newBS)
 
             //TODO: supprimer (fusionner??) 2 buildstep "line" qui se suivent si elles sont identiques (ou quasi identique - précision)
             //Translation des buildSteps pour qu'elles soient centrées:

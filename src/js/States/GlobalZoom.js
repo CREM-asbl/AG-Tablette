@@ -1,3 +1,5 @@
+import { distanceBetweenTwoPoints } from "../Geometry";
+
 /**
  * Cette classe permet de modifier le niveau de zoom du canvas
  */
@@ -122,7 +124,7 @@ class GlobalZoomState {
             this.originalZoomLevel = app.workspace.zoomLevel
             let point1 = { x: event.touches[0].clientX, y: event.touches[0].clientY }
             let point2 = { x: event.touches[1].clientX, y: event.touches[1].clientY }
-            this.baseDistance = Geometry.distanceBetweenTwoPoints(point1, point2)
+            this.baseDistance = distanceBetweenTwoPoints(point1, point2)
         }
     }
 
@@ -130,7 +132,7 @@ class GlobalZoomState {
         if (event.touches.length === 2) {
             let point1 = { x: event.touches[0].clientX, y: event.touches[0].clientY }
             let point2 = { x: event.touches[1].clientX, y: event.touches[1].clientY }
-            let distance = Geometry.distanceBetweenTwoPoints(point1, point2)
+            let distance = distanceBetweenTwoPoints(point1, point2)
             let ratio = (distance / this.baseDistance) * this.originalZoomLevel
             app.workspace.setZoomLevel(ratio, false);
         }

@@ -66,10 +66,3 @@ export const getCommonsSegments = (shape1, shape2) => {
     }
     return commonsSegments
 }
-
-// Todo: trouver une meilleurs solution pour rendre ces fonctions accessibles à toutes les classes
-// Car import ne fonctionne pas avec l'écriture des classes actuelles
-window.Geometry = {}
-Geometry.distanceBetweenTwoPoints = distanceBetweenTwoPoints
-Geometry.isCommonSegment = isCommonSegment
-Geometry.getCommonsSegments = getCommonsSegments
