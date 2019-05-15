@@ -22,7 +22,6 @@ export class App {
 			"no_state": { "reset": function () { }, 'start': function () { } },
 			"link_shapes": new LinkerState(this),
 			"reverse_shape": new ReverseState(this),
-			"duplicate_shape": new DuplicateState(this),
 			"unlink_shapes": new UnlinkerState(this),
 			"moveplane_state": new MovePlaneState(this)
 		};
