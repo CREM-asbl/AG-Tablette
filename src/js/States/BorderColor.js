@@ -75,7 +75,7 @@ class BorderColorState {
         data.forEach(modification => {
             var shape = ws.getShapeById(modification.shape_id)
             if (!shape) {
-                console.log("BackgroundColorState.cancelAction: shape not found...");
+                console.log("BorderColorState.cancelAction: shape not found...");
             }
             shape.borderColor = modification.old_color;
         })
