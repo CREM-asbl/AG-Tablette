@@ -1,4 +1,5 @@
-import { getCommonsSegments, isCommonSegment } from "../Geometry";
+import { getCommonsSegments, isCommonSegment } from "../Geometry"
+import {ShapeStep} from '../ShapeStep'
 
 /**
  * Cette classe permet de fusionner 2 formes (les 2 formes restent intactes, une nouvelle forme (la fusion des 2 formes) est créée)

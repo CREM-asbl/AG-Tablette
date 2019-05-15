@@ -31,7 +31,6 @@ export class App {
 			"duplicate_shape": new DuplicateState(this),
 			"divide_segment": new DivideState(this),
 			"unlink_shapes": new UnlinkerState(this),
-			"cut_shape": new CutState(this),
 			"moveplane_state": new MovePlaneState(this)
 		};
 

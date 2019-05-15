@@ -1,6 +1,8 @@
 /**
  * Représente le <canvas>, contient les méthodes de dessin
  */
+import {ShapeStep} from './ShapeStep'
+
 export class Canvas {
 	/**
 	 * Constructeur

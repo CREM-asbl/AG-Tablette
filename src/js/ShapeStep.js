@@ -1,7 +1,7 @@
 /**
  * Représente une étape de construction d'une forme
  */
-class ShapeStep {
+export class ShapeStep {
 	/**
 	 * Constructeur
 	 */

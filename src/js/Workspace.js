@@ -4,6 +4,7 @@
  */
 
 import { Family } from './Family'
+import {ShapeStep} from './ShapeStep'
 
 // TODO : rendre workspace plus SRP car actuellement, il gére trop (exemple: kit standard)
 
