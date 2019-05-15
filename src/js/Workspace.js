@@ -259,7 +259,8 @@ Workspace.prototype.getPointsAtCoordinates = function (x, y) {
 /**
  * Méthode statique: renvoie la liste des noms des familles existantes
  * @return families names
- */
+ * Todo: rendre plus "dynamique" en récupérant le nom de la famille elle-même
+ *  */
 Workspace.getMenuAFamiliesNames = function () {
 	return [
 		"Triangle équilatéral",
@@ -437,7 +438,7 @@ Workspace.prototype.removeShape = function (shape) {
 Workspace.prototype.addMenuAFamilies = function () {
 	var base = 50;
 
-	var f1 = new Family(this.app, "Triangle équilatéral", "#FF0");
+	var f1 = new Family("Triangle équilatéral", "#FF0");
 
 	f1.addShape("Triangle équilatéral", [
 		ShapeStep.getLine(25 - 25, -43.3012701892 + 14.433756729733),
@@ -538,7 +539,7 @@ Workspace.prototype.addMenuAFamilies = function () {
 	this.addFamily(f1);
 
 
-	var f2 = new Family(this.app, "Carré", "#F00");
+	var f2 = new Family("Carré", "#F00");
 
 	f2.addShape("Carré", [
 		ShapeStep.getLine(0 - 25, 0 + 25),
@@ -612,7 +613,7 @@ Workspace.prototype.addMenuAFamilies = function () {
 	this.addFamily(f2);
 
 
-	var f3 = new Family(this.app, "Pentagone régulier", "#0F0");
+	var f3 = new Family("Pentagone régulier", "#0F0");
 
 	f3.addShape("Pentagone régulier", [
 		ShapeStep.getLine(0 - 25, 0 + 34.409548011750),
@@ -680,12 +681,17 @@ Workspace.prototype.addMenuAFamilies = function () {
  * @return la famille (Family)
  */
 Workspace.prototype.getFamily = function (name) {
-	for (var i = 0; i < this.families.length; i++) {
-		if (this.families[i].name == name)
-			return this.families[i];
-	}
-	console.error("Workspace.getFamily: family not found");
-	return null;
+	console.log(name)
+	console.log(this.families)
+	let family = this.families.filter(family => family.name === name)[0]
+	// for (let i = 0; i < this.families.length; i++) {
+	// 	console.log(this.families[i].name)
+	// 	if (this.families[i].name == name)		
+	// 		return this.families[i];
+	// }
+	// console.error("Workspace.getFamily: family not found");
+	console.log(family)
+	return family;
 };
 
 /**

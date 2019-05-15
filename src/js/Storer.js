@@ -141,7 +141,6 @@ Storer.prototype.getWorkspace = function(uniqid) {
             //families:
             ws.families = wsdata.families.map(function(data){
                 var family = new Family(
-                    app,
                     data.name,
                     data.defaultColor
                 );
