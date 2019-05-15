@@ -14,6 +14,7 @@ import './js/States/Cut'
 import './js/States/GlobalZoom'
 import './js/States/Merge'
 import './js/States/Move'
+import './js/States/Rotate'
 
 
 class AGTabletteApp extends LitElement {

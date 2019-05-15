@@ -66,8 +66,7 @@ class ShapesList extends LitElement {
         const familyRef = window.app.workspace.getFamily(this.family);
         const shapeRef = familyRef.getShape(event.target.name);
         event.target.focus();
-
-        window.app.setState("create_shape", {
+        app.setState("create_shape", {
           "family": familyRef,
           "shape": shapeRef
         });

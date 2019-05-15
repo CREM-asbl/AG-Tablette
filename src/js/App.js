@@ -21,7 +21,6 @@ export class App {
 		this.states = {
 			"no_state": { "reset": function () { }, 'start': function () { } },
 			"delete_shape": new DeleteState(this),
-			"rotate_shape": new RotateState(this),
 			"border_color": new BorderColorState(this),
 			"background_color": new BackgroundColorState(this),
 			"link_shapes": new LinkerState(this),
@@ -83,6 +82,7 @@ export class App {
 		}
 
 		this.state = this.states[stateName];
+
 		if (options.do_reset !== false)
 			this.state.reset();
 		if (options.do_start !== false)
