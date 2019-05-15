@@ -20,7 +20,6 @@ export class App {
 		//Liste des classes d'états possible
 		this.states = {
 			"no_state": { "reset": function () { }, 'start': function () { } },
-			"border_color": new BorderColorState(this),
 			"link_shapes": new LinkerState(this),
 			"reverse_shape": new ReverseState(this),
 			"build_shape_center": new BuildCenterState(this),

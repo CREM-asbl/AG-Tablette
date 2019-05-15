@@ -11,6 +11,7 @@ import './new-popup'
 // Chargement des States
 // TODO: à remplacer par chargement 'dynamique'
 import './js/States/BackgroundColor'
+import './js/States/BorderColor'
 import './js/States/Create'
 import './js/States/Cut'
 import './js/States/Delete'
