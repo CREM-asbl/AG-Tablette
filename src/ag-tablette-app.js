@@ -7,8 +7,10 @@ import './app-settings'
 // import './divide-popup'
 import './js/Manifest'
 import './new-popup'
+
 // Chargement des States
 // TODO: à remplacer par chargement 'dynamique'
+import './js/States/BackgroundColor'
 import './js/States/Create'
 import './js/States/Cut'
 import './js/States/Delete'

@@ -21,7 +21,6 @@ export class App {
 		this.states = {
 			"no_state": { "reset": function () { }, 'start': function () { } },
 			"border_color": new BorderColorState(this),
-			"background_color": new BackgroundColorState(this),
 			"link_shapes": new LinkerState(this),
 			"reverse_shape": new ReverseState(this),
 			"build_shape_center": new BuildCenterState(this),
@@ -73,6 +72,8 @@ export class App {
 	 * @param options: {'do_reset': boolean = true, 'do_start': boolean = true}
 	 */
 	setState(stateName, params, options) {
+		console.log(stateName)
+		console.log(this.states)
 		if (!options) options = {};
 
 		var that = this;
