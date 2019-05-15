@@ -23,6 +23,7 @@ import './js/States/Linker'
 import './js/States/Merge'
 import './js/States/Move'
 import './js/States/Rotate'
+import './js/States/UnLinker'
 
 
 class AGTabletteApp extends LitElement {

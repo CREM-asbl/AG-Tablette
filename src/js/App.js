@@ -21,7 +21,6 @@ export class App {
 		this.states = {
 			"no_state": { "reset": function () { }, 'start': function () { } },
 			"reverse_shape": new ReverseState(this),
-			"unlink_shapes": new UnlinkerState(this),
 			"moveplane_state": new MovePlaneState(this)
 		};
 
