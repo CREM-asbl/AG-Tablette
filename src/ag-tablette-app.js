@@ -13,6 +13,7 @@ import './js/States/Create'
 import './js/States/Cut'
 import './js/States/GlobalZoom'
 import './js/States/Merge'
+import './js/States/Move'
 
 
 class AGTabletteApp extends LitElement {

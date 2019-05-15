@@ -21,7 +21,6 @@ export class App {
 		this.states = {
 			"no_state": { "reset": function () { }, 'start': function () { } },
 			"delete_shape": new DeleteState(this),
-			"move_shape": new MoveState(this),
 			"rotate_shape": new RotateState(this),
 			"border_color": new BorderColorState(this),
 			"background_color": new BackgroundColorState(this),
