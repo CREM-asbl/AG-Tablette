@@ -23,7 +23,6 @@ export class App {
 			"link_shapes": new LinkerState(this),
 			"reverse_shape": new ReverseState(this),
 			"duplicate_shape": new DuplicateState(this),
-			"divide_segment": new DivideState(this),
 			"unlink_shapes": new UnlinkerState(this),
 			"moveplane_state": new MovePlaneState(this)
 		};
