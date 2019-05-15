@@ -11,8 +11,6 @@ function CutState(app) {
     this.lastPoint = null;
 }
 
-App.heriter(CutState.prototype, State.prototype);
-
 /**
  * Réinitialiser l'état
  */

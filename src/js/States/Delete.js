@@ -6,8 +6,6 @@ function DeleteState(app) {
     this.name = "delete_shape";
  }
 
-App.heriter(DeleteState.prototype, State.prototype);
-
 /**
  * Supprime la forme aux coordonnées indiquées (s'il y en a une)
  * @param coordinates: {x: int, y: int}

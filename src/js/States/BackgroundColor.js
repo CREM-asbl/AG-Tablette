@@ -9,8 +9,6 @@ function BackgroundColorState(app) {
     this.selectedColor = null;
 }
 
-App.heriter(BackgroundColorState.prototype, State.prototype);
-
 /**
  * Réinitialiser l'état
  */

@@ -38,8 +38,6 @@ function ReverseState(app) {
     this.historyData = null;
 }
 
-App.heriter(ReverseState.prototype, State.prototype);
-
 /**
  * Réinitialiser l'état
  */

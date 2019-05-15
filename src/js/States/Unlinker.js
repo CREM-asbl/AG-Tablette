@@ -6,8 +6,6 @@ function UnlinkerState(app) {
     this.name = "unlink_shapes";
 }
 
-App.heriter(UnlinkerState.prototype, State.prototype);
-
 /**
  * Ajoute une forme au groupe (si on clique sur une forme)
  * @param coordinates: {x: int, y: int}

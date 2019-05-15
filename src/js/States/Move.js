@@ -17,8 +17,6 @@ function MoveState(app) {
     this.isMoving = false;
 }
 
-App.heriter(MoveState.prototype, State.prototype);
-
 /**
  * Réinitialiser l'état
  */

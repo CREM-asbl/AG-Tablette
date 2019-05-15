@@ -6,8 +6,6 @@ function BuildCenterState(app) {
     this.name = "build_shape_center";
 }
 
-App.heriter(BuildCenterState.prototype, State.prototype);
-
 /**
  * Créer le centre de la forme aux coordonnées indiquées (s'il y en a une)
  * @param coordinates: {x: int, y: int}

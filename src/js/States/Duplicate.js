@@ -8,8 +8,6 @@ function DuplicateState(app) {
     this.reset()
 }
 
-App.heriter(DuplicateState.prototype, State.prototype);
-
 /**
  * Réinitialiser l'état
  */

@@ -15,8 +15,6 @@ function DivideState(app) {
     this.selectedShape = null;
 }
 
-App.heriter(DivideState.prototype, State.prototype);
-
 /**
  * Renvoie le segment actuellement sélectionné, ou null s'il n'y a pas de segment sélectionné.
  * @param  {Shape} shape            la forme actuelle

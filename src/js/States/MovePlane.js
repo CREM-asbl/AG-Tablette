@@ -13,8 +13,6 @@ function MovePlaneState(app) {
     this.originalOffset = null;
 }
 
-App.heriter(MovePlaneState.prototype, State.prototype);
-
 /**
  * Réinitialiser l'état
  */

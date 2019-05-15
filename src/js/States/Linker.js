@@ -20,8 +20,6 @@ function LinkerState(app) {
     this.firstShape = null;
 }
 
-App.heriter(LinkerState.prototype, State.prototype);
-
 /**
  * Réinitialiser l'état
  */

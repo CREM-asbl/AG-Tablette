@@ -9,8 +9,6 @@ function BorderColorState(app) {
    this.selectedColor = null;
 }
 
-App.heriter(BorderColorState.prototype, State.prototype);
-
 /**
  * Réinitialiser l'état
  */

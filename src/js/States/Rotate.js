@@ -20,8 +20,6 @@ function RotateState(app) {
     this.center = null;
 }
 
-App.heriter(RotateState.prototype, State.prototype);
-
 /**
  * Réinitialiser l'état
  */
