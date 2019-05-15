@@ -1,3 +1,4 @@
+import {Point} from '../Point'
 /**
  * Cette classe permet de rendre visible le centre d'une forme du canvas
  */

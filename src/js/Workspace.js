@@ -5,6 +5,7 @@
 
 import { Family } from './Family'
 import {ShapeStep} from './ShapeStep'
+import {Point} from './Point'
 
 // TODO : rendre workspace plus SRP car actuellement, il gére trop (exemple: kit standard)
 

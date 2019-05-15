@@ -1,3 +1,5 @@
+import {Point} from './Point'
+
 /**
  * Cette classe représente une forme sur le canvas
  */

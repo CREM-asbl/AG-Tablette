@@ -1,3 +1,4 @@
+import {Point} from '../Point'
 /**
  * Cette classe permet d'effectuer un retournement d'une forme (ou d'un ensemble de formes liées) sur le canvas
  */

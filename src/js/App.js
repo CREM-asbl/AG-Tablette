@@ -3,6 +3,7 @@
  */
 import {Workspace} from './Workspace'
 import {Canvas} from './Canvas'
+import {Point} from './Point'
 
 export class App {
 	/**
@@ -64,8 +65,6 @@ export class App {
 	 * @param options: {'do_reset': boolean = true, 'do_start': boolean = true}
 	 */
 	setState(stateName, params, options) {
-		console.log(stateName)
-		console.log(this.states)
 		if (!options) options = {};
 
 		var that = this;

@@ -1,3 +1,4 @@
+import {Point} from '../Point'
 /**
  * Cette classe permet de supprimer une forme du canvas
  */

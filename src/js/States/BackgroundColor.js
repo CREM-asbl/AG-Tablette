@@ -1,3 +1,4 @@
+import {Point} from '../Point'
 /**
  * Cette classe permet de modifier la couleur de fond de formes
  */

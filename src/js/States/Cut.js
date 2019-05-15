@@ -2,6 +2,7 @@
  * Cette classe permet de dupliquer une forme au canvas
  */
 import {ShapeStep} from '../ShapeStep'
+import {Point} from '../Point'
 
  export class CutState {
 

@@ -1,6 +1,8 @@
+import {Point} from '../Point'
 /**
  * Cette classe permet de déplacer une forme (ou un ensemble de formes liées) sur le canvas
  */
+
 export class MoveState {
 
     constructor() {
@@ -347,7 +349,7 @@ export class MoveState {
     /**
      * Appelée lorsque l'événement click est déclanché sur le canvas
      */
-    click = function () { }
+    click() { }
 }
 
 // Todo: à supprimer quand l'import de toutes les classes sera en place

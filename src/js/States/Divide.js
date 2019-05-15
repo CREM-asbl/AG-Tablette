@@ -1,3 +1,4 @@
+import {Point} from '../Point'
 /**
  * Cette classe permet de diviser un segment en plusieurs "parties" de tailles égales en créant des points entre ces parties.
  * Le segment peut être une arrête d'une forme, ou être défini par 2 points existants (les 2 points étant sur un même segment ou arc de cercle).

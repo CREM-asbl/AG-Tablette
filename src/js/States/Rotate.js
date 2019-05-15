@@ -1,3 +1,4 @@
+import {Point} from '../Point'
 /**
  * Cette classe permet d'effectuer une rotation sur une forme (ou un ensemble de formes liées) sur le canvas
  */

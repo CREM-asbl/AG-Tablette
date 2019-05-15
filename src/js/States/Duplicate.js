@@ -1,3 +1,4 @@
+import {Point} from '../Point'
 /**
  * Cette classe permet de dupliquer une forme au canvas
  */
