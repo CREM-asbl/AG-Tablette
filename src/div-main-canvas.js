@@ -1,4 +1,5 @@
 import { LitElement, html } from 'lit-element'
+import { App } from './js/App'
 
 class DivMainCanvas extends LitElement {
 

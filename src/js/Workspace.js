@@ -3,9 +3,11 @@
  *
  */
 
+ import { Family } from './Family'
+ 
 // TODO : rendre workspace plus SRP car actuellement, il gére trop (exemple: kit standard)
 
-class Workspace {
+export class Workspace {
 		/**
 		 * Constructeur
 		 */

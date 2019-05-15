@@ -2,7 +2,7 @@
  * Représente une famille de formes
  */
 
-class Family {
+export class Family {
 	/**
 	 * Constructeur
 	 * @param name: le nom de la famille (String)

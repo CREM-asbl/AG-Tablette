@@ -6,11 +6,13 @@ import './div-main-canvas'
 import './app-settings'
 // import './divide-popup'
 import './js/Manifest'
-import './js/Geometry'
 import './new-popup'
+// Chargement des States
+// TODO: à remplacer par chargement 'dynamique'
 import './js/States/Create'
 import './js/States/GlobalZoom'
 import './js/States/Merge'
+
 
 class AGTabletteApp extends LitElement {
 

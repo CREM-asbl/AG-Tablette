@@ -1,7 +1,9 @@
 /**
  * La classe principale de l'application
  */
-class App {
+import {Workspace} from './Workspace'
+
+export class App {
 	/**
 	 * Constructeur, initialise l'application
 	 * @param divRef: le <div> contenant l'élément HTML <canvas>
