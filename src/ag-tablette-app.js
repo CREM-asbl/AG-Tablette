@@ -22,6 +22,8 @@ import './js/States/GlobalZoom'
 import './js/States/Linker'
 import './js/States/Merge'
 import './js/States/Move'
+import './js/States/MovePlane'
+import './js/States/Reverse'
 import './js/States/Rotate'
 import './js/States/UnLinker'
 

@@ -19,9 +19,7 @@ export class App {
 
 		//Liste des classes d'états possible
 		this.states = {
-			"no_state": { "reset": function () { }, 'start': function () { } },
-			"reverse_shape": new ReverseState(this),
-			"moveplane_state": new MovePlaneState(this)
+			"no_state": { "reset": function () { }, 'start': function () { } }
 		};
 
 		//Représente un projet, qui peut être sauvegardé
