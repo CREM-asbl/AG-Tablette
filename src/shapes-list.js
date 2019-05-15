@@ -14,7 +14,7 @@ class ShapesList extends LitElement {
         if(!this.family || this.family === 'undefined') { 
             return html``
         }
-        console.log(app.workspace)
+
         const shapes = app.workspace.getFamily(this.family).getShapesNames()
 
         return html`

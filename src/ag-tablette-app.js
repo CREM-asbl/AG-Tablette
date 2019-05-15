@@ -17,8 +17,19 @@ class AGTabletteApp extends LitElement {
     static get properties() {
         return {
             currentFamily: String,
-            currentMode: String
+            currentMode: String,
+            families: Array
         }
+    }
+
+    constructor() {
+        super()
+        // TODO: remplacer par un appel vers le "kit Standard"
+        this.families = [
+			"Triangle équilatéral",
+			"Carré",
+			"Pentagone régulier"
+		]
     }
 
     render() {
@@ -101,7 +112,7 @@ class AGTabletteApp extends LitElement {
 
                         <div class="toolbar-separator">Formes standard</div>
 
-                        ${this._getFamilies().map(family => html`
+                        ${this.families.map(family => html`
                             <canvas-button name="add_shape"
                                           .family="${family}"
                                            ?active="${family === this.currentFamily}"
@@ -288,14 +299,6 @@ class AGTabletteApp extends LitElement {
             console.log("AGTabletteApp._actionHandle: received unknown event:");
             console.log(event);
         }
-    }
-
-    /**
-     * Récupérer la liste des familles
-     * @return liste des noms des familles ([String])
-     */
-    _getFamilies() {
-        return Workspace.getMenuAFamiliesNames();
     }
 }
 customElements.define('ag-tablette-app', AGTabletteApp)
