@@ -2,6 +2,7 @@
  * La classe principale de l'application
  */
 import {Workspace} from './Workspace'
+import {Canvas} from './Canvas'
 
 export class App {
 	/**
