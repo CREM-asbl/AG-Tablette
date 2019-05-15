@@ -117,9 +117,9 @@ class MergeState {
                     b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
                     if (b.type == "arc") {
                         b.direction = !b.direction;
-                        newBS.push(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
+                        newBS.push(new ShapeStep('line', b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
                         //console.log("new:");
-                        //console.log(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
+                        //console.log(new ShapeStep('line', b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
                     }
                     newBS.push(b);
                     //console.log(b);
@@ -130,9 +130,9 @@ class MergeState {
                     b.setCoordinates(b.x - decalage.x, b.y - decalage.y);
                     if (b.type == "arc") {
                         b.direction = !b.direction;
-                        newBS.push(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
+                        newBS.push(new ShapeStep('line', b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
                         //console.log("new:");
-                        //console.log(ShapeStep.getLine(b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
+                        //console.log(new ShapeStep('line', b.__finalPoint.x - decalage.x, b.__finalPoint.y - decalage.y));
                     }
                     newBS.push(b);
                     //console.log(b);

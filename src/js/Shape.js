@@ -324,7 +324,6 @@ export class Shape {
 	 * @return les coordonnées ({x: float, y: float})
 	 */
 	getCoordinates() {
-
 		return { "x": this.x, "y": this.y };
 	};
 

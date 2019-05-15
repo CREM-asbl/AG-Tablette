@@ -529,7 +529,7 @@ export class Canvas {
 				var points = this.app.getApproximatedArc(center, p1, angle, direction, 0.05 * Math.PI);
 				for (var j = 0; j < points.length; j++) {
 					var transformation = this.app.states.reverse_shape.computePointPosition(points[j].x, points[j].y, axe, progress);
-					var tmp_shapestep = ShapeStep.getLine(transformation.x, transformation.y);
+					var tmp_shapestep = new ShapeStep('line', transformation.x, transformation.y);
 					tmp_shapestep.isArtificial = true;
 					shape.buildSteps.push(tmp_shapestep);
 				}
