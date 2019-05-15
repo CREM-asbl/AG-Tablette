@@ -1,8 +1,8 @@
 /**
  * Cette classe permet de lier des formes entre elles.
  */
-function LinkerState(app) {
-    this.app = app;
+class LinkerState {
+    constructor() {
     this.name = "link_shapes";
 
     /**
@@ -23,21 +23,21 @@ function LinkerState(app) {
 /**
  * Réinitialiser l'état
  */
-LinkerState.prototype.reset = function(){
+reset(){
   this.group = null;
   this.firstShape = null;
-};
+}
 
 /**
  * démarrer l'état
  */
-LinkerState.prototype.start = function(){};
+start(){}
 
 /**
  * Ajoute une forme au groupe (si on clique sur une forme)
  * @param coordinates: {x: int, y: int}
  */
-LinkerState.prototype.click = function(coordinates, selection) {
+click(coordinates, selection) {
     var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
     if(list.length==0 && !selection.shape)
         return;
@@ -45,9 +45,9 @@ LinkerState.prototype.click = function(coordinates, selection) {
 
     //Sauvegarde des userShapeGroups:
     var data = [];
-    for(var i=0;i<this.app.workspace.userShapeGroups.length;i++) {
+    for(var i=0;i<app.workspace.userShapeGroups.length;i++) {
         var groupSave = [],
-            gRef = this.app.workspace.userShapeGroups[i];
+            gRef = app.workspace.userShapeGroups[i];
         for(var j=0;j<gRef.length;j++) {
             groupSave.push(gRef[j].id);
         }
@@ -55,7 +55,7 @@ LinkerState.prototype.click = function(coordinates, selection) {
     }
 
     var shapesToAdd = [shape];
-    var sysGroup = this.app.workspace.getShapeGroup(shape, 'system');
+    var sysGroup = app.workspace.getShapeGroup(shape, 'system');
     if(sysGroup) {
         shapesToAdd = [];
         for(var i=0;i<sysGroup.length;i++)
@@ -66,12 +66,12 @@ LinkerState.prototype.click = function(coordinates, selection) {
 
     for(var i=0;i<shapesToAdd.length;i++) { //Pour chaque forme à ajouter au groupe:
         var shape = shapesToAdd[i];
-        var uGroup = this.app.workspace.getShapeGroup(shape, 'user');
+        var uGroup = app.workspace.getShapeGroup(shape, 'user');
 
         if(uGroup!=null) { //La nouvelle forme fait déjà partie d'un groupe
             if(this.group!=null) { //On a déjà créé un nouveau groupe.
-                var index1 = this.app.workspace.getGroupIndex(this.group, 'user');
-                var index2 = this.app.workspace.getGroupIndex(uGroup, 'user');
+                var index1 = app.workspace.getGroupIndex(this.group, 'user');
+                var index2 = app.workspace.getGroupIndex(uGroup, 'user');
                 if(index1==index2) { //La forme fait déjà partie du groupe
                     continue;
                 } else if(index1>index2) {
@@ -86,9 +86,9 @@ LinkerState.prototype.click = function(coordinates, selection) {
                 //this.group référence le groupe que l'on va garder, et index1 son index.
 
                 //on fusionne les 2 groupes.
-                this.app.workspace.userShapeGroups[index1] = this.app.workspace.userShapeGroups[index1].concat(uGroup);
-                this.group = this.app.workspace.userShapeGroups[index1];
-                this.app.workspace.userShapeGroups.splice(index2, 1); //on supprime l'autre groupe.
+                app.workspace.userShapeGroups[index1] = app.workspace.userShapeGroups[index1].concat(uGroup);
+                this.group = app.workspace.userShapeGroups[index1];
+                app.workspace.userShapeGroups.splice(index2, 1); //on supprime l'autre groupe.
                 hasDoneAnything = true;
             } else if(this.firstShape!=null) { //On avait déjà sélectionné une première forme.
                 this.group = uGroup;
@@ -106,7 +106,7 @@ LinkerState.prototype.click = function(coordinates, selection) {
                 this.firstShape = shape;
             } else {
                 //On crée un nouveau groupe.
-                var uSG = this.app.workspace.userShapeGroups;
+                var uSG = app.workspace.userShapeGroups;
                 uSG.push([this.firstShape, shape]);
                 this.group = uSG[uSG.length-1];
                 this.firstShape = null;
@@ -119,9 +119,9 @@ LinkerState.prototype.click = function(coordinates, selection) {
         this.makeHistory(data);
     }
 
-    this.app.canvas.refresh(coordinates);
+    app.canvas.refresh(coordinates);
     return;
-};
+}
 
 /**
  * Appelée par la fonction de dessin, après avoir dessiné une forme
@@ -129,33 +129,33 @@ LinkerState.prototype.click = function(coordinates, selection) {
  * @param mouseCoordinates: coordonnées de la souris
  * @param shape: objet Shape
  */
-LinkerState.prototype.draw = function(canvas, mouseCoordinates, shape){
+draw(canvas, mouseCoordinates, shape){
     //affiche les user-groups sur les formes (texte)
 
-    var group = this.app.workspace.getShapeGroup(shape, 'user');
-    var pos = {"x": shape.x - 25, "y": shape.y};
+    var group = app.workspace.getShapeGroup(shape, 'user');
+    var pos = {"x": shape.x - 25, "y": shape.y}
     if(group!==null) {
-        var groupIndex = this.app.workspace.getGroupIndex(group, 'user');
+        var groupIndex = app.workspace.getGroupIndex(group, 'user');
         canvas.drawText("Groupe "+(groupIndex+1), pos, '#000');
     } else if(shape==this.firstShape) {
-        canvas.drawText("Groupe "+(this.app.workspace.userShapeGroups.length+1), pos, '#666');
+        canvas.drawText("Groupe "+(app.workspace.userShapeGroups.length+1), pos, '#666');
     }
-};
+}
 
 /**
  * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
  * @param  {Shape} overflownShape La forme qui est survolée par la souris
  * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
  */
-LinkerState.prototype.getElementsToHighlight = function(overflownShape){
+getElementsToHighlight(overflownShape){
     var data = {
         'shapes': [],
         'segments': [],
         'points': []
-    };
+    }
 
-    var uGroup = this.app.workspace.getShapeGroup(overflownShape, 'user');
-    var sGroup = this.app.workspace.getShapeGroup(overflownShape, 'system');
+    var uGroup = app.workspace.getShapeGroup(overflownShape, 'user');
+    var sGroup = app.workspace.getShapeGroup(overflownShape, 'system');
     if(uGroup) {
         data.shapes = uGroup
     } else if(sGroup) {
@@ -165,25 +165,25 @@ LinkerState.prototype.getElementsToHighlight = function(overflownShape){
     }
 
     return data;
-};
+}
 
 /**
  * Ajoute l'action qui vient d'être effectuée dans l'historique
  */
-LinkerState.prototype.makeHistory = function(userGroupSave){
+makeHistory(userGroupSave){
     var data = {
         'user_groups': userGroupSave
-    };
-    this.app.workspace.history.addStep(this.name, data);
-};
+    }
+    app.workspace.history.addStep(this.name, data);
+}
 
 /**
  * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
  * @param  {Object} data        les données envoyées à l'historique par makeHistory
  * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
  */
-LinkerState.prototype.cancelAction = function(data, callback){
-    var ws = this.app.workspace;
+cancelAction(data, callback){
+    var ws = app.workspace;
     ws.userShapeGroups.splice(0);
 
     for(var i=0;i<data.user_groups.length;i++) {
@@ -201,19 +201,23 @@ LinkerState.prototype.cancelAction = function(data, callback){
     }
 
     callback();
-};
+}
 
 /**
  * Annuler l'action en cours
  */
-LinkerState.prototype.abort = function(){};
+abort(){}
 
 /**
 * Appelée lorsque l'événement mousedown est déclanché sur le canvas
  */
-LinkerState.prototype.mousedown = function(){};
+mousedown(){}
 
 /**
 * Appelée lorsque l'événement mouseup est déclanché sur le canvas
  */
-LinkerState.prototype.mouseup = function(){};
+mouseup(){}
+}
+
+// Todo: à supprimer quand l'import de toutes les classes sera en place
+addEventListener('app-loaded', () => app.states.link_shapes = new LinkerState())

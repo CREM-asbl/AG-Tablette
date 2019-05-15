@@ -20,7 +20,6 @@ export class App {
 		//Liste des classes d'états possible
 		this.states = {
 			"no_state": { "reset": function () { }, 'start': function () { } },
-			"link_shapes": new LinkerState(this),
 			"reverse_shape": new ReverseState(this),
 			"unlink_shapes": new UnlinkerState(this),
 			"moveplane_state": new MovePlaneState(this)
