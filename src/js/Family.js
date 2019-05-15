@@ -1,6 +1,7 @@
 /**
  * Représente une famille de formes
  */
+import {Shape} from './Shape'
 
 export class Family {
 	/**

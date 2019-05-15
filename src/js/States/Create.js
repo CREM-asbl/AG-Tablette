@@ -1,6 +1,7 @@
 /**
  * Cette classe permet d'ajouter une forme au canvas
  */
+import {Shape} from '../Shape'
 
 class CreateState {
     constructor() {
