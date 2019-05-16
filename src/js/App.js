@@ -4,6 +4,7 @@
 import {Workspace} from './Workspace'
 import {Canvas} from './Canvas'
 import {Point} from './Point'
+import {Storer} from './Storer'
 
 export class App {
 	/**
