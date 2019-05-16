@@ -107,14 +107,6 @@ export class App {
 	};
 
 	/**
-	 * Récupérer la version de l'application
-	 * @return la version (Chaîne de caractères)
-	 */
-	getVersion() {
-		return "1.0.0";
-	};
-
-	/**
 	 * Démarre l'application; fonction appelée lorsque la page est chargée
 	 */
 	start() {

@@ -2,7 +2,6 @@
  * Permet de sauvegarder et restaurer un espace de travail (Workspace),
  * en utilisant le localStorage du navigateur.
  */
-
 export class Storer {
     constructor() {
         this.__init();
@@ -24,6 +23,7 @@ export class Storer {
      * @param  {String} name      un nom pour le workspace (à choisir)
      */
     saveWorkspace(workspace, name) {
+
         if (name === undefined)
             name = "Espace de travail sans nom";
 

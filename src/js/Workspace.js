@@ -4,10 +4,11 @@
  */
 
 import { Family } from './Family'
-import {ShapeStep} from './ShapeStep'
-import {Point} from './Point'
-import {AppHistory} from './AppHistory'
+import { ShapeStep } from './ShapeStep'
+import { Point } from './Point'
+import { AppHistory } from './AppHistory'
 import { settings } from './Settings';
+import { loadManifest } from './Manifest'
 
 // TODO : rendre workspace plus SRP car actuellement, il gére trop (exemple: kit standard)
 
@@ -17,7 +18,7 @@ export class Workspace {
 	 */
 	constructor(app) {
 		//Version de l'application dans laquelle ce projet a été créé
-		this.appVersion = app.getVersion();
+		loadManifest().then(manifest => this.appVersion = manifest.version)
 
 		//Représente l'historique
 		this.history = new AppHistory(app);
@@ -432,7 +433,7 @@ export class Workspace {
 		var base = 50;
 
 		var f1 = new Family("Triangle équilatéral", "#FF0");
-		
+
 		f1.addShape("Triangle équilatéral", [
 			new ShapeStep('line', 25 - 25, -43.3012701892 + 14.433756729733),
 			new ShapeStep('line', 0 - 25, 0 + 14.433756729733),
