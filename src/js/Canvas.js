@@ -59,6 +59,7 @@ export class Canvas {
 
 			if (state.name == "moveplane_state" && state.isMoving) {
 				state.updateOffset(this, mouseCoordinates);
+				this.refreshBackgroundCanvas()
 			}
 		}
 
@@ -178,7 +179,6 @@ export class Canvas {
 			actualZoomLvl = this.app.workspace.zoomLevel,
 			min = { 'x': -offsetX, 'y': -offsetY },
 			max = { 'x': canvasWidth * (1 / actualZoomLvl) * 1.1 - offsetX, 'y': canvasHeight * (1 / actualZoomLvl) * 1.1 - offsetY };
-
 		if (gridType == "square") {
 			var startX = 10 + Math.ceil((min.x - 10) / (50 * gridSize)) * 50 * gridSize,
 				startY = 10 + Math.ceil((min.y - 10) / (50 * gridSize)) * 50 * gridSize;
