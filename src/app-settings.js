@@ -251,7 +251,6 @@ class AppSettings extends LitElement {
      * event handler principal
      */
     _actionHandle(event) {
-        console.log(window.app.state.name)
         if (window.app.state.name)
             window.app.state.abort();
         window.app.state = { 'name': null };
