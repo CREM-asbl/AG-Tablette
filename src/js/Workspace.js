@@ -7,6 +7,7 @@ import { Family } from './Family'
 import {ShapeStep} from './ShapeStep'
 import {Point} from './Point'
 import {AppHistory} from './AppHistory'
+import { settings } from './Settings';
 
 // TODO : rendre workspace plus SRP car actuellement, il gére trop (exemple: kit standard)
 
@@ -84,8 +85,8 @@ export class Workspace {
 				y = point.getAbsoluteCoordinates().y;
 
 			var possibilities = [];
-			var gridType = that.app.settings.get('gridType');
-			var gridSize = that.app.settings.get('gridSize');
+			var gridType = settings.get('gridType');
+			var gridSize = settings.get('gridSize');
 			if (gridType == 'square') {
 				var topleft = {
 					'x': x - ((x - 10) % (50 * gridSize)),
@@ -216,7 +217,7 @@ export class Workspace {
 	pointsNearPoint(point) {
 		var responses = [];
 		var pointCoordinates = point.getAbsoluteCoordinates();
-		var maxSquareDist = Math.pow(app.settings.get('magnetismDistance') / this.zoomLevel, 2);
+		var maxSquareDist = Math.pow(settings.get('magnetismDistance') / this.zoomLevel, 2);
 
 		for (var i = 0; i < this.shapesList.length; i++) {
 			var shape = this.shapesList[i];
@@ -240,7 +241,7 @@ export class Workspace {
 	getPointsAtCoordinates(x, y) {
 		var responses = [];
 		var pointCoordinates = { 'x': x, 'y': y };
-		var maxSquareDist = Math.pow(app.settings.get('precision') / this.zoomLevel, 2); //précision d'1,5 pixel
+		var maxSquareDist = Math.pow(settings.get('precision') / this.zoomLevel, 2); //précision d'1,5 pixel
 
 		for (var i = 0; i < this.shapesList.length; i++) {
 			var shape = this.shapesList[i];
@@ -682,10 +683,10 @@ export class Workspace {
 	 * @param doRefresh (@default true): si vaut false, ne va pas mettre le canvas à jour
 	 */
 	setZoomLevel(newZoomLevel, doRefresh) {
-		if (newZoomLevel < app.settings.get('minZoomLevel'))
-			newZoomLevel = app.settings.get('minZoomLevel');
-		if (newZoomLevel > app.settings.get('maxZoomLevel'))
-			newZoomLevel = app.settings.get('maxZoomLevel');
+		if (newZoomLevel < settings.get('minZoomLevel'))
+			newZoomLevel = settings.get('minZoomLevel');
+		if (newZoomLevel > settings.get('maxZoomLevel'))
+			newZoomLevel = settings.get('maxZoomLevel');
 
 		app.canvas.updateRelativeScaleLevel(newZoomLevel / this.zoomLevel);
 

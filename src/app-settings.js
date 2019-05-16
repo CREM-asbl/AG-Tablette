@@ -1,11 +1,10 @@
 import { LitElement, html } from 'lit-element'
 import { loadManifest } from './js/Manifest'
+import {settings} from './js/Settings'
 
 class AppSettings extends LitElement {
 
     render() {
-        const settings = window.app.settings
-
         return html`
         <style>
             :host {
@@ -257,40 +256,40 @@ class AppSettings extends LitElement {
 
         switch (event.target.name) {
             case 'settings_adapt_shapes_position':
-                window.app.settings.update('automaticAdjustment', event.target.checked);
+                settings.update('automaticAdjustment', event.target.checked);
                 break;
 
             case 'settings_show_grid':
                 this.shadowRoot.getElementById("settings_grid_type").disabled = !event.target.checked;
                 this.shadowRoot.getElementById("settings_grid_size").disabled = !event.target.checked;
-                window.app.settings.update('isGridShown', event.target.checked);
+                settings.update('isGridShown', event.target.checked);
                 window.app.canvas.refreshBackgroundCanvas();
                 break;
 
             case 'settings_grid_size':
-                window.app.settings.update('gridSize', event.target.value);
+                settings.update('gridSize', event.target.value);
                 window.app.canvas.refreshBackgroundCanvas();
                 break;
 
             case 'settings_grid_type':
-                window.app.settings.update('gridType', event.target.value);
+                settings.update('gridType', event.target.value);
                 window.app.canvas.refreshBackgroundCanvas();
                 break;
 
             case 'settings_shapes_size':
-                window.app.settings.update('shapesSize', parseInt(event.target.value));
+                settings.update('shapesSize', parseInt(event.target.value));
                 break;
 
             case 'settings_pointed_shapes':
-                window.app.settings.update('areShapesPointed', event.target.checked);
+                settings.update('areShapesPointed', event.target.checked);
                 break;
 
             case 'settings_sided_shapes':
-                window.app.settings.update('areShapesSided', event.target.checked);
+                settings.update('areShapesSided', event.target.checked);
                 break;
 
             case 'settings_shapes_opacity':
-                window.app.settings.update('shapesOpacity', parseFloat(event.target.value));
+                settings.update('shapesOpacity', parseFloat(event.target.value));
                 break;
 
             default:

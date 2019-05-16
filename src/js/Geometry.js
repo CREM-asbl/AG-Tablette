@@ -1,3 +1,5 @@
+import { settings } from "./Settings";
+
 //Ensemble des formules géométriques réutilisables
 
 export const distanceBetweenTwoPoints = (point1, point2) =>
@@ -5,7 +7,7 @@ export const distanceBetweenTwoPoints = (point1, point2) =>
     
 
 export const isCommonSegment = (point1, point2, point3, point4) => {
-    const maxSquareDist = Math.pow(app.settings.get('precision'), 2)
+    const maxSquareDist = Math.pow(settings.get('precision'), 2)
     if (maxSquareDist >= distanceBetweenTwoPoints(point1, point3)
         && maxSquareDist >= distanceBetweenTwoPoints(point2, point4)) {
         return true

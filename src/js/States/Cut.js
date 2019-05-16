@@ -3,6 +3,7 @@
  */
 import {ShapeStep} from '../ShapeStep'
 import {Point} from '../Point'
+import {settings} from '../Settings'
 
  export class CutState {
 
@@ -125,7 +126,7 @@ import {Point} from '../Point'
         var shapePointsList = [{ 'type': 'buildstep', 'data': this.shape.buildSteps[0] }],
             isTheShapeACircle = (this.shape.buildSteps.length == 2 && this.shape.buildSteps[1].type == "arc");
 
-        var precision = app.settings.get('precision'),
+        var precision = settings.get('precision'),
             prevBSFinalPoint = null;
         for (var i = 1; i < this.shape.buildSteps.length; i++) {
             prevBSFinalPoint = this.shape.buildSteps[i - 1].getFinalPoint(prevBSFinalPoint); //vaut null la première fois, pas grave car non utilisé cette fois là.

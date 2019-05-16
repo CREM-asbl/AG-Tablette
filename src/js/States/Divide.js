@@ -1,4 +1,5 @@
 import {Point} from '../Point'
+import {settings} from '../Settings'
 /**
  * Cette classe permet de diviser un segment en plusieurs "parties" de tailles égales en créant des points entre ces parties.
  * Le segment peut être une arrête d'une forme, ou être défini par 2 points existants (les 2 points étant sur un même segment ou arc de cercle).
@@ -49,10 +50,10 @@ class DivideState {
             var pt1 = lastPoint,
                 pt2 = shape.buildSteps[i],
                 pt3 = proj,
-                precision = app.settings.get('precision');
+                precision =  settings.get('precision');
 
             var dist = Math.sqrt(Math.pow(proj.x - (clickCoordinates.x - shape.x), 2) + Math.pow(proj.y - (clickCoordinates.y - shape.y), 2));
-            if (dist < app.settings.get('magnetismDistance')) {
+            if (dist < settings.get('magnetismDistance')) {
                 //Vérifier que proj est bien entre shape
                 if (Math.abs((pt3.x - pt1.x) * (pt2.y - pt1.y) - (pt2.x - pt1.x) * (pt3.y - pt1.y)) < precision) { //pt1,2,3 alignés
                     //déterminant de (AB, AC) est nul!
@@ -94,7 +95,7 @@ class DivideState {
             else
                 end_angle = window.app.positiveAngle(start_angle + center.angle);
 
-            if (Math.abs(rayon - center_dist) < app.settings.get('magnetismDistance') || shape.buildSteps.length == 2 /*cercle*/) { //distance entre le centre du cercle et le point égale au rayon
+            if (Math.abs(rayon - center_dist) < settings.get('magnetismDistance') || shape.buildSteps.length == 2 /*cercle*/) { //distance entre le centre du cercle et le point égale au rayon
                 if (window.app.isAngleBetweenTwoAngles(start_angle, end_angle, shape.buildSteps[i].direction, angle)) {
                     return { //Cet arc est sélectionné!
                         'start_angle': start_angle,

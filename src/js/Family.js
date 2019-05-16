@@ -2,6 +2,7 @@
  * Représente une famille de formes
  */
 import {Shape} from './Shape'
+import { settings } from './Settings';
 
 export class Family {
 	/**
@@ -60,9 +61,9 @@ export class Family {
 					null, null, //coordonnées
 					buildSteps, this.shapesList[i].color, "#000",
 					{ "x": refPoint.x, "y": refPoint.y },
-					app.settings.get('areShapesPointed'),
-					app.settings.get('areShapesSided'),
-					app.settings.get('shapesOpacity'));
+					settings.get('areShapesPointed'),
+					settings.get('areShapesSided'),
+					settings.get('shapesOpacity'));
 				return shape;
 			}
 		}

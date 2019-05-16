@@ -101,3 +101,9 @@ export class Settings {
         this.data[name].value = value;
     }
 }
+
+export let settings
+
+if(!settings) {
+    settings = new Settings()
+}

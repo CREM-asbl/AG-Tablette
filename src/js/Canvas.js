@@ -3,6 +3,7 @@
  */
 import {ShapeStep} from './ShapeStep'
 import {Point} from './Point'
+import { settings } from './Settings';
 
 export class Canvas {
 	/**
@@ -23,10 +24,10 @@ export class Canvas {
 		var ctx = this.backgroundCanvasRef.getContext("2d"),
 			canvasWidth = this.cvsRef.clientWidth,
 			canvasHeight = this.cvsRef.clientHeight,
-			maxX = canvasWidth * this.app.settings.get('maxZoomLevel'),
-			maxY = canvasHeight * this.app.settings.get('maxZoomLevel');
+			maxX = canvasWidth * settings.get('maxZoomLevel'),
+			maxY = canvasHeight * settings.get('maxZoomLevel');
 		ctx.clearRect(0, 0, maxX, maxY);
-		if (this.app.settings.get('isGridShown'))
+		if (settings.get('isGridShown'))
 			this.drawGrid();
 	};
 
@@ -64,8 +65,8 @@ export class Canvas {
 		var ctx = this.ctx,
 			canvasWidth = this.cvsRef.clientWidth,
 			canvasHeight = this.cvsRef.clientHeight,
-			maxX = canvasWidth * this.app.settings.get('maxZoomLevel'),
-			maxY = canvasHeight * this.app.settings.get('maxZoomLevel');
+			maxX = canvasWidth * settings.get('maxZoomLevel'),
+			maxY = canvasHeight * settings.get('maxZoomLevel');
 		ctx.clearRect(0, 0, maxX, maxY);
 
 		// Calcul des éléments à mettre en évidence.
@@ -170,8 +171,8 @@ export class Canvas {
 
 		var canvasWidth = this.cvsRef.clientWidth,
 			canvasHeight = this.cvsRef.clientHeight,
-			gridType = this.app.settings.get('gridType'),
-			gridSize = this.app.settings.get('gridSize'),
+			gridType = settings.get('gridType'),
+			gridSize = settings.get('gridSize'),
 			offsetX = this.app.workspace.translateOffset.x,
 			offsetY = this.app.workspace.translateOffset.y,
 			actualZoomLvl = this.app.workspace.zoomLevel,

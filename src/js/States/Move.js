@@ -1,8 +1,8 @@
 import {Point} from '../Point'
+import { settings } from '../Settings';
 /**
  * Cette classe permet de déplacer une forme (ou un ensemble de formes liées) sur le canvas
  */
-
 export class MoveState {
 
     constructor() {
@@ -88,7 +88,7 @@ export class MoveState {
 
         //déplacer si la grille est là.
         var bestSegment;
-        if (app.settings.get('isGridShown')) {
+        if (settings.get('isGridShown')) {
             var t = app.workspace.getClosestGridPoint(this.shapesList);
             var gridCoords = t.grid.getAbsoluteCoordinates(),
                 shapeCoords = t.shape.getAbsoluteCoordinates();
@@ -97,13 +97,13 @@ export class MoveState {
                 this.shapesList[i].y += gridCoords.y - shapeCoords.y;
             }
 
-            if (app.settings.get('automaticAdjustment')) {
+            if (settings.get('automaticAdjustment')) {
                 //Est-ce qu'il y a un segment dont l'une des extrémités est le point sélectionné de la grille
                 //TODO HERE: trouver un segment autour du point, pour une rotation ?
             }
 
 
-        } else if (app.settings.get('automaticAdjustment')) {
+        } else if (settings.get('automaticAdjustment')) {
             bestSegment = null; //segment du groupe de forme qui va être rapproché d'un segment d'une forme externe.
             var otherShapeSegment = null; //le segment de la forme externe correspondante.
             var segmentScore = 1000 * 1000 * 1000; //somme des carrés des distances entre les sommets des 2 segments ci-dessus.
@@ -201,7 +201,7 @@ export class MoveState {
             }
 
         }
-        if (!app.settings.get('isGridShown') && !bestSegment) {
+        if (!settings.get('isGridShown') && !bestSegment) {
             //Trouver un point proche ?
             var bestPoint = null; //point du groupe de forme qui va être rapproché d'un point d'une forme externe.
             var otherShapePoint = null; //le point de la forme externe correspondante.

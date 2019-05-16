@@ -3,6 +3,7 @@
  */
 import {Shape} from '../Shape'
 import {Point} from '../Point'
+import { settings } from '../Settings';
 
 class CreateState {
     constructor() {
@@ -29,7 +30,7 @@ class CreateState {
      */
     start(params) {
         //update the shape size:
-        var size = app.settings.get('shapesSize');
+        var size = settings.get('shapesSize');
         for (var i = 0; i < params.shape.buildSteps.length; i++) {
             var step = params.shape.buildSteps[i];
             step.setCoordinates(step.x * size, step.y * size);
@@ -72,11 +73,11 @@ class CreateState {
             x, y,
             buildStepsCopy, this.selectedShape.color, "#000",
             { "x": this.selectedShape.refPoint.x, "y": this.selectedShape.refPoint.y },
-            app.settings.get('areShapesPointed'),
-            app.settings.get('areShapesSided'),
-            app.settings.get('shapesOpacity'));
+            settings.get('areShapesPointed'),
+            settings.get('areShapesSided'),
+            settings.get('shapesOpacity'));
 
-        if (pointsNear.length == 0 && app.settings.get('isGridShown')) {
+        if (pointsNear.length == 0 && settings.get('isGridShown')) {
             var t = app.workspace.getClosestGridPoint([shape]);
             var gridCoords = t.grid.getAbsoluteCoordinates(),
                 shapeCoords = t.shape.getAbsoluteCoordinates();
