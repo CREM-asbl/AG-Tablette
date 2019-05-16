@@ -81,7 +81,7 @@ export class Storer {
         //Store:
         var json_string = JSON.stringify(wsdata);
 
-        index = parseInt(window.localStorage.getItem("AG_WorkspacesAmount"));
+        let index = parseInt(window.localStorage.getItem("AG_WorkspacesAmount"));
         window.localStorage.setItem("AG_WorkspacesAmount", index + 1);
 
         window.localStorage.setItem("AG_WSList_WS" + index + "_uniqid", wsdata.uniqid);
