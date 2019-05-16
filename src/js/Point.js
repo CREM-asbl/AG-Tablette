@@ -30,7 +30,7 @@ export class Point {
      * @param  {Object} saveData les données de sauvegarde
      * @return {Point}          le nouvel objet
      */
-    createFromSaveData(saveData, ws) {
+    static createFromSaveData(saveData, ws) {
         if (!ws) ws = window.app.workspace;
         var shape = ws.getShapeById(saveData.shape_id)
         if (!shape) {

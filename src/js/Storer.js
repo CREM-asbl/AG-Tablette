@@ -2,6 +2,11 @@
  * Permet de sauvegarder et restaurer un espace de travail (Workspace),
  * en utilisant le localStorage du navigateur.
  */
+import { Workspace } from './Workspace'
+import { Shape } from './Shape'
+import { ShapeStep } from './ShapeStep'
+import { Family } from './Family'
+
 export class Storer {
     constructor() {
         this.__init();

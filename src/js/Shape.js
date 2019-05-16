@@ -1,4 +1,5 @@
-import {Point} from './Point'
+import { Point } from './Point'
+import { ShapeStep } from './ShapeStep'
 
 /**
  * Cette classe représente une forme sur le canvas
@@ -382,7 +383,7 @@ export class Shape {
 	 * @param  {Shape} shape      Un objet Shape. Si non null, va utiliser cet objet et va uniquement initialiser les points
 	 * @return {Shape}            La forme.
 	 */
-	createFromSaveData(saveData, ws, skipPoints, shape) {
+	static createFromSaveData(saveData, ws, skipPoints, shape) {
 		if (!ws) ws = window.app.workspace;
 		var buildSteps = [];
 		for (var i = 0; i < saveData.buildSteps.length; i++)

@@ -33,12 +33,12 @@ export class ShapeStep {
 	 * @param  {Object} saveData les données de sauvegarde
 	 * @return {ShapeStep}          le nouvel objet
 	 */
-	createFromSaveData(saveData) {
+	static createFromSaveData(saveData) {
 		var shapeStep = null;
 		if (saveData.type == "line") {
-			shapeStep = this.getLine(saveData.x, saveData.y);
+			shapeStep = new ShapeStep('line', saveData.x, saveData.y);
 		} else if (saveData.type == "arc") {
-			shapeStep = this.getArc(saveData.x, saveData.y, saveData.angle, saveData.direction);
+			shapeStep = new ShapeStep('arc', saveData.x, saveData.y, saveData.angle, saveData.direction);
 		} else {
 			console.log("ShapeStep.createFromSaveData: type inconnu");
 		}
