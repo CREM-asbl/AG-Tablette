@@ -32,56 +32,7 @@ export class Storer {
         if (name === undefined)
             name = "Espace de travail sans nom";
 
-        var wsdata = {
-            'name': name,
-            'uniqid': app.uniqId(),
-            'appVersion': workspace.appVersion,
-            'menuId': workspace.menuId,
-            'nextShapeId': workspace.nextShapeId,
-            'nextFamilyId': workspace.nextFamilyId,
-            'zoomLevel': workspace.zoomLevel
-        };
-
-        //history:
-        wsdata.history = workspace.history.steps;
-
-        //shapesList:
-        wsdata.shapesList = workspace.shapesList.map(function (val) {
-            return val.getSaveData();
-        });
-
-        //families:
-        wsdata.families = workspace.families.map(function (family) {
-            return {
-                'name': family.name,
-                'defaultColor': family.defaultColor,
-                'id': family.id,
-                'shapesList': family.shapesList.map(function (shape) {
-                    return {
-                        'color': shape.color,
-                        'name': shape.name,
-                        'refPoint': shape.refPoint,
-                        'buildSteps': shape.buildSteps.map(function (bs) {
-                            return bs.getSaveData();
-                        })
-                    };
-                })
-            };
-        });
-
-        //systemShapeGroups:
-        wsdata.systemShapeGroups = workspace.systemShapeGroups.map(function (group) {
-            return group.map(function (shape) {
-                return shape.id;
-            });
-        });
-
-        //userShapeGroups:
-        wsdata.userShapeGroups = workspace.userShapeGroups.map(function (group) {
-            return group.map(function (shape) {
-                return shape.id;
-            });
-        });
+        let wsdata = { name: name, ...workspace.getSaveData() }
 
         //Store:
         var json_string = JSON.stringify(wsdata);

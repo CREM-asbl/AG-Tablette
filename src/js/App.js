@@ -113,9 +113,10 @@ export class App {
 		var that = this;
 
 		//quand la fenêtre est redimensionnée, mettre à jour la taille du canvas
-		var f_onresize = function (e) {
+		const f_onresize = function (e) {
 			that.canvas.divRef.setCanvasSize();
 			window.canvasLeftShift = document.getElementsByTagName("ag-tablette-app")[0].shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
+			that.canvas.updateRelativeScaleLevel(app.workspace.zoomLevel)
 			that.canvas.refresh();
 			that.canvas.refreshBackgroundCanvas();
 		};

@@ -698,4 +698,58 @@ export class Workspace {
 		}
 		app.canvas.refreshBackgroundCanvas();
 	};
+
+	getSaveData() {
+		var wsdata = {
+            'uniqid': app.uniqId(),
+            'appVersion': this.appVersion,
+            'menuId': this.menuId,
+            'nextShapeId': this.nextShapeId,
+            'nextFamilyId': this.nextFamilyId,
+            'zoomLevel': this.zoomLevel
+        };
+
+        //history:
+        wsdata.history = this.history.steps;
+
+        //shapesList:
+        wsdata.shapesList = this.shapesList.map(function (val) {
+            return val.getSaveData();
+        });
+
+        //families:
+        wsdata.families = this.families.map(function (family) {
+            return {
+                'name': family.name,
+                'defaultColor': family.defaultColor,
+                'id': family.id,
+                'shapesList': family.shapesList.map(function (shape) {
+                    return {
+                        'color': shape.color,
+                        'name': shape.name,
+                        'refPoint': shape.refPoint,
+                        'buildSteps': shape.buildSteps.map(function (bs) {
+                            return bs.getSaveData();
+                        })
+                    };
+                })
+            };
+        });
+
+        //systemShapeGroups:
+        wsdata.systemShapeGroups = this.systemShapeGroups.map(function (group) {
+            return group.map(function (shape) {
+                return shape.id;
+            });
+        });
+
+        //userShapeGroups:
+        wsdata.userShapeGroups = this.userShapeGroups.map(function (group) {
+            return group.map(function (shape) {
+                return shape.id;
+            });
+		});
+		
+		return wsdata;
+	}
 }

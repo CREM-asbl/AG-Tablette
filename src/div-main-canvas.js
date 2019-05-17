@@ -4,7 +4,6 @@ import { App } from './js/App'
 class DivMainCanvas extends LitElement {
 
     render() {
-
         return html`
         <style>
             canvas#mainCanvas {

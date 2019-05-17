@@ -49,7 +49,6 @@ class AGTabletteApp extends LitElement {
     }
 
     render() {
-
         return html`
         <style>
 
