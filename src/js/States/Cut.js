@@ -506,9 +506,8 @@ import {settings} from '../Settings'
             var centerOffset = shape.centerShape(); //Définir le nouveau centre de la forme. (à améliorer?)
             shape.__computePoints();
             var coords = shape.getCoordinates();
-            shape.x = coords.x + 2 * centerOffset.x + 20;
-            shape.y = coords.y + 2 * centerOffset.y + 20;
-
+            shape.x = coords.x + 1.2 * centerOffset.x + 8;
+            shape.y = coords.y + 1.2 * centerOffset.y + 8;
             app.workspace.addShape(shape);
             createdShapesList.push(shape);
         }
