@@ -4,6 +4,7 @@
  */
 
 import { Family } from './Family'
+import { Shape } from './Shape'
 import { ShapeStep } from './ShapeStep'
 import { Point } from './Point'
 import { AppHistory } from './AppHistory'
@@ -751,5 +752,64 @@ export class Workspace {
 		});
 		
 		return wsdata;
+	}
+
+	static createWorkingspaceFromJson(json) {
+		const wsdata = JSON.parse(json);
+		const ws = new Workspace();
+		ws.appVersion = wsdata.appVersion;
+		ws.menuId = wsdata.menuId;
+		ws.nextShapeId = wsdata.nextShapeId;
+		ws.nextFamilyId = wsdata.nextFamilyId;
+		ws.zoomLevel = wsdata.zoomLevel;
+
+		//history:
+		ws.history.steps = wsdata.history;
+
+		//shapesList:
+		ws.shapesList = wsdata.shapesList.map(function (val) {
+			var shape = Shape.createFromSaveData(val, ws, true);
+			return shape;
+		});
+		ws.shapesList = ws.shapesList.map(function (val, i) {
+			return Shape.createFromSaveData(wsdata.shapesList[i], ws, false, val);
+		});
+
+		//families:
+		ws.families = wsdata.families.map(function (data) {
+			var family = new Family(
+				data.name,
+				data.defaultColor
+			);
+			family.shapesList = data.shapesList.map(function (data2) {
+				return {
+					'color': data2.color,
+					'name': data2.name,
+					'refPoint': data2.refPoint,
+					'buildSteps': data2.buildSteps.map(function (data3) {
+						return ShapeStep.createFromSaveData(data3);
+					})
+				};
+			});
+			return family;
+		});
+
+		//systemShapeGroups & userShapeGroups:
+		const mapFct = group => {
+			return group.map(function (shapeId) {
+				var shape = ws.shapesList.find(function (val) {
+					return val.id == shapeId;
+				});
+				if (!shape) {
+					console.error("Storer: error retrieving Shape");
+					return null;
+				}
+				return shape;
+			});
+		};
+		ws.systemShapeGroups = wsdata.systemShapeGroups.map(mapFct);
+		ws.userShapeGroups = wsdata.userShapeGroups.map(mapFct);
+
+		return ws;
 	}
 }

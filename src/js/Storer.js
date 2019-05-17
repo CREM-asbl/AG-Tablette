@@ -3,9 +3,6 @@
  * en utilisant le localStorage du navigateur.
  */
 import { Workspace } from './Workspace'
-import { Shape } from './Shape'
-import { ShapeStep } from './ShapeStep'
-import { Family } from './Family'
 
 export class Storer {
     constructor() {
@@ -36,11 +33,6 @@ export class Storer {
 
         //Store:
         var json_string = JSON.stringify(wsdata);
-        
-        const downloader = document.getElementById('dataDownloader')
-        downloader.href =`data:text/json;charset=utf-8,${encodeURIComponent(json_string)}`
-        downloader.download = 'save.json'
-        downloader.click()
 
         let index = parseInt(window.localStorage.getItem("AG_WorkspacesAmount"));
         window.localStorage.setItem("AG_WorkspacesAmount", index + 1);
@@ -73,62 +65,7 @@ export class Storer {
             if (val == uniqid) {
                 //Extract data:
                 var json_string = window.localStorage.getItem("AG_WSList_WS" + i + "_data");
-                var wsdata = JSON.parse(json_string);
-                var ws = new Workspace(app);
-                ws.appVersion = wsdata.appVersion;
-                ws.menuId = wsdata.menuId;
-                ws.nextShapeId = wsdata.nextShapeId;
-                ws.nextFamilyId = wsdata.nextFamilyId;
-                ws.zoomLevel = wsdata.zoomLevel;
-
-                //history:
-                ws.history.steps = wsdata.history;
-
-                //shapesList:
-                ws.shapesList = wsdata.shapesList.map(function (val) {
-                    var shape = Shape.createFromSaveData(val, ws, true);
-                    return shape;
-                });
-                ws.shapesList = ws.shapesList.map(function (val, i) {
-                    return Shape.createFromSaveData(wsdata.shapesList[i], ws, false, val);
-                });
-
-                //families:
-                ws.families = wsdata.families.map(function (data) {
-                    var family = new Family(
-                        data.name,
-                        data.defaultColor
-                    );
-                    family.shapesList = data.shapesList.map(function (data2) {
-                        return {
-                            'color': data2.color,
-                            'name': data2.name,
-                            'refPoint': data2.refPoint,
-                            'buildSteps': data2.buildSteps.map(function (data3) {
-                                return ShapeStep.createFromSaveData(data3);
-                            })
-                        };
-                    });
-                    return family;
-                });
-
-                //systemShapeGroups & userShapeGroups:
-                const mapFct = group => {
-                    return group.map(function (shapeId) {
-                        var shape = ws.shapesList.find(function (val) {
-                            return val.id == shapeId;
-                        });
-                        if (!shape) {
-                            console.error("Storer: error retrieving Shape");
-                            return null;
-                        }
-                        return shape;
-                    });
-                };
-                ws.systemShapeGroups = wsdata.systemShapeGroups.map(mapFct);
-                ws.userShapeGroups = wsdata.userShapeGroups.map(mapFct);
-
-                return ws;
+                return Workspace.createWorkingspaceFromJson(json_string);
             }
         }
         return null;

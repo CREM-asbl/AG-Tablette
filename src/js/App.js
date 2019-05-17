@@ -153,8 +153,8 @@ export class App {
 	newWorkspace(do_save_current_ws) {
 		if (do_save_current_ws !== false)
 			this.saveCurrentWorkspace("Workspace_" + this.storer.getAmountStoredWorkspaces());
-
-		this.workspace = new Workspace(this);
+		
+		this.workspace = new Workspace();
 		this.workspace.addMenuAFamilies();
 		this.canvas.refresh();
 	};
@@ -467,5 +467,14 @@ export class App {
 			return true;
 		}
 		return false;
+	}
+
+	loadFromFile(file) {
+		this.setState('no_state')
+		const reader = new FileReader()
+        reader.readAsText(file)
+        reader.onload = () => { 
+            this.workspace = Workspace.createWorkingspaceFromJson(reader.result)
+        }
 	}
 }

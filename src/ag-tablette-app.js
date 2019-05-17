@@ -42,10 +42,10 @@ class AGTabletteApp extends LitElement {
         super()
         // TODO: remplacer par un appel vers le "kit Standard"
         this.families = [
-			"Triangle équilatéral",
-			"Carré",
-			"Pentagone régulier"
-		]
+            "Triangle équilatéral",
+            "Carré",
+            "Pentagone régulier"
+        ]
     }
 
     render() {
@@ -104,7 +104,6 @@ class AGTabletteApp extends LitElement {
                         <div id="app-canvas-mode-text">
                             <span>Mode:</span> ${this.currentMode}
                         </div>
-                        <div>
                             <button class="action-button"
                                     name="new"
                                     @click="${this._actionHandle}">
@@ -115,15 +114,21 @@ class AGTabletteApp extends LitElement {
                                     @click='${this._actionHandle}'>
                                     Annuler
                             </button>
-                        </div>
-
-                        <div>
+                        <button class="action-button"
+                                    name="save"
+                                    @click='${this.save}'>
+                                    Sauvegarder
+                            </button>
+                            <button class="action-button"
+                                    name="load"
+                                    @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
+                                    Charger 
+                            </button>
                             <button class="action-button"
                                     name="settings"
                                     @click='${this._actionHandle}'>
                                     Paramètres
                             </button>
-                        </div>
 
                         <div class="toolbar-separator">Formes standard</div>
 
@@ -243,6 +248,14 @@ class AGTabletteApp extends LitElement {
         <app-settings></app-settings>
 
         <new-popup></new-popup>
+
+        <a id="dataDownloader" style="display: none"></a>
+
+        <input id="fileSelector" 
+               accept=".json" 
+               type="file" 
+               style="display: none" 
+               @change=${event => app.loadFromFile(event.target.files[0])}>
         `
     }
 
@@ -288,32 +301,40 @@ class AGTabletteApp extends LitElement {
 
         else if (event.target.name == "settings") {
             this.shadowRoot.querySelector('app-settings').style.display = 'block'
-        } 
-        
+        }
+
         else if (event.target.name === "new") {
             window.app.setState("no_state");
             this.currentMode = ''
             this.shadowRoot.querySelector('new-popup').open()
-        } 
-        
+        }
+
         else if (event.target.name == "annuler") {
             window.app.setState("no_state");
             this.currentMode = ''
             window.app.workspace.history.cancelLastStep();
-        } 
-        
+        }
+
         else if (event.target.name === 'add_shape') {
             //Todo : Uniformiser le create_shape comme les autres States
             window.app.setState("no_state");
             this.currentFamily = event.target.family
             this.currentMode = 'Ajouter forme'
             shapesListPopup.family = this.currentFamily
-        } 
-        
+        }
+
         else {
             console.log("AGTabletteApp._actionHandle: received unknown event:");
             console.log(event);
         }
+    }
+
+    save() {
+        let json = JSON.stringify(app.workspace.getSaveData())
+        const downloader = this.shadowRoot.querySelector('#dataDownloader')
+        downloader.href = `data:text/json;charset=utf-8,${encodeURIComponent(json)}`
+        downloader.download = 'save.json'
+        downloader.click()
     }
 }
 customElements.define('ag-tablette-app', AGTabletteApp)
