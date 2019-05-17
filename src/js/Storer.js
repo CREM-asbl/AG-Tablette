@@ -85,6 +85,11 @@ export class Storer {
 
         //Store:
         var json_string = JSON.stringify(wsdata);
+        
+        const downloader = document.getElementById('dataDownloader')
+        downloader.href =`data:text/json;charset=utf-8,${encodeURIComponent(json_string)}`
+        downloader.download = 'save.json'
+        downloader.click()
 
         let index = parseInt(window.localStorage.getItem("AG_WorkspacesAmount"));
         window.localStorage.setItem("AG_WorkspacesAmount", index + 1);
