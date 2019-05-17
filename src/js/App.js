@@ -474,7 +474,8 @@ export class App {
 		const reader = new FileReader()
         reader.readAsText(file)
         reader.onload = () => { 
-            this.workspace = Workspace.createWorkingspaceFromJson(reader.result)
+			this.workspace = Workspace.createWorkingspaceFromJson(reader.result)
+			this.canvas.refresh()
         }
 	}
 }
