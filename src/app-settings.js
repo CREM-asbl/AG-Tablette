@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit-element'
 import { loadManifest } from './js/Manifest'
-import {settings} from './js/Settings'
+import { settings } from './js/Settings'
 
 class AppSettings extends LitElement {
 

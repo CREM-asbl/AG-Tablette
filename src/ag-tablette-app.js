@@ -249,7 +249,7 @@ class AGTabletteApp extends LitElement {
 
         <new-popup></new-popup>
 
-        <a id="dataDownloader" style="display: none"></a>
+        <a id="dataDownloader" hidden target="_blank"></a>
 
         <input id="fileSelector" 
                accept=".json" 
@@ -331,8 +331,9 @@ class AGTabletteApp extends LitElement {
 
     save() {
         let json = JSON.stringify(app.workspace.getSaveData())
+        const file = new Blob([json], { type: 'text/json' })
         const downloader = this.shadowRoot.querySelector('#dataDownloader')
-        downloader.href = `data:text/json;charset=utf-8,${encodeURIComponent(json)}`
+        downloader.href = window.URL.createObjectURL(file)
         downloader.download = 'save.json'
         downloader.click()
     }

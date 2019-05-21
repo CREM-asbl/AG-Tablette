@@ -135,13 +135,6 @@ export class App {
 				};
 		})();
 
-		//Cacher le popup "settings" quand on appuie sur escape.
-		window.onkeyup = function (e) {
-			if (e.key == "Escape" || e.key == "Esc" || e.keyCode == 27) {
-				document.getElementById('settings-popup-gray').style.display = 'none';
-			}
-		};
-
 		window.dispatchEvent(new CustomEvent('app-loaded'))
 	};
 
