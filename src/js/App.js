@@ -142,7 +142,7 @@ export class App {
 			}
 		};
 
-		dispatchEvent(new CustomEvent('app-loaded'))
+		window.dispatchEvent(new CustomEvent('app-loaded'))
 	};
 
 	/**
