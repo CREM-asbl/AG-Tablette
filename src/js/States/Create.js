@@ -76,7 +76,7 @@ class CreateState {
         }
 
         var shape = new Shape(
-            this.selectedFamily.name, this.selectedShape.name,
+            this.selectedFamily, this.selectedShape.name,
             x, y,
             buildStepsCopy, this.selectedShape.color, "#000",
             { "x": this.selectedShape.refPoint.x, "y": this.selectedShape.refPoint.y },
@@ -85,12 +85,14 @@ class CreateState {
             settings.get('shapesOpacity'));
 
         if (pointsNear.length == 0 && settings.get('isGridShown')) {
-            var t = app.workspace.getClosestGridPoint([shape]);
-            var gridCoords = t.grid.getAbsoluteCoordinates(),
-                shapeCoords = t.shape.getAbsoluteCoordinates();
-            x += gridCoords.x - shapeCoords.x;
-            y += gridCoords.y - shapeCoords.y;
-            shape.setCoordinates({ 'x': x, 'y': y });
+            const t = app.workspace.getClosestGridPoint([shape]);
+            if (t) {
+                var gridCoords = t.grid.getAbsoluteCoordinates(),
+                    shapeCoords = t.shape.getAbsoluteCoordinates();
+                x += gridCoords.x - shapeCoords.x;
+                y += gridCoords.y - shapeCoords.y;
+                shape.setCoordinates({ 'x': x, 'y': y });
+            }
         }
 
 
