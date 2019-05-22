@@ -4,14 +4,18 @@ class ShapesList extends LitElement {
 
     static get properties() {
         return {
-            family: String,
-            name: String
+            show: Boolean,
+            family: String
         }
     }
 
-    render() {
+    set state({ currentStep, selectedFamily }) {
+        this.family = selectedFamily
+        this.show = currentStep === 'show-family-shapes'
+    }
 
-        if(!this.family || this.family === 'undefined') { 
+    render() {
+        if (!this.show) {
             return html``
         }
 
@@ -52,7 +56,10 @@ class ShapesList extends LitElement {
         <ul>
             ${shapes.map(shape => html`
                 <li>
-                    <button @click="${this._clickHandle.bind(this)}" name="${shape}">${shape}</button>
+                    <button @click="${this._clickHandle}" 
+                            name="${shape}">
+                            ${shape}
+                    </button>
                 </li>
             `)}
         </ul>
@@ -65,13 +72,8 @@ class ShapesList extends LitElement {
     _clickHandle(event) {
         const familyRef = window.app.workspace.getFamily(this.family);
         const shapeRef = familyRef.getShape(event.target.name);
-        event.target.focus();
-        app.setState("create_shape", {
-          "family": familyRef,
-          "shape": shapeRef
-        });
-
-        this.family = null
+        app.state.setShape(shapeRef)
+        this.show = false
     }
 }
 customElements.define('shapes-list', ShapesList)

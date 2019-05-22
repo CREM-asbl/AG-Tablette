@@ -1,8 +1,8 @@
 /**
  * Cette classe permet d'ajouter une forme au canvas
  */
-import {Shape} from '../Shape'
-import {Point} from '../Point'
+import { Shape } from '../Shape'
+import { Point } from '../Point'
 import { settings } from '../Settings';
 
 class CreateState {
@@ -14,6 +14,8 @@ class CreateState {
 
         //La forme que l'on souhaite ajouter
         this.selectedShape = null;
+
+        this.currentStep = null
     }
 
     /**
@@ -26,28 +28,33 @@ class CreateState {
 
     /**
      * démarrer l'état
-     * @param params: {family: Family, shape: Shape}
+     * @param params: {family: Family}
      */
     start(params) {
+        this.selectedFamily = params.family
+        this.currentStep = "show-family-shapes"
+    };
+
+    setShape(shape) {
         //update the shape size:
         var size = settings.get('shapesSize');
-        for (var i = 0; i < params.shape.buildSteps.length; i++) {
-            var step = params.shape.buildSteps[i];
+        for (var i = 0; i < shape.buildSteps.length; i++) {
+            var step = shape.buildSteps[i];
             step.setCoordinates(step.x * size, step.y * size);
         }
-        params.shape.refPoint.x *= size;
-        params.shape.refPoint.y *= size;
-
-        this.selectedFamily = params.family;
-        this.selectedShape = params.shape;
-        params.shape.recomputePoints();
-    };
+        shape.refPoint.x *= size;
+        shape.refPoint.y *= size;
+        shape.recomputePoints();
+        this.selectedShape = shape;
+        this.currentStep = "listen canvas click"
+    }
 
     /**
      * Crée une forme aux coordonnées données
      * @param coordinates: {x: int, y: int}
      */
     click(coordinates) {
+        if (!this.selectedShape) return
         //move the shape ?
         var pointsNear = app.workspace.pointsNearPoint(new Point(coordinates.x, coordinates.y, null, null));
         if (pointsNear.length > 0) {

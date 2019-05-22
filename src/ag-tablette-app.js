@@ -7,6 +7,7 @@ import './app-settings'
 // import './divide-popup'
 import './js/Manifest'
 import './new-popup'
+import { dico } from './js/Dico'
 
 // Chargement des States
 // TODO: à remplacer par chargement 'dynamique'
@@ -32,8 +33,7 @@ class AGTabletteApp extends LitElement {
 
     static get properties() {
         return {
-            currentFamily: String,
-            currentMode: String,
+            state: Object,
             families: Array
         }
     }
@@ -46,6 +46,10 @@ class AGTabletteApp extends LitElement {
             "Carré",
             "Pentagone régulier"
         ]
+
+        this.state = {}
+
+        addEventListener('app-state-changed', event => this.state = { ...event.detail })
     }
 
     render() {
@@ -102,7 +106,7 @@ class AGTabletteApp extends LitElement {
             <div id="app-canvas-view-toolbar" class="toolbar">
                 <div id="app-canvas-view-toolbar-p1">
                         <div id="app-canvas-mode-text">
-                            <span>Mode:</span> ${this.currentMode}
+                            <span>Mode: </span>${dico[this.state.name]}
                         </div>
                             <button class="action-button"
                                     name="new"
@@ -110,7 +114,7 @@ class AGTabletteApp extends LitElement {
                                     Supprimer tout
                             </button>
                             <button class="action-button"
-                                    name="annuler"
+                                    name="undo"
                                     @click='${this._actionHandle}'>
                                     Annuler
                             </button>
@@ -133,9 +137,9 @@ class AGTabletteApp extends LitElement {
                         <div class="toolbar-separator">Formes standard</div>
 
                         ${this.families.map(family => html`
-                            <canvas-button name="add_shape"
+                            <canvas-button name="create_shape"
                                           .family="${family}"
-                                           ?active="${family === this.currentFamily}"
+                                           ?active="${family === this.state.selectedFamily}"
                                            @click="${this._actionHandle}">
                             </canvas-button>
                         `)}
@@ -145,25 +149,25 @@ class AGTabletteApp extends LitElement {
                     <div class="toolbar-separator">Mouvements</div>
                     <button class="action-button" 
                             name="move_shape" 
-                            ?active="${this.currentMode === 'Glisser'}"
+                            ?active="${this.state.name === 'move_shape'}"
                             @click='${this._actionHandle}'>
                             Glisser
                     </button>
                     <button class="action-button" 
                             name="rotate_shape" 
-                            ?active="${this.currentMode === 'Tourner'}"
+                            ?active="${this.state.name === 'rotate_shape'}"
                             @click='${this._actionHandle}'>
                             Tourner
                     </button>
                     <button class="action-button" 
                             name="reverse_shape" 
-                            ?active="${this.currentMode === 'Retourner'}"
+                            ?active="${this.state.name === 'reverse_shape'}"
                             @click='${this._actionHandle}'>
                             Retourner
                     </button>
                     <button class="action-button" 
                             name="global_zoom" 
-                            ?active="${this.currentMode === 'Zoomer'}"
+                            ?active="${this.state.name === 'global_zoom'}"
                             @click='${this._actionHandle}'>
                             Zoomer
                     </button>
@@ -171,37 +175,37 @@ class AGTabletteApp extends LitElement {
                     <div class="toolbar-separator">Outils</div>
                     <button class="action-button" 
                             name="moveplane_state" 
-                            ?active="${this.currentMode === 'Glisser le plan'}"
+                            ?active="${this.state.name === 'moveplane_state'}"
                             @click='${this._actionHandle}'>
                             Glisser le plan
                     </button>
                     <button class="action-button" 
                             name="link_shapes" 
-                            ?active="${this.currentMode === 'Lier les formes'}"
+                            ?active="${this.state.name === 'link_shapes'}"
                             @click='${this._actionHandle}'>
                             Lier
                     </button>
                     <button class="action-button" 
                             name="unlink_shapes" 
-                            ?active="${this.currentMode === 'Délier'}"
+                            ?active="${this.state.name === 'unlink_shapes'}"
                             @click='${this._actionHandle}'>
                             Délier
                     </button>
                     <button class="action-button"
                             name="delete_shape" 
-                            ?active="${this.currentMode === 'Supprimer'}"
+                            ?active="${this.state.name === 'delete_shape'}"
                             @click='${this._actionHandle}'>
                             Supprimer
                     </button>
                     <button class="action-button" 
                             name="background_color" 
-                            ?active="${this.currentMode === 'Couleur de fond'}"
+                            ?active="${this.state.name === 'background_color'}"
                             @click='${this._actionHandle}'>
                             Colorier les formes
                     </button>
                     <button class="action-button" 
                             name="border_color" 
-                            ?active="${this.currentMode === 'Couleur des bords'}"
+                            ?active="${this.state.name === 'border_color'}"
                             @click='${this._actionHandle}'>
                             Colorier les bords
                     </button>
@@ -209,31 +213,31 @@ class AGTabletteApp extends LitElement {
                     <div class="toolbar-separator">Opérations</div>
                     <button class="action-button" 
                             name="merge_shapes" 
-                            ?active="${this.currentMode === 'Fusionner'}"
+                            ?active="${this.state.name === 'merge_shapes'}"
                             @click='${this._actionHandle}'>
                             Fusionner
                     </button>
                     <button class="action-button" 
                             name="divide_segment" 
-                            ?active="${this.currentMode === 'Diviser'}"
+                            ?active="${this.state.name === 'divide_segment'}"
                             @click='${this._actionHandle}'>
                             Diviser
                     </button>
                     <button class="action-button" 
                             name="cut_shape" 
-                            ?active="${this.currentMode === 'Découper'}"
+                            ?active="${this.state.name === 'cut_shape'}"
                             @click='${this._actionHandle}'>
                             Découper
                     </button>
                     <button class="action-button" 
                             name="duplicate_shape" 
-                            ?active="${this.currentMode === 'Dupliquer'}"
+                            ?active="${this.state.name === 'duplicate_shape'}"
                             @click='${this._actionHandle}'>
                             Dupliquer
                     </button>
                     <button class="action-button" 
                             name="build_shape_center" 
-                            ?active="${this.currentMode === 'Construire le centre'}"
+                            ?active="${this.state.name === 'build_shape_center'}"
                             @click='${this._actionHandle}'>
                             Construire le centre
                     </button>
@@ -243,7 +247,7 @@ class AGTabletteApp extends LitElement {
             <div-main-canvas id="div-main-canvas"></div-main-canvas>
         </div>
 
-        <shapes-list family="${this.currentFamily}"></shapes-list>
+        <shapes-list .state="${this.state}"></shapes-list>
 
         <app-settings></app-settings>
 
@@ -268,59 +272,31 @@ class AGTabletteApp extends LitElement {
      */
     _actionHandle(event) {
 
-        const shapesListPopup = this.shadowRoot.querySelector('shapes-list')
-        shapesListPopup.family = null
-        this.currentFamily = ''
-
-        var states = {
-            'move_shape': 'Glisser',
-            'rotate_shape': 'Tourner',
-            'global_zoom': 'Zoom',
-            'delete_shape': 'Supprimer',
-            'background_color': 'Couleur de fond',
-            'border_color': 'Couleur des bords',
-            'link_shapes': 'Lier des formes',
-            'unlink_shapes': 'Délier des formes',
-            'reverse_shape': 'Retourner',
-            'build_shape_center': 'Construire le centre',
-            'duplicate_shape': 'Dupliquer',
-            'divide_segment': 'Diviser',
-            'merge_shapes': 'Fusionner',
-            'cut_shape': 'Découper',
-            'moveplane_state': 'Glisser le plan'
-        };
-
-        if (states.hasOwnProperty(event.target.name)) {
-            if (window.app.workspace.history.isRunning) {
-                console.log("history is running, skipping action");
-                return;
-            }
-            window.app.setState(event.target.name);
-            this.currentMode = states[event.target.name];
-        }
-
-        else if (event.target.name == "settings") {
+        if (event.target.name == "settings") {
+            window.app.setState("no_state")
             this.shadowRoot.querySelector('app-settings').style.display = 'block'
         }
 
         else if (event.target.name === "new") {
             window.app.setState("no_state");
-            this.currentMode = ''
             this.shadowRoot.querySelector('new-popup').open()
         }
 
-        else if (event.target.name == "annuler") {
+        else if (event.target.name == "undo") {
             window.app.setState("no_state");
-            this.currentMode = ''
             window.app.workspace.history.cancelLastStep();
         }
 
-        else if (event.target.name === 'add_shape') {
-            //Todo : Uniformiser le create_shape comme les autres States
-            window.app.setState("no_state");
-            this.currentFamily = event.target.family
-            this.currentMode = 'Ajouter forme'
-            shapesListPopup.family = this.currentFamily
+        else if (event.target.name === 'create_shape') {
+            app.setState(event.target.name, { family: event.target.family })
+        }
+
+        else if (dico[event.target.name]) {
+            if (window.app.workspace.history.isRunning) {
+                console.log("history is running, skipping action");
+                return;
+            }
+            window.app.setState(event.target.name);
         }
 
         else {

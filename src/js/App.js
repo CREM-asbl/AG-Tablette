@@ -1,10 +1,10 @@
 /**
  * La classe principale de l'application
  */
-import {Workspace} from './Workspace'
-import {Canvas} from './Canvas'
-import {Point} from './Point'
-import {Storer} from './Storer'
+import { Workspace } from './Workspace'
+import { Canvas } from './Canvas'
+import { Point } from './Point'
+import { Storer } from './Storer'
 
 export class App {
 	/**
@@ -104,6 +104,8 @@ export class App {
 		};
 
 		this.canvas.refresh();
+
+		window.dispatchEvent(new CustomEvent('app-state-changed', { detail: this.state }))
 	};
 
 	/**
@@ -146,7 +148,7 @@ export class App {
 	newWorkspace(do_save_current_ws) {
 		if (do_save_current_ws !== false)
 			this.saveCurrentWorkspace("Workspace_" + this.storer.getAmountStoredWorkspaces());
-		
+
 		this.workspace = new Workspace();
 		this.workspace.addMenuAFamilies();
 		this.canvas.refresh();
@@ -465,10 +467,10 @@ export class App {
 	loadFromFile(file) {
 		this.setState('no_state')
 		const reader = new FileReader()
-        reader.readAsText(file)
-        reader.onload = () => { 
+		reader.readAsText(file)
+		reader.onload = () => {
 			this.workspace = Workspace.createWorkingspaceFromJson(reader.result)
 			this.canvas.refresh()
-        }
+		}
 	}
 }

@@ -81,8 +81,7 @@ export class Workspace {
 			}
 		}
 
-		var that = this;
-		var getClosestPoint = function (point) {
+		const getClosestPoint = function (point) {
 			var x = point.getAbsoluteCoordinates().x,
 				y = point.getAbsoluteCoordinates().y;
 
