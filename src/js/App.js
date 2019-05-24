@@ -58,15 +58,14 @@ export class App {
 	/**
 	 * Définir l'état de l'application. On appelle la méthode abort() de l'état actuel,
 	 * on change l'état, et on appelle reset() puis start() du nouvel état.
-	 * @param stateName: le nom du nouvel état
+	 * @param stateName: le nom du nouvel étt
 	 * @param params: objet envoyé en paramètre à la méthode start() du nouvel état
 	 * @param options: {'do_reset': boolean = true, 'do_start': boolean = true}
 	 */
 	setState(stateName, params, options) {
 		if (!options) options = {};
 
-		var that = this;
-		if (this.state.name != null) {
+		if (this.state.abort) {
 			this.state.abort(); //Annuler les actions en cours de l'état courant
 		}
 
@@ -78,29 +77,19 @@ export class App {
 			this.state.start(params);
 		var historyRunning = this.workspace.history.isRunning;
 
-		this.events.click = function (e, selection) {
-			if (that.virtualMouse.isShown && that.virtualMouse.isPointOnMouse(new Point(e.x, e.y))) {
-				that.virtualMouse.click(e);
-				return;
-			}
-			if (that.state.name && !historyRunning)
-				that.state.click(e, selection);
+		this.events.click = (e, selection) => {
+		
+			if (this.state.click && !historyRunning)
+				this.state.click(e, selection);
 		};
-		this.events.mousedown = function (e, selection) {
-			if (that.virtualMouse.isShown && that.virtualMouse.isPointOnMouse(new Point(e.x, e.y))) {
-				that.virtualMouse.mousedown(e);
-				return;
-			}
-			if (that.state.name && !historyRunning)
-				that.state.mousedown(e, selection);
+		this.events.mousedown = (e, selection) => {
+			if (this.state.mousedown && !historyRunning)
+				this.state.mousedown(e, selection);
 		};
-		this.events.mouseup = function (e, selection) {
-			if (that.virtualMouse.isShown && that.virtualMouse.isMoving) {
-				that.virtualMouse.mouseup(e);
-				return;
-			}
-			if (that.state.name && !historyRunning)
-				that.state.mouseup(e, selection);
+		this.events.mouseup = (e, selection) => {
+
+			if (this.state.mouseup && !historyRunning)
+				this.state.mouseup(e, selection);
 		};
 
 		this.canvas.refresh();
@@ -112,15 +101,14 @@ export class App {
 	 * Démarre l'application; fonction appelée lorsque la page est chargée
 	 */
 	start() {
-		var that = this;
-
 		//quand la fenêtre est redimensionnée, mettre à jour la taille du canvas
-		const f_onresize = function (e) {
-			that.canvas.divRef.setCanvasSize();
+		//TODO: à déplacer vers l'interface
+		const f_onresize = e => {
+			this.canvas.divRef.setCanvasSize();
 			window.canvasLeftShift = document.getElementsByTagName("ag-tablette-app")[0].shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
-			that.canvas.updateRelativeScaleLevel(app.workspace.zoomLevel)
-			that.canvas.refresh();
-			that.canvas.refreshBackgroundCanvas();
+			this.canvas.updateRelativeScaleLevel(app.workspace.zoomLevel)
+			this.canvas.refresh();
+			this.canvas.refreshBackgroundCanvas();
 		};
 		window.onresize = f_onresize;
 		window.onorientationchange = f_onresize;

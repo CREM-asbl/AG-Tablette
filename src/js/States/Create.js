@@ -46,7 +46,7 @@ class CreateState {
         shape.refPoint.y *= size;
         shape.recomputePoints();
         this.selectedShape = shape;
-        this.currentStep = "listen canvas click"
+        this.currentStep = "listen-canvas-click"
     }
 
     /**
@@ -166,21 +166,6 @@ class CreateState {
 
         return data;
     }
-
-    /**
-     * Annuler l'action en cours
-     */
-    abort() { }
-
-    /**
-    * Appelée lorsque l'événement mousedown est déclanché sur le canvas
-     */
-    mousedown() { }
-
-    /**
-    * Appelée lorsque l'événement mouseup est déclanché sur le canvas
-     */
-    mouseup() { }
 }
 // Todo: à supprimer quand l'import de toutes les classes sera en place
 addEventListener('app-loaded', () => window.app.states.create_shape = new CreateState())
