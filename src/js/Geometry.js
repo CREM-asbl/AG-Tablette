@@ -5,13 +5,13 @@ import { settings } from "./Settings";
 //Todo: Essayer d'améliorer le logiciel afin de se passer du paramètre précision dans ces formules
 
 export const distanceBetweenTwoPoints = (point1, point2) =>
-    Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2)
+    Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2))
 
 
 export const isCommonSegment = (point1, point2, point3, point4) => {
-    const maxSquareDist = Math.pow(settings.get('precision'), 2)
-    return (maxSquareDist >= distanceBetweenTwoPoints(point1, point3)
-        && maxSquareDist >= distanceBetweenTwoPoints(point2, point4))
+    const delta = settings.get('precision')
+    return (distanceBetweenTwoPoints(point1, point3) <= delta
+        && distanceBetweenTwoPoints(point2, point4) <= delta)
 }
 
 export const hasCommonSegments = (shape1, shape2) => {
@@ -48,7 +48,7 @@ export const hasCommonSegments = (shape1, shape2) => {
 }
 
 export const isSamePoints = (point1, point2) => {
-    const maxSquareDist = Math.pow(settings.get('precision'), 2)
-    return distanceBetweenTwoPoints(point1, point2) <= maxSquareDist
+    const delta = settings.get('precision')
+    return distanceBetweenTwoPoints(point1, point2) <= delta
     // return point1.x === point2.x && point1.y === point2.y
 }

@@ -55,24 +55,11 @@ class MergeState {
             const segmentsOfMergedShape = this.computeSegmentsOfMergedShape(shape1, shape2)
 
             newBS = this.computeNewBuildSteps(segmentsOfMergedShape)
-
-            //Translation des buildSteps pour qu'elles soient centrées:
-            //TODO: fusionner 2 arc de cercles qui sont côte à côte si c'est le même centre ?
-            var midX = 0, midY = 0;
-            newBS.forEach(function (val, i) {
-                if (i == newBS.length - 1) { return; }
-                midX += val.x;
-                midY += val.y
-            });
-            midX /= newBS.length - 1;
-            midY /= newBS.length - 1;
-            newBS.forEach(function (val, i) {
-                val.setCoordinates(val.x - midX, val.y - midY);
-            });
-
+            console.log(newBS)
             //Création de la forme
             var newShape = shape1.getCopy();
             newShape.buildSteps = newBS;
+            newShape.centerShape()
             newShape.__computePoints();
             newShape.color = app.getAverageColor(shape1.color, shape2.color);
             newShape.name = "Custom";
@@ -80,7 +67,7 @@ class MergeState {
 
             newShape.otherPoints = []; //Supprime le point au centre (le centre change)
             newShape.segmentPoints = [];
-            
+
             for (var i = 0; i < shape1.segmentPoints.length; i++) {
                 var p = shape1.segmentPoints[i].getCopy();
                 p.x -= midX;
@@ -95,10 +82,8 @@ class MergeState {
                 p.y -= midY + decalage.y;
                 newShape.segmentPoints.push(p);
             }
-
+            console.log(newShape)
             app.workspace.addShape(newShape);
-            var coord = newShape.getCoordinates();
-            newShape.setCoordinates({ "x": coord.x - 10, "y": coord.y - 10 });
 
             this.makeHistory(newShape);
 
@@ -205,10 +190,11 @@ class MergeState {
     }
 
     computeNewBuildSteps(segmentsList) {
+        // Todo : Traiter le cas des formes "percées" 
+        // Todo : Gérer les arcs
         let newBuildSteps = []
         let nextPoint
-        // propriété pour éviter une boucle infinie
-        // Todo : Traiter le cas des formes "percées" 
+        // propriété pour éviter une boucle infinie et le cas des formes creuses
         let numberOfSegmentsRefused = 0
 
         while (segmentsList.length > 0 && numberOfSegmentsRefused !== segmentsList.length) {
@@ -231,7 +217,7 @@ class MergeState {
             else {
                 segmentsList.push(currentSegment)
                 numberOfSegmentsRefused++
-                if(numberOfSegmentsRefused === segmentsList.length) {
+                if (numberOfSegmentsRefused === segmentsList.length) {
                     console.log('aborted merge')
                 }
             }
