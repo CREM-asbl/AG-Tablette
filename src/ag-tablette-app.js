@@ -26,7 +26,7 @@ import './js/States/Move'
 import './js/States/MovePlane'
 import './js/States/Reverse'
 import './js/States/Rotate'
-import './js/States/UnLinker'
+import './js/States/Unlinker'
 
 
 class AGTabletteApp extends LitElement {

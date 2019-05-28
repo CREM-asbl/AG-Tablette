@@ -4,30 +4,19 @@ import { settings } from "./Settings";
 
 export const distanceBetweenTwoPoints = (point1, point2) =>
     Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2)
-    
+
 
 export const isCommonSegment = (point1, point2, point3, point4) => {
     const maxSquareDist = Math.pow(settings.get('precision'), 2)
-    if (maxSquareDist >= distanceBetweenTwoPoints(point1, point3)
-        && maxSquareDist >= distanceBetweenTwoPoints(point2, point4)) {
-        return true
-    }
-
-    // if (maxSquareDist >= app.distanceBetweenTwoPoints(point1, point4)
-    //     && maxSquareDist >= app.distanceBetweenTwoPoints(point2, point3)) {
-    //     return true
-    // }
-
-    return false
+    return (maxSquareDist >= distanceBetweenTwoPoints(point1, point3)
+        && maxSquareDist >= distanceBetweenTwoPoints(point2, point4))
 }
 
-// Todo : getCommonsSegments mais en attente de la relecture deu cahier des charges.
-export const getCommonsSegments = (shape1, shape2) => {
-    var commonsSegments = [],
-       shape1StartPoint, 
-       shape1EndPoint, 
-       shape2StartPoint, 
-       shape2EndPoint
+export const hasCommonSegments = (shape1, shape2) => {
+    let shape1StartPoint,
+        shape1EndPoint,
+        shape2StartPoint,
+        shape2EndPoint
 
     for (var i = 1; i < shape1.buildSteps.length; i++) {
         if (shape1.buildSteps[i].type != 'line') continue;
@@ -47,24 +36,15 @@ export const getCommonsSegments = (shape1, shape2) => {
             shape2EndPoint.x += shape2.x
             shape2EndPoint.y += shape2.y
 
-            if (isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)) {
-                commonsSegments.push({
-                    's1_index1': i - 1,
-                    's1_index2': i,
-                    's2_index1': j - 1,
-                    's2_index2': j
-                })
-            }
-
-            if (isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
-                commonsSegments.push({
-                    's1_index1': i - 1,
-                    's1_index2': i,
-                    's2_index1': j,
-                    's2_index2': j - 1
-                })
+            if (isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)
+            || isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
+                return true
             }
         }
     }
-    return commonsSegments
+    return false
+}
+
+export const isSamePoints = (point1, point2) => {
+    return point1.x === point2.x && point1.y === point2.y
 }
