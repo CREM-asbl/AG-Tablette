@@ -1,8 +1,8 @@
 /**
  * Représente le <canvas>, contient les méthodes de dessin
  */
-import {ShapeStep} from './ShapeStep'
-import {Point} from './Point'
+import { ShapeStep } from './ShapeStep'
+import { Point } from './Point'
 import { settings } from './Settings';
 
 export class Canvas {

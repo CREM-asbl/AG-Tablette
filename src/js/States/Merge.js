@@ -206,32 +206,34 @@ class MergeState {
 
     computeNewBuildSteps(segmentsList) {
         let newBuildSteps = []
-        let currentPoint
+        let nextPoint
         // propriété pour éviter une boucle infinie
-        // Todo : améliorer pour éviter des erreurs de précision
         // Todo : Traiter le cas des formes "percées" 
         let numberOfSegmentsRefused = 0
 
         while (segmentsList.length > 0 && numberOfSegmentsRefused !== segmentsList.length) {
             const currentSegment = segmentsList.shift()
-            if (!currentPoint) {
-                currentPoint = currentSegment.point2
+            if (!nextPoint) {
+                nextPoint = currentSegment.point2
                 newBuildSteps.push(new ShapeStep('line', currentSegment.point1.x, currentSegment.point1.y))
+                newBuildSteps.push(new ShapeStep('line', nextPoint.x, nextPoint.y))
             }
-            else if (isSamePoints(currentSegment.point1, currentPoint)) {
-                newBuildSteps.push(new ShapeStep('line', currentSegment.point1.x, currentSegment.point1.y))
-                currentPoint = currentSegment.point2
+            else if (isSamePoints(currentSegment.point1, nextPoint)) {
+                nextPoint = currentSegment.point2
+                newBuildSteps.push(new ShapeStep('line', nextPoint.x, nextPoint.y))
                 numberOfSegmentsRefused = 0
             }
-            else if (isSamePoints(currentSegment.point1, currentPoint)) {
-                const reversedSegment = { point1: currentSegment.point2, point2: currentSegment.point1 }
-                newBuildSteps.push(new ShapeStep('line', reversedSegment.point1.x, reversedSegment.point1.y))
-                currentPoint = reversedSegment.point2
+            else if (isSamePoints(currentSegment.point2, nextPoint)) {
+                nextPoint = currentSegment.point1
+                newBuildSteps.push(new ShapeStep('line', nextPoint.x, nextPoint.y))
                 numberOfSegmentsRefused = 0
             }
             else {
                 segmentsList.push(currentSegment)
                 numberOfSegmentsRefused++
+                if(numberOfSegmentsRefused === segmentsList.length) {
+                    console.log('aborted merge')
+                }
             }
         }
         newBuildSteps.push(newBuildSteps[0].getCopy())

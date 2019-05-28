@@ -2,6 +2,8 @@ import { settings } from "./Settings";
 
 //Ensemble des formules géométriques réutilisables
 
+//Todo: Essayer d'améliorer le logiciel afin de se passer du paramètre précision dans ces formules
+
 export const distanceBetweenTwoPoints = (point1, point2) =>
     Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2)
 
@@ -46,5 +48,7 @@ export const hasCommonSegments = (shape1, shape2) => {
 }
 
 export const isSamePoints = (point1, point2) => {
-    return point1.x === point2.x && point1.y === point2.y
+    const maxSquareDist = Math.pow(settings.get('precision'), 2)
+    return distanceBetweenTwoPoints(point1, point2) <= maxSquareDist
+    // return point1.x === point2.x && point1.y === point2.y
 }

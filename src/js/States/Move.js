@@ -337,19 +337,9 @@ export class MoveState {
     };
 
     /**
-     * Annuler l'action en cours
-     */
-    abort() { }
-
-    /**
      * démarrer l'état
      */
     start() { }
-
-    /**
-     * Appelée lorsque l'événement click est déclanché sur le canvas
-     */
-    click() { }
 }
 
 // Todo: à supprimer quand l'import de toutes les classes sera en place
