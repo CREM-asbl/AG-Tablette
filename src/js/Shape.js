@@ -76,25 +76,27 @@ export class Shape {
 
 	__computePoints() {
 		this.points = [];
-		var final_point = null;
-		for (var i = 1; i < this.buildSteps.length; i++) {
-			final_point = this.buildSteps[i - 1].getFinalPoint(final_point);
-			var s = this.buildSteps[i];
-			if (s.getType() == "line") {
-				var pt = new Point(s.x, s.y, "vertex", this);
-				if (s.isArtificial)
-					pt.hidden = true;
-				this.points.push(pt);
-			} else if (s.getType() == "arc") {
-				if (this.buildSteps.length > 2) { //Ce n'est pas un cercle:
-					var coord = this.buildSteps[i].getFinalPoint(final_point),
-						pt = new Point(coord.x, coord.y, "vertex", this);
+		const lastBuildSteps = this.buildSteps.length
+		this.buildSteps.forEach((buildStep, index) => {
+			if (index + 1 === lastBuildSteps || lastBuildSteps < 3) return
+			const type = buildStep.getType()
+			let pt
+			switch (type) {
+				case 'line':
+					pt = new Point(buildStep.x, buildStep.y, "vertex", this);
+					if (buildStep.isArtificial)
+						pt.hidden = true;
 					this.points.push(pt);
-				}
-			} else {
-				console.log("Shape.computePoints(): Unknown type");
+					break
+				case 'arc':
+					const coord = buildStep.getFinalPoint(this.points[this.points.length - 1])
+					pt = new Point(coord.x, coord.y, "vertex", this)
+					this.points.push(pt);
+					break
+				default:
+					console.log("Shape.computePoints(): Unknown type");
 			}
-		}
+		})
 	};
 
 	//Permet de mettre à jour les propriétés __finalPoint des buildSteps
@@ -151,7 +153,7 @@ export class Shape {
 						x_shift = (cursor2.x - cursor1.x) / (len / approx_len),
 						y_shift = (cursor2.y - cursor1.y) / (len / approx_len),
 						tmp = 0;
-					while ( distanceBetweenTwoPoints(cursor1, cursor2) >= 2.5 * approx_len && tmp++ < 100) {
+					while (distanceBetweenTwoPoints(cursor1, cursor2) >= 2.5 * approx_len && tmp++ < 100) {
 						list1.push(new Point(cursor1.x, cursor1.y, null, this));
 						list2.unshift(new Point(cursor2.x, cursor2.y, null, this));
 						cursor1.x += x_shift;
