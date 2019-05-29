@@ -1,3 +1,5 @@
+import { distanceBetweenTwoPoints } from "./Geometry";
+
 /**
  * Représente une étape de construction d'une forme
  */
@@ -100,7 +102,7 @@ export class ShapeStep {
 			var center = { 'x': this.x, 'y': this.y },
 				start_angle = window.app.positiveAtan2(srcPoint.y - center.y, srcPoint.x - center.x),
 				end_angle = null,
-				rayon = Math.sqrt(Math.pow(center.x - srcPoint.x, 2) + Math.pow(center.y - srcPoint.y, 2));
+				rayon = distanceBetweenTwoPoints(center, srcPoint);
 			if (!this.direction) { //sens anti-horloger
 				end_angle = window.app.positiveAngle(start_angle + this.angle);
 			} else {
@@ -111,7 +113,6 @@ export class ShapeStep {
 				'x': Math.cos(end_angle) * rayon + center.x,
 				'y': Math.sin(end_angle) * rayon + center.y
 			};
-
 			return this.__finalPoint;
 		} else {
 			console.error("ShapeStep.getFinalPoint: unknown type");

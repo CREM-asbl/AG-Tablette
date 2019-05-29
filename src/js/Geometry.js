@@ -20,7 +20,7 @@ export const hasCommonSegments = (shape1, shape2) => {
         shape2StartPoint,
         shape2EndPoint
 
-    for (var i = 1; i < shape1.buildSteps.length; i++) {
+    for (let i = 1; i < shape1.buildSteps.length; i++) {
         if (shape1.buildSteps[i].type != 'line') continue;
         shape1StartPoint = shape1.buildSteps[i - 1].getFinalPoint(shape1StartPoint);
         shape1StartPoint.x += shape1.x
@@ -29,7 +29,7 @@ export const hasCommonSegments = (shape1, shape2) => {
         shape1EndPoint.x += shape1.x
         shape1EndPoint.y += shape1.y
 
-        for (var j = 1; j < shape2.buildSteps.length; j++) {
+        for (let j = 1; j < shape2.buildSteps.length; j++) {
             if (shape2.buildSteps[j].type != 'line') continue;
             shape2StartPoint = shape2.buildSteps[j - 1].getFinalPoint(shape2StartPoint);
             shape2StartPoint.x += shape2.x
@@ -39,7 +39,7 @@ export const hasCommonSegments = (shape1, shape2) => {
             shape2EndPoint.y += shape2.y
 
             if (isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)
-            || isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
+                || isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
                 return true
             }
         }

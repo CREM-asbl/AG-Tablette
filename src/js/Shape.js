@@ -143,9 +143,7 @@ export class Shape {
 				if (this.buildSteps[i].getType() == "line") {
 					var p1 = { 'x': lastPoint.x, 'y': lastPoint.y },
 						p2 = this.buildSteps[i],
-						len = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-					console.log(len)
-					console.log(distanceBetweenTwoPoints(p1, p2))
+						len = distanceBetweenTwoPoints(p1, p2);
 					var cursor1 = { 'x': p1.x, 'y': p1.y },
 						cursor2 = { 'x': p2.x, 'y': p2.y },
 						list1 = [],
@@ -153,7 +151,7 @@ export class Shape {
 						x_shift = (cursor2.x - cursor1.x) / (len / approx_len),
 						y_shift = (cursor2.y - cursor1.y) / (len / approx_len),
 						tmp = 0;
-					while (Math.sqrt(Math.pow(cursor1.x - cursor2.x, 2) + Math.pow(cursor1.y - cursor2.y, 2)) >= 2.5 * approx_len && tmp++ < 100) {
+					while ( distanceBetweenTwoPoints(cursor1, cursor2) >= 2.5 * approx_len && tmp++ < 100) {
 						list1.push(new Point(cursor1.x, cursor1.y, null, this));
 						list2.unshift(new Point(cursor2.x, cursor2.y, null, this));
 						cursor1.x += x_shift;
@@ -184,8 +182,7 @@ export class Shape {
 				}
 			}
 		}
-		console.log(this)
-		console.log(approxPointsList)
+
 		approxPointsList.forEach(function (point) {
 			var relCoord = point.getRelativeCoordinates();
 			averageX += relCoord.x;
@@ -193,9 +190,6 @@ export class Shape {
 		});
 		averageX /= approxPointsList.length;
 		averageY /= approxPointsList.length;
-
-		console.log(averageX)
-		console.log(averageY)
 
 		this.buildSteps.forEach(function (step) {
 			step.setCoordinates(step.x - averageX, step.y - averageY);

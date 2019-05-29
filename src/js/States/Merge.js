@@ -45,17 +45,11 @@ class MergeState {
             shape2 = shape
 
         if (hasCommonSegments(shape1, shape2)) {
-            let newBS = [],
-                decalage = {
-                    'x': shape1.x - shape2.x,
-                    'y': shape1.y - shape2.y
-                };
-
 
             const segmentsOfMergedShape = this.computeSegmentsOfMergedShape(shape1, shape2)
 
-            newBS = this.computeNewBuildSteps(segmentsOfMergedShape)
-            console.log(newBS)
+            const newBS = this.computeNewBuildSteps(segmentsOfMergedShape)
+
             //Création de la forme
             var newShape = shape1.getCopy();
             newShape.buildSteps = newBS;
@@ -76,13 +70,18 @@ class MergeState {
                 newShape.segmentPoints.push(p);
             }
 
+            const decalage = {
+                'x': shape1.x - shape2.x,
+                'y': shape1.y - shape2.y
+            };
+
             for (var i = 0; i < shape2.segmentPoints.length; i++) {
                 var p = shape2.segmentPoints[i].getCopy();
                 p.x -= midX + decalage.x;
                 p.y -= midY + decalage.y;
                 newShape.segmentPoints.push(p);
             }
-            console.log(newShape)
+
             app.workspace.addShape(newShape);
 
             this.makeHistory(newShape);
@@ -148,7 +147,7 @@ class MergeState {
     start(params) { };
 
     computeSegmentsOfMergedShape(shape1, shape2) {
-
+        // Todo: A améliorer pour les arcs
         let segments = [],
             shape1StartPoint = null,
             shape1EndPoint = null,
