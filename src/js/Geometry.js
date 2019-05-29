@@ -15,28 +15,15 @@ export const isCommonSegment = (point1, point2, point3, point4) => {
 }
 
 export const hasCommonSegments = (shape1, shape2) => {
-    let shape1StartPoint,
-        shape1EndPoint,
-        shape2StartPoint,
-        shape2EndPoint
+    for (let i = 0; i < shape1.points.length; i++) {
+        if (shape1.buildSteps[i + 1].type != 'line') continue
+        let shape1StartPoint = shape1.points[i].getAbsoluteCoordinates()
+        let shape1EndPoint = shape1.points[(i + 1) % shape1.points.length].getAbsoluteCoordinates() 
 
-    for (let i = 1; i < shape1.buildSteps.length; i++) {
-        if (shape1.buildSteps[i].type != 'line') continue;
-        shape1StartPoint = shape1.buildSteps[i - 1].getFinalPoint(shape1StartPoint);
-        shape1StartPoint.x += shape1.x
-        shape1StartPoint.y += shape1.y
-        shape1EndPoint = shape1.buildSteps[i].getFinalPoint(shape1StartPoint);
-        shape1EndPoint.x += shape1.x
-        shape1EndPoint.y += shape1.y
-
-        for (let j = 1; j < shape2.buildSteps.length; j++) {
-            if (shape2.buildSteps[j].type != 'line') continue;
-            shape2StartPoint = shape2.buildSteps[j - 1].getFinalPoint(shape2StartPoint);
-            shape2StartPoint.x += shape2.x
-            shape2StartPoint.y += shape2.y
-            shape2EndPoint = shape2.buildSteps[j].getFinalPoint(shape2StartPoint);
-            shape2EndPoint.x += shape2.x
-            shape2EndPoint.y += shape2.y
+        for (let j = 0; j < shape2.points.length; j++) {
+            if (shape2.buildSteps[j + 1].type != 'line') continue
+            let shape2StartPoint = shape2.points[j].getAbsoluteCoordinates()
+            let shape2EndPoint = shape2.points[(j + 1) % shape2.points.length].getAbsoluteCoordinates()
 
             if (isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)
                 || isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {

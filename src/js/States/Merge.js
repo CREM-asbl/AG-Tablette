@@ -45,7 +45,6 @@ class MergeState {
             shape2 = shape
 
         if (hasCommonSegments(shape1, shape2)) {
-
             const segmentsOfMergedShape = this.computeSegmentsOfMergedShape(shape1, shape2)
 
             const newBS = this.computeNewBuildSteps(segmentsOfMergedShape)
@@ -148,41 +147,35 @@ class MergeState {
 
     computeSegmentsOfMergedShape(shape1, shape2) {
         // Todo: A améliorer pour les arcs
-        let segments = [],
-            shape1StartPoint = null,
-            shape1EndPoint = null,
-            shape2StartPoint = null,
-            shape2EndPoint = null
+        let segments = []
 
-        for (let i = 1; i < shape1.buildSteps.length; i++) {
-            shape1StartPoint = shape1.buildSteps[i - 1].getFinalPoint(shape1StartPoint);
-            shape1StartPoint.x += shape1.x
-            shape1StartPoint.y += shape1.y
-            shape1EndPoint = shape1.buildSteps[i].getFinalPoint(shape1StartPoint);
-            shape1EndPoint.x += shape1.x
-            shape1EndPoint.y += shape1.y
-            segments.push({ point1: shape1StartPoint, point2: shape1EndPoint })
+        for (let i = 0; i < shape1.points.length; i++) {
+            let shape1StartPoint = shape1.points[i].getAbsoluteCoordinates()
+            let shape1EndPoint = shape1.points[(i + 1) % shape1.points.length].getAbsoluteCoordinates()
+            segments.push({
+                point1: shape1StartPoint,
+                point2: shape1EndPoint
+            })
         }
 
-        for (let i = 1; i < shape2.buildSteps.length; i++) {
-            shape2StartPoint = shape2.buildSteps[i - 1].getFinalPoint(shape2StartPoint);
-            shape2StartPoint.x += shape2.x
-            shape2StartPoint.y += shape2.y
-            shape2EndPoint = shape2.buildSteps[i].getFinalPoint(shape2StartPoint);
-            shape2EndPoint.x += shape2.x
-            shape2EndPoint.y += shape2.y
+        for (let i = 0; i < shape2.points.length; i++) {
+            let shape2StartPoint = shape2.points[i].getAbsoluteCoordinates()
+            let shape2EndPoint = shape2.points[(i + 1) % shape2.points.length].getAbsoluteCoordinates()
 
-            const commonsSegments = segments.filter(segment => {
-                return isCommonSegment(segment.point1, segment.point2, shape2StartPoint, shape2EndPoint)
-                    || isCommonSegment(segment.point1, segment.point2, shape2EndPoint, shape2StartPoint)
-            })
+            const commonsSegments = segments.filter(segment =>
+                isCommonSegment(segment.point1, segment.point2, shape2StartPoint, shape2EndPoint)
+                || isCommonSegment(segment.point1, segment.point2, shape2EndPoint, shape2StartPoint)
+            )
 
             if (commonsSegments.length > 0) {
                 segments = segments.filter(segment => !commonsSegments.includes(segment))
             }
 
             if (commonsSegments.length === 0) {
-                segments.push({ point1: shape2StartPoint, point2: shape2EndPoint })
+                segments.push({
+                    point1: shape2StartPoint,
+                    point2: shape2EndPoint
+                })
             }
         }
         return segments
