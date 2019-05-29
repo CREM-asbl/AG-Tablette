@@ -222,7 +222,6 @@ class MergeState {
                 }
             }
         }
-        newBuildSteps.push(newBuildSteps[0].getCopy())
         return newBuildSteps
     }
 

@@ -1,5 +1,6 @@
 import { Point } from './Point'
 import { ShapeStep } from './ShapeStep'
+import { distanceBetweenTwoPoints } from './Geometry';
 
 /**
  * Cette classe représente une forme sur le canvas
@@ -143,6 +144,8 @@ export class Shape {
 					var p1 = { 'x': lastPoint.x, 'y': lastPoint.y },
 						p2 = this.buildSteps[i],
 						len = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+					console.log(len)
+					console.log(distanceBetweenTwoPoints(p1, p2))
 					var cursor1 = { 'x': p1.x, 'y': p1.y },
 						cursor2 = { 'x': p2.x, 'y': p2.y },
 						list1 = [],
@@ -181,7 +184,8 @@ export class Shape {
 				}
 			}
 		}
-
+		console.log(this)
+		console.log(approxPointsList)
 		approxPointsList.forEach(function (point) {
 			var relCoord = point.getRelativeCoordinates();
 			averageX += relCoord.x;
@@ -189,6 +193,9 @@ export class Shape {
 		});
 		averageX /= approxPointsList.length;
 		averageY /= approxPointsList.length;
+
+		console.log(averageX)
+		console.log(averageY)
 
 		this.buildSteps.forEach(function (step) {
 			step.setCoordinates(step.x - averageX, step.y - averageY);
