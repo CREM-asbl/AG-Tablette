@@ -4,6 +4,7 @@
 import { ShapeStep } from './ShapeStep'
 import { Point } from './Point'
 import { settings } from './Settings';
+import { distanceBetweenTwoPoints } from './Geometry';
 
 export class Canvas {
 	/**
@@ -18,6 +19,7 @@ export class Canvas {
 		this.cvsRef = canvasRef;
 		this.backgroundCanvasRef = backgroundCanvasRef; //Un second <canvas> sur lequel la grille se dessine.
 		this.ctx = canvasRef.getContext("2d");
+		this.scale = 1
 	}
 
 	refreshBackgroundCanvas() {
@@ -592,7 +594,13 @@ export class Canvas {
 		//TODO: translater du centre ?
 		ctx = this.backgroundCanvasRef.getContext('2d');
 		ctx.scale(newScale, newScale);
+		this.scale = newScale
 	};
+
+	resetScale() {
+		console.log(this.scale)
+		this.updateRelativeScaleLevel(1/this.scale)
+	}
 
 	/**
 	 * Dessine un texte
@@ -667,5 +675,43 @@ export class Canvas {
 		ctx.closePath();
 		ctx.stroke();
 		ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
+	}
+
+	//permet de savoir si une forme se trouve à la position du canvas
+	//mais petit souci avec zoom ??? (on dirait qu'il est appliqué 2x)
+	isSelectedShape(point, shape) {
+		const ctx = this.ctx;
+
+		ctx.translate(shape.x, shape.y);
+
+		ctx.beginPath();
+		var firstPoint = shape.buildSteps[0];
+
+		ctx.moveTo(firstPoint.x, firstPoint.y);
+		var prevFinalPoint = null;
+		for (var i = 1; i < shape.buildSteps.length; i++) {
+			var s = shape.buildSteps[i],
+				prevFinalPoint = shape.buildSteps[i - 1].getFinalPoint(prevFinalPoint);
+
+			if (s.getType() == "line") {
+				ctx.lineTo(s.x, s.y);
+			} else if (s.getType() == "arc") {
+				var rayon = distanceBetweenTwoPoints(prevFinalPoint, s),
+					start_angle = window.app.positiveAtan2(prevFinalPoint.y - s.y, prevFinalPoint.x - s.x),
+					end_angle;
+				if (!s.direction) { //sens horloger
+					end_angle = start_angle + s.angle;
+				} else {
+					end_angle = start_angle - s.angle;
+				}
+
+				ctx.arc(s.x, s.y, rayon, start_angle, end_angle, s.direction);
+			}
+		}
+
+		ctx.lineTo(firstPoint.x, firstPoint.y);
+		const selected = ctx.isPointInPath(point.x, point.y)
+		ctx.translate(-shape.x, -shape.y)
+		return selected
 	}
 }

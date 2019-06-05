@@ -78,7 +78,7 @@ export class App {
 		var historyRunning = this.workspace.history.isRunning;
 
 		this.events.click = (e, selection) => {
-		
+
 			if (this.state.click && !historyRunning)
 				this.state.click(e, selection);
 		};
@@ -457,7 +457,9 @@ export class App {
 		const reader = new FileReader()
 		reader.readAsText(file)
 		reader.onload = () => {
+			const oldZoomLevel = this.workspace.zoomLevel
 			this.workspace = Workspace.createWorkingspaceFromJson(reader.result)
+			this.canvas.updateRelativeScaleLevel(this.workspace.zoomLevel / oldZoomLevel)
 			this.canvas.refresh()
 		}
 	}

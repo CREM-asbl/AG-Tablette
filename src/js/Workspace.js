@@ -203,11 +203,7 @@ export class Workspace {
 	 * @return la liste des formes ([Shape])
 	 */
 	shapesOnPoint(point) {
-		var list = [];
-		for (var i = 0; i < this.shapesList.length; i++) {
-			if (this.shapesList[i].containsPoint(point))
-				list.push(this.shapesList[i]);
-		}
+		const list = this.shapesList.filter(shape => shape.containsPoint(point))
 		return list;
 	};
 
@@ -754,6 +750,7 @@ export class Workspace {
 		return wsdata;
 	}
 
+	// Todo remplacer par loadFomJson au lieu d'une fonction static ?
 	static createWorkingspaceFromJson(json) {
 		const wsdata = JSON.parse(json);
 		const ws = new Workspace();

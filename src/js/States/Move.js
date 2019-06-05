@@ -35,11 +35,12 @@ export class MoveState {
      */
     mousedown(point, selection) {
         var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
+
         if (list.length > 0 || selection.shape) {
             this.isMoving = true;
             this.clickCoordinates = point;
             this.selectedShape = selection.shape ? selection.shape : list.pop();
-            var group = app.workspace.getShapeGroup(this.selectedShape, "system");
+             var group = app.workspace.getShapeGroup(this.selectedShape, "system");
             if (group)
                 this.shapesList = group.slice();
             else
