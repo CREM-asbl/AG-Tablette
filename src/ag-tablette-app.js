@@ -91,10 +91,10 @@ class AGTabletteApp extends LitElement {
                 position: absolute;
                 top: 1vh;
                 left: 21%;
-                width: 220px;
+                width: 250px;
                 box-shadow: 0 1px 3px gray;
                 z-index: 100;
-                max-height: 80vh;
+                max-height: 90vh;
             }
 
             #app-canvas-mode-text span{

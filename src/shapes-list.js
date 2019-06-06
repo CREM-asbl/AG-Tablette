@@ -42,8 +42,7 @@ class ShapesList extends LitElement {
 
             button {
                 width: 100%;
-                height: 32px;
-                padding: 8px;
+                padding: 16px;
             }
 
             button:hover,
