@@ -91,32 +91,35 @@ export class ShapeStep {
 	 * @return {{'x': float, 'y': float}} 	le point de destination
 	 */
 	getFinalPoint(srcPoint) {
-		if (this.type == "line") {
-			this.__finalPoint = { 'x': this.x, 'y': this.y };
-			return this.__finalPoint;
-		} else if (this.type == "arc") {
-			if (!srcPoint || (typeof srcPoint) !== "object" || typeof srcPoint.x !== "number" || typeof srcPoint.y !== "number") {
-				console.error("le paramètre srcPoint n'a pas été défini!");
-				return null;
-			}
-			var center = { 'x': this.x, 'y': this.y },
-				start_angle = window.app.positiveAtan2(srcPoint.y - center.y, srcPoint.x - center.x),
-				end_angle = null,
-				rayon = distanceBetweenTwoPoints(center, srcPoint);
-			if (!this.direction) { //sens anti-horloger
-				end_angle = window.app.positiveAngle(start_angle + this.angle);
-			} else {
-				end_angle = window.app.positiveAngle(start_angle - this.angle);
-			}
+		switch (this.type) {
+			case 'line':
+				this.__finalPoint = { 'x': this.x, 'y': this.y };
+				return this.__finalPoint;
+			case 'arc':
+				if (!srcPoint || (typeof srcPoint) !== "object"
+					|| typeof srcPoint.x !== "number"
+					|| typeof srcPoint.y !== "number") {
+					console.error("le paramètre srcPoint n'a pas été défini!");
+					return null;
+				}
+				var center = { 'x': this.x, 'y': this.y },
+					start_angle = window.app.positiveAtan2(srcPoint.y - center.y, srcPoint.x - center.x),
+					end_angle = null,
+					rayon = distanceBetweenTwoPoints(center, srcPoint);
+				if (!this.direction) { //sens anti-horloger
+					end_angle = window.app.positiveAngle(start_angle + this.angle);
+				} else {
+					end_angle = window.app.positiveAngle(start_angle - this.angle);
+				}
 
-			this.__finalPoint = {
-				'x': Math.cos(end_angle) * rayon + center.x,
-				'y': Math.sin(end_angle) * rayon + center.y
-			};
-			return this.__finalPoint;
-		} else {
-			console.error("ShapeStep.getFinalPoint: unknown type");
-			return null;
+				this.__finalPoint = {
+					'x': Math.cos(end_angle) * rayon + center.x,
+					'y': Math.sin(end_angle) * rayon + center.y
+				};
+				return this.__finalPoint;
+			default:
+				console.error("ShapeStep.getFinalPoint: unknown type");
+				return null;
 		}
 	};
 
@@ -125,20 +128,22 @@ export class ShapeStep {
 	 * @return la copie (ShapeStep)
 	 */
 	getCopy() {
-		if (this.type == "line") {
-			var tmp = new ShapeStep('line', this.x, this.y);
-			tmp.__finalPoint = this.__finalPoint;
-			tmp.isArtificial = this.isArtificial;
-			return tmp;
-		} else if (this.type == "arc") {
-			var tmp = new ShapeStep('arc', this.x, this.y, this.angle, this.direction);
-			tmp.__finalPoint = this.__finalPoint;
-			tmp.isArtificial = this.isArtificial;
-			return tmp;
-		} else {
-			console.log("ShapeStep.getCopy: unknown type");
-			return null;
+		let tmp
+		switch (this.type) {
+			case 'line':
+				tmp = new ShapeStep('line', this.x, this.y);
+				tmp.__finalPoint = this.__finalPoint;
+				tmp.isArtificial = this.isArtificial;
+				break
+			case 'arc':
+				tmp = new ShapeStep('arc', this.x, this.y, this.angle, this.direction);
+				tmp.__finalPoint = this.__finalPoint;
+				tmp.isArtificial = this.isArtificial;
+				break
+			default:
+				console.log("ShapeStep.getCopy: unknown type");
 		}
+		return tmp
 	};
 
 	/**

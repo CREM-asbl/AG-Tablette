@@ -61,25 +61,27 @@ class MergeState {
             newShape.otherPoints = []; //Supprime le point au centre (le centre change)
             newShape.segmentPoints = [];
 
-            for (var i = 0; i < shape1.segmentPoints.length; i++) {
-                var p = shape1.segmentPoints[i].getCopy();
-                p.x -= midX;
-                p.y -= midY;
-                p.shape = newShape;
-                newShape.segmentPoints.push(p);
-            }
+            // Todo : A remettre en route si utile
+            // for (var i = 0; i < shape1.segmentPoints.length; i++) {
+            //     var p = shape1.segmentPoints[i].getCopy();
+            //     p.x -= midX;
+            //     p.y -= midY;
+            //     p.shape = newShape;
+            //     newShape.segmentPoints.push(p);
+            // }
 
-            const decalage = {
-                'x': shape1.x - shape2.x,
-                'y': shape1.y - shape2.y
-            };
+            // const decalage = {
+            //     'x': shape1.x - shape2.x,
+            //     'y': shape1.y - shape2.y
+            // };
 
-            for (var i = 0; i < shape2.segmentPoints.length; i++) {
-                var p = shape2.segmentPoints[i].getCopy();
-                p.x -= midX + decalage.x;
-                p.y -= midY + decalage.y;
-                newShape.segmentPoints.push(p);
-            }
+
+            // for (var i = 0; i < shape2.segmentPoints.length; i++) {
+            //     var p = shape2.segmentPoints[i].getCopy();
+            //     p.x -= midX + decalage.x;
+            //     p.y -= midY + decalage.y;
+            //     newShape.segmentPoints.push(p);
+            // }
 
             app.workspace.addShape(newShape);
 
@@ -193,7 +195,7 @@ class MergeState {
             const currentSegment = segmentsList.shift()
             if (!nextPoint) {
                 nextPoint = currentSegment.point2
-                newBuildSteps.push(new ShapeStep('line', currentSegment.point1.x, currentSegment.point1.y))
+                newBuildSteps.push(new ShapeStep('move', currentSegment.point1.x, currentSegment.point1.y))
                 newBuildSteps.push(new ShapeStep('line', nextPoint.x, nextPoint.y))
             }
             else if (isSamePoints(currentSegment.point1, nextPoint)) {
