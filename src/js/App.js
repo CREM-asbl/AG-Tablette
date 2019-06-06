@@ -139,6 +139,7 @@ export class App {
 
 		this.workspace = new Workspace();
 		this.workspace.addMenuAFamilies();
+		this.canvas.resetZoom()
 		this.canvas.refresh();
 	};
 
@@ -457,9 +458,9 @@ export class App {
 		const reader = new FileReader()
 		reader.readAsText(file)
 		reader.onload = () => {
-			const oldZoomLevel = this.workspace.zoomLevel
 			this.workspace = Workspace.createWorkingspaceFromJson(reader.result)
-			this.canvas.updateRelativeScaleLevel(this.workspace.zoomLevel / oldZoomLevel)
+			this.canvas.resetZoom()
+			this.canvas.updateRelativeScaleLevel(this.workspace.zoomLevel)
 			this.canvas.refresh()
 		}
 	}
