@@ -27,6 +27,7 @@ import './js/States/MovePlane'
 import './js/States/Reverse'
 import './js/States/Rotate'
 import './js/States/Unlinker'
+import { standardShapes } from './js/StandardShapes';
 
 
 class AGTabletteApp extends LitElement {
@@ -40,13 +41,7 @@ class AGTabletteApp extends LitElement {
 
     constructor() {
         super()
-        // TODO: remplacer par un appel vers le "kit Standard"
-        this.families = [
-            "Triangle équilatéral",
-            "Carré",
-            "Pentagone régulier"
-        ]
-
+        this.families = Object.keys(standardShapes)
         this.state = {}
 
         addEventListener('app-state-changed', event => this.state = { ...event.detail })
