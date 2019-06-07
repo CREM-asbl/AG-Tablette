@@ -203,7 +203,7 @@ export class Workspace {
 	 * @return la liste des formes ([Shape])
 	 */
 	shapesOnPoint(point) {
-		const list = this.shapesList.filter(shape => shape.containsPoint(point))
+		const list = this.shapesList.filter(shape => app.canvas.isSelectedShape(point, shape))
 		return list;
 	};
 

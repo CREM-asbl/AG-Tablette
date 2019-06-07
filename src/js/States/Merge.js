@@ -195,7 +195,7 @@ class MergeState {
             const currentSegment = segmentsList.shift()
             if (!nextPoint) {
                 nextPoint = currentSegment.point2
-                newBuildSteps.push(new ShapeStep('move', currentSegment.point1.x, currentSegment.point1.y))
+                newBuildSteps.push(new ShapeStep('line', currentSegment.point1.x, currentSegment.point1.y))
                 newBuildSteps.push(new ShapeStep('line', nextPoint.x, nextPoint.y))
             }
             else if (isSamePoints(currentSegment.point1, nextPoint)) {

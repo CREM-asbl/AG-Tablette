@@ -293,38 +293,8 @@ export class Canvas {
 		ctx.translate(shape.x, shape.y);
 
 		//dessine le chemin principal
-		ctx.beginPath();
-		var firstPoint = shape.buildSteps[0];
-
-		ctx.moveTo(firstPoint.x, firstPoint.y);
-		var prevFinalPoint = null;
-		for (var i = 1; i < shape.buildSteps.length; i++) {
-			var s = shape.buildSteps[i],
-				prevFinalPoint = shape.buildSteps[i - 1].getFinalPoint(prevFinalPoint);
-
-			if (s.getType() == "line") {
-				ctx.lineTo(s.x, s.y);
-			} else if (s.getType() == "arc") {
-				var rayon = distanceBetweenTwoPoints(s, prevFinalPoint),
-					start_angle = window.app.positiveAtan2(prevFinalPoint.y - s.y, prevFinalPoint.x - s.x),
-					end_angle;
-				if (!s.direction) { //sens horloger
-					end_angle = start_angle + s.angle;
-				} else {
-					end_angle = start_angle - s.angle;
-				}
-
-				ctx.arc(s.x, s.y, rayon, start_angle, end_angle, s.direction);
-			} else {
-				console.error("unknown type");
-				return;
-			}
-		}
-
-		ctx.closePath();
-
-		ctx.fill();
-		ctx.stroke();
+		ctx.fill(shape.getPath());
+		ctx.stroke(shape.getPath());
 
 		ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
 
@@ -375,7 +345,7 @@ export class Canvas {
 				ctx.lineTo(bs.x, bs.y);
 			} else if (bs.getType() == "arc") {
 				ctx.moveTo(sourcept.x, sourcept.y);
-				var rayon = Math.sqrt(Math.pow(bs.x - sourcept.x, 2) + Math.pow(bs.y - sourcept.y, 2)),
+				var rayon = distanceBetweenTwoPoints(bs,sourcept),
 					start_angle = window.app.positiveAtan2(sourcept.y - bs.y, sourcept.x - bs.x),
 					end_angle;
 				if (!bs.direction) { //sens horloger
@@ -672,41 +642,13 @@ export class Canvas {
 	}
 
 	//permet de savoir si une forme se trouve à la position du canvas
-	//mais petit souci avec zoom ??? (on dirait qu'il est appliqué 2x)
-	// Todo: à améliorer
 	isSelectedShape(point, shape) {
 		const ctx = this.ctx;
-
+		ctx.save()
+		ctx.setTransform(1, 0, 0, 1, 0, 0)
 		ctx.translate(shape.x, shape.y);
-
-		ctx.beginPath();
-		var firstPoint = shape.buildSteps[0];
-
-		ctx.moveTo(firstPoint.x, firstPoint.y);
-		var prevFinalPoint = null;
-		for (var i = 1; i < shape.buildSteps.length; i++) {
-			var s = shape.buildSteps[i],
-				prevFinalPoint = shape.buildSteps[i - 1].getFinalPoint(prevFinalPoint);
-
-			if (s.getType() == "line") {
-				ctx.lineTo(s.x, s.y);
-			} else if (s.getType() == "arc") {
-				var rayon = distanceBetweenTwoPoints(prevFinalPoint, s),
-					start_angle = window.app.positiveAtan2(prevFinalPoint.y - s.y, prevFinalPoint.x - s.x),
-					end_angle;
-				if (!s.direction) { //sens horloger
-					end_angle = start_angle + s.angle;
-				} else {
-					end_angle = start_angle - s.angle;
-				}
-
-				ctx.arc(s.x, s.y, rayon, start_angle, end_angle, s.direction);
-			}
-		}
-		ctx.closePath()
-		
-		const selected = ctx.isPointInPath(point.x, point.y)
-		ctx.translate(-shape.x, -shape.y)
+		const selected = ctx.isPointInPath(shape.getPath(), point.x, point.y)
+		ctx.restore()
 		return selected
 	}
 

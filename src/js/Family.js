@@ -18,7 +18,7 @@ export class Family {
 		this.defaultColor = defaultColor;
 		this.id = null;
 
-		// Todo: remplacer le code en fonction du pack chargé
+		// Todo: remplacer le code en fonction du kit chargé
 		standardShapes[name].forEach(shape => {
 			const buildSteps = shape.steps.map(step => {
 				const { type, x, y, angle = null } = step

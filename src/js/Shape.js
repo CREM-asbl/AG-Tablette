@@ -473,4 +473,35 @@ export class Shape {
 
 		return saveData;
 	}
+
+	getPath() {
+		// Todo: simplifier pour ne pas de voir le calculer à chaque appel
+		const path = new Path2D()
+
+		const firstPoint = this.buildSteps[0];
+
+		path.moveTo(firstPoint.x, firstPoint.y);
+		var prevFinalPoint = null;
+		for (var i = 1; i < this.buildSteps.length; i++) {
+			var s = this.buildSteps[i],
+				prevFinalPoint = this.buildSteps[i - 1].getFinalPoint(prevFinalPoint);
+
+			if (s.getType() == "line") {
+				path.lineTo(s.x, s.y);
+			} else if (s.getType() == "arc") {
+				var rayon = distanceBetweenTwoPoints(prevFinalPoint, s),
+					start_angle = window.app.positiveAtan2(prevFinalPoint.y - s.y, prevFinalPoint.x - s.x),
+					end_angle;
+				if (!s.direction) { //sens horloger
+					end_angle = start_angle + s.angle;
+				} else {
+					end_angle = start_angle - s.angle;
+				}
+
+				path.arc(s.x, s.y, rayon, start_angle, end_angle, s.direction);
+			}
+		}
+		path.closePath()
+		return path
+	}
 }

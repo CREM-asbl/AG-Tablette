@@ -118,7 +118,7 @@ export class ShapeStep {
 				};
 				return this.__finalPoint;
 			default:
-				console.error("ShapeStep.getFinalPoint: unknown type");
+				console.error(`ShapeStep.getFinalPoint: unknown type ${this.type}`);
 				return null;
 		}
 	};

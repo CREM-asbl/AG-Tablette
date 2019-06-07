@@ -1,3 +1,5 @@
+// Todo: transformer le js en json quand d'autres kit seront créés
+
 export const standardShapes = {
     'Triangle équilatéral': [{
         name: "Triangle équilatéral",
