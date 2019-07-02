@@ -94,9 +94,9 @@ class AGTabletteApp extends LitElement {
 
             #app-canvas-mode-text span{
                 color: #444;
-            }    
+            }
         </style>
-        
+
         <div id="app-canvas-view">
             <div id="app-canvas-view-toolbar" class="toolbar">
                 <div id="app-canvas-view-toolbar-p1">
@@ -121,7 +121,7 @@ class AGTabletteApp extends LitElement {
                             <button class="action-button"
                                     name="load"
                                     @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
-                                    Charger 
+                                    Charger
                             </button>
                             <button class="action-button"
                                     name="settings"
@@ -142,99 +142,99 @@ class AGTabletteApp extends LitElement {
 
                 <div id="app-canvas-view-toolbar-p2">
                     <div class="toolbar-separator">Mouvements</div>
-                    <button class="action-button" 
-                            name="move_shape" 
+                    <button class="action-button"
+                            name="move_shape"
                             ?active="${this.state.name === 'move_shape'}"
                             @click='${this._actionHandle}'>
                             Glisser
                     </button>
-                    <button class="action-button" 
-                            name="rotate_shape" 
+                    <button class="action-button"
+                            name="rotate_shape"
                             ?active="${this.state.name === 'rotate_shape'}"
                             @click='${this._actionHandle}'>
                             Tourner
                     </button>
-                    <button class="action-button" 
-                            name="reverse_shape" 
+                    <button class="action-button"
+                            name="reverse_shape"
                             ?active="${this.state.name === 'reverse_shape'}"
                             @click='${this._actionHandle}'>
                             Retourner
                     </button>
-                    <button class="action-button" 
-                            name="global_zoom" 
-                            ?active="${this.state.name === 'global_zoom'}"
-                            @click='${this._actionHandle}'>
-                            Zoomer
-                    </button>
-
-                    <div class="toolbar-separator">Outils</div>
-                    <button class="action-button" 
-                            name="moveplane_state" 
-                            ?active="${this.state.name === 'moveplane_state'}"
-                            @click='${this._actionHandle}'>
-                            Glisser le plan
-                    </button>
-                    <button class="action-button" 
-                            name="link_shapes" 
-                            ?active="${this.state.name === 'link_shapes'}"
-                            @click='${this._actionHandle}'>
-                            Lier
-                    </button>
-                    <button class="action-button" 
-                            name="unlink_shapes" 
-                            ?active="${this.state.name === 'unlink_shapes'}"
-                            @click='${this._actionHandle}'>
-                            Délier
-                    </button>
-                    <button class="action-button"
-                            name="delete_shape" 
-                            ?active="${this.state.name === 'delete_shape'}"
-                            @click='${this._actionHandle}'>
-                            Supprimer
-                    </button>
-                    <button class="action-button" 
-                            name="background_color" 
-                            ?active="${this.state.name === 'background_color'}"
-                            @click='${this._actionHandle}'>
-                            Colorier les formes
-                    </button>
-                    <button class="action-button" 
-                            name="border_color" 
-                            ?active="${this.state.name === 'border_color'}"
-                            @click='${this._actionHandle}'>
-                            Colorier les bords
-                    </button>
 
                     <div class="toolbar-separator">Opérations</div>
-                    <button class="action-button" 
-                            name="merge_shapes" 
-                            ?active="${this.state.name === 'merge_shapes'}"
+                    <button class="action-button"
+                            name="build_shape_center"
+                            ?active="${this.state.name === 'build_shape_center'}"
                             @click='${this._actionHandle}'>
-                            Fusionner
+                            Construire le centre
                     </button>
-                    <button class="action-button" 
-                            name="divide_segment" 
+                    <button class="action-button"
+                            name="divide_segment"
                             ?active="${this.state.name === 'divide_segment'}"
                             @click='${this._actionHandle}'>
                             Diviser
                     </button>
-                    <button class="action-button" 
-                            name="cut_shape" 
+                    <button class="action-button"
+                            name="cut_shape"
                             ?active="${this.state.name === 'cut_shape'}"
                             @click='${this._actionHandle}'>
                             Découper
                     </button>
-                    <button class="action-button" 
-                            name="duplicate_shape" 
+                    <button class="action-button"
+                            name="duplicate_shape"
                             ?active="${this.state.name === 'duplicate_shape'}"
                             @click='${this._actionHandle}'>
                             Dupliquer
                     </button>
-                    <button class="action-button" 
-                            name="build_shape_center" 
-                            ?active="${this.state.name === 'build_shape_center'}"
+                    <button class="action-button"
+                            name="merge_shapes"
+                            ?active="${this.state.name === 'merge_shapes'}"
                             @click='${this._actionHandle}'>
-                            Construire le centre
+                            Fusionner
+                    </button>
+
+                    <div class="toolbar-separator">Outils</div>
+                    <button class="action-button"
+                            name="moveplane_state"
+                            ?active="${this.state.name === 'moveplane_state'}"
+                            @click='${this._actionHandle}'>
+                            Glisser le plan
+                    </button>
+                    <button class="action-button"
+                            name="global_zoom"
+                            ?active="${this.state.name === 'global_zoom'}"
+                            @click='${this._actionHandle}'>
+                            Zoomer
+                    </button>
+                    <button class="action-button"
+                            name="link_shapes"
+                            ?active="${this.state.name === 'link_shapes'}"
+                            @click='${this._actionHandle}'>
+                            Grouper
+                    </button>
+                    <button class="action-button"
+                            name="unlink_shapes"
+                            ?active="${this.state.name === 'unlink_shapes'}"
+                            @click='${this._actionHandle}'>
+                            Dégrouper
+                    </button>
+                    <button class="action-button"
+                            name="background_color"
+                            ?active="${this.state.name === 'background_color'}"
+                            @click='${this._actionHandle}'>
+                            Colorier les formes
+                    </button>
+                    <button class="action-button"
+                            name="border_color"
+                            ?active="${this.state.name === 'border_color'}"
+                            @click='${this._actionHandle}'>
+                            Colorier les bords
+                    </button>
+                    <button class="action-button"
+                            name="delete_shape"
+                            ?active="${this.state.name === 'delete_shape'}"
+                            @click='${this._actionHandle}'>
+                            Supprimer
                     </button>
                 </div>
             </div>
@@ -250,10 +250,10 @@ class AGTabletteApp extends LitElement {
 
         <a id="dataDownloader" hidden target="_blank"></a>
 
-        <input id="fileSelector" 
-               accept=".json" 
-               type="file" 
-               style="display: none" 
+        <input id="fileSelector"
+               accept=".json"
+               type="file"
+               style="display: none"
                @change=${event => app.loadFromFile(event.target.files[0])}>
         `
     }

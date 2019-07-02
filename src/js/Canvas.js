@@ -275,6 +275,7 @@ export class Canvas {
 
 		ctx.strokeStyle = shape.borderColor;
 		ctx.lineWidth = 2;
+		ctx.lineJoin = 'round'
 
 		if (highlightInfo.shape === true) { //il faut mettre la forme en évidence
 			ctx.lineWidth = ((new Number(ctx.lineWidth)) * 1.7).toString();
