@@ -357,7 +357,6 @@ export class Shape {
 			this.color,
 			this.borderColor,
 			{ "x": this.refPoint.x, "y": this.refPoint.y },
-			this.isPointed,
 			this.isSided,
 			this.opacity);
 		shape.isReversed = this.isReversed;
@@ -398,7 +397,6 @@ export class Shape {
 				saveData.color,
 				saveData.borderColor,
 				{ "x": saveData.refPoint.x, "y": saveData.refPoint.y },
-				saveData.isPointed,
 				saveData.isSided,
 				saveData.opacity);
 			shape.isReversed = saveData.isReversed;

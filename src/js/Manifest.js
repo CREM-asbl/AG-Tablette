@@ -1,7 +1,8 @@
-//script de récupération du fichier de configuration manifest.json 
+//script de récupération du fichier de configuration manifest.json
 // et mise à jour de l'affichage de la version
 
-//Todo: rendre l'accès à manifest plus global
+//Todo: rendre l'accès à manifest plus global et avec un seul chargement
+// Une solution : Promise ?
 import { updateMetadata } from 'pwa-helpers/metadata';
 
 export const loadManifest = async () => {

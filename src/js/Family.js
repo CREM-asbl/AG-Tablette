@@ -73,7 +73,6 @@ export class Family {
 					null, null, //coordonnées
 					buildSteps, this.shapesList[i].color, "#000",
 					{ "x": refPoint.x, "y": refPoint.y },
-					settings.get('areShapesPointed'),
 					settings.get('areShapesSided'),
 					settings.get('shapesOpacity'));
 				return shape;
