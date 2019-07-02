@@ -14,7 +14,6 @@ class GlobalZoomState {
         this.baseDistance = null;
         this.isZooming = false;
         this.originalZoomLevel = null;
-        addEventListener('touchstart', this.touchStart.bind(this))
         addEventListener('touchmove', this.touchMove.bind(this))
         addEventListener('touchend', this.touchEnd.bind(this))
     }
@@ -114,26 +113,20 @@ class GlobalZoomState {
      */
     click() { };
 
-    touchStart(event) {
-        if (event.touches.length === 2) {
-            // TODO: A améliorer
-            // actuellement, je passe en no_state car "intéférences" avec la gestion
-            // à la souris quand on active le mode global_zoom  
-            app.setState('no_state')
-            this.isZooming = true
-            this.originalZoomLevel = app.workspace.zoomLevel
-            let point1 = { x: event.touches[0].clientX, y: event.touches[0].clientY }
-            let point2 = { x: event.touches[1].clientX, y: event.touches[1].clientY }
-            this.baseDistance = distanceBetweenTwoPoints(point1, point2)
-        }
-    }
-
     touchMove(event) {
         if (event.touches.length === 2) {
             let point1 = { x: event.touches[0].clientX, y: event.touches[0].clientY }
             let point2 = { x: event.touches[1].clientX, y: event.touches[1].clientY }
             let distance = distanceBetweenTwoPoints(point1, point2)
+            if (!this.baseDistance) {
+                app.setState('no_state')
+                this.isZooming = true
+                this.originalZoomLevel = app.workspace.zoomLevel
+                this.baseDistance = distance
+                return
+            }
             let ratio = (distance / this.baseDistance) * this.originalZoomLevel
+            console.log(`${distance}, ${this.baseDistance}, ${this.originalZoomLevel} => ${ratio}`)
             app.workspace.setZoomLevel(ratio, false);
         }
     }

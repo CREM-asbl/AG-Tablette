@@ -17,7 +17,7 @@ class Settings {
         this.add("maxZoomLevel", 10, false);
 
         //Niveau de zoom minimal de l'interface
-        this.add("minZoomLevel", 0.01, false);
+        this.add("minZoomLevel", 0.1, false);
 
         /**
          * Paramètres d'affichage de la grille.
