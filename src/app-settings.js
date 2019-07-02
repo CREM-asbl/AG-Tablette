@@ -28,7 +28,7 @@ class AppSettings extends LitElement {
                 background-color: #ddd;
                 overflow-y: hidden;
             }
-        
+
             #popup-close {
                 position: relative;
                 font-size: 60px;
@@ -99,11 +99,11 @@ class AppSettings extends LitElement {
 
         <div id="app-settings-view">
 
-            <div id="popup-close" 
+            <div id="popup-close"
                 @click="${() => this.style.display = 'none'}">
                 &times;
-            </div>  
-            
+            </div>
+
             <h2>Paramètres</h2>
             <div class="app-settings-form">
 
@@ -111,43 +111,43 @@ class AppSettings extends LitElement {
                     <legend>Général</legend>
 
                     <div class="field">
-                        <input type="checkbox" 
-                               name="settings_adapt_shapes_position" 
+                        <input type="checkbox"
+                               name="settings_adapt_shapes_position"
                                id="settings_adapt_shapes_position"
-                               ?checked="${settings.get('automaticAdjustment')}" 
+                               ?checked="${settings.get('automaticAdjustment')}"
                                @change='${this._actionHandle}' />
-                        <label for="settings_adapt_shapes_position">Ajustement automatique</label>                   
+                        <label for="settings_adapt_shapes_position">Ajustement automatique</label>
                     </div>
 
                     <div class="field">
-                        <input type="checkbox" 
-                               name="settings_show_grid" 
+                        <input type="checkbox"
+                               name="settings_show_grid"
                                id="settings_show_grid"
-                               ?checked="${settings.get('isGridShown')}"  
+                               ?checked="${settings.get('isGridShown')}"
                                @change='${this._actionHandle}' />
                         <label for="settings_show_grid">Activer la grille</label>
                     </div>
 
                     <div class="field" style="margin-left:8px">
                         <label for="settings_grid_type">Type de grille </label>
-                        <select name="settings_grid_type" 
-                                id="settings_grid_type" 
-                                @change='${this._actionHandle}' 
+                        <select name="settings_grid_type"
+                                id="settings_grid_type"
+                                @change='${this._actionHandle}'
                                 disabled="${settings.get('isGridShown')}">
                             <option value="square"
                                     ?selected=${settings.get('gridType') === 'square'}>Carrés</option>
                             <option value="triangle"
                                     ?selected=${settings.get('gridType') === 'triangle'}>Triangles</option>
                         </select>
-                    
+
                     </div>
 
                     <div class="field" style="margin-left:8px">
                         <label for="settings_grid_size">Taille de la grille </label>
-                        <select name="settings_grid_size" id="settings_grid_size" 
-                                @change='${this._actionHandle}' 
+                        <select name="settings_grid_size" id="settings_grid_size"
+                                @change='${this._actionHandle}'
                                 disabled="${settings.get('isGridShown')}">
-                            <option value="0.333333333333333" 
+                            <option value="0.333333333333333"
                                     ?selected="${settings.get('gridSize') === 0.333333333333333}">
                                     1/3
                             </option>
@@ -163,7 +163,7 @@ class AppSettings extends LitElement {
                                     ?selected="${settings.get('gridSize') === 2}">
                                     2
                             </option>
-                            <option value="3" 
+                            <option value="3"
                                     ?selected="${settings.get('gridSize') === 3}">
                                     3
                             </option>
@@ -179,7 +179,7 @@ class AppSettings extends LitElement {
 
                     <div class="field">
                         <label for="settings_shapes_size">Taille des formes </label>
-                        <select name="settings_shapes_size" 
+                        <select name="settings_shapes_size"
                                 id="settings_shapes_size"
                                 @change='${this._actionHandle}'>
                             <option value="1">1</option>
@@ -189,19 +189,19 @@ class AppSettings extends LitElement {
                     </div>
 
                     <div class="field">
-                        <input type="checkbox" 
-                               name="settings_pointed_shapes" 
-                               id="settings_pointed_shapes" 
+                        <input type="checkbox"
+                               name="settings_pointed_shapes"
+                               id="settings_pointed_shapes"
                                ?checked="${settings.get('areShapesPointed')}"
                                @change='${this._actionHandle}' />
                         <label for="settings_pointed_shapes">Formes pointées</label>
                     </div>
 
                     <div class="field">
-                        <input type="checkbox" 
-                               name="settings_sided_shapes" 
+                        <input type="checkbox"
+                               name="settings_sided_shapes"
                                id="settings_sided_shapes"
-                               ?checked="${settings.get('areShapesSided')}" 
+                               ?checked="${settings.get('areShapesSided')}"
                                @change='${this._actionHandle}' />
                         <label for="settings_sided_shapes">Formes bifaces</label>
                     </div>
@@ -282,6 +282,7 @@ class AppSettings extends LitElement {
 
             case 'settings_pointed_shapes':
                 settings.update('areShapesPointed', event.target.checked);
+                window.app.canvas.refresh();
                 break;
 
             case 'settings_sided_shapes':

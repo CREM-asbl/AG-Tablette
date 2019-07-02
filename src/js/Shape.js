@@ -20,7 +20,7 @@ export class Shape {
 	 * @param isSided: si la forme a 2 faces ou non
 	 * @param opacity: opacité de la forme (int entre 0 et 1)
 	 */
-	constructor(familyName, name, x, y, buildSteps, color, borderColor, refPoint, isPointed, isSided, opacity) {
+	constructor(familyName, name, x, y, buildSteps, color, borderColor, refPoint, isSided, opacity) {
 		window.app.workspace.tmpCreatingShape = this;
 		this.id = null; //L'id est défini lorsqu'une forme est ajoutée à un workspace.
 
@@ -37,9 +37,6 @@ export class Shape {
 
 		//La forme a-t-elle 2 faces (-> 2 couleurs différentes) ou pas ? La couleur de l'autre face, le cas échéant, est le complément de la couleur de base.
 		this.isSided = isSided;
-
-		//Les sommets de la forme sont-ils affichés ?
-		this.isPointed = isPointed;
 
 		//l'opacité de la forme, entre 0 et 1
 		this.opacity = opacity;

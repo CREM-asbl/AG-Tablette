@@ -1,6 +1,4 @@
-
-
-export class Settings {
+class Settings {
     constructor() {
         //Liste des paramètres (ne pas y accéder directement);
         this.data = {};

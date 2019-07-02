@@ -83,7 +83,7 @@ export class Canvas {
 				/*
 				//Pour une version PC. getElementsToHighlight n'est pas utilisé sur tablette.
 				var data = this.app.state.getElementsToHighlight(shapes[shapes.length-1], mouseCoordinates);
-	
+
 				shapesToHighlight = data.shapes;
 				segmentsToHighlight = data.segments; // [{shape: Shape, segment: BuildStep}]
 				pointsToHighlight = data.points; //[{shape: Shape, point: Point}]
@@ -366,7 +366,7 @@ export class Canvas {
 		ctx.strokeStyle = strokeSave;
 
 
-		if (shape.isPointed) {
+		if (settings.get('areShapesPointed')) {
 			//dessine les points (noirs) des sommets de la forme
 			for (var i = 0; i < shape.points.length; i++) {
 				if (shape.points[i].hidden)

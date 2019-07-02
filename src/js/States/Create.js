@@ -80,7 +80,6 @@ class CreateState {
             x, y,
             buildStepsCopy, this.selectedShape.color, "#000",
             { "x": this.selectedShape.refPoint.x, "y": this.selectedShape.refPoint.y },
-            settings.get('areShapesPointed'),
             settings.get('areShapesSided'),
             settings.get('shapesOpacity'));
 
