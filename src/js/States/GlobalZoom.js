@@ -126,7 +126,6 @@ class GlobalZoomState {
                 return
             }
             let ratio = (distance / this.baseDistance) * this.originalZoomLevel
-            console.log(`${distance}, ${this.baseDistance}, ${this.originalZoomLevel} => ${ratio}`)
             app.workspace.setZoomLevel(ratio, false);
         }
     }
