@@ -1,35 +1,13 @@
 /**
  * Cette classe abstraite représente un état possible de l'application
+ * // Todo :  est-elle encore utile ?
  */
-export class State {
-    constructor(name) {
-        if(this.constructor === State) {
-            throw new TypeError('Abstract class "State" cannot be instantiated directly');
-        }
-        this.name = name;
+class State {
+    constructor() {
+        this.app = null;
+        this.name = null;
     }
 
-
-
-
-
-    //Événements:
-    /*
-    onClick(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onMouseDown(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onMouseUp(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onMouseMove(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchStart(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchMove(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchEnd(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchLeave(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchCancel(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    */
-
-
-
-
-    //TODO: vérifier ces fonctions.
     /**
      * Appelée lorsqu'un autre état va être lancé et qu'il faut annuler l'action en cours
      */
@@ -50,6 +28,31 @@ export class State {
      */
     start(params) {
         console.log("start() not implemented");
+    };
+
+    /**
+     * Appelée lorsque l'événement click est déclanché sur le canvas
+     * @param coordinates: {x: int, y: int}
+     * @param selection: {shape: Shape}. Objet sélectionné lors du clic.
+     */
+    click(coordinates, selection) {
+        console.log("click() not implemented");
+    };
+
+    /**
+    * Appelée lorsque l'événement mousedown est déclanché sur le canvas
+    * @param coordinates: {x: int, y: int}
+     */
+    mousedown(coordinates, selection) {
+        console.log("mousedown() not implemented");
+    };
+
+    /**
+    * Appelée lorsque l'événement mouseup est déclanché sur le canvas
+    * @param coordinates: {x: int, y: int}
+     */
+    mouseup(coordinates, selection) {
+        console.log("mouseup() not implemented");
     };
 
     /**

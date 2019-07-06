@@ -1,5 +1,4 @@
-
-export class Settings {
+class Settings {
     constructor() {
         //Liste des paramètres (ne pas y accéder directement);
         this.data = {};
@@ -10,7 +9,7 @@ export class Settings {
         this.add("magnetismDistance", 10, false);
 
         /**
-         * La précision, en pixels. (2 points à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )
+         * La précision, en pixels. (2 poitns à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )
          */
         this.add("precision", 1.5, false);
 
@@ -20,7 +19,7 @@ export class Settings {
         //Niveau de zoom minimal de l'interface
         this.add("minZoomLevel", 0.1, false);
 
-        /** //TODO déplacer les explications ailleurs
+        /**
          * Paramètres d'affichage de la grille.
          * Le point de référence de la grille est le point (10,10).
          * Si grille carrée: le côté du carré est de 50 unités. (-> ex de points: (60, 60), (60,10), (10,60), ...)
@@ -35,19 +34,21 @@ export class Settings {
         this.add("automaticAdjustment", true, true);
 
         //Pour l'opération diviser, défini en combien de partie un segment est divisé.
-        this.add("divideStateNumberOfParts", 2, true); //TODO delete?
+        this.add("divideStateNumberOfParts", 2, true);
 
         //true si les formes ajoutées à l'avenir auront leurs sommets visibles
         this.add("areShapesPointed", true, true);
 
         //true si les formes ajoutées à l'avenir seront bifaces
-        this.add("areShapesSided", false, true); //TODO delete?
+        this.add("areShapesSided", false, true);
 
         //opacité des formes qui seront ajoutées
-        this.add("shapesOpacity", 0.7, true);  //TODO delete?
+        this.add("shapesOpacity", 0.7, true); //0, 0.7, 1
 
         //taille des formes qui seront ajoutées
         this.add("shapesSize", 2, true); //1,2,3
+
+        this.add("virtualMouseSize", 1.5, false);
     }
 
     /**
@@ -97,4 +98,10 @@ export class Settings {
         }
         this.data[name].value = value;
     }
+}
+
+export let settings
+
+if(!settings) {
+    settings = new Settings()
 }

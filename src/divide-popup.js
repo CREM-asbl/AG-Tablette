@@ -39,7 +39,7 @@ class DividePopup extends LitElement {
                 overflow-y: auto;
                 text-align: center;
             }
-        
+
             #divide-popup-close {
                 position: relative;
                 font-size: 60px;
@@ -63,8 +63,8 @@ class DividePopup extends LitElement {
             }
         </style>
             <div id="divide-popup">
-                <div id="divide-popup-close" 
-                     @click="${() => this.style.display = 'none'}">&times;</div>        
+                <div id="divide-popup-close"
+                     @click="${() => this.style.display = 'none'}">&times;</div>
                 <label for="settings_divide_number_of_parts">Diviser en </label>
                 <select @change="${e => this.parts = e.target.value}">
                     <option value="2">2</option>
@@ -81,7 +81,8 @@ class DividePopup extends LitElement {
 
     dividePopupValidate() {
         this.style.display = 'none';
-        window.app.state.nb_parts = parseFloat(this.parts);
+        console.log("update divide number of parts"); /*
+        window.app.state.nb_parts = parseFloat(this.parts);*/
     }
 
 }

@@ -308,37 +308,6 @@ export class Workspace {
 	};
 
 	/**
-	 * Renvoie l'index d'une forme
-	 * @param shape: la forme (Shape)
-	 * @return: l'id (int)
-	 */
-	getShapeIndex(shape) {
-		var index = -1;
-		for (var i = 0; i < this.shapesList.length; i++) {
-			if (this.shapesList[i] == shape) {
-				return i;
-			}
-		}
-		return null;
-	};
-
-	/**
-	 * Renvoie la forme ayant un certain id
-	 * @param  {int} shapeId l'id de la forme
-	 * @return {Shape}         l'objet forme
-	 */
-	getShapeById(shapeId) {
-		for (var i = 0; i < this.shapesList.length; i++) {
-			var s = this.shapesList[i];
-			if (s.id == shapeId)
-				return s;
-		}
-		if (this.tmpCreatingShape && this.tmpCreatingShape.id == shapeId)
-			return this.tmpCreatingShape;
-		return null;
-	};
-
-	/**
 	 * supprime une forme
 	 * @param shape: la forme (Shape)
 	 */
@@ -433,35 +402,9 @@ export class Workspace {
 		this.addFamily(new Family("Pentagone régulier", "#0F0"));
 	};
 
-	/**
-	 * Récupère une famille à partir de son nom
-	 * @param name: le nom de la famille (String)
-	 * @return la famille (Family)
-	 */
-	getFamily(name) {
-		return this.families.filter(family => family.name === name)[0]
-	};
 
-	/**
-	 * définir le niveau de zoom général du canvas
-	 * @param newZoomLevel: le niveau de zoom, entre 0.1 et 10 (float)
-	 * @param doRefresh (@default true): si vaut false, ne va pas mettre le canvas à jour
-	 */
-	setZoomLevel(newZoomLevel, doRefresh) {
-		if (newZoomLevel < settings.get('minZoomLevel'))
-			newZoomLevel = settings.get('minZoomLevel');
-		if (newZoomLevel > settings.get('maxZoomLevel'))
-			newZoomLevel = settings.get('maxZoomLevel');
 
-		app.canvas.updateRelativeScaleLevel(newZoomLevel / this.zoomLevel);
 
-		this.zoomLevel = newZoomLevel;
-		if (doRefresh !== false) {
-			app.canvas.refresh();
-
-		}
-		app.canvas.refreshBackgroundCanvas();
-	};
 
 	getSaveData() {
 		var wsdata = {

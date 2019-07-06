@@ -6,11 +6,11 @@ import './div-main-canvas'
 import './app-settings'
 // import './divide-popup'
 import './js/Manifest'
-import './new-popup'
-import { dico } from './js/Dico'
+// import './new-popup'
 
 // Chargement des States
 // TODO: à remplacer par chargement 'dynamique'
+/*
 import './js/States/BackgroundColor'
 import './js/States/BorderColor'
 import './js/States/BuildCenter'
@@ -26,9 +26,11 @@ import './js/States/Move'
 import './js/States/MovePlane'
 import './js/States/Reverse'
 import './js/States/Rotate'
-import './js/States/Unlinker'
-import { standardShapes } from './js/StandardShapes';
+import './js/States/Unlinker'*/
 
+import { app } from './js/App'
+import { standardKit } from './js/ShapesKits/standardKit'
+import { StatesManager } from './js/StatesManager'
 
 class AGTabletteApp extends LitElement {
 
@@ -41,7 +43,7 @@ class AGTabletteApp extends LitElement {
 
     constructor() {
         super()
-        this.families = Object.keys(standardShapes)
+        this.families = Object.keys(standardKit)
         this.state = {}
 
         addEventListener('app-state-changed', event => this.state = { ...event.detail })
@@ -100,44 +102,44 @@ class AGTabletteApp extends LitElement {
         <div id="app-canvas-view">
             <div id="app-canvas-view-toolbar" class="toolbar">
                 <div id="app-canvas-view-toolbar-p1">
-                        <div id="app-canvas-mode-text">
-                            <span>Mode: </span>${dico[this.state.name]}
-                        </div>
-                            <button class="action-button"
-                                    name="new"
-                                    @click="${this._actionHandle}">
-                                    Supprimer tout
-                            </button>
-                            <button class="action-button"
-                                    name="undo"
-                                    @click='${this._actionHandle}'>
-                                    Annuler
-                            </button>
-                        <button class="action-button"
-                                    name="save"
-                                    @click='${this.save}'>
-                                    Sauvegarder
-                            </button>
-                            <button class="action-button"
-                                    name="load"
-                                    @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
-                                    Charger
-                            </button>
-                            <button class="action-button"
-                                    name="settings"
-                                    @click='${this._actionHandle}'>
-                                    Paramètres
-                            </button>
+                    <div id="app-canvas-mode-text">
+                        <span>Mode: </span>${this.state.name ? StatesManager.getStateText(this.state.name) : ""}
+                    </div>
+                    <button class="action-button"
+                            name="new"
+                            @click="${this._actionHandle}">
+                            Supprimer tout
+                    </button>
+                    <button class="action-button"
+                            name="undo"
+                            @click='${this._actionHandle}'>
+                            Annuler
+                    </button>
+                    <button class="action-button"
+                                name="save"
+                                @click='${this.save}'>
+                                Sauvegarder
+                    </button>
+                    <button class="action-button"
+                            name="load"
+                            @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
+                            Charger
+                    </button>
+                    <button class="action-button"
+                            name="settings"
+                            @click='${this._actionHandle}'>
+                            Paramètres
+                    </button>
 
-                        <div class="toolbar-separator">Formes standard</div>
+                    <div class="toolbar-separator">Formes standard</div>
 
-                        ${this.families.map(family => html`
-                            <canvas-button name="create_shape"
-                                          .family="${family}"
-                                           ?active="${family === this.state.selectedFamily}"
-                                           @click="${this._actionHandle}">
-                            </canvas-button>
-                        `)}
+                    ${this.families.map(family => html`
+                        <canvas-button name="create_shape"
+                                      .family="${family}"
+                                       ?active="${family === this.state.selectedFamily}"
+                                       @click="${this._actionHandle}">
+                        </canvas-button>
+                    `)}
                 </div>
 
                 <div id="app-canvas-view-toolbar-p2">
@@ -258,7 +260,7 @@ class AGTabletteApp extends LitElement {
         `
     }
 
-    firstUpdated() {
+    firstUpdated() { //TODO ??
         window.canvasLeftShift = this.shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
     }
 
@@ -266,7 +268,6 @@ class AGTabletteApp extends LitElement {
      * Main event handler
      */
     _actionHandle(event) {
-
         if (event.target.name == "settings") {
             window.app.setState("no_state")
             this.shadowRoot.querySelector('app-settings').style.display = 'block'
@@ -283,10 +284,10 @@ class AGTabletteApp extends LitElement {
         }
 
         else if (event.target.name === 'create_shape') {
-            app.setState(event.target.name, { family: event.target.family })
+            app.setState(event.target.name, event.target.family)
         }
 
-        else if (dico[event.target.name]) {
+        else if (StatesManager.getStateText(event.target.name)) {
             if (window.app.workspace.history.isRunning) {
                 console.log("history is running, skipping action");
                 return;

@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit-element'
 
 class CanvasButton extends LitElement {
-    
+
     static get properties() {
         return {
             family: String,
@@ -69,7 +69,7 @@ class CanvasButton extends LitElement {
             ctx.fill();
             ctx.stroke();
         } else {
-            console.log("_draw(family): famille inconnue");
+            console.error("_draw(family): famille inconnue");
         }
     }
 

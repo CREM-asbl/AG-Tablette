@@ -43,7 +43,8 @@ class NewPopup extends LitElement {
     }
 
     confirm() {
-        window.app.newWorkspace()
+        console.log("create new workspace");/*
+        window.app.newWorkspace()*/
         this.close()
     }
 

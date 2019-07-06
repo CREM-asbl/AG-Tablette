@@ -1,4 +1,5 @@
 import { LitElement, html } from 'lit-element'
+import { app } from './js/App'
 
 class ShapesList extends LitElement {
 
@@ -19,7 +20,7 @@ class ShapesList extends LitElement {
             return html``
         }
 
-        const shapes = app.workspace.getFamily(this.family).getShapesNames()
+        const shapes = app.workspace.environment.getFamily(this.family).getShapesNames();
 
         return html`
         <style>
@@ -55,7 +56,7 @@ class ShapesList extends LitElement {
         <ul>
             ${shapes.map(shape => html`
                 <li>
-                    <button @click="${this._clickHandle}" 
+                    <button @click="${this._clickHandle}"
                             name="${shape}">
                             ${shape}
                     </button>
@@ -69,10 +70,10 @@ class ShapesList extends LitElement {
      * Met à jour l'état de l'application lorsque l'on clique sur le nom d'une forme
      */
     _clickHandle(event) {
-        const familyRef = window.app.workspace.getFamily(this.family);
+        const familyRef = app.workspace.environment.getFamily(this.family);
         const shapeRef = familyRef.getShape(event.target.name);
-        app.state.setShape(shapeRef)
-        this.show = false
+        app.state.setShape(shapeRef);
+        this.show = false;
     }
 }
 customElements.define('shapes-list', ShapesList)
