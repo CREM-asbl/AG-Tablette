@@ -23,22 +23,22 @@ export class Family {
      * @param {String} name       Nom de la forme
      * @param {[ShapeBuildStep]} buildSteps étapes de construction de la forme
      */
-    addShape(name, buildSteps, refPoint) {
-		if (buildSteps.length < 1) {
+	addShape(name, buildSteps, refPoint) {
+		 if (buildSteps.length < 1) {
 			console.error("Family.addShape error: buildSteps.length is 0");
 			return;
 		}
-        if(!buildSteps.every(bs => bs instanceof ShapeBuildStep)) {
-            console.error("Family.addShape error: buildSteps not valid");
+		if(!buildSteps.every(bs => bs instanceof ShapeBuildStep)) {
+		    console.error("Family.addShape error: buildSteps not valid");
 			return;
-        }
+		}
 		if(!refPoint) {
 			console.error("Family.addShape error: refPoint not valid");
 			return;
 		}
 
-        let shape = new Shape({x: 0, y: 0}, buildSteps, name, this.name, refPoint);
-        shape.color = this.defaultColor;
+		let shape = new Shape({x: 0, y: 0}, buildSteps, name, this.name, refPoint);
+		shape.color = this.defaultColor;
 
 		this.shapes.push(shape);
 	}

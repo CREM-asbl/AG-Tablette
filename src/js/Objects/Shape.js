@@ -23,13 +23,41 @@ export class Shape {
         this.name = name;
         this.familyName = familyName;
         this.refPoint = refPoint;
+        this.center = null;
 
         this.color = "#aaa";
         this.borderColor = "#000";
+        this.isCenterShown = false;
 
         this.path = null;
         this.updateInternalState();
     }
+
+    /**
+     * Définir l'id de la forme. Par défaut, l'id est initialisé à une valeur
+     * unique.
+     * @param {String} id
+     */
+    setId(id) {
+        this.id = id;
+    }
+
+	/**
+     * Récupère les coordonnées de la forme
+     * @return {{x: float, y: float}} les coordonnées ({x: float, y: float})
+     */
+	getCoordinates() {
+		return { "x": this.x, "y": this.y };
+	};
+
+	/**
+     * défini les coordonnées de la forme
+     * @param {{x: float, y: float}} coordinates les coordonnées
+     */
+	setCoordinates(coordinates) {
+		this.x = coordinates.x;
+		this.y = coordinates.y;
+	};
 
     /**
      * Renvoie une copie d'une forme
@@ -44,15 +72,36 @@ export class Shape {
 
         copy.color = this.color;
         copy.borderColor = this.borderColor;
+        copy.isCenterShown = this.isCenterShown;
+        //copy.updateInternalState();
 
         return copy;
     }
 
     /**
-     * À appeler si buildSteps a été modifié.
-     * @return {[type]} [description]
+     * À appeler si buildSteps a été modifié. Calcule le draw path et le centre
      */
     updateInternalState() {
+        //Compute center
+        let total = {
+            'sumX': 0,
+            'sumY': 0,
+            'amount': 0
+        };
+        this.buildSteps.forEach(bs => {
+            //TODO: vérifier si cela fonctionne pour des formes contenant un arc de cercle.
+            if(bs.type=="vertex" || (bs.type=="segment" && bs.isArc)) {
+                total.sumX += bs.coordinates.x;
+                total.sumY += bs.coordinates.y;
+                total.amount++;
+            }
+        });
+        this.center = {
+            'x': total.sumX/total.amount,
+            'y': total.sumY/total.amount
+        };
+
+        //Compute draw path
         const path = new Path2D();
         this.buildSteps.forEach(buildStep => {
             if(buildStep.type=="moveTo")
@@ -64,7 +113,11 @@ export class Shape {
         this.path = path;
     }
 
-    getPath() {
+    /**
+     * Renvoie un objet Path2D permettant de dessiner la forme.
+     * @return {Path2D} le path de dessin de la forme
+     */
+    getDrawPath() {
         return this.path;
 	}
 }

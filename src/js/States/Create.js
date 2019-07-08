@@ -2,17 +2,23 @@ import { app } from '../App'
 import { CreateAction } from './Actions/Create'
 import { State } from './State'
 
+/**
+ * Ajout de formes sur l'espace de travail
+ */
 export class CreateState extends State {
 
     constructor() {
         super("create_shape");
 
+        this.action = null;
+
+        this.currentStep = null; // show-family-shape -> listen-canvas-click
+
         //La famille sélectionnée dans le menu de gauche
         this.selectedFamily = null;
 
-        this.action = null;
-
-        this.currentStep = null; //show-family-shape -> listen-canvas-click
+        //La forme que l'on va ajouter (on ajoute une copie de cette forme)
+        this.selectedShape = null;
     }
 
     /**
@@ -22,7 +28,9 @@ export class CreateState extends State {
     start(family) {
         this.selectedFamily = family;
         this.action = new CreateAction(this.name);
+        this.selectedShape = null;
         this.currentStep = "show-family-shapes";
+        app.interactionAPI.resetSelectionConstraints();
     }
 
     setShape(shape) {
@@ -37,21 +45,22 @@ export class CreateState extends State {
         shape.refPoint.y *= size;
         shape.recomputePoints();
          */
-         this.action.selectedShape = shape;
+         this.selectedShape = shape;
          this.currentStep = "listen-canvas-click";
     }
 
     onClick(mouseCoordinates, event) {
-        if(this.currentStep != "listen-canvas-click")
-            return;
+        if(this.currentStep != "listen-canvas-click") return;
 
         this.action.coordinates = mouseCoordinates;
+        this.action.shapeToAdd = this.selectedShape.copy();
 
-        this.action.do();
-        app.drawAPI.refreshMain();
+        this.executeAction();
+        let shape = this.selectedShape;
+        this.start(this.selectedFamily);
+        this.setShape(shape);
+
+        app.drawAPI.askRefresh();
     }
-
-
-
 
 }

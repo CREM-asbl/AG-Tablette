@@ -198,16 +198,6 @@ export class Workspace {
 	}
 
 	/**
-	 * Renvoie la liste des formes contenant un certain point
-	 * @param point: le point (Point)
-	 * @return la liste des formes ([Shape])
-	 */
-	shapesOnPoint(point) {
-		const list = this.shapesList.filter(shape => app.canvas.isSelectedShape(point, shape))
-		return list;
-	};
-
-	/**
 	 * Renvoie la liste des points de la liste qui sont proches (< distance de magnétisme) d'un point donné
 	 * @param point: le point (Point)
 	 * @return la liste des points ([Point])

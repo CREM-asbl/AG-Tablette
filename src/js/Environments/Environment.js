@@ -1,3 +1,6 @@
+import { Family } from '../Objects/Family'
+import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
+
 /**
  * Environnement de travail: Grandeur, Tangram, Cube... Un environnement
  * détermine les familles de formes que l'on peut utiliser, et les actions que

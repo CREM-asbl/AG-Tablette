@@ -1,40 +1,34 @@
 import { loadManifest } from '../Manifest'
 import { app } from '../App'
 import { uniqId } from '../Tools/general'
+import { WorkspaceHistory } from './WorkspaceHistory'
 
+/**
+ * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
+ * travailler sur plusieurs projets en même temps.
+ */
 export class Workspace {
 
-	constructor() {
+	constructor(environment) {
 		//Version de l'application dans laquelle ce projet a été créé
 		loadManifest().then(manifest => this.appVersion = manifest.version)
 
+		//Identifiant unique de l'espace de travail
 		this.id = uniqId();
 
 		//Représente l'historique
-		//TODO this.history = new AppHistory(app);
+		this.history = new WorkspaceHistory();
 
 		//liste des formes du projet ([Shape])
 		this.shapes = [];
 
-		/**
-		 * Groupes. Une forme fait partie de 0 ou 1 'systemGroup', et de 0 ou 1 'userGroup'
-		 * Les systemGroup sont créés automatiquement lorsqu'un utilisateur crée une forme en cliquant
-		 * sur un point d'une autre forme (ce qui implique que les 2 formes seront liées), ou en utilisant
-		 * la fonction diviser en sélectionnant 2 points de 2 formes différentes
-		 * Les userGroup sont créés manuellement par l'utilisateur en sélectionnant plusieurs formes.
-		 * Si l'une des formes faisant partie d'un systemGroup fait aussi partie d'un userGroup, les autres
-		 * formes de ce systemGroup font d'office également partie du même userGroup.
-		 * //TODO
+		//Liste des groupes créés par l'utilisateur
+		this.userShapeGroups = [];
 
-         //Groupes de formes qui sont liées par des points
- 		this.systemShapeGroups = [];
+		//Liste des groupes de formes qui sont liées par des points
+		this.systemShapeGroups = [];
 
- 		//Groupes de formes qui ont été liées par l'utilisateur après leur création.
- 		this.userShapeGroups = [];
-
-		 */
-
-		//niveau de zoom de l'interface
+		//Niveau de zoom de l'interface
 		this.zoomLevel = 1;
 
 		/**
@@ -43,20 +37,27 @@ export class Workspace {
 		 */
 		this.translateOffset = { 'x': 0, 'y': 0 };
 
-        this.environment = null;
+		//L'environnement de travail de ce Workspace (ex: "Grandeur")
+        this.environment = environment;
 	}
 
-    setEnvironment(env) {
-        this.environment = env;
-    }
-
-    /**
-	 * ajoute une forme au workspace
-	 * @param shape: la forme (Shape)
+	/**
+	 * Ajoute une forme au workspace
+	 * @param {Shape} shape la forme à ajouter
 	 */
 	addShape(shape) {
 		this.shapes.push(shape);
 	}
+
+	/**
+	 * Renvoie la liste des formes contenant un certain point
+	 * @param point: le point (Point)
+	 * @return la liste des formes ([Shape])
+	 */
+	shapesOnPoint(point) {
+		const list = this.shapes.filter(shape => app.drawAPI.isPointInShape(point, shape));
+		return list;
+	};
 
 	/**
 	 * Supprime une forme
@@ -64,13 +65,13 @@ export class Workspace {
 	 */
 	removeShape(shape) {
 		//var removedShapes = [shape]; //pour l'historique
-		var shapeIndex = this.getShapeIndex(shape);
+		let shapeIndex = this.getShapeIndex(shape);
 		if (shapeIndex == null) {
 			console.error("Workspace.removeShape: couldn't remove the shape");
 			return;
 		}
 		//supprime la forme
-		this.shapesList.splice(shapeIndex, 1);
+		this.shapes.splice(shapeIndex, 1);
 
 		/*
 		//supprime les formes créées après la forme supprimée et qui sont (indirectement)
@@ -145,14 +146,13 @@ export class Workspace {
 	};
 
 	/**
-     * Renvoie l'index d'une forme
+     * Renvoie l'index d'une forme (index dans le tableau de formes du Workspace actuel)
      * @param  {Shape} shape la forme
      * @return {int}       l'index de cette forme dans le tableau des formes
      */
 	getShapeIndex(shape) {
-		var index = -1;
-		for (var i = 0; i < this.shapesList.length; i++) {
-			if (this.shapesList[i] == shape) {
+		for (let i = 0; i < this.shapes.length; i++) {
+			if (this.shapes[i] == shape) {
 				return i;
 			}
 		}
@@ -165,8 +165,8 @@ export class Workspace {
 	 * @return {Shape}         l'objet forme, ou null si la forme n'existe pas
 	 */
 	getShapeById(shapeId) {
-		for (var i = 0; i < this.shapesList.length; i++) {
-			var s = this.shapesList[i];
+		for (let i = 0; i < this.shapes.length; i++) {
+			let s = this.shapes[i];
 			if (s.id == shapeId)
 				return s;
 		}
@@ -185,7 +185,7 @@ export class Workspace {
 
 		//app.canvas.updateRelativeScaleLevel(newZoomLevel / this.zoomLevel);
 
-		this.zoomLevel = newZoomLevel;
+		this.zoomLevel = newZoomLevel; //TODO?
 		/*if (doRefresh !== false) {
 			app.canvas.refresh();
 

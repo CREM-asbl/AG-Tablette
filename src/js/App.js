@@ -11,12 +11,11 @@ import { GrandeurEnvironment } from './Environments/Grandeur'
 export class App {
 
     constructor() {
-        //Paramètres de l'application
+        //Paramètres de l'application (accessibles partout via l'objet app)
         this.settings = new Settings();
 
         //Représente un projet, qui peut être sauvegardé/restauré.
-		this.workspace = new Workspace(this);
-        this.workspace.setEnvironment(new GrandeurEnvironment());
+		this.workspace = new Workspace(new GrandeurEnvironment());
 
         //L'API de dessin (tout ce qui est lié au <canvas>)
         this.drawAPI = null;

@@ -584,26 +584,6 @@ export class Canvas {
 	};
 
 	/**
-	 * Dessine un point
-	 * @param point: la position ({'x': int, 'y': int})
-	 * @param color: la couleur du point
-	 */
-	drawPoint(point, color, ctx, size) {
-		ctx = ctx ? ctx : this.ctx;
-		size = size ? size : 1;
-
-		ctx.globalAlpha = 1;
-		ctx.fillStyle = color;
-		ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
-		ctx.beginPath();
-		ctx.moveTo(point.x, point.y);
-		ctx.arc(point.x, point.y, size * 2, 0, 2 * Math.PI, 0);
-		ctx.closePath();
-		ctx.fill();
-		ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
-	};
-
-	/**
 	 * Dessine un cercle
 	 * @param point: la position ({'x': int, 'y': int})
 	 * @param color: la couleur du texte
@@ -643,15 +623,7 @@ export class Canvas {
 	}
 
 	//permet de savoir si une forme se trouve à la position du canvas
-	isSelectedShape(point, shape) {
-		const ctx = this.ctx;
-		ctx.save()
-		ctx.setTransform(1, 0, 0, 1, 0, 0)
-		ctx.translate(shape.x, shape.y);
-		const selected = ctx.isPointInPath(shape.getPath(), point.x, point.y)
-		ctx.restore()
-		return selected
-	}
+
 
 	resetZoom() {
 		this.ctx.setTransform(1, 0, 0, 1, 0, 0)

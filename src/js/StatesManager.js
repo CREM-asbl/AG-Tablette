@@ -1,4 +1,5 @@
-import { CreateState } from './States/Create.js'
+import { CreateState } from './States/Create.js' //TODO: pourquoi cela ne fonctionne pas sans le ".js" ?
+import { MoveState } from './States/Move.js'
 
 
 
@@ -12,7 +13,7 @@ export class StatesManager {
         'move_shape': {
             "name": 'Glisser',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new MoveState(); }
         },
         'rotate_shape': {
             "name": 'Tourner',

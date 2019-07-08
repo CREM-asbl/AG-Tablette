@@ -116,6 +116,11 @@ class AGTabletteApp extends LitElement {
                             Annuler
                     </button>
                     <button class="action-button"
+                            name="redo"
+                            @click='${this._actionHandle}'>
+                            Refaire
+                    </button>
+                    <button class="action-button"
                                 name="save"
                                 @click='${this.save}'>
                                 Sauvegarder
@@ -268,30 +273,31 @@ class AGTabletteApp extends LitElement {
      * Main event handler
      */
     _actionHandle(event) {
-        if (event.target.name == "settings") {
+        if (event.target.name == "settings") { //TODO update this
             window.app.setState("no_state")
             this.shadowRoot.querySelector('app-settings').style.display = 'block'
         }
 
-        else if (event.target.name === "new") {
+        else if (event.target.name === "new") { //TODO update this
             window.app.setState("no_state");
             this.shadowRoot.querySelector('new-popup').open()
         }
 
-        else if (event.target.name == "undo") {
-            window.app.setState("no_state");
-            window.app.workspace.history.cancelLastStep();
+        else if (event.target.name == "undo") { //TODO disable undo button if !canUndo
+            if(window.app.workspace.history.canUndo())
+                window.app.workspace.history.undo();
+        }
+
+        else if (event.target.name == "redo") { //TODO disable redo button if !canRedo
+            if(window.app.workspace.history.canRedo())
+                window.app.workspace.history.redo();
         }
 
         else if (event.target.name === 'create_shape') {
-            app.setState(event.target.name, event.target.family)
+            app.setState(event.target.name, event.target.family);
         }
 
         else if (StatesManager.getStateText(event.target.name)) {
-            if (window.app.workspace.history.isRunning) {
-                console.log("history is running, skipping action");
-                return;
-            }
             window.app.setState(event.target.name);
         }
 

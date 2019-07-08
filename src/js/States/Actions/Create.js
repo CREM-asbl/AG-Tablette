@@ -5,8 +5,9 @@ import { Shape } from '../../Objects/Shape'
 export class CreateAction extends Action {
     constructor(name) {
         super(name);
+
         //La forme que l'on souhaite ajouter
-        this.selectedShape = null;
+        this.shapeToAdd = null;
 
         //Les coordonnées
         this.coordinates = null;
@@ -16,26 +17,28 @@ export class CreateAction extends Action {
     }
 
     checkDoParameters() {
-        if(!this.selectedShape instanceof Shape)
+        if(!this.shapeToAdd instanceof Shape)
             return false;
-        if(!this.coordinates || this.coordinates.x === undefined || this.coordinates.y === undefined)
+        if(!this.coordinates || this.coordinates.x === undefined
+            || this.coordinates.y === undefined)
             return false;
         return true;
     }
 
     checkUndoParameters() {
-        if(!this.checkDoParameters())
-            return false;
         if(!this.shapeId)
             return false;
+        return true;
     }
 
     do() {
         if(!this.checkDoParameters()) return;
-        let shape = this.selectedShape.copy();
+
+        let shape = this.shapeToAdd;
         shape.x = this.coordinates.x - shape.refPoint.x;
         shape.y = this.coordinates.y - shape.refPoint.y;
-        this.shapeId = shape.id;
+        if(this.shapeId) shape.id = this.shapeId;
+        else this.shapeId = shape.id;
         app.workspace.addShape(shape);
     }
 
@@ -46,5 +49,6 @@ export class CreateAction extends Action {
     }
 
 
-    //TODO: enregistrer les valeurs pertinentes des paramètres (ex: ajustement automatique activé?)
+    //TODO: enregistrer les valeurs pertinentes des
+    //      paramètres (ex: ajustement automatique activé?)
 }

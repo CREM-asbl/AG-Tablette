@@ -1,3 +1,5 @@
+import { app } from '../App'
+
 /**
  * Cette classe abstraite représente un état possible de l'application
  */
@@ -9,74 +11,49 @@ export class State {
         this.name = name;
     }
 
+    //Événements pouvant être définis:
+    onClick(mouseCoordinates, event) {}
+    onMouseDown(mouseCoordinates, event) {}
+    onMouseUp(mouseCoordinates, event) {}
+    onMouseMove(mouseCoordinates, event) {}
+    onTouchStart(mouseCoordinates, event) {}
+    onTouchMove(mouseCoordinates, event) {}
+    onTouchEnd(mouseCoordinates, event) {}
+    onTouchLeave(mouseCoordinates, event) {}
+    onTouchCancel(mouseCoordinates, event) {}
 
-
-
-
-    //Événements:
-    /*
-    onClick(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onMouseDown(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onMouseUp(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onMouseMove(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchStart(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchMove(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchEnd(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchLeave(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    onTouchCancel(mouseCoordinates, event) { throw new TypeError("method not implemented"); }
-    */
-
-
-
-
-    //TODO: vérifier ces fonctions.
     /**
-     * Appelée lorsqu'un autre état va être lancé et qu'il faut annuler l'action en cours
+     * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
+     * @param  {Context2D} ctx              Le canvas
+     * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
      */
-    abort() {
-        console.log("abort() not implemented");
-    };
+    draw(ctx, mouseCoordinates) {}
 
     /**
-     * Appelée pour réinitialiser l'état (réinitialiser les valeurs des variables d'instance de l'état)
+     * Appelée par la fonction de dessin, renvoie les formes qu'il ne faut pas
+     * dessiner sur le canvas principal.
+     * @return {[Shape]} les formes à ne pas dessiner
      */
-    reset() {
-        console.log("reset() not implemented");
-    };
+    getEditingShapes() { return []; }
 
     /**
-     * Appelée pour démarrer l'état
+     * Exécuter l'action liée à l'état, et l'enregistrer dans l'historique.
+     */
+    executeAction() {
+        this.action.do();
+        app.workspace.history.addAction(this.action);
+    }
+
+    /**
+     * (ré-)initialiser l'état
      * @param params: tableau associatif/objet pouvant contenir des paramètres
      */
     start(params) {
         console.log("start() not implemented");
-    };
-
-    /**
-     * Ajoute l'action qui vient d'être effectuée dans l'historique
-     */
-    makeHistory() {
-        console.log("makeHistory() not implemented");
-        //this.app.workspace.history.addStep(this.name, data);
-    };
-
-    /**
-     * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
-     * @param  {Object} data        les données envoyées à l'historique par makeHistory
-     * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
-     */
-    cancelAction(data, callback) {
-        console.log("cancelAction() not implemented");
-        //callback();
-    };
-
-    /** //N'est pas utilisée dans la version tablette!
-     * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
-     * @param  {Shape} overflownShape La forme qui est survolée par la souris
-     * @param {{'x': float, 'y': float}} clickCoordinates Les coordonnées de la souris
-     * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
-     */
-    getElementsToHighlight(overflownShape, clickCoordinates) {
-        console.log("getElementsToHighlight() not implemented");
     }
+
+    /**
+     * Appelée lorsqu'un autre état va être lancé et qu'il faut annuler l'action en cours
+     */
+    abort() {}
 }
