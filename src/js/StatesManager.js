@@ -1,6 +1,7 @@
 import { CreateState } from './States/Create.js' //TODO: pourquoi cela ne fonctionne pas sans le ".js" ?
 import { MoveState } from './States/Move.js'
-
+import { RotateState } from './States/Rotate.js'
+import { ReverseState } from './States/Reverse.js'
 
 
 export class StatesManager {
@@ -18,7 +19,7 @@ export class StatesManager {
         'rotate_shape': {
             "name": 'Tourner',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new RotateState(); }
         },
         'global_zoom': {
             "name": 'Zoom',
@@ -53,7 +54,7 @@ export class StatesManager {
         'reverse_shape': {
             "name": 'Retourner',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new ReverseState(); }
         },
         'build_shape_center': {
             "name": 'Construire le centre',

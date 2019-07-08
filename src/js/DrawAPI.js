@@ -96,7 +96,6 @@ export class DrawAPI {
      * @param  {String} [color="#000"] La couleur du point
      * @param  {Number} [size=1]       Taille du point
      * @param  {Boolean} [doSave=true]  Faut-il sauvegarder le contexte du canvas (optimisation)
-     *
      */
     drawPoint(ctx, coordinates, color = "#000", size = 1, doSave = true) {
         if(doSave) ctx.save();
@@ -112,6 +111,26 @@ export class DrawAPI {
 
 		if(doSave) ctx.restore();
     }
+
+    /**
+     * Dessine un segment
+     * @param  {Point} fromPoint    origine
+     * @param  {Point} toPoint      destination
+     * @param  {String} [color='#000'] Couleur de la ligne
+     * @param  {Boolean} [doSave=true]  Faut-il sauvegarder le contexte du canvas (optimisation)
+     */
+	drawLine(ctx, fromPoint, toPoint, color = '#000', doSave = true) {
+        if(doSave) ctx.save();
+
+		ctx.strokeStyle = color;
+		ctx.beginPath();
+		ctx.moveTo(fromPoint.x, fromPoint.y);
+		ctx.lineTo(toPoint.x, toPoint.y);
+		ctx.closePath();
+		ctx.stroke();
+
+        if(doSave) ctx.restore();
+	}
 
     /**
      * Vérifie si un point est à l'intérieur d'une forme ou non

@@ -98,7 +98,7 @@ class RotateState {
         var newY = x * s + y * c + center.y;
 
 
-        return { "x": newX, "y": newY };
+        return { 'x': newX, 'y': newY };
     };
 
     /**

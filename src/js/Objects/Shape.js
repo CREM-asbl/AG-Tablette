@@ -28,9 +28,21 @@ export class Shape {
         this.color = "#aaa";
         this.borderColor = "#000";
         this.isCenterShown = false;
+        this.isReversed = false;
 
         this.path = null;
         this.updateInternalState();
+    }
+
+    /**
+     * Renvoie les coordonnées absolues du centre de la forme
+     * @return {Point} coordonnées
+     */
+    getAbsoluteCenter() {
+        return {
+            'x': this.x + this.center.x,
+            'y': this.y + this.center.y
+        };
     }
 
     /**

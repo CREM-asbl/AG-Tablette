@@ -602,28 +602,6 @@ export class Canvas {
 		ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
 	};
 
-	/**
-	 * Dessine un segment
-	 * @param fromPoint: le point de départ ({'x': int, 'y': int})
-	 * @param toPoint: le point d'arrivée ({'x': int, 'y': int})
-	 * @param color: couleur du segment
-	 * */
-	drawLine(fromPoint, toPoint, color = null) {
-		var ctx = this.ctx;
-		if (color) {
-			ctx.strokeStyle = color;
-		}
-		ctx.translate(this.app.workspace.translateOffset.x, this.app.workspace.translateOffset.y);
-		ctx.beginPath();
-		ctx.moveTo(fromPoint.x, fromPoint.y);
-		ctx.lineTo(toPoint.x, toPoint.y);
-		ctx.closePath();
-		ctx.stroke();
-		ctx.translate(-this.app.workspace.translateOffset.x, -this.app.workspace.translateOffset.y);
-	}
-
-	//permet de savoir si une forme se trouve à la position du canvas
-
 
 	resetZoom() {
 		this.ctx.setTransform(1, 0, 0, 1, 0, 0)

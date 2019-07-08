@@ -81,15 +81,22 @@ export class InteractionAPI {
 
     onClick(mouseCoordinates, event) {
         this.updateLastKnownMouseCoordinates(mouseCoordinates);
+        let trySelection = true;
         if(this.forwardEventsToState && app.state)
-            app.state.onClick(mouseCoordinates, event);
-
+            trySelection = app.state.onClick(mouseCoordinates, event);
+        if(trySelection && this.selectionConstraints.type=="click") { //TODO factoriser ça
+            let obj = this.getSelectedObject(mouseCoordinates);
+            if(obj) {
+                app.state.objectSelected(obj, mouseCoordinates, event);
+            }
+        }
     }
     onMouseDown(mouseCoordinates, event) {
         this.updateLastKnownMouseCoordinates(mouseCoordinates);
+        let trySelection = true;
         if(this.forwardEventsToState && app.state)
-            app.state.onMouseDown(mouseCoordinates, event);
-        if(this.selectionConstraints.type=="mouseDown") {
+            trySelection = app.state.onMouseDown(mouseCoordinates, event);
+        if(trySelection && this.selectionConstraints.type=="mouseDown") {
             let obj = this.getSelectedObject(mouseCoordinates);
             if(obj) {
                 app.state.objectSelected(obj, mouseCoordinates, event);

@@ -11,16 +11,16 @@ export class State {
         this.name = name;
     }
 
-    //Événements pouvant être définis:
-    onClick(mouseCoordinates, event) {}
-    onMouseDown(mouseCoordinates, event) {}
-    onMouseUp(mouseCoordinates, event) {}
-    onMouseMove(mouseCoordinates, event) {}
-    onTouchStart(mouseCoordinates, event) {}
-    onTouchMove(mouseCoordinates, event) {}
-    onTouchEnd(mouseCoordinates, event) {}
-    onTouchLeave(mouseCoordinates, event) {}
-    onTouchCancel(mouseCoordinates, event) {}
+    //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected
+    onClick(mouseCoordinates, event) { return true; }
+    onMouseDown(mouseCoordinates, event) { return true; }
+    onMouseUp(mouseCoordinates, event) { return true; }
+    onMouseMove(mouseCoordinates, event) { return true; }
+    onTouchStart(mouseCoordinates, event) { return true; }
+    onTouchMove(mouseCoordinates, event) { return true; }
+    onTouchEnd(mouseCoordinates, event) { return true; }
+    onTouchLeave(mouseCoordinates, event) { return true; }
+    onTouchCancel(mouseCoordinates, event) { return true; }
 
     /**
      * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
