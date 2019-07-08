@@ -28,7 +28,6 @@ class ShapesList extends LitElement {
             }
 
             h2 {
-                width: 100%;
                 margin: 0;
                 text-align: center;
                 background: gray;

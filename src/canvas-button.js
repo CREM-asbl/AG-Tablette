@@ -27,6 +27,7 @@ class CanvasButton extends LitElement {
                 height: 100%;
                 background: #fff;
                 border: 1px solid black;
+                box-sizing: border-box;
             }
         </style>
 
@@ -57,7 +58,6 @@ class CanvasButton extends LitElement {
         for (let i = 0; i < icon.steps.length; i++) {
             if (icon.steps[i].type === 'arc') {
                 scale = .5
-                console.log('circle')
                 continue
             }
             minX = Math.min(minX, icon.steps[i].x)
@@ -71,8 +71,6 @@ class CanvasButton extends LitElement {
             const hauteur = maxY - minY
             scale = 40 / Math.max(largeur, hauteur)
         }
-        console.log(scale)
-        // ce scale n'est pas la meilleure solution car tous les disques de la famille afficheront les même dimensions
         ctx.closePath();
         ctx.scale(scale, scale)
         ctx.moveTo(icon.steps[0].x, icon.steps[0].y);
