@@ -1,10 +1,12 @@
 import { LitElement, html } from 'lit-element'
+import { standardShapes } from './js/StandardShapes';
 
 class CanvasButton extends LitElement {
-    
+
     static get properties() {
         return {
             family: String,
+            shape: String,
             name: String
         }
     }
@@ -33,44 +35,34 @@ class CanvasButton extends LitElement {
     }
 
     updated() {
-        this._draw(this.family)
+        this.refresh()
     }
 
     /**
      * dessine l'image sur le bouton
      */
-    _draw(family) {
-        const ctx = this.shadowRoot.querySelector('canvas').getContext("2d");
+    refresh() {
+        const canvas = this.shadowRoot.querySelector('canvas')
+        const ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.strokeStyle = "#000";
-        if(family=="Triangle équilatéral") {
-            ctx.fillStyle = "#FF0";
-            ctx.beginPath();
-            ctx.moveTo(7,52);
-            ctx.lineTo(30, 11);
-            ctx.lineTo(53,52);
-            ctx.lineTo(7,52);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-        } else if(family=="Carré") {
-            ctx.fillStyle = "red";
-            ctx.fillRect(7,7,46,46);
-            ctx.strokeRect(7,7,46,46);
-        } else if(family=="Pentagone régulier") {
-            ctx.fillStyle = "#0F0";
-            ctx.beginPath();
-            ctx.moveTo(15,50);
-            ctx.lineTo(7, 26);
-            ctx.lineTo(30,9);
-            ctx.lineTo(53,26);
-            ctx.lineTo(45,50);
-            ctx.lineTo(15,50);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-        } else {
-            console.log("_draw(family): famille inconnue");
+        let icon = standardShapes[this.family].shapes.filter(shape => shape.name === this.shape)[0]
+            || standardShapes[this.family].shapes[0]
+        ctx.translate(30, 30)
+        ctx.beginPath();
+        ctx.fillStyle = standardShapes[this.family].color
+        ctx.moveTo(icon.steps[0].x, icon.steps[0].y);
+        for (let i = 1; i < icon.steps.length; i++) {
+            if (icon.steps[i].type === "line") {
+                ctx.lineTo(icon.steps[i].x, icon.steps[i].y)
+            } else {
+                ctx.arc(icon.steps[i].x, icon.steps[i].y, Math.abs(icon.steps[0].y), 0, icon.steps[i].angle);
+            }
         }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.resetTransform()
     }
 
     /**

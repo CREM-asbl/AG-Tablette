@@ -28,6 +28,7 @@ class ShapesList extends LitElement {
             }
 
             h2 {
+                width: 100%;
                 margin: 0;
                 text-align: center;
                 background: gray;
@@ -38,16 +39,8 @@ class ShapesList extends LitElement {
                 margin: 0;
                 padding: 0;
                 list-style: none;
-            }
-
-            button {
-                width: 100%;
-                padding: 16px;
-            }
-
-            button:hover,
-            button:focus {
-                font-weight: bold;
+                display: flex;
+                justify-content: center;
             }
         </style>
 
@@ -55,10 +48,10 @@ class ShapesList extends LitElement {
         <ul>
             ${shapes.map(shape => html`
                 <li>
-                    <button @click="${this._clickHandle}" 
-                            name="${shape}">
-                            ${shape}
-                    </button>
+                    <canvas-button family="${this.family}"
+                                   shape="${shape}"
+                                   @click="${this._clickHandle}">
+                    </canvas-button>
                 </li>
             `)}
         </ul>
@@ -70,7 +63,7 @@ class ShapesList extends LitElement {
      */
     _clickHandle(event) {
         const familyRef = window.app.workspace.getFamily(this.family);
-        const shapeRef = familyRef.getShape(event.target.name);
+        const shapeRef = familyRef.getShape(event.target.shape);
         app.state.setShape(shapeRef)
         this.show = false
     }

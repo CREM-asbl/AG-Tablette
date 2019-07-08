@@ -84,12 +84,10 @@ class AGTabletteApp extends LitElement {
 
             shapes-list {
                 position: absolute;
-                top: 1vh;
-                left: 21%;
-                width: 250px;
+                bottom: 0;
+                left: 20%;
                 box-shadow: 0 1px 3px gray;
                 z-index: 100;
-                max-height: 85vh;
             }
 
             #app-canvas-mode-text span{
@@ -107,6 +105,12 @@ class AGTabletteApp extends LitElement {
                                     name="new"
                                     @click="${this._actionHandle}">
                                     Supprimer tout
+                            </button>
+                            <button class="action-button"
+                                    name="delete_shape"
+                                    ?active="${this.state.name === 'delete_shape'}"
+                                    @click='${this._actionHandle}'>
+                                    Supprimer
                             </button>
                             <button class="action-button"
                                     name="undo"
@@ -184,7 +188,7 @@ class AGTabletteApp extends LitElement {
                             name="duplicate_shape"
                             ?active="${this.state.name === 'duplicate_shape'}"
                             @click='${this._actionHandle}'>
-                            Dupliquer
+                            Copier
                     </button>
                     <button class="action-button"
                             name="merge_shapes"
@@ -229,12 +233,6 @@ class AGTabletteApp extends LitElement {
                             ?active="${this.state.name === 'border_color'}"
                             @click='${this._actionHandle}'>
                             Colorier les bords
-                    </button>
-                    <button class="action-button"
-                            name="delete_shape"
-                            ?active="${this.state.name === 'delete_shape'}"
-                            @click='${this._actionHandle}'>
-                            Supprimer
                     </button>
                 </div>
             </div>

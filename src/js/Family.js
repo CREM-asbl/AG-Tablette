@@ -12,14 +12,14 @@ export class Family {
 	 * @param name: le nom de la famille (String)
 	 * @param defaultColor: la couleur par défaut des formes
 	 */
-	constructor(name, defaultColor) {
+	constructor(name) {
 		this.name = name;
 		this.shapesList = [];
-		this.defaultColor = defaultColor;
+		this.defaultColor = standardShapes[name].color;
 		this.id = null;
 
 		// Todo: remplacer le code en fonction du kit chargé
-		standardShapes[name].forEach(shape => {
+		standardShapes[name].shapes.forEach(shape => {
 			const buildSteps = shape.steps.map(step => {
 				const { type, x, y, angle = null } = step
 				return new ShapeStep(type, x, y, angle)
