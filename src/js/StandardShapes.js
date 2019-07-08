@@ -117,14 +117,14 @@ export const standardShapes = {
 
             {
                 name: "Petit disque", steps: [
-                    { type: 'line', x: 0, y: -28.867513459466 },
+                    { type: 'line', x: 28.867513459466, y: 0 },
                     { type: 'arc', x: 0, y: 0, angle: 2 * Math.PI }
                 ], refPoint: { "x": 0, "y": 0 }
             },
 
             {
                 name: "Grand disque", steps: [
-                    { type: 'line', x: 0, y: -50 },
+                    { type: 'line', x: 50, y: 0 },
                     { type: 'arc', x: 0, y: 0, angle: 2 * Math.PI }
                 ], refPoint: { "x": 0, "y": 0 }
             }
@@ -216,7 +216,7 @@ export const standardShapes = {
 
             {
                 name: "Disque", steps: [
-                    { type: 'line', x: 0, y: - 35.355339059327 },
+                    { type: 'line', x: 35.355339059327, y: 0  },
                     { type: 'arc', x: 0, y: 0, angle: 2 * Math.PI }
                 ], refPoint: { "x": 0, "y": 0 }
             }
@@ -292,7 +292,7 @@ export const standardShapes = {
 
             {
                 name: "Disque", steps: [
-                    { type: 'line', x: 0, y: - 42.5325404176 },
+                    { type: 'line', x: 42.5325404176, y: 0 },
                     { type: 'arc', x: 0, y: 0, angle: 2 * Math.PI }
                 ], refPoint: { "x": 0, "y": 0 }
             }

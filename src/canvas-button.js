@@ -44,6 +44,8 @@ class CanvasButton extends LitElement {
     refresh() {
         const canvas = this.shadowRoot.querySelector('canvas')
         const ctx = canvas.getContext("2d");
+        let minX = 0, minY = 0, maxX = 0, maxY = 0, scale = 1
+
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.strokeStyle = "#000";
         let icon = standardShapes[this.family].shapes.filter(shape => shape.name === this.shape)[0]
@@ -51,15 +53,40 @@ class CanvasButton extends LitElement {
         ctx.translate(30, 30)
         ctx.beginPath();
         ctx.fillStyle = standardShapes[this.family].color
+
+        for (let i = 0; i < icon.steps.length; i++) {
+            if (icon.steps[i].type === 'arc') {
+                scale = .5
+                console.log('circle')
+                continue
+            }
+            minX = Math.min(minX, icon.steps[i].x)
+            maxX = Math.max(maxX, icon.steps[i].x)
+            minY = Math.min(minY, icon.steps[i].y)
+            maxY = Math.max(maxX, icon.steps[i].y)
+        }
+
+        if (scale === 1) {
+            const largeur = maxX - minX
+            const hauteur = maxY - minY
+            scale = 40 / Math.max(largeur, hauteur)
+        }
+        console.log(scale)
+        // ce scale n'est pas la meilleure solution car tous les disques de la famille afficheront les même dimensions
+        ctx.closePath();
+        ctx.scale(scale, scale)
         ctx.moveTo(icon.steps[0].x, icon.steps[0].y);
         for (let i = 1; i < icon.steps.length; i++) {
             if (icon.steps[i].type === "line") {
                 ctx.lineTo(icon.steps[i].x, icon.steps[i].y)
             } else {
-                ctx.arc(icon.steps[i].x, icon.steps[i].y, Math.abs(icon.steps[0].y), 0, icon.steps[i].angle);
+                ctx.arc(0, 0, Math.abs(icon.steps[0].x), 0 , icon.steps[i].angle);
             }
+            minX = Math.min(minX, icon.steps[i].x)
+            maxX = Math.max(maxX, icon.steps[i].x)
+            minY = Math.min(minY, icon.steps[i].y)
+            maxY = Math.max(maxX, icon.steps[i].y)
         }
-        ctx.closePath();
         ctx.fill();
         ctx.stroke();
         ctx.resetTransform()
