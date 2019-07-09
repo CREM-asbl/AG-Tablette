@@ -1,23 +1,23 @@
 import { app } from '../App'
-import { MoveAction } from './Actions/Move'
+import { DuplicateAction } from './Actions/Duplicate'
 import { State } from './State'
 
 /**
- * Déplacer une forme (ou un ensemble de formes liées) sur l'espace de travail
+ * Dupliquer une forme
  */
-export class MoveState extends State {
+export class DuplicateState extends State {
 
     constructor() {
-        super("move_shape");
+        super("duplicate_shape");
 
         this.action = null;
 
         this.currentStep = null; // listen-canvas-click -> moving-shape
 
-        //La forme que l'on déplace
+        //La forme que l'on duplique
         this.selectedShape = null;
 
-        //coordonnées de la souris lorsque le déplacement a commencé
+        //coordonnées de la souris lorsque la duplication a commencé
         this.startClickCoordinates = null;
 
         /*
@@ -31,7 +31,7 @@ export class MoveState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new MoveAction(this.name);
+        this.action = new DuplicateAction(this.name);
         this.currentStep = "listen-canvas-click";
 
         this.selectedShape = null;
@@ -55,11 +55,15 @@ export class MoveState extends State {
         if(this.currentStep != "listen-canvas-click") return;
 
         this.selectedShape = shape;
-        this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
-        this.startClickCoordinates = clickCoordinates;
-
         this.action.shapeId = shape.id;
+
+        this.involvedShapes = [shape];
+        let group = app.workspace.getShapeGroup(shape, 'user');
+        if(group)
+            this.involvedShapes = [...group.shapes];
         this.action.involvedShapesIds = this.involvedShapes.map(s => s.id);
+
+        this.startClickCoordinates = clickCoordinates;
 
         this.currentStep = "moving-shape";
         app.drawAPI.askRefresh("upper");
@@ -120,6 +124,6 @@ export class MoveState extends State {
      */
     getEditingShapes() {
         if(this.currentStep != "moving-shape") return [];
-        return this.involvedShapes;
+        return [];
     }
 }

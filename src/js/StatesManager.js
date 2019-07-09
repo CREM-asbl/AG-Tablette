@@ -4,6 +4,9 @@ import { RotateState } from './States/Rotate.js'
 import { ReverseState } from './States/Reverse.js'
 import { GroupState } from './States/Group.js'
 import { UngroupState } from './States/Ungroup.js'
+import { BackgroundColorState } from './States/BackgroundColor.js'
+import { BorderColorState } from './States/BorderColor.js'
+import { DuplicateState } from './States/Duplicate.js'
 
 
 export class StatesManager {
@@ -36,12 +39,12 @@ export class StatesManager {
         'background_color': {
             "name": 'Couleur de fond',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new BackgroundColorState(); }
         },
         'border_color': {
             "name": 'Couleur des bords',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new BorderColorState(); }
         },
         'group_shapes': {
             "name": 'Lier des formes',
@@ -66,7 +69,7 @@ export class StatesManager {
         'duplicate_shape': {
             "name": 'Dupliquer',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new DuplicateState(); }
         },
         'divide_segment': {
             "name": 'Diviser',
