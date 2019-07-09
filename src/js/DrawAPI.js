@@ -43,6 +43,8 @@ export class DrawAPI {
             return !shapesToSkip.includes(shape);
         }).forEach(shape => {
             this.drawShape(this.mainCtx, shape);
+            if(app.state)
+                app.state.shapeDrawn(this.mainCtx, shape);
         });
 
     }
@@ -131,6 +133,24 @@ export class DrawAPI {
 
         if(doSave) ctx.restore();
 	}
+
+	/**
+     * Dessine un texte
+     * @param  {Context2D}  ctx         Le canvas
+     * @param  {String}  text           Le texte à dessiner
+     * @param  {Point}  point           Les coordonnées
+     * @param  {String}  [color='#000'] La couleur du texte
+     * @param  {Boolean} [doSave=true]  Faut-il sauvegarder le contexte du canvas (optimisation)
+     */
+	drawText(ctx, text, point, color = '#000', doSave = true) {
+		if(doSave) ctx.save();
+
+		ctx.fillStyle = color;
+		ctx.font = "13px Arial";
+		ctx.fillText(text, point.x, point.y);
+
+        if(doSave) ctx.restore();
+	};
 
     /**
      * Vérifie si un point est à l'intérieur d'une forme ou non

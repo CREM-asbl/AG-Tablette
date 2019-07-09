@@ -9,18 +9,21 @@ export class MoveAction extends Action {
         //L'id de la forme que l'on déplace
         this.shapeId = null;
 
-        //coordonnées initiales de la forme
-        this.initialCoordinates = null;
+        //Le déplacement à appliquer aux formes (à additionner aux coordonnées)
+        this.transformation = null;
 
-        //coordonnées finales de la forme
-        this.newCoordinates = null;
+        /*
+        Liste des formes solidaires à la la forme que l'on déplace, y compris
+        la forme elle-même
+         */
+        this.involvedShapesIds = [];
     }
 
     checkDoParameters() {
         if(!this.shapeId)
             return false;
-        if(!this.newCoordinates || this.newCoordinates.x === undefined
-            || this.newCoordinates.y === undefined)
+        if(!this.transformation || this.transformation.x === undefined
+            || this.transformation.y === undefined)
             return false;
         return true;
     }
@@ -28,8 +31,8 @@ export class MoveAction extends Action {
     checkUndoParameters() {
         if(!this.shapeId)
             return false;
-        if(!this.initialCoordinates || this.initialCoordinates.x === undefined
-            || this.initialCoordinates.y === undefined)
+        if(!this.transformation || this.transformation.x === undefined
+            || this.transformation.y === undefined)
             return false;
         return true;
     }
@@ -37,8 +40,15 @@ export class MoveAction extends Action {
     do() {
         if(!this.checkDoParameters()) return;
 
-        let shape = app.workspace.getShapeById(this.shapeId);
-        shape.setCoordinates(this.newCoordinates);
+        this.involvedShapesIds.forEach(id => {
+            let s = app.workspace.getShapeById(id),
+            coords = s.getCoordinates(),
+            newCoords = {
+                'x': coords.x + this.transformation.x,
+                'y': coords.y + this.transformation.y
+            };
+            s.setCoordinates(newCoords);
+        });
 
         //TODO: faire le déplacement. externaliser le magnétisme automatique
         //          et celui de la grille!
@@ -216,14 +226,22 @@ export class MoveAction extends Action {
             }
          */
 
-
     }
 
     undo() {
         if(!this.checkUndoParameters()) return;
 
         let shape = app.workspace.getShapeById(this.shapeId);
-        shape.setCoordinates(this.initialCoordinates);
+
+        this.involvedShapesIds.forEach(id => {
+            let s = app.workspace.getShapeById(id),
+            coords = s.getCoordinates(),
+            newCoords = {
+                'x': coords.x - this.transformation.x,
+                'y': coords.y - this.transformation.y
+            };
+            s.setCoordinates(newCoords);
+        });
     }
 
 

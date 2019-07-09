@@ -35,6 +35,8 @@ export class App {
         this.state.start(startParams);
 
         window.dispatchEvent(new CustomEvent('app-state-changed', { detail: this.state }));
+        this.drawAPI.askRefresh();
+        this.drawAPI.askRefresh('upper');
     }
 
     /**

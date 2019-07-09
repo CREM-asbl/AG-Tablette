@@ -4,7 +4,7 @@ import {Point} from '../Point'
  */
 class UnlinkerState {
     constructor() {
-        this.name = "unlink_shapes";
+        this.name = "ungroup_shapes";
     }
 
     /**
@@ -127,4 +127,4 @@ class UnlinkerState {
 }
 
 // Todo: à supprimer quand l'import de toutes les classes sera en place
-addEventListener('app-loaded', () => app.states.unlink_shapes = new UnlinkerState())
+addEventListener('app-loaded', () => app.states.ungroup_shapes = new UnlinkerState())

@@ -214,14 +214,14 @@ class AGTabletteApp extends LitElement {
                             Zoomer
                     </button>
                     <button class="action-button"
-                            name="link_shapes"
-                            ?active="${this.state.name === 'link_shapes'}"
+                            name="group_shapes"
+                            ?active="${this.state.name === 'group_shapes'}"
                             @click='${this._actionHandle}'>
                             Grouper
                     </button>
                     <button class="action-button"
-                            name="unlink_shapes"
-                            ?active="${this.state.name === 'unlink_shapes'}"
+                            name="ungroup_shapes"
+                            ?active="${this.state.name === 'ungroup_shapes'}"
                             @click='${this._actionHandle}'>
                             Dégrouper
                     </button>

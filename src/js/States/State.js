@@ -12,7 +12,7 @@ export class State {
     }
 
     //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected
-    onClick(mouseCoordinates, event) { return true; }
+    onClick(mouseCoordinates, event, isSecondCall = false) { return true; }
     onMouseDown(mouseCoordinates, event) { return true; }
     onMouseUp(mouseCoordinates, event) { return true; }
     onMouseMove(mouseCoordinates, event) { return true; }
@@ -23,11 +23,30 @@ export class State {
     onTouchCancel(mouseCoordinates, event) { return true; }
 
     /**
+     * Appelée par interactionAPI quand un objet (point, forme, segment)
+     * est sélectionnée (onClick)
+     * @param  {Object} point            Le point sélectionné
+     * @param  {Point} clickCoordinates  Les coordonnées du click
+     * @param  {Event} event            l'événement javascript
+     * @return {Boolean}                false: désactive l'appel à onClick si
+     *                                  cet appel est réalisé après.
+     */
+    objectSelected(point, clickCoordinates, event) { return true; }
+
+    /**
      * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
      * @param  {Context2D} ctx              Le canvas
      * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
      */
     draw(ctx, mouseCoordinates) {}
+
+    /**
+     * Appelée par la fonction de dessin après avoir dessiné une forme sur le
+     * canvas principal
+     * @param  {Context2D} ctx   le canvas
+     * @param  {Shape} shape La forme dessinée
+     */
+    shapeDrawn(ctx, shape) {}
 
     /**
      * Appelée par la fonction de dessin, renvoie les formes qu'il ne faut pas

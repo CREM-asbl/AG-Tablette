@@ -21,8 +21,11 @@ export class RotateState extends State {
         //L'angle initial entre le centre de la forme et la position de la souris
         this.initialAngle = null;
 
-        //l'ensemble des formes liées à la forme actuelle.
-        //this.linkedShapes = [];
+        /*
+        L'ensemble des formes liées à la forme sélectionnée (systemGroup  et
+        userGroup), y compris la forme elle-même
+         */
+        this.involvedShapes = [];
     }
 
     /**
@@ -34,12 +37,14 @@ export class RotateState extends State {
 
         this.selectedShape = null;
         this.initialAngle = null;
+        this.involvedShapes = [];
 
         app.interactionAPI.setSelectionConstraints("mouseDown",
             {"canShape": "all", "listShape": []},
             {"canSegment": "none", "listSegment": []},
-            {"canVertex": "none", "listVertex": []}
+            {"canPoint": "none", "pointTypes": [], "listPoint": []}
         );
+        app.interactionAPI.selectObjectBeforeNativeEvent = false;
     }
 
     /**
@@ -52,9 +57,11 @@ export class RotateState extends State {
         if(this.currentStep != "listen-canvas-click") return;
 
         this.selectedShape = shape;
+        this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
         this.initialAngle = getAngleOfPoint(shape, clickCoordinates);
 
         this.action.shapeId = shape.id;
+        this.action.involvedShapesIds = this.involvedShapes.map(s => s.id);
 
         this.currentStep = "rotating-shape";
         app.drawAPI.askRefresh("upper");
@@ -87,14 +94,19 @@ export class RotateState extends State {
         if(this.currentStep != "rotating-shape") return;
 
         let newAngle = getAngleOfPoint(this.selectedShape, mouseCoordinates),
-            diffAngle = newAngle - this.initialAngle;
+            diffAngle = newAngle - this.initialAngle,
+            center = this.selectedShape.getAbsoluteCenter();
 
-        this.action.rotateShape(this.selectedShape, diffAngle, this.selectedShape.getAbsoluteCenter());
+        this.involvedShapes.forEach(s => {
+            this.action.rotateShape(s, diffAngle, center);
 
-        app.drawAPI.drawShape(ctx, this.selectedShape);
+            app.drawAPI.drawShape(ctx, s);
 
-        this.action.rotateShape(this.selectedShape, -diffAngle, this.selectedShape.getAbsoluteCenter());
-        //TODO: faire bouger tout le groupe de formes.
+            this.action.rotateShape(s, -diffAngle, center);
+        });
+
+        //Dessiner le centre de symétrie
+        app.drawAPI.drawPoint(ctx, center, '#080');
     }
 
     /**
@@ -104,6 +116,6 @@ export class RotateState extends State {
      */
     getEditingShapes() {
         if(this.currentStep != "rotating-shape") return [];
-        return [this.selectedShape];
+        return this.involvedShapes;
     }
 }

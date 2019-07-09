@@ -11,6 +11,12 @@ export class ReverseAction extends Action {
 
         //L'axe de symétrie utilisé pour le retournement
         this.symmetricalArchOrientation = null; //V, H, NW, SW
+
+        /*
+        Liste des formes solidaires à la la forme que l'on déplace, y compris
+        la forme elle-même
+         */
+        this.involvedShapesIds = [];
     }
 
     checkDoParameters() {
@@ -28,17 +34,18 @@ export class ReverseAction extends Action {
     do() {
         if(!this.checkDoParameters()) return;
 
-        let shape = app.workspace.getShapeById(this.shapeId),
-            arch = this.getSymmetricalArch();
-        this.reverseShape(shape, arch, 1);
+        let arch = this.getSymmetricalArch();
+
+        this.involvedShapesIds.forEach(id => {
+            let s = app.workspace.getShapeById(id);
+            this.reverseShape(s, arch, 1);
+        });
     }
 
     undo() {
         if(!this.checkUndoParameters()) return;
 
-        let shape = app.workspace.getShapeById(this.shapeId),
-            arch = this.getSymmetricalArch();
-        this.reverseShape(shape, arch, 1);
+        this.do();
     }
 
     getSymmetricalArch() {

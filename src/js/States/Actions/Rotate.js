@@ -11,6 +11,12 @@ export class RotateAction extends Action {
 
         //L'angle de rotation (dans le sens horloger)
         this.rotationAngle = null;
+
+        /*
+        Liste des formes solidaires à la la forme que l'on déplace, y compris
+        la forme elle-même
+         */
+        this.involvedShapesIds = [];
     }
 
     checkDoParameters() {
@@ -28,15 +34,25 @@ export class RotateAction extends Action {
     do() {
         if(!this.checkDoParameters()) return;
 
-        let shape = app.workspace.getShapeById(this.shapeId);
-        this.rotateShape(shape, this.rotationAngle, shape.getAbsoluteCenter());
+        let shape = app.workspace.getShapeById(this.shapeId),
+            center = shape.getAbsoluteCenter();
+
+        this.involvedShapesIds.forEach(id => {
+            let s = app.workspace.getShapeById(id);
+            this.rotateShape(s, this.rotationAngle, center);
+        });
     }
 
     undo() {
         if(!this.checkUndoParameters()) return;
 
-        let shape = app.workspace.getShapeById(this.shapeId);
-        this.rotateShape(shape, -this.rotationAngle, shape.getAbsoluteCenter());
+        let shape = app.workspace.getShapeById(this.shapeId),
+            center = shape.getAbsoluteCenter();
+
+        this.involvedShapesIds.forEach(id => {
+            let s = app.workspace.getShapeById(id);
+            this.rotateShape(s, -this.rotationAngle, center);
+        });
     }
 
     /**

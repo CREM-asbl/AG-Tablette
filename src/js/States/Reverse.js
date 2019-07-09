@@ -2,6 +2,7 @@ import { app } from '../App'
 import { ReverseAction } from './Actions/Reverse'
 import { State } from './State'
 import { distanceBetweenPoints, getAngleOfPoint } from '../Tools/general'
+
 /**
  * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail
  */
@@ -33,8 +34,11 @@ export class ReverseState extends State {
         //Couleur des axes de symétrie
         this.symmetricalArchColor = '#080';
 
-        //l'ensemble des formes liées à la forme actuelle.
-        //this.linkedShapes = [];
+        /*
+        L'ensemble des formes liées à la forme sélectionnée (systemGroup  et
+        userGroup), y compris la forme elle-même
+         */
+        this.involvedShapes = [];
     }
 
     /**
@@ -47,12 +51,14 @@ export class ReverseState extends State {
         this.selectedShape = null;
         this.startTime = null;
         this.arch = null;
+        this.involvedShapes = [];
 
         app.interactionAPI.setSelectionConstraints("click",
             {"canShape": "all", "listShape": []},
             {"canSegment": "none", "listSegment": []},
-            {"canVertex": "none", "listVertex": []}
+            {"canPoint": "none", "pointTypes": [], "listPoint": []}
         );
+        app.interactionAPI.selectObjectBeforeNativeEvent = false;
     }
 
     /**
@@ -65,13 +71,15 @@ export class ReverseState extends State {
         if(this.currentStep == "reversing-shape") return;
 
         this.selectedShape = shape;
+        this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
 
         this.action.shapeId = shape.id;
+        this.action.involvedShapesIds = this.involvedShapes.map(s => s.id);
 
         app.interactionAPI.setSelectionConstraints("click",
             {"canShape": "notSome", "listShape": [shape]},
             {"canSegment": "none", "listSegment": []},
-            {"canVertex": "none", "listVertex": []}
+            {"canPoint": "none", "pointTypes": [], "listPoint": []}
         );
 
         this.currentStep = "selecting-symmetrical-arch";
@@ -159,7 +167,9 @@ export class ReverseState extends State {
                 n1 = this.symmetricalArchLength/2,
                 n2 = 0.683*this.symmetricalArchLength/2;
 
-            app.drawAPI.drawShape(ctx, shape);
+            this.involvedShapes.forEach(s => {
+                app.drawAPI.drawShape(ctx, s);
+            });
 
             app.drawAPI.drawLine(ctx,
                 { 'x': shape.x, 'y': shape.y - n1 },
@@ -180,13 +190,21 @@ export class ReverseState extends State {
             return;
         }
         if(this.currentStep == "reversing-shape") {
-            let progress = this.getAnimationProgress(),
-                shape = this.selectedShape.copy(), //TODO: opti: ne pas devoir faire une copie à chaque refresh?
-                n1 = this.symmetricalArchLength/2,
-                n2 = 0.683*this.symmetricalArchLength/2;
-            this.action.reverseShape(shape, this.arch, progress);
-            app.drawAPI.drawShape(ctx, shape);
+            //TODO: faire retourner tout le groupe de formes.
 
+            let progress = this.getAnimationProgress(),
+                //TODO: opti: ne pas devoir faire une copie à chaque refresh!
+                shape = this.selectedShape.copy();
+
+            this.involvedShapes.forEach(s => {
+                let s2 = s.copy();
+                this.action.reverseShape(s2, this.arch, progress);
+                app.drawAPI.drawShape(ctx, s2);
+            });
+
+            //Dessiner l'axe:
+            let n1 = this.symmetricalArchLength/2,
+                n2 = 0.683*this.symmetricalArchLength/2;
             if(this.arch.type=="V") {
                 app.drawAPI.drawLine(ctx,
                     { 'x': shape.x, 'y': shape.y - n1 },
@@ -210,7 +228,7 @@ export class ReverseState extends State {
             }
             return;
         }
-        //TODO: faire retourner tout le groupe de formes.
+
     }
 
     /**
@@ -220,6 +238,6 @@ export class ReverseState extends State {
      */
     getEditingShapes() {
         if(this.currentStep == "listen-canvas-click") return [];
-        return [this.selectedShape];
+        return this.involvedShapes;
     }
 }

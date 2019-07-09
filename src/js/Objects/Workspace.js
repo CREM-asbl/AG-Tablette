@@ -64,6 +64,7 @@ export class Workspace {
 	 * @param  {Shape} shape La forme à supprimer
 	 */
 	removeShape(shape) {
+		//TODO: quand on fera l'action delete, supprimer les formes liées
 		//var removedShapes = [shape]; //pour l'historique
 		let shapeIndex = this.getShapeIndex(shape);
 		if (shapeIndex == null) {
@@ -72,6 +73,8 @@ export class Workspace {
 		}
 		//supprime la forme
 		this.shapes.splice(shapeIndex, 1);
+
+		//supprimer la forme des 2 types de groupes (et les formes liées dans sysGroup)
 
 		/*
 		//supprime les formes créées après la forme supprimée et qui sont (indirectement)
@@ -146,6 +149,37 @@ export class Workspace {
 	};
 
 	/**
+	 * Renvoie la liste des formes solidaires à la forme donnée (c'est-à-dire
+	 * faisant partie du même userGroup et/ou du même systemGroup).
+	 * @param  {Shape} shape Une forme
+	 * @param  {Boolean} [includeReceivedShape=false] true: inclus la forme
+	 * 												   reçue dans les résultats
+	 * @return {[Shape]}     Les formes liées
+	 */
+	getAllBindedShapes(shape, includeReceivedShape = false) {
+		let shapes = [],
+			userGroup = this.getShapeGroup(shape, 'user'),
+			systemGroup = this.getShapeGroup(shape, 'system');
+		if(userGroup) {
+			/*
+			Si la forme fait aussi partie d'un systemGroup, toutes les formes
+			du systemGroup doivent être dans le userGroup, donc rien d'autre
+			à faire.
+			 */
+			shapes = [...userGroup.shapes];
+		} else if(systemGroup) {
+			shapes = [...systemGroup.shapes];
+		} else {
+			shapes = [ shape ];
+		}
+
+		if(!includeReceivedShape) {
+			shapes = shapes.filter(s => s.id != shape.id);
+		}
+		return shapes;
+	}
+
+	/**
      * Renvoie l'index d'une forme (index dans le tableau de formes du Workspace actuel)
      * @param  {Shape} shape la forme
      * @return {int}       l'index de cette forme dans le tableau des formes
@@ -191,5 +225,82 @@ export class Workspace {
 
 		}
 		app.canvas.refreshBackgroundCanvas();*/
+	}
+
+	/**
+	 * Ajouter un groupe à l'espace de travail
+	 * @param {Group} group         Le groupe
+	 * @param {String} [type='user'] Le type de groupe (user ou system)
+	 * @param {int}	index			L'index où placer le groupe. Par défaut: à la fin
+	 */
+	addGroup(group, type = 'user', index = null) {
+		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
+		if(Number.isFinite(index)) {
+			groupList.splice(index, 0, group);
+		} else {
+			groupList.push(group);
+		}
+	}
+
+	/**
+	 * Récupérer l'index d'un groupe dans le tableau de groupes
+	 * @param  {Group} group         Le groupe
+	 * @param  {String} [type='user'] Le type de groupe (user ou system)
+	 * @return {int}               L'index (peut varier dans le temps!)
+	 */
+	getGroupIndex(group, type = 'user') {
+		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
+		for(let i=0; i<groupList.length; i++) {
+			if(groupList[i].id == group.id)
+				return i;
+		}
+		return -1;
+	}
+
+	/**
+	 * Réupérer le groupe d'une forme (soit user, soit system)
+	 * @param  {Shape} shape         la forme
+	 * @param  {String} [type='user'] user ou system
+	 * @return {Group}               le groupe, ou null s'il n'y en a pas.
+	 */
+	getShapeGroup(shape, type = 'user') {
+		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
+		for(let i=0; i<groupList.length; i++) {
+			if(groupList[i].contains(shape))
+				return groupList[i];
+		}
+		return null;
+	}
+
+	/**
+	 * Récupérer un groupe à partir de son id
+	 * @param  {String} id            L'id du groupe
+	 * @param  {String} [type='user'] Le type de groupe (user ou system)
+	 * @return {Group}               Le groupe, ou null s'il n'existe pas
+	 */
+	getGroup(id, type = 'user') {
+		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
+		for(let i=0; i<groupList.length; i++) {
+			if(groupList[i].id == id)
+				return groupList[i];
+		}
+		return null;
+	}
+
+	/**
+	 * Supprimer un groupe
+	 * @param  {Group} group         Le groupe
+	 * @param  {String} [type='user'] Le type du groupe (user ou system)
+	 */
+	deleteGroup(group, type = 'user') {
+		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
+		for(let i=0; i<groupList.length; i++) {
+			if(groupList[i].id == group.id) {
+				groupList.splice(i, 1);
+				return;
+			}
+		}
+		console.error("Couldn't remove "+type+" group");
+		return null;
 	}
 }

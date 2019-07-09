@@ -23,8 +23,11 @@ export class MoveState extends State {
         //coordonnées de la souris à la fin du déplacement
         this.endClickCoordinates = null;
 
-        //l'ensemble des formes liées à la forme actuelle.
-        //this.linkedShapes = [];
+        /*
+        L'ensemble des formes liées à la forme sélectionnée (systemGroup  et
+        userGroup), y compris la forme elle-même
+         */
+        this.involvedShapes = [];
     }
 
     /**
@@ -37,11 +40,12 @@ export class MoveState extends State {
         this.selectedShape = null;
         this.startClickCoordinates = null;
         this.endClickCoordinates = null;
+        this.involvedShapes = [];
 
         app.interactionAPI.setSelectionConstraints("mouseDown",
             {"canShape": "all", "listShape": []},
             {"canSegment": "none", "listSegment": []},
-            {"canVertex": "none", "listVertex": []}
+            {"canPoint": "none", "pointTypes": [], "listPoint": []}
         );
     }
 
@@ -55,10 +59,11 @@ export class MoveState extends State {
         if(this.currentStep != "listen-canvas-click") return;
 
         this.selectedShape = shape;
+        this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
         this.startClickCoordinates = clickCoordinates;
 
         this.action.shapeId = shape.id;
-        this.action.initialCoordinates = shape.getCoordinates();
+        this.action.involvedShapesIds = this.involvedShapes.map(s => s.id);
 
         //TODO: ajouter les formes liées à action.linkedShapes!
         /*
@@ -99,11 +104,10 @@ export class MoveState extends State {
 
         this.endClickCoordinates = mouseCoordinates;
 
-        let newCoords = {
-            'x': this.endClickCoordinates.x - (this.startClickCoordinates.x - this.selectedShape.x),
-            'y': this.endClickCoordinates.y - (this.startClickCoordinates.y - this.selectedShape.y)
-        };
-        this.action.newCoordinates = newCoords;
+        this.action.transformation = {
+            'x': this.endClickCoordinates.x - this.startClickCoordinates.x,
+            'y': this.endClickCoordinates.y - this.startClickCoordinates.y
+        }
 
         this.executeAction();
         this.start();
@@ -119,24 +123,24 @@ export class MoveState extends State {
     draw(ctx, mouseCoordinates) {
         if(this.currentStep != "moving-shape") return;
 
-        //Décalage entre les coordonnées de la forme et le click de départ
-        let diff = {
-                'x': this.startClickCoordinates.x - this.selectedShape.x,
-                'y': this.startClickCoordinates.y - this.selectedShape.y
-            },
-            //Nouvelles coordonnées de la forme: la position de la souris - le décalage
-            newCoord = {
-                'x':  mouseCoordinates.x - diff.x,
-                'y': mouseCoordinates.y - diff.y
-            },
-            saveCoord = this.selectedShape.getCoordinates();
+        let transformation = {
+                'x': mouseCoordinates.x - this.startClickCoordinates.x,
+                'y': mouseCoordinates.y - this.startClickCoordinates.y
+            };
 
-        this.selectedShape.setCoordinates(newCoord);
+        this.involvedShapes.forEach(s => {
+            let newCoords = {
+                    'x': s.x + transformation.x,
+                    'y': s.y + transformation.y
+                },
+                saveCoords = s.getCoordinates();
 
-        app.drawAPI.drawShape(ctx, this.selectedShape);
+            s.setCoordinates(newCoords);
 
-        this.selectedShape.setCoordinates(saveCoord);
-        //TODO: faire bouger tout le groupe de formes.
+            app.drawAPI.drawShape(ctx, s);
+
+            s.setCoordinates(saveCoords);
+        });
     }
 
     /**
@@ -146,6 +150,6 @@ export class MoveState extends State {
      */
     getEditingShapes() {
         if(this.currentStep != "moving-shape") return [];
-        return [this.selectedShape];
+        return this.involvedShapes;
     }
 }

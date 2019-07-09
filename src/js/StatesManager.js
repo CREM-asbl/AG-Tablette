@@ -2,6 +2,8 @@ import { CreateState } from './States/Create.js' //TODO: pourquoi cela ne foncti
 import { MoveState } from './States/Move.js'
 import { RotateState } from './States/Rotate.js'
 import { ReverseState } from './States/Reverse.js'
+import { GroupState } from './States/Group.js'
+import { UngroupState } from './States/Ungroup.js'
 
 
 export class StatesManager {
@@ -41,15 +43,15 @@ export class StatesManager {
             "instance": null,
             "getInstance": function() { return new XXXXXXXXXX(); }
         },
-        'link_shapes': {
+        'group_shapes': {
             "name": 'Lier des formes',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new GroupState(); }
         },
-        'unlink_shapes': {
+        'ungroup_shapes': {
             "name": 'Délier des formes',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new UngroupState(); }
         },
         'reverse_shape': {
             "name": 'Retourner',
