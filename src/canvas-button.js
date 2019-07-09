@@ -46,6 +46,7 @@ class CanvasButton extends LitElement {
         let minX = 0, minY = 0, maxX = 0, maxY = 0, scale = 1
 
         ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.save()
         ctx.strokeStyle = "#000";
         let icon = standardShapes[this.family].shapes.filter(shape => shape.name === this.shape)[0]
             || standardShapes[this.family].shapes[0]
@@ -85,7 +86,7 @@ class CanvasButton extends LitElement {
         }
         ctx.fill();
         ctx.stroke();
-        ctx.resetTransform()
+        ctx.restore()
     }
 
     /**
