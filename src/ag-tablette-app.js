@@ -49,18 +49,11 @@ class AGTabletteApp extends LitElement {
     render() {
         return html`
         <style>
-            :host {
-                display: block;
-                width: 100%;
-                margin: 0px;
-                padding: 0px;
-                height: 100%;
-            }
-
             #app-canvas-view {
+                display: flex;
                 width: 100%;
-                margin: 0px;
-                padding: 0px;
+                margin: 0;
+                padding: 0;
                 height: 100%;
             }
 
@@ -116,14 +109,25 @@ class AGTabletteApp extends LitElement {
                 margin: 2px;
             }
 
+            div-main-canvas {
+                width: 100%;
+                height: 100%;
+            }
+
             shapes-list {
                 position: absolute;
                 bottom: 0;
-                left: 21%;
+                left: 20%;
                 max-width: 79%;
                 box-shadow: 0 1px 3px gray;
                 z-index: 100;
                 box-sizing: border-box;
+            }
+
+            #app-canvas-mode-text {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
             }
 
             #app-canvas-mode-text span{

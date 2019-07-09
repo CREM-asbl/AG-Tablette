@@ -93,10 +93,10 @@ class DivMainCanvas extends LitElement {
      * Défini les attributs width and height du <canvas>. Doit être appelé au démarrage et lorsque la page est redimensionnée.
      */
     setCanvasSize() {
-        this.cvs.setAttribute("height", this.parentElement.clientHeight);
-        this.cvs.setAttribute("width", this.parentElement.clientWidth * 0.8);
-        this.backgroundCvs.setAttribute("height", this.parentElement.clientHeight);
-        this.backgroundCvs.setAttribute("width", this.parentElement.clientWidth * 0.8);
+        this.cvs.setAttribute("height", this.clientHeight);
+        this.cvs.setAttribute("width", this.clientWidth);
+        this.backgroundCvs.setAttribute("height", this.clientHeight);
+        this.backgroundCvs.setAttribute("width", this.clientWidth);
     }
 
     /**
