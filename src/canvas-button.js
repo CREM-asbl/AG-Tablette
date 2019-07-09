@@ -23,15 +23,13 @@ class CanvasButton extends LitElement {
             }
 
             canvas {
-                width: 100%;
-                height: 100%;
                 background: #fff;
                 border: 1px solid black;
                 box-sizing: border-box;
             }
         </style>
 
-        <canvas id="canvas" width="60px" height="60px"></canvas>
+        <canvas id="canvas" width="52px" height="52px"></canvas>
         `
     }
 
@@ -51,7 +49,7 @@ class CanvasButton extends LitElement {
         ctx.strokeStyle = "#000";
         let icon = standardShapes[this.family].shapes.filter(shape => shape.name === this.shape)[0]
             || standardShapes[this.family].shapes[0]
-        ctx.translate(30, 30)
+        ctx.translate(26, 26)
         ctx.beginPath();
         ctx.fillStyle = standardShapes[this.family].color
 
@@ -78,7 +76,7 @@ class CanvasButton extends LitElement {
             if (icon.steps[i].type === "line") {
                 ctx.lineTo(icon.steps[i].x, icon.steps[i].y)
             } else {
-                ctx.arc(0, 0, Math.abs(icon.steps[0].x), 0 , icon.steps[i].angle);
+                ctx.arc(0, 0, Math.abs(icon.steps[0].x), 0, icon.steps[i].angle);
             }
             minX = Math.min(minX, icon.steps[i].x)
             maxX = Math.max(maxX, icon.steps[i].x)

@@ -154,7 +154,7 @@ class DivMainCanvas extends LitElement {
 
     getScreenShot() {
         let url = this.cvs.toDataURL()
-        // TODO: Remplacer par un vrai système d'enregistrement de fichier 
+        // TODO: Remplacer par un vrai système d'enregistrement de fichier
         window.open(url, '_blank')
     }
 

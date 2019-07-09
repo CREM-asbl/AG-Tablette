@@ -1,5 +1,4 @@
 import { LitElement, html } from 'lit-element'
-import { canvasViewCss } from './css/canvas-view'
 import './canvas-button'
 import './shapes-list'
 import './div-main-canvas'
@@ -50,8 +49,43 @@ class AGTabletteApp extends LitElement {
     render() {
         return html`
         <style>
+            :host {
+                display: block;
+                width: 100%;
+                margin: 0px;
+                padding: 0px;
+                height: 100%;
+            }
 
-            ${canvasViewCss}
+            #app-canvas-view {
+                width: 100%;
+                margin: 0px;
+                padding: 0px;
+                height: 100%;
+            }
+
+            #app-canvas-view > .toolbar {
+                display: flex;
+                flex-flow: column;
+                width: 20%;
+                min-width: 180px;
+                float:left;
+                padding: 4px;
+                height: 100%;
+                box-sizing: border-box;
+                border-right: 1px solid gray;
+                background-color: #ddd;
+            }
+
+            #app-canvas-view-toolbar-p1 {
+                padding-bottom: 8px;
+                border-bottom: 1px solid lightslategray;
+            }
+
+            #app-canvas-view-toolbar-p2 {
+                flex: 1;
+                overflow-y: auto;
+            }
 
             .action-button {
                 display: block;
@@ -79,15 +113,17 @@ class AGTabletteApp extends LitElement {
                 display: inline-block;
                 width: 50px;
                 height: 50px;
-                margin: 4px;
+                margin: 2px;
             }
 
             shapes-list {
                 position: absolute;
                 bottom: 0;
-                left: 20%;
+                left: 21%;
+                max-width: 79%;
                 box-shadow: 0 1px 3px gray;
                 z-index: 100;
+                box-sizing: border-box;
             }
 
             #app-canvas-mode-text span{
