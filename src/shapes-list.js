@@ -50,7 +50,7 @@ class ShapesList extends LitElement {
             }
         </style>
 
-        <h2>Formes</h2>
+        <h2>Famille du ${this.family}</h2>
         <ul>
             ${shapes.map(shape => html`
                 <li>
