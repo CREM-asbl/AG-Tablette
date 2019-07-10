@@ -9,6 +9,8 @@ import { BorderColorState } from './States/BorderColor.js'
 import { DuplicateState } from './States/Duplicate.js'
 import { BuildCenterState } from './States/BuildCenter.js'
 import { DeleteState } from './States/Delete.js'
+import { TranslatePlaneState } from './States/TranslatePlane.js'
+import { ZoomPlaneState } from './States/ZoomPlane.js'
 
 
 export class StatesManager {
@@ -28,10 +30,10 @@ export class StatesManager {
             "instance": null,
             "getInstance": function() { return new RotateState(); }
         },
-        'global_zoom': {
+        'zoom_plane': {
             "name": 'Zoom',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new ZoomPlaneState(); }
         },
         'delete_shape': {
             "name": 'Supprimer',
@@ -88,10 +90,10 @@ export class StatesManager {
             "instance": null,
             "getInstance": function() { return new XXXXXXXXXX(); }
         },
-        'moveplane_state': {
+        'translate_plane': {
             "name": 'Glisser le plan',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new TranslatePlaneState(); }
         },
     }
 

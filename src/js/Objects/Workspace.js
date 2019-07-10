@@ -32,8 +32,10 @@ export class Workspace {
 		this.zoomLevel = 1;
 
 		/**
-		 * décalage du canvas (translation horizontale et verticale)
-		 * un chiffre positif signifie un décalage horizontal vers la droite ou vertical vers le bas.
+		 * décalage du canvas (translation horizontale et verticale), un chiffre
+		 * positif signifie un décalage horizontal vers la droite ou vertical
+		 * vers le bas.
+		 * ->Le zoom du plan est appliqué après la translation du plan.
 		 */
 		this.translateOffset = { 'x': 0, 'y': 0 };
 
@@ -208,23 +210,51 @@ export class Workspace {
 	}
 
     /**
-	 * définir le niveau de zoom général du canvas
-	 * @param newZoomLevel: le niveau de zoom, entre 0.1 et 10 (float)
-	 */
-	setZoomLevel(newZoomLevel, doRefresh) {
-		if (newZoomLevel < settings.get('minZoomLevel'))
-			newZoomLevel = settings.get('minZoomLevel');
-		if (newZoomLevel > settings.get('maxZoomLevel'))
-			newZoomLevel = settings.get('maxZoomLevel');
+     * Définir le niveau de zoom de l'espace de travail
+     * @param {float}  newZoomLevel     Le niveau de zoom (1: zoom normal)
+     * @param {Boolean} [doRefresh=true] false: ne pas rafraichir les canvas
+     */
+	setZoomLevel(newZoomLevel, doRefresh = true) {
+		if (newZoomLevel < app.settings.get('minZoomLevel'))
+			newZoomLevel = app.settings.get('minZoomLevel');
+		if (newZoomLevel > app.settings.get('maxZoomLevel'))
+			newZoomLevel = app.settings.get('maxZoomLevel');
 
-		//app.canvas.updateRelativeScaleLevel(newZoomLevel / this.zoomLevel);
+		app.drawAPI.scaleView(newZoomLevel / this.zoomLevel);
+		this.zoomLevel = newZoomLevel;
 
-		this.zoomLevel = newZoomLevel; //TODO?
-		/*if (doRefresh !== false) {
-			app.canvas.refresh();
-
+		if(doRefresh) {
+			app.drawAPI.askRefresh('main');
+			app.drawAPI.askRefresh('upper');
+			app.drawAPI.askRefresh('background');
 		}
-		app.canvas.refreshBackgroundCanvas();*/
+	}
+
+	/**
+	 * Définir la translation du plan (pour cet espace de travail)
+	 * @param {Point}  newOffset        Le décalage par rapport à (0, 0)
+	 * @param {Boolean} [doRefresh=true] false: ne pas rafraichir les canvas
+	 */
+	setTranslateOffset(newOffset, doRefresh = true) {
+		//TODO: limiter la translation à une certaine zone? (ex 4000 sur 4000?)
+		//TODO: bouton pour revenir au "centre" ?
+		app.drawAPI.scaleView(1 / this.zoomLevel); //TODO: nécessaire?
+
+		let offset = {
+			'x': newOffset.x - this.translateOffset.x,
+			'y': newOffset.y - this.translateOffset.y
+		};
+
+		app.drawAPI.translateView(offset);
+		this.translateOffset = newOffset;
+
+		app.drawAPI.scaleView(this.zoomLevel); //TODO: nécessaire?
+
+		if(doRefresh) {
+			app.drawAPI.askRefresh('main');
+			app.drawAPI.askRefresh('upper');
+			app.drawAPI.askRefresh('background');
+		}
 	}
 
 	/**

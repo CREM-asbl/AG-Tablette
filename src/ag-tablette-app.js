@@ -202,14 +202,14 @@ class AGTabletteApp extends LitElement {
 
                     <div class="toolbar-separator">Outils</div>
                     <button class="action-button"
-                            name="moveplane_state"
-                            ?active="${this.state.name === 'moveplane_state'}"
+                            name="translate_plane"
+                            ?active="${this.state.name === 'translate_plane'}"
                             @click='${this._actionHandle}'>
                             Glisser le plan
                     </button>
                     <button class="action-button"
-                            name="global_zoom"
-                            ?active="${this.state.name === 'global_zoom'}"
+                            name="zoom_plane"
+                            ?active="${this.state.name === 'zoom_plane'}"
                             @click='${this._actionHandle}'>
                             Zoomer
                     </button>

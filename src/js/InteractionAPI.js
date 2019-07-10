@@ -1,6 +1,9 @@
 import { app } from './App'
 import { distanceBetweenPoints } from './Tools/general'
 
+//TODO: ajouter des facilités de sélection quand on ne peut sélectionner que
+//      des segments ou points (par ex).
+
 export class InteractionAPI {
 
     constructor(app) {
@@ -236,14 +239,17 @@ export class InteractionAPI {
     onTouchEnd(mouseCoordinates, event) {
         //idem mouseUp? TODO
         this.onMouseUp(mouseCoordinates, event);
+        this.onClick(mouseCoordinates, event);
     }
     onTouchLeave(mouseCoordinates, event) {
         //idem mouseUp? TODO
         this.onMouseUp(mouseCoordinates, event);
+        this.onClick(mouseCoordinates, event);
     }
     onTouchCancel(mouseCoordinates, event) {
         //idem mouseUp? TODO
         this.onMouseUp(mouseCoordinates, event);
+        this.onClick(mouseCoordinates, event);
     }
 
     updateLastKnownMouseCoordinates(mouseCoordinates) {

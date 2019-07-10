@@ -58,10 +58,14 @@ class DivMainCanvas extends LitElement {
         });
 
         this.upperCanvas.addEventListener('touchstart', event => {
+            if (event.touches.length > 1)
+                return;
+            event.preventDefault();
             window.app.interactionAPI.onTouchStart(this.getMousePos(event, window.app), event);
         });
 
         this.upperCanvas.addEventListener('touchmove', event => {
+            event.preventDefault();
             window.app.interactionAPI.onTouchMove(this.getMousePos(event, window.app), event);
         });
 
@@ -134,8 +138,8 @@ class DivMainCanvas extends LitElement {
             return null;
         }
 
-        response = [response[0] / appRef.workspace.zoomLevel, response[1] / appRef.workspace.zoomLevel];
-        response = [response[0] - window.app.workspace.translateOffset.x, response[1] - window.app.workspace.translateOffset.y];
+        response = [response[0] - app.workspace.translateOffset.x, response[1] - app.workspace.translateOffset.y];
+        response = [response[0] / app.workspace.zoomLevel, response[1] / app.workspace.zoomLevel];
         return { "x": response[0], "y": response[1] };
     }
 

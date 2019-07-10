@@ -14,28 +14,46 @@ export class DrawAPI {
 
         this.lastKnownMouseCoordinates = null;
 
-		//this.scale = 1; //TODO
 	}
+
+    clearCtx(ctx) {
+        let canvasWidth = this.canvas.main.clientWidth,
+			canvasHeight = this.canvas.main.clientHeight,
+			maxX = canvasWidth * app.settings.get('maxZoomLevel'),
+			maxY = canvasHeight * app.settings.get('maxZoomLevel');
+
+        //TODO: calculer la zone à clear, en fonction du zoom et translate!
+		ctx.clearRect(-10000, -10000, 20000, 20000);
+    }
+
+    translateView(relativeOffset) {
+        this.upperCtx.translate(relativeOffset.x, relativeOffset.y);
+        this.mainCtx.translate(relativeOffset.x, relativeOffset.y);
+        this.backgroundCtx.translate(relativeOffset.x, relativeOffset.y);
+    }
+
+    scaleView(relativeScale) {
+        this.upperCtx.scale(relativeScale, relativeScale);
+        this.mainCtx.scale(relativeScale, relativeScale);
+        this.backgroundCtx.scale(relativeScale, relativeScale);
+    }
 
     askRefresh(canvas = "main") {
         if(canvas=="main")
             this.refreshMain();
         else if(canvas=="upper")
             this.refreshUpper();
+        else if(canvas=="background")
+            this.refreshBackground();
         //TODO: limite de refresh par seconde? windowAnimationFrame?
     }
 
     refreshBackground() {
-        console.log("refresh background !");
+        this.clearCtx(this.backgroundCtx);
     }
 
     refreshMain() {
-        //Reset
-        let canvasWidth = this.canvas.main.clientWidth,
-			canvasHeight = this.canvas.main.clientHeight,
-			maxX = canvasWidth * app.settings.get('maxZoomLevel'),
-			maxY = canvasHeight * app.settings.get('maxZoomLevel');
-		this.mainCtx.clearRect(0, 0, maxX, maxY);
+        this.clearCtx(this.mainCtx);
 
         //Afficher les formes
         let shapesToSkip = app.state ? app.state.getEditingShapes() : [];
@@ -50,12 +68,7 @@ export class DrawAPI {
     }
 
     refreshUpper() {
-        //Reset
-        let canvasWidth = this.canvas.upper.clientWidth, //TODO factoriser ça ailleurs
-			canvasHeight = this.canvas.upper.clientHeight,
-			maxX = canvasWidth * app.settings.get('maxZoomLevel'),
-			maxY = canvasHeight * app.settings.get('maxZoomLevel');
-		this.upperCtx.clearRect(0, 0, maxX, maxY);
+        this.clearCtx(this.upperCtx);
 
         if(app.state) {
             app.state.draw(this.upperCtx, this.lastKnownMouseCoordinates);

@@ -55,11 +55,11 @@ export class Canvas {
 		if (mouseCoordinates !== undefined) {
 			this.previousMouseCoordinates = mouseCoordinates;
 
-			if (state.name == "global_zoom" && state.isZooming) {
+			if (state.name == "zoom_plane" && state.isZooming) {
 				state.updateZoomLevel(mouseCoordinates);
 			}
 
-			if (state.name == "moveplane_state" && state.isMoving) {
+			if (state.name == "translate_plane" && state.isMoving) {
 				state.updateOffset(this, mouseCoordinates);
 				this.refreshBackgroundCanvas()
 			}

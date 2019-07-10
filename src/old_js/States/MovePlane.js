@@ -3,7 +3,7 @@
  */
 class MovePlaneState {
     constructor() {
-        this.name = "moveplane_state";
+        this.name = "translate_plane";
 
         //coordonnées de la souris lorsque le déplacement a commencé
         this.clickCoordinates = null;
@@ -130,4 +130,4 @@ class MovePlaneState {
     click() { }
 }
 // Todo: à supprimer quand l'import de toutes les classes sera en place
-addEventListener('app-loaded', () => app.states.moveplane_state = new MovePlaneState())
+addEventListener('app-loaded', () => app.states.translate_plane = new MovePlaneState())

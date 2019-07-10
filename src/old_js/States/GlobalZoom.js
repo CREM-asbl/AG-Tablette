@@ -7,7 +7,7 @@ import { distanceBetweenTwoPoints } from "../Geometry";
 class GlobalZoomState {
 
     constructor() {
-        this.name = "global_zoom";
+        this.name = "zoom_plane";
 
         //coordonnées de la souris lorsque le déplacement a commencé
         this.clickCoordinates = null;
@@ -139,4 +139,4 @@ class GlobalZoomState {
 }
 
 // Todo: à supprimer quand l'import de toutes les classes sera en place
-addEventListener('app-loaded', () => window.app.states.global_zoom = new GlobalZoomState())
+addEventListener('app-loaded', () => window.app.states.zoom_plane = new GlobalZoomState())
