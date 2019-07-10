@@ -60,7 +60,7 @@ export class Workspace {
 	};
 
 	/**
-	 * Supprime une forme
+	 * Supprime une forme. Ne la supprime pas des groupes (à faire manuellement)
 	 * @param  {Shape} shape La forme à supprimer
 	 */
 	removeShape(shape) {

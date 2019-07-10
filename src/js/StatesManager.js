@@ -7,6 +7,8 @@ import { UngroupState } from './States/Ungroup.js'
 import { BackgroundColorState } from './States/BackgroundColor.js'
 import { BorderColorState } from './States/BorderColor.js'
 import { DuplicateState } from './States/Duplicate.js'
+import { BuildCenterState } from './States/BuildCenter.js'
+import { DeleteState } from './States/Delete.js'
 
 
 export class StatesManager {
@@ -34,7 +36,7 @@ export class StatesManager {
         'delete_shape': {
             "name": 'Supprimer',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new DeleteState(); }
         },
         'background_color': {
             "name": 'Couleur de fond',
@@ -64,7 +66,7 @@ export class StatesManager {
         'build_shape_center': {
             "name": 'Construire le centre',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new BuildCenterState(); }
         },
         'duplicate_shape': {
             "name": 'Dupliquer',

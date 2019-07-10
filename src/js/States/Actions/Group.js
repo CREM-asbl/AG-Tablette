@@ -73,10 +73,28 @@ export class GroupAction extends Action {
             if(this.groupId) group.id = this.groupId;
             else this.groupId = group.id;
             app.workspace.addGroup(group);
+
+            [shape1, shape2].forEach(shape => {
+                let sysGroup = app.workspace.getShapeGroup(shape, 'system');
+                if(sysGroup) {
+                    sysGroup.shapes.forEach(s => {
+                        if(!group.contains(s))
+                            group.addShape(s);
+                    });
+                }
+            });
         } else if(this.type=='add') {
             let shape = app.workspace.getShapeById(this.shapeId),
                 group = app.workspace.getGroup(this.groupId);
             group.addShape(shape);
+
+            let sysGroup = app.workspace.getShapeGroup(shape, 'system');
+            if(sysGroup) {
+                sysGroup.shapes.forEach(s => {
+                    if(!group.contains(s))
+                        group.addShape(s);
+                });
+            }
         } else {
             let group1 = app.workspace.getGroup(this.groupId),
                 group2 = app.workspace.getGroup(this.otherGroupId);
@@ -88,6 +106,7 @@ export class GroupAction extends Action {
             this.oldGroupIndex = app.workspace.getGroupIndex(group2);
             app.workspace.deleteGroup(group2);
         }
+
     }
 
     undo() {
@@ -100,6 +119,14 @@ export class GroupAction extends Action {
             let shape = app.workspace.getShapeById(this.shapeId),
                 group = app.workspace.getGroup(this.groupId);
             group.removeShape(shape);
+
+            let sysGroup = app.workspace.getShapeGroup(shape, 'system');
+            if(sysGroup) {
+                sysGroup.shapes.forEach(s => {
+                    if(group.contains(s))
+                        group.removeShape(s);
+                });
+            }
         } else {
             let group1 = app.workspace.getGroup(this.groupId),
                 shape1 = app.workspace.getShapeById(this.oldGroupShapesIds[0]),

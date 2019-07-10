@@ -30,8 +30,7 @@ export class SystemShapeGroup {
         this.childrenShapeLinks = {};
 
 
-        //La forme principale n'est pas liée à une autre forme
-        this.sourceShapeLinks[mainShape.id] = null;
+        this.sourceShapeLinks[mainShape.id] = null; //La racine n'a pas de source
         this.childrenShapeLinks[mainShape.id] = [];
         this.addShape(linkedShape, mainShape);
     }
@@ -46,6 +45,10 @@ export class SystemShapeGroup {
             console.log("This shape is already part of this system group.");
             return;
         }
+        if(!this.shapes.includes(sourceShape)) {
+            console.log("Source shape is not part of this system group.");
+            return;
+        }
         this.shapes.push(newShape);
         this.sourceShapeLinks[newShape.id] = sourceShape;
         this.childrenShapeLinks[newShape.id] = [];
@@ -54,18 +57,31 @@ export class SystemShapeGroup {
 
     /**
      * Retire une forme du groupe. La forme doit être une forme feuille (c'est
-     * -à-dire qu'aucune forme n'est liée à cette forme), et il doit rester au
-     * moins 2 formes dans le groupe après la suppression.
+     * -à-dire qu'aucune forme n'est liée à cette forme). S'il ne reste qu'une (ou zéro)
+     * forme, le groupe ne sera pas supprimé.
      * @param  {Shape} shape La forme à retirer
      */
     removeLeafShape(shape) {
+        if(!this.shapes.includes(shape)) {
+            console.log("This shape is not part of this system group.");
+            return;
+        }
+        if(this.childrenShapeLinks[shape.id].length>0) {
+            console.log("Shape is not a leaf node!");
+            return;
+        }
+
         let index = this.shapes.findIndex(s => s.id == shape.id);
         this.shapes.splice(index, 1);
-        if(this.childrenShapeLinks[shape.id].length>0) {
-            console.error("Shape is not a leaf node!");
+
+        delete this.childrenShapeLinks[shape.id];
+        let src = this.sourceShapeLinks[shape.id];
+        if(src) {
+            let srcChildren = this.childrenShapeLinks[src.id],
+                srcIndex = srcChildren.findIndex(s => s.id == shape.id);
+            srcChildren.splice(srcIndex, 1);
         }
-        this.childrenShapeLinks[shape.id] = undefined;
-        this.sourceShapeLinks[shape.id] = undefined;
+        delete this.sourceShapeLinks[shape.id];
     }
 
     /**
@@ -77,5 +93,21 @@ export class SystemShapeGroup {
         return this.shapes.includes(shape); //TODO: vérifier qu'include fonctionne bien pour des objets comme Shape?
     }
 
+    /**
+     * Récupérer la liste des formes liées à une forme donnée
+     * @param  {Shape} shape La forme
+     * @return {[Shape]}     La liste des formes liées
+     */
+    getShapeChilds(shape) {
+        return [...this.childrenShapeLinks[shape.id]];
+    }
 
+    /**
+     * Récupérer la forme source d'une forme
+     * @param  {Shape} shape la forme
+     * @return {Shape}       La forme source, ou null (si shape = la racine)
+     */
+    getSourceShape(shape) {
+        return this.sourceShapeLinks[shape.id];
+    }
 }
