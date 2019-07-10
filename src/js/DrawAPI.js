@@ -50,6 +50,30 @@ export class DrawAPI {
 
     refreshBackground() {
         this.clearCtx(this.backgroundCtx);
+
+        //Grid:
+        if(app.settings.get("isGridShown")) {
+            let canvasWidth = this.canvas.main.clientWidth,
+    			canvasHeight = this.canvas.main.clientHeight,
+    			offsetX = app.workspace.translateOffset.x,
+    			offsetY = app.workspace.translateOffset.y,
+    			actualZoomLvl = app.workspace.zoomLevel,
+                //Ne pas voir les points apparaître:
+                marginToAdd = 20 * actualZoomLvl,
+    			min = {
+                    'x': -offsetX/actualZoomLvl - marginToAdd,
+                    'y': -offsetY/actualZoomLvl - marginToAdd
+                },
+    			max = {
+                    'x': (canvasWidth - offsetX)/ actualZoomLvl + marginToAdd,
+                    'y': (canvasHeight - offsetY)/ actualZoomLvl + marginToAdd
+                };
+
+            let pts = app.workspace.grid.getVisibleGridPoints(min, max);
+            pts.forEach(pt => {
+                this.drawPoint(this.backgroundCtx, pt, "#F00", 1, false);
+            });
+        }
     }
 
     refreshMain() {

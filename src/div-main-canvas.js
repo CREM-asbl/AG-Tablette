@@ -37,9 +37,10 @@ class DivMainCanvas extends LitElement {
 
         window.app = app;
         app.setCanvas(this.upperCanvas, this.mainCanvas, this.backgroundCanvas);
+        this.setCanvasSize();
         app.start();
 
-        this.setCanvasSize();
+
 
         this.upperCanvas.addEventListener('click', event => {
             window.app.interactionAPI.onClick(this.getMousePos(event, window.app), event);
@@ -94,6 +95,10 @@ class DivMainCanvas extends LitElement {
         this.upperCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
         this.mainCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
         this.backgroundCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
+
+        app.drawAPI.askRefresh("main");
+        app.drawAPI.askRefresh("upper");
+        app.drawAPI.askRefresh("background");
     }
 
     /**

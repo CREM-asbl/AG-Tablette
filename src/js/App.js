@@ -46,11 +46,12 @@ export class App {
      * @param {HTMLElement} backgroundCanvas Canvas pour la grille
      */
     setCanvas(upperCanvas, mainCanvas, backgroundCanvas) {
-        this.drawAPI = new DrawAPI(upperCanvas, mainCanvas, backgroundCanvas, this);
+        let api = new DrawAPI(upperCanvas, mainCanvas, backgroundCanvas, this);
+        this.drawAPI = api;
 	}
 
-    start() {
-        console.log("start!!"); //TODO: utile?
+    start() { //TODO: utile?
+        console.log("start!!");
     }
 }
 

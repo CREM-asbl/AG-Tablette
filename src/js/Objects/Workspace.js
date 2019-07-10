@@ -2,6 +2,7 @@ import { loadManifest } from '../Manifest'
 import { app } from '../App'
 import { uniqId } from '../Tools/general'
 import { WorkspaceHistory } from './WorkspaceHistory'
+import { GridManager } from '../GridManager'
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -41,6 +42,8 @@ export class Workspace {
 
 		//L'environnement de travail de ce Workspace (ex: "Grandeur")
         this.environment = environment;
+
+		this.grid = GridManager;
 	}
 
 	/**

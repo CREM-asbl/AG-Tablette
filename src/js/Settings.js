@@ -3,7 +3,7 @@ export class Settings {
     constructor() {
         //Liste des paramètres (ne pas y accéder directement);
         this.data = {};
-
+        //TODO trier ça. et exporter en un json?
         /**
          * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
          */
@@ -20,13 +20,7 @@ export class Settings {
         //Niveau de zoom minimal de l'interface
         this.add("minZoomLevel", 0.1, false);
 
-        /** //TODO déplacer les explications ailleurs
-         * Paramètres d'affichage de la grille.
-         * Le point de référence de la grille est le point (10,10).
-         * Si grille carrée: le côté du carré est de 50 unités. (-> ex de points: (60, 60), (60,10), (10,60), ...)
-         * Si grille triangulaire: la base du triangle est de 50 unités, et le triangle est équilatéral.
-         * 		(-> Ex de points: (-15, 52.5), (35, 52.5), (60, 10), ...)
-         */
+        //TODO delete? n'est plus utilisé.
         this.add("isGridShown", false, true);
         this.add("gridSize", 1, true);
         this.add("gridType", 'square', true); //square ou triangle

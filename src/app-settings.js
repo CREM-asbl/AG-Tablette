@@ -117,7 +117,7 @@ class AppSettings extends LitElement {
                                @change='${this._actionHandle}' />
                         <label for="settings_adapt_shapes_position">Ajustement automatique</label>
                     </div>
-
+                    <!--
                     <div class="field">
                         <input type="checkbox"
                                name="settings_show_grid"
@@ -126,6 +126,7 @@ class AppSettings extends LitElement {
                                @change='${this._actionHandle}' />
                         <label for="settings_show_grid">Activer la grille</label>
                     </div>
+
 
                     <div class="field" style="margin-left:8px">
                         <label for="settings_grid_type">Type de grille </label>
@@ -168,6 +169,7 @@ class AppSettings extends LitElement {
                             </option>
                         </select>
                     </div>
+                    -->
 
                 </fieldset>
 
