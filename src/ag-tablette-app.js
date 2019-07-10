@@ -286,8 +286,6 @@ class AGTabletteApp extends LitElement {
 
         <new-popup></new-popup>
 
-        <a id="dataDownloader" hidden target="_blank"></a>
-
         <input id="fileSelector"
                accept=".json"
                type="file"
@@ -338,13 +336,18 @@ class AGTabletteApp extends LitElement {
         }
     }
 
+    // Todo: à placer dans le workspace ?
+    // car sauvegarde du workspace => workspace.saveToFile()
     save() {
         let json = JSON.stringify(app.workspace.getSaveData())
         const file = new Blob([json], { type: 'text/json' })
-        const downloader = this.shadowRoot.querySelector('#dataDownloader')
+        const downloader = document.createElement('a')
         downloader.href = window.URL.createObjectURL(file)
         downloader.download = 'save.json'
+        downloader.target = '_blank'
+        document.body.appendChild(downloader)
         downloader.click()
+        document.body.removeChild(downloader)
     }
 }
 customElements.define('ag-tablette-app', AGTabletteApp)
