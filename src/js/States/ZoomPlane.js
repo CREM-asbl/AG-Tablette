@@ -1,7 +1,7 @@
 import { app } from '../App'
 import { ZoomPlaneAction } from './Actions/ZoomPlane'
 import { State } from './State'
-import { distanceBetweenPoints } from '../Tools/general'
+import { distanceBetweenPoints } from '../Tools/geometry'
 /**
  * Zoomer/Dézoomer le plan
  */

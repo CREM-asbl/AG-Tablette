@@ -9,10 +9,11 @@ export class Shape {
      * Constructeur
      * @param {float} x          position X
      * @param {float} y          position Y
-     * @param {[ShapeBuildStep]} buildSteps étapes de construction de la forme (Segment, Vertex, MoveTo)
+     * @param {[ShapeBuildStep]} buildSteps étapes de construction de la forme
+     *                                          (Segment, Vertex, MoveTo)
      * @param {String} name       nom de la forme
      * @param {String} familyName     nom de la famille de la forme
-     * @param {Coordinates} refPoint    point de référence pour le dessin de la forme
+     * @param {Coordinates} refPoint    point de référence pour le dessin
      */
     constructor({x, y}, buildSteps, name, familyName, refPoint) {
         this.id = uniqId();
@@ -43,15 +44,6 @@ export class Shape {
             'x': this.x + this.center.x,
             'y': this.y + this.center.y
         };
-    }
-
-    /**
-     * Définir l'id de la forme. Par défaut, l'id est initialisé à une valeur
-     * unique.
-     * @param {String} id
-     */
-    setId(id) {
-        this.id = id;
     }
 
 	/**
@@ -85,7 +77,7 @@ export class Shape {
         copy.color = this.color;
         copy.borderColor = this.borderColor;
         copy.isCenterShown = this.isCenterShown;
-        //copy.updateInternalState();
+        copy.isReversed = this.isReversed;
 
         return copy;
     }
@@ -132,4 +124,20 @@ export class Shape {
     getDrawPath() {
         return this.path;
 	}
+
+    saveToObject() {
+        let save = {
+            'id': this.id,
+            'coordinates': this.getCoordinates(),
+            'name': this.name,
+            'familyName': this.familyName,
+            'refPoint': this.refPoint,
+            'color': this.color,
+            'borderColor': this.borderColor,
+            'isCenterShown': this.isCenterShown,
+            'isReversed': this.isReversed,
+            'buildSteps': this.buildSteps.map(bs => bs.saveToObject())
+        };
+        return save;
+    }
 }

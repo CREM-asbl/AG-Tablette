@@ -266,7 +266,9 @@ class AGTabletteApp extends LitElement {
     }
 
     firstUpdated() { //TODO ??
-        window.canvasLeftShift = this.shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
+        window.canvasLeftShift = this.shadowRoot
+                                .getElementById("app-canvas-view-toolbar")
+                                .clientWidth;
     }
 
     /**

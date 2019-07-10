@@ -1,44 +1,83 @@
 
+/**
+ * Calcule la moyene de 2 couleurs.
+ * @param color1: couleur (RGB) sous la forme #xxxxxx ou #xxx (lettres minuscules ou majuscules)
+ * @param color2: couleur (RGB) sous la forme #xxxxxx ou #xxx (lettres minuscules ou majuscules)
+ */
+export function getAverageColor(color1, color2) {
+	var regex = /^#([0-9a-fA-F]{3}){1,2}$/;
+	if (!regex.test(color1) || !regex.test(color2)) {
+		console.error("App.getAverageColor: une couleur n'a pas été reconnue: " + color1 + " " + color2);
+		return;
+	}
+	if (color1.length == 4) //transforme #abc en #aabbcc
+		color1 = '#' + color1[1] + '' + color1[1] + '' + color1[2] + '' + color1[2] + '' + color1[3] + '' + color1[3];
+	if (color2.length == 4) //transforme #abc en #aabbcc
+		color2 = '#' + color2[1] + '' + color2[1] + '' + color2[2] + '' + color2[2] + '' + color2[3] + '' + color2[3];
+	color1 = color1.toUpperCase();
+	color2 = color2.toUpperCase();
 
+	var hexTodec = function (hex) { //transforme un nombre hexadécimal à 2 chiffres en un nombre décimal
+		var conversion = {
+			'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7,
+			'8': 8, '9': 9, 'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15
+		};
+		return conversion[hex[0]] * 16 + conversion[hex[1]];
+	};
+	var decToHex = function (dec) { //transforme un nombre décimal de 0 à 255 en hexadécimal
+		var conversion = ['0', '1', '2', '3', '4', '5', '6', '7',
+			'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+		return conversion[parseInt(dec / 16)] + conversion[dec % 16];
+	}
+
+	var red = parseInt((hexTodec(color1[1] + color1[2]) + hexTodec(color2[1] + color2[2])) / 2),
+		green = parseInt((hexTodec(color1[3] + color1[4]) + hexTodec(color2[3] + color2[4])) / 2),
+		blue = parseInt((hexTodec(color1[5] + color1[6]) + hexTodec(color2[5] + color2[6])) / 2);
+
+	return '#' + decToHex(red) + decToHex(green) + decToHex(blue);
+}
+
+/**
+ * Calcule la couleur complémentaire d'une couleur.
+ * @param color: couleur (RGB) sous la forme #xxxxxx ou #xxx (lettres minuscules ou majuscules)
+ */
+export function getComplementaryColor(color) {
+    var regex = /^#([0-9a-fA-F]{3}){1,2}$/;
+    if (!regex.test(color)) {
+        console.error("App.getComplementaryColor: la couleur n'a pas été reconnue: " + color);
+        return;
+    }
+    if (color.length == 4) //transforme #abc en #aabbcc
+        color = '#' + color[1] + '' + color[1] + '' + color[2] + '' + color[2] + '' + color[3] + '' + color[3];
+    color = color.toUpperCase();
+
+    var hexTodec = function (hex) { //transforme un nombre hexadécimal à 2 chiffres en un nombre décimal
+        var conversion = {
+            '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7,
+            '8': 8, '9': 9, 'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15
+        };
+        return conversion[hex[0]] * 16 + conversion[hex[1]];
+    };
+    var decToHex = function (dec) { //transforme un nombre décimal de 0 à 255 en hexadécimal
+        var conversion = ['0', '1', '2', '3', '4', '5', '6', '7',
+            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+        return conversion[parseInt(dec / 16)] + conversion[dec % 16];
+    }
+
+    var red = 255 - hexTodec(color[1] + color[2]),
+        green = 255 - hexTodec(color[3] + color[4]),
+        blue = 255 - hexTodec(color[5] + color[6]);
+
+    return '#' + decToHex(red) + decToHex(green) + decToHex(blue);
+};
+
+/**
+ * Génère un identifiant unique (basé sur le timetamp actuel et Math.random())
+ * @return {String} un identifiant unique
+ */
 export function uniqId() {
     var timestamp = new Date().getTime();
     var randInt = Math.floor(Math.random() * 1000 * 1000);
     var result = timestamp.toString(16) + randInt.toString(16);
     return result;
-}
-
-/**
- * Renvoie l'angle (en radians) entre la droite reliant refPoint et point, et l'axe
- * horizontal passant par refPoint.
- * @param  {Point} refPoint Le point de référence
- * @param  {Point} point    Le second point
- * @return {float}          L'angle, en radians. L'angle renvoyé est dans
- *                              l'intervalle [0, 2PI[
- */
-export function getAngleOfPoint(refPoint, point) {
-    let pt = {
-        'x': point.x - refPoint.x,
-        'y': point.y - refPoint.y
-    };
-    //Trouver l'angle de pt par rapport à (0,0)
-    // https://en.wikipedia.org/wiki/Atan2 -> voir image en haut à droite,
-    //  sachant qu'ici l'axe des y est inversé.
-    let angle = Math.atan2(pt.y, pt.x);
-    if (angle < 0)
-        angle += 2 * Math.PI;
-    if (2 * Math.PI - angle < 0.00001)
-        angle = 0;
-    return angle;
-}
-
-/**
- * Renvoie la distance entre 2 points du plan
- * @param  {Point} pt1 le premier point
- * @param  {Point} pt2 le second point
- * @return {float}     la distance en pixels
- */
-export function distanceBetweenPoints(pt1, pt2) {
-    let pow1 = Math.pow(pt2.x - pt1.x, 2),
-        pow2 = Math.pow(pt2.y - pt1.y, 2);
-    return Math.sqrt(pow1 + pow2);
 }

@@ -65,5 +65,93 @@ export class GridManager {
         return ptList;
     }
 
+    /*
+    **
+	 * Grille: Renvoie le point de la grille (grid) le plus proche d'un point
+	 * quelconque d'un groupe de forme
+	 * @param  {[Shape]} shapesList liste des formes
+	 * @return {{'grid': point, 'shape': point}} le point de la grille le plus
+	 * proche, et le point correspondant du groupe de forme.
+	 *
+	getClosestGridPoint(shapesList) {
+		var pointsList = [];
+		for (var i = 0; i < shapesList.length; i++) {
+			for (var j = 0; j < shapesList[i].points.length; j++) {
+				pointsList.push(shapesList[i].points[j]);
+			}
+		}
+		if (pointsList.length === 0) return null
+
+		const getClosestPoint = function (point) {
+			var x = point.getAbsoluteCoordinates().x,
+				y = point.getAbsoluteCoordinates().y;
+
+			var possibilities = [];
+			var gridType = settings.get('gridType');
+			var gridSize = settings.get('gridSize');
+			if (gridType == 'square') {
+				var topleft = {
+					'x': x - ((x - 10) % (50 * gridSize)),
+					'y': y - ((y - 10) % (50 * gridSize))
+				};
+				possibilities.push(topleft);
+				possibilities.push({ 'x': topleft.x, 'y': topleft.y + 50 * gridSize });
+				possibilities.push({ 'x': topleft.x + 50 * gridSize, 'y': topleft.y });
+				possibilities.push({ 'x': topleft.x + 50 * gridSize, 'y': topleft.y + 50 * gridSize });
+			} else if (gridType == 'triangle') {
+				var topleft1 = {
+					'x': x - ((x - 10) % (50 * gridSize)),
+					'y': y - ((y - 10) % (43.3012701892 * 2 * gridSize))
+				};
+				var topleft2 = {
+					'x': x - ((x - (10 + 25 * gridSize)) % (50 * gridSize)),
+					'y': y - ((y - (10 + 43.3012701892 * gridSize)) % (43.3012701892 * 2 * gridSize))
+				};
+				possibilities.push(topleft1);
+				possibilities.push({ 'x': topleft1.x, 'y': topleft1.y + 43.3012701892 * 2 * gridSize });
+				possibilities.push({ 'x': topleft1.x + 50 * gridSize, 'y': topleft1.y });
+				possibilities.push({ 'x': topleft1.x + 50 * gridSize, 'y': topleft1.y + 43.3012701892 * 2 * gridSize });
+
+				possibilities.push(topleft2);
+				possibilities.push({ 'x': topleft2.x, 'y': topleft2.y + 43.3012701892 * 2 * gridSize });
+				possibilities.push({ 'x': topleft2.x + 50 * gridSize, 'y': topleft2.y });
+				possibilities.push({ 'x': topleft2.x + 50 * gridSize, 'y': topleft2.y + 43.3012701892 * 2 * gridSize });
+			} else {
+				console.error("Workspace.getClosestGridPoint: unknown type: " + gridType);
+				return null;
+			}
+
+			var closest = possibilities[0];
+			var smallestSquareDist = Math.pow(closest.x - x, 2) + Math.pow(closest.y - y, 2);
+			for (var i = 1; i < possibilities.length; i++) {
+				var d = Math.pow(possibilities[i].x - x, 2) + Math.pow(possibilities[i].y - y, 2);
+				if (d < smallestSquareDist) {
+					smallestSquareDist = d;
+					closest = possibilities[i];
+				}
+			}
+
+			return { 'dist': Math.sqrt(smallestSquareDist), 'point': new Point(closest.x, closest.y, "grid", null) };
+		};
+
+		var bestShapePoint = pointsList[0];
+		var t = getClosestPoint(bestShapePoint);
+		var bestDist = t.dist;
+		var bestGridPoint = t.point;
+		for (var i = 0; i < pointsList.length; i++) {
+			var t = getClosestPoint(pointsList[i]);
+			if (t.dist < bestDist) {
+				bestDist = t.dist;
+				bestGridPoint = t.point;
+				bestShapePoint = pointsList[i];
+			}
+		}
+
+		return {
+			'grid': bestGridPoint,
+			'shape': bestShapePoint
+		};
+	};
+     */
 
 }

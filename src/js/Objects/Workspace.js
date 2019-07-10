@@ -3,6 +3,7 @@ import { app } from '../App'
 import { uniqId } from '../Tools/general'
 import { WorkspaceHistory } from './WorkspaceHistory'
 import { GridManager } from '../GridManager'
+import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -43,7 +44,82 @@ export class Workspace {
 		//L'environnement de travail de ce Workspace (ex: "Grandeur")
         this.environment = environment;
 
+		//Managers:
 		this.grid = GridManager;
+		//TODO ShapesManager, GroupsManager
+	}
+
+	/**
+	 * Importer les données du Workspace depuis une sauvegarde JSON
+	 * @param  {String} json
+	 */
+	initFromJSON(json) {
+		const wsdata = JSON.parse(json);
+		this.appVersion = wsdata.appVersion;
+		this.id = wsdata.id;
+
+		this.history = null; //TODO!
+
+		//Shapes
+		this.shapes = wsdata.shapes.map(sData => {
+			let buildSteps = sData.buildSteps.map(bsData => {
+				if(bsData.type=='vertex')
+					return new Vertex(bsData.coordinates);
+				else if(bsData.type=='moveTo')
+					return new MoveTo(bsData.coordinates);
+				else {
+					let segment = new Segment(bsData.coordinates, bsData.isArc);
+					bsData.points.forEach(pt => segment.addPoint(pt));
+					return segment;
+				}
+			});
+			let shape = new Shape(
+	            sData.coordinates, buildSteps,
+	            sData.name, sData.familyName,
+	            sData.refPoint);
+			shape.id = sData.id;
+	        shape.color = sData.color;
+	        shape.borderColor = sData.borderColor;
+	        shape.isCenterShown = sData.isCenterShown;
+	        shape.isReversed = sData.isReversed;
+		});
+
+		this.userShapeGroups = null; //TODO!
+
+		this.systemShapeGroups = null; //TODO!
+
+		this.zoomLevel = wsdata.zoomLevel;
+
+		this.translateOffset = wsdata.translateOffset;
+
+		this.environment = app.envManager.getNewEnv(wsdata.envName);
+	}
+
+	/**
+	 * Exporter le Workspace en JSON
+	 * @return {String} le JSON
+	 */
+	saveToJSON() {
+		let wsdata = {};
+		wsdata.appVersion = this.appVersion;
+		wsdata.id = this.id;
+
+		wsdata.history = null; //TODO!
+
+		wsdata.shapes = this.shapes.map(s => s.saveToObject());
+
+		wsdata.userShapeGroups = null; //TODO!
+
+		wsdata.systemShapeGroups = null; //TODO!
+
+		wsdata.zoomLevel = this.zoomLevel;
+
+		wsdata.translateOffset = this.translateOffset;
+
+		wsdata.envName = this.environment.name;
+
+		const json = JSON.stringify(wsdata);
+		return json;
 	}
 
 	/**

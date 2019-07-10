@@ -1,7 +1,7 @@
 import { app } from '../App'
 import { ReverseAction } from './Actions/Reverse'
 import { State } from './State'
-import { distanceBetweenPoints, getAngleOfPoint } from '../Tools/general'
+import { distanceBetweenPoints, getAngleOfPoint } from '../Tools/geometry'
 
 /**
  * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail

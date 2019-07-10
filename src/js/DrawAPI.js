@@ -46,6 +46,7 @@ export class DrawAPI {
         else if(canvas=="background")
             this.refreshBackground();
         //TODO: limite de refresh par seconde? windowAnimationFrame?
+        //TODO: ne pas mettre les canvas à jour qd mouseMove pendant une animFrame 
     }
 
     refreshBackground() {
@@ -188,6 +189,29 @@ export class DrawAPI {
 
         if(doSave) ctx.restore();
 	};
+
+
+    /**
+     * Dessine un cercle
+     * @param  {Context2D} ctx         Le canvas
+     * @param  {Point} point           Coordonnées du centre
+     * @param  {String} [color='#000'] Couleur du bord
+     * @param  {float} [radius=10]     Le rayon
+     */
+    drawCircle(ctx, point, color = '#000', radius = 10, doSave = true) {
+        if(doSave) ctx.save();
+
+        ctx.globalAlpha = 1;
+		ctx.strokeStyle = color;
+
+        ctx.beginPath();
+		ctx.arc(point.x, point.y, radius / this.app.workspace.zoomLevel, 0, 2 * Math.PI, 0);
+		ctx.closePath();
+		ctx.stroke();
+
+        if(doSave) ctx.restore();
+    }
+
 
     /**
      * Vérifie si un point est à l'intérieur d'une forme ou non

@@ -32,6 +32,16 @@ export class Segment extends ShapeBuildStep {
         })
         return copy;
     }
+
+    saveToObject() {
+        const save = {
+            'type': 'segment',
+            'coordinates': {'x': this.coordinates.x, 'y': this.coordinates.y},
+            'points': this.points.map(pt => {'x': pt.x, 'y': pt.y}),
+            'isArc': this.isArc
+        };
+        return save;
+    }
 }
 
 export class Vertex extends ShapeBuildStep {
@@ -43,6 +53,14 @@ export class Vertex extends ShapeBuildStep {
     copy() {
         return new Vertex(this.coordinates);
     }
+
+    saveToObject() {
+        const save = {
+            'type': 'vertex',
+            'coordinates': {'x': this.coordinates.x, 'y': this.coordinates.y}
+        };
+        return save;
+    }
 }
 
 export class MoveTo extends ShapeBuildStep {
@@ -53,5 +71,13 @@ export class MoveTo extends ShapeBuildStep {
 
     copy() {
         return new MoveTo(this.coordinates);
+    }
+
+    saveToObject() {
+        const save = {
+            'type': 'moveTo',
+            'coordinates': {'x': this.coordinates.x, 'y': this.coordinates.y}
+        };
+        return save;
     }
 }

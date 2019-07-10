@@ -1,7 +1,7 @@
 import { app } from '../App'
 import { RotateAction } from './Actions/Rotate'
 import { State } from './State'
-import { getAngleOfPoint } from '../Tools/general'
+import { getAngleOfPoint } from '../Tools/geometry'
 
 /**
  * Tourner une forme (ou un ensemble de formes liées) sur l'espace de travail

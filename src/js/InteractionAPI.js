@@ -1,5 +1,5 @@
 import { app } from './App'
-import { distanceBetweenPoints } from './Tools/general'
+import { distanceBetweenPoints } from './Tools/geometry'
 
 //TODO: ajouter des facilités de sélection quand on ne peut sélectionner que
 //      des segments ou points (par ex).

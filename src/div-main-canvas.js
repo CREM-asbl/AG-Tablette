@@ -38,7 +38,7 @@ class DivMainCanvas extends LitElement {
         window.app = app;
         app.setCanvas(this.upperCanvas, this.mainCanvas, this.backgroundCanvas);
         this.setCanvasSize();
-        app.start();
+        app.start(this);
 
 
 
@@ -96,6 +96,8 @@ class DivMainCanvas extends LitElement {
         this.mainCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
         this.backgroundCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
 
+        //TODO updateRelativeScaleLevel ?
+        
         app.drawAPI.askRefresh("main");
         app.drawAPI.askRefresh("upper");
         app.drawAPI.askRefresh("background");
@@ -113,6 +115,7 @@ class DivMainCanvas extends LitElement {
         var response = null;
 
         if (event.changedTouches && event.changedTouches[0] && event.changedTouches[0].clientX !== undefined) {
+            //TODO: dans quel cas ça arrive?
             response = [event.changedTouches[0].clientX - window.canvasLeftShift, event.changedTouches[0].clientY];
         }
         else if (event.offsetX !== undefined) {
