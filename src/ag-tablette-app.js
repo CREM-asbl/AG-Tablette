@@ -34,7 +34,8 @@ class AGTabletteApp extends LitElement {
     static get properties() {
         return {
             state: Object,
-            families: Array
+            families: Array,
+            background: String
         }
     }
 
@@ -42,7 +43,6 @@ class AGTabletteApp extends LitElement {
         super()
         this.families = Object.keys(standardShapes)
         this.state = {}
-
         addEventListener('app-state-changed', event => this.state = { ...event.detail })
     }
 
@@ -274,10 +274,15 @@ class AGTabletteApp extends LitElement {
                             @click='${this._actionHandle}'>
                             Colorier les bords
                     </button>
+                    <button class="action-button"
+                            name="border_color"
+                            @click='${this.loadBackground}'>
+                            Fond d'écran
+                    </button>
                 </div>
             </div>
 
-            <div-main-canvas id="div-main-canvas"></div-main-canvas>
+            <div-main-canvas id="div-main-canvas" background="${this.background}"></div-main-canvas>
         </div>
 
         <shapes-list .state="${this.state}"></shapes-list>
@@ -349,5 +354,22 @@ class AGTabletteApp extends LitElement {
         downloader.click()
         document.body.removeChild(downloader)
     }
+
+    // Todo: Placer dans un objet BackgroundImage
+    loadBackground() {
+        const imageSelector = document.createElement('input')
+        imageSelector.type = 'file'
+        imageSelector.accept = 'image/*'
+        imageSelector.onchange = e => this.setBackground(e.target.files[0])
+        document.body.appendChild(imageSelector)
+        imageSelector.click()
+    }
+
+    setBackground(file) {
+        let reader = new FileReader();
+        reader.onload = e => this.background = e.target.result
+        reader.readAsDataURL(file)
+    }
+    /***/
 }
 customElements.define('ag-tablette-app', AGTabletteApp)

@@ -3,6 +3,12 @@ import { App } from './js/App'
 
 class DivMainCanvas extends LitElement {
 
+    static get properties() {
+        return {
+            background: String
+        }
+    }
+
     render() {
         return html`
         <style>
@@ -156,6 +162,13 @@ class DivMainCanvas extends LitElement {
         let url = this.cvs.toDataURL()
         // TODO: Remplacer par un vrai système d'enregistrement de fichier
         window.open(url, '_blank')
+    }
+
+    // Ajout d'un fond d'écran fixé à droite
+    set background(value) {
+        console.log(value)
+        this.style.display = 'block'
+        this.style.background = `url('${value}') no-repeat right`
     }
 
 }
