@@ -3,6 +3,8 @@ import './canvas-button'
 import './shapes-list'
 import './div-main-canvas'
 import './app-settings'
+import './flex-toolbar'
+import './icon-button'
 // import './divide-popup'
 import './js/Manifest'
 import './new-popup'
@@ -81,11 +83,13 @@ class AGTabletteApp extends LitElement {
             }
 
             .action-button {
-                display: block;
+                display: inline-block;
                 box-sizing: border-box;
-                width: 100%;
-                height: 32px;
+                height: 50px;
+                width: 50px;
                 margin: 8px 0;
+                padding: 0;
+                background: white;
             }
 
             .action-button:hover,
@@ -141,38 +145,44 @@ class AGTabletteApp extends LitElement {
                         <div id="app-canvas-mode-text">
                             <span>Mode: </span>${dico[this.state.name]}
                         </div>
-                            <button class="action-button"
+                        <flex-toolbar>
+                            <icon-button src="/images/delete-all.svg"
+                                    title="Supprimer tout"
                                     name="new"
                                     @click="${this._actionHandle}">
-                                    Supprimer tout
-                            </button>
-                            <button class="action-button"
+                            </icon-button>
+                            <icon-button src="/images/delete.svg"
+                                    title="Supprimer une forme"
                                     name="delete_shape"
                                     ?active="${this.state.name === 'delete_shape'}"
                                     @click='${this._actionHandle}'>
-                                    Supprimer
-                            </button>
-                            <button class="action-button"
+                            </icon-button>
+                            <icon-button src="/images/undo.svg"
+                                    title="Annuler"
                                     name="undo"
                                     @click='${this._actionHandle}'>
-                                    Annuler
-                            </button>
-                        <button class="action-button"
+                            </icon-button>
+                            <icon-button src="/images/redo.svg"
+                                    title="Refaire"
+                                    name="redo"
+                                    @click='${this._actionHandle}'>
+                            </icon-button>
+                            <icon-button src="/images/save.svg"
+                                    title="Sauvegarder"
                                     name="save"
                                     @click='${this.save}'>
-                                    Sauvegarder
-                            </button>
-                            <button class="action-button"
+                            </icon-button>
+                            <icon-button src="/images/load.svg"
+                                    title="Ouvrir"
                                     name="load"
                                     @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
-                                    Charger
-                            </button>
-                            <button class="action-button"
+                            </icon-button>
+                            <icon-button src="/images/settings.svg"
+                                    title="Paramètres"
                                     name="settings"
                                     @click='${this._actionHandle}'>
-                                    Paramètres
-                            </button>
-
+                            </icon-button>
+                        </flex-toolbar>
                         <div class="toolbar-separator">Formes standard</div>
 
                         ${this.families.map(family => html`
@@ -186,99 +196,103 @@ class AGTabletteApp extends LitElement {
 
                 <div id="app-canvas-view-toolbar-p2">
                     <div class="toolbar-separator">Mouvements</div>
-                    <button class="action-button"
-                            name="move_shape"
-                            ?active="${this.state.name === 'move_shape'}"
-                            @click='${this._actionHandle}'>
-                            Glisser
-                    </button>
-                    <button class="action-button"
-                            name="rotate_shape"
-                            ?active="${this.state.name === 'rotate_shape'}"
-                            @click='${this._actionHandle}'>
-                            Tourner
-                    </button>
-                    <button class="action-button"
-                            name="reverse_shape"
-                            ?active="${this.state.name === 'reverse_shape'}"
-                            @click='${this._actionHandle}'>
-                            Retourner
-                    </button>
+                    <flex-toolbar>
+                        <icon-button src="/images/move.svg"
+                                    title="Glisser"
+                                    name="move_shape"
+                                    ?active="${this.state.name === 'move_shape'}"
+                                    @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/rotate.svg"
+                                name="rotate_shape"
+                                ?active="${this.state.name === 'rotate_shape'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/reverse.svg"
+                                name="reverse_shape"
+                                ?active="${this.state.name === 'reverse_shape'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                    </flex-toolbar>
 
                     <div class="toolbar-separator">Opérations</div>
-                    <button class="action-button"
-                            name="build_shape_center"
-                            ?active="${this.state.name === 'build_shape_center'}"
-                            @click='${this._actionHandle}'>
-                            Construire le centre
-                    </button>
-                    <button class="action-button"
-                            name="divide_segment"
-                            ?active="${this.state.name === 'divide_segment'}"
-                            @click='${this._actionHandle}'>
-                            Diviser
-                    </button>
-                    <button class="action-button"
-                            name="cut_shape"
-                            ?active="${this.state.name === 'cut_shape'}"
-                            @click='${this._actionHandle}'>
-                            Découper
-                    </button>
-                    <button class="action-button"
-                            name="duplicate_shape"
-                            ?active="${this.state.name === 'duplicate_shape'}"
-                            @click='${this._actionHandle}'>
-                            Copier
-                    </button>
-                    <button class="action-button"
-                            name="merge_shapes"
-                            ?active="${this.state.name === 'merge_shapes'}"
-                            @click='${this._actionHandle}'>
-                            Fusionner
-                    </button>
+                    <flex-toolbar>
+                        <icon-button src="/images/center.svg"
+                                title="Construire le centre"
+                                name="build_shape_center"
+                                ?active="${this.state.name === 'build_shape_center'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/divide.svg"
+                                title="Diviser"
+                                name="divide_segment"
+                                ?active="${this.state.name === 'divide_segment'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/cut.svg"
+                                title="Découper"
+                                name="cut_shape"
+                                ?active="${this.state.name === 'cut_shape'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/copy.svg"
+                                name="duplicate_shape"
+                                ?active="${this.state.name === 'duplicate_shape'}"
+                                @click='${this._actionHandle}'>
+                                Copier
+                        </icon-button>
+                        <icon-button src="/images/merge.svg"
+                                title="Fusionner"
+                                name="merge_shapes"
+                                ?active="${this.state.name === 'merge_shapes'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                    </flex-toolbar>
 
                     <div class="toolbar-separator">Outils</div>
-                    <button class="action-button"
-                            name="moveplane_state"
-                            ?active="${this.state.name === 'moveplane_state'}"
-                            @click='${this._actionHandle}'>
-                            Glisser le plan
-                    </button>
-                    <button class="action-button"
-                            name="global_zoom"
-                            ?active="${this.state.name === 'global_zoom'}"
-                            @click='${this._actionHandle}'>
-                            Zoomer
-                    </button>
-                    <button class="action-button"
-                            name="link_shapes"
-                            ?active="${this.state.name === 'link_shapes'}"
-                            @click='${this._actionHandle}'>
-                            Grouper
-                    </button>
-                    <button class="action-button"
-                            name="unlink_shapes"
-                            ?active="${this.state.name === 'unlink_shapes'}"
-                            @click='${this._actionHandle}'>
-                            Dégrouper
-                    </button>
-                    <button class="action-button"
-                            name="background_color"
-                            ?active="${this.state.name === 'background_color'}"
-                            @click='${this._actionHandle}'>
-                            Colorier les formes
-                    </button>
-                    <button class="action-button"
-                            name="border_color"
-                            ?active="${this.state.name === 'border_color'}"
-                            @click='${this._actionHandle}'>
-                            Colorier les bords
-                    </button>
-                    <button class="action-button"
-                            name="border_color"
-                            @click='${this.loadBackground}'>
-                            Fond d'écran
-                    </button>
+                    <flex-toolbar>
+                        <icon-button src="/images/moveplane.svg"
+                                title="Glisser le plan"
+                                name="moveplane_state"
+                                ?active="${this.state.name === 'moveplane_state'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/zoom.svg"
+                                title="Zoomer"
+                                name="global_zoom"
+                                ?active="${this.state.name === 'global_zoom'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/group.svg"
+                                title="Grouper"
+                                name="link_shapes"
+                                ?active="${this.state.name === 'link_shapes'}"
+                                @click='${this._actionHandle}'>
+                         </icon-button>
+                        <icon-button src="/images/ungroup.svg"
+                                title="Dégrouper"
+                                name="unlink_shapes"
+                                ?active="${this.state.name === 'unlink_shapes'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/background-color.svg"
+                                title="Colorier les formes"
+                                name="background_color"
+                                ?active="${this.state.name === 'background_color'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/border-color.svg"
+                                title="Colorier les bords"
+                                name="border_color"
+                                ?active="${this.state.name === 'border_color'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/wallpaper.svg"
+                                title="Fond d'écran"
+                                name="border_color"
+                                @click='${this.loadBackground}'>
+                        </icon-button>
+                    </flex-toolbar>
                 </div>
             </div>
 
@@ -344,7 +358,7 @@ class AGTabletteApp extends LitElement {
     // Todo: à placer dans le workspace ?
     // car sauvegarde du workspace => workspace.saveToFile()
     save() {
-        let json = JSON.stringify(app.workspace.getSaveData())
+        let json = JSOµN.stringify(app.workspace.getSaveData())
         const file = new Blob([json], { type: 'text/json' })
         const downloader = document.createElement('a')
         downloader.href = window.URL.createObjectURL(file)
@@ -355,7 +369,7 @@ class AGTabletteApp extends LitElement {
         document.body.removeChild(downloader)
     }
 
-    // Todo: Placer dans un objet BackgroundImage
+    // Todo: Placer dans un objet BackgroundImage ?
     loadBackground() {
         const imageSelector = document.createElement('input')
         imageSelector.type = 'file'

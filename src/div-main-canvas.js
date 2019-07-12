@@ -166,7 +166,6 @@ class DivMainCanvas extends LitElement {
 
     // Ajout d'un fond d'écran fixé à droite
     set background(value) {
-        console.log(value)
         this.style.display = 'block'
         this.style.background = `url('${value}') no-repeat right`
     }
