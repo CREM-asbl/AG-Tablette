@@ -24,7 +24,17 @@ class ShapesList extends LitElement {
         return html`
         <style>
             :host {
-                display: block;
+                display: flex;
+                justify-content: center;
+            }
+
+            .container {
+                background: white;
+                margin: auto;
+                box-shadow: 0 1px 3px gray;
+                z-index: 100;
+                box-sizing: border-box;
+                overflow: auto;
             }
 
             h2 {
@@ -50,18 +60,20 @@ class ShapesList extends LitElement {
             }
         </style>
 
-        <h2>Famille du ${this.family}</h2>
-        <ul>
-            ${shapes.map(shape => html`
-                <li>
-                    <canvas-button title="${shape}"
-                                   family="${this.family}"
-                                   shape="${shape}"
-                                   @click="${this._clickHandle}">
-                    </canvas-button>
-                </li>
-            `)}
-        </ul>
+        <div class="container">
+            <h2>Famille du ${this.family}</h2>
+            <ul>
+                ${shapes.map(shape => html`
+                    <li>
+                        <canvas-button title="${shape}"
+                                    family="${this.family}"
+                                    shape="${shape}"
+                                    @click="${this._clickHandle}">
+                        </canvas-button>
+                    </li>
+                `)}
+            </ul>
+        </div>
         `
     }
 

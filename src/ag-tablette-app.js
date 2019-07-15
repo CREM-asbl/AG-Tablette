@@ -62,14 +62,13 @@ class AGTabletteApp extends LitElement {
             #app-canvas-view > .toolbar {
                 display: flex;
                 flex-flow: column;
-                width: 20%;
-                min-width: 180px;
-                float:left;
+                flex: 0 0 180px;
                 padding: 4px;
                 height: 100%;
                 box-sizing: border-box;
                 border-right: 1px solid gray;
                 background-color: #ddd;
+                overflow: hidden;
             }
 
             #app-canvas-view-toolbar-p1 {
@@ -95,11 +94,8 @@ class AGTabletteApp extends LitElement {
             shapes-list {
                 position: absolute;
                 bottom: 0;
-                left: 20%;
-                max-width: 79%;
-                box-shadow: 0 1px 3px gray;
-                z-index: 100;
-                box-sizing: border-box;
+                left: 0;
+                right: 0;
             }
 
             #app-canvas-mode-text {
