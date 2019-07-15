@@ -19,6 +19,23 @@ export class MoveAction extends Action {
         this.involvedShapesIds = [];
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'shapeId': this.shapeId,
+            'transformation': this.transformation,
+            'involvedShapesIds': this.involvedShapesIds
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+        this.shapeId = save.shapeId;
+        this.transformation = save.transformation;
+        this.involvedShapesIds = save.involvedShapesIds;
+    }
+
     checkDoParameters() {
         if(!this.shapeId)
             return false;

@@ -22,6 +22,25 @@ export class BorderColorAction extends Action {
         this.oldColors = [];
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'shapeId': this.shapeId,
+            'selectedColor': this.selectedColor,
+            'involvedShapesIds': [...this.involvedShapesIds],
+            'oldColors': [...this.oldColors]
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+        this.shapeId = save.shapeId;
+        this.selectedColor = save.selectedColor;
+        this.involvedShapesIds = [...save.involvedShapesIds];
+        this.oldColors = [...save.oldColors];
+    }
+
     checkDoParameters() {
         if(!this.shapeId || !this.selectedColor)
             return false;

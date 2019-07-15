@@ -35,17 +35,54 @@ export class SystemShapeGroup {
         this.addShape(linkedShape, mainShape);
     }
 
+    saveToObject() {
+        let save = {
+            'id': this.id,
+            'shapes': this.shapes.map(s => s.id),
+            'sources': {},
+            'childs': {}
+        };
+        for(let sId in this.sourceShapeLinks) {
+            if(this.sourceShapeLinks[sId])
+                save.sources[sId] = this.sourceShapeLinks[sId].id;
+            else
+                save.sources[sId] = null;
+        }
+        for(let sId in this.childrenShapeLinks)
+            save.childs[sId] = this.childrenShapeLinks[sId].map(s => s.id);
+        return save;
+    }
+
+    initFromObject(object) {
+        this.id = object.id;
+        this.shapes = object.shapes.map(sId => app.workspace.getShapeById(sId));
+        for(let sId in object.sources) {
+            if(object.sources[sId]) {
+                let shape = app.workspace.getShapeById(object.sources[sId]);
+                this.sourceShapeLinks[sId] = shape;
+            } else {
+                this.sourceShapeLinks[sId] = null;
+            }
+
+        }
+        for(let sId in object.childs) {
+            this.childrenShapeLinks[sId] = object.childs[sId].map(id => {
+                return app.workspace.getShapeById(id);
+            });
+        }
+    }
+
     /**
      * Ajouter une forme au groupe
      * @param {Shape} newShape    La forme que l'on ajoute
      * @param {Shape} sourceShape La forme à laquelle la nouvelle forme est liée
      */
     addShape(newShape, sourceShape) {
-        if(this.shapes.includes(newShape)) {
+        if(this.contains(newShape)) {
             console.log("This shape is already part of this system group.");
             return;
         }
-        if(!this.shapes.includes(sourceShape)) {
+        if(!this.contains(sourceShape)) {
             console.log("Source shape is not part of this system group.");
             return;
         }
@@ -62,7 +99,7 @@ export class SystemShapeGroup {
      * @param  {Shape} shape La forme à retirer
      */
     removeLeafShape(shape) {
-        if(!this.shapes.includes(shape)) {
+        if(!this.contains(shape)) {
             console.log("This shape is not part of this system group.");
             return;
         }
@@ -90,7 +127,7 @@ export class SystemShapeGroup {
      * @return {Boolean}       true si elle fait partie du groupe, false sinon
      */
     contains(shape) {
-        return this.shapes.includes(shape); //TODO: vérifier qu'include fonctionne bien pour des objets comme Shape?
+        return this.shapes.findIndex(s => s.id == shape.id) != -1;
     }
 
     /**

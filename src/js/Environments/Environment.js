@@ -18,6 +18,8 @@ export class Environment {
         //Liste des familles de formes disponibles dans cet environnement
         this.families = [];
 
+        this.familyNames = [];
+
         //TODO: outils activés/désactivés, etc.
     }
 
@@ -41,6 +43,7 @@ export class Environment {
     			family.addShape(shape.name, buildSteps, shape.refPoint);
     		});
             this.families.push(family);
+            this.familyNames.push(familyName);
         }
     }
 

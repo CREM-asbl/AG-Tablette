@@ -33,6 +33,31 @@ export class GroupAction extends Action {
         this.oldGroupIndex = null;
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'type': this.type,
+            'shapeId': this.shapeId,
+            'secondShapeId': this.secondShapeId,
+            'groupId': this.groupId,
+            'otherGroupId': this.otherGroupId,
+            'oldGroupShapesIds': this.oldGroupShapesIds,
+            'oldGroupIndex': this.oldGroupIndex
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+        this.type = save.type;
+        this.shapeId = save.shapeId;
+        this.secondShapeId = save.secondShapeId;
+        this.groupId = save.groupId;
+        this.otherGroupId = save.otherGroupId;
+        this.oldGroupShapesIds = save.oldGroupShapesIds;
+        this.oldGroupIndex = save.oldGroupIndex;
+    }
+
     checkDoParameters() {
         if(this.type!='new' && this.type!='add' && this.type!='merge')
             return false;

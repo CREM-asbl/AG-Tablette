@@ -4,6 +4,9 @@ import { uniqId } from '../Tools/general'
 import { WorkspaceHistory } from './WorkspaceHistory'
 import { GridManager } from '../GridManager'
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
+import { SystemShapeGroup } from './SystemShapeGroup'
+import { UserShapeGroup } from './UserShapeGroup'
+import { Shape } from './Shape'
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -46,7 +49,6 @@ export class Workspace {
 
 		//Managers:
 		this.grid = GridManager;
-		//TODO ShapesManager, GroupsManager
 	}
 
 	/**
@@ -54,45 +56,42 @@ export class Workspace {
 	 * @param  {String} json
 	 */
 	initFromJSON(json) {
-		const wsdata = JSON.parse(json);
+		let wsdata = JSON.parse(json),
+			actualWS = app.workspace;
+		app.workspace = this; //pour que app.workspace.getShapeById fonctionne
+
 		this.appVersion = wsdata.appVersion;
 		this.id = wsdata.id;
 
-		this.history = null; //TODO!
-
-		//Shapes
 		this.shapes = wsdata.shapes.map(sData => {
-			let buildSteps = sData.buildSteps.map(bsData => {
-				if(bsData.type=='vertex')
-					return new Vertex(bsData.coordinates);
-				else if(bsData.type=='moveTo')
-					return new MoveTo(bsData.coordinates);
-				else {
-					let segment = new Segment(bsData.coordinates, bsData.isArc);
-					bsData.points.forEach(pt => segment.addPoint(pt));
-					return segment;
-				}
-			});
-			let shape = new Shape(
-	            sData.coordinates, buildSteps,
-	            sData.name, sData.familyName,
-	            sData.refPoint);
-			shape.id = sData.id;
-	        shape.color = sData.color;
-	        shape.borderColor = sData.borderColor;
-	        shape.isCenterShown = sData.isCenterShown;
-	        shape.isReversed = sData.isReversed;
+			let shape = new Shape({'x': 0, 'y': 0}, []);
+			shape.initFromObject(sData);
+			return shape;
 		});
 
-		this.userShapeGroups = null; //TODO!
+		this.history = new WorkspaceHistory();
+		this.history.initFromObject(wsdata.history);
 
-		this.systemShapeGroups = null; //TODO!
+		this.userShapeGroups = wsdata.userShapeGroups.map(groupData => {
+			let group = new UserShapeGroup({id: 0}, {id: 1});
+			group.initFromObject(groupData);
+			return group;
+		});
+
+		this.systemShapeGroups = wsdata.systemShapeGroups.map(groupData => {
+			let group = new SystemShapeGroup({id: 0}, {id: 1});
+			group.initFromObject(groupData);
+			return group;
+		});
 
 		this.zoomLevel = wsdata.zoomLevel;
 
 		this.translateOffset = wsdata.translateOffset;
 
 		this.environment = app.envManager.getNewEnv(wsdata.envName);
+
+
+		app.workspace = actualWS;
 	}
 
 	/**
@@ -104,13 +103,17 @@ export class Workspace {
 		wsdata.appVersion = this.appVersion;
 		wsdata.id = this.id;
 
-		wsdata.history = null; //TODO!
-
 		wsdata.shapes = this.shapes.map(s => s.saveToObject());
 
-		wsdata.userShapeGroups = null; //TODO!
+		wsdata.history = this.history.saveToObject();
 
-		wsdata.systemShapeGroups = null; //TODO!
+		wsdata.userShapeGroups = this.userShapeGroups.map(group => {
+			return group.saveToObject();
+		});
+
+		wsdata.systemShapeGroups = this.systemShapeGroups.map(group => {
+			return group.saveToObject();
+		});
 
 		wsdata.zoomLevel = this.zoomLevel;
 
@@ -120,172 +123,6 @@ export class Workspace {
 
 		const json = JSON.stringify(wsdata);
 		return json;
-	}
-
-	/**
-	 * Ajoute une forme au workspace
-	 * @param {Shape} shape la forme à ajouter
-	 */
-	addShape(shape) {
-		this.shapes.push(shape);
-	}
-
-	/**
-	 * Renvoie la liste des formes contenant un certain point
-	 * @param point: le point (Point)
-	 * @return la liste des formes ([Shape])
-	 */
-	shapesOnPoint(point) {
-		const list = this.shapes.filter(shape => app.drawAPI.isPointInShape(point, shape));
-		return list;
-	};
-
-	/**
-	 * Supprime une forme. Ne la supprime pas des groupes (à faire manuellement)
-	 * @param  {Shape} shape La forme à supprimer
-	 */
-	removeShape(shape) {
-		//TODO: quand on fera l'action delete, supprimer les formes liées
-		//var removedShapes = [shape]; //pour l'historique
-		let shapeIndex = this.getShapeIndex(shape);
-		if (shapeIndex == null) {
-			console.error("Workspace.removeShape: couldn't remove the shape");
-			return;
-		}
-		//supprime la forme
-		this.shapes.splice(shapeIndex, 1);
-
-		//supprimer la forme des 2 types de groupes (et les formes liées dans sysGroup)
-
-		/*
-		//supprime les formes créées après la forme supprimée et qui sont (indirectement)
-		//liées à cette forme par un point.
-
-		var that = this;
-		var removeLinkedShapes = function (list, srcShape) {
-			var local_removed = [];
-			var to_remove = [];
-			for (var i = 0; i < list.length; i++) {
-				if (list[i].linkedShape == srcShape) { //la forme est liée à la forme supprimée (srcShape)
-					var s = list.splice(i, 1)[0]; //la supprimer de la liste du groupe
-					local_removed.push(s);
-					var shapeIndex = that.getShapeIndex(s);
-					if (shapeIndex !== null) {
-						that.shapesList.splice(shapeIndex, 1); //la supprimer de la liste des formes
-					}
-
-					to_remove.push(s); //ajouter la forme pour la récursion
-					i--;
-				}
-			}
-			for (var i = 0; i < to_remove.length; i++)
-				local_removed = local_removed.concat(removeLinkedShapes(list, to_remove[i])); //supprimer les formes liées à chacune des formes supprimées dans la boucle précédente.
-			return local_removed;
-		};
-
-		var userShapeGroup = { 'exists': false, 'ids': [] };
-
-		var groupLists = [this.systemShapeGroups, this.userShapeGroups];
-		for (var g = 0; g < groupLists.length; g++) {
-			var groupList = groupLists[g];
-			//parcours des groupes d'un certain type:
-			for (var i = 0; i < groupList.length; i++) {
-				var group = groupList[i];
-				//parcours d'un groupe:
-				var found = false;
-				for (var j = 0; j < group.length; j++) {
-					if (group[j] == shape) { //on a trouvé la forme dans le groupe
-						found = true;
-						group.splice(j, 1); //supprimer cette forme du groupe
-						break;
-					}
-				}
-				if (found) {
-					var tmp_removed = removeLinkedShapes(group, shape); //supprimer (récursivement) les formes liées à la forme supprimée
-
-					if (g == 1) { //c'est le userShapeGroup:
-						userShapeGroup.exists = true;
-						for (var j = 0; j < group.length; j++) {
-							userShapeGroup.ids.push(group[j].id);
-						}
-					}
-
-					if (group.length <= 1) {
-						groupList.splice(i, 1);
-						i--;
-					}
-
-					removedShapes = removedShapes.concat(tmp_removed);
-				}
-
-			}
-		}
-
-		return {
-			"shapesInfo": removedShapes,
-			"userGroupInfo": userShapeGroup
-		};
-		*/
-
-	};
-
-	/**
-	 * Renvoie la liste des formes solidaires à la forme donnée (c'est-à-dire
-	 * faisant partie du même userGroup et/ou du même systemGroup).
-	 * @param  {Shape} shape Une forme
-	 * @param  {Boolean} [includeReceivedShape=false] true: inclus la forme
-	 * 												   reçue dans les résultats
-	 * @return {[Shape]}     Les formes liées
-	 */
-	getAllBindedShapes(shape, includeReceivedShape = false) {
-		let shapes = [],
-			userGroup = this.getShapeGroup(shape, 'user'),
-			systemGroup = this.getShapeGroup(shape, 'system');
-		if(userGroup) {
-			/*
-			Si la forme fait aussi partie d'un systemGroup, toutes les formes
-			du systemGroup doivent être dans le userGroup, donc rien d'autre
-			à faire.
-			 */
-			shapes = [...userGroup.shapes];
-		} else if(systemGroup) {
-			shapes = [...systemGroup.shapes];
-		} else {
-			shapes = [ shape ];
-		}
-
-		if(!includeReceivedShape) {
-			shapes = shapes.filter(s => s.id != shape.id);
-		}
-		return shapes;
-	}
-
-	/**
-     * Renvoie l'index d'une forme (index dans le tableau de formes du Workspace actuel)
-     * @param  {Shape} shape la forme
-     * @return {int}       l'index de cette forme dans le tableau des formes
-     */
-	getShapeIndex(shape) {
-		for (let i = 0; i < this.shapes.length; i++) {
-			if (this.shapes[i] == shape) {
-				return i;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Renvoie la forme ayant un certain id
-	 * @param  {int} shapeId l'id de la forme
-	 * @return {Shape}         l'objet forme, ou null si la forme n'existe pas
-	 */
-	getShapeById(shapeId) {
-		for (let i = 0; i < this.shapes.length; i++) {
-			let s = this.shapes[i];
-			if (s.id == shapeId)
-				return s;
-		}
-		return null;
 	}
 
     /**
@@ -336,6 +173,101 @@ export class Workspace {
 		}
 	}
 
+
+	/* #################################################################### */
+    /* ############################## FORMES ############################## */
+    /* #################################################################### */
+
+
+	/**
+	 * Ajoute une forme au workspace
+	 * @param {Shape} shape la forme à ajouter
+	 */
+	addShape(shape) {
+		this.shapes.push(shape);
+	}
+
+	/**
+     * Renvoie l'index d'une forme (index dans le tableau de formes du
+     * Workspace actuel), ou -1 si la forme n'a pas été trouvée.
+     * @param  {Shape} shape la forme
+     * @return {int}       l'index de cette forme dans le tableau des formes
+     */
+	getShapeIndex(shape) {
+		return this.shapes.findIndex(s => s.id == shape.id);
+	}
+
+	/**
+	 * Renvoie la forme ayant un certain id
+	 * @param  {int} id l'id de la forme
+	 * @return {Shape}         l'objet forme, ou null si la forme n'existe pas
+	 */
+	getShapeById(id) {
+		let shape = this.shapes.find(s => s.id == id);
+		return shape ? shape : null;
+	}
+
+	/**
+	 * Renvoie la liste des formes contenant un certain point
+	 * @param point: le point (Point)
+	 * @return la liste des formes ([Shape])
+	 */
+	shapesOnPoint(point) {
+		const list = this.shapes.filter(shape => app.drawAPI.isPointInShape(point, shape));
+		return list;
+	};
+
+	/**
+	 * Renvoie la liste des formes solidaires à la forme donnée (c'est-à-dire
+	 * faisant partie du même userGroup et/ou du même systemGroup).
+	 * @param  {Shape} shape Une forme
+	 * @param  {Boolean} [includeReceivedShape=false] true: inclus la forme
+	 * 												   reçue dans les résultats
+	 * @return {[Shape]}     Les formes liées
+	 */
+	getAllBindedShapes(shape, includeReceivedShape = false) {
+		let shapes = [],
+			userGroup = this.getShapeGroup(shape, 'user'),
+			systemGroup = this.getShapeGroup(shape, 'system');
+		if(userGroup) {
+			/*
+			Si la forme fait aussi partie d'un systemGroup, toutes les formes
+			du systemGroup doivent être dans le userGroup, donc rien d'autre
+			à faire.
+			 */
+			shapes = [...userGroup.shapes];
+		} else if(systemGroup) {
+			shapes = [...systemGroup.shapes];
+		} else {
+			shapes = [ shape ];
+		}
+
+		if(!includeReceivedShape) {
+			shapes = shapes.filter(s => s.id != shape.id);
+		}
+		return shapes;
+	}
+
+	/**
+	 * Supprime une forme. Ne la supprime pas des groupes (à faire manuellement)
+	 * @param  {Shape} shape La forme à supprimer
+	 */
+	removeShape(shape) {
+		let shapeIndex = this.getShapeIndex(shape);
+		if (shapeIndex == -1) {
+			console.error("Workspace.removeShape: couldn't remove the shape");
+			return;
+		}
+		//supprime la forme
+		this.shapes.splice(shapeIndex, 1);
+	};
+
+
+	/* #################################################################### */
+    /* ############################## GROUPES ############################# */
+    /* #################################################################### */
+
+
 	/**
 	 * Ajouter un groupe à l'espace de travail
 	 * @param {Group} group         Le groupe
@@ -359,11 +291,7 @@ export class Workspace {
 	 */
 	getGroupIndex(group, type = 'user') {
 		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
-		for(let i=0; i<groupList.length; i++) {
-			if(groupList[i].id == group.id)
-				return i;
-		}
-		return -1;
+		return groupList.findIndex(gr => gr.id == group.id);
 	}
 
 	/**
@@ -373,12 +301,9 @@ export class Workspace {
 	 * @return {Group}               le groupe, ou null s'il n'y en a pas.
 	 */
 	getShapeGroup(shape, type = 'user') {
-		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
-		for(let i=0; i<groupList.length; i++) {
-			if(groupList[i].contains(shape))
-				return groupList[i];
-		}
-		return null;
+		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups,
+			group = groupList.find(gr => gr.contains(shape));
+		return group ? group : null;
 	}
 
 	/**

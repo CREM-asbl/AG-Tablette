@@ -10,6 +10,19 @@ export class BuildCenterAction extends Action {
         this.shapeId = null;
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'shapeId': this.shapeId
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+        this.shapeId = save.shapeId;
+    }
+
     checkDoParameters() {
         if(!this.shapeId)
             return false;

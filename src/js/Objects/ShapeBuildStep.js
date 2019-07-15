@@ -37,7 +37,9 @@ export class Segment extends ShapeBuildStep {
         const save = {
             'type': 'segment',
             'coordinates': {'x': this.coordinates.x, 'y': this.coordinates.y},
-            'points': this.points.map(pt => {'x': pt.x, 'y': pt.y}),
+            'points': this.points.map(pt => {
+                return {'x': pt.x, 'y': pt.y};
+            }),
             'isArc': this.isArc
         };
         return save;

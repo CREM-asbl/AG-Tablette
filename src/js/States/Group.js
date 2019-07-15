@@ -38,6 +38,10 @@ export class GroupState extends State {
         );
     }
 
+    abort() {
+        this.start();
+    }
+
     /**
      * Appelée par interactionAPI quand une forme est sélectionnée (onClick)
      * @param  {Shape} shape            La forme sélectionnée

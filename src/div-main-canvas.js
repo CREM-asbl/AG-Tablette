@@ -6,12 +6,7 @@ class DivMainCanvas extends LitElement {
     render() {
         return html`
         <style>
-            canvas#upperCanvas {
-                background-color: rgba(0,0,0,0);
-                position: absolute;
-                top: 0px;
-            }
-            canvas#mainCanvas {
+            canvas#upperCanvas, canvas#mainCanvas, canvas#debugCanvas {
                 background-color: rgba(0,0,0,0);
                 position: absolute;
                 top: 0px;
@@ -21,9 +16,15 @@ class DivMainCanvas extends LitElement {
                 top: 0px;
             }
         </style>
-        <canvas id="backgroundCanvas"></canvas> <!--for the grid and background-image -->
-        <canvas id="mainCanvas"></canvas> <!-- for the shapes -->
-        <canvas id="upperCanvas"></canvas> <!-- for the current event (ex: moving shape -->
+
+        <!--for the grid and background-image -->
+        <canvas id="backgroundCanvas"></canvas>
+        <!-- for the shapes -->
+        <canvas id="mainCanvas"></canvas>
+        <!-- temporaire, pour afficher des messages d'erreur -->
+        <canvas id="debugCanvas"></canvas>
+        <!-- for the current event (ex: moving shape -->
+        <canvas id="upperCanvas"></canvas>
         `
     }
 
@@ -32,54 +33,65 @@ class DivMainCanvas extends LitElement {
     */
     firstUpdated() {
         this.upperCanvas = this.shadowRoot.querySelector('#upperCanvas');
-        this.mainCanvas = this.shadowRoot.querySelector('#mainCanvas')
-        this.backgroundCanvas = this.shadowRoot.querySelector('#backgroundCanvas')
+        this.mainCanvas = this.shadowRoot.querySelector('#mainCanvas');
+        this.backgroundCanvas = this.shadowRoot.querySelector('#backgroundCanvas');
+
 
         window.app = app;
         app.setCanvas(this.upperCanvas, this.mainCanvas, this.backgroundCanvas);
+
+        //temporaire:
+        this.debugCanvas = this.shadowRoot.querySelector('#debugCanvas')
+        app.__debugCtx = this.debugCanvas.getContext("2d");
+
+
         this.setCanvasSize();
         app.start(this);
 
-
-
+        //Events:
         this.upperCanvas.addEventListener('click', event => {
-            window.app.interactionAPI.onClick(this.getMousePos(event, window.app), event);
+            let mousePos = this.getMousePos(event);
+            window.app.interactionAPI.onClick(mousePos, event);
         });
 
         this.upperCanvas.addEventListener('mousedown', event => {
-            window.app.interactionAPI.onMouseDown(this.getMousePos(event, window.app), event);
+            let mousePos = this.getMousePos(event);
+            window.app.interactionAPI.onMouseDown(mousePos, event);
         });
 
         this.upperCanvas.addEventListener('mouseup', event => {
-            window.app.interactionAPI.onMouseUp(this.getMousePos(event, window.app), event);
+            let mousePos = this.getMousePos(event);
+            window.app.interactionAPI.onMouseUp(mousePos, event);
         });
 
         this.upperCanvas.addEventListener('mousemove', event => {
-            window.app.interactionAPI.onMouseMove(this.getMousePos(event, window.app), event);
+            let mousePos = this.getMousePos(event);
+            window.app.interactionAPI.onMouseMove(mousePos, event);
         });
 
         this.upperCanvas.addEventListener('touchstart', event => {
-            if (event.touches.length > 1)
-                return;
-            event.preventDefault();
-            window.app.interactionAPI.onTouchStart(this.getMousePos(event, window.app), event);
+            let mousePos = this.getMousePos(event);
+            window.app.interactionAPI.onTouchStart(mousePos, event);
         });
 
         this.upperCanvas.addEventListener('touchmove', event => {
-            event.preventDefault();
-            window.app.interactionAPI.onTouchMove(this.getMousePos(event, window.app), event);
+            let mousePos = this.getMousePos(event);
+            window.app.interactionAPI.onTouchMove(mousePos, event);
         });
 
         this.upperCanvas.addEventListener('touchend', event => {
-            window.app.interactionAPI.onTouchEnd(this.getMousePos(event, window.app), event);
+            let mousePos = this.getMousePos(event);
+            window.app.interactionAPI.onTouchEnd(mousePos, event);
         });
 
         this.upperCanvas.addEventListener('touchleave', event => {
-            window.app.interactionAPI.onTouchLeave(this.getMousePos(event, window.app), event);
+            let mousePos = this.getMousePos(event);
+            window.app.interactionAPI.onTouchLeave(mousePos, event);
         });
 
         this.upperCanvas.addEventListener('touchcancel', event => {
-            window.app.interactionAPI.onTouchCancel(this.getMousePos(event, window.app), event);
+            let mousePos = this.getMousePos(event);
+            window.app.interactionAPI.onTouchCancel(mousePos, event);
         });
     }
 
@@ -91,13 +103,21 @@ class DivMainCanvas extends LitElement {
         this.upperCanvas.setAttribute("height", this.parentElement.clientHeight);
         this.mainCanvas.setAttribute("height", this.parentElement.clientHeight);
         this.backgroundCanvas.setAttribute("height", this.parentElement.clientHeight);
+        this.debugCanvas.setAttribute("height", this.parentElement.clientHeight);
 
         this.upperCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
         this.mainCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
         this.backgroundCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
+        this.debugCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
 
-        //TODO updateRelativeScaleLevel ?
-        
+        /*
+        Lorsque le canvas est redimensionné, la translation et le zoom (scaling)
+        sont réinitialisés, il faut donc les réappliquer.
+         */
+        app.drawAPI.resetTransformations();
+        app.drawAPI.translateView(app.workspace.translateOffset);
+        app.drawAPI.scaleView(app.workspace.zoomLevel);
+
         app.drawAPI.askRefresh("main");
         app.drawAPI.askRefresh("upper");
         app.drawAPI.askRefresh("background");

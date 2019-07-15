@@ -39,6 +39,8 @@ export class ReverseState extends State {
         userGroup), y compris la forme elle-même
          */
         this.involvedShapes = [];
+
+        this.timeoutRef = null;
     }
 
     /**
@@ -52,6 +54,7 @@ export class ReverseState extends State {
         this.startTime = null;
         this.arch = null;
         this.involvedShapes = [];
+        this.timeoutRef = null;
 
         app.interactionAPI.setSelectionConstraints("click",
             {"canShape": "all", "listShape": []},
@@ -59,6 +62,11 @@ export class ReverseState extends State {
             {"canPoint": "none", "pointTypes": [], "listPoint": []}
         );
         app.interactionAPI.selectObjectBeforeNativeEvent = false;
+    }
+
+    abort() {
+        clearTimeout(this.timeoutRef);
+        this.start();
     }
 
     /**
@@ -132,7 +140,7 @@ export class ReverseState extends State {
             app.drawAPI.askRefresh();
         } else {
             app.drawAPI.askRefresh("upper");
-            setTimeout(() => { //TODO requestAnimFrame
+            this.timeoutRef = setTimeout(() => { //TODO requestAnimFrame
                 this.animate();
             }, 100);
             /*

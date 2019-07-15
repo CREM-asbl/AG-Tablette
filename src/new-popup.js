@@ -1,4 +1,6 @@
 import { LitElement, html } from "lit-element";
+import { app } from './js/App'
+import { Workspace } from './js/Objects/Workspace'
 
 class NewPopup extends LitElement {
     render() {
@@ -43,9 +45,8 @@ class NewPopup extends LitElement {
     }
 
     confirm() {
-        console.log("create new workspace");/*
-        window.app.newWorkspace()*/
-        this.close()
+        app.wsManager.setWorkspace(app.wsManager.getNewWorkspace('Grandeur'));
+        this.close();
     }
 
     close() {

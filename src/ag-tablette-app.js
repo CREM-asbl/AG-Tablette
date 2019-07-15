@@ -6,27 +6,7 @@ import './div-main-canvas'
 import './app-settings'
 // import './divide-popup'
 import './js/Manifest'
-// import './new-popup'
-
-// Chargement des States
-// TODO: à remplacer par chargement 'dynamique'
-/*
-import './js/States/BackgroundColor'
-import './js/States/BorderColor'
-import './js/States/BuildCenter'
-import './js/States/Create'
-import './js/States/Cut'
-import './js/States/Divide'
-import './js/States/Delete'
-import './js/States/Duplicate'
-import './js/States/GlobalZoom'
-import './js/States/Linker'
-import './js/States/Merge'
-import './js/States/Move'
-import './js/States/MovePlane'
-import './js/States/Reverse'
-import './js/States/Rotate'
-import './js/States/Unlinker'*/
+import './new-popup'
 
 import { app } from './js/App'
 import { standardKit } from './js/ShapesKits/standardKit'
@@ -37,16 +17,23 @@ class AGTabletteApp extends LitElement {
     static get properties() {
         return {
             state: Object,
-            families: Array
+            families: Array,
+            canUndo: Boolean,
+            canRedo: Boolean
         }
     }
 
     constructor() {
-        super()
-        this.families = Object.keys(standardKit)
-        this.state = {}
+        super();
+        this.families = app.workspace.environment.familyNames;
+        this.state = {};
+        app.appDiv = this;
+        this.canUndo = false;
+        this.canRedo = false;
 
-        addEventListener('app-state-changed', event => this.state = { ...event.detail })
+        addEventListener('app-state-changed', event => {
+            this.state = { ...event.detail };
+        });
     }
 
     render() {
@@ -112,19 +99,22 @@ class AGTabletteApp extends LitElement {
                     </button>
                     <button class="action-button"
                             name="undo"
-                            @click='${this._actionHandle}'>
+                            @click='${this._actionHandle}'
+                            ?disabled="${!this.canUndo}">
                             Annuler
                     </button>
                     <button class="action-button"
                             name="redo"
-                            @click='${this._actionHandle}'>
+                            @click='${this._actionHandle}'
+                            ?disabled="${!this.canRedo}">
                             Refaire
                     </button>
                     <button class="action-button"
                                 name="save"
-                                @click='${this.save}'>
+                                @click='${event => app.wsManager.saveWorkspaceToFile(app.workspace)}'>
                                 Sauvegarder
                     </button>
+
                     <button class="action-button"
                             name="load"
                             @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
@@ -261,14 +251,17 @@ class AGTabletteApp extends LitElement {
                accept=".json"
                type="file"
                style="display: none"
-               @change=${event => app.loadFromFile(event.target.files[0])}>
+               @change=${this._inputChanged}>
         `
     }
 
-    firstUpdated() { //TODO ??
-        window.canvasLeftShift = this.shadowRoot
-                                .getElementById("app-canvas-view-toolbar")
-                                .clientWidth;
+    _inputChanged(event) {
+        let file = event.target.files[0],
+            callback = () => {
+                let input = event.path[0];
+                input.value = '';
+            };
+        app.wsManager.setWorkspaceFromFile(file, callback);
     }
 
     /**
@@ -279,43 +272,26 @@ class AGTabletteApp extends LitElement {
             window.app.setState("no_state")
             this.shadowRoot.querySelector('app-settings').style.display = 'block'
         }
-
-        else if (event.target.name === "new") { //TODO update this
-            window.app.setState("no_state");
-            this.shadowRoot.querySelector('new-popup').open()
+        else if (event.target.name === "new") {
+            this.shadowRoot.querySelector('new-popup').open();
         }
-
-        else if (event.target.name == "undo") { //TODO disable undo button if !canUndo
-            if(window.app.workspace.history.canUndo())
-                window.app.workspace.history.undo();
+        else if (event.target.name == "undo") {
+            window.app.workspace.history.undo();
         }
-
-        else if (event.target.name == "redo") { //TODO disable redo button if !canRedo
-            if(window.app.workspace.history.canRedo())
-                window.app.workspace.history.redo();
+        else if (event.target.name == "redo") {
+            window.app.workspace.history.redo();
         }
-
         else if (event.target.name === 'create_shape') {
             app.setState(event.target.name, event.target.family);
         }
-
         else if (StatesManager.getStateText(event.target.name)) {
             window.app.setState(event.target.name);
         }
-
         else {
-            console.log("AGTabletteApp._actionHandle: received unknown event:");
-            console.log(event);
+            console.error("AGTabletteApp._actionHandle: received unknown event:");
+            console.error(event);
         }
     }
 
-    save() {
-        let json = JSON.stringify(app.workspace.getSaveData())
-        const file = new Blob([json], { type: 'text/json' })
-        const downloader = this.shadowRoot.querySelector('#dataDownloader')
-        downloader.href = window.URL.createObjectURL(file)
-        downloader.download = 'save.json'
-        downloader.click()
-    }
 }
 customElements.define('ag-tablette-app', AGTabletteApp)

@@ -22,6 +22,19 @@ export class UserShapeGroup {
         this.id = uniqId();
     }
 
+    saveToObject() {
+        let save = {
+            'id': this.id,
+            'shapes': this.shapes.map(s => s.id)
+        };
+        return save;
+    }
+
+    initFromObject(object) {
+        this.id = object.id;
+        this.shapes = object.shapes.map(sId => app.workspace.getShapeById(sId));
+    }
+
     /**
      * Ajouter une forme au groupe
      * @param {Shape} shape    La forme que l'on ajoute
@@ -55,6 +68,6 @@ export class UserShapeGroup {
      * @return {Boolean}       true si elle fait partie du groupe, false sinon
      */
     contains(shape) {
-        return this.shapes.includes(shape);
+        return this.shapes.findIndex(s => s.id == shape.id) != -1;
     }
 }

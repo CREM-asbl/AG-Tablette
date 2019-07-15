@@ -24,6 +24,30 @@ export class CreateAction extends Action {
         this.createdGroupId = null;
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'shapeToAdd': this.shapeToAdd.saveToObject(),
+            'coordinates': this.coordinates,
+            'shapeId': this.shapeId,
+            'sourceShapeId': this.sourceShapeId,
+            'createdGroupId': this.createdGroupId
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+
+        this.shapeToAdd = new Shape({'x': 0, 'y': 0}, []);
+		this.shapeToAdd.initFromObject(save.shapeToAdd);
+
+        this.coordinates = save.coordinates;
+        this.shapeId = save.shapeId;
+        this.sourceShapeId = save.sourceShapeId;
+        this.createdGroupId = save.createdGroupId;
+    }
+
     checkDoParameters() {
         if(!this.shapeToAdd instanceof Shape)
             return false;
@@ -42,7 +66,7 @@ export class CreateAction extends Action {
     do() {
         if(!this.checkDoParameters()) return;
 
-        let shape = this.shapeToAdd;
+        let shape = this.shapeToAdd.copy();
         shape.x = this.coordinates.x - shape.refPoint.x;
         shape.y = this.coordinates.y - shape.refPoint.y;
         if(this.shapeId) shape.id = this.shapeId;

@@ -10,6 +10,19 @@ export class ZoomPlaneAction extends Action {
         this.scaleOffset = null;
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'scaleOffset': this.scaleOffset
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+        this.scaleOffset = save.scaleOffset;
+    }
+
     checkDoParameters() {
         if(!Number.isFinite(this.scaleOffset))
             return false;

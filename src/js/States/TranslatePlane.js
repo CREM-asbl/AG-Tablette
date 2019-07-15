@@ -33,6 +33,10 @@ export class TranslatePlaneState extends State {
         ); //TODO: désactiver la contrainte de sélection pour cet état.
     }
 
+    abort() {
+        this.start();
+    }
+
     onMouseDown(clickCoordinates, event) {
         if(this.currentStep != "listen-canvas-click") return;
 
@@ -43,9 +47,10 @@ export class TranslatePlaneState extends State {
     onMouseUp(clickCoordinates, event) {
         if(this.currentStep != "translating-plane") return;
 
+        let factor = app.workspace.zoomLevel;
         this.action.offset = {
-            'x': clickCoordinates.x - this.startClickCoordinates.x,
-            'y': clickCoordinates.y - this.startClickCoordinates.y
+            'x': (clickCoordinates.x - this.startClickCoordinates.x)*factor,
+            'y': (clickCoordinates.y - this.startClickCoordinates.y)*factor
         };
 
         this.executeAction();
@@ -54,10 +59,11 @@ export class TranslatePlaneState extends State {
 
     onMouseMove(clickCoordinates, event) {
         if(this.currentStep != "translating-plane") return;
-        let saveOffset = app.workspace.translateOffset,
+        let factor = app.workspace.zoomLevel,
+            saveOffset = app.workspace.translateOffset,
             clickDiff = {
-                'x': clickCoordinates.x - this.startClickCoordinates.x,
-                'y': clickCoordinates.y - this.startClickCoordinates.y
+                'x': (clickCoordinates.x - this.startClickCoordinates.x)*factor,
+                'y': (clickCoordinates.y - this.startClickCoordinates.y)*factor
             },
             offset = {
                 'x': saveOffset.x + clickDiff.x,

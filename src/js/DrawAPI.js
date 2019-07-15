@@ -26,6 +26,12 @@ export class DrawAPI {
 		ctx.clearRect(-10000, -10000, 20000, 20000);
     }
 
+    resetTransformations() {
+        this.upperCtx.setTransform(1, 0, 0, 1, 0, 0);
+        this.mainCtx.setTransform(1, 0, 0, 1, 0, 0);
+        this.backgroundCtx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+
     translateView(relativeOffset) {
         this.upperCtx.translate(relativeOffset.x, relativeOffset.y);
         this.mainCtx.translate(relativeOffset.x, relativeOffset.y);
@@ -46,7 +52,7 @@ export class DrawAPI {
         else if(canvas=="background")
             this.refreshBackground();
         //TODO: limite de refresh par seconde? windowAnimationFrame?
-        //TODO: ne pas mettre les canvas à jour qd mouseMove pendant une animFrame 
+        //TODO: ne pas mettre les canvas à jour qd mouseMove pendant une animFrame
     }
 
     refreshBackground() {
@@ -83,7 +89,7 @@ export class DrawAPI {
         //Afficher les formes
         let shapesToSkip = app.state ? app.state.getEditingShapes() : [];
         app.workspace.shapes.filter(shape => {
-            return !shapesToSkip.includes(shape);
+            return shapesToSkip.findIndex(s => s.id == shape.id) == -1;
         }).forEach(shape => {
             this.drawShape(this.mainCtx, shape);
             if(app.state)

@@ -10,6 +10,19 @@ export class TranslatePlaneAction extends Action {
         this.offset = null;
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'offset': this.offset
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+        this.offset = save.offset;
+    }
+
     checkDoParameters() {
         if(!this.offset || this.offset.x === undefined
             || this.offset.y === undefined)

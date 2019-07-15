@@ -11,9 +11,39 @@ import { BuildCenterState } from './States/BuildCenter.js'
 import { DeleteState } from './States/Delete.js'
 import { TranslatePlaneState } from './States/TranslatePlane.js'
 import { ZoomPlaneState } from './States/ZoomPlane.js'
+import { PermanentZoomPlaneState } from './States/PermanentZoomPlane.js'
 
 
 export class StatesManager {
+    /*
+    Utilisé notamment dans WorkspaceHistory.initFromObject, pour vérifier
+    qu'un nom d'action est bien valide avant d'utiliser eval().
+     */
+    static registeredActions = [
+        'BackgroundColorAction',
+        'BorderColorAction',
+        'BuildCenterAction',
+        'CreateAction',
+        'DeleteAction',
+        'DuplicateAction',
+        'GroupAction',
+        'MoveAction',
+        'ReverseAction',
+        'RotateAction',
+        'TranslatePlaneAction',
+        'UngroupAction',
+        'ZoomPlaneAction',
+        'XXXXX',
+        'XXXXX',
+        'XXXXX',
+        'XXXXX',
+        'XXXXX',
+        'XXXXX',
+        'XXXXX',
+        'XXXXX',
+        'XXXXX'
+    ];
+
     static states = {
         'create_shape': {
             "name": 'Ajouter une forme',
@@ -94,7 +124,15 @@ export class StatesManager {
             "name": 'Glisser le plan',
             "instance": null,
             "getInstance": function() { return new TranslatePlaneState(); }
-        },
+        }
+    };
+
+    static permanentStates = {
+        'permanent_zoom_plane': {
+            "name": 'Zoom',
+            "instance": null,
+            "getInstance": function() { return new PermanentZoomPlaneState(); }
+        }
     }
 
     static getStateInstance(stateName) {
@@ -102,16 +140,28 @@ export class StatesManager {
             console.error("This state does not exists");
             return null;
         }
-        if(!this.states[stateName].instance)
-            this.states[stateName].instance = this.states[stateName].getInstance();
+        if(!this.states[stateName].instance) {
+            let instance = this.states[stateName].getInstance();
+            this.states[stateName].instance = instance;
+        }
+
         return this.states[stateName].instance;
     }
 
-    static getStateText(stateName) {
-        if(!this.states[stateName]) {
-            console.error("This state does not exists");
+    static getPermanentStateInstance(stateName) {
+        if(!this.permanentStates[stateName]) {
+            console.error("This permanent state does not exists");
             return null;
         }
+        if(!this.permanentStates[stateName].instance) {
+            let instance = this.permanentStates[stateName].getInstance();
+            this.permanentStates[stateName].instance = instance;
+        }
+        return this.permanentStates[stateName].instance;
+    }
+
+    static getStateText(stateName) {
+        if(!this.states[stateName]) return null;
         return this.states[stateName].name;
     }
 }

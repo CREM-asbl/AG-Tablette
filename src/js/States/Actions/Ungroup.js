@@ -17,6 +17,23 @@ export class UngroupAction extends Action {
         this.groupIndex = null;
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'groupId': this.groupId,
+            'groupShapesIds': this.groupShapesIds,
+            'groupIndex': this.groupIndex
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+        this.groupId = save.groupId;
+        this.groupShapesIds = save.groupShapesIds;
+        this.groupIndex = save.groupIndex;
+    }
+
     checkDoParameters() {
         if(!this.groupId)
             return false;

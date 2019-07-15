@@ -48,6 +48,50 @@ export class DeleteAction extends Action {
         this.deleteUserGroup = false;
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'shape': this.shape.saveToObject(),
+            'sysGroupId': this.sysGroupId,
+            'deleteList': this.deleteList ? this.deleteList.map(itm => {
+                return {
+                    'srcShapeId': itm.srcShapeId,
+                    'shape': itm.shape.saveToObject()
+                };
+            }) : null,
+            'deleteSystemGroup': this.deleteSystemGroup,
+            'systemGroupLastShapeId': this.systemGroupLastShapeId,
+            'userGroupId': this.userGroupId,
+            'userGroupLastShapeId': this.userGroupLastShapeId,
+            'userGroupIndex': this.userGroupIndex,
+            'deleteUserGroup': this.deleteUserGroup,
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+
+        this.shape = new Shape({'x': 0, 'y': 0}, []);
+		this.shape.initFromObject(save.shape);
+
+        this.sysGroupId = save.sysGroupId;
+        this.deleteList = save.deleteList ? save.deleteList.map(itm => {
+            let shape = new Shape({'x': 0, 'y': 0}, []);
+            shape.initFromObject(itm.shape);
+            return {
+                'srcShapeId': itm.srcShapeId,
+                'shape': shape
+            };
+        }) : null;
+        this.deleteSystemGroup = save.deleteSystemGroup;
+        this.systemGroupLastShapeId = save.systemGroupLastShapeId;
+        this.userGroupId = save.userGroupId;
+        this.userGroupLastShapeId = save.userGroupLastShapeId;
+        this.userGroupIndex = save.userGroupIndex;
+        this.deleteUserGroup = save.deleteUserGroup;
+    }
+
     checkDoParameters() {
         if(!this.shape)
             return false;
@@ -152,9 +196,11 @@ export class DeleteAction extends Action {
             this.deleteList.forEach((itm, index) => {
                 app.workspace.addShape(itm.shape);
                 if(index<shapesAlreayInGroup) return;
+                let shape = itm.shape.copy();
+                shape.id = itm.shape.id;
 
                 let srcShape = app.workspace.getShapeById(itm.srcShapeId);
-                sysGroup.addShape(itm.shape, srcShape);
+                sysGroup.addShape(shape, srcShape);
             });
         }
         else {

@@ -8,6 +8,15 @@ export class Action {
         this.name = name;
     }
 
+    saveToObject() {
+        throw new TypeError("method not implemented");
+    }
+
+    initFromObject(save) {
+        throw new TypeError("method not implemented");
+    }
+
+
     checkDoParameters() {
         throw new TypeError("method not implemented");
     }

@@ -33,7 +33,11 @@ export class CreateState extends State {
         app.interactionAPI.setSelectionConstraints("click",
             {"canShape": "none", "listShape": []},
             {"canSegment": "none", "listSegment": []},
-            {"canPoint": "all", "pointTypes": ["vertex", "segmentPoint", "center"], "listPoint": []}
+            {
+                "canPoint": "all",
+                "pointTypes": ["vertex", "segmentPoint", "center"],
+                "listPoint": []
+            }
         );
         app.interactionAPI.selectObjectBeforeNativeEvent = true;
     }
@@ -52,6 +56,7 @@ export class CreateState extends State {
          */
          this.selectedShape = shape;
          this.currentStep = "listen-canvas-click";
+         window.dispatchEvent(new CustomEvent('app-state-changed', { detail: app.state }));
     }
 
     /**
@@ -71,9 +76,7 @@ export class CreateState extends State {
         this.action.sourceShapeId = point.shape.id;
 
         this.executeAction();
-        let shape = this.selectedShape;
-        this.start(this.selectedFamily);
-        this.setShape(shape);
+        this.action = new CreateAction(this.name);
 
         app.drawAPI.askRefresh();
         return false;

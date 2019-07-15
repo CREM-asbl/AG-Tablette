@@ -19,6 +19,23 @@ export class ReverseAction extends Action {
         this.involvedShapesIds = [];
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'shapeId': this.shapeId,
+            'symmetricalArchOrientation': this.symmetricalArchOrientation,
+            'involvedShapesIds': this.involvedShapesIds
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+        this.shapeId = save.shapeId;
+        this.symmetricalArchOrientation = save.symmetricalArchOrientation;
+        this.involvedShapesIds = save.involvedShapesIds;
+    }
+
     checkDoParameters() {
         if(!this.shapeId)
             return false;

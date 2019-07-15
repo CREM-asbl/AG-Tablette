@@ -19,6 +19,23 @@ export class RotateAction extends Action {
         this.involvedShapesIds = [];
     }
 
+    saveToObject() {
+        let save = {
+            'name': this.name,
+            'shapeId': this.shapeId,
+            'rotationAngle': this.rotationAngle,
+            'involvedShapesIds': this.involvedShapesIds
+        };
+        return save;
+    }
+
+    initFromObject(save) {
+        this.name = save.name;
+        this.shapeId = save.shapeId;
+        this.rotationAngle = save.rotationAngle;
+        this.involvedShapesIds = save.involvedShapesIds;
+    }
+
     checkDoParameters() {
         if(!this.shapeId)
             return false;
