@@ -26,7 +26,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="9.7187899"
-     inkscape:cx="-8.8370373"
+     inkscape:cx="-13.741842"
      inkscape:cy="12.960617"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
@@ -45,7 +45,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -56,7 +56,7 @@
      transform="translate(0,-284.30001)">
     <path
        sodipodi:type="star"
-       style="opacity:0.5;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.06859105;stroke-miterlimit:4;stroke-dasharray:0.27436419, 0.27436419000000001;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:0.5;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.24409124;stroke-miterlimit:4;stroke-dasharray:0.97636499, 0.48818249;stroke-dashoffset:0;stroke-opacity:1"
        id="path875"
        sodipodi:sides="3"
        sodipodi:cx="5.9620333"
@@ -71,9 +71,9 @@
        d="m 8.6027511,292.61694 -5.2577889,0.041 2.5934243,-4.57386 z"
        inkscape:transform-center-x="-0.0067666685"
        inkscape:transform-center-y="-1.1306176"
-       transform="matrix(1.4177392,0.00622827,-0.00658615,1.4992029,-0.37415745,-144.95702)" />
+       transform="matrix(1.4362622,0.00723263,-0.0066722,1.7409617,-0.40690904,-216.29757)" />
     <path
-       transform="matrix(-1.4177392,-0.00622827,0.00658615,-1.4992029,12.696343,728.01204)"
+       transform="matrix(-1.4362622,-0.00723263,0.0066722,-1.7409617,12.83436,797.44491)"
        inkscape:transform-center-y="1.1306172"
        inkscape:transform-center-x="0.0067663916"
        d="m 8.6027511,292.61694 -5.2577889,0.041 2.5934243,-4.57386 z"
@@ -88,11 +88,11 @@
        sodipodi:cx="5.9620333"
        sodipodi:sides="3"
        id="path877"
-       style="opacity:1;fill:#00f5ff;fill-opacity:1;stroke:#000000;stroke-width:0.06859105;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:#b4b4b4;fill-opacity:1;stroke:#000000;stroke-width:0.24409124;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        sodipodi:type="star" />
     <g
        id="g895"
-       transform="matrix(2.0459462,0,0,1.9055154,-1.1127078,-263.95122)">
+       transform="matrix(2.0726769,0,0,2.2127954,-1.1551087,-354.48056)">
       <path
          inkscape:connector-curvature="0"
          id="path885"
@@ -105,8 +105,8 @@
          style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
     <path
-       style="fill:none;stroke:#006e00;stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:0.6,0.6;stroke-dashoffset:0"
-       d="m 0.04892747,291.50078 c 12.47406453,0.13612 12.47406453,0.1089 12.47406453,0.1089"
+       style="fill:none;stroke:#006e00;stroke-width:0.26458333;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.05833333, 1.05833332999999996;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 0.02170357,290.54263 C 12.658744,290.7007 12.658744,290.66909 12.658744,290.66909"
        id="path879"
        inkscape:connector-curvature="0" />
   </g>

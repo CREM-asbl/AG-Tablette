@@ -3,9 +3,11 @@ import { LitElement, html } from "lit-element";
 class IconButton extends LitElement {
   static get properties() {
     return {
+      name: String,
       src: String
     }
   }
+
   render() {
     return html`
       <style>
@@ -34,6 +36,7 @@ class IconButton extends LitElement {
           box-sizing: border-box;
         }
       </style>
+
       <button>
         <img src="${this.src}">
       </button>

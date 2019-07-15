@@ -82,25 +82,6 @@ class AGTabletteApp extends LitElement {
                 overflow-y: auto;
             }
 
-            .action-button {
-                display: inline-block;
-                box-sizing: border-box;
-                height: 50px;
-                width: 50px;
-                margin: 8px 0;
-                padding: 0;
-                background: white;
-            }
-
-            .action-button:hover,
-            .action-button:focus,
-            .action-button[active] {
-                font-weight: bold;
-                color: white;
-                background: gray;
-                outline: none;
-            }
-
             .toolbar-separator {
                 font-weight: bold;
                 margin: 12px 0;
@@ -204,11 +185,13 @@ class AGTabletteApp extends LitElement {
                                     @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/rotate.svg"
+                                title="Tourner"
                                 name="rotate_shape"
                                 ?active="${this.state.name === 'rotate_shape'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/reverse.svg"
+                                title="Retourner"
                                 name="reverse_shape"
                                 ?active="${this.state.name === 'reverse_shape'}"
                                 @click='${this._actionHandle}'>
@@ -236,10 +219,10 @@ class AGTabletteApp extends LitElement {
                                 @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/copy.svg"
+                                title="Copier"
                                 name="duplicate_shape"
                                 ?active="${this.state.name === 'duplicate_shape'}"
                                 @click='${this._actionHandle}'>
-                                Copier
                         </icon-button>
                         <icon-button src="/images/merge.svg"
                                 title="Fusionner"
