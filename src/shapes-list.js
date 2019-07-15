@@ -30,18 +30,20 @@ class ShapesList extends LitElement {
 
             .container {
                 background: white;
-                margin: auto;
                 box-shadow: 0 1px 3px gray;
                 z-index: 100;
                 box-sizing: border-box;
                 overflow: auto;
+
             }
 
             h2 {
+                padding:4px;
                 margin: 0;
                 text-align: center;
                 background: gray;
                 color: white;
+                font-size: 1.2rem;
             }
 
             ul {

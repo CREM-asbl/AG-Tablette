@@ -11,6 +11,10 @@ class IconButton extends LitElement {
   render() {
     return html`
       <style>
+        :host([disabled]) {
+          opacity: .5;
+        }
+
         button {
           display: inline-block;
           box-sizing: border-box;
@@ -19,10 +23,9 @@ class IconButton extends LitElement {
           padding: 0;
           margin: 2px;
           background: white;
+          outline: none;
         }
 
-        button:hover,
-        button:focus,
         :host([active]) button{
           border-color: #F66;
           outline: none;

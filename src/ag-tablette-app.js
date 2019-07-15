@@ -127,6 +127,11 @@ class AGTabletteApp extends LitElement {
                                     ?active="${this.state.name === 'delete_shape'}"
                                     @click='${this._actionHandle}'>
                             </icon-button>
+                            <icon-button src="/images/save.svg"
+                                    title="Sauvegarder"
+                                    name="save"
+                                    @click='${this.save}'>
+                            </icon-button>
                             <icon-button src="/images/undo.svg"
                                     title="Annuler"
                                     name="undo"
@@ -135,12 +140,8 @@ class AGTabletteApp extends LitElement {
                             <icon-button src="/images/redo.svg"
                                     title="Refaire"
                                     name="redo"
-                                    @click='${this._actionHandle}'>
-                            </icon-button>
-                            <icon-button src="/images/save.svg"
-                                    title="Sauvegarder"
-                                    name="save"
-                                    @click='${this.save}'>
+                                    @click='${this._actionHandle}'
+                                    disabled>
                             </icon-button>
                             <icon-button src="/images/load.svg"
                                     title="Ouvrir"
@@ -151,6 +152,11 @@ class AGTabletteApp extends LitElement {
                                     title="Paramètres"
                                     name="settings"
                                     @click='${this._actionHandle}'>
+                            </icon-button>
+                            <icon-button src="/images/help.svg"
+                                    title="Aide"
+                                    name="help"
+                                    disabled>
                             </icon-button>
                         </flex-toolbar>
                         <div class="toolbar-separator">Formes standard</div>
@@ -265,6 +271,11 @@ class AGTabletteApp extends LitElement {
                                 title="Fond d'écran"
                                 name="border_color"
                                 @click='${this.loadBackground}'>
+                        </icon-button>
+                        <icon-button src="/images/backplane.svg"
+                                title="Arrière-plan"
+                                name="back_plane"
+                                disabled>
                         </icon-button>
                     </flex-toolbar>
                 </div>
