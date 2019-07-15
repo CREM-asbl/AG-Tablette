@@ -14,19 +14,17 @@ class IconButton extends LitElement {
         button {
           display: inline-block;
           box-sizing: border-box;
-          height: 50px;
-          width: 50px;
-          margin: 8px 0;
+          height: 52px;
+          width: 52px;
           padding: 0;
+          margin: 2px;
           background: white;
         }
 
         button:hover,
         button:focus,
-        button[active] {
-          font-weight: bold;
-          color: white;
-          background: gray;
+        :host([active]) button{
+          border-color: #F66;
           outline: none;
         }
 

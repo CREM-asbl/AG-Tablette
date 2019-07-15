@@ -87,13 +87,6 @@ class AGTabletteApp extends LitElement {
                 margin: 12px 0;
             }
 
-            canvas-button {
-                display: inline-block;
-                width: 50px;
-                height: 50px;
-                margin: 2px;
-            }
-
             div-main-canvas {
                 width: 100%;
                 height: 100%;
@@ -166,13 +159,15 @@ class AGTabletteApp extends LitElement {
                         </flex-toolbar>
                         <div class="toolbar-separator">Formes standard</div>
 
-                        ${this.families.map(family => html`
-                            <canvas-button name="create_shape"
-                                          .family="${family}"
-                                           ?active="${family === this.state.selectedFamily}"
-                                           @click="${this._actionHandle}">
-                            </canvas-button>
-                        `)}
+                        <flex-toolbar>
+                            ${this.families.map(family => html`
+                                <canvas-button name="create_shape"
+                                            .family="${family}"
+                                            ?active="${family === this.state.selectedFamily}"
+                                            @click="${this._actionHandle}">
+                                </canvas-button>
+                            `)}
+                        </flex-toolbar>
                 </div>
 
                 <div id="app-canvas-view-toolbar-p2">

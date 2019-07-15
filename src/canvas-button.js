@@ -16,6 +16,7 @@ class CanvasButton extends LitElement {
          <style>
             :host {
                 display: block;
+                margin: 2px;
             }
 
             :host([active]) canvas{
@@ -26,6 +27,8 @@ class CanvasButton extends LitElement {
                 background: #fff;
                 border: 1px solid black;
                 box-sizing: border-box;
+                width: 52px;
+                height: 52px;
             }
         </style>
 
