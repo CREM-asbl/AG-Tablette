@@ -343,7 +343,7 @@ class AGTabletteApp extends LitElement {
     // Todo: à placer dans le workspace ?
     // car sauvegarde du workspace => workspace.saveToFile()
     save() {
-        let json = JSOµN.stringify(app.workspace.getSaveData())
+        let json = JSON.stringify(app.workspace.getSaveData())
         const file = new Blob([json], { type: 'text/json' })
         const downloader = document.createElement('a')
         downloader.href = window.URL.createObjectURL(file)
