@@ -1,5 +1,9 @@
 //TODO: transformer le js en json quand d'autres kit seront créés
 
+// COMMENTAIRE: le mélange vertex et segment complique l'exploitation ?
+// Rester sur les base lineTo, arc serait pas plus simple
+// En fait, ne garder que le path proche du mode tortue ???
+
 export const standardKit = {
     'Triangle équilatéral': {
         "defaultColor": "#FF0",

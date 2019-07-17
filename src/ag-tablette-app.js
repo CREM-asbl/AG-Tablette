@@ -301,7 +301,9 @@ class AGTabletteApp extends LitElement {
      */
     _actionHandle(event) {
         if (event.target.name == "settings") { //TODO update this
-            window.app.setState("no_state")
+            // if (window.app.state)
+            //     window.app.state.abort();
+            // window.app.state = { 'name': null };
             this.shadowRoot.querySelector('app-settings').style.display = 'block'
         }
         else if (event.target.name === "new") {

@@ -9,7 +9,7 @@ export class WorkspaceManager {
         this.ls = window.localStorage;
 
         //Init localStorage if necessary
-        if(this.ls.getItem("AG_WorkspacesAmount") == null) {
+        if (this.ls.getItem("AG_WorkspacesAmount") == null) {
             this.ls.setItem("AG_WorkspacesAmount", 0);
         }
     }
@@ -19,7 +19,7 @@ export class WorkspaceManager {
      * @param {Workspace} workspace
      */
     setWorkspace(workspace) {
-        if(!workspace || !workspace.id) {
+        if (!workspace || !workspace.id) {
             console.error("Workspace object is not valid");
             return;
         }
@@ -55,10 +55,10 @@ export class WorkspaceManager {
     saveWorkspaceToLocalStorage(workspace, name = "Unnamed", eraseIfExisting = true) {
         let json = workspace.saveToJSON(),
             index = this.getWorkspaceIndexInLocalStorage(workspace.id);
-        if(index == -1 || !eraseIfExisting) {
+        if (index == -1 || !eraseIfExisting) {
             index = parseInt(this.ls.getItem("AG_WorkspacesAmount"));
             this.ls.setItem("AG_WorkspacesAmount", index + 1);
-            if(!eraseIfExisting && index != -1)
+            if (!eraseIfExisting && index != -1)
                 workspace.id = uniqId();
         }
 
@@ -75,7 +75,7 @@ export class WorkspaceManager {
      */
     getWorkspaceFromLocalStorage(uniqid) {
         let wsAmount = parseInt(this.ls.getItem("AG_WorkspacesAmount"));
-        for(let i=0; i<wsAmount; i++) {
+        for (let i = 0; i < wsAmount; i++) {
             let val = this.ls.getItem("AG_WSList_WS" + i + "_uniqid");
             if (val == uniqid) {
                 let json = this.ls.getItem("AG_WSList_WS" + i + "_data"),
@@ -94,7 +94,7 @@ export class WorkspaceManager {
     getStoredWorkspaces() {
         let wsAmount = parseInt(this.ls.getItem("AG_WorkspacesAmount")),
             names = [];
-        for(let i=0; i<wsAmount; i++) {
+        for (let i = 0; i < wsAmount; i++) {
             names.push({
                 'id': this.ls.getItem("AG_WSList_WS" + i + "_uniqid"),
                 'name': this.ls.getItem("AG_WSList_WS" + i + "_name")
@@ -112,7 +112,7 @@ export class WorkspaceManager {
     getWorkspaceIndexInLocalStorage(uniqid) {
         let wsAmount = parseInt(this.ls.getItem("AG_WorkspacesAmount")),
             index = -1;
-        for(let i=0; i<wsAmount; i++) {
+        for (let i = 0; i < wsAmount; i++) {
             let val = this.ls.getItem("AG_WSList_WS" + i + "_uniqid");
             if (val == uniqid) {
                 return i;
@@ -127,13 +127,13 @@ export class WorkspaceManager {
      */
     deleteWorkspaceFromLocalStorage(uniqid) {
         let index = this.getWorkspaceIndexInLocalStorage(uniqid);
-        if(index==-1) {
+        if (index == -1) {
             console.error("Workspace not found");
             return;
         }
 
         //Décale les Workspace suivants vers la gauche.
-        for(let i = index+1; i<wsAmount; i++) {
+        for (let i = index + 1; i < wsAmount; i++) {
             let uniqid = this.ls.getItem("AG_WSList_WS" + i + "_data"),
                 name = this.ls.getItem("AG_WSList_WS" + i + "_data"),
                 json = this.ls.getItem("AG_WSList_WS" + i + "_data");
@@ -160,11 +160,11 @@ export class WorkspaceManager {
         const reader = new FileReader();
         reader.readAsText(file);
         reader.onload = () => {
-			let ws = new Workspace();
+            let ws = new Workspace();
             ws.initFromJSON(reader.result);
             this.setWorkspace(ws);
-            if(callback) callback();
-		}
+            if (callback) callback();
+        }
     }
 
     /**
@@ -173,17 +173,17 @@ export class WorkspaceManager {
      * @param  {String} [fileName='save.json'] Le nom du fichier
      */
     saveWorkspaceToFile(workspace, fileName) {
-        if(!fileName) //TODO (temporaire)
+        if (!fileName) //TODO (temporaire)
             fileName = window.prompt("(popup temporaire) Nom du fichier: ") + '.json';
 
         let json = workspace.saveToJSON();
         const file = new Blob([json], { type: 'application/json' });
-        const downloader = document.getElementsByTagName("ag-tablette-app")[0]
-                            .shadowRoot.querySelector('#dataDownloader');
+        const downloader = document.createElement('a')
         downloader.href = window.URL.createObjectURL(file);
         downloader.download = fileName;
-        downloader.click();
+        downloader.target = '_blank'
+        document.body.appendChild(downloader)
+        downloader.click()
+        document.body.removeChild(downloader)
     }
-
-
 }

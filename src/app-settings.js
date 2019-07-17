@@ -251,10 +251,6 @@ class AppSettings extends LitElement {
      * event handler principal
      */
     _actionHandle(event) {
-        if (window.app.state.name)
-            window.app.state.abort();
-        window.app.state = { 'name': null };
-
         switch (event.target.name) {
             case 'settings_adapt_shapes_position':
                 app.settings.update('automaticAdjustment', event.target.checked);

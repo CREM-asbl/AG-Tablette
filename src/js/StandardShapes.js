@@ -1,4 +1,4 @@
-// Todo : Fusionner avec standardKit
+// Todo : Fusionner avec standardKit quand définitions fixes
 
 export const standardShapes = {
     'Triangle équilatéral': {
