@@ -49,6 +49,8 @@ class MergeState {
 
             const newBS = this.computeNewBuildSteps(segmentsOfMergedShape)
 
+            if(!newBS) return
+
             //Création de la forme
             var newShape = shape1.getCopy();
             newShape.buildSteps = newBS;
@@ -184,7 +186,7 @@ class MergeState {
     }
 
     computeNewBuildSteps(segmentsList) {
-        // Todo : Traiter le cas des formes "percées" 
+        // Todo : Traiter le cas des formes "percées"
         // Todo : Gérer les arcs
         let newBuildSteps = []
         let nextPoint
@@ -213,6 +215,7 @@ class MergeState {
                 numberOfSegmentsRefused++
                 if (numberOfSegmentsRefused === segmentsList.length) {
                     console.log('aborted merge')
+                    newBuildSteps = null
                 }
             }
         }

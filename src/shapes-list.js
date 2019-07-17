@@ -25,45 +25,59 @@ class ShapesList extends LitElement {
         return html`
         <style>
             :host {
+                display: flex;
+                justify-content: center;
+            }
+
+            .container {
+                background: white;
+                box-shadow: 0 1px 3px gray;
+                z-index: 100;
+                box-sizing: border-box;
                 overflow: auto;
+
             }
 
             h2 {
+                padding:4px;
                 margin: 0;
                 text-align: center;
                 background: gray;
                 color: white;
+                font-size: 1.2rem;
             }
 
             ul {
+                display: flex;
                 margin: 0;
                 padding: 0;
                 list-style: none;
+                overflow-x: auto;
+                overflow-y: hidden;
             }
 
-            button {
-                width: 100%;
-                padding: 16px;
-            }
-
-            button:hover,
-            button:focus {
-                font-weight: bold;
+            li {
+                margin: 0;
+                padding: 0;
+                height: 54px;
             }
         </style>
 
-        <h2>Formes</h2>
-        <ul>
-            ${shapes.map(shape => html`
-                <li>
-                    <button @click="${this._clickHandle}"
-                            name="${shape}">
-                            ${shape}
-                    </button>
-                </li>
-            `)}
-        </ul>
-        `
+        <div class="container">
+            <h2>Famille du ${this.family}</h2>
+            <ul>
+                ${shapes.map(shape => html`
+                    <li>
+                        <canvas-button title="${shape}"
+                                    family="${this.family}"
+                                    shape="${shape}"
+                                    @click="${this._clickHandle}">
+                        </canvas-button>
+                    </li>
+                `)}
+            </ul>
+        </div>
+    `
     }
 
     /**
@@ -71,7 +85,7 @@ class ShapesList extends LitElement {
      */
     _clickHandle(event) {
         const familyRef = app.workspace.environment.getFamily(this.family);
-        const shapeRef = familyRef.getShape(event.target.name);
+        const shapeRef = familyRef.getShape(event.target.shape);
         app.state.setShape(shapeRef);
         this.show = false;
     }

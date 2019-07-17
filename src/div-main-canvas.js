@@ -3,6 +3,12 @@ import { app } from './js/App'
 
 class DivMainCanvas extends LitElement {
 
+    static get properties() {
+        return {
+            background: String
+        }
+    }
+
     render() {
         return html`
         <style>
@@ -100,15 +106,15 @@ class DivMainCanvas extends LitElement {
      * Doit être appelé au démarrage et lorsque la page est redimensionnée.
      */
     setCanvasSize() {
-        this.upperCanvas.setAttribute("height", this.parentElement.clientHeight);
-        this.mainCanvas.setAttribute("height", this.parentElement.clientHeight);
-        this.backgroundCanvas.setAttribute("height", this.parentElement.clientHeight);
-        this.debugCanvas.setAttribute("height", this.parentElement.clientHeight);
+        this.upperCanvas.setAttribute("height", this.clientHeight);
+        this.mainCanvas.setAttribute("height", this.clientHeight);
+        this.backgroundCanvas.setAttribute("height", this.clientHeight);
+        this.debugCanvas.setAttribute("height", this.clientHeight);
 
-        this.upperCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
-        this.mainCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
-        this.backgroundCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
-        this.debugCanvas.setAttribute("width", this.parentElement.clientWidth * 0.8);
+        this.upperCanvas.setAttribute("width", this.clientWidth * 0.8);
+        this.mainCanvas.setAttribute("width", this.clientWidth * 0.8);
+        this.backgroundCanvas.setAttribute("width", this.clientWidth * 0.8);
+        this.debugCanvas.setAttribute("width", this.clientWidth * 0.8);
 
         /*
         Lorsque le canvas est redimensionné, la translation et le zoom (scaling)
@@ -177,6 +183,12 @@ class DivMainCanvas extends LitElement {
         // TODO: Remplacer par un vrai système d'enregistrement de fichier
         window.open(url, '_blank')
     }*/
+
+    // Ajout d'un fond d'écran fixé à droite
+    set background(value) {
+        this.style.display = 'block'
+        this.style.background = `url('${value}') no-repeat right`
+    }
 
 }
 customElements.define('div-main-canvas', DivMainCanvas)
