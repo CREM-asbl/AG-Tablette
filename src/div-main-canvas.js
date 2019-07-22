@@ -111,10 +111,10 @@ class DivMainCanvas extends LitElement {
         this.backgroundCanvas.setAttribute("height", this.clientHeight);
         this.debugCanvas.setAttribute("height", this.clientHeight);
 
-        this.upperCanvas.setAttribute("width", this.clientWidth * 0.8);
-        this.mainCanvas.setAttribute("width", this.clientWidth * 0.8);
-        this.backgroundCanvas.setAttribute("width", this.clientWidth * 0.8);
-        this.debugCanvas.setAttribute("width", this.clientWidth * 0.8);
+        this.upperCanvas.setAttribute("width", this.clientWidth);
+        this.mainCanvas.setAttribute("width", this.clientWidth);
+        this.backgroundCanvas.setAttribute("width", this.clientWidth);
+        this.debugCanvas.setAttribute("width", this.clientWidth);
 
         /*
         Lorsque le canvas est redimensionné, la translation et le zoom (scaling)

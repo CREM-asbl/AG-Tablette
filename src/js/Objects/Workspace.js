@@ -7,6 +7,7 @@ import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
 import { SystemShapeGroup } from './SystemShapeGroup'
 import { UserShapeGroup } from './UserShapeGroup'
 import { Shape } from './Shape'
+import { Settings } from '../Settings'
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -33,6 +34,9 @@ export class Workspace {
 		//Liste des groupes de formes qui sont liées par des points
 		this.systemShapeGroups = [];
 
+		this.settings = new Settings();
+        this.initSettings();
+
 		//Niveau de zoom de l'interface
 		this.zoomLevel = 1;
 
@@ -49,6 +53,17 @@ export class Workspace {
 
 		//Managers:
 		this.grid = GridManager;
+	}
+
+	initSettings() {
+		//La grille est-elle affichée ?
+		this.settings.add("isGridShown", true, true);
+
+		//Taille de la grille
+        this.settings.add("gridSize", 3, true);
+
+		//Type de grille: 'square' ou 'triangle'
+        this.settings.add("gridType", 'square', true);
 	}
 
 	/**
@@ -90,6 +105,7 @@ export class Workspace {
 
 		this.environment = app.envManager.getNewEnv(wsdata.envName);
 
+		this.settings.initFromObject(wsdata.settings);
 
 		app.workspace = actualWS;
 	}
@@ -120,6 +136,8 @@ export class Workspace {
 		wsdata.translateOffset = this.translateOffset;
 
 		wsdata.envName = this.environment.name;
+
+		ws.settings = this.settings.saveToObject();
 
 		const json = JSON.stringify(wsdata);
 		return json;

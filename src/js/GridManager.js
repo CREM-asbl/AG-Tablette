@@ -1,4 +1,6 @@
 import { app } from './App'
+import { distanceBetweenPoints } from './Tools/geometry'
+import { Points } from './Tools/points'
 
 export class GridManager {
     /**
@@ -7,28 +9,28 @@ export class GridManager {
      *      (60, 60), (60,10), (10,60), ...)
      * Si grille triangulaire: la base du triangle est de 50 unités, et le
      * triangle est équilatéral.
-     * 		(-> Ex de points: (-15, 52.5), (35, 52.5), (60, 10), ...)
+     * 		(-> Ex de points: (60, 10), ...)
      */
 
-    static show() { app.settings.set("isGridShown", true); }
-    static hide() { app.settings.set("isGridShown", false); }
+    static show() { app.workspace.settings.set("isGridShown", true); }
+    static hide() { app.workspace.settings.set("isGridShown", false); }
 
-    static setSize(newSize) { app.settings.set("gridSize", newSize); }
+    static setSize(newSize) { app.workspace.settings.set("gridSize", newSize); }
 
     static setType(newType) {
         if(!['square', 'triangle'].includes(newType)) {
             console.error("Type invalide");
             return;
         }
-        app.settings.set("gridType", newType);
+        app.workspace.settings.set("gridType", newType);
     }
 
     static getVisibleGridPoints(minPoint, maxPoint) {
-        if(!app.settings.get("isGridShown")) return [];
+        if(!app.workspace.settings.get("isGridShown")) return [];
 
         let ptList = [],
-            size = app.settings.get("gridSize"),
-            type = app.settings.get("gridType");
+            size = app.workspace.settings.get("gridSize"),
+            type = app.workspace.settings.get("gridType");
         if (type == "square") {
             let t1 = Math.ceil((minPoint.x - 10) / (50 * size)),
                 startX = 10 + t1 * 50 * size,
@@ -65,93 +67,118 @@ export class GridManager {
         return ptList;
     }
 
-    /*
-    **
-	 * Grille: Renvoie le point de la grille (grid) le plus proche d'un point
-	 * quelconque d'un groupe de forme
-	 * @param  {[Shape]} shapesList liste des formes
-	 * @return {{'grid': point, 'shape': point}} le point de la grille le plus
-	 * proche, et le point correspondant du groupe de forme.
-	 *
-	getClosestGridPoint(shapesList) {
-		var pointsList = [];
-		for (var i = 0; i < shapesList.length; i++) {
-			for (var j = 0; j < shapesList[i].points.length; j++) {
-				pointsList.push(shapesList[i].points[j]);
-			}
-		}
-		if (pointsList.length === 0) return null
-
-		const getClosestPoint = function (point) {
-			var x = point.getAbsoluteCoordinates().x,
-				y = point.getAbsoluteCoordinates().y;
-
-			var possibilities = [];
-			var gridType = settings.get('gridType');
-			var gridSize = settings.get('gridSize');
-			if (gridType == 'square') {
-				var topleft = {
-					'x': x - ((x - 10) % (50 * gridSize)),
-					'y': y - ((y - 10) % (50 * gridSize))
-				};
-				possibilities.push(topleft);
-				possibilities.push({ 'x': topleft.x, 'y': topleft.y + 50 * gridSize });
-				possibilities.push({ 'x': topleft.x + 50 * gridSize, 'y': topleft.y });
-				possibilities.push({ 'x': topleft.x + 50 * gridSize, 'y': topleft.y + 50 * gridSize });
-			} else if (gridType == 'triangle') {
-				var topleft1 = {
-					'x': x - ((x - 10) % (50 * gridSize)),
-					'y': y - ((y - 10) % (43.3012701892 * 2 * gridSize))
-				};
-				var topleft2 = {
-					'x': x - ((x - (10 + 25 * gridSize)) % (50 * gridSize)),
-					'y': y - ((y - (10 + 43.3012701892 * gridSize)) % (43.3012701892 * 2 * gridSize))
-				};
-				possibilities.push(topleft1);
-				possibilities.push({ 'x': topleft1.x, 'y': topleft1.y + 43.3012701892 * 2 * gridSize });
-				possibilities.push({ 'x': topleft1.x + 50 * gridSize, 'y': topleft1.y });
-				possibilities.push({ 'x': topleft1.x + 50 * gridSize, 'y': topleft1.y + 43.3012701892 * 2 * gridSize });
-
-				possibilities.push(topleft2);
-				possibilities.push({ 'x': topleft2.x, 'y': topleft2.y + 43.3012701892 * 2 * gridSize });
-				possibilities.push({ 'x': topleft2.x + 50 * gridSize, 'y': topleft2.y });
-				possibilities.push({ 'x': topleft2.x + 50 * gridSize, 'y': topleft2.y + 43.3012701892 * 2 * gridSize });
-			} else {
-				console.error("Workspace.getClosestGridPoint: unknown type: " + gridType);
-				return null;
-			}
-
-			var closest = possibilities[0];
-			var smallestSquareDist = Math.pow(closest.x - x, 2) + Math.pow(closest.y - y, 2);
-			for (var i = 1; i < possibilities.length; i++) {
-				var d = Math.pow(possibilities[i].x - x, 2) + Math.pow(possibilities[i].y - y, 2);
-				if (d < smallestSquareDist) {
-					smallestSquareDist = d;
-					closest = possibilities[i];
-				}
-			}
-
-			return { 'dist': Math.sqrt(smallestSquareDist), 'point': new Point(closest.x, closest.y, "grid", null) };
-		};
-
-		var bestShapePoint = pointsList[0];
-		var t = getClosestPoint(bestShapePoint);
-		var bestDist = t.dist;
-		var bestGridPoint = t.point;
-		for (var i = 0; i < pointsList.length; i++) {
-			var t = getClosestPoint(pointsList[i]);
-			if (t.dist < bestDist) {
-				bestDist = t.dist;
-				bestGridPoint = t.point;
-				bestShapePoint = pointsList[i];
-			}
-		}
-
-		return {
-			'grid': bestGridPoint,
-			'shape': bestShapePoint
-		};
-	};
+    /**
+     * Renvoie le point de la grille le plus proche d'un point.
+     * @param  {Point} point Le point
+     * @return {Point}       Un point de la grille
      */
+    static getClosestGridPoint(point) {
+        let x = point.x,
+            y = point.y,
+            possibilities = [],
+            gridType = app.workspace.settings.get('gridType'),
+            gridSize = app.workspace.settings.get('gridSize');
+
+        if (gridType == 'square') {
+            let topleft = {
+                'x': x - ((x - 10) % (50 * gridSize)),
+                'y': y - ((y - 10) % (50 * gridSize))
+            };
+            possibilities.push(topleft);
+            possibilities.push({ 'x': topleft.x, 'y': topleft.y + 50 * gridSize });
+            possibilities.push({ 'x': topleft.x + 50 * gridSize, 'y': topleft.y });
+            possibilities.push({ 'x': topleft.x + 50 * gridSize, 'y': topleft.y + 50 * gridSize });
+        } else { //triangle
+            var topleft1 = {
+                'x': x - ((x - 10) % (50 * gridSize)),
+                'y': y - ((y - 10) % (43.3012701892 * 2 * gridSize))
+            };
+            var topleft2 = {
+                'x': x - ((x - (10 + 25 * gridSize)) % (50 * gridSize)),
+                'y': y - ((y - (10 + 43.3012701892 * gridSize)) % (43.3012701892 * 2 * gridSize))
+            };
+            possibilities.push(topleft1);
+            possibilities.push({ 'x': topleft1.x, 'y': topleft1.y + 43.3012701892 * 2 * gridSize });
+            possibilities.push({ 'x': topleft1.x + 50 * gridSize, 'y': topleft1.y });
+            possibilities.push({ 'x': topleft1.x + 50 * gridSize, 'y': topleft1.y + 43.3012701892 * 2 * gridSize });
+
+            possibilities.push(topleft2);
+            possibilities.push({ 'x': topleft2.x, 'y': topleft2.y + 43.3012701892 * 2 * gridSize });
+            possibilities.push({ 'x': topleft2.x + 50 * gridSize, 'y': topleft2.y });
+            possibilities.push({ 'x': topleft2.x + 50 * gridSize, 'y': topleft2.y + 43.3012701892 * 2 * gridSize });
+        }
+
+        let closest = possibilities[0],
+            smallestSquareDist = distanceBetweenPoints(closest, point);
+        possibilities.forEach(possibility => {
+            let dist = distanceBetweenPoints(possibility, point);
+            if(dist < smallestSquareDist) {
+                smallestSquareDist = dist;
+                closest = possibility;
+            }
+        });
+
+        return closest;
+    }
+
+    /**
+	 * Grille: Renvoie le point de la grille le plus proche d'un sommet
+	 * appartenenat à une des formes d'un groupe.
+     * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
+     * @param  {Shape} mainShape      La forme principale
+     * @param  {Point} coordinates    Les coordonnées de la forme principale
+	 * @return {{'gridPoint': Point, 'shape': Shape, 'shapePoint': Point}}
+	 * Le point de la grille, la forme à laquelle le sommet appartient, et les
+	 * coordonnées relatives (à la forme) de ce sommet.
+	 *
+	 * Il faut considérer que les coordonnées des formes du groupe (shapes[i].x,
+	 * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
+	 */
+	static getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates) {
+        console.log("click: ", coordinates);
+        //Calcule la liste des sommets des formes
+        let points = shapes.map(s => {
+            return s.buildSteps.filter(bs => bs.type == "vertex").map(vertex => {
+                console.log("pt: ", Points.add(vertex.coordinates, s, Points.sub(coordinates, mainShape)));
+                return {
+                    'shape': s,
+                    'relativePoint': vertex.coordinates,
+                    'realPoint': Points.add(vertex.coordinates, s, Points.sub(coordinates, mainShape))
+                }
+            });
+        }).reduce((total, val) => {
+            return total.concat(val);
+        }, []);
+
+        if(points.length==0) return null;
+
+        let best = {
+                'shape': points[0].shape,
+                'shapePoint': points[0].relativePoint,
+                'gridPoint': this.getClosestGridPoint(points[0].realPoint)
+            },
+            bestDist = Points.dist(best.gridPoint, points[0].realPoint);
+        console.log("----");
+        console.log("pt: ", points[0].realPoint);
+        console.log("gridPt: ", best.gridPoint);
+        console.log("   ");
+
+        points.forEach(pt => {
+            let gridPoint = this.getClosestGridPoint(pt.realPoint),
+                dist = Points.dist(gridPoint, pt.realPoint);
+            if(dist < bestDist) {
+                best.shape = pt.shape;
+                best.shapePoint = pt.relativePoint;
+                best.gridPoint = gridPoint;
+                bestDist = dist;
+                console.log("new: ");
+                console.log("pt: ", pt.realPoint);
+                console.log("gridPt: ", best.gridPoint);
+                console.log("   ");
+            }
+        });
+
+		return best;
+	}
 
 }

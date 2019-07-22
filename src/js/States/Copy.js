@@ -1,14 +1,14 @@
 import { app } from '../App'
-import { DuplicateAction } from './Actions/Duplicate'
+import { CopyAction } from './Actions/Copy'
 import { State } from './State'
 
 /**
  * Dupliquer une forme
  */
-export class DuplicateState extends State {
+export class CopyState extends State {
 
     constructor() {
-        super("duplicate_shape");
+        super("copy_shape");
 
         this.action = null;
 
@@ -31,7 +31,7 @@ export class DuplicateState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new DuplicateAction(this.name);
+        this.action = new CopyAction(this.name);
         this.currentStep = "listen-canvas-click";
 
         this.selectedShape = null;

@@ -22,6 +22,9 @@ export class CreateAction extends Action {
 
         //ID du systemGroupé créé (optionnel)
         this.createdGroupId = null;
+
+        //Taille de la forme
+        this.shapeSize = null;
     }
 
     saveToObject() {
@@ -31,7 +34,8 @@ export class CreateAction extends Action {
             'coordinates': this.coordinates,
             'shapeId': this.shapeId,
             'sourceShapeId': this.sourceShapeId,
-            'createdGroupId': this.createdGroupId
+            'createdGroupId': this.createdGroupId,
+            'shapeSize': this.shapeSize
         };
         return save;
     }
@@ -46,10 +50,11 @@ export class CreateAction extends Action {
         this.shapeId = save.shapeId;
         this.sourceShapeId = save.sourceShapeId;
         this.createdGroupId = save.createdGroupId;
+        this.shapeSize = save.shapeSize;
     }
 
     checkDoParameters() {
-        if(!this.shapeToAdd instanceof Shape)
+        if(!this.shapeToAdd instanceof Shape || this.shapeSize==null)
             return false;
         if(!this.coordinates || this.coordinates.x === undefined
             || this.coordinates.y === undefined)
@@ -67,8 +72,9 @@ export class CreateAction extends Action {
         if(!this.checkDoParameters()) return;
 
         let shape = this.shapeToAdd.copy();
-        shape.x = this.coordinates.x - shape.refPoint.x;
-        shape.y = this.coordinates.y - shape.refPoint.y;
+
+        shape.x = this.coordinates.x; // - shape.refPoint.x;
+        shape.y = this.coordinates.y; // - shape.refPoint.y;
         if(this.shapeId) shape.id = this.shapeId;
         else this.shapeId = shape.id;
         app.workspace.addShape(shape);

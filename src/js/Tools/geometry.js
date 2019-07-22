@@ -1,5 +1,5 @@
 
-/**
+/** //TODO delete (remplacer par Points.dist())
  * Renvoie la distance entre 2 points du plan
  * @param  {Point} pt1 le premier point
  * @param  {Point} pt2 le second point

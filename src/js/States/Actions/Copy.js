@@ -3,7 +3,7 @@ import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
 import { UserShapeGroup } from '../../Objects/UserShapeGroup'
 
-export class DuplicateAction extends Action {
+export class CopyAction extends Action {
     constructor(name) {
         super(name);
 

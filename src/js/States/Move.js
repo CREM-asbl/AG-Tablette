@@ -1,6 +1,8 @@
 import { app } from '../App'
 import { MoveAction } from './Actions/Move'
 import { State } from './State'
+import { getShapeAdjustment } from '../Tools/automatic_adjustment'
+import { Points } from '../Tools/points'
 
 /**
  * Déplacer une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -78,10 +80,14 @@ export class MoveState extends State {
     onMouseUp(mouseCoordinates, event) {
         if(this.currentStep != "moving-shape") return;
 
-        this.action.transformation = {
-            'x': mouseCoordinates.x - this.startClickCoordinates.x,
-            'y': mouseCoordinates.y - this.startClickCoordinates.y
+        let translation = Points.sub(mouseCoordinates, this.startClickCoordinates),
+            newPos = Points.add(this.selectedShape, translation),
+            transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape, newPos);
+
+        if(transformation.rotation != 0) {
+            console.error("TODO: rotation not implemented");
         }
+        this.action.transformation = Points.add(translation, transformation.move);
 
         this.executeAction();
         this.start();

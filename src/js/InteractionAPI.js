@@ -153,6 +153,101 @@ export class InteractionAPI {
     }
 
     /**
+     * Renvoie un point positionné près de la souris, ou null si pas de point
+     * @param  {Point} mouseCoordinates Coordonnées de la souris
+     * @param  {Boolean} [center=true]       Peut-on sélectionner un centre
+     * @param  {Boolean} [vertex=true]       Peut-on sélectionner un sommet
+     * @param  {Boolean} [segmentPoint=true] Peut-on sélectionner un point de segment
+     * @return {Object}
+     *          {
+     *              'type': 'point',
+     *              'pointType': 'vertex' ou 'segmentPoint' ou 'center',
+     *              'shape': Shape,
+     *              'segmentEndCoordinates': Point, //Seulement si pointType = segmentPoint
+     *              'coordinates': Point
+     *          }
+     */
+    selectPoint(mouseCoordinates, center = true, vertex = true, segmentPoint = true) {
+        let point = {
+            'dist': 1000000000,
+            'coordinates': null,
+            'shape': null,
+            'pointType': null,
+            'segmentEndCoordinates': null
+        };
+        app.workspace.shapes.forEach(shape => {
+            if(center) {
+                if(shape.isCenterShown) {
+                    let shapeCenter = shape.getAbsoluteCenter();
+                    if(this.arePointsInMagnetismDistance(shapeCenter, mouseCoordinates)) {
+                        let dist = distanceBetweenPoints(shapeCenter, mouseCoordinates);
+                        if(dist<point.dist) {
+                            point.dist = dist;
+                            point.coordinates = {
+                                'x': shapeCenter.x,
+                                'y': shapeCenter.y
+                            };
+                            point.shape = shape;
+                            point.pointType = 'center';
+                            point.segmentEndCoordinates = null;
+                        }
+                    }
+                }
+            }
+            shape.buildSteps.forEach(bs => {
+                if(bs.type=="vertex" && vertex) {
+                    let absCoordinates = {
+                        'x': bs.coordinates.x + shape.x,
+                        'y': bs.coordinates.y + shape.y
+                    };
+
+                    if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
+                        let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
+                        if(dist<point.dist) {
+                            point.dist = dist;
+                            point.coordinates = absCoordinates;
+                            point.shape = shape;
+                            point.pointType = 'vertex';
+                            point.segmentEndCoordinates = null;
+                        }
+                    }
+                }
+                if(bs.type=="segment" && segmentPoint) {
+                    bs.points.forEach(pt => {
+                        let absCoordinates = {
+                            'x': pt.x + shape.x,
+                            'y': pt.y + shape.y
+                        };
+                        if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
+                            let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
+                            if(dist<point.dist) {
+                                point.dist = dist;
+                                point.coordinates = absCoordinates;
+                                point.shape = shape;
+                                point.pointType = 'segmentPoint';
+                                point.segmentEndCoordinates = {
+                                    'x': bs.coordinates.x,
+                                    'y': bs.coordinates.y
+                                };
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        if(point.shape) {
+            return {
+                'type': 'point',
+                'pointType': point.pointType,
+                'shape': point.shape,
+                'segmentEndCoordinates': point.segmentEndCoordinates,
+                'coordinates': point.coordinates
+            };
+        }
+        return null;
+    }
+
+    /**
      * En fonction des contraintes définies (setSelectionConstraints()),
      * sélectionne un objet se situant sous la souris. Si aucun objet
      * correspondant aux contraintes n'est trouvé, renvoie null.
@@ -202,82 +297,12 @@ export class InteractionAPI {
         }
 
         if(constr.points.canSelect != "none") {
-            let point = {
-                'dist': 1000000000,
-                'coordinates': null,
-                'shape': null,
-                'pointType': null,
-                'segmentEndCoordinates': null
-            };
-            app.workspace.shapes.forEach(shape => {
-                if(constr.points.types.includes("center")) {
-                    if(shape.isCenterShown) {
-                        let center = shape.getAbsoluteCenter();
-                        if(this.arePointsInMagnetismDistance(center, mouseCoordinates)) {
-                            let dist = distanceBetweenPoints(center, mouseCoordinates);
-                            if(dist<point.dist) {
-                                point.dist = dist;
-                                point.coordinates = {
-                                    'x': center.x,
-                                    'y': center.y
-                                };
-                                point.shape = shape;
-                                point.pointType = 'center';
-                                point.segmentEndCoordinates = null;
-                            }
-                        }
-                    }
-                }
-                shape.buildSteps.forEach(bs => {
-                    if(bs.type=="vertex" && constr.points.types.includes("vertex")) {
-                        let absCoordinates = {
-                            'x': bs.coordinates.x + shape.x,
-                            'y': bs.coordinates.y + shape.y
-                        };
-
-                        if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
-                            let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
-                            if(dist<point.dist) {
-                                point.dist = dist;
-                                point.coordinates = absCoordinates;
-                                point.shape = shape;
-                                point.pointType = 'vertex';
-                                point.segmentEndCoordinates = null;
-                            }
-                        }
-                    }
-                    if(bs.type=="segment" && constr.points.types.includes("segmentPoint")) {
-                        bs.points.forEach(pt => {
-                            let absCoordinates = {
-                                'x': pt.x + shape.x,
-                                'y': pt.y + shape.y
-                            };
-                            if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
-                                let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
-                                if(dist<point.dist) {
-                                    point.dist = dist;
-                                    point.coordinates = absCoordinates;
-                                    point.shape = shape;
-                                    point.pointType = 'segmentPoint';
-                                    point.segmentEndCoordinates = {
-                                        'x': bs.coordinates.x,
-                                        'y': bs.coordinates.y
-                                    };
-                                }
-                            }
-                        });
-                    }
-                });
-            });
-            if(point.shape) {
-                return {
-                    'type': 'point',
-                    'pointType': point.pointType,
-                    'shape': point.shape,
-                    'segmentEndCoordinates': point.segmentEndCoordinates,
-                    'coordinates': point.coordinates
-                };
-            }
+            let center = constr.points.types.includes("center"),
+                vertex = constr.points.types.includes("vertex"),
+                segmentPoint = constr.points.types.includes("segmentPoint"),
+                point = this.selectPoint(mouseCoordinates, center, vertex, segmentPoint);
+            if(point) return point;
+            //TODO: pour l'instant, ne tient pas compte de points.list !!!
         }
 
         return null;

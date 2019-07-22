@@ -1,6 +1,8 @@
 import { app } from '../App'
 import { CreateAction } from './Actions/Create'
 import { State } from './State'
+import { Points } from '../Tools/points'
+import { getNewShapeAdjustment } from '../Tools/automatic_adjustment'
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -35,7 +37,7 @@ export class CreateState extends State {
             {"canSegment": "none", "listSegment": []},
             {
                 "canPoint": "all",
-                "pointTypes": ["vertex", "segmentPoint", "center"],
+                "pointTypes": ["vertex"],
                 "listPoint": []
             }
         );
@@ -43,17 +45,6 @@ export class CreateState extends State {
     }
 
     setShape(shape) {
-        //TODO: mettre la taille des formes à jour.
-        /*
-        var size = settings.get('shapesSize');
-        for (var i = 0; i < shape.buildSteps.length; i++) {
-            var step = shape.buildSteps[i];
-            step.setCoordinates(step.x * size, step.y * size);
-        }
-        shape.refPoint.x *= size;
-        shape.refPoint.y *= size;
-        shape.recomputePoints();
-         */
          this.selectedShape = shape;
          this.currentStep = "listen-canvas-click";
          window.dispatchEvent(new CustomEvent('app-state-changed', { detail: app.state }));
@@ -71,9 +62,14 @@ export class CreateState extends State {
     objectSelected(point, clickCoordinates, event) {
         if(this.currentStep != "listen-canvas-click") return;
 
+        return true;
+
+        if(!app.settings.get("automaticAdjustment")) return true;
+
         this.action.coordinates = point.coordinates;
         this.action.shapeToAdd = this.selectedShape.copy();
         this.action.sourceShapeId = point.shape.id;
+        this.action.shapeSize = app.settings.get("shapesSize");
 
         this.executeAction();
         this.action = new CreateAction(this.name);
@@ -85,11 +81,36 @@ export class CreateState extends State {
     onClick(mouseCoordinates, event) {
         if(this.currentStep != "listen-canvas-click") return;
 
-        this.action.coordinates = mouseCoordinates;
-        this.action.shapeToAdd = this.selectedShape.copy();
+        let shape = this.selectedShape.copy(),
+            shapeSize = app.settings.get("shapesSize");
+        //scale:
+        shape.buildSteps.forEach(bs => {
+            bs.coordinates = {
+                'x': bs.coordinates.x * shapeSize,
+                'y': bs.coordinates.y * shapeSize
+            }
+            if(bs.type == "segment") {
+                bs.points.forEach(pt => {
+                    pt.x = pt.x * shapeSize;
+                    pt.y = pt.y * shapeSize;
+                });
+            }
+        });
+        shape.refPoint = {
+            'x': shape.refPoint.x * shapeSize,
+            'y': shape.refPoint.y * shapeSize
+        };
+        shape.updateInternalState();
+
+        let translation = getNewShapeAdjustment(mouseCoordinates),
+            coordinates = Points.add(mouseCoordinates, translation);
+
+        this.action.shapeToAdd = shape;
+        this.action.coordinates = Points.sub(coordinates, shape.refPoint);
+        this.action.shapeSize = shapeSize;
 
         this.executeAction();
-        let shape = this.selectedShape;
+        shape = this.selectedShape;
         this.start(this.selectedFamily);
         this.setShape(shape);
 

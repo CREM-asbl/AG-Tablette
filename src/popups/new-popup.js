@@ -1,6 +1,6 @@
 import { LitElement, html } from "lit-element";
-import { app } from './js/App'
-import { Workspace } from './js/Objects/Workspace'
+import { app } from '../js/App'
+import { Workspace } from '../js/Objects/Workspace'
 
 class NewPopup extends LitElement {
     render() {

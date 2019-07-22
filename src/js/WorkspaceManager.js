@@ -170,11 +170,15 @@ export class WorkspaceManager {
     /**
      * Sauvegarder un espace de travail comme fichier.
      * @param  {Workspace} workspace              L'espace de travail
-     * @param  {String} [fileName='save.json'] Le nom du fichier
+     * @param  {String} [fileName] Le nom du fichier
      */
     saveWorkspaceToFile(workspace, fileName) {
-        if (!fileName) //TODO (temporaire)
-            fileName = window.prompt("(popup temporaire) Nom du fichier: ") + '.json';
+        if (!fileName) { //TODO (temporaire)
+            let prompt = window.prompt("(popup temporaire) Nom du fichier: ");
+            if(prompt==null) return;
+            if(prompt=="") prompt = "Unnamed";
+            fileName = prompt + '.json';
+        }
 
         let json = workspace.saveToJSON();
         const file = new Blob([json], { type: 'application/json' });

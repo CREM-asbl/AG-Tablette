@@ -6,12 +6,13 @@ import { GroupState } from './States/Group.js'
 import { UngroupState } from './States/Ungroup.js'
 import { BackgroundColorState } from './States/BackgroundColor.js'
 import { BorderColorState } from './States/BorderColor.js'
-import { DuplicateState } from './States/Duplicate.js'
+import { CopyState } from './States/Copy.js'
 import { BuildCenterState } from './States/BuildCenter.js'
 import { DeleteState } from './States/Delete.js'
 import { TranslatePlaneState } from './States/TranslatePlane.js'
 import { ZoomPlaneState } from './States/ZoomPlane.js'
 import { PermanentZoomPlaneState } from './States/PermanentZoomPlane.js'
+import { OpacityState } from './States/Opacity.js'
 
 
 export class StatesManager {
@@ -25,7 +26,7 @@ export class StatesManager {
         'BuildCenterAction',
         'CreateAction',
         'DeleteAction',
-        'DuplicateAction',
+        'CopyAction',
         'GroupAction',
         'MoveAction',
         'ReverseAction',
@@ -33,7 +34,7 @@ export class StatesManager {
         'TranslatePlaneAction',
         'UngroupAction',
         'ZoomPlaneAction',
-        'XXXXX',
+        'OpacityAction',
         'XXXXX',
         'XXXXX',
         'XXXXX',
@@ -100,10 +101,15 @@ export class StatesManager {
             "instance": null,
             "getInstance": function() { return new BuildCenterState(); }
         },
-        'duplicate_shape': {
+        'copy_shape': {
             "name": 'Dupliquer',
             "instance": null,
-            "getInstance": function() { return new DuplicateState(); }
+            "getInstance": function() { return new CopyState(); }
+        },
+        'opacity': {
+            "name": 'Opacité',
+            "instance": null,
+            "getInstance": function() { return new OpacityState(); }
         },
         'divide_segment': {
             "name": 'Diviser',

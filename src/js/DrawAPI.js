@@ -59,7 +59,7 @@ export class DrawAPI {
         this.clearCtx(this.backgroundCtx);
 
         //Grid:
-        if(app.settings.get("isGridShown")) {
+        if(app.workspace.settings.get("isGridShown")) {
             let canvasWidth = this.canvas.main.clientWidth,
     			canvasHeight = this.canvas.main.clientHeight,
     			offsetX = app.workspace.translateOffset.x,
@@ -114,15 +114,19 @@ export class DrawAPI {
     drawShape(ctx, shape) {
         ctx.strokeStyle = shape.borderColor;
         ctx.fillStyle = shape.color;
+        ctx.globalAlpha = shape.opacity;
 
         ctx.translate(shape.x, shape.y);
 
         ctx.fill(shape.getDrawPath());
+        ctx.globalAlpha = 1;
 		ctx.stroke(shape.getDrawPath());
         ctx.save();
-        shape.buildSteps.filter(bs => bs.type=="vertex").forEach(bs => { //Sommets
-            this.drawPoint(ctx, bs.coordinates, "#000", 1, false);
-        });
+        if(app.settings.get('areShapesPointed')) {
+            shape.buildSteps.filter(bs => bs.type=="vertex").forEach(bs => { //Sommets
+                this.drawPoint(ctx, bs.coordinates, "#000", 1, false);
+            });
+        }
         shape.buildSteps.filter(bs => bs.type=="segment").forEach(bs => { //Points sur les segments
             bs.points.forEach(pt => {
                 this.drawPoint(ctx, pt, "#000", 1, false);
@@ -133,6 +137,7 @@ export class DrawAPI {
         ctx.restore();
 
         ctx.translate(-shape.x, -shape.y);
+
     }
 
     /**
@@ -169,6 +174,8 @@ export class DrawAPI {
         if(doSave) ctx.save();
 
 		ctx.strokeStyle = color;
+        ctx.globalAlpha = 1;
+
 		ctx.beginPath();
 		ctx.moveTo(fromPoint.x, fromPoint.y);
 		ctx.lineTo(toPoint.x, toPoint.y);

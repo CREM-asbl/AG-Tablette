@@ -2,12 +2,14 @@ import { LitElement, html } from 'lit-element'
 import './canvas-button'
 import './shapes-list'
 import './div-main-canvas'
-import './app-settings'
+import './popups/app-settings'
 import './flex-toolbar'
 import './icon-button'
-// import './divide-popup'
+import './popups/divide-popup'
 import './js/Manifest'
-import './new-popup'
+import './popups/new-popup'
+import './popups/grid-popup'
+import './popups/opacity-popup'
 
 import { app } from './js/App'
 import { standardKit } from './js/ShapesKits/standardKit'
@@ -52,7 +54,7 @@ class AGTabletteApp extends LitElement {
             #app-canvas-view > .toolbar {
                 display: flex;
                 flex-flow: column;
-                flex: 0 0 180px;
+                flex: 0 0 195px;
                 padding: 4px;
                 height: 100%;
                 box-sizing: border-box;
@@ -111,11 +113,10 @@ class AGTabletteApp extends LitElement {
                                     name="new"
                                     @click="${this._actionHandle}">
                             </icon-button>
-                            <icon-button src="/images/delete.svg"
-                                    title="Supprimer une forme"
-                                    name="delete_shape"
-                                    ?active="${this.state.name === 'delete_shape'}"
-                                    @click='${this._actionHandle}'>
+                            <icon-button src="/images/load.svg"
+                                    title="Ouvrir"
+                                    name="load"
+                                    @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
                             </icon-button>
                             <icon-button src="/images/save.svg"
                                     title="Sauvegarder"
@@ -125,17 +126,20 @@ class AGTabletteApp extends LitElement {
                             <icon-button src="/images/undo.svg"
                                     title="Annuler"
                                     name="undo"
+                                    ?disabled="${!this.canUndo}"
                                     @click='${this._actionHandle}'>
                             </icon-button>
                             <icon-button src="/images/redo.svg"
                                     title="Refaire"
                                     name="redo"
+                                    ?disabled="${!this.canRedo}"
                                     @click='${this._actionHandle}'>
                             </icon-button>
-                            <icon-button src="/images/load.svg"
-                                    title="Ouvrir"
-                                    name="load"
-                                    @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
+                            <icon-button src="/images/delete.svg"
+                                    title="Supprimer une forme"
+                                    name="delete_shape"
+                                    ?active="${this.state.name === 'delete_shape'}"
+                                    @click='${this._actionHandle}'>
                             </icon-button>
                             <icon-button src="/images/settings.svg"
                                     title="Paramètres"
@@ -206,8 +210,8 @@ class AGTabletteApp extends LitElement {
                         </icon-button>
                         <icon-button src="/images/copy.svg"
                                 title="Copier"
-                                name="duplicate_shape"
-                                ?active="${this.state.name === 'duplicate_shape'}"
+                                name="copy_shape"
+                                ?active="${this.state.name === 'copy_shape'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/merge.svg"
@@ -266,6 +270,16 @@ class AGTabletteApp extends LitElement {
                                 name="back_plane"
                                 disabled>
                         </icon-button>
+                        <icon-button src="/images/grille.svg"
+                                title="Grille"
+                                name="grid_menu"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/opacity.svg"
+                                title="Opacité"
+                                name="opacity"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
                     </flex-toolbar>
                 </div>
             </div>
@@ -276,6 +290,10 @@ class AGTabletteApp extends LitElement {
         <shapes-list .state="${this.state}"></shapes-list>
 
         <app-settings></app-settings>
+
+        <grid-popup></grid-popup>
+
+        <opacity-popup></opacity-popup>
 
         <new-popup></new-popup>
 
@@ -309,11 +327,16 @@ class AGTabletteApp extends LitElement {
         else if (event.target.name === "new") {
             this.shadowRoot.querySelector('new-popup').open();
         }
+        else if (event.target.name === "grid_menu") {
+            this.shadowRoot.querySelector('grid-popup').style.display = 'block'
+        }
         else if (event.target.name == "undo") {
-            window.app.workspace.history.undo();
+            if(this.canUndo)
+                window.app.workspace.history.undo();
         }
         else if (event.target.name == "redo") {
-            window.app.workspace.history.redo();
+            if(this.canRedo)
+                window.app.workspace.history.redo();
         }
         else if (event.target.name === 'create_shape') {
             app.setState(event.target.name, event.target.family);

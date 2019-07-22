@@ -20,6 +20,7 @@ export class App {
 
         //Paramètres de l'application (accessibles partout via l'objet app)
         this.settings = new Settings();
+        this.initSettings();
 
         //Représente un projet, qui peut être sauvegardé/restauré.
 		this.workspace = new Workspace(this.envManager.getNewEnv('Grandeur'));
@@ -40,6 +41,37 @@ export class App {
         //Liste de classes State qui tournent en permanence (ex: zoom à 2 doigts)
         this.permanentStates = [];
 
+    }
+
+    /**
+     * Initialiser les paramètres de l'application
+     */
+    initSettings() {
+        /**
+         * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
+         */
+        this.settings.add("magnetismDistance", 10, false);
+
+        /**
+         * La précision, en pixels. (2 points à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )
+         */
+        this.settings.add("precision", 1.5, false);
+
+        //Niveau de zoom maximal de l'interface
+        this.settings.add("maxZoomLevel", 10, false);
+
+        //Niveau de zoom minimal de l'interface
+        this.settings.add("minZoomLevel", 0.1, false);
+
+
+        //Ajustement automatique des formes activé ?
+        this.settings.add("automaticAdjustment", true, true);
+
+        //true si les formes ajoutées à l'avenir auront leurs sommets visibles
+        this.settings.add("areShapesPointed", true, true);
+
+        //taille des formes qui seront ajoutées (1, 2 ou 3)
+        this.settings.add("shapesSize", 1, true);
     }
 
     /**

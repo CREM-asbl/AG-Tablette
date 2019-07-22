@@ -1,6 +1,8 @@
 import { uniqId } from '../Tools/general'
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
 
+//TODO: supprimer refPoint (-> sera toujours 0,0)
+
 /**
  * Représente une forme
  */
@@ -29,6 +31,7 @@ export class Shape {
 
         this.color = "#aaa";
         this.borderColor = "#000";
+        this.opacity = 1;
         this.isCenterShown = false;
         this.isReversed = false;
 
