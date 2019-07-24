@@ -10,8 +10,6 @@ export class TranslatePlaneState extends State {
     constructor() {
         super("translate_plane");
 
-        this.action = null;
-
         this.currentStep = null; // listen-canvas-click -> translating-plane
 
         this.startClickCoordinates = null;
@@ -21,16 +19,11 @@ export class TranslatePlaneState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new TranslatePlaneAction(this.name);
+        this.actions = [new TranslatePlaneAction(this.name)];
 
         this.currentStep = "listen-canvas-click";
-        this.startClickCoordinates = null;
 
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "none", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        ); //TODO: désactiver la contrainte de sélection pour cet état.
+        this.startClickCoordinates = null;
     }
 
     abort() {
@@ -48,7 +41,7 @@ export class TranslatePlaneState extends State {
         if(this.currentStep != "translating-plane") return;
 
         let factor = app.workspace.zoomLevel;
-        this.action.offset = {
+        this.actions[0].offset = {
             'x': (clickCoordinates.x - this.startClickCoordinates.x)*factor,
             'y': (clickCoordinates.y - this.startClickCoordinates.y)*factor
         };

@@ -11,8 +11,6 @@ export class ReverseState extends State {
     constructor() {
         super("reverse_shape");
 
-        this.action = null;
-
         // listen-canvas-click -> selecting-symmetrical-arch -> reversing-shape
         this.currentStep = null;
 
@@ -47,7 +45,7 @@ export class ReverseState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new ReverseAction(this.name);
+        this.actions = [new ReverseAction(this.name)];
         this.currentStep = "listen-canvas-click";
 
         this.selectedShape = null;
@@ -61,7 +59,6 @@ export class ReverseState extends State {
             {"canSegment": "none", "listSegment": []},
             {"canPoint": "none", "pointTypes": [], "listPoint": []}
         );
-        app.interactionAPI.selectObjectBeforeNativeEvent = false;
     }
 
     abort() {
@@ -81,8 +78,8 @@ export class ReverseState extends State {
         this.selectedShape = shape;
         this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
 
-        this.action.shapeId = shape.id;
-        this.action.involvedShapesIds = this.involvedShapes.map(s => s.id);
+        this.actions[0].shapeId = shape.id;
+        this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
 
         app.interactionAPI.setSelectionConstraints("click",
             {"canShape": "notSome", "listShape": [shape]},
@@ -112,17 +109,17 @@ export class ReverseState extends State {
             angle = getAngleOfPoint(shapeCenter, mouseCoordinates) % Math.PI;
 
         if (angle <= Math.PI / 8 || angle > 7 * Math.PI / 8)
-            this.action.symmetricalArchOrientation = 'H';
+            this.actions[0].symmetricalArchOrientation = 'H';
         else if (angle > Math.PI / 8 && angle <= 3 * Math.PI / 8)
-            this.action.symmetricalArchOrientation = 'NW';
+            this.actions[0].symmetricalArchOrientation = 'NW';
         else if (angle > 3 * Math.PI / 8 && angle <= 5 * Math.PI / 8)
-            this.action.symmetricalArchOrientation = 'V';
+            this.actions[0].symmetricalArchOrientation = 'V';
         else
-            this.action.symmetricalArchOrientation = 'SW';
+            this.actions[0].symmetricalArchOrientation = 'SW';
 
         this.currentStep = "reversing-shape";
         this.startTime = Date.now();
-        this.arch = this.action.getSymmetricalArch();
+        this.arch = this.actions[0].getSymmetricalArch();
         this.animate();
 
         return false;
@@ -206,7 +203,7 @@ export class ReverseState extends State {
 
             this.involvedShapes.forEach(s => {
                 let s2 = s.copy();
-                this.action.reverseShape(s2, this.arch, progress);
+                this.actions[0].reverseShape(s2, this.arch, progress);
                 app.drawAPI.drawShape(ctx, s2);
             });
 

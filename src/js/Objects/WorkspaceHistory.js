@@ -1,20 +1,5 @@
 import { StatesManager } from '../StatesManager'
-
-import  { BackgroundColorAction } from '../States/Actions/BackgroundColor.js'
-import  { BorderColorAction } from '../States/Actions/BorderColor.js'
-import  { BuildCenterAction } from '../States/Actions/BuildCenter.js'
-import  { CreateAction } from '../States/Actions/Create.js'
-import  { DeleteAction } from '../States/Actions/Delete.js'
-import  { CopyAction } from '../States/Actions/Copy.js'
-import  { GroupAction } from '../States/Actions/Group.js'
-import  { MoveAction } from '../States/Actions/Move.js'
-import  { ReverseAction } from '../States/Actions/Reverse.js'
-import  { RotateAction } from '../States/Actions/Rotate.js'
-import  { TranslatePlaneAction } from '../States/Actions/TranslatePlane.js'
-import  { UngroupAction } from '../States/Actions/Ungroup.js'
-import  { ZoomPlaneAction } from '../States/Actions/ZoomPlane.js'
-
-
+import { app } from '../App'
 /**
  * Représente l'historique d'un espace de travail.
  */
@@ -39,11 +24,13 @@ export class WorkspaceHistory {
     saveToObject() {
         let save = {
             'historyIndex': this.historyIndex,
-            'history': this.history.map(action => {
-                return {
-                    'className': action.constructor.name,
-                    'data': action.saveToObject()
-                };
+            'history': this.history.map(step => {
+                return step.map(action => {
+                    return {
+                        'className': action.constructor.name,
+                        'data': action.saveToObject()
+                    };
+                });
             })
         };
         return save;
@@ -51,18 +38,18 @@ export class WorkspaceHistory {
 
     initFromObject(object) {
         this.historyIndex = object.historyIndex;
-        this.history = object.history.map(actionData => {
-            if(StatesManager.registeredActions.includes(actionData.className)) {
-                //Attention avec eval: bien contrôler ce qui est envoyé.
-                //TODO: faire ça autrement?
-                let action = eval("new " + actionData.className + "()");
+        this.history = object.history.map(step => {
+            return step.map(actionData => {
+                if(!StatesManager.actions[actionData.className]) {
+                    console.error("unknown action class: " + actionData.className);
+                    console.log(actionData);
+                    return null;
+                }
+
+                let action = StatesManager.actions[actionData.className].getInstance();
                 action.initFromObject(actionData.data);
                 return action;
-            } else {
-                console.error("unknown action class: "+actionData.className);
-                console.log(actionData);
-                return null;
-            }
+            });
         });
 
         this.updateMenuState();
@@ -85,7 +72,7 @@ export class WorkspaceHistory {
     }
 
     /**
-     * Annuler une action. Cela fait reculer le curseur de l'historique d'un
+     * Annuler une étape. Cela fait reculer le curseur de l'historique d'un
      * élément.
      */
     undo() {
@@ -93,13 +80,15 @@ export class WorkspaceHistory {
             console.error("Nothing to undo");
             return;
         }
-        this.history[this.historyIndex--].undo();
+        let actions = this.history[this.historyIndex--],
+            reversedActions = [ ...actions].reverse();
+        reversedActions.forEach(action => action.undo());
         app.drawAPI.askRefresh();
         this.updateMenuState();
     }
 
     /**
-     * Refaire l'action qui vient d'être annulée. Cela fait avancer le curseur
+     * Refaire l'étape qui vient d'être annulée. Cela fait avancer le curseur
      * de l'historique d'un élément.
      */
     redo() {
@@ -107,19 +96,19 @@ export class WorkspaceHistory {
             console.error("Nothing to redo");
             return;
         }
-        this.history[++this.historyIndex].do();
+        this.history[++this.historyIndex].forEach(action => action.do());
         app.drawAPI.askRefresh();
         this.updateMenuState();
     }
 
     /**
-     * Ajouter une action à l'historique (l'action n'est pas exécutée, il est
-     * supposé qu'elle a déjà été exécutée).
-     * @param {Action} action L'action ajoutée
+     * Ajouter une étape (ensemble d'action) à l'historique (l'étape n'est pas
+     * exécutée, il est supposé qu'elle a déjà été exécutée).
+     * @param {[Action]} actions Les actions constituant l'étape
      */
-    addAction(action) {
+    addStep(actions) {
         this.history.splice(this.historyIndex+1);
-        this.history.push(action);
+        this.history.push(actions);
         this.historyIndex++;
 
         this.updateMenuState();

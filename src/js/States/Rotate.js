@@ -11,8 +11,6 @@ export class RotateState extends State {
     constructor() {
         super("rotate_shape");
 
-        this.action = null;
-
         this.currentStep = null; // listen-canvas-click -> rotating-shape
 
         //La forme que l'on déplace
@@ -32,7 +30,7 @@ export class RotateState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new RotateAction(this.name);
+        this.actions = [new RotateAction(this.name)];
         this.currentStep = "listen-canvas-click";
 
         this.selectedShape = null;
@@ -44,7 +42,6 @@ export class RotateState extends State {
             {"canSegment": "none", "listSegment": []},
             {"canPoint": "none", "pointTypes": [], "listPoint": []}
         );
-        app.interactionAPI.selectObjectBeforeNativeEvent = false;
     }
 
     abort() {
@@ -64,8 +61,8 @@ export class RotateState extends State {
         this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
         this.initialAngle = getAngleOfPoint(shape, clickCoordinates);
 
-        this.action.shapeId = shape.id;
-        this.action.involvedShapesIds = this.involvedShapes.map(s => s.id);
+        this.actions[0].shapeId = shape.id;
+        this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
 
         this.currentStep = "rotating-shape";
         app.drawAPI.askRefresh("upper");
@@ -81,7 +78,7 @@ export class RotateState extends State {
         if(this.currentStep != "rotating-shape") return;
 
         let newAngle = getAngleOfPoint(this.selectedShape, mouseCoordinates);
-        this.action.rotationAngle = newAngle - this.initialAngle;
+        this.actions[0].rotationAngle = newAngle - this.initialAngle;
 
         this.executeAction();
         this.start();
@@ -102,11 +99,11 @@ export class RotateState extends State {
             center = this.selectedShape.getAbsoluteCenter();
 
         this.involvedShapes.forEach(s => {
-            this.action.rotateShape(s, diffAngle, center);
+            this.actions[0].rotateShape(s, diffAngle, center);
 
             app.drawAPI.drawShape(ctx, s);
 
-            this.action.rotateShape(s, -diffAngle, center);
+            this.actions[0].rotateShape(s, -diffAngle, center);
         });
 
         //Dessiner le centre de symétrie

@@ -10,8 +10,6 @@ export class CopyState extends State {
     constructor() {
         super("copy_shape");
 
-        this.action = null;
-
         this.currentStep = null; // listen-canvas-click -> moving-shape
 
         //La forme que l'on duplique
@@ -31,7 +29,7 @@ export class CopyState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new CopyAction(this.name);
+        this.actions = [new CopyAction(this.name)];
         this.currentStep = "listen-canvas-click";
 
         this.selectedShape = null;
@@ -59,13 +57,13 @@ export class CopyState extends State {
         if(this.currentStep != "listen-canvas-click") return;
 
         this.selectedShape = shape;
-        this.action.shapeId = shape.id;
+        this.actions[0].shapeId = shape.id;
 
         this.involvedShapes = [shape];
         let group = app.workspace.getShapeGroup(shape, 'user');
         if(group)
             this.involvedShapes = [...group.shapes];
-        this.action.involvedShapesIds = this.involvedShapes.map(s => s.id);
+        this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
 
         this.startClickCoordinates = clickCoordinates;
 
@@ -82,7 +80,7 @@ export class CopyState extends State {
     onMouseUp(mouseCoordinates, event) {
         if(this.currentStep != "moving-shape") return;
 
-        this.action.transformation = {
+        this.actions[0].transformation = {
             'x': mouseCoordinates.x - this.startClickCoordinates.x,
             'y': mouseCoordinates.y - this.startClickCoordinates.y
         }

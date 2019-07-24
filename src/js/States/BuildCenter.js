@@ -9,15 +9,13 @@ export class BuildCenterState extends State {
 
     constructor() {
         super("build_shape_center");
-
-        this.action = null;
     }
 
     /**
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new BuildCenterAction(this.name);
+        this.actions = [new BuildCenterAction(this.name)];
 
         app.interactionAPI.setSelectionConstraints("click",
             {"canShape": "all", "listShape": []},
@@ -35,7 +33,7 @@ export class BuildCenterState extends State {
     objectSelected(shape, clickCoordinates, event) {
         if(shape.isCenterShown) return;
 
-        this.action.shapeId = shape.id;
+        this.actions[0].shapeId = shape.id;
         this.executeAction();
         this.start();
 

@@ -10,8 +10,6 @@ export class OpacityState extends State {
     constructor() {
         super("border_color");
 
-        this.action = null;
-
         this.currentStep = null; // choose-opacity -> listen-canvas-click
     }
 
@@ -19,7 +17,7 @@ export class OpacityState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new OpacityAction(this.name);
+        this.actions = [new OpacityAction(this.name)];
 
         this.currentStep = "choose-opacity";
 
@@ -33,7 +31,7 @@ export class OpacityState extends State {
     }
 
     setOpacity(opacity) {
-         this.action.opacity = opacity;
+         this.actions[0].opacity = opacity;
          this.currentStep = "listen-canvas-click";
     }
 
@@ -46,16 +44,16 @@ export class OpacityState extends State {
     objectSelected(shape, clickCoordinates, event) {
         if(this.currentStep != "listen-canvas-click") return;
 
-        this.action.shapeId = shape.id;
+        this.actions[0].shapeId = shape.id;
         let group = app.workspace.getShapeGroup(shape, 'user'),
             involvedShapes = [shape];
         if(group)
             involvedShapes = [...group.shapes];
-        this.action.involvedShapesIds = involvedShapes.map(s => s.id);
+        this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
 
         this.executeAction();
-        let opacity = this.action.opacity;
-        this.action = new OpacityAction(this.name);
+        let opacity = this.actions[0].opacity;
+        this.actions[0] = new OpacityAction(this.name);
         this.setOpacity(opacity);
 
         app.drawAPI.askRefresh();

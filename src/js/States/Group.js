@@ -10,8 +10,6 @@ export class GroupState extends State {
     constructor() {
         super("group_shapes");
 
-        this.action = null;
-
         // listen-canvas-click -> selecting-second-shape -> filling-group
         this.currentStep = null;
 
@@ -25,7 +23,7 @@ export class GroupState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new GroupAction(this.name);
+        this.actions = [new GroupAction(this.name)];
         this.currentStep = "listen-canvas-click";
 
         this.group = null;
@@ -83,25 +81,25 @@ export class GroupState extends State {
             if(userGroup) {
                 this.group = userGroup;
                 this.currentStep = 'filling-group';
-                this.action.type = 'add';
-                this.action.shapeId = this.firstShape.id;
-                this.action.groupId = userGroup.id;
+                this.actions[0].type = 'add';
+                this.actions[0].shapeId = this.firstShape.id;
+                this.actions[0].groupId = userGroup.id;
                 this.executeAction();
-                this.action = new GroupAction(this.name);
+                this.actions = [new GroupAction(this.name)];
             } else {
                 this.currentStep = "filling-group";
-                this.action.type = 'new';
-                this.action.shapeId = this.firstShape.id;
-                this.action.secondShapeId = shape.id;
+                this.actions[0].type = 'new';
+                this.actions[0].shapeId = this.firstShape.id;
+                this.actions[0].secondShapeId = shape.id;
                 this.executeAction();
-                this.group = app.workspace.getGroup(this.action.groupId);
-                this.action = new GroupAction(this.name);
+                this.group = app.workspace.getGroup(this.actions[0].groupId);
+                this.actions = [new GroupAction(this.name)];
             }
         } else {
             let userGroup = app.workspace.getShapeGroup(shape);
             if(userGroup) {
                 //La forme fait partie d'un autre groupe, on fusionne
-                this.action.type = 'merge';
+                this.actions[0].type = 'merge';
 
                 let index1 = app.workspace.getGroupIndex(this.group),
                     index2 = app.workspace.getGroupIndex(userGroup);
@@ -110,16 +108,16 @@ export class GroupState extends State {
                     [index1, index2] = [index2, index1];
                     [this.group, userGroup] = [userGroup, this.group];
                 }
-                this.action.groupId = this.group.id;
-                this.action.otherGroupId = userGroup.id;
+                this.actions[0].groupId = this.group.id;
+                this.actions[0].otherGroupId = userGroup.id;
                 this.executeAction();
-                this.action = new GroupAction(this.name);
+                this.actions = [new GroupAction(this.name)];
             } else {
-                this.action.type = 'add';
-                this.action.shapeId = shape.id;
-                this.action.groupId = this.group.id;
+                this.actions[0].type = 'add';
+                this.actions[0].shapeId = shape.id;
+                this.actions[0].groupId = this.group.id;
                 this.executeAction();
-                this.action = new GroupAction(this.name);
+                this.actions = [new GroupAction(this.name)];
             }
         }
 

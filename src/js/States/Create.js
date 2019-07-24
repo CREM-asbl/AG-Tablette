@@ -12,8 +12,6 @@ export class CreateState extends State {
     constructor() {
         super("create_shape");
 
-        this.action = null;
-
         this.currentStep = null; // show-family-shape -> listen-canvas-click
 
         //La famille sélectionnée dans le menu de gauche
@@ -29,7 +27,7 @@ export class CreateState extends State {
      */
     start(family) {
         this.selectedFamily = family;
-        this.action = new CreateAction(this.name);
+        this.actions = [new CreateAction(this.name)];
         this.selectedShape = null;
         this.currentStep = "show-family-shapes";
         app.interactionAPI.setSelectionConstraints("click",
@@ -66,13 +64,13 @@ export class CreateState extends State {
 
         if(!app.settings.get("automaticAdjustment")) return true;
 
-        this.action.coordinates = point.coordinates;
-        this.action.shapeToAdd = this.selectedShape.copy();
-        this.action.sourceShapeId = point.shape.id;
-        this.action.shapeSize = app.settings.get("shapesSize");
+        this.actions[0].coordinates = point.coordinates;
+        this.actions[0].shapeToAdd = this.selectedShape.copy();
+        this.actions[0].sourceShapeId = point.shape.id;
+        this.actions[0].shapeSize = app.settings.get("shapesSize");
 
         this.executeAction();
-        this.action = new CreateAction(this.name);
+        this.actions = [new CreateAction(this.name)];
 
         app.drawAPI.askRefresh();
         return false;
@@ -105,9 +103,9 @@ export class CreateState extends State {
         let translation = getNewShapeAdjustment(mouseCoordinates),
             coordinates = Points.add(mouseCoordinates, translation);
 
-        this.action.shapeToAdd = shape;
-        this.action.coordinates = Points.sub(coordinates, shape.refPoint);
-        this.action.shapeSize = shapeSize;
+        this.actions[0].shapeToAdd = shape;
+        this.actions[0].coordinates = Points.sub(coordinates, shape.refPoint);
+        this.actions[0].shapeSize = shapeSize;
 
         this.executeAction();
         shape = this.selectedShape;

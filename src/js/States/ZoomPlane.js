@@ -10,8 +10,6 @@ export class ZoomPlaneState extends State {
     constructor() {
         super("zoom_plane");
 
-        this.action = null;
-
         this.currentStep = null; // listen-canvas-click -> zooming-plane
 
         this.baseDist = null;
@@ -21,16 +19,10 @@ export class ZoomPlaneState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new ZoomPlaneAction(this.name);
+        this.actions = [new ZoomPlaneAction(this.name)];
 
         this.currentStep = "listen-canvas-click";
         this.baseDist = null;
-
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "none", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        ); //TODO: désactiver la contrainte de sélection pour cet état.
     }
 
     abort() {
@@ -48,7 +40,7 @@ export class ZoomPlaneState extends State {
     onMouseUp(clickCoordinates, event) {
         if(this.currentStep != "zooming-plane") return;
 
-        this.action.scaleOffset = this.getDist(clickCoordinates)/this.baseDist;
+        this.actions[0].scaleOffset = this.getDist(clickCoordinates)/this.baseDist;
 
         this.executeAction();
         this.start();

@@ -11,8 +11,6 @@ export class PermanentZoomPlaneState extends State {
     constructor() {
         super("permanent_zoom_plane");
 
-        this.action = null;
-
         this.currentStep = null; // listen-canvas-click -> zooming-plane
 
         this.baseDist = null;
@@ -24,7 +22,7 @@ export class PermanentZoomPlaneState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new ZoomPlaneAction(this.name);
+        this.actions = [new ZoomPlaneAction(this.name)];
 
         this.currentStep = "listen-canvas-click";
         this.baseDist = null;
@@ -35,7 +33,7 @@ export class PermanentZoomPlaneState extends State {
         if(this.currentStep != "zooming-plane") return;
         if(event.type!="touchend") return;
 
-        this.action.scaleOffset = this.lastDist / this.baseDist;
+        this.actions[0].scaleOffset = this.lastDist / this.baseDist;
 
         this.executeAction();
         this.start();

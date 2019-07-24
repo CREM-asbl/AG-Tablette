@@ -11,15 +11,13 @@ export class DeleteState extends State {
 
     constructor() {
         super("delete_shape");
-
-        this.action = null;
     }
 
     /**
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new DeleteAction(this.name);
+        this.actions = [new DeleteAction(this.name)];
 
         app.interactionAPI.setSelectionConstraints("click",
             {"canShape": "all", "listShape": []},
@@ -36,7 +34,7 @@ export class DeleteState extends State {
      */
     objectSelected(shape, clickCoordinates, event) {
 
-        this.action.shape = shape;
+        this.actions[0].shape = shape;
         this.executeAction();
         this.start();
 

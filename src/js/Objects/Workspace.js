@@ -137,7 +137,7 @@ export class Workspace {
 
 		wsdata.envName = this.environment.name;
 
-		ws.settings = this.settings.saveToObject();
+		wsdata.settings = this.settings.saveToObject();
 
 		const json = JSON.stringify(wsdata);
 		return json;

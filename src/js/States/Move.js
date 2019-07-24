@@ -12,8 +12,6 @@ export class MoveState extends State {
     constructor() {
         super("move_shape");
 
-        this.action = null;
-
         this.currentStep = null; // listen-canvas-click -> moving-shape
 
         //La forme que l'on déplace
@@ -33,7 +31,7 @@ export class MoveState extends State {
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new MoveAction(this.name);
+        this.actions = [new MoveAction(this.name)];
         this.currentStep = "listen-canvas-click";
 
         this.selectedShape = null;
@@ -64,8 +62,8 @@ export class MoveState extends State {
         this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
         this.startClickCoordinates = clickCoordinates;
 
-        this.action.shapeId = shape.id;
-        this.action.involvedShapesIds = this.involvedShapes.map(s => s.id);
+        this.actions[0].shapeId = shape.id;
+        this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
 
         this.currentStep = "moving-shape";
         app.drawAPI.askRefresh("upper");
@@ -87,7 +85,7 @@ export class MoveState extends State {
         if(transformation.rotation != 0) {
             console.error("TODO: rotation not implemented");
         }
-        this.action.transformation = Points.add(translation, transformation.move);
+        this.actions[0].transformation = Points.add(translation, transformation.move);
 
         this.executeAction();
         this.start();

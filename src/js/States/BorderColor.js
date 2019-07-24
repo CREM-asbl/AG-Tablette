@@ -10,8 +10,6 @@ export class BorderColorState extends State {
     constructor() {
         super("border_color");
 
-        this.action = null;
-
         this.currentStep = null; // choose-color -> listen-canvas-click
     }
 
@@ -19,7 +17,7 @@ export class BorderColorState extends State {
      * (ré-)initialiser l'état
      */
     start(callColorPicker = true) {
-        this.action = new BorderColorAction(this.name);
+        this.actions = [new BorderColorAction(this.name)];
 
         this.currentStep = "choose-color";
 
@@ -34,7 +32,7 @@ export class BorderColorState extends State {
     }
 
     setColor(color) {
-         this.action.selectedColor = color;
+         this.actions[0].selectedColor = color;
          this.currentStep = "listen-canvas-click";
     }
 
@@ -51,15 +49,15 @@ export class BorderColorState extends State {
 
         if(this.currentStep != "listen-canvas-click") return;
 
-        this.action.shapeId = shape.id;
+        this.actions[0].shapeId = shape.id;
         let group = app.workspace.getShapeGroup(shape, 'user'),
             involvedShapes = [shape];
         if(group)
             involvedShapes = [...group.shapes];
-        this.action.involvedShapesIds = involvedShapes.map(s => s.id);
+        this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
 
         this.executeAction();
-        let color = this.action.selectedColor;
+        let color = this.actions[0].selectedColor;
         this.start(false);
         this.setColor(color);
 

@@ -1,3 +1,4 @@
+//States:
 import { CreateState } from './States/Create.js' //TODO: pourquoi cela ne fonctionne pas sans le ".js" ?
 import { MoveState } from './States/Move.js'
 import { RotateState } from './States/Rotate.js'
@@ -14,36 +15,67 @@ import { ZoomPlaneState } from './States/ZoomPlane.js'
 import { PermanentZoomPlaneState } from './States/PermanentZoomPlane.js'
 import { OpacityState } from './States/Opacity.js'
 
+//Actions:
+import  { BackgroundColorAction } from './States/Actions/BackgroundColor.js'
+import  { BorderColorAction } from './States/Actions/BorderColor.js'
+import  { BuildCenterAction } from './States/Actions/BuildCenter.js'
+import  { CreateAction } from './States/Actions/Create.js'
+import  { DeleteAction } from './States/Actions/Delete.js'
+import  { CopyAction } from './States/Actions/Copy.js'
+import  { GroupAction } from './States/Actions/Group.js'
+import  { MoveAction } from './States/Actions/Move.js'
+import  { ReverseAction } from './States/Actions/Reverse.js'
+import  { RotateAction } from './States/Actions/Rotate.js'
+import  { TranslatePlaneAction } from './States/Actions/TranslatePlane.js'
+import  { UngroupAction } from './States/Actions/Ungroup.js'
+import  { ZoomPlaneAction } from './States/Actions/ZoomPlane.js'
+import  { OpacityAction } from './States/Actions/Opacity.js'
 
 export class StatesManager {
-    /*
-    Utilisé notamment dans WorkspaceHistory.initFromObject, pour vérifier
-    qu'un nom d'action est bien valide avant d'utiliser eval().
-     */
-    static registeredActions = [
-        'BackgroundColorAction',
-        'BorderColorAction',
-        'BuildCenterAction',
-        'CreateAction',
-        'DeleteAction',
-        'CopyAction',
-        'GroupAction',
-        'MoveAction',
-        'ReverseAction',
-        'RotateAction',
-        'TranslatePlaneAction',
-        'UngroupAction',
-        'ZoomPlaneAction',
-        'OpacityAction',
-        'XXXXX',
-        'XXXXX',
-        'XXXXX',
-        'XXXXX',
-        'XXXXX',
-        'XXXXX',
-        'XXXXX',
-        'XXXXX'
-    ];
+    static actions = {
+        'BackgroundColorAction': {
+            "getInstance": function() { return new BackgroundColorAction(); }
+        },
+        'BorderColorAction': {
+            "getInstance": function() { return new BorderColorAction(); }
+        },
+        'BuildCenterAction': {
+            "getInstance": function() { return new BuildCenterAction(); }
+        },
+        'CreateAction': {
+            "getInstance": function() { return new CreateAction(); }
+        },
+        'DeleteAction': {
+            "getInstance": function() { return new DeleteAction(); }
+        },
+        'CopyAction': {
+            "getInstance": function() { return new CopyAction(); }
+        },
+        'GroupAction': {
+            "getInstance": function() { return new GroupAction(); }
+        },
+        'MoveAction': {
+            "getInstance": function() { return new MoveAction(); }
+        },
+        'ReverseAction': {
+            "getInstance": function() { return new ReverseAction(); }
+        },
+        'RotateAction': {
+            "getInstance": function() { return new RotateAction(); }
+        },
+        'TranslatePlaneAction': {
+            "getInstance": function() { return new TranslatePlaneAction(); }
+        },
+        'UngroupAction': {
+            "getInstance": function() { return new UngroupAction(); }
+        },
+        'ZoomPlaneAction': {
+            "getInstance": function() { return new ZoomPlaneAction(); }
+        },
+        'OpacityAction': {
+            "getInstance": function() { return new OpacityAction(); }
+        }
+    };
 
     static states = {
         'create_shape': {

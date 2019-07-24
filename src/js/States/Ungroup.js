@@ -9,23 +9,19 @@ export class UngroupState extends State {
 
     constructor() {
         super("ungroup_shapes");
-
-        this.action = null;
-
     }
 
     /**
      * (ré-)initialiser l'état
      */
     start() {
-        this.action = new UngroupAction(this.name);
+        this.actions = [new UngroupAction(this.name)];
 
         app.interactionAPI.setSelectionConstraints("click",
             {"canShape": "all", "listShape": []},
             {"canSegment": "none", "listSegment": []},
             {"canPoint": "none", "pointTypes": [], "listPoint": []}
         );
-        app.interactionAPI.selectObjectBeforeNativeEvent = false;
     }
 
     /**
@@ -37,9 +33,9 @@ export class UngroupState extends State {
     objectSelected(shape, clickCoordinates, event) {
         let userGroup = app.workspace.getShapeGroup(shape);
         if(userGroup) {
-            this.action.groupId = userGroup.id;
+            this.actions[0].groupId = userGroup.id;
             this.executeAction();
-            this.action = new UngroupAction(this.name);
+            this.actions = [new UngroupAction(this.name)];
 
             app.drawAPI.askRefresh("upper");
             app.drawAPI.askRefresh();

@@ -9,6 +9,8 @@ export class State {
             throw new TypeError('Abstract class "State" cannot be instantiated directly');
         }
         this.name = name;
+
+        this.actions = null;
     }
 
     //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected
@@ -59,8 +61,8 @@ export class State {
      * Exécuter l'action liée à l'état, et l'enregistrer dans l'historique.
      */
     executeAction() {
-        this.action.do();
-        app.workspace.history.addAction(this.action);
+        this.actions.forEach(action => action.do());
+        app.workspace.history.addStep(this.actions);
     }
 
     /**
