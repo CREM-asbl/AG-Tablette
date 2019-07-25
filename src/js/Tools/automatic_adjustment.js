@@ -7,6 +7,8 @@ import { Points } from './points'
  * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
  * @param  {Shape} mainShape      La forme principale
  * @param  {Point} coordinates    Les coordonnées de la forme principale
+ * @param  {Boolean} [excludeSelf=true] False: peut magnétiser la forme avec
+ *              elle-même (son ancienne position). Utile pour Copy()
  * @return {Object}
  *          {
  *              'rotation': float,  //Rotation à effectuer
@@ -16,7 +18,7 @@ import { Points } from './points'
  * Il faut considérer que les coordonnées des formes du groupe (shapes[i].x,
  * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
  */
-export function getShapeAdjustment(shapes, mainShape, coordinates) {
+export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf = true) {
     let grid = app.workspace.settings.get("isGridShown"),
         automaticAdjustment = app.settings.get("automaticAdjustment"),
         transformation = {
@@ -41,19 +43,71 @@ export function getShapeAdjustment(shapes, mainShape, coordinates) {
         transformation.move = groupOffset;
     }
 
-    if(automaticAdjustment) { //TODO: si point proche
+    if(automaticAdjustment) {
         if(grid) {
-            //Uniquement rotation supplémentaire, ne modifiant pas le point
-            //attaché à la grille.
+            //TODO ajouter rotation si possible (ne pas bouger le point grid)
+            //utiliser l'action Rotate ensuite !!
         } else {
-            //TODO
-            //Rotation et/ou déplacement
+            //Liste des sommets et segmentPoints
+            let points = shapes.map(s => {
+                let list = [];
+                s.buildSteps.forEach(bs => {
+                    if(bs.type == "vertex") {
+                        list.push({
+                            'shape': s,
+                            'relativePoint': bs.coordinates,
+                            'realPoint': Points.add(bs.coordinates, s, Points.sub(coordinates, mainShape))
+                        });
+                    } else if(bs.type == "segmentPoint") {
+                        bs.points.forEach(pt => {
+                            list.push({
+                                'shape': s,
+                                'relativePoint': pt,
+                                'realPoint': Points.add(pt, s, Points.sub(coordinates, mainShape))
+                            });
+                        })
+                    }
+                });
+                return list;
+            }).reduce((total, val) => {
+                return total.concat(val);
+            }, []);
+
+            //Forme sans sommet
+            if(points.length==0) return transformation;
+
+            let bestDist = 10000000,
+                bestTranslation = null;
+            points.forEach(pt => {
+                let excludeList = [];
+                if(excludeSelf)
+                    excludeList = shapes;
+                let point = app.interactionAPI.selectPoint(pt.realPoint, false, true, true, excludeList);
+                if(point && Points.dist(pt.realPoint, point.coordinates)<bestDist) {
+                    bestDist = Points.dist(pt.realPoint, point.coordinates);
+                    bestTranslation = Points.sub(point.coordinates, pt.realPoint);
+                }
+            });
+
+            //Aucun point proche
+            if(!bestTranslation) return transformation;
+
+            transformation.move = bestTranslation;
+
+            //TODO ajouter légère rotation si possible?
+            //utiliser l'action Rotate ensuite!!
         }
     }
 
     return transformation;
 }
 
+/**
+ * Calcule la translation à appliquer à une forme qu'on a ajouté au canvas,
+ * à la position donnée.
+ * @param  {Point} coordinates Coordonnées du clic lors de l'ajout de la forme
+ * @return {Point}             Translation à effectuer.
+ */
 export function getNewShapeAdjustment(coordinates) {
     let grid = app.workspace.settings.get("isGridShown"),
         automaticAdjustment = app.settings.get("automaticAdjustment"),

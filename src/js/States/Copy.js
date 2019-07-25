@@ -1,6 +1,8 @@
 import { app } from '../App'
 import { CopyAction } from './Actions/Copy'
 import { State } from './State'
+import { getShapeAdjustment } from '../Tools/automatic_adjustment'
+import { Points } from '../Tools/points'
 
 /**
  * Dupliquer une forme
@@ -80,10 +82,13 @@ export class CopyState extends State {
     onMouseUp(mouseCoordinates, event) {
         if(this.currentStep != "moving-shape") return;
 
-        this.actions[0].transformation = {
-            'x': mouseCoordinates.x - this.startClickCoordinates.x,
-            'y': mouseCoordinates.y - this.startClickCoordinates.y
+        let translation = Points.sub(mouseCoordinates, this.startClickCoordinates),
+            newPos = Points.add(this.selectedShape, translation),
+            transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape, newPos, false);
+        if(transformation.rotation != 0) {
+            console.error("TODO: rotation not implemented");
         }
+        this.actions[0].transformation = Points.add(translation, transformation.move);
 
         this.executeAction();
         this.start();

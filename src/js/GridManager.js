@@ -135,11 +135,9 @@ export class GridManager {
 	 * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
 	 */
 	static getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates) {
-        console.log("click: ", coordinates);
         //Calcule la liste des sommets des formes
         let points = shapes.map(s => {
             return s.buildSteps.filter(bs => bs.type == "vertex").map(vertex => {
-                console.log("pt: ", Points.add(vertex.coordinates, s, Points.sub(coordinates, mainShape)));
                 return {
                     'shape': s,
                     'relativePoint': vertex.coordinates,
@@ -158,10 +156,6 @@ export class GridManager {
                 'gridPoint': this.getClosestGridPoint(points[0].realPoint)
             },
             bestDist = Points.dist(best.gridPoint, points[0].realPoint);
-        console.log("----");
-        console.log("pt: ", points[0].realPoint);
-        console.log("gridPt: ", best.gridPoint);
-        console.log("   ");
 
         points.forEach(pt => {
             let gridPoint = this.getClosestGridPoint(pt.realPoint),
@@ -171,10 +165,6 @@ export class GridManager {
                 best.shapePoint = pt.relativePoint;
                 best.gridPoint = gridPoint;
                 bestDist = dist;
-                console.log("new: ");
-                console.log("pt: ", pt.realPoint);
-                console.log("gridPt: ", best.gridPoint);
-                console.log("   ");
             }
         });
 

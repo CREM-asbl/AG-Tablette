@@ -167,7 +167,7 @@ export class InteractionAPI {
      *              'coordinates': Point
      *          }
      */
-    selectPoint(mouseCoordinates, center = true, vertex = true, segmentPoint = true) {
+    selectPoint(mouseCoordinates, center = true, vertex = true, segmentPoint = true, excludedShapes = []) {
         let point = {
             'dist': 1000000000,
             'coordinates': null,
@@ -176,6 +176,9 @@ export class InteractionAPI {
             'segmentEndCoordinates': null
         };
         app.workspace.shapes.forEach(shape => {
+            if(excludedShapes.find(s => s.id==shape.id))
+                return;
+
             if(center) {
                 if(shape.isCenterShown) {
                     let shapeCenter = shape.getAbsoluteCenter();
