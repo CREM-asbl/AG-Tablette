@@ -1,7 +1,6 @@
 import { app } from '../../App'
 import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
-import { SystemShapeGroup } from '../../Objects/SystemShapeGroup'
 
 export class CreateAction extends Action {
     constructor(name) {
@@ -16,14 +15,7 @@ export class CreateAction extends Action {
         //Id de la forme ajoutée
         this.shapeId = null;
 
-        //ID de la forme liée (systemShapeGroup), si le clic créant la forme
-        //actuelle a été fait près d'un point d'une autre forme.
-        this.sourceShapeId = null;
-
-        //ID du systemGroupé créé (optionnel)
-        this.createdGroupId = null;
-
-        //Taille de la forme
+        //Taille de la forme. Pas utilisé ici, juste pour info (pour l'aide)
         this.shapeSize = null;
     }
 
@@ -33,8 +25,6 @@ export class CreateAction extends Action {
             'shapeToAdd': this.shapeToAdd.saveToObject(),
             'coordinates': this.coordinates,
             'shapeId': this.shapeId,
-            'sourceShapeId': this.sourceShapeId,
-            'createdGroupId': this.createdGroupId,
             'shapeSize': this.shapeSize
         };
         return save;
@@ -48,8 +38,6 @@ export class CreateAction extends Action {
 
         this.coordinates = save.coordinates;
         this.shapeId = save.shapeId;
-        this.sourceShapeId = save.sourceShapeId;
-        this.createdGroupId = save.createdGroupId;
         this.shapeSize = save.shapeSize;
     }
 
@@ -73,41 +61,17 @@ export class CreateAction extends Action {
 
         let shape = this.shapeToAdd.copy();
 
-        shape.x = this.coordinates.x; // - shape.refPoint.x;
-        shape.y = this.coordinates.y; // - shape.refPoint.y;
+        shape.x = this.coordinates.x;
+        shape.y = this.coordinates.y;
         if(this.shapeId) shape.id = this.shapeId;
         else this.shapeId = shape.id;
         app.workspace.addShape(shape);
-
-        if(this.sourceShapeId) {
-            let srcShape = app.workspace.getShapeById(this.sourceShapeId),
-                sysGroup = app.workspace.getShapeGroup(srcShape, 'system');
-            if(sysGroup) {
-                sysGroup.addShape(shape, srcShape);
-            } else {
-                let group = new SystemShapeGroup(srcShape, shape);
-                if(this.createdGroupId) group.id = this.createdGroupId;
-                else this.createdGroupId = group.id;
-
-                app.workspace.addGroup(group, 'system');
-            }
-        }
     }
 
     undo() {
         if(!this.checkUndoParameters()) return;
         let shape = app.workspace.getShapeById(this.shapeId);
         app.workspace.removeShape(shape);
-
-        if(this.sourceShapeId) {
-            let srcShape = app.workspace.getShapeById(this.sourceShapeId),
-                sysGroup = app.workspace.getShapeGroup(shape, 'system');
-            if(sysGroup.shapes.length==2) {
-                 app.workspace.deleteGroup(sysGroup, 'system');
-            } else {
-                sysGroup.removeLeafShape(shape);
-            }
-        }
     }
 
 

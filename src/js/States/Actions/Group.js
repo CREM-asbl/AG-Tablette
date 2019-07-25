@@ -1,7 +1,7 @@
 import { app } from '../../App'
 import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
-import { UserShapeGroup } from '../../Objects/UserShapeGroup'
+import { ShapeGroup } from '../../Objects/ShapeGroup'
 /**
  * Représente la création d'un groupe ou l'ajout d'une forme à un groupe existant
  */
@@ -94,32 +94,14 @@ export class GroupAction extends Action {
         if(this.type=='new') {
             let shape1 = app.workspace.getShapeById(this.shapeId),
                 shape2 = app.workspace.getShapeById(this.secondShapeId),
-                group = new UserShapeGroup(shape1, shape2);
+                group = new ShapeGroup(shape1, shape2);
             if(this.groupId) group.id = this.groupId;
             else this.groupId = group.id;
             app.workspace.addGroup(group);
-
-            [shape1, shape2].forEach(shape => {
-                let sysGroup = app.workspace.getShapeGroup(shape, 'system');
-                if(sysGroup) {
-                    sysGroup.shapes.forEach(s => {
-                        if(!group.contains(s))
-                            group.addShape(s);
-                    });
-                }
-            });
         } else if(this.type=='add') {
             let shape = app.workspace.getShapeById(this.shapeId),
                 group = app.workspace.getGroup(this.groupId);
             group.addShape(shape);
-
-            let sysGroup = app.workspace.getShapeGroup(shape, 'system');
-            if(sysGroup) {
-                sysGroup.shapes.forEach(s => {
-                    if(!group.contains(s))
-                        group.addShape(s);
-                });
-            }
         } else {
             let group1 = app.workspace.getGroup(this.groupId),
                 group2 = app.workspace.getGroup(this.otherGroupId);
@@ -144,19 +126,11 @@ export class GroupAction extends Action {
             let shape = app.workspace.getShapeById(this.shapeId),
                 group = app.workspace.getGroup(this.groupId);
             group.removeShape(shape);
-
-            let sysGroup = app.workspace.getShapeGroup(shape, 'system');
-            if(sysGroup) {
-                sysGroup.shapes.forEach(s => {
-                    if(group.contains(s))
-                        group.removeShape(s);
-                });
-            }
         } else {
             let group1 = app.workspace.getGroup(this.groupId),
                 shape1 = app.workspace.getShapeById(this.oldGroupShapesIds[0]),
                 shape2 = app.workspace.getShapeById(this.oldGroupShapesIds[1]),
-                group2 = new UserShapeGroup(shape1, shape2);
+                group2 = new ShapeGroup(shape1, shape2);
             group2.id = this.otherGroupId;
             group1.removeShape(shape1);
             group1.removeShape(shape2);

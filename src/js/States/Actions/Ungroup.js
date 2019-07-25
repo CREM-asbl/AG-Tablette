@@ -1,7 +1,7 @@
 import { app } from '../../App'
 import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
-import { UserShapeGroup } from '../../Objects/UserShapeGroup'
+import { ShapeGroup } from '../../Objects/ShapeGroup'
 
 export class UngroupAction extends Action {
     constructor(name) {
@@ -66,7 +66,7 @@ export class UngroupAction extends Action {
 
         let shape1 = app.workspace.getShapeById(this.groupShapesIds[0]),
             shape2 = app.workspace.getShapeById(this.groupShapesIds[1]),
-            group = new UserShapeGroup(shape1, shape2);
+            group = new ShapeGroup(shape1, shape2);
         group.id = this.groupId;
         this.groupShapesIds.slice(2).forEach(shapeId => {
             let shape = app.workspace.getShapeById(shapeId);

@@ -30,16 +30,6 @@ export class CreateState extends State {
         this.actions = [new CreateAction(this.name)];
         this.selectedShape = null;
         this.currentStep = "show-family-shapes";
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "none", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {
-                "canPoint": "all",
-                "pointTypes": ["vertex"],
-                "listPoint": []
-            }
-        );
-        app.interactionAPI.selectObjectBeforeNativeEvent = true;
     }
 
     setShape(shape) {
@@ -55,24 +45,13 @@ export class CreateState extends State {
      * @param  {Point} clickCoordinates Les coordonnées du click
      * @param  {Event} event            l'événement javascript
      * @return {Boolean}                false: désactive l'appel à onClick si
-     *                                  cet appel est réalisé après.
+     *                                  cet appel est réalisé après l'appel à
+     *                                  objectSelected.
      */
     objectSelected(point, clickCoordinates, event) {
         if(this.currentStep != "listen-canvas-click") return;
 
-        return true;
-
-        if(!app.settings.get("automaticAdjustment")) return true;
-
-        this.actions[0].coordinates = point.coordinates;
-        this.actions[0].shapeToAdd = this.selectedShape.copy();
-        this.actions[0].sourceShapeId = point.shape.id;
-        this.actions[0].shapeSize = app.settings.get("shapesSize");
-
-        this.executeAction();
-        this.actions = [new CreateAction(this.name)];
-
-        app.drawAPI.askRefresh();
+        this.onClick(point.coordinates, event);
         return false;
     }
 
@@ -81,6 +60,7 @@ export class CreateState extends State {
 
         let shape = this.selectedShape.copy(),
             shapeSize = app.settings.get("shapesSize");
+
         //scale:
         shape.buildSteps.forEach(bs => {
             bs.coordinates = {
@@ -104,6 +84,7 @@ export class CreateState extends State {
             coordinates = Points.add(mouseCoordinates, translation);
 
         this.actions[0].shapeToAdd = shape;
+        //TODO: supprimer refPoint (il devrait être égal à 0,0 tt le temps)
         this.actions[0].coordinates = Points.sub(coordinates, shape.refPoint);
         this.actions[0].shapeSize = shapeSize;
 

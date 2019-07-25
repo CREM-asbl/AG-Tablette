@@ -19,8 +19,8 @@ export class CopyState extends State {
         this.startClickCoordinates = null;
 
         /*
-        L'ensemble des formes liées à la forme sélectionnée (systemGroup  et
-        userGroup), y compris la forme elle-même
+        L'ensemble des formes liées à la forme sélectionnée, y compris la forme
+        elle-même
          */
         this.involvedShapes = [];
     }

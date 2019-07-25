@@ -3,10 +3,9 @@ import { DeleteAction } from './Actions/Delete'
 import { State } from './State'
 
 /**
- * Supprimer une forme (et les formes liées dans un sysGroup, récursivement)
+ * Supprimer une forme (et supprime le groupe dont la forme faisait partie s'il
+ * ne restait que 2 formes dans le groupe)
  */
-//TODO: ajouter une étape: premier clic = aperçu de ce qui sera supprimé,
-//      2ème clic = effectuer la suppression
 export class DeleteState extends State {
 
     constructor() {

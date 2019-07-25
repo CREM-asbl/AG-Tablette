@@ -16,7 +16,6 @@ export class GroupState extends State {
         this.group = null;
 
         this.firstShape = null;
-
     }
 
     /**
@@ -47,24 +46,6 @@ export class GroupState extends State {
      * @param  {Event} event            l'événement javascript
      */
     objectSelected(shape, clickCoordinates, event) {
-        /*
-        Si la forme fait partie d'un sysGroup, qu'on était à la première étape (
-        sélection de la première forme, et que la forme ne fait pas partie d'un
-        userGroup, alors on force le passage à la 2ème étape (car vu le
-        sysGroup, on a au moins 2 formes à ajouter et on peut donc créer le
-        groupe).
-         */
-        if(this.currentStep == "listen-canvas-click") {
-            let sysGroup = app.workspace.getShapeGroup(shape, 'system'),
-                userGroup = app.workspace.getShapeGroup(shape);
-            if(sysGroup && !userGroup) {
-                if(sysGroup.shapes[0].id==shape.id)
-                    this.firstShape = sysGroup.shapes[1];
-                else
-                    this.firstShape = sysGroup.shapes[0];
-                this.currentStep = "selecting-second-shape";
-            }
-        }
 
         //Étapes
         if(this.currentStep == "listen-canvas-click") {
@@ -150,7 +131,7 @@ export class GroupState extends State {
             app.drawAPI.drawText(ctx, "Groupe "+(groupIndex+1), pos);
         } else if(this.currentStep == "selecting-second-shape"
                     && this.firstShape == shape) {
-            let groupIndex = app.workspace.userShapeGroups.length;
+            let groupIndex = app.workspace.shapeGroups.length;
             app.drawAPI.drawText(ctx, "Groupe "+(groupIndex+1), pos);
         }
     }

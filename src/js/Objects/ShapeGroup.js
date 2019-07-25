@@ -4,7 +4,7 @@ import { uniqId } from '../Tools/general'
  * Groupe de formes liées. Un tel groupe est créé par l'utilisateur à l'aide de
  * l'outil de création de groupes (Grouper/Dégrouper).
  */
-export class UserShapeGroup {
+export class ShapeGroup {
     /**
      * Constructeur
      * @param {Shape} shape1   La première forme du groupe

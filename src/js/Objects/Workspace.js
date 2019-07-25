@@ -4,8 +4,7 @@ import { uniqId } from '../Tools/general'
 import { WorkspaceHistory } from './WorkspaceHistory'
 import { GridManager } from '../GridManager'
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
-import { SystemShapeGroup } from './SystemShapeGroup'
-import { UserShapeGroup } from './UserShapeGroup'
+import { ShapeGroup } from './ShapeGroup'
 import { Shape } from './Shape'
 import { Settings } from '../Settings'
 
@@ -29,10 +28,7 @@ export class Workspace {
 		this.shapes = [];
 
 		//Liste des groupes créés par l'utilisateur
-		this.userShapeGroups = [];
-
-		//Liste des groupes de formes qui sont liées par des points
-		this.systemShapeGroups = [];
+		this.shapeGroups = [];
 
 		this.settings = new Settings();
         this.initSettings();
@@ -87,14 +83,8 @@ export class Workspace {
 		this.history = new WorkspaceHistory();
 		this.history.initFromObject(wsdata.history);
 
-		this.userShapeGroups = wsdata.userShapeGroups.map(groupData => {
-			let group = new UserShapeGroup({id: 0}, {id: 1});
-			group.initFromObject(groupData);
-			return group;
-		});
-
-		this.systemShapeGroups = wsdata.systemShapeGroups.map(groupData => {
-			let group = new SystemShapeGroup({id: 0}, {id: 1});
+		this.shapeGroups = wsdata.shapeGroups.map(groupData => {
+			let group = new ShapeGroup({id: 0}, {id: 1});
 			group.initFromObject(groupData);
 			return group;
 		});
@@ -123,11 +113,7 @@ export class Workspace {
 
 		wsdata.history = this.history.saveToObject();
 
-		wsdata.userShapeGroups = this.userShapeGroups.map(group => {
-			return group.saveToObject();
-		});
-
-		wsdata.systemShapeGroups = this.systemShapeGroups.map(group => {
+		wsdata.shapeGroups = this.shapeGroups.map(group => {
 			return group.saveToObject();
 		});
 
@@ -237,27 +223,17 @@ export class Workspace {
 
 	/**
 	 * Renvoie la liste des formes solidaires à la forme donnée (c'est-à-dire
-	 * faisant partie du même userGroup et/ou du même systemGroup).
+	 * faisant partie du même groupe).
 	 * @param  {Shape} shape Une forme
 	 * @param  {Boolean} [includeReceivedShape=false] true: inclus la forme
 	 * 												   reçue dans les résultats
 	 * @return {[Shape]}     Les formes liées
 	 */
 	getAllBindedShapes(shape, includeReceivedShape = false) {
-		let shapes = [],
-			userGroup = this.getShapeGroup(shape, 'user'),
-			systemGroup = this.getShapeGroup(shape, 'system');
-		if(userGroup) {
-			/*
-			Si la forme fait aussi partie d'un systemGroup, toutes les formes
-			du systemGroup doivent être dans le userGroup, donc rien d'autre
-			à faire.
-			 */
-			shapes = [...userGroup.shapes];
-		} else if(systemGroup) {
-			shapes = [...systemGroup.shapes];
-		} else {
-			shapes = [ shape ];
+		let shapes = [ shape ],
+			group = this.getShapeGroup(shape);
+		if(group) {
+			shapes = [...group.shapes];
 		}
 
 		if(!includeReceivedShape) {
@@ -289,52 +265,44 @@ export class Workspace {
 	/**
 	 * Ajouter un groupe à l'espace de travail
 	 * @param {Group} group         Le groupe
-	 * @param {String} [type='user'] Le type de groupe (user ou system)
 	 * @param {int}	index			L'index où placer le groupe. Par défaut: à la fin
 	 */
-	addGroup(group, type = 'user', index = null) {
-		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
+	addGroup(group, index = null) {
 		if(Number.isFinite(index)) {
-			groupList.splice(index, 0, group);
+			this.shapeGroups.splice(index, 0, group);
 		} else {
-			groupList.push(group);
+			this.shapeGroups.push(group);
 		}
 	}
 
 	/**
 	 * Récupérer l'index d'un groupe dans le tableau de groupes
 	 * @param  {Group} group         Le groupe
-	 * @param  {String} [type='user'] Le type de groupe (user ou system)
 	 * @return {int}               L'index (peut varier dans le temps!)
 	 */
-	getGroupIndex(group, type = 'user') {
-		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
-		return groupList.findIndex(gr => gr.id == group.id);
+	getGroupIndex(group) {
+		return this.shapeGroups.findIndex(gr => gr.id == group.id);
 	}
 
 	/**
-	 * Réupérer le groupe d'une forme (soit user, soit system)
+	 * Réupérer le groupe d'une forme
 	 * @param  {Shape} shape         la forme
-	 * @param  {String} [type='user'] user ou system
 	 * @return {Group}               le groupe, ou null s'il n'y en a pas.
 	 */
-	getShapeGroup(shape, type = 'user') {
-		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups,
-			group = groupList.find(gr => gr.contains(shape));
+	getShapeGroup(shape) {
+		let group = this.shapeGroups.find(gr => gr.contains(shape));
 		return group ? group : null;
 	}
 
 	/**
 	 * Récupérer un groupe à partir de son id
 	 * @param  {String} id            L'id du groupe
-	 * @param  {String} [type='user'] Le type de groupe (user ou system)
 	 * @return {Group}               Le groupe, ou null s'il n'existe pas
 	 */
-	getGroup(id, type = 'user') {
-		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
-		for(let i=0; i<groupList.length; i++) {
-			if(groupList[i].id == id)
-				return groupList[i];
+	getGroup(id) {
+		for(let i=0; i<this.shapeGroups.length; i++) {
+			if(this.shapeGroups[i].id == id)
+				return this.shapeGroups[i];
 		}
 		return null;
 	}
@@ -342,17 +310,15 @@ export class Workspace {
 	/**
 	 * Supprimer un groupe
 	 * @param  {Group} group         Le groupe
-	 * @param  {String} [type='user'] Le type du groupe (user ou system)
 	 */
-	deleteGroup(group, type = 'user') {
-		let groupList = (type=="user") ? this.userShapeGroups : this.systemShapeGroups;
-		for(let i=0; i<groupList.length; i++) {
-			if(groupList[i].id == group.id) {
-				groupList.splice(i, 1);
+	deleteGroup(group) {
+		for(let i=0; i<this.shapeGroups.length; i++) {
+			if(this.shapeGroups[i].id == group.id) {
+				this.shapeGroups.splice(i, 1);
 				return;
 			}
 		}
-		console.error("Couldn't remove "+type+" group");
+		console.error("Couldn't remove group");
 		return null;
 	}
 }

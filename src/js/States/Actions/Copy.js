@@ -1,7 +1,7 @@
 import { app } from '../../App'
 import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
-import { UserShapeGroup } from '../../Objects/UserShapeGroup'
+import { ShapeGroup } from '../../Objects/ShapeGroup'
 
 export class CopyAction extends Action {
     constructor(name) {
@@ -92,7 +92,7 @@ export class CopyAction extends Action {
 
         //Si nécessaire, créer le userGroup
         if(shapesList.length>1) {
-            let userGroup = new UserShapeGroup(shapesList[0], shapesList[1]);
+            let userGroup = new ShapeGroup(shapesList[0], shapesList[1]);
             if(Number.isFinite(this.createdUsergroupId))
                 userGroup.id = this.createdUsergroupId;
             else
