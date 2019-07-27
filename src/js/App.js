@@ -138,10 +138,6 @@ export class App {
 
     refreshWindow() {
         this.cvsDiv.setCanvasSize();
-        let leftShift = document.getElementsByTagName("ag-tablette-app")[0]
-                        .shadowRoot.getElementById("app-canvas-view-toolbar")
-                        .clientWidth;
-        window.canvasLeftShift = leftShift;
     }
 
     start(cvsDiv) {

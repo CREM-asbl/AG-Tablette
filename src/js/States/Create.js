@@ -58,6 +58,8 @@ export class CreateState extends State {
     onClick(mouseCoordinates, event) {
         if(this.currentStep != "listen-canvas-click") return;
 
+        app.showMessageOnCanvas(mouseCoordinates);
+
         let shape = this.selectedShape.copy(),
             shapeSize = app.settings.get("shapesSize");
 

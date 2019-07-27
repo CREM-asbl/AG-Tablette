@@ -2,6 +2,8 @@ import { app } from '../App'
 import { ZoomPlaneAction } from './Actions/ZoomPlane'
 import { State } from './State'
 import { distanceBetweenPoints } from '../Tools/geometry'
+import { Points } from '../Tools/points'
+
 /**
  * Zoomer/Dézoomer le plan
  */
@@ -40,8 +42,23 @@ export class ZoomPlaneState extends State {
     onMouseUp(clickCoordinates, event) {
         if(this.currentStep != "zooming-plane") return;
 
-        this.actions[0].scaleOffset = this.getDist(clickCoordinates)/this.baseDist;
+        let offset = this.getDist(clickCoordinates)/this.baseDist,
+            actualZoom = app.workspace.zoomLevel,
+            minZoom = app.settings.get('minZoomLevel'),
+            maxZoom = app.settings.get('maxZoomLevel');
+        if(offset*actualZoom > maxZoom) {
+            // -> offset*actualZoom = maxZoom
+            offset = maxZoom / actualZoom - 0.001;
+        }
+        if(offset*actualZoom < minZoom) {
+            offset = minZoom / actualZoom + 0.001;
+        }
 
+        this.actions[0].scaleOffset = offset;
+        this.actions[0].originalZoom = actualZoom;
+        this.actions[0].originalTranslateOffset = Points.copy(app.workspace.translateOffset);
+        this.actions[0].centerProp = { x: 0.5, y: 0.5 };
+        
         this.executeAction();
         this.start();
     }
@@ -52,16 +69,52 @@ export class ZoomPlaneState extends State {
         let newDist = this.getDist(clickCoordinates),
             scaleOffset = newDist / this.baseDist,
             originalZoom = app.workspace.zoomLevel,
-            newZoom = originalZoom * scaleOffset;
+            minZoom = app.settings.get('minZoomLevel'),
+            maxZoom = app.settings.get('maxZoomLevel');
+        if(scaleOffset*originalZoom > maxZoom) {
+            // -> scaleOffset*originalZoom = maxZoom
+            scaleOffset = maxZoom / originalZoom - 0.001;
+        }
+        if(scaleOffset*originalZoom < minZoom) {
+            scaleOffset = minZoom / originalZoom + 0.001;
+        }
 
-        app.workspace.setZoomLevel(newZoom);
+        let originalTranslateOffset = app.workspace.translateOffset,
+            newZoom = originalZoom * scaleOffset,
+            actualWinSize = {
+                'x': app.cvsDiv.clientWidth / originalZoom,
+                'y': app.cvsDiv.clientHeight / originalZoom
+            },
+            newWinSize = {
+                'x': actualWinSize.x / scaleOffset,
+                'y': actualWinSize.y / scaleOffset
+            },
+            newTranslateoffset = {
+                'x': (originalTranslateOffset.x/originalZoom - ((actualWinSize.x - newWinSize.x)/2))*newZoom,
+                'y': (originalTranslateOffset.y/originalZoom - ((actualWinSize.y - newWinSize.y)/2))*newZoom
+            };
+
+        app.workspace.setZoomLevel(newZoom, false);
+        app.workspace.setTranslateOffset(newTranslateoffset);
+
+        app.workspace.setTranslateOffset(originalTranslateOffset, false);
         app.workspace.setZoomLevel(originalZoom, false);
+
     }
 
     getDist(clickCoordinates) {
-        let origin = {'x': 0, 'y': 0},
-            newDist = distanceBetweenPoints(origin, clickCoordinates);
-        if (newDist == 0) newDist = 0.001;
-        return newDist;
+        let halfWinSize = {
+                'x': app.cvsDiv.clientWidth / app.workspace.zoomLevel /2,
+                'y': app.cvsDiv.clientHeight / app.workspace.zoomLevel /2
+            },
+            translateOffset = {
+                'x': app.workspace.translateOffset.x / app.workspace.zoomLevel,
+                'y': app.workspace.translateOffset.y / app.workspace.zoomLevel
+            },
+            center = Points.sub(halfWinSize, translateOffset),
+            dist = Points.dist(center, clickCoordinates);
+
+        if (dist == 0) dist = 0.001;
+        return dist;
     }
 }

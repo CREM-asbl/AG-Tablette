@@ -53,7 +53,7 @@ export class Workspace {
 
 	initSettings() {
 		//La grille est-elle affichée ?
-		this.settings.add("isGridShown", true, true);
+		this.settings.add("isGridShown", false, true);
 
 		//Taille de la grille
         this.settings.add("gridSize", 3, true);

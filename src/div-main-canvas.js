@@ -127,6 +127,11 @@ class DivMainCanvas extends LitElement {
         app.drawAPI.askRefresh("main");
         app.drawAPI.askRefresh("upper");
         app.drawAPI.askRefresh("background");
+
+        let leftShift = document.getElementsByTagName("ag-tablette-app")[0]
+                        .shadowRoot.getElementById("app-canvas-view-toolbar")
+                        .clientWidth;
+        window.canvasLeftShift = leftShift;
     }
 
     /**
@@ -141,7 +146,6 @@ class DivMainCanvas extends LitElement {
         var response = null;
 
         if (event.changedTouches && event.changedTouches[0] && event.changedTouches[0].clientX !== undefined) {
-            //TODO: dans quel cas ça arrive?
             response = [event.changedTouches[0].clientX - window.canvasLeftShift, event.changedTouches[0].clientY];
         }
         else if (event.offsetX !== undefined) {
@@ -156,6 +160,7 @@ class DivMainCanvas extends LitElement {
             response = [event.x, event.y];
         } else {
             alert("navigator not compatible");
+            //TODO: envoyer un rapport d'erreur...
             var str = event.type;
             for (var property1 in event) {
                 str += " | " + property1 + " : " + event[property1];
