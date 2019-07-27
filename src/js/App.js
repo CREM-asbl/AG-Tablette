@@ -130,9 +130,10 @@ export class App {
      * @param {HTMLElement} upperCanvas      Canvas pour l'animation courante
      * @param {HTMLElement} mainCanvas       Canvas principal
      * @param {HTMLElement} backgroundCanvas Canvas pour la grille
+     * @param {HTMLElement} invisibleCanvas Canvas invisible (tâches de fond)
      */
-    setCanvas(upperCanvas, mainCanvas, backgroundCanvas) {
-        let api = new DrawAPI(upperCanvas, mainCanvas, backgroundCanvas, this);
+    setCanvas(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas) {
+        let api = new DrawAPI(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas);
         this.drawAPI = api;
 	}
 

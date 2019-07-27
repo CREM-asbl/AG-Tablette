@@ -2,15 +2,17 @@ import { app } from './App'
 
 export class DrawAPI {
 
-    constructor(upperCanvas, mainCanvas, backgroundCanvas) {
+    constructor(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas) {
         this.canvas = {
             "upper": upperCanvas,
             "main": mainCanvas,
-            "background": backgroundCanvas
+            "background": backgroundCanvas,
+            "invisible": invisibleCanvas
         };
         this.upperCtx = this.canvas.upper.getContext("2d");
         this.mainCtx = this.canvas.main.getContext("2d");
         this.backgroundCtx = this.canvas.background.getContext("2d");
+        this.invisibleCtx = this.canvas.invisible.getContext("2d");
 
         this.lastKnownMouseCoordinates = null;
 
@@ -233,12 +235,10 @@ export class DrawAPI {
      * @return {Boolean}       true si le point est dans la forme
      */
     isPointInShape(point, shape) {
-        const ctx = this.upperCtx;
-        ctx.save(); //TODO utiliser un autre canvas pour éviter de trop appeler save et restore?
-        ctx.setTransform(1, 0, 0, 1, 0, 0)
+        const ctx = this.invisibleCtx;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.translate(shape.x, shape.y);
         const selected = ctx.isPointInPath(shape.getDrawPath(), point.x, point.y);
-        ctx.restore();
         return selected;
 	}
 

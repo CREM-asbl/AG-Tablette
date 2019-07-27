@@ -40,7 +40,7 @@ export class ShapeGroup {
      * @param {Shape} shape    La forme que l'on ajoute
      */
     addShape(shape) {
-        if(this.contains(shape)) { //TODO: remplacer par check d'id...
+        if(this.contains(shape)) {
             console.error("This shape is already part of this user group.");
             return;
         }

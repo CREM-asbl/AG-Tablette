@@ -12,17 +12,23 @@ class DivMainCanvas extends LitElement {
     render() {
         return html`
         <style>
-            canvas#upperCanvas, canvas#mainCanvas, canvas#debugCanvas {
+            canvas#upperCanvas,
+            canvas#mainCanvas,
+            canvas#debugCanvas,
+            canvas#invisibleCanvas {
                 background-color: rgba(0,0,0,0);
                 position: absolute;
                 top: 0px;
             }
             canvas#backgroundCanvas {
+                background-color: #FFF;
                 position: absolute;
                 top: 0px;
             }
         </style>
 
+        <!-- for background tasks (invisible canvas) -->
+        <canvas id="invisibleCanvas"></canvas>
         <!--for the grid and background-image -->
         <canvas id="backgroundCanvas"></canvas>
         <!-- for the shapes -->
@@ -41,13 +47,14 @@ class DivMainCanvas extends LitElement {
         this.upperCanvas = this.shadowRoot.querySelector('#upperCanvas');
         this.mainCanvas = this.shadowRoot.querySelector('#mainCanvas');
         this.backgroundCanvas = this.shadowRoot.querySelector('#backgroundCanvas');
+        this.invisibleCanvas = this.shadowRoot.querySelector('#invisibleCanvas');
 
 
         window.app = app;
-        app.setCanvas(this.upperCanvas, this.mainCanvas, this.backgroundCanvas);
+        app.setCanvas(this.upperCanvas, this.mainCanvas, this.backgroundCanvas, this.invisibleCanvas);
 
         //temporaire:
-        this.debugCanvas = this.shadowRoot.querySelector('#debugCanvas')
+        this.debugCanvas = this.shadowRoot.querySelector('#debugCanvas');
         app.__debugCtx = this.debugCanvas.getContext("2d");
 
 
@@ -110,11 +117,13 @@ class DivMainCanvas extends LitElement {
         this.mainCanvas.setAttribute("height", this.clientHeight);
         this.backgroundCanvas.setAttribute("height", this.clientHeight);
         this.debugCanvas.setAttribute("height", this.clientHeight);
+        this.invisibleCanvas.setAttribute("height", this.clientHeight);
 
         this.upperCanvas.setAttribute("width", this.clientWidth);
         this.mainCanvas.setAttribute("width", this.clientWidth);
         this.backgroundCanvas.setAttribute("width", this.clientWidth);
         this.debugCanvas.setAttribute("width", this.clientWidth);
+        this.invisibleCanvas.setAttribute("width", this.clientWidth);
 
         /*
         Lorsque le canvas est redimensionné, la translation et le zoom (scaling)

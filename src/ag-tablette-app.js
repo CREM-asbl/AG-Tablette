@@ -267,8 +267,8 @@ class AGTabletteApp extends LitElement {
                         </icon-button>
                         <icon-button src="/images/backplane.svg"
                                 title="Arrière-plan"
-                                name="back_plane"
-                                disabled>
+                                name="to_background"
+                                @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/grille.svg"
                                 title="Grille"
@@ -318,10 +318,7 @@ class AGTabletteApp extends LitElement {
      * Main event handler
      */
     _actionHandle(event) {
-        if (event.target.name == "settings") { //TODO update this
-            // if (window.app.state)
-            //     window.app.state.abort();
-            // window.app.state = { 'name': null };
+        if (event.target.name == "settings") {
             this.shadowRoot.querySelector('app-settings').style.display = 'block'
         }
         else if (event.target.name === "new") {

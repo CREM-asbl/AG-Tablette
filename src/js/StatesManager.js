@@ -14,6 +14,7 @@ import { TranslatePlaneState } from './States/TranslatePlane.js'
 import { ZoomPlaneState } from './States/ZoomPlane.js'
 import { PermanentZoomPlaneState } from './States/PermanentZoomPlane.js'
 import { OpacityState } from './States/Opacity.js'
+import { ToBackgroundState } from './States/ToBackground.js'
 
 //Actions:
 import  { BackgroundColorAction } from './States/Actions/BackgroundColor.js'
@@ -30,6 +31,7 @@ import  { TranslatePlaneAction } from './States/Actions/TranslatePlane.js'
 import  { UngroupAction } from './States/Actions/Ungroup.js'
 import  { ZoomPlaneAction } from './States/Actions/ZoomPlane.js'
 import  { OpacityAction } from './States/Actions/Opacity.js'
+import  { ToBackgroundAction } from './States/Actions/ToBackground.js'
 
 export class StatesManager {
     static actions = {
@@ -74,6 +76,9 @@ export class StatesManager {
         },
         'OpacityAction': {
             "getInstance": function() { return new OpacityAction(); }
+        },
+        'ToBackgroundAction': {
+            "getInstance": function() { return new ToBackgroundAction(); }
         }
     };
 
@@ -162,6 +167,11 @@ export class StatesManager {
             "name": 'Glisser le plan',
             "instance": null,
             "getInstance": function() { return new TranslatePlaneState(); }
+        },
+        'to_background': {
+            "name": 'Passer en arrière plan',
+            "instance": null,
+            "getInstance": function() { return new ToBackgroundState(); }
         }
     };
 
