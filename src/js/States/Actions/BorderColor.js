@@ -76,8 +76,4 @@ export class BorderColorAction extends Action {
             s.borderColor = this.oldColors[index];
         });
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

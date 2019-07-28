@@ -56,7 +56,7 @@ export class Workspace {
 		this.settings.add("isGridShown", false, true);
 
 		//Taille de la grille
-        this.settings.add("gridSize", 3, true);
+        this.settings.add("gridSize", 1, true);
 
 		//Type de grille: 'square' ou 'triangle'
         this.settings.add("gridType", 'square', true);

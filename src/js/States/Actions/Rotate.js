@@ -111,8 +111,4 @@ export class RotateAction extends Action {
             newY = x * s + y * c + center.y;
         return { 'x': newX, 'y': newY };
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

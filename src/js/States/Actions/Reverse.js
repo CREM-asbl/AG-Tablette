@@ -1,6 +1,8 @@
 import { app } from '../../App'
 import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
+import { getProjectionOnSegment } from '../../Tools/geometry'
+import { Points } from '../../Tools/points'
 
 export class ReverseAction extends Action {
     constructor(name) {
@@ -128,27 +130,10 @@ export class ReverseAction extends Action {
      * @return {Point}          Nouvelles coordonnées
      */
     computePointPosition(point, axe, progress) {
-        let center = null,
-            p1x = axe.center.x + axe.p1.x,
-            p1y = axe.center.y + axe.p1.y,
-            p2x = axe.center.x + axe.p2.x,
-            p2y = axe.center.y + axe.p2.y;
+        let pt1 = Points.create(axe.center.x + axe.p1.x, axe.center.y + axe.p1.y),
+            pt2 = Points.create(axe.center.x + axe.p2.x, axe.center.y + axe.p2.y),
+            center = getProjectionOnSegment(point, pt1, pt2);
 
-        //Calculer la projection du point sur l'axe.
-        if (axe.type == 'V') {
-            center = { 'x': p1x, 'y': point.y };
-        } else if (axe.type == 'H') {
-            center = { 'x': point.x, 'y': p1y };
-        } else { // axe.type=='NW' || axe.type=='SW'
-            let f_a = (p1y - p2y) / (p1x - p2x),
-                f_b = p2y - f_a * p2x,
-                x2 = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1),
-                y2 = f_a * x2 + f_b;
-            center = {
-                'x': x2,
-                'y': y2
-            };
-        }
         //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
         let transformation = {
             'x': point.x + (2 * (center.x - point.x) * progress),
@@ -156,7 +141,4 @@ export class ReverseAction extends Action {
         };
         return transformation;
     }
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

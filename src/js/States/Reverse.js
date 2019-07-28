@@ -179,19 +179,19 @@ export class ReverseState extends State {
             app.drawAPI.drawLine(ctx,
                 { 'x': shape.x, 'y': shape.y - n1 },
                 { 'x': shape.x, 'y': shape.y + n1 },
-                this.symmetricalArchColor, false);
+                this.symmetricalArchColor, 1, false);
             app.drawAPI.drawLine(ctx,
                 { 'x': shape.x - n2, 'y': shape.y - n2 },
                 { 'x': shape.x + n2, 'y': shape.y + n2 },
-                this.symmetricalArchColor, false);
+                this.symmetricalArchColor, 1, false);
             app.drawAPI.drawLine(ctx,
                 { 'x': shape.x - n1, 'y': shape.y },
                 { 'x': shape.x + n1, 'y': shape.y },
-                this.symmetricalArchColor, false);
+                this.symmetricalArchColor, 1, false);
             app.drawAPI.drawLine(ctx,
                 { 'x': shape.x - n2, 'y': shape.y + n2 },
                 { 'x': shape.x + n2, 'y': shape.y - n2 },
-                this.symmetricalArchColor, false);
+                this.symmetricalArchColor, 1, false);
             return;
         }
         if(this.currentStep == "reversing-shape") {
@@ -214,22 +214,22 @@ export class ReverseState extends State {
                 app.drawAPI.drawLine(ctx,
                     { 'x': shape.x, 'y': shape.y - n1 },
                     { 'x': shape.x, 'y': shape.y + n1 },
-                    this.symmetricalArchColor, false);
+                    this.symmetricalArchColor, 1, false);
             } else if(this.arch.type=="NW") {
                 app.drawAPI.drawLine(ctx,
                     { 'x': shape.x - n2, 'y': shape.y - n2 },
                     { 'x': shape.x + n2, 'y': shape.y + n2 },
-                    this.symmetricalArchColor, false);
+                    this.symmetricalArchColor, 1, false);
             } else if(this.arch.type=="H") {
                 app.drawAPI.drawLine(ctx,
                     { 'x': shape.x - n1, 'y': shape.y },
                     { 'x': shape.x + n1, 'y': shape.y },
-                    this.symmetricalArchColor, false);
+                    this.symmetricalArchColor, 1, false);
             } else { // SW
                 app.drawAPI.drawLine(ctx,
                     { 'x': shape.x - n2, 'y': shape.y + n2 },
                     { 'x': shape.x + n2, 'y': shape.y - n2 },
-                    this.symmetricalArchColor, false);
+                    this.symmetricalArchColor, 1, false);
             }
             return;
         }

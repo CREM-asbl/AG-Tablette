@@ -38,27 +38,8 @@ export class CreateState extends State {
          window.dispatchEvent(new CustomEvent('app-state-changed', { detail: app.state }));
     }
 
-    /**
-     * Appelée par interactionAPI quand un point d'une forme est sélectionnée
-     * (onClick)
-     * @param  {Object} point           Le point sélectionné
-     * @param  {Point} clickCoordinates Les coordonnées du click
-     * @param  {Event} event            l'événement javascript
-     * @return {Boolean}                false: désactive l'appel à onClick si
-     *                                  cet appel est réalisé après l'appel à
-     *                                  objectSelected.
-     */
-    objectSelected(point, clickCoordinates, event) {
-        if(this.currentStep != "listen-canvas-click") return;
-
-        this.onClick(point.coordinates, event);
-        return false;
-    }
-
     onClick(mouseCoordinates, event) {
         if(this.currentStep != "listen-canvas-click") return;
-
-        app.showMessageOnCanvas(mouseCoordinates);
 
         let shape = this.selectedShape.copy(),
             shapeSize = app.settings.get("shapesSize");

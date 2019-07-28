@@ -1,4 +1,4 @@
-
+import { Points } from '../Tools/points'
 
 export class ShapeBuildStep {
     constructor(type) {
@@ -23,6 +23,17 @@ export class Segment extends ShapeBuildStep {
     addPoint({x, y}) {
         //TODO: garder les points triés?
         this.points.push({x, y});
+    }
+
+    removePoint(point) {
+        let i = this.points.findIndex(pt => {
+            return Points.equal(pt, point);
+        });
+        if(i==-1) {
+            console.error("couldn't remove point from segment");
+            return null;
+        }
+        this.points.splice(i, 1);
     }
 
     copy() {

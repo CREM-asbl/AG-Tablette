@@ -122,8 +122,4 @@ export class CopyAction extends Action {
             app.workspace.deleteGroup(group, 'user');
         }
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

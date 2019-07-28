@@ -1,5 +1,6 @@
 import { uniqId } from '../Tools/general'
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
+import { Points } from '../Tools/points'
 
 //TODO: supprimer refPoint (-> sera toujours 0,0)
 
@@ -37,6 +38,78 @@ export class Shape {
 
         this.path = null;
         this.updateInternalState();
+    }
+
+    /**
+     * Renvoie true si la forme est un cercle, c'est-à-dire si buildSteps
+     * commence par un moveTo puis est uniquement composé de segments de
+     * type arc.
+     * @return {Boolean} true si cercle, false sinon.
+     */
+    isCircle() {
+        return this.buildSteps.every((bs, index) => {
+            if(index==0)
+                return bs.type == "moveTo";
+            return bs.type == "segment" && bs.isArc;
+        });
+    }
+
+    /**
+     * Renvoie l'index du premier et du dernier segment constituant un arc de
+     * cercle.
+     * @param  {int} buildStepIndex L'index d'un des segments de l'arc
+     * @return {[int, int]}
+     */
+    getArcEnds(buildStepIndex) {
+        let bs = this.buildSteps;
+        if(this.isCircle()) return [1, bs.length-1];
+
+        const mod = (x, n) => (x % n + n) % n;
+
+        let firstIndex = buildStepIndex;
+        for(let i=0, curIndex=buildStepIndex; i<bs.length-1;i++) {
+            curIndex = mod(curIndex-1, bs.length);
+
+            if(curIndex==0 && bs[curIndex].type=='moveTo')
+                continue;
+
+            if(bs[curIndex].type!='segment' || !bs[curIndex].isArc)
+                break;
+
+            firstIndex = curIndex;
+        }
+
+        let lastIndex = buildStepIndex;
+        for(let i=0, curIndex=buildStepIndex; i<bs.length-1;i++) {
+            curIndex = (curIndex+1)%bs.length;
+
+            if(curIndex==0 && bs[curIndex].type=='moveTo')
+                continue;
+
+            if(bs[curIndex].type!='segment' || !bs[curIndex].isArc)
+                break;
+
+            lastIndex = curIndex;
+        }
+
+        return [firstIndex, lastIndex];
+    }
+
+    /**
+     * Renvoie la longueur d'un arc de cercle
+     * @param  {int} buildStepIndex l'index (dans buildSteps) d'un des segments
+     * de l'arc de cercle
+     * @return {float}                La longueur de l'arc
+     */
+    getArcLength(buildStepIndex) {
+        let arcEnds = this.getArcEnds(buildStepIndex),
+            length = 0;
+        for(let i=arcEnds[0]; i!=arcEnds[1]; i = (i+1)%this.buildSteps.length) {
+            if(i==0) continue; //moveTo
+            length += Points.dist(this.buildSteps[i].coordinates, this.buildSteps[i-1].coordinates);
+        }
+
+        return length;
     }
 
     /**

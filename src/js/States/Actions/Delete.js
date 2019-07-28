@@ -109,8 +109,4 @@ export class DeleteAction extends Action {
             userGroup.addShape(shape);
         }
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

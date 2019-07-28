@@ -1,5 +1,8 @@
 import { app } from './App'
-import { distanceBetweenPoints } from './Tools/geometry'
+import { distanceBetweenPoints, getProjectionOnSegment } from './Tools/geometry'
+import { Shape } from './Objects/Shape'
+import { Points } from './Tools/points'
+
 
 /*
 TODO:
@@ -125,10 +128,16 @@ export class InteractionAPI {
      * @param {String} canShape       "all", "some" (définis dans la liste), "notSome" (idem) ou "none"
      * @param {[Shape]} listShape     liste de forme (vide si canShape vaut "all" ou "none")
      * @param {String} canSegment     "all", "some" (définis dans la liste), "notSome" (idem) ou "none"
-     * @param {[Segment]} listSegment liste de segments (vide si canSegment vaut "all" ou "none")
+     * @param {[Segment]} listSegment liste de 'segments' (vide si canSegment vaut "all" ou "none")
+     *  'segment': soit Shape (représente l'ensemble des segments de la forme),
+     *             soit {'shape': Shape, 'index': int} (index: de la buildStep)
      * @param {String} canPoint       "all", "some" (définis dans la liste), "notSome" (idem) ou "none"
      * @param {[String]} pointTypes   liste d'éléments parmi: "vertex", "segmentPoint", "center"
-     * @param {[Point]} listPoint     liste de points (vide si canPoint vaut "all" ou "none")
+     * @param {[Point]} listPoint     liste de 'points' (vide si canPoint vaut "all" ou "none")
+     *  'point': soit Shape (représente l'ensemble des points de la forme),
+     *           soit {'shape': Shape, 'type': 'center'}
+     *           soit {'shape': Shape, 'type': 'vertex', index: int} (index: de la buildStep)
+     *           soit {'shape': Shape, 'type': 'segmentPoint', segmentIndex: int, coordinates: Point}
      */
     setSelectionConstraints(type,
         {canShape, listShape},
@@ -158,29 +167,53 @@ export class InteractionAPI {
      * @param  {Boolean} [center=true]       Peut-on sélectionner un centre
      * @param  {Boolean} [vertex=true]       Peut-on sélectionner un sommet
      * @param  {Boolean} [segmentPoint=true] Peut-on sélectionner un point de segment
+     * @param  {[Object]} excludedPoints     Voir paramètre listPoint de
+     *                                        this.setSelectionConstraints()
+     *                                        si null: pas pris en compte.
+     * @param  {[Object]} authorizedPoints     Voir paramètre listPoint de
+     *                                        this.setSelectionConstraints()
+     *                                        si null: pas pris en compte.
      * @return {Object}
      *          {
      *              'type': 'point',
      *              'pointType': 'vertex' ou 'segmentPoint' ou 'center',
      *              'shape': Shape,
-     *              'segmentEndCoordinates': Point, //Seulement si pointType = segmentPoint
+     *              'segmentIndex': int, //Seulement si pointType = segmentPoint
+     *              'index': int, //Seulement si pointType = vertex
      *              'coordinates': Point
+     *              'relativeCoordinates': Point
      *          }
      */
-    selectPoint(mouseCoordinates, center = true, vertex = true, segmentPoint = true, excludedShapes = []) {
+    selectPoint(mouseCoordinates, center = true, vertex = true, segmentPoint = true, excludedPoints = null, authorizedPoints = null) {
         let point = {
             'dist': 1000000000,
             'coordinates': null,
+            'relativeCoordinates': null,
             'shape': null,
             'pointType': null,
-            'segmentEndCoordinates': null
+            'segmentIndex': null,
+            'index': null
         };
         app.workspace.shapes.forEach(shape => {
-            if(excludedShapes.find(s => s.id==shape.id))
+            if(excludedPoints && excludedPoints.find(s => s instanceof Shape && s.id==shape.id))
+                return;
+            if(authorizedPoints && !authorizedPoints.find(s => {
+                if(s instanceof Shape && s.id==shape.id)
+                    return true;
+                if(!(s instanceof Shape) && s.shape.id == shape.id)
+                    return true;
+                return false;
+            }))
                 return;
 
-            if(center) {
-                if(shape.isCenterShown) {
+            if(center && shape.isCenterShown) {
+                let excluded = excludedPoints && excludedPoints.find(s => {
+                    return (!(s instanceof Shape) && s.type=='center');
+                });
+                let authorized = !authorizedPoints || authorizedPoints.find(s => {
+                    return (!(s instanceof Shape) && s.type=='center');
+                });
+                if(!excluded && authorized) {
                     let shapeCenter = shape.getAbsoluteCenter();
                     if(this.arePointsInMagnetismDistance(shapeCenter, mouseCoordinates)) {
                         let dist = distanceBetweenPoints(shapeCenter, mouseCoordinates);
@@ -190,15 +223,30 @@ export class InteractionAPI {
                                 'x': shapeCenter.x,
                                 'y': shapeCenter.y
                             };
+                            point.relativeCoordinates = Points.copy(shape.center);
                             point.shape = shape;
                             point.pointType = 'center';
-                            point.segmentEndCoordinates = null;
+                            point.segmentIndex = null;
+                            point.index = null;
                         }
                     }
                 }
             }
-            shape.buildSteps.forEach(bs => {
+            shape.buildSteps.forEach((bs, index) => {
                 if(bs.type=="vertex" && vertex) {
+                    let excluded = excludedPoints && excludedPoints.find(s => {
+                        if(s instanceof Shape) return false;
+
+                        return s.type=='vertex' && s.index==index;
+                    });
+                    let authorized = !authorizedPoints || authorizedPoints.find(s => {
+                        if(s instanceof Shape) return false;
+
+                        return s.type=='vertex' && s.index==index;
+                    });
+
+                    if(excluded || !authorized) return;
+
                     let absCoordinates = {
                         'x': bs.coordinates.x + shape.x,
                         'y': bs.coordinates.y + shape.y
@@ -209,14 +257,35 @@ export class InteractionAPI {
                         if(dist<point.dist) {
                             point.dist = dist;
                             point.coordinates = absCoordinates;
+                            point.relativeCoordinates = Points.copy(bs.coordinates);
                             point.shape = shape;
                             point.pointType = 'vertex';
-                            point.segmentEndCoordinates = null;
+                            point.segmentIndex = null;
+                            point.index = index;
                         }
                     }
-                }
-                if(bs.type=="segment" && segmentPoint) {
+                } else if(bs.type=="segment" && segmentPoint) {
                     bs.points.forEach(pt => {
+                        let excluded = excludedPoints && excludedPoints.find(s => {
+                            if(s instanceof Shape) return false;
+
+                            if(s.type=='segmentPoint' && s.segmentIndex==index) {
+                                return Points.equal(s.coordinates, pt);
+                            }
+
+                            return false;
+                        });
+                        let authorized = !authorizedPoints || authorizedPoints.find(s => {
+                            if(s instanceof Shape) return false;
+
+                            if(s.type=='segmentPoint' && s.segmentIndex==index) {
+                                return Points.equal(s.coordinates, pt);
+                            }
+
+                            return false;
+                        });
+                        if(excluded || !authorized) return;
+
                         let absCoordinates = {
                             'x': pt.x + shape.x,
                             'y': pt.y + shape.y
@@ -226,12 +295,11 @@ export class InteractionAPI {
                             if(dist<point.dist) {
                                 point.dist = dist;
                                 point.coordinates = absCoordinates;
+                                point.relativeCoordinates = Points.copy(pt);
                                 point.shape = shape;
                                 point.pointType = 'segmentPoint';
-                                point.segmentEndCoordinates = {
-                                    'x': bs.coordinates.x,
-                                    'y': bs.coordinates.y
-                                };
+                                point.segmentIndex = index;
+                                point.index = null;
                             }
                         }
                     });
@@ -243,8 +311,10 @@ export class InteractionAPI {
                 'type': 'point',
                 'pointType': point.pointType,
                 'shape': point.shape,
-                'segmentEndCoordinates': point.segmentEndCoordinates,
-                'coordinates': point.coordinates
+                'segmentIndex': point.segmentIndex,
+                'index': point.index,
+                'coordinates': point.coordinates,
+                'relativeCoordinates': point.relativeCoordinates
             };
         }
         return null;
@@ -262,15 +332,16 @@ export class InteractionAPI {
      *              'type': 'point',
      *              'pointType': 'vertex' ou 'segmentPoint' ou 'center',
      *              'shape': Shape,
-     *              'segmentEndCoordinates': Point, //Seulement si pointType = segmentPoint
+     *              'segmentIndex': int, //Seulement si pointType = segmentPoint
+     *              'index': int, //Seulement si pointType = vertex
      *              'coordinates': Point
+     *              'relativeCoordinates': Point
      *          }
      *      -Cet objet (pour un segment):
      *          {
      *              'type': 'segment',
      *              'shape': Shape,
-     *              'segmentStartCoordinates': Point,
-     *              'segmentEndCoordinates': Point
+     *              'index': int //buildStep index
      *          }
      */
     getSelectedObject(mouseCoordinates) {
@@ -295,17 +366,83 @@ export class InteractionAPI {
             }
         }
 
-        if(constr.segments.canSelect != "none") {
-            console.log("todo segment selector");
-        }
-
         if(constr.points.canSelect != "none") {
             let center = constr.points.types.includes("center"),
                 vertex = constr.points.types.includes("vertex"),
                 segmentPoint = constr.points.types.includes("segmentPoint"),
-                point = this.selectPoint(mouseCoordinates, center, vertex, segmentPoint);
+                excludedPoints = null,
+                authorizedPoints = null;
+            if(constr.points.canSelect == 'some')
+                authorizedPoints = constr.points.list;
+            if(constr.points.canSelect == 'notSome')
+                excludedPoints = constr.points.list;
+
+            let point = this.selectPoint(mouseCoordinates,
+                        center, vertex, segmentPoint,
+                        excludedPoints, authorizedPoints);
             if(point) return point;
-            //TODO: pour l'instant, ne tient pas compte de points.list !!!
+        }
+
+        if(constr.segments.canSelect != "none") {
+            let excludedSegments = null,
+                authorizedSegments = null,
+                segment = null;
+            if(constr.segments.canSelect == 'some')
+                authorizedSegments = constr.points.list;
+            if(constr.segments.canSelect == 'notSome')
+                excludedSegments = constr.points.list;
+
+            app.workspace.shapes.forEach(shape => {
+                if(excludedSegments && excludedSegments.find(s => s instanceof Shape && s.id==shape.id))
+                    return;
+                if(authorizedSegments && !authorizedSegments.find(s => {
+                    if(s instanceof Shape && s.id==shape.id)
+                        return true;
+                    if(!(s instanceof Shape) && s.shape.id == shape.id)
+                        return true;
+                    return false;
+                }))
+                    return;
+
+                shape.buildSteps.forEach((bs, index) => {
+                    if(bs.type !="segment") return;
+
+                    let excluded = excludedSegments && excludedSegments.find(s => {
+                        return !(s instanceof Shape) && s.index==index;
+                    });
+                    let authorized = !authorizedSegments || authorizedSegments.find(s => {
+                        return !(s instanceof Shape) && s.index==index;
+                    });
+
+                    if(excluded || !authorized) return;
+
+                    //Calculer la projection de mouseCoordinates sur le segment.
+                    let segmentStart = Points.add(shape, shape.buildSteps[index-1].coordinates),
+                        segmentEnd = Points.add(shape, bs.coordinates),
+                        projection = getProjectionOnSegment(mouseCoordinates, segmentStart, segmentEnd);
+
+                    //Point en dehors du segment ?
+                    let segmentLength = Points.dist(segmentStart, segmentEnd),
+                        dist1 = Points.dist(segmentStart, projection),
+                        dist2 = Points.dist(segmentEnd, projection);
+                    if(dist1 > segmentLength || dist2 > segmentLength)
+                        return;
+
+                    //Point trop loin?
+                    let dist3 = Points.dist(mouseCoordinates, projection);
+                    if(dist3 > app.settings.get("magnetismDistance") )
+                        return;
+
+                    segment =  {
+                        'type': 'segment',
+                        'shape': shape,
+                        'index': index
+                    };
+
+                });
+            });
+            if(segment)
+                return segment;
         }
 
         return null;

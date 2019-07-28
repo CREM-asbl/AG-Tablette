@@ -73,8 +73,4 @@ export class CreateAction extends Action {
         let shape = app.workspace.getShapeById(this.shapeId);
         app.workspace.removeShape(shape);
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

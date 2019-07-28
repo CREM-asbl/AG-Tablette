@@ -15,6 +15,7 @@ import { ZoomPlaneState } from './States/ZoomPlane.js'
 import { PermanentZoomPlaneState } from './States/PermanentZoomPlane.js'
 import { OpacityState } from './States/Opacity.js'
 import { ToBackgroundState } from './States/ToBackground.js'
+import { DivideState } from './States/Divide.js'
 
 //Actions:
 import  { BackgroundColorAction } from './States/Actions/BackgroundColor.js'
@@ -32,6 +33,7 @@ import  { UngroupAction } from './States/Actions/Ungroup.js'
 import  { ZoomPlaneAction } from './States/Actions/ZoomPlane.js'
 import  { OpacityAction } from './States/Actions/Opacity.js'
 import  { ToBackgroundAction } from './States/Actions/ToBackground.js'
+import  { DivideAction } from './States/Actions/Divide.js'
 
 export class StatesManager {
     static actions = {
@@ -79,6 +81,9 @@ export class StatesManager {
         },
         'ToBackgroundAction': {
             "getInstance": function() { return new ToBackgroundAction(); }
+        },
+        'DivideAction': {
+            "getInstance": function() { return new DivideAction(); }
         }
     };
 
@@ -151,7 +156,7 @@ export class StatesManager {
         'divide_segment': {
             "name": 'Diviser',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new DivideState(); }
         },
         'merge_shapes': {
             "name": 'Fusionner',

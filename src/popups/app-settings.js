@@ -130,9 +130,9 @@ class AppSettings extends LitElement {
                         <select name="settings_shapes_size"
                                 id="settings_shapes_size"
                                 @change='${this._actionHandle}'>
-                            <option value="1">1</option>
-                            <option value="2" selected>2</option>
-                            <option value="3">3</option>
+                            <option value="1" ?selected="${app.settings.get('shapesSize')==1}">1</option>
+                            <option value="2" ?selected="${app.settings.get('shapesSize')==2}">2</option>
+                            <option value="3" ?selected="${app.settings.get('shapesSize')==3}">3</option>
                         </select>
                     </div>
 

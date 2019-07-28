@@ -76,7 +76,4 @@ export class OpacityAction extends Action {
             s.opacity = this.oldOpacities[index];
         });
     }
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

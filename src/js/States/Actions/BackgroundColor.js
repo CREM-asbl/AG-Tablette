@@ -76,8 +76,4 @@ export class BackgroundColorAction extends Action {
             s.color = this.oldColors[index];
         });
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

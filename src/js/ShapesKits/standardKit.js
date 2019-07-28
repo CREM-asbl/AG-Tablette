@@ -3,7 +3,10 @@
 // COMMENTAIRE: le mélange vertex et segment complique l'exploitation ?
 // Rester sur les base lineTo, arc serait pas plus simple
 // En fait, ne garder que le path proche du mode tortue ???
-
+//toujours laisser un moveTo au début!!
+//il ne doit pas y avoir 2 segments de suite (sauf si les 2 sont arc)!
+//un segArc ne peut pas être collé à un segment normal.
+//TODO: faire un validateur de modèle de forme.
 export const standardKit = {
     'Triangle équilatéral': {
         "defaultColor": "#FF0",
@@ -214,7 +217,7 @@ export const standardKit = {
                     { type: 'segment', x: -22.699524986977348, y: 44.55032620941839, isArc: true},
                     { type: 'segment', x: -15.450849718747381, y: 47.552825814757675, isArc: true},
                     { type: 'segment', x: -7.821723252011556, y: 49.38441702975688, isArc: true},
-                    { type: 'segment', x: 0, y: 50}
+                    { type: 'segment', x: 0, y: 50, isArc: true}
                 ], refPoint: { "x": 0, "y": 0 }
             }
         ]

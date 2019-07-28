@@ -71,7 +71,7 @@ export class App {
         this.settings.add("areShapesPointed", true, true);
 
         //taille des formes qui seront ajoutées (1, 2 ou 3)
-        this.settings.add("shapesSize", 1, true);
+        this.settings.add("shapesSize", 2, true);
     }
 
     /**
@@ -110,6 +110,7 @@ export class App {
      */
     setState(stateName, startParams) {
         if(this.state) {
+            //Par exemple, annule des setTimeout/Interval.
             this.state.abort();
         }
         //Reset interactionAPI parameters:

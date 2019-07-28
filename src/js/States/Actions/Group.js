@@ -142,7 +142,4 @@ export class GroupAction extends Action {
             app.workspace.addGroup(group2, 'user', this.oldGroupIndex);
         }
     }
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

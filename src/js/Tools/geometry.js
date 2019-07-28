@@ -144,6 +144,41 @@ export function getAngleOfPoint(refPoint, point) {
     return angle;
 }
 
+/**
+ * Renvoie la projection d'un point sur un segment
+ * @param  {Point} point        Le point
+ * @param  {Point} segmentStart Première extrémité du segment
+ * @param  {Point} segmentEnd   Seconde extrémité du segment
+ * @return {Point}              La projection du point. Celle-ci peut être en
+ * dehors des 2 extrémité (c'est-à-dire sur la droite passant par les 2
+ * extrémités du segment, mais pas sur le segment lui-même)
+ */
+export function getProjectionOnSegment(point, segmentStart, segmentEnd) {
+    let center = null,
+        p1x = segmentStart.x,
+        p1y = segmentStart.y,
+        p2x = segmentEnd.x,
+        p2y = segmentEnd.y;
+
+    //Calculer la projection du point sur l'axe.
+    if (Math.abs(p2x-p1x) < 0.001) { //segment vertical
+        center = { 'x': p1x, 'y': point.y };
+    } else if (Math.abs(p2y-p1y) < 0.001) { //segment horizontal
+        center = { 'x': point.x, 'y': p1y };
+    } else { // axe.type=='NW' || axe.type=='SW'
+        let f_a = (p1y - p2y) / (p1x - p2x),
+            f_b = p2y - f_a * p2x,
+            x2 = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1),
+            y2 = f_a * x2 + f_b;
+        center = {
+            'x': x2,
+            'y': y2
+        };
+    }
+    return center;
+}
+
+
 /*
 TODO
 

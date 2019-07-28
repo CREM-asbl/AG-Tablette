@@ -57,8 +57,4 @@ export class TranslatePlaneAction extends Action {
 
         app.workspace.setTranslateOffset(newOffset);
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

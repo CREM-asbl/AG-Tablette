@@ -75,8 +75,4 @@ export class ZoomPlaneAction extends Action {
 
         app.workspace.setZoomLevel(newZoom);
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

@@ -47,8 +47,4 @@ export class ToBackgroundAction extends Action {
 
         app.workspace.shapes.splice(this.oldIndex, 0, shape);
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

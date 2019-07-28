@@ -5,7 +5,7 @@ import './div-main-canvas'
 import './popups/app-settings'
 import './flex-toolbar'
 import './icon-button'
-import './popups/divide-popup'
+//import './popups/divide-popup'
 import './js/Manifest'
 import './popups/new-popup'
 import './popups/grid-popup'
@@ -268,6 +268,7 @@ class AGTabletteApp extends LitElement {
                         <icon-button src="/images/backplane.svg"
                                 title="Arrière-plan"
                                 name="to_background"
+                                ?active="${this.state.name === 'to_background'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/grille.svg"

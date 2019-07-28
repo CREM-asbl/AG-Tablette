@@ -39,4 +39,8 @@ export class Points {
             pow2 = Math.pow(y2 - y1, 2);
         return Math.sqrt(pow1 + pow2);
     }
+
+    static equal({x: x1, y: y1}, {x: x2, y: y2}) {
+        return Math.abs(x2-x1) < 0.00001 && Math.abs(y2-y1) < 0.00001;
+    }
 }

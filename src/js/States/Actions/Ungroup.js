@@ -74,7 +74,4 @@ export class UngroupAction extends Action {
         });
         app.workspace.addGroup(group, 'user', this.groupIndex);
     }
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }

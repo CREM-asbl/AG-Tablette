@@ -27,13 +27,14 @@ export class State {
     /**
      * Appelée par interactionAPI quand un objet (point, forme, segment)
      * est sélectionnée (onClick)
-     * @param  {Object} point            Le point sélectionné
+     * @param  {Object} object            L'objet sélectionné
+     *                          Voir InteractionAPI.getSelectedObject()
      * @param  {Point} clickCoordinates  Les coordonnées du click
      * @param  {Event} event            l'événement javascript
      * @return {Boolean}                false: désactive l'appel à onClick si
      *                                  cet appel est réalisé après.
      */
-    objectSelected(point, clickCoordinates, event) { return true; }
+    objectSelected(object, clickCoordinates, event) { return true; }
 
     /**
      * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours

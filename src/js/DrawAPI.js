@@ -80,7 +80,7 @@ export class DrawAPI {
 
             let pts = app.workspace.grid.getVisibleGridPoints(min, max);
             pts.forEach(pt => {
-                this.drawPoint(this.backgroundCtx, pt, "#F00", 1, false);
+                this.drawPoint(this.backgroundCtx, pt, "#F00", 1.5/actualZoomLvl, false);
             });
         }
     }
@@ -172,11 +172,12 @@ export class DrawAPI {
      * @param  {String} [color='#000'] Couleur de la ligne
      * @param  {Boolean} [doSave=true]  Faut-il sauvegarder le contexte du canvas (optimisation)
      */
-	drawLine(ctx, fromPoint, toPoint, color = '#000', doSave = true) {
+	drawLine(ctx, fromPoint, toPoint, color = '#000', size = 1, doSave = true) {
         if(doSave) ctx.save();
 
 		ctx.strokeStyle = color;
         ctx.globalAlpha = 1;
+        ctx.lineWidth = size;
 
 		ctx.beginPath();
 		ctx.moveTo(fromPoint.x, fromPoint.y);
@@ -184,6 +185,7 @@ export class DrawAPI {
 		ctx.closePath();
 		ctx.stroke();
 
+        ctx.lineWidth = 1;
         if(doSave) ctx.restore();
 	}
 

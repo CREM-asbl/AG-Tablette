@@ -46,8 +46,4 @@ export class BuildCenterAction extends Action {
         let shape = app.workspace.getShapeById(this.shapeId);
         shape.isCenterShown = false;
     }
-
-
-    //TODO: enregistrer les valeurs pertinentes des
-    //      paramètres (ex: ajustement automatique activé?)
 }
