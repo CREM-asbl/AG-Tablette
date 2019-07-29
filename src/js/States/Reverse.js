@@ -101,7 +101,7 @@ export class ReverseState extends State {
     onClick(mouseCoordinates, event) {
         if(this.currentStep != "selecting-symmetrical-arch") return true;
 
-        let clickDistance = distanceBetweenPoints(this.selectedShape, mouseCoordinates);
+        let clickDistance = distanceBetweenPoints(this.selectedShape.getAbsoluteCenter(), mouseCoordinates);
         if(clickDistance > this.symmetricalArchLength/2)
             return true; //Le click n'est pas sur les axes de symétrie
 
@@ -170,27 +170,28 @@ export class ReverseState extends State {
         if(this.currentStep == "selecting-symmetrical-arch") {
             let shape = this.selectedShape,
                 n1 = this.symmetricalArchLength/2,
-                n2 = 0.683*this.symmetricalArchLength/2;
+                n2 = 0.683*this.symmetricalArchLength/2,
+                center = shape.getAbsoluteCenter();
 
             this.involvedShapes.forEach(s => {
                 app.drawAPI.drawShape(ctx, s);
             });
 
             app.drawAPI.drawLine(ctx,
-                { 'x': shape.x, 'y': shape.y - n1 },
-                { 'x': shape.x, 'y': shape.y + n1 },
+                { 'x': center.x, 'y': center.y - n1 },
+                { 'x': center.x, 'y': center.y + n1 },
                 this.symmetricalArchColor, 1, false);
             app.drawAPI.drawLine(ctx,
-                { 'x': shape.x - n2, 'y': shape.y - n2 },
-                { 'x': shape.x + n2, 'y': shape.y + n2 },
+                { 'x': center.x - n2, 'y': center.y - n2 },
+                { 'x': center.x + n2, 'y': center.y + n2 },
                 this.symmetricalArchColor, 1, false);
             app.drawAPI.drawLine(ctx,
-                { 'x': shape.x - n1, 'y': shape.y },
-                { 'x': shape.x + n1, 'y': shape.y },
+                { 'x': center.x - n1, 'y': center.y },
+                { 'x': center.x + n1, 'y': center.y },
                 this.symmetricalArchColor, 1, false);
             app.drawAPI.drawLine(ctx,
-                { 'x': shape.x - n2, 'y': shape.y + n2 },
-                { 'x': shape.x + n2, 'y': shape.y - n2 },
+                { 'x': center.x - n2, 'y': center.y + n2 },
+                { 'x': center.x + n2, 'y': center.y - n2 },
                 this.symmetricalArchColor, 1, false);
             return;
         }
@@ -199,7 +200,8 @@ export class ReverseState extends State {
 
             let progress = this.getAnimationProgress(),
                 //TODO: opti: ne pas devoir faire une copie à chaque refresh!
-                shape = this.selectedShape.copy();
+                shape = this.selectedShape.copy(),
+                center = shape.getAbsoluteCenter();
 
             this.involvedShapes.forEach(s => {
                 let s2 = s.copy();
@@ -212,23 +214,23 @@ export class ReverseState extends State {
                 n2 = 0.683*this.symmetricalArchLength/2;
             if(this.arch.type=="V") {
                 app.drawAPI.drawLine(ctx,
-                    { 'x': shape.x, 'y': shape.y - n1 },
-                    { 'x': shape.x, 'y': shape.y + n1 },
+                    { 'x': center.x, 'y': center.y - n1 },
+                    { 'x': center.x, 'y': center.y + n1 },
                     this.symmetricalArchColor, 1, false);
             } else if(this.arch.type=="NW") {
                 app.drawAPI.drawLine(ctx,
-                    { 'x': shape.x - n2, 'y': shape.y - n2 },
-                    { 'x': shape.x + n2, 'y': shape.y + n2 },
+                    { 'x': center.x - n2, 'y': center.y - n2 },
+                    { 'x': center.x + n2, 'y': center.y + n2 },
                     this.symmetricalArchColor, 1, false);
             } else if(this.arch.type=="H") {
                 app.drawAPI.drawLine(ctx,
-                    { 'x': shape.x - n1, 'y': shape.y },
-                    { 'x': shape.x + n1, 'y': shape.y },
+                    { 'x': center.x - n1, 'y': center.y },
+                    { 'x': center.x + n1, 'y': center.y },
                     this.symmetricalArchColor, 1, false);
             } else { // SW
                 app.drawAPI.drawLine(ctx,
-                    { 'x': shape.x - n2, 'y': shape.y + n2 },
-                    { 'x': shape.x + n2, 'y': shape.y - n2 },
+                    { 'x': center.x - n2, 'y': center.y + n2 },
+                    { 'x': center.x + n2, 'y': center.y - n2 },
                     this.symmetricalArchColor, 1, false);
             }
             return;

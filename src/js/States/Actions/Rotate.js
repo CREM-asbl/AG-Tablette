@@ -1,6 +1,7 @@
 import { app } from '../../App'
 import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
+import { Points } from '../../Tools/points'
 
 export class RotateAction extends Action {
     constructor(name) {
@@ -52,7 +53,7 @@ export class RotateAction extends Action {
         if(!this.checkDoParameters()) return;
 
         let shape = app.workspace.getShapeById(this.shapeId),
-            center = shape.getAbsoluteCenter();
+            center = Points.add(shape, shape.center); //.getAbsoluteCenter();
 
         this.involvedShapesIds.forEach(id => {
             let s = app.workspace.getShapeById(id);
@@ -83,11 +84,11 @@ export class RotateAction extends Action {
         shape.setCoordinates(newCoords);
 
         shape.buildSteps.forEach(bs => {
-            let coords = this.rotatePoint(bs.coordinates, angle, shape.center);
+            let coords = this.rotatePoint(bs.coordinates, angle, {x: 0, y:0});
             bs.coordinates = coords;
             if(bs.type=="segment") {
                 bs.points.forEach(pt => {
-                    let pointCoords = this.rotatePoint(pt, angle, shape.center);
+                    let pointCoords = this.rotatePoint(pt, angle, {x: 0, y:0});
                     pt.x = pointCoords.x;
                     pt.y = pointCoords.y;
                 });
