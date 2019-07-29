@@ -41,6 +41,6 @@ export class Points {
     }
 
     static equal({x: x1, y: y1}, {x: x2, y: y2}) {
-        return Math.abs(x2-x1) < 0.00001 && Math.abs(y2-y1) < 0.00001;
+        return Math.abs(x2-x1) < 1 && Math.abs(y2-y1) < 1;
     }
 }

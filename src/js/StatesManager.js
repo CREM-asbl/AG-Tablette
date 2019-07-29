@@ -16,6 +16,7 @@ import { PermanentZoomPlaneState } from './States/PermanentZoomPlane.js'
 import { OpacityState } from './States/Opacity.js'
 import { ToBackgroundState } from './States/ToBackground.js'
 import { DivideState } from './States/Divide.js'
+import { MergeState } from './States/Merge.js'
 
 //Actions:
 import  { BackgroundColorAction } from './States/Actions/BackgroundColor.js'
@@ -34,6 +35,7 @@ import  { ZoomPlaneAction } from './States/Actions/ZoomPlane.js'
 import  { OpacityAction } from './States/Actions/Opacity.js'
 import  { ToBackgroundAction } from './States/Actions/ToBackground.js'
 import  { DivideAction } from './States/Actions/Divide.js'
+import  { MergeAction } from './States/Actions/Merge.js'
 
 export class StatesManager {
     static actions = {
@@ -84,6 +86,9 @@ export class StatesManager {
         },
         'DivideAction': {
             "getInstance": function() { return new DivideAction(); }
+        },
+        'MergeAction': {
+            "getInstance": function() { return new MergeAction(); }
         }
     };
 
@@ -161,7 +166,7 @@ export class StatesManager {
         'merge_shapes': {
             "name": 'Fusionner',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new MergeState(); }
         },
         'cut_shape': {
             "name": 'Découper',

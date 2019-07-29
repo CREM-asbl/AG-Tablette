@@ -1,3 +1,4 @@
+import { Points } from './points'
 
 /** //TODO delete (remplacer par Points.dist())
  * Renvoie la distance entre 2 points du plan
@@ -66,7 +67,18 @@ export function isPointInPolygon(polygon, point) {
     return false;
 }
 
-
+/**
+ * Vérifie si 3 points sont colinéaires
+ * @param  {Point} pt1
+ * @param  {Point} pt2
+ * @param  {Point} pt3
+ * @return {Boolean}
+ */
+export function collinear(pt1, pt2, pt3) {
+    let [x1, y1] = [pt2.x - pt1.x, pt2.y - pt1.y],
+        [x2, y2] = [pt3.x - pt1.x, pt3.y - pt1.y]
+    return Math.abs(x1 * y2 - x2 * y1) < 1e-12
+}
 
 /**
  * Renvoie l'angle équivalent dans l'intervalle [0, 2*Math.PI[
@@ -177,40 +189,3 @@ export function getProjectionOnSegment(point, segmentStart, segmentEnd) {
     }
     return center;
 }
-
-
-/*
-TODO
-
-export const isCommonSegment = (point1, point2, point3, point4) => {
-    const delta = settings.get('precision')
-    return (distanceBetweenTwoPoints(point1, point3) <= delta
-        && distanceBetweenTwoPoints(point2, point4) <= delta)
-}
-
-export const hasCommonSegments = (shape1, shape2) => {
-    for (let i = 0; i < shape1.points.length; i++) {
-        if (shape1.buildSteps[i + 1].type != 'line') continue
-        let shape1StartPoint = shape1.points[i].getAbsoluteCoordinates()
-        let shape1EndPoint = shape1.points[(i + 1) % shape1.points.length].getAbsoluteCoordinates()
-
-        for (let j = 0; j < shape2.points.length; j++) {
-            if (shape2.buildSteps[j + 1].type != 'line') continue
-            let shape2StartPoint = shape2.points[j].getAbsoluteCoordinates()
-            let shape2EndPoint = shape2.points[(j + 1) % shape2.points.length].getAbsoluteCoordinates()
-
-            if (isCommonSegment(shape1StartPoint, shape1EndPoint, shape2StartPoint, shape2EndPoint)
-                || isCommonSegment(shape1StartPoint, shape1EndPoint, shape2EndPoint, shape2StartPoint)) {
-                return true
-            }
-        }
-    }
-    return false
-}
-
-export const isSamePoints = (point1, point2) => {
-    const delta = settings.get('precision')
-    return distanceBetweenTwoPoints(point1, point2) <= delta
-    // return point1.x === point2.x && point1.y === point2.y
-}
- */

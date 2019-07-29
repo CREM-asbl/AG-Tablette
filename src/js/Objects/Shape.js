@@ -1,6 +1,8 @@
 import { uniqId } from '../Tools/general'
-import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
 import { Points } from '../Tools/points'
+import { collinear } from '../Tools/geometry'
+import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
+import { app } from '../App'
 
 //TODO: supprimer refPoint (-> sera toujours 0,0)
 
@@ -130,6 +132,77 @@ export class Shape {
 	getCoordinates() {
 		return { "x": this.x, "y": this.y };
 	};
+
+    /**
+     * Vérifie si un point se trouve sur un bord de la forme.
+     * @param  {Point}  point Le point
+     * @return {Boolean}       true si le point se trouve sur le bord.
+     */
+    isPointInBorder(point) {
+        return this.buildSteps.some((bs, index) => {
+            if(bs.type=="vertex")
+                return Points.equal(Points.add(this, bs.coordinates), point);
+            if(bs.type=="segment") {
+                let pt1 = Points.add(this, this.buildSteps[index-1].coordinates),
+                    pt2 = Points.add(this, bs.coordinates);
+                return collinear(pt1, pt2, point);
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Vérifie si cette forme se superpose avec une autre forme.
+     * @param  {Shape} shape L'autre forme
+     * @return {overlap}     true: si les 2 formes se superposent
+     */
+    overlapsWith(shape) {
+        /**
+         * TODO pistes d'amélioration:
+         * vérifier si une des formes est dans l'autre, ou si au moins un des
+         * segment d'une forme croise au moins un segment de l'autre.
+         * Problème: pour les algorithmes existants, si 2 segments sont l'un
+         * sur l'autre, ils considèrent que les formes se superposent. Pas
+         * évident de les adapter vu la situation...
+         * ex: algorithme sweep line
+         * ->wikipédia: https://en.wikipedia.org/wiki/Sweep_line_algorithm
+         * ->explication détaillée: http://www.cs.tufts.edu/comp/163/notes05/seg_intersection_handout.pdf
+         */
+        let precision = 50; //complexité de precision²
+
+        let s1 = this,
+            s2 = shape;
+
+        //Carré le plus petit contenant les 2 formes:
+        let minX = s1.x + s1.buildSteps[0].coordinates.x,
+            maxX = s1.x + s1.buildSteps[0].coordinates.x,
+            minY = s1.y + s1.buildSteps[0].coordinates.y,
+            maxY = s1.y + s1.buildSteps[0].coordinates.y;
+        [s1, s2].forEach(s => {
+            s.buildSteps.forEach(bs => {
+                minX = Math.min(minX, s.x + bs.coordinates.x);
+                maxX = Math.max(maxX, s.x + bs.coordinates.x);
+                minY = Math.min(minY, s.y + bs.coordinates.y);
+                maxY = Math.max(maxY, s.y + bs.coordinates.y);
+            });
+        });
+        let partX = (maxX - minX)/precision,
+            partY = (maxY - minY)/precision;
+
+        for(let i=minX; i<maxX; i+=partX) {
+            for(let j=minY; j<maxY; j+=partY) {
+                let pt = Points.create(i, j),
+                    inS1 = app.drawAPI.isPointInShape(pt, s1),
+                    inS2 = app.drawAPI.isPointInShape(pt, s2);
+                if(inS1 && inS2) {
+                    let inS1Border = s1.isPointInBorder(pt),
+                        inS2Border = s2.isPointInBorder(pt);
+                    if(!inS1Border || !inS2Border) return true;
+                }
+            }
+        }
+        return false;
+    }
 
 	/**
      * défini les coordonnées de la forme

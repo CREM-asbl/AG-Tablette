@@ -62,8 +62,10 @@ export class State {
      * Exécuter l'action liée à l'état, et l'enregistrer dans l'historique.
      */
     executeAction() {
-        this.actions.forEach(action => action.do());
-        app.workspace.history.addStep(this.actions);
+        //Si une des actions renvoie le booléen false, ne pas ajouter l'étape
+        //dans l'historique.
+        if(this.actions.every(action => action.do() !==false))
+            app.workspace.history.addStep(this.actions);
     }
 
     /**
