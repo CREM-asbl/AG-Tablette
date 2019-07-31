@@ -18,6 +18,8 @@ export class DivideState extends State {
         this.shape = null;
 
         this.timeoutRef = null;
+
+        this.selConstr = null;
     }
 
     /**
@@ -31,11 +33,12 @@ export class DivideState extends State {
         this.shape = null;
         this.timeoutRef = null;
 
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "none", "listShape": []},
-            {"canSegment": "all", "listSegment": []},
-            {"canPoint": "all", "pointTypes": ['segmentPoint', 'vertex'], "listPoint": []}
-        );
+        this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
+        this.selConstr.eventType = 'click';
+        this.selConstr.segments.canSelect = true;
+        this.selConstr.points.canSelect = true;
+        this.selConstr.points.types = ['vertex', 'segmentPoint'];
+        app.interactionAPI.setSelectionConstraints(this.selConstr);
 
         if(openPopup)
             document.querySelector("divide-popup").style.display = "block";
@@ -76,18 +79,36 @@ export class DivideState extends State {
                 //Liste des points que l'on peut sélectionner comme 2ème point:
                 let pointsList = this.getCandidatePoints(object);
 
-                app.interactionAPI.setSelectionConstraints("click",
-                    {"canShape": "none", "listShape": []},
-                    {"canSegment": "none", "listSegment": []},
-                    {
-                        "canPoint": "some",
-                        "pointTypes": ['segmentPoint', 'vertex'],
-                        "listPoint": pointsList
-                    }
-                );
+                this.selConstr.segments.canSelect = false;
+                this.selConstr.points.whitelist = pointsList;
+                app.interactionAPI.setSelectionConstraints(this.selConstr);
+
+                app.drawAPI.askRefresh();
+                app.drawAPI.askRefresh('upper');
                 return;
             }
         } else {
+            //Check if pt1 == object
+            let pt1 = this.actions[0].firstPoint;
+
+            if(pt1.type==object.type && pt1.index == object.index
+             && (pt1.type=='vertex' || Points.equal(pt1.coordinates, object.coordinates))) {
+                 //pt1 = object => désélectionner le point.
+                 this.currentStep = "listen-canvas-click";
+                 this.actions[0].mode = null;
+                 this.actions[0].shapeId = null;
+                 this.actions[0].firstPoint = null;
+
+                //reset selection constraints:
+                this.selConstr.segments.canSelect = true;
+                this.selConstr.points.whitelist = null;
+                app.interactionAPI.setSelectionConstraints(this.selConstr);
+
+                app.drawAPI.askRefresh();
+                app.drawAPI.askRefresh('upper');
+                return;
+            }
+
             this.actions[0].secondPoint = object;
             this.currentStep = 'showing-points';
         }
@@ -130,9 +151,14 @@ export class DivideState extends State {
         if(this.currentStep == 'showing-segment') {
             let bs = this.shape.buildSteps,
                 sIndex = this.actions[0].segmentIndex,
-                coords1 = Points.add(bs [ sIndex - 1].coordinates, this.shape),
-                coords2 = Points.add(bs [ sIndex ].coordinates, this.shape);
-            app.drawAPI.drawLine(ctx, coords1, coords2, '#E90CC8', 3);
+                indexes = [ sIndex ];
+            if(bs [ sIndex ].isArc)
+                indexes = this.shape.getArcSegmentIndexes();
+            indexes.forEach(index => {
+                let coords1 = Points.add(bs [ index - 1].coordinates, this.shape),
+                    coords2 = Points.add(bs [ index ].coordinates, this.shape);
+                app.drawAPI.drawLine(ctx, coords1, coords2, '#E90CC8', 3);
+            });
         }
     }
 
@@ -141,83 +167,59 @@ export class DivideState extends State {
      * @return {[Object]} Liste de points au même format qu'interactionAPI
      */
     getCandidatePoints(object) {
-        let pointsList = [];
+        let shape = object.shape,
+            bs = object.shape.buildSteps,
+            vertexToAdd = [],
+            segmentsToAdd = [];
 
-        let addItem = function(curIndex, excludedSegmentPoint = null) {
-            let shape = object.shape,
-                bs = object.shape.buildSteps;
-
-            if(bs[curIndex].type=='vertex') {
-                pointsList.push({
-                    'shape': shape,
-                    'type': 'vertex',
-                    'index': curIndex
-                });
-                return true;
-            } else if(bs[curIndex].type=='segment') {
-                bs[curIndex].points.forEach(pt => {
-                    if(excludedSegmentPoint
-                        && Points.equal(excludedSegmentPoint, pt))
-                        return;
-                    pointsList.push({
-                        'shape': shape,
-                        'type': 'segmentPoint',
-                        'segmentIndex': curIndex,
-                        'coordinates': Points.copy(pt)
-                    });
-                });
-            } else if(bs[curIndex].type=='moveTo' && curIndex>0) {
-                return true;
-            }
-            return false;
-        };
-
-        const mod = (x, n) => (x % n + n) % n;
+        //Vertex précédent et suivant:
+        vertexToAdd.push( shape.getPrevVertexIndex(object.index) );
+        vertexToAdd.push( shape.getNextVertexIndex(object.index) );
 
         if(object.pointType == 'vertex') {
-            let shape = object.shape,
-                bs = object.shape.buildSteps,
-                index = object.index;
-
-            //Ajoute le vertex suivant et les segmentPoints suivants
-            for(let i=0, curIndex=index; i<bs.length-1;i++) {
-                curIndex = (curIndex+1)%bs.length;
-
-                let rep = addItem(curIndex);
-                if(rep) break;
-            }
-
-            //Ajoute le vertex précédent et les segmentPoints précédents
-            for(let i=0, curIndex=index; i<bs.length-1;i++) {
-                curIndex = mod(curIndex-1, bs.length);
-
-                let rep = addItem(curIndex);
-                if(rep) break;
-            }
-        } else { //segmentPoint
-            let shape = object.shape,
-                bs = object.shape.buildSteps,
-                index = object.segmentIndex;
-
-            //Ajoute le vertex suivant, les segmentPoints du segment
-            //actuel et les segmentPoints suivants (si arcs)
-            for(let i=0, curIndex=index-1; i<bs.length;i++) {
-                curIndex = (curIndex+1)%bs.length;
-
-                let rep = addItem(curIndex, object.relativeCoordinates);
-                if(rep) break;
-            }
-
-            //Ajoute le vertex précédent et les segmentPoints précédents (si arcs)
-            for(let i=0, curIndex=index; i<bs.length-1;i++) {
-                curIndex = mod(curIndex-1, bs.length);
-
-                let rep = addItem(curIndex);
-                if(rep) break;
-            }
+            vertexToAdd.push( object.index ); //Vertex actuel
+            //segmentPoints suivant et précédent
+            segmentsToAdd.push( shape.getNextBuildstepIndex(object.index) );
+            segmentsToAdd.push( shape.getPrevBuildstepIndex(object.index) );
+        } else {
+            //segmentPoint actuel
+            segmentsToAdd.push( object.index );
         }
 
-        return pointsList;
+        vertexToAdd = vertexToAdd.map(vertex => {
+            return {
+                'shape': shape,
+                'type': 'vertex',
+                'index': vertex
+            };
+        });
+        segmentsToAdd = segmentsToAdd.map(segment => {
+            let start = segment,
+                end = segment,
+                pts = [];
+            if(segment.isArc) {
+                let data = getArcEnds(segment);
+                start = data[0];
+                end = data[1];
+            }
+            let index = start-1;
+            while(index!=end) {
+                index = shape.getNextBuildstepIndex(index);
+                pts = pts.concat(bs[index].points.map(pt => {
+                    return {
+                        'shape': shape,
+                        'type': 'segmentPoint',
+                        'index': index,
+                        'coordinates': Points.copy(pt)
+                    };
+                }));
+            }
+            return pts;
+        }).reduce((total, pts) => {
+            return total.concat(pts);
+        }, []);
+
+        return vertexToAdd.concat(segmentsToAdd);
     }
 
 }

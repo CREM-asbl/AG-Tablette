@@ -15,6 +15,20 @@ export class Points {
         };
     }
 
+    static addInt({x, y}, i) {
+        return {
+            'x': x+i,
+            'y': y+i
+        }
+    }
+
+    static multInt({x, y}, i) {
+        return {
+            'x': x*i,
+            'y': y*i
+        }
+    }
+
     static copy({x, y}) {
         return {
             'x': x,

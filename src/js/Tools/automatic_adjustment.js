@@ -79,12 +79,14 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
             if(points.length==0) return transformation;
 
             let bestDist = 10000000,
-                bestTranslation = null;
+                bestTranslation = null,
+                constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
+            constr.canSelect = true;
+            constr.types = ['vertex', 'segmentPoint'];
+            if(excludeSelf)
+                constr.blacklist = shapes;
             points.forEach(pt => {
-                let excludeList = [];
-                if(excludeSelf)
-                    excludeList = shapes;
-                let point = app.interactionAPI.selectPoint(pt.realPoint, false, true, true, excludeList);
+                let point = app.interactionAPI.selectPoint(pt.realPoint, constr);
                 if(point && Points.dist(pt.realPoint, point.coordinates)<bestDist) {
                     bestDist = Points.dist(pt.realPoint, point.coordinates);
                     bestTranslation = Points.sub(point.coordinates, pt.realPoint);
@@ -122,7 +124,10 @@ export function getNewShapeAdjustment(coordinates) {
         let gridPoint = app.workspace.grid.getClosestGridPoint(coordinates);
         return Points.sub(gridPoint, coordinates);
     } else { //automaticAdjustment
-        let point = app.interactionAPI.selectPoint(coordinates, false, true, false);
+        let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
+        constr.canSelect = true;
+        constr.types = ['center', 'vertex', 'segmentPoint'];
+        let point = app.interactionAPI.selectPoint(coordinates, constr);
         if(!point) return translation;
         return Points.sub(point.coordinates, coordinates);
     }

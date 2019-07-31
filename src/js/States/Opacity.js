@@ -21,11 +21,7 @@ export class OpacityState extends State {
 
         this.currentStep = "choose-opacity";
 
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "all", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        );
+        app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
         app.appDiv.shadowRoot.querySelector("opacity-popup").style.display = "block";
     }

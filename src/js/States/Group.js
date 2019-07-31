@@ -28,11 +28,7 @@ export class GroupState extends State {
         this.group = null;
         this.firstShape = null;
 
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "all", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        );
+        app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     }
 
     abort() {
@@ -107,11 +103,12 @@ export class GroupState extends State {
             shapesList = [ this.firstShape ];
         else
             shapesList = this.group.shapes;
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "notSome", "listShape": shapesList},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        );
+
+        let constr = app.interactionAPI.getEmptySelectionConstraints();
+        constr.eventType = 'click';
+        constr.shapes.canSelect = true;
+        constr.shapes.blacklist = shapesList;
+        app.interactionAPI.setSelectionConstraints(constr);
 
         app.drawAPI.askRefresh("upper");
         app.drawAPI.askRefresh();

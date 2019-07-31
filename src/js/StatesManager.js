@@ -17,6 +17,7 @@ import { OpacityState } from './States/Opacity.js'
 import { ToBackgroundState } from './States/ToBackground.js'
 import { DivideState } from './States/Divide.js'
 import { MergeState } from './States/Merge.js'
+import { CutState } from './States/Cut.js'
 
 //Actions:
 import  { BackgroundColorAction } from './States/Actions/BackgroundColor.js'
@@ -36,6 +37,7 @@ import  { OpacityAction } from './States/Actions/Opacity.js'
 import  { ToBackgroundAction } from './States/Actions/ToBackground.js'
 import  { DivideAction } from './States/Actions/Divide.js'
 import  { MergeAction } from './States/Actions/Merge.js'
+import  { CutAction } from './States/Actions/Cut.js'
 
 export class StatesManager {
     static actions = {
@@ -89,6 +91,9 @@ export class StatesManager {
         },
         'MergeAction': {
             "getInstance": function() { return new MergeAction(); }
+        },
+        'CutAction': {
+            "getInstance": function() { return new CutAction(); }
         }
     };
 
@@ -171,7 +176,7 @@ export class StatesManager {
         'cut_shape': {
             "name": 'Découper',
             "instance": null,
-            "getInstance": function() { return new XXXXXXXXXX(); }
+            "getInstance": function() { return new CutState(); }
         },
         'translate_plane': {
             "name": 'Glisser le plan',

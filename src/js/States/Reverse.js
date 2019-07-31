@@ -54,11 +54,7 @@ export class ReverseState extends State {
         this.involvedShapes = [];
         this.timeoutRef = null;
 
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "all", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        );
+        app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     }
 
     abort() {
@@ -81,11 +77,11 @@ export class ReverseState extends State {
         this.actions[0].shapeId = shape.id;
         this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
 
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "notSome", "listShape": [shape]},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        );
+        let constr = app.interactionAPI.getEmptySelectionConstraints();
+        constr.eventType = 'click';
+        constr.shapes.canSelect = true;
+        constr.points.blacklist = [shape];
+        app.interactionAPI.setSelectionConstraints(constr);
 
         this.currentStep = "selecting-symmetrical-arch";
         app.drawAPI.askRefresh("upper");

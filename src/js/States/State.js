@@ -28,7 +28,7 @@ export class State {
      * Appelée par interactionAPI quand un objet (point, forme, segment)
      * est sélectionnée (onClick)
      * @param  {Object} object            L'objet sélectionné
-     *                          Voir InteractionAPI.getSelectedObject()
+     *                          Voir InteractionAPI.selectObject()
      * @param  {Point} clickCoordinates  Les coordonnées du click
      * @param  {Event} event            l'événement javascript
      * @return {Boolean}                false: désactive l'appel à onClick si

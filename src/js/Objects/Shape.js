@@ -56,6 +56,90 @@ export class Shape {
         });
     }
 
+    getNextBuildstepIndex(bsIndex) {
+        if(bsIndex+1==this.buildSteps.length) {
+            return 1; //skip 0 (moveTo)
+        }
+        if(this.buildSteps[bsIndex+1].type == 'moveTo') {
+            /*
+            Cela signifie que la forme est en fait composée de 2 formes...
+             */
+            console.error("Cas non prévu!");
+            return null;
+        }
+        return bsIndex+1;
+    }
+
+    getPrevBuildstepIndex(bsIndex) {
+        if(bsIndex==1) {
+            return this.buildSteps.length-1; //skip 0 (moveTo)
+        }
+        if(this.buildSteps[bsIndex-1].type == 'moveTo') {
+            /*
+            Cela signifie que la forme est en fait composée de 2 formes...
+             */
+            console.error("Cas non prévu!");
+            return null;
+        }
+        return bsIndex-1;
+    }
+
+    /**
+     * Renvoie -1 si il n'y a pas de vertex suivant (->cercle)
+     */
+    getNextVertexIndex(bsIndex) {
+        let nextVertexIndex = -1,
+            index = bsIndex+1;
+
+        while(index!=bsIndex) {
+            if(index==this.buildSteps.length) {
+                index = 1; //skip 0 (moveTo)
+                continue;
+            }
+            if(this.buildSteps[index].type == 'moveTo') {
+                /*
+                Cela signifie que la forme est en fait composée de 2 formes...
+                 */
+                console.error("Cas non prévu!");
+                return null;
+            }
+            if(this.buildSteps[index].type == 'vertex') {
+                nextVertexIndex = index;
+                break;
+            }
+            index++;
+        }
+        return nextVertexIndex;
+    }
+
+    /**
+     * Renvoie -1 si il n'y a pas de vertex précédent (->cercle)
+     */
+    getPrevVertexIndex(bsIndex) {
+        let prevVertexIndex = -1,
+            index = bsIndex-1;
+
+        while(index!=bsIndex) {
+            if(index<=0) {
+                index = this.buildSteps.length-1; //skip 0 (moveTo)
+                continue;
+            }
+            if(this.buildSteps[index].type == 'moveTo') {
+                /*
+                Cela signifie que la forme est en fait composée de 2 formes...
+                 */
+                console.error("Cas non prévu!");
+                return null;
+            }
+            if(this.buildSteps[index].type == 'vertex') {
+                prevVertexIndex = index;
+                break;
+            }
+            index--;
+        }
+        return prevVertexIndex;
+    }
+
     /**
      * Renvoie l'index du premier et du dernier segment constituant un arc de
      * cercle.
@@ -63,12 +147,31 @@ export class Shape {
      * @return {[int, int]}
      */
     getArcEnds(buildStepIndex) {
+        let segmentsIds = this.getArcSegmentIndexes(buildStepIndex);
+        return [
+            segmentsIds[0],
+            segmentsIds[ segmentsIds.length-1 ]
+        ];
+    }
+
+    /**
+     * Renvoie la liste des index des segments constituant un arc de cercle.
+     * @param  {int} buildStepIndex L'index d'un des segments de l'arc
+     * @return {[int]}
+     */
+    getArcSegmentIndexes(buildStepIndex) {
         let bs = this.buildSteps;
-        if(this.isCircle()) return [1, bs.length-1];
+        if(this.isCircle()) {
+            let rep = [];
+            for(let i=1; i<bs.length; i++)
+                rep.push(i);
+            return rep;
+        }
 
         const mod = (x, n) => (x % n + n) % n;
 
-        let firstIndex = buildStepIndex;
+        let indexList = [buildStepIndex];
+
         for(let i=0, curIndex=buildStepIndex; i<bs.length-1;i++) {
             curIndex = mod(curIndex-1, bs.length);
 
@@ -78,7 +181,7 @@ export class Shape {
             if(bs[curIndex].type!='segment' || !bs[curIndex].isArc)
                 break;
 
-            firstIndex = curIndex;
+            indexList.unshift(curIndex);
         }
 
         let lastIndex = buildStepIndex;
@@ -91,7 +194,7 @@ export class Shape {
             if(bs[curIndex].type!='segment' || !bs[curIndex].isArc)
                 break;
 
-            lastIndex = curIndex;
+            indexList.push(curIndex);
         }
 
         return [firstIndex, lastIndex];
@@ -135,7 +238,7 @@ export class Shape {
 
     /**
      * Vérifie si un point se trouve sur un bord de la forme.
-     * @param  {Point}  point Le point
+     * @param  {Point}  point Le point (coordonnées absolues)
      * @return {Boolean}       true si le point se trouve sur le bord.
      */
     isPointInBorder(point) {
@@ -144,8 +247,11 @@ export class Shape {
                 return Points.equal(Points.add(this, bs.coordinates), point);
             if(bs.type=="segment") {
                 let pt1 = Points.add(this, this.buildSteps[index-1].coordinates),
-                    pt2 = Points.add(this, bs.coordinates);
-                return collinear(pt1, pt2, point);
+                    pt2 = Points.add(this, bs.coordinates),
+                    refDist = Points.dist(pt1, pt2),
+                    d1 = Points.dist(pt1, point),
+                    d2 = Points.dist(pt2, point);
+                return collinear(pt1, pt2, point) && d1<refDist && d2<refDist;
             }
             return false;
         });
@@ -266,6 +372,9 @@ export class Shape {
         });
 		path.closePath();
         this.path = path;
+
+        //TODO: si tri des points des buildSteps, les trier ici (->pour cut et
+        //      merge). faire un updateInternalState pour buildStep?
     }
 
     /**

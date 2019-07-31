@@ -74,6 +74,8 @@ export class MergeAction extends Action {
                     part = part.map(bs => {
                         bs = bs.copy();
                         bs.coordinates = Points.add(bs.coordinates, offset);
+                        if(bs.type=='segment')
+                            bs.points = bs.points.map(pt => Points.add(pt, offset));
                         return bs;
                     });
                     //Last buildStep should be a vertex
@@ -97,19 +99,35 @@ export class MergeAction extends Action {
             toDelete.forEach(line => {
                 let start = line.start,
                     end = line.end,
-                    part = bs.slice(bsIndex, end),
+                    part = bs.slice(bsIndex, end), //slice to end-1!
                     nextIndex = end+1;
                 if(line.type=='partial') {
                     if(line.pt1 != 'start') {
-                        let add1 = new Segment(line.pt1), //TODO transférer points qui sont sur cette partie de segment.
+                        let add1 = new Segment(line.pt1),
                             add2 = new Vertex(line.pt1);
                         part.push(add1, add2);
+
+                        //Copier les points de cette partie de segment:
+                        let refDist = Points.dist(bs[start].coordinates, line.pt1);
+                        bs[end].points.forEach(pt => {
+                            let dist = Points.dist(pt, bs[start].coordinates);
+                            if(dist<refDist)
+                                add1.addPoint(Points.copy(pt));
+                        });
                     }
                     if(line.pt2 != 'end') {
                         let add1 = new Vertex(line.pt2),
-                            add2 = new Segment(bs[end].coordinates); //TODO transférer points qui sont sur cette partie de segment.
+                            add2 = new Segment(bs[end].coordinates);
                         bs.splice(end-1, 2, add1, add2);
                         nextIndex = end-1;
+
+                        //Copier les points de cette partie de segment:
+                        let refDist = Points.dist(line.pt2, bs[end].coordinates);
+                        bs[end].points.forEach(pt => {
+                            let dist = Points.dist(pt, bs[end].coordinates);
+                            if(dist<refDist)
+                                add2.addPoint(Points.copy(pt));
+                        });
                     }
                 }
                 deleteMovetoAndAdd(part);
@@ -183,7 +201,7 @@ export class MergeAction extends Action {
         if(parts.length>1) {
             /*
             Ne marche pas actuellement; drawAPI considère qu'il y a 2 formes l'une
-            dans l'autre, et pas qu'il ne faut pas colorier la zone...
+            dans l'autre, et pas qu'il ne faut pas colorier la zone.
             let buildSteps;
             if(parts.length>1) {
                 buildSteps = parts.map(part => {
@@ -218,7 +236,6 @@ export class MergeAction extends Action {
         newShape.refPoint = Points.create(0, 0);
         newShape.color = getAverageColor(shape1.color, shape2.color);
         newShape.borderColor = getAverageColor(shape1.borderColor, shape2.borderColor);
-        newShape.borderColor = getAverageColor(shape1.borderColor, shape2.borderColor);
         newShape.isCenterShown = shape1.isCenterShown || shape2.isCenterShown;
         newShape.opacity = (shape1.opacity + shape2.opacity)/2;
         newShape.buildSteps = buildSteps;
@@ -249,6 +266,9 @@ export class MergeAction extends Action {
                     { 'x': bs1StartRelative.x, 'y': bs1StartRelative.y, 'start': true },
                     { 'x': bs1EndRelative.x, 'y': bs1EndRelative.y, 'end': true }
                 ].concat(bs1.points);
+
+            let fullFound = null,
+                partialFound = null;
             shape2.buildSteps.forEach((bs2, index2) => {
                 if(bs2.type!="segment" || bs2.isArc) return;
                 let bs2StartRelative = shape2.buildSteps[index2-1].coordinates,
@@ -263,13 +283,14 @@ export class MergeAction extends Action {
                 //Segment entier commun ?
                 if(Points.equal(bs1Start, bs2Start) && Points.equal(bs1End, bs2End)
                     || Points.equal(bs1Start, bs2End) && Points.equal(bs1End, bs2Start)) {
-                    commonSegments.push({
+                    fullFound = [];
+                    fullFound.push({
                         'shape': 1,
                         'start': index1-1,
                         'end': index1,
                         'type': 'fullSegment'
                     });
-                    commonSegments.push({
+                    fullFound.push({
                         'shape': 2,
                         'start': index2-1,
                         'end': index2,
@@ -325,7 +346,8 @@ export class MergeAction extends Action {
                 }
 
                 //ajouter à la liste des segments communs
-                commonSegments.push({
+                partialFound = [];
+                partialFound.push({
                     'shape': 1,
                     'start': index1-1,
                     'end': index1,
@@ -333,7 +355,7 @@ export class MergeAction extends Action {
                     'pt1': s1p1.start ? 'start' : s1p1,
                     'pt2': s1p2.end ? 'end' : s1p2
                 });
-                commonSegments.push({
+                partialFound.push({
                     'shape': 2,
                     'start': index2-1,
                     'end': index2,
@@ -341,7 +363,12 @@ export class MergeAction extends Action {
                     'pt1': s2p1.start ? 'start' : s2p1,
                     'pt2': s2p2.end ? 'end' : s2p2
                 });
-            })
+            });
+            if(fullFound) {
+                commonSegments.push(...fullFound);
+            } else if(partialFound) {
+                commonSegments.push(...partialFound);
+            }
         });
         return commonSegments;
     }

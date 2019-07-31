@@ -7,6 +7,8 @@
 //il ne doit pas y avoir 2 segments de suite (sauf si les 2 sont arc)!
 //un segArc ne peut pas être collé à un segment normal.
 //TODO: faire un validateur de modèle de forme.
+//TODO: interdire forme avec trop peu de buildSteps
+//TODO: pas 2 vertex de suite; et faire un check dans updateInternalState!!
 export const standardKit = {
     'Triangle équilatéral': {
         "defaultColor": "#FF0",

@@ -212,12 +212,15 @@ export class Workspace {
 	}
 
 	/**
-	 * Renvoie la liste des formes contenant un certain point
+	 * Renvoie la liste des formes contenant un certain point.
+	 * Le tableau renvoyé est trié de la forme la plus en avant à la forme la
+	 * plus en arrière.
 	 * @param point: le point (Point)
 	 * @return la liste des formes ([Shape])
 	 */
 	shapesOnPoint(point) {
-		const list = this.shapes.filter(shape => app.drawAPI.isPointInShape(point, shape));
+		let list = this.shapes.filter(shape => app.drawAPI.isPointInShape(point, shape));
+		list.reverse();
 		return list;
 	};
 

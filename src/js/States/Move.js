@@ -38,11 +38,7 @@ export class MoveState extends State {
         this.startClickCoordinates = null;
         this.involvedShapes = [];
 
-        app.interactionAPI.setSelectionConstraints("mousedown",
-            {"canShape": "all", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        );
+        app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
     }
 
     abort() {

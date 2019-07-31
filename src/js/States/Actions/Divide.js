@@ -25,8 +25,7 @@ export class DivideAction extends Action {
          *     'type': 'point',
          *     'pointType': 'vertex' ou 'segmentPoint',
          *     'shape': Shape,
-         *     'segmentIndex': int, //Seulement si pointType = segmentPoint
-         *     'index': int, //Seulement si pointType = vertex
+         *     'index': int,
          *     'coordinates': Point
          *     'relativeCoordinates': Point
          * }
@@ -39,8 +38,7 @@ export class DivideAction extends Action {
          *     'type': 'point',
          *     'pointType': 'vertex' ou 'segmentPoint',
          *     'shape': Shape,
-         *     'segmentIndex': int, //Seulement si pointType = segmentPoint
-         *     'index': int, //Seulement si pointType = vertex
+         *     'index': int,
          *     'coordinates': Point
          *     'relativeCoordinates': Point
          * }
@@ -141,7 +139,7 @@ export class DivideAction extends Action {
 
             bs[bsIndex].addPoint(nextPt);
             this.createdPoints.push({
-                'segmentIndex': bsIndex,
+                'index': bsIndex,
                 'coordinates': Points.copy(nextPt)
             });
         }
@@ -164,7 +162,7 @@ export class DivideAction extends Action {
             nextPt = Points.add(nextPt, part);
             segment.addPoint(nextPt);
             this.createdPoints.push({
-                'segmentIndex': this.segmentIndex,
+                'index': this.segmentIndex,
                 'coordinates': Points.copy(nextPt)
             });
         }
@@ -243,7 +241,7 @@ export class DivideAction extends Action {
 
             bs[bsIndex].addPoint(nextPt);
             this.createdPoints.push({
-                'segmentIndex': bsIndex,
+                'index': bsIndex,
                 'coordinates': Points.copy(nextPt)
             });
         }
@@ -288,7 +286,7 @@ export class DivideAction extends Action {
             nextPt = Points.add(nextPt, part);
             segment.addPoint(nextPt);
             this.createdPoints.push({
-                'segmentIndex': segmentId,
+                'index': segmentId,
                 'coordinates': Points.copy(nextPt)
             });
         }
@@ -311,14 +309,12 @@ export class DivideAction extends Action {
         } else {
             let bs = shape.buildSteps,
                 pt1 = this.firstPoint,
-                pt2 = this.secondPoint,
-                pt1Index = pt1.pointType == 'segmentPoint' ? pt1.segmentIndex : pt1.index,
-                pt2Index = pt2.pointType == 'segmentPoint' ? pt2.segmentIndex : pt2.index;
+                pt2 = this.secondPoint;
 
-            if(bs[pt1Index].isArc || bs[pt2Index].isArc) {
-                this.pointsModeAddArcPoints(pt1, pt2, pt1Index, pt2Index);
+            if(bs[pt1.index].isArc || bs[pt2.index].isArc) {
+                this.pointsModeAddArcPoints(pt1, pt2, pt1.index, pt2.index);
             } else {
-                this.pointsModeAddSegPoints(pt1, pt2, pt1Index, pt2Index);
+                this.pointsModeAddSegPoints(pt1, pt2, pt1.index, pt2.index);
             }
         }
     }
@@ -329,7 +325,7 @@ export class DivideAction extends Action {
             bs = shape.buildSteps;
 
         this.createdPoints.forEach(pt => {
-            bs[pt.segmentIndex].removePoint(pt.coordinates);
+            bs[pt.index].removePoint(pt.coordinates);
         });
     }
 }

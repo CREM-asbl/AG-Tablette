@@ -17,11 +17,7 @@ export class ToBackgroundState extends State {
     start() {
         this.actions = [new ToBackgroundAction(this.name)];
 
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "all", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        );
+        app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     }
 
     /**

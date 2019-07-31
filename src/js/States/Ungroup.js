@@ -17,11 +17,7 @@ export class UngroupState extends State {
     start() {
         this.actions = [new UngroupAction(this.name)];
 
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "all", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        );
+        app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     }
 
     /**

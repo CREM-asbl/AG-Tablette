@@ -21,11 +21,7 @@ export class BorderColorState extends State {
 
         this.currentStep = "choose-color";
 
-        app.interactionAPI.setSelectionConstraints("click",
-            {"canShape": "all", "listShape": []},
-            {"canSegment": "none", "listSegment": []},
-            {"canPoint": "none", "pointTypes": [], "listPoint": []}
-        );
+        app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
         if(callColorPicker)
             document.querySelector("#color-picker-label").click();
