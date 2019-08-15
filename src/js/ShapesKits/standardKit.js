@@ -380,7 +380,7 @@ export const standardKit = {
         "color": "#CCC",
         "shapes": [
             { //Circonscrit à l'hexagone -> rayon = 50.
-                name: "Disque 1", steps: [
+                name: "Disque 1", color: "#FF0", steps: [
                     { type: 'moveTo', x: 0, y: 50},
                     { type: 'segment', x: 7.821723252011544, y: 49.38441702975689, isArc: true},
                     { type: 'segment', x: 15.450849718747369, y: 47.552825814757675, isArc: true},
@@ -426,7 +426,7 @@ export const standardKit = {
             },
 
             { //Circonscrit au pentagone -> rayon = 42.53254041760199.
-                name: "Disque 2", steps: [
+                name: "Disque 2", color: "#0F0", steps: [
                     { type: 'moveTo', x: 0, y: 42.53254041760199},
                     { type: 'segment', x: 6.653555207029557, y: 42.00889426635694, isArc: true},
                     { type: 'segment', x: 13.14327780297833, y: 40.45084971874737, isArc: true},
@@ -472,7 +472,7 @@ export const standardKit = {
             },
 
             { //Circonscrit au carré -> rayon = 35.35533905932738.
-                name: "Disque 3", steps: [
+                name: "Disque 3", color: "#F00", steps: [
                     { type: 'moveTo', x: 0, y: 35.35533905932738},
                     { type: 'segment', x: 5.5307935520618505, y: 34.92005616668552, isArc: true},
                     { type: 'segment', x: 10.925400611220521, y: 33.62492559819787, isArc: true},
@@ -518,7 +518,7 @@ export const standardKit = {
             },
 
             { //Circonscrit au triangle équilatéral -> rayon = 28.86751345948129.
-                name: "Disque 4", steps: [
+                name: "Disque 4", color: "#FF0", steps: [
                     { type: 'moveTo', x: 0, y: 28.86751345948129},
                     { type: 'segment', x: 4.515874025075615, y: 28.512106465902882, isArc: true},
                     { type: 'segment', x: 8.920552244327244, y: 27.454636784877735, isArc: true},

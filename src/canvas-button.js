@@ -51,10 +51,12 @@ class CanvasButton extends LitElement {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.save();
         ctx.strokeStyle = "#000";
-        ctx.fillStyle = standardKit[this.family].color;
+
 
         let icon = standardKit[this.family].shapes.filter(shape => shape.name === this.shape)[0]
             || standardKit[this.family].shapes[0];
+        ctx.fillStyle = icon.color || standardKit[this.family].color;
+
 
         let is_circle = false;
         for (let i = 0; i < icon.steps.length; i++) {

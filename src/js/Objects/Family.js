@@ -23,7 +23,7 @@ export class Family {
      * @param {String} name       Nom de la forme
      * @param {[ShapeBuildStep]} buildSteps étapes de construction de la forme
      */
-	addShape(name, buildSteps) {
+	addShape(name, buildSteps, color) {
 		 if (buildSteps.length < 1) {
 			console.error("Family.addShape error: buildSteps.length is 0");
 			return;
@@ -34,7 +34,7 @@ export class Family {
 		}
 
 		let shape = new Shape({x: 0, y: 0}, buildSteps, name, this.name);
-		shape.color = this.defaultColor;
+		shape.color = color ? color : this.defaultColor;
 
 		this.shapes.push(shape);
 	}

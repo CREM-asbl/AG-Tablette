@@ -24,6 +24,8 @@ class IconButton extends LitElement {
           margin: 2px;
           background: white;
           outline: none;
+          background-repeat: no-repeat;
+          background-size: 100% 100%;
         }
 
         :host([active]) button{
@@ -35,12 +37,15 @@ class IconButton extends LitElement {
           height: 100%;
           width: 100%;
           box-sizing: border-box;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -o-user-select: none;
+          user-select: none;
         }
       </style>
 
-      <button>
-        <img src="${this.src}">
-      </button>
+      <button style="background-image:url('${this.src}')"></button>
     `
   }
 }

@@ -26,7 +26,8 @@ export class Environment {
     /**
      * Vérifie qu'un kit de familles est sémentiquement correct.
      * -Chaque famille doit avoir les propriétés color et shapes. (1)
-     * -Chaque objet du tableau shapes doit avoir les propriétés name et steps. (2)
+     * -Chaque objet du tableau shapes doit avoir les propriétés name et steps.
+     *  Il peut aussi avoir la propriété color. (2)
      * -Le tableau steps ne contient que des objets ayant les propriétés type,
      *  x, y et isArc (optionnel). x et y sont des nombres, et type une chaîne
      *  de caractère valant moveTo, vertex ou segment. isArc est défini et
@@ -118,7 +119,7 @@ export class Environment {
                     console.error("No valid type");
                     return null;
     			});
-    			family.addShape(shape.name, buildSteps);
+    			family.addShape(shape.name, buildSteps, shape.color);
     		});
             this.families.push(family);
             this.familyNames.push(familyName);
