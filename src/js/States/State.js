@@ -80,4 +80,7 @@ export class State {
      * Appelée lorsqu'un autre état va être lancé et qu'il faut annuler l'action en cours
      */
     abort() {}
+
+    //Appelé par state-menu lors d'un clic sur un des boutons.
+    clickOnStateMenuButton(btn_value) { }
 }

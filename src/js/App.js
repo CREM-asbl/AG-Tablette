@@ -41,6 +41,13 @@ export class App {
         //Liste de classes State qui tournent en permanence (ex: zoom à 2 doigts)
         this.permanentStates = [];
 
+        this.stateMenu = null;
+
+        //Liste des tangrams.
+        this.tangrams = {
+            main: [], //TODO: ajouter des tangrams
+            local: [] //Tangrams ajoutés par l'utilisateur.
+        };
     }
 
     /**
@@ -113,6 +120,9 @@ export class App {
             //Par exemple, annule des setTimeout/Interval.
             this.state.abort();
         }
+        //Reset state-menu
+        this.stateMenu.configureButtons([]);
+
         //Reset interactionAPI parameters:
         this.interactionAPI.resetSelectionConstraints();
         this.forwardEventsToState = true;
@@ -137,6 +147,10 @@ export class App {
         let api = new DrawAPI(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas);
         this.drawAPI = api;
 	}
+
+    setStateMenuLink(stateMenu) {
+        this.stateMenu = stateMenu;
+    }
 
     refreshWindow() {
         this.cvsDiv.setCanvasSize();

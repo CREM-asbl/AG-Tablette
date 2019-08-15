@@ -334,6 +334,7 @@ export class Shape {
         copy.borderColor = this.borderColor;
         copy.isCenterShown = this.isCenterShown;
         copy.isReversed = this.isReversed;
+        copy.opacity = this.opacity;
 
         return copy;
     }
@@ -396,6 +397,7 @@ export class Shape {
             'borderColor': this.borderColor,
             'isCenterShown': this.isCenterShown,
             'isReversed': this.isReversed,
+            'opacity': this.opacity,
             'buildSteps': this.buildSteps.map(bs => bs.saveToObject())
         };
         return save;
@@ -424,6 +426,7 @@ export class Shape {
         this.borderColor = save.borderColor;
         this.isCenterShown = save.isCenterShown;
         this.isReversed = save.isReversed;
+        this.opacity = save.opacity;
         this.updateInternalState();
     }
 }

@@ -10,6 +10,7 @@ import './js/Manifest'
 import './popups/new-popup'
 import './popups/grid-popup'
 import './popups/opacity-popup'
+import './state-menu'
 
 import { app } from './js/App'
 import { standardKit } from './js/ShapesKits/standardKit'
@@ -281,12 +282,19 @@ class AGTabletteApp extends LitElement {
                                 name="opacity"
                                 @click='${this._actionHandle}'>
                         </icon-button>
+                        <icon-button src="/images/opacity.svg"
+                                title="Créer Tangram"
+                                name="tangram_creator"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
                     </flex-toolbar>
                 </div>
             </div>
 
             <div-main-canvas id="div-main-canvas" background="${this.background}"></div-main-canvas>
         </div>
+
+        <state-menu></state-menu>
 
         <shapes-list .state="${this.state}"></shapes-list>
 

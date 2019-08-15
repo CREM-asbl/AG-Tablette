@@ -18,6 +18,8 @@ import { ToBackgroundState } from './States/ToBackground.js'
 import { DivideState } from './States/Divide.js'
 import { MergeState } from './States/Merge.js'
 import { CutState } from './States/Cut.js'
+import { TangramCreatorState } from './States/TangramCreator.js'
+
 
 //Actions:
 import  { BackgroundColorAction } from './States/Actions/BackgroundColor.js'
@@ -187,6 +189,11 @@ export class StatesManager {
             "name": 'Passer en arrière plan',
             "instance": null,
             "getInstance": function() { return new ToBackgroundState(); }
+        },
+        'tangram_creator': {
+            "name": 'Créer un tangram',
+            "instance": null,
+            "getInstance": function() { return new TangramCreatorState(); }
         }
     };
 
