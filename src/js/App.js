@@ -18,8 +18,9 @@ export class App {
         //Managers:
         this.wsManager = new WorkspaceManager();
         this.envManager = new EnvironmentManager();
+        this.tangramManager = TangramManager;
 
-        //Paramètres de l'application (accessibles partout via l'objet app)
+        //Paramètres de l'application
         this.settings = new Settings();
         this.initSettings();
 
@@ -29,8 +30,10 @@ export class App {
         //L'API de dessin (tout ce qui est lié au <canvas>)
         this.drawAPI = null;
 
+
         //Référence vers le <div> contenant les canvas
         this.cvsDiv = null;
+        //Référence vers le <div> principal de l'app
         this.appDiv = null;
 
         //L'API d'interaction (tout ce qui est lié aux événements)
@@ -42,9 +45,8 @@ export class App {
         //Liste de classes State qui tournent en permanence (ex: zoom à 2 doigts)
         this.permanentStates = [];
 
+        //menu pouvant être contrôlé par un état (State).
         this.stateMenu = null;
-
-        this.tangramManager = TangramManager;
 
         //Liste des tangrams
         this.tangrams = {
@@ -52,6 +54,10 @@ export class App {
             local: [] //Tangrams ajoutés par l'utilisateur.
         };
     }
+
+    /* #################################################################### */
+    /* ########################## INIT FUNCTIONS ########################## */
+    /* #################################################################### */
 
     /**
      * Initialiser les paramètres de l'application
@@ -82,6 +88,35 @@ export class App {
 
         //taille des formes qui seront ajoutées (1, 2 ou 3)
         this.settings.add("shapesSize", 2, true);
+    }
+
+    start(cvsDiv) {
+        this.cvsDiv = cvsDiv;
+		window.onresize = (event) => { this.refreshWindow(); };
+		window.onorientationchange = (event) => { this.refreshWindow(); };
+
+        //Utilisé pour les animations
+		window.requestAnimFrame = (function () {
+			return window.requestAnimationFrame
+				|| window.webkitRequestAnimationFrame
+				|| window.mozRequestAnimationFrame
+				|| window.oRequestAnimationFrame
+				|| window.msRequestAnimationFrame
+				|| function (callback) {
+					window.setTimeout(callback, 1000 / 20);
+				};
+		})();
+
+        this.addPermanentState("permanent_zoom_plane");
+        this.tangramManager.retrieveTangrams();
+    }
+
+    /* #################################################################### */
+    /* ############################## OTHER ############################### */
+    /* #################################################################### */
+
+    refreshWindow() {
+        this.cvsDiv.setCanvasSize();
     }
 
     /**
@@ -137,47 +172,6 @@ export class App {
         window.dispatchEvent(new CustomEvent('app-state-changed', { detail: this.state }));
         this.drawAPI.askRefresh();
         this.drawAPI.askRefresh('upper');
-    }
-
-    /**
-     * Définir et configurer l'API de dessin
-     * @param {HTMLElement} upperCanvas      Canvas pour l'animation courante
-     * @param {HTMLElement} mainCanvas       Canvas principal
-     * @param {HTMLElement} backgroundCanvas Canvas pour la grille
-     * @param {HTMLElement} invisibleCanvas Canvas invisible (tâches de fond)
-     */
-    setCanvas(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas) {
-        let api = new DrawAPI(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas);
-        this.drawAPI = api;
-	}
-
-    setStateMenuLink(stateMenu) {
-        this.stateMenu = stateMenu;
-    }
-
-    refreshWindow() {
-        this.cvsDiv.setCanvasSize();
-    }
-
-    start(cvsDiv) {
-        this.cvsDiv = cvsDiv;
-		window.onresize = (event) => { this.refreshWindow(); };
-		window.onorientationchange = (event) => { this.refreshWindow(); };
-
-        //Utilisé pour les animations
-		window.requestAnimFrame = (function () {
-			return window.requestAnimationFrame
-				|| window.webkitRequestAnimationFrame
-				|| window.mozRequestAnimationFrame
-				|| window.oRequestAnimationFrame
-				|| window.msRequestAnimationFrame
-				|| function (callback) {
-					window.setTimeout(callback, 1000 / 20);
-				};
-		})();
-
-        this.addPermanentState("permanent_zoom_plane");
-        this.tangramManager.retrieveTangrams();
     }
 
     addPermanentState(stateName) {

@@ -57,18 +57,13 @@ export class CreateState extends State {
                 });
             }
         });
-        shape.refPoint = {
-            'x': shape.refPoint.x * shapeSize,
-            'y': shape.refPoint.y * shapeSize
-        };
         shape.updateInternalState();
 
         let translation = getNewShapeAdjustment(mouseCoordinates),
             coordinates = Points.add(mouseCoordinates, translation);
 
         this.actions[0].shapeToAdd = shape;
-        //TODO: supprimer refPoint (il devrait être égal à 0,0 tt le temps)
-        this.actions[0].coordinates = Points.sub(coordinates, shape.refPoint);
+        this.actions[0].coordinates = coordinates;
         this.actions[0].shapeSize = shapeSize;
 
         this.executeAction();

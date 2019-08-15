@@ -157,7 +157,6 @@ export class CutAction extends Action {
             let newShape = shape.copy();
             newShape.name = "Custom";
             newShape.familyName = "Custom";
-            newShape.refPoint = Points.create(0, 0);
             newShape.buildSteps = bs;
             newShape.updateInternalState();
             return newShape;

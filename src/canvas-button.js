@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element'
-import { standardShapes } from './js/StandardShapes';
+import { standardKit } from './js/ShapesKits/standardKit';
 
 class CanvasButton extends LitElement {
 
@@ -44,50 +44,57 @@ class CanvasButton extends LitElement {
      * dessine l'image sur le bouton
      */
     refresh() {
-        const canvas = this.shadowRoot.querySelector('canvas')
+        const canvas = this.shadowRoot.querySelector('canvas');
         const ctx = canvas.getContext("2d");
-        let minX = 0, minY = 0, maxX = 0, maxY = 0, scale = 1
+        let minX = 1000, minY = 1000, maxX = -1000, maxY = -1000;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.save()
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
         ctx.strokeStyle = "#000";
+        ctx.fillStyle = standardKit[this.family].color;
 
-        let icon = standardShapes[this.family].shapes.filter(shape => shape.name === this.shape)[0]
-            || standardShapes[this.family].shapes[0]
-        ctx.translate(26, 26)
-        ctx.beginPath();
-        ctx.fillStyle = standardShapes[this.family].color
+        let icon = standardKit[this.family].shapes.filter(shape => shape.name === this.shape)[0]
+            || standardKit[this.family].shapes[0];
 
+        let is_circle = false;
         for (let i = 0; i < icon.steps.length; i++) {
-            if (icon.steps[i].type === 'arc') {
-                scale = .5
-                continue
-            }
             minX = Math.min(minX, icon.steps[i].x)
             maxX = Math.max(maxX, icon.steps[i].x)
             minY = Math.min(minY, icon.steps[i].y)
-            maxY = Math.max(maxX, icon.steps[i].y)
+            maxY = Math.max(maxY, icon.steps[i].y)
+            if(icon.steps[i].isArc)
+                is_circle = true;
         }
 
-        if (scale === 1) {
-            const largeur = maxX - minX
-            const hauteur = maxY - minY
-            scale = 40 / Math.max(largeur, hauteur)
+        let largeur = maxX - minX,
+            hauteur = maxY - minY,
+            scale;
+        if(is_circle) {
+            scale = 0.42; //valeur arbitraire
+        } else {
+            scale = 40 / Math.max(largeur, hauteur);
         }
-        ctx.closePath();
-        ctx.scale(scale, scale)
+
+        let center = {
+                'x': (minX +largeur/2)*scale,
+                'y': (minY + hauteur/2)*scale
+            },
+            centerOffset = {
+                'x': 26 - center.x,
+                'y': 26 - center.y
+            };
+
+        ctx.translate(centerOffset.x, centerOffset.y);
+        ctx.scale(scale, scale);
+
+        ctx.beginPath();
         ctx.moveTo(icon.steps[0].x, icon.steps[0].y);
         for (let i = 1; i < icon.steps.length; i++) {
-            if (icon.steps[i].type === "line") {
-                ctx.lineTo(icon.steps[i].x, icon.steps[i].y)
-            } else {
-                ctx.arc(0, 0, Math.abs(icon.steps[0].x), 0, icon.steps[i].angle);
-            }
-            minX = Math.min(minX, icon.steps[i].x)
-            maxX = Math.max(maxX, icon.steps[i].x)
-            minY = Math.min(minY, icon.steps[i].y)
-            maxY = Math.max(maxX, icon.steps[i].y)
+            if(icon.steps[i].type !== "segment") continue;
+
+            ctx.lineTo(icon.steps[i].x, icon.steps[i].y);
         }
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
         ctx.restore()

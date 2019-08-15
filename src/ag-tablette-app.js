@@ -382,6 +382,5 @@ class AGTabletteApp extends LitElement {
         reader.onload = e => this.background = e.target.result
         reader.readAsDataURL(file)
     }
-    /***/
 }
 customElements.define('ag-tablette-app', AGTabletteApp)

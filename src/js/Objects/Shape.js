@@ -4,8 +4,6 @@ import { collinear } from '../Tools/geometry'
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
 import { app } from '../App'
 
-//TODO: supprimer refPoint (-> sera toujours 0,0)
-
 /**
  * Représente une forme
  */
@@ -19,9 +17,8 @@ export class Shape {
      *                                          (Segment, Vertex, MoveTo)
      * @param {String} name       nom de la forme
      * @param {String} familyName     nom de la famille de la forme
-     * @param {Coordinates} refPoint    point de référence pour le dessin
      */
-    constructor({x, y}, buildSteps, name, familyName, refPoint) {
+    constructor({x, y}, buildSteps, name, familyName) {
         this.id = uniqId();
 
         this.x = x;
@@ -29,7 +26,6 @@ export class Shape {
         this.buildSteps = buildSteps;
         this.name = name;
         this.familyName = familyName;
-        this.refPoint = refPoint;
         this.center = null;
 
         this.color = "#aaa";
@@ -327,8 +323,7 @@ export class Shape {
         let buildStepsCopy = this.buildSteps.map(bs => bs.copy());
         let copy = new Shape(
             {x: this.x, y: this.y}, buildStepsCopy,
-            this.name, this.familyName,
-            {x: this.refPoint.x, y: this.refPoint.y});
+            this.name, this.familyName);
 
         copy.color = this.color;
         copy.borderColor = this.borderColor;
@@ -392,7 +387,6 @@ export class Shape {
             'coordinates': this.getCoordinates(),
             'name': this.name,
             'familyName': this.familyName,
-            'refPoint': this.refPoint,
             'color': this.color,
             'borderColor': this.borderColor,
             'isCenterShown': this.isCenterShown,
@@ -420,7 +414,6 @@ export class Shape {
         this.y = save.coordinates.y;
         this.name = save.name;
         this.familyName = save.familyName;
-        this.refPoint = save.refPoint;
 
         this.color = save.color;
         this.borderColor = save.borderColor;

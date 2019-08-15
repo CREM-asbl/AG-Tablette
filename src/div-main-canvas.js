@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit-element'
 import { app } from './js/App'
+import { DrawAPI } from './js/DrawAPI'
 
 class DivMainCanvas extends LitElement {
 
@@ -29,12 +30,16 @@ class DivMainCanvas extends LitElement {
 
         <!-- for background tasks (invisible canvas) -->
         <canvas id="invisibleCanvas"></canvas>
+
         <!--for the grid and background-image -->
         <canvas id="backgroundCanvas"></canvas>
+
         <!-- for the shapes -->
         <canvas id="mainCanvas"></canvas>
+
         <!-- temporaire, pour afficher des messages d'erreur -->
         <canvas id="debugCanvas"></canvas>
+
         <!-- for the current event (ex: moving shape -->
         <canvas id="upperCanvas"></canvas>
         `
@@ -49,9 +54,14 @@ class DivMainCanvas extends LitElement {
         this.backgroundCanvas = this.shadowRoot.querySelector('#backgroundCanvas');
         this.invisibleCanvas = this.shadowRoot.querySelector('#invisibleCanvas');
 
-
         window.app = app;
-        app.setCanvas(this.upperCanvas, this.mainCanvas, this.backgroundCanvas, this.invisibleCanvas);
+        let drawAPI = new DrawAPI(
+                this.upperCanvas,
+                this.mainCanvas,
+                this.backgroundCanvas,
+                this.invisibleCanvas
+            );
+        app.drawAPI = drawAPI;
 
         //temporaire:
         this.debugCanvas = this.shadowRoot.querySelector('#debugCanvas');
@@ -190,13 +200,6 @@ class DivMainCanvas extends LitElement {
         response = [response[0] / app.workspace.zoomLevel, response[1] / app.workspace.zoomLevel];
         return { "x": response[0], "y": response[1] };
     }
-
-    /*
-    getScreenShot() {
-        let url = this.mainCanvas.toDataURL()
-        // TODO: Remplacer par un vrai système d'enregistrement de fichier
-        window.open(url, '_blank')
-    }*/
 
     // Ajout d'un fond d'écran fixé à droite
     set background(value) {

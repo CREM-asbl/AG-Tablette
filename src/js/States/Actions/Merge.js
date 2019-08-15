@@ -233,7 +233,6 @@ export class MergeAction extends Action {
             this.createdShapeId = newShape.id;
         newShape.name = "Custom";
         newShape.familyName = "Custom";
-        newShape.refPoint = Points.create(0, 0);
         newShape.color = getAverageColor(shape1.color, shape2.color);
         newShape.borderColor = getAverageColor(shape1.borderColor, shape2.borderColor);
         newShape.isCenterShown = shape1.isCenterShown || shape2.isCenterShown;

@@ -11,7 +11,7 @@ class StateMenu extends LitElement {
             '', '', '', '', ''
         ];
 
-        app.setStateMenuLink(this);
+        app.stateMenu = this;
     }
 
     static get properties() {
@@ -48,16 +48,16 @@ class StateMenu extends LitElement {
                 }
             </style>
             <div id="state-menu-buttons-list">
-                <button id='state-menu-button1' @click="${() => this.clickBtn(1)}">Coucou ! ça va?</button>
-                <button id='state-menu-button2' @click="${() => this.clickBtn(2)}">Coucou ! ça va?</button>
-                <button id='state-menu-button3' @click="${() => this.clickBtn(3)}">Coucou ! ça va?</button>
-                <button id='state-menu-button4' @click="${() => this.clickBtn(4)}">Coucou ! ça va?</button>
-                <button id='state-menu-button5' @click="${() => this.clickBtn(5)}">Coucou ! ça va?</button>
-                <button id='state-menu-button6' @click="${() => this.clickBtn(6)}">Coucou ! ça va?</button>
-                <button id='state-menu-button7' @click="${() => this.clickBtn(7)}">Coucou ! ça va?</button>
-                <button id='state-menu-button8' @click="${() => this.clickBtn(8)}">Coucou ! ça va?</button>
-                <button id='state-menu-button9' @click="${() => this.clickBtn(9)}">Coucou ! ça va?</button>
-                <button id='state-menu-button10' @click="${() => this.clickBtn(10)}">Coucou ! ça va?</button>
+                <button id='state-menu-button1' @click="${() => this.clickBtn(1)}"></button>
+                <button id='state-menu-button2' @click="${() => this.clickBtn(2)}"></button>
+                <button id='state-menu-button3' @click="${() => this.clickBtn(3)}"></button>
+                <button id='state-menu-button4' @click="${() => this.clickBtn(4)}"></button>
+                <button id='state-menu-button5' @click="${() => this.clickBtn(5)}"></button>
+                <button id='state-menu-button6' @click="${() => this.clickBtn(6)}"></button>
+                <button id='state-menu-button7' @click="${() => this.clickBtn(7)}"></button>
+                <button id='state-menu-button8' @click="${() => this.clickBtn(8)}"></button>
+                <button id='state-menu-button9' @click="${() => this.clickBtn(9)}"></button>
+                <button id='state-menu-button10' @click="${() => this.clickBtn(10)}"></button>
             </div>
         `
     }
@@ -65,6 +65,11 @@ class StateMenu extends LitElement {
     /**
      * Configurer le menu
      * @param  {[{text: String, value: String}]} buttons
+     * ->Le nombre d'éléments du tableau détermine le nombre de boutons affichés.
+     * ->Maximum 10 boutons
+     * ->text: le texte affiché sur le bouton
+     * ->value: la valeur envoyée en paramètre de la fonction state.clickOnStateMenuButton
+     *          lorsque l'on clique sur le bouton.
      */
     //TODO: pouvoir activer/désactiver (attribut disable) des boutons
     configureButtons(buttons) {
