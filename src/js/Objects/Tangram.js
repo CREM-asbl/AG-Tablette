@@ -1,4 +1,5 @@
 import { uniqId } from '../Tools/general'
+import { Shape } from './Shape'
 
 
 export class Tangram {
@@ -32,7 +33,11 @@ export class Tangram {
     initFromObject(data) {
         this.id = data.id;
         this.name = data.name;
-        this.shapes = data.shapes;
+        this.shapes = data.shapes.map(sData => {
+            let shape = new Shape({'x': 0, 'y': 0}, []);
+			shape.initFromObject(sData);
+            return shape;
+        });
         this.polygons = data.polygons;
     }
 }

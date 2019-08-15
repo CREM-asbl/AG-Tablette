@@ -9,6 +9,7 @@ import './icon-button'
 import './js/Manifest'
 import './popups/new-popup'
 import './popups/grid-popup'
+import './popups/tangram-popup'
 import './popups/opacity-popup'
 import './state-menu'
 
@@ -282,9 +283,14 @@ class AGTabletteApp extends LitElement {
                                 name="opacity"
                                 @click='${this._actionHandle}'>
                         </icon-button>
-                        <icon-button src="/images/opacity.svg"
+                        <icon-button src="/images/tangram-edit.svg"
                                 title="Créer Tangram"
                                 name="tangram_creator"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/tangram.svg"
+                                title="Faire un Tangram"
+                                name="tangram_menu"
                                 @click='${this._actionHandle}'>
                         </icon-button>
                     </flex-toolbar>
@@ -301,6 +307,8 @@ class AGTabletteApp extends LitElement {
         <app-settings></app-settings>
 
         <grid-popup></grid-popup>
+
+        <tangram-popup></tangram-popup>
 
         <opacity-popup></opacity-popup>
 
@@ -335,6 +343,9 @@ class AGTabletteApp extends LitElement {
         }
         else if (event.target.name === "grid_menu") {
             this.shadowRoot.querySelector('grid-popup').style.display = 'block'
+        }
+        else if (event.target.name === "tangram_menu") {
+            this.shadowRoot.querySelector('tangram-popup').style.display = 'block'
         }
         else if (event.target.name == "undo") {
             if(this.canUndo)

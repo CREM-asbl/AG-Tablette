@@ -22,17 +22,24 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
      * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
      */
     let grid = app.workspace.settings.get("isGridShown"),
+        tangram = app.workspace.settings.get("isTangramShown"),
         automaticAdjustment = app.settings.get("automaticAdjustment"),
         transformation = {
             'rotation': 0,
             'move': { 'x': 0, 'y': 0 }
         };
 
-    if(!grid && !automaticAdjustment)
+    if(!grid && !automaticAdjustment && !tangram)
         return transformation;
 
+    if(tangram) {
+        //l'offset peut être de (0, 0) si rien à bouger
+        let offset = app.tangramManager.getShapeGroupOffset(shapes, mainShape, coordinates);
+        transformation.move = offset;
+    }
+
     //La grille peut engendrer un déplacement, mais pas une rotation.
-    if(grid) {
+    if(grid && !tangram) {
         let data = app.workspace.grid.getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates);
         if(!data) { //Forme sans sommet. TODO que faire?
             return transformation; //ne rien faire

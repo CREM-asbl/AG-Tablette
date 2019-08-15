@@ -52,6 +52,7 @@ export class TangramCreatorState extends State {
             }
         ];
         app.stateMenu.configureButtons( this.buttons.slice(0, 2) );
+        alert("(TODO: à ajouter dans l'aide) Commencez par sélectionner un ou plusieurs polygones");
     }
 
     clickOnStateMenuButton(btn_value) {
@@ -70,6 +71,7 @@ export class TangramCreatorState extends State {
             app.stateMenu.configureButtons( this.buttons.slice(2, 3) );
             this.currentStep = "selecting-shapes";
             this.setSelConstraints();
+            alert("(TODO: à ajouter dans l'aide) Sélectionnez les formes nécessaires pour faire le tangram");
         } else if(btn_value=='end_shapes') {
             if(this.currentStep != "selecting-shapes") return;
 
@@ -91,7 +93,7 @@ export class TangramCreatorState extends State {
                 return pol.map(pt => Points.copy(pt));
             }),
             tangram = new Tangram(name, shapes, polygons);
-        app.tangrams.local.push(tangram);
+        app.tangramManager.addLocalTangram(tangram);
 
         let json = JSON.stringify(tangram.saveToObject());
         const file = new Blob([json], { type: 'application/json' });
@@ -126,13 +128,15 @@ export class TangramCreatorState extends State {
                 if(Points.equal(p1, last_point)) {
                     //annuler le dernier point
                     last_polygon.pop();
+
+                } else {
+                    /*
+                    Si on clique sur un point qui est déjà dans le tableau, mais qui
+                    n'est ni le premier ni le dernier, on l'ajoute quand même une
+                    seconde fois. Et s'il n'y est pas encore, on l'ajoute aussi.
+                     */
+                    last_polygon.push(object.coordinates);
                 }
-                /*
-                Si on clique sur un point qui est déjà dans le tableau, mais qui
-                n'est ni le premier ni le dernier, on l'ajoute quand même une
-                seconde fois. Et s'il n'y est pas encore, on l'ajoute aussi.
-                 */
-                last_polygon.push(object.coordinates);
             }
         }
     }

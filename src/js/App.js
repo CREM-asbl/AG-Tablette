@@ -7,6 +7,7 @@ import { GrandeurEnvironment } from './Environments/Grandeur'
 import { uniqId } from './Tools/general'
 import { WorkspaceManager } from './WorkspaceManager'
 import { EnvironmentManager } from './EnvironmentManager'
+import { TangramManager } from './TangramManager'
 
 /**
  * Classe principale de l'application
@@ -43,9 +44,11 @@ export class App {
 
         this.stateMenu = null;
 
-        //Liste des tangrams.
+        this.tangramManager = TangramManager;
+
+        //Liste des tangrams
         this.tangrams = {
-            main: [], //TODO: ajouter des tangrams
+            main: [], //Tangrams CREM
             local: [] //Tangrams ajoutés par l'utilisateur.
         };
     }
@@ -174,6 +177,7 @@ export class App {
 		})();
 
         this.addPermanentState("permanent_zoom_plane");
+        this.tangramManager.retrieveTangrams();
     }
 
     addPermanentState(stateName) {

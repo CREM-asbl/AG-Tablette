@@ -55,6 +55,7 @@ export class DrawAPI {
             this.refreshBackground();
         //TODO: limite de refresh par seconde? windowAnimationFrame?
         //TODO: ne pas mettre les canvas à jour qd mouseMove pendant une animFrame
+        //TODO: vérifier que seule cette fonction est appelée de l'extérieur.
     }
 
     refreshBackground() {
@@ -81,6 +82,19 @@ export class DrawAPI {
             let pts = app.workspace.grid.getVisibleGridPoints(min, max);
             pts.forEach(pt => {
                 this.drawPoint(this.backgroundCtx, pt, "#F00", 1.5/actualZoomLvl, false);
+            });
+        }
+
+        //Tangram
+        if(app.workspace.settings.get("isTangramShown")) {
+            let {type, id} = app.workspace.settings.get("shownTangram");
+            let tangram = app.tangramManager.getTangram(type, id);
+            tangram.polygons.forEach(polygon => {
+                this.drawPoint(this.backgroundCtx, polygon[0], '#E90CC8', 1);
+                for(let i=0; i<polygon.length-1; i++) {
+                    app.drawAPI.drawLine(this.backgroundCtx, polygon[i], polygon[i+1], '#E90CC8', 3);
+                    app.drawAPI.drawPoint(this.backgroundCtx, polygon[i+1], '#E90CC8', 1);
+                }
             });
         }
     }

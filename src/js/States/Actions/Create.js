@@ -42,7 +42,7 @@ export class CreateAction extends Action {
     }
 
     checkDoParameters() {
-        if(!this.shapeToAdd instanceof Shape || this.shapeSize==null)
+        if(!this.shapeToAdd instanceof Shape)
             return false;
         if(!this.coordinates || this.coordinates.x === undefined
             || this.coordinates.y === undefined)

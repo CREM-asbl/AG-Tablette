@@ -126,7 +126,8 @@ export class WorkspaceManager {
      * @param  {[type]} uniqid id unique du workspace
      */
     deleteWorkspaceFromLocalStorage(uniqid) {
-        let index = this.getWorkspaceIndexInLocalStorage(uniqid);
+        let wsAmount = parseInt(this.ls.getItem("AG_WorkspacesAmount")),
+            index = this.getWorkspaceIndexInLocalStorage(uniqid);
         if (index == -1) {
             console.error("Workspace not found");
             return;
@@ -158,13 +159,13 @@ export class WorkspaceManager {
      */
     setWorkspaceFromFile(file, callback) {
         const reader = new FileReader();
-        reader.readAsText(file);
         reader.onload = () => {
             let ws = new Workspace();
             ws.initFromJSON(reader.result);
             this.setWorkspace(ws);
             if (callback) callback();
         }
+        reader.readAsText(file);
     }
 
     /**

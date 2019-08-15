@@ -60,6 +60,15 @@ export class Workspace {
 
 		//Type de grille: 'square' ou 'triangle'
         this.settings.add("gridType", 'square', true);
+
+		//Tangram affiché ?
+        this.settings.add("isTangramShown", false, true);
+
+		//Type (main/local) et id du tangram affiché.
+        this.settings.add("shownTangram", {
+			type: null, //'main' ou 'local'
+			id: null
+		}, true);
 	}
 
 	/**
