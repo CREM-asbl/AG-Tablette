@@ -65,6 +65,14 @@ class AGTabletteApp extends LitElement {
                 overflow: hidden;
             }
 
+            #app-canvas-view-toolbar {
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -o-user-select: none;
+                user-select: none;
+            }
+
             #app-canvas-view-toolbar-p1 {
                 padding-bottom: 8px;
                 border-bottom: 1px solid lightslategray;

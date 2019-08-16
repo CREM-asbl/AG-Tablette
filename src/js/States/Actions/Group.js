@@ -6,8 +6,8 @@ import { ShapeGroup } from '../../Objects/ShapeGroup'
  * Représente la création d'un groupe ou l'ajout d'une forme à un groupe existant
  */
 export class GroupAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //Type d'action: nouveau groupe, ajout d'une forme ou fusion de 2 groupes
         //TODO: on pourrait diviser cette classe Action en 3 classes pour la simplifier:
@@ -35,7 +35,7 @@ export class GroupAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'type': this.type,
             'shapeId': this.shapeId,
             'secondShapeId': this.secondShapeId,
@@ -48,7 +48,7 @@ export class GroupAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.type = save.type;
         this.shapeId = save.shapeId;
         this.secondShapeId = save.secondShapeId;
@@ -125,19 +125,19 @@ export class GroupAction extends Action {
         } else if(this.type=='add') {
             let shape = app.workspace.getShapeById(this.shapeId),
                 group = app.workspace.getGroup(this.groupId);
-            group.removeShape(shape);
+            group.deleteShape(shape);
         } else {
             let group1 = app.workspace.getGroup(this.groupId),
                 shape1 = app.workspace.getShapeById(this.oldGroupShapesIds[0]),
                 shape2 = app.workspace.getShapeById(this.oldGroupShapesIds[1]),
                 group2 = new ShapeGroup(shape1, shape2);
             group2.id = this.otherGroupId;
-            group1.removeShape(shape1);
-            group1.removeShape(shape2);
+            group1.deleteShape(shape1);
+            group1.deleteShape(shape2);
             this.oldGroupShapesIds.slice(2).forEach(shapeId => {
                 let shape = app.workspace.getShapeById(shapeId);
                 group2.addShape(shape);
-                group1.removeShape(shape);
+                group1.deleteShape(shape);
             });
             app.workspace.addGroup(group2, 'user', this.oldGroupIndex);
         }

@@ -6,8 +6,8 @@ import { getAverageColor } from '../../Tools/general'
 import { Segment, Vertex, MoveTo } from '../../Objects/ShapeBuildStep'
 
 export class MergeAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //Première forme
         this.firstShapeId = null;
@@ -21,7 +21,7 @@ export class MergeAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'firstShapeId': this.firstShapeId,
             'secondShapeId': this.secondShapeId
         };
@@ -29,7 +29,7 @@ export class MergeAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.firstShapeId = save.firstShapeId;
         this.secondShapeId = save.secondShapeId;
     }
@@ -250,7 +250,7 @@ export class MergeAction extends Action {
         if(!this.checkUndoParameters()) return;
 
         let shape = app.workspace.getShapeById(this.createdShapeId);
-        app.workspace.removeShape(shape);
+        app.workspace.deleteShape(shape);
     }
 
     getCommonSegments(shape1, shape2) {

@@ -4,8 +4,8 @@ import { Shape } from '../../Objects/Shape'
 import { Points } from '../../Tools/points'
 
 export class RotateAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'id de la forme que l'on tourne
         this.shapeId = null;
@@ -22,7 +22,7 @@ export class RotateAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'shapeId': this.shapeId,
             'rotationAngle': this.rotationAngle,
             'involvedShapesIds': this.involvedShapesIds
@@ -31,7 +31,7 @@ export class RotateAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.shapeId = save.shapeId;
         this.rotationAngle = save.rotationAngle;
         this.involvedShapesIds = save.involvedShapesIds;

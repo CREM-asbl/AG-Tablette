@@ -156,7 +156,7 @@ class DivMainCanvas extends LitElement {
     /**
      * Récupère les coordonnées de la souris à partir d'un événement javascript
      * @param event: référence vers l'événement (Event)
-     * @return coordonnées de la souris ({x: int, y: int})
+     * @return coordonnées de la souris (Point)
      * @Error: si les coordonnées n'ont pas été trouvées, une alerte (alert())
      *  est déclanchée et la fonction retourne null
      */

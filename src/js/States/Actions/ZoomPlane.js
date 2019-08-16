@@ -4,8 +4,8 @@ import { Shape } from '../../Objects/Shape'
 
 //TODO retenir le zoom original, pour éviter les erreurs de précision?
 export class ZoomPlaneAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //Translation à appliquer
         this.scaleOffset = null;
@@ -19,7 +19,7 @@ export class ZoomPlaneAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'scaleOffset': this.scaleOffset,
             'originalZoom': this.originalZoom,
             'originalTranslateOffset': this.originalTranslateOffset,
@@ -29,7 +29,7 @@ export class ZoomPlaneAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.scaleOffset = save.scaleOffset;
         this.originalZoom = save.originalZoom;
         this.originalTranslateOffset = save.originalTranslateOffset;

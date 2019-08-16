@@ -81,3 +81,13 @@ export function uniqId() {
     var result = timestamp.toString(16) + randInt.toString(16);
     return result;
 }
+
+/**
+ * Fonction modulo (renvoie valeur positive, contrairement à % dans certains cas)
+ * @param  {[type]} x [description]
+ * @param  {[type]} n [description]
+ * @return {[type]}   [description]
+ */
+export function mod(x, n) {
+	return (x % n + n) % n;
+}

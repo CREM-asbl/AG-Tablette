@@ -3,8 +3,8 @@ import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
 
 export class ToBackgroundAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'index original de la forme dans workspace.shapes
         this.oldIndex = null;
@@ -12,14 +12,14 @@ export class ToBackgroundAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'oldIndex': this.oldIndex
         };
         return save;
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.oldIndex = save.oldIndex;
     }
 

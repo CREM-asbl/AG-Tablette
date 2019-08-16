@@ -3,8 +3,8 @@ import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
 
 export class OpacityAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'id de la forme sélectionnée
         this.shapeId = null;
@@ -24,7 +24,7 @@ export class OpacityAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'shapeId': this.shapeId,
             'opacity': this.opacity,
             'involvedShapesIds': [...this.involvedShapesIds],
@@ -34,7 +34,7 @@ export class OpacityAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.shapeId = save.shapeId;
         this.opacity = save.opacity;
         this.involvedShapesIds = [...save.involvedShapesIds];

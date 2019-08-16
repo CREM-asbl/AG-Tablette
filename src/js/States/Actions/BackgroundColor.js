@@ -3,8 +3,8 @@ import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
 
 export class BackgroundColorAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'id de la forme que l'on va colorier
         this.shapeId = null;
@@ -24,7 +24,6 @@ export class BackgroundColorAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
             'shapeId': this.shapeId,
             'selectedColor': this.selectedColor,
             'involvedShapesIds': [...this.involvedShapesIds],
@@ -34,7 +33,6 @@ export class BackgroundColorAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
         this.shapeId = save.shapeId;
         this.selectedColor = save.selectedColor;
         this.involvedShapesIds = [...save.involvedShapesIds];

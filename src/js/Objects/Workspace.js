@@ -190,7 +190,7 @@ export class Workspace {
 	/* #################################################################### */
     /* ############################## FORMES ############################## */
     /* #################################################################### */
-
+	//TODO: déplacer dans un shapeManager ?
 
 	/**
 	 * Ajoute une forme au workspace
@@ -258,10 +258,10 @@ export class Workspace {
 	 * Supprime une forme. Ne la supprime pas des groupes (à faire manuellement)
 	 * @param  {Shape} shape La forme à supprimer
 	 */
-	removeShape(shape) {
+	deleteShape(shape) {
 		let shapeIndex = this.getShapeIndex(shape);
 		if (shapeIndex == -1) {
-			console.error("Workspace.removeShape: couldn't remove the shape");
+			console.error("Workspace.deleteShape: couldn't delete the shape");
 			return;
 		}
 		//supprime la forme
@@ -272,7 +272,7 @@ export class Workspace {
 	/* #################################################################### */
     /* ############################## GROUPES ############################# */
     /* #################################################################### */
-
+	//TODO: déplacer dans un groupManager ?
 
 	/**
 	 * Ajouter un groupe à l'espace de travail
@@ -330,7 +330,7 @@ export class Workspace {
 				return;
 			}
 		}
-		console.error("Couldn't remove group");
+		console.error("Couldn't delete group");
 		return null;
 	}
 }

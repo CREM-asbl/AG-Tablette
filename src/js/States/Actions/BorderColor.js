@@ -3,8 +3,8 @@ import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
 
 export class BorderColorAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'id de la forme dont on va colorier les bords
         this.shapeId = null;
@@ -24,7 +24,7 @@ export class BorderColorAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'shapeId': this.shapeId,
             'selectedColor': this.selectedColor,
             'involvedShapesIds': [...this.involvedShapesIds],
@@ -34,7 +34,7 @@ export class BorderColorAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+
         this.shapeId = save.shapeId;
         this.selectedColor = save.selectedColor;
         this.involvedShapesIds = [...save.involvedShapesIds];

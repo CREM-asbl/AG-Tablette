@@ -4,8 +4,8 @@ import { Shape } from '../../Objects/Shape'
 import { Points } from '../../Tools/points'
 
 export class DivideAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'id de la forme
         this.shapeId = null;
@@ -51,7 +51,7 @@ export class DivideAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'shapeId': this.shapeId,
             'numberOfparts': this.numberOfparts,
             'mode': this.mode,
@@ -64,7 +64,7 @@ export class DivideAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.shapeId = save.shapeId;
         this.numberOfparts = save.numberOfparts;
         this.mode = save.mode;
@@ -325,7 +325,7 @@ export class DivideAction extends Action {
             bs = shape.buildSteps;
 
         this.createdPoints.forEach(pt => {
-            bs[pt.index].removePoint(pt.coordinates);
+            bs[pt.index].deletePoint(pt.coordinates);
         });
     }
 }

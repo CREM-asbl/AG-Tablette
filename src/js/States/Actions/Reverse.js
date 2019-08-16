@@ -5,8 +5,8 @@ import { getProjectionOnSegment } from '../../Tools/geometry'
 import { Points } from '../../Tools/points'
 
 export class ReverseAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'id de la forme que l'on tourne
         this.shapeId = null;
@@ -23,7 +23,7 @@ export class ReverseAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'shapeId': this.shapeId,
             'symmetricalArchOrientation': this.symmetricalArchOrientation,
             'involvedShapesIds': this.involvedShapesIds
@@ -32,7 +32,7 @@ export class ReverseAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.shapeId = save.shapeId;
         this.symmetricalArchOrientation = save.symmetricalArchOrientation;
         this.involvedShapesIds = save.involvedShapesIds;

@@ -1,4 +1,4 @@
-import { uniqId } from '../Tools/general'
+import { uniqId, mod } from '../Tools/general'
 import { Points } from '../Tools/points'
 import { collinear } from '../Tools/geometry'
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
@@ -163,8 +163,6 @@ export class Shape {
                 rep.push(i);
             return rep;
         }
-
-        const mod = (x, n) => (x % n + n) % n;
 
         let indexList = [buildStepIndex];
 

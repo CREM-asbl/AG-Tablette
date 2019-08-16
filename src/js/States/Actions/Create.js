@@ -3,8 +3,8 @@ import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
 
 export class CreateAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //La forme que l'on souhaite ajouter
         this.shapeToAdd = null;
@@ -21,7 +21,7 @@ export class CreateAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'shapeToAdd': this.shapeToAdd.saveToObject(),
             'coordinates': this.coordinates,
             'shapeId': this.shapeId,
@@ -31,7 +31,7 @@ export class CreateAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
 
         this.shapeToAdd = new Shape({'x': 0, 'y': 0}, []);
 		this.shapeToAdd.initFromObject(save.shapeToAdd);
@@ -71,6 +71,6 @@ export class CreateAction extends Action {
     undo() {
         if(!this.checkUndoParameters()) return;
         let shape = app.workspace.getShapeById(this.shapeId);
-        app.workspace.removeShape(shape);
+        app.workspace.deleteShape(shape);
     }
 }

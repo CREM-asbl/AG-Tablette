@@ -4,8 +4,8 @@ import { Shape } from '../../Objects/Shape'
 import { ShapeGroup } from '../../Objects/ShapeGroup'
 
 export class CopyAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'id de la forme sélectionnée
         this.shapeId = null;
@@ -32,7 +32,7 @@ export class CopyAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'shapeId': this.shapeId,
             'transformation': this.transformation,
             'involvedShapesIds': this.involvedShapesIds,
@@ -44,7 +44,7 @@ export class CopyAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.shapeId = save.shapeId;
         this.transformation = save.transformation;
         this.involvedShapesIds = save.involvedShapesIds;
@@ -114,7 +114,7 @@ export class CopyAction extends Action {
 
         this.newShapesIds.forEach(id => {
             let s = app.workspace.getShapeById(id);
-            app.workspace.removeShape(s);
+            app.workspace.deleteShape(s);
         });
 
         if(this.newShapesIds.length>1) {

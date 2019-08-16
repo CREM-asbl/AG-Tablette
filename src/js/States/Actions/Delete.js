@@ -4,8 +4,8 @@ import { Shape } from '../../Objects/Shape'
 import { ShapeGroup } from '../../Objects/ShapeGroup'
 
 export class DeleteAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //La forme qui doit être supprimée
         this.shape = null;
@@ -30,7 +30,7 @@ export class DeleteAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'shape': this.shape.saveToObject(),
             'userGroupId': this.userGroupId,
             'userGroupLastShapeId': this.userGroupLastShapeId,
@@ -41,7 +41,7 @@ export class DeleteAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
 
         this.shape = new Shape({'x': 0, 'y': 0}, []);
 		this.shape.initFromObject(save.shape);
@@ -69,8 +69,8 @@ export class DeleteAction extends Action {
             userGroup = app.workspace.getShapeGroup(shape);
 
         if(userGroup)
-            userGroup.removeShape(shape);
-        app.workspace.removeShape(shape);
+            userGroup.deleteShape(shape);
+        app.workspace.deleteShape(shape);
 
         //Supprimer le userGroup s'il existe et s'il ne reste qu'une forme.
         this.deleteUserGroup = false;

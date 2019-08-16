@@ -25,12 +25,12 @@ export class Segment extends ShapeBuildStep {
         this.points.push({x, y});
     }
 
-    removePoint(point) {
+    deletePoint(point) {
         let i = this.points.findIndex(pt => {
             return Points.equal(pt, point);
         });
         if(i==-1) {
-            console.error("couldn't remove point from segment");
+            console.error("couldn't delete point from segment");
             return null;
         }
         this.points.splice(i, 1);

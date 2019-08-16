@@ -52,7 +52,7 @@ export class ShapeGroup {
      * qu'une ou zéro formes (cela doit être fait manuellement).
      * @param {Shape} shape    La forme que l'on retire
      */
-    removeShape(shape) {
+    deleteShape(shape) {
         for(let i=0; i<this.shapes.length;i++) {
             if(this.shapes[i].id == shape.id) {
                 this.shapes.splice(i, 1);

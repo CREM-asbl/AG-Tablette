@@ -4,8 +4,8 @@ import { Shape } from '../../Objects/Shape'
 import { ShapeGroup } from '../../Objects/ShapeGroup'
 
 export class UngroupAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'id du groupe que l'on supprime
         this.groupId = null;
@@ -19,7 +19,7 @@ export class UngroupAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'groupId': this.groupId,
             'groupShapesIds': this.groupShapesIds,
             'groupIndex': this.groupIndex
@@ -28,7 +28,7 @@ export class UngroupAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.groupId = save.groupId;
         this.groupShapesIds = save.groupShapesIds;
         this.groupIndex = save.groupIndex;

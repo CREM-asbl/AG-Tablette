@@ -1,11 +1,10 @@
 import { State } from '../State'
 
 export class Action {
-    constructor(name) {
+    constructor() {
         if(this.constructor === State) {
             throw new TypeError('Abstract class "Action" cannot be instantiated directly');
         }
-        this.name = name;
     }
 
     saveToObject() {

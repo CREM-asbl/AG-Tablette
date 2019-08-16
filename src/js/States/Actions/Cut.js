@@ -5,8 +5,8 @@ import { Points } from '../../Tools/points'
 import { Segment, Vertex, MoveTo } from '../../Objects/ShapeBuildStep'
 
 export class CutAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //L'id de la forme
         this.shapeId = null;
@@ -36,7 +36,7 @@ export class CutAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'shapeId': this.shapeId,
             'firstPoint': this.firstPoint,
             'centerPoint': this.centerPoint,
@@ -47,7 +47,7 @@ export class CutAction extends Action {
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.shapeId = save.shapeId;
         this.firstPoint = save.firstPoint;
         this.centerPoint = save.centerPoint;
@@ -191,7 +191,7 @@ export class CutAction extends Action {
 
         this.createdShapesIds.forEach(id => {
             let shape = app.workspace.getShapeById(id);
-            app.workspace.removeShape(shape);
+            app.workspace.deleteShape(shape);
         });
     }
 }

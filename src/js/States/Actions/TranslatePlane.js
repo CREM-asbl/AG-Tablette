@@ -3,8 +3,8 @@ import { Action } from './Action'
 import { Shape } from '../../Objects/Shape'
 
 export class TranslatePlaneAction extends Action {
-    constructor(name) {
-        super(name);
+    constructor() {
+        super();
 
         //Translation à appliquer
         this.offset = null;
@@ -12,14 +12,14 @@ export class TranslatePlaneAction extends Action {
 
     saveToObject() {
         let save = {
-            'name': this.name,
+            
             'offset': this.offset
         };
         return save;
     }
 
     initFromObject(save) {
-        this.name = save.name;
+        
         this.offset = save.offset;
     }
 
