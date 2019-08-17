@@ -196,8 +196,12 @@ export class Workspace {
 	 * Ajoute une forme au workspace
 	 * @param {Shape} shape la forme à ajouter
 	 */
-	addShape(shape) {
-		this.shapes.push(shape);
+	addShape(shape, index = null) {
+		if(index!==null) {
+			this.shapes.splice(index, 0, shape);
+		} else {
+			this.shapes.push(shape);
+		}
 	}
 
 	/**

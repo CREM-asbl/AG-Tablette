@@ -10,6 +10,8 @@ export class DeleteAction extends Action {
         //La forme qui doit être supprimée
         this.shape = null;
 
+        //L'index de la forme dans workspace.shapes (utile pour undo)
+        this.shapeIndex = null;
 
         /*
         Si la forme à supprimer fait partie d'un userGroup:
@@ -30,7 +32,7 @@ export class DeleteAction extends Action {
 
     saveToObject() {
         let save = {
-            
+
             'shape': this.shape.saveToObject(),
             'userGroupId': this.userGroupId,
             'userGroupLastShapeId': this.userGroupLastShapeId,
@@ -41,7 +43,7 @@ export class DeleteAction extends Action {
     }
 
     initFromObject(save) {
-        
+
 
         this.shape = new Shape({'x': 0, 'y': 0}, []);
 		this.shape.initFromObject(save.shape);
@@ -59,7 +61,9 @@ export class DeleteAction extends Action {
     }
 
     checkUndoParameters() {
-        return this.checkDoParameters();
+        if(!this.shape || !Number.isFinite(this.shapeIndex))
+            return false;
+        return true;
     }
 
     do() {
@@ -70,6 +74,7 @@ export class DeleteAction extends Action {
 
         if(userGroup)
             userGroup.deleteShape(shape);
+        this.shapeIndex = app.workspace.getShapeIndex(shape);
         app.workspace.deleteShape(shape);
 
         //Supprimer le userGroup s'il existe et s'il ne reste qu'une forme.
@@ -92,7 +97,7 @@ export class DeleteAction extends Action {
         let shape = this.shape;
 
 
-        app.workspace.addShape(shape);
+        app.workspace.addShape(shape, this.shapeIndex);
 
         if(this.userGroupId) {
             let userGroup;
