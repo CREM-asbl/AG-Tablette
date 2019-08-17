@@ -325,7 +325,34 @@ export class InteractionAPI {
 
                     if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
                         let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
-                        if(dist<bestDist) {
+                        if(dist<bestDist || Math.abs(bestDist-dist)<0.1) {
+                            //Vérifier que le point n'est pas derrière une forme
+                            let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
+                                thisIndex = app.workspace.getShapeIndex(shape);
+                            if(shapes.some(s => {
+                                let otherIndex = app.workspace.getShapeIndex(s);
+                                return otherIndex>thisIndex;
+                            }))
+                                return false;
+
+                            if(point) {
+                                //Garder le point de la forme la plus en avant
+                                let otherIndex = app.workspace.getShapeIndex(point.shape);
+                                if(thisIndex<otherIndex)
+                                    return false;
+                            }
+                            /*
+                            TODO: méthode qui renvoie la liste des points qui sont
+                            exactement (à 0.1 près par ex) à une coordonnée, et
+                            l'appeler avec les coordonnées du point sélectionné
+                            ici. Si un de ces points fait partie d'une forme dont
+                            l'index (dans workspace.shapes) est supérieur à
+                            l'index de la forme du point sélectionné ici, faire
+                            un return false. Car cela signifie que le point ici
+                            est derrière un autre et ne devrait pas (?) pouvoir
+                            être sélectionné.
+                             */
+
                             bestDist = dist;
                             point = {
                                 'pointType': 'vertex',
@@ -370,7 +397,36 @@ export class InteractionAPI {
                         };
                         if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
                             let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
-                            if(dist<bestDist) {
+                            console.log(shape.id, dist);
+                            if(dist<bestDist || Math.abs(bestDist-dist)<0.1) {
+                                //Vérifier que le point n'est pas derrière une forme
+                                let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
+                                    thisIndex = app.workspace.getShapeIndex(shape);
+                                if(shapes.some(s => {
+                                    let otherIndex = app.workspace.getShapeIndex(s);
+                                    return otherIndex>thisIndex;
+                                }))
+                                    return false;
+
+                                if(point) {
+                                    //Garder le point de la forme la plus en avant
+                                    let otherIndex = app.workspace.getShapeIndex(point.shape);
+                                    if(thisIndex<otherIndex)
+                                        return false;
+                                }
+
+                                /*
+                                TODO: méthode qui renvoie la liste des points qui sont
+                                exactement (à 0.1 près par ex) à une coordonnée, et
+                                l'appeler avec les coordonnées du point sélectionné
+                                ici. Si un de ces points fait partie d'une forme dont
+                                l'index (dans workspace.shapes) est supérieur à
+                                l'index de la forme du point sélectionné ici, faire
+                                un return false. Car cela signifie que le point ici
+                                est derrière un autre et ne devrait pas (?) pouvoir
+                                être sélectionné.
+                                 */
+
                                 bestDist = dist;
                                 point = {
                                     'pointType': 'segmentPoint',
@@ -470,6 +526,15 @@ export class InteractionAPI {
                 //Point trop loin?
                 let dist3 = Points.dist(mouseCoordinates, projection);
                 if(dist3 > app.settings.get("magnetismDistance") )
+                    return false;
+
+                //Vérifier que le segment n'est pas derrière une forme.
+                let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
+                    thisIndex = app.workspace.getShapeIndex(shape);
+                if(shapes.some(s => {
+                    let otherIndex = app.workspace.getShapeIndex(s);
+                    return otherIndex>thisIndex;
+                }))
                     return false;
 
                 segment =  {
