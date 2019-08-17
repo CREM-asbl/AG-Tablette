@@ -46,7 +46,8 @@ export class UngroupState extends State {
      */
     shapeDrawn(ctx, shape) {
         let group = app.workspace.getShapeGroup(shape),
-            pos = {"x": shape.x - 25, "y": shape.y};
+            center = shape.getAbsoluteCenter(),
+            pos = {"x": center.x - 25, "y": center.y};
         if(group) {
             let groupIndex = app.workspace.getGroupIndex(group);
             app.drawAPI.drawText(ctx, "Groupe "+(groupIndex+1), pos);

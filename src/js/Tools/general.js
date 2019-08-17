@@ -91,3 +91,7 @@ export function uniqId() {
 export function mod(x, n) {
 	return (x % n + n) % n;
 }
+
+export function printCoord(msg, coord) {
+	console.log(msg+" ", parseInt(coord.x*1000)/1000, parseInt(coord.y*1000)/1000);
+}

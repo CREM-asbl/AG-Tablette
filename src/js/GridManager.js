@@ -137,13 +137,19 @@ export class GridManager {
 	static getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates) {
         //Calcule la liste des sommets des formes
         let points = shapes.map(s => {
-            return s.buildSteps.filter(bs => bs.type == "vertex").map(vertex => {
-                return {
-                    'shape': s,
-                    'relativePoint': vertex.coordinates,
-                    'realPoint': Points.add(vertex.coordinates, s, Points.sub(coordinates, mainShape))
+            let list = [];
+            s.buildSteps.forEach((vertex, i1) => {
+                if(vertex.type == 'vertex') {
+                    list.push({
+                        'shape': s,
+                        'relativePoint': vertex.coordinates,
+                        'realPoint': Points.add(vertex.coordinates, s, Points.sub(coordinates, mainShape)),
+                        'type': 'vertex',
+                        'vertexIndex': i1
+                    });
                 }
             });
+            return list;
         }).reduce((total, val) => {
             return total.concat(val);
         }, []);
@@ -152,7 +158,7 @@ export class GridManager {
 
         let best = {
                 'shape': points[0].shape,
-                'shapePoint': points[0].relativePoint,
+                'shapePoint': points[0],
                 'gridPoint': this.getClosestGridPoint(points[0].realPoint)
             },
             bestDist = Points.dist(best.gridPoint, points[0].realPoint);
@@ -162,7 +168,7 @@ export class GridManager {
                 dist = Points.dist(gridPoint, pt.realPoint);
             if(dist < bestDist) {
                 best.shape = pt.shape;
-                best.shapePoint = pt.relativePoint;
+                best.shapePoint = pt;
                 best.gridPoint = gridPoint;
                 bestDist = dist;
             }

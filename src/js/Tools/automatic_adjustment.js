@@ -1,5 +1,6 @@
 import { app } from '../App'
 import { Points } from './points'
+import { getAngleOfPoint, rotatePoint } from './geometry'
 
 /**
  * Calcule la transformation (déplacement et/ou rotation) qu'il faut appliquer à
@@ -33,46 +34,52 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
         return transformation;
 
     if(tangram) {
-        //l'offset peut être de (0, 0) si rien à bouger
+        //l'offset peut être de (0, 0) si rien à bouger (car rien détecté par ex)
         let offset = app.tangramManager.getShapeGroupOffset(shapes, mainShape, coordinates);
         transformation.move = offset;
     }
 
     //La grille peut engendrer un déplacement, mais pas une rotation.
+    let gridPointData;
     if(grid && !tangram) {
-        let data = app.workspace.grid.getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates);
-        if(!data) { //Forme sans sommet. TODO que faire?
-            return transformation; //ne rien faire
+        gridPointData = app.workspace.grid.getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates);
+        if(!gridPointData) { //Forme sans sommet -> rien à faire
+            return transformation;
         }
-        let { gridPoint, shape, shapePoint } = data;
+        let { gridPoint, shape, shapePoint } = gridPointData;
 
-        let realPoint = Points.add(shapePoint, shape, Points.sub(coordinates, mainShape)),
+        let realPoint = Points.add(shapePoint.relativePoint, shape, Points.sub(coordinates, mainShape)),
             groupOffset = Points.sub(gridPoint, realPoint);
 
         transformation.move = groupOffset;
     }
 
     if(automaticAdjustment) {
-        if(grid) {
-            //TODO ajouter rotation si possible (ne pas bouger le point grid)
-            //utiliser l'action Rotate ensuite !!
+        let bestPoint = null;
+        if(grid && !tangram) {
+            bestPoint = gridPointData.shapePoint;
         } else {
             //Liste des sommets et segmentPoints
             let points = shapes.map(s => {
                 let list = [];
-                s.buildSteps.forEach(bs => {
+                s.buildSteps.forEach((bs, i1) => {
                     if(bs.type == "vertex") {
                         list.push({
                             'shape': s,
                             'relativePoint': bs.coordinates,
-                            'realPoint': Points.add(bs.coordinates, s, Points.sub(coordinates, mainShape))
+                            'realPoint': Points.add(bs.coordinates, s, Points.sub(coordinates, mainShape)),
+                            'type': 'vertex',
+                            'vertexIndex': i1
                         });
                     } else if(bs.type == "segment") {
-                        bs.points.forEach(pt => {
+                        bs.points.forEach((pt, i2) => {
                             list.push({
                                 'shape': s,
                                 'relativePoint': pt,
-                                'realPoint': Points.add(pt, s, Points.sub(coordinates, mainShape))
+                                'realPoint': Points.add(pt, s, Points.sub(coordinates, mainShape)),
+                                'type': 'segmentPoint',
+                                'segmentIndex': i1,
+                                'ptIndex': i2
                             });
                         })
                     }
@@ -97,6 +104,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
                 if(point && Points.dist(pt.realPoint, point.coordinates)<bestDist) {
                     bestDist = Points.dist(pt.realPoint, point.coordinates);
                     bestTranslation = Points.sub(point.coordinates, pt.realPoint);
+                    bestPoint = pt;
                 }
             });
 
@@ -104,9 +112,108 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
             if(!bestTranslation) return transformation;
 
             transformation.move = bestTranslation;
+        }
 
-            //TODO ajouter légère rotation si possible?
-            //utiliser l'action Rotate ensuite!!
+        if(bestPoint.type=='vertex') {// OU type = segmentPoint: quid?
+            let newBestPointPos = Points.add(bestPoint.realPoint, transformation.move);
+            let pointsToTest = [];
+
+            //previous vertex:
+            let shape = bestPoint.shape,
+                bestPointIndex = bestPoint.vertexIndex,
+                prev1 = shape.getPrevBuildstepIndex(bestPointIndex),
+                pt1 = shape.buildSteps[prev1],
+                prev2 = shape.getPrevBuildstepIndex(prev1),
+                pt2 = shape.buildSteps[prev2];
+            if(pt1.type=='segment' && pt1.isArc!==true && pt2.type=='vertex') {
+                pointsToTest.push({
+                    'realPoint': Points.add(pt2.coordinates, shape, Points.sub(coordinates, mainShape)),
+                    'type': 'vertex',
+                    'vertexIndex': prev2
+                });
+            }
+            //next vertex:
+            let next1 = shape.getNextBuildstepIndex(bestPointIndex);
+            pt1 = shape.buildSteps[next1];
+            let next2 = shape.getNextBuildstepIndex(next1);
+            pt2 = shape.buildSteps[next2];
+            if(pt1.type=='segment' && pt1.isArc!==true && pt2.type=='vertex') {
+                pointsToTest.push({
+                    'realPoint': Points.add(pt2.coordinates, shape, Points.sub(coordinates, mainShape)),
+                    'type': 'vertex',
+                    'vertexIndex': next2
+                });
+            }
+
+            //find common segment (that includes bestPoint)
+            let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
+            constr.canSelect = true;
+            constr.types = ['vertex']; //, 'segmentPoint'];
+            if(excludeSelf)
+                constr.blacklist = shapes;
+
+            let bestOther = null,
+                bestOtherDist = 1000*1000*1000,
+                bestOtherTranslation = null;
+            pointsToTest.forEach(pt => {
+                let point = app.interactionAPI.selectPoint(pt.realPoint, constr);
+                if(point && Points.dist(pt.realPoint, point.coordinates)<bestOtherDist) {
+                    bestOtherDist = Points.dist(pt.realPoint, point.coordinates);
+                    bestOtherTranslation = Points.sub(point.coordinates, pt.realPoint);
+                    bestOther = pt;
+                }
+            });
+
+            if(!bestOther) return transformation;
+
+            let segment = {
+                pt1: {
+                    'ref': newBestPointPos,
+                    'moving': bestPoint.realPoint
+                },
+                pt2: {
+                    'ref': Points.add(bestOther.realPoint, bestOtherTranslation),
+                    'moving': bestOther.realPoint
+                }
+            };
+
+            let pts = {
+                'pt1': Points.sub(segment.pt2.ref, segment.pt1.ref),
+                'pt2': Points.sub(segment.pt2.moving, segment.pt1.moving)
+            }
+
+            let angle1 = getAngleOfPoint(Points.create(0, 0), pts.pt1), //ref
+                angle2 = getAngleOfPoint(Points.create(0, 0), pts.pt2); //moving
+
+            let angle = angle1 - angle2;
+            if(angle>Math.PI) angle -= 2*Math.PI;
+            if(angle<-Math.PI) angle += 2*Math.PI;
+            if(Math.abs(angle)<0.00000001) angle = 0;
+
+            let afterRotationCoords = {
+                'pt1': rotatePoint(segment.pt1.moving, angle, Points.add(coordinates, shape.center)),
+                'pt2': rotatePoint(segment.pt2.moving, angle, Points.add(coordinates, shape.center))
+            };
+
+            transformation = {
+                'rotation': angle,
+                'move': Points.sub(segment.pt1.ref, afterRotationCoords.pt1)
+            };
+
+            //TODO: un 'segment' commun pourrait être formé par un vertex et un segmentPoint? pour l'instant non.
+        } else {
+            /*
+            bestPoint:
+            {
+                'shape': s,
+                'relativePoint': pt,
+                'realPoint': Points.add(pt, s, Points.sub(coordinates, mainShape)),
+                'type': 'segmentPoint',
+                'segmentIndex': i1,
+                'ptIndex': i2
+            }
+             */
+            //TODO?
         }
     }
 
@@ -142,40 +249,8 @@ export function getNewShapeAdjustment(coordinates) {
 
 
 /*
-            //Appliquer le déplacement:
-            var shapesSave = [];
-            for (var i = 0; i < this.shapesList.length; i++) {
-                shapesSave.push(this.shapesList[i].getSaveData());
 
-
-                var xDiff = this.clickCoordinates.x - this.shapesList[i].x;
-                var yDiff = this.clickCoordinates.y - this.shapesList[i].y;
-
-                //n.
-                var newX = point.x - xDiff;
-                var newY = point.y - yDiff;
-
-                this.shapesList[i].setCoordinates({ "x": newX, "y": newY });
-            }
-
-            //déplacer si la grille est là.
-            var bestSegment;
-            if (settings.get('isGridShown')) {
-                var t = app.workspace.getClosestGridPoint(this.shapesList);
-                var gridCoords = t.grid.getAbsoluteCoordinates(),
-                    shapeCoords = t.shape.getAbsoluteCoordinates();
-                for (var i = 0; i < this.shapesList.length; i++) {
-                    this.shapesList[i].x += gridCoords.x - shapeCoords.x;
-                    this.shapesList[i].y += gridCoords.y - shapeCoords.y;
-                }
-
-                if (settings.get('automaticAdjustment')) {
-                    //Est-ce qu'il y a un segment dont l'une des extrémités est le point sélectionné de la grille
-                    //TODO HERE: trouver un segment autour du point, pour une rotation ?
-                }
-
-
-            } else if (settings.get('automaticAdjustment')) {
+            if (settings.get('automaticAdjustment')) {
                 bestSegment = null; //segment du groupe de forme qui va être rapproché d'un segment d'une forme externe.
                 var otherShapeSegment = null; //le segment de la forme externe correspondante.
                 var segmentScore = 1000 * 1000 * 1000; //somme des carrés des distances entre les sommets des 2 segments ci-dessus.

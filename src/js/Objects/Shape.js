@@ -66,6 +66,7 @@ export class Shape {
         return bsIndex+1;
     }
 
+    //bsIndex doit être l'index d'un buildStep qui n'est pas moveTo.
     getPrevBuildstepIndex(bsIndex) {
         if(bsIndex==1) {
             return this.buildSteps.length-1; //skip 0 (moveTo)

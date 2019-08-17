@@ -1,5 +1,6 @@
 import { app } from '../App'
 import { MoveAction } from './Actions/Move'
+import { RotateAction } from './Actions/Rotate'
 import { State } from './State'
 import { getShapeAdjustment } from '../Tools/automatic_adjustment'
 import { Points } from '../Tools/points'
@@ -79,7 +80,12 @@ export class MoveState extends State {
             transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape, newPos);
 
         if(transformation.rotation != 0) {
-            console.error("TODO: rotation not implemented");
+            let rotateAction = new RotateAction();
+
+            rotateAction.shapeId = this.selectedShape.id;
+            rotateAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
+            rotateAction.rotationAngle = transformation.rotation;
+            this.actions.push(rotateAction);
         }
         this.actions[0].transformation = Points.add(translation, transformation.move);
 

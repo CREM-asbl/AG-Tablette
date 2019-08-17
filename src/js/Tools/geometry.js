@@ -157,6 +157,22 @@ export function getAngleOfPoint(refPoint, point) {
 }
 
 /**
+ * Applique une rotation d'un certain angle sur un point.
+ * @param  {Point} point Le point
+ * @param  {float} angle L'angle en radians
+ * @param  {Point} center Le centre autour duquel effectuer la rotation
+ */
+export function rotatePoint(point, angle, center) {
+    let s = Math.sin(angle),
+        c = Math.cos(angle),
+        x = point.x - center.x,
+        y = point.y - center.y,
+        newX = x * c - y * s + center.x,
+        newY = x * s + y * c + center.y;
+    return { 'x': newX, 'y': newY };
+}
+
+/**
  * Renvoie la projection d'un point sur un segment
  * @param  {Point} point        Le point
  * @param  {Point} segmentStart Première extrémité du segment
