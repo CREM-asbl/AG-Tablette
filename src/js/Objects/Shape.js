@@ -1,6 +1,6 @@
 import { uniqId, mod } from '../Tools/general'
 import { Points } from '../Tools/points'
-import { collinear } from '../Tools/geometry'
+import { collinear, getProjectionOnSegment } from '../Tools/geometry'
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep'
 import { app } from '../App'
 
@@ -243,10 +243,22 @@ export class Shape {
             if(bs.type=="segment") {
                 let pt1 = Points.add(this, this.buildSteps[index-1].coordinates),
                     pt2 = Points.add(this, bs.coordinates),
+                    projection = getProjectionOnSegment(point, pt1, pt2),
+                    projDist = Points.dist(projection, point),
+                    refDist = Points.dist(pt1, pt2),
+                    d1 = Points.dist(pt1, point),
+                    d2 = Points.dist(pt2, point);
+                return projDist<1 && d1<refDist && d2<refDist;
+
+                //old method:
+                /*
+                let pt1 = Points.add(this, this.buildSteps[index-1].coordinates),
+                    pt2 = Points.add(this, bs.coordinates),
                     refDist = Points.dist(pt1, pt2),
                     d1 = Points.dist(pt1, point),
                     d2 = Points.dist(pt2, point);
                 return collinear(pt1, pt2, point) && d1<refDist && d2<refDist;
+                */
             }
             return false;
         });
@@ -269,7 +281,7 @@ export class Shape {
          * ->wikipédia: https://en.wikipedia.org/wiki/Sweep_line_algorithm
          * ->explication détaillée: http://www.cs.tufts.edu/comp/163/notes05/seg_intersection_handout.pdf
          */
-        let precision = 50; //complexité de precision²
+        let precision = 50; //la complexité est de:  precision²
 
         let s1 = this,
             s2 = shape;
@@ -298,7 +310,10 @@ export class Shape {
                 if(inS1 && inS2) {
                     let inS1Border = s1.isPointInBorder(pt),
                         inS2Border = s2.isPointInBorder(pt);
-                    if(!inS1Border || !inS2Border) return true;
+                    if(!inS1Border && !inS2Border) {
+                        app.drawAPI.drawPoint(app.drawAPI.upperCtx, pt, undefined, 3);
+                        return true;
+                    }
                 }
             }
         }

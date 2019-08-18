@@ -111,8 +111,17 @@ export class CutState extends State {
                 return;
             }
 
-            if(!this.isLineValid(object.shape, pt1.coordinates, object.coordinates))
-                return;
+
+            if(this.currentStep == 'select-third-point') {
+                let centerCoord = this.actions[0].centerPoint.coordinates;
+                if(!this.isLineValid(object.shape, pt1.coordinates, centerCoord))
+                    return;
+                if(!this.isLineValid(object.shape, centerCoord, object.coordinates))
+                    return;
+            } else {
+                if(!this.isLineValid(object.shape, pt1.coordinates, object.coordinates))
+                    return;
+            }
 
             this.actions[0].secondPoint = object;
             this.currentStep = 'showing-selected-points';
