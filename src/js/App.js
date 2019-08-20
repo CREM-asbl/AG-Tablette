@@ -176,6 +176,7 @@ export class App {
 
     addPermanentState(stateName) {
         let state = StatesManager.getPermanentStateInstance(stateName);
+        if (!state) return
         this.permanentStates.push(state);
         state.start();
     }

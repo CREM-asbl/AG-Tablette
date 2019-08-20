@@ -41,8 +41,8 @@ import  { DivideAction } from './States/Actions/Divide.js'
 import  { MergeAction } from './States/Actions/Merge.js'
 import  { CutAction } from './States/Actions/Cut.js'
 
-export class StatesManager {
-    static actions = {
+export const StatesManager = {
+    actions : {
         'BackgroundColorAction': {
             "getInstance": function() { return new BackgroundColorAction(); }
         },
@@ -97,9 +97,9 @@ export class StatesManager {
         'CutAction': {
             "getInstance": function() { return new CutAction(); }
         }
-    };
+    },
 
-    static states = {
+    states: {
         'create_shape': {
             "name": 'Ajouter une forme',
             "instance": null,
@@ -195,17 +195,17 @@ export class StatesManager {
             "instance": null,
             "getInstance": function() { return new TangramCreatorState(); }
         }
-    };
+    },
 
-    static permanentStates = {
+    permanentStates: {
         'permanent_zoom_plane': {
             "name": 'Zoom',
             "instance": null,
             "getInstance": function() { return new PermanentZoomPlaneState(); }
         }
-    }
+    },
 
-    static getStateInstance(stateName) {
+    getStateInstance: function(stateName) {
         if(!this.states[stateName]) {
             console.error("This state does not exists");
             return null;
@@ -216,9 +216,9 @@ export class StatesManager {
         }
 
         return this.states[stateName].instance;
-    }
+    },
 
-    static getPermanentStateInstance(stateName) {
+    getPermanentStateInstance: function(stateName) {
         if(!this.permanentStates[stateName]) {
             console.error("This permanent state does not exists");
             return null;
@@ -228,9 +228,9 @@ export class StatesManager {
             this.permanentStates[stateName].instance = instance;
         }
         return this.permanentStates[stateName].instance;
-    }
+    },
 
-    static getStateText(stateName) {
+    getStateText: function(stateName) {
         if(!this.states[stateName]) return null;
         return this.states[stateName].name;
     }
