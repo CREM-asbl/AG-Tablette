@@ -37,15 +37,6 @@
             overflow-y: hidden;
         }
 
-        div#open-virtual-mouse {
-            position: absolute;
-            z-index: 200;
-            width: 50px;
-            height: 50px;
-            background-color: red;
-            right: 0px;
-            bottom: 0px;
-        }
 
         /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
         input[type="color"] {
@@ -64,9 +55,9 @@
 <body>
     <ag-tablette-app></ag-tablette-app>
 
-    <!-- 
-        refactoring en composants
-        Ceux-ci devraient être placé idéalement dans ag-tablette-app.js    
+    <!--
+        TODO refactoring en composants
+        Ceux-ci devraient être placé idéalement dans ag-tablette-app.js
     -->
     <label id="color-picker-label" for="color-picker" hidden></label>
     <input id="color-picker" type="color">
@@ -76,7 +67,7 @@
     <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 
     <script type="module" src="/src/ag-tablette-app.js" crossorigin></script>
-    <script type="module" src="/src/divide-popup.js" crossorigin></script>
+    <script type="module" src="/src/popups/divide-popup.js" crossorigin></script>
 
     <noscript>
         Veuillez activer javascript pour profiter de cette application

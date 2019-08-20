@@ -2,34 +2,20 @@ import { LitElement, html } from 'lit-element'
 import './canvas-button'
 import './shapes-list'
 import './div-main-canvas'
-import './app-settings'
+import './popups/app-settings'
 import './flex-toolbar'
 import './icon-button'
-// import './divide-popup'
+//import './popups/divide-popup'
 import './js/Manifest'
-import './new-popup'
-import { dico } from './js/Dico'
+import './popups/new-popup'
+import './popups/grid-popup'
+import './popups/tangram-popup'
+import './popups/opacity-popup'
+import './state-menu'
 
-// Chargement des States
-// TODO: à remplacer par chargement 'dynamique'
-import './js/States/BackgroundColor'
-import './js/States/BorderColor'
-import './js/States/BuildCenter'
-import './js/States/Create'
-import './js/States/Cut'
-import './js/States/Divide'
-import './js/States/Delete'
-import './js/States/Duplicate'
-import './js/States/GlobalZoom'
-import './js/States/Linker'
-import './js/States/Merge'
-import './js/States/Move'
-import './js/States/MovePlane'
-import './js/States/Reverse'
-import './js/States/Rotate'
-import './js/States/Unlinker'
-import { standardShapes } from './js/StandardShapes';
-
+import { app } from './js/App'
+import { standardKit } from './js/ShapesKits/standardKit'
+import { StatesManager } from './js/StatesManager'
 
 class AGTabletteApp extends LitElement {
 
@@ -37,15 +23,23 @@ class AGTabletteApp extends LitElement {
         return {
             state: Object,
             families: Array,
+            canUndo: Boolean,
+            canRedo: Boolean,
             background: String
         }
     }
 
     constructor() {
-        super()
-        this.families = Object.keys(standardShapes)
-        this.state = {}
-        addEventListener('app-state-changed', event => this.state = { ...event.detail })
+        super();
+        this.families = app.workspace.environment.familyNames;
+        this.state = {};
+        app.appDiv = this;
+        this.canUndo = false;
+        this.canRedo = false;
+
+        addEventListener('app-state-changed', event => {
+            this.state = { ...event.detail };
+        });
     }
 
     render() {
@@ -62,13 +56,21 @@ class AGTabletteApp extends LitElement {
             #app-canvas-view > .toolbar {
                 display: flex;
                 flex-flow: column;
-                flex: 0 0 180px;
+                flex: 0 0 195px;
                 padding: 4px;
                 height: 100%;
                 box-sizing: border-box;
                 border-right: 1px solid gray;
                 background-color: #ddd;
                 overflow: hidden;
+            }
+
+            #app-canvas-view-toolbar {
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -o-user-select: none;
+                user-select: none;
             }
 
             #app-canvas-view-toolbar-p1 {
@@ -113,7 +115,7 @@ class AGTabletteApp extends LitElement {
             <div id="app-canvas-view-toolbar" class="toolbar">
                 <div id="app-canvas-view-toolbar-p1">
                         <div id="app-canvas-mode-text">
-                            <span>Mode: </span>${dico[this.state.name]}
+                            <span>Mode: </span> ${this.state.name ? StatesManager.getStateText(this.state.name) : ""}
                         </div>
                         <flex-toolbar>
                             <icon-button src="/images/delete-all.svg"
@@ -121,32 +123,33 @@ class AGTabletteApp extends LitElement {
                                     name="new"
                                     @click="${this._actionHandle}">
                             </icon-button>
-                            <icon-button src="/images/delete.svg"
-                                    title="Supprimer une forme"
-                                    name="delete_shape"
-                                    ?active="${this.state.name === 'delete_shape'}"
-                                    @click='${this._actionHandle}'>
+                            <icon-button src="/images/load.svg"
+                                    title="Ouvrir"
+                                    name="load"
+                                    @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
                             </icon-button>
                             <icon-button src="/images/save.svg"
                                     title="Sauvegarder"
                                     name="save"
-                                    @click='${this.save}'>
+                                    @click='${() => app.wsManager.saveWorkspaceToFile(app.workspace)}'>
                             </icon-button>
                             <icon-button src="/images/undo.svg"
                                     title="Annuler"
                                     name="undo"
+                                    ?disabled="${!this.canUndo}"
                                     @click='${this._actionHandle}'>
                             </icon-button>
                             <icon-button src="/images/redo.svg"
                                     title="Refaire"
                                     name="redo"
-                                    @click='${this._actionHandle}'
-                                    disabled>
+                                    ?disabled="${!this.canRedo}"
+                                    @click='${this._actionHandle}'>
                             </icon-button>
-                            <icon-button src="/images/load.svg"
-                                    title="Ouvrir"
-                                    name="load"
-                                    @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
+                            <icon-button src="/images/delete.svg"
+                                    title="Supprimer une forme"
+                                    name="delete_shape"
+                                    ?active="${this.state.name === 'delete_shape'}"
+                                    @click='${this._actionHandle}'>
                             </icon-button>
                             <icon-button src="/images/settings.svg"
                                     title="Paramètres"
@@ -217,8 +220,8 @@ class AGTabletteApp extends LitElement {
                         </icon-button>
                         <icon-button src="/images/copy.svg"
                                 title="Copier"
-                                name="duplicate_shape"
-                                ?active="${this.state.name === 'duplicate_shape'}"
+                                name="copy_shape"
+                                ?active="${this.state.name === 'copy_shape'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/merge.svg"
@@ -233,26 +236,26 @@ class AGTabletteApp extends LitElement {
                     <flex-toolbar>
                         <icon-button src="/images/moveplane.svg"
                                 title="Glisser le plan"
-                                name="moveplane_state"
-                                ?active="${this.state.name === 'moveplane_state'}"
+                                name="translate_plane"
+                                ?active="${this.state.name === 'translate_plane'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/zoom.svg"
                                 title="Zoomer"
-                                name="global_zoom"
-                                ?active="${this.state.name === 'global_zoom'}"
+                                name="zoom_plane"
+                                ?active="${this.state.name === 'zoom_plane'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/group.svg"
                                 title="Grouper"
-                                name="link_shapes"
-                                ?active="${this.state.name === 'link_shapes'}"
+                                name="group_shapes"
+                                ?active="${this.state.name === 'group_shapes'}"
                                 @click='${this._actionHandle}'>
                          </icon-button>
                         <icon-button src="/images/ungroup.svg"
                                 title="Dégrouper"
-                                name="unlink_shapes"
-                                ?active="${this.state.name === 'unlink_shapes'}"
+                                name="ungroup_shapes"
+                                ?active="${this.state.name === 'ungroup_shapes'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
                         <icon-button src="/images/background-color.svg"
@@ -274,8 +277,29 @@ class AGTabletteApp extends LitElement {
                         </icon-button>
                         <icon-button src="/images/backplane.svg"
                                 title="Arrière-plan"
-                                name="back_plane"
-                                disabled>
+                                name="to_background"
+                                ?active="${this.state.name === 'to_background'}"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/grille.svg"
+                                title="Grille"
+                                name="grid_menu"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/opacity.svg"
+                                title="Opacité"
+                                name="opacity"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/tangram-edit.svg"
+                                title="Créer Tangram"
+                                name="tangram_creator"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <icon-button src="/images/tangram.svg"
+                                title="Faire un Tangram"
+                                name="tangram_menu"
+                                @click='${this._actionHandle}'>
                         </icon-button>
                     </flex-toolbar>
                 </div>
@@ -284,9 +308,17 @@ class AGTabletteApp extends LitElement {
             <div-main-canvas id="div-main-canvas" background="${this.background}"></div-main-canvas>
         </div>
 
+        <state-menu></state-menu>
+
         <shapes-list .state="${this.state}"></shapes-list>
 
         <app-settings></app-settings>
+
+        <grid-popup></grid-popup>
+
+        <tangram-popup></tangram-popup>
+
+        <opacity-popup></opacity-popup>
 
         <new-popup></new-popup>
 
@@ -294,64 +326,53 @@ class AGTabletteApp extends LitElement {
                accept=".json"
                type="file"
                style="display: none"
-               @change=${event => app.loadFromFile(event.target.files[0])}>
+               @change=${this._inputChanged}>
         `
     }
 
-    firstUpdated() {
-        window.canvasLeftShift = this.shadowRoot.getElementById("app-canvas-view-toolbar").clientWidth;
+    _inputChanged(event) {
+        let file = event.target.files[0],
+            callback = () => {
+                let input = event.path[0];
+                input.value = '';
+            };
+        app.wsManager.setWorkspaceFromFile(file, callback);
     }
 
     /**
      * Main event handler
      */
     _actionHandle(event) {
-
         if (event.target.name == "settings") {
-            window.app.setState("no_state")
             this.shadowRoot.querySelector('app-settings').style.display = 'block'
         }
-
         else if (event.target.name === "new") {
-            window.app.setState("no_state");
-            this.shadowRoot.querySelector('new-popup').open()
+            this.shadowRoot.querySelector('new-popup').open();
         }
-
+        else if (event.target.name === "grid_menu") {
+            this.shadowRoot.querySelector('grid-popup').style.display = 'block'
+        }
+        else if (event.target.name === "tangram_menu") {
+            this.shadowRoot.querySelector('tangram-popup').style.display = 'block'
+        }
         else if (event.target.name == "undo") {
-            window.app.setState("no_state");
-            window.app.workspace.history.cancelLastStep();
+            if(this.canUndo)
+                window.app.workspace.history.undo();
         }
-
+        else if (event.target.name == "redo") {
+            if(this.canRedo)
+                window.app.workspace.history.redo();
+        }
         else if (event.target.name === 'create_shape') {
-            app.setState(event.target.name, { family: event.target.family })
+            app.setState(event.target.name, event.target.family);
         }
-
-        else if (dico[event.target.name]) {
-            if (window.app.workspace.history.isRunning) {
-                console.log("history is running, skipping action");
-                return;
-            }
+        else if (StatesManager.getStateText(event.target.name)) {
             window.app.setState(event.target.name);
         }
-
         else {
-            console.log("AGTabletteApp._actionHandle: received unknown event:");
-            console.log(event);
+            console.error("AGTabletteApp._actionHandle: received unknown event:");
+            console.error(event);
         }
-    }
-
-    // Todo: à placer dans le workspace ?
-    // car sauvegarde du workspace => workspace.saveToFile()
-    save() {
-        let json = JSON.stringify(app.workspace.getSaveData())
-        const file = new Blob([json], { type: 'text/json' })
-        const downloader = document.createElement('a')
-        downloader.href = window.URL.createObjectURL(file)
-        downloader.download = 'save.json'
-        downloader.target = '_blank'
-        document.body.appendChild(downloader)
-        downloader.click()
-        document.body.removeChild(downloader)
     }
 
     // Todo: Placer dans un objet BackgroundImage ?
@@ -369,6 +390,5 @@ class AGTabletteApp extends LitElement {
         reader.onload = e => this.background = e.target.result
         reader.readAsDataURL(file)
     }
-    /***/
 }
 customElements.define('ag-tablette-app', AGTabletteApp)

@@ -1,272 +1,225 @@
-import {Point} from '../Point'
-import {settings} from '../Settings'
+import { app } from '../App'
+import { DivideAction } from './Actions/Divide'
+import { State } from './State'
+import { Points } from '../Tools/points'
+
 /**
- * Cette classe permet de diviser un segment en plusieurs "parties" de tailles égales en créant des points entre ces parties.
- * Le segment peut être une arrête d'une forme, ou être défini par 2 points existants (les 2 points étant sur un même segment ou arc de cercle).
- *
- *
- * Utilisation:
- * -sélectionner une forme. Si c'est un cercle, cela divise le contour du cercle en X.
- * Sinon, il faut ensuite sélectionner un segment de la forme. Cela divise le segment
- * en X parts (-> crée x-1 nouveaux points)
+ * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
  */
-class DivideState {
+export class DivideState extends State {
 
     constructor() {
-        this.name = "divide_segment";
-        this.nb_parts = null;
-        this.selectedShape = null;
+        super("divide_segment");
+
+        // choose-nb-parts -> listen-canvas-click -> select-second-point -> showing-points
+        //                                        -> showing-segment
+        this.currentStep = null;
+
+        this.shape = null;
+
+        this.timeoutRef = null;
+
+        this.selConstr = null;
     }
 
     /**
-     * Renvoie le segment actuellement sélectionné, ou null s'il n'y a pas de segment sélectionné.
-     * @param  {Shape} shape            la forme actuelle
-     * @param  {{'x': float, 'y': float}} clickCoordinates coordonnées de la souris.
-     * @return {{'p1': float, 'p2': float, 'sourcepoint1': Point, 'sourcepoint2': Point}}  le segment (ou null).
+     * (ré-)initialiser l'état
      */
-    getSelectedSegment(shape, clickCoordinates) {
-        var lastPoint = null;
-        for (var i = 1; i < shape.buildSteps.length; i++) {
-            lastPoint = shape.buildSteps[i - 1].getFinalPoint(lastPoint);
-            if (shape.buildSteps[i].type != "line")
-                continue;
-            var u = {
-                'x': (clickCoordinates.x - shape.x) - lastPoint.x,
-                'y': (clickCoordinates.y - shape.y) - lastPoint.y
-            }
-            var v = {
-                'x': shape.buildSteps[i].x - lastPoint.x,
-                'y': shape.buildSteps[i].y - lastPoint.y
-            }
-            //calculer la projection de u sur v.
-            var produit_scalaire = u.x * v.x + u.y * v.y;
-            var norme_v = v.x * v.x + v.y * v.y;
+    start(openPopup = true) {
+        this.actions = [new DivideAction(this.name)];
 
-            var proj = {
-                'x': produit_scalaire * v.x / norme_v + lastPoint.x,
-                'y': produit_scalaire * v.y / norme_v + lastPoint.y
-            }
+        this.currentStep = "choose-nb-parts";
 
-            var pt1 = lastPoint,
-                pt2 = shape.buildSteps[i],
-                pt3 = proj,
-                precision =  settings.get('precision');
+        this.shape = null;
+        this.timeoutRef = null;
 
-            var dist = Math.sqrt(Math.pow(proj.x - (clickCoordinates.x - shape.x), 2) + Math.pow(proj.y - (clickCoordinates.y - shape.y), 2));
-            if (dist < settings.get('magnetismDistance')) {
-                //Vérifier que proj est bien entre shape
-                if (Math.abs((pt3.x - pt1.x) * (pt2.y - pt1.y) - (pt2.x - pt1.x) * (pt3.y - pt1.y)) < precision) { //pt1,2,3 alignés
-                    //déterminant de (AB, AC) est nul!
-                    if ((pt1.x - pt3.x) * (pt2.x - pt3.x) + (pt1.y - pt3.y) * (pt2.y - pt3.y) <= precision) { //pt3 entre pt1 et pt2
-                        //produit scalaire de CA, CB est négatif ou nul!
-                        return { //Ce segment est sélectionné!
-                            'p1': lastPoint,
-                            'p2': shape.buildSteps[i],
-                            'sourcepoint1': shape.points[i - 1],
-                            'sourcepoint2': shape.points[i % shape.points.length], //i peut valoir shape.points.length max, car il y a une buildStep en plus.
-                            'index': i
-                        }
-                    }
-                }
-            }
-        }
-        return null;
+        this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
+        this.selConstr.eventType = 'click';
+        this.selConstr.segments.canSelect = true;
+        this.selConstr.points.canSelect = true;
+        this.selConstr.points.types = ['vertex', 'segmentPoint'];
+        app.interactionAPI.setSelectionConstraints(this.selConstr);
+
+        if(openPopup)
+            document.querySelector("divide-popup").style.display = "block";
     }
 
-    getSelectedArc(shape, clickCoordinates) {
-        var lastPoint = null;
-        for (var i = 1; i < shape.buildSteps.length; i++) {
-            lastPoint = shape.buildSteps[i - 1].getFinalPoint(lastPoint);
-            if (shape.buildSteps[i].type != "arc")
-                continue;
+    abort() {
+        window.clearTimeout(this.timeoutRef);
+    }
 
-            var x = clickCoordinates.x - shape.getCoordinates().x, //Coordonnées relatives du clic par rapport au centre de la forme
-                y = clickCoordinates.y - shape.getCoordinates().y,
-                center = shape.buildSteps[i],
-                center_dist = Math.sqrt(Math.pow(x - center.x, 2) + Math.pow(y - center.y, 2)),
-                rayon = Math.sqrt(Math.pow(lastPoint.x - center.x, 2) + Math.pow(lastPoint.y - center.y, 2)),
-                start_angle = window.app.positiveAtan2(lastPoint.y - center.y, lastPoint.x - center.x),
-                end_angle = null,
-                angle = window.app.positiveAtan2(y - center.y, x - center.x);
-
-            //Vérifier si la souris est dans le bon angle.
-            if (shape.buildSteps[i].direction) //sens anti-horloger
-                end_angle = window.app.positiveAngle(start_angle - center.angle);
-            else
-                end_angle = window.app.positiveAngle(start_angle + center.angle);
-
-            if (Math.abs(rayon - center_dist) < settings.get('magnetismDistance') || shape.buildSteps.length == 2 /*cercle*/) { //distance entre le centre du cercle et le point égale au rayon
-                if (window.app.isAngleBetweenTwoAngles(start_angle, end_angle, shape.buildSteps[i].direction, angle)) {
-                    return { //Cet arc est sélectionné!
-                        'start_angle': start_angle,
-                        'rayon': rayon,
-                        'buildstep': shape.buildSteps[i],
-                        'buildstepIndex': i
-                    }
-                }
-            }
-        }
-        return null;
+    setNumberOfparts(parts) {
+         this.actions[0].numberOfparts = parseInt(parts);
+         this.currentStep = "listen-canvas-click";
     }
 
     /**
-     * @param coordinates: {x: int, y: int}
+     * Appelée par l'interactionAPI lorsqu'un point/segment a été sélectionnée (click)
+     * @param  {Object} object            L'élément sélectionné
+     * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+     * @param  {Event} event            l'événement javascript
      */
-    click(coordinates, selection) {
-        if (this.nb_parts == null)
-            return;
+    objectSelected(object, clickCoordinates, event) {
+        if(this.currentStep != 'listen-canvas-click'
+            && this.currentStep != 'select-second-point') return;
 
-        if (!this.selectedShape) {
-            var list = app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-            if (list.length == 0 && !selection.shape)
+        if(this.currentStep == "listen-canvas-click") {
+            if(object.type == "segment") {
+                this.actions[0].shapeId = object.shape.id;
+                this.actions[0].mode = 'segment';
+                this.actions[0].segmentIndex = object.index;
+                this.shape = object.shape;
+                this.currentStep = 'showing-segment';
+            } else {
+                this.currentStep = "select-second-point";
+                this.actions[0].mode = 'two_points';
+                this.actions[0].shapeId = object.shape.id;
+                this.actions[0].firstPoint = object;
+
+                //Liste des points que l'on peut sélectionner comme 2ème point:
+                let pointsList = this.getCandidatePoints(object);
+
+                this.selConstr.segments.canSelect = false;
+                this.selConstr.points.whitelist = pointsList;
+                app.interactionAPI.setSelectionConstraints(this.selConstr);
+
+                app.drawAPI.askRefresh();
+                app.drawAPI.askRefresh('upper');
                 return;
-            this.selectedShape = selection.shape ? selection.shape : list.pop();
-            app.canvas.refresh(coordinates);
-            return;
-        }
-
-        var addedPoints = [];
-
-        //a-t-on sélectionné un segment de la forme ?
-        var seg = this.getSelectedSegment(this.selectedShape, coordinates);
-        if (seg) {
-            for (var j = 1; j < this.nb_parts; j++) {
-                var x = seg.p1.x + j * (1.0 / this.nb_parts) * (seg.p2.x - seg.p1.x),
-                    y = seg.p1.y + j * (1.0 / this.nb_parts) * (seg.p2.y - seg.p1.y);
-                var pt = new Point(x, y, "division", this.selectedShape);
-                pt.sourcepoint1 = seg.sourcepoint1;
-                pt.sourcepoint2 = seg.sourcepoint2;
-                this.selectedShape.segmentPoints.push(pt);
-                addedPoints.push(pt);
             }
         } else {
-            //Arc de cercle ?
-            var arc = this.getSelectedArc(this.selectedShape, coordinates);
-            if (arc) {
-                var angle_step = arc.buildstep.angle / this.nb_parts;
-                if (arc.buildstep.direction) angle_step *= -1;
-                for (var j = 0; j < this.nb_parts; j++) { //j=0 si cercle entier, =1 sinon? TODO
-                    var a = arc.start_angle + j * angle_step,
-                        x = arc.buildstep.x + arc.rayon * Math.cos(a),
-                        y = arc.buildstep.y + arc.rayon * Math.sin(a);
-                    var pt = new Point(x, y, "division", this.selectedShape);
-                    this.selectedShape.segmentPoints.push(pt);
-                    addedPoints.push(pt);
-                }
+            //Check if pt1 == object
+            let pt1 = this.actions[0].firstPoint;
+
+            if(pt1.type==object.type && pt1.index == object.index
+             && (pt1.type=='vertex' || Points.equal(pt1.coordinates, object.coordinates))) {
+                 //pt1 = object => désélectionner le point.
+                 this.currentStep = "listen-canvas-click";
+                 this.actions[0].mode = null;
+                 this.actions[0].shapeId = null;
+                 this.actions[0].firstPoint = null;
+
+                //reset selection constraints:
+                this.selConstr.segments.canSelect = true;
+                this.selConstr.points.whitelist = null;
+                app.interactionAPI.setSelectionConstraints(this.selConstr);
+
+                app.drawAPI.askRefresh();
+                app.drawAPI.askRefresh('upper');
+                return;
             }
 
-
+            this.actions[0].secondPoint = object;
+            this.currentStep = 'showing-points';
         }
 
-        if (addedPoints.length > 0) {
-            this.makeHistory(this.selectedShape, addedPoints);
-            this.selectedShape = null;
-        }
+        window.clearTimeout(this.timeoutRef);
+        this.timeoutRef = window.setTimeout(() => {
+            this.execute();
+        }, 500);
+        app.drawAPI.askRefresh();
+        app.drawAPI.askRefresh('upper');
+    }
 
-        app.canvas.refresh(coordinates);
+    execute() {
+        this.executeAction();
+        let parts = this.actions[0].numberOfparts;
+        this.start(false);
+        this.setNumberOfparts(parts);
+
+        app.drawAPI.askRefresh();
+        app.drawAPI.askRefresh('upper');
     }
 
     /**
-     * Réinitialiser l'état
+     * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
+     * @param  {Context2D} ctx              Le canvas
+     * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
      */
-    reset() {
-        this.nb_parts = null;
-        this.selectedShape = null;
-    }
+    draw(ctx, mouseCoordinates) {
 
-    /**
-     * démarrer l'état
-     */
-    start() {
-        document.querySelector('divide-popup').style.display = 'block';
-    }
-
-    /**
-     * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
-     * @param  {Shape} overflownShape La forme qui est survolée par la souris
-     * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
-     */
-    getElementsToHighlight(overflownShape, coordinates) {
-        var data = {
-            'shapes': [],
-            'segments': [],
-            'points': []
+        if(this.currentStep == 'select-second-point') {
+            let coords = this.actions[0].firstPoint.coordinates;
+            app.drawAPI.drawPoint(ctx, coords, '#E90CC8', 2);
         }
+        if(this.currentStep == 'showing-points') {
+            let coords1 = this.actions[0].firstPoint.coordinates,
+                coords2 = this.actions[0].secondPoint.coordinates;
+            app.drawAPI.drawPoint(ctx, coords1, '#E90CC8', 2);
+            app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
+        }
+        if(this.currentStep == 'showing-segment') {
+            let bs = this.shape.buildSteps,
+                sIndex = this.actions[0].segmentIndex,
+                indexes = [ sIndex ];
+            if(bs [ sIndex ].isArc)
+                indexes = this.shape.getArcSegmentIndexes();
+            indexes.forEach(index => {
+                let coords1 = Points.add(bs [ index - 1].coordinates, this.shape),
+                    coords2 = Points.add(bs [ index ].coordinates, this.shape);
+                app.drawAPI.drawLine(ctx, coords1, coords2, '#E90CC8', 3);
+            });
+        }
+    }
 
-        var seg = this.getSelectedSegment(overflownShape, coordinates);
-        if (seg) {
-            data.segments.push({ 'shape': overflownShape, 'segment': seg.p2 });
+    /**
+     * Calcule la liste des points que l'on peut sélectionner comme 2ème point
+     * @return {[Object]} Liste de points au même format qu'interactionAPI
+     */
+    getCandidatePoints(object) {
+        let shape = object.shape,
+            bs = object.shape.buildSteps,
+            vertexToAdd = [],
+            segmentsToAdd = [];
+
+        //Vertex précédent et suivant:
+        vertexToAdd.push( shape.getPrevVertexIndex(object.index) );
+        vertexToAdd.push( shape.getNextVertexIndex(object.index) );
+
+        if(object.pointType == 'vertex') {
+            vertexToAdd.push( object.index ); //Vertex actuel
+            //segmentPoints suivant et précédent
+            segmentsToAdd.push( shape.getNextBuildstepIndex(object.index) );
+            segmentsToAdd.push( shape.getPrevBuildstepIndex(object.index) );
         } else {
-            var arc = this.getSelectedArc(overflownShape, coordinates);
-            if (arc) {
-                data.segments.push({ 'shape': overflownShape, 'segment': arc.buildstep });
+            //segmentPoint actuel
+            segmentsToAdd.push( object.index );
+        }
+
+        vertexToAdd = vertexToAdd.map(vertex => {
+            return {
+                'shape': shape,
+                'type': 'vertex',
+                'index': vertex
+            };
+        });
+        segmentsToAdd = segmentsToAdd.map(segment => {
+            let start = segment,
+                end = segment,
+                pts = [];
+            if(segment.isArc) {
+                let data = getArcEnds(segment);
+                start = data[0];
+                end = data[1];
             }
-        }
-
-        return data;
-    }
-
-    /**
-     * Ajoute l'action qui vient d'être effectuée dans l'historique
-     */
-    makeHistory(shape, pointsList) {
-        var data = {
-            'shape_id': shape.id,
-            'points': pointsList.map(function (val) {
-                return val.getSaveData();
-            })
-        }
-        app.workspace.history.addStep(this.name, data);
-    }
-
-    /**
-     * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
-     * @param  {Object} data        les données envoyées à l'historique par makeHistory
-     * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
-     */
-    cancelAction(data, callback) {
-        var ws = app.workspace;
-        var shape = ws.getShapeById(data.shape_id)
-        if (!shape) {
-            console.error("DivideState.cancelAction: shape not found...");
-            callback();
-            return;
-        }
-
-        var nb_removed = 0;
-        for (var i = 0; i < data.points.length; i++) {
-            var p = Point.createFromSaveData(data.points[i]);
-            for (var j = 0; j < shape.segmentPoints.length; j++) {
-                var sp = shape.segmentPoints[j];
-                if (sp.x == p.x && sp.y == p.y) {
-                    nb_removed++;
-                    shape.segmentPoints.splice(j, 1);
-                    break;
-                }
+            let index = start-1;
+            while(index!=end) {
+                index = shape.getNextBuildstepIndex(index);
+                pts = pts.concat(bs[index].points.map(pt => {
+                    return {
+                        'shape': shape,
+                        'type': 'segmentPoint',
+                        'index': index,
+                        'coordinates': Points.copy(pt)
+                    };
+                }));
             }
-        }
-        if (nb_removed != data.points.length) {
-            console.error("DivideState.cancelAction: couldn't remove all points, some are missing.");
-        }
+            return pts;
+        }).reduce((total, pts) => {
+            return total.concat(pts);
+        }, []);
 
-        callback();
+        return vertexToAdd.concat(segmentsToAdd);
     }
 
-    /**
-     * Annuler l'action en cours
-     */
-    abort() { }
-
-    /**
-    * Appelée lorsque l'événement mousedown est déclanché sur le canvas
-     */
-    mousedown() { }
-
-    /**
-    * Appelée lorsque l'événement mouseup est déclanché sur le canvas
-     */
-    mouseup() { }
 }
-
-// Todo: à supprimer quand l'import de toutes les classes sera en place
-addEventListener('app-loaded', () => app.states.divide_segment = new DivideState())

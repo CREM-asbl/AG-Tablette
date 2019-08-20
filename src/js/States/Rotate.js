@@ -1,259 +1,119 @@
-import {Point} from '../Point'
-/**
- * Cette classe permet d'effectuer une rotation sur une forme (ou un ensemble de formes liées) sur le canvas
- */
-class RotateState {
-    constructor() {
-        this.name = "rotate_shape";
+import { app } from '../App'
+import { RotateAction } from './Actions/Rotate'
+import { State } from './State'
+import { getAngleOfPoint } from '../Tools/geometry'
+import { Points } from '../Tools/points'
 
-        //La forme que l'on a sélectionnée
+/**
+ * Tourner une forme (ou un ensemble de formes liées) sur l'espace de travail
+ */
+export class RotateState extends State {
+
+    constructor() {
+        super("rotate_shape");
+
+        this.currentStep = null; // listen-canvas-click -> rotating-shape
+
+        //La forme que l'on déplace
         this.selectedShape = null;
 
-        //l'ensemble des formes liées à la forme actuelle.
-        this.shapesList = [];
+        //L'angle initial entre le centre de la forme et la position de la souris
+        this.initialAngle = null;
 
-        //coordonnées de la souris lorsque le déplacement a commencé
-        this.clickCoordinates = null;
-        this.startAngle = null;
-
-        this.isRotating = false;
-
-        this.center = null;
+        /*
+        L'ensemble des formes liées à la forme sélectionnée, y compris la forme
+        elle-même
+         */
+        this.involvedShapes = [];
     }
 
     /**
-     * Réinitialiser l'état
+     * (ré-)initialiser l'état
      */
-    reset() {
+    start() {
+        this.actions = [new RotateAction(this.name)];
+        this.currentStep = "listen-canvas-click";
+
         this.selectedShape = null;
-        this.shapesList = [];
-        this.clickCoordinates = null;
-        this.startAngle = null;
-        this.isRotating = false;
-        this.center = null;
-    };
+        this.initialAngle = null;
+        this.involvedShapes = [];
+
+        app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
+    }
+
+    abort() {
+        this.start();
+    }
 
     /**
-     * Appelée lorsque l'événement mousedown est déclanché sur le canvas
-     */ //TODO: au survol, entourer les formes que l'on va tourner!
-    mousedown(point, selection) {
-        var list = window.app.workspace.shapesOnPoint(new Point(point.x, point.y, null, null));
-        if (list.length > 0 || selection.shape) {
-            this.isRotating = true;
-            this.clickCoordinates = point;
-            this.selectedShape = selection.shape ? selection.shape : list.pop();
-            this.center = {
-                "x": this.selectedShape.x,
-                "y": this.selectedShape.y
-            };
-
-            this.startAngle = app.getAngleBetweenPoints(this.selectedShape, point);
-            var group = app.workspace.getShapeGroup(this.selectedShape, "system");
-            if (group)
-                this.shapesList = group.slice();
-            else
-                this.shapesList = [this.selectedShape];
-
-            var group = app.workspace.getShapeGroup(this.selectedShape, "user");
-            if (group) {
-                for (var i = 0; i < group.length; i++) {
-                    var g = app.workspace.getShapeGroup(group[i], "system");
-                    if (g) {
-                        for (var j = 0; j < g.length; j++) {
-                            if (this.shapesList.indexOf(g[j]) == -1)
-                                this.shapesList.push(g[j]);
-                        }
-                    } else {
-                        if (this.shapesList.indexOf(group[i]) == -1)
-                            this.shapesList.push(group[i]);
-                    }
-                }
-            }
-        }
-        app.canvas.refresh(point);
-    };
-
-    /**
-     * Calcule les nouvelles coordonnées du centre de la forme
-     *  ->elles ne changent pas si la forme en question est celle qui a été sélectionnée
-     *   pour la rotation, mais changent s'il s'agit d'une forme attachée à cette
-     *   dernière.
-     * @param shape: Shape
-     * @param angle: l'angle de rotation actuel (en radians)
-     * Note: utilisée dans Move. en faire une copie dans la classe Move?
+     * Appelée par interactionAPI quand une forme est sélectionnée (onMouseDown)
+     * @param  {Shape} shape            La forme sélectionnée
+     * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+     * @param  {Event} event            l'événement javascript
      */
-    computeNewShapePos(shape, angle, center) {
-        if (center == undefined) {
-            center = this.center;
-        }
+    objectSelected(shape, clickCoordinates, event) {
+        if(this.currentStep != "listen-canvas-click") return;
 
-        var s = Math.sin(-angle);
-        var c = Math.cos(-angle);
+        this.selectedShape = shape;
+        this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
+        this.initialAngle = getAngleOfPoint(shape.getAbsoluteCenter(), clickCoordinates);
 
-        var x = shape.x - center.x;
-        var y = shape.y - center.y;
+        this.actions[0].shapeId = shape.id;
+        this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
 
-        // effectuer la rotation
-        var newX = x * c - y * s + center.x;
-        var newY = x * s + y * c + center.y;
-
-
-        return { "x": newX, "y": newY };
-    };
-
-    /**
-     * Calculer la nouvelle d'un position d'un point qui a subi une rotation de centre (0,0)
-     * @param point: le point ({'x': int, 'y': int})
-     * @param angle: l'angle (float, en radians)
-     */
-    computePointPosition(x, y, angle) {
-        var s = Math.sin(-angle);
-        var c = Math.cos(-angle);
-
-        // effectuer la rotation
-        var newX = x * c - y * s;
-        var newY = x * s + y * c;
-
-
-        return { "x": newX, "y": newY };
-    };
+        this.currentStep = "rotating-shape";
+        app.drawAPI.askRefresh("upper");
+        app.drawAPI.askRefresh();
+    }
 
     /**
      * Appelée lorsque l'événement mouseup est déclanché sur le canvas
+     * @param  {{x: float, y: float}} mouseCoordinates les coordonnées de la souris
+     * @param  {Event} event            l'événement javascript
      */
-    mouseup(point) {
-        if (!this.isRotating)
-            return;
+    onMouseUp(mouseCoordinates, event) {
+        if(this.currentStep != "rotating-shape") return;
 
-        var shapesSave = [];
-        var AngleDiff = app.getAngleBetweenPoints(this.center, point) - this.startAngle;
-        for (var i = 0; i < this.shapesList.length; i++) {
-            shapesSave.push(this.shapesList[i].getSaveData());
-            var shape = this.shapesList[i];
-            var newPos = this.computeNewShapePos(shape, AngleDiff);
-            this.shapesList[i].setCoordinates(newPos);
+        let newAngle = getAngleOfPoint(this.selectedShape.getAbsoluteCenter(), mouseCoordinates);
+        this.actions[0].rotationAngle = newAngle - this.initialAngle;
 
-            for (var j = 0; j < shape.buildSteps.length; j++) {
-                var transformation = this.computePointPosition(shape.buildSteps[j].x, shape.buildSteps[j].y, AngleDiff);
-                shape.buildSteps[j].setCoordinates(transformation.x, transformation.y);
-            }
-            shape.recomputePoints();
-            for (var j = 0; j < shape.segmentPoints.length; j++) {
-                var pos = shape.segmentPoints[j].getRelativeCoordinates();
-                var transformation = this.computePointPosition(pos.x, pos.y, AngleDiff);
-                shape.segmentPoints[j].setCoordinates(transformation.x, transformation.y);
-            }
-            for (var j = 0; j < shape.otherPoints.length; j++) {
-                var pos = shape.otherPoints[j].getRelativeCoordinates();
-                var transformation = this.computePointPosition(pos.x, pos.y, AngleDiff);
-                shape.otherPoints[j].setCoordinates(transformation.x, transformation.y);
-            }
-        }
-        this.reset();
-
-        this.makeHistory(shapesSave);
-        app.canvas.refresh(point);
-    };
+        this.executeAction();
+        this.start();
+        app.drawAPI.askRefresh("upper");
+        app.drawAPI.askRefresh();
+    }
 
     /**
-     * Appelée par la fonction de dessin, après avoir dessiné les formes
-     * @param canvas: référence vers la classe Canvas
+     * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
+     * @param  {Context2D} ctx              Le canvas
+     * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
      */
-    draw(canvas, mouseCoordinates) {
-        //dessine la forme/le groupe de formes qui est en train d'être tourné
+    draw(ctx, mouseCoordinates) {
+        if(this.currentStep != "rotating-shape") return;
 
-        var AngleDiff = canvas.app.getAngleBetweenPoints(this.selectedShape, mouseCoordinates) - this.startAngle;
-        for (var i = 0; i < this.shapesList.length; i++) {
-            var pos = this.computeNewShapePos(this.shapesList[i], AngleDiff);
-            canvas.drawRotatingShape(this.shapesList[i], pos, AngleDiff);
-        }
-    };
+        let newAngle = getAngleOfPoint(this.selectedShape.getAbsoluteCenter(), mouseCoordinates),
+            diffAngle = newAngle - this.initialAngle;
+        let center = this.selectedShape.getAbsoluteCenter();
+
+        this.involvedShapes.forEach(s => {
+            this.actions[0].rotateShape(s, diffAngle, center);
+
+            app.drawAPI.drawShape(ctx, s);
+
+            this.actions[0].rotateShape(s, -diffAngle, center);
+        });
+
+        //Dessiner le centre de symétrie
+        app.drawAPI.drawPoint(ctx, center, '#080');
+    }
 
     /**
-     * Ajoute l'action qui vient d'être effectuée dans l'historique
+     * Appelée par la fonction de dessin, renvoie les formes qu'il ne faut pas
+     * dessiner sur le canvas principal.
+     * @return {[Shape]} les formes à ne pas dessiner
      */
-    makeHistory(shapesSave) {
-        var data = {
-            'shapesSave': shapesSave
-        };
-        app.workspace.history.addStep(this.name, data);
-    };
-
-    /**
-     * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
-     * @param  {Object} data        les données envoyées à l'historique par makeHistory
-     * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
-     */
-    cancelAction(data, callback) {
-        var ws = app.workspace;
-        for (var i = 0; i < data.shapesSave.length; i++) {
-            var shape = ws.getShapeById(data.shapesSave[i].id);
-            if (!shape) {
-                console.log("RotateState.cancelAction: shape not found... " + i);
-                continue;
-            }
-
-            shape.setCoordinates({ 'x': data.shapesSave[i].x, 'y': data.shapesSave[i].y });
-
-            for (var j = 0; j < data.shapesSave[i].buildSteps.length; j++) {
-                var coords = data.shapesSave[i].buildSteps[j]
-                shape.buildSteps[j].setCoordinates(coords.x, coords.y);
-            }
-            shape.recomputePoints();
-
-            for (var j = 0; j < data.shapesSave[i].segmentPoints.length; j++) {
-                var coords = data.shapesSave[i].segmentPoints[j]
-                shape.segmentPoints[j].setCoordinates(coords.x, coords.y);
-            }
-            for (var j = 0; j < data.shapesSave[i].otherPoints.length; j++) {
-                var coords = data.shapesSave[i].otherPoints[j]
-                shape.otherPoints[j].setCoordinates(coords.x, coords.y);
-            }
-        }
-
-        callback();
-    };
-
-    /**
-     * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
-     * @param  {Shape} overflownShape La forme qui est survolée par la souris
-     * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
-     */
-    getElementsToHighlight(overflownShape) {
-        var data = {
-            'shapes': [],
-            'segments': [],
-            'points': []
-        };
-
-        var uGroup = app.workspace.getShapeGroup(overflownShape, 'user');
-        var sGroup = app.workspace.getShapeGroup(overflownShape, 'system');
-        if (uGroup) {
-            data.shapes = uGroup
-        } else if (sGroup) {
-            data.shapes = sGroup;
-        } else {
-            data.shapes.push(overflownShape);
-        }
-
-        return data;
-    };
-
-    /**
-     * Annuler l'action en cours
-     */
-    abort() { }
-
-    /**
-     * démarrer l'état
-     */
-    start() { }
-
-    /**
-     * Appelée lorsque l'événement click est déclanché sur le canvas
-     */
-    click() { }
+    getEditingShapes() {
+        if(this.currentStep != "rotating-shape") return [];
+        return this.involvedShapes;
+    }
 }
-
-// Todo: à supprimer quand l'import de toutes les classes sera en place
-addEventListener('app-loaded', () => window.app.states.rotate_shape = new RotateState())

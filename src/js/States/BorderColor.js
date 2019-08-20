@@ -1,117 +1,62 @@
-import {Point} from '../Point'
-/**
- * Cette classe permet de modifier la couleur de fond de formes
- */
-class BorderColorState {
-    constructor() {
-        this.name = "border_color";
+import { app } from '../App'
+import { BorderColorAction } from './Actions/BorderColor'
+import { State } from './State'
 
-        //La couleur sélectionnée
-        this.selectedColor = null;
+/**
+ * Modifier la couleur des bords d'une forme
+ */
+export class BorderColorState extends State {
+
+    constructor() {
+        super("border_color");
+
+        this.currentStep = null; // choose-color -> listen-canvas-click
     }
 
     /**
-     * Réinitialiser l'état
+     * (ré-)initialiser l'état
      */
-    reset() {
-        this.selectedColor = null;
-    };
+    start(callColorPicker = true) {
+        this.actions = [new BorderColorAction(this.name)];
 
-    /**
-     * démarrer l'état
-     */
-    start() {
-        //Fix Edge (click ne fonctionne pas directement sur le input)
-        document.querySelector("#color-picker-label").click()
-    };
+        this.currentStep = "choose-color";
 
-    /**
-     * Colorie les bords de la forme
-     * @param coordinates: {x: int, y: int}
-     */
-    click(coordinates, selection) {
+        app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
-        this.selectedColor = document.querySelector('#color-picker').value
+        if(callColorPicker)
+            document.querySelector("#color-picker-label").click();
+    }
 
-        var list = window.app.workspace.shapesOnPoint(new Point(coordinates.x, coordinates.y, null, null));
-        if (selection.shape || list.length > 0) {
-            var shape = selection.shape ? selection.shape : list.pop()
-            let uGroup = app.workspace.getShapeGroup(shape, 'user') || [shape]
-            let history = []
-            uGroup.forEach(s => {
-                history.push({
-                    'shape_id': s.id,
-                    'old_color': s.borderColor
-                })
-                s.borderColor = this.selectedColor
-            })
-            app.canvas.refresh(coordinates)
-            this.makeHistory(history)
-        }
-
-    };
-
-    /**
-     * Défini la couleur sélectionnée
-     * @param color: la couleur ("#xxxxxx")
-     */
     setColor(color) {
-        this.selectedColor = color;
-    };
+         this.actions[0].selectedColor = color;
+         this.currentStep = "listen-canvas-click";
+    }
 
     /**
-     * Ajoute l'action qui vient d'être effectuée dans l'historique
+     * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
+     * @param  {Shape} shape            La forme sélectionnée
+     * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+     * @param  {Event} event            l'événement javascript
      */
-    makeHistory(history) {
-        app.workspace.history.addStep(this.name, history);
-    };
+    objectSelected(shape, clickCoordinates, event) {
+        //TODO: appeler setColor ailleurs? (événement lié au colorpicker, genre
+        //      onClose - voir ce qui existe)
+        this.setColor(document.querySelector('#color-picker').value);
 
-    /**
-     * Annule une action. Ne pas utiliser de données stockées dans this dans cette fonction.
-     * @param  {Object} data        les données envoyées à l'historique par makeHistory
-     * @param {Function} callback   une fonction à appeler lorsque l'action a été complètement annulée.
-     */
-    cancelAction(data, callback) {
-        var ws = app.workspace;
-        data.forEach(modification => {
-            var shape = ws.getShapeById(modification.shape_id)
-            if (!shape) {
-                console.log("BorderColorState.cancelAction: shape not found...");
-            }
-            shape.borderColor = modification.old_color;
-        })
-        callback();
-    };
+        if(this.currentStep != "listen-canvas-click") return;
 
-    /**
-     * Renvoie les éléments (formes, segments et points) qu'il faut surligner si la forme reçue en paramètre est survolée.
-     * @param  {Shape} overflownShape La forme qui est survolée par la souris
-     * @return { {'shapes': [Shape], 'segments': [{shape: Shape, segmentId: int}], 'points': [{shape: Shape, pointId: int}]} } Les éléments.
-     */
-    getElementsToHighlight(overflownShape) {
-        var data = {
-            'shapes': [overflownShape],
-            'segments': [],
-            'points': []
-        };
+        this.actions[0].shapeId = shape.id;
+        let group = app.workspace.getShapeGroup(shape, 'user'),
+            involvedShapes = [shape];
+        if(group)
+            involvedShapes = [...group.shapes];
+        this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
 
-        return data;
-    };
+        this.executeAction();
+        let color = this.actions[0].selectedColor;
+        this.start(false);
+        this.setColor(color);
 
-    /**
-     * Annuler l'action en cours
-     */
-    abort() { };
-
-    /**
-    * Appelée lorsque l'événement mousedown est déclanché sur le canvas
-     */
-    mousedown() { };
-
-    /**
-    * Appelée lorsque l'événement mouseup est déclanché sur le canvas
-     */
-    mouseup() { }
+        app.drawAPI.askRefresh();
+    }
 }
-// Todo: à supprimer quand l'import de toutes les classes sera en place
-addEventListener('app-loaded', () => app.states.border_color = new BorderColorState())
