@@ -127,11 +127,11 @@ export class DrawAPI {
      * @param  {Context2D} ctx   le canvas
      * @param  {Shape} shape la forme
      */
-    drawShape(ctx, shape) {
+    drawShape(ctx, shape, borderSize = 1) {
         ctx.strokeStyle = shape.borderColor;
         ctx.fillStyle = shape.color;
         ctx.globalAlpha = shape.opacity;
-
+        ctx.lineWidth = borderSize;
         ctx.translate(shape.x, shape.y);
 
         ctx.fill(shape.getDrawPath());
@@ -153,6 +153,7 @@ export class DrawAPI {
         ctx.restore();
 
         ctx.translate(-shape.x, -shape.y);
+        ctx.lineWidth = 1;
 
     }
 
