@@ -124,6 +124,7 @@ export class App {
      * canvas spécifique)
      */
     showMessageOnCanvas(text) {
+        return
         if(this.__msgHistory === undefined) this.__msgHistory = [];
         const maxChar = 50;
 
