@@ -19,17 +19,20 @@ export class CreateState extends State {
 
         //La forme que l'on va ajouter (on ajoute une copie de cette forme)
         this.selectedShape = null;
+
+        this.lastCreationTimestamp = null;
     }
 
     /**
      * (ré-)initialiser l'état
      * @param  {String} family Nom de la famille sélectionnée
      */
-    start(family) {
+    start(family, timestamp = 0) {
         this.selectedFamily = family;
         this.actions = [new CreateAction(this.name)];
         this.selectedShape = null;
         this.currentStep = "show-family-shapes";
+        this.lastCreationTimestamp = timestamp;
     }
 
     setShape(shape) {
@@ -40,6 +43,10 @@ export class CreateState extends State {
 
     onClick(mouseCoordinates, event) {
         if(this.currentStep != "listen-canvas-click") return;
+        if((Date.now()-this.lastCreationTimestamp) < 300) {
+            console.log("clics trop rapprochés");
+            return;
+        }
 
         let shape = this.selectedShape.copy(),
             shapeSize = app.settings.get("shapesSize");
@@ -68,7 +75,7 @@ export class CreateState extends State {
 
         this.executeAction();
         shape = this.selectedShape;
-        this.start(this.selectedFamily);
+        this.start(this.selectedFamily, Date.now());
         this.setShape(shape);
 
         app.drawAPI.askRefresh();
