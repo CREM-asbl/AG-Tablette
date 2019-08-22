@@ -25,7 +25,6 @@ class StateMenu extends LitElement {
                 :host {
                     display: none;
                     position: absolute;
-                    left: 200px;
                     top: 5px;
                     padding: 10px;
                     font-size: 20px;
@@ -36,7 +35,9 @@ class StateMenu extends LitElement {
                     max-width: calc(100% - 230px);
                     overflow-y: auto;
                     max-height: 30%;
+                    left: ${app.settings.get('mainMenuWidth')+5}px;
                 }
+
                 div#state-menu-buttons-list > button {
                     font-size: 20px;
                     border-radius: 5px;

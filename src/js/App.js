@@ -88,6 +88,9 @@ export class App {
 
         //taille des formes qui seront ajoutées (1, 2 ou 3)
         this.settings.add("shapesSize", 2, true);
+
+        //Largeur du menu de gauche de l'application
+        this.settings.add("mainMenuWidth", 250, false);
     }
 
     start(cvsDiv) {

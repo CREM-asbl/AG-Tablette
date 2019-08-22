@@ -56,13 +56,13 @@ class AGTabletteApp extends LitElement {
             #app-canvas-view > .toolbar {
                 display: flex;
                 flex-flow: column;
-                flex: 0 0 195px;
                 padding: 4px;
                 height: 100%;
                 box-sizing: border-box;
                 border-right: 1px solid gray;
                 background-color: #ddd;
                 overflow: hidden;
+                flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
             }
 
             #app-canvas-view-toolbar {
@@ -133,6 +133,11 @@ class AGTabletteApp extends LitElement {
                                     name="save"
                                     @click='${() => app.wsManager.saveWorkspaceToFile(app.workspace)}'>
                             </icon-button>
+                            <icon-button src="/images/settings.svg"
+                                    title="Paramètres"
+                                    name="settings"
+                                    @click='${this._actionHandle}'>
+                            </icon-button>
                             <icon-button src="/images/undo.svg"
                                     title="Annuler"
                                     name="undo"
@@ -151,16 +156,13 @@ class AGTabletteApp extends LitElement {
                                     ?active="${this.state.name === 'delete_shape'}"
                                     @click='${this._actionHandle}'>
                             </icon-button>
-                            <icon-button src="/images/settings.svg"
-                                    title="Paramètres"
-                                    name="settings"
-                                    @click='${this._actionHandle}'>
-                            </icon-button>
+                            <!--
                             <icon-button src="/images/help.svg"
                                     title="Aide"
                                     name="help"
                                     disabled>
                             </icon-button>
+                            -->
                         </flex-toolbar>
                         <div class="toolbar-separator">Formes standard</div>
 
@@ -258,6 +260,7 @@ class AGTabletteApp extends LitElement {
                                 ?active="${this.state.name === 'ungroup_shapes'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
+
                         <icon-button src="/images/background-color.svg"
                                 title="Colorier les formes"
                                 name="background_color"
@@ -270,11 +273,19 @@ class AGTabletteApp extends LitElement {
                                 ?active="${this.state.name === 'border_color'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
+                        <icon-button src="/images/opacity.svg"
+                                title="Opacité"
+                                name="opacity"
+                                @click='${this._actionHandle}'>
+                        </icon-button>
+                        <!--
                         <icon-button src="/images/wallpaper.svg"
                                 title="Fond d'écran"
                                 name="border_color"
                                 @click='${this.loadBackground}'>
                         </icon-button>
+                        -->
+
                         <icon-button src="/images/backplane.svg"
                                 title="Arrière-plan"
                                 name="to_background"
@@ -286,11 +297,7 @@ class AGTabletteApp extends LitElement {
                                 name="grid_menu"
                                 @click='${this._actionHandle}'>
                         </icon-button>
-                        <icon-button src="/images/opacity.svg"
-                                title="Opacité"
-                                name="opacity"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
+                        <!--
                         <icon-button src="/images/tangram-edit.svg"
                                 title="Créer Tangram"
                                 name="tangram_creator"
@@ -301,6 +308,7 @@ class AGTabletteApp extends LitElement {
                                 name="tangram_menu"
                                 @click='${this._actionHandle}'>
                         </icon-button>
+                        -->
                     </flex-toolbar>
                 </div>
             </div>
