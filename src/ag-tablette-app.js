@@ -56,7 +56,7 @@ class AGTabletteApp extends LitElement {
             #app-canvas-view > .toolbar {
                 display: flex;
                 flex-flow: column;
-                flex: 0 0 195px;
+                flex: 0 0 255px;
                 padding: 4px;
                 height: 100%;
                 box-sizing: border-box;
