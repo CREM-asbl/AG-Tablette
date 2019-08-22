@@ -102,9 +102,9 @@ export class InteractionAPI {
      * @param  {Point} pt2 second point
      * @return {Boolean}     true si oui, false si non.
      */
-    arePointsInMagnetismDistance(pt1, pt2) {
+    arePointsInSelectionDistance(pt1, pt2) {
         let dist = distanceBetweenPoints(pt1, pt2);
-        if(dist <= app.settings.get("magnetismDistance"))
+        if(dist <= app.settings.get("selectionDistance"))
             return true;
         return false;
     }
@@ -284,7 +284,7 @@ export class InteractionAPI {
                 }
 
                 let shapeCenter = shape.getAbsoluteCenter();
-                if(this.arePointsInMagnetismDistance(shapeCenter, mouseCoordinates)) {
+                if(this.arePointsInSelectionDistance(shapeCenter, mouseCoordinates)) {
                     let dist = distanceBetweenPoints(shapeCenter, mouseCoordinates);
                     if(dist<bestDist) {
                         bestDist = dist;
@@ -323,7 +323,7 @@ export class InteractionAPI {
                         'y': bs.coordinates.y + shape.y
                     };
 
-                    if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
+                    if(this.arePointsInSelectionDistance(absCoordinates, mouseCoordinates)) {
                         let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
                         if(dist<bestDist || Math.abs(bestDist-dist)<0.1) {
                             //Vérifier que le point n'est pas derrière une forme
@@ -395,9 +395,8 @@ export class InteractionAPI {
                             'x': pt.x + shape.x,
                             'y': pt.y + shape.y
                         };
-                        if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
+                        if(this.arePointsInSelectionDistance(absCoordinates, mouseCoordinates)) {
                             let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
-                            console.log(shape.id, dist);
                             if(dist<bestDist || Math.abs(bestDist-dist)<0.1) {
                                 //Vérifier que le point n'est pas derrière une forme
                                 let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
@@ -524,8 +523,7 @@ export class InteractionAPI {
                     return false;
 
                 //Point trop loin?
-                let dist3 = Points.dist(mouseCoordinates, projection);
-                if(dist3 > app.settings.get("magnetismDistance") )
+                if(!this.arePointsInSelectionDistance(mouseCoordinates, projection))
                     return false;
 
                 //Vérifier que le segment n'est pas derrière une forme.

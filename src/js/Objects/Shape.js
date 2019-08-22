@@ -30,7 +30,7 @@ export class Shape {
 
         this.color = "#aaa";
         this.borderColor = "#000";
-        this.opacity = 1;
+        this.opacity = 0.7;
         this.isCenterShown = false;
         this.isReversed = false;
 

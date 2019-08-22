@@ -69,6 +69,12 @@ export class App {
         this.settings.add("magnetismDistance", 10, false);
 
         /**
+         * Distance maximale entre les coordonnées du clic et un élément, pour
+         * qu'il puisse être sélectionné.
+         */
+        this.settings.add("selectionDistance", 20, false);
+
+        /**
          * La précision, en pixels. (2 points à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )
          */
         this.settings.add("precision", 1.5, false);
