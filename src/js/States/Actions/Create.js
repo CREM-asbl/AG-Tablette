@@ -21,7 +21,7 @@ export class CreateAction extends Action {
 
     saveToObject() {
         let save = {
-            
+
             'shapeToAdd': this.shapeToAdd.saveToObject(),
             'coordinates': this.coordinates,
             'shapeId': this.shapeId,
@@ -31,7 +31,7 @@ export class CreateAction extends Action {
     }
 
     initFromObject(save) {
-        
+
 
         this.shapeToAdd = new Shape({'x': 0, 'y': 0}, []);
 		this.shapeToAdd.initFromObject(save.shapeToAdd);
@@ -60,6 +60,11 @@ export class CreateAction extends Action {
         if(!this.checkDoParameters()) return;
 
         let shape = this.shapeToAdd.copy();
+        if(shape.isCircle()) {
+            //Afficher le centre du cercle par défaut
+            shape.isCenterShown = true;
+        }
+
 
         shape.x = this.coordinates.x;
         shape.y = this.coordinates.y;
