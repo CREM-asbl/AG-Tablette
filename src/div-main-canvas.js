@@ -15,7 +15,6 @@ class DivMainCanvas extends LitElement {
         <style>
             canvas#upperCanvas,
             canvas#mainCanvas,
-            canvas#debugCanvas,
             canvas#invisibleCanvas {
                 background-color: rgba(0,0,0,0);
                 position: absolute;
@@ -36,9 +35,6 @@ class DivMainCanvas extends LitElement {
 
         <!-- for the shapes -->
         <canvas id="mainCanvas"></canvas>
-
-        <!-- temporaire, pour afficher des messages d'erreur -->
-        <canvas id="debugCanvas"></canvas>
 
         <!-- for the current event (ex: moving shape -->
         <canvas id="upperCanvas"></canvas>
@@ -62,11 +58,6 @@ class DivMainCanvas extends LitElement {
                 this.invisibleCanvas
             );
         app.drawAPI = drawAPI;
-
-        //temporaire:
-        this.debugCanvas = this.shadowRoot.querySelector('#debugCanvas');
-        app.__debugCtx = this.debugCanvas.getContext("2d");
-
 
         this.setCanvasSize();
         app.start(this);
@@ -126,13 +117,11 @@ class DivMainCanvas extends LitElement {
         this.upperCanvas.setAttribute("height", this.clientHeight);
         this.mainCanvas.setAttribute("height", this.clientHeight);
         this.backgroundCanvas.setAttribute("height", this.clientHeight);
-        this.debugCanvas.setAttribute("height", this.clientHeight);
         this.invisibleCanvas.setAttribute("height", this.clientHeight);
 
         this.upperCanvas.setAttribute("width", this.clientWidth);
         this.mainCanvas.setAttribute("width", this.clientWidth);
         this.backgroundCanvas.setAttribute("width", this.clientWidth);
-        this.debugCanvas.setAttribute("width", this.clientWidth);
         this.invisibleCanvas.setAttribute("width", this.clientWidth);
 
         /*

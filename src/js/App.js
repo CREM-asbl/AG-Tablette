@@ -120,35 +120,6 @@ export class App {
     }
 
     /**
-     * Temporaire, juste pour le debug: affiche un message à l'écran (sur un
-     * canvas spécifique)
-     */
-    showMessageOnCanvas(text) {
-        if(this.__msgHistory === undefined) this.__msgHistory = [];
-        const maxChar = 50;
-
-        if(typeof text !== 'string')
-            text = JSON.stringify(text);
-
-        text.split('\n').forEach(line => {
-            for(let i=0; i<line.length; i+=maxChar)
-                this.__msgHistory.unshift(line.slice(i, i+maxChar));
-        });
-
-        this.__debugCtx.clearRect(-100, -100, 5000, 5000);
-
-        let pos = 30;
-        this.__msgHistory.forEach(line => {
-            let coords = {
-                'x': 10,
-                'y': pos
-            };
-            this.drawAPI.drawText(this.__debugCtx, line, coords);
-            pos += 16;
-        });
-    }
-
-    /**
      * Définir l'état actuel de l'application (l'outil actuel)
      * @param {String} stateName   Le nom de l'état
      * @param {Object} startParams paramètres à transmettre à state.start()

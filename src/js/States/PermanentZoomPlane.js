@@ -35,7 +35,6 @@ export class PermanentZoomPlaneState extends State {
     onMouseUp(clickCoordinates, event) {
         if(this.currentStep != "zooming-plane") return;
         if(event.type!="touchend") {
-            app.showMessageOnCanvas("end: ", event.type);
              return;
         }
 
@@ -76,10 +75,6 @@ export class PermanentZoomPlaneState extends State {
             this.baseDist = distanceBetweenPoints(point1, point2);
             if(this.baseDist == 0) this.baseDist = 0.001;
 
-            app.showMessageOnCanvas(JSON.stringify(point1));
-            app.showMessageOnCanvas(JSON.stringify(point2));
-            app.showMessageOnCanvas(this.baseDist);
-
             this.currentStep = "zooming-plane";
             app.interactionAPI.getFocus(this);
         } else {
@@ -115,8 +110,6 @@ export class PermanentZoomPlaneState extends State {
                     'x': (originalTranslateOffset.x/originalZoom - ((actualWinSize.x - newWinSize.x)*this.centerProp.x))*newZoom,
                     'y': (originalTranslateOffset.y/originalZoom - ((actualWinSize.y - newWinSize.y)*this.centerProp.y))*newZoom
                 };
-
-            app.showMessageOnCanvas(this.centerProp);
 
             app.workspace.setZoomLevel(newZoom, false);
             app.workspace.setTranslateOffset(newTranslateoffset);

@@ -135,7 +135,11 @@ export class GridManager {
 	 * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
 	 */
 	static getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates) {
-        //Calcule la liste des sommets des formes
+        /*
+        Calcule la liste des sommets des formes
+        Les points de subdivision de segments ne doivent pas être attirés par la
+        grille.
+         */
         let points = shapes.map(s => {
             let list = [];
             s.buildSteps.forEach((vertex, i1) => {
