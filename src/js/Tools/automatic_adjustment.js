@@ -84,6 +84,15 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
                         })
                     }
                 });
+                if(s.isCenterShown) {
+                    list.push({
+                        'shape': s,
+                        'relativePoint': s.center,
+                        'realPoint': Points.add(s.center, s, Points.sub(coordinates, mainShape)),
+                        'type': 'center',
+                    });
+                }
+
                 return list;
             }).reduce((total, val) => {
                 return total.concat(val);
@@ -96,7 +105,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
                 bestTranslation = null,
                 constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
             constr.canSelect = true;
-            constr.types = ['vertex', 'segmentPoint'];
+            constr.types = ['vertex', 'segmentPoint', 'center'];
             if(excludeSelf)
                 constr.blacklist = shapes;
             points.forEach(pt => {
@@ -114,7 +123,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
             transformation.move = bestTranslation;
         }
 
-        if(bestPoint.type=='vertex') {// OU type = segmentPoint: quid?
+        if(bestPoint.type=='vertex') {// OU type = segmentPoint!! TODO.
             let newBestPointPos = Points.add(bestPoint.realPoint, transformation.move);
             let pointsToTest = [];
 
@@ -201,7 +210,8 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
             };
 
             //TODO: un 'segment' commun pourrait être formé par un vertex et un segmentPoint? pour l'instant non.
-        } else {
+        } else if(bestPoint.type=='segmentPoint') {
+            //TODO idem au dessus.
             /*
             bestPoint:
             {
@@ -213,10 +223,10 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
                 'ptIndex': i2
             }
              */
-            //TODO?
+        } else { //center
+            //TODO: si un autre point est commun, faire une petite rotation si ça ne fait pas bouger les 2 centres?
         }
     }
-
     return transformation;
 }
 
@@ -235,9 +245,12 @@ export function getNewShapeAdjustment(coordinates) {
         return translation;
 
     if(grid) {
+        /*
+        Si la grille est activée, être uniquement attiré par la grille.
+         */
         let gridPoint = app.workspace.grid.getClosestGridPoint(coordinates);
         return Points.sub(gridPoint, coordinates);
-    } else { //automaticAdjustment
+    } else if(automaticAdjustment) {
         let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
         constr.canSelect = true;
         constr.types = ['center', 'vertex', 'segmentPoint'];
