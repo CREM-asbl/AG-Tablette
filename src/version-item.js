@@ -26,9 +26,10 @@ class VersionItem extends LitElement {
           margin: 4px;
         }
         div {
+          margin-left: 4px;
           text-align: right;
           font-size: .8rem;
-          color: gray;
+          color: darkslategray;
         }
       </style>
       <img src='/images/manifest/icon.svg' />

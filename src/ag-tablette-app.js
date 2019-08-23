@@ -44,6 +44,11 @@ class AGTabletteApp extends LitElement {
     render() {
         return html`
         <style>
+
+            :host{
+                --primary-color: #abcedf;
+            }
+
             #app-canvas-view {
                 display: flex;
                 width: 100%;
@@ -55,12 +60,12 @@ class AGTabletteApp extends LitElement {
             #app-canvas-view > .toolbar {
                 display: flex;
                 flex-flow: column;
-                flex: 0 0 255px;
+                flex: 0 0 240px;
                 padding: 4px;
                 height: 100%;
                 box-sizing: border-box;
                 border-right: 1px solid gray;
-                background-color: #ddd;
+                background-color: var(--primary-color);
                 overflow: hidden;
             }
 
@@ -100,6 +105,7 @@ class AGTabletteApp extends LitElement {
             }
 
             #app-canvas-mode-text {
+                padding: 4px;
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
