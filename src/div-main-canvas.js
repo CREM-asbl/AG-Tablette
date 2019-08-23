@@ -16,13 +16,9 @@ class DivMainCanvas extends LitElement {
             canvas#upperCanvas,
             canvas#mainCanvas,
             canvas#debugCanvas,
-            canvas#invisibleCanvas {
-                background-color: rgba(0,0,0,0);
-                position: absolute;
-                top: 0px;
-            }
+            canvas#invisibleCanvas,
             canvas#backgroundCanvas {
-                background-color: #FFF;
+                background-color: rgba(0,0,0,0);
                 position: absolute;
                 top: 0px;
             }
