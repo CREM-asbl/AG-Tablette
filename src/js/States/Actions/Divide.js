@@ -51,7 +51,7 @@ export class DivideAction extends Action {
 
     saveToObject() {
         let save = {
-            
+
             'shapeId': this.shapeId,
             'numberOfparts': this.numberOfparts,
             'mode': this.mode,
@@ -64,7 +64,7 @@ export class DivideAction extends Action {
     }
 
     initFromObject(save) {
-        
+
         this.shapeId = save.shapeId;
         this.numberOfparts = save.numberOfparts;
         this.mode = save.mode;
@@ -108,11 +108,16 @@ export class DivideAction extends Action {
             part = arcLength/this.numberOfparts, //Longueur d'une "partie"
             nbParts = this.numberOfparts;
         //Pour un cercle entier, on ajoute un point de division supplémentaire
-        if(arcEnds[0]==1 && arcEnds[1]==bs.length-1)
-            nbParts++;
+        if(arcEnds[0]==1 && arcEnds[1]==bs.length-1) {
+            this.createdPoints.push({
+                'index': 1,
+                'coordinates': Points.copy(bs[0].coordinates)
+            });
+            bs[1].addPoint(Points.copy(bs[0].coordinates));
+        }
 
         let bsIndex=arcEnds[0], //index du segment (arc) de départ.
-            remainingLenFromPrevArc=0;
+            lenToRemoveFromPrevArc=0;
         //Un tour de boucle par point ajouté.
         for(let i=1; i<nbParts; i++) {
             let remainingLenUntilNextPoint = part,
@@ -121,23 +126,24 @@ export class DivideAction extends Action {
             for( ; ; bsIndex=(bsIndex+1)%bs.length) {
                 if(bsIndex==0) continue;
                 bsLen = Points.dist(bs[bsIndex].coordinates, bs[bsIndex-1].coordinates);
-                if(bsLen-remainingLenFromPrevArc > remainingLenUntilNextPoint)
+                if(bsLen-lenToRemoveFromPrevArc > remainingLenUntilNextPoint)
                     break;
-                remainingLenUntilNextPoint -= (bsLen-remainingLenFromPrevArc);
-                remainingLenFromPrevArc = 0;
+                remainingLenUntilNextPoint -= (bsLen-lenToRemoveFromPrevArc);
+                lenToRemoveFromPrevArc = 0;
             }
-            remainingLenFromPrevArc += remainingLenUntilNextPoint;
+            lenToRemoveFromPrevArc += remainingLenUntilNextPoint;
 
             //Ajoute le point au segment d'index bsIndex.
             let startCoord = bs[bsIndex-1].coordinates,
                 endCoord = bs[bsIndex].coordinates,
                 diff = Points.sub(endCoord, startCoord),
                 nextPt = {
-                    'x': startCoord.x + diff.x * (remainingLenFromPrevArc/bsLen),
-                    'y': startCoord.y + diff.y * (remainingLenFromPrevArc/bsLen)
+                    'x': startCoord.x + diff.x * (lenToRemoveFromPrevArc/bsLen),
+                    'y': startCoord.y + diff.y * (lenToRemoveFromPrevArc/bsLen)
                 };
 
             bs[bsIndex].addPoint(nextPt);
+            console.log(nextPt, shape.getCoordinates());
             this.createdPoints.push({
                 'index': bsIndex,
                 'coordinates': Points.copy(nextPt)
@@ -173,20 +179,8 @@ export class DivideAction extends Action {
         let shape = app.workspace.getShapeById(this.shapeId),
             bs = shape.buildSteps;
 
-        //Mettre les 2 points dans l'ordre
-        if(pt1Index > pt2Index) {
-            [pt1, pt2] = [pt2, pt1];
-            [pt1Index, pt2Index] = [pt2Index, pt1Index];
-        }
-        if(pt1Index == pt2Index) {
-            let segEnd = bs[pt1Index].coordinates,
-                pt1Dist = Points.dist(segEnd, pt1.relativeCoordinates),
-                pt2Dist = Points.dist(segEnd, pt2.relativeCoordinates);
-            if(pt1Dist < pt2Dist) {
-                [pt1, pt2] = [pt2, pt1];
-                [pt1Index, pt2Index] = [pt2Index, pt1Index];
-            }
-        }
+        [pt1, pt2] = [pt2, pt1];
+        [pt1Index, pt2Index] = [pt2Index, pt1Index];
 
         //Calculer la longueur de l'arc
         let startSegmentIndex,
