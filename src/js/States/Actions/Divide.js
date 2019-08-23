@@ -303,9 +303,15 @@ export class DivideAction extends Action {
         } else {
             let bs = shape.buildSteps,
                 pt1 = this.firstPoint,
-                pt2 = this.secondPoint;
+                pt2 = this.secondPoint,
+                isArc = bs[pt1.index].isArc || bs[pt2.index].isArc || (
+                            bs[pt1.index].type=='vertex'
+                            && bs[pt2.index].type=='vertex'
+                            && !shape.isSegment(pt1.index, pt2.index)
+                        )
 
-            if(bs[pt1.index].isArc || bs[pt2.index].isArc) {
+
+            if(isArc) {
                 this.pointsModeAddArcPoints(pt1, pt2, pt1.index, pt2.index);
             } else {
                 this.pointsModeAddSegPoints(pt1, pt2, pt1.index, pt2.index);

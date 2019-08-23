@@ -253,6 +253,31 @@ export class Shape {
     }
 
     /**
+     * Renvoie true si bsIndex1 et bsIndex2 sont les index de 2 sommets (vertex)
+     * entre lesquels il y a un segment qui n'est pas un arc de cercle!
+     * @param  {int}  bsIndex1
+     * @param  {int}  bsIndex2
+     * @return {Boolean}
+     */
+    isSegment(bsIndex1, bsIndex2) {
+        let bs = this.buildSteps;
+        if(bs[bsIndex1].type!='vertex'
+            || bs[bsIndex2].type!='vertex') {
+            console.error("bad bsIndex");
+            return null;
+        }
+
+        if(bsIndex1>bsIndex2) {
+            [bsIndex1, bsIndex2] = [bsIndex2, bsIndex1];
+        }
+
+        if(bsIndex1+2==bsIndex2 && bs[bsIndex1+1].type=='segment' && bs[bsIndex1+1].isArc!==true)
+            return true;
+        if(bsIndex1==1 && bsIndex2==bs.length-2 && bs[bsIndex2+1].type=='segment' && bs[bsIndex2+1].isArc!==true)
+            return true;
+        return false;
+    }
+    /**
      * Renvoie la longueur d'un arc de cercle
      * @param  {int} buildStepIndex l'index (dans buildSteps) d'un des segments
      * de l'arc de cercle
