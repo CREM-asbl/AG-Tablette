@@ -5,16 +5,15 @@ import './div-main-canvas'
 import './popups/app-settings'
 import './flex-toolbar'
 import './icon-button'
-//import './popups/divide-popup'
 import './js/Manifest'
 import './popups/new-popup'
 import './popups/grid-popup'
 import './popups/tangram-popup'
 import './popups/opacity-popup'
 import './state-menu'
+import './version-item'
 
 import { app } from './js/App'
-import { standardKit } from './js/ShapesKits/standardKit'
 import { StatesManager } from './js/StatesManager'
 
 class AGTabletteApp extends LitElement {
@@ -303,6 +302,7 @@ class AGTabletteApp extends LitElement {
                         </icon-button>
                     </flex-toolbar>
                 </div>
+                <version-item></version-item>
             </div>
 
             <div-main-canvas id="div-main-canvas" background="${this.background}"></div-main-canvas>

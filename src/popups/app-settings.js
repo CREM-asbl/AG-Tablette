@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element'
-import { loadManifest } from '../js/Manifest'
+import '../version-item'
 
 class AppSettings extends LitElement {
 
@@ -46,7 +46,6 @@ class AppSettings extends LitElement {
             h2 {
                 padding: 16px;
                 margin: 0;
-                /* box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); */
             }
 
             .app-settings-form {
@@ -83,13 +82,6 @@ class AppSettings extends LitElement {
                 justify-content: space-between;
                 align-items: center;
                 padding: 16px;
-                /* box-shadow: 0 -2px 2px rgba(0, 0, 0, 0.2) */
-            }
-
-            .version {
-                text-align: right;
-                font-size: .8rem;
-                color: gray;
             }
 
             button {
@@ -148,21 +140,15 @@ class AppSettings extends LitElement {
                 </fieldset>
             </div>
             <footer>
-                <div class="version">${this.version}</div>
+                <version-item></version-item>
                 <button @click="${() => this.style.display = 'none'}">OK</button>
             </footer>
         </div>
         `
     }
 
-    constructor() {
-        super()
-        loadManifest().then(manifest => this.version = `${manifest.short_name} ${manifest.version}`)
-    }
-
     static get properties() {
         return {
-            version: String,
             settings: Object
         }
     }
