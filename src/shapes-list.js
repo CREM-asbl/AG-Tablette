@@ -10,9 +10,9 @@ class ShapesList extends LitElement {
         }
     }
 
-    set state({ currentStep, selectedFamily }) {
+    set state({ name, selectedFamily }) {
         this.family = selectedFamily
-        this.show = currentStep === 'show-family-shapes'
+        this.show = name === 'create_shape'
     }
 
     render() {
@@ -71,7 +71,8 @@ class ShapesList extends LitElement {
                         <canvas-button title="${shape}"
                                     family="${this.family}"
                                     shape="${shape}"
-                                    @click="${this._clickHandle}">
+                                    @click="${this._clickHandle}"
+                                    ?active="${shape === this.shape}">
                         </canvas-button>
                     </li>
                 `)}
@@ -84,6 +85,7 @@ class ShapesList extends LitElement {
      * Met à jour l'état de l'application lorsque l'on clique sur le nom d'une forme
      */
     _clickHandle(event) {
+        this.shape = event.target.shape
         const familyRef = app.workspace.environment.getFamily(this.family);
         const shapeRef = familyRef.getShape(event.target.shape);
         app.state.setShape(shapeRef);

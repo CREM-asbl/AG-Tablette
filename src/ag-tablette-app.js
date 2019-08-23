@@ -44,7 +44,6 @@ class AGTabletteApp extends LitElement {
     render() {
         return html`
         <style>
-
             :host{
                 --primary-color: #abcedf;
             }
