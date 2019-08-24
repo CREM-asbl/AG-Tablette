@@ -57,4 +57,8 @@ export class Points {
     static equal({x: x1, y: y1}, {x: x2, y: y2}) {
         return Math.abs(x2-x1) < 1 && Math.abs(y2-y1) < 1;
     }
+
+    static toString({x, y}) {
+        return " ("+parseInt(x*1000)/1000+", "+parseInt(y*1000)/1000+") ";
+    }
 }

@@ -127,9 +127,16 @@ export class GridManager {
      * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
      * @param  {Shape} mainShape      La forme principale
      * @param  {Point} coordinates    Les coordonnées de la forme principale
-	 * @return {{'gridPoint': Point, 'shape': Shape, 'shapePoint': Point}}
-	 * Le point de la grille, la forme à laquelle le sommet appartient, et les
-	 * coordonnées relatives (à la forme) de ce sommet.
+	 * @return {{'gridPoint': Point, 'shape': Shape, 'shapePoint': Object}}
+	 * Le point de la grille, la forme à laquelle le sommet appartient, et un
+	 * objet représentant le point de la forme:
+	 * {
+	 *     'shape': Shape,
+	 *     'relativePoint': Point,
+	 *     'realPoint': Point,
+	 *     'type': 'vertex',
+	 *     'vertexIndex': int
+     }
 	 *
 	 * Il faut considérer que les coordonnées des formes du groupe (shapes[i].x,
 	 * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
@@ -139,6 +146,11 @@ export class GridManager {
         Calcule la liste des sommets des formes
         Les points de subdivision de segments ne doivent pas être attirés par la
         grille.
+
+        Pour l'instant, s'il existe au moins un sommet, on trouve le sommet le
+        plus proche d'un point de la grille. S'il n'y a pas de sommet, mais
+        qu'au moins une des formes a son centre affiché, alors on utilise le
+        centre le plus proche d'un point de la grille.
          */
         let points = shapes.map(s => {
             let list = [];
@@ -146,10 +158,10 @@ export class GridManager {
                 if(vertex.type == 'vertex') {
                     list.push({
                         'shape': s,
-                        'relativePoint': vertex.coordinates,
-                        'realPoint': Points.add(vertex.coordinates, s, Points.sub(coordinates, mainShape)),
-                        'type': 'vertex',
-                        'vertexIndex': i1
+                        'relativeCoordinates': vertex.coordinates,
+                        'coordinates': Points.add(vertex.coordinates, s, Points.sub(coordinates, mainShape)),
+                        'pointType': 'vertex',
+                        'index': i1
                     });
                 }
             });
@@ -158,18 +170,26 @@ export class GridManager {
             return total.concat(val);
         }, []);
 
-        if(points.length==0) return null;
+        //Centres?
+        if(points.length==0) {
+            points = shapes.filter(s => s.isCenterShown).map(s => {
+                return {
+                    'shape': s,
+                    'relativeCoordinates': s.center,
+                    'coordinates': Points.add(s.center, s, Points.sub(coordinates, mainShape)),
+                    'pointType': 'center'
+                };
+            });
+            if(points.length==0)
+                return null;
+        }
 
-        let best = {
-                'shape': points[0].shape,
-                'shapePoint': points[0],
-                'gridPoint': this.getClosestGridPoint(points[0].realPoint)
-            },
-            bestDist = Points.dist(best.gridPoint, points[0].realPoint);
+        let best = null,
+            bestDist = 1000*1000*1000;
 
         points.forEach(pt => {
-            let gridPoint = this.getClosestGridPoint(pt.realPoint),
-                dist = Points.dist(gridPoint, pt.realPoint);
+            let gridPoint = this.getClosestGridPoint(pt.coordinates),
+                dist = Points.dist(gridPoint, pt.coordinates);
             if(dist < bestDist) {
                 best.shape = pt.shape;
                 best.shapePoint = pt;

@@ -253,6 +253,50 @@ export class Shape {
     }
 
     /**
+     * Renvoie true si les 2 points forment un segment ou un morceau de segment
+     * @param  {Object}  point1
+     * @param  {Object}  point2
+     * @return {Boolean}
+     */
+    isSegmentPart(point1, point2) {
+        if(
+            point1.shape.id != this.id
+            || point2.shape.id != this.id
+            || point1.pointType == 'center'
+            || point2.pointType == 'center'
+        ) {
+            console.error("bad point value");
+            return null;
+        }
+        let bs = this.buildSteps;
+        if(point1.pointType=='vertex' && point2.pointType=='vertex') {
+            //2 vertex. forment un segment entier ?
+            return this.isSegment(point1.index, point2.index);
+        }
+        if(point1.pointType!='vertex' && point2.pointType!='vertex') {
+            //2 segmentPoints. sur le même segment ?
+            return point1.index == point2.index;
+        }
+        if(point2.pointType=='vertex') {
+            [point2, point1] = [point1, point2];
+        }
+
+        //ici: point1: vertex; point2: segmentPoint.
+        if(point1.index<point2.index) {
+            let nextBsIndex = this.getNextBuildstepIndex(point1.index);
+            return nextBsIndex==point2.index
+                    && nextBsIndex.type=='segment'
+                    && nextBsIndex.isArc !== true;
+        } else {
+            let prevBsIndex = this.getPrevBuildstepIndex(point1.index);
+            return prevBsIndex==point2.index
+                    && prevBsIndex.type=='segment'
+                    && prevBsIndex.isArc !== true;
+        }
+
+    }
+
+    /**
      * Renvoie true si bsIndex1 et bsIndex2 sont les index de 2 sommets (vertex)
      * entre lesquels il y a un segment qui n'est pas un arc de cercle!
      * @param  {int}  bsIndex1
@@ -297,6 +341,7 @@ export class Shape {
             length = 0,
             bs = this.buildSteps;
         arcsList.forEach(arcIndex => {
+            if(arcIndex==0) return;
             length += Points.dist(bs[arcIndex].coordinates, bs[arcIndex-1].coordinates);
         });
 

@@ -186,11 +186,11 @@ export class DivideAction extends Action {
         let startSegmentIndex,
             endSegmentIndex = pt2Index,
             arcLen = 0,
-            remainingLenFromPrevArc = 0;
+            lenToRemoveFromPrevArc = 0;
         if(bs[pt1Index].isArc) {
             startSegmentIndex = pt1Index;
             arcLen -= Points.dist(bs[pt1Index-1].coordinates, pt1.relativeCoordinates);
-            remainingLenFromPrevArc = -arcLen;
+            lenToRemoveFromPrevArc = -arcLen;
         } else { //vertex
             startSegmentIndex = pt1Index+1 % bs.length;
         }
@@ -217,20 +217,20 @@ export class DivideAction extends Action {
             for( ; ; bsIndex=(bsIndex+1)%bs.length) {
                 if(bsIndex==0) continue;
                 bsLen = Points.dist(bs[bsIndex].coordinates, bs[bsIndex-1].coordinates);
-                if(bsLen-remainingLenFromPrevArc > remainingLenUntilNextPoint)
+                if(bsLen-lenToRemoveFromPrevArc > remainingLenUntilNextPoint)
                     break;
-                remainingLenUntilNextPoint -= (bsLen-remainingLenFromPrevArc);
-                remainingLenFromPrevArc = 0;
+                remainingLenUntilNextPoint -= (bsLen-lenToRemoveFromPrevArc);
+                lenToRemoveFromPrevArc = 0;
             }
-            remainingLenFromPrevArc += remainingLenUntilNextPoint;
+            lenToRemoveFromPrevArc += remainingLenUntilNextPoint;
 
             //Ajoute le point au segment d'index bsIndex.
             let startCoord = bs[bsIndex-1].coordinates,
                 endCoord = bs[bsIndex].coordinates,
                 diff = Points.sub(endCoord, startCoord),
                 nextPt = {
-                    'x': startCoord.x + diff.x * (remainingLenFromPrevArc/bsLen),
-                    'y': startCoord.y + diff.y * (remainingLenFromPrevArc/bsLen)
+                    'x': startCoord.x + diff.x * (lenToRemoveFromPrevArc/bsLen),
+                    'y': startCoord.y + diff.y * (lenToRemoveFromPrevArc/bsLen)
                 };
 
             bs[bsIndex].addPoint(nextPt);
