@@ -24,6 +24,7 @@ export class WorkspaceManager {
             return;
         }
         app.workspace = workspace;
+        app.popups.grid.updatePopup();
         workspace.history.updateMenuState();
         app.refreshWindow();
     }

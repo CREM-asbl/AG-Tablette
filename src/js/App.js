@@ -53,6 +53,9 @@ export class App {
             main: [], //Tangrams CREM
             local: [] //Tangrams ajoutés par l'utilisateur.
         };
+
+        //références vers les popup
+        this.popups = {};
     }
 
     /* #################################################################### */

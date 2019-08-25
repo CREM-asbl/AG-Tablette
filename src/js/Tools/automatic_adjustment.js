@@ -167,6 +167,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
         /*
         Vérifie:
         - Que les 2 points moving sont de la même forme
+        - Qu'aucun des 2 points moving n'est un centre
         - Que les 2 segments formés ont la même longueur
         - Que les 2 points moving sont sur le même segment et/ou aux extrémités
           d'un même segment.
@@ -174,6 +175,8 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
           faire partie du même segment de la même forme.
          */
         if(e1.moving.shape.id != e2.moving.shape.id) return false;
+
+        if(e1.moving.pointType == 'center' || e2.moving.pointType == 'center') return false;
 
         let d1 = Points.dist(e1.fixed.coordinates, e2.fixed.coordinates),
             d2 = Points.dist(e1.moving.coordinates, e2.moving.coordinates);
@@ -274,8 +277,6 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
             }
         }
     }
-
-    console.log("aucun segment détecté");
 
     if(tangram) {
         //point: un seul point du tangram ?
