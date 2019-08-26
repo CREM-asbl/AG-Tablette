@@ -186,7 +186,7 @@ export const StatesManager = {
             "getInstance": function() { return new TranslatePlaneState(); }
         },
         'to_background': {
-            "name": 'Passer en arrière plan',
+            "name": 'Passer en arrière-plan',
             "instance": null,
             "getInstance": function() { return new ToBackgroundState(); }
         },

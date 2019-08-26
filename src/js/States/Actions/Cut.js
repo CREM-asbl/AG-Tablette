@@ -36,7 +36,7 @@ export class CutAction extends Action {
 
     saveToObject() {
         let save = {
-            
+
             'shapeId': this.shapeId,
             'firstPoint': this.firstPoint,
             'centerPoint': this.centerPoint,
@@ -47,7 +47,7 @@ export class CutAction extends Action {
     }
 
     initFromObject(save) {
-        
+
         this.shapeId = save.shapeId;
         this.firstPoint = save.firstPoint;
         this.centerPoint = save.centerPoint;
@@ -158,6 +158,7 @@ export class CutAction extends Action {
             newShape.name = "Custom";
             newShape.familyName = "Custom";
             newShape.buildSteps = bs;
+            newShape.isCenterShown = false;
             newShape.updateInternalState();
             return newShape;
         });

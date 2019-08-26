@@ -30,7 +30,7 @@ export class Shape {
 
         this.color = "#aaa";
         this.borderColor = "#000";
-        this.opacity = 1;
+        this.opacity = 0.7;
         this.isCenterShown = false;
         this.isReversed = false;
 
@@ -52,10 +52,21 @@ export class Shape {
         });
     }
 
+    /**
+     * Renvoie l'index du buildStep suivant, en passant les moveTo.
+     * @param  {int} bsIndex l'index d'une buildStep.
+     * @return {int}
+     */
     getNextBuildstepIndex(bsIndex) {
+        if(bsIndex<0 || bsIndex>=this.buildSteps.length || !Number.isFinite(bsIndex)) {
+            console.error("Bad bsIndex value");
+            return null;
+        }
+
         if(bsIndex+1==this.buildSteps.length) {
             return 1; //skip 0 (moveTo)
         }
+
         if(this.buildSteps[bsIndex+1].type == 'moveTo') {
             /*
             Cela signifie que la forme est en fait composée de 2 formes...
@@ -63,14 +74,25 @@ export class Shape {
             console.error("Cas non prévu!");
             return null;
         }
+
         return bsIndex+1;
     }
 
-    //bsIndex doit être l'index d'un buildStep qui n'est pas moveTo.
+    /**
+     * Renvoie l'index du buildStep précédent, en passant les moveTo.
+     * @param  {int} bsIndex l'index d'une buildStep.
+     * @return {int}
+     */
     getPrevBuildstepIndex(bsIndex) {
-        if(bsIndex==1) {
+        if(bsIndex<0 || bsIndex>=this.buildSteps.length || !Number.isFinite(bsIndex)) {
+            console.error("Bad bsIndex value");
+            return null;
+        }
+
+        if(bsIndex<=1) {
             return this.buildSteps.length-1; //skip 0 (moveTo)
         }
+
         if(this.buildSteps[bsIndex-1].type == 'moveTo') {
             /*
             Cela signifie que la forme est en fait composée de 2 formes...
@@ -78,13 +100,22 @@ export class Shape {
             console.error("Cas non prévu!");
             return null;
         }
+
         return bsIndex-1;
     }
 
     /**
-     * Renvoie -1 si il n'y a pas de vertex suivant (->cercle)
+     * Renvoie l'index du vertex suivant. Renvoie -1 si il n'y a pas de vertex
+     * suivant (ex: si cercle).
+     * @param  {int} bsIndex l'index d'une buildStep.
+     * @return {int}
      */
     getNextVertexIndex(bsIndex) {
+        if(bsIndex<0 || bsIndex>=this.buildSteps.length || !Number.isFinite(bsIndex)) {
+            console.error("Bad bsIndex value");
+            return null;
+        }
+
         let nextVertexIndex = -1,
             index = bsIndex+1;
 
@@ -110,10 +141,18 @@ export class Shape {
     }
 
     /**
-     * Renvoie -1 si il n'y a pas de vertex précédent (->cercle)
+     * Renvoie l'index du vertex précédent. Renvoie null si il n'y a pas de vertex
+     * précédent (ex: si cercle).
+     * @param  {int} bsIndex l'index d'une buildStep.
+     * @return {int}
      */
     getPrevVertexIndex(bsIndex) {
-        let prevVertexIndex = -1,
+        if(bsIndex<0 || bsIndex>=this.buildSteps.length || !Number.isFinite(bsIndex)) {
+            console.error("Bad bsIndex value");
+            return null;
+        }
+
+        let prevVertexIndex = null,
             index = bsIndex-1;
 
         while(index!=bsIndex) {
@@ -144,6 +183,15 @@ export class Shape {
      * @return {[int, int]}
      */
     getArcEnds(buildStepIndex) {
+        if(buildStepIndex<0 || buildStepIndex>=this.buildSteps.length || !Number.isFinite(buildStepIndex)) {
+            console.error("Bad bsIndex value");
+            return null;
+        }
+        if(this.buildSteps[buildStepIndex].isArc !== true) {
+            console.error("Bad bsIndex value");
+            return null;
+        }
+
         let segmentsIds = this.getArcSegmentIndexes(buildStepIndex);
         return [
             segmentsIds[0],
@@ -157,6 +205,15 @@ export class Shape {
      * @return {[int]}
      */
     getArcSegmentIndexes(buildStepIndex) {
+        if(buildStepIndex<0 || buildStepIndex>=this.buildSteps.length || !Number.isFinite(buildStepIndex)) {
+            console.error("Bad bsIndex value");
+            return null;
+        }
+        if(this.buildSteps[buildStepIndex].isArc !== true) {
+            console.error("Bad bsIndex value");
+            return null;
+        }
+
         let bs = this.buildSteps;
         if(this.isCircle()) {
             let rep = [];
@@ -192,9 +249,78 @@ export class Shape {
             indexList.push(curIndex);
         }
 
-        return [firstIndex, lastIndex];
+        return indexList;
     }
 
+    /**
+     * Renvoie true si les 2 points forment un segment ou un morceau de segment
+     * @param  {Object}  point1
+     * @param  {Object}  point2
+     * @return {Boolean}
+     */
+    isSegmentPart(point1, point2) {
+        if(
+            point1.shape.id != this.id
+            || point2.shape.id != this.id
+            || point1.pointType == 'center'
+            || point2.pointType == 'center'
+        ) {
+            console.error("bad point value");
+            return null;
+        }
+        let bs = this.buildSteps;
+        if(point1.pointType=='vertex' && point2.pointType=='vertex') {
+            //2 vertex. forment un segment entier ?
+            return this.isSegment(point1.index, point2.index);
+        }
+        if(point1.pointType!='vertex' && point2.pointType!='vertex') {
+            //2 segmentPoints. sur le même segment ?
+            return point1.index == point2.index;
+        }
+        if(point2.pointType=='vertex') {
+            [point2, point1] = [point1, point2];
+        }
+
+        //ici: point1: vertex; point2: segmentPoint.
+        if(point1.index<point2.index) {
+            let nextBsIndex = this.getNextBuildstepIndex(point1.index);
+            return nextBsIndex==point2.index
+                    && nextBsIndex.type=='segment'
+                    && nextBsIndex.isArc !== true;
+        } else {
+            let prevBsIndex = this.getPrevBuildstepIndex(point1.index);
+            return prevBsIndex==point2.index
+                    && prevBsIndex.type=='segment'
+                    && prevBsIndex.isArc !== true;
+        }
+
+    }
+
+    /**
+     * Renvoie true si bsIndex1 et bsIndex2 sont les index de 2 sommets (vertex)
+     * entre lesquels il y a un segment qui n'est pas un arc de cercle!
+     * @param  {int}  bsIndex1
+     * @param  {int}  bsIndex2
+     * @return {Boolean}
+     */
+    isSegment(bsIndex1, bsIndex2) {
+        let bs = this.buildSteps;
+        if(bs[bsIndex1].type!='vertex'
+            || bs[bsIndex2].type!='vertex') {
+            console.error("bad bsIndex");
+            return null;
+        }
+
+        if(bsIndex1>bsIndex2) {
+            [bsIndex1, bsIndex2] = [bsIndex2, bsIndex1];
+        }
+
+        if(bsIndex1+2==bsIndex2 && bs[bsIndex1+1].type=='segment' && bs[bsIndex1+1].isArc!==true)
+            return true;
+        if(bsIndex1==1 && bsIndex2==bs.length-2 && bs[bsIndex2+1].type=='segment' && bs[bsIndex2+1].isArc!==true)
+            return true;
+        return false;
+    }
     /**
      * Renvoie la longueur d'un arc de cercle
      * @param  {int} buildStepIndex l'index (dans buildSteps) d'un des segments
@@ -202,12 +328,22 @@ export class Shape {
      * @return {float}                La longueur de l'arc
      */
     getArcLength(buildStepIndex) {
-        let arcEnds = this.getArcEnds(buildStepIndex),
-            length = 0;
-        for(let i=arcEnds[0]; i!=arcEnds[1]; i = (i+1)%this.buildSteps.length) {
-            if(i==0) continue; //moveTo
-            length += Points.dist(this.buildSteps[i].coordinates, this.buildSteps[i-1].coordinates);
+        if(buildStepIndex<0 || buildStepIndex>=this.buildSteps.length || !Number.isFinite(buildStepIndex)) {
+            console.error("Bad bsIndex value");
+            return null;
         }
+        if(this.buildSteps[buildStepIndex].isArc !== true) {
+            console.error("Bad bsIndex value");
+            return null;
+        }
+
+        let arcsList = this.getArcSegmentIndexes(buildStepIndex),
+            length = 0,
+            bs = this.buildSteps;
+        arcsList.forEach(arcIndex => {
+            if(arcIndex==0) return;
+            length += Points.dist(bs[arcIndex].coordinates, bs[arcIndex-1].coordinates);
+        });
 
         return length;
     }
@@ -311,7 +447,7 @@ export class Shape {
                     let inS1Border = s1.isPointInBorder(pt),
                         inS2Border = s2.isPointInBorder(pt);
                     if(!inS1Border && !inS2Border) {
-                        app.drawAPI.drawPoint(app.drawAPI.upperCtx, pt, undefined, 3);
+                        //app.drawAPI.drawPoint(app.drawAPI.upperCtx, pt, undefined, 3);
                         return true;
                     }
                 }

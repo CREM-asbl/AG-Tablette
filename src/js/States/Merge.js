@@ -40,6 +40,8 @@ export class MergeState extends State {
             this.currentStep = "selecting-second-shape";
             this.actions[0].firstShapeId = shape.id;
             this.firstShape = shape;
+            app.drawAPI.askRefresh();
+            app.drawAPI.askRefresh('upper');
             return;
         }
         if(this.currentStep != 'selecting-second-shape')
@@ -47,6 +49,9 @@ export class MergeState extends State {
         if(this.actions[0].firstShapeId == shape.id) {
             this.currentStep = "listen-canvas-click";
             this.actions[0].firstShapeId = null;
+            this.firstShape = null;
+            app.drawAPI.askRefresh();
+            app.drawAPI.askRefresh('upper');
             return;
         }
         this.actions[0].secondShapeId = shape.id;
@@ -67,5 +72,31 @@ export class MergeState extends State {
         this.executeAction();
         this.start();
         app.drawAPI.askRefresh();
+        app.drawAPI.askRefresh('upper');
+    }
+
+    /**
+     * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
+     * @param  {Context2D} ctx              Le canvas
+     * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
+     */
+    draw(ctx, mouseCoordinates) {
+        if(this.currentStep == 'selecting-second-shape') {
+            let shape = this.firstShape,
+                borderColor = shape.borderColor;
+            shape.borderColor = '#E90CC8';
+            app.drawAPI.drawShape(ctx, shape, 3);
+            shape.borderColor = borderColor;
+        }
+    }
+
+    /**
+     * Appelée par la fonction de dessin, renvoie les formes qu'il ne faut pas
+     * dessiner sur le canvas principal.
+     * @return {[Shape]} les formes à ne pas dessiner
+     */
+    getEditingShapes() {
+        if(this.currentStep != "selecting-second-shape") return [];
+        return [ this.firstShape ];
     }
 }

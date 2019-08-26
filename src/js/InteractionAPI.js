@@ -97,6 +97,19 @@ export class InteractionAPI {
     }
 
     /**
+     * Vérifier si 2 points sont à la distance de sélection l'un de l'autre.
+     * @param  {Point} pt1 premier point
+     * @param  {Point} pt2 second point
+     * @return {Boolean}     true si oui, false si non.
+     */
+    arePointsInSelectionDistance(pt1, pt2) {
+        let dist = distanceBetweenPoints(pt1, pt2);
+        if(dist <= app.settings.get("selectionDistance"))
+            return true;
+        return false;
+    }
+
+    /**
      * Vérifier si 2 points sont à la distance de magnétisme l'un de l'autre.
      * @param  {Point} pt1 premier point
      * @param  {Point} pt2 second point
@@ -236,8 +249,10 @@ export class InteractionAPI {
      *                            //si segmentPoint, sinon index du sommet.
      *          }
      */
-    selectPoint(mouseCoordinates, constraints) {
+    selectPoint(mouseCoordinates, constraints, blockHiddenPointsSelection = true, easySelection = true) {
         if(!constraints.canSelect) return null;
+
+        let distCheckFunction = easySelection ? this.arePointsInSelectionDistance : this.arePointsInMagnetismDistance;
 
         let point,
             bestDist = 1000*1000*1000;
@@ -284,9 +299,10 @@ export class InteractionAPI {
                 }
 
                 let shapeCenter = shape.getAbsoluteCenter();
-                if(this.arePointsInMagnetismDistance(shapeCenter, mouseCoordinates)) {
+                if(distCheckFunction(shapeCenter, mouseCoordinates)) {
                     let dist = distanceBetweenPoints(shapeCenter, mouseCoordinates);
                     if(dist<bestDist) {
+                        //TODO: vérifier que le centre n'est pas derrière une forme?
                         bestDist = dist;
                         point = {
                             'pointType': 'center',
@@ -323,24 +339,27 @@ export class InteractionAPI {
                         'y': bs.coordinates.y + shape.y
                     };
 
-                    if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
+                    if(distCheckFunction(absCoordinates, mouseCoordinates)) {
                         let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
                         if(dist<bestDist || Math.abs(bestDist-dist)<0.1) {
-                            //Vérifier que le point n'est pas derrière une forme
-                            let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
-                                thisIndex = app.workspace.getShapeIndex(shape);
-                            if(shapes.some(s => {
-                                let otherIndex = app.workspace.getShapeIndex(s);
-                                return otherIndex>thisIndex;
-                            }))
-                                return false;
-
-                            if(point) {
-                                //Garder le point de la forme la plus en avant
-                                let otherIndex = app.workspace.getShapeIndex(point.shape);
-                                if(thisIndex<otherIndex)
+                            if(blockHiddenPointsSelection) {
+                                //Vérifier que le point n'est pas derrière une forme
+                                let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
+                                    thisIndex = app.workspace.getShapeIndex(shape);
+                                if(shapes.some(s => {
+                                    let otherIndex = app.workspace.getShapeIndex(s);
+                                    return otherIndex>thisIndex;
+                                }))
                                     return false;
+
+                                if(point) {
+                                    //Garder le point de la forme la plus en avant
+                                    let otherIndex = app.workspace.getShapeIndex(point.shape);
+                                    if(thisIndex<otherIndex)
+                                        return false;
+                                }
                             }
+
                             /*
                             TODO: méthode qui renvoie la liste des points qui sont
                             exactement (à 0.1 près par ex) à une coordonnée, et
@@ -395,25 +414,27 @@ export class InteractionAPI {
                             'x': pt.x + shape.x,
                             'y': pt.y + shape.y
                         };
-                        if(this.arePointsInMagnetismDistance(absCoordinates, mouseCoordinates)) {
+                        if(distCheckFunction(absCoordinates, mouseCoordinates)) {
                             let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
-                            console.log(shape.id, dist);
                             if(dist<bestDist || Math.abs(bestDist-dist)<0.1) {
-                                //Vérifier que le point n'est pas derrière une forme
-                                let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
-                                    thisIndex = app.workspace.getShapeIndex(shape);
-                                if(shapes.some(s => {
-                                    let otherIndex = app.workspace.getShapeIndex(s);
-                                    return otherIndex>thisIndex;
-                                }))
-                                    return false;
-
-                                if(point) {
-                                    //Garder le point de la forme la plus en avant
-                                    let otherIndex = app.workspace.getShapeIndex(point.shape);
-                                    if(thisIndex<otherIndex)
+                                if(blockHiddenPointsSelection) {
+                                    //Vérifier que le point n'est pas derrière une forme
+                                    let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
+                                        thisIndex = app.workspace.getShapeIndex(shape);
+                                    if(shapes.some(s => {
+                                        let otherIndex = app.workspace.getShapeIndex(s);
+                                        return otherIndex>thisIndex;
+                                    }))
                                         return false;
+
+                                    if(point) {
+                                        //Garder le point de la forme la plus en avant
+                                        let otherIndex = app.workspace.getShapeIndex(point.shape);
+                                        if(thisIndex<otherIndex)
+                                            return false;
+                                    }
                                 }
+
 
                                 /*
                                 TODO: méthode qui renvoie la liste des points qui sont
@@ -524,8 +545,7 @@ export class InteractionAPI {
                     return false;
 
                 //Point trop loin?
-                let dist3 = Points.dist(mouseCoordinates, projection);
-                if(dist3 > app.settings.get("magnetismDistance") )
+                if(!this.arePointsInSelectionDistance(mouseCoordinates, projection))
                     return false;
 
                 //Vérifier que le segment n'est pas derrière une forme.

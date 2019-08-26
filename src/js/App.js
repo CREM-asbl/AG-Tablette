@@ -53,6 +53,9 @@ export class App {
             main: [], //Tangrams CREM
             local: [] //Tangrams ajoutés par l'utilisateur.
         };
+
+        //références vers les popup
+        this.popups = {};
     }
 
     /* #################################################################### */
@@ -67,6 +70,12 @@ export class App {
          * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
          */
         this.settings.add("magnetismDistance", 10, false);
+
+        /**
+         * Distance maximale entre les coordonnées du clic et un élément, pour
+         * qu'il puisse être sélectionné.
+         */
+        this.settings.add("selectionDistance", 20, false);
 
         /**
          * La précision, en pixels. (2 points à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )
@@ -88,6 +97,9 @@ export class App {
 
         //taille des formes qui seront ajoutées (1, 2 ou 3)
         this.settings.add("shapesSize", 2, true);
+
+        //Largeur du menu de gauche de l'application
+        this.settings.add("mainMenuWidth", 250, false);
     }
 
     start(cvsDiv) {
@@ -117,36 +129,6 @@ export class App {
 
     refreshWindow() {
         this.cvsDiv.setCanvasSize();
-    }
-
-    /**
-     * Temporaire, juste pour le debug: affiche un message à l'écran (sur un
-     * canvas spécifique)
-     */
-    showMessageOnCanvas(text) {
-        return
-        if(this.__msgHistory === undefined) this.__msgHistory = [];
-        const maxChar = 50;
-
-        if(typeof text !== 'string')
-            text = JSON.stringify(text);
-
-        text.split('\n').forEach(line => {
-            for(let i=0; i<line.length; i+=maxChar)
-                this.__msgHistory.unshift(line.slice(i, i+maxChar));
-        });
-
-        this.__debugCtx.clearRect(-100, -100, 5000, 5000);
-
-        let pos = 30;
-        this.__msgHistory.forEach(line => {
-            let coords = {
-                'x': 10,
-                'y': pos
-            };
-            this.drawAPI.drawText(this.__debugCtx, line, coords);
-            pos += 16;
-        });
     }
 
     /**

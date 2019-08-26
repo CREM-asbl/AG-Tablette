@@ -62,8 +62,11 @@ export class State {
      * Exécuter l'action liée à l'état, et l'enregistrer dans l'historique.
      */
     executeAction() {
-        //Si une des actions renvoie le booléen false, ne pas ajouter l'étape
-        //dans l'historique.
+        /*
+        Si une des actions renvoie le booléen false, ne pas ajouter l'étape
+        dans l'historique. C'est notamment utilisé dans merge pour annuler si la
+        fusion donne une forme creuse.
+         */
         if(this.actions.every(action => action.do() !==false))
             app.workspace.history.addStep(this.actions);
     }

@@ -3,6 +3,41 @@ import { Points } from './points'
 import { getAngleOfPoint, rotatePoint } from './geometry'
 
 /**
+ * Renvoie la transformation qu'il faut appliquer aux formes pour que les 2
+ * segments reliant les points de e1 et e2 soient superposés.
+ * @param  {{'moving': Object, 'fixed': Object}} e1 1er point commun
+ * @param  {{'moving': Object, 'fixed': Object}} e2 2eme point commun
+ * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
+ * @param  {Shape} mainShape      La forme principale
+ * @param  {Point} coordinates    Les coordonnées de la forme principale
+ * @return {{rotation: float, move: Point}}
+ */
+function computeTransformation(e1, e2, shapes, mainShape, coordinates) {
+    let fix1 = e1.fixed,
+        fix2 = e2.fixed,
+        moving1 = e1.moving,
+        moving2 = e2.moving;
+
+    let pts = {
+            'fix': Points.sub(fix2.coordinates, fix1.coordinates),
+            'moving': Points.sub(moving2.coordinates, moving1.coordinates)
+        },
+        angles = {
+            'fix': getAngleOfPoint(Points.create(0, 0), pts.fix),
+            'moving': getAngleOfPoint(Points.create(0, 0), pts.moving)
+        },
+        mainAngle = angles.fix-angles.moving,
+        center = Points.add(mainShape.center, coordinates),
+        moving1NewCoords = rotatePoint(moving1.coordinates, mainAngle, center),
+        translation = Points.sub(fix1.coordinates, moving1NewCoords);
+
+    return {
+        'rotation': mainAngle,
+        'move': translation
+    };
+}
+
+/**
  * Calcule la transformation (déplacement et/ou rotation) qu'il faut appliquer à
  * un groupe de formes en fonction de la grille et de l'ajustement automatique.
  * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
@@ -18,6 +53,7 @@ import { getAngleOfPoint, rotatePoint } from './geometry'
  *
  */
 export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf = true) {
+    let maxRotateAngle = 0.25; //radians
     /**
      * Il faut considérer que les coordonnées des formes du groupe (shapes[i].x,
      * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
@@ -33,190 +69,267 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
     if(!grid && !automaticAdjustment && !tangram)
         return transformation;
 
-    if(tangram) {
-        //l'offset peut être de (0, 0) si rien à bouger (car rien détecté par ex)
-        let offset = app.tangramManager.getShapeGroupOffset(shapes, mainShape, coordinates);
-        transformation.move = offset;
+    if(grid && tangram) {
+        console.error("le Tangram et la Grille ne doivent pas être activés en même temps");
     }
 
-    //La grille peut engendrer un déplacement, mais pas une rotation.
-    let gridPointData;
-    if(grid && !tangram) {
-        gridPointData = app.workspace.grid.getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates);
-        if(!gridPointData) { //Forme sans sommet -> rien à faire
-            return transformation;
+    //Générer la liste des points du groupe de formes
+    let ptList = shapes.map(s => {
+            let list = [];
+            s.buildSteps.forEach((bs, i) => {
+                if(bs.type == "vertex") {
+                    list.push({
+                        'shape': s,
+                        'relativeCoordinates': bs.coordinates,
+                        'coordinates': Points.add(bs.coordinates, s, Points.sub(coordinates, mainShape)),
+                        'pointType': 'vertex',
+                        'index': i
+                    });
+                } else if(bs.type == "segment") {
+                    bs.points.forEach(pt => {
+                        list.push({
+                            'shape': s,
+                            'relativeCoordinates': pt,
+                            'coordinates': Points.add(pt, s, Points.sub(coordinates, mainShape)),
+                            'pointType': 'segmentPoint',
+                            'index': i
+                        });
+                    })
+                }
+            });
+            if(s.isCenterShown) {
+                list.push({
+                    'shape': s,
+                    'relativeCoordinates': s.center,
+                    'coordinates': Points.add(s.center, s, Points.sub(coordinates, mainShape)),
+                    'pointType': 'center',
+                });
+            }
+            return list;
+        }).reduce((total, val) => {
+            return total.concat(val);
+        }, []);
+
+    //Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
+    let commonPointsList = [];
+    ptList.forEach(point => {
+        if(point.pointType!='center' && tangram) {
+            let pt = app.tangramManager.getNearTangramPoint(point.coordinates);
+            if(pt) {
+                commonPointsList.push({
+                    'fixed': {
+                        'pointType': 'tangram',
+                        'coordinates': pt
+                    },
+                    'moving': point,
+                    'dist': Points.dist(pt, point.coordinates)
+                });
+            }
         }
-        let { gridPoint, shape, shapePoint } = gridPointData;
+        if(grid && !tangram) {
+            let pt = app.workspace.grid.getClosestGridPoint(point.coordinates);
+            commonPointsList.push({
+                'fixed': {
+                    'pointType': 'grid',
+                    'coordinates': pt
+                },
+                'moving': point,
+                'dist': Points.dist(pt, point.coordinates)
+            });
+        }
+        let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
+        constr.canSelect = true;
+        constr.types = ['vertex', 'segmentPoint', 'center'];
+        if(excludeSelf)
+            constr.blacklist = shapes;
+        let pt = app.interactionAPI.selectPoint(point.coordinates, constr, false, false);
+        if(pt) {
+            commonPointsList.push({
+                'fixed': pt,
+                'moving': point,
+                'dist': Points.dist(pt.coordinates, point.coordinates)
+            });
+        }
+    });
 
-        let realPoint = Points.add(shapePoint.relativePoint, shape, Points.sub(coordinates, mainShape)),
-            groupOffset = Points.sub(gridPoint, realPoint);
+    //Trouver un segment commun ou un point commun
+    let cPtListTangram = commonPointsList.filter(pt => pt.fixed.pointType=='tangram'),
+        cPtListGrid = commonPointsList.filter(pt => pt.fixed.pointType=='grid'),
+        cPtListBorder = commonPointsList.filter(pt => {
+            return pt.fixed.pointType=='vertex' || pt.fixed.pointType=='segmentPoint';
+        }),
+        cPtListShape = commonPointsList.filter(pt => {
+            return pt.fixed.pointType=='vertex'
+            || pt.fixed.pointType=='segmentPoint'
+            || pt.fixed.pointType=='center';
+        });
+    let checkCompatibility = (e1, e2) => {
+        /*
+        Vérifie:
+        - Que les 2 points moving sont de la même forme
+        - Qu'aucun des 2 points moving n'est un centre
+        - Que les 2 segments formés ont la même longueur
+        - Que les 2 points moving sont sur le même segment et/ou aux extrémités
+          d'un même segment.
+        - Si les 2 points fixed ne sont ni tangram ni grille, alors ils doivent
+          faire partie du même segment de la même forme.
+         */
+        if(e1.moving.shape.id != e2.moving.shape.id) return false;
 
-        transformation.move = groupOffset;
+        if(e1.moving.pointType == 'center' || e2.moving.pointType == 'center') return false;
+
+        let d1 = Points.dist(e1.fixed.coordinates, e2.fixed.coordinates),
+            d2 = Points.dist(e1.moving.coordinates, e2.moving.coordinates);
+        if(Math.abs(d1-d2)>1) return false;
+
+        if(!e1.moving.shape.isSegmentPart(e1.moving, e2.moving)) return false;
+
+        if(e1.fixed.pointType!='tangram' && e1.fixed.pointType!='grid'
+                && e2.fixed.pointType!='tangram' && e2.fixed.pointType!='grid') {
+            if(e1.fixed.shape.id!=e2.fixed.shape.id) return false;
+            if(!e1.fixed.shape.isSegmentPart(e1.fixed, e2.fixed)) return false;
+        }
+
+        return true;
+    }
+
+    if(tangram) {
+        //segment: 2 points de la silhouette ?
+        for(let i=0; i<cPtListTangram.length; i++) {
+            for(let j=i+1; j<cPtListTangram.length; j++) {
+                let e1 = cPtListTangram[i],
+                    e2 = cPtListTangram[j];
+                if(checkCompatibility(e1, e2)) {
+                    let t = computeTransformation(e1, e2, shapes, mainShape, coordinates);
+                    if(Math.abs(t.rotation)<=maxRotateAngle) {
+                        return t;
+                    }
+                }
+            }
+        }
+
+        if(automaticAdjustment) {
+            //segment: 1 point de la silhouette et 1 point d'une autre forme ?
+            for(let i=0; i<cPtListTangram.length; i++) {
+                for(let j=0; j<cPtListBorder.length; j++) {
+                    let e1 = cPtListTangram[i],
+                        e2 = cPtListBorder[j];
+                    if(checkCompatibility(e1, e2)) {
+                        let t = computeTransformation(e1, e2, shapes, mainShape, coordinates);
+                        if(Math.abs(t.rotation)<=maxRotateAngle) {
+                            return t;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if(grid && !tangram) {
+        //segment: 2 points de la grille ?
+        for(let i=0; i<cPtListGrid.length; i++) {
+            for(let j=i+1; j<cPtListGrid.length; j++) {
+                let e1 = cPtListGrid[i],
+                    e2 = cPtListGrid[j];
+                if(checkCompatibility(e1, e2)) {
+                    let t = computeTransformation(e1, e2, shapes, mainShape, coordinates);
+                    if(Math.abs(t.rotation)<=maxRotateAngle) {
+                        return t;
+                    }
+                }
+            }
+        }
+
+        /*
+        La grille attire les formes vers ses points. Mais si l'ajustement automatique
+        n'est pas activé, la forme est uniquement translatée: il n'y a pas de légère
+        rotation (d'ajustement) possible.
+         */
+        if(automaticAdjustment) {
+            //segment: 1 point de la grille et 1 point d'une autre forme ?
+            for(let i=0; i<cPtListGrid.length; i++) {
+                for(let j=0; j<cPtListBorder.length; j++) {
+                    let e1 = cPtListGrid[i],
+                        e2 = cPtListBorder[j];
+                    if(checkCompatibility(e1, e2)) {
+                        let t = computeTransformation(e1, e2, shapes, mainShape, coordinates);
+                        if(Math.abs(t.rotation)<=maxRotateAngle) {
+                            return t;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     if(automaticAdjustment) {
-        let bestPoint = null;
-        if(grid && !tangram) {
-            bestPoint = gridPointData.shapePoint;
-        } else {
-            //Liste des sommets et segmentPoints
-            let points = shapes.map(s => {
-                let list = [];
-                s.buildSteps.forEach((bs, i1) => {
-                    if(bs.type == "vertex") {
-                        list.push({
-                            'shape': s,
-                            'relativePoint': bs.coordinates,
-                            'realPoint': Points.add(bs.coordinates, s, Points.sub(coordinates, mainShape)),
-                            'type': 'vertex',
-                            'vertexIndex': i1
-                        });
-                    } else if(bs.type == "segment") {
-                        bs.points.forEach((pt, i2) => {
-                            list.push({
-                                'shape': s,
-                                'relativePoint': pt,
-                                'realPoint': Points.add(pt, s, Points.sub(coordinates, mainShape)),
-                                'type': 'segmentPoint',
-                                'segmentIndex': i1,
-                                'ptIndex': i2
-                            });
-                        })
+        //segment: 2 points d'autres formes?
+        for(let i=0; i<cPtListBorder.length; i++) {
+            for(let j=i+1; j<cPtListBorder.length; j++) {
+                let e1 = cPtListBorder[i],
+                    e2 = cPtListBorder[j];
+                if(checkCompatibility(e1, e2)) {
+                    let t = computeTransformation(e1, e2, shapes, mainShape, coordinates);
+                    if(Math.abs(t.rotation)<=maxRotateAngle) {
+                        return t;
                     }
-                });
-                return list;
-            }).reduce((total, val) => {
-                return total.concat(val);
-            }, []);
-
-            //Forme sans sommet
-            if(points.length==0) return transformation;
-
-            let bestDist = 10000000,
-                bestTranslation = null,
-                constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
-            constr.canSelect = true;
-            constr.types = ['vertex', 'segmentPoint'];
-            if(excludeSelf)
-                constr.blacklist = shapes;
-            points.forEach(pt => {
-                let point = app.interactionAPI.selectPoint(pt.realPoint, constr);
-                if(point && Points.dist(pt.realPoint, point.coordinates)<bestDist) {
-                    bestDist = Points.dist(pt.realPoint, point.coordinates);
-                    bestTranslation = Points.sub(point.coordinates, pt.realPoint);
-                    bestPoint = pt;
                 }
-            });
-
-            //Aucun point proche
-            if(!bestTranslation) return transformation;
-
-            transformation.move = bestTranslation;
-        }
-
-        if(bestPoint.type=='vertex') {// OU type = segmentPoint: quid?
-            let newBestPointPos = Points.add(bestPoint.realPoint, transformation.move);
-            let pointsToTest = [];
-
-            //previous vertex:
-            let shape = bestPoint.shape,
-                bestPointIndex = bestPoint.vertexIndex,
-                prev1 = shape.getPrevBuildstepIndex(bestPointIndex),
-                pt1 = shape.buildSteps[prev1],
-                prev2 = shape.getPrevBuildstepIndex(prev1),
-                pt2 = shape.buildSteps[prev2];
-            if(pt1.type=='segment' && pt1.isArc!==true && pt2.type=='vertex') {
-                pointsToTest.push({
-                    'realPoint': Points.add(pt2.coordinates, shape, Points.sub(coordinates, mainShape)),
-                    'type': 'vertex',
-                    'vertexIndex': prev2
-                });
             }
-            //next vertex:
-            let next1 = shape.getNextBuildstepIndex(bestPointIndex);
-            pt1 = shape.buildSteps[next1];
-            let next2 = shape.getNextBuildstepIndex(next1);
-            pt2 = shape.buildSteps[next2];
-            if(pt1.type=='segment' && pt1.isArc!==true && pt2.type=='vertex') {
-                pointsToTest.push({
-                    'realPoint': Points.add(pt2.coordinates, shape, Points.sub(coordinates, mainShape)),
-                    'type': 'vertex',
-                    'vertexIndex': next2
-                });
-            }
-
-            //find common segment (that includes bestPoint)
-            let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
-            constr.canSelect = true;
-            constr.types = ['vertex']; //, 'segmentPoint'];
-            if(excludeSelf)
-                constr.blacklist = shapes;
-
-            let bestOther = null,
-                bestOtherDist = 1000*1000*1000,
-                bestOtherTranslation = null;
-            pointsToTest.forEach(pt => {
-                let point = app.interactionAPI.selectPoint(pt.realPoint, constr);
-                if(point && Points.dist(pt.realPoint, point.coordinates)<bestOtherDist) {
-                    bestOtherDist = Points.dist(pt.realPoint, point.coordinates);
-                    bestOtherTranslation = Points.sub(point.coordinates, pt.realPoint);
-                    bestOther = pt;
-                }
-            });
-
-            if(!bestOther) return transformation;
-
-            let segment = {
-                pt1: {
-                    'ref': newBestPointPos,
-                    'moving': bestPoint.realPoint
-                },
-                pt2: {
-                    'ref': Points.add(bestOther.realPoint, bestOtherTranslation),
-                    'moving': bestOther.realPoint
-                }
-            };
-
-            let pts = {
-                'pt1': Points.sub(segment.pt2.ref, segment.pt1.ref),
-                'pt2': Points.sub(segment.pt2.moving, segment.pt1.moving)
-            }
-
-            let angle1 = getAngleOfPoint(Points.create(0, 0), pts.pt1), //ref
-                angle2 = getAngleOfPoint(Points.create(0, 0), pts.pt2); //moving
-
-            let angle = angle1 - angle2;
-            if(angle>Math.PI) angle -= 2*Math.PI;
-            if(angle<-Math.PI) angle += 2*Math.PI;
-            if(Math.abs(angle)<0.00000001) angle = 0;
-
-            let afterRotationCoords = {
-                'pt1': rotatePoint(segment.pt1.moving, angle, Points.add(coordinates, shape.center)),
-                'pt2': rotatePoint(segment.pt2.moving, angle, Points.add(coordinates, shape.center))
-            };
-
-            transformation = {
-                'rotation': angle,
-                'move': Points.sub(segment.pt1.ref, afterRotationCoords.pt1)
-            };
-
-            //TODO: un 'segment' commun pourrait être formé par un vertex et un segmentPoint? pour l'instant non.
-        } else {
-            /*
-            bestPoint:
-            {
-                'shape': s,
-                'relativePoint': pt,
-                'realPoint': Points.add(pt, s, Points.sub(coordinates, mainShape)),
-                'type': 'segmentPoint',
-                'segmentIndex': i1,
-                'ptIndex': i2
-            }
-             */
-            //TODO?
         }
     }
 
+    if(tangram) {
+        //point: un seul point du tangram ?
+        let best = null,
+            bestDist = 1000*1000;
+        for(let i=0; i<cPtListTangram.length; i++) {
+            let e = cPtListTangram[i];
+            if(e.dist < bestDist) {
+                bestDist = e.dist;
+                best = e;
+            }
+        }
+        if(best) {
+            transformation.move = Points.sub(best.fixed.coordinates, best.moving.coordinates);
+            return transformation;
+        }
+    }
+
+    if(grid && !tangram) {
+        //point: un seul point de la grille?
+        let best = null,
+            bestDist = 1000*1000;
+        for(let i=0; i<cPtListGrid.length; i++) {
+            let e = cPtListGrid[i];
+            if(e.dist < bestDist) {
+                bestDist = e.dist;
+                best = e;
+            }
+        }
+        if(best) {
+            transformation.move = Points.sub(best.fixed.coordinates, best.moving.coordinates);
+            return transformation;
+        }
+    }
+
+    if(automaticAdjustment) {
+        //point un seul point d'une autre forme?
+        let best = null,
+            bestDist = 1000*1000;
+        for(let i=0; i<cPtListShape.length; i++) {
+            let e = cPtListShape[i];
+            if(e.dist < bestDist) {
+                bestDist = e.dist;
+                best = e;
+            }
+        }
+        if(best) {
+            transformation.move = Points.sub(best.fixed.coordinates, best.moving.coordinates);
+            return transformation;
+        }
+    }
+
+    //Rien n'a été trouvé, aucune transformation à faire.
     return transformation;
 }
 
@@ -235,9 +348,12 @@ export function getNewShapeAdjustment(coordinates) {
         return translation;
 
     if(grid) {
+        /*
+        Si la grille est activée, être uniquement attiré par la grille.
+         */
         let gridPoint = app.workspace.grid.getClosestGridPoint(coordinates);
         return Points.sub(gridPoint, coordinates);
-    } else { //automaticAdjustment
+    } else if(automaticAdjustment) {
         let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
         constr.canSelect = true;
         constr.types = ['center', 'vertex', 'segmentPoint'];
@@ -246,146 +362,3 @@ export function getNewShapeAdjustment(coordinates) {
         return Points.sub(point.coordinates, coordinates);
     }
 }
-
-
-/*
-
-            if (settings.get('automaticAdjustment')) {
-                bestSegment = null; //segment du groupe de forme qui va être rapproché d'un segment d'une forme externe.
-                var otherShapeSegment = null; //le segment de la forme externe correspondante.
-                var segmentScore = 1000 * 1000 * 1000; //somme des carrés des distances entre les sommets des 2 segments ci-dessus.
-
-                var total_elligible_segments = 0;
-                for (var i = 0; i < this.shapesList.length; i++) { //Pour chacune des formes en cours de déplacement:
-                    var shape = this.shapesList[i];
-                    if (shape.points.length == 0)
-                        continue;
-                    var p1;
-                    var p2 = app.workspace.pointsNearPoint(shape.points[0]);
-                    shape.points.push(shape.points[0]);
-                    for (var j = 1; j < shape.points.length; j++) { //pour chaque segment de la forme
-                        p1 = p2;
-                        p2 = app.workspace.pointsNearPoint(shape.points[j]);
-                        var pos1 = shape.points[j - 1].getAbsoluteCoordinates(),
-                            pos2 = shape.points[j].getAbsoluteCoordinates();
-
-                        var seg_length = Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
-                        for (var k = 0; k < p1.length; k++) { //pour chacun des points proches du premier point du segment (points[j-1])
-                            if (this.shapesList.indexOf(p1[k].shape) != -1)
-                                continue;
-                            for (var l = 0; l < p2.length; l++) { //pour chacun des points proches du second point du segment (points[j])
-                                if (this.shapesList.indexOf(p2[l].shape) != -1)
-                                    continue;
-                                var p1k_pos = p1[k].getAbsoluteCoordinates(),
-                                    p2l_pos = p2[l].getAbsoluteCoordinates();
-                                if (p1[k].shape == p2[l].shape) {
-                                    var len = Math.sqrt(Math.pow(p1k_pos.x - p2l_pos.x, 2) + Math.pow(p1k_pos.y - p2l_pos.y, 2));
-                                    var diff = Math.abs(len - seg_length);
-                                    if (diff <= 2) {
-                                        //Segment élligible.
-                                        total_elligible_segments++;
-
-                                        var score = Math.pow(p1k_pos.x - pos1.x, 2) + Math.pow(p1k_pos.y - pos1.y, 2);
-                                        score += Math.pow(p2l_pos.x - pos2.x, 2) + Math.pow(p2l_pos.y - pos2.y, 2);
-
-                                        if (score < segmentScore) {
-                                            segmentScore = score;
-                                            otherShapeSegment = [
-                                                { 'x': p1k_pos.x, 'y': p1k_pos.y },
-                                                { 'x': p2l_pos.x, 'y': p2l_pos.y }
-                                            ];
-                                            bestSegment = [
-                                                { 'x': pos1.x, 'y': pos1.y },
-                                                { 'x': pos2.x, 'y': pos2.y }
-                                            ];
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    shape.points.pop();
-                }
-
-                //Déplacer si nécessaire
-                if (bestSegment) { //On déplace la forme pour que bestSegment et otherShapeSegment deviennent identiques.
-                    //Translater le groupe de formes pour que les 2 segments aient un point en commun
-                    for (var i = 0; i < this.shapesList.length; i++) {
-                        this.shapesList[i].x += otherShapeSegment[0].x - bestSegment[0].x;
-                        this.shapesList[i].y += otherShapeSegment[0].y - bestSegment[0].y;
-
-                    }
-
-                    //Faire une rotation du groupe de formes, ayant pour centre otherShapeSegment[0]
-                    bestSegment[1].x -= bestSegment[0].x;
-                    bestSegment[1].y -= bestSegment[0].y;
-                    var t = { 'x': otherShapeSegment[1].x - otherShapeSegment[0].x, 'y': otherShapeSegment[1].y - otherShapeSegment[0].y };
-                    var a = app.getAngleBetweenPoints({ 'x': 0, 'y': 0 }, t);
-                    var b = app.getAngleBetweenPoints({ 'x': 0, 'y': 0 }, bestSegment[1]);
-                    var angle = a - b;
-
-                    for (var i = 0; i < this.shapesList.length; i++) {
-                        var n = app.states.rotate_shape.computeNewShapePos(this.shapesList[i], angle, otherShapeSegment[0]);
-                        this.shapesList[i].x = n.x;
-                        this.shapesList[i].y = n.y;
-
-                        for (var j = 0; j < this.shapesList[i].buildSteps.length; j++) {
-                            var transformation = app.states.rotate_shape.computePointPosition(this.shapesList[i].buildSteps[j].x, this.shapesList[i].buildSteps[j].y, angle);
-                            this.shapesList[i].buildSteps[j].setCoordinates(transformation.x, transformation.y);
-                        }
-                        this.shapesList[i].recomputePoints();
-                        for (var j = 0; j < this.shapesList[i].segmentPoints.length; j++) {
-                            var pos = this.shapesList[i].segmentPoints[j].getRelativeCoordinates();
-                            var transformation = app.states.rotate_shape.computePointPosition(pos.x, pos.y, angle);
-                            this.shapesList[i].segmentPoints[j].setCoordinates(transformation.x, transformation.y);
-                        }
-                        for (var j = 0; j < this.shapesList[i].otherPoints.length; j++) {
-                            var pos = this.shapesList[i].otherPoints[j].getRelativeCoordinates();
-                            var transformation = app.states.rotate_shape.computePointPosition(pos.x, pos.y, angle);
-                            this.shapesList[i].otherPoints[j].setCoordinates(transformation.x, transformation.y);
-                        }
-                    }
-                }
-
-            }
-            if (!settings.get('isGridShown') && !bestSegment) {
-                //Trouver un point proche ?
-                var bestPoint = null; //point du groupe de forme qui va être rapproché d'un point d'une forme externe.
-                var otherShapePoint = null; //le point de la forme externe correspondante.
-                var pointScore = 1000 * 1000 * 1000; //carrés de la distance entre les 2 points.
-
-                for (var i = 0; i < this.shapesList.length; i++) { //Pour chacune des formes en cours de déplacement:
-                    var shape = this.shapesList[i];
-                    for (var j = 0; j < shape.points.length; j++) { //pour chaque point de la forme
-                        var pts = app.workspace.pointsNearPoint(shape.points[j]);
-                        var shape_ptj_pos = shape.points[j].getAbsoluteCoordinates();
-
-                        for (var k = 0; k < pts.length; k++) { //pour chacun des points proches du point de la forme
-                            if (this.shapesList.indexOf(pts[k].shape) != -1) //le point appartient à une des formes du groupe de forme.
-                                continue;
-                            var pts_k_pos = pts[k].getAbsoluteCoordinates();
-                            var score = Math.pow(pts_k_pos.x - shape_ptj_pos.x, 2) + Math.pow(pts_k_pos.y - shape_ptj_pos.y, 2);
-                            if (score < pointScore) {
-                                pointScore = score;
-                                otherShapePoint = {
-                                    'x': pts_k_pos.x,
-                                    'y': pts_k_pos.y
-                                };
-                                bestPoint = {
-                                    'x': shape_ptj_pos.x,
-                                    'y': shape_ptj_pos.y
-                                };
-                            }
-                        }
-                    }
-                }
-
-                if (bestPoint) {
-                    //Translater le groupe de formes pour que les 2 points soient identiques.
-                    for (var i = 0; i < this.shapesList.length; i++) {
-                        this.shapesList[i].x += otherShapePoint.x - bestPoint.x;
-                        this.shapesList[i].y += otherShapePoint.y - bestPoint.y;
-                    }
-                }
-            }
-         */

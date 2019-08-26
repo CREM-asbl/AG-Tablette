@@ -82,6 +82,43 @@ export class TangramManager {
         return this.getTangram(type, id);
     }
 
+    /**
+     * Renvoie un point de la silhouette du tangram qui est proche du point reçu,
+     * ou null si pas de point proche.
+     * @param  {Point} point Coordonnées d'un point
+     * @return {Point}
+     */
+    static getNearTangramPoint(point) {
+        //TODO: si mode silhouette, uniquement contour, sinon points internes aussi.
+        let tangram = this.getCurrentTangram();
+        if(tangram==null) return null;
+
+        let bestPoint = null,
+            bestDist = 1000*1000*1000;
+
+        tangram.polygons.forEach(polygon => {
+            polygon.forEach(tangramPt => {
+                if(app.interactionAPI.arePointsInMagnetismDistance(point, tangramPt)) {
+                    let dist = Points.dist(point, tangramPt);
+                    if(dist<bestDist) {
+                        bestDist = dist;
+                        bestOffset = tangramPt;
+                    }
+                }
+            });
+        });
+
+		return bestPoint;
+    }
+
+    /**
+     * Calcule l'ajustement que l'on peut appliquer à un groupe de formes, pour
+     * se coller à la silouette du tangram. Si aucune des formes n'est proche de
+     * la silouette, renvoie null.
+     * @param {[Shapes]} shapes      Liste des formes du groupe
+     * @param {Shape} mainShape   La forme sélectionnée par l'utilisateur
+     * @param {Point} coordinates Coordonnées de la forme sélectionnée
+     */
     static getShapeGroupOffset(shapes, mainShape, coordinates) {
         //Calcule la liste des sommets des formes
         let points = shapes.map(s => {
@@ -100,13 +137,11 @@ export class TangramManager {
         let tangram = this.getCurrentTangram();
         if(tangram==null) return null;
 
-        let tangramPoints = tangram.polygons.map(polygon => {
-            return [...polygon];
-        }).reduce((total, elem) => {
+        let tangramPoints = tangram.polygons.reduce((total, elem) => {
             return total.concat(elem);
         }, []);
 
-        let bestOffset = {'x': 0, 'y': 0},
+        let bestOffset = null,
             bestDist = 1000*1000*1000;
 
         points.forEach(pt => {
@@ -127,7 +162,7 @@ export class TangramManager {
 
 /**
  * Copier-coller le contenu d'un fichier tangram.json.
- * Ces tangrams sont importés dans retrieveTangrams()
+ * Ces tangrams sont importés via la méthode retrieveTangrams()
  */
 let mainTangramsJSON = [
     {

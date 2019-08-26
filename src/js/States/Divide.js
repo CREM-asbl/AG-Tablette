@@ -92,7 +92,7 @@ export class DivideState extends State {
             let pt1 = this.actions[0].firstPoint;
 
             if(pt1.type==object.type && pt1.index == object.index
-             && (pt1.type=='vertex' || Points.equal(pt1.coordinates, object.coordinates))) {
+             && (pt1.pointType=='vertex' || Points.equal(pt1.coordinates, object.coordinates))) {
                  //pt1 = object => désélectionner le point.
                  this.currentStep = "listen-canvas-click";
                  this.actions[0].mode = null;
@@ -107,6 +107,29 @@ export class DivideState extends State {
                 app.drawAPI.askRefresh();
                 app.drawAPI.askRefresh('upper');
                 return;
+            }
+
+            /*
+            Vérifie s'il y a une ambiguité sur l'action à réaliser: si les 2
+            poins sont reliés par un arc de cercle, et aussi par un segment (la
+            forme est donc constituée uniquement de 2 sommets, un segment et un
+            arc de cercle), on annulle l'action.
+             */
+            if(pt1.pointType=='vertex' && object.pointType=='vertex') {
+                let bsList = object.shape.buildSteps;
+                if(bsList.filter(bs => bs.type=='vertex').length == 2
+                    && bsList.filter(bs => bs.type=='segment' && bs.isArc!==true).length == 1
+                    && bsList.filter(bs => bs.type=='moveTo').length == 1
+                    && bsList.filter(bs => bs.type=='segment' && bs.isArc===true).length >0) {
+                        console.log("ambiguité, ne rien faire");
+                        let parts = this.actions[0].numberOfparts;
+                        this.start(false);
+                        this.setNumberOfparts(parts);
+
+                        app.drawAPI.askRefresh();
+                        app.drawAPI.askRefresh('upper');
+                        return;
+                    }
             }
 
             this.actions[0].secondPoint = object;
@@ -153,7 +176,7 @@ export class DivideState extends State {
                 sIndex = this.actions[0].segmentIndex,
                 indexes = [ sIndex ];
             if(bs [ sIndex ].isArc)
-                indexes = this.shape.getArcSegmentIndexes();
+                indexes = this.shape.getArcSegmentIndexes(sIndex);
             indexes.forEach(index => {
                 let coords1 = Points.add(bs [ index - 1].coordinates, this.shape),
                     coords2 = Points.add(bs [ index ].coordinates, this.shape);
@@ -170,20 +193,34 @@ export class DivideState extends State {
         let shape = object.shape,
             bs = object.shape.buildSteps,
             vertexToAdd = [],
-            segmentsToAdd = [];
+            segmentsToAdd = [],
+            isVertexAfter = false;
+        if(object.pointType == 'vertex') {
+            let nextBS = shape.getNextBuildstepIndex(object.index);
+            if(bs[nextBS].isArc===true)
+                isVertexAfter = true;
+        } else if(bs[object.index].isArc===true)
+            isVertexAfter = true;
 
         //Vertex précédent et suivant:
-        vertexToAdd.push( shape.getPrevVertexIndex(object.index) );
-        vertexToAdd.push( shape.getNextVertexIndex(object.index) );
+        if(!isVertexAfter) {
+            vertexToAdd.push( shape.getNextVertexIndex(object.index) );
+        }
+        if(!shape.isCircle())
+            vertexToAdd.push( shape.getPrevVertexIndex(object.index) );
+
+
 
         if(object.pointType == 'vertex') {
             vertexToAdd.push( object.index ); //Vertex actuel
             //segmentPoints suivant et précédent
-            segmentsToAdd.push( shape.getNextBuildstepIndex(object.index) );
-            segmentsToAdd.push( shape.getPrevBuildstepIndex(object.index) );
+            if(!isVertexAfter || shape.isCircle()) {
+                segmentsToAdd.push( [shape.getNextBuildstepIndex(object.index), false] );
+            }
+            segmentsToAdd.push( [shape.getPrevBuildstepIndex(object.index), false] );
         } else {
             //segmentPoint actuel
-            segmentsToAdd.push( object.index );
+            segmentsToAdd.push( [object.index, isVertexAfter && !shape.isCircle()] );
         }
 
         vertexToAdd = vertexToAdd.map(vertex => {
@@ -193,17 +230,18 @@ export class DivideState extends State {
                 'index': vertex
             };
         });
-        segmentsToAdd = segmentsToAdd.map(segment => {
-            let start = segment,
+        segmentsToAdd = segmentsToAdd.map(data => {
+            let [segment, skipPointsAfter] = data,
+                start = segment,
                 end = segment,
                 pts = [];
-            if(segment.isArc) {
-                let data = getArcEnds(segment);
+            if(bs[segment].isArc) {
+                let data = shape.getArcEnds(segment);
                 start = data[0];
-                end = data[1];
+                end = skipPointsAfter ? segment : data[1];
             }
-            let index = start-1;
-            while(index!=end) {
+            let index = start-1, first = true;
+            while(index!=end || first) {
                 index = shape.getNextBuildstepIndex(index);
                 pts = pts.concat(bs[index].points.map(pt => {
                     return {
@@ -213,6 +251,7 @@ export class DivideState extends State {
                         'coordinates': Points.copy(pt)
                     };
                 }));
+                first = false;
             }
             return pts;
         }).reduce((total, pts) => {

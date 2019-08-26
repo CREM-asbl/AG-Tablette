@@ -376,22 +376,18 @@ export const standardKit = {
         ]
     },
 
+    /*
+    Attention: le dessin du cercle commence au zéro trigonométrique. Lorsque
+    l'on divise le contour du cercle (via l'outil diviser), il y a d'office un
+    point qui est placé là où le cercle commence!
+    Les cercles doivent également être dessinés dans le sens trigonométrique.
+     */
     'Cercles': {
         "color": "#CCC",
         "shapes": [
             { //Circonscrit à l'hexagone -> rayon = 50.
                 name: "Disque 1", color: "#FF0", steps: [
-                    { type: 'moveTo', x: 0, y: 50},
-                    { type: 'segment', x: 7.821723252011544, y: 49.38441702975689, isArc: true},
-                    { type: 'segment', x: 15.450849718747369, y: 47.552825814757675, isArc: true},
-                    { type: 'segment', x: 22.699524986977337, y: 44.550326209418394, isArc: true},
-                    { type: 'segment', x: 29.389262614623657, y: 40.45084971874737, isArc: true},
-                    { type: 'segment', x: 35.35533905932737, y: 35.35533905932738, isArc: true},
-                    { type: 'segment', x: 40.45084971874737, y: 29.389262614623657, isArc: true},
-                    { type: 'segment', x: 44.55032620941839, y: 22.699524986977345, isArc: true},
-                    { type: 'segment', x: 47.552825814757675, y: 15.450849718747373, isArc: true},
-                    { type: 'segment', x: 49.38441702975689, y: 7.821723252011546, isArc: true},
-                    { type: 'segment', x: 50, y: 0, isArc: true},
+                    { type: 'moveTo', x: 50, y: 0},
                     { type: 'segment', x: 49.38441702975689, y: -7.821723252011541, isArc: true},
                     { type: 'segment', x: 47.55282581475768, y: -15.450849718747367, isArc: true},
                     { type: 'segment', x: 44.550326209418394, y: -22.699524986977337, isArc: true},
@@ -421,23 +417,23 @@ export const standardKit = {
                     { type: 'segment', x: -22.699524986977348, y: 44.55032620941839, isArc: true},
                     { type: 'segment', x: -15.450849718747381, y: 47.552825814757675, isArc: true},
                     { type: 'segment', x: -7.821723252011556, y: 49.38441702975688, isArc: true},
-                    { type: 'segment', x: 0, y: 50, isArc: true}
+                    { type: 'segment', x: 0, y: 50, isArc: true},
+                    { type: 'segment', x: 7.821723252011544, y: 49.38441702975689, isArc: true},
+                    { type: 'segment', x: 15.450849718747369, y: 47.552825814757675, isArc: true},
+                    { type: 'segment', x: 22.699524986977337, y: 44.550326209418394, isArc: true},
+                    { type: 'segment', x: 29.389262614623657, y: 40.45084971874737, isArc: true},
+                    { type: 'segment', x: 35.35533905932737, y: 35.35533905932738, isArc: true},
+                    { type: 'segment', x: 40.45084971874737, y: 29.389262614623657, isArc: true},
+                    { type: 'segment', x: 44.55032620941839, y: 22.699524986977345, isArc: true},
+                    { type: 'segment', x: 47.552825814757675, y: 15.450849718747373, isArc: true},
+                    { type: 'segment', x: 49.38441702975689, y: 7.821723252011546, isArc: true},
+                    { type: 'segment', x: 50, y: 0, isArc: true}
                 ]
             },
 
             { //Circonscrit au pentagone -> rayon = 42.53254041760199.
                 name: "Disque 2", color: "#0F0", steps: [
-                    { type: 'moveTo', x: 0, y: 42.53254041760199},
-                    { type: 'segment', x: 6.653555207029557, y: 42.00889426635694, isArc: true},
-                    { type: 'segment', x: 13.14327780297833, y: 40.45084971874737, isArc: true},
-                    { type: 'segment', x: 19.309369279379595, y: 37.89677100238883, isArc: true},
-                    { type: 'segment', x: 24.99999999999999, y: 34.40954801177934, isArc: true},
-                    { type: 'segment', x: 30.075047750377273, y: 30.075047750377287, isArc: true},
-                    { type: 'segment', x: 34.40954801177933, y: 25.000000000000007, isArc: true},
-                    { type: 'segment', x: 37.89677100238882, y: 19.30936927937961, isArc: true},
-                    { type: 'segment', x: 40.450849718747364, y: 13.143277802978348, isArc: true},
-                    { type: 'segment', x: 42.00889426635693, y: 6.6535552070295765, isArc: true},
-                    { type: 'segment', x: 42.53254041760199, y: 0, isArc: true},
+                    { type: 'moveTo', x: 42.53254041760199, y: 0},
                     { type: 'segment', x: 42.00889426635694, y: -6.653555207029555, isArc: true},
                     { type: 'segment', x: 40.45084971874737, y: -13.143277802978329, isArc: true},
                     { type: 'segment', x: 37.89677100238883, y: -19.30936927937959, isArc: true},
@@ -467,23 +463,23 @@ export const standardKit = {
                     { type: 'segment', x: -19.309369279379112, y: 37.89677100238907, isArc: true},
                     { type: 'segment', x: -13.143277802977781, y: 40.45084971874755, isArc: true},
                     { type: 'segment', x: -6.653555207028949, y: 42.00889426635703, isArc: true},
-                    { type: 'segment', x: 0, y: 42.53254041760199, isArc: true}
+                    { type: 'segment', x: 0, y: 42.53254041760199, isArc: true},
+                    { type: 'segment', x: 6.653555207029557, y: 42.00889426635694, isArc: true},
+                    { type: 'segment', x: 13.14327780297833, y: 40.45084971874737, isArc: true},
+                    { type: 'segment', x: 19.309369279379595, y: 37.89677100238883, isArc: true},
+                    { type: 'segment', x: 24.99999999999999, y: 34.40954801177934, isArc: true},
+                    { type: 'segment', x: 30.075047750377273, y: 30.075047750377287, isArc: true},
+                    { type: 'segment', x: 34.40954801177933, y: 25.000000000000007, isArc: true},
+                    { type: 'segment', x: 37.89677100238882, y: 19.30936927937961, isArc: true},
+                    { type: 'segment', x: 40.450849718747364, y: 13.143277802978348, isArc: true},
+                    { type: 'segment', x: 42.00889426635693, y: 6.6535552070295765, isArc: true},
+                    { type: 'segment', x: 42.53254041760199, y: 0, isArc: true}
                 ]
             },
 
             { //Circonscrit au carré -> rayon = 35.35533905932738.
                 name: "Disque 3", color: "#F00", steps: [
-                    { type: 'moveTo', x: 0, y: 35.35533905932738},
-                    { type: 'segment', x: 5.5307935520618505, y: 34.92005616668552, isArc: true},
-                    { type: 'segment', x: 10.925400611220521, y: 33.62492559819787, isArc: true},
-                    { type: 'segment', x: 16.05098804800515, y: 31.50183776675253, isArc: true},
-                    { type: 'segment', x: 20.781346888872665, y: 28.60307014088422, isArc: true},
-                    { type: 'segment', x: 24.999999999999996, y: 25.000000000000007, isArc: true},
-                    { type: 'segment', x: 28.603070140884213, y: 20.78134688887268, isArc: true},
-                    { type: 'segment', x: 31.501837766752523, y: 16.05098804800516, isArc: true},
-                    { type: 'segment', x: 33.62492559819787, y: 10.925400611220534, isArc: true},
-                    { type: 'segment', x: 34.92005616668551, y: 5.5307935520618665, isArc: true},
-                    { type: 'segment', x: 35.35533905932738, y: 0, isArc: true},
+                    { type: 'moveTo', x: 35.35533905932738, y: 0},
                     { type: 'segment', x: 34.92005616668552, y: -5.530793552061849, isArc: true},
                     { type: 'segment', x: 33.62492559819787, y: -10.925400611220518, isArc: true},
                     { type: 'segment', x: 31.50183776675253, y: -16.05098804800515, isArc: true},
@@ -513,23 +509,23 @@ export const standardKit = {
                     { type: 'segment', x: -16.050988048004747, y: 31.501837766752733, isArc: true},
                     { type: 'segment', x: -10.925400611220063, y: 33.62492559819802, isArc: true},
                     { type: 'segment', x: -5.530793552061345, y: 34.9200561666856, isArc: true},
-                    { type: 'segment', x: 0, y: 35.35533905932738, isArc: true}
+                    { type: 'segment', x: 0, y: 35.35533905932738, isArc: true},
+                    { type: 'segment', x: 5.5307935520618505, y: 34.92005616668552, isArc: true},
+                    { type: 'segment', x: 10.925400611220521, y: 33.62492559819787, isArc: true},
+                    { type: 'segment', x: 16.05098804800515, y: 31.50183776675253, isArc: true},
+                    { type: 'segment', x: 20.781346888872665, y: 28.60307014088422, isArc: true},
+                    { type: 'segment', x: 24.999999999999996, y: 25.000000000000007, isArc: true},
+                    { type: 'segment', x: 28.603070140884213, y: 20.78134688887268, isArc: true},
+                    { type: 'segment', x: 31.501837766752523, y: 16.05098804800516, isArc: true},
+                    { type: 'segment', x: 33.62492559819787, y: 10.925400611220534, isArc: true},
+                    { type: 'segment', x: 34.92005616668551, y: 5.5307935520618665, isArc: true},
+                    { type: 'segment', x: 35.35533905932738, y: 0, isArc: true}
                 ]
             },
 
             { //Circonscrit au triangle équilatéral -> rayon = 28.86751345948129.
                 name: "Disque 4", color: "#FF0", steps: [
-                    { type: 'moveTo', x: 0, y: 28.86751345948129},
-                    { type: 'segment', x: 4.515874025075615, y: 28.512106465902882, isArc: true},
-                    { type: 'segment', x: 8.920552244327244, y: 27.454636784877735, isArc: true},
-                    { type: 'segment', x: 13.105576861708, y: 25.721142829493356, isArc: true},
-                    { type: 'segment', x: 16.967898681837568, y: 23.354308974067898, isArc: true},
-                    { type: 'segment', x: 20.41241452319315, y: 20.412414523193156, isArc: true},
-                    { type: 'segment', x: 23.35430897406789, y: 16.967898681837582, isArc: true},
-                    { type: 'segment', x: 25.72114282949335, y: 13.105576861708009, isArc: true},
-                    { type: 'segment', x: 27.45463678487773, y: 8.920552244327254, isArc: true},
-                    { type: 'segment', x: 28.51210646590288, y: 4.515874025075627, isArc: true},
-                    { type: 'segment', x: 28.86751345948129, y: 0, isArc: true},
+                    { type: 'moveTo', x: 28.86751345948129, y: 0},
                     { type: 'segment', x: 28.512106465902882, y: -4.515874025075613, isArc: true},
                     { type: 'segment', x: 27.454636784877735, y: -8.920552244327242, isArc: true},
                     { type: 'segment', x: 25.721142829493356, y: -13.105576861707998, isArc: true},
@@ -559,7 +555,17 @@ export const standardKit = {
                     { type: 'segment', x: -13.105576861707673, y: 25.72114282949352, isArc: true},
                     { type: 'segment', x: -8.92055224432687, y: 27.454636784877856, isArc: true},
                     { type: 'segment', x: -4.515874025075202, y: 28.512106465902946, isArc: true},
-                    { type: 'segment', x: 0, y: 28.86751345948129, isArc: true}
+                    { type: 'segment', x: 0, y: 28.86751345948129, isArc: true},
+                    { type: 'segment', x: 4.515874025075615, y: 28.512106465902882, isArc: true},
+                    { type: 'segment', x: 8.920552244327244, y: 27.454636784877735, isArc: true},
+                    { type: 'segment', x: 13.105576861708, y: 25.721142829493356, isArc: true},
+                    { type: 'segment', x: 16.967898681837568, y: 23.354308974067898, isArc: true},
+                    { type: 'segment', x: 20.41241452319315, y: 20.412414523193156, isArc: true},
+                    { type: 'segment', x: 23.35430897406789, y: 16.967898681837582, isArc: true},
+                    { type: 'segment', x: 25.72114282949335, y: 13.105576861708009, isArc: true},
+                    { type: 'segment', x: 27.45463678487773, y: 8.920552244327254, isArc: true},
+                    { type: 'segment', x: 28.51210646590288, y: 4.515874025075627, isArc: true},
+                    { type: 'segment', x: 28.86751345948129, y: 0, isArc: true}
                 ]
             }
         ]

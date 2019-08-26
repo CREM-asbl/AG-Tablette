@@ -21,7 +21,7 @@ export class MergeAction extends Action {
 
     saveToObject() {
         let save = {
-            
+
             'firstShapeId': this.firstShapeId,
             'secondShapeId': this.secondShapeId
         };
@@ -29,7 +29,7 @@ export class MergeAction extends Action {
     }
 
     initFromObject(save) {
-        
+
         this.firstShapeId = save.firstShapeId;
         this.secondShapeId = save.secondShapeId;
     }
@@ -74,8 +74,9 @@ export class MergeAction extends Action {
                     part = part.map(bs => {
                         bs = bs.copy();
                         bs.coordinates = Points.add(bs.coordinates, offset);
-                        if(bs.type=='segment')
-                            bs.points = bs.points.map(pt => Points.add(pt, offset));
+                        if(bs.type=='segment') {
+                            bs.points = [];
+                        }
                         return bs;
                     });
                     //Last buildStep should be a vertex
@@ -106,28 +107,12 @@ export class MergeAction extends Action {
                         let add1 = new Segment(line.pt1),
                             add2 = new Vertex(line.pt1);
                         part.push(add1, add2);
-
-                        //Copier les points de cette partie de segment:
-                        let refDist = Points.dist(bs[start].coordinates, line.pt1);
-                        bs[end].points.forEach(pt => {
-                            let dist = Points.dist(pt, bs[start].coordinates);
-                            if(dist<refDist)
-                                add1.addPoint(Points.copy(pt));
-                        });
                     }
                     if(line.pt2 != 'end') {
                         let add1 = new Vertex(line.pt2),
                             add2 = new Segment(bs[end].coordinates);
                         bs.splice(end-1, 2, add1, add2);
                         nextIndex = end-1;
-
-                        //Copier les points de cette partie de segment:
-                        let refDist = Points.dist(line.pt2, bs[end].coordinates);
-                        bs[end].points.forEach(pt => {
-                            let dist = Points.dist(pt, bs[end].coordinates);
-                            if(dist<refDist)
-                                add2.addPoint(Points.copy(pt));
-                        });
                     }
                 }
                 deleteMovetoAndAdd(part);
@@ -235,7 +220,7 @@ export class MergeAction extends Action {
         newShape.familyName = "Custom";
         newShape.color = getAverageColor(shape1.color, shape2.color);
         newShape.borderColor = getAverageColor(shape1.borderColor, shape2.borderColor);
-        newShape.isCenterShown = shape1.isCenterShown || shape2.isCenterShown;
+        newShape.isCenterShown = false;
         newShape.opacity = (shape1.opacity + shape2.opacity)/2;
         newShape.buildSteps = buildSteps;
         newShape.updateInternalState();

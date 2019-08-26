@@ -5,6 +5,7 @@ class GridPopup extends LitElement {
 
     constructor() {
         super()
+        app.popups.grid = this;
     }
 
     render() {
@@ -122,6 +123,25 @@ class GridPopup extends LitElement {
             <button style="font-size: 20px" @click="${this.gridPopupValidate}">Valider</button>
         </div>
         `
+    }
+
+    updatePopup() {
+        let showElem = this.shadowRoot.getElementById("grid_popup_show_grid"),
+            typeElem = this.shadowRoot.getElementById("grid_popup_grid_type"),
+            sizeElem = this.shadowRoot.getElementById("grid_popup_grid_size");
+
+        showElem.checked = app.workspace.settings.get('isGridShown');
+        typeElem.disabled = app.workspace.settings.get('isGridShown');
+        sizeElem.disabled = app.workspace.settings.get('isGridShown');
+
+        typeElem.value = app.workspace.settings.get('gridType');
+
+        let gridSize = app.workspace.settings.get('gridSize');
+        if(Math.abs(gridSize - 0.3333333333333)<0.0001) {
+            sizeElem.value = "0.333333333333333";
+        } else {
+            sizeElem.value = gridSize;
+        }
     }
 
     gridPopupValidate() {
