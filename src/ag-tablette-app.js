@@ -127,6 +127,12 @@ class AGTabletteApp extends LitElement {
                                     name="new"
                                     @click="${this._actionHandle}">
                             </icon-button>
+                            <icon-button src="/images/delete.svg"
+                                    title="Supprimer une forme"
+                                    name="delete_shape"
+                                    ?active="${this.state.name === 'delete_shape'}"
+                                    @click='${this._actionHandle}'>
+                            </icon-button>
                             <icon-button src="/images/load.svg"
                                     title="Ouvrir"
                                     name="load"
@@ -136,11 +142,6 @@ class AGTabletteApp extends LitElement {
                                     title="Sauvegarder"
                                     name="save"
                                     @click='${() => app.wsManager.saveWorkspaceToFile(app.workspace)}'>
-                            </icon-button>
-                            <icon-button src="/images/settings.svg"
-                                    title="Paramètres"
-                                    name="settings"
-                                    @click='${this._actionHandle}'>
                             </icon-button>
                             <icon-button src="/images/undo.svg"
                                     title="Annuler"
@@ -154,10 +155,9 @@ class AGTabletteApp extends LitElement {
                                     ?disabled="${!this.canRedo}"
                                     @click='${this._actionHandle}'>
                             </icon-button>
-                            <icon-button src="/images/delete.svg"
-                                    title="Supprimer une forme"
-                                    name="delete_shape"
-                                    ?active="${this.state.name === 'delete_shape'}"
+                            <icon-button src="/images/settings.svg"
+                                    title="Paramètres"
+                                    name="settings"
                                     @click='${this._actionHandle}'>
                             </icon-button>
                             <!--
