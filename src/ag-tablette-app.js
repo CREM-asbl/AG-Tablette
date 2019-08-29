@@ -46,6 +46,8 @@ class AGTabletteApp extends LitElement {
         <style>
             :host{
                 --primary-color: #abcedf;
+                --button-border-color: black;
+                --button-background-color: #0FF;
             }
 
             #app-canvas-view {

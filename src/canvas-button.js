@@ -20,7 +20,8 @@ class CanvasButton extends LitElement {
             }
 
             :host([active]) canvas{
-                border: 1px solid #F66;
+                border: 1px solid var(--button-border-color);
+                background-color: var(--button-background-color);
             }
 
             canvas {
@@ -64,23 +65,23 @@ class CanvasButton extends LitElement {
             maxX = Math.max(maxX, icon.steps[i].x)
             minY = Math.min(minY, icon.steps[i].y)
             maxY = Math.max(maxY, icon.steps[i].y)
-            if(icon.steps[i].isArc)
+            if (icon.steps[i].isArc)
                 is_circle = true;
         }
 
         let largeur = maxX - minX,
             hauteur = maxY - minY,
             scale;
-        if(is_circle) {
+        if (is_circle) {
             scale = 0.42; //valeur arbitraire
         } else {
             scale = 40 / Math.max(largeur, hauteur);
         }
 
         let center = {
-                'x': (minX +largeur/2)*scale,
-                'y': (minY + hauteur/2)*scale
-            },
+            'x': (minX + largeur / 2) * scale,
+            'y': (minY + hauteur / 2) * scale
+        },
             centerOffset = {
                 'x': 26 - center.x,
                 'y': 26 - center.y
@@ -92,7 +93,7 @@ class CanvasButton extends LitElement {
         ctx.beginPath();
         ctx.moveTo(icon.steps[0].x, icon.steps[0].y);
         for (let i = 1; i < icon.steps.length; i++) {
-            if(icon.steps[i].type !== "segment") continue;
+            if (icon.steps[i].type !== "segment") continue;
 
             ctx.lineTo(icon.steps[i].x, icon.steps[i].y);
         }
