@@ -137,7 +137,7 @@ export class App {
      * @param {Object} startParams paramètres à transmettre à state.start()
      */
     setState(stateName, startParams) {
-        if(this.state) {
+         if(this.state) {
             //Par exemple, annule des setTimeout/Interval.
             this.state.abort();
         }

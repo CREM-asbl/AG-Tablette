@@ -8,7 +8,7 @@ import { State } from './State'
 export class OpacityState extends State {
 
     constructor() {
-        super("border_color");
+        super("opacity");
 
         this.currentStep = null; // choose-opacity -> listen-canvas-click
     }

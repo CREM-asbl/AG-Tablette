@@ -282,6 +282,7 @@ class AGTabletteApp extends LitElement {
                         <icon-button src="/images/opacity.svg"
                                 title="Opacité"
                                 name="opacity"
+                                ?active="${this.state.name === 'opacity'}"
                                 @click='${this._actionHandle}'>
                         </icon-button>
                         <!--
