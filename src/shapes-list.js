@@ -11,7 +11,10 @@ class ShapesList extends LitElement {
     }
 
     set state({ name, selectedFamily }) {
-        this.family = selectedFamily
+        if (this.family !== selectedFamily) {
+            this.family = selectedFamily
+            this.shape = null
+        }
         this.show = name === 'create_shape'
     }
 
@@ -35,7 +38,6 @@ class ShapesList extends LitElement {
                 z-index: 100;
                 box-sizing: border-box;
                 overflow: auto;
-
             }
 
             h2 {

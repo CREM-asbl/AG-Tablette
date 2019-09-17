@@ -115,6 +115,12 @@ class AGTabletteApp extends LitElement {
             #app-canvas-mode-text span{
                 color: #444;
             }
+
+            @media (min-width:650px) {
+                shapes-list {
+                    left: ${app.settings.get('mainMenuWidth')}px;
+                }
+            }
         </style>
 
         <div id="app-canvas-view">
