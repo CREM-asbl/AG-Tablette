@@ -17,13 +17,7 @@ export default [
       ...config[0].plugins,
       cpy({
         // copy over all images files
-        files: [
-          'images/**/*',
-          'manifest.json',
-          'firebase-messaging-sw.js',
-          'node_modules/firebase/firebase-app.js',
-          'node_modules/firebase/firebase-messaging.js',
-        ],
+        files: ['images/**/*', 'manifest.json'],
         dest: 'dist',
         options: {
           // parents makes sure to preserve the original folder structure

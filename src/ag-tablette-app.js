@@ -126,9 +126,8 @@ class AGTabletteApp extends LitElement {
         <div id="app-canvas-view-toolbar" class="toolbar">
           <div id="app-canvas-view-toolbar-p1">
             <div id="app-canvas-mode-text">
-              <span>Mode: </span> ${this.state.name
-                ? StatesManager.getStateText(this.state.name)
-                : ''}
+              <span>Mode: </span>
+              ${this.state.name ? StatesManager.getStateText(this.state.name) : ''}
             </div>
             <flex-toolbar>
               <icon-button
@@ -183,8 +182,7 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-              <!--
-                            <icon-button src="/images/help.svg"
+              <!-- <icon-button src="/images/help.svg"
                                     title="Aide"
                                     name="help"
                                     disabled>
@@ -238,6 +236,7 @@ class AGTabletteApp extends LitElement {
             </flex-toolbar>
 
             <div class="toolbar-separator">Opérations</div>
+
             <flex-toolbar>
               <icon-button
                 src="/images/center.svg"
@@ -282,6 +281,7 @@ class AGTabletteApp extends LitElement {
             </flex-toolbar>
 
             <div class="toolbar-separator">Outils</div>
+
             <flex-toolbar>
               <icon-button
                 src="/images/moveplane.svg"
@@ -315,7 +315,6 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-
               <icon-button
                 src="/images/background-color.svg"
                 title="Colorier les formes"
@@ -344,7 +343,7 @@ class AGTabletteApp extends LitElement {
                         <icon-button src="/images/wallpaper.svg"
                                 title="Fond d'écran"
                                 name="border_color"
-                                @click="${this.loadBackground}">
+                                @click="\${this.loadBackground}">
                         </icon-button>
                         -->
 
@@ -367,12 +366,12 @@ class AGTabletteApp extends LitElement {
                         <icon-button src="/images/tangram-edit.svg"
                                 title="Créer Tangram"
                                 name="tangram_creator"
-                                @click="${this._actionHandle}">
+                                @click="\${this._actionHandle}">
                         </icon-button>
                         <icon-button src="/images/tangram.svg"
                                 title="Faire un Tangram"
                                 name="tangram_menu"
-                                @click="${this._actionHandle}">
+                                @click="\${this._actionHandle}">
                         </icon-button>
                         -->
             </flex-toolbar>
@@ -402,7 +401,7 @@ class AGTabletteApp extends LitElement {
         accept=".json"
         type="file"
         style="display: none"
-        @change=${this._inputChanged}
+        @change="${this._inputChanged}"
       />
     `;
   }
