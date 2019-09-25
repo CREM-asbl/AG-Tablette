@@ -1,416 +1,461 @@
-import { LitElement, html } from 'lit-element'
-import './canvas-button'
-import './shapes-list'
-import './div-main-canvas'
-import './popups/app-settings'
-import './flex-toolbar'
-import './icon-button'
-import './js/Manifest'
-import './popups/new-popup'
-import './popups/grid-popup'
-import './popups/tangram-popup'
-import './popups/opacity-popup'
-import './state-menu'
-import './version-item'
+import { LitElement, html } from 'lit-element';
+import './canvas-button';
+import './shapes-list';
+import './div-main-canvas';
+import './popups/app-settings';
+import './flex-toolbar';
+import './icon-button';
+import './js/Manifest';
+import './popups/new-popup';
+import './popups/grid-popup';
+import './popups/tangram-popup';
+import './popups/opacity-popup';
+import './state-menu';
+import './version-item';
 
-import { app } from './js/App'
-import { StatesManager } from './js/StatesManager'
+import { app } from './js/App';
+import { StatesManager } from './js/StatesManager';
 
 class AGTabletteApp extends LitElement {
+  static get properties() {
+    return {
+      state: Object,
+      families: Array,
+      canUndo: Boolean,
+      canRedo: Boolean,
+      background: String,
+    };
+  }
 
-    static get properties() {
-        return {
-            state: Object,
-            families: Array,
-            canUndo: Boolean,
-            canRedo: Boolean,
-            background: String
+  constructor() {
+    super();
+    this.families = app.workspace.environment.familyNames;
+    this.state = {};
+    app.appDiv = this;
+    this.canUndo = false;
+    this.canRedo = false;
+
+    addEventListener('app-state-changed', event => {
+      this.state = { ...event.detail };
+    });
+  }
+
+  render() {
+    return html`
+      <style>
+        :host {
+          --primary-color: #abcedf;
+          --button-border-color: black;
+          --button-background-color: #0ff;
         }
-    }
 
-    constructor() {
-        super();
-        this.families = app.workspace.environment.familyNames;
-        this.state = {};
-        app.appDiv = this;
-        this.canUndo = false;
-        this.canRedo = false;
+        #app-canvas-view {
+          display: flex;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          height: 100%;
+        }
 
-        addEventListener('app-state-changed', event => {
-            this.state = { ...event.detail };
-        });
-    }
+        #app-canvas-view > .toolbar {
+          display: flex;
+          flex-flow: column;
+          padding: 4px;
+          height: 100%;
+          box-sizing: border-box;
+          border-right: 1px solid gray;
+          background-color: var(--primary-color);
+          overflow: hidden;
+          flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
+        }
 
-    render() {
-        return html`
-        <style>
-            :host{
-                --primary-color: #abcedf;
-                --button-border-color: black;
-                --button-background-color: #0FF;
-            }
+        #app-canvas-view-toolbar {
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -o-user-select: none;
+          user-select: none;
+        }
 
-            #app-canvas-view {
-                display: flex;
-                width: 100%;
-                margin: 0;
-                padding: 0;
-                height: 100%;
-            }
+        #app-canvas-view-toolbar-p1 {
+          padding-bottom: 8px;
+          border-bottom: 1px solid lightslategray;
+        }
 
-            #app-canvas-view > .toolbar {
-                display: flex;
-                flex-flow: column;
-                padding: 4px;
-                height: 100%;
-                box-sizing: border-box;
-                border-right: 1px solid gray;
-                background-color: var(--primary-color);
-                overflow: hidden;
-                flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
-            }
+        #app-canvas-view-toolbar-p2 {
+          flex: 1;
+          overflow-y: auto;
+        }
 
-            #app-canvas-view-toolbar {
-                -webkit-user-select: none;
-                -khtml-user-select: none;
-                -moz-user-select: none;
-                -o-user-select: none;
-                user-select: none;
-            }
+        .toolbar-separator {
+          font-weight: bold;
+          margin: 12px 0;
+        }
 
-            #app-canvas-view-toolbar-p1 {
-                padding-bottom: 8px;
-                border-bottom: 1px solid lightslategray;
-            }
+        div-main-canvas {
+          width: 100%;
+          height: 100%;
+        }
 
-            #app-canvas-view-toolbar-p2 {
-                flex: 1;
-                overflow-y: auto;
-            }
+        shapes-list {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+        }
 
-            .toolbar-separator {
-                font-weight: bold;
-                margin: 12px 0;
-            }
+        #app-canvas-mode-text {
+          padding: 4px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
 
-            div-main-canvas {
-                width: 100%;
-                height: 100%;
-            }
+        #app-canvas-mode-text span {
+          color: #444;
+        }
 
-            shapes-list {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-            }
+        @media (min-width: 650px) {
+          shapes-list {
+            left: ${app.settings.get('mainMenuWidth')}px;
+          }
+        }
+      </style>
 
-            #app-canvas-mode-text {
-                padding: 4px;
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-            }
-
-            #app-canvas-mode-text span{
-                color: #444;
-            }
-
-            @media (min-width:650px) {
-                shapes-list {
-                    left: ${app.settings.get('mainMenuWidth')}px;
-                }
-            }
-        </style>
-
-        <div id="app-canvas-view">
-            <div id="app-canvas-view-toolbar" class="toolbar">
-                <div id="app-canvas-view-toolbar-p1">
-                        <div id="app-canvas-mode-text">
-                            <span>Mode: </span> ${this.state.name ? StatesManager.getStateText(this.state.name) : ""}
-                        </div>
-                        <flex-toolbar>
-                            <icon-button src="/images/delete-all.svg"
-                                    title="Supprimer tout"
-                                    name="new"
-                                    @click="${this._actionHandle}">
-                            </icon-button>
-                            <icon-button src="/images/delete.svg"
-                                    title="Supprimer une forme"
-                                    name="delete_shape"
-                                    ?active="${this.state.name === 'delete_shape'}"
-                                    @click='${this._actionHandle}'>
-                            </icon-button>
-                            <icon-button src="/images/load.svg"
-                                    title="Ouvrir"
-                                    name="load"
-                                    @click='${() => this.shadowRoot.querySelector("#fileSelector").click()}'>
-                            </icon-button>
-                            <icon-button src="/images/save.svg"
-                                    title="Sauvegarder"
-                                    name="save"
-                                    @click='${() => app.wsManager.saveWorkspaceToFile(app.workspace)}'>
-                            </icon-button>
-                            <icon-button src="/images/undo.svg"
-                                    title="Annuler"
-                                    name="undo"
-                                    ?disabled="${!this.canUndo}"
-                                    @click='${this._actionHandle}'>
-                            </icon-button>
-                            <icon-button src="/images/redo.svg"
-                                    title="Refaire"
-                                    name="redo"
-                                    ?disabled="${!this.canRedo}"
-                                    @click='${this._actionHandle}'>
-                            </icon-button>
-                            <icon-button src="/images/settings.svg"
-                                    title="Paramètres"
-                                    name="settings"
-                                    @click='${this._actionHandle}'>
-                            </icon-button>
-                            <!--
+      <div id="app-canvas-view">
+        <div id="app-canvas-view-toolbar" class="toolbar">
+          <div id="app-canvas-view-toolbar-p1">
+            <div id="app-canvas-mode-text">
+              <span>Mode: </span> ${this.state.name
+                ? StatesManager.getStateText(this.state.name)
+                : ''}
+            </div>
+            <flex-toolbar>
+              <icon-button
+                src="/images/delete-all.svg"
+                title="Supprimer tout"
+                name="new"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/delete.svg"
+                title="Supprimer une forme"
+                name="delete_shape"
+                ?active="${this.state.name === 'delete_shape'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/load.svg"
+                title="Ouvrir"
+                name="load"
+                @click="${() => this.shadowRoot.querySelector('#fileSelector').click()}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/save.svg"
+                title="Sauvegarder"
+                name="save"
+                @click="${() => app.wsManager.saveWorkspaceToFile(app.workspace)}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/undo.svg"
+                title="Annuler"
+                name="undo"
+                ?disabled="${!this.canUndo}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/redo.svg"
+                title="Refaire"
+                name="redo"
+                ?disabled="${!this.canRedo}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/settings.svg"
+                title="Paramètres"
+                name="settings"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <!--
                             <icon-button src="/images/help.svg"
                                     title="Aide"
                                     name="help"
                                     disabled>
                             </icon-button>
                             -->
-                        </flex-toolbar>
-                        <div class="toolbar-separator">Formes standard</div>
+            </flex-toolbar>
+            <div class="toolbar-separator">Formes standard</div>
 
-                        <flex-toolbar>
-                            ${this.families.map(family => html`
-                                <canvas-button name="create_shape"
-                                            .family="${family}"
-                                            ?active="${family === this.state.selectedFamily}"
-                                            @click="${this._actionHandle}">
-                                </canvas-button>
-                            `)}
-                        </flex-toolbar>
-                </div>
+            <flex-toolbar>
+              ${this.families.map(
+                family => html`
+                  <canvas-button
+                    name="create_shape"
+                    .family="${family}"
+                    ?active="${family === this.state.selectedFamily}"
+                    @click="${this._actionHandle}"
+                  >
+                  </canvas-button>
+                `,
+              )}
+            </flex-toolbar>
+          </div>
 
-                <div id="app-canvas-view-toolbar-p2">
-                    <div class="toolbar-separator">Mouvements</div>
-                    <flex-toolbar>
-                        <icon-button src="/images/move.svg"
-                                    title="Glisser"
-                                    name="move_shape"
-                                    ?active="${this.state.name === 'move_shape'}"
-                                    @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/rotate.svg"
-                                title="Tourner"
-                                name="rotate_shape"
-                                ?active="${this.state.name === 'rotate_shape'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/reverse.svg"
-                                title="Retourner"
-                                name="reverse_shape"
-                                ?active="${this.state.name === 'reverse_shape'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                    </flex-toolbar>
+          <div id="app-canvas-view-toolbar-p2">
+            <div class="toolbar-separator">Mouvements</div>
+            <flex-toolbar>
+              <icon-button
+                src="/images/move.svg"
+                title="Glisser"
+                name="move_shape"
+                ?active="${this.state.name === 'move_shape'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/rotate.svg"
+                title="Tourner"
+                name="rotate_shape"
+                ?active="${this.state.name === 'rotate_shape'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/reverse.svg"
+                title="Retourner"
+                name="reverse_shape"
+                ?active="${this.state.name === 'reverse_shape'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+            </flex-toolbar>
 
-                    <div class="toolbar-separator">Opérations</div>
-                    <flex-toolbar>
-                        <icon-button src="/images/center.svg"
-                                title="Construire le centre"
-                                name="build_shape_center"
-                                ?active="${this.state.name === 'build_shape_center'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/divide.svg"
-                                title="Diviser"
-                                name="divide_segment"
-                                ?active="${this.state.name === 'divide_segment'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/cut.svg"
-                                title="Découper"
-                                name="cut_shape"
-                                ?active="${this.state.name === 'cut_shape'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/copy.svg"
-                                title="Copier"
-                                name="copy_shape"
-                                ?active="${this.state.name === 'copy_shape'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/merge.svg"
-                                title="Fusionner"
-                                name="merge_shapes"
-                                ?active="${this.state.name === 'merge_shapes'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                    </flex-toolbar>
+            <div class="toolbar-separator">Opérations</div>
+            <flex-toolbar>
+              <icon-button
+                src="/images/center.svg"
+                title="Construire le centre"
+                name="build_shape_center"
+                ?active="${this.state.name === 'build_shape_center'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/divide.svg"
+                title="Diviser"
+                name="divide_segment"
+                ?active="${this.state.name === 'divide_segment'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/cut.svg"
+                title="Découper"
+                name="cut_shape"
+                ?active="${this.state.name === 'cut_shape'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/copy.svg"
+                title="Copier"
+                name="copy_shape"
+                ?active="${this.state.name === 'copy_shape'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/merge.svg"
+                title="Fusionner"
+                name="merge_shapes"
+                ?active="${this.state.name === 'merge_shapes'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+            </flex-toolbar>
 
-                    <div class="toolbar-separator">Outils</div>
-                    <flex-toolbar>
-                        <icon-button src="/images/moveplane.svg"
-                                title="Glisser le plan"
-                                name="translate_plane"
-                                ?active="${this.state.name === 'translate_plane'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/zoom.svg"
-                                title="Zoomer"
-                                name="zoom_plane"
-                                ?active="${this.state.name === 'zoom_plane'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/group.svg"
-                                title="Grouper"
-                                name="group_shapes"
-                                ?active="${this.state.name === 'group_shapes'}"
-                                @click='${this._actionHandle}'>
-                         </icon-button>
-                        <icon-button src="/images/ungroup.svg"
-                                title="Dégrouper"
-                                name="ungroup_shapes"
-                                ?active="${this.state.name === 'ungroup_shapes'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
+            <div class="toolbar-separator">Outils</div>
+            <flex-toolbar>
+              <icon-button
+                src="/images/moveplane.svg"
+                title="Glisser le plan"
+                name="translate_plane"
+                ?active="${this.state.name === 'translate_plane'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/zoom.svg"
+                title="Zoomer"
+                name="zoom_plane"
+                ?active="${this.state.name === 'zoom_plane'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/group.svg"
+                title="Grouper"
+                name="group_shapes"
+                ?active="${this.state.name === 'group_shapes'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/ungroup.svg"
+                title="Dégrouper"
+                name="ungroup_shapes"
+                ?active="${this.state.name === 'ungroup_shapes'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
 
-                        <icon-button src="/images/background-color.svg"
-                                title="Colorier les formes"
-                                name="background_color"
-                                ?active="${this.state.name === 'background_color'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/border-color.svg"
-                                title="Colorier les bords"
-                                name="border_color"
-                                ?active="${this.state.name === 'border_color'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/opacity.svg"
-                                title="Opacité"
-                                name="opacity"
-                                ?active="${this.state.name === 'opacity'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <!--
+              <icon-button
+                src="/images/background-color.svg"
+                title="Colorier les formes"
+                name="background_color"
+                ?active="${this.state.name === 'background_color'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/border-color.svg"
+                title="Colorier les bords"
+                name="border_color"
+                ?active="${this.state.name === 'border_color'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/opacity.svg"
+                title="Opacité"
+                name="opacity"
+                ?active="${this.state.name === 'opacity'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <!--
                         <icon-button src="/images/wallpaper.svg"
                                 title="Fond d'écran"
                                 name="border_color"
-                                @click='${this.loadBackground}'>
+                                @click="${this.loadBackground}">
                         </icon-button>
                         -->
 
-                        <icon-button src="/images/backplane.svg"
-                                title="Arrière-plan"
-                                name="to_background"
-                                ?active="${this.state.name === 'to_background'}"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <icon-button src="/images/grille.svg"
-                                title="Grille"
-                                name="grid_menu"
-                                @click='${this._actionHandle}'>
-                        </icon-button>
-                        <!--
+              <icon-button
+                src="/images/backplane.svg"
+                title="Arrière-plan"
+                name="to_background"
+                ?active="${this.state.name === 'to_background'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/grille.svg"
+                title="Grille"
+                name="grid_menu"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <!--
                         <icon-button src="/images/tangram-edit.svg"
                                 title="Créer Tangram"
                                 name="tangram_creator"
-                                @click='${this._actionHandle}'>
+                                @click="${this._actionHandle}">
                         </icon-button>
                         <icon-button src="/images/tangram.svg"
                                 title="Faire un Tangram"
                                 name="tangram_menu"
-                                @click='${this._actionHandle}'>
+                                @click="${this._actionHandle}">
                         </icon-button>
                         -->
-                    </flex-toolbar>
-                </div>
-                <version-item></version-item>
-            </div>
-
-            <div-main-canvas id="div-main-canvas" background="${this.background}"></div-main-canvas>
+            </flex-toolbar>
+          </div>
+          <version-item></version-item>
         </div>
 
-        <state-menu></state-menu>
+        <div-main-canvas id="div-main-canvas" background="${this.background}"></div-main-canvas>
+      </div>
 
-        <shapes-list .state="${this.state}"></shapes-list>
+      <state-menu></state-menu>
 
-        <app-settings></app-settings>
+      <shapes-list .state="${this.state}"></shapes-list>
 
-        <grid-popup></grid-popup>
+      <app-settings></app-settings>
 
-        <tangram-popup></tangram-popup>
+      <grid-popup></grid-popup>
 
-        <opacity-popup></opacity-popup>
+      <tangram-popup></tangram-popup>
 
-        <new-popup></new-popup>
+      <opacity-popup></opacity-popup>
 
-        <input id="fileSelector"
-               accept=".json"
-               type="file"
-               style="display: none"
-               @change=${this._inputChanged}>
-        `
+      <new-popup></new-popup>
+
+      <input
+        id="fileSelector"
+        accept=".json"
+        type="file"
+        style="display: none"
+        @change=${this._inputChanged}
+      />
+    `;
+  }
+
+  _inputChanged(event) {
+    let file = event.target.files[0],
+      callback = () => {
+        let input = event.path[0];
+        input.value = '';
+      };
+    app.wsManager.setWorkspaceFromFile(file, callback);
+  }
+
+  /**
+   * Main event handler
+   */
+  _actionHandle(event) {
+    if (event.target.name == 'settings') {
+      this.shadowRoot.querySelector('app-settings').style.display = 'block';
+    } else if (event.target.name === 'new') {
+      this.shadowRoot.querySelector('new-popup').open();
+    } else if (event.target.name === 'grid_menu') {
+      this.shadowRoot.querySelector('grid-popup').style.display = 'block';
+    } else if (event.target.name === 'tangram_menu') {
+      this.shadowRoot.querySelector('tangram-popup').style.display = 'block';
+    } else if (event.target.name == 'undo') {
+      if (this.canUndo) window.app.workspace.history.undo();
+    } else if (event.target.name == 'redo') {
+      if (this.canRedo) window.app.workspace.history.redo();
+    } else if (event.target.name === 'create_shape') {
+      app.setState(event.target.name, event.target.family);
+    } else if (StatesManager.getStateText(event.target.name)) {
+      window.app.setState(event.target.name);
+    } else {
+      console.error('AGTabletteApp._actionHandle: received unknown event:');
+      console.error(event);
     }
+  }
 
-    _inputChanged(event) {
-        let file = event.target.files[0],
-            callback = () => {
-                let input = event.path[0];
-                input.value = '';
-            };
-        app.wsManager.setWorkspaceFromFile(file, callback);
-    }
+  // Todo: Placer dans un objet BackgroundImage ?
+  loadBackground() {
+    const imageSelector = document.createElement('input');
+    imageSelector.type = 'file';
+    imageSelector.accept = 'image/*';
+    imageSelector.onchange = e => this.setBackground(e.target.files[0]);
+    document.body.appendChild(imageSelector);
+    imageSelector.click();
+  }
 
-    /**
-     * Main event handler
-     */
-    _actionHandle(event) {
-        if (event.target.name == "settings") {
-            this.shadowRoot.querySelector('app-settings').style.display = 'block'
-        }
-        else if (event.target.name === "new") {
-            this.shadowRoot.querySelector('new-popup').open();
-        }
-        else if (event.target.name === "grid_menu") {
-            this.shadowRoot.querySelector('grid-popup').style.display = 'block'
-        }
-        else if (event.target.name === "tangram_menu") {
-            this.shadowRoot.querySelector('tangram-popup').style.display = 'block'
-        }
-        else if (event.target.name == "undo") {
-            if(this.canUndo)
-                window.app.workspace.history.undo();
-        }
-        else if (event.target.name == "redo") {
-            if(this.canRedo)
-                window.app.workspace.history.redo();
-        }
-        else if (event.target.name === 'create_shape') {
-            app.setState(event.target.name, event.target.family);
-        }
-        else if (StatesManager.getStateText(event.target.name)) {
-            window.app.setState(event.target.name);
-        }
-        else {
-            console.error("AGTabletteApp._actionHandle: received unknown event:");
-            console.error(event);
-        }
-    }
-
-    // Todo: Placer dans un objet BackgroundImage ?
-    loadBackground() {
-        const imageSelector = document.createElement('input')
-        imageSelector.type = 'file'
-        imageSelector.accept = 'image/*'
-        imageSelector.onchange = e => this.setBackground(e.target.files[0])
-        document.body.appendChild(imageSelector)
-        imageSelector.click()
-    }
-
-    setBackground(file) {
-        let reader = new FileReader();
-        reader.onload = e => this.background = e.target.result
-        reader.readAsDataURL(file)
-    }
+  setBackground(file) {
+    let reader = new FileReader();
+    reader.onload = e => (this.background = e.target.result);
+    reader.readAsDataURL(file);
+  }
 }
-customElements.define('ag-tablette-app', AGTabletteApp)
+customElements.define('ag-tablette-app', AGTabletteApp);
