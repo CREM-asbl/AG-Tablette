@@ -115,7 +115,7 @@ class AGTabletteApp extends LitElement {
           color: #444;
         }
 
-        @media (min-width: 650px) {
+        @media (min-width: 600px) {
           shapes-list {
             left: ${app.settings.get('mainMenuWidth')}px;
           }
