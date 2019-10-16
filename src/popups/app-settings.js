@@ -1,8 +1,21 @@
 import { LitElement, html } from 'lit-element';
 import '../version-item';
 import { app } from '../js/App';
+import { Settings } from '../js/Settings';
 
 class AppSettings extends LitElement {
+  static get properties() {
+    return {
+      settings: Settings,
+    };
+  }
+
+  constructor() {
+    super();
+    this.settings = app.settings;
+    addEventListener('app-settings-changed', () => (this.settings = { ...app.settings }));
+  }
+
   render() {
     return html`
       <style>
@@ -104,7 +117,7 @@ class AppSettings extends LitElement {
                 type="checkbox"
                 name="settings_adapt_shapes_position"
                 id="settings_adapt_shapes_position"
-                ?checked="${app.settings.get('automaticAdjustment')}"
+                ?checked="${this.settings.data.automaticAdjustment.value}"
                 @change="${this._actionHandle}"
               />
               <label for="settings_adapt_shapes_position">Ajustement automatique</label>
@@ -123,9 +136,15 @@ class AppSettings extends LitElement {
                 id="settings_shapes_size"
                 @change="${this._actionHandle}"
               >
-                <option value="1" ?selected="${app.settings.get('shapesSize') == 1}">1</option>
-                <option value="2" ?selected="${app.settings.get('shapesSize') == 2}">2</option>
-                <option value="3" ?selected="${app.settings.get('shapesSize') == 3}">3</option>
+                <option value="1" ?selected="${this.settings.data.shapesSize.value === 1}"
+                  >1</option
+                >
+                <option value="2" ?selected="${this.settings.data.shapesSize.value === 2}"
+                  >2</option
+                >
+                <option value="3" ?selected="${this.settings.data.shapesSize.value === 3}"
+                  >3</option
+                >
               </select>
             </div>
 
@@ -134,7 +153,7 @@ class AppSettings extends LitElement {
                 type="checkbox"
                 name="settings_pointed_shapes"
                 id="settings_pointed_shapes"
-                ?checked="${app.settings.get('areShapesPointed')}"
+                ?checked="${this.settings.data.areShapesPointed.value}"
                 @change="${this._actionHandle}"
               />
               <label for="settings_pointed_shapes">Formes pointées</label>
@@ -147,12 +166,6 @@ class AppSettings extends LitElement {
         </footer>
       </div>
     `;
-  }
-
-  static get properties() {
-    return {
-      settings: Object,
-    };
   }
 
   /**

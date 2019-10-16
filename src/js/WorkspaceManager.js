@@ -143,48 +143,9 @@ export class WorkspaceManager {
     this.ls.setItem('AG_WorkspacesAmount', wsAmount - 1);
   }
 
-  /* #################################################################### */
-  /* #################### IMPORT/EXPORT FROM/TO FILE #################### */
-  /* #################################################################### */
-
-  /**
-   * Récupérer un espace de travail depuis un fichier (async), et définir le
-   * Workspace actuel (appelle this.setWorkspace)
-   * @param  {File} file Le fichier
-   */
-  setWorkspaceFromFile(file, callback) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      let ws = new Workspace();
-      ws.initFromJSON(reader.result);
-      this.setWorkspace(ws);
-      if (callback) callback();
-    };
-    reader.readAsText(file);
-  }
-
-  /**
-   * Sauvegarder un espace de travail comme fichier.
-   * @param  {Workspace} workspace              L'espace de travail
-   * @param  {String} [fileName] Le nom du fichier
-   */
-  saveWorkspaceToFile(workspace, fileName) {
-    if (!fileName) {
-      //TODO (temporaire)
-      let prompt = window.prompt('(popup temporaire) Nom du fichier: ');
-      if (prompt == null) return;
-      if (prompt == '') prompt = 'Unnamed';
-      fileName = prompt + '.json';
-    }
-
-    let json = workspace.saveToJSON();
-    const file = new Blob([json], { type: 'application/json' });
-    const downloader = document.createElement('a');
-    downloader.href = window.URL.createObjectURL(file);
-    downloader.download = fileName;
-    downloader.target = '_blank';
-    document.body.appendChild(downloader);
-    downloader.click();
-    document.body.removeChild(downloader);
+  setWorkspaceFromJSON(json) {
+    let ws = new Workspace();
+    ws.initFromJSON(json);
+    this.setWorkspace(ws);
   }
 }

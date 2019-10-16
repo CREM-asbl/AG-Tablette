@@ -35,9 +35,7 @@ class AGTabletteApp extends LitElement {
     this.canUndo = false;
     this.canRedo = false;
 
-    addEventListener('app-state-changed', event => {
-      this.state = { ...event.detail };
-    });
+    addEventListener('app-state-changed', event => (this.state = { ...event.detail }));
   }
 
   render() {
@@ -156,7 +154,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/save.svg"
                 title="Sauvegarder"
                 name="save"
-                @click="${() => app.wsManager.saveWorkspaceToFile(app.workspace)}"
+                @click="${() => app.saveToFile()}"
               >
               </icon-button>
               <icon-button
@@ -401,18 +399,9 @@ class AGTabletteApp extends LitElement {
         accept=".json"
         type="file"
         style="display: none"
-        @change="${this._inputChanged}"
+        @change="${event => app.openFile(event.target.files[0])}"
       />
     `;
-  }
-
-  _inputChanged(event) {
-    let file = event.target.files[0],
-      callback = () => {
-        let input = event.path[0];
-        input.value = '';
-      };
-    app.wsManager.setWorkspaceFromFile(file, callback);
   }
 
   /**

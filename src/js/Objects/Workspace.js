@@ -82,7 +82,6 @@ export class Workspace {
       actualWS = app.workspace;
     app.workspace = this; //pour que app.workspace.getShapeById fonctionne
 
-    this.appVersion = wsdata.appVersion;
     this.id = wsdata.id;
 
     this.shapes = wsdata.shapes.map(sData => {
@@ -111,12 +110,8 @@ export class Workspace {
     app.workspace = actualWS;
   }
 
-  /**
-   * Exporter le Workspace en JSON
-   * @return {String} le JSON
-   */
-  saveToJSON() {
-    let wsdata = {};
+  get data() {
+    const wsdata = {};
     wsdata.appVersion = this.appVersion;
     wsdata.id = this.id;
 
@@ -135,8 +130,15 @@ export class Workspace {
     wsdata.envName = this.environment.name;
 
     wsdata.settings = this.settings.saveToObject();
+    return wsdata;
+  }
 
-    const json = JSON.stringify(wsdata);
+  /**
+   * Exporter le Workspace en JSON
+   * @return {String} le JSON
+   */
+  saveToJSON() {
+    const json = JSON.stringify(this.data);
     return json;
   }
 
