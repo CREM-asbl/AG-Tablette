@@ -129,9 +129,9 @@ export class DrawAPI {
     ctx.lineWidth = borderSize;
     ctx.translate(shape.x, shape.y);
 
-    ctx.fill(shape.getDrawPath());
+    ctx.fill(shape.path);
     ctx.globalAlpha = 1;
-    ctx.stroke(shape.getDrawPath());
+    ctx.stroke(shape.path);
     ctx.save();
     if (app.settings.get('areShapesPointed')) {
       shape.buildSteps
@@ -252,7 +252,7 @@ export class DrawAPI {
     const ctx = this.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.translate(shape.x, shape.y);
-    const selected = ctx.isPointInPath(shape.getDrawPath(), point.x, point.y);
+    const selected = ctx.isPointInPath(shape.path, point.x, point.y);
     return selected;
   }
 }

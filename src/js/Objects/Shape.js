@@ -25,16 +25,12 @@ export class Shape {
     this.buildSteps = buildSteps;
     this.name = name;
     this.familyName = familyName;
-    this.center = null;
 
     this.color = '#aaa';
     this.borderColor = '#000';
     this.opacity = 0.7;
     this.isCenterShown = false;
     this.isReversed = false;
-
-    this.path = null;
-    this.updateInternalState();
   }
 
   /**
@@ -488,12 +484,7 @@ export class Shape {
     return copy;
   }
 
-  /**
-   * À appeler si buildSteps a été modifié. Calcule le draw path et le centre
-   */
-  updateInternalState() {
-    if (this.buildSteps.length == 0) return; //La forme n'a pas été initialisée.
-    //Compute center
+  get center() {
     let total = {
       sumX: 0,
       sumY: 0,
@@ -507,12 +498,18 @@ export class Shape {
         total.amount++;
       }
     });
-    this.center = {
+
+    return {
       x: total.sumX / total.amount,
       y: total.sumY / total.amount,
     };
+  }
 
-    //Compute draw path
+  /**
+   * Renvoie un objet Path2D permettant de dessiner la forme.
+   * @return {Path2D} le path de dessin de la forme
+   */
+  get path() {
     const path = new Path2D();
     this.buildSteps.forEach(buildStep => {
       if (buildStep.type == 'moveTo') path.moveTo(buildStep.coordinates.x, buildStep.coordinates.y);
@@ -520,18 +517,7 @@ export class Shape {
         path.lineTo(buildStep.coordinates.x, buildStep.coordinates.y);
     });
     path.closePath();
-    this.path = path;
-
-    //TODO: si tri des points des buildSteps, les trier ici (->pour cut et
-    //      merge). faire un updateInternalState pour buildStep?
-  }
-
-  /**
-   * Renvoie un objet Path2D permettant de dessiner la forme.
-   * @return {Path2D} le path de dessin de la forme
-   */
-  getDrawPath() {
-    return this.path;
+    return path;
   }
 
   saveToObject() {
@@ -571,6 +557,5 @@ export class Shape {
     this.isCenterShown = save.isCenterShown;
     this.isReversed = save.isReversed;
     this.opacity = save.opacity;
-    this.updateInternalState();
   }
 }
