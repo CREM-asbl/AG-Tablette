@@ -126,15 +126,7 @@ export class Environment {
       let familyData = kit[familyName];
       let family = new Family(familyName, familyData.color);
       familyData.shapes.forEach(shape => {
-        const buildSteps = shape.steps.map(step => {
-          const { type, x, y, isArc = false } = step;
-          if (type == 'moveTo') return new MoveTo({ x, y });
-          if (type == 'vertex') return new Vertex({ x, y });
-          if (type == 'segment') return new Segment({ x, y }, isArc);
-          console.error('No valid type');
-          return null;
-        });
-        family.addShape(shape.name, buildSteps, shape.color);
+        family.addShape(shape.name, shape.steps, shape.color);
       });
       this.families.push(family);
       this.familyNames.push(familyName);

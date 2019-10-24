@@ -46,9 +46,10 @@ export class CreateState extends State {
       console.log('clics trop rapprochés');
       return;
     }
-
+    console.log(this.selectedShape);
     let shape = this.selectedShape.copy(),
       shapeSize = app.settings.get('shapesSize');
+    console.log(shape);
 
     //scale:
     shape.buildSteps.forEach(bs => {

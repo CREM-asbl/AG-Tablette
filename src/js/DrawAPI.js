@@ -133,13 +133,11 @@ export class DrawAPI {
     ctx.globalAlpha = 1;
     ctx.stroke(shape.path);
     ctx.save();
+
     if (app.settings.get('areShapesPointed')) {
       shape.buildSteps
         .filter(bs => bs.type == 'vertex')
-        .forEach(bs => {
-          //Sommets
-          this.drawPoint(ctx, bs.coordinates, '#000', 1, false);
-        });
+        .forEach(bs => this.drawPoint(ctx, bs.coordinates, '#000', 1, false));
     }
     shape.buildSteps
       .filter(bs => bs.type == 'segment')
@@ -249,10 +247,13 @@ export class DrawAPI {
    * @return {Boolean}       true si le point est dans la forme
    */
   isPointInShape(point, shape) {
+    console.log(shape);
     const ctx = this.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.translate(shape.x, shape.y);
-    const selected = ctx.isPointInPath(shape.path, point.x, point.y);
+    const selected =
+      ctx.isPointInPath(shape.path, point.x, point.y) ||
+      ctx.isPointInStroke(shape.path, point.x, point.y);
     return selected;
   }
 }

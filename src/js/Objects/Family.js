@@ -21,19 +21,16 @@ export class Family {
   /**
    * Ajouter une forme à la famille
    * @param {String} name       Nom de la forme
-   * @param {[ShapeBuildStep]} buildSteps étapes de construction de la forme
+   * @param {[String]} steps étapes de construction de la forme
    */
-  addShape(name, buildSteps, color) {
-    if (buildSteps.length < 1) {
+  addShape(name, steps, color) {
+    if (steps.length < 1) {
       console.error('Family.addShape error: buildSteps.length is 0');
       return;
     }
-    if (!buildSteps.every(bs => bs instanceof ShapeBuildStep)) {
-      console.error('Family.addShape error: buildSteps not valid');
-      return;
-    }
 
-    let shape = new Shape({ x: 0, y: 0 }, buildSteps, name, this.name);
+    let shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
+    shape.setBuildStepsFromString(steps);
     shape.color = color ? color : this.defaultColor;
 
     this.shapes.push(shape);

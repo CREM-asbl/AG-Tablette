@@ -1,6 +1,5 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { Points } from '../../Tools/points';
 import { Segment, Vertex, MoveTo } from '../../Objects/ShapeBuildStep';
 

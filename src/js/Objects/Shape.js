@@ -33,6 +33,35 @@ export class Shape {
     this.isReversed = false;
   }
 
+  //Todo: Refactorer
+  setBuildStepsFromString(buildSteps) {
+    this.buildSteps = buildSteps.map((step, index) => {
+      if (step.type === 'moveTo') return new MoveTo(step);
+      if (step.type === 'vertex') return new Vertex(step);
+      if (step.type === 'segment')
+        return new Segment({ ...step, x0: buildSteps[index - 1].x, y0: buildSteps[index - 1].y });
+      console.error('No valid type');
+      return null;
+    });
+  }
+
+  setBuildStepsFromObject(buildSteps) {
+    this.buildSteps = buildSteps.map((bsData, index) => {
+      if (bsData.type === 'vertex') return new Vertex(bsData.coordinates);
+      else if (bsData.type === 'moveTo') return new MoveTo(bsData.coordinates);
+      else {
+        let segment = new Segment({
+          ...bsData,
+          x0: buildSteps[index - 1].coordinates.x,
+          y0: buildSteps[index - 1].coordinates.y,
+        });
+        bsData.points.forEach(pt => segment.addPoint(pt));
+        return segment;
+      }
+    });
+  }
+  /******/
+
   /**
    * Renvoie true si la forme est un cercle, c'est-à-dire si buildSteps
    * commence par un moveTo puis est uniquement composé de segments de
@@ -471,16 +500,15 @@ export class Shape {
    * Renvoie une copie d'une forme
    * @return {Shape} la copie
    */
+  //Todo : Simplifier la copie
   copy() {
     let buildStepsCopy = this.buildSteps.map(bs => bs.copy());
-    let copy = new Shape({ x: this.x, y: this.y }, buildStepsCopy, this.name, this.familyName);
-
+    let copy = new Shape(this, buildStepsCopy, this.name, this.familyName);
     copy.color = this.color;
     copy.borderColor = this.borderColor;
     copy.isCenterShown = this.isCenterShown;
     copy.isReversed = this.isReversed;
     copy.opacity = this.opacity;
-
     return copy;
   }
 
@@ -537,21 +565,12 @@ export class Shape {
   }
 
   initFromObject(save) {
-    this.buildSteps = save.buildSteps.map(bsData => {
-      if (bsData.type == 'vertex') return new Vertex(bsData.coordinates);
-      else if (bsData.type == 'moveTo') return new MoveTo(bsData.coordinates);
-      else {
-        let segment = new Segment(bsData.coordinates, bsData.isArc);
-        bsData.points.forEach(pt => segment.addPoint(pt));
-        return segment;
-      }
-    });
+    this.setBuildStepsFromObject(save.buildSteps);
     this.id = save.id;
     this.x = save.coordinates.x;
     this.y = save.coordinates.y;
     this.name = save.name;
     this.familyName = save.familyName;
-
     this.color = save.color;
     this.borderColor = save.borderColor;
     this.isCenterShown = save.isCenterShown;
