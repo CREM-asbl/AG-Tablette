@@ -1,64 +1,64 @@
-
 export class Points {
-    //TODO généraliser pour un nombre non défini de points.
-    static add({x: x1, y: y1}, {x: x2, y: y2}, {x: x3, y: y3} = {x: 0, y: 0}) {
-        return {
-            'x': x1 + x2 + x3,
-            'y': y1 + y2 + y3
-        };
-    }
+  //TODO généraliser pour un nombre non défini de points.
+  static add({ x: x1, y: y1 }, { x: x2, y: y2 }, { x: x3, y: y3 } = { x: 0, y: 0 }) {
+    return {
+      x: x1 + x2 + x3,
+      y: y1 + y2 + y3,
+    };
+  }
 
-    static sub({x: x1, y: y1}, {x: x2, y: y2}) {
-        return {
-            'x': x1 - x2,
-            'y': y1 - y2
-        };
-    }
+  static sub({ x: x1, y: y1 }, { x: x2, y: y2 }) {
+    return {
+      x: x1 - x2,
+      y: y1 - y2,
+    };
+  }
 
-    static addInt({x, y}, i) {
-        return {
-            'x': x+i,
-            'y': y+i
-        }
-    }
+  static addInt({ x, y }, i) {
+    return {
+      x: x + i,
+      y: y + i,
+    };
+  }
 
-    static multInt({x, y}, i) {
-        return {
-            'x': x*i,
-            'y': y*i
-        }
-    }
+  static multInt({ x, y }, i) {
+    return {
+      x: x * i,
+      y: y * i,
+    };
+  }
 
-    static copy({x, y}) {
-        return {
-            'x': x,
-            'y': y
-        };
-    }
+  static copy({ x, y }) {
+    return {
+      x: x,
+      y: y,
+    };
+  }
 
-    static create(x, y) {
-        return {
-            'x': x,
-            'y': y
-        };
-    }
+  static create(x, y) {
+    return {
+      x: x,
+      y: y,
+    };
+  }
 
-    static set(point, x, y) {
-        point.x = x;
-        point.y = y;
-    }
+  static set(point, x, y) {
+    point.x = x;
+    point.y = y;
+  }
 
-    static dist({x: x1, y: y1}, {x: x2, y: y2}) {
-        let pow1 = Math.pow(x2 - x1, 2),
-            pow2 = Math.pow(y2 - y1, 2);
-        return Math.sqrt(pow1 + pow2);
-    }
+  //Redondance avec distanceBetweenPoints dans geometry.js
+  static dist({ x: x1, y: y1 }, { x: x2, y: y2 }) {
+    let pow1 = Math.pow(x2 - x1, 2),
+      pow2 = Math.pow(y2 - y1, 2);
+    return Math.sqrt(pow1 + pow2);
+  }
 
-    static equal({x: x1, y: y1}, {x: x2, y: y2}) {
-        return Math.abs(x2-x1) < 1 && Math.abs(y2-y1) < 1;
-    }
+  static equal({ x: x1, y: y1 }, { x: x2, y: y2 }) {
+    return Math.abs(x2 - x1) < 1 && Math.abs(y2 - y1) < 1;
+  }
 
-    static toString({x, y}) {
-        return " ("+parseInt(x*1000)/1000+", "+parseInt(y*1000)/1000+") ";
-    }
+  static toString({ x, y }) {
+    return ' (' + parseInt(x * 1000) / 1000 + ', ' + parseInt(y * 1000) / 1000 + ') ';
+  }
 }

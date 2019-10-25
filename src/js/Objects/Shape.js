@@ -577,4 +577,8 @@ export class Shape {
     this.isReversed = save.isReversed;
     this.opacity = save.opacity;
   }
+
+  setScale(size) {
+    this.buildSteps.forEach(bs => bs.setScale(size));
+  }
 }

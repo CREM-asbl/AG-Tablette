@@ -11,22 +11,20 @@ export class ShapeBuildStep {
     throw new TypeError('Copy method not implemented');
   }
 
-  // static initFromObject(buildStep) {
-  //     console.log(buildStep)
-  //     switch(buildStep.type) {
-  //         case 'moveto':
-  //         case 'vertex':
-  //         case 'segment':
-  //     }
-  // }
+  setScale(size) {
+    this.coordinates = {
+      x: this.coordinates.x * size,
+      y: this.coordinates.y * size,
+    };
+  }
 }
 
 //Todo : Refactorer en Objet externe
 export class Segment extends ShapeBuildStep {
-  constructor({ x0, y0, x, y, coordinates, isArc = false }) {
+  constructor({ x0, y0, x, y, coordinates, isArc = false, vertexes }) {
     super('segment');
     this.coordinates = coordinates || { x, y };
-    this.vertexes = [{ x0, y0 }, this.coordinates];
+    this.vertexes = vertexes || [{ x: x0, y: y0 }, this.coordinates];
     this.points = [];
     this.isArc = isArc;
   }
@@ -65,6 +63,58 @@ export class Segment extends ShapeBuildStep {
       isArc: this.isArc,
     };
     return save;
+  }
+
+  /*************/
+  //FIX : on ne peut pas encore les exploiter car coordonnées relatives
+  projectionPointOnSegment(point) {
+    let center = null,
+      p1x = this.vertexes[0].x,
+      p1y = this.vertexes[0].y,
+      p2x = this.vertexes[1].x,
+      p2y = this.vertexes[1].y;
+
+    //Calculer la projection du point sur l'axe.
+    if (Math.abs(p2x - p1x) < 0.001) {
+      //segment vertical
+      center = { x: p1x, y: point.y };
+    } else if (Math.abs(p2y - p1y) < 0.001) {
+      //segment horizontal
+      center = { x: point.x, y: p1y };
+    } else {
+      // axe.type=='NW' || axe.type=='SW'
+      let f_a = (p1y - p2y) / (p1x - p2x),
+        f_b = p2y - f_a * p2x,
+        x2 = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1),
+        y2 = f_a * x2 + f_b;
+      center = {
+        x: x2,
+        y: y2,
+      };
+    }
+    return center;
+  }
+
+  isPointOnSegment(point) {
+    let segmentLength = Points.dist(this.vertexes[0], this.vertexes[1]),
+      dist1 = Points.dist(this.vertexes[0], point),
+      dist2 = Points.dist(this.vertexes[1], point);
+
+    if (dist1 > segmentLength || dist2 > segmentLength) return false;
+
+    return true;
+  }
+  /***************************/
+
+  setScale(size) {
+    super.setScale(size);
+    this.vertexes = this.vertexes.map(vertex => {
+      return { x: vertex.x * size, y: vertex.y * size };
+    });
+    this.points.forEach(pt => {
+      pt.x = pt.x * size;
+      pt.y = pt.y * size;
+    });
   }
 }
 

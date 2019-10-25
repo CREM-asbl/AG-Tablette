@@ -526,19 +526,16 @@ export class InteractionAPI {
               return false;
           }
 
-          //Calculer la projection de mouseCoordinates sur le segment.
-          let segmentStart = Points.add(shape, shape.buildSteps[index - 1].coordinates),
-            segmentEnd = Points.add(shape, bs.coordinates),
-            projection = getProjectionOnSegment(mouseCoordinates, segmentStart, segmentEnd);
+          let relativeCoordinates = {
+              x: mouseCoordinates.x - shape.x,
+              y: mouseCoordinates.y - shape.y,
+            },
+            projection = bs.projectionPointOnSegment(relativeCoordinates);
 
-          //Point en dehors du segment ?
-          let segmentLength = Points.dist(segmentStart, segmentEnd),
-            dist1 = Points.dist(segmentStart, projection),
-            dist2 = Points.dist(segmentEnd, projection);
-          if (dist1 > segmentLength || dist2 > segmentLength) return false;
+          if (!bs.isPointOnSegment(projection)) return false;
 
           //Point trop loin?
-          if (!this.arePointsInSelectionDistance(mouseCoordinates, projection)) return false;
+          if (!this.arePointsInSelectionDistance(relativeCoordinates, projection)) return false;
 
           //Vérifier que le segment n'est pas derrière une forme.
           let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
@@ -561,7 +558,6 @@ export class InteractionAPI {
 
         if (segment) return true;
       });
-
     if (segment) return segment;
 
     return null;

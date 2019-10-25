@@ -136,11 +136,11 @@ export class DrawAPI {
 
     if (app.settings.get('areShapesPointed')) {
       shape.buildSteps
-        .filter(bs => bs.type == 'vertex')
+        .filter(bs => bs.type === 'vertex')
         .forEach(bs => this.drawPoint(ctx, bs.coordinates, '#000', 1, false));
     }
     shape.buildSteps
-      .filter(bs => bs.type == 'segment')
+      .filter(bs => bs.type === 'segment')
       .forEach(bs => {
         //Points sur les segments
         bs.points.forEach(pt => {
@@ -247,7 +247,6 @@ export class DrawAPI {
    * @return {Boolean}       true si le point est dans la forme
    */
   isPointInShape(point, shape) {
-    console.log(shape);
     const ctx = this.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.translate(shape.x, shape.y);

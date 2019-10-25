@@ -46,24 +46,10 @@ export class CreateState extends State {
       console.log('clics trop rapprochés');
       return;
     }
-    console.log(this.selectedShape);
     let shape = this.selectedShape.copy(),
       shapeSize = app.settings.get('shapesSize');
-    console.log(shape);
 
-    //scale:
-    shape.buildSteps.forEach(bs => {
-      bs.coordinates = {
-        x: bs.coordinates.x * shapeSize,
-        y: bs.coordinates.y * shapeSize,
-      };
-      if (bs.type == 'segment') {
-        bs.points.forEach(pt => {
-          pt.x = pt.x * shapeSize;
-          pt.y = pt.y * shapeSize;
-        });
-      }
-    });
+    shape.setScale(shapeSize);
 
     let translation = getNewShapeAdjustment(mouseCoordinates),
       coordinates = Points.add(mouseCoordinates, translation);
