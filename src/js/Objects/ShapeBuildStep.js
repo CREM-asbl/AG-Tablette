@@ -65,8 +65,6 @@ export class Segment extends ShapeBuildStep {
     return save;
   }
 
-  /*************/
-  //FIX : on ne peut pas encore les exploiter car coordonnées relatives
   projectionPointOnSegment(point) {
     let center = null,
       p1x = this.vertexes[0].x,
@@ -104,7 +102,6 @@ export class Segment extends ShapeBuildStep {
 
     return true;
   }
-  /***************************/
 
   setScale(size) {
     super.setScale(size);

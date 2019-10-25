@@ -1,6 +1,6 @@
 import { uniqId, mod } from '../Tools/general';
 import { Points } from '../Tools/points';
-import { getProjectionOnSegment } from '../Tools/geometry';
+import { getProjectionOnSegment, distanceBetweenPoints } from '../Tools/geometry';
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep';
 import { app } from '../App';
 
@@ -73,6 +73,29 @@ export class Shape {
       if (index == 0) return bs.type == 'moveTo';
       return bs.type == 'segment' && bs.isArc;
     });
+  }
+
+  //TODO: supprimer confusion avec la fonction isSegment
+  isOnlySegment() {
+    return this.buildSteps.filter(buildstep => buildstep.type === 'segment').length === 1;
+  }
+
+  //FIX:  redondance avec InteractionAPI.selectSegment()
+  isPointOnSegment(point) {
+    if (!this.isOnlySegment()) return false;
+
+    const relativesCoordinates = {
+      x: point.x - this.x,
+      y: point.y - this.y,
+    };
+    const segment = this.buildSteps.filter(buildstep => buildstep.type === 'segment')[0];
+
+    const projection = segment.projectionPointOnSegment(relativesCoordinates);
+    if (!segment.isPointOnSegment(projection)) return false;
+    let dist = distanceBetweenPoints(relativesCoordinates, projection);
+    console.log(dist);
+    if (dist <= app.settings.get('selectionDistance')) return true;
+    return false;
   }
 
   /**

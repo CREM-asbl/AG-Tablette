@@ -235,7 +235,9 @@ export class Workspace {
    * @return la liste des formes ([Shape])
    */
   shapesOnPoint(point) {
-    let list = this.shapes.filter(shape => app.drawAPI.isPointInShape(point, shape));
+    let list = this.shapes.filter(
+      shape => app.drawAPI.isPointInShape(point, shape) || shape.isPointOnSegment(point),
+    );
     list.reverse();
     return list;
   }

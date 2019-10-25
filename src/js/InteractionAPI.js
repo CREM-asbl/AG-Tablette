@@ -526,7 +526,8 @@ export class InteractionAPI {
               return false;
           }
 
-          let relativeCoordinates = {
+          //Refacto possible voir Shape.isPointOnSegment
+          const relativeCoordinates = {
               x: mouseCoordinates.x - shape.x,
               y: mouseCoordinates.y - shape.y,
             },
