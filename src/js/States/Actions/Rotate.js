@@ -1,6 +1,5 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { Points } from '../../Tools/points';
 import { rotatePoint } from '../../Tools/geometry';
 
@@ -80,16 +79,6 @@ export class RotateAction extends Action {
     let newCoords = rotatePoint(shape, angle, center);
     shape.setCoordinates(newCoords);
 
-    shape.buildSteps.forEach(bs => {
-      let coords = rotatePoint(bs.coordinates, angle, { x: 0, y: 0 });
-      bs.coordinates = coords;
-      if (bs.type == 'segment') {
-        bs.points.forEach(pt => {
-          let pointCoords = rotatePoint(pt, angle, { x: 0, y: 0 });
-          pt.x = pointCoords.x;
-          pt.y = pointCoords.y;
-        });
-      }
-    });
+    shape.buildSteps.forEach(bs => bs.rotate(angle));
   }
 }
