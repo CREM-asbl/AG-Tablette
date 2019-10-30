@@ -99,8 +99,6 @@ export class Segment extends ShapeBuildStep {
   }
 
   isPointOnSegment(point) {
-    console.log(this.coordinates);
-    console.log(this.vertexes);
     let segmentLength = Points.dist(this.vertexes[0], this.vertexes[1]),
       dist1 = Points.dist(this.vertexes[0], point),
       dist2 = Points.dist(this.vertexes[1], point);

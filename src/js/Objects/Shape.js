@@ -1,6 +1,6 @@
 import { uniqId, mod } from '../Tools/general';
 import { Points } from '../Tools/points';
-import { getProjectionOnSegment, distanceBetweenPoints } from '../Tools/geometry';
+import { distanceBetweenPoints } from '../Tools/geometry';
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep';
 import { app } from '../App';
 
@@ -428,27 +428,11 @@ export class Shape {
    * @return {Boolean}       true si le point se trouve sur le bord.
    */
   isPointInBorder(point) {
-    return this.buildSteps.some((bs, index) => {
+    return this.buildSteps.some(bs => {
       if (bs.type == 'vertex') return Points.equal(Points.add(this, bs.coordinates), point);
       if (bs.type == 'segment') {
-        let pt1 = Points.add(this, this.buildSteps[index - 1].coordinates),
-          pt2 = Points.add(this, bs.coordinates),
-          projection = getProjectionOnSegment(point, pt1, pt2),
-          projDist = Points.dist(projection, point),
-          refDist = Points.dist(pt1, pt2),
-          d1 = Points.dist(pt1, point),
-          d2 = Points.dist(pt2, point);
-        return projDist < 1 && d1 < refDist && d2 < refDist;
-
-        //old method:
-        /*
-                let pt1 = Points.add(this, this.buildSteps[index-1].coordinates),
-                    pt2 = Points.add(this, bs.coordinates),
-                    refDist = Points.dist(pt1, pt2),
-                    d1 = Points.dist(pt1, point),
-                    d2 = Points.dist(pt2, point);
-                return collinear(pt1, pt2, point) && d1<refDist && d2<refDist;
-                */
+        const projection = bs.projectionPointOnSegment(point);
+        return bs.isPointOnSegment(projection);
       }
       return false;
     });
