@@ -1,6 +1,5 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { Points } from '../../Tools/points';
 import { getAverageColor } from '../../Tools/general';
 import { Segment, Vertex, MoveTo } from '../../Objects/ShapeBuildStep';
@@ -50,7 +49,7 @@ export class MergeAction extends Action {
       shape2 = app.workspace.getShapeById(this.secondShapeId),
       commonSegments = this.getCommonSegments(shape1, shape2);
 
-    if (commonSegments.length == 0) return false;
+    if (commonSegments.length === 0) return false;
 
     //Calculer la liste des morceaux de formes (parts: liste de tableaux
     //de buildSteps)

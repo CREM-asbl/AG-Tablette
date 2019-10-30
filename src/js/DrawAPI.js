@@ -250,9 +250,7 @@ export class DrawAPI {
     const ctx = this.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.translate(shape.x, shape.y);
-    const selected =
-      ctx.isPointInPath(shape.path, point.x, point.y) ||
-      ctx.isPointInStroke(shape.path, point.x, point.y);
+    const selected = ctx.isPointInPath(shape.path, point.x, point.y);
     return selected;
   }
 }

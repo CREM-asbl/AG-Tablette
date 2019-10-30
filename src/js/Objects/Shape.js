@@ -428,11 +428,16 @@ export class Shape {
    * @return {Boolean}       true si le point se trouve sur le bord.
    */
   isPointInBorder(point) {
+    const relativeCoordinates = {
+      x: point.x - this.x,
+      y: point.y - this.y,
+    };
     return this.buildSteps.some(bs => {
-      if (bs.type == 'vertex') return Points.equal(Points.add(this, bs.coordinates), point);
-      if (bs.type == 'segment') {
-        const projection = bs.projectionPointOnSegment(point);
-        return bs.isPointOnSegment(projection);
+      if (bs.type === 'vertex') return Points.equal(bs.coordinates, relativeCoordinates);
+      if (bs.type === 'segment') {
+        const projection = bs.projectionPointOnSegment(relativeCoordinates),
+          projDist = Points.dist(projection, relativeCoordinates);
+        return projDist < 1 && bs.isPointOnSegment(projection);
       }
       return false;
     });
