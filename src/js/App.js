@@ -185,8 +185,8 @@ export class App {
 
     if (!fileName) {
       let prompt = window.prompt('Nom du fichier: ');
-      if (prompt == null) return;
-      if (prompt == '') prompt = 'Unnamed';
+      if (prompt === null) return;
+      if (prompt === '') prompt = 'Unnamed';
       fileName = prompt + '.json';
     }
 
