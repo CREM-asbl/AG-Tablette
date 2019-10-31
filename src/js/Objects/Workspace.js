@@ -57,7 +57,7 @@ export class Workspace {
     this.settings.add('gridSize', 1, true);
 
     //Type de grille: 'square' ou 'triangle'
-    this.settings.add('gridType', 'square', true);
+    this.settings.add('gridType', 'none', true);
 
     //Tangram affiché ?
     this.settings.add('isTangramShown', false, true);

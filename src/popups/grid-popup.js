@@ -55,41 +55,33 @@ class GridPopup extends LitElement {
         select {
           font-size: 20px;
         }
+
+        button {
+          padding: 8px 16px;
+        }
       </style>
       <div id="grid-popup">
         <div id="grid-popup-close" @click="${() => (this.style.display = 'none')}">&times;</div>
-
         <br /><br />
-
-        <div class="field">
-          <input
-            type="checkbox"
-            name="grid_popup_show_grid"
-            id="grid_popup_show_grid"
-            ?checked="${app.workspace.settings.get('isGridShown')}"
-            @change="${this._actionHandle}"
-          />
-          <label for="grid_popup_show_grid">Activer la grille</label>
-        </div>
-
-        <br />
-
         <div class="field" style="margin-left:8px">
           <label for="grid_popup_grid_type">Type de grille </label>
           <select
             name="grid_popup_grid_type"
             id="grid_popup_grid_type"
             @change="${this._actionHandle}"
-            ?disabled="${app.workspace.settings.get('isGridShown')}"
           >
-            <option value="square" ?selected=${app.workspace.settings.get('gridType') === 'square'}
-              >Carrés</option
-            >
+            <option value="none" ?selected="${app.workspace.settings.get('gridType') === 'none'}">
+              Aucune
+            </option>
+            <option value="square" ?selected=${app.workspace.settings.get('gridType') === 'square'}>
+              Carrés
+            </option>
             <option
               value="triangle"
               ?selected=${app.workspace.settings.get('gridType') === 'triangle'}
-              >Triangles</option
             >
+              Triangles
+            </option>
           </select>
         </div>
 
@@ -101,7 +93,7 @@ class GridPopup extends LitElement {
             name="grid_popup_grid_size"
             id="grid_popup_grid_size"
             @change="${this._actionHandle}"
-            ?disabled="${app.workspace.settings.get('isGridShown')}"
+            ?disabled="${app.workspace.settings.get('gridType') === 'none'}"
           >
             <option
               value="0.333333333333333"
@@ -126,17 +118,15 @@ class GridPopup extends LitElement {
         </div>
 
         <br /><br />
-        <button style="font-size: 20px" @click="${this.gridPopupValidate}">Valider</button>
+        <button style="font-size: 20px" @click="${this.gridPopupValidate}">OK</button>
       </div>
     `;
   }
 
+  //TODO : essayer de supprimer et remplacer par fonctionnement "automatique" de Lit-element
   updatePopup() {
-    let showElem = this.shadowRoot.getElementById('grid_popup_show_grid'),
-      typeElem = this.shadowRoot.getElementById('grid_popup_grid_type'),
+    let typeElem = this.shadowRoot.getElementById('grid_popup_grid_type'),
       sizeElem = this.shadowRoot.getElementById('grid_popup_grid_size');
-
-    showElem.checked = app.workspace.settings.get('isGridShown');
     typeElem.disabled = app.workspace.settings.get('isGridShown');
     sizeElem.disabled = app.workspace.settings.get('isGridShown');
 
@@ -159,13 +149,6 @@ class GridPopup extends LitElement {
    */
   _actionHandle(event) {
     switch (event.target.name) {
-      case 'grid_popup_show_grid':
-        this.shadowRoot.getElementById('grid_popup_grid_type').disabled = !event.target.checked;
-        this.shadowRoot.getElementById('grid_popup_grid_size').disabled = !event.target.checked;
-        app.workspace.settings.update('isGridShown', event.target.checked);
-        app.drawAPI.askRefresh('background');
-        break;
-
       case 'grid_popup_grid_size':
         app.workspace.settings.update('gridSize', event.target.value);
         app.drawAPI.askRefresh('background');
@@ -173,6 +156,9 @@ class GridPopup extends LitElement {
 
       case 'grid_popup_grid_type':
         app.workspace.settings.update('gridType', event.target.value);
+        this.shadowRoot.getElementById('grid_popup_grid_size').disabled =
+          event.target.value === 'none';
+        app.workspace.settings.update('isGridShown', event.target.value !== 'none');
         app.drawAPI.askRefresh('background');
         break;
 
