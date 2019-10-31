@@ -53,16 +53,16 @@ class GridPopup extends LitElement {
         }
 
         select {
-          font-size: 20px;
+          font-size: 16px;
         }
 
         button {
-          padding: 8px 16px;
+          padding: 4px 8px;
         }
       </style>
       <div id="grid-popup">
         <div id="grid-popup-close" @click="${() => (this.style.display = 'none')}">&times;</div>
-        <br /><br />
+        <br />
         <div class="field" style="margin-left:8px">
           <label for="grid_popup_grid_type">Type de grille </label>
           <select
@@ -116,9 +116,8 @@ class GridPopup extends LitElement {
             </option>
           </select>
         </div>
-
-        <br /><br />
-        <button style="font-size: 20px" @click="${this.gridPopupValidate}">OK</button>
+        <br />
+        <button @click="${this.gridPopupValidate}">OK</button>
       </div>
     `;
   }
