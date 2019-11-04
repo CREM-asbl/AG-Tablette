@@ -40,7 +40,7 @@ export class CreateState extends State {
     window.dispatchEvent(new CustomEvent('app-state-changed', { detail: app.state }));
   }
 
-  onClick(mouseCoordinates, event) {
+  onClick(mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
     if (Date.now() - this.lastCreationTimestamp < 300) {
       console.log('clics trop rapprochés');

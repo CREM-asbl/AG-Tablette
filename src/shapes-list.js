@@ -65,7 +65,7 @@ class ShapesList extends LitElement {
       </style>
 
       <div class="container">
-        <h2>${this.family}</h2>
+        <h2>${this.shape || this.family}</h2>
         <ul>
           ${shapes.map(
             shape => html`
