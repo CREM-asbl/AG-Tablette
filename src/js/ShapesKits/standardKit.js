@@ -397,7 +397,7 @@ export const standardKit = {
     point qui est placé là où le cercle commence!
     Les cercles doivent également être dessinés dans le sens trigonométrique.
      */
-  'Cercles et segments': {
+  'Disques et segments': {
     color: '#CCC',
     shapes: [
       {
