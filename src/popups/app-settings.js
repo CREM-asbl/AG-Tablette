@@ -99,6 +99,11 @@ class AppSettings extends LitElement {
 
         button {
           padding: 8px 16px;
+          margin: 0 4px;
+        }
+
+        version-item {
+          flex: 1;
         }
       </style>
 
@@ -117,7 +122,7 @@ class AppSettings extends LitElement {
                 type="checkbox"
                 name="settings_adapt_shapes_position"
                 id="settings_adapt_shapes_position"
-                ?checked="${this.settings.data.automaticAdjustment.value}"
+                .checked="${this.settings.data.automaticAdjustment.value}"
                 @change="${this._actionHandle}"
               />
               <label for="settings_adapt_shapes_position">Ajustement automatique</label>
@@ -136,15 +141,15 @@ class AppSettings extends LitElement {
                 id="settings_shapes_size"
                 @change="${this._actionHandle}"
               >
-                <option value="1" ?selected="${this.settings.data.shapesSize.value === 1}"
-                  >1</option
-                >
-                <option value="2" ?selected="${this.settings.data.shapesSize.value === 2}"
-                  >2</option
-                >
-                <option value="3" ?selected="${this.settings.data.shapesSize.value === 3}"
-                  >3</option
-                >
+                <option value="1" ?selected="${this.settings.data.shapesSize.value === 1}">
+                  1
+                </option>
+                <option value="2" ?selected="${this.settings.data.shapesSize.value === 2}">
+                  2
+                </option>
+                <option value="3" ?selected="${this.settings.data.shapesSize.value === 3}">
+                  3
+                </option>
               </select>
             </div>
 
@@ -153,7 +158,7 @@ class AppSettings extends LitElement {
                 type="checkbox"
                 name="settings_pointed_shapes"
                 id="settings_pointed_shapes"
-                ?checked="${this.settings.data.areShapesPointed.value}"
+                .checked="${this.settings.data.areShapesPointed.value}"
                 @change="${this._actionHandle}"
               />
               <label for="settings_pointed_shapes">Formes pointées</label>
@@ -162,6 +167,7 @@ class AppSettings extends LitElement {
         </div>
         <footer>
           <version-item></version-item>
+          <button @click="${() => app.resetSettings()}">Paramètres par défaut</button>
           <button @click="${() => (this.style.display = 'none')}">OK</button>
         </footer>
       </div>
@@ -175,14 +181,17 @@ class AppSettings extends LitElement {
     switch (event.target.name) {
       case 'settings_adapt_shapes_position':
         app.settings.update('automaticAdjustment', event.target.checked);
+        this.settings.data.automaticAdjustment.value = event.target.checked;
         break;
 
       case 'settings_shapes_size':
         app.settings.update('shapesSize', parseInt(event.target.value));
+        this.settings.data.shapesSize.value = event.target.value;
         break;
 
       case 'settings_pointed_shapes':
         app.settings.update('areShapesPointed', event.target.checked);
+        this.settings.data.areShapesPointed.value = event.target.checked;
         app.drawAPI.askRefresh('main');
         break;
 
@@ -196,6 +205,7 @@ class AppSettings extends LitElement {
             event.target.checked,
         );
     }
+    this.settings = { ...this.settings };
   }
 }
 customElements.define('app-settings', AppSettings);

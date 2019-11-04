@@ -64,36 +64,42 @@ export class App {
     /**
      * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
      */
-    this.settings.add('magnetismDistance', 10, false);
+    this.settings.set('magnetismDistance', 10, false);
 
     /**
      * Distance maximale entre les coordonnées du clic et un élément, pour
      * qu'il puisse être sélectionné.
      */
-    this.settings.add('selectionDistance', 20, false);
+    this.settings.set('selectionDistance', 20, false);
 
     /**
      * La précision, en pixels. (2 points à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )
      */
-    this.settings.add('precision', 1.5, false);
+    this.settings.set('precision', 1.5, false);
 
     //Niveau de zoom maximal de l'interface
-    this.settings.add('maxZoomLevel', 10, false);
+    this.settings.set('maxZoomLevel', 10, false);
 
     //Niveau de zoom minimal de l'interface
-    this.settings.add('minZoomLevel', 0.1, false);
+    this.settings.set('minZoomLevel', 0.1, false);
 
     //Ajustement automatique des formes activé ?
-    this.settings.add('automaticAdjustment', true, true);
+    this.settings.set('automaticAdjustment', true, true);
 
     //true si les formes ajoutées à l'avenir auront leurs sommets visibles
-    this.settings.add('areShapesPointed', true, true);
+    this.settings.set('areShapesPointed', true, true);
 
     //taille des formes qui seront ajoutées (1, 2 ou 3)
-    this.settings.add('shapesSize', 2, true);
+    this.settings.set('shapesSize', 2, true);
 
     //Largeur du menu de gauche de l'application
-    this.settings.add('mainMenuWidth', 250, false);
+    this.settings.set('mainMenuWidth', 250, false);
+  }
+
+  resetSettings() {
+    this.initSettings();
+    dispatchEvent(new CustomEvent('app-settings-changed'));
+    this.drawAPI.askRefresh();
   }
 
   start(cvsDiv) {

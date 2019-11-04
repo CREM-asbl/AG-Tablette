@@ -51,19 +51,19 @@ export class Workspace {
 
   initSettings() {
     //La grille est-elle affichée ?
-    this.settings.add('isGridShown', false, true);
+    this.settings.set('isGridShown', false, true);
 
     //Taille de la grille
-    this.settings.add('gridSize', 1, true);
+    this.settings.set('gridSize', 1, true);
 
     //Type de grille: 'square' ou 'triangle'
-    this.settings.add('gridType', 'none', true);
+    this.settings.set('gridType', 'none', true);
 
     //Tangram affiché ?
-    this.settings.add('isTangramShown', false, true);
+    this.settings.set('isTangramShown', false, true);
 
     //Type (main/local) et id du tangram affiché.
-    this.settings.add(
+    this.settings.set(
       'shownTangram',
       {
         type: null, //'main' ou 'local'

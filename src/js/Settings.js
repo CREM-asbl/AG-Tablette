@@ -24,10 +24,9 @@ export class Settings {
    * @param  {Boolean} isEditable true si la valeur du paramètre peut être modifiée par la suite.
    * @return {[type]}             [description]
    */
-  add(name, value, isEditable) {
+  set(name, value, isEditable) {
     if (this.data[name]) {
-      console.log('Settings.add(): Le paramètre ' + name + ' existe déjà.');
-      return;
+      console.warn('Settings.set(): Le paramètre ' + name + ' existe déjà.');
     }
     this.data[name] = {
       value: value,
