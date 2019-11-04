@@ -1,5 +1,5 @@
 import { app } from './App';
-import { distanceBetweenPoints, getProjectionOnSegment } from './Tools/geometry';
+import { distanceBetweenPoints } from './Tools/geometry';
 import { Shape } from './Objects/Shape';
 import { Points } from './Tools/points';
 

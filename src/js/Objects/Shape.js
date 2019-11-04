@@ -90,7 +90,9 @@ export class Shape {
     };
     const segment = this.buildSteps.filter(buildstep => buildstep.type === 'segment')[0];
 
-    const projection = segment.projectionPointOnSegment(relativesCoordinates);
+    let projection = segment.projectionPointOnSegment(relativesCoordinates);
+
+    if (!segment.isPointOnSegment(projection)) return false;
 
     let dist = distanceBetweenPoints(relativesCoordinates, projection);
 

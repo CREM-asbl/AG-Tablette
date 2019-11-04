@@ -1,6 +1,5 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { getProjectionOnSegment } from '../../Tools/geometry';
 import { Points } from '../../Tools/points';
 
