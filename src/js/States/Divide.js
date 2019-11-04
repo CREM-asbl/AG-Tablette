@@ -191,7 +191,6 @@ export class DivideState extends State {
    * @return {[Object]} Liste de points au même format qu'interactionAPI
    */
   getCandidatePoints(object) {
-    console.log(object);
     let shape = object.shape,
       bs = object.shape.buildSteps,
       vertexToAdd = [],
