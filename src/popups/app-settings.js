@@ -135,7 +135,7 @@ class AppSettings extends LitElement {
             <legend>Formes</legend>
 
             <div class="field">
-              <label for="settings_shapes_size">Taille des formes </label>
+              <label for="settings_shapes_size">Taille des formes</label>
               <select
                 name="settings_shapes_size"
                 id="settings_shapes_size"
