@@ -14,6 +14,9 @@ class AppSettings extends LitElement {
     super();
     this.settings = app.settings;
     addEventListener('app-settings-changed', () => (this.settings = { ...app.settings }));
+    addEventListener('keyup', e => {
+      e.key === 'Escape' && (this.style.display = 'none');
+    });
   }
 
   render() {

@@ -40,6 +40,7 @@ export class DivideState extends State {
     app.interactionAPI.setSelectionConstraints(this.selConstr);
 
     if (openPopup) document.querySelector('divide-popup').style.display = 'block';
+    app.appDiv.cursor = 'default';
   }
 
   abort() {

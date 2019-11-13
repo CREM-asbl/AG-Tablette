@@ -1,38 +1,38 @@
-import { app } from '../App'
-import { BuildCenterAction } from './Actions/BuildCenter'
-import { State } from './State'
+import { app } from '../App';
+import { BuildCenterAction } from './Actions/BuildCenter';
+import { State } from './State';
 
 /**
  * Construire le centre d'une forme (l'afficher)
  */
 export class BuildCenterState extends State {
+  constructor() {
+    super('build_shape_center');
+  }
 
-    constructor() {
-        super("build_shape_center");
-    }
+  /**
+   * (ré-)initialiser l'état
+   */
+  start() {
+    this.actions = [new BuildCenterAction(this.name)];
 
-    /**
-     * (ré-)initialiser l'état
-     */
-    start() {
-        this.actions = [new BuildCenterAction(this.name)];
+    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.appDiv.cursor = 'default';
+  }
 
-        app.interactionAPI.setFastSelectionConstraints('click_all_shape');
-    }
+  /**
+   * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
+   * @param  {Shape} shape            La forme sélectionnée
+   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Event} event            l'événement javascript
+   */
+  objectSelected(shape, clickCoordinates, event) {
+    if (shape.isCenterShown) return;
 
-    /**
-     * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
-     * @param  {Shape} shape            La forme sélectionnée
-     * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
-     * @param  {Event} event            l'événement javascript
-     */
-    objectSelected(shape, clickCoordinates, event) {
-        if(shape.isCenterShown) return;
+    this.actions[0].shapeId = shape.id;
+    this.executeAction();
+    this.start();
 
-        this.actions[0].shapeId = shape.id;
-        this.executeAction();
-        this.start();
-
-        app.drawAPI.askRefresh();
-    }
+    app.drawAPI.askRefresh();
+  }
 }

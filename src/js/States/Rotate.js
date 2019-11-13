@@ -37,6 +37,7 @@ export class RotateState extends State {
     this.involvedShapes = [];
 
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
+    app.appDiv.cursor = 'default';
   }
 
   abort() {

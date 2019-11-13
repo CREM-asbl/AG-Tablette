@@ -185,14 +185,12 @@ export class App {
 
   saveToFile(fileName) {
     let saveObject = {};
-    if (confirm('Voulez-vous aussi enregistrer la configuration ?')) {
-      saveObject.appSettings = this.settings.data;
-    }
+    saveObject.appSettings = this.settings.data;
 
     if (!fileName) {
       let prompt = window.prompt('Nom du fichier: ');
       if (prompt === null) return;
-      if (prompt === '') prompt = 'Unnamed';
+      if (prompt === '') prompt = 'untitled';
       fileName = prompt + '.json';
     }
 
@@ -200,6 +198,7 @@ export class App {
     let json = JSON.stringify(saveObject);
 
     const file = new Blob([json], { type: 'application/json' });
+
     const downloader = document.createElement('a');
     downloader.href = window.URL.createObjectURL(file);
     downloader.download = fileName;
