@@ -1,7 +1,9 @@
 import { LitElement, html } from 'lit-element';
 import '../version-item';
 import { app } from '../js/App';
-import { Settings } from '../js/Settings';
+
+//TODO : code à nettoyer
+//TODO : classe à renommer en save-popup car sauvegarde globale pas seulement settings
 
 class SaveSettings extends LitElement {
   static get properties() {
@@ -186,7 +188,7 @@ class SaveSettings extends LitElement {
 
     const downloader = document.createElement('a');
     downloader.href = window.URL.createObjectURL(file);
-    downloader.download = fileName;
+    downloader.download = fileName + '.fag';
     downloader.target = '_blank';
     document.body.appendChild(downloader);
     downloader.click();
