@@ -168,12 +168,7 @@ class SaveSettings extends LitElement {
   }
 
   saveToFile(fileName) {
-    if (!fileName) {
-      let prompt = window.prompt('Nom du fichier: ');
-      if (prompt === null) return;
-      if (prompt === '') prompt = 'untitled';
-      fileName = prompt + '.json';
-    }
+    if (!fileName) fileName = 'untitled';
 
     let { history, settings, ...saveObject } = {
       ...app.workspace.data,

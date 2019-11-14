@@ -92,7 +92,7 @@ class OpacityPopup extends LitElement {
         </div>
 
         <br /><br />
-        <button style="font-size: 20px" @click="${this.opacityPopupValidate}">Valider</button>
+        <button style="font-size: 20px" @click="${this.opacityPopupValidate}">Ok</button>
       </div>
     `;
   }
