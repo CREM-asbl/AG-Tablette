@@ -25,6 +25,7 @@ export class MergeState extends State {
     this.firstShape = null;
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.appDiv.cursor = 'default';
   }
 
   /**

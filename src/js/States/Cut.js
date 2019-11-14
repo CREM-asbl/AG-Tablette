@@ -35,6 +35,7 @@ export class CutState extends State {
 
     this.constr = app.interactionAPI.getEmptySelectionConstraints();
     this.setSelConstraints(this.currentStep);
+    app.appDiv.cursor = 'default';
   }
 
   abort() {

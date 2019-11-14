@@ -176,37 +176,12 @@ export class App {
       const dataObject = JSON.parse(reader.result);
       if (dataObject.appSettings) {
         this.settings.initFromObject(dataObject.appSettings);
+        console.log(dataObject);
         dispatchEvent(new CustomEvent('app-settings-changed'));
       }
       this.wsManager.setWorkspaceFromJSON(reader.result);
     };
     reader.readAsText(file);
-  }
-
-  saveToFile(fileName) {
-    let saveObject = {};
-    if (confirm('Voulez-vous aussi enregistrer la configuration ?')) {
-      saveObject.appSettings = this.settings.data;
-    }
-
-    if (!fileName) {
-      let prompt = window.prompt('Nom du fichier: ');
-      if (prompt === null) return;
-      if (prompt === '') prompt = 'Unnamed';
-      fileName = prompt + '.json';
-    }
-
-    saveObject = { ...saveObject, ...this.workspace.data };
-    let json = JSON.stringify(saveObject);
-
-    const file = new Blob([json], { type: 'application/json' });
-    const downloader = document.createElement('a');
-    downloader.href = window.URL.createObjectURL(file);
-    downloader.download = fileName;
-    downloader.target = '_blank';
-    document.body.appendChild(downloader);
-    downloader.click();
-    document.body.removeChild(downloader);
   }
 }
 

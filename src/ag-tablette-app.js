@@ -3,6 +3,7 @@ import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
 import './popups/app-settings';
+import './popups/save-settings';
 import './flex-toolbar';
 import './icon-button';
 import './js/Manifest';
@@ -24,6 +25,7 @@ class AGTabletteApp extends LitElement {
       canUndo: Boolean,
       canRedo: Boolean,
       background: String,
+      cursor: String,
     };
   }
 
@@ -34,6 +36,7 @@ class AGTabletteApp extends LitElement {
     app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
+    this.cursor = 'default';
 
     addEventListener('app-state-changed', event => (this.state = { ...event.detail }));
   }
@@ -45,6 +48,7 @@ class AGTabletteApp extends LitElement {
           --primary-color: #abcedf;
           --button-border-color: black;
           --button-background-color: #0ff;
+          cursor: ${this.cursor};
         }
 
         #app-canvas-view {
@@ -154,7 +158,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/save.svg"
                 title="Sauvegarder"
                 name="save"
-                @click="${() => app.saveToFile()}"
+                @click="${this._actionHandle}" //app.saveToFile()}"
               >
               </icon-button>
               <icon-button
@@ -386,6 +390,8 @@ class AGTabletteApp extends LitElement {
 
       <app-settings></app-settings>
 
+      <save-settings></save-settings>
+
       <grid-popup></grid-popup>
 
       <tangram-popup></tangram-popup>
@@ -408,8 +414,11 @@ class AGTabletteApp extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
+    this.cursor = 'default';
     if (event.target.name == 'settings') {
       this.shadowRoot.querySelector('app-settings').style.display = 'block';
+    } else if (event.target.name === 'save') {
+      this.shadowRoot.querySelector('save-settings').style.display = 'block';
     } else if (event.target.name === 'new') {
       this.shadowRoot.querySelector('new-popup').open();
     } else if (event.target.name === 'grid_menu') {

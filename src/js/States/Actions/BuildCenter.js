@@ -35,13 +35,13 @@ export class BuildCenterAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let shape = app.workspace.getShapeById(this.shapeId);
-    shape.isCenterShown = true;
+    shape.isCenterShown = !shape.isCenterShown;
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
 
     let shape = app.workspace.getShapeById(this.shapeId);
-    shape.isCenterShown = false;
+    shape.isCenterShown = !shape.isCenterShown;
   }
 }
