@@ -7,17 +7,16 @@ class SaveSettings extends LitElement {
   static get properties() {
     return {
       filename: { type: String },
-      complete_file: { type: Boolean },
-      history_file: { type: Boolean },
+      save_parameters: { type: Boolean },
+      save_history: { type: Boolean },
     };
   }
 
   constructor() {
     super();
-    this.settings = app.settings;
     this.filaname = '';
-    this.complete_file = true;
-    this.history_file = true;
+    this.save_parameters = true;
+    this.save_history = true;
     addEventListener('keyup', e => {
       e.key === 'Escape' && (this.style.display = 'none');
     });
@@ -119,18 +118,18 @@ class SaveSettings extends LitElement {
 			&times;
 			</div>
 
-        	<h2>Sauvegarder les paramètres</h2>
+        	<h2>Sauvegarder l'état</h2>
           	<div class="save-settings-form">
 
 				<div class="field">
 					<input
 						type="checkbox"
-						name="save_settings_complete_file"
-						id="save_settings_complete_file"
-						?checked="${this.complete_file}"
+						name="save_settings_parameters"
+						id="save_settings_parameters"
+						?checked="${this.save_parameters}"
 						@change="${this._actionHandle}"
 					/>
-					<label for="save_settings_complete_file">Le fichier complet</label>
+					<label for="save_settings_parameters">Sauvegarde des paramètres</label>
 				</div>
 
 				<br />
@@ -140,10 +139,10 @@ class SaveSettings extends LitElement {
 						type="checkbox"
 						name="save_settings_history"
 						id="save_settings_history"
-						?checked="${this.history_file}"
+						?checked="${this.save_history}"
 						@change="${this._actionHandle}"
 					/>
-					<label for="save_settings_history">Historique</label>
+					<label for="save_settings_history">Sauvegarder l'historique</label>
 				</div>
 
 				<br />
@@ -168,25 +167,57 @@ class SaveSettings extends LitElement {
     `;
   }
 
+  saveToFile(fileName) {
+    if (!fileName) {
+      let prompt = window.prompt('Nom du fichier: ');
+      if (prompt === null) return;
+      if (prompt === '') prompt = 'untitled';
+      fileName = prompt + '.json';
+    }
+
+    let { history, settings, ...saveObject } = {
+      ...app.workspace.data,
+      appSettings: app.settings.data,
+    };
+
+    if (this.save_history) saveObject.history = history;
+    else saveObject.history = { history: [], historyIndex: -1 };
+
+    if (this.save_parameters) saveObject.settings = settings;
+
+    let json = JSON.stringify(saveObject);
+
+    const file = new Blob([json], { type: 'application/json' });
+
+    const downloader = document.createElement('a');
+    downloader.href = window.URL.createObjectURL(file);
+    downloader.download = fileName;
+    downloader.target = '_blank';
+    document.body.appendChild(downloader);
+    downloader.click();
+    document.body.removeChild(downloader);
+  }
+
   /**
    * event handler principal
    */
   _actionHandle(event) {
     switch (event.target.name) {
-      case 'save_settings_complete_file':
-        this.complete_file = !this.complete_file;
+      case 'save_settings_parameters':
+        this.save_parameters = !this.save_parameters;
         break;
 
       case 'save_settings_history':
-        this.history_file = !this.history_file;
+        this.save_history = !this.save_history;
         break;
 
       case 'save_settings_filename':
-        this.filename = event.path[0].value;
+        this.filename = event.path[0].value; // this.shadowRoot.querySelector("#save_settings_filename").value
         break;
 
       case 'save':
-        app.saveToFile(this.filename);
+        this.style.display = 'none';
+        this.saveToFile(this.filename);
         break;
 
       default:
