@@ -158,7 +158,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/save.svg"
                 title="Sauvegarder"
                 name="save"
-                @click="${this._actionHandle}" //app.saveToFile()}"
+                @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button

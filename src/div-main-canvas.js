@@ -121,9 +121,9 @@ class DivMainCanvas extends LitElement {
     this.invisibleCanvas.setAttribute('width', this.clientWidth);
 
     /*
-        Lorsque le canvas est redimensionné, la translation et le zoom (scaling)
-        sont réinitialisés, il faut donc les réappliquer.
-         */
+      Lorsque le canvas est redimensionné, la translation et le zoom (scaling)
+      sont réinitialisés, il faut donc les réappliquer.
+    */
     app.drawAPI.resetTransformations();
     app.drawAPI.translateView(app.workspace.translateOffset);
     app.drawAPI.scaleView(app.workspace.zoomLevel);

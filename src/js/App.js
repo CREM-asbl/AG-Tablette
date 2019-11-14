@@ -176,7 +176,6 @@ export class App {
       const dataObject = JSON.parse(reader.result);
       if (dataObject.appSettings) {
         this.settings.initFromObject(dataObject.appSettings);
-        console.log(dataObject);
         dispatchEvent(new CustomEvent('app-settings-changed'));
       }
       this.wsManager.setWorkspaceFromJSON(reader.result);
