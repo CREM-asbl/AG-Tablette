@@ -27,10 +27,9 @@ export class BuildCenterState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape, clickCoordinates, event) {
-    if (shape.isCenterShown) return;
-
     this.actions[0].shapeId = shape.id;
     this.executeAction();
+
     this.start();
 
     app.drawAPI.askRefresh();
