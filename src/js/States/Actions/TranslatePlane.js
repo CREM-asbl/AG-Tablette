@@ -1,60 +1,58 @@
-import { app } from '../../App'
-import { Action } from './Action'
-import { Shape } from '../../Objects/Shape'
+import { app } from '../../App';
+import { Action } from './Action';
+import { Shape } from '../../Objects/Shape';
 
 export class TranslatePlaneAction extends Action {
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        //Translation à appliquer
-        this.offset = null;
-    }
+    this.name = 'TranslatePlaneAction';
 
-    saveToObject() {
-        let save = {
-            
-            'offset': this.offset
-        };
-        return save;
-    }
+    //Translation à appliquer
+    this.offset = null;
+  }
 
-    initFromObject(save) {
-        
-        this.offset = save.offset;
-    }
+  saveToObject() {
+    let save = {
+      offset: this.offset,
+    };
+    return save;
+  }
 
-    checkDoParameters() {
-        if(!this.offset || this.offset.x === undefined
-            || this.offset.y === undefined)
-            return false;
-        return true;
-    }
+  initFromObject(save) {
+    this.offset = save.offset;
+  }
 
-    checkUndoParameters() {
-        return this.checkDoParameters();
-    }
+  checkDoParameters() {
+    if (!this.offset || this.offset.x === undefined || this.offset.y === undefined) return false;
+    return true;
+  }
 
-    do() {
-        if(!this.checkDoParameters()) return;
+  checkUndoParameters() {
+    return this.checkDoParameters();
+  }
 
-        let originalOffset = app.workspace.translateOffset,
-            newOffset = {
-                'x': originalOffset.x + this.offset.x,
-                'y': originalOffset.y + this.offset.y
-            };
+  do() {
+    if (!this.checkDoParameters()) return;
 
-        app.workspace.setTranslateOffset(newOffset);
-    }
+    let originalOffset = app.workspace.translateOffset,
+      newOffset = {
+        x: originalOffset.x + this.offset.x,
+        y: originalOffset.y + this.offset.y,
+      };
 
-    undo() {
-        if(!this.checkUndoParameters()) return;
+    app.workspace.setTranslateOffset(newOffset);
+  }
 
-        let originalOffset = app.workspace.translateOffset,
-            newOffset = {
-                'x': originalOffset.x - this.offset.x,
-                'y': originalOffset.y - this.offset.y
-            };
+  undo() {
+    if (!this.checkUndoParameters()) return;
 
-        app.workspace.setTranslateOffset(newOffset);
-    }
+    let originalOffset = app.workspace.translateOffset,
+      newOffset = {
+        x: originalOffset.x - this.offset.x,
+        y: originalOffset.y - this.offset.y,
+      };
+
+    app.workspace.setTranslateOffset(newOffset);
+  }
 }

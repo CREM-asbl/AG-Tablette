@@ -5,6 +5,8 @@ export class MoveAction extends Action {
   constructor() {
     super();
 
+    this.name = 'MoveAction';
+
     //L'id de la forme que l'on déplace
     this.shapeId = null;
 

@@ -1,50 +1,49 @@
-import { app } from '../../App'
-import { Action } from './Action'
-import { Shape } from '../../Objects/Shape'
+import { app } from '../../App';
+import { Action } from './Action';
+import { Shape } from '../../Objects/Shape';
 
 export class ToBackgroundAction extends Action {
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        //L'index original de la forme dans workspace.shapes
-        this.oldIndex = null;
-    }
+    this.name = 'ToBackgroundAction';
 
-    saveToObject() {
-        let save = {
-            
-            'oldIndex': this.oldIndex
-        };
-        return save;
-    }
+    //L'index original de la forme dans workspace.shapes
+    this.oldIndex = null;
+  }
 
-    initFromObject(save) {
-        
-        this.oldIndex = save.oldIndex;
-    }
+  saveToObject() {
+    let save = {
+      oldIndex: this.oldIndex,
+    };
+    return save;
+  }
 
-    checkDoParameters() {
-        if(!Number.isFinite(this.oldIndex))
-            return false;
-        return true;
-    }
+  initFromObject(save) {
+    this.oldIndex = save.oldIndex;
+  }
 
-    checkUndoParameters() {
-        return this.checkDoParameters();
-    }
+  checkDoParameters() {
+    if (!Number.isFinite(this.oldIndex)) return false;
+    return true;
+  }
 
-    do() {
-        if(!this.checkDoParameters()) return;
+  checkUndoParameters() {
+    return this.checkDoParameters();
+  }
 
-        let shape = app.workspace.shapes.splice(this.oldIndex, 1)[0];
-        app.workspace.shapes.unshift(shape);
-    }
+  do() {
+    if (!this.checkDoParameters()) return;
 
-    undo() {
-        if(!this.checkUndoParameters()) return;
+    let shape = app.workspace.shapes.splice(this.oldIndex, 1)[0];
+    app.workspace.shapes.unshift(shape);
+  }
 
-        let shape = app.workspace.shapes.splice(0, 1)[0];
+  undo() {
+    if (!this.checkUndoParameters()) return;
 
-        app.workspace.shapes.splice(this.oldIndex, 0, shape);
-    }
+    let shape = app.workspace.shapes.splice(0, 1)[0];
+
+    app.workspace.shapes.splice(this.oldIndex, 0, shape);
+  }
 }

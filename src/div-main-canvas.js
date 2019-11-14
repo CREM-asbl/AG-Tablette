@@ -59,7 +59,7 @@ class DivMainCanvas extends LitElement {
     app.start(this);
 
     //Events:
-    this.upperCanvas.addEventListener('click', event => {
+    this.addEventListener('click', event => {
       let mousePos = this.getMousePos(event);
       window.app.interactionAPI.onClick(mousePos, event);
     });

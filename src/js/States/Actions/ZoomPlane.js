@@ -1,78 +1,82 @@
-import { app } from '../../App'
-import { Action } from './Action'
-import { Shape } from '../../Objects/Shape'
+import { app } from '../../App';
+import { Action } from './Action';
 
 //TODO retenir le zoom original, pour éviter les erreurs de précision?
 export class ZoomPlaneAction extends Action {
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        //Translation à appliquer
-        this.scaleOffset = null;
+    this.name = 'ZoomPlaneAction';
 
-        this.originalZoom = null;
+    //Translation à appliquer
+    this.scaleOffset = null;
 
-        this.originalTranslateOffset = null;
+    this.originalZoom = null;
 
-        this.centerProp = null;
-    }
+    this.originalTranslateOffset = null;
 
-    saveToObject() {
-        let save = {
-            
-            'scaleOffset': this.scaleOffset,
-            'originalZoom': this.originalZoom,
-            'originalTranslateOffset': this.originalTranslateOffset,
-            'centerProp': this.centerProp
-        };
-        return save;
-    }
+    this.centerProp = null;
+  }
 
-    initFromObject(save) {
-        
-        this.scaleOffset = save.scaleOffset;
-        this.originalZoom = save.originalZoom;
-        this.originalTranslateOffset = save.originalTranslateOffset;
-        this.centerProp = save.centerProp;
-    }
+  saveToObject() {
+    let save = {
+      scaleOffset: this.scaleOffset,
+      originalZoom: this.originalZoom,
+      originalTranslateOffset: this.originalTranslateOffset,
+      centerProp: this.centerProp,
+    };
+    return save;
+  }
 
-    checkDoParameters() {
-        if(!Number.isFinite(this.scaleOffset))
-            return false;
-        return true;
-    }
+  initFromObject(save) {
+    this.scaleOffset = save.scaleOffset;
+    this.originalZoom = save.originalZoom;
+    this.originalTranslateOffset = save.originalTranslateOffset;
+    this.centerProp = save.centerProp;
+  }
 
-    checkUndoParameters() {
-        return this.checkDoParameters();
-    }
+  checkDoParameters() {
+    if (!Number.isFinite(this.scaleOffset)) return false;
+    return true;
+  }
 
-    do() {
-        if(!this.checkDoParameters()) return;
+  checkUndoParameters() {
+    return this.checkDoParameters();
+  }
 
-        let newZoom = this.originalZoom * this.scaleOffset,
-            actualWinSize = {
-                'x': app.cvsDiv.clientWidth / this.originalZoom,
-                'y': app.cvsDiv.clientHeight / this.originalZoom
-            },
-            newWinSize = {
-                'x': actualWinSize.x / this.scaleOffset,
-                'y': actualWinSize.y / this.scaleOffset
-            },
-            newTranslateoffset = {
-                'x': (this.originalTranslateOffset.x/this.originalZoom - ((actualWinSize.x - newWinSize.x)*this.centerProp.x))*newZoom,
-                'y': (this.originalTranslateOffset.y/this.originalZoom - ((actualWinSize.y - newWinSize.y)*this.centerProp.y))*newZoom
-            };
+  do() {
+    if (!this.checkDoParameters()) return;
 
-        app.workspace.setZoomLevel(newZoom, false);
-        app.workspace.setTranslateOffset(newTranslateoffset);
-    }
+    let newZoom = this.originalZoom * this.scaleOffset,
+      actualWinSize = {
+        x: app.cvsDiv.clientWidth / this.originalZoom,
+        y: app.cvsDiv.clientHeight / this.originalZoom,
+      },
+      newWinSize = {
+        x: actualWinSize.x / this.scaleOffset,
+        y: actualWinSize.y / this.scaleOffset,
+      },
+      newTranslateoffset = {
+        x:
+          (this.originalTranslateOffset.x / this.originalZoom -
+            (actualWinSize.x - newWinSize.x) * this.centerProp.x) *
+          newZoom,
+        y:
+          (this.originalTranslateOffset.y / this.originalZoom -
+            (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
+          newZoom,
+      };
 
-    undo() {
-        if(!this.checkUndoParameters()) return;
+    app.workspace.setZoomLevel(newZoom, false);
+    app.workspace.setTranslateOffset(newTranslateoffset);
+  }
 
-        let originalZoom = app.workspace.zoomLevel,
-            newZoom = originalZoom * (1/this.scaleOffset);
+  undo() {
+    if (!this.checkUndoParameters()) return;
 
-        app.workspace.setZoomLevel(newZoom);
-    }
+    let originalZoom = app.workspace.zoomLevel,
+      newZoom = originalZoom * (1 / this.scaleOffset);
+
+    app.workspace.setZoomLevel(newZoom);
+  }
 }

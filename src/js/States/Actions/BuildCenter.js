@@ -1,49 +1,47 @@
-import { app } from '../../App'
-import { Action } from './Action'
-import { Shape } from '../../Objects/Shape'
+import { app } from '../../App';
+import { Action } from './Action';
 
 export class BuildCenterAction extends Action {
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        //L'id de la forme dont on va colorier les bords
-        this.shapeId = null;
-    }
+    this.name = 'BuildCenterAction';
 
-    saveToObject() {
-        let save = {
-            
-            'shapeId': this.shapeId
-        };
-        return save;
-    }
+    //L'id de la forme dont on va colorier les bords
+    this.shapeId = null;
+  }
 
-    initFromObject(save) {
-        
-        this.shapeId = save.shapeId;
-    }
+  saveToObject() {
+    let save = {
+      shapeId: this.shapeId,
+    };
+    return save;
+  }
 
-    checkDoParameters() {
-        if(!this.shapeId)
-            return false;
-        return true;
-    }
+  initFromObject(save) {
+    this.shapeId = save.shapeId;
+  }
 
-    checkUndoParameters() {
-        return this.checkDoParameters();
-    }
+  checkDoParameters() {
+    if (!this.shapeId) return false;
+    return true;
+  }
 
-    do() {
-        if(!this.checkDoParameters()) return;
+  checkUndoParameters() {
+    return this.checkDoParameters();
+  }
 
-        let shape = app.workspace.getShapeById(this.shapeId);
-        shape.isCenterShown = true;
-    }
+  do() {
+    if (!this.checkDoParameters()) return;
 
-    undo() {
-        if(!this.checkUndoParameters()) return;
+    let shape = app.workspace.getShapeById(this.shapeId);
+    shape.isCenterShown = true;
+  }
 
-        let shape = app.workspace.getShapeById(this.shapeId);
-        shape.isCenterShown = false;
-    }
+  undo() {
+    if (!this.checkUndoParameters()) return;
+
+    let shape = app.workspace.getShapeById(this.shapeId);
+    shape.isCenterShown = false;
+  }
 }

@@ -27,7 +27,7 @@ export class WorkspaceHistory {
       history: this.history.map(step => {
         return step.map(action => {
           return {
-            className: action.constructor.name,
+            className: action.name,
             data: action.saveToObject(),
           };
         });
@@ -39,18 +39,12 @@ export class WorkspaceHistory {
   initFromObject(object) {
     this.historyIndex = object.historyIndex;
     this.history = object.history.map(step => {
-      return step.map(actionData => {
-        if (!StatesManager.actions[actionData.className]) {
-          console.error('unknown action class: ' + actionData.className);
-          console.log(actionData);
-          return null;
-        }
-
-        let action = StatesManager.actions[actionData.className].getInstance();
-        action.initFromObject(actionData.data);
-        return action;
-      });
+      return step
+        .map(actionData => StatesManager.getActionInstance(actionData))
+        .filter(step => step);
     });
+    this.history = this.history.filter(step => step.length);
+    this.historyIndex = this.history.length - 1;
     this.updateMenuState();
   }
 

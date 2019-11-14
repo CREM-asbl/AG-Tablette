@@ -8,6 +8,8 @@ export class MergeAction extends Action {
   constructor() {
     super();
 
+    this.name = 'MergeAction';
+
     //Première forme
     this.firstShapeId = null;
 
@@ -53,8 +55,8 @@ export class MergeAction extends Action {
 
     //Calculer la liste des morceaux de formes (parts: liste de tableaux
     //de buildSteps)
-    let toDeleteInShape1 = commonSegments.filter(x => x.shape == 1),
-      toDeleteInShape2 = commonSegments.filter(x => x.shape == 2),
+    let toDeleteInShape1 = commonSegments.filter(x => x.shape === 1),
+      toDeleteInShape2 = commonSegments.filter(x => x.shape === 2),
       parts = [],
       mainRefPoint = Points.copy(shape1);
     toDeleteInShape1.sort((a, b) => a.start - b.start);
@@ -130,6 +132,7 @@ export class MergeAction extends Action {
       newPart.push(reversed[part.length - 1].copy());
       return newPart;
     };
+
     let changed = true;
     while (changed) {
       changed = false;

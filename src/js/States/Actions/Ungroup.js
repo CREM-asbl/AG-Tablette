@@ -1,77 +1,74 @@
-import { app } from '../../App'
-import { Action } from './Action'
-import { Shape } from '../../Objects/Shape'
-import { ShapeGroup } from '../../Objects/ShapeGroup'
+import { app } from '../../App';
+import { Action } from './Action';
+import { Shape } from '../../Objects/Shape';
+import { ShapeGroup } from '../../Objects/ShapeGroup';
 
 export class UngroupAction extends Action {
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        //L'id du groupe que l'on supprime
-        this.groupId = null;
+    this.name = 'UngroupAction';
 
-        //Liste des id des formes du groupe qui a été supprimé
-        this.groupShapesIds = null;
+    //L'id du groupe que l'on supprime
+    this.groupId = null;
 
-        //Index (dans le tableau de groupes) du groupe qui a été supprimé
-        this.groupIndex = null;
-    }
+    //Liste des id des formes du groupe qui a été supprimé
+    this.groupShapesIds = null;
 
-    saveToObject() {
-        let save = {
-            
-            'groupId': this.groupId,
-            'groupShapesIds': this.groupShapesIds,
-            'groupIndex': this.groupIndex
-        };
-        return save;
-    }
+    //Index (dans le tableau de groupes) du groupe qui a été supprimé
+    this.groupIndex = null;
+  }
 
-    initFromObject(save) {
-        
-        this.groupId = save.groupId;
-        this.groupShapesIds = save.groupShapesIds;
-        this.groupIndex = save.groupIndex;
-    }
+  saveToObject() {
+    let save = {
+      groupId: this.groupId,
+      groupShapesIds: this.groupShapesIds,
+      groupIndex: this.groupIndex,
+    };
+    return save;
+  }
 
-    checkDoParameters() {
-        if(!this.groupId)
-            return false;
-        return true;
-    }
+  initFromObject(save) {
+    this.groupId = save.groupId;
+    this.groupShapesIds = save.groupShapesIds;
+    this.groupIndex = save.groupIndex;
+  }
 
-    checkUndoParameters() {
-        if(!this.groupId || !Number.isFinite(this.groupIndex))
-            return false;
-        if(!this.groupShapesIds || this.groupShapesIds.length<2)
-            return false;
-        return true;
-    }
+  checkDoParameters() {
+    if (!this.groupId) return false;
+    return true;
+  }
 
-    do() {
-        if(!this.checkDoParameters()) return;
+  checkUndoParameters() {
+    if (!this.groupId || !Number.isFinite(this.groupIndex)) return false;
+    if (!this.groupShapesIds || this.groupShapesIds.length < 2) return false;
+    return true;
+  }
 
-        this.groupShapesIds = [];
-        let group = app.workspace.getGroup(this.groupId);
-        this.groupIndex = app.workspace.getGroupIndex(group);
+  do() {
+    if (!this.checkDoParameters()) return;
 
-        group.shapes.forEach(shape => {
-            this.groupShapesIds.push(shape.id);
-        });
-        app.workspace.deleteGroup(group);
-    }
+    this.groupShapesIds = [];
+    let group = app.workspace.getGroup(this.groupId);
+    this.groupIndex = app.workspace.getGroupIndex(group);
 
-    undo() {
-        if(!this.checkUndoParameters()) return;
+    group.shapes.forEach(shape => {
+      this.groupShapesIds.push(shape.id);
+    });
+    app.workspace.deleteGroup(group);
+  }
 
-        let shape1 = app.workspace.getShapeById(this.groupShapesIds[0]),
-            shape2 = app.workspace.getShapeById(this.groupShapesIds[1]),
-            group = new ShapeGroup(shape1, shape2);
-        group.id = this.groupId;
-        this.groupShapesIds.slice(2).forEach(shapeId => {
-            let shape = app.workspace.getShapeById(shapeId);
-            group.addShape(shape);
-        });
-        app.workspace.addGroup(group, 'user', this.groupIndex);
-    }
+  undo() {
+    if (!this.checkUndoParameters()) return;
+
+    let shape1 = app.workspace.getShapeById(this.groupShapesIds[0]),
+      shape2 = app.workspace.getShapeById(this.groupShapesIds[1]),
+      group = new ShapeGroup(shape1, shape2);
+    group.id = this.groupId;
+    this.groupShapesIds.slice(2).forEach(shapeId => {
+      let shape = app.workspace.getShapeById(shapeId);
+      group.addShape(shape);
+    });
+    app.workspace.addGroup(group, 'user', this.groupIndex);
+  }
 }

@@ -6,6 +6,8 @@ export class CreateAction extends Action {
   constructor() {
     super();
 
+    this.name = 'CreateAction';
+
     //La forme que l'on souhaite ajouter
     this.shapeToAdd = null;
 

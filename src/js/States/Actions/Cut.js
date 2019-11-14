@@ -7,6 +7,8 @@ export class CutAction extends Action {
   constructor() {
     super();
 
+    this.name = 'CutAction';
+
     //L'id de la forme
     this.shapeId = null;
 
