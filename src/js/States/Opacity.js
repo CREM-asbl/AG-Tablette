@@ -48,7 +48,6 @@ export class OpacityState extends State {
 
     this.executeAction();
     let opacity = this.actions[0].opacity;
-    this.actions[0] = new OpacityAction(this.name);
     this.setOpacity(opacity);
 
     app.drawAPI.askRefresh();

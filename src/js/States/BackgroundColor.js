@@ -1,5 +1,6 @@
 import { app } from '../App';
 import { BackgroundColorAction } from './Actions/BackgroundColor';
+import { OpacityAction } from './Actions/Opacity';
 import { State } from './State';
 
 /**
@@ -17,6 +18,7 @@ export class BackgroundColorState extends State {
    */
   start(callColorPicker = true) {
     this.actions = [new BackgroundColorAction(this.name)];
+    this.actions[1] = new OpacityAction(this.name);
 
     this.currentStep = 'choose-color';
 
@@ -24,6 +26,11 @@ export class BackgroundColorState extends State {
 
     if (callColorPicker) document.querySelector('#color-picker-label').click();
     app.appDiv.cursor = 'default';
+  }
+
+  setOpacity(opacity) {
+    this.actions[1].opacity = opacity;
+    this.currentStep = 'listen-canvas-click';
   }
 
   setColor(color) {
@@ -54,6 +61,17 @@ export class BackgroundColorState extends State {
     let color = this.actions[0].selectedColor;
     this.start(false);
     this.setColor(color);
+
+    // setOpacity quand transparent
+
+    this.actions[1].shapeId = shape.id;
+    if (group) involvedShapes = [...group.shapes];
+    this.actions[1].involvedShapesIds = involvedShapes.map(s => s.id);
+
+    if (shape.opacity == 0) {
+      this.setOpacity(0.7);
+      this.executeAction();
+    }
 
     app.drawAPI.askRefresh();
   }
