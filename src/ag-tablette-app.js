@@ -420,7 +420,7 @@ class AGTabletteApp extends LitElement {
     } else if (event.target.name === 'save') {
       this.shadowRoot.querySelector('save-popup').style.display = 'block';
     } else if (event.target.name === 'new') {
-      this.shadowRoot.querySelector('new-popup').open();
+      this.shadowRoot.querySelector('new-popup').style.display = 'block';
     } else if (event.target.name === 'grid_menu') {
       this.shadowRoot.querySelector('grid-popup').style.display = 'block';
     } else if (event.target.name === 'tangram_menu') {
