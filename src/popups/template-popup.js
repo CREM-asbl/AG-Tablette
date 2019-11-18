@@ -30,12 +30,6 @@ export class TemplatePopup extends LitElement {
         margin: 0;
       }
 
-      .save-settings-form {
-        height: calc(100% - 160px);
-        overflow: auto;
-        padding: 16px;
-      }
-
       .field {
         display: flex;
         align-items: center;
@@ -50,6 +44,12 @@ export class TemplatePopup extends LitElement {
       input[type='checkbox'] {
         height: 24px;
         width: 24px;
+      }
+
+      [slot='body'] {
+        height: calc(100% - 160px);
+        overflow: auto;
+        padding: 16px;
       }
 
       label {

@@ -20,7 +20,7 @@ class SavePopup extends LitElement {
     return html`
       <template-popup @close-popup="${() => (this.style.display = 'none')}">
         <h2 slot="title">Sauvegarder l'état</h2>
-        <div slot="body">
+        <div slot="body" id="body">
           <div class="field">
             <input
               type="checkbox"

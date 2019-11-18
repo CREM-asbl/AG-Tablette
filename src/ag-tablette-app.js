@@ -2,7 +2,7 @@ import { LitElement, html } from 'lit-element';
 import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
-import './popups/app-settings';
+import './popups/settings-popup';
 import './popups/save-popup';
 import './flex-toolbar';
 import './icon-button';
@@ -388,7 +388,7 @@ class AGTabletteApp extends LitElement {
 
       <shapes-list .state="${this.state}"></shapes-list>
 
-      <app-settings></app-settings>
+      <settings-popup></settings-popup>
 
       <save-popup></save-popup>
 
@@ -416,7 +416,7 @@ class AGTabletteApp extends LitElement {
   _actionHandle(event) {
     this.cursor = 'default';
     if (event.target.name == 'settings') {
-      this.shadowRoot.querySelector('app-settings').style.display = 'block';
+      this.shadowRoot.querySelector('settings-popup').style.display = 'block';
     } else if (event.target.name === 'save') {
       this.shadowRoot.querySelector('save-popup').style.display = 'block';
     } else if (event.target.name === 'new') {
