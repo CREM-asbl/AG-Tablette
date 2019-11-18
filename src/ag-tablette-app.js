@@ -3,7 +3,7 @@ import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
 import './popups/app-settings';
-import './popups/save-settings';
+import './popups/save-popup';
 import './flex-toolbar';
 import './icon-button';
 import './js/Manifest';
@@ -390,7 +390,7 @@ class AGTabletteApp extends LitElement {
 
       <app-settings></app-settings>
 
-      <save-settings></save-settings>
+      <save-popup></save-popup>
 
       <grid-popup></grid-popup>
 
@@ -418,7 +418,7 @@ class AGTabletteApp extends LitElement {
     if (event.target.name == 'settings') {
       this.shadowRoot.querySelector('app-settings').style.display = 'block';
     } else if (event.target.name === 'save') {
-      this.shadowRoot.querySelector('save-settings').style.display = 'block';
+      this.shadowRoot.querySelector('save-popup').style.display = 'block';
     } else if (event.target.name === 'new') {
       this.shadowRoot.querySelector('new-popup').open();
     } else if (event.target.name === 'grid_menu') {
