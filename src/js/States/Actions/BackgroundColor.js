@@ -1,6 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { Shape } from '../../Objects/Shape';
+import { getComplementaryColor } from '../../Tools/general';
 
 export class BackgroundColorAction extends Action {
   constructor() {
@@ -60,6 +61,8 @@ export class BackgroundColorAction extends Action {
       let s = app.workspace.getShapeById(id);
       this.oldColors.push(s.color);
       s.color = this.selectedColor;
+      s.second_color = getComplementaryColor(s.color);
+      if (s.isBiface && s.isReversed) [s.color, s.second_color] = [s.second_color, s.color];
     });
   }
 
@@ -71,6 +74,7 @@ export class BackgroundColorAction extends Action {
     this.involvedShapesIds.forEach((id, index) => {
       let s = app.workspace.getShapeById(id);
       s.color = this.oldColors[index];
+      s.second_color = getComplementaryColor(s.color);
     });
   }
 }

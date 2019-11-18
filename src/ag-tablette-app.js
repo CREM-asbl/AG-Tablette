@@ -359,6 +359,14 @@ class AGTabletteApp extends LitElement {
               </icon-button>
               <icon-button
                 src="/images/grille.svg"
+                title="Biface"
+                name="biface"
+                ?active="${this.state.name === 'biface'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/grille.svg"
                 title="Grille"
                 name="grid_menu"
                 @click="${this._actionHandle}"

@@ -77,7 +77,6 @@ class SavePopup extends LitElement {
   }
 
   saveToFile(fileName) {
-    console.log('here');
     if (!fileName) fileName = 'untitled';
 
     let { history, settings, ...saveObject } = {

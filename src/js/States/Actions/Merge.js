@@ -231,6 +231,8 @@ export class MergeAction extends Action {
   }
 
   getCommonSegments(shape1, shape2) {
+    console.log(shape1);
+    console.log(shape2);
     let commonSegments = [];
     shape1.buildSteps.forEach((bs1, index1) => {
       if (bs1.type != 'segment' || bs1.isArc) return;

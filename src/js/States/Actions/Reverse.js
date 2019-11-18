@@ -101,6 +101,9 @@ export class ReverseAction extends Action {
     arch.center = { x: 0, y: 0 };
     shape.x = newShapeCenter.x;
     shape.y = newShapeCenter.y;
+    if (!shape.haveBeenReversed && progression > 0.5)
+      // milieu animation
+      shape.isReversed = !shape.isReversed;
 
     shape.buildSteps.forEach(bs => {
       let transformation = this.computePointPosition(bs.coordinates, arch, progression);
@@ -113,7 +116,6 @@ export class ReverseAction extends Action {
         });
       }
     });
-    shape.isReversed = !shape.isReversed;
 
     arch.center = saveAxeCenter;
   }

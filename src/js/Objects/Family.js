@@ -1,6 +1,7 @@
 import { uniqId } from '../Tools/general';
 import { ShapeBuildStep } from '../Objects/ShapeBuildStep';
 import { Shape } from './Shape';
+import { getComplementaryColor } from '../Tools/general';
 
 /**
  * Une famille de formes.
@@ -32,6 +33,7 @@ export class Family {
     let shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
     shape.setBuildStepsFromString(steps);
     shape.color = color ? color : this.defaultColor;
+    shape.second_color = getComplementaryColor(shape.color);
 
     this.shapes.push(shape);
   }
