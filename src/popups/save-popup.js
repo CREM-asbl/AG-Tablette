@@ -7,9 +7,18 @@ class SavePopup extends LitElement {
   static get properties() {
     return {
       filename: { type: String },
-      save_parameters: { type: Boolean },
+      save_settings: { type: Boolean },
       save_history: { type: Boolean },
+      save_format: { type: String },
     };
+  }
+
+  constructor() {
+    super();
+    this.filename = '';
+    this.save_settings = true;
+    this.save_history = true;
+    this.save_format = 'fag';
   }
 
   static get styles() {
@@ -28,7 +37,7 @@ class SavePopup extends LitElement {
               type="checkbox"
               name="save_popup_settings"
               id="save_popup_settings"
-              ?checked="${this.save_parameters}"
+              ?checked="${this.save_settings}"
               @change="${this._actionHandle}"
             />
             <label for="save_popup_settings">Sauvegarder les paramètres</label>
@@ -48,6 +57,21 @@ class SavePopup extends LitElement {
           </div>
 
           <br />
+
+          <label style="display:inline" for="save_popup_format">Format</label>
+          <select name="save_popup_format" id="save_popup_format" @change="${this._actionHandle}">
+            <option value="fag" ?selected="${this.save_format == 'fag'}">
+              fag
+            </option>
+            <option value="png" ?selected="${this.save_format == 'png'}">
+              png
+            </option>
+            <option value="svg" ?selected="${this.save_format == 'svg'}">
+              svg
+            </option>
+          </select>
+
+          <br /><br />
 
           <div class="field">
             <label for="save_popup_filename">Nom du fichier</label>
@@ -69,16 +93,44 @@ class SavePopup extends LitElement {
     `;
   }
 
-  constructor() {
-    super();
-    this.filename = '';
-    this.save_parameters = true;
-    this.save_history = true;
+  downloadFile(fileName, url) {
+    const downloader = document.createElement('a');
+    downloader.href = url;
+    downloader.download = fileName;
+    downloader.target = '_blank';
+    document.body.appendChild(downloader);
+    downloader.click();
+    document.body.removeChild(downloader);
   }
 
-  saveToFile(fileName) {
-    if (!fileName) fileName = 'untitled';
+  saveToSvg(fileName) {
+    const ctx = app.drawAPI.canvas.main;
 
+    let svg_data =
+      '<svg width="' +
+      ctx.width +
+      '" height="' +
+      ctx.height +
+      '" \
+      xmlns="http://www.w3.org/2000/svg" >\n';
+    app.workspace.shapes.forEach(shape => {
+      svg_data += shape.to_svg() + '\n';
+    });
+    svg_data += '</svg>';
+
+    const encodedData = 'data:image/svg+xml;base64,' + btoa(svg_data);
+
+    this.downloadFile(fileName + '.svg', encodedData);
+  }
+
+  saveToPng(fileName) {
+    const ctx = app.drawAPI.canvas.main;
+    const image = ctx.toDataURL();
+
+    this.downloadFile(fileName + '.png', image);
+  }
+
+  saveToFag(fileName) {
     let { history, settings, ...saveObject } = {
       ...app.workspace.data,
       appSettings: app.settings.data,
@@ -87,19 +139,32 @@ class SavePopup extends LitElement {
     if (this.save_history) saveObject.history = history;
     else saveObject.history = { history: [], historyIndex: -1 };
 
-    if (this.save_parameters) saveObject.settings = settings;
+    if (this.save_settings) saveObject.settings = settings;
 
     let json = JSON.stringify(saveObject);
 
     const file = new Blob([json], { type: 'application/json' });
+    const data = window.URL.createObjectURL(file);
 
-    const downloader = document.createElement('a');
-    downloader.href = window.URL.createObjectURL(file);
-    downloader.download = fileName + '.fag';
-    downloader.target = '_blank';
-    document.body.appendChild(downloader);
-    downloader.click();
-    document.body.removeChild(downloader);
+    this.downloadFile(fileName + '.fag', data);
+  }
+
+  saveToFile(fileName) {
+    if (!fileName) fileName = 'untitled';
+
+    switch (this.save_format) {
+      case 'fag':
+        this.saveToFag(fileName);
+        break;
+      case 'png':
+        this.saveToPng(fileName);
+        break;
+      case 'svg':
+        this.saveToSvg(fileName);
+        break;
+      default:
+        console.log('unknown file format: ' + this.save_format);
+    }
   }
 
   /**
@@ -108,7 +173,7 @@ class SavePopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'save_popup_settings':
-        this.save_parameters = !this.save_parameters;
+        this.save_settings = !this.save_settings;
         break;
 
       case 'save_popup_history':
@@ -122,6 +187,14 @@ class SavePopup extends LitElement {
       case 'save_popup_submit':
         this.style.display = 'none';
         this.saveToFile(this.filename);
+        break;
+
+      case 'save_popup_format':
+        this.save_format = event.path[0].value;
+        if (this.save_format != 'fag') {
+          this.save_history = false;
+          this.save_settings = false;
+        }
         break;
 
       default:
