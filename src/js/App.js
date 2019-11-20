@@ -147,6 +147,13 @@ export class App {
       //Par exemple, annule des setTimeout/Interval.
       this.state.abort();
     }
+    if (stateName == null) {
+      this.state = null;
+      window.dispatchEvent(new CustomEvent('app-state-changed', { detail: this.state }));
+      this.drawAPI.askRefresh();
+      this.drawAPI.askRefresh('upper');
+      return;
+    }
     //Reset state-menu
     this.stateMenu.configureButtons([]);
 

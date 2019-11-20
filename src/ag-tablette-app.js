@@ -341,13 +341,12 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-              <!--
-                        <icon-button src="/images/wallpaper.svg"
+
+              <!-- <icon-button src="/images/wallpaper.svg"
                                 title="Fond d'écran"
                                 name="border_color"
                                 @click="\${this.loadBackground}">
-                        </icon-button>
-                        -->
+                        </icon-button> -->
 
               <icon-button
                 src="/images/backplane.svg"
@@ -434,17 +433,20 @@ class AGTabletteApp extends LitElement {
     } else if (event.target.name === 'tangram_menu') {
       this.shadowRoot.querySelector('tangram-popup').style.display = 'block';
     } else if (event.target.name == 'undo') {
-      if (this.canUndo) window.app.workspace.history.undo();
+      if (this.canUndo) app.workspace.history.undo();
     } else if (event.target.name == 'redo') {
-      if (this.canRedo) window.app.workspace.history.redo();
+      if (this.canRedo) app.workspace.history.redo();
     } else if (event.target.name === 'create_shape') {
       app.setState(event.target.name, event.target.family);
+      return;
     } else if (StatesManager.getStateText(event.target.name)) {
-      window.app.setState(event.target.name);
+      app.setState(event.target.name);
+      return;
     } else {
       console.error('AGTabletteApp._actionHandle: received unknown event:');
       console.error(event);
     }
+    app.setState(null);
   }
 
   // Todo: Placer dans un objet BackgroundImage ?

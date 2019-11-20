@@ -19,6 +19,9 @@ export class CreateState extends State {
     //La forme que l'on va ajouter (on ajoute une copie de cette forme)
     this.selectedShape = null;
 
+    //Shape temporaire (pour le deplacement)
+    this.tempShape = null;
+
     this.lastCreationTimestamp = null;
   }
 
@@ -28,7 +31,6 @@ export class CreateState extends State {
    */
   start(family, timestamp = 0) {
     this.selectedFamily = family;
-    this.actions = [new CreateAction(this.name)];
     this.selectedShape = null;
     this.currentStep = 'show-family-shapes';
     this.lastCreationTimestamp = timestamp;
@@ -36,34 +38,84 @@ export class CreateState extends State {
   }
 
   setShape(shape) {
+    this.actions = [new CreateAction(this.name)];
     this.selectedShape = shape;
     this.currentStep = 'listen-canvas-click';
     window.dispatchEvent(new CustomEvent('app-state-changed', { detail: app.state }));
   }
 
-  onClick(mouseCoordinates) {
+  onMouseDown(mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
     if (Date.now() - this.lastCreationTimestamp < 300) {
       console.log('clics trop rapprochés');
       return;
     }
-    let shape = this.selectedShape.copy(),
-      shapeSize = app.settings.get('shapesSize');
+    this.tempShape = this.selectedShape.copy();
+    let shapeSize = app.settings.get('shapesSize');
+    this.startClickCoordinates = mouseCoordinates;
+    this.involvedShapes = [this.tempShape];
 
-    shape.setScale(shapeSize);
+    this.tempShape.setScale(shapeSize);
+    this.tempShape.coordinates = mouseCoordinates;
 
-    let translation = getNewShapeAdjustment(mouseCoordinates),
-      coordinates = Points.add(mouseCoordinates, translation);
-
-    this.actions[0].shapeToAdd = shape;
-    this.actions[0].coordinates = coordinates;
+    this.actions[0].shapeToAdd = this.tempShape;
+    this.actions[0].coordinates = mouseCoordinates;
     this.actions[0].shapeSize = shapeSize;
+    this.actions[0].isTemporary = true;
+    this.actions[0].shapeId = this.actions[0].shapeToAdd.id;
+
+    this.currentStep = 'moving-shape';
 
     this.executeAction();
-    shape = this.selectedShape;
-    this.start(this.selectedFamily, Date.now());
-    this.setShape(shape);
 
+    app.drawAPI.askRefresh('upper');
+    app.drawAPI.askRefresh();
+  }
+
+  onMouseMove(mouseCoordinates) {
+    if (this.currentStep != 'moving-shape') return;
+
+    let transformation = {
+      x: mouseCoordinates.x - this.startClickCoordinates.x,
+      y: mouseCoordinates.y - this.startClickCoordinates.y,
+    };
+
+    this.involvedShapes.forEach(s => {
+      let newCoords = {
+        x: s.x + transformation.x,
+        y: s.y + transformation.y,
+      };
+
+      s.setCoordinates(newCoords);
+    });
+
+    this.startClickCoordinates = mouseCoordinates;
+
+    app.drawAPI.askRefresh('upper');
+    app.drawAPI.askRefresh();
+  }
+
+  onMouseUp(mouseCoordinates) {
+    if (this.currentStep != 'moving-shape') return;
+
+    //  let translation = getNewShapeAdjustment(mouseCoordinates),
+    //   coordinates = Points.add(mouseCoordinates, translation);
+
+    let coordinates = mouseCoordinates;
+
+    this.tempShape.coordinates = coordinates;
+    this.actions[0].shapeToAdd = this.tempShape.copy();
+    this.actions[0].isTemporary = false;
+    this.actions[0].shapeId = this.actions[0].shapeToAdd.id;
+    this.actions[0].coordinates = coordinates;
+
+    app.workspace.deleteShape(this.tempShape);
+
+    console.log(this.actions[0].shapeId);
+
+    this.executeAction();
+    this.setShape(this.selectedShape);
+    app.drawAPI.askRefresh('upper');
     app.drawAPI.askRefresh();
   }
 }

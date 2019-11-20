@@ -556,6 +556,81 @@ export class Shape {
     return path;
   }
 
+  /**
+   * convertit point en balise circle de svg
+   */
+  point_to_svg(coordinates, color = '#000', size = 1) {
+    let absolute_coord = Points.add(coordinates, { x: this.x, y: this.y });
+    absolute_coord = Points.multInt(absolute_coord, app.workspace.zoomLevel);
+    absolute_coord = Points.add(absolute_coord, {
+      x: app.workspace.translateOffset.x,
+      y: app.workspace.translateOffset.y,
+    });
+    return (
+      '<circle cx="' +
+      absolute_coord.x +
+      '" cy="' +
+      absolute_coord.y +
+      '" r="' +
+      size * 2 * app.workspace.zoomLevel +
+      '" fill="' +
+      color +
+      '" />\n'
+    );
+  }
+
+  /**
+   * convertit shape en balise path de svg
+   */
+  to_svg() {
+    let path = '';
+    this.buildSteps.forEach(buildStep => {
+      let point = Points.add(
+        { x: buildStep.coordinates.x, y: buildStep.coordinates.y },
+        { x: this.x, y: this.y },
+      );
+      point = Points.multInt(point, app.workspace.zoomLevel);
+      point = Points.add(point, {
+        x: app.workspace.translateOffset.x,
+        y: app.workspace.translateOffset.y,
+      });
+      if (buildStep.type == 'moveTo') path += 'M ' + point.x + ' ' + point.y + ' ';
+      else if (buildStep.type == 'segment') path += 'L ' + point.x + ' ' + point.y + ' ';
+    });
+    path += 'Z ';
+    let attributes = {
+      d: path,
+      stroke: this.borderColor,
+      fill: this.isBiface && this.isReversed ? this.second_color : this.color,
+      'fill-opacity': this.opacity,
+      'stroke-width': 1, // toujours a 1 ?
+      'stroke-opacity': this.opacity,
+    };
+
+    let path_tag = '<path';
+    for (let [key, value] of Object.entries(attributes)) {
+      path_tag += ' ' + key + '="' + value + '"';
+    }
+    path_tag += '/>\n';
+
+    let point_tags = '';
+    if (app.settings.get('areShapesPointed')) {
+      this.buildSteps
+        .filter(bs => bs.type === 'vertex')
+        .forEach(bs => (point_tags += this.point_to_svg(bs.coordinates, '#000', 1)));
+    }
+    this.buildSteps
+      .filter(bs => bs.type === 'segment')
+      .forEach(bs => {
+        //Points sur les segments
+        bs.points.forEach(pt => {
+          point_tags += this.point_to_svg(pt, '#000', 1);
+        });
+      });
+    if (this.isCenterShown) point_tags += this.point_to_svg(this.center, '#000', 1);
+    return path_tag + point_tags;
+  }
+
   saveToObject() {
     let save = {
       id: this.id,
