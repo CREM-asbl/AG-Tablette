@@ -39,7 +39,13 @@ export class Shape {
       if (step.type === 'moveTo') return new MoveTo(step);
       if (step.type === 'vertex') return new Vertex(step);
       if (step.type === 'segment')
-        return new Segment({ ...step, x0: buildSteps[index - 1].x, y0: buildSteps[index - 1].y });
+        return new Segment(
+          {
+            x: buildSteps[index - 1].x,
+            y: buildSteps[index - 1].y,
+          },
+          { x: step.x, y: step.y },
+        );
       console.error('No valid type');
       return null;
     });
@@ -50,11 +56,7 @@ export class Shape {
       if (bsData.type === 'vertex') return new Vertex(bsData.coordinates);
       else if (bsData.type === 'moveTo') return new MoveTo(bsData.coordinates);
       else {
-        let segment = new Segment({
-          ...bsData,
-          x0: buildSteps[index - 1].coordinates.x,
-          y0: buildSteps[index - 1].coordinates.y,
-        });
+        let segment = new Segment(buildSteps[index - 1].coordinates, bsData.coordinates);
         bsData.points.forEach(pt => segment.addPoint(pt));
         return segment;
       }
@@ -84,17 +86,13 @@ export class Shape {
   isPointOnSegment(point) {
     if (!this.isOnlySegment()) return false;
 
-    const relativesCoordinates = {
-      x: point.x - this.x,
-      y: point.y - this.y,
-    };
     const segment = this.buildSteps.filter(buildstep => buildstep.type === 'segment')[0];
 
-    let projection = segment.projectionPointOnSegment(relativesCoordinates);
+    let projection = segment.projectionPointOnSegment(point);
 
     if (!segment.isPointOnSegment(projection)) return false;
 
-    let dist = distanceBetweenPoints(relativesCoordinates, projection);
+    let dist = distanceBetweenPoints(point, projection);
 
     if (dist <= app.settings.get('selectionDistance')) return true;
     return false;
@@ -506,8 +504,10 @@ export class Shape {
    * @param {{x: float, y: float}} coordinates les coordonnées
    */
   setCoordinates(coordinates) {
+    const translation = Points.sub(coordinates, { x: this.x, y: this.y });
     this.x = coordinates.x;
     this.y = coordinates.y;
+    this.buildSteps.forEach(bs => bs.translate(translation));
   }
 
   /**
@@ -594,5 +594,9 @@ export class Shape {
 
   setScale(size) {
     this.buildSteps.forEach(bs => bs.setScale(size));
+  }
+
+  getSegments() {
+    return this.buildSteps.filter(bs => bs.type === 'segment');
   }
 }

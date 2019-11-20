@@ -1,5 +1,6 @@
 import { Points } from '../Tools/points';
 import { rotatePoint } from '../Tools/geometry';
+import { app } from '../App';
 
 export class ShapeBuildStep {
   constructor(type) {
@@ -22,14 +23,18 @@ export class ShapeBuildStep {
   rotate(angle) {
     this.coordinates = rotatePoint(this.coordinates, angle, { x: 0, y: 0 });
   }
+
+  translate(coordinates) {
+    this.coordinates = Points.add(this.coordinates, coordinates);
+  }
 }
 
-//Todo : Refactorer en Objet externe
+//Todo : Refactorer en Objet externe une fois que coordinates plus nécessaire
 export class Segment extends ShapeBuildStep {
-  constructor({ x0, y0, x, y, coordinates, isArc = false, vertexes }) {
+  constructor(point1, point2, isArc = false) {
     super('segment');
-    this.coordinates = coordinates || { x, y };
-    this.vertexes = vertexes || [{ x: x0, y: y0 }, this.coordinates];
+    this.coordinates = point2;
+    this.vertexes = [point1, point2];
     this.points = [];
     this.isArc = isArc;
   }
@@ -51,13 +56,14 @@ export class Segment extends ShapeBuildStep {
   }
 
   copy() {
-    let copy = new Segment(this);
+    let copy = new Segment(this.vertexes[0], this.vertexes[1], this.isArc);
     this.points.forEach(p => {
       copy.addPoint(p);
     });
     return copy;
   }
 
+  //TODO: Simplifier la sauvegarde d'un segment et être plus proche des définitions dans les Kits
   saveToObject() {
     const save = {
       type: 'segment',
@@ -127,6 +133,15 @@ export class Segment extends ShapeBuildStep {
       pt.x = pointCoords.x;
       pt.y = pointCoords.y;
     });
+  }
+
+  translate(coordinates) {
+    super.translate(coordinates);
+    this.vertexes = this.vertexes.map(vertex => Points.add(vertex, coordinates));
+  }
+
+  reverse() {
+    this.vertexes.reverse();
   }
 }
 

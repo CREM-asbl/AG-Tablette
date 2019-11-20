@@ -72,7 +72,7 @@ export class MoveState extends State {
    * @param  {{x: float, y: float}} mouseCoordinates les coordonnées de la souris
    * @param  {Event} event            l'événement javascript
    */
-  onMouseUp(mouseCoordinates, event) {
+  onMouseUp(mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;
 
     let translation = Points.sub(mouseCoordinates, this.startClickCoordinates),

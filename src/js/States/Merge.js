@@ -57,7 +57,7 @@ export class MergeState extends State {
     let shape1 = this.firstShape,
       shape2 = shape;
 
-    if (this.actions[0].getCommonSegments(shape1, shape2).length == 0) {
+    if (!this.actions[0].hasCommonSegment(shape1, shape2)) {
       console.log('no common segments');
       return;
     }

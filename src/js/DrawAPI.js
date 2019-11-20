@@ -127,7 +127,6 @@ export class DrawAPI {
     ctx.fillStyle = shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
-    ctx.translate(shape.x, shape.y);
 
     ctx.fill(shape.path);
     ctx.globalAlpha = 1;
@@ -150,7 +149,6 @@ export class DrawAPI {
     if (shape.isCenterShown) this.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
     ctx.restore();
 
-    ctx.translate(-shape.x, -shape.y);
     ctx.lineWidth = 1;
   }
 
@@ -249,7 +247,6 @@ export class DrawAPI {
   isPointInShape(point, shape) {
     const ctx = this.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.translate(shape.x, shape.y);
     const selected = ctx.isPointInPath(shape.path, point.x, point.y);
     return selected;
   }

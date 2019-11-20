@@ -14,7 +14,7 @@ export class MoveAction extends Action {
     this.transformation = null;
 
     /*
-        Liste des formes solidaires à la la forme que l'on déplace, y compris
+        Liste des formes solidaires à la forme que l'on déplace, y compris
         la forme elle-même
          */
     this.involvedShapesIds = [];
