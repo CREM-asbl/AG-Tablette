@@ -1,8 +1,6 @@
 import { app } from '../App';
 import { CreateAction } from './Actions/Create';
 import { State } from './State';
-import { Points } from '../Tools/points';
-import { getNewShapeAdjustment } from '../Tools/automatic_adjustment';
 
 /**
  * Ajout de formes sur l'espace de travail

@@ -58,12 +58,12 @@ export class DivideState extends State {
    * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(object, clickCoordinates, event) {
+  objectSelected(object) {
     if (this.currentStep != 'listen-canvas-click' && this.currentStep != 'select-second-point')
       return;
 
     if (this.currentStep == 'listen-canvas-click') {
-      if (object.type == 'segment') {
+      if (object.type === 'segment') {
         this.actions[0].shapeId = object.shape.id;
         this.actions[0].mode = 'segment';
         this.actions[0].segmentIndex = object.index;

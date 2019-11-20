@@ -89,6 +89,7 @@ export class DivideAction extends Action {
   }
 
   segmentModeAddArcPoints() {
+    console.log('segmentModeAddArcPoints');
     this.createdPoints = [];
     let shape = app.workspace.getShapeById(this.shapeId),
       bs = shape.buildSteps,

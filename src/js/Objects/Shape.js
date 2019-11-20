@@ -49,6 +49,7 @@ export class Shape {
             y: buildSteps[index - 1].y,
           },
           { x: step.x, y: step.y },
+          step.isArc,
         );
       console.error('No valid type');
       return null;
@@ -60,7 +61,11 @@ export class Shape {
       if (bsData.type === 'vertex') return new Vertex(bsData.coordinates);
       else if (bsData.type === 'moveTo') return new MoveTo(bsData.coordinates);
       else {
-        let segment = new Segment(buildSteps[index - 1].coordinates, bsData.coordinates);
+        let segment = new Segment(
+          buildSteps[index - 1].coordinates,
+          bsData.coordinates,
+          bsData.isArc,
+        );
         bsData.points.forEach(pt => segment.addPoint(pt));
         return segment;
       }
