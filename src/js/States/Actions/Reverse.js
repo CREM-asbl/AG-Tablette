@@ -98,7 +98,6 @@ export class ReverseAction extends Action {
   reverseShape(shape, arch, progression) {
     var saveAxeCenter = arch.center;
     var newShapeCenter = this.computePointPosition(shape, arch, progression);
-    arch.center = { x: 0, y: 0 };
     shape.x = newShapeCenter.x;
     shape.y = newShapeCenter.y;
     if (!shape.haveBeenReversed && progression > 0.5)
@@ -106,9 +105,11 @@ export class ReverseAction extends Action {
       shape.isReversed = !shape.isReversed;
 
     shape.buildSteps.forEach(bs => {
-      let transformation = this.computePointPosition(bs.coordinates, arch, progression);
+      const transformation = this.computePointPosition(bs.coordinates, arch, progression);
       bs.coordinates = transformation;
       if (bs.type == 'segment') {
+        const transformation = this.computePointPosition(bs.vertexes[1], arch, progression);
+        bs.vertexes[1] = transformation;
         bs.points.forEach(pt => {
           let pointCoords = this.computePointPosition(pt, arch, progression);
           pt.x = pointCoords.x;

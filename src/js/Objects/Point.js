@@ -1,5 +1,3 @@
-import { app } from '../App';
-
 /**
  * Représente un point du plan
  */
