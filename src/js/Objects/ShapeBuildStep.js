@@ -137,6 +137,7 @@ export class Segment extends ShapeBuildStep {
   translate(coordinates) {
     super.translate(coordinates);
     this.vertexes = this.vertexes.map(vertex => Points.add(vertex, coordinates));
+    this.points = this.points.map(point => Points.add(point, coordinates));
   }
 
   reverse() {
