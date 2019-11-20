@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit-element';
 import { app } from '../js/App';
+import { TemplatePopup } from './template-popup';
 
 class GridPopup extends LitElement {
   constructor() {
@@ -7,118 +8,79 @@ class GridPopup extends LitElement {
     app.popups.grid = this;
   }
 
+  static get styles() {
+    return TemplatePopup.template_popup_styles();
+  }
+
   render() {
     return html`
-      <style>
-        :host {
-          display: none;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          position: absolute;
-          top: 0px;
-          left: 0px;
-        }
-
-        #grid-popup {
-          position: absolute;
-          left: 35%;
-          top: 35%;
-          padding: 20px;
-          border-radius: 10px;
-          border: 2px solid gray;
-          background-color: #ddd;
-          width: 30%;
-          overflow-y: auto;
-          text-align: center;
-          font-size: 20px;
-        }
-
-        #grid-popup-close {
-          position: relative;
-          font-size: 60px;
-          float: right;
-          cursor: pointer;
-          color: #555;
-          box-sizing: content-box;
-          width: 30px;
-          height: 30px;
-          overflow: hidden;
-          line-height: 40%;
-          -webkit-user-select: none;
-          -khtml-user-select: none;
-          -moz-user-select: none;
-          -o-user-select: none;
-          user-select: none;
-        }
-
-        select {
-          font-size: 16px;
-        }
-
-        button {
-          padding: 4px 8px;
-        }
-      </style>
-      <div id="grid-popup">
-        <div id="grid-popup-close" @click="${() => (this.style.display = 'none')}">&times;</div>
-        <br />
-        <div class="field" style="margin-left:8px">
-          <label for="grid_popup_grid_type">Type de grille </label>
-          <select
-            name="grid_popup_grid_type"
-            id="grid_popup_grid_type"
-            @change="${this._actionHandle}"
-          >
-            <option value="none" ?selected="${app.workspace.settings.get('gridType') === 'none'}">
-              Aucune
-            </option>
-            <option value="square" ?selected=${app.workspace.settings.get('gridType') === 'square'}>
-              Carrés
-            </option>
-            <option
-              value="triangle"
-              ?selected=${app.workspace.settings.get('gridType') === 'triangle'}
+      <template-popup
+        @close-popup="${() => this.style.display == 'block' && this.gridPopupValidate()}"
+      >
+        <h2 slot="title">Opacité</h2>
+        <div slot="body" id="body">
+          <div class="field" style="margin-left:8px">
+            <label for="grid_popup_grid_type">Type de grille </label>
+            <select
+              name="grid_popup_grid_type"
+              id="grid_popup_grid_type"
+              @change="${this._actionHandle}"
             >
-              Triangles
-            </option>
-          </select>
+              <option value="none" ?selected="${app.workspace.settings.get('gridType') === 'none'}">
+                Aucune
+              </option>
+              <option
+                value="square"
+                ?selected=${app.workspace.settings.get('gridType') === 'square'}
+              >
+                Carrés
+              </option>
+              <option
+                value="triangle"
+                ?selected=${app.workspace.settings.get('gridType') === 'triangle'}
+              >
+                Triangles
+              </option>
+            </select>
+          </div>
+
+          <br />
+
+          <div class="field" style="margin-left:8px">
+            <label for="grid_popup_grid_size">Taille de la grille </label>
+            <select
+              name="grid_popup_grid_size"
+              id="grid_popup_grid_size"
+              @change="${this._actionHandle}"
+              ?disabled="${app.workspace.settings.get('gridType') === 'none'}"
+            >
+              <option
+                value="0.333333333333333"
+                ?selected="${Math.abs(app.workspace.settings.get('gridSize') - 0.3333333333333) <
+                  0.0001}"
+              >
+                1/3
+              </option>
+              <option value="0.5" ?selected="${app.workspace.settings.get('gridSize') === 0.5}">
+                1/2
+              </option>
+              <option value="1" ?selected="${app.workspace.settings.get('gridSize') === 1}">
+                1
+              </option>
+              <option value="2" ?selected="${app.workspace.settings.get('gridSize') === 2}">
+                2
+              </option>
+              <option value="3" ?selected="${app.workspace.settings.get('gridSize') === 3}">
+                3
+              </option>
+            </select>
+          </div>
         </div>
 
-        <br />
-
-        <div class="field" style="margin-left:8px">
-          <label for="grid_popup_grid_size">Taille de la grille </label>
-          <select
-            name="grid_popup_grid_size"
-            id="grid_popup_grid_size"
-            @change="${this._actionHandle}"
-            ?disabled="${app.workspace.settings.get('gridType') === 'none'}"
-          >
-            <option
-              value="0.333333333333333"
-              ?selected="${Math.abs(app.workspace.settings.get('gridSize') - 0.3333333333333) <
-                0.0001}"
-            >
-              1/3
-            </option>
-            <option value="0.5" ?selected="${app.workspace.settings.get('gridSize') === 0.5}">
-              1/2
-            </option>
-            <option value="1" ?selected="${app.workspace.settings.get('gridSize') === 1}">
-              1
-            </option>
-            <option value="2" ?selected="${app.workspace.settings.get('gridSize') === 2}">
-              2
-            </option>
-            <option value="3" ?selected="${app.workspace.settings.get('gridSize') === 3}">
-              3
-            </option>
-          </select>
+        <div slot="footer">
+          <button @click="${this.gridPopupValidate}">OK</button>
         </div>
-        <br />
-        <button @click="${this.gridPopupValidate}">OK</button>
-      </div>
+      </template-popup>
     `;
   }
 

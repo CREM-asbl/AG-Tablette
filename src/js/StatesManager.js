@@ -19,6 +19,7 @@ import { DivideState } from './States/Divide.js';
 import { MergeState } from './States/Merge.js';
 import { CutState } from './States/Cut.js';
 import { TangramCreatorState } from './States/TangramCreator.js';
+import { BifaceState } from './States/Biface.js';
 
 //Actions:
 import { BackgroundColorAction } from './States/Actions/BackgroundColor.js';
@@ -39,6 +40,7 @@ import { ToBackgroundAction } from './States/Actions/ToBackground.js';
 import { DivideAction } from './States/Actions/Divide.js';
 import { MergeAction } from './States/Actions/Merge.js';
 import { CutAction } from './States/Actions/Cut.js';
+import { BifaceAction } from './States/Actions/Biface.js';
 
 export const StatesManager = {
   actions: {
@@ -95,6 +97,9 @@ export const StatesManager = {
     },
     CutAction: {
       getInstance: () => new CutAction(),
+    },
+    BifaceAction: {
+      getInstance: () => new BifaceAction(),
     },
   },
 
@@ -193,6 +198,11 @@ export const StatesManager = {
       name: 'Créer un tangram',
       instance: null,
       getInstance: () => new TangramCreatorState(),
+    },
+    biface: {
+      name: 'Rendre une shape biface',
+      instance: null,
+      getInstance: () => new BifaceState(),
     },
   },
 

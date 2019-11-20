@@ -2,8 +2,8 @@ import { LitElement, html } from 'lit-element';
 import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
-import './popups/app-settings';
-import './popups/save-settings';
+import './popups/settings-popup';
+import './popups/save-popup';
 import './flex-toolbar';
 import './icon-button';
 import './js/Manifest';
@@ -359,6 +359,14 @@ class AGTabletteApp extends LitElement {
               </icon-button>
               <icon-button
                 src="/images/grille.svg"
+                title="Biface"
+                name="biface"
+                ?active="${this.state.name === 'biface'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/grille.svg"
                 title="Grille"
                 name="grid_menu"
                 @click="${this._actionHandle}"
@@ -388,9 +396,9 @@ class AGTabletteApp extends LitElement {
 
       <shapes-list .state="${this.state}"></shapes-list>
 
-      <app-settings></app-settings>
+      <settings-popup></settings-popup>
 
-      <save-settings></save-settings>
+      <save-popup></save-popup>
 
       <grid-popup></grid-popup>
 
@@ -416,11 +424,11 @@ class AGTabletteApp extends LitElement {
   _actionHandle(event) {
     this.cursor = 'default';
     if (event.target.name == 'settings') {
-      this.shadowRoot.querySelector('app-settings').style.display = 'block';
+      this.shadowRoot.querySelector('settings-popup').style.display = 'block';
     } else if (event.target.name === 'save') {
-      this.shadowRoot.querySelector('save-settings').style.display = 'block';
+      this.shadowRoot.querySelector('save-popup').style.display = 'block';
     } else if (event.target.name === 'new') {
-      this.shadowRoot.querySelector('new-popup').open();
+      this.shadowRoot.querySelector('new-popup').style.display = 'block';
     } else if (event.target.name === 'grid_menu') {
       this.shadowRoot.querySelector('grid-popup').style.display = 'block';
     } else if (event.target.name === 'tangram_menu') {

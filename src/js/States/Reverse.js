@@ -125,6 +125,7 @@ export class ReverseState extends State {
   animate() {
     let progress = this.getAnimationProgress();
     if (progress == 1) {
+      this.involvedShapes.forEach(shape => (shape.haveBeenReversed = false));
       this.executeAction();
       this.start();
       app.drawAPI.askRefresh('upper');

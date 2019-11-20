@@ -31,6 +31,10 @@ export class Shape {
     this.opacity = 0.7;
     this.isCenterShown = false;
     this.isReversed = false;
+
+    this.second_color = '#aaa';
+    this.isBiface = false;
+    this.haveBeenReversed = false;
   }
 
   //Todo: Refactorer
@@ -449,11 +453,10 @@ export class Shape {
      * ->wikipédia: https://en.wikipedia.org/wiki/Sweep_line_algorithm
      * ->explication détaillée: http://www.cs.tufts.edu/comp/163/notes05/seg_intersection_handout.pdf
      */
-    let precision = 50; //la complexité est de:  precision²
+    let precision = 100; //la complexité est de:  precision²
 
     let s1 = this,
       s2 = shape;
-
     //Carré le plus petit contenant les 2 formes:
     let minX = s1.x + s1.buildSteps[0].coordinates.x,
       maxX = s1.x + s1.buildSteps[0].coordinates.x,
@@ -508,6 +511,8 @@ export class Shape {
     let buildStepsCopy = this.buildSteps.map(bs => bs.copy());
     let copy = new Shape(this, buildStepsCopy, this.name, this.familyName);
     copy.color = this.color;
+    copy.second_color = this.second_color;
+    copy.isBiface = this.isBiface;
     copy.borderColor = this.borderColor;
     copy.isCenterShown = this.isCenterShown;
     copy.isReversed = this.isReversed;
@@ -558,6 +563,8 @@ export class Shape {
       name: this.name,
       familyName: this.familyName,
       color: this.color,
+      second_color: this.second_color,
+      isBiface: this.isBiface,
       borderColor: this.borderColor,
       isCenterShown: this.isCenterShown,
       isReversed: this.isReversed,
@@ -575,6 +582,8 @@ export class Shape {
     this.name = save.name;
     this.familyName = save.familyName;
     this.color = save.color;
+    this.second_color = save.second_color;
+    this.isBiface = save.isBiface;
     this.borderColor = save.borderColor;
     this.isCenterShown = save.isCenterShown;
     this.isReversed = save.isReversed;

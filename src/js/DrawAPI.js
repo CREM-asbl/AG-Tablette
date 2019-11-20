@@ -124,7 +124,7 @@ export class DrawAPI {
    */
   drawShape(ctx, shape, borderSize = 1) {
     ctx.strokeStyle = shape.borderColor;
-    ctx.fillStyle = shape.color;
+    ctx.fillStyle = shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
 

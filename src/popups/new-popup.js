@@ -1,45 +1,27 @@
 import { LitElement, html } from 'lit-element';
 import { app } from '../js/App';
+import { TemplatePopup } from './template-popup';
 
 class NewPopup extends LitElement {
+  static get styles() {
+    return TemplatePopup.template_popup_styles();
+  }
+
   render() {
     return html`
-      <style>
-        :host {
-          display: none;
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          align-content: center;
-          justify-content: center;
-        }
+      <template-popup @close-popup="${() => this.style.display === 'block' && this.close()}">
+        <h2 slot="title">Nouvelle fenêtre</h2>
+        <div slot="body" id="body">
+          <p>
+            Voulez-vous vraiment une nouvelle fenêtre ? <br />
+            Attention votre travail actuel sera perdu !
+          </p>
+        </div>
 
-        main {
-          display: block;
-          background: white;
-          padding: 16px;
-          box-shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        footer {
-          display: flex;
-          justify-content: space-around;
-        }
-      </style>
-
-      <main>
-        <p>
-          Voulez-vous vraiment une nouvelle fenêtre ? <br />
-          Attention votre travail actuel sera perdu !
-        </p>
-        <footer>
-          <button @click="${this.close}">Annuler</button>
+        <div slot="footer">
           <button @click="${this.confirm}">OK</button>
-        </footer>
-      </main>
+        </div>
+      </template-popup>
     `;
   }
 
@@ -50,10 +32,6 @@ class NewPopup extends LitElement {
 
   close() {
     this.style.display = 'none';
-  }
-
-  open() {
-    this.style.display = 'grid';
   }
 }
 customElements.define('new-popup', NewPopup);
