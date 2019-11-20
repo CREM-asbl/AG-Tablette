@@ -4,6 +4,11 @@ import { app } from '../App';
  * Représente un point du plan
  */
 export class Point {
+  /**
+   *
+   * @param {float} x
+   * @param {float} y
+   */
   constructor(x, y) {
     this.x = x;
     this.y = y;
@@ -30,6 +35,11 @@ export class Point {
 
   /**
    * distance with another Point or coordinates
+   * @param {Object} point - point to compare with
+   * @param {float} point.x
+   * @param {float} point.y
+   * @param {float} x - other method
+   * @param {float} y - other method
    */
   dist() {
     let x, y;
@@ -52,6 +62,11 @@ export class Point {
 
   /**
    * equality with another Point or coordinates
+   * @param {Object} point - point to compare with
+   * @param {float} point.x
+   * @param {float} point.y
+   * @param {float} x - other method
+   * @param {float} y - other method
    */
   equal() {
     let x, y;
