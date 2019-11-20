@@ -19,6 +19,9 @@ export class CreateAction extends Action {
 
     //Taille de la forme. Pas utilisé ici, juste pour info (pour l'aide)
     this.shapeSize = null;
+
+    //Premiere forme temporaire (pour le deplacement)
+    this.isTemporary = false;
   }
 
   saveToObject() {
@@ -55,7 +58,7 @@ export class CreateAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape = this.shapeToAdd.copy();
+    let shape = this.shapeToAdd;
     if (shape.isCircle()) {
       //Afficher le centre du cercle par défaut
       shape.isCenterShown = true;
@@ -63,9 +66,10 @@ export class CreateAction extends Action {
 
     shape.x = this.coordinates.x;
     shape.y = this.coordinates.y;
-    if (this.shapeId) shape.id = this.shapeId;
-    else this.shapeId = shape.id;
+    shape.id = this.shapeId;
+
     app.workspace.addShape(shape);
+    if (this.isTemporary) return false;
   }
 
   undo() {

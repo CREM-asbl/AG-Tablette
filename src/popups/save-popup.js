@@ -93,6 +93,11 @@ class SavePopup extends LitElement {
     `;
   }
 
+  /**
+   * download a file to the user
+   * @param {*} fileName
+   * @param {*} url
+   */
   downloadFile(fileName, url) {
     const downloader = document.createElement('a');
     downloader.href = url;
@@ -111,8 +116,7 @@ class SavePopup extends LitElement {
       ctx.width +
       '" height="' +
       ctx.height +
-      '" \
-      xmlns="http://www.w3.org/2000/svg" >\n';
+      '" xmlns="http://www.w3.org/2000/svg" >\n';
     app.workspace.shapes.forEach(shape => {
       svg_data += shape.to_svg() + '\n';
     });
