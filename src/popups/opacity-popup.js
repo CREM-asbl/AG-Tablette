@@ -13,9 +13,7 @@ class OpacityPopup extends LitElement {
 
   render() {
     return html`
-      <template-popup
-        @close-popup="${() => this.style.display == 'block' && this.opacityPopupValidate()}"
-      >
+      <template-popup @close-popup="${this.close}">
         <h2 slot="title">Opacité</h2>
         <div slot="body" id="body">
           <div class="field">
@@ -57,12 +55,16 @@ class OpacityPopup extends LitElement {
   }
 
   opacityPopupValidate() {
-    this.style.display = 'none';
     if (app.state && app.state.setOpacity) {
       app.state.setOpacity(
         parseFloat(this.shadowRoot.getElementById('opacity_popup_select').value),
       );
     }
+    this.close();
+  }
+
+  close() {
+    this.style.display = 'none';
   }
 }
 customElements.define('opacity-popup', OpacityPopup);

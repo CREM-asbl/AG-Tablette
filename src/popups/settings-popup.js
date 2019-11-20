@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import '../version-item';
 import { app } from '../js/App';
 import { Settings } from '../js/Settings';
@@ -18,7 +18,14 @@ class SettingsPopup extends LitElement {
   }
 
   static get styles() {
-    return TemplatePopup.template_popup_styles();
+    return [
+      TemplatePopup.template_popup_styles(),
+      css`
+        version-item {
+          margin-right: 8px;
+        }
+      `,
+    ];
   }
 
   render() {
@@ -79,6 +86,7 @@ class SettingsPopup extends LitElement {
           </fieldset>
         </div>
           <div slot="footer">
+            <version-item></version-item>
             <button @click="${() => app.resetSettings()}">Paramètres par défaut</button>
             <button @click="${() => (this.style.display = 'none')}">OK</button>
           </div>

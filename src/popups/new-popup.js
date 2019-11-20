@@ -19,6 +19,7 @@ class NewPopup extends LitElement {
         </div>
 
         <div slot="footer">
+          <button @click="${this.close}">Annuler</button>
           <button @click="${this.confirm}">OK</button>
         </div>
       </template-popup>

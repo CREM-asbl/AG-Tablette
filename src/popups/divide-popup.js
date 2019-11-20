@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import { app } from '../js/App';
 import { TemplatePopup } from './template-popup';
 
@@ -15,16 +15,25 @@ class DividePopup extends LitElement {
   }
 
   static get styles() {
-    return TemplatePopup.template_popup_styles();
+    return [
+      TemplatePopup.template_popup_styles(),
+      css`
+        label {
+          display: inline-block;
+        }
+        select {
+          width: 2rem;
+        }
+      `,
+    ];
   }
 
   render() {
     return html`
-      <template-popup @close-popup="${() =>
-        this.style.display == 'block' && this.dividePopupValidate()}">
+      <template-popup @close-popup="${this.close}">
         <h2 slot="title">Division</h2>
         <div slot="body" id="body">
-        <label for="settings_divide_number_of_parts">Diviser en </label>
+          <label for="settings_divide_number_of_parts">Diviser en</label>
           <select @change="${e => (this.parts = e.target.value)}">
             <option value="2">2</option>
             <option value="3">3</option>
@@ -35,7 +44,6 @@ class DividePopup extends LitElement {
             <option value="8">8</option>
           </select>
           <span> parties</span>
-        </div>
         </div>
 
         <div slot="footer">
