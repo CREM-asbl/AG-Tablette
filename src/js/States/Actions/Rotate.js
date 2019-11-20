@@ -51,11 +51,11 @@ export class RotateAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let shape = app.workspace.getShapeById(this.shapeId),
-      center = Points.add(shape, shape.center); //.getAbsoluteCenter();
+      center = shape.center;
 
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id);
-      this.rotateShape(s, this.rotationAngle, center);
+      s.rotate(this.rotationAngle, center);
     });
   }
 
@@ -63,24 +63,11 @@ export class RotateAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     let shape = app.workspace.getShapeById(this.shapeId),
-      center = shape.getAbsoluteCenter();
+      center = shape.center;
 
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id);
-      this.rotateShape(s, -this.rotationAngle, center);
+      s.rotate(-this.rotationAngle, center);
     });
-  }
-
-  /**
-   * Applique une rotation d'un certain angle sur une forme.
-   * @param  {Shape} shape La forme
-   * @param  {float} angle L'angle en radians
-   * @param  {Point} center Le centre autour duquel effectuer la rotation
-   */
-  rotateShape(shape, angle, center) {
-    let newCoords = rotatePoint(shape, angle, center);
-    shape.setCoordinates(newCoords);
-
-    shape.buildSteps.forEach(bs => bs.rotate(angle));
   }
 }

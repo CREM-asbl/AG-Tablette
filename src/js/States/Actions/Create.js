@@ -64,10 +64,9 @@ export class CreateAction extends Action {
       shape.isCenterShown = true;
     }
 
-    shape.x = this.coordinates.x;
-    shape.y = this.coordinates.y;
-    shape.id = this.shapeId;
-
+    shape.setCoordinates(this.coordinates);
+    if (this.shapeId) shape.id = this.shapeId;
+    else this.shapeId = shape.id;
     app.workspace.addShape(shape);
     if (this.isTemporary) return false;
   }

@@ -19,17 +19,21 @@ export class ShapeBuildStep {
     };
   }
 
-  rotate(angle) {
-    this.coordinates = rotatePoint(this.coordinates, angle, { x: 0, y: 0 });
+  rotate(angle, center = { x: 0, y: 0 }) {
+    this.coordinates = rotatePoint(this.coordinates, angle, center);
+  }
+
+  translate(coordinates) {
+    this.coordinates = Points.add(this.coordinates, coordinates);
   }
 }
 
-//Todo : Refactorer en Objet externe
+//Todo : Refactorer en Objet externe une fois que coordinates plus nécessaire
 export class Segment extends ShapeBuildStep {
-  constructor({ x0, y0, x, y, coordinates, isArc = false, vertexes }) {
+  constructor(point1, point2, isArc = false) {
     super('segment');
-    this.coordinates = coordinates || { x, y };
-    this.vertexes = vertexes || [{ x: x0, y: y0 }, this.coordinates];
+    this.coordinates = point2;
+    this.vertexes = [point1, point2];
     this.points = [];
     this.isArc = isArc;
   }
@@ -51,13 +55,14 @@ export class Segment extends ShapeBuildStep {
   }
 
   copy() {
-    let copy = new Segment(this);
+    let copy = new Segment(this.vertexes[0], this.vertexes[1], this.isArc);
     this.points.forEach(p => {
       copy.addPoint(p);
     });
     return copy;
   }
 
+  //TODO: Simplifier la sauvegarde d'un segment et être plus proche des définitions dans les Kits
   saveToObject() {
     const save = {
       type: 'segment',
@@ -119,14 +124,24 @@ export class Segment extends ShapeBuildStep {
     });
   }
 
-  rotate(angle) {
-    super.rotate(angle);
-    this.vertexes = this.vertexes.map(vertex => rotatePoint(vertex, angle, { x: 0, y: 0 }));
+  rotate(angle, center = { x: 0, y: 0 }) {
+    super.rotate(angle, center);
+    this.vertexes = this.vertexes.map(vertex => rotatePoint(vertex, angle, center));
     this.points.forEach(pt => {
-      let pointCoords = rotatePoint(pt, angle, { x: 0, y: 0 });
+      let pointCoords = rotatePoint(pt, angle, center);
       pt.x = pointCoords.x;
       pt.y = pointCoords.y;
     });
+  }
+
+  translate(coordinates) {
+    super.translate(coordinates);
+    this.vertexes = this.vertexes.map(vertex => Points.add(vertex, coordinates));
+    this.points = this.points.map(point => Points.add(point, coordinates));
+  }
+
+  reverse() {
+    this.vertexes.reverse();
   }
 }
 

@@ -163,7 +163,7 @@ export class DivideState extends State {
    * @param  {Context2D} ctx              Le canvas
    * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {
+  draw(ctx) {
     if (this.currentStep == 'select-second-point') {
       let coords = this.actions[0].firstPoint.coordinates;
       app.drawAPI.drawPoint(ctx, coords, '#E90CC8', 2);
@@ -179,11 +179,9 @@ export class DivideState extends State {
         sIndex = this.actions[0].segmentIndex,
         indexes = [sIndex];
       if (bs[sIndex].isArc) indexes = this.shape.getArcSegmentIndexes(sIndex);
-      indexes.forEach(index => {
-        let coords1 = Points.add(bs[index - 1].coordinates, this.shape),
-          coords2 = Points.add(bs[index].coordinates, this.shape);
-        app.drawAPI.drawLine(ctx, coords1, coords2, '#E90CC8', 3);
-      });
+      indexes.forEach(index =>
+        app.drawAPI.drawLine(ctx, bs[index].vertexes[0], bs[index].vertexes[1], '#E90CC8', 3),
+      );
     }
   }
 

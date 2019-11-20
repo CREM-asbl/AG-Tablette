@@ -299,7 +299,7 @@ export class InteractionAPI {
             if (constraints.blacklist.some(f)) return false;
           }
 
-          let shapeCenter = shape.getAbsoluteCenter();
+          let shapeCenter = shape.center;
           if (distCheckFunction(shapeCenter, mouseCoordinates)) {
             let dist = distanceBetweenPoints(shapeCenter, mouseCoordinates);
             if (dist < bestDist) {
@@ -331,13 +331,8 @@ export class InteractionAPI {
               if (constraints.blacklist.some(f)) return false;
             }
 
-            let absCoordinates = {
-              x: bs.coordinates.x + shape.x,
-              y: bs.coordinates.y + shape.y,
-            };
-
-            if (distCheckFunction(absCoordinates, mouseCoordinates)) {
-              let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
+            if (distCheckFunction(bs.coordinates, mouseCoordinates)) {
+              let dist = distanceBetweenPoints(bs.coordinates, mouseCoordinates);
               if (dist < bestDist || Math.abs(bestDist - dist) < 0.1) {
                 if (blockHiddenPointsSelection) {
                   //Vérifier que le point n'est pas derrière une forme
@@ -374,7 +369,7 @@ export class InteractionAPI {
                 point = {
                   pointType: 'vertex',
                   shape: shape,
-                  coordinates: absCoordinates,
+                  coordinates: bs.coordinates,
                   relativeCoordinates: Points.copy(bs.coordinates),
                   index: index,
                 };
@@ -527,16 +522,12 @@ export class InteractionAPI {
           }
 
           //Refacto possible voir Shape.isPointOnSegment
-          const relativeCoordinates = {
-              x: mouseCoordinates.x - shape.x,
-              y: mouseCoordinates.y - shape.y,
-            },
-            projection = bs.projectionPointOnSegment(relativeCoordinates);
+          const projection = bs.projectionPointOnSegment(mouseCoordinates);
 
           if (!bs.isPointOnSegment(projection)) return false;
 
           //Point trop loin?
-          if (!this.arePointsInSelectionDistance(relativeCoordinates, projection)) return false;
+          if (!this.arePointsInSelectionDistance(mouseCoordinates, projection)) return false;
 
           //Vérifier que le segment n'est pas derrière une forme.
           let shapes = app.workspace.shapesOnPoint(mouseCoordinates),

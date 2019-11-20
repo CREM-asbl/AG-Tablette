@@ -137,38 +137,25 @@ export class CutAction extends Action {
 
     if (centerPt) {
       shape1BSPart1.push(
-        new Segment({
-          x0: shape1BSPart1[shape1BSPart1.length - 1].coordinates.x,
-          y0: shape1BSPart1[shape1BSPart1.length - 1].coordinates.y,
-          coordinates: centerPt.relativeCoordinates,
-        }),
+        new Segment(
+          shape1BSPart1[shape1BSPart1.length - 1].coordinates,
+          centerPt.relativeCoordinates,
+        ),
       );
       shape1BSPart1.push(new Vertex(centerPt.relativeCoordinates));
       shape2BS.push(
-        new Segment({
-          x0: shape2BS[shape2BS.length - 1].coordinates.x,
-          y0: shape2BS[shape2BS.length - 1].coordinates.y,
-          coordinates: centerPt.relativeCoordinates,
-        }),
+        new Segment(shape2BS[shape2BS.length - 1].coordinates, centerPt.relativeCoordinates),
       );
       shape2BS.push(new Vertex(centerPt.relativeCoordinates));
     }
 
     shape1BSPart1.push(
-      new Segment({
-        x0: shape1BSPart1[shape1BSPart1.length - 1].coordinates.x,
-        y0: shape1BSPart1[shape1BSPart1.length - 1].coordinates.y,
-        coordinates: shape1BSPart2[0].coordinates,
-      }),
+      new Segment(
+        shape1BSPart1[shape1BSPart1.length - 1].coordinates,
+        shape1BSPart2[0].coordinates,
+      ),
     );
-    shape2BS.push(
-      new Segment({
-        x0: shape2BS[shape2BS.length - 1].coordinates.x,
-        y0: shape2BS[shape2BS.length - 1].coordinates.y,
-        coordinates: shape2BS[0].coordinates,
-      }),
-    );
-
+    shape2BS.push(new Segment(shape2BS[shape2BS.length - 1].coordinates, shape2BS[0].coordinates));
     let shape1BS = shape1BSPart1.concat(shape1BSPart2);
 
     //Créer les 2 formes
@@ -181,8 +168,8 @@ export class CutAction extends Action {
       return newShape;
     });
     //Modifier les coordonnées
-    let center1 = shape1.getAbsoluteCenter(),
-      center2 = shape2.getAbsoluteCenter(),
+    let center1 = shape1.center,
+      center2 = shape2.center,
       center = Points.multInt(Points.add(center1, center2), 0.5),
       difference = Points.sub(center2, center1),
       distance = Points.dist(center2, center1),
