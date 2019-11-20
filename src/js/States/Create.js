@@ -101,7 +101,7 @@ export class CreateState extends State {
     //  let translation = getNewShapeAdjustment(mouseCoordinates),
     //   coordinates = Points.add(mouseCoordinates, translation);
 
-    coordinates = mouseCoordinates;
+    let coordinates = mouseCoordinates;
 
     this.tempShape.coordinates = coordinates;
     this.actions[0].shapeToAdd = this.tempShape.copy();
