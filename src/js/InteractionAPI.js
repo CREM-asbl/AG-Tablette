@@ -396,12 +396,8 @@ export class InteractionAPI {
                 if (constraints.blacklist.some(f)) return false;
               }
 
-              let absCoordinates = {
-                x: pt.x + shape.x,
-                y: pt.y + shape.y,
-              };
-              if (distCheckFunction(absCoordinates, mouseCoordinates)) {
-                let dist = distanceBetweenPoints(absCoordinates, mouseCoordinates);
+              if (distCheckFunction(pt, mouseCoordinates)) {
+                let dist = distanceBetweenPoints(pt, mouseCoordinates);
                 if (dist < bestDist || Math.abs(bestDist - dist) < 0.1) {
                   if (blockHiddenPointsSelection) {
                     //Vérifier que le point n'est pas derrière une forme
@@ -438,7 +434,7 @@ export class InteractionAPI {
                   point = {
                     pointType: 'segmentPoint',
                     shape: shape,
-                    coordinates: absCoordinates,
+                    coordinates: pt,
                     relativeCoordinates: Points.copy(pt),
                     index: index,
                   };

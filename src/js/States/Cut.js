@@ -48,7 +48,7 @@ export class CutState extends State {
    * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(object, clickCoordinates, event) {
+  objectSelected(object) {
     if (this.currentStep == 'listen-canvas-click') {
       //On a sélectionné le premier point
       this.shape = object.shape;
@@ -143,7 +143,7 @@ export class CutState extends State {
    * @param  {Context2D} ctx              Le canvas
    * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {
+  draw(ctx) {
     if (this.currentStep == 'select-second-point') {
       let coords = this.actions[0].firstPoint.coordinates;
       app.drawAPI.drawPoint(ctx, coords, '#E90CC8', 2);

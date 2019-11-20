@@ -111,8 +111,6 @@ export class CreateState extends State {
 
     app.workspace.deleteShape(this.tempShape);
 
-    console.log(this.actions[0].shapeId);
-
     this.executeAction();
     this.setShape(this.selectedShape);
     app.drawAPI.askRefresh('upper');
