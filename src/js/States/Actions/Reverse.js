@@ -68,7 +68,7 @@ export class ReverseAction extends Action {
     let shape = app.workspace.getShapeById(this.shapeId),
       arch = {
         type: this.symmetricalArchOrientation,
-        center: shape.getAbsoluteCenter(),
+        center: shape.center,
         p1: { x: null, y: null },
         p2: { x: null, y: null },
       };

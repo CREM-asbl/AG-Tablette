@@ -97,13 +97,10 @@ export class ReverseState extends State {
   onClick(mouseCoordinates, event) {
     if (this.currentStep != 'selecting-symmetrical-arch') return true;
 
-    let clickDistance = distanceBetweenPoints(
-      this.selectedShape.getAbsoluteCenter(),
-      mouseCoordinates,
-    );
+    let clickDistance = distanceBetweenPoints(this.selectedShape.center, mouseCoordinates);
     if (clickDistance > this.symmetricalArchLength / 2) return true; //Le click n'est pas sur les axes de symétrie
 
-    let shapeCenter = this.selectedShape.getAbsoluteCenter(),
+    let shapeCenter = this.selectedShape.center,
       angle = getAngleOfPoint(shapeCenter, mouseCoordinates) % Math.PI;
 
     if (angle <= Math.PI / 8 || angle > (7 * Math.PI) / 8)
@@ -167,7 +164,7 @@ export class ReverseState extends State {
       let shape = this.selectedShape,
         n1 = this.symmetricalArchLength / 2,
         n2 = (0.683 * this.symmetricalArchLength) / 2,
-        center = shape.getAbsoluteCenter();
+        center = shape.center;
 
       this.involvedShapes.forEach(s => {
         app.drawAPI.drawShape(ctx, s);
@@ -213,7 +210,7 @@ export class ReverseState extends State {
       let progress = this.getAnimationProgress(),
         //TODO: opti: ne pas devoir faire une copie à chaque refresh!
         shape = this.selectedShape.copy(),
-        center = shape.getAbsoluteCenter();
+        center = shape.center;
 
       this.involvedShapes.forEach(s => {
         let s2 = s.copy();

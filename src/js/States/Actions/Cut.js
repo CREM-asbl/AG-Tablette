@@ -168,8 +168,8 @@ export class CutAction extends Action {
       return newShape;
     });
     //Modifier les coordonnées
-    let center1 = shape1.getAbsoluteCenter(),
-      center2 = shape2.getAbsoluteCenter(),
+    let center1 = shape1.center,
+      center2 = shape2.center,
       center = Points.multInt(Points.add(center1, center2), 0.5),
       difference = Points.sub(center2, center1),
       distance = Points.dist(center2, center1),

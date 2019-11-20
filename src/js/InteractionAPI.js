@@ -299,7 +299,7 @@ export class InteractionAPI {
             if (constraints.blacklist.some(f)) return false;
           }
 
-          let shapeCenter = shape.getAbsoluteCenter();
+          let shapeCenter = shape.center;
           if (distCheckFunction(shapeCenter, mouseCoordinates)) {
             let dist = distanceBetweenPoints(shapeCenter, mouseCoordinates);
             if (dist < bestDist) {

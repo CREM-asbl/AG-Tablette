@@ -119,7 +119,7 @@ export class GroupState extends State {
    */
   shapeDrawn(ctx, shape) {
     let group = app.workspace.getShapeGroup(shape),
-      center = shape.getAbsoluteCenter(),
+      center = shape.center,
       pos = { x: center.x - 25, y: center.y };
     if (group) {
       let groupIndex = app.workspace.getGroupIndex(group);

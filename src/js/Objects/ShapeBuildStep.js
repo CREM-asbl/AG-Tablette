@@ -1,6 +1,5 @@
 import { Points } from '../Tools/points';
 import { rotatePoint } from '../Tools/geometry';
-import { app } from '../App';
 
 export class ShapeBuildStep {
   constructor(type) {
@@ -20,8 +19,8 @@ export class ShapeBuildStep {
     };
   }
 
-  rotate(angle) {
-    this.coordinates = rotatePoint(this.coordinates, angle, { x: 0, y: 0 });
+  rotate(angle, center = { x: 0, y: 0 }) {
+    this.coordinates = rotatePoint(this.coordinates, angle, center);
   }
 
   translate(coordinates) {
@@ -125,11 +124,11 @@ export class Segment extends ShapeBuildStep {
     });
   }
 
-  rotate(angle) {
-    super.rotate(angle);
-    this.vertexes = this.vertexes.map(vertex => rotatePoint(vertex, angle, { x: 0, y: 0 }));
+  rotate(angle, center = { x: 0, y: 0 }) {
+    super.rotate(angle, center);
+    this.vertexes = this.vertexes.map(vertex => rotatePoint(vertex, angle, center));
     this.points.forEach(pt => {
-      let pointCoords = rotatePoint(pt, angle, { x: 0, y: 0 });
+      let pointCoords = rotatePoint(pt, angle, center);
       pt.x = pointCoords.x;
       pt.y = pointCoords.y;
     });

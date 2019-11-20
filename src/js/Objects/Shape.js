@@ -1,6 +1,6 @@
 import { uniqId, mod } from '../Tools/general';
 import { Points } from '../Tools/points';
-import { distanceBetweenPoints } from '../Tools/geometry';
+import { distanceBetweenPoints, rotatePoint } from '../Tools/geometry';
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep';
 import { app } from '../App';
 
@@ -404,17 +404,6 @@ export class Shape {
   }
 
   /**
-   * Renvoie les coordonnées absolues du centre de la forme
-   * @return {Point} coordonnées
-   */
-  getAbsoluteCenter() {
-    return {
-      x: this.x + this.center.x,
-      y: this.y + this.center.y,
-    };
-  }
-
-  /**
    * Récupère les coordonnées de la forme
    * @return {{x: float, y: float}} les coordonnées ({x: float, y: float})
    */
@@ -598,5 +587,9 @@ export class Shape {
 
   getSegments() {
     return this.buildSteps.filter(bs => bs.type === 'segment');
+  }
+
+  rotate(angle, center) {
+    this.buildSteps.forEach(bs => bs.rotate(angle, center));
   }
 }
