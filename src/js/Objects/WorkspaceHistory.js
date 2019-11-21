@@ -26,12 +26,14 @@ export class WorkspaceHistory {
     let save = {
       historyIndex: this.historyIndex,
       history: this.history.map(step => {
-        return step.map(action => {
-          return {
-            className: action.name,
-            data: action.saveToObject(),
-          };
-        });
+        return {
+          actions: step.actions.map(action => {
+            return {
+              className: action.name,
+              data: action.saveToObject(),
+            };
+          }),
+        };
       }),
     };
     return save;
@@ -40,11 +42,20 @@ export class WorkspaceHistory {
   initFromObject(object) {
     this.historyIndex = object.historyIndex;
     this.history = object.history.map(step => {
-      return step
-        .map(actionData => StatesManager.getActionInstance(actionData))
-        .filter(step => step);
+      console.log('step ', step);
+      return {
+        actions: step.actions.map(actionData => {
+          console.log('actionData ', actionData);
+          return StatesManager.getActionInstance(actionData);
+        }),
+      };
+      // .filter(step => step);
     });
-    this.history = this.history.filter(step => step.length);
+    console.log(this.history);
+    this.history = this.history.filter(step => {
+      step.length;
+    });
+    console.log(this.history);
     this.historyIndex = this.history.length - 1;
     this.updateMenuState();
   }
