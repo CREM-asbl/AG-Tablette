@@ -33,6 +33,9 @@ export class WorkspaceHistory {
               data: action.saveToObject(),
             };
           }),
+          previous_step: step.previous_step,
+          next_step: step.next_step,
+          start_of_branch: step.start_of_branch,
         };
       }),
     };
@@ -42,20 +45,21 @@ export class WorkspaceHistory {
   initFromObject(object) {
     this.historyIndex = object.historyIndex;
     this.history = object.history.map(step => {
-      console.log('step ', step);
       return {
         actions: step.actions.map(actionData => {
           console.log('actionData ', actionData);
           return StatesManager.getActionInstance(actionData);
         }),
+        previous_step: step.previous_step,
+        next_step: step.next_step,
+        start_of_branch: step.start_of_branch,
       };
       // .filter(step => step);
     });
     console.log(this.history);
-    this.history = this.history.filter(step => {
-      step.length;
-    });
-    console.log(this.history);
+    // this.history = this.history.filter(step => {
+    //   step.actions.length;
+    // });
     this.historyIndex = this.history.length - 1;
     this.updateMenuState();
   }
