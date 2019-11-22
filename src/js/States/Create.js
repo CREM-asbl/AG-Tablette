@@ -3,8 +3,7 @@ import { CreateAction } from './Actions/Create';
 import { RotateAction } from './Actions/Rotate';
 import { MoveAction } from './Actions/Move';
 import { State } from './State';
-import { Points } from '../Tools/points';
-import { getShapeAdjustment, getNewShapeAdjustment } from '../Tools/automatic_adjustment';
+import { getShapeAdjustment } from '../Tools/automatic_adjustment';
 
 /**
  * Ajout de formes sur l'espace de travail

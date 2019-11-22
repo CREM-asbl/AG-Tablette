@@ -59,6 +59,7 @@ export class CreateAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let shape = this.shapeToAdd;
+
     if (shape.isCircle()) {
       //Afficher le centre du cercle par défaut
       shape.isCenterShown = true;

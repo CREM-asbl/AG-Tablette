@@ -1,6 +1,5 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { Points } from '../../Tools/points';
 
 export class DivideAction extends Action {
@@ -90,6 +89,7 @@ export class DivideAction extends Action {
   }
 
   segmentModeAddArcPoints() {
+    console.log('segmentModeAddArcPoints');
     this.createdPoints = [];
     let shape = app.workspace.getShapeById(this.shapeId),
       bs = shape.buildSteps,

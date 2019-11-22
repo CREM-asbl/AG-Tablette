@@ -51,12 +51,10 @@ export class MergeAction extends Action {
     let shape1 = app.workspace.getShapeById(this.firstShapeId),
       shape2 = app.workspace.getShapeById(this.secondShapeId);
 
-    // //hasCommonSegment déjà vérifié dans states
-    // if (this.hasCommonSegment(shape1, shape2)) {
     const segmentsOfMergedShape = this.computeSegmentsOfMergedShape(shape1, shape2);
 
     const buildSteps = this.computeNewBuildSteps(segmentsOfMergedShape);
-    console.log(buildSteps);
+
     if (!buildSteps) return;
 
     // let commonSegments = this.getCommonSegments(shape1, shape2);

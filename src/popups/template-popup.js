@@ -1,6 +1,4 @@
 import { LitElement, html, css } from 'lit-element';
-import '../version-item';
-import { app } from '../js/App';
 
 export class TemplatePopup extends LitElement {
   static get properties() {
@@ -16,13 +14,6 @@ export class TemplatePopup extends LitElement {
     return css`
       :host {
         display: none;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        z-index: 100;
       }
 
       h2 {
@@ -52,14 +43,23 @@ export class TemplatePopup extends LitElement {
         padding: 16px;
       }
 
+      [slot='footer'] {
+        display: flex;
+        justify-content: right;
+        place-content: center;
+        place-items: center;
+        padding: 16px;
+      }
+
       label {
         display: block;
-        margin: 0 16px;
+        margin: 0 4px;
         font-weight: bold;
         font-size: 1rem;
       }
 
       button {
+        display: block;
         padding: 8px 16px;
         margin: 0 4px;
       }
@@ -68,13 +68,20 @@ export class TemplatePopup extends LitElement {
 
   static get styles() {
     return css`
-      #template-view {
+      .background {
+        display: flex;
+        background-color: rgba(0, 0, 0, 0.5);
         position: absolute;
-        left: 2%;
-        top: 2%;
-        right: 2%;
-        bottom: 2%;
-        border-radius: 10px;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 100;
+      }
+
+      #template-view {
+        margin: auto;
+        border-radius: 4px;
         border: 2px solid gray;
         background-color: #ddd;
         overflow-y: hidden;
@@ -93,17 +100,6 @@ export class TemplatePopup extends LitElement {
         overflow: hidden;
         line-height: 40%;
       }
-
-      footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px;
-      }
-
-      version-item {
-        flex: 1;
-      }
     `;
   }
 
@@ -117,19 +113,18 @@ export class TemplatePopup extends LitElement {
 
   render() {
     return html`
-      <div id="template-view">
-        <div id="popup-close" @click="${() => this.dispatchEvent(new Event('close-popup'))}">
-          &times;
-        </div>
+      <div class="background">
+        <div id="template-view">
+          <div id="popup-close" @click="${() => this.dispatchEvent(new Event('close-popup'))}">
+            &times;
+          </div>
 
-        <slot name="title"></slot>
+          <slot name="title"></slot>
 
-        <slot name="body"></slot>
+          <slot name="body"></slot>
 
-        <footer>
-          <version-item></version-item>
           <slot name="footer"></slot>
-        </footer>
+        </div>
       </div>
     `;
   }
