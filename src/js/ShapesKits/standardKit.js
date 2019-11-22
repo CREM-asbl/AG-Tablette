@@ -183,7 +183,7 @@ export const standardKit = {
       },
 
       {
-        name: 'Petit triangle rectangle isocèle',
+        name: 'Triangle rectangle isocèle 1',
         steps: [
           { type: 'moveTo', x: 0, y: 0 },
           { type: 'vertex', x: 0, y: 0 },
@@ -196,7 +196,7 @@ export const standardKit = {
       },
 
       {
-        name: 'Triangle rectangle isocèle',
+        name: 'Triangle rectangle isocèle 2',
         steps: [
           { type: 'moveTo', x: 0, y: 0 },
           { type: 'vertex', x: 0, y: 0 },
@@ -209,7 +209,7 @@ export const standardKit = {
       },
 
       {
-        name: 'Petit triangle rectangle',
+        name: 'Triangle rectangle',
         steps: [
           { type: 'moveTo', x: 0, y: 0 },
           { type: 'vertex', x: 0, y: 0 },
@@ -309,7 +309,7 @@ export const standardKit = {
       },
 
       {
-        name: 'Petit triangle isocèle',
+        name: 'Triangle isocèle 1',
         steps: [
           { type: 'moveTo', x: 0, y: 0 },
           { type: 'vertex', x: 0, y: 0 },
@@ -322,7 +322,7 @@ export const standardKit = {
       },
 
       {
-        name: 'Grand triangle isocèle',
+        name: 'Triangle isocèle 2',
         steps: [
           { type: 'moveTo', x: 0, y: 0 },
           { type: 'vertex', x: 0, y: 0 },

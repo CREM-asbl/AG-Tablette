@@ -65,13 +65,13 @@ class ShapesList extends LitElement {
       </style>
 
       <div class="container">
-        <h2>${this.shape || this.family}</h2>
+        <h2>${this.shape ? this.shape.replace(/ \d+$/, '') : this.family}</h2>
         <ul>
           ${shapes.map(
             shape => html`
               <li>
                 <canvas-button
-                  title="${shape}"
+                  title="${shape.replace(/ \d+$/, '')}"
                   family="${this.family}"
                   shape="${shape}"
                   @click="${this._clickHandle}"
