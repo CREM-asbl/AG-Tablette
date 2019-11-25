@@ -27,7 +27,10 @@ function computeTransformation(e1, e2, shapes, mainShape, coordinates) {
       moving: getAngleOfPoint(Points.create(0, 0), pts.moving),
     },
     mainAngle = angles.fix - angles.moving,
-    center = Points.add(mainShape.center, coordinates),
+    center = Points.sub(Points.add(mainShape.center, coordinates), {
+      x: mainShape.x,
+      y: mainShape.y,
+    }),
     moving1NewCoords = rotatePoint(moving1.coordinates, mainAngle, center),
     translation = Points.sub(fix1.coordinates, moving1NewCoords);
 
