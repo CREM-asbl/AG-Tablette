@@ -357,7 +357,7 @@ class AGTabletteApp extends LitElement {
               >
               </icon-button>
               <icon-button
-                src="/images/grille.svg"
+                src="/images/biface.svg"
                 title="Biface"
                 name="biface"
                 ?active="${this.state.name === 'biface'}"
