@@ -1,5 +1,6 @@
 import { StatesManager } from '../StatesManager';
 import { app } from '../App';
+
 /**
  * Représente l'historique d'un espace de travail.
  */
@@ -25,12 +26,17 @@ export class WorkspaceHistory {
     let save = {
       historyIndex: this.historyIndex,
       history: this.history.map(step => {
-        return step.map(action => {
-          return {
-            className: action.name,
-            data: action.saveToObject(),
-          };
-        });
+        return {
+          actions: step.actions.map(action => {
+            return {
+              className: action.name,
+              data: action.saveToObject(),
+            };
+          }),
+          previous_step: step.previous_step,
+          next_step: step.next_step,
+          start_of_branch: step.start_of_branch,
+        };
       }),
     };
     return save;
@@ -39,11 +45,19 @@ export class WorkspaceHistory {
   initFromObject(object) {
     this.historyIndex = object.historyIndex;
     this.history = object.history.map(step => {
-      return step
-        .map(actionData => StatesManager.getActionInstance(actionData))
-        .filter(step => step);
+      return {
+        actions: step.actions.map(actionData => {
+          console.log('actionData ', actionData);
+          return StatesManager.getActionInstance(actionData);
+        }),
+        previous_step: step.previous_step,
+        next_step: step.next_step,
+        start_of_branch: step.start_of_branch,
+      };
     });
-    this.history = this.history.filter(step => step.length);
+
+    // console.log(this.history);
+
     this.historyIndex = this.history.length - 1;
     this.updateMenuState();
   }
@@ -73,9 +87,10 @@ export class WorkspaceHistory {
       console.error('Nothing to undo');
       return;
     }
-    let actions = this.history[this.historyIndex--],
+    let actions = this.history[this.historyIndex].actions,
       reversedActions = [...actions].reverse();
     reversedActions.forEach(action => action.undo());
+    this.historyIndex = this.history[this.historyIndex].previous_step;
     app.drawAPI.askRefresh();
     this.updateMenuState();
   }
@@ -89,7 +104,9 @@ export class WorkspaceHistory {
       console.error('Nothing to redo');
       return;
     }
-    this.history[++this.historyIndex].forEach(action => action.do());
+    this.historyIndex =
+      this.historyIndex != -1 ? this.history[this.historyIndex].next_step.slice(-1)[0] : 0;
+    this.history[this.historyIndex].actions.forEach(action => action.do());
     app.drawAPI.askRefresh();
     this.updateMenuState();
   }
@@ -100,9 +117,30 @@ export class WorkspaceHistory {
    * @param {[Action]} actions Les actions constituant l'étape
    */
   addStep(actions) {
-    this.history.splice(this.historyIndex + 1);
-    this.history.push(actions);
-    this.historyIndex++;
+    let start_of_branch, previous_step, next_step;
+    next_step = [];
+    if (this.history.length == 0) {
+      start_of_branch = 0;
+      previous_step = -1;
+    } else {
+      if (this.historyIndex == this.history.length - 1) {
+        start_of_branch = this.history[this.historyIndex].start_of_branch;
+      } else {
+        start_of_branch = this.historyIndex;
+      }
+      previous_step = this.historyIndex;
+      this.history[this.historyIndex].next_step.push(this.history.length);
+    }
+
+    this.history.push({
+      actions: actions,
+      previous_step: previous_step,
+      next_step: next_step,
+      start_of_branch: start_of_branch,
+    });
+    this.historyIndex = this.history.length - 1;
+
+    // console.log(this.history);
 
     this.updateMenuState();
   }

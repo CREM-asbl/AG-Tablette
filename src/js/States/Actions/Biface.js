@@ -8,6 +8,8 @@ export class BifaceAction extends Action {
     this.name = 'BifaceAction';
 
     this.shapeId = null;
+
+    this.involvedShapesIds = null;
   }
 
   saveToObject() {
@@ -33,14 +35,21 @@ export class BifaceAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape = app.workspace.getShapeById(this.shapeId);
-    shape.isBiface = !shape.isBiface;
+    let shapes = this.involvedShapesIds.map(id => {
+      return app.workspace.getShapeById(id);
+    });
+    let value_to_set = !shapes.every(shape => shape.isBiface);
+    shapes.forEach(shape => {
+      shape.isBiface = value_to_set;
+    });
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    let shape = app.workspace.getShapeById(this.shapeId);
-    shape.isBiface = !shape.isBiface;
+    this.involvedShapesIds.forEach(id => {
+      let s = app.workspace.getShapeById(id);
+      s.isBiface = !s.isBiface;
+    });
   }
 }

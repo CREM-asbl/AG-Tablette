@@ -21,11 +21,6 @@ export class BifaceState extends State {
     app.appDiv.cursor = 'default';
   }
 
-  setColor(color) {
-    this.actions[0].selectedColor = color;
-    this.currentStep = 'listen-canvas-click';
-  }
-
   /**
    * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
@@ -33,7 +28,11 @@ export class BifaceState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape, clickCoordinates, event) {
+    let involvedShapes = app.workspace.getAllBindedShapes(shape, true);
+
     this.actions[0].shapeId = shape.id;
+    this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
+
     this.executeAction();
 
     this.start();

@@ -28,7 +28,10 @@ export class DeleteState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape, clickCoordinates, event) {
-    this.actions[0].shape = shape;
+    let involvedShapes = app.workspace.getAllBindedShapes(shape, true);
+
+    // this.actions[0].shapeId = shape.id;
+    this.actions[0].involvedShapes = involvedShapes;
     this.executeAction();
     this.start();
 
