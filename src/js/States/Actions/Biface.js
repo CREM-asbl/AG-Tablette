@@ -48,7 +48,7 @@ export class BifaceAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     this.involvedShapesIds.forEach(id => {
-      s = app.workspace.getShapeById(id);
+      let s = app.workspace.getShapeById(id);
       s.isBiface = !s.isBiface;
     });
   }

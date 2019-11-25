@@ -200,7 +200,7 @@ export const StatesManager = {
       getInstance: () => new TangramCreatorState(),
     },
     biface: {
-      name: 'Rendre une shape biface',
+      name: 'Rendre biface',
       instance: null,
       getInstance: () => new BifaceState(),
     },

@@ -421,32 +421,39 @@ class AGTabletteApp extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
-    this.cursor = 'default';
+    let reset_state = 0;
     if (event.target.name == 'settings') {
       this.shadowRoot.querySelector('settings-popup').style.display = 'block';
+      reset_state = 1;
     } else if (event.target.name === 'save') {
       this.shadowRoot.querySelector('save-popup').style.display = 'block';
+      reset_state = 1;
     } else if (event.target.name === 'new') {
       this.shadowRoot.querySelector('new-popup').style.display = 'block';
+      reset_state = 1;
     } else if (event.target.name === 'grid_menu') {
       this.shadowRoot.querySelector('grid-popup').style.display = 'block';
+      reset_state = 1;
     } else if (event.target.name === 'tangram_menu') {
       this.shadowRoot.querySelector('tangram-popup').style.display = 'block';
+      reset_state = 1;
     } else if (event.target.name == 'undo') {
       if (this.canUndo) app.workspace.history.undo();
     } else if (event.target.name == 'redo') {
       if (this.canRedo) app.workspace.history.redo();
     } else if (event.target.name === 'create_shape') {
       app.setState(event.target.name, event.target.family);
-      return;
     } else if (StatesManager.getStateText(event.target.name)) {
       app.setState(event.target.name);
-      return;
     } else {
       console.error('AGTabletteApp._actionHandle: received unknown event:');
       console.error(event);
+      reset_state = 1;
     }
-    app.setState(null);
+    if (reset_state) {
+      app.setState(undefined);
+      this.cursor = 'default';
+    }
   }
 
   // Todo: Placer dans un objet BackgroundImage ?

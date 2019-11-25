@@ -54,12 +54,10 @@ export class WorkspaceHistory {
         next_step: step.next_step,
         start_of_branch: step.start_of_branch,
       };
-      // .filter(step => step);
     });
-    console.log(this.history);
-    // this.history = this.history.filter(step => {
-    //   step.actions.length;
-    // });
+
+    // console.log(this.history);
+
     this.historyIndex = this.history.length - 1;
     this.updateMenuState();
   }
@@ -142,7 +140,7 @@ export class WorkspaceHistory {
     });
     this.historyIndex = this.history.length - 1;
 
-    console.log(this.history);
+    // console.log(this.history);
 
     this.updateMenuState();
   }

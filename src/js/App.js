@@ -147,9 +147,10 @@ export class App {
       //Par exemple, annule des setTimeout/Interval.
       this.state.abort();
     }
-    if (stateName == null) {
-      this.state = null;
+    if (!stateName) {
+      this.state = undefined;
       window.dispatchEvent(new CustomEvent('app-state-changed', { detail: this.state }));
+      this.interactionAPI.resetSelectionConstraints();
       this.drawAPI.askRefresh();
       this.drawAPI.askRefresh('upper');
       return;
