@@ -18,7 +18,7 @@ class SavePopup extends LitElement {
     this.filename = '';
     this.save_settings = true;
     this.save_history = true;
-    this.save_format = 'fag';
+    this.save_format = 'agg';
   }
 
   static get styles() {
@@ -60,8 +60,8 @@ class SavePopup extends LitElement {
 
           <label style="display:inline" for="save_popup_format">Format</label>
           <select name="save_popup_format" id="save_popup_format" @change="${this._actionHandle}">
-            <option value="fag" ?selected="${this.save_format == 'fag'}">
-              fag
+            <option value="agg" ?selected="${this.save_format == 'agg'}">
+              agg
             </option>
             <option value="png" ?selected="${this.save_format == 'png'}">
               png
@@ -134,7 +134,7 @@ class SavePopup extends LitElement {
     this.downloadFile(fileName + '.png', image);
   }
 
-  saveToFag(fileName) {
+  saveToagg(fileName) {
     let { history, settings, ...saveObject } = {
       ...app.workspace.data,
       appSettings: app.settings.data,
@@ -150,15 +150,15 @@ class SavePopup extends LitElement {
     const file = new Blob([json], { type: 'application/json' });
     const data = window.URL.createObjectURL(file);
 
-    this.downloadFile(fileName + '.fag', data);
+    this.downloadFile(fileName + '.agg', data);
   }
 
   saveToFile(fileName) {
     if (!fileName) fileName = 'untitled';
 
     switch (this.save_format) {
-      case 'fag':
-        this.saveToFag(fileName);
+      case 'agg':
+        this.saveToagg(fileName);
         break;
       case 'png':
         this.saveToPng(fileName);
@@ -195,7 +195,7 @@ class SavePopup extends LitElement {
 
       case 'save_popup_format':
         this.save_format = event.path[0].value;
-        if (this.save_format != 'fag') {
+        if (this.save_format != 'agg') {
           this.save_history = false;
           this.save_settings = false;
         }
