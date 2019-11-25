@@ -1,5 +1,6 @@
 import { uniqId, mod } from '../Tools/general';
 import { Points } from '../Tools/points';
+import { Point } from './Point';
 import { distanceBetweenPoints, rotatePoint } from '../Tools/geometry';
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep';
 import { app } from '../App';
@@ -565,17 +566,14 @@ export class Shape {
    * convertit point en balise circle de svg
    */
   point_to_svg(coordinates, color = '#000', size = 1) {
-    let absolute_coord = Points.add(coordinates, { x: this.x, y: this.y });
-    absolute_coord = Points.multInt(absolute_coord, app.workspace.zoomLevel);
-    absolute_coord = Points.add(absolute_coord, {
-      x: app.workspace.translateOffset.x,
-      y: app.workspace.translateOffset.y,
-    });
+    let point = new Point(coordinates.x, coordinates.y);
+    point.multiplyWithScalar(app.workspace.zoomLevel);
+    point.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
     return (
       '<circle cx="' +
-      absolute_coord.x +
+      point.x +
       '" cy="' +
-      absolute_coord.y +
+      point.y +
       '" r="' +
       size * 2 * app.workspace.zoomLevel +
       '" fill="' +
@@ -590,15 +588,9 @@ export class Shape {
   to_svg() {
     let path = '';
     this.buildSteps.forEach(buildStep => {
-      let point = Points.add(
-        { x: buildStep.coordinates.x, y: buildStep.coordinates.y },
-        { x: this.x, y: this.y },
-      );
-      point = Points.multInt(point, app.workspace.zoomLevel);
-      point = Points.add(point, {
-        x: app.workspace.translateOffset.x,
-        y: app.workspace.translateOffset.y,
-      });
+      let point = new Point(buildStep.coordinates.x, buildStep.coordinates.y);
+      point.multiplyWithScalar(app.workspace.zoomLevel);
+      point.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
       if (buildStep.type == 'moveTo') path += 'M ' + point.x + ' ' + point.y + ' ';
       else if (buildStep.type == 'segment') path += 'L ' + point.x + ' ' + point.y + ' ';
     });
