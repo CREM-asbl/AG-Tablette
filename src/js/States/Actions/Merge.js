@@ -86,7 +86,7 @@ export class MergeAction extends Action {
     const segmentsFromShape2 = shape2.getSegments();
     for (let i = 0; i < segmentsFromShape1.length; i++) {
       for (let j = 0; j < segmentsFromShape2.length; j++) {
-        if (this.isCommonSegment(segmentsFromShape1[i], segmentsFromShape2[j])) return true;
+        if (segmentsFromShape1[i].equal(segmentsFromShape2[j])) return true;
       }
     }
     return false;
@@ -98,10 +98,7 @@ export class MergeAction extends Action {
     const segmentsFromShape2 = shape2.getSegments();
 
     for (let i = 0; i < segmentsFromShape2.length; i++) {
-      const commonsSegments = segments.filter(segment =>
-        this.isCommonSegment(segment, segmentsFromShape2[i]),
-      );
-
+      const commonsSegments = segments.filter(segment => segment.equal(segmentsFromShape2[i]));
       if (commonsSegments.length > 0) {
         segments = segments.filter(segment => !commonsSegments.includes(segment));
       }
@@ -143,31 +140,15 @@ export class MergeAction extends Action {
         continue;
       }
 
-      // if (this.isSegmentsHaveSameDirection(precSegment, copy)) {
-      //   precSegment.vertexes[1] = copy.vertexes[1]
-      // } else {
-      newBuildSteps.push(new Vertex(copy.vertexes[0]));
-      newBuildSteps.push(copy);
-      precSegment = copy;
-      numberOfSegmentsRefused = 0;
-      // }
+      if (precSegment && precSegment.hasSameDirection(copy)) {
+        precSegment.vertexes[1] = copy.vertexes[1];
+      } else {
+        newBuildSteps.push(new Vertex(copy.vertexes[0]));
+        newBuildSteps.push(copy);
+        precSegment = copy;
+        numberOfSegmentsRefused = 0;
+      }
     }
-    console.log(newBuildSteps);
     return newBuildSteps;
-  }
-
-  //TODO : à placer dans Segment
-  isCommonSegment(segment1, segment2) {
-    return (
-      (Points.equal(segment1.vertexes[0], segment2.vertexes[0]) &&
-        Points.equal(segment1.vertexes[1], segment2.vertexes[1])) ||
-      (Points.equal(segment1.vertexes[0], segment2.vertexes[1]) &&
-        Points.equal(segment1.vertexes[1], segment2.vertexes[0]))
-    );
-  }
-
-  isSegmentsHaveSameDirection(segment1, segment2) {
-    if (!segment1 || !segment2) return false;
-    return Points.equal(segment1.direction, segment2.direction);
   }
 }

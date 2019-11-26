@@ -89,7 +89,6 @@ export class DivideAction extends Action {
   }
 
   segmentModeAddArcPoints() {
-    console.log('segmentModeAddArcPoints');
     this.createdPoints = [];
     let shape = app.workspace.getShapeById(this.shapeId),
       bs = shape.buildSteps,
@@ -145,16 +144,14 @@ export class DivideAction extends Action {
     this.createdPoints = [];
     let shape = app.workspace.getShapeById(this.shapeId),
       segment = shape.buildSteps[this.segmentIndex],
-      start = shape.buildSteps[this.segmentIndex - 1].coordinates,
-      end = segment.coordinates,
-      segLength = Points.sub(end, start),
+      segLength = Points.sub(segment.vertexes[1], segment.vertexes[0]),
       part = {
         x: segLength.x / this.numberOfparts,
         y: segLength.y / this.numberOfparts,
       };
 
     //Un tour de boucle par point ajouté.
-    for (let i = 1, nextPt = start; i < this.numberOfparts; i++) {
+    for (let i = 1, nextPt = segment.vertexes[0]; i < this.numberOfparts; i++) {
       nextPt = Points.add(nextPt, part);
       segment.addPoint(nextPt);
       this.createdPoints.push({
