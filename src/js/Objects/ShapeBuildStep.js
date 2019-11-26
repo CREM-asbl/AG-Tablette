@@ -170,6 +170,10 @@ export class Segment extends ShapeBuildStep {
       return true;
     return false;
   }
+
+  hasSameDirection(segment) {
+    return this.direction.x === segment.direction.x && this.direction.y === segment.direction.y;
+  }
 }
 
 export class Vertex extends ShapeBuildStep {
