@@ -442,6 +442,29 @@ export class Shape {
     });
   }
 
+  get_segments() {
+    return this.buildSteps.filter(bs => bs.type == 'segment').map(el => el.vertexes);
+  }
+
+  equal_segments(seg1, seg2) {
+    if (Points.equal(seg1[0], seg2[1]) && Points.equal(seg1[1], seg2[0])) return true;
+    if (Points.equal(seg1[0], seg2[0]) && Points.equal(seg1[1], seg2[1])) return true;
+    return false;
+  }
+
+  /**
+   * return the non comon point from seg1
+   * @param {*} seg1
+   * @param {*} seg2
+   */
+  get_non_common_point_of_joined_segments(seg1, seg2) {
+    if (Points.equal(seg1[0], seg2[1]) && !Points.equal(seg1[1], seg2[0])) return seg1[1];
+    if (Points.equal(seg1[0], seg2[0]) && !Points.equal(seg1[1], seg2[1])) return seg1[1];
+    if (!Points.equal(seg1[0], seg2[1]) && Points.equal(seg1[1], seg2[0])) return seg1[0];
+    if (!Points.equal(seg1[0], seg2[0]) && Points.equal(seg1[1], seg2[1])) return seg1[0];
+    return undefined;
+  }
+
   /**
    * Vérifie si cette forme se superpose avec une autre forme.
    * @param  {Shape} shape L'autre forme
@@ -459,41 +482,38 @@ export class Shape {
      * ->wikipédia: https://en.wikipedia.org/wiki/Sweep_line_algorithm
      * ->explication détaillée: http://www.cs.tufts.edu/comp/163/notes05/seg_intersection_handout.pdf
      */
-    let precision = 100; //la complexité est de:  precision²
 
     let s1 = this,
       s2 = shape;
-    //Carré le plus petit contenant les 2 formes:
-    let minX = s1.x + s1.buildSteps[0].coordinates.x,
-      maxX = s1.x + s1.buildSteps[0].coordinates.x,
-      minY = s1.y + s1.buildSteps[0].coordinates.y,
-      maxY = s1.y + s1.buildSteps[0].coordinates.y;
-    [s1, s2].forEach(s => {
-      s.buildSteps.forEach(bs => {
-        minX = Math.min(minX, s.x + bs.coordinates.x);
-        maxX = Math.max(maxX, s.x + bs.coordinates.x);
-        minY = Math.min(minY, s.y + bs.coordinates.y);
-        maxY = Math.max(maxY, s.y + bs.coordinates.y);
-      });
-    });
-    let partX = (maxX - minX) / precision,
-      partY = (maxY - minY) / precision;
 
-    for (let i = minX; i < maxX; i += partX) {
-      for (let j = minY; j < maxY; j += partY) {
-        let pt = Points.create(i, j),
-          inS1 = app.drawAPI.isPointInShape(pt, s1),
-          inS2 = app.drawAPI.isPointInShape(pt, s2);
-        if (inS1 && inS2) {
-          let inS1Border = s1.isPointInBorder(pt),
-            inS2Border = s2.isPointInBorder(pt);
-          if (!inS1Border && !inS2Border) {
-            //app.drawAPI.drawPoint(app.drawAPI.upperCtx, pt, undefined, 3);
-            return true;
-          }
-        }
-      }
+    let s1_segments = s1.get_segments(),
+      s2_segments = s2.get_segments();
+
+    // s1 in s2 ? if a point of s1 is in s2
+    let points_to_check = [];
+    for (let segment of s1_segments) {
+      if (!s2_segments.every(seg => !this.equal_segments(seg, segment))) continue;
+      points_to_check = [
+        ...points_to_check,
+        ...s2_segments.map(seg => this.get_non_common_point_of_joined_segments(segment, seg)),
+      ];
     }
+    points_to_check = points_to_check.filter(pt => pt);
+    if (!points_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s2))) return true;
+
+    // s2 in s1 ? if a point of s2 is in s1
+    points_to_check = [];
+    for (let segment of s2_segments) {
+      if (!s1_segments.every(seg => !this.equal_segments(seg, segment))) continue;
+      points_to_check = [
+        ...points_to_check,
+        ...s1_segments.map(seg => this.get_non_common_point_of_joined_segments(segment, seg)),
+      ];
+    }
+    points_to_check = points_to_check.filter(pt => pt);
+    if (!points_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s1))) return true;
+
+    // verifier si segemnts croisés !
     return false;
   }
 
