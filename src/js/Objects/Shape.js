@@ -442,23 +442,19 @@ export class Shape {
     });
   }
 
-  // get_segments() {
-  //   return this.buildSteps.filter(bs => bs.type == 'segment').map(el => el.vertexes);
-  // }
-
   /**
    * return the non comon point from seg1  if seg1 is joined to seg2 (1 common point)
    * @param {*} seg1
    * @param {*} seg2
    */
-  get_non_common_point_of_joined_segments(seg1, seg2) {
+  getNonCommonPointOfJoinedSegments(seg1, seg2) {
     if (seg1.vertexes[0].equal(seg2.vertexes[1]) && !seg1.vertexes[0].equal(seg2.vertexes[0]))
       return seg1.vertexes[1];
     if (seg1.vertexes[0].equal(seg2.vertexes[0]) && !seg1.vertexes[0].equal(seg2.vertexes[1]))
       return seg1.vertexes[1];
-    if (!seg1.vertexes[0].equal(seg2.vertexes[1]) && seg1.vertexes[0].equal(seg2.vertexes[0]))
+    if (!seg1.vertexes[1].equal(seg2.vertexes[1]) && seg1.vertexes[1].equal(seg2.vertexes[0]))
       return seg1.vertexes[0];
-    if (!seg1.vertexes[0].equal(seg2.vertexes[0]) && seg1.vertexes[0].equal(seg2.vertexes[1]))
+    if (!seg1.vertexes[1].equal(seg2.vertexes[0]) && seg1.vertexes[1].equal(seg2.vertexes[1]))
       return seg1.vertexes[0];
     return undefined;
   }
@@ -468,16 +464,15 @@ export class Shape {
    * @param {*} seg1
    * @param {*} seg2
    */
-  get_middle_of_joined_segments(seg1, seg2) {
-    console.log(seg1[0]);
+  getMiddleOfJoinedSegments(seg1, seg2) {
     if (seg1.vertexes[0].equal(seg2.vertexes[1]) && !seg1.vertexes[0].equal(seg2.vertexes[0]))
-      return seg1.vertexes.get_middle();
+      return seg1.middle;
     if (seg1.vertexes[0].equal(seg2.vertexes[0]) && !seg1.vertexes[0].equal(seg2.vertexes[1]))
-      return seg1.vertexes.get_middle();
-    if (!seg1.vertexes[0].equal(seg2.vertexes[1]) && seg1.vertexes[0].equal(seg2.vertexes[0]))
-      return seg1.vertexes.get_middle();
-    if (!seg1.vertexes[0].equal(seg2.vertexes[0]) && seg1.vertexes[0].equal(seg2.vertexes[1]))
-      return seg1.vertexes.get_middle();
+      return seg1.middle;
+    if (!seg1.vertexes[1].equal(seg2.vertexes[1]) && seg1.vertexes[1].equal(seg2.vertexes[0]))
+      return seg1.middle;
+    if (!seg1.vertexes[1].equal(seg2.vertexes[0]) && seg1.vertexes[1].equal(seg2.vertexes[1]))
+      return seg1.middle;
     return undefined;
   }
 
@@ -499,6 +494,8 @@ export class Shape {
      * ->explication détaillée: http://www.cs.tufts.edu/comp/163/notes05/seg_intersection_handout.pdf
      */
 
+    let is_potential_concave = false;
+
     let s1 = this,
       s2 = shape;
 
@@ -509,47 +506,83 @@ export class Shape {
     let vertexes_to_check = [],
       middles_to_check = [];
     for (let segment of s1_segments) {
-      if (!s2_segments.every(seg => !this.equal_segments(seg, segment))) continue;
+      if (!s2_segments.every(seg => !seg.equal(segment))) continue;
       vertexes_to_check = [
         ...vertexes_to_check,
         ...s2_segments
-          .map(seg => this.get_non_common_point_of_joined_segments(segment, seg))
+          .map(seg => this.getNonCommonPointOfJoinedSegments(segment, seg))
           .filter(pt => pt),
       ];
       middles_to_check = [
-        ...vertexes_to_check,
-        ...s2_segments
-          .map(seg => this.get_middle_of_joined_segments(segment, seg))
-          .filter(pt => pt),
+        ...middles_to_check,
+        ...s2_segments.map(seg => this.getMiddleOfJoinedSegments(segment, seg)).filter(pt => pt),
       ];
     }
-    console.log(vertexes_to_check, middles_to_check);
-    // vertexes_to_check.forEach(pt => {
-    //   console.log(pt);
-    //   app.drawAPI.drawPoint(app.drawAPI.upperCtx, pt, "#ff00ff", 5);
-    // });
-    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s2))) return true;
+    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s2)))
+      is_potential_concave = true;
+    if (
+      !vertexes_to_check.every(
+        (pt, idx) =>
+          !(
+            app.drawAPI.isPointInShape(pt, s2) &&
+            app.drawAPI.isPointInShape(middles_to_check[idx], s2)
+          ),
+      )
+    )
+      return true;
 
     // s2 in s1 ? if a point of s2 is in s1
-    vertexes_to_check = [];
+    (vertexes_to_check = []), (middles_to_check = []);
     for (let segment of s2_segments) {
-      if (!s1_segments.every(seg => !this.equal_segments(seg, segment))) continue;
+      if (!s1_segments.every(seg => !seg.equal(segment))) continue;
       vertexes_to_check = [
         ...vertexes_to_check,
         ...s1_segments
-          .map(seg => this.get_non_common_point_of_joined_segments(segment, seg))
+          .map(seg => this.getNonCommonPointOfJoinedSegments(segment, seg))
           .filter(pt => pt),
       ];
+      middles_to_check = [
+        ...middles_to_check,
+        ...s1_segments.map(seg => this.getMiddleOfJoinedSegments(segment, seg)).filter(pt => pt),
+      ];
     }
-    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s1))) return true;
+    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s1)))
+      is_potential_concave = true;
+    if (
+      !vertexes_to_check.every(
+        (pt, idx) =>
+          !(
+            app.drawAPI.isPointInShape(pt, s1) &&
+            app.drawAPI.isPointInShape(middles_to_check[idx], s1)
+          ),
+      )
+    )
+      return true;
 
-    console.log('not there');
+    // verifier si segments croisés !
+    if (
+      !s1_segments.every(seg => {
+        if (
+          !s2_segments
+            .filter(
+              segment =>
+                !seg.equal(segment) && !this.getNonCommonPointOfJoinedSegments(seg, segment),
+            )
+            .every(segment => !segment.doesIntersect(seg))
+        ) {
+          console.log('intersection');
+          return false;
+        }
+        return true;
+      })
+    )
+      return true;
 
-    // verifier si segemnts croisés !
-    // for (let segment of s1_segments) {
-    //   if (!s2_segments.every(seg => !this.equal_segments(seg, segment))) continue;
-    //   console.log(s2_segments.map(seg => !this.get_non_common_point_of_joined_segments(seg, segment)));
-    // }
+    // verifier si concave
+    if (is_potential_concave) {
+      console.log('peut-etre creuse...');
+      // return true;
+    }
     return false;
   }
 

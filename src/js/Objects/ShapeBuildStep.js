@@ -95,12 +95,12 @@ export class Segment extends ShapeBuildStep {
     } else {
       // axe.type=='NW' || axe.type=='SW'
       let f_a = (p1y - p2y) / (p1x - p2x),
-        f_b = p2y - f_a * p2x,
-        x2 = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1),
-        y2 = f_a * x2 + f_b;
+        f_b = p2y - f_a * p2x;
+      this.vertexes[1].x = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1);
+      this.vertexes[1].y = f_a * this.vertexes[1].x + f_b;
       center = {
-        x: x2,
-        y: y2,
+        x: this.vertexes[1].x,
+        y: this.vertexes[1].y,
       };
     }
     return center;
@@ -108,16 +108,54 @@ export class Segment extends ShapeBuildStep {
 
   isPointOnSegment(point) {
     let segmentLength = this.length,
-      dist1 = Points.dist(this.vertexes[0], point),
-      dist2 = Points.dist(this.vertexes[1], point);
+      dist1 = this.vertexes[0].dist(point),
+      dist2 = this.vertexes[1].dist(point);
 
-    if (dist1 > segmentLength || dist2 > segmentLength) return false;
+    // censé dire si c'est sur un segment ?
+    // marche pas avec segment ((200, 0), (200, 200)) et point (210, 100)
+    // if (dist1 > segmentLength || dist2 > segmentLength) return false;
+
+    if (dist1 + dist2 - segmentLength > 1) return false;
 
     return true;
   }
 
+  intersectPoint(segment) {
+    let result = new Point(0, 0);
+    let ma = (this.vertexes[0].y - this.vertexes[1].y) / (this.vertexes[0].x - this.vertexes[1].x),
+      mb =
+        (segment.vertexes[0].y - segment.vertexes[1].y) /
+        (segment.vertexes[0].x - segment.vertexes[1].x);
+    if (!isFinite(ma) && !isFinite(mb)) return undefined;
+    else if (!isFinite(ma)) {
+      let pb = segment.vertexes[0].y - mb * segment.vertexes[0].x;
+      result.y = mb * this.vertexes[0].x + pb;
+      result.x = this.vertexes[0].x;
+    } else if (!isFinite(mb)) {
+      let pa = this.vertexes[0].y - ma * this.vertexes[0].x;
+      result.y = ma * segment.vertexes[0].x + pa;
+      result.x = segment.vertexes[0].x;
+    } else {
+      if (ma == mb) return undefined; // precision ?
+      let pb = segment.vertexes[0].y - mb * segment.vertexes[0].x;
+      let pa = this.vertexes[0].y - ma * this.vertexes[0].x;
+      result.x = (pb - pa) / (ma - mb);
+      result.y = ma * result.x + pa;
+    }
+    return result;
+  }
+
+  doesIntersect(segment, allow_prolongation = false) {
+    let intersect_point = this.intersectPoint(segment);
+    if (!intersect_point) return false;
+    if (allow_prolongation) return true;
+    if (this.isPointOnSegment(intersect_point) && segment.isPointOnSegment(intersect_point))
+      return true;
+    return false;
+  }
+
   get length() {
-    return Points.dist(this.vertexes[0], this.vertexes[1]);
+    return this.vertexes[0].dist(this.vertexes[1]);
   }
 
   get direction() {
@@ -138,7 +176,7 @@ export class Segment extends ShapeBuildStep {
 
   rotate(angle, center = { x: 0, y: 0 }) {
     super.rotate(angle, center);
-    this.vertexes = this.vertexes.map(vertex => vertex.rotate(angle, center));
+    this.vertexes.forEach(vertex => vertex.rotate(angle, center));
     this.points.forEach(pt => {
       let pointCoords = rotatePoint(pt, angle, center);
       pt.x = pointCoords.x;
@@ -156,7 +194,7 @@ export class Segment extends ShapeBuildStep {
     this.vertexes.reverse();
   }
 
-  get_middle() {
+  get middle() {
     return new Point(
       (this.vertexes[0].x + this.vertexes[1].x) / 2,
       (this.vertexes[0].y + this.vertexes[1].y) / 2,
