@@ -104,7 +104,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
         list.push({
           shape: s,
           relativeCoordinates: s.center,
-          coordinates: Points.add(s.center, s, Points.sub(coordinates, mainShape)),
+          coordinates: Points.add(s.center, Points.sub(coordinates, mainShape)),
           pointType: 'center',
         });
       }

@@ -108,7 +108,9 @@ export class ReverseAction extends Action {
       const transformation = this.computePointPosition(bs.coordinates, arch, progression);
       bs.coordinates = transformation;
       if (bs.type == 'segment') {
-        const transformation = this.computePointPosition(bs.vertexes[1], arch, progression);
+        let transformation = this.computePointPosition(bs.vertexes[0], arch, progression);
+        bs.vertexes[0] = transformation;
+        transformation = this.computePointPosition(bs.vertexes[1], arch, progression);
         bs.vertexes[1] = transformation;
         bs.points.forEach(pt => {
           let pointCoords = this.computePointPosition(pt, arch, progression);
