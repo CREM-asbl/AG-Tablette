@@ -143,12 +143,16 @@ export class MergeAction extends Action {
         continue;
       }
 
-      // console.log(this.isSegmentsHaveSameDirection(precSegment, copy))
+      // if (this.isSegmentsHaveSameDirection(precSegment, copy)) {
+      //   precSegment.vertexes[1] = copy.vertexes[1]
+      // } else {
       newBuildSteps.push(new Vertex(copy.vertexes[0]));
       newBuildSteps.push(copy);
       precSegment = copy;
       numberOfSegmentsRefused = 0;
+      // }
     }
+    console.log(newBuildSteps);
     return newBuildSteps;
   }
 

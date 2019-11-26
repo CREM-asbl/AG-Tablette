@@ -574,9 +574,10 @@ export class Shape {
   get path() {
     const path = new Path2D();
     this.buildSteps.forEach(buildStep => {
-      if (buildStep.type == 'moveTo') path.moveTo(buildStep.coordinates.x, buildStep.coordinates.y);
-      else if (buildStep.type == 'segment')
-        path.lineTo(buildStep.coordinates.x, buildStep.coordinates.y);
+      if (buildStep.type === 'moveTo')
+        path.moveTo(buildStep.coordinates.x, buildStep.coordinates.y);
+      else if (buildStep.type === 'segment')
+        path.lineTo(buildStep.vertexes[1].x, buildStep.vertexes[1].y);
     });
     path.closePath();
     return path;
