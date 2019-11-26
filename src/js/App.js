@@ -179,6 +179,7 @@ export class App {
   }
 
   openFile(file) {
+    if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       const dataObject = JSON.parse(reader.result);
