@@ -442,26 +442,42 @@ export class Shape {
     });
   }
 
-  get_segments() {
-    return this.buildSteps.filter(bs => bs.type == 'segment').map(el => el.vertexes);
-  }
-
-  equal_segments(seg1, seg2) {
-    if (Points.equal(seg1[0], seg2[1]) && Points.equal(seg1[1], seg2[0])) return true;
-    if (Points.equal(seg1[0], seg2[0]) && Points.equal(seg1[1], seg2[1])) return true;
-    return false;
-  }
+  // get_segments() {
+  //   return this.buildSteps.filter(bs => bs.type == 'segment').map(el => el.vertexes);
+  // }
 
   /**
-   * return the non comon point from seg1
+   * return the non comon point from seg1  if seg1 is joined to seg2 (1 common point)
    * @param {*} seg1
    * @param {*} seg2
    */
   get_non_common_point_of_joined_segments(seg1, seg2) {
-    if (Points.equal(seg1[0], seg2[1]) && !Points.equal(seg1[1], seg2[0])) return seg1[1];
-    if (Points.equal(seg1[0], seg2[0]) && !Points.equal(seg1[1], seg2[1])) return seg1[1];
-    if (!Points.equal(seg1[0], seg2[1]) && Points.equal(seg1[1], seg2[0])) return seg1[0];
-    if (!Points.equal(seg1[0], seg2[0]) && Points.equal(seg1[1], seg2[1])) return seg1[0];
+    if (seg1.vertexes[0].equal(seg2.vertexes[1]) && !seg1.vertexes[0].equal(seg2.vertexes[0]))
+      return seg1.vertexes[1];
+    if (seg1.vertexes[0].equal(seg2.vertexes[0]) && !seg1.vertexes[0].equal(seg2.vertexes[1]))
+      return seg1.vertexes[1];
+    if (!seg1.vertexes[0].equal(seg2.vertexes[1]) && seg1.vertexes[0].equal(seg2.vertexes[0]))
+      return seg1.vertexes[0];
+    if (!seg1.vertexes[0].equal(seg2.vertexes[0]) && seg1.vertexes[0].equal(seg2.vertexes[1]))
+      return seg1.vertexes[0];
+    return undefined;
+  }
+
+  /**
+   * return the middle of seg1 if seg1 is joined to seg2 (1 common point)
+   * @param {*} seg1
+   * @param {*} seg2
+   */
+  get_middle_of_joined_segments(seg1, seg2) {
+    console.log(seg1[0]);
+    if (seg1.vertexes[0].equal(seg2.vertexes[1]) && !seg1.vertexes[0].equal(seg2.vertexes[0]))
+      return seg1.vertexes.get_middle();
+    if (seg1.vertexes[0].equal(seg2.vertexes[0]) && !seg1.vertexes[0].equal(seg2.vertexes[1]))
+      return seg1.vertexes.get_middle();
+    if (!seg1.vertexes[0].equal(seg2.vertexes[1]) && seg1.vertexes[0].equal(seg2.vertexes[0]))
+      return seg1.vertexes.get_middle();
+    if (!seg1.vertexes[0].equal(seg2.vertexes[0]) && seg1.vertexes[0].equal(seg2.vertexes[1]))
+      return seg1.vertexes.get_middle();
     return undefined;
   }
 
@@ -486,34 +502,54 @@ export class Shape {
     let s1 = this,
       s2 = shape;
 
-    let s1_segments = s1.get_segments(),
-      s2_segments = s2.get_segments();
+    let s1_segments = s1.getSegments(),
+      s2_segments = s2.getSegments();
 
     // s1 in s2 ? if a point of s1 is in s2
-    let points_to_check = [];
+    let vertexes_to_check = [],
+      middles_to_check = [];
     for (let segment of s1_segments) {
       if (!s2_segments.every(seg => !this.equal_segments(seg, segment))) continue;
-      points_to_check = [
-        ...points_to_check,
-        ...s2_segments.map(seg => this.get_non_common_point_of_joined_segments(segment, seg)),
+      vertexes_to_check = [
+        ...vertexes_to_check,
+        ...s2_segments
+          .map(seg => this.get_non_common_point_of_joined_segments(segment, seg))
+          .filter(pt => pt),
+      ];
+      middles_to_check = [
+        ...vertexes_to_check,
+        ...s2_segments
+          .map(seg => this.get_middle_of_joined_segments(segment, seg))
+          .filter(pt => pt),
       ];
     }
-    points_to_check = points_to_check.filter(pt => pt);
-    if (!points_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s2))) return true;
+    console.log(vertexes_to_check, middles_to_check);
+    // vertexes_to_check.forEach(pt => {
+    //   console.log(pt);
+    //   app.drawAPI.drawPoint(app.drawAPI.upperCtx, pt, "#ff00ff", 5);
+    // });
+    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s2))) return true;
 
     // s2 in s1 ? if a point of s2 is in s1
-    points_to_check = [];
+    vertexes_to_check = [];
     for (let segment of s2_segments) {
       if (!s1_segments.every(seg => !this.equal_segments(seg, segment))) continue;
-      points_to_check = [
-        ...points_to_check,
-        ...s1_segments.map(seg => this.get_non_common_point_of_joined_segments(segment, seg)),
+      vertexes_to_check = [
+        ...vertexes_to_check,
+        ...s1_segments
+          .map(seg => this.get_non_common_point_of_joined_segments(segment, seg))
+          .filter(pt => pt),
       ];
     }
-    points_to_check = points_to_check.filter(pt => pt);
-    if (!points_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s1))) return true;
+    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s1))) return true;
+
+    console.log('not there');
 
     // verifier si segemnts croisés !
+    // for (let segment of s1_segments) {
+    //   if (!s2_segments.every(seg => !this.equal_segments(seg, segment))) continue;
+    //   console.log(s2_segments.map(seg => !this.get_non_common_point_of_joined_segments(seg, segment)));
+    // }
     return false;
   }
 

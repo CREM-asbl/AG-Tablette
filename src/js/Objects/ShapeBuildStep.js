@@ -1,5 +1,6 @@
 import { Points } from '../Tools/points';
 import { rotatePoint } from '../Tools/geometry';
+import { Point } from './Point';
 
 export class ShapeBuildStep {
   constructor(type) {
@@ -33,7 +34,7 @@ export class Segment extends ShapeBuildStep {
   constructor(point1, point2, isArc = false) {
     super('segment');
     this.coordinates = point2;
-    this.vertexes = [point1, point2];
+    this.vertexes = [new Point(point1), new Point(point2)];
     this.points = [];
     this.isArc = isArc;
   }
@@ -126,8 +127,8 @@ export class Segment extends ShapeBuildStep {
 
   setScale(size) {
     super.setScale(size);
-    this.vertexes = this.vertexes.map(vertex => {
-      return { x: vertex.x * size, y: vertex.y * size };
+    this.vertexes.forEach(vertex => {
+      vertex.multiplyWithScalar(size);
     });
     this.points.forEach(pt => {
       pt.x = pt.x * size;
@@ -137,7 +138,7 @@ export class Segment extends ShapeBuildStep {
 
   rotate(angle, center = { x: 0, y: 0 }) {
     super.rotate(angle, center);
-    this.vertexes = this.vertexes.map(vertex => rotatePoint(vertex, angle, center));
+    this.vertexes = this.vertexes.map(vertex => vertex.rotate(angle, center));
     this.points.forEach(pt => {
       let pointCoords = rotatePoint(pt, angle, center);
       pt.x = pointCoords.x;
@@ -147,12 +148,27 @@ export class Segment extends ShapeBuildStep {
 
   translate(coordinates) {
     super.translate(coordinates);
-    this.vertexes = this.vertexes.map(vertex => Points.add(vertex, coordinates));
+    this.vertexes.forEach(vertex => vertex.translate(coordinates));
     this.points = this.points.map(point => Points.add(point, coordinates));
   }
 
   reverse() {
     this.vertexes.reverse();
+  }
+
+  get_middle() {
+    return new Point(
+      (this.vertexes[0].x + this.vertexes[1].x) / 2,
+      (this.vertexes[0].y + this.vertexes[1].y) / 2,
+    );
+  }
+
+  equal(segment) {
+    if (this.vertexes[0].equal(segment.vertexes[1]) && this.vertexes[1].equal(segment.vertexes[0]))
+      return true;
+    if (this.vertexes[0].equal(segment.vertexes[0]) && this.vertexes[1].equal(segment.vertexes[1]))
+      return true;
+    return false;
   }
 }
 
