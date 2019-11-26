@@ -54,11 +54,13 @@ export class Segment extends ShapeBuildStep {
     this.points.splice(i, 1);
   }
 
-  copy() {
+  copy(full = true) {
     let copy = new Segment(this.vertexes[0], this.vertexes[1], this.isArc);
-    this.points.forEach(p => {
-      copy.addPoint(p);
-    });
+    if (full) {
+      this.points.forEach(p => {
+        copy.addPoint(p);
+      });
+    }
     return copy;
   }
 

@@ -125,11 +125,11 @@ export class MergeAction extends Action {
       const currentSegment = segmentsList.shift();
       let copy = null;
       if (!precSegment || Points.equal(currentSegment.vertexes[0], precSegment.vertexes[1])) {
-        copy = currentSegment.copy();
+        copy = currentSegment.copy(false);
       }
 
       if (precSegment && Points.equal(currentSegment.vertexes[1], precSegment.vertexes[1])) {
-        copy = currentSegment.copy();
+        copy = currentSegment.copy(false);
         copy.reverse();
       }
 
