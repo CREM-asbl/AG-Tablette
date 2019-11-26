@@ -143,16 +143,15 @@ export class MergeAction extends Action {
         continue;
       }
 
-      // if (this.isSegmentsHaveSameDirection(precSegment, copy)) {
-      //   precSegment.vertexes[1] = copy.vertexes[1]
-      // } else {
-      newBuildSteps.push(new Vertex(copy.vertexes[0]));
-      newBuildSteps.push(copy);
-      precSegment = copy;
-      numberOfSegmentsRefused = 0;
-      // }
+      if (precSegment && this.isSegmentsHaveSameDirection(precSegment, copy)) {
+        precSegment.vertexes[1] = copy.vertexes[1];
+      } else {
+        newBuildSteps.push(new Vertex(copy.vertexes[0]));
+        newBuildSteps.push(copy);
+        precSegment = copy;
+        numberOfSegmentsRefused = 0;
+      }
     }
-    console.log(newBuildSteps);
     return newBuildSteps;
   }
 
@@ -167,7 +166,8 @@ export class MergeAction extends Action {
   }
 
   isSegmentsHaveSameDirection(segment1, segment2) {
-    if (!segment1 || !segment2) return false;
-    return Points.equal(segment1.direction, segment2.direction);
+    return (
+      segment1.direction.x === segment2.direction.x && segment1.direction.y === segment2.direction.y
+    );
   }
 }
