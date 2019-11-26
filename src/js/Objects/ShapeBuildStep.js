@@ -104,13 +104,22 @@ export class Segment extends ShapeBuildStep {
   }
 
   isPointOnSegment(point) {
-    let segmentLength = Points.dist(this.vertexes[0], this.vertexes[1]),
+    let segmentLength = this.length,
       dist1 = Points.dist(this.vertexes[0], point),
       dist2 = Points.dist(this.vertexes[1], point);
 
     if (dist1 > segmentLength || dist2 > segmentLength) return false;
 
     return true;
+  }
+
+  get length() {
+    return Points.dist(this.vertexes[0], this.vertexes[1]);
+  }
+
+  get direction() {
+    const originVector = Points.sub(this.vertexes[1], this.vertexes[0]);
+    return Points.multInt(originVector, 1 / this.length);
   }
 
   setScale(size) {

@@ -47,7 +47,6 @@ export class WorkspaceHistory {
     this.history = object.history.map(step => {
       return {
         actions: step.actions.map(actionData => {
-          console.log('actionData ', actionData);
           return StatesManager.getActionInstance(actionData);
         }),
         previous_step: step.previous_step,
@@ -55,8 +54,6 @@ export class WorkspaceHistory {
         start_of_branch: step.start_of_branch,
       };
     });
-
-    // console.log(this.history);
 
     this.historyIndex = this.history.length - 1;
     this.updateMenuState();
