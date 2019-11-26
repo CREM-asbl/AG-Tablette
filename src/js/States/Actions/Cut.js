@@ -88,51 +88,25 @@ export class CutAction extends Action {
     }
 
     //Calculer les buildSteps des 2 formes
-    let shape1BSPart1 = bs.slice(0, pt1.index + 1).map(b => b.copy()),
-      shape1BSPart2 = bs.slice(pt2.index).map(b => b.copy()),
-      shape2BS = bs.slice(pt1.index, pt2.index + 1).map(b => b.copy());
+    let shape1BSPart1 = bs.slice(0, pt1.index + 1).map(b => b.copy(false)),
+      shape1BSPart2 = bs.slice(pt2.index).map(b => b.copy(false)),
+      shape2BS = bs.slice(pt1.index, pt2.index + 1).map(b => b.copy(false));
+    console.log(shape1BSPart1, shape1BSPart2);
 
-    if (pt1.pointType == 'segmentPoint') {
+    if (pt1.pointType === 'segmentPoint') {
       let lastIndex = shape1BSPart1.length - 1,
-        s1LastBS = shape1BSPart1[lastIndex],
-        s1SecLastBS = shape1BSPart1[lastIndex - 1];
-      s1LastBS.coordinates = pt1.relativeCoordinates;
+        s1LastBS = shape1BSPart1[lastIndex];
+      s1LastBS.vertexes[1] = pt1.relativeCoordinates;
       shape1BSPart1.push(new Vertex(pt1.relativeCoordinates));
       shape2BS.unshift(new Vertex(pt1.relativeCoordinates));
-
-      //Ne garder que les points qui sont sur cette partie du segment:
-      let refDist = Points.dist(s1LastBS.coordinates, s1SecLastBS.coordinates);
-      s1LastBS.points = s1LastBS.points.filter(pt => {
-        let dist = Points.dist(pt, s1SecLastBS.coordinates);
-        return dist < refDist;
-      });
-      refDist = Points.dist(shape2BS[0].coordinates, shape2BS[1].coordinates);
-      shape2BS[1].points = shape2BS[1].points.filter(pt => {
-        let dist = Points.dist(pt, shape2BS[1].coordinates);
-        return dist < refDist;
-      });
     }
-    shape2BS.unshift(new MoveTo(pt1.relativeCoordinates));
 
-    if (pt2.pointType == 'segmentPoint') {
+    if (pt2.pointType === 'segmentPoint') {
       let lastIndex = shape2BS.length - 1,
-        s2LastBS = shape2BS[lastIndex],
-        s2SecLastBS = shape2BS[lastIndex - 1];
-      s2LastBS.coordinates = pt2.relativeCoordinates;
+        s2LastBS = shape2BS[lastIndex];
+      s2LastBS.vertexes[0] = pt2.relativeCoordinates;
       shape2BS.push(new Vertex(pt2.relativeCoordinates));
       shape1BSPart2.unshift(new Vertex(pt2.relativeCoordinates));
-
-      //Ne garder que les points qui sont sur cette partie du segment:
-      let refDist = Points.dist(s2LastBS.coordinates, s2SecLastBS.coordinates);
-      s2LastBS.points = s2LastBS.points.filter(pt => {
-        let dist = Points.dist(pt, s2SecLastBS.coordinates);
-        return dist < refDist;
-      });
-      refDist = Points.dist(shape1BSPart2[0].coordinates, shape1BSPart2[1].coordinates);
-      shape1BSPart2[1].points = shape1BSPart2[1].points.filter(pt => {
-        let dist = Points.dist(pt, shape1BSPart2[1].coordinates);
-        return dist < refDist;
-      });
     }
 
     if (centerPt) {
