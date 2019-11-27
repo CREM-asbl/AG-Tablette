@@ -27,7 +27,7 @@ export class Shape {
     this.name = name;
     this.familyName = familyName;
 
-    [this.vertexes, this.segments] = this.getDataFromBuildSteps(buildSteps);
+    // [this.vertexes, this.segments] = this.getDataFromBuildSteps(buildSteps);
 
     this.color = '#aaa';
     this.borderColor = '#000';
@@ -43,8 +43,22 @@ export class Shape {
   /**
    * init vertexes and segments with new method (just defined segments)
    */
-  getDataFromBuildSteps() {
-    let result = [undefined, undefined];
+  getDataFromBuildSteps(buildSteps) {
+    let result = { vertexes: [], segments: [] },
+      first_point_of_path = new Point(buildSteps.steps[0].dep),
+      new_len;
+
+    result.vertexes.push(first_point_of_path);
+
+    buildSteps.step.forEach(step => {
+      new_len = result.vertexes.push(new Point(step.arr));
+      result.vertexes.push(
+        new Segment(
+          result.vertexes.find(vertex => vertex.equal(step.dep)),
+          retult.vertexes[new_len],
+        ),
+      );
+    });
 
     return result;
   }
