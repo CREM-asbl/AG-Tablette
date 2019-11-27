@@ -50,6 +50,12 @@ export class MergeAction extends Action {
     let shape1 = app.workspace.getShapeById(this.firstShapeId),
       shape2 = app.workspace.getShapeById(this.secondShapeId);
 
+    const pointsOfShape1 = shape1.allOutlinePoints;
+    const pointsOfShape2 = shape2.allOutlinePoints;
+    const commonsPoints = this.getCommonsPoints(shape1, shape2);
+
+    const pointsOfMergedShape = [];
+
     const segmentsOfMergedShape = this.computeSegmentsOfMergedShape(shape1, shape2);
 
     const buildSteps = this.computeNewBuildSteps(segmentsOfMergedShape);
@@ -81,21 +87,29 @@ export class MergeAction extends Action {
     app.workspace.deleteShape(shape);
   }
 
-  hasCommonSegment(shape1, shape2) {
-    const segmentsFromShape1 = shape1.getSegments();
-    const segmentsFromShape2 = shape2.getSegments();
-    for (let i = 0; i < segmentsFromShape1.length; i++) {
-      for (let j = 0; j < segmentsFromShape2.length; j++) {
-        if (segmentsFromShape1[i].equal(segmentsFromShape2[j])) return true;
-      }
-    }
-    return false;
+  getCommonsPoints(shape1, shape2) {
+    const commonsPoints = [];
+    shape1.allOutlinePoints.forEach(point1 => {
+      shape2.allOutlinePoints.forEach(point2 => {
+        if (Points.equal(point1, point2)) commonsPoints.push(point1);
+      });
+    });
+    console.log(commonsPoints);
+    return commonsPoints;
+
+    // const segmentsFromShape1 = shape1.segments;
+    // const segmentsFromShape2 = shape2.segments;
+    // for (let i = 0; i < segmentsFromShape1.length; i++) {
+    //   for (let j = 0; j < segmentsFromShape2.length; j++) {
+    //     if (segmentsFromShape1[i].equal(segmentsFromShape2[j])) return true;
+    //   }
+    // }
+    // return false;
   }
 
   computeSegmentsOfMergedShape(shape1, shape2) {
-    // Todo: A améliorer pour les arcs
-    let segments = shape1.getSegments();
-    const segmentsFromShape2 = shape2.getSegments();
+    let segments = shape1.segments;
+    const segmentsFromShape2 = shape2.segments;
 
     for (let i = 0; i < segmentsFromShape2.length; i++) {
       const commonsSegments = segments.filter(segment => segment.equal(segmentsFromShape2[i]));
