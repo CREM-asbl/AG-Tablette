@@ -206,7 +206,7 @@ export class DivideState extends State {
       vertexToAdd.push(shape.getNextVertexIndex(object.index));
     }
 
-    if (!shape.isCircle() && !shape.isOnlySegment())
+    if (!shape.isCircle() && !shape.isSegment())
       vertexToAdd.push(shape.getPrevVertexIndex(object.index));
 
     if (object.pointType === 'vertex') {
@@ -214,7 +214,7 @@ export class DivideState extends State {
       if (!isVertexAfter || shape.isCircle()) {
         segmentsToAdd.push([shape.getNextBuildstepIndex(object.index), false]);
       }
-      if (!shape.isOnlySegment())
+      if (!shape.isSegment())
         segmentsToAdd.push([shape.getPrevBuildstepIndex(object.index), false]);
     } else {
       //segmentPoint actuel

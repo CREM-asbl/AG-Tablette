@@ -111,32 +111,37 @@ export class Segment extends ShapeBuildStep {
       dist1 = this.vertexes[0].dist(point),
       dist2 = this.vertexes[1].dist(point);
 
-    // censé dire si c'est sur un segment ?
-    // marche pas avec segment ((200, 0), (200, 200)) et point (210, 100)
-    // if (dist1 > segmentLength || dist2 > segmentLength) return false;
-
     if (dist1 + dist2 - segmentLength > 1) return false;
-
     return true;
   }
 
+  /**
+   * point d'intersection de 2 segments (ou prolongation)
+   * @param {object} segment
+   * @return le point ou undefined si segments parallèles
+   */
   intersectPoint(segment) {
-    let result = new Point(0, 0);
-    let ma = (this.vertexes[0].y - this.vertexes[1].y) / (this.vertexes[0].x - this.vertexes[1].x),
+    let result = new Point(0, 0),
+      ma = (this.vertexes[0].y - this.vertexes[1].y) / (this.vertexes[0].x - this.vertexes[1].x),
       mb =
         (segment.vertexes[0].y - segment.vertexes[1].y) /
         (segment.vertexes[0].x - segment.vertexes[1].x);
+
+    // 2 segments verticaux
     if (!isFinite(ma) && !isFinite(mb)) return undefined;
+    // this vertical
     else if (!isFinite(ma)) {
       let pb = segment.vertexes[0].y - mb * segment.vertexes[0].x;
       result.y = mb * this.vertexes[0].x + pb;
       result.x = this.vertexes[0].x;
+      // segment vertical
     } else if (!isFinite(mb)) {
       let pa = this.vertexes[0].y - ma * this.vertexes[0].x;
       result.y = ma * segment.vertexes[0].x + pa;
       result.x = segment.vertexes[0].x;
+      // 2 segments 'normaux'
     } else {
-      if (ma == mb) return undefined; // precision ?
+      if (ma == mb) return undefined; // ajouter precision ?
       let pb = segment.vertexes[0].y - mb * segment.vertexes[0].x;
       let pa = this.vertexes[0].y - ma * this.vertexes[0].x;
       result.x = (pb - pa) / (ma - mb);
@@ -144,6 +149,12 @@ export class Segment extends ShapeBuildStep {
     }
     return result;
   }
+
+  /**
+   * check si deux segments s'intersectent
+   * @param {*} segment
+   * @param {*} allow_prolongation si prolongation s'intersectent (si sécante)
+   */
 
   doesIntersect(segment, allow_prolongation = false) {
     let intersect_point = this.intersectPoint(segment);
@@ -154,6 +165,38 @@ export class Segment extends ShapeBuildStep {
     return false;
   }
 
+  /**
+   * return the non comon point of this if this is joined to segment (1 common point)
+   * @param {*} segment
+   */
+  getNonCommonPointIfJoined(segment) {
+    if (this.vertexes[0].equal(segment.vertexes[1]) && !this.vertexes[0].equal(segment.vertexes[0]))
+      return this.vertexes[1];
+    if (this.vertexes[0].equal(segment.vertexes[0]) && !this.vertexes[0].equal(segment.vertexes[1]))
+      return this.vertexes[1];
+    if (!this.vertexes[1].equal(segment.vertexes[1]) && this.vertexes[1].equal(segment.vertexes[0]))
+      return this.vertexes[0];
+    if (!this.vertexes[1].equal(segment.vertexes[0]) && this.vertexes[1].equal(segment.vertexes[1]))
+      return this.vertexes[0];
+    return undefined;
+  }
+
+  /**
+   * return the middle of this if this is joined to segment (1 common point)
+   * @param {*} segment
+   */
+  getMiddleIfJoined(segment) {
+    if (this.vertexes[0].equal(segment.vertexes[1]) && !this.vertexes[0].equal(segment.vertexes[0]))
+      return this.middle;
+    if (this.vertexes[0].equal(segment.vertexes[0]) && !this.vertexes[0].equal(segment.vertexes[1]))
+      return this.middle;
+    if (!this.vertexes[1].equal(segment.vertexes[1]) && this.vertexes[1].equal(segment.vertexes[0]))
+      return this.middle;
+    if (!this.vertexes[1].equal(segment.vertexes[0]) && this.vertexes[1].equal(segment.vertexes[1]))
+      return this.middle;
+    return undefined;
+  }
+
   get length() {
     return this.vertexes[0].dist(this.vertexes[1]);
   }
@@ -161,6 +204,13 @@ export class Segment extends ShapeBuildStep {
   get direction() {
     const originVector = Points.sub(this.vertexes[1], this.vertexes[0]);
     return Points.multInt(originVector, 1 / this.length);
+  }
+
+  get middle() {
+    return new Point(
+      (this.vertexes[0].x + this.vertexes[1].x) / 2,
+      (this.vertexes[0].y + this.vertexes[1].y) / 2,
+    );
   }
 
   setScale(size) {
@@ -192,13 +242,6 @@ export class Segment extends ShapeBuildStep {
 
   reverse() {
     this.vertexes.reverse();
-  }
-
-  get middle() {
-    return new Point(
-      (this.vertexes[0].x + this.vertexes[1].x) / 2,
-      (this.vertexes[0].y + this.vertexes[1].y) / 2,
-    );
   }
 
   equal(segment) {

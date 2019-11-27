@@ -1,7 +1,7 @@
 import { uniqId, mod } from '../Tools/general';
 import { Points } from '../Tools/points';
 import { Point } from './Point';
-import { distanceBetweenPoints, rotatePoint } from '../Tools/geometry';
+import { distanceBetweenPoints } from '../Tools/geometry';
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep';
 import { app } from '../App';
 
@@ -87,14 +87,16 @@ export class Shape {
     });
   }
 
-  //TODO: supprimer confusion avec la fonction isSegment
-  isOnlySegment() {
+  /**
+   * say if the shape is a Segment
+   */
+  isSegment() {
     return this.buildSteps.filter(buildstep => buildstep.type === 'segment').length === 1;
   }
 
   //FIX:  redondance avec InteractionAPI.selectSegment()
   isPointOnSegment(point) {
-    if (!this.isOnlySegment()) return false;
+    if (!this.isSegment()) return false;
 
     const segment = this.buildSteps.filter(buildstep => buildstep.type === 'segment')[0];
 
@@ -132,6 +134,20 @@ export class Shape {
     }
 
     return bsIndex + 1;
+  }
+
+  contains(object) {
+    if (object instanceof Point) {
+      if (this.outline_points.some(outline_point => outline_point.equal(object))) return true;
+      if (this.isCenterShown && this.center.equal(object)) return true;
+      return false;
+    } else if (object instanceof Segment) {
+      if (this.segments.some(segment.equal(object))) return true;
+      return false;
+    } else {
+      console.log('unsupported object');
+      return false;
+    }
   }
 
   /**
@@ -325,7 +341,7 @@ export class Shape {
     }
     if (point1.pointType == 'vertex' && point2.pointType == 'vertex') {
       //2 vertex. forment un segment entier ?
-      return this.isSegment(point1.index, point2.index);
+      return this.contains(new Segment(point1.index, point2.index));
     }
     if (point1.pointType != 'vertex' && point2.pointType != 'vertex') {
       //2 segmentPoints. sur le même segment ?
@@ -349,39 +365,40 @@ export class Shape {
     }
   }
 
-  /**
-   * Renvoie true si bsIndex1 et bsIndex2 sont les index de 2 sommets (vertex)
-   * entre lesquels il y a un segment qui n'est pas un arc de cercle!
-   * @param  {int}  bsIndex1
-   * @param  {int}  bsIndex2
-   * @return {Boolean}
-   */
-  isSegment(bsIndex1, bsIndex2) {
-    let bs = this.buildSteps;
-    if (bs[bsIndex1].type != 'vertex' || bs[bsIndex2].type != 'vertex') {
-      console.error('bad bsIndex');
-      return null;
-    }
+  // /**
+  //  * Renvoie true si bsIndex1 et bsIndex2 sont les index de 2 sommets (vertex)
+  //  * entre lesquels il y a un segment qui n'est pas un arc de cercle!
+  //  * @param  {int}  bsIndex1
+  //  * @param  {int}  bsIndex2
+  //  * @return {Boolean}
+  //  */
+  // isSegment(bsIndex1, bsIndex2) {
+  //   let bs = this.buildSteps;
+  //   if (bs[bsIndex1].type != 'vertex' || bs[bsIndex2].type != 'vertex') {
+  //     console.error('bad bsIndex');
+  //     return null;
+  //   }
 
-    if (bsIndex1 > bsIndex2) {
-      [bsIndex1, bsIndex2] = [bsIndex2, bsIndex1];
-    }
+  //   if (bsIndex1 > bsIndex2) {
+  //     [bsIndex1, bsIndex2] = [bsIndex2, bsIndex1];
+  //   }
 
-    if (
-      bsIndex1 + 2 == bsIndex2 &&
-      bs[bsIndex1 + 1].type == 'segment' &&
-      bs[bsIndex1 + 1].isArc !== true
-    )
-      return true;
-    if (
-      bsIndex1 == 1 &&
-      bsIndex2 == bs.length - 2 &&
-      bs[bsIndex2 + 1].type == 'segment' &&
-      bs[bsIndex2 + 1].isArc !== true
-    )
-      return true;
-    return false;
-  }
+  //   if (
+  //     bsIndex1 + 2 == bsIndex2 &&
+  //     bs[bsIndex1 + 1].type == 'segment' &&
+  //     bs[bsIndex1 + 1].isArc !== true
+  //   )
+  //     return true;
+  //   if (
+  //     bsIndex1 == 1 &&
+  //     bsIndex2 == bs.length - 2 &&
+  //     bs[bsIndex2 + 1].type == 'segment' &&
+  //     bs[bsIndex2 + 1].isArc !== true
+  //   )
+  //     return true;
+  //   return false;
+  // }
+
   /**
    * Renvoie la longueur d'un arc de cercle
    * @param  {int} buildStepIndex l'index (dans buildSteps) d'un des segments
@@ -443,90 +460,37 @@ export class Shape {
   }
 
   /**
-   * return the non comon point from seg1  if seg1 is joined to seg2 (1 common point)
-   * @param {*} seg1
-   * @param {*} seg2
-   */
-  getNonCommonPointOfJoinedSegments(seg1, seg2) {
-    if (seg1.vertexes[0].equal(seg2.vertexes[1]) && !seg1.vertexes[0].equal(seg2.vertexes[0]))
-      return seg1.vertexes[1];
-    if (seg1.vertexes[0].equal(seg2.vertexes[0]) && !seg1.vertexes[0].equal(seg2.vertexes[1]))
-      return seg1.vertexes[1];
-    if (!seg1.vertexes[1].equal(seg2.vertexes[1]) && seg1.vertexes[1].equal(seg2.vertexes[0]))
-      return seg1.vertexes[0];
-    if (!seg1.vertexes[1].equal(seg2.vertexes[0]) && seg1.vertexes[1].equal(seg2.vertexes[1]))
-      return seg1.vertexes[0];
-    return undefined;
-  }
-
-  /**
-   * return the middle of seg1 if seg1 is joined to seg2 (1 common point)
-   * @param {*} seg1
-   * @param {*} seg2
-   */
-  getMiddleOfJoinedSegments(seg1, seg2) {
-    if (seg1.vertexes[0].equal(seg2.vertexes[1]) && !seg1.vertexes[0].equal(seg2.vertexes[0]))
-      return seg1.middle;
-    if (seg1.vertexes[0].equal(seg2.vertexes[0]) && !seg1.vertexes[0].equal(seg2.vertexes[1]))
-      return seg1.middle;
-    if (!seg1.vertexes[1].equal(seg2.vertexes[1]) && seg1.vertexes[1].equal(seg2.vertexes[0]))
-      return seg1.middle;
-    if (!seg1.vertexes[1].equal(seg2.vertexes[0]) && seg1.vertexes[1].equal(seg2.vertexes[1]))
-      return seg1.middle;
-    return undefined;
-  }
-
-  /**
    * Vérifie si cette forme se superpose avec une autre forme.
    * @param  {Shape} shape L'autre forme
    * @return {overlap}     true: si les 2 formes se superposent
    */
   overlapsWith(shape) {
-    /**
-     * TODO pistes d'amélioration:
-     * vérifier si une des formes est dans l'autre, ou si au moins un des
-     * segment d'une forme croise au moins un segment de l'autre.
-     * Problème: pour les algorithmes existants, si 2 segments sont l'un
-     * sur l'autre, ils considèrent que les formes se superposent. Pas
-     * évident de les adapter vu la situation...
-     * ex: algorithme sweep line
-     * ->wikipédia: https://en.wikipedia.org/wiki/Sweep_line_algorithm
-     * ->explication détaillée: http://www.cs.tufts.edu/comp/163/notes05/seg_intersection_handout.pdf
-     */
-
-    let is_potential_concave = false;
-
-    let s1 = this,
-      s2 = shape;
-
-    let s1_segments = s1.getSegments(),
+    let is_potential_dig = false,
+      s1 = this,
+      s2 = shape,
+      s1_segments = s1.getSegments(),
       s2_segments = s2.getSegments();
 
     // s1 in s2 ? if a point of s1 is in s2
     let vertexes_to_check = [],
       middles_to_check = [];
     for (let segment of s1_segments) {
-      if (!s2_segments.every(seg => !seg.equal(segment))) continue;
+      if (s2_segments.some(seg => seg.equal(segment))) continue;
       vertexes_to_check = [
         ...vertexes_to_check,
-        ...s2_segments
-          .map(seg => this.getNonCommonPointOfJoinedSegments(segment, seg))
-          .filter(pt => pt),
+        ...s2_segments.map(seg => segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
       ];
       middles_to_check = [
         ...middles_to_check,
-        ...s2_segments.map(seg => this.getMiddleOfJoinedSegments(segment, seg)).filter(pt => pt),
+        ...s2_segments.map(seg => segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
-    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s2)))
-      is_potential_concave = true;
+    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s2))) is_potential_dig = true;
     if (
-      !vertexes_to_check.every(
+      vertexes_to_check.some(
         (pt, idx) =>
-          !(
-            app.drawAPI.isPointInShape(pt, s2) &&
-            app.drawAPI.isPointInShape(middles_to_check[idx], s2)
-          ),
+          app.drawAPI.isPointInShape(pt, s2) &&
+          app.drawAPI.isPointInShape(middles_to_check[idx], s2),
       )
     )
       return true;
@@ -534,27 +498,22 @@ export class Shape {
     // s2 in s1 ? if a point of s2 is in s1
     (vertexes_to_check = []), (middles_to_check = []);
     for (let segment of s2_segments) {
-      if (!s1_segments.every(seg => !seg.equal(segment))) continue;
+      if (s1_segments.some(seg => seg.equal(segment))) continue;
       vertexes_to_check = [
         ...vertexes_to_check,
-        ...s1_segments
-          .map(seg => this.getNonCommonPointOfJoinedSegments(segment, seg))
-          .filter(pt => pt),
+        ...s1_segments.map(seg => segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
       ];
       middles_to_check = [
         ...middles_to_check,
-        ...s1_segments.map(seg => this.getMiddleOfJoinedSegments(segment, seg)).filter(pt => pt),
+        ...s1_segments.map(seg => segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
-    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s1)))
-      is_potential_concave = true;
+    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s1))) is_potential_dig = true;
     if (
-      !vertexes_to_check.every(
+      vertexes_to_check.some(
         (pt, idx) =>
-          !(
-            app.drawAPI.isPointInShape(pt, s1) &&
-            app.drawAPI.isPointInShape(middles_to_check[idx], s1)
-          ),
+          app.drawAPI.isPointInShape(pt, s1) &&
+          app.drawAPI.isPointInShape(middles_to_check[idx], s1),
       )
     )
       return true;
@@ -563,12 +522,9 @@ export class Shape {
     if (
       !s1_segments.every(seg => {
         if (
-          !s2_segments
-            .filter(
-              segment =>
-                !seg.equal(segment) && !this.getNonCommonPointOfJoinedSegments(seg, segment),
-            )
-            .every(segment => !segment.doesIntersect(seg))
+          s2_segments
+            .filter(segment => !seg.equal(segment) && !segment.getNonCommonPointIfJoined(seg))
+            .some(segment => segment.doesIntersect(seg))
         ) {
           console.log('intersection');
           return false;
@@ -578,8 +534,8 @@ export class Shape {
     )
       return true;
 
-    // verifier si concave
-    if (is_potential_concave) {
+    // verifier si creuse
+    if (is_potential_dig) {
       console.log('peut-etre creuse...');
       // return true;
     }
