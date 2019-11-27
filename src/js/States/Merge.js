@@ -35,7 +35,7 @@ export class MergeState extends State {
    * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, clickCoordinates, event) {
+  objectSelected(shape) {
     if (this.currentStep == 'listen-canvas-click') {
       this.currentStep = 'selecting-second-shape';
       this.actions[0].firstShapeId = shape.id;
@@ -58,15 +58,15 @@ export class MergeState extends State {
     let shape1 = this.firstShape,
       shape2 = shape;
 
-    if (!this.actions[0].hasCommonSegment(shape1, shape2)) {
+    if (this.actions[0].getCommonsPoints(shape1, shape2).length < 2) {
       console.log('no common segments');
       return;
     }
 
-    // if (shape1.overlapsWith(shape2)) {
-    //   console.log('shapes overlap!');
-    //   return;
-    // }
+    if (shape1.overlapsWith(shape2)) {
+      console.log('shapes overlap!');
+      return;
+    }
 
     this.executeAction();
     this.start();

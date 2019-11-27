@@ -63,6 +63,14 @@ export class Shape {
     return result;
   }
 
+  get allOutlinePoints() {
+    let points = [];
+    this.segments.forEach(
+      segment => (points = [...points, segment.vertexes[0], ...segment.points]),
+    );
+    return points;
+  }
+
   //Todo: Refactorer
   setBuildStepsFromString(buildSteps) {
     this.buildSteps = buildSteps.map((step, index) => {
@@ -163,7 +171,7 @@ export class Shape {
 
   contains(object) {
     if (object instanceof Point) {
-      if (this.outline_points.some(outline_point => outline_point.equal(object))) return true;
+      if (this.allOutlinePoints.some(outline_point => outline_point.equal(object))) return true;
       if (this.isCenterShown && this.center.equal(object)) return true;
       return false;
     } else if (object instanceof Segment) {
@@ -737,7 +745,7 @@ export class Shape {
     this.buildSteps.forEach(bs => bs.setScale(size));
   }
 
-  getSegments() {
+  get segments() {
     return this.buildSteps.filter(bs => bs.type === 'segment');
   }
 
