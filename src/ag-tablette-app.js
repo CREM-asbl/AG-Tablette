@@ -409,7 +409,7 @@ class AGTabletteApp extends LitElement {
 
       <input
         id="fileSelector"
-        accept=".agg, .json"
+        accept=".agg, .json, .fag"
         type="file"
         style="display: none"
         @change="${event => app.openFile(event.target.files[0])}"

@@ -44,7 +44,6 @@ export class Point {
       neg = arguments[i];
     }
     multiplier = neg ? -1 : 1;
-    // console.log(x, y, neg, multiplier);
     this.x += x * multiplier;
     this.y += y * multiplier;
     return { x: this.x, y: this.y };

@@ -297,7 +297,7 @@ export class DivideAction extends Action {
           bs[pt2.index].isArc ||
           (bs[pt1.index].type == 'vertex' &&
             bs[pt2.index].type == 'vertex' &&
-            !shape.isSegment(pt1.index, pt2.index));
+            !shape.contains(new Segment(pt1.index, pt2.index)));
 
       if (isArc) {
         this.pointsModeAddArcPoints(pt1, pt2, pt1.index, pt2.index);

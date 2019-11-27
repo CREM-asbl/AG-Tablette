@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { MergeAction } from './Actions/Merge';
 import { State } from './State';
+import { Segment } from '../Objects/ShapeBuildStep';
 
 /**
  * Fusionner 2 formes en une nouvelle forme

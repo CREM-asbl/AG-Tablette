@@ -27,6 +27,8 @@ export class Shape {
     this.name = name;
     this.familyName = familyName;
 
+    // [this.vertexes, this.segments] = this.getDataFromBuildSteps(buildSteps);
+
     this.color = '#aaa';
     this.borderColor = '#000';
     this.opacity = 0.7;
@@ -36,6 +38,29 @@ export class Shape {
     this.second_color = '#aaa';
     this.isBiface = false;
     this.haveBeenReversed = false;
+  }
+
+  /**
+   * init vertexes and segments with new method (just defined segments)
+   */
+  getDataFromBuildSteps(buildSteps) {
+    let result = { vertexes: [], segments: [] },
+      first_point_of_path = new Point(buildSteps.steps[0].dep),
+      new_len;
+
+    result.vertexes.push(first_point_of_path);
+
+    buildSteps.step.forEach(step => {
+      new_len = result.vertexes.push(new Point(step.arr));
+      result.vertexes.push(
+        new Segment(
+          result.vertexes.find(vertex => vertex.equal(step.dep)),
+          retult.vertexes[new_len],
+        ),
+      );
+    });
+
+    return result;
   }
 
   get allOutlinePoints() {
@@ -95,14 +120,16 @@ export class Shape {
     });
   }
 
-  //TODO: supprimer confusion avec la fonction isSegment
-  isOnlySegment() {
+  /**
+   * say if the shape is a Segment
+   */
+  isSegment() {
     return this.buildSteps.filter(buildstep => buildstep.type === 'segment').length === 1;
   }
 
   //FIX:  redondance avec InteractionAPI.selectSegment()
   isPointOnSegment(point) {
-    if (!this.isOnlySegment()) return false;
+    if (!this.isSegment()) return false;
 
     const segment = this.buildSteps.filter(buildstep => buildstep.type === 'segment')[0];
 
@@ -140,6 +167,20 @@ export class Shape {
     }
 
     return bsIndex + 1;
+  }
+
+  contains(object) {
+    if (object instanceof Point) {
+      if (this.allOutlinePoints.some(outline_point => outline_point.equal(object))) return true;
+      if (this.isCenterShown && this.center.equal(object)) return true;
+      return false;
+    } else if (object instanceof Segment) {
+      if (this.segments.some(segment => segment.equal(object))) return true;
+      return false;
+    } else {
+      console.log('unsupported object');
+      return false;
+    }
   }
 
   /**
@@ -333,7 +374,7 @@ export class Shape {
     }
     if (point1.pointType == 'vertex' && point2.pointType == 'vertex') {
       //2 vertex. forment un segment entier ?
-      return this.isSegment(point1.index, point2.index);
+      return this.contains(new Segment(point1.index, point2.index));
     }
     if (point1.pointType != 'vertex' && point2.pointType != 'vertex') {
       //2 segmentPoints. sur le même segment ?
@@ -357,39 +398,40 @@ export class Shape {
     }
   }
 
-  /**
-   * Renvoie true si bsIndex1 et bsIndex2 sont les index de 2 sommets (vertex)
-   * entre lesquels il y a un segment qui n'est pas un arc de cercle!
-   * @param  {int}  bsIndex1
-   * @param  {int}  bsIndex2
-   * @return {Boolean}
-   */
-  isSegment(bsIndex1, bsIndex2) {
-    let bs = this.buildSteps;
-    if (bs[bsIndex1].type != 'vertex' || bs[bsIndex2].type != 'vertex') {
-      console.error('bad bsIndex');
-      return null;
-    }
+  // /**
+  //  * Renvoie true si bsIndex1 et bsIndex2 sont les index de 2 sommets (vertex)
+  //  * entre lesquels il y a un segment qui n'est pas un arc de cercle!
+  //  * @param  {int}  bsIndex1
+  //  * @param  {int}  bsIndex2
+  //  * @return {Boolean}
+  //  */
+  // isSegment(bsIndex1, bsIndex2) {
+  //   let bs = this.buildSteps;
+  //   if (bs[bsIndex1].type != 'vertex' || bs[bsIndex2].type != 'vertex') {
+  //     console.error('bad bsIndex');
+  //     return null;
+  //   }
 
-    if (bsIndex1 > bsIndex2) {
-      [bsIndex1, bsIndex2] = [bsIndex2, bsIndex1];
-    }
+  //   if (bsIndex1 > bsIndex2) {
+  //     [bsIndex1, bsIndex2] = [bsIndex2, bsIndex1];
+  //   }
 
-    if (
-      bsIndex1 + 2 == bsIndex2 &&
-      bs[bsIndex1 + 1].type == 'segment' &&
-      bs[bsIndex1 + 1].isArc !== true
-    )
-      return true;
-    if (
-      bsIndex1 == 1 &&
-      bsIndex2 == bs.length - 2 &&
-      bs[bsIndex2 + 1].type == 'segment' &&
-      bs[bsIndex2 + 1].isArc !== true
-    )
-      return true;
-    return false;
-  }
+  //   if (
+  //     bsIndex1 + 2 == bsIndex2 &&
+  //     bs[bsIndex1 + 1].type == 'segment' &&
+  //     bs[bsIndex1 + 1].isArc !== true
+  //   )
+  //     return true;
+  //   if (
+  //     bsIndex1 == 1 &&
+  //     bsIndex2 == bs.length - 2 &&
+  //     bs[bsIndex2 + 1].type == 'segment' &&
+  //     bs[bsIndex2 + 1].isArc !== true
+  //   )
+  //     return true;
+  //   return false;
+  // }
+
   /**
    * Renvoie la longueur d'un arc de cercle
    * @param  {int} buildStepIndex l'index (dans buildSteps) d'un des segments
@@ -450,114 +492,86 @@ export class Shape {
     });
   }
 
-  // get_segments() {
-  //   return this.buildSteps.filter(bs => bs.type == 'segment').map(el => el.vertexes);
-  // }
-
-  /**
-   * return the non comon point from seg1  if seg1 is joined to seg2 (1 common point)
-   * @param {*} seg1
-   * @param {*} seg2
-   */
-  get_non_common_point_of_joined_segments(seg1, seg2) {
-    if (seg1.vertexes[0].equal(seg2.vertexes[1]) && !seg1.vertexes[0].equal(seg2.vertexes[0]))
-      return seg1.vertexes[1];
-    if (seg1.vertexes[0].equal(seg2.vertexes[0]) && !seg1.vertexes[0].equal(seg2.vertexes[1]))
-      return seg1.vertexes[1];
-    if (!seg1.vertexes[0].equal(seg2.vertexes[1]) && seg1.vertexes[0].equal(seg2.vertexes[0]))
-      return seg1.vertexes[0];
-    if (!seg1.vertexes[0].equal(seg2.vertexes[0]) && seg1.vertexes[0].equal(seg2.vertexes[1]))
-      return seg1.vertexes[0];
-    return undefined;
-  }
-
-  /**
-   * return the middle of seg1 if seg1 is joined to seg2 (1 common point)
-   * @param {*} seg1
-   * @param {*} seg2
-   */
-  get_middle_of_joined_segments(seg1, seg2) {
-    console.log(seg1[0]);
-    if (seg1.vertexes[0].equal(seg2.vertexes[1]) && !seg1.vertexes[0].equal(seg2.vertexes[0]))
-      return seg1.vertexes.get_middle();
-    if (seg1.vertexes[0].equal(seg2.vertexes[0]) && !seg1.vertexes[0].equal(seg2.vertexes[1]))
-      return seg1.vertexes.get_middle();
-    if (!seg1.vertexes[0].equal(seg2.vertexes[1]) && seg1.vertexes[0].equal(seg2.vertexes[0]))
-      return seg1.vertexes.get_middle();
-    if (!seg1.vertexes[0].equal(seg2.vertexes[0]) && seg1.vertexes[0].equal(seg2.vertexes[1]))
-      return seg1.vertexes.get_middle();
-    return undefined;
-  }
-
   /**
    * Vérifie si cette forme se superpose avec une autre forme.
    * @param  {Shape} shape L'autre forme
    * @return {overlap}     true: si les 2 formes se superposent
    */
   overlapsWith(shape) {
-    /**
-     * TODO pistes d'amélioration:
-     * vérifier si une des formes est dans l'autre, ou si au moins un des
-     * segment d'une forme croise au moins un segment de l'autre.
-     * Problème: pour les algorithmes existants, si 2 segments sont l'un
-     * sur l'autre, ils considèrent que les formes se superposent. Pas
-     * évident de les adapter vu la situation...
-     * ex: algorithme sweep line
-     * ->wikipédia: https://en.wikipedia.org/wiki/Sweep_line_algorithm
-     * ->explication détaillée: http://www.cs.tufts.edu/comp/163/notes05/seg_intersection_handout.pdf
-     */
-
-    let s1 = this,
-      s2 = shape;
-
-    let s1_segments = s1.segments,
-      s2_segments = s2.segments;
+    let is_potential_dig = false,
+      s1 = this,
+      s2 = shape,
+      s1_segments = s1.getSegments(),
+      s2_segments = s2.getSegments();
 
     // s1 in s2 ? if a point of s1 is in s2
     let vertexes_to_check = [],
       middles_to_check = [];
     for (let segment of s1_segments) {
-      if (!s2_segments.every(seg => !this.equal_segments(seg, segment))) continue;
+      if (s2_segments.some(seg => seg.equal(segment))) continue;
       vertexes_to_check = [
         ...vertexes_to_check,
-        ...s2_segments
-          .map(seg => this.get_non_common_point_of_joined_segments(segment, seg))
-          .filter(pt => pt),
+        ...s2_segments.map(seg => segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
       ];
       middles_to_check = [
-        ...vertexes_to_check,
-        ...s2_segments
-          .map(seg => this.get_middle_of_joined_segments(segment, seg))
-          .filter(pt => pt),
+        ...middles_to_check,
+        ...s2_segments.map(seg => segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
-    console.log(vertexes_to_check, middles_to_check);
-    // vertexes_to_check.forEach(pt => {
-    //   console.log(pt);
-    //   app.drawAPI.drawPoint(app.drawAPI.upperCtx, pt, "#ff00ff", 5);
-    // });
-    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s2))) return true;
+    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s2))) is_potential_dig = true;
+    if (
+      vertexes_to_check.some(
+        (pt, idx) =>
+          app.drawAPI.isPointInShape(pt, s2) &&
+          app.drawAPI.isPointInShape(middles_to_check[idx], s2),
+      )
+    )
+      return true;
 
     // s2 in s1 ? if a point of s2 is in s1
-    vertexes_to_check = [];
+    (vertexes_to_check = []), (middles_to_check = []);
     for (let segment of s2_segments) {
-      if (!s1_segments.every(seg => !this.equal_segments(seg, segment))) continue;
+      if (s1_segments.some(seg => seg.equal(segment))) continue;
       vertexes_to_check = [
         ...vertexes_to_check,
-        ...s1_segments
-          .map(seg => this.get_non_common_point_of_joined_segments(segment, seg))
-          .filter(pt => pt),
+        ...s1_segments.map(seg => segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
+      ];
+      middles_to_check = [
+        ...middles_to_check,
+        ...s1_segments.map(seg => segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
-    if (!vertexes_to_check.every(pt => !app.drawAPI.isPointInShape(pt, s1))) return true;
+    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s1))) is_potential_dig = true;
+    if (
+      vertexes_to_check.some(
+        (pt, idx) =>
+          app.drawAPI.isPointInShape(pt, s1) &&
+          app.drawAPI.isPointInShape(middles_to_check[idx], s1),
+      )
+    )
+      return true;
 
-    console.log('not there');
+    // verifier si segments croisés !
+    if (
+      !s1_segments.every(seg => {
+        if (
+          s2_segments
+            .filter(segment => !seg.equal(segment) && !segment.getNonCommonPointIfJoined(seg))
+            .some(segment => segment.doesIntersect(seg))
+        ) {
+          console.log('intersection');
+          return false;
+        }
+        return true;
+      })
+    )
+      return true;
 
-    // verifier si segemnts croisés !
-    // for (let segment of s1_segments) {
-    //   if (!s2_segments.every(seg => !this.equal_segments(seg, segment))) continue;
-    //   console.log(s2_segments.map(seg => !this.get_non_common_point_of_joined_segments(seg, segment)));
-    // }
+    // verifier si creuse
+    if (is_potential_dig) {
+      console.log('peut-etre creuse...');
+      // return true;
+    }
     return false;
   }
 
