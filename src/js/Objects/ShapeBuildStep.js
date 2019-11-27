@@ -41,7 +41,7 @@ export class Segment extends ShapeBuildStep {
 
   addPoint({ x, y }) {
     //TODO: garder les points triés?
-    this.points.push({ x, y });
+    this.points.push(new Point({ x, y }));
   }
 
   deletePoint(point) {
