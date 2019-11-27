@@ -18,6 +18,11 @@ export class Point {
     }
   }
 
+  setCoordinates({ x, y }) {
+    this.x = x;
+    this.y = y;
+  }
+
   /**
    * move the point with Point or coordinates
    * @param {{x: number, y: number}} point - point to add

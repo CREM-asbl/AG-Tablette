@@ -78,7 +78,8 @@ export class CutAction extends Action {
     if (pt1.index > pt2.index) {
       [pt1, pt2] = [pt2, pt1];
     }
-    if (pt1.index == pt2.index) {
+
+    if (pt1.index === pt2.index) {
       let segEnd = bs[pt1.index].coordinates,
         pt1Dist = Points.dist(segEnd, pt1.relativeCoordinates),
         pt2Dist = Points.dist(segEnd, pt2.relativeCoordinates);
@@ -95,16 +96,18 @@ export class CutAction extends Action {
     if (pt1.pointType === 'segmentPoint') {
       let lastIndex = shape1BSPart1.length - 1,
         s1LastBS = shape1BSPart1[lastIndex];
-      s1LastBS.vertexes[1] = pt1.relativeCoordinates;
+      s1LastBS.vertexes[1].setCoordinates(pt1.relativeCoordinates);
       shape1BSPart1.push(new Vertex(pt1.relativeCoordinates));
+      shape2BS[0].vertexes[0].setCoordinates(pt1.relativeCoordinates);
       shape2BS.unshift(new Vertex(pt1.relativeCoordinates));
     }
 
     if (pt2.pointType === 'segmentPoint') {
       let lastIndex = shape2BS.length - 1,
         s2LastBS = shape2BS[lastIndex];
-      s2LastBS.vertexes[0] = pt2.relativeCoordinates;
+      s2LastBS.vertexes[1].setCoordinates(pt2.relativeCoordinates);
       shape2BS.push(new Vertex(pt2.relativeCoordinates));
+      shape1BSPart2[0].vertexes[0].setCoordinates(pt2.relativeCoordinates);
       shape1BSPart2.unshift(new Vertex(pt2.relativeCoordinates));
     }
 
