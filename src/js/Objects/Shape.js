@@ -27,6 +27,8 @@ export class Shape {
     this.name = name;
     this.familyName = familyName;
 
+    [this.vertexes, this.segments] = this.getDataFromBuildSteps(buildSteps);
+
     this.color = '#aaa';
     this.borderColor = '#000';
     this.opacity = 0.7;
@@ -36,6 +38,15 @@ export class Shape {
     this.second_color = '#aaa';
     this.isBiface = false;
     this.haveBeenReversed = false;
+  }
+
+  /**
+   * init vertexes and segments with new method (just defined segments)
+   */
+  getDataFromBuildSteps() {
+    let result = [undefined, undefined];
+
+    return result;
   }
 
   //Todo: Refactorer
@@ -142,7 +153,7 @@ export class Shape {
       if (this.isCenterShown && this.center.equal(object)) return true;
       return false;
     } else if (object instanceof Segment) {
-      if (this.segments.some(segment.equal(object))) return true;
+      if (this.segments.some(segment => segment.equal(object))) return true;
       return false;
     } else {
       console.log('unsupported object');
