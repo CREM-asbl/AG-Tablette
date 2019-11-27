@@ -91,7 +91,6 @@ export class CutAction extends Action {
     let shape1BSPart1 = bs.slice(0, pt1.index + 1).map(b => b.copy(false)),
       shape1BSPart2 = bs.slice(pt2.index).map(b => b.copy(false)),
       shape2BS = bs.slice(pt1.index, pt2.index + 1).map(b => b.copy(false));
-    console.log(shape1BSPart1, shape1BSPart2);
 
     if (pt1.pointType === 'segmentPoint') {
       let lastIndex = shape1BSPart1.length - 1,

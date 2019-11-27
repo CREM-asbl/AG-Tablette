@@ -50,11 +50,11 @@ export class MergeAction extends Action {
     let shape1 = app.workspace.getShapeById(this.firstShapeId),
       shape2 = app.workspace.getShapeById(this.secondShapeId);
 
-    const pointsOfShape1 = shape1.allOutlinePoints;
-    const pointsOfShape2 = shape2.allOutlinePoints;
-    const commonsPoints = this.getCommonsPoints(shape1, shape2);
+    // const pointsOfShape1 = shape1.allOutlinePoints;
+    // const pointsOfShape2 = shape2.allOutlinePoints;
+    // const commonsPoints = this.getCommonsPoints(shape1, shape2);
 
-    const pointsOfMergedShape = [];
+    // const pointsOfMergedShape = [];
 
     const segmentsOfMergedShape = this.computeSegmentsOfMergedShape(shape1, shape2);
 
@@ -112,7 +112,10 @@ export class MergeAction extends Action {
     const segmentsFromShape2 = shape2.segments;
 
     for (let i = 0; i < segmentsFromShape2.length; i++) {
-      const commonsSegments = segments.filter(segment => segment.equal(segmentsFromShape2[i]));
+      const commonsSegments = segments.filter(segment =>
+        this.isCommonSegment(segment, segmentsFromShape2[i]),
+      );
+
       if (commonsSegments.length > 0) {
         segments = segments.filter(segment => !commonsSegments.includes(segment));
       }
@@ -154,7 +157,7 @@ export class MergeAction extends Action {
         continue;
       }
 
-      if (precSegment && precSegment.hasSameDirection(copy)) {
+      if (precSegment && this.isSegmentsHaveSameDirection(precSegment, copy)) {
         precSegment.vertexes[1] = copy.vertexes[1];
       } else {
         newBuildSteps.push(new Vertex(copy.vertexes[0]));
@@ -164,5 +167,21 @@ export class MergeAction extends Action {
       }
     }
     return newBuildSteps;
+  }
+
+  //TODO : à placer dans Segment
+  isCommonSegment(segment1, segment2) {
+    return (
+      (Points.equal(segment1.vertexes[0], segment2.vertexes[0]) &&
+        Points.equal(segment1.vertexes[1], segment2.vertexes[1])) ||
+      (Points.equal(segment1.vertexes[0], segment2.vertexes[1]) &&
+        Points.equal(segment1.vertexes[1], segment2.vertexes[0]))
+    );
+  }
+
+  isSegmentsHaveSameDirection(segment1, segment2) {
+    return (
+      segment1.direction.x === segment2.direction.x && segment1.direction.y === segment2.direction.y
+    );
   }
 }

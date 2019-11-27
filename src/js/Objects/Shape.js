@@ -1,7 +1,7 @@
 import { uniqId, mod } from '../Tools/general';
 import { Points } from '../Tools/points';
 import { Point } from './Point';
-import { distanceBetweenPoints, rotatePoint } from '../Tools/geometry';
+import { distanceBetweenPoints } from '../Tools/geometry';
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep';
 import { app } from '../App';
 
@@ -36,6 +36,14 @@ export class Shape {
     this.second_color = '#aaa';
     this.isBiface = false;
     this.haveBeenReversed = false;
+  }
+
+  get allOutlinePoints() {
+    let points = [];
+    this.segments.forEach(
+      segment => (points = [...points, segment.vertexes[0], ...segment.points]),
+    );
+    return points;
   }
 
   //Todo: Refactorer
@@ -502,8 +510,8 @@ export class Shape {
     let s1 = this,
       s2 = shape;
 
-    let s1_segments = s1.getSegments(),
-      s2_segments = s2.getSegments();
+    let s1_segments = s1.segments,
+      s2_segments = s2.segments;
 
     // s1 in s2 ? if a point of s1 is in s2
     let vertexes_to_check = [],
@@ -723,7 +731,7 @@ export class Shape {
     this.buildSteps.forEach(bs => bs.setScale(size));
   }
 
-  getSegments() {
+  get segments() {
     return this.buildSteps.filter(bs => bs.type === 'segment');
   }
 
