@@ -69,19 +69,22 @@ export class MergeAction extends Action {
       segment.points.forEach(point => {
         if (commonsPoints.includes(JSON.stringify(point))) {
           if (commonsPoints.includes(JSON.stringify(segment.vertexes[0]))) {
-            newSegment.vertexes[0] = point;
+            newSegment.vertexes[0].setCoordinates(point);
           }
           if (commonsPoints.includes(JSON.stringify(segment.vertexes[1]))) {
-            newSegment.vertexes[1] = point;
+            newSegment.vertexes[1].setCoordinates(point);
           }
         }
       });
       return newSegment;
     });
 
+    console.log(segments);
+
     // const segmentsOfMergedShape = this.computeSegmentsOfMergedShape(shape1, shape2);
 
     const buildSteps = this.computeNewBuildSteps(segments);
+    console.log(buildSteps);
 
     if (!buildSteps) return;
 
@@ -171,8 +174,8 @@ export class MergeAction extends Action {
         newBuildSteps.push(new Vertex(copy.vertexes[0]));
         newBuildSteps.push(copy);
         precSegment = copy;
-        numberOfSegmentsRefused = 0;
       }
+      numberOfSegmentsRefused = 0;
     }
     return newBuildSteps;
   }
