@@ -49,11 +49,8 @@ export class MergeAction extends Action {
     let shape1 = app.workspace.getShapeById(this.firstShapeId),
       shape2 = app.workspace.getShapeById(this.secondShapeId);
 
-    // const pointsOfShape1 = shape1.allOutlinePoints;
-    // const pointsOfShape2 = shape2.allOutlinePoints;
     const commonsPoints = this.getCommonsPoints(shape1, shape2);
 
-    // const pointsOfMergedShape = [];
     let segments = [...shape1.segments, ...shape2.segments];
 
     segments = segments.filter(
@@ -79,12 +76,7 @@ export class MergeAction extends Action {
       return newSegment;
     });
 
-    console.log(segments);
-
-    // const segmentsOfMergedShape = this.computeSegmentsOfMergedShape(shape1, shape2);
-
     const buildSteps = this.computeNewBuildSteps(segments);
-    console.log(buildSteps);
 
     if (!buildSteps) return;
 
@@ -121,21 +113,6 @@ export class MergeAction extends Action {
       });
     });
     return commonsPoints;
-  }
-
-  computeSegmentsOfMergedShape(shape1, shape2) {
-    let segments = shape1.segments;
-    const segmentsFromShape2 = shape2.segments;
-
-    for (let i = 0; i < segmentsFromShape2.length; i++) {
-      const length = segments.length;
-      segments = segments.filter(segment => !segment.equal(segmentsFromShape2[i]));
-
-      if (segments.length === length) {
-        segments.push(segmentsFromShape2[i]);
-      }
-    }
-    return segments;
   }
 
   computeNewBuildSteps(segmentsList) {
