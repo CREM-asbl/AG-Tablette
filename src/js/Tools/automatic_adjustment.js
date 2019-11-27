@@ -1,6 +1,6 @@
 import { app } from '../App';
 import { Points } from './points';
-import { getAngleOfPoint, rotatePoint } from './geometry';
+import { Point } from '../Objects/Point';
 
 /**
  * Renvoie la transformation qu'il faut appliquer aux formes pour que les 2
@@ -19,20 +19,19 @@ function computeTransformation(e1, e2, shapes, mainShape, coordinates) {
     moving2 = e2.moving;
 
   let pts = {
-      fix: Points.sub(fix2.coordinates, fix1.coordinates),
-      moving: Points.sub(moving2.coordinates, moving1.coordinates),
+      fix: fix2.coordinates.addCoordinates(fix1.coordinates, true),
+      moving: moving2.coordinates.addCoordinates(moving1.coordinates, true),
     },
     angles = {
-      fix: getAngleOfPoint(Points.create(0, 0), pts.fix),
-      moving: getAngleOfPoint(Points.create(0, 0), pts.moving),
+      fix: new Point(0, 0).getAngle(pts.fix),
+      moving: new Point(0, 0).getAngle(pts.moving),
     },
     mainAngle = angles.fix - angles.moving,
-    center = Points.sub(Points.add(mainShape.center, coordinates), {
-      x: mainShape.x,
-      y: mainShape.y,
-    }),
-    moving1NewCoords = rotatePoint(moving1.coordinates, mainAngle, center),
-    translation = Points.sub(fix1.coordinates, moving1NewCoords);
+    center = mainShape.center
+      .addCoordinates(coordinates, true)
+      .addCoordinates(mainShape.x, mainShape.y),
+    moving1NewCoords = moving1.coordinates.rotate(mainAngle, center),
+    translation = fix1.coordinates.addCoordinates(moving1NewCoords, true);
 
   return {
     rotation: mainAngle,
@@ -84,7 +83,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
           list.push({
             shape: s,
             relativeCoordinates: bs.coordinates,
-            coordinates: Points.add(bs.coordinates, Points.sub(coordinates, mainShape)),
+            coordinates: bs.coordinates.addCoordinates(coordinates).addCoordinates(mainShape, true),
             pointType: 'vertex',
             index: i,
           });
@@ -93,7 +92,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
             list.push({
               shape: s,
               relativeCoordinates: pt,
-              coordinates: Points.add(pt, Points.sub(coordinates, mainShape)),
+              coordinates: pt.addCoordinates(coordinates).addCoordinates(mainShape, true),
               pointType: 'segmentPoint',
               index: i,
             });
@@ -104,7 +103,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
         list.push({
           shape: s,
           relativeCoordinates: s.center,
-          coordinates: Points.add(s.center, Points.sub(coordinates, mainShape)),
+          coordinates: s.center.addCoordinates(coordinates).addCoordinates(mainShape, true),
           pointType: 'center',
         });
       }
@@ -126,7 +125,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
             coordinates: pt,
           },
           moving: point,
-          dist: Points.dist(pt, point.coordinates),
+          dist: pt.dist(point.coordinates),
         });
       }
     }
@@ -138,7 +137,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
           coordinates: pt,
         },
         moving: point,
-        dist: Points.dist(pt, point.coordinates),
+        dist: pt.dist(point.coordinates),
       });
     }
     let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
@@ -150,7 +149,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
       commonPointsList.push({
         fixed: pt,
         moving: point,
-        dist: Points.dist(pt.coordinates, point.coordinates),
+        dist: pt.coordinates.dist(point.coordinates),
       });
     }
   });
@@ -183,8 +182,8 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
 
     if (e1.moving.pointType == 'center' || e2.moving.pointType == 'center') return false;
 
-    let d1 = Points.dist(e1.fixed.coordinates, e2.fixed.coordinates),
-      d2 = Points.dist(e1.moving.coordinates, e2.moving.coordinates);
+    let d1 = e1.fixed.coordinates.dist(e2.fixed.coordinates),
+      d2 = e1.moving.coordinates.dist(e2.moving.coordinates);
     if (Math.abs(d1 - d2) > 1) return false;
 
     if (!e1.moving.shape.isSegmentPart(e1.moving, e2.moving)) return false;
@@ -299,7 +298,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
       }
     }
     if (best) {
-      transformation.move = Points.sub(best.fixed.coordinates, best.moving.coordinates);
+      transformation.move = best.fixed.coordinates.addCoordinates(best.moving.coordinates, true);
       return transformation;
     }
   }
@@ -316,7 +315,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
       }
     }
     if (best) {
-      transformation.move = Points.sub(best.fixed.coordinates, best.moving.coordinates);
+      transformation.move = best.fixed.coordinates.addCoordinates(best.moving.coordinates, true);
       return transformation;
     }
   }
@@ -333,7 +332,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
       }
     }
     if (best) {
-      transformation.move = Points.sub(best.fixed.coordinates, best.moving.coordinates);
+      transformation.move = best.fixed.coordinates.addCoordinates(best.moving.coordinates, true);
       return transformation;
     }
   }
@@ -360,13 +359,13 @@ export function getNewShapeAdjustment(coordinates) {
         Si la grille est activée, être uniquement attiré par la grille.
          */
     let gridPoint = app.workspace.grid.getClosestGridPoint(coordinates);
-    return Points.sub(gridPoint, coordinates);
+    return gridPoint.addCoordinates(coordinates, true);
   } else if (automaticAdjustment) {
     let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
     constr.canSelect = true;
     constr.types = ['center', 'vertex', 'segmentPoint'];
     let point = app.interactionAPI.selectPoint(coordinates, constr);
     if (!point) return translation;
-    return Points.sub(point.coordinates, coordinates);
+    return point.coordinates.addCoordinates(coordinates);
   }
 }

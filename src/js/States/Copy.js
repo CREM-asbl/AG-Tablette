@@ -4,6 +4,7 @@ import { RotateAction } from './Actions/Rotate';
 import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
 import { Points } from '../Tools/points';
+import { Point } from '../Objects/Point';
 
 /**
  * Dupliquer une forme
@@ -78,8 +79,8 @@ export class CopyState extends State {
   onMouseUp(mouseCoordinates, event) {
     if (this.currentStep != 'moving-shape') return;
 
-    let translation = Points.sub(mouseCoordinates, this.startClickCoordinates),
-      newPos = Points.add(this.selectedShape, translation),
+    let translation = new Point(mouseCoordinates).addCoordinates(this.startClickCoordinates, true),
+      newPos = this.selectedShape.addCoordinates(translation),
       transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape, newPos, false);
     if (transformation.rotation != 0) {
       let rotateAction = new RotateAction();
@@ -89,7 +90,7 @@ export class CopyState extends State {
       rotateAction.rotationAngle = transformation.rotation;
       this.actions.push(rotateAction);
     }
-    this.actions[0].transformation = Points.add(translation, transformation.move);
+    this.actions[0].transformation = translation.addCoordinates(transformation.move);
 
     this.executeAction();
     this.start();

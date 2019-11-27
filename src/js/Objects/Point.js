@@ -24,7 +24,7 @@ export class Point {
    * @param {number} x - other method
    * @param {number} y - other method
    * @param {number} neg - negative translation
-   * @return {{x: number, y:number}} translated point
+   * @return {{x: number, y:number}} new coordinates
    */
   translate() {
     let neg,
@@ -46,13 +46,51 @@ export class Point {
     multiplier = neg ? -1 : 1;
     this.x += x * multiplier;
     this.y += y * multiplier;
-    return { x: this.x, y: this.y };
+    return new Point(this.x, this.y);
   }
 
-  multiplyWithScalar(multiplier) {
-    this.x *= multiplier;
-    this.y *= multiplier;
-    return { x: this.x, y: this.y };
+  /**
+   * add coordinates to point
+   * @param {{x: number, y: number}} point - point to add
+   * @param {number} x - other method
+   * @param {number} y - other method
+   * @param {number} neg - substraction instead of addition
+   * @return {{x: number, y:number}} new coordinates
+   */
+  addCoordinates() {
+    let neg,
+      multiplier,
+      x,
+      y,
+      i = 0;
+    if (typeof arguments[i] == 'object') {
+      x = arguments[i].x;
+      y = arguments[i].y;
+      i++;
+      neg = arguments[i];
+    } else {
+      x = arguments[i];
+      y = arguments[i] ? arguments[++i] : arguments[i];
+      i++;
+      neg = arguments[i];
+    }
+    multiplier = neg ? -1 : 1;
+    x = this.x + x * multiplier;
+    y = this.y + y * multiplier;
+    return new Point(x, y);
+  }
+  /**
+   * multiplies ths coordinates with multiplier
+   * @param {*} multiplier
+   * @param {*} must_change_this - if this must be modified
+   */
+  multiplyWithScalar(multiplier, must_change_this = false) {
+    let new_point = new Point(this.x * multiplier, this.y * multiplier);
+    if (must_change_this) {
+      this.x = new_point.x;
+      this.y = new_point.y;
+    }
+    return new_point;
   }
 
   copy() {
@@ -63,7 +101,7 @@ export class Point {
    *
    * @param {number} angle - rotation angle
    * @param {{x: number, y: number}} [center] - rotation center
-   * @return {{x: number, y: number}}
+   * @return {{x: number, y: number}} new coordinates
    */
   rotate(angle, center = { x: 0, y: 0 }) {
     let s = Math.sin(angle),
@@ -74,7 +112,28 @@ export class Point {
       newY = x * s + y * c + center.y;
     this.x = newX;
     this.y = newY;
-    return { x: this.x, y: this.y };
+    return new Point(this.x, this.y);
+  }
+
+  /**
+   * Renvoie l'angle (en radians) entre la droite reliant this et point, et l'axe
+   * horizontal passant par this.
+   * @param  {Point} point    Le second point
+   * @return {float}          L'angle, en radians. L'angle renvoyé est dans
+   *                              l'intervalle [0, 2PI[
+   */
+  getAngle(point) {
+    let pt = {
+      x: point.x - this.x,
+      y: point.y - this.y,
+    };
+    //Trouver l'angle de pt par rapport à (0,0)
+    // https://en.wikipedia.org/wiki/Atan2 -> voir image en haut à droite,
+    //  sachant qu'ici l'axe des y est inversé.
+    let angle = Math.atan2(pt.y, pt.x);
+    if (angle < 0) angle += 2 * Math.PI;
+    if (2 * Math.PI - angle < 0.00001) angle = 0;
+    return angle;
   }
 
   /**

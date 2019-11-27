@@ -1,8 +1,7 @@
 import { app } from '../App';
 import { ZoomPlaneAction } from './Actions/ZoomPlane';
 import { State } from './State';
-import { distanceBetweenPoints } from '../Tools/geometry';
-import { Points } from '../Tools/points';
+import { Point } from '../Objects/Point';
 
 /**
  * Zoomer/Dézoomer le plan
@@ -57,7 +56,7 @@ export class ZoomPlaneState extends State {
 
     this.actions[0].scaleOffset = offset;
     this.actions[0].originalZoom = actualZoom;
-    this.actions[0].originalTranslateOffset = Points.copy(app.workspace.translateOffset);
+    this.actions[0].originalTranslateOffset = new Point(app.workspace.translateOffset);
     this.actions[0].centerProp = { x: 0.5, y: 0.5 };
 
     this.executeAction();
@@ -115,8 +114,8 @@ export class ZoomPlaneState extends State {
         x: app.workspace.translateOffset.x / app.workspace.zoomLevel,
         y: app.workspace.translateOffset.y / app.workspace.zoomLevel,
       },
-      center = Points.sub(halfWinSize, translateOffset),
-      dist = Points.dist(center, clickCoordinates);
+      center = halfWinSize.addCoordinates(translateOffset, true),
+      dist = center.dist(clickCoordinates);
 
     if (dist == 0) dist = 0.001;
     return dist;

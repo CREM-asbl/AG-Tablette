@@ -1,7 +1,6 @@
 import { app } from '../App';
 import { ReverseAction } from './Actions/Reverse';
 import { State } from './State';
-import { distanceBetweenPoints, getAngleOfPoint } from '../Tools/geometry';
 
 /**
  * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -97,11 +96,11 @@ export class ReverseState extends State {
   onClick(mouseCoordinates, event) {
     if (this.currentStep != 'selecting-symmetrical-arch') return true;
 
-    let clickDistance = distanceBetweenPoints(this.selectedShape.center, mouseCoordinates);
+    let clickDistance = this.selectedShape.center.dist(mouseCoordinates);
     if (clickDistance > this.symmetricalArchLength / 2) return true; //Le click n'est pas sur les axes de symétrie
 
     let shapeCenter = this.selectedShape.center,
-      angle = getAngleOfPoint(shapeCenter, mouseCoordinates) % Math.PI;
+      angle = shapeCenter.getAngle(mouseCoordinates) % Math.PI;
 
     if (angle <= Math.PI / 8 || angle > (7 * Math.PI) / 8)
       this.actions[0].symmetricalArchOrientation = 'H';

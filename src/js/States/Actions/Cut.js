@@ -1,7 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Points } from '../../Tools/points';
 import { Segment, Vertex, MoveTo } from '../../Objects/ShapeBuildStep';
+import { Point } from '../../Objects/Point';
 
 export class CutAction extends Action {
   constructor() {
@@ -80,8 +80,8 @@ export class CutAction extends Action {
     }
     if (pt1.index == pt2.index) {
       let segEnd = bs[pt1.index].coordinates,
-        pt1Dist = Points.dist(segEnd, pt1.relativeCoordinates),
-        pt2Dist = Points.dist(segEnd, pt2.relativeCoordinates);
+        pt1Dist = segEnd.dist(pt1.relativeCoordinates),
+        pt2Dist = segEnd.dist(pt2.relativeCoordinates);
       if (pt1Dist < pt2Dist) {
         [pt1, pt2] = [pt2, pt1];
       }
@@ -143,13 +143,14 @@ export class CutAction extends Action {
     //Modifier les coordonnées
     let center1 = shape1.center,
       center2 = shape2.center,
-      center = Points.multInt(Points.add(center1, center2), 0.5),
-      difference = Points.sub(center2, center1),
-      distance = Points.dist(center2, center1),
-      offset = Points.multInt(difference, 1 / distance),
-      myOffset = 20; //px
-    shape1.setCoordinates(Points.sub(shape1, Points.multInt(offset, myOffset)));
-    shape2.setCoordinates(Points.add(shape2, Points.multInt(offset, myOffset)));
+      // center = center1.addCoordinates(center2).multiplyWithScalar(0.5),
+      difference = center2.addCoordinates(center1, true),
+      distance = center2.dist(center1),
+      myOffset = 20, //px
+      offset = difference.multiplyWithScalar(1 / distance);
+    offset.multiplyWithScalar(myOffset);
+    shape1.setCoordinates(new Point(shape1).addCoordinates(offset, true));
+    shape2.setCoordinates(new Point(shape2).addCoordinates(offset));
 
     if (this.createdShapesIds) {
       shape1.id = this.createdShapesIds[0];

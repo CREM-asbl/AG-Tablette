@@ -1,7 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { getProjectionOnSegment } from '../../Tools/geometry';
-import { Points } from '../../Tools/points';
+import { Point } from '../../Objects/Point';
+import { Segment } from '../../Objects/ShapeBuildStep';
 
 export class ReverseAction extends Action {
   constructor() {
@@ -131,15 +131,15 @@ export class ReverseAction extends Action {
    * @return {Point}          Nouvelles coordonnées
    */
   computePointPosition(point, axe, progress) {
-    let pt1 = Points.create(axe.center.x + axe.p1.x, axe.center.y + axe.p1.y),
-      pt2 = Points.create(axe.center.x + axe.p2.x, axe.center.y + axe.p2.y),
-      center = getProjectionOnSegment(point, pt1, pt2);
+    let pt1 = new Point(axe.center.x + axe.p1.x, axe.center.y + axe.p1.y),
+      pt2 = new Point(axe.center.x + axe.p2.x, axe.center.y + axe.p2.y),
+      center = new Segment(pt1, pt2).projectionPointOnSegment(point);
 
     //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
-    let transformation = {
-      x: point.x + 2 * (center.x - point.x) * progress,
-      y: point.y + 2 * (center.y - point.y) * progress,
-    };
+    let transformation = new Point(
+      point.x + 2 * (center.x - point.x) * progress,
+      point.y + 2 * (center.y - point.y) * progress,
+    );
     return transformation;
   }
 }

@@ -58,8 +58,11 @@ export class CreateState extends State {
     let shapeSize = app.settings.get('shapesSize');
     this.involvedShapes = [this.tempShape];
 
+    console.log(this.tempShape.segments);
     this.tempShape.setScale(shapeSize);
+    console.log(this.tempShape.segments);
     this.tempShape.setCoordinates(mouseCoordinates);
+    console.log(this.tempShape.segments);
 
     this.actions[0].shapeToAdd = this.tempShape;
     this.actions[0].coordinates = mouseCoordinates;
