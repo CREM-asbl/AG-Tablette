@@ -1,8 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Points } from '../../Tools/points';
 import { getAverageColor } from '../../Tools/general';
-import { Vertex } from '../../Objects/ShapeBuildStep';
+import { Vertex, Segment } from '../../Objects/ShapeBuildStep';
 
 export class MergeAction extends Action {
   constructor() {
@@ -50,15 +49,34 @@ export class MergeAction extends Action {
     let shape1 = app.workspace.getShapeById(this.firstShapeId),
       shape2 = app.workspace.getShapeById(this.secondShapeId);
 
-    // const pointsOfShape1 = shape1.allOutlinePoints;
-    // const pointsOfShape2 = shape2.allOutlinePoints;
-    // const commonsPoints = this.getCommonsPoints(shape1, shape2);
+    const commonsPoints = this.getCommonsPoints(shape1, shape2);
 
-    // const pointsOfMergedShape = [];
+    let segments = [...shape1.segments, ...shape2.segments];
 
-    const segmentsOfMergedShape = this.computeSegmentsOfMergedShape(shape1, shape2);
+    segments = segments.filter(
+      segment =>
+        !(
+          commonsPoints.includes(JSON.stringify(segment.vertexes[0])) &&
+          commonsPoints.includes(JSON.stringify(segment.vertexes[1]))
+        ),
+    );
 
-    const buildSteps = this.computeNewBuildSteps(segmentsOfMergedShape);
+    segments = segments.map(segment => {
+      const newSegment = segment.copy(false);
+      segment.points.forEach(point => {
+        if (commonsPoints.includes(JSON.stringify(point))) {
+          if (commonsPoints.includes(JSON.stringify(segment.vertexes[0]))) {
+            newSegment.vertexes[0].setCoordinates(point);
+          }
+          if (commonsPoints.includes(JSON.stringify(segment.vertexes[1]))) {
+            newSegment.vertexes[1].setCoordinates(point);
+          }
+        }
+      });
+      return newSegment;
+    });
+
+    const buildSteps = this.computeNewBuildSteps(segments);
 
     if (!buildSteps) return;
 
@@ -73,7 +91,7 @@ export class MergeAction extends Action {
     newShape.isCenterShown = false;
     newShape.opacity = (shape1.opacity + shape2.opacity) / 2;
     newShape.buildSteps = buildSteps;
-    newShape.setCoordinates(Points.sub(newShape, Points.create(20, 20)));
+    newShape.setCoordinates({ x: newShape.x - 20, y: newShape.y - 20 });
 
     app.workspace.addShape(newShape);
 
@@ -91,45 +109,15 @@ export class MergeAction extends Action {
     const commonsPoints = [];
     shape1.allOutlinePoints.forEach(point1 => {
       shape2.allOutlinePoints.forEach(point2 => {
-        if (Points.equal(point1, point2)) commonsPoints.push(point1);
+        if (point1.equal(point2)) commonsPoints.push(JSON.stringify(point1));
       });
     });
-    console.log(commonsPoints);
     return commonsPoints;
-
-    // const segmentsFromShape1 = shape1.segments;
-    // const segmentsFromShape2 = shape2.segments;
-    // for (let i = 0; i < segmentsFromShape1.length; i++) {
-    //   for (let j = 0; j < segmentsFromShape2.length; j++) {
-    //     if (segmentsFromShape1[i].equal(segmentsFromShape2[j])) return true;
-    //   }
-    // }
-    // return false;
-  }
-
-  computeSegmentsOfMergedShape(shape1, shape2) {
-    let segments = shape1.segments;
-    const segmentsFromShape2 = shape2.segments;
-
-    for (let i = 0; i < segmentsFromShape2.length; i++) {
-      const commonsSegments = segments.filter(segment =>
-        this.isCommonSegment(segment, segmentsFromShape2[i]),
-      );
-
-      if (commonsSegments.length > 0) {
-        segments = segments.filter(segment => !commonsSegments.includes(segment));
-      }
-
-      if (commonsSegments.length === 0) {
-        segments.push(segmentsFromShape2[i]);
-      }
-    }
-    return segments;
   }
 
   computeNewBuildSteps(segmentsList) {
     // Todo : Traiter le cas des formes "percées"
-    // Todo : Gérer les arcs
+    // Todo : Voir si on ne peut pas la simplifier
     let newBuildSteps = [];
     // propriété pour éviter une boucle infinie et le cas des formes creuses
     let numberOfSegmentsRefused = 0;
@@ -138,13 +126,13 @@ export class MergeAction extends Action {
     while (segmentsList.length > 0 && numberOfSegmentsRefused !== segmentsList.length) {
       const currentSegment = segmentsList.shift();
       let copy = null;
-      if (!precSegment || Points.equal(currentSegment.vertexes[0], precSegment.vertexes[1])) {
-        copy = currentSegment.copy(false);
+      if (!precSegment || currentSegment.vertexes[0].equal(precSegment.vertexes[1])) {
+        copy = currentSegment;
       }
 
-      if (precSegment && Points.equal(currentSegment.vertexes[1], precSegment.vertexes[1])) {
-        copy = currentSegment.copy(false);
-        copy.reverse();
+      if (precSegment && currentSegment.vertexes[1].equal(precSegment.vertexes[1])) {
+        currentSegment.reverse();
+        copy = currentSegment;
       }
 
       if (!copy) {
@@ -157,31 +145,15 @@ export class MergeAction extends Action {
         continue;
       }
 
-      if (precSegment && this.isSegmentsHaveSameDirection(precSegment, copy)) {
+      if (precSegment && precSegment.hasSameDirection(copy)) {
         precSegment.vertexes[1] = copy.vertexes[1];
       } else {
         newBuildSteps.push(new Vertex(copy.vertexes[0]));
         newBuildSteps.push(copy);
         precSegment = copy;
-        numberOfSegmentsRefused = 0;
       }
+      numberOfSegmentsRefused = 0;
     }
     return newBuildSteps;
-  }
-
-  //TODO : à placer dans Segment
-  isCommonSegment(segment1, segment2) {
-    return (
-      (Points.equal(segment1.vertexes[0], segment2.vertexes[0]) &&
-        Points.equal(segment1.vertexes[1], segment2.vertexes[1])) ||
-      (Points.equal(segment1.vertexes[0], segment2.vertexes[1]) &&
-        Points.equal(segment1.vertexes[1], segment2.vertexes[0]))
-    );
-  }
-
-  isSegmentsHaveSameDirection(segment1, segment2) {
-    return (
-      segment1.direction.x === segment2.direction.x && segment1.direction.y === segment2.direction.y
-    );
   }
 }

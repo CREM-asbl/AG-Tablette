@@ -77,7 +77,7 @@ export class MoveState extends State {
     if (this.currentStep != 'moving-shape') return;
 
     let translation = new Point(mouseCoordinates).addCoordinates(this.startClickCoordinates, true),
-      newPos = this.selectedShape.addCoordinates(translation),
+      newPos = new Point(this.selectedShape).addCoordinates(translation),
       transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape, newPos);
 
     if (transformation.rotation != 0) {

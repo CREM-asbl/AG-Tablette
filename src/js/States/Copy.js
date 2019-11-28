@@ -80,7 +80,7 @@ export class CopyState extends State {
     if (this.currentStep != 'moving-shape') return;
 
     let translation = new Point(mouseCoordinates).addCoordinates(this.startClickCoordinates, true),
-      newPos = this.selectedShape.addCoordinates(translation),
+      newPos = new Point(this.selectedShape).addCoordinates(translation),
       transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape, newPos, false);
     if (transformation.rotation != 0) {
       let rotateAction = new RotateAction();
