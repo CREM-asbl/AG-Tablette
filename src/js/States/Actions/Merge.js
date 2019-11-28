@@ -141,6 +141,7 @@ export class MergeAction extends Action {
 
       if (precSegment && precSegment.hasSameDirection(copy)) {
         precSegment.vertexes[1] = copy.vertexes[1];
+        precSegment.coordinates = copy.coordinates;
       } else {
         newBuildSteps.push(new Vertex(copy.vertexes[0]));
         newBuildSteps.push(copy);

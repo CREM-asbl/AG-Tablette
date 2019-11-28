@@ -188,6 +188,7 @@ export class App {
         dispatchEvent(new CustomEvent('app-settings-changed'));
       }
       this.wsManager.setWorkspaceFromJSON(reader.result);
+      this.drawAPI.refreshUpper();
     };
     reader.readAsText(file);
   }
