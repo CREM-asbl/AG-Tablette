@@ -93,7 +93,7 @@ export class DivideState extends State {
       if (
         pt1.type == object.type &&
         pt1.index == object.index &&
-        (pt1.pointType == 'vertex' || Points.equal(pt1.coordinates, object.coordinates))
+        (pt1.pointType == 'vertex' || pt1.coordinates.equal(object.coordinates))
       ) {
         //pt1 = object => désélectionner le point.
         this.currentStep = 'listen-canvas-click';
@@ -252,7 +252,7 @@ export class DivideState extends State {
                 shape: shape,
                 type: 'segmentPoint',
                 index: index,
-                coordinates: Points.copy(pt),
+                coordinates: new Point(pt),
               };
             }),
           );

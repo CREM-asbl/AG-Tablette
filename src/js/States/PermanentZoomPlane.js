@@ -1,7 +1,6 @@
 import { app } from '../App';
 import { ZoomPlaneAction } from './Actions/ZoomPlane';
 import { State } from './State';
-import { distanceBetweenPoints } from '../Tools/geometry';
 import { Points } from '../Tools/points';
 
 /**
@@ -54,7 +53,7 @@ export class PermanentZoomPlaneState extends State {
 
     this.actions[0].scaleOffset = offset;
     this.actions[0].originalZoom = actualZoom;
-    this.actions[0].originalTranslateOffset = Points.copy(app.workspace.translateOffset);
+    this.actions[0].originalTranslateOffset = new Point(app.workspace.translateOffset);
     this.actions[0].centerProp = this.centerProp;
 
     this.executeAction();
@@ -66,21 +65,21 @@ export class PermanentZoomPlaneState extends State {
     if (event.type != 'touchmove' || event.touches.length !== 2) return;
 
     if (this.currentStep == 'listen-canvas-click') {
-      let point1 = { x: event.touches[0].clientX, y: event.touches[0].clientY },
-        point2 = { x: event.touches[1].clientX, y: event.touches[1].clientY };
-      this.centerProp = {
-        x: ((point1.x + point2.x) / 2 - window.canvasLeftShift) / app.cvsDiv.clientWidth,
-        y: (point1.y + point2.y) / 2 / app.cvsDiv.clientHeight,
-      };
-      this.baseDist = distanceBetweenPoints(point1, point2);
+      let point1 = new Point(event.touches[0].clientX, event.touches[0].clientY),
+        point2 = new Point(event.touches[1].clientX, event.touches[1].clientY);
+      this.centerProp = new Point(
+        ((point1.x + point2.x) / 2 - window.canvasLeftShift) / app.cvsDiv.clientWidth,
+        (point1.y + point2.y) / 2 / app.cvsDiv.clientHeight,
+      );
+      this.baseDist = point1.dist(point2);
       if (this.baseDist == 0) this.baseDist = 0.001;
 
       this.currentStep = 'zooming-plane';
       app.interactionAPI.getFocus(this);
     } else {
-      let point1 = { x: event.touches[0].clientX, y: event.touches[0].clientY },
-        point2 = { x: event.touches[1].clientX, y: event.touches[1].clientY },
-        newDist = distanceBetweenPoints(point1, point2);
+      let point1 = new Point(event.touches[0].clientX, event.touches[0].clientY),
+        point2 = new Point(event.touches[1].clientX, event.touches[1].clientY),
+        newDist = point1.dist(point2);
       if (newDist == 0) newDist = 0.001;
       this.lastDist = newDist;
 

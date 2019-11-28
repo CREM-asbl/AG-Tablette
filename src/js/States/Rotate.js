@@ -1,7 +1,6 @@
 import { app } from '../App';
 import { RotateAction } from './Actions/Rotate';
 import { State } from './State';
-import { getAngleOfPoint } from '../Tools/geometry';
 
 /**
  * Tourner une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -55,7 +54,7 @@ export class RotateState extends State {
 
     this.selectedShape = shape;
     this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
-    this.initialAngle = getAngleOfPoint(shape.center, clickCoordinates);
+    this.initialAngle = shape.center.getAngle(clickCoordinates);
 
     this.actions[0].shapeId = shape.id;
     this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
@@ -72,7 +71,7 @@ export class RotateState extends State {
   onMouseUp(mouseCoordinates) {
     if (this.currentStep != 'rotating-shape') return;
 
-    let newAngle = getAngleOfPoint(this.selectedShape.center, mouseCoordinates);
+    let newAngle = this.selectedShape.center.getAngle(mouseCoordinates);
     this.actions[0].rotationAngle = newAngle - this.initialAngle;
 
     this.executeAction();
@@ -89,7 +88,7 @@ export class RotateState extends State {
   draw(ctx, mouseCoordinates) {
     if (this.currentStep != 'rotating-shape') return;
 
-    let newAngle = getAngleOfPoint(this.selectedShape.center, mouseCoordinates),
+    let newAngle = this.selectedShape.center.getAngle(mouseCoordinates),
       diffAngle = newAngle - this.initialAngle;
     let center = this.selectedShape.center;
 

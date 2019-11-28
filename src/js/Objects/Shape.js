@@ -1,7 +1,5 @@
 import { uniqId, mod } from '../Tools/general';
-import { Points } from '../Tools/points';
 import { Point } from './Point';
-import { distanceBetweenPoints } from '../Tools/geometry';
 import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep';
 import { app } from '../App';
 
@@ -45,19 +43,15 @@ export class Shape {
    */
   getDataFromBuildSteps(buildSteps) {
     let result = { vertexes: [], segments: [] },
-      first_point_of_path = new Point(buildSteps.steps[0].dep),
-      new_len;
+      first_point_of_path = new Point(buildSteps.steps[0].dep);
 
     result.vertexes.push(first_point_of_path);
 
     buildSteps.step.forEach(step => {
-      new_len = result.vertexes.push(new Point(step.arr));
-      result.vertexes.push(
-        new Segment(
-          result.vertexes.find(vertex => vertex.equal(step.dep)),
-          retult.vertexes[new_len],
-        ),
-      );
+      let new_point = new Point(step.arr),
+        other_point = result.vertexes.find(vertex => vertex.equal(step.dep));
+      result.vertexes.push(new_point);
+      result.segments.push(new Segment(other_point, new_point, step.center));
     });
 
     return result;
@@ -137,7 +131,7 @@ export class Shape {
 
     if (!segment.isPointOnSegment(projection)) return false;
 
-    let dist = distanceBetweenPoints(point, projection);
+    let dist = point.dist(projection);
 
     if (dist <= app.settings.get('selectionDistance')) return true;
     return false;
@@ -457,7 +451,7 @@ export class Shape {
       bs = this.buildSteps;
     arcsList.forEach(arcIndex => {
       if (arcIndex == 0) return;
-      length += Points.dist(bs[arcIndex].coordinates, bs[arcIndex - 1].coordinates);
+      length += bs[arcIndex].coordinates.dist(bs[arcIndex - 1].coordinates);
     });
 
     return length;
@@ -482,10 +476,10 @@ export class Shape {
       y: point.y - this.y,
     };
     return this.buildSteps.some(bs => {
-      if (bs.type === 'vertex') return Points.equal(bs.coordinates, relativeCoordinates);
+      if (bs.type === 'vertex') return bs.coordinates.equal(relativeCoordinates);
       if (bs.type === 'segment') {
         const projection = bs.projectionPointOnSegment(relativeCoordinates),
-          projDist = Points.dist(projection, relativeCoordinates);
+          projDist = projection.dist(relativeCoordinates);
         return projDist < 1 && bs.isPointOnSegment(projection);
       }
       return false;
@@ -616,7 +610,7 @@ export class Shape {
    * @param {{x: float, y: float}} coordinates les coordonnées
    */
   setCoordinates(coordinates) {
-    const translation = Points.sub(coordinates, { x: this.x, y: this.y });
+    const translation = new Point(coordinates).addCoordinates({ x: this.x, y: this.y }, true);
     this.x = coordinates.x;
     this.y = coordinates.y;
     this.buildSteps.forEach(bs => bs.translate(translation));
@@ -655,10 +649,7 @@ export class Shape {
       }
     });
 
-    return {
-      x: total.sumX / total.amount,
-      y: total.sumY / total.amount,
-    };
+    return new Point(total.sumX / total.amount, total.sumY / total.amount);
   }
 
   /**

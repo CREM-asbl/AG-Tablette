@@ -2,6 +2,7 @@ import { app } from '../App';
 import { CutAction } from './Actions/Cut';
 import { State } from './State';
 import { Points } from '../Tools/points';
+import { Point } from '../Objects/Point';
 
 /**
  * Découper une forme
@@ -94,7 +95,7 @@ export class CutState extends State {
       if (
         pt1.type == object.type &&
         pt1.index == object.index &&
-        (pt1.type == 'vertex' || Points.equal(pt1.coordinates, object.coordinates))
+        (pt1.type == 'vertex' || pt1.coordinates.equal(object.coordinates))
       ) {
         //pt1 = object => désélectionner le point (et le centre)
         this.currentStep = 'listen-canvas-click';
@@ -176,13 +177,13 @@ export class CutState extends State {
    * @return {Boolean}     Retourne false s'il sort de la forme.
    */
   isLineValid(shape, pt1, pt2) {
-    let length = Points.dist(pt1, pt2),
-      part = Points.multInt(Points.sub(pt2, pt1), 1 / length),
+    let length = pt1.dist(pt2),
+      part = pt2.addCoordinates(pt1, true).multiplyWithScalar(1 / length),
       precision = 1, //px
       amountOfParts = length / precision,
       atLeastOneNotInBorder = false;
     for (let i = 1; i < amountOfParts; i++) {
-      let pt = Points.add(pt1, Points.multInt(part, i));
+      let pt = pt1.addCoordinates(part.multiplyWithScalar(i, false));
       if (!app.drawAPI.isPointInShape(pt, shape)) return false;
       atLeastOneNotInBorder = atLeastOneNotInBorder || !shape.isPointInBorder(pt);
     }
@@ -229,14 +230,14 @@ export class CutState extends State {
             .map(segment => {
               return bs[segment].points
                 .filter(pt => {
-                  return object.index != segment || !Points.equal(pt, object.relativeCoordinates);
+                  return object.index != segment || !pt.equal(object.relativeCoordinates);
                 })
                 .map(pt => {
                   return {
                     shape: shape,
                     type: 'segmentPoint',
                     index: segment,
-                    coordinates: Points.copy(pt),
+                    coordinates: new Point(pt),
                   };
                 });
             })

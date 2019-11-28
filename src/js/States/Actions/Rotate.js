@@ -1,7 +1,5 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Points } from '../../Tools/points';
-import { rotatePoint } from '../../Tools/geometry';
 
 export class RotateAction extends Action {
   constructor() {

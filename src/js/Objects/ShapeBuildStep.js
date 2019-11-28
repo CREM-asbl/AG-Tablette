@@ -1,5 +1,4 @@
 import { Points } from '../Tools/points';
-import { rotatePoint } from '../Tools/geometry';
 import { Point } from './Point';
 
 export class ShapeBuildStep {
@@ -14,18 +13,15 @@ export class ShapeBuildStep {
   }
 
   setScale(size) {
-    this.coordinates = {
-      x: this.coordinates.x * size,
-      y: this.coordinates.y * size,
-    };
+    this.coordinates.multiplyWithScalar(size, true);
   }
 
   rotate(angle, center = { x: 0, y: 0 }) {
-    this.coordinates = rotatePoint(this.coordinates, angle, center);
+    this.coordinates.rotate(angle, center);
   }
 
   translate(coordinates) {
-    this.coordinates = Points.add(this.coordinates, coordinates);
+    this.coordinates.translate(coordinates);
   }
 }
 
@@ -33,7 +29,10 @@ export class ShapeBuildStep {
 export class Segment extends ShapeBuildStep {
   constructor(point1, point2, isArc = false) {
     super('segment');
-    this.coordinates = point2;
+    this.coordinates = new Point(point2);
+    // if (point1 instanceof Point && point2 instanceof Point)
+    //   this.vertexes = [point1, point2];
+    // else
     this.vertexes = [new Point(point1), new Point(point2)];
     this.points = [];
     this.isArc = isArc;
@@ -41,12 +40,12 @@ export class Segment extends ShapeBuildStep {
 
   addPoint({ x, y }) {
     //TODO: garder les points triés?
-    this.points.push(new Point({ x, y }));
+    this.points.push(new Point(x, y));
   }
 
   deletePoint(point) {
     let i = this.points.findIndex(pt => {
-      return Points.equal(pt, point);
+      return pt.equal(point);
     });
     if (i == -1) {
       console.error("couldn't delete point from segment");
@@ -88,20 +87,20 @@ export class Segment extends ShapeBuildStep {
     //Calculer la projection du point sur l'axe.
     if (Math.abs(p2x - p1x) < 0.001) {
       //segment vertical
-      center = { x: p1x, y: point.y };
+      center = new Point({ x: p1x, y: point.y });
     } else if (Math.abs(p2y - p1y) < 0.001) {
       //segment horizontal
-      center = { x: point.x, y: p1y };
+      center = new Point({ x: point.x, y: p1y });
     } else {
       // axe.type=='NW' || axe.type=='SW'
       let f_a = (p1y - p2y) / (p1x - p2x),
         f_b = p2y - f_a * p2x;
       this.vertexes[1].x = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1);
       this.vertexes[1].y = f_a * this.vertexes[1].x + f_b;
-      center = {
+      center = new Point({
         x: this.vertexes[1].x,
         y: this.vertexes[1].y,
-      };
+      });
     }
     return center;
   }
@@ -202,8 +201,9 @@ export class Segment extends ShapeBuildStep {
   }
 
   get direction() {
-    const originVector = Points.sub(this.vertexes[1], this.vertexes[0]);
-    return Points.multInt(originVector, 1 / this.length);
+    const originVector = this.vertexes[1].addCoordinates(this.vertexes[0], true);
+    originVector.multiplyWithScalar(1 / this.length);
+    return originVector;
   }
 
   get middle() {
@@ -215,20 +215,15 @@ export class Segment extends ShapeBuildStep {
 
   setScale(size) {
     super.setScale(size);
-    this.vertexes.forEach(vertex => {
-      vertex.multiplyWithScalar(size);
-    });
-    this.points.forEach(pt => {
-      pt.x = pt.x * size;
-      pt.y = pt.y * size;
-    });
+    this.vertexes.forEach(vertex => vertex.multiplyWithScalar(size, true));
+    this.points.forEach(pt => pt.multiplyWithScalar(size, true));
   }
 
   rotate(angle, center = { x: 0, y: 0 }) {
     super.rotate(angle, center);
     this.vertexes.forEach(vertex => vertex.rotate(angle, center));
     this.points.forEach(pt => {
-      let pointCoords = rotatePoint(pt, angle, center);
+      let pointCoords = pt.rotate(angle, center);
       pt.x = pointCoords.x;
       pt.y = pointCoords.y;
     });
@@ -237,7 +232,7 @@ export class Segment extends ShapeBuildStep {
   translate(coordinates) {
     super.translate(coordinates);
     this.vertexes.forEach(vertex => vertex.translate(coordinates));
-    this.points = this.points.map(point => Points.add(point, coordinates));
+    this.points.forEach(vertex => vertex.translate(coordinates));
   }
 
   reverse() {
@@ -260,7 +255,7 @@ export class Segment extends ShapeBuildStep {
 export class Vertex extends ShapeBuildStep {
   constructor({ x, y }) {
     super('vertex');
-    this.coordinates = { x, y };
+    this.coordinates = new Point(x, y);
   }
 
   copy() {
@@ -280,7 +275,7 @@ export class Vertex extends ShapeBuildStep {
 export class MoveTo extends ShapeBuildStep {
   constructor({ x, y }) {
     super('moveTo');
-    this.coordinates = { x, y };
+    this.coordinates = new Point(x, y);
   }
 
   copy() {
