@@ -486,6 +486,16 @@ export class Shape {
     });
   }
 
+  getCommonsPoints(shape) {
+    const commonsPoints = [];
+    this.allOutlinePoints.forEach(point1 => {
+      shape.allOutlinePoints.forEach(point2 => {
+        if (point1.equal(point2)) commonsPoints.push(JSON.stringify(point1));
+      });
+    });
+    return commonsPoints;
+  }
+
   /**
    * Vérifie si cette forme se superpose avec une autre forme.
    * @param  {Shape} shape L'autre forme
@@ -521,6 +531,14 @@ export class Shape {
         ...s2_segments.map(seg => s1_segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
+
+    vertexes_to_check = vertexes_to_check.filter(
+      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
+    );
+    middles_to_check = middles_to_check.filter(
+      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
+    );
+
     if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s2))) is_potential_dig = true;
     if (
       vertexes_to_check.some(
@@ -529,13 +547,16 @@ export class Shape {
           app.drawAPI.isPointInShape(middles_to_check[idx], s2) &&
           !s2.isPointInBorder(middles_to_check[idx]),
       )
-    )
+    ) {
+      console.log('s1 in s2');
       return true;
+    }
 
     console.log('no...');
     console.log('s2 in s1 ?');
 
     // s2 in s1 ? if a point of s2 is in s1
+    (vertexes_to_check = []), (middles_to_check = []);
     (vertexes_to_check = []), (middles_to_check = []);
     for (let s2_segment of s2_segments) {
       if (
@@ -555,6 +576,14 @@ export class Shape {
         ...s1_segments.map(seg => s2_segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
+
+    vertexes_to_check = vertexes_to_check.filter(
+      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
+    );
+    middles_to_check = middles_to_check.filter(
+      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
+    );
+
     if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s1))) is_potential_dig = true;
     if (
       vertexes_to_check.some(
@@ -563,8 +592,10 @@ export class Shape {
           app.drawAPI.isPointInShape(middles_to_check[idx], s1) &&
           !s1.isPointInBorder(middles_to_check[idx]),
       )
-    )
+    ) {
+      console.log('s2 in s1');
       return true;
+    }
 
     console.log('no...');
     console.log('cross segments ?');
