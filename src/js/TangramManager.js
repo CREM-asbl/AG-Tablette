@@ -1,6 +1,6 @@
 import { app } from './App';
 import { Tangram } from './Objects/Tangram';
-import { Points } from './Tools/points';
+import { Point } from './Objects/Point';
 
 export class TangramManager {
   static hide() {
@@ -101,7 +101,7 @@ export class TangramManager {
     tangram.polygons.forEach(polygon => {
       polygon.forEach(tangramPt => {
         if (app.interactionAPI.arePointsInMagnetismDistance(point, tangramPt)) {
-          let dist = Points.dist(point, tangramPt);
+          let dist = point.dist(tangramPt);
           if (dist < bestDist) {
             bestDist = dist;
             bestOffset = tangramPt;
@@ -131,7 +131,10 @@ export class TangramManager {
             return {
               shape: s,
               relativePoint: vertex.coordinates,
-              realPoint: Points.add(vertex.coordinates, s, Points.sub(coordinates, mainShape)),
+              realPoint: vertex.coordinates
+                .addCoordinates(s)
+                .addCoordinates(coordinates)
+                .addCoordinates(mainShape, true),
             };
           });
       })
@@ -153,10 +156,10 @@ export class TangramManager {
     points.forEach(pt => {
       tangramPoints.forEach(tangramPt => {
         if (app.interactionAPI.arePointsInMagnetismDistance(pt.realPoint, tangramPt)) {
-          let dist = Points.dist(pt.realPoint, tangramPt);
+          let dist = pt.realPoint.addCoordinates(tangramPt);
           if (dist < bestDist) {
             bestDist = dist;
-            bestOffset = Points.sub(tangramPt, pt.realPoint);
+            bestOffset = tangramPt.addCoordinates(pt.realPoint, true);
           }
         }
       });

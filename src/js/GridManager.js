@@ -1,5 +1,4 @@
 import { app } from './App';
-import { Points } from './Tools/points';
 import { Point } from './Objects/Point';
 
 export class GridManager {
@@ -170,7 +169,7 @@ export class GridManager {
               coordinates: vertex.coordinates
                 .addCoordinates(s)
                 .addCoordinates(coordinates)
-                .addCoordinates(mainShape, -1),
+                .addCoordinates(mainShape, true),
               pointType: 'vertex',
               index: i1,
             });
@@ -193,7 +192,7 @@ export class GridManager {
             coordinates: s.center
               .addCoordinates(s)
               .addCoordinates(coordinates)
-              .addCoordinates(mainShape, -1),
+              .addCoordinates(mainShape, true),
             pointType: 'center',
           };
         });

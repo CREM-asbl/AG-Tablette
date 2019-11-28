@@ -133,7 +133,6 @@ export class DivideAction extends Action {
         };
 
       bs[bsIndex].addPoint(nextPt);
-      console.log(nextPt, shape.getCoordinates());
       this.createdPoints.push({
         index: bsIndex,
         coordinates: new Point(nextPt),
@@ -146,14 +145,11 @@ export class DivideAction extends Action {
     let shape = app.workspace.getShapeById(this.shapeId),
       segment = shape.buildSteps[this.segmentIndex],
       segLength = segment.vertexes[1].addCoordinates(segment.vertexes[0], true),
-      part = {
-        x: segLength.x / this.numberOfparts,
-        y: segLength.y / this.numberOfparts,
-      };
+      part = new Point(segLength.x / this.numberOfparts, segLength.y / this.numberOfparts);
 
     //Un tour de boucle par point ajouté.
     for (let i = 1, nextPt = new Point(segment.vertexes[0]); i < this.numberOfparts; i++) {
-      nextPt.translate(part);
+      nextPt = nextPt.addCoordinates(part);
       segment.addPoint(nextPt);
       this.createdPoints.push({
         index: this.segmentIndex,

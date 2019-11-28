@@ -3,8 +3,8 @@ import { app } from '../js/App';
 import { Tangram } from '../js/Objects/Tangram';
 import { DeleteAction } from '../js/States/Actions/Delete';
 import { CreateAction } from '../js/States/Actions/Create';
-import { Points } from '../js/Tools/points';
 import { uniqId } from '../js/Tools/general';
+import { Point } from '../js/Objects/Point';
 
 class TangramPopup extends LitElement {
   constructor() {
@@ -132,7 +132,7 @@ class TangramPopup extends LitElement {
         tangram.shapes.map(shape => {
           let createAction = new CreateAction('create_shape');
           createAction.shapeToAdd = shape;
-          createAction.coordinates = Points.copy(shape);
+          createAction.coordinates = new Point(shape);
           createAction.shapeSize = null;
           return createAction;
         }),

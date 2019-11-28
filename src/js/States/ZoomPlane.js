@@ -114,7 +114,7 @@ export class ZoomPlaneState extends State {
         x: app.workspace.translateOffset.x / app.workspace.zoomLevel,
         y: app.workspace.translateOffset.y / app.workspace.zoomLevel,
       },
-      center = halfWinSize.addCoordinates(translateOffset, true),
+      center = new Point(halfWinSize).addCoordinates(translateOffset, true),
       dist = center.dist(clickCoordinates);
 
     if (dist == 0) dist = 0.001;

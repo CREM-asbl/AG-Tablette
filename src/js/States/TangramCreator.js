@@ -1,7 +1,7 @@
 import { app } from '../App';
 import { State } from './State';
-import { Points } from '../Tools/points';
 import { Tangram } from '../Objects/Tangram';
+import { Point } from '../Objects/Point';
 
 /**
  * Créer un tangram
@@ -93,7 +93,7 @@ export class TangramCreatorState extends State {
   createAndSaveTangram(name) {
     let shapes = this.shapes.map(s => s.copy()),
       polygons = this.polygons.map(pol => {
-        return pol.map(pt => Points.copy(pt));
+        return pol.map(pt => new Point(pt));
       }),
       tangram = new Tangram(name, shapes, polygons);
     app.tangramManager.addLocalTangram(tangram);
@@ -118,7 +118,7 @@ export class TangramCreatorState extends State {
         p1 = object.coordinates,
         first_point = last_polygon[0],
         last_point = last_polygon[last_polygon.length - 1];
-      if (Points.equal(p1, first_point)) {
+      if (p1.equal(first_point)) {
         //On a recliqué sur le 1e point
         if (last_polygon.length == 1) {
           this.polygons.pop(); //annuler la sélection du 1er point
@@ -129,7 +129,7 @@ export class TangramCreatorState extends State {
         }
         //si ==2: ne rien faire.
       } else {
-        if (Points.equal(p1, last_point)) {
+        if (p1.equal(last_point)) {
           //annuler le dernier point
           last_polygon.pop();
         } else {
