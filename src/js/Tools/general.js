@@ -4,7 +4,7 @@
  * @param color2: couleur (RGB) sous la forme #xxxxxx ou #xxx (lettres minuscules ou majuscules)
  */
 export function getAverageColor(color1, color2) {
-  var regex = /^#([0-9a-fA-F]{3}){1,2}$/;
+  let regex = /^#([0-9a-fA-F]{3}){1,2}$/;
   if (!regex.test(color1) || !regex.test(color2)) {
     console.error(
       "App.getAverageColor: une couleur n'a pas été reconnue: " + color1 + ' ' + color2,
@@ -44,9 +44,9 @@ export function getAverageColor(color1, color2) {
   color1 = color1.toUpperCase();
   color2 = color2.toUpperCase();
 
-  var hexTodec = function(hex) {
+  let hexTodec = function(hex) {
     //transforme un nombre hexadécimal à 2 chiffres en un nombre décimal
-    var conversion = {
+    let conversion = {
       '0': 0,
       '1': 1,
       '2': 2,
@@ -66,9 +66,9 @@ export function getAverageColor(color1, color2) {
     };
     return conversion[hex[0]] * 16 + conversion[hex[1]];
   };
-  var decToHex = function(dec) {
+  let decToHex = function(dec) {
     //transforme un nombre décimal de 0 à 255 en hexadécimal
-    var conversion = [
+    let conversion = [
       '0',
       '1',
       '2',
@@ -89,7 +89,7 @@ export function getAverageColor(color1, color2) {
     return conversion[parseInt(dec / 16)] + conversion[dec % 16];
   };
 
-  var red = parseInt((hexTodec(color1[1] + color1[2]) + hexTodec(color2[1] + color2[2])) / 2),
+  let red = parseInt((hexTodec(color1[1] + color1[2]) + hexTodec(color2[1] + color2[2])) / 2),
     green = parseInt((hexTodec(color1[3] + color1[4]) + hexTodec(color2[3] + color2[4])) / 2),
     blue = parseInt((hexTodec(color1[5] + color1[6]) + hexTodec(color2[5] + color2[6])) / 2);
 
@@ -101,7 +101,7 @@ export function getAverageColor(color1, color2) {
  * @param color: couleur (RGB) sous la forme #xxxxxx ou #xxx (lettres minuscules ou majuscules)
  */
 export function getComplementaryColor(color) {
-  var regex = /^#([0-9a-fA-F]{3}){1,2}$/;
+  let regex = /^#([0-9a-fA-F]{3}){1,2}$/;
   if (!regex.test(color)) {
     console.error("App.getComplementaryColor: la couleur n'a pas été reconnue: " + color);
     return;
@@ -123,9 +123,9 @@ export function getComplementaryColor(color) {
       color[3];
   color = color.toUpperCase();
 
-  var hexTodec = function(hex) {
+  let hexTodec = function(hex) {
     //transforme un nombre hexadécimal à 2 chiffres en un nombre décimal
-    var conversion = {
+    let conversion = {
       '0': 0,
       '1': 1,
       '2': 2,
@@ -145,9 +145,9 @@ export function getComplementaryColor(color) {
     };
     return conversion[hex[0]] * 16 + conversion[hex[1]];
   };
-  var decToHex = function(dec) {
+  let decToHex = function(dec) {
     //transforme un nombre décimal de 0 à 255 en hexadécimal
-    var conversion = [
+    let conversion = [
       '0',
       '1',
       '2',
@@ -168,7 +168,7 @@ export function getComplementaryColor(color) {
     return conversion[parseInt(dec / 16)] + conversion[dec % 16];
   };
 
-  var red = 255 - hexTodec(color[1] + color[2]),
+  let red = 255 - hexTodec(color[1] + color[2]),
     green = 255 - hexTodec(color[3] + color[4]),
     blue = 255 - hexTodec(color[5] + color[6]);
 
@@ -180,9 +180,9 @@ export function getComplementaryColor(color) {
  * @return {String} un identifiant unique
  */
 export function uniqId() {
-  var timestamp = new Date().getTime();
-  var randInt = Math.floor(Math.random() * 1000 * 1000);
-  var result = timestamp.toString(16) + randInt.toString(16);
+  let timestamp = new Date().getTime();
+  let randInt = Math.floor(Math.random() * 1000 * 1000);
+  let result = timestamp.toString(16) + randInt.toString(16);
   return result;
 }
 

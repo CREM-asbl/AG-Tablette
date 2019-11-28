@@ -498,18 +498,27 @@ export class Shape {
       s1_segments = s1.segments,
       s2_segments = s2.segments;
 
+    console.log('s1 in s2 ?');
+
     // s1 in s2 ? if a point of s1 is in s2
     let vertexes_to_check = [],
       middles_to_check = [];
-    for (let segment of s1_segments) {
-      if (s2_segments.some(seg => seg.equal(segment))) continue;
+    for (let s1_segment of s1_segments) {
+      if (
+        s2_segments.some(
+          s2_segment =>
+            s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)) ||
+            s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)),
+        )
+      )
+        continue;
       vertexes_to_check = [
         ...vertexes_to_check,
-        ...s2_segments.map(seg => segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
+        ...s2_segments.map(seg => s1_segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
       ];
       middles_to_check = [
         ...middles_to_check,
-        ...s2_segments.map(seg => segment.getMiddleIfJoined(seg)).filter(pt => pt),
+        ...s2_segments.map(seg => s1_segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
     if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s2))) is_potential_dig = true;
@@ -517,22 +526,33 @@ export class Shape {
       vertexes_to_check.some(
         (pt, idx) =>
           app.drawAPI.isPointInShape(pt, s2) &&
-          app.drawAPI.isPointInShape(middles_to_check[idx], s2),
+          app.drawAPI.isPointInShape(middles_to_check[idx], s2) &&
+          !s2.isPointInBorder(middles_to_check[idx]),
       )
     )
       return true;
 
+    console.log('no...');
+    console.log('s2 in s1 ?');
+
     // s2 in s1 ? if a point of s2 is in s1
     (vertexes_to_check = []), (middles_to_check = []);
-    for (let segment of s2_segments) {
-      if (s1_segments.some(seg => seg.equal(segment))) continue;
+    for (let s2_segment of s2_segments) {
+      if (
+        s1_segments.some(
+          s1_segment =>
+            s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)) ||
+            s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)),
+        )
+      )
+        continue;
       vertexes_to_check = [
         ...vertexes_to_check,
-        ...s1_segments.map(seg => segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
+        ...s1_segments.map(seg => s2_segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
       ];
       middles_to_check = [
         ...middles_to_check,
-        ...s1_segments.map(seg => segment.getMiddleIfJoined(seg)).filter(pt => pt),
+        ...s1_segments.map(seg => s2_segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
     if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s1))) is_potential_dig = true;
@@ -540,18 +560,30 @@ export class Shape {
       vertexes_to_check.some(
         (pt, idx) =>
           app.drawAPI.isPointInShape(pt, s1) &&
-          app.drawAPI.isPointInShape(middles_to_check[idx], s1),
+          app.drawAPI.isPointInShape(middles_to_check[idx], s1) &&
+          !s1.isPointInBorder(middles_to_check[idx]),
       )
     )
       return true;
 
+    console.log('no...');
+    console.log('cross segments ?');
+
     // verifier si segments croisés !
     if (
-      !s1_segments.every(seg => {
+      !s1_segments.every(s1_segment => {
         if (
+          !s2_segments.some(
+            s2_segment =>
+              s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)) ||
+              s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)),
+          ) &&
           s2_segments
-            .filter(segment => !seg.equal(segment) && !segment.getNonCommonPointIfJoined(seg))
-            .some(segment => segment.doesIntersect(seg))
+            .filter(
+              s2_segment =>
+                !s1_segment.equal(s2_segment) && !s1_segment.getNonCommonPointIfJoined(s2_segment),
+            )
+            .some(s2_segment => s1_segment.doesIntersect(s2_segment, false, true))
         ) {
           console.log('intersection');
           return false;
@@ -560,6 +592,8 @@ export class Shape {
       })
     )
       return true;
+
+    console.log('no...');
 
     // verifier si creuse
     if (is_potential_dig) {

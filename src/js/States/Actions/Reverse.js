@@ -96,8 +96,8 @@ export class ReverseAction extends Action {
    * @param  {float} progression  Entre 0 et 1, 1 pour un retournement complet
    */
   reverseShape(shape, arch, progression) {
-    var saveAxeCenter = arch.center;
-    var newShapeCenter = this.computePointPosition(shape, arch, progression);
+    let saveAxeCenter = arch.center;
+    let newShapeCenter = this.computePointPosition(shape, arch, progression);
     shape.x = newShapeCenter.x;
     shape.y = newShapeCenter.y;
     if (!shape.haveBeenReversed && progression > 0.5)

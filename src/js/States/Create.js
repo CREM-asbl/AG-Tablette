@@ -26,7 +26,7 @@ export class CreateState extends State {
     //Shape finale
     this.finalShape = null;
 
-    this.lastCreationTimestamp = null;
+    // this.lastCreationTimestamp = null;
   }
 
   /**
@@ -37,7 +37,7 @@ export class CreateState extends State {
     this.selectedFamily = family;
     this.selectedShape = null;
     this.currentStep = 'show-family-shapes';
-    this.lastCreationTimestamp = timestamp;
+    // this.lastCreationTimestamp = timestamp;
     app.appDiv.cursor = 'default';
   }
 
@@ -50,19 +50,17 @@ export class CreateState extends State {
 
   onMouseDown(mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
-    if (Date.now() - this.lastCreationTimestamp < 300) {
-      console.log('clics trop rapprochés');
-      return;
-    }
+    // if (Date.now() - this.lastCreationTimestamp < 300) {
+    //   console.log('clics trop rapprochés');
+    //   return;
+    // }
+
     this.tempShape = this.selectedShape.copy();
     let shapeSize = app.settings.get('shapesSize');
     this.involvedShapes = [this.tempShape];
 
-    console.log(this.tempShape.segments);
     this.tempShape.setScale(shapeSize);
-    console.log(this.tempShape.segments);
     this.tempShape.setCoordinates(mouseCoordinates);
-    console.log(this.tempShape.segments);
 
     this.actions[0].shapeToAdd = this.tempShape;
     this.actions[0].coordinates = mouseCoordinates;

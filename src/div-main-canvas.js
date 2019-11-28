@@ -146,7 +146,7 @@ class DivMainCanvas extends LitElement {
    *  est déclanchée et la fonction retourne null
    */
   getMousePos(event) {
-    var response = null;
+    let response = null;
 
     if (
       event.changedTouches &&

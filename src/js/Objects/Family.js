@@ -52,7 +52,7 @@ export class Family {
    * @return Objet de type Shape (sans coordonnées)
    */
   getShape(name) {
-    for (var i = 0; i < this.shapes.length; i++) {
+    for (let i = 0; i < this.shapes.length; i++) {
       if (this.shapes[i].name == name) {
         return this.shapes[i];
       }

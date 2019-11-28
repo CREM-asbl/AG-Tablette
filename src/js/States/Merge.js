@@ -63,10 +63,10 @@ export class MergeState extends State {
       return;
     }
 
-    // if (shape1.overlapsWith(shape2)) {
-    //   console.log('shapes overlap!');
-    //   return;
-    // }
+    if (shape1.overlapsWith(shape2)) {
+      console.log('shapes overlap!');
+      return;
+    }
 
     this.executeAction();
     this.start();

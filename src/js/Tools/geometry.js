@@ -7,11 +7,11 @@
  */
 export function isPointInPolygon(polygon, point) {
   /* Iterate through each line */
-  var crossings = 0;
-  var nb_pts = polygon.length;
+  let crossings = 0;
+  let nb_pts = polygon.length;
 
-  for (var i = 0; i < nb_pts; i++) {
-    var x1, x2;
+  for (let i = 0; i < nb_pts; i++) {
+    let x1, x2;
     /* This is done to ensure that we get the same result when
            the line goes from left to right and right to left */
     if (polygon[i].x < polygon[(i + 1) % nb_pts].x) {
@@ -28,12 +28,12 @@ export function isPointInPolygon(polygon, point) {
       point.x <= x2 &&
       (point.y < polygon[i].y || point.y <= polygon[(i + 1) % nb_pts].y)
     ) {
-      var eps = 0.000001;
+      let eps = 0.000001;
 
       /* Calculate the equation of the line */
-      var dx = polygon[(i + 1) % nb_pts].x - polygon[i].x;
-      var dy = polygon[(i + 1) % nb_pts].y - polygon[i].y;
-      var k;
+      let dx = polygon[(i + 1) % nb_pts].x - polygon[i].x;
+      let dy = polygon[(i + 1) % nb_pts].y - polygon[i].y;
+      let k;
 
       if (Math.abs(dx) < eps) {
         k = Infinity; // math.h
@@ -41,10 +41,10 @@ export function isPointInPolygon(polygon, point) {
         k = dy / dx;
       }
 
-      var m = polygon[i].y - k * polygon[i].x;
+      let m = polygon[i].y - k * polygon[i].x;
 
       /* Find if the ray crosses the line */
-      var y2 = k * point.x + m;
+      let y2 = k * point.x + m;
       if (point.y <= y2) {
         crossings++;
       }
@@ -75,7 +75,7 @@ export function collinear(pt1, pt2, pt3) {
  * @return {[type]}       angle équivalent dans l'intervalle [0, 2*Math.PI[
  */
 export function positiveAngle(angle) {
-  var val = angle % (2 * Math.PI); //angle dans l'intervalle ]2*Math.PI, 2*Math.PI[
+  let val = angle % (2 * Math.PI); //angle dans l'intervalle ]2*Math.PI, 2*Math.PI[
   if (val < 0) val += 2 * Math.PI;
   return val == 0 ? 0 : val; // éviter de retourner -0.
 }
@@ -120,7 +120,7 @@ export function isAngleBetweenTwoAngles(srcAngle, dstAngle, direction, angle) {
  * 					des x d'un plan, et le point (x,y) de ce plan.
  */
 export function positiveAtan2(y, x) {
-  var val = Math.atan2(y, x);
+  let val = Math.atan2(y, x);
   if (val < 0) val += 2 * Math.PI;
   if (2 * Math.PI - val < 0.00001) val = 0;
   return val;

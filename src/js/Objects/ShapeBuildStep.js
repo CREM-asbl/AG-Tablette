@@ -43,6 +43,24 @@ export class Segment extends ShapeBuildStep {
     this.points.push(new Point(x, y));
   }
 
+  sortPoints() {
+    this.points.sort((pt1, pt2) =>
+      pt1.dist(this.vertexes[0]) > pt2.dist(this.vertexes[0]) ? 1 : -1,
+    );
+  }
+
+  get subSegments() {
+    let result = [];
+    this.sortPoints();
+    result.push(this.copy(false));
+    let prev_point = this.vertexes[0];
+    [...this.points, this.vertexes[1]].forEach(point => {
+      result.push(new Segment(prev_point, point));
+      prev_point = point;
+    });
+    return result;
+  }
+
   deletePoint(point) {
     let i = this.points.findIndex(pt => {
       return pt.equal(point);
@@ -94,12 +112,12 @@ export class Segment extends ShapeBuildStep {
     } else {
       // axe.type=='NW' || axe.type=='SW'
       let f_a = (p1y - p2y) / (p1x - p2x),
-        f_b = p2y - f_a * p2x;
-      this.vertexes[1].x = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1);
-      this.vertexes[1].y = f_a * this.vertexes[1].x + f_b;
+        f_b = p2y - f_a * p2x,
+        x2 = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1),
+        y2 = f_a * x2 + f_b;
       center = new Point({
-        x: this.vertexes[1].x,
-        y: this.vertexes[1].y,
+        x: x2,
+        y: y2,
       });
     }
     return center;
@@ -152,13 +170,19 @@ export class Segment extends ShapeBuildStep {
   /**
    * check si deux segments s'intersectent
    * @param {*} segment
-   * @param {*} allow_prolongation si prolongation s'intersectent (si sécante)
+   * @param {Boolean} allow_prolongation verifie si les droites s'intersectent
+   * @param {Boolean} false_if_edge_point si le point d'intersection est la terminaison d'un segment, return false
    */
 
-  doesIntersect(segment, allow_prolongation = false) {
+  doesIntersect(segment, allow_prolongation = false, false_if_edge_point = false) {
     let intersect_point = this.intersectPoint(segment);
     if (!intersect_point) return false;
     if (allow_prolongation) return true;
+    if (
+      false_if_edge_point &&
+      [...this.vertexes, ...segment.vertexes].some(vertex => vertex.equal(intersect_point))
+    )
+      return false;
     if (this.isPointOnSegment(intersect_point) && segment.isPointOnSegment(intersect_point))
       return true;
     return false;
