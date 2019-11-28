@@ -496,21 +496,7 @@ export class Shape {
     return commonsPoints;
   }
 
-  /**
-   * Vérifie si cette forme se superpose avec une autre forme.
-   * @param  {Shape} shape L'autre forme
-   * @return {overlap}     true: si les 2 formes se superposent
-   */
-  overlapsWith(shape) {
-    let is_potential_dig = false,
-      s1 = this,
-      s2 = shape,
-      s1_segments = s1.segments,
-      s2_segments = s2.segments;
-
-    console.log('s1 in s2 ?');
-
-    // s1 in s2 ? if a point of s1 is in s2
+  overlapCheckIfShapeIsInsideAnother(shape, s1_segments, s2_segments, is_potential_dig) {
     let vertexes_to_check = [],
       middles_to_check = [];
     for (let s1_segment of s1_segments) {
@@ -532,75 +518,23 @@ export class Shape {
       ];
     }
 
-    vertexes_to_check = vertexes_to_check.filter(
-      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
-    );
-    middles_to_check = middles_to_check.filter(
-      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
-    );
-
-    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s2))) is_potential_dig = true;
+    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, shape)))
+      is_potential_dig[0] = true;
     if (
       vertexes_to_check.some(
         (pt, idx) =>
-          app.drawAPI.isPointInShape(pt, s2) &&
-          app.drawAPI.isPointInShape(middles_to_check[idx], s2) &&
-          !s2.isPointInBorder(middles_to_check[idx]),
+          app.drawAPI.isPointInShape(pt, shape) &&
+          app.drawAPI.isPointInShape(middles_to_check[idx], shape) &&
+          !shape.isPointInBorder(middles_to_check[idx]),
       )
     ) {
-      console.log('s1 in s2');
+      console.log('shape inside another');
       return true;
     }
+    return false;
+  }
 
-    console.log('no...');
-    console.log('s2 in s1 ?');
-
-    // s2 in s1 ? if a point of s2 is in s1
-    (vertexes_to_check = []), (middles_to_check = []);
-    (vertexes_to_check = []), (middles_to_check = []);
-    for (let s2_segment of s2_segments) {
-      if (
-        s1_segments.some(
-          s1_segment =>
-            s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)) ||
-            s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)),
-        )
-      )
-        continue;
-      vertexes_to_check = [
-        ...vertexes_to_check,
-        ...s1_segments.map(seg => s2_segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
-      ];
-      middles_to_check = [
-        ...middles_to_check,
-        ...s1_segments.map(seg => s2_segment.getMiddleIfJoined(seg)).filter(pt => pt),
-      ];
-    }
-
-    vertexes_to_check = vertexes_to_check.filter(
-      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
-    );
-    middles_to_check = middles_to_check.filter(
-      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
-    );
-
-    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s1))) is_potential_dig = true;
-    if (
-      vertexes_to_check.some(
-        (pt, idx) =>
-          app.drawAPI.isPointInShape(pt, s1) &&
-          app.drawAPI.isPointInShape(middles_to_check[idx], s1) &&
-          !s1.isPointInBorder(middles_to_check[idx]),
-      )
-    ) {
-      console.log('s2 in s1');
-      return true;
-    }
-
-    console.log('no...');
-    console.log('cross segments ?');
-
-    // verifier si segments croisés !
+  overlapCheckIntersectSegments(s1_segments, s2_segments) {
     if (
       !s1_segments.every(s1_segment => {
         if (
@@ -623,10 +557,32 @@ export class Shape {
       })
     )
       return true;
+  }
 
-    console.log('no...');
+  /**
+   * Vérifie si cette forme se superpose avec une autre forme.
+   * @param  {Shape} shape L'autre forme
+   * @return {overlap}     true: si les 2 formes se superposent
+   *    considéré vrai si deux segments sont confondu mais n'ont qu'un point commun ! => peut-etre probleme dans environnement libre
+   */
+  overlapsWith(shape) {
+    let is_potential_dig = false,
+      s1 = this,
+      s2 = shape,
+      s1_segments = s1.segments,
+      s2_segments = s2.segments;
 
-    // verifier si creuse
+    // s1 in s2 ? if a point of s1 is in s2
+    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments, [is_potential_dig]))
+      return true;
+    // s2 in s1 ? if a point of s2 is in s1
+    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments, [is_potential_dig]))
+      return true;
+
+    // check if intersect segments
+    if (this.overlapCheckIntersectSegments(s1_segments, s2_segments)) return true;
+
+    // check if dig
     if (is_potential_dig) {
       console.log('peut-etre creuse...');
       // return true;
