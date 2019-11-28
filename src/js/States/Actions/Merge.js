@@ -1,7 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { getAverageColor } from '../../Tools/general';
-import { Vertex, Segment } from '../../Objects/ShapeBuildStep';
+import { Vertex } from '../../Objects/ShapeBuildStep';
 
 export class MergeAction extends Action {
   constructor() {
@@ -49,7 +49,7 @@ export class MergeAction extends Action {
     let shape1 = app.workspace.getShapeById(this.firstShapeId),
       shape2 = app.workspace.getShapeById(this.secondShapeId);
 
-    const commonsPoints = this.getCommonsPoints(shape1, shape2);
+    const commonsPoints = shape1.getCommonsPoints(shape2);
 
     let segments = [...shape1.segments, ...shape2.segments];
 
@@ -103,16 +103,6 @@ export class MergeAction extends Action {
 
     let shape = app.workspace.getShapeById(this.createdShapeId);
     app.workspace.deleteShape(shape);
-  }
-
-  getCommonsPoints(shape1, shape2) {
-    const commonsPoints = [];
-    shape1.allOutlinePoints.forEach(point1 => {
-      shape2.allOutlinePoints.forEach(point2 => {
-        if (point1.equal(point2)) commonsPoints.push(JSON.stringify(point1));
-      });
-    });
-    return commonsPoints;
   }
 
   computeNewBuildSteps(segmentsList) {

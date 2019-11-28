@@ -58,15 +58,15 @@ export class MergeState extends State {
     let shape1 = this.firstShape,
       shape2 = shape;
 
-    if (this.actions[0].getCommonsPoints(shape1, shape2).length < 2) {
+    if (shape1.getCommonsPoints(shape2).length < 2) {
       console.log('no common segments');
       return;
     }
 
-    // if (shape1.overlapsWith(shape2)) {
-    //   console.log('shapes overlap!');
-    //   return;
-    // }
+    if (shape1.overlapsWith(shape2)) {
+      console.log('shapes overlap!');
+      return;
+    }
 
     this.executeAction();
     this.start();

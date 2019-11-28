@@ -492,6 +492,16 @@ export class Shape {
     });
   }
 
+  getCommonsPoints(shape) {
+    const commonsPoints = [];
+    this.allOutlinePoints.forEach(point1 => {
+      shape.allOutlinePoints.forEach(point2 => {
+        if (point1.equal(point2)) commonsPoints.push(JSON.stringify(point1));
+      });
+    });
+    return commonsPoints;
+  }
+
   /**
    * Vérifie si cette forme se superpose avec une autre forme.
    * @param  {Shape} shape L'autre forme
@@ -501,8 +511,10 @@ export class Shape {
     let is_potential_dig = false,
       s1 = this,
       s2 = shape,
-      s1_segments = s1.getSegments(),
-      s2_segments = s2.getSegments();
+      s1_segments = s1.segments,
+      s2_segments = s2.segments;
+
+    const commonsPoints = this.getCommonsPoints(shape);
 
     // s1 in s2 ? if a point of s1 is in s2
     let vertexes_to_check = [],
@@ -518,6 +530,14 @@ export class Shape {
         ...s2_segments.map(seg => segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
+
+    vertexes_to_check = vertexes_to_check.filter(
+      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
+    );
+    middles_to_check = middles_to_check.filter(
+      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
+    );
+
     if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s2))) is_potential_dig = true;
     if (
       vertexes_to_check.some(
@@ -525,11 +545,14 @@ export class Shape {
           app.drawAPI.isPointInShape(pt, s2) &&
           app.drawAPI.isPointInShape(middles_to_check[idx], s2),
       )
-    )
+    ) {
+      console.log('s1 in s2');
       return true;
+    }
 
     // s2 in s1 ? if a point of s2 is in s1
-    (vertexes_to_check = []), (middles_to_check = []);
+    vertexes_to_check = [];
+    middles_to_check = [];
     for (let segment of s2_segments) {
       if (s1_segments.some(seg => seg.equal(segment))) continue;
       vertexes_to_check = [
@@ -541,6 +564,14 @@ export class Shape {
         ...s1_segments.map(seg => segment.getMiddleIfJoined(seg)).filter(pt => pt),
       ];
     }
+
+    vertexes_to_check = vertexes_to_check.filter(
+      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
+    );
+    middles_to_check = middles_to_check.filter(
+      vertex => !commonsPoints.includes(JSON.stringify(vertex)),
+    );
+
     if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, s1))) is_potential_dig = true;
     if (
       vertexes_to_check.some(
@@ -548,8 +579,10 @@ export class Shape {
           app.drawAPI.isPointInShape(pt, s1) &&
           app.drawAPI.isPointInShape(middles_to_check[idx], s1),
       )
-    )
+    ) {
+      console.log('s2 in s1');
       return true;
+    }
 
     // verifier si segments croisés !
     if (
@@ -557,7 +590,10 @@ export class Shape {
         if (
           s2_segments
             .filter(segment => !seg.equal(segment) && !segment.getNonCommonPointIfJoined(seg))
-            .some(segment => segment.doesIntersect(seg))
+            .some(segment => {
+              if (commonsPoints.includes(JSON.stringify(segment.intersectPoint(seg)))) return false;
+              return segment.doesIntersect(seg);
+            })
         ) {
           console.log('intersection');
           return false;
