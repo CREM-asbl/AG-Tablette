@@ -15,11 +15,11 @@ class SavePopup extends LitElement {
 
   constructor() {
     super();
-    this.filename = '';
+    this.filename = 'untitled';
     this.save_settings = true;
     this.save_history = true;
-    this.save_format = 'agg';
-    this.save_image_format = 'png';
+    this.extension = 'agg';
+    this.save_format = 'png';
     this.image_or_state = 'state';
   }
 
@@ -34,23 +34,24 @@ class SavePopup extends LitElement {
       >
         <h2 slot="title">Sauvegarder</h2>
         <div slot="body" id="body">
-          <label style="display:inline" for="save_popup_image_or_state"
-            >Méthode de sauvegarde</label
-          >
-          <select
-            name="save_popup_image_or_state"
-            id="save_popup_image_or_state"
-            @change="${this._actionHandle}"
-          >
-            <option value="state" ?selected="${this.image_or_state == 'state'}">
-              état
-            </option>
-            <option value="image" ?selected="${this.image_or_state == 'image'}">
-              image
-            </option>
-          </select>
-
-          <br /><br />
+          <div style="display: ${app.hasNativeFS ? 'none' : 'block'}">
+            <label for="save_popup_image_or_state" style="display:inline"
+              >Méthode de sauvegarde</label
+            >
+            <select
+              name="save_popup_image_or_state"
+              id="save_popup_image_or_state"
+              @change="${this._actionHandle}"
+            >
+              <option value="state" ?selected="${this.image_or_state == 'state'}">
+                état
+              </option>
+              <option value="image" ?selected="${this.image_or_state == 'image'}">
+                image
+              </option>
+            </select>
+            <br /><br />
+          </div>
 
           <div class="part" id="state_form" style="display: block;">
             <div class="field">
@@ -77,25 +78,26 @@ class SavePopup extends LitElement {
           </div>
 
           <div class="part" id="image_form" style="display: none;">
-            <label style="display:inline" for="save_popup_format">Format</label>
+            <label for="save_popup_format" style="display:inline">Format</label>
             <select name="save_popup_format" id="save_popup_format" @change="${this._actionHandle}">
-              <option value="png" ?selected="${this.save_image_format == 'png'}">
+              <option value="png" ?selected="${this.save_format == 'png'}">
                 png
               </option>
-              <option value="svg" ?selected="${this.save_image_format == 'svg'}">
+              <option value="svg" ?selected="${this.save_format == 'svg'}">
                 svg
               </option>
             </select>
           </div>
 
-          <br />
-
-          <div class="field">
-            <label for="save_popup_filename">Nom du fichier</label>
+          <div class="field" style="display: ${app.hasNativeFS ? 'none' : 'block'}">
+            <br />
+            <label for="save_popup_filename" style="display:inline">Nom du fichier</label>
             <input
               type="text"
               name="save_popup_filename"
               id="save_popup_filename"
+              onFocus="this.select()"
+              value="${this.filename}"
               @change="${this._actionHandle}"
             />
           </div>
@@ -110,88 +112,7 @@ class SavePopup extends LitElement {
     `;
   }
 
-  /**
-   * download a file to the user
-   * @param {*} fileName
-   * @param {*} url
-   */
-  downloadFile(fileName, url) {
-    const downloader = document.createElement('a');
-    downloader.href = url;
-    downloader.download = fileName;
-    downloader.target = '_blank';
-    document.body.appendChild(downloader);
-    downloader.click();
-    document.body.removeChild(downloader);
-  }
-
-  saveToSvg(fileName) {
-    const ctx = app.drawAPI.canvas.main;
-
-    let svg_data =
-      '<svg width="' +
-      ctx.width +
-      '" height="' +
-      ctx.height +
-      '" xmlns="http://www.w3.org/2000/svg" >\n';
-    app.workspace.shapes.forEach(shape => {
-      svg_data += shape.to_svg() + '\n';
-    });
-    svg_data += '</svg>';
-
-    const encodedData = 'data:image/svg+xml;base64,' + btoa(svg_data);
-
-    this.downloadFile(fileName + '.svg', encodedData);
-  }
-
-  saveToPng(fileName) {
-    const ctx = app.drawAPI.canvas.main;
-    const image = ctx.toDataURL();
-
-    this.downloadFile(fileName + '.png', image);
-  }
-
-  saveState(fileName) {
-    let { history, settings, ...saveObject } = {
-      ...app.workspace.data,
-      appSettings: app.settings.data,
-    };
-
-    if (this.save_history) saveObject.history = history;
-    else saveObject.history = { history: [], historyIndex: -1 };
-
-    if (this.save_settings) saveObject.settings = settings;
-
-    let json = JSON.stringify(saveObject);
-
-    const file = new Blob([json], { type: 'application/json' });
-    const data = window.URL.createObjectURL(file);
-
-    this.downloadFile(fileName + '.' + this.save_format, data);
-  }
-
-  saveToFile(fileName) {
-    if (!fileName) fileName = 'untitled';
-
-    switch (this.save_format) {
-      case 'png':
-        this.saveToPng(fileName);
-        break;
-      case 'svg':
-        this.saveToSvg(fileName);
-        break;
-      case 'agg':
-      case 'agt':
-      case 'agc':
-      case 'agl':
-        this.saveState(fileName);
-        break;
-      default:
-        console.log('unknown file format: ' + this.save_image_format);
-    }
-  }
-
-  get_file_name_from_env() {
+  getFileNameFromEnv() {
     switch (app.workspace.environment.name) {
       case 'Grandeur':
         return 'agg';
@@ -216,17 +137,26 @@ class SavePopup extends LitElement {
 
       case 'save_popup_filename':
         this.filename = event.target.value;
+        if (!this.filename) this.filename = 'untitled';
         break;
 
       case 'save_popup_submit':
         this.style.display = 'none';
-        this.save_format =
-          this.image_or_state == 'state' ? this.get_file_name_from_env() : this.save_image_format;
-        this.saveToFile(this.filename);
+        this.extension =
+          this.image_or_state == 'state' ? this.getFileNameFromEnv() : this.save_format;
+        window.dispatchEvent(
+          new CustomEvent('file-selected', {
+            detail: {
+              name: this.filename + '.' + this.extension,
+              save_settings: this.save_settings,
+              save_history: this.save_history,
+            },
+          }),
+        );
         break;
 
       case 'save_popup_format':
-        this.save_image_format = event.target.value;
+        this.save_format = event.target.value;
         break;
 
       case 'save_popup_image_or_state':
@@ -237,7 +167,7 @@ class SavePopup extends LitElement {
 
       default:
         console.log(
-          'Settings: paramètre inconnu: ' +
+          'SavePopup: paramètre inconnu: ' +
             event.target.name +
             ' ' +
             event.target.value +

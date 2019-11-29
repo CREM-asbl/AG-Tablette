@@ -51,6 +51,8 @@ export class App {
 
     //références vers les popup
     this.popups = {};
+
+    this.hasNativeFS = 'chooseFileSystemEntries' in window;
   }
 
   /* #################################################################### */
@@ -176,21 +178,6 @@ export class App {
     if (!state) return;
     this.permanentStates.push(state);
     state.start();
-  }
-
-  openFile(file) {
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataObject = JSON.parse(reader.result);
-      if (dataObject.appSettings) {
-        this.settings.initFromObject(dataObject.appSettings);
-        dispatchEvent(new CustomEvent('app-settings-changed'));
-      }
-      this.wsManager.setWorkspaceFromJSON(reader.result);
-      this.drawAPI.refreshUpper();
-    };
-    reader.readAsText(file);
   }
 }
 

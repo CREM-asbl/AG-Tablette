@@ -16,6 +16,7 @@ import './version-item';
 
 import { app } from './js/App';
 import { StatesManager } from './js/StatesManager';
+import { FileManager } from './js/FileManager';
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -151,7 +152,9 @@ class AGTabletteApp extends LitElement {
                 src="/images/load.svg"
                 title="Ouvrir"
                 name="load"
-                @click="${() => this.shadowRoot.querySelector('#fileSelector').click()}"
+                @click="${async () => {
+                  FileManager.openFile();
+                }}"
               >
               </icon-button>
               <icon-button
@@ -412,7 +415,7 @@ class AGTabletteApp extends LitElement {
         accept=".agg, .json, .fag"
         type="file"
         style="display: none"
-        @change="${event => app.openFile(event.target.files[0])}"
+        @change="${event => FileManager.oldOpenFile(event.target.files[0])}"
       />
     `;
   }
@@ -426,7 +429,7 @@ class AGTabletteApp extends LitElement {
       this.shadowRoot.querySelector('settings-popup').style.display = 'block';
       reset_state = 1;
     } else if (event.target.name === 'save') {
-      this.shadowRoot.querySelector('save-popup').style.display = 'block';
+      FileManager.saveFile();
       reset_state = 1;
     } else if (event.target.name === 'new') {
       this.shadowRoot.querySelector('new-popup').style.display = 'block';
