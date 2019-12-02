@@ -30,8 +30,7 @@ class SettingsPopup extends LitElement {
 
   render() {
     return html`
-     <template-popup @close-popup="${() =>
-       this.style.display == 'block' && (this.style.display = 'none')}">
+     <template-popup @close-popup="${() => (this.style.display = 'none')}">
       <h2 slot="title">Paramètres</h2>
       <div slot="body">
         <fieldset>

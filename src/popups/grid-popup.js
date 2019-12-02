@@ -14,9 +14,7 @@ class GridPopup extends LitElement {
 
   render() {
     return html`
-      <template-popup
-        @close-popup="${() => this.style.display == 'block' && this.gridPopupValidate()}"
-      >
+      <template-popup @close-popup="${() => this.gridPopupValidate()}">
         <h2 slot="title">Opacité</h2>
         <div slot="body" id="body">
           <div class="field" style="margin-left:8px">

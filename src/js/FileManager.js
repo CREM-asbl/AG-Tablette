@@ -36,8 +36,12 @@ export class FileManager {
           },
         ],
       };
-      let fileHandle = await window.chooseFileSystemEntries(opts);
-      FileManager.newOpenFile(fileHandle);
+      try {
+        let fileHandle = await window.chooseFileSystemEntries(opts);
+        FileManager.newOpenFile(fileHandle);
+      } catch {
+        // user closed open prompt
+      }
     } else {
       app.appDiv.shadowRoot.querySelector('#fileSelector').click();
     }
@@ -143,7 +147,7 @@ export class FileManager {
         window.addEventListener(
           'file-selected',
           event => {
-            FileManager.saveState(handle, { ...event.detail });
+            if (event.detail) FileManager.saveState(handle, { ...event.detail });
           },
           { once: true },
         );
@@ -209,7 +213,11 @@ export class FileManager {
 
   static async saveFile() {
     if (app.hasNativeFS) {
-      await FileManager.newSaveFile();
+      try {
+        await FileManager.newSaveFile();
+      } catch {
+        // user closed save prompt
+      }
     } else {
       FileManager.oldSaveFile();
     }

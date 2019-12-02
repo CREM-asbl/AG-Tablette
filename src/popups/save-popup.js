@@ -30,7 +30,10 @@ class SavePopup extends LitElement {
   render() {
     return html`
       <template-popup
-        @close-popup="${() => this.style.display == 'block' && (this.style.display = 'none')}"
+        @close-popup="${() => {
+          dispatchEvent(new Event('file-selected'));
+          this.style.display = 'none';
+        }}"
       >
         <h2 slot="title">Sauvegarder</h2>
         <div slot="body" id="body">

@@ -105,7 +105,10 @@ export class Workspace {
 
     this.environment = app.envManager.getNewEnv(wsdata.envName);
 
-    this.settings.initFromObject(wsdata.settings);
+    if (wsdata.settings) this.settings.initFromObject(wsdata.settings);
+    else {
+      this.initSettings(), app.resetSettings();
+    }
 
     app.workspace = actualWS;
   }

@@ -9,7 +9,7 @@ class NewPopup extends LitElement {
 
   render() {
     return html`
-      <template-popup @close-popup="${() => this.style.display === 'block' && this.close()}">
+      <template-popup @close-popup="${() => this.close()}">
         <h2 slot="title">Nouvelle fenêtre</h2>
         <div slot="body" id="body">
           <p>
