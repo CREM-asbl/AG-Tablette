@@ -3,11 +3,12 @@ import { app } from './App';
 export class FileManager {
   static parseFile(data) {
     const dataObject = JSON.parse(data);
-    if (dataObject.appSettings) {
-      app.settings.initFromObject(dataObject.appSettings);
-      dispatchEvent(new CustomEvent('app-settings-changed'));
-    }
+
+    if (dataObject.appSettings) app.settings.initFromObject(dataObject.appSettings);
+    else app.resetSettings();
+
     app.wsManager.setWorkspaceFromJSON(data);
+    dispatchEvent(new CustomEvent('app-settings-changed'));
     app.drawAPI.refreshUpper();
   }
 
@@ -85,15 +86,16 @@ export class FileManager {
   }
 
   static saveState(handle, detail) {
-    let { history, settings, ...saveObject } = {
+    let { history, WSSettings, appSettings, ...saveObject } = {
       ...app.workspace.data,
-      settings: app.settings.data,
+      appSettings: app.settings.data,
     };
 
     if (detail.save_history) saveObject.history = history;
     else saveObject.history = { history: [], historyIndex: -1 };
 
-    if (detail.save_settings) saveObject.appSettings = settings;
+    if (detail.save_settings) saveObject.appSettings = appSettings;
+    if (detail.save_settings) saveObject.WSSettings = WSSettings;
 
     let json_data = JSON.stringify(saveObject);
 
@@ -177,6 +179,7 @@ export class FileManager {
     window.addEventListener(
       'file-selected',
       event => {
+        if (!event.detail) return;
         const handle = {
           ...event.detail,
         };
