@@ -1,7 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { getAverageColor } from '../../Tools/general';
-import { Vertex, Segment } from '../../Objects/ShapeBuildStep';
+import { Vertex, Segment, MoveTo } from '../../Objects/ShapeBuildStep';
 
 export class MergeAction extends Action {
   constructor() {
@@ -163,13 +163,14 @@ export class MergeAction extends Action {
       segmentUsed++;
       currentSegment = nextSegment;
     }
-    if (currentSegment.hasSameDirection(firstSegment))
-      newBuildSteps[0].vertexes[0] = newBuildSteps.pop().vertexes[0];
-    else newBuildSteps.push(new Vertex(currentSegment.vertexes[1]));
     if (segmentUsed != segmentsList.length) {
       console.log('shape is dig');
       return null;
     }
+    if (currentSegment.hasSameDirection(firstSegment))
+      newBuildSteps[0].vertexes[0] = newBuildSteps.pop().vertexes[0];
+    else newBuildSteps.push(new Vertex(currentSegment.vertexes[1]));
+    newBuildSteps.unshift(new MoveTo(newBuildSteps[0].vertexes[0]));
     return newBuildSteps;
   }
 }
