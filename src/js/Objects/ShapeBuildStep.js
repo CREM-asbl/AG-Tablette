@@ -52,14 +52,17 @@ export class Segment extends ShapeBuildStep {
     );
   }
 
+  /**
+   * @returns conbinaisons de tous les sous-segments possibles
+   * (segment d'un point/vertex à un autre point/vertex)
+   */
   get subSegments() {
     let result = [];
-    this.sortPoints();
-    result.push(this.copy(false));
-    let prev_point = this.vertexes[0];
-    [...this.points, this.vertexes[1]].forEach(point => {
-      result.push(new Segment(prev_point, point));
-      prev_point = point;
+    // this.sortPoints();
+    [...this.points, ...this.vertexes].forEach((point, idx, points) => {
+      points.slice(idx + 1).forEach((pt, i, pts) => {
+        result.push(new Segment(point, pt));
+      });
     });
     return result;
   }

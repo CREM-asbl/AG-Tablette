@@ -155,6 +155,18 @@ export class CutAction extends Action {
     shape1.setCoordinates(new Point(shape1).subCoordinates(offset));
     shape2.setCoordinates(new Point(shape2).addCoordinates(offset));
 
+    // cleaning
+    shape1.buildSteps.forEach(bs => {
+      if (bs.type == 'segment') {
+        bs.coordinates = bs.vertexes[1].copy();
+      }
+    });
+    shape2.buildSteps.forEach(bs => {
+      if (bs.type == 'segment') {
+        bs.coordinates = bs.vertexes[1].copy();
+      }
+    });
+
     if (this.createdShapesIds) {
       shape1.id = this.createdShapesIds[0];
       shape2.id = this.createdShapesIds[1];
