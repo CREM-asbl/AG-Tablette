@@ -1,7 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { getAverageColor } from '../../Tools/general';
-import { Vertex } from '../../Objects/ShapeBuildStep';
+import { Vertex, Segment } from '../../Objects/ShapeBuildStep';
 
 export class MergeAction extends Action {
   constructor() {
@@ -42,6 +42,11 @@ export class MergeAction extends Action {
     return true;
   }
 
+  alertDigShape() {
+    alert('Les formes creuses ne sont pas supportées actuellement');
+    return false;
+  }
+
   //Si renvoie false, annulera l'ajout à l'historique
   do() {
     if (!this.checkDoParameters()) return;
@@ -53,36 +58,49 @@ export class MergeAction extends Action {
       [shape1, shape2] = [shape2, shape1];
     }
 
-    const commonsPoints = shape1.getCommonsPoints(shape2);
-
     let segments = [...shape1.segments, ...shape2.segments];
 
-    segments = segments.filter(
-      segment =>
-        !(
-          commonsPoints.includes(JSON.stringify(segment.vertexes[0])) &&
-          commonsPoints.includes(JSON.stringify(segment.vertexes[1]))
-        ),
-    );
+    // 2D array of all segments
+    let segments_array = segments.map((segment, idx, segments) => {
+      let segments_thats_in_segment = segments.filter(seg => segment.contains(seg));
+      let newSegments = [];
+      let segments_where_segment_is_in = segments.filter(
+        seg => !segment.equal(seg) && seg.contains(segment),
+      );
 
-    segments = segments.map(segment => {
-      const newSegment = segment.copy(false);
-      segment.points.forEach(point => {
-        if (commonsPoints.includes(JSON.stringify(point))) {
-          if (commonsPoints.includes(JSON.stringify(segment.vertexes[0]))) {
-            newSegment.vertexes[0].setCoordinates(point);
-          }
-          if (commonsPoints.includes(JSON.stringify(segment.vertexes[1]))) {
-            newSegment.vertexes[1].setCoordinates(point);
-          }
-        }
-      });
-      return newSegment;
+      // if segment is a subsegment of another
+      if (segments_where_segment_is_in.length > 0) return newSegments;
+
+      if (segments_thats_in_segment.length == 1)
+        // no segment in it (only itself)
+        newSegments.push(segment);
+      else if (segments_thats_in_segment.length >= 3) {
+        // if multiple segments in  segment
+        console.log('shape is dig');
+        return false;
+      } else {
+        // if another segment in segment (interior to delete)
+        let part_to_delete;
+        if (segments_thats_in_segment[0].equal(segment))
+          part_to_delete = segments_thats_in_segment[1].copy();
+        else part_to_delete = segments_thats_in_segment[0].copy();
+        if (!part_to_delete.hasSameDirection(segment)) part_to_delete.reverse();
+        if (!segment.vertexes[0].equal(part_to_delete.vertexes[0]))
+          newSegments.push(new Segment(segment.vertexes[0], part_to_delete.vertexes[0]));
+        if (!segment.vertexes[1].equal(part_to_delete.vertexes[1]))
+          newSegments.push(new Segment(segment.vertexes[1], part_to_delete.vertexes[1]));
+      }
+      return newSegments;
     });
+
+    if (segments_array.filter(segment => segment === false).length) return this.alertDigShape();
+
+    // back to 1D
+    segments = [].concat(...segments_array);
 
     const buildSteps = this.computeNewBuildSteps(segments);
 
-    if (!buildSteps) return;
+    if (!buildSteps) return this.alertDigShape();
 
     //Créer la forme
     let newShape = shape1.copy();
@@ -113,41 +131,44 @@ export class MergeAction extends Action {
     // Todo : Traiter le cas des formes "percées"
     // Todo : Voir si on ne peut pas la simplifier
     let newBuildSteps = [];
-    // propriété pour éviter une boucle infinie et le cas des formes creuses
-    let numberOfSegmentsRefused = 0;
-    let precSegment;
 
-    while (segmentsList.length > 0 && numberOfSegmentsRefused !== segmentsList.length) {
-      const currentSegment = segmentsList.shift();
-      let copy = null;
-      if (!precSegment || currentSegment.vertexes[0].equal(precSegment.vertexes[1])) {
-        copy = currentSegment;
+    let currentSegment = segmentsList[0].copy();
+    let firstSegment = currentSegment;
+    let nextSegment;
+    let segmentUsed = 0;
+
+    newBuildSteps.push(currentSegment);
+    segmentUsed++;
+
+    while (!firstSegment.vertexes[0].equal(currentSegment.vertexes[1])) {
+      // while not closed
+      const newPotentialSegments = segmentsList.filter(
+        seg => !seg.equal(currentSegment) && seg.contains(currentSegment.vertexes[1], false),
+      );
+      if (newPotentialSegments.length != 1) {
+        if (newPotentialSegments.length == 0) console.log('shape cannot be closed');
+        else console.log('shape is dig');
+        return null;
       }
+      nextSegment = newPotentialSegments[0].copy();
+      if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse();
 
-      if (precSegment && currentSegment.vertexes[1].equal(precSegment.vertexes[1])) {
-        currentSegment.reverse();
-        copy = currentSegment;
-      }
-
-      if (!copy) {
-        segmentsList.push(currentSegment);
-        numberOfSegmentsRefused++;
-        if (numberOfSegmentsRefused === segmentsList.length) {
-          alert('Les formes creuses ne sont pas supportées actuellement');
-          newBuildSteps = null;
-        }
-        continue;
-      }
-
-      if (precSegment && precSegment.hasSameDirection(copy)) {
-        precSegment.vertexes[1] = copy.vertexes[1];
-        precSegment.coordinates = copy.coordinates;
+      if (currentSegment.hasSameDirection(nextSegment)) {
+        currentSegment.vertexes[1] = nextSegment.vertexes[1];
+        currentSegment.coordinates = nextSegment.coordinates;
       } else {
-        newBuildSteps.push(new Vertex(copy.vertexes[0]));
-        newBuildSteps.push(copy);
-        precSegment = copy;
+        newBuildSteps.push(new Vertex(nextSegment.vertexes[0]));
+        newBuildSteps.push(nextSegment);
       }
-      numberOfSegmentsRefused = 0;
+      segmentUsed++;
+      currentSegment = nextSegment;
+    }
+    if (currentSegment.hasSameDirection(firstSegment))
+      newBuildSteps[0].vertexes[0] = newBuildSteps.pop().vertexes[0];
+    else newBuildSteps.push(new Vertex(currentSegment.vertexes[1]));
+    if (segmentUsed != segmentsList.length) {
+      console.log('shape is dig');
+      return null;
     }
     return newBuildSteps;
   }

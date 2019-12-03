@@ -1,4 +1,3 @@
-import { Points } from '../Tools/points';
 import { Point } from './Point';
 
 export class ShapeBuildStep {
@@ -29,11 +28,11 @@ export class ShapeBuildStep {
 export class Segment extends ShapeBuildStep {
   constructor(point1, point2, isArc = false) {
     super('segment');
-    this.coordinates = new Point(point2);
     // if (point1 instanceof Point && point2 instanceof Point)
     //   this.vertexes = [point1, point2];
     // else
     this.vertexes = [new Point(point1), new Point(point2)];
+    this.coordinates = this.vertexes[1].copy();
     this.points = [];
     this.isArc = isArc;
   }
@@ -43,9 +42,13 @@ export class Segment extends ShapeBuildStep {
     this.points.push(new Point(x, y));
   }
 
-  sortPoints() {
+  /**
+   * sort segment points from vertexes[start]
+   * @param {*} start
+   */
+  sortPoints(start = 0) {
     this.points.sort((pt1, pt2) =>
-      pt1.dist(this.vertexes[0]) > pt2.dist(this.vertexes[0]) ? 1 : -1,
+      pt1.dist(this.vertexes[start]) > pt2.dist(this.vertexes[start]) ? 1 : -1,
     );
   }
 
@@ -173,7 +176,6 @@ export class Segment extends ShapeBuildStep {
    * @param {Boolean} allow_prolongation verifie si les droites s'intersectent
    * @param {Boolean} false_if_edge_point si le point d'intersection est la terminaison d'un segment, return false
    */
-
   doesIntersect(segment, allow_prolongation = false, false_if_edge_point = false) {
     let intersect_point = this.intersectPoint(segment);
     if (!intersect_point) return false;
@@ -220,13 +222,23 @@ export class Segment extends ShapeBuildStep {
     return undefined;
   }
 
+  contains(object, matchSegmentPoints = true) {
+    if (object instanceof Segment) return this.subSegments.some(subSeg => subSeg.equal(object));
+    else if (object instanceof Point)
+      return (
+        this.vertexes.some(vertex => vertex.equal(object)) ||
+        (matchSegmentPoints && this.points.some(point => point.equal(object)))
+      );
+    else console.log('unsupported object :', object);
+  }
+
   get length() {
     return this.vertexes[0].dist(this.vertexes[1]);
   }
 
   get direction() {
     const originVector = this.vertexes[1].addCoordinates(this.vertexes[0], true);
-    originVector.multiplyWithScalar(1 / this.length);
+    originVector.multiplyWithScalar(1 / this.length, true);
     return originVector;
   }
 
@@ -256,7 +268,7 @@ export class Segment extends ShapeBuildStep {
   translate(coordinates) {
     super.translate(coordinates);
     this.vertexes.forEach(vertex => vertex.translate(coordinates));
-    this.points.forEach(vertex => vertex.translate(coordinates));
+    this.points.forEach(point => point.translate(coordinates));
   }
 
   reverse() {
@@ -272,7 +284,10 @@ export class Segment extends ShapeBuildStep {
   }
 
   hasSameDirection(segment) {
-    return this.direction.x === segment.direction.x && this.direction.y === segment.direction.y;
+    return (
+      Math.abs(this.direction.x - segment.direction.x) < 0.001 &&
+      Math.abs(this.direction.y - segment.direction.y) < 0.001
+    );
   }
 }
 
