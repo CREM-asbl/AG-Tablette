@@ -3,7 +3,6 @@ import { CopyAction } from './Actions/Copy';
 import { RotateAction } from './Actions/Rotate';
 import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
-import { Points } from '../Tools/points';
 import { Point } from '../Objects/Point';
 
 /**
@@ -79,7 +78,7 @@ export class CopyState extends State {
   onMouseUp(mouseCoordinates, event) {
     if (this.currentStep != 'moving-shape') return;
 
-    let translation = new Point(mouseCoordinates).addCoordinates(this.startClickCoordinates, true),
+    let translation = new Point(mouseCoordinates).subCoordinates(this.startClickCoordinates),
       newPos = new Point(this.selectedShape).addCoordinates(translation),
       transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape, newPos, false);
     if (transformation.rotation != 0) {

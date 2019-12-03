@@ -368,7 +368,11 @@ export class Shape {
     }
     if (point1.pointType == 'vertex' && point2.pointType == 'vertex') {
       //2 vertex. forment un segment entier ?
-      return this.contains(new Segment(point1.index, point2.index));
+      // console.log('shape');
+      // this.buildSteps.filter(bs => bs.type == "segment").forEach(segment => console.log(JSON.stringify(segment.vertexes[0]), JSON.stringify(segment.vertexes[1])));
+      // console.log("p1 ", JSON.stringify(point1.relativeCoordinates), JSON.stringify(point1.coordinates));
+      // console.log("p2", JSON.stringify(point2.relativeCoordinates), JSON.stringify(point2.coordinates));
+      return this.contains(new Segment(point1.relativeCoordinates, point2.relativeCoordinates));
     }
     if (point1.pointType != 'vertex' && point2.pointType != 'vertex') {
       //2 segmentPoints. sur le même segment ?
@@ -595,7 +599,7 @@ export class Shape {
    * @param {{x: float, y: float}} coordinates les coordonnées
    */
   setCoordinates(coordinates) {
-    const translation = new Point(coordinates).addCoordinates({ x: this.x, y: this.y }, true);
+    const translation = new Point(coordinates).subCoordinates({ x: this.x, y: this.y });
     this.x = coordinates.x;
     this.y = coordinates.y;
     this.buildSteps.forEach(bs => bs.translate(translation));

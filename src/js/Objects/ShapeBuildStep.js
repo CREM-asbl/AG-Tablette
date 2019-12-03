@@ -237,7 +237,7 @@ export class Segment extends ShapeBuildStep {
   }
 
   get direction() {
-    const originVector = this.vertexes[1].addCoordinates(this.vertexes[0], true);
+    const originVector = this.vertexes[1].subCoordinates(this.vertexes[0]);
     originVector.multiplyWithScalar(1 / this.length, true);
     return originVector;
   }

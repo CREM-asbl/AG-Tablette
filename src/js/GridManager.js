@@ -169,7 +169,7 @@ export class GridManager {
               coordinates: vertex.coordinates
                 .addCoordinates(s)
                 .addCoordinates(coordinates)
-                .addCoordinates(mainShape, true),
+                .subCoordinates(mainShape),
               pointType: 'vertex',
               index: i1,
             });
@@ -192,7 +192,7 @@ export class GridManager {
             coordinates: s.center
               .addCoordinates(s)
               .addCoordinates(coordinates)
-              .addCoordinates(mainShape, true),
+              .subCoordinates(mainShape),
             pointType: 'center',
           };
         });

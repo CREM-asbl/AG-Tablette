@@ -134,7 +134,7 @@ export class TangramManager {
               realPoint: vertex.coordinates
                 .addCoordinates(s)
                 .addCoordinates(coordinates)
-                .addCoordinates(mainShape, true),
+                .subCoordinates(mainShape),
             };
           });
       })
@@ -159,7 +159,7 @@ export class TangramManager {
           let dist = pt.realPoint.addCoordinates(tangramPt);
           if (dist < bestDist) {
             bestDist = dist;
-            bestOffset = tangramPt.addCoordinates(pt.realPoint, true);
+            bestOffset = tangramPt.subCoordinates(pt.realPoint);
           }
         }
       });

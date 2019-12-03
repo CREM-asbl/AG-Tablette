@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { Points } from './points';
 import { Point } from '../Objects/Point';
 
 /**
@@ -19,24 +18,56 @@ function computeTransformation(e1, e2, shapes, mainShape, coordinates) {
     moving2 = e2.moving;
 
   let pts = {
-      fix: fix2.coordinates.addCoordinates(fix1.coordinates, true),
-      moving: moving2.coordinates.addCoordinates(moving1.coordinates, true),
+      fix: fix2.coordinates.subCoordinates(fix1.coordinates),
+      moving: moving2.coordinates.subCoordinates(moving1.coordinates),
     },
     angles = {
       fix: new Point(0, 0).getAngle(pts.fix),
       moving: new Point(0, 0).getAngle(pts.moving),
     },
     mainAngle = angles.fix - angles.moving,
-    center = mainShape.center
-      .addCoordinates(coordinates, true)
-      .addCoordinates(mainShape.x, mainShape.y),
+    center = mainShape.center.addCoordinates(coordinates).subCoordinates(mainShape.x, mainShape.y),
     moving1NewCoords = moving1.coordinates.rotate(mainAngle, center),
-    translation = fix1.coordinates.addCoordinates(moving1NewCoords, true);
+    translation = fix1.coordinates.subCoordinates(moving1NewCoords);
 
   return {
     rotation: mainAngle,
     move: translation,
   };
+}
+
+/*
+    Vérifie:
+    - Que les 2 points moving sont de la même forme
+    - Qu'aucun des 2 points moving n'est un centre
+    - Que les 2 segments formés ont la même longueur
+    - Que les 2 points moving sont sur le même segment et/ou aux extrémités
+      d'un même segment.
+    - Si les 2 points fixed ne sont ni tangram ni grille, alors ils doivent
+      faire partie du même segment de la même forme.
+  */
+function checkCompatibility(e1, e2) {
+  if (e1.moving.shape.id != e2.moving.shape.id) return false;
+
+  if (e1.moving.pointType == 'center' || e2.moving.pointType == 'center') return false;
+
+  let d1 = e1.fixed.coordinates.dist(e2.fixed.coordinates),
+    d2 = e1.moving.coordinates.dist(e2.moving.coordinates);
+  if (Math.abs(d1 - d2) > 1) return false;
+
+  if (!e1.moving.shape.isSegmentPart(e1.moving, e2.moving)) return false;
+
+  if (
+    e1.fixed.pointType != 'tangram' &&
+    e1.fixed.pointType != 'grid' &&
+    e2.fixed.pointType != 'tangram' &&
+    e2.fixed.pointType != 'grid'
+  ) {
+    if (e1.fixed.shape.id != e2.fixed.shape.id) return false;
+    if (!e1.fixed.shape.isSegmentPart(e1.fixed, e2.fixed)) return false;
+  }
+
+  return true;
 }
 
 /**
@@ -55,7 +86,7 @@ function computeTransformation(e1, e2, shapes, mainShape, coordinates) {
  *
  */
 export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf = true) {
-  let maxRotateAngle = 0.25; //radians
+  const maxRotateAngle = 0.25; //radians
   /**
    * Il faut considérer que les coordonnées des formes du groupe (shapes[i].x,
    * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
@@ -79,20 +110,21 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
     .map(s => {
       let list = [];
       s.buildSteps.forEach((bs, i) => {
-        if (bs.type == 'vertex') {
-          list.push({
-            shape: s,
-            relativeCoordinates: bs.coordinates,
-            coordinates: bs.coordinates.addCoordinates(coordinates).addCoordinates(mainShape, true),
-            pointType: 'vertex',
-            index: i,
+        if (bs.type == 'segment') {
+          bs.vertexes.forEach(pt => {
+            list.push({
+              shape: s,
+              relativeCoordinates: pt,
+              coordinates: pt.addCoordinates(coordinates).subCoordinates(mainShape),
+              pointType: 'vertex',
+              index: i,
+            });
           });
-        } else if (bs.type == 'segment') {
           bs.points.forEach(pt => {
             list.push({
               shape: s,
               relativeCoordinates: pt,
-              coordinates: pt.addCoordinates(coordinates).addCoordinates(mainShape, true),
+              coordinates: pt.addCoordinates(coordinates).subCoordinates(mainShape),
               pointType: 'segmentPoint',
               index: i,
             });
@@ -103,7 +135,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
         list.push({
           shape: s,
           relativeCoordinates: s.center,
-          coordinates: s.center.addCoordinates(coordinates).addCoordinates(mainShape, true),
+          coordinates: s.center.addCoordinates(coordinates).subCoordinates(mainShape),
           pointType: 'center',
         });
       }
@@ -114,12 +146,15 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
     }, []);
 
   //Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
-  let commonPointsList = [];
+  let cPtListTangram,
+    cPtListGrid,
+    cPtListBorder,
+    cPtListShape = [];
   ptList.forEach(point => {
     if (point.pointType != 'center' && tangram) {
       let pt = app.tangramManager.getNearTangramPoint(point.coordinates);
       if (pt) {
-        commonPointsList.push({
+        cPtListTangram.push({
           fixed: {
             pointType: 'tangram',
             coordinates: pt,
@@ -128,10 +163,9 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
           dist: pt.dist(point.coordinates),
         });
       }
-    }
-    if (grid && !tangram) {
+    } else if (grid) {
       let pt = app.workspace.grid.getClosestGridPoint(point.coordinates);
-      commonPointsList.push({
+      cPtListGrid.push({
         fixed: {
           pointType: 'grid',
           coordinates: pt,
@@ -146,7 +180,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
     if (excludeSelf) constr.blacklist = shapes;
     let pt = app.interactionAPI.selectPoint(point.coordinates, constr, false, false);
     if (pt) {
-      commonPointsList.push({
+      cPtListShape.push({
         fixed: pt,
         moving: point,
         dist: pt.coordinates.dist(point.coordinates),
@@ -154,52 +188,9 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
     }
   });
 
-  //Trouver un segment commun ou un point commun
-  let cPtListTangram = commonPointsList.filter(pt => pt.fixed.pointType == 'tangram'),
-    cPtListGrid = commonPointsList.filter(pt => pt.fixed.pointType == 'grid'),
-    cPtListBorder = commonPointsList.filter(pt => {
-      return pt.fixed.pointType == 'vertex' || pt.fixed.pointType == 'segmentPoint';
-    }),
-    cPtListShape = commonPointsList.filter(pt => {
-      return (
-        pt.fixed.pointType == 'vertex' ||
-        pt.fixed.pointType == 'segmentPoint' ||
-        pt.fixed.pointType == 'center'
-      );
-    });
-  let checkCompatibility = (e1, e2) => {
-    /*
-        Vérifie:
-        - Que les 2 points moving sont de la même forme
-        - Qu'aucun des 2 points moving n'est un centre
-        - Que les 2 segments formés ont la même longueur
-        - Que les 2 points moving sont sur le même segment et/ou aux extrémités
-          d'un même segment.
-        - Si les 2 points fixed ne sont ni tangram ni grille, alors ils doivent
-          faire partie du même segment de la même forme.
-         */
-    if (e1.moving.shape.id != e2.moving.shape.id) return false;
-
-    if (e1.moving.pointType == 'center' || e2.moving.pointType == 'center') return false;
-
-    let d1 = e1.fixed.coordinates.dist(e2.fixed.coordinates),
-      d2 = e1.moving.coordinates.dist(e2.moving.coordinates);
-    if (Math.abs(d1 - d2) > 1) return false;
-
-    if (!e1.moving.shape.isSegmentPart(e1.moving, e2.moving)) return false;
-
-    if (
-      e1.fixed.pointType != 'tangram' &&
-      e1.fixed.pointType != 'grid' &&
-      e2.fixed.pointType != 'tangram' &&
-      e2.fixed.pointType != 'grid'
-    ) {
-      if (e1.fixed.shape.id != e2.fixed.shape.id) return false;
-      if (!e1.fixed.shape.isSegmentPart(e1.fixed, e2.fixed)) return false;
-    }
-
-    return true;
-  };
+  cPtListBorder = cPtListShape.filter(pt => {
+    return pt.fixed.pointType == 'vertex' || pt.fixed.pointType == 'segmentPoint';
+  });
 
   if (tangram) {
     //segment: 2 points de la silhouette ?
@@ -233,7 +224,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
     }
   }
 
-  if (grid && !tangram) {
+  if (grid) {
     //segment: 2 points de la grille ?
     for (let i = 0; i < cPtListGrid.length; i++) {
       for (let j = i + 1; j < cPtListGrid.length; j++) {
@@ -298,7 +289,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
       }
     }
     if (best) {
-      transformation.move = best.fixed.coordinates.addCoordinates(best.moving.coordinates, true);
+      transformation.move = best.fixed.coordinates.subCoordinates(best.moving.coordinates);
       return transformation;
     }
   }
@@ -315,7 +306,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
       }
     }
     if (best) {
-      transformation.move = best.fixed.coordinates.addCoordinates(best.moving.coordinates, true);
+      transformation.move = best.fixed.coordinates.subCoordinates(best.moving.coordinates);
       return transformation;
     }
   }
@@ -332,40 +323,11 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
       }
     }
     if (best) {
-      transformation.move = best.fixed.coordinates.addCoordinates(best.moving.coordinates, true);
+      transformation.move = best.fixed.coordinates.subCoordinates(best.moving.coordinates);
       return transformation;
     }
   }
 
   //Rien n'a été trouvé, aucune transformation à faire.
   return transformation;
-}
-
-/**
- * Calcule la translation à appliquer à une forme qu'on a ajouté au canvas,
- * à la position donnée.
- * @param  {Point} coordinates Coordonnées du clic lors de l'ajout de la forme
- * @return {Point}             Translation à effectuer.
- */
-export function getNewShapeAdjustment(coordinates) {
-  let grid = app.workspace.settings.get('isGridShown'),
-    automaticAdjustment = app.settings.get('automaticAdjustment'),
-    translation = { x: 0, y: 0 };
-
-  if (!grid && !automaticAdjustment) return translation;
-
-  if (grid) {
-    /*
-        Si la grille est activée, être uniquement attiré par la grille.
-         */
-    let gridPoint = app.workspace.grid.getClosestGridPoint(coordinates);
-    return gridPoint.addCoordinates(coordinates, true);
-  } else if (automaticAdjustment) {
-    let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
-    constr.canSelect = true;
-    constr.types = ['center', 'vertex', 'segmentPoint'];
-    let point = app.interactionAPI.selectPoint(coordinates, constr);
-    if (!point) return translation;
-    return point.coordinates.addCoordinates(coordinates);
-  }
 }

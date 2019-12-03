@@ -147,12 +147,12 @@ export class CutAction extends Action {
     let center1 = shape1.center,
       center2 = shape2.center,
       // center = center1.addCoordinates(center2).multiplyWithScalar(0.5),
-      difference = center2.addCoordinates(center1, true),
+      difference = center2.subCoordinates(center1),
       distance = center2.dist(center1),
       myOffset = 20, //px
       offset = difference.multiplyWithScalar(1 / distance);
     offset.multiplyWithScalar(myOffset);
-    shape1.setCoordinates(new Point(shape1).addCoordinates(offset, true));
+    shape1.setCoordinates(new Point(shape1).subCoordinates(offset));
     shape2.setCoordinates(new Point(shape2).addCoordinates(offset));
 
     if (this.createdShapesIds) {

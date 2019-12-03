@@ -126,7 +126,7 @@ export class DivideAction extends Action {
       //Ajoute le point au segment d'index bsIndex.
       let startCoord = bs[bsIndex - 1].coordinates,
         endCoord = bs[bsIndex].coordinates,
-        diff = endCoord.addCoordinates(startCoord, true),
+        diff = endCoord.subCoordinates(startCoord),
         nextPt = {
           x: startCoord.x + diff.x * (lenToRemoveFromPrevArc / bsLen),
           y: startCoord.y + diff.y * (lenToRemoveFromPrevArc / bsLen),
@@ -144,7 +144,7 @@ export class DivideAction extends Action {
     this.createdPoints = [];
     let shape = app.workspace.getShapeById(this.shapeId),
       segment = shape.buildSteps[this.segmentIndex],
-      segLength = segment.vertexes[1].addCoordinates(segment.vertexes[0], true),
+      segLength = segment.vertexes[1].subCoordinates(segment.vertexes[0]),
       part = new Point(segLength.x / this.numberOfparts, segLength.y / this.numberOfparts);
 
     //Un tour de boucle par point ajouté.
@@ -211,7 +211,7 @@ export class DivideAction extends Action {
       //Ajoute le point au segment d'index bsIndex.
       let startCoord = bs[bsIndex - 1].coordinates,
         endCoord = bs[bsIndex].coordinates,
-        diff = endCoord.addCoordinates(startCoord, true),
+        diff = endCoord.subCoordinates(startCoord),
         nextPt = {
           x: startCoord.x + diff.x * (lenToRemoveFromPrevArc / bsLen),
           y: startCoord.y + diff.y * (lenToRemoveFromPrevArc / bsLen),
@@ -255,7 +255,7 @@ export class DivideAction extends Action {
       segment = shape.buildSteps[segmentId],
       startPos = pt1.relativeCoordinates,
       endPos = pt2.relativeCoordinates,
-      diff = endPos.addCoordinates(startPos, true),
+      diff = endPos.subCoordinates(startPos),
       part = {
         x: diff.x / this.numberOfparts,
         y: diff.y / this.numberOfparts,

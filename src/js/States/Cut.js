@@ -1,7 +1,6 @@
 import { app } from '../App';
 import { CutAction } from './Actions/Cut';
 import { State } from './State';
-import { Points } from '../Tools/points';
 import { Point } from '../Objects/Point';
 
 /**
@@ -178,7 +177,7 @@ export class CutState extends State {
    */
   isLineValid(shape, pt1, pt2) {
     let length = pt1.dist(pt2),
-      part = pt2.addCoordinates(pt1, true).multiplyWithScalar(1 / length),
+      part = pt2.subCoordinates(pt1).multiplyWithScalar(1 / length),
       precision = 1, //px
       amountOfParts = length / precision,
       atLeastOneNotInBorder = false;

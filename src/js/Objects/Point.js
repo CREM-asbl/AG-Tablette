@@ -55,35 +55,49 @@ export class Point {
   }
 
   /**
-   * add coordinates to point
+   * add coordinates to point without update the coordinates of the point,
+   *  if you want update, use translate
    * @param {{x: number, y: number}} point - point to add
    * @param {number} x - other method
    * @param {number} y - other method
-   * @param {number} neg - substraction instead of addition
    * @return {{x: number, y:number}} new coordinates
    */
   addCoordinates() {
-    let neg,
-      multiplier,
-      x,
-      y,
-      i = 0;
-    if (typeof arguments[i] == 'object') {
-      x = arguments[i].x;
-      y = arguments[i].y;
-      i++;
-      neg = arguments[i];
+    let x, y;
+    if (typeof arguments[0] == 'object') {
+      x = arguments[0].x;
+      y = arguments[0].y;
     } else {
-      x = arguments[i];
-      y = arguments[i] ? arguments[++i] : arguments[i];
-      i++;
-      neg = arguments[i];
+      x = arguments[0];
+      y = arguments[0] ? arguments[1] : arguments[0];
     }
-    multiplier = neg ? -1 : 1;
-    x = this.x + x * multiplier;
-    y = this.y + y * multiplier;
+    x = this.x + x;
+    y = this.y + y;
     return new Point(x, y);
   }
+
+  /**
+   * sub coordinates to point without update the coordinates of the point,
+   *  if you want update, use translate with true as last parameter
+   * @param {{x: number, y: number}} point - point to sub
+   * @param {number} x - other method
+   * @param {number} y - other method
+   * @return {{x: number, y:number}} new coordinates
+   */
+  subCoordinates() {
+    let x, y;
+    if (typeof arguments[0] == 'object') {
+      x = arguments[0].x;
+      y = arguments[0].y;
+    } else {
+      x = arguments[0];
+      y = arguments[0] ? arguments[1] : arguments[0];
+    }
+    x = this.x + x * -1;
+    y = this.y + y * -1;
+    return new Point(x, y);
+  }
+
   /**
    * multiplies ths coordinates with multiplier
    * @param {*} multiplier
@@ -187,6 +201,7 @@ export class Point {
       x = arguments[0];
       y = arguments[1];
     }
-    return Math.abs(x - this.x) < 1 && Math.abs(y - this.y) < 1;
+    return this.dist(new Point(x, y)) < 1;
+    // return Math.abs(x - this.x) < 1 && Math.abs(y - this.y) < 1;
   }
 }
