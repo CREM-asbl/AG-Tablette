@@ -82,8 +82,8 @@ export class MergeAction extends Action {
         // if another segment in segment (interior to delete)
         let part_to_delete;
         if (segments_thats_in_segment[0].equal(segment))
-          part_to_delete = segments_thats_in_segment[1].copy();
-        else part_to_delete = segments_thats_in_segment[0].copy();
+          part_to_delete = segments_thats_in_segment[1].copy(false);
+        else part_to_delete = segments_thats_in_segment[0].copy(false);
         if (!part_to_delete.hasSameDirection(segment)) part_to_delete.reverse();
         if (!segment.vertexes[0].equal(part_to_delete.vertexes[0]))
           newSegments.push(new Segment(segment.vertexes[0], part_to_delete.vertexes[0]));
@@ -132,7 +132,7 @@ export class MergeAction extends Action {
     // Todo : Voir si on ne peut pas la simplifier
     let newBuildSteps = [];
 
-    let currentSegment = segmentsList[0].copy();
+    let currentSegment = segmentsList[0].copy(false);
     let firstSegment = currentSegment;
     let nextSegment;
     let segmentUsed = 0;
@@ -150,7 +150,7 @@ export class MergeAction extends Action {
         else console.log('shape is dig');
         return null;
       }
-      nextSegment = newPotentialSegments[0].copy();
+      nextSegment = newPotentialSegments[0].copy(false);
       if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse();
 
       if (currentSegment.hasSameDirection(nextSegment)) {
