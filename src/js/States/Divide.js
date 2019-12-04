@@ -200,8 +200,8 @@ export class DivideState extends State {
 
     const selected_point = object.coordinates;
 
-    const concerned_segments = shape.segments.map(seg => {
-      if (seg.contains(selected_point)) return seg;
+    const concerned_segments = bs.map(seg => {
+      if (seg.type == 'segment' && seg.contains(selected_point)) return seg;
       else return null;
     });
 
@@ -212,8 +212,8 @@ export class DivideState extends State {
     concerned_segments.forEach((seg, idx) => {
       if (!seg) return;
       seg.vertexes.forEach(vertex => {
-        for (const key in shape.segments) {
-          if (shape.segments[key].vertexes[1].equal(vertex)) {
+        for (let key in bs) {
+          if (bs[key].type == 'segment' && bs[key].vertexes[1].equal(vertex)) {
             if (candidates.some(candi => candi.index == key)) continue;
             candidates.push({
               shape: shape,
