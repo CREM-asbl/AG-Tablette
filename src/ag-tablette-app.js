@@ -152,9 +152,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/load.svg"
                 title="Ouvrir"
                 name="load"
-                @click="${async () => {
-                  FileManager.openFile();
-                }}"
+                @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
@@ -425,33 +423,48 @@ class AGTabletteApp extends LitElement {
    */
   _actionHandle(event) {
     let reset_state = 0;
-    if (event.target.name == 'settings') {
-      this.shadowRoot.querySelector('settings-popup').style.display = 'block';
-      reset_state = 1;
-    } else if (event.target.name === 'save') {
-      FileManager.saveFile();
-      reset_state = 1;
-    } else if (event.target.name === 'new') {
-      this.shadowRoot.querySelector('new-popup').style.display = 'block';
-      reset_state = 1;
-    } else if (event.target.name === 'grid_menu') {
-      this.shadowRoot.querySelector('grid-popup').style.display = 'block';
-      reset_state = 1;
-    } else if (event.target.name === 'tangram_menu') {
-      this.shadowRoot.querySelector('tangram-popup').style.display = 'block';
-      reset_state = 1;
-    } else if (event.target.name == 'undo') {
-      if (this.canUndo) app.workspace.history.undo();
-    } else if (event.target.name == 'redo') {
-      if (this.canRedo) app.workspace.history.redo();
-    } else if (event.target.name === 'create_shape') {
-      app.setState(event.target.name, event.target.family);
-    } else if (StatesManager.getStateText(event.target.name)) {
-      app.setState(event.target.name);
-    } else {
-      console.error('AGTabletteApp._actionHandle: received unknown event:');
-      console.error(event);
-      reset_state = 1;
+    switch (event.target.name) {
+      case 'settings':
+        this.shadowRoot.querySelector('settings-popup').style.display = 'block';
+        reset_state = 1;
+        break;
+      case 'save':
+        FileManager.saveFile();
+        reset_state = 1;
+        break;
+      case 'load':
+        FileManager.openFile();
+        reset_state = 1;
+        break;
+      case 'new':
+        this.shadowRoot.querySelector('new-popup').style.display = 'block';
+        reset_state = 1;
+        break;
+      case 'grid_menu':
+        this.shadowRoot.querySelector('grid-popup').style.display = 'block';
+        reset_state = 1;
+        break;
+      case 'tangram_menu':
+        this.shadowRoot.querySelector('tangram-popup').style.display = 'block';
+        reset_state = 1;
+        break;
+      case 'undo':
+        if (this.canUndo) app.workspace.history.undo();
+        break;
+      case 'redo':
+        if (this.canRedo) app.workspace.history.redo();
+        break;
+      case 'create_shape':
+        app.setState(event.target.name, event.target.family);
+        break;
+      default:
+        if (StatesManager.getStateText(event.target.name)) {
+          app.setState(event.target.name);
+        } else {
+          console.error('AGTabletteApp._actionHandle: received unknown event:');
+          console.error(event);
+          reset_state = 1;
+        }
     }
     if (reset_state) {
       app.setState(undefined);

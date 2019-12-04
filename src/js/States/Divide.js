@@ -62,8 +62,6 @@ export class DivideState extends State {
     if (this.currentStep != 'listen-canvas-click' && this.currentStep != 'select-second-point')
       return;
 
-    // console.log(this.actions[0].firstPoint, object);
-
     if (this.currentStep == 'listen-canvas-click') {
       if (object.type === 'segment') {
         this.actions[0].shapeId = object.shape.id;
@@ -192,20 +190,15 @@ export class DivideState extends State {
    * @return {[Object]} Liste de points au même format qu'interactionAPI
    */
   getCandidatePoints(object) {
-    let shape = object.shape,
+    // pour refactorer, utiliser Segment.allPoints
+    const shape = object.shape,
       bs = object.shape.buildSteps,
-      vertexToAdd = [],
-      segmentsToAdd = [],
-      isVertexAfter = false;
-
-    const selected_point = object.coordinates;
+      selected_point = object.coordinates;
 
     const concerned_segments = bs.map(seg => {
       if (seg.type == 'segment' && seg.contains(selected_point)) return seg;
       else return null;
     });
-
-    console.log(concerned_segments);
 
     let candidates = [];
 
@@ -213,8 +206,12 @@ export class DivideState extends State {
       if (!seg) return;
       seg.vertexes.forEach(vertex => {
         for (let key in bs) {
-          if (bs[key].type == 'segment' && bs[key].vertexes[1].equal(vertex)) {
-            if (candidates.some(candi => candi.index == key)) continue;
+          if (
+            bs[key].type == 'vertex' &&
+            bs[key].coordinates.equal(vertex) &&
+            !candidates.some(candi => candi.index == key)
+          ) {
+            // if not already added
             candidates.push({
               shape: shape,
               type: 'vertex',
@@ -232,8 +229,6 @@ export class DivideState extends State {
         });
       });
     });
-
-    console.log(candidates);
 
     return candidates;
   }

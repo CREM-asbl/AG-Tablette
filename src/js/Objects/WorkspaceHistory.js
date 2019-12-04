@@ -11,6 +11,9 @@ export class WorkspaceHistory {
 
     //Index de la dernière tâche réalisée
     this.historyIndex = -1;
+
+    //Début de la branche en cours
+    this.start_of_branch = 0;
   }
 
   /**
@@ -72,7 +75,8 @@ export class WorkspaceHistory {
    * @return {Boolean}
    */
   canRedo() {
-    return this.historyIndex + 1 < this.history.length;
+    if (this.historyIndex == -1) return this.history.length;
+    return this.history[this.historyIndex].next_step.length;
   }
 
   /**
@@ -101,11 +105,24 @@ export class WorkspaceHistory {
       console.error('Nothing to redo');
       return;
     }
+    //always get the last next step
+    console.log(this.roots);
     this.historyIndex =
-      this.historyIndex != -1 ? this.history[this.historyIndex].next_step.slice(-1)[0] : 0;
+      this.historyIndex != -1
+        ? this.history[this.historyIndex].next_step.slice(-1)[0]
+        : this.roots.slice(-1)[0];
+    console.log(this.historyIndex);
     this.history[this.historyIndex].actions.forEach(action => action.do());
     app.drawAPI.askRefresh();
     this.updateMenuState();
+  }
+
+  get roots() {
+    let roots = [];
+    for (const key in this.history) {
+      if (this.history[key].previous_step === -1) roots.push(key);
+    }
+    return roots;
   }
 
   /**
@@ -114,31 +131,41 @@ export class WorkspaceHistory {
    * @param {[Action]} actions Les actions constituant l'étape
    */
   addStep(actions) {
-    let start_of_branch, previous_step, next_step;
-    next_step = [];
+    let previous_step;
     if (this.history.length == 0) {
-      start_of_branch = 0;
-      previous_step = -1;
+      this.history.push({
+        actions: actions,
+        previous_step: -1,
+        next_step: [],
+        start_of_branch: 0,
+      });
+      this.start_of_branch = 0;
     } else {
-      if (this.historyIndex == this.history.length - 1) {
-        start_of_branch = this.history[this.historyIndex].start_of_branch;
-      } else {
-        start_of_branch = this.historyIndex;
-      }
       previous_step = this.historyIndex;
-      this.history[this.historyIndex].next_step.push(this.history.length);
+      if (this.historyIndex != -1)
+        this.history[this.historyIndex].next_step.push(this.history.length);
+      else this.start_of_branch = Number(this.history.length);
+      this.history.push({
+        actions: actions,
+        previous_step: previous_step,
+        next_step: [],
+        start_of_branch: this.start_of_branch,
+      });
+      if (this.historyIndex != -1 && this.historyIndex < this.history.length - 2) {
+        this.start_of_branch = previous_step;
+        this.history[previous_step].start_of_branch = previous_step;
+        for (let value of this.history[previous_step].next_step) {
+          while (this.history[value].start_of_branch != value) {
+            this.history[value].start_of_branch = previous_step;
+            value = this.history[value].next_step[0];
+            if (!value) break;
+          }
+        }
+      }
     }
-
-    this.history.push({
-      actions: actions,
-      previous_step: previous_step,
-      next_step: next_step,
-      start_of_branch: start_of_branch,
-    });
     this.historyIndex = this.history.length - 1;
 
     // console.log(this.history);
-
     this.updateMenuState();
   }
 }
