@@ -54,51 +54,51 @@ export class MergeAction extends Action {
     let shape1 = app.workspace.getShapeById(this.firstShapeId),
       shape2 = app.workspace.getShapeById(this.secondShapeId);
 
-    if (shape2.x < shape1.x) {
-      [shape1, shape2] = [shape2, shape1];
-    }
+    let segments = [...shape1.segments, ...shape2.segments],
+      subSegments = segments.map(segment => segment.subSegments);
 
-    let segments = [...shape1.segments, ...shape2.segments];
-
-    // 2D array of all segments
-    let segments_array = segments.map((segment, idx, segments) => {
-      let segments_thats_in_segment = segments.filter(seg => segment.contains(seg));
-      let newSegments = [];
-      let segments_where_segment_is_in = segments.filter(
-        seg => !segment.equal(seg) && seg.contains(segment),
-      );
-
-      // if segment is a subsegment of another
-      if (segments_where_segment_is_in.length > 0) return newSegments;
-
-      if (segments_thats_in_segment.length == 1)
-        // no segment in it (only itself)
-        newSegments.push(segment);
-      else if (segments_thats_in_segment.length >= 3) {
-        // if multiple segments in  segment
-        console.log('shape is dig');
-        return false;
-      } else {
-        // if another segment in segment (interior to delete)
-        let part_to_delete;
-        if (segments_thats_in_segment[0].equal(segment))
-          part_to_delete = segments_thats_in_segment[1].copy(false);
-        else part_to_delete = segments_thats_in_segment[0].copy(false);
-        if (!part_to_delete.hasSameDirection(segment)) part_to_delete.reverse();
-        if (!segment.vertexes[0].equal(part_to_delete.vertexes[0]))
-          newSegments.push(new Segment(segment.vertexes[0], part_to_delete.vertexes[0]));
-        if (!segment.vertexes[1].equal(part_to_delete.vertexes[1]))
-          newSegments.push(new Segment(segment.vertexes[1], part_to_delete.vertexes[1]));
-      }
-      return newSegments;
+    let pairs = segments.map((segment, idx, segments) => {
+      return segments
+        .map((seg, i, segs) => {
+          if (subSegments[i].some(subseg => subSegments[idx].some(subs => subs.equal(subseg))))
+            return i;
+          else return -1;
+        })
+        .filter(s => s != -1);
     });
 
-    if (segments_array.filter(segment => segment === false).length) return this.alertDigShape();
+    // if trio (more than 2 segments inside another)
+    if (pairs.filter(pair => pair.length > 2).length) {
+      console.log('shape is dig');
+      return this.alertDigShape();
+    }
+
+    // 2D array of all segments
+    const segments_array = pairs.map((pair, idx, pairs) => {
+      if (pair.length == 1) {
+        return segments[pair[0]];
+      } else if (pair.length == 2) {
+        if (pairs.slice(idx + 1).some(p => pair[0] == p[0] && pair[1] == p[1]))
+          // filter doubles
+          return null;
+        let vertexes = [...segments[pair[0]].vertexes, ...segments[pair[1]].vertexes];
+        vertexes.sort((v1, v2) => (v1.x > v2.x || (v1.x == v2.x && v1.y > v2.y) ? 1 : -1));
+        let newSegments = [];
+        if (!vertexes[0].equal(vertexes[1]))
+          newSegments.push(new Segment(vertexes[0], vertexes[1]));
+        if (!vertexes[2].equal(vertexes[3]))
+          newSegments.push(new Segment(vertexes[2], vertexes[3]));
+        return newSegments;
+      } else {
+        console.log('cannot happen');
+        return null;
+      }
+    });
 
     // back to 1D
-    segments = [].concat(...segments_array);
+    const newSegments = segments_array.filter(p => p).flat();
 
-    const buildSteps = this.computeNewBuildSteps(segments);
+    const buildSteps = this.computeNewBuildSteps(newSegments);
 
     if (!buildSteps) return this.alertDigShape();
 
