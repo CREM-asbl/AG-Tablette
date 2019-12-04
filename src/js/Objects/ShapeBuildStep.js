@@ -7,6 +7,7 @@ export class ShapeBuildStep {
     }
     this.type = type;
   }
+
   copy() {
     throw new TypeError('Copy method not implemented');
   }
@@ -50,6 +51,10 @@ export class Segment extends ShapeBuildStep {
     this.points.sort((pt1, pt2) =>
       pt1.dist(this.vertexes[start]) > pt2.dist(this.vertexes[start]) ? 1 : -1,
     );
+  }
+
+  get allPoints() {
+    return [...this.points, ...this.vertexes];
   }
 
   /**

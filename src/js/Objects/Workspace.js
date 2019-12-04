@@ -6,6 +6,7 @@ import { GridManager } from '../GridManager';
 import { ShapeGroup } from './ShapeGroup';
 import { Shape } from './Shape';
 import { Settings } from '../Settings';
+import { Point } from '../Objects/Point';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -237,7 +238,7 @@ export class Workspace {
    */
   shapesOnPoint(point) {
     let list = this.shapes.filter(
-      shape => app.drawAPI.isPointInShape(point, shape) || shape.isPointOnSegment(point),
+      shape => app.drawAPI.isPointInShape(point, shape) || shape.isPointOnSegment(new Point(point)),
     );
     list.reverse();
     return list;

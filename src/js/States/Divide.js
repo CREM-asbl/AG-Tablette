@@ -62,6 +62,8 @@ export class DivideState extends State {
     if (this.currentStep != 'listen-canvas-click' && this.currentStep != 'select-second-point')
       return;
 
+    // console.log(this.actions[0].firstPoint, object);
+
     if (this.currentStep == 'listen-canvas-click') {
       if (object.type === 'segment') {
         this.actions[0].shapeId = object.shape.id;
@@ -196,74 +198,43 @@ export class DivideState extends State {
       segmentsToAdd = [],
       isVertexAfter = false;
 
-    if (object.pointType === 'vertex') {
-      let nextBSIndex = shape.getNextBuildstepIndex(object.index);
-      if (bs[nextBSIndex].isArc === true) isVertexAfter = true;
-    } else if (bs[object.index].isArc === true) isVertexAfter = true;
+    const selected_point = object.coordinates;
 
-    //Vertex précédent et suivant:
-    if (!isVertexAfter) {
-      vertexToAdd.push(shape.getNextVertexIndex(object.index));
-    }
-
-    if (!shape.isCircle() && !shape.isSegment())
-      vertexToAdd.push(shape.getPrevVertexIndex(object.index));
-
-    if (object.pointType === 'vertex') {
-      //segmentPoints suivant et précédent
-      if (!isVertexAfter || shape.isCircle()) {
-        segmentsToAdd.push([shape.getNextBuildstepIndex(object.index), false]);
-      }
-      if (!shape.isSegment())
-        segmentsToAdd.push([shape.getPrevBuildstepIndex(object.index), false]);
-    } else {
-      //segmentPoint actuel
-      segmentsToAdd.push([object.index, isVertexAfter && !shape.isCircle()]);
-    }
-
-    vertexToAdd = vertexToAdd.map(vertex => {
-      return {
-        shape: shape,
-        type: 'vertex',
-        index: vertex,
-      };
+    const concerned_segments = shape.segments.map(seg => {
+      if (seg.contains(selected_point)) return seg;
+      else return null;
     });
 
-    //segmentsToAdd ??? les points sur les segments possibles ?
-    segmentsToAdd = segmentsToAdd
-      .map(data => {
-        let [segment, skipPointsAfter] = data,
-          start = segment,
-          end = segment,
-          pts = [];
-        if (bs[segment].isArc) {
-          let data = shape.getArcEnds(segment);
-          start = data[0];
-          end = skipPointsAfter ? segment : data[1];
-        }
-        let index = start - 1,
-          first = true;
+    console.log(concerned_segments);
 
-        while (index !== end || first) {
-          index = shape.getNextBuildstepIndex(index);
-          pts = pts.concat(
-            bs[index].points.map(pt => {
-              return {
-                shape: shape,
-                type: 'segmentPoint',
-                index: index,
-                coordinates: new Point(pt),
-              };
-            }),
-          );
-          first = false;
-        }
-        return pts;
-      })
-      .reduce((total, pts) => {
-        return total.concat(pts);
-      }, []);
+    let candidates = [];
 
-    return vertexToAdd.concat(segmentsToAdd);
+    concerned_segments.forEach((seg, idx) => {
+      if (!seg) return;
+      seg.vertexes.forEach(vertex => {
+        for (const key in shape.segments) {
+          if (shape.segments[key].vertexes[1].equal(vertex)) {
+            if (candidates.some(candi => candi.index == key)) continue;
+            candidates.push({
+              shape: shape,
+              type: 'vertex',
+              index: key,
+            });
+          }
+        }
+      });
+      seg.points.forEach(point => {
+        candidates.push({
+          shape: shape,
+          type: 'segmentPoint',
+          coordinates: point,
+          index: idx,
+        });
+      });
+    });
+
+    console.log(candidates);
+
+    return candidates;
   }
 }
