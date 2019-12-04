@@ -42,11 +42,6 @@ export class MergeAction extends Action {
     return true;
   }
 
-  alertDigShape() {
-    alert('Les formes creuses ne sont pas supportées actuellement');
-    return false;
-  }
-
   //Si renvoie false, annulera l'ajout à l'historique
   do() {
     if (!this.checkDoParameters()) return;
@@ -54,10 +49,32 @@ export class MergeAction extends Action {
     let shape1 = app.workspace.getShapeById(this.firstShapeId),
       shape2 = app.workspace.getShapeById(this.secondShapeId);
 
-    let segments = [...shape1.segments, ...shape2.segments],
-      subSegments = segments.map(segment => segment.subSegments);
+    const newSegments = this.createNewSegments(shape1, shape2);
 
-    let pairs = segments.map((segment, idx, segments) => {
+    const newBuildSteps = this.computeNewBuildSteps(newSegments);
+    if (!newBuildSteps) return this.alertDigShape();
+
+    this.createNewShape(shape1, shape2, newBuildSteps);
+    return;
+  }
+
+  undo() {
+    if (!this.checkUndoParameters()) return;
+
+    let shape = app.workspace.getShapeById(this.createdShapeId);
+    app.workspace.deleteShape(shape);
+  }
+
+  alertDigShape() {
+    alert('Les formes creuses ne sont pas supportées actuellement');
+    return false;
+  }
+
+  createNewSegments(shape1, shape2) {
+    let oldSegments = [...shape1.segments, ...shape2.segments],
+      subSegments = oldSegments.map(segment => segment.subSegments);
+
+    let pairs = oldSegments.map((segment, idx, segments) => {
       return segments
         .map((seg, i, segs) => {
           if (subSegments[i].some(subseg => subSegments[idx].some(subs => subs.equal(subseg))))
@@ -69,19 +86,19 @@ export class MergeAction extends Action {
 
     // if trio (more than 2 segments inside another)
     if (pairs.filter(pair => pair.length > 2).length) {
-      console.log('shape is dig');
+      console.log('shape is dig (a segment has multiple joined segments)');
       return this.alertDigShape();
     }
 
     // 2D array of all segments
     const segments_array = pairs.map((pair, idx, pairs) => {
       if (pair.length == 1) {
-        return segments[pair[0]];
+        return oldSegments[pair[0]];
       } else if (pair.length == 2) {
         if (pairs.slice(idx + 1).some(p => pair[0] == p[0] && pair[1] == p[1]))
           // filter doubles
           return null;
-        let vertexes = [...segments[pair[0]].vertexes, ...segments[pair[1]].vertexes];
+        let vertexes = [...oldSegments[pair[0]].vertexes, ...oldSegments[pair[1]].vertexes];
         vertexes.sort((v1, v2) => (v1.x > v2.x || (v1.x == v2.x && v1.y > v2.y) ? 1 : -1));
         let newSegments = [];
         if (!vertexes[0].equal(vertexes[1]))
@@ -98,37 +115,10 @@ export class MergeAction extends Action {
     // back to 1D
     const newSegments = segments_array.filter(p => p).flat();
 
-    const buildSteps = this.computeNewBuildSteps(newSegments);
-
-    if (!buildSteps) return this.alertDigShape();
-
-    //Créer la forme
-    let newShape = shape1.copy();
-    if (this.createdShapeId) newShape.id = this.createdShapeId;
-    else this.createdShapeId = newShape.id;
-    newShape.name = 'Custom';
-    newShape.familyName = 'Custom';
-    newShape.color = getAverageColor(shape1.color, shape2.color);
-    newShape.borderColor = getAverageColor(shape1.borderColor, shape2.borderColor);
-    newShape.isCenterShown = false;
-    newShape.opacity = (shape1.opacity + shape2.opacity) / 2;
-    newShape.buildSteps = buildSteps;
-    newShape.setCoordinates({ x: newShape.x - 20, y: newShape.y - 20 });
-
-    app.workspace.addShape(newShape);
-
-    return;
-  }
-
-  undo() {
-    if (!this.checkUndoParameters()) return;
-
-    let shape = app.workspace.getShapeById(this.createdShapeId);
-    app.workspace.deleteShape(shape);
+    return newSegments;
   }
 
   computeNewBuildSteps(segmentsList) {
-    // Todo : Traiter le cas des formes "percées"
     // Todo : Voir si on ne peut pas la simplifier
     let newBuildSteps = [];
 
@@ -146,8 +136,8 @@ export class MergeAction extends Action {
         seg => !seg.equal(currentSegment) && seg.contains(currentSegment.vertexes[1], false),
       );
       if (newPotentialSegments.length != 1) {
-        if (newPotentialSegments.length == 0) console.log('shape cannot be closed');
-        else console.log('shape is dig');
+        if (newPotentialSegments.length == 0) console.log('shape cannot be closed (dead end)');
+        else console.log('shape is dig (a segment has more than one segment for next)');
         return null;
       }
       nextSegment = newPotentialSegments[0].copy(false);
@@ -164,7 +154,7 @@ export class MergeAction extends Action {
       currentSegment = nextSegment;
     }
     if (segmentUsed != segmentsList.length) {
-      console.log('shape is dig');
+      console.log('shape is dig (not all segments have been used)');
       return null;
     }
     if (currentSegment.hasSameDirection(firstSegment))
@@ -172,5 +162,21 @@ export class MergeAction extends Action {
     else newBuildSteps.push(new Vertex(currentSegment.vertexes[1]));
     newBuildSteps.unshift(new MoveTo(newBuildSteps[0].vertexes[0]));
     return newBuildSteps;
+  }
+
+  createNewShape(shape1, shape2, newBuildSteps) {
+    let newShape = shape1.copy();
+    if (this.createdShapeId) newShape.id = this.createdShapeId;
+    else this.createdShapeId = newShape.id;
+    newShape.name = 'Custom';
+    newShape.familyName = 'Custom';
+    newShape.color = getAverageColor(shape1.color, shape2.color);
+    newShape.borderColor = getAverageColor(shape1.borderColor, shape2.borderColor);
+    newShape.isCenterShown = false;
+    newShape.opacity = (shape1.opacity + shape2.opacity) / 2;
+    newShape.buildSteps = newBuildSteps;
+    newShape.setCoordinates({ x: newShape.x - 20, y: newShape.y - 20 });
+
+    app.workspace.addShape(newShape);
   }
 }
