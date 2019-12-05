@@ -141,14 +141,6 @@ class AGTabletteApp extends LitElement {
               >
               </icon-button>
               <icon-button
-                src="/images/delete.svg"
-                title="Supprimer une forme"
-                name="delete_shape"
-                ?active="${this.state.name === 'delete_shape'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
                 src="/images/load.svg"
                 title="Ouvrir"
                 name="load"
@@ -159,6 +151,13 @@ class AGTabletteApp extends LitElement {
                 src="/images/save.svg"
                 title="Sauvegarder"
                 name="save"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/settings.svg"
+                title="Paramètres"
+                name="settings"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -175,13 +174,6 @@ class AGTabletteApp extends LitElement {
                 title="Refaire"
                 name="redo"
                 ?disabled="${!this.canRedo}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/settings.svg"
-                title="Paramètres"
-                name="settings"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -287,18 +279,10 @@ class AGTabletteApp extends LitElement {
 
             <flex-toolbar>
               <icon-button
-                src="/images/moveplane.svg"
-                title="Glisser le plan"
-                name="translate_plane"
-                ?active="${this.state.name === 'translate_plane'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/zoom.svg"
-                title="Zoomer"
-                name="zoom_plane"
-                ?active="${this.state.name === 'zoom_plane'}"
+                src="/images/delete.svg"
+                title="Supprimer une forme"
+                name="delete_shape"
+                ?active="${this.state.name === 'delete_shape'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -315,6 +299,14 @@ class AGTabletteApp extends LitElement {
                 title="Dégrouper"
                 name="ungroup_shapes"
                 ?active="${this.state.name === 'ungroup_shapes'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/backplane.svg"
+                title="Arrière-plan"
+                name="to_background"
+                ?active="${this.state.name === 'to_background'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -350,18 +342,26 @@ class AGTabletteApp extends LitElement {
                         </icon-button> -->
 
               <icon-button
-                src="/images/backplane.svg"
-                title="Arrière-plan"
-                name="to_background"
-                ?active="${this.state.name === 'to_background'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
                 src="/images/biface.svg"
                 title="Biface"
                 name="biface"
                 ?active="${this.state.name === 'biface'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/moveplane.svg"
+                title="Glisser le plan"
+                name="translate_plane"
+                ?active="${this.state.name === 'translate_plane'}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/zoom.svg"
+                title="Zoomer"
+                name="zoom_plane"
+                ?active="${this.state.name === 'zoom_plane'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>

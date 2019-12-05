@@ -39,4 +39,19 @@ export class BifaceState extends State {
 
     app.drawAPI.askRefresh();
   }
+
+  /**
+   * Appelée par la fonction de dessin après avoir dessiné une forme sur le
+   * canvas principal
+   * @param  {Context2D} ctx   le canvas
+   * @param  {Shape} shape La forme dessinée
+   */
+  shapeDrawn(ctx, shape) {
+    const biface = shape.isBiface,
+      center = shape.center,
+      pos = { x: center.x - 17, y: center.y };
+    if (biface) {
+      app.drawAPI.drawText(ctx, 'Biface', pos);
+    }
+  }
 }

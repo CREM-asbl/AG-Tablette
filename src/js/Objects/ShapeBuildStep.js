@@ -135,6 +135,7 @@ export class Segment extends ShapeBuildStep {
   }
 
   isPointOnSegment(point) {
+    // change for circle
     let segmentLength = this.length,
       dist1 = this.vertexes[0].dist(point),
       dist2 = this.vertexes[1].dist(point);
