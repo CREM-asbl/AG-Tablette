@@ -46,8 +46,6 @@ export class DeleteState extends State {
     } else {
       // point
 
-      console.log('here');
-
       this.actions[0].mode = 'point';
 
       this.actions[0].point = object.coordinates;

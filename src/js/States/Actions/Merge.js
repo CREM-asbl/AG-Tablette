@@ -84,6 +84,10 @@ export class MergeAction extends Action {
         .filter(s => s != -1);
     });
 
+    console.log(pairs);
+
+    console.log(pairs.filter(pair => pair.length > 2));
+
     // if trio (more than 2 segments inside another)
     if (pairs.filter(pair => pair.length > 2).length) {
       console.log('shape is dig (a segment has multiple joined segments)');
@@ -99,7 +103,9 @@ export class MergeAction extends Action {
           // filter doubles
           return null;
         let vertexes = [...oldSegments[pair[0]].vertexes, ...oldSegments[pair[1]].vertexes];
-        vertexes.sort((v1, v2) => (v1.x > v2.x || (v1.x == v2.x && v1.y > v2.y) ? 1 : -1));
+        vertexes.sort((v1, v2) =>
+          v1.x - v2.x > 0.1 || (Math.abs(v1.x - v2.x) < 0.1 && v1.y > v2.y) ? 1 : -1,
+        ); // imprécision : 0.1 comme limite d'égalité
         let newSegments = [];
         if (!vertexes[0].equal(vertexes[1]))
           newSegments.push(new Segment(vertexes[0], vertexes[1]));
@@ -111,6 +117,8 @@ export class MergeAction extends Action {
         return null;
       }
     });
+
+    console.log(segments_array);
 
     // back to 1D
     const newSegments = segments_array.filter(p => p).flat();
