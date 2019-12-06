@@ -76,17 +76,13 @@ export class MergeAction extends Action {
 
     let pairs = oldSegments.map((segment, idx, segments) => {
       return segments
-        .map((seg, i, segs) => {
+        .map((seg, i) => {
           if (subSegments[i].some(subseg => subSegments[idx].some(subs => subs.equal(subseg))))
             return i;
           else return -1;
         })
         .filter(s => s != -1);
     });
-
-    console.log(pairs);
-
-    console.log(pairs.filter(pair => pair.length > 2));
 
     // if trio (more than 2 segments inside another)
     if (pairs.filter(pair => pair.length > 2).length) {
@@ -117,8 +113,6 @@ export class MergeAction extends Action {
         return null;
       }
     });
-
-    console.log(segments_array);
 
     // back to 1D
     const newSegments = segments_array.filter(p => p).flat();
