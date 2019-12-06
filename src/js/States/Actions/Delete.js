@@ -43,7 +43,6 @@ export class DeleteAction extends Action {
       mode: this.mode,
       point: this.point,
       involvedShapes: this.involvedShapes ? this.involvedShapes.map(s => s.saveToObject()) : null,
-      nbShapes: this.involvedShapes.length,
       userGroupId: this.userGroupId,
       userGroupLastShapeId: this.userGroupLastShapeId,
       userGroupIndex: this.userGroupIndex,

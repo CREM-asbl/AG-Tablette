@@ -1,7 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { getAverageColor } from '../../Tools/general';
-import { Vertex, Segment, MoveTo } from '../../Objects/ShapeBuildStep';
+import { Segment } from '../../Objects/Segment';
 
 export class MergeAction extends Action {
   constructor() {
@@ -84,10 +84,6 @@ export class MergeAction extends Action {
         .filter(s => s != -1);
     });
 
-    console.log(pairs);
-
-    console.log(pairs.filter(pair => pair.length > 2));
-
     // if trio (more than 2 segments inside another)
     if (pairs.filter(pair => pair.length > 2).length) {
       console.log('shape is dig (a segment has multiple joined segments)');
@@ -117,8 +113,6 @@ export class MergeAction extends Action {
         return null;
       }
     });
-
-    console.log(segments_array);
 
     // back to 1D
     const newSegments = segments_array.filter(p => p).flat();

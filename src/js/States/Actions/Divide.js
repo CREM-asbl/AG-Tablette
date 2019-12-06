@@ -1,7 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { Point } from '../../Objects/Point';
-import { Segment } from '../../Objects/ShapeBuildStep';
+import { Segment } from '../../Objects/Segment';
 
 export class DivideAction extends Action {
   constructor() {

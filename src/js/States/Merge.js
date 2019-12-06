@@ -1,7 +1,7 @@
 import { app } from '../App';
 import { MergeAction } from './Actions/Merge';
 import { State } from './State';
-import { Segment } from '../Objects/ShapeBuildStep';
+import { Segment } from '../Objects/Segment';
 
 /**
  * Fusionner 2 formes en une nouvelle forme
@@ -57,6 +57,15 @@ export class MergeState extends State {
 
     let shape1 = this.firstShape,
       shape2 = shape;
+
+    console.log('shape1');
+    shape1.segments.forEach(seg =>
+      console.log(JSON.stringify(seg.vertexes[0]), JSON.stringify(seg.vertexes[1])),
+    );
+    console.log('shape2');
+    shape2.segments.forEach(seg =>
+      console.log(JSON.stringify(seg.vertexes[0]), JSON.stringify(seg.vertexes[1])),
+    );
 
     if (shape1.getCommonsPoints(shape2).length < 2) {
       console.log('no common segments');

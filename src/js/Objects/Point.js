@@ -23,6 +23,19 @@ export class Point {
     this.y = y;
   }
 
+  saveToObject() {
+    const save = {
+      x: this.x,
+      y: this.y,
+    };
+    return save;
+  }
+
+  initFromObject(save) {
+    this.x = save.x;
+    this.y = save.y;
+  }
+
   /**
    * move the point with Point or coordinates
    * @param {{x: number, y: number}} point - point to add

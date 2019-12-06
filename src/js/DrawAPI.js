@@ -134,18 +134,14 @@ export class DrawAPI {
     ctx.save();
 
     if (app.settings.get('areShapesPointed')) {
-      shape.buildSteps
-        .filter(bs => bs.type === 'vertex')
-        .forEach(bs => this.drawPoint(ctx, bs.coordinates, '#000', 1, false));
-    }
-    shape.buildSteps
-      .filter(bs => bs.type === 'segment')
-      .forEach(bs => {
-        //Points sur les segments
-        bs.points.forEach(pt => {
-          this.drawPoint(ctx, pt, '#000', 1, false);
-        });
+      shape.segments.forEach(seg => {
+        this.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
+        if (seg.points)
+          seg.points.forEach(pt => {
+            this.drawPoint(ctx, pt, '#000', 1, false);
+          });
       });
+    }
     if (shape.isCenterShown) this.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
     ctx.restore();
 

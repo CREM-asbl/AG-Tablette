@@ -1,6 +1,6 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Segment, Vertex, MoveTo } from '../../Objects/ShapeBuildStep';
+import { Segment } from '../../Objects/Segment';
 import { Point } from '../../Objects/Point';
 
 export class CutAction extends Action {

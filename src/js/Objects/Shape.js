@@ -1,6 +1,6 @@
 import { uniqId, mod } from '../Tools/general';
 import { Point } from './Point';
-import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep';
+import { Segment } from './Segment';
 import { app } from '../App';
 
 /**
@@ -11,21 +11,20 @@ export class Shape {
    * Constructeur
    * @param {float} x          position X
    * @param {float} y          position Y
-   * @param {[ShapeBuildStep]} buildSteps étapes de construction de la forme
+   * @param {[Segment]} segments étapes de construction de la forme
    *                                          (Segment, Vertex, MoveTo)
    * @param {String} name       nom de la forme
    * @param {String} familyName     nom de la famille de la forme
    */
-  constructor({ x, y }, buildSteps, name, familyName) {
+  constructor({ x, y }, segments, name, familyName) {
     this.id = uniqId();
 
     this.x = x;
     this.y = y;
-    this.buildSteps = buildSteps;
+    this.coordinates = new Point(x, y);
+    this.segments = segments;
     this.name = name;
     this.familyName = familyName;
-
-    // [this.vertexes, this.segments] = this.getDataFromBuildSteps(buildSteps);
 
     this.color = '#aaa';
     this.borderColor = '#000';
@@ -36,25 +35,6 @@ export class Shape {
     this.second_color = '#aaa';
     this.isBiface = false;
     this.haveBeenReversed = false;
-  }
-
-  /**
-   * init vertexes and segments with new method (just defined segments)
-   */
-  getDataFromBuildSteps(buildSteps) {
-    let result = { vertexes: [], segments: [] },
-      first_point_of_path = new Point(buildSteps.steps[0].dep);
-
-    result.vertexes.push(first_point_of_path);
-
-    buildSteps.step.forEach(step => {
-      let new_point = new Point(step.arr),
-        other_point = result.vertexes.find(vertex => vertex.equal(step.dep));
-      result.vertexes.push(new_point);
-      result.segments.push(new Segment(other_point, new_point, step.center));
-    });
-
-    return result;
   }
 
   get allOutlinePoints() {
@@ -108,9 +88,8 @@ export class Shape {
    * @return {Boolean} true si cercle, false sinon.
    */
   isCircle() {
-    return this.buildSteps.every((bs, index) => {
-      if (index == 0) return bs.type == 'moveTo';
-      return bs.type == 'segment' && bs.isArc;
+    return this.segments.every(seg => {
+      return seg.isArc;
     });
   }
 
@@ -466,7 +445,7 @@ export class Shape {
    * @return {{x: float, y: float}} les coordonnées ({x: float, y: float})
    */
   getCoordinates() {
-    return { x: this.x, y: this.y };
+    return this.coordinates;
   }
 
   /**
@@ -599,10 +578,11 @@ export class Shape {
    * @param {{x: float, y: float}} coordinates les coordonnées
    */
   setCoordinates(coordinates) {
-    const translation = new Point(coordinates).subCoordinates({ x: this.x, y: this.y });
-    this.x = coordinates.x;
-    this.y = coordinates.y;
-    this.buildSteps.forEach(bs => bs.translate(translation));
+    const translation = new Point(coordinates).subCoordinates(this.coordinates);
+    this.coordinates.setCoordinates({ x: coordinates.x, y: coordinates.y });
+    this.x = this.coordinates.x;
+    this.y = this.coordinates.y;
+    this.segments.forEach(seg => seg.translate(translation));
   }
 
   /**
@@ -611,8 +591,8 @@ export class Shape {
    */
   //Todo : Simplifier la copie
   copy() {
-    let buildStepsCopy = this.buildSteps.map(bs => bs.copy());
-    let copy = new Shape(this, buildStepsCopy, this.name, this.familyName);
+    let segments = this.segments.map(seg => seg.copy());
+    let copy = new Shape(this, segments, this.name, this.familyName);
     copy.color = this.color;
     copy.second_color = this.second_color;
     copy.isBiface = this.isBiface;
@@ -647,12 +627,8 @@ export class Shape {
    */
   get path() {
     const path = new Path2D();
-    this.buildSteps.forEach(buildStep => {
-      if (buildStep.type === 'moveTo')
-        path.moveTo(buildStep.coordinates.x, buildStep.coordinates.y);
-      else if (buildStep.type === 'segment')
-        path.lineTo(buildStep.vertexes[1].x, buildStep.vertexes[1].y);
-    });
+    path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
+    this.segments.forEach(seg => path.lineTo(seg.vertexes[1].x, seg.vertexes[1].y));
     path.closePath();
     return path;
   }
@@ -723,6 +699,15 @@ export class Shape {
     return path_tag + point_tags;
   }
 
+  setSegments(segments) {
+    this.segments = [];
+    segments.map(seg => {
+      let newSeg = new Segment();
+      newSeg.initFromObject(seg);
+      this.segments.push(newSeg);
+    });
+  }
+
   saveToObject() {
     let save = {
       id: this.id,
@@ -736,16 +721,17 @@ export class Shape {
       isCenterShown: this.isCenterShown,
       isReversed: this.isReversed,
       opacity: this.opacity,
-      buildSteps: this.buildSteps.map(bs => bs.saveToObject()),
+      segments: this.segments.map(seg => seg.saveToObject()),
     };
     return save;
   }
 
   initFromObject(save) {
-    this.setBuildStepsFromObject(save.buildSteps);
+    this.setSegments(save.segments);
     this.id = save.id;
     this.x = save.coordinates.x;
     this.y = save.coordinates.y;
+    this.coordinates = new Point(save.coordinates);
     this.name = save.name;
     this.familyName = save.familyName;
     this.color = save.color;
@@ -758,11 +744,7 @@ export class Shape {
   }
 
   setScale(size) {
-    this.buildSteps.forEach(bs => bs.setScale(size));
-  }
-
-  get segments() {
-    return this.buildSteps.filter(bs => bs.type === 'segment');
+    this.segments.forEach(seg => seg.setScale(size));
   }
 
   rotate(angle, center) {

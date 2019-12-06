@@ -1,41 +1,16 @@
 import { Point } from './Point';
 
-export class ShapeBuildStep {
-  constructor(type) {
-    if (this.constructor === ShapeBuildStep) {
-      throw new TypeError('Abstract class "ShapeBuildStep" cannot be instantiated directly');
-    }
-    this.type = type;
-  }
-
-  copy() {
-    throw new TypeError('Copy method not implemented');
-  }
-
-  setScale(size) {
-    this.coordinates.multiplyWithScalar(size, true);
-  }
-
-  rotate(angle, center = { x: 0, y: 0 }) {
-    this.coordinates.rotate(angle, center);
-  }
-
-  translate(coordinates) {
-    this.coordinates.translate(coordinates);
-  }
-}
-
 //Todo : Refactorer en Objet externe une fois que coordinates plus nécessaire
-export class Segment extends ShapeBuildStep {
-  constructor(point1, point2, isArc = false) {
-    super('segment');
+export class Segment {
+  constructor(point1, point2, isArc = false, arcCenter) {
     // if (point1 instanceof Point && point2 instanceof Point)
     //   this.vertexes = [point1, point2];
     // else
     this.vertexes = [new Point(point1), new Point(point2)];
-    this.coordinates = this.vertexes[1].copy();
     this.points = [];
     this.isArc = isArc;
+    if (this.isArc) this.arcCenter = arcCenter;
+    else this.arcCenter = null;
   }
 
   addPoint({ x, y }) {
@@ -63,7 +38,6 @@ export class Segment extends ShapeBuildStep {
    */
   get subSegments() {
     let result = [];
-    // this.sortPoints();
     [...this.points, ...this.vertexes].forEach((point, idx, points) => {
       points.slice(idx + 1).forEach((pt, i, pts) => {
         result.push(new Segment(point, pt));
@@ -93,17 +67,31 @@ export class Segment extends ShapeBuildStep {
     return copy;
   }
 
-  //TODO: Simplifier la sauvegarde d'un segment et être plus proche des définitions dans les Kits
   saveToObject() {
     const save = {
-      type: 'segment',
-      coordinates: { x: this.coordinates.x, y: this.coordinates.y },
-      points: this.points.map(pt => {
-        return { x: pt.x, y: pt.y };
-      }),
+      vertexes: this.vertexes.map(pt => pt.saveToObject()),
+      points: this.points.map(pt => pt.saveToObject()),
       isArc: this.isArc,
+      arcCenter: this.arcCenter,
     };
     return save;
+  }
+
+  initFromObject(save) {
+    this.vertexes = save.vertexes.map(pt => {
+      let newVertex = new Point();
+      newVertex.initFromObject(pt);
+      return newVertex;
+    });
+    if (save.points) {
+      this.points = save.points.forEach(pt => {
+        let newPoint = new Point();
+        newPoint.initFromObject(pt);
+        return newPoint;
+      });
+    }
+    if (save.isArc) this.isArc = save.isArc;
+    if (save.arcCenter) this.arcCenter = save.arcCenter;
   }
 
   projectionPointOnSegment(point) {
@@ -259,13 +247,11 @@ export class Segment extends ShapeBuildStep {
   }
 
   setScale(size) {
-    super.setScale(size);
     this.vertexes.forEach(vertex => vertex.multiplyWithScalar(size, true));
     this.points.forEach(pt => pt.multiplyWithScalar(size, true));
   }
 
   rotate(angle, center = { x: 0, y: 0 }) {
-    super.rotate(angle, center);
     this.vertexes.forEach(vertex => vertex.rotate(angle, center));
     this.points.forEach(pt => {
       let pointCoords = pt.rotate(angle, center);
@@ -275,7 +261,6 @@ export class Segment extends ShapeBuildStep {
   }
 
   translate(coordinates) {
-    super.translate(coordinates);
     this.vertexes.forEach(vertex => vertex.translate(coordinates));
     this.points.forEach(point => point.translate(coordinates));
   }
@@ -297,44 +282,5 @@ export class Segment extends ShapeBuildStep {
       Math.abs(this.direction.x - segment.direction.x) < 0.001 &&
       Math.abs(this.direction.y - segment.direction.y) < 0.001
     );
-  }
-}
-
-export class Vertex extends ShapeBuildStep {
-  constructor({ x, y }) {
-    super('vertex');
-    this.coordinates = new Point(x, y);
-  }
-
-  copy() {
-    return new Vertex(this.coordinates);
-  }
-
-  saveToObject() {
-    const save = {
-      type: 'vertex',
-      coordinates: { x: this.coordinates.x, y: this.coordinates.y },
-    };
-    return save;
-  }
-}
-
-// Utilité d'un tel objet ?
-export class MoveTo extends ShapeBuildStep {
-  constructor({ x, y }) {
-    super('moveTo');
-    this.coordinates = new Point(x, y);
-  }
-
-  copy() {
-    return new MoveTo(this.coordinates);
-  }
-
-  saveToObject() {
-    const save = {
-      type: 'moveTo',
-      coordinates: { x: this.coordinates.x, y: this.coordinates.y },
-    };
-    return save;
   }
 }
