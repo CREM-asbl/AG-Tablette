@@ -1,21 +1,32 @@
 import { Point } from './Point';
 
-//Todo : Refactorer en Objet externe une fois que coordinates plus nécessaire
 export class Segment {
-  constructor(point1, point2, isArc = false, arcCenter) {
-    // if (point1 instanceof Point && point2 instanceof Point)
-    //   this.vertexes = [point1, point2];
-    // else
-    this.vertexes = [new Point(point1), new Point(point2)];
+  constructor(point1, point2, shape, idx, isArc = false, arcCenter) {
+    this.shape = shape;
+    this.vertexes = [
+      new Point(point1, 'vertex', this, this.shape),
+      new Point(point2, 'vertex', this, this.shape),
+    ];
     this.points = [];
     this.isArc = isArc;
     if (this.isArc) this.arcCenter = arcCenter;
     else this.arcCenter = null;
+    this.idx = idx;
+  }
+
+  get shape() {
+    return this.private_shape;
+  }
+
+  set shape(shape) {
+    this.private_shape = shape;
+    if (this.vertexes) this.vertexes.forEach(vertex => (vertex.shape = shape));
+    if (this.points) this.points.forEach(point => (point.shape = shape));
   }
 
   addPoint({ x, y }) {
     //TODO: garder les points triés?
-    this.points.push(new Point(x, y));
+    this.points.push(new Point(x, y, 'segmentPoint', this, this.shape));
   }
 
   /**
@@ -38,7 +49,7 @@ export class Segment {
    */
   get subSegments() {
     let result = [];
-    [...this.points, ...this.vertexes].forEach((point, idx, points) => {
+    this.allPoints.forEach((point, idx, points) => {
       points.slice(idx + 1).forEach((pt, i, pts) => {
         result.push(new Segment(point, pt));
       });
@@ -58,7 +69,7 @@ export class Segment {
   }
 
   copy(full = true) {
-    let copy = new Segment(this.vertexes[0], this.vertexes[1], this.isArc);
+    let copy = new Segment(this.vertexes[0], this.vertexes[1], this.shape, this.idx, this.isArc);
     if (full) {
       this.points.forEach(p => {
         copy.addPoint(p);
@@ -70,22 +81,22 @@ export class Segment {
   saveToObject() {
     const save = {
       vertexes: this.vertexes.map(pt => pt.saveToObject()),
-      points: this.points.map(pt => pt.saveToObject()),
       isArc: this.isArc,
       arcCenter: this.arcCenter,
     };
+    if (this.points) save.points = this.points.map(pt => pt.saveToObject());
     return save;
   }
 
   initFromObject(save) {
     this.vertexes = save.vertexes.map(pt => {
-      let newVertex = new Point();
+      let newVertex = new Point(0, 0, 'vertex', this, this.shape);
       newVertex.initFromObject(pt);
       return newVertex;
     });
     if (save.points) {
       this.points = save.points.forEach(pt => {
-        let newPoint = new Point();
+        let newPoint = new Point(0, 0, 'segmentPoint', this, this.shape);
         newPoint.initFromObject(pt);
         return newPoint;
       });
@@ -95,7 +106,7 @@ export class Segment {
   }
 
   projectionPointOnSegment(point) {
-    let center = null,
+    let proj = null,
       p1x = this.vertexes[0].x,
       p1y = this.vertexes[0].y,
       p2x = this.vertexes[1].x,
@@ -104,22 +115,22 @@ export class Segment {
     //Calculer la projection du point sur l'axe.
     if (Math.abs(p2x - p1x) < 0.001) {
       //segment vertical
-      center = new Point({ x: p1x, y: point.y });
+      proj = new Point({ x: p1x, y: point.y });
     } else if (Math.abs(p2y - p1y) < 0.001) {
       //segment horizontal
-      center = new Point({ x: point.x, y: p1y });
+      proj = new Point({ x: point.x, y: p1y });
     } else {
       // axe.type=='NW' || axe.type=='SW'
       let f_a = (p1y - p2y) / (p1x - p2x),
         f_b = p2y - f_a * p2x,
         x2 = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1),
         y2 = f_a * x2 + f_b;
-      center = new Point({
+      proj = new Point({
         x: x2,
         y: y2,
       });
     }
-    return center;
+    return proj;
   }
 
   isPointOnSegment(point) {

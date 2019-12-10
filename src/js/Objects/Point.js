@@ -7,15 +7,22 @@ export class Point {
    * @param {{x: number, y: number}} point - point to copy
    * @param {number} x - other method
    * @param {number} y - other method
+   * @param {Segment} segment - parent segment
+   * @param {Shape} shape - shape
    */
   constructor() {
-    if (typeof arguments[0] == 'object') {
-      this.x = arguments[0].x;
-      this.y = arguments[0].y;
+    let argc = 0;
+    if (typeof arguments[argc] == 'object') {
+      this.x = arguments[argc].x;
+      this.y = arguments[argc].y;
+      argc++;
     } else {
-      this.x = arguments[0];
-      this.y = arguments[1];
+      this.x = arguments[argc++];
+      this.y = arguments[argc++];
     }
+    this.type = arguments[argc++]; // 'vertex', 'segmentPoint' or 'center'
+    this.segment = arguments[argc++];
+    this.shape = arguments[argc++];
   }
 
   setCoordinates({ x, y }) {
@@ -64,7 +71,7 @@ export class Point {
     multiplier = neg ? -1 : 1;
     this.x += x * multiplier;
     this.y += y * multiplier;
-    return new Point(this.x, this.y);
+    return this.copy();
   }
 
   /**
@@ -86,7 +93,7 @@ export class Point {
     }
     x = this.x + x;
     y = this.y + y;
-    return new Point(x, y);
+    return new Point(x, y, this.type, this.segment, this.shape);
   }
 
   /**
@@ -108,7 +115,7 @@ export class Point {
     }
     x = this.x + x * -1;
     y = this.y + y * -1;
-    return new Point(x, y);
+    return new Point(x, y, this.type, this.segment, this.shape);
   }
 
   /**
@@ -117,7 +124,13 @@ export class Point {
    * @param {*} must_change_this - if this must be modified
    */
   multiplyWithScalar(multiplier, must_change_this = false) {
-    let new_point = new Point(this.x * multiplier, this.y * multiplier);
+    let new_point = new Point(
+      this.x * multiplier,
+      this.y * multiplier,
+      this.type,
+      this.segment,
+      this.shape,
+    );
     if (must_change_this) {
       this.x = new_point.x;
       this.y = new_point.y;
@@ -126,7 +139,7 @@ export class Point {
   }
 
   copy() {
-    return new Point(this.x, this.y);
+    return new Point(this.x, this.y, this.type, this.segment, this.shape);
   }
 
   /**
@@ -144,7 +157,7 @@ export class Point {
       newY = x * s + y * c + center.y;
     this.x = newX;
     this.y = newY;
-    return new Point(this.x, this.y);
+    return this.copy();
   }
 
   /**

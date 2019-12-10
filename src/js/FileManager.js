@@ -72,12 +72,16 @@ export class FileManager {
       '" height="' +
       ctx.height +
       '" xmlns="http://www.w3.org/2000/svg" >\n';
+    console.log(svg_data);
     app.workspace.shapes.forEach(shape => {
       svg_data += shape.to_svg() + '\n';
+      console.log(svg_data);
     });
     svg_data += '</svg>';
 
+    console.log('in saveToSvg', svg_data);
     if (app.hasNativeFS) {
+      console.log('there');
       FileManager.newWriteFile(handle, svg_data);
     } else {
       const encoded_data = 'data:image/svg+xml;base64,' + btoa(svg_data);
@@ -135,11 +139,13 @@ export class FileManager {
     };
     const handle = await window.chooseFileSystemEntries(opts);
     const extension = FileManager.getExtension(handle.name);
+    console.log(extension);
     switch (extension) {
       case 'png':
         FileManager.saveToPng(handle);
         break;
       case 'svg':
+        console.log('svg');
         FileManager.saveToSvg(handle);
         break;
       case 'agg':
@@ -208,6 +214,7 @@ export class FileManager {
   }
 
   static async newWriteFile(fileHandle, contents) {
+    console.log(contents);
     const writer = await fileHandle.createWriter();
     await writer.truncate(0);
     await writer.write(0, contents);

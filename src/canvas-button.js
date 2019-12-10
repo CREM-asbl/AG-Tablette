@@ -62,10 +62,10 @@ class CanvasButton extends LitElement {
 
     let is_circle = false;
     for (let i = 0; i < icon.segments.length; i++) {
-      minX = Math.min(minX, icon.segments[i].x);
-      maxX = Math.max(maxX, icon.segments[i].x);
-      minY = Math.min(minY, icon.segments[i].y);
-      maxY = Math.max(maxY, icon.segments[i].y);
+      minX = Math.min(minX, icon.segments[i].vertexes[1].x);
+      maxX = Math.max(maxX, icon.segments[i].vertexes[1].x);
+      minY = Math.min(minY, icon.segments[i].vertexes[1].y);
+      maxY = Math.max(maxY, icon.segments[i].vertexes[1].y);
       if (icon.segments[i].isArc) is_circle = true;
     }
 
@@ -91,8 +91,8 @@ class CanvasButton extends LitElement {
     ctx.scale(scale, scale);
 
     ctx.beginPath();
-    ctx.moveTo(icon.segments[0].x, icon.segments[0].y);
-    icon.segments.forEach(seg => ctx.lineTo(seg.x, seg.y));
+    ctx.moveTo(icon.segments[0].vertexes[0].x, icon.segments[0].vertexes[0].y);
+    icon.segments.forEach(seg => ctx.lineTo(seg.vertexes[1].x, seg.vertexes[1].y));
     ctx.closePath();
     ctx.fill();
     ctx.stroke();

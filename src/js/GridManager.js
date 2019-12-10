@@ -165,7 +165,6 @@ export class GridManager {
           if (vertex.type == 'vertex') {
             list.push({
               shape: s,
-              relativeCoordinates: vertex.coordinates,
               coordinates: vertex.coordinates
                 .addCoordinates(s)
                 .addCoordinates(coordinates)
@@ -188,7 +187,6 @@ export class GridManager {
         .map(s => {
           return {
             shape: s,
-            relativeCoordinates: s.center,
             coordinates: s.center
               .addCoordinates(s)
               .addCoordinates(coordinates)

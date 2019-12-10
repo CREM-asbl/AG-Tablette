@@ -18,7 +18,7 @@ export class DivideAction extends Action {
     //Mode de découpe: 'segment' ou 'two_points'
     this.mode = null;
 
-    //Index du segment (dans le tableau des buildSteps), si mode segment
+    //Index du segment (dans le tableau des segments), si mode segment
     this.segmentIndex = null;
 
     /**
@@ -29,7 +29,6 @@ export class DivideAction extends Action {
      *     'shape': Shape,
      *     'index': int,
      *     'coordinates': Point
-     *     'relativeCoordinates': Point
      * }
      */
     this.firstPoint = null;
@@ -42,7 +41,6 @@ export class DivideAction extends Action {
      *     'shape': Shape,
      *     'index': int,
      *     'coordinates': Point
-     *     'relativeCoordinates': Point
      * }
      */
     this.secondPoint = null;
@@ -87,6 +85,48 @@ export class DivideAction extends Action {
     if (this.mode != 'segment' && this.mode != 'two_points') return false;
     if (!this.createdPoints) return false;
     return true;
+  }
+
+  do() {
+    if (!this.checkDoParameters()) return;
+
+    this.createdPoints = [];
+    let shape = app.workspace.getShapeById(this.shapeId);
+
+    if (this.mode == 'segment') {
+      let segment = shape.segments[this.segmentIndex];
+      if (segment.isArc) {
+        this.segmentModeAddArcPoints();
+      } else {
+        this.segmentModeAddSegPoints();
+      }
+    } else {
+      let segments = shape.segments,
+        pt1 = this.firstPoint,
+        pt2 = this.secondPoint,
+        isArc =
+          segments[pt1.segment.idx].isArc ||
+          segments[pt2.segment.idx].isArc ||
+          (segments[pt1.segment.idx].type == 'vertex' &&
+            segments[pt2.segment.idx].type == 'vertex' &&
+            !shape.contains(new Segment(segments[pt1.segment.idx], segments[pt2.segment.idx])));
+
+      if (isArc) {
+        this.pointsModeAddArcPoints(pt1, pt2, pt1.segment.idx, pt2.segment.idx);
+      } else {
+        this.pointsModeAddSegPoints(pt1, pt2);
+      }
+    }
+  }
+
+  undo() {
+    if (!this.checkUndoParameters()) return;
+    let shape = app.workspace.getShapeById(this.shapeId),
+      bs = shape.buildSteps;
+
+    this.createdPoints.forEach(pt => {
+      bs[pt.index].deletePoint(pt.coordinates);
+    });
   }
 
   segmentModeAddArcPoints() {
@@ -141,21 +181,9 @@ export class DivideAction extends Action {
   }
 
   segmentModeAddSegPoints() {
-    this.createdPoints = [];
-    let shape = app.workspace.getShapeById(this.shapeId),
-      segment = shape.buildSteps[this.segmentIndex],
-      segLength = segment.vertexes[1].subCoordinates(segment.vertexes[0]),
-      part = new Point(segLength.x / this.numberOfparts, segLength.y / this.numberOfparts);
-
-    //Un tour de boucle par point ajouté.
-    for (let i = 1, nextPt = new Point(segment.vertexes[0]); i < this.numberOfparts; i++) {
-      nextPt = nextPt.addCoordinates(part);
-      segment.addPoint(nextPt);
-      this.createdPoints.push({
-        index: this.segmentIndex,
-        coordinates: new Point(nextPt),
-      });
-    }
+    const shape = app.workspace.getShapeById(this.shapeId),
+      segment = shape.segments[this.segmentIndex];
+    this.pointsModeAddSegPoints(segment.vertexes[0], segment.vertexes[1]);
   }
 
   pointsModeAddArcPoints(pt1, pt2, pt1Index, pt2Index) {
@@ -225,92 +253,20 @@ export class DivideAction extends Action {
     }
   }
 
-  pointsModeAddSegPoints(pt1, pt2, pt1Index, pt2Index) {
-    let shape = app.workspace.getShapeById(this.shapeId),
-      bs = shape.buildSteps;
-
-    //mettre le plus petit index en premier, sauf si il y a plus de 2 d'écart
-    //entre pt1Index et pt2Index (->signifie qu'on est aux extrémités de
-    //buildSteps)
-    if (
-      (pt1Index > pt2Index && Math.abs(pt1Index - pt2Index) <= 2) ||
-      (pt1Index < pt2Index && Math.abs(pt1Index - pt2Index) > 2)
-    ) {
-      [pt1, pt2] = [pt2, pt1];
-      [pt1Index, pt2Index] = [pt2Index, pt1Index];
-    }
-    if (pt1Index == pt2Index) {
-      let segEnd = bs[pt1Index].coordinates,
-        pt1Dist = segEnd.dist(pt1.relativeCoordinates),
-        pt2Dist = segEnd.dist(pt2.relativeCoordinates);
-      if (pt1Dist < pt2Dist) {
-        [pt1, pt2] = [pt2, pt1];
-        [pt1Index, pt2Index] = [pt2Index, pt1Index];
-      }
-    }
+  pointsModeAddSegPoints(pt1, pt2) {
+    const shape = app.workspace.getShapeById(this.shapeId),
+      segment = pt1.segment,
+      segLength = pt2.subCoordinates(pt1),
+      part = new Point(segLength.x / this.numberOfparts, segLength.y / this.numberOfparts);
 
     this.createdPoints = [];
-
-    let segmentId = pt1.pointType == 'vertex' ? pt1Index + 1 : pt1Index,
-      segment = shape.buildSteps[segmentId],
-      startPos = pt1.relativeCoordinates,
-      endPos = pt2.relativeCoordinates,
-      diff = endPos.subCoordinates(startPos),
-      part = {
-        x: diff.x / this.numberOfparts,
-        y: diff.y / this.numberOfparts,
-      };
-
-    //Un tour de boucle par point ajouté.
-    for (let i = 1, nextPt = startPos; i < this.numberOfparts; i++) {
+    for (let i = 1, nextPt = new Point(pt1); i < this.numberOfparts; i++) {
       nextPt = nextPt.addCoordinates(part);
       segment.addPoint(nextPt);
       this.createdPoints.push({
-        index: segmentId,
+        index: segment.id,
         coordinates: new Point(nextPt),
       });
     }
-  }
-
-  do() {
-    if (!this.checkDoParameters()) return;
-
-    this.createdPoints = [];
-    let shape = app.workspace.getShapeById(this.shapeId);
-
-    if (this.mode == 'segment') {
-      let segment = shape.buildSteps[this.segmentIndex];
-      if (segment.isArc) {
-        this.segmentModeAddArcPoints();
-      } else {
-        this.segmentModeAddSegPoints();
-      }
-    } else {
-      let bs = shape.buildSteps,
-        pt1 = this.firstPoint,
-        pt2 = this.secondPoint,
-        isArc =
-          bs[pt1.index].isArc ||
-          bs[pt2.index].isArc ||
-          (bs[pt1.index].type == 'vertex' &&
-            bs[pt2.index].type == 'vertex' &&
-            !shape.contains(new Segment(bs[pt1.index].coordinates, bs[pt2.index].coordinates)));
-
-      if (isArc) {
-        this.pointsModeAddArcPoints(pt1, pt2, pt1.index, pt2.index);
-      } else {
-        this.pointsModeAddSegPoints(pt1, pt2, pt1.index, pt2.index);
-      }
-    }
-  }
-
-  undo() {
-    if (!this.checkUndoParameters()) return;
-    let shape = app.workspace.getShapeById(this.shapeId),
-      bs = shape.buildSteps;
-
-    this.createdPoints.forEach(pt => {
-      bs[pt.index].deletePoint(pt.coordinates);
-    });
   }
 }

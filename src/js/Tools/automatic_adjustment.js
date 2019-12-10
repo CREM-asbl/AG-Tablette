@@ -99,46 +99,44 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
       move: { x: 0, y: 0 },
     };
 
-  //if (!grid && !automaticAdjustment && !tangram)
-  return transformation; // ==> pour plus tard
+  if (!grid && !automaticAdjustment && !tangram) return transformation;
 
-  // if (grid && tangram) {
-  //   console.error('le Tangram et la Grille ne doivent pas être activés en même temps');
-  // }
+  if (grid && tangram) {
+    console.error('le Tangram et la Grille ne doivent pas être activés en même temps');
+  }
 
-  // //Générer la liste des points du groupe de formes
-  // let ptList;
-  // shapes.forEach(s => {
-  //   s.segments.forEach((seg, i) => {
-  //       ptList.push({
-  //         shape: s,
-  //         coordinates: seg.vertexes[1].addCoordinates(coordinates).subCoordinates(mainShape),
-  //         pointType: 'vertex',
-  //         index: i,
-  //       });
-  //       bs.points.forEach(pt => {
-  //         ptList.push({
-  //           shape: s,
-  //           coordinates: pt.addCoordinates(coordinates).subCoordinates(mainShape),
-  //           pointType: 'segmentPoint',
-  //           index: i,
-  //         });
-  //       });
-  //   });
-  //   if (s.isCenterShown) {
-  //     ptList.push({
-  //       shape: s,
-  //       coordinates: s.center.addCoordinates(coordinates).subCoordinates(mainShape),
-  //       pointType: 'center',
-  //     });
-  //   }
-  //   return list;
-  // });
+  //Générer la liste des points du groupe de formes
+  let ptList = [];
+  shapes.forEach(s => {
+    s.segments.forEach((seg, i) => {
+      ptList.push({
+        shape: s,
+        coordinates: seg.vertexes[1].addCoordinates(coordinates).subCoordinates(mainShape),
+        pointType: 'vertex',
+        index: i,
+      });
+      seg.points.forEach(pt => {
+        ptList.push({
+          shape: s,
+          coordinates: pt.addCoordinates(coordinates).subCoordinates(mainShape),
+          pointType: 'segmentPoint',
+          index: i,
+        });
+      });
+    });
+    if (s.isCenterShown) {
+      ptList.push({
+        shape: s,
+        coordinates: s.center.addCoordinates(coordinates).subCoordinates(mainShape),
+        pointType: 'center',
+      });
+    }
+  });
 
-  // //Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
-  // let cPtListTangram,
-  //   cPtListGrid,
-  //   cPtListBorder,
+  //Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
+  // let cPtListTangram = [],
+  //   cPtListGrid = [],
+  //   cPtListBorder = [],
   //   cPtListShape = [];
   // ptList.forEach(point => {
   //   if (point.pointType != 'center' && tangram) {
@@ -167,6 +165,7 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
   //   let constr = app.interactionAPI.getEmptySelectionConstraints()['points'];
   //   constr.canSelect = true;
   //   constr.types = ['vertex', 'segmentPoint', 'center'];
+  //   console.log(constr);
   //   if (excludeSelf) constr.blacklist = shapes;
   //   let pt = app.interactionAPI.selectPoint(point.coordinates, constr, false, false);
   //   if (pt) {
@@ -181,6 +180,13 @@ export function getShapeAdjustment(shapes, mainShape, coordinates, excludeSelf =
   // cPtListBorder = cPtListShape.filter(pt => {
   //   return pt.fixed.pointType == 'vertex' || pt.fixed.pointType == 'segmentPoint';
   // });
+
+  // console.log(cPtListTangram,
+  //   cPtListGrid,
+  //   cPtListBorder,
+  //   cPtListShape);
+
+  return transformation;
 
   // if (tangram) {
   //   //segment: 2 points de la silhouette ?

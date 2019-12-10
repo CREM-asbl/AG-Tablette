@@ -104,22 +104,17 @@ export class ReverseAction extends Action {
       // milieu animation
       shape.isReversed = !shape.isReversed;
 
-    shape.buildSteps.forEach(bs => {
-      const transformation = this.computePointPosition(bs.coordinates, arch, progression);
-      bs.coordinates = transformation;
-      if (bs.type == 'segment') {
-        let transformation = this.computePointPosition(bs.vertexes[0], arch, progression);
-        bs.vertexes[0] = transformation;
-        transformation = this.computePointPosition(bs.vertexes[1], arch, progression);
-        bs.vertexes[1] = transformation;
-        bs.points.forEach(pt => {
-          let pointCoords = this.computePointPosition(pt, arch, progression);
-          pt.x = pointCoords.x;
-          pt.y = pointCoords.y;
-        });
-      }
+    shape.segments.forEach(seg => {
+      let transformation = this.computePointPosition(seg.vertexes[0], arch, progression);
+      seg.vertexes[0] = transformation;
+      transformation = this.computePointPosition(seg.vertexes[1], arch, progression);
+      seg.vertexes[1] = transformation;
+      seg.points.forEach(pt => {
+        let pointCoords = this.computePointPosition(pt, arch, progression);
+        pt.x = pointCoords.x;
+        pt.y = pointCoords.y;
+      });
     });
-
     arch.center = saveAxeCenter;
   }
 

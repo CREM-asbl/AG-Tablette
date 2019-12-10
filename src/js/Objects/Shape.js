@@ -45,41 +45,14 @@ export class Shape {
     return points;
   }
 
-  //Todo: Refactorer
-  setBuildStepsFromString(buildSteps) {
-    this.buildSteps = buildSteps.map((step, index) => {
-      if (step.type === 'moveTo') return new MoveTo(step);
-      if (step.type === 'vertex') return new Vertex(step);
-      if (step.type === 'segment')
-        return new Segment(
-          {
-            x: buildSteps[index - 1].x,
-            y: buildSteps[index - 1].y,
-          },
-          { x: step.x, y: step.y },
-          step.isArc,
-        );
-      console.error('No valid type');
-      return null;
-    });
+  get vertexes() {
+    if (this.isSegment()) return this.segments[0].vertexes;
+    else return this.segments.map(seg => seg.vertexes[1]);
   }
 
-  setBuildStepsFromObject(buildSteps) {
-    this.buildSteps = buildSteps.map((bsData, index) => {
-      if (bsData.type === 'vertex') return new Vertex(bsData.coordinates);
-      else if (bsData.type === 'moveTo') return new MoveTo(bsData.coordinates);
-      else {
-        let segment = new Segment(
-          buildSteps[index - 1].coordinates,
-          bsData.coordinates,
-          bsData.isArc,
-        );
-        bsData.points.forEach(pt => segment.addPoint(pt));
-        return segment;
-      }
-    });
+  get segmentPoints() {
+    return this.segments.map(seg => seg.points).flat();
   }
-  /******/
 
   /**
    * Renvoie true si la forme est un cercle, c'est-à-dire si buildSteps
@@ -97,14 +70,14 @@ export class Shape {
    * say if the shape is a Segment
    */
   isSegment() {
-    return this.buildSteps.filter(buildstep => buildstep.type === 'segment').length === 1;
+    return this.segments.length === 1 && this.segments[0].isArc == false;
   }
 
   //FIX:  redondance avec InteractionAPI.selectSegment()
   isPointOnSegment(point) {
     if (!this.isSegment()) return false;
 
-    const segment = this.buildSteps.filter(buildstep => buildstep.type === 'segment')[0];
+    const segment = this.segments[0];
 
     let projection = segment.projectionPointOnSegment(point);
 
@@ -114,32 +87,6 @@ export class Shape {
 
     if (dist <= app.settings.get('selectionDistance')) return true;
     return false;
-  }
-
-  /**
-   * Renvoie l'index du buildStep suivant, en passant les moveTo.
-   * @param  {int} bsIndex l'index d'une buildStep.
-   * @return {int}
-   */
-  getNextBuildstepIndex(bsIndex) {
-    if (bsIndex < 0 || bsIndex >= this.buildSteps.length || !Number.isFinite(bsIndex)) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-
-    if (bsIndex + 1 == this.buildSteps.length) {
-      return 1; //skip 0 (moveTo)
-    }
-
-    if (this.buildSteps[bsIndex + 1].type == 'moveTo') {
-      /*
-            Cela signifie que la forme est en fait composée de 2 formes...
-             */
-      console.error('Cas non prévu!');
-      return null;
-    }
-
-    return bsIndex + 1;
   }
 
   contains(object) {
@@ -154,104 +101,6 @@ export class Shape {
       console.log('unsupported object');
       return false;
     }
-  }
-
-  /**
-   * Renvoie l'index du buildStep précédent, en passant les moveTo.
-   * @param  {int} bsIndex l'index d'une buildStep.
-   * @return {int}
-   */
-  getPrevBuildstepIndex(bsIndex) {
-    if (bsIndex < 0 || bsIndex >= this.buildSteps.length || !Number.isFinite(bsIndex)) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-
-    if (bsIndex <= 1) {
-      return this.buildSteps.length - 1; //skip 0 (moveTo)
-    }
-
-    if (this.buildSteps[bsIndex - 1].type == 'moveTo') {
-      /*
-            Cela signifie que la forme est en fait composée de 2 formes...
-             */
-      console.error('Cas non prévu!');
-      return null;
-    }
-
-    return bsIndex - 1;
-  }
-
-  /**
-   * Renvoie l'index du vertex suivant. Renvoie -1 si il n'y a pas de vertex
-   * suivant (ex: si cercle).
-   * @param  {int} bsIndex l'index d'une buildStep.
-   * @return {int}
-   */
-  getNextVertexIndex(bsIndex) {
-    if (bsIndex < 0 || bsIndex >= this.buildSteps.length || !Number.isFinite(bsIndex)) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-
-    let nextVertexIndex = -1,
-      index = bsIndex + 1;
-
-    while (index != bsIndex) {
-      if (index == this.buildSteps.length) {
-        index = 1; //skip 0 (moveTo)
-        continue;
-      }
-      if (this.buildSteps[index].type == 'moveTo') {
-        /*
-                Cela signifie que la forme est en fait composée de 2 formes...
-                 */
-        console.error('Cas non prévu!');
-        return null;
-      }
-      if (this.buildSteps[index].type == 'vertex') {
-        nextVertexIndex = index;
-        break;
-      }
-      index++;
-    }
-    return nextVertexIndex;
-  }
-
-  /**
-   * Renvoie l'index du vertex précédent. Renvoie null si il n'y a pas de vertex
-   * précédent (ex: si cercle).
-   * @param  {int} bsIndex l'index d'une buildStep.
-   * @return {int}
-   */
-  getPrevVertexIndex(bsIndex) {
-    if (bsIndex < 0 || bsIndex >= this.buildSteps.length || !Number.isFinite(bsIndex)) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-
-    let prevVertexIndex = null,
-      index = bsIndex - 1;
-
-    while (index != bsIndex) {
-      if (index <= 0) {
-        index = this.buildSteps.length - 1; //skip 0 (moveTo)
-        continue;
-      }
-      if (this.buildSteps[index].type == 'moveTo') {
-        /*
-                Cela signifie que la forme est en fait composée de 2 formes...
-                 */
-        console.error('Cas non prévu!');
-        return null;
-      }
-      if (this.buildSteps[index].type == 'vertex') {
-        prevVertexIndex = index;
-        break;
-      }
-      index--;
-    }
-    return prevVertexIndex;
   }
 
   /**
@@ -345,69 +194,9 @@ export class Shape {
       console.error('bad point value');
       return null;
     }
-    if (point1.pointType == 'vertex' && point2.pointType == 'vertex') {
-      //2 vertex. forment un segment entier ?
-      // console.log('shape');
-      // this.buildSteps.filter(bs => bs.type == "segment").forEach(segment => console.log(JSON.stringify(segment.vertexes[0]), JSON.stringify(segment.vertexes[1])));
-      // console.log("p1 ", JSON.stringify(point1.relativeCoordinates), JSON.stringify(point1.coordinates));
-      // console.log("p2", JSON.stringify(point2.relativeCoordinates), JSON.stringify(point2.coordinates));
-      return this.contains(new Segment(point1.relativeCoordinates, point2.relativeCoordinates));
-    }
-    if (point1.pointType != 'vertex' && point2.pointType != 'vertex') {
-      //2 segmentPoints. sur le même segment ?
-      return point1.index == point2.index;
-    }
-    if (point2.pointType == 'vertex') {
-      [point2, point1] = [point1, point2];
-    }
-
-    //ici: point1: vertex; point2: segmentPoint.
-    if (point1.index < point2.index) {
-      let nextBsIndex = this.getNextBuildstepIndex(point1.index);
-      return (
-        nextBsIndex == point2.index && nextBsIndex.type == 'segment' && nextBsIndex.isArc !== true
-      );
-    } else {
-      let prevBsIndex = this.getPrevBuildstepIndex(point1.index);
-      return (
-        prevBsIndex == point2.index && prevBsIndex.type == 'segment' && prevBsIndex.isArc !== true
-      );
-    }
+    const tmp_seg = new Segment(point1.coordinates, point2.coordinates);
+    return this.segments.subSegments.some(subSeg => !subSeg.isArc && subSeg.equal(tmp_seg));
   }
-
-  // /**
-  //  * Renvoie true si bsIndex1 et bsIndex2 sont les index de 2 sommets (vertex)
-  //  * entre lesquels il y a un segment qui n'est pas un arc de cercle!
-  //  * @param  {int}  bsIndex1
-  //  * @param  {int}  bsIndex2
-  //  * @return {Boolean}
-  //  */
-  // isSegment(bsIndex1, bsIndex2) {
-  //   let bs = this.buildSteps;
-  //   if (bs[bsIndex1].type != 'vertex' || bs[bsIndex2].type != 'vertex') {
-  //     console.error('bad bsIndex');
-  //     return null;
-  //   }
-
-  //   if (bsIndex1 > bsIndex2) {
-  //     [bsIndex1, bsIndex2] = [bsIndex2, bsIndex1];
-  //   }
-
-  //   if (
-  //     bsIndex1 + 2 == bsIndex2 &&
-  //     bs[bsIndex1 + 1].type == 'segment' &&
-  //     bs[bsIndex1 + 1].isArc !== true
-  //   )
-  //     return true;
-  //   if (
-  //     bsIndex1 == 1 &&
-  //     bsIndex2 == bs.length - 2 &&
-  //     bs[bsIndex2 + 1].type == 'segment' &&
-  //     bs[bsIndex2 + 1].isArc !== true
-  //   )
-  //     return true;
-  //   return false;
-  // }
 
   /**
    * Renvoie la longueur d'un arc de cercle
@@ -445,7 +234,8 @@ export class Shape {
    * @return {{x: float, y: float}} les coordonnées ({x: float, y: float})
    */
   getCoordinates() {
-    return this.coordinates;
+    return new Point(this.x, this.y);
+    // return this.coordinates; => to set at the end
   }
 
   /**
@@ -454,26 +244,14 @@ export class Shape {
    * @return {Boolean}       true si le point se trouve sur le bord.
    */
   isPointInBorder(point) {
-    const relativeCoordinates = {
-      x: point.x - this.x,
-      y: point.y - this.y,
-    };
-    return this.buildSteps.some(bs => {
-      if (bs.type === 'vertex') return bs.coordinates.equal(relativeCoordinates);
-      if (bs.type === 'segment') {
-        const projection = bs.projectionPointOnSegment(relativeCoordinates),
-          projDist = projection.dist(relativeCoordinates);
-        return projDist < 1 && bs.isPointOnSegment(projection);
-      }
-      return false;
-    });
+    return this.segments.some(seg => seg.isPointOnSegment(point));
   }
 
   getCommonsPoints(shape) {
     const commonsPoints = [];
     this.allOutlinePoints.forEach(point1 => {
       shape.allOutlinePoints.forEach(point2 => {
-        if (point1.equal(point2)) commonsPoints.push(JSON.stringify(point1));
+        if (point1.equal(point2)) commonsPoints.push(new Point(point1));
       });
     });
     return commonsPoints;
@@ -574,7 +352,7 @@ export class Shape {
   }
 
   /**
-   * défini les coordonnées de la forme
+   * définit les coordonnées de la forme
    * @param {{x: float, y: float}} coordinates les coordonnées
    */
   setCoordinates(coordinates) {
@@ -593,6 +371,7 @@ export class Shape {
   copy() {
     let segments = this.segments.map(seg => seg.copy());
     let copy = new Shape(this, segments, this.name, this.familyName);
+    segments.forEach(seg => (seg.shape = copy));
     copy.color = this.color;
     copy.second_color = this.second_color;
     copy.isBiface = this.isBiface;
@@ -604,21 +383,25 @@ export class Shape {
   }
 
   get center() {
+    // change for circle
     let total = {
       sumX: 0,
       sumY: 0,
       amount: 0,
     };
-    this.buildSteps.forEach(bs => {
-      //TODO: vérifier si cela fonctionne pour des formes contenant un arc de cercle.
-      if (bs.type == 'vertex' || (bs.type == 'segment' && bs.isArc)) {
-        total.sumX += bs.coordinates.x;
-        total.sumY += bs.coordinates.y;
-        total.amount++;
-      }
+    this.segments.forEach(seg => {
+      total.sumX += seg.vertexes[1].x;
+      total.sumY += seg.vertexes[1].y;
+      total.amount++;
     });
 
-    return new Point(total.sumX / total.amount, total.sumY / total.amount);
+    return new Point(
+      total.sumX / total.amount,
+      total.sumY / total.amount,
+      'center',
+      undefined,
+      this,
+    );
   }
 
   /**
@@ -658,12 +441,15 @@ export class Shape {
    */
   to_svg() {
     let path = '';
-    this.buildSteps.forEach(buildStep => {
-      let point = new Point(buildStep.coordinates.x, buildStep.coordinates.y);
+    let point = new Point(this.segments[0].vertexes[0]);
+    point.multiplyWithScalar(app.workspace.zoomLevel);
+    point.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
+    path += 'M ' + point.x + ' ' + point.y + ' ';
+    this.segments.forEach(seg => {
+      let point = new Point(seg.vertexes[1].x, seg.vertexes[1].y);
       point.multiplyWithScalar(app.workspace.zoomLevel);
       point.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
-      if (buildStep.type == 'moveTo') path += 'M ' + point.x + ' ' + point.y + ' ';
-      else if (buildStep.type == 'segment') path += 'L ' + point.x + ' ' + point.y + ' ';
+      path += 'L ' + point.x + ' ' + point.y + ' ';
     });
     path += 'Z ';
     let attributes = {
@@ -683,26 +469,25 @@ export class Shape {
 
     let point_tags = '';
     if (app.settings.get('areShapesPointed')) {
-      this.buildSteps
-        .filter(bs => bs.type === 'vertex')
-        .forEach(bs => (point_tags += this.point_to_svg(bs.coordinates, '#000', 1)));
+      if (this.isSegment())
+        point_tags += this.point_to_svg(this.segments[0].vertexes[0], '#000', 1);
+      this.segments.forEach(seg => (point_tags += this.point_to_svg(seg.vertexes[1], '#000', 1)));
     }
-    this.buildSteps
-      .filter(bs => bs.type === 'segment')
-      .forEach(bs => {
-        //Points sur les segments
-        bs.points.forEach(pt => {
-          point_tags += this.point_to_svg(pt, '#000', 1);
-        });
+    this.segments.forEach(seg => {
+      //Points sur les segments
+      seg.points.forEach(pt => {
+        point_tags += this.point_to_svg(pt, '#000', 1);
       });
+    });
     if (this.isCenterShown) point_tags += this.point_to_svg(this.center, '#000', 1);
     return path_tag + point_tags;
   }
 
   setSegments(segments) {
     this.segments = [];
-    segments.map(seg => {
-      let newSeg = new Segment();
+    segments.map((seg, idx) => {
+      let newSeg = new Segment(0, 0, this, idx);
+      newSeg.shape = this;
       newSeg.initFromObject(seg);
       this.segments.push(newSeg);
     });
@@ -748,6 +533,6 @@ export class Shape {
   }
 
   rotate(angle, center) {
-    this.buildSteps.forEach(bs => bs.rotate(angle, center));
+    this.segments.forEach(seg => seg.rotate(angle, center));
   }
 }

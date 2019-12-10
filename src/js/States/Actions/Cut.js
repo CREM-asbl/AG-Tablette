@@ -69,80 +69,81 @@ export class CutAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
     let shape = app.workspace.getShapeById(this.shapeId),
-      bs = shape.buildSteps,
+      segments = shape.segments,
       pt1 = this.firstPoint,
       centerPt = this.centerPoint,
       pt2 = this.secondPoint;
 
     //Trier les 2 points:
-    if (pt1.index > pt2.index) {
+    if (pt1.segment.idx > pt2.segment.idx) {
       [pt1, pt2] = [pt2, pt1];
     }
 
-    if (pt1.index === pt2.index) {
-      let segEnd = bs[pt1.index].coordinates,
-        pt1Dist = segEnd.dist(pt1.relativeCoordinates),
-        pt2Dist = segEnd.dist(pt2.relativeCoordinates);
+    // 2 points sur le mm segment ? arc de cercle ?
+    if (pt1.segment.idx === pt2.segment.idx) {
+      let segEnd = pt1.segment.vertexes[1],
+        pt1Dist = segEnd.dist(pt1),
+        pt2Dist = segEnd.dist(pt2);
       if (pt1Dist < pt2Dist) {
         [pt1, pt2] = [pt2, pt1];
       }
     }
 
-    //Calculer les buildSteps des 2 formes
-    let shape1BSPart1 = bs.slice(0, pt1.index + 1).map(b => b.copy(false)),
-      shape1BSPart2 = bs.slice(pt2.index).map(b => b.copy(false)),
-      shape2BS = bs.slice(pt1.index, pt2.index + 1).map(b => b.copy(false));
+    //Calculer les segments des 2 formes
+    let shape1SegPart1 = segments.slice(0, pt1.segment.idx + 1).map(seg => seg.copy(false)),
+      shape1SegPart2 = segments.slice(pt2.segment.idx + 1).map(seg => seg.copy(false)),
+      shape1Seg = [...shape1SegPart2, ...shape1SegPart1],
+      shape2Seg = segments
+        .slice(pt1.segment.idx + 1, pt2.segment.idx + 1)
+        .map(seg => seg.copy(false)),
+      junction;
 
-    if (pt1.pointType === 'segmentPoint') {
-      let lastIndex = shape1BSPart1.length - 1,
-        s1LastBS = shape1BSPart1[lastIndex];
-      s1LastBS.vertexes[1].setCoordinates(pt1.relativeCoordinates);
-      shape1BSPart1.push(new Vertex(pt1.relativeCoordinates));
-      shape2BS[0].vertexes[0].setCoordinates(pt1.relativeCoordinates);
-      shape2BS.unshift(new Vertex(pt1.relativeCoordinates));
+    if (pt1.type === 'segmentPoint') {
+      shape2Seg.unshift(new Segment(pt1, shape2Seg[0].vertexes[0]));
+      shape1Seg[shape1Seg.length - 1].vertexes[1].setCoordinates(pt1);
     }
 
-    if (pt2.pointType === 'segmentPoint') {
-      let lastIndex = shape2BS.length - 1,
-        s2LastBS = shape2BS[lastIndex];
-      s2LastBS.vertexes[1].setCoordinates(pt2.relativeCoordinates);
-      shape2BS.push(new Vertex(pt2.relativeCoordinates));
-      shape1BSPart2[0].vertexes[0].setCoordinates(pt2.relativeCoordinates);
-      shape1BSPart2.unshift(new Vertex(pt2.relativeCoordinates));
+    if (pt2.type === 'segmentPoint') {
+      shape1Seg.unshift(new Segment(pt2, shape1Seg[0].vertexes[0]));
+      shape2Seg[shape2Seg.length - 1].vertexes[1].setCoordinates(pt2);
     }
 
     if (centerPt) {
-      shape1BSPart1.push(
-        new Segment(
-          shape1BSPart1[shape1BSPart1.length - 1].coordinates,
-          centerPt.relativeCoordinates,
-        ),
-      );
-      shape1BSPart1.push(new Vertex(centerPt.relativeCoordinates));
-      shape2BS.push(
-        new Segment(shape2BS[shape2BS.length - 1].coordinates, centerPt.relativeCoordinates),
-      );
-      shape2BS.push(new Vertex(centerPt.relativeCoordinates));
+      junction = [new Segment(pt1, centerPt), new Segment(centerPt, pt2)];
+    } else {
+      junction = [new Segment(pt1, pt2)];
     }
 
-    shape1BSPart1.push(
-      new Segment(
-        shape1BSPart1[shape1BSPart1.length - 1].coordinates,
-        shape1BSPart2[0].coordinates,
-      ),
-    );
-    shape2BS.push(new Segment(shape2BS[shape2BS.length - 1].coordinates, shape2BS[0].coordinates));
-    let shape1BS = shape1BSPart1.concat(shape1BSPart2);
+    shape1Seg = [...shape1Seg, ...junction.map(seg => seg.copy(false))];
+    shape2Seg = [
+      ...shape2Seg,
+      ...junction
+        .map(seg => seg.copy(false))
+        .reverse()
+        .map(seg => {
+          seg.reverse();
+          return seg;
+        }),
+    ];
 
     //Créer les 2 formes
-    let [shape1, shape2] = [shape1BS, shape2BS].map(bs => {
+    let [shape1, shape2] = [shape1Seg, shape2Seg].map(segments => {
       let newShape = shape.copy();
       newShape.name = 'Custom';
       newShape.familyName = 'Custom';
-      newShape.buildSteps = bs;
+      newShape.segments = segments.map((seg, idx) => {
+        seg.vertexes[0].type = 'vertex';
+        seg.vertexes[0].segment = seg;
+        seg.vertexes[1].type = 'vertex';
+        seg.vertexes[1].segment = seg;
+        seg.shape = newShape;
+        seg.idx = idx;
+        return seg;
+      });
       newShape.isCenterShown = false;
       return newShape;
     });
+
     //Modifier les coordonnées
     let center1 = shape1.center,
       center2 = shape2.center,
@@ -154,18 +155,6 @@ export class CutAction extends Action {
     offset.multiplyWithScalar(myOffset);
     shape1.setCoordinates(new Point(shape1).subCoordinates(offset));
     shape2.setCoordinates(new Point(shape2).addCoordinates(offset));
-
-    // cleaning
-    shape1.buildSteps.forEach(bs => {
-      if (bs.type == 'segment') {
-        bs.coordinates = bs.vertexes[1].copy();
-      }
-    });
-    shape2.buildSteps.forEach(bs => {
-      if (bs.type == 'segment') {
-        bs.coordinates = bs.vertexes[1].copy();
-      }
-    });
 
     if (this.createdShapesIds) {
       shape1.id = this.createdShapesIds[0];

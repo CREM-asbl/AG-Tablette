@@ -101,8 +101,7 @@ export class InteractionAPI {
    */
   arePointsInSelectionDistance(pt1, pt2) {
     let dist = pt1.dist(pt2);
-    if (dist <= app.settings.get('selectionDistance')) return true;
-    return false;
+    return dist <= app.settings.get('selectionDistance');
   }
 
   /**
@@ -113,8 +112,7 @@ export class InteractionAPI {
    */
   arePointsInMagnetismDistance(pt1, pt2) {
     let dist = pt1.dist(pt2);
-    if (dist <= app.settings.get('magnetismDistance')) return true;
-    return false;
+    return dist <= app.settings.get('magnetismDistance');
   }
 
   /* #################################################################### */
@@ -131,6 +129,7 @@ export class InteractionAPI {
       eventType: 'click',
       //du + au - prioritaire. Les 3 valeurs doivent se retrouver dans le tableau.
       priority: ['points', 'segments', 'shapes'],
+      blockHidden: false,
       shapes: {
         canSelect: false,
         //Liste de Shape. La forme doit être dans ce tableau s'il est non null
@@ -237,216 +236,145 @@ export class InteractionAPI {
    *              'pointType': 'vertex' ou 'segmentPoint' ou 'center',
    *              'shape': Shape,
    *              'coordinates': Point,
-   *              'relativeCoordinates': Point,
    *              'index': int  //sauf si pointType = center. Index du segment
-   *                            //si segmentPoint, sinon index du sommet.
    *          }
    */
-  selectPoint(
-    mouseCoordinates,
-    constraints,
-    blockHiddenPointsSelection = true,
-    easySelection = true,
-  ) {
+  selectPoint(mouseCoordinates, constraints, easySelection = true) {
     if (!constraints.canSelect) return null;
 
     let distCheckFunction = easySelection
       ? this.arePointsInSelectionDistance
       : this.arePointsInMagnetismDistance;
 
-    let point,
-      bestDist = 1000 * 1000 * 1000;
+    // all points at the correct distance
+    let potentialPoints = [];
+    app.workspace.shapes.forEach(shape => {
+      if (constraints.types.includes('vertex')) {
+        shape.vertexes
+          .filter(vertex => distCheckFunction(vertex, mouseCoordinates))
+          .forEach(vertex => {
+            potentialPoints.push(vertex);
+          });
+      }
+      if (constraints.types.includes('segmentPoint')) {
+        shape.segmentPoints
+          .filter(point => distCheckFunction(point, mouseCoordinates))
+          .forEach(point => {
+            potentialPoints.push(point);
+          });
+      }
+      if (
+        constraints.types.includes('center') &&
+        distCheckFunction(shape.center, mouseCoordinates)
+      ) {
+        potentialPoints.push(shape.center);
+      }
+    });
 
-    app.workspace.shapes
-      .filter(shape => {
-        //Filtre les formes
-
-        if (constraints.whitelist != null) {
-          if (
-            !constraints.whitelist.some(constr => {
-              if (constr instanceof Shape) return constr.id == shape.id;
-              return constr.shape.id == shape.id;
-            })
-          )
-            return false;
-        }
-
-        if (constraints.blacklist != null) {
-          if (
-            constraints.blacklist.some(constr => {
-              if (constr instanceof Shape) return constr.id == shape.id;
-              return false;
-            })
-          )
-            return false;
-        }
-        return true;
-      })
-      .forEach(shape => {
-        //Center ?
-        if (constraints.types.includes('center') && shape.isCenterShown) {
-          let f = constr => {
+    // apply constrains
+    const constrainedPoints = potentialPoints.filter(potentialPoint => {
+      const shape = potentialPoint.shape;
+      if (constraints.whitelist != null) {
+        if (
+          !constraints.whitelist.some(constr => {
             if (constr instanceof Shape) return constr.id == shape.id;
-            if (constr.shape.id != shape.id) return false;
-            return constr.type == 'center';
-          };
-          if (constraints.whitelist != null) {
-            if (!constraints.whitelist.some(f)) return false;
-          }
-
-          if (constraints.blacklist != null) {
-            if (constraints.blacklist.some(f)) return false;
-          }
-
-          let shapeCenter = shape.center;
-          if (distCheckFunction(shapeCenter, mouseCoordinates)) {
-            let dist = shapeCenter.dist(mouseCoordinates);
-            if (dist < bestDist) {
-              //TODO: vérifier que le centre n'est pas derrière une forme?
-              bestDist = dist;
-              point = {
-                pointType: 'center',
-                shape: shape,
-                coordinates: shapeCenter,
-                relativeCoordinates: new Point(shape.center),
-              };
+            else {
+              if (constr.shape.id != shape.id) return false;
+              if (constr.type == 'center') return potentialPoint.type == 'center';
+              if (constr.type == 'vertex')
+                return (
+                  potentialPoint.type == 'vertex' &&
+                  (constr.index == undefined || constr.index == potentialPoint.segment.idx)
+                );
+              if (constr.type == 'segmentPoint')
+                return (
+                  potentialPoint.type == 'segmentPoint' &&
+                  (constr.index == undefined || constr.index == potentialPoint.segment.idx) &&
+                  (constr.coordinates == undefined || constr.coordinates.equal(potentialPoint))
+                );
             }
-          }
+          })
+        )
+          return false;
+      }
+      if (constraints.blacklist != null) {
+        if (
+          constraints.blacklist.some(constr => {
+            if (constr instanceof Shape) return constr.id == shape.id;
+            else {
+              if (constr.shape.id != shape.id) return false;
+              if (constr.type == 'center') return potentialPoint.type == 'center';
+              if (constr.type == 'vertex')
+                return (
+                  potentialPoint.type == 'vertex' &&
+                  (constr.index == undefined || constr.index == potentialPoint.segment.idx)
+                );
+              if (constr.type == 'segmentPoint')
+                return (
+                  potentialPoint.type == 'segmentPoint' &&
+                  (constr.index == undefined || constr.index == potentialPoint.segment.idx) &&
+                  constr.coordinates.equal(potentialPoint)
+                );
+            }
+          })
+        )
+          return false;
+      }
+      return true;
+    });
+
+    // if no possibilities
+    if (constrainedPoints.length == 0) return null;
+
+    // sort by distance and height
+    // cree un tableau de type [ [{Point}, {Point}], [{Point}]]
+    // avec meme distance dans meme case
+    let sortedPoints = [];
+    constrainedPoints.forEach(pt => {
+      const dist = pt.dist(mouseCoordinates);
+      for (const key in sortedPoints) {
+        const comparedDist = sortedPoints[key][0].dist(mouseCoordinates);
+        if (Math.abs(dist - comparedDist) < 0.1) {
+          // 0.1 pour distance égale
+          sortedPoints[key].push(pt);
+          return 'pushed';
         }
+      }
+      sortedPoints.push([pt]);
+    });
+    // sort by distance
+    sortedPoints.sort(
+      (pts1, pts2) => pts1[0].dist(mouseCoordinates) - pts2[0].dist(mouseCoordinates),
+    );
+    // sort by height
+    sortedPoints.forEach(toSort =>
+      toSort.sort((pt1, pt2) => {
+        app.workspace.getShapeIndex(pt1.shape) < app.workspace.getShapeIndex(pt2.shape) ? 1 : -1;
+      }),
+    );
 
-        shape.buildSteps.forEach((bs, index) => {
-          //Vertex ?
-          if (bs.type == 'vertex' && constraints.types.includes('vertex')) {
-            let f = constr => {
-              if (constr instanceof Shape) return constr.id == shape.id;
-              if (constr.shape.id != shape.id || constr.type != 'vertex') return false;
-              return constr.index == undefined || constr.index == index;
-            };
-            if (constraints.whitelist != null) {
-              if (!constraints.whitelist.some(f)) return false;
-            }
+    const flattedPoints = sortedPoints.flat();
 
-            if (constraints.blacklist != null) {
-              if (constraints.blacklist.some(f)) return false;
-            }
-
-            if (distCheckFunction(bs.coordinates, mouseCoordinates)) {
-              let dist = bs.coordinates.dist(mouseCoordinates);
-              if (dist < bestDist || Math.abs(bestDist - dist) < 0.1) {
-                if (blockHiddenPointsSelection) {
-                  //Vérifier que le point n'est pas derrière une forme
-                  let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
-                    thisIndex = app.workspace.getShapeIndex(shape);
-                  if (
-                    shapes.some(s => {
-                      let otherIndex = app.workspace.getShapeIndex(s);
-                      return otherIndex > thisIndex;
-                    })
-                  )
-                    return false;
-
-                  if (point) {
-                    //Garder le point de la forme la plus en avant
-                    let otherIndex = app.workspace.getShapeIndex(point.shape);
-                    if (thisIndex < otherIndex) return false;
-                  }
-                }
-
-                /*
-                            TODO: méthode qui renvoie la liste des points qui sont
-                            exactement (à 0.1 près par ex) à une coordonnée, et
-                            l'appeler avec les coordonnées du point sélectionné
-                            ici. Si un de ces points fait partie d'une forme dont
-                            l'index (dans workspace.shapes) est supérieur à
-                            l'index de la forme du point sélectionné ici, faire
-                            un return false. Car cela signifie que le point ici
-                            est derrière un autre et ne devrait pas (?) pouvoir
-                            être sélectionné.
-                             */
-
-                bestDist = dist;
-                point = {
-                  pointType: 'vertex',
-                  shape: shape,
-                  coordinates: bs.coordinates,
-                  relativeCoordinates: new Point(bs.coordinates),
-                  index: index,
-                };
-              }
-            }
-          }
-
-          //SegmentPoints ?
-          if (bs.type == 'segment' && constraints.types.includes('segmentPoint')) {
-            bs.points.forEach(pt => {
-              let f = constr => {
-                if (constr instanceof Shape) return constr.id == shape.id;
-                if (constr.shape.id != shape.id || constr.type != 'segmentPoint') return false;
-                if (constr.index == undefined) return true;
-                if (constr.index != index) return false;
-                if (constr.coordinates == undefined) return true;
-                return pt.equal(constr.coordinates);
-              };
-              if (constraints.whitelist != null) {
-                if (!constraints.whitelist.some(f)) return false;
-              }
-
-              if (constraints.blacklist != null) {
-                if (constraints.blacklist.some(f)) return false;
-              }
-
-              if (distCheckFunction(pt, mouseCoordinates)) {
-                let dist = pt.dist(mouseCoordinates);
-                if (dist < bestDist || Math.abs(bestDist - dist) < 0.1) {
-                  if (blockHiddenPointsSelection) {
-                    //Vérifier que le point n'est pas derrière une forme
-                    let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
-                      thisIndex = app.workspace.getShapeIndex(shape);
-                    if (
-                      shapes.some(s => {
-                        let otherIndex = app.workspace.getShapeIndex(s);
-                        return otherIndex > thisIndex;
-                      })
-                    )
-                      return false;
-
-                    if (point) {
-                      //Garder le point de la forme la plus en avant
-                      let otherIndex = app.workspace.getShapeIndex(point.shape);
-                      if (thisIndex < otherIndex) return false;
-                    }
-                  }
-
-                  /*
-                                TODO: méthode qui renvoie la liste des points qui sont
-                                exactement (à 0.1 près par ex) à une coordonnée, et
-                                l'appeler avec les coordonnées du point sélectionné
-                                ici. Si un de ces points fait partie d'une forme dont
-                                l'index (dans workspace.shapes) est supérieur à
-                                l'index de la forme du point sélectionné ici, faire
-                                un return false. Car cela signifie que le point ici
-                                est derrière un autre et ne devrait pas (?) pouvoir
-                                être sélectionné.
-                                 */
-
-                  bestDist = dist;
-                  point = {
-                    pointType: 'segmentPoint',
-                    shape: shape,
-                    coordinates: pt,
-                    relativeCoordinates: new Point(pt),
-                    index: index,
-                  };
-                }
-              }
-            });
-          }
-        });
-      });
-
-    if (point) return point;
-
-    return null;
+    // calculate the best point
+    if (constraints.blockHidden) {
+      const shapes = app.workspace.shapesOnPoint(mouseCoordinates);
+      for (const pt of flattedPoints) {
+        const thisIndex = app.workspace.getShapeIndex(pt.shape);
+        if (
+          shapes.some(s => {
+            let otherIndex = app.workspace.getShapeIndex(s);
+            return otherIndex > thisIndex;
+          })
+        )
+          // point behind shape
+          continue;
+        return pt;
+      }
+      // all points behind other shapes
+      return null;
+    } else {
+      return flattedPoints[0];
+    }
   }
 
   /**
@@ -463,91 +391,89 @@ export class InteractionAPI {
   selectSegment(mouseCoordinates, constraints) {
     if (!constraints.canSelect) return null;
 
-    let segment = null;
-
-    app.workspace.shapes
-      .filter(shape => {
-        //Filtre les formes
-
-        if (constraints.whitelist != null) {
-          if (
-            !constraints.whitelist.some(constr => {
-              if (constr instanceof Shape) return constr.id == shape.id;
-              return constr.shape.id == shape.id;
-            })
-          )
-            return false;
-        }
-
-        if (constraints.blacklist != null) {
-          if (
-            constraints.blacklist.some(constr => {
-              if (constr instanceof Shape) return constr.id == shape.id;
-              return false;
-            })
-          )
-            return false;
-        }
-        return true;
-      })
-      .some(shape => {
-        shape.buildSteps.some((bs, index) => {
-          if (bs.type != 'segment') return false;
-
-          if (constraints.whitelist != null) {
-            if (
-              !constraints.whitelist.some(constr => {
-                if (constr instanceof Shape) return constr.id == shape.id;
-                if (constr.shape.id != shape.id) return false;
-                return constr.index == index;
-              })
-            )
-              return false;
-          }
-
-          if (constraints.blacklist != null) {
-            if (
-              constraints.blacklist.some(constr => {
-                if (constr instanceof Shape) return constr.id == shape.id;
-                if (constr.shape.id != shape.id) return false;
-                return constr.index == index;
-              })
-            )
-              return false;
-          }
-
-          //Refacto possible voir Shape.isPointOnSegment
-          const projection = bs.projectionPointOnSegment(mouseCoordinates);
-
-          if (!bs.isPointOnSegment(projection)) return false;
-
-          //Point trop loin?
-          if (!this.arePointsInSelectionDistance(projection, mouseCoordinates)) return false;
-
-          //Vérifier que le segment n'est pas derrière une forme.
-          let shapes = app.workspace.shapesOnPoint(mouseCoordinates),
-            thisIndex = app.workspace.getShapeIndex(shape);
-          if (
-            shapes.some(s => {
-              let otherIndex = app.workspace.getShapeIndex(s);
-              return otherIndex > thisIndex;
-            })
-          )
-            return false;
-
-          segment = {
-            shape: shape,
-            index: index,
-          };
-
-          return true;
+    // all segments at the correct distance
+    // contrary of selectPoint, stores object { segment, dist }
+    let potentialSegments = [];
+    app.workspace.shapes.forEach(shape => {
+      shape.segments
+        .filter(segment => {
+          const projection = segment.projectionPointOnSegment(mouseCoordinates);
+          return (
+            segment.isPointOnSegment(projection) &&
+            this.arePointsInSelectionDistance(projection, mouseCoordinates)
+          );
+        })
+        .forEach(segment => {
+          potentialSegments.push({
+            segment: segment,
+            dist: segment.projectionPointOnSegment(mouseCoordinates).dist(mouseCoordinates),
+          });
         });
+    });
 
-        if (segment) return true;
-      });
-    if (segment) return segment;
+    // apply constrains
+    const constrainedSegments = potentialSegments.filter(potentialSegment => {
+      const shape = potentialSegment.shape;
+      if (constraints.whitelist != null) {
+        if (
+          !constraints.whitelist.some(constr => {
+            if (constr instanceof Shape) return constr.id == shape.id;
+            else {
+              if (constr.shape.id != shape.id) return false;
+              return constr.index == potentialSegment.segment.idx;
+            }
+          })
+        )
+          return false;
+      }
+      if (constraints.blacklist != null) {
+        if (
+          constraints.blacklist.some(constr => {
+            if (constr instanceof Shape) return constr.id == shape.id;
+            else {
+              if (constr.shape.id != shape.id) return false;
+              return constr.index == potentialSegment.segment.idx;
+            }
+          })
+        )
+          return false;
+      }
+      return true;
+    });
 
-    return null;
+    // if no possibilities
+    if (constrainedSegments.length == 0) return null;
+
+    // sort by distance and height
+    // cree un tableau de type [ [{Point}, {Point}], [{Point}]]
+    // avec meme distance dans meme case
+    let sortedSegments = [];
+    constrainedSegments.forEach(seg => {
+      const dist = seg.dist;
+      for (const key in sortedSegments) {
+        const comparedDist = sortedSegments[key].dist;
+        if (Math.abs(dist - comparedDist) < 0.1) {
+          // 0.1 pour distance égale
+          sortedSegments[key].push(seg);
+          return 'pushed';
+        }
+      }
+      sortedSegments.push([seg]);
+    });
+    // sort by distance
+    sortedSegments.sort((segs1, segs2) => segs1[0].dist - segs2[0].dist);
+    // sort by height
+    sortedSegments.forEach(toSort =>
+      toSort.sort((seg1, seg2) => {
+        app.workspace.getShapeIndex(seg1.shape) < app.workspace.getShapeIndex(seg2.shape) ? 1 : -1;
+      }),
+    );
+
+    const flattedSegments = sortedSegments.flat();
+
+    // calculate the best point
+    // no possibilities to choose blockHidden constraints
+    return flattedSegments[0].segment;
   }
 
   /**
@@ -590,22 +516,8 @@ export class InteractionAPI {
    * @param  {Point} mouseCoordinates
    * @return {Object} Renvoie soit:
    *          - Pour une forme: un objet de type Shape;
-   *          - Pour un segment:
-   *              {
-   *                  'type': 'segment',
-   *                  'shape': Shape,
-   *                  'index': int
-   *              }
-   *          - Pour un point:
-   *              {
-   *                  'type': 'point',
-   *                  'pointType': 'vertex' ou 'segmentPoint' ou 'center',
-   *                  'shape': Shape,
-   *                  'coordinates': Point,
-   *                  'relativeCoordinates': Point,
-   *                  'index': int  //sauf si pointType = center. Index du segment
-   *                                //si segmentPoint, sinon index du sommet.
-   *              }
+   *          - Pour un segment: un objet de type Segment;
+   *          - Pour un point: un objet de type Point;
    */
   selectObject(mouseCoordinates) {
     let constr = this.selectionConstraints,
@@ -635,11 +547,7 @@ export class InteractionAPI {
     for (let i = 0; i < constr.priority.length; i++) {
       let f = calls[constr.priority[i]],
         obj = f(mouseCoordinates, constr[constr.priority[i]]);
-      if (obj) {
-        if (constr.priority[i] == 'points') obj.type = 'point';
-        if (constr.priority[i] == 'segments') obj.type = 'segment';
-        return obj;
-      }
+      if (obj) return obj;
     }
     return null;
   }
