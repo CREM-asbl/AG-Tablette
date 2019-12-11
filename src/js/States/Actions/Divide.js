@@ -122,10 +122,10 @@ export class DivideAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
     let shape = app.workspace.getShapeById(this.shapeId),
-      bs = shape.buildSteps;
+      segments = shape.segments;
 
     this.createdPoints.forEach(pt => {
-      bs[pt.index].deletePoint(pt.coordinates);
+      segments[pt.segment.idx].deletePoint(pt);
     });
   }
 
@@ -260,13 +260,10 @@ export class DivideAction extends Action {
       part = new Point(segLength.x / this.numberOfparts, segLength.y / this.numberOfparts);
 
     this.createdPoints = [];
-    for (let i = 1, nextPt = new Point(pt1); i < this.numberOfparts; i++) {
+    for (let i = 1, nextPt = pt1.copy(); i < this.numberOfparts; i++) {
       nextPt = nextPt.addCoordinates(part);
       segment.addPoint(nextPt);
-      this.createdPoints.push({
-        index: segment.id,
-        coordinates: new Point(nextPt),
-      });
+      this.createdPoints.push(nextPt.copy());
     }
   }
 }

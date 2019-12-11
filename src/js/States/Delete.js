@@ -48,7 +48,7 @@ export class DeleteState extends State {
 
       this.actions[0].mode = 'point';
 
-      this.actions[0].point = object.coordinates;
+      this.actions[0].point = object;
 
       this.actions[0].shapeId = object.shape.id;
     }

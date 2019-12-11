@@ -192,7 +192,8 @@ export class CutState extends State {
       let vertexToAdd = [],
         segmentsToAdd = [];
       if (object.type == 'vertex') vertexToAdd.push(mod(object.segment.idx + 1, segments.length));
-      vertexToAdd.push(object.segment.idx);
+      else vertexToAdd.push(object.segment.idx);
+      vertexToAdd.push(mod(object.segment.idx - 1, segments.length));
       if (object.type == 'vertex') segmentsToAdd.push(mod(object.segment.idx + 1, segments.length));
       segmentsToAdd.push(object.segment.idx);
       let list = vertexToAdd.map(vertex => {

@@ -264,6 +264,7 @@ export class InteractionAPI {
           });
       }
       if (
+        shape.isCenterShown &&
         constraints.types.includes('center') &&
         distCheckFunction(shape.center, mouseCoordinates)
       ) {

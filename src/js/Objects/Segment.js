@@ -94,8 +94,8 @@ export class Segment {
       newVertex.initFromObject(pt);
       return newVertex;
     });
-    if (save.points) {
-      this.points = save.points.forEach(pt => {
+    if (save.points && save.points.length) {
+      this.points = save.points.map(pt => {
         let newPoint = new Point(0, 0, 'segmentPoint', this, this.shape);
         newPoint.initFromObject(pt);
         return newPoint;
@@ -263,17 +263,12 @@ export class Segment {
   }
 
   rotate(angle, center = { x: 0, y: 0 }) {
-    this.vertexes.forEach(vertex => vertex.rotate(angle, center));
-    this.points.forEach(pt => {
-      let pointCoords = pt.rotate(angle, center);
-      pt.x = pointCoords.x;
-      pt.y = pointCoords.y;
-    });
+    this.allPoints.forEach(pt => pt.rotate(angle, center));
   }
 
   translate(coordinates) {
-    this.vertexes.forEach(vertex => vertex.translate(coordinates));
-    this.points.forEach(point => point.translate(coordinates));
+    if (this.vertexes) this.vertexes.forEach(vertex => vertex.translate(coordinates));
+    if (this.points) this.points.forEach(point => point.translate(coordinates));
   }
 
   reverse() {

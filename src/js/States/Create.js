@@ -25,8 +25,6 @@ export class CreateState extends State {
 
     //Shape finale
     this.finalShape = null;
-
-    // this.lastCreationTimestamp = null;
   }
 
   /**
@@ -50,10 +48,6 @@ export class CreateState extends State {
 
   onMouseDown(mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
-    // if (Date.now() - this.lastCreationTimestamp < 300) {
-    //   console.log('clics trop rapprochés');
-    //   return;
-    // }
 
     this.tempShape = this.selectedShape.copy();
     let shapeSize = app.settings.get('shapesSize');
@@ -65,12 +59,11 @@ export class CreateState extends State {
     this.actions[0].shapeToAdd = this.tempShape;
     this.actions[0].coordinates = mouseCoordinates;
     this.actions[0].shapeSize = shapeSize;
-    this.actions[0].isTemporary = true;
     this.actions[0].shapeId = this.actions[0].shapeToAdd.id;
 
     this.currentStep = 'moving-shape';
 
-    this.executeAction();
+    this.executeAction(false);
 
     app.drawAPI.askRefresh('upper');
     app.drawAPI.askRefresh();
@@ -100,20 +93,10 @@ export class CreateState extends State {
     this.finalShape.setCoordinates(coordinates);
     this.actions[0].shapeToAdd = this.finalShape;
     this.actions[0].shapeSize = shapeSize;
-    this.actions[0].isTemporary = false;
     this.actions[0].shapeId = this.finalShape.id;
     this.actions[0].coordinates = coordinates;
 
-    let transformation = getShapeAdjustment(this.involvedShapes, this.finalShape, coordinates);
-
-    if (transformation.move.x != 0 || transformation.move.y != 0) {
-      let moveAction = new MoveAction();
-
-      moveAction.shapeId = this.finalShape.id;
-      moveAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
-      moveAction.transformation = transformation.move;
-      this.actions.push(moveAction);
-    }
+    let transformation = getShapeAdjustment(this.involvedShapes, this.finalShape);
     if (transformation.rotation != 0) {
       let rotateAction = new RotateAction();
 
@@ -121,6 +104,14 @@ export class CreateState extends State {
       rotateAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
       rotateAction.rotationAngle = transformation.rotation;
       this.actions.push(rotateAction);
+    }
+    if (transformation.move.x != 0 || transformation.move.y != 0) {
+      let moveAction = new MoveAction();
+
+      moveAction.shapeId = this.finalShape.id;
+      moveAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
+      moveAction.transformation = transformation.move;
+      this.actions.push(moveAction);
     }
 
     this.executeAction();

@@ -19,9 +19,6 @@ export class CreateAction extends Action {
 
     //Taille de la forme. Pas utilisé ici, juste pour info (pour l'aide)
     this.shapeSize = null;
-
-    //Premiere forme temporaire (pour le deplacement)
-    this.isTemporary = false;
   }
 
   saveToObject() {
@@ -68,7 +65,7 @@ export class CreateAction extends Action {
     if (this.shapeId) shape.id = this.shapeId;
     else this.shapeId = shape.id;
     app.workspace.addShape(shape);
-    if (this.isTemporary) return false;
+    this.shapeToAdd = this.shapeToAdd.copy();
   }
 
   undo() {

@@ -93,36 +93,29 @@ export class GridManager {
       possibilities.push(topleft.addCoordinates(50 * gridSize, 50 * gridSize));
     } else {
       //triangle
-      let height = 43.3012701892 * 2;
-      let topleft1 = new Point(
-        x - ((x - 10) % (50 * gridSize)),
-        y - ((y - 10) % (height * gridSize)),
-      );
-      let topleft2 = new Point(
-        x - ((x - (10 + 25 * gridSize)) % (50 * gridSize)),
-        y - ((y - (10 + 43.3012701892 * gridSize)) % (height * gridSize)),
-      );
-      possibilities.push(topleft1);
-      possibilities.push(topleft1.addCoordinates(0, height * gridSize));
-      possibilities.push(topleft1.addCoordinates(50 * gridSize, 0));
-      possibilities.push(topleft1.addCoordinates(50 * gridSize, height * gridSize));
+      let height = 43.3012701892,
+        topY = y - ((y - 10) % (height * gridSize)),
+        topX =
+          x -
+          ((x - 10) % (50 * gridSize)) +
+          (Math.round(topY / height / gridSize) % 2) * 25 * gridSize;
+      if (topX > x) topX -= 50 * gridSize;
+      let topleft1 = new Point(topX, topY);
 
-      possibilities.push(topleft2);
-      possibilities.push(topleft2.addCoordinates(0, height * gridSize));
-      possibilities.push(topleft2.addCoordinates(50 * gridSize, 0));
-      possibilities.push(topleft2.addCoordinates(50 * gridSize, height * gridSize));
-      possibilities.push(topleft2);
+      possibilities.push(topleft1);
+      possibilities.push(topleft1.addCoordinates(50 * gridSize, 0));
+      possibilities.push(topleft1.addCoordinates(25 * gridSize, height * gridSize));
     }
 
-    let closest = possibilities[0],
-      smallestSquareDist = closest.dist(point);
-    possibilities.forEach(possibility => {
-      let dist = possibility.dist(point);
-      if (dist < smallestSquareDist) {
-        smallestSquareDist = dist;
-        closest = possibility;
-      }
-    });
+    const closest = possibilities.sort((poss1, poss2) =>
+      point.dist(poss1) > point.dist(poss2) ? 1 : -1,
+    )[0];
+
+    closest.type = 'grid';
+
+    // setTimeout(() => {
+    //       app.drawAPI.drawPoint(app.drawAPI.mainCtx, closest, '#e234ff', 3);
+    //   }, 200);
 
     return closest;
   }

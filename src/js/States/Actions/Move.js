@@ -1,5 +1,6 @@
 import { app } from '../../App';
 import { Action } from './Action';
+import { Point } from '../../Objects/Point';
 
 export class MoveAction extends Action {
   constructor() {
@@ -23,7 +24,7 @@ export class MoveAction extends Action {
   saveToObject() {
     let save = {
       shapeId: this.shapeId,
-      transformation: this.transformation,
+      transformation: this.transformation.saveToObject(),
       involvedShapesIds: this.involvedShapesIds,
     };
     return save;
@@ -31,7 +32,7 @@ export class MoveAction extends Action {
 
   initFromObject(save) {
     this.shapeId = save.shapeId;
-    this.transformation = save.transformation;
+    this.transformation = new Point(save.transformation);
     this.involvedShapesIds = save.involvedShapesIds;
   }
 
@@ -58,6 +59,7 @@ export class MoveAction extends Action {
   }
 
   do() {
+    console.log('move: ', this.transformation);
     if (!this.checkDoParameters()) return;
 
     this.involvedShapesIds.forEach(id => {

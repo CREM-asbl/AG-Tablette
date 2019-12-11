@@ -99,12 +99,14 @@ export class CutAction extends Action {
       junction;
 
     if (pt1.type === 'segmentPoint') {
-      shape2Seg.unshift(new Segment(pt1, shape2Seg[0].vertexes[0]));
+      if (shape2Seg.length) shape2Seg.unshift(new Segment(pt1, shape2Seg[0].vertexes[0]));
+      else shape2Seg.unshift(new Segment(pt1, shape1Seg[shape1Seg.length - 1].vertexes[1]));
       shape1Seg[shape1Seg.length - 1].vertexes[1].setCoordinates(pt1);
     }
 
     if (pt2.type === 'segmentPoint') {
-      shape1Seg.unshift(new Segment(pt2, shape1Seg[0].vertexes[0]));
+      if (shape1Seg.length) shape1Seg.unshift(new Segment(pt2, shape1Seg[0].vertexes[0]));
+      else shape1Seg.unshift(new Segment(pt2, shape2Seg[shape2Seg.length - 1].vertexes[1]));
       shape2Seg[shape2Seg.length - 1].vertexes[1].setCoordinates(pt2);
     }
 

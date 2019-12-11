@@ -39,9 +39,8 @@ export class Shape {
 
   get allOutlinePoints() {
     let points = [];
-    this.segments.forEach(
-      segment => (points = [...points, segment.vertexes[0], ...segment.points]),
-    );
+    if (this.isSegment()) points.push(segments[0].vertexes[0]);
+    this.segments.forEach(segment => points.push(segment.vertexes[1], ...segment.points));
     return points;
   }
 
@@ -178,25 +177,25 @@ export class Shape {
     return indexList;
   }
 
-  /**
-   * Renvoie true si les 2 points forment un segment ou un morceau de segment
-   * @param  {Object}  point1
-   * @param  {Object}  point2
-   * @return {Boolean}
-   */
-  isSegmentPart(point1, point2) {
-    if (
-      point1.shape.id != this.id ||
-      point2.shape.id != this.id ||
-      point1.pointType == 'center' ||
-      point2.pointType == 'center'
-    ) {
-      console.error('bad point value');
-      return null;
-    }
-    const tmp_seg = new Segment(point1.coordinates, point2.coordinates);
-    return this.segments.subSegments.some(subSeg => !subSeg.isArc && subSeg.equal(tmp_seg));
-  }
+  // /**
+  //  * Renvoie true si les 2 points forment un segment ou un morceau de segment
+  //  * @param  {Object}  point1
+  //  * @param  {Object}  point2
+  //  * @return {Boolean}
+  //  */
+  // isSegmentPart(point1, point2) {
+  //   if (
+  //     point1.shape.id != this.id ||
+  //     point2.shape.id != this.id ||
+  //     point1.pointType == 'center' ||
+  //     point2.pointType == 'center'
+  //   ) {
+  //     console.error('bad point value');
+  //     return null;
+  //   }
+  //   const tmp_seg = new Segment(point1.coordinates, point2.coordinates);
+  //   return this.segments.subSegments.some(subSeg => !subSeg.isArc && subSeg.equal(tmp_seg));
+  // }
 
   /**
    * Renvoie la longueur d'un arc de cercle
@@ -389,9 +388,9 @@ export class Shape {
       sumY: 0,
       amount: 0,
     };
-    this.segments.forEach(seg => {
-      total.sumX += seg.vertexes[1].x;
-      total.sumY += seg.vertexes[1].y;
+    this.vertexes.forEach(vertex => {
+      total.sumX += vertex.x;
+      total.sumY += vertex.y;
       total.amount++;
     });
 
@@ -487,7 +486,6 @@ export class Shape {
     this.segments = [];
     segments.map((seg, idx) => {
       let newSeg = new Segment(0, 0, this, idx);
-      newSeg.shape = this;
       newSeg.initFromObject(seg);
       this.segments.push(newSeg);
     });

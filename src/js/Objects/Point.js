@@ -160,6 +160,18 @@ export class Point {
     return this.copy();
   }
 
+  getRotated(angle, center = { x: 0, y: 0 }) {
+    let s = Math.sin(angle),
+      c = Math.cos(angle),
+      x = this.x - center.x,
+      y = this.y - center.y,
+      newX = x * c - y * s + center.x,
+      newY = x * s + y * c + center.y,
+      newPoint = this.copy();
+    newPoint.setCoordinates({ x: newX, y: newY });
+    return newPoint;
+  }
+
   /**
    * Renvoie l'angle (en radians) entre la droite reliant this et point, et l'axe
    * horizontal passant par this.
@@ -228,6 +240,5 @@ export class Point {
       y = arguments[1];
     }
     return this.dist(new Point(x, y)) < 1;
-    // return Math.abs(x - this.x) < 1 && Math.abs(y - this.y) < 1;
   }
 }

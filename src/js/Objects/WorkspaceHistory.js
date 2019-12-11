@@ -106,21 +106,20 @@ export class WorkspaceHistory {
       return;
     }
     //always get the last next step
-    console.log(this.roots);
     this.historyIndex =
       this.historyIndex != -1
         ? this.history[this.historyIndex].next_step.slice(-1)[0]
         : this.roots.slice(-1)[0];
-    console.log(this.historyIndex);
     this.history[this.historyIndex].actions.forEach(action => action.do());
     app.drawAPI.askRefresh();
     this.updateMenuState();
+    console.log(this.history);
   }
 
   get roots() {
     let roots = [];
     for (const key in this.history) {
-      if (this.history[key].previous_step === -1) roots.push(key);
+      if (this.history[key].previous_step === -1) roots.push(parseInt(key, 10));
     }
     return roots;
   }
@@ -165,7 +164,6 @@ export class WorkspaceHistory {
     }
     this.historyIndex = this.history.length - 1;
 
-    // console.log(this.history);
     this.updateMenuState();
   }
 }

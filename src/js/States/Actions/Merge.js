@@ -23,6 +23,7 @@ export class MergeAction extends Action {
     let save = {
       firstShapeId: this.firstShapeId,
       secondShapeId: this.secondShapeId,
+      createdShapeId: this.createdShapeId,
     };
     return save;
   }
@@ -30,6 +31,7 @@ export class MergeAction extends Action {
   initFromObject(save) {
     this.firstShapeId = save.firstShapeId;
     this.secondShapeId = save.secondShapeId;
+    this.createdShapeId = save.createdShapeId;
   }
 
   checkDoParameters() {
@@ -51,10 +53,10 @@ export class MergeAction extends Action {
 
     const newSegments = this.createNewSegments(shape1, shape2);
 
-    const newBuildSteps = this.computeNewBuildSteps(newSegments);
-    if (!newBuildSteps) return this.alertDigShape();
+    const linkedSegments = this.linkNewSegments(newSegments);
+    if (!linkedSegments) return this.alertDigShape();
 
-    this.createNewShape(shape1, shape2, newBuildSteps);
+    this.createNewShape(shape1, shape2, linkedSegments);
     return;
   }
 
@@ -120,16 +122,16 @@ export class MergeAction extends Action {
     return newSegments;
   }
 
-  computeNewBuildSteps(segmentsList) {
+  linkNewSegments(segmentsList) {
     // Todo : Voir si on ne peut pas la simplifier
-    let newBuildSteps = [];
+    let newSegments = [];
 
     let currentSegment = segmentsList[0].copy(false);
     let firstSegment = currentSegment;
     let nextSegment;
     let segmentUsed = 0;
 
-    newBuildSteps.push(currentSegment);
+    newSegments.push(currentSegment);
     segmentUsed++;
 
     while (!firstSegment.vertexes[0].equal(currentSegment.vertexes[1])) {
@@ -147,10 +149,8 @@ export class MergeAction extends Action {
 
       if (currentSegment.hasSameDirection(nextSegment)) {
         currentSegment.vertexes[1] = nextSegment.vertexes[1];
-        currentSegment.coordinates = nextSegment.coordinates;
       } else {
-        newBuildSteps.push(new Vertex(nextSegment.vertexes[0]));
-        newBuildSteps.push(nextSegment);
+        newSegments.push(nextSegment);
       }
       segmentUsed++;
       currentSegment = nextSegment;
@@ -160,13 +160,11 @@ export class MergeAction extends Action {
       return null;
     }
     if (currentSegment.hasSameDirection(firstSegment))
-      newBuildSteps[0].vertexes[0] = newBuildSteps.pop().vertexes[0];
-    else newBuildSteps.push(new Vertex(currentSegment.vertexes[1]));
-    newBuildSteps.unshift(new MoveTo(newBuildSteps[0].vertexes[0]));
-    return newBuildSteps;
+      newSegments[0].vertexes[0] = newSegments.pop().vertexes[0];
+    return newSegments;
   }
 
-  createNewShape(shape1, shape2, newBuildSteps) {
+  createNewShape(shape1, shape2, newSegments) {
     let newShape = shape1.copy();
     if (this.createdShapeId) newShape.id = this.createdShapeId;
     else this.createdShapeId = newShape.id;
@@ -176,7 +174,7 @@ export class MergeAction extends Action {
     newShape.borderColor = getAverageColor(shape1.borderColor, shape2.borderColor);
     newShape.isCenterShown = false;
     newShape.opacity = (shape1.opacity + shape2.opacity) / 2;
-    newShape.buildSteps = newBuildSteps;
+    newShape.setSegments(newSegments);
     newShape.setCoordinates({ x: newShape.x - 20, y: newShape.y - 20 });
 
     app.workspace.addShape(newShape);

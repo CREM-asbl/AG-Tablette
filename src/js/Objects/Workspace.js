@@ -117,7 +117,10 @@ export class Workspace {
     wsdata.appVersion = this.appVersion;
     wsdata.id = this.id;
 
-    wsdata.shapes = this.shapes.map(s => s.saveToObject());
+    wsdata.shapes = this.shapes.map(s => {
+      console.log(JSON.stringify(s.saveToObject()));
+      return s.saveToObject();
+    });
 
     wsdata.history = this.history.saveToObject();
 

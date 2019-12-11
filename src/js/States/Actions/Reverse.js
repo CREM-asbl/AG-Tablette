@@ -98,8 +98,6 @@ export class ReverseAction extends Action {
   reverseShape(shape, arch, progression) {
     let saveAxeCenter = arch.center;
     let newShapeCenter = this.computePointPosition(shape, arch, progression);
-    shape.x = newShapeCenter.x;
-    shape.y = newShapeCenter.y;
     if (!shape.haveBeenReversed && progression > 0.5)
       // milieu animation
       shape.isReversed = !shape.isReversed;
@@ -131,10 +129,11 @@ export class ReverseAction extends Action {
       center = new Segment(pt1, pt2).projectionPointOnSegment(point);
 
     //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
-    let transformation = new Point(
-      point.x + 2 * (center.x - point.x) * progress,
-      point.y + 2 * (center.y - point.y) * progress,
-    );
+    let transformation = point.copy();
+    transformation.setCoordinates({
+      x: point.x + 2 * (center.x - point.x) * progress,
+      y: point.y + 2 * (center.y - point.y) * progress,
+    });
     return transformation;
   }
 }

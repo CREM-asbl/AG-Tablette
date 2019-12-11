@@ -58,15 +58,6 @@ export class MergeState extends State {
     let shape1 = this.firstShape,
       shape2 = shape;
 
-    console.log('shape1');
-    shape1.segments.forEach(seg =>
-      console.log(JSON.stringify(seg.vertexes[0]), JSON.stringify(seg.vertexes[1])),
-    );
-    console.log('shape2');
-    shape2.segments.forEach(seg =>
-      console.log(JSON.stringify(seg.vertexes[0]), JSON.stringify(seg.vertexes[1])),
-    );
-
     if (shape1.getCommonsPoints(shape2).length < 2) {
       console.log('no common segments');
       return;
@@ -86,9 +77,8 @@ export class MergeState extends State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Context2D} ctx              Le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {
+  draw(ctx) {
     if (this.currentStep == 'selecting-second-shape') {
       let shape = this.firstShape,
         borderColor = shape.borderColor;
