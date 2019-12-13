@@ -333,6 +333,8 @@ export class Segment {
 
   reverse() {
     this.vertexes.reverse();
+    // if (this.arcCenter)
+    //   this.counterclockwise = !this.counterclockwise;
   }
 
   equal(segment) {

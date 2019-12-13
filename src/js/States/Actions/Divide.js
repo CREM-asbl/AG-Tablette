@@ -145,7 +145,13 @@ export class DivideAction extends Action {
       center = segment.arcCenter,
       firstAngle = center.getAngle(segment.vertexes[0]),
       secondAngle = center.getAngle(segment.vertexes[1]);
-    if (segment.counterclockwise) [firstAngle, secondAngle] = [secondAngle, firstAngle];
+    if (segment.counterclockwise) {
+      if (firstAngle < secondAngle) firstAngle += Math.PI * 2;
+    } else {
+      if (firstAngle > secondAngle) firstAngle -= Math.PI * 2;
+    }
+
+    // if (firstAngle > secondAngle ^ segment.counterclockwise) [firstAngle, secondAngle] = [secondAngle, firstAngle];
     if (segment.vertexes[0].equal(segment.vertexes[1])) secondAngle += 2 * Math.PI;
 
     // Pour un cercle entier, on ajoute un point de division supplémentaire
@@ -154,7 +160,7 @@ export class DivideAction extends Action {
       segment.addPoint(new Point(segment.vertexes[1]));
     }
 
-    let partAngle = Math.abs(firstAngle - secondAngle) / this.numberOfparts,
+    let partAngle = (secondAngle - firstAngle) / this.numberOfparts,
       radius = segment.radius;
 
     console.log(firstAngle * 57, secondAngle * 57, partAngle * 57);

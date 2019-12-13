@@ -128,7 +128,7 @@ export class CutAction extends Action {
       if (shape2Seg.length) newSegment.vertexes[1] = shape2Seg[0].vertexes[0].copy();
       else newSegment.vertexes[1] = shape1Seg[shape1Seg.length - 1].vertexes[1].copy();
       shape2Seg.unshift(newSegment);
-      shape1Seg[shape1Seg.length - 1].vertexes[1].setCoordinates(pt1);
+      if (shape1Seg.length) shape1Seg[shape1Seg.length - 1].vertexes[1].setCoordinates(pt1);
     }
 
     if (pt2.type === 'segmentPoint') {
@@ -137,7 +137,7 @@ export class CutAction extends Action {
       if (shape1Seg.length) newSegment.vertexes[1] = shape1Seg[0].vertexes[0].copy();
       else newSegment.vertexes[1] = shape2Seg[shape2Seg.length - 1].vertexes[1].copy();
       shape1Seg.unshift(newSegment);
-      shape2Seg[shape2Seg.length - 1].vertexes[1].setCoordinates(pt2);
+      if (shape2Seg.length) shape2Seg[shape2Seg.length - 1].vertexes[1].setCoordinates(pt2);
     }
 
     if (centerPt) {

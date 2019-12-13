@@ -191,15 +191,15 @@ export class CutState extends State {
       //blacklist
       let vertexToAdd = [],
         segmentsToAdd = [];
-      if (object.type == 'vertex') vertexToAdd.push(mod(object.segment.idx + 1, segments.length));
-      else vertexToAdd.push(object.segment.idx);
-      vertexToAdd.push(mod(object.segment.idx - 1, segments.length));
 
+      if (!object.segment.arcCenter) segmentsToAdd.push(object.segment.idx);
       if (object.type == 'vertex') {
         const nextSeg = mod(object.segment.idx + 1, segments.length);
-        if (!segments[nextSeg].arcCenter) segmentsToAdd.push(nextSeg);
-      }
-      if (!object.segment.arcCenter) segmentsToAdd.push(object.segment.idx);
+        if (!segments[nextSeg].arcCenter) {
+          segmentsToAdd.push(nextSeg);
+          vertexToAdd.push(nextSeg);
+        }
+      } else if (!object.segment.arcCenter) vertexToAdd.push(object.segment.idx);
       let list = vertexToAdd.map(vertex => {
         return {
           shape: shape,

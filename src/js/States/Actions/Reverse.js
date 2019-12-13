@@ -101,10 +101,9 @@ export class ReverseAction extends Action {
     if (!shape.haveBeenReversed && progression > 0.5) {
       // milieu animation
       shape.isReversed = !shape.isReversed;
-      // shape.segments.forEach(seg => {
-      //   if (seg.arcCenter)
-      //     seg.counterclockwise = !seg.counterclockwise;
-      // });
+      shape.segments.forEach(seg => {
+        seg.reverse();
+      });
     }
 
     shape.segments.forEach(seg => {
@@ -117,6 +116,11 @@ export class ReverseAction extends Action {
         pt.x = pointCoords.x;
         pt.y = pointCoords.y;
       });
+      if (seg.arcCenter) {
+        let pointCoords = this.computePointPosition(seg.arcCenter, arch, progression);
+        seg.arcCenter.x = pointCoords.x;
+        seg.arcCenter.y = pointCoords.y;
+      }
     });
     arch.center = saveAxeCenter;
   }
