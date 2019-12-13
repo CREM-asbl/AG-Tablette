@@ -98,9 +98,14 @@ export class ReverseAction extends Action {
   reverseShape(shape, arch, progression) {
     let saveAxeCenter = arch.center;
     let newShapeCenter = this.computePointPosition(shape, arch, progression);
-    if (!shape.haveBeenReversed && progression > 0.5)
+    if (!shape.haveBeenReversed && progression > 0.5) {
       // milieu animation
       shape.isReversed = !shape.isReversed;
+      // shape.segments.forEach(seg => {
+      //   if (seg.arcCenter)
+      //     seg.counterclockwise = !seg.counterclockwise;
+      // });
+    }
 
     shape.segments.forEach(seg => {
       let transformation = this.computePointPosition(seg.vertexes[0], arch, progression);

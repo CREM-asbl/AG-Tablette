@@ -205,8 +205,6 @@ export class ReverseState extends State {
       return;
     }
     if (this.currentStep == 'reversing-shape') {
-      //TODO: faire retourner tout le groupe de formes.
-
       let progress = this.getAnimationProgress(),
         //TODO: opti: ne pas devoir faire une copie à chaque refresh!
         shape = this.selectedShape.copy(),

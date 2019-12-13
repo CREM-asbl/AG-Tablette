@@ -2,6 +2,7 @@ import { app } from '../../App';
 import { Action } from './Action';
 import { Segment } from '../../Objects/Segment';
 import { Point } from '../../Objects/Point';
+import { mod } from '../../Tools/general';
 
 export class CutAction extends Action {
   constructor() {
@@ -81,11 +82,32 @@ export class CutAction extends Action {
 
     // 2 points sur le mm segment ? arc de cercle ?
     if (pt1.segment.idx === pt2.segment.idx) {
-      let segEnd = pt1.segment.vertexes[1],
-        pt1Dist = segEnd.dist(pt1),
-        pt2Dist = segEnd.dist(pt2);
-      if (pt1Dist < pt2Dist) {
-        [pt1, pt2] = [pt2, pt1];
+      let segment = pt1.segment;
+      if (segment.arcCenter) {
+        let center = segment.arcCenter,
+          firstVertexAngle = center.getAngle(segment.vertexes[0]),
+          secondVertexAngle = center.getAngle(segment.vertexes[1]);
+        let firstAngle = center.getAngle(pt1),
+          secondAngle = center.getAngle(pt2);
+        if (segment.counterclockwise) {
+          [secondVertexAngle, firstAngle, secondAngle].forEach(angle => {
+            if (angle > firstVertexAngle) angle -= Math.PI * 2;
+          });
+          if (firstAngle < secondAngle) [pt1, pt2] = [pt2, pt1];
+        } else {
+          [secondVertexAngle, firstAngle, secondAngle].forEach(angle => {
+            if (angle < firstVertexAngle) angle += Math.PI * 2;
+          });
+          if (firstAngle > secondAngle) [pt1, pt2] = [pt2, pt1];
+        }
+      } else {
+        // possible ?
+        let segEnd = pt1.segment.vertexes[1],
+          pt1Dist = segEnd.dist(pt1),
+          pt2Dist = segEnd.dist(pt2);
+        if (pt1Dist < pt2Dist) {
+          [pt1, pt2] = [pt2, pt1];
+        }
       }
     }
 
@@ -98,15 +120,23 @@ export class CutAction extends Action {
         .map(seg => seg.copy(false)),
       junction;
 
+    console.log(shape1Seg, shape2Seg);
+
     if (pt1.type === 'segmentPoint') {
-      if (shape2Seg.length) shape2Seg.unshift(new Segment(pt1, shape2Seg[0].vertexes[0]));
-      else shape2Seg.unshift(new Segment(pt1, shape1Seg[shape1Seg.length - 1].vertexes[1]));
+      let newSegment = pt1.segment.copy(false);
+      newSegment.vertexes[0] = pt1.copy();
+      if (shape2Seg.length) newSegment.vertexes[1] = shape2Seg[0].vertexes[0].copy();
+      else newSegment.vertexes[1] = shape1Seg[shape1Seg.length - 1].vertexes[1].copy();
+      shape2Seg.unshift(newSegment);
       shape1Seg[shape1Seg.length - 1].vertexes[1].setCoordinates(pt1);
     }
 
     if (pt2.type === 'segmentPoint') {
-      if (shape1Seg.length) shape1Seg.unshift(new Segment(pt2, shape1Seg[0].vertexes[0]));
-      else shape1Seg.unshift(new Segment(pt2, shape2Seg[shape2Seg.length - 1].vertexes[1]));
+      let newSegment = pt2.segment.copy(false);
+      newSegment.vertexes[0] = pt2.copy();
+      if (shape1Seg.length) newSegment.vertexes[1] = shape1Seg[0].vertexes[0].copy();
+      else newSegment.vertexes[1] = shape2Seg[shape2Seg.length - 1].vertexes[1].copy();
+      shape1Seg.unshift(newSegment);
       shape2Seg[shape2Seg.length - 1].vertexes[1].setCoordinates(pt2);
     }
 
@@ -128,6 +158,22 @@ export class CutAction extends Action {
         }),
     ];
 
+    // cleaning same direction segments
+    shape1Seg.forEach((seg, idx, segments) => {
+      const mergeIdx = mod(idx + 1, segments.length);
+      if (seg.hasSameDirection(segments[mergeIdx], 1, 0)) {
+        seg.vertexes[1] = segments[mergeIdx].vertexes[1].copy();
+        segments.splice(mergeIdx, 1);
+      }
+    });
+    shape2Seg.forEach((seg, idx, segments) => {
+      const mergeIdx = mod(idx + 1, segments.length);
+      if (seg.hasSameDirection(segments[mergeIdx], 1, 0)) {
+        seg.vertexes[1] = segments[mergeIdx].vertexes[1].copy();
+        segments.splice(mergeIdx, 1);
+      }
+    });
+
     //Créer les 2 formes
     let [shape1, shape2] = [shape1Seg, shape2Seg].map(segments => {
       let newShape = shape.copy();
@@ -140,6 +186,7 @@ export class CutAction extends Action {
         seg.vertexes[1].segment = seg;
         seg.shape = newShape;
         seg.idx = idx;
+        console.log(seg.copy());
         return seg;
       });
       newShape.isCenterShown = false;
@@ -147,8 +194,8 @@ export class CutAction extends Action {
     });
 
     //Modifier les coordonnées
-    let center1 = shape1.center,
-      center2 = shape2.center,
+    let center1 = shape1.fake_center,
+      center2 = shape2.fake_center,
       // center = center1.addCoordinates(center2).multiplyWithScalar(0.5),
       difference = center2.subCoordinates(center1),
       distance = center2.dist(center1),
@@ -157,6 +204,9 @@ export class CutAction extends Action {
     offset.multiplyWithScalar(myOffset);
     shape1.setCoordinates(new Point(shape1).subCoordinates(offset));
     shape2.setCoordinates(new Point(shape2).addCoordinates(offset));
+
+    shape1.color = '#fd6c9e';
+    shape2.color = '#1f9cfc';
 
     if (this.createdShapesIds) {
       shape1.id = this.createdShapesIds[0];

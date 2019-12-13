@@ -178,20 +178,22 @@ export class DivideState extends State {
     if (this.currentStep == 'showing-segment') {
       // change for circle
       let segments = this.shape.segments,
-        index = this.actions[0].segmentIndex;
+        index = this.actions[0].segmentIndex,
+        segment = segments[index];
 
-      // indexes = [sIndex];
-      // if (segments[sIndex].isArc) indexes = this.shape.getArcSegmentIndexes(sIndex);
-      app.drawAPI.drawLine(
-        ctx,
-        segments[index].vertexes[0],
-        segments[index].vertexes[1],
-        '#E90CC8',
-        3,
-      );
-      // indexes.forEach(index =>
-      //   app.drawAPI.drawLine(ctx, bs[index].vertexes[0], bs[index].vertexes[1], '#E90CC8', 3),
-      // );
+      if (segment.arcCenter) {
+        app.drawAPI.drawArc(
+          ctx,
+          segment.vertexes[0],
+          segment.vertexes[1],
+          segment.arcCenter,
+          segment.counterclockwise,
+          '#E90CC8',
+          3,
+        );
+      } else {
+        app.drawAPI.drawLine(ctx, segment.vertexes[0], segment.vertexes[1], '#E90CC8', 3);
+      }
     }
   }
 

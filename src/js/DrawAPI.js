@@ -136,7 +136,8 @@ export class DrawAPI {
     if (app.settings.get('areShapesPointed')) {
       if (shape.isSegment()) this.drawPoint(ctx, shape.segments[0].vertexes[0], '#000', 1, false);
       shape.segments.forEach(seg => {
-        this.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
+        // this.drawPoint(ctx, seg.middle, '#000', 1, false);
+        if (!shape.isCircle()) this.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
         if (seg.points)
           seg.points.forEach(pt => {
             this.drawPoint(ctx, pt, '#000', 1, false);
@@ -190,6 +191,34 @@ export class DrawAPI {
     ctx.moveTo(fromPoint.x, fromPoint.y);
     ctx.lineTo(toPoint.x, toPoint.y);
     ctx.closePath();
+    ctx.stroke();
+
+    ctx.lineWidth = 1;
+    if (doSave) ctx.restore();
+  }
+
+  drawArc(
+    ctx,
+    vertex1,
+    vertex2,
+    center,
+    counterclockwise,
+    color = '#000',
+    size = 1,
+    doSave = true,
+  ) {
+    let firstAngle = center.getAngle(vertex1),
+      secondAngle = center.getAngle(vertex2);
+    if (vertex1.equal(vertex2)) secondAngle += 2 * Math.PI;
+
+    if (doSave) ctx.save();
+
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = size;
+
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, vertex2.dist(center), firstAngle, secondAngle, counterclockwise);
     ctx.stroke();
 
     ctx.lineWidth = 1;

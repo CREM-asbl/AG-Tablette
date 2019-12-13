@@ -231,13 +231,7 @@ export class InteractionAPI {
    * Renvoie null si pas de point.
    * @param  {Point} mouseCoordinates
    * @param  {Object} constraints      Contraintes. Voir selectionConstraints.points.
-   * @return {Object}
-   *          {
-   *              'pointType': 'vertex' ou 'segmentPoint' ou 'center',
-   *              'shape': Shape,
-   *              'coordinates': Point,
-   *              'index': int  //sauf si pointType = center. Index du segment
-   *          }
+   * @return {Point}
    */
   selectPoint(mouseCoordinates, constraints, easySelection = true) {
     if (!constraints.canSelect) return null;
@@ -249,7 +243,7 @@ export class InteractionAPI {
     // all points at the correct distance
     let potentialPoints = [];
     app.workspace.shapes.forEach(shape => {
-      if (constraints.types.includes('vertex')) {
+      if (constraints.types.includes('vertex') && !shape.isCircle()) {
         shape.vertexes
           .filter(vertex => distCheckFunction(vertex, mouseCoordinates))
           .forEach(vertex => {
@@ -383,17 +377,12 @@ export class InteractionAPI {
    * Renvoie null si pas de segment.
    * @param  {Point} mouseCoordinates
    * @param  {Object} constraints      Contraintes. Voir selectionConstraints.segments.
-   * @return {Object}
-   *          {
-   *              'shape': Shape,
-   *              'index': int
-   *          }
+   * @return {Segment}
    */
   selectSegment(mouseCoordinates, constraints) {
     if (!constraints.canSelect) return null;
 
     // all segments at the correct distance
-    // contrary of selectPoint, stores object { segment, dist }
     let potentialSegments = [];
     app.workspace.shapes.forEach(shape => {
       shape.segments
@@ -472,7 +461,6 @@ export class InteractionAPI {
 
     const flattedSegments = sortedSegments.flat();
 
-    // calculate the best point
     // no possibilities to choose blockHidden constraints
     return flattedSegments[0].segment;
   }

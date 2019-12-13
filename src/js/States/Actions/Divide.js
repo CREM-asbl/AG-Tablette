@@ -55,10 +55,10 @@ export class DivideAction extends Action {
       numberOfparts: this.numberOfparts,
       mode: this.mode,
       segmentIndex: this.segmentIndex,
-      firstPoint: this.firstPoint,
-      secondPoint: this.secondPoint,
-      createdPoints: [...this.createdPoints],
+      createdPoints: this.createdPoints.map(pt => pt.saveToObject()),
     };
+    if (this.firstPoint) save.firstPoint = this.firstPoint.saveToObject();
+    if (this.secondPoint) save.secondPoint = this.secondPoint.saveToObject();
     return save;
   }
 
@@ -67,9 +67,9 @@ export class DivideAction extends Action {
     this.numberOfparts = save.numberOfparts;
     this.mode = save.mode;
     this.segmentIndex = save.segmentIndex;
-    this.firstPoint = save.firstPoint;
-    this.secondPoint = save.secondPoint;
-    this.createdPoints = [...save.createdPoints];
+    if (save.firstPoint) this.firstPoint = new Point(save.firstPoint);
+    if (save.secondPoint) this.secondPoint = new Point(save.secondPoint);
+    this.createdPoints = save.createdPoints.map(pt => new Point(pt));
   }
 
   checkDoParameters() {
@@ -95,26 +95,27 @@ export class DivideAction extends Action {
 
     if (this.mode == 'segment') {
       let segment = shape.segments[this.segmentIndex];
-      if (segment.isArc) {
+      if (segment.arcCenter) {
         this.segmentModeAddArcPoints();
       } else {
         this.segmentModeAddSegPoints();
       }
     } else {
-      let segments = shape.segments,
+      let segment,
         pt1 = this.firstPoint,
-        pt2 = this.secondPoint,
-        isArc =
-          segments[pt1.segment.idx].isArc ||
-          segments[pt2.segment.idx].isArc ||
-          (segments[pt1.segment.idx].type == 'vertex' &&
-            segments[pt2.segment.idx].type == 'vertex' &&
-            !shape.contains(new Segment(segments[pt1.segment.idx], segments[pt2.segment.idx])));
-
-      if (isArc) {
-        this.pointsModeAddArcPoints(pt1, pt2, pt1.segment.idx, pt2.segment.idx);
+        pt2 = this.secondPoint;
+      if (!this.segmentIndex) {
+        segment = pt1.segment;
+        this.segmentIndex = segment.idx;
       } else {
-        this.pointsModeAddSegPoints(pt1, pt2);
+        segment = shape.segments[this.segmentIndex];
+      }
+      let isArc = pt1.segment.arcCenter;
+      pt1.segment = segment;
+      if (isArc) {
+        this.pointsModeAddArcPoints(pt1, pt2, segment);
+      } else {
+        this.pointsModeAddSegPoints(pt1, pt2, segment);
       }
     }
   }
@@ -122,61 +123,49 @@ export class DivideAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
     let shape = app.workspace.getShapeById(this.shapeId),
-      segments = shape.segments;
+      segments = shape.segments,
+      segment;
+
+    if (!this.segmentIndex) {
+      segment = this.firstPoint.segment;
+    } else {
+      segment = segments[this.segmentIndex];
+    }
 
     this.createdPoints.forEach(pt => {
-      segments[pt.segment.idx].deletePoint(pt);
+      segment.deletePoint(pt);
     });
   }
 
   segmentModeAddArcPoints() {
     this.createdPoints = [];
+
     let shape = app.workspace.getShapeById(this.shapeId),
-      bs = shape.buildSteps,
-      segment = shape.buildSteps[this.segmentIndex],
-      arcEnds = shape.getArcEnds(this.segmentIndex), //Extrémités de l'arc
-      arcLength = shape.getArcLength(this.segmentIndex),
-      part = arcLength / this.numberOfparts, //Longueur d'une "partie"
-      nbParts = this.numberOfparts;
-    //Pour un cercle entier, on ajoute un point de division supplémentaire
-    if (arcEnds[0] == 1 && arcEnds[1] == bs.length - 1) {
-      this.createdPoints.push({
-        index: 1,
-        coordinates: new Point(bs[0].coordinates),
-      });
-      bs[1].addPoint(new Point(bs[0].coordinates));
+      segment = shape.segments[this.segmentIndex],
+      center = segment.arcCenter,
+      firstAngle = center.getAngle(segment.vertexes[0]),
+      secondAngle = center.getAngle(segment.vertexes[1]);
+    if (segment.counterclockwise) [firstAngle, secondAngle] = [secondAngle, firstAngle];
+    if (segment.vertexes[0].equal(segment.vertexes[1])) secondAngle += 2 * Math.PI;
+
+    // Pour un cercle entier, on ajoute un point de division supplémentaire
+    if (shape.isCircle()) {
+      this.createdPoints.push(new Point(segment.vertexes[1]));
+      segment.addPoint(new Point(segment.vertexes[1]));
     }
 
-    let bsIndex = arcEnds[0], //index du segment (arc) de départ.
-      lenToRemoveFromPrevArc = 0;
-    //Un tour de boucle par point ajouté.
-    for (let i = 1; i < nbParts; i++) {
-      let remainingLenUntilNextPoint = part,
-        bsLen;
-      //Sélectionner le segment (de type arc) sur lequel ajouter le point
-      for (; ; bsIndex = (bsIndex + 1) % bs.length) {
-        if (bsIndex == 0) continue;
-        bsLen = bs[bsIndex].coordinates.dist(bs[bsIndex - 1].coordinates);
-        if (bsLen - lenToRemoveFromPrevArc > remainingLenUntilNextPoint) break;
-        remainingLenUntilNextPoint -= bsLen - lenToRemoveFromPrevArc;
-        lenToRemoveFromPrevArc = 0;
-      }
-      lenToRemoveFromPrevArc += remainingLenUntilNextPoint;
+    let partAngle = Math.abs(firstAngle - secondAngle) / this.numberOfparts,
+      radius = segment.radius;
 
-      //Ajoute le point au segment d'index bsIndex.
-      let startCoord = bs[bsIndex - 1].coordinates,
-        endCoord = bs[bsIndex].coordinates,
-        diff = endCoord.subCoordinates(startCoord),
-        nextPt = {
-          x: startCoord.x + diff.x * (lenToRemoveFromPrevArc / bsLen),
-          y: startCoord.y + diff.y * (lenToRemoveFromPrevArc / bsLen),
-        };
+    console.log(firstAngle * 57, secondAngle * 57, partAngle * 57);
 
-      bs[bsIndex].addPoint(nextPt);
-      this.createdPoints.push({
-        index: bsIndex,
-        coordinates: new Point(nextPt),
-      });
+    for (let i = 1, nextPt = segment.vertexes[0]; i < this.numberOfparts; i++) {
+      const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
+        newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
+      nextPt = nextPt.copy();
+      nextPt.setCoordinates({ x: newX, y: newY });
+      segment.addPoint(nextPt);
+      this.createdPoints.push(nextPt.copy());
     }
   }
 
@@ -186,76 +175,42 @@ export class DivideAction extends Action {
     this.pointsModeAddSegPoints(segment.vertexes[0], segment.vertexes[1]);
   }
 
-  pointsModeAddArcPoints(pt1, pt2, pt1Index, pt2Index) {
+  pointsModeAddArcPoints(pt1, pt2, segment) {
     this.createdPoints = [];
+
     let shape = app.workspace.getShapeById(this.shapeId),
-      bs = shape.buildSteps;
-
-    [pt1, pt2] = [pt2, pt1];
-    [pt1Index, pt2Index] = [pt2Index, pt1Index];
-
-    //Calculer la longueur de l'arc
-    let startSegmentIndex,
-      endSegmentIndex = pt2Index,
-      arcLen = 0,
-      lenToRemoveFromPrevArc = 0;
-    if (bs[pt1Index].isArc) {
-      startSegmentIndex = pt1Index;
-      arcLen -= bs[pt1Index - 1].coordinates.dist(pt1.relativeCoordinates);
-      lenToRemoveFromPrevArc = -arcLen;
-    } else {
-      //vertex
-      startSegmentIndex = pt1Index + (1 % bs.length);
-    }
-
-    if (bs[pt2Index].isArc) {
-      arcLen -= bs[pt2Index].coordinates.dist(pt2.relativeCoordinates);
-    }
-
-    for (let i = 0, curIndex = startSegmentIndex - 1; i < bs.length - 1; i++) {
-      curIndex = (curIndex + 1) % bs.length;
-      if (curIndex == 0 && bs[curIndex].type == 'moveTo') continue;
-
-      arcLen += bs[curIndex].coordinates.dist(bs[curIndex - 1].coordinates);
-      if (curIndex == endSegmentIndex) break;
-    }
-    let part = arcLen / this.numberOfparts,
-      bsIndex = startSegmentIndex;
-
-    //Un tour de boucle par point ajouté.
-    for (let i = 1; i < this.numberOfparts; i++) {
-      let remainingLenUntilNextPoint = part,
-        bsLen;
-      //Sélectionner le segment (de type arc) sur lequel ajouter le point
-      for (; ; bsIndex = (bsIndex + 1) % bs.length) {
-        if (bsIndex == 0) continue;
-        bsLen = bs[bsIndex].coordinates.dist(bs[bsIndex - 1].coordinates);
-        if (bsLen - lenToRemoveFromPrevArc > remainingLenUntilNextPoint) break;
-        remainingLenUntilNextPoint -= bsLen - lenToRemoveFromPrevArc;
-        lenToRemoveFromPrevArc = 0;
+      center = segment.arcCenter,
+      firstAngle = center.getAngle(pt1),
+      secondAngle = center.getAngle(pt2);
+    if (!shape.isCircle()) {
+      let bound1 = segment.arcCenter.getAngle(segment.vertexes[0]),
+        bound2 = segment.arcCenter.getAngle(segment.vertexes[1]);
+      if (segment.counterclockwise) [bound1, bound2] = [bound2, bound1];
+      if (firstAngle < bound1) firstAngle += Math.PI * 2;
+      if (secondAngle < bound1) secondAngle += Math.PI * 2;
+      if (bound2 < bound1) bound2 += Math.PI * 2;
+      if ((firstAngle > secondAngle) ^ segment.counterclockwise) {
+        [firstAngle, secondAngle] = [secondAngle, firstAngle];
       }
-      lenToRemoveFromPrevArc += remainingLenUntilNextPoint;
+    }
+    if (firstAngle > secondAngle) secondAngle += Math.PI * 2;
 
-      //Ajoute le point au segment d'index bsIndex.
-      let startCoord = bs[bsIndex - 1].coordinates,
-        endCoord = bs[bsIndex].coordinates,
-        diff = endCoord.subCoordinates(startCoord),
-        nextPt = {
-          x: startCoord.x + diff.x * (lenToRemoveFromPrevArc / bsLen),
-          y: startCoord.y + diff.y * (lenToRemoveFromPrevArc / bsLen),
-        };
+    let partAngle = (secondAngle - firstAngle) / this.numberOfparts,
+      radius = segment.radius;
 
-      bs[bsIndex].addPoint(nextPt);
-      this.createdPoints.push({
-        index: bsIndex,
-        coordinates: new Point(nextPt),
-      });
+    for (let i = 1, nextPt = pt1; i < this.numberOfparts; i++) {
+      const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
+        newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
+      console.log((firstAngle + partAngle * i) * 57.2958);
+      nextPt = nextPt.copy();
+      nextPt.setCoordinates({ x: newX, y: newY });
+      segment.addPoint(nextPt);
+      this.createdPoints.push(nextPt.copy());
     }
   }
 
-  pointsModeAddSegPoints(pt1, pt2) {
+  pointsModeAddSegPoints(pt1, pt2, segment) {
     const shape = app.workspace.getShapeById(this.shapeId),
-      segment = pt1.segment,
       segLength = pt2.subCoordinates(pt1),
       part = new Point(segLength.x / this.numberOfparts, segLength.y / this.numberOfparts);
 

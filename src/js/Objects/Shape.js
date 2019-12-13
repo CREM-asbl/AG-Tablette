@@ -60,16 +60,14 @@ export class Shape {
    * @return {Boolean} true si cercle, false sinon.
    */
   isCircle() {
-    return this.segments.every(seg => {
-      return seg.isArc;
-    });
+    return this.segments.length == 1 && this.segments[0].arcCenter;
   }
 
   /**
    * say if the shape is a Segment
    */
   isSegment() {
-    return this.segments.length === 1 && this.segments[0].isArc == false;
+    return this.segments.length === 1 && this.segments[0].arcCenter == false;
   }
 
   //FIX:  redondance avec InteractionAPI.selectSegment()
@@ -382,25 +380,63 @@ export class Shape {
   }
 
   get center() {
-    // change for circle
-    let total = {
-      sumX: 0,
-      sumY: 0,
-      amount: 0,
-    };
-    this.vertexes.forEach(vertex => {
-      total.sumX += vertex.x;
-      total.sumY += vertex.y;
-      total.amount++;
-    });
+    if (this.isCircle()) {
+      const center = this.segments[0].arcCenter;
+      return new Point(center.x, center.y, 'center', undefined, this);
+    } else {
+      let total = {
+        sumX: 0,
+        sumY: 0,
+        amount: 0,
+      };
+      this.vertexes.forEach(vertex => {
+        total.sumX += vertex.x;
+        total.sumY += vertex.y;
+        total.amount++;
+      });
 
-    return new Point(
-      total.sumX / total.amount,
-      total.sumY / total.amount,
-      'center',
-      undefined,
-      this,
-    );
+      return new Point(
+        total.sumX / total.amount,
+        total.sumY / total.amount,
+        'center',
+        undefined,
+        this,
+      );
+    }
+  }
+
+  /**
+   * moyenne des vertexes et medianes, pour l'offset de cut
+   */
+  get fake_center() {
+    if (this.isCircle()) {
+      const center = this.segments[0].arcCenter;
+      return new Point(center.x, center.y, 'center', undefined, this);
+    } else {
+      let total = {
+        sumX: 0,
+        sumY: 0,
+        amount: 0,
+      };
+      this.vertexes.forEach(vertex => {
+        total.sumX += vertex.x;
+        total.sumY += vertex.y;
+        total.amount++;
+      });
+      this.segments.forEach(seg => {
+        total.sumX += seg.middle.x;
+        total.sumY += seg.middle.y;
+        total.amount++;
+      });
+
+      return new Point(
+        total.sumX / total.amount,
+        total.sumY / total.amount,
+        'center',
+        undefined,
+        this,
+      );
+    }
   }
 
   /**
@@ -410,7 +446,22 @@ export class Shape {
   get path() {
     const path = new Path2D();
     path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
-    this.segments.forEach(seg => path.lineTo(seg.vertexes[1].x, seg.vertexes[1].y));
+    this.segments.forEach(seg => {
+      if (!seg.arcCenter) path.lineTo(seg.vertexes[1].x, seg.vertexes[1].y);
+      else {
+        let firstAngle = seg.arcCenter.getAngle(seg.vertexes[0]),
+          secondAngle = seg.arcCenter.getAngle(seg.vertexes[1]);
+        if (seg.vertexes[0].equal(seg.vertexes[1])) secondAngle += 2 * Math.PI;
+        path.arc(
+          seg.arcCenter.x,
+          seg.arcCenter.y,
+          seg.vertexes[1].dist(seg.arcCenter),
+          firstAngle,
+          secondAngle,
+          seg.counterclockwise,
+        );
+      }
+    });
     path.closePath();
     return path;
   }
