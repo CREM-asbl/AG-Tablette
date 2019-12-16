@@ -282,6 +282,7 @@ export class Segment extends ShapeBuildStep {
 
   reverse() {
     this.vertexes.reverse();
+    this.coordinates = new Point(this.vertexes[1]);
   }
 
   equal(segment) {
