@@ -1,6 +1,7 @@
 import { LitElement, html } from 'lit-element';
 import { standardKit } from './js/ShapesKits/standardKit';
 import { Point } from './js/Objects/Point';
+import { App } from './js/App';
 
 class CanvasButton extends LitElement {
   static get properties() {
@@ -47,6 +48,8 @@ class CanvasButton extends LitElement {
   refresh() {
     const canvas = this.shadowRoot.querySelector('canvas');
     const ctx = canvas.getContext('2d');
+    const families = app.workspace.environment.families;
+    const family = families.filter(fam => fam.name == this.family)[0];
     let minX = 1000,
       minY = 1000,
       maxX = -1000,
@@ -56,31 +59,27 @@ class CanvasButton extends LitElement {
     ctx.save();
     ctx.strokeStyle = '#000';
 
-    let icon =
-      standardKit[this.family].shapes.filter(shape => shape.name === this.shape)[0] ||
-      standardKit[this.family].shapes[0];
-    ctx.fillStyle = icon.color || standardKit[this.family].color;
+    let icon = family.shapes.filter(shape => shape.name === this.shape)[0] || family.shapes[0];
+    ctx.fillStyle = icon.color || family.defaultColor;
 
-    let is_circle = false;
-    for (let i = 0; i < icon.segments.length; i++) {
-      minX = Math.min(minX, icon.segments[i].vertexes[1].x);
-      maxX = Math.max(maxX, icon.segments[i].vertexes[1].x);
-      minY = Math.min(minY, icon.segments[i].vertexes[1].y);
-      maxY = Math.max(maxY, icon.segments[i].vertexes[1].y);
-      if (icon.segments[i].arcCenter) is_circle = true; // change for shapes like D
-    }
+    const isCircle = icon.isCircle();
+    const bounds = icon.bounds;
+    minX = bounds[0];
+    maxX = bounds[1];
+    minY = bounds[2];
+    maxY = bounds[3];
 
     let largeur = maxX - minX,
       hauteur = maxY - minY,
       scale;
-    if (is_circle) {
+    if (isCircle) {
       scale = 0.42; //valeur arbitraire
     } else {
       scale = 40 / Math.max(largeur, hauteur);
     }
 
     let center;
-    if (is_circle) center = icon.segments[0].arcCenter;
+    if (isCircle) center = icon.segments[0].arcCenter;
     else
       center = {
         x: (minX + largeur / 2) * scale,
@@ -94,30 +93,9 @@ class CanvasButton extends LitElement {
     ctx.translate(centerOffset.x, centerOffset.y);
     ctx.scale(scale, scale);
 
-    ctx.beginPath();
-    ctx.moveTo(icon.segments[0].vertexes[0].x, icon.segments[0].vertexes[0].y);
-    icon.segments.forEach(seg => {
-      let arcCenter;
-      if (seg.arcCenter) arcCenter = new Point(seg.arcCenter);
-      if (!arcCenter) ctx.lineTo(seg.vertexes[1].x, seg.vertexes[1].y);
-      else {
-        const firstAngle = arcCenter.getAngle(seg.vertexes[0]),
-          secondAngle = new Point(seg.vertexes[0]).equal(seg.vertexes[1])
-            ? 2 * Math.PI
-            : arcCenter.getAngle(seg.vertexes[1]);
-        ctx.arc(
-          arcCenter.x,
-          arcCenter.y,
-          arcCenter.dist(seg.vertexes[1]),
-          firstAngle,
-          secondAngle,
-          seg.counterclockwise,
-        );
-      }
-    });
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    const path = icon.getPath();
+    ctx.fill(path);
+    ctx.stroke(path);
     ctx.restore();
   }
 

@@ -155,8 +155,8 @@ export class CutState extends State {
    * l'intérieur de la forme ou non, et qu'il y a au moins un point de ce
    * segment qui n'est pas au bord de la forme.
    * @param  {Shape}  shape
-   * @param  {Point}  pt1  coordonnées absolues du point 1
-   * @param  {Point}  pt2  coordonnées absolues du point 2
+   * @param  {Point}  pt1  coordonnées du point 1
+   * @param  {Point}  pt2  coordonnées du point 2
    * @return {Boolean}     Retourne false s'il sort de la forme.
    */
   isLineValid(shape, pt1, pt2) {
@@ -164,13 +164,13 @@ export class CutState extends State {
       part = pt2.subCoordinates(pt1).multiplyWithScalar(1 / length),
       precision = 1, //px
       amountOfParts = length / precision,
-      atLeastOneNotInBorder = false;
+      pointsInBorder = 0;
     for (let i = 1; i < amountOfParts; i++) {
       let pt = pt1.addCoordinates(part.multiplyWithScalar(i, false));
       if (!app.drawAPI.isPointInShape(pt, shape)) return false;
-      atLeastOneNotInBorder = atLeastOneNotInBorder || !shape.isPointInBorder(pt);
+      pointsInBorder += shape.isPointInBorder(pt) ? 1 : 0;
     }
-    return atLeastOneNotInBorder;
+    return pointsInBorder <= 40 * precision;
   }
 
   setSelConstraints(step) {

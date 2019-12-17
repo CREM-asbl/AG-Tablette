@@ -176,7 +176,6 @@ export class DivideState extends State {
       app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
     }
     if (this.currentStep == 'showing-segment') {
-      // change for circle
       let segments = this.shape.segments,
         index = this.actions[0].segmentIndex,
         segment = segments[index];

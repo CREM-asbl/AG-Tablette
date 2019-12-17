@@ -24,6 +24,33 @@ export class Segment {
     if (this.points) this.points.forEach(point => (point.shape = shape));
   }
 
+  get bounds() {
+    //minX, maxX, minY, maxY
+    let results = [undefined, undefined, undefined, undefined];
+    if (this.arcCenter) {
+      results = [
+        this.centerProjectionOnSegment(Math.PI),
+        this.centerProjectionOnSegment(0),
+        this.centerProjectionOnSegment(1.5 * Math.PI),
+        this.centerProjectionOnSegment(0.5 * Math.PI),
+      ];
+    }
+    return results.map((result, idx) => {
+      if (result == undefined || !this.isPointOnSegment(result)) {
+        if (idx % 2) {
+          if (idx < 2) return Math.max(this.vertexes[0].x, this.vertexes[1].x);
+          else return Math.max(this.vertexes[0].y, this.vertexes[1].y);
+        } else {
+          if (idx < 2) return Math.min(this.vertexes[0].x, this.vertexes[1].x);
+          else return Math.min(this.vertexes[0].y, this.vertexes[1].y);
+        }
+      } else {
+        if (idx < 2) return result.x;
+        else return result.y;
+      }
+    });
+  }
+
   addPoint({ x, y }) {
     //TODO: garder les points triés?
     this.points.push(new Point(x, y, 'segmentPoint', this, this.shape));
@@ -343,7 +370,7 @@ export class Segment {
     else if (axeAngle !== undefined) {
       let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
         secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
-      if (this.counterclockwise) [firstAngle, secondAngle] = [secondAngle, firstAngle];
+      if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
       path.ellipse(
         this.arcCenter.x,
         this.arcCenter.y,
@@ -352,6 +379,7 @@ export class Segment {
         axeAngle,
         firstAngle - axeAngle,
         secondAngle - axeAngle,
+        this.counterclockwise,
       );
     } else {
       let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
@@ -370,7 +398,8 @@ export class Segment {
 
   setScale(size) {
     this.vertexes.forEach(vertex => vertex.multiplyWithScalar(size, true));
-    this.points.forEach(pt => pt.multiplyWithScalar(size, true));
+    if (this.points) this.points.forEach(pt => pt.multiplyWithScalar(size, true));
+    if (this.arcCenter) this.arcCenter.multiplyWithScalar(size, true);
   }
 
   rotate(angle, center = { x: 0, y: 0 }) {
@@ -384,27 +413,25 @@ export class Segment {
     if (this.arcCenter) this.arcCenter.translate(coordinates);
   }
 
-  reverse() {
+  reverse(changeClockwise = false) {
     this.vertexes.reverse();
-    // if (this.arcCenter)
-    //   this.counterclockwise = !this.counterclockwise;
+    if (this.arcCenter && changeClockwise) this.counterclockwise = !this.counterclockwise;
   }
 
   equal(segment) {
-    console.log(this.arcCenter, segment.arcCenter);
     if ((this.arcCenter == undefined) ^ (segment.arcCenter == undefined)) return false; // one is arc and the other not
-    console.log('fail');
     if (
       (this.vertexes[0].equal(segment.vertexes[1]) &&
         this.vertexes[1].equal(segment.vertexes[0])) ||
       (this.vertexes[0].equal(segment.vertexes[0]) && this.vertexes[1].equal(segment.vertexes[1]))
     ) {
-      if (this.arcCenter)
+      if (this.arcCenter) {
         return (
           this.arcCenter.equal(segment.arcCenter) &&
-          this.counterclockwise == segment.counterclockwise
+          (this.counterclockwise != segment.counterclockwise) ^
+            this.vertexes[1].equal(segment.vertexes[1])
         );
-      else return true;
+      } else return true;
     }
     return false;
   }
@@ -435,9 +462,12 @@ export class Segment {
    * @param {*} segment
    * @param {*} vertexNb1 - if arc, tangent to wich vertex of this
    * @param {*} vertexNb2 - if arc, tangent to wich vertex of segment
+   * @param {*} matchArcAndOther - allow to compare arc with normal segment
    */
-  hasSameDirection(segment, vertexNb1, vertexNb2) {
+  hasSameDirection(segment, vertexNb1, vertexNb2, matchArcAndOther = true) {
     let dir1, dir2;
+    if (!matchArcAndOther && (this.arcCenter != undefined) ^ (segment.arcCenter != undefined))
+      return false;
     if (this.arcCenter) dir1 = this.getArcTangent(vertexNb1);
     else dir1 = this.direction;
     if (segment.arcCenter) dir2 = segment.getArcTangent(vertexNb2);

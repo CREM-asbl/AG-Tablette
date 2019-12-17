@@ -42,6 +42,7 @@ export class Point {
   initFromObject(save) {
     this.x = save.x;
     this.y = save.y;
+    this.type = save.type;
   }
 
   /**

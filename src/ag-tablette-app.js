@@ -2,8 +2,6 @@ import { LitElement, html } from 'lit-element';
 import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
-import './popups/settings-popup';
-import './popups/save-popup';
 import './flex-toolbar';
 import './icon-button';
 import './js/Manifest';
@@ -11,6 +9,8 @@ import './popups/new-popup';
 import './popups/grid-popup';
 import './popups/tangram-popup';
 import './popups/opacity-popup';
+import './popups/settings-popup';
+import './popups/save-popup';
 import './state-menu';
 import './version-item';
 

@@ -97,11 +97,6 @@ export class FileManager {
     if (detail.save_settings) saveObject.appSettings = appSettings;
     if (detail.save_settings) saveObject.WSSettings = WSSettings;
 
-    console.log(saveObject);
-    console.log(JSON.stringify(saveObject.history));
-    console.log(JSON.stringify(saveObject.appSettings));
-    console.log(JSON.stringify(saveObject.WSSettings));
-
     let json_data = JSON.stringify(saveObject);
 
     if (app.hasNativeFS) {

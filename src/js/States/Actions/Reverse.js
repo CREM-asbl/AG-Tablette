@@ -115,12 +115,10 @@ export class ReverseAction extends Action {
    * @param  {float} progression  Entre 0 et 1, 1 pour un retournement complet
    */
   reverseShape(shape, axe, progression) {
-    if (!shape.haveBeenReversed && progression > 0.5) {
+    if (progression > 0.5) {
       // milieu animation
       shape.isReversed = !shape.isReversed;
-      shape.segments.forEach(seg => {
-        seg.reverse();
-      });
+      shape.reverse();
     }
 
     shape.segments.forEach(seg => {
@@ -131,11 +129,9 @@ export class ReverseAction extends Action {
         seg.tangentPoint1,
         seg.tangentPoint2,
       ];
-      // console.log(points);
       points.forEach(pt => {
         if (pt) this.computePointPosition(pt, axe, progression);
       });
-      // console.log(points);
     });
   }
 

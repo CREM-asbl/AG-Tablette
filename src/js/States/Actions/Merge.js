@@ -1,6 +1,6 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { getAverageColor } from '../../Tools/general';
+import { getAverageColor, getComplementaryColor } from '../../Tools/general';
 import { Segment } from '../../Objects/Segment';
 
 export class MergeAction extends Action {
@@ -77,12 +77,15 @@ export class MergeAction extends Action {
     let oldSegments = [...shape1.segments, ...shape2.segments],
       subSegments = oldSegments.map(segment => segment.subSegments);
 
+    console.log(oldSegments, 'sebseg ended');
+
     let pairs = oldSegments.map((segment, idx, segments) => {
       return segments
         .map((seg, i) => {
-          if (subSegments[i].some(subseg => subSegments[idx].some(subs => subs.equal(subseg))))
+          console.log(seg, i);
+          if (subSegments[i].some(subseg => subSegments[idx].some(subs => subs.equal(subseg)))) {
             return i;
-          else return -1;
+          } else return -1;
         })
         .filter(s => s != -1);
     });
@@ -130,6 +133,8 @@ export class MergeAction extends Action {
     let newSegments = [];
 
     let currentSegment = segmentsList[0].copy(false);
+    console.log(segmentsList[0]);
+    console.log(currentSegment);
     let firstSegment = currentSegment;
     let nextSegment;
     let segmentUsed = 0;
@@ -143,14 +148,17 @@ export class MergeAction extends Action {
         seg => !seg.equal(currentSegment) && seg.contains(currentSegment.vertexes[1], false),
       );
       if (newPotentialSegments.length != 1) {
+        console.log(currentSegment);
+        console.log(newPotentialSegments);
         if (newPotentialSegments.length == 0) console.log('shape cannot be closed (dead end)');
         else console.log('shape is dig (a segment has more than one segment for next)');
         return null;
       }
       nextSegment = newPotentialSegments[0].copy(false);
-      if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse();
+      if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse(true);
 
-      if (currentSegment.hasSameDirection(nextSegment, 1, 0)) {
+      if (currentSegment.hasSameDirection(nextSegment, 1, 0, false)) {
+        console.log(currentSegment, nextSegment);
         currentSegment.vertexes[1] = nextSegment.vertexes[1];
       } else {
         newSegments.push(nextSegment);
@@ -162,8 +170,10 @@ export class MergeAction extends Action {
       console.log('shape is dig (not all segments have been used)');
       return null;
     }
-    if (currentSegment.hasSameDirection(firstSegment, 1, 0))
+    if (newSegments.length != 1 && currentSegment.hasSameDirection(firstSegment, 1, 0, false)) {
+      console.log(currentSegment, firstSegment);
       newSegments[0].vertexes[0] = newSegments.pop().vertexes[0];
+    }
     return newSegments;
   }
 
@@ -174,12 +184,15 @@ export class MergeAction extends Action {
     newShape.name = 'Custom';
     newShape.familyName = 'Custom';
     newShape.color = getAverageColor(shape1.color, shape2.color);
+    newShape.second_color = getComplementaryColor(newShape.color);
     newShape.borderColor = getAverageColor(shape1.borderColor, shape2.borderColor);
     newShape.isCenterShown = false;
     newShape.opacity = (shape1.opacity + shape2.opacity) / 2;
+    newShape.isBiface = shape1.isBiface && shape2.isBiface;
+    newShape.isReversed = shape1.isReversed && shape2.isReversed;
     newShape.setSegments(newSegments);
     newShape.setCoordinates({ x: newShape.x - 20, y: newShape.y - 20 });
-
+    if (newShape.isCircle()) newShape.isCenterShown = true;
     app.workspace.addShape(newShape);
   }
 }

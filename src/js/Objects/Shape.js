@@ -1,4 +1,4 @@
-import { uniqId, mod } from '../Tools/general';
+import { uniqId, mod, getComplementaryColor } from '../Tools/general';
 import { Point } from './Point';
 import { Segment } from './Segment';
 import { app } from '../App';
@@ -27,14 +27,13 @@ export class Shape {
     this.familyName = familyName;
 
     this.color = '#aaa';
+    this.second_color = getComplementaryColor('#aaa');
     this.borderColor = '#000';
     this.opacity = 0.7;
     this.isCenterShown = false;
     this.isReversed = false;
 
-    this.second_color = '#aaa';
     this.isBiface = false;
-    this.haveBeenReversed = false;
   }
 
   get allOutlinePoints() {
@@ -313,12 +312,27 @@ export class Shape {
     }
   }
 
+  get bounds() {
+    //minX, maxX, minY, maxY
+    let result = [[], [], [], []];
+    this.segments.forEach(seg => {
+      seg.bounds.forEach((bound, idx) => {
+        result[idx].push(bound);
+      });
+    });
+    return result.map((value, idx) => {
+      if (idx % 2) return Math.max(...value);
+      else return Math.min(...value);
+    });
+  }
+
   /**
    * Renvoie un objet Path2D permettant de dessiner la forme.
    * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
    * @return {Path2D} le path de dessin de la forme
    */
   getPath(axeAngle = undefined) {
+    console.log(this.segments);
     const path = new Path2D();
     path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
     this.segments.forEach(seg => {
@@ -326,6 +340,13 @@ export class Shape {
     });
     path.closePath();
     return path;
+  }
+
+  reverse() {
+    this.segments.reverse().forEach((seg, idx) => {
+      seg.idx = idx;
+      seg.reverse();
+    });
   }
 
   /**

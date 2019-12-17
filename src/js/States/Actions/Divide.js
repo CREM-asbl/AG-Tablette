@@ -67,8 +67,20 @@ export class DivideAction extends Action {
     this.numberOfparts = save.numberOfparts;
     this.mode = save.mode;
     this.segmentIndex = save.segmentIndex;
-    if (save.firstPoint) this.firstPoint = new Point(save.firstPoint);
-    if (save.secondPoint) this.secondPoint = new Point(save.secondPoint);
+    const shape = app.workspace.getShapeById(this.shapeId);
+    const segment = shape.segments[save.segmentIndex];
+    if (save.firstPoint) {
+      this.firstPoint = new Point();
+      this.firstPoint.initFromObject(save.firstPoint);
+      this.firstPoint.shape = shape;
+      this.firstPoint.segment = segment;
+    }
+    if (save.secondPoint) {
+      this.secondPoint = new Point();
+      this.secondPoint.initFromObject(save.secondPoint);
+      this.secondPoint.shape = shape;
+      this.secondPoint.segment = segment;
+    }
     this.createdPoints = save.createdPoints.map(pt => new Point(pt));
   }
 
@@ -126,7 +138,9 @@ export class DivideAction extends Action {
       segments = shape.segments,
       segment;
 
-    if (!this.segmentIndex) {
+    console.log(this);
+
+    if (this.segmentIndex == undefined) {
       segment = this.firstPoint.segment;
     } else {
       segment = segments[this.segmentIndex];
@@ -209,8 +223,7 @@ export class DivideAction extends Action {
   }
 
   pointsModeAddSegPoints(pt1, pt2, segment) {
-    const shape = app.workspace.getShapeById(this.shapeId),
-      segLength = pt2.subCoordinates(pt1),
+    const segLength = pt2.subCoordinates(pt1),
       part = new Point(segLength.x / this.numberOfparts, segLength.y / this.numberOfparts);
 
     this.createdPoints = [];

@@ -30,35 +30,40 @@ export class CutAction extends Action {
   // => commented useful if case of full history (every actions)
   saveToObject() {
     let save = {
-      shapeId: this.shapeId,
+      // shapeId: this.shapeId,
       // firstPoint: this.firstPoint.saveToObject(),
       // firstSegIdx: this.firstPoint.segment.idx,
       // secondPoint: this.secondPoint.saveToObject(),
       // secondSegIdx: this.secondPoint.segment.idx,
       createdShapes: this.createdShapes.map(shape => shape.saveToObject()),
+      createdShapesIds: this.createdShapesIds,
     };
     // if (this.centerPoint) {
     //   save.centerPoint = this.centerPoint.saveToObject();
     // }
+    console.log(save, this.createdShapesIds);
     return save;
   }
 
   initFromObject(save) {
-    this.createdShapes = save.createdShapes.map(shape => {
+    console.log(save);
+    this.createdShapes = save.createdShapes.map((shape, idx) => {
       let newShape = new Shape({ x: 0, y: 0 }, []);
       newShape.initFromObject(shape);
+      newShape.id = save.createdShapesIds[idx];
       return newShape;
     });
-    this.shapeId = save.shapeId;
+    this.createdShapesIds = save.createdShapesIds;
+    // this.shapeId = save.shapeId;
   }
 
   checkDoParameters() {
-    if (!this.shapeId) return false;
+    // if (!this.shapeId) return false;
     return true;
   }
 
   checkUndoParameters() {
-    if (!this.shapeId) return false;
+    // if (!this.shapeId) return false;
     if (!this.createdShapes) return false;
     return true;
   }
@@ -67,7 +72,11 @@ export class CutAction extends Action {
     if (!this.checkDoParameters()) return;
 
     if (this.createdShapes) {
-      this.createdShapes.forEach(shape => app.workspace.addShape(shape));
+      this.createdShapes.forEach(shape => {
+        let newShape = shape.copy();
+        newShape.id = shape.id;
+        app.workspace.addShape(newShape);
+      });
       return;
     }
 
@@ -80,10 +89,8 @@ export class CutAction extends Action {
     //Trier les 2 points:
     if (pt1.segment.idx > pt2.segment.idx) {
       [pt1, pt2] = [pt2, pt1];
-    }
-
-    // 2 points sur le mm segment ? arc de cercle ?
-    if (pt1.segment.idx === pt2.segment.idx) {
+    } else if (pt1.segment.idx === pt2.segment.idx) {
+      // 2 points sur le mm segment ? arc de cercle ?
       let segment = pt1.segment;
       if (segment.arcCenter) {
         let center = segment.arcCenter,
@@ -154,6 +161,13 @@ export class CutAction extends Action {
         }),
     ];
 
+    // shape1Seg.forEach(seg => {
+    //   console.log(seg.vertexes[0], seg.vertexes[1]);
+    // });
+    // shape2Seg.forEach(seg => {
+    //   console.log(seg.vertexes[0], seg.vertexes[1]);
+    // });
+
     // cleaning same direction segments
     shape1Seg.forEach((seg, idx, segments) => {
       const mergeIdx = mod(idx + 1, segments.length);
@@ -200,10 +214,8 @@ export class CutAction extends Action {
     shape1.setCoordinates(new Point(shape1).subCoordinates(offset));
     shape2.setCoordinates(new Point(shape2).addCoordinates(offset));
 
-    shape1.color = '#fd6c9e';
-    shape2.color = '#1f9cfc';
-
-    this.createdShapes = [shape1, shape2];
+    this.createdShapes = [shape1.copy(), shape2.copy()];
+    this.createdShapesIds = [shape1.id, shape2.id];
 
     app.workspace.addShape(shape1);
     app.workspace.addShape(shape2);

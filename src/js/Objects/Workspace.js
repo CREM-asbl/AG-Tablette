@@ -122,7 +122,6 @@ export class Workspace {
     wsdata.id = this.id;
 
     wsdata.shapes = this.shapes.map(s => {
-      console.log(JSON.stringify(s.saveToObject()));
       return s.saveToObject();
     });
 
