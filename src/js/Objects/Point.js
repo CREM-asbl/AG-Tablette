@@ -34,6 +34,7 @@ export class Point {
     const save = {
       x: this.x,
       y: this.y,
+      type: this.type,
     };
     return save;
   }

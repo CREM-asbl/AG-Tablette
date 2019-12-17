@@ -2,6 +2,7 @@ import { app } from '../../App';
 import { Action } from './Action';
 import { Segment } from '../../Objects/Segment';
 import { Point } from '../../Objects/Point';
+import { Shape } from '../../Objects/Shape';
 import { mod } from '../../Tools/general';
 
 export class CutAction extends Action {
@@ -13,17 +14,7 @@ export class CutAction extends Action {
     //L'id de la forme
     this.shapeId = null;
 
-    /**
-     * Premier point
-     * {
-     *     'type': 'point',
-     *     'pointType': 'vertex' ou 'segmentPoint',
-     *     'shape': Shape, -> NE PAS utiliser... TODO retirer de l'objet. (idem divide)
-     *     'index': int,
-     *     'coordinates': Point
-     *     'relativeCoordinates': Point
-     * }
-     */
+    //Premier point
     this.firstPoint = null;
 
     //Centre de la forme
@@ -32,43 +23,54 @@ export class CutAction extends Action {
     //Dernier point
     this.secondPoint = null;
 
-    //Id des 2 formes créées
-    this.createdShapesIds = null;
+    //Formes créées
+    this.createdShapes = null;
   }
 
+  // => commented useful if case of full history (every actions)
   saveToObject() {
     let save = {
       shapeId: this.shapeId,
-      firstPoint: this.firstPoint,
-      centerPoint: this.centerPoint,
-      secondPoint: this.secondPoint,
-      createdShapesIds: [...this.createdShapesIds],
+      // firstPoint: this.firstPoint.saveToObject(),
+      // firstSegIdx: this.firstPoint.segment.idx,
+      // secondPoint: this.secondPoint.saveToObject(),
+      // secondSegIdx: this.secondPoint.segment.idx,
+      createdShapes: this.createdShapes.map(shape => shape.saveToObject()),
     };
+    // if (this.centerPoint) {
+    //   save.centerPoint = this.centerPoint.saveToObject();
+    // }
     return save;
   }
 
   initFromObject(save) {
+    this.createdShapes = save.createdShapes.map(shape => {
+      let newShape = new Shape({ x: 0, y: 0 }, []);
+      newShape.initFromObject(shape);
+      return newShape;
+    });
     this.shapeId = save.shapeId;
-    this.firstPoint = save.firstPoint;
-    this.centerPoint = save.centerPoint;
-    this.secondPoint = save.secondPoint;
-    this.createdShapesIds = [...save.createdShapesIds];
   }
 
   checkDoParameters() {
     if (!this.shapeId) return false;
-    if (!this.firstPoint || !this.secondPoint) return false;
     return true;
   }
 
   checkUndoParameters() {
     if (!this.shapeId) return false;
-    if (!this.createdShapesIds) return false;
+    if (!this.createdShapes) return false;
     return true;
   }
 
   do() {
     if (!this.checkDoParameters()) return;
+
+    if (this.createdShapes) {
+      this.createdShapes.forEach(shape => app.workspace.addShape(shape));
+      return;
+    }
+
     let shape = app.workspace.getShapeById(this.shapeId),
       segments = shape.segments,
       pt1 = this.firstPoint,
@@ -89,17 +91,13 @@ export class CutAction extends Action {
           secondVertexAngle = center.getAngle(segment.vertexes[1]);
         let firstAngle = center.getAngle(pt1),
           secondAngle = center.getAngle(pt2);
-        if (segment.counterclockwise) {
-          [secondVertexAngle, firstAngle, secondAngle].forEach(angle => {
-            if (angle > firstVertexAngle) angle -= Math.PI * 2;
-          });
-          if (firstAngle < secondAngle) [pt1, pt2] = [pt2, pt1];
-        } else {
-          [secondVertexAngle, firstAngle, secondAngle].forEach(angle => {
-            if (angle < firstVertexAngle) angle += Math.PI * 2;
-          });
-          if (firstAngle > secondAngle) [pt1, pt2] = [pt2, pt1];
-        }
+        if (segment.counterclockwise)
+          [firstVertexAngle, secondVertexAngle] = [secondVertexAngle, firstVertexAngle];
+        // if (firstVertexAngle > secondVertexAngle) secondVertexAngle += 2 * Math.PI;
+        if (firstAngle < firstVertexAngle) firstAngle += 2 * Math.PI;
+        if (secondAngle < firstVertexAngle) secondAngle += 2 * Math.PI;
+
+        if (firstAngle > secondAngle) [pt1, pt2] = [pt2, pt1];
       } else {
         // possible ?
         let segEnd = pt1.segment.vertexes[1],
@@ -119,8 +117,6 @@ export class CutAction extends Action {
         .slice(pt1.segment.idx + 1, pt2.segment.idx + 1)
         .map(seg => seg.copy(false)),
       junction;
-
-    console.log(shape1Seg, shape2Seg);
 
     if (pt1.type === 'segmentPoint') {
       let newSegment = pt1.segment.copy(false);
@@ -186,7 +182,6 @@ export class CutAction extends Action {
         seg.vertexes[1].segment = seg;
         seg.shape = newShape;
         seg.idx = idx;
-        console.log(seg.copy());
         return seg;
       });
       newShape.isCenterShown = false;
@@ -208,12 +203,7 @@ export class CutAction extends Action {
     shape1.color = '#fd6c9e';
     shape2.color = '#1f9cfc';
 
-    if (this.createdShapesIds) {
-      shape1.id = this.createdShapesIds[0];
-      shape2.id = this.createdShapesIds[1];
-    } else {
-      this.createdShapesIds = [shape1.id, shape2.id];
-    }
+    this.createdShapes = [shape1, shape2];
 
     app.workspace.addShape(shape1);
     app.workspace.addShape(shape2);
@@ -222,8 +212,7 @@ export class CutAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    this.createdShapesIds.forEach(id => {
-      let shape = app.workspace.getShapeById(id);
+    this.createdShapes.forEach(shape => {
       app.workspace.deleteShape(shape);
     });
   }

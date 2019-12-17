@@ -122,15 +122,16 @@ export class DrawAPI {
    * @param  {Context2D} ctx   le canvas
    * @param  {Shape} shape la forme
    */
-  drawShape(ctx, shape, borderSize = 1) {
+  drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
     ctx.strokeStyle = shape.borderColor;
     ctx.fillStyle = shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
+    const path = shape.getPath(axeAngle);
 
-    ctx.fill(shape.path);
+    ctx.fill(path);
     ctx.globalAlpha = 1;
-    ctx.stroke(shape.path);
+    ctx.stroke(path);
     ctx.save();
 
     if (app.settings.get('areShapesPointed')) {
@@ -273,7 +274,7 @@ export class DrawAPI {
   isPointInShape(point, shape) {
     const ctx = this.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    const selected = ctx.isPointInPath(shape.path, point.x, point.y);
+    const selected = ctx.isPointInPath(shape.getPath(), point.x, point.y);
     return selected;
   }
 }

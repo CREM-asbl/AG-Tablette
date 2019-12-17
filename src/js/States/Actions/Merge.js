@@ -53,6 +53,7 @@ export class MergeAction extends Action {
 
     const newSegments = this.createNewSegments(shape1, shape2);
 
+    if (!newSegments) return this.alertDigShape();
     const linkedSegments = this.linkNewSegments(newSegments);
     if (!linkedSegments) return this.alertDigShape();
 
@@ -78,13 +79,15 @@ export class MergeAction extends Action {
 
     let pairs = oldSegments.map((segment, idx, segments) => {
       return segments
-        .map((seg, i, segs) => {
+        .map((seg, i) => {
           if (subSegments[i].some(subseg => subSegments[idx].some(subs => subs.equal(subseg))))
             return i;
           else return -1;
         })
         .filter(s => s != -1);
     });
+
+    console.log(pairs);
 
     // if trio (more than 2 segments inside another)
     if (pairs.filter(pair => pair.length > 2).length) {
@@ -147,7 +150,7 @@ export class MergeAction extends Action {
       nextSegment = newPotentialSegments[0].copy(false);
       if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse();
 
-      if (currentSegment.hasSameDirection(nextSegment)) {
+      if (currentSegment.hasSameDirection(nextSegment, 1, 0)) {
         currentSegment.vertexes[1] = nextSegment.vertexes[1];
       } else {
         newSegments.push(nextSegment);
@@ -159,7 +162,7 @@ export class MergeAction extends Action {
       console.log('shape is dig (not all segments have been used)');
       return null;
     }
-    if (currentSegment.hasSameDirection(firstSegment))
+    if (currentSegment.hasSameDirection(firstSegment, 1, 0))
       newSegments[0].vertexes[0] = newSegments.pop().vertexes[0];
     return newSegments;
   }

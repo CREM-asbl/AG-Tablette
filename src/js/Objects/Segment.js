@@ -51,7 +51,9 @@ export class Segment {
     let result = [];
     this.allPoints.forEach((point, idx, points) => {
       points.slice(idx + 1).forEach((pt, i, pts) => {
-        result.push(new Segment(point, pt));
+        result.push(
+          new Segment(point, pt, this.shape, this.idx, this.arcCenter, this.counterclockwise),
+        );
       });
     });
     return result;
@@ -82,16 +84,18 @@ export class Segment {
         copy.addPoint(p);
       });
     }
+    copy.tangentPoint1 = new Point(this.tangentPoint1);
+    copy.tangentPoint2 = new Point(this.tangentPoint2);
     return copy;
   }
 
   saveToObject() {
     const save = {
       vertexes: this.vertexes.map(pt => pt.saveToObject()),
-      arcCenter: this.arcCenter.saveToObject(),
       counterclockwise: this.counterclockwise,
     };
     if (this.points) save.points = this.points.map(pt => pt.saveToObject());
+    if (this.arcCenter) save.arcCenter = this.arcCenter.saveToObject();
     return save;
   }
 
@@ -126,13 +130,7 @@ export class Segment {
    * For circle : https://math.stackexchange.com/questions/1744354/project-a-point-within-a-circle-onto-its-edge
    * @param {*} point
    */
-  projectionPointOnSegment(point) {
-    let proj = null,
-      p1x = this.vertexes[0].x,
-      p1y = this.vertexes[0].y,
-      p2x = this.vertexes[1].x,
-      p2y = this.vertexes[1].y;
-
+  projectionOnSegment(point) {
     if (this.arcCenter) {
       const angle = this.arcCenter.getAngle(point),
         projection = new Point(
@@ -140,27 +138,51 @@ export class Segment {
           this.radius * Math.sin(angle) + this.arcCenter.y,
         );
       return projection;
-    }
-
-    //Calculer la projection du point sur l'axe.
-    if (Math.abs(p2x - p1x) < 0.001) {
-      //segment vertical
-      proj = new Point({ x: p1x, y: point.y });
-    } else if (Math.abs(p2y - p1y) < 0.001) {
-      //segment horizontal
-      proj = new Point({ x: point.x, y: p1y });
     } else {
-      // axe.type=='NW' || axe.type=='SW'
-      let f_a = (p1y - p2y) / (p1x - p2x),
-        f_b = p2y - f_a * p2x,
-        x2 = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1),
-        y2 = f_a * x2 + f_b;
-      proj = new Point({
-        x: x2,
-        y: y2,
-      });
+      let proj = null,
+        p1x = this.vertexes[0].x,
+        p1y = this.vertexes[0].y,
+        p2x = this.vertexes[1].x,
+        p2y = this.vertexes[1].y;
+
+      //Calculer la projection du point sur l'axe.
+      if (Math.abs(p2x - p1x) < 0.001) {
+        //segment vertical
+        proj = new Point({ x: p1x, y: point.y });
+      } else if (Math.abs(p2y - p1y) < 0.001) {
+        //segment horizontal
+        proj = new Point({ x: point.x, y: p1y });
+      } else {
+        // axe.type=='NW' || axe.type=='SW'
+        let f_a = (p1y - p2y) / (p1x - p2x),
+          f_b = p2y - f_a * p2x,
+          x2 = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1),
+          y2 = f_a * x2 + f_b;
+        proj = new Point({
+          x: x2,
+          y: y2,
+        });
+      }
+      return proj;
     }
-    return proj;
+  }
+
+  /**
+   * Find the angle's projection on this arc.
+   *
+   * For circle : https://math.stackexchange.com/questions/1744354/project-a-point-within-a-circle-onto-its-edge
+   * @param {*} point
+   */
+  centerProjectionOnSegment(angle) {
+    if (this.arcCenter) {
+      const projection = new Point(
+        this.radius * Math.cos(angle) + this.arcCenter.x,
+        this.radius * Math.sin(angle) + this.arcCenter.y,
+      );
+      return projection;
+    } else {
+      console.trace('no arc passed here');
+    }
   }
 
   isPointOnSegment(point) {
@@ -316,6 +338,36 @@ export class Segment {
     }
   }
 
+  getPath(path, axeAngle = undefined) {
+    if (!this.arcCenter) path.lineTo(this.vertexes[1].x, this.vertexes[1].y);
+    else if (axeAngle !== undefined) {
+      let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
+        secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
+      if (this.counterclockwise) [firstAngle, secondAngle] = [secondAngle, firstAngle];
+      path.ellipse(
+        this.arcCenter.x,
+        this.arcCenter.y,
+        this.arcCenter.dist(this.tangentPoint1),
+        this.arcCenter.dist(this.tangentPoint2),
+        axeAngle,
+        firstAngle - axeAngle,
+        secondAngle - axeAngle,
+      );
+    } else {
+      let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
+        secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
+      if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
+      path.arc(
+        this.arcCenter.x,
+        this.arcCenter.y,
+        this.vertexes[1].dist(this.arcCenter),
+        firstAngle,
+        secondAngle,
+        this.counterclockwise,
+      );
+    }
+  }
+
   setScale(size) {
     this.vertexes.forEach(vertex => vertex.multiplyWithScalar(size, true));
     this.points.forEach(pt => pt.multiplyWithScalar(size, true));
@@ -323,6 +375,7 @@ export class Segment {
 
   rotate(angle, center = { x: 0, y: 0 }) {
     this.allPoints.forEach(pt => pt.rotate(angle, center));
+    if (this.arcCenter) this.arcCenter.rotate(angle, center);
   }
 
   translate(coordinates) {
@@ -338,10 +391,21 @@ export class Segment {
   }
 
   equal(segment) {
-    if (this.vertexes[0].equal(segment.vertexes[1]) && this.vertexes[1].equal(segment.vertexes[0]))
-      return true;
-    if (this.vertexes[0].equal(segment.vertexes[0]) && this.vertexes[1].equal(segment.vertexes[1]))
-      return true;
+    console.log(this.arcCenter, segment.arcCenter);
+    if ((this.arcCenter == undefined) ^ (segment.arcCenter == undefined)) return false; // one is arc and the other not
+    console.log('fail');
+    if (
+      (this.vertexes[0].equal(segment.vertexes[1]) &&
+        this.vertexes[1].equal(segment.vertexes[0])) ||
+      (this.vertexes[0].equal(segment.vertexes[0]) && this.vertexes[1].equal(segment.vertexes[1]))
+    ) {
+      if (this.arcCenter)
+        return (
+          this.arcCenter.equal(segment.arcCenter) &&
+          this.counterclockwise == segment.counterclockwise
+        );
+      else return true;
+    }
     return false;
   }
 

@@ -59,7 +59,6 @@ export class MoveAction extends Action {
   }
 
   do() {
-    console.log('move: ', this.transformation);
     if (!this.checkDoParameters()) return;
 
     this.involvedShapesIds.forEach(id => {

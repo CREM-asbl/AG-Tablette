@@ -387,7 +387,7 @@ export class InteractionAPI {
     app.workspace.shapes.forEach(shape => {
       shape.segments
         .filter(segment => {
-          const projection = segment.projectionPointOnSegment(mouseCoordinates);
+          const projection = segment.projectionOnSegment(mouseCoordinates);
           return (
             segment.isPointOnSegment(projection) &&
             this.arePointsInSelectionDistance(projection, mouseCoordinates)
@@ -396,7 +396,7 @@ export class InteractionAPI {
         .forEach(segment => {
           potentialSegments.push({
             segment: segment,
-            dist: segment.projectionPointOnSegment(mouseCoordinates).dist(mouseCoordinates),
+            dist: segment.projectionOnSegment(mouseCoordinates).dist(mouseCoordinates),
           });
         });
     });

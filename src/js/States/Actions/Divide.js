@@ -145,14 +145,9 @@ export class DivideAction extends Action {
       center = segment.arcCenter,
       firstAngle = center.getAngle(segment.vertexes[0]),
       secondAngle = center.getAngle(segment.vertexes[1]);
-    if (segment.counterclockwise) {
-      if (firstAngle < secondAngle) firstAngle += Math.PI * 2;
-    } else {
-      if (firstAngle > secondAngle) firstAngle -= Math.PI * 2;
-    }
-
-    // if (firstAngle > secondAngle ^ segment.counterclockwise) [firstAngle, secondAngle] = [secondAngle, firstAngle];
+    if (segment.counterclockwise) [firstAngle, secondAngle] = [secondAngle, firstAngle];
     if (segment.vertexes[0].equal(segment.vertexes[1])) secondAngle += 2 * Math.PI;
+    else if (firstAngle > secondAngle) secondAngle += 2 * Math.PI;
 
     // Pour un cercle entier, on ajoute un point de division supplémentaire
     if (shape.isCircle()) {
@@ -162,8 +157,6 @@ export class DivideAction extends Action {
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfparts,
       radius = segment.radius;
-
-    console.log(firstAngle * 57, secondAngle * 57, partAngle * 57);
 
     for (let i = 1, nextPt = segment.vertexes[0]; i < this.numberOfparts; i++) {
       const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
@@ -178,7 +171,7 @@ export class DivideAction extends Action {
   segmentModeAddSegPoints() {
     const shape = app.workspace.getShapeById(this.shapeId),
       segment = shape.segments[this.segmentIndex];
-    this.pointsModeAddSegPoints(segment.vertexes[0], segment.vertexes[1]);
+    this.pointsModeAddSegPoints(segment.vertexes[0], segment.vertexes[1], segment);
   }
 
   pointsModeAddArcPoints(pt1, pt2, segment) {
@@ -189,17 +182,18 @@ export class DivideAction extends Action {
       firstAngle = center.getAngle(pt1),
       secondAngle = center.getAngle(pt2);
     if (!shape.isCircle()) {
-      let bound1 = segment.arcCenter.getAngle(segment.vertexes[0]),
-        bound2 = segment.arcCenter.getAngle(segment.vertexes[1]);
-      if (segment.counterclockwise) [bound1, bound2] = [bound2, bound1];
-      if (firstAngle < bound1) firstAngle += Math.PI * 2;
-      if (secondAngle < bound1) secondAngle += Math.PI * 2;
-      if (bound2 < bound1) bound2 += Math.PI * 2;
-      if ((firstAngle > secondAngle) ^ segment.counterclockwise) {
+      let firstVertexAngle = segment.arcCenter.getAngle(segment.vertexes[0]),
+        secondVertexAngle = segment.arcCenter.getAngle(segment.vertexes[1]);
+      if (segment.counterclockwise)
+        [firstVertexAngle, secondVertexAngle] = [secondVertexAngle, firstVertexAngle];
+      if (firstAngle < firstVertexAngle) firstAngle += Math.PI * 2;
+      if (secondAngle < firstVertexAngle) secondAngle += Math.PI * 2;
+      if (secondVertexAngle < firstVertexAngle) secondVertexAngle += Math.PI * 2;
+      if ((secondAngle < firstAngle) ^ segment.counterclockwise) {
         [firstAngle, secondAngle] = [secondAngle, firstAngle];
       }
     }
-    if (firstAngle > secondAngle) secondAngle += Math.PI * 2;
+    if (secondAngle < firstAngle) secondAngle += Math.PI * 2;
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfparts,
       radius = segment.radius;
@@ -207,7 +201,6 @@ export class DivideAction extends Action {
     for (let i = 1, nextPt = pt1; i < this.numberOfparts; i++) {
       const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
         newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
-      console.log((firstAngle + partAngle * i) * 57.2958);
       nextPt = nextPt.copy();
       nextPt.setCoordinates({ x: newX, y: newY });
       segment.addPoint(nextPt);

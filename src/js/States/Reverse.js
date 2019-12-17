@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { ReverseAction } from './Actions/Reverse';
 import { State } from './State';
+import { Point } from '../Objects/Point';
 
 /**
  * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -19,16 +20,15 @@ export class ReverseState extends State {
     this.startTime = null;
 
     //Objet représentant l'axe de symétrie utilisée pour le retournement
-    this.arch = null;
+    this.axe = null;
 
     //Durée en secondes de l'animation
     this.duration = 2;
 
-    //Longueur en pixels des 4 arcs de symétrie
-    this.symmetricalArchLength = 200;
-
     //Couleur des axes de symétrie
-    this.symmetricalArchColor = '#080';
+    this.symmetricalAxeColor = '#080';
+
+    this.axeAngle = null;
 
     /*
         L'ensemble des formes liées à la forme sélectionnée, y compris la forme
@@ -48,7 +48,7 @@ export class ReverseState extends State {
 
     this.selectedShape = null;
     this.startTime = null;
-    this.arch = null;
+    this.axe = null;
     this.involvedShapes = [];
     this.timeoutRef = null;
 
@@ -97,22 +97,33 @@ export class ReverseState extends State {
     if (this.currentStep != 'selecting-symmetrical-arch') return true;
 
     let clickDistance = this.selectedShape.center.dist(mouseCoordinates);
-    if (clickDistance > this.symmetricalArchLength / 2) return true; //Le click n'est pas sur les axes de symétrie
+    if (clickDistance > this.symmetricalAxeLength / 2) return true; //Le click n'est pas sur les axes de symétrie
 
     let shapeCenter = this.selectedShape.center,
       angle = shapeCenter.getAngle(mouseCoordinates) % Math.PI;
 
     if (angle <= Math.PI / 8 || angle > (7 * Math.PI) / 8)
-      this.actions[0].symmetricalArchOrientation = 'H';
+      this.actions[0].symmetricalAxeOrientation = 'H';
     else if (angle > Math.PI / 8 && angle <= (3 * Math.PI) / 8)
-      this.actions[0].symmetricalArchOrientation = 'NW';
+      this.actions[0].symmetricalAxeOrientation = 'NW';
     else if (angle > (3 * Math.PI) / 8 && angle <= (5 * Math.PI) / 8)
-      this.actions[0].symmetricalArchOrientation = 'V';
-    else this.actions[0].symmetricalArchOrientation = 'SW';
+      this.actions[0].symmetricalAxeOrientation = 'V';
+    else this.actions[0].symmetricalAxeOrientation = 'SW';
 
     this.currentStep = 'reversing-shape';
     this.startTime = Date.now();
-    this.arch = this.actions[0].getSymmetricalArch();
+    this.axe = this.actions[0].getSymmetricalAxe();
+    this.axeAngle = this.axe.vertexes[0].getAngle(this.axe.vertexes[1]);
+
+    this.involvedShapes.forEach(shape => {
+      shape.segments.forEach(seg => {
+        if (seg.arcCenter) {
+          seg.tangentPoint1 = seg.centerProjectionOnSegment(this.axeAngle);
+          seg.tangentPoint2 = seg.centerProjectionOnSegment(this.axeAngle + Math.PI / 2);
+        }
+      });
+    });
+
     this.animate();
 
     return false;
@@ -161,102 +172,47 @@ export class ReverseState extends State {
   draw(ctx, mouseCoordinates) {
     if (this.currentStep == 'listen-canvas-click') return;
     if (this.currentStep == 'selecting-symmetrical-arch') {
-      let shape = this.selectedShape,
-        n1 = this.symmetricalArchLength / 2,
-        n2 = (0.683 * this.symmetricalArchLength) / 2,
-        center = shape.center;
-
       this.involvedShapes.forEach(s => {
         app.drawAPI.drawShape(ctx, s);
       });
 
-      app.drawAPI.drawLine(
-        ctx,
-        { x: center.x, y: center.y - n1 },
-        { x: center.x, y: center.y + n1 },
-        this.symmetricalArchColor,
-        1,
-        false,
-      );
-      app.drawAPI.drawLine(
-        ctx,
-        { x: center.x - n2, y: center.y - n2 },
-        { x: center.x + n2, y: center.y + n2 },
-        this.symmetricalArchColor,
-        1,
-        false,
-      );
-      app.drawAPI.drawLine(
-        ctx,
-        { x: center.x - n1, y: center.y },
-        { x: center.x + n1, y: center.y },
-        this.symmetricalArchColor,
-        1,
-        false,
-      );
-      app.drawAPI.drawLine(
-        ctx,
-        { x: center.x - n2, y: center.y + n2 },
-        { x: center.x + n2, y: center.y - n2 },
-        this.symmetricalArchColor,
-        1,
-        false,
-      );
+      let axes = [
+        this.actions[0].getSymmetricalAxe('V'),
+        this.actions[0].getSymmetricalAxe('NW'),
+        this.actions[0].getSymmetricalAxe('H'),
+        this.actions[0].getSymmetricalAxe('SW'),
+      ];
+
+      axes.forEach(axe => {
+        app.drawAPI.drawLine(
+          ctx,
+          axe.vertexes[0],
+          axe.vertexes[1],
+          this.symmetricalAxeColor,
+          1,
+          false,
+        );
+      });
       return;
     }
     if (this.currentStep == 'reversing-shape') {
-      let progress = this.getAnimationProgress(),
-        //TODO: opti: ne pas devoir faire une copie à chaque refresh!
-        shape = this.selectedShape.copy(),
-        center = shape.center;
-
+      let progress = this.getAnimationProgress();
+      //TODO: opti: ne pas devoir faire des copies à chaque refresh!
       this.involvedShapes.forEach(s => {
         let s2 = s.copy();
-        this.actions[0].reverseShape(s2, this.arch, progress);
-        app.drawAPI.drawShape(ctx, s2);
+        this.actions[0].reverseShape(s2, this.axe, progress);
+        app.drawAPI.drawShape(ctx, s2, 1, this.axeAngle);
       });
 
       //Dessiner l'axe:
-      let n1 = this.symmetricalArchLength / 2,
-        n2 = (0.683 * this.symmetricalArchLength) / 2;
-      if (this.arch.type == 'V') {
-        app.drawAPI.drawLine(
-          ctx,
-          { x: center.x, y: center.y - n1 },
-          { x: center.x, y: center.y + n1 },
-          this.symmetricalArchColor,
-          1,
-          false,
-        );
-      } else if (this.arch.type == 'NW') {
-        app.drawAPI.drawLine(
-          ctx,
-          { x: center.x - n2, y: center.y - n2 },
-          { x: center.x + n2, y: center.y + n2 },
-          this.symmetricalArchColor,
-          1,
-          false,
-        );
-      } else if (this.arch.type == 'H') {
-        app.drawAPI.drawLine(
-          ctx,
-          { x: center.x - n1, y: center.y },
-          { x: center.x + n1, y: center.y },
-          this.symmetricalArchColor,
-          1,
-          false,
-        );
-      } else {
-        // SW
-        app.drawAPI.drawLine(
-          ctx,
-          { x: center.x - n2, y: center.y + n2 },
-          { x: center.x + n2, y: center.y - n2 },
-          this.symmetricalArchColor,
-          1,
-          false,
-        );
-      }
+      app.drawAPI.drawLine(
+        ctx,
+        this.axe.vertexes[0],
+        this.axe.vertexes[1],
+        this.symmetricalAxeColor,
+        1,
+        false,
+      );
       return;
     }
   }

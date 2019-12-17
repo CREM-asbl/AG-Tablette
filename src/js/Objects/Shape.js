@@ -76,7 +76,7 @@ export class Shape {
 
     const segment = this.segments[0];
 
-    let projection = segment.projectionPointOnSegment(point);
+    let projection = segment.projectionOnSegment(point);
 
     if (!segment.isPointOnSegment(projection)) return false;
 
@@ -98,132 +98,6 @@ export class Shape {
       console.log('unsupported object');
       return false;
     }
-  }
-
-  /**
-   * Renvoie l'index du premier et du dernier segment constituant un arc de
-   * cercle.
-   * @param  {int} buildStepIndex L'index d'un des segments de l'arc
-   * @return {[int, int]}
-   */
-  getArcEnds(buildStepIndex) {
-    if (
-      buildStepIndex < 0 ||
-      buildStepIndex >= this.buildSteps.length ||
-      !Number.isFinite(buildStepIndex)
-    ) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-    if (this.buildSteps[buildStepIndex].isArc !== true) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-
-    let segmentsIds = this.getArcSegmentIndexes(buildStepIndex);
-    return [segmentsIds[0], segmentsIds[segmentsIds.length - 1]];
-  }
-
-  /**
-   * Renvoie la liste des index des segments constituant un arc de cercle.
-   * @param  {int} buildStepIndex L'index d'un des segments de l'arc
-   * @return {[int]}
-   */
-  getArcSegmentIndexes(buildStepIndex) {
-    if (
-      buildStepIndex < 0 ||
-      buildStepIndex >= this.buildSteps.length ||
-      !Number.isFinite(buildStepIndex)
-    ) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-    if (this.buildSteps[buildStepIndex].isArc !== true) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-
-    let bs = this.buildSteps;
-    if (this.isCircle()) {
-      let rep = [];
-      for (let i = 1; i < bs.length; i++) rep.push(i);
-      return rep;
-    }
-
-    let indexList = [buildStepIndex];
-
-    for (let i = 0, curIndex = buildStepIndex; i < bs.length - 1; i++) {
-      curIndex = mod(curIndex - 1, bs.length);
-
-      if (curIndex == 0 && bs[curIndex].type == 'moveTo') continue;
-
-      if (bs[curIndex].type != 'segment' || !bs[curIndex].isArc) break;
-
-      indexList.unshift(curIndex);
-    }
-
-    for (let i = 0, curIndex = buildStepIndex; i < bs.length - 1; i++) {
-      curIndex = (curIndex + 1) % bs.length;
-
-      if (curIndex == 0 && bs[curIndex].type == 'moveTo') continue;
-
-      if (bs[curIndex].type != 'segment' || !bs[curIndex].isArc) break;
-
-      indexList.push(curIndex);
-    }
-
-    return indexList;
-  }
-
-  // /**
-  //  * Renvoie true si les 2 points forment un segment ou un morceau de segment
-  //  * @param  {Object}  point1
-  //  * @param  {Object}  point2
-  //  * @return {Boolean}
-  //  */
-  // isSegmentPart(point1, point2) {
-  //   if (
-  //     point1.shape.id != this.id ||
-  //     point2.shape.id != this.id ||
-  //     point1.pointType == 'center' ||
-  //     point2.pointType == 'center'
-  //   ) {
-  //     console.error('bad point value');
-  //     return null;
-  //   }
-  //   const tmp_seg = new Segment(point1.coordinates, point2.coordinates);
-  //   return this.segments.subSegments.some(subSeg => !subSeg.isArc && subSeg.equal(tmp_seg));
-  // }
-
-  /**
-   * Renvoie la longueur d'un arc de cercle
-   * @param  {int} buildStepIndex l'index (dans buildSteps) d'un des segments
-   * de l'arc de cercle
-   * @return {float}                La longueur de l'arc
-   */
-  getArcLength(buildStepIndex) {
-    if (
-      buildStepIndex < 0 ||
-      buildStepIndex >= this.buildSteps.length ||
-      !Number.isFinite(buildStepIndex)
-    ) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-    if (this.buildSteps[buildStepIndex].isArc !== true) {
-      console.error('Bad bsIndex value');
-      return null;
-    }
-
-    let arcsList = this.getArcSegmentIndexes(buildStepIndex),
-      length = 0,
-      bs = this.buildSteps;
-    arcsList.forEach(arcIndex => {
-      if (arcIndex == 0) return;
-      length += bs[arcIndex].coordinates.dist(bs[arcIndex - 1].coordinates);
-    });
-
-    return length;
   }
 
   /**
@@ -441,26 +315,14 @@ export class Shape {
 
   /**
    * Renvoie un objet Path2D permettant de dessiner la forme.
+   * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
    * @return {Path2D} le path de dessin de la forme
    */
-  get path() {
+  getPath(axeAngle = undefined) {
     const path = new Path2D();
     path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
     this.segments.forEach(seg => {
-      if (!seg.arcCenter) path.lineTo(seg.vertexes[1].x, seg.vertexes[1].y);
-      else {
-        let firstAngle = seg.arcCenter.getAngle(seg.vertexes[0]),
-          secondAngle = seg.arcCenter.getAngle(seg.vertexes[1]);
-        if (seg.vertexes[0].equal(seg.vertexes[1])) secondAngle += 2 * Math.PI;
-        path.arc(
-          seg.arcCenter.x,
-          seg.arcCenter.y,
-          seg.vertexes[1].dist(seg.arcCenter),
-          firstAngle,
-          secondAngle,
-          seg.counterclockwise,
-        );
-      }
+      seg.getPath(path, axeAngle);
     });
     path.closePath();
     return path;
