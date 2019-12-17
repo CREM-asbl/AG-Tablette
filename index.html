@@ -23,7 +23,7 @@
         }
     </script>
 
-    <style type="text/css">
+    <style>
         html,
         body,
         ag-tablette-app {
@@ -33,36 +33,13 @@
             padding: 0px;
             overflow-y: hidden;
         }
-
-
-        /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
-        input[type="color"] {
-            opacity: 0;
-            position: absolute;
-            top: 0;
-            left: 21vw;
-            width: 0;
-            height: 0;
-            border: none;
-            background: transparent;
-        }
     </style>
 </head>
 
 <body>
     <ag-tablette-app></ag-tablette-app>
 
-    <!--
-        TODO refactoring en composants
-        Ceux-ci devraient être placé idéalement dans ag-tablette-app.js
-    -->
-    <label id="color-picker-label" for="color-picker" hidden></label>
-    <input id="color-picker" type="color">
-
-    <divide-popup></divide-popup>
-
     <script type="module" src="src/ag-tablette-app.js" crossorigin></script>
-    <script type="module" src="/src/popups/divide-popup.js" crossorigin></script>
 
     <noscript>
         Veuillez activer javascript afin de profiter de cette application

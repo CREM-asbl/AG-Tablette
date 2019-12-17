@@ -39,7 +39,7 @@ export class DivideState extends State {
     this.selConstr.points.types = ['vertex', 'segmentPoint'];
     app.interactionAPI.setSelectionConstraints(this.selConstr);
 
-    if (openPopup) document.querySelector('divide-popup').style.display = 'block';
+    if (openPopup) app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
     app.appDiv.cursor = 'default';
   }
 
