@@ -1,7 +1,6 @@
 import { app } from '../App';
 import { DivideAction } from './Actions/Divide';
 import { State } from './State';
-import { Point } from '../Objects/Point';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
