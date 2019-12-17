@@ -51,7 +51,7 @@
     "storybook": "start-storybook -p 9001",
     "storybook:build": "build-storybook -o _site -s storybook-static",
     "start:build": "cd dist && es-dev-server --open",
-    "build": "rimraf dist && rollup -c rollup.config.js && workbox generateSW workbox-config.js",
+    "build": "rimraf dist && rollup -c rollup.config.js",
     "start": "es-dev-server --app-index index.html --node-resolve --open --watch",
     "start:compatibility": "es-dev-server --app-index index.html --compatibility all --node-resolve --open --watch",
     "start:local": "es-dev-server --app-index index.html --node-resolve --open --watch --hostname 192.168.0.4"
