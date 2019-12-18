@@ -437,14 +437,15 @@ export class Segment {
   }
 
   getArcTangent(vertexNb) {
-    let vertex = this.vertexes[vertexNb].copy(),
-      center = this.arcCenter.copy(),
+    let vertex = this.vertexes[vertexNb],
+      center = this.arcCenter,
       originVector = vertex.subCoordinates(center),
       perpendicularOriginVector;
-    originVector.multiplyWithScalar(1 / new Point(0, 0).dist(originVector), true);
+    originVector.multiplyWithScalar(1 / this.radius, true);
     if (this.counterclockwise)
-      perpendicularOriginVector = new Point(-1, originVector.x / originVector.y);
-    else perpendicularOriginVector = new Point(1, -originVector.x / originVector.y);
+      perpendicularOriginVector = new Point(1, -originVector.x / originVector.y);
+    else perpendicularOriginVector = new Point(-1, originVector.x / originVector.y);
+    console.log('origin', originVector, 'perpend', perpendicularOriginVector);
     if (perpendicularOriginVector.y == Infinity)
       perpendicularOriginVector.setCoordinates({ x: 0, y: 1 });
     if (perpendicularOriginVector.y == -Infinity)
@@ -455,6 +456,58 @@ export class Segment {
         true,
       );
     return perpendicularOriginVector;
+  }
+
+  /**
+   * convertit le segment en svg
+   */
+  to_svg() {
+    let point = new Point(this.vertexes[1]),
+      path;
+    point.setToCanvasCoordinates();
+    if (this.arcCenter) {
+      let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
+        secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
+      // if (this.counterclockwise)
+      //   [firstAngle, secondAngle] = [secondAngle, firstAngle];
+      if (this.vertexes[0].equal(this.vertexes[1])) {
+        // circle
+        const oppositeAngle = firstAngle + Math.PI,
+          oppositePoint = new Point(
+            this.arcCenter.x + Math.cos(oppositeAngle) * this.radius,
+            this.arcCenter.y + Math.sin(oppositeAngle) * this.radius,
+          );
+        path = ['A', this.radius, this.radius, 0, 1, 0, oppositePoint.x, oppositePoint.y]
+          .concat(['A', this.radius, this.radius, 0, 1, 0, this.vertexes[1].x, this.vertexes[1].y])
+          .join(' ');
+      } else {
+        if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+        console.log(firstAngle, secondAngle);
+        let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+          tangent = this.getArcTangent(0),
+          sweepFlag = !this.counterclockwise ? 1 : 0;
+        console.log('tan', tangent, 'sweep', sweepFlag, 'large', largeArcFlag);
+        if (this.counterclockwise) {
+          sweepFlag = !sweepFlag;
+          largeArcFlag = !largeArcFlag;
+        }
+        console.log('sweep', sweepFlag, 'large', largeArcFlag);
+        path = [
+          'A',
+          this.radius,
+          this.radius,
+          0,
+          largeArcFlag,
+          sweepFlag,
+          this.vertexes[1].x,
+          this.vertexes[1].y,
+        ].join(' ');
+        console.log(path);
+      }
+    } else {
+      path = ['L', point.x, point.y].join(' ');
+    }
+    return path;
   }
 
   /**

@@ -332,7 +332,6 @@ export class Shape {
    * @return {Path2D} le path de dessin de la forme
    */
   getPath(axeAngle = undefined) {
-    console.log(this.segments);
     const path = new Path2D();
     path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
     this.segments.forEach(seg => {
@@ -350,12 +349,41 @@ export class Shape {
   }
 
   /**
+   * move the shape with Point or coordinates
+   * @param {{x: number, y: number}} point - point to add
+   * @param {number} x - other method
+   * @param {number} y - other method
+   * @param {number} neg - negative translation
+   * @return {{x: number, y:number}} new coordinates
+   */
+  translate() {
+    let neg,
+      multiplier,
+      x,
+      y,
+      i = 0;
+    if (typeof arguments[i] == 'object') {
+      x = arguments[i].x;
+      y = arguments[i].y;
+      neg = arguments[++i];
+    } else {
+      x = arguments[i];
+      y = !isNaN(arguments[i + 1]) ? arguments[++i] : arguments[i];
+      neg = arguments[++i];
+    }
+    multiplier = neg ? -1 : 1;
+    translation = new Point(x * multiplier, y * multiplier);
+    this.segments.forEach(seg => seg.translate(translation));
+    this.x += translation.x;
+    this.y += translation.y;
+  }
+
+  /**
    * convertit point en balise circle de svg
    */
   point_to_svg(coordinates, color = '#000', size = 1) {
     let point = new Point(coordinates.x, coordinates.y);
-    point.multiplyWithScalar(app.workspace.zoomLevel);
-    point.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
+    point.setToCanvasCoordinates();
     return (
       '<circle cx="' +
       point.x +
@@ -370,19 +398,17 @@ export class Shape {
   }
 
   /**
-   * convertit shape en balise path de svg
+   * convertit la shape en balise path de svg
    */
   to_svg() {
     let path = '';
     let point = new Point(this.segments[0].vertexes[0]);
-    point.multiplyWithScalar(app.workspace.zoomLevel);
-    point.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
-    path += 'M ' + point.x + ' ' + point.y + ' ';
+    point.setToCanvasCoordinates();
+    path += 'M ' + point.x + ' ' + point.y + '\n';
+    console.log(path);
     this.segments.forEach(seg => {
-      let point = new Point(seg.vertexes[1].x, seg.vertexes[1].y);
-      point.multiplyWithScalar(app.workspace.zoomLevel);
-      point.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
-      path += 'L ' + point.x + ' ' + point.y + ' ';
+      path += seg.to_svg() + '\n';
+      console.log(path);
     });
     path += 'Z ';
     let attributes = {
@@ -404,7 +430,8 @@ export class Shape {
     if (app.settings.get('areShapesPointed')) {
       if (this.isSegment())
         point_tags += this.point_to_svg(this.segments[0].vertexes[0], '#000', 1);
-      this.segments.forEach(seg => (point_tags += this.point_to_svg(seg.vertexes[1], '#000', 1)));
+      if (!this.isCircle())
+        this.segments.forEach(seg => (point_tags += this.point_to_svg(seg.vertexes[1], '#000', 1)));
     }
     this.segments.forEach(seg => {
       //Points sur les segments

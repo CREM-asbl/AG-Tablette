@@ -91,6 +91,18 @@ export class GridManager {
       possibilities.push(topleft.addCoordinates(0, 50 * gridSize));
       possibilities.push(topleft.addCoordinates(50 * gridSize, 0));
       possibilities.push(topleft.addCoordinates(50 * gridSize, 50 * gridSize));
+
+      console.log(possibilities);
+
+      // setTimeout(() => {
+      //   possibilities.forEach(pt =>
+      //     app.drawAPI.drawPoint(app.drawAPI.mainCtx, pt, '#e23400', 3)
+      //   )
+      // }, 200);
+
+      setTimeout(() => {
+        app.drawAPI.drawPoint(app.drawAPI.mainCtx, topleft, '#e234ff', 3);
+      }, 200);
     } else {
       //triangle
       let height = 43.3012701892,
@@ -113,97 +125,6 @@ export class GridManager {
 
     closest.type = 'grid';
 
-    // setTimeout(() => {
-    //       app.drawAPI.drawPoint(app.drawAPI.mainCtx, closest, '#e234ff', 3);
-    //   }, 200);
-
     return closest;
-  }
-
-  /**
-	 * Grille: Renvoie le point de la grille le plus proche d'un sommet
-	 * appartenenat à une des formes d'un groupe.
-     * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
-     * @param  {Shape} mainShape      La forme principale
-     * @param  {Point} coordinates    Les coordonnées de la forme principale
-	 * @return {{'gridPoint': Point, 'shape': Shape, 'shapePoint': Object}}
-	 * Le point de la grille, la forme à laquelle le sommet appartient, et un
-	 * objet représentant le point de la forme:
-	 * {
-	 *     'shape': Shape,
-	 *     'relativePoint': Point,
-	 *     'realPoint': Point,
-	 *     'type': 'vertex',
-	 *     'vertexIndex': int
-     }
-	 *
-	 * Il faut considérer que les coordonnées des formes du groupe (shapes[i].x,
-	 * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
-	 */
-  static getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates) {
-    /*
-        Calcule la liste des sommets des formes
-        Les points de subdivision de segments ne doivent pas être attirés par la
-        grille.
-
-        Pour l'instant, s'il existe au moins un sommet, on trouve le sommet le
-        plus proche d'un point de la grille. S'il n'y a pas de sommet, mais
-        qu'au moins une des formes a son centre affiché, alors on utilise le
-        centre le plus proche d'un point de la grille.
-         */
-    let points = shapes
-      .map(s => {
-        let list = [];
-        s.buildSteps.forEach((vertex, i1) => {
-          if (vertex.type == 'vertex') {
-            list.push({
-              shape: s,
-              coordinates: vertex.coordinates
-                .addCoordinates(s)
-                .addCoordinates(coordinates)
-                .subCoordinates(mainShape),
-              pointType: 'vertex',
-              index: i1,
-            });
-          }
-        });
-        return list;
-      })
-      .reduce((total, val) => {
-        return total.concat(val);
-      }, []);
-
-    //Centres?
-    if (points.length == 0) {
-      points = shapes
-        .filter(s => s.isCenterShown)
-        .map(s => {
-          return {
-            shape: s,
-            coordinates: s.center
-              .addCoordinates(s)
-              .addCoordinates(coordinates)
-              .subCoordinates(mainShape),
-            pointType: 'center',
-          };
-        });
-      if (points.length == 0) return null;
-    }
-
-    let best = null,
-      bestDist = 1000 * 1000 * 1000;
-
-    points.forEach(pt => {
-      let gridPoint = this.getClosestGridPoint(pt.coordinates),
-        dist = pt.coordinates.dist(gridPoint);
-      if (dist < bestDist) {
-        best.shape = pt.shape;
-        best.shapePoint = pt;
-        best.gridPoint = gridPoint;
-        bestDist = dist;
-      }
-    });
-
-    return best;
   }
 }

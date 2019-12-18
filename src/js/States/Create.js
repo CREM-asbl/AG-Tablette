@@ -21,10 +21,10 @@ export class CreateState extends State {
     this.selectedShape = null;
 
     //Shape temporaire (pour le deplacement)
-    this.tempShape = null;
+    this.shapeToCreate = null;
 
     //Shape finale
-    this.finalShape = null;
+    this.shapeToCreate = null;
   }
 
   /**
@@ -49,33 +49,21 @@ export class CreateState extends State {
   onMouseDown(mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    this.tempShape = this.selectedShape.copy();
+    this.shapeToCreate = this.selectedShape.copy();
     let shapeSize = app.settings.get('shapesSize');
-    this.involvedShapes = [this.tempShape];
+    this.involvedShapes = [this.shapeToCreate];
 
-    this.tempShape.setScale(shapeSize);
-    this.tempShape.setCoordinates(mouseCoordinates);
+    this.shapeToCreate.setScale(shapeSize);
+    this.shapeToCreate.setCoordinates(mouseCoordinates);
 
-    this.actions[0].shapeToAdd = this.tempShape;
+    this.actions[0].shapeToCreate = this.shapeToCreate;
     this.actions[0].coordinates = mouseCoordinates;
     this.actions[0].shapeSize = shapeSize;
-    this.actions[0].shapeId = this.actions[0].shapeToAdd.id;
+    this.actions[0].shapeId = this.actions[0].shapeToCreate.id;
 
     this.currentStep = 'moving-shape';
 
-    this.executeAction(false);
-
     app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh();
-  }
-
-  onMouseMove(mouseCoordinates) {
-    if (this.currentStep != 'moving-shape') return;
-
-    this.tempShape.setCoordinates(mouseCoordinates);
-
-    app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh();
   }
 
   onMouseUp(mouseCoordinates) {
@@ -86,21 +74,19 @@ export class CreateState extends State {
     let shapeSize = app.settings.get('shapesSize');
     let coordinates = mouseCoordinates;
 
-    this.finalShape = this.tempShape.copy();
-    app.workspace.deleteShape(this.tempShape);
-    this.involvedShapes = [this.finalShape];
+    this.involvedShapes = [this.shapeToCreate];
 
-    this.finalShape.setCoordinates(coordinates);
-    this.actions[0].shapeToAdd = this.finalShape;
+    this.shapeToCreate.setCoordinates(coordinates);
+    this.actions[0].shapeToCreate = this.shapeToCreate;
     this.actions[0].shapeSize = shapeSize;
-    this.actions[0].shapeId = this.finalShape.id;
+    this.actions[0].shapeId = this.shapeToCreate.id;
     this.actions[0].coordinates = coordinates;
 
-    let transformation = getShapeAdjustment(this.involvedShapes, this.finalShape);
+    let transformation = getShapeAdjustment(this.involvedShapes, this.shapeToCreate);
     if (transformation.rotation != 0) {
       let rotateAction = new RotateAction();
 
-      rotateAction.shapeId = this.finalShape.id;
+      rotateAction.shapeId = this.shapeToCreate.id;
       rotateAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
       rotateAction.rotationAngle = transformation.rotation;
       this.actions.push(rotateAction);
@@ -108,7 +94,7 @@ export class CreateState extends State {
     if (transformation.move.x != 0 || transformation.move.y != 0) {
       let moveAction = new MoveAction();
 
-      moveAction.shapeId = this.finalShape.id;
+      moveAction.shapeId = this.shapeToCreate.id;
       moveAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
       moveAction.transformation = transformation.move;
       this.actions.push(moveAction);
@@ -118,5 +104,13 @@ export class CreateState extends State {
     this.setShape(this.selectedShape);
     app.drawAPI.askRefresh('upper');
     app.drawAPI.askRefresh();
+  }
+
+  draw(ctx, mouseCoordinates) {
+    if (this.currentStep != 'moving-shape') return;
+
+    this.shapeToCreate.setCoordinates(mouseCoordinates);
+
+    app.drawAPI.drawShape(ctx, this.shapeToCreate);
   }
 }

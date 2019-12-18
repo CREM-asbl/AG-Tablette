@@ -122,9 +122,8 @@ export class DivideAction extends Action {
       } else {
         segment = shape.segments[this.segmentIndex];
       }
-      let isArc = pt1.segment.arcCenter;
       pt1.segment = segment;
-      if (isArc) {
+      if (pt1.segment.arcCenter) {
         this.pointsModeAddArcPoints(pt1, pt2, segment);
       } else {
         this.pointsModeAddSegPoints(pt1, pt2, segment);

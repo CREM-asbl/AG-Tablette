@@ -66,7 +66,7 @@ export class Point {
       neg = arguments[i];
     } else {
       x = arguments[i];
-      y = arguments[i] ? arguments[++i] : arguments[i];
+      y = !isNaN(arguments[i + 1]) ? arguments[++i] : arguments[i];
       i++;
       neg = arguments[i];
     }
@@ -91,7 +91,7 @@ export class Point {
       y = arguments[0].y;
     } else {
       x = arguments[0];
-      y = arguments[0] ? arguments[1] : arguments[0];
+      y = !isNaN(arguments[1]) ? arguments[1] : arguments[0];
     }
     x = this.x + x;
     y = this.y + y;
@@ -242,5 +242,10 @@ export class Point {
       y = arguments[1];
     }
     return this.dist(new Point(x, y)) < 1;
+  }
+
+  setToCanvasCoordinates() {
+    this.multiplyWithScalar(app.workspace.zoomLevel);
+    this.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
   }
 }
