@@ -2,7 +2,6 @@ import { loadManifest } from '../Manifest';
 import { app } from '../App';
 import { uniqId } from '../Tools/general';
 import { WorkspaceHistory } from './WorkspaceHistory';
-import { CompleteWorkspaceHistory } from './CompleteWorkspaceHistory';
 import { GridManager } from '../GridManager';
 import { ShapeGroup } from './ShapeGroup';
 import { Shape } from './Shape';
@@ -23,9 +22,6 @@ export class Workspace {
 
     //Représente l'historique
     this.history = new WorkspaceHistory();
-
-    //Représente l'historique complet
-    this.completeHistory = new CompleteWorkspaceHistory();
 
     //liste des formes du projet ([Shape])
     this.shapes = [];
