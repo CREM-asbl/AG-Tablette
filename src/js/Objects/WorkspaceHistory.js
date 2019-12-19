@@ -113,7 +113,6 @@ export class WorkspaceHistory {
     this.history[this.historyIndex].actions.forEach(action => action.do());
     app.drawAPI.askRefresh();
     this.updateMenuState();
-    console.log(this.history);
   }
 
   get roots() {
