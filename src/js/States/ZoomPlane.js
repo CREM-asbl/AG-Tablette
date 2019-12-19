@@ -14,9 +14,6 @@ export class ZoomPlaneState extends State {
     this.currentStep = null; // listen-canvas-click -> zooming-plane
 
     this.baseDist = null;
-
-    this.total = 0;
-    this.nbElem = 0;
   }
 
   /**
@@ -67,7 +64,6 @@ export class ZoomPlaneState extends State {
   }
 
   onMouseMove(clickCoordinates, event) {
-    let time = window.performance.now();
     if (this.currentStep != 'zooming-plane') return;
 
     let newDist = this.getDist(clickCoordinates),
@@ -107,9 +103,6 @@ export class ZoomPlaneState extends State {
 
     app.workspace.setTranslateOffset(originalTranslateOffset, false);
     app.workspace.setZoomLevel(originalZoom, false);
-    this.total += window.performance.now() - time;
-    this.nbElem++;
-    console.log(this.total / this.nbElem);
   }
 
   getDist(clickCoordinates) {
