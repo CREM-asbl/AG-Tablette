@@ -77,6 +77,7 @@ export class CreateState extends State {
     this.involvedShapes = [this.shapeToCreate];
 
     this.shapeToCreate.setCoordinates(coordinates);
+    if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
     this.actions[0].shapeToCreate = this.shapeToCreate;
     this.actions[0].shapeSize = shapeSize;
     this.actions[0].shapeId = this.shapeToCreate.id;

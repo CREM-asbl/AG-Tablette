@@ -78,9 +78,10 @@ export class CopyState extends State {
   onMouseUp(mouseCoordinates, event) {
     if (this.currentStep != 'moving-shape') return;
 
-    let translation = new Point(mouseCoordinates).subCoordinates(this.startClickCoordinates),
-      newPos = new Point(this.selectedShape).addCoordinates(translation),
-      transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape, false);
+    let translation = new Point(mouseCoordinates).subCoordinates(this.startClickCoordinates);
+    this.involvedShapes.forEach(shape => shape.translate(translation));
+    let transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape);
+    this.involvedShapes.forEach(shape => shape.translate(translation, true));
     if (transformation.rotation != 0) {
       let rotateAction = new RotateAction();
 

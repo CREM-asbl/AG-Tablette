@@ -445,7 +445,6 @@ export class Segment {
     if (this.counterclockwise)
       perpendicularOriginVector = new Point(1, -originVector.x / originVector.y);
     else perpendicularOriginVector = new Point(-1, originVector.x / originVector.y);
-    console.log('origin', originVector, 'perpend', perpendicularOriginVector);
     if (perpendicularOriginVector.y == Infinity)
       perpendicularOriginVector.setCoordinates({ x: 0, y: 1 });
     if (perpendicularOriginVector.y == -Infinity)
@@ -462,23 +461,26 @@ export class Segment {
    * convertit le segment en svg
    */
   to_svg() {
-    let point = new Point(this.vertexes[1]),
+    let v0 = new Point(this.vertexes[0]),
+      v1 = new Point(this.vertexes[1]),
       path;
-    point.setToCanvasCoordinates();
+    v0.setToCanvasCoordinates();
+    v1.setToCanvasCoordinates();
     if (this.arcCenter) {
-      let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
-        secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
-      // if (this.counterclockwise)
-      //   [firstAngle, secondAngle] = [secondAngle, firstAngle];
-      if (this.vertexes[0].equal(this.vertexes[1])) {
+      let ctr = new Point(this.arcCenter);
+      ctr.setToCanvasCoordinates();
+      let radius = ctr.dist(v1),
+        firstAngle = ctr.getAngle(v0),
+        secondAngle = ctr.getAngle(v1);
+      if (v0.equal(v1)) {
         // circle
         const oppositeAngle = firstAngle + Math.PI,
           oppositePoint = new Point(
-            this.arcCenter.x + Math.cos(oppositeAngle) * this.radius,
-            this.arcCenter.y + Math.sin(oppositeAngle) * this.radius,
+            ctr.x + Math.cos(oppositeAngle) * radius,
+            ctr.y + Math.sin(oppositeAngle) * radius,
           );
-        path = ['A', this.radius, this.radius, 0, 1, 0, oppositePoint.x, oppositePoint.y]
-          .concat(['A', this.radius, this.radius, 0, 1, 0, this.vertexes[1].x, this.vertexes[1].y])
+        path = ['A', radius, radius, 0, 1, 0, oppositePoint.x, oppositePoint.y]
+          .concat(['A', radius, radius, 0, 1, 0, v1.x, v1.y])
           .join(' ');
       } else {
         if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
@@ -492,20 +494,10 @@ export class Segment {
           largeArcFlag = !largeArcFlag;
         }
         console.log('sweep', sweepFlag, 'large', largeArcFlag);
-        path = [
-          'A',
-          this.radius,
-          this.radius,
-          0,
-          largeArcFlag,
-          sweepFlag,
-          this.vertexes[1].x,
-          this.vertexes[1].y,
-        ].join(' ');
-        console.log(path);
+        path = ['A', radius, radius, 0, largeArcFlag, sweepFlag, v1.x, v1.y].join(' ');
       }
     } else {
-      path = ['L', point.x, point.y].join(' ');
+      path = ['L', v1.x, v1.y].join(' ');
     }
     return path;
   }

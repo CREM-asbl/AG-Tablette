@@ -372,7 +372,7 @@ export class Shape {
       neg = arguments[++i];
     }
     multiplier = neg ? -1 : 1;
-    translation = new Point(x * multiplier, y * multiplier);
+    const translation = new Point(x * multiplier, y * multiplier);
     this.segments.forEach(seg => seg.translate(translation));
     this.x += translation.x;
     this.y += translation.y;

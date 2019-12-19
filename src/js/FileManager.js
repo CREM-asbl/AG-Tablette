@@ -218,7 +218,8 @@ export class FileManager {
     if (app.hasNativeFS) {
       try {
         await FileManager.newSaveFile();
-      } catch {
+      } catch (error) {
+        console.error(error);
         // user closed save prompt
       }
     } else {

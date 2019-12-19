@@ -245,7 +245,7 @@ export class Point {
   }
 
   setToCanvasCoordinates() {
-    this.multiplyWithScalar(app.workspace.zoomLevel);
+    this.multiplyWithScalar(app.workspace.zoomLevel, true);
     this.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
   }
 }

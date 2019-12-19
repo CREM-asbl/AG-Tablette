@@ -90,8 +90,6 @@ function bestPossibility(possibilities) {
  * un groupe de formes en fonction de la grille et de l'ajustement automatique.
  * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
  * @param  {Shape} mainShape      La forme principale
- * @param  {Boolean} [excludeSelf=true] False: peut magnétiser la forme avec
- *              elle-même (son ancienne position). Utile pour Copy()
  * @return {Object}
  *          {
  *              'rotation': float,  //Rotation à effectuer
@@ -99,7 +97,7 @@ function bestPossibility(possibilities) {
  *          }
  *
  */
-export function getShapeAdjustment(shapes, mainShape, excludeSelf = true) {
+export function getShapeAdjustment(shapes, mainShape) {
   const maxRotateAngle = 0.25; //radians
   let grid = app.workspace.settings.get('isGridShown'),
     tangram = app.workspace.settings.get('isTangramShown'),
@@ -118,11 +116,10 @@ export function getShapeAdjustment(shapes, mainShape, excludeSelf = true) {
   //Générer la liste des points du groupe de formes
   let ptList = [];
   shapes.forEach(s => {
-    ptList.push(...s.allOutlinePoints);
+    if (s.isCircle()) s.points && ptList.push(...s.points);
+    else ptList.push(...s.allOutlinePoints);
     if (s.isCenterShown) ptList.push(s.center);
   });
-
-  // console.log(ptList);
 
   //Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
   let cPtListTangram = [],
@@ -150,7 +147,7 @@ export function getShapeAdjustment(shapes, mainShape, excludeSelf = true) {
     let constr = app.interactionAPI.getEmptySelectionConstraints().points;
     constr.canSelect = true;
     constr.types = ['vertex', 'segmentPoint', 'center'];
-    if (excludeSelf) constr.blacklist = shapes;
+    constr.blacklist = shapes;
     let pt = app.interactionAPI.selectPoint(point, constr, false, false);
     if (pt) {
       cPtListShape.push({
@@ -165,10 +162,7 @@ export function getShapeAdjustment(shapes, mainShape, excludeSelf = true) {
     pt => pt.fixed.type == 'vertex' || pt.fixed.type == 'segmentPoint',
   );
 
-  // console.log(cPtListTangram,
-  //   cPtListGrid,
-  //   cPtListBorder,
-  //   cPtListShape);
+  console.log(cPtListTangram, cPtListGrid, cPtListBorder, cPtListShape);
 
   let possibilities = [];
 
