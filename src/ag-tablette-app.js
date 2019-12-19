@@ -2,8 +2,6 @@ import { LitElement, html } from 'lit-element';
 import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
-import './popups/settings-popup';
-import './popups/save-popup';
 import './flex-toolbar';
 import './icon-button';
 import './js/Manifest';
@@ -12,6 +10,8 @@ import './popups/grid-popup';
 import './popups/tangram-popup';
 import './popups/opacity-popup';
 import './popups/divide-popup';
+import './popups/settings-popup';
+import './popups/save-popup';
 import './state-menu';
 import './version-item';
 
@@ -425,7 +425,7 @@ class AGTabletteApp extends LitElement {
 
       <input
         id="fileSelector"
-        accept=".agg, .json, .fag"
+        accept=".agg, .json"
         type="file"
         style="display: none"
         @change="${event => FileManager.oldOpenFile(event.target.files[0])}"

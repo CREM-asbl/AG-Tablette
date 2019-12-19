@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { DivideAction } from './Actions/Divide';
 import { State } from './State';
+import { Segment } from '../Objects/Segment';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -62,10 +63,10 @@ export class DivideState extends State {
       return;
 
     if (this.currentStep == 'listen-canvas-click') {
-      if (object.type === 'segment') {
+      if (object instanceof Segment) {
         this.actions[0].shapeId = object.shape.id;
         this.actions[0].mode = 'segment';
-        this.actions[0].segmentIndex = object.index;
+        this.actions[0].segmentIndex = object.idx;
         this.shape = object.shape;
         this.currentStep = 'showing-segment';
       } else {
@@ -91,8 +92,8 @@ export class DivideState extends State {
 
       if (
         pt1.type == object.type &&
-        pt1.index == object.index &&
-        (pt1.pointType == 'vertex' || pt1.coordinates.equal(object.coordinates))
+        pt1.segment.idx == object.segment.idx &&
+        (pt1.pointType == 'vertex' || pt1.equal(object))
       ) {
         //pt1 = object => désélectionner le point.
         this.currentStep = 'listen-canvas-click';
@@ -116,24 +117,23 @@ export class DivideState extends State {
             forme est donc constituée uniquement de 2 sommets, un segment et un
             arc de cercle), on annulle l'action.
              */
-      if (pt1.pointType == 'vertex' && object.pointType == 'vertex') {
-        let bsList = object.shape.buildSteps;
-        if (
-          bsList.filter(bs => bs.type == 'vertex').length == 2 &&
-          bsList.filter(bs => bs.type == 'segment' && bs.isArc !== true).length == 1 &&
-          bsList.filter(bs => bs.type == 'moveTo').length == 1 &&
-          bsList.filter(bs => bs.type == 'segment' && bs.isArc === true).length > 0
-        ) {
-          console.log('ambiguité, ne rien faire');
-          let parts = this.actions[0].numberOfparts;
-          this.start(false);
-          this.setNumberOfparts(parts);
+      // if (pt1.type == 'vertex' && object.type == 'vertex') {
+      //   let segments = object.shape.segments;
+      //   if (
+      //     segments.length == 2 &&
+      //     segments.filter(seg => seg.arcCenter !== true).length == 1 &&
+      //     segments.filter(seg => seg.arcCenter === true).length > 0
+      //   ) {
+      //     console.log('ambiguité, ne rien faire');
+      //     let parts = this.actions[0].numberOfparts;
+      //     this.start(false);
+      //     this.setNumberOfparts(parts);
 
-          app.drawAPI.askRefresh();
-          app.drawAPI.askRefresh('upper');
-          return;
-        }
-      }
+      //     app.drawAPI.askRefresh();
+      //     app.drawAPI.askRefresh('upper');
+      //     return;
+      //   }
+      // }
 
       this.actions[0].secondPoint = object;
       this.currentStep = 'showing-points';
@@ -164,23 +164,33 @@ export class DivideState extends State {
    */
   draw(ctx) {
     if (this.currentStep == 'select-second-point') {
-      let coords = this.actions[0].firstPoint.coordinates;
+      let coords = this.actions[0].firstPoint;
       app.drawAPI.drawPoint(ctx, coords, '#E90CC8', 2);
     }
     if (this.currentStep == 'showing-points') {
-      let coords1 = this.actions[0].firstPoint.coordinates,
-        coords2 = this.actions[0].secondPoint.coordinates;
+      let coords1 = this.actions[0].firstPoint,
+        coords2 = this.actions[0].secondPoint;
       app.drawAPI.drawPoint(ctx, coords1, '#E90CC8', 2);
       app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
     }
     if (this.currentStep == 'showing-segment') {
-      let bs = this.shape.buildSteps,
-        sIndex = this.actions[0].segmentIndex,
-        indexes = [sIndex];
-      if (bs[sIndex].isArc) indexes = this.shape.getArcSegmentIndexes(sIndex);
-      indexes.forEach(index =>
-        app.drawAPI.drawLine(ctx, bs[index].vertexes[0], bs[index].vertexes[1], '#E90CC8', 3),
-      );
+      let segments = this.shape.segments,
+        index = this.actions[0].segmentIndex,
+        segment = segments[index];
+
+      if (segment.arcCenter) {
+        app.drawAPI.drawArc(
+          ctx,
+          segment.vertexes[0],
+          segment.vertexes[1],
+          segment.arcCenter,
+          segment.counterclockwise,
+          '#E90CC8',
+          3,
+        );
+      } else {
+        app.drawAPI.drawLine(ctx, segment.vertexes[0], segment.vertexes[1], '#E90CC8', 3);
+      }
     }
   }
 
@@ -189,43 +199,30 @@ export class DivideState extends State {
    * @return {[Object]} Liste de points au même format qu'interactionAPI
    */
   getCandidatePoints(object) {
-    // pour refactorer, utiliser Segment.allPoints
-    const shape = object.shape,
-      bs = object.shape.buildSteps,
-      selected_point = object.coordinates;
+    const shape = object.shape;
 
-    const concerned_segments = bs.map(seg => {
-      if (seg.type == 'segment' && seg.contains(selected_point)) return seg;
-      else return null;
-    });
+    const concerned_segments = object.shape.segments.filter(seg => seg.contains(object));
 
     let candidates = [];
 
-    concerned_segments.forEach((seg, idx) => {
+    concerned_segments.forEach(seg => {
       if (!seg) return;
-      seg.vertexes.forEach(vertex => {
-        for (let key in bs) {
-          if (
-            bs[key].type == 'vertex' &&
-            bs[key].coordinates.equal(vertex) &&
-            !candidates.some(candi => candi.index == key)
-          ) {
-            // if not already added
-            candidates.push({
-              shape: shape,
-              type: 'vertex',
-              index: key,
-            });
-          }
-        }
+      object.shape.segments.forEach(segment => {
+        const vertex = segment.vertexes[1];
+        if (
+          seg.contains(vertex) &&
+          !candidates.some(candi => candi.type == 'vertex' && candi.index == segment.idx)
+        )
+          candidates.push({
+            shape: shape,
+            type: 'vertex',
+            index: segment.idx,
+          });
       });
-      seg.points.forEach(point => {
-        candidates.push({
-          shape: shape,
-          type: 'segmentPoint',
-          coordinates: point,
-          index: idx,
-        });
+      candidates.push({
+        shape: shape,
+        type: 'segmentPoint',
+        index: seg.idx,
       });
     });
 

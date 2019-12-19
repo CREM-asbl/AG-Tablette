@@ -1,7 +1,7 @@
 import { app } from '../App';
 import { MergeAction } from './Actions/Merge';
 import { State } from './State';
-import { Segment } from '../Objects/ShapeBuildStep';
+import { Segment } from '../Objects/Segment';
 
 /**
  * Fusionner 2 formes en une nouvelle forme
@@ -77,9 +77,8 @@ export class MergeState extends State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Context2D} ctx              Le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {
+  draw(ctx) {
     if (this.currentStep == 'selecting-second-shape') {
       let shape = this.firstShape,
         borderColor = shape.borderColor;

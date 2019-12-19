@@ -62,7 +62,6 @@ export class BackgroundColorAction extends Action {
       this.oldColors.push(s.color);
       s.color = this.selectedColor;
       s.second_color = getComplementaryColor(s.color);
-      if (s.isBiface && s.isReversed) [s.color, s.second_color] = [s.second_color, s.color];
     });
   }
 

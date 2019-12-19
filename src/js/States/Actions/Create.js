@@ -9,7 +9,7 @@ export class CreateAction extends Action {
     this.name = 'CreateAction';
 
     //La forme que l'on souhaite ajouter
-    this.shapeToAdd = null;
+    this.shapeToCreate = null;
 
     //Les coordonnées
     this.coordinates = null;
@@ -19,14 +19,11 @@ export class CreateAction extends Action {
 
     //Taille de la forme. Pas utilisé ici, juste pour info (pour l'aide)
     this.shapeSize = null;
-
-    //Premiere forme temporaire (pour le deplacement)
-    this.isTemporary = false;
   }
 
   saveToObject() {
     let save = {
-      shapeToAdd: this.shapeToAdd.saveToObject(),
+      shapeToCreate: this.shapeToCreate.saveToObject(),
       coordinates: this.coordinates,
       shapeId: this.shapeId,
       shapeSize: this.shapeSize,
@@ -35,8 +32,8 @@ export class CreateAction extends Action {
   }
 
   initFromObject(save) {
-    this.shapeToAdd = new Shape({ x: 0, y: 0 }, []);
-    this.shapeToAdd.initFromObject(save.shapeToAdd);
+    this.shapeToCreate = new Shape({ x: 0, y: 0 }, []);
+    this.shapeToCreate.initFromObject(save.shapeToCreate);
 
     this.coordinates = save.coordinates;
     this.shapeId = save.shapeId;
@@ -44,7 +41,7 @@ export class CreateAction extends Action {
   }
 
   checkDoParameters() {
-    if (!(this.shapeToAdd instanceof Shape)) return false;
+    if (!(this.shapeToCreate instanceof Shape)) return false;
     if (!this.coordinates || this.coordinates.x === undefined || this.coordinates.y === undefined)
       return false;
     return true;
@@ -58,17 +55,12 @@ export class CreateAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape = this.shapeToAdd;
-
-    if (shape.isCircle()) {
-      //Afficher le centre du cercle par défaut
-      shape.isCenterShown = true;
-    }
+    let shape = this.shapeToCreate;
 
     if (this.shapeId) shape.id = this.shapeId;
     else this.shapeId = shape.id;
     app.workspace.addShape(shape);
-    if (this.isTemporary) return false;
+    this.shapeToCreate = this.shapeToCreate.copy();
   }
 
   undo() {

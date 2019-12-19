@@ -122,30 +122,29 @@ export class DrawAPI {
    * @param  {Context2D} ctx   le canvas
    * @param  {Shape} shape la forme
    */
-  drawShape(ctx, shape, borderSize = 1) {
+  drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
     ctx.strokeStyle = shape.borderColor;
     ctx.fillStyle = shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
+    const path = shape.getPath(axeAngle);
 
-    ctx.fill(shape.path);
+    ctx.fill(path);
     ctx.globalAlpha = 1;
-    ctx.stroke(shape.path);
+    ctx.stroke(path);
     ctx.save();
 
     if (app.settings.get('areShapesPointed')) {
-      shape.buildSteps
-        .filter(bs => bs.type === 'vertex')
-        .forEach(bs => this.drawPoint(ctx, bs.coordinates, '#000', 1, false));
-    }
-    shape.buildSteps
-      .filter(bs => bs.type === 'segment')
-      .forEach(bs => {
-        //Points sur les segments
-        bs.points.forEach(pt => {
-          this.drawPoint(ctx, pt, '#000', 1, false);
-        });
+      if (shape.isSegment()) this.drawPoint(ctx, shape.segments[0].vertexes[0], '#000', 1, false);
+      shape.segments.forEach(seg => {
+        // this.drawPoint(ctx, seg.middle, '#000', 1, false);
+        if (!shape.isCircle()) this.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
+        if (seg.points)
+          seg.points.forEach(pt => {
+            this.drawPoint(ctx, pt, '#000', 1, false);
+          });
       });
+    }
     if (shape.isCenterShown) this.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
     ctx.restore();
 
@@ -193,6 +192,34 @@ export class DrawAPI {
     ctx.moveTo(fromPoint.x, fromPoint.y);
     ctx.lineTo(toPoint.x, toPoint.y);
     ctx.closePath();
+    ctx.stroke();
+
+    ctx.lineWidth = 1;
+    if (doSave) ctx.restore();
+  }
+
+  drawArc(
+    ctx,
+    vertex1,
+    vertex2,
+    center,
+    counterclockwise,
+    color = '#000',
+    size = 1,
+    doSave = true,
+  ) {
+    let firstAngle = center.getAngle(vertex1),
+      secondAngle = center.getAngle(vertex2);
+    if (vertex1.equal(vertex2)) secondAngle += 2 * Math.PI;
+
+    if (doSave) ctx.save();
+
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = size;
+
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, vertex2.dist(center), firstAngle, secondAngle, counterclockwise);
     ctx.stroke();
 
     ctx.lineWidth = 1;
@@ -247,7 +274,7 @@ export class DrawAPI {
   isPointInShape(point, shape) {
     const ctx = this.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
-    const selected = ctx.isPointInPath(shape.path, point.x, point.y);
+    const selected = ctx.isPointInPath(shape.getPath(), point.x, point.y);
     return selected;
   }
 }
