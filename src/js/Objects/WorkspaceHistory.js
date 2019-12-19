@@ -84,6 +84,7 @@ export class WorkspaceHistory {
    * élément.
    */
   undo() {
+    if (app.state) app.state.start(false);
     if (!this.canUndo()) {
       console.error('Nothing to undo');
       return;
@@ -93,6 +94,7 @@ export class WorkspaceHistory {
     reversedActions.forEach(action => action.undo());
     this.historyIndex = this.history[this.historyIndex].previous_step;
     app.drawAPI.askRefresh();
+    app.drawAPI.askRefresh('upper');
     this.updateMenuState();
   }
 
