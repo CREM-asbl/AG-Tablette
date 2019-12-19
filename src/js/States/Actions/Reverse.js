@@ -1,7 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { Point } from '../../Objects/Point';
-import { Segment } from '../../Objects/ShapeBuildStep';
+import { Segment } from '../../Objects/Segment';
 
 export class ReverseAction extends Action {
   constructor() {
@@ -13,7 +13,10 @@ export class ReverseAction extends Action {
     this.shapeId = null;
 
     //L'axe de symétrie utilisé pour le retournement
-    this.symmetricalArchOrientation = null; //V, H, NW, SW
+    this.symmetricalAxeOrientation = null; //V, H, NW, SW
+
+    //Longueur en pixels des 4 arcs de symétrie
+    this.symmetricalAxeLength = 200;
 
     /*
         Liste des formes solidaires à la la forme que l'on déplace, y compris
@@ -25,7 +28,7 @@ export class ReverseAction extends Action {
   saveToObject() {
     let save = {
       shapeId: this.shapeId,
-      symmetricalArchOrientation: this.symmetricalArchOrientation,
+      symmetricalAxeOrientation: this.symmetricalAxeOrientation,
       involvedShapesIds: this.involvedShapesIds,
     };
     return save;
@@ -33,13 +36,13 @@ export class ReverseAction extends Action {
 
   initFromObject(save) {
     this.shapeId = save.shapeId;
-    this.symmetricalArchOrientation = save.symmetricalArchOrientation;
+    this.symmetricalAxeOrientation = save.symmetricalAxeOrientation;
     this.involvedShapesIds = save.involvedShapesIds;
   }
 
   checkDoParameters() {
     if (!this.shapeId) return false;
-    if (!this.symmetricalArchOrientation) return false;
+    if (!this.symmetricalAxeOrientation) return false;
     return true;
   }
 
@@ -50,11 +53,11 @@ export class ReverseAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let arch = this.getSymmetricalArch();
+    let axe = this.getSymmetricalAxe();
 
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id);
-      this.reverseShape(s, arch, 1);
+      this.reverseShape(s, axe, 1);
     });
   }
 
@@ -64,63 +67,72 @@ export class ReverseAction extends Action {
     this.do();
   }
 
-  getSymmetricalArch() {
+  getSymmetricalAxe(orientation = this.symmetricalAxeOrientation) {
     let shape = app.workspace.getShapeById(this.shapeId),
-      arch = {
-        type: this.symmetricalArchOrientation,
-        center: shape.center,
-        p1: { x: null, y: null },
-        p2: { x: null, y: null },
-      };
-    if (arch.type == 'V') {
-      arch.p1 = { x: 0, y: -1 };
-      arch.p2 = { x: 0, y: 1 };
-    } else if (arch.type == 'NW') {
-      arch.p1 = { x: -1, y: -1 };
-      arch.p2 = { x: 1, y: 1 };
-    } else if (arch.type == 'H') {
-      arch.p1 = { x: -1, y: 0 };
-      arch.p2 = { x: 1, y: 0 };
+      center = shape.center,
+      axe;
+    if (orientation == 'V') {
+      axe = new Segment(
+        new Point(center.x, center.y - this.symmetricalAxeLength / 2),
+        new Point(center.x, center.y + this.symmetricalAxeLength / 2),
+      );
+    } else if (orientation == 'NW') {
+      axe = new Segment(
+        new Point(
+          center.x - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+        new Point(
+          center.x + (0.683 * this.symmetricalAxeLength) / 2,
+          center.y + (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+      );
+    } else if (orientation == 'H') {
+      axe = new Segment(
+        new Point(center.x + this.symmetricalAxeLength / 2, center.y),
+        new Point(center.x - this.symmetricalAxeLength / 2, center.y),
+      );
     } else {
       // SW
-      arch.p1 = { x: -1, y: 1 };
-      arch.p2 = { x: 1, y: -1 };
+      axe = new Segment(
+        new Point(
+          center.x + (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+        new Point(
+          center.x - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y + (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+      );
     }
-    return arch;
+    return axe;
   }
 
   /**
    * Retourne une forme
    * @param  {Shape} shape       la forme à retourner
-   * @param  {Object} arch        L'axe de symétrie à utiliser
+   * @param  {Object} axe        L'axe de symétrie à utiliser
    * @param  {float} progression  Entre 0 et 1, 1 pour un retournement complet
    */
-  reverseShape(shape, arch, progression) {
-    let saveAxeCenter = arch.center;
-    let newShapeCenter = this.computePointPosition(shape, arch, progression);
-    shape.x = newShapeCenter.x;
-    shape.y = newShapeCenter.y;
-    if (!shape.haveBeenReversed && progression > 0.5)
+  reverseShape(shape, axe, progression) {
+    if (progression > 0.5) {
       // milieu animation
       shape.isReversed = !shape.isReversed;
+      shape.reverse();
+    }
 
-    shape.buildSteps.forEach(bs => {
-      const transformation = this.computePointPosition(bs.coordinates, arch, progression);
-      bs.coordinates = transformation;
-      if (bs.type == 'segment') {
-        let transformation = this.computePointPosition(bs.vertexes[0], arch, progression);
-        bs.vertexes[0] = transformation;
-        transformation = this.computePointPosition(bs.vertexes[1], arch, progression);
-        bs.vertexes[1] = transformation;
-        bs.points.forEach(pt => {
-          let pointCoords = this.computePointPosition(pt, arch, progression);
-          pt.x = pointCoords.x;
-          pt.y = pointCoords.y;
-        });
-      }
+    shape.segments.forEach(seg => {
+      let points = [
+        ...seg.vertexes,
+        ...seg.points,
+        seg.arcCenter,
+        seg.tangentPoint1,
+        seg.tangentPoint2,
+      ];
+      points.forEach(pt => {
+        if (pt) this.computePointPosition(pt, axe, progression);
+      });
     });
-
-    arch.center = saveAxeCenter;
   }
 
   /**
@@ -131,15 +143,12 @@ export class ReverseAction extends Action {
    * @return {Point}          Nouvelles coordonnées
    */
   computePointPosition(point, axe, progress) {
-    let pt1 = new Point(axe.center.x + axe.p1.x, axe.center.y + axe.p1.y),
-      pt2 = new Point(axe.center.x + axe.p2.x, axe.center.y + axe.p2.y),
-      center = new Segment(pt1, pt2).projectionPointOnSegment(point);
+    let center = axe.projectionOnSegment(point);
 
     //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
-    let transformation = new Point(
-      point.x + 2 * (center.x - point.x) * progress,
-      point.y + 2 * (center.y - point.y) * progress,
-    );
-    return transformation;
+    point.setCoordinates({
+      x: point.x + 2 * (center.x - point.x) * progress,
+      y: point.y + 2 * (center.y - point.y) * progress,
+    });
   }
 }

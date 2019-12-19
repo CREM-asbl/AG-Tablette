@@ -1,5 +1,5 @@
 import { Family } from '../Objects/Family';
-import { Segment, Vertex, MoveTo } from '../Objects/ShapeBuildStep';
+import { Segment } from '../Objects/Segment';
 
 /**
  * Environnement de travail: Grandeur, Tangram, Cube... Un environnement
@@ -41,78 +41,79 @@ export class Environment {
    * @return {Boolean}     true si valide, false sinon
    */
   checkKitStructure(kit) {
-    for (let familyName of Object.keys(kit)) {
-      let familyData = kit[familyName];
-      if (!familyData.color || !familyData.shapes) {
-        //(1)
-        console.error(familyName + ' - bad kit structure');
-        return false;
-      }
-      if (
-        !familyData.shapes.every(shape => {
-          if (!shape.name || !shape.steps) {
-            //(2)
-            console.error(familyName + ' - bad kit structure');
-            return false;
-          }
-          if (
-            !shape.steps.every(step => {
-              if (!step.type || !Number.isFinite(step.x) || !Number.isFinite(step.y)) {
-                //(3)
-                console.error(familyName + ' - bad kit structure');
-                return false;
-              }
-              if (step.type != 'moveTo' && step.type != 'vertex' && step.type != 'segment') {
-                //(3)
-                console.error(familyName + ' - bad kit structure');
-                return false;
-              }
-              if (
-                step.type == 'segment' &&
-                step.isArc !== undefined &&
-                step.isArc !== false &&
-                step.isArc !== true
-              ) {
-                //(3)
-                console.error(familyName + ' - bad kit structure');
-                return false;
-              }
-              if (step.type != 'segment' && step.isArc !== undefined) {
-                //(3)
-                console.error(familyName + ' - bad kit structure');
-                return false;
-              }
-              return true;
-            })
-          )
-            return false;
-          if (shape.steps[0].type != 'moveTo') {
-            //(4)
-            console.error(familyName + ' - bad kit structure');
-            return false;
-          }
-          for (let i = 1; i < shape.steps.length; i++) {
-            let s1 = shape.steps[i - 1],
-              s2 = shape.steps[i];
-            if (s1.type == 'vertex' && s2.type == 'vertex') {
-              if (s1.isArc !== true && s2.isArc !== true) {
-                //(5)
-                console.error(familyName + ' - bad kit structure');
-                return false;
-              }
-            }
-          }
-          if (shape.steps.length < 2) {
-            //(6)
-            console.error(familyName + ' - bad kit structure');
-            return false;
-          }
-          return true;
-        })
-      )
-        return false;
-    }
     return true;
+    // for (let familyName of Object.keys(kit)) {
+    //   let familyData = kit[familyName];
+    //   if (!familyData.color || !familyData.shapes) {
+    //     //(1)
+    //     console.error(familyName + ' - bad kit structure');
+    //     return false;
+    //   }
+    //   if (
+    //     !familyData.shapes.every(shape => {
+    //       if (!shape.name || !shape.steps) {
+    //         //(2)
+    //         console.error(familyName + ' - bad kit structure');
+    //         return false;
+    //       }
+    //       if (
+    //         !shape.steps.every(step => {
+    //           if (!step.type || !Number.isFinite(step.x) || !Number.isFinite(step.y)) {
+    //             //(3)
+    //             console.error(familyName + ' - bad kit structure');
+    //             return false;
+    //           }
+    //           if (step.type != 'moveTo' && step.type != 'vertex' && step.type != 'segment') {
+    //             //(3)
+    //             console.error(familyName + ' - bad kit structure');
+    //             return false;
+    //           }
+    //           if (
+    //             step.type == 'segment' &&
+    //             step.isArc !== undefined &&
+    //             step.isArc !== false &&
+    //             step.isArc !== true
+    //           ) {
+    //             //(3)
+    //             console.error(familyName + ' - bad kit structure');
+    //             return false;
+    //           }
+    //           if (step.type != 'segment' && step.isArc !== undefined) {
+    //             //(3)
+    //             console.error(familyName + ' - bad kit structure');
+    //             return false;
+    //           }
+    //           return true;
+    //         })
+    //       )
+    //         return false;
+    //       if (shape.steps[0].type != 'moveTo') {
+    //         //(4)
+    //         console.error(familyName + ' - bad kit structure');
+    //         return false;
+    //       }
+    //       for (let i = 1; i < shape.steps.length; i++) {
+    //         let s1 = shape.steps[i - 1],
+    //           s2 = shape.steps[i];
+    //         if (s1.type == 'vertex' && s2.type == 'vertex') {
+    //           if (s1.isArc !== true && s2.isArc !== true) {
+    //             //(5)
+    //             console.error(familyName + ' - bad kit structure');
+    //             return false;
+    //           }
+    //         }
+    //       }
+    //       if (shape.steps.length < 2) {
+    //         //(6)
+    //         console.error(familyName + ' - bad kit structure');
+    //         return false;
+    //       }
+    //       return true;
+    //     })
+    //   )
+    //     return false;
+    // }
+    // return true;
   }
 
   /**
@@ -126,7 +127,7 @@ export class Environment {
       let familyData = kit[familyName];
       let family = new Family(familyName, familyData.color);
       familyData.shapes.forEach(shape => {
-        family.addShape(shape.name, shape.steps, shape.color);
+        family.addShape(shape.name, shape.segments, shape.color);
       });
       this.families.push(family);
       this.familyNames.push(familyName);

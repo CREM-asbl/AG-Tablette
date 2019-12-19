@@ -91,128 +91,40 @@ export class GridManager {
       possibilities.push(topleft.addCoordinates(0, 50 * gridSize));
       possibilities.push(topleft.addCoordinates(50 * gridSize, 0));
       possibilities.push(topleft.addCoordinates(50 * gridSize, 50 * gridSize));
+
+      console.log(possibilities);
+
+      // setTimeout(() => {
+      //   possibilities.forEach(pt =>
+      //     app.drawAPI.drawPoint(app.drawAPI.mainCtx, pt, '#e23400', 3)
+      //   )
+      // }, 200);
+
+      setTimeout(() => {
+        app.drawAPI.drawPoint(app.drawAPI.mainCtx, topleft, '#e234ff', 3);
+      }, 200);
     } else {
       //triangle
-      let height = 43.3012701892 * 2;
-      let topleft1 = new Point(
-        x - ((x - 10) % (50 * gridSize)),
-        y - ((y - 10) % (height * gridSize)),
-      );
-      let topleft2 = new Point(
-        x - ((x - (10 + 25 * gridSize)) % (50 * gridSize)),
-        y - ((y - (10 + 43.3012701892 * gridSize)) % (height * gridSize)),
-      );
-      possibilities.push(topleft1);
-      possibilities.push(topleft1.addCoordinates(0, height * gridSize));
-      possibilities.push(topleft1.addCoordinates(50 * gridSize, 0));
-      possibilities.push(topleft1.addCoordinates(50 * gridSize, height * gridSize));
+      let height = 43.3012701892,
+        topY = y - ((y - 10) % (height * gridSize)),
+        topX =
+          x -
+          ((x - 10) % (50 * gridSize)) +
+          (Math.round(topY / height / gridSize) % 2) * 25 * gridSize;
+      if (topX > x) topX -= 50 * gridSize;
+      let topleft1 = new Point(topX, topY);
 
-      possibilities.push(topleft2);
-      possibilities.push(topleft2.addCoordinates(0, height * gridSize));
-      possibilities.push(topleft2.addCoordinates(50 * gridSize, 0));
-      possibilities.push(topleft2.addCoordinates(50 * gridSize, height * gridSize));
-      possibilities.push(topleft2);
+      possibilities.push(topleft1);
+      possibilities.push(topleft1.addCoordinates(50 * gridSize, 0));
+      possibilities.push(topleft1.addCoordinates(25 * gridSize, height * gridSize));
     }
 
-    let closest = possibilities[0],
-      smallestSquareDist = closest.dist(point);
-    possibilities.forEach(possibility => {
-      let dist = possibility.dist(point);
-      if (dist < smallestSquareDist) {
-        smallestSquareDist = dist;
-        closest = possibility;
-      }
-    });
+    const closest = possibilities.sort((poss1, poss2) =>
+      point.dist(poss1) > point.dist(poss2) ? 1 : -1,
+    )[0];
+
+    closest.type = 'grid';
 
     return closest;
-  }
-
-  /**
-	 * Grille: Renvoie le point de la grille le plus proche d'un sommet
-	 * appartenenat à une des formes d'un groupe.
-     * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
-     * @param  {Shape} mainShape      La forme principale
-     * @param  {Point} coordinates    Les coordonnées de la forme principale
-	 * @return {{'gridPoint': Point, 'shape': Shape, 'shapePoint': Object}}
-	 * Le point de la grille, la forme à laquelle le sommet appartient, et un
-	 * objet représentant le point de la forme:
-	 * {
-	 *     'shape': Shape,
-	 *     'relativePoint': Point,
-	 *     'realPoint': Point,
-	 *     'type': 'vertex',
-	 *     'vertexIndex': int
-     }
-	 *
-	 * Il faut considérer que les coordonnées des formes du groupe (shapes[i].x,
-	 * shapes[i].y) doivent d'abord subir une translation de coordinates-mainShape!
-	 */
-  static getClosestGridPointFromShapeGroup(shapes, mainShape, coordinates) {
-    /*
-        Calcule la liste des sommets des formes
-        Les points de subdivision de segments ne doivent pas être attirés par la
-        grille.
-
-        Pour l'instant, s'il existe au moins un sommet, on trouve le sommet le
-        plus proche d'un point de la grille. S'il n'y a pas de sommet, mais
-        qu'au moins une des formes a son centre affiché, alors on utilise le
-        centre le plus proche d'un point de la grille.
-         */
-    let points = shapes
-      .map(s => {
-        let list = [];
-        s.buildSteps.forEach((vertex, i1) => {
-          if (vertex.type == 'vertex') {
-            list.push({
-              shape: s,
-              relativeCoordinates: vertex.coordinates,
-              coordinates: vertex.coordinates
-                .addCoordinates(s)
-                .addCoordinates(coordinates)
-                .subCoordinates(mainShape),
-              pointType: 'vertex',
-              index: i1,
-            });
-          }
-        });
-        return list;
-      })
-      .reduce((total, val) => {
-        return total.concat(val);
-      }, []);
-
-    //Centres?
-    if (points.length == 0) {
-      points = shapes
-        .filter(s => s.isCenterShown)
-        .map(s => {
-          return {
-            shape: s,
-            relativeCoordinates: s.center,
-            coordinates: s.center
-              .addCoordinates(s)
-              .addCoordinates(coordinates)
-              .subCoordinates(mainShape),
-            pointType: 'center',
-          };
-        });
-      if (points.length == 0) return null;
-    }
-
-    let best = null,
-      bestDist = 1000 * 1000 * 1000;
-
-    points.forEach(pt => {
-      let gridPoint = this.getClosestGridPoint(pt.coordinates),
-        dist = pt.coordinates.dist(gridPoint);
-      if (dist < bestDist) {
-        best.shape = pt.shape;
-        best.shapePoint = pt;
-        best.gridPoint = gridPoint;
-        bestDist = dist;
-      }
-    });
-
-    return best;
   }
 }
