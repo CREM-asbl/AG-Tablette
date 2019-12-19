@@ -413,7 +413,10 @@ class AGTabletteApp extends LitElement {
         accept=".agg, .json, .fag"
         type="file"
         style="display: none"
-        @change="${event => FileManager.oldOpenFile(event.target.files[0])}"
+        @change="${event => {
+          FileManager.oldOpenFile(event.target.files[0]);
+          event.target.value = null;
+        }}"
       />
     `;
   }

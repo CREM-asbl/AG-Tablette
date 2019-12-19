@@ -91,18 +91,6 @@ export class GridManager {
       possibilities.push(topleft.addCoordinates(0, 50 * gridSize));
       possibilities.push(topleft.addCoordinates(50 * gridSize, 0));
       possibilities.push(topleft.addCoordinates(50 * gridSize, 50 * gridSize));
-
-      console.log(possibilities);
-
-      // setTimeout(() => {
-      //   possibilities.forEach(pt =>
-      //     app.drawAPI.drawPoint(app.drawAPI.mainCtx, pt, '#e23400', 3)
-      //   )
-      // }, 200);
-
-      setTimeout(() => {
-        app.drawAPI.drawPoint(app.drawAPI.mainCtx, topleft, '#e234ff', 3);
-      }, 200);
     } else {
       //triangle
       let height = 43.3012701892,

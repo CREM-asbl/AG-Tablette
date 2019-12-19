@@ -211,8 +211,8 @@ export class CutAction extends Action {
       myOffset = 20, //px
       offset = difference.multiplyWithScalar(1 / distance);
     offset.multiplyWithScalar(myOffset);
-    shape1.setCoordinates(new Point(shape1).subCoordinates(offset));
-    shape2.setCoordinates(new Point(shape2).addCoordinates(offset));
+    shape1.coordinates = new Point(shape1).subCoordinates(offset);
+    shape2.coordinates = new Point(shape2).addCoordinates(offset);
 
     this.createdShapes = [shape1.copy(), shape2.copy()];
     this.createdShapesIds = [shape1.id, shape2.id];

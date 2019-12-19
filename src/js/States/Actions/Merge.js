@@ -189,7 +189,7 @@ export class MergeAction extends Action {
     newShape.isBiface = shape1.isBiface && shape2.isBiface;
     newShape.isReversed = shape1.isReversed && shape2.isReversed;
     newShape.setSegments(newSegments);
-    newShape.setCoordinates({ x: newShape.x - 20, y: newShape.y - 20 });
+    newShape.coordinates = { x: newShape.x - 20, y: newShape.y - 20 };
     if (newShape.isCircle()) newShape.isCenterShown = true;
     app.workspace.addShape(newShape);
   }

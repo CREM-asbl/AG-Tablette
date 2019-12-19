@@ -63,12 +63,12 @@ export class MoveAction extends Action {
 
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id),
-        coords = s.getCoordinates(),
+        coords = s.coordinates,
         newCoords = {
           x: coords.x + this.transformation.x,
           y: coords.y + this.transformation.y,
         };
-      s.setCoordinates(newCoords);
+      s.coordinates = newCoords;
     });
   }
 
@@ -77,12 +77,12 @@ export class MoveAction extends Action {
 
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id),
-        coords = s.getCoordinates(),
+        coords = s.coordinates,
         newCoords = {
           x: coords.x - this.transformation.x,
           y: coords.y - this.transformation.y,
         };
-      s.setCoordinates(newCoords);
+      s.coordinates = newCoords;
     });
   }
 }

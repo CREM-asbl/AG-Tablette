@@ -21,7 +21,6 @@ export class Shape {
 
     this.x = x;
     this.y = y;
-    this.coordinates = new Point(x, y);
     this.segments = segments;
     this.name = name;
     this.familyName = familyName;
@@ -35,6 +34,10 @@ export class Shape {
 
     this.isBiface = false;
   }
+
+  /* #################################################################### */
+  /* ############################## GET/SET ############################# */
+  /* #################################################################### */
 
   get allOutlinePoints() {
     let points = [];
@@ -52,204 +55,19 @@ export class Shape {
     return this.segments.map(seg => seg.points).flat();
   }
 
-  /**
-   * Renvoie true si la forme est un cercle, c'est-à-dire si buildSteps
-   * commence par un moveTo puis est uniquement composé de segments de
-   * type arc.
-   * @return {Boolean} true si cercle, false sinon.
-   */
-  isCircle() {
-    return this.segments.length == 1 && this.segments[0].arcCenter;
-  }
-
-  /**
-   * say if the shape is a Segment
-   */
-  isSegment() {
-    return this.segments.length === 1 && this.segments[0].arcCenter == false;
-  }
-
-  //FIX:  redondance avec InteractionAPI.selectSegment()
-  isPointOnSegment(point) {
-    if (!this.isSegment()) return false;
-
-    const segment = this.segments[0];
-
-    let projection = segment.projectionOnSegment(point);
-
-    if (!segment.isPointOnSegment(projection)) return false;
-
-    let dist = point.dist(projection);
-
-    if (dist <= app.settings.get('selectionDistance')) return true;
-    return false;
-  }
-
-  contains(object) {
-    if (object instanceof Point) {
-      if (this.allOutlinePoints.some(outline_point => outline_point.equal(object))) return true;
-      if (this.isCenterShown && this.center.equal(object)) return true;
-      return false;
-    } else if (object instanceof Segment) {
-      if (this.segments.some(segment => segment.equal(object))) return true;
-      return false;
-    } else {
-      console.log('unsupported object');
-      return false;
-    }
-  }
-
-  /**
-   * Récupère les coordonnées de la forme
-   * @return {{x: float, y: float}} les coordonnées ({x: float, y: float})
-   */
-  getCoordinates() {
+  get coordinates() {
     return new Point(this.x, this.y);
-    // return this.coordinates; => to set at the end
-  }
-
-  /**
-   * Vérifie si un point se trouve sur un bord de la forme.
-   * @param  {Point}  point Le point (coordonnées absolues)
-   * @return {Boolean}       true si le point se trouve sur le bord.
-   */
-  isPointInBorder(point) {
-    return this.segments.some(seg => seg.isPointOnSegment(point));
-  }
-
-  getCommonsPoints(shape) {
-    const commonsPoints = [];
-    this.allOutlinePoints.forEach(point1 => {
-      shape.allOutlinePoints.forEach(point2 => {
-        if (point1.equal(point2)) commonsPoints.push(new Point(point1));
-      });
-    });
-    return commonsPoints;
-  }
-
-  overlapCheckIfShapeIsInsideAnother(shape, s1_segments, s2_segments, is_potential_dig) {
-    let vertexes_to_check = [],
-      middles_to_check = [];
-    for (let s1_segment of s1_segments) {
-      if (
-        s2_segments.some(
-          s2_segment =>
-            s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)) ||
-            s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)),
-        )
-      )
-        continue;
-      vertexes_to_check = [
-        ...vertexes_to_check,
-        ...s2_segments.map(seg => s1_segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
-      ];
-      middles_to_check = [
-        ...middles_to_check,
-        ...s2_segments.map(seg => s1_segment.getMiddleIfJoined(seg)).filter(pt => pt),
-      ];
-    }
-
-    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, shape)))
-      is_potential_dig[0] = true;
-    if (
-      vertexes_to_check.some(
-        (pt, idx) =>
-          app.drawAPI.isPointInShape(pt, shape) &&
-          app.drawAPI.isPointInShape(middles_to_check[idx], shape) &&
-          !shape.isPointInBorder(middles_to_check[idx]),
-      )
-    ) {
-      console.log('shape inside another');
-      return true;
-    }
-    return false;
-  }
-
-  overlapCheckIntersectSegments(s1_segments, s2_segments) {
-    if (
-      !s1_segments.every(s1_segment => {
-        if (
-          !s2_segments.some(
-            s2_segment =>
-              s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)) ||
-              s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)),
-          ) &&
-          s2_segments
-            .filter(
-              s2_segment =>
-                !s1_segment.equal(s2_segment) && !s1_segment.getNonCommonPointIfJoined(s2_segment),
-            )
-            .some(s2_segment => s1_segment.doesIntersect(s2_segment, false, true))
-        ) {
-          console.log('intersection');
-          return false;
-        }
-        return true;
-      })
-    )
-      return true;
-  }
-
-  /**
-   * Vérifie si cette forme se superpose avec une autre forme.
-   * @param  {Shape} shape L'autre forme
-   * @return {overlap}     true: si les 2 formes se superposent
-   *    considéré vrai si deux segments sont confondu mais n'ont qu'un point commun ! => peut-etre probleme dans environnement libre
-   */
-  overlapsWith(shape) {
-    let is_potential_dig = false,
-      s1 = this,
-      s2 = shape,
-      s1_segments = s1.segments,
-      s2_segments = s2.segments;
-
-    // s1 in s2 ? if a point of s1 is in s2
-    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments, [is_potential_dig]))
-      return true;
-    // s2 in s1 ? if a point of s2 is in s1
-    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments, [is_potential_dig]))
-      return true;
-
-    // check if intersect segments
-    if (this.overlapCheckIntersectSegments(s1_segments, s2_segments)) return true;
-
-    // check if dig
-    if (is_potential_dig) {
-      console.log('peut-etre creuse...');
-      // return true;
-    }
-    return false;
   }
 
   /**
    * définit les coordonnées de la forme
    * @param {{x: float, y: float}} coordinates les coordonnées
    */
-  setCoordinates(coordinates) {
+  set coordinates(coordinates) {
     const translation = new Point(coordinates).subCoordinates(this.coordinates);
-    this.coordinates.setCoordinates({ x: coordinates.x, y: coordinates.y });
-    this.x = this.coordinates.x;
-    this.y = this.coordinates.y;
+    this.x = coordinates.x;
+    this.y = coordinates.y;
     this.segments.forEach(seg => seg.translate(translation));
-  }
-
-  /**
-   * Renvoie une copie d'une forme
-   * @return {Shape} la copie
-   */
-  //Todo : Simplifier la copie
-  copy() {
-    let segments = this.segments.map(seg => seg.copy());
-    let copy = new Shape(this, segments, this.name, this.familyName);
-    segments.forEach(seg => (seg.shape = copy));
-    copy.color = this.color;
-    copy.second_color = this.second_color;
-    copy.isBiface = this.isBiface;
-    copy.borderColor = this.borderColor;
-    copy.isCenterShown = this.isCenterShown;
-    copy.isReversed = this.isReversed;
-    copy.opacity = this.opacity;
-    return copy;
   }
 
   get center() {
@@ -341,6 +159,177 @@ export class Shape {
     return path;
   }
 
+  getCommonsPoints(shape) {
+    const commonsPoints = [];
+    this.allOutlinePoints.forEach(point1 => {
+      shape.allOutlinePoints.forEach(point2 => {
+        if (point1.equal(point2)) commonsPoints.push(new Point(point1));
+      });
+    });
+    return commonsPoints;
+  }
+
+  /* #################################################################### */
+  /* ################################ IS ################################ */
+  /* #################################################################### */
+
+  /**
+   * Renvoie true si la forme est un cercle, c'est-à-dire si buildSteps
+   * commence par un moveTo puis est uniquement composé de segments de
+   * type arc.
+   * @return {Boolean} true si cercle, false sinon.
+   */
+  isCircle() {
+    return this.segments.length == 1 && this.segments[0].arcCenter;
+  }
+
+  /**
+   * say if the shape is a Segment
+   */
+  isSegment() {
+    return this.segments.length === 1 && this.segments[0].arcCenter == false;
+  }
+
+  isPointOnSegment(point) {
+    if (!this.isSegment()) return false;
+
+    const segment = this.segments[0];
+
+    let projection = segment.projectionOnSegment(point);
+
+    if (!segment.isPointOnSegment(projection)) return false;
+
+    let dist = point.dist(projection);
+
+    if (dist <= app.settings.get('selectionDistance')) return true;
+    return false;
+  }
+
+  contains(object) {
+    if (object instanceof Point) {
+      if (this.allOutlinePoints.some(outline_point => outline_point.equal(object))) return true;
+      if (this.isCenterShown && this.center.equal(object)) return true;
+      return false;
+    } else if (object instanceof Segment) {
+      if (this.segments.some(segment => segment.equal(object))) return true;
+      return false;
+    } else {
+      console.log('unsupported object');
+      return false;
+    }
+  }
+
+  /**
+   * Vérifie si un point se trouve sur un bord de la forme.
+   * @param  {Point}  point Le point (coordonnées absolues)
+   * @return {Boolean}       true si le point se trouve sur le bord.
+   */
+  isPointInBorder(point) {
+    return this.segments.some(seg => seg.isPointOnSegment(point));
+  }
+
+  /* #################################################################### */
+  /* ############################# OVERLAP ############################## */
+  /* #################################################################### */
+
+  /**
+   * Vérifie si cette forme se superpose avec une autre forme.
+   * @param  {Shape} shape L'autre forme
+   * @return {overlap}     true: si les 2 formes se superposent
+   *    considéré vrai si deux segments sont confondu mais n'ont qu'un point commun ! => peut-etre probleme dans environnement libre
+   */
+  overlapsWith(shape) {
+    let is_potential_dig = false,
+      s1 = this,
+      s2 = shape,
+      s1_segments = s1.segments,
+      s2_segments = s2.segments;
+
+    // s1 in s2 ? if a point of s1 is in s2
+    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments, [is_potential_dig]))
+      return true;
+    // s2 in s1 ? if a point of s2 is in s1
+    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments, [is_potential_dig]))
+      return true;
+
+    // check if intersect segments
+    if (this.overlapCheckIntersectSegments(s1_segments, s2_segments)) return true;
+
+    // check if dig
+    if (is_potential_dig) {
+      console.log('peut-etre creuse...');
+      // return true;
+    }
+    return false;
+  }
+
+  overlapCheckIfShapeIsInsideAnother(shape, s1_segments, s2_segments, is_potential_dig) {
+    let vertexes_to_check = [],
+      middles_to_check = [];
+    for (let s1_segment of s1_segments) {
+      if (
+        s2_segments.some(
+          s2_segment =>
+            s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)) ||
+            s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)),
+        )
+      )
+        continue;
+      vertexes_to_check = [
+        ...vertexes_to_check,
+        ...s2_segments.map(seg => s1_segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
+      ];
+      middles_to_check = [
+        ...middles_to_check,
+        ...s2_segments.map(seg => s1_segment.getMiddleIfJoined(seg)).filter(pt => pt),
+      ];
+    }
+
+    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, shape)))
+      is_potential_dig[0] = true;
+    if (
+      vertexes_to_check.some(
+        (pt, idx) =>
+          app.drawAPI.isPointInShape(pt, shape) &&
+          app.drawAPI.isPointInShape(middles_to_check[idx], shape) &&
+          !shape.isPointInBorder(middles_to_check[idx]),
+      )
+    ) {
+      console.log('shape inside another');
+      return true;
+    }
+    return false;
+  }
+
+  overlapCheckIntersectSegments(s1_segments, s2_segments) {
+    if (
+      !s1_segments.every(s1_segment => {
+        if (
+          !s2_segments.some(
+            s2_segment =>
+              s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)) ||
+              s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)),
+          ) &&
+          s2_segments
+            .filter(
+              s2_segment =>
+                !s1_segment.equal(s2_segment) && !s1_segment.getNonCommonPointIfJoined(s2_segment),
+            )
+            .some(s2_segment => s1_segment.doesIntersect(s2_segment, false, true))
+        ) {
+          console.log('intersection');
+          return false;
+        }
+        return true;
+      })
+    )
+      return true;
+  }
+
+  /* #################################################################### */
+  /* ############################ TRANSFORM ############################# */
+  /* #################################################################### */
+
   reverse() {
     this.segments.reverse().forEach((seg, idx) => {
       seg.idx = idx;
@@ -378,23 +367,35 @@ export class Shape {
     this.y += translation.y;
   }
 
+  scale(scaling) {
+    this.segments.forEach(seg => seg.scale(scaling));
+  }
+
+  rotate(angle, center) {
+    this.segments.forEach(seg => seg.rotate(angle, center));
+  }
+
+  /* #################################################################### */
+  /* ############################## OTHER ############################### */
+  /* #################################################################### */
+
   /**
-   * convertit point en balise circle de svg
+   * Renvoie une copie d'une forme
+   * @return {Shape} la copie
    */
-  point_to_svg(coordinates, color = '#000', size = 1) {
-    let point = new Point(coordinates.x, coordinates.y);
-    point.setToCanvasCoordinates();
-    return (
-      '<circle cx="' +
-      point.x +
-      '" cy="' +
-      point.y +
-      '" r="' +
-      size * 2 * app.workspace.zoomLevel +
-      '" fill="' +
-      color +
-      '" />\n'
-    );
+  //Todo : Simplifier la copie
+  copy() {
+    let segments = this.segments.map(seg => seg.copy());
+    let copy = new Shape(this, segments, this.name, this.familyName);
+    segments.forEach(seg => (seg.shape = copy));
+    copy.color = this.color;
+    copy.second_color = this.second_color;
+    copy.isBiface = this.isBiface;
+    copy.borderColor = this.borderColor;
+    copy.isCenterShown = this.isCenterShown;
+    copy.isReversed = this.isReversed;
+    copy.opacity = this.opacity;
+    return copy;
   }
 
   /**
@@ -405,10 +406,8 @@ export class Shape {
     let point = new Point(this.segments[0].vertexes[0]);
     point.setToCanvasCoordinates();
     path += 'M ' + point.x + ' ' + point.y + '\n';
-    console.log(path);
     this.segments.forEach(seg => {
       path += seg.to_svg() + '\n';
-      console.log(path);
     });
     path += 'Z ';
     let attributes = {
@@ -428,18 +427,17 @@ export class Shape {
 
     let point_tags = '';
     if (app.settings.get('areShapesPointed')) {
-      if (this.isSegment())
-        point_tags += this.point_to_svg(this.segments[0].vertexes[0], '#000', 1);
+      if (this.isSegment()) point_tags += this.segments[0].vertexes[0].to_svg('#000', 1);
       if (!this.isCircle())
-        this.segments.forEach(seg => (point_tags += this.point_to_svg(seg.vertexes[1], '#000', 1)));
+        this.segments.forEach(seg => (point_tags += seg.vertexes[1].to_svg('#000', 1)));
     }
     this.segments.forEach(seg => {
       //Points sur les segments
       seg.points.forEach(pt => {
-        point_tags += this.point_to_svg(pt, '#000', 1);
+        point_tags += pt.to_svg('#000', 1);
       });
     });
-    if (this.isCenterShown) point_tags += this.point_to_svg(this.center, '#000', 1);
+    if (this.isCenterShown) point_tags += this.center.to_svg('#000', 1);
     return path_tag + point_tags;
   }
 
@@ -455,9 +453,9 @@ export class Shape {
   saveToObject() {
     let save = {
       id: this.id,
-      coordinates: this.getCoordinates(),
       name: this.name,
       familyName: this.familyName,
+      coordinates: this.coordinates.saveToObject(),
       color: this.color,
       second_color: this.second_color,
       isBiface: this.isBiface,
@@ -475,7 +473,6 @@ export class Shape {
     this.id = save.id;
     this.x = save.coordinates.x;
     this.y = save.coordinates.y;
-    this.coordinates = new Point(save.coordinates);
     this.name = save.name;
     this.familyName = save.familyName;
     this.color = save.color;
@@ -485,13 +482,5 @@ export class Shape {
     this.isCenterShown = save.isCenterShown;
     this.isReversed = save.isReversed;
     this.opacity = save.opacity;
-  }
-
-  setScale(size) {
-    this.segments.forEach(seg => seg.setScale(size));
-  }
-
-  rotate(angle, center) {
-    this.segments.forEach(seg => seg.rotate(angle, center));
   }
 }
