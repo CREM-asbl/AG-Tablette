@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { ZoomPlaneAction } from './Actions/ZoomPlane';
 import { State } from './State';
+import { Point } from '../Objects/Point';
 
 /**
  * Zoomer/Dézoomer le plan

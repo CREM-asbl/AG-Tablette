@@ -78,7 +78,7 @@ export class InteractionAPI {
     }
     this.permanentStatehasFocus = true;
     this.permanentStateRef = permanentStateRef;
-    app.state.abort();
+    if (app.state) app.state.abort();
   }
 
   /**
