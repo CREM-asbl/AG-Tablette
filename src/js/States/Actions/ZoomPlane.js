@@ -78,5 +78,6 @@ export class ZoomPlaneAction extends Action {
       newZoom = originalZoom * (1 / this.scaleOffset);
 
     app.workspace.setZoomLevel(newZoom);
+    app.workspace.setTranslateOffset(this.originalTranslateOffset);
   }
 }
