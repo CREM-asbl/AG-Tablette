@@ -62,6 +62,7 @@ export class CopyState extends State {
     let group = app.workspace.getShapeGroup(shape, 'user');
     if (group) this.involvedShapes = [...group.shapes];
     this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
+    this.involvedShapes = this.involvedShapes.map(s => s.copy());
 
     this.startClickCoordinates = clickCoordinates;
 

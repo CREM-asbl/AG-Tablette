@@ -35,7 +35,6 @@ export class CreateState extends State {
     this.selectedFamily = family;
     this.selectedShape = null;
     this.currentStep = 'show-family-shapes';
-    // this.lastCreationTimestamp = timestamp;
     app.appDiv.cursor = 'default';
   }
 
