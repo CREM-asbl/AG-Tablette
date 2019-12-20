@@ -41,12 +41,10 @@ export class CutAction extends Action {
     // if (this.centerPoint) {
     //   save.centerPoint = this.centerPoint.saveToObject();
     // }
-    console.log(save, this.createdShapesIds);
     return save;
   }
 
   initFromObject(save) {
-    console.log(save);
     this.createdShapes = save.createdShapes.map((shape, idx) => {
       let newShape = new Shape({ x: 0, y: 0 }, []);
       newShape.initFromObject(shape);
@@ -72,9 +70,9 @@ export class CutAction extends Action {
     if (!this.checkDoParameters()) return;
 
     if (this.createdShapes) {
-      this.createdShapes.forEach(shape => {
+      this.createdShapes.forEach((shape, idx) => {
         let newShape = shape.copy();
-        newShape.id = shape.id;
+        newShape.id = this.createdShapesIds[idx];
         app.workspace.addShape(newShape);
       });
       return;
@@ -161,13 +159,6 @@ export class CutAction extends Action {
         }),
     ];
 
-    // shape1Seg.forEach(seg => {
-    //   console.log(seg.vertexes[0], seg.vertexes[1]);
-    // });
-    // shape2Seg.forEach(seg => {
-    //   console.log(seg.vertexes[0], seg.vertexes[1]);
-    // });
-
     // cleaning same direction segments
     shape1Seg.forEach((seg, idx, segments) => {
       const mergeIdx = mod(idx + 1, segments.length);
@@ -224,7 +215,8 @@ export class CutAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    this.createdShapes.forEach(shape => {
+    this.createdShapesIds.forEach(id => {
+      const shape = app.workspace.getShapeById(id);
       app.workspace.deleteShape(shape);
     });
   }
