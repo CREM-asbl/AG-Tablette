@@ -77,12 +77,9 @@ export class MergeAction extends Action {
     let oldSegments = [...shape1.segments, ...shape2.segments],
       subSegments = oldSegments.map(segment => segment.subSegments);
 
-    console.log(oldSegments, 'sebseg ended');
-
     let pairs = oldSegments.map((segment, idx, segments) => {
       return segments
         .map((seg, i) => {
-          console.log(seg, i);
           if (subSegments[i].some(subseg => subSegments[idx].some(subs => subs.equal(subseg)))) {
             return i;
           } else return -1;
@@ -131,8 +128,6 @@ export class MergeAction extends Action {
     let newSegments = [];
 
     let currentSegment = segmentsList[0].copy(false);
-    console.log(segmentsList[0]);
-    console.log(currentSegment);
     let firstSegment = currentSegment;
     let nextSegment;
     let segmentUsed = 0;
@@ -146,8 +141,6 @@ export class MergeAction extends Action {
         seg => !seg.equal(currentSegment) && seg.contains(currentSegment.vertexes[1], false),
       );
       if (newPotentialSegments.length != 1) {
-        console.log(currentSegment);
-        console.log(newPotentialSegments);
         if (newPotentialSegments.length == 0) console.log('shape cannot be closed (dead end)');
         else console.log('shape is dig (a segment has more than one segment for next)');
         return null;
@@ -156,7 +149,6 @@ export class MergeAction extends Action {
       if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse(true);
 
       if (currentSegment.hasSameDirection(nextSegment, 1, 0, false)) {
-        console.log(currentSegment, nextSegment);
         currentSegment.vertexes[1] = nextSegment.vertexes[1];
       } else {
         newSegments.push(nextSegment);
@@ -169,7 +161,6 @@ export class MergeAction extends Action {
       return null;
     }
     if (newSegments.length != 1 && currentSegment.hasSameDirection(firstSegment, 1, 0, false)) {
-      console.log(currentSegment, firstSegment);
       newSegments[0].vertexes[0] = newSegments.pop().vertexes[0];
     }
     return newSegments;

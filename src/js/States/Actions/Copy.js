@@ -21,6 +21,9 @@ export class CopyAction extends Action {
          */
     this.involvedShapesIds = [];
 
+    //L'id de la forme sélectionnée
+    this.shapeCopyId = [];
+
     //Les id des copies des formes à dupliquer
     this.newShapesIds = [];
 
@@ -37,6 +40,7 @@ export class CopyAction extends Action {
       shapeId: this.shapeId,
       transformation: this.transformation,
       involvedShapesIds: this.involvedShapesIds,
+      shapeCopyId: this.shapeCopyId,
       newShapesIds: this.newShapesIds,
       createdUsergroupId: this.createdUsergroupId,
       createdUserGroupIndex: this.createdUserGroupIndex,
@@ -48,6 +52,7 @@ export class CopyAction extends Action {
     this.shapeId = save.shapeId;
     this.transformation = save.transformation;
     this.involvedShapesIds = save.involvedShapesIds;
+    this.shapeCopyId = save.shapeCopyId;
     this.newShapesIds = save.newShapesIds;
     this.createdUsergroupId = save.createdUsergroupId;
     this.createdUserGroupIndex = save.createdUserGroupIndex;
@@ -77,15 +82,12 @@ export class CopyAction extends Action {
     this.involvedShapesIds.forEach((id, index) => {
       let s = app.workspace.getShapeById(id),
         copy = s.copy(),
-        baseCoords = s.coordinates,
-        newCoords = {
-          x: baseCoords.x + this.transformation.x,
-          y: baseCoords.y + this.transformation.y,
-        };
+        newCoords = s.coordinates.addCoordinates(this.transformation);
       shapesList.push(copy);
       copy.coordinates = newCoords;
       if (this.newShapesIds.length > index) copy.id = this.newShapesIds[index];
       else this.newShapesIds.push(copy.id);
+      if (id == this.shapeId && !this.shapeCopyId.length) this.shapeCopyId.push(copy.id);
       app.workspace.addShape(copy);
     });
 

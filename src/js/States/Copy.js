@@ -79,14 +79,15 @@ export class CopyState extends State {
     if (this.currentStep != 'moving-shape') return;
 
     let translation = new Point(mouseCoordinates).subCoordinates(this.startClickCoordinates);
+
     this.involvedShapes.forEach(shape => shape.translate(translation));
     let transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape);
     this.involvedShapes.forEach(shape => shape.translate(translation, true));
     if (transformation.rotation != 0) {
       let rotateAction = new RotateAction();
 
-      rotateAction.shapeId = this.selectedShape.id;
-      rotateAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
+      rotateAction.shapeId = this.actions[0].shapeCopyId;
+      rotateAction.involvedShapesIds = this.actions[0].newShapesIds;
       rotateAction.rotationAngle = transformation.rotation;
       this.actions.push(rotateAction);
     }

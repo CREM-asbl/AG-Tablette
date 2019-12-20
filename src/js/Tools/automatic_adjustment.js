@@ -30,6 +30,8 @@ function computeTransformation(e1, e2, shapes, mainShape) {
     moving1NewCoords = moving1.getRotated(mainAngle, center),
     translation = fix1.subCoordinates(moving1NewCoords);
 
+  console.log(moving1, mainAngle, center, moving1NewCoords, translation);
+
   return {
     rotation: mainAngle,
     move: translation,
@@ -98,6 +100,7 @@ function bestPossibility(possibilities) {
  *
  */
 export function getShapeAdjustment(shapes, mainShape) {
+  console.log(mainShape);
   const maxRotateAngle = 0.25; //radians
   let grid = app.workspace.settings.get('isGridShown'),
     tangram = app.workspace.settings.get('isTangramShown'),
@@ -257,7 +260,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   }
 
   if (possibilities.length) {
-    // console.log('2 points d\'une autre forme');
+    console.log("2 points d'une autre forme");
     return bestPossibility(possibilities);
   }
 
@@ -291,7 +294,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
     if (best) {
       transformation.move = best.fixed.subCoordinates(best.moving);
-      // console.log('1 point de la grille');
+      console.log('1 point de la grille');
       return transformation;
     }
   }
@@ -309,12 +312,12 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
     if (best) {
       transformation.move = best.fixed.subCoordinates(best.moving);
-      // console.log('1 point d\'une autre forme');
+      console.log("1 point d'une autre forme");
       return transformation;
     }
   }
 
-  // console.log('nothing');
+  console.log('nothing');
 
   //Rien n'a été trouvé, aucune transformation à faire.
   return transformation;
