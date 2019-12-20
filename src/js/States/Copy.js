@@ -116,13 +116,13 @@ export class CopyState extends State {
           x: s.x + transformation.x,
           y: s.y + transformation.y,
         },
-        saveCoords = s.getCoordinates();
+        saveCoords = s.coordinates;
 
-      s.setCoordinates(newCoords);
+      s.coordinates = newCoords;
 
       app.drawAPI.drawShape(ctx, s);
 
-      s.setCoordinates(saveCoords);
+      s.coordinates = saveCoords;
     });
   }
 

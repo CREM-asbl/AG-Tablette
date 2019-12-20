@@ -77,13 +77,13 @@ export class CopyAction extends Action {
     this.involvedShapesIds.forEach((id, index) => {
       let s = app.workspace.getShapeById(id),
         copy = s.copy(),
-        baseCoords = s.getCoordinates(),
+        baseCoords = s.coordinates,
         newCoords = {
           x: baseCoords.x + this.transformation.x,
           y: baseCoords.y + this.transformation.y,
         };
       shapesList.push(copy);
-      copy.setCoordinates(newCoords);
+      copy.coordinates = newCoords;
       if (this.newShapesIds.length > index) copy.id = this.newShapesIds[index];
       else this.newShapesIds.push(copy.id);
       app.workspace.addShape(copy);

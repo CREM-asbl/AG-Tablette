@@ -25,11 +25,6 @@ export class Point {
     this.shape = arguments[argc++];
   }
 
-  setCoordinates({ x, y }) {
-    this.x = x;
-    this.y = y;
-  }
-
   saveToObject() {
     const save = {
       x: this.x,
@@ -43,6 +38,11 @@ export class Point {
     this.x = save.x;
     this.y = save.y;
     this.type = save.type;
+  }
+
+  setCoordinates({ x, y }) {
+    this.x = x;
+    this.y = y;
   }
 
   /**
@@ -145,7 +145,7 @@ export class Point {
   }
 
   /**
-   *
+   * rotate a point clockwise
    * @param {number} angle - rotation angle
    * @param {{x: number, y: number}} [center] - rotation center
    * @return {{x: number, y: number}} new coordinates
@@ -162,6 +162,11 @@ export class Point {
     return this.copy();
   }
 
+  /**
+   * Same as rotate but doesn't modify this
+   * @param {*} angle
+   * @param {*} center
+   */
   getRotated(angle, center = { x: 0, y: 0 }) {
     let s = Math.sin(angle),
       c = Math.cos(angle),
@@ -242,6 +247,25 @@ export class Point {
       y = arguments[1];
     }
     return this.dist(new Point(x, y)) < 1;
+  }
+
+  /**
+   * convertit en balise circle de svg
+   */
+  to_svg(color = '#000', size = 1) {
+    let point = new Point(this);
+    point.setToCanvasCoordinates();
+    return (
+      '<circle cx="' +
+      point.x +
+      '" cy="' +
+      point.y +
+      '" r="' +
+      size * 2 * app.workspace.zoomLevel +
+      '" fill="' +
+      color +
+      '" />\n'
+    );
   }
 
   setToCanvasCoordinates() {

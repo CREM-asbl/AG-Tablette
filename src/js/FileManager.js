@@ -41,7 +41,8 @@ export class FileManager {
       try {
         let fileHandle = await window.chooseFileSystemEntries(opts);
         FileManager.newOpenFile(fileHandle);
-      } catch {
+      } catch (error) {
+        console.error(error);
         // user closed open prompt
       }
     } else {

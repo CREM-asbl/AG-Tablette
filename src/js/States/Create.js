@@ -53,8 +53,9 @@ export class CreateState extends State {
     let shapeSize = app.settings.get('shapesSize');
     this.involvedShapes = [this.shapeToCreate];
 
-    this.shapeToCreate.setScale(shapeSize);
-    this.shapeToCreate.setCoordinates(mouseCoordinates);
+    this.shapeToCreate.scale(shapeSize);
+    this.shapeToCreate.coordinates = mouseCoordinates;
+    if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
     this.actions[0].shapeToCreate = this.shapeToCreate;
     this.actions[0].coordinates = mouseCoordinates;
@@ -72,16 +73,13 @@ export class CreateState extends State {
     this.actions = [new CreateAction(this.name)];
 
     let shapeSize = app.settings.get('shapesSize');
-    let coordinates = mouseCoordinates;
 
     this.involvedShapes = [this.shapeToCreate];
 
-    this.shapeToCreate.setCoordinates(coordinates);
-    if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
     this.actions[0].shapeToCreate = this.shapeToCreate;
     this.actions[0].shapeSize = shapeSize;
     this.actions[0].shapeId = this.shapeToCreate.id;
-    this.actions[0].coordinates = coordinates;
+    this.actions[0].coordinates = mouseCoordinates;
 
     let transformation = getShapeAdjustment(this.involvedShapes, this.shapeToCreate);
     if (transformation.rotation != 0) {
@@ -110,7 +108,7 @@ export class CreateState extends State {
   draw(ctx, mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;
 
-    this.shapeToCreate.setCoordinates(mouseCoordinates);
+    this.shapeToCreate.coordinates = mouseCoordinates;
 
     app.drawAPI.drawShape(ctx, this.shapeToCreate);
   }
