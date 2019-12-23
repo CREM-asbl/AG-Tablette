@@ -9,6 +9,7 @@ import './popups/new-popup';
 import './popups/grid-popup';
 import './popups/tangram-popup';
 import './popups/opacity-popup';
+import './popups/divide-popup';
 import './popups/settings-popup';
 import './popups/save-popup';
 import './state-menu';
@@ -116,6 +117,18 @@ class AGTabletteApp extends LitElement {
 
         #app-canvas-mode-text span {
           color: #444;
+        }
+
+        /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
+        input[type='color'] {
+          opacity: 0;
+          position: absolute;
+          top: 0;
+          left: 21vw;
+          width: 0;
+          height: 0;
+          border: none;
+          background: transparent;
         }
 
         @media (min-width: 600px) {
@@ -408,9 +421,11 @@ class AGTabletteApp extends LitElement {
 
       <new-popup></new-popup>
 
+      <divide-popup></divide-popup>
+
       <input
         id="fileSelector"
-        accept=".agg, .json, .fag"
+        accept=".agg, .json"
         type="file"
         style="display: none"
         @change="${event => {
@@ -418,6 +433,9 @@ class AGTabletteApp extends LitElement {
           event.target.value = null;
         }}"
       />
+
+      <label id="color-picker-label" for="color-picker" hidden></label>
+      <input id="color-picker" type="color" @change="${e => app.state.setColor(e.target.value)}" />
     `;
   }
 

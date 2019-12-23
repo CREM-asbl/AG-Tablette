@@ -38,6 +38,11 @@ export class CreateState extends State {
     app.appDiv.cursor = 'default';
   }
 
+  //Todo: Solution provisoire
+  abort() {
+    this.currentStep = 'listen-canvas-click';
+  }
+
   setShape(shape) {
     this.actions = [new CreateAction(this.name)];
     this.selectedShape = shape;

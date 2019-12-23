@@ -111,7 +111,6 @@ export class DrawAPI {
 
   refreshUpper() {
     this.clearCtx(this.upperCtx);
-
     if (app.state) {
       app.state.draw(this.upperCtx, this.lastKnownMouseCoordinates);
     }

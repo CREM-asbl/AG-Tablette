@@ -22,7 +22,7 @@ export class BorderColorState extends State {
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
-    if (callColorPicker) document.querySelector('#color-picker-label').click();
+    if (callColorPicker) app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
     app.appDiv.cursor = 'default';
   }
 
@@ -34,14 +34,8 @@ export class BorderColorState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, clickCoordinates, event) {
-    //TODO: appeler setColor ailleurs? (événement lié au colorpicker, genre
-    //      onClose - voir ce qui existe)
-    this.setColor(document.querySelector('#color-picker').value);
-
+  objectSelected(shape) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.actions[0].shapeId = shape.id;

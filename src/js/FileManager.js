@@ -25,6 +25,7 @@ export class FileManager {
       FileManager.parseFile(reader.result);
     };
     reader.readAsText(file);
+    app.appDiv.shadowRoot.querySelector('#fileSelector').value = '';
   }
 
   static async openFile() {
@@ -32,7 +33,7 @@ export class FileManager {
       const opts = {
         accepts: [
           {
-            extensions: ['agg', 'fag', 'json'],
+            extensions: ['agg', 'json'],
             mimeTypes: ['application/json'],
           },
         ],

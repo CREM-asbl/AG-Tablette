@@ -79,9 +79,7 @@ export class Workspace {
    * @param  {String} json
    */
   initFromJSON(json) {
-    let wsdata = JSON.parse(json),
-      actualWS = app.workspace;
-    app.workspace = this; //pour que app.workspace.getShapeById fonctionne
+    let wsdata = JSON.parse(json);
 
     this.id = wsdata.id;
 
@@ -108,8 +106,6 @@ export class Workspace {
 
     if (wsdata.WSSettings) this.settings.initFromObject(wsdata.WSSettings);
     else this.initSettings();
-
-    app.workspace = actualWS;
   }
 
   get data() {

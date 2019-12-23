@@ -1,7 +1,6 @@
 import { app } from '../App';
 import { DivideAction } from './Actions/Divide';
 import { State } from './State';
-import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
 
 /**
@@ -26,10 +25,6 @@ export class DivideState extends State {
    * (ré-)initialiser l'état
    */
   start(openPopup = true) {
-    this.actions = [new DivideAction(this.name)];
-
-    this.currentStep = 'choose-nb-parts';
-
     this.shape = null;
     this.timeoutRef = null;
 
@@ -40,7 +35,13 @@ export class DivideState extends State {
     this.selConstr.points.types = ['vertex', 'segmentPoint'];
     app.interactionAPI.setSelectionConstraints(this.selConstr);
 
-    if (openPopup) document.querySelector('divide-popup').style.display = 'block';
+    if (openPopup) {
+      this.actions = [new DivideAction(this.name)];
+      this.currentStep = 'choose-nb-parts';
+      app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
+    } else {
+      this.currentStep = 'listen-canvas-click';
+    }
     app.appDiv.cursor = 'default';
   }
 
