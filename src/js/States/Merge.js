@@ -35,8 +35,6 @@ export class MergeState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape) {
-    console.log(shape);
-    console.log(this.currentStep);
     if (this.currentStep == 'listen-canvas-click') {
       this.currentStep = 'selecting-second-shape';
       this.actions[0].firstShapeId = shape.id;

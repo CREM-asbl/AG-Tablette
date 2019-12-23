@@ -237,7 +237,7 @@ export class Point {
     let x,
       y,
       i = 0,
-      precision = 1;
+      precision = 0.001;
     if (arguments.length == 1) {
       if (arguments[0] instanceof Point || arguments[0][0] == undefined) {
         x = arguments[0].x;

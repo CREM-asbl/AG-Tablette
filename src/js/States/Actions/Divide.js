@@ -63,22 +63,17 @@ export class DivideAction extends Action {
 
   initFromObject(save) {
     this.shapeId = save.shapeId;
+
     this.numberOfparts = save.numberOfparts;
     this.mode = save.mode;
     this.segmentIndex = save.segmentIndex;
-    const shape = app.workspace.getShapeById(this.shapeId);
-    const segment = shape.segments[save.segmentIndex];
     if (save.firstPoint) {
       this.firstPoint = new Point();
       this.firstPoint.initFromObject(save.firstPoint);
-      this.firstPoint.shape = shape;
-      this.firstPoint.segment = segment;
     }
     if (save.secondPoint) {
       this.secondPoint = new Point();
       this.secondPoint.initFromObject(save.secondPoint);
-      this.secondPoint.shape = shape;
-      this.secondPoint.segment = segment;
     }
     this.createdPoints = save.createdPoints.map(pt => new Point(pt));
   }
@@ -102,28 +97,24 @@ export class DivideAction extends Action {
     if (!this.checkDoParameters()) return;
 
     this.createdPoints = [];
-    let shape = app.workspace.getShapeById(this.shapeId);
+    let shape = app.workspace.getShapeById(this.shapeId),
+      segment;
 
     if (this.mode == 'segment') {
-      let segment = shape.segments[this.segmentIndex];
+      segment = shape.segments[this.segmentIndex];
       if (segment.arcCenter) {
         this.segmentModeAddArcPoints();
       } else {
         this.segmentModeAddSegPoints();
       }
     } else {
-      let segment,
-        pt1 = this.firstPoint,
+      let pt1 = this.firstPoint,
         pt2 = this.secondPoint;
-      if (!this.segmentIndex) {
-        if (pt1.type == 'segmentPoint') segment = pt1.segment;
-        else if (pt2.type == 'segmentPoint') segment = pt2.segment;
-        else segment = pt1.segment.idx > pt2.segment.idx ? pt1.segment : pt2.segment;
-        this.segmentIndex = segment.idx;
-      } else {
-        segment = shape.segments[this.segmentIndex];
-      }
-      pt1.segment = segment;
+      if (this.segmentIndex != undefined) segment = shape.segments[this.segmentIndex];
+      else if (pt1.type == 'segmentPoint') segment = pt1.segment;
+      else if (pt2.type == 'segmentPoint') segment = pt2.segment;
+      else segment = pt1.segment.idx > pt2.segment.idx ? pt1.segment : pt2.segment;
+      this.segmentIndex = segment.idx;
       if (pt1.segment.arcCenter) {
         this.pointsModeAddArcPoints(pt1, pt2, segment);
       } else {

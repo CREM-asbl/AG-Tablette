@@ -2,6 +2,7 @@ import { app } from '../../App';
 import { Action } from './Action';
 import { Shape } from '../../Objects/Shape';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
+import { Point } from '../../Objects/Point';
 
 export class DeleteAction extends Action {
   constructor() {
@@ -41,7 +42,9 @@ export class DeleteAction extends Action {
   saveToObject() {
     let save = {
       mode: this.mode,
-      point: this.point,
+      point: this.point.saveToObject(),
+      shapeId: this.shapeId,
+      segmentIndex: this.segmentIndex,
       involvedShapes: this.involvedShapes ? this.involvedShapes.map(s => s.saveToObject()) : null,
       userGroupId: this.userGroupId,
       userGroupLastShapeId: this.userGroupLastShapeId,
@@ -53,14 +56,17 @@ export class DeleteAction extends Action {
 
   initFromObject(save) {
     this.mode = save.mode;
-    this.point = save.point;
-    this.involvedShapes = save.involvedShapes
-      ? save.involvedShapes.map(shape => {
-          let newShape = new Shape({ x: 0, y: 0 }, []);
-          newShape.initFromObject(shape);
-          return newShape;
-        })
-      : null;
+    this.point = new Point();
+    this.point.initFromObject(save.point);
+    this.shapeId = save.shapeId;
+    (this.segmentIndex = save.segmentIndex),
+      (this.involvedShapes = save.involvedShapes
+        ? save.involvedShapes.map(shape => {
+            let newShape = new Shape({ x: 0, y: 0 }, []);
+            newShape.initFromObject(shape);
+            return newShape;
+          })
+        : null);
     this.userGroupId = save.userGroupId;
     this.userGroupLastShapeId = save.userGroupLastShapeId;
     this.userGroupIndex = save.userGroupIndex;
@@ -99,8 +105,11 @@ export class DeleteAction extends Action {
       }
     } else {
       // point
-      const segment = this.point.segment;
-      // if (segments.length > 1) console.error('a point cannot belong to multiple segments');
+      let shape = app.workspace.getShapeById(this.shapeId);
+      segment;
+      if (this.segmentIndex != undefined) segment = shape[this.segmentIndex];
+      else segment = this.point.segment;
+      this.segmentIndex = segment.idx;
       segment.deletePoint(this.point);
     }
   }

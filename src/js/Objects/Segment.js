@@ -363,9 +363,9 @@ export class Segment {
     }
   }
 
-  isPointOnSegment(point) {
+  isPointOnSegment(point, precision = 0.001) {
     if (this.arcCenter) {
-      if (Math.abs(this.arcCenter.dist(point) - this.radius) > 0.01) return false;
+      if (Math.abs(this.arcCenter.dist(point) - this.radius) > precision) return false;
       let angle = this.arcCenter.getAngle(point),
         bound1 = this.arcCenter.getAngle(this.vertexes[0]),
         bound2 = this.arcCenter.getAngle(this.vertexes[1]);
@@ -379,7 +379,7 @@ export class Segment {
       let segmentLength = this.length,
         dist1 = this.vertexes[0].dist(point),
         dist2 = this.vertexes[1].dist(point);
-      if (dist1 + dist2 - segmentLength > 1) return false;
+      if (dist1 + dist2 - segmentLength > precision) return false;
       return true;
     }
   }
@@ -519,6 +519,12 @@ export class Segment {
   hasSameDirection(segment, vertexNb1, vertexNb2, matchArcAndOther = true) {
     let dir1, dir2;
     if (!matchArcAndOther && (this.arcCenter != undefined) ^ (segment.arcCenter != undefined))
+      return false;
+    if (
+      this.arcCenter != undefined &&
+      segment.arcCenter != undefined &&
+      !this.arcCenter.equal(segment.arcCenter, 0.001)
+    )
       return false;
     if (this.arcCenter) dir1 = this.getArcTangent(vertexNb1);
     else dir1 = this.direction;

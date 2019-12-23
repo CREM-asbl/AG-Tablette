@@ -618,12 +618,12 @@ export class InteractionAPI {
 
   onTouchStart(mouseCoordinates, event) {
     if (event.touches.length > 1) return; //TODO: supprimer ?
-    event.preventDefault();
+    if (event.cancelable) event.preventDefault();
     this.onMouseDown(mouseCoordinates, event);
   }
 
   onTouchMove(mouseCoordinates, event) {
-    event.preventDefault();
+    if (event.cancelable) event.preventDefault();
     this.onMouseMove(mouseCoordinates, event);
   }
 
