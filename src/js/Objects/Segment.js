@@ -191,7 +191,10 @@ export class Segment {
 
   addPoint({ x, y }) {
     //TODO: garder les points triés?
-    this.points.push(new Point(x, y, 'segmentPoint', this, this.shape));
+    let newPoint = new Point(x, y, 'segmentPoint', this, this.shape);
+    if (this.points.filter(pt => pt.equal(newPoint, 0.001)).length == 0)
+      // check if point already exists
+      this.points.push(newPoint);
   }
 
   /**
@@ -206,7 +209,7 @@ export class Segment {
 
   deletePoint(point) {
     let i = this.points.findIndex(pt => {
-      return pt.equal(point);
+      return pt.equal(point, 0.001);
     });
     if (i == -1) {
       console.error("couldn't delete point from segment");

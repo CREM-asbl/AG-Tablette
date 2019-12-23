@@ -41,7 +41,7 @@ export class Shape {
 
   get allOutlinePoints() {
     let points = [];
-    if (this.isSegment()) points.push(segments[0].vertexes[0]);
+    if (this.isSegment()) points.push(this.segments[0].vertexes[0]);
     this.segments.forEach(segment => points.push(segment.vertexes[1], ...segment.points));
     return points;
   }
@@ -187,7 +187,7 @@ export class Shape {
    * say if the shape is a Segment
    */
   isSegment() {
-    return this.segments.length === 1 && this.segments[0].arcCenter == false;
+    return this.segments.length === 1 && !this.segments[0].arcCenter;
   }
 
   isPointOnSegment(point) {

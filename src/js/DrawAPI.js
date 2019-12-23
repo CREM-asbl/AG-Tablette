@@ -137,7 +137,6 @@ export class DrawAPI {
     if (app.settings.get('areShapesPointed')) {
       if (shape.isSegment()) this.drawPoint(ctx, shape.segments[0].vertexes[0], '#000', 1, false);
       shape.segments.forEach(seg => {
-        // this.drawPoint(ctx, seg.middle, '#000', 1, false);
         if (!shape.isCircle()) this.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
         if (seg.points)
           seg.points.forEach(pt => {

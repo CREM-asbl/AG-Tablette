@@ -99,10 +99,9 @@ export class DeleteAction extends Action {
       }
     } else {
       // point
-      const shape = app.workspace.getShapeById(this.shapeId);
-      const segments = shape.segments.filter(seg => seg.contains(this.point));
-      if (segments.length > 1) console.error('a point cannot belong to multiple segments');
-      segments[0].deletePoint(this.point);
+      const segment = this.point.segment;
+      // if (segments.length > 1) console.error('a point cannot belong to multiple segments');
+      segment.deletePoint(this.point);
     }
   }
 

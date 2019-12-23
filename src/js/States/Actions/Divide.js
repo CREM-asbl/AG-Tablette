@@ -117,7 +117,9 @@ export class DivideAction extends Action {
         pt1 = this.firstPoint,
         pt2 = this.secondPoint;
       if (!this.segmentIndex) {
-        segment = pt1.segment;
+        if (pt1.type == 'segmentPoint') segment = pt1.segment;
+        else if (pt2.type == 'segmentPoint') segment = pt2.segment;
+        else segment = pt1.segment.idx > pt2.segment.idx ? pt1.segment : pt2.segment;
         this.segmentIndex = segment.idx;
       } else {
         segment = shape.segments[this.segmentIndex];
@@ -136,8 +138,6 @@ export class DivideAction extends Action {
     let shape = app.workspace.getShapeById(this.shapeId),
       segments = shape.segments,
       segment;
-
-    console.log(this);
 
     if (this.segmentIndex == undefined) {
       segment = this.firstPoint.segment;

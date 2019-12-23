@@ -231,9 +231,13 @@ export class Point {
    * @param {Object} point - point to compare with
    * @param {number} x - other method
    * @param {number} y - other method
+   * @param {number} precision - precision d'egalité (0 pour stricte)
    */
   equal() {
-    let x, y;
+    let x,
+      y,
+      i = 0,
+      precision = 1;
     if (arguments.length == 1) {
       if (arguments[0] instanceof Point || arguments[0][0] == undefined) {
         x = arguments[0].x;
@@ -242,11 +246,15 @@ export class Point {
         x = arguments[0][0];
         y = arguments[0][1];
       }
+      i++;
     } else if (arguments.length == 2) {
-      x = arguments[0];
-      y = arguments[1];
+      x = arguments[i++];
+      y = arguments[i++];
     }
-    return this.dist(new Point(x, y)) < 1;
+    if (arguments[i] !== undefined) {
+      precision = arguments[i++];
+    }
+    return this.dist(new Point(x, y)) < precision;
   }
 
   /**
