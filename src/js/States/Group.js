@@ -99,7 +99,7 @@ export class GroupState extends State {
 
     let shapesList = [];
     if (this.currentStep == 'selecting-second-shape') shapesList = [this.firstShape];
-    else shapesList = this.group.shapes;
+    else shapesList = this.group.shapesIds.map(id => app.workspace.getShapeById(id));
 
     let constr = app.interactionAPI.getEmptySelectionConstraints();
     constr.eventType = 'click';

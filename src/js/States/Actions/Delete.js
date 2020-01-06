@@ -42,35 +42,39 @@ export class DeleteAction extends Action {
   saveToObject() {
     let save = {
       mode: this.mode,
-      point: this.point.saveToObject(),
       shapeId: this.shapeId,
-      segmentIndex: this.segmentIndex,
-      involvedShapes: this.involvedShapes ? this.involvedShapes.map(s => s.saveToObject()) : null,
-      userGroupId: this.userGroupId,
-      userGroupLastShapeId: this.userGroupLastShapeId,
-      userGroupIndex: this.userGroupIndex,
-      deleteUserGroup: this.deleteUserGroup,
     };
+    if (save.mode == 'shape') {
+      save.involvedShapes = this.involvedShapes.map(s => s.saveToObject());
+      save.userGroupId = this.userGroupId;
+      save.userGroupLastShapeId = this.userGroupLastShapeId;
+      save.userGroupIndex = this.userGroupIndex;
+      save.deleteUserGroup = this.deleteUserGroup;
+    } else {
+      save.point = this.point.saveToObject();
+      save.segmentIndex = this.segmentIndex;
+    }
     return save;
   }
 
   initFromObject(save) {
     this.mode = save.mode;
-    this.point = new Point();
-    this.point.initFromObject(save.point);
     this.shapeId = save.shapeId;
-    (this.segmentIndex = save.segmentIndex),
-      (this.involvedShapes = save.involvedShapes
-        ? save.involvedShapes.map(shape => {
-            let newShape = new Shape({ x: 0, y: 0 }, []);
-            newShape.initFromObject(shape);
-            return newShape;
-          })
-        : null);
-    this.userGroupId = save.userGroupId;
-    this.userGroupLastShapeId = save.userGroupLastShapeId;
-    this.userGroupIndex = save.userGroupIndex;
-    this.deleteUserGroup = save.deleteUserGroup;
+    if (save.mode == 'shape') {
+      this.involvedShapes = save.involvedShapes.map(shape => {
+        let newShape = new Shape({ x: 0, y: 0 }, []);
+        newShape.initFromObject(shape);
+        return newShape;
+      });
+      this.userGroupId = save.userGroupId;
+      this.userGroupLastShapeId = save.userGroupLastShapeId;
+      this.userGroupIndex = save.userGroupIndex;
+      this.deleteUserGroup = save.deleteUserGroup;
+    } else {
+      this.point = new Point();
+      this.point.initFromObject(save.point);
+      this.segmentIndex = save.segmentIndex;
+    }
   }
 
   checkDoParameters() {
@@ -94,7 +98,7 @@ export class DeleteAction extends Action {
       let userGroup = app.workspace.getShapeGroup(this.involvedShapes[0]);
 
       this.involvedShapes.forEach(s => {
-        if (userGroup) userGroup.deleteShape(s);
+        if (userGroup) userGroup.deleteShape(s.id);
         app.workspace.deleteShape(s);
       });
 
@@ -105,8 +109,8 @@ export class DeleteAction extends Action {
       }
     } else {
       // point
-      let shape = app.workspace.getShapeById(this.shapeId);
-      segment;
+      let shape = app.workspace.getShapeById(this.shapeId),
+        segment;
       if (this.segmentIndex != undefined) segment = shape[this.segmentIndex];
       else segment = this.point.segment;
       this.segmentIndex = segment.idx;
@@ -120,15 +124,21 @@ export class DeleteAction extends Action {
     if (this.mode == 'shape') {
       let userGroup;
 
-      if (this.involvedShapes.length >= 2) {
-        userGroup = new ShapeGroup(this.involvedShapes[0], this.involvedShapes[1]);
+      let shapeCopies = this.involvedShapes.map(s => {
+        let newShape = s.copy();
+        newShape.id = s.id;
+        return newShape;
+      });
+
+      if (shapeCopies.length >= 2) {
+        userGroup = new ShapeGroup(shapeCopies[0].id, shapeCopies[1].id);
         userGroup.id = this.userGroupId;
         app.workspace.addGroup(userGroup, this.userGroupIndex);
       }
 
-      this.involvedShapes.forEach((s, id) => {
+      shapeCopies.forEach((s, id) => {
         app.workspace.addShape(s);
-        if (userGroup && id >= 2) userGroup.addShape(s);
+        if (userGroup && id >= 2) userGroup.addShape(s.id);
       });
     } else {
       // point

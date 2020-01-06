@@ -270,10 +270,10 @@ export class Segment {
   saveToObject() {
     const save = {
       vertexes: this.vertexes.map(pt => pt.saveToObject()),
-      counterclockwise: this.counterclockwise,
     };
-    if (this.points) save.points = this.points.map(pt => pt.saveToObject());
+    if (this.points && this.points.length) save.points = this.points.map(pt => pt.saveToObject());
     if (this.arcCenter) save.arcCenter = this.arcCenter.saveToObject();
+    if (this.counterclockwise !== undefined) save.counterclockwise = this.counterclockwise;
     return save;
   }
 

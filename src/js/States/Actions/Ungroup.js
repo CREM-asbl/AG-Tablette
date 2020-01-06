@@ -52,23 +52,17 @@ export class UngroupAction extends Action {
     let group = app.workspace.getGroup(this.groupId);
     this.groupIndex = app.workspace.getGroupIndex(group);
 
-    group.shapes.forEach(shape => {
-      this.groupShapesIds.push(shape.id);
-    });
+    this.groupShapesIds = [...group.shapesIds];
     app.workspace.deleteGroup(group);
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    let shape1 = app.workspace.getShapeById(this.groupShapesIds[0]),
-      shape2 = app.workspace.getShapeById(this.groupShapesIds[1]),
-      group = new ShapeGroup(shape1, shape2);
+    let group = new ShapeGroup(0, 1);
     group.id = this.groupId;
-    this.groupShapesIds.slice(2).forEach(shapeId => {
-      let shape = app.workspace.getShapeById(shapeId);
-      group.addShape(shape);
-    });
-    app.workspace.addGroup(group, 'user', this.groupIndex);
+    group.shapesIds = [...this.groupShapesIds];
+    console.log(group);
+    app.workspace.addGroup(group, this.groupIndex);
   }
 }

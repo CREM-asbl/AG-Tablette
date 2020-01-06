@@ -93,16 +93,16 @@ export class CopyAction extends Action {
 
     //Si nécessaire, créer le userGroup
     if (shapesList.length > 1) {
-      let userGroup = new ShapeGroup(shapesList[0], shapesList[1]);
+      let userGroup = new ShapeGroup(shapesList[0].id, shapesList[1].id);
       if (Number.isFinite(this.createdUsergroupId)) userGroup.id = this.createdUsergroupId;
       else this.createdUsergroupId = userGroup.id;
       shapesList.splice(2).forEach(s => {
-        userGroup.addShape(s);
+        userGroup.addShape(s.id);
       });
       if (Number.isFinite(this.createdUserGroupIndex))
-        app.workspace.addGroup(userGroup, 'user', this.createdUserGroupIndex);
+        app.workspace.addGroup(userGroup, this.createdUserGroupIndex);
       else {
-        app.workspace.addGroup(userGroup, 'user');
+        app.workspace.addGroup(userGroup);
         this.createdUserGroupIndex = app.workspace.getGroupIndex(userGroup);
       }
     }
@@ -117,8 +117,8 @@ export class CopyAction extends Action {
     });
 
     if (this.newShapesIds.length > 1) {
-      let group = app.workspace.getGroup(this.createdUsergroupId, 'user');
-      app.workspace.deleteGroup(group, 'user');
+      let group = app.workspace.getGroup(this.createdUsergroupId);
+      app.workspace.deleteGroup(group);
     }
   }
 }

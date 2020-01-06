@@ -41,7 +41,7 @@ export class OpacityState extends State {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.actions[0].shapeId = shape.id;
-    let group = app.workspace.getShapeGroup(shape, 'user'),
+    let group = app.workspace.getShapeGroup(shape),
       involvedShapes = [shape];
     if (group) involvedShapes = [...group.shapes];
     this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);

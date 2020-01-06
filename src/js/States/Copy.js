@@ -58,11 +58,14 @@ export class CopyState extends State {
     this.selectedShape = shape;
     this.actions[0].shapeId = shape.id;
 
-    this.involvedShapes = [shape];
-    let group = app.workspace.getShapeGroup(shape, 'user');
-    if (group) this.involvedShapes = [...group.shapes];
-    this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
-    this.involvedShapes = this.involvedShapes.map(s => s.copy());
+    let group = app.workspace.getShapeGroup(shape);
+    if (group) {
+      this.actions[0].involvedShapesIds = [...group.shapesIds];
+      this.involvedShapes = group.shapesIds.map(id => app.workspace.getShapeById(id).copy());
+    } else {
+      this.actions[0].involvedShapesIds = [shape.id];
+      this.involvedShapes = [shape.copy()];
+    }
 
     this.startClickCoordinates = clickCoordinates;
 

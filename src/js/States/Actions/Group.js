@@ -82,25 +82,21 @@ export class GroupAction extends Action {
     if (!this.checkDoParameters()) return;
 
     if (this.type == 'new') {
-      let shape1 = app.workspace.getShapeById(this.shapeId),
-        shape2 = app.workspace.getShapeById(this.secondShapeId),
-        group = new ShapeGroup(shape1, shape2);
+      let group = new ShapeGroup(this.shapeId, this.secondShapeId);
       if (this.groupId) group.id = this.groupId;
       else this.groupId = group.id;
       app.workspace.addGroup(group);
     } else if (this.type == 'add') {
-      let shape = app.workspace.getShapeById(this.shapeId),
-        group = app.workspace.getGroup(this.groupId);
-      group.addShape(shape);
+      let group = app.workspace.getGroup(this.groupId);
+      group.addShape(this.shapeId);
     } else {
       let group1 = app.workspace.getGroup(this.groupId),
         group2 = app.workspace.getGroup(this.otherGroupId);
-      this.oldGroupShapesIds = [];
-      group2.shapes.forEach(shape => {
-        group1.addShape(shape);
-        this.oldGroupShapesIds.push(shape.id);
-      });
+
+      this.oldGroupShapesIds = [...group2.shapesIds];
       this.oldGroupIndex = app.workspace.getGroupIndex(group2);
+
+      group1.shapesIds = [...group1.shapesIds, ...group2.shapesIds];
       app.workspace.deleteGroup(group2);
     }
   }
@@ -112,23 +108,15 @@ export class GroupAction extends Action {
       let group = app.workspace.getGroup(this.groupId);
       app.workspace.deleteGroup(group);
     } else if (this.type == 'add') {
-      let shape = app.workspace.getShapeById(this.shapeId),
-        group = app.workspace.getGroup(this.groupId);
-      group.deleteShape(shape);
+      let group = app.workspace.getGroup(this.groupId);
+      group.deleteShape(this.shapeId);
     } else {
       let group1 = app.workspace.getGroup(this.groupId),
-        shape1 = app.workspace.getShapeById(this.oldGroupShapesIds[0]),
-        shape2 = app.workspace.getShapeById(this.oldGroupShapesIds[1]),
-        group2 = new ShapeGroup(shape1, shape2);
+        group2 = new ShapeGroup(0, 1);
       group2.id = this.otherGroupId;
-      group1.deleteShape(shape1);
-      group1.deleteShape(shape2);
-      this.oldGroupShapesIds.slice(2).forEach(shapeId => {
-        let shape = app.workspace.getShapeById(shapeId);
-        group2.addShape(shape);
-        group1.deleteShape(shape);
-      });
-      app.workspace.addGroup(group2, 'user', this.oldGroupIndex);
+      group2.shapesIds = [...this.oldGroupShapesIds];
+      group1.shapesIds = group1.shapesIds.filter(id1 => group2.shapesIds.every(id2 => id2 != id1));
+      app.workspace.addGroup(group2, this.oldGroupIndex);
     }
   }
 }

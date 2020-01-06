@@ -93,7 +93,7 @@ export class Workspace {
     this.history.initFromObject(wsdata.history);
 
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
-      let group = new ShapeGroup({ id: 0 }, { id: 1 });
+      let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
       return group;
     });
@@ -254,7 +254,7 @@ export class Workspace {
     let shapes = [shape],
       group = this.getShapeGroup(shape);
     if (group) {
-      shapes = [...group.shapes];
+      shapes = group.shapesIds.map(id => this.getShapeById(id));
     }
 
     if (!includeReceivedShape) {
@@ -310,7 +310,7 @@ export class Workspace {
    * @return {Group}               le groupe, ou null s'il n'y en a pas.
    */
   getShapeGroup(shape) {
-    let group = this.shapeGroups.find(gr => gr.contains(shape));
+    let group = this.shapeGroups.find(gr => gr.contains(shape.id));
     return group ? group : null;
   }
 
