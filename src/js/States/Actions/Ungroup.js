@@ -62,7 +62,6 @@ export class UngroupAction extends Action {
     let group = new ShapeGroup(0, 1);
     group.id = this.groupId;
     group.shapesIds = [...this.groupShapesIds];
-    console.log(group);
     app.workspace.addGroup(group, this.groupIndex);
   }
 }

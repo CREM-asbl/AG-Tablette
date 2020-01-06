@@ -113,9 +113,15 @@ export class DivideAction extends Action {
       if (this.segmentIndex != undefined) segment = shape.segments[this.segmentIndex];
       else if (pt1.type == 'segmentPoint') segment = pt1.segment;
       else if (pt2.type == 'segmentPoint') segment = pt2.segment;
-      else segment = pt1.segment.idx > pt2.segment.idx ? pt1.segment : pt2.segment;
+      else {
+        segment =
+          (Math.abs(pt2.segment.idx - pt1.segment.idx) > 1) ^ // si premier et dernier segment
+          (pt1.segment.idx > pt2.segment.idx)
+            ? pt1.segment
+            : pt2.segment;
+      }
       this.segmentIndex = segment.idx;
-      if (pt1.segment.arcCenter) {
+      if (segment.arcCenter) {
         this.pointsModeAddArcPoints(pt1, pt2, segment);
       } else {
         this.pointsModeAddSegPoints(pt1, pt2, segment);

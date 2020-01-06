@@ -111,7 +111,7 @@ export class DeleteAction extends Action {
       // point
       let shape = app.workspace.getShapeById(this.shapeId),
         segment;
-      if (this.segmentIndex != undefined) segment = shape[this.segmentIndex];
+      if (this.segmentIndex != undefined) segment = shape.segments[this.segmentIndex];
       else segment = this.point.segment;
       this.segmentIndex = segment.idx;
       segment.deletePoint(this.point);

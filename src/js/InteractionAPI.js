@@ -343,9 +343,9 @@ export class InteractionAPI {
     );
     // sort by height
     sortedPoints.forEach(toSort =>
-      toSort.sort((pt1, pt2) => {
-        app.workspace.getShapeIndex(pt1.shape) < app.workspace.getShapeIndex(pt2.shape) ? 1 : -1;
-      }),
+      toSort.sort((pt1, pt2) =>
+        app.workspace.getShapeIndex(pt1.shape) < app.workspace.getShapeIndex(pt2.shape) ? 1 : -1,
+      ),
     );
 
     const flattedPoints = sortedPoints.flat();

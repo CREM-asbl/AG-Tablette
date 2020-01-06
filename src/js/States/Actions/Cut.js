@@ -102,7 +102,7 @@ export class CutAction extends Action {
         if (firstAngle < firstVertexAngle) firstAngle += 2 * Math.PI;
         if (secondAngle < firstVertexAngle) secondAngle += 2 * Math.PI;
 
-        if (firstAngle > secondAngle) [pt1, pt2] = [pt2, pt1];
+        if (firstAngle < secondAngle) [pt1, pt2] = [pt2, pt1];
       } else {
         // possible ?
         let segEnd = pt1.segment.vertexes[1],
@@ -162,14 +162,14 @@ export class CutAction extends Action {
     // cleaning same direction segments
     shape1Seg.forEach((seg, idx, segments) => {
       const mergeIdx = mod(idx + 1, segments.length);
-      if (seg.hasSameDirection(segments[mergeIdx], 1, 0)) {
+      if (seg.hasSameDirection(segments[mergeIdx], 1, 0, false)) {
         seg.vertexes[1] = segments[mergeIdx].vertexes[1].copy();
         segments.splice(mergeIdx, 1);
       }
     });
     shape2Seg.forEach((seg, idx, segments) => {
       const mergeIdx = mod(idx + 1, segments.length);
-      if (seg.hasSameDirection(segments[mergeIdx], 1, 0)) {
+      if (seg.hasSameDirection(segments[mergeIdx], 1, 0, false)) {
         seg.vertexes[1] = segments[mergeIdx].vertexes[1].copy();
         segments.splice(mergeIdx, 1);
       }
@@ -200,8 +200,7 @@ export class CutAction extends Action {
       difference = center2.subCoordinates(center1),
       distance = center2.dist(center1),
       myOffset = 20, //px
-      offset = difference.multiplyWithScalar(1 / distance);
-    offset.multiplyWithScalar(myOffset);
+      offset = difference.multiplyWithScalar(myOffset / distance);
     shape1.coordinates = new Point(shape1).subCoordinates(offset);
     shape2.coordinates = new Point(shape2).addCoordinates(offset);
 

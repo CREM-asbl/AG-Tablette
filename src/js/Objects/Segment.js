@@ -495,11 +495,10 @@ export class Segment {
       } else {
         if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
         let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
-          tangent = this.getArcTangent(0),
-          sweepFlag = !this.counterclockwise ? 1 : 0;
+          sweepFlag = 1;
         if (this.counterclockwise) {
-          sweepFlag = !sweepFlag;
-          largeArcFlag = !largeArcFlag;
+          sweepFlag = Math.abs(sweepFlag - 1);
+          largeArcFlag = Math.abs(largeArcFlag - 1);
         }
         path = ['A', radius, radius, 0, largeArcFlag, sweepFlag, v1.x, v1.y].join(' ');
       }

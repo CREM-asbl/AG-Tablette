@@ -19,6 +19,8 @@ export class DivideState extends State {
     this.timeoutRef = null;
 
     this.selConstr = null;
+
+    this.numberOfparts = null;
   }
 
   /**
@@ -35,8 +37,8 @@ export class DivideState extends State {
     this.selConstr.points.types = ['vertex', 'segmentPoint'];
     app.interactionAPI.setSelectionConstraints(this.selConstr);
 
+    this.actions = [new DivideAction(this.name)];
     if (openPopup) {
-      this.actions = [new DivideAction(this.name)];
       this.currentStep = 'choose-nb-parts';
       app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
     } else {
@@ -50,7 +52,7 @@ export class DivideState extends State {
   }
 
   setNumberOfparts(parts) {
-    this.actions[0].numberOfparts = parseInt(parts);
+    this.numberOfparts = parseInt(parts);
     this.currentStep = 'listen-canvas-click';
   }
 
@@ -119,23 +121,23 @@ export class DivideState extends State {
             forme est donc constituée uniquement de 2 sommets, un segment et un
             arc de cercle), on annulle l'action.
              */
-      // if (pt1.type == 'vertex' && object.type == 'vertex') {
-      //   let segments = object.shape.segments;
-      //   if (
-      //     segments.length == 2 &&
-      //     segments.filter(seg => seg.arcCenter !== true).length == 1 &&
-      //     segments.filter(seg => seg.arcCenter === true).length > 0
-      //   ) {
-      //     console.log('ambiguité, ne rien faire');
-      //     let parts = this.actions[0].numberOfparts;
-      //     this.start(false);
-      //     this.setNumberOfparts(parts);
+      if (pt1.type == 'vertex' && object.type == 'vertex') {
+        let segments = object.shape.segments;
+        if (
+          segments.length == 2 &&
+          segments[0].contains(pt1) &&
+          segments[1].contains(pt1) &&
+          segments[0].contains(object) &&
+          segments[1].contains(object)
+        ) {
+          console.log('ambiguité, ne rien faire');
+          this.start(false);
 
-      //     app.drawAPI.askRefresh();
-      //     app.drawAPI.askRefresh('upper');
-      //     return;
-      //   }
-      // }
+          app.drawAPI.askRefresh();
+          app.drawAPI.askRefresh('upper');
+          return;
+        }
+      }
 
       this.actions[0].secondPoint = object;
       this.currentStep = 'showing-points';
@@ -150,10 +152,9 @@ export class DivideState extends State {
   }
 
   execute() {
+    this.actions[0].numberOfparts = this.numberOfparts;
     this.executeAction();
-    let parts = this.actions[0].numberOfparts;
     this.start(false);
-    this.setNumberOfparts(parts);
 
     app.drawAPI.askRefresh();
     app.drawAPI.askRefresh('upper');

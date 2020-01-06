@@ -137,12 +137,14 @@ export class DrawAPI {
       if (shape.isSegment()) this.drawPoint(ctx, shape.segments[0].vertexes[0], '#000', 1, false);
       shape.segments.forEach(seg => {
         if (!shape.isCircle()) this.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
-        if (seg.points)
-          seg.points.forEach(pt => {
-            this.drawPoint(ctx, pt, '#000', 1, false);
-          });
       });
     }
+    shape.segments.forEach(seg => {
+      if (seg.points)
+        seg.points.forEach(pt => {
+          this.drawPoint(ctx, pt, '#000', 1, false);
+        });
+    });
     if (shape.isCenterShown) this.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
     ctx.restore();
 

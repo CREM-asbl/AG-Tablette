@@ -305,10 +305,10 @@ export class Shape {
     if (
       !s1_segments.every(s1_segment => {
         if (
-          !s2_segments.some(
-            s2_segment =>
-              s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)) ||
-              s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)),
+          !s2_segments.some(s2_segment =>
+            s1_segment.subSegments.some(sub1 =>
+              s2_segment.subSegments.some(sub2 => sub2.equal(sub1)),
+            ),
           ) &&
           s2_segments
             .filter(
