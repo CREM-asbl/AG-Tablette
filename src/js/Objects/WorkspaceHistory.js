@@ -57,8 +57,6 @@ export class WorkspaceHistory {
         start_of_branch: step.start_of_branch,
       };
     });
-
-    this.historyIndex = this.history.length - 1;
     this.updateMenuState();
   }
 
