@@ -433,7 +433,12 @@ class AGTabletteApp extends LitElement {
       />
 
       <label id="color-picker-label" for="color-picker" hidden></label>
-      <input id="color-picker" type="color" @change="${e => app.state.setColor(e.target.value)}" />
+      <input
+        id="color-picker"
+        type="color"
+        @change="${e => app.state.setColor(e.target.value)}"
+        @blur="${e => app.state.setColor(e.target.value)}"
+      />
     `;
   }
 

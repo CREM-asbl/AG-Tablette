@@ -23,6 +23,7 @@ export class BorderColorState extends State {
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     if (callColorPicker) app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
+
     app.appDiv.cursor = 'default';
   }
 
@@ -39,8 +40,10 @@ export class BorderColorState extends State {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.actions[0].shapeId = shape.id;
-    let group = app.workspace.getShapeGroup(shape);
-    if (group) this.actions[0].involvedShapesIds = group.shapesIds;
+    let group = app.workspace.getShapeGroup(shape),
+      involvedShapesIds = group ? group.shapesIds : [shape.id];
+
+    this.actions[0].involvedShapesIds = involvedShapesIds;
 
     this.executeAction();
     let color = this.actions[0].selectedColor;
