@@ -4,43 +4,30 @@ import { app } from '../App';
 /**
  * Représente l'historique d'un espace de travail.
  */
-export class WorkspaceHistory {
+export class CompleteHistory {
   constructor() {
-    //Historique des actions
-    this.history = [];
+    // Historique des actions
+    this.steps = [];
 
-    //Index de la dernière tâche réalisée
-    this.historyIndex = -1;
+    // index de la prochaine action à effectuer
+    this.historyIndex = null;
 
-    //Début de la branche en cours
-    this.start_of_branch = 0;
-  }
+    // timestamp courant
+    this.currentTimestamp = null;
 
-  /**
-   * Met à jour les boutons "Annuler" et "Refaire" du menu (définir l'attribut
-   * disabled de ces deux boutons)
-   */
-  updateMenuState() {
-    app.appDiv.canUndo = this.canUndo();
-    app.appDiv.canRedo = this.canRedo();
+    // workspace open timestamp
+    this.startTimestamp = null;
+
+    // workspace close timestamp
+    this.endTimestamp = null;
   }
 
   saveToObject() {
     let save = {
       historyIndex: this.historyIndex,
-      history: this.history.map(step => {
-        return {
-          actions: step.actions.map(action => {
-            return {
-              className: action.name,
-              data: action.saveToObject(),
-            };
-          }),
-          previous_step: step.previous_step,
-          next_step: step.next_step,
-          start_of_branch: step.start_of_branch,
-        };
-      }),
+      steps: this.steps.map(step => step.saveToObject()),
+      startTimestamp: this.startTimestamp,
+      endTimestamp: this.endTimestamp,
     };
     return save;
   }

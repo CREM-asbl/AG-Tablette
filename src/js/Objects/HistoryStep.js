@@ -2,80 +2,35 @@ import { StatesManager } from '../StatesManager';
 import { app } from '../App';
 
 /**
- * Représente l'historique d'un espace de travail.
+ * Représente une étape d'execution de l'historique complet
  */
-export class WorkspaceHistory {
-  constructor() {
-    //Historique des actions
-    this.history = [];
+export class HistoryStep {
+  constructor(data, type, timestamp = 0) {
+    console.log(arguments);
 
-    //Index de la dernière tâche réalisée
-    this.historyIndex = -1;
+    // required data
+    this.data = data;
 
-    //Début de la branche en cours
-    this.start_of_branch = 0;
-  }
+    // event, form_change, selection
+    this.type = type;
 
-  /**
-   * Met à jour les boutons "Annuler" et "Refaire" du menu (définir l'attribut
-   * disabled de ces deux boutons)
-   */
-  updateMenuState() {
-    app.appDiv.canUndo = this.canUndo();
-    app.appDiv.canRedo = this.canRedo();
+    // timestamp of the step
+    this.timestamp = timestamp;
   }
 
   saveToObject() {
     let save = {
-      historyIndex: this.historyIndex,
-      history: this.history.map(step => {
-        return {
-          actions: step.actions.map(action => {
-            return {
-              className: action.name,
-              data: action.saveToObject(),
-            };
-          }),
-          previous_step: step.previous_step,
-          next_step: step.next_step,
-          start_of_branch: step.start_of_branch,
-        };
-      }),
+      data: this.data,
+      type: this.type,
+      timestamp: this.timestamp,
     };
     return save;
   }
 
-  initFromObject(object) {
-    this.historyIndex = object.historyIndex;
-    this.history = object.history.map(step => {
-      return {
-        actions: step.actions.map(actionData => {
-          return StatesManager.getActionInstance(actionData);
-        }),
-        previous_step: step.previous_step,
-        next_step: step.next_step,
-        start_of_branch: step.start_of_branch,
-      };
-    });
-
-    this.updateMenuState();
-  }
-
-  /**
-   * Renvoie true si undo() peut être appelé.
-   * @return {Boolean}
-   */
-  canUndo() {
-    return this.historyIndex != -1;
-  }
-
-  /**
-   * Renvoie true si redo() peut être appelé.
-   * @return {Boolean}
-   */
-  canRedo() {
-    if (this.historyIndex == -1) return this.history.length;
-    return this.history[this.historyIndex].next_step.length;
+  initFromObject(save) {
+    this.data = save.data;
+    this.type = save.type;
+    this.timestamp = save.timestamp;
   }
 
   /**
