@@ -1,6 +1,5 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { getComplementaryColor } from '../../Tools/general';
 
 export class BackgroundColorAction extends Action {
@@ -67,8 +66,6 @@ export class BackgroundColorAction extends Action {
 
   undo() {
     if (!this.checkUndoParameters()) return;
-
-    let shape = app.workspace.getShapeById(this.shapeId);
 
     this.involvedShapesIds.forEach((id, index) => {
       let s = app.workspace.getShapeById(id);

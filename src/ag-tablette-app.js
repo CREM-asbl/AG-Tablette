@@ -385,18 +385,16 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-              <!--
-                        <icon-button src="/images/tangram-edit.svg"
-                                title="Créer Tangram"
-                                name="tangram_creator"
-                                @click="\${this._actionHandle}">
-                        </icon-button>
-                        <icon-button src="/images/tangram.svg"
-                                title="Faire un Tangram"
-                                name="tangram_menu"
-                                @click="\${this._actionHandle}">
-                        </icon-button>
-                        -->
+              <!-- <icon-button src="/images/tangram-edit.svg"
+                           title="Créer Tangram"
+                           name="tangram_creator"
+                           @click="$/{this._actionHandle}">
+              </icon-button>
+              <icon-button src="/images/tangram.svg"
+                           title="Faire un Tangram"
+                           name="tangram_menu"
+                           @click="$/{this._actionHandle}">
+              </icon-button> -->
             </flex-toolbar>
           </div>
           <version-item></version-item>

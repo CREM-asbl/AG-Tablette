@@ -46,10 +46,8 @@ export class BackgroundColorState extends State {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.actions[0].shapeId = shape.id;
-    let group = app.workspace.getShapeGroup(shape),
-      involvedShapes = [shape];
-    if (group) involvedShapes = [...group.shapes];
-    this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
+    let group = app.workspace.getShapeGroup(shape);
+    if (group) this.actions[0].involvedShapesIds = group.shapesIds;
 
     this.executeAction();
     let color = this.actions[0].selectedColor;
@@ -59,8 +57,7 @@ export class BackgroundColorState extends State {
     // setOpacity quand transparent
 
     this.actions[1].shapeId = shape.id;
-    if (group) involvedShapes = [...group.shapes];
-    this.actions[1].involvedShapesIds = involvedShapes.map(s => s.id);
+    if (group) this.actions[1].involvedShapesIds = group.shapesIds;
 
     if (shape.opacity == 0) {
       this.setOpacity(0.7);
