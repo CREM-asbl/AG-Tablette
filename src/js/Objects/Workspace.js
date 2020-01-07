@@ -2,6 +2,7 @@ import { loadManifest } from '../Manifest';
 import { app } from '../App';
 import { uniqId } from '../Tools/general';
 import { WorkspaceHistory } from './WorkspaceHistory';
+import { CompleteHistory } from './CompleteHistory';
 import { GridManager } from '../GridManager';
 import { ShapeGroup } from './ShapeGroup';
 import { Shape } from './Shape';
@@ -20,8 +21,11 @@ export class Workspace {
     //Identifiant unique de l'espace de travail
     this.id = uniqId();
 
-    //Représente l'historique
+    // Représente l'historique
     this.history = new WorkspaceHistory();
+
+    // Représente l'historique complet
+    this.completeHistory = new CompleteHistory();
 
     //liste des formes du projet ([Shape])
     this.shapes = [];
@@ -92,6 +96,11 @@ export class Workspace {
     this.history = new WorkspaceHistory();
     this.history.initFromObject(wsdata.history);
 
+    if (wsdata.completeHistory) {
+      this.completeHistory = new CompleteHistory();
+      this.completeHistory.initFromObject(wsdata.completeHistory);
+    }
+
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -118,6 +127,8 @@ export class Workspace {
     });
 
     wsdata.history = this.history.saveToObject();
+
+    if (this.completeHistory) wsdata.completeHistory = this.completeHistory.saveToObject();
 
     wsdata.shapeGroups = this.shapeGroups.map(group => {
       return group.saveToObject();
