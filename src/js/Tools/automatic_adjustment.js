@@ -55,7 +55,7 @@ function checkCompatibility(e1, e2) {
     d2 = e1.moving.dist(e2.moving);
   if (Math.abs(d1 - d2) > 1) return false;
 
-  if (!e1.moving.shape.contains(new Segment(e1.moving, e2.moving))) return false;
+  // if (!e1.moving.shape.contains(new Segment(e1.moving, e2.moving))) return false;
 
   if (
     e1.fixed.type != 'tangram' &&
@@ -64,7 +64,7 @@ function checkCompatibility(e1, e2) {
     e2.fixed.type != 'grid'
   ) {
     if (e1.fixed.shape.id != e2.fixed.shape.id) return false;
-    if (!e1.fixed.shape.contains(new Segment(e1.fixed, e2.fixed))) return false;
+    // if (!e1.fixed.shape.contains(new Segment(e1.fixed, e2.fixed))) return false;
   }
 
   return true;
