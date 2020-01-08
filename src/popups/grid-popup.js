@@ -15,7 +15,7 @@ class GridPopup extends LitElement {
   render() {
     return html`
       <template-popup @close-popup="${() => this.gridPopupValidate()}">
-        <h2 slot="title">Opacité</h2>
+        <h2 slot="title">Grille</h2>
         <div slot="body" id="body">
           <div class="field" style="margin-left:8px">
             <label for="grid_popup_grid_type">Type de grille </label>
