@@ -64,8 +64,16 @@ export class InteractionAPI {
          */
     this.permanenteStateFocusReleaseTime = 0;
 
-    window.addEventListener('canvasmousedown', event => this.selectObject(event.detail.mousePos));
-    // window.addEventListener('canvasclick', event => this.selectObject(event.detail.mousePos));
+    window.addEventListener('canvasmousedown', event =>
+      'mousedown' == this.selectionConstraints.eventType
+        ? this.selectObject(event.detail.mousePos)
+        : null,
+    );
+    window.addEventListener('canvasclick', event =>
+      'click' == this.selectionConstraints.eventType
+        ? this.selectObject(event.detail.mousePos)
+        : null,
+    );
   }
 
   /**
@@ -512,7 +520,6 @@ export class InteractionAPI {
    *          - Pour un point: un objet de type Point;
    */
   selectObject(mouseCoordinates) {
-    console.log(mouseCoordinates, app.workspace.shapes);
     let constr = this.selectionConstraints,
       calls = {
         points: (mCoord, constr) => {
@@ -541,7 +548,6 @@ export class InteractionAPI {
       let f = calls[constr.priority[i]],
         obj = f(mouseCoordinates, constr[constr.priority[i]]);
       if (obj) {
-        console.log(obj);
         window.dispatchEvent(
           new CustomEvent('objectSelected', {
             detail: { object: obj, mousePos: mouseCoordinates },
@@ -550,7 +556,6 @@ export class InteractionAPI {
         return obj;
       }
     }
-    console.log('fail');
     return null;
   }
 

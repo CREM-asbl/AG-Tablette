@@ -53,7 +53,7 @@ export class MoveState extends State {
   end() {
     app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
-    window.removeEventListener('canvasmouseup', this.handler);
+    window.removeEventListener('canvasclick', this.handler);
   }
 
   _actionHandle(event) {
@@ -127,7 +127,6 @@ export class MoveState extends State {
    * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx, mouseCoordinates) {
-    console.log(this.currentStep);
     if (this.currentStep != 'moving-shape') return;
 
     let transformation = {
@@ -148,15 +147,5 @@ export class MoveState extends State {
 
       s.coordinates = saveCoords;
     });
-  }
-
-  /**
-   * Appelée par la fonction de dessin, renvoie les formes qu'il ne faut pas
-   * dessiner sur le canvas principal.
-   * @return {[Shape]} les formes à ne pas dessiner
-   */
-  getEditingShapes() {
-    if (this.currentStep != 'moving-shape') return [];
-    return this.involvedShapes;
   }
 }

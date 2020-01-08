@@ -8,16 +8,33 @@ import { State } from './State';
 export class BuildCenterState extends State {
   constructor() {
     super('build_shape_center');
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
+    this.end();
     this.actions = [new BuildCenterAction(this.name)];
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   /**

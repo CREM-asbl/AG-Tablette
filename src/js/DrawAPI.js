@@ -103,7 +103,6 @@ export class DrawAPI {
     this.clearCtx(this.mainCtx);
 
     //Afficher les formes
-    // let shapesToSkip = app.state ? app.state.getEditingShapes() : [];
     app.workspace.shapes
       .filter(shape => {
         return app.editingShapes.findIndex(s => s.id == shape.id) == -1;
@@ -111,7 +110,7 @@ export class DrawAPI {
       .forEach(shape => {
         this.drawShape(this.mainCtx, shape);
         window.dispatchEvent(
-          new CustomEvent('shapeDraw', { detail: { ctx: this.mainCtx, shape: shape } }),
+          new CustomEvent('shapeDrawn', { detail: { ctx: this.mainCtx, shape: shape } }),
         );
       });
   }

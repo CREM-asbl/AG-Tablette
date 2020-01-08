@@ -22,6 +22,10 @@ export class State {
     window.addEventListener('drawUpper', event => {
       if (this.name == app.state) this.draw(event.detail.ctx, event.detail.mouseCoordinates);
     });
+
+    window.addEventListener('shapeDrawn', event => {
+      if (this.name == app.state) this.shapeDrawn(event.detail.ctx, event.detail.shape);
+    });
   }
 
   //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected
@@ -81,15 +85,6 @@ export class State {
    * @param  {Shape} shape La forme dessinée
    */
   shapeDrawn(ctx, shape) {}
-
-  /**
-   * Appelée par la fonction de dessin, renvoie les formes qu'il ne faut pas
-   * dessiner sur le canvas principal.
-   * @return {[Shape]} les formes à ne pas dessiner
-   */
-  getEditingShapes() {
-    return [];
-  }
 
   /**
    * Exécuter l'action liée à l'état, et l'enregistrer dans l'historique.

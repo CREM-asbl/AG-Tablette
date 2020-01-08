@@ -20,12 +20,15 @@ export class CutState extends State {
     this.shape = null;
 
     this.constr = null;
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
+    this.end();
     this.actions = [new CutAction(this.name)];
     this.constr = app.interactionAPI.getEmptySelectionConstraints();
     app.appDiv.cursor = 'default';
@@ -33,10 +36,25 @@ export class CutState extends State {
     this.timeoutRef = null;
     this.shape = null;
     this.setSelConstraints(this.currentStep);
+    window.addEventListener('objectSelected', this.handler);
   }
 
   abort() {
     window.clearTimeout(this.timeoutRef);
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+    window.removeEventListener('canvasclick', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   /**

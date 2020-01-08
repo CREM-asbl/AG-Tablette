@@ -13,12 +13,15 @@ export class MergeState extends State {
     this.currentStep = null;
 
     this.firstShape = null;
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
+    this.end();
     this.actions = [new MergeAction(this.name)];
     this.currentStep = 'listen-canvas-click';
 
@@ -26,6 +29,20 @@ export class MergeState extends State {
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   /**
@@ -39,6 +56,7 @@ export class MergeState extends State {
       this.currentStep = 'selecting-second-shape';
       this.actions[0].firstShapeId = shape.id;
       this.firstShape = shape;
+      app.editingShapes = [this.firstShape];
       app.drawAPI.askRefresh();
       app.drawAPI.askRefresh('upper');
       return;
@@ -48,6 +66,7 @@ export class MergeState extends State {
       this.currentStep = 'listen-canvas-click';
       this.actions[0].firstShapeId = null;
       this.firstShape = null;
+      app.editingShapes = [];
       app.drawAPI.askRefresh();
       app.drawAPI.askRefresh('upper');
       return;
@@ -85,15 +104,5 @@ export class MergeState extends State {
       app.drawAPI.drawShape(ctx, shape, 3);
       shape.borderColor = borderColor;
     }
-  }
-
-  /**
-   * Appelée par la fonction de dessin, renvoie les formes qu'il ne faut pas
-   * dessiner sur le canvas principal.
-   * @return {[Shape]} les formes à ne pas dessiner
-   */
-  getEditingShapes() {
-    if (this.currentStep != 'selecting-second-shape') return [];
-    return [this.firstShape];
   }
 }

@@ -22,12 +22,15 @@ export class RotateState extends State {
         elle-même
          */
     this.involvedShapes = [];
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
+    this.end();
     this.actions = [new RotateAction(this.name)];
     this.currentStep = 'listen-canvas-click';
 
@@ -37,10 +40,27 @@ export class RotateState extends State {
 
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
   }
 
   abort() {
     this.start();
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+    window.removeEventListener('canvasmouseup', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else if (event.type == 'canvasmouseup') {
+      this.onMouseUp(event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   /**
@@ -58,7 +78,9 @@ export class RotateState extends State {
 
     this.actions[0].shapeId = shape.id;
     this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
+    app.editingShapes = this.involvedShapes;
     this.currentStep = 'rotating-shape';
+    window.addEventListener('canvasmouseup', this.handler);
     app.drawAPI.askRefresh('upper');
     app.drawAPI.askRefresh();
   }
@@ -102,15 +124,5 @@ export class RotateState extends State {
 
     //Dessiner le centre de symétrie
     app.drawAPI.drawPoint(ctx, center, '#080');
-  }
-
-  /**
-   * Appelée par la fonction de dessin, renvoie les formes qu'il ne faut pas
-   * dessiner sur le canvas principal.
-   * @return {[Shape]} les formes à ne pas dessiner
-   */
-  getEditingShapes() {
-    if (this.currentStep != 'rotating-shape') return [];
-    return this.involvedShapes;
   }
 }

@@ -21,12 +21,15 @@ export class DivideState extends State {
     this.selConstr = null;
 
     this.numberOfparts = null;
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start(openPopup = true) {
+    this.end();
     this.shape = null;
     this.timeoutRef = null;
 
@@ -45,10 +48,28 @@ export class DivideState extends State {
       this.currentStep = 'listen-canvas-click';
     }
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
+    window.addEventListener('setNumberOfParts', this.handler);
   }
 
   abort() {
     window.clearTimeout(this.timeoutRef);
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+    window.removeEventListener('setNumberOfParts', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else if (event.type == 'setNumberOfParts') {
+      this.setNumberOfparts(event.detail.nbOfParts);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   setNumberOfparts(parts) {

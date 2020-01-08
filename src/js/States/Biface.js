@@ -8,6 +8,8 @@ import { State } from './State';
 export class BifaceState extends State {
   constructor() {
     super('biface');
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
@@ -19,6 +21,20 @@ export class BifaceState extends State {
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   /**

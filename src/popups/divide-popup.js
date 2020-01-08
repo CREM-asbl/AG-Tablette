@@ -58,7 +58,10 @@ class DividePopup extends LitElement {
   }
 
   dividePopupValidate() {
-    app.state.setNumberOfparts(this.parts);
+    window.dispatchEvent(
+      new CustomEvent('setNumberOfParts', { detail: { nbOfParts: this.parts } }),
+    );
+    // app.state.setNumberOfparts(this.parts);
     this.close();
   }
 }

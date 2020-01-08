@@ -10,12 +10,15 @@ export class OpacityState extends State {
     super('opacity');
 
     this.currentStep = null; // choose-opacity -> listen-canvas-click
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
+    this.end();
     this.actions = [new OpacityAction(this.name)];
 
     this.currentStep = 'choose-opacity';
@@ -24,6 +27,25 @@ export class OpacityState extends State {
 
     app.appDiv.shadowRoot.querySelector('opacity-popup').style.display = 'block';
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
+    window.addEventListener('setOpacity', this.handler);
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+    window.removeEventListener('setNumberOfParts', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else if (event.type == 'setOpacity') {
+      console.log(event);
+      this.setOpacity(event.detail.opacity);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   setOpacity(opacity) {

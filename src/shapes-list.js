@@ -5,8 +5,14 @@ class ShapesList extends LitElement {
   constructor() {
     super();
 
-    window.addEventListener('family-selected', () => (this.selectedFamily = app.selectedFamily));
-    window.addEventListener('app-state-changed', () => (this.state = app.state));
+    window.addEventListener('family-selected', () => {
+      this.selectedFamily = app.selectedFamily;
+      this.shape = '';
+    });
+    window.addEventListener('app-state-changed', () => {
+      this.state = app.state;
+      this.shape = '';
+    });
   }
 
   static get properties() {

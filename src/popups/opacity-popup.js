@@ -55,11 +55,13 @@ class OpacityPopup extends LitElement {
   }
 
   opacityPopupValidate() {
-    if (app.state && app.state.setOpacity) {
-      app.state.setOpacity(
-        parseFloat(this.shadowRoot.getElementById('opacity_popup_select').value),
-      );
-    }
+    window.dispatchEvent(
+      new CustomEvent('setOpacity', {
+        detail: {
+          opacity: parseFloat(this.shadowRoot.getElementById('opacity_popup_select').value),
+        },
+      }),
+    );
     this.close();
   }
 

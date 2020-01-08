@@ -15,12 +15,15 @@ export class GroupState extends State {
     this.group = null;
 
     this.firstShape = null;
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
+    this.end();
     this.actions = [new GroupAction(this.name)];
     this.currentStep = 'listen-canvas-click';
 
@@ -29,10 +32,24 @@ export class GroupState extends State {
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
   }
 
   abort() {
     this.start();
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   /**

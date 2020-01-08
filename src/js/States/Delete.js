@@ -10,12 +10,15 @@ import { Shape } from '../Objects/Shape';
 export class DeleteState extends State {
   constructor() {
     super('delete_shape');
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
+    this.end();
     this.actions = [new DeleteAction(this.name)];
 
     let selConstr = app.interactionAPI.getEmptySelectionConstraints();
@@ -27,6 +30,20 @@ export class DeleteState extends State {
     app.interactionAPI.setSelectionConstraints(selConstr);
 
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   /**
