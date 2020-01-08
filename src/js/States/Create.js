@@ -25,6 +25,8 @@ export class CreateState extends State {
 
     //Shape finale
     this.shapeToCreate = null;
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
@@ -33,13 +35,37 @@ export class CreateState extends State {
    */
   start(family, timestamp = 0) {
     this.selectedFamily = family;
+    app.selectedFamily = this.selectedFamily;
     this.selectedShape = null;
     this.currentStep = 'show-family-shapes';
     app.appDiv.cursor = 'default';
+    window.addEventListener('shapeSelected', this.handler);
+    window.setTimeout(() => window.dispatchEvent(new CustomEvent('family-selected')), 0);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'shapeSelected') {
+      this.setShape(event.detail.shapeSelected);
+    } else if (event.type == 'canvasmousedown') {
+      this.onMouseDown(event.detail.mousePos);
+    } else if (event.type == 'canvasmouseup') {
+      this.onMouseUp(event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
+  }
+
+  end() {
+    window.removeEventListener('shapeSelected', this.handler);
+    window.removeEventListener('canvasmousedown', this.handler);
+    window.removeEventListener('canvasmouseup', this.handler);
   }
 
   //Todo: Solution provisoire
   abort() {
+    window.removeEventListener('shapeSelected', this.handler);
+    window.removeEventListener('canvasmousedown', this.handler);
+    window.removeEventListener('canvasmouseup', this.handler);
     this.currentStep = 'listen-canvas-click';
   }
 
@@ -47,7 +73,7 @@ export class CreateState extends State {
     this.actions = [new CreateAction(this.name)];
     this.selectedShape = shape;
     this.currentStep = 'listen-canvas-click';
-    window.dispatchEvent(new CustomEvent('app-state-changed', { detail: app.state }));
+    window.addEventListener('canvasmousedown', this.handler);
   }
 
   onMouseDown(mouseCoordinates) {
@@ -69,6 +95,8 @@ export class CreateState extends State {
     this.currentStep = 'moving-shape';
 
     app.drawAPI.askRefresh('upper');
+
+    window.addEventListener('canvasmouseup', this.handler);
   }
 
   onMouseUp(mouseCoordinates) {

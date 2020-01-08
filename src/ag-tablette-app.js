@@ -16,14 +16,14 @@ import './state-menu';
 import './version-item';
 
 import { app } from './js/App';
-import { StatesManager } from './js/StatesManager';
 import { FileManager } from './js/FileManager';
 
 class AGTabletteApp extends LitElement {
   static get properties() {
     return {
-      state: Object,
+      state: String,
       families: Array,
+      selectedFamily: String,
       canUndo: Boolean,
       canRedo: Boolean,
       background: String,
@@ -34,13 +34,20 @@ class AGTabletteApp extends LitElement {
   constructor() {
     super();
     this.families = app.workspace.environment.familyNames;
-    this.state = {};
+    this.state = '';
+    this.selectedFamily = '';
     app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
     this.cursor = 'default';
 
-    addEventListener('app-state-changed', event => (this.state = { ...event.detail }));
+    window.addEventListener('app-state-changed', () => {
+      this.state = app.state;
+      this.selectedFamily = '';
+    });
+    window.addEventListener('family-selected', () => {
+      this.selectedFamily = app.selectedFamily;
+    });
   }
 
   render() {
@@ -143,7 +150,7 @@ class AGTabletteApp extends LitElement {
           <div id="app-canvas-view-toolbar-p1">
             <div id="app-canvas-mode-text">
               <span>Mode: </span>
-              ${this.state.name ? StatesManager.getStateText(this.state.name) : ''}
+              ${this.state}
             </div>
             <flex-toolbar>
               <icon-button
@@ -200,17 +207,17 @@ class AGTabletteApp extends LitElement {
             <div class="toolbar-separator">Formes standard</div>
 
             <flex-toolbar>
-              ${this.families.map(
-                family => html`
+              ${this.families.map(family => {
+                return html`
                   <canvas-button
                     name="create_shape"
                     .family="${family}"
-                    ?active="${family === this.state.selectedFamily}"
+                    ?active="${family === this.selectedFamily}"
                     @click="${this._actionHandle}"
                   >
                   </canvas-button>
-                `,
-              )}
+                `;
+              })}
             </flex-toolbar>
           </div>
 
@@ -221,7 +228,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/move.svg"
                 title="Glisser"
                 name="move_shape"
-                ?active="${this.state.name === 'move_shape'}"
+                ?active="${this.state === 'move_shape'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -229,7 +236,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/rotate.svg"
                 title="Tourner"
                 name="rotate_shape"
-                ?active="${this.state.name === 'rotate_shape'}"
+                ?active="${this.state === 'rotate_shape'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -237,7 +244,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/reverse.svg"
                 title="Retourner"
                 name="reverse_shape"
-                ?active="${this.state.name === 'reverse_shape'}"
+                ?active="${this.state === 'reverse_shape'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -250,7 +257,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/center.svg"
                 title="Construire le centre"
                 name="build_shape_center"
-                ?active="${this.state.name === 'build_shape_center'}"
+                ?active="${this.state === 'build_shape_center'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -258,7 +265,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/divide.svg"
                 title="Diviser"
                 name="divide_segment"
-                ?active="${this.state.name === 'divide_segment'}"
+                ?active="${this.state === 'divide_segment'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -266,7 +273,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/cut.svg"
                 title="Découper"
                 name="cut_shape"
-                ?active="${this.state.name === 'cut_shape'}"
+                ?active="${this.state === 'cut_shape'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -274,7 +281,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/copy.svg"
                 title="Copier"
                 name="copy_shape"
-                ?active="${this.state.name === 'copy_shape'}"
+                ?active="${this.state === 'copy_shape'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -282,7 +289,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/merge.svg"
                 title="Fusionner"
                 name="merge_shapes"
-                ?active="${this.state.name === 'merge_shapes'}"
+                ?active="${this.state === 'merge_shapes'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -295,7 +302,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/delete.svg"
                 title="Supprimer une forme"
                 name="delete_shape"
-                ?active="${this.state.name === 'delete_shape'}"
+                ?active="${this.state === 'delete_shape'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -303,7 +310,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/group.svg"
                 title="Grouper"
                 name="group_shapes"
-                ?active="${this.state.name === 'group_shapes'}"
+                ?active="${this.state === 'group_shapes'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -311,7 +318,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/ungroup.svg"
                 title="Dégrouper"
                 name="ungroup_shapes"
-                ?active="${this.state.name === 'ungroup_shapes'}"
+                ?active="${this.state === 'ungroup_shapes'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -319,7 +326,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/backplane.svg"
                 title="Arrière-plan"
                 name="to_background"
-                ?active="${this.state.name === 'to_background'}"
+                ?active="${this.state === 'to_background'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -327,7 +334,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/background-color.svg"
                 title="Colorier les formes"
                 name="background_color"
-                ?active="${this.state.name === 'background_color'}"
+                ?active="${this.state === 'background_color'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -335,7 +342,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/border-color.svg"
                 title="Colorier les bords"
                 name="border_color"
-                ?active="${this.state.name === 'border_color'}"
+                ?active="${this.state === 'border_color'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -343,7 +350,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/opacity.svg"
                 title="Opacité"
                 name="opacity"
-                ?active="${this.state.name === 'opacity'}"
+                ?active="${this.state === 'opacity'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -358,7 +365,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/biface.svg"
                 title="Biface"
                 name="biface"
-                ?active="${this.state.name === 'biface'}"
+                ?active="${this.state === 'biface'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -366,7 +373,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/moveplane.svg"
                 title="Glisser le plan"
                 name="translate_plane"
-                ?active="${this.state.name === 'translate_plane'}"
+                ?active="${this.state === 'translate_plane'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -374,7 +381,7 @@ class AGTabletteApp extends LitElement {
                 src="/images/zoom.svg"
                 title="Zoomer"
                 name="zoom_plane"
-                ?active="${this.state.name === 'zoom_plane'}"
+                ?active="${this.state === 'zoom_plane'}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -407,7 +414,7 @@ class AGTabletteApp extends LitElement {
 
       <state-menu></state-menu>
 
-      <shapes-list .state="${this.state}"></shapes-list>
+      <shapes-list></shapes-list>
 
       <settings-popup></settings-popup>
 
@@ -479,13 +486,12 @@ class AGTabletteApp extends LitElement {
         app.setState(event.target.name, event.target.family);
         break;
       default:
-        if (StatesManager.getStateText(event.target.name)) {
-          app.setState(event.target.name);
-        } else {
-          console.error('AGTabletteApp._actionHandle: received unknown event:');
-          console.error(event);
-          reset_state = 1;
-        }
+        app.setState(event.target.name);
+      // } else {
+      //   console.error('AGTabletteApp._actionHandle: received unknown event:');
+      //   console.error(event);
+      //   reset_state = 1;
+      // }
     }
     if (reset_state) {
       app.setState(undefined);

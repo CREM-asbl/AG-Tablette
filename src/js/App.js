@@ -1,10 +1,10 @@
 import { Workspace } from './Objects/Workspace';
 import { InteractionAPI } from './InteractionAPI';
 import { Settings } from './Settings';
-import { StatesManager } from './StatesManager';
 import { WorkspaceManager } from './WorkspaceManager';
 import { EnvironmentManager } from './EnvironmentManager';
 import { TangramManager } from './TangramManager';
+import { Point } from './Objects/Point';
 
 /**
  * Classe principale de l'application
@@ -127,7 +127,7 @@ export class App {
       );
     })();
 
-    this.addPermanentState('permanent_zoom_plane');
+    // this.addPermanentState('permanent_zoom_plane');
     // this.tangramManager.retrieveTangrams();
   }
 
@@ -145,13 +145,11 @@ export class App {
    * @param {Object} startParams paramètres à transmettre à state.start()
    */
   setState(stateName, startParams) {
-    if (this.state) {
-      //Par exemple, annule des setTimeout/Interval.
-      this.state.abort();
-    }
     if (!stateName) {
       this.state = undefined;
-      window.dispatchEvent(new CustomEvent('app-state-changed', { detail: this.state }));
+      window.dispatchEvent(
+        new CustomEvent('app-state-changed', { detail: { startParams: startParams } }),
+      );
       this.interactionAPI.resetSelectionConstraints();
       this.drawAPI.askRefresh();
       this.drawAPI.askRefresh('upper');
@@ -165,10 +163,11 @@ export class App {
     this.forwardEventsToState = true;
     this.selectObjectBeforeNativeEvent = false;
 
-    this.state = StatesManager.getStateInstance(stateName);
-    this.state.start(startParams);
+    this.state = stateName;
+    window.dispatchEvent(
+      new CustomEvent('app-state-changed', { detail: { startParams: startParams } }),
+    );
 
-    window.dispatchEvent(new CustomEvent('app-state-changed', { detail: this.state }));
     this.drawAPI.askRefresh();
     this.drawAPI.askRefresh('upper');
   }

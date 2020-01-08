@@ -1,4 +1,3 @@
-import { StatesManager } from '../StatesManager';
 import { app } from '../App';
 
 /**
@@ -11,6 +10,69 @@ export class HistoryStep {
 
     // timestamp of the step
     this.timestamp = timestamp;
+  }
+
+  saveToObject() {
+    throw new TypeError('method not implemented');
+  }
+
+  initFromObject(save) {
+    throw new TypeError('method not implemented');
+  }
+
+  static getInstanceFromJson(save) {
+    let newStep;
+    if (save.type == 'selection') {
+      newStep = new SelectionStep();
+    } else if (save.type == 'event') {
+      newStep = new EventStep();
+    } else if (save.type == 'formChange') {
+      newStep = new FormChangeStep();
+    } else {
+      console.log('unknown step type : ', save.type);
+    }
+    newStep.initFromObject(save);
+    return newStep;
+  }
+
+  execute() {
+    throw new TypeError('method not implemented');
+  }
+}
+
+export class SelectionStep extends HistoryStep {
+  constructor(data, timestamp) {
+    super('selection', timestamp);
+
+    this.element = data;
+  }
+
+  execute() {
+    console.log(this.element);
+    this.element.click();
+  }
+
+  saveToObject() {
+    let save = {
+      type: this.type,
+      timestamp: this.timestamp,
+      element: this.element,
+    };
+    return save;
+  }
+
+  initFromObject(save) {
+    this.type = save.type;
+    this.timestamp = save.timestamp;
+    this.element = save.element;
+  }
+}
+
+export class EventStep extends HistoryStep {
+  constructor(data, timestamp) {
+    super('event', timestamp);
+
+    this.data = data;
   }
 
   saveToObject() {
@@ -27,23 +89,7 @@ export class HistoryStep {
   }
 
   execute() {
-    throw new TypeError('method not implemented');
-  }
-}
-
-export class SelectionStep extends HistoryStep {
-  constructor(data, timestamp) {
-    super('selection', timestamp);
-
-    this.data = data;
-  }
-}
-
-export class EventStep extends HistoryStep {
-  constructor(data, timestamp) {
-    super('event', timestamp);
-
-    this.data = data;
+    console.trace();
   }
 }
 
@@ -52,5 +98,22 @@ export class FormChangeStep extends HistoryStep {
     super('formChange', timestamp);
 
     this.data = data;
+  }
+
+  saveToObject() {
+    let save = {
+      type: this.type,
+      timestamp: this.timestamp,
+    };
+    return save;
+  }
+
+  initFromObject(save) {
+    this.type = save.type;
+    this.timestamp = save.timestamp;
+  }
+
+  execute() {
+    console.trace();
   }
 }

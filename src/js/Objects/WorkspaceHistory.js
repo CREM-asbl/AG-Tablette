@@ -1,4 +1,3 @@
-import { StatesManager } from '../StatesManager';
 import { app } from '../App';
 
 /**

@@ -148,8 +148,7 @@ export class Environment {
    * @return la famille (Family)
    */
   getFamily(name) {
-    let list = this.families.filter(family => family.name === name);
-    if (list.length == 0) return null;
-    return list[0];
+    let list = this.families.find(family => family.name === name);
+    return list;
   }
 }

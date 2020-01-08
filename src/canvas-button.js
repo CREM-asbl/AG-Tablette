@@ -49,7 +49,7 @@ class CanvasButton extends LitElement {
     const canvas = this.shadowRoot.querySelector('canvas');
     const ctx = canvas.getContext('2d');
     const families = app.workspace.environment.families;
-    const family = families.filter(fam => fam.name == this.family)[0];
+    const family = families.find(fam => fam.name == this.family);
     let minX = 1000,
       minY = 1000,
       maxX = -1000,

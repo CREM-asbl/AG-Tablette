@@ -25,12 +25,15 @@ export class MoveState extends State {
         elle-même
          */
     this.involvedShapes = [];
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
+    this.end();
     this.actions = [new MoveAction(this.name)];
     this.currentStep = 'listen-canvas-click';
 
@@ -40,19 +43,35 @@ export class MoveState extends State {
 
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
     app.appDiv.cursor = 'move';
+    window.addEventListener('objectSelected', this.handler);
   }
 
   abort() {
     this.start();
   }
 
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+    window.removeEventListener('canvasmouseup', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else if (event.type == 'canvasmouseup') {
+      this.onMouseUp(event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
+  }
+
   /**
    * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, clickCoordinates, event) {
+  objectSelected(shape, clickCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.selectedShape = shape;
@@ -62,7 +81,9 @@ export class MoveState extends State {
     this.actions[0].shapeId = shape.id;
     this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
 
+    app.editingShapes = this.involvedShapes;
     this.currentStep = 'moving-shape';
+    window.addEventListener('canvasmouseup', this.handler);
     app.drawAPI.askRefresh('upper');
     app.drawAPI.askRefresh();
   }
@@ -106,6 +127,7 @@ export class MoveState extends State {
    * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx, mouseCoordinates) {
+    console.log(this.currentStep);
     if (this.currentStep != 'moving-shape') return;
 
     let transformation = {

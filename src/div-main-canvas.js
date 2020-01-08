@@ -1,6 +1,7 @@
 import { LitElement, html } from 'lit-element';
 import { app } from './js/App';
 import { DrawAPI } from './js/DrawAPI';
+import { Point } from './js/Objects/Point';
 
 class DivMainCanvas extends LitElement {
   static get properties() {
@@ -56,53 +57,117 @@ class DivMainCanvas extends LitElement {
     app.drawAPI = drawAPI;
 
     this.setCanvasSize();
-    app.start(this);
+    // app.start(this);
 
     //Events:
     this.addEventListener('click', event => {
       let mousePos = this.getMousePos(event);
-      window.app.interactionAPI.onClick(mousePos, event);
+      window.dispatchEvent(new CustomEvent('canvasclick', { detail: { mousePos: mousePos } }));
     });
 
     this.upperCanvas.addEventListener('mousedown', event => {
       let mousePos = this.getMousePos(event);
-      window.app.interactionAPI.onMouseDown(mousePos, event);
+      window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: { mousePos: mousePos } }));
     });
 
     this.upperCanvas.addEventListener('mouseup', event => {
       let mousePos = this.getMousePos(event);
-      window.app.interactionAPI.onMouseUp(mousePos, event);
+      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: { mousePos: mousePos } }));
     });
 
     this.upperCanvas.addEventListener('mousemove', event => {
       let mousePos = this.getMousePos(event);
-      window.app.interactionAPI.onMouseMove(mousePos, event);
+      window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: { mousePos: mousePos } }));
     });
 
     this.upperCanvas.addEventListener('touchstart', event => {
-      let mousePos = this.getMousePos(event);
-      window.app.interactionAPI.onTouchStart(mousePos, event);
+      window.dispatchEvent('mousedown', event);
     });
 
     this.upperCanvas.addEventListener('touchmove', event => {
-      let mousePos = this.getMousePos(event);
-      window.app.interactionAPI.onTouchMove(mousePos, event);
+      window.dispatchEvent('mousemove', event);
+      // let mousePos = this.getMousePos(event);
+      // window.dispatchEvent(new CustomEvent('touchmove', { detail: { mousePos: mousePos} }));
     });
 
     this.upperCanvas.addEventListener('touchend', event => {
-      let mousePos = this.getMousePos(event);
-      window.app.interactionAPI.onTouchEnd(mousePos, event);
+      window.dispatchEvent('mouseup', event);
+      window.dispatchEvent('click', event);
+      // let mousePos = this.getMousePos(event);
+      // window.dispatchEvent(new CustomEvent('touchend', { detail: { mousePos: mousePos} }));
     });
 
     this.upperCanvas.addEventListener('touchleave', event => {
-      let mousePos = this.getMousePos(event);
-      window.app.interactionAPI.onTouchLeave(mousePos, event);
+      window.dispatchEvent('mouseup', event);
+      window.dispatchEvent('click', event);
+      // let mousePos = this.getMousePos(event);
+      // window.dispatchEvent(new CustomEvent('touchleave', { detail: { mousePos: mousePos} }));
     });
 
     this.upperCanvas.addEventListener('touchcancel', event => {
-      let mousePos = this.getMousePos(event);
-      window.app.interactionAPI.onTouchCancel(mousePos, event);
+      window.dispatchEvent('mouseup', event);
+      window.dispatchEvent('click', event);
+      // let mousePos = this.getMousePos(event);
+      // window.dispatchEvent(new CustomEvent('touchcancel', { detail: { mousePos: mousePos} }));
     });
+  }
+
+  /**
+   * Récupère les coordonnées de la souris à partir d'un événement javascript
+   * @param event: référence vers l'événement (Event)
+   * @return coordonnées de la souris (Point)
+   * @Error: si les coordonnées n'ont pas été trouvées, une alerte (alert())
+   *  est déclenchée et la fonction retourne null
+   */
+  getMousePos(event) {
+    let response = new Point(0, 0);
+
+    if (
+      event.changedTouches &&
+      event.changedTouches[0] &&
+      event.changedTouches[0].clientX !== undefined
+    ) {
+      response.x = event.changedTouches[0].clientX - window.canvasLeftShift;
+      response.y = event.changedTouches[0].clientY;
+    } else if (event.offsetX !== undefined) {
+      response.x = event.offsetX;
+      response.y = event.offsetY;
+    } else if (event.layerX !== undefined) {
+      response.x = event.layerX;
+      response.y = event.layerY;
+    } else if (event.clientX !== undefined) {
+      response.x = event.clientX;
+      response.y = event.clientY;
+    } else if (event.pageX !== undefined) {
+      response.x = event.pageX;
+      response.y = event.pageY;
+    } else if (event.x !== undefined) {
+      response.x = event.x;
+      response.y = event.y;
+    } else {
+      alert('navigator not compatible');
+      //TODO: envoyer un rapport d'erreur...
+      let str = event.type;
+      for (let property1 in event) {
+        str += ' | ' + property1 + ' : ' + event[property1];
+      }
+      console.error(str);
+
+      if (event.touches) {
+        str = 'touches: ' + event.touches.length + '';
+        for (let property1 in event['touches'][0]) {
+          str += ' | ' + property1 + ' : ' + ['touches'][0][property1];
+        }
+        console.error(str);
+      }
+      return null;
+    }
+
+    (response.x -= app.workspace.translateOffset.x),
+      (response.y -= app.workspace.translateOffset.y),
+      (response.x /= app.workspace.zoomLevel);
+    response.y /= app.workspace.zoomLevel;
+    return response;
   }
 
   /**
@@ -136,62 +201,6 @@ class DivMainCanvas extends LitElement {
       .getElementsByTagName('ag-tablette-app')[0]
       .shadowRoot.getElementById('app-canvas-view-toolbar').clientWidth;
     window.canvasLeftShift = leftShift;
-  }
-
-  /**
-   * Récupère les coordonnées de la souris à partir d'un événement javascript
-   * @param event: référence vers l'événement (Event)
-   * @return coordonnées de la souris (Point)
-   * @Error: si les coordonnées n'ont pas été trouvées, une alerte (alert())
-   *  est déclanchée et la fonction retourne null
-   */
-  getMousePos(event) {
-    let response = null;
-
-    if (
-      event.changedTouches &&
-      event.changedTouches[0] &&
-      event.changedTouches[0].clientX !== undefined
-    ) {
-      response = [
-        event.changedTouches[0].clientX - window.canvasLeftShift,
-        event.changedTouches[0].clientY,
-      ];
-    } else if (event.offsetX !== undefined) {
-      response = [event.offsetX, event.offsetY];
-    } else if (event.layerX !== undefined) {
-      response = [event.layerX, event.layerY];
-    } else if (event.clientX !== undefined) {
-      response = [event.clientX, event.clientY];
-    } else if (event.pageX !== undefined) {
-      response = [event.pageX, event.pageY];
-    } else if (event.x !== undefined) {
-      response = [event.x, event.y];
-    } else {
-      alert('navigator not compatible');
-      //TODO: envoyer un rapport d'erreur...
-      let str = event.type;
-      for (let property1 in event) {
-        str += ' | ' + property1 + ' : ' + event[property1];
-      }
-      console.error(str);
-
-      if (event.touches) {
-        str = 'touches: ' + event.touches.length + '';
-        for (let property1 in event['touches'][0]) {
-          str += ' | ' + property1 + ' : ' + ['touches'][0][property1];
-        }
-        console.error(str);
-      }
-      return null;
-    }
-
-    response = [
-      response[0] - app.workspace.translateOffset.x,
-      response[1] - app.workspace.translateOffset.y,
-    ];
-    response = [response[0] / app.workspace.zoomLevel, response[1] / app.workspace.zoomLevel];
-    return { x: response[0], y: response[1] };
   }
 
   // Ajout d'un fond d'écran fixé à droite

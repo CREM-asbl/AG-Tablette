@@ -14,6 +14,11 @@ export class DrawAPI {
     this.invisibleCtx = this.canvas.invisible.getContext('2d');
 
     this.lastKnownMouseCoordinates = null;
+
+    window.addEventListener('canvasmousemove', event => {
+      this.lastKnownMouseCoordinates = event.detail.mousePos;
+      this.refreshUpper();
+    });
   }
 
   clearCtx(ctx) {
@@ -98,22 +103,29 @@ export class DrawAPI {
     this.clearCtx(this.mainCtx);
 
     //Afficher les formes
-    let shapesToSkip = app.state ? app.state.getEditingShapes() : [];
+    // let shapesToSkip = app.state ? app.state.getEditingShapes() : [];
     app.workspace.shapes
       .filter(shape => {
-        return shapesToSkip.findIndex(s => s.id == shape.id) == -1;
+        return app.editingShapes.findIndex(s => s.id == shape.id) == -1;
       })
       .forEach(shape => {
         this.drawShape(this.mainCtx, shape);
-        if (app.state) app.state.shapeDrawn(this.mainCtx, shape);
+        window.dispatchEvent(
+          new CustomEvent('shapeDraw', { detail: { ctx: this.mainCtx, shape: shape } }),
+        );
       });
   }
 
   refreshUpper() {
     this.clearCtx(this.upperCtx);
-    if (app.state) {
-      app.state.draw(this.upperCtx, this.lastKnownMouseCoordinates);
-    }
+    window.dispatchEvent(
+      new CustomEvent('drawUpper', {
+        detail: { ctx: this.upperCtx, mouseCoordinates: this.lastKnownMouseCoordinates },
+      }),
+    );
+    // if (app.state) {
+    //   app.state.draw(this.upperCtx, this.lastKnownMouseCoordinates);
+    // }
   }
 
   /**

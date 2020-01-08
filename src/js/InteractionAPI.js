@@ -63,6 +63,9 @@ export class InteractionAPI {
         Timestamp auquel releaseFocus() a été appelé pour la dernière fois.
          */
     this.permanenteStateFocusReleaseTime = 0;
+
+    window.addEventListener('canvasmousedown', event => this.selectObject(event.detail.mousePos));
+    // window.addEventListener('canvasclick', event => this.selectObject(event.detail.mousePos));
   }
 
   /**
@@ -509,6 +512,7 @@ export class InteractionAPI {
    *          - Pour un point: un objet de type Point;
    */
   selectObject(mouseCoordinates) {
+    console.log(mouseCoordinates, app.workspace.shapes);
     let constr = this.selectionConstraints,
       calls = {
         points: (mCoord, constr) => {
@@ -536,8 +540,17 @@ export class InteractionAPI {
     for (let i = 0; i < constr.priority.length; i++) {
       let f = calls[constr.priority[i]],
         obj = f(mouseCoordinates, constr[constr.priority[i]]);
-      if (obj) return obj;
+      if (obj) {
+        console.log(obj);
+        window.dispatchEvent(
+          new CustomEvent('objectSelected', {
+            detail: { object: obj, mousePos: mouseCoordinates },
+          }),
+        );
+        return obj;
+      }
     }
+    console.log('fail');
     return null;
   }
 
@@ -556,89 +569,89 @@ export class InteractionAPI {
     };
   }
 
-  /**
-   * Traiter un événement reçu. Événements attendus: click, mousedown, mouseup,
-   * mousemove, touchstart, touchmove, touchend, touchcancel, touchleave.
-   * @param  {String} eventName        Nom de l'événement (ex: 'click',
-   *                                    'mousedown'...)
-   * @param  {String} fName            Nom de la fonction gérant l'événement
-   *                                   (ex: 'onClick', 'onMouseDown'...)
-   * @param  {Point} mouseCoordinates Coordonnées de la souris
-   * @param  {Event} event            Référence vers l'événement javascript.
-   */
-  processEvent(eventName, fName, mouseCoordinates, event) {
-    eventName = eventName.toLowerCase();
-    this.updateLastKnownMouseCoordinates(mouseCoordinates);
-    app.permanentStates.forEach(state => {
-      if (!this.permanentStatehasFocus && state[fName]) state[fName](mouseCoordinates, event);
-    });
-    if (this.permanentStatehasFocus) {
-      if (this.permanentStateRef[fName]) this.permanentStateRef[fName](mouseCoordinates, event);
-      return;
-    } else if (Date.now() - this.permanenteStateFocusReleaseTime < 200) return;
+  // /**
+  //  * Traiter un événement reçu. Événements attendus: click, mousedown, mouseup,
+  //  * mousemove, touchstart, touchmove, touchend, touchcancel, touchleave.
+  //  * @param  {String} eventName        Nom de l'événement (ex: 'click',
+  //  *                                    'mousedown'...)
+  //  * @param  {String} fName            Nom de la fonction gérant l'événement
+  //  *                                   (ex: 'onClick', 'onMouseDown'...)
+  //  * @param  {Point} mouseCoordinates Coordonnées de la souris
+  //  * @param  {Event} event            Référence vers l'événement javascript.
+  //  */
+  // processEvent(eventName, fName, mouseCoordinates, event) {
+  //   eventName = eventName.toLowerCase();
+  //   this.updateLastKnownMouseCoordinates(mouseCoordinates);
+  //   app.permanentStates.forEach(state => {
+  //     if (!this.permanentStatehasFocus && state[fName]) state[fName](mouseCoordinates, event);
+  //   });
+  //   if (this.permanentStatehasFocus) {
+  //     if (this.permanentStateRef[fName]) this.permanentStateRef[fName](mouseCoordinates, event);
+  //     return;
+  //   } else if (Date.now() - this.permanenteStateFocusReleaseTime < 200) return;
 
-    let eventResult = true;
-    if (!this.selectObjectBeforeNativeEvent && this.forwardEventsToState && app.state)
-      eventResult = app.state[fName](mouseCoordinates, event);
+  //   let eventResult = true;
+  //   if (!this.selectObjectBeforeNativeEvent && this.forwardEventsToState && app.state)
+  //     eventResult = app.state[fName](mouseCoordinates, event);
 
-    //Sélection d'objets:
-    let callEvent = true;
-    if (['click', 'mousedown'].includes(eventName)) {
-      //Si l'événement a retourné false, on essaie pas de détecter un objet.
-      if (eventResult && this.selectionConstraints.eventType == eventName) {
-        let obj = this.selectObject(mouseCoordinates);
-        if (obj) {
-          callEvent = app.state.objectSelected(obj, mouseCoordinates, event);
-        }
-      }
-    }
+  //   //Sélection d'objets:
+  //   let callEvent = true;
+  //   if (['click', 'mousedown'].includes(eventName)) {
+  //     //Si l'événement a retourné false, on essaie pas de détecter un objet.
+  //     if (eventResult && this.selectionConstraints.eventType == eventName) {
+  //       let obj = this.selectObject(mouseCoordinates);
+  //       if (obj) {
+  //         callEvent = app.state.objectSelected(obj, mouseCoordinates, event);
+  //       }
+  //     }
+  //   }
 
-    //Si objectSelected a retourné false, on essaie pas d'appeler l'événement.
-    if (this.selectObjectBeforeNativeEvent && callEvent && this.forwardEventsToState && app.state) {
-      app.state[fName](mouseCoordinates, event);
-    }
-  }
+  //   //Si objectSelected a retourné false, on essaie pas d'appeler l'événement.
+  //   if (this.selectObjectBeforeNativeEvent && callEvent && this.forwardEventsToState && app.state) {
+  //     app.state[fName](mouseCoordinates, event);
+  //   }
+  // }
 
-  onClick(mouseCoordinates, event) {
-    this.processEvent('click', 'onClick', mouseCoordinates, event);
-  }
+  // onClick(mouseCoordinates, event) {
+  //   this.processEvent('click', 'onClick', mouseCoordinates, event);
+  // }
 
-  onMouseDown(mouseCoordinates, event) {
-    this.processEvent('mousedown', 'onMouseDown', mouseCoordinates, event);
-  }
+  // onMouseDown(mouseCoordinates, event) {
+  //   this.processEvent('mousedown', 'onMouseDown', mouseCoordinates, event);
+  // }
 
-  onMouseUp(mouseCoordinates, event) {
-    this.processEvent('mouseup', 'onMouseUp', mouseCoordinates, event);
-  }
+  // onMouseUp(mouseCoordinates, event) {
+  //   this.processEvent('mouseup', 'onMouseUp', mouseCoordinates, event);
+  // }
 
-  onMouseMove(mouseCoordinates, event) {
-    this.processEvent('mousemove', 'onMouseMove', mouseCoordinates, event);
-    app.drawAPI.askRefresh('upper');
-  }
+  // onMouseMove(mouseCoordinates, event) {
+  //   this.processEvent('mousemove', 'onMouseMove', mouseCoordinates, event);
+  //   app.drawAPI.askRefresh('upper');
+  // }
 
-  onTouchStart(mouseCoordinates, event) {
-    if (event.touches.length > 1) return; //TODO: supprimer ?
-    if (event.cancelable) event.preventDefault();
-    this.onMouseDown(mouseCoordinates, event);
-  }
+  // onTouchStart(mouseCoordinates, event) {
+  //   if (event.touches.length > 1) return; //TODO: supprimer ?
+  //   if (event.cancelable) event.preventDefault();
+  //   this.onMouseDown(mouseCoordinates, event);
+  // }
 
-  onTouchMove(mouseCoordinates, event) {
-    if (event.cancelable) event.preventDefault();
-    this.onMouseMove(mouseCoordinates, event);
-  }
+  // onTouchMove(mouseCoordinates, event) {
+  //   if (event.cancelable) event.preventDefault();
+  //   this.onMouseMove(mouseCoordinates, event);
+  // }
 
-  onTouchEnd(mouseCoordinates, event) {
-    this.onMouseUp(mouseCoordinates, event);
-    this.onClick(mouseCoordinates, event);
-  }
+  // onTouchEnd(mouseCoordinates, event) {
+  //   this.onMouseUp(mouseCoordinates, event);
+  //   this.onClick(mouseCoordinates, event);
+  // }
 
-  onTouchLeave(mouseCoordinates, event) {
-    this.onMouseUp(mouseCoordinates, event);
-    this.onClick(mouseCoordinates, event);
-  }
+  // onTouchLeave(mouseCoordinates, event) {
+  //   this.onMouseUp(mouseCoordinates, event);
+  //   this.onClick(mouseCoordinates, event);
+  // }
 
-  onTouchCancel(mouseCoordinates, event) {
-    this.onMouseUp(mouseCoordinates, event);
-    this.onClick(mouseCoordinates, event);
-  }
+  // onTouchCancel(mouseCoordinates, event) {
+  //   this.onMouseUp(mouseCoordinates, event);
+  //   this.onClick(mouseCoordinates, event);
+  // }
 }

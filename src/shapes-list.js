@@ -2,27 +2,27 @@ import { LitElement, html } from 'lit-element';
 import { app } from './js/App';
 
 class ShapesList extends LitElement {
+  constructor() {
+    super();
+
+    window.addEventListener('family-selected', () => (this.selectedFamily = app.selectedFamily));
+    window.addEventListener('app-state-changed', () => (this.state = app.state));
+  }
+
   static get properties() {
     return {
-      show: Boolean,
-      family: String,
+      shape: String,
+      selectedFamily: String,
+      state: String,
     };
   }
 
-  set state({ name, selectedFamily }) {
-    if (this.family !== selectedFamily) {
-      this.family = selectedFamily;
-      this.shape = null;
-    }
-    this.show = name === 'create_shape';
-  }
-
   render() {
-    if (!this.show) {
+    if (this.state != 'create_shape') {
       return html``;
     }
 
-    const shapes = app.workspace.environment.getFamily(this.family).getShapesNames();
+    const shapes = app.workspace.environment.getFamily(this.selectedFamily).getShapesNames();
 
     return html`
       <style>
@@ -65,14 +65,14 @@ class ShapesList extends LitElement {
       </style>
 
       <div class="container">
-        <h2>${this.shape ? this.shape.replace(/ \d+$/, '') : this.family}</h2>
+        <h2>${this.shape ? this.shape.replace(/ \d+$/, '') : this.selectedFamily}</h2>
         <ul>
           ${shapes.map(
             shape => html`
               <li>
                 <canvas-button
                   title="${shape.replace(/ \d+$/, '')}"
-                  family="${this.family}"
+                  family="${this.selectedFamily}"
                   shape="${shape}"
                   @click="${this._clickHandle}"
                   ?active="${shape === this.shape}"
@@ -91,10 +91,11 @@ class ShapesList extends LitElement {
    */
   _clickHandle(event) {
     this.shape = event.target.shape;
-    const familyRef = app.workspace.environment.getFamily(this.family);
+    const familyRef = app.workspace.environment.getFamily(this.selectedFamily);
     const shapeRef = familyRef.getShape(event.target.shape);
-    app.state.setShape(shapeRef);
-    this.show = false;
+    window.dispatchEvent(new CustomEvent('shapeSelected', { detail: { shapeSelected: shapeRef } }));
+    // app.state.setShape(shapeRef);
+    // this.show = false;
   }
 }
 customElements.define('shapes-list', ShapesList);

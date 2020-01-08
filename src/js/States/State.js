@@ -11,6 +11,17 @@ export class State {
     this.name = name;
 
     this.actions = null;
+
+    this.eventListenerIds = [];
+
+    window.addEventListener('app-state-changed', event => {
+      if (this.name == app.state) this.start(event.detail.startParams);
+      else this.end();
+    });
+
+    window.addEventListener('drawUpper', event => {
+      if (this.name == app.state) this.draw(event.detail.ctx, event.detail.mouseCoordinates);
+    });
   }
 
   //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected
@@ -106,6 +117,11 @@ export class State {
    * Appelée lorsqu'un autre état va être lancé et qu'il faut annuler l'action en cours
    */
   abort() {}
+
+  /**
+   * appelé au changement d'état
+   */
+  end() {}
 
   //Appelé par state-menu lors d'un clic sur un des boutons.
   clickOnStateMenuButton(btn_value) {}

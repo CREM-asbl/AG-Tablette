@@ -1,5 +1,5 @@
 import { app } from '../App';
-import { HistoryStep } from './HistoryStep';
+import { HistoryStep, SelectionStep, EventStep, FormChangeStep } from './HistoryStep';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -41,9 +41,10 @@ export class CompleteHistory {
   initFromObject(object) {
     // this.historyIndex = object.historyIndex;
     this.steps = object.steps.map(step => {
-      let newStep = new HistoryStep();
-      newStep.initFromObject(step);
-      return newStep;
+      return HistoryStep.getInstanceFromJson(step);
+      // let newStep = new HistoryStep();
+      // newStep.initFromObject(step);
+      // return newStep;
     });
     this.startTimestamp = object.startTimestamp;
     this.endTimestamp = object.endTimestamp;
@@ -76,6 +77,9 @@ export class CompleteHistory {
   addStep(data, type) {
     let timestamp = Date.now(),
       newStep;
+
+    // console.log(data, type);
+
     if (type == 'selection') newStep = new SelectionStep(data, timestamp);
     else if (type == 'event') newStep = new EventStep(data, timestamp);
     else if (type == 'formChange') newStep = new FormChangeStep(data, timestamp);
