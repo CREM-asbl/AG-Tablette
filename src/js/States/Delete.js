@@ -17,7 +17,6 @@ export class DeleteState extends State {
    */
   start() {
     this.end();
-    this.actions = [new DeleteAction(this.name)];
 
     let selConstr = app.interactionAPI.getEmptySelectionConstraints();
     selConstr.eventType = 'click';
@@ -52,20 +51,28 @@ export class DeleteState extends State {
    */
   objectSelected(object, clickCoordinates, event) {
     if (object instanceof Shape) {
-      let involvedShapes = app.workspace.getAllBindedShapes(object, true);
+      let userGroup = app.workspace.getShapeGroup(object);
 
-      this.actions[0].mode = 'shape';
-
-      // this.actions[0].shapeId = shape.id;
-      this.actions[0].involvedShapes = involvedShapes;
+      this.actions = [
+        {
+          name: 'DeleteAction',
+          mode: 'shape',
+          involvedShapes: userGroup.shapesIds.map(shapeId => app.workspace.getShapeById(shapeId)),
+          shapeId: object.id,
+          userGroup: userGroup,
+          userGroupIndex: app.workspace.getGroupIndex(userGroup),
+        },
+      ];
     } else {
       // point
 
-      this.actions[0].mode = 'point';
-
-      this.actions[0].point = object;
-
-      this.actions[0].shapeId = object.shape.id;
+      this.actions = [
+        {
+          name: 'DeleteAction',
+          mode: 'point',
+          point: object,
+        },
+      ];
     }
     this.executeAction();
     this.start();

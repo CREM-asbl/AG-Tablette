@@ -43,14 +43,24 @@ export class CutAction extends Action {
   }
 
   initFromObject(save) {
-    this.createdShapes = save.createdShapes.map((shape, idx) => {
-      let newShape = new Shape({ x: 0, y: 0 }, []);
-      newShape.initFromObject(shape);
-      newShape.id = save.createdShapesIds[idx];
-      return newShape;
-    });
+    // this.createdShapes = save.createdShapes.map((shape, idx) => {
+    //   let newShape = new Shape({ x: 0, y: 0 }, []);
+    //   newShape.initFromObject(shape);
+    //   newShape.id = save.createdShapesIds[idx];
+    //   return newShape;
+    // });
     this.createdShapesIds = save.createdShapesIds;
-    // this.shapeId = save.shapeId;
+    this.shapeId = save.shapeId;
+    this.firstPoint = new Point();
+    this.firstPoint.initFromObject(save.firstPoint);
+    this.secondPoint = new Point();
+    this.secondPoint.initFromObject(save.secondPoint);
+    if (save.centerPoint) {
+      this.centerPoint = new Point();
+      this.centerPoint.initFromObject(save.centerPoint);
+    } else {
+      this.centerPoint = null;
+    }
   }
 
   checkDoParameters() {
@@ -67,14 +77,14 @@ export class CutAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    if (this.createdShapes) {
-      this.createdShapes.forEach((shape, idx) => {
-        let newShape = shape.copy();
-        newShape.id = this.createdShapesIds[idx];
-        app.workspace.addShape(newShape);
-      });
-      return;
-    }
+    // if (this.createdShapes) {
+    //   this.createdShapes.forEach((shape, idx) => {
+    //     let newShape = shape.copy();
+    //     newShape.id = this.createdShapesIds[idx];
+    //     app.workspace.addShape(newShape);
+    //   });
+    //   return;
+    // }
 
     let shape = app.workspace.getShapeById(this.shapeId),
       segments = shape.segments,

@@ -61,31 +61,26 @@ export class DeleteAction extends Action {
     if (save.mode == 'shape') {
       this.involvedShapes = save.involvedShapes.map(shape => {
         let newShape = new Shape({ x: 0, y: 0 }, []);
-        newShape.initFromObject(shape);
+        newShape.initFromObject(newShape);
         return newShape;
       });
-      this.userGroupId = save.userGroupId;
-      this.userGroupLastShapeId = save.userGroupLastShapeId;
+      this.userGroup = save.userGroup;
       this.userGroupIndex = save.userGroupIndex;
-      this.deleteUserGroup = save.deleteUserGroup;
     } else {
       this.point = new Point();
       this.point.initFromObject(save.point);
-      this.segmentIndex = save.segmentIndex;
     }
   }
 
   checkDoParameters() {
     if (!this.mode) return false;
-    if (this.mode == 'shape' && !this.involvedShapes) return false;
-    if (this.mode == 'point' && !this.point && !this.shapeId) return false;
+    if (this.mode == 'point' && !this.point) return false;
     return true;
   }
 
   checkUndoParameters() {
     if (!this.mode) return false;
-    if (this.mode == 'shape' && !this.involvedShapes) return false;
-    if (this.mode == 'point' && !this.point && !this.shapeId) return false;
+    if (this.mode == 'point' && !this.point) return false;
     return true;
   }
 
@@ -93,25 +88,15 @@ export class DeleteAction extends Action {
     if (!this.checkDoParameters()) return;
 
     if (this.mode == 'shape') {
-      let userGroup = app.workspace.getShapeGroup(this.involvedShapes[0]);
-
-      this.involvedShapes.forEach(s => {
-        if (userGroup) userGroup.deleteShape(s.id);
-        app.workspace.deleteShape(s);
-      });
-
-      if (userGroup) {
-        this.userGroupId = userGroup.id;
-        this.userGroupIndex = app.workspace.getGroupIndex(userGroup);
-        app.workspace.deleteGroup(userGroup);
+      if (this.userGroup) {
+        this.userGroup.shapesIds.forEach(shapeId => app.workspace.deleteShape({ id: shapeId }));
+        app.workspace.deleteGroup(this.userGroup);
+      } else {
+        app.workspace.deleteShape({ id: this.shapeId });
       }
     } else {
       // point
-      let shape = app.workspace.getShapeById(this.shapeId),
-        segment;
-      if (this.segmentIndex != undefined) segment = shape.segments[this.segmentIndex];
-      else segment = this.point.segment;
-      this.segmentIndex = segment.idx;
+      let segment = this.point.segment;
       segment.deletePoint(this.point);
     }
   }

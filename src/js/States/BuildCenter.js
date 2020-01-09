@@ -15,7 +15,6 @@ export class BuildCenterState extends State {
    */
   start() {
     this.end();
-    this.actions = [new BuildCenterAction(this.name)];
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     app.appDiv.cursor = 'default';
@@ -42,11 +41,15 @@ export class BuildCenterState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape, clickCoordinates, event) {
-    this.actions[0].shapeId = shape.id;
+    this.actions = [
+      {
+        name: 'BuildCenterAction',
+        shapeId: shape.id,
+      },
+    ];
     this.executeAction();
 
     this.start();
-
     app.drawAPI.askRefresh();
   }
 }

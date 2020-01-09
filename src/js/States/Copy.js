@@ -4,6 +4,7 @@ import { RotateAction } from './Actions/Rotate';
 import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
 import { Point } from '../Objects/Point';
+import { uniqId } from '../Tools/general';
 
 /**
  * Dupliquer une forme
@@ -32,7 +33,6 @@ export class CopyState extends State {
    */
   start() {
     this.end();
-    this.actions = [new CopyAction(this.name)];
     this.currentStep = 'listen-canvas-click';
 
     this.selectedShape = null;
@@ -74,20 +74,18 @@ export class CopyState extends State {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.selectedShape = shape;
-    this.actions[0].shapeId = shape.id;
 
     let group = app.workspace.getShapeGroup(shape);
     if (group) {
-      this.actions[0].involvedShapesIds = [...group.shapesIds];
-      this.involvedShapes = group.shapesIds.map(id => app.workspace.getShapeById(id).copy());
+      this.involvedShapesIds = [...group.shapesIds];
+      this.involvedShapes = group.shapesIds.map(id => app.workspace.getShapeById(id));
     } else {
-      this.actions[0].involvedShapesIds = [shape.id];
-      this.involvedShapes = [shape.copy()];
+      this.involvedShapesIds = [shape.id];
+      this.involvedShapes = [shape];
     }
 
     this.startClickCoordinates = clickCoordinates;
 
-    app.editingShapes = this.involvedShapes;
     window.removeEventListener('objectSelected', this.handler);
     window.addEventListener('canvasmouseup', this.handler);
     this.currentStep = 'moving-shape';
@@ -103,20 +101,32 @@ export class CopyState extends State {
   onMouseUp(mouseCoordinates, event) {
     if (this.currentStep != 'moving-shape') return;
 
-    let translation = new Point(mouseCoordinates).subCoordinates(this.startClickCoordinates);
-
-    this.involvedShapes.forEach(shape => shape.translate(translation));
-    let transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape);
-    this.involvedShapes.forEach(shape => shape.translate(translation, true));
+    let translation = new Point(mouseCoordinates).subCoordinates(this.startClickCoordinates),
+      involvedShapesCopies = this.involvedShapes.map(shape => shape.copy()),
+      selectedShapeCopy = this.selectedShape.copy();
+    involvedShapesCopies.forEach(shape => shape.translate(translation));
+    selectedShapeCopy.translate(translation);
+    let transformation = getShapeAdjustment(involvedShapesCopies, selectedShapeCopy);
+    this.actions = [
+      {
+        name: 'CopyAction',
+        involvedShapesIds: this.involvedShapesIds,
+        newShapesIds: this.involvedShapesIds.map(() => uniqId()),
+        transformation: translation.addCoordinates(transformation.move),
+        createdUsergroupId: uniqId(),
+      },
+    ];
     if (transformation.rotation != 0) {
-      let rotateAction = new RotateAction();
-
-      rotateAction.shapeId = this.actions[0].shapeCopyId;
-      rotateAction.involvedShapesIds = this.actions[0].newShapesIds;
-      rotateAction.rotationAngle = transformation.rotation;
+      let rotateAction = {
+        name: 'RotateAction',
+        shapeId: this.actions[0].newShapesIds[
+          this.involvedShapesIds.findIndex(idx => idx == this.selectedShape.id)
+        ],
+        involvedShapesIds: this.actions[0].newShapesIds,
+        rotationAngle: transformation.rotation,
+      };
       this.actions.push(rotateAction);
     }
-    this.actions[0].transformation = translation.addCoordinates(transformation.move);
 
     this.executeAction();
     this.start();
@@ -132,16 +142,10 @@ export class CopyState extends State {
   draw(ctx, mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;
 
-    let transformation = {
-      x: mouseCoordinates.x - this.startClickCoordinates.x,
-      y: mouseCoordinates.y - this.startClickCoordinates.y,
-    };
+    let transformation = mouseCoordinates.subCoordinates(this.startClickCoordinates);
 
     this.involvedShapes.forEach(s => {
-      let newCoords = {
-          x: s.x + transformation.x,
-          y: s.y + transformation.y,
-        },
+      let newCoords = s.coordinates.addCoordinates(transformation),
         saveCoords = s.coordinates;
 
       s.coordinates = newCoords;

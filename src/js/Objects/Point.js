@@ -29,15 +29,22 @@ export class Point {
     const save = {
       x: this.x,
       y: this.y,
-      type: this.type,
     };
+    if (this.type) save.type = this.type;
+    if (this.shape) save.shapeId = this.shape.id;
+    else if (this.segment && this.segment.shape) save.shapeId = this.segment.shape.id;
+    if (save.shapeId && this.segment) save.segmentIdx = this.segment.idx;
     return save;
   }
 
   initFromObject(save) {
     this.x = save.x;
     this.y = save.y;
-    this.type = save.type;
+    if (save.type) this.type = save.type;
+    if (save.shape) this.shape = save.shape;
+    else if (save.shapeId !== undefined) this.shape = app.workspace.getShapeById(save.shapeId);
+    if (save.segment) this.segment = save.segment;
+    else if (save.segmentIdx !== undefined) this.segment = this.shape.segments[save.segmentIdx];
   }
 
   setCoordinates({ x, y }) {

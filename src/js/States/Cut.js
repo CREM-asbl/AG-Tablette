@@ -2,7 +2,7 @@ import { app } from '../App';
 import { CutAction } from './Actions/Cut';
 import { State } from './State';
 import { Point } from '../Objects/Point';
-import { mod } from '../Tools/general';
+import { mod, uniqId } from '../Tools/general';
 
 /**
  * Découper une forme
@@ -27,12 +27,14 @@ export class CutState extends State {
    */
   start() {
     this.end();
-    this.actions = [new CutAction(this.name)];
     this.constr = app.interactionAPI.getEmptySelectionConstraints();
     app.appDiv.cursor = 'default';
     this.currentStep = 'listen-canvas-click';
     this.timeoutRef = null;
     this.shape = null;
+    this.firstPoint = null;
+    this.secondPoint = null;
+    this.centerPoint = null;
     this.setSelConstraints(this.currentStep);
     window.addEventListener('objectSelected', this.handler);
   }
@@ -65,29 +67,27 @@ export class CutState extends State {
     if (this.currentStep == 'listen-canvas-click') {
       //On a sélectionné le premier point
       this.shape = object.shape;
-      this.actions[0].shapeId = this.shape.id;
-      this.actions[0].firstPoint = object;
+      this.firstPoint = object;
       this.currentStep = 'select-second-point';
       this.setSelConstraints(this.currentStep);
     } else if (this.currentStep == 'select-second-point') {
-      const pt1 = this.actions[0].firstPoint,
+      const pt1 = this.firstPoint,
         pt2 = object;
       if (pt2.type == 'center') {
         // On a sélectionné le second point: le centre
         if (!this.isLineValid(pt2.shape, pt1, pt2)) return;
-        this.actions[0].centerPoint = pt2;
+        this.centerPoint = pt2;
         this.currentStep = 'select-third-point';
         this.setSelConstraints(this.currentStep);
       } else if (pt1.equal(pt2, 0.001)) {
         // Désélectionner le premier point
-        this.actions[0].mode = null;
-        this.actions[0].shapeId = null;
-        this.actions[0].firstPoint = null;
+        this.shape = null;
+        this.firstPoint = null;
         this.currentStep = 'listen-canvas-click';
         this.setSelConstraints(this.currentStep);
       } else if (this.isLineValid(pt2.shape, pt1, pt2)) {
         // On a sélectionné le second point: un autre point
-        this.actions[0].secondPoint = pt2;
+        this.secondPoint = pt2;
         this.currentStep = 'showing-selected-points';
         window.clearTimeout(this.timeoutRef);
         this.timeoutRef = window.setTimeout(() => {
@@ -95,24 +95,23 @@ export class CutState extends State {
         }, 500);
       }
     } else if (this.currentStep == 'select-third-point') {
-      const pt1 = this.actions[0].firstPoint,
+      const pt1 = this.firstPoint,
         pt2 = object;
       //On a sélectionné le dernier point
       if (pt2.pointType == 'center') {
         // Désélectionner le centre
-        this.actions[0].centerPoint = null;
+        this.centerPoint = null;
         this.currentStep = 'select-second-point';
         this.setSelConstraints(this.currentStep);
       } else if (pt1.equal(pt2, 0.001)) {
         // Désélectionner le premier point et le centre
-        this.actions[0].mode = null;
-        this.actions[0].shapeId = null;
-        this.actions[0].firstPoint = null;
-        this.actions[0].centerPoint = null;
+        this.shape = null;
+        this.firstPoint = null;
+        this.centerPoint = null;
         this.currentStep = 'listen-canvas-click';
         this.setSelConstraints(this.currentStep);
-      } else if (this.isLineValid(pt2.shape, this.actions[0].centerPoint, pt2)) {
-        this.actions[0].secondPoint = pt2;
+      } else if (this.isLineValid(pt2.shape, this.centerPoint, pt2)) {
+        this.secondPoint = pt2;
         this.currentStep = 'showing-selected-points';
         window.clearTimeout(this.timeoutRef);
         this.timeoutRef = window.setTimeout(() => {
@@ -125,6 +124,16 @@ export class CutState extends State {
   }
 
   execute() {
+    this.actions = [
+      {
+        name: 'CutAction',
+        shapeId: this.shape.id,
+        firstPoint: this.firstPoint,
+        secondPoint: this.secondPoint,
+        centerPoint: this.centerPoint,
+        createdShapesIds: [uniqId(), uniqId()],
+      },
+    ];
     this.executeAction();
     this.start();
 
@@ -139,22 +148,22 @@ export class CutState extends State {
    */
   draw(ctx) {
     if (this.currentStep == 'select-second-point') {
-      let coords = this.actions[0].firstPoint;
+      let coords = this.firstPoint;
       app.drawAPI.drawPoint(ctx, coords, '#E90CC8', 2);
     }
     if (this.currentStep == 'select-third-point') {
-      let coords1 = this.actions[0].firstPoint,
-        coords2 = this.actions[0].centerPoint;
+      let coords1 = this.firstPoint,
+        coords2 = this.centerPoint;
       app.drawAPI.drawPoint(ctx, coords1, '#E90CC8', 2);
       app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
     }
     if (this.currentStep == 'showing-selected-points') {
-      let coords1 = this.actions[0].firstPoint,
-        coords2 = this.actions[0].secondPoint;
+      let coords1 = this.firstPoint,
+        coords2 = this.secondPoint;
       app.drawAPI.drawPoint(ctx, coords1, '#E90CC8', 2);
       app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
-      if (this.actions[0].centerPoint) {
-        let coords3 = this.actions[0].centerPoint;
+      if (this.centerPoint) {
+        let coords3 = this.centerPoint;
         app.drawAPI.drawPoint(ctx, coords3, '#E90CC8', 2);
       }
     }
@@ -191,7 +200,7 @@ export class CutState extends State {
       this.constr.points.whitelist = null;
       this.constr.points.blacklist = null;
     } else if (step == 'select-second-point') {
-      let object = this.actions[0].firstPoint,
+      let object = this.firstPoint,
         shape = object.shape,
         segments = shape.segments;
 

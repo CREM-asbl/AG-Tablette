@@ -2,6 +2,7 @@ import { app } from '../App';
 import { ReverseAction } from './Actions/Reverse';
 import { State } from './State';
 import { Point } from '../Objects/Point';
+import { Segment } from '../Objects/Segment';
 
 /**
  * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -39,7 +40,7 @@ export class ReverseState extends State {
     */
     this.involvedShapes = [];
 
-    this.timeoutRef = null;
+    this.requestAnimFrameId = null;
   }
 
   /**
@@ -47,14 +48,13 @@ export class ReverseState extends State {
    */
   start() {
     this.end();
-    this.actions = [new ReverseAction(this.name)];
     this.currentStep = 'listen-canvas-click';
 
     this.selectedShape = null;
     this.startTime = null;
     this.axe = null;
     this.involvedShapes = [];
-    this.timeoutRef = null;
+    this.requestAnimFrameId = null;
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     app.appDiv.cursor = 'default';
@@ -62,7 +62,7 @@ export class ReverseState extends State {
   }
 
   abort() {
-    clearTimeout(this.timeoutRef);
+    window.cancelAnimationFrame(this.requestAnimFrameId);
     this.start();
   }
 
@@ -90,12 +90,10 @@ export class ReverseState extends State {
    */
   objectSelected(shape, clickCoordinates, event) {
     if (this.currentStep == 'reversing-shape') return;
+    if (this.selectedShape && this.selectedShape.id == shape.id) return;
 
     this.selectedShape = shape;
     this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
-
-    this.actions[0].shapeId = shape.id;
-    this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
 
     let constr = app.interactionAPI.getEmptySelectionConstraints();
     constr.eventType = 'click';
@@ -103,12 +101,13 @@ export class ReverseState extends State {
     constr.points.blacklist = [shape];
     app.interactionAPI.setSelectionConstraints(constr);
 
-    app.editingShapes = this.involvedShapes;
-    window.removeEventListener('objectSelected', this.handler);
+    window.removeEventListener('canvasclick', this.handler);
     window.addEventListener('canvasclick', this.handler);
     this.currentStep = 'selecting-symmetrical-arch';
     app.drawAPI.askRefresh('upper');
     app.drawAPI.askRefresh();
+    // this.currentStep = '';
+    // window.setTimeout(() => this.currentStep = 'selecting-symmetrical-arch', 0);
   }
 
   /**
@@ -126,17 +125,16 @@ export class ReverseState extends State {
     let shapeCenter = this.selectedShape.center,
       angle = shapeCenter.getAngle(mouseCoordinates) % Math.PI;
 
-    if (angle <= Math.PI / 8 || angle > (7 * Math.PI) / 8)
-      this.actions[0].symmetricalAxeOrientation = 'H';
-    else if (angle > Math.PI / 8 && angle <= (3 * Math.PI) / 8)
-      this.actions[0].symmetricalAxeOrientation = 'NW';
+    let symmetricalAxeOrientation;
+    if (angle <= Math.PI / 8 || angle > (7 * Math.PI) / 8) symmetricalAxeOrientation = 'H';
+    else if (angle > Math.PI / 8 && angle <= (3 * Math.PI) / 8) symmetricalAxeOrientation = 'NW';
     else if (angle > (3 * Math.PI) / 8 && angle <= (5 * Math.PI) / 8)
-      this.actions[0].symmetricalAxeOrientation = 'V';
-    else this.actions[0].symmetricalAxeOrientation = 'SW';
+      symmetricalAxeOrientation = 'V';
+    else symmetricalAxeOrientation = 'SW';
 
     this.currentStep = 'reversing-shape';
     this.startTime = Date.now();
-    this.axe = this.actions[0].getSymmetricalAxe();
+    this.axe = this.getSymmetricalAxe(symmetricalAxeOrientation);
     this.axeAngle = this.axe.vertexes[0].getAngle(this.axe.vertexes[1]);
 
     this.involvedShapes.forEach(shape => {
@@ -148,43 +146,76 @@ export class ReverseState extends State {
       });
     });
 
+    app.editingShapes = this.involvedShapes;
+    app.drawAPI.askRefresh();
     this.animate();
 
     return false;
+  }
+
+  getSymmetricalAxe(orientation) {
+    let shape = app.workspace.getShapeById(this.shapeId),
+      center = this.selectedShape.center,
+      axe;
+    if (orientation == 'V') {
+      axe = new Segment(
+        new Point(center.x, center.y - this.symmetricalAxeLength / 2),
+        new Point(center.x, center.y + this.symmetricalAxeLength / 2),
+      );
+    } else if (orientation == 'NW') {
+      axe = new Segment(
+        new Point(
+          center.x - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+        new Point(
+          center.x + (0.683 * this.symmetricalAxeLength) / 2,
+          center.y + (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+      );
+    } else if (orientation == 'H') {
+      axe = new Segment(
+        new Point(center.x + this.symmetricalAxeLength / 2, center.y),
+        new Point(center.x - this.symmetricalAxeLength / 2, center.y),
+      );
+    } else {
+      // SW
+      axe = new Segment(
+        new Point(
+          center.x + (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+        new Point(
+          center.x - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y + (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+      );
+    }
+    return axe;
   }
 
   /**
    * Gère l'animation du retournement.
    */
   animate() {
-    let progress = this.getAnimationProgress();
-    if (progress == 1) {
+    this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
+    if (this.progress > 1 && app.state == 'reverse_shape') {
+      this.actions = [
+        {
+          name: 'ReverseAction',
+          shapeId: this.selectedShape.id,
+          involvedShapesIds: this.involvedShapes.map(s => s.id),
+          axe: this.axe,
+        },
+      ];
       this.executeAction();
       this.start();
       app.drawAPI.askRefresh('upper');
       app.drawAPI.askRefresh();
     } else {
       app.drawAPI.askRefresh('upper');
-      this.timeoutRef = setTimeout(() => {
-        //TODO requestAnimFrame
-        this.animate();
-      }, 100);
-      /*
-            this.requestAnimFrameId = window.requestAnimFrame(function () {
-                that.animate()
-            })
-             */
+      this.requestAnimFrameId = window.requestAnimFrame(() => this.animate());
     }
-  }
-
-  /**
-   * Renvoie l'avancement de l'animation de retournement
-   * @return {float} avancement, dans l'intervalle [0, 1]
-   */
-  getAnimationProgress() {
-    if (this.currentStep != 'reversing-shape') return null;
-    let progress = (Date.now() - this.startTime) / (this.duration * 1000);
-    return Math.min(progress, 1);
   }
 
   /**
@@ -193,37 +224,11 @@ export class ReverseState extends State {
    * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx, mouseCoordinates) {
-    if (this.currentStep == 'listen-canvas-click') return;
-    if (this.currentStep == 'selecting-symmetrical-arch') {
-      this.involvedShapes.forEach(s => {
-        app.drawAPI.drawShape(ctx, s);
-      });
-
-      let axes = [
-        this.actions[0].getSymmetricalAxe('V'),
-        this.actions[0].getSymmetricalAxe('NW'),
-        this.actions[0].getSymmetricalAxe('H'),
-        this.actions[0].getSymmetricalAxe('SW'),
-      ];
-
-      axes.forEach(axe => {
-        app.drawAPI.drawLine(
-          ctx,
-          axe.vertexes[0],
-          axe.vertexes[1],
-          this.symmetricalAxeColor,
-          1,
-          false,
-        );
-      });
-      return;
-    }
     if (this.currentStep == 'reversing-shape') {
-      let progress = this.getAnimationProgress();
       //TODO: opti: ne pas devoir faire des copies à chaque refresh!
       this.involvedShapes.forEach(s => {
         let s2 = s.copy();
-        this.actions[0].reverseShape(s2, this.axe, progress);
+        this.reverseShape(s2, this.axe, this.progress);
         app.drawAPI.drawShape(ctx, s2, 1, this.axeAngle);
       });
 
@@ -238,5 +243,69 @@ export class ReverseState extends State {
       );
       return;
     }
+  }
+
+  shapeDrawn(ctx, shape) {
+    if (this.selectedShape && this.selectedShape.id == shape.id) {
+      let axes = [
+        this.getSymmetricalAxe('V'),
+        this.getSymmetricalAxe('NW'),
+        this.getSymmetricalAxe('H'),
+        this.getSymmetricalAxe('SW'),
+      ];
+
+      axes.forEach(axe => {
+        app.drawAPI.drawLine(
+          ctx,
+          axe.vertexes[0],
+          axe.vertexes[1],
+          this.symmetricalAxeColor,
+          1,
+          false,
+        );
+      });
+    }
+  }
+
+  /**
+   * Retourne une forme
+   * @param  {Shape} shape       la forme à retourner
+   * @param  {Object} axe        L'axe de symétrie à utiliser
+   */
+  reverseShape(shape, axe) {
+    if (this.progress > 0.5) {
+      // milieu animation
+      shape.isReversed = !shape.isReversed;
+      shape.reverse();
+    }
+
+    shape.segments.forEach(seg => {
+      let points = [
+        ...seg.vertexes,
+        ...seg.points,
+        seg.arcCenter,
+        seg.tangentPoint1,
+        seg.tangentPoint2,
+      ];
+      points.forEach(pt => {
+        if (pt) this.computePointPosition(pt, axe);
+      });
+    });
+  }
+
+  /**
+   * Calcule les nouvelles coordonnées d'un point lors de l'animation d'une symétrie axiale
+   * @param  {Point} point    le point
+   * @param  {Object} axe      L'axe de symétrie
+   * @return {Point}          Nouvelles coordonnées
+   */
+  computePointPosition(point, axe) {
+    let center = axe.projectionOnSegment(point);
+
+    //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
+    point.setCoordinates({
+      x: point.x + 2 * (center.x - point.x) * this.progress,
+      y: point.y + 2 * (center.y - point.y) * this.progress,
+    });
   }
 }
