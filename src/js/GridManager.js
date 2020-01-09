@@ -11,6 +11,12 @@ export class GridManager {
    * 		(-> Ex de points: (60, 10), ...)
    */
 
+  // constructor() {
+  //   window.addEventListener('grid-showing-changed', event => event.detail.newState ? this.show() : this.hide());
+  //   window.addEventListener('grid-size-changed', event => this.setSize(event.detail.newSize));
+  //   window.addEventListener('grid-type-changed', event => this.setType(event.detail.newType));
+  // }
+
   static show() {
     app.workspace.settings.set('isGridShown', true);
   }

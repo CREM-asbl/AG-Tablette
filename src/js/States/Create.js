@@ -25,8 +25,6 @@ export class CreateState extends State {
 
     //Shape finale
     this.shapeToCreate = null;
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

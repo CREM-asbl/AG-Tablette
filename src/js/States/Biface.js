@@ -8,8 +8,6 @@ import { State } from './State';
 export class BifaceState extends State {
   constructor() {
     super('biface');
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

@@ -10,8 +10,6 @@ import { Shape } from '../Objects/Shape';
 export class DeleteState extends State {
   constructor() {
     super('delete_shape');
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

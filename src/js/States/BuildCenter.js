@@ -8,8 +8,6 @@ import { State } from './State';
 export class BuildCenterState extends State {
   constructor() {
     super('build_shape_center');
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

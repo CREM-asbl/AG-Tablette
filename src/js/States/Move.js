@@ -25,8 +25,6 @@ export class MoveState extends State {
         elle-même
          */
     this.involvedShapes = [];
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

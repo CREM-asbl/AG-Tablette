@@ -20,8 +20,6 @@ export class CutState extends State {
     this.shape = null;
 
     this.constr = null;
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

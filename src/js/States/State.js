@@ -12,8 +12,6 @@ export class State {
 
     this.actions = null;
 
-    this.eventListenerIds = [];
-
     window.addEventListener('app-state-changed', event => {
       if (this.name == app.state) this.start(event.detail.startParams);
       else this.end();
@@ -26,6 +24,8 @@ export class State {
     window.addEventListener('shapeDrawn', event => {
       if (this.name == app.state) this.shapeDrawn(event.detail.ctx, event.detail.shape);
     });
+
+    this.handler = event => this._actionHandle(event);
   }
 
   //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected

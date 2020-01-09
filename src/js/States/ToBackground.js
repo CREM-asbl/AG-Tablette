@@ -8,8 +8,6 @@ import { State } from './State';
 export class ToBackgroundState extends State {
   constructor() {
     super('to_background');
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

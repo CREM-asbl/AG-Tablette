@@ -18,7 +18,6 @@ export class BackgroundColorState extends State {
    */
   start(callColorPicker = true) {
     this.actions = [new BackgroundColorAction(this.name)];
-    this.actions[1] = new OpacityAction(this.name);
 
     this.currentStep = 'choose-color';
 
@@ -26,9 +25,31 @@ export class BackgroundColorState extends State {
 
     if (callColorPicker) app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
+    window.addEventListener('colorChange', this.handler);
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+    window.removeEventListener('colorChange', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else if (event.type == 'colorChange') {
+      this.setColor(event.detail.color);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   setOpacity(opacity) {
+    this.actions[1] = new OpacityAction(this.name);
+    this.actions[1].shapeId = shape.id;
+    if (group) involvedShapes = [...group.shapes];
+    this.actions[1].involvedShapesIds = involvedShapes.map(s => s.id);
     this.actions[1].opacity = opacity;
     this.currentStep = 'listen-canvas-click';
   }
@@ -51,21 +72,11 @@ export class BackgroundColorState extends State {
     if (group) involvedShapes = [...group.shapes];
     this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
 
-    this.executeAction();
-    let color = this.actions[0].selectedColor;
-    this.start(false);
-    this.setColor(color);
-
     // setOpacity quand transparent
-
-    this.actions[1].shapeId = shape.id;
-    if (group) involvedShapes = [...group.shapes];
-    this.actions[1].involvedShapesIds = involvedShapes.map(s => s.id);
-
     if (shape.opacity == 0) {
       this.setOpacity(0.7);
-      this.executeAction();
     }
+    this.executeAction();
 
     app.drawAPI.askRefresh();
   }

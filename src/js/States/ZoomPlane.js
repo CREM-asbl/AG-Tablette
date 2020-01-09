@@ -20,26 +20,49 @@ export class ZoomPlaneState extends State {
    * (ré-)initialiser l'état
    */
   start() {
+    this.end();
     this.actions = [new ZoomPlaneAction(this.name)];
 
     this.currentStep = 'listen-canvas-click';
     this.baseDist = null;
     app.appDiv.cursor = 'default';
+    window.addEventListener('canvasmousedown', this.handler);
   }
 
   abort() {
     this.start();
   }
 
-  onMouseDown(clickCoordinates, event) {
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('canvasmousedown', this.handler);
+    window.removeEventListener('canvasmousemove', this.handler);
+    window.removeEventListener('canvasmouseup', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'canvasmousedown') {
+      this.onMouseDown(event.detail.mousePos);
+    } else if (event.type == 'canvasmousemove') {
+      this.onMouseMove(event.detail.mousePos);
+    } else if (event.type == 'canvasmouseup') {
+      this.onMouseUp(event.detail.mousePos);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
+  }
+
+  onMouseDown(clickCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.baseDist = this.getDist(clickCoordinates);
 
     this.currentStep = 'zooming-plane';
+    window.addEventListener('canvasmousemove', this.handler);
+    window.addEventListener('canvasmouseup', this.handler);
   }
 
-  onMouseUp(clickCoordinates, event) {
+  onMouseUp(clickCoordinates) {
     if (this.currentStep != 'zooming-plane') return;
 
     let offset = this.getDist(clickCoordinates) / this.baseDist,
@@ -63,7 +86,7 @@ export class ZoomPlaneState extends State {
     this.start();
   }
 
-  onMouseMove(clickCoordinates, event) {
+  onMouseMove(clickCoordinates) {
     if (this.currentStep != 'zooming-plane') return;
 
     let newDist = this.getDist(clickCoordinates),

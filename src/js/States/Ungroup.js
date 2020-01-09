@@ -8,8 +8,6 @@ import { State } from './State';
 export class UngroupState extends State {
   constructor() {
     super('ungroup_shapes');
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

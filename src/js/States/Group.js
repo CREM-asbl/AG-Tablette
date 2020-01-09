@@ -15,8 +15,6 @@ export class GroupState extends State {
     this.group = null;
 
     this.firstShape = null;
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

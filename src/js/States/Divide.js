@@ -21,8 +21,6 @@ export class DivideState extends State {
     this.selConstr = null;
 
     this.numberOfparts = null;
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

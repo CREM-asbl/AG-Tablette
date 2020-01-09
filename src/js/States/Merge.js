@@ -13,8 +13,6 @@ export class MergeState extends State {
     this.currentStep = null;
 
     this.firstShape = null;
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

@@ -24,6 +24,24 @@ export class BorderColorState extends State {
 
     if (callColorPicker) app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
     app.appDiv.cursor = 'default';
+    window.addEventListener('objectSelected', this.handler);
+    window.addEventListener('colorChange', this.handler);
+  }
+
+  end() {
+    app.editingShapes = [];
+    window.removeEventListener('objectSelected', this.handler);
+    window.removeEventListener('colorChange', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object, event.detail.mousePos);
+    } else if (event.type == 'colorChange') {
+      this.setColor(event.detail.color);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   setColor(color) {

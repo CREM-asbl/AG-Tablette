@@ -37,8 +37,6 @@ export class ReverseState extends State {
     this.involvedShapes = [];
 
     this.timeoutRef = null;
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**

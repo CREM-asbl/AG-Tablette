@@ -10,8 +10,6 @@ export class OpacityState extends State {
     super('opacity');
 
     this.currentStep = null; // choose-opacity -> listen-canvas-click
-
-    this.handler = event => this._actionHandle(event);
   }
 
   /**
