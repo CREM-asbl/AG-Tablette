@@ -3,9 +3,7 @@ import { Action } from './Action';
 
 export class BuildCenterAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'BuildCenterAction';
+    super('BuildCenterAction');
 
     //L'id de la forme dont on va colorier les bords
     this.shapeId = null;

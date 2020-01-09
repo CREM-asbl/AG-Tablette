@@ -32,7 +32,6 @@ export class MoveState extends State {
    */
   start() {
     this.end();
-    this.actions = [new MoveAction(this.name)];
     this.currentStep = 'listen-canvas-click';
 
     this.selectedShape = null;
@@ -76,9 +75,6 @@ export class MoveState extends State {
     this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
     this.startClickCoordinates = clickCoordinates;
 
-    this.actions[0].shapeId = shape.id;
-    this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
-
     app.editingShapes = this.involvedShapes;
     this.currentStep = 'moving-shape';
     window.addEventListener('canvasmouseup', this.handler);
@@ -88,13 +84,12 @@ export class MoveState extends State {
 
   /**
    * Appelée lorsque l'événement mouseup est déclanché sur le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates les coordonnées de la souris
-   * @param  {Event} event            l'événement javascript
+   * @param  {Point} mouseCoordinates les coordonnées de la souris
    */
   onMouseUp(mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;
 
-    const translation = new Point(mouseCoordinates).subCoordinates(this.startClickCoordinates);
+    const translation = mouseCoordinates.subCoordinates(this.startClickCoordinates);
     this.involvedShapes.forEach(shape => {
       shape.coordinates = shape.coordinates.addCoordinates(translation);
     });
@@ -103,15 +98,24 @@ export class MoveState extends State {
       shape.coordinates = shape.coordinates.subCoordinates(translation);
     });
 
-    if (transformation.rotation != 0) {
-      let rotateAction = new RotateAction();
+    this.actions = [
+      {
+        name: 'MoveAction',
+        shapeId: this.selectedShape.id,
+        involvedShapesIds: this.involvedShapes.map(s => s.id),
+        transformation: translation.addCoordinates(transformation.move),
+      },
+    ];
 
-      rotateAction.shapeId = this.selectedShape.id;
-      rotateAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
-      rotateAction.rotationAngle = transformation.rotation;
+    if (transformation.rotation != 0) {
+      let rotateAction = {
+        name: 'RotateAction',
+        shapeId: this.selectedShape.id,
+        involvedShapesIds: this.involvedShapes.map(s => s.id),
+        rotationAngle: transformation.rotation,
+      };
       this.actions.push(rotateAction);
     }
-    this.actions[0].transformation = translation.addCoordinates(transformation.move);
 
     this.executeAction();
     this.start();
@@ -127,22 +131,14 @@ export class MoveState extends State {
   draw(ctx, mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;
 
-    let transformation = {
-      x: mouseCoordinates.x - this.startClickCoordinates.x,
-      y: mouseCoordinates.y - this.startClickCoordinates.y,
-    };
+    let transformation = mouseCoordinates.subCoordinates(this.startClickCoordinates);
 
     this.involvedShapes.forEach(s => {
-      let newCoords = {
-          x: s.x + transformation.x,
-          y: s.y + transformation.y,
-        },
+      let newCoords = new Point(s).addCoordinates(transformation),
         saveCoords = s.coordinates;
 
       s.coordinates = newCoords;
-
       app.drawAPI.drawShape(ctx, s);
-
       s.coordinates = saveCoords;
     });
   }

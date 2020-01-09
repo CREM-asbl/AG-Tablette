@@ -56,8 +56,11 @@ class DivMainCanvas extends LitElement {
     );
     app.drawAPI = drawAPI;
 
+    app.cvsDiv = this;
+    app.start();
     this.setCanvasSize();
-    app.start(this);
+
+    app.appDiv.families = app.workspace.environment.familyNames;
 
     //Events:
     this.addEventListener('click', event => {

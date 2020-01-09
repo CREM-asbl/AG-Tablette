@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { MergeAction } from './Actions/Merge';
 import { State } from './State';
+import { uniqId } from '../Tools/general';
 
 /**
  * Fusionner 2 formes en une nouvelle forme
@@ -13,6 +14,8 @@ export class MergeState extends State {
     this.currentStep = null;
 
     this.firstShape = null;
+
+    this.secondShape = null;
   }
 
   /**
@@ -20,10 +23,7 @@ export class MergeState extends State {
    */
   start() {
     this.end();
-    this.actions = [new MergeAction(this.name)];
     this.currentStep = 'listen-canvas-click';
-
-    this.firstShape = null;
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     app.appDiv.cursor = 'default';
@@ -52,37 +52,41 @@ export class MergeState extends State {
   objectSelected(shape) {
     if (this.currentStep == 'listen-canvas-click') {
       this.currentStep = 'selecting-second-shape';
-      this.actions[0].firstShapeId = shape.id;
       this.firstShape = shape;
-      app.editingShapes = [this.firstShape];
+      app.editingShapes = [shape];
       app.drawAPI.askRefresh();
       app.drawAPI.askRefresh('upper');
       return;
     }
     if (this.currentStep != 'selecting-second-shape') return;
-    if (this.actions[0].firstShapeId == shape.id) {
+    if (this.firstShape.id == shape.id) {
       this.currentStep = 'listen-canvas-click';
-      this.actions[0].firstShapeId = null;
       this.firstShape = null;
       app.editingShapes = [];
       app.drawAPI.askRefresh();
       app.drawAPI.askRefresh('upper');
       return;
     }
-    this.actions[0].secondShapeId = shape.id;
+    this.secondShape = shape;
 
-    let shape1 = this.firstShape,
-      shape2 = shape;
-
-    if (shape1.getCommonsPoints(shape2).length < 2) {
+    if (this.firstShape.getCommonsPoints(this.secondShape).length < 2) {
       console.log('no common segments');
       return;
     }
 
-    if (shape1.overlapsWith(shape2)) {
+    if (this.firstShape.overlapsWith(this.secondShape)) {
       console.log('shapes overlap!');
       return;
     }
+
+    this.actions = [
+      {
+        name: 'MergeAction',
+        firstShapeId: this.firstShape.id,
+        secondShapeId: this.secondShape.id,
+        createdShapeId: uniqId(),
+      },
+    ];
 
     this.executeAction();
     this.start();

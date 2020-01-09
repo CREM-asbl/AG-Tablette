@@ -3,9 +3,7 @@ import { Action } from './Action';
 
 export class BifaceAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'BifaceAction';
+    super('BifaceAction');
 
     this.shapeId = null;
 

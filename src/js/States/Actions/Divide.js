@@ -4,9 +4,7 @@ import { Point } from '../../Objects/Point';
 
 export class DivideAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'DivideAction';
+    super('DivideAction');
 
     //L'id de la forme
     this.shapeId = null;
@@ -75,7 +73,7 @@ export class DivideAction extends Action {
       this.secondPoint = new Point();
       this.secondPoint.initFromObject(save.secondPoint);
     }
-    this.createdPoints = save.createdPoints.map(pt => new Point(pt));
+    // this.createdPoints = save.createdPoints.map(pt => new Point(pt));
   }
 
   checkDoParameters() {

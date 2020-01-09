@@ -33,8 +33,8 @@ class AGTabletteApp extends LitElement {
 
   constructor() {
     super();
-    this.families = app.workspace.environment.familyNames;
     this.state = '';
+    this.families = [];
     this.selectedFamily = '';
     app.appDiv = this;
     this.canUndo = false;
@@ -150,7 +150,7 @@ class AGTabletteApp extends LitElement {
           <div id="app-canvas-view-toolbar-p1">
             <div id="app-canvas-mode-text">
               <span>Mode: </span>
-              ${this.state}
+              ${app.states[this.state] ? app.states[this.state].name : ''}
             </div>
             <flex-toolbar>
               <icon-button

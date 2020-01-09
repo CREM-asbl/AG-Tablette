@@ -4,9 +4,7 @@ import { Shape } from '../../Objects/Shape';
 
 export class ToBackgroundAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'ToBackgroundAction';
+    super('ToBackgroundAction');
 
     //L'index original de la forme dans workspace.shapes
     this.oldIndex = null;

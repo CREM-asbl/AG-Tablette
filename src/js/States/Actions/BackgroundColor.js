@@ -5,9 +5,7 @@ import { getComplementaryColor } from '../../Tools/general';
 
 export class BackgroundColorAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'BackgroundColorAction';
+    super('BackgroundColorAction');
 
     //L'id de la forme que l'on va colorier
     this.shapeId = null;

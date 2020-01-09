@@ -4,9 +4,7 @@ import { Point } from '../../Objects/Point';
 
 export class MoveAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'MoveAction';
+    super('MoveAction');
 
     //L'id de la forme que l'on déplace
     this.shapeId = null;
@@ -63,11 +61,7 @@ export class MoveAction extends Action {
 
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id),
-        coords = s.coordinates,
-        newCoords = {
-          x: coords.x + this.transformation.x,
-          y: coords.y + this.transformation.y,
-        };
+        newCoords = s.coordinates.addCoordinates(this.transformation);
       s.coordinates = newCoords;
     });
   }
@@ -77,11 +71,7 @@ export class MoveAction extends Action {
 
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id),
-        coords = s.coordinates,
-        newCoords = {
-          x: coords.x - this.transformation.x,
-          y: coords.y - this.transformation.y,
-        };
+        newCoords = s.coordinates.subCoordinates(this.transformation);
       s.coordinates = newCoords;
     });
   }

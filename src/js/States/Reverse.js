@@ -30,10 +30,13 @@ export class ReverseState extends State {
 
     this.axeAngle = null;
 
+    //Longueur en pixels des 4 arcs de symétrie
+    this.symmetricalAxeLength = 200;
+
     /*
-        L'ensemble des formes liées à la forme sélectionnée, y compris la forme
-        elle-même
-         */
+      L'ensemble des formes liées à la forme sélectionnée, y compris la forme
+      elle-même
+    */
     this.involvedShapes = [];
 
     this.timeoutRef = null;

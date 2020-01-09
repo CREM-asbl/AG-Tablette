@@ -4,9 +4,7 @@ import { Shape } from '../../Objects/Shape';
 
 export class OpacityAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'OpacityAction';
+    super('OpacityAction');
 
     //L'id de la forme sélectionnée
     this.shapeId = null;

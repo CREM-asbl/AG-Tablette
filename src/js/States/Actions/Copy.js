@@ -5,9 +5,7 @@ import { ShapeGroup } from '../../Objects/ShapeGroup';
 
 export class CopyAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'CopyAction';
+    super('CopyAction');
 
     //L'id de la forme sélectionnée
     this.shapeId = null;

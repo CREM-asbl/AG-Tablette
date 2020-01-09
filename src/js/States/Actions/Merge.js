@@ -5,9 +5,7 @@ import { Segment } from '../../Objects/Segment';
 
 export class MergeAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'MergeAction';
+    super('MergeAction');
 
     //Première forme
     this.firstShapeId = null;

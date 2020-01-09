@@ -12,18 +12,16 @@ export class CreateState extends State {
   constructor() {
     super('create_shape');
 
-    this.currentStep = null; // show-family-shape -> listen-canvas-click
+    // show-family-shape -> listen-canvas-click -> moving-shape
+    this.currentStep = null;
 
-    //La famille sélectionnée dans le menu de gauche
+    // La famille sélectionnée dans le menu de gauche
     this.selectedFamily = null;
 
-    //La forme que l'on va ajouter (on ajoute une copie de cette forme)
+    // La forme que l'on va ajouter (on ajoute une copie de cette forme)
     this.selectedShape = null;
 
-    //Shape temporaire (pour le deplacement)
-    this.shapeToCreate = null;
-
-    //Shape finale
+    // Shape à créer
     this.shapeToCreate = null;
   }
 
@@ -32,6 +30,7 @@ export class CreateState extends State {
    * @param  {String} family Nom de la famille sélectionnée
    */
   start(family, timestamp = 0) {
+    this.end();
     this.selectedFamily = family;
     app.selectedFamily = this.selectedFamily;
     this.selectedShape = null;
@@ -61,14 +60,11 @@ export class CreateState extends State {
 
   //Todo: Solution provisoire
   abort() {
-    window.removeEventListener('shapeSelected', this.handler);
-    window.removeEventListener('canvasmousedown', this.handler);
-    window.removeEventListener('canvasmouseup', this.handler);
+    this.end();
     this.currentStep = 'listen-canvas-click';
   }
 
   setShape(shape) {
-    this.actions = [new CreateAction(this.name)];
     this.selectedShape = shape;
     this.currentStep = 'listen-canvas-click';
     window.addEventListener('canvasmousedown', this.handler);
@@ -79,53 +75,48 @@ export class CreateState extends State {
 
     this.shapeToCreate = this.selectedShape.copy();
     let shapeSize = app.settings.get('shapesSize');
-    this.involvedShapes = [this.shapeToCreate];
 
     this.shapeToCreate.scale(shapeSize);
     this.shapeToCreate.coordinates = mouseCoordinates;
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
-    this.actions[0].shapeToCreate = this.shapeToCreate;
-    this.actions[0].coordinates = mouseCoordinates;
-    this.actions[0].shapeSize = shapeSize;
-    this.actions[0].shapeId = this.actions[0].shapeToCreate.id;
-
     this.currentStep = 'moving-shape';
-
-    app.drawAPI.askRefresh('upper');
-
     window.addEventListener('canvasmouseup', this.handler);
+    app.drawAPI.askRefresh('upper');
   }
 
   onMouseUp(mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;
 
-    this.actions = [new CreateAction(this.name)];
+    let shapeSize = app.settings.get('shapesSize'),
+      involvedShapes = [this.shapeToCreate];
 
-    let shapeSize = app.settings.get('shapesSize');
+    this.actions = [
+      {
+        name: 'CreateAction',
+        shapeToCreate: this.shapeToCreate,
+        shapeId: this.shapeToCreate.id,
+        shapeSize: shapeSize,
+      },
+    ];
 
-    this.involvedShapes = [this.shapeToCreate];
-
-    this.actions[0].shapeToCreate = this.shapeToCreate;
-    this.actions[0].shapeSize = shapeSize;
-    this.actions[0].shapeId = this.shapeToCreate.id;
-    this.actions[0].coordinates = mouseCoordinates;
-
-    let transformation = getShapeAdjustment(this.involvedShapes, this.shapeToCreate);
+    let transformation = getShapeAdjustment(involvedShapes, this.shapeToCreate);
     if (transformation.rotation != 0) {
-      let rotateAction = new RotateAction();
-
-      rotateAction.shapeId = this.shapeToCreate.id;
-      rotateAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
-      rotateAction.rotationAngle = transformation.rotation;
+      let rotateAction = {
+        name: 'RotateAction',
+        shapeId: this.shapeToCreate.id,
+        involvedShapesIds: involvedShapes.map(s => s.id),
+        rotationAngle: transformation.rotation,
+      };
       this.actions.push(rotateAction);
     }
     if (transformation.move.x != 0 || transformation.move.y != 0) {
-      let moveAction = new MoveAction();
-
-      moveAction.shapeId = this.shapeToCreate.id;
-      moveAction.involvedShapesIds = this.involvedShapes.map(s => s.id);
-      moveAction.transformation = transformation.move;
+      let moveAction = {
+        name: 'MoveAction',
+        shapeId: this.shapeToCreate.id,
+        involvedShapesIds: involvedShapes.map(s => s.id),
+        transformation: transformation.move,
+      };
       this.actions.push(moveAction);
     }
 

@@ -7,9 +7,7 @@ import { mod } from '../../Tools/general';
 
 export class CutAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'CutAction';
+    super('CutAction');
 
     //L'id de la forme
     this.shapeId = null;

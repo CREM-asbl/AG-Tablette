@@ -3,9 +3,7 @@ import { Action } from './Action';
 
 export class RotateAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'RotateAction';
+    super('RotateAction');
 
     //L'id de la forme que l'on tourne
     this.shapeId = null;

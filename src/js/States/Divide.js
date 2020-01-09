@@ -38,7 +38,6 @@ export class DivideState extends State {
     this.selConstr.points.types = ['vertex', 'segmentPoint'];
     app.interactionAPI.setSelectionConstraints(this.selConstr);
 
-    this.actions = [new DivideAction(this.name)];
     if (openPopup) {
       this.currentStep = 'choose-nb-parts';
       app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
@@ -85,18 +84,29 @@ export class DivideState extends State {
     if (this.currentStep != 'listen-canvas-click' && this.currentStep != 'select-second-point')
       return;
 
+    this.shape = object.shape;
+
     if (this.currentStep == 'listen-canvas-click') {
       if (object instanceof Segment) {
-        this.actions[0].shapeId = object.shape.id;
-        this.actions[0].mode = 'segment';
-        this.actions[0].segmentIndex = object.idx;
-        this.shape = object.shape;
+        this.actions = [
+          {
+            name: 'DivideAction',
+            shapeId: object.shape.id,
+            mode: 'segment',
+            segmentIndex: object.idx,
+          },
+        ];
         this.currentStep = 'showing-segment';
       } else {
+        this.actions = [
+          {
+            name: 'DivideAction',
+            shapeId: object.shape.id,
+            mode: 'two_points',
+            firstPoint: object,
+          },
+        ];
         this.currentStep = 'select-second-point';
-        this.actions[0].mode = 'two_points';
-        this.actions[0].shapeId = object.shape.id;
-        this.actions[0].firstPoint = object;
 
         //Liste des points que l'on peut sélectionner comme 2ème point:
         let pointsList = this.getCandidatePoints(object);
@@ -110,9 +120,10 @@ export class DivideState extends State {
         return;
       }
     } else {
-      //Check if pt1 == object
+      // select-second-point
       let pt1 = this.actions[0].firstPoint;
 
+      //Check if pt1 == object
       if (
         pt1.type == object.type &&
         pt1.segment.idx == object.segment.idx &&
@@ -120,9 +131,7 @@ export class DivideState extends State {
       ) {
         //pt1 = object => désélectionner le point.
         this.currentStep = 'listen-canvas-click';
-        this.actions[0].mode = null;
-        this.actions[0].shapeId = null;
-        this.actions[0].firstPoint = null;
+        this.actions = null;
 
         //reset selection constraints:
         this.selConstr.segments.canSelect = true;
@@ -132,15 +141,13 @@ export class DivideState extends State {
         app.drawAPI.askRefresh();
         app.drawAPI.askRefresh('upper');
         return;
-      }
-
+      } else if (pt1.type == 'vertex' && object.type == 'vertex') {
       /*
             Vérifie s'il y a une ambiguité sur l'action à réaliser: si les 2
             poins sont reliés par un arc de cercle, et aussi par un segment (la
             forme est donc constituée uniquement de 2 sommets, un segment et un
             arc de cercle), on annulle l'action.
              */
-      if (pt1.type == 'vertex' && object.type == 'vertex') {
         let segments = object.shape.segments;
         if (
           segments.length == 2 &&
@@ -156,10 +163,10 @@ export class DivideState extends State {
           app.drawAPI.askRefresh('upper');
           return;
         }
+      } else {
+        this.actions[0].secondPoint = object;
+        this.currentStep = 'showing-points';
       }
-
-      this.actions[0].secondPoint = object;
-      this.currentStep = 'showing-points';
     }
 
     window.clearTimeout(this.timeoutRef);

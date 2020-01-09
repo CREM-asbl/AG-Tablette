@@ -4,9 +4,7 @@ import { Action } from './Action';
 //TODO retenir le zoom original, pour éviter les erreurs de précision?
 export class ZoomPlaneAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'ZoomPlaneAction';
+    super('ZoomPlaneAction');
 
     //Translation à appliquer
     this.scaleOffset = null;

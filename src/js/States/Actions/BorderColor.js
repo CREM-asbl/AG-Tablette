@@ -4,9 +4,7 @@ import { Shape } from '../../Objects/Shape';
 
 export class BorderColorAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'BorderColorAction';
+    super('BorderColorAction');
 
     //L'id de la forme dont on va colorier les bords
     this.shapeId = null;

@@ -6,9 +6,7 @@ import { Point } from '../../Objects/Point';
 
 export class DeleteAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'DeleteAction';
+    super('DeleteAction');
 
     // point ou shape
     this.mode = null;

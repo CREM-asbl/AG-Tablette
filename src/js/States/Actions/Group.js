@@ -6,9 +6,7 @@ import { ShapeGroup } from '../../Objects/ShapeGroup';
  */
 export class GroupAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'GroupAction';
+    super('GroupAction');
 
     //Type d'action: nouveau groupe, ajout d'une forme ou fusion de 2 groupes
     //TODO: on pourrait diviser cette classe Action en 3 classes pour la simplifier:

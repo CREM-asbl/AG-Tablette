@@ -13,6 +13,10 @@ export class WorkspaceHistory {
 
     //Début de la branche en cours
     this.start_of_branch = 0;
+
+    // app.actions.forEach(action => {
+    //   window.addEventListener(action.instance.name, event => this.addStep(event.detail.actions));
+    // })
   }
 
   /**
@@ -129,6 +133,7 @@ export class WorkspaceHistory {
    * @param {[Action]} actions Les actions constituant l'étape
    */
   addStep(actions) {
+    console.log(actions);
     let previous_step;
     if (this.history.length == 0) {
       this.history.push({

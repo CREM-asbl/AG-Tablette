@@ -20,9 +20,6 @@ export class App {
     this.settings = new Settings();
     this.initSettings();
 
-    //Représente un projet, qui peut être sauvegardé/restauré.
-    this.workspace = new Workspace(this.envManager.getNewEnv('Grandeur'));
-
     //L'API de dessin (tout ce qui est lié au <canvas>)
     this.drawAPI = null;
 
@@ -36,6 +33,12 @@ export class App {
 
     //L'état de l'application
     this.state = null;
+
+    // Les états possibles
+    this.states = [];
+
+    // Les actions possibles
+    this.actions = [];
 
     //Liste de classes State qui tournent en permanence (ex: zoom à 2 doigts)
     this.permanentStates = [];
@@ -104,8 +107,10 @@ export class App {
     this.drawAPI.askRefresh();
   }
 
-  start(cvsDiv) {
-    this.cvsDiv = cvsDiv;
+  start() {
+    // Représente un projet, qui peut être sauvegardé/restauré.
+    this.workspace = new Workspace(this.envManager.getNewEnv('Grandeur'));
+
     window.onresize = () => {
       this.refreshWindow();
     };

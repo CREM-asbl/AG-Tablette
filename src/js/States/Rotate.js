@@ -29,7 +29,6 @@ export class RotateState extends State {
    */
   start() {
     this.end();
-    this.actions = [new RotateAction(this.name)];
     this.currentStep = 'listen-canvas-click';
 
     this.selectedShape = null;
@@ -74,8 +73,6 @@ export class RotateState extends State {
     this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
     this.initialAngle = shape.center.getAngle(clickCoordinates);
 
-    this.actions[0].shapeId = shape.id;
-    this.actions[0].involvedShapesIds = this.involvedShapes.map(s => s.id);
     app.editingShapes = this.involvedShapes;
     this.currentStep = 'rotating-shape';
     window.addEventListener('canvasmouseup', this.handler);
@@ -92,7 +89,15 @@ export class RotateState extends State {
     if (this.currentStep != 'rotating-shape') return;
 
     let newAngle = this.selectedShape.center.getAngle(mouseCoordinates);
-    this.actions[0].rotationAngle = newAngle - this.initialAngle;
+
+    this.actions = [
+      {
+        name: 'RotateAction',
+        shapeId: this.selectedShape.id,
+        involvedShapesIds: this.involvedShapes.map(s => s.id),
+        rotationAngle: newAngle - this.initialAngle,
+      },
+    ];
 
     this.executeAction();
     this.start();

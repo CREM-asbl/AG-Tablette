@@ -4,9 +4,7 @@ import { Shape } from '../../Objects/Shape';
 
 export class TranslatePlaneAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'TranslatePlaneAction';
+    super('TranslatePlaneAction');
 
     //Translation à appliquer
     this.offset = null;

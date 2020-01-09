@@ -4,15 +4,10 @@ import { Shape } from '../../Objects/Shape';
 
 export class CreateAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'CreateAction';
+    super('CreateAction');
 
     //La forme que l'on souhaite ajouter
     this.shapeToCreate = null;
-
-    //Les coordonnées
-    this.coordinates = null;
 
     //Id de la forme ajoutée
     this.shapeId = null;
@@ -24,7 +19,6 @@ export class CreateAction extends Action {
   saveToObject() {
     let save = {
       shapeToCreate: this.shapeToCreate.saveToObject(),
-      coordinates: this.coordinates,
       shapeId: this.shapeId,
       shapeSize: this.shapeSize,
     };
@@ -34,17 +28,12 @@ export class CreateAction extends Action {
   initFromObject(save) {
     this.shapeToCreate = new Shape({ x: 0, y: 0 }, []);
     this.shapeToCreate.initFromObject(save.shapeToCreate);
-    // this.shapeToCreate.id = this.shapeId;
-
-    this.coordinates = save.coordinates;
     this.shapeId = save.shapeId;
     this.shapeSize = save.shapeSize;
   }
 
   checkDoParameters() {
     if (!(this.shapeToCreate instanceof Shape)) return false;
-    if (!this.coordinates || this.coordinates.x === undefined || this.coordinates.y === undefined)
-      return false;
     return true;
   }
 
@@ -61,7 +50,6 @@ export class CreateAction extends Action {
     if (this.shapeId) shape.id = this.shapeId;
     else this.shapeId = shape.id;
     app.workspace.addShape(shape);
-    this.shapeToCreate = this.shapeToCreate.copy();
   }
 
   undo() {

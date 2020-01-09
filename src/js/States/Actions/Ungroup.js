@@ -5,9 +5,7 @@ import { ShapeGroup } from '../../Objects/ShapeGroup';
 
 export class UngroupAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'UngroupAction';
+    super('UngroupAction');
 
     //L'id du groupe que l'on supprime
     this.groupId = null;

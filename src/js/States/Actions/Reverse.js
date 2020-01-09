@@ -5,9 +5,7 @@ import { Segment } from '../../Objects/Segment';
 
 export class ReverseAction extends Action {
   constructor() {
-    super();
-
-    this.name = 'ReverseAction';
+    super('ReverseAction');
 
     //L'id de la forme que l'on tourne
     this.shapeId = null;
