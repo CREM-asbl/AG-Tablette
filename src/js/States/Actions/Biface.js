@@ -5,24 +5,26 @@ export class BifaceAction extends Action {
   constructor() {
     super('BifaceAction');
 
-    this.shapeId = null;
-
     this.involvedShapesIds = null;
+
+    this.oldBiface = null;
   }
 
   saveToObject() {
     let save = {
-      shapeId: this.shapeId,
+      involvedShapesIds: this.involvedShapesIds,
+      oldBiface: this.eoldBiface,
     };
     return save;
   }
 
   initFromObject(save) {
-    this.shapeId = save.shapeId;
+    this.involvedShapesIds = save.involvedShapesIds;
+    this.oldBiface = save.oldBiface;
   }
 
   checkDoParameters() {
-    if (!this.shapeId) return false;
+    if (this.involvedShapesIds.length != this.oldBiface.length) return false;
     return true;
   }
 
@@ -33,12 +35,10 @@ export class BifaceAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shapes = this.involvedShapesIds.map(id => {
-      return app.workspace.getShapeById(id);
-    });
-    let value_to_set = !shapes.every(shape => shape.isBiface);
-    shapes.forEach(shape => {
-      shape.isBiface = value_to_set;
+    let value_to_set = !this.oldBiface.every(old => old);
+    this.involvedShapesIds.forEach(id => {
+      let s = app.workspace.getShapeById(id);
+      s.isBiface = value_to_set;
     });
   }
 

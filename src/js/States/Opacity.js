@@ -17,8 +17,6 @@ export class OpacityState extends State {
    */
   start() {
     this.end();
-    this.actions = [new OpacityAction(this.name)];
-
     this.currentStep = 'choose-opacity';
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
@@ -39,7 +37,6 @@ export class OpacityState extends State {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object, event.detail.mousePos);
     } else if (event.type == 'setOpacity') {
-      console.log(event);
       this.setOpacity(event.detail.opacity);
     } else {
       console.log('unsupported event type : ', event.type);
@@ -47,7 +44,7 @@ export class OpacityState extends State {
   }
 
   setOpacity(opacity) {
-    this.actions[0].opacity = opacity;
+    this.opacity = opacity;
     this.currentStep = 'listen-canvas-click';
   }
 
@@ -60,15 +57,20 @@ export class OpacityState extends State {
   objectSelected(shape, clickCoordinates, event) {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    this.actions[0].shapeId = shape.id;
     let group = app.workspace.getShapeGroup(shape),
-      involvedShapes = [shape];
-    if (group) involvedShapes = [...group.shapes];
-    this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
+      involvedShapes;
+    if (group) involvedShapes = group.shapesIds.map(id => app.workspace.getShapeById(id));
+    else involvedShapes = [shape];
 
+    this.actions = [
+      {
+        name: 'OpacityAction',
+        involvedShapesIds: involvedShapes.map(s => s.id),
+        opacity: this.opacity,
+        oldOpacities: involvedShapes.map(s => s.opacity),
+      },
+    ];
     this.executeAction();
-    let opacity = this.actions[0].opacity;
-    this.setOpacity(opacity);
 
     app.drawAPI.askRefresh();
   }

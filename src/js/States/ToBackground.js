@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { ToBackgroundAction } from './Actions/ToBackground';
 import { State } from './State';
 
 /**
@@ -14,8 +13,6 @@ export class ToBackgroundState extends State {
    * (ré-)initialiser l'état
    */
   start() {
-    this.actions = [new ToBackgroundAction(this.name)];
-
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     app.appDiv.cursor = 'default';
     window.addEventListener('objectSelected', this.handler);
@@ -41,7 +38,12 @@ export class ToBackgroundState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape, clickCoordinates, event) {
-    this.actions[0].oldIndex = app.workspace.getShapeIndex(shape);
+    this.actions = [
+      {
+        name: 'ToBackgroundAction',
+        oldIndex: app.workspace.getShapeIndex(shape),
+      },
+    ];
     this.executeAction();
     this.start();
 

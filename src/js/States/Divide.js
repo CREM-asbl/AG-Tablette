@@ -91,9 +91,8 @@ export class DivideState extends State {
         this.actions = [
           {
             name: 'DivideAction',
-            shapeId: object.shape.id,
             mode: 'segment',
-            segmentIndex: object.idx,
+            segment: object,
           },
         ];
         this.currentStep = 'showing-segment';
@@ -101,7 +100,6 @@ export class DivideState extends State {
         this.actions = [
           {
             name: 'DivideAction',
-            shapeId: object.shape.id,
             mode: 'two_points',
             firstPoint: object,
           },
@@ -123,13 +121,12 @@ export class DivideState extends State {
       // select-second-point
       let pt1 = this.actions[0].firstPoint;
 
-      //Check if pt1 == object
       if (
         pt1.type == object.type &&
         pt1.segment.idx == object.segment.idx &&
         (pt1.pointType == 'vertex' || pt1.equal(object))
       ) {
-        //pt1 = object => désélectionner le point.
+        // pt1 = object => désélectionner le point.
         this.currentStep = 'listen-canvas-click';
         this.actions = null;
 
@@ -142,7 +139,7 @@ export class DivideState extends State {
         app.drawAPI.askRefresh('upper');
         return;
       } else if (pt1.type == 'vertex' && object.type == 'vertex') {
-      /*
+        /*
             Vérifie s'il y a une ambiguité sur l'action à réaliser: si les 2
             poins sont reliés par un arc de cercle, et aussi par un segment (la
             forme est donc constituée uniquement de 2 sommets, un segment et un
@@ -162,10 +159,10 @@ export class DivideState extends State {
           app.drawAPI.askRefresh();
           app.drawAPI.askRefresh('upper');
           return;
+        } else {
+          this.actions[0].secondPoint = object;
+          this.currentStep = 'showing-points';
         }
-      } else {
-        this.actions[0].secondPoint = object;
-        this.currentStep = 'showing-points';
       }
     }
 

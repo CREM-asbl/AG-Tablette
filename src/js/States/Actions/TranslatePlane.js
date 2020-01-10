@@ -1,6 +1,6 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
+import { Point } from '../../Objects/Point';
 
 export class TranslatePlaneAction extends Action {
   constructor() {
@@ -18,7 +18,8 @@ export class TranslatePlaneAction extends Action {
   }
 
   initFromObject(save) {
-    this.offset = save.offset;
+    this.offset = new Point();
+    this.offset.initFromObject(save.offset);
   }
 
   checkDoParameters() {
@@ -34,10 +35,7 @@ export class TranslatePlaneAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let originalOffset = app.workspace.translateOffset,
-      newOffset = {
-        x: originalOffset.x + this.offset.x,
-        y: originalOffset.y + this.offset.y,
-      };
+      newOffset = originalOffset.addCoordinates(this.offset);
 
     app.workspace.setTranslateOffset(newOffset);
   }
@@ -46,10 +44,7 @@ export class TranslatePlaneAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     let originalOffset = app.workspace.translateOffset,
-      newOffset = {
-        x: originalOffset.x - this.offset.x,
-        y: originalOffset.y - this.offset.y,
-      };
+      newOffset = originalOffset.subCoordinates(this.offset);
 
     app.workspace.setTranslateOffset(newOffset);
   }

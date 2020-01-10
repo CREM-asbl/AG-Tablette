@@ -7,14 +7,11 @@ export class UngroupAction extends Action {
   constructor() {
     super('UngroupAction');
 
-    //L'id du groupe que l'on supprime
-    this.groupId = null;
-
-    //Liste des id des formes du groupe qui a été supprimé
-    this.groupShapesIds = null;
+    //Le groupe que l'on supprime
+    this.group = null;
 
     //Index (dans le tableau de groupes) du groupe qui a été supprimé
-    this.groupIndex = null;
+    this.groupIdx = null;
   }
 
   saveToObject() {
@@ -27,13 +24,12 @@ export class UngroupAction extends Action {
   }
 
   initFromObject(save) {
-    this.groupId = save.groupId;
-    this.groupShapesIds = save.groupShapesIds;
-    this.groupIndex = save.groupIndex;
+    this.group = save.group;
+    this.groupIdx = save.groupIdx;
   }
 
   checkDoParameters() {
-    if (!this.groupId) return false;
+    if (!this.group) return false;
     return true;
   }
 
@@ -46,20 +42,12 @@ export class UngroupAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    this.groupShapesIds = [];
-    let group = app.workspace.getGroup(this.groupId);
-    this.groupIndex = app.workspace.getGroupIndex(group);
-
-    this.groupShapesIds = [...group.shapesIds];
-    app.workspace.deleteGroup(group);
+    app.workspace.deleteGroup(this.group);
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    let group = new ShapeGroup(0, 1);
-    group.id = this.groupId;
-    group.shapesIds = [...this.groupShapesIds];
-    app.workspace.addGroup(group, this.groupIndex);
+    app.workspace.addGroup(this.group, this.groupIndex);
   }
 }

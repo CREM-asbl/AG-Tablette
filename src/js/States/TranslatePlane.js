@@ -19,7 +19,6 @@ export class TranslatePlaneState extends State {
    */
   start() {
     this.end();
-    this.actions = [new TranslatePlaneAction(this.name)];
 
     this.currentStep = 'listen-canvas-click';
 
@@ -65,14 +64,10 @@ export class TranslatePlaneState extends State {
     if (this.currentStep != 'translating-plane') return;
     let factor = app.workspace.zoomLevel,
       saveOffset = app.workspace.translateOffset,
-      clickDiff = {
-        x: (clickCoordinates.x - this.startClickCoordinates.x) * factor,
-        y: (clickCoordinates.y - this.startClickCoordinates.y) * factor,
-      },
-      offset = {
-        x: saveOffset.x + clickDiff.x,
-        y: saveOffset.y + clickDiff.y,
-      };
+      clickDiff = clickCoordinates
+        .subCoordinates(this.startClickCoordinates)
+        .multiplyWithScalar(factor),
+      offset = saveOffset.addCoordinates(clickDiff);
 
     app.workspace.setTranslateOffset(offset);
     app.workspace.setTranslateOffset(saveOffset, false);
@@ -82,11 +77,14 @@ export class TranslatePlaneState extends State {
     if (this.currentStep != 'translating-plane') return;
 
     let factor = app.workspace.zoomLevel;
-    this.actions[0].offset = {
-      x: (clickCoordinates.x - this.startClickCoordinates.x) * factor,
-      y: (clickCoordinates.y - this.startClickCoordinates.y) * factor,
-    };
-
+    this.actions = [
+      {
+        name: 'TranslatePlaneAction',
+        offset: clickCoordinates
+          .subCoordinates(this.startClickCoordinates)
+          .multiplyWithScalar(factor),
+      },
+    ];
     this.executeAction();
     this.start();
   }

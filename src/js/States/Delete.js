@@ -51,14 +51,19 @@ export class DeleteState extends State {
    */
   objectSelected(object, clickCoordinates, event) {
     if (object instanceof Shape) {
-      let userGroup = app.workspace.getShapeGroup(object);
+      let userGroup = app.workspace.getShapeGroup(object),
+        involvedShapes;
+      if (userGroup) involvedShapes = userGroup.shapesIds.map(id => app.workspace.getShapeById(id));
+      else involvedShapes = [object];
+
+      console.log(object, involvedShapes);
 
       this.actions = [
         {
           name: 'DeleteAction',
           mode: 'shape',
-          involvedShapes: userGroup.shapesIds.map(shapeId => app.workspace.getShapeById(shapeId)),
-          shapeId: object.id,
+          involvedShapes: involvedShapes,
+          shapesIdx: involvedShapes.map(shape => app.workspace.getShapeIndex(shape)),
           userGroup: userGroup,
           userGroupIndex: app.workspace.getGroupIndex(userGroup),
         },
@@ -74,6 +79,7 @@ export class DeleteState extends State {
         },
       ];
     }
+    console.log(this.actions);
     this.executeAction();
     this.start();
 

@@ -108,6 +108,7 @@ export class DrawAPI {
         return app.editingShapes.findIndex(s => s.id == shape.id) == -1;
       })
       .forEach(shape => {
+        console.log(shape);
         this.drawShape(this.mainCtx, shape);
         window.dispatchEvent(
           new CustomEvent('shapeDrawn', { detail: { ctx: this.mainCtx, shape: shape } }),
@@ -151,10 +152,13 @@ export class DrawAPI {
       });
     }
     shape.segments.forEach(seg => {
-      if (seg.points)
+      console.log(seg.points);
+      if (seg.points && seg.points.length) {
+        console.log('here');
         seg.points.forEach(pt => {
           this.drawPoint(ctx, pt, '#000', 1, false);
         });
+      }
     });
     if (shape.isCenterShown) this.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
     ctx.restore();

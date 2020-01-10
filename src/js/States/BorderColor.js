@@ -10,19 +10,24 @@ export class BorderColorState extends State {
     super('border_color');
 
     this.currentStep = null; // choose-color -> listen-canvas-click
+
+    this.selectedColor = null;
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start(callColorPicker = true) {
-    this.actions = [new BorderColorAction(this.name)];
-
-    this.currentStep = 'choose-color';
+    this.end();
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
-    if (callColorPicker) app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
+    if (callColorPicker) {
+      app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
+      this.currentStep = 'choose-color';
+    } else {
+      this.currentStep = 'listen-canvas-click';
+    }
     app.appDiv.cursor = 'default';
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
@@ -45,7 +50,7 @@ export class BorderColorState extends State {
   }
 
   setColor(color) {
-    this.actions[0].selectedColor = color;
+    this.selectedColor = color;
     this.currentStep = 'listen-canvas-click';
   }
 
@@ -56,16 +61,22 @@ export class BorderColorState extends State {
   objectSelected(shape) {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    this.actions[0].shapeId = shape.id;
     let group = app.workspace.getShapeGroup(shape),
-      involvedShapes = [shape];
-    if (group) involvedShapes = [...group.shapes];
-    this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
+      involvedShapes;
+    if (group) involvedShapes = group.shapesIds.map(id => app.workspace.getShapeById(id));
+    else involvedShapes = [shape];
+
+    this.actions = [
+      {
+        name: 'BorderColorAction',
+        involvedShapesIds: involvedShapes.map(s => s.id),
+        selectedColor: this.selectedColor,
+        oldColors: involvedShapes.map(s => s.borderColor),
+      },
+    ];
 
     this.executeAction();
-    let color = this.actions[0].selectedColor;
     this.start(false);
-    this.setColor(color);
 
     app.drawAPI.askRefresh();
   }

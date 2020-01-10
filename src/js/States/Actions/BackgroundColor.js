@@ -1,6 +1,5 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { getComplementaryColor } from '../../Tools/general';
 
 export class BackgroundColorAction extends Action {
@@ -25,7 +24,6 @@ export class BackgroundColorAction extends Action {
 
   saveToObject() {
     let save = {
-      shapeId: this.shapeId,
       selectedColor: this.selectedColor,
       involvedShapesIds: [...this.involvedShapesIds],
       oldColors: [...this.oldColors],
@@ -34,19 +32,17 @@ export class BackgroundColorAction extends Action {
   }
 
   initFromObject(save) {
-    this.shapeId = save.shapeId;
     this.selectedColor = save.selectedColor;
     this.involvedShapesIds = [...save.involvedShapesIds];
     this.oldColors = [...save.oldColors];
   }
 
   checkDoParameters() {
-    if (!this.shapeId || !this.selectedColor) return false;
+    if (!this.selectedColor) return false;
     return true;
   }
 
   checkUndoParameters() {
-    if (!this.shapeId) return false;
     if (this.oldColors.length != this.involvedShapesIds.length) return false;
     return true;
   }
@@ -54,10 +50,8 @@ export class BackgroundColorAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    this.oldColors = [];
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id);
-      this.oldColors.push(s.color);
       s.color = this.selectedColor;
       s.second_color = getComplementaryColor(s.color);
     });
@@ -65,8 +59,6 @@ export class BackgroundColorAction extends Action {
 
   undo() {
     if (!this.checkUndoParameters()) return;
-
-    let shape = app.workspace.getShapeById(this.shapeId);
 
     this.involvedShapesIds.forEach((id, index) => {
       let s = app.workspace.getShapeById(id);

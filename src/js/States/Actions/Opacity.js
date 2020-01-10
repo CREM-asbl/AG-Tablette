@@ -24,7 +24,6 @@ export class OpacityAction extends Action {
 
   saveToObject() {
     let save = {
-      shapeId: this.shapeId,
       opacity: this.opacity,
       involvedShapesIds: [...this.involvedShapesIds],
       oldOpacities: [...this.oldOpacities],
@@ -33,19 +32,17 @@ export class OpacityAction extends Action {
   }
 
   initFromObject(save) {
-    this.shapeId = save.shapeId;
     this.opacity = save.opacity;
-    this.involvedShapesIds = [...save.involvedShapesIds];
-    this.oldOpacities = [...save.oldOpacities];
+    this.involvedShapesIds = save.involvedShapesIds;
+    this.oldOpacities = save.oldOpacities;
   }
 
   checkDoParameters() {
-    if (!this.shapeId || !Number.isFinite(this.opacity)) return false;
+    if (!Number.isFinite(this.opacity)) return false;
     return true;
   }
 
   checkUndoParameters() {
-    if (!this.shapeId) return false;
     if (this.oldOpacities.length != this.involvedShapesIds.length) return false;
     return true;
   }
@@ -53,18 +50,14 @@ export class OpacityAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    this.oldOpacities = [];
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id);
-      this.oldOpacities.push(s.opacity);
       s.opacity = this.opacity;
     });
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
-
-    let shape = app.workspace.getShapeById(this.shapeId);
 
     this.involvedShapesIds.forEach((id, index) => {
       let s = app.workspace.getShapeById(id);

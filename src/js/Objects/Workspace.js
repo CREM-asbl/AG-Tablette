@@ -45,7 +45,7 @@ export class Workspace {
      * vers le bas.
      * ->Le zoom du plan est appliqué après la translation du plan.
      */
-    this.translateOffset = { x: 0, y: 0 };
+    this.translateOffset = new Point(0, 0);
 
     //L'environnement de travail de ce Workspace (ex: "Grandeur")
     this.environment = environment;
@@ -109,7 +109,7 @@ export class Workspace {
 
     this.zoomLevel = wsdata.zoomLevel;
 
-    this.translateOffset = wsdata.translateOffset;
+    this.translateOffset = new Point(wsdata.translateOffset);
 
     this.environment = app.envManager.getNewEnv(wsdata.envName);
 
@@ -136,7 +136,7 @@ export class Workspace {
 
     wsdata.zoomLevel = this.zoomLevel;
 
-    wsdata.translateOffset = this.translateOffset;
+    wsdata.translateOffset = this.translateOffset.saveToObject();
 
     wsdata.envName = this.environment.name;
 
@@ -184,10 +184,7 @@ export class Workspace {
     //TODO: bouton pour revenir au "centre" ?
     app.drawAPI.scaleView(1 / this.zoomLevel); //TODO: nécessaire?
 
-    let offset = {
-      x: newOffset.x - this.translateOffset.x,
-      y: newOffset.y - this.translateOffset.y,
-    };
+    let offset = newOffset.subCoordinates(this.translateOffset);
 
     app.drawAPI.translateView(offset);
     this.translateOffset = newOffset;

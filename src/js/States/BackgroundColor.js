@@ -17,7 +17,7 @@ export class BackgroundColorState extends State {
    * (ré-)initialiser l'état
    */
   start(callColorPicker = true) {
-    this.actions = [new BackgroundColorAction(this.name)];
+    this.end();
 
     this.currentStep = 'choose-color';
 
@@ -45,17 +45,8 @@ export class BackgroundColorState extends State {
     }
   }
 
-  setOpacity(opacity) {
-    this.actions[1] = new OpacityAction(this.name);
-    this.actions[1].shapeId = shape.id;
-    if (group) involvedShapes = [...group.shapes];
-    this.actions[1].involvedShapesIds = involvedShapes.map(s => s.id);
-    this.actions[1].opacity = opacity;
-    this.currentStep = 'listen-canvas-click';
-  }
-
   setColor(color) {
-    this.actions[0].selectedColor = color;
+    this.selectedColor = color;
     this.currentStep = 'listen-canvas-click';
   }
 
@@ -66,15 +57,27 @@ export class BackgroundColorState extends State {
   objectSelected(shape) {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    this.actions[0].shapeId = shape.id;
     let group = app.workspace.getShapeGroup(shape),
-      involvedShapes = [shape];
-    if (group) involvedShapes = [...group.shapes];
-    this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
+      involvedShapes;
+    if (group) involvedShapes = group.shapesIds.map(id => app.workspace.getShapeById(id));
+    else involvedShapes = [shape];
+
+    this.actions = [
+      {
+        name: 'BackgroundColorAction',
+        involvedShapesIds: involvedShapes.map(s => s.id),
+        selectedColor: this.selectedColor,
+        oldColors: involvedShapes.map(s => s.color),
+      },
+    ];
 
     // setOpacity quand transparent
     if (shape.opacity == 0) {
-      this.setOpacity(0.7);
+      this.actions.push({
+        name: 'OpacityAction',
+        involvedShapesIds: involvedShapes.map(s => s.id),
+        opacity: 0.7,
+      });
     }
     this.executeAction();
 

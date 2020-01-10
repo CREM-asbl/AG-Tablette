@@ -14,56 +14,51 @@ export class DeleteAction extends Action {
     // le segmentPoint a supprimer
     this.point = null;
 
-    // la shape qui contient le point
-    this.shapeId = null;
-
     // les shapes a supprimer
     this.involvedShapes = null;
+
+    // les index dans workspace des shapes supprimées
+    this.shapesIdx = null;
 
     /*
         Si la forme à supprimer fait partie d'un userGroup:
          */
 
-    //l'id de ce userGroup
-    this.userGroupId = null;
+    // Le usergroup
+    this.userGroup = null;
 
-    //S'il restait 1 forme dans le userGroup, l'id de cette forme
-    this.userGroupLastShapeId = null;
-
-    //Si le groupe doit être supprimé, son index dans le tableau des groupes
+    // Son index dans le tableau des groupes
     this.userGroupIndex = null;
-
-    //Le userGroup doit-il être supprimé (car vide) ?
-    this.deleteUserGroup = false;
   }
 
   saveToObject() {
-    let save = {
-      mode: this.mode,
-      shapeId: this.shapeId,
-    };
-    if (save.mode == 'shape') {
-      save.involvedShapes = this.involvedShapes.map(s => s.saveToObject());
-      save.userGroupId = this.userGroupId;
-      save.userGroupLastShapeId = this.userGroupLastShapeId;
-      save.userGroupIndex = this.userGroupIndex;
-      save.deleteUserGroup = this.deleteUserGroup;
-    } else {
-      save.point = this.point.saveToObject();
-      save.segmentIndex = this.segmentIndex;
-    }
-    return save;
+    // let save = {
+    //   mode: this.mode,
+    //   shapeId: this.shapeId,
+    // };
+    // if (save.mode == 'shape') {
+    //   save.involvedShapes = this.involvedShapes.map(s => s.saveToObject());
+    //   save.userGroupId = this.userGroupId;
+    //   save.userGroupLastShapeId = this.userGroupLastShapeId;
+    //   save.userGroupIndex = this.userGroupIndex;
+    //   save.deleteUserGroup = this.deleteUserGroup;
+    // } else {
+    //   save.point = this.point.saveToObject();
+    //   save.segmentIndex = this.segmentIndex;
+    // }
+    // return save;
   }
 
   initFromObject(save) {
     this.mode = save.mode;
-    this.shapeId = save.shapeId;
     if (save.mode == 'shape') {
       this.involvedShapes = save.involvedShapes.map(shape => {
         let newShape = new Shape({ x: 0, y: 0 }, []);
-        newShape.initFromObject(newShape);
+        newShape.initFromObject(shape);
+        newShape.id = shape.id;
         return newShape;
       });
+      this.shapesIdx = save.shapesIdx;
       this.userGroup = save.userGroup;
       this.userGroupIndex = save.userGroupIndex;
     } else {
@@ -89,10 +84,10 @@ export class DeleteAction extends Action {
 
     if (this.mode == 'shape') {
       if (this.userGroup) {
-        this.userGroup.shapesIds.forEach(shapeId => app.workspace.deleteShape({ id: shapeId }));
+        this.userGroup.shapesIds.forEach(id => app.workspace.deleteShape({ id: id }));
         app.workspace.deleteGroup(this.userGroup);
       } else {
-        app.workspace.deleteShape({ id: this.shapeId });
+        this.involvedShapes.forEach(shape => app.workspace.deleteShape(shape));
       }
     } else {
       // point
@@ -125,10 +120,7 @@ export class DeleteAction extends Action {
       });
     } else {
       // point
-      const shape = app.workspace.getShapeById(this.shapeId);
-      const segments = shape.segments.filter(seg => seg.isPointOnSegment(this.point));
-      if (segments.length > 1) console.error('a point cannot belong to multiple segments');
-      segments[0].addPoint(this.point);
+      this.point.segment.addPoint(this.point);
     }
   }
 }

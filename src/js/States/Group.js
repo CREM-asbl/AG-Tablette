@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { GroupAction } from './Actions/Group';
 import { State } from './State';
+import { uniqId } from '../Tools/general';
 
 /**
  * Grouper des formes.
@@ -22,7 +23,6 @@ export class GroupState extends State {
    */
   start() {
     this.end();
-    this.actions = [new GroupAction(this.name)];
     this.currentStep = 'listen-canvas-click';
 
     this.group = null;
@@ -71,27 +71,35 @@ export class GroupState extends State {
       let userGroup = app.workspace.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
-        this.currentStep = 'filling-group';
-        this.actions[0].type = 'add';
-        this.actions[0].shapeId = this.firstShape.id;
-        this.actions[0].groupId = userGroup.id;
+        this.actions = [
+          {
+            name: 'GroupAction',
+            type: 'add',
+            shapeId: this.firstShape.id,
+            group: userGroup,
+          },
+        ];
         this.executeAction();
-        this.actions = [new GroupAction(this.name)];
       } else {
-        this.currentStep = 'filling-group';
-        this.actions[0].type = 'new';
-        this.actions[0].shapeId = this.firstShape.id;
-        this.actions[0].secondShapeId = shape.id;
+        this.groupId = uniqId();
+        this.actions = [
+          {
+            name: 'GroupAction',
+            type: 'new',
+            shapeId: this.firstShape.id,
+            secondShapeId: shape.id,
+            groupId: this.groupId,
+          },
+        ];
         this.executeAction();
-        this.group = app.workspace.getGroup(this.actions[0].groupId);
-        this.actions = [new GroupAction(this.name)];
+        this.group = app.workspace.getGroup(this.groupId);
       }
+      this.currentStep = 'filling-group';
     } else {
+      // filling-group
       let userGroup = app.workspace.getShapeGroup(shape);
       if (userGroup) {
         //La forme fait partie d'un autre groupe, on fusionne
-        this.actions[0].type = 'merge';
-
         let index1 = app.workspace.getGroupIndex(this.group),
           index2 = app.workspace.getGroupIndex(userGroup);
         //On garde le groupe ayant l'index le plus petit
@@ -99,16 +107,27 @@ export class GroupState extends State {
           [index1, index2] = [index2, index1];
           [this.group, userGroup] = [userGroup, this.group];
         }
-        this.actions[0].groupId = this.group.id;
-        this.actions[0].otherGroupId = userGroup.id;
+        this.actions = [
+          {
+            name: 'GroupAction',
+            type: 'merge',
+            group: this.group,
+            groupIdx: index1,
+            otherGroup: userGroup,
+            otherGroupIdx: index2,
+          },
+        ];
         this.executeAction();
-        this.actions = [new GroupAction(this.name)];
       } else {
-        this.actions[0].type = 'add';
-        this.actions[0].shapeId = shape.id;
-        this.actions[0].groupId = this.group.id;
+        this.actions = [
+          {
+            name: 'GroupAction',
+            type: 'add',
+            shapeId: shape.id,
+            group: this.group,
+          },
+        ];
         this.executeAction();
-        this.actions = [new GroupAction(this.name)];
       }
     }
 

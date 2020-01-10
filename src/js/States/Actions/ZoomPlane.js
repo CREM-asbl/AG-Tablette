@@ -1,5 +1,6 @@
 import { app } from '../../App';
 import { Action } from './Action';
+import { Point } from '../../Objects/Point';
 
 //TODO retenir le zoom original, pour éviter les erreurs de précision?
 export class ZoomPlaneAction extends Action {
@@ -46,15 +47,11 @@ export class ZoomPlaneAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let newZoom = this.originalZoom * this.scaleOffset,
-      actualWinSize = {
-        x: app.cvsDiv.clientWidth / this.originalZoom,
-        y: app.cvsDiv.clientHeight / this.originalZoom,
-      },
-      newWinSize = {
-        x: actualWinSize.x / this.scaleOffset,
-        y: actualWinSize.y / this.scaleOffset,
-      },
-      newTranslateoffset = {
+      actualWinSize = new Point(app.cvsDiv.clientWidth, app.cvsDiv.clientHeight).multiplyWithScalar(
+        1 / this.originalZoom,
+      ),
+      newWinSize = actualWinSize.multiplyWithScalar(1 / this.scaleOffset),
+      newTranslateoffset = new Point({
         x:
           (this.originalTranslateOffset.x / this.originalZoom -
             (actualWinSize.x - newWinSize.x) * this.centerProp.x) *
@@ -63,7 +60,7 @@ export class ZoomPlaneAction extends Action {
           (this.originalTranslateOffset.y / this.originalZoom -
             (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
           newZoom,
-      };
+      });
 
     app.workspace.setZoomLevel(newZoom, false);
     app.workspace.setTranslateOffset(newTranslateoffset);

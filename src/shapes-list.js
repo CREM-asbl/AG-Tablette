@@ -24,7 +24,7 @@ class ShapesList extends LitElement {
   }
 
   render() {
-    if (this.state != 'create_shape') {
+    if (this.state != 'create_shape' || !this.selectedFamily) {
       return html``;
     }
 

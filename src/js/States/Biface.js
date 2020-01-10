@@ -14,8 +14,7 @@ export class BifaceState extends State {
    * (ré-)initialiser l'état
    */
   start() {
-    this.actions = [new BifaceAction(this.name)];
-
+    this.end();
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     app.appDiv.cursor = 'default';
@@ -44,8 +43,13 @@ export class BifaceState extends State {
   objectSelected(shape, clickCoordinates, event) {
     let involvedShapes = app.workspace.getAllBindedShapes(shape, true);
 
-    this.actions[0].shapeId = shape.id;
-    this.actions[0].involvedShapesIds = involvedShapes.map(s => s.id);
+    this.actions = [
+      {
+        name: 'BifaceAction',
+        involvedShapesIds: involvedShapes.map(s => s.id),
+        oldBiface: involvedShapes.map(s => s.isBiface),
+      },
+    ];
 
     this.executeAction();
 

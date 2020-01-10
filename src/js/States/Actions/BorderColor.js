@@ -6,9 +6,6 @@ export class BorderColorAction extends Action {
   constructor() {
     super('BorderColorAction');
 
-    //L'id de la forme dont on va colorier les bords
-    this.shapeId = null;
-
     //La couleur
     this.selectedColor = null;
 
@@ -24,28 +21,25 @@ export class BorderColorAction extends Action {
 
   saveToObject() {
     let save = {
-      shapeId: this.shapeId,
+      involvedShapesIds: this.involvedShapesIds,
       selectedColor: this.selectedColor,
-      involvedShapesIds: [...this.involvedShapesIds],
-      oldColors: [...this.oldColors],
+      oldColors: this.oldColors,
     };
     return save;
   }
 
   initFromObject(save) {
-    this.shapeId = save.shapeId;
+    this.involvedShapesIds = save.involvedShapesIds;
     this.selectedColor = save.selectedColor;
-    this.involvedShapesIds = [...save.involvedShapesIds];
-    this.oldColors = [...save.oldColors];
+    this.oldColors = save.oldColors;
   }
 
   checkDoParameters() {
-    if (!this.shapeId || !this.selectedColor) return false;
+    if (!this.selectedColor) return false;
     return true;
   }
 
   checkUndoParameters() {
-    if (!this.shapeId) return false;
     if (this.oldColors.length != this.involvedShapesIds.length) return false;
     return true;
   }
@@ -53,18 +47,14 @@ export class BorderColorAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    this.oldColors = [];
     this.involvedShapesIds.forEach(id => {
       let s = app.workspace.getShapeById(id);
-      this.oldColors.push(s.borderColor);
       s.borderColor = this.selectedColor;
     });
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
-
-    let shape = app.workspace.getShapeById(this.shapeId);
 
     this.involvedShapesIds.forEach((id, index) => {
       let s = app.workspace.getShapeById(id);

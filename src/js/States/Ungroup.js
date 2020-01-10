@@ -14,8 +14,6 @@ export class UngroupState extends State {
    * (ré-)initialiser l'état
    */
   start() {
-    this.actions = [new UngroupAction(this.name)];
-
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
     app.appDiv.cursor = 'default';
     window.addEventListener('objectSelected', this.handler);
@@ -43,9 +41,14 @@ export class UngroupState extends State {
   objectSelected(shape, clickCoordinates, event) {
     let userGroup = app.workspace.getShapeGroup(shape);
     if (userGroup) {
-      this.actions[0].groupId = userGroup.id;
+      this.actions = [
+        {
+          name: 'UngroupAction',
+          group: userGroup,
+          groupIdx: app.workspace.getGroupIndex(userGroup),
+        },
+      ];
       this.executeAction();
-      this.actions = [new UngroupAction(this.name)];
 
       app.drawAPI.askRefresh('upper');
       app.drawAPI.askRefresh();

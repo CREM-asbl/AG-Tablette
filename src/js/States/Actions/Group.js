@@ -47,20 +47,40 @@ export class GroupAction extends Action {
 
   initFromObject(save) {
     this.type = save.type;
-    this.shapeId = save.shapeId;
-    this.secondShapeId = save.secondShapeId;
-    this.groupId = save.groupId;
-    this.otherGroupId = save.otherGroupId;
-    this.oldGroupShapesIds = save.oldGroupShapesIds;
-    this.oldGroupIndex = save.oldGroupIndex;
+    if (this.type == 'new') {
+      this.shapeId = save.shapeId;
+      this.secondShapeId = save.secondShapeId;
+      this.groupId = save.groupId;
+    } else if (this.type == 'add') {
+      this.group = save.group;
+      this.shapeId = save.shapeId;
+    } else {
+      // merge
+      this.group = save.group;
+      this.groupIdx = save.groupIdx;
+      this.otherGroup = save.otherGroup;
+      this.otherGroupIdx = save.otherGroupIdx;
+    }
   }
 
   checkDoParameters() {
     if (this.type != 'new' && this.type != 'add' && this.type != 'merge') return false;
 
-    if (this.type == 'new' && (!this.shapeId || !this.secondShapeId)) return false;
-    if (this.type == 'add' && (!this.shapeId || !this.groupId)) return false;
-    if (this.type == 'merge' && (!this.groupId || !this.otherGroupId)) return false;
+    if (
+      this.type == 'new' &&
+      (this.shapeId === undefined || this.secondShapeId === undefined || this.groupId === undefined)
+    )
+      return false;
+    if (this.type == 'add' && (this.shapeId === undefined || this.group === undefined))
+      return false;
+    if (
+      this.type == 'merge' &&
+      (this.group === undefined ||
+        this.groupIdx === undefined ||
+        this.otherGroup === undefined ||
+        this.otherGroupIdx === undefined)
+    )
+      return false;
     return true;
   }
 
@@ -68,10 +88,10 @@ export class GroupAction extends Action {
     if (this.type != 'new' && this.type != 'add' && this.type != 'merge') return false;
 
     if (this.type == 'new' && !this.groupId) return false;
-    if (this.type == 'add' && (!this.shapeId || !this.groupId)) return false;
+    if (this.type == 'add' && (this.shapeId === undefined || !this.groupId)) return false;
     if (this.type == 'merge') {
-      if (!this.groupId || !Number.isFinite(this.oldGroupIndex)) return false;
-      if (!this.oldGroupShapesIds || this.oldGroupShapesIds.length < 2) return false;
+      // if (this.groupId === undefined || !Number.isFinite(this.oldGroupIndex)) return false;
+      // if (this.oldGroupShapesIds === undefined || this.oldGroupShapesIds.length < 2) return false;
     }
     return true;
   }
@@ -81,18 +101,14 @@ export class GroupAction extends Action {
 
     if (this.type == 'new') {
       let group = new ShapeGroup(this.shapeId, this.secondShapeId);
-      if (this.groupId) group.id = this.groupId;
-      else this.groupId = group.id;
+      group.id = this.groupId;
       app.workspace.addGroup(group);
     } else if (this.type == 'add') {
-      let group = app.workspace.getGroup(this.groupId);
-      group.addShape(this.shapeId);
+      this.group.addShape(this.shapeId);
     } else {
-      let group1 = app.workspace.getGroup(this.groupId),
-        group2 = app.workspace.getGroup(this.otherGroupId);
-
-      this.oldGroupShapesIds = [...group2.shapesIds];
-      this.oldGroupIndex = app.workspace.getGroupIndex(group2);
+      // merge
+      let group1 = this.group,
+        group2 = this.otherGroup;
 
       group1.shapesIds = [...group1.shapesIds, ...group2.shapesIds];
       app.workspace.deleteGroup(group2);
