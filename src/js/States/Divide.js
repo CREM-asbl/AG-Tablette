@@ -177,6 +177,20 @@ export class DivideState extends State {
 
   execute() {
     this.actions[0].numberOfparts = this.numberOfparts;
+    if (this.actions[0].mode == 'two_points') {
+      let pt1 = this.actions[0].firstPoint,
+        pt2 = this.actions[0].secondPoint;
+      if (pt1.type == 'segmentPoint') this.actions[0].segment = pt1.segment;
+      else if (pt2.type == 'segmentPoint') this.actions[0].segment = pt2.segment;
+      else {
+        this.actions[0].segment =
+          (Math.abs(pt2.segment.idx - pt1.segment.idx) > 1) ^ // si premier et dernier segment
+          (pt1.segment.idx > pt2.segment.idx)
+            ? pt1.segment
+            : pt2.segment;
+      }
+    }
+    this.actions[0].existingPoints = [...this.actions[0].segment.points];
     this.executeAction();
     this.start(false);
 

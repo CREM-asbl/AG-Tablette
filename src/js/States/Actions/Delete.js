@@ -100,23 +100,15 @@ export class DeleteAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     if (this.mode == 'shape') {
-      let userGroup;
-
-      let shapeCopies = this.involvedShapes.map(s => {
-        let newShape = s.copy();
-        newShape.id = s.id;
-        return newShape;
-      });
-
-      if (shapeCopies.length >= 2) {
-        userGroup = new ShapeGroup(shapeCopies[0].id, shapeCopies[1].id);
-        userGroup.id = this.userGroupId;
+      if (this.userGroup) {
+        let userGroup = new ShapeGroup(0, 1);
+        userGroup.initFromObject(this.userGroup);
+        userGroup.id = this.userGroup.id;
         app.workspace.addGroup(userGroup, this.userGroupIndex);
       }
 
-      shapeCopies.forEach((s, id) => {
+      this.involvedShapes.forEach(s => {
         app.workspace.addShape(s);
-        if (userGroup && id >= 2) userGroup.addShape(s.id);
       });
     } else {
       // point

@@ -21,6 +21,9 @@ export class Workspace {
     //Identifiant unique de l'espace de travail
     this.id = uniqId();
 
+    //L'environnement de travail de ce Workspace (ex: "Grandeur")
+    this.environment = environment;
+
     // Représente l'historique
     this.history = new WorkspaceHistory();
 
@@ -46,9 +49,6 @@ export class Workspace {
      * ->Le zoom du plan est appliqué après la translation du plan.
      */
     this.translateOffset = new Point(0, 0);
-
-    //L'environnement de travail de ce Workspace (ex: "Grandeur")
-    this.environment = environment;
 
     //Managers:
     this.grid = GridManager;
@@ -87,6 +87,8 @@ export class Workspace {
 
     this.id = wsdata.id;
 
+    this.environment = app.envManager.getNewEnv(wsdata.envName);
+
     this.shapes = wsdata.shapes.map(sData => {
       let shape = new Shape({ x: 0, y: 0 }, []);
       shape.initFromObject(sData);
@@ -110,8 +112,6 @@ export class Workspace {
     this.zoomLevel = wsdata.zoomLevel;
 
     this.translateOffset = new Point(wsdata.translateOffset);
-
-    this.environment = app.envManager.getNewEnv(wsdata.envName);
 
     if (wsdata.WSSettings) this.settings.initFromObject(wsdata.WSSettings);
     else this.initSettings();
@@ -339,13 +339,8 @@ export class Workspace {
    * @param  {Group} group         Le groupe
    */
   deleteGroup(group) {
-    for (let i = 0; i < this.shapeGroups.length; i++) {
-      if (this.shapeGroups[i].id == group.id) {
-        this.shapeGroups.splice(i, 1);
-        return;
-      }
-    }
-    console.error("Couldn't delete group");
-    return null;
+    let idx = this.getGroupIndex(group);
+    if (idx != -1) this.shapeGroups.splice(idx, 1);
+    else console.error("Couldn't delete group: ", group);
   }
 }

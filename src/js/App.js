@@ -130,6 +130,7 @@ export class App {
 
     // this.addPermanentState('permanent_zoom_plane');
     // this.tangramManager.retrieveTangrams();
+    window.dispatchEvent(new CustomEvent('app-started'));
   }
 
   /* #################################################################### */

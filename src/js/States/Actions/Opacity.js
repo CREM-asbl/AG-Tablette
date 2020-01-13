@@ -6,9 +6,6 @@ export class OpacityAction extends Action {
   constructor() {
     super('OpacityAction');
 
-    //L'id de la forme sélectionnée
-    this.shapeId = null;
-
     //L'opacité
     this.opacity = null;
 
@@ -38,12 +35,18 @@ export class OpacityAction extends Action {
   }
 
   checkDoParameters() {
-    if (!Number.isFinite(this.opacity)) return false;
+    if (!Number.isFinite(this.opacity) || !this.involvedShapesIds) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (this.oldOpacities.length != this.involvedShapesIds.length) return false;
+    if (!this.involvedShapesIds || this.oldOpacities.length != this.involvedShapesIds.length) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 

@@ -1,4 +1,7 @@
 import { app } from '../App';
+import { Shape } from '../Objects/Shape';
+import { Segment } from '../Objects/Segment';
+import { Point } from '../Objects/Point';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -11,12 +14,13 @@ export class WorkspaceHistory {
     //Index de la dernière tâche réalisée
     this.historyIndex = -1;
 
-    //Début de la branche en cours
-    this.start_of_branch = 0;
-
-    // app.actions.forEach(action => {
-    //   window.addEventListener(action.instance.name, event => this.addStep(event.detail.actions));
-    // })
+    window.addEventListener('app-started', () => {
+      Object.keys(app.actions).forEach(action => {
+        window.addEventListener(app.actions[action].instance.name, event =>
+          this.addStep(event.detail),
+        );
+      });
+    });
   }
 
   /**
@@ -31,37 +35,26 @@ export class WorkspaceHistory {
   saveToObject() {
     let save = {
       historyIndex: this.historyIndex,
-      history: this.history.map(step => {
-        return {
-          actions: step.actions.map(action => {
-            return {
-              className: action.name,
-              data: action.saveToObject(),
-            };
-          }),
-          previous_step: step.previous_step,
-          next_step: step.next_step,
-          start_of_branch: step.start_of_branch,
-        };
-      }),
+      history: this.history,
     };
     return save;
   }
 
   initFromObject(object) {
     this.historyIndex = object.historyIndex;
-    this.history = object.history.map(step => {
-      return {
-        actions: step.actions.map(actionData => {
-          return StatesManager.getActionInstance(actionData);
-        }),
-        previous_step: step.previous_step,
-        next_step: step.next_step,
-        start_of_branch: step.start_of_branch,
-      };
-    });
+    this.history = object.history;
 
     this.updateMenuState();
+  }
+
+  transformToObject(detail) {
+    let savedDetail = {};
+    for (let [key, value] of Object.entries(detail)) {
+      if (value instanceof Shape || value instanceof Segment || value instanceof Point)
+        value = value.saveToObject();
+      savedDetail[key] = value;
+    }
+    return savedDetail;
   }
 
   /**
@@ -77,8 +70,7 @@ export class WorkspaceHistory {
    * @return {Boolean}
    */
   canRedo() {
-    if (this.historyIndex == -1) return this.history.length;
-    return this.history[this.historyIndex].next_step.length;
+    return this.historyIndex < this.history.length - 1;
   }
 
   /**
@@ -86,15 +78,13 @@ export class WorkspaceHistory {
    * élément.
    */
   undo() {
-    if (app.state) app.state.start(false);
     if (!this.canUndo()) {
       console.error('Nothing to undo');
       return;
     }
-    let actions = this.history[this.historyIndex].actions,
-      reversedActions = [...actions].reverse();
-    reversedActions.forEach(action => action.undo());
-    this.historyIndex = this.history[this.historyIndex].previous_step;
+    let detail = this.history[this.historyIndex];
+    window.dispatchEvent(new CustomEvent('undo-' + detail.name, { detail: detail }));
+    this.historyIndex--;
     app.drawAPI.askRefresh();
     app.drawAPI.askRefresh('upper');
     this.updateMenuState();
@@ -109,13 +99,10 @@ export class WorkspaceHistory {
       console.error('Nothing to redo');
       return;
     }
-    //always get the last next step
-    this.historyIndex =
-      this.historyIndex != -1
-        ? this.history[this.historyIndex].next_step.slice(-1)[0]
-        : this.roots.slice(-1)[0];
-    this.history[this.historyIndex].actions.forEach(action => action.do());
+    let detail = this.history[this.historyIndex + 1];
+    window.dispatchEvent(new CustomEvent('do-' + detail.name, { detail: detail }));
     app.drawAPI.askRefresh();
+    this.historyIndex++;
     this.updateMenuState();
   }
 
@@ -132,40 +119,8 @@ export class WorkspaceHistory {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    * @param {[Action]} actions Les actions constituant l'étape
    */
-  addStep(actions) {
-    console.log(actions);
-    let previous_step;
-    if (this.history.length == 0) {
-      this.history.push({
-        actions: actions,
-        previous_step: -1,
-        next_step: [],
-        start_of_branch: 0,
-      });
-      this.start_of_branch = 0;
-    } else {
-      previous_step = this.historyIndex;
-      if (this.historyIndex != -1)
-        this.history[this.historyIndex].next_step.push(this.history.length);
-      else this.start_of_branch = Number(this.history.length);
-      this.history.push({
-        actions: actions,
-        previous_step: previous_step,
-        next_step: [],
-        start_of_branch: this.start_of_branch,
-      });
-      if (this.historyIndex != -1 && this.historyIndex < this.history.length - 2) {
-        this.start_of_branch = previous_step;
-        this.history[previous_step].start_of_branch = previous_step;
-        for (let value of this.history[previous_step].next_step) {
-          while (this.history[value].start_of_branch != value) {
-            this.history[value].start_of_branch = previous_step;
-            value = this.history[value].next_step[0];
-            if (!value) break;
-          }
-        }
-      }
-    }
+  addStep(detail) {
+    this.history.splice(this.historyIndex + 1, this.history.length, this.transformToObject(detail));
     this.historyIndex = this.history.length - 1;
 
     this.updateMenuState();

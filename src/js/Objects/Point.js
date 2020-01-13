@@ -47,6 +47,21 @@ export class Point {
     else if (save.segmentIdx !== undefined) this.segment = this.shape.segments[save.segmentIdx];
   }
 
+  static retrieveFrom(point) {
+    let newPointCopy = new Point();
+    newPointCopy.initFromObject(point);
+    if (point.type == 'vertex') {
+      let segment = newPointCopy.shape.segments[newPointCopy.segment.idx];
+      return segment.vertexes.find(vtx => vtx.equal(newPointCopy));
+    } else if (point.type == 'segmentPoint') {
+      let segment = newPointCopy.shape.segments[newPointCopy.segment.idx];
+      return segment.point.find(vtx => vtx.equal(newPointCopy));
+    } else {
+      // center
+      return newPointCopy.shape.center;
+    }
+  }
+
   setCoordinates({ x, y }) {
     this.x = x;
     this.y = y;

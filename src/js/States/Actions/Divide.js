@@ -1,15 +1,16 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { Point } from '../../Objects/Point';
+import { Segment } from '../../Objects/Segment';
 
 export class DivideAction extends Action {
   constructor() {
     super('DivideAction');
 
-    //Nombre de parties de découpe (numberOfparts-1 points)
+    // Nombre de parties de découpe (numberOfparts-1 points)
     this.numberOfparts = null;
 
-    //Mode de découpe: 'segment' ou 'two_points'
+    // Mode de découpe: 'segment' ou 'two_points'
     this.mode = null;
 
     // Segment segment, si mode segment
@@ -20,45 +21,65 @@ export class DivideAction extends Action {
 
     // Second point, si mode two_points
     this.secondPoint = null;
+
+    // Points existants sur le segment avant division
+    this.existingPoints = null;
   }
 
   saveToObject() {
     let save = {
       numberOfparts: this.numberOfparts,
       mode: this.mode,
-      segmentIndex: this.segmentIndex,
-      createdPoints: this.createdPoints.map(pt => pt.saveToObject()),
+      segment: this.segment.saveToObject(),
+      existingPoints: this.existingPoints.map(pt => pt.saveToObject()),
     };
-    if (this.firstPoint) save.firstPoint = this.firstPoint.saveToObject();
-    if (this.secondPoint) save.secondPoint = this.secondPoint.saveToObject();
+    if (this.mode == 'two_points') {
+      save.firstPoint = this.firstPoint.saveToObject();
+      save.secondPoint = this.secondPoint.saveToObject();
+    }
     return save;
   }
 
   initFromObject(save) {
     this.numberOfparts = save.numberOfparts;
     this.mode = save.mode;
-    if (this.mode == 'segment') {
-      this.segment = save.segment;
-    } else {
-      // two_points
+    this.segment = Segment.retrieveFrom(save.segment);
+    if (this.mode == 'two_points') {
       this.firstPoint = new Point();
       this.firstPoint.initFromObject(save.firstPoint);
       this.secondPoint = new Point();
       this.secondPoint.initFromObject(save.secondPoint);
     }
+    this.existingPoints = save.existingPoints.map(pt => {
+      return new Point(pt);
+    });
   }
 
   checkDoParameters() {
-    if (!Number.isFinite(this.numberOfparts)) return false;
-    if (this.mode != 'segment' && this.mode != 'two_points') return false;
-    if (this.mode == 'segment' && !this.segment) return false;
-    if (this.mode == 'two_points' && (!this.firstPoint || !this.secondPoint)) return false;
+    if (!Number.isFinite(this.numberOfparts)) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
+    if (this.mode != 'segment' && this.mode != 'two_points') {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
+    if (this.mode == 'segment' && !this.segment) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
+    if (this.mode == 'two_points' && (!this.firstPoint || !this.secondPoint)) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (this.mode != 'segment' && this.mode != 'two_points') return false;
-    if (!this.createdPoints) return false;
+    if (this.existingPoints === undefined) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
@@ -69,17 +90,6 @@ export class DivideAction extends Action {
       if (this.segment.arcCenter) this.segmentModeAddArcPoints();
       else this.segmentModeAddSegPoints();
     } else {
-      let pt1 = this.firstPoint,
-        pt2 = this.secondPoint;
-      if (pt1.type == 'segmentPoint') this.segment = pt1.segment;
-      else if (pt2.type == 'segmentPoint') this.segment = pt2.segment;
-      else {
-        this.segment =
-          (Math.abs(pt2.segment.idx - pt1.segment.idx) > 1) ^ // si premier et dernier segment
-          (pt1.segment.idx > pt2.segment.idx)
-            ? pt1.segment
-            : pt2.segment;
-      }
       if (this.segment.arcCenter) {
         this.pointsModeAddArcPoints();
       } else {
@@ -91,19 +101,10 @@ export class DivideAction extends Action {
 
   undo() {
     if (!this.checkUndoParameters()) return;
-    let shape = app.workspace.getShapeById(this.shapeId),
-      segments = shape.segments,
-      segment;
 
-    if (this.segmentIndex == undefined) {
-      segment = this.firstPoint.segment;
-    } else {
-      segment = segments[this.segmentIndex];
-    }
-
-    this.createdPoints.forEach(pt => {
-      segment.deletePoint(pt);
-    });
+    this.segment.points
+      .filter(pt => !this.existingPoints.find(extPt => extPt.equal(pt)))
+      .forEach(pt => this.segment.deletePoint(pt));
   }
 
   segmentModeAddArcPoints() {

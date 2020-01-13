@@ -62,10 +62,12 @@ export class DeleteState extends State {
           mode: 'shape',
           involvedShapes: involvedShapes,
           shapesIdx: involvedShapes.map(shape => app.workspace.getShapeIndex(shape)),
-          userGroup: userGroup,
-          userGroupIndex: app.workspace.getGroupIndex(userGroup),
         },
       ];
+      if (userGroup) {
+        this.actions[0].userGroup = userGroup;
+        this.actions[0].userGroupIndex = app.workspace.getGroupIndex(userGroup);
+      }
     } else {
       // point
 

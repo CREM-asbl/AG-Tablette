@@ -8,28 +8,32 @@ export class GroupAction extends Action {
   constructor() {
     super('GroupAction');
 
-    //Type d'action: nouveau groupe, ajout d'une forme ou fusion de 2 groupes
     //TODO: on pourrait diviser cette classe Action en 3 classes pour la simplifier:
     //          AddGroupAction, CreateGroupAction et MergeGroupAction
+
+    //Type d'action: nouveau groupe, ajout d'une forme ou fusion de 2 groupes
     this.type = null; //new, add, merge
 
-    //L'id de la forme que l'on ajoute
+    // L'id de la forme que l'on ajoute
     this.shapeId = null;
 
-    //L'id de la seconde forme (en cas de création de groupe)
+    // L'id de la seconde forme (en cas de création de groupe)
     this.secondShapeId = null;
 
-    //L'id du groupe que l'on crée ou auquel on ajoute une forme
+    // L'id du groupe que l'on crée
     this.groupId = null;
 
-    //L'id du groupe avec lequel on fusionne le groupe (en cas de fusion)
-    this.otherGroupId = null;
+    // Le groupe auquel on ajoute une forme ou fusionne
+    this.group = null;
 
-    //Liste des id des formes du groupe qui a été supprimé lors d'une fusion
-    this.oldGroupShapesIds = null;
+    // L'index du groupe dans le tableau des groupes
+    this.groupIdx = null;
 
-    //Index (dans le tableau de groupes) du groupe qui a été supprimé lors d'une fusion
-    this.oldGroupIndex = null;
+    // L'autre groupe que l'on fusionne
+    this.otherGroup = null;
+
+    // L'index du groupe que l'on fusionne dans le tableau des groupes
+    this.otherGroupIdx = null;
   }
 
   saveToObject() {
@@ -38,9 +42,10 @@ export class GroupAction extends Action {
       shapeId: this.shapeId,
       secondShapeId: this.secondShapeId,
       groupId: this.groupId,
-      otherGroupId: this.otherGroupId,
-      oldGroupShapesIds: this.oldGroupShapesIds,
-      oldGroupIndex: this.oldGroupIndex,
+      group: this.group,
+      groupIdx: this.groupIdx,
+      otherGroup: this.otherGroup,
+      otherGroupIdx: this.otherGroupIdx,
     };
     return save;
   }
@@ -52,46 +57,61 @@ export class GroupAction extends Action {
       this.secondShapeId = save.secondShapeId;
       this.groupId = save.groupId;
     } else if (this.type == 'add') {
-      this.group = save.group;
+      this.group = app.workspace.getGroup(save.group.id);
       this.shapeId = save.shapeId;
     } else {
       // merge
-      this.group = save.group;
+      this.group = app.workspace.getGroup(save.group.id);
       this.groupIdx = save.groupIdx;
-      this.otherGroup = save.otherGroup;
+      this.otherGroup = app.workspace.getGroup(save.otherGroup.id);
       this.otherGroupIdx = save.otherGroupIdx;
     }
   }
 
   checkDoParameters() {
-    if (this.type != 'new' && this.type != 'add' && this.type != 'merge') return false;
-
-    if (
-      this.type == 'new' &&
-      (this.shapeId === undefined || this.secondShapeId === undefined || this.groupId === undefined)
-    )
+    if (this.type != 'new' && this.type != 'add' && this.type != 'merge') {
+      console.log('incomplete data for ' + this.name + ': ', this);
       return false;
-    if (this.type == 'add' && (this.shapeId === undefined || this.group === undefined))
+    }
+    if (this.type == 'new' && (!this.groupId || !this.shapeId || !this.secondShapeId)) {
+      console.log('incomplete data for ' + this.name + ': ', this);
       return false;
-    if (
+    } else if (this.type == 'add' && (this.shapeId === undefined || !this.group)) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    } else if (
       this.type == 'merge' &&
-      (this.group === undefined ||
+      (!this.group ||
         this.groupIdx === undefined ||
-        this.otherGroup === undefined ||
+        !this.otherGroup ||
         this.otherGroupIdx === undefined)
-    )
+    ) {
+      console.log('incomplete data for ' + this.name + ': ', this);
       return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (this.type != 'new' && this.type != 'add' && this.type != 'merge') return false;
-
-    if (this.type == 'new' && !this.groupId) return false;
-    if (this.type == 'add' && (this.shapeId === undefined || !this.groupId)) return false;
-    if (this.type == 'merge') {
-      // if (this.groupId === undefined || !Number.isFinite(this.oldGroupIndex)) return false;
-      // if (this.oldGroupShapesIds === undefined || this.oldGroupShapesIds.length < 2) return false;
+    if (this.type != 'new' && this.type != 'add' && this.type != 'merge') {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
+    if (this.type == 'new' && (!this.groupId || !this.shapeId || !this.secondShapeId)) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    } else if (this.type == 'add' && (this.shapeId === undefined || !this.group)) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    } else if (
+      this.type == 'merge' &&
+      (!this.group ||
+        this.groupIdx === undefined ||
+        !this.otherGroup ||
+        this.otherGroupIdx === undefined)
+    ) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
     }
     return true;
   }
@@ -122,15 +142,12 @@ export class GroupAction extends Action {
       let group = app.workspace.getGroup(this.groupId);
       app.workspace.deleteGroup(group);
     } else if (this.type == 'add') {
-      let group = app.workspace.getGroup(this.groupId);
-      group.deleteShape(this.shapeId);
+      this.group.deleteShape(this.shapeId);
     } else {
-      let group1 = app.workspace.getGroup(this.groupId),
-        group2 = new ShapeGroup(0, 1);
-      group2.id = this.otherGroupId;
-      group2.shapesIds = [...this.oldGroupShapesIds];
+      let group1 = this.group,
+        group2 = this.otherGroup;
       group1.shapesIds = group1.shapesIds.filter(id1 => group2.shapesIds.every(id2 => id2 != id1));
-      app.workspace.addGroup(group2, this.oldGroupIndex);
+      app.workspace.addGroup(group2, this.otherGroupIdx);
     }
   }
 }

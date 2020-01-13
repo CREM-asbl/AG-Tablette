@@ -12,7 +12,7 @@ export class TranslatePlaneAction extends Action {
 
   saveToObject() {
     let save = {
-      offset: this.offset,
+      offset: this.offset.saveToObject(),
     };
     return save;
   }

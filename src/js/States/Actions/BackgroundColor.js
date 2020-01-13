@@ -25,25 +25,31 @@ export class BackgroundColorAction extends Action {
   saveToObject() {
     let save = {
       selectedColor: this.selectedColor,
-      involvedShapesIds: [...this.involvedShapesIds],
-      oldColors: [...this.oldColors],
+      involvedShapesIds: this.involvedShapesIds,
+      oldColors: this.oldColors,
     };
     return save;
   }
 
   initFromObject(save) {
     this.selectedColor = save.selectedColor;
-    this.involvedShapesIds = [...save.involvedShapesIds];
-    this.oldColors = [...save.oldColors];
+    this.involvedShapesIds = save.involvedShapesIds;
+    this.oldColors = save.oldColors;
   }
 
   checkDoParameters() {
-    if (!this.selectedColor) return false;
+    if (!this.selectedColor || !this.involvedShapesIds.length) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (this.oldColors.length != this.involvedShapesIds.length) return false;
+    if (!this.involvedShapesIds.length || this.involvedShapesIds.length != this.oldColors.length) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 

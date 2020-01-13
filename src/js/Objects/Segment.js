@@ -3,15 +3,15 @@ import { app } from '../App';
 
 export class Segment {
   constructor(point1, point2, shape, idx, arcCenter, counterclockwise) {
-    this.shape = shape;
     this.vertexes = [
-      new Point(point1, 'vertex', this, this.shape),
-      new Point(point2, 'vertex', this, this.shape),
+      new Point(point1, 'vertex', this, shape),
+      new Point(point2, 'vertex', this, shape),
     ];
     this.points = [];
+    this.shape = shape;
+    this.idx = idx;
     if (arcCenter) this.arcCenter = new Point(arcCenter);
     if (counterclockwise) this.counterclockwise = counterclockwise;
-    this.idx = idx;
   }
 
   /* #################################################################### */
@@ -272,6 +272,8 @@ export class Segment {
       vertexes: this.vertexes.map(pt => pt.saveToObject()),
     };
     if (this.points && this.points.length) save.points = this.points.map(pt => pt.saveToObject());
+    if (this.idx !== undefined) save.idx = this.idx;
+    if (this.shape) save.shapeId = this.shape.id;
     if (this.arcCenter) save.arcCenter = this.arcCenter.saveToObject();
     if (this.counterclockwise) save.counterclockwise = this.counterclockwise;
     return save;
@@ -279,10 +281,7 @@ export class Segment {
 
   initFromObject(save) {
     if (save.shape) this.shape = save.shape;
-
-    if (this.shape) {
-      this.shape.state = 'hell';
-    }
+    else if (save.shapeId) this.shape = app.workspace.getShapeById(save.shapeId);
 
     this.vertexes = save.vertexes.map(pt => {
       let newVertex = new Point(pt, 'vertex', this, this.shape);
@@ -294,11 +293,18 @@ export class Segment {
         return newPoint;
       });
     }
+    if (save.idx !== undefined) this.idx = save.idx;
     if (save.arcCenter) {
       let newPoint = new Point(save.arcCenter, 'arcCenter', this, this.shape);
       this.arcCenter = newPoint;
     }
     if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
+  }
+
+  static retrieveFrom(segment) {
+    let newSegmentCopy = new Segment();
+    newSegmentCopy.initFromObject(segment);
+    return newSegmentCopy.shape.segments[newSegmentCopy.idx];
   }
 
   isVertex(point) {

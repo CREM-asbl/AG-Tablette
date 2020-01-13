@@ -13,7 +13,7 @@ export class BifaceAction extends Action {
   saveToObject() {
     let save = {
       involvedShapesIds: this.involvedShapesIds,
-      oldBiface: this.eoldBiface,
+      oldBiface: this.oldBiface,
     };
     return save;
   }
@@ -24,12 +24,19 @@ export class BifaceAction extends Action {
   }
 
   checkDoParameters() {
-    if (this.involvedShapesIds.length != this.oldBiface.length) return false;
+    if (!this.involvedShapesIds.length) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    return this.checkDoParameters();
+    if (!this.involvedShapesIds.length && this.involvedShapesIds.length != this.oldBiface.length) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
+    return true;
   }
 
   do() {
@@ -45,9 +52,9 @@ export class BifaceAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id, idx) => {
       let s = app.workspace.getShapeById(id);
-      s.isBiface = !s.isBiface;
+      s.isBiface = this.oldBiface[idx];
     });
   }
 }

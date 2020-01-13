@@ -483,4 +483,8 @@ export class Shape {
     this.isReversed = save.isReversed;
     this.opacity = save.opacity;
   }
+
+  static retrieveFrom(shape) {
+    return app.workspae.getShapeById(shape.id);
+  }
 }

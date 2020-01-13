@@ -16,9 +16,8 @@ export class UngroupAction extends Action {
 
   saveToObject() {
     let save = {
-      groupId: this.groupId,
-      groupShapesIds: this.groupShapesIds,
-      groupIndex: this.groupIndex,
+      group: this.group,
+      groupIdx: this.groupIdx,
     };
     return save;
   }
@@ -29,25 +28,34 @@ export class UngroupAction extends Action {
   }
 
   checkDoParameters() {
-    if (!this.group) return false;
+    if (!this.group) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (!this.groupId || !Number.isFinite(this.groupIndex)) return false;
-    if (!this.groupShapesIds || this.groupShapesIds.length < 2) return false;
+    if (!this.group || this.groupIdx === undefined) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   do() {
     if (!this.checkDoParameters()) return;
 
+    this.group = app.workspace.getGroup(this.group.id);
     app.workspace.deleteGroup(this.group);
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    app.workspace.addGroup(this.group, this.groupIndex);
+    let groupCopy = new ShapeGroup(0, 1);
+    groupCopy.shapesIds = [...this.group.shapesIds];
+    groupCopy.id = this.group.id;
+    app.workspace.addGroup(groupCopy, this.groupIndex);
   }
 }

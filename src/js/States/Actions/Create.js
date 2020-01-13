@@ -45,11 +45,8 @@ export class CreateAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape = this.shapeToCreate;
-
-    if (this.shapeId) shape.id = this.shapeId;
-    else this.shapeId = shape.id;
-    app.workspace.addShape(shape);
+    this.shapeToCreate.id = this.shapeId;
+    app.workspace.addShape(this.shapeToCreate);
   }
 
   undo() {

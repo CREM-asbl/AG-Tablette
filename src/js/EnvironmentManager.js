@@ -8,6 +8,7 @@ export class EnvironmentManager {
   }
 
   getNewEnv(envName) {
+    window.dispatchEvent(new CustomEvent('new-env', { detail: { envName: envName } }));
     if (this.environments[envName]) {
       return new this.environments[envName]();
     } else {

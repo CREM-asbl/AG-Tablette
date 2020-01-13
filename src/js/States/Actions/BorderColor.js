@@ -35,12 +35,18 @@ export class BorderColorAction extends Action {
   }
 
   checkDoParameters() {
-    if (!this.selectedColor) return false;
+    if (!this.involvedShapesIds.length || !this.selectedColor) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (this.oldColors.length != this.involvedShapesIds.length) return false;
+    if (!this.involvedShapesIds.length || this.involvedShapesIds.length != this.oldColors.length) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 

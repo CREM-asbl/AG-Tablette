@@ -9,47 +9,34 @@ export class CutAction extends Action {
   constructor() {
     super('CutAction');
 
-    //L'id de la forme
+    // L'id de la forme
     this.shapeId = null;
 
-    //Premier point
+    // Premier point
     this.firstPoint = null;
 
-    //Centre de la forme
-    this.centerPoint = null;
-
-    //Dernier point
+    // Dernier point
     this.secondPoint = null;
 
-    //Formes créées
-    this.createdShapes = null;
+    // Centre de la forme
+    this.centerPoint = null;
+
+    // Id des formes à creer
+    this.createdShapesIds = [];
   }
 
-  // => commented useful if case of full history (every actions)
   saveToObject() {
     let save = {
-      // shapeId: this.shapeId,
-      // firstPoint: this.firstPoint.saveToObject(),
-      // firstSegIdx: this.firstPoint.segment.idx,
-      // secondPoint: this.secondPoint.saveToObject(),
-      // secondSegIdx: this.secondPoint.segment.idx,
-      createdShapes: this.createdShapes.map(shape => shape.saveToObject()),
+      shapeId: this.shapeId,
+      firstPoint: this.firstPoint.saveToObject(),
+      secondPoint: this.secondPoint.saveToObject(),
       createdShapesIds: this.createdShapesIds,
     };
-    // if (this.centerPoint) {
-    //   save.centerPoint = this.centerPoint.saveToObject();
-    // }
+    if (this.centerPoint) save.centerPoint = this.centerPoint.saveToObject();
     return save;
   }
 
   initFromObject(save) {
-    // this.createdShapes = save.createdShapes.map((shape, idx) => {
-    //   let newShape = new Shape({ x: 0, y: 0 }, []);
-    //   newShape.initFromObject(shape);
-    //   newShape.id = save.createdShapesIds[idx];
-    //   return newShape;
-    // });
-    this.createdShapesIds = save.createdShapesIds;
     this.shapeId = save.shapeId;
     this.firstPoint = new Point();
     this.firstPoint.initFromObject(save.firstPoint);
@@ -61,30 +48,27 @@ export class CutAction extends Action {
     } else {
       this.centerPoint = null;
     }
+    this.createdShapesIds = save.createdShapesIds;
   }
 
   checkDoParameters() {
-    // if (!this.shapeId) return false;
+    if (!this.shapeId || !this.firstPoint || !this.secondPoint || !this.createdShapesIds.length) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    // if (!this.shapeId) return false;
-    if (!this.createdShapes) return false;
+    if (!this.createdShapesIds.length) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   do() {
     if (!this.checkDoParameters()) return;
-
-    // if (this.createdShapes) {
-    //   this.createdShapes.forEach((shape, idx) => {
-    //     let newShape = shape.copy();
-    //     newShape.id = this.createdShapesIds[idx];
-    //     app.workspace.addShape(newShape);
-    //   });
-    //   return;
-    // }
 
     let shape = app.workspace.getShapeById(this.shapeId),
       segments = shape.segments,
@@ -106,7 +90,6 @@ export class CutAction extends Action {
           secondAngle = center.getAngle(pt2);
         if (segment.counterclockwise)
           [firstVertexAngle, secondVertexAngle] = [secondVertexAngle, firstVertexAngle];
-        // if (firstVertexAngle > secondVertexAngle) secondVertexAngle += 2 * Math.PI;
         if (firstAngle < firstVertexAngle) firstAngle += 2 * Math.PI;
         if (secondAngle < firstVertexAngle) secondAngle += 2 * Math.PI;
 
@@ -204,16 +187,14 @@ export class CutAction extends Action {
     //Modifier les coordonnées
     let center1 = shape1.fake_center,
       center2 = shape2.fake_center,
-      // center = center1.addCoordinates(center2).multiplyWithScalar(0.5),
       difference = center2.subCoordinates(center1),
       distance = center2.dist(center1),
       myOffset = 20, //px
       offset = difference.multiplyWithScalar(myOffset / distance);
     shape1.coordinates = new Point(shape1).subCoordinates(offset);
+    shape1.id = this.createdShapesIds[0];
     shape2.coordinates = new Point(shape2).addCoordinates(offset);
-
-    this.createdShapes = [shape1.copy(), shape2.copy()];
-    this.createdShapesIds = [shape1.id, shape2.id];
+    shape2.id = this.createdShapesIds[1];
 
     app.workspace.addShape(shape1);
     app.workspace.addShape(shape2);
