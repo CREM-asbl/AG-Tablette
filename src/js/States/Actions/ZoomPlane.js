@@ -30,7 +30,7 @@ export class ZoomPlaneAction extends Action {
   initFromObject(save) {
     this.scaleOffset = save.scaleOffset;
     this.originalZoom = save.originalZoom;
-    this.originalTranslateOffset = save.originalTranslateOffset;
+    this.originalTranslateOffset = new Point(save.originalTranslateOffset);
     this.centerProp = save.centerProp;
   }
 
