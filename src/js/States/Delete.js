@@ -56,8 +56,6 @@ export class DeleteState extends State {
       if (userGroup) involvedShapes = userGroup.shapesIds.map(id => app.workspace.getShapeById(id));
       else involvedShapes = [object];
 
-      console.log(object, involvedShapes);
-
       this.actions = [
         {
           name: 'DeleteAction',
@@ -79,7 +77,6 @@ export class DeleteState extends State {
         },
       ];
     }
-    console.log(this.actions);
     this.executeAction();
     this.start();
 

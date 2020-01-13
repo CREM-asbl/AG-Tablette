@@ -6,17 +6,14 @@ export class DivideAction extends Action {
   constructor() {
     super('DivideAction');
 
-    //L'id de la forme
-    this.shapeId = null;
-
     //Nombre de parties de découpe (numberOfparts-1 points)
     this.numberOfparts = null;
 
     //Mode de découpe: 'segment' ou 'two_points'
     this.mode = null;
 
-    //Index du segment (dans le tableau des segments), si mode segment
-    this.segmentIndex = null;
+    // Segment segment, si mode segment
+    this.segment = null;
 
     // Premier point, si mode two_points
     this.firstPoint = null;
@@ -27,7 +24,6 @@ export class DivideAction extends Action {
 
   saveToObject() {
     let save = {
-      shapeId: this.shapeId,
       numberOfparts: this.numberOfparts,
       mode: this.mode,
       segmentIndex: this.segmentIndex,
@@ -41,8 +37,9 @@ export class DivideAction extends Action {
   initFromObject(save) {
     this.numberOfparts = save.numberOfparts;
     this.mode = save.mode;
-    if (this.mode == 'segment') this.segment = save.segment;
-    else {
+    if (this.mode == 'segment') {
+      this.segment = save.segment;
+    } else {
       // two_points
       this.firstPoint = new Point();
       this.firstPoint.initFromObject(save.firstPoint);
@@ -54,7 +51,7 @@ export class DivideAction extends Action {
   checkDoParameters() {
     if (!Number.isFinite(this.numberOfparts)) return false;
     if (this.mode != 'segment' && this.mode != 'two_points') return false;
-    if (this.mode == 'segment' && !Number.isFinite(this.segment)) return false;
+    if (this.mode == 'segment' && !this.segment) return false;
     if (this.mode == 'two_points' && (!this.firstPoint || !this.secondPoint)) return false;
     return true;
   }
@@ -134,7 +131,9 @@ export class DivideAction extends Action {
   }
 
   segmentModeAddSegPoints() {
-    this.pointsModeAddSegPoints(this.segment.vertexes[0], this.segment.vertexes[1], segment);
+    this.firstPoint = this.segment.vertexes[0];
+    this.secondPoint = this.segment.vertexes[1];
+    this.pointsModeAddSegPoints();
   }
 
   pointsModeAddArcPoints() {

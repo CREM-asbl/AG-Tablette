@@ -2,7 +2,7 @@ import { Point } from './Point';
 import { app } from '../App';
 
 export class Segment {
-  constructor(point1, point2, shape, idx, arcCenter, counterclockwise = false) {
+  constructor(point1, point2, shape, idx, arcCenter, counterclockwise) {
     this.shape = shape;
     this.vertexes = [
       new Point(point1, 'vertex', this, this.shape),
@@ -10,7 +10,7 @@ export class Segment {
     ];
     this.points = [];
     if (arcCenter) this.arcCenter = new Point(arcCenter);
-    this.counterclockwise = counterclockwise;
+    if (counterclockwise) this.counterclockwise = counterclockwise;
     this.idx = idx;
   }
 
@@ -262,8 +262,8 @@ export class Segment {
         copy.addPoint(p);
       });
     }
-    copy.tangentPoint1 = new Point(this.tangentPoint1);
-    copy.tangentPoint2 = new Point(this.tangentPoint2);
+    if (this.tangentPoint1) copy.tangentPoint1 = new Point(this.tangentPoint1);
+    if (this.tangentPoint2) copy.tangentPoint2 = new Point(this.tangentPoint2);
     return copy;
   }
 
@@ -273,29 +273,32 @@ export class Segment {
     };
     if (this.points && this.points.length) save.points = this.points.map(pt => pt.saveToObject());
     if (this.arcCenter) save.arcCenter = this.arcCenter.saveToObject();
-    if (this.counterclockwise !== undefined) save.counterclockwise = this.counterclockwise;
+    if (this.counterclockwise) save.counterclockwise = this.counterclockwise;
     return save;
   }
 
   initFromObject(save) {
+    if (save.shape) this.shape = save.shape;
+
+    if (this.shape) {
+      this.shape.state = 'hell';
+    }
+
     this.vertexes = save.vertexes.map(pt => {
-      let newVertex = new Point(0, 0, 'vertex', this, this.shape);
-      newVertex.initFromObject(pt);
+      let newVertex = new Point(pt, 'vertex', this, this.shape);
       return newVertex;
     });
     if (save.points && save.points.length) {
       this.points = save.points.map(pt => {
-        let newPoint = new Point(0, 0, 'segmentPoint', this, this.shape);
-        newPoint.initFromObject(pt);
+        let newPoint = new Point(pt, 'segmentPoint', this, this.shape);
         return newPoint;
       });
     }
     if (save.arcCenter) {
-      let newPoint = new Point(0, 0, 'arcCenter', this, this.shape);
-      newPoint.initFromObject(save.arcCenter);
+      let newPoint = new Point(save.arcCenter, 'arcCenter', this, this.shape);
       this.arcCenter = newPoint;
     }
-    this.counterclockwise = save.counterclockwise;
+    if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
   }
 
   isVertex(point) {

@@ -48,7 +48,6 @@ export class SelectionStep extends HistoryStep {
   }
 
   execute() {
-    console.log(this.element);
     this.element.click();
   }
 

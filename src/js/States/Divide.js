@@ -84,8 +84,6 @@ export class DivideState extends State {
     if (this.currentStep != 'listen-canvas-click' && this.currentStep != 'select-second-point')
       return;
 
-    this.shape = object.shape;
-
     if (this.currentStep == 'listen-canvas-click') {
       if (object instanceof Segment) {
         this.actions = [
@@ -163,6 +161,9 @@ export class DivideState extends State {
           this.actions[0].secondPoint = object;
           this.currentStep = 'showing-points';
         }
+      } else {
+        this.actions[0].secondPoint = object;
+        this.currentStep = 'showing-points';
       }
     }
 
@@ -200,9 +201,7 @@ export class DivideState extends State {
       app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
     }
     if (this.currentStep == 'showing-segment') {
-      let segments = this.shape.segments,
-        index = this.actions[0].segmentIndex,
-        segment = segments[index];
+      let segment = this.actions[0].segment;
 
       if (segment.arcCenter) {
         app.drawAPI.drawArc(

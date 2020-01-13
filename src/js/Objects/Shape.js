@@ -442,11 +442,11 @@ export class Shape {
   }
 
   setSegments(segments) {
-    this.segments = [];
-    segments.map((seg, idx) => {
-      let newSeg = new Segment(0, 0, this, idx);
+    this.segments = segments.map((seg, idx) => {
+      let newSeg = new Segment(new Point(0, 0), new Point(0, 0), this, idx);
       newSeg.initFromObject(seg);
-      this.segments.push(newSeg);
+      newSeg.shape = this;
+      return newSeg;
     });
   }
 

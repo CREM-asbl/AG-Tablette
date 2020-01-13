@@ -20,9 +20,9 @@ export class Point {
       this.x = arguments[argc++];
       this.y = arguments[argc++];
     }
-    this.type = arguments[argc++]; // 'vertex', 'segmentPoint' or 'center'
-    this.segment = arguments[argc++];
-    this.shape = arguments[argc++];
+    if (arguments[argc++]) this.type = arguments[argc - 1]; // 'vertex', 'segmentPoint' or 'center'
+    if (arguments[argc++]) this.segment = arguments[argc - 1];
+    if (arguments[argc++]) this.shape = arguments[argc - 1];
   }
 
   saveToObject() {
