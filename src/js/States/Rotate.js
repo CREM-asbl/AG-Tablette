@@ -28,26 +28,31 @@ export class RotateState extends State {
    * (ré-)initialiser l'état
    */
   start() {
-    this.end();
     this.currentStep = 'listen-canvas-click';
 
     this.selectedShape = null;
-    this.initialAngle = null;
     this.involvedShapes = [];
-
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
+    this.status = 'running';
   }
 
-  abort() {
-    this.start();
+  restart() {
+    this.end();
+    this.currentStep = 'listen-canvas-click';
+    this.selectedShape = null;
+    this.involvedShapes = [];
+
+    window.addEventListener('objectSelected', this.handler);
+    this.status = 'running';
   }
 
   end() {
     app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('canvasmouseup', this.handler);
+    this.status = 'idle';
   }
 
   _actionHandle(event) {
@@ -100,7 +105,7 @@ export class RotateState extends State {
     ];
 
     this.executeAction();
-    this.start();
+    this.restart();
     app.drawAPI.askRefresh('upper');
     app.drawAPI.askRefresh();
   }

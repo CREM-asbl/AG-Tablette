@@ -18,10 +18,12 @@ export class Action {
       this.undo();
     };
 
-    window.addEventListener(this.name, this.initAndDo);
-    window.addEventListener('do-' + this.name, this.initAndDo);
-    window.addEventListener('undo-' + this.name, this.initAndUndo);
-    window.addEventListener('new-env', () => this.removeEventListeners());
+    window.addEventListener('app-started', () => {
+      window.addEventListener(this.name, this.initAndDo);
+      window.addEventListener('do-' + this.name, this.initAndDo);
+      window.addEventListener('undo-' + this.name, this.initAndUndo);
+      // window.addEventListener('new-env', () => this.removeEventListeners());
+    });
   }
 
   removeEventListeners() {

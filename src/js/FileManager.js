@@ -1,6 +1,16 @@
 import { app } from './App';
 
 export class FileManager {
+  constructor() {
+    window.addEventListener('file-opened', event => {
+      if (event.detail.method == 'old') this.oldOpenFile(event.detail.file);
+      // new
+      else this.newOpenFile(event.detail.file);
+    });
+    window.addEventListener('open-file', () => {
+      this.openFile();
+    });
+  }
   static parseFile(data) {
     const dataObject = JSON.parse(data);
 
@@ -12,23 +22,23 @@ export class FileManager {
     app.drawAPI.refreshUpper();
   }
 
-  static async newOpenFile(fileHandle) {
+  async newOpenFile(fileHandle) {
     const file = await fileHandle.getFile();
     const content = await file.text();
     FileManager.parseFile(content);
   }
 
-  static oldOpenFile(file) {
+  oldOpenFile(file) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
       FileManager.parseFile(reader.result);
     };
     reader.readAsText(file);
-    app.appDiv.shadowRoot.querySelector('#fileSelector').value = '';
+    // app.appDiv.shadowRoot.querySelector('#fileSelector').value = '';
   }
 
-  static async openFile() {
+  async openFile() {
     if (window.chooseFileSystemEntries) {
       const opts = {
         accepts: [
@@ -40,7 +50,9 @@ export class FileManager {
       };
       try {
         let fileHandle = await window.chooseFileSystemEntries(opts);
-        FileManager.newOpenFile(fileHandle);
+        window.dispatchEvent(
+          new CustomEvent('file-opened', { detail: { method: 'new', file: fileHandle } }),
+        );
       } catch (error) {
         console.error(error);
         // user closed open prompt

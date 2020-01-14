@@ -12,9 +12,26 @@ export class State {
 
     this.actions = null;
 
+    // idle for nothing, paused if stopped by permanent state, running for running...
+    this.status = 'idle';
+
     window.addEventListener('app-state-changed', event => {
-      if (this.name == app.state) this.start(event.detail.startParams);
-      else this.end();
+      if (this.status == 'running') {
+        if (this.name == app.state) this.start(event.detail.startParams);
+        else this.end();
+      } else if (this.status == 'idle') {
+        if (this.name == app.state) this.start(event.detail.startParams);
+      } else {
+        // paused
+        if (this.name == app.state) this.restart();
+      }
+    });
+
+    window.addEventListener('abort-state', () => {
+      if (this.status == 'running') {
+        this.end();
+        this.status = 'paused';
+      }
     });
 
     window.addEventListener('drawUpper', event => {
@@ -90,28 +107,35 @@ export class State {
    * Exécuter les actions liée à l'état.
    */
   executeAction() {
+    window.dispatchEvent(new CustomEvent('actions', { detail: this.actions }));
     this.actions.forEach(action =>
       window.dispatchEvent(new CustomEvent(action.name, { detail: action })),
     );
   }
 
   /**
-   * (ré-)initialiser l'état
-   * @param params: tableau associatif/objet pouvant contenir des paramètres
+   * initialiser l'état
+   * (appelé quand l'utilisateur sélectionne le state)
    */
-  start(params) {
+  start() {
     console.log('start() not implemented');
   }
 
   /**
-   * Appelée lorsqu'un autre état va être lancé et qu'il faut annuler l'action en cours
+   * réinitialiser l'état
+   * (appelé quand focus du permanent state perdu)
    */
-  abort() {}
+  restart() {
+    console.log('restart() not implemented');
+  }
 
   /**
-   * appelé au changement d'état
+   * met le state en idle ou pause
+   * (appelé si changement de state ou si un permanent state prend le focus)
    */
-  end() {}
+  end() {
+    console.log('end() not implemented');
+  }
 
   //Appelé par state-menu lors d'un clic sur un des boutons.
   clickOnStateMenuButton(btn_value) {}

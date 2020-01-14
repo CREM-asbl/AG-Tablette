@@ -15,7 +15,7 @@ export class UngroupState extends State {
    */
   start() {
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
   }
 

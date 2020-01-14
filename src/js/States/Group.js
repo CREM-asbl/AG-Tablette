@@ -29,7 +29,7 @@ export class GroupState extends State {
     this.firstShape = null;
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
   }
 

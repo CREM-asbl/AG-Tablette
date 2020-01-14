@@ -26,7 +26,7 @@ export class MergeState extends State {
     this.currentStep = 'listen-canvas-click';
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
   }
 

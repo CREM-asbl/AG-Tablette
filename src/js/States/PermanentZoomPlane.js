@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { ZoomPlaneAction } from './Actions/ZoomPlane';
 import { State } from './State';
 import { Point } from '../Objects/Point';
 
@@ -17,51 +16,53 @@ export class PermanentZoomPlaneState extends State {
     this.lastDist = null;
 
     this.centerProp = null;
+
+    this.start();
   }
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
-    this.actions = [new ZoomPlaneAction(this.name)];
-
     this.currentStep = 'listen-canvas-click';
-    this.baseDist = null;
-    this.lastDist = null;
-    this.centerProp = null;
-    app.appDiv.cursor = 'default';
+
+    window.addEventListener('canvastouchstart', this.handler);
   }
 
-  onMouseUp(clickCoordinates, event) {
-    if (this.currentStep != 'zooming-plane') return;
-    if (event.type != 'touchend') {
-      return;
-    }
-
-    let offset = this.lastDist / this.baseDist,
-      actualZoom = app.workspace.zoomLevel,
-      minZoom = app.settings.get('minZoomLevel'),
-      maxZoom = app.settings.get('maxZoomLevel');
-
-    if (offset * actualZoom > maxZoom) {
-      // -> offset*actualZoom = maxZoom
-      offset = maxZoom / actualZoom - 0.001;
-    }
-    if (offset * actualZoom < minZoom) {
-      offset = minZoom / actualZoom + 0.001;
-    }
-
-    this.actions[0].scaleOffset = offset;
-    this.actions[0].originalZoom = actualZoom;
-    this.actions[0].originalTranslateOffset = new Point(app.workspace.translateOffset);
-    this.actions[0].centerProp = this.centerProp;
-
-    this.executeAction();
-    this.start();
-    app.interactionAPI.releaseFocus();
+  restart() {
+    this.end();
+    this.currentStep = 'listen-canvas-click';
+    window.addEventListener('canvastouchstart', this.handler);
+    window.dispatchEvent(new CustomEvent('app-state-changed'));
   }
 
-  onMouseMove(clickCoordinates, event) {
+  end() {
+    window.removeEventListener('canvastouchstart', this.handler);
+    window.removeEventListener('canvastouchmove', this.handler);
+    window.removeEventListener('canvastouchend', this.handler);
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'canvastouchstart') {
+      this.onTouchStart(event.detail.event);
+    } else if (event.type == 'canvastouchmove') {
+      this.onTouchMove(event.detail.event);
+    } else if (event.type == 'canvastouchend') {
+      this.onTouchEnd(event.detail.event);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
+  }
+
+  onTouchStart(event) {
+    if (event.touches.length == 2) {
+      window.dispatchEvent(new CustomEvent('abort-state'));
+      window.addEventListener('canvastouchmove', this.handler);
+      window.addEventListener('canvastouchend', this.handler);
+    }
+  }
+
+  onTouchMove(event) {
     if (event.type != 'touchmove' || event.touches.length !== 2) return;
 
     if (this.currentStep == 'listen-canvas-click') {
@@ -75,7 +76,6 @@ export class PermanentZoomPlaneState extends State {
       if (this.baseDist == 0) this.baseDist = 0.001;
 
       this.currentStep = 'zooming-plane';
-      app.interactionAPI.getFocus(this);
     } else {
       let point1 = new Point(event.touches[0].clientX, event.touches[0].clientY),
         point2 = new Point(event.touches[1].clientX, event.touches[1].clientY),
@@ -97,24 +97,19 @@ export class PermanentZoomPlaneState extends State {
 
       let originalTranslateOffset = app.workspace.translateOffset,
         newZoom = originalZoom * scaleOffset,
-        actualWinSize = {
-          x: app.cvsDiv.clientWidth / originalZoom,
-          y: app.cvsDiv.clientHeight / originalZoom,
-        },
-        newWinSize = {
-          x: actualWinSize.x / scaleOffset,
-          y: actualWinSize.y / scaleOffset,
-        },
-        newTranslateoffset = {
-          x:
-            (originalTranslateOffset.x / originalZoom -
-              (actualWinSize.x - newWinSize.x) * this.centerProp.x) *
+        actualWinSize = new Point(
+          app.cvsDiv.clientWidth / originalZoom,
+          app.cvsDiv.clientHeight / originalZoom,
+        ),
+        newWinSize = new Point(actualWinSize.x / scaleOffset, actualWinSize.y / scaleOffset),
+        newTranslateoffset = new Point(
+          (originalTranslateOffset.x / originalZoom -
+            (actualWinSize.x - newWinSize.x) * this.centerProp.x) *
             newZoom,
-          y:
-            (originalTranslateOffset.y / originalZoom -
-              (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
+          (originalTranslateOffset.y / originalZoom -
+            (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
             newZoom,
-        };
+        );
 
       app.workspace.setZoomLevel(newZoom, false);
       app.workspace.setTranslateOffset(newTranslateoffset);
@@ -122,5 +117,37 @@ export class PermanentZoomPlaneState extends State {
       app.workspace.setTranslateOffset(originalTranslateOffset, false);
       app.workspace.setZoomLevel(originalZoom, false);
     }
+  }
+
+  onTouchEnd(event) {
+    if (this.currentStep != 'zooming-plane') return;
+    if (event.type != 'touchend') {
+      return;
+    }
+
+    let offset = this.lastDist / this.baseDist,
+      actualZoom = app.workspace.zoomLevel,
+      minZoom = app.settings.get('minZoomLevel'),
+      maxZoom = app.settings.get('maxZoomLevel');
+
+    if (offset * actualZoom > maxZoom) {
+      // -> offset*actualZoom = maxZoom
+      offset = maxZoom / actualZoom - 0.001;
+    }
+    if (offset * actualZoom < minZoom) {
+      offset = minZoom / actualZoom + 0.001;
+    }
+
+    this.actions = [
+      {
+        scaleOffset: offset,
+        originalZoom: actualZoom,
+        originalTranslateOffset: new Point(app.workspace.translateOffset),
+        centerProp: this.centerProp,
+      },
+    ];
+
+    this.executeAction();
+    this.restart();
   }
 }

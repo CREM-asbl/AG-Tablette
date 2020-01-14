@@ -26,7 +26,6 @@ export class DeleteState extends State {
 
     app.interactionAPI.setSelectionConstraints(selConstr);
 
-    app.appDiv.cursor = 'default';
     window.addEventListener('objectSelected', this.handler);
   }
 

@@ -23,7 +23,7 @@ export class TranslatePlaneState extends State {
     this.currentStep = 'listen-canvas-click';
 
     this.startClickCoordinates = null;
-    app.appDiv.cursor = 'grab';
+
     window.addEventListener('canvasmousedown', this.handler);
   }
 
@@ -55,7 +55,7 @@ export class TranslatePlaneState extends State {
 
     this.startClickCoordinates = clickCoordinates;
     this.currentStep = 'translating-plane';
-    app.appDiv.cursor = 'grabbing';
+
     window.addEventListener('canvasmousemove', this.handler);
     window.addEventListener('canvasmouseup', this.handler);
   }

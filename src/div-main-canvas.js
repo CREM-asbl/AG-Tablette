@@ -63,55 +63,95 @@ class DivMainCanvas extends LitElement {
     app.appDiv.families = app.workspace.environment.familyNames;
 
     //Events:
-    this.addEventListener('click', event => {
-      let mousePos = this.getMousePos(event);
-      window.dispatchEvent(new CustomEvent('canvasclick', { detail: { mousePos: mousePos } }));
+    this.upperCanvas.addEventListener('click', event => {
+      let detail = {
+        mousePos: this.getMousePos(event),
+        event: event,
+      };
+      window.dispatchEvent(new CustomEvent('canvasclick', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('mousedown', event => {
-      let mousePos = this.getMousePos(event);
-      window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: { mousePos: mousePos } }));
+      let detail = {
+        mousePos: this.getMousePos(event),
+        event: event,
+      };
+      // for (let key in detail)
+      //   alert(JSON.stringify(key + ' ' + detail[key]));
+      window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('mouseup', event => {
-      let mousePos = this.getMousePos(event);
-      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: { mousePos: mousePos } }));
+      let detail = {
+        mousePos: this.getMousePos(event),
+        event: event,
+      };
+      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('mousemove', event => {
-      let mousePos = this.getMousePos(event);
-      window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: { mousePos: mousePos } }));
+      // alert('mousemove');
+      // console.log(event);
+      let detail = {
+        mousePos: this.getMousePos(event),
+        event: event,
+      };
+      // for (let key in detail)
+      //   alert(JSON.stringify(key + ' ' + detail[key]));
+      window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchstart', event => {
-      window.dispatchEvent('mousedown', event);
+      event.preventDefault();
+      let detail = {
+        mousePos: this.getMousePos(event),
+        event: event,
+      };
+      window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvastouchstart', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchmove', event => {
-      window.dispatchEvent('mousemove', event);
-      // let mousePos = this.getMousePos(event);
-      // window.dispatchEvent(new CustomEvent('touchmove', { detail: { mousePos: mousePos} }));
+      event.preventDefault();
+      let detail = {
+        mousePos: this.getMousePos(event),
+        event: event,
+      };
+      window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvastouchmove', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchend', event => {
-      window.dispatchEvent('mouseup', event);
-      window.dispatchEvent('click', event);
-      // let mousePos = this.getMousePos(event);
-      // window.dispatchEvent(new CustomEvent('touchend', { detail: { mousePos: mousePos} }));
+      event.preventDefault();
+      let detail = {
+        mousePos: this.getMousePos(event),
+        event: event,
+      };
+      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasmouseclick', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvastouchend', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchleave', event => {
-      window.dispatchEvent('mouseup', event);
-      window.dispatchEvent('click', event);
-      // let mousePos = this.getMousePos(event);
-      // window.dispatchEvent(new CustomEvent('touchleave', { detail: { mousePos: mousePos} }));
+      event.preventDefault();
+      let detail = {
+        mousePos: this.getMousePos(event),
+        event: event,
+      };
+      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasmouseclick', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvastouchend', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchcancel', event => {
-      window.dispatchEvent('mouseup', event);
-      window.dispatchEvent('click', event);
-      // let mousePos = this.getMousePos(event);
-      // window.dispatchEvent(new CustomEvent('touchcancel', { detail: { mousePos: mousePos} }));
+      event.preventDefault();
+      let detail = {
+        mousePos: this.getMousePos(event),
+        event: event,
+      };
+      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasmouseclick', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvastouchend', { detail: detail }));
     });
   }
 

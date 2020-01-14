@@ -31,26 +31,30 @@ export class MoveState extends State {
    * (ré-)initialiser l'état
    */
   start() {
-    this.end();
     this.currentStep = 'listen-canvas-click';
-
     this.selectedShape = null;
-    this.startClickCoordinates = null;
     this.involvedShapes = [];
-
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
-    app.appDiv.cursor = 'move';
+
     window.addEventListener('objectSelected', this.handler);
+    this.status = 'running';
   }
 
-  abort() {
-    this.start();
+  restart() {
+    this.end();
+    this.currentStep = 'listen-canvas-click';
+    this.selectedShape = null;
+    this.involvedShapes = [];
+
+    window.addEventListener('objectSelected', this.handler);
+    this.status = 'running';
   }
 
   end() {
     app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('canvasclick', this.handler);
+    this.status = 'idle';
   }
 
   _actionHandle(event) {
@@ -118,7 +122,7 @@ export class MoveState extends State {
     }
 
     this.executeAction();
-    this.start();
+    this.restart();
     app.drawAPI.askRefresh('upper');
     app.drawAPI.askRefresh();
   }
@@ -126,7 +130,7 @@ export class MoveState extends State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Context2D} ctx              Le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
+   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx, mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;

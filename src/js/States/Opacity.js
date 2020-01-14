@@ -22,7 +22,7 @@ export class OpacityState extends State {
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     app.appDiv.shadowRoot.querySelector('opacity-popup').style.display = 'block';
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setOpacity', this.handler);
   }

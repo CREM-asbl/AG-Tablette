@@ -40,6 +40,9 @@ export class App {
     // Les actions possibles
     this.actions = [];
 
+    // Liste des shapes a ne pas redessiner pendant une action
+    this.editingShapes = [];
+
     //Liste de classes State qui tournent en permanence (ex: zoom à 2 doigts)
     this.permanentStates = [];
 
@@ -172,13 +175,6 @@ export class App {
 
     this.drawAPI.askRefresh();
     this.drawAPI.askRefresh('upper');
-  }
-
-  addPermanentState(stateName) {
-    let state = StatesManager.getPermanentStateInstance(stateName);
-    if (!state) return;
-    this.permanentStates.push(state);
-    state.start();
   }
 }
 

@@ -17,7 +17,6 @@ export class BifaceState extends State {
     this.end();
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
-    app.appDiv.cursor = 'default';
     window.addEventListener('objectSelected', this.handler);
   }
 

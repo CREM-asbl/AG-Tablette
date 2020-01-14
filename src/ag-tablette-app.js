@@ -40,6 +40,7 @@ class AGTabletteApp extends LitElement {
     this.canUndo = false;
     this.canRedo = false;
     this.cursor = 'default';
+    new FileManager(); // to move
 
     window.addEventListener('app-state-changed', () => {
       this.state = app.state;
@@ -436,7 +437,11 @@ class AGTabletteApp extends LitElement {
         type="file"
         style="display: none"
         @change="${event => {
-          FileManager.oldOpenFile(event.target.files[0]);
+          window.dispatchEvent(
+            new CustomEvent('file-opened', {
+              detail: { method: 'old', file: event.target.files[0] },
+            }),
+          );
           event.target.value = null;
         }}"
       />
@@ -468,7 +473,8 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'load':
-        FileManager.openFile();
+        window.dispatchEvent(new CustomEvent('open-file'));
+        // FileManager.openFile();
         reset_state = 1;
         break;
       case 'new':

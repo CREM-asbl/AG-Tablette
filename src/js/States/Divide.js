@@ -14,8 +14,6 @@ export class DivideState extends State {
     //                                        -> showing-segment
     this.currentStep = null;
 
-    this.shape = null;
-
     this.timeoutRef = null;
 
     this.selConstr = null;
@@ -27,10 +25,6 @@ export class DivideState extends State {
    * (ré-)initialiser l'état
    */
   start(openPopup = true) {
-    this.end();
-    this.shape = null;
-    this.timeoutRef = null;
-
     this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
     this.selConstr.eventType = 'click';
     this.selConstr.segments.canSelect = true;
@@ -44,19 +38,34 @@ export class DivideState extends State {
     } else {
       this.currentStep = 'listen-canvas-click';
     }
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
+    this.status = 'running';
   }
 
-  abort() {
-    window.clearTimeout(this.timeoutRef);
+  restart() {
+    this.end();
+    this.currentStep = 'listen-canvas-click';
+
+    this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
+    this.selConstr.eventType = 'click';
+    this.selConstr.segments.canSelect = true;
+    this.selConstr.points.canSelect = true;
+    this.selConstr.points.types = ['vertex', 'segmentPoint'];
+    app.interactionAPI.setSelectionConstraints(this.selConstr);
+
+    window.addEventListener('objectSelected', this.handler);
+    window.addEventListener('setNumberOfParts', this.handler);
+    this.status = 'running';
   }
 
   end() {
+    window.clearTimeout(this.timeoutRef);
     app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('setNumberOfParts', this.handler);
+    this.status = 'idle';
   }
 
   _actionHandle(event) {
@@ -81,6 +90,7 @@ export class DivideState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(object) {
+    console.log(this);
     if (this.currentStep != 'listen-canvas-click' && this.currentStep != 'select-second-point')
       return;
 
@@ -152,7 +162,7 @@ export class DivideState extends State {
           segments[1].contains(object)
         ) {
           console.log('ambiguité, ne rien faire');
-          this.start(false);
+          this.restart();
 
           app.drawAPI.askRefresh();
           app.drawAPI.askRefresh('upper');
@@ -192,7 +202,7 @@ export class DivideState extends State {
     }
     this.actions[0].existingPoints = [...this.actions[0].segment.points];
     this.executeAction();
-    this.start(false);
+    this.restart();
 
     app.drawAPI.askRefresh();
     app.drawAPI.askRefresh('upper');

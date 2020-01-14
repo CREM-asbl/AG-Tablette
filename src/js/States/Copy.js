@@ -40,7 +40,7 @@ export class CopyState extends State {
     this.involvedShapes = [];
 
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
   }
 

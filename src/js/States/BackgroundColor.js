@@ -24,7 +24,7 @@ export class BackgroundColorState extends State {
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     if (callColorPicker) app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
   }

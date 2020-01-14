@@ -28,7 +28,7 @@ export class BorderColorState extends State {
     } else {
       this.currentStep = 'listen-canvas-click';
     }
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
   }

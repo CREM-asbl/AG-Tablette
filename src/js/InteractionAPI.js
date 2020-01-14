@@ -76,33 +76,33 @@ export class InteractionAPI {
     );
   }
 
-  /**
-   * Peut être appelé par un état permanent pour être le seul état à recevoir
-   * les événements suivants.
-   * @param  {State} permanentStateRef L'état
-   */
-  getFocus(permanentStateRef) {
-    if (this.permanentStatehasFocus) {
-      //Ne devrait pas arriver
-      console.log('another sate already has focus');
-      return false;
-    }
-    this.permanentStatehasFocus = true;
-    this.permanentStateRef = permanentStateRef;
-    if (app.state) app.state.abort();
-  }
+  // /**
+  //  * Peut être appelé par un état permanent pour être le seul état à recevoir
+  //  * les événements suivants.
+  //  * @param  {State} permanentStateRef L'état
+  //  */
+  // getFocus(permanentStateRef) {
+  //   if (this.permanentStatehasFocus) {
+  //     //Ne devrait pas arriver
+  //     console.log('another sate already has focus');
+  //     return false;
+  //   }
+  //   this.permanentStatehasFocus = true;
+  //   this.permanentStateRef = permanentStateRef;
+  //   if (app.state) app.state.abort();
+  // }
 
-  /**
-   * Peut être appelé par l'état permanent ayant appelé getFocus(), pour
-   * terminer le bloquage des événements aux autres états.
-   * Le bloquage ne sera réellement effectué que 200 millisecondes après.
-   * @return {[type]} [description]
-   */
-  releaseFocus() {
-    this.permanentStatehasFocus = false;
-    this.permanentStateRef = null;
-    this.permanenteStateFocusReleaseTime = Date.now();
-  }
+  // /**
+  //  * Peut être appelé par l'état permanent ayant appelé getFocus(), pour
+  //  * terminer le bloquage des événements aux autres états.
+  //  * Le bloquage ne sera réellement effectué que 200 millisecondes après.
+  //  * @return {[type]} [description]
+  //  */
+  // releaseFocus() {
+  //   this.permanentStatehasFocus = false;
+  //   this.permanentStateRef = null;
+  //   this.permanenteStateFocusReleaseTime = Date.now();
+  // }
 
   /**
    * Vérifier si 2 points sont à la distance de sélection l'un de l'autre.

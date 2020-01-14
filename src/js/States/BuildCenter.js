@@ -17,8 +17,16 @@ export class BuildCenterState extends State {
     this.end();
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('objectSelected', this.handler);
+  }
+
+  restart() {
+    this.end();
+    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+
+    window.addEventListener('objectSelected', this.handler);
+    this.status = 'running';
   }
 
   end() {
@@ -49,7 +57,7 @@ export class BuildCenterState extends State {
     ];
     this.executeAction();
 
-    this.start();
+    this.restart();
     app.drawAPI.askRefresh();
   }
 }

@@ -28,7 +28,7 @@ export class CutState extends State {
   start() {
     this.end();
     this.constr = app.interactionAPI.getEmptySelectionConstraints();
-    app.appDiv.cursor = 'default';
+
     this.currentStep = 'listen-canvas-click';
     this.timeoutRef = null;
     this.shape = null;

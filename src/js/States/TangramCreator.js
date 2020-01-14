@@ -52,7 +52,6 @@ export class TangramCreatorState extends State {
     ];
     app.stateMenu.configureButtons(this.buttons.slice(0, 2));
     alert("(TODO: à ajouter dans l'aide) Commencez par sélectionner un ou plusieurs polygones");
-    app.appDiv.cursor = 'default';
   }
 
   clickOnStateMenuButton(btn_value) {

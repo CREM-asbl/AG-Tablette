@@ -7,11 +7,11 @@ class ShapesList extends LitElement {
 
     window.addEventListener('family-selected', () => {
       this.selectedFamily = app.selectedFamily;
-      this.shape = '';
+      this.shape = app.selectedShape ? app.selectedShape.name : '';
     });
     window.addEventListener('app-state-changed', () => {
       this.state = app.state;
-      this.shape = '';
+      this.shape = app.selectedShape ? app.selectedShape.name : '';
     });
   }
 
@@ -96,10 +96,11 @@ class ShapesList extends LitElement {
    * Met à jour l'état de l'application lorsque l'on clique sur le nom d'une forme
    */
   _clickHandle(event) {
-    this.shape = event.target.shape;
     const familyRef = app.workspace.environment.getFamily(this.selectedFamily);
     const shapeRef = familyRef.getShape(event.target.shape);
-    window.dispatchEvent(new CustomEvent('shapeSelected', { detail: { shapeSelected: shapeRef } }));
+    app.selectedShape = shapeRef;
+    this.shape = app.selectedShape.name;
+    window.dispatchEvent(new CustomEvent('shapeSelected'));
     // app.state.setShape(shapeRef);
     // this.show = false;
   }

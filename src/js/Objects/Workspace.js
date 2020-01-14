@@ -94,25 +94,21 @@ export class Workspace {
       shape.initFromObject(sData);
       return shape;
     });
-
-    this.history = new WorkspaceHistory();
-    this.history.initFromObject(wsdata.history);
-
-    if (wsdata.completeHistory) {
-      this.completeHistory = new CompleteHistory();
-      this.completeHistory.initFromObject(wsdata.completeHistory);
-    }
-
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
       return group;
     });
 
+    this.history = new WorkspaceHistory();
+    this.history.initFromObject(wsdata.history);
+    if (wsdata.completeHistory) {
+      this.completeHistory = new CompleteHistory();
+      this.completeHistory.initFromObject(wsdata.completeHistory);
+    }
+
     this.zoomLevel = wsdata.zoomLevel;
-
     this.translateOffset = new Point(wsdata.translateOffset);
-
     if (wsdata.WSSettings) this.settings.initFromObject(wsdata.WSSettings);
     else this.initSettings();
   }
@@ -125,21 +121,16 @@ export class Workspace {
     wsdata.shapes = this.shapes.map(s => {
       return s.saveToObject();
     });
-
-    wsdata.history = this.history.saveToObject();
-
-    if (this.completeHistory) wsdata.completeHistory = this.completeHistory.saveToObject();
-
     wsdata.shapeGroups = this.shapeGroups.map(group => {
       return group.saveToObject();
     });
 
+    wsdata.history = this.history.saveToObject();
+    if (this.completeHistory) wsdata.completeHistory = this.completeHistory.saveToObject();
+
     wsdata.zoomLevel = this.zoomLevel;
-
     wsdata.translateOffset = this.translateOffset.saveToObject();
-
     wsdata.envName = this.environment.name;
-
     wsdata.WSSettings = this.settings.saveToObject();
     return wsdata;
   }

@@ -26,23 +26,48 @@ export class CreateState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    * @param  {String} family Nom de la famille sélectionnée
    */
-  start(family, timestamp = 0) {
-    this.end();
+  start(family) {
+    this.currentStep = 'show-family-shapes';
+
     this.selectedFamily = family;
     app.selectedFamily = this.selectedFamily;
     this.selectedShape = null;
-    this.currentStep = 'show-family-shapes';
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('shapeSelected', this.handler);
     window.setTimeout(() => window.dispatchEvent(new CustomEvent('family-selected')), 0);
+    this.status = 'running';
+  }
+
+  restart() {
+    this.end();
+    if (this.selectedShape) {
+      this.currentStep = 'listen-canvas-click';
+      app.selectedShape = this.selectedShape;
+    } else {
+      this.currentStep = 'show-family-shapes';
+    }
+
+    window.dispatchEvent(new CustomEvent('family-selected'));
+    window.addEventListener('shapeSelected', this.handler);
+    window.addEventListener('canvasmousedown', this.handler);
+    this.status = 'running';
+  }
+
+  end() {
+    app.selectedShape = null;
+    this.shapeToCreate = null;
+    window.removeEventListener('shapeSelected', this.handler);
+    window.removeEventListener('canvasmousedown', this.handler);
+    window.removeEventListener('canvasmouseup', this.handler);
+    this.status = 'idle';
   }
 
   _actionHandle(event) {
     if (event.type == 'shapeSelected') {
-      this.setShape(event.detail.shapeSelected);
+      this.setShape(app.selectedShape);
     } else if (event.type == 'canvasmousedown') {
       this.onMouseDown(event.detail.mousePos);
     } else if (event.type == 'canvasmouseup') {
@@ -50,18 +75,6 @@ export class CreateState extends State {
     } else {
       console.log('unsupported event type : ', event.type);
     }
-  }
-
-  end() {
-    window.removeEventListener('shapeSelected', this.handler);
-    window.removeEventListener('canvasmousedown', this.handler);
-    window.removeEventListener('canvasmouseup', this.handler);
-  }
-
-  //Todo: Solution provisoire
-  abort() {
-    this.end();
-    this.currentStep = 'listen-canvas-click';
   }
 
   setShape(shape) {
@@ -121,7 +134,7 @@ export class CreateState extends State {
     }
 
     this.executeAction();
-    this.setShape(this.selectedShape);
+    this.restart();
     app.drawAPI.askRefresh('upper');
     app.drawAPI.askRefresh();
   }

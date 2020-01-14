@@ -15,11 +15,13 @@ export class WorkspaceHistory {
     this.historyIndex = -1;
 
     window.addEventListener('app-started', () => {
-      Object.keys(app.actions).forEach(action => {
-        window.addEventListener(app.actions[action].instance.name, event =>
-          this.addStep(event.detail),
-        );
-      });
+      // Si gestion de actions au cas par cas
+      // Object.keys(app.actions).forEach(action => {
+      //   window.addEventListener(app.actions[action].name, event =>
+      //     this.addStep(event.detail),
+      //   );
+      // });
+      window.addEventListener('actions', event => this.addStep(event.detail));
     });
   }
 
@@ -47,14 +49,23 @@ export class WorkspaceHistory {
     this.updateMenuState();
   }
 
-  transformToObject(detail) {
-    let savedDetail = {};
-    for (let [key, value] of Object.entries(detail)) {
-      if (value instanceof Shape || value instanceof Segment || value instanceof Point)
-        value = value.saveToObject();
-      savedDetail[key] = value;
-    }
-    return savedDetail;
+  transformToObject(actions) {
+    let savedActions = [];
+    actions.forEach((action, idx) => {
+      savedActions[idx] = {};
+      for (let [key, value] of Object.entries(action)) {
+        if (value instanceof Shape || value instanceof Segment || value instanceof Point)
+          value = value.saveToObject();
+        else if (value instanceof Array)
+          value = value.map(elem => {
+            if (elem instanceof Shape || elem instanceof Segment || elem instanceof Point)
+              return elem.saveToObject();
+            else return elem;
+          });
+        savedActions[idx][key] = value;
+      }
+    });
+    return savedActions;
   }
 
   /**
@@ -82,8 +93,11 @@ export class WorkspaceHistory {
       console.error('Nothing to undo');
       return;
     }
-    let detail = this.history[this.historyIndex];
-    window.dispatchEvent(new CustomEvent('undo-' + detail.name, { detail: detail }));
+    let detail = [...this.history[this.historyIndex]].reverse();
+    detail.forEach(step =>
+      window.dispatchEvent(new CustomEvent('undo-' + step.name, { detail: step })),
+    );
+    // window.dispatchEvent(new CustomEvent('undo-' + detail.name, { detail: detail }));
     this.historyIndex--;
     app.drawAPI.askRefresh();
     app.drawAPI.askRefresh('upper');
@@ -100,18 +114,12 @@ export class WorkspaceHistory {
       return;
     }
     let detail = this.history[this.historyIndex + 1];
-    window.dispatchEvent(new CustomEvent('do-' + detail.name, { detail: detail }));
+    detail.forEach(step =>
+      window.dispatchEvent(new CustomEvent('do-' + step.name, { detail: step })),
+    );
     app.drawAPI.askRefresh();
     this.historyIndex++;
     this.updateMenuState();
-  }
-
-  get roots() {
-    let roots = [];
-    for (const key in this.history) {
-      if (this.history[key].previous_step === -1) roots.push(parseInt(key, 10));
-    }
-    return roots;
   }
 
   /**
@@ -119,8 +127,12 @@ export class WorkspaceHistory {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    * @param {[Action]} actions Les actions constituant l'étape
    */
-  addStep(detail) {
-    this.history.splice(this.historyIndex + 1, this.history.length, this.transformToObject(detail));
+  addStep(actions) {
+    this.history.splice(
+      this.historyIndex + 1,
+      this.history.length,
+      this.transformToObject(actions),
+    );
     this.historyIndex = this.history.length - 1;
 
     this.updateMenuState();

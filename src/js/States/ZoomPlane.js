@@ -24,7 +24,7 @@ export class ZoomPlaneState extends State {
 
     this.currentStep = 'listen-canvas-click';
     this.baseDist = null;
-    app.appDiv.cursor = 'default';
+
     window.addEventListener('canvasmousedown', this.handler);
   }
 
