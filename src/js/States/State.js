@@ -87,20 +87,12 @@ export class State {
   shapeDrawn(ctx, shape) {}
 
   /**
-   * Exécuter l'action liée à l'état, et l'enregistrer dans l'historique.
-   * @param {*} isToAdd - new pas enregistrer si false
+   * Exécuter les actions liée à l'état.
    */
-  executeAction(isToAdd = true) {
-    /*
-        Si une des actions renvoie le booléen false, ne pas ajouter l'étape
-        dans l'historique. C'est notamment utilisé dans merge pour annuler si la
-        fusion donne une forme creuse.
-         */
+  executeAction() {
     this.actions.forEach(action =>
       window.dispatchEvent(new CustomEvent(action.name, { detail: action })),
     );
-    // if (this.actions.every(action => action.do() !== false) && isToAdd)
-    //   app.workspace.history.addStep(this.actions);
   }
 
   /**

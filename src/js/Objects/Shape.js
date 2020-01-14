@@ -443,8 +443,9 @@ export class Shape {
 
   setSegments(segments) {
     this.segments = segments.map((seg, idx) => {
-      let newSeg = new Segment(new Point(0, 0), new Point(0, 0), this, idx);
+      let newSeg = new Segment();
       newSeg.initFromObject(seg);
+      newSeg.idx = idx;
       newSeg.shape = this;
       return newSeg;
     });

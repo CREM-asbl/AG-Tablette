@@ -77,6 +77,7 @@ export class BackgroundColorState extends State {
         name: 'OpacityAction',
         involvedShapesIds: involvedShapes.map(s => s.id),
         opacity: 0.7,
+        oldOpacities: involvedShapes.map(s => s.opacity),
       });
     }
     this.executeAction();
