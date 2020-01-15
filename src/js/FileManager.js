@@ -10,32 +10,35 @@ export class FileManager {
     window.addEventListener('open-file', () => {
       this.openFile();
     });
+    window.addEventListener('save-to-file', () => {
+      this.saveFile();
+    });
   }
-  static parseFile(data) {
+
+  parseFile(data) {
     const dataObject = JSON.parse(data);
 
     if (dataObject.appSettings) app.settings.initFromObject(dataObject.appSettings);
     else app.resetSettings();
 
     app.wsManager.setWorkspaceFromJSON(data);
-    dispatchEvent(new CustomEvent('app-settings-changed'));
+    window.dispatchEvent(new CustomEvent('app-settings-changed'));
     app.drawAPI.refreshUpper();
   }
 
   async newOpenFile(fileHandle) {
     const file = await fileHandle.getFile();
     const content = await file.text();
-    FileManager.parseFile(content);
+    this.parseFile(content);
   }
 
   oldOpenFile(file) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      FileManager.parseFile(reader.result);
+      this.parseFile(reader.result);
     };
     reader.readAsText(file);
-    // app.appDiv.shadowRoot.querySelector('#fileSelector').value = '';
   }
 
   async openFile() {
@@ -58,26 +61,26 @@ export class FileManager {
         // user closed open prompt
       }
     } else {
-      app.appDiv.shadowRoot.querySelector('#fileSelector').click();
+      window.dispatchEvent(new CustomEvent('show-file-selector'));
     }
   }
 
-  static saveToPng(handle) {
+  saveToPng(handle) {
     if (app.hasNativeFS) {
       const canvas = app.drawAPI.canvas.main;
 
       // edge support for toBlob ?
       canvas.toBlob(blob => {
-        FileManager.newWriteFile(handle, blob);
+        this.newWriteFile(handle, blob);
       });
     } else {
       const ctx = app.drawAPI.canvas.main;
       const encoded_data = ctx.toDataURL();
-      FileManager.downloadFile(handle.name, encoded_data);
+      this.downloadFile(handle.name, encoded_data);
     }
   }
 
-  static saveToSvg(handle) {
+  saveToSvg(handle) {
     const ctx = app.drawAPI.canvas.main;
 
     let svg_data =
@@ -92,14 +95,14 @@ export class FileManager {
     svg_data += '</svg>';
 
     if (app.hasNativeFS) {
-      FileManager.newWriteFile(handle, svg_data);
+      this.newWriteFile(handle, svg_data);
     } else {
       const encoded_data = 'data:image/svg+xml;base64,' + btoa(svg_data);
-      FileManager.downloadFile(handle.name, encoded_data);
+      this.downloadFile(handle.name, encoded_data);
     }
   }
 
-  static saveState(handle, detail) {
+  saveState(handle, detail) {
     let { history, WSSettings, appSettings, ...saveObject } = {
       ...app.workspace.data,
       appSettings: app.settings.data,
@@ -114,19 +117,19 @@ export class FileManager {
     let json_data = JSON.stringify(saveObject);
 
     if (app.hasNativeFS) {
-      FileManager.newWriteFile(handle, json_data);
+      this.newWriteFile(handle, json_data);
     } else {
       const file = new Blob([json_data], { type: 'application/json' });
       const encoded_data = window.URL.createObjectURL(file);
-      FileManager.downloadFile(handle.name, encoded_data);
+      this.downloadFile(handle.name, encoded_data);
     }
   }
 
-  static getExtension(fileName) {
+  getExtension(fileName) {
     return fileName.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2);
   }
 
-  static async newSaveFile() {
+  async newSaveFile() {
     const opts = {
       type: 'saveFile',
       accepts: [
@@ -148,13 +151,13 @@ export class FileManager {
       ],
     };
     const handle = await window.chooseFileSystemEntries(opts);
-    const extension = FileManager.getExtension(handle.name);
+    const extension = this.getExtension(handle.name);
     switch (extension) {
       case 'png':
-        FileManager.saveToPng(handle);
+        this.saveToPng(handle);
         break;
       case 'svg':
-        FileManager.saveToSvg(handle);
+        this.saveToSvg(handle);
         break;
       case 'agg':
       case 'agt':
@@ -163,11 +166,11 @@ export class FileManager {
         window.addEventListener(
           'file-selected',
           event => {
-            if (event.detail) FileManager.saveState(handle, { ...event.detail });
+            this.saveState(handle, { ...event.detail });
           },
           { once: true },
         );
-        app.appDiv.shadowRoot.querySelector('save-popup').style.display = 'block';
+        window.dispatchEvent(new CustomEvent('show-save-popup'));
         break;
       default:
         console.error('unsupported file format: ', extension);
@@ -179,7 +182,7 @@ export class FileManager {
    * @param {*} filename
    * @param {*} encoded_data
    */
-  static downloadFile(filename, encoded_data) {
+  downloadFile(filename, encoded_data) {
     const downloader = document.createElement('a');
     downloader.href = encoded_data;
     downloader.download = filename;
@@ -189,28 +192,27 @@ export class FileManager {
     document.body.removeChild(downloader);
   }
 
-  static oldSaveFile() {
+  oldSaveFile() {
     window.addEventListener(
       'file-selected',
       event => {
-        if (!event.detail) return;
         const handle = {
           ...event.detail,
         };
         let detail = { ...handle };
-        const extension = FileManager.getExtension(handle.name);
+        const extension = this.getExtension(handle.name);
         switch (extension) {
           case 'png':
-            FileManager.saveToPng(handle);
+            this.saveToPng(handle);
             break;
           case 'svg':
-            FileManager.saveToSvg(handle);
+            this.saveToSvg(handle);
             break;
           case 'agg':
           case 'agt':
           case 'agc':
           case 'agl':
-            FileManager.saveState(handle, detail);
+            this.saveState(handle, detail);
             break;
           default:
             console.error('unsupported file format: ', extension);
@@ -218,26 +220,26 @@ export class FileManager {
       },
       { once: true },
     );
-    app.appDiv.shadowRoot.querySelector('save-popup').style.display = 'block';
+    window.dispatchEvent(new CustomEvent('show-save-popup'));
   }
 
-  static async newWriteFile(fileHandle, contents) {
+  async newWriteFile(fileHandle, contents) {
     const writer = await fileHandle.createWriter();
     await writer.truncate(0);
     await writer.write(0, contents);
     await writer.close();
   }
 
-  static async saveFile() {
+  async saveFile() {
     if (app.hasNativeFS) {
       try {
-        await FileManager.newSaveFile();
+        await this.newSaveFile();
       } catch (error) {
         console.error(error);
         // user closed save prompt
       }
     } else {
-      FileManager.oldSaveFile();
+      this.oldSaveFile();
     }
   }
 }

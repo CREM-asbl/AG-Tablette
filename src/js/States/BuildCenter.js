@@ -13,13 +13,14 @@ export class BuildCenterState extends State {
    * initialiser l'état
    */
   start() {
-    this.end();
-
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
@@ -27,6 +28,9 @@ export class BuildCenterState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.removeEventListener('objectSelected', this.handler);
   }

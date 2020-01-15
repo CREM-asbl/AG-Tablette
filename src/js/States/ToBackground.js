@@ -18,6 +18,9 @@ export class ToBackgroundState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
@@ -25,6 +28,9 @@ export class ToBackgroundState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.removeEventListener('objectSelected', this.handler);
   }

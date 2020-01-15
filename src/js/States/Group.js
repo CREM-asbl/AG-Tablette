@@ -27,6 +27,9 @@ export class GroupState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     if (this.currentStep == 'listen-canvas-click') {
@@ -46,6 +49,9 @@ export class GroupState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';

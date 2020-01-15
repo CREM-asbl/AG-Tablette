@@ -136,6 +136,9 @@ export class State {
    * réinitialiser l'état
    * (appelé quand focus du permanent state perdu)
    */
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     console.log('restart() not implemented');
   }
@@ -143,6 +146,9 @@ export class State {
   /**
    * met le state en idle ou pause
    * (appelé si changement de state ou si un permanent state prend le focus)
+   */
+  /**
+   * stopper l'état
    */
   end() {
     console.log('end() not implemented');

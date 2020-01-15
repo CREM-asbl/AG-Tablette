@@ -37,6 +37,9 @@ export class CopyState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
@@ -44,6 +47,9 @@ export class CopyState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     this.currentStep = 'listen-canvas-click';
     window.removeEventListener('objectSelected', this.handler);

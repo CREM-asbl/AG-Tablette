@@ -31,6 +31,9 @@ export class CutState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     this.setSelConstraints(this.currentStep);
@@ -38,6 +41,9 @@ export class CutState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.clearTimeout(this.timeoutRef);
     if (this.status != 'paused' || this.currentStep == 'showing-points')

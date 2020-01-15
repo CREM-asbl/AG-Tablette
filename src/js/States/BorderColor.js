@@ -24,6 +24,9 @@ export class BorderColorState extends State {
     window.addEventListener('colorChange', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
@@ -32,6 +35,9 @@ export class BorderColorState extends State {
     window.addEventListener('colorChange', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('colorChange', this.handler);

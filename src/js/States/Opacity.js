@@ -25,6 +25,9 @@ export class OpacityState extends State {
     window.addEventListener('setOpacity', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
@@ -33,6 +36,9 @@ export class OpacityState extends State {
     window.addEventListener('setOpacity', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('setOpacity', this.handler);

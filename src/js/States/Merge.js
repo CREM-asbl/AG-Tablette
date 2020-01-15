@@ -28,6 +28,9 @@ export class MergeState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     if (this.currentStep == 'selecting-second-shape') app.editingShapes = [this.firstShape];
@@ -36,6 +39,9 @@ export class MergeState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     if (this.status != 'paused') {
       app.editingShapes = [];

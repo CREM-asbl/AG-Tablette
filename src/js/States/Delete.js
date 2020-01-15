@@ -26,6 +26,9 @@ export class DeleteState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     app.interactionAPI.setSelectionConstraints(this.selConstr);
@@ -33,6 +36,9 @@ export class DeleteState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.removeEventListener('objectSelected', this.handler);
   }

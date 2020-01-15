@@ -36,6 +36,9 @@ export class DivideState extends State {
     window.addEventListener('setNumberOfParts', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     app.interactionAPI.setSelectionConstraints(this.selConstr);
@@ -44,6 +47,9 @@ export class DivideState extends State {
     window.addEventListener('setNumberOfParts', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.clearTimeout(this.timeoutRef);
     if (this.status != 'paused' || this.currentStep == 'showing-points')

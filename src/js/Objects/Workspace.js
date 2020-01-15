@@ -1,7 +1,7 @@
 import { loadManifest } from '../Manifest';
 import { app } from '../App';
 import { uniqId } from '../Tools/general';
-import { WorkspaceHistory } from './WorkspaceHistory';
+import { History } from './History';
 import { CompleteHistory } from './CompleteHistory';
 import { GridManager } from '../GridManager';
 import { ShapeGroup } from './ShapeGroup';
@@ -25,7 +25,7 @@ export class Workspace {
     this.environment = environment;
 
     // Représente l'historique
-    this.history = new WorkspaceHistory();
+    this.history = new History();
 
     // Représente l'historique complet
     this.completeHistory = new CompleteHistory();
@@ -100,7 +100,7 @@ export class Workspace {
       return group;
     });
 
-    this.history = new WorkspaceHistory();
+    this.history = new History();
     this.history.initFromObject(wsdata.history);
     if (wsdata.completeHistory) {
       this.completeHistory = new CompleteHistory();

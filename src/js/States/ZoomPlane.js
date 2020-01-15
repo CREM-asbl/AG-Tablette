@@ -24,6 +24,9 @@ export class ZoomPlaneState extends State {
     window.addEventListener('canvasmousedown', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     this.currentStep = 'listen-canvas-click';
@@ -31,6 +34,9 @@ export class ZoomPlaneState extends State {
     window.addEventListener('canvasmousedown', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.removeEventListener('canvasmousedown', this.handler);
     window.removeEventListener('canvasmousemove', this.handler);

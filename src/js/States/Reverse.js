@@ -52,6 +52,9 @@ export class ReverseState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     if (this.currentStep == 'selecting-symmetrical-arch') {
@@ -69,6 +72,9 @@ export class ReverseState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.cancelAnimationFrame(this.requestAnimFrameId);
     if (this.status != 'paused') {

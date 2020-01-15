@@ -7,62 +7,14 @@ TODO:
     -ajouter des facilités de sélection quand on ne peut sélectionner que
       des segments ou points (par ex).
  */
-
-/*
-Cette classe reçoit les événements du canvas. Son comportement par défaut est:
--transmettre les événements aux états permanents de l'application
-    ->un état permanent peut bloquer l'envoi des événements suivants aux autres
-      états, jusqu'à ce qu'il annule le bloquage. Une fois le bloquage annulé,
-      les événements reçus les 200 millisecondes suivantes ne sont pas traités*.
--transmettre l'événement à l'état courant de l'application
--si l'état a configuré la classe correctement, elle vérifie si un objet (forme,
- segment ou point -> contraintes à définir par l'état) se trouve à la position
- de la souris lors de la réception d'un événement. Si oui, l'objet en question
- est transmis à l'état courant (state.objectSelected(Object)).
-
-
-
-*: si un état permanent reçoit un onMouseUp, termine son action puis annule le
-   bloquage, l'événement onClick (généré juste après le mouseUp) sera envoyé
-   à l'état courant, ce qui n'est pas le comportement souhaité (-> au moins 10
-   millisecondes). Ou si l'utilisateur a encore un doigt sur l'écran au moment
-   où le bloquage est annulé, cela peut également provoquer des comportements
-   non souhaités (-> au moins 200 millisecondes?).
-
- */
 export class InteractionAPI {
   constructor() {
     /*
-        True: transmet les événements à l'état courant (appelle onClick,
-        onMouseMove, onMouseDown et onMouseUp).
-         */
-    this.forwardEventsToState = true;
-
-    /*
-        True: appeler state.objectSelected avant onClick/onMouseDown (par
-        défaut: après).
-         */
-    this.selectObjectBeforeNativeEvent = false;
-
-    /*
         Contraintes sur ce que l'on peut sélectionner comme objet (forme,
         segment et/ou point). Voir this.getEmptySelectionConstraints()
-         */
+    */
     this.selectionConstraints = null;
     this.resetSelectionConstraints();
-
-    /*
-        True: les événements ne sont pas transmis à l'état courant ni à
-        l'ensemble des états permanents de l'application, mais uniquement à
-        l'état permanent this.permanentStateRef.
-         */
-    this.permanentStatehasFocus = false;
-    this.permanentStateRef = null;
-
-    /*
-        Timestamp auquel releaseFocus() a été appelé pour la dernière fois.
-         */
-    this.permanenteStateFocusReleaseTime = 0;
 
     window.addEventListener('canvasmousedown', event =>
       'mousedown' == this.selectionConstraints.eventType
@@ -75,34 +27,6 @@ export class InteractionAPI {
         : null,
     );
   }
-
-  // /**
-  //  * Peut être appelé par un état permanent pour être le seul état à recevoir
-  //  * les événements suivants.
-  //  * @param  {State} permanentStateRef L'état
-  //  */
-  // getFocus(permanentStateRef) {
-  //   if (this.permanentStatehasFocus) {
-  //     //Ne devrait pas arriver
-  //     console.log('another sate already has focus');
-  //     return false;
-  //   }
-  //   this.permanentStatehasFocus = true;
-  //   this.permanentStateRef = permanentStateRef;
-  //   if (app.state) app.state.abort();
-  // }
-
-  // /**
-  //  * Peut être appelé par l'état permanent ayant appelé getFocus(), pour
-  //  * terminer le bloquage des événements aux autres états.
-  //  * Le bloquage ne sera réellement effectué que 200 millisecondes après.
-  //  * @return {[type]} [description]
-  //  */
-  // releaseFocus() {
-  //   this.permanentStatehasFocus = false;
-  //   this.permanentStateRef = null;
-  //   this.permanenteStateFocusReleaseTime = Date.now();
-  // }
 
   /**
    * Vérifier si 2 points sont à la distance de sélection l'un de l'autre.
@@ -558,105 +482,4 @@ export class InteractionAPI {
     }
     return null;
   }
-
-  /* #################################################################### */
-  /* ############################ ÉVÉNEMENTS ############################ */
-  /* #################################################################### */
-
-  /**
-   * Stocker la dernière position connue de la souris.
-   * @param  {Point} mouseCoordinates Coordonnées de la souris
-   */
-  updateLastKnownMouseCoordinates(mouseCoordinates) {
-    app.drawAPI.lastKnownMouseCoordinates = {
-      x: mouseCoordinates.x,
-      y: mouseCoordinates.y,
-    };
-  }
-
-  // /**
-  //  * Traiter un événement reçu. Événements attendus: click, mousedown, mouseup,
-  //  * mousemove, touchstart, touchmove, touchend, touchcancel, touchleave.
-  //  * @param  {String} eventName        Nom de l'événement (ex: 'click',
-  //  *                                    'mousedown'...)
-  //  * @param  {String} fName            Nom de la fonction gérant l'événement
-  //  *                                   (ex: 'onClick', 'onMouseDown'...)
-  //  * @param  {Point} mouseCoordinates Coordonnées de la souris
-  //  * @param  {Event} event            Référence vers l'événement javascript.
-  //  */
-  // processEvent(eventName, fName, mouseCoordinates, event) {
-  //   eventName = eventName.toLowerCase();
-  //   this.updateLastKnownMouseCoordinates(mouseCoordinates);
-  //   app.permanentStates.forEach(state => {
-  //     if (!this.permanentStatehasFocus && state[fName]) state[fName](mouseCoordinates, event);
-  //   });
-  //   if (this.permanentStatehasFocus) {
-  //     if (this.permanentStateRef[fName]) this.permanentStateRef[fName](mouseCoordinates, event);
-  //     return;
-  //   } else if (Date.now() - this.permanenteStateFocusReleaseTime < 200) return;
-
-  //   let eventResult = true;
-  //   if (!this.selectObjectBeforeNativeEvent && this.forwardEventsToState && app.state)
-  //     eventResult = app.state[fName](mouseCoordinates, event);
-
-  //   //Sélection d'objets:
-  //   let callEvent = true;
-  //   if (['click', 'mousedown'].includes(eventName)) {
-  //     //Si l'événement a retourné false, on essaie pas de détecter un objet.
-  //     if (eventResult && this.selectionConstraints.eventType == eventName) {
-  //       let obj = this.selectObject(mouseCoordinates);
-  //       if (obj) {
-  //         callEvent = app.state.objectSelected(obj, mouseCoordinates, event);
-  //       }
-  //     }
-  //   }
-
-  //   //Si objectSelected a retourné false, on essaie pas d'appeler l'événement.
-  //   if (this.selectObjectBeforeNativeEvent && callEvent && this.forwardEventsToState && app.state) {
-  //     app.state[fName](mouseCoordinates, event);
-  //   }
-  // }
-
-  // onClick(mouseCoordinates, event) {
-  //   this.processEvent('click', 'onClick', mouseCoordinates, event);
-  // }
-
-  // onMouseDown(mouseCoordinates, event) {
-  //   this.processEvent('mousedown', 'onMouseDown', mouseCoordinates, event);
-  // }
-
-  // onMouseUp(mouseCoordinates, event) {
-  //   this.processEvent('mouseup', 'onMouseUp', mouseCoordinates, event);
-  // }
-
-  // onMouseMove(mouseCoordinates, event) {
-  //   this.processEvent('mousemove', 'onMouseMove', mouseCoordinates, event);
-  //   window.dispatchEvent(new CustomEvent('refreshUpper'));
-  // }
-
-  // onTouchStart(mouseCoordinates, event) {
-  //   if (event.touches.length > 1) return; //TODO: supprimer ?
-  //   if (event.cancelable) event.preventDefault();
-  //   this.onMouseDown(mouseCoordinates, event);
-  // }
-
-  // onTouchMove(mouseCoordinates, event) {
-  //   if (event.cancelable) event.preventDefault();
-  //   this.onMouseMove(mouseCoordinates, event);
-  // }
-
-  // onTouchEnd(mouseCoordinates, event) {
-  //   this.onMouseUp(mouseCoordinates, event);
-  //   this.onClick(mouseCoordinates, event);
-  // }
-
-  // onTouchLeave(mouseCoordinates, event) {
-  //   this.onMouseUp(mouseCoordinates, event);
-  //   this.onClick(mouseCoordinates, event);
-  // }
-
-  // onTouchCancel(mouseCoordinates, event) {
-  //   this.onMouseUp(mouseCoordinates, event);
-  //   this.onClick(mouseCoordinates, event);
-  // }
 }

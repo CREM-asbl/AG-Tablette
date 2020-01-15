@@ -136,9 +136,6 @@ export class DrawAPI {
         detail: { ctx: this.upperCtx },
       }),
     );
-    // if (app.state) {
-    //   app.state.draw(this.upperCtx, this.lastKnownMouseCoordinates);
-    // }
   }
 
   /**

@@ -49,6 +49,9 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('family-selected', () => {
       this.selectedFamily = app.selectedFamily;
     });
+    window.addEventListener('show-file-selector', () => {
+      this.shadowRoot.querySelector('#fileSelector').click();
+    });
   }
 
   render() {
@@ -469,12 +472,11 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'save':
-        FileManager.saveFile();
+        window.dispatchEvent(new CustomEvent('save-to-file'));
         reset_state = 1;
         break;
       case 'load':
         window.dispatchEvent(new CustomEvent('open-file'));
-        // FileManager.openFile();
         reset_state = 1;
         break;
       case 'new':

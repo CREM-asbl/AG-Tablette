@@ -21,6 +21,10 @@ class SavePopup extends LitElement {
     this.extension = 'agg';
     this.save_format = 'png';
     this.image_or_state = 'state';
+
+    window.addEventListener('show-save-popup', () => {
+      this.style.display = 'block';
+    });
   }
 
   static get styles() {
@@ -29,12 +33,7 @@ class SavePopup extends LitElement {
 
   render() {
     return html`
-      <template-popup
-        @close-popup="${() => {
-          dispatchEvent(new Event('file-selected'));
-          this.style.display = 'none';
-        }}"
-      >
+      <template-popup @close-popup="${() => (this.style.display = 'none')}">
         <h2 slot="title">Sauvegarder</h2>
         <div slot="body" id="body">
           <div style="display: ${app.hasNativeFS ? 'none' : 'block'}">

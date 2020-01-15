@@ -1,17 +1,17 @@
 import { app } from '../App';
-import { Shape } from '../Objects/Shape';
-import { Segment } from '../Objects/Segment';
-import { Point } from '../Objects/Point';
+import { Shape } from './Shape';
+import { Segment } from './Segment';
+import { Point } from './Point';
 
 /**
  * Représente l'historique d'un espace de travail.
  */
-export class WorkspaceHistory {
+export class History {
   constructor() {
-    //Historique des actions
+    // Historique des actions
     this.history = [];
 
-    //Index de la dernière tâche réalisée
+    // Index de la dernière tâche réalisée
     this.historyIndex = -1;
 
     window.addEventListener('app-started', () => {

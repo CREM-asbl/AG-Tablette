@@ -33,6 +33,9 @@ export class RotateState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
@@ -40,6 +43,9 @@ export class RotateState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     this.currentStep = 'listen-canvas-click';
     app.editingShapes = [];

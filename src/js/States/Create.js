@@ -36,6 +36,9 @@ export class CreateState extends State {
     window.setTimeout(() => window.dispatchEvent(new CustomEvent('family-selected')), 0);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     if (this.selectedShape) {
@@ -50,6 +53,9 @@ export class CreateState extends State {
     window.addEventListener('canvasmousedown', this.handler);
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     app.selectedShape = null;
     window.removeEventListener('shapeSelected', this.handler);

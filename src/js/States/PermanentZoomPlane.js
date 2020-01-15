@@ -29,6 +29,9 @@ export class PermanentZoomPlaneState extends State {
     window.addEventListener('canvastouchstart', this.handler);
   }
 
+  /**
+   * ré-initialiser l'état
+   */
   restart() {
     this.end();
     this.currentStep = 'listen-canvas-click';
@@ -36,6 +39,9 @@ export class PermanentZoomPlaneState extends State {
     window.dispatchEvent(new CustomEvent('app-state-changed'));
   }
 
+  /**
+   * stopper l'état
+   */
   end() {
     window.removeEventListener('canvastouchstart', this.handler);
     window.removeEventListener('canvastouchmove', this.handler);

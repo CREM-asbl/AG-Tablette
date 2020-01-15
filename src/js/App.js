@@ -171,8 +171,6 @@ export class App {
 
     //Reset interactionAPI parameters:
     this.interactionAPI.resetSelectionConstraints();
-    this.forwardEventsToState = true;
-    this.selectObjectBeforeNativeEvent = false;
 
     this.state = stateName;
     window.dispatchEvent(
