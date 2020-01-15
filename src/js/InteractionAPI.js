@@ -631,7 +631,7 @@ export class InteractionAPI {
 
   // onMouseMove(mouseCoordinates, event) {
   //   this.processEvent('mousemove', 'onMouseMove', mouseCoordinates, event);
-  //   app.drawAPI.askRefresh('upper');
+  //   window.dispatchEvent(new CustomEvent('refreshUpper'));
   // }
 
   // onTouchStart(mouseCoordinates, event) {

@@ -96,7 +96,7 @@ export class DivideAction extends Action {
         this.pointsModeAddSegPoints();
       }
     }
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   undo() {

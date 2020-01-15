@@ -128,18 +128,7 @@ class DivMainCanvas extends LitElement {
         event: event,
       };
       window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvasmouseclick', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvastouchend', { detail: detail }));
-    });
-
-    this.upperCanvas.addEventListener('touchleave', event => {
-      event.preventDefault();
-      let detail = {
-        mousePos: this.getMousePos(event),
-        event: event,
-      };
-      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvasmouseclick', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasclick', { detail: detail }));
       window.dispatchEvent(new CustomEvent('canvastouchend', { detail: detail }));
     });
 
@@ -150,8 +139,8 @@ class DivMainCanvas extends LitElement {
         event: event,
       };
       window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvasmouseclick', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvastouchend', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasclick', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvastouchcancel', { detail: detail }));
     });
   }
 
@@ -236,9 +225,9 @@ class DivMainCanvas extends LitElement {
     app.drawAPI.translateView(app.workspace.translateOffset);
     app.drawAPI.scaleView(app.workspace.zoomLevel);
 
-    app.drawAPI.askRefresh('main');
-    app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh('background');
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
 
     let leftShift = document
       .getElementsByTagName('ag-tablette-app')[0]

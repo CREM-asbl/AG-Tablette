@@ -1,6 +1,4 @@
 import { app } from '../App';
-import { CopyAction } from './Actions/Copy';
-import { RotateAction } from './Actions/Rotate';
 import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
 import { Point } from '../Objects/Point';
@@ -29,27 +27,25 @@ export class CopyState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
-    this.end();
     this.currentStep = 'listen-canvas-click';
-
-    this.selectedShape = null;
-    this.startClickCoordinates = null;
-    this.involvedShapes = [];
 
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
 
     window.addEventListener('objectSelected', this.handler);
   }
 
-  abort() {
-    this.start();
+  restart() {
+    this.end();
+    app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
+
+    window.addEventListener('objectSelected', this.handler);
   }
 
   end() {
-    app.editingShapes = [];
+    this.currentStep = 'listen-canvas-click';
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('canvasmouseup', this.handler);
   }
@@ -67,10 +63,9 @@ export class CopyState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, clickCoordinates, event) {
+  objectSelected(shape, mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.selectedShape = shape;
@@ -84,24 +79,25 @@ export class CopyState extends State {
       this.involvedShapes = [shape];
     }
 
-    this.startClickCoordinates = clickCoordinates;
+    this.startClickCoordinates = mouseCoordinates;
 
     window.removeEventListener('objectSelected', this.handler);
     window.addEventListener('canvasmouseup', this.handler);
     this.currentStep = 'moving-shape';
-    app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh();
+    app.lastKnownMouseCoordinates = mouseCoordinates;
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**
    * Appelée lorsque l'événement mouseup est déclanché sur le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates les coordonnées de la souris
+   * @param  {Point} mouseCoordinates les coordonnées de la souris
    * @param  {Event} event            l'événement javascript
    */
   onMouseUp(mouseCoordinates, event) {
     if (this.currentStep != 'moving-shape') return;
 
-    let translation = new Point(mouseCoordinates).subCoordinates(this.startClickCoordinates),
+    let translation = mouseCoordinates.subCoordinates(this.startClickCoordinates),
       involvedShapesCopies = this.involvedShapes.map(shape => shape.copy()),
       selectedShapeCopy = this.selectedShape.copy();
     involvedShapesCopies.forEach(shape => shape.translate(translation));
@@ -129,15 +125,15 @@ export class CopyState extends State {
     }
 
     this.executeAction();
-    this.start();
-    app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh();
+    this.restart();
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Context2D} ctx              Le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
+   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx, mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;

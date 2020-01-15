@@ -21,7 +21,7 @@ export class PermanentZoomPlaneState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     this.currentStep = 'listen-canvas-click';
@@ -121,9 +121,6 @@ export class PermanentZoomPlaneState extends State {
 
   onTouchEnd(event) {
     if (this.currentStep != 'zooming-plane') return;
-    if (event.type != 'touchend') {
-      return;
-    }
 
     let offset = this.lastDist / this.baseDist,
       actualZoom = app.workspace.zoomLevel,
@@ -140,6 +137,7 @@ export class PermanentZoomPlaneState extends State {
 
     this.actions = [
       {
+        name: 'ZoomPlaneAction',
         scaleOffset: offset,
         originalZoom: actualZoom,
         originalTranslateOffset: new Point(app.workspace.translateOffset),

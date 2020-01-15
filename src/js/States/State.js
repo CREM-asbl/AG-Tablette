@@ -17,25 +17,36 @@ export class State {
 
     window.addEventListener('app-state-changed', event => {
       if (this.status == 'running') {
-        if (this.name == app.state) this.start(event.detail.startParams);
-        else this.end();
+        if (this.name == app.state) {
+          this.start(event.detail.startParams);
+          this.status = 'running';
+        } else {
+          this.status = 'idle';
+          this.end();
+        }
       } else if (this.status == 'idle') {
-        if (this.name == app.state) this.start(event.detail.startParams);
+        if (this.name == app.state) {
+          this.start(event.detail.startParams);
+          this.status = 'running';
+        }
       } else {
         // paused
-        if (this.name == app.state) this.restart();
+        if (this.name == app.state) {
+          this.restart();
+          this.status = 'running';
+        }
       }
     });
 
     window.addEventListener('abort-state', () => {
       if (this.status == 'running') {
-        this.end();
         this.status = 'paused';
+        this.end();
       }
     });
 
     window.addEventListener('drawUpper', event => {
-      if (this.name == app.state) this.draw(event.detail.ctx, event.detail.mouseCoordinates);
+      if (this.name == app.state) this.draw(event.detail.ctx, app.lastKnownMouseCoordinates);
     });
 
     window.addEventListener('shapeDrawn', event => {
@@ -79,19 +90,19 @@ export class State {
    * est sélectionnée (onClick)
    * @param  {Object} object            L'objet sélectionné
    *                          Voir InteractionAPI.selectObject()
-   * @param  {Point} clickCoordinates  Les coordonnées du click
+   * @param  {Point} mouseCoordinates  Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    * @return {Boolean}                false: désactive l'appel à onClick si
    *                                  cet appel est réalisé après.
    */
-  objectSelected(object, clickCoordinates, event) {
+  objectSelected(object, mouseCoordinates, event) {
     return true;
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Context2D} ctx              Le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
+   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx, mouseCoordinates) {}
 

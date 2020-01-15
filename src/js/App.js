@@ -49,6 +49,12 @@ export class App {
     //menu pouvant être contrôlé par un état (State).
     this.stateMenu = null;
 
+    // Coordonnées du dernier événement
+    this.lastKnownMouseCoordinates = { x: 0, y: 0 };
+
+    // Couleur sélectionnée pour border- ou backgroundColor
+    this.selectedColor = '#000';
+
     //Liste des tangrams
     this.tangrams = {
       main: [], //Tangrams CREM
@@ -107,7 +113,7 @@ export class App {
   resetSettings() {
     this.initSettings();
     dispatchEvent(new CustomEvent('app-settings-changed'));
-    this.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   start() {
@@ -121,15 +127,15 @@ export class App {
       this.refreshWindow();
     };
 
-    //Utilisé pour les animations
-    window.requestAnimFrame = (function() {
-      return (
-        window.requestAnimationFrame ||
-        function(callback) {
-          window.setTimeout(callback, 1000 / 20);
-        }
-      );
-    })();
+    // //Utilisé pour les animations
+    // window.requestAnimFrame = (function() {
+    //   return (
+    //     window.requestAnimationFrame ||
+    //     function(callback) {
+    //       window.setTimeout(callback, 1000 / 20);
+    //     }
+    //   );
+    // })();
 
     // this.addPermanentState('permanent_zoom_plane');
     // this.tangramManager.retrieveTangrams();
@@ -156,8 +162,8 @@ export class App {
         new CustomEvent('app-state-changed', { detail: { startParams: startParams } }),
       );
       this.interactionAPI.resetSelectionConstraints();
-      this.drawAPI.askRefresh();
-      this.drawAPI.askRefresh('upper');
+      window.dispatchEvent(new CustomEvent('refresh'));
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
       return;
     }
     //Reset state-menu
@@ -173,8 +179,8 @@ export class App {
       new CustomEvent('app-state-changed', { detail: { startParams: startParams } }),
     );
 
-    this.drawAPI.askRefresh();
-    this.drawAPI.askRefresh('upper');
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 }
 

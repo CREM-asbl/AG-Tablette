@@ -25,7 +25,7 @@ export class TangramCreatorState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     this.currentStep = 'selecting-polygons';
@@ -61,7 +61,7 @@ export class TangramCreatorState extends State {
       if (this.polygons.length > 0) {
         this.polygons.pop();
       }
-      app.drawAPI.askRefresh('upper');
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
     } else if (btn_value == 'end_polygons') {
       if (this.currentStep != 'selecting-polygons') return;
       if (this.subStep != 'new-polygon') return;
@@ -155,23 +155,23 @@ export class TangramCreatorState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'un point a été sélectionnée (click)
    * @param  {Object} object            L'élément sélectionné
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(object, clickCoordinates, event) {
+  objectSelected(object, mouseCoordinates, event) {
     if (this.currentStep == 'selecting-polygons') {
       this.selectNextPolygonPoint(object);
     } else if (this.currentStep == 'selecting-shapes') {
       this.selectNextShape(object);
     }
 
-    app.drawAPI.askRefresh('upper');
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Context2D} ctx              Le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
+   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx, mouseCoordinates) {
     this.polygons.forEach(polygon => {

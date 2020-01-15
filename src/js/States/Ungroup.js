@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { UngroupAction } from './Actions/Ungroup';
 import { State } from './State';
 
 /**
@@ -11,7 +10,7 @@ export class UngroupState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
@@ -19,8 +18,14 @@ export class UngroupState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  restart() {
+    this.end();
+    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+
+    window.addEventListener('objectSelected', this.handler);
+  }
+
   end() {
-    app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
   }
 
@@ -35,10 +40,10 @@ export class UngroupState extends State {
   /**
    * Appelée par interactionAPI quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, clickCoordinates, event) {
+  objectSelected(shape, mouseCoordinates, event) {
     let userGroup = app.workspace.getShapeGroup(shape);
     if (userGroup) {
       this.actions = [
@@ -50,8 +55,8 @@ export class UngroupState extends State {
       ];
       this.executeAction();
 
-      app.drawAPI.askRefresh('upper');
-      app.drawAPI.askRefresh();
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      window.dispatchEvent(new CustomEvent('refresh'));
     }
   }
 

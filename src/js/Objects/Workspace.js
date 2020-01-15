@@ -159,9 +159,9 @@ export class Workspace {
     this.zoomLevel = newZoomLevel;
 
     if (doRefresh) {
-      app.drawAPI.askRefresh('main');
-      app.drawAPI.askRefresh('upper');
-      app.drawAPI.askRefresh('background');
+      window.dispatchEvent(new CustomEvent('refresh'));
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      window.dispatchEvent(new CustomEvent('refreshBackground'));
     }
   }
 
@@ -183,9 +183,9 @@ export class Workspace {
     app.drawAPI.scaleView(this.zoomLevel); //TODO: nécessaire?
 
     if (doRefresh) {
-      app.drawAPI.askRefresh('main');
-      app.drawAPI.askRefresh('upper');
-      app.drawAPI.askRefresh('background');
+      window.dispatchEvent(new CustomEvent('refresh'));
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      window.dispatchEvent(new CustomEvent('refreshBackground'));
     }
   }
 

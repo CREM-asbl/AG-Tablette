@@ -1,7 +1,4 @@
 import { app } from '../App';
-import { CreateAction } from './Actions/Create';
-import { RotateAction } from './Actions/Rotate';
-import { MoveAction } from './Actions/Move';
 import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
 
@@ -34,11 +31,9 @@ export class CreateState extends State {
 
     this.selectedFamily = family;
     app.selectedFamily = this.selectedFamily;
-    this.selectedShape = null;
 
     window.addEventListener('shapeSelected', this.handler);
     window.setTimeout(() => window.dispatchEvent(new CustomEvent('family-selected')), 0);
-    this.status = 'running';
   }
 
   restart() {
@@ -53,16 +48,13 @@ export class CreateState extends State {
     window.dispatchEvent(new CustomEvent('family-selected'));
     window.addEventListener('shapeSelected', this.handler);
     window.addEventListener('canvasmousedown', this.handler);
-    this.status = 'running';
   }
 
   end() {
     app.selectedShape = null;
-    this.shapeToCreate = null;
     window.removeEventListener('shapeSelected', this.handler);
     window.removeEventListener('canvasmousedown', this.handler);
     window.removeEventListener('canvasmouseup', this.handler);
-    this.status = 'idle';
   }
 
   _actionHandle(event) {
@@ -95,7 +87,8 @@ export class CreateState extends State {
 
     this.currentStep = 'moving-shape';
     window.addEventListener('canvasmouseup', this.handler);
-    app.drawAPI.askRefresh('upper');
+    app.lastKnownMouseCoordinates = mouseCoordinates;
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   onMouseUp(mouseCoordinates) {
@@ -135,12 +128,12 @@ export class CreateState extends State {
 
     this.executeAction();
     this.restart();
-    app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   draw(ctx, mouseCoordinates) {
-    if (this.currentStep != 'moving-shape') return;
+    if (this.currentStep != 'moving-shape' || this.status != 'running') return;
 
     this.shapeToCreate.coordinates = mouseCoordinates;
 

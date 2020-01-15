@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { CutAction } from './Actions/Cut';
 import { State } from './State';
 import { Point } from '../Objects/Point';
 import { mod, uniqId } from '../Tools/general';
@@ -11,42 +10,40 @@ export class CutState extends State {
   constructor() {
     super('cut_shape');
 
-    // listen-canvas-click -> select-second-point -> select-third-point -> showing-selected-points
-    //                                            -> showing-selected-points
+    // listen-canvas-click -> select-second-point -> select-third-point -> showing-points
+    //                                            -> showing-points
     this.currentStep = null;
 
     this.timeoutRef = null;
 
     this.shape = null;
 
-    this.constr = null;
+    this.constr = app.interactionAPI.getEmptySelectionConstraints();
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
-    this.end();
-    this.constr = app.interactionAPI.getEmptySelectionConstraints();
-
     this.currentStep = 'listen-canvas-click';
-    this.timeoutRef = null;
-    this.shape = null;
-    this.firstPoint = null;
-    this.secondPoint = null;
-    this.centerPoint = null;
     this.setSelConstraints(this.currentStep);
+
     window.addEventListener('objectSelected', this.handler);
   }
 
-  abort() {
-    window.clearTimeout(this.timeoutRef);
+  restart() {
+    this.end();
+    this.setSelConstraints(this.currentStep);
+
+    window.addEventListener('objectSelected', this.handler);
   }
 
   end() {
-    app.editingShapes = [];
+    window.clearTimeout(this.timeoutRef);
+    if (this.status != 'paused' || this.currentStep == 'showing-points')
+      this.currentStep = 'listen-canvas-click';
+
     window.removeEventListener('objectSelected', this.handler);
-    window.removeEventListener('canvasclick', this.handler);
   }
 
   _actionHandle(event) {
@@ -60,7 +57,7 @@ export class CutState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'un point a été sélectionnée (click)
    * @param  {Object} object            L'élément sélectionné
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(object) {
@@ -88,7 +85,7 @@ export class CutState extends State {
       } else if (this.isLineValid(pt2.shape, pt1, pt2)) {
         // On a sélectionné le second point: un autre point
         this.secondPoint = pt2;
-        this.currentStep = 'showing-selected-points';
+        this.currentStep = 'showing-points';
         window.clearTimeout(this.timeoutRef);
         this.timeoutRef = window.setTimeout(() => {
           this.execute();
@@ -112,15 +109,15 @@ export class CutState extends State {
         this.setSelConstraints(this.currentStep);
       } else if (this.isLineValid(pt2.shape, this.centerPoint, pt2)) {
         this.secondPoint = pt2;
-        this.currentStep = 'showing-selected-points';
+        this.currentStep = 'showing-points';
         window.clearTimeout(this.timeoutRef);
         this.timeoutRef = window.setTimeout(() => {
           this.execute();
         }, 500);
       }
     }
-    app.drawAPI.askRefresh();
-    app.drawAPI.askRefresh('upper');
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   execute() {
@@ -135,16 +132,17 @@ export class CutState extends State {
       },
     ];
     this.executeAction();
-    this.start();
+    this.currentStep = 'listen-canvas-click';
+    this.restart();
 
-    app.drawAPI.askRefresh();
-    app.drawAPI.askRefresh('upper');
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Context2D} ctx              Le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
+   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx) {
     if (this.currentStep == 'select-second-point') {
@@ -157,7 +155,7 @@ export class CutState extends State {
       app.drawAPI.drawPoint(ctx, coords1, '#E90CC8', 2);
       app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
     }
-    if (this.currentStep == 'showing-selected-points') {
+    if (this.currentStep == 'showing-points') {
       let coords1 = this.firstPoint,
         coords2 = this.secondPoint;
       app.drawAPI.drawPoint(ctx, coords1, '#E90CC8', 2);

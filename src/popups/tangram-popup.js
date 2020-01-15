@@ -119,7 +119,7 @@ class TangramPopup extends LitElement {
       type: type,
       id: id,
     });
-    app.drawAPI.askRefresh('background');
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
     this.style.display = 'none';
 
     let actions = app.workspace.shapes
@@ -140,7 +140,7 @@ class TangramPopup extends LitElement {
 
     actions.forEach(action => action.do());
     app.workspace.history.addStep(actions);
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   addTangram(event) {
@@ -199,7 +199,7 @@ class TangramPopup extends LitElement {
           app.workspace.settings.update('isTangramShown', false);
         }
 
-        app.drawAPI.askRefresh('background');
+        window.dispatchEvent(new CustomEvent('refreshBackground'));
         break;
 
       default:

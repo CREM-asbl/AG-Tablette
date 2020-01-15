@@ -112,7 +112,7 @@ class SettingsPopup extends LitElement {
       case 'settings_pointed_shapes':
         app.settings.update('areShapesPointed', event.target.checked);
         this.settings.data.areShapesPointed.value = event.target.checked;
-        app.drawAPI.askRefresh('main');
+        window.dispatchEvent(new CustomEvent('refresh'));
         break;
 
       default:

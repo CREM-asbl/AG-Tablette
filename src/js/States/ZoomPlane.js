@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { ZoomPlaneAction } from './Actions/ZoomPlane';
 import { State } from './State';
 import { Point } from '../Objects/Point';
 
@@ -7,7 +6,6 @@ import { Point } from '../Objects/Point';
  * Zoomer/Dézoomer le plan
  */
 export class ZoomPlaneState extends State {
-  //TODO: faire un zoom centré au milieu de l'écran et pas en haut à gauche.
   constructor() {
     super('zoom_plane');
 
@@ -17,23 +15,23 @@ export class ZoomPlaneState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
-    this.end();
-
     this.currentStep = 'listen-canvas-click';
     this.baseDist = null;
 
     window.addEventListener('canvasmousedown', this.handler);
   }
 
-  abort() {
-    this.start();
+  restart() {
+    this.end();
+    this.currentStep = 'listen-canvas-click';
+
+    window.addEventListener('canvasmousedown', this.handler);
   }
 
   end() {
-    app.editingShapes = [];
     window.removeEventListener('canvasmousedown', this.handler);
     window.removeEventListener('canvasmousemove', this.handler);
     window.removeEventListener('canvasmouseup', this.handler);
@@ -51,20 +49,20 @@ export class ZoomPlaneState extends State {
     }
   }
 
-  onMouseDown(clickCoordinates) {
+  onMouseDown(mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    this.baseDist = this.getDist(clickCoordinates);
+    this.baseDist = this.getDist(mouseCoordinates);
 
     this.currentStep = 'zooming-plane';
     window.addEventListener('canvasmousemove', this.handler);
     window.addEventListener('canvasmouseup', this.handler);
   }
 
-  onMouseMove(clickCoordinates) {
+  onMouseMove(mouseCoordinates) {
     if (this.currentStep != 'zooming-plane') return;
 
-    let newDist = this.getDist(clickCoordinates),
+    let newDist = this.getDist(mouseCoordinates),
       scaleOffset = newDist / this.baseDist,
       originalZoom = app.workspace.zoomLevel,
       minZoom = app.settings.get('minZoomLevel'),
@@ -83,14 +81,10 @@ export class ZoomPlaneState extends State {
         1 / originalZoom,
       ),
       newWinSize = actualWinSize.multiplyWithScalar(1 / scaleOffset),
-      newTranslateoffset = new Point({
-        x:
-          (originalTranslateOffset.x / originalZoom - (actualWinSize.x - newWinSize.x) / 2) *
-          newZoom,
-        y:
-          (originalTranslateOffset.y / originalZoom - (actualWinSize.y - newWinSize.y) / 2) *
-          newZoom,
-      });
+      newTranslateoffset = new Point(
+        (originalTranslateOffset.x / originalZoom - (actualWinSize.x - newWinSize.x) / 2) * newZoom,
+        (originalTranslateOffset.y / originalZoom - (actualWinSize.y - newWinSize.y) / 2) * newZoom,
+      );
 
     app.workspace.setZoomLevel(newZoom, false);
     app.workspace.setTranslateOffset(newTranslateoffset);
@@ -99,10 +93,10 @@ export class ZoomPlaneState extends State {
     app.workspace.setZoomLevel(originalZoom, false);
   }
 
-  onMouseUp(clickCoordinates) {
+  onMouseUp(mouseCoordinates) {
     if (this.currentStep != 'zooming-plane') return;
 
-    let offset = this.getDist(clickCoordinates) / this.baseDist,
+    let offset = this.getDist(mouseCoordinates) / this.baseDist,
       actualZoom = app.workspace.zoomLevel,
       minZoom = app.settings.get('minZoomLevel'),
       maxZoom = app.settings.get('maxZoomLevel');
@@ -125,10 +119,10 @@ export class ZoomPlaneState extends State {
     ];
 
     this.executeAction();
-    this.start();
+    this.restart();
   }
 
-  getDist(clickCoordinates) {
+  getDist(mouseCoordinates) {
     let halfWinSize = new Point(app.cvsDiv.clientWidth, app.cvsDiv.clientHeight).multiplyWithScalar(
         1 / app.workspace.zoomLevel / 2,
       ),
@@ -136,7 +130,7 @@ export class ZoomPlaneState extends State {
         1 / app.workspace.zoomLevel,
       ),
       center = halfWinSize.subCoordinates(translateOffset),
-      dist = center.dist(clickCoordinates);
+      dist = center.dist(mouseCoordinates);
 
     if (dist == 0) dist = 0.001;
     return dist;

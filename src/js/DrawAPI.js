@@ -13,11 +13,25 @@ export class DrawAPI {
     this.backgroundCtx = this.canvas.background.getContext('2d');
     this.invisibleCtx = this.canvas.invisible.getContext('2d');
 
-    this.lastKnownMouseCoordinates = null;
-
     window.addEventListener('canvasmousemove', event => {
-      this.lastKnownMouseCoordinates = event.detail.mousePos;
+      app.lastKnownMouseCoordinates = event.detail.mousePos;
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+    });
+
+    window.addEventListener('refresh', event => {
+      this.refreshMain();
+    });
+
+    window.addEventListener('refreshMain', event => {
+      this.refreshMain();
+    });
+
+    window.addEventListener('refreshUpper', event => {
       this.refreshUpper();
+    });
+
+    window.addEventListener('refreshBackground', event => {
+      this.refreshBackground();
     });
   }
 
@@ -49,14 +63,14 @@ export class DrawAPI {
     this.backgroundCtx.scale(relativeScale, relativeScale);
   }
 
-  askRefresh(canvas = 'main') {
-    if (canvas == 'main') this.refreshMain();
-    else if (canvas == 'upper') this.refreshUpper();
-    else if (canvas == 'background') this.refreshBackground();
-    //TODO: limite de refresh par seconde? windowAnimationFrame?
-    //TODO: ne pas mettre les canvas à jour qd mouseMove pendant une animFrame
-    //TODO: vérifier que seule cette fonction est appelée de l'extérieur.
-  }
+  // askRefresh(canvas = 'main') {
+  //   if (canvas == 'main') this.refreshMain();
+  //   else if (canvas == 'upper') this.refreshUpper();
+  //   else if (canvas == 'background') this.refreshBackground();
+  //   //TODO: limite de refresh par seconde? windowAnimationFrame?
+  //   //TODO: ne pas mettre les canvas à jour qd mouseMove pendant une animFrame
+  //   //TODO: vérifier que seule cette fonction est appelée de l'extérieur.
+  // }
 
   refreshBackground() {
     this.clearCtx(this.backgroundCtx);
@@ -119,7 +133,7 @@ export class DrawAPI {
     this.clearCtx(this.upperCtx);
     window.dispatchEvent(
       new CustomEvent('drawUpper', {
-        detail: { ctx: this.upperCtx, mouseCoordinates: this.lastKnownMouseCoordinates },
+        detail: { ctx: this.upperCtx },
       }),
     );
     // if (app.state) {

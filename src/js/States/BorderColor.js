@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { BorderColorAction } from './Actions/BorderColor';
 import { State } from './State';
 
 /**
@@ -10,31 +9,30 @@ export class BorderColorState extends State {
     super('border_color');
 
     this.currentStep = null; // choose-color -> listen-canvas-click
-
-    this.selectedColor = null;
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
-  start(callColorPicker = true) {
-    this.end();
-
+  start() {
+    this.currentStep = 'listen-canvas-click';
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
-    if (callColorPicker) {
-      app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
-      this.currentStep = 'choose-color';
-    } else {
-      this.currentStep = 'listen-canvas-click';
-    }
+    app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
+
+    window.addEventListener('objectSelected', this.handler);
+    window.addEventListener('colorChange', this.handler);
+  }
+
+  restart() {
+    this.end();
+    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
   }
 
   end() {
-    app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('colorChange', this.handler);
   }
@@ -50,7 +48,7 @@ export class BorderColorState extends State {
   }
 
   setColor(color) {
-    this.selectedColor = color;
+    app.selectedColor = color;
     this.currentStep = 'listen-canvas-click';
   }
 
@@ -70,14 +68,13 @@ export class BorderColorState extends State {
       {
         name: 'BorderColorAction',
         involvedShapesIds: involvedShapes.map(s => s.id),
-        selectedColor: this.selectedColor,
+        selectedColor: app.selectedColor,
         oldColors: involvedShapes.map(s => s.borderColor),
       },
     ];
 
     this.executeAction();
-    this.start(false);
 
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 }

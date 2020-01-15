@@ -35,7 +35,10 @@ export class ZoomPlaneAction extends Action {
   }
 
   checkDoParameters() {
-    if (!Number.isFinite(this.scaleOffset)) return false;
+    if (!Number.isFinite(this.scaleOffset)) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 

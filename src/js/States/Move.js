@@ -1,6 +1,4 @@
 import { app } from '../App';
-import { MoveAction } from './Actions/Move';
-import { RotateAction } from './Actions/Rotate';
 import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
 import { Point } from '../Objects/Point';
@@ -28,33 +26,27 @@ export class MoveState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    this.selectedShape = null;
-    this.involvedShapes = [];
     app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
 
     window.addEventListener('objectSelected', this.handler);
-    this.status = 'running';
   }
 
   restart() {
     this.end();
-    this.currentStep = 'listen-canvas-click';
-    this.selectedShape = null;
-    this.involvedShapes = [];
+    app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
 
     window.addEventListener('objectSelected', this.handler);
-    this.status = 'running';
   }
 
   end() {
+    this.currentStep = 'listen-canvas-click';
     app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('canvasclick', this.handler);
-    this.status = 'idle';
   }
 
   _actionHandle(event) {
@@ -70,20 +62,21 @@ export class MoveState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, clickCoordinates) {
+  objectSelected(shape, mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.selectedShape = shape;
     this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
-    this.startClickCoordinates = clickCoordinates;
+    this.startClickCoordinates = mouseCoordinates;
 
     app.editingShapes = this.involvedShapes;
     this.currentStep = 'moving-shape';
     window.addEventListener('canvasmouseup', this.handler);
-    app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh();
+    app.lastKnownMouseCoordinates = mouseCoordinates;
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**
@@ -123,8 +116,9 @@ export class MoveState extends State {
 
     this.executeAction();
     this.restart();
-    app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh();
+    app.lastKnownMouseCoordinates = mouseCoordinates;
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**

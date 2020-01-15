@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { DeleteAction } from './Actions/Delete';
 import { State } from './State';
 import { Shape } from '../Objects/Shape';
 
@@ -10,27 +9,31 @@ import { Shape } from '../Objects/Shape';
 export class DeleteState extends State {
   constructor() {
     super('delete_shape');
+
+    this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
+    this.selConstr.eventType = 'click';
+    this.selConstr.shapes.canSelect = true;
+    this.selConstr.points.canSelect = true;
+    this.selConstr.points.types = ['segmentPoint'];
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
+    app.interactionAPI.setSelectionConstraints(this.selConstr);
+
+    window.addEventListener('objectSelected', this.handler);
+  }
+
+  restart() {
     this.end();
-
-    let selConstr = app.interactionAPI.getEmptySelectionConstraints();
-    selConstr.eventType = 'click';
-    selConstr.shapes.canSelect = true;
-    selConstr.points.canSelect = true;
-    selConstr.points.types = ['segmentPoint'];
-
-    app.interactionAPI.setSelectionConstraints(selConstr);
+    app.interactionAPI.setSelectionConstraints(this.selConstr);
 
     window.addEventListener('objectSelected', this.handler);
   }
 
   end() {
-    app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
   }
 
@@ -45,10 +48,10 @@ export class DeleteState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'une forme ou un point a été sélectionné (click)
    * @param  {Object} object            La forme ou le point sélectionné
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(object, clickCoordinates, event) {
+  objectSelected(object, mouseCoordinates, event) {
     if (object instanceof Shape) {
       let userGroup = app.workspace.getShapeGroup(object),
         involvedShapes;
@@ -79,8 +82,7 @@ export class DeleteState extends State {
       ];
     }
     this.executeAction();
-    this.start();
 
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 }

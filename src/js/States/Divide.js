@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { DivideAction } from './Actions/Divide';
 import { State } from './State';
 import { Segment } from '../Objects/Segment';
 
@@ -16,15 +15,14 @@ export class DivideState extends State {
 
     this.timeoutRef = null;
 
-    this.selConstr = null;
-
     this.numberOfparts = null;
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
-  start(openPopup = true) {
+  start() {
+    this.currentStep = 'choose-nb-parts';
     this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
     this.selConstr.eventType = 'click';
     this.selConstr.segments.canSelect = true;
@@ -32,40 +30,27 @@ export class DivideState extends State {
     this.selConstr.points.types = ['vertex', 'segmentPoint'];
     app.interactionAPI.setSelectionConstraints(this.selConstr);
 
-    if (openPopup) {
-      this.currentStep = 'choose-nb-parts';
-      app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
-    } else {
-      this.currentStep = 'listen-canvas-click';
-    }
+    app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
-    this.status = 'running';
   }
 
   restart() {
     this.end();
-    this.currentStep = 'listen-canvas-click';
-
-    this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
-    this.selConstr.eventType = 'click';
-    this.selConstr.segments.canSelect = true;
-    this.selConstr.points.canSelect = true;
-    this.selConstr.points.types = ['vertex', 'segmentPoint'];
     app.interactionAPI.setSelectionConstraints(this.selConstr);
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
-    this.status = 'running';
   }
 
   end() {
     window.clearTimeout(this.timeoutRef);
-    app.editingShapes = [];
+    if (this.status != 'paused' || this.currentStep == 'showing-points')
+      this.currentStep = 'listen-canvas-click';
+
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('setNumberOfParts', this.handler);
-    this.status = 'idle';
   }
 
   _actionHandle(event) {
@@ -86,11 +71,10 @@ export class DivideState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'un point/segment a été sélectionnée (click)
    * @param  {Object} object            L'élément sélectionné
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(object) {
-    console.log(this);
     if (this.currentStep != 'listen-canvas-click' && this.currentStep != 'select-second-point')
       return;
 
@@ -121,8 +105,8 @@ export class DivideState extends State {
         this.selConstr.points.whitelist = pointsList;
         app.interactionAPI.setSelectionConstraints(this.selConstr);
 
-        app.drawAPI.askRefresh();
-        app.drawAPI.askRefresh('upper');
+        window.dispatchEvent(new CustomEvent('refresh'));
+        window.dispatchEvent(new CustomEvent('refreshUpper'));
         return;
       }
     } else {
@@ -143,8 +127,8 @@ export class DivideState extends State {
         this.selConstr.points.whitelist = null;
         app.interactionAPI.setSelectionConstraints(this.selConstr);
 
-        app.drawAPI.askRefresh();
-        app.drawAPI.askRefresh('upper');
+        window.dispatchEvent(new CustomEvent('refresh'));
+        window.dispatchEvent(new CustomEvent('refreshUpper'));
         return;
       } else if (pt1.type == 'vertex' && object.type == 'vertex') {
         /*
@@ -164,8 +148,8 @@ export class DivideState extends State {
           console.log('ambiguité, ne rien faire');
           this.restart();
 
-          app.drawAPI.askRefresh();
-          app.drawAPI.askRefresh('upper');
+          window.dispatchEvent(new CustomEvent('refresh'));
+          window.dispatchEvent(new CustomEvent('refreshUpper'));
           return;
         } else {
           this.actions[0].secondPoint = object;
@@ -181,8 +165,8 @@ export class DivideState extends State {
     this.timeoutRef = window.setTimeout(() => {
       this.execute();
     }, 500);
-    app.drawAPI.askRefresh();
-    app.drawAPI.askRefresh('upper');
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   execute() {
@@ -204,14 +188,14 @@ export class DivideState extends State {
     this.executeAction();
     this.restart();
 
-    app.drawAPI.askRefresh();
-    app.drawAPI.askRefresh('upper');
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Context2D} ctx              Le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
+   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx) {
     if (this.currentStep == 'select-second-point') {

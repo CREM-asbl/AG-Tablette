@@ -99,8 +99,8 @@ export class WorkspaceHistory {
     );
     // window.dispatchEvent(new CustomEvent('undo-' + detail.name, { detail: detail }));
     this.historyIndex--;
-    app.drawAPI.askRefresh();
-    app.drawAPI.askRefresh('upper');
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.updateMenuState();
   }
 
@@ -117,7 +117,7 @@ export class WorkspaceHistory {
     detail.forEach(step =>
       window.dispatchEvent(new CustomEvent('do-' + step.name, { detail: step })),
     );
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
     this.historyIndex++;
     this.updateMenuState();
   }

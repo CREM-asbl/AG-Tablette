@@ -1,6 +1,4 @@
 import { app } from '../App';
-import { BackgroundColorAction } from './Actions/BackgroundColor';
-import { OpacityAction } from './Actions/Opacity';
 import { State } from './State';
 
 /**
@@ -14,23 +12,27 @@ export class BackgroundColorState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
-  start(callColorPicker = true) {
-    this.end();
-
-    this.currentStep = 'choose-color';
-
+  start() {
+    this.currentStep = 'listen-canvas-click';
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
-    if (callColorPicker) app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
+    app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
+
+    window.addEventListener('objectSelected', this.handler);
+    window.addEventListener('colorChange', this.handler);
+  }
+
+  restart() {
+    this.end();
+    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
   }
 
   end() {
-    app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('colorChange', this.handler);
   }
@@ -46,7 +48,7 @@ export class BackgroundColorState extends State {
   }
 
   setColor(color) {
-    this.selectedColor = color;
+    app.selectedColor = color;
     this.currentStep = 'listen-canvas-click';
   }
 
@@ -66,7 +68,7 @@ export class BackgroundColorState extends State {
       {
         name: 'BackgroundColorAction',
         involvedShapesIds: involvedShapes.map(s => s.id),
-        selectedColor: this.selectedColor,
+        selectedColor: app.selectedColor,
         oldColors: involvedShapes.map(s => s.color),
       },
     ];
@@ -82,6 +84,6 @@ export class BackgroundColorState extends State {
     }
     this.executeAction();
 
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 }

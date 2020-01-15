@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { MergeAction } from './Actions/Merge';
 import { State } from './State';
 import { uniqId } from '../Tools/general';
 
@@ -19,10 +18,9 @@ export class MergeState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
-    this.end();
     this.currentStep = 'listen-canvas-click';
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
@@ -30,8 +28,19 @@ export class MergeState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  restart() {
+    this.end();
+    if (this.currentStep == 'selecting-second-shape') app.editingShapes = [this.firstShape];
+    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+
+    window.addEventListener('objectSelected', this.handler);
+  }
+
   end() {
-    app.editingShapes = [];
+    if (this.status != 'paused') {
+      app.editingShapes = [];
+      this.currentStep = 'listen-canvas-click';
+    }
     window.removeEventListener('objectSelected', this.handler);
   }
 
@@ -46,7 +55,7 @@ export class MergeState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape) {
@@ -54,8 +63,8 @@ export class MergeState extends State {
       this.currentStep = 'selecting-second-shape';
       this.firstShape = shape;
       app.editingShapes = [shape];
-      app.drawAPI.askRefresh();
-      app.drawAPI.askRefresh('upper');
+      window.dispatchEvent(new CustomEvent('refresh'));
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
       return;
     }
     if (this.currentStep != 'selecting-second-shape') return;
@@ -63,8 +72,8 @@ export class MergeState extends State {
       this.currentStep = 'listen-canvas-click';
       this.firstShape = null;
       app.editingShapes = [];
-      app.drawAPI.askRefresh();
-      app.drawAPI.askRefresh('upper');
+      window.dispatchEvent(new CustomEvent('refresh'));
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
       return;
     }
     this.secondShape = shape;
@@ -89,9 +98,9 @@ export class MergeState extends State {
     ];
 
     this.executeAction();
-    this.start();
-    app.drawAPI.askRefresh();
-    app.drawAPI.askRefresh('upper');
+    this.restart();
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**

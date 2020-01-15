@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { GroupAction } from './Actions/Group';
 import { State } from './State';
 import { uniqId } from '../Tools/general';
 
@@ -19,26 +18,38 @@ export class GroupState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
-    this.end();
     this.currentStep = 'listen-canvas-click';
-
-    this.group = null;
-    this.firstShape = null;
-
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     window.addEventListener('objectSelected', this.handler);
   }
 
-  abort() {
-    this.start();
+  restart() {
+    this.end();
+    if (this.currentStep == 'listen-canvas-click') {
+      app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    } else {
+      let shapesList = [];
+      if (this.currentStep == 'selecting-second-shape') shapesList = [this.firstShape];
+      else shapesList = this.group.shapesIds.map(id => app.workspace.getShapeById(id));
+
+      let constr = app.interactionAPI.getEmptySelectionConstraints();
+      constr.eventType = 'click';
+      constr.shapes.canSelect = true;
+      constr.shapes.blacklist = shapesList;
+      app.interactionAPI.setSelectionConstraints(constr);
+    }
+
+    window.addEventListener('objectSelected', this.handler);
   }
 
   end() {
-    app.editingShapes = [];
+    if (this.status != 'paused') {
+      this.currentStep = 'listen-canvas-click';
+    }
     window.removeEventListener('objectSelected', this.handler);
   }
 
@@ -53,10 +64,10 @@ export class GroupState extends State {
   /**
    * Appelée par interactionAPI quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, clickCoordinates, event) {
+  objectSelected(shape, mouseCoordinates, event) {
     //Étapes
     if (this.currentStep == 'listen-canvas-click') {
       let userGroup = app.workspace.getShapeGroup(shape);
@@ -141,8 +152,8 @@ export class GroupState extends State {
     constr.shapes.blacklist = shapesList;
     app.interactionAPI.setSelectionConstraints(constr);
 
-    app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**

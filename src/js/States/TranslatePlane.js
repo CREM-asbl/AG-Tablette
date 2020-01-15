@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { TranslatePlaneAction } from './Actions/TranslatePlane';
 import { State } from './State';
 
 /**
@@ -15,24 +14,22 @@ export class TranslatePlaneState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
-    this.end();
-
     this.currentStep = 'listen-canvas-click';
-
-    this.startClickCoordinates = null;
 
     window.addEventListener('canvasmousedown', this.handler);
   }
 
-  abort() {
-    this.start();
+  restart() {
+    this.end();
+    this.currentStep = 'listen-canvas-click';
+
+    window.addEventListener('canvasmousedown', this.handler);
   }
 
   end() {
-    app.editingShapes = [];
     window.removeEventListener('canvasmousedown', this.handler);
     window.removeEventListener('canvasmousemove', this.handler);
     window.removeEventListener('canvasmouseup', this.handler);
@@ -50,21 +47,21 @@ export class TranslatePlaneState extends State {
     }
   }
 
-  onMouseDown(clickCoordinates, event) {
+  onMouseDown(mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    this.startClickCoordinates = clickCoordinates;
+    this.startClickCoordinates = mouseCoordinates;
     this.currentStep = 'translating-plane';
 
     window.addEventListener('canvasmousemove', this.handler);
     window.addEventListener('canvasmouseup', this.handler);
   }
 
-  onMouseMove(clickCoordinates, event) {
+  onMouseMove(mouseCoordinates) {
     if (this.currentStep != 'translating-plane') return;
     let factor = app.workspace.zoomLevel,
       saveOffset = app.workspace.translateOffset,
-      clickDiff = clickCoordinates
+      clickDiff = mouseCoordinates
         .subCoordinates(this.startClickCoordinates)
         .multiplyWithScalar(factor),
       offset = saveOffset.addCoordinates(clickDiff);
@@ -73,19 +70,19 @@ export class TranslatePlaneState extends State {
     app.workspace.setTranslateOffset(saveOffset, false);
   }
 
-  onMouseUp(clickCoordinates, event) {
+  onMouseUp(mouseCoordinates) {
     if (this.currentStep != 'translating-plane') return;
 
     let factor = app.workspace.zoomLevel;
     this.actions = [
       {
         name: 'TranslatePlaneAction',
-        offset: clickCoordinates
+        offset: mouseCoordinates
           .subCoordinates(this.startClickCoordinates)
           .multiplyWithScalar(factor),
       },
     ];
     this.executeAction();
-    this.start();
+    this.restart();
   }
 }

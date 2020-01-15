@@ -10,7 +10,7 @@ export class ToBackgroundState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
@@ -18,8 +18,14 @@ export class ToBackgroundState extends State {
     window.addEventListener('objectSelected', this.handler);
   }
 
+  restart() {
+    this.end();
+    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+
+    window.addEventListener('objectSelected', this.handler);
+  }
+
   end() {
-    app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
   }
 
@@ -34,10 +40,9 @@ export class ToBackgroundState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, clickCoordinates, event) {
+  objectSelected(shape, mouseCoordinates) {
     this.actions = [
       {
         name: 'ToBackgroundAction',
@@ -45,8 +50,7 @@ export class ToBackgroundState extends State {
       },
     ];
     this.executeAction();
-    this.start();
 
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 }

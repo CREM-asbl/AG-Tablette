@@ -110,7 +110,7 @@ class GridPopup extends LitElement {
     switch (event.target.name) {
       case 'grid_popup_grid_size':
         app.workspace.settings.update('gridSize', event.target.value);
-        app.drawAPI.askRefresh('background');
+        window.dispatchEvent(new CustomEvent('refreshBackground'));
         break;
 
       case 'grid_popup_grid_type':
@@ -118,7 +118,7 @@ class GridPopup extends LitElement {
         this.shadowRoot.getElementById('grid_popup_grid_size').disabled =
           event.target.value === 'none';
         app.workspace.settings.update('isGridShown', event.target.value !== 'none');
-        app.drawAPI.askRefresh('background');
+        window.dispatchEvent(new CustomEvent('refreshBackground'));
         break;
 
       default:

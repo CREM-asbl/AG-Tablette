@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { OpacityAction } from './Actions/Opacity';
 import { State } from './State';
 
 /**
@@ -13,10 +12,9 @@ export class OpacityState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
-    this.end();
     this.currentStep = 'choose-opacity';
 
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
@@ -27,10 +25,17 @@ export class OpacityState extends State {
     window.addEventListener('setOpacity', this.handler);
   }
 
+  restart() {
+    this.end();
+    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+
+    window.addEventListener('objectSelected', this.handler);
+    window.addEventListener('setOpacity', this.handler);
+  }
+
   end() {
-    app.editingShapes = [];
     window.removeEventListener('objectSelected', this.handler);
-    window.removeEventListener('setNumberOfParts', this.handler);
+    window.removeEventListener('setOpacity', this.handler);
   }
 
   _actionHandle(event) {
@@ -51,10 +56,10 @@ export class OpacityState extends State {
   /**
    * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, clickCoordinates, event) {
+  objectSelected(shape, mouseCoordinates, event) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     let group = app.workspace.getShapeGroup(shape),
@@ -72,6 +77,6 @@ export class OpacityState extends State {
     ];
     this.executeAction();
 
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 }

@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { ReverseAction } from './Actions/Reverse';
 import { State } from './State';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
@@ -44,30 +43,40 @@ export class ReverseState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
-    this.end();
     this.currentStep = 'listen-canvas-click';
-
-    this.selectedShape = null;
-    this.startTime = null;
-    this.axe = null;
-    this.involvedShapes = [];
-    this.requestAnimFrameId = null;
-
     app.interactionAPI.setFastSelectionConstraints('click_all_shape');
 
     window.addEventListener('objectSelected', this.handler);
   }
 
-  abort() {
-    window.cancelAnimationFrame(this.requestAnimFrameId);
-    this.start();
+  restart() {
+    this.end();
+    if (this.currentStep == 'selecting-symmetrical-arch') {
+      let constr = app.interactionAPI.getEmptySelectionConstraints();
+      constr.eventType = 'click';
+      constr.shapes.canSelect = true;
+      constr.points.blacklist = [this.selectedShape];
+      app.interactionAPI.setSelectionConstraints(constr);
+      window.addEventListener('canvasclick', this.handler);
+    } else {
+      app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    }
+
+    window.addEventListener('canvasclick', this.handler);
+    window.addEventListener('objectSelected', this.handler);
   }
 
   end() {
-    app.editingShapes = [];
+    window.cancelAnimationFrame(this.requestAnimFrameId);
+    if (this.status != 'paused') {
+      this.currentStep = 'listen-canvas-click';
+      this.selectedShape = null;
+      app.editingShapes = [];
+    }
+
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('canvasclick', this.handler);
   }
@@ -85,12 +94,17 @@ export class ReverseState extends State {
   /**
    * Appelée par interactionAPI quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {{x: float, y: float}} clickCoordinates Les coordonnées du click
+   * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, clickCoordinates, event) {
+  objectSelected(shape, mouseCoordinates, event) {
     if (this.currentStep == 'reversing-shape') return;
     if (this.selectedShape && this.selectedShape.id == shape.id) return;
+    if (
+      this.selectedShape &&
+      mouseCoordinates.dist(this.selectedShape.center) < this.symmetricalAxeLength
+    )
+      return;
 
     this.selectedShape = shape;
     this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
@@ -104,17 +118,16 @@ export class ReverseState extends State {
     window.removeEventListener('canvasclick', this.handler);
     window.addEventListener('canvasclick', this.handler);
     this.currentStep = 'selecting-symmetrical-arch';
-    app.drawAPI.askRefresh('upper');
-    app.drawAPI.askRefresh();
-    // this.currentStep = '';
-    // window.setTimeout(() => this.currentStep = 'selecting-symmetrical-arch', 0);
+    app.editingShapes = this.involvedShapes;
+    app.lastKnownMouseCoordinates = mouseCoordinates;
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**
    * Appelée lorsque l'événement click est déclanché sur le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates les coordonnées de la souris
+   * @param  {Point} mouseCoordinates les coordonnées de la souris
    * @param  {Event} event     l'événement javascript
-   * @return {Boolean}         false: désactive l'appel à objectSelected pour cet événement.
    */
   onClick(mouseCoordinates, event) {
     if (this.currentStep != 'selecting-symmetrical-arch') return true;
@@ -146,8 +159,7 @@ export class ReverseState extends State {
       });
     });
 
-    app.editingShapes = this.involvedShapes;
-    app.drawAPI.askRefresh();
+    window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
 
     return false;
@@ -209,22 +221,22 @@ export class ReverseState extends State {
         },
       ];
       this.executeAction();
-      this.start();
-      app.drawAPI.askRefresh('upper');
-      app.drawAPI.askRefresh();
+      this.restart();
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      window.dispatchEvent(new CustomEvent('refresh'));
     } else {
-      app.drawAPI.askRefresh('upper');
-      this.requestAnimFrameId = window.requestAnimFrame(() => this.animate());
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
     }
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Context2D} ctx              Le canvas
-   * @param  {{x: float, y: float}} mouseCoordinates Les coordonnées de la souris
+   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx, mouseCoordinates) {
-    if (this.currentStep == 'reversing-shape') {
+    if (this.currentStep == 'reversing-shape' && this.status == 'running') {
       //TODO: opti: ne pas devoir faire des copies à chaque refresh!
       this.involvedShapes.forEach(s => {
         let s2 = s.copy();
@@ -242,11 +254,11 @@ export class ReverseState extends State {
         false,
       );
       return;
-    }
-  }
+    } else if (this.currentStep == 'selecting-symmetrical-arch') {
+      this.involvedShapes.forEach(s => {
+        app.drawAPI.drawShape(ctx, s);
+      });
 
-  shapeDrawn(ctx, shape) {
-    if (this.selectedShape && this.selectedShape.id == shape.id) {
       let axes = [
         this.getSymmetricalAxe('V'),
         this.getSymmetricalAxe('NW'),
