@@ -47,7 +47,7 @@ export class ReverseState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -58,14 +58,13 @@ export class ReverseState extends State {
   restart() {
     this.end();
     if (this.currentStep == 'selecting-symmetrical-arch') {
-      let constr = app.interactionAPI.getEmptySelectionConstraints();
-      constr.eventType = 'click';
-      constr.shapes.canSelect = true;
-      constr.points.blacklist = [this.selectedShape];
-      app.interactionAPI.setSelectionConstraints(constr);
+      window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+      app.selectionConstraints.eventType = 'click';
+      app.selectionConstraints.shapes.canSelect = true;
+      app.selectionConstraints.points.blacklist = [this.selectedShape];
       window.addEventListener('canvasclick', this.handler);
     } else {
-      app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+      app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
     }
 
     window.addEventListener('canvasclick', this.handler);
@@ -115,11 +114,10 @@ export class ReverseState extends State {
     this.selectedShape = shape;
     this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
 
-    let constr = app.interactionAPI.getEmptySelectionConstraints();
-    constr.eventType = 'click';
-    constr.shapes.canSelect = true;
-    constr.points.blacklist = [shape];
-    app.interactionAPI.setSelectionConstraints(constr);
+    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    app.selectionConstraints.eventType = 'click';
+    app.selectionConstraints.shapes.canSelect = true;
+    app.selectionConstraints.points.blacklist = [shape];
 
     window.removeEventListener('canvasclick', this.handler);
     window.addEventListener('canvasclick', this.handler);

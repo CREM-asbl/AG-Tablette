@@ -19,8 +19,6 @@ export class CutState extends State {
     this.shape = null;
 
     this.drawColor = '#E90CC8';
-
-    this.constr = app.interactionAPI.getEmptySelectionConstraints();
   }
 
   /**
@@ -214,19 +212,20 @@ export class CutState extends State {
   }
 
   setSelConstraints(step) {
-    this.constr.eventType = 'click';
-    this.constr.points.canSelect = true;
+    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    app.selectionConstraints.eventType = 'click';
+    app.selectionConstraints.points.canSelect = true;
     if (step == 'listen-canvas-click') {
-      this.constr.points.types = ['vertex', 'segmentPoint'];
-      this.constr.points.whitelist = null;
-      this.constr.points.blacklist = null;
+      app.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
+      app.selectionConstraints.points.whitelist = null;
+      app.selectionConstraints.points.blacklist = null;
     } else if (step == 'select-second-point') {
       let object = this.firstPoint,
         shape = object.shape,
         segments = shape.segments;
 
-      this.constr.points.types = ['vertex', 'segmentPoint', 'center'];
-      this.constr.points.whitelist = [shape];
+      app.selectionConstraints.points.types = ['vertex', 'segmentPoint', 'center'];
+      app.selectionConstraints.points.whitelist = [shape];
 
       //blacklist
       let vertexToAdd = [],
@@ -263,12 +262,11 @@ export class CutState extends State {
           })
           .flat(),
       );
-      this.constr.points.blacklist = list;
+      app.selectionConstraints.points.blacklist = list;
     } else if (step == 'select-third-point') {
-      this.constr.points.types = ['vertex', 'segmentPoint', 'center'];
-      this.constr.points.whitelist = null;
-      this.constr.points.blacklist = null;
+      app.selectionConstraints.points.types = ['vertex', 'segmentPoint', 'center'];
+      app.selectionConstraints.points.whitelist = null;
+      app.selectionConstraints.points.blacklist = null;
     }
-    app.interactionAPI.setSelectionConstraints(this.constr);
   }
 }

@@ -22,7 +22,7 @@ export class GroupState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -33,17 +33,16 @@ export class GroupState extends State {
   restart() {
     this.end();
     if (this.currentStep == 'listen-canvas-click') {
-      app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+      app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
     } else {
       let shapesList = [];
       if (this.currentStep == 'selecting-second-shape') shapesList = [this.firstShape];
       else shapesList = this.group.shapesIds.map(id => app.workspace.getShapeById(id));
 
-      let constr = app.interactionAPI.getEmptySelectionConstraints();
-      constr.eventType = 'click';
-      constr.shapes.canSelect = true;
-      constr.shapes.blacklist = shapesList;
-      app.interactionAPI.setSelectionConstraints(constr);
+      window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+      app.selectionConstraints.eventType = 'click';
+      app.selectionConstraints.shapes.canSelect = true;
+      app.selectionConstraints.shapes.blacklist = shapesList;
     }
 
     window.addEventListener('objectSelected', this.handler);
@@ -152,11 +151,10 @@ export class GroupState extends State {
     if (this.currentStep == 'selecting-second-shape') shapesList = [this.firstShape];
     else shapesList = this.group.shapesIds.map(id => app.workspace.getShapeById(id));
 
-    let constr = app.interactionAPI.getEmptySelectionConstraints();
-    constr.eventType = 'click';
-    constr.shapes.canSelect = true;
-    constr.shapes.blacklist = shapesList;
-    app.interactionAPI.setSelectionConstraints(constr);
+    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    app.selectionConstraints.eventType = 'click';
+    app.selectionConstraints.shapes.canSelect = true;
+    app.selectionConstraints.shapes.blacklist = shapesList;
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));

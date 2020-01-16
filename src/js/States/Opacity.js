@@ -17,7 +17,7 @@ export class OpacityState extends State {
   start() {
     this.currentStep = 'choose-opacity';
 
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     app.appDiv.shadowRoot.querySelector('opacity-popup').style.display = 'block';
 
@@ -30,7 +30,7 @@ export class OpacityState extends State {
    */
   restart() {
     this.end();
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setOpacity', this.handler);

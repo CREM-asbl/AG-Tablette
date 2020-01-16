@@ -27,9 +27,6 @@ export class App {
     //Référence vers le <div> principal de l'app
     this.appDiv = null;
 
-    //L'API d'interaction (tout ce qui est lié aux événements)
-    this.interactionAPI = new InteractionAPI();
-
     //L'état de l'application
     this.state = null;
 
@@ -53,6 +50,15 @@ export class App {
 
     // Couleur sélectionnée pour border- ou backgroundColor
     this.selectedColor = '#000';
+
+    // Historique des actions
+    this.history = [];
+
+    // Index de la dernière action effectuée dans app.history
+    this.historyIndex = null;
+
+    // contrainte de sélection pour formes, segments et points
+    this.selectionConstraints = null;
 
     //Liste des tangrams
     this.tangrams = {
@@ -155,23 +161,11 @@ export class App {
    * @param {Object} startParams paramètres à transmettre à state.start()
    */
   setState(stateName, startParams) {
-    if (!stateName) {
-      this.state = undefined;
-      window.dispatchEvent(
-        new CustomEvent('app-state-changed', { detail: { startParams: startParams } }),
-      );
-      this.interactionAPI.resetSelectionConstraints();
-      window.dispatchEvent(new CustomEvent('refresh'));
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-      return;
-    }
+    this.state = stateName || undefined;
+
     //Reset state-menu
-    this.stateMenu.configureButtons([]);
+    // this.stateMenu.configureButtons([]); => utilité ?
 
-    //Reset interactionAPI parameters:
-    this.interactionAPI.resetSelectionConstraints();
-
-    this.state = stateName;
     window.dispatchEvent(
       new CustomEvent('app-state-changed', { detail: { startParams: startParams } }),
     );

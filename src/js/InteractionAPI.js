@@ -9,23 +9,32 @@ TODO:
  */
 export class InteractionAPI {
   constructor() {
-    /*
-        Contraintes sur ce que l'on peut sélectionner comme objet (forme,
-        segment et/ou point). Voir this.getEmptySelectionConstraints()
-    */
-    this.selectionConstraints = null;
-    this.resetSelectionConstraints();
-
     window.addEventListener('canvasmousedown', event =>
-      'mousedown' == this.selectionConstraints.eventType
+      'mousedown' == app.selectionConstraints.eventType
         ? this.selectObject(event.detail.mousePos)
         : null,
     );
     window.addEventListener('canvasclick', event =>
-      'click' == this.selectionConstraints.eventType
+      'click' == app.selectionConstraints.eventType
         ? this.selectObject(event.detail.mousePos)
         : null,
     );
+    window.addEventListener('reset-selection-constrains', () => {
+      app.selectionConstraints = this.getEmptySelectionConstraints();
+    });
+    window.addEventListener('app-state-changed', () => {
+      app.selectionConstraints = this.getEmptySelectionConstraints();
+    });
+    let click_all_shape_constr = this.getEmptySelectionConstraints();
+    click_all_shape_constr.eventType = 'click';
+    click_all_shape_constr.shapes.canSelect = true;
+    let mousedown_all_shape_constr = this.getEmptySelectionConstraints();
+    mousedown_all_shape_constr.eventType = 'mousedown';
+    mousedown_all_shape_constr.shapes.canSelect = true;
+    app.fastSelectionConstraints = {
+      click_all_shape: click_all_shape_constr,
+      mousedown_all_shape: mousedown_all_shape_constr,
+    };
   }
 
   /**
@@ -128,13 +137,13 @@ export class InteractionAPI {
     };
   }
 
-  /**
-   * Définir les contraintes de sélection
-   * @param {Object} constr Voir this.getEmptySelectionConstraints()
-   */
-  setSelectionConstraints(constr) {
-    this.selectionConstraints = constr;
-  }
+  // /**
+  //  * Définir les contraintes de sélection
+  //  * @param {Object} constr Voir this.getEmptySelectionConstraints()
+  //  */
+  // setSelectionConstraints(constr) {
+  //   this.selectionConstraints = constr;
+  // }
 
   setFastSelectionConstraints(instruction) {
     if (instruction == 'click_all_shape') {
@@ -154,12 +163,12 @@ export class InteractionAPI {
     console.error('instruction not valid');
   }
 
-  /**
-   * Désactive la sélection.
-   */
-  resetSelectionConstraints() {
-    this.setSelectionConstraints(this.getEmptySelectionConstraints());
-  }
+  // /**
+  //  * Désactive la sélection.
+  //  */
+  // resetSelectionConstraints() {
+  //   this.setSelectionConstraints(this.getEmptySelectionConstraints());
+  // }
 
   /**
    * Essaie de sélectionner un point, en fonction des contraintes données.
@@ -444,7 +453,7 @@ export class InteractionAPI {
    *          - Pour un point: un objet de type Point;
    */
   selectObject(mouseCoordinates) {
-    let constr = this.selectionConstraints,
+    let constr = app.selectionConstraints,
       calls = {
         points: (mCoord, constr) => {
           return this.selectPoint(mCoord, constr);

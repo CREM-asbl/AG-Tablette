@@ -17,6 +17,8 @@ import './version-item';
 
 import { app } from './js/App';
 import { FileManager } from './js/FileManager';
+import { History } from './js/Objects/History';
+import { InteractionAPI } from './js/InteractionAPI';
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -39,6 +41,8 @@ class AGTabletteApp extends LitElement {
     this.canUndo = false;
     this.canRedo = false;
     new FileManager(); // to move
+    new History(); // to move
+    new InteractionAPI();
 
     window.addEventListener('app-state-changed', () => {
       this.state = app.state;
@@ -489,10 +493,12 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'undo':
-        if (this.canUndo) app.workspace.history.undo();
+        if (this.canUndo) window.dispatchEvent(new CustomEvent('undo-action'));
+        //  app.workspace.history.undo();
         break;
       case 'redo':
-        if (this.canRedo) app.workspace.history.redo();
+        if (this.canRedo) window.dispatchEvent(new CustomEvent('redo-action'));
+        // app.workspace.history.redo();
         break;
       case 'create_shape':
         app.setState(event.target.name, event.target.family);

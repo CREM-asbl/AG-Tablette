@@ -16,7 +16,7 @@ export class BackgroundColorState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
 
@@ -29,7 +29,7 @@ export class BackgroundColorState extends State {
    */
   restart() {
     this.end();
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);

@@ -25,14 +25,13 @@ export class DivideState extends State {
    */
   start() {
     this.currentStep = 'choose-nb-parts';
-    this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
-    this.selConstr.eventType = 'click';
-    this.selConstr.segments.canSelect = true;
-    this.selConstr.points.canSelect = true;
-    this.selConstr.points.types = ['vertex', 'segmentPoint'];
-    app.interactionAPI.setSelectionConstraints(this.selConstr);
-
     app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
+
+    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    app.selectionConstraints.eventType = 'click';
+    app.selectionConstraints.segments.canSelect = true;
+    app.selectionConstraints.points.canSelect = true;
+    app.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
@@ -43,7 +42,18 @@ export class DivideState extends State {
    */
   restart() {
     this.end();
-    app.interactionAPI.setSelectionConstraints(this.selConstr);
+    if (this.savedSelConstr) {
+      app.selectionConstraints = this.savedSelConstr;
+      this.savedSelConstr = null;
+    } else {
+      window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+      app.selectionConstraints.eventType = 'click';
+      app.selectionConstraints.segments.canSelect = true;
+      app.selectionConstraints.points.canSelect = true;
+      app.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
+      console.log('here');
+    }
+    console.log(app.selectionConstraints);
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
@@ -56,12 +66,9 @@ export class DivideState extends State {
     window.clearTimeout(this.timeoutRef);
     if (this.status != 'paused' || this.currentStep == 'showing-points') {
       this.currentStep = 'listen-canvas-click';
-      this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
-      this.selConstr.eventType = 'click';
-      this.selConstr.segments.canSelect = true;
-      this.selConstr.points.canSelect = true;
-      this.selConstr.points.types = ['vertex', 'segmentPoint'];
-      app.interactionAPI.setSelectionConstraints(this.selConstr);
+    } else if (!this.savedSelConstr) {
+      // paused
+      this.savedSelConstr = app.selectionConstraints;
     }
 
     window.removeEventListener('objectSelected', this.handler);
@@ -116,9 +123,8 @@ export class DivideState extends State {
         //Liste des points que l'on peut sélectionner comme 2ème point:
         let pointsList = this.getCandidatePoints(object);
 
-        this.selConstr.segments.canSelect = false;
-        this.selConstr.points.whitelist = pointsList;
-        app.interactionAPI.setSelectionConstraints(this.selConstr);
+        app.selectionConstraints.segments.canSelect = false;
+        app.selectionConstraints.points.whitelist = pointsList;
 
         window.dispatchEvent(new CustomEvent('refresh'));
         window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -138,9 +144,8 @@ export class DivideState extends State {
         this.actions = null;
 
         //reset selection constraints:
-        this.selConstr.segments.canSelect = true;
-        this.selConstr.points.whitelist = null;
-        app.interactionAPI.setSelectionConstraints(this.selConstr);
+        app.selectionConstraints.segments.canSelect = true;
+        app.selectionConstraints.points.whitelist = null;
 
         window.dispatchEvent(new CustomEvent('refresh'));
         window.dispatchEvent(new CustomEvent('refreshUpper'));

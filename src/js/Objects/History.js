@@ -8,20 +8,27 @@ import { Point } from './Point';
  */
 export class History {
   constructor() {
-    // Historique des actions
-    this.history = [];
+    // window.addEventListener('app-started', () => {
+    // Si gestion de actions au cas par cas
+    // Object.keys(app.actions).forEach(action => {
+    //   window.addEventListener(app.actions[action].name, event =>
+    //     this.addStep(event.detail),
+    //   );
+    // });
+    window.addEventListener('actions', event => this.addStep(event.detail));
+    // });
 
-    // Index de la dernière tâche réalisée
-    this.historyIndex = -1;
+    window.addEventListener('undo-action', () => {
+      this.undo();
+    });
+    window.addEventListener('redo-action', () => {
+      this.redo();
+    });
 
-    window.addEventListener('app-started', () => {
-      // Si gestion de actions au cas par cas
-      // Object.keys(app.actions).forEach(action => {
-      //   window.addEventListener(app.actions[action].name, event =>
-      //     this.addStep(event.detail),
-      //   );
-      // });
-      window.addEventListener('actions', event => this.addStep(event.detail));
+    window.addEventListener('history-change', event => {
+      app.history = event.detail.history;
+      app.historyIndex = event.detail.historyIndex;
+      this.updateMenuState();
     });
   }
 
@@ -34,20 +41,20 @@ export class History {
     app.appDiv.canRedo = this.canRedo();
   }
 
-  saveToObject() {
-    let save = {
-      historyIndex: this.historyIndex,
-      history: this.history,
-    };
-    return save;
-  }
+  // saveToObject() {
+  //   let save = {
+  //     historyIndex: app.historyIndex,
+  //     history: app.history,
+  //   };
+  //   return save;
+  // }
 
-  initFromObject(object) {
-    this.historyIndex = object.historyIndex;
-    this.history = object.history;
+  // initFromObject(object) {
+  //   app.historyIndex = object.historyIndex;
+  //   app.history = object.history;
 
-    this.updateMenuState();
-  }
+  //   this.updateMenuState();
+  // }
 
   transformToObject(actions) {
     let savedActions = [];
@@ -73,7 +80,7 @@ export class History {
    * @return {Boolean}
    */
   canUndo() {
-    return this.historyIndex != -1;
+    return app.historyIndex != -1;
   }
 
   /**
@@ -81,7 +88,7 @@ export class History {
    * @return {Boolean}
    */
   canRedo() {
-    return this.historyIndex < this.history.length - 1;
+    return app.historyIndex < app.history.length - 1;
   }
 
   /**
@@ -93,12 +100,12 @@ export class History {
       console.error('Nothing to undo');
       return;
     }
-    let detail = [...this.history[this.historyIndex]].reverse();
+    let detail = [...app.history[app.historyIndex]].reverse();
     detail.forEach(step =>
       window.dispatchEvent(new CustomEvent('undo-' + step.name, { detail: step })),
     );
     // window.dispatchEvent(new CustomEvent('undo-' + detail.name, { detail: detail }));
-    this.historyIndex--;
+    app.historyIndex--;
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.updateMenuState();
@@ -113,12 +120,12 @@ export class History {
       console.error('Nothing to redo');
       return;
     }
-    let detail = this.history[this.historyIndex + 1];
+    let detail = app.history[app.historyIndex + 1];
     detail.forEach(step =>
       window.dispatchEvent(new CustomEvent('do-' + step.name, { detail: step })),
     );
     window.dispatchEvent(new CustomEvent('refresh'));
-    this.historyIndex++;
+    app.historyIndex++;
     this.updateMenuState();
   }
 
@@ -128,12 +135,8 @@ export class History {
    * @param {[Action]} actions Les actions constituant l'étape
    */
   addStep(actions) {
-    this.history.splice(
-      this.historyIndex + 1,
-      this.history.length,
-      this.transformToObject(actions),
-    );
-    this.historyIndex = this.history.length - 1;
+    app.history.splice(app.historyIndex + 1, app.history.length, this.transformToObject(actions));
+    app.historyIndex = app.history.length - 1;
 
     this.updateMenuState();
   }

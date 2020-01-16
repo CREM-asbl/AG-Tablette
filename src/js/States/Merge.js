@@ -23,7 +23,7 @@ export class MergeState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
 
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -34,7 +34,7 @@ export class MergeState extends State {
   restart() {
     this.end();
     if (this.currentStep == 'selecting-second-shape') app.editingShapes = [this.firstShape];
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }

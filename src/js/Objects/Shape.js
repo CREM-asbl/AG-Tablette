@@ -425,8 +425,8 @@ export class Shape {
       stroke: this.borderColor,
       fill: this.isBiface && this.isReversed ? this.second_color : this.color,
       'fill-opacity': this.opacity,
-      'stroke-width': 1, // toujours a 1 ?
-      'stroke-opacity': this.opacity,
+      'stroke-width': 1, // toujours à 1 ?
+      'stroke-opacity': 1, // toujours à 1 ?
     };
 
     let path_tag = '<path';

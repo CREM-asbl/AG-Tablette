@@ -13,7 +13,7 @@ export class UngroupState extends State {
    * initialiser l'état
    */
   start() {
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -23,7 +23,7 @@ export class UngroupState extends State {
    */
   restart() {
     this.end();
-    app.interactionAPI.setFastSelectionConstraints('click_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }

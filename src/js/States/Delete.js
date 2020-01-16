@@ -9,19 +9,17 @@ import { Shape } from '../Objects/Shape';
 export class DeleteState extends State {
   constructor() {
     super('delete_shape');
-
-    this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
-    this.selConstr.eventType = 'click';
-    this.selConstr.shapes.canSelect = true;
-    this.selConstr.points.canSelect = true;
-    this.selConstr.points.types = ['segmentPoint'];
   }
 
   /**
    * initialiser l'état
    */
   start() {
-    app.interactionAPI.setSelectionConstraints(this.selConstr);
+    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    app.selectionConstraints.eventType = 'click';
+    app.selectionConstraints.shapes.canSelect = true;
+    app.selectionConstraints.points.canSelect = true;
+    app.selectionConstraints.points.types = ['segmentPoint'];
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -31,7 +29,11 @@ export class DeleteState extends State {
    */
   restart() {
     this.end();
-    app.interactionAPI.setSelectionConstraints(this.selConstr);
+    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    app.selectionConstraints.eventType = 'click';
+    app.selectionConstraints.shapes.canSelect = true;
+    app.selectionConstraints.points.canSelect = true;
+    app.selectionConstraints.points.types = ['segmentPoint'];
 
     window.addEventListener('objectSelected', this.handler);
   }

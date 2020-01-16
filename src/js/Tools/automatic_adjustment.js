@@ -148,7 +148,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     constr.canSelect = true;
     constr.types = ['vertex', 'segmentPoint', 'center'];
     constr.blacklist = shapes;
-    let pt = app.interactionAPI.selectPoint(point, constr, false, false);
+    let pt = app.interactionAPI.selectPoint(point, constr, false);
     if (pt) {
       cPtListShape.push({
         fixed: pt,

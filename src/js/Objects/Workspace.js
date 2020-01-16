@@ -24,9 +24,6 @@ export class Workspace {
     //L'environnement de travail de ce Workspace (ex: "Grandeur")
     this.environment = environment;
 
-    // Représente l'historique
-    this.history = new History();
-
     // Représente l'historique complet
     this.completeHistory = new CompleteHistory();
 
@@ -100,8 +97,7 @@ export class Workspace {
       return group;
     });
 
-    this.history = new History();
-    this.history.initFromObject(wsdata.history);
+    window.dispatchEvent(new CustomEvent('history-change', { detail: wsdata.history }));
     if (wsdata.completeHistory) {
       this.completeHistory = new CompleteHistory();
       this.completeHistory.initFromObject(wsdata.completeHistory);
@@ -125,7 +121,7 @@ export class Workspace {
       return group.saveToObject();
     });
 
-    wsdata.history = this.history.saveToObject();
+    wsdata.history = { history: app.history, historyIndex: app.historyIndex };
     if (this.completeHistory) wsdata.completeHistory = this.completeHistory.saveToObject();
 
     wsdata.zoomLevel = this.zoomLevel;

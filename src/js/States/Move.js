@@ -30,7 +30,7 @@ export class MoveState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -40,7 +40,7 @@ export class MoveState extends State {
    */
   restart() {
     this.end();
-    app.interactionAPI.setFastSelectionConstraints('mousedown_all_shape');
+    app.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
