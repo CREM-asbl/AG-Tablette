@@ -152,7 +152,7 @@ export class CopyState extends State {
 
       s.coordinates = newCoords;
 
-      app.drawAPI.drawShape(ctx, s);
+      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: s } }));
 
       s.coordinates = saveCoords;
     });

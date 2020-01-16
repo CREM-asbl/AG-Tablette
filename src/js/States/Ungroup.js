@@ -78,7 +78,11 @@ export class UngroupState extends State {
       pos = { x: center.x - 25, y: center.y };
     if (group) {
       let groupIndex = app.workspace.getGroupIndex(group);
-      app.drawAPI.drawText(ctx, 'Groupe ' + (groupIndex + 1), pos);
+      window.dispatchEvent(
+        new CustomEvent('draw-text', {
+          detail: { ctx: app.mainCtx, text: 'Groupe ' + (groupIndex + 1), position: pos },
+        }),
+      );
     }
   }
 }

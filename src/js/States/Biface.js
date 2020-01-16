@@ -76,7 +76,11 @@ export class BifaceState extends State {
       center = shape.center,
       pos = { x: center.x - 17, y: center.y };
     if (biface) {
-      app.drawAPI.drawText(ctx, 'Biface', pos);
+      window.dispatchEvent(
+        new CustomEvent('draw-text', {
+          detail: { ctx: app.mainCtx, text: 'Biface', position: pos },
+        }),
+      );
     }
   }
 }

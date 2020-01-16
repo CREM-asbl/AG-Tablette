@@ -18,6 +18,8 @@ export class CutState extends State {
 
     this.shape = null;
 
+    this.drawColor = '#E90CC8';
+
     this.constr = app.interactionAPI.getEmptySelectionConstraints();
   }
 
@@ -152,24 +154,39 @@ export class CutState extends State {
    */
   draw(ctx) {
     if (this.currentStep == 'select-second-point') {
-      let coords = this.firstPoint;
-      app.drawAPI.drawPoint(ctx, coords, '#E90CC8', 2);
-    }
-    if (this.currentStep == 'select-third-point') {
-      let coords1 = this.firstPoint,
-        coords2 = this.centerPoint;
-      app.drawAPI.drawPoint(ctx, coords1, '#E90CC8', 2);
-      app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
-    }
-    if (this.currentStep == 'showing-points') {
-      let coords1 = this.firstPoint,
-        coords2 = this.secondPoint;
-      app.drawAPI.drawPoint(ctx, coords1, '#E90CC8', 2);
-      app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
-      if (this.centerPoint) {
-        let coords3 = this.centerPoint;
-        app.drawAPI.drawPoint(ctx, coords3, '#E90CC8', 2);
-      }
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
+        }),
+      );
+    } else if (this.currentStep == 'select-third-point') {
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
+        }),
+      );
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: this.centerPoint, color: this.drawColor, size: 2 },
+        }),
+      );
+    } else if (this.currentStep == 'showing-points') {
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
+        }),
+      );
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: this.secondPoint, color: this.drawColor, size: 2 },
+        }),
+      );
+      if (this.centerPoint)
+        window.dispatchEvent(
+          new CustomEvent('draw-point', {
+            detail: { point: this.centerPoint, color: this.drawColor, size: 2 },
+          }),
+        );
     }
   }
 
@@ -190,7 +207,7 @@ export class CutState extends State {
       pointsInBorder = 0;
     for (let i = 1; i < amountOfParts; i++) {
       let pt = pt1.addCoordinates(part.multiplyWithScalar(i, false));
-      if (!app.drawAPI.isPointInShape(pt, shape)) return false;
+      if (!shape.isPointInPath(pt)) return false;
       pointsInBorder += shape.isPointInBorder(pt) ? 1 : 0;
     }
     return pointsInBorder <= 40 * precision;

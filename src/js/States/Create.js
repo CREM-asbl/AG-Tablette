@@ -143,6 +143,6 @@ export class CreateState extends State {
 
     this.shapeToCreate.coordinates = mouseCoordinates;
 
-    app.drawAPI.drawShape(ctx, this.shapeToCreate);
+    window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: this.shapeToCreate } }));
   }
 }

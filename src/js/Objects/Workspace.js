@@ -155,7 +155,9 @@ export class Workspace {
     if (newZoomLevel > app.settings.get('maxZoomLevel'))
       newZoomLevel = app.settings.get('maxZoomLevel');
 
-    app.drawAPI.scaleView(newZoomLevel / this.zoomLevel);
+    window.dispatchEvent(
+      new CustomEvent('scaleView', { detail: { scale: newZoomLevel / this.zoomLevel } }),
+    );
     this.zoomLevel = newZoomLevel;
 
     if (doRefresh) {
@@ -173,14 +175,14 @@ export class Workspace {
   setTranslateOffset(newOffset, doRefresh = true) {
     //TODO: limiter la translation à une certaine zone? (ex 4000 sur 4000?)
     //TODO: bouton pour revenir au "centre" ?
-    app.drawAPI.scaleView(1 / this.zoomLevel); //TODO: nécessaire?
+    window.dispatchEvent(new CustomEvent('scaleView', { detail: { scale: 1 / this.zoomLevel } }));
 
     let offset = newOffset.subCoordinates(this.translateOffset);
 
-    app.drawAPI.translateView(offset);
+    window.dispatchEvent(new CustomEvent('translateView', { detail: { offset: offset } }));
     this.translateOffset = newOffset;
 
-    app.drawAPI.scaleView(this.zoomLevel); //TODO: nécessaire?
+    window.dispatchEvent(new CustomEvent('scaleView', { detail: { scale: this.zoomLevel } }));
 
     if (doRefresh) {
       window.dispatchEvent(new CustomEvent('refresh'));
@@ -235,7 +237,7 @@ export class Workspace {
    */
   shapesOnPoint(point) {
     let list = this.shapes.filter(
-      shape => app.drawAPI.isPointInShape(point, shape) || shape.isPointOnSegment(new Point(point)),
+      shape => shape.isPointInPath(point) || shape.isPointOnSegment(new Point(point)),
     );
     list.reverse();
     return list;

@@ -27,7 +27,6 @@ class AGTabletteApp extends LitElement {
       canUndo: Boolean,
       canRedo: Boolean,
       background: String,
-      cursor: String,
     };
   }
 
@@ -39,7 +38,6 @@ class AGTabletteApp extends LitElement {
     app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
-    this.cursor = 'default';
     new FileManager(); // to move
 
     window.addEventListener('app-state-changed', () => {
@@ -61,7 +59,6 @@ class AGTabletteApp extends LitElement {
           --primary-color: #abcedf;
           --button-border-color: black;
           --button-background-color: #0ff;
-          cursor: ${this.cursor};
         }
 
         #app-canvas-view {
@@ -510,7 +507,6 @@ class AGTabletteApp extends LitElement {
     }
     if (reset_state) {
       app.setState(undefined);
-      this.cursor = 'default';
     }
   }
 

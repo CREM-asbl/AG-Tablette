@@ -142,7 +142,7 @@ export class MoveState extends State {
         saveCoords = s.coordinates;
 
       s.coordinates = newCoords;
-      app.drawAPI.drawShape(ctx, s);
+      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: s } }));
       s.coordinates = saveCoords;
     });
   }

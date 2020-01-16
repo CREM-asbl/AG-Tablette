@@ -247,22 +247,21 @@ export class ReverseState extends State {
       this.involvedShapes.forEach(s => {
         let s2 = s.copy();
         this.reverseShape(s2, this.axe, this.progress);
-        app.drawAPI.drawShape(ctx, s2, 1, this.axeAngle);
+        window.dispatchEvent(
+          new CustomEvent('draw-shape', { detail: { shape: s2, axeAngle: this.axeAngle } }),
+        );
       });
 
       //Dessiner l'axe:
-      app.drawAPI.drawLine(
-        ctx,
-        this.axe.vertexes[0],
-        this.axe.vertexes[1],
-        this.symmetricalAxeColor,
-        1,
-        false,
+      window.dispatchEvent(
+        new CustomEvent('draw-line', {
+          detail: { line: this.axe, color: this.symmetricalAxeColor, doSave: false },
+        }),
       );
       return;
     } else if (this.currentStep == 'selecting-symmetrical-arch') {
       this.involvedShapes.forEach(s => {
-        app.drawAPI.drawShape(ctx, s);
+        window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: s } }));
       });
 
       let axes = [
@@ -273,13 +272,10 @@ export class ReverseState extends State {
       ];
 
       axes.forEach(axe => {
-        app.drawAPI.drawLine(
-          ctx,
-          axe.vertexes[0],
-          axe.vertexes[1],
-          this.symmetricalAxeColor,
-          1,
-          false,
+        window.dispatchEvent(
+          new CustomEvent('draw-line', {
+            detail: { line: axe, color: this.symmetricalAxeColor, doSave: false },
+          }),
         );
       });
     }

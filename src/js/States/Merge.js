@@ -118,7 +118,10 @@ export class MergeState extends State {
       let shape = this.firstShape,
         borderColor = shape.borderColor;
       shape.borderColor = '#E90CC8';
-      app.drawAPI.drawShape(ctx, shape, 3);
+
+      window.dispatchEvent(
+        new CustomEvent('draw-shape', { detail: { shape: shape, borderSize: 3 } }),
+      );
       shape.borderColor = borderColor;
     }
   }

@@ -15,6 +15,8 @@ export class DivideState extends State {
 
     this.timeoutRef = null;
 
+    this.drawColor = '#E90CC8';
+
     this.numberOfparts = null;
   }
 
@@ -52,8 +54,15 @@ export class DivideState extends State {
    */
   end() {
     window.clearTimeout(this.timeoutRef);
-    if (this.status != 'paused' || this.currentStep == 'showing-points')
+    if (this.status != 'paused' || this.currentStep == 'showing-points') {
       this.currentStep = 'listen-canvas-click';
+      this.selConstr = app.interactionAPI.getEmptySelectionConstraints();
+      this.selConstr.eventType = 'click';
+      this.selConstr.segments.canSelect = true;
+      this.selConstr.points.canSelect = true;
+      this.selConstr.points.types = ['vertex', 'segmentPoint'];
+      app.interactionAPI.setSelectionConstraints(this.selConstr);
+    }
 
     window.removeEventListener('objectSelected', this.handler);
     window.removeEventListener('setNumberOfParts', this.handler);
@@ -205,30 +214,46 @@ export class DivideState extends State {
    */
   draw(ctx) {
     if (this.currentStep == 'select-second-point') {
-      let coords = this.actions[0].firstPoint;
-      app.drawAPI.drawPoint(ctx, coords, '#E90CC8', 2);
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: this.actions[0].firstPoint, color: this.drawColor, size: 2 },
+        }),
+      );
     }
     if (this.currentStep == 'showing-points') {
-      let coords1 = this.actions[0].firstPoint,
-        coords2 = this.actions[0].secondPoint;
-      app.drawAPI.drawPoint(ctx, coords1, '#E90CC8', 2);
-      app.drawAPI.drawPoint(ctx, coords2, '#E90CC8', 2);
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: this.actions[0].firstPoint, color: this.drawColor, size: 2 },
+        }),
+      );
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: this.actions[0].secondPoint, color: this.drawColor, size: 2 },
+        }),
+      );
     }
     if (this.currentStep == 'showing-segment') {
       let segment = this.actions[0].segment;
 
       if (segment.arcCenter) {
-        app.drawAPI.drawArc(
-          ctx,
-          segment.vertexes[0],
-          segment.vertexes[1],
-          segment.arcCenter,
-          segment.counterclockwise,
-          '#E90CC8',
-          3,
+        window.dispatchEvent(
+          new CustomEvent('draw-arc', {
+            detail: {
+              startPoint: segment.vertexes[0],
+              endPoint: segment.vertexes[1],
+              center: segment.arcCenter,
+              counterclockwise: segment.counterclockwise,
+              color: this.drawColor,
+              size: 3,
+            },
+          }),
         );
       } else {
-        app.drawAPI.drawLine(ctx, segment.vertexes[0], segment.vertexes[1], '#E90CC8', 3);
+        window.dispatchEvent(
+          new CustomEvent('draw-line', {
+            detail: { line: segment, color: this.drawColor, size: 3 },
+          }),
+        );
       }
     }
   }

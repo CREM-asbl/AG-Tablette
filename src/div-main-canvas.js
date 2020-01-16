@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit-element';
 import { app } from './js/App';
-import { DrawAPI } from './js/DrawAPI';
+import { DrawManager } from './js/DrawManager';
 import { Point } from './js/Objects/Point';
 
 class DivMainCanvas extends LitElement {
@@ -48,13 +48,7 @@ class DivMainCanvas extends LitElement {
     this.invisibleCanvas = this.shadowRoot.querySelector('#invisibleCanvas');
 
     window.app = app;
-    let drawAPI = new DrawAPI(
-      this.upperCanvas,
-      this.mainCanvas,
-      this.backgroundCanvas,
-      this.invisibleCanvas,
-    );
-    app.drawAPI = drawAPI;
+    new DrawManager(this.upperCanvas, this.mainCanvas, this.backgroundCanvas, this.invisibleCanvas);
 
     app.cvsDiv = this;
     app.start();
@@ -221,9 +215,13 @@ class DivMainCanvas extends LitElement {
       Lorsque le canvas est redimensionné, la translation et le zoom (scaling)
       sont réinitialisés, il faut donc les réappliquer.
     */
-    app.drawAPI.resetTransformations();
-    app.drawAPI.translateView(app.workspace.translateOffset);
-    app.drawAPI.scaleView(app.workspace.zoomLevel);
+    window.dispatchEvent(new CustomEvent('resetTransformations'));
+    window.dispatchEvent(
+      new CustomEvent('translateView', { detail: { offset: app.workspace.translateOffset } }),
+    );
+    window.dispatchEvent(
+      new CustomEvent('scaleView', { detail: { scale: app.workspace.zoomLevel } }),
+    );
 
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));

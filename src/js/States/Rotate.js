@@ -8,6 +8,8 @@ export class RotateState extends State {
   constructor() {
     super('rotate_shape');
 
+    this.drawColor = '#080';
+
     this.currentStep = null; // listen-canvas-click -> rotating-shape
 
     //La forme que l'on déplace
@@ -125,12 +127,14 @@ export class RotateState extends State {
     this.involvedShapes.forEach(s => {
       s.rotate(diffAngle, center);
 
-      app.drawAPI.drawShape(ctx, s);
+      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: s } }));
 
       s.rotate(-diffAngle, center);
     });
 
     //Dessiner le centre de symétrie
-    app.drawAPI.drawPoint(ctx, center, '#080');
+    window.dispatchEvent(
+      new CustomEvent('draw-point', { detail: { point: center, color: this.drawColor } }),
+    );
   }
 }

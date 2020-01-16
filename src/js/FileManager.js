@@ -23,7 +23,7 @@ export class FileManager {
 
     app.wsManager.setWorkspaceFromJSON(data);
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
-    app.drawAPI.refreshUpper();
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   async newOpenFile(fileHandle) {
@@ -66,28 +66,26 @@ export class FileManager {
   }
 
   saveToPng(handle) {
+    const canvas = app.canvas.main;
     if (app.hasNativeFS) {
-      const canvas = app.drawAPI.canvas.main;
-
       // edge support for toBlob ?
       canvas.toBlob(blob => {
         this.newWriteFile(handle, blob);
       });
     } else {
-      const ctx = app.drawAPI.canvas.main;
-      const encoded_data = ctx.toDataURL();
+      const encoded_data = canvas.toDataURL();
       this.downloadFile(handle.name, encoded_data);
     }
   }
 
   saveToSvg(handle) {
-    const ctx = app.drawAPI.canvas.main;
+    const canvas = app.canvas.main;
 
     let svg_data =
       '<svg width="' +
-      ctx.width +
+      canvas.width +
       '" height="' +
-      ctx.height +
+      canvas.height +
       '" xmlns="http://www.w3.org/2000/svg" >\n';
     app.workspace.shapes.forEach(shape => {
       svg_data += shape.to_svg() + '\n';

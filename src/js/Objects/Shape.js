@@ -228,6 +228,17 @@ export class Shape {
     return this.segments.some(seg => seg.isPointOnSegment(point));
   }
 
+  /**
+   * Vérifie si un point est à l'intérieur de la forme ou non
+   * @param  {Point}  point le point
+   */
+  isPointInPath(point) {
+    const ctx = app.invisibleCtx;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    const selected = ctx.isPointInPath(this.getPath(), point.x, point.y);
+    return selected;
+  }
+
   /* #################################################################### */
   /* ############################# OVERLAP ############################## */
   /* #################################################################### */
@@ -285,13 +296,12 @@ export class Shape {
       ];
     }
 
-    if (vertexes_to_check.some(pt => app.drawAPI.isPointInShape(pt, shape)))
-      is_potential_dig[0] = true;
+    if (vertexes_to_check.some(pt => shape.isPointInPath(pt))) is_potential_dig[0] = true;
     if (
       vertexes_to_check.some(
         (pt, idx) =>
-          app.drawAPI.isPointInShape(pt, shape) &&
-          app.drawAPI.isPointInShape(middles_to_check[idx], shape) &&
+          shape.isPointInPath(pt) &&
+          shape.isPointInPath(middles_to_check[idx]) &&
           !shape.isPointInBorder(middles_to_check[idx]),
       )
     ) {

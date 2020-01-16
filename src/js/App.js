@@ -20,8 +20,7 @@ export class App {
     this.settings = new Settings();
     this.initSettings();
 
-    //L'API de dessin (tout ce qui est lié au <canvas>)
-    this.drawAPI = null;
+    this.canvas = [];
 
     //Référence vers le <div> contenant les canvas
     this.cvsDiv = null;

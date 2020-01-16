@@ -175,10 +175,10 @@ export class TangramCreatorState extends State {
    */
   draw(ctx, mouseCoordinates) {
     this.polygons.forEach(polygon => {
-      app.drawAPI.drawPoint(ctx, polygon[0], '#E90CC8', 1);
+      app.DrawManager.drawPoint(ctx, polygon[0], '#E90CC8', 1);
       for (let i = 0; i < polygon.length - 1; i++) {
-        app.drawAPI.drawLine(ctx, polygon[i], polygon[i + 1], '#E90CC8', 3);
-        app.drawAPI.drawPoint(ctx, polygon[i + 1], '#E90CC8', 1);
+        app.DrawManager.drawLine(ctx, polygon[i], polygon[i + 1], '#E90CC8', 3);
+        app.DrawManager.drawPoint(ctx, polygon[i + 1], '#E90CC8', 1);
       }
     });
 
@@ -189,7 +189,7 @@ export class TangramCreatorState extends State {
         borderColor = shape.borderColor;
       shape.color = '#E90CC8';
       shape.borderColor = '#E90CC8';
-      app.drawAPI.drawShape(ctx, shape);
+      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: shape } }));
       shape.color = color;
       shape.borderColor = borderColor;
     });
