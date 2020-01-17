@@ -153,7 +153,7 @@ export class TangramCreatorState extends State {
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'un point a été sélectionnée (click)
+   * Appelée par événement du SelectManager lorsqu'un point a été sélectionnée (click)
    * @param  {Object} object            L'élément sélectionné
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript

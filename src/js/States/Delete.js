@@ -1,6 +1,8 @@
 import { app } from '../App';
 import { State } from './State';
 import { Shape } from '../Objects/Shape';
+import { GroupManager } from '../GroupManager';
+import { ShapeManager } from '../ShapeManager';
 
 /**
  * Supprimer une forme (et supprime le groupe dont la forme faisait partie s'il
@@ -16,10 +18,10 @@ export class DeleteState extends State {
    */
   start() {
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-    app.selectionConstraints.eventType = 'click';
-    app.selectionConstraints.shapes.canSelect = true;
-    app.selectionConstraints.points.canSelect = true;
-    app.selectionConstraints.points.types = ['segmentPoint'];
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.shapes.canSelect = true;
+    app.workspace.selectionConstraints.points.canSelect = true;
+    app.workspace.selectionConstraints.points.types = ['segmentPoint'];
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -30,10 +32,10 @@ export class DeleteState extends State {
   restart() {
     this.end();
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-    app.selectionConstraints.eventType = 'click';
-    app.selectionConstraints.shapes.canSelect = true;
-    app.selectionConstraints.points.canSelect = true;
-    app.selectionConstraints.points.types = ['segmentPoint'];
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.shapes.canSelect = true;
+    app.workspace.selectionConstraints.points.canSelect = true;
+    app.workspace.selectionConstraints.points.types = ['segmentPoint'];
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -54,16 +56,16 @@ export class DeleteState extends State {
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'une forme ou un point a été sélectionné (click)
+   * Appelée par événement du SelectManager lorsqu'une forme ou un point a été sélectionné (click)
    * @param  {Object} object            La forme ou le point sélectionné
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(object, mouseCoordinates, event) {
     if (object instanceof Shape) {
-      let userGroup = app.workspace.getShapeGroup(object),
+      let userGroup = GroupManager.getShapeGroup(object),
         involvedShapes;
-      if (userGroup) involvedShapes = userGroup.shapesIds.map(id => app.workspace.getShapeById(id));
+      if (userGroup) involvedShapes = userGroup.shapesIds.map(id => ShapeManager.getShapeById(id));
       else involvedShapes = [object];
 
       this.actions = [
@@ -71,12 +73,12 @@ export class DeleteState extends State {
           name: 'DeleteAction',
           mode: 'shape',
           involvedShapes: involvedShapes,
-          shapesIdx: involvedShapes.map(shape => app.workspace.getShapeIndex(shape)),
+          shapesIdx: involvedShapes.map(shape => ShapeManager.getShapeIndex(shape)),
         },
       ];
       if (userGroup) {
         this.actions[0].userGroup = userGroup;
-        this.actions[0].userGroupIndex = app.workspace.getGroupIndex(userGroup);
+        this.actions[0].userGroupIndex = GroupManager.getGroupIndex(userGroup);
       }
     } else {
       // point

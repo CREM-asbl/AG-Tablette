@@ -3,6 +3,8 @@ import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
 import { Point } from '../Objects/Point';
 import { uniqId } from '../Tools/general';
+import { GroupManager } from '../GroupManager';
+import { ShapeManager } from '../ShapeManager';
 
 /**
  * Dupliquer une forme
@@ -32,7 +34,7 @@ export class CopyState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
 
-    app.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -42,7 +44,7 @@ export class CopyState extends State {
    */
   restart() {
     this.end();
-    app.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -67,7 +69,7 @@ export class CopyState extends State {
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (onMouseDown)
+   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
    */
@@ -76,10 +78,10 @@ export class CopyState extends State {
 
     this.selectedShape = shape;
 
-    let group = app.workspace.getShapeGroup(shape);
+    let group = GroupManager.getShapeGroup(shape);
     if (group) {
       this.involvedShapesIds = [...group.shapesIds];
-      this.involvedShapes = group.shapesIds.map(id => app.workspace.getShapeById(id));
+      this.involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
     } else {
       this.involvedShapesIds = [shape.id];
       this.involvedShapes = [shape];
@@ -90,7 +92,7 @@ export class CopyState extends State {
     window.removeEventListener('objectSelected', this.handler);
     window.addEventListener('canvasmouseup', this.handler);
     this.currentStep = 'moving-shape';
-    app.lastKnownMouseCoordinates = mouseCoordinates;
+    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }

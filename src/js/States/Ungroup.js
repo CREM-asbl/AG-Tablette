@@ -1,5 +1,6 @@
 import { app } from '../App';
 import { State } from './State';
+import { GroupManager } from '../GroupManager';
 
 /**
  * Supprimer un groupe (ne supprime pas les formes).
@@ -13,7 +14,7 @@ export class UngroupState extends State {
    * initialiser l'état
    */
   start() {
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -23,7 +24,7 @@ export class UngroupState extends State {
    */
   restart() {
     this.end();
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -44,19 +45,19 @@ export class UngroupState extends State {
   }
 
   /**
-   * Appelée par interactionAPI quand une forme est sélectionnée (onClick)
+   * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape, mouseCoordinates, event) {
-    let userGroup = app.workspace.getShapeGroup(shape);
+    let userGroup = GroupManager.getShapeGroup(shape);
     if (userGroup) {
       this.actions = [
         {
           name: 'UngroupAction',
           group: userGroup,
-          groupIdx: app.workspace.getGroupIndex(userGroup),
+          groupIdx: GroupManager.getGroupIndex(userGroup),
         },
       ];
       this.executeAction();
@@ -73,11 +74,11 @@ export class UngroupState extends State {
    * @param  {Shape} shape La forme dessinée
    */
   shapeDrawn(ctx, shape) {
-    let group = app.workspace.getShapeGroup(shape),
+    let group = GroupManager.getShapeGroup(shape),
       center = shape.center,
       pos = { x: center.x - 25, y: center.y };
     if (group) {
-      let groupIndex = app.workspace.getGroupIndex(group);
+      let groupIndex = GroupManager.getGroupIndex(group);
       window.dispatchEvent(
         new CustomEvent('draw-text', {
           detail: { ctx: app.mainCtx, text: 'Groupe ' + (groupIndex + 1), position: pos },

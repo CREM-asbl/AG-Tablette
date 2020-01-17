@@ -1,5 +1,6 @@
 import { app } from '../App';
 import { State } from './State';
+import { ShapeManager } from '../ShapeManager';
 
 /**
  * Déplacer une forme derrière toutes les autres.
@@ -13,7 +14,7 @@ export class ToBackgroundState extends State {
    * initialiser l'état
    */
   start() {
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -23,7 +24,7 @@ export class ToBackgroundState extends State {
    */
   restart() {
     this.end();
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -44,7 +45,7 @@ export class ToBackgroundState extends State {
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
+   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
    */
@@ -52,7 +53,7 @@ export class ToBackgroundState extends State {
     this.actions = [
       {
         name: 'ToBackgroundAction',
-        oldIndex: app.workspace.getShapeIndex(shape),
+        oldIndex: ShapeManager.getShapeIndex(shape),
       },
     ];
     this.executeAction();

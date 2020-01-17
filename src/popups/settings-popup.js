@@ -100,17 +100,17 @@ class SettingsPopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'settings_adapt_shapes_position':
-        app.settings.update('automaticAdjustment', event.target.checked);
+        app.settings.set('automaticAdjustment', event.target.checked);
         this.settings.data.automaticAdjustment.value = event.target.checked;
         break;
 
       case 'settings_shapes_size':
-        app.settings.update('shapesSize', parseInt(event.target.value));
+        app.settings.set('shapesSize', parseInt(event.target.value));
         this.settings.data.shapesSize.value = event.target.value;
         break;
 
       case 'settings_pointed_shapes':
-        app.settings.update('areShapesPointed', event.target.checked);
+        app.settings.set('areShapesPointed', event.target.checked);
         this.settings.data.areShapesPointed.value = event.target.checked;
         window.dispatchEvent(new CustomEvent('refresh'));
         break;

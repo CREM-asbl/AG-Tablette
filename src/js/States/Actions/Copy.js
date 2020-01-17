@@ -1,7 +1,8 @@
 import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
+import { ShapeManager } from '../../ShapeManager';
+import { GroupManager } from '../../GroupManager';
 
 export class CopyAction extends Action {
   constructor() {
@@ -62,13 +63,13 @@ export class CopyAction extends Action {
     let shapesList = [];
 
     this.involvedShapesIds.forEach((id, index) => {
-      let s = app.workspace.getShapeById(id),
+      let s = ShapeManager.getShapeById(id),
         copy = s.copy(),
         newCoords = s.coordinates.addCoordinates(this.transformation);
       shapesList.push(copy);
       copy.coordinates = newCoords;
       copy.id = this.newShapesIds[index];
-      app.workspace.addShape(copy);
+      ShapeManager.addShape(copy);
     });
 
     //Si nécessaire, créer le userGroup
@@ -77,7 +78,7 @@ export class CopyAction extends Action {
       if (Number.isFinite(this.createdUsergroupId)) userGroup.id = this.createdUsergroupId;
       else this.createdUsergroupId = userGroup.id;
       userGroup.shapesIds = this.newShapesIds;
-      app.workspace.addGroup(userGroup);
+      GroupManager.addGroup(userGroup);
     }
   }
 
@@ -85,13 +86,13 @@ export class CopyAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     this.newShapesIds.forEach(id => {
-      let s = app.workspace.getShapeById(id);
-      app.workspace.deleteShape(s);
+      let s = ShapeManager.getShapeById(id);
+      ShapeManager.deleteShape(s);
     });
 
     if (this.newShapesIds.length > 1) {
-      let group = app.workspace.getGroup(this.createdUsergroupId);
-      app.workspace.deleteGroup(group);
+      let group = GroupManager.getGroup(this.createdUsergroupId);
+      GroupManager.deleteGroup(group);
     }
   }
 }

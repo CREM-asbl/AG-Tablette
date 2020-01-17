@@ -2,6 +2,7 @@ import { app } from '../App';
 import { State } from './State';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
+import { ShapeManager } from '../ShapeManager';
 
 /**
  * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -47,7 +48,7 @@ export class ReverseState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -59,12 +60,12 @@ export class ReverseState extends State {
     this.end();
     if (this.currentStep == 'selecting-symmetrical-arch') {
       window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-      app.selectionConstraints.eventType = 'click';
-      app.selectionConstraints.shapes.canSelect = true;
-      app.selectionConstraints.points.blacklist = [this.selectedShape];
+      app.workspace.selectionConstraints.eventType = 'click';
+      app.workspace.selectionConstraints.shapes.canSelect = true;
+      app.workspace.selectionConstraints.points.blacklist = [this.selectedShape];
       window.addEventListener('canvasclick', this.handler);
     } else {
-      app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+      app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
     }
 
     window.addEventListener('canvasclick', this.handler);
@@ -79,7 +80,7 @@ export class ReverseState extends State {
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
       this.selectedShape = null;
-      app.editingShapes = [];
+      app.workspace.editingShapes = [];
     }
 
     window.removeEventListener('objectSelected', this.handler);
@@ -97,7 +98,7 @@ export class ReverseState extends State {
   }
 
   /**
-   * Appelée par interactionAPI quand une forme est sélectionnée (onClick)
+   * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
@@ -112,18 +113,18 @@ export class ReverseState extends State {
       return;
 
     this.selectedShape = shape;
-    this.involvedShapes = app.workspace.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-    app.selectionConstraints.eventType = 'click';
-    app.selectionConstraints.shapes.canSelect = true;
-    app.selectionConstraints.points.blacklist = [shape];
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.shapes.canSelect = true;
+    app.workspace.selectionConstraints.points.blacklist = [shape];
 
     window.removeEventListener('canvasclick', this.handler);
     window.addEventListener('canvasclick', this.handler);
     this.currentStep = 'selecting-symmetrical-arch';
-    app.editingShapes = this.involvedShapes;
-    app.lastKnownMouseCoordinates = mouseCoordinates;
+    app.workspace.editingShapes = this.involvedShapes;
+    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -170,7 +171,7 @@ export class ReverseState extends State {
   }
 
   getSymmetricalAxe(orientation) {
-    let shape = app.workspace.getShapeById(this.shapeId),
+    let shape = ShapeManager.getShapeById(this.shapeId),
       center = this.selectedShape.center,
       axe;
     if (orientation == 'V') {

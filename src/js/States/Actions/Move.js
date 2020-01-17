@@ -1,6 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { Point } from '../../Objects/Point';
+import { ShapeManager } from '../../ShapeManager';
 
 export class MoveAction extends Action {
   constructor() {
@@ -60,7 +61,7 @@ export class MoveAction extends Action {
     if (!this.checkDoParameters()) return;
 
     this.involvedShapesIds.forEach(id => {
-      let s = app.workspace.getShapeById(id),
+      let s = ShapeManager.getShapeById(id),
         newCoords = s.coordinates.addCoordinates(this.transformation);
       s.coordinates = newCoords;
     });
@@ -70,7 +71,7 @@ export class MoveAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     this.involvedShapesIds.forEach(id => {
-      let s = app.workspace.getShapeById(id),
+      let s = ShapeManager.getShapeById(id),
         newCoords = s.coordinates.subCoordinates(this.transformation);
       s.coordinates = newCoords;
     });

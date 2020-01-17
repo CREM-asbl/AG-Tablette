@@ -2,8 +2,8 @@ import { app } from '../../App';
 import { Action } from './Action';
 import { Segment } from '../../Objects/Segment';
 import { Point } from '../../Objects/Point';
-import { Shape } from '../../Objects/Shape';
 import { mod } from '../../Tools/general';
+import { ShapeManager } from '../../ShapeManager';
 
 export class CutAction extends Action {
   constructor() {
@@ -70,7 +70,7 @@ export class CutAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape = app.workspace.getShapeById(this.shapeId),
+    let shape = ShapeManager.getShapeById(this.shapeId),
       segments = shape.segments,
       pt1 = this.firstPoint,
       centerPt = this.centerPoint,
@@ -196,16 +196,16 @@ export class CutAction extends Action {
     shape2.coordinates = new Point(shape2).addCoordinates(offset);
     shape2.id = this.createdShapesIds[1];
 
-    app.workspace.addShape(shape1);
-    app.workspace.addShape(shape2);
+    ShapeManager.addShape(shape1);
+    ShapeManager.addShape(shape2);
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
 
     this.createdShapesIds.forEach(id => {
-      const shape = app.workspace.getShapeById(id);
-      app.workspace.deleteShape(shape);
+      const shape = ShapeManager.getShapeById(id);
+      ShapeManager.deleteShape(shape);
     });
   }
 }

@@ -1,3 +1,5 @@
+import { ShapeManager } from '../ShapeManager';
+
 /**
  * Représente un point du plan
  */
@@ -43,7 +45,7 @@ export class Point {
     this.y = save.y;
     if (save.type) this.type = save.type;
     if (save.shape) this.shape = save.shape;
-    else if (save.shapeId !== undefined) this.shape = app.workspace.getShapeById(save.shapeId);
+    else if (save.shapeId !== undefined) this.shape = ShapeManager.getShapeById(save.shapeId);
     if (save.segment) this.segment = save.segment;
     else if (save.segmentIdx !== undefined) this.segment = this.shape.segments[save.segmentIdx];
   }

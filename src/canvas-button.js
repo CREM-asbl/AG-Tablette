@@ -48,7 +48,7 @@ class CanvasButton extends LitElement {
   refresh() {
     const canvas = this.shadowRoot.querySelector('canvas');
     const ctx = canvas.getContext('2d');
-    const families = app.workspace.environment.families;
+    const families = app.environment.families;
     const family = families.find(fam => fam.name == this.family);
     let minX = 1000,
       minY = 1000,

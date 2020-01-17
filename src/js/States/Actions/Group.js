@@ -1,6 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
+import { GroupManager } from '../../GroupManager';
 /**
  * Représente la création d'un groupe ou l'ajout d'une forme à un groupe existant
  */
@@ -57,13 +58,13 @@ export class GroupAction extends Action {
       this.secondShapeId = save.secondShapeId;
       this.groupId = save.groupId;
     } else if (this.type == 'add') {
-      this.group = app.workspace.getGroup(save.group.id);
+      this.group = GroupManager.getGroup(save.group.id);
       this.shapeId = save.shapeId;
     } else {
       // merge
-      this.group = app.workspace.getGroup(save.group.id);
+      this.group = GroupManager.getGroup(save.group.id);
       this.groupIdx = save.groupIdx;
-      this.otherGroup = app.workspace.getGroup(save.otherGroup.id);
+      this.otherGroup = GroupManager.getGroup(save.otherGroup.id);
       this.otherGroupIdx = save.otherGroupIdx;
     }
   }
@@ -122,7 +123,7 @@ export class GroupAction extends Action {
     if (this.type == 'new') {
       let group = new ShapeGroup(this.shapeId, this.secondShapeId);
       group.id = this.groupId;
-      app.workspace.addGroup(group);
+      GroupManager.addGroup(group);
     } else if (this.type == 'add') {
       this.group.addShape(this.shapeId);
     } else {
@@ -131,7 +132,7 @@ export class GroupAction extends Action {
         group2 = this.otherGroup;
 
       group1.shapesIds = [...group1.shapesIds, ...group2.shapesIds];
-      app.workspace.deleteGroup(group2);
+      GroupManager.deleteGroup(group2);
     }
   }
 
@@ -139,15 +140,15 @@ export class GroupAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     if (this.type == 'new') {
-      let group = app.workspace.getGroup(this.groupId);
-      app.workspace.deleteGroup(group);
+      let group = GroupManager.getGroup(this.groupId);
+      GroupManager.deleteGroup(group);
     } else if (this.type == 'add') {
       this.group.deleteShape(this.shapeId);
     } else {
       let group1 = this.group,
         group2 = this.otherGroup;
       group1.shapesIds = group1.shapesIds.filter(id1 => group2.shapesIds.every(id2 => id2 != id1));
-      app.workspace.addGroup(group2, this.otherGroupIdx);
+      GroupManager.addGroup(group2, this.otherGroupIdx);
     }
   }
 }

@@ -2,6 +2,7 @@ import { app } from '../../App';
 import { Action } from './Action';
 import { Shape } from '../../Objects/Shape';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
+import { GroupManager } from '../../GroupManager';
 
 export class UngroupAction extends Action {
   constructor() {
@@ -46,8 +47,8 @@ export class UngroupAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    this.group = app.workspace.getGroup(this.group.id);
-    app.workspace.deleteGroup(this.group);
+    this.group = GroupManager.getGroup(this.group.id);
+    GroupManager.deleteGroup(this.group);
   }
 
   undo() {
@@ -56,6 +57,6 @@ export class UngroupAction extends Action {
     let groupCopy = new ShapeGroup(0, 1);
     groupCopy.shapesIds = [...this.group.shapesIds];
     groupCopy.id = this.group.id;
-    app.workspace.addGroup(groupCopy, this.groupIndex);
+    GroupManager.addGroup(groupCopy, this.groupIndex);
   }
 }

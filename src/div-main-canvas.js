@@ -48,13 +48,18 @@ class DivMainCanvas extends LitElement {
     this.invisibleCanvas = this.shadowRoot.querySelector('#invisibleCanvas');
 
     window.app = app;
-    new DrawManager(this.upperCanvas, this.mainCanvas, this.backgroundCanvas, this.invisibleCanvas);
+    DrawManager.init(
+      this.upperCanvas,
+      this.mainCanvas,
+      this.backgroundCanvas,
+      this.invisibleCanvas,
+    ); // to move
 
     app.cvsDiv = this;
     app.start();
     this.setCanvasSize();
 
-    app.appDiv.families = app.workspace.environment.familyNames;
+    app.appDiv.families = app.environment.familyNames;
 
     //Events:
     this.upperCanvas.addEventListener('click', event => {
@@ -189,10 +194,12 @@ class DivMainCanvas extends LitElement {
       return null;
     }
 
-    (response.x -= app.workspace.translateOffset.x),
-      (response.y -= app.workspace.translateOffset.y),
-      (response.x /= app.workspace.zoomLevel);
-    response.y /= app.workspace.zoomLevel;
+    response.translate(app.workspace.translateOffset, true);
+    response.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
+    // (response.x -= app.workspace.translateOffset.x),
+    // (response.y -= app.workspace.translateOffset.y),
+    // (response.x /= app.workspace.zoomLevel);
+    // response.y /= app.workspace.zoomLevel;
     return response;
   }
 

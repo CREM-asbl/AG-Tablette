@@ -1,6 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { Shape } from '../../Objects/Shape';
+import { ShapeManager } from '../../ShapeManager';
 
 export class OpacityAction extends Action {
   constructor() {
@@ -54,7 +55,7 @@ export class OpacityAction extends Action {
     if (!this.checkDoParameters()) return;
 
     this.involvedShapesIds.forEach(id => {
-      let s = app.workspace.getShapeById(id);
+      let s = ShapeManager.getShapeById(id);
       s.opacity = this.opacity;
     });
   }
@@ -63,7 +64,7 @@ export class OpacityAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     this.involvedShapesIds.forEach((id, index) => {
-      let s = app.workspace.getShapeById(id);
+      let s = ShapeManager.getShapeById(id);
       s.opacity = this.oldOpacities[index];
     });
   }

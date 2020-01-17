@@ -1,20 +1,12 @@
-import { Workspace } from './Objects/Workspace';
-import { InteractionAPI } from './InteractionAPI';
 import { Settings } from './Settings';
-import { WorkspaceManager } from './WorkspaceManager';
-import { EnvironmentManager } from './EnvironmentManager';
-import { TangramManager } from './TangramManager';
-import { Point } from './Objects/Point';
 
 /**
  * Classe principale de l'application
  */
 export class App {
   constructor() {
-    //Managers:
-    this.wsManager = new WorkspaceManager();
-    this.envManager = new EnvironmentManager();
-    this.tangramManager = TangramManager;
+    // //Managers:
+    // this.tangramManager = TangramManager;
 
     //Paramètres de l'application
     this.settings = new Settings();
@@ -36,29 +28,11 @@ export class App {
     // Les actions possibles
     this.actions = [];
 
-    // Liste des shapes a ne pas redessiner pendant une action
-    this.editingShapes = [];
-
     //Liste de classes State qui tournent en permanence (ex: zoom à 2 doigts)
     this.permanentStates = [];
 
     //menu pouvant être contrôlé par un état (State).
     this.stateMenu = null;
-
-    // Coordonnées du dernier événement
-    this.lastKnownMouseCoordinates = { x: 0, y: 0 };
-
-    // Couleur sélectionnée pour border- ou backgroundColor
-    this.selectedColor = '#000';
-
-    // Historique des actions
-    this.history = [];
-
-    // Index de la dernière action effectuée dans app.history
-    this.historyIndex = null;
-
-    // contrainte de sélection pour formes, segments et points
-    this.selectionConstraints = null;
 
     //Liste des tangrams
     this.tangrams = {
@@ -83,36 +57,36 @@ export class App {
     /**
      * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
      */
-    this.settings.set('magnetismDistance', 10, false);
+    this.settings.set('magnetismDistance', 10);
 
     /**
      * Distance maximale entre les coordonnées du clic et un élément, pour
      * qu'il puisse être sélectionné.
      */
-    this.settings.set('selectionDistance', 20, false);
+    this.settings.set('selectionDistance', 20);
 
     /**
      * La précision, en pixels. (2 points à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )
      */
-    this.settings.set('precision', 1.5, false);
+    this.settings.set('precision', 1.5);
 
     //Niveau de zoom maximal de l'interface
-    this.settings.set('maxZoomLevel', 10, false);
+    this.settings.set('maxZoomLevel', 10);
 
     //Niveau de zoom minimal de l'interface
-    this.settings.set('minZoomLevel', 0.1, false);
+    this.settings.set('minZoomLevel', 0.1);
 
     //Ajustement automatique des formes activé ?
-    this.settings.set('automaticAdjustment', true, true);
+    this.settings.set('automaticAdjustment', true);
 
     //true si les formes ajoutées à l'avenir auront leurs sommets visibles
-    this.settings.set('areShapesPointed', true, true);
+    this.settings.set('areShapesPointed', true);
 
     //taille des formes qui seront ajoutées (1, 2 ou 3)
-    this.settings.set('shapesSize', 2, true);
+    this.settings.set('shapesSize', 2);
 
     //Largeur du menu de gauche de l'application
-    this.settings.set('mainMenuWidth', 250, false);
+    this.settings.set('mainMenuWidth', 250);
   }
 
   resetSettings() {
@@ -122,9 +96,6 @@ export class App {
   }
 
   start() {
-    // Représente un projet, qui peut être sauvegardé/restauré.
-    this.workspace = new Workspace(this.envManager.getNewEnv('Grandeur'));
-
     window.onresize = () => {
       this.refreshWindow();
     };

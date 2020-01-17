@@ -3,6 +3,7 @@ import { Action } from './Action';
 import { Shape } from '../../Objects/Shape';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
 import { Point } from '../../Objects/Point';
+import { ShapeManager } from '../../ShapeManager';
 
 export class DeleteAction extends Action {
   constructor() {
@@ -84,10 +85,10 @@ export class DeleteAction extends Action {
 
     if (this.mode == 'shape') {
       if (this.userGroup) {
-        this.userGroup.shapesIds.forEach(id => app.workspace.deleteShape({ id: id }));
-        app.workspace.deleteGroup(this.userGroup);
+        this.userGroup.shapesIds.forEach(id => ShapeManager.deleteShape({ id: id }));
+        GroupManager.deleteGroup(this.userGroup);
       } else {
-        this.involvedShapes.forEach(shape => app.workspace.deleteShape(shape));
+        this.involvedShapes.forEach(shape => ShapeManager.deleteShape(shape));
       }
     } else {
       // point
@@ -104,11 +105,11 @@ export class DeleteAction extends Action {
         let userGroup = new ShapeGroup(0, 1);
         userGroup.initFromObject(this.userGroup);
         userGroup.id = this.userGroup.id;
-        app.workspace.addGroup(userGroup, this.userGroupIndex);
+        GroupManager.addGroup(userGroup, this.userGroupIndex);
       }
 
       this.involvedShapes.forEach(s => {
-        app.workspace.addShape(s);
+        ShapeManager.addShape(s);
       });
     } else {
       // point

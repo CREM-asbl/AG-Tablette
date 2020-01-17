@@ -1,29 +1,30 @@
 import { app } from './App';
 import { Shape } from './Objects/Shape';
 import { Point } from './Objects/Point';
+import { ShapeManager } from './ShapeManager';
 
 /*
 TODO:
     -ajouter des facilités de sélection quand on ne peut sélectionner que
       des segments ou points (par ex).
  */
-export class InteractionAPI {
-  constructor() {
+export class SelectManager {
+  static init() {
     window.addEventListener('canvasmousedown', event =>
-      'mousedown' == app.selectionConstraints.eventType
+      'mousedown' == app.workspace.selectionConstraints.eventType
         ? this.selectObject(event.detail.mousePos)
         : null,
     );
     window.addEventListener('canvasclick', event =>
-      'click' == app.selectionConstraints.eventType
+      'click' == app.workspace.selectionConstraints.eventType
         ? this.selectObject(event.detail.mousePos)
         : null,
     );
     window.addEventListener('reset-selection-constrains', () => {
-      app.selectionConstraints = this.getEmptySelectionConstraints();
+      app.workspace.selectionConstraints = this.getEmptySelectionConstraints();
     });
     window.addEventListener('app-state-changed', () => {
-      app.selectionConstraints = this.getEmptySelectionConstraints();
+      app.workspace.selectionConstraints = this.getEmptySelectionConstraints();
     });
     let click_all_shape_constr = this.getEmptySelectionConstraints();
     click_all_shape_constr.eventType = 'click';
@@ -43,7 +44,7 @@ export class InteractionAPI {
    * @param  {Point} pt2 second point
    * @return {Boolean}     true si oui, false si non.
    */
-  arePointsInSelectionDistance(pt1, pt2) {
+  static arePointsInSelectionDistance(pt1, pt2) {
     let dist = pt1.dist(pt2);
     return dist <= app.settings.get('selectionDistance');
   }
@@ -54,20 +55,16 @@ export class InteractionAPI {
    * @param  {Point} pt2 second point
    * @return {Boolean}     true si oui, false si non.
    */
-  arePointsInMagnetismDistance(pt1, pt2) {
+  static arePointsInMagnetismDistance(pt1, pt2) {
     let dist = pt1.dist(pt2);
     return dist <= app.settings.get('magnetismDistance');
   }
-
-  /* #################################################################### */
-  /* ############################# SÉLECTION ############################ */
-  /* #################################################################### */
 
   /**
    * Renvoie un objet de configuration des contraintes de sélection.
    * @return {Object}
    */
-  getEmptySelectionConstraints() {
+  static getEmptySelectionConstraints() {
     return {
       //'click' ou 'mousedown'
       eventType: 'click',
@@ -137,39 +134,6 @@ export class InteractionAPI {
     };
   }
 
-  // /**
-  //  * Définir les contraintes de sélection
-  //  * @param {Object} constr Voir this.getEmptySelectionConstraints()
-  //  */
-  // setSelectionConstraints(constr) {
-  //   this.selectionConstraints = constr;
-  // }
-
-  setFastSelectionConstraints(instruction) {
-    if (instruction == 'click_all_shape') {
-      let constr = this.getEmptySelectionConstraints();
-      constr.eventType = 'click';
-      constr.shapes.canSelect = true;
-      this.setSelectionConstraints(constr);
-      return;
-    }
-    if (instruction == 'mousedown_all_shape') {
-      let constr = this.getEmptySelectionConstraints();
-      constr.eventType = 'mousedown';
-      constr.shapes.canSelect = true;
-      this.setSelectionConstraints(constr);
-      return;
-    }
-    console.error('instruction not valid');
-  }
-
-  // /**
-  //  * Désactive la sélection.
-  //  */
-  // resetSelectionConstraints() {
-  //   this.setSelectionConstraints(this.getEmptySelectionConstraints());
-  // }
-
   /**
    * Essaie de sélectionner un point, en fonction des contraintes données.
    * Renvoie null si pas de point.
@@ -177,7 +141,7 @@ export class InteractionAPI {
    * @param  {Object} constraints      Contraintes. Voir selectionConstraints.points.
    * @return {Point}
    */
-  selectPoint(mouseCoordinates, constraints, easySelection = true) {
+  static selectPoint(mouseCoordinates, constraints, easySelection = true) {
     if (!constraints.canSelect) return null;
 
     let distCheckFunction = easySelection
@@ -288,7 +252,7 @@ export class InteractionAPI {
     // sort by height
     sortedPoints.forEach(toSort =>
       toSort.sort((pt1, pt2) =>
-        app.workspace.getShapeIndex(pt1.shape) < app.workspace.getShapeIndex(pt2.shape) ? 1 : -1,
+        ShapeManager.getShapeIndex(pt1.shape) < ShapeManager.getShapeIndex(pt2.shape) ? 1 : -1,
       ),
     );
 
@@ -296,12 +260,12 @@ export class InteractionAPI {
 
     // calculate the best point
     if (constraints.blockHidden) {
-      const shapes = app.workspace.shapesOnPoint(mouseCoordinates);
+      const shapes = ShapeManager.shapesOnPoint(mouseCoordinates);
       for (const pt of flattedPoints) {
-        const thisIndex = app.workspace.getShapeIndex(pt.shape);
+        const thisIndex = ShapeManager.getShapeIndex(pt.shape);
         if (
           shapes.some(s => {
-            let otherIndex = app.workspace.getShapeIndex(s);
+            let otherIndex = ShapeManager.getShapeIndex(s);
             return otherIndex > thisIndex;
           })
         )
@@ -323,7 +287,7 @@ export class InteractionAPI {
    * @param  {Object} constraints      Contraintes. Voir selectionConstraints.segments.
    * @return {Segment}
    */
-  selectSegment(mouseCoordinates, constraints) {
+  static selectSegment(mouseCoordinates, constraints) {
     if (!constraints.canSelect) return null;
 
     // all segments at the correct distance
@@ -399,7 +363,7 @@ export class InteractionAPI {
     // sort by height
     sortedSegments.forEach(toSort =>
       toSort.sort((seg1, seg2) => {
-        app.workspace.getShapeIndex(seg1.shape) < app.workspace.getShapeIndex(seg2.shape) ? 1 : -1;
+        ShapeManager.getShapeIndex(seg1.shape) < ShapeManager.getShapeIndex(seg2.shape) ? 1 : -1;
       }),
     );
 
@@ -416,10 +380,10 @@ export class InteractionAPI {
    * @param  {Object} constraints      Contraintes. Voir selectionConstraints.shapes.
    * @return {Shape}
    */
-  selectShape(mouseCoordinates, constraints) {
+  static selectShape(mouseCoordinates, constraints) {
     if (!constraints.canSelect) return null;
 
-    let shapes = app.workspace.shapesOnPoint(mouseCoordinates);
+    let shapes = ShapeManager.shapesOnPoint(mouseCoordinates);
 
     if (constraints.whitelist != null) {
       shapes = shapes.filter(shape => {
@@ -452,8 +416,8 @@ export class InteractionAPI {
    *          - Pour un segment: un objet de type Segment;
    *          - Pour un point: un objet de type Point;
    */
-  selectObject(mouseCoordinates) {
-    let constr = app.selectionConstraints,
+  static selectObject(mouseCoordinates) {
+    let constr = app.workspace.selectionConstraints,
       calls = {
         points: (mCoord, constr) => {
           return this.selectPoint(mCoord, constr);

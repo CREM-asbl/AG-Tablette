@@ -1,6 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { Shape } from '../../Objects/Shape';
+import { ShapeManager } from '../../ShapeManager';
 
 export class CreateAction extends Action {
   constructor() {
@@ -46,12 +47,12 @@ export class CreateAction extends Action {
     if (!this.checkDoParameters()) return;
 
     this.shapeToCreate.id = this.shapeId;
-    app.workspace.addShape(this.shapeToCreate);
+    ShapeManager.addShape(this.shapeToCreate);
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
-    let shape = app.workspace.getShapeById(this.shapeId);
-    app.workspace.deleteShape(shape);
+    let shape = ShapeManager.getShapeById(this.shapeId);
+    ShapeManager.deleteShape(shape);
   }
 }

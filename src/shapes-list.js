@@ -28,7 +28,7 @@ class ShapesList extends LitElement {
       return html``;
     }
 
-    const shapes = app.workspace.environment.getFamily(this.selectedFamily).getShapesNames();
+    const shapes = app.environment.getFamily(this.selectedFamily).getShapesNames();
 
     return html`
       <style>
@@ -96,7 +96,7 @@ class ShapesList extends LitElement {
    * Met à jour l'état de l'application lorsque l'on clique sur le nom d'une forme
    */
   _clickHandle(event) {
-    const familyRef = app.workspace.environment.getFamily(this.selectedFamily);
+    const familyRef = app.environment.getFamily(this.selectedFamily);
     const shapeRef = familyRef.getShape(event.target.shape);
     app.selectedShape = shapeRef;
     this.shape = app.selectedShape.name;

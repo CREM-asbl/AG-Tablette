@@ -1,5 +1,7 @@
 import { app } from '../App';
 import { State } from './State';
+import { GroupManager } from '../GroupManager';
+import { ShapeManager } from '../ShapeManager';
 
 /**
  * Modifier la couleur de fond d'une forme
@@ -16,7 +18,7 @@ export class BackgroundColorState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
 
@@ -29,7 +31,7 @@ export class BackgroundColorState extends State {
    */
   restart() {
     this.end();
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
@@ -54,27 +56,27 @@ export class BackgroundColorState extends State {
   }
 
   setColor(color) {
-    app.selectedColor = color;
+    app.workspace.selectedColor = color;
     this.currentStep = 'listen-canvas-click';
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
+   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    let group = app.workspace.getShapeGroup(shape),
+    let group = GroupManager.getShapeGroup(shape),
       involvedShapes;
-    if (group) involvedShapes = group.shapesIds.map(id => app.workspace.getShapeById(id));
+    if (group) involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
     else involvedShapes = [shape];
 
     this.actions = [
       {
         name: 'BackgroundColorAction',
         involvedShapesIds: involvedShapes.map(s => s.id),
-        selectedColor: app.selectedColor,
+        selectedColor: app.workspace.selectedColor,
         oldColors: involvedShapes.map(s => s.color),
       },
     ];

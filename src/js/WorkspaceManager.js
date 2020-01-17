@@ -2,20 +2,23 @@ import { app } from './App';
 import { Workspace } from './Objects/Workspace';
 
 export class WorkspaceManager {
-  constructor() {}
+  static init() {
+    window.addEventListener('app-started', () => {
+      WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeur'));
+    });
+  }
 
   /**
    * Définir l'espace de travail actuel
    * @param {Workspace} workspace
    */
-  setWorkspace(workspace) {
+  static setWorkspace(workspace) {
     if (!workspace || !workspace.id) {
       console.error('Workspace object is not valid');
       return;
     }
     app.workspace = workspace;
     app.popups.grid.updatePopup();
-    console.trace();
     // workspace.history.updateMenuState();
     app.refreshWindow();
   }
@@ -25,13 +28,13 @@ export class WorkspaceManager {
    * @param  {String} [envName='Grandeur'] Nom de l'environnement
    * @return {Workspace}
    */
-  getNewWorkspace(envName = 'Grandeur') {
-    return new Workspace(app.envManager.getNewEnv(envName));
+  static getNewWorkspace(envName = 'Grandeur') {
+    return new Workspace();
   }
 
-  setWorkspaceFromJSON(json) {
+  static setWorkspaceFromJSON(json) {
     let ws = new Workspace();
     ws.initFromJSON(json);
-    this.setWorkspace(ws);
+    WorkspaceManager.setWorkspace(ws);
   }
 }

@@ -115,11 +115,11 @@ class SavePopup extends LitElement {
   }
 
   getFileNameFromEnv() {
-    switch (app.workspace.environment.name) {
+    switch (app.environment.name) {
       case 'Grandeur':
         return 'agg';
       default:
-        console.error('Unknown environment for file saving : ', app.workspace.environment.name);
+        console.error('Unknown environment for file saving : ', app.environment.name);
         return 'agg';
     }
   }

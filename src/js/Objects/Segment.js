@@ -1,5 +1,6 @@
 import { Point } from './Point';
 import { app } from '../App';
+import { ShapeManager } from '../ShapeManager';
 
 export class Segment {
   constructor(point1, point2, shape, idx, arcCenter, counterclockwise) {
@@ -281,7 +282,7 @@ export class Segment {
 
   initFromObject(save) {
     if (save.shape) this.shape = save.shape;
-    else if (save.shapeId) this.shape = app.workspace.getShapeById(save.shapeId);
+    else if (save.shapeId) this.shape = ShapeManager.getShapeById(save.shapeId);
 
     this.vertexes = save.vertexes.map(pt => {
       let newVertex = new Point(pt, 'vertex', this, this.shape);

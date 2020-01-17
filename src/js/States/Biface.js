@@ -1,5 +1,6 @@
 import { app } from '../App';
 import { State } from './State';
+import { ShapeManager } from '../ShapeManager';
 
 /**
  * Rendre une shape biface
@@ -13,7 +14,7 @@ export class BifaceState extends State {
    * initialiser l'état
    */
   start() {
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -23,7 +24,7 @@ export class BifaceState extends State {
    */
   restart() {
     this.end();
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -44,13 +45,13 @@ export class BifaceState extends State {
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
+   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape, mouseCoordinates, event) {
-    let involvedShapes = app.workspace.getAllBindedShapes(shape, true);
+    let involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
     this.actions = [
       {

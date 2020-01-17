@@ -1,5 +1,4 @@
 import { Family } from '../Objects/Family';
-import { Segment } from '../Objects/Segment';
 
 /**
  * Environnement de travail: Grandeur, Tangram, Cube... Un environnement

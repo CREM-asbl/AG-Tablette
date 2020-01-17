@@ -1,5 +1,7 @@
 import { app } from '../App';
 import { State } from './State';
+import { GroupManager } from '../GroupManager';
+import { ShapeManager } from '../ShapeManager';
 
 /**
  * Modifier l'opacité d'une forme
@@ -17,7 +19,7 @@ export class OpacityState extends State {
   start() {
     this.currentStep = 'choose-opacity';
 
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     app.appDiv.shadowRoot.querySelector('opacity-popup').style.display = 'block';
 
@@ -30,7 +32,7 @@ export class OpacityState extends State {
    */
   restart() {
     this.end();
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setOpacity', this.handler);
@@ -60,7 +62,7 @@ export class OpacityState extends State {
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (click)
+   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
@@ -68,9 +70,9 @@ export class OpacityState extends State {
   objectSelected(shape, mouseCoordinates, event) {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    let group = app.workspace.getShapeGroup(shape),
+    let group = GroupManager.getShapeGroup(shape),
       involvedShapes;
-    if (group) involvedShapes = group.shapesIds.map(id => app.workspace.getShapeById(id));
+    if (group) involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
     else involvedShapes = [shape];
 
     this.actions = [

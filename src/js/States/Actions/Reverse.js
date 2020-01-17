@@ -2,6 +2,7 @@ import { app } from '../../App';
 import { Action } from './Action';
 import { Point } from '../../Objects/Point';
 import { Segment } from '../../Objects/Segment';
+import { ShapeManager } from '../../ShapeManager';
 
 export class ReverseAction extends Action {
   constructor() {
@@ -48,7 +49,7 @@ export class ReverseAction extends Action {
     if (!this.checkDoParameters()) return;
 
     this.involvedShapesIds.forEach(id => {
-      let s = app.workspace.getShapeById(id);
+      let s = ShapeManager.getShapeById(id);
       this.reverseShape(s, this.axe, 1);
     });
   }

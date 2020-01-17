@@ -46,7 +46,8 @@ export class State {
     });
 
     window.addEventListener('drawUpper', event => {
-      if (this.name == app.state) this.draw(event.detail.ctx, app.lastKnownMouseCoordinates);
+      if (this.name == app.state)
+        this.draw(event.detail.ctx, app.workspace.lastKnownMouseCoordinates);
     });
 
     window.addEventListener('shapeDrawn', event => {
@@ -86,10 +87,9 @@ export class State {
   }
 
   /**
-   * Appelée par interactionAPI quand un objet (point, forme, segment)
+   * Appelée par événement du SelectManager quand un objet (point, forme, segment)
    * est sélectionnée (onClick)
-   * @param  {Object} object            L'objet sélectionné
-   *                          Voir InteractionAPI.selectObject()
+   * @param  {Object} object            L'objet sélectionné (Shape, Segment ou Point)
    * @param  {Point} mouseCoordinates  Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    * @return {Boolean}                false: désactive l'appel à onClick si

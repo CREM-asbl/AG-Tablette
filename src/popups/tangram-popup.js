@@ -114,8 +114,8 @@ class TangramPopup extends LitElement {
 
   selectTangram(type, id) {
     let tangram = app.tangramManager.getTangram(type, id);
-    app.workspace.settings.update('isTangramShown', true);
-    app.workspace.settings.update('shownTangram', {
+    app.workspace.settings.set('isTangramShown', true);
+    app.workspace.settings.set('shownTangram', {
       type: type,
       id: id,
     });
@@ -196,7 +196,7 @@ class TangramPopup extends LitElement {
           this.updateTangramsList();
         } else {
           tangram_list.style.display = 'none';
-          app.workspace.settings.update('isTangramShown', false);
+          app.workspace.settings.set('isTangramShown', false);
         }
 
         window.dispatchEvent(new CustomEvent('refreshBackground'));

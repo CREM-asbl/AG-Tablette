@@ -1,6 +1,8 @@
 import { app } from '../App';
 import { State } from './State';
 import { uniqId } from '../Tools/general';
+import { ShapeManager } from '../ShapeManager';
+import { GroupManager } from '../GroupManager';
 
 /**
  * Grouper des formes.
@@ -22,7 +24,7 @@ export class GroupState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -33,16 +35,16 @@ export class GroupState extends State {
   restart() {
     this.end();
     if (this.currentStep == 'listen-canvas-click') {
-      app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+      app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
     } else {
       let shapesList = [];
       if (this.currentStep == 'selecting-second-shape') shapesList = [this.firstShape];
-      else shapesList = this.group.shapesIds.map(id => app.workspace.getShapeById(id));
+      else shapesList = this.group.shapesIds.map(id => ShapeManager.getShapeById(id));
 
       window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-      app.selectionConstraints.eventType = 'click';
-      app.selectionConstraints.shapes.canSelect = true;
-      app.selectionConstraints.shapes.blacklist = shapesList;
+      app.workspace.selectionConstraints.eventType = 'click';
+      app.workspace.selectionConstraints.shapes.canSelect = true;
+      app.workspace.selectionConstraints.shapes.blacklist = shapesList;
     }
 
     window.addEventListener('objectSelected', this.handler);
@@ -67,7 +69,7 @@ export class GroupState extends State {
   }
 
   /**
-   * Appelée par interactionAPI quand une forme est sélectionnée (onClick)
+   * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
@@ -75,7 +77,7 @@ export class GroupState extends State {
   objectSelected(shape, mouseCoordinates, event) {
     //Étapes
     if (this.currentStep == 'listen-canvas-click') {
-      let userGroup = app.workspace.getShapeGroup(shape);
+      let userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
         this.currentStep = 'filling-group';
@@ -84,7 +86,7 @@ export class GroupState extends State {
         this.currentStep = 'selecting-second-shape';
       }
     } else if (this.currentStep == 'selecting-second-shape') {
-      let userGroup = app.workspace.getShapeGroup(shape);
+      let userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
         this.actions = [
@@ -108,16 +110,16 @@ export class GroupState extends State {
           },
         ];
         this.executeAction();
-        this.group = app.workspace.getGroup(this.groupId);
+        this.group = GroupManager.getGroup(this.groupId);
       }
       this.currentStep = 'filling-group';
     } else {
       // filling-group
-      let userGroup = app.workspace.getShapeGroup(shape);
+      let userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         //La forme fait partie d'un autre groupe, on fusionne
-        let index1 = app.workspace.getGroupIndex(this.group),
-          index2 = app.workspace.getGroupIndex(userGroup);
+        let index1 = GroupManager.getGroupIndex(this.group),
+          index2 = GroupManager.getGroupIndex(userGroup);
         //On garde le groupe ayant l'index le plus petit
         if (index1 > index2) {
           [index1, index2] = [index2, index1];
@@ -149,12 +151,12 @@ export class GroupState extends State {
 
     let shapesList = [];
     if (this.currentStep == 'selecting-second-shape') shapesList = [this.firstShape];
-    else shapesList = this.group.shapesIds.map(id => app.workspace.getShapeById(id));
+    else shapesList = this.group.shapesIds.map(id => ShapeManager.getShapeById(id));
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-    app.selectionConstraints.eventType = 'click';
-    app.selectionConstraints.shapes.canSelect = true;
-    app.selectionConstraints.shapes.blacklist = shapesList;
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.shapes.canSelect = true;
+    app.workspace.selectionConstraints.shapes.blacklist = shapesList;
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -167,11 +169,11 @@ export class GroupState extends State {
    * @param  {Shape} shape La forme dessinée
    */
   shapeDrawn(ctx, shape) {
-    let group = app.workspace.getShapeGroup(shape),
+    let group = GroupManager.getShapeGroup(shape),
       center = shape.center,
       pos = { x: center.x - 25, y: center.y };
     if (group) {
-      let groupIndex = app.workspace.getGroupIndex(group);
+      let groupIndex = GroupManager.getGroupIndex(group);
       window.dispatchEvent(
         new CustomEvent('draw-text', {
           detail: { ctx: app.mainCtx, text: 'Groupe ' + (groupIndex + 1), position: pos },

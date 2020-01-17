@@ -18,20 +18,17 @@ export class Action {
       this.undo();
     };
 
-    window.addEventListener('app-started', () => {
-      window.addEventListener(this.name, this.initAndDo);
-      window.addEventListener('do-' + this.name, this.initAndDo);
-      window.addEventListener('undo-' + this.name, this.initAndUndo);
-      // window.addEventListener('new-env', () => this.removeEventListeners());
-    });
+    window.addEventListener(this.name, this.initAndDo);
+    window.addEventListener('do-' + this.name, this.initAndDo);
+    window.addEventListener('undo-' + this.name, this.initAndUndo);
   }
 
-  removeEventListeners() {
-    console.log(this.name, this.initAndDo);
-    window.removeEventListener(this.name, this.initAndDo);
-    window.removeEventListener('do-' + this.name, this.initAndDo);
-    window.removeEventListener('undo-' + this.name, this.initAndUndo);
-  }
+  // removeEventListeners() {
+  //   console.log(this.name, this.initAndDo);
+  //   window.removeEventListener(this.name, this.initAndDo);
+  //   window.removeEventListener('do-' + this.name, this.initAndDo);
+  //   window.removeEventListener('undo-' + this.name, this.initAndUndo);
+  // }
 
   saveToObject() {
     throw new TypeError('method not implemented');

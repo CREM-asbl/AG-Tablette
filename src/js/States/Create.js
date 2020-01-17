@@ -93,7 +93,7 @@ export class CreateState extends State {
 
     this.currentStep = 'moving-shape';
     window.addEventListener('canvasmouseup', this.handler);
-    app.lastKnownMouseCoordinates = mouseCoordinates;
+    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 

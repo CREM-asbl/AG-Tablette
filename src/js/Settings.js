@@ -21,34 +21,11 @@ export class Settings {
    * AJoute un paramètre
    * @param  {String}  name       le nom du paramètre
    * @param  {Object}  value      la valeur
-   * @param  {Boolean} isEditable true si la valeur du paramètre peut être modifiée par la suite.
-   * @return {[type]}             [description]
    */
-  set(name, value, isEditable) {
-    if (this.data[name]) {
-      console.warn('Settings.set(): Le paramètre ' + name + ' existe déjà.');
-    }
+  set(name, value) {
     this.data[name] = {
       value: value,
-      isEditable: isEditable,
     };
-  }
-
-  /**
-   * Modifie la valeur d'un paramètre
-   * @param  {String} name  le nom du paramètre
-   * @param  {Object} value la nouvelle valeur
-   */
-  update(name, value) {
-    if (!this.data[name]) {
-      console.log('Settings.update(): Le paramètre ' + name + " n'existe pas.");
-      return;
-    }
-    if (!this.data[name].isEditable) {
-      console.log('Settings.update(): Le paramètre ' + name + " n'est pas éditable.");
-      return;
-    }
-    this.data[name].value = value;
   }
 
   saveToObject() {

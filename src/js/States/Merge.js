@@ -23,7 +23,7 @@ export class MergeState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
 
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -33,8 +33,9 @@ export class MergeState extends State {
    */
   restart() {
     this.end();
-    if (this.currentStep == 'selecting-second-shape') app.editingShapes = [this.firstShape];
-    app.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    if (this.currentStep == 'selecting-second-shape')
+      app.workspace.editingShapes = [this.firstShape];
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
 
     window.addEventListener('objectSelected', this.handler);
   }
@@ -44,7 +45,7 @@ export class MergeState extends State {
    */
   end() {
     if (this.status != 'paused') {
-      app.editingShapes = [];
+      app.workspace.editingShapes = [];
       this.currentStep = 'listen-canvas-click';
     }
     window.removeEventListener('objectSelected', this.handler);
@@ -59,7 +60,7 @@ export class MergeState extends State {
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'une forme a été sélectionnée (onClick)
+   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
@@ -68,7 +69,7 @@ export class MergeState extends State {
     if (this.currentStep == 'listen-canvas-click') {
       this.currentStep = 'selecting-second-shape';
       this.firstShape = shape;
-      app.editingShapes = [shape];
+      app.workspace.editingShapes = [shape];
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       return;
@@ -77,7 +78,7 @@ export class MergeState extends State {
     if (this.firstShape.id == shape.id) {
       this.currentStep = 'listen-canvas-click';
       this.firstShape = null;
-      app.editingShapes = [];
+      app.workspace.editingShapes = [];
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       return;

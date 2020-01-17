@@ -61,7 +61,7 @@ export class CutState extends State {
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'un point a été sélectionnée (click)
+   * Appelée par événement du SelectManager lorsqu'un point a été sélectionnée (click)
    * @param  {Object} object            L'élément sélectionné
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
@@ -213,19 +213,19 @@ export class CutState extends State {
 
   setSelConstraints(step) {
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-    app.selectionConstraints.eventType = 'click';
-    app.selectionConstraints.points.canSelect = true;
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.points.canSelect = true;
     if (step == 'listen-canvas-click') {
-      app.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
-      app.selectionConstraints.points.whitelist = null;
-      app.selectionConstraints.points.blacklist = null;
+      app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
+      app.workspace.selectionConstraints.points.whitelist = null;
+      app.workspace.selectionConstraints.points.blacklist = null;
     } else if (step == 'select-second-point') {
       let object = this.firstPoint,
         shape = object.shape,
         segments = shape.segments;
 
-      app.selectionConstraints.points.types = ['vertex', 'segmentPoint', 'center'];
-      app.selectionConstraints.points.whitelist = [shape];
+      app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint', 'center'];
+      app.workspace.selectionConstraints.points.whitelist = [shape];
 
       //blacklist
       let vertexToAdd = [],
@@ -262,11 +262,11 @@ export class CutState extends State {
           })
           .flat(),
       );
-      app.selectionConstraints.points.blacklist = list;
+      app.workspace.selectionConstraints.points.blacklist = list;
     } else if (step == 'select-third-point') {
-      app.selectionConstraints.points.types = ['vertex', 'segmentPoint', 'center'];
-      app.selectionConstraints.points.whitelist = null;
-      app.selectionConstraints.points.blacklist = null;
+      app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint', 'center'];
+      app.workspace.selectionConstraints.points.whitelist = null;
+      app.workspace.selectionConstraints.points.blacklist = null;
     }
   }
 }

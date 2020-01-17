@@ -17,8 +17,12 @@ import './version-item';
 
 import { app } from './js/App';
 import { FileManager } from './js/FileManager';
-import { History } from './js/Objects/History';
-import { InteractionAPI } from './js/InteractionAPI';
+import { HistoryManager } from './js/HistoryManager';
+import { SelectManager } from './js/SelectManager';
+import { WorkspaceManager } from './js/WorkspaceManager';
+import { GroupManager } from './js/GroupManager';
+import { ShapeManager } from './js/ShapeManager';
+import { EnvironmentManager } from './js/EnvironmentManager';
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -35,17 +39,23 @@ class AGTabletteApp extends LitElement {
   constructor() {
     super();
     this.state = '';
+    this.stateName = '';
     this.families = [];
     this.selectedFamily = '';
     app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
-    new FileManager(); // to move
-    new History(); // to move
-    new InteractionAPI();
+    FileManager.init(); // to move
+    HistoryManager.init(); // to move
+    SelectManager.init(); // to move
+    WorkspaceManager.init(); // to move
+    GroupManager.init(); // to move
+    ShapeManager.init(); // to move
+    EnvironmentManager.init(); // to move
 
     window.addEventListener('app-state-changed', () => {
       this.state = app.state;
+      this.stateName = app.state ? app.states[app.state].name : '';
       this.selectedFamily = '';
     });
     window.addEventListener('family-selected', () => {
@@ -155,7 +165,7 @@ class AGTabletteApp extends LitElement {
           <div id="app-canvas-view-toolbar-p1">
             <div id="app-canvas-mode-text">
               <span>Mode: </span>
-              ${app.states[this.state] ? app.states[this.state].name : ''}
+              ${this.stateName}
             </div>
             <flex-toolbar>
               <icon-button
@@ -494,11 +504,9 @@ class AGTabletteApp extends LitElement {
         break;
       case 'undo':
         if (this.canUndo) window.dispatchEvent(new CustomEvent('undo-action'));
-        //  app.workspace.history.undo();
         break;
       case 'redo':
         if (this.canRedo) window.dispatchEvent(new CustomEvent('redo-action'));
-        // app.workspace.history.redo();
         break;
       case 'create_shape':
         app.setState(event.target.name, event.target.family);

@@ -1,9 +1,7 @@
 import { loadManifest } from '../Manifest';
 import { app } from '../App';
 import { uniqId } from '../Tools/general';
-import { History } from './History';
 import { CompleteHistory } from './CompleteHistory';
-import { GridManager } from '../GridManager';
 import { ShapeGroup } from './ShapeGroup';
 import { Shape } from './Shape';
 import { Settings } from '../Settings';
@@ -14,15 +12,12 @@ import { Point } from '../Objects/Point';
  * travailler sur plusieurs projets en même temps.
  */
 export class Workspace {
-  constructor(environment) {
+  constructor() {
     //Version de l'application dans laquelle ce projet a été créé
     loadManifest().then(manifest => (this.appVersion = manifest.version));
 
     //Identifiant unique de l'espace de travail
     this.id = uniqId();
-
-    //L'environnement de travail de ce Workspace (ex: "Grandeur")
-    this.environment = environment;
 
     // Représente l'historique complet
     this.completeHistory = new CompleteHistory();
@@ -33,11 +28,29 @@ export class Workspace {
     //Liste des groupes créés par l'utilisateur
     this.shapeGroups = [];
 
+    // Liste des shapes a ne pas redessiner pendant une action
+    this.editingShapes = [];
+
     this.settings = new Settings();
     this.initSettings();
 
     //Niveau de zoom de l'interface
     this.zoomLevel = 1;
+
+    // Historique des actions
+    this.history = [];
+
+    // Index de la dernière action effectuée dans app.workspace.history
+    this.historyIndex = null;
+
+    // Coordonnées du dernier événement
+    this.lastKnownMouseCoordinates = { x: 0, y: 0 };
+
+    // Couleur sélectionnée pour border- ou backgroundColor
+    this.selectedColor = '#000';
+
+    // contrainte de sélection pour formes, segments et points
+    this.selectionConstraints = null;
 
     /**
      * décalage du canvas (translation horizontale et verticale), un chiffre
@@ -46,33 +59,26 @@ export class Workspace {
      * ->Le zoom du plan est appliqué après la translation du plan.
      */
     this.translateOffset = new Point(0, 0);
-
-    //Managers:
-    this.grid = GridManager;
   }
 
   initSettings() {
     //La grille est-elle affichée ?
-    this.settings.set('isGridShown', false, true);
+    this.settings.set('isGridShown', false);
 
     //Taille de la grille
-    this.settings.set('gridSize', 1, true);
+    this.settings.set('gridSize', 1);
 
     //Type de grille: 'square' ou 'triangle'
-    this.settings.set('gridType', 'none', true);
+    this.settings.set('gridType', 'none');
 
     //Tangram affiché ?
-    this.settings.set('isTangramShown', false, true);
+    this.settings.set('isTangramShown', false);
 
     //Type (main/local) et id du tangram affiché.
-    this.settings.set(
-      'shownTangram',
-      {
-        type: null, //'main' ou 'local'
-        id: null,
-      },
-      true,
-    );
+    this.settings.set('shownTangram', {
+      type: null, //'main' ou 'local'
+      id: null,
+    });
   }
 
   /**
@@ -83,8 +89,6 @@ export class Workspace {
     let wsdata = JSON.parse(json);
 
     this.id = wsdata.id;
-
-    this.environment = app.envManager.getNewEnv(wsdata.envName);
 
     this.shapes = wsdata.shapes.map(sData => {
       let shape = new Shape({ x: 0, y: 0 }, []);
@@ -121,12 +125,12 @@ export class Workspace {
       return group.saveToObject();
     });
 
-    wsdata.history = { history: app.history, historyIndex: app.historyIndex };
+    wsdata.history = { history: app.workspace.history, historyIndex: app.workspace.historyIndex };
     if (this.completeHistory) wsdata.completeHistory = this.completeHistory.saveToObject();
 
     wsdata.zoomLevel = this.zoomLevel;
     wsdata.translateOffset = this.translateOffset.saveToObject();
-    wsdata.envName = this.environment.name;
+    wsdata.envName = app.environment.name;
     wsdata.WSSettings = this.settings.saveToObject();
     return wsdata;
   }
@@ -185,151 +189,5 @@ export class Workspace {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       window.dispatchEvent(new CustomEvent('refreshBackground'));
     }
-  }
-
-  /* #################################################################### */
-  /* ############################## FORMES ############################## */
-  /* #################################################################### */
-  //TODO: déplacer dans un shapeManager ?
-
-  /**
-   * Ajoute une forme au workspace
-   * @param {Shape} shape la forme à ajouter
-   */
-  addShape(shape, index = null) {
-    if (index !== null) {
-      this.shapes.splice(index, 0, shape);
-    } else {
-      this.shapes.push(shape);
-    }
-  }
-
-  /**
-   * Renvoie l'index d'une forme (index dans le tableau de formes du
-   * Workspace actuel), ou -1 si la forme n'a pas été trouvée.
-   * @param  {Shape} shape la forme
-   * @return {int}       l'index de cette forme dans le tableau des formes
-   */
-  getShapeIndex(shape) {
-    return this.shapes.findIndex(s => s.id == shape.id);
-  }
-
-  /**
-   * Renvoie la forme ayant un certain id
-   * @param  {int} id l'id de la forme
-   * @return {Shape}         l'objet forme, ou null si la forme n'existe pas
-   */
-  getShapeById(id) {
-    let shape = this.shapes.find(s => s.id == id);
-    return shape ? shape : null;
-  }
-
-  /**
-   * Renvoie la liste des formes contenant un certain point.
-   * Le tableau renvoyé est trié de la forme la plus en avant à la forme la
-   * plus en arrière.
-   * @param point: le point (Point)
-   * @return la liste des formes ([Shape])
-   */
-  shapesOnPoint(point) {
-    let list = this.shapes.filter(
-      shape => shape.isPointInPath(point) || shape.isPointOnSegment(new Point(point)),
-    );
-    list.reverse();
-    return list;
-  }
-
-  /**
-   * Renvoie la liste des formes solidaires à la forme donnée (c'est-à-dire
-   * faisant partie du même groupe).
-   * @param  {Shape} shape Une forme
-   * @param  {Boolean} [includeReceivedShape=false] true: inclus la forme
-   * 												   reçue dans les résultats
-   * @return {[Shape]}     Les formes liées
-   */
-  getAllBindedShapes(shape, includeReceivedShape = false) {
-    let shapes = [shape],
-      group = this.getShapeGroup(shape);
-    if (group) {
-      shapes = group.shapesIds.map(id => this.getShapeById(id));
-    }
-
-    if (!includeReceivedShape) {
-      shapes = shapes.filter(s => s.id != shape.id);
-    }
-    return shapes;
-  }
-
-  /**
-   * Supprime une forme. Ne la supprime pas des groupes (à faire manuellement)
-   * @param  {Shape} shape La forme à supprimer
-   */
-  deleteShape(shape) {
-    let shapeIndex = this.getShapeIndex(shape);
-    if (shapeIndex == -1) {
-      console.error("Workspace.deleteShape: couldn't delete the shape");
-      return;
-    }
-    //supprime la forme
-    this.shapes.splice(shapeIndex, 1);
-  }
-
-  /* #################################################################### */
-  /* ############################## GROUPES ############################# */
-  /* #################################################################### */
-  //TODO: déplacer dans un groupManager ?
-
-  /**
-   * Ajouter un groupe à l'espace de travail
-   * @param {Group} group         Le groupe
-   * @param {int}	index			L'index où placer le groupe. Par défaut: à la fin
-   */
-  addGroup(group, index = null) {
-    if (Number.isFinite(index)) {
-      this.shapeGroups.splice(index, 0, group);
-    } else {
-      this.shapeGroups.push(group);
-    }
-  }
-
-  /**
-   * Récupérer l'index d'un groupe dans le tableau de groupes
-   * @param  {Group} group         Le groupe
-   * @return {int}               L'index (peut varier dans le temps!)
-   */
-  getGroupIndex(group) {
-    return this.shapeGroups.findIndex(gr => gr.id == group.id);
-  }
-
-  /**
-   * Réupérer le groupe d'une forme
-   * @param  {Shape} shape         la forme
-   * @return {Group}               le groupe, ou null s'il n'y en a pas.
-   */
-  getShapeGroup(shape) {
-    let group = this.shapeGroups.find(gr => gr.contains(shape.id));
-    return group ? group : null;
-  }
-
-  /**
-   * Récupérer un groupe à partir de son id
-   * @param  {String} id            L'id du groupe
-   * @return {Group}               Le groupe, ou null s'il n'existe pas
-   */
-  getGroup(id) {
-    for (let i = 0; i < this.shapeGroups.length; i++) {
-      if (this.shapeGroups[i].id == id) return this.shapeGroups[i];
-    }
-    return null;
-  }
-
-  /**
-   * Supprimer un groupe
-   * @param  {Group} group         Le groupe
-   */
-  deleteGroup(group) {
-    let idx = this.getGroupIndex(group);
-    if (idx != -1) this.shapeGroups.splice(idx, 1);
-    else console.error("Couldn't delete group: ", group);
   }
 }

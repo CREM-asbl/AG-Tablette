@@ -1,6 +1,8 @@
 import { app } from '../App';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
+import { SelectManager } from '../SelectManager';
+import { GridManager } from '../GridManager';
 
 /**
  * Renvoie la transformation qu'il faut appliquer aux formes pour que les 2
@@ -137,18 +139,18 @@ export function getShapeAdjustment(shapes, mainShape) {
         });
       }
     } else if (grid) {
-      let pt = app.workspace.grid.getClosestGridPoint(point);
+      let pt = GridManager.getClosestGridPoint(point);
       cPtListGrid.push({
         fixed: pt,
         moving: point,
         dist: pt.dist(point),
       });
     }
-    let constr = app.interactionAPI.getEmptySelectionConstraints().points;
+    let constr = SelectManager.getEmptySelectionConstraints().points;
     constr.canSelect = true;
     constr.types = ['vertex', 'segmentPoint', 'center'];
     constr.blacklist = shapes;
-    let pt = app.interactionAPI.selectPoint(point, constr, false);
+    let pt = SelectManager.selectPoint(point, constr, false);
     if (pt) {
       cPtListShape.push({
         fixed: pt,

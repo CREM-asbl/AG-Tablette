@@ -28,10 +28,10 @@ export class DivideState extends State {
     app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-    app.selectionConstraints.eventType = 'click';
-    app.selectionConstraints.segments.canSelect = true;
-    app.selectionConstraints.points.canSelect = true;
-    app.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.segments.canSelect = true;
+    app.workspace.selectionConstraints.points.canSelect = true;
+    app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
@@ -43,17 +43,15 @@ export class DivideState extends State {
   restart() {
     this.end();
     if (this.savedSelConstr) {
-      app.selectionConstraints = this.savedSelConstr;
+      app.workspace.selectionConstraints = this.savedSelConstr;
       this.savedSelConstr = null;
     } else {
       window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-      app.selectionConstraints.eventType = 'click';
-      app.selectionConstraints.segments.canSelect = true;
-      app.selectionConstraints.points.canSelect = true;
-      app.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
-      console.log('here');
+      app.workspace.selectionConstraints.eventType = 'click';
+      app.workspace.selectionConstraints.segments.canSelect = true;
+      app.workspace.selectionConstraints.points.canSelect = true;
+      app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
     }
-    console.log(app.selectionConstraints);
 
     window.addEventListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
@@ -68,7 +66,7 @@ export class DivideState extends State {
       this.currentStep = 'listen-canvas-click';
     } else if (!this.savedSelConstr) {
       // paused
-      this.savedSelConstr = app.selectionConstraints;
+      this.savedSelConstr = app.workspace.selectionConstraints;
     }
 
     window.removeEventListener('objectSelected', this.handler);
@@ -91,7 +89,7 @@ export class DivideState extends State {
   }
 
   /**
-   * Appelée par l'interactionAPI lorsqu'un point/segment a été sélectionnée (click)
+   * Appelée par événement du SelectManager lorsqu'un point/segment a été sélectionnée (click)
    * @param  {Object} object            L'élément sélectionné
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
@@ -123,8 +121,8 @@ export class DivideState extends State {
         //Liste des points que l'on peut sélectionner comme 2ème point:
         let pointsList = this.getCandidatePoints(object);
 
-        app.selectionConstraints.segments.canSelect = false;
-        app.selectionConstraints.points.whitelist = pointsList;
+        app.workspace.selectionConstraints.segments.canSelect = false;
+        app.workspace.selectionConstraints.points.whitelist = pointsList;
 
         window.dispatchEvent(new CustomEvent('refresh'));
         window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -144,8 +142,8 @@ export class DivideState extends State {
         this.actions = null;
 
         //reset selection constraints:
-        app.selectionConstraints.segments.canSelect = true;
-        app.selectionConstraints.points.whitelist = null;
+        app.workspace.selectionConstraints.segments.canSelect = true;
+        app.workspace.selectionConstraints.points.whitelist = null;
 
         window.dispatchEvent(new CustomEvent('refresh'));
         window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -265,7 +263,7 @@ export class DivideState extends State {
 
   /**
    * Calcule la liste des points que l'on peut sélectionner comme 2ème point
-   * @return {[Object]} Liste de points au même format qu'interactionAPI
+   * @return {[Object]} Liste de points
    */
   getCandidatePoints(object) {
     const shape = object.shape;

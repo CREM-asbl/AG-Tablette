@@ -1,5 +1,6 @@
 import { app } from '../../App';
 import { Action } from './Action';
+import { ShapeManager } from '../../ShapeManager';
 
 export class BifaceAction extends Action {
   constructor() {
@@ -44,7 +45,7 @@ export class BifaceAction extends Action {
 
     let value_to_set = !this.oldBiface.every(old => old);
     this.involvedShapesIds.forEach(id => {
-      let s = app.workspace.getShapeById(id);
+      let s = ShapeManager.getShapeById(id);
       s.isBiface = value_to_set;
     });
   }
@@ -53,7 +54,7 @@ export class BifaceAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     this.involvedShapesIds.forEach((id, idx) => {
-      let s = app.workspace.getShapeById(id);
+      let s = ShapeManager.getShapeById(id);
       s.isBiface = this.oldBiface[idx];
     });
   }

@@ -2,6 +2,7 @@ import { app } from '../../App';
 import { Action } from './Action';
 import { getAverageColor, getComplementaryColor } from '../../Tools/general';
 import { Segment } from '../../Objects/Segment';
+import { ShapeManager } from '../../ShapeManager';
 
 export class MergeAction extends Action {
   constructor() {
@@ -46,8 +47,8 @@ export class MergeAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape1 = app.workspace.getShapeById(this.firstShapeId),
-      shape2 = app.workspace.getShapeById(this.secondShapeId);
+    let shape1 = ShapeManager.getShapeById(this.firstShapeId),
+      shape2 = ShapeManager.getShapeById(this.secondShapeId);
 
     const newSegments = this.createNewSegments(shape1, shape2);
 
@@ -62,8 +63,8 @@ export class MergeAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    let shape = app.workspace.getShapeById(this.createdShapeId);
-    app.workspace.deleteShape(shape);
+    let shape = ShapeManager.getShapeById(this.createdShapeId);
+    ShapeManager.deleteShape(shape);
   }
 
   alertDigShape() {
@@ -180,6 +181,6 @@ export class MergeAction extends Action {
     newShape.setSegments(newSegments);
     newShape.coordinates = { x: newShape.x - 20, y: newShape.y - 20 };
     if (newShape.isCircle()) newShape.isCenterShown = true;
-    app.workspace.addShape(newShape);
+    ShapeManager.addShape(newShape);
   }
 }

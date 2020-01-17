@@ -1,5 +1,6 @@
 import { app } from '../../App';
 import { Action } from './Action';
+import { ShapeManager } from '../../ShapeManager';
 
 export class RotateAction extends Action {
   constructor() {
@@ -46,11 +47,11 @@ export class RotateAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape = app.workspace.getShapeById(this.shapeId),
+    let shape = ShapeManager.getShapeById(this.shapeId),
       center = shape.center;
 
     this.involvedShapesIds.forEach(id => {
-      let s = app.workspace.getShapeById(id);
+      let s = ShapeManager.getShapeById(id);
       s.rotate(this.rotationAngle, center);
     });
   }
@@ -58,11 +59,11 @@ export class RotateAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    let shape = app.workspace.getShapeById(this.shapeId),
+    let shape = ShapeManager.getShapeById(this.shapeId),
       center = shape.center;
 
     this.involvedShapesIds.forEach(id => {
-      let s = app.workspace.getShapeById(id);
+      let s = ShapeManager.getShapeById(id);
       s.rotate(-this.rotationAngle, center);
     });
   }

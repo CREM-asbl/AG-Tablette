@@ -1,6 +1,7 @@
 import { app } from '../../App';
 import { Action } from './Action';
 import { getComplementaryColor } from '../../Tools/general';
+import { ShapeManager } from '../../ShapeManager';
 
 export class BackgroundColorAction extends Action {
   constructor() {
@@ -57,7 +58,7 @@ export class BackgroundColorAction extends Action {
     if (!this.checkDoParameters()) return;
 
     this.involvedShapesIds.forEach(id => {
-      let s = app.workspace.getShapeById(id);
+      let s = ShapeManager.getShapeById(id);
       s.color = this.selectedColor;
       s.second_color = getComplementaryColor(s.color);
     });
@@ -67,7 +68,7 @@ export class BackgroundColorAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     this.involvedShapesIds.forEach((id, index) => {
-      let s = app.workspace.getShapeById(id);
+      let s = ShapeManager.getShapeById(id);
       s.color = this.oldColors[index];
       s.second_color = getComplementaryColor(s.color);
     });

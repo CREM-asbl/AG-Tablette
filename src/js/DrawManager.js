@@ -1,7 +1,8 @@
 import { app } from './App';
+import { GridManager } from './GridManager';
 
 export class DrawManager {
-  constructor(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas) {
+  static init(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas) {
     app.canvas = {
       upper: upperCanvas,
       main: mainCanvas,
@@ -14,7 +15,7 @@ export class DrawManager {
     app.invisibleCtx = app.canvas.invisible.getContext('2d');
 
     window.addEventListener('canvasmousemove', event => {
-      app.lastKnownMouseCoordinates = event.detail.mousePos;
+      app.workspace.lastKnownMouseCoordinates = event.detail.mousePos;
       window.dispatchEvent(new CustomEvent('refreshUpper'));
     });
 
@@ -103,19 +104,19 @@ export class DrawManager {
   /* ############################# TRANSFORM ############################ */
   /* #################################################################### */
 
-  resetTransformations() {
+  static resetTransformations() {
     app.upperCtx.setTransform(1, 0, 0, 1, 0, 0);
     app.mainCtx.setTransform(1, 0, 0, 1, 0, 0);
     app.backgroundCtx.setTransform(1, 0, 0, 1, 0, 0);
   }
 
-  translateView(relativeOffset) {
+  static translateView(relativeOffset) {
     app.upperCtx.translate(relativeOffset.x, relativeOffset.y);
     app.mainCtx.translate(relativeOffset.x, relativeOffset.y);
     app.backgroundCtx.translate(relativeOffset.x, relativeOffset.y);
   }
 
-  scaleView(relativeScale) {
+  static scaleView(relativeScale) {
     app.upperCtx.scale(relativeScale, relativeScale);
     app.mainCtx.scale(relativeScale, relativeScale);
     app.backgroundCtx.scale(relativeScale, relativeScale);
@@ -125,7 +126,7 @@ export class DrawManager {
   /* ############################### UPDATE ############################# */
   /* #################################################################### */
 
-  clearCtx(ctx) {
+  static clearCtx(ctx) {
     let canvasWidth = app.canvas.main.clientWidth,
       canvasHeight = app.canvas.main.clientHeight,
       maxX = canvasWidth * app.settings.get('maxZoomLevel'),
@@ -144,7 +145,7 @@ export class DrawManager {
   //   //TODO: vérifier que seule cette fonction est appelée de l'extérieur.
   // }
 
-  refreshBackground() {
+  static refreshBackground() {
     this.clearCtx(app.backgroundCtx);
 
     //Grid:
@@ -165,7 +166,7 @@ export class DrawManager {
           y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
         };
 
-      let pts = app.workspace.grid.getVisibleGridPoints(min, max);
+      let pts = GridManager.getVisibleGridPoints(min, max);
       pts.forEach(pt => {
         this.drawPoint(app.backgroundCtx, pt, '#F00', 1.5 / actualZoomLvl, false);
       });
@@ -185,13 +186,13 @@ export class DrawManager {
     // }
   }
 
-  refreshMain() {
+  static refreshMain() {
     this.clearCtx(app.mainCtx);
 
     //Afficher les formes
     app.workspace.shapes
       .filter(shape => {
-        return app.editingShapes.findIndex(s => s.id == shape.id) == -1;
+        return app.workspace.editingShapes.findIndex(s => s.id == shape.id) == -1;
       })
       .forEach(shape => {
         this.drawShape(app.mainCtx, shape);
@@ -201,7 +202,7 @@ export class DrawManager {
       });
   }
 
-  refreshUpper() {
+  static refreshUpper() {
     this.clearCtx(app.upperCtx);
     window.dispatchEvent(
       new CustomEvent('drawUpper', {
@@ -221,7 +222,7 @@ export class DrawManager {
    * @param  {Number}     [borderSize=1]  Epaisseur des bordures de la forme
    * @param  {Boolean}    [axeAngle=true] Axe de symétrie (pour reverse)
    */
-  drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
+  static drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
     ctx.strokeStyle = shape.borderColor;
     ctx.fillStyle = shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
@@ -260,7 +261,7 @@ export class DrawManager {
    * @param  {Number}     [size=1]       Taille du point
    * @param  {Boolean}    [doSave=true]  Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  drawPoint(ctx, point, color = '#000', size = 1, doSave = true) {
+  static drawPoint(ctx, point, color = '#000', size = 1, doSave = true) {
     if (doSave) ctx.save();
 
     ctx.fillStyle = color;
@@ -283,7 +284,7 @@ export class DrawManager {
    * @param  {Number}     [size=1]        Epaisseur de la ligne
    * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  drawLine(ctx, line, color = '#000', size = 1, doSave = true) {
+  static drawLine(ctx, line, color = '#000', size = 1, doSave = true) {
     if (doSave) ctx.save();
 
     ctx.strokeStyle = color;
@@ -311,7 +312,7 @@ export class DrawManager {
    * @param  {Number}     [size=1]          Epaisseur de l'arc
    * @param  {Boolean}    [doSave=true]     Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  drawArc(
+  static drawArc(
     ctx,
     startPoint,
     endPoint,
@@ -347,7 +348,7 @@ export class DrawManager {
    * @param  {String}     [color='#000']  Couleur du texte
    * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  drawText(ctx, text, position, color = '#000', doSave = true) {
+  static drawText(ctx, text, position, color = '#000', doSave = true) {
     if (doSave) ctx.save();
 
     ctx.fillStyle = color;
@@ -365,7 +366,7 @@ export class DrawManager {
    * @param  {float}      [radius=10]     Rayon
    * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  drawCircle(ctx, point, color = '#000', radius = 10, doSave = true) {
+  static drawCircle(ctx, point, color = '#000', radius = 10, doSave = true) {
     if (doSave) ctx.save();
 
     ctx.globalAlpha = 1;
