@@ -1,10 +1,17 @@
 import { LitElement, html } from 'lit-element';
-import { app } from '../js/App';
 import { TemplatePopup } from './template-popup';
 
 class OpacityPopup extends LitElement {
   constructor() {
     super();
+
+    window.addEventListener('setOpacity', event => (this.opacity = event.detail.opacity));
+  }
+
+  static get properties() {
+    return {
+      opacity: Number,
+    };
   }
 
   static get styles() {
@@ -13,7 +20,7 @@ class OpacityPopup extends LitElement {
 
   render() {
     return html`
-      <template-popup @close-popup="${this.close}">
+      <template-popup @close-popup="${this.opacityPopupValidate}">
         <h2 slot="title">Opacité</h2>
         <div slot="body" id="body">
           <div class="field">
@@ -23,24 +30,13 @@ class OpacityPopup extends LitElement {
               id="opacity_popup_select"
               @change="${this._actionHandle}"
             >
-              <option
-                value="0"
-                ?selected="${app.state && app.state.action ? app.state.action.opacity == 0 : false}"
-              >
+              <option value="0" ?selected="${this.opacity == 0}">
                 transparent
               </option>
-              <option
-                value="0.7"
-                ?selected="${app.state && app.state.action
-                  ? app.state.action.opacity == 0.7
-                  : false}"
-              >
+              <option value="0.7" ?selected="${this.opacity == 0.7}">
                 semi-transparent
               </option>
-              <option
-                value="1"
-                ?selected="${app.state && app.state.action ? app.state.action.opacity == 1 : false}"
-              >
+              <option value="1" ?selected="${this.opacity == 1}">
                 opaque
               </option>
             </select>

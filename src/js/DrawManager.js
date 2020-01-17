@@ -127,13 +127,12 @@ export class DrawManager {
   /* #################################################################### */
 
   static clearCtx(ctx) {
-    let canvasWidth = app.canvas.main.clientWidth,
-      canvasHeight = app.canvas.main.clientHeight,
-      maxX = canvasWidth * app.settings.get('maxZoomLevel'),
-      maxY = canvasHeight * app.settings.get('maxZoomLevel');
+    ctx.save();
 
-    //TODO: calculer la zone à clear, en fonction du zoom et translate!
-    ctx.clearRect(-10000, -10000, 20000, 20000);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    ctx.restore();
   }
 
   // askRefresh(canvas = 'main') {

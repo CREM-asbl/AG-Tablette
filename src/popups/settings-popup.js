@@ -41,7 +41,7 @@ class SettingsPopup extends LitElement {
                 type="checkbox"
                 name="settings_adapt_shapes_position"
                 id="settings_adapt_shapes_position"
-                .checked="${this.settings.data.automaticAdjustment.value}"
+                .checked="${this.settings.data.automaticAdjustment}"
                 @change="${this._actionHandle}"
               />
               <label for="settings_adapt_shapes_position">Ajustement automatique</label>
@@ -60,13 +60,13 @@ class SettingsPopup extends LitElement {
                 id="settings_shapes_size"
                 @change="${this._actionHandle}"
               >
-                <option value="1" ?selected="${this.settings.data.shapesSize.value === 1}">
+                <option value="1" ?selected="${this.settings.data.shapesSize === 1}">
                   1
                 </option>
-                <option value="2" ?selected="${this.settings.data.shapesSize.value === 2}">
+                <option value="2" ?selected="${this.settings.data.shapesSize === 2}">
                   2
                 </option>
-                <option value="3" ?selected="${this.settings.data.shapesSize.value === 3}">
+                <option value="3" ?selected="${this.settings.data.shapesSize === 3}">
                   3
                 </option>
               </select>
@@ -77,7 +77,7 @@ class SettingsPopup extends LitElement {
                 type="checkbox"
                 name="settings_pointed_shapes"
                 id="settings_pointed_shapes"
-                .checked="${this.settings.data.areShapesPointed.value}"
+                .checked="${this.settings.data.areShapesPointed}"
                 @change="${this._actionHandle}"
               />
               <label for="settings_pointed_shapes">Formes pointées</label>
@@ -101,17 +101,17 @@ class SettingsPopup extends LitElement {
     switch (event.target.name) {
       case 'settings_adapt_shapes_position':
         app.settings.set('automaticAdjustment', event.target.checked);
-        this.settings.data.automaticAdjustment.value = event.target.checked;
+        window.dispatchEvent(new CustomEvent('app-settings-changed'));
         break;
 
       case 'settings_shapes_size':
         app.settings.set('shapesSize', parseInt(event.target.value));
-        this.settings.data.shapesSize.value = event.target.value;
+        window.dispatchEvent(new CustomEvent('app-settings-changed'));
         break;
 
       case 'settings_pointed_shapes':
         app.settings.set('areShapesPointed', event.target.checked);
-        this.settings.data.areShapesPointed.value = event.target.checked;
+        window.dispatchEvent(new CustomEvent('app-settings-changed'));
         window.dispatchEvent(new CustomEvent('refresh'));
         break;
 

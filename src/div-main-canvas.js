@@ -100,25 +100,33 @@ class DivMainCanvas extends LitElement {
       window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchstart', event => {
-      event.preventDefault();
-      let detail = {
-        mousePos: this.getMousePos(event),
-        event: event,
-      };
-      window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvastouchstart', { detail: detail }));
-    });
+    this.upperCanvas.addEventListener(
+      'touchstart',
+      event => {
+        event.preventDefault();
+        let detail = {
+          mousePos: this.getMousePos(event),
+          event: event,
+        };
+        window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: detail }));
+        window.dispatchEvent(new CustomEvent('canvastouchstart', { detail: detail }));
+      },
+      { passive: true },
+    );
 
-    this.upperCanvas.addEventListener('touchmove', event => {
-      event.preventDefault();
-      let detail = {
-        mousePos: this.getMousePos(event),
-        event: event,
-      };
-      window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvastouchmove', { detail: detail }));
-    });
+    this.upperCanvas.addEventListener(
+      'touchmove',
+      event => {
+        event.preventDefault();
+        let detail = {
+          mousePos: this.getMousePos(event),
+          event: event,
+        };
+        window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: detail }));
+        window.dispatchEvent(new CustomEvent('canvastouchmove', { detail: detail }));
+      },
+      { passive: true },
+    );
 
     this.upperCanvas.addEventListener('touchend', event => {
       event.preventDefault();

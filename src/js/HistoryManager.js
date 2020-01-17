@@ -8,15 +8,9 @@ import { Point } from './Objects/Point';
  */
 export class HistoryManager {
   static init() {
-    // window.addEventListener('app-started', () => {
-    // Si gestion de actions au cas par cas
-    // Object.keys(app.actions).forEach(action => {
-    //   window.addEventListener(app.actions[action].name, event =>
-    //     HistoryManager.addStep(event.detail),
-    //   );
-    // });
     window.addEventListener('actions', event => HistoryManager.addStep(event.detail));
-    // });
+
+    window.addEventListener('action-aborted', () => HistoryManager.deleteLastStep());
 
     window.addEventListener('undo-action', () => {
       HistoryManager.undo();
@@ -25,9 +19,7 @@ export class HistoryManager {
       HistoryManager.redo();
     });
 
-    window.addEventListener('history-change', event => {
-      app.workspace.history = event.detail.history;
-      app.workspace.historyIndex = event.detail.historyIndex;
+    window.addEventListener('history-changed', event => {
       HistoryManager.updateMenuState();
     });
   }
@@ -125,6 +117,13 @@ export class HistoryManager {
       app.workspace.history.length,
       HistoryManager.transformToObject(actions),
     );
+    app.workspace.historyIndex = app.workspace.history.length - 1;
+
+    HistoryManager.updateMenuState();
+  }
+
+  static deleteLastStep() {
+    app.workspace.history.length--;
     app.workspace.historyIndex = app.workspace.history.length - 1;
 
     HistoryManager.updateMenuState();

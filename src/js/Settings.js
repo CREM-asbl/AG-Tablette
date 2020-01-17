@@ -10,22 +10,19 @@ export class Settings {
    * @return {Object}              sa valeur
    */
   get(name) {
-    if (!this.data[name]) {
-      console.log('Settings.get(): Le paramètre ' + name + " n'existe pas.");
-      return;
+    if (this.data[name] === undefined) {
+      console.warn('Settings.get(): Le paramètre ' + name + " n'existe pas.");
     }
-    return this.data[name].value;
+    return this.data[name];
   }
 
   /**
-   * AJoute un paramètre
+   * Ajoute un paramètre
    * @param  {String}  name       le nom du paramètre
    * @param  {Object}  value      la valeur
    */
   set(name, value) {
-    this.data[name] = {
-      value: value,
-    };
+    this.data[name] = value;
   }
 
   saveToObject() {

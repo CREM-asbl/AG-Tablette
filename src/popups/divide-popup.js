@@ -47,13 +47,14 @@ class DividePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${this.dividePopupValidate}">Ok</button>
+          <button @click="${this.close}">Ok</button>
         </div>
       </template-popup>
     `;
   }
 
   close() {
+    this.dividePopupValidate();
     this.style.display = 'none';
   }
 
@@ -61,8 +62,6 @@ class DividePopup extends LitElement {
     window.dispatchEvent(
       new CustomEvent('setNumberOfParts', { detail: { nbOfParts: this.parts } }),
     );
-    // app.state.setNumberOfparts(this.parts);
-    this.close();
   }
 }
 customElements.define('divide-popup', DividePopup);

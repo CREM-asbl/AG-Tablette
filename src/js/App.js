@@ -39,11 +39,6 @@ export class App {
       main: [], //Tangrams CREM
       local: [], //Tangrams ajoutés par l'utilisateur.
     };
-
-    //références vers les popup
-    this.popups = {};
-
-    this.hasNativeFS = 'chooseFileSystemEntries' in window;
   }
 
   /* #################################################################### */
@@ -70,23 +65,26 @@ export class App {
      */
     this.settings.set('precision', 1.5);
 
-    //Niveau de zoom maximal de l'interface
+    // Niveau de zoom maximal de l'interface
     this.settings.set('maxZoomLevel', 10);
 
-    //Niveau de zoom minimal de l'interface
+    // Niveau de zoom minimal de l'interface
     this.settings.set('minZoomLevel', 0.1);
 
-    //Ajustement automatique des formes activé ?
+    // Ajustement automatique des formes activé ?
     this.settings.set('automaticAdjustment', true);
 
-    //true si les formes ajoutées à l'avenir auront leurs sommets visibles
+    // true si les formes ajoutées à l'avenir auront leurs sommets visibles
     this.settings.set('areShapesPointed', true);
 
-    //taille des formes qui seront ajoutées (1, 2 ou 3)
+    // taille des formes qui seront ajoutées (1, 2 ou 3)
     this.settings.set('shapesSize', 2);
 
-    //Largeur du menu de gauche de l'application
+    // Largeur du menu de gauche de l'application
     this.settings.set('mainMenuWidth', 250);
+
+    // Si ancien ou nouveau systeme de fichier
+    this.settings.set('hasNativeFS', 'chooseFileSystemEntries' in window);
   }
 
   resetSettings() {

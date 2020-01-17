@@ -520,7 +520,7 @@ class AGTabletteApp extends LitElement {
       // }
     }
     if (reset_state) {
-      app.setState(undefined);
+      app.setState();
     }
   }
 

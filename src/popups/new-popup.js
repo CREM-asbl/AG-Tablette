@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit-element';
-import { app } from '../js/App';
 import { TemplatePopup } from './template-popup';
+import { WorkspaceManager } from '../js/WorkspaceManager';
 
 class NewPopup extends LitElement {
   static get styles() {

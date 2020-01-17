@@ -18,8 +18,7 @@ export class WorkspaceManager {
       return;
     }
     app.workspace = workspace;
-    app.popups.grid.updatePopup();
-    // workspace.history.updateMenuState();
+    window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
     app.refreshWindow();
   }
 

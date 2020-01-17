@@ -5,7 +5,23 @@ import { TemplatePopup } from './template-popup';
 class GridPopup extends LitElement {
   constructor() {
     super();
-    app.popups.grid = this;
+
+    window.dispatchEvent(new CustomEvent('app-settings-changed'));
+    window.addEventListener('workspace-settings-changed', () => {
+      if (app.workspace) {
+        this.isGridShown = app.workspace.settings.get('isGridShown');
+        this.gridType = app.workspace.settings.get('gridType');
+        this.gridSize = app.workspace.settings.get('gridSize');
+      }
+    });
+  }
+
+  static get properties() {
+    return {
+      isGridShown: Boolean,
+      gridType: String,
+      gridSize: Number,
+    };
   }
 
   static get styles() {
@@ -24,19 +40,13 @@ class GridPopup extends LitElement {
               id="grid_popup_grid_type"
               @change="${this._actionHandle}"
             >
-              <option value="none" ?selected="${app.workspace.settings.get('gridType') === 'none'}">
+              <option value="none" ?selected="${this.gridType === 'none'}">
                 Aucune
               </option>
-              <option
-                value="square"
-                ?selected=${app.workspace.settings.get('gridType') === 'square'}
-              >
+              <option value="square" ?selected=${this.gridType === 'square'}>
                 Carrés
               </option>
-              <option
-                value="triangle"
-                ?selected=${app.workspace.settings.get('gridType') === 'triangle'}
-              >
+              <option value="triangle" ?selected=${this.gridType === 'triangle'}>
                 Triangles
               </option>
             </select>
@@ -50,25 +60,24 @@ class GridPopup extends LitElement {
               name="grid_popup_grid_size"
               id="grid_popup_grid_size"
               @change="${this._actionHandle}"
-              ?disabled="${app.workspace.settings.get('gridType') === 'none'}"
+              ?disabled="${this.gridType === 'none'}"
             >
               <option
                 value="0.333333333333333"
-                ?selected="${Math.abs(app.workspace.settings.get('gridSize') - 0.3333333333333) <
-                  0.0001}"
+                ?selected="${Math.abs(this.gridSize - 0.3333333333333) < 0.0001}"
               >
                 1/3
               </option>
-              <option value="0.5" ?selected="${app.workspace.settings.get('gridSize') === 0.5}">
+              <option value="0.5" ?selected="${this.gridSize === 0.5}">
                 1/2
               </option>
-              <option value="1" ?selected="${app.workspace.settings.get('gridSize') === 1}">
+              <option value="1" ?selected="${this.gridSize === 1}">
                 1
               </option>
-              <option value="2" ?selected="${app.workspace.settings.get('gridSize') === 2}">
+              <option value="2" ?selected="${this.gridSize === 2}">
                 2
               </option>
-              <option value="3" ?selected="${app.workspace.settings.get('gridSize') === 3}">
+              <option value="3" ?selected="${this.gridSize === 3}">
                 3
               </option>
             </select>
@@ -82,23 +91,6 @@ class GridPopup extends LitElement {
     `;
   }
 
-  //TODO : essayer de supprimer et remplacer par fonctionnement "automatique" de Lit-element
-  updatePopup() {
-    let typeElem = this.shadowRoot.getElementById('grid_popup_grid_type'),
-      sizeElem = this.shadowRoot.getElementById('grid_popup_grid_size');
-    typeElem.disabled = app.workspace.settings.get('isGridShown');
-    sizeElem.disabled = app.workspace.settings.get('isGridShown');
-
-    typeElem.value = app.workspace.settings.get('gridType');
-
-    let gridSize = app.workspace.settings.get('gridSize');
-    if (Math.abs(gridSize - 0.3333333333333) < 0.0001) {
-      sizeElem.value = '0.333333333333333';
-    } else {
-      sizeElem.value = gridSize;
-    }
-  }
-
   gridPopupValidate() {
     this.style.display = 'none';
   }
@@ -110,6 +102,7 @@ class GridPopup extends LitElement {
     switch (event.target.name) {
       case 'grid_popup_grid_size':
         app.workspace.settings.set('gridSize', event.target.value);
+        window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
         window.dispatchEvent(new CustomEvent('refreshBackground'));
         break;
 
@@ -118,6 +111,7 @@ class GridPopup extends LitElement {
         this.shadowRoot.getElementById('grid_popup_grid_size').disabled =
           event.target.value === 'none';
         app.workspace.settings.set('isGridShown', event.target.value !== 'none');
+        window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
         window.dispatchEvent(new CustomEvent('refreshBackground'));
         break;
 

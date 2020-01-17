@@ -13,7 +13,6 @@ export class EnvironmentManager {
   }
 
   static setNewEnv(envName) {
-    console.log(envName);
     window.dispatchEvent(new CustomEvent('env-created', { detail: { envName: envName } }));
     if (this.environments[envName]) {
       app.environment = new this.environments[envName]();

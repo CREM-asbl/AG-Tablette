@@ -17,24 +17,28 @@ export class GridManager {
   //   window.addEventListener('grid-type-changed', event => this.setType(event.detail.newType));
   // }
 
-  static show() {
-    app.workspace.settings.set('isGridShown', true);
-  }
-  static hide() {
-    app.workspace.settings.set('isGridShown', false);
-  }
+  // static show() {
+  //   app.workspace.settings.set('isGridShown', true);
+  //   window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
+  // }
+  // static hide() {
+  //   app.workspace.settings.set('isGridShown', false);
+  //   window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
+  // }
 
-  static setSize(newSize) {
-    app.workspace.settings.set('gridSize', newSize);
-  }
+  // static setSize(newSize) {
+  //   app.workspace.settings.set('gridSize', newSize);
+  //   window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
+  // }
 
-  static setType(newType) {
-    if (!['square', 'triangle'].includes(newType)) {
-      console.error('Type invalide');
-      return;
-    }
-    app.workspace.settings.set('gridType', newType);
-  }
+  // static setType(newType) {
+  //   if (!['square', 'triangle'].includes(newType)) {
+  //     console.error('Type invalide');
+  //     return;
+  //   }
+  //   app.workspace.settings.set('gridType', newType);
+  //   window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
+  // }
 
   static getVisibleGridPoints(minPoint, maxPoint) {
     if (!app.workspace.settings.get('isGridShown')) return [];

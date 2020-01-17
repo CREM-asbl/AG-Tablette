@@ -36,7 +36,7 @@ class SavePopup extends LitElement {
       <template-popup @close-popup="${() => (this.style.display = 'none')}">
         <h2 slot="title">Sauvegarder</h2>
         <div slot="body" id="body">
-          <div style="display: ${app.hasNativeFS ? 'none' : 'block'}">
+          <div style="display: ${app.settings.get('hasNativeFS') ? 'none' : 'block'}">
             <label for="save_popup_image_or_state" style="display:inline"
               >Méthode de sauvegarde</label
             >
@@ -91,7 +91,7 @@ class SavePopup extends LitElement {
             </select>
           </div>
 
-          <div class="field" style="display: ${app.hasNativeFS ? 'none' : 'block'}">
+          <div class="field" style="display: ${app.settings.get('hasNativeFS') ? 'none' : 'block'}">
             <br />
             <label for="save_popup_filename" style="display:inline">Nom du fichier</label>
             <input

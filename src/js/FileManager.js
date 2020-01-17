@@ -68,7 +68,7 @@ export class FileManager {
 
   static saveToPng(handle) {
     const canvas = app.canvas.main;
-    if (app.hasNativeFS) {
+    if (app.settings.get('hasNativeFS')) {
       // edge support for toBlob ?
       canvas.toBlob(blob => {
         FileManager.newWriteFile(handle, blob);
@@ -93,7 +93,7 @@ export class FileManager {
     });
     svg_data += '</svg>';
 
-    if (app.hasNativeFS) {
+    if (app.settings.get('hasNativeFS')) {
       FileManager.newWriteFile(handle, svg_data);
     } else {
       const encoded_data = 'data:image/svg+xml;base64,' + btoa(svg_data);
@@ -108,14 +108,14 @@ export class FileManager {
     };
 
     if (detail.save_history) saveObject.history = history;
-    else saveObject.history = { history: [], historyIndex: -1 };
+    // else saveObject.history = { history: [], historyIndex: -1 };
 
     if (detail.save_settings) saveObject.appSettings = appSettings;
     if (detail.save_settings) saveObject.WSSettings = WSSettings;
 
     let json_data = JSON.stringify(saveObject);
 
-    if (app.hasNativeFS) {
+    if (app.settings.get('hasNativeFS')) {
       FileManager.newWriteFile(handle, json_data);
     } else {
       const file = new Blob([json_data], { type: 'application/json' });
@@ -230,7 +230,7 @@ export class FileManager {
   }
 
   static async saveFile() {
-    if (app.hasNativeFS) {
+    if (app.settings.get('hasNativeFS')) {
       try {
         await FileManager.newSaveFile();
       } catch (error) {

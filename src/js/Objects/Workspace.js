@@ -49,6 +49,9 @@ export class Workspace {
     // Couleur sélectionnée pour border- ou backgroundColor
     this.selectedColor = '#000';
 
+    // Opacité sélectionnée dans le popup
+    this.selectedOpacity = 0.7;
+
     // contrainte de sélection pour formes, segments et points
     this.selectionConstraints = null;
 
@@ -79,6 +82,8 @@ export class Workspace {
       type: null, //'main' ou 'local'
       id: null,
     });
+
+    window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
   }
 
   /**
@@ -101,7 +106,9 @@ export class Workspace {
       return group;
     });
 
-    window.dispatchEvent(new CustomEvent('history-change', { detail: wsdata.history }));
+    this.history = wsdata.history;
+    this.historyIndex = wsdata.historyIndex;
+    window.dispatchEvent(new CustomEvent('history-changed'));
     if (wsdata.completeHistory) {
       this.completeHistory = new CompleteHistory();
       this.completeHistory.initFromObject(wsdata.completeHistory);
@@ -125,7 +132,8 @@ export class Workspace {
       return group.saveToObject();
     });
 
-    wsdata.history = { history: app.workspace.history, historyIndex: app.workspace.historyIndex };
+    wsdata.history = app.workspace.history;
+    wsdata.historyIndex = app.workspace.historyIndex;
     if (this.completeHistory) wsdata.completeHistory = this.completeHistory.saveToObject();
 
     wsdata.zoomLevel = this.zoomLevel;
