@@ -12,6 +12,7 @@ import './popups/opacity-popup';
 import './popups/divide-popup';
 import './popups/settings-popup';
 import './popups/save-popup';
+import './popups/notification';
 import './state-menu';
 import './version-item';
 
@@ -453,6 +454,8 @@ class AGTabletteApp extends LitElement {
       <new-popup></new-popup>
 
       <divide-popup></divide-popup>
+
+      <notif-center></notif-center>
 
       <input
         id="fileSelector"

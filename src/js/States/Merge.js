@@ -86,12 +86,14 @@ export class MergeState extends State {
     this.secondShape = shape;
 
     if (this.firstShape.getCommonsPoints(this.secondShape).length < 2) {
-      console.log('no common segments');
+      window.dispatchEvent(
+        new CustomEvent('show-notif', { detail: { message: 'Pas de segment commun' } }),
+      );
       return;
     }
 
     if (this.firstShape.overlapsWith(this.secondShape)) {
-      console.log('shapes overlap!');
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Superposition' } }));
       return;
     }
 
