@@ -1,6 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { app } from './js/App';
-import { State } from './js/States/State';
+import { EnvironmentManager } from './js/EnvironmentManager';
 
 class AgEnvironnements extends LitElement {
   render() {
@@ -32,23 +31,31 @@ class AgEnvironnements extends LitElement {
           box-shadow: 0 1px 8px black;
         }
 
-        #grandeurs {
+        #Grandeurs {
           background: url('/images/Environnements/grandeurs.webp');
           background-repeat: no-repeat;
           background-size: cover;
         }
+
+        #Tangram {
+        }
+
+        #Cubes {
+        }
+
+        #Geometrie {
+        }
       </style>
 
-      <div id="grandeurs" @click="${this.handleClick}">Grandeurs</div>
-      <div id="tangram">Tangram</div>
-      <div id="cubes">Cubes</div>
-      <div id="geometrie">Géométrie</div>
+      <div id="Grandeurs" @click="${this.handleClick}">Grandeurs</div>
+      <div id="Tangram">Tangram</div>
+      <div id="Cubes">Cubes</div>
+      <div id="Geometrie">Géométrie</div>
     `;
   }
 
   handleClick(e) {
-    app.environnement = e.target.id;
-    window.dispatchEvent(new CustomEvent('state-changed'));
+    EnvironmentManager.setEnvironment(e.target.id);
   }
 }
 customElements.define('ag-environnements', AgEnvironnements);

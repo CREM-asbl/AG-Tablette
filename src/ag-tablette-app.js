@@ -52,7 +52,6 @@ class AGTabletteApp extends LitElement {
     WorkspaceManager.init(); // to move
     GroupManager.init(); // to move
     ShapeManager.init(); // to move
-    EnvironmentManager.init(); // to move
     CompleteHistoryManager.init();
 
     window.addEventListener('app-state-changed', () => {

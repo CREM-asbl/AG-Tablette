@@ -10,9 +10,10 @@ class AgApp extends LitElement {
 
   constructor() {
     super();
-    window.addEventListener('state-changed', () => {
-      this.environnement_selected = app.environnement ? true : false;
-    });
+    window.addEventListener(
+      'env-changed',
+      () => (this.environnement_selected = app.environment ? true : false),
+    );
   }
 
   render() {
