@@ -75,7 +75,7 @@ export class PermanentZoomPlaneState extends State {
       let point1 = new Point(event.touches[0].clientX, event.touches[0].clientY),
         point2 = new Point(event.touches[1].clientX, event.touches[1].clientY);
       this.centerProp = new Point(
-        ((point1.x + point2.x) / 2 - window.canvasLeftShift) / app.cvsDiv.clientWidth,
+        ((point1.x + point2.x) / 2 - app.canvasLeftShift) / app.cvsDiv.clientWidth,
         (point1.y + point2.y) / 2 / app.cvsDiv.clientHeight,
       );
       this.baseDist = point1.dist(point2);
