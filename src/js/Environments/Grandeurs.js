@@ -220,3 +220,5 @@ new DivideAction();
 new MergeAction();
 new CutAction();
 new BifaceAction();
+
+window.dispatchEvent(new CustomEvent('refresh'));
