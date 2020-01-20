@@ -50,7 +50,7 @@ export class ZoomPlaneAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let newZoom = this.originalZoom * this.scaleOffset,
-      actualWinSize = new Point(app.cvsDiv.clientWidth, app.cvsDiv.clientHeight).multiplyWithScalar(
+      actualWinSize = new Point(app.canvasWidth, app.canvasHeight).multiplyWithScalar(
         1 / this.originalZoom,
       ),
       newWinSize = actualWinSize.multiplyWithScalar(1 / this.scaleOffset),

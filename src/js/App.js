@@ -12,10 +12,11 @@ export class App {
     this.settings = new Settings();
     this.initSettings();
 
-    this.canvas = [];
+    this.canvas = null;
 
-    //Référence vers le <div> contenant les canvas
-    this.cvsDiv = null;
+    this.canvasWidth = null;
+    this.canvasHeight = null;
+
     //Référence vers le <div> principal de l'app
     this.appDiv = null;
 
@@ -121,7 +122,7 @@ export class App {
   /* #################################################################### */
 
   refreshWindow() {
-    this.cvsDiv.setCanvasSize();
+    window.dispatchEvent(new CustomEvent('setCanvasSize'));
   }
 
   /**

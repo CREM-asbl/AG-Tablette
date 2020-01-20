@@ -55,9 +55,9 @@ class DivMainCanvas extends LitElement {
       this.invisibleCanvas,
     ); // to move
 
-    app.cvsDiv = this;
     app.start();
-    this.setCanvasSize();
+    window.addEventListener('setCanvasSize', () => this.setCanvasSize());
+    window.dispatchEvent(new CustomEvent('setCanvasSize'));
 
     app.appDiv.families = app.environment.familyNames;
 

@@ -83,7 +83,7 @@ export class ZoomPlaneState extends State {
 
     let originalTranslateOffset = app.workspace.translateOffset,
       newZoom = originalZoom * scaleOffset,
-      actualWinSize = new Point(app.cvsDiv.clientWidth, app.cvsDiv.clientHeight).multiplyWithScalar(
+      actualWinSize = new Point(app.canvasWidth, app.canvasHeight).multiplyWithScalar(
         1 / originalZoom,
       ),
       newWinSize = actualWinSize.multiplyWithScalar(1 / scaleOffset),
@@ -129,7 +129,7 @@ export class ZoomPlaneState extends State {
   }
 
   getDist(mouseCoordinates) {
-    let halfWinSize = new Point(app.cvsDiv.clientWidth, app.cvsDiv.clientHeight).multiplyWithScalar(
+    let halfWinSize = new Point(app.canvasWidth, app.canvasHeight).multiplyWithScalar(
         1 / app.workspace.zoomLevel / 2,
       ),
       translateOffset = app.workspace.translateOffset.multiplyWithScalar(
