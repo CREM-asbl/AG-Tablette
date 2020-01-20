@@ -58,31 +58,28 @@ export class State {
   }
 
   //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected
-  onClick(mouseCoordinates, event, isSecondCall = false) {
+  onClick(mouseCoordinates) {
     return true;
   }
-  onMouseDown(mouseCoordinates, event) {
+  onMouseDown(mouseCoordinates) {
     return true;
   }
-  onMouseUp(mouseCoordinates, event) {
+  onMouseMove(mouseCoordinates) {
     return true;
   }
-  onMouseMove(mouseCoordinates, event) {
+  onMouseUp(mouseCoordinates) {
     return true;
   }
-  onTouchStart(mouseCoordinates, event) {
+  onTouchStart(touches) {
     return true;
   }
-  onTouchMove(mouseCoordinates, event) {
+  onTouchMove(touches) {
     return true;
   }
-  onTouchEnd(mouseCoordinates, event) {
+  onTouchEnd(touches) {
     return true;
   }
-  onTouchLeave(mouseCoordinates, event) {
-    return true;
-  }
-  onTouchCancel(mouseCoordinates, event) {
+  onTouchCancel(touches) {
     return true;
   }
 
@@ -91,11 +88,8 @@ export class State {
    * est sélectionnée (onClick)
    * @param  {Object} object            L'objet sélectionné (Shape, Segment ou Point)
    * @param  {Point} mouseCoordinates  Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
-   * @return {Boolean}                false: désactive l'appel à onClick si
-   *                                  cet appel est réalisé après.
    */
-  objectSelected(object, mouseCoordinates, event) {
+  objectSelected(object, mouseCoordinates) {
     return true;
   }
 
@@ -136,9 +130,6 @@ export class State {
    * réinitialiser l'état
    * (appelé quand focus du permanent state perdu)
    */
-  /**
-   * ré-initialiser l'état
-   */
   restart() {
     console.log('restart() not implemented');
   }
@@ -146,9 +137,6 @@ export class State {
   /**
    * met le state en idle ou pause
    * (appelé si changement de state ou si un permanent state prend le focus)
-   */
-  /**
-   * stopper l'état
    */
   end() {
     console.log('end() not implemented');

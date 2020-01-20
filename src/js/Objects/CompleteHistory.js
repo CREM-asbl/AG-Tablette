@@ -1,4 +1,7 @@
 import { app } from '../App';
+import { Shape } from './Shape';
+import { Segment } from './Segment';
+import { Point } from './Point';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -27,26 +30,39 @@ export class CompleteHistory {
     this.timeoutId = null;
   }
 
-  // saveToObject() {
-  //   let save = {
-  //     // historyIndex: this.historyIndex,
-  //     steps: this.steps.map(step => step.saveToObject()),
-  //     startTimestamp: this.startTimestamp,
-  //     endTimestamp: Date.now(), //this.endTimestamp,
-  //   };
-  //   return save;
-  // }
+  saveToObject() {
+    let save = {
+      // historyIndex: this.historyIndex,
+      steps: this.steps, //.map(step => step.saveToObject()),
+      startTimestamp: this.startTimestamp,
+      endTimestamp: Date.now(), //this.endTimestamp,
+    };
+    return save;
+  }
 
-  // initFromObject(object) {
-  //   // this.historyIndex = object.historyIndex;
-  //   this.steps = object.steps.map(step => {
-  //     return HistoryStep.getInstanceFromJson(step);
-  //     // let newStep = new HistoryStep();
-  //     // newStep.initFromObject(step);
-  //     // return newStep;
-  //   });
-  //   this.startTimestamp = object.startTimestamp;
-  //   this.endTimestamp = object.endTimestamp;
+  initFromObject(object) {
+    // this.historyIndex = object.historyIndex;
+    this.steps = object.steps;
+    this.startTimestamp = object.startTimestamp;
+    this.endTimestamp = object.endTimestamp;
+  }
+
+  // transformToObject(detail) {
+  //   if (!detail)
+  //     return;
+  //   let savedDetail = {};
+  //   for (let [key, value] of Object.entries(detail)) {
+  //     if (value instanceof Shape || value instanceof Segment || value instanceof Point)
+  //       value = value.saveToObject();
+  //     else if (value instanceof Array)
+  //       value = value.map(elem => {
+  //         if (elem instanceof Shape || elem instanceof Segment || elem instanceof Point)
+  //           return elem.saveToObject();
+  //         else return elem;
+  //       });
+  //     savedDetail[key] = value;
+  //   }
+  //   return savedDetail;
   // }
 
   /**
@@ -54,15 +70,6 @@ export class CompleteHistory {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
   addStep(type, event) {
-    // let timestamp = Date.now(),
-    //   newStep;
-
-    // // console.log(data, type);
-
-    // if (type == 'selection') newStep = new SelectionStep(data, timestamp);
-    // else if (type == 'event') newStep = new EventStep(data, timestamp);
-    // else if (type == 'formChange') newStep = new FormChangeStep(data, timestamp);
-    // else console.log('unknown step type : ', type);
-    this.steps.push({ type, detail: event.detail });
+    this.steps.push({ type, detail: event.detail, timestamp: event.timeStamp });
   }
 }

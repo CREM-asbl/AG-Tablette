@@ -20,7 +20,7 @@ export class Workspace {
     this.id = uniqId();
 
     // Représente l'historique complet
-    this.completeHistory = new CompleteHistory();
+    this.completeHistory = null;
 
     //liste des formes du projet ([Shape])
     this.shapes = [];

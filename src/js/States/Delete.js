@@ -59,9 +59,8 @@ export class DeleteState extends State {
    * Appelée par événement du SelectManager lorsqu'une forme ou un point a été sélectionné (click)
    * @param  {Object} object            La forme ou le point sélectionné
    * @param  {Point} mouseCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
-  objectSelected(object, mouseCoordinates, event) {
+  objectSelected(object, mouseCoordinates) {
     if (object instanceof Shape) {
       let userGroup = GroupManager.getShapeGroup(object),
         involvedShapes;
