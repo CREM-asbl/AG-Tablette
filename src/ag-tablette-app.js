@@ -23,7 +23,6 @@ import { SelectManager } from './js/SelectManager';
 import { WorkspaceManager } from './js/WorkspaceManager';
 import { GroupManager } from './js/GroupManager';
 import { ShapeManager } from './js/ShapeManager';
-import { EnvironmentManager } from './js/EnvironmentManager';
 import { CompleteHistoryManager } from './js/CompleteHistoryManager';
 
 class AGTabletteApp extends LitElement {
@@ -35,12 +34,14 @@ class AGTabletteApp extends LitElement {
       canUndo: Boolean,
       canRedo: Boolean,
       background: String,
+      states: { type: Array },
     };
   }
 
   constructor() {
     super();
     this.state = '';
+    this.states = [];
     this.stateName = '';
     this.families = [];
     this.selectedFamily = '';
@@ -57,6 +58,7 @@ class AGTabletteApp extends LitElement {
 
     window.addEventListener('app-state-changed', () => {
       this.state = app.state;
+      this.states = app.states;
       this.stateName = app.state ? app.states[app.state].name : '';
       this.selectedFamily = '';
     });

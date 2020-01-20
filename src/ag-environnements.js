@@ -2,6 +2,11 @@ import { LitElement, html } from 'lit-element';
 import { EnvironmentManager } from './js/EnvironmentManager';
 
 class AgEnvironnements extends LitElement {
+  constructor() {
+    super();
+    EnvironmentManager.setEnvironment('Grandeurs');
+  }
+
   render() {
     return html`
       <style>
@@ -48,7 +53,7 @@ class AgEnvironnements extends LitElement {
       </style>
 
       <div id="Grandeurs" @click="${this.handleClick}">Grandeurs</div>
-      <div id="Tangram">Tangram</div>
+      <div id="Tangram" @click="${this.handleClick}">Tangram</div>
       <div id="Cubes">Cubes</div>
       <div id="Geometrie">Géométrie</div>
     `;
