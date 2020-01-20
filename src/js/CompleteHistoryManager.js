@@ -48,6 +48,11 @@ export class CompleteHistoryManager {
         CompleteHistoryManager.addStep('setNumberOfParts', event),
       );
 
+      // opacity events
+      window.addEventListener('setOpacity', event =>
+        CompleteHistoryManager.addStep('setOpacity', event),
+      );
+
       // undo - redo
       window.addEventListener('undo-action', event =>
         CompleteHistoryManager.addStep('undo-action', event),
@@ -67,15 +72,16 @@ export class CompleteHistoryManager {
   }
 
   static startBrowse() {
+    this.isRunning = true;
     app.workspace.shapes = [];
     app.workspace.shapeGroups = [];
     app.workspace.history = [];
     app.workspace.historyIndex = -1;
+    app.setState();
     app.workspace.completeHistory.videoStartTimestamp = Date.now();
     app.workspace.completeHistory.currentTimestamp =
       app.workspace.completeHistory.videoStartTimestamp;
     app.workspace.completeHistory.historyIndex = 0;
-    this.isRunning = true;
     CompleteHistoryManager.exectuteNextStep();
   }
 
@@ -87,7 +93,7 @@ export class CompleteHistoryManager {
       app.workspace.completeHistory.steps.length - 1
     ) {
       console.log('finished');
-      // this.isRunning = false;
+      this.isRunning = false;
       return;
     }
     const { type, detail } = app.workspace.completeHistory.steps[

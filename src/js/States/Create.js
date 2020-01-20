@@ -49,7 +49,9 @@ export class CreateState extends State {
     if (this.selectedShape) {
       this.currentStep = 'listen-canvas-click';
       window.dispatchEvent(
-        new CustomEvent('shape-selected', { detail: { selectedShape: this.selectedShape } }),
+        new CustomEvent('shape-selected', {
+          detail: { selectedShape: this.selectedShape.saveToObject() },
+        }),
       );
     } else {
       this.currentStep = 'show-family-shapes';

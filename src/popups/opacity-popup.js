@@ -5,7 +5,10 @@ class OpacityPopup extends LitElement {
   constructor() {
     super();
 
-    window.addEventListener('setOpacity', event => (this.opacity = event.detail.opacity));
+    window.addEventListener('setOpacity', event => {
+      this.opacity = event.detail.opacity;
+      this.close();
+    });
   }
 
   static get properties() {

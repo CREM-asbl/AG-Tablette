@@ -24,7 +24,7 @@ export class CompleteHistory {
     this.startTimestamp = startTimestamp;
 
     // workspace close timestamp
-    this.endTimestamp = null;
+    this.endTimestamp = 0;
 
     // timeout id for cancelling
     this.timeoutId = null;
@@ -70,6 +70,6 @@ export class CompleteHistory {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
   addStep(type, event) {
-    this.steps.push({ type, detail: event.detail, timestamp: event.timeStamp });
+    this.steps.push({ type, detail: event.detail, timestamp: event.timeStamp + this.endTimestamp });
   }
 }
