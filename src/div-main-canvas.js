@@ -228,10 +228,7 @@ class DivMainCanvas extends LitElement {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refreshBackground'));
 
-    let leftShift = document
-      .getElementsByTagName('ag-tablette-app')[0]
-      .shadowRoot.getElementById('app-canvas-view-toolbar').clientWidth;
-    window.canvasLeftShift = leftShift;
+    app.canvasLeftShift = this.offsetLeft;
   }
 
   // Ajout d'un fond d'écran fixé à droite
