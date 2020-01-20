@@ -1,6 +1,8 @@
 import { app } from '../App';
 import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
+import { Shape } from '../Objects/Shape';
+import { Point } from '../Objects/Point';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -28,12 +30,12 @@ export class CreateState extends State {
    */
   start(family) {
     this.currentStep = 'show-family-shapes';
-
     this.selectedFamily = family;
-    app.selectedFamily = this.selectedFamily;
 
+    window.dispatchEvent(
+      new CustomEvent('family-selected', { detail: { selectedFamily: this.selectedFamily } }),
+    );
     window.addEventListener('shape-selected', this.handler);
-    window.setTimeout(() => window.dispatchEvent(new CustomEvent('family-selected')), 0);
   }
 
   /**
@@ -41,14 +43,20 @@ export class CreateState extends State {
    */
   restart() {
     this.end();
+    window.dispatchEvent(
+      new CustomEvent('family-selected', { detail: { selectedFamily: this.selectedFamily } }),
+    );
     if (this.selectedShape) {
       this.currentStep = 'listen-canvas-click';
-      app.selectedShape = this.selectedShape;
+      window.dispatchEvent(
+        new CustomEvent('shape-selected', {
+          detail: { selectedShape: this.selectedShape.saveToObject() },
+        }),
+      );
     } else {
       this.currentStep = 'show-family-shapes';
     }
 
-    window.dispatchEvent(new CustomEvent('family-selected'));
     window.addEventListener('shape-selected', this.handler);
     window.addEventListener('canvasmousedown', this.handler);
   }
@@ -57,10 +65,11 @@ export class CreateState extends State {
    * stopper l'état
    */
   end() {
-    app.selectedShape = null;
     window.removeEventListener('shape-selected', this.handler);
     window.removeEventListener('canvasmousedown', this.handler);
     window.removeEventListener('canvasmouseup', this.handler);
+    window.dispatchEvent(new CustomEvent('family-selected', { detail: { selectedFamily: null } }));
+    window.dispatchEvent(new CustomEvent('shape-selected', { detail: { selectedShape: null } }));
   }
 
   _actionHandle(event) {
@@ -76,7 +85,10 @@ export class CreateState extends State {
   }
 
   setShape(shape) {
-    this.selectedShape = shape;
+    if (shape) {
+      this.selectedShape = new Shape(new Point(0, 0));
+      this.selectedShape.initFromObject(shape);
+    }
     this.currentStep = 'listen-canvas-click';
     window.addEventListener('canvasmousedown', this.handler);
   }

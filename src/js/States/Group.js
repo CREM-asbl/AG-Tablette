@@ -72,9 +72,8 @@ export class GroupState extends State {
    * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, mouseCoordinates, event) {
+  objectSelected(shape, mouseCoordinates) {
     //Étapes
     if (this.currentStep == 'listen-canvas-click') {
       let userGroup = GroupManager.getShapeGroup(shape);

@@ -100,9 +100,8 @@ export class CopyState extends State {
   /**
    * Appelée lorsque l'événement mouseup est déclanché sur le canvas
    * @param  {Point} mouseCoordinates les coordonnées de la souris
-   * @param  {Event} event            l'événement javascript
    */
-  onMouseUp(mouseCoordinates, event) {
+  onMouseUp(mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;
 
     let translation = mouseCoordinates.subCoordinates(this.startClickCoordinates),

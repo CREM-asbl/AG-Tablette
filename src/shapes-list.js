@@ -5,13 +5,15 @@ class ShapesList extends LitElement {
   constructor() {
     super();
 
-    window.addEventListener('family-selected', () => {
-      this.selectedFamily = app.selectedFamily;
-      this.shape = app.selectedShape ? app.selectedShape.name : '';
+    window.addEventListener('family-selected', event => {
+      this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : '';
     });
-    window.addEventListener('app-state-changed', () => {
-      this.state = app.state;
-      this.shape = app.selectedShape ? app.selectedShape.name : '';
+    // window.addEventListener('app-state-changed', () => {
+    //   this.state = app.state;
+    //   this.shape = app.selectedShape ? app.selectedShape.name : '';
+    // });
+    window.addEventListener('shape-selected', event => {
+      this.shape = event.detail.selectedShape ? event.detail.selectedShape.name : '';
     });
   }
 
@@ -24,7 +26,7 @@ class ShapesList extends LitElement {
   }
 
   render() {
-    if (this.state != 'create_shape' || !this.selectedFamily) {
+    if (!this.selectedFamily) {
       return html``;
     }
 
@@ -98,10 +100,10 @@ class ShapesList extends LitElement {
   _clickHandle(event) {
     const familyRef = app.environment.getFamily(this.selectedFamily);
     const shapeRef = familyRef.getShape(event.target.shape);
-    app.selectedShape = shapeRef;
-    this.shape = app.selectedShape.name;
+    // app.selectedShape = shapeRef;
+    // this.shape = app.selectedShape.name;
     window.dispatchEvent(
-      new CustomEvent('shape-selected', { detail: { selectedShape: shapeRef } }),
+      new CustomEvent('shape-selected', { detail: { selectedShape: shapeRef.saveToObject() } }),
     );
     // app.state.setShape(shapeRef);
     // this.show = false;

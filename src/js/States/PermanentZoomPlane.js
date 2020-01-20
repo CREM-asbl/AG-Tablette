@@ -50,30 +50,30 @@ export class PermanentZoomPlaneState extends State {
 
   _actionHandle(event) {
     if (event.type == 'canvastouchstart') {
-      this.onTouchStart(event.detail.event);
+      this.onTouchStart(event.detail.touches);
     } else if (event.type == 'canvastouchmove') {
-      this.onTouchMove(event.detail.event);
+      this.onTouchMove(event.detail.touches);
     } else if (event.type == 'canvastouchend') {
-      this.onTouchEnd(event.detail.event);
+      this.onTouchEnd(event.detail.touches);
     } else {
       console.log('unsupported event type : ', event.type);
     }
   }
 
-  onTouchStart(event) {
-    if (event.touches.length == 2) {
+  onTouchStart(touches) {
+    if (touches.length == 2) {
       window.dispatchEvent(new CustomEvent('abort-state'));
       window.addEventListener('canvastouchmove', this.handler);
       window.addEventListener('canvastouchend', this.handler);
     }
   }
 
-  onTouchMove(event) {
-    if (event.type != 'touchmove' || event.touches.length !== 2) return;
+  onTouchMove(touches) {
+    if (touches.length !== 2) return;
 
     if (this.currentStep == 'listen-canvas-click') {
-      let point1 = new Point(event.touches[0].clientX, event.touches[0].clientY),
-        point2 = new Point(event.touches[1].clientX, event.touches[1].clientY);
+      let point1 = touches[0],
+        point2 = touches[1];
       this.centerProp = new Point(
         ((point1.x + point2.x) / 2 - app.canvasLeftShift) / app.cvsDiv.clientWidth,
         (point1.y + point2.y) / 2 / app.cvsDiv.clientHeight,
@@ -83,8 +83,8 @@ export class PermanentZoomPlaneState extends State {
 
       this.currentStep = 'zooming-plane';
     } else {
-      let point1 = new Point(event.touches[0].clientX, event.touches[0].clientY),
-        point2 = new Point(event.touches[1].clientX, event.touches[1].clientY),
+      let point1 = touches[0],
+        point2 = touches[1],
         newDist = point1.dist(point2);
       if (newDist == 0) newDist = 0.001;
       this.lastDist = newDist;
@@ -125,7 +125,7 @@ export class PermanentZoomPlaneState extends State {
     }
   }
 
-  onTouchEnd(event) {
+  onTouchEnd(touches) {
     if (this.currentStep != 'zooming-plane') return;
 
     let offset = this.lastDist / this.baseDist,

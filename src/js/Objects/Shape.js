@@ -31,7 +31,6 @@ export class Shape {
     this.opacity = 0.7;
     this.isCenterShown = false;
     this.isReversed = false;
-
     this.isBiface = false;
   }
 

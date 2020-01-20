@@ -59,8 +59,8 @@ class AGTabletteApp extends LitElement {
       this.stateName = app.state ? app.states[app.state].name : '';
       this.selectedFamily = '';
     });
-    window.addEventListener('family-selected', () => {
-      this.selectedFamily = app.selectedFamily;
+    window.addEventListener('family-selected', event => {
+      this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : '';
     });
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();

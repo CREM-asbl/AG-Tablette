@@ -65,9 +65,8 @@ export class OpacityState extends State {
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, mouseCoordinates, event) {
+  objectSelected(shape, mouseCoordinates) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     let group = GroupManager.getShapeGroup(shape),

@@ -65,7 +65,6 @@ class DivMainCanvas extends LitElement {
     this.upperCanvas.addEventListener('click', event => {
       let detail = {
         mousePos: this.getMousePos(event),
-        event: event,
       };
       window.dispatchEvent(new CustomEvent('canvasclick', { detail: detail }));
     });
@@ -73,30 +72,21 @@ class DivMainCanvas extends LitElement {
     this.upperCanvas.addEventListener('mousedown', event => {
       let detail = {
         mousePos: this.getMousePos(event),
-        event: event,
       };
-      // for (let key in detail)
-      //   alert(JSON.stringify(key + ' ' + detail[key]));
       window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('mouseup', event => {
       let detail = {
         mousePos: this.getMousePos(event),
-        event: event,
       };
       window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('mousemove', event => {
-      // alert('mousemove');
-      // console.log(event);
       let detail = {
         mousePos: this.getMousePos(event),
-        event: event,
       };
-      // for (let key in detail)
-      //   alert(JSON.stringify(key + ' ' + detail[key]));
       window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: detail }));
     });
 
@@ -105,8 +95,7 @@ class DivMainCanvas extends LitElement {
       event => {
         event.preventDefault();
         let detail = {
-          mousePos: this.getMousePos(event),
-          event: event,
+          touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
         };
         window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: detail }));
         window.dispatchEvent(new CustomEvent('canvastouchstart', { detail: detail }));
@@ -119,8 +108,7 @@ class DivMainCanvas extends LitElement {
       event => {
         event.preventDefault();
         let detail = {
-          mousePos: this.getMousePos(event),
-          event: event,
+          touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
         };
         window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: detail }));
         window.dispatchEvent(new CustomEvent('canvastouchmove', { detail: detail }));
@@ -131,8 +119,7 @@ class DivMainCanvas extends LitElement {
     this.upperCanvas.addEventListener('touchend', event => {
       event.preventDefault();
       let detail = {
-        mousePos: this.getMousePos(event),
-        event: event,
+        touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
       };
       window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
       window.dispatchEvent(new CustomEvent('canvasclick', { detail: detail }));
@@ -142,8 +129,7 @@ class DivMainCanvas extends LitElement {
     this.upperCanvas.addEventListener('touchcancel', event => {
       event.preventDefault();
       let detail = {
-        mousePos: this.getMousePos(event),
-        event: event,
+        touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
       };
       window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
       window.dispatchEvent(new CustomEvent('canvasclick', { detail: detail }));

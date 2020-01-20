@@ -101,9 +101,8 @@ export class ReverseState extends State {
    * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, mouseCoordinates, event) {
+  objectSelected(shape, mouseCoordinates) {
     if (this.currentStep == 'reversing-shape') return;
     if (this.selectedShape && this.selectedShape.id == shape.id) return;
     if (
@@ -132,9 +131,8 @@ export class ReverseState extends State {
   /**
    * Appelée lorsque l'événement click est déclanché sur le canvas
    * @param  {Point} mouseCoordinates les coordonnées de la souris
-   * @param  {Event} event     l'événement javascript
    */
-  onClick(mouseCoordinates, event) {
+  onClick(mouseCoordinates) {
     if (this.currentStep != 'selecting-symmetrical-arch') return true;
 
     let clickDistance = this.selectedShape.center.dist(mouseCoordinates);

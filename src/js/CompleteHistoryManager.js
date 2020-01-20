@@ -9,6 +9,7 @@ export class CompleteHistoryManager {
     this.isRunning = false;
 
     window.addEventListener('app-started', e => {
+      // mouse events
       window.addEventListener('canvasclick', event =>
         CompleteHistoryManager.addStep('canvasclick', event),
       );
@@ -34,7 +35,7 @@ export class CompleteHistoryManager {
         CompleteHistoryManager.addStep('canvastouchcancel', event),
       );
 
-      // for create
+      // create events
       window.addEventListener('family-selected', event =>
         CompleteHistoryManager.addStep('family-selected', event),
       );
@@ -42,9 +43,22 @@ export class CompleteHistoryManager {
         CompleteHistoryManager.addStep('shape-selected', event),
       );
 
-      // for divide
+      // divide events
       window.addEventListener('setNumberOfParts', event =>
         CompleteHistoryManager.addStep('setNumberOfParts', event),
+      );
+
+      // opacity events
+      window.addEventListener('setOpacity', event =>
+        CompleteHistoryManager.addStep('setOpacity', event),
+      );
+
+      // undo - redo
+      window.addEventListener('undo-action', event =>
+        CompleteHistoryManager.addStep('undo-action', event),
+      );
+      window.addEventListener('redo-action', event =>
+        CompleteHistoryManager.addStep('redo-action', event),
       );
 
       window.addEventListener('app-state-changed', event =>
@@ -58,22 +72,28 @@ export class CompleteHistoryManager {
   }
 
   static startBrowse() {
+    this.isRunning = true;
     app.workspace.shapes = [];
     app.workspace.shapeGroups = [];
+    app.workspace.history = [];
+    app.workspace.historyIndex = -1;
+    app.setState();
     app.workspace.completeHistory.videoStartTimestamp = Date.now();
     app.workspace.completeHistory.currentTimestamp =
       app.workspace.completeHistory.videoStartTimestamp;
     app.workspace.completeHistory.historyIndex = 0;
-    this.isRunning = true;
     CompleteHistoryManager.exectuteNextStep();
   }
 
   static moveTo() {}
 
   static exectuteNextStep() {
-    if (app.workspace.completeHistory.historyIndex >= app.workspace.completeHistory.steps.length) {
+    if (
+      app.workspace.completeHistory.historyIndex >=
+      app.workspace.completeHistory.steps.length - 1
+    ) {
       console.log('finished');
-      // this.isRunning = false;
+      this.isRunning = false;
       return;
     }
     const { type, detail } = app.workspace.completeHistory.steps[
@@ -95,8 +115,6 @@ export class CompleteHistoryManager {
       app.workspace.completeHistory.startTimestamp -
       (app.workspace.completeHistory.currentTimestamp -
         app.workspace.completeHistory.videoStartTimestamp);
-    console.log(nextTime);
-    nextTime = 0;
     app.workspace.completeHistory.timeoutId = setTimeout(
       () => CompleteHistoryManager.exectuteNextStep(),
       nextTime,

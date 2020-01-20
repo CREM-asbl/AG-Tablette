@@ -48,9 +48,8 @@ export class UngroupState extends State {
    * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
    * @param  {Point} mouseCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, mouseCoordinates, event) {
+  objectSelected(shape, mouseCoordinates) {
     let userGroup = GroupManager.getShapeGroup(shape);
     if (userGroup) {
       this.actions = [
