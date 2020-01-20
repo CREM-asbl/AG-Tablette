@@ -100,7 +100,9 @@ class ShapesList extends LitElement {
     const shapeRef = familyRef.getShape(event.target.shape);
     app.selectedShape = shapeRef;
     this.shape = app.selectedShape.name;
-    window.dispatchEvent(new CustomEvent('shapeSelected'));
+    window.dispatchEvent(
+      new CustomEvent('shape-selected', { detail: { selectedShape: shapeRef } }),
+    );
     // app.state.setShape(shapeRef);
     // this.show = false;
   }

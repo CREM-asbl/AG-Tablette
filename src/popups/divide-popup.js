@@ -6,6 +6,8 @@ class DividePopup extends LitElement {
   constructor() {
     super();
     this.parts = 2;
+
+    window.addEventListener('setNumberOfParts', () => this.close());
   }
 
   static get properties() {
@@ -30,7 +32,7 @@ class DividePopup extends LitElement {
 
   render() {
     return html`
-      <template-popup @close-popup="${this.close}">
+      <template-popup @close-popup="${this.dividePopupValidate}">
         <h2 slot="title">Division</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts">Diviser en</label>
@@ -47,14 +49,13 @@ class DividePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${this.close}">Ok</button>
+          <button @click="${this.dividePopupValidate}">Ok</button>
         </div>
       </template-popup>
     `;
   }
 
   close() {
-    this.dividePopupValidate();
     this.style.display = 'none';
   }
 

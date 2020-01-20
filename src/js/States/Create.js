@@ -32,7 +32,7 @@ export class CreateState extends State {
     this.selectedFamily = family;
     app.selectedFamily = this.selectedFamily;
 
-    window.addEventListener('shapeSelected', this.handler);
+    window.addEventListener('shape-selected', this.handler);
     window.setTimeout(() => window.dispatchEvent(new CustomEvent('family-selected')), 0);
   }
 
@@ -49,7 +49,7 @@ export class CreateState extends State {
     }
 
     window.dispatchEvent(new CustomEvent('family-selected'));
-    window.addEventListener('shapeSelected', this.handler);
+    window.addEventListener('shape-selected', this.handler);
     window.addEventListener('canvasmousedown', this.handler);
   }
 
@@ -58,14 +58,14 @@ export class CreateState extends State {
    */
   end() {
     app.selectedShape = null;
-    window.removeEventListener('shapeSelected', this.handler);
+    window.removeEventListener('shape-selected', this.handler);
     window.removeEventListener('canvasmousedown', this.handler);
     window.removeEventListener('canvasmouseup', this.handler);
   }
 
   _actionHandle(event) {
-    if (event.type == 'shapeSelected') {
-      this.setShape(app.selectedShape);
+    if (event.type == 'shape-selected') {
+      this.setShape(event.detail.selectedShape);
     } else if (event.type == 'canvasmousedown') {
       this.onMouseDown(event.detail.mousePos);
     } else if (event.type == 'canvasmouseup') {

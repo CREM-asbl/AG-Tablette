@@ -136,7 +136,9 @@ export class App {
     // this.stateMenu.configureButtons([]); => utilité ?
 
     window.dispatchEvent(
-      new CustomEvent('app-state-changed', { detail: { startParams: startParams } }),
+      new CustomEvent('app-state-changed', {
+        detail: { state: app.state, startParams: startParams },
+      }),
     );
 
     window.dispatchEvent(new CustomEvent('refresh'));

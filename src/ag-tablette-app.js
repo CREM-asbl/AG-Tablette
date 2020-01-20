@@ -23,6 +23,7 @@ import { WorkspaceManager } from './js/WorkspaceManager';
 import { GroupManager } from './js/GroupManager';
 import { ShapeManager } from './js/ShapeManager';
 import { EnvironmentManager } from './js/EnvironmentManager';
+import { CompleteHistoryManager } from './js/CompleteHistoryManager';
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -52,6 +53,7 @@ class AGTabletteApp extends LitElement {
     GroupManager.init(); // to move
     ShapeManager.init(); // to move
     EnvironmentManager.init(); // to move
+    CompleteHistoryManager.init();
 
     window.addEventListener('app-state-changed', () => {
       this.state = app.state;
@@ -209,6 +211,13 @@ class AGTabletteApp extends LitElement {
                 title="Refaire"
                 name="redo"
                 ?disabled="${!this.canRedo}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+              <icon-button
+                src="/images/redo.svg"
+                title="play"
+                name="play"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -507,6 +516,9 @@ class AGTabletteApp extends LitElement {
         break;
       case 'redo':
         if (this.canRedo) window.dispatchEvent(new CustomEvent('redo-action'));
+        break;
+      case 'play':
+        window.dispatchEvent(new CustomEvent('startBrowse'));
         break;
       case 'create_shape':
         app.setState(event.target.name, event.target.family);
