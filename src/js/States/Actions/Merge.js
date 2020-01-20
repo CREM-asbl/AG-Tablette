@@ -68,7 +68,7 @@ export class MergeAction extends Action {
   }
 
   alertDigShape() {
-    alert('Les formes creuses ne sont pas supportées actuellement');
+    window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Formes creuses' } }));
     return false;
   }
 
