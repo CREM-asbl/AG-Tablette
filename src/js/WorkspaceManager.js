@@ -1,9 +1,6 @@
 import { app } from './App';
 import { Workspace } from './Objects/Workspace';
 
-window.addEventListener('app-started', () => {
-  WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeur'));
-});
 export class WorkspaceManager {
   /**
    * Définir l'espace de travail actuel
@@ -22,10 +19,10 @@ export class WorkspaceManager {
 
   /**
    * Créer un nouvel objet Workspace
-   * @param  {String} [envName='Grandeur'] Nom de l'environnement
+   * @param  {String} [envName='Grandeurs'] Nom de l'environnement
    * @return {Workspace}
    */
-  static getNewWorkspace(envName = 'Grandeur') {
+  static getNewWorkspace(envName = 'Grandeurs') {
     return new Workspace();
   }
 
@@ -35,3 +32,7 @@ export class WorkspaceManager {
     WorkspaceManager.setWorkspace(ws);
   }
 }
+
+window.addEventListener('app-started', () => {
+  WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeurs'));
+});

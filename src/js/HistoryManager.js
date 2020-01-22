@@ -7,31 +7,6 @@ import { Point } from './Objects/Point';
  * Représente l'historique d'un espace de travail.
  */
 export class HistoryManager {
-  static init() {
-    window.addEventListener('actions', event => HistoryManager.addStep(event.detail));
-
-    window.addEventListener('action-aborted', () => HistoryManager.deleteLastStep());
-
-    window.addEventListener('undo-action', () => {
-      HistoryManager.undo();
-    });
-    window.addEventListener('redo-action', () => {
-      HistoryManager.redo();
-    });
-
-    // window.addEventListener('history-changed', event => {
-    //   window.dispatchEvent(new CustomEvent('history-changed'));
-    // });
-  }
-
-  // /**
-  //  * Met à jour les boutons "Annuler" et "Refaire" du menu (définir l'attribut
-  //  * disabled de ces deux boutons)
-  //  */
-  // static updateMenuState() {
-  //   window.dispatchEvent(new CustomEvent('history-changed', { detail: { canUndo: HistoryManager.canUndo(), canRedo: HistoryManager.canRedo() } }));
-  // }
-
   static transformToObject(actions) {
     let savedActions = [];
     actions.forEach((action, idx) => {
@@ -128,3 +103,14 @@ export class HistoryManager {
     window.dispatchEvent(new CustomEvent('history-changed'));
   }
 }
+
+window.addEventListener('actions', event => HistoryManager.addStep(event.detail));
+
+window.addEventListener('action-aborted', () => HistoryManager.deleteLastStep());
+
+window.addEventListener('undo-action', () => {
+  HistoryManager.undo();
+});
+window.addEventListener('redo-action', () => {
+  HistoryManager.redo();
+});

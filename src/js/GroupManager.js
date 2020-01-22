@@ -1,8 +1,6 @@
 import { app } from './App';
 
 export class GroupManager {
-  static init() {}
-
   /**
    * Ajouter un groupe à l'espace de travail
    * @param {Group} group         Le groupe

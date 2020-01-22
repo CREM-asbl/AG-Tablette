@@ -47,12 +47,6 @@ class AGTabletteApp extends LitElement {
     this.selectedFamily = '';
     this.canUndo = false;
     this.canRedo = false;
-    FileManager.init(); // to move
-    HistoryManager.init(); // to move
-    SelectManager.init(); // to move
-    WorkspaceManager.init(); // to move
-    GroupManager.init(); // to move
-    ShapeManager.init(); // to move
     CompleteHistoryManager.init();
 
     window.addEventListener('app-state-changed', () => {

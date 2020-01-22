@@ -2,20 +2,6 @@ import { app } from './App';
 import { WorkspaceManager } from './WorkspaceManager';
 
 export class FileManager {
-  static init() {
-    window.addEventListener('file-opened', event => {
-      if (event.detail.method == 'old') FileManager.oldOpenFile(event.detail.file);
-      // new
-      else FileManager.newOpenFile(event.detail.file);
-    });
-    window.addEventListener('open-file', () => {
-      FileManager.openFile();
-    });
-    window.addEventListener('save-to-file', () => {
-      FileManager.saveFile();
-    });
-  }
-
   static parseFile(data) {
     const dataObject = JSON.parse(data);
 
@@ -242,3 +228,15 @@ export class FileManager {
     }
   }
 }
+
+window.addEventListener('file-opened', event => {
+  if (event.detail.method == 'old') FileManager.oldOpenFile(event.detail.file);
+  // new
+  else FileManager.newOpenFile(event.detail.file);
+});
+window.addEventListener('open-file', () => {
+  FileManager.openFile();
+});
+window.addEventListener('save-to-file', () => {
+  FileManager.saveFile();
+});

@@ -27,7 +27,7 @@ class NewPopup extends LitElement {
   }
 
   confirm() {
-    WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeur'));
+    WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeurs'));
     this.close();
   }
 
