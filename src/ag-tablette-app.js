@@ -224,7 +224,9 @@ class AGTabletteApp extends LitElement {
                             -->
             </flex-toolbar>
 
-            <toolbar-kit .kit="${this.families}" selected="${this.selectedFamily}"></toolbar-kit>
+            <toolbar-kit .kit="${this.families}"
+                         selected="${this.selectedFamily}">
+            </toolbar-kit>
 
           </div>
 
@@ -528,6 +530,7 @@ class AGTabletteApp extends LitElement {
     this.states = Object.entries(app.states);
     this.stateName = '';
     this.selectedFamily = '';
+    this.families = [...app.environment.familyNames];
   }
 
   // Todo: Placer dans un objet BackgroundImage ?

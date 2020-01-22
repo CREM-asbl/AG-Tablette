@@ -32,7 +32,6 @@ export class MoveState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
     app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
-
     window.addEventListener('objectSelected', this.handler);
   }
 
@@ -42,7 +41,6 @@ export class MoveState extends State {
   restart() {
     this.end();
     app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
-
     window.addEventListener('objectSelected', this.handler);
   }
 
@@ -57,7 +55,6 @@ export class MoveState extends State {
   }
 
   _actionHandle(event) {
-    console.log(event);
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object, event.detail.mousePos);
     } else if (event.type == 'canvasmouseup') {

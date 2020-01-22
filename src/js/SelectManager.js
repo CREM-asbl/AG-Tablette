@@ -1,6 +1,5 @@
 import { app } from './App';
 import { Shape } from './Objects/Shape';
-import { Point } from './Objects/Point';
 import { ShapeManager } from './ShapeManager';
 
 /*
@@ -8,6 +7,8 @@ TODO:
     -ajouter des facilités de sélection quand on ne peut sélectionner que
       des segments ou points (par ex).
  */
+
+//  TODO: placer selectionConstraints hors du workspace ?
 export class SelectManager {
   static init() {
     window.addEventListener('canvasmousedown', event =>
@@ -23,9 +24,7 @@ export class SelectManager {
     window.addEventListener('reset-selection-constrains', () => {
       app.workspace.selectionConstraints = this.getEmptySelectionConstraints();
     });
-    window.addEventListener('app-state-changed', () => {
-      app.workspace.selectionConstraints = this.getEmptySelectionConstraints();
-    });
+
     let click_all_shape_constr = this.getEmptySelectionConstraints();
     click_all_shape_constr.eventType = 'click';
     click_all_shape_constr.shapes.canSelect = true;
@@ -400,7 +399,6 @@ export class SelectManager {
         });
       });
     }
-
     if (shapes.length > 0) return shapes[0];
 
     return null;
@@ -429,7 +427,6 @@ export class SelectManager {
           return this.selectShape(mCoord, constr);
         },
       };
-
     //Vérification que priority est bien défini
     if (
       !constr.priority.every(p => {

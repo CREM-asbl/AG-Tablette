@@ -34,11 +34,11 @@ export class App {
     //menu pouvant être contrôlé par un état (State).
     this.stateMenu = null;
 
-    //Liste des tangrams
-    this.tangrams = {
-      main: [], //Tangrams CREM
-      local: [], //Tangrams ajoutés par l'utilisateur.
-    };
+    // //Liste des tangrams
+    // this.tangrams = {
+    //   main: [], //Tangrams CREM
+    //   local: [], //Tangrams ajoutés par l'utilisateur.
+    // };
   }
 
   /* #################################################################### */
@@ -146,8 +146,4 @@ export class App {
   }
 }
 
-export let app;
-
-if (!app) {
-  app = new App();
-}
+export const app = new App();

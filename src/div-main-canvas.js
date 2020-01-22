@@ -59,8 +59,6 @@ class DivMainCanvas extends LitElement {
     app.start();
     this.setCanvasSize();
 
-    app.appDiv.families = app.environment.familyNames;
-
     //Events:
     this.upperCanvas.addEventListener('click', event => {
       let detail = {

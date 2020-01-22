@@ -53,7 +53,7 @@ export class Workspace {
     this.selectedOpacity = 0.7;
 
     // contrainte de sélection pour formes, segments et points
-    this.selectionConstraints = null;
+    this.selectionConstraints = {};
 
     /**
      * décalage du canvas (translation horizontale et verticale), un chiffre
