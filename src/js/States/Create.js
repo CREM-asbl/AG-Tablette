@@ -58,7 +58,7 @@ export class CreateState extends State {
     }
 
     window.addEventListener('shape-selected', this.handler);
-    window.addEventListener('canvasmousedown', this.handler);
+    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
   }
 
   /**
@@ -66,10 +66,9 @@ export class CreateState extends State {
    */
   end() {
     window.removeEventListener('shape-selected', this.handler);
-    window.removeEventListener('canvasmousedown', this.handler);
-    window.removeEventListener('canvasmouseup', this.handler);
+    app.removeListener('canvasmousedown', this.mouseDownId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
     window.dispatchEvent(new CustomEvent('family-selected', { detail: { selectedFamily: null } }));
-    window.dispatchEvent(new CustomEvent('shape-selected', { detail: { selectedShape: null } }));
   }
 
   _actionHandle(event) {
@@ -88,9 +87,9 @@ export class CreateState extends State {
     if (shape) {
       this.selectedShape = new Shape(new Point(0, 0));
       this.selectedShape.initFromObject(shape);
+      this.currentStep = 'listen-canvas-click';
+      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
     }
-    this.currentStep = 'listen-canvas-click';
-    window.addEventListener('canvasmousedown', this.handler);
   }
 
   onMouseDown(mouseCoordinates) {
@@ -104,7 +103,7 @@ export class CreateState extends State {
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
     this.currentStep = 'moving-shape';
-    window.addEventListener('canvasmouseup', this.handler);
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }

@@ -3,8 +3,6 @@ import { Point } from './Objects/Point';
 import { GroupManager } from './GroupManager';
 
 export class ShapeManager {
-  static init() {}
-
   /**
    * Ajoute une forme au workspace
    * @param {Shape} shape la forme à ajouter

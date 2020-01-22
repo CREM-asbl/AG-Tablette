@@ -17,13 +17,14 @@ export class DeleteState extends State {
    * initialiser l'état
    */
   start() {
-    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-    app.workspace.selectionConstraints.eventType = 'click';
-    app.workspace.selectionConstraints.shapes.canSelect = true;
-    app.workspace.selectionConstraints.points.canSelect = true;
-    app.workspace.selectionConstraints.points.types = ['segmentPoint'];
+    setTimeout(() => {
+      app.workspace.selectionConstraints.eventType = 'click';
+      app.workspace.selectionConstraints.shapes.canSelect = true;
+      app.workspace.selectionConstraints.points.canSelect = true;
+      app.workspace.selectionConstraints.points.types = ['segmentPoint'];
+    });
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -32,19 +33,21 @@ export class DeleteState extends State {
   restart() {
     this.end();
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
-    app.workspace.selectionConstraints.eventType = 'click';
-    app.workspace.selectionConstraints.shapes.canSelect = true;
-    app.workspace.selectionConstraints.points.canSelect = true;
-    app.workspace.selectionConstraints.points.types = ['segmentPoint'];
+    setTimeout(() => {
+      app.workspace.selectionConstraints.eventType = 'click';
+      app.workspace.selectionConstraints.shapes.canSelect = true;
+      app.workspace.selectionConstraints.points.canSelect = true;
+      app.workspace.selectionConstraints.points.types = ['segmentPoint'];
+    });
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    window.removeEventListener('objectSelected', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
   }
 
   _actionHandle(event) {

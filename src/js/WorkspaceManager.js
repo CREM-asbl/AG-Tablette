@@ -1,13 +1,10 @@
 import { app } from './App';
 import { Workspace } from './Objects/Workspace';
 
+window.addEventListener('app-started', () => {
+  WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeur'));
+});
 export class WorkspaceManager {
-  static init() {
-    window.addEventListener('app-started', () => {
-      WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeur'));
-    });
-  }
-
   /**
    * Définir l'espace de travail actuel
    * @param {Workspace} workspace
@@ -18,6 +15,7 @@ export class WorkspaceManager {
       return;
     }
     app.workspace = workspace;
+    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
     app.refreshWindow();
   }

@@ -2,6 +2,7 @@ import { LitElement, html } from 'lit-element';
 import { app } from './js/App';
 import { DrawManager } from './js/DrawManager';
 import { Point } from './js/Objects/Point';
+import { SelectManager } from './js/SelectManager';
 
 class DivMainCanvas extends LitElement {
   static get properties() {
@@ -59,35 +60,52 @@ class DivMainCanvas extends LitElement {
     window.addEventListener('setCanvasSize', () => this.setCanvasSize());
     window.dispatchEvent(new CustomEvent('setCanvasSize'));
 
-    app.appDiv.families = app.environment.familyNames;
-
     //Events:
     this.upperCanvas.addEventListener('click', event => {
       let detail = {
         mousePos: this.getMousePos(event),
       };
-      window.dispatchEvent(new CustomEvent('canvasclick', { detail: detail }));
+      if (
+        app.listenerCounter.objectSelected &&
+        'click' == app.workspace.selectionConstraints.eventType
+      )
+        SelectManager.selectObject(detail.mousePos);
+      app.dispatchEv(new CustomEvent('canvasclick', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('mousedown', event => {
       let detail = {
         mousePos: this.getMousePos(event),
       };
-      window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: detail }));
+      if (
+        app.listenerCounter.objectSelected &&
+        'mousedown' == app.workspace.selectionConstraints.eventType
+      )
+        SelectManager.selectObject(detail.mousePos);
+      app.dispatchEv(new CustomEvent('canvasmousedown', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('mouseup', event => {
       let detail = {
         mousePos: this.getMousePos(event),
       };
-      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvasmouseup', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('mousemove', event => {
       let detail = {
         mousePos: this.getMousePos(event),
       };
-      window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: detail }));
+      if (!app.result) app.result = [];
+      let t0 = performance.now();
+      app.dispatchEv(new CustomEvent('canvasmousemove', { detail: detail }));
+      let t1 = performance.now();
+      app.result.push(t1 - t0);
+      if (app.result.length % 100 == 0) {
+        console.log(app.result.reduce((acc, res) => (acc += res)) / app.result.length);
+        console.log(Math.min(...app.result));
+        console.log(Math.max(...app.result));
+      }
     });
 
     this.upperCanvas.addEventListener(
@@ -97,8 +115,8 @@ class DivMainCanvas extends LitElement {
         let detail = {
           touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
         };
-        window.dispatchEvent(new CustomEvent('canvasmousedown', { detail: detail }));
-        window.dispatchEvent(new CustomEvent('canvastouchstart', { detail: detail }));
+        app.dispatchEv(new CustomEvent('canvasmousedown', { detail: detail }));
+        app.dispatchEv(new CustomEvent('canvastouchstart', { detail: detail }));
       },
       { passive: true },
     );
@@ -110,8 +128,8 @@ class DivMainCanvas extends LitElement {
         let detail = {
           touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
         };
-        window.dispatchEvent(new CustomEvent('canvasmousemove', { detail: detail }));
-        window.dispatchEvent(new CustomEvent('canvastouchmove', { detail: detail }));
+        app.dispatchEv(new CustomEvent('canvasmousemove', { detail: detail }));
+        app.dispatchEv(new CustomEvent('canvastouchmove', { detail: detail }));
       },
       { passive: true },
     );
@@ -121,9 +139,9 @@ class DivMainCanvas extends LitElement {
       let detail = {
         touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
       };
-      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvasclick', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvastouchend', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvasmouseup', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvasclick', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvastouchend', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchcancel', event => {
@@ -131,9 +149,9 @@ class DivMainCanvas extends LitElement {
       let detail = {
         touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
       };
-      window.dispatchEvent(new CustomEvent('canvasmouseup', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvasclick', { detail: detail }));
-      window.dispatchEvent(new CustomEvent('canvastouchcancel', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvasmouseup', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvasclick', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
     });
   }
 
@@ -229,6 +247,8 @@ class DivMainCanvas extends LitElement {
     window.dispatchEvent(new CustomEvent('refreshBackground'));
 
     app.canvasLeftShift = this.offsetLeft;
+    app.canvasWidth = this.clientWidth;
+    app.canvasHeight = this.clientHeight;
   }
 
   // Ajout d'un fond d'écran fixé à droite

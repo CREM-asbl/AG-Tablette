@@ -21,6 +21,7 @@ export class State {
           this.start(event.detail.startParams);
           this.status = 'running';
         } else {
+          // console.log(this.name, 'ended');
           this.status = 'idle';
           this.end();
         }

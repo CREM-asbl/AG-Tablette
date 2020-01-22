@@ -21,7 +21,7 @@ export class ZoomPlaneState extends State {
     this.currentStep = 'listen-canvas-click';
     this.baseDist = null;
 
-    window.addEventListener('canvasmousedown', this.handler);
+    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
   }
 
   /**
@@ -31,16 +31,16 @@ export class ZoomPlaneState extends State {
     this.end();
     this.currentStep = 'listen-canvas-click';
 
-    window.addEventListener('canvasmousedown', this.handler);
+    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    window.removeEventListener('canvasmousedown', this.handler);
-    window.removeEventListener('canvasmousemove', this.handler);
-    window.removeEventListener('canvasmouseup', this.handler);
+    app.removeListener('canvasmousedown', this.mouseDownId);
+    app.removeListener('canvasmousemove', this.mouseMoveId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   _actionHandle(event) {
@@ -61,8 +61,8 @@ export class ZoomPlaneState extends State {
     this.baseDist = this.getDist(mouseCoordinates);
 
     this.currentStep = 'zooming-plane';
-    window.addEventListener('canvasmousemove', this.handler);
-    window.addEventListener('canvasmouseup', this.handler);
+    this.mouseMoveId = app.addListener('canvasmousemove', this.handler);
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
   }
 
   onMouseMove(mouseCoordinates) {

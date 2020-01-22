@@ -31,9 +31,14 @@ export class MoveState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    setTimeout(() =>
+      setTimeout(
+        () =>
+          (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      ),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -41,9 +46,14 @@ export class MoveState extends State {
    */
   restart() {
     this.end();
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    setTimeout(() =>
+      setTimeout(
+        () =>
+          (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      ),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -52,8 +62,8 @@ export class MoveState extends State {
   end() {
     this.currentStep = 'listen-canvas-click';
     app.workspace.editingShapes = [];
-    window.removeEventListener('objectSelected', this.handler);
-    window.removeEventListener('canvasclick', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   _actionHandle(event) {
@@ -80,7 +90,7 @@ export class MoveState extends State {
 
     app.workspace.editingShapes = this.involvedShapes;
     this.currentStep = 'moving-shape';
-    window.addEventListener('canvasmouseup', this.handler);
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));

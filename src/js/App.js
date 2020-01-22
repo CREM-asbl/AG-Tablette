@@ -1,13 +1,12 @@
 import { Settings } from './Settings';
+import { BifaceState } from './States/Biface';
+import { uniqId } from './Tools/general';
 
 /**
  * Classe principale de l'application
  */
 export class App {
   constructor() {
-    // //Managers:
-    // this.tangramManager = TangramManager;
-
     //Paramètres de l'application
     this.settings = new Settings();
     this.initSettings();
@@ -16,9 +15,6 @@ export class App {
 
     this.canvasWidth = null;
     this.canvasHeight = null;
-
-    //Référence vers le <div> principal de l'app
-    this.appDiv = null;
 
     //L'état de l'application
     this.state = null;
@@ -31,6 +27,9 @@ export class App {
 
     //Liste de classes State qui tournent en permanence (ex: zoom à 2 doigts)
     this.permanentStates = [];
+
+    // compteur d'écouteurs pour certains event
+    this.listenerCounter = {};
 
     //menu pouvant être contrôlé par un état (State).
     this.stateMenu = null;
@@ -88,6 +87,31 @@ export class App {
     this.settings.set('hasNativeFS', 'chooseFileSystemEntries' in window);
   }
 
+  addListener(listenerName, func) {
+    const id = uniqId();
+    if (!this.listenerCounter[listenerName]) {
+      this.listenerCounter[listenerName] = {};
+    }
+    this.listenerCounter[listenerName][id] = func;
+    window.addEventListener(listenerName, func);
+    return id;
+  }
+
+  removeListener(listenerName, id) {
+    if (!id || !this.listenerCounter[listenerName]) {
+      // console.trace(id, listenerName, this.listenerCounter[listenerName]);
+      return;
+    }
+    window.removeEventListener(listenerName, this.listenerCounter[listenerName][id]);
+    this.listenerCounter[listenerName][id] = null;
+  }
+
+  dispatchEv(event) {
+    if (app.listenerCounter[event.type]) {
+      window.dispatchEvent(event);
+    }
+  }
+
   resetSettings() {
     this.initSettings();
     dispatchEvent(new CustomEvent('app-settings-changed'));
@@ -102,17 +126,6 @@ export class App {
       this.refreshWindow();
     };
 
-    // //Utilisé pour les animations
-    // window.requestAnimFrame = (function() {
-    //   return (
-    //     window.requestAnimationFrame ||
-    //     function(callback) {
-    //       window.setTimeout(callback, 1000 / 20);
-    //     }
-    //   );
-    // })();
-
-    // this.addPermanentState('permanent_zoom_plane');
     // this.tangramManager.retrieveTangrams();
     window.dispatchEvent(new CustomEvent('app-started'));
   }

@@ -26,7 +26,7 @@ export class PermanentZoomPlaneState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
 
-    window.addEventListener('canvastouchstart', this.handler);
+    this.touchStartId = app.addListener('canvastouchstart', this.handler);
   }
 
   /**
@@ -35,7 +35,7 @@ export class PermanentZoomPlaneState extends State {
   restart() {
     this.end();
     this.currentStep = 'listen-canvas-click';
-    window.addEventListener('canvastouchstart', this.handler);
+    this.touchStartId = app.addListener('canvastouchstart', this.handler);
     window.dispatchEvent(new CustomEvent('app-state-changed'));
   }
 
@@ -43,9 +43,9 @@ export class PermanentZoomPlaneState extends State {
    * stopper l'état
    */
   end() {
-    window.removeEventListener('canvastouchstart', this.handler);
-    window.removeEventListener('canvastouchmove', this.handler);
-    window.removeEventListener('canvastouchend', this.handler);
+    app.removeListener('canvastouchstart', this.touchStartId);
+    app.removeListener('canvastouchmove', this.touchMoveId);
+    app.removeListener('canvastouchend', this.touchEndId);
   }
 
   _actionHandle(event) {
@@ -63,8 +63,8 @@ export class PermanentZoomPlaneState extends State {
   onTouchStart(touches) {
     if (touches.length == 2) {
       window.dispatchEvent(new CustomEvent('abort-state'));
-      window.addEventListener('canvastouchmove', this.handler);
-      window.addEventListener('canvastouchend', this.handler);
+      this.touchMoveId = app.addListener('canvastouchmove', this.handler);
+      this.touchEndId = app.addListener('canvastouchend', this.handler);
     }
   }
 

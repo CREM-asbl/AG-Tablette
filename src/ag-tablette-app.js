@@ -45,7 +45,6 @@ class AGTabletteApp extends LitElement {
     this.stateName = '';
     this.families = [];
     this.selectedFamily = '';
-    app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
     FileManager.init(); // to move
@@ -67,6 +66,23 @@ class AGTabletteApp extends LitElement {
     });
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
+    });
+    this.families = app.environment.familyNames;
+    window.addEventListener('env-changed', () => {
+      this.families = app.environment.familyNames;
+    });
+    window.addEventListener('history-changed', () => {
+      this.canUndo = HistoryManager.canUndo();
+      this.canRedo = HistoryManager.canRedo();
+    });
+    window.addEventListener('open-opacity-popup', () => {
+      this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
+    });
+    window.addEventListener('open-divide-popup', () => {
+      this.shadowRoot.querySelector('divide-popup').style.display = 'block';
+    });
+    window.addEventListener('open-color-picker', () => {
+      this.shadowRoot.querySelector('#color-picker-label').click();
     });
   }
 

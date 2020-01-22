@@ -86,6 +86,14 @@ export class Workspace {
     window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
   }
 
+  set selectionConstraints(value) {
+    this.pvSelectCstr = value;
+  }
+
+  get selectionConstraints() {
+    return this.pvSelectCstr;
+  }
+
   /**
    * Importer les données du Workspace depuis une sauvegarde JSON
    * @param  {String} json

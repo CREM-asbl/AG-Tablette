@@ -9,12 +9,13 @@ export class DrawManager {
       background: backgroundCanvas,
       invisible: invisibleCanvas,
     };
+
     app.upperCtx = app.canvas.upper.getContext('2d');
     app.mainCtx = app.canvas.main.getContext('2d');
     app.backgroundCtx = app.canvas.background.getContext('2d');
     app.invisibleCtx = app.canvas.invisible.getContext('2d');
 
-    window.addEventListener('canvasmousemove', event => {
+    this.mouseMoveId = app.addListener('canvasmousemove', event => {
       app.workspace.lastKnownMouseCoordinates = event.detail.mousePos;
       window.dispatchEvent(new CustomEvent('refreshUpper'));
     });

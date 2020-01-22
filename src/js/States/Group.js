@@ -24,9 +24,11 @@ export class GroupState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -35,7 +37,9 @@ export class GroupState extends State {
   restart() {
     this.end();
     if (this.currentStep == 'listen-canvas-click') {
-      app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+      setTimeout(
+        () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      );
     } else {
       let shapesList = [];
       if (this.currentStep == 'selecting-second-shape') shapesList = [this.firstShape];
@@ -47,7 +51,7 @@ export class GroupState extends State {
       app.workspace.selectionConstraints.shapes.blacklist = shapesList;
     }
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -57,7 +61,7 @@ export class GroupState extends State {
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
     }
-    window.removeEventListener('objectSelected', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
   }
 
   _actionHandle(event) {

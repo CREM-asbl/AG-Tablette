@@ -23,9 +23,11 @@ export class MergeState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
 
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -35,9 +37,11 @@ export class MergeState extends State {
     this.end();
     if (this.currentStep == 'selecting-second-shape')
       app.workspace.editingShapes = [this.firstShape];
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -48,7 +52,7 @@ export class MergeState extends State {
       app.workspace.editingShapes = [];
       this.currentStep = 'listen-canvas-click';
     }
-    window.removeEventListener('objectSelected', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
   }
 
   _actionHandle(event) {

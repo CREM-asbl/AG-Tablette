@@ -19,19 +19,18 @@ export class HistoryManager {
       HistoryManager.redo();
     });
 
-    window.addEventListener('history-changed', event => {
-      HistoryManager.updateMenuState();
-    });
+    // window.addEventListener('history-changed', event => {
+    //   window.dispatchEvent(new CustomEvent('history-changed'));
+    // });
   }
 
-  /**
-   * Met à jour les boutons "Annuler" et "Refaire" du menu (définir l'attribut
-   * disabled de ces deux boutons)
-   */
-  static updateMenuState() {
-    app.appDiv.canUndo = HistoryManager.canUndo();
-    app.appDiv.canRedo = HistoryManager.canRedo();
-  }
+  // /**
+  //  * Met à jour les boutons "Annuler" et "Refaire" du menu (définir l'attribut
+  //  * disabled de ces deux boutons)
+  //  */
+  // static updateMenuState() {
+  //   window.dispatchEvent(new CustomEvent('history-changed', { detail: { canUndo: HistoryManager.canUndo(), canRedo: HistoryManager.canRedo() } }));
+  // }
 
   static transformToObject(actions) {
     let savedActions = [];
@@ -85,7 +84,7 @@ export class HistoryManager {
     app.workspace.historyIndex--;
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
-    HistoryManager.updateMenuState();
+    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
   /**
@@ -103,7 +102,7 @@ export class HistoryManager {
     );
     window.dispatchEvent(new CustomEvent('refresh'));
     app.workspace.historyIndex++;
-    HistoryManager.updateMenuState();
+    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
   /**
@@ -119,13 +118,13 @@ export class HistoryManager {
     );
     app.workspace.historyIndex = app.workspace.history.length - 1;
 
-    HistoryManager.updateMenuState();
+    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
   static deleteLastStep() {
     app.workspace.history.length--;
     app.workspace.historyIndex = app.workspace.history.length - 1;
 
-    HistoryManager.updateMenuState();
+    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 }

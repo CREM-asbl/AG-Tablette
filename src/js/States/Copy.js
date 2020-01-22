@@ -34,9 +34,11 @@ export class CopyState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
 
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -44,9 +46,11 @@ export class CopyState extends State {
    */
   restart() {
     this.end();
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -54,8 +58,8 @@ export class CopyState extends State {
    */
   end() {
     this.currentStep = 'listen-canvas-click';
-    window.removeEventListener('objectSelected', this.handler);
-    window.removeEventListener('canvasmouseup', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   _actionHandle(event) {
@@ -89,8 +93,8 @@ export class CopyState extends State {
 
     this.startClickCoordinates = mouseCoordinates;
 
-    window.removeEventListener('objectSelected', this.handler);
-    window.addEventListener('canvasmouseup', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     this.currentStep = 'moving-shape';
     app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));

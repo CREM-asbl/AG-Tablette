@@ -222,3 +222,4 @@ new CutAction();
 new BifaceAction();
 
 window.dispatchEvent(new CustomEvent('refresh'));
+window.dispatchEvent(new CustomEvent('env-changed', { detail: { envName: 'Grandeurs' } }));

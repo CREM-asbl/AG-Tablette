@@ -26,9 +26,9 @@ export class CutState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    this.setSelConstraints(this.currentStep);
+    setTimeout(() => this.setSelConstraints(this.currentStep));
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -36,9 +36,9 @@ export class CutState extends State {
    */
   restart() {
     this.end();
-    this.setSelConstraints(this.currentStep);
+    setTimeout(() => this.setSelConstraints(this.currentStep));
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -49,7 +49,7 @@ export class CutState extends State {
     if (this.status != 'paused' || this.currentStep == 'showing-points')
       this.currentStep = 'listen-canvas-click';
 
-    window.removeEventListener('objectSelected', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
   }
 
   _actionHandle(event) {

@@ -48,9 +48,11 @@ export class ReverseState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -63,13 +65,15 @@ export class ReverseState extends State {
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
       app.workspace.selectionConstraints.points.blacklist = [this.selectedShape];
-      window.addEventListener('canvasclick', this.handler);
+      this.mouseClickId = app.addListener('canvasclick', this.handler);
     } else {
-      app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+      setTimeout(
+        () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      );
     }
 
-    window.addEventListener('canvasclick', this.handler);
-    window.addEventListener('objectSelected', this.handler);
+    this.mouseClickId = app.addListener('canvasclick', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -83,8 +87,8 @@ export class ReverseState extends State {
       app.workspace.editingShapes = [];
     }
 
-    window.removeEventListener('objectSelected', this.handler);
-    window.removeEventListener('canvasclick', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
+    app.removeListener('canvasclick', this.mouseClickId);
   }
 
   _actionHandle(event) {
@@ -103,6 +107,7 @@ export class ReverseState extends State {
    * @param  {Point} mouseCoordinates Les coordonnées du click
    */
   objectSelected(shape, mouseCoordinates) {
+    console.log(this.mouseClickId);
     if (this.currentStep == 'reversing-shape') return;
     if (this.selectedShape && this.selectedShape.id == shape.id) return;
     if (
@@ -119,8 +124,8 @@ export class ReverseState extends State {
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.points.blacklist = [shape];
 
-    window.removeEventListener('canvasclick', this.handler);
-    window.addEventListener('canvasclick', this.handler);
+    app.removeListener('canvasclick', this.mouseClickId);
+    window.setTimeout(() => (this.mouseClickId = app.addListener('canvasclick', this.handler)));
     this.currentStep = 'selecting-symmetrical-arch';
     app.workspace.editingShapes = this.involvedShapes;
     app.workspace.lastKnownMouseCoordinates = mouseCoordinates;

@@ -19,11 +19,14 @@ export class OpacityState extends State {
   start() {
     this.currentStep = 'choose-opacity';
 
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    app.appDiv.shadowRoot.querySelector('opacity-popup').style.display = 'block';
+    window.dispatchEvent(new CustomEvent('open-opacity-popup'));
+    // app.appDiv.shadowRoot.querySelector('opacity-popup').style.display = 'block';
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('setOpacity', this.handler);
   }
 
@@ -32,9 +35,11 @@ export class OpacityState extends State {
    */
   restart() {
     this.end();
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('setOpacity', this.handler);
   }
 
@@ -42,7 +47,7 @@ export class OpacityState extends State {
    * stopper l'état
    */
   end() {
-    window.removeEventListener('objectSelected', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
     window.removeEventListener('setOpacity', this.handler);
   }
 

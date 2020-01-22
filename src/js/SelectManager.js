@@ -8,36 +8,23 @@ TODO:
     -ajouter des facilités de sélection quand on ne peut sélectionner que
       des segments ou points (par ex).
  */
+window.addEventListener('reset-selection-constrains', () => {
+  app.workspace.selectionConstraints = this.getEmptySelectionConstraints();
+});
+window.addEventListener('app-state-changed', () => {
+  app.workspace.selectionConstraints = this.getEmptySelectionConstraints();
+});
+let click_all_shape_constr = this.getEmptySelectionConstraints();
+click_all_shape_constr.eventType = 'click';
+click_all_shape_constr.shapes.canSelect = true;
+let mousedown_all_shape_constr = this.getEmptySelectionConstraints();
+mousedown_all_shape_constr.eventType = 'mousedown';
+mousedown_all_shape_constr.shapes.canSelect = true;
+app.fastSelectionConstraints = {
+  click_all_shape: click_all_shape_constr,
+  mousedown_all_shape: mousedown_all_shape_constr,
+};
 export class SelectManager {
-  static init() {
-    window.addEventListener('canvasmousedown', event =>
-      'mousedown' == app.workspace.selectionConstraints.eventType
-        ? this.selectObject(event.detail.mousePos)
-        : null,
-    );
-    window.addEventListener('canvasclick', event =>
-      'click' == app.workspace.selectionConstraints.eventType
-        ? this.selectObject(event.detail.mousePos)
-        : null,
-    );
-    window.addEventListener('reset-selection-constrains', () => {
-      app.workspace.selectionConstraints = this.getEmptySelectionConstraints();
-    });
-    window.addEventListener('app-state-changed', () => {
-      app.workspace.selectionConstraints = this.getEmptySelectionConstraints();
-    });
-    let click_all_shape_constr = this.getEmptySelectionConstraints();
-    click_all_shape_constr.eventType = 'click';
-    click_all_shape_constr.shapes.canSelect = true;
-    let mousedown_all_shape_constr = this.getEmptySelectionConstraints();
-    mousedown_all_shape_constr.eventType = 'mousedown';
-    mousedown_all_shape_constr.shapes.canSelect = true;
-    app.fastSelectionConstraints = {
-      click_all_shape: click_all_shape_constr,
-      mousedown_all_shape: mousedown_all_shape_constr,
-    };
-  }
-
   /**
    * Vérifier si 2 points sont à la distance de sélection l'un de l'autre.
    * @param  {Point} pt1 premier point
