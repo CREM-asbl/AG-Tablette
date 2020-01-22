@@ -9,7 +9,7 @@ import { ShapeManager } from '../ShapeManager';
  */
 export class MoveState extends State {
   constructor() {
-    super('move_shape');
+    super('move_shape', 'Glisser', 'move');
 
     this.currentStep = null; // listen-canvas-click -> moving-shape
 
@@ -57,6 +57,7 @@ export class MoveState extends State {
   }
 
   _actionHandle(event) {
+    console.log(event);
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object, event.detail.mousePos);
     } else if (event.type == 'canvasmouseup') {

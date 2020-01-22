@@ -8,7 +8,7 @@ import { Point } from '../Objects/Point';
  */
 export class TangramCreatorState extends State {
   constructor() {
-    super('tangram_creator');
+    super('tangram-edit', 'Créer Tangram', 'tool');
 
     // selecting-polygons -> selecting-shapes
     this.currentStep = null;

@@ -3,6 +3,8 @@ import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
 import './flex-toolbar';
+import './toolbar-kit';
+import './toolbar-section';
 import './icon-button';
 import './js/Manifest';
 import './popups/new-popup';
@@ -40,11 +42,7 @@ class AGTabletteApp extends LitElement {
 
   constructor() {
     super();
-    this.state = '';
-    this.states = [];
-    this.stateName = '';
-    this.families = [];
-    this.selectedFamily = '';
+    this.setState();
     app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
@@ -56,12 +54,7 @@ class AGTabletteApp extends LitElement {
     ShapeManager.init(); // to move
     CompleteHistoryManager.init();
 
-    window.addEventListener('app-state-changed', () => {
-      this.state = app.state;
-      this.states = app.states;
-      this.stateName = app.state ? app.states[app.state].name : '';
-      this.selectedFamily = '';
-    });
+    window.addEventListener('app-state-changed', () => this.setState());
     window.addEventListener('family-selected', event => {
       this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : '';
     });
@@ -230,21 +223,9 @@ class AGTabletteApp extends LitElement {
                             </icon-button>
                             -->
             </flex-toolbar>
-            <div class="toolbar-separator">Formes standard</div>
 
-            <flex-toolbar>
-              ${this.families.map(family => {
-                return html`
-                  <canvas-button
-                    name="create_shape"
-                    .family="${family}"
-                    ?active="${family === this.selectedFamily}"
-                    @click="${this._actionHandle}"
-                  >
-                  </canvas-button>
-                `;
-              })}
-            </flex-toolbar>
+            <toolbar-kit .kit="${this.families}" selected="${this.selectedFamily}"></toolbar-kit>
+
           </div>
 
           <div id="app-canvas-view-toolbar-p2">
@@ -276,8 +257,13 @@ class AGTabletteApp extends LitElement {
               </icon-button>
             </flex-toolbar>
 
-            <div class="toolbar-separator">Opérations</div>
+            <toolbar-section title="Opérations"
+                             .buttons_states="${this.states.filter(
+                               state => state[1].type === 'operation',
+                             )}">
+            </toolbar-section>
 
+            <div class="toolbar-separator">Opérations</div>
             <flex-toolbar>
               <icon-button
                 src="/images/center.svg"
@@ -321,65 +307,70 @@ class AGTabletteApp extends LitElement {
               </icon-button>
             </flex-toolbar>
 
-            <div class="toolbar-separator">Outils</div>
+            <toolbar-section title="Outils"
+                             .buttons_states="${this.states.filter(
+                               state => state[1].type === 'tool',
+                             )}">
+            </toolbar-section>
+            <!-- <div class="toolbar-separator">Outils</div>
 
             <flex-toolbar>
               <icon-button
                 src="/images/delete.svg"
                 title="Supprimer une forme"
                 name="delete_shape"
-                ?active="${this.state === 'delete_shape'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'delete_shape'}"
+                @click="\${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 src="/images/group.svg"
                 title="Grouper"
                 name="group_shapes"
-                ?active="${this.state === 'group_shapes'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'group_shapes'}"
+                @click="\${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 src="/images/ungroup.svg"
                 title="Dégrouper"
                 name="ungroup_shapes"
-                ?active="${this.state === 'ungroup_shapes'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'ungroup_shapes'}"
+                @click="\${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 src="/images/backplane.svg"
                 title="Arrière-plan"
                 name="to_background"
-                ?active="${this.state === 'to_background'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'to_background'}"
+                @click="\${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 src="/images/background-color.svg"
                 title="Colorier les formes"
                 name="background_color"
-                ?active="${this.state === 'background_color'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'background_color'}"
+                @click="\${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 src="/images/border-color.svg"
                 title="Colorier les bords"
                 name="border_color"
-                ?active="${this.state === 'border_color'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'border_color'}"
+                @click="\${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 src="/images/opacity.svg"
                 title="Opacité"
                 name="opacity"
-                ?active="${this.state === 'opacity'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'opacity'}"
+                @click="\${this._actionHandle}"
               >
-              </icon-button>
+              </icon-button> -->
 
               <!-- <icon-button src="/images/wallpaper.svg"
                                 title="Fond d'écran"
@@ -387,30 +378,30 @@ class AGTabletteApp extends LitElement {
                                 @click="\${this.loadBackground}">
                         </icon-button> -->
 
-              <icon-button
+              <!-- <icon-button
                 src="/images/biface.svg"
                 title="Biface"
                 name="biface"
-                ?active="${this.state === 'biface'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'biface'}"
+                @click="\${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 src="/images/moveplane.svg"
                 title="Glisser le plan"
                 name="translate_plane"
-                ?active="${this.state === 'translate_plane'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'translate_plane'}"
+                @click="\${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 src="/images/zoom.svg"
                 title="Zoomer"
                 name="zoom_plane"
-                ?active="${this.state === 'zoom_plane'}"
-                @click="${this._actionHandle}"
+                ?active="\${this.state === 'zoom_plane'}"
+                @click="\${this._actionHandle}"
               >
-              </icon-button>
+              </icon-button> -->
               <icon-button
                 src="/images/grille.svg"
                 title="Grille"
@@ -524,20 +515,19 @@ class AGTabletteApp extends LitElement {
       case 'play':
         window.dispatchEvent(new CustomEvent('startBrowse'));
         break;
-      case 'create_shape':
-        app.setState(event.target.name, event.target.family);
-        break;
       default:
         app.setState(event.target.name);
-      // } else {
-      //   console.error('AGTabletteApp._actionHandle: received unknown event:');
-      //   console.error(event);
-      //   reset_state = 1;
-      // }
     }
     if (reset_state) {
       app.setState();
     }
+  }
+
+  setState() {
+    this.state = app.state;
+    this.states = Object.entries(app.states);
+    this.stateName = '';
+    this.selectedFamily = '';
   }
 
   // Todo: Placer dans un objet BackgroundImage ?

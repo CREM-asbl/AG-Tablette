@@ -7,7 +7,7 @@ import { ShapeManager } from '../ShapeManager';
  */
 export class RotateState extends State {
   constructor() {
-    super('rotate_shape');
+    super('rotate_shape', 'Tourner', 'move');
 
     this.drawColor = '#080';
 

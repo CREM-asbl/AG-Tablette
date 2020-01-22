@@ -1,4 +1,5 @@
 import { State } from '../State';
+import { app } from '../../App';
 
 export class Action {
   constructor(name) {
@@ -7,6 +8,8 @@ export class Action {
     }
 
     this.name = name;
+
+    app.actions = { ...app.actions, [name]: name };
 
     this.initAndDo = event => {
       this.initFromObject(event.detail);

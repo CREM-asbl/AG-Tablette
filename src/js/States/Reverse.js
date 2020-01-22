@@ -9,7 +9,7 @@ import { ShapeManager } from '../ShapeManager';
  */
 export class ReverseState extends State {
   constructor() {
-    super('reverse_shape');
+    super('reverse_shape', 'Retourner', 'move');
 
     // listen-canvas-click -> selecting-symmetrical-arch -> reversing-shape
     this.currentStep = null;

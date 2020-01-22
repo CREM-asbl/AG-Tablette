@@ -10,7 +10,7 @@ import { ShapeManager } from '../ShapeManager';
  */
 export class DeleteState extends State {
   constructor() {
-    super('delete_shape');
+    super('delete', 'Supprimer une forme', 'tool');
   }
 
   /**

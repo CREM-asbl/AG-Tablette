@@ -6,7 +6,7 @@ import { State } from './State';
  */
 export class TranslatePlaneState extends State {
   constructor() {
-    super('translate_plane');
+    super('translate_plane', 'Glisser le plan', 'tool');
 
     this.currentStep = null; // listen-canvas-click -> translating-plane
 

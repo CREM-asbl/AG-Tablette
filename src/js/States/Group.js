@@ -9,7 +9,7 @@ import { GroupManager } from '../GroupManager';
  */
 export class GroupState extends State {
   constructor() {
-    super('group_shapes');
+    super('group', 'Grouper', 'tool');
 
     // listen-canvas-click -> selecting-second-shape -> filling-group
     this.currentStep = null;

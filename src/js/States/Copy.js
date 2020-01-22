@@ -1,7 +1,6 @@
 import { app } from '../App';
 import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
-import { Point } from '../Objects/Point';
 import { uniqId } from '../Tools/general';
 import { GroupManager } from '../GroupManager';
 import { ShapeManager } from '../ShapeManager';
@@ -11,7 +10,7 @@ import { ShapeManager } from '../ShapeManager';
  */
 export class CopyState extends State {
   constructor() {
-    super('copy_shape');
+    super('copy', 'Copier', 'operation');
 
     this.currentStep = null; // listen-canvas-click -> moving-shape
 

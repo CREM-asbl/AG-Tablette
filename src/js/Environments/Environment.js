@@ -7,16 +7,13 @@ import { Family } from '../Objects/Family';
  */
 export class Environment {
   constructor(name) {
-    //Nom de l'environnement
     this.name = name;
 
-    //Liste des familles de formes disponibles dans cet environnement
     this.families = [];
 
     this.familyNames = [];
 
     import(`./${name}.js`);
-    //TODO: outils activés/désactivés, etc.
   }
 
   /**
