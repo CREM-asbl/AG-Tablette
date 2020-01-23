@@ -149,9 +149,19 @@ export class FileManager {
     switch (extension) {
       case 'png':
         FileManager.saveToPng(handle);
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+          }),
+        );
         break;
       case 'svg':
         FileManager.saveToSvg(handle);
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+          }),
+        );
         break;
       case 'agg':
       case 'agt':
@@ -161,6 +171,11 @@ export class FileManager {
           'file-selected',
           event => {
             FileManager.saveState(handle, { ...event.detail });
+            window.dispatchEvent(
+              new CustomEvent('show-notif', {
+                detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+              }),
+            );
           },
           { once: true },
         );
@@ -168,6 +183,7 @@ export class FileManager {
         break;
       default:
         console.error('unsupported file format: ', extension);
+        return;
     }
   }
 
@@ -210,6 +226,7 @@ export class FileManager {
             break;
           default:
             console.error('unsupported file format: ', extension);
+            return;
         }
       },
       { once: true },

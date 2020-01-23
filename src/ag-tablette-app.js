@@ -24,7 +24,7 @@ import './js/WorkspaceManager';
 import './js/GroupManager';
 import './js/ShapeManager';
 import './js/DrawManager';
-import { CompleteHistoryManager } from './js/CompleteHistoryManager';
+import './js/CompleteHistoryManager';
 import { HistoryManager } from './js/HistoryManager';
 
 class AGTabletteApp extends LitElement {
@@ -49,7 +49,6 @@ class AGTabletteApp extends LitElement {
     this.selectedFamily = '';
     this.canUndo = false;
     this.canRedo = false;
-    CompleteHistoryManager.init();
 
     window.addEventListener('app-state-changed', () => {
       this.state = app.state;

@@ -63,6 +63,10 @@ class DivMainCanvas extends LitElement {
     window.addEventListener('setCanvasSize', () => this.setCanvasSize());
     window.dispatchEvent(new CustomEvent('setCanvasSize'));
 
+    window.addEventListener('mouse-coordinates-changed', event => {
+      app.workspace.lastKnownMouseCoordinates = new Point(event.detail.mousePos);
+    });
+
     //Events:
     this.upperCanvas.addEventListener('click', event => {
       let detail = {
@@ -73,7 +77,9 @@ class DivMainCanvas extends LitElement {
         'click' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(detail.mousePos);
-      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: detail.mousePos } }),
+      );
       app.dispatchEv(new CustomEvent('canvasclick', { detail: detail }));
     });
 
@@ -86,7 +92,9 @@ class DivMainCanvas extends LitElement {
         'mousedown' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(detail.mousePos);
-      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: detail.mousePos } }),
+      );
       app.dispatchEv(new CustomEvent('canvasmousedown', { detail: detail }));
     });
 
@@ -94,7 +102,9 @@ class DivMainCanvas extends LitElement {
       let detail = {
         mousePos: this.getMousePos(event),
       };
-      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: detail.mousePos } }),
+      );
       app.dispatchEv(new CustomEvent('canvasmouseup', { detail: detail }));
     });
 
@@ -102,7 +112,9 @@ class DivMainCanvas extends LitElement {
       let detail = {
         mousePos: this.getMousePos(event),
       };
-      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: detail.mousePos } }),
+      );
       app.dispatchEv(new CustomEvent('canvasmousemove', { detail: detail }));
     });
 
@@ -123,7 +135,9 @@ class DivMainCanvas extends LitElement {
         'mousedown' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(detail.mousePos);
-      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: detail.mousePos } }),
+      );
       app.dispatchEv(new CustomEvent('canvasmousedown', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvastouchstart', { detail: detail }));
     });
@@ -139,7 +153,9 @@ class DivMainCanvas extends LitElement {
           new Point(touch.clientX - app.settings.get('mainMenuWidth'), touch.clientY),
         );
       detail.mousePos = this.getMousePos(event);
-      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: detail.mousePos } }),
+      );
       app.dispatchEv(new CustomEvent('canvasmousemove', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvastouchmove', { detail: detail }));
     });
@@ -161,7 +177,9 @@ class DivMainCanvas extends LitElement {
         'click' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(detail.mousePos);
-      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: detail.mousePos } }),
+      );
       app.dispatchEv(new CustomEvent('canvasmouseup', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvasclick', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvastouchend', { detail: detail }));
@@ -183,7 +201,9 @@ class DivMainCanvas extends LitElement {
         'click' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(detail.mousePos);
-      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: detail.mousePos } }),
+      );
       app.dispatchEv(new CustomEvent('canvasmouseup', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvasclick', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));

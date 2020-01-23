@@ -136,10 +136,10 @@ export class ReverseState extends State {
    * @param  {Point} mouseCoordinates les coordonnées de la souris
    */
   onClick(mouseCoordinates) {
-    if (this.currentStep != 'selecting-symmetrical-arch') return true;
+    if (this.currentStep != 'selecting-symmetrical-arch') return;
 
     let clickDistance = this.selectedShape.center.dist(mouseCoordinates);
-    if (clickDistance > this.symmetricalAxeLength / 2) return true; //Le click n'est pas sur les axes de symétrie
+    if (clickDistance > this.symmetricalAxeLength / 2) return;
 
     let shapeCenter = this.selectedShape.center,
       angle = shapeCenter.getAngle(mouseCoordinates) % Math.PI;
@@ -167,8 +167,6 @@ export class ReverseState extends State {
 
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
-
-    return false;
   }
 
   getSymmetricalAxe(orientation) {

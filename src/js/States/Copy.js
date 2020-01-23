@@ -57,6 +57,7 @@ export class CopyState extends State {
    * stopper l'état
    */
   end() {
+    window.cancelAnimationFrame(this.requestAnimFrameId);
     this.currentStep = 'listen-canvas-click';
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('canvasmouseup', this.mouseUpId);
@@ -96,8 +97,7 @@ export class CopyState extends State {
     app.removeListener('objectSelected', this.objectSelectedId);
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     this.currentStep = 'moving-shape';
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('refresh'));
+    this.animate();
   }
 
   /**

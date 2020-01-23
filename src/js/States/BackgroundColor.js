@@ -25,7 +25,6 @@ export class BackgroundColorState extends State {
     );
 
     window.dispatchEvent(new CustomEvent('open-color-picker'));
-    // app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);

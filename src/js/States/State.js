@@ -141,6 +141,15 @@ export class State {
     console.log('end() not implemented');
   }
 
+  /**
+   * Gere l'animation de déplacement
+   * override pour changer d'animation
+   */
+  animate() {
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
+  }
+
   //Appelé par state-menu lors d'un clic sur un des boutons.
   clickOnStateMenuButton(btn_value) {}
 }

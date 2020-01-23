@@ -107,7 +107,6 @@ export class CreateState extends State {
 
     this.currentStep = 'moving-shape';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.animate();
   }
 
@@ -150,17 +149,6 @@ export class CreateState extends State {
     this.restart();
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
-  }
-
-  /**
-   * Gère le déplacement
-   */
-  animate() {
-    console.log('1', performance.now());
-    // this.ez++;
-    // if (this.ez % 2)
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
   }
 
   draw(mouseCoordinates) {

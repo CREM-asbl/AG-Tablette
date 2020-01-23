@@ -140,8 +140,6 @@ export class DrawManager {
     ctx.restore();
 
     ctx.lineWidth = 1;
-
-    console.log('2', performance.now());
   }
 
   /**

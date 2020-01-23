@@ -56,6 +56,7 @@ export class RotateState extends State {
    * stopper l'état
    */
   end() {
+    window.cancelAnimationFrame(this.requestAnimFrameId);
     this.currentStep = 'listen-canvas-click';
     app.workspace.editingShapes = [];
     app.removeListener('objectSelected', this.objectSelectedId);
@@ -88,8 +89,8 @@ export class RotateState extends State {
     app.workspace.editingShapes = this.involvedShapes;
     this.currentStep = 'rotating-shape';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
+    this.animate();
   }
 
   /**
