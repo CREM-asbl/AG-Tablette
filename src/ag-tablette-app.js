@@ -2,6 +2,7 @@ import { LitElement, html } from 'lit-element';
 import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
+console.log('div-main imported');
 import './flex-toolbar';
 import './icon-button';
 import './js/Manifest';
@@ -17,13 +18,14 @@ import './state-menu';
 import './version-item';
 
 import { app } from './js/App';
-import { FileManager } from './js/FileManager';
-import { HistoryManager } from './js/HistoryManager';
-import { SelectManager } from './js/SelectManager';
-import { WorkspaceManager } from './js/WorkspaceManager';
-import { GroupManager } from './js/GroupManager';
-import { ShapeManager } from './js/ShapeManager';
+import './js/FileManager';
+import './js/SelectManager';
+import './js/WorkspaceManager';
+import './js/GroupManager';
+import './js/ShapeManager';
+import './js/DrawManager';
 import { CompleteHistoryManager } from './js/CompleteHistoryManager';
+import { HistoryManager } from './js/HistoryManager';
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -499,6 +501,7 @@ class AGTabletteApp extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
+    console.log(app.version);
     let reset_state = 0;
     switch (event.target.name) {
       case 'settings':

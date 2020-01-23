@@ -88,7 +88,6 @@ export class RotateState extends State {
     app.workspace.editingShapes = this.involvedShapes;
     this.currentStep = 'rotating-shape';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -114,7 +113,6 @@ export class RotateState extends State {
 
     this.executeAction();
     this.restart();
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }

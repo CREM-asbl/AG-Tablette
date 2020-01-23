@@ -96,7 +96,6 @@ export class CopyState extends State {
     app.removeListener('objectSelected', this.objectSelectedId);
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     this.currentStep = 'moving-shape';
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }

@@ -1,4 +1,4 @@
-import { uniqId, mod, getComplementaryColor } from '../Tools/general';
+import { uniqId, getComplementaryColor } from '../Tools/general';
 import { Point } from './Point';
 import { Segment } from './Segment';
 import { app } from '../App';

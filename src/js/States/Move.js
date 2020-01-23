@@ -91,7 +91,6 @@ export class MoveState extends State {
     app.workspace.editingShapes = this.involvedShapes;
     this.currentStep = 'moving-shape';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -133,7 +132,6 @@ export class MoveState extends State {
 
     this.executeAction();
     this.restart();
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }

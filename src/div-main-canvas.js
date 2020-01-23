@@ -1,6 +1,5 @@
 import { LitElement, html } from 'lit-element';
 import { app } from './js/App';
-import { DrawManager } from './js/DrawManager';
 import { Point } from './js/Objects/Point';
 import { SelectManager } from './js/SelectManager';
 
@@ -49,12 +48,16 @@ class DivMainCanvas extends LitElement {
     this.invisibleCanvas = this.shadowRoot.querySelector('#invisibleCanvas');
 
     window.app = app;
-    DrawManager.init(
-      this.upperCanvas,
-      this.mainCanvas,
-      this.backgroundCanvas,
-      this.invisibleCanvas,
-    ); // to move
+    app.canvas = {
+      upper: this.upperCanvas,
+      main: this.mainCanvas,
+      background: this.backgroundCanvas,
+      invisible: this.invisibleCanvas,
+    };
+    app.upperCtx = this.upperCanvas.getContext('2d');
+    app.mainCtx = this.mainCanvas.getContext('2d');
+    app.backgroundCtx = this.backgroundCanvas.getContext('2d');
+    app.invisibleCtx = this.invisibleCanvas.getContext('2d');
 
     app.start();
     window.addEventListener('setCanvasSize', () => this.setCanvasSize());
@@ -70,6 +73,7 @@ class DivMainCanvas extends LitElement {
         'click' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(detail.mousePos);
+      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
       app.dispatchEv(new CustomEvent('canvasclick', { detail: detail }));
     });
 
@@ -82,6 +86,7 @@ class DivMainCanvas extends LitElement {
         'mousedown' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(detail.mousePos);
+      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
       app.dispatchEv(new CustomEvent('canvasmousedown', { detail: detail }));
     });
 
@@ -89,6 +94,7 @@ class DivMainCanvas extends LitElement {
       let detail = {
         mousePos: this.getMousePos(event),
       };
+      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
       app.dispatchEv(new CustomEvent('canvasmouseup', { detail: detail }));
     });
 
@@ -96,49 +102,66 @@ class DivMainCanvas extends LitElement {
       let detail = {
         mousePos: this.getMousePos(event),
       };
-      if (!app.result) app.result = [];
-      let t0 = performance.now();
+      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
       app.dispatchEv(new CustomEvent('canvasmousemove', { detail: detail }));
-      let t1 = performance.now();
-      app.result.push(t1 - t0);
-      if (app.result.length % 100 == 0) {
-        console.log(app.result.reduce((acc, res) => (acc += res)) / app.result.length);
-        console.log(Math.min(...app.result));
-        console.log(Math.max(...app.result));
-      }
     });
 
-    this.upperCanvas.addEventListener(
-      'touchstart',
-      event => {
-        event.preventDefault();
-        let detail = {
-          touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
-        };
-        app.dispatchEv(new CustomEvent('canvasmousedown', { detail: detail }));
-        app.dispatchEv(new CustomEvent('canvastouchstart', { detail: detail }));
-      },
-      { passive: true },
-    );
+    this.upperCanvas.addEventListener('touchstart', event => {
+      event.preventDefault();
+      let detail = {
+        touches: [],
+        mousePos: undefined,
+      };
+      for (let touch of event.touches)
+        detail.touches.push(
+          new Point(touch.clientX - app.settings.get('mainMenuWidth'), touch.clientY),
+        );
+      detail.mousePos = this.getMousePos(event);
+      console.log(detail.mousePos);
+      if (
+        app.listenerCounter.objectSelected &&
+        'mousedown' == app.workspace.selectionConstraints.eventType
+      )
+        SelectManager.selectObject(detail.mousePos);
+      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      app.dispatchEv(new CustomEvent('canvasmousedown', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvastouchstart', { detail: detail }));
+    });
 
-    this.upperCanvas.addEventListener(
-      'touchmove',
-      event => {
-        event.preventDefault();
-        let detail = {
-          touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
-        };
-        app.dispatchEv(new CustomEvent('canvasmousemove', { detail: detail }));
-        app.dispatchEv(new CustomEvent('canvastouchmove', { detail: detail }));
-      },
-      { passive: true },
-    );
+    this.upperCanvas.addEventListener('touchmove', event => {
+      event.preventDefault();
+      let detail = {
+        touches: [],
+        mousePos: undefined,
+      };
+      for (let touch of event.touches)
+        detail.touches.push(
+          new Point(touch.clientX - app.settings.get('mainMenuWidth'), touch.clientY),
+        );
+      detail.mousePos = this.getMousePos(event);
+      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
+      app.dispatchEv(new CustomEvent('canvasmousemove', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvastouchmove', { detail: detail }));
+    });
 
     this.upperCanvas.addEventListener('touchend', event => {
       event.preventDefault();
+      console.log(event);
       let detail = {
-        touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
+        touches: [],
+        mousePos: undefined,
       };
+      for (let touch of event.changedTouches)
+        detail.touches.push(
+          new Point(touch.clientX - app.settings.get('mainMenuWidth'), touch.clientY),
+        );
+      detail.mousePos = this.getMousePos(event);
+      if (
+        app.listenerCounter.objectSelected &&
+        'click' == app.workspace.selectionConstraints.eventType
+      )
+        SelectManager.selectObject(detail.mousePos);
+      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
       app.dispatchEv(new CustomEvent('canvasmouseup', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvasclick', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvastouchend', { detail: detail }));
@@ -147,8 +170,20 @@ class DivMainCanvas extends LitElement {
     this.upperCanvas.addEventListener('touchcancel', event => {
       event.preventDefault();
       let detail = {
-        touches: event.touches.map(touch => new Point(touch.clientX, touch.clientY)),
+        touches: [],
+        mousePos: undefined,
       };
+      for (let touch of event.changedTouches)
+        detail.touches.push(
+          new Point(touch.clientX - app.settings.get('mainMenuWidth'), touch.clientY),
+        );
+      detail.mousePos = this.getMousePos(event);
+      if (
+        app.listenerCounter.objectSelected &&
+        'click' == app.workspace.selectionConstraints.eventType
+      )
+        SelectManager.selectObject(detail.mousePos);
+      app.workspace.lastKnownMouseCoordinates = detail.mousePos;
       app.dispatchEv(new CustomEvent('canvasmouseup', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvasclick', { detail: detail }));
       app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
@@ -170,7 +205,7 @@ class DivMainCanvas extends LitElement {
       event.changedTouches[0] &&
       event.changedTouches[0].clientX !== undefined
     ) {
-      response.x = event.changedTouches[0].clientX - window.canvasLeftShift;
+      response.x = event.changedTouches[0].clientX - app.settings.get('mainMenuWidth');
       response.y = event.changedTouches[0].clientY;
     } else if (event.offsetX !== undefined) {
       response.x = event.offsetX;
@@ -208,10 +243,6 @@ class DivMainCanvas extends LitElement {
 
     response.translate(app.workspace.translateOffset, true);
     response.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
-    // (response.x -= app.workspace.translateOffset.x),
-    // (response.y -= app.workspace.translateOffset.y),
-    // (response.x /= app.workspace.zoomLevel);
-    // response.y /= app.workspace.zoomLevel;
     return response;
   }
 
@@ -246,15 +277,14 @@ class DivMainCanvas extends LitElement {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refreshBackground'));
 
-    app.canvasLeftShift = this.offsetLeft;
     app.canvasWidth = this.clientWidth;
     app.canvasHeight = this.clientHeight;
   }
 
   // Ajout d'un fond d'écran fixé à droite
-  set background(value) {
+  set background(touch) {
     this.style.display = 'block';
-    this.style.background = `url('${value}') no-repeat right`;
+    this.style.background = `url('${touch}') no-repeat right`;
   }
 }
 customElements.define('div-main-canvas', DivMainCanvas);

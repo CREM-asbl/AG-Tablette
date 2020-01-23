@@ -2,105 +2,6 @@ import { app } from './App';
 import { GridManager } from './GridManager';
 
 export class DrawManager {
-  static init(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas) {
-    app.canvas = {
-      upper: upperCanvas,
-      main: mainCanvas,
-      background: backgroundCanvas,
-      invisible: invisibleCanvas,
-    };
-
-    app.upperCtx = app.canvas.upper.getContext('2d');
-    app.mainCtx = app.canvas.main.getContext('2d');
-    app.backgroundCtx = app.canvas.background.getContext('2d');
-    app.invisibleCtx = app.canvas.invisible.getContext('2d');
-
-    this.mouseMoveId = app.addListener('canvasmousemove', event => {
-      app.workspace.lastKnownMouseCoordinates = event.detail.mousePos;
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-    });
-
-    // transform
-    window.addEventListener('resetTransformations', event => {
-      this.resetTransformations();
-    });
-    window.addEventListener('translateView', event => {
-      this.translateView(event.detail.offset);
-    });
-    window.addEventListener('scaleView', event => {
-      this.scaleView(event.detail.scale);
-    });
-
-    // refresh
-    window.addEventListener('refresh', event => {
-      this.refreshMain();
-    });
-    window.addEventListener('refreshMain', event => {
-      this.refreshMain();
-    });
-    window.addEventListener('refreshUpper', event => {
-      this.refreshUpper();
-    });
-    window.addEventListener('refreshBackground', event => {
-      this.refreshBackground();
-    });
-
-    // draw
-    window.addEventListener('draw-shape', event => {
-      const ctx = event.detail.ctx || app.upperCtx;
-      this.drawShape(
-        ctx,
-        event.detail.shape,
-        event.detail.borderSize,
-        event.detail.axeAngle,
-        event.detail.doSave,
-      );
-    });
-    window.addEventListener('draw-point', event => {
-      const ctx = event.detail.ctx || app.upperCtx;
-      this.drawPoint(
-        ctx,
-        event.detail.point,
-        event.detail.color,
-        event.detail.size,
-        event.detail.doSave,
-      );
-    });
-    window.addEventListener('draw-line', event => {
-      const ctx = event.detail.ctx || app.upperCtx;
-      this.drawLine(
-        ctx,
-        event.detail.line,
-        event.detail.color,
-        event.detail.size,
-        event.detail.doSave,
-      );
-    });
-    window.addEventListener('draw-arc', event => {
-      const ctx = event.detail.ctx || app.upperCtx;
-      this.drawArc(
-        ctx,
-        event.detail.startPoint,
-        event.detail.endPoint,
-        event.detail.center,
-        event.detail.counterclockwise,
-        event.detail.color,
-        event.detail.size,
-        event.detail.doSave,
-      );
-    });
-    window.addEventListener('draw-text', event => {
-      const ctx = event.detail.ctx || app.upperCtx;
-      this.drawText(
-        ctx,
-        event.detail.text,
-        event.detail.position,
-        event.detail.color,
-        event.detail.doSave,
-      );
-    });
-  }
-
   /* #################################################################### */
   /* ############################# TRANSFORM ############################ */
   /* #################################################################### */
@@ -136,17 +37,8 @@ export class DrawManager {
     ctx.restore();
   }
 
-  // askRefresh(canvas = 'main') {
-  //   if (canvas == 'main') this.refreshMain();
-  //   else if (canvas == 'upper') this.refreshUpper();
-  //   else if (canvas == 'background') this.refreshBackground();
-  //   //TODO: limite de refresh par seconde? windowAnimationFrame?
-  //   //TODO: ne pas mettre les canvas à jour qd mouseMove pendant une animFrame
-  //   //TODO: vérifier que seule cette fonction est appelée de l'extérieur.
-  // }
-
   static refreshBackground() {
-    this.clearCtx(app.backgroundCtx);
+    DrawManager.clearCtx(app.backgroundCtx);
 
     //Grid:
     if (app.workspace.settings.get('isGridShown')) {
@@ -168,7 +60,7 @@ export class DrawManager {
 
       let pts = GridManager.getVisibleGridPoints(min, max);
       pts.forEach(pt => {
-        this.drawPoint(app.backgroundCtx, pt, '#F00', 1.5 / actualZoomLvl, false);
+        DrawManager.drawPoint(app.backgroundCtx, pt, '#F00', 1.5 / actualZoomLvl, false);
       });
     }
 
@@ -177,17 +69,17 @@ export class DrawManager {
     //   let { type, id } = app.workspace.settings.get('shownTangram');
     //   let tangram = app.tangramManager.getTangram(type, id);
     //   tangram.polygons.forEach(polygon => {
-    //     this.drawPoint(app.backgroundCtx, polygon[0], '#E90CC8', 1);
+    //     DrawManager.drawPoint(app.backgroundCtx, polygon[0], '#E90CC8', 1);
     //     for (let i = 0; i < polygon.length - 1; i++) {
-    //       app.DrawManager.drawLine(app.backgroundCtx, polygon[i], polygon[i + 1], '#E90CC8', 3);
-    //       app.DrawManager.drawPoint(app.backgroundCtx, polygon[i + 1], '#E90CC8', 1);
+    //       app.app.drawLine(DrawManager.backgroundCtx, polygon[i], polygon[i + 1], '#E90CC8', 3);
+    //       app.app.drawPoint(DrawManager.backgroundCtx, polygon[i + 1], '#E90CC8', 1);
     //     }
     //   });
     // }
   }
 
   static refreshMain() {
-    this.clearCtx(app.mainCtx);
+    DrawManager.clearCtx(app.mainCtx);
 
     //Afficher les formes
     app.workspace.shapes
@@ -195,7 +87,7 @@ export class DrawManager {
         return app.workspace.editingShapes.findIndex(s => s.id == shape.id) == -1;
       })
       .forEach(shape => {
-        this.drawShape(app.mainCtx, shape);
+        DrawManager.drawShape(app.mainCtx, shape);
         window.dispatchEvent(
           new CustomEvent('shapeDrawn', { detail: { ctx: app.mainCtx, shape: shape } }),
         );
@@ -203,7 +95,8 @@ export class DrawManager {
   }
 
   static refreshUpper() {
-    this.clearCtx(app.upperCtx);
+    console.log('refresh upper');
+    DrawManager.clearCtx(app.upperCtx);
     window.dispatchEvent(
       new CustomEvent('drawUpper', {
         detail: { ctx: app.upperCtx },
@@ -235,19 +128,20 @@ export class DrawManager {
     ctx.save();
 
     if (app.settings.get('areShapesPointed')) {
-      if (shape.isSegment()) this.drawPoint(ctx, shape.segments[0].vertexes[0], '#000', 1, false);
+      if (shape.isSegment())
+        DrawManager.drawPoint(ctx, shape.segments[0].vertexes[0], '#000', 1, false);
       shape.segments.forEach(seg => {
-        if (!shape.isCircle()) this.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
+        if (!shape.isCircle()) DrawManager.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
       });
     }
     shape.segments.forEach(seg => {
       if (seg.points && seg.points.length) {
         seg.points.forEach(pt => {
-          this.drawPoint(ctx, pt, '#000', 1, false);
+          DrawManager.drawPoint(ctx, pt, '#000', 1, false);
         });
       }
     });
-    if (shape.isCenterShown) this.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
+    if (shape.isCenterShown) DrawManager.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
     ctx.restore();
 
     ctx.lineWidth = 1;
@@ -373,10 +267,94 @@ export class DrawManager {
     ctx.strokeStyle = color;
 
     ctx.beginPath();
-    ctx.arc(point.x, point.y, radius / this.app.workspace.zoomLevel, 0, 2 * Math.PI, 0);
+    ctx.arc(point.x, point.y, radius / app.workspace.zoomLevel, 0, 2 * Math.PI, 0);
     ctx.closePath();
     ctx.stroke();
 
     if (doSave) ctx.restore();
   }
 }
+
+DrawManager.mouseMoveId = app.addListener('canvasmousemove', event => {
+  window.dispatchEvent(new CustomEvent('refreshUpper'));
+});
+
+// transform
+window.addEventListener('resetTransformations', event => {
+  DrawManager.resetTransformations();
+});
+window.addEventListener('translateView', event => {
+  DrawManager.translateView(event.detail.offset);
+});
+window.addEventListener('scaleView', event => {
+  DrawManager.scaleView(event.detail.scale);
+});
+
+// refresh
+window.addEventListener('refresh', () => {
+  DrawManager.refreshMain();
+});
+window.addEventListener('refreshMain', () => {
+  DrawManager.refreshMain();
+});
+window.addEventListener('refreshUpper', () => {
+  DrawManager.refreshUpper();
+});
+window.addEventListener('refreshBackground', () => {
+  DrawManager.refreshBackground();
+});
+
+// draw
+window.addEventListener('draw-shape', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawShape(
+    ctx,
+    event.detail.shape,
+    event.detail.borderSize,
+    event.detail.axeAngle,
+    event.detail.doSave,
+  );
+});
+window.addEventListener('draw-point', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawPoint(
+    ctx,
+    event.detail.point,
+    event.detail.color,
+    event.detail.size,
+    event.detail.doSave,
+  );
+});
+window.addEventListener('draw-line', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawLine(
+    ctx,
+    event.detail.line,
+    event.detail.color,
+    event.detail.size,
+    event.detail.doSave,
+  );
+});
+window.addEventListener('draw-arc', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawArc(
+    ctx,
+    event.detail.startPoint,
+    event.detail.endPoint,
+    event.detail.center,
+    event.detail.counterclockwise,
+    event.detail.color,
+    event.detail.size,
+    event.detail.doSave,
+  );
+});
+window.addEventListener('draw-text', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawText(
+    ctx,
+    event.detail.text,
+    event.detail.position,
+    event.detail.color,
+    event.detail.doSave,
+  );
+});

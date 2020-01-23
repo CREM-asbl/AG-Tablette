@@ -1,5 +1,5 @@
 import { Settings } from './Settings';
-import { BifaceState } from './States/Biface';
+import './Manifest';
 import { uniqId } from './Tools/general';
 
 /**
@@ -49,6 +49,11 @@ export class App {
    * Initialiser les paramètres de l'application
    */
   initSettings() {
+    this.initNonEditableSettings();
+    this.initEditableSettings();
+  }
+
+  initNonEditableSettings() {
     /**
      * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
      */
@@ -71,6 +76,11 @@ export class App {
     // Niveau de zoom minimal de l'interface
     this.settings.set('minZoomLevel', 0.1);
 
+    // Largeur du menu de gauche de l'application
+    this.settings.set('mainMenuWidth', 250);
+  }
+
+  initEditableSettings() {
     // Ajustement automatique des formes activé ?
     this.settings.set('automaticAdjustment', true);
 
@@ -79,12 +89,6 @@ export class App {
 
     // taille des formes qui seront ajoutées (1, 2 ou 3)
     this.settings.set('shapesSize', 2);
-
-    // Largeur du menu de gauche de l'application
-    this.settings.set('mainMenuWidth', 250);
-
-    // Si ancien ou nouveau systeme de fichier
-    this.settings.set('hasNativeFS', 'chooseFileSystemEntries' in window);
   }
 
   addListener(listenerName, func) {
@@ -113,7 +117,7 @@ export class App {
   }
 
   resetSettings() {
-    this.initSettings();
+    this.initEditableSettings();
     dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }

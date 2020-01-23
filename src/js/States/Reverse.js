@@ -107,12 +107,11 @@ export class ReverseState extends State {
    * @param  {Point} mouseCoordinates Les coordonnées du click
    */
   objectSelected(shape, mouseCoordinates) {
-    console.log(this.mouseClickId);
     if (this.currentStep == 'reversing-shape') return;
-    if (this.selectedShape && this.selectedShape.id == shape.id) return;
     if (
       this.selectedShape &&
-      mouseCoordinates.dist(this.selectedShape.center) < this.symmetricalAxeLength
+      (this.selectedShape.id == shape.id ||
+        mouseCoordinates.dist(this.selectedShape.center) < this.symmetricalAxeLength)
     )
       return;
 
@@ -128,7 +127,6 @@ export class ReverseState extends State {
     window.setTimeout(() => (this.mouseClickId = app.addListener('canvasclick', this.handler)));
     this.currentStep = 'selecting-symmetrical-arch';
     app.workspace.editingShapes = this.involvedShapes;
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
