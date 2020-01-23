@@ -15,8 +15,6 @@ import './popups/notification';
 import './state-menu';
 import './version-item';
 
-console.log('loading interface');
-
 import { app } from './js/App';
 import { FileManager } from './js/FileManager';
 import { HistoryManager } from './js/HistoryManager';

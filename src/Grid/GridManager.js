@@ -1,6 +1,5 @@
 import { app } from '../js/App';
 import { Point } from '../js/Objects/Point';
-console.log('loading grid');
 
 app.states = {
   ...app.states,
@@ -16,7 +15,6 @@ addEventListener('app-state-changed', () => {
     import('./grid-popup');
     const popup = document.createElement('grid-popup');
     popup.style.display = 'block';
-    popup.onclose = () => console.log('close');
     document.querySelector('body').appendChild(popup);
   }
 });

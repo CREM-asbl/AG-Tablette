@@ -73,8 +73,6 @@ new TranslatePlaneAction();
 new ZoomPlaneState();
 new ZoomPlaneAction();
 
-console.log('Grandeurs loaded');
-
-import('../../Grid/GridManager');
+// import('../../Grid/GridManager');
 
 dispatchEvent(new CustomEvent('app-state-changed'));
