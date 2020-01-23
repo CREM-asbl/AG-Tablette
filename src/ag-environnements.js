@@ -2,11 +2,6 @@ import { LitElement, html } from 'lit-element';
 import { EnvironmentManager } from './js/EnvironmentManager';
 
 class AgEnvironnements extends LitElement {
-  constructor() {
-    super();
-    EnvironmentManager.setEnvironment('Grandeurs');
-  }
-
   render() {
     return html`
       <style>

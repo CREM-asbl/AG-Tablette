@@ -7,7 +7,7 @@ import { uniqId } from '../Tools/general';
  */
 export class MergeState extends State {
   constructor() {
-    super('merge_shapes');
+    super('merge', 'Fusionner', 'operation');
 
     // listen-canvas-click -> selecting-second-shape
     this.currentStep = null;

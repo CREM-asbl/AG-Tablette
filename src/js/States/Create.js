@@ -9,7 +9,7 @@ import { Point } from '../Objects/Point';
  */
 export class CreateState extends State {
   constructor() {
-    super('create_shape');
+    super('create_shape', 'Ajouter une forme');
 
     // show-family-shape -> listen-canvas-click -> moving-shape
     this.currentStep = null;

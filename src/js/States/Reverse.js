@@ -9,7 +9,7 @@ import { ShapeManager } from '../ShapeManager';
  */
 export class ReverseState extends State {
   constructor() {
-    super('reverse_shape');
+    super('reverse', 'Retourner', 'move');
 
     // listen-canvas-click -> selecting-symmetrical-arch -> reversing-shape
     this.currentStep = null;
@@ -215,7 +215,7 @@ export class ReverseState extends State {
    */
   animate() {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
-    if (this.progress > 1 && app.state == 'reverse_shape') {
+    if (this.progress > 1 && app.state == 'reverse') {
       this.actions = [
         {
           name: 'ReverseAction',
@@ -238,7 +238,7 @@ export class ReverseState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(mouseCoordinates) {
+  draw() {
     if (this.currentStep == 'reversing-shape' && this.status == 'running') {
       //TODO: opti: ne pas devoir faire des copies à chaque refresh!
       this.involvedShapes.forEach(s => {

@@ -7,7 +7,7 @@ import { ShapeManager } from '../ShapeManager';
  */
 export class BifaceState extends State {
   constructor() {
-    super('biface');
+    super('biface', 'Biface', 'tool');
   }
 
   /**

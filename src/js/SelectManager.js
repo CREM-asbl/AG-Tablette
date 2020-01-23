@@ -1,6 +1,5 @@
 import { app } from './App';
 import { Shape } from './Objects/Shape';
-import { Point } from './Objects/Point';
 import { ShapeManager } from './ShapeManager';
 
 /*
@@ -8,6 +7,8 @@ TODO:
     -ajouter des facilités de sélection quand on ne peut sélectionner que
       des segments ou points (par ex).
  */
+
+//  TODO: placer selectionConstraints hors du workspace ?
 export class SelectManager {
   /**
    * Vérifier si 2 points sont à la distance de sélection l'un de l'autre.
@@ -371,7 +372,6 @@ export class SelectManager {
         });
       });
     }
-
     if (shapes.length > 0) return shapes[0];
 
     return null;
@@ -400,7 +400,6 @@ export class SelectManager {
           return SelectManager.selectShape(mCoord, constr);
         },
       };
-
     //Vérification que priority est bien défini
     if (
       !constr.priority.every(p => {

@@ -1,5 +1,5 @@
-import { uniqId } from '../Tools/general';
-import { Shape } from './Shape';
+import { uniqId } from '../js/Tools/general';
+import { Shape } from '../js/Objects/Shape';
 
 export class Tangram {
   /**

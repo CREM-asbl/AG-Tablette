@@ -7,7 +7,7 @@ import { Segment } from '../Objects/Segment';
  */
 export class DivideState extends State {
   constructor() {
-    super('divide_segment');
+    super('divide', 'Diviser', 'operation');
 
     // choose-nb-parts -> listen-canvas-click -> select-second-point -> showing-points
     //                                        -> showing-segment

@@ -7,7 +7,7 @@ import { GroupManager } from '../GroupManager';
  */
 export class UngroupState extends State {
   constructor() {
-    super('ungroup_shapes');
+    super('ungroup', 'Dégrouper', 'tool');
   }
 
   /**

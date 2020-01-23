@@ -1,14 +1,12 @@
 import { LitElement, html } from 'lit-element';
-import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
-console.log('div-main imported');
 import './flex-toolbar';
+import './toolbar-kit';
+import './toolbar-section';
 import './icon-button';
 import './js/Manifest';
 import './popups/new-popup';
-import './popups/grid-popup';
-import './popups/tangram-popup';
 import './popups/opacity-popup';
 import './popups/divide-popup';
 import './popups/settings-popup';
@@ -42,23 +40,17 @@ class AGTabletteApp extends LitElement {
 
   constructor() {
     super();
-    this.state = '';
-    this.states = [];
-    this.stateName = '';
-    this.families = [];
-    this.selectedFamily = '';
+    this.setState();
+    app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
 
-    window.addEventListener('app-state-changed', () => {
-      this.state = app.state;
-      this.states = app.states;
-      this.stateName = app.state ? app.states[app.state].name : '';
-      this.selectedFamily = '';
-    });
-    window.addEventListener('family-selected', event => {
-      this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : '';
-    });
+    window.addEventListener('app-state-changed', () => this.setState());
+    window.addEventListener(
+      'family-selected',
+      event =>
+        (this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : ''),
+    );
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
     });
@@ -241,206 +233,37 @@ class AGTabletteApp extends LitElement {
                             </icon-button>
                             -->
             </flex-toolbar>
-            <div class="toolbar-separator">Formes standard</div>
 
-            <flex-toolbar>
-              ${this.families.map(family => {
-                return html`
-                  <canvas-button
-                    name="create_shape"
-                    .family="${family}"
-                    ?active="${family === this.selectedFamily}"
-                    @click="${this._actionHandle}"
-                  >
-                  </canvas-button>
-                `;
-              })}
-            </flex-toolbar>
+            <toolbar-kit .kit="${this.families}"
+                         selected="${this.selectedFamily}">
+            </toolbar-kit>
+
           </div>
 
           <div id="app-canvas-view-toolbar-p2">
-            <div class="toolbar-separator">Mouvements</div>
-            <flex-toolbar>
-              <icon-button
-                src="/images/move.svg"
-                title="Glisser"
-                name="move_shape"
-                ?active="${this.state === 'move_shape'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/rotate.svg"
-                title="Tourner"
-                name="rotate_shape"
-                ?active="${this.state === 'rotate_shape'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/reverse.svg"
-                title="Retourner"
-                name="reverse_shape"
-                ?active="${this.state === 'reverse_shape'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-            </flex-toolbar>
+            <toolbar-section title="Mouvements"
+                             .buttons_states="${this.states.filter(
+                               state => state[1].type === 'move',
+                             )}">
+            </toolbar-section>
 
-            <div class="toolbar-separator">Opérations</div>
+            <toolbar-section title="Opérations"
+                             .buttons_states="${this.states.filter(
+                               state => state[1].type === 'operation',
+                             )}">
+            </toolbar-section>
 
-            <flex-toolbar>
-              <icon-button
-                src="/images/center.svg"
-                title="Construire le centre"
-                name="build_shape_center"
-                ?active="${this.state === 'build_shape_center'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/divide.svg"
-                title="Diviser"
-                name="divide_segment"
-                ?active="${this.state === 'divide_segment'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/cut.svg"
-                title="Découper"
-                name="cut_shape"
-                ?active="${this.state === 'cut_shape'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/copy.svg"
-                title="Copier"
-                name="copy_shape"
-                ?active="${this.state === 'copy_shape'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/merge.svg"
-                title="Fusionner"
-                name="merge_shapes"
-                ?active="${this.state === 'merge_shapes'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-            </flex-toolbar>
-
-            <div class="toolbar-separator">Outils</div>
-
-            <flex-toolbar>
-              <icon-button
-                src="/images/delete.svg"
-                title="Supprimer une forme"
-                name="delete_shape"
-                ?active="${this.state === 'delete_shape'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/group.svg"
-                title="Grouper"
-                name="group_shapes"
-                ?active="${this.state === 'group_shapes'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/ungroup.svg"
-                title="Dégrouper"
-                name="ungroup_shapes"
-                ?active="${this.state === 'ungroup_shapes'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/backplane.svg"
-                title="Arrière-plan"
-                name="to_background"
-                ?active="${this.state === 'to_background'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/background-color.svg"
-                title="Colorier les formes"
-                name="background_color"
-                ?active="${this.state === 'background_color'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/border-color.svg"
-                title="Colorier les bords"
-                name="border_color"
-                ?active="${this.state === 'border_color'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/opacity.svg"
-                title="Opacité"
-                name="opacity"
-                ?active="${this.state === 'opacity'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
+            <toolbar-section title="Outils"
+                             .buttons_states="${this.states.filter(
+                               state => state[1].type === 'tool',
+                             )}">
+            </toolbar-section>
 
               <!-- <icon-button src="/images/wallpaper.svg"
                                 title="Fond d'écran"
-                                name="border_color"
+                                name="wallpaper"
                                 @click="\${this.loadBackground}">
                         </icon-button> -->
-
-              <icon-button
-                src="/images/biface.svg"
-                title="Biface"
-                name="biface"
-                ?active="${this.state === 'biface'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/moveplane.svg"
-                title="Glisser le plan"
-                name="translate_plane"
-                ?active="${this.state === 'translate_plane'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/zoom.svg"
-                title="Zoomer"
-                name="zoom_plane"
-                ?active="${this.state === 'zoom_plane'}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                src="/images/grille.svg"
-                title="Grille"
-                name="grid_menu"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <!--
-                        <icon-button src="/images/tangram-edit.svg"
-                                title="Créer Tangram"
-                                name="tangram_creator"
-                                @click="\${this._actionHandle}">
-                        </icon-button>
-                        <icon-button src="/images/tangram.svg"
-                                title="Faire un Tangram"
-                                name="tangram_menu"
-                                @click="\${this._actionHandle}">
-                        </icon-button>
-                        -->
             </flex-toolbar>
           </div>
           <version-item></version-item>
@@ -456,10 +279,6 @@ class AGTabletteApp extends LitElement {
       <settings-popup></settings-popup>
 
       <save-popup></save-popup>
-
-      <grid-popup></grid-popup>
-
-      <tangram-popup></tangram-popup>
 
       <opacity-popup></opacity-popup>
 
@@ -519,14 +338,6 @@ class AGTabletteApp extends LitElement {
         this.shadowRoot.querySelector('new-popup').style.display = 'block';
         reset_state = 1;
         break;
-      case 'grid_menu':
-        this.shadowRoot.querySelector('grid-popup').style.display = 'block';
-        reset_state = 1;
-        break;
-      case 'tangram_menu':
-        this.shadowRoot.querySelector('tangram-popup').style.display = 'block';
-        reset_state = 1;
-        break;
       case 'undo':
         if (this.canUndo) window.dispatchEvent(new CustomEvent('undo-action'));
         break;
@@ -536,20 +347,19 @@ class AGTabletteApp extends LitElement {
       case 'play':
         window.dispatchEvent(new CustomEvent('startBrowse'));
         break;
-      case 'create_shape':
-        app.setState(event.target.name, event.target.family);
-        break;
       default:
         app.setState(event.target.name);
-      // } else {
-      //   console.error('AGTabletteApp._actionHandle: received unknown event:');
-      //   console.error(event);
-      //   reset_state = 1;
-      // }
     }
     if (reset_state) {
       app.setState();
     }
+  }
+
+  setState() {
+    this.state = app.state;
+    this.states = Object.entries(app.states);
+    this.stateName = '';
+    this.families = [...app.environment.familyNames];
   }
 
   // Todo: Placer dans un objet BackgroundImage ?

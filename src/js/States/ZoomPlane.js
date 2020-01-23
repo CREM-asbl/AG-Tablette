@@ -7,7 +7,7 @@ import { Point } from '../Objects/Point';
  */
 export class ZoomPlaneState extends State {
   constructor() {
-    super('zoom_plane');
+    super('zoom', 'Zoomer', 'tool');
 
     this.currentStep = null; // listen-canvas-click -> zooming-plane
 

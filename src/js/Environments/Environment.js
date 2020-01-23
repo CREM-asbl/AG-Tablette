@@ -1,5 +1,4 @@
 import { Family } from '../Objects/Family';
-import { app } from '../App';
 
 /**
  * Environnement de travail: Grandeur, Tangram, Cube... Un environnement
@@ -8,18 +7,13 @@ import { app } from '../App';
  */
 export class Environment {
   constructor(name) {
-    //Nom de l'environnement
     this.name = name;
 
-    app.environment = this;
-
-    //Liste des familles de formes disponibles dans cet environnement
     this.families = [];
 
     this.familyNames = [];
 
     import(`./${name}.js`);
-    //TODO: outils activés/désactivés, etc.
   }
 
   /**

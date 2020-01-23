@@ -1,7 +1,31 @@
-import { app } from './App';
-import { Point } from './Objects/Point';
+import { app } from '../js/App';
+import { Point } from '../js/Objects/Point';
+
+//Todo: Créer un event plus précis
+addEventListener('app-state-changed', () => {
+  if (app.state === 'grid') {
+    import('./grid-popup');
+    const popup = document.createElement('grid-popup');
+    popup.style.display = 'block';
+    document.querySelector('body').appendChild(popup);
+  }
+});
+
+addEventListener('close-grid-popup', () => {
+  const popup = document.querySelector('grid-popup');
+  popup.remove();
+});
 
 export class GridManager {
+  static initState() {
+    app.states = {
+      ...app.states,
+      grid: {
+        name: 'Grille',
+        type: 'tool',
+      },
+    };
+  }
   /**
    * Le point de référence de la grille est le point (10,10).
    * Si grille carrée: le côté du carré est de 50 unités. (-> ex de points:

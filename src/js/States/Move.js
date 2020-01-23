@@ -9,7 +9,7 @@ import { ShapeManager } from '../ShapeManager';
  */
 export class MoveState extends State {
   constructor() {
-    super('move_shape');
+    super('move', 'Glisser', 'move');
 
     this.currentStep = null; // listen-canvas-click -> moving-shape
 

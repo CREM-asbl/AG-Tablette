@@ -8,7 +8,7 @@ import { ShapeManager } from '../ShapeManager';
  */
 export class OpacityState extends State {
   constructor() {
-    super('opacity');
+    super('opacity', 'Opacité', 'tool');
 
     this.currentStep = null; // choose-opacity -> listen-canvas-click
   }

@@ -4,7 +4,7 @@ import { app } from '../App';
  * Cette classe abstraite représente un état possible de l'application
  */
 export class State {
-  constructor(name) {
+  constructor(name, title, type) {
     if (this.constructor === State) {
       throw new TypeError('Abstract class "State" cannot be instantiated directly');
     }
@@ -14,6 +14,14 @@ export class State {
 
     // idle for nothing, paused if stopped by permanent state, running for running...
     this.status = 'idle';
+
+    app.states = {
+      ...app.states,
+      [name]: {
+        name: title,
+        type: type,
+      },
+    };
 
     window.addEventListener('app-state-changed', event => {
       if (this.status == 'running') {

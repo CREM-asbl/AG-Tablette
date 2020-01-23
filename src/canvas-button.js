@@ -1,7 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { standardKit } from './js/ShapesKits/standardKit';
-import { Point } from './js/Objects/Point';
-import { App } from './js/App';
+import { app } from './js/App';
 
 class CanvasButton extends LitElement {
   static get properties() {

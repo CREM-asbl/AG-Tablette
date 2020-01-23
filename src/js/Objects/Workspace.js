@@ -44,7 +44,7 @@ export class Workspace {
     this.selectedOpacity = 0.7;
 
     // contrainte de sélection pour formes, segments et points
-    this.selectionConstraints = null;
+    this.selectionConstraints = {};
 
     //Niveau de zoom de l'interface
     this.zoomLevel = 1;

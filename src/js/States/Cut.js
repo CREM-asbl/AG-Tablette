@@ -8,7 +8,7 @@ import { mod, uniqId } from '../Tools/general';
  */
 export class CutState extends State {
   constructor() {
-    super('cut_shape');
+    super('cut', 'Découper', 'operation');
 
     // listen-canvas-click -> select-second-point -> select-third-point -> showing-points
     //                                            -> showing-points

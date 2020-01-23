@@ -1,6 +1,22 @@
-import { app } from './App';
-import { Tangram } from './Objects/Tangram';
-import { Point } from './Objects/Point';
+import { app } from '../js/App';
+import { Tangram } from './Tangram';
+
+app.states = {
+  ...app.states,
+  tangram: {
+    name: 'Faire un Tangram',
+    type: 'tool',
+  },
+};
+
+app.tangrams = { main: [], local: [] };
+
+//Todo: Créer un event plus précis
+addEventListener('app-state-changed', () => {
+  if (app.state === 'tangram') TangramManager.showPopup();
+});
+
+addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
 export class TangramManager {
   static hide() {
@@ -13,6 +29,17 @@ export class TangramManager {
       type: tangramType,
       id: tangramId,
     });
+  }
+
+  static closePopup() {
+    document.querySelector('tangram-popup').remove();
+  }
+
+  static showPopup() {
+    import('./tangram-popup');
+    const popup = document.createElement('tangram-popup');
+    popup.style.display = 'block';
+    document.querySelector('body').appendChild(popup);
   }
 
   static addLocalTangram(tangram) {

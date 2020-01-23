@@ -6,7 +6,7 @@ import { State } from './State';
  */
 export class BuildCenterState extends State {
   constructor() {
-    super('build_shape_center');
+    super('center', 'Construire le centre', 'operation');
   }
 
   /**
