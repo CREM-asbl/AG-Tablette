@@ -1,5 +1,29 @@
-import { app } from './App';
-import { Point } from './Objects/Point';
+import { app } from '../js/App';
+import { Point } from '../js/Objects/Point';
+console.log('loading grid');
+
+app.states = {
+  ...app.states,
+  grid: {
+    name: 'Grille',
+    type: 'tool',
+  },
+};
+
+addEventListener('app-state-changed', () => {
+  if (app.state === 'grid') {
+    import('./grid-popup');
+    const popup = document.createElement('grid-popup');
+    popup.style.display = 'block';
+    popup.onclose = () => console.log('close');
+    document.querySelector('body').appendChild(popup);
+  }
+});
+
+addEventListener('close-grid-popup', () => {
+  const popup = document.querySelector('grid-popup');
+  popup.remove();
+});
 
 export class GridManager {
   /**

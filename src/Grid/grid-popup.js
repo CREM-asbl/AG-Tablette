@@ -1,26 +1,19 @@
 import { LitElement, html } from 'lit-element';
 import { app } from '../js/App';
-import { TemplatePopup } from './template-popup';
+import { TemplatePopup } from '../popups/template-popup';
 
 class GridPopup extends LitElement {
   constructor() {
     super();
-
-    window.dispatchEvent(new CustomEvent('app-settings-changed'));
-    window.addEventListener('workspace-settings-changed', () => {
-      if (app.workspace) {
-        this.isGridShown = app.workspace.settings.get('isGridShown');
-        this.gridType = app.workspace.settings.get('gridType');
-        this.gridSize = app.workspace.settings.get('gridSize');
-      }
-    });
+    this.gridType = app.workspace.settings.get('gridType');
+    this.gridSize = app.workspace.settings.get('gridSize');
   }
 
   static get properties() {
     return {
       isGridShown: Boolean,
       gridType: String,
-      gridSize: Number,
+      gridSize: { type: Number },
     };
   }
 
@@ -31,7 +24,7 @@ class GridPopup extends LitElement {
   render() {
     return html`
       <template-popup @close-popup="${() => this.gridPopupValidate()}">
-        <h2 slot="title">Opacité</h2>
+        <h2 slot="title">Grille</h2>
         <div slot="body" id="body">
           <div class="field" style="margin-left:8px">
             <label for="grid_popup_grid_type">Type de grille </label>
@@ -62,22 +55,19 @@ class GridPopup extends LitElement {
               @change="${this._actionHandle}"
               ?disabled="${this.gridType === 'none'}"
             >
-              <option
-                value="0.333333333333333"
-                ?selected="${Math.abs(this.gridSize - 0.3333333333333) < 0.0001}"
-              >
+              <option value="0.333333333333333" ?selected="${this.gridSize == 0.333333333333333}">
                 1/3
               </option>
-              <option value="0.5" ?selected="${this.gridSize === 0.5}">
+              <option value="0.5" ?selected="${this.gridSize == 0.5}">
                 1/2
               </option>
-              <option value="1" ?selected="${this.gridSize === 1}">
+              <option value="1" ?selected="${this.gridSize == 1}">
                 1
               </option>
-              <option value="2" ?selected="${this.gridSize === 2}">
+              <option value="2" ?selected="${this.gridSize == 2}">
                 2
               </option>
-              <option value="3" ?selected="${this.gridSize === 3}">
+              <option value="3" ?selected="${this.gridSize == 3}">
                 3
               </option>
             </select>
@@ -92,7 +82,7 @@ class GridPopup extends LitElement {
   }
 
   gridPopupValidate() {
-    this.style.display = 'none';
+    dispatchEvent(new CustomEvent('close-grid-popup'));
   }
 
   /**

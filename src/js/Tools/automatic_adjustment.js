@@ -2,7 +2,7 @@ import { app } from '../App';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
 import { SelectManager } from '../SelectManager';
-import { GridManager } from '../GridManager';
+import { GridManager } from '../../Grid/GridManager';
 
 /**
  * Renvoie la transformation qu'il faut appliquer aux formes pour que les 2

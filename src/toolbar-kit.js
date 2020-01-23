@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import './flex-toolbar';
+import './canvas-button';
 import { app } from './js/App';
 
 class ToolbarKit extends LitElement {

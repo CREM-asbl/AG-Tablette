@@ -1,5 +1,5 @@
 import { app } from './App';
-import { GridManager } from './GridManager';
+import { GridManager } from '../Grid/GridManager';
 
 export class DrawManager {
   static init(upperCanvas, mainCanvas, backgroundCanvas, invisibleCanvas) {

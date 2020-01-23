@@ -1,5 +1,4 @@
 import { LitElement, html } from 'lit-element';
-import './canvas-button';
 import './shapes-list';
 import './div-main-canvas';
 import './flex-toolbar';
@@ -8,7 +7,6 @@ import './toolbar-section';
 import './icon-button';
 import './js/Manifest';
 import './popups/new-popup';
-import './popups/grid-popup';
 import './popups/tangram-popup';
 import './popups/opacity-popup';
 import './popups/divide-popup';
@@ -17,6 +15,8 @@ import './popups/save-popup';
 import './popups/notification';
 import './state-menu';
 import './version-item';
+
+console.log('loading interface');
 
 import { app } from './js/App';
 import { FileManager } from './js/FileManager';
@@ -251,17 +251,9 @@ class AGTabletteApp extends LitElement {
 
               <!-- <icon-button src="/images/wallpaper.svg"
                                 title="Fond d'écran"
-                                name="border_color"
+                                name="wallpaper"
                                 @click="\${this.loadBackground}">
                         </icon-button> -->
-
-              <icon-button
-                src="/images/grille.svg"
-                title="Grille"
-                name="grid_menu"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
               <!--
                         <icon-button src="/images/tangram-edit.svg"
                                 title="Créer Tangram"
@@ -289,8 +281,6 @@ class AGTabletteApp extends LitElement {
       <settings-popup></settings-popup>
 
       <save-popup></save-popup>
-
-      <grid-popup></grid-popup>
 
       <tangram-popup></tangram-popup>
 
@@ -349,10 +339,6 @@ class AGTabletteApp extends LitElement {
         break;
       case 'new':
         this.shadowRoot.querySelector('new-popup').style.display = 'block';
-        reset_state = 1;
-        break;
-      case 'grid_menu':
-        this.shadowRoot.querySelector('grid-popup').style.display = 'block';
         reset_state = 1;
         break;
       case 'tangram_menu':
