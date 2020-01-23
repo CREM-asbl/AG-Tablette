@@ -22,6 +22,8 @@ export class CreateState extends State {
 
     // Shape à créer
     this.shapeToCreate = null;
+
+    // this.ez = 0;
   }
 
   /**
@@ -65,6 +67,7 @@ export class CreateState extends State {
    * stopper l'état
    */
   end() {
+    window.cancelAnimationFrame(this.requestAnimFrameId);
     window.removeEventListener('shape-selected', this.handler);
     app.removeListener('canvasmousedown', this.mouseDownId);
     app.removeListener('canvasmouseup', this.mouseUpId);
@@ -105,6 +108,7 @@ export class CreateState extends State {
     this.currentStep = 'moving-shape';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     window.dispatchEvent(new CustomEvent('refreshUpper'));
+    this.animate();
   }
 
   onMouseUp(mouseCoordinates) {
@@ -148,7 +152,18 @@ export class CreateState extends State {
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
-  draw(ctx, mouseCoordinates) {
+  /**
+   * Gère le déplacement
+   */
+  animate() {
+    console.log('1', performance.now());
+    // this.ez++;
+    // if (this.ez % 2)
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
+  }
+
+  draw(mouseCoordinates) {
     if (this.currentStep != 'moving-shape' || this.status != 'running') return;
 
     this.shapeToCreate.coordinates = mouseCoordinates;

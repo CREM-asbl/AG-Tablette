@@ -238,10 +238,9 @@ export class ReverseState extends State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Context2D} ctx              Le canvas
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {
+  draw(mouseCoordinates) {
     if (this.currentStep == 'reversing-shape' && this.status == 'running') {
       //TODO: opti: ne pas devoir faire des copies à chaque refresh!
       this.involvedShapes.forEach(s => {

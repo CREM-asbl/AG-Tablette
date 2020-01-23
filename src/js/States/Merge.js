@@ -118,7 +118,6 @@ export class MergeState extends State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Context2D} ctx              Le canvas
    */
   draw(ctx) {
     if (this.currentStep == 'selecting-second-shape') {

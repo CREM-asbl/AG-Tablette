@@ -95,13 +95,8 @@ export class DrawManager {
   }
 
   static refreshUpper() {
-    console.log('refresh upper');
     DrawManager.clearCtx(app.upperCtx);
-    window.dispatchEvent(
-      new CustomEvent('drawUpper', {
-        detail: { ctx: app.upperCtx },
-      }),
-    );
+    window.dispatchEvent(new CustomEvent('drawUpper'));
   }
 
   /* #################################################################### */
@@ -145,6 +140,8 @@ export class DrawManager {
     ctx.restore();
 
     ctx.lineWidth = 1;
+
+    console.log('2', performance.now());
   }
 
   /**
@@ -274,10 +271,6 @@ export class DrawManager {
     if (doSave) ctx.restore();
   }
 }
-
-DrawManager.mouseMoveId = app.addListener('canvasmousemove', event => {
-  window.dispatchEvent(new CustomEvent('refreshUpper'));
-});
 
 // transform
 window.addEventListener('resetTransformations', event => {
