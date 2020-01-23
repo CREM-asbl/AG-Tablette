@@ -11,6 +11,25 @@ export class UngroupState extends State {
   }
 
   /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+      let toolName = "Dégrouper";
+      return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+                Une fois cet outil sélectionné, le numéro du groupe apparaît sur
+                chaque forme appartenant à un groupe.<br /><br />
+
+                Pour supprimer entièrement un groupe, cliquez sur une des formes
+                appartenant à ce groupe.
+            </p>
+      `;
+  }
+
+  /**
    * (ré-)initialiser l'état
    */
   start() {

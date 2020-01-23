@@ -13,6 +13,22 @@ export class BorderColorState extends State {
   }
 
   /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+      let toolName = "Colorier les bords";
+      return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+                Après avoir choisi une couleur, touchez une forme pour en
+                colorier les bords.
+            </p>
+      `;
+  }
+
+  /**
    * (ré-)initialiser l'état
    */
   start(callColorPicker = true) {

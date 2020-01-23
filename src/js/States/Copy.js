@@ -28,6 +28,32 @@ export class CopyState extends State {
   }
 
   /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+      let toolName = "Copier";
+      return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+            	Pour copier une forme, appuyez sur la forme et faites glissez
+                votre doigt dans une direction sans le relacher. Relachez
+                ensuite votre doigt une fois que la nouvelle forme est à la
+                bonne place.<br /><br />
+                <b>Attention:</b> si vous appuyez sur une forme puis relachez
+                directement, une copie de la forme aura bien été créée, mais à
+                la même position que la forme d'origine. Il y a donc deux formes
+                l'une sur l'autre.<br /><br />
+                <b>Note:</b> la nouvelle forme créée n'est pas liée d'une
+                manière ou d'une autre avec la forme d'origine: il s'agit bien
+                d'une copie complètement indépendante.
+
+            </p>
+      `;
+  }
+
+  /**
    * (ré-)initialiser l'état
    */
   start() {

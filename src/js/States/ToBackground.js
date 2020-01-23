@@ -11,6 +11,22 @@ export class ToBackgroundState extends State {
   }
 
   /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+      let toolName = "Arrière-plan";
+      return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
+                permet de placer une forme derrière toutes les autres.<br />
+            	Touchez une forme pour la placer en arrière-plan.
+            </p>
+      `;
+  }
+
+  /**
    * (ré-)initialiser l'état
    */
   start() {

@@ -11,6 +11,22 @@ export class BuildCenterState extends State {
   }
 
   /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+      let toolName = "Construire le centre";
+      return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+            	Touchez une forme pour construire son centre. Si le centre
+                était déjà construit, cela va supprimer le centre.
+            </p>
+      `;
+  }
+
+  /**
    * (ré-)initialiser l'état
    */
   start() {
