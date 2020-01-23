@@ -25,7 +25,8 @@ export class DivideState extends State {
    */
   start() {
     this.currentStep = 'choose-nb-parts';
-    app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
+    window.dispatchEvent(new CustomEvent('open-divide-popup'));
+    // app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     app.workspace.selectionConstraints.eventType = 'click';
@@ -33,7 +34,7 @@ export class DivideState extends State {
     app.workspace.selectionConstraints.points.canSelect = true;
     app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
   }
 
@@ -53,7 +54,7 @@ export class DivideState extends State {
       app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
     }
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
   }
 
@@ -69,7 +70,7 @@ export class DivideState extends State {
       this.savedSelConstr = app.workspace.selectionConstraints;
     }
 
-    window.removeEventListener('objectSelected', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
     window.removeEventListener('setNumberOfParts', this.handler);
   }
 
@@ -212,7 +213,6 @@ export class DivideState extends State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Context2D} ctx              Le canvas
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw(ctx) {

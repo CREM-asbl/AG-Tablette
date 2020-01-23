@@ -13,9 +13,11 @@ export class BuildCenterState extends State {
    * initialiser l'état
    */
   start() {
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -23,16 +25,18 @@ export class BuildCenterState extends State {
    */
   restart() {
     this.end();
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    window.removeEventListener('objectSelected', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
   }
 
   _actionHandle(event) {

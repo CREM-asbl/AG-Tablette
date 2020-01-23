@@ -1,16 +1,16 @@
-import { LitElement, html } from "lit-element";
-import { loadManifest } from "./js/Manifest";
+import { LitElement, html } from 'lit-element';
+import { app } from './js/App';
 
 class VersionItem extends LitElement {
   static get properties() {
     return {
-      version: String
-    }
+      version: String,
+    };
   }
 
   constructor() {
-    super()
-    loadManifest().then(manifest => this.version = `${manifest.short_name} ${manifest.version}`)
+    super();
+    this.version = app.short_name + ' ' + app.version;
   }
 
   render() {
@@ -28,14 +28,13 @@ class VersionItem extends LitElement {
         div {
           margin-left: 4px;
           text-align: right;
-          font-size: .8rem;
+          font-size: 0.8rem;
           color: darkslategray;
         }
       </style>
-      <img src='/images/manifest/icon.svg' />
+      <img src="/images/manifest/icon.svg" />
       <div class="version">${this.version}</div>
-    `
+    `;
   }
-
 }
-customElements.define('version-item', VersionItem)
+customElements.define('version-item', VersionItem);

@@ -10,33 +10,6 @@ TODO:
 
 //  TODO: placer selectionConstraints hors du workspace ?
 export class SelectManager {
-  static init() {
-    window.addEventListener('canvasmousedown', event =>
-      'mousedown' == app.workspace.selectionConstraints.eventType
-        ? this.selectObject(event.detail.mousePos)
-        : null,
-    );
-    window.addEventListener('canvasclick', event =>
-      'click' == app.workspace.selectionConstraints.eventType
-        ? this.selectObject(event.detail.mousePos)
-        : null,
-    );
-    window.addEventListener('reset-selection-constrains', () => {
-      app.workspace.selectionConstraints = this.getEmptySelectionConstraints();
-    });
-
-    let click_all_shape_constr = this.getEmptySelectionConstraints();
-    click_all_shape_constr.eventType = 'click';
-    click_all_shape_constr.shapes.canSelect = true;
-    let mousedown_all_shape_constr = this.getEmptySelectionConstraints();
-    mousedown_all_shape_constr.eventType = 'mousedown';
-    mousedown_all_shape_constr.shapes.canSelect = true;
-    app.fastSelectionConstraints = {
-      click_all_shape: click_all_shape_constr,
-      mousedown_all_shape: mousedown_all_shape_constr,
-    };
-  }
-
   /**
    * Vérifier si 2 points sont à la distance de sélection l'un de l'autre.
    * @param  {Point} pt1 premier point
@@ -144,8 +117,8 @@ export class SelectManager {
     if (!constraints.canSelect) return null;
 
     let distCheckFunction = easySelection
-      ? this.arePointsInSelectionDistance
-      : this.arePointsInMagnetismDistance;
+      ? SelectManager.arePointsInSelectionDistance
+      : SelectManager.arePointsInMagnetismDistance;
 
     // all points at the correct distance
     let potentialPoints = [];
@@ -297,7 +270,7 @@ export class SelectManager {
           const projection = segment.projectionOnSegment(mouseCoordinates);
           return (
             segment.isPointOnSegment(projection) &&
-            this.arePointsInSelectionDistance(projection, mouseCoordinates)
+            SelectManager.arePointsInSelectionDistance(projection, mouseCoordinates)
           );
         })
         .forEach(segment => {
@@ -418,13 +391,13 @@ export class SelectManager {
     let constr = app.workspace.selectionConstraints,
       calls = {
         points: (mCoord, constr) => {
-          return this.selectPoint(mCoord, constr);
+          return SelectManager.selectPoint(mCoord, constr);
         },
         segments: (mCoord, constr) => {
-          return this.selectSegment(mCoord, constr);
+          return SelectManager.selectSegment(mCoord, constr);
         },
         shapes: (mCoord, constr) => {
-          return this.selectShape(mCoord, constr);
+          return SelectManager.selectShape(mCoord, constr);
         },
       };
     //Vérification que priority est bien défini
@@ -453,3 +426,20 @@ export class SelectManager {
     return null;
   }
 }
+
+window.addEventListener('reset-selection-constrains', () => {
+  app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
+});
+window.addEventListener('app-state-changed', () => {
+  app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
+});
+let click_all_shape_constr = SelectManager.getEmptySelectionConstraints();
+click_all_shape_constr.eventType = 'click';
+click_all_shape_constr.shapes.canSelect = true;
+let mousedown_all_shape_constr = SelectManager.getEmptySelectionConstraints();
+mousedown_all_shape_constr.eventType = 'mousedown';
+mousedown_all_shape_constr.shapes.canSelect = true;
+app.fastSelectionConstraints = {
+  click_all_shape: click_all_shape_constr,
+  mousedown_all_shape: mousedown_all_shape_constr,
+};

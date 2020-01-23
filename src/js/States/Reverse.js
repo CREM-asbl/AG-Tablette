@@ -48,9 +48,11 @@ export class ReverseState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -63,13 +65,15 @@ export class ReverseState extends State {
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
       app.workspace.selectionConstraints.points.blacklist = [this.selectedShape];
-      window.addEventListener('canvasclick', this.handler);
+      this.mouseClickId = app.addListener('canvasclick', this.handler);
     } else {
-      app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+      setTimeout(
+        () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      );
     }
 
-    window.addEventListener('canvasclick', this.handler);
-    window.addEventListener('objectSelected', this.handler);
+    this.mouseClickId = app.addListener('canvasclick', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -83,8 +87,8 @@ export class ReverseState extends State {
       app.workspace.editingShapes = [];
     }
 
-    window.removeEventListener('objectSelected', this.handler);
-    window.removeEventListener('canvasclick', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
+    app.removeListener('canvasclick', this.mouseClickId);
   }
 
   _actionHandle(event) {
@@ -104,10 +108,10 @@ export class ReverseState extends State {
    */
   objectSelected(shape, mouseCoordinates) {
     if (this.currentStep == 'reversing-shape') return;
-    if (this.selectedShape && this.selectedShape.id == shape.id) return;
     if (
       this.selectedShape &&
-      mouseCoordinates.dist(this.selectedShape.center) < this.symmetricalAxeLength
+      (this.selectedShape.id == shape.id ||
+        mouseCoordinates.dist(this.selectedShape.center) < this.symmetricalAxeLength)
     )
       return;
 
@@ -119,11 +123,10 @@ export class ReverseState extends State {
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.points.blacklist = [shape];
 
-    window.removeEventListener('canvasclick', this.handler);
-    window.addEventListener('canvasclick', this.handler);
+    app.removeListener('canvasclick', this.mouseClickId);
+    window.setTimeout(() => (this.mouseClickId = app.addListener('canvasclick', this.handler)));
     this.currentStep = 'selecting-symmetrical-arch';
     app.workspace.editingShapes = this.involvedShapes;
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -133,10 +136,10 @@ export class ReverseState extends State {
    * @param  {Point} mouseCoordinates les coordonnées de la souris
    */
   onClick(mouseCoordinates) {
-    if (this.currentStep != 'selecting-symmetrical-arch') return true;
+    if (this.currentStep != 'selecting-symmetrical-arch') return;
 
     let clickDistance = this.selectedShape.center.dist(mouseCoordinates);
-    if (clickDistance > this.symmetricalAxeLength / 2) return true; //Le click n'est pas sur les axes de symétrie
+    if (clickDistance > this.symmetricalAxeLength / 2) return;
 
     let shapeCenter = this.selectedShape.center,
       angle = shapeCenter.getAngle(mouseCoordinates) % Math.PI;
@@ -164,8 +167,6 @@ export class ReverseState extends State {
 
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
-
-    return false;
   }
 
   getSymmetricalAxe(orientation) {
@@ -235,7 +236,6 @@ export class ReverseState extends State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Context2D} ctx              Le canvas
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw() {

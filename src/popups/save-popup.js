@@ -2,6 +2,7 @@ import { LitElement, html } from 'lit-element';
 import '../version-item';
 import { app } from '../js/App';
 import { TemplatePopup } from './template-popup';
+import { FileManager } from '../js/FileManager';
 
 class SavePopup extends LitElement {
   static get properties() {
@@ -36,7 +37,7 @@ class SavePopup extends LitElement {
       <template-popup @close-popup="${() => (this.style.display = 'none')}">
         <h2 slot="title">Sauvegarder</h2>
         <div slot="body" id="body">
-          <div style="display: ${app.settings.get('hasNativeFS') ? 'none' : 'block'}">
+          <div style="display: ${FileManager.hasNativeFS ? 'none' : 'block'}">
             <label for="save_popup_image_or_state" style="display:inline"
               >Méthode de sauvegarde</label
             >
@@ -91,7 +92,7 @@ class SavePopup extends LitElement {
             </select>
           </div>
 
-          <div class="field" style="display: ${app.settings.get('hasNativeFS') ? 'none' : 'block'}">
+          <div class="field" style="display: ${FileManager.hasNativeFS ? 'none' : 'block'}">
             <br />
             <label for="save_popup_filename" style="display:inline">Nom du fichier</label>
             <input
@@ -116,7 +117,7 @@ class SavePopup extends LitElement {
 
   getFileNameFromEnv() {
     switch (app.environment.name) {
-      case 'Grandeur':
+      case 'Grandeurs':
         return 'agg';
       default:
         console.error('Unknown environment for file saving : ', app.environment.name);

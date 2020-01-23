@@ -24,6 +24,8 @@ export class RotateState extends State {
         elle-même
          */
     this.involvedShapes = [];
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
@@ -31,9 +33,11 @@ export class RotateState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -41,19 +45,22 @@ export class RotateState extends State {
    */
   restart() {
     this.end();
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
+    window.cancelAnimationFrame(this.requestAnimFrameId);
     this.currentStep = 'listen-canvas-click';
     app.workspace.editingShapes = [];
-    window.removeEventListener('objectSelected', this.handler);
-    window.removeEventListener('canvasmouseup', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   _actionHandle(event) {
@@ -81,10 +88,9 @@ export class RotateState extends State {
 
     app.workspace.editingShapes = this.involvedShapes;
     this.currentStep = 'rotating-shape';
-    window.addEventListener('canvasmouseup', this.handler);
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     window.dispatchEvent(new CustomEvent('refresh'));
+    this.animate();
   }
 
   /**
@@ -108,17 +114,15 @@ export class RotateState extends State {
 
     this.executeAction();
     this.restart();
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Context2D} ctx              Le canvas
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {
+  draw(mouseCoordinates) {
     if (this.currentStep != 'rotating-shape') return;
 
     let newAngle = this.selectedShape.center.getAngle(mouseCoordinates),

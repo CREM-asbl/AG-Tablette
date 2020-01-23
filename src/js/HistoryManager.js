@@ -7,32 +7,6 @@ import { Point } from './Objects/Point';
  * Représente l'historique d'un espace de travail.
  */
 export class HistoryManager {
-  static init() {
-    window.addEventListener('actions', event => HistoryManager.addStep(event.detail));
-
-    window.addEventListener('action-aborted', () => HistoryManager.deleteLastStep());
-
-    window.addEventListener('undo-action', () => {
-      HistoryManager.undo();
-    });
-    window.addEventListener('redo-action', () => {
-      HistoryManager.redo();
-    });
-
-    window.addEventListener('history-changed', event => {
-      HistoryManager.updateMenuState();
-    });
-  }
-
-  /**
-   * Met à jour les boutons "Annuler" et "Refaire" du menu (définir l'attribut
-   * disabled de ces deux boutons)
-   */
-  static updateMenuState() {
-    app.appDiv.canUndo = HistoryManager.canUndo();
-    app.appDiv.canRedo = HistoryManager.canRedo();
-  }
-
   static transformToObject(actions) {
     let savedActions = [];
     actions.forEach((action, idx) => {
@@ -57,7 +31,7 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canUndo() {
-    return app.workspace.historyIndex != -1;
+    return app.workspace.history.index != -1;
   }
 
   /**
@@ -65,7 +39,7 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canRedo() {
-    return app.workspace.historyIndex < app.workspace.history.length - 1;
+    return app.workspace.history.index < app.workspace.history.data.length - 1;
   }
 
   /**
@@ -77,15 +51,15 @@ export class HistoryManager {
       console.error('Nothing to undo');
       return;
     }
-    let detail = [...app.workspace.history[app.workspace.historyIndex]].reverse();
+    let detail = [...app.workspace.history.data[app.workspace.history.index]].reverse();
     detail.forEach(step =>
       window.dispatchEvent(new CustomEvent('undo-' + step.name, { detail: step })),
     );
     // window.dispatchEvent(new CustomEvent('undo-' + detail.name, { detail: detail }));
-    app.workspace.historyIndex--;
+    app.workspace.history.index--;
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
-    HistoryManager.updateMenuState();
+    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
   /**
@@ -97,13 +71,13 @@ export class HistoryManager {
       console.error('Nothing to redo');
       return;
     }
-    let detail = app.workspace.history[app.workspace.historyIndex + 1];
+    let detail = app.workspace.history.data[app.workspace.history.index + 1];
     detail.forEach(step =>
       window.dispatchEvent(new CustomEvent('do-' + step.name, { detail: step })),
     );
     window.dispatchEvent(new CustomEvent('refresh'));
-    app.workspace.historyIndex++;
-    HistoryManager.updateMenuState();
+    app.workspace.history.index++;
+    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
   /**
@@ -112,20 +86,31 @@ export class HistoryManager {
    * @param {[Action]} actions Les actions constituant l'étape
    */
   static addStep(actions) {
-    app.workspace.history.splice(
-      app.workspace.historyIndex + 1,
-      app.workspace.history.length,
+    app.workspace.history.data.splice(
+      app.workspace.history.index + 1,
+      app.workspace.history.data.length,
       HistoryManager.transformToObject(actions),
     );
-    app.workspace.historyIndex = app.workspace.history.length - 1;
+    app.workspace.history.index = app.workspace.history.data.length - 1;
 
-    HistoryManager.updateMenuState();
+    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
   static deleteLastStep() {
-    app.workspace.history.length--;
-    app.workspace.historyIndex = app.workspace.history.length - 1;
+    app.workspace.history.data.length--;
+    app.workspace.history.index = app.workspace.history.data.length - 1;
 
-    HistoryManager.updateMenuState();
+    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 }
+
+window.addEventListener('actions', event => HistoryManager.addStep(event.detail));
+
+window.addEventListener('action-aborted', () => HistoryManager.deleteLastStep());
+
+window.addEventListener('undo-action', () => {
+  HistoryManager.undo();
+});
+window.addEventListener('redo-action', () => {
+  HistoryManager.redo();
+});

@@ -170,15 +170,14 @@ export class TangramCreatorState extends State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Context2D} ctx              Le canvas
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {
+  draw(mouseCoordinates) {
     this.polygons.forEach(polygon => {
-      app.DrawManager.drawPoint(ctx, polygon[0], '#E90CC8', 1);
+      app.app.drawPoint(Ctx, polygon[0], '#E90CC8', 1);
       for (let i = 0; i < polygon.length - 1; i++) {
-        app.DrawManager.drawLine(ctx, polygon[i], polygon[i + 1], '#E90CC8', 3);
-        app.DrawManager.drawPoint(ctx, polygon[i + 1], '#E90CC8', 1);
+        app.app.drawLine(Ctx, polygon[i], polygon[i + 1], '#E90CC8', 3);
+        app.app.drawPoint(Ctx, polygon[i + 1], '#E90CC8', 1);
       }
     });
 

@@ -2,25 +2,20 @@ import { app } from './App';
 import { WorkspaceManager } from './WorkspaceManager';
 
 export class FileManager {
-  static init() {
-    window.addEventListener('file-opened', event => {
-      if (event.detail.method == 'old') FileManager.oldOpenFile(event.detail.file);
-      // new
-      else FileManager.newOpenFile(event.detail.file);
-    });
-    window.addEventListener('open-file', () => {
-      FileManager.openFile();
-    });
-    window.addEventListener('save-to-file', () => {
-      FileManager.saveFile();
-    });
-  }
-
   static parseFile(data) {
     const dataObject = JSON.parse(data);
 
-    if (dataObject.appSettings) app.settings.initFromObject(dataObject.appSettings);
-    else app.resetSettings();
+    app.lastFileVersion = dataObject.appVersion;
+
+    if (dataObject.appSettings) {
+      app.settings.initFromObject(dataObject.appSettings);
+      if (app.lastFileVersion == '1.0.0') {
+        for (let [key, value] of Object.entries(app.settings.data)) {
+          app.settings.data[key] = value.value;
+        }
+      }
+      app.initNonEditableSettings();
+    } else app.resetSettings();
 
     WorkspaceManager.setWorkspaceFromJSON(data);
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
@@ -43,7 +38,7 @@ export class FileManager {
   }
 
   static async openFile() {
-    if (window.chooseFileSystemEntries) {
+    if (FileManager.hasNativeFS) {
       const opts = {
         accepts: [
           {
@@ -68,7 +63,7 @@ export class FileManager {
 
   static saveToPng(handle) {
     const canvas = app.canvas.main;
-    if (app.settings.get('hasNativeFS')) {
+    if (FileManager.hasNativeFS) {
       // edge support for toBlob ?
       canvas.toBlob(blob => {
         FileManager.newWriteFile(handle, blob);
@@ -93,7 +88,7 @@ export class FileManager {
     });
     svg_data += '</svg>';
 
-    if (app.settings.get('hasNativeFS')) {
+    if (FileManager.hasNativeFS) {
       FileManager.newWriteFile(handle, svg_data);
     } else {
       const encoded_data = 'data:image/svg+xml;base64,' + btoa(svg_data);
@@ -115,7 +110,7 @@ export class FileManager {
 
     let json_data = JSON.stringify(saveObject);
 
-    if (app.settings.get('hasNativeFS')) {
+    if (FileManager.hasNativeFS) {
       FileManager.newWriteFile(handle, json_data);
     } else {
       const file = new Blob([json_data], { type: 'application/json' });
@@ -154,9 +149,19 @@ export class FileManager {
     switch (extension) {
       case 'png':
         FileManager.saveToPng(handle);
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+          }),
+        );
         break;
       case 'svg':
         FileManager.saveToSvg(handle);
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+          }),
+        );
         break;
       case 'agg':
       case 'agt':
@@ -166,6 +171,11 @@ export class FileManager {
           'file-selected',
           event => {
             FileManager.saveState(handle, { ...event.detail });
+            window.dispatchEvent(
+              new CustomEvent('show-notif', {
+                detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+              }),
+            );
           },
           { once: true },
         );
@@ -173,6 +183,7 @@ export class FileManager {
         break;
       default:
         console.error('unsupported file format: ', extension);
+        return;
     }
   }
 
@@ -215,6 +226,7 @@ export class FileManager {
             break;
           default:
             console.error('unsupported file format: ', extension);
+            return;
         }
       },
       { once: true },
@@ -230,7 +242,7 @@ export class FileManager {
   }
 
   static async saveFile() {
-    if (app.settings.get('hasNativeFS')) {
+    if (FileManager.hasNativeFS) {
       try {
         await FileManager.newSaveFile();
       } catch (error) {
@@ -242,3 +254,20 @@ export class FileManager {
     }
   }
 }
+
+window.addEventListener('file-opened', event => {
+  if (event.detail.method == 'old') FileManager.oldOpenFile(event.detail.file);
+  // new
+  else FileManager.newOpenFile(event.detail.file);
+});
+
+window.addEventListener('open-file', () => {
+  FileManager.openFile();
+});
+
+window.addEventListener('save-to-file', () => {
+  FileManager.saveFile();
+});
+
+// Si ancien ou nouveau systeme de fichier
+FileManager.hasNativeFS = 'chooseFileSystemEntries' in window;

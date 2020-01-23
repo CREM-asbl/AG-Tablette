@@ -29,6 +29,7 @@ export class State {
           this.start(event.detail.startParams);
           this.status = 'running';
         } else {
+          // console.log(this.name, 'ended');
           this.status = 'idle';
           this.end();
         }
@@ -53,9 +54,8 @@ export class State {
       }
     });
 
-    window.addEventListener('drawUpper', event => {
-      if (this.name == app.state)
-        this.draw(event.detail.ctx, app.workspace.lastKnownMouseCoordinates);
+    window.addEventListener('drawUpper', () => {
+      if (this.name == app.state) this.draw(app.workspace.lastKnownMouseCoordinates);
     });
 
     window.addEventListener('shapeDrawn', event => {
@@ -103,10 +103,9 @@ export class State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Context2D} ctx              Le canvas
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {}
+  draw(mouseCoordinates) {}
 
   /**
    * Appelée par la fonction de dessin après avoir dessiné une forme sur le
@@ -148,6 +147,15 @@ export class State {
    */
   end() {
     console.log('end() not implemented');
+  }
+
+  /**
+   * Gere l'animation de déplacement
+   * override pour changer d'animation
+   */
+  animate() {
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
   }
 
   //Appelé par state-menu lors d'un clic sur un des boutons.

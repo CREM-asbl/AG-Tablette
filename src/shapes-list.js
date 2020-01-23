@@ -7,6 +7,7 @@ class ShapesList extends LitElement {
 
     window.addEventListener('family-selected', event => {
       this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : '';
+      this.shape = '';
     });
     // window.addEventListener('app-state-changed', () => {
     //   this.state = app.state;

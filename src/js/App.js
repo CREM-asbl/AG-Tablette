@@ -1,23 +1,20 @@
 import { Settings } from './Settings';
+import './Manifest';
+import { uniqId } from './Tools/general';
 
 /**
  * Classe principale de l'application
  */
 export class App {
   constructor() {
-    // //Managers:
-    // this.tangramManager = TangramManager;
-
     //Paramètres de l'application
     this.settings = new Settings();
     this.initSettings();
 
-    this.canvas = [];
+    this.canvas = null;
 
-    //Référence vers le <div> contenant les canvas
-    this.cvsDiv = null;
-    //Référence vers le <div> principal de l'app
-    this.appDiv = null;
+    this.canvasWidth = null;
+    this.canvasHeight = null;
 
     //L'état de l'application
     this.state = null;
@@ -31,6 +28,9 @@ export class App {
     //Liste de classes State qui tournent en permanence (ex: zoom à 2 doigts)
     this.permanentStates = [];
 
+    // compteur d'écouteurs pour certains event
+    this.listenerCounter = {};
+
     //menu pouvant être contrôlé par un état (State).
     this.stateMenu = null;
   }
@@ -43,6 +43,11 @@ export class App {
    * Initialiser les paramètres de l'application
    */
   initSettings() {
+    this.initNonEditableSettings();
+    this.initEditableSettings();
+  }
+
+  initNonEditableSettings() {
     /**
      * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
      */
@@ -65,6 +70,11 @@ export class App {
     // Niveau de zoom minimal de l'interface
     this.settings.set('minZoomLevel', 0.1);
 
+    // Largeur du menu de gauche de l'application
+    this.settings.set('mainMenuWidth', 250);
+  }
+
+  initEditableSettings() {
     // Ajustement automatique des formes activé ?
     this.settings.set('automaticAdjustment', true);
 
@@ -73,16 +83,35 @@ export class App {
 
     // taille des formes qui seront ajoutées (1, 2 ou 3)
     this.settings.set('shapesSize', 2);
+  }
 
-    // Largeur du menu de gauche de l'application
-    this.settings.set('mainMenuWidth', 250);
+  addListener(listenerName, func) {
+    const id = uniqId();
+    if (!this.listenerCounter[listenerName]) {
+      this.listenerCounter[listenerName] = {};
+    }
+    this.listenerCounter[listenerName][id] = func;
+    window.addEventListener(listenerName, func);
+    return id;
+  }
 
-    // Si ancien ou nouveau systeme de fichier
-    this.settings.set('hasNativeFS', 'chooseFileSystemEntries' in window);
+  removeListener(listenerName, id) {
+    if (!id || !this.listenerCounter[listenerName]) {
+      // console.trace(id, listenerName, this.listenerCounter[listenerName]);
+      return;
+    }
+    window.removeEventListener(listenerName, this.listenerCounter[listenerName][id]);
+    this.listenerCounter[listenerName][id] = null;
+  }
+
+  dispatchEv(event) {
+    if (app.listenerCounter[event.type]) {
+      window.dispatchEvent(event);
+    }
   }
 
   resetSettings() {
-    this.initSettings();
+    this.initEditableSettings();
     dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -95,17 +124,6 @@ export class App {
       this.refreshWindow();
     };
 
-    // //Utilisé pour les animations
-    // window.requestAnimFrame = (function() {
-    //   return (
-    //     window.requestAnimationFrame ||
-    //     function(callback) {
-    //       window.setTimeout(callback, 1000 / 20);
-    //     }
-    //   );
-    // })();
-
-    // this.addPermanentState('permanent_zoom_plane');
     // this.tangramManager.retrieveTangrams();
     window.dispatchEvent(new CustomEvent('app-started'));
   }
@@ -115,7 +133,7 @@ export class App {
   /* #################################################################### */
 
   refreshWindow() {
-    this.cvsDiv.setCanvasSize();
+    window.dispatchEvent(new CustomEvent('setCanvasSize'));
   }
 
   /**

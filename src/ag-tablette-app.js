@@ -16,13 +16,14 @@ import './state-menu';
 import './version-item';
 
 import { app } from './js/App';
-import { FileManager } from './js/FileManager';
+import './js/FileManager';
+import './js/SelectManager';
+import './js/WorkspaceManager';
+import './js/GroupManager';
+import './js/ShapeManager';
+import './js/DrawManager';
+import './js/CompleteHistoryManager';
 import { HistoryManager } from './js/HistoryManager';
-import { SelectManager } from './js/SelectManager';
-import { WorkspaceManager } from './js/WorkspaceManager';
-import { GroupManager } from './js/GroupManager';
-import { ShapeManager } from './js/ShapeManager';
-import { CompleteHistoryManager } from './js/CompleteHistoryManager';
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -43,13 +44,6 @@ class AGTabletteApp extends LitElement {
     app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
-    FileManager.init(); // to move
-    HistoryManager.init(); // to move
-    SelectManager.init(); // to move
-    WorkspaceManager.init(); // to move
-    GroupManager.init(); // to move
-    ShapeManager.init(); // to move
-    CompleteHistoryManager.init();
 
     window.addEventListener('app-state-changed', () => this.setState());
     window.addEventListener(
@@ -59,6 +53,23 @@ class AGTabletteApp extends LitElement {
     );
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
+    });
+    this.families = app.environment.familyNames;
+    window.addEventListener('env-changed', () => {
+      this.families = app.environment.familyNames;
+    });
+    window.addEventListener('history-changed', () => {
+      this.canUndo = HistoryManager.canUndo();
+      this.canRedo = HistoryManager.canRedo();
+    });
+    window.addEventListener('open-opacity-popup', () => {
+      this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
+    });
+    window.addEventListener('open-divide-popup', () => {
+      this.shadowRoot.querySelector('divide-popup').style.display = 'block';
+    });
+    window.addEventListener('open-color-picker', () => {
+      this.shadowRoot.querySelector('#color-picker-label').click();
     });
   }
 
@@ -308,6 +319,7 @@ class AGTabletteApp extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
+    console.log(app.version);
     let reset_state = 0;
     switch (event.target.name) {
       case 'settings':

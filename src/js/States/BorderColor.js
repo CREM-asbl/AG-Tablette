@@ -18,11 +18,14 @@ export class BorderColorState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
+    window.dispatchEvent(new CustomEvent('open-color-picker'));
+    // app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
   }
 
@@ -31,9 +34,11 @@ export class BorderColorState extends State {
    */
   restart() {
     this.end();
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    setTimeout(
+      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+    );
 
-    window.addEventListener('objectSelected', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
   }
 
@@ -41,7 +46,7 @@ export class BorderColorState extends State {
    * stopper l'état
    */
   end() {
-    window.removeEventListener('objectSelected', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
     window.removeEventListener('colorChange', this.handler);
   }
 

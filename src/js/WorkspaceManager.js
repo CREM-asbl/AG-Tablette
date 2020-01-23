@@ -2,12 +2,6 @@ import { app } from './App';
 import { Workspace } from './Objects/Workspace';
 
 export class WorkspaceManager {
-  static init() {
-    window.addEventListener('app-started', () => {
-      WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeur'));
-    });
-  }
-
   /**
    * Définir l'espace de travail actuel
    * @param {Workspace} workspace
@@ -18,16 +12,17 @@ export class WorkspaceManager {
       return;
     }
     app.workspace = workspace;
+    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
     app.refreshWindow();
   }
 
   /**
    * Créer un nouvel objet Workspace
-   * @param  {String} [envName='Grandeur'] Nom de l'environnement
+   * @param  {String} [envName='Grandeurs'] Nom de l'environnement
    * @return {Workspace}
    */
-  static getNewWorkspace(envName = 'Grandeur') {
+  static getNewWorkspace(envName = 'Grandeurs') {
     return new Workspace();
   }
 
@@ -37,3 +32,7 @@ export class WorkspaceManager {
     WorkspaceManager.setWorkspace(ws);
   }
 }
+
+window.addEventListener('app-started', () => {
+  WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeurs'));
+});

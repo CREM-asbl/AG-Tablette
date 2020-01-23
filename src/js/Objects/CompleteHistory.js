@@ -69,7 +69,7 @@ export class CompleteHistory {
    * Ajouter une étape (ensemble d'action) à l'historique (l'étape n'est pas
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
-  addStep(type, event) {
-    this.steps.push({ type, detail: event.detail, timestamp: event.timeStamp + this.endTimestamp });
+  addStep(type, detail, timeStamp) {
+    this.steps.push({ type, detail: detail, timestamp: timeStamp + this.endTimestamp });
   }
 }

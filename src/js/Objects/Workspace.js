@@ -1,4 +1,3 @@
-import { loadManifest } from '../Manifest';
 import { app } from '../App';
 import { uniqId } from '../Tools/general';
 import { CompleteHistory } from './CompleteHistory';
@@ -6,6 +5,7 @@ import { ShapeGroup } from './ShapeGroup';
 import { Shape } from './Shape';
 import { Settings } from '../Settings';
 import { Point } from '../Objects/Point';
+import { History } from './History';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -13,9 +13,6 @@ import { Point } from '../Objects/Point';
  */
 export class Workspace {
   constructor() {
-    //Version de l'application dans laquelle ce projet a été créé
-    loadManifest().then(manifest => (this.appVersion = manifest.version));
-
     //Identifiant unique de l'espace de travail
     this.id = uniqId();
 
@@ -34,17 +31,11 @@ export class Workspace {
     this.settings = new Settings();
     this.initSettings();
 
-    //Niveau de zoom de l'interface
-    this.zoomLevel = 1;
-
     // Historique des actions
-    this.history = [];
-
-    // Index de la dernière action effectuée dans app.workspace.history
-    this.historyIndex = null;
+    this.history = new History();
 
     // Coordonnées du dernier événement
-    this.lastKnownMouseCoordinates = { x: 0, y: 0 };
+    this.lastKnownMouseCoordinates = new Point(0, 0);
 
     // Couleur sélectionnée pour border- ou backgroundColor
     this.selectedColor = '#000';
@@ -54,6 +45,9 @@ export class Workspace {
 
     // contrainte de sélection pour formes, segments et points
     this.selectionConstraints = {};
+
+    //Niveau de zoom de l'interface
+    this.zoomLevel = 1;
 
     /**
      * décalage du canvas (translation horizontale et verticale), un chiffre
@@ -86,6 +80,14 @@ export class Workspace {
     window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
   }
 
+  set selectionConstraints(value) {
+    this.pvSelectCstr = value;
+  }
+
+  get selectionConstraints() {
+    return this.pvSelectCstr;
+  }
+
   /**
    * Importer les données du Workspace depuis une sauvegarde JSON
    * @param  {String} json
@@ -106,18 +108,30 @@ export class Workspace {
       return group;
     });
 
-    this.history = wsdata.history;
-    this.historyIndex = wsdata.historyIndex;
+    if (app.lastFileVersion == '1.0.0') {
+      this.history.initFromObject({
+        data: wsdata.history.history,
+        index: wsdata.history.historyIndex,
+      });
+    } else {
+      this.history.initFromObject(wsdata.history);
+    }
     window.dispatchEvent(new CustomEvent('history-changed'));
+    this.completeHistory = new CompleteHistory();
     if (wsdata.completeHistory) {
-      this.completeHistory = new CompleteHistory();
       this.completeHistory.initFromObject(wsdata.completeHistory);
     }
 
     this.zoomLevel = wsdata.zoomLevel;
     this.translateOffset = new Point(wsdata.translateOffset);
-    if (wsdata.WSSettings) this.settings.initFromObject(wsdata.WSSettings);
-    else this.initSettings();
+    if (wsdata.WSSettings) {
+      this.settings.initFromObject(wsdata.WSSettings);
+      if (app.lastFileVersion == '1.0.0') {
+        for (let [key, value] of Object.entries(this.settings.data)) {
+          this.settings.data[key] = value.value;
+        }
+      }
+    } else this.initSettings();
   }
 
   get data() {
@@ -132,8 +146,7 @@ export class Workspace {
       return group.saveToObject();
     });
 
-    wsdata.history = app.workspace.history;
-    wsdata.historyIndex = app.workspace.historyIndex;
+    wsdata.history = this.history.saveToObject();
     if (this.completeHistory) wsdata.completeHistory = this.completeHistory.saveToObject();
 
     wsdata.zoomLevel = this.zoomLevel;

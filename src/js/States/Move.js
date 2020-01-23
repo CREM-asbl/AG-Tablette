@@ -31,8 +31,14 @@ export class MoveState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
-    window.addEventListener('objectSelected', this.handler);
+    setTimeout(() =>
+      setTimeout(
+        () =>
+          (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      ),
+    );
+
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
@@ -40,18 +46,25 @@ export class MoveState extends State {
    */
   restart() {
     this.end();
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
-    window.addEventListener('objectSelected', this.handler);
+    setTimeout(() =>
+      setTimeout(
+        () =>
+          (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      ),
+    );
+
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
+    window.cancelAnimationFrame(this.requestAnimFrameId);
     this.currentStep = 'listen-canvas-click';
     app.workspace.editingShapes = [];
-    window.removeEventListener('objectSelected', this.handler);
-    window.removeEventListener('canvasclick', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   _actionHandle(event) {
@@ -78,10 +91,9 @@ export class MoveState extends State {
 
     app.workspace.editingShapes = this.involvedShapes;
     this.currentStep = 'moving-shape';
-    window.addEventListener('canvasmouseup', this.handler);
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     window.dispatchEvent(new CustomEvent('refresh'));
+    this.animate();
   }
 
   /**
@@ -121,17 +133,15 @@ export class MoveState extends State {
 
     this.executeAction();
     this.restart();
-    app.workspace.lastKnownMouseCoordinates = mouseCoordinates;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Context2D} ctx              Le canvas
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {
+  draw(mouseCoordinates) {
     if (this.currentStep != 'moving-shape') return;
 
     let transformation = mouseCoordinates.subCoordinates(this.startClickCoordinates);
