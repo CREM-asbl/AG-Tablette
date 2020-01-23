@@ -214,7 +214,7 @@ export class ReverseState extends State {
    */
   animate() {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
-    if (this.progress > 1 && app.state == 'reverse_shape') {
+    if (this.progress > 1 && app.state == 'reverse') {
       this.actions = [
         {
           name: 'ReverseAction',
@@ -238,7 +238,7 @@ export class ReverseState extends State {
    * @param  {Context2D} ctx              Le canvas
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx, mouseCoordinates) {
+  draw() {
     if (this.currentStep == 'reversing-shape' && this.status == 'running') {
       //TODO: opti: ne pas devoir faire des copies à chaque refresh!
       this.involvedShapes.forEach(s => {

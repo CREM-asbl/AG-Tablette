@@ -65,7 +65,6 @@ class AGTabletteApp extends LitElement {
   }
 
   render() {
-    console.log(this.selectedFamily);
     return html`
       <style>
         :host {
