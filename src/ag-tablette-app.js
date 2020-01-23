@@ -7,7 +7,6 @@ import './toolbar-section';
 import './icon-button';
 import './js/Manifest';
 import './popups/new-popup';
-import './Tangram/tangram-popup';
 import './popups/opacity-popup';
 import './popups/divide-popup';
 import './popups/settings-popup';
@@ -55,15 +54,18 @@ class AGTabletteApp extends LitElement {
     CompleteHistoryManager.init();
 
     window.addEventListener('app-state-changed', () => this.setState());
-    window.addEventListener('family-selected', event => {
-      this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : '';
-    });
+    window.addEventListener(
+      'family-selected',
+      event =>
+        (this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : ''),
+    );
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
     });
   }
 
   render() {
+    console.log(this.selectedFamily);
     return html`
       <style>
         :host {
@@ -254,12 +256,6 @@ class AGTabletteApp extends LitElement {
                                 name="wallpaper"
                                 @click="\${this.loadBackground}">
                         </icon-button> -->
-              <!--  <icon-button src="/images/tangram.svg"
-                                title="Faire un Tangram"
-                                name="tangram_menu"
-                                @click="\${this._actionHandle}">
-                        </icon-button>
-                        -->
             </flex-toolbar>
           </div>
           <version-item></version-item>
@@ -275,8 +271,6 @@ class AGTabletteApp extends LitElement {
       <settings-popup></settings-popup>
 
       <save-popup></save-popup>
-
-      <tangram-popup></tangram-popup>
 
       <opacity-popup></opacity-popup>
 
@@ -335,10 +329,6 @@ class AGTabletteApp extends LitElement {
         this.shadowRoot.querySelector('new-popup').style.display = 'block';
         reset_state = 1;
         break;
-      case 'tangram_menu':
-        this.shadowRoot.querySelector('tangram-popup').style.display = 'block';
-        reset_state = 1;
-        break;
       case 'undo':
         if (this.canUndo) window.dispatchEvent(new CustomEvent('undo-action'));
         break;
@@ -360,7 +350,6 @@ class AGTabletteApp extends LitElement {
     this.state = app.state;
     this.states = Object.entries(app.states);
     this.stateName = '';
-    this.selectedFamily = '';
     this.families = [...app.environment.familyNames];
   }
 

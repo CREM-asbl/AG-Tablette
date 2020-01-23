@@ -7,7 +7,7 @@ class ToolbarKit extends LitElement {
   static get properties() {
     return {
       kit: { type: Array },
-      selectedFamily: { type: String },
+      selected: { type: String },
     };
   }
 
@@ -32,7 +32,7 @@ class ToolbarKit extends LitElement {
             <canvas-button
               name="create_shape"
               .family="${family}"
-              ?active="${family === this.selectedFamily}"
+              ?active="${family === this.selected}"
               @click="${event => app.setState(event.target.name, event.target.family)}"
             >
             </canvas-button>

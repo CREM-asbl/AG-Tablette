@@ -125,7 +125,6 @@ export class App {
    */
   setState(stateName, startParams) {
     this.state = stateName || undefined;
-
     //Reset state-menu
     // this.stateMenu.configureButtons([]); => utilité ?
 
