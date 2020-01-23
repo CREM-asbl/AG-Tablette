@@ -37,6 +37,7 @@ import { DivideAction } from '../States/Actions/Divide.js';
 import { MergeAction } from '../States/Actions/Merge.js';
 import { CutAction } from '../States/Actions/Cut.js';
 import { BifaceAction } from '../States/Actions/Biface.js';
+import { GridManager } from '../../Grid/GridManager';
 
 app.environment.loadFamilies(standardKit);
 
@@ -73,6 +74,6 @@ new TranslatePlaneAction();
 new ZoomPlaneState();
 new ZoomPlaneAction();
 
-// import('../../Grid/GridManager');
+GridManager.initState();
 
 dispatchEvent(new CustomEvent('app-state-changed'));

@@ -1,14 +1,6 @@
 import { app } from '../js/App';
 import { Point } from '../js/Objects/Point';
 
-app.states = {
-  ...app.states,
-  grid: {
-    name: 'Grille',
-    type: 'tool',
-  },
-};
-
 //Todo: Créer un event plus précis
 addEventListener('app-state-changed', () => {
   if (app.state === 'grid') {
@@ -25,6 +17,15 @@ addEventListener('close-grid-popup', () => {
 });
 
 export class GridManager {
+  static initState() {
+    app.states = {
+      ...app.states,
+      grid: {
+        name: 'Grille',
+        type: 'tool',
+      },
+    };
+  }
   /**
    * Le point de référence de la grille est le point (10,10).
    * Si grille carrée: le côté du carré est de 50 unités. (-> ex de points:

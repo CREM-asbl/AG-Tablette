@@ -28,7 +28,6 @@ export class TangramCreatorState extends State {
    * initialiser l'état
    */
   start() {
-    document.querySelector('tangram-popup');
     this.currentStep = 'selecting-polygons';
     this.subStep = 'new-polygon';
     this.polygons = [];

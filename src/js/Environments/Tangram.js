@@ -21,6 +21,7 @@ import { BifaceAction } from '../States/Actions/Biface';
 import { TranslatePlaneAction } from '../States/Actions/TranslatePlane';
 import { ZoomPlaneAction } from '../States/Actions/ZoomPlane';
 import { TangramManager } from '../../Tangram/TangramManager';
+import { GridManager } from '../../Grid/GridManager';
 
 new GroupState();
 new GroupAction();
@@ -42,5 +43,7 @@ new ZoomPlaneState();
 new ZoomPlaneAction();
 new TangramManager();
 new TangramCreatorState();
+
+GridManager.initState();
 
 dispatchEvent(new CustomEvent('app-state-changed'));
