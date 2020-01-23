@@ -10,6 +10,7 @@ app.states = {
   },
 };
 
+//Todo: Créer un event plus précis
 addEventListener('app-state-changed', () => {
   if (app.state === 'grid') {
     import('./grid-popup');

@@ -33,12 +33,6 @@ export class App {
 
     //menu pouvant être contrôlé par un état (State).
     this.stateMenu = null;
-
-    // //Liste des tangrams
-    // this.tangrams = {
-    //   main: [], //Tangrams CREM
-    //   local: [], //Tangrams ajoutés par l'utilisateur.
-    // };
   }
 
   /* #################################################################### */

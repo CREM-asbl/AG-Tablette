@@ -7,7 +7,7 @@ import './toolbar-section';
 import './icon-button';
 import './js/Manifest';
 import './popups/new-popup';
-import './popups/tangram-popup';
+import './Tangram/tangram-popup';
 import './popups/opacity-popup';
 import './popups/divide-popup';
 import './popups/settings-popup';
@@ -254,13 +254,7 @@ class AGTabletteApp extends LitElement {
                                 name="wallpaper"
                                 @click="\${this.loadBackground}">
                         </icon-button> -->
-              <!--
-                        <icon-button src="/images/tangram-edit.svg"
-                                title="Créer Tangram"
-                                name="tangram_creator"
-                                @click="\${this._actionHandle}">
-                        </icon-button>
-                        <icon-button src="/images/tangram.svg"
+              <!--  <icon-button src="/images/tangram.svg"
                                 title="Faire un Tangram"
                                 name="tangram_menu"
                                 @click="\${this._actionHandle}">

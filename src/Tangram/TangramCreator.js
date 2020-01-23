@@ -1,7 +1,7 @@
-import { app } from '../App';
-import { State } from './State';
-import { Tangram } from '../Objects/Tangram';
-import { Point } from '../Objects/Point';
+import { app } from '../js/App';
+import { State } from '../js/States/State';
+import { Tangram } from './Tangram';
+import { Point } from '../js/Objects/Point';
 
 /**
  * Créer un tangram
@@ -28,13 +28,14 @@ export class TangramCreatorState extends State {
    * initialiser l'état
    */
   start() {
+    document.querySelector('tangram-popup');
     this.currentStep = 'selecting-polygons';
     this.subStep = 'new-polygon';
     this.polygons = [];
     this.shapes = [];
 
-    this.constr = app.interactionAPI.getEmptySelectionConstraints();
-    this.setSelConstraints();
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    // this.setSelConstraints();
 
     this.buttons = [
       {
@@ -211,6 +212,6 @@ export class TangramCreatorState extends State {
       this.constr.shapes.whitelist = null;
       this.constr.shapes.blacklist = null;
     }
-    app.interactionAPI.setSelectionConstraints(this.constr);
+    app.workspace.selectionConstraints = this.constr;
   }
 }

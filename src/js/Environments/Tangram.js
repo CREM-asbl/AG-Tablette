@@ -1,5 +1,4 @@
 import './Common';
-import { app } from '../App';
 
 import { GroupState } from '../States/Group.js';
 import { UngroupState } from '../States/Ungroup.js';
@@ -14,13 +13,14 @@ import { OpacityState } from '../States/Opacity';
 import { BifaceState } from '../States/Biface';
 import { TranslatePlaneState } from '../States/TranslatePlane';
 import { ZoomPlaneState } from '../States/ZoomPlane';
-import { TangramCreatorState } from '../States/TangramCreator';
+import { TangramCreatorState } from '../../Tangram/TangramCreator';
 import { BackgroundColorAction } from '../States/Actions/BackgroundColor';
 import { BorderColorAction } from '../States/Actions/BorderColor';
 import { OpacityAction } from '../States/Actions/Opacity';
 import { BifaceAction } from '../States/Actions/Biface';
 import { TranslatePlaneAction } from '../States/Actions/TranslatePlane';
 import { ZoomPlaneAction } from '../States/Actions/ZoomPlane';
+import { TangramManager } from '../../Tangram/TangramManager';
 
 new GroupState();
 new GroupAction();
@@ -40,6 +40,7 @@ new TranslatePlaneState();
 new TranslatePlaneAction();
 new ZoomPlaneState();
 new ZoomPlaneAction();
+new TangramManager();
 new TangramCreatorState();
 
 dispatchEvent(new CustomEvent('app-state-changed'));

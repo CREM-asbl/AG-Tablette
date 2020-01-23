@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit-element';
 import { app } from '../js/App';
-import { Tangram } from '../js/Objects/Tangram';
+import { Tangram } from './Tangram';
 import { DeleteAction } from '../js/States/Actions/Delete';
 import { CreateAction } from '../js/States/Actions/Create';
 import { uniqId } from '../js/Tools/general';
@@ -72,7 +72,12 @@ class TangramPopup extends LitElement {
         }
       </style>
       <div id="tangram-popup">
-        <div id="tangram-popup-close" @click="${() => (this.style.display = 'none')}">&times;</div>
+        <div
+          id="tangram-popup-close"
+          @click="${() => dispatchEvent(new CustomEvent('close-tangram-popup'))}"
+        >
+          &times;
+        </div>
         <br /><br />
 
         <div class="field">
