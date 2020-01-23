@@ -1,18 +1,18 @@
-import { LitElement, html } from "lit-element";
+import { LitElement, html } from 'lit-element';
 
 class IconButton extends LitElement {
   static get properties() {
     return {
       name: String,
-      src: String
-    }
+      src: String,
+    };
   }
 
   render() {
     return html`
       <style>
         :host([disabled]) {
-          opacity: .5;
+          opacity: 0.5;
         }
 
         button {
@@ -28,7 +28,7 @@ class IconButton extends LitElement {
           background-size: 100% 100%;
         }
 
-        :host([active]) button{
+        :host([active]) button {
           border-color: var(--button-border-color);
           background-color: var(--button-background-color);
           outline: none;
@@ -47,7 +47,7 @@ class IconButton extends LitElement {
       </style>
 
       <button style="background-image:url('${this.src}')"></button>
-    `
+    `;
   }
 }
-customElements.define('icon-button', IconButton)
+customElements.define('icon-button', IconButton);
