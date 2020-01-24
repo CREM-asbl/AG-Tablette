@@ -30,9 +30,6 @@ export class App {
 
     // compteur d'écouteurs pour certains event
     this.listenerCounter = {};
-
-    //menu pouvant être contrôlé par un état (State).
-    this.stateMenu = null;
   }
 
   /* #################################################################### */

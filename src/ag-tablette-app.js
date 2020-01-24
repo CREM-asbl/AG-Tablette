@@ -12,7 +12,6 @@ import './popups/divide-popup';
 import './popups/settings-popup';
 import './popups/save-popup';
 import './popups/notification';
-import './state-menu';
 import './version-item';
 
 import { app } from './js/App';
@@ -271,8 +270,6 @@ class AGTabletteApp extends LitElement {
 
         <div-main-canvas id="div-main-canvas" background="${this.background}"></div-main-canvas>
       </div>
-
-      <state-menu></state-menu>
 
       <shapes-list></shapes-list>
 

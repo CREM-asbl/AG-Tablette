@@ -50,11 +50,18 @@ export class TangramCreatorState extends State {
         value: 'end_shapes',
       },
     ];
-    app.stateMenu.configureButtons(this.buttons.slice(0, 2));
+
+    this.showStateMenu();
     alert("(TODO: à ajouter dans l'aide) Commencez par sélectionner un ou plusieurs polygones");
+    addEventListener('state-menu-button-click', e => this.clickOnStateMenuButton(e.detail));
+  }
+
+  end() {
+    document.querySelector('state-menu').remove();
   }
 
   clickOnStateMenuButton(btn_value) {
+    console.log(btn_value);
     if (btn_value == 'delete_last_polygon') {
       if (this.currentStep != 'selecting-polygons') return;
       this.subStep = 'new-polygon';
@@ -67,7 +74,7 @@ export class TangramCreatorState extends State {
       if (this.subStep != 'new-polygon') return;
       if (this.polygons.length == 0) return;
 
-      app.stateMenu.configureButtons(this.buttons.slice(2, 3));
+      document.querySelector('state-menu').buttons = this.buttons.slice(2, 3);
       this.currentStep = 'selecting-shapes';
       this.setSelConstraints();
       alert(
@@ -87,6 +94,14 @@ export class TangramCreatorState extends State {
       this.createAndSaveTangram(prompt);
       this.start();
     }
+  }
+
+  showStateMenu() {
+    if (document.querySelector('state-menu')) return;
+    import('./state-menu');
+    const menu = document.createElement('state-menu');
+    menu.buttons = this.buttons.slice(0, 2);
+    document.querySelector('body').appendChild(menu);
   }
 
   createAndSaveTangram(name) {
@@ -158,7 +173,7 @@ export class TangramCreatorState extends State {
    * @param  {Point} mouseCoordinates Les coordonnées du click
    * @param  {Event} event            l'événement javascript
    */
-  objectSelected(object, mouseCoordinates, event) {
+  objectSelected(object) {
     if (this.currentStep == 'selecting-polygons') {
       this.selectNextPolygonPoint(object);
     } else if (this.currentStep == 'selecting-shapes') {
@@ -172,7 +187,7 @@ export class TangramCreatorState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(mouseCoordinates) {
+  draw() {
     this.polygons.forEach(polygon => {
       app.app.drawPoint(Ctx, polygon[0], '#E90CC8', 1);
       for (let i = 0; i < polygon.length - 1; i++) {
@@ -194,22 +209,22 @@ export class TangramCreatorState extends State {
     });
   }
 
-  setSelConstraints() {
-    this.constr.eventType = 'click';
+  // setSelConstraints() {
+  //   this.constr.eventType = 'click';
 
-    if (this.currentStep == 'selecting-polygons') {
-      this.constr.shapes.canSelect = false;
-      this.constr.points.canSelect = true;
-      this.constr.points.types = ['vertex', 'segmentPoint', 'center'];
-      this.constr.points.whitelist = null;
-      this.constr.points.blacklist = null;
-    } else if (this.currentStep == 'selecting-shapes') {
-      this.constr.points.canSelect = false;
-      this.constr.shapes.canSelect = true;
+  //   if (this.currentStep == 'selecting-polygons') {
+  //     this.constr.shapes.canSelect = false;
+  //     this.constr.points.canSelect = true;
+  //     this.constr.points.types = ['vertex', 'segmentPoint', 'center'];
+  //     this.constr.points.whitelist = null;
+  //     this.constr.points.blacklist = null;
+  //   } else if (this.currentStep == 'selecting-shapes') {
+  //     this.constr.points.canSelect = false;
+  //     this.constr.shapes.canSelect = true;
 
-      this.constr.shapes.whitelist = null;
-      this.constr.shapes.blacklist = null;
-    }
-    app.workspace.selectionConstraints = this.constr;
-  }
+  //     this.constr.shapes.whitelist = null;
+  //     this.constr.shapes.blacklist = null;
+  //   }
+  //   app.workspace.selectionConstraints = this.constr;
+  // }
 }
