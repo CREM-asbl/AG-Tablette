@@ -99,6 +99,7 @@ export class CompleteHistoryManager {
     app.workspace.completeHistory.currentTimestamp = Date.now();
     let nextTime =
       app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex].timestamp -
+      app.workspace.completeHistory.startTimestamp -
       (app.workspace.completeHistory.currentTimestamp -
         app.workspace.completeHistory.videoStartTimestamp);
     app.workspace.completeHistory.timeoutId = setTimeout(
@@ -112,8 +113,9 @@ export class CompleteHistoryManager {
    */
   static addStep(type, event) {
     if (CompleteHistoryManager.isRunning) return;
-    let detail = event.detail,
+    let detail = { ...event.detail },
       timeStamp = event.timeStamp;
+    if (type == 'objectSelected') detail.object = undefined;
     app.workspace.completeHistory.addStep(type, detail, timeStamp);
   }
 }

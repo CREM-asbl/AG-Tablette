@@ -13,16 +13,13 @@ import { History } from './History';
  */
 export class Workspace {
   constructor() {
-    //Identifiant unique de l'espace de travail
+    // Identifiant unique de l'espace de travail
     this.id = uniqId();
 
-    // Représente l'historique complet
-    this.completeHistory = null;
-
-    //liste des formes du projet ([Shape])
+    // Liste des formes du projet ([Shape])
     this.shapes = [];
 
-    //Liste des groupes créés par l'utilisateur
+    // Liste des groupes créés par l'utilisateur
     this.shapeGroups = [];
 
     // Liste des shapes a ne pas redessiner pendant une action
@@ -35,7 +32,7 @@ export class Workspace {
     this.history = new History();
 
     // Historique complet des événements
-    this.completeHistory = new CompleteHistory();
+    this.completeHistory = new CompleteHistory(new Event('useless').timeStamp);
 
     // Coordonnées du dernier événement
     this.lastKnownMouseCoordinates = new Point(0, 0);
@@ -49,7 +46,7 @@ export class Workspace {
     // contrainte de sélection pour formes, segments et points
     this.selectionConstraints = {};
 
-    //Niveau de zoom de l'interface
+    // Niveau de zoom de l'interface
     this.zoomLevel = 1;
 
     /**
@@ -105,45 +102,41 @@ export class Workspace {
       return group;
     });
 
-    if (app.lastFileVersion == '1.0.0') {
-      this.history.initFromObject({
-        data: wsdata.history.history,
-        index: wsdata.history.historyIndex,
-      });
-    } else {
-      this.history.initFromObject(wsdata.history);
-    }
-    window.dispatchEvent(new CustomEvent('history-changed'));
-    this.completeHistory = new CompleteHistory();
     if (wsdata.completeHistory) {
       this.completeHistory.initFromObject(wsdata.completeHistory);
+    } else {
+      this.completeHistory.initFromObject({
+        steps: [],
+        startTimestamp: new Event('useless').timeStamp,
+        endTimestamp: 0,
+      });
     }
 
     this.zoomLevel = wsdata.zoomLevel;
     this.translateOffset = new Point(wsdata.translateOffset);
-    if (wsdata.WSSettings) {
-      this.settings.initFromObject(wsdata.WSSettings);
-      if (app.lastFileVersion == '1.0.0') {
-        for (let [key, value] of Object.entries(this.settings.data)) {
-          this.settings.data[key] = value.value;
-        }
-      }
+
+    if (wsdata.settings) {
+      this.settings.initFromObject(wsdata.settings);
     } else this.initSettings();
-  }
 
-  /**
-   * Importer les données du Workspace depuis une sauvegarde JSON
-   * @param  {String} json
-   */
-  initFromJSON(json) {
-    let wsdata = JSON.parse(json);
-
-    this.initFromObject(wsdata);
+    if (wsdata.history) {
+      if (app.lastFileVersion == '1.0.0') {
+        this.history.initFromObject({
+          data: wsdata.history.history,
+          index: wsdata.history.historyIndex,
+        });
+      } else {
+        this.history.initFromObject(wsdata.history);
+      }
+      window.dispatchEvent(new CustomEvent('history-changed'));
+    } else {
+      this.history.initFromObject({ index: -1, data: [] });
+    }
   }
 
   get data() {
     const wsdata = {};
-    wsdata.appVersion = this.appVersion;
+
     wsdata.id = this.id;
 
     wsdata.shapes = this.shapes.map(s => {
@@ -158,8 +151,10 @@ export class Workspace {
 
     wsdata.zoomLevel = this.zoomLevel;
     wsdata.translateOffset = this.translateOffset.saveToObject();
-    wsdata.envName = app.environment.name;
-    wsdata.WSSettings = this.settings.saveToObject();
+
+    wsdata.settings = this.settings.saveToObject();
+
+    console.log(wsdata);
     return wsdata;
   }
 

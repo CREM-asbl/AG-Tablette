@@ -3,6 +3,7 @@ import { Segment } from '../../Objects/Segment';
 import { Point } from '../../Objects/Point';
 import { mod } from '../../Tools/general';
 import { ShapeManager } from '../../ShapeManager';
+import { Shape } from '../../Objects/Shape';
 
 export class CutAction extends Action {
   constructor() {
@@ -25,22 +26,34 @@ export class CutAction extends Action {
   }
 
   initFromObject(save) {
-    this.shapeId = save.shapeId;
-    this.firstPoint = new Point();
-    this.firstPoint.initFromObject(save.firstPoint);
-    this.secondPoint = new Point();
-    this.secondPoint.initFromObject(save.secondPoint);
-    if (save.centerPoint) {
-      this.centerPoint = new Point();
-      this.centerPoint.initFromObject(save.centerPoint);
-    } else {
-      this.centerPoint = null;
-    }
     this.createdShapesIds = save.createdShapesIds;
+    if (save.createdShapes) {
+      this.createdShapes = save.createdShapes.map((s, idx) => {
+        let newShape = new Shape(new Point(0, 0), []);
+        newShape.initFromObject(s);
+        newShape.id = this.createdShapesIds[idx];
+        return newShape;
+      });
+    } else {
+      this.shapeId = save.shapeId;
+      this.firstPoint = new Point();
+      this.firstPoint.initFromObject(save.firstPoint);
+      this.secondPoint = new Point();
+      this.secondPoint.initFromObject(save.secondPoint);
+      if (save.centerPoint) {
+        this.centerPoint = new Point();
+        this.centerPoint.initFromObject(save.centerPoint);
+      } else {
+        this.centerPoint = null;
+      }
+    }
   }
 
   checkDoParameters() {
-    if (!this.shapeId || !this.firstPoint || !this.secondPoint || !this.createdShapesIds.length) {
+    if (
+      !this.createdShapes &&
+      (!this.shapeId || !this.firstPoint || !this.secondPoint || !this.createdShapesIds.length)
+    ) {
       console.log('incomplete data for ' + this.name + ': ', this);
       return false;
     }
@@ -57,6 +70,11 @@ export class CutAction extends Action {
 
   do() {
     if (!this.checkDoParameters()) return;
+
+    if (this.createdShapes) {
+      this.createdShapes.forEach(s => ShapeManager.addShape(s));
+      return;
+    }
 
     let shape = ShapeManager.getShapeById(this.shapeId),
       segments = shape.segments,

@@ -17,10 +17,10 @@ export class WorkspaceManager {
     app.refreshWindow();
   }
 
-  static setWorkspaceFromJSON(json) {
+  static setWorkspaceFromObject(data) {
     let ws = new Workspace();
     WorkspaceManager.setWorkspace(ws);
-    ws.initFromJSON(json);
+    ws.initFromObject(data);
     window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
     app.refreshWindow();
   }

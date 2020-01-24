@@ -14,8 +14,24 @@ export class UngroupAction extends Action {
   }
 
   initFromObject(save) {
-    this.group = save.group;
-    this.groupIdx = save.groupIdx;
+    if (save.group) {
+      this.groupIdx = save.groupIdx;
+      this.group = save.group;
+    } else {
+      // for update history from 1.0.0
+      this.groupIdx = save.groupIndex;
+      this.group = new ShapeGroup(0, 1);
+      this.group.initFromObject({ id: save.groupId, shapesIds: save.groupShapesIds });
+      window.dispatchEvent(
+        new CustomEvent('update-history', {
+          detail: {
+            name: 'UngroupAction',
+            group: this.group,
+            groupIdx: this.groupIdx,
+          },
+        }),
+      );
+    }
   }
 
   checkDoParameters() {

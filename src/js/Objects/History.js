@@ -35,7 +35,6 @@ export class History {
 
   get roots() {
     let roots = [];
-    console.log(this.data);
     for (const key in this.data) {
       if (this.data[key].previous_step === -1) roots.push(parseInt(key, 10));
     }
@@ -61,44 +60,6 @@ export class History {
       this.transformFromPreviousVersion();
     }
   }
-
-  // /**
-  //  * Annuler une étape. Cela fait reculer le curseur de l'historique d'un
-  //  * élément.
-  //  */
-  // undo() {
-  //   if (app.state) app.state.start(false);
-  //   if (!this.canUndo()) {
-  //     console.error('Nothing to undo');
-  //     return;
-  //   }
-  //   let actions = this.history[this.historyIndex].actions,
-  //     reversedActions = [...actions].reverse();
-  //   reversedActions.forEach(action => action.undo());
-  //   this.historyIndex = this.history[this.historyIndex].previous_step;
-  //   app.drawAPI.askRefresh();
-  //   app.drawAPI.askRefresh('upper');
-  //   this.updateMenuState();
-  // }
-
-  // /**
-  //  * Refaire l'étape qui vient d'être annulée. Cela fait avancer le curseur
-  //  * de l'historique d'un élément.
-  //  */
-  // redo() {
-  //   if (!this.canRedo()) {
-  //     console.error('Nothing to redo');
-  //     return;
-  //   }
-  //   //always get the last next step
-  //   this.historyIndex =
-  //     this.historyIndex != -1
-  //       ? this.history[this.historyIndex].next_step.slice(-1)[0]
-  //       : this.roots.slice(-1)[0];
-  //   this.history[this.historyIndex].actions.forEach(action => action.do());
-  //   app.drawAPI.askRefresh();
-  //   this.updateMenuState();
-  // }
 
   /**
    * Ajouter une étape (ensemble d'action) à l'historique (l'étape n'est pas

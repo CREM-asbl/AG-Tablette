@@ -20,6 +20,9 @@ export class CompleteHistory {
     // start of the video
     this.videoStartTimestamp = null;
 
+    // workspace open timestamp
+    this.startTimestamp = startTimestamp;
+
     // workspace close timestamp
     this.endTimestamp = 0;
 
@@ -29,16 +32,16 @@ export class CompleteHistory {
 
   saveToObject() {
     let save = {
-      // historyIndex: this.historyIndex,
       steps: this.steps, //.map(step => step.saveToObject()),
+      startTimestamp: this.startTimestamp,
       endTimestamp: Date.now(), //this.endTimestamp,
     };
     return save;
   }
 
   initFromObject(object) {
-    // this.historyIndex = object.historyIndex;
     this.steps = object.steps;
+    this.startTimestamp = object.startTimestamp;
     this.endTimestamp = object.endTimestamp;
   }
 
