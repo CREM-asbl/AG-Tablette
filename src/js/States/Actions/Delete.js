@@ -1,9 +1,9 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { Shape } from '../../Objects/Shape';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
 import { Point } from '../../Objects/Point';
 import { ShapeManager } from '../../ShapeManager';
+import { GroupManager } from '../../GroupManager';
 
 export class DeleteAction extends Action {
   constructor() {
@@ -32,24 +32,6 @@ export class DeleteAction extends Action {
     this.userGroupIndex = null;
   }
 
-  saveToObject() {
-    // let save = {
-    //   mode: this.mode,
-    //   shapeId: this.shapeId,
-    // };
-    // if (save.mode == 'shape') {
-    //   save.involvedShapes = this.involvedShapes.map(s => s.saveToObject());
-    //   save.userGroupId = this.userGroupId;
-    //   save.userGroupLastShapeId = this.userGroupLastShapeId;
-    //   save.userGroupIndex = this.userGroupIndex;
-    //   save.deleteUserGroup = this.deleteUserGroup;
-    // } else {
-    //   save.point = this.point.saveToObject();
-    //   save.segmentIndex = this.segmentIndex;
-    // }
-    // return save;
-  }
-
   initFromObject(save) {
     this.mode = save.mode;
     if (save.mode == 'shape') {
@@ -59,12 +41,46 @@ export class DeleteAction extends Action {
         newShape.id = shape.id;
         return newShape;
       });
-      this.shapesIdx = save.shapesIdx;
-      this.userGroup = save.userGroup;
       this.userGroupIndex = save.userGroupIndex;
+      if (save.shapesIdx) {
+        this.shapesIdx = save.shapesIdx;
+        this.userGroup = save.userGroup;
+      } else {
+        // for update history from 1.0.0
+        this.shapesIdx = this.involvedShapes.map(shape => ShapeManager.getShapeIndex(shape));
+        let detail = {
+          name: 'DeleteAction',
+          mode: this.mode,
+          involvedShapes: this.involvedShapes,
+          shapesIdx: this.shapesIdx,
+        };
+        if (save.userGroupId) {
+          this.userGroup = new ShapeGroup(0, 1);
+          this.userGroup.initFromObject({
+            id: save.userGroupId,
+            shapesIds: this.involvedShapes.map(s => s.id),
+          });
+          detail.userGroupIndex = this.userGroupIndex;
+          detail.userGroup = this.userGroup;
+        }
+        window.dispatchEvent(new CustomEvent('update-history', { detail: detail }));
+      }
     } else {
       this.point = new Point();
       this.point.initFromObject(save.point);
+      if (save.segmentIndex) {
+        // for update history from 1.0.0
+        this.point.segment = ShapeManager.getShapeById(save.shapeId).segments[save.segmentIndex];
+        window.dispatchEvent(
+          new CustomEvent('update-history', {
+            detail: {
+              name: 'DeleteAction',
+              mode: this.mode,
+              point: this.point,
+            },
+          }),
+        );
+      }
     }
   }
 

@@ -34,6 +34,9 @@ export class Workspace {
     // Historique des actions
     this.history = new History();
 
+    // Historique complet des événements
+    this.completeHistory = new CompleteHistory();
+
     // Coordonnées du dernier événement
     this.lastKnownMouseCoordinates = new Point(0, 0);
 
@@ -88,13 +91,7 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
-  /**
-   * Importer les données du Workspace depuis une sauvegarde JSON
-   * @param  {String} json
-   */
-  initFromJSON(json) {
-    let wsdata = JSON.parse(json);
-
+  initFromObject(wsdata) {
     this.id = wsdata.id;
 
     this.shapes = wsdata.shapes.map(sData => {
@@ -132,6 +129,16 @@ export class Workspace {
         }
       }
     } else this.initSettings();
+  }
+
+  /**
+   * Importer les données du Workspace depuis une sauvegarde JSON
+   * @param  {String} json
+   */
+  initFromJSON(json) {
+    let wsdata = JSON.parse(json);
+
+    this.initFromObject(wsdata);
   }
 
   get data() {

@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { Segment } from '../../Objects/Segment';
 import { Point } from '../../Objects/Point';
@@ -23,17 +22,6 @@ export class CutAction extends Action {
 
     // Id des formes à creer
     this.createdShapesIds = [];
-  }
-
-  saveToObject() {
-    let save = {
-      shapeId: this.shapeId,
-      firstPoint: this.firstPoint.saveToObject(),
-      secondPoint: this.secondPoint.saveToObject(),
-      createdShapesIds: this.createdShapesIds,
-    };
-    if (this.centerPoint) save.centerPoint = this.centerPoint.saveToObject();
-    return save;
   }
 
   initFromObject(save) {

@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { ShapeManager } from '../../ShapeManager';
 
@@ -8,13 +7,6 @@ export class BuildCenterAction extends Action {
 
     //L'id de la forme dont on va colorier les bords
     this.shapeId = null;
-  }
-
-  saveToObject() {
-    let save = {
-      shapeId: this.shapeId,
-    };
-    return save;
   }
 
   initFromObject(save) {

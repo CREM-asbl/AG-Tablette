@@ -319,7 +319,6 @@ class AGTabletteApp extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
-    console.log(app.version);
     let reset_state = 0;
     switch (event.target.name) {
       case 'settings':

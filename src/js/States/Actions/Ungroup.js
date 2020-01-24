@@ -1,6 +1,4 @@
-import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
 import { GroupManager } from '../../GroupManager';
 
@@ -13,14 +11,6 @@ export class UngroupAction extends Action {
 
     //Index (dans le tableau de groupes) du groupe qui a été supprimé
     this.groupIdx = null;
-  }
-
-  saveToObject() {
-    let save = {
-      group: this.group,
-      groupIdx: this.groupIdx,
-    };
-    return save;
   }
 
   initFromObject(save) {

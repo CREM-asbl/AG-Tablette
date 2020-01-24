@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { ShapeManager } from '../../ShapeManager';
 
@@ -17,15 +16,6 @@ export class RotateAction extends Action {
         la forme elle-même
          */
     this.involvedShapesIds = [];
-  }
-
-  saveToObject() {
-    let save = {
-      shapeId: this.shapeId,
-      rotationAngle: this.rotationAngle,
-      involvedShapesIds: this.involvedShapesIds,
-    };
-    return save;
   }
 
   initFromObject(save) {

@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
 import { GroupManager } from '../../GroupManager';
@@ -35,20 +34,6 @@ export class GroupAction extends Action {
 
     // L'index du groupe que l'on fusionne dans le tableau des groupes
     this.otherGroupIdx = null;
-  }
-
-  saveToObject() {
-    let save = {
-      type: this.type,
-      shapeId: this.shapeId,
-      secondShapeId: this.secondShapeId,
-      groupId: this.groupId,
-      group: this.group,
-      groupIdx: this.groupIdx,
-      otherGroup: this.otherGroup,
-      otherGroupIdx: this.otherGroupIdx,
-    };
-    return save;
   }
 
   initFromObject(save) {

@@ -26,17 +26,6 @@ export class Action {
     window.addEventListener('undo-' + this.name, this.initAndUndo);
   }
 
-  // removeEventListeners() {
-  //   console.log(this.name, this.initAndDo);
-  //   window.removeEventListener(this.name, this.initAndDo);
-  //   window.removeEventListener('do-' + this.name, this.initAndDo);
-  //   window.removeEventListener('undo-' + this.name, this.initAndUndo);
-  // }
-
-  saveToObject() {
-    throw new TypeError('method not implemented');
-  }
-
   initFromObject(save) {
     throw new TypeError('method not implemented');
   }

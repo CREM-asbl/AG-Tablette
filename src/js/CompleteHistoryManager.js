@@ -99,7 +99,6 @@ export class CompleteHistoryManager {
     app.workspace.completeHistory.currentTimestamp = Date.now();
     let nextTime =
       app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex].timestamp -
-      app.workspace.completeHistory.startTimestamp -
       (app.workspace.completeHistory.currentTimestamp -
         app.workspace.completeHistory.videoStartTimestamp);
     app.workspace.completeHistory.timeoutId = setTimeout(
@@ -184,7 +183,3 @@ window.addEventListener('app-state-changed', event =>
 );
 
 window.addEventListener('startBrowse', () => CompleteHistoryManager.startBrowse());
-
-window.addEventListener('app-started', e => {
-  app.workspace.completeHistory = new CompleteHistory(e.timeStamp);
-});

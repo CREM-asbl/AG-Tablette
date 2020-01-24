@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { ShapeManager } from '../../ShapeManager';
 
@@ -17,15 +16,6 @@ export class BorderColorAction extends Action {
 
     //Pour chaque forme de involvedShapesIds, la couleur initiale
     this.oldColors = [];
-  }
-
-  saveToObject() {
-    let save = {
-      involvedShapesIds: this.involvedShapesIds,
-      selectedColor: this.selectedColor,
-      oldColors: this.oldColors,
-    };
-    return save;
   }
 
   initFromObject(save) {

@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { ShapeManager } from '../../ShapeManager';
 
@@ -9,14 +8,6 @@ export class BifaceAction extends Action {
     this.involvedShapesIds = null;
 
     this.oldBiface = null;
-  }
-
-  saveToObject() {
-    let save = {
-      involvedShapesIds: this.involvedShapesIds,
-      oldBiface: this.oldBiface,
-    };
-    return save;
   }
 
   initFromObject(save) {

@@ -10,13 +10,6 @@ export class TranslatePlaneAction extends Action {
     this.offset = null;
   }
 
-  saveToObject() {
-    let save = {
-      offset: this.offset.saveToObject(),
-    };
-    return save;
-  }
-
   initFromObject(save) {
     this.offset = new Point();
     this.offset.initFromObject(save.offset);
