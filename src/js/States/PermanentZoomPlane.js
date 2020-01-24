@@ -27,6 +27,7 @@ export class PermanentZoomPlaneState extends State {
     this.currentStep = 'listen-canvas-click';
 
     this.touchStartId = app.addListener('canvastouchstart', this.handler);
+    this.mouseWheelId = app.addListener('canvasmousewheel', this.handler);
   }
 
   /**
@@ -36,7 +37,10 @@ export class PermanentZoomPlaneState extends State {
     this.end();
     this.currentStep = 'listen-canvas-click';
     this.touchStartId = app.addListener('canvastouchstart', this.handler);
-    window.dispatchEvent(new CustomEvent('app-state-changed'));
+    this.mouseWheelId = app.addListener('canvasmousewheel', this.handler);
+    window.dispatchEvent(
+      new CustomEvent('app-state-changed', { detail: { startParams: undefined } }),
+    );
   }
 
   /**
@@ -46,6 +50,7 @@ export class PermanentZoomPlaneState extends State {
     app.removeListener('canvastouchstart', this.touchStartId);
     app.removeListener('canvastouchmove', this.touchMoveId);
     app.removeListener('canvastouchend', this.touchEndId);
+    app.removeListener('canvasmousewheel', this.mouseWheelId);
   }
 
   _actionHandle(event) {
@@ -55,6 +60,8 @@ export class PermanentZoomPlaneState extends State {
       this.onTouchMove(event.detail.touches);
     } else if (event.type == 'canvastouchend') {
       this.onTouchEnd(event.detail.touches);
+    } else if (event.type == 'canvasmousewheel') {
+      this.onMouseWheel(event.detail.mousePos, event.detail.deltaY);
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -150,5 +157,34 @@ export class PermanentZoomPlaneState extends State {
 
     this.executeAction();
     this.restart();
+  }
+
+  onMouseWheel(mousePos, deltaY) {
+    if (this.currentStep != 'listen-canvas-click') return;
+
+    let actualZoom = app.workspace.zoomLevel,
+      minZoom = app.settings.get('minZoomLevel'),
+      maxZoom = app.settings.get('maxZoomLevel'),
+      offset = (actualZoom - deltaY / 100) / actualZoom;
+
+    if (offset * actualZoom > maxZoom) {
+      // -> offset*actualZoom = maxZoom
+      offset = maxZoom / actualZoom - 0.001;
+    }
+    if (offset * actualZoom < minZoom) {
+      offset = minZoom / actualZoom + 0.001;
+    }
+
+    this.actions = [
+      {
+        name: 'ZoomPlaneAction',
+        scaleOffset: offset,
+        originalZoom: actualZoom,
+        originalTranslateOffset: new Point(app.workspace.translateOffset),
+        centerProp: new Point(mousePos.x / app.canvasWidth, mousePos.y / app.canvasHeight),
+      },
+    ];
+
+    this.executeAction();
   }
 }

@@ -118,6 +118,18 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasmousemove', { detail: detail }));
     });
 
+    this.upperCanvas.addEventListener('mousewheel', event => {
+      event.preventDefault();
+      let detail = {
+        mousePos: new Point(event.clientX - app.settings.get('mainMenuWidth'), event.clientY),
+        deltaY: event.deltaY,
+      };
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: detail.mousePos } }),
+      );
+      app.dispatchEv(new CustomEvent('canvasmousewheel', { detail: detail }));
+    });
+
     this.upperCanvas.addEventListener('touchstart', event => {
       event.preventDefault();
       let detail = {
