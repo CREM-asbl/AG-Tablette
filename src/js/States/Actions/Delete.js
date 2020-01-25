@@ -22,6 +22,9 @@ export class DeleteAction extends Action {
     // les shapes a supprimer
     this.involvedShapes = null;
 
+    // les index des formes supprimées
+    this.involvedShapesIndexes = null;
+
     /*
         Si la forme à supprimer fait partie d'un userGroup:
          */
@@ -46,6 +49,7 @@ export class DeleteAction extends Action {
     };
     if (save.mode == 'shape') {
       save.involvedShapes = this.involvedShapes.map(s => s.saveToObject());
+      save.involvedShapesIndexes = this.involvedShapesIndexes.map(s => s.saveToObject());
       save.userGroupId = this.userGroupId;
       save.userGroupLastShapeId = this.userGroupLastShapeId;
       save.userGroupIndex = this.userGroupIndex;
@@ -66,6 +70,10 @@ export class DeleteAction extends Action {
         newShape.initFromObject(shape);
         return newShape;
       });
+      this.involvedShapesIndexes = save.involvedShapesIndexes;
+      if(!save.involvedShapesIndexes) { //compatibilité sauvegarde v1.0.0. TODO: gérer ça ailleurs ?
+          this.involvedShapesIndexes = save.involvedShapes.map(() => 0);
+      }
       this.userGroupId = save.userGroupId;
       this.userGroupLastShapeId = save.userGroupLastShapeId;
       this.userGroupIndex = save.userGroupIndex;
@@ -97,7 +105,18 @@ export class DeleteAction extends Action {
     if (this.mode == 'shape') {
       let userGroup = app.workspace.getShapeGroup(this.involvedShapes[0]);
 
+      this.involvedShapesIndexes = [];
       this.involvedShapes.forEach(s => {
+        /*
+          Pas besoin de trier involvedShapes par index décroissants;
+          dans undo(), en les ajoutant dans l'ordre inverse, les index resteront
+          bien identiques (car on récupère l'index de s après avoir supprimé les
+          formes précédentes!).
+         */
+        let index = app.workspace.getShapeIndex(s);
+        if(index==-1) console.error("Shape not found");
+        this.involvedShapesIndexes.push( index );
+
         if (userGroup) userGroup.deleteShape(s.id);
         app.workspace.deleteShape(s);
       });
@@ -129,6 +148,11 @@ export class DeleteAction extends Action {
         newShape.id = s.id;
         return newShape;
       });
+      let sIndexes = this.involvedShapesIndexes.map(s => s);
+
+      //reverse: pour garder le même index qu'avant la suppression!
+      shapeCopies.reverse();
+      sIndexes.reverse();
 
       if (shapeCopies.length >= 2) {
         userGroup = new ShapeGroup(shapeCopies[0].id, shapeCopies[1].id);
@@ -137,7 +161,7 @@ export class DeleteAction extends Action {
       }
 
       shapeCopies.forEach((s, id) => {
-        app.workspace.addShape(s);
+        app.workspace.addShape(s, sIndexes[id]);
         if (userGroup && id >= 2) userGroup.addShape(s.id);
       });
     } else {
