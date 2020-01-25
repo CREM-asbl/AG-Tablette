@@ -13,6 +13,15 @@ export class State {
     this.actions = null;
   }
 
+  /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+      console.error('getHelpText() not implemented');
+      return "Aucune aide n'est actuellement disponible pour l'élément sélectionné.";
+  }
+
   //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected
   onClick(mouseCoordinates, event, isSecondCall = false) {
     return true;
@@ -99,7 +108,7 @@ export class State {
    * @param params: tableau associatif/objet pouvant contenir des paramètres
    */
   start(params) {
-    console.log('start() not implemented');
+    console.error('start() not implemented');
   }
 
   /**

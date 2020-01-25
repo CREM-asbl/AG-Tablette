@@ -11,6 +11,24 @@ export class BifaceState extends State {
   }
 
   /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+      let toolName = "Biface";
+      return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+            	Une fois sélectionné, un texte "biface" apparaît sur les formes
+                étant bifaces.<br />
+                Touchez une forme pour qu'elle devienne biface, et touchez
+                une seconde fois pour annuler.
+            </p>
+      `;
+  }
+
+  /**
    * (ré-)initialiser l'état
    */
   start() {

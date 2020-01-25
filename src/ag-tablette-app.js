@@ -11,6 +11,7 @@ import './popups/tangram-popup';
 import './popups/opacity-popup';
 import './popups/divide-popup';
 import './popups/settings-popup';
+import './popups/help-popup';
 import './popups/save-popup';
 import './state-menu';
 import './version-item';
@@ -190,12 +191,12 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-              <!-- <icon-button src="/images/help.svg"
-                                    title="Aide"
-                                    name="help"
-                                    disabled>
-                            </icon-button>
-                            -->
+              <icon-button
+                src="/images/help.svg"
+                title="Aide"
+                name="help"
+                @click="${this._actionHandle}">
+              </icon-button>
             </flex-toolbar>
             <div class="toolbar-separator">Formes standard</div>
 
@@ -409,6 +410,8 @@ class AGTabletteApp extends LitElement {
 
       <settings-popup></settings-popup>
 
+      <help-popup></help-popup>
+
       <save-popup></save-popup>
 
       <grid-popup></grid-popup>
@@ -480,6 +483,23 @@ class AGTabletteApp extends LitElement {
         break;
       case 'create_shape':
         app.setState(event.target.name, event.target.family);
+        break;
+      case 'help':
+        let text;
+        if(app.state) {
+            text = app.state.getHelpText();
+        } else {
+            text = `
+            Pour afficher l'aide correspondant à un des outils, opérations ou
+            mouvements, sélectionnez cet élément puis cliquez à nouveau
+            sur le menu d'aide.
+            `;
+        }
+        let helpPopup = this.shadowRoot.querySelector('help-popup'),
+            contentDiv = helpPopup.shadowRoot.querySelector("div#helpPopupContent");
+        contentDiv.innerHTML = text;
+        helpPopup.style.display = 'block';
+
         break;
       default:
         if (StatesManager.getStateText(event.target.name)) {

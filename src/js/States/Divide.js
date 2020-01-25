@@ -24,6 +24,32 @@ export class DivideState extends State {
   }
 
   /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+      let toolName = "Diviser";
+      return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
+                permet de diviser un segment d'une forme en plusieurs parties
+                (délimitées par des points).<br />
+                Après avoir choisit en combien de partie vous souhaitez diviser
+                le segment, touchez le segment que vous souhaitez diviser.<br />
+                Il est également possible de sélectionner deux points situés sur
+                le même segment, afin de diviser le segment formé par ces deux
+                points.<br /><br />
+
+                <b>Note:</b> il est également possible de diviser un arc de
+                cercle, soit en touchant l'arc lui-même, soit en sélectionnant
+                deux points situés sur cet arc. Dans ce dernier cas, la division
+                est effectuée dans le sens horlogique.
+            </p>
+      `;
+  }
+
+  /**
    * (ré-)initialiser l'état
    */
   start(openPopup = true) {
