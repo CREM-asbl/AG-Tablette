@@ -13,7 +13,15 @@ export class Environment {
 
     this.familyNames = [];
 
-    import(`./${name}.js`);
+    //Build à besoin d'avoir les noms des fichiers pour les bundles
+    switch (name) {
+      case 'Grandeurs':
+        import('./Grandeurs');
+        break;
+      case 'Tangram':
+        import('./Tangram');
+        break;
+    }
   }
 
   /**
