@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { getAverageColor, getComplementaryColor } from '../../Tools/general';
 import { Segment } from '../../Objects/Segment';
@@ -16,15 +15,6 @@ export class MergeAction extends Action {
 
     //Id de la forme résultant de la fusion
     this.createdShapeId = null;
-  }
-
-  saveToObject() {
-    let save = {
-      firstShapeId: this.firstShapeId,
-      secondShapeId: this.secondShapeId,
-      createdShapeId: this.createdShapeId,
-    };
-    return save;
   }
 
   initFromObject(save) {

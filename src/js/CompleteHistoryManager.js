@@ -113,8 +113,9 @@ export class CompleteHistoryManager {
    */
   static addStep(type, event) {
     if (CompleteHistoryManager.isRunning) return;
-    let detail = event.detail,
+    let detail = { ...event.detail },
       timeStamp = event.timeStamp;
+    if (type == 'objectSelected') detail.object = undefined;
     app.workspace.completeHistory.addStep(type, detail, timeStamp);
   }
 }
@@ -184,7 +185,3 @@ window.addEventListener('app-state-changed', event =>
 );
 
 window.addEventListener('startBrowse', () => CompleteHistoryManager.startBrowse());
-
-window.addEventListener('app-started', e => {
-  app.workspace.completeHistory = new CompleteHistory(e.timeStamp);
-});

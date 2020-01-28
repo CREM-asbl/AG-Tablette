@@ -1,5 +1,6 @@
 import { app } from './App';
 import { WorkspaceManager } from './WorkspaceManager';
+import { Settings } from './Settings';
 
 export class FileManager {
   static parseFile(data) {
@@ -17,7 +18,15 @@ export class FileManager {
       app.initNonEditableSettings();
     } else app.resetSettings();
 
-    WorkspaceManager.setWorkspaceFromJSON(data);
+    if (app.lastFileVersion == '1.0.0') {
+      dataObject.settings = new Settings();
+      for (let [key, value] of Object.entries(dataObject.WSSettings)) {
+        dataObject.settings[key] = value.value;
+      }
+      WorkspaceManager.setWorkspaceFromObject(dataObject);
+    } else {
+      WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
+    }
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
@@ -97,18 +106,21 @@ export class FileManager {
   }
 
   static saveState(handle, detail) {
-    let { history, WSSettings, appSettings, ...saveObject } = {
-      ...app.workspace.data,
-      appSettings: app.settings.data,
-    };
+    let wsdata = app.workspace.data,
+      appSettings = app.settings.saveToObject();
 
-    if (detail.save_history) saveObject.history = history;
-    // else saveObject.history = { history: [], historyIndex: -1 };
+    if (!detail.save_history) wsdata.history = undefined;
 
-    if (detail.save_settings) saveObject.appSettings = appSettings;
-    if (detail.save_settings) saveObject.WSSettings = WSSettings;
+    if (!detail.save_settings) appSettings = undefined;
+    if (!detail.save_settings) wsdata.settings = undefined;
 
-    let json_data = JSON.stringify(saveObject);
+    let saveObject = {
+        appVersion: app.version,
+        envName: app.environment.name,
+        wsdata,
+        appSettings,
+      },
+      json_data = JSON.stringify(saveObject);
 
     if (FileManager.hasNativeFS) {
       FileManager.newWriteFile(handle, json_data);

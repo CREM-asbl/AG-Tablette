@@ -1,6 +1,4 @@
-import { app } from '../../App';
 import { Action } from './Action';
-import { Shape } from '../../Objects/Shape';
 import { ShapeManager } from '../../ShapeManager';
 
 export class OpacityAction extends Action {
@@ -18,15 +16,6 @@ export class OpacityAction extends Action {
 
     //Pour chaque forme de involvedShapesIds, l'opacité initiale
     this.oldOpacities = [];
-  }
-
-  saveToObject() {
-    let save = {
-      opacity: this.opacity,
-      involvedShapesIds: [...this.involvedShapesIds],
-      oldOpacities: [...this.oldOpacities],
-    };
-    return save;
   }
 
   initFromObject(save) {

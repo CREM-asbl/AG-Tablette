@@ -1,7 +1,7 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { Point } from '../../Objects/Point';
 import { Segment } from '../../Objects/Segment';
+import { ShapeManager } from '../../ShapeManager';
 
 export class DivideAction extends Action {
   constructor() {
@@ -13,7 +13,7 @@ export class DivideAction extends Action {
     // Mode de découpe: 'segment' ou 'two_points'
     this.mode = null;
 
-    // Segment segment, si mode segment
+    // Segment, si mode segment
     this.segment = null;
 
     // Premier point, si mode two_points
@@ -26,33 +26,62 @@ export class DivideAction extends Action {
     this.existingPoints = null;
   }
 
-  saveToObject() {
-    let save = {
-      numberOfparts: this.numberOfparts,
-      mode: this.mode,
-      segment: this.segment.saveToObject(),
-      existingPoints: this.existingPoints.map(pt => pt.saveToObject()),
-    };
-    if (this.mode == 'two_points') {
-      save.firstPoint = this.firstPoint.saveToObject();
-      save.secondPoint = this.secondPoint.saveToObject();
-    }
-    return save;
-  }
-
   initFromObject(save) {
     this.numberOfparts = save.numberOfparts;
     this.mode = save.mode;
-    this.segment = Segment.retrieveFrom(save.segment);
     if (this.mode == 'two_points') {
       this.firstPoint = new Point();
       this.firstPoint.initFromObject(save.firstPoint);
       this.secondPoint = new Point();
       this.secondPoint.initFromObject(save.secondPoint);
     }
-    this.existingPoints = save.existingPoints.map(pt => {
-      return new Point(pt);
-    });
+    if (save.segment) {
+      this.segment = Segment.retrieveFrom(save.segment);
+    } else {
+      // for update history from 1.0.0
+      this.segment = ShapeManager.getShapeById(save.shapeId).segments[save.segmentIndex];
+      if (this.mode == 'two_points') {
+        this.firstPoint.segment = this.segment;
+        this.secondPoint.segment = this.segment;
+      }
+    }
+    if (save.existingPoints) {
+      this.existingPoints = save.existingPoints.map(pt => {
+        return new Point(pt);
+      });
+    } else {
+      // for update history from 1.0.0
+      this.existingPoints = this.segment.points.map(pt => {
+        return new Point(pt);
+      });
+      if (this.mode == 'two_points') {
+        window.dispatchEvent(
+          new CustomEvent('update-history', {
+            detail: {
+              name: 'DivideAction',
+              mode: 'two_points',
+              firstPoint: this.firstPoint,
+              secondPoint: this.secondPoint,
+              numberOfparts: this.numberOfparts,
+              segment: this.segment,
+              existingPoints: this.existingPoints,
+            },
+          }),
+        );
+      } else {
+        window.dispatchEvent(
+          new CustomEvent('update-history', {
+            detail: {
+              name: 'DivideAction',
+              mode: 'segment',
+              numberOfparts: this.numberOfparts,
+              segment: this.segment,
+              existingPoints: this.existingPoints,
+            },
+          }),
+        );
+      }
+    }
   }
 
   checkDoParameters() {

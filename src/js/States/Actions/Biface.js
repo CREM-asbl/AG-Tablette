@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { ShapeManager } from '../../ShapeManager';
 
@@ -11,17 +10,28 @@ export class BifaceAction extends Action {
     this.oldBiface = null;
   }
 
-  saveToObject() {
-    let save = {
-      involvedShapesIds: this.involvedShapesIds,
-      oldBiface: this.oldBiface,
-    };
-    return save;
-  }
-
   initFromObject(save) {
-    this.involvedShapesIds = save.involvedShapesIds;
-    this.oldBiface = save.oldBiface;
+    if (save.involvedShapesIds) {
+      this.involvedShapesIds = save.involvedShapesIds;
+      this.oldBiface = save.oldBiface;
+    } else {
+      // for update history from 1.0.0
+      let involvedShapes = ShapeManager.getAllBindedShapes(
+        ShapeManager.getShapeById(save.shapeId),
+        true,
+      );
+      this.involvedShapesIds = involvedShapes.map(s => s.id);
+      this.oldBiface = involvedShapes.map(s => s.isBiface);
+      window.dispatchEvent(
+        new CustomEvent('update-history', {
+          detail: {
+            name: 'UngroupAction',
+            involvedShapesIds: this.involvedShapesIds,
+            oldBiface: this.oldBiface,
+          },
+        }),
+      );
+    }
   }
 
   checkDoParameters() {

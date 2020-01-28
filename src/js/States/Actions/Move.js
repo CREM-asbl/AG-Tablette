@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { Point } from '../../Objects/Point';
 import { ShapeManager } from '../../ShapeManager';
@@ -18,15 +17,6 @@ export class MoveAction extends Action {
         la forme elle-même
          */
     this.involvedShapesIds = [];
-  }
-
-  saveToObject() {
-    let save = {
-      shapeId: this.shapeId,
-      transformation: this.transformation.saveToObject(),
-      involvedShapesIds: this.involvedShapesIds,
-    };
-    return save;
   }
 
   initFromObject(save) {

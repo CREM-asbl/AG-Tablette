@@ -7,21 +7,26 @@ import { Point } from './Objects/Point';
  * Représente l'historique d'un espace de travail.
  */
 export class HistoryManager {
-  static transformToObject(actions) {
+  static transformToObject(action) {
+    let newObject = {};
+    for (let [key, value] of Object.entries(action)) {
+      if (value instanceof Shape || value instanceof Segment || value instanceof Point)
+        value = value.saveToObject();
+      else if (value instanceof Array)
+        value = value.map(elem => {
+          if (elem instanceof Shape || elem instanceof Segment || elem instanceof Point)
+            return elem.saveToObject();
+          else return elem;
+        });
+      newObject[key] = value;
+    }
+    return newObject;
+  }
+
+  static transformToObjects(actions) {
     let savedActions = [];
     actions.forEach((action, idx) => {
-      savedActions[idx] = {};
-      for (let [key, value] of Object.entries(action)) {
-        if (value instanceof Shape || value instanceof Segment || value instanceof Point)
-          value = value.saveToObject();
-        else if (value instanceof Array)
-          value = value.map(elem => {
-            if (elem instanceof Shape || elem instanceof Segment || elem instanceof Point)
-              return elem.saveToObject();
-            else return elem;
-          });
-        savedActions[idx][key] = value;
-      }
+      savedActions[idx] = HistoryManager.transformToObject(action);
     });
     return savedActions;
   }
@@ -39,7 +44,28 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canRedo() {
-    return app.workspace.history.index < app.workspace.history.data.length - 1;
+    return app.workspace.history.index < app.workspace.history.length - 1;
+  }
+
+  static updateHistory(action) {
+    console.log('updated', action.name);
+    app.workspace.history.data[HistoryManager.historyIndex][
+      HistoryManager.stepIndex
+    ] = HistoryManager.transformToObject(action);
+  }
+
+  static updateBackup() {
+    let wsData = app.workspace.data;
+    app.workspace.shapes = [];
+    app.workspace.shapeGroups = [];
+    app.setState();
+    app.workspace.history.index = -1;
+    for (let i = 0; i < app.workspace.history.length; i++) {
+      HistoryManager.redo();
+    }
+    wsData.history.data = app.workspace.history.data;
+    app.lastFileVersion = app.version;
+    app.workspace.initFromObject(wsData);
   }
 
   /**
@@ -52,10 +78,11 @@ export class HistoryManager {
       return;
     }
     let detail = [...app.workspace.history.data[app.workspace.history.index]].reverse();
-    detail.forEach(step =>
-      window.dispatchEvent(new CustomEvent('undo-' + step.name, { detail: step })),
-    );
-    // window.dispatchEvent(new CustomEvent('undo-' + detail.name, { detail: detail }));
+    HistoryManager.historyIndex = app.workspace.history.index;
+    detail.forEach((step, idx) => {
+      HistoryManager.stepIndex = idx;
+      window.dispatchEvent(new CustomEvent('undo-' + step.name, { detail: step }));
+    });
     app.workspace.history.index--;
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -72,11 +99,13 @@ export class HistoryManager {
       return;
     }
     let detail = app.workspace.history.data[app.workspace.history.index + 1];
-    detail.forEach(step =>
-      window.dispatchEvent(new CustomEvent('do-' + step.name, { detail: step })),
-    );
-    window.dispatchEvent(new CustomEvent('refresh'));
+    HistoryManager.historyIndex = app.workspace.history.index + 1;
+    detail.forEach((step, idx) => {
+      HistoryManager.stepIndex = idx;
+      window.dispatchEvent(new CustomEvent('do-' + step.name, { detail: step }));
+    });
     app.workspace.history.index++;
+    window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
@@ -88,23 +117,25 @@ export class HistoryManager {
   static addStep(actions) {
     app.workspace.history.data.splice(
       app.workspace.history.index + 1,
-      app.workspace.history.data.length,
-      HistoryManager.transformToObject(actions),
+      app.workspace.history.length,
+      HistoryManager.transformToObjects(actions),
     );
-    app.workspace.history.index = app.workspace.history.data.length - 1;
+    app.workspace.history.index = app.workspace.history.length - 1;
 
     window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
   static deleteLastStep() {
-    app.workspace.history.data.length--;
-    app.workspace.history.index = app.workspace.history.data.length - 1;
+    app.workspace.history.length--;
+    app.workspace.history.index = app.workspace.history.length - 1;
 
     window.dispatchEvent(new CustomEvent('history-changed'));
   }
 }
 
 window.addEventListener('actions', event => HistoryManager.addStep(event.detail));
+
+window.addEventListener('update-history', event => HistoryManager.updateHistory(event.detail));
 
 window.addEventListener('action-aborted', () => HistoryManager.deleteLastStep());
 

@@ -1,4 +1,4 @@
-import { LitElement, html } from "lit-element";
+import { LitElement, html } from 'lit-element';
 
 class FlexToolbar extends LitElement {
   render() {
@@ -11,7 +11,7 @@ class FlexToolbar extends LitElement {
         }
       </style>
       <slot></slot>
-    `
+    `;
   }
 }
-customElements.define('flex-toolbar', FlexToolbar)
+customElements.define('flex-toolbar', FlexToolbar);

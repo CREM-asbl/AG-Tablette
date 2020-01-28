@@ -170,8 +170,7 @@ export class ReverseState extends State {
   }
 
   getSymmetricalAxe(orientation) {
-    let shape = ShapeManager.getShapeById(this.shapeId),
-      center = this.selectedShape.center,
+    let center = this.selectedShape.center,
       axe;
     if (orientation == 'V') {
       axe = new Segment(

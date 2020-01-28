@@ -32,7 +32,6 @@ export class CompleteHistory {
 
   saveToObject() {
     let save = {
-      // historyIndex: this.historyIndex,
       steps: this.steps, //.map(step => step.saveToObject()),
       startTimestamp: this.startTimestamp,
       endTimestamp: Date.now(), //this.endTimestamp,
@@ -41,7 +40,6 @@ export class CompleteHistory {
   }
 
   initFromObject(object) {
-    // this.historyIndex = object.historyIndex;
     this.steps = object.steps;
     this.startTimestamp = object.startTimestamp;
     this.endTimestamp = object.endTimestamp;

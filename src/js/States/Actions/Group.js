@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
 import { GroupManager } from '../../GroupManager';
@@ -37,20 +36,6 @@ export class GroupAction extends Action {
     this.otherGroupIdx = null;
   }
 
-  saveToObject() {
-    let save = {
-      type: this.type,
-      shapeId: this.shapeId,
-      secondShapeId: this.secondShapeId,
-      groupId: this.groupId,
-      group: this.group,
-      groupIdx: this.groupIdx,
-      otherGroup: this.otherGroup,
-      otherGroupIdx: this.otherGroupIdx,
-    };
-    return save;
-  }
-
   initFromObject(save) {
     this.type = save.type;
     if (this.type == 'new') {
@@ -58,14 +43,49 @@ export class GroupAction extends Action {
       this.secondShapeId = save.secondShapeId;
       this.groupId = save.groupId;
     } else if (this.type == 'add') {
-      this.group = GroupManager.getGroup(save.group.id);
       this.shapeId = save.shapeId;
+      if (save.group) {
+        this.group = GroupManager.getGroup(save.group.id);
+      } else {
+        // for update history from 1.0.0
+        this.group = GroupManager.getGroup(save.groupId);
+        window.dispatchEvent(
+          new CustomEvent('update-history', {
+            detail: {
+              name: 'GroupAction',
+              type: 'add',
+              shapeId: this.shapeId,
+              group: this.group,
+            },
+          }),
+        );
+      }
     } else {
       // merge
-      this.group = GroupManager.getGroup(save.group.id);
-      this.groupIdx = save.groupIdx;
-      this.otherGroup = GroupManager.getGroup(save.otherGroup.id);
-      this.otherGroupIdx = save.otherGroupIdx;
+      if (save.group) {
+        this.group = GroupManager.getGroup(save.group.id);
+        this.groupIdx = save.groupIdx;
+        this.otherGroup = save.otherGroup;
+        this.otherGroupIdx = save.otherGroupIdx;
+      } else {
+        // for update history from 1.0.0
+        this.group = GroupManager.getGroup(save.groupId);
+        this.groupIdx = GroupManager.getGroupIndex(this.group);
+        this.otherGroup = GroupManager.getGroup(save.otherGroupId);
+        this.otherGroupIdx = GroupManager.getGroupIndex(this.otherGroup);
+        window.dispatchEvent(
+          new CustomEvent('update-history', {
+            detail: {
+              name: 'GroupAction',
+              type: 'merge',
+              group: this.group,
+              groupIdx: this.groupIdx,
+              otherGroup: this.otherGroup,
+              otherGroupIdx: this.otherGroupIdx,
+            },
+          }),
+        );
+      }
     }
   }
 

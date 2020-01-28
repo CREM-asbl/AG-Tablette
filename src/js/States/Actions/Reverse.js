@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { Point } from '../../Objects/Point';
 import { Segment } from '../../Objects/Segment';
@@ -18,26 +17,41 @@ export class ReverseAction extends Action {
         la forme elle-même
          */
     this.involvedShapesIds = [];
-  }
 
-  saveToObject() {
-    let save = {
-      shapeId: this.shapeId,
-      symmetricalAxeOrientation: this.symmetricalAxeOrientation,
-      involvedShapesIds: this.involvedShapesIds,
-    };
-    return save;
+    this.symmetricalAxeLength = 200; // for update history from 1.0.0
   }
 
   initFromObject(save) {
     this.shapeId = save.shapeId;
     this.involvedShapesIds = save.involvedShapesIds;
-    this.axe = new Segment();
-    this.axe.initFromObject(save.axe);
+    if (save.axe) {
+      this.axe = new Segment();
+      this.axe.initFromObject(save.axe);
+    } else {
+      // for update history from 1.0.0
+      this.axe = this.getSymmetricalAxe(
+        ShapeManager.getShapeById(this.shapeId),
+        save.symmetricalAxeOrientation,
+      );
+      window.dispatchEvent(
+        new CustomEvent('update-history', {
+          detail: {
+            name: 'ReverseAction',
+            shapeId: this.shapeId,
+            involvedShapesIds: this.involvedShapesIds,
+            axe: this.axe,
+          },
+        }),
+      );
+    }
+    console.log(this);
   }
 
   checkDoParameters() {
-    if (!this.shapeId) return false;
+    if (!this.shapeId || !this.axe || !this.involvedShapesIds) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
@@ -97,5 +111,46 @@ export class ReverseAction extends Action {
       x: point.x + 2 * (center.x - point.x),
       y: point.y + 2 * (center.y - point.y),
     });
+  }
+
+  // for update history from 1.0.0
+  getSymmetricalAxe(shape, orientation) {
+    let center = shape.center,
+      axe;
+    if (orientation == 'V') {
+      axe = new Segment(
+        new Point(center.x, center.y - this.symmetricalAxeLength / 2),
+        new Point(center.x, center.y + this.symmetricalAxeLength / 2),
+      );
+    } else if (orientation == 'NW') {
+      axe = new Segment(
+        new Point(
+          center.x - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+        new Point(
+          center.x + (0.683 * this.symmetricalAxeLength) / 2,
+          center.y + (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+      );
+    } else if (orientation == 'H') {
+      axe = new Segment(
+        new Point(center.x + this.symmetricalAxeLength / 2, center.y),
+        new Point(center.x - this.symmetricalAxeLength / 2, center.y),
+      );
+    } else {
+      // SW
+      axe = new Segment(
+        new Point(
+          center.x + (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+        new Point(
+          center.x - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y + (0.683 * this.symmetricalAxeLength) / 2,
+        ),
+      );
+    }
+    return axe;
   }
 }

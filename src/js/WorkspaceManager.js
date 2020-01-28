@@ -17,22 +17,15 @@ export class WorkspaceManager {
     app.refreshWindow();
   }
 
-  /**
-   * Créer un nouvel objet Workspace
-   * @param  {String} [envName='Grandeurs'] Nom de l'environnement
-   * @return {Workspace}
-   */
-  static getNewWorkspace(envName = 'Grandeurs') {
-    return new Workspace();
-  }
-
-  static setWorkspaceFromJSON(json) {
+  static setWorkspaceFromObject(data) {
     let ws = new Workspace();
-    ws.initFromJSON(json);
     WorkspaceManager.setWorkspace(ws);
+    ws.initFromObject(data);
+    window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
+    app.refreshWindow();
   }
 }
 
 window.addEventListener('app-started', () => {
-  WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeurs'));
+  WorkspaceManager.setWorkspace(new Workspace());
 });

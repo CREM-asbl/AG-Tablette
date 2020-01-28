@@ -7,7 +7,7 @@ export class ZoomPlaneAction extends Action {
   constructor() {
     super('ZoomPlaneAction');
 
-    //Translation à appliquer
+    // Scale à appliquer
     this.scaleOffset = null;
 
     this.originalZoom = null;
@@ -15,16 +15,6 @@ export class ZoomPlaneAction extends Action {
     this.originalTranslateOffset = null;
 
     this.centerProp = null;
-  }
-
-  saveToObject() {
-    let save = {
-      scaleOffset: this.scaleOffset,
-      originalZoom: this.originalZoom,
-      originalTranslateOffset: this.originalTranslateOffset,
-      centerProp: this.centerProp,
-    };
-    return save;
   }
 
   initFromObject(save) {
@@ -54,16 +44,14 @@ export class ZoomPlaneAction extends Action {
         1 / this.originalZoom,
       ),
       newWinSize = actualWinSize.multiplyWithScalar(1 / this.scaleOffset),
-      newTranslateoffset = new Point({
-        x:
-          (this.originalTranslateOffset.x / this.originalZoom -
-            (actualWinSize.x - newWinSize.x) * this.centerProp.x) *
+      newTranslateoffset = new Point(
+        (this.originalTranslateOffset.x / this.originalZoom -
+          (actualWinSize.x - newWinSize.x) * this.centerProp.x) *
           newZoom,
-        y:
-          (this.originalTranslateOffset.y / this.originalZoom -
-            (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
+        (this.originalTranslateOffset.y / this.originalZoom -
+          (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
           newZoom,
-      });
+      );
 
     app.workspace.setZoomLevel(newZoom, false);
     app.workspace.setTranslateOffset(newTranslateoffset);

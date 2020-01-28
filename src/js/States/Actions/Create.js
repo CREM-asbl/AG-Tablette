@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { Shape } from '../../Objects/Shape';
 import { ShapeManager } from '../../ShapeManager';
@@ -17,15 +16,6 @@ export class CreateAction extends Action {
     this.shapeSize = null;
   }
 
-  saveToObject() {
-    let save = {
-      shapeToCreate: this.shapeToCreate.saveToObject(),
-      shapeId: this.shapeId,
-      shapeSize: this.shapeSize,
-    };
-    return save;
-  }
-
   initFromObject(save) {
     this.shapeToCreate = new Shape({ x: 0, y: 0 }, []);
     this.shapeToCreate.initFromObject(save.shapeToCreate);
@@ -34,12 +24,18 @@ export class CreateAction extends Action {
   }
 
   checkDoParameters() {
-    if (!(this.shapeToCreate instanceof Shape)) return false;
+    if (!(this.shapeToCreate instanceof Shape)) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (!this.shapeId) return false;
+    if (!this.shapeId) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+      return false;
+    }
     return true;
   }
 
@@ -52,6 +48,7 @@ export class CreateAction extends Action {
 
   undo() {
     if (!this.checkUndoParameters()) return;
+
     let shape = ShapeManager.getShapeById(this.shapeId);
     ShapeManager.deleteShape(shape);
   }

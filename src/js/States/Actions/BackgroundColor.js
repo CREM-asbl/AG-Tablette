@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { getComplementaryColor } from '../../Tools/general';
 import { ShapeManager } from '../../ShapeManager';
@@ -21,15 +20,6 @@ export class BackgroundColorAction extends Action {
 
     //Pour chaque forme de involvedShapesIds, la couleur initiale
     this.oldColors = [];
-  }
-
-  saveToObject() {
-    let save = {
-      selectedColor: this.selectedColor,
-      involvedShapesIds: this.involvedShapesIds,
-      oldColors: this.oldColors,
-    };
-    return save;
   }
 
   initFromObject(save) {

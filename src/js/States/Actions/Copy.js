@@ -1,4 +1,3 @@
-import { app } from '../../App';
 import { Action } from './Action';
 import { ShapeGroup } from '../../Objects/ShapeGroup';
 import { ShapeManager } from '../../ShapeManager';
@@ -25,21 +24,25 @@ export class CopyAction extends Action {
     this.createdUsergroupId = null;
   }
 
-  saveToObject() {
-    let save = {
-      transformation: this.transformation,
-      involvedShapesIds: this.involvedShapesIds,
-      newShapesIds: this.newShapesIds,
-      createdUsergroupId: this.createdUsergroupId,
-    };
-    return save;
-  }
-
   initFromObject(save) {
     this.transformation = save.transformation;
     this.involvedShapesIds = save.involvedShapesIds;
     this.newShapesIds = save.newShapesIds;
     this.createdUsergroupId = save.createdUsergroupId;
+    if (save.shapeId) {
+      // for update history from 1.0.0
+      window.dispatchEvent(
+        new CustomEvent('update-history', {
+          detail: {
+            name: 'CopyAction',
+            transformation: this.transformation,
+            involvedShapesIds: this.involvedShapesIds,
+            newShapesIds: this.newShapesIds,
+            createdUsergroupId: this.createdUsergroupId,
+          },
+        }),
+      );
+    }
   }
 
   checkDoParameters() {
