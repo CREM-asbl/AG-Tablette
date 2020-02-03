@@ -82,14 +82,21 @@ export class CompleteHistoryManager {
       app.workspace.completeHistory.historyIndex
     ];
 
+    if (detail && detail.mousePos) {
+      detail.mousePos = new Point(detail.mousePos);
+    }
+
     if (type == 'app-state-changed') {
       app.setState(detail.state, detail.startParams);
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
+    } else if (type == 'mouse-coordinates-changed') {
+      window.dispatchEvent(new CustomEvent('show-cursor', { detail: detail }));
+      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+    } else if (type == 'canvasmouseup') {
+      window.dispatchEvent(new CustomEvent('click-cursor', { detail: detail }));
+      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
     } else {
-      if (detail && detail.mousePos) {
-        detail.mousePos = new Point(detail.mousePos);
-      }
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
     }
 
