@@ -37,6 +37,7 @@ export class State {
         if (this.name == app.state) {
           this.start(event.detail.startParams);
           this.status = 'running';
+          app.currentOperation = this;
         }
       } else {
         // paused
@@ -63,6 +64,15 @@ export class State {
     });
 
     this.handler = event => this._actionHandle(event);
+  }
+
+  /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    console.error('getHelpText() not implemented');
+    return "Aucune aide n'est actuellement disponible pour l'élément sélectionné.";
   }
 
   //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected

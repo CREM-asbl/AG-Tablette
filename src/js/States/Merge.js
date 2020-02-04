@@ -18,7 +18,33 @@ export class MergeState extends State {
   }
 
   /**
-   * initialiser l'état
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    let toolName = 'Fusionner';
+    return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
+                permet de fusionner deux formes ayant au moins un côté commun
+                en une seule forme. Une nouvelle forme (le fruit de la fusion)
+                est créée, et les deux formes d'origine restent intactes.<br />
+
+                Pour fusionner les deux formes, touchez la première forme puis
+                la seconde.<br /><br />
+
+                <b>Note:</b> pour qu'une fusion entre deux formes soit possible,
+                il faut que les deux formes aient au moins un segment en commun
+                (un côté entier, ou une partie d'un côté). Il ne faut pas que
+                les deux formes se chevauchent pour que la fusion puisse être
+                réalisée.
+            </p>
+      `;
+  }
+
+  /**
+   * (ré-)initialiser l'état
    */
   start() {
     this.currentStep = 'listen-canvas-click';

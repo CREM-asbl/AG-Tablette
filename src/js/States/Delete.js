@@ -14,7 +14,22 @@ export class DeleteState extends State {
   }
 
   /**
-   * initialiser l'état
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    let toolName = 'Supprimer une forme';
+    return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+            	Touchez une forme pour la supprimer de l'espace de travail.
+            </p>
+      `;
+  }
+
+  /**
+   * (ré-)initialiser l'état
    */
   start() {
     setTimeout(() => {

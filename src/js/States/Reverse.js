@@ -44,7 +44,24 @@ export class ReverseState extends State {
   }
 
   /**
-   * initialiser l'état
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    let toolName = 'Retourner';
+    return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+            	Pour retourner une forme, touchez-là, puis touchez un des
+                axes de symétrie apparus sur la forme pour la retourner selon
+                cet axe de symétrie.
+            </p>
+      `;
+  }
+
+  /**
+   * (ré-)initialiser l'état
    */
   start() {
     this.currentStep = 'listen-canvas-click';

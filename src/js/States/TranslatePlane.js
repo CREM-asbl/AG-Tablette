@@ -14,7 +14,24 @@ export class TranslatePlaneState extends State {
   }
 
   /**
-   * initialiser l'état
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    let toolName = 'Glisser le plan';
+    return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+            	Touchez l'écran n'importe où dans la zone de dessin, et faites
+                glissez votre doigt sans le relacher, pour faire glisser le plan
+                entier.
+            </p>
+      `;
+  }
+
+  /**
+   * (ré-)initialiser l'état
    */
   start() {
     this.currentStep = 'listen-canvas-click';

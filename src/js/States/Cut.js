@@ -22,7 +22,32 @@ export class CutState extends State {
   }
 
   /**
-   * initialiser l'état
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    let toolName = 'Découper';
+    return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
+                permet de découper une forme en deux nouvelles formes, tout en
+                laissant la forme d'origine intacte.<br /><br />
+
+                Pour découper une forme, touchez un premiet sommet de la forme,
+                puis éventuellement le centre de la forme (non obligatoire), et
+                enfin un second sommet de la forme.<br /><br />
+
+                <b>Note:</b> il n'est pas toujours possible de découper une
+                forme en sélectionnant deux sommets quelconques. La ligne de
+                découpe doit en effet rester à l'intérieur de la forme, sans
+                quoi la découpe ne sera pas réalisée.
+            </p>
+      `;
+  }
+
+  /**
+   * (ré-)initialiser l'état
    */
   start() {
     this.currentStep = 'listen-canvas-click';

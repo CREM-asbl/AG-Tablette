@@ -10,6 +10,7 @@ import './popups/new-popup';
 import './popups/opacity-popup';
 import './popups/divide-popup';
 import './popups/settings-popup';
+import './popups/help-popup';
 import './popups/save-popup';
 import './popups/notification';
 import './version-item';
@@ -225,12 +226,13 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-              <!-- <icon-button src="/images/help.svg"
-                                    title="Aide"
-                                    name="help"
-                                    disabled>
-                            </icon-button>
-                            -->
+
+              <icon-button
+                src="/images/help.svg"
+                title="Aide"
+                name="help"
+                @click="${this._actionHandle}">
+              </icon-button>
             </flex-toolbar>
 
             <toolbar-kit .kit="${this.families}"
@@ -274,6 +276,8 @@ class AGTabletteApp extends LitElement {
       <shapes-list></shapes-list>
 
       <settings-popup></settings-popup>
+
+      <help-popup></help-popup>
 
       <save-popup></save-popup>
 
@@ -342,6 +346,21 @@ class AGTabletteApp extends LitElement {
         break;
       case 'play':
         window.dispatchEvent(new CustomEvent('startBrowse'));
+        break;
+      case 'help':
+        //Todo : Simplifier
+        const helpPopup = this.shadowRoot.querySelector('help-popup'),
+          contentDiv = helpPopup.shadowRoot.querySelector('div#helpPopupContent');
+        if (app.state) {
+          contentDiv.innerHTML = app.currentOperation.getHelpText();
+        } else {
+          contentDiv.innerHTML = `
+                Pour afficher l'aide correspondant à un des outils, opérations ou
+                mouvements, sélectionnez cet élément puis cliquez à nouveau
+                sur le menu d'aide.
+                `;
+        }
+        helpPopup.style.display = 'block';
         break;
       default:
         app.setState(event.target.name);

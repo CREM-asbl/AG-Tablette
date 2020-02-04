@@ -46,6 +46,22 @@ export class BackgroundColorState extends State {
   }
 
   /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    let toolName = 'Colorier les formes';
+    return `
+          <h2>${toolName}</h2>
+          <p>
+              Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+              Après avoir choisi une couleur, touchez une forme pour en
+              colorier le fond.
+          </p>
+    `;
+  }
+
+  /**
    * stopper l'état
    */
   end() {

@@ -20,6 +20,7 @@
     "no-undef": "warn",
     "no-unused-vars": "warn",
     "import/no-extraneous-dependencies": "off",
-    "lit/binding-positions": "error"
+    "lit/binding-positions": "error",
+    "no-case-declarations": "warn"
   }
 }

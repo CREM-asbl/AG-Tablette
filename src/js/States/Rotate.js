@@ -29,7 +29,25 @@ export class RotateState extends State {
   }
 
   /**
-   * initialiser l'état
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    let toolName = 'Tourner';
+    return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+            	Touchez une forme, puis glissez votre doigt sans relacher la
+                forme pour la faire tourner. La forme tourne autour de son
+                centre, qui est affiché lors de la rotation. Faites tournez
+                votre doigt autour de ce centre pour faire tourner la forme.
+            </p>
+      `;
+  }
+
+  /**
+   * (ré-)initialiser l'état
    */
   start() {
     this.currentStep = 'listen-canvas-click';
