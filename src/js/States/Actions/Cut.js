@@ -197,9 +197,9 @@ export class CutAction extends Action {
       distance = center2.dist(center1),
       myOffset = 20, //px
       offset = difference.multiplyWithScalar(myOffset / distance);
-    shape1.coordinates = new Point(shape1).subCoordinates(offset);
+    shape1.coordinates = shape1.coordinates.subCoordinates(offset);
     shape1.id = this.createdShapesIds[0];
-    shape2.coordinates = new Point(shape2).addCoordinates(offset);
+    shape2.coordinates = shape2.coordinates.addCoordinates(offset);
     shape2.id = this.createdShapesIds[1];
 
     ShapeManager.addShape(shape1);

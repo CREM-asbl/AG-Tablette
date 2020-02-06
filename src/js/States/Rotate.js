@@ -129,13 +129,19 @@ export class RotateState extends State {
       diffAngle = newAngle - this.initialAngle;
     let center = this.selectedShape.center;
 
-    this.involvedShapes.forEach(s => {
-      s.rotate(diffAngle, center);
-
-      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: s } }));
-
-      s.rotate(-diffAngle, center);
-    });
+    window.dispatchEvent(
+      new CustomEvent('draw-group', {
+        detail: {
+          involvedShapes: this.involvedShapes,
+          fct1: s => {
+            s.rotate(diffAngle, center);
+          },
+          fct2: s => {
+            s.rotate(-diffAngle, center);
+          },
+        },
+      }),
+    );
 
     //Dessiner le centre de symétrie
     window.dispatchEvent(

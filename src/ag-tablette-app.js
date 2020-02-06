@@ -14,6 +14,7 @@ import './popups/save-popup';
 import './popups/notification';
 import './state-menu';
 import './version-item';
+import './completehistory-tools';
 
 import { app } from './js/App';
 import './js/FileManager';
@@ -288,6 +289,8 @@ class AGTabletteApp extends LitElement {
 
       <notif-center></notif-center>
 
+      <completehistory-tools></completehistory-tools>
+
       <input
         id="fileSelector"
         accept=".agg, .json"
@@ -344,7 +347,7 @@ class AGTabletteApp extends LitElement {
         if (this.canRedo) window.dispatchEvent(new CustomEvent('redo-action'));
         break;
       case 'play':
-        window.dispatchEvent(new CustomEvent('startBrowse'));
+        window.dispatchEvent(new CustomEvent('start-browsing'));
         break;
       default:
         app.setState(event.target.name);

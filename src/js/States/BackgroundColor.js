@@ -90,7 +90,7 @@ export class BackgroundColorState extends State {
     ];
 
     // setOpacity quand transparent
-    if (shape.opacity == 0) {
+    if (involvedShapes.some(shape => shape.opacity != 1)) {
       this.actions.push({
         name: 'OpacityAction',
         involvedShapesIds: involvedShapes.map(s => s.id),

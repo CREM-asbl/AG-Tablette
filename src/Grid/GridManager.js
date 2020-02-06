@@ -77,7 +77,7 @@ export class GridManager {
         startY = 10 + t2 * 50 * size;
       for (let x = startX; x <= maxPoint.x; x += 50 * size) {
         for (let y = startY; y <= maxPoint.y; y += 50 * size) {
-          ptList.push({ x: x, y: y });
+          ptList.push(new Point(x, y));
         }
       }
     } else {
@@ -90,7 +90,7 @@ export class GridManager {
 
       for (let x = startX; x <= maxPoint.x; x += 50 * size) {
         for (let y = startY; y <= maxPoint.y; y += approx * 2 * size) {
-          ptList.push({ x: x, y: y });
+          ptList.push(new Point(x, y));
         }
       }
 
@@ -100,7 +100,7 @@ export class GridManager {
       startY = 10 + approx * size + t2 * approx * 2 * size;
       for (let x = startX; x <= maxPoint.x; x += 50 * size) {
         for (let y = startY; y <= maxPoint.y; y += approx * 2 * size) {
-          ptList.push({ x: x, y: y });
+          ptList.push(new Point(x, y));
         }
       }
     }

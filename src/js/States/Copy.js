@@ -109,6 +109,7 @@ export class CopyState extends State {
     let translation = mouseCoordinates.subCoordinates(this.startClickCoordinates),
       involvedShapesCopies = this.involvedShapes.map(shape => shape.copy()),
       selectedShapeCopy = this.selectedShape.copy();
+
     involvedShapesCopies.forEach(shape => shape.translate(translation));
     selectedShapeCopy.translate(translation);
     let transformation = getShapeAdjustment(involvedShapesCopies, selectedShapeCopy);
@@ -148,15 +149,19 @@ export class CopyState extends State {
 
     let transformation = mouseCoordinates.subCoordinates(this.startClickCoordinates);
 
-    this.involvedShapes.forEach(s => {
-      let newCoords = s.coordinates.addCoordinates(transformation),
-        saveCoords = s.coordinates;
-
-      s.coordinates = newCoords;
-
-      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: s } }));
-
-      s.coordinates = saveCoords;
-    });
+    window.dispatchEvent(
+      new CustomEvent('draw-group', {
+        detail: {
+          involvedShapes: this.involvedShapes,
+          fct1: s => {
+            s.saveCoords = s.coordinates;
+            s.coordinates = s.coordinates.addCoordinates(transformation);
+          },
+          fct2: s => {
+            s.coordinates = s.saveCoords;
+          },
+        },
+      }),
+    );
   }
 }

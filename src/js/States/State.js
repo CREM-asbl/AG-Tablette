@@ -9,6 +9,7 @@ export class State {
       throw new TypeError('Abstract class "State" cannot be instantiated directly');
     }
     this.name = name;
+    this.description = title;
 
     this.actions = null;
 
@@ -122,6 +123,11 @@ export class State {
     window.dispatchEvent(new CustomEvent('actions', { detail: this.actions }));
     this.actions.forEach(action =>
       window.dispatchEvent(new CustomEvent(action.name, { detail: action })),
+    );
+    window.dispatchEvent(
+      new CustomEvent('actions-executed', {
+        detail: { name: this.description, actions: this.actions },
+      }),
     );
   }
 

@@ -18,6 +18,8 @@ export class ReverseAction extends Action {
          */
     this.involvedShapesIds = [];
 
+    this.shapesPos = [];
+
     this.symmetricalAxeLength = 200; // for update history from 1.0.0
   }
 
@@ -27,12 +29,14 @@ export class ReverseAction extends Action {
     if (save.axe) {
       this.axe = new Segment();
       this.axe.initFromObject(save.axe);
+      this.shapesPos = save.shapesPos;
     } else {
       // for update history from 1.0.0
       this.axe = this.getSymmetricalAxe(
         ShapeManager.getShapeById(this.shapeId),
         save.symmetricalAxeOrientation,
       );
+      this.shapesPos = save.involvedShapesIds.map(s => ShapeManager.getShapeIndex(s));
       window.dispatchEvent(
         new CustomEvent('update-history', {
           detail: {
@@ -40,15 +44,15 @@ export class ReverseAction extends Action {
             shapeId: this.shapeId,
             involvedShapesIds: this.involvedShapesIds,
             axe: this.axe,
+            shapePos: this.shapesPos,
           },
         }),
       );
     }
-    console.log(this);
   }
 
   checkDoParameters() {
-    if (!this.shapeId || !this.axe || !this.involvedShapesIds) {
+    if (!this.shapeId || !this.axe || !this.involvedShapesIds || !this.shapesPos) {
       console.log('incomplete data for ' + this.name + ': ', this);
       return false;
     }
@@ -66,12 +70,19 @@ export class ReverseAction extends Action {
       let s = ShapeManager.getShapeById(id);
       this.reverseShape(s, this.axe, 1);
     });
+    ShapeManager.moveShapesUp(this.shapesPos);
+    ShapeManager.reverseUpper(this.shapesPos.length);
   }
 
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    this.do();
+    this.involvedShapesIds.forEach(id => {
+      let s = ShapeManager.getShapeById(id);
+      this.reverseShape(s, this.axe, 1);
+    });
+    ShapeManager.reverseUpper(this.shapesPos.length);
+    ShapeManager.moveShapesToTheirPlace(this.shapesPos);
   }
 
   /**

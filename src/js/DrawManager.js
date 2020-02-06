@@ -1,5 +1,7 @@
 import { app } from './App';
 import { GridManager } from '../Grid/GridManager';
+import { GroupManager } from './GroupManager';
+import { ShapeManager } from './ShapeManager';
 
 export class DrawManager {
   /* #################################################################### */
@@ -105,10 +107,10 @@ export class DrawManager {
 
   /**
    * Dessiner une forme sur un canvas donné
-   * @param  {Context2D}  ctx             Canvas
-   * @param  {Shape}      shape           Forme à dessiner
-   * @param  {Number}     [borderSize=1]  Epaisseur des bordures de la forme
-   * @param  {Boolean}    [axeAngle=true] Axe de symétrie (pour reverse)
+   * @param  {Context2D}  ctx                  Canvas
+   * @param  {Shape}      shape                Forme à dessiner
+   * @param  {Number}     [borderSize=1]       Epaisseur des bordures de la forme
+   * @param  {Segment}    [axeAngle=undefined] Axe de symétrie (pour reverse)
    */
   static drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
     ctx.strokeStyle = shape.borderColor;
@@ -140,6 +142,39 @@ export class DrawManager {
     ctx.restore();
 
     ctx.lineWidth = 1;
+  }
+
+  /**
+   * Dessiner une forme sur un canvas donné
+   * @param  {Context2D}  ctx                  Canvas
+   * @param  {Shapes[]}   involvedShapes       Formes à dessiner
+   * @param  {Function}   fct1                 La fonction à appliquer sur les shapes avant le dessin
+   * @param  {Function}   fct2                 La fonction à appliquer sur les shapes après le dessin
+   * @param  {Number}     [borderSize=1]       Epaisseur des bordures de la forme
+   * @param  {Segment}    [axeAngle=undefined] Axe de symétrie (pour reverse)
+   * @param  {Boolean}    [isReversed=false]   Si le groupe doit etre retourné
+   */
+  static drawGroup(
+    ctx,
+    involvedShapes,
+    fct1,
+    fct2,
+    borderSize = 1,
+    axeAngle = undefined,
+    isReversed = false,
+  ) {
+    let orderedInvolvedShapes = involvedShapes.sort((s1, s2) =>
+      ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1,
+    );
+    if (isReversed) {
+      orderedInvolvedShapes.reverse();
+    }
+    orderedInvolvedShapes.forEach(s => {
+      console.log(s.name);
+      fct1(s);
+      DrawManager.drawShape(ctx, s, borderSize, axeAngle);
+      fct2(s);
+    });
   }
 
   /**
@@ -298,12 +333,18 @@ window.addEventListener('refreshBackground', () => {
 // draw
 window.addEventListener('draw-shape', event => {
   const ctx = event.detail.ctx || app.upperCtx;
-  DrawManager.drawShape(
+  DrawManager.drawShape(ctx, event.detail.shape, event.detail.borderSize, event.detail.axeAngle);
+});
+window.addEventListener('draw-group', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawGroup(
     ctx,
-    event.detail.shape,
+    event.detail.involvedShapes,
+    event.detail.fct1,
+    event.detail.fct2,
     event.detail.borderSize,
     event.detail.axeAngle,
-    event.detail.doSave,
+    event.detail.isReversed,
   );
 });
 window.addEventListener('draw-point', event => {

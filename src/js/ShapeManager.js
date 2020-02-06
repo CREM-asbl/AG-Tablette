@@ -16,6 +16,56 @@ export class ShapeManager {
   }
 
   /**
+   * moves the selected shapes above all other, with respect of the order
+   * @param {Number[]} indexes this indexes of the shapes to move
+   * @return {Number[]} the new indexes of the shapes
+   */
+  static moveShapesUp(indexes) {
+    const max = app.workspace.shapes.length - 1;
+    let shapesMoved = 0;
+    let newIndexes = new Array(indexes.length);
+    for (let i = max; i >= 0; i--) {
+      let idx = indexes.findIndex(idx => idx == i);
+      if (idx != -1) {
+        let shape = app.workspace.shapes[i];
+        app.workspace.shapes.splice(i, 1);
+        app.workspace.shapes.splice(max - shapesMoved, 0, shape);
+        shapesMoved++;
+        newIndexes[max - shapesMoved] = idx;
+      }
+    }
+    return newIndexes;
+  }
+
+  /**
+   * move the upper shapes back to their place, accordingly to indexes
+   * @param {Number[]} indexes the final place of the shapes
+   */
+  static moveShapesToTheirPlace(indexes) {
+    const max = app.workspace.shapes.length - 1;
+    let shapesMoved = 0;
+    for (let i = 0; i < max; i++) {
+      let idx = indexes.findIndex(idx => idx == i);
+      if (idx != -1) {
+        let shape = app.workspace.shapes[i];
+        app.workspace.shapes.splice(i, 1);
+        app.workspace.shapes.splice(indexes[idx], 0, shape);
+        shapesMoved++;
+      }
+    }
+  }
+
+  /**
+   * reverse the order of the <nbr> upper shapes
+   * @param {Number} nbr number of shapes to reverse
+   */
+  static reverseUpper(nbr) {
+    let lower = app.workspace.shapes.slice(0, -nbr),
+      upper = app.workspace.shapes.slice(-nbr);
+    app.workspace.shapes = [...lower, ...upper.reverse()];
+  }
+
+  /**
    * Renvoie l'index d'une forme (index dans le tableau de formes du
    * Workspace actuel), ou -1 si la forme n'a pas été trouvée.
    * @param  {Shape} shape la forme

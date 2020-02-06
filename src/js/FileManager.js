@@ -1,6 +1,7 @@
 import { app } from './App';
 import { WorkspaceManager } from './WorkspaceManager';
 import { Settings } from './Settings';
+import { GridManager } from '../Grid/GridManager';
 
 export class FileManager {
   static parseFile(data) {
@@ -71,7 +72,14 @@ export class FileManager {
   }
 
   static saveToPng(handle) {
-    const canvas = app.canvas.main;
+    const ctx = app.invisibleCtx,
+      canvas = app.canvas.invisible;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(app.canvas.background, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(app.canvas.main, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(app.canvas.upper, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
     if (FileManager.hasNativeFS) {
       // edge support for toBlob ?
       canvas.toBlob(blob => {
@@ -81,6 +89,33 @@ export class FileManager {
       const encoded_data = canvas.toDataURL();
       FileManager.downloadFile(handle.name, encoded_data);
     }
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+
+  static drawGridToSvg() {
+    let canvasWidth = app.canvas.main.clientWidth,
+      canvasHeight = app.canvas.main.clientHeight,
+      offsetX = app.workspace.translateOffset.x,
+      offsetY = app.workspace.translateOffset.y,
+      actualZoomLvl = app.workspace.zoomLevel,
+      //Ne pas voir les points apparaître:
+      marginToAdd = 20 * actualZoomLvl,
+      min = {
+        x: -offsetX / actualZoomLvl - marginToAdd,
+        y: -offsetY / actualZoomLvl - marginToAdd,
+      },
+      max = {
+        x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
+        y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
+      },
+      svg_data = '';
+
+    let pts = GridManager.getVisibleGridPoints(min, max);
+    pts.forEach(pt => {
+      svg_data += pt.to_svg('#F00', 1.5 / actualZoomLvl);
+    });
+
+    return svg_data;
   }
 
   static saveToSvg(handle) {
@@ -92,6 +127,7 @@ export class FileManager {
       '" height="' +
       canvas.height +
       '" xmlns="http://www.w3.org/2000/svg" >\n';
+    svg_data += FileManager.drawGridToSvg();
     app.workspace.shapes.forEach(shape => {
       svg_data += shape.to_svg() + '\n';
     });
@@ -110,6 +146,7 @@ export class FileManager {
       appSettings = app.settings.saveToObject();
 
     if (!detail.save_history) wsdata.history = undefined;
+    if (!detail.save_history) wsdata.completeHistory = undefined;
 
     if (!detail.save_settings) appSettings = undefined;
     if (!detail.save_settings) wsdata.settings = undefined;
