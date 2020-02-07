@@ -116,6 +116,8 @@ export class CreateState extends State {
     let shapeSize = app.settings.get('shapesSize'),
       involvedShapes = [this.shapeToCreate];
 
+    this.shapeToCreate.coordinates = mouseCoordinates;
+
     this.actions = [
       {
         name: 'CreateAction',

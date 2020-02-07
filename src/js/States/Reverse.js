@@ -24,7 +24,7 @@ export class ReverseState extends State {
     this.axe = null;
 
     //Durée en secondes de l'animation
-    this.duration = 10;
+    this.duration = 2;
 
     //Couleur des axes de symétrie
     this.symmetricalAxeColor = '#080';

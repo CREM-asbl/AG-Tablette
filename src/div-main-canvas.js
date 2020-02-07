@@ -258,7 +258,6 @@ class DivMainCanvas extends LitElement {
     this.upperCanvas.addEventListener('touchend', event => {
       event.preventDefault();
       if (CompleteHistoryManager.isRunning) return;
-      console.log(event);
       let detail = {
         touches: [],
         mousePos: undefined,

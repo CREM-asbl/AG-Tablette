@@ -154,7 +154,6 @@ export class Workspace {
 
     wsdata.settings = this.settings.saveToObject();
 
-    console.log(wsdata);
     return wsdata;
   }
 

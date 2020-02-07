@@ -18,13 +18,24 @@ export class MergeAction extends Action {
   }
 
   initFromObject(save) {
-    this.firstShapeId = save.firstShapeId;
-    this.secondShapeId = save.secondShapeId;
     this.createdShapeId = save.createdShapeId;
+    if (save.firstShapeId) {
+      this.firstShapeId = save.firstShapeId;
+      this.secondShapeId = save.secondShapeId;
+    } else {
+      this.involvedShapesIds = save.involvedShapesIds;
+      this.newSegments = save.newSegments;
+    }
   }
 
   checkDoParameters() {
-    if (!this.firstShapeId || !this.secondShapeId) return false;
+    if (
+      !this.createdShapeId ||
+      ((!this.firstShapeId || !this.secondShapeId) &&
+        (!this.involvedShapesIds || !this.newSegments))
+    ) {
+      console.log('incomplete data for ' + this.name + ': ', this);
+    }
     return true;
   }
 
@@ -33,21 +44,23 @@ export class MergeAction extends Action {
     return true;
   }
 
-  //Si renvoie false, annulera l'ajout à l'historique
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape1 = ShapeManager.getShapeById(this.firstShapeId),
-      shape2 = ShapeManager.getShapeById(this.secondShapeId);
+    if (this.firstShapeId) {
+      let shape1 = ShapeManager.getShapeById(this.firstShapeId),
+        shape2 = ShapeManager.getShapeById(this.secondShapeId);
 
-    const newSegments = this.createNewSegments(shape1, shape2);
+      const newSegments = this.createNewSegments(shape1, shape2);
 
-    if (!newSegments) return this.alertDigShape();
-    const linkedSegments = this.linkNewSegments(newSegments);
-    if (!linkedSegments) return this.alertDigShape();
+      if (!newSegments) return this.alertDigShape();
+      const linkedSegments = this.linkNewSegments(newSegments);
+      if (!linkedSegments) return this.alertDigShape();
 
-    this.createNewShape(shape1, shape2, linkedSegments);
-    return;
+      this.createNewShape(shape1, shape2, linkedSegments);
+    } else {
+      this.createNewShapeFromMultiple();
+    }
   }
 
   undo() {
@@ -157,8 +170,7 @@ export class MergeAction extends Action {
 
   createNewShape(shape1, shape2, newSegments) {
     let newShape = shape1.copy();
-    if (this.createdShapeId) newShape.id = this.createdShapeId;
-    else this.createdShapeId = newShape.id;
+    newShape.id = this.createdShapeId;
     newShape.name = 'Custom';
     newShape.familyName = 'Custom';
     newShape.color = getAverageColor(shape1.color, shape2.color);
@@ -169,6 +181,27 @@ export class MergeAction extends Action {
     newShape.isBiface = shape1.isBiface && shape2.isBiface;
     newShape.isReversed = shape1.isReversed && shape2.isReversed;
     newShape.setSegments(newSegments);
+    newShape.coordinates = { x: newShape.x - 20, y: newShape.y - 20 };
+    if (newShape.isCircle()) newShape.isCenterShown = true;
+    ShapeManager.addShape(newShape);
+  }
+
+  createNewShapeFromMultiple() {
+    let involvedShapes = this.involvedShapesIds.map(id => ShapeManager.getShapeById(id));
+    let newShape = involvedShapes[0].copy();
+    newShape.id = this.createdShapeId;
+    newShape.name = 'Custom';
+    newShape.familyName = 'Custom';
+    newShape.color = getAverageColor(...involvedShapes.map(s => s.color));
+    newShape.second_color = getComplementaryColor(newShape.color);
+    newShape.borderColor = getAverageColor(...involvedShapes.map(s => s.borderColor));
+    newShape.isCenterShown = false;
+    newShape.opacity =
+      involvedShapes.map(s => s.opacity).reduce((acc, value) => acc + value) /
+      involvedShapes.length;
+    newShape.isBiface = involvedShapes.some(s => s.isBiface);
+    newShape.isReversed = involvedShapes.some(s => s.isReversed);
+    newShape.setSegments(this.newSegments);
     newShape.coordinates = { x: newShape.x - 20, y: newShape.y - 20 };
     if (newShape.isCircle()) newShape.isCenterShown = true;
     ShapeManager.addShape(newShape);

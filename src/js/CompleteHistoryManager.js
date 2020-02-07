@@ -137,7 +137,6 @@ export class CompleteHistoryManager {
 
     if (type == 'actions-executed') {
       CompleteHistoryManager.action_idx++;
-      console.log(CompleteHistoryManager.action_idx);
     } else if (type == 'app-state-changed') {
       app.setState(detail.state, detail.startParams);
     } else if (type == 'objectSelected') {
@@ -151,7 +150,7 @@ export class CompleteHistoryManager {
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
     }
-    // if (type != 'canvasmousemove' && type != 'mouse-coordinates-changed') console.log(type, detail);
+    // console.log(type, detail);
   }
 
   /**
@@ -166,6 +165,7 @@ export class CompleteHistoryManager {
       detail.action_idx = app.workspace.completeHistory.steps.filter(step => {
         return step.detail && step.detail.actions;
       }).length;
+      detail.actions = HistoryManager.transformToObjects(detail.actions);
     }
     app.workspace.completeHistory.addStep(type, detail, timeStamp);
   }
@@ -216,7 +216,9 @@ window.addEventListener('setNumberOfParts', event =>
 );
 
 // opacity events
-window.addEventListener('setOpacity', event => CompleteHistoryManager.addStep('setOpacity', event));
+window.addEventListener('setOpacity', event => {
+  CompleteHistoryManager.addStep('setOpacity', event);
+});
 
 // background- and bordercolor
 window.addEventListener('colorChange', event =>
@@ -228,9 +230,9 @@ window.addEventListener('mouse-coordinates-changed', event =>
   CompleteHistoryManager.addStep('mouse-coordinates-changed', event),
 );
 
-window.addEventListener('actions-executed', event => {
-  CompleteHistoryManager.addStep('actions-executed', event);
-});
+window.addEventListener('actions-executed', event =>
+  CompleteHistoryManager.addStep('actions-executed', event),
+);
 
 // undo - redo
 window.addEventListener('undo-action', event =>
@@ -244,6 +246,10 @@ window.addEventListener('app-state-changed', event =>
   CompleteHistoryManager.addStep('app-state-changed', event),
 );
 
-window.addEventListener('reverse-animation', () => (CompleteHistoryManager.nextTime = 2 * 1000));
+window.addEventListener('reverse-animation', () => {
+  CompleteHistoryManager.nextTime = 2 * 1000;
+});
 
-window.addEventListener('start-browsing', () => CompleteHistoryManager.startBrowse());
+window.addEventListener('start-browsing', () => {
+  CompleteHistoryManager.startBrowse();
+});

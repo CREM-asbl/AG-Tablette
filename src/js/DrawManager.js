@@ -170,7 +170,6 @@ export class DrawManager {
       orderedInvolvedShapes.reverse();
     }
     orderedInvolvedShapes.forEach(s => {
-      console.log(s.name);
       fct1(s);
       DrawManager.drawShape(ctx, s, borderSize, axeAngle);
       fct2(s);
