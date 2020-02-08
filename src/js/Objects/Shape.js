@@ -249,25 +249,25 @@ export class Shape {
    *    considéré vrai si deux segments sont confondu mais n'ont qu'un point commun ! => peut-etre probleme dans environnement libre
    */
   overlapsWith(shape) {
-    let is_potential_dig = false,
+    let is_potential_dig = { value: false},
       s1 = this,
       s2 = shape,
       s1_segments = s1.segments,
       s2_segments = s2.segments;
 
     // s1 in s2 ? if a point of s1 is in s2
-    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments, [is_potential_dig]))
+    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments, is_potential_dig))
       return true;
     // s2 in s1 ? if a point of s2 is in s1
-    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments, [is_potential_dig]))
+    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments, is_potential_dig))
       return true;
 
     // check if intersect segments
     if (this.overlapCheckIntersectSegments(s1_segments, s2_segments)) return true;
 
     // check if dig
-    if (is_potential_dig) {
-      console.log('peut-etre creuse...');
+    if (is_potential_dig.value) {
+      console.log('peut-être creuse...');
       // return true;
     }
     return false;
@@ -295,7 +295,7 @@ export class Shape {
       ];
     }
 
-    if (vertexes_to_check.some(pt => shape.isPointInPath(pt))) is_potential_dig[0] = true;
+    if (vertexes_to_check.some(pt => shape.isPointInPath(pt))) is_potential_dig.value = true;
     if (
       vertexes_to_check.some(
         (pt, idx) =>
