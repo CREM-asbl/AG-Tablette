@@ -259,7 +259,7 @@ export class ReverseState extends State {
       //TODO: opti: ne pas devoir faire des copies à chaque refresh!
       this.involvedShapes.forEach(s => {
         let s2 = s.copy();
-        this.reverseShape(s2, this.axe, this.progress);
+        this.reverseShape(s2, this.axe);
         window.dispatchEvent(
           new CustomEvent('draw-shape', { detail: { shape: s2, axeAngle: this.axeAngle } }),
         );
