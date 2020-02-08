@@ -121,7 +121,6 @@ export class App {
       this.refreshWindow();
     };
 
-    // this.tangramManager.retrieveTangrams();
     window.dispatchEvent(new CustomEvent('app-started'));
   }
 
