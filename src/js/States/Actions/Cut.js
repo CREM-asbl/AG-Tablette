@@ -157,18 +157,14 @@ export class CutAction extends Action {
     ];
 
     // cleaning same direction segments
-    shape1Seg.forEach((seg, idx, segments) => {
-      const mergeIdx = mod(idx + 1, segments.length);
-      if (seg.hasSameDirection(segments[mergeIdx], 1, 0, false)) {
-        seg.vertexes[1] = segments[mergeIdx].vertexes[1].copy();
-        segments.splice(mergeIdx, 1);
-      }
-    });
-    shape2Seg.forEach((seg, idx, segments) => {
-      const mergeIdx = mod(idx + 1, segments.length);
-      if (seg.hasSameDirection(segments[mergeIdx], 1, 0, false)) {
-        seg.vertexes[1] = segments[mergeIdx].vertexes[1].copy();
-        segments.splice(mergeIdx, 1);
+    [shape1Seg, shape2Seg].forEach(shapeSeg => {
+      for(let i=0; i<shapeSeg.length; i++) {
+        const mergeIdx = mod(i + 1, shapeSeg.length);
+        if (shapeSeg[i].hasSameDirection(shapeSeg[mergeIdx], 1, 0, false)) {
+          shapeSeg[i].vertexes[1] = shapeSeg[mergeIdx].vertexes[1].copy();
+          shapeSeg.splice(mergeIdx, 1);
+          i--; //try to merge this new segment again!
+        }
       }
     });
 
