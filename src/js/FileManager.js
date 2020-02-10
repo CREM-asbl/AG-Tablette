@@ -178,7 +178,7 @@ export class FileManager {
       accepts: [
         {
           description: 'Etat',
-          extensions: ['agg'],
+          extensions: [app.environment.extension],
           mimeTypes: ['text/json'],
         },
         {

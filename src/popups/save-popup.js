@@ -121,16 +121,6 @@ class SavePopup extends LitElement {
     this.style.display = 'none';
   }
 
-  getFileNameFromEnv() {
-    switch (app.environment.name) {
-      case 'Grandeurs':
-        return 'agg';
-      default:
-        console.error('Unknown environment for file saving : ', app.environment.name);
-        return 'agg';
-    }
-  }
-
   /**
    * event handler principal
    */
@@ -152,7 +142,7 @@ class SavePopup extends LitElement {
       case 'save_popup_submit':
         this.close();
         this.extension =
-          this.image_or_state == 'state' ? this.getFileNameFromEnv() : this.save_format;
+          this.image_or_state == 'state' ? app.environment.extension : this.save_format;
         window.dispatchEvent(
           new CustomEvent('file-selected', {
             detail: {

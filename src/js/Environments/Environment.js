@@ -1,7 +1,7 @@
 import { Family } from '../Objects/Family';
 
 /**
- * Environnement de travail: Grandeur, Tangram, Cube... Un environnement
+ * Environnement de travail: Grandeurs, Tangram, Cube... Un environnement
  * détermine les familles de formes que l'on peut utiliser, et les actions que
  * l'on peut réaliser.
  */
@@ -14,6 +14,23 @@ export class Environment {
     this.familyNames = [];
 
     import(`./${name}.js`);
+
+    switch (this.name) {
+      case 'Grandeurs':
+        this.extension = 'agg';
+        break;
+      case 'Tangram':
+        this.extension = 'agt';
+        break;
+      case 'Cube':
+        this.extension = 'agc';
+        break;
+      case 'Géométrie':
+        this.extension = 'agl';
+        break;
+      default:
+        this.extension = 'json';
+    }
   }
 
   /**
