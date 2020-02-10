@@ -43,7 +43,7 @@ export class DeleteAction extends Action {
       });
       this.involvedShapesIndexes = save.involvedShapesIndexes;
       if (!save.involvedShapesIndexes) {
-        //compatibilité sauvegarde v1.0.0. TODO: gérer ça ailleurs ?
+        // for update history from 1.0.0
         this.involvedShapesIndexes = save.involvedShapes.map(() => 0);
       }
       this.userGroupId = save.userGroupId;
