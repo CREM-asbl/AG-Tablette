@@ -2,7 +2,7 @@ import { app } from '../App';
 import { State } from './State';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
-import { mod } from '../Tools/general';
+import { mod, uniqId } from '../Tools/general';
 
 /**
  * Découper une forme
