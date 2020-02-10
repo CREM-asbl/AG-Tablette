@@ -185,70 +185,11 @@ export class MergeState extends State {
     )
       return null;
 
-    let oldSegments = this.involvedShapes.map(s => s.segments.map(seg => seg.copy())).flat();
+    let segments = this.involvedShapes.map(s => s.segments.map(seg => seg.copy())).flat();
 
-    // TODO replace indexes by real segments
-
-    // console.log(oldSegments.map(seg => seg.vertexes[0].x + ' ' + seg.vertexes[0].y + ' ' + seg.vertexes[1].x + ' ' + seg.vertexes[1].y))
-
-    // delete common segments
-    let newSegments = [];
-    oldSegments.forEach((seg, i, segments) => {
-      if (seg.used) return;
-      let indexes = oldSegments
-        .map((segment, idx) => {
-          if (segment.equal(seg)) {
-            return idx;
-          }
-        })
-        .filter(el => el !== undefined);
-      if (indexes.length == 1) newSegments.push(seg);
-      else indexes.forEach(idx => (segments[idx].used = true));
-    });
-
-    // delete segments inside others
-    newSegments.forEach(seg => (seg.used = false));
-    oldSegments = newSegments;
-    newSegments = [];
-    oldSegments.forEach((seg, i, segments) => {
-      if (seg.used) return;
-      let indexes = oldSegments
-        .map((segment, idx) => {
-          if (idx != i && seg.subSegments.some(subseg => subseg.equal(segment))) {
-            return idx;
-          }
-        })
-        .filter(el => el !== undefined);
-      if (indexes.length != 0) {
-        segments[i].used = true;
-        indexes.forEach(idx => (segments[idx].used = true));
-        let subsegs = indexes.map(idx => segments[idx]);
-        subsegs.forEach(subseg => !subseg.hasSameDirection(seg) && subseg.reverse());
-        subsegs.sort((subseg1, subseg2) =>
-          subseg1.vertexes[1].dist(seg.vertexes[1]) < subseg2.vertexes[1].dist(seg.vertexes[1])
-            ? 1
-            : -1,
-        );
-        let currentSegment = seg;
-        subsegs.forEach(subseg => {
-          if (!subseg.vertexes[0].equal(currentSegment.vertexes[0]))
-            newSegments.push(new Segment(currentSegment.vertexes[0], subseg.vertexes[0]));
-          currentSegment = new Segment(subseg.vertexes[1], currentSegment.vertexes[1]);
-        });
-        if (currentSegment.length > 0.001) newSegments.push(currentSegment);
-      }
-    });
-    oldSegments.forEach(seg => {
-      return !seg.used ? newSegments.push(seg) : undefined;
-    });
-
-    // resize segments that share subSegments with others
-    newSegments.forEach(seg => (seg.used = false));
-    oldSegments = newSegments;
-    newSegments = [];
-    for (let i = 0; i < oldSegments.length; i++) {
-      let seg = oldSegments[i];
-      let commonSegmentIdx = oldSegments.findIndex(
+    for (let i = 0; i < segments.length; i++) {
+      let seg = segments[i];
+      let commonSegmentIdx = segments.findIndex(
         (segment, idx) =>
           idx != i &&
           seg.subSegments.some(subseg =>
@@ -256,7 +197,7 @@ export class MergeState extends State {
           ),
       );
       if (commonSegmentIdx == -1) continue;
-      let commonSegment = oldSegments[commonSegmentIdx];
+      let commonSegment = segments[commonSegmentIdx];
       let junction = seg.subSegments
         .filter(subseg => commonSegment.subSegments.some(subseg2 => subseg.equal(subseg2)))
         .sort((seg1, seg2) => (seg1.length < seg2.length ? 1 : -1))[0];
@@ -272,13 +213,12 @@ export class MergeState extends State {
       if (!commonSegment.vertexes[1].equal(junction.vertexes[1]))
         createdSegments.push(new Segment(commonSegment.vertexes[1], junction.vertexes[1]));
       let indexToRemove = [i, commonSegmentIdx].sort((idx1, idx2) => idx1 - idx2);
-      oldSegments.splice(indexToRemove[1], 1);
-      oldSegments.splice(indexToRemove[0], 1, ...createdSegments);
+      segments.splice(indexToRemove[1], 1);
+      segments.splice(indexToRemove[0], 1, ...createdSegments);
       i = -1;
     }
-    newSegments = oldSegments;
 
-    return newSegments;
+    return segments;
   }
 
   linkNewSegments(segmentsList) {
