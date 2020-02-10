@@ -43,8 +43,12 @@ export class CreateState extends State {
   /**
    * ré-initialiser l'état
    */
-  restart() {
+  restart(manualRestart = false, family) {
     this.end();
+    if (manualRestart) {
+      this.start(family);
+      return;
+    }
     window.dispatchEvent(
       new CustomEvent('family-selected', { detail: { selectedFamily: this.selectedFamily } }),
     );

@@ -15,6 +15,8 @@ class SettingsPopup extends LitElement {
     super();
     this.settings = app.settings;
     addEventListener('app-settings-changed', () => (this.settings = { ...app.settings }));
+
+    window.addEventListener('close-popup', () => this.close());
   }
 
   static get styles() {
@@ -30,7 +32,7 @@ class SettingsPopup extends LitElement {
 
   render() {
     return html`
-     <template-popup @close-popup="${() => (this.style.display = 'none')}">
+     <template-popup>
       <h2 slot="title">Paramètres</h2>
       <div slot="body">
         <fieldset>
@@ -87,11 +89,15 @@ class SettingsPopup extends LitElement {
           <div slot="footer">
             <version-item></version-item>
             <button @click="${() => app.resetSettings()}">Paramètres par défaut</button>
-            <button @click="${() => (this.style.display = 'none')}">OK</button>
+            <button @click="${this.close}">OK</button>
           </div>
       </div>
      </template-popup>
     `;
+  }
+
+  close() {
+    this.style.display = 'none';
   }
 
   /**

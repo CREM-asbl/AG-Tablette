@@ -24,7 +24,6 @@ export class MergeState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-
     setTimeout(
       () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
     );
@@ -51,8 +50,8 @@ export class MergeState extends State {
    */
   end() {
     if (this.status != 'paused') {
-      app.workspace.editingShapes = [];
       this.currentStep = 'listen-canvas-click';
+      app.workspace.editingShapes = [];
     }
     app.removeListener('objectSelected', this.objectSelectedId);
   }
@@ -75,7 +74,6 @@ export class MergeState extends State {
     if (this.currentStep == 'listen-canvas-click') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
       if (this.involvedShapes.length > 1) {
-        console.log(this.involvedShapes);
         let mergeDone = (() => {
           const newSegments = this.checkGroupMerge();
 

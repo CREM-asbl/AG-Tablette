@@ -7,6 +7,7 @@ class GridPopup extends LitElement {
     super();
     this.gridType = app.workspace.settings.get('gridType');
     this.gridSize = app.workspace.settings.get('gridSize');
+    window.addEventListener('close-popup', () => this.gridPopupValidate());
   }
 
   static get properties() {
@@ -23,7 +24,7 @@ class GridPopup extends LitElement {
 
   render() {
     return html`
-      <template-popup @close-popup="${() => this.gridPopupValidate()}">
+      <template-popup>
         <h2 slot="title">Grille</h2>
         <div slot="body" id="body">
           <div class="field" style="margin-left:8px">

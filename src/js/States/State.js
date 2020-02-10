@@ -27,8 +27,7 @@ export class State {
     window.addEventListener('app-state-changed', event => {
       if (this.status == 'running') {
         if (this.name == app.state) {
-          this.start(event.detail.startParams);
-          this.status = 'running';
+          this.restart(true, event.detail.startParams);
         } else {
           this.status = 'idle';
           this.end();

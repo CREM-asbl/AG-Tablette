@@ -337,7 +337,7 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'new':
-        this.shadowRoot.querySelector('new-popup').style.display = 'block';
+        window.dispatchEvent(new CustomEvent('open-new-popup'));
         reset_state = 1;
         break;
       case 'undo':
