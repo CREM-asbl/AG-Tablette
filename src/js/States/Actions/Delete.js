@@ -18,8 +18,8 @@ export class DeleteAction extends Action {
     // les shapes a supprimer
     this.involvedShapes = null;
 
-    // les index dans workspace des shapes supprimées
-    this.shapesIdx = null;
+    // les index des formes supprimées
+    this.involvedShapesIndexes = null;
 
     /*
      * Si la forme à supprimer fait partie d'un groupe:
@@ -30,6 +30,9 @@ export class DeleteAction extends Action {
 
     // Son index dans le tableau des groupes
     this.userGroupIndex = null;
+
+    //Le userGroup doit-il être supprimé (car vide) ?
+    this.deleteUserGroup = false;
   }
 
   initFromObject(save) {
@@ -41,18 +44,27 @@ export class DeleteAction extends Action {
         newShape.id = shape.id;
         return newShape;
       });
+      this.involvedShapesIndexes = save.involvedShapesIndexes;
+      if (!save.involvedShapesIndexes) {
+        //compatibilité sauvegarde v1.0.0. TODO: gérer ça ailleurs ?
+        this.involvedShapesIndexes = save.involvedShapes.map(() => 0);
+      }
+      this.userGroupId = save.userGroupId;
+      this.userGroupLastShapeId = save.userGroupLastShapeId;
       this.userGroupIndex = save.userGroupIndex;
-      if (save.shapesIdx) {
-        this.shapesIdx = save.shapesIdx;
+      if (save.involvedShapesIndexes) {
+        this.involvedShapesIndexes = save.involvedShapesIndexes;
         this.userGroup = save.userGroup;
       } else {
         // for update history from 1.0.0
-        this.shapesIdx = this.involvedShapes.map(shape => ShapeManager.getShapeIndex(shape));
+        this.involvedShapesIndexes = this.involvedShapes.map(shape =>
+          ShapeManager.getShapeIndex(shape),
+        );
         let detail = {
           name: 'DeleteAction',
           mode: this.mode,
           involvedShapes: this.involvedShapes,
-          shapesIdx: this.shapesIdx,
+          involvedShapesIndexes: this.involvedShapesIndexes,
         };
         if (save.userGroupId) {
           this.userGroup = new ShapeGroup(0, 1);
@@ -100,11 +112,28 @@ export class DeleteAction extends Action {
     if (!this.checkDoParameters()) return;
 
     if (this.mode == 'shape') {
-      if (this.userGroup) {
-        this.userGroup.shapesIds.forEach(id => ShapeManager.deleteShape({ id: id }));
-        GroupManager.deleteGroup(this.userGroup);
-      } else {
-        this.involvedShapes.forEach(shape => ShapeManager.deleteShape(shape));
+      let userGroup = GroupManager.getShapeGroup(this.involvedShapes[0]);
+
+      this.involvedShapesIndexes = [];
+      this.involvedShapes.forEach(s => {
+        /*
+          Pas besoin de trier involvedShapes par index décroissants;
+          dans undo(), en les ajoutant dans l'ordre inverse, les index resteront
+          bien identiques (car on récupère l'index de s après avoir supprimé les
+          formes précédentes!).
+         */
+        let index = ShapeManager.getShapeIndex(s);
+        if (index == -1) console.error('Shape not found');
+        this.involvedShapesIndexes.push(index);
+
+        if (userGroup) userGroup.deleteShape(s.id);
+        ShapeManager.deleteShape(s);
+      });
+
+      if (userGroup) {
+        this.userGroupId = userGroup.id;
+        this.userGroupIndex = GroupManager.getGroupIndex(userGroup);
+        GroupManager.deleteGroup(userGroup);
       }
     } else {
       // point
@@ -117,15 +146,28 @@ export class DeleteAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     if (this.mode == 'shape') {
-      if (this.userGroup) {
-        let userGroup = new ShapeGroup(0, 1);
-        userGroup.initFromObject(this.userGroup);
-        userGroup.id = this.userGroup.id;
+      let userGroup;
+
+      let shapeCopies = this.involvedShapes.map(s => {
+        let newShape = s.copy();
+        newShape.id = s.id;
+        return newShape;
+      });
+      let sIndexes = this.involvedShapesIndexes.map(s => s);
+
+      //reverse: pour garder le même index qu'avant la suppression!
+      shapeCopies.reverse();
+      sIndexes.reverse();
+
+      if (shapeCopies.length >= 2) {
+        userGroup = new ShapeGroup(shapeCopies[0].id, shapeCopies[1].id);
+        userGroup.id = this.userGroupId;
         GroupManager.addGroup(userGroup, this.userGroupIndex);
       }
 
-      this.involvedShapes.forEach(s => {
-        ShapeManager.addShape(s);
+      shapeCopies.forEach((s, id) => {
+        ShapeManager.addShape(s, sIndexes[id]);
+        if (userGroup && id >= 2) userGroup.addShape(s.id);
       });
     } else {
       // point

@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { State } from './State';
 import { Point } from '../Objects/Point';
+import { Segment } from '../Objects/Segment';
 import { mod, uniqId } from '../Tools/general';
 
 /**
@@ -216,6 +217,8 @@ export class CutState extends State {
    * Vérifie si le segment de droite reliant pt1 et pt2 reste bien à
    * l'intérieur de la forme ou non, et qu'il y a au moins un point de ce
    * segment qui n'est pas au bord de la forme.
+   * Vérifie également qu'il n'y a pas un autre sommet de la forme sur cette
+   * droite.
    * @param  {Shape}  shape
    * @param  {Point}  pt1  coordonnées du point 1
    * @param  {Point}  pt2  coordonnées du point 2
@@ -232,7 +235,13 @@ export class CutState extends State {
       if (!shape.isPointInPath(pt)) return false;
       pointsInBorder += shape.isPointInBorder(pt) ? 1 : 0;
     }
-    return pointsInBorder <= 40 * precision;
+    if (pointsInBorder > 40 * precision) return false;
+
+    return shape.vertexes.every(vertex => {
+      return (
+        vertex.equal(pt1) || vertex.equal(pt2) || !new Segment(pt1, pt2).isPointOnSegment(vertex)
+      );
+    });
   }
 
   setSelConstraints(step) {
