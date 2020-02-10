@@ -150,9 +150,18 @@ export class MergeState extends State {
   }
 
   checkGroupMerge() {
+    if (
+      this.involvedShapes.some(shape =>
+        this.involvedShapes.some(s => {
+          if (s.id == shape.id) return false;
+          else return s.overlapsWith(shape);
+        }),
+      )
+    )
+      return null;
+
     let oldSegments = this.involvedShapes.map(s => s.segments.map(seg => seg.copy())).flat();
 
-    // TODO vérifier overlap
     // TODO replace indexes by real segments
 
     // console.log(oldSegments.map(seg => seg.vertexes[0].x + ' ' + seg.vertexes[0].y + ' ' + seg.vertexes[1].x + ' ' + seg.vertexes[1].y))
