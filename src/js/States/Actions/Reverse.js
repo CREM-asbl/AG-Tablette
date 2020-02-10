@@ -53,7 +53,7 @@ export class ReverseAction extends Action {
 
   checkDoParameters() {
     if (!this.shapeId || !this.axe || !this.involvedShapesIds || !this.shapesPos) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

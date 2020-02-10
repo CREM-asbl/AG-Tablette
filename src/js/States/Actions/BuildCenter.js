@@ -14,7 +14,10 @@ export class BuildCenterAction extends Action {
   }
 
   checkDoParameters() {
-    if (!this.shapeId) return false;
+    if (!this.shapeId) {
+      this.printIncompleteData();
+      return false;
+    }
     return true;
   }
 

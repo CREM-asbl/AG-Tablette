@@ -26,25 +26,20 @@ export class MoveAction extends Action {
   }
 
   checkDoParameters() {
-    if (!this.shapeId) return false;
     if (
+      !this.shapeId ||
       !this.transformation ||
       this.transformation.x === undefined ||
       this.transformation.y === undefined
-    )
+    ) {
+      this.printIncompleteData();
       return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (!this.shapeId) return false;
-    if (
-      !this.transformation ||
-      this.transformation.x === undefined ||
-      this.transformation.y === undefined
-    )
-      return false;
-    return true;
+    this.checkDoParameters();
   }
 
   do() {

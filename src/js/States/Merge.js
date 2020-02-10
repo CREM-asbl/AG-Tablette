@@ -71,7 +71,6 @@ export class MergeState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape) {
-    console.log(this.currentStep);
     if (this.currentStep == 'listen-canvas-click') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
       if (this.involvedShapes.length > 1) {
@@ -221,18 +220,6 @@ export class MergeState extends State {
     newSegments.forEach(seg => (seg.used = false));
     oldSegments = newSegments;
     newSegments = [];
-    console.log(
-      oldSegments.map(
-        seg =>
-          seg.vertexes[0].x +
-          ' ' +
-          seg.vertexes[0].y +
-          ' ' +
-          seg.vertexes[1].x +
-          ' ' +
-          seg.vertexes[1].y,
-      ),
-    );
     for (let i = 0; i < oldSegments.length; i++) {
       let seg = oldSegments[i];
       let commonSegmentIdx = oldSegments.findIndex(

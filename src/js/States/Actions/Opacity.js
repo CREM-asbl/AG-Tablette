@@ -26,7 +26,7 @@ export class OpacityAction extends Action {
 
   checkDoParameters() {
     if (!Number.isFinite(this.opacity) || !this.involvedShapesIds) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -34,7 +34,7 @@ export class OpacityAction extends Action {
 
   checkUndoParameters() {
     if (!this.involvedShapesIds || this.oldOpacities.length != this.involvedShapesIds.length) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

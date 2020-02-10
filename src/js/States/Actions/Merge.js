@@ -44,7 +44,8 @@ export class MergeAction extends Action {
       (this.mode == 'twoShapes' && (!this.firstShapeId || !this.secondShapeId)) ||
       (this.mode == 'multipleShapes' && (!this.involvedShapesIds || !this.newSegments))
     ) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
+      return false;
     }
     return true;
   }

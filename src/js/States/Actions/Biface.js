@@ -36,7 +36,7 @@ export class BifaceAction extends Action {
 
   checkDoParameters() {
     if (!this.involvedShapesIds.length) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -44,7 +44,7 @@ export class BifaceAction extends Action {
 
   checkUndoParameters() {
     if (!this.involvedShapesIds.length && this.involvedShapesIds.length != this.oldBiface.length) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

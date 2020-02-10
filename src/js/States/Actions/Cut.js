@@ -54,7 +54,7 @@ export class CutAction extends Action {
       !this.createdShapes &&
       (!this.shapeId || !this.firstPoint || !this.secondPoint || !this.createdShapesIds.length)
     ) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -62,7 +62,7 @@ export class CutAction extends Action {
 
   checkUndoParameters() {
     if (!this.createdShapesIds.length) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

@@ -91,14 +91,14 @@ export class GroupAction extends Action {
 
   checkDoParameters() {
     if (this.type != 'new' && this.type != 'add' && this.type != 'merge') {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     if (this.type == 'new' && (!this.groupId || !this.shapeId || !this.secondShapeId)) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     } else if (this.type == 'add' && (this.shapeId === undefined || !this.group)) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     } else if (
       this.type == 'merge' &&
@@ -107,7 +107,7 @@ export class GroupAction extends Action {
         !this.otherGroup ||
         this.otherGroupIdx === undefined)
     ) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -115,14 +115,14 @@ export class GroupAction extends Action {
 
   checkUndoParameters() {
     if (this.type != 'new' && this.type != 'add' && this.type != 'merge') {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     if (this.type == 'new' && (!this.groupId || !this.shapeId || !this.secondShapeId)) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     } else if (this.type == 'add' && (this.shapeId === undefined || !this.group)) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     } else if (
       this.type == 'merge' &&
@@ -131,7 +131,7 @@ export class GroupAction extends Action {
         !this.otherGroup ||
         this.otherGroupIdx === undefined)
     ) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

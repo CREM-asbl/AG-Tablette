@@ -50,13 +50,18 @@ export class CopyAction extends Action {
       !this.transformation ||
       this.transformation.x === undefined ||
       this.transformation.y === undefined
-    )
+    ) {
+      this.printIncompleteData();
       return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (this.involvedShapesIds.length != this.newShapesIds.length) return false;
+    if (this.involvedShapesIds.length != this.newShapesIds.length) {
+      this.printIncompleteData();
+      return false;
+    }
     return true;
   }
 
