@@ -39,7 +39,7 @@ export class MoveAction extends Action {
   }
 
   checkUndoParameters() {
-    this.checkDoParameters();
+    return this.checkDoParameters();
   }
 
   do() {

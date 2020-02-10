@@ -16,7 +16,7 @@ export class App {
     this.canvasWidth = null;
     this.canvasHeight = null;
 
-    //L'état de l'application
+    // L'état de l'application
     this.state = null;
 
     // Les états possibles
