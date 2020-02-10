@@ -183,6 +183,7 @@ export class ReverseState extends State {
     });
 
     window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('reverse-animation'));
     this.animate();
   }
 
@@ -238,6 +239,7 @@ export class ReverseState extends State {
           shapeId: this.selectedShape.id,
           involvedShapesIds: this.involvedShapes.map(s => s.id),
           axe: this.axe,
+          shapesPos: this.involvedShapes.map(s => ShapeManager.getShapeIndex(s)),
         },
       ];
       this.executeAction();
@@ -257,13 +259,24 @@ export class ReverseState extends State {
   draw() {
     if (this.currentStep == 'reversing-shape' && this.status == 'running') {
       //TODO: opti: ne pas devoir faire des copies à chaque refresh!
-      this.involvedShapes.forEach(s => {
-        let s2 = s.copy();
-        this.reverseShape(s2, this.axe);
-        window.dispatchEvent(
-          new CustomEvent('draw-shape', { detail: { shape: s2, axeAngle: this.axeAngle } }),
-        );
-      });
+
+      window.dispatchEvent(
+        new CustomEvent('draw-group', {
+          detail: {
+            involvedShapes: this.involvedShapes.map(s => {
+              let newShape = s.copy();
+              newShape.id = s.id;
+              return newShape;
+            }),
+            fct1: s => {
+              this.reverseShape(s, this.axe, this.progress);
+            },
+            fct2: () => {},
+            axeAngle: this.axeAngle,
+            isReversed: this.progress > 0.5,
+          },
+        }),
+      );
 
       //Dessiner l'axe:
       window.dispatchEvent(
@@ -271,11 +284,16 @@ export class ReverseState extends State {
           detail: { line: this.axe, color: this.symmetricalAxeColor, doSave: false },
         }),
       );
-      return;
     } else if (this.currentStep == 'selecting-symmetrical-arch') {
-      this.involvedShapes.forEach(s => {
-        window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: s } }));
-      });
+      window.dispatchEvent(
+        new CustomEvent('draw-group', {
+          detail: {
+            involvedShapes: this.involvedShapes,
+            fct1: () => {},
+            fct2: () => {},
+          },
+        }),
+      );
 
       let axes = [
         this.getSymmetricalAxe('V'),

@@ -67,8 +67,12 @@ export class DivideState extends State {
   /**
    * ré-initialiser l'état
    */
-  restart() {
+  restart(manualRestart = false) {
     this.end();
+    if (manualRestart) {
+      this.start();
+      return;
+    }
     if (this.savedSelConstr) {
       app.workspace.selectionConstraints = this.savedSelConstr;
       this.savedSelConstr = null;

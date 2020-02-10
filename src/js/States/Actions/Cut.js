@@ -54,7 +54,7 @@ export class CutAction extends Action {
       !this.createdShapes &&
       (!this.shapeId || !this.firstPoint || !this.secondPoint || !this.createdShapesIds.length)
     ) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -62,7 +62,7 @@ export class CutAction extends Action {
 
   checkUndoParameters() {
     if (!this.createdShapesIds.length) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -158,7 +158,7 @@ export class CutAction extends Action {
 
     // cleaning same direction segments
     [shape1Seg, shape2Seg].forEach(shapeSeg => {
-      for(let i=0; i<shapeSeg.length; i++) {
+      for (let i = 0; i < shapeSeg.length; i++) {
         const mergeIdx = mod(i + 1, shapeSeg.length);
         if (shapeSeg[i].hasSameDirection(shapeSeg[mergeIdx], 1, 0, false)) {
           shapeSeg[i].vertexes[1] = shapeSeg[mergeIdx].vertexes[1].copy();
@@ -193,9 +193,9 @@ export class CutAction extends Action {
       distance = center2.dist(center1),
       myOffset = 20, //px
       offset = difference.multiplyWithScalar(myOffset / distance);
-    shape1.coordinates = new Point(shape1).subCoordinates(offset);
+    shape1.coordinates = shape1.coordinates.subCoordinates(offset);
     shape1.id = this.createdShapesIds[0];
-    shape2.coordinates = new Point(shape2).addCoordinates(offset);
+    shape2.coordinates = shape2.coordinates.addCoordinates(offset);
     shape2.id = this.createdShapesIds[1];
 
     ShapeManager.addShape(shape1);

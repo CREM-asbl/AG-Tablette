@@ -5,6 +5,7 @@ import { Shape } from './Objects/Shape';
 import { Segment } from './Objects/Segment';
 import { Point } from './Objects/Point';
 import { SelectManager } from './SelectManager';
+import { HistoryManager } from './HistoryManager';
 
 /**
  * Représente l'historique complet d'un espace de travail.
@@ -20,10 +21,41 @@ export class CompleteHistoryManager {
     app.workspace.completeHistory.currentTimestamp =
       app.workspace.completeHistory.videoStartTimestamp;
     app.workspace.completeHistory.historyIndex = 0;
-    CompleteHistoryManager.exectuteNextStep();
+    CompleteHistoryManager.executeAllSteps();
+    CompleteHistoryManager.nextTime = 0;
+
+    // index de la derniere action effectuée
+    CompleteHistoryManager.action_idx = 0;
+
+    // empecher que l'utilisateur choisisse un state
   }
 
-  static moveTo() {}
+  static moveTo(idx) {
+    window.clearTimeout(app.workspace.completeHistory.timeoutId);
+    if (idx > CompleteHistoryManager.action_idx) {
+      let toGo = app.workspace.completeHistory.steps.findIndex(
+        step => step.detail && step.detail.action_idx == idx - 1,
+      );
+      for (
+        ;
+        app.workspace.completeHistory.historyIndex < toGo;
+        app.workspace.completeHistory.historyIndex++
+      ) {
+        CompleteHistoryManager.executeStep();
+      }
+    } else {
+      app.workspace.history.index = CompleteHistoryManager.action_idx - 1;
+      for (; CompleteHistoryManager.action_idx > idx; CompleteHistoryManager.action_idx--) {
+        HistoryManager.undo();
+      }
+      app.workspace.completeHistory.historyIndex =
+        app.workspace.completeHistory.steps.findIndex(
+          step => step.detail && step.detail.action_idx == idx - 1,
+        ) + 1;
+      // setState dans le cas où le state n'a pas changé entre l'action précédente et celle en cours
+    }
+    CompleteHistoryManager.executeAllSteps();
+  }
 
   // static createNewObject(detail) {
   //   if (!detail)
@@ -69,31 +101,18 @@ export class CompleteHistoryManager {
   //   return savedDetail;
   // }
 
-  static exectuteNextStep() {
+  static executeAllSteps() {
     if (
       app.workspace.completeHistory.historyIndex >=
       app.workspace.completeHistory.steps.length - 1
     ) {
       CompleteHistoryManager.isRunning = false;
       console.log('finished');
+      window.dispatchEvent(new CustomEvent('browsing-finished'));
       return;
     }
-    let { type, detail } = app.workspace.completeHistory.steps[
-      app.workspace.completeHistory.historyIndex
-    ];
 
-    if (type == 'app-state-changed') {
-      app.setState(detail.state, detail.startParams);
-    } else if (type == 'objectSelected') {
-      SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
-    } else {
-      if (detail && detail.mousePos) {
-        detail.mousePos = new Point(detail.mousePos);
-      }
-      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
-    }
-
-    if (type != 'canvasmousemove' && type != 'mouse-coordinates-changed') console.log(type, detail);
+    CompleteHistoryManager.executeStep();
 
     app.workspace.completeHistory.historyIndex++;
     app.workspace.completeHistory.currentTimestamp = Date.now();
@@ -103,9 +122,35 @@ export class CompleteHistoryManager {
       (app.workspace.completeHistory.currentTimestamp -
         app.workspace.completeHistory.videoStartTimestamp);
     app.workspace.completeHistory.timeoutId = setTimeout(
-      () => CompleteHistoryManager.exectuteNextStep(),
-      nextTime,
+      () => CompleteHistoryManager.executeAllSteps(),
+      CompleteHistoryManager.nextTime + 50, // nextTime,
     );
+    CompleteHistoryManager.nextTime = 0;
+  }
+
+  static executeStep(idx = app.workspace.completeHistory.historyIndex) {
+    let { type, detail } = app.workspace.completeHistory.steps[idx];
+
+    if (detail && detail.mousePos) {
+      detail.mousePos = new Point(detail.mousePos);
+    }
+
+    if (type == 'actions-executed') {
+      CompleteHistoryManager.action_idx++;
+    } else if (type == 'app-state-changed') {
+      app.setState(detail.state, detail.startParams);
+    } else if (type == 'objectSelected') {
+      SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
+    } else if (type == 'mouse-coordinates-changed') {
+      window.dispatchEvent(new CustomEvent('show-cursor', { detail: detail }));
+      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+    } else if (type == 'canvasmouseup') {
+      window.dispatchEvent(new CustomEvent('click-cursor', { detail: detail }));
+      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+    } else {
+      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+    }
+    // console.log(type, detail);
   }
 
   /**
@@ -116,6 +161,12 @@ export class CompleteHistoryManager {
     let detail = { ...event.detail },
       timeStamp = event.timeStamp;
     if (type == 'objectSelected') detail.object = undefined;
+    if (type == 'actions-executed') {
+      detail.action_idx = app.workspace.completeHistory.steps.filter(step => {
+        return step.detail && step.detail.actions;
+      }).length;
+      detail.actions = HistoryManager.transformToObjects(detail.actions);
+    }
     app.workspace.completeHistory.addStep(type, detail, timeStamp);
   }
 }
@@ -165,11 +216,22 @@ window.addEventListener('setNumberOfParts', event =>
 );
 
 // opacity events
-window.addEventListener('setOpacity', event => CompleteHistoryManager.addStep('setOpacity', event));
+window.addEventListener('setOpacity', event => {
+  CompleteHistoryManager.addStep('setOpacity', event);
+});
+
+// background- and bordercolor
+window.addEventListener('colorChange', event =>
+  CompleteHistoryManager.addStep('colorChange', event),
+);
 
 // use for animation states
 window.addEventListener('mouse-coordinates-changed', event =>
   CompleteHistoryManager.addStep('mouse-coordinates-changed', event),
+);
+
+window.addEventListener('actions-executed', event =>
+  CompleteHistoryManager.addStep('actions-executed', event),
 );
 
 // undo - redo
@@ -184,4 +246,10 @@ window.addEventListener('app-state-changed', event =>
   CompleteHistoryManager.addStep('app-state-changed', event),
 );
 
-window.addEventListener('startBrowse', () => CompleteHistoryManager.startBrowse());
+window.addEventListener('reverse-animation', () => {
+  CompleteHistoryManager.nextTime = 2 * 1000;
+});
+
+window.addEventListener('start-browsing', () => {
+  CompleteHistoryManager.startBrowse();
+});

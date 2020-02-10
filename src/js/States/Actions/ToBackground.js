@@ -14,7 +14,10 @@ export class ToBackgroundAction extends Action {
   }
 
   checkDoParameters() {
-    if (!Number.isFinite(this.oldIndex)) return false;
+    if (!Number.isFinite(this.oldIndex)) {
+      this.printIncompleteData();
+      return false;
+    }
     return true;
   }
 

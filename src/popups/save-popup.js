@@ -26,6 +26,8 @@ class SavePopup extends LitElement {
     window.addEventListener('show-save-popup', () => {
       this.style.display = 'block';
     });
+
+    window.addEventListener('close-popup', () => this.close());
   }
 
   static get styles() {
@@ -34,7 +36,7 @@ class SavePopup extends LitElement {
 
   render() {
     return html`
-      <template-popup @close-popup="${() => (this.style.display = 'none')}">
+      <template-popup>
         <h2 slot="title">Sauvegarder</h2>
         <div slot="body" id="body">
           <div style="display: ${FileManager.hasNativeFS ? 'none' : 'block'}">
@@ -115,14 +117,8 @@ class SavePopup extends LitElement {
     `;
   }
 
-  getFileNameFromEnv() {
-    switch (app.environment.name) {
-      case 'Grandeurs':
-        return 'agg';
-      default:
-        console.error('Unknown environment for file saving : ', app.environment.name);
-        return 'agg';
-    }
+  close() {
+    this.style.display = 'none';
   }
 
   /**
@@ -144,9 +140,9 @@ class SavePopup extends LitElement {
         break;
 
       case 'save_popup_submit':
-        this.style.display = 'none';
+        this.close();
         this.extension =
-          this.image_or_state == 'state' ? this.getFileNameFromEnv() : this.save_format;
+          this.image_or_state == 'state' ? app.environment.extension : this.save_format;
         window.dispatchEvent(
           new CustomEvent('file-selected', {
             detail: {

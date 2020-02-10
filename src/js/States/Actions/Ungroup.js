@@ -36,7 +36,7 @@ export class UngroupAction extends Action {
 
   checkDoParameters() {
     if (!this.group) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -44,7 +44,7 @@ export class UngroupAction extends Action {
 
   checkUndoParameters() {
     if (!this.group || this.groupIdx === undefined) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

@@ -9,6 +9,7 @@ export class State {
       throw new TypeError('Abstract class "State" cannot be instantiated directly');
     }
     this.name = name;
+    this.description = title;
 
     this.actions = null;
 
@@ -26,10 +27,8 @@ export class State {
     window.addEventListener('app-state-changed', event => {
       if (this.status == 'running') {
         if (this.name == app.state) {
-          this.start(event.detail.startParams);
-          this.status = 'running';
+          this.restart(true, event.detail.startParams);
         } else {
-          // console.log(this.name, 'ended');
           this.status = 'idle';
           this.end();
         }
@@ -132,6 +131,11 @@ export class State {
     window.dispatchEvent(new CustomEvent('actions', { detail: this.actions }));
     this.actions.forEach(action =>
       window.dispatchEvent(new CustomEvent(action.name, { detail: action })),
+    );
+    window.dispatchEvent(
+      new CustomEvent('actions-executed', {
+        detail: { name: this.description, actions: this.actions },
+      }),
     );
   }
 

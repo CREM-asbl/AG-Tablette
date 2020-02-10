@@ -2,6 +2,7 @@ import { app } from './App';
 import { Shape } from './Objects/Shape';
 import { Segment } from './Objects/Segment';
 import { Point } from './Objects/Point';
+import { CompleteHistoryManager } from './CompleteHistoryManager';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -48,7 +49,6 @@ export class HistoryManager {
   }
 
   static updateHistory(action) {
-    console.log('updated', action.name);
     app.workspace.history.data[HistoryManager.historyIndex][
       HistoryManager.stepIndex
     ] = HistoryManager.transformToObject(action);

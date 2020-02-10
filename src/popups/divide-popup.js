@@ -8,6 +8,8 @@ class DividePopup extends LitElement {
     this.parts = 2;
 
     window.addEventListener('setNumberOfParts', () => this.close());
+
+    window.addEventListener('close-popup', () => this.dividePopupValidate());
   }
 
   static get properties() {
@@ -32,7 +34,7 @@ class DividePopup extends LitElement {
 
   render() {
     return html`
-      <template-popup @close-popup="${this.dividePopupValidate}">
+      <template-popup>
         <h2 slot="title">Division</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts">Diviser en</label>

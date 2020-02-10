@@ -163,13 +163,19 @@ export class MoveState extends State {
 
     let transformation = mouseCoordinates.subCoordinates(this.startClickCoordinates);
 
-    this.involvedShapes.forEach(s => {
-      let newCoords = new Point(s).addCoordinates(transformation),
-        saveCoords = s.coordinates;
-
-      s.coordinates = newCoords;
-      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: s } }));
-      s.coordinates = saveCoords;
-    });
+    window.dispatchEvent(
+      new CustomEvent('draw-group', {
+        detail: {
+          involvedShapes: this.involvedShapes,
+          fct1: s => {
+            s.saveCoords = s.coordinates;
+            s.coordinates = s.coordinates.addCoordinates(transformation);
+          },
+          fct2: s => {
+            s.coordinates = s.saveCoords;
+          },
+        },
+      }),
+    );
   }
 }

@@ -26,6 +26,10 @@ export class Action {
     window.addEventListener('undo-' + this.name, this.initAndUndo);
   }
 
+  printIncompleteData() {
+    this.printIncompleteData();
+  }
+
   initFromObject(save) {
     throw new TypeError('method not implemented');
   }

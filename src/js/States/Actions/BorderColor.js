@@ -26,7 +26,7 @@ export class BorderColorAction extends Action {
 
   checkDoParameters() {
     if (!this.involvedShapesIds.length || !this.selectedColor) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -34,7 +34,7 @@ export class BorderColorAction extends Action {
 
   checkUndoParameters() {
     if (!this.involvedShapesIds.length || this.involvedShapesIds.length != this.oldColors.length) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

@@ -1,6 +1,6 @@
 import { Settings } from './Settings';
 import './Manifest';
-import { uniqId } from './Tools/general';
+import { uniqId, getAverageColor } from './Tools/general';
 
 /**
  * Classe principale de l'application
@@ -16,7 +16,7 @@ export class App {
     this.canvasWidth = null;
     this.canvasHeight = null;
 
-    //L'état de l'application
+    // L'état de l'application
     this.state = null;
 
     // Les états possibles

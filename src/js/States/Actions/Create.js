@@ -25,7 +25,7 @@ export class CreateAction extends Action {
 
   checkDoParameters() {
     if (!(this.shapeToCreate instanceof Shape)) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -33,7 +33,7 @@ export class CreateAction extends Action {
 
   checkUndoParameters() {
     if (!this.shapeId) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

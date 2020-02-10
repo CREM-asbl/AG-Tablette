@@ -102,19 +102,11 @@ export class TemplatePopup extends LitElement {
     `;
   }
 
-  constructor() {
-    super();
-
-    addEventListener('keyup', e => {
-      e.key === 'Escape' && this.dispatchEvent(new Event('close-popup'));
-    });
-  }
-
   render() {
     return html`
       <div class="background">
         <div id="template-view">
-          <div id="popup-close" @click="${() => this.dispatchEvent(new Event('close-popup'))}">
+          <div id="popup-close" @click="${() => window.dispatchEvent(new Event('close-popup'))}">
             &times;
           </div>
 
@@ -128,4 +120,9 @@ export class TemplatePopup extends LitElement {
     `;
   }
 }
+
+addEventListener('keyup', e => {
+  e.key === 'Escape' && window.dispatchEvent(new Event('close-popup'));
+});
+
 customElements.define('template-popup', TemplatePopup);

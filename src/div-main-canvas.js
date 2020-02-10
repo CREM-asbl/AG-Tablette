@@ -1,12 +1,19 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import { app } from './js/App';
 import { Point } from './js/Objects/Point';
 import { SelectManager } from './js/SelectManager';
+import { CompleteHistoryManager } from './js/CompleteHistoryManager';
 
 class DivMainCanvas extends LitElement {
   static get properties() {
     return {
-      background: String,
+      background: String, // utile ?
+      cursorX: Number,
+      cursorY: Number,
+      cursorSize: Number,
+      cursorShow: Boolean,
+      animCursorX: Number,
+      animCursorY: Number,
     };
   }
 
@@ -22,12 +29,45 @@ class DivMainCanvas extends LitElement {
           position: absolute;
           top: 0px;
         }
+
+        div.clickEffect{
+          position: fixed;
+          box-sizing: border-box;
+          border-style: solid;
+          border-color: #000000;
+          border-radius: 50%;
+          z-index: 99999;
+          display: none;
+          left: ${this.animCursorX}px;
+          top: ${this.animCursorY}px;
+        }
+
+        div.runAnim {
+          animation: clickEffect 0.4s ease-out;
+        }
+
+        @keyframes clickEffect{
+          0% {
+            opacity: 1;
+            width: 0.5em;
+            height: 0.5em;
+            margin: -0.25em;
+            border-width: 0.5em;
+          }
+          100% {
+            opacity: 0.4;
+            width: 3em;
+            height: 3em;
+            margin: -1.5em;
+            border-width: 0.1em;
+          }
+        }
       </style>
 
       <!-- for background tasks (invisible canvas) -->
       <canvas id="invisibleCanvas"></canvas>
 
-      <!--for the grid and background-image -->
+      <!--for the grid, tangram outline and background-image -->
       <canvas id="backgroundCanvas"></canvas>
 
       <!-- for the shapes -->
@@ -35,6 +75,14 @@ class DivMainCanvas extends LitElement {
 
       <!-- for the current event (ex: moving shape -->
       <canvas id="upperCanvas"></canvas>
+
+      <img src="../../images/fake-cursor.png" height="${this.cursorSize}" width="${
+      this.cursorSize
+    }" style="margin-left: ${this.cursorX}px; margin-top: ${this.cursorY}px; display: ${
+      this.cursorShow ? 'inline' : 'none'
+    }"></img>
+
+      <div class="clickEffect"></div>
     `;
   }
 
@@ -67,8 +115,38 @@ class DivMainCanvas extends LitElement {
       app.workspace.lastKnownMouseCoordinates = new Point(event.detail.mousePos);
     });
 
+    this.cursorX = 0;
+    this.cursorY = 0;
+    this.cursorSize = 20;
+    this.cursorShow = false;
+
+    window.addEventListener('show-cursor', event => {
+      this.cursorX = event.detail.mousePos.x - this.cursorSize / 2;
+      this.cursorY = event.detail.mousePos.y - this.cursorSize / 2;
+      this.cursorShow = true;
+      window.clearTimeout(this.timeoutId);
+      this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);
+    });
+
+    window.addEventListener('click-cursor', event => {
+      this.animCursorX = event.detail.mousePos.x + app.settings.get('mainMenuWidth');
+      this.animCursorY = event.detail.mousePos.y;
+      let elem = this.shadowRoot.querySelector('.clickEffect');
+      elem.className = 'clickEffect runAnim';
+      elem.style.display = 'block';
+      elem.addEventListener(
+        'animationend',
+        () => {
+          elem.className = 'clickEffect';
+          elem.style.display = 'none';
+        },
+        { once: true },
+      );
+    });
+
     //Events:
     this.upperCanvas.addEventListener('click', event => {
+      if (CompleteHistoryManager.isRunning) return;
       let detail = {
         mousePos: this.getMousePos(event),
       };
@@ -84,6 +162,7 @@ class DivMainCanvas extends LitElement {
     });
 
     this.upperCanvas.addEventListener('mousedown', event => {
+      if (CompleteHistoryManager.isRunning) return;
       let detail = {
         mousePos: this.getMousePos(event),
       };
@@ -99,6 +178,7 @@ class DivMainCanvas extends LitElement {
     });
 
     this.upperCanvas.addEventListener('mouseup', event => {
+      if (CompleteHistoryManager.isRunning) return;
       let detail = {
         mousePos: this.getMousePos(event),
       };
@@ -109,6 +189,7 @@ class DivMainCanvas extends LitElement {
     });
 
     this.upperCanvas.addEventListener('mousemove', event => {
+      if (CompleteHistoryManager.isRunning) return;
       let detail = {
         mousePos: this.getMousePos(event),
       };
@@ -120,6 +201,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('mousewheel', event => {
       event.preventDefault();
+      if (CompleteHistoryManager.isRunning) return;
       let detail = {
         mousePos: new Point(event.clientX - app.settings.get('mainMenuWidth'), event.clientY),
         deltaY: event.deltaY,
@@ -132,6 +214,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('touchstart', event => {
       event.preventDefault();
+      if (CompleteHistoryManager.isRunning) return;
       let detail = {
         touches: [],
         mousePos: undefined,
@@ -141,7 +224,6 @@ class DivMainCanvas extends LitElement {
           new Point(touch.clientX - app.settings.get('mainMenuWidth'), touch.clientY),
         );
       detail.mousePos = this.getMousePos(event);
-      console.log(detail.mousePos);
       if (
         app.listenerCounter.objectSelected &&
         'mousedown' == app.workspace.selectionConstraints.eventType
@@ -156,6 +238,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('touchmove', event => {
       event.preventDefault();
+      if (CompleteHistoryManager.isRunning) return;
       let detail = {
         touches: [],
         mousePos: undefined,
@@ -174,7 +257,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('touchend', event => {
       event.preventDefault();
-      console.log(event);
+      if (CompleteHistoryManager.isRunning) return;
       let detail = {
         touches: [],
         mousePos: undefined,
@@ -199,6 +282,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('touchcancel', event => {
       event.preventDefault();
+      if (CompleteHistoryManager.isRunning) return;
       let detail = {
         touches: [],
         mousePos: undefined,

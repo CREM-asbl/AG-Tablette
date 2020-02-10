@@ -50,13 +50,18 @@ export class CopyAction extends Action {
       !this.transformation ||
       this.transformation.x === undefined ||
       this.transformation.y === undefined
-    )
+    ) {
+      this.printIncompleteData();
       return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (this.involvedShapesIds.length != this.newShapesIds.length) return false;
+    if (this.involvedShapesIds.length != this.newShapesIds.length) {
+      this.printIncompleteData();
+      return false;
+    }
     return true;
   }
 
@@ -64,6 +69,11 @@ export class CopyAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let shapesList = [];
+
+    this.involvedShapesIds = this.involvedShapesIds
+      .map(id => ShapeManager.getShapeById(id))
+      .sort((s1, s2) => (ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1))
+      .map(s => s.id);
 
     this.involvedShapesIds.forEach((id, index) => {
       let s = ShapeManager.getShapeById(id),

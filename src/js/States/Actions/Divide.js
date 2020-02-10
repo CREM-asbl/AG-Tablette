@@ -86,19 +86,19 @@ export class DivideAction extends Action {
 
   checkDoParameters() {
     if (!Number.isFinite(this.numberOfparts)) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     if (this.mode != 'segment' && this.mode != 'two_points') {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     if (this.mode == 'segment' && !this.segment) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     if (this.mode == 'two_points' && (!this.firstPoint || !this.secondPoint)) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -106,7 +106,7 @@ export class DivideAction extends Action {
 
   checkUndoParameters() {
     if (this.existingPoints === undefined) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

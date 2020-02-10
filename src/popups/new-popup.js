@@ -1,15 +1,24 @@
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from './template-popup';
 import { WorkspaceManager } from '../js/WorkspaceManager';
+import { Workspace } from '../js/Objects/Workspace';
 
 class NewPopup extends LitElement {
+  constructor() {
+    super();
+
+    window.addEventListener('close-popup', () => this.close());
+
+    window.addEventListener('open-new-popup', () => (this.style.display = 'block'));
+  }
+
   static get styles() {
     return TemplatePopup.template_popup_styles();
   }
 
   render() {
     return html`
-      <template-popup @close-popup="${() => this.close()}">
+      <template-popup>
         <h2 slot="title">Nouvelle fenêtre</h2>
         <div slot="body" id="body">
           <p>
@@ -27,7 +36,7 @@ class NewPopup extends LitElement {
   }
 
   confirm() {
-    WorkspaceManager.setWorkspace(WorkspaceManager.getNewWorkspace('Grandeurs'));
+    WorkspaceManager.setWorkspace(new Workspace());
     this.close();
   }
 

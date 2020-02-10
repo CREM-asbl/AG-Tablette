@@ -26,7 +26,7 @@ export class ZoomPlaneAction extends Action {
 
   checkDoParameters() {
     if (!Number.isFinite(this.scaleOffset)) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

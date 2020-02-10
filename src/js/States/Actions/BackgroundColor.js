@@ -30,7 +30,7 @@ export class BackgroundColorAction extends Action {
 
   checkDoParameters() {
     if (!this.selectedColor || !this.involvedShapesIds.length) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;
@@ -38,7 +38,7 @@ export class BackgroundColorAction extends Action {
 
   checkUndoParameters() {
     if (!this.involvedShapesIds.length || this.involvedShapesIds.length != this.oldColors.length) {
-      console.log('incomplete data for ' + this.name + ': ', this);
+      this.printIncompleteData();
       return false;
     }
     return true;

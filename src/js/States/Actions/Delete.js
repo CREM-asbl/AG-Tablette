@@ -22,8 +22,8 @@ export class DeleteAction extends Action {
     this.shapesIdx = null;
 
     /*
-        Si la forme à supprimer fait partie d'un userGroup:
-         */
+     * Si la forme à supprimer fait partie d'un groupe:
+     */
 
     // Le usergroup
     this.userGroup = null;
@@ -85,15 +85,15 @@ export class DeleteAction extends Action {
   }
 
   checkDoParameters() {
-    if (!this.mode) return false;
-    if (this.mode == 'point' && !this.point) return false;
+    if (!this.mode || (this.mode == 'point' && !this.point)) {
+      this.printIncompleteData();
+      return false;
+    }
     return true;
   }
 
   checkUndoParameters() {
-    if (!this.mode) return false;
-    if (this.mode == 'point' && !this.point) return false;
-    return true;
+    return this.checkDoParameters();
   }
 
   do() {

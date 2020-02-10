@@ -9,6 +9,8 @@ class OpacityPopup extends LitElement {
       this.opacity = event.detail.opacity;
       this.close();
     });
+
+    window.addEventListener('close-popup', () => this.opacityPopupValidate());
   }
 
   static get properties() {
@@ -23,7 +25,7 @@ class OpacityPopup extends LitElement {
 
   render() {
     return html`
-      <template-popup @close-popup="${this.opacityPopupValidate}">
+      <template-popup>
         <h2 slot="title">Opacité</h2>
         <div slot="body" id="body">
           <div class="field">

@@ -16,7 +16,10 @@ export class TranslatePlaneAction extends Action {
   }
 
   checkDoParameters() {
-    if (!this.offset || this.offset.x === undefined || this.offset.y === undefined) return false;
+    if (!this.offset || this.offset.x === undefined || this.offset.y === undefined) {
+      this.printIncompleteData();
+      return false;
+    }
     return true;
   }
 

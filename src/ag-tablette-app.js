@@ -14,6 +14,7 @@ import './popups/help-popup';
 import './popups/save-popup';
 import './popups/notification';
 import './version-item';
+import './completehistory-tools';
 
 import { app } from './js/App';
 import './js/FileManager';
@@ -289,6 +290,8 @@ class AGTabletteApp extends LitElement {
 
       <notif-center></notif-center>
 
+      <completehistory-tools></completehistory-tools>
+
       <input
         id="fileSelector"
         accept=".agg, .json"
@@ -335,7 +338,7 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'new':
-        this.shadowRoot.querySelector('new-popup').style.display = 'block';
+        window.dispatchEvent(new CustomEvent('open-new-popup'));
         reset_state = 1;
         break;
       case 'undo':
@@ -345,7 +348,7 @@ class AGTabletteApp extends LitElement {
         if (this.canRedo) window.dispatchEvent(new CustomEvent('redo-action'));
         break;
       case 'play':
-        window.dispatchEvent(new CustomEvent('startBrowse'));
+        window.dispatchEvent(new CustomEvent('start-browsing'));
         break;
       case 'help':
         //Todo : Simplifier

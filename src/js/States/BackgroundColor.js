@@ -33,8 +33,12 @@ export class BackgroundColorState extends State {
   /**
    * ré-initialiser l'état
    */
-  restart() {
+  restart(manualRestart = false) {
     this.end();
+    if (manualRestart) {
+      this.start();
+      return;
+    }
     setTimeout(() =>
       setTimeout(
         () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
@@ -106,7 +110,7 @@ export class BackgroundColorState extends State {
     ];
 
     // setOpacity quand transparent
-    if (shape.opacity == 0) {
+    if (involvedShapes.some(shape => shape.opacity != 1)) {
       this.actions.push({
         name: 'OpacityAction',
         involvedShapesIds: involvedShapes.map(s => s.id),
