@@ -16,7 +16,7 @@ import { ZoomPlaneState } from '../States/ZoomPlane.js';
 import { OpacityState } from '../States/Opacity.js';
 import { ToBackgroundState } from '../States/ToBackground.js';
 import { DivideState } from '../States/Divide.js';
-import { MergeState } from '../States/Merge.js';
+import { MergeState } from '../../Merge/MergeState';
 import { CutState } from '../States/Cut.js';
 import { BifaceState } from '../States/Biface.js';
 
@@ -34,7 +34,7 @@ import { ZoomPlaneAction } from '../States/Actions/ZoomPlane.js';
 import { OpacityAction } from '../States/Actions/Opacity.js';
 import { ToBackgroundAction } from '../States/Actions/ToBackground.js';
 import { DivideAction } from '../States/Actions/Divide.js';
-import { MergeAction } from '../States/Actions/Merge.js';
+import { MergeAction } from '../../Merge/MergeAction';
 import { CutAction } from '../States/Actions/Cut.js';
 import { BifaceAction } from '../States/Actions/Biface.js';
 import { GridManager } from '../../Grid/GridManager';

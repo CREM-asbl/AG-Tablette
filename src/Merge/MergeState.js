@@ -1,8 +1,8 @@
-import { app } from '../App';
-import { State } from './State';
-import { uniqId, getComplementaryColor } from '../Tools/general';
-import { ShapeManager } from '../ShapeManager';
-import { Segment } from '../Objects/Segment';
+import { app } from '../js/App';
+import { State } from '../js/States/State';
+import { uniqId } from '../js/Tools/general';
+import { ShapeManager } from '../js/ShapeManager';
+import { Segment } from '../js/Objects/Segment';
 
 /**
  * Fusionner 2 formes en une nouvelle forme

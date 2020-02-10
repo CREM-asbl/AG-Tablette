@@ -1,7 +1,7 @@
-import { Action } from './Action';
-import { getAverageColor, getComplementaryColor } from '../../Tools/general';
-import { Segment } from '../../Objects/Segment';
-import { ShapeManager } from '../../ShapeManager';
+import { Action } from '../js/States/Actions/Action';
+import { getAverageColor, getComplementaryColor } from '../js/Tools/general';
+import { Segment } from '../js/Objects/Segment';
+import { ShapeManager } from '../js/ShapeManager';
 
 export class MergeAction extends Action {
   constructor() {
