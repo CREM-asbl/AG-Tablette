@@ -71,21 +71,21 @@ export class MergeState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape) {
+    console.log(this.currentStep);
     if (this.currentStep == 'listen-canvas-click') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
       if (this.involvedShapes.length > 1) {
         let mergeDone = (() => {
           const newSegments = this.checkGroupMerge();
-
           if (!newSegments) return false;
-          const linkedSegments = this.linkNewSegments(newSegments);
 
-          console.log(linkedSegments);
+          const linkedSegments = this.linkNewSegments(newSegments);
           if (!linkedSegments) return false;
 
           this.actions = [
             {
               name: 'MergeAction',
+              mode: 'mulitpleShapes',
               involvedShapesIds: this.involvedShapes.map(s => s.id),
               newSegments: linkedSegments,
               createdShapeId: uniqId(),
@@ -98,7 +98,10 @@ export class MergeState extends State {
           window.dispatchEvent(new CustomEvent('refreshUpper'));
           return true;
         })();
-        if (mergeDone) return;
+        if (mergeDone) {
+          this.restart();
+          return;
+        }
       }
       this.currentStep = 'selecting-second-shape';
       this.firstShape = shape;
@@ -133,13 +136,12 @@ export class MergeState extends State {
     this.actions = [
       {
         name: 'MergeAction',
+        mode: 'twoShapes',
         firstShapeId: this.firstShape.id,
         secondShapeId: this.secondShape.id,
         createdShapeId: uniqId(),
       },
     ];
-
-    console.log(this);
 
     this.executeAction();
     this.restart();
@@ -233,7 +235,6 @@ export class MergeState extends State {
       );
       if (commonSegmentIdx == -1) continue;
       let commonSegment = oldSegments[commonSegmentIdx];
-      console.table(commonSegment.vertexes);
       let junction = seg.subSegments
         .filter(subseg => commonSegment.subSegments.some(subseg2 => subseg.equal(subseg2)))
         .sort((seg1, seg2) => (seg1.length < seg2.length ? 1 : -1))[0];

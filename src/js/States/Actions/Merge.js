@@ -7,22 +7,33 @@ export class MergeAction extends Action {
   constructor() {
     super('MergeAction');
 
-    //Première forme
+    // Id de la forme résultant de la fusion
+    this.createdShapeId = null;
+
+    // mode de fusion: twoShapes ou multipleShapes (si groupe lié)
+    this.mode = undefined;
+
+    // Première forme (si twoShapes)
     this.firstShapeId = null;
 
-    //Seconde forme
+    // Seconde forme (si twoShapes)
     this.secondShapeId = null;
 
-    //Id de la forme résultant de la fusion
-    this.createdShapeId = null;
+    // Id des formes fusionnées (si multipleShapes)
+    this.involvedShapesIds = [];
+
+    // Nouveaux segments de la forme (si multipleShapes)
+    this.newSegments = [];
   }
 
   initFromObject(save) {
     this.createdShapeId = save.createdShapeId;
-    if (save.firstShapeId) {
+    if (save.mode == undefined || save.mode == 'twoShapes') {
+      this.mode = 'twoShapes';
       this.firstShapeId = save.firstShapeId;
       this.secondShapeId = save.secondShapeId;
     } else {
+      this.mode = 'multipleShapes';
       this.involvedShapesIds = save.involvedShapesIds;
       this.newSegments = save.newSegments;
     }
@@ -30,9 +41,8 @@ export class MergeAction extends Action {
 
   checkDoParameters() {
     if (
-      !this.createdShapeId ||
-      ((!this.firstShapeId || !this.secondShapeId) &&
-        (!this.involvedShapesIds || !this.newSegments))
+      (this.mode == 'twoShapes' && (!this.firstShapeId || !this.secondShapeId)) ||
+      (this.mode == 'multipleShapes' && (!this.involvedShapesIds || !this.newSegments))
     ) {
       console.log('incomplete data for ' + this.name + ': ', this);
     }
@@ -40,14 +50,13 @@ export class MergeAction extends Action {
   }
 
   checkUndoParameters() {
-    if (!this.createdShapeId) return false;
-    return true;
+    return this.checkDoParameters();
   }
 
   do() {
     if (!this.checkDoParameters()) return;
 
-    if (this.firstShapeId) {
+    if (this.mode == 'twoShapes') {
       let shape1 = ShapeManager.getShapeById(this.firstShapeId),
         shape2 = ShapeManager.getShapeById(this.secondShapeId);
 
