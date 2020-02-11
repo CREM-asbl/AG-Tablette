@@ -1,6 +1,5 @@
 import { app } from '../App';
 import { Point } from '../Objects/Point';
-import { Segment } from '../Objects/Segment';
 import { SelectManager } from '../SelectManager';
 import { GridManager } from '../../Grid/GridManager';
 import { TangramManager } from '../../Tangram/TangramManager';

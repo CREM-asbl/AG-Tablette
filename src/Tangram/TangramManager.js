@@ -16,6 +16,8 @@ app.states = {
   },
 };
 
+console.log('tangram');
+
 app.tangrams = { main: [], local: [] };
 
 //Todo: Créer un event plus précis

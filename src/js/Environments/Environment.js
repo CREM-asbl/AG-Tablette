@@ -9,6 +9,8 @@ export class Environment {
   constructor(name) {
     this.name = name;
 
+    this.kitName = '';
+
     this.families = [];
 
     this.familyNames = [];
@@ -46,8 +48,8 @@ export class Environment {
    * @param  {Data} kit données du kit à charger
    */
   loadFamilies(kit) {
-    for (let familyName of Object.keys(kit)) {
-      let familyData = kit[familyName];
+    this.kitName = kit.name;
+    for (let [familyName, familyData] of Object.entries(kit.families)) {
       let family = new Family(familyName, familyData.color);
       familyData.shapes.forEach(shape => {
         family.addShape(shape.name, shape.segments, shape.color);

@@ -25,7 +25,7 @@ class ToolbarKit extends LitElement {
   render() {
     if (!this.kit.length) return html``;
     return html`
-      <div class="toolbar-separator">Formes standard</div>
+      <div class="toolbar-separator">${app.environment.kitName}</div>
       <flex-toolbar>
         ${this.kit.map(family => {
           return html`
