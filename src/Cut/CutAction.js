@@ -1,9 +1,9 @@
-import { Action } from './Action';
-import { Segment } from '../../Objects/Segment';
-import { Point } from '../../Objects/Point';
-import { mod } from '../../Tools/general';
-import { ShapeManager } from '../../ShapeManager';
-import { Shape } from '../../Objects/Shape';
+import { Action } from '../js/States/Actions/Action';
+import { Segment } from '../js/Objects/Segment';
+import { Point } from '../js/Objects/Point';
+import { mod } from '../js/Tools/general';
+import { ShapeManager } from '../js/ShapeManager';
+import { Shape } from '../js/Objects/Shape';
 
 export class CutAction extends Action {
   constructor() {

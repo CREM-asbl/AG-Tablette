@@ -2,7 +2,7 @@ import './Common';
 import { standardKit } from '../ShapesKits/standardKit';
 import { app } from '../App';
 
-// States:
+// States :
 import { CreateState } from '../States/Create.js';
 import { GroupState } from '../States/Group.js';
 import { UngroupState } from '../States/Ungroup.js';
@@ -17,10 +17,10 @@ import { OpacityState } from '../States/Opacity.js';
 import { ToBackgroundState } from '../States/ToBackground.js';
 import { DivideState } from '../States/Divide.js';
 import { MergeState } from '../States/Merge.js';
-import { CutState } from '../States/Cut.js';
+import { CutState } from '../../Cut/CutState';
 import { BifaceState } from '../States/Biface.js';
 
-// Actions:
+// Actions :
 import { BackgroundColorAction } from '../States/Actions/BackgroundColor.js';
 import { BorderColorAction } from '../States/Actions/BorderColor.js';
 import { BuildCenterAction } from '../States/Actions/BuildCenter.js';
@@ -35,7 +35,7 @@ import { OpacityAction } from '../States/Actions/Opacity.js';
 import { ToBackgroundAction } from '../States/Actions/ToBackground.js';
 import { DivideAction } from '../States/Actions/Divide.js';
 import { MergeAction } from '../States/Actions/Merge.js';
-import { CutAction } from '../States/Actions/Cut.js';
+import { CutAction } from '../../Cut/CutAction';
 import { BifaceAction } from '../States/Actions/Biface.js';
 import { GridManager } from '../../Grid/GridManager';
 
