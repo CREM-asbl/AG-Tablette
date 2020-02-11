@@ -20,8 +20,9 @@ import { OpacityAction } from '../States/Actions/Opacity';
 import { BifaceAction } from '../States/Actions/Biface';
 import { TranslatePlaneAction } from '../States/Actions/TranslatePlane';
 import { ZoomPlaneAction } from '../States/Actions/ZoomPlane';
-import { TangramManager } from '../../Tangram/TangramManager';
-import { GridManager } from '../../Grid/GridManager';
+import { Rotate45State } from '../../Rotate45/Rotate45State';
+import { Rotate45Action } from '../../Rotate45/Rotate45Action';
+import '../../Tangram/TangramManager';
 
 new GroupState();
 new GroupAction();
@@ -41,9 +42,8 @@ new TranslatePlaneState();
 new TranslatePlaneAction();
 new ZoomPlaneState();
 new ZoomPlaneAction();
-new TangramManager();
 new TangramCreatorState();
-
-GridManager.initState();
+new Rotate45State();
+new Rotate45Action();
 
 dispatchEvent(new CustomEvent('app-state-changed'));

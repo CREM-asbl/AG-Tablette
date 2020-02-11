@@ -67,17 +67,18 @@ export class DrawManager {
     }
 
     //Tangram
-    // if (app.workspace.settings.get('isTangramShown')) {
-    //   let { type, id } = app.workspace.settings.get('shownTangram');
-    //   let tangram = app.tangramManager.getTangram(type, id);
-    //   tangram.polygons.forEach(polygon => {
-    //     DrawManager.drawPoint(app.backgroundCtx, polygon[0], '#E90CC8', 1);
-    //     for (let i = 0; i < polygon.length - 1; i++) {
-    //       app.app.drawLine(DrawManager.backgroundCtx, polygon[i], polygon[i + 1], '#E90CC8', 3);
-    //       app.app.drawPoint(DrawManager.backgroundCtx, polygon[i + 1], '#E90CC8', 1);
-    //     }
-    //   });
-    // }
+    if (app.environment.name == 'Tangram' && app.tangram.silhouette) {
+      // let { type, id } = app.workspace.settings.get('shownTangram');
+      // let tangram = app.tangramManager.getTangram(type, id);
+      DrawManager.drawShape(app.backgroundCtx, app.tangram.silhouette.shape);
+      // tangram.polygons.forEach(polygon => {
+      //   DrawManager.drawPoint(app.backgroundCtx, polygon[0], '#E90CC8', 1);
+      //   for (let i = 0; i < polygon.length - 1; i++) {
+      //     app.app.drawLine(DrawManager.backgroundCtx, polygon[i], polygon[i + 1], '#E90CC8', 3);
+      //     app.app.drawPoint(DrawManager.backgroundCtx, polygon[i + 1], '#E90CC8', 1);
+      //   }
+      // });
+    }
   }
 
   static refreshMain() {
@@ -124,7 +125,7 @@ export class DrawManager {
     ctx.stroke(path);
     ctx.save();
 
-    if (app.settings.get('areShapesPointed')) {
+    if (app.settings.get('areShapesPointed') && shape.name != 'silhouette') {
       if (shape.isSegment())
         DrawManager.drawPoint(ctx, shape.segments[0].vertexes[0], '#000', 1, false);
       shape.segments.forEach(seg => {

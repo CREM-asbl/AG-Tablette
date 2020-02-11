@@ -6,16 +6,16 @@ export class Tangram {
    * Constructeur
    * @param {[Shape]} shapes   Liste des formes nécessaires pour construire le
    *                           le tangram.
-   * @param {[[Points]]} polygons Liste de polygones (= de tableaux de points)
+   * @param {Object} silhouette Liste de polygones (= de tableaux de points)
    */
-  constructor(name, shapes, polygons) {
+  constructor(name, shapes, silhouette) {
     this.id = uniqId();
 
     this.name = name;
 
     this.shapes = shapes;
 
-    this.polygons = polygons;
+    this.silhouette = silhouette;
   }
 
   saveToObject() {
@@ -23,7 +23,7 @@ export class Tangram {
       id: this.id,
       name: this.name,
       shapes: this.shapes.map(s => s.saveToObject()),
-      polygons: this.polygons,
+      silhouette: this.silhouette,
     };
     return data;
   }
@@ -36,6 +36,6 @@ export class Tangram {
       shape.initFromObject(sData);
       return shape;
     });
-    this.polygons = data.polygons;
+    this.silhouette = data.silhouette;
   }
 }

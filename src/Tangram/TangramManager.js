@@ -1,5 +1,12 @@
 import { app } from '../js/App';
 import { Tangram } from './Tangram';
+import { standardTangramKit } from '../js/ShapesKits/standardTangramKit';
+import { Shape } from '../js/Objects/Shape';
+import { ShapeManager } from '../js/ShapeManager';
+import { getComplementaryColor } from '../js/Tools/general';
+import { Point } from '../js/Objects/Point';
+import { Segment } from '../js/Objects/Segment';
+import { SelectManager } from '../js/SelectManager';
 
 app.states = {
   ...app.states,
@@ -18,6 +25,21 @@ addEventListener('app-state-changed', () => {
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
+let shapes = [];
+(data => {
+  data.shapes.forEach(s => {
+    let shape = new Shape({ x: 0, y: 0 }, null, s.name, 'tangram');
+    shape.setSegments(s.segments);
+    shape.color = data.color ? data.color : '#000';
+    shape.second_color = getComplementaryColor(shape.color);
+    shapes.push(shape);
+  });
+})(standardTangramKit);
+
+app.tangram = new Tangram('', shapes);
+app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
+app.workspace.setZoomLevel(0.8677803523248963);
+
 export class TangramManager {
   static hide() {
     app.workspace.settings.set('isTangramShown', false);
@@ -29,6 +51,198 @@ export class TangramManager {
       type: tangramType,
       id: tangramId,
     });
+  }
+
+  static showShapes() {
+    app.tangram.shapes.forEach(s => ShapeManager.addShape(s.copy()));
+  }
+
+  static hideShapes() {
+    app.workspace.shapes = [];
+  }
+
+  static createSilhouette(shapes) {
+    let segments = TangramManager.checkGroupMerge(shapes);
+    if (!segments)
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Formes creuses ou en plusieurs morceaux' },
+        }),
+      );
+
+    segments = TangramManager.linkNewSegments(segments);
+    if (!segments)
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Formes creuses ou en plusieurs morceaux' },
+        }),
+      );
+
+    let silhouette = TangramManager.getSilhouetteFromSegments(segments);
+    return silhouette;
+  }
+
+  static getSilhouetteFromSegments(segments) {
+    let shape = new Shape({ x: 0, y: 0 }, null, 'silhouette', 'tangram');
+    shape.setSegments(segments);
+    shape.color = '#000';
+    shape.second_color = getComplementaryColor(shape.color);
+    shape.opacity = 1;
+    return { shape: shape };
+  }
+
+  static checkGroupMerge(shapes) {
+    if (
+      shapes.some(shape =>
+        shapes.some(s => {
+          if (s.id == shape.id) return false;
+          else return s.overlapsWith(shape);
+        }),
+      )
+    )
+      return null;
+
+    let oldSegments = shapes.map(s => s.segments.map(seg => seg.copy())).flat();
+
+    // TODO replace indexes by real segments
+
+    // console.log(oldSegments.map(seg => seg.vertexes[0].x + ' ' + seg.vertexes[0].y + ' ' + seg.vertexes[1].x + ' ' + seg.vertexes[1].y))
+
+    // delete common segments
+    let newSegments = [];
+    oldSegments.forEach((seg, i, segments) => {
+      if (seg.used) return;
+      let indexes = oldSegments
+        .map((segment, idx) => {
+          if (segment.equal(seg)) {
+            return idx;
+          }
+        })
+        .filter(el => el !== undefined);
+      if (indexes.length == 1) newSegments.push(seg);
+      else indexes.forEach(idx => (segments[idx].used = true));
+    });
+
+    // delete segments inside others
+    newSegments.forEach(seg => (seg.used = false));
+    oldSegments = newSegments;
+    newSegments = [];
+    oldSegments.forEach((seg, i, segments) => {
+      if (seg.used) return;
+      let indexes = oldSegments
+        .map((segment, idx) => {
+          if (idx != i && seg.isSubsegment(segment)) {
+            return idx;
+          }
+        })
+        .filter(el => el !== undefined);
+      if (indexes.length != 0) {
+        segments[i].used = true;
+        indexes.forEach(idx => (segments[idx].used = true));
+        let subsegs = indexes.map(idx => segments[idx]);
+        subsegs.forEach(subseg => !subseg.hasSameDirection(seg) && subseg.reverse());
+        subsegs.sort((subseg1, subseg2) =>
+          subseg1.vertexes[1].dist(seg.vertexes[1]) < subseg2.vertexes[1].dist(seg.vertexes[1])
+            ? 1
+            : -1,
+        );
+        let currentSegment = seg;
+        subsegs.forEach(subseg => {
+          if (!subseg.vertexes[0].equal(currentSegment.vertexes[0]))
+            newSegments.push(new Segment(currentSegment.vertexes[0], subseg.vertexes[0]));
+          currentSegment = new Segment(subseg.vertexes[1], currentSegment.vertexes[1]);
+        });
+        if (currentSegment.length > 0.001) newSegments.push(currentSegment);
+      }
+    });
+    oldSegments.forEach(seg => {
+      return !seg.used ? newSegments.push(seg) : undefined;
+    });
+
+    // resize segments that share subSegments with others
+    newSegments.forEach(seg => (seg.used = false));
+    oldSegments = newSegments;
+    newSegments = [];
+    for (let i = 0; i < oldSegments.length; i++) {
+      let seg = oldSegments[i];
+      let commonSegmentIdx = oldSegments.findIndex(
+        (segment, idx) =>
+          idx != i &&
+          seg.subSegments.some(subseg =>
+            segment.subSegments.some(subseg2 => subseg.equal(subseg2)),
+          ),
+      );
+      if (commonSegmentIdx == -1) continue;
+      let commonSegment = oldSegments[commonSegmentIdx];
+      let junction = seg.subSegments
+        .filter(subseg => commonSegment.subSegments.some(subseg2 => subseg.equal(subseg2)))
+        .sort((seg1, seg2) => (seg1.length < seg2.length ? 1 : -1))[0];
+      !commonSegment.hasSameDirection(seg) && commonSegment.reverse();
+      !junction.hasSameDirection(seg) && junction.reverse();
+      let createdSegments = [];
+      if (!seg.vertexes[0].equal(junction.vertexes[0]))
+        createdSegments.push(new Segment(seg.vertexes[0], junction.vertexes[0]));
+      if (!seg.vertexes[1].equal(junction.vertexes[1]))
+        createdSegments.push(new Segment(seg.vertexes[1], junction.vertexes[1]));
+      if (!commonSegment.vertexes[0].equal(junction.vertexes[0]))
+        createdSegments.push(new Segment(commonSegment.vertexes[0], junction.vertexes[0]));
+      if (!commonSegment.vertexes[1].equal(junction.vertexes[1]))
+        createdSegments.push(new Segment(commonSegment.vertexes[1], junction.vertexes[1]));
+      let indexToRemove = [i, commonSegmentIdx].sort((idx1, idx2) => idx1 - idx2);
+      oldSegments.splice(indexToRemove[1], 1);
+      oldSegments.splice(indexToRemove[0], 1, ...createdSegments);
+      i = -1;
+    }
+    newSegments = oldSegments;
+
+    return newSegments;
+  }
+
+  static linkNewSegments(segmentsList) {
+    // Todo : Voir si on ne peut pas la simplifier
+    let newSegments = [];
+
+    // segment beeing in use (may be prolongated)
+    let currentSegment = segmentsList[0].copy(false);
+    // last segment used (not modified)
+    let lastSegment = currentSegment;
+    let firstSegment = currentSegment;
+    let nextSegment;
+    let segmentUsed = 0;
+
+    newSegments.push(currentSegment);
+    segmentUsed++;
+
+    while (!firstSegment.vertexes[0].equal(currentSegment.vertexes[1])) {
+      // while not closed
+      const newPotentialSegments = segmentsList.filter(
+        seg => !seg.equal(lastSegment) && seg.contains(currentSegment.vertexes[1], false),
+      );
+      if (newPotentialSegments.length != 1) {
+        if (newPotentialSegments.length == 0) console.log('shape cannot be closed (dead end)');
+        else console.log('shape is dig (a segment has more than one segment for next)');
+        return null;
+      }
+      nextSegment = newPotentialSegments[0].copy(false);
+      if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse(true);
+
+      if (currentSegment.hasSameDirection(nextSegment, 1, 0, false)) {
+        currentSegment.vertexes[1] = nextSegment.vertexes[1];
+      } else {
+        newSegments.push(nextSegment);
+        currentSegment = nextSegment;
+      }
+      segmentUsed++;
+      lastSegment = nextSegment;
+    }
+    if (segmentUsed != segmentsList.length) {
+      console.log('shape is dig (not all segments have been used)');
+      return null;
+    }
+    if (newSegments.length != 1 && currentSegment.hasSameDirection(firstSegment, 1, 0, false)) {
+      newSegments[0].vertexes[0] = newSegments.pop().vertexes[0];
+    }
+    return newSegments;
   }
 
   static closePopup() {
@@ -43,74 +257,74 @@ export class TangramManager {
     document.querySelector('body').appendChild(popup);
   }
 
-  static addLocalTangram(tangram) {
-    app.tangrams.local.push(tangram);
-    let ls = window.localStorage,
-      amount = parseInt(ls.getItem('AG_TangramsAmount')),
-      object = tangram.saveToObject(),
-      json = JSON.stringify(object);
-    ls.setItem('AG_TangramsAmount', amount + 1);
-    ls.setItem('AG_TangramsList_TG' + amount, json);
-  }
+  // static addLocalTangram(tangram) {
+  //   app.tangrams.local.push(tangram);
+  //   let ls = window.localStorage,
+  //     amount = parseInt(ls.getItem('AG_TangramsAmount')),
+  //     object = tangram.saveToObject(),
+  //     json = JSON.stringify(object);
+  //   ls.setItem('AG_TangramsAmount', amount + 1);
+  //   ls.setItem('AG_TangramsList_TG' + amount, json);
+  // }
 
-  static retrieveTangrams() {
-    //Main
-    if (!app) return;
-    app.tangrams.main = mainTangramsJSON.map(data => {
-      let tangram = new Tangram();
-      tangram.initFromObject(data);
-      return tangram;
-    });
+  // static retrieveTangrams() {
+  //   //Main
+  //   if (!app) return;
+  //   app.tangrams.main = mainTangramsJSON.map(data => {
+  //     let tangram = new Tangram();
+  //     tangram.initFromObject(data);
+  //     return tangram;
+  //   });
 
-    //Local
-    let ls = window.localStorage;
-    app.tangrams.local.splice(0); //vider le tableau
+  //   //Local
+  //   let ls = window.localStorage;
+  //   app.tangrams.local.splice(0); //vider le tableau
 
-    //Init localStorage if necessary
-    if (ls.getItem('AG_TangramsAmount') == null) {
-      ls.setItem('AG_TangramsAmount', 0);
-    }
+  //   //Init localStorage if necessary
+  //   if (ls.getItem('AG_TangramsAmount') == null) {
+  //     ls.setItem('AG_TangramsAmount', 0);
+  //   }
 
-    let amount = parseInt(ls.getItem('AG_TangramsAmount'));
-    for (let i = 0; i < amount; i++) {
-      let tangram = new Tangram(),
-        json = ls.getItem('AG_TangramsList_TG' + i),
-        object = JSON.parse(json);
+  //   let amount = parseInt(ls.getItem('AG_TangramsAmount'));
+  //   for (let i = 0; i < amount; i++) {
+  //     let tangram = new Tangram(),
+  //       json = ls.getItem('AG_TangramsList_TG' + i),
+  //       object = JSON.parse(json);
 
-      tangram.initFromObject(object);
-      app.tangrams.local.push(tangram);
-    }
-  }
+  //     tangram.initFromObject(object);
+  //     app.tangrams.local.push(tangram);
+  //   }
+  // }
 
-  static deleteLocalTangram(id) {
-    let ls = window.localStorage,
-      index = app.tangrams.local.findIndex(tangram => tangram.id == id),
-      tangramAmount = parseInt(ls.getItem('AG_TangramsAmount'));
-    if (index == -1) return null;
-    app.tangrams.local.splice(index, 1);
+  // static deleteLocalTangram(id) {
+  //   let ls = window.localStorage,
+  //     index = app.tangrams.local.findIndex(tangram => tangram.id == id),
+  //     tangramAmount = parseInt(ls.getItem('AG_TangramsAmount'));
+  //   if (index == -1) return null;
+  //   app.tangrams.local.splice(index, 1);
 
-    //Décale les Tangrams suivants vers la gauche.
-    for (let i = index + 1; i < tangramAmount; i++) {
-      let json = ls.getItem('AG_TangramsList_TG' + i);
-      ls.setItem('AG_TangramsList_TG' + (i - 1), json);
-    }
+  //   //Décale les Tangrams suivants vers la gauche.
+  //   for (let i = index + 1; i < tangramAmount; i++) {
+  //     let json = ls.getItem('AG_TangramsList_TG' + i);
+  //     ls.setItem('AG_TangramsList_TG' + (i - 1), json);
+  //   }
 
-    ls.setItem('AG_TangramsAmount', tangramAmount - 1);
-  }
+  //   ls.setItem('AG_TangramsAmount', tangramAmount - 1);
+  // }
 
-  static getTangram(type, id) {
-    let tab = app.tangrams[type];
-    for (let i = 0; i < tab.length; i++) {
-      if (tab[i].id == id) return tab[i];
-    }
-    return null;
-  }
+  // static getTangram(type, id) {
+  //   let tab = app.tangrams[type];
+  //   for (let i = 0; i < tab.length; i++) {
+  //     if (tab[i].id == id) return tab[i];
+  //   }
+  //   return null;
+  // }
 
-  static getCurrentTangram() {
-    if (!app.workspace.settings.get('isTangramShown')) return null;
-    let { type, id } = app.workspace.settings.get('shownTangram');
-    return this.getTangram(type, id);
-  }
+  // static getCurrentTangram() {
+  //   if (!app.workspace.settings.get('isTangramShown')) return null;
+  //   let { type, id } = app.workspace.settings.get('shownTangram');
+  //   return this.getTangram(type, id);
+  // }
 
   /**
    * Renvoie un point de la silhouette du tangram qui est proche du point reçu,
@@ -120,22 +334,22 @@ export class TangramManager {
    */
   static getNearTangramPoint(point) {
     //TODO: si mode silhouette, uniquement contour, sinon points internes aussi.
-    let tangram = this.getCurrentTangram();
-    if (tangram == null) return null;
+    // let tangram = this.getCurrentTangram();
+    // if (tangram == null) return null;
+
+    let shape = app.tangram.silhouette.shape;
 
     let bestPoint = null,
       bestDist = 1000 * 1000 * 1000;
 
-    tangram.polygons.forEach(polygon => {
-      polygon.forEach(tangramPt => {
-        if (app.interactionAPI.arePointsInMagnetismDistance(point, tangramPt)) {
-          let dist = point.dist(tangramPt);
-          if (dist < bestDist) {
-            bestDist = dist;
-            bestOffset = tangramPt;
-          }
+    shape.allOutlinePoints.forEach(tangramPt => {
+      if (SelectManager.arePointsInMagnetismDistance(point, tangramPt)) {
+        let dist = point.dist(tangramPt);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestPoint = tangramPt;
         }
-      });
+      }
     });
 
     return bestPoint;
@@ -149,58 +363,56 @@ export class TangramManager {
    * @param {Shape} mainShape   La forme sélectionnée par l'utilisateur
    * @param {Point} coordinates Coordonnées de la forme sélectionnée
    */
-  static getShapeGroupOffset(shapes, mainShape, coordinates) {
-    //Calcule la liste des sommets des formes
-    let points = shapes
-      .map(s => {
-        return s.buildSteps
-          .filter(bs => bs.type == 'vertex')
-          .map(vertex => {
-            return {
-              shape: s,
-              relativePoint: vertex.coordinates,
-              realPoint: vertex.coordinates
-                .addCoordinates(s)
-                .addCoordinates(coordinates)
-                .subCoordinates(mainShape),
-            };
-          });
-      })
-      .reduce((total, val) => {
-        return total.concat(val);
-      }, []);
+  // static getShapeGroupOffset(shapes, mainShape, coordinates) {
+  //   //Calcule la liste des sommets des formes
+  //   let points = shapes
+  //     .map(s => {
+  //       return s.buildSteps
+  //         .filter(bs => bs.type == 'vertex')
+  //         .map(vertex => {
+  //           return {
+  //             shape: s,
+  //             relativePoint: vertex.coordinates,
+  //             realPoint: vertex.coordinates
+  //               .addCoordinates(s)
+  //               .addCoordinates(coordinates)
+  //               .subCoordinates(mainShape),
+  //           };
+  //         });
+  //     })
+  //     .reduce((total, val) => {
+  //       return total.concat(val);
+  //     }, []);
 
-    if (points.length == 0) return null;
-    let tangram = this.getCurrentTangram();
-    if (tangram == null) return null;
+  //   if (points.length == 0) return null;
+  //   let tangram = this.getCurrentTangram();
+  //   if (tangram == null) return null;
 
-    let tangramPoints = tangram.polygons.reduce((total, elem) => {
-      return total.concat(elem);
-    }, []);
+  //   let tangramPoints = tangram.polygons.reduce((total, elem) => {
+  //     return total.concat(elem);
+  //   }, []);
 
-    let bestOffset = null,
-      bestDist = 1000 * 1000 * 1000;
+  //   let bestOffset = null,
+  //     bestDist = 1000 * 1000 * 1000;
 
-    points.forEach(pt => {
-      tangramPoints.forEach(tangramPt => {
-        if (app.interactionAPI.arePointsInMagnetismDistance(pt.realPoint, tangramPt)) {
-          let dist = pt.realPoint.addCoordinates(tangramPt);
-          if (dist < bestDist) {
-            bestDist = dist;
-            bestOffset = tangramPt.subCoordinates(pt.realPoint);
-          }
-        }
-      });
-    });
+  //   points.forEach(pt => {
+  //     tangramPoints.forEach(tangramPt => {
+  //       if (app.interactionAPI.arePointsInMagnetismDistance(pt.realPoint, tangramPt)) {
+  //         let dist = pt.realPoint.addCoordinates(tangramPt);
+  //         if (dist < bestDist) {
+  //           bestDist = dist;
+  //           bestOffset = tangramPt.subCoordinates(pt.realPoint);
+  //         }
+  //       }
+  //     });
+  //   });
 
-    return bestOffset;
-  }
+  //   return bestOffset;
+  // }
 }
 
 /**
  * Copier-coller le contenu d'un ou plusieurs fichier(s) tangram.json.
  * Ces tangrams sont importés via la méthode retrieveTangrams()
  */
-let mainTangramsJSON = [
-
-];
+let mainTangramsJSON = [];

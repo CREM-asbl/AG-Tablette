@@ -2,6 +2,7 @@ import { app } from '../js/App';
 import { State } from '../js/States/State';
 import { Tangram } from './Tangram';
 import { Point } from '../js/Objects/Point';
+import { TangramManager } from './TangramManager';
 
 /**
  * Créer un tangram
@@ -19,7 +20,7 @@ export class TangramCreatorState extends State {
 
     this.polygons = null;
 
-    this.shapes = null;
+    this.shapes = [];
 
     this.buttons = null;
   }
@@ -28,72 +29,84 @@ export class TangramCreatorState extends State {
    * initialiser l'état
    */
   start() {
-    this.currentStep = 'selecting-polygons';
-    this.subStep = 'new-polygon';
-    this.polygons = [];
-    this.shapes = [];
+    // TangramManager.showShapes();
 
     app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
-    // this.setSelConstraints();
 
     this.buttons = [
       {
-        text: 'Terminer la sélection des polygones',
-        value: 'end_polygons',
+        text: 'Créer silhouette',
+        value: 'end',
       },
-      {
-        text: 'Supprimer le dernier polygone',
-        value: 'delete_last_polygon',
-      },
-      {
-        text: 'Télécharger le tangram',
-        value: 'end_shapes',
-      },
+      // {
+      //   text: 'Supprimer le dernier polygone',
+      //   value: 'delete_last_polygon',
+      // },
+      // {
+      //   text: 'Télécharger le tangram',
+      //   value: 'end_shapes',
+      // },
     ];
 
     this.showStateMenu();
-    alert("(TODO: à ajouter dans l'aide) Commencez par sélectionner un ou plusieurs polygones");
     addEventListener('state-menu-button-click', e => this.clickOnStateMenuButton(e.detail));
   }
 
   end() {
-    document.querySelector('state-menu').remove();
+    // document.querySelector('state-menu').remove();
+    // TangramManager.hideShapes();
+  }
+
+  /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    let toolName = 'Créateur de silhouettes';
+    return `
+            <h2>${toolName}</h2>
+            <p>
+            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+              Pour créer une nouvelle silhouette, disposez les formes comme vous les désirez, <br />
+              en veillant à ce que toutes les formes soient reliées par au moins un segment. <br />
+              Cliquez sur le bouton FIN une fois que vous avez terminé. <br />
+            </p>
+      `;
   }
 
   clickOnStateMenuButton(btn_value) {
     console.log(btn_value);
-    if (btn_value == 'delete_last_polygon') {
-      if (this.currentStep != 'selecting-polygons') return;
-      this.subStep = 'new-polygon';
-      if (this.polygons.length > 0) {
-        this.polygons.pop();
-      }
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-    } else if (btn_value == 'end_polygons') {
-      if (this.currentStep != 'selecting-polygons') return;
-      if (this.subStep != 'new-polygon') return;
-      if (this.polygons.length == 0) return;
+    if (btn_value == 'end') {
+      let silhouette = TangramManager.createSilhouette(app.workspace.shapes);
+      app.tangram.silhouette = silhouette;
 
-      document.querySelector('state-menu').buttons = this.buttons.slice(2, 3);
-      this.currentStep = 'selecting-shapes';
-      this.setSelConstraints();
-      alert(
-        "(TODO: à ajouter dans l'aide) Sélectionnez les formes nécessaires pour faire le tangram",
-      );
-    } else if (btn_value == 'end_shapes') {
-      if (this.currentStep != 'selecting-shapes') return;
-
-      //TODO temporaire.
-      let prompt = null,
-        i = 0;
-      while (prompt == null && i++ < 2)
-        prompt = window.prompt('(popup temporaire) Nom du tangram: ');
-      if (prompt == null) return;
-      if (prompt == '') prompt = 'Unnamed';
-
-      this.createAndSaveTangram(prompt);
-      this.start();
+      window.dispatchEvent(new CustomEvent('refreshBackground'));
     }
+    //  else if (btn_value == 'end_polygons') {
+    //   if (this.currentStep != 'selecting-polygons') return;
+    //   if (this.subStep != 'new-polygon') return;
+    //   if (this.polygons.length == 0) return;
+
+    //   document.querySelector('state-menu').buttons = this.buttons.slice(2, 3);
+    //   this.currentStep = 'selecting-shapes';
+    //   this.setSelConstraints();
+    //   alert(
+    //     "(TODO: à ajouter dans l'aide) Sélectionnez les formes nécessaires pour faire le tangram",
+    //   );
+    // } else if (btn_value == 'end_shapes') {
+    //   if (this.currentStep != 'selecting-shapes') return;
+
+    //   //TODO temporaire.
+    //   let prompt = null,
+    //     i = 0;
+    //   while (prompt == null && i++ < 2)
+    //     prompt = window.prompt('(popup temporaire) Nom du tangram: ');
+    //   if (prompt == null) return;
+    //   if (prompt == '') prompt = 'Unnamed';
+
+    //   this.createAndSaveTangram(prompt);
+    //   this.start();
+    // }
   }
 
   showStateMenu() {
@@ -188,25 +201,23 @@ export class TangramCreatorState extends State {
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   draw() {
-    this.polygons.forEach(polygon => {
-      app.app.drawPoint(Ctx, polygon[0], '#E90CC8', 1);
-      for (let i = 0; i < polygon.length - 1; i++) {
-        app.app.drawLine(Ctx, polygon[i], polygon[i + 1], '#E90CC8', 3);
-        app.app.drawPoint(Ctx, polygon[i + 1], '#E90CC8', 1);
-      }
-    });
-
-    if (this.currentStep == 'selecting-polygons') return;
-
-    this.shapes.forEach(shape => {
-      let color = shape.color,
-        borderColor = shape.borderColor;
-      shape.color = '#E90CC8';
-      shape.borderColor = '#E90CC8';
-      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: shape } }));
-      shape.color = color;
-      shape.borderColor = borderColor;
-    });
+    // this.polygons.forEach(polygon => {
+    //   app.app.drawPoint(Ctx, polygon[0], '#E90CC8', 1);
+    //   for (let i = 0; i < polygon.length - 1; i++) {
+    //     app.app.drawLine(Ctx, polygon[i], polygon[i + 1], '#E90CC8', 3);
+    //     app.app.drawPoint(Ctx, polygon[i + 1], '#E90CC8', 1);
+    //   }
+    // });
+    // if (this.currentStep == 'selecting-polygons') return;
+    // this.shapes.forEach(shape => {
+    //   let color = shape.color,
+    //     borderColor = shape.borderColor;
+    //   shape.color = '#E90CC8';
+    //   shape.borderColor = '#E90CC8';
+    //   window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: shape } }));
+    //   shape.color = color;
+    //   shape.borderColor = borderColor;
+    // });
   }
 
   // setSelConstraints() {

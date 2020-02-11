@@ -356,6 +356,14 @@ export class Segment {
   }
 
   /**
+   * say if it is a subsegment (segment inside but no match with segmentPoints)
+   * @param {Segment} subseg subsegment
+   */
+  isSubsegment(subseg) {
+    return this.isPointOnSegment(subseg.vertexes[0]) && this.isPointOnSegment(subseg.vertexes[1]);
+  }
+
+  /**
    * Find the angle's projection on this arc.
    *
    * For circle : https://math.stackexchange.com/questions/1744354/project-a-point-within-a-circle-onto-its-edge

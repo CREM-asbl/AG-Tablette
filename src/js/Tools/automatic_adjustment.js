@@ -3,6 +3,7 @@ import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
 import { SelectManager } from '../SelectManager';
 import { GridManager } from '../../Grid/GridManager';
+import { TangramManager } from '../../Tangram/TangramManager';
 
 /**
  * Renvoie la transformation qu'il faut appliquer aux formes pour que les 2
@@ -102,7 +103,7 @@ function bestPossibility(possibilities) {
 export function getShapeAdjustment(shapes, mainShape) {
   const maxRotateAngle = 0.25; //radians
   let grid = app.workspace.settings.get('isGridShown'),
-    tangram = app.workspace.settings.get('isTangramShown'),
+    tangram = app.environment.name == 'Tangram' && app.tangram.silhouette,
     automaticAdjustment = app.settings.get('automaticAdjustment'),
     transformation = {
       rotation: 0,
@@ -123,14 +124,14 @@ export function getShapeAdjustment(shapes, mainShape) {
     if (s.isCenterShown) ptList.push(s.center);
   });
 
-  //Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
+  // Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
   let cPtListTangram = [],
     cPtListGrid = [],
     cPtListBorder = [],
     cPtListShape = [];
   ptList.forEach(point => {
     if (point.type != 'center' && tangram) {
-      let pt = app.tangramManager.getNearTangramPoint(point);
+      let pt = TangramManager.getNearTangramPoint(point);
       if (pt) {
         cPtListTangram.push({
           fixed: pt,
@@ -168,37 +169,37 @@ export function getShapeAdjustment(shapes, mainShape) {
 
   let possibilities = [];
 
-  // if (tangram) {
-  //   //segment: 2 points de la silhouette ?
-  //   for (let i = 0; i < cPtListTangram.length; i++) {
-  //     for (let j = i + 1; j < cPtListTangram.length; j++) {
-  //       let e1 = cPtListTangram[i],
-  //         e2 = cPtListTangram[j];
-  //       if (checkCompatibility(e1, e2)) {
-  //         let t = computeTransformation(e1, e2, shapes, mainShape);
-  //         if (Math.abs(t.rotation) <= maxRotateAngle) {
-  //           return t;
-  //         }
-  //       }
-  //     }
-  //   }
+  if (tangram) {
+    //segment: 2 points de la silhouette ?
+    for (let i = 0; i < cPtListTangram.length; i++) {
+      for (let j = i + 1; j < cPtListTangram.length; j++) {
+        let e1 = cPtListTangram[i],
+          e2 = cPtListTangram[j];
+        if (checkCompatibility(e1, e2)) {
+          let t = computeTransformation(e1, e2, shapes, mainShape);
+          if (Math.abs(t.rotation) <= maxRotateAngle) {
+            return t;
+          }
+        }
+      }
+    }
 
-  //   if (automaticAdjustment) {
-  //     //segment: 1 point de la silhouette et 1 point d'une autre forme ?
-  //     for (let i = 0; i < cPtListTangram.length; i++) {
-  //       for (let j = 0; j < cPtListBorder.length; j++) {
-  //         let e1 = cPtListTangram[i],
-  //           e2 = cPtListBorder[j];
-  //         if (checkCompatibility(e1, e2)) {
-  //           let t = computeTransformation(e1, e2, shapes, mainShape);
-  //           if (Math.abs(t.rotation) <= maxRotateAngle) {
-  //             return t;
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+    if (automaticAdjustment) {
+      //segment: 1 point de la silhouette et 1 point d'une autre forme ?
+      for (let i = 0; i < cPtListTangram.length; i++) {
+        for (let j = 0; j < cPtListBorder.length; j++) {
+          let e1 = cPtListTangram[i],
+            e2 = cPtListBorder[j];
+          if (checkCompatibility(e1, e2)) {
+            let t = computeTransformation(e1, e2, shapes, mainShape);
+            if (Math.abs(t.rotation) <= maxRotateAngle) {
+              return t;
+            }
+          }
+        }
+      }
+    }
+  }
 
   if (grid) {
     //segment: 2 points de la grille ?
@@ -249,6 +250,7 @@ export function getShapeAdjustment(shapes, mainShape) {
         let e1 = cPtListBorder[i],
           e2 = cPtListBorder[j];
         if (checkCompatibility(e1, e2)) {
+          // console.log('2 points');
           let t = computeTransformation(e1, e2, shapes, mainShape);
           if (Math.abs(t.rotation) <= maxRotateAngle) {
             possibilities.push(t);
@@ -263,22 +265,22 @@ export function getShapeAdjustment(shapes, mainShape) {
     return bestPossibility(possibilities);
   }
 
-  // if (tangram) {
-  //   //point: un seul point du tangram ?
-  //   let best = null,
-  //     bestDist = 1000 * 1000;
-  //   for (let i = 0; i < cPtListTangram.length; i++) {
-  //     let e = cPtListTangram[i];
-  //     if (e.dist < bestDist) {
-  //       bestDist = e.dist;
-  //       best = e;
-  //     }
-  //   }
-  //   if (best) {
-  //     transformation.move = best.fixed.subCoordinates(best.moving);
-  //     return transformation;
-  //   }
-  // }
+  if (tangram) {
+    //point: un seul point du tangram ?
+    let best = null,
+      bestDist = 1000 * 1000;
+    for (let i = 0; i < cPtListTangram.length; i++) {
+      let e = cPtListTangram[i];
+      if (e.dist < bestDist) {
+        bestDist = e.dist;
+        best = e;
+      }
+    }
+    if (best) {
+      transformation.move = best.fixed.subCoordinates(best.moving);
+      return transformation;
+    }
+  }
 
   if (grid) {
     //point: un seul point de la grille?

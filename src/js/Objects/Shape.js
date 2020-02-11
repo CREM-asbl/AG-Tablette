@@ -249,7 +249,7 @@ export class Shape {
    *    considéré vrai si deux segments sont confondu mais n'ont qu'un point commun ! => peut-etre probleme dans environnement libre
    */
   overlapsWith(shape) {
-    let is_potential_dig = { value: false},
+    let is_potential_dig = { value: false },
       s1 = this,
       s2 = shape,
       s1_segments = s1.segments,
