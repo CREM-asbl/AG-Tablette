@@ -1,5 +1,6 @@
 import { uniqId } from '../js/Tools/general';
 import { Shape } from '../js/Objects/Shape';
+import { Silhouette } from '../js/Objects/Silhouette';
 
 export class Tangram {
   /**
@@ -22,20 +23,25 @@ export class Tangram {
     let data = {
       id: this.id,
       name: this.name,
-      shapes: this.shapes.map(s => s.saveToObject()),
-      silhouette: this.silhouette,
     };
+    if (this.shapes) data.shapes = this.shapes.map(s => s.saveToObject());
+    if (this.silhouette) data.silhouette = this.silhouette.saveToObject();
     return data;
   }
 
   initFromObject(data) {
     this.id = data.id;
     this.name = data.name;
-    this.shapes = data.shapes.map(sData => {
-      let shape = new Shape({ x: 0, y: 0 }, []);
-      shape.initFromObject(sData);
-      return shape;
-    });
-    this.silhouette = data.silhouette;
+    if (data.shapes) {
+      this.shapes = data.shapes.map(sData => {
+        let shape = new Shape({ x: 0, y: 0 }, []);
+        shape.initFromObject(sData);
+        return shape;
+      });
+    }
+    if (data.silhouette) {
+      this.silhouette = new Silhouette();
+      this.silhouette.initFromObject(data.silhouette);
+    }
   }
 }

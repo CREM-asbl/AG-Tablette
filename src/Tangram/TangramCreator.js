@@ -29,7 +29,7 @@ export class TangramCreatorState extends State {
    * initialiser l'état
    */
   start() {
-    // TangramManager.showShapes();
+    TangramManager.showShapes();
 
     app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
 
@@ -75,7 +75,6 @@ export class TangramCreatorState extends State {
   }
 
   clickOnStateMenuButton(btn_value) {
-    console.log(btn_value);
     if (btn_value == 'end') {
       let silhouette = TangramManager.createSilhouette(app.workspace.shapes);
       app.tangram.silhouette = silhouette;

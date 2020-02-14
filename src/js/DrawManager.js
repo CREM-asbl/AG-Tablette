@@ -67,7 +67,7 @@ export class DrawManager {
     }
 
     //Tangram
-    if (app.environment.name == 'Tangram' && app.tangram.silhouette) {
+    if (app.environment.name == 'Tangram' && app.tangram && app.tangram.silhouette) {
       // let { type, id } = app.workspace.settings.get('shownTangram');
       // let tangram = app.tangramManager.getTangram(type, id);
       DrawManager.drawShape(app.backgroundCtx, app.tangram.silhouette.shape);

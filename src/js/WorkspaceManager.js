@@ -29,3 +29,7 @@ export class WorkspaceManager {
 window.addEventListener('app-started', () => {
   WorkspaceManager.setWorkspace(new Workspace());
 });
+
+window.addEventListener('new-window', () => {
+  WorkspaceManager.setWorkspace(new Workspace());
+});

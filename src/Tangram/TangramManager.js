@@ -7,6 +7,7 @@ import { getComplementaryColor } from '../js/Tools/general';
 import { Point } from '../js/Objects/Point';
 import { Segment } from '../js/Objects/Segment';
 import { SelectManager } from '../js/SelectManager';
+import { Silhouette } from '../js/Objects/Silhouette';
 
 app.states = {
   ...app.states,
@@ -15,8 +16,6 @@ app.states = {
     type: 'tool',
   },
 };
-
-console.log('tangram');
 
 app.tangrams = { main: [], local: [] };
 
@@ -27,33 +26,18 @@ addEventListener('app-state-changed', () => {
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
-let shapes = [];
-(data => {
-  data.shapes.forEach(s => {
-    let shape = new Shape({ x: 0, y: 0 }, null, s.name, 'tangram');
-    shape.setSegments(s.segments);
-    shape.color = data.color ? data.color : '#000';
-    shape.second_color = getComplementaryColor(shape.color);
-    shapes.push(shape);
-  });
-})(standardTangramKit);
-
-app.tangram = new Tangram('', shapes);
-app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
-app.workspace.setZoomLevel(0.8677803523248963);
-
 export class TangramManager {
-  static hide() {
-    app.workspace.settings.set('isTangramShown', false);
-  }
+  // static hide() {
+  //   app.workspace.settings.set('isTangramShown', false);
+  // }
 
-  static show(tangramType, tangramId) {
-    app.workspace.settings.set('isTangramShown', true);
-    app.workspace.settings.set('shownTangram', {
-      type: tangramType,
-      id: tangramId,
-    });
-  }
+  // static show(tangramType, tangramId) {
+  //   app.workspace.settings.set('isTangramShown', true);
+  //   app.workspace.settings.set('shownTangram', {
+  //     type: tangramType,
+  //     id: tangramId,
+  //   });
+  // }
 
   static showShapes() {
     app.tangram.shapes.forEach(s => ShapeManager.addShape(s.copy()));
@@ -61,6 +45,12 @@ export class TangramManager {
 
   static hideShapes() {
     app.workspace.shapes = [];
+  }
+
+  static setTangram(tangram) {
+    app.tangram = tangram;
+    app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
+    app.workspace.setZoomLevel(0.8677803523248963);
   }
 
   static createSilhouette(shapes) {
@@ -90,7 +80,8 @@ export class TangramManager {
     shape.color = '#000';
     shape.second_color = getComplementaryColor(shape.color);
     shape.opacity = 1;
-    return { shape: shape };
+    let silhouette = new Silhouette(shape);
+    return silhouette;
   }
 
   static checkGroupMerge(shapes) {
@@ -418,3 +409,20 @@ export class TangramManager {
  * Ces tangrams sont importés via la méthode retrieveTangrams()
  */
 let mainTangramsJSON = [];
+
+let shapes = [];
+(data => {
+  data.shapes.forEach(s => {
+    let shape = new Shape({ x: 0, y: 0 }, null, s.name, 'tangram');
+    shape.setSegments(s.segments);
+    shape.color = data.color ? data.color : '#000';
+    shape.second_color = getComplementaryColor(shape.color);
+    shapes.push(shape);
+  });
+})(standardTangramKit);
+
+window.addEventListener('new-window', () => {
+  TangramManager.setTangram(new Tangram('', shapes));
+});
+
+TangramManager.setTangram(new Tangram('', shapes));

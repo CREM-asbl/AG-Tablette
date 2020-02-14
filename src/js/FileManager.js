@@ -2,6 +2,7 @@ import { app } from './App';
 import { WorkspaceManager } from './WorkspaceManager';
 import { Settings } from './Settings';
 import { GridManager } from '../Grid/GridManager';
+import { Tangram } from '../Tangram/Tangram';
 
 export class FileManager {
   static parseFile(data) {
@@ -28,8 +29,13 @@ export class FileManager {
     } else {
       WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
     }
+    if (app.environment.name == 'Tangram') {
+      app.tangram = new Tangram();
+      app.tangram.initFromObject(dataObject.tangramData);
+    }
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   static async newOpenFile(fileHandle) {
@@ -151,22 +157,30 @@ export class FileManager {
     if (!detail.save_settings) appSettings = undefined;
     if (!detail.save_settings) wsdata.settings = undefined;
 
+    let tangramData;
+    if (app.environment.name == 'Tangram') tangramData = app.tangram.saveToObject();
+
     let saveObject = {
         appVersion: app.version,
         envName: app.environment.name,
         wsdata,
         appSettings,
+        tangramData,
       },
       json_data = JSON.stringify(saveObject);
 
     // let data = wsdata.shapes.map(shape => {
-    //   return { name: shape.name, segments: shape.segments.map(seg => {
-    //     return { vertexes: seg.vertexes.map(pt => {
-    //       return { x: pt.x, y: pt.y };
-    //       })
-    //     };
-    //   })};
-    // })
+    //   return {
+    //     name: shape.name,
+    //     segments: shape.segments.map(seg => {
+    //       return {
+    //         vertexes: seg.vertexes.map(pt => {
+    //           return { x: pt.x, y: pt.y };
+    //         }),
+    //       };
+    //     }),
+    //   };
+    // });
 
     // json_data = JSON.stringify(data);
 

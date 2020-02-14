@@ -150,12 +150,14 @@ export function getShapeAdjustment(shapes, mainShape) {
     constr.canSelect = true;
     constr.types = ['vertex', 'segmentPoint', 'center'];
     constr.blacklist = shapes;
-    let pt = SelectManager.selectPoint(point, constr, false);
-    if (pt) {
-      cPtListShape.push({
-        fixed: pt,
-        moving: point,
-        dist: pt.dist(point),
+    let pts = SelectManager.selectPoint(point, constr, false, true);
+    if (pts) {
+      pts.forEach(pt => {
+        cPtListShape.push({
+          fixed: pt,
+          moving: point,
+          dist: pt.dist(point),
+        });
       });
     }
   });
@@ -168,37 +170,37 @@ export function getShapeAdjustment(shapes, mainShape) {
 
   let possibilities = [];
 
-  if (tangram) {
-    //segment: 2 points de la silhouette ?
-    for (let i = 0; i < cPtListTangram.length; i++) {
-      for (let j = i + 1; j < cPtListTangram.length; j++) {
-        let e1 = cPtListTangram[i],
-          e2 = cPtListTangram[j];
-        if (checkCompatibility(e1, e2)) {
-          let t = computeTransformation(e1, e2, shapes, mainShape);
-          if (Math.abs(t.rotation) <= maxRotateAngle) {
-            return t;
-          }
-        }
-      }
-    }
+  // if (tangram) {
+  //   //segment: 2 points de la silhouette ?
+  //   for (let i = 0; i < cPtListTangram.length; i++) {
+  //     for (let j = i + 1; j < cPtListTangram.length; j++) {
+  //       let e1 = cPtListTangram[i],
+  //         e2 = cPtListTangram[j];
+  //       if (checkCompatibility(e1, e2)) {
+  //         let t = computeTransformation(e1, e2, shapes, mainShape);
+  //         if (Math.abs(t.rotation) <= maxRotateAngle) {
+  //           return t;
+  //         }
+  //       }
+  //     }
+  //   }
 
-    if (automaticAdjustment) {
-      //segment: 1 point de la silhouette et 1 point d'une autre forme ?
-      for (let i = 0; i < cPtListTangram.length; i++) {
-        for (let j = 0; j < cPtListBorder.length; j++) {
-          let e1 = cPtListTangram[i],
-            e2 = cPtListBorder[j];
-          if (checkCompatibility(e1, e2)) {
-            let t = computeTransformation(e1, e2, shapes, mainShape);
-            if (Math.abs(t.rotation) <= maxRotateAngle) {
-              return t;
-            }
-          }
-        }
-      }
-    }
-  }
+  //   if (automaticAdjustment) {
+  //     //segment: 1 point de la silhouette et 1 point d'une autre forme ?
+  //     for (let i = 0; i < cPtListTangram.length; i++) {
+  //       for (let j = 0; j < cPtListBorder.length; j++) {
+  //         let e1 = cPtListTangram[i],
+  //           e2 = cPtListBorder[j];
+  //         if (checkCompatibility(e1, e2)) {
+  //           let t = computeTransformation(e1, e2, shapes, mainShape);
+  //           if (Math.abs(t.rotation) <= maxRotateAngle) {
+  //             return t;
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   if (grid) {
     //segment: 2 points de la grille ?
@@ -264,22 +266,22 @@ export function getShapeAdjustment(shapes, mainShape) {
     return bestPossibility(possibilities);
   }
 
-  if (tangram) {
-    //point: un seul point du tangram ?
-    let best = null,
-      bestDist = 1000 * 1000;
-    for (let i = 0; i < cPtListTangram.length; i++) {
-      let e = cPtListTangram[i];
-      if (e.dist < bestDist) {
-        bestDist = e.dist;
-        best = e;
-      }
-    }
-    if (best) {
-      transformation.move = best.fixed.subCoordinates(best.moving);
-      return transformation;
-    }
-  }
+  // if (tangram) {
+  //   //point: un seul point du tangram ?
+  //   let best = null,
+  //     bestDist = 1000 * 1000;
+  //   for (let i = 0; i < cPtListTangram.length; i++) {
+  //     let e = cPtListTangram[i];
+  //     if (e.dist < bestDist) {
+  //       bestDist = e.dist;
+  //       best = e;
+  //     }
+  //   }
+  //   if (best) {
+  //     transformation.move = best.fixed.subCoordinates(best.moving);
+  //     return transformation;
+  //   }
+  // }
 
   if (grid) {
     //point: un seul point de la grille?

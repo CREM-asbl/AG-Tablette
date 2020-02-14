@@ -111,9 +111,10 @@ export class SelectManager {
    * Renvoie null si pas de point.
    * @param  {Point} mouseCoordinates
    * @param  {Object} constraints      Contraintes. Voir selectionConstraints.points.
+   * @param  {Boolean} all si retourne tous les points et pas seulement le plus haut / proche
    * @return {Point}
    */
-  static selectPoint(mouseCoordinates, constraints, easySelection = true) {
+  static selectPoint(mouseCoordinates, constraints, easySelection = true, all = false) {
     if (!constraints.canSelect) return null;
 
     let distCheckFunction = easySelection
@@ -200,6 +201,10 @@ export class SelectManager {
 
     // if no possibilities
     if (constrainedPoints.length == 0) return null;
+
+    if (all) {
+      return constrainedPoints.flat();
+    }
 
     // sort by distance and height
     // cree un tableau de type [ [{Point}, {Point}], [{Point}]]

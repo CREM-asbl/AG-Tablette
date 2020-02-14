@@ -36,7 +36,7 @@ class NewPopup extends LitElement {
   }
 
   confirm() {
-    WorkspaceManager.setWorkspace(new Workspace());
+    window.dispatchEvent(new CustomEvent('new-window'));
     this.close();
   }
 
