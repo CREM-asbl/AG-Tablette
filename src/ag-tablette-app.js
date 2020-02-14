@@ -221,7 +221,7 @@ class AGTabletteApp extends LitElement {
               >
               </icon-button>
               <icon-button
-                src="/images/redo.svg"
+                src="/images/replay.svg"
                 title="play"
                 name="play"
                 @click="${this._actionHandle}"
