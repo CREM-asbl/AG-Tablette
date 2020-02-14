@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+
+<svg
+     version="1.1"
+     baseProfile="full"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:ev="http://www.w3.org/2001/xml-events"
+     width="2.0157817737040205cm"
+     height="2.438445693996799cm"
+     viewBox="0 0 61 61"
+     >
+<title>
+
+</title>
+<g stroke-linejoin="miter" stroke-dashoffset="0.0000" stroke-dasharray="none" stroke-width="1.0000" stroke-miterlimit="10.000" stroke-linecap="square">
+<g id="misc">
+</g><!-- misc -->
+<g id="layer0">
+<clipPath id="clip022cb9ee-500f-436f-8233-1ebcd57282b4">
+  <path d="M 0.0000 0.0000 L 0.0000 75.000 L 62.000 75.000 L 62.000 0.0000 z"/>
+</clipPath>
+<g clip-path="url(#clip1)">
+<g fill-opacity="1.0000" fill-rule="evenodd" stroke="none" fill="#000000">
+  <path d="M 29.720 5.5206 L 29.720 20.985 L 16.327 13.253 z"/>
+<title>Polygone poly1&apos;</title>
+<desc>Polygone poly1&apos;: Symétrique de poly1 par rapport à f</desc>
+
+</g> <!-- drawing style -->
+</g> <!-- clip1 -->
+<clipPath id="clipbfedad1c-b1b6-4fbf-a312-8095c88a27e4">
+  <path d="M 0.0000 0.0000 L 0.0000 75.000 L 62.000 75.000 L 62.000 0.0000 z"/>
+</clipPath>
+<g clip-path="url(#clip2)">
+<g stroke-linejoin="round" stroke-width="2.5000" stroke-linecap="round" fill="none" stroke-opacity=".69804" stroke="#000000">
+  <path d="M 29.720 5.5206 L 29.720 20.985 L 16.327 13.253 z"/>
+<title>Polygone poly1&apos;</title>
+<desc>Polygone poly1&apos;: Symétrique de poly1 par rapport à f</desc>
+
+</g> <!-- drawing style -->
+</g> <!-- clip2 -->
+<clipPath id="clipaea23e21-a354-4345-809e-077d39d5ae26">
+  <path d="M 0.0000 0.0000 L 0.0000 75.000 L 62.000 75.000 L 62.000 0.0000 z"/>
+</clipPath>
+<g clip-path="url(#clip3)">
+<g fill-opacity="1.0000" fill-rule="evenodd" stroke="none" fill="#000000">
+  <path d="M 26.042 27.665 L 26.279 37.395 L 34.587 32.324 z"/>
+<title>Polygone poly2</title>
+<desc>Polygone poly2: Polygone(H, I, 3)</desc>
+
+</g> <!-- drawing style -->
+</g> <!-- clip3 -->
+<clipPath id="clipf2ba99b9-77f7-48a9-aa6c-1e426233bb97">
+  <path d="M 0.0000 0.0000 L 0.0000 75.000 L 62.000 75.000 L 62.000 0.0000 z"/>
+</clipPath>
+<g clip-path="url(#clip4)">
+<g stroke-linejoin="round" stroke-width="2.5000" stroke-linecap="round" fill="none" stroke-opacity=".69804" stroke="#000000">
+  <path d="M 26.042 27.665 L 26.279 37.395 L 34.587 32.324 z"/>
+<title>Polygone poly2</title>
+<desc>Polygone poly2: Polygone(H, I, 3)</desc>
+
+</g> <!-- drawing style -->
+</g> <!-- clip4 -->
+<clipPath id="clipc78cc230-aa9c-4ab7-9905-664677126b46">
+  <path d="M 0.0000 0.0000 L 0.0000 75.000 L 62.000 75.000 L 62.000 0.0000 z"/>
+</clipPath>
+<g clip-path="url(#clip5)">
+<g stroke-linejoin="round" stroke-width="6.5000" stroke-linecap="round" fill="none" stroke-opacity="1.0000" stroke="#000000">
+  <path d="M 13.336 22.312 C 8.6449 29.784 9.6036 39.483 15.666 45.892 C 21.729 52.301 31.360 53.796 39.081 49.527 C 46.801 45.258 50.655 36.306 48.451 27.764 C 46.247 19.221 38.542 13.253 29.720 13.253"/>
+<title>Arc c</title>
+<desc>Arc c: ArcCercle(A, B, C)</desc>
+
+</g> <!-- drawing style -->
+</g> <!-- clip5 -->
+<clipPath id="clip31bd9fa0-4e6c-42f9-aeac-25eaf8787cbb">
+  <path d="M 0.0000 0.0000 L 0.0000 75.000 L 62.000 75.000 L 62.000 0.0000 z"/>
+</clipPath>
+<g clip-path="url(#clip6)">
+<g stroke-linejoin="round" stroke-width="2.5000" stroke-linecap="round" fill="none" stroke-opacity=".69804" stroke="#000000">
+  <path d="M 26.042 27.665 L 26.279 37.395"/>
+<title>Segment j</title>
+<desc>Segment j: Segment [HI]</desc>
+
+</g> <!-- drawing style -->
+</g> <!-- clip6 -->
+<clipPath id="clipe13c0ad0-8eaf-4ebd-9947-a6503c6c6597">
+  <path d="M 0.0000 0.0000 L 0.0000 75.000 L 62.000 75.000 L 62.000 0.0000 z"/>
+</clipPath>
+<g clip-path="url(#clip7)">
+<g stroke-linejoin="round" stroke-width="2.5000" stroke-linecap="round" fill="none" stroke-opacity=".69804" stroke="#000000">
+  <path d="M 26.279 37.395 L 34.587 32.324"/>
+<title>Segment k</title>
+<desc>Segment k: Segment [IJ]</desc>
+
+</g> <!-- drawing style -->
+</g> <!-- clip7 -->
+<clipPath id="clipc46f08b7-917b-4b6b-915d-c50c0e2ace11">
+  <path d="M 0.0000 0.0000 L 0.0000 75.000 L 62.000 75.000 L 62.000 0.0000 z"/>
+</clipPath>
+<g clip-path="url(#clip8)">
+<g stroke-linejoin="round" stroke-width="2.5000" stroke-linecap="round" fill="none" stroke-opacity=".69804" stroke="#000000">
+  <path d="M 34.587 32.324 L 26.042 27.665"/>
+<title>Segment l</title>
+<desc>Segment l: Segment [JH]</desc>
+
+</g> <!-- drawing style -->
+</g> <!-- clip8 -->
+</g><!-- layer0 -->
+</g> <!-- default stroke -->
+</svg> <!-- bounding box -->
