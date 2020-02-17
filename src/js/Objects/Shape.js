@@ -22,6 +22,7 @@ export class Shape {
     this.x = x;
     this.y = y;
     this.segments = segments;
+    this.internalSegments = [];
     this.name = name;
     this.familyName = familyName;
 
@@ -141,6 +142,10 @@ export class Shape {
       if (idx % 2) return Math.max(...value);
       else return Math.min(...value);
     });
+  }
+
+  get allSegments() {
+    return [...this.segments, ...this.internalSegments];
   }
 
   /**
@@ -344,6 +349,7 @@ export class Shape {
       seg.idx = idx;
       seg.reverse();
     });
+    // internal segments ?
   }
 
   /**
@@ -372,16 +378,19 @@ export class Shape {
     multiplier = neg ? -1 : 1;
     const translation = new Point(x * multiplier, y * multiplier);
     this.segments.forEach(seg => seg.translate(translation));
+    this.internalSegments.forEach(seg => seg.translate(translation));
     this.x += translation.x;
     this.y += translation.y;
   }
 
   scale(scaling) {
     this.segments.forEach(seg => seg.scale(scaling));
+    this.internalSegments.forEach(seg => seg.scale(scaling));
   }
 
   rotate(angle, center) {
     this.segments.forEach(seg => seg.rotate(angle, center));
+    this.internalSegments.forEach(seg => seg.rotate(angle, center));
   }
 
   /* #################################################################### */
@@ -397,6 +406,7 @@ export class Shape {
     let segments = this.segments.map(seg => seg.copy());
     let copy = new Shape(this, segments, this.name, this.familyName);
     segments.forEach(seg => (seg.shape = copy));
+    copy.internalSegments = this.internalSegments.map(seg => seg.copy());
     copy.color = this.color;
     copy.second_color = this.second_color;
     copy.isBiface = this.isBiface;
@@ -460,6 +470,16 @@ export class Shape {
     });
   }
 
+  setInternalSegments(internalSegments) {
+    this.internalSegments = internalSegments.map((seg, idx) => {
+      let newSeg = new Segment();
+      newSeg.initFromObject(seg);
+      newSeg.idx = idx;
+      newSeg.shape = this;
+      return newSeg;
+    });
+  }
+
   saveToObject() {
     let save = {
       id: this.id,
@@ -474,12 +494,14 @@ export class Shape {
       isReversed: this.isReversed,
       opacity: this.opacity,
       segments: this.segments.map(seg => seg.saveToObject()),
+      internalSegments: this.internalSegments.map(seg => seg.saveToObject()),
     };
     return save;
   }
 
   initFromObject(save) {
     this.setSegments(save.segments);
+    this.setInternalSegments(save.internalSegments);
     this.id = save.id;
     this.x = save.coordinates.x;
     this.y = save.coordinates.y;

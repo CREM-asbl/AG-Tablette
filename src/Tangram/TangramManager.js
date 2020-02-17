@@ -95,61 +95,61 @@ export class TangramManager {
 
     // console.log(oldSegments.map(seg => seg.vertexes[0].x + ' ' + seg.vertexes[0].y + ' ' + seg.vertexes[1].x + ' ' + seg.vertexes[1].y))
 
-    // delete common segments
-    let newSegments = [];
-    oldSegments.forEach((seg, i, segments) => {
-      if (seg.used) return;
-      let indexes = oldSegments
-        .map((segment, idx) => {
-          if (segment.equal(seg)) {
-            return idx;
-          }
-        })
-        .filter(el => el !== undefined);
-      if (indexes.length == 1) newSegments.push(seg);
-      else indexes.forEach(idx => (segments[idx].used = true));
-    });
+    // // delete common segments
+    // let newSegments = [];
+    // oldSegments.forEach((seg, i, segments) => {
+    //   if (seg.used) return;
+    //   let indexes = oldSegments
+    //     .map((segment, idx) => {
+    //       if (segment.equal(seg)) {
+    //         return idx;
+    //       }
+    //     })
+    //     .filter(el => el !== undefined);
+    //   if (indexes.length == 1) newSegments.push(seg);
+    //   else indexes.forEach(idx => (segments[idx].used = true));
+    // });
 
-    // delete segments inside others
-    newSegments.forEach(seg => (seg.used = false));
-    oldSegments = newSegments;
-    newSegments = [];
-    oldSegments.forEach((seg, i, segments) => {
-      if (seg.used) return;
-      let indexes = oldSegments
-        .map((segment, idx) => {
-          if (idx != i && seg.isSubsegment(segment)) {
-            return idx;
-          }
-        })
-        .filter(el => el !== undefined);
-      if (indexes.length != 0) {
-        segments[i].used = true;
-        indexes.forEach(idx => (segments[idx].used = true));
-        let subsegs = indexes.map(idx => segments[idx]);
-        subsegs.forEach(subseg => !subseg.hasSameDirection(seg) && subseg.reverse());
-        subsegs.sort((subseg1, subseg2) =>
-          subseg1.vertexes[1].dist(seg.vertexes[1]) < subseg2.vertexes[1].dist(seg.vertexes[1])
-            ? 1
-            : -1,
-        );
-        let currentSegment = seg;
-        subsegs.forEach(subseg => {
-          if (!subseg.vertexes[0].equal(currentSegment.vertexes[0]))
-            newSegments.push(new Segment(currentSegment.vertexes[0], subseg.vertexes[0]));
-          currentSegment = new Segment(subseg.vertexes[1], currentSegment.vertexes[1]);
-        });
-        if (currentSegment.length > 0.001) newSegments.push(currentSegment);
-      }
-    });
-    oldSegments.forEach(seg => {
-      return !seg.used ? newSegments.push(seg) : undefined;
-    });
+    // // delete segments inside others
+    // newSegments.forEach(seg => (seg.used = false));
+    // oldSegments = newSegments;
+    // newSegments = [];
+    // oldSegments.forEach((seg, i, segments) => {
+    //   if (seg.used) return;
+    //   let indexes = oldSegments
+    //     .map((segment, idx) => {
+    //       if (idx != i && seg.isSubsegment(segment)) {
+    //         return idx;
+    //       }
+    //     })
+    //     .filter(el => el !== undefined);
+    //   if (indexes.length != 0) {
+    //     segments[i].used = true;
+    //     indexes.forEach(idx => (segments[idx].used = true));
+    //     let subsegs = indexes.map(idx => segments[idx]);
+    //     subsegs.forEach(subseg => !subseg.hasSameDirection(seg) && subseg.reverse());
+    //     subsegs.sort((subseg1, subseg2) =>
+    //       subseg1.vertexes[1].dist(seg.vertexes[1]) < subseg2.vertexes[1].dist(seg.vertexes[1])
+    //         ? 1
+    //         : -1,
+    //     );
+    //     let currentSegment = seg;
+    //     subsegs.forEach(subseg => {
+    //       if (!subseg.vertexes[0].equal(currentSegment.vertexes[0]))
+    //         newSegments.push(new Segment(currentSegment.vertexes[0], subseg.vertexes[0]));
+    //       currentSegment = new Segment(subseg.vertexes[1], currentSegment.vertexes[1]);
+    //     });
+    //     if (currentSegment.length > 0.001) newSegments.push(currentSegment);
+    //   }
+    // });
+    // oldSegments.forEach(seg => {
+    //   return !seg.used ? newSegments.push(seg) : undefined;
+    // });
 
     // resize segments that share subSegments with others
-    newSegments.forEach(seg => (seg.used = false));
-    oldSegments = newSegments;
-    newSegments = [];
+    // newSegments.forEach(seg => (seg.used = false));
+    // oldSegments = newSegments;
+    let newSegments = [];
     for (let i = 0; i < oldSegments.length; i++) {
       let seg = oldSegments[i];
       let commonSegmentIdx = oldSegments.findIndex(
