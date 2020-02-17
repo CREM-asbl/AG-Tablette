@@ -132,6 +132,9 @@ export class DrawManager {
         if (!shape.isCircle()) DrawManager.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
       });
     }
+    shape.internalSegments.forEach(seg => {
+      DrawManager.drawLine(ctx, seg, '#fff', 1, false);
+    });
     shape.segments.forEach(seg => {
       if (seg.points && seg.points.length) {
         seg.points.forEach(pt => {

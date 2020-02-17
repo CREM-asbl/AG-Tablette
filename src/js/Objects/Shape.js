@@ -148,6 +148,18 @@ export class Shape {
     return [...this.segments, ...this.internalSegments];
   }
 
+  get allPoints() {
+    let vertexes = [...this.segments, ...this.internalSegments]
+        .map(seg => seg.vertexes)
+        .flat()
+        .filter((vertex, idx, vertexes) => {
+          if (vertex) return vertexes.findIndex(vertex2 => vertex2.equal(vertex)) == idx;
+          else return false;
+        }),
+      segmentPoints = this.segments.map(seg => seg.points).flat();
+    return [...vertexes, ...segmentPoints];
+  }
+
   /**
    * Renvoie un objet Path2D permettant de dessiner la forme.
    * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
