@@ -5,6 +5,10 @@ class StateMenu extends LitElement {
   constructor() {
     super();
     this.buttons = [];
+
+    window.addEventListener('close-state-menu', () =>
+      this /*.shadowRoot.querySelector('state-menu')*/.remove(),
+    );
   }
 
   static get properties() {
@@ -50,49 +54,9 @@ class StateMenu extends LitElement {
     `;
   }
 
-  // /**
-  //  * Configurer le menu
-  //  * @param  {[{text: String, value: String}]} buttons
-  //  * ->Le nombre d'éléments du tableau détermine le nombre de boutons affichés.
-  //  * ->Maximum 10 boutons
-  //  * ->text: le texte affiché sur le bouton
-  //  * ->value: la valeur envoyée en paramètre de la fonction state.clickOnStateMenuButton
-  //  *          lorsque l'on clique sur le bouton.
-  //  */
-  // //TODO: pouvoir activer/désactiver (attribut disable) des boutons
-  // configureButtons(buttons) {
-  //     let doc = this.shadowRoot;
-
-  //     for (let i = 1; i <= 10; i++) {
-  //         let btn = doc.getElementById('state-menu-button' + i);
-  //         btn.style.display = 'none';
-  //         this.buttonsValue[i - 1] = '';
-  //     }
-  //     for (let i = 0; i < buttons.length && i < 10; i++) {
-  //         let btn = doc.getElementById('state-menu-button' + (i + 1)),
-  //             text = buttons[i].text,
-  //             value = buttons[i].value;
-  //         btn.style.display = 'block';
-  //         btn.innerHTML = text;
-  //         this.buttonsValue[i] = value;
-  //     }
-  //     if (buttons.length > 0)
-  //         this.showMenu();
-  //     else
-  //         this.hideMenu();
-  // }
-
   clickBtn(value) {
     dispatchEvent(new CustomEvent('state-menu-button-click', { detail: value }));
-    // if (app.state && app.state.clickOnStateMenuButton) {
-    //     console.log(app.state)
-    //     app.state.clickOnStateMenuButton(value);
-    // }
   }
-
-  // showMenu() { this.style.display = 'block'; }
-
-  // hideMenu() { this.style.display = 'none'; }
 }
 
 customElements.define('state-menu', StateMenu);

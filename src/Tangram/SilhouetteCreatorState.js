@@ -7,9 +7,9 @@ import { TangramManager } from './TangramManager';
 /**
  * Créer un tangram
  */
-export class TangramCreatorState extends State {
+export class SilhouetteCreatorState extends State {
   constructor() {
-    super('tangram-edit', 'Créer Tangram', 'tool');
+    super('silhouette-creator', 'Créer Tangram', 'tool');
 
     // selecting-polygons -> selecting-shapes
     this.currentStep = null;
@@ -23,12 +23,18 @@ export class TangramCreatorState extends State {
     this.shapes = [];
 
     this.buttons = null;
+
+    window.addEventListener('new-window', () => this.finish());
+
+    window.addEventListener('app-state-changed', () => app.state == 'tangram' && this.finish());
   }
 
   /**
    * initialiser l'état
    */
   start() {
+    app.workspace.shapes = [];
+    app.tangram.silhouette = null;
     TangramManager.showShapes();
 
     app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
@@ -50,6 +56,21 @@ export class TangramCreatorState extends State {
 
     this.showStateMenu();
     addEventListener('state-menu-button-click', e => this.clickOnStateMenuButton(e.detail));
+
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
+  }
+
+  restart() {
+    app.workspace.shapes = [];
+    TangramManager.showShapes();
+
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+  }
+
+  finish() {
+    window.dispatchEvent(new CustomEvent('close-state-menu'));
+    // document.querySelector('state-menu').remove();
+    TangramManager.hideShapes();
   }
 
   end() {
@@ -81,38 +102,13 @@ export class TangramCreatorState extends State {
 
       window.dispatchEvent(new CustomEvent('refreshBackground'));
     }
-    //  else if (btn_value == 'end_polygons') {
-    //   if (this.currentStep != 'selecting-polygons') return;
-    //   if (this.subStep != 'new-polygon') return;
-    //   if (this.polygons.length == 0) return;
-
-    //   document.querySelector('state-menu').buttons = this.buttons.slice(2, 3);
-    //   this.currentStep = 'selecting-shapes';
-    //   this.setSelConstraints();
-    //   alert(
-    //     "(TODO: à ajouter dans l'aide) Sélectionnez les formes nécessaires pour faire le tangram",
-    //   );
-    // } else if (btn_value == 'end_shapes') {
-    //   if (this.currentStep != 'selecting-shapes') return;
-
-    //   //TODO temporaire.
-    //   let prompt = null,
-    //     i = 0;
-    //   while (prompt == null && i++ < 2)
-    //     prompt = window.prompt('(popup temporaire) Nom du tangram: ');
-    //   if (prompt == null) return;
-    //   if (prompt == '') prompt = 'Unnamed';
-
-    //   this.createAndSaveTangram(prompt);
-    //   this.start();
-    // }
   }
 
   showStateMenu() {
     if (document.querySelector('state-menu')) return;
     import('./state-menu');
     const menu = document.createElement('state-menu');
-    menu.buttons = this.buttons.slice(0, 2);
+    menu.buttons = this.buttons;
     document.querySelector('body').appendChild(menu);
   }
 

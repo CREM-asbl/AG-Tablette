@@ -9,20 +9,12 @@ import { Segment } from '../js/Objects/Segment';
 import { SelectManager } from '../js/SelectManager';
 import { Silhouette } from '../js/Objects/Silhouette';
 
-app.states = {
-  ...app.states,
-  tangram: {
-    name: 'Faire un Tangram',
-    type: 'tool',
-  },
-};
-
 app.tangrams = { main: [], local: [] };
 
 //Todo: Créer un event plus précis
-addEventListener('app-state-changed', () => {
-  if (app.state === 'tangram') TangramManager.showPopup();
-});
+// addEventListener('app-state-changed', () => {
+//   if (app.state === 'tangram') TangramManager.showPopup();
+// });
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
@@ -63,12 +55,14 @@ export class TangramManager {
       );
 
     segments = TangramManager.linkNewSegments(segments);
-    if (!segments)
+    if (!segments) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
           detail: { message: 'Formes creuses ou en plusieurs morceaux' },
         }),
       );
+      return;
+    }
 
     let silhouette = TangramManager.getSilhouetteFromSegments(segments);
     return silhouette;
@@ -243,7 +237,6 @@ export class TangramManager {
   }
 
   static showPopup() {
-    this.retrieveTangrams();
     import('./tangram-popup');
     const popup = document.createElement('tangram-popup');
     popup.style.display = 'block';
@@ -260,34 +253,49 @@ export class TangramManager {
   //   ls.setItem('AG_TangramsList_TG' + amount, json);
   // }
 
-  // static retrieveTangrams() {
-  //   //Main
-  //   if (!app) return;
-  //   app.tangrams.main = mainTangramsJSON.map(data => {
-  //     let tangram = new Tangram();
-  //     tangram.initFromObject(data);
-  //     return tangram;
-  //   });
+  static retrieveTangrams() {
+    //Main
+    if (!app || app.CremTangrams.length) return;
 
-  //   //Local
-  //   let ls = window.localStorage;
-  //   app.tangrams.local.splice(0); //vider le tableau
+    fetch('./src/CremTangrams/square.agt')
+      .then(response => {
+        return response.text();
+      })
+      .then(text => {
+        let object = JSON.parse(text);
+        if (object) app.CremTangrams.push(object);
+      });
 
-  //   //Init localStorage if necessary
-  //   if (ls.getItem('AG_TangramsAmount') == null) {
-  //     ls.setItem('AG_TangramsAmount', 0);
-  //   }
+    // const //fs = require('fs'),
+    //   dirname = '../CremTangrams';
 
-  //   let amount = parseInt(ls.getItem('AG_TangramsAmount'));
-  //   for (let i = 0; i < amount; i++) {
-  //     let tangram = new Tangram(),
-  //       json = ls.getItem('AG_TangramsList_TG' + i),
-  //       object = JSON.parse(json);
+    // // function readFiles(dirname, onFileContent, onError) {
+    // fs.readdir(dirname, (err, filenames) => {
+    //   if (err) {
+    //     console.error(err);
+    //     return;
+    //   }
+    //   filenames.forEach((filename) => {
+    //     fs.readFile(dirname + filename, 'utf-8', (err, content) => {
+    //       if (err) {
+    //         onError(err);
+    //         return;
+    //       }
 
-  //     tangram.initFromObject(object);
-  //     app.tangrams.local.push(tangram);
-  //   }
-  // }
+    //       let object = JSON.parse(content);
+    //       if (object)
+    //         app.tangrams.push(object);
+    //     });
+    //   });
+    //   // });
+    // });
+
+    // app.tangrams.main = mainTangramsJSON.map(data => {
+    //   let tangram = new Tangram();
+    //   tangram.initFromObject(data);
+    //   return tangram;
+    // });
+  }
 
   // static deleteLocalTangram(id) {
   //   let ls = window.localStorage,
@@ -408,7 +416,7 @@ export class TangramManager {
  * Copier-coller le contenu d'un ou plusieurs fichier(s) tangram.json.
  * Ces tangrams sont importés via la méthode retrieveTangrams()
  */
-let mainTangramsJSON = [];
+// let mainTangramsJSON = [];
 
 let shapes = [];
 (data => {
@@ -426,3 +434,7 @@ window.addEventListener('new-window', () => {
 });
 
 TangramManager.setTangram(new Tangram('', shapes));
+
+app.CremTangrams = [];
+
+TangramManager.retrieveTangrams();

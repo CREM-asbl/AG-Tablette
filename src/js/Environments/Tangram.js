@@ -13,7 +13,6 @@ import { OpacityState } from '../States/Opacity';
 import { BifaceState } from '../States/Biface';
 import { TranslatePlaneState } from '../States/TranslatePlane';
 import { ZoomPlaneState } from '../States/ZoomPlane';
-import { TangramCreatorState } from '../../Tangram/TangramCreator';
 import { BackgroundColorAction } from '../States/Actions/BackgroundColor';
 import { BorderColorAction } from '../States/Actions/BorderColor';
 import { OpacityAction } from '../States/Actions/Opacity';
@@ -22,6 +21,8 @@ import { TranslatePlaneAction } from '../States/Actions/TranslatePlane';
 import { ZoomPlaneAction } from '../States/Actions/ZoomPlane';
 import { Rotate45State } from '../../Rotate45/Rotate45State';
 import { Rotate45Action } from '../../Rotate45/Rotate45Action';
+import { SilhouetteCreatorState } from '../../Tangram/SilhouetteCreatorState';
+import { TangramState } from '../../Tangram/TangramState';
 import '../../Tangram/TangramManager';
 
 new GroupState();
@@ -42,7 +43,8 @@ new TranslatePlaneState();
 new TranslatePlaneAction();
 new ZoomPlaneState();
 new ZoomPlaneAction();
-new TangramCreatorState();
+new SilhouetteCreatorState();
+new TangramState();
 new Rotate45State();
 new Rotate45Action();
 
