@@ -513,7 +513,7 @@ export class Shape {
 
   initFromObject(save) {
     this.setSegments(save.segments);
-    this.setInternalSegments(save.internalSegments);
+    if (save.internalSegments) this.setInternalSegments(save.internalSegments);
     this.id = save.id;
     this.x = save.coordinates.x;
     this.y = save.coordinates.y;

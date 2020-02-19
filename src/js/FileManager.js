@@ -29,7 +29,8 @@ export class FileManager {
     } else {
       WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
     }
-    if (app.environment.name == 'Tangram') {
+
+    if (app.environment.name == 'Tangram' && dataObject.tangramData) {
       app.tangram = new Tangram();
       app.tangram.initFromObject(dataObject.tangramData);
     }

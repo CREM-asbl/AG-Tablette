@@ -24,6 +24,9 @@ export class SilhouetteCreatorState extends State {
 
     this.buttons = null;
 
+    // withInternalSegment or neInternalSegment
+    this.silhouetteMode = 'noInternalSegment';
+
     window.addEventListener('new-window', () => this.finish());
 
     window.addEventListener('app-state-changed', () => app.state == 'tangram' && this.finish());
@@ -97,7 +100,7 @@ export class SilhouetteCreatorState extends State {
 
   clickOnStateMenuButton(btn_value) {
     if (btn_value == 'end') {
-      let silhouette = TangramManager.createSilhouette(app.workspace.shapes);
+      let silhouette = TangramManager.createSilhouette(app.workspace.shapes, this.silhouetteMode);
       app.tangram.silhouette = silhouette;
 
       window.dispatchEvent(new CustomEvent('refreshBackground'));

@@ -45,7 +45,7 @@ export class TangramManager {
     app.workspace.setZoomLevel(0.8677803523248963);
   }
 
-  static createSilhouette(shapes) {
+  static createSilhouette(shapes, silhouetteMode) {
     let { newSegments, internalSegments } = TangramManager.checkGroupMerge(shapes);
     if (!newSegments)
       window.dispatchEvent(
@@ -64,7 +64,10 @@ export class TangramManager {
       return;
     }
 
-    let silhouette = TangramManager.getSilhouetteFromSegments(newSegments, internalSegments);
+    let silhouette = TangramManager.getSilhouetteFromSegments(
+      newSegments,
+      silhouetteMode == 'withInternalSegment' ? internalSegments : [],
+    );
     return silhouette;
   }
 
@@ -338,10 +341,6 @@ export class TangramManager {
    * @return {Point}
    */
   static getNearTangramPoint(point) {
-    //TODO: si mode silhouette, uniquement contour, sinon points internes aussi.
-    // let tangram = this.getCurrentTangram();
-    // if (tangram == null) return null;
-
     let shape = app.tangram.silhouette.shape;
 
     let bestPoint = null,
