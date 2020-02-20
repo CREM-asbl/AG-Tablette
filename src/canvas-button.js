@@ -1,37 +1,39 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import { app } from './js/App';
 
 class CanvasButton extends LitElement {
   static get properties() {
     return {
       family: String,
-      shape: String,
+      shapeName: String,
       name: String,
     };
   }
 
+  static get styles() {
+    return css`
+      :host {
+        display: block;
+        margin: 2px;
+      }
+
+      :host([active]) canvas {
+        border: 1px solid var(--button-border-color);
+        background-color: var(--button-background-color);
+      }
+
+      canvas {
+        background: #fff;
+        border: 1px solid black;
+        box-sizing: border-box;
+        width: 52px;
+        height: 52px;
+      }
+    `;
+  }
+
   render() {
     return html`
-      <style>
-        :host {
-          display: block;
-          margin: 2px;
-        }
-
-        :host([active]) canvas {
-          border: 1px solid var(--button-border-color);
-          background-color: var(--button-background-color);
-        }
-
-        canvas {
-          background: #fff;
-          border: 1px solid black;
-          box-sizing: border-box;
-          width: 52px;
-          height: 52px;
-        }
-      </style>
-
       <canvas id="canvas" width="52px" height="52px"></canvas>
     `;
   }
@@ -57,7 +59,7 @@ class CanvasButton extends LitElement {
     ctx.save();
     ctx.strokeStyle = '#000';
 
-    let icon = family.shapes.find(shape => shape.name === this.shape) || family.shapes[0];
+    let icon = family.shapes.find(shape => shape.name === this.shapeName) || family.shapes[0];
     ctx.fillStyle = icon.color || family.defaultColor;
 
     const isCircle = icon.isCircle();

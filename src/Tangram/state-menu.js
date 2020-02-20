@@ -17,33 +17,36 @@ class StateMenu extends LitElement {
     };
   }
 
+  static get styles() {
+    return css`
+      :host {
+        position: absolute;
+        top: 5px;
+        padding: 10px;
+        font-size: 20px;
+        border-radius: 5px;
+        border: 2px solid gray;
+        background-color: rgba(0, 0, 0, 0.15);
+        width: auto;
+        max-width: calc(100% - 230px);
+        overflow-y: auto;
+        max-height: 30%;
+        left: ${app.settings.get('mainMenuWidth') + 5}px;
+      }
+
+      div#state-menu-buttons-list > button {
+        font-size: 20px;
+        border-radius: 5px;
+        margin: 5px;
+        padding: 4px;
+        display: inline-block;
+        background-color: #bbb;
+      }
+    `;
+  }
+
   render() {
     return html`
-      <style>
-        :host {
-          position: absolute;
-          top: 5px;
-          padding: 10px;
-          font-size: 20px;
-          border-radius: 5px;
-          border: 2px solid gray;
-          background-color: rgba(0, 0, 0, 0.15);
-          width: auto;
-          max-width: calc(100% - 230px);
-          overflow-y: auto;
-          max-height: 30%;
-          left: ${app.settings.get('mainMenuWidth') + 5}px;
-        }
-
-        div#state-menu-buttons-list > button {
-          font-size: 20px;
-          border-radius: 5px;
-          margin: 5px;
-          padding: 4px;
-          display: inline-block;
-          background-color: #bbb;
-        }
-      </style>
       <div id="state-menu-buttons-list">
         ${this.buttons.map(
           button => html`

@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import './shapes-list';
 import './div-main-canvas';
 import './flex-toolbar';
@@ -69,101 +69,102 @@ class AGTabletteApp extends LitElement {
     });
   }
 
-  render() {
-    console.log('render');
-    return html`
-      <style>
-        :host {
-          --primary-color: #abcedf;
-          --button-border-color: black;
-          --button-background-color: #0ff;
-        }
+  static get styles() {
+    return css`
+      :host {
+        --primary-color: #abcedf;
+        --button-border-color: black;
+        --button-background-color: #0ff;
+      }
 
-        #app-canvas-view {
-          display: flex;
-          width: 100%;
-          margin: 0;
-          padding: 0;
-          height: 100%;
-        }
+      #app-canvas-view {
+        display: flex;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
 
-        #app-canvas-view > .toolbar {
-          display: flex;
-          flex-flow: column;
-          padding: 4px;
-          height: 100%;
-          box-sizing: border-box;
-          border-right: 1px solid gray;
-          background-color: var(--primary-color);
-          overflow: hidden;
-          flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
-        }
+      #app-canvas-view > .toolbar {
+        display: flex;
+        flex-flow: column;
+        padding: 4px;
+        height: 100%;
+        box-sizing: border-box;
+        border-right: 1px solid gray;
+        background-color: var(--primary-color);
+        overflow: hidden;
+        flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
+      }
 
-        #app-canvas-view-toolbar {
-          -webkit-user-select: none;
-          -khtml-user-select: none;
-          -moz-user-select: none;
-          -o-user-select: none;
-          user-select: none;
-        }
+      #app-canvas-view-toolbar {
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -o-user-select: none;
+        user-select: none;
+      }
 
-        #app-canvas-view-toolbar-p1 {
-          padding-bottom: 8px;
-          border-bottom: 1px solid lightslategray;
-        }
+      #app-canvas-view-toolbar-p1 {
+        padding-bottom: 8px;
+        border-bottom: 1px solid lightslategray;
+      }
 
-        #app-canvas-view-toolbar-p2 {
-          flex: 1;
-          overflow-y: auto;
-        }
+      #app-canvas-view-toolbar-p2 {
+        flex: 1;
+        overflow-y: auto;
+      }
 
-        .toolbar-separator {
-          font-weight: bold;
-          margin: 12px 0;
-        }
+      .toolbar-separator {
+        font-weight: bold;
+        margin: 12px 0;
+      }
 
-        div-main-canvas {
-          width: 100%;
-          height: 100%;
-        }
+      div-main-canvas {
+        width: 100%;
+        height: 100%;
+      }
 
+      shapes-list {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+
+      #app-canvas-mode-text {
+        padding: 4px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      #app-canvas-mode-text span {
+        color: #444;
+      }
+
+      /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
+      input[type='color'] {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 21vw;
+        width: 0;
+        height: 0;
+        border: none;
+        background: transparent;
+      }
+
+      @media (min-width: 600px) {
         shapes-list {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
+          left: ${app.settings.get('mainMenuWidth')}px;
         }
+      }
+    `;
+  }
 
-        #app-canvas-mode-text {
-          padding: 4px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-        }
-
-        #app-canvas-mode-text span {
-          color: #444;
-        }
-
-        /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
-        input[type='color'] {
-          opacity: 0;
-          position: absolute;
-          top: 0;
-          left: 21vw;
-          width: 0;
-          height: 0;
-          border: none;
-          background: transparent;
-        }
-
-        @media (min-width: 600px) {
-          shapes-list {
-            left: ${app.settings.get('mainMenuWidth')}px;
-          }
-        }
-      </style>
-
+  render() {
+    return html`
       <div id="app-canvas-view">
         <div id="app-canvas-view-toolbar" class="toolbar">
           <div id="app-canvas-view-toolbar-p1">

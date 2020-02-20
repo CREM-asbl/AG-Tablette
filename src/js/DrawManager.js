@@ -132,7 +132,7 @@ export class DrawManager {
       });
     }
     shape.internalSegments.forEach(seg => {
-      DrawManager.drawLine(ctx, seg, '#fff', 1, false);
+      DrawManager.drawLine(ctx, seg, shape.internalSegmentColor, 1, false);
     });
     shape.segments.forEach(seg => {
       if (seg.points && seg.points.length) {

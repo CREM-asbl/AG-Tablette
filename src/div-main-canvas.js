@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css, unsafeCSS } from 'lit-element';
 import { app } from './js/App';
 import { Point } from './js/Objects/Point';
 import { SelectManager } from './js/SelectManager';
@@ -17,53 +17,54 @@ class DivMainCanvas extends LitElement {
     };
   }
 
+  static get styles() {
+    return css`
+      canvas#upperCanvas,
+      canvas#mainCanvas,
+      canvas#debugCanvas,
+      canvas#invisibleCanvas,
+      canvas#backgroundCanvas {
+        background-color: rgba(0, 0, 0, 0);
+        position: absolute;
+        top: 0px;
+      }
+
+      /* div.clickEffect {
+        position: fixed;
+        box-sizing: border-box;
+        border-style: solid;
+        border-color: #000000;
+        border-radius: 50%;
+        z-index: 99999;
+        display: none;
+      }
+
+      div.runAnim {
+        animation: clickEffect 0.4s ease-out;
+      }
+
+      @keyframes clickEffect {
+        0% {
+          opacity: 1;
+          width: 0.5em;
+          height: 0.5em;
+          margin: -0.25em;
+          border-width: 0.5em;
+        }
+        100% {
+          opacity: 0.4;
+          width: 3em;
+          height: 3em;
+          margin: -1.5em;
+          border-width: 0.1em;
+        }
+      } */
+    `;
+  }
+
   render() {
+    console.log(this.cursorX, this.cursorY);
     return html`
-      <style>
-        canvas#upperCanvas,
-        canvas#mainCanvas,
-        canvas#debugCanvas,
-        canvas#invisibleCanvas,
-        canvas#backgroundCanvas {
-          background-color: rgba(0, 0, 0, 0);
-          position: absolute;
-          top: 0px;
-        }
-
-        div.clickEffect{
-          position: fixed;
-          box-sizing: border-box;
-          border-style: solid;
-          border-color: #000000;
-          border-radius: 50%;
-          z-index: 99999;
-          display: none;
-          left: ${this.animCursorX}px;
-          top: ${this.animCursorY}px;
-        }
-
-        div.runAnim {
-          animation: clickEffect 0.4s ease-out;
-        }
-
-        @keyframes clickEffect{
-          0% {
-            opacity: 1;
-            width: 0.5em;
-            height: 0.5em;
-            margin: -0.25em;
-            border-width: 0.5em;
-          }
-          100% {
-            opacity: 0.4;
-            width: 3em;
-            height: 3em;
-            margin: -1.5em;
-            border-width: 0.1em;
-          }
-        }
-      </style>
-
       <!-- for background tasks (invisible canvas) -->
       <canvas id="invisibleCanvas"></canvas>
 
@@ -82,7 +83,7 @@ class DivMainCanvas extends LitElement {
       this.cursorShow ? 'inline' : 'none'
     }"></img>
 
-      <div class="clickEffect"></div>
+      <!-- <div class="clickEffect" style="margin-left: \${this.animCursorX}px; margin-top:\${this.animCursorY};"></div> -->
     `;
   }
 
@@ -123,26 +124,27 @@ class DivMainCanvas extends LitElement {
     window.addEventListener('show-cursor', event => {
       this.cursorX = event.detail.mousePos.x - this.cursorSize / 2;
       this.cursorY = event.detail.mousePos.y - this.cursorSize / 2;
+      console.log(this.cursorX, this.cursorY);
       this.cursorShow = true;
       window.clearTimeout(this.timeoutId);
       this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);
     });
 
-    window.addEventListener('click-cursor', event => {
-      this.animCursorX = event.detail.mousePos.x + app.settings.get('mainMenuWidth');
-      this.animCursorY = event.detail.mousePos.y;
-      let elem = this.shadowRoot.querySelector('.clickEffect');
-      elem.className = 'clickEffect runAnim';
-      elem.style.display = 'block';
-      elem.addEventListener(
-        'animationend',
-        () => {
-          elem.className = 'clickEffect';
-          elem.style.display = 'none';
-        },
-        { once: true },
-      );
-    });
+    // window.addEventListener('click-cursor', event => {
+    //   this.animCursorX = event.detail.mousePos.x;// + app.settings.get('mainMenuWidth');
+    //   this.animCursorY = event.detail.mousePos.y;
+    //   let elem = this.shadowRoot.querySelector('.clickEffect');
+    //   elem.className = 'clickEffect runAnim';
+    //   elem.style.display = 'inline';
+    //   elem.addEventListener(
+    //     'animationend',
+    //     () => {
+    //       elem.className = 'clickEffect';
+    //       elem.style.display = 'none';
+    //     },
+    //     { once: true },
+    //   );
+    // });
 
     //Events:
     this.upperCanvas.addEventListener('click', event => {

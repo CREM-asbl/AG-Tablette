@@ -29,6 +29,7 @@ export class Shape {
     this.color = '#aaa';
     this.second_color = getComplementaryColor('#aaa');
     this.borderColor = '#000';
+    this.internalSegmentColor = '#fff';
     this.opacity = 0.7;
     this.isCenterShown = false;
     this.isReversed = false;
@@ -423,6 +424,7 @@ export class Shape {
     copy.second_color = this.second_color;
     copy.isBiface = this.isBiface;
     copy.borderColor = this.borderColor;
+    copy.internalSegmentColor = this.internalSegmentColor;
     copy.isCenterShown = this.isCenterShown;
     copy.isReversed = this.isReversed;
     copy.opacity = this.opacity;
@@ -502,6 +504,7 @@ export class Shape {
       second_color: this.second_color,
       isBiface: this.isBiface,
       borderColor: this.borderColor,
+      internalSegmentColor: this.internalSegmentColor,
       isCenterShown: this.isCenterShown,
       isReversed: this.isReversed,
       opacity: this.opacity,
@@ -514,6 +517,7 @@ export class Shape {
   initFromObject(save) {
     this.setSegments(save.segments);
     if (save.internalSegments) this.setInternalSegments(save.internalSegments);
+    if (save.internalSegmentColor) this.internalSegmentColor = save.internalSegmentColor;
     this.id = save.id;
     this.x = save.coordinates.x;
     this.y = save.coordinates.y;

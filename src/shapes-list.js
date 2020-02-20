@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import { app } from './js/App';
 
 class ShapesList extends LitElement {
@@ -7,23 +7,60 @@ class ShapesList extends LitElement {
 
     window.addEventListener('family-selected', event => {
       this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : '';
-      this.shape = '';
+      this.shapeName = '';
     });
-    // window.addEventListener('app-state-changed', () => {
-    //   this.state = app.state;
-    //   this.shape = app.selectedShape ? app.selectedShape.name : '';
-    // });
     window.addEventListener('shape-selected', event => {
-      this.shape = event.detail.selectedShape ? event.detail.selectedShape.name : '';
+      this.shapeName = event.detail.selectedShape ? event.detail.selectedShape.name : '';
     });
   }
 
   static get properties() {
     return {
-      shape: String,
+      shapeName: String,
       selectedFamily: String,
       state: String,
     };
+  }
+
+  static get styles() {
+    return css`
+      :host {
+        display: flex;
+        justify-content: center;
+      }
+
+      .container {
+        background: white;
+        box-shadow: 0 1px 3px gray;
+        z-index: 100;
+        box-sizing: border-box;
+        overflow: auto;
+      }
+
+      h2 {
+        padding: 4px;
+        margin: 0;
+        text-align: center;
+        background: gray;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      ul {
+        display: flex;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
+
+      li {
+        margin: 0;
+        padding: 0;
+        height: 54px;
+      }
+    `;
   }
 
   render() {
@@ -31,60 +68,21 @@ class ShapesList extends LitElement {
       return html``;
     }
 
-    const shapes = app.environment.getFamily(this.selectedFamily).getShapesNames();
+    const shapesNames = app.environment.getFamily(this.selectedFamily).getShapesNames();
 
     return html`
-      <style>
-        :host {
-          display: flex;
-          justify-content: center;
-        }
-
-        .container {
-          background: white;
-          box-shadow: 0 1px 3px gray;
-          z-index: 100;
-          box-sizing: border-box;
-          overflow: auto;
-        }
-
-        h2 {
-          padding: 4px;
-          margin: 0;
-          text-align: center;
-          background: gray;
-          color: white;
-          font-size: 1.2rem;
-        }
-
-        ul {
-          display: flex;
-          margin: 0;
-          padding: 0;
-          list-style: none;
-          overflow-x: auto;
-          overflow-y: hidden;
-        }
-
-        li {
-          margin: 0;
-          padding: 0;
-          height: 54px;
-        }
-      </style>
-
       <div class="container">
-        <h2>${this.shape ? this.shape.replace(/ \d+$/, '') : this.selectedFamily}</h2>
+        <h2>${this.shapeName ? this.shapeName.replace(/ \d+$/, '') : this.selectedFamily}</h2>
         <ul>
-          ${shapes.map(
-            shape => html`
+          ${shapesNames.map(
+            shapeName => html`
               <li>
                 <canvas-button
-                  title="${shape.replace(/ \d+$/, '')}"
+                  title="${shapeName.replace(/ \d+$/, '')}"
                   family="${this.selectedFamily}"
-                  shape="${shape}"
+                  shapeName="${shapeName}"
                   @click="${this._clickHandle}"
-                  ?active="${shape === this.shape}"
+                  ?active="${shapeName === this.shapeName}"
                 >
                 </canvas-button>
               </li>
@@ -100,14 +98,10 @@ class ShapesList extends LitElement {
    */
   _clickHandle(event) {
     const familyRef = app.environment.getFamily(this.selectedFamily);
-    const shapeRef = familyRef.getShape(event.target.shape);
-    // app.selectedShape = shapeRef;
-    // this.shape = app.selectedShape.name;
+    const shapeRef = familyRef.getShape(event.target.shapeName);
     window.dispatchEvent(
       new CustomEvent('shape-selected', { detail: { selectedShape: shapeRef.saveToObject() } }),
     );
-    // app.state.setShape(shapeRef);
-    // this.show = false;
   }
 }
 customElements.define('shapes-list', ShapesList);
