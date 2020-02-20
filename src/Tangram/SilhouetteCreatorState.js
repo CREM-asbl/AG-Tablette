@@ -72,7 +72,6 @@ export class SilhouetteCreatorState extends State {
 
   finish() {
     window.dispatchEvent(new CustomEvent('close-state-menu'));
-    // document.querySelector('state-menu').remove();
     TangramManager.hideShapes();
   }
 
@@ -91,9 +90,9 @@ export class SilhouetteCreatorState extends State {
             <h2>${toolName}</h2>
             <p>
             	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-              Pour créer une nouvelle silhouette, disposez les formes comme vous les désirez, <br />
+              Pour créer une nouvelle silhouette, disposez les formes comme vous le désirez, <br />
               en veillant à ce que toutes les formes soient reliées par au moins un segment. <br />
-              Cliquez sur le bouton FIN une fois que vous avez terminé. <br />
+              Cliquez sur le bouton "Créer silhouette" une fois que vous avez terminé. <br />
             </p>
       `;
   }
@@ -115,108 +114,108 @@ export class SilhouetteCreatorState extends State {
     document.querySelector('body').appendChild(menu);
   }
 
-  createAndSaveTangram(name) {
-    let shapes = this.shapes.map(s => s.copy()),
-      polygons = this.polygons.map(pol => {
-        return pol.map(pt => new Point(pt));
-      }),
-      tangram = new Tangram(name, shapes, polygons);
-    app.tangramManager.addLocalTangram(tangram);
+  // createAndSaveTangram(name) {
+  //   let shapes = this.shapes.map(s => s.copy()),
+  //     polygons = this.polygons.map(pol => {
+  //       return pol.map(pt => new Point(pt));
+  //     }),
+  //     tangram = new Tangram(name, shapes, polygons);
+  //   app.tangramManager.addLocalTangram(tangram);
 
-    let json = JSON.stringify(tangram.saveToObject());
-    const file = new Blob([json], { type: 'application/json' });
-    const downloader = document.createElement('a');
-    downloader.href = window.URL.createObjectURL(file);
-    downloader.download = name + '.json';
-    downloader.target = '_blank';
-    document.body.appendChild(downloader);
-    downloader.click();
-    document.body.removeChild(downloader);
-  }
+  //   let json = JSON.stringify(tangram.saveToObject());
+  //   const file = new Blob([json], { type: 'application/json' });
+  //   const downloader = document.createElement('a');
+  //   downloader.href = window.URL.createObjectURL(file);
+  //   downloader.download = name + '.json';
+  //   downloader.target = '_blank';
+  //   document.body.appendChild(downloader);
+  //   downloader.click();
+  //   document.body.removeChild(downloader);
+  // }
 
-  selectNextPolygonPoint(object) {
-    if (this.subStep == 'new-polygon') {
-      this.polygons.push([object.coordinates]);
-      this.subStep = 'next-point';
-    } else {
-      let last_polygon = this.polygons[this.polygons.length - 1],
-        p1 = object.coordinates,
-        first_point = last_polygon[0],
-        last_point = last_polygon[last_polygon.length - 1];
-      if (p1.equal(first_point)) {
-        //On a recliqué sur le 1e point
-        if (last_polygon.length == 1) {
-          this.polygons.pop(); //annuler la sélection du 1er point
-        } else if (last_polygon.length > 2) {
-          //On a fait le tour du polygone
-          this.subStep = 'new-polygon';
-          last_polygon.push(object.coordinates);
-        }
-        //si ==2: ne rien faire.
-      } else {
-        if (p1.equal(last_point)) {
-          //annuler le dernier point
-          last_polygon.pop();
-        } else {
-          /*
-                    Si on clique sur un point qui est déjà dans le tableau, mais qui
-                    n'est ni le premier ni le dernier, on l'ajoute quand même une
-                    seconde fois. Et s'il n'y est pas encore, on l'ajoute aussi.
-                     */
-          last_polygon.push(object.coordinates);
-        }
-      }
-    }
-  }
+  // selectNextPolygonPoint(object) {
+  //   if (this.subStep == 'new-polygon') {
+  //     this.polygons.push([object.coordinates]);
+  //     this.subStep = 'next-point';
+  //   } else {
+  //     let last_polygon = this.polygons[this.polygons.length - 1],
+  //       p1 = object.coordinates,
+  //       first_point = last_polygon[0],
+  //       last_point = last_polygon[last_polygon.length - 1];
+  //     if (p1.equal(first_point)) {
+  //       //On a recliqué sur le 1e point
+  //       if (last_polygon.length == 1) {
+  //         this.polygons.pop(); //annuler la sélection du 1er point
+  //       } else if (last_polygon.length > 2) {
+  //         //On a fait le tour du polygone
+  //         this.subStep = 'new-polygon';
+  //         last_polygon.push(object.coordinates);
+  //       }
+  //       //si ==2: ne rien faire.
+  //     } else {
+  //       if (p1.equal(last_point)) {
+  //         //annuler le dernier point
+  //         last_polygon.pop();
+  //       } else {
+  //         /*
+  //                   Si on clique sur un point qui est déjà dans le tableau, mais qui
+  //                   n'est ni le premier ni le dernier, on l'ajoute quand même une
+  //                   seconde fois. Et s'il n'y est pas encore, on l'ajoute aussi.
+  //                    */
+  //         last_polygon.push(object.coordinates);
+  //       }
+  //     }
+  //   }
+  // }
 
-  selectNextShape(object) {
-    let i = this.shapes.findIndex(s => s.id == object.id);
-    if (i != -1) {
-      this.shapes.splice(i, 1);
-    } else {
-      this.shapes.push(object);
-    }
-  }
+  // selectNextShape(object) {
+  //   let i = this.shapes.findIndex(s => s.id == object.id);
+  //   if (i != -1) {
+  //     this.shapes.splice(i, 1);
+  //   } else {
+  //     this.shapes.push(object);
+  //   }
+  // }
 
-  /**
-   * Appelée par événement du SelectManager lorsqu'un point a été sélectionnée (click)
-   * @param  {Object} object            L'élément sélectionné
-   * @param  {Point} mouseCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
-   */
-  objectSelected(object) {
-    if (this.currentStep == 'selecting-polygons') {
-      this.selectNextPolygonPoint(object);
-    } else if (this.currentStep == 'selecting-shapes') {
-      this.selectNextShape(object);
-    }
+  // /**
+  //  * Appelée par événement du SelectManager lorsqu'un point a été sélectionnée (click)
+  //  * @param  {Object} object            L'élément sélectionné
+  //  * @param  {Point} mouseCoordinates Les coordonnées du click
+  //  * @param  {Event} event            l'événement javascript
+  //  */
+  // objectSelected(object) {
+  //   if (this.currentStep == 'selecting-polygons') {
+  //     this.selectNextPolygonPoint(object);
+  //   } else if (this.currentStep == 'selecting-shapes') {
+  //     this.selectNextShape(object);
+  //   }
 
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-  }
+  //   window.dispatchEvent(new CustomEvent('refreshUpper'));
+  // }
 
-  /**
-   * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Point} mouseCoordinates Les coordonnées de la souris
-   */
-  draw() {
-    // this.polygons.forEach(polygon => {
-    //   app.app.drawPoint(Ctx, polygon[0], '#E90CC8', 1);
-    //   for (let i = 0; i < polygon.length - 1; i++) {
-    //     app.app.drawLine(Ctx, polygon[i], polygon[i + 1], '#E90CC8', 3);
-    //     app.app.drawPoint(Ctx, polygon[i + 1], '#E90CC8', 1);
-    //   }
-    // });
-    // if (this.currentStep == 'selecting-polygons') return;
-    // this.shapes.forEach(shape => {
-    //   let color = shape.color,
-    //     borderColor = shape.borderColor;
-    //   shape.color = '#E90CC8';
-    //   shape.borderColor = '#E90CC8';
-    //   window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: shape } }));
-    //   shape.color = color;
-    //   shape.borderColor = borderColor;
-    // });
-  }
+  // /**
+  //  * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
+  //  * @param  {Point} mouseCoordinates Les coordonnées de la souris
+  //  */
+  // draw() {
+  //   // this.polygons.forEach(polygon => {
+  //   //   app.app.drawPoint(Ctx, polygon[0], '#E90CC8', 1);
+  //   //   for (let i = 0; i < polygon.length - 1; i++) {
+  //   //     app.app.drawLine(Ctx, polygon[i], polygon[i + 1], '#E90CC8', 3);
+  //   //     app.app.drawPoint(Ctx, polygon[i + 1], '#E90CC8', 1);
+  //   //   }
+  //   // });
+  //   // if (this.currentStep == 'selecting-polygons') return;
+  //   // this.shapes.forEach(shape => {
+  //   //   let color = shape.color,
+  //   //     borderColor = shape.borderColor;
+  //   //   shape.color = '#E90CC8';
+  //   //   shape.borderColor = '#E90CC8';
+  //   //   window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: shape } }));
+  //   //   shape.color = color;
+  //   //   shape.borderColor = borderColor;
+  //   // });
+  // }
 
   // setSelConstraints() {
   //   this.constr.eventType = 'click';

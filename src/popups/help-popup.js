@@ -9,6 +9,8 @@ class HelpPopup extends LitElement {
 
   constructor() {
     super();
+
+    window.addEventListener('close-popup', () => this.close());
   }
 
   static get styles() {
@@ -27,7 +29,7 @@ class HelpPopup extends LitElement {
 
   render() {
     return html`
-      <template-popup @close-popup="${() => (this.style.display = 'none')}">
+      <template-popup>
         <h2 slot="title">Aide</h2>
         <div id="helpPopupBody" slot="body">
           <div id="helpPopupContent"></div>
@@ -39,6 +41,10 @@ class HelpPopup extends LitElement {
         </div>
       </template-popup>
     `;
+  }
+
+  close() {
+    this.style.display = 'none';
   }
 }
 customElements.define('help-popup', HelpPopup);

@@ -44,8 +44,8 @@ class TangramPopup extends LitElement {
               )}
             </ul>
 
-            <h2>Tangrams importés</h2>
-            <ul id="tangram_popup_list2"></ul>
+            <!-- <h2>Tangrams importés</h2>
+            <ul id="tangram_popup_list2"></ul> -->
 
             <button
               @click="${() => {

@@ -7,8 +7,6 @@ TODO:
     -ajouter des facilités de sélection quand on ne peut sélectionner que
       des segments ou points (par ex).
  */
-
-//  TODO: placer selectionConstraints hors du workspace ?
 export class SelectManager {
   /**
    * Vérifier si 2 points sont à la distance de sélection l'un de l'autre.
