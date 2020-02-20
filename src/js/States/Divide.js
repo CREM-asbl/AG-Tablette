@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { State } from './State';
 import { Segment } from '../Objects/Segment';
+import { html } from 'lit-element';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -26,24 +27,21 @@ export class DivideState extends State {
    */
   getHelpText() {
     let toolName = 'Diviser';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
-                permet de diviser un segment d'une forme en plusieurs parties
-                (délimitées par des points).<br />
-                Après avoir choisit en combien de partie vous souhaitez diviser
-                le segment, touchez le segment que vous souhaitez diviser.<br />
-                Il est également possible de sélectionner deux points situés sur
-                le même segment, afin de diviser le segment formé par ces deux
-                points.<br /><br />
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de diviser un segment
+        d'une forme en plusieurs parties (délimitées par des points).<br />
+        Après avoir choisit en combien de partie vous souhaitez diviser le segment, touchez le
+        segment que vous souhaitez diviser.<br />
+        Il est également possible de sélectionner deux points situés sur le même segment, afin de
+        diviser le segment formé par ces deux points.<br /><br />
 
-                <b>Note:</b> il est également possible de diviser un arc de
-                cercle, soit en touchant l'arc lui-même, soit en sélectionnant
-                deux points situés sur cet arc. Dans ce dernier cas, la division
-                est effectuée dans le sens horlogique.
-            </p>
-      `;
+        <b>Note:</b> il est également possible de diviser un arc de cercle, soit en touchant l'arc
+        lui-même, soit en sélectionnant deux points situés sur cet arc. Dans ce dernier cas, la
+        division est effectuée dans le sens horlogique.
+      </p>
+    `;
   }
 
   /**

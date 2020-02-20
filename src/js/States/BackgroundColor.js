@@ -2,6 +2,7 @@ import { app } from '../App';
 import { State } from './State';
 import { GroupManager } from '../GroupManager';
 import { ShapeManager } from '../ShapeManager';
+import { html } from 'lit-element';
 
 /**
  * Modifier la couleur de fond d'une forme
@@ -55,13 +56,12 @@ export class BackgroundColorState extends State {
    */
   getHelpText() {
     let toolName = 'Colorier les formes';
-    return `
-          <h2>${toolName}</h2>
-          <p>
-              Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-              Après avoir choisi une couleur, touchez une forme pour en
-              colorier le fond.
-          </p>
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Après avoir choisi une couleur, touchez une forme pour en colorier le fond.
+      </p>
     `;
   }
 

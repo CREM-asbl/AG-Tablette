@@ -27,16 +27,15 @@ export class Rotate45State extends State {
    */
   getHelpText() {
     let toolName = 'Tourner';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-            	Touchez une forme, puis glissez votre doigt sans relacher la
-                forme pour la faire tourner. La forme tourne autour de son
-                centre, qui est affiché lors de la rotation. Faites tournez
-                votre doigt autour de ce centre pour faire tourner la forme.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Touchez une forme, puis glissez votre doigt sans relacher la forme pour la faire tourner. La
+        forme tourne autour de son centre, qui est affiché lors de la rotation. Faites tournez votre
+        doigt autour de ce centre pour faire tourner la forme.
+      </p>
+    `;
   }
 
   /**

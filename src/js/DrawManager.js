@@ -1,6 +1,5 @@
 import { app } from './App';
 import { GridManager } from '../Grid/GridManager';
-import { GroupManager } from './GroupManager';
 import { ShapeManager } from './ShapeManager';
 
 export class DrawManager {

@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { State } from './State';
 import { ShapeManager } from '../ShapeManager';
+import { html } from 'lit-element';
 
 /**
  * Rendre une shape biface
@@ -16,16 +17,14 @@ export class BifaceState extends State {
    */
   getHelpText() {
     let toolName = 'Biface';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-            	Une fois sélectionné, un texte "biface" apparaît sur les formes
-                étant bifaces.<br />
-                Touchez une forme pour qu'elle devienne biface, et touchez
-                une seconde fois pour annuler.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Une fois sélectionné, un texte "biface" apparaît sur les formes étant bifaces.<br />
+        Touchez une forme pour qu'elle devienne biface, et touchez une seconde fois pour annuler.
+      </p>
+    `;
   }
 
   /**

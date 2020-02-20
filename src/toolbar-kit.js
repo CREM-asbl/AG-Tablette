@@ -6,8 +6,8 @@ import { app } from './js/App';
 class ToolbarKit extends LitElement {
   static get properties() {
     return {
-      kit: { type: Array },
-      selected: { type: String },
+      familyNames: { type: Array },
+      selectedFamily: { type: String },
     };
   }
 
@@ -22,17 +22,32 @@ class ToolbarKit extends LitElement {
     ];
   }
 
+  constructor() {
+    super();
+
+    this.familyNames = app.environment.familyNames || [];
+
+    window.addEventListener('families-loaded', () => {
+      this.familyNames = [...app.environment.familyNames];
+    });
+    window.addEventListener(
+      'family-selected',
+      event =>
+        (this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : ''),
+    );
+  }
+
   render() {
-    if (!this.kit.length) return html``;
+    if (!this.familyNames.length) return html``;
     return html`
       <div class="toolbar-separator">${app.environment.kitName}</div>
       <flex-toolbar>
-        ${this.kit.map(family => {
+        ${this.familyNames.map(family => {
           return html`
             <canvas-button
               name="create_shape"
               .family="${family}"
-              ?active="${family === this.selected}"
+              ?active="${family === this.selectedFamily}"
               @click="${event => app.setState(event.target.name, event.target.family)}"
             >
             </canvas-button>

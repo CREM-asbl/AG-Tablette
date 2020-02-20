@@ -1,8 +1,5 @@
 import { app } from './App';
-import { CompleteHistory } from './Objects/CompleteHistory';
 import { History } from './Objects/History';
-import { Shape } from './Objects/Shape';
-import { Segment } from './Objects/Segment';
 import { Point } from './Objects/Point';
 import { SelectManager } from './SelectManager';
 import { HistoryManager } from './HistoryManager';
@@ -13,9 +10,9 @@ import { HistoryManager } from './HistoryManager';
 export class CompleteHistoryManager {
   static startBrowse() {
     CompleteHistoryManager.isRunning = true;
-    app.workspace.shapes = [];
-    app.workspace.shapeGroups = [];
-    app.workspace.history = new History();
+    if (app.environment.name == 'Grandeurs') {
+      CompleteHistoryManager.resetWorkspace();
+    }
     app.setState();
     app.workspace.completeHistory.videoStartTimestamp = Date.now();
     app.workspace.completeHistory.currentTimestamp =
@@ -28,6 +25,12 @@ export class CompleteHistoryManager {
     CompleteHistoryManager.action_idx = 0;
 
     // empecher que l'utilisateur choisisse un state
+  }
+
+  static resetWorkspace() {
+    app.workspace.shapes = [];
+    app.workspace.shapeGroups = [];
+    app.workspace.history = new History();
   }
 
   static moveTo(idx) {
@@ -240,6 +243,10 @@ window.addEventListener('undo-action', event =>
 );
 window.addEventListener('redo-action', event =>
   CompleteHistoryManager.addStep('redo-action', event),
+);
+
+window.addEventListener('close-popup', event =>
+  CompleteHistoryManager.addStep('close-popup', event),
 );
 
 window.addEventListener('app-state-changed', event =>

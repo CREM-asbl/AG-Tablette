@@ -1,5 +1,6 @@
 import { app } from '../App';
 import { State } from './State';
+import { html } from 'lit-element';
 
 /**
  * Construire le centre d'une forme (l'afficher)
@@ -15,14 +16,14 @@ export class BuildCenterState extends State {
    */
   getHelpText() {
     let toolName = 'Construire le centre';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-            	Touchez une forme pour construire son centre. Si le centre
-                était déjà construit, cela va supprimer le centre.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Touchez une forme pour construire son centre. Si le centre était déjà construit, cela va
+        supprimer le centre.
+      </p>
+    `;
   }
 
   /**

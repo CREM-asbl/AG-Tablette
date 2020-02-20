@@ -2,6 +2,7 @@ import { app } from '../App';
 import { State } from './State';
 import { GroupManager } from '../GroupManager';
 import { ShapeManager } from '../ShapeManager';
+import { html } from 'lit-element';
 
 /**
  * Modifier l'opacité d'une forme
@@ -19,16 +20,15 @@ export class OpacityState extends State {
    */
   getHelpText() {
     let toolName = 'Opacité';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
-                permet de définir pour chaque forme si elle est transparente,
-                semi-transparente ou complètement opaque.<br />
-            	Après avoir choisit l'une de ces 3 options dans le menu, touchez
-                une forme pour lui appliquer la modification.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de définir pour chaque
+        forme si elle est transparente, semi-transparente ou complètement opaque.<br />
+        Après avoir choisit l'une de ces 3 options dans le menu, touchez une forme pour lui
+        appliquer la modification.
+      </p>
+    `;
   }
 
   /**

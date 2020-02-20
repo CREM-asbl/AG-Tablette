@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { State } from './State';
 import { GroupManager } from '../GroupManager';
+import { html } from 'lit-element';
 
 /**
  * Supprimer un groupe (ne supprime pas les formes).
@@ -16,17 +17,16 @@ export class UngroupState extends State {
    */
   getHelpText() {
     let toolName = 'Dégrouper';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-                Une fois cet outil sélectionné, le numéro du groupe apparaît sur
-                chaque forme appartenant à un groupe.<br /><br />
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque forme appartenant à
+        un groupe.<br /><br />
 
-                Pour supprimer entièrement un groupe, cliquez sur une des formes
-                appartenant à ce groupe.
-            </p>
-      `;
+        Pour supprimer entièrement un groupe, cliquez sur une des formes appartenant à ce groupe.
+      </p>
+    `;
   }
 
   /**

@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { State } from './State';
 import { ShapeManager } from '../ShapeManager';
+import { html } from 'lit-element';
 
 /**
  * Déplacer une forme derrière toutes les autres.
@@ -16,14 +17,14 @@ export class ToBackgroundState extends State {
    */
   getHelpText() {
     let toolName = 'Arrière-plan';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
-                permet de placer une forme derrière toutes les autres.<br />
-            	Touchez une forme pour la placer en arrière-plan.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de placer une forme
+        derrière toutes les autres.<br />
+        Touchez une forme pour la placer en arrière-plan.
+      </p>
+    `;
   }
 
   /**

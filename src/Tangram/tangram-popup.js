@@ -8,7 +8,7 @@ class TangramPopup extends LitElement {
 
     this.CremTangrams = app.CremTangrams;
 
-    window.addEventListener('close-popup', () => this.close());
+    window.addEventListener('close-popup', () => this.close(), { once: true });
   }
 
   static get styles() {

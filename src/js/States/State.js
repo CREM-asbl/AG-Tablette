@@ -9,20 +9,18 @@ export class State {
       throw new TypeError('Abstract class "State" cannot be instantiated directly');
     }
     this.name = name;
-    this.description = title;
+    this.title = title;
 
     this.actions = null;
 
     // idle for nothing, paused if stopped by permanent state, running for running...
     this.status = 'idle';
 
-    app.states = {
-      ...app.states,
-      [name]: {
-        name: title,
-        type: type,
-      },
-    };
+    app.states.push({
+      name: name,
+      title: this.title,
+      type: type,
+    });
 
     window.addEventListener('app-state-changed', event => {
       if (this.status == 'running') {
@@ -36,7 +34,6 @@ export class State {
         if (this.name == app.state) {
           this.start(event.detail.startParams);
           this.status = 'running';
-          app.currentOperation = this;
         }
       } else {
         // paused
@@ -44,6 +41,13 @@ export class State {
           this.restart();
           this.status = 'running';
         }
+      }
+    });
+
+    window.addEventListener('get-help-text', () => {
+      if (this.status == 'running') {
+        const popup = document.querySelector('help-popup');
+        popup.setText(this.getHelpText());
       }
     });
 
@@ -134,7 +138,7 @@ export class State {
     );
     window.dispatchEvent(
       new CustomEvent('actions-executed', {
-        detail: { name: this.description, actions: this.actions },
+        detail: { name: this.title, actions: this.actions },
       }),
     );
   }

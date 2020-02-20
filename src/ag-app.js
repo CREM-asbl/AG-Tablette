@@ -11,7 +11,7 @@ class AgApp extends LitElement {
   constructor() {
     super();
     window.addEventListener(
-      'env-changed',
+      'env-created',
       () => (this.environnement_selected = app.environment ? true : false),
     );
   }

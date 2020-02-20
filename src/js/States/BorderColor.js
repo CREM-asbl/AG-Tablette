@@ -2,6 +2,7 @@ import { app } from '../App';
 import { State } from './State';
 import { GroupManager } from '../GroupManager';
 import { ShapeManager } from '../ShapeManager';
+import { html } from 'lit-element';
 
 /**
  * Modifier la couleur des bords d'une forme
@@ -19,14 +20,13 @@ export class BorderColorState extends State {
    */
   getHelpText() {
     let toolName = 'Colorier les bords';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-                Après avoir choisi une couleur, touchez une forme pour en
-                colorier les bords.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Après avoir choisi une couleur, touchez une forme pour en colorier les bords.
+      </p>
+    `;
   }
 
   /**

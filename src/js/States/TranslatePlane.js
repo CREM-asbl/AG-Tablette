@@ -1,5 +1,6 @@
 import { app } from '../App';
 import { State } from './State';
+import { html } from 'lit-element';
 
 /**
  * Faire translater le plan
@@ -19,15 +20,14 @@ export class TranslatePlaneState extends State {
    */
   getHelpText() {
     let toolName = 'Glisser le plan';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-            	Touchez l'écran n'importe où dans la zone de dessin, et faites
-                glissez votre doigt sans le relacher, pour faire glisser le plan
-                entier.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Touchez l'écran n'importe où dans la zone de dessin, et faites glissez votre doigt sans le
+        relacher, pour faire glisser le plan entier.
+      </p>
+    `;
   }
 
   /**

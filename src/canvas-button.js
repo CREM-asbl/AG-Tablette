@@ -57,7 +57,7 @@ class CanvasButton extends LitElement {
     ctx.save();
     ctx.strokeStyle = '#000';
 
-    let icon = family.shapes.filter(shape => shape.name === this.shape)[0] || family.shapes[0];
+    let icon = family.shapes.find(shape => shape.name === this.shape) || family.shapes[0];
     ctx.fillStyle = icon.color || family.defaultColor;
 
     const isCircle = icon.isCircle();

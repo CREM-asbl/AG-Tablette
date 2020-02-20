@@ -3,6 +3,7 @@ import { State } from './State';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
 import { mod, uniqId } from '../Tools/general';
+import { html } from 'lit-element';
 
 /**
  * Découper une forme
@@ -28,23 +29,20 @@ export class CutState extends State {
    */
   getHelpText() {
     let toolName = 'Découper';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
-                permet de découper une forme en deux nouvelles formes, tout en
-                laissant la forme d'origine intacte.<br /><br />
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de découper une forme
+        en deux nouvelles formes, tout en laissant la forme d'origine intacte.<br /><br />
 
-                Pour découper une forme, touchez un premiet sommet de la forme,
-                puis éventuellement le centre de la forme (non obligatoire), et
-                enfin un second sommet de la forme.<br /><br />
+        Pour découper une forme, touchez un premiet sommet de la forme, puis éventuellement le
+        centre de la forme (non obligatoire), et enfin un second sommet de la forme.<br /><br />
 
-                <b>Note:</b> il n'est pas toujours possible de découper une
-                forme en sélectionnant deux sommets quelconques. La ligne de
-                découpe doit en effet rester à l'intérieur de la forme, sans
-                quoi la découpe ne sera pas réalisée.
-            </p>
-      `;
+        <b>Note:</b> il n'est pas toujours possible de découper une forme en sélectionnant deux
+        sommets quelconques. La ligne de découpe doit en effet rester à l'intérieur de la forme,
+        sans quoi la découpe ne sera pas réalisée.
+      </p>
+    `;
   }
 
   /**

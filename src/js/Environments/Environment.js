@@ -15,7 +15,7 @@ export class Environment {
 
     this.familyNames = [];
 
-    //Build à besoin d'avoir les noms des fichiers pour les bundles
+    // Build à besoin d'avoir les noms des fichiers pour les bundles
     switch (name) {
       case 'Grandeurs':
         import('./Grandeurs');
@@ -57,6 +57,7 @@ export class Environment {
       this.families.push(family);
       this.familyNames.push(familyName);
     }
+    window.dispatchEvent(new CustomEvent('families-loaded'));
   }
 
   /**

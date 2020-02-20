@@ -3,6 +3,7 @@ import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
 import { Point } from '../Objects/Point';
 import { ShapeManager } from '../ShapeManager';
+import { html } from 'lit-element';
 
 /**
  * Déplacer une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -32,15 +33,14 @@ export class MoveState extends State {
    */
   getHelpText() {
     let toolName = 'Glisser';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-            	Pour déplacer une forme, touchez la forme et glissez votre doigt
-                sans le relacher. Relachez ensuite votre doigt une fois que la
-                forme est correctement positionnée.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Pour déplacer une forme, touchez la forme et glissez votre doigt sans le relacher. Relachez
+        ensuite votre doigt une fois que la forme est correctement positionnée.
+      </p>
+    `;
   }
 
   /**

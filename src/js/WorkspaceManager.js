@@ -14,6 +14,7 @@ export class WorkspaceManager {
     app.workspace = workspace;
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
+    window.dispatchEvent(new CustomEvent('workspace-changed'));
     app.refreshWindow();
   }
 

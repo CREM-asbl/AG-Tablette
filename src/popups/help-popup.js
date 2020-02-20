@@ -4,11 +4,18 @@ import { TemplatePopup } from './template-popup';
 
 class HelpPopup extends LitElement {
   static get properties() {
-    return {};
+    return {
+      content: String,
+    };
   }
 
   constructor() {
     super();
+
+    this.content = html`
+      Pour afficher l'aide correspondant à un des outils, opérations ou mouvements, sélectionnez cet
+      élément puis cliquez à nouveau sur le menu d'aide.
+    `;
 
     window.addEventListener('close-popup', () => this.close());
   }
@@ -27,12 +34,18 @@ class HelpPopup extends LitElement {
     ];
   }
 
+  setText(text) {
+    this.content = text;
+  }
+
   render() {
     return html`
       <template-popup>
         <h2 slot="title">Aide</h2>
         <div id="helpPopupBody" slot="body">
-          <div id="helpPopupContent"></div>
+          <div id="helpPopupContent">
+            ${this.content}
+          </div>
 
           <div slot="footer">
             <version-item></version-item>
@@ -44,7 +57,7 @@ class HelpPopup extends LitElement {
   }
 
   close() {
-    this.style.display = 'none';
+    this.remove();
   }
 }
 customElements.define('help-popup', HelpPopup);

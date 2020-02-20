@@ -86,19 +86,22 @@ export class SilhouetteCreatorState extends State {
    */
   getHelpText() {
     let toolName = 'Créateur de silhouettes';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-              Pour créer une nouvelle silhouette, disposez les formes comme vous le désirez, <br />
-              en veillant à ce que toutes les formes soient reliées par au moins un segment. <br />
-              Cliquez sur le bouton "Créer silhouette" une fois que vous avez terminé. <br />
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Pour créer une nouvelle silhouette, disposez les formes comme vous le désirez, <br />
+        en veillant à ce que toutes les formes soient reliées par au moins un segment. <br />
+        Cliquez sur le bouton "Créer silhouette" une fois que vous avez terminé. <br />
+      </p>
+    `;
   }
 
   clickOnStateMenuButton(btn_value) {
     if (btn_value == 'end') {
+      this.silhouetteMode = confirm('Sauvegarder les segments internes de la silhouette ?')
+        ? 'withInternalSegment'
+        : 'noInternalSegment';
       let silhouette = TangramManager.createSilhouette(app.workspace.shapes, this.silhouetteMode);
       app.tangram.silhouette = silhouette;
 

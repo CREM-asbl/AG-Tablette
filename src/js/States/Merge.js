@@ -3,6 +3,7 @@ import { State } from './State';
 import { uniqId, getComplementaryColor } from '../Tools/general';
 import { ShapeManager } from '../ShapeManager';
 import { Segment } from '../Objects/Segment';
+import { html } from 'lit-element';
 
 /**
  * Fusionner 2 formes en une nouvelle forme
@@ -25,24 +26,20 @@ export class MergeState extends State {
    */
   getHelpText() {
     let toolName = 'Fusionner';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
-                permet de fusionner deux formes ayant au moins un côté commun
-                en une seule forme. Une nouvelle forme (le fruit de la fusion)
-                est créée, et les deux formes d'origine restent intactes.<br />
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de fusionner deux
+        formes ayant au moins un côté commun en une seule forme. Une nouvelle forme (le fruit de la
+        fusion) est créée, et les deux formes d'origine restent intactes.<br />
 
-                Pour fusionner les deux formes, touchez la première forme puis
-                la seconde.<br /><br />
+        Pour fusionner les deux formes, touchez la première forme puis la seconde.<br /><br />
 
-                <b>Note:</b> pour qu'une fusion entre deux formes soit possible,
-                il faut que les deux formes aient au moins un segment en commun
-                (un côté entier, ou une partie d'un côté). Il ne faut pas que
-                les deux formes se chevauchent pour que la fusion puisse être
-                réalisée.
-            </p>
-      `;
+        <b>Note:</b> pour qu'une fusion entre deux formes soit possible, il faut que les deux formes
+        aient au moins un segment en commun (un côté entier, ou une partie d'un côté). Il ne faut
+        pas que les deux formes se chevauchent pour que la fusion puisse être réalisée.
+      </p>
+    `;
   }
 
   /**

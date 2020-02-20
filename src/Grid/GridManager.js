@@ -11,21 +11,15 @@ addEventListener('app-state-changed', () => {
   }
 });
 
-addEventListener('close-grid-popup', () => {
-  const popup = document.querySelector('grid-popup');
-  popup.remove();
-});
-
 export class GridManager {
   static initState() {
-    app.states = {
-      ...app.states,
-      grid: {
-        name: 'Grille',
-        type: 'tool',
-      },
-    };
+    app.states.push({
+      name: 'grid',
+      title: 'Grille',
+      type: 'tool',
+    });
   }
+
   /**
    * Le point de référence de la grille est le point (10,10).
    * Si grille carrée: le côté du carré est de 50 unités. (-> ex de points:
@@ -34,36 +28,6 @@ export class GridManager {
    * triangle est équilatéral.
    * 		(-> Ex de points: (60, 10), ...)
    */
-
-  // constructor() {
-  //   window.addEventListener('grid-showing-changed', event => event.detail.newState ? this.show() : this.hide());
-  //   window.addEventListener('grid-size-changed', event => this.setSize(event.detail.newSize));
-  //   window.addEventListener('grid-type-changed', event => this.setType(event.detail.newType));
-  // }
-
-  // static show() {
-  //   app.workspace.settings.set('isGridShown', true);
-  //   window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
-  // }
-  // static hide() {
-  //   app.workspace.settings.set('isGridShown', false);
-  //   window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
-  // }
-
-  // static setSize(newSize) {
-  //   app.workspace.settings.set('gridSize', newSize);
-  //   window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
-  // }
-
-  // static setType(newType) {
-  //   if (!['square', 'triangle'].includes(newType)) {
-  //     console.error('Type invalide');
-  //     return;
-  //   }
-  //   app.workspace.settings.set('gridType', newType);
-  //   window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
-  // }
-
   static getVisibleGridPoints(minPoint, maxPoint) {
     if (!app.workspace.settings.get('isGridShown')) return [];
 

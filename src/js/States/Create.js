@@ -3,6 +3,7 @@ import { State } from './State';
 import { getShapeAdjustment } from '../Tools/automatic_adjustment';
 import { Shape } from '../Objects/Shape';
 import { Point } from '../Objects/Point';
+import { html } from 'lit-element';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -32,19 +33,17 @@ export class CreateState extends State {
    */
   getHelpText() {
     let toolName = 'Créer des formes';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-            	Après avoir sélectionné une famille de formes dans le menu, vous
-                devez appuyer sur une des formes dans le menu qui apparaît en
-                bas de l'écran. Appuyez ensuite sur l'écran pour ajouter une
-                forme.<br /><br />
-                <b>Note:</b> vous pouvez appuyer sur l'écran puis bouger votre
-                doigt sans le relacher, pour positionner plus précisément la
-                nouvelle forme.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Après avoir sélectionné une famille de formes dans le menu, vous devez appuyer sur une des
+        formes dans le menu qui apparaît en bas de l'écran. Appuyez ensuite sur l'écran pour ajouter
+        une forme.<br /><br />
+        <b>Note:</b> vous pouvez appuyer sur l'écran puis bouger votre doigt sans le relacher, pour
+        positionner plus précisément la nouvelle forme.
+      </p>
+    `;
   }
 
   /**

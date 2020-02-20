@@ -29,35 +29,30 @@ import { HistoryManager } from './js/HistoryManager';
 class AGTabletteApp extends LitElement {
   static get properties() {
     return {
-      state: String,
-      families: Array,
-      selectedFamily: String,
       canUndo: Boolean,
       canRedo: Boolean,
       background: String,
-      states: { type: Array },
+      states: Array,
+      stateName: String,
+      state: Object,
     };
   }
 
   constructor() {
     super();
-    this.setState();
     app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
+    this.setState();
 
-    window.addEventListener('app-state-changed', () => this.setState());
-    window.addEventListener(
-      'family-selected',
-      event =>
-        (this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : ''),
-    );
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
     });
-    this.families = app.environment.familyNames;
-    window.addEventListener('env-changed', () => {
-      this.families = app.environment.familyNames;
+    window.addEventListener('app-state-changed', () => {
+      this.setState();
+    });
+    window.addEventListener('env-created', () => {
+      this.setState();
     });
     window.addEventListener('history-changed', () => {
       this.canUndo = HistoryManager.canUndo();
@@ -75,6 +70,7 @@ class AGTabletteApp extends LitElement {
   }
 
   render() {
+    console.log('render');
     return html`
       <style>
         :host {
@@ -173,7 +169,7 @@ class AGTabletteApp extends LitElement {
           <div id="app-canvas-view-toolbar-p1">
             <div id="app-canvas-mode-text">
               <span>Mode: </span>
-              ${this.stateName}
+              ${this.state ? this.state.title : ''}
             </div>
             <flex-toolbar>
               <icon-button
@@ -222,8 +218,8 @@ class AGTabletteApp extends LitElement {
               </icon-button>
               <icon-button
                 src="/images/replay.svg"
-                title="play"
-                name="play"
+                title="replay"
+                name="replay"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -236,28 +232,26 @@ class AGTabletteApp extends LitElement {
               </icon-button>
             </flex-toolbar>
 
-            <toolbar-kit .kit="${this.families}"
-                         selected="${this.selectedFamily}">
-            </toolbar-kit>
+            <toolbar-kit></toolbar-kit>
 
           </div>
 
           <div id="app-canvas-view-toolbar-p2">
             <toolbar-section title="Mouvements"
                              .buttons_states="${this.states.filter(
-                               state => state[1].type === 'move',
+                               state => state.type === 'move',
                              )}">
             </toolbar-section>
 
             <toolbar-section title="Opérations"
                              .buttons_states="${this.states.filter(
-                               state => state[1].type === 'operation',
+                               state => state.type === 'operation',
                              )}">
             </toolbar-section>
 
             <toolbar-section title="Outils"
                              .buttons_states="${this.states.filter(
-                               state => state[1].type === 'tool',
+                               state => state.type === 'tool',
                              )}">
             </toolbar-section>
 
@@ -271,14 +265,13 @@ class AGTabletteApp extends LitElement {
           <version-item></version-item>
         </div>
 
-        <div-main-canvas id="div-main-canvas" background="${this.background}"></div-main-canvas>
+        <!-- background="\${this.background}" -->
+        <div-main-canvas id="div-main-canvas" ></div-main-canvas>
       </div>
 
       <shapes-list></shapes-list>
 
       <settings-popup></settings-popup>
-
-      <help-popup></help-popup>
 
       <save-popup></save-popup>
 
@@ -347,26 +340,18 @@ class AGTabletteApp extends LitElement {
       case 'redo':
         if (this.canRedo) window.dispatchEvent(new CustomEvent('redo-action'));
         break;
-      case 'play':
+      case 'replay':
         window.dispatchEvent(new CustomEvent('start-browsing'));
         break;
       case 'help':
-        //Todo : Simplifier
-        const helpPopup = this.shadowRoot.querySelector('help-popup'),
-          contentDiv = helpPopup.shadowRoot.querySelector('div#helpPopupContent');
-        if (app.state) {
-          contentDiv.innerHTML = app.currentOperation.getHelpText();
-        } else {
-          contentDiv.innerHTML = `
-                Pour afficher l'aide correspondant à un des outils, opérations ou
-                mouvements, sélectionnez cet élément puis cliquez à nouveau
-                sur le menu d'aide.
-                `;
-        }
-        helpPopup.style.display = 'block';
+        import('./popups/help-popup');
+        const popup = document.createElement('help-popup');
+        popup.style.display = 'block';
+        document.querySelector('body').appendChild(popup);
+        window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:
-        app.setState(event.target.name);
+        console.log('unknow event type: ' + event.type + ', with event: ', event);
     }
     if (reset_state) {
       app.setState();
@@ -374,26 +359,25 @@ class AGTabletteApp extends LitElement {
   }
 
   setState() {
-    this.state = app.state;
-    this.states = Object.entries(app.states);
-    this.stateName = '';
-    this.families = [...app.environment.familyNames];
+    this.states = [...app.states];
+    this.stateName = app.state;
+    this.state = this.states.find(st => st.name == this.stateName);
   }
 
-  // Todo: Placer dans un objet BackgroundImage ?
-  loadBackground() {
-    const imageSelector = document.createElement('input');
-    imageSelector.type = 'file';
-    imageSelector.accept = 'image/*';
-    imageSelector.onchange = e => this.setBackground(e.target.files[0]);
-    document.body.appendChild(imageSelector);
-    imageSelector.click();
-  }
+  // // Todo: Placer dans un objet BackgroundImage ?
+  // loadBackground() {
+  //   const imageSelector = document.createElement('input');
+  //   imageSelector.type = 'file';
+  //   imageSelector.accept = 'image/*';
+  //   imageSelector.onchange = e => this.setBackground(e.target.files[0]);
+  //   document.body.appendChild(imageSelector);
+  //   imageSelector.click();
+  // }
 
-  setBackground(file) {
-    let reader = new FileReader();
-    reader.onload = e => (this.background = e.target.result);
-    reader.readAsDataURL(file);
-  }
+  // setBackground(file) {
+  //   let reader = new FileReader();
+  //   reader.onload = e => (this.background = e.target.result);
+  //   reader.readAsDataURL(file);
+  // }
 }
 customElements.define('ag-tablette-app', AGTabletteApp);

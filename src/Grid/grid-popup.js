@@ -7,7 +7,7 @@ class GridPopup extends LitElement {
     super();
     this.gridType = app.workspace.settings.get('gridType');
     this.gridSize = app.workspace.settings.get('gridSize');
-    window.addEventListener('close-popup', () => this.gridPopupValidate());
+    window.addEventListener('close-popup', () => this.gridPopupValidate(), { once: true });
   }
 
   static get properties() {
@@ -83,7 +83,8 @@ class GridPopup extends LitElement {
   }
 
   gridPopupValidate() {
-    dispatchEvent(new CustomEvent('close-grid-popup'));
+    this.remove();
+    app.setState();
   }
 
   /**

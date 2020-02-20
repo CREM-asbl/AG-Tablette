@@ -3,6 +3,7 @@ import { State } from './State';
 import { uniqId } from '../Tools/general';
 import { ShapeManager } from '../ShapeManager';
 import { GroupManager } from '../GroupManager';
+import { html } from 'lit-element';
 
 /**
  * Grouper des formes.
@@ -25,29 +26,25 @@ export class GroupState extends State {
    */
   getHelpText() {
     let toolName = 'Grouper';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil
-                permet de former des groupes de formes, qui sont alors
-                solidaires. Une forme ne peut appartenir qu'à un seul groupe.
-                <br />
-                Une fois cet outil sélectionné, le numéro du groupe apparaît sur
-                chaque forme appartenant à un groupe.<br /><br />
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de former des groupes
+        de formes, qui sont alors solidaires. Une forme ne peut appartenir qu'à un seul groupe.
+        <br />
+        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque forme appartenant à
+        un groupe.<br /><br />
 
-                Pour créer un nouveau groupe, touchez deux formes n'appartenant
-                pas à un groupe. Toutes les formes touchées par la suite seront
-                ajoutées à ce groupe.<br /><br />
+        Pour créer un nouveau groupe, touchez deux formes n'appartenant pas à un groupe. Toutes les
+        formes touchées par la suite seront ajoutées à ce groupe.<br /><br />
 
-                Pour ajouter une forme à un groupe, touchez une des formes
-                appartenant à ce groupe, puis touchez la forme que vous
-                souhaitez ajouter.<br /><br />
+        Pour ajouter une forme à un groupe, touchez une des formes appartenant à ce groupe, puis
+        touchez la forme que vous souhaitez ajouter.<br /><br />
 
-                Pour fusionner deux groupes, touchez une des formes appartenant
-                au premier groupe, puis touchez une des formes de l'autre
-                groupe.
-            </p>
-      `;
+        Pour fusionner deux groupes, touchez une des formes appartenant au premier groupe, puis
+        touchez une des formes de l'autre groupe.
+      </p>
+    `;
   }
 
   /**

@@ -11,11 +11,6 @@ import { Silhouette } from '../js/Objects/Silhouette';
 
 app.tangrams = { main: [], local: [] };
 
-//Todo: Créer un event plus précis
-// addEventListener('app-state-changed', () => {
-//   if (app.state === 'tangram') TangramManager.showPopup();
-// });
-
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
 export class TangramManager {
@@ -41,8 +36,15 @@ export class TangramManager {
 
   static setTangram(tangram) {
     app.tangram = tangram;
-    app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
-    app.workspace.setZoomLevel(0.8677803523248963);
+
+    window.addEventListener(
+      'workspace-changed',
+      () => {
+        app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
+        app.workspace.setZoomLevel(0.8677803523248963);
+      },
+      { once: true },
+    );
   }
 
   static createSilhouette(shapes, silhouetteMode) {

@@ -132,6 +132,33 @@ export class Workspace {
     } else {
       this.history.initFromObject({ index: -1, data: [] });
     }
+
+    if (
+      wsdata.canvasSize &&
+      (wsdata.canvasSize.width != app.canvasWidth || wsdata.canvasSize.height != app.canvasHeight)
+    ) {
+      let scaleOffset =
+          wsdata.canvasSize.width / app.canvasWidth < wsdata.canvasSize.height / app.canvasHeight
+            ? app.canvasHeight / wsdata.canvasSize.height
+            : app.canvasWidth / wsdata.canvasSize.width,
+        originalZoom = this.zoomLevel,
+        newZoom = originalZoom * scaleOffset,
+        originalTranslateOffset = this.translateOffset,
+        actualCenter = new Point(
+          wsdata.canvasSize.width,
+          wsdata.canvasSize.height,
+        ).multiplyWithScalar(1 / originalZoom),
+        newCenter = new Point(app.canvasWidth, app.canvasHeight).multiplyWithScalar(1 / newZoom),
+        corr = originalTranslateOffset.multiplyWithScalar(1 / originalZoom), // error with the old zoom that move the center
+        newTranslateoffset = newCenter
+          .subCoordinates(actualCenter)
+          .multiplyWithScalar(0.5)
+          .addCoordinates(corr)
+          .multiplyWithScalar(newZoom);
+
+      this.setZoomLevel(newZoom, false);
+      this.setTranslateOffset(newTranslateoffset);
+    }
   }
 
   get data() {
@@ -153,6 +180,8 @@ export class Workspace {
     wsdata.translateOffset = this.translateOffset.saveToObject();
 
     wsdata.settings = this.settings.saveToObject();
+
+    wsdata.canvasSize = { width: app.canvasWidth, height: app.canvasHeight };
 
     return wsdata;
   }

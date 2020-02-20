@@ -23,17 +23,17 @@ class ToolbarSection extends LitElement {
   }
 
   render() {
-    if (!this.buttons_states.length) return '';
+    if (!this.buttons_states.length) return html``;
     return html`
       <div class="toolbar-separator">${this.title}</div>
       <flex-toolbar>
         ${this.buttons_states.map(
           state => html`
             <icon-button
-              name="${state[0]}"
-              src="/images/${state[0]}.svg"
-              title="${state[1].name}"
-              ?active="${state[0] === app.state}"
+              name="${state.name}"
+              src="/images/${state.name}.svg"
+              title="${state.title}"
+              ?active="${state.name === app.state}"
               @click="${this._actionHandle}"
             ></icon-button>
           `,

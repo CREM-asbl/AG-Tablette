@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { State } from './State';
 import { Point } from '../Objects/Point';
+import { html } from 'lit-element';
 
 /**
  * Zoomer/Dézoomer le plan
@@ -20,18 +21,16 @@ export class ZoomPlaneState extends State {
    */
   getHelpText() {
     let toolName = 'Zoom';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-                Touchez l'écran n'importe où dans la zone de dessin, et faites
-                glissez votre doigt sans le relacher, pour zoomer ou dézoomer
-                le plan entier.<br />
-                Le zoom se fait par rapport au centre de l'écran: écartez votre
-                doigt du centre pour zoomer, et rapprochez-le du centre pour
-                dézoomer.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Touchez l'écran n'importe où dans la zone de dessin, et faites glissez votre doigt sans le
+        relacher, pour zoomer ou dézoomer le plan entier.<br />
+        Le zoom se fait par rapport au centre de l'écran: écartez votre doigt du centre pour zoomer,
+        et rapprochez-le du centre pour dézoomer.
+      </p>
+    `;
   }
 
   /**

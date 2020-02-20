@@ -3,6 +3,7 @@ import { State } from './State';
 import { Shape } from '../Objects/Shape';
 import { GroupManager } from '../GroupManager';
 import { ShapeManager } from '../ShapeManager';
+import { html } from 'lit-element';
 
 /**
  * Supprimer une forme (et supprime le groupe dont la forme faisait partie s'il
@@ -19,13 +20,13 @@ export class DeleteState extends State {
    */
   getHelpText() {
     let toolName = 'Supprimer une forme';
-    return `
-            <h2>${toolName}</h2>
-            <p>
-            	Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-            	Touchez une forme pour la supprimer de l'espace de travail.
-            </p>
-      `;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Touchez une forme pour la supprimer de l'espace de travail.
+      </p>
+    `;
   }
 
   /**
