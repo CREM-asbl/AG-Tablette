@@ -1,5 +1,4 @@
 import { app } from './App';
-import { Point } from './Objects/Point';
 import { GroupManager } from './GroupManager';
 
 export class ShapeManager {
@@ -94,7 +93,7 @@ export class ShapeManager {
    */
   static shapesOnPoint(point) {
     let list = app.workspace.shapes.filter(
-      shape => shape.isPointInPath(point) || shape.isPointOnSegment(new Point(point)),
+      shape => shape.isPointInPath(point) || shape.isPointOnSegment(point),
     );
     list.reverse();
     return list;

@@ -1,6 +1,5 @@
 import { Settings } from './Settings';
-import './Manifest';
-import { uniqId, getAverageColor } from './Tools/general';
+import { uniqId } from './Tools/general';
 
 /**
  * Classe principale de l'application

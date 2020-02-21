@@ -1,7 +1,25 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css, unsafeCSS } from 'lit-element';
 import { EnvironmentManager } from './js/EnvironmentManager';
 
 class AgEnvironnements extends LitElement {
+  // constructor() {
+  //   super();
+
+  //   this.isSafari = this.isSafari
+  // }
+
+  static get isSafari() {
+    let ua = navigator.userAgent.toLowerCase();
+    if (ua.indexOf('safari') != -1) {
+      if (ua.indexOf('chrome') > -1) {
+        return false; // Chrome
+      } else {
+        return true; // Safari
+      }
+    }
+    return false;
+  }
+
   static get styles() {
     return css`
       :host {
@@ -10,7 +28,7 @@ class AgEnvironnements extends LitElement {
         gap: 16px;
         justify-items: center;
         align-items: center;
-        height: 100vh;
+        height: 100%;
         padding: 16px;
         box-sizing: border-box;
       }
@@ -31,7 +49,9 @@ class AgEnvironnements extends LitElement {
       }
 
       #Grandeurs {
-        background: url('/images/Environnements/grandeurs.webp');
+        background: url('/images/Environnements/grandeurs.${unsafeCSS(
+          this.isSafari ? 'png' : 'webp',
+        )}');
         background-repeat: no-repeat;
         background-size: cover;
       }

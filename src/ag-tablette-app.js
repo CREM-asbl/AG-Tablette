@@ -5,7 +5,6 @@ import './flex-toolbar';
 import './toolbar-kit';
 import './toolbar-section';
 import './icon-button';
-import './js/Manifest';
 import './popups/new-popup';
 import './popups/opacity-popup';
 import './popups/divide-popup';
@@ -25,6 +24,7 @@ import './js/ShapeManager';
 import './js/DrawManager';
 import './js/CompleteHistoryManager';
 import { HistoryManager } from './js/HistoryManager';
+import './js/Manifest';
 
 class AGTabletteApp extends LitElement {
   static get properties() {

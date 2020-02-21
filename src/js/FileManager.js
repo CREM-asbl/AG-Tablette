@@ -125,6 +125,11 @@ export class FileManager {
     return svg_data;
   }
 
+  static drawTangramToSvg() {
+    if (app.tangram && app.tangram.silhouette) return app.tangram.silhouette.shape.to_svg();
+    else return '';
+  }
+
   static saveToSvg(handle) {
     const canvas = app.canvas.main;
 
@@ -135,6 +140,7 @@ export class FileManager {
       canvas.height +
       '" xmlns="http://www.w3.org/2000/svg" >\n';
     svg_data += FileManager.drawGridToSvg();
+    svg_data += FileManager.drawTangramToSvg();
     app.workspace.shapes.forEach(shape => {
       svg_data += shape.to_svg() + '\n';
     });

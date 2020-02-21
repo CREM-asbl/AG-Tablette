@@ -267,31 +267,23 @@ export class Shape {
    *    considéré vrai si deux segments sont confondu mais n'ont qu'un point commun ! => peut-etre probleme dans environnement libre
    */
   overlapsWith(shape) {
-    let is_potential_dig = { value: false },
-      s1 = this,
+    let s1 = this,
       s2 = shape,
       s1_segments = s1.segments,
       s2_segments = s2.segments;
 
     // s1 in s2 ? if a point of s1 is in s2
-    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments, is_potential_dig))
-      return true;
+    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments)) return true;
     // s2 in s1 ? if a point of s2 is in s1
-    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments, is_potential_dig))
-      return true;
+    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments)) return true;
 
     // check if intersect segments
     if (this.overlapCheckIntersectSegments(s1_segments, s2_segments)) return true;
 
-    // check if dig
-    if (is_potential_dig.value) {
-      console.log('peut-être creuse...');
-      // return true;
-    }
     return false;
   }
 
-  overlapCheckIfShapeIsInsideAnother(shape, s1_segments, s2_segments, is_potential_dig) {
+  overlapCheckIfShapeIsInsideAnother(shape, s1_segments, s2_segments) {
     let vertexes_to_check = [],
       middles_to_check = [];
     for (let s1_segment of s1_segments) {
@@ -313,7 +305,6 @@ export class Shape {
       ];
     }
 
-    if (vertexes_to_check.some(pt => shape.isPointInPath(pt))) is_potential_dig.value = true;
     if (
       vertexes_to_check.some(
         (pt, idx) =>
@@ -435,14 +426,13 @@ export class Shape {
    * convertit la shape en balise path de svg
    */
   to_svg() {
-    let path = '';
     let point = new Point(this.segments[0].vertexes[0]);
     point.setToCanvasCoordinates();
-    path += 'M ' + point.x + ' ' + point.y + '\n';
+    let path = 'M ' + point.x + ' ' + point.y + '\n';
     this.segments.forEach(seg => {
       path += seg.to_svg() + '\n';
     });
-    path += 'Z ';
+    path += 'Z';
     let attributes = {
       d: path,
       stroke: this.borderColor,
@@ -459,11 +449,19 @@ export class Shape {
     path_tag += '/>\n';
 
     let point_tags = '';
-    if (app.settings.get('areShapesPointed')) {
+    if (app.settings.get('areShapesPointed') && this.name != 'silhouette') {
       if (this.isSegment()) point_tags += this.segments[0].vertexes[0].to_svg('#000', 1);
       if (!this.isCircle())
         this.segments.forEach(seg => (point_tags += seg.vertexes[1].to_svg('#000', 1)));
     }
+    this.internalSegments.forEach(seg => {
+      let point = new Point(seg.vertexes[0]);
+      point.setToCanvasCoordinates();
+      let path = '<path d="M ' + point.x + ' ' + point.y + '\n';
+      path += seg.to_svg() + '"\n';
+      path += 'stroke="' + this.internalSegmentColor + '" />\n';
+      path_tag += path;
+    });
     this.segments.forEach(seg => {
       //Points sur les segments
       seg.points.forEach(pt => {
