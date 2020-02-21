@@ -79,7 +79,7 @@ class ShapesList extends LitElement {
               <li>
                 <canvas-button
                   title="${shapeName.replace(/ \d+$/, '')}"
-                  family="${this.selectedFamily}"
+                  familyName="${this.selectedFamily}"
                   shapeName="${shapeName}"
                   @click="${this._clickHandle}"
                   ?active="${shapeName === this.shapeName}"

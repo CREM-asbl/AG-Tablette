@@ -275,6 +275,15 @@ export class TangramManager {
         if (object) app.CremTangrams.push(object);
       });
 
+    fetch('./src/CremTangrams/squareInternal.agt')
+      .then(response => {
+        return response.text();
+      })
+      .then(text => {
+        let object = JSON.parse(text);
+        if (object) app.CremTangrams.push(object);
+      });
+
     // const //fs = require('fs'),
     //   dirname = '../CremTangrams';
 

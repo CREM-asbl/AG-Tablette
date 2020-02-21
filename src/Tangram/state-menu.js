@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import { app } from '../js/App';
 
 class StateMenu extends LitElement {

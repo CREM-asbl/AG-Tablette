@@ -36,14 +36,14 @@ class AgEnvironnements extends LitElement {
         background-size: cover;
       }
 
-      #Tangram {
+      /* #Tangram {
       }
 
       #Cubes {
       }
 
       #Geometrie {
-      }
+      } */
     `;
   }
 

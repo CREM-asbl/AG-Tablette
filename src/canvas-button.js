@@ -1,11 +1,14 @@
 import { LitElement, html, css } from 'lit-element';
 import { app } from './js/App';
+import { Shape } from './js/Objects/Shape';
+import { Point } from './js/Objects/Point';
 
 class CanvasButton extends LitElement {
   static get properties() {
     return {
-      family: String,
+      familyName: String,
       shapeName: String,
+      silhouetteIdx: String,
       name: String,
     };
   }
@@ -46,56 +49,48 @@ class CanvasButton extends LitElement {
    * dessine l'image sur le bouton
    */
   refresh() {
-    const canvas = this.shadowRoot.querySelector('canvas');
-    const ctx = canvas.getContext('2d');
-    const families = app.environment.families;
-    const family = families.find(fam => fam.name == this.family);
-    let minX = 1000,
-      minY = 1000,
-      maxX = -1000,
-      maxY = -1000;
+    let shape, family;
 
+    if (this.silhouetteIdx == undefined) {
+      const families = app.environment.families;
+      family = families.find(fam => fam.name == this.familyName);
+      shape = family.shapes.find(shape => shape.name === this.shapeName) || family.shapes[0];
+    } else {
+      shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
+      shape.initFromObject(app.CremTangrams[this.silhouetteIdx].tangramData.silhouette.shape);
+    }
+
+    const isCircle = shape.isCircle(),
+      bounds = shape.bounds,
+      minX = bounds[0],
+      maxX = bounds[1],
+      minY = bounds[2],
+      maxY = bounds[3],
+      largeur = maxX - minX,
+      hauteur = maxY - minY,
+      scale = isCircle ? 0.42 : 40 / Math.max(largeur, hauteur),
+      center = isCircle
+        ? shape.segments[0].arcCenter
+        : new Point((minX + largeur / 2) * scale, (minY + hauteur / 2) * scale),
+      centerOffset = new Point(26 - center.x, 26 - center.y);
+
+    const canvas = this.shadowRoot.querySelector('canvas'),
+      ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.strokeStyle = '#000';
-
-    let icon = family.shapes.find(shape => shape.name === this.shapeName) || family.shapes[0];
-    ctx.fillStyle = icon.color || family.defaultColor;
-
-    const isCircle = icon.isCircle();
-    const bounds = icon.bounds;
-    minX = bounds[0];
-    maxX = bounds[1];
-    minY = bounds[2];
-    maxY = bounds[3];
-
-    let largeur = maxX - minX,
-      hauteur = maxY - minY,
-      scale;
-    if (isCircle) {
-      scale = 0.42; //valeur arbitraire
-    } else {
-      scale = 40 / Math.max(largeur, hauteur);
-    }
-
-    let center;
-    if (isCircle) center = icon.segments[0].arcCenter;
-    else
-      center = {
-        x: (minX + largeur / 2) * scale,
-        y: (minY + hauteur / 2) * scale,
-      };
-    let centerOffset = {
-      x: 26 - center.x,
-      y: 26 - center.y,
-    };
-
+    ctx.fillStyle = shape.color || family.defaultColor;
     ctx.translate(centerOffset.x, centerOffset.y);
     ctx.scale(scale, scale);
 
-    const path = icon.getPath();
-    ctx.fill(path);
-    ctx.stroke(path);
+    if (this.silhouetteIdx == undefined) {
+      const path = shape.getPath();
+      ctx.fill(path);
+      ctx.stroke(path);
+    } else {
+      console.log(shape);
+      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { ctx: ctx, shape: shape } }));
+    }
     ctx.restore();
   }
 
@@ -103,7 +98,7 @@ class CanvasButton extends LitElement {
    * définir le bouton comme étant le bouton actif
    */
   _isActive(current) {
-    if (current === this.family) {
+    if (current === this.familyName) {
       this.shadowRoot.querySelector('canvas').classList.add('active');
       return;
     }

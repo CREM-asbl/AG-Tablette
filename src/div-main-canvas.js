@@ -63,7 +63,6 @@ class DivMainCanvas extends LitElement {
   }
 
   render() {
-    console.log(this.cursorX, this.cursorY);
     return html`
       <!-- for background tasks (invisible canvas) -->
       <canvas id="invisibleCanvas"></canvas>
@@ -124,7 +123,6 @@ class DivMainCanvas extends LitElement {
     window.addEventListener('show-cursor', event => {
       this.cursorX = event.detail.mousePos.x - this.cursorSize / 2;
       this.cursorY = event.detail.mousePos.y - this.cursorSize / 2;
-      console.log(this.cursorX, this.cursorY);
       this.cursorShow = true;
       window.clearTimeout(this.timeoutId);
       this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);

@@ -27,9 +27,11 @@ class TangramPopup extends LitElement {
             <h2>Tangrams du CREM</h2>
             <ul id="tangram_popup_list1">
               ${this.CremTangrams.map(
-                tan =>
+                (tan, idx) =>
                   html`
-                    <button
+                    <canvas-button
+                      title="Tangram"
+                      silhouetteIdx="${idx}"
                       @click="${() => {
                         app.workspace.initFromObject(tan.wsdata);
                         app.tangram.initFromObject(tan.tangramData);
@@ -38,8 +40,8 @@ class TangramPopup extends LitElement {
                         this.close();
                       }}"
                     >
-                      tangram
-                    </button>
+                      <!-- tangram -->
+                    </canvas-button>
                   `,
               )}
             </ul>
