@@ -88,7 +88,6 @@ class CanvasButton extends LitElement {
       ctx.fill(path);
       ctx.stroke(path);
     } else {
-      console.log(shape);
       window.dispatchEvent(new CustomEvent('draw-shape', { detail: { ctx: ctx, shape: shape } }));
     }
     ctx.restore();

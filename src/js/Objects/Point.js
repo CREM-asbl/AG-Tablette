@@ -15,7 +15,6 @@ export class Point {
   constructor() {
     let argc = 0;
     if (typeof arguments[argc] == 'object') {
-      // if (!arguments[argc]) console.log(arguments);
       this.x = arguments[argc].x;
       this.y = arguments[argc].y;
       argc++;
