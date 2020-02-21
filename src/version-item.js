@@ -11,6 +11,12 @@ class VersionItem extends LitElement {
   constructor() {
     super();
     this.version = app.short_name + ' ' + app.version;
+
+    window.addEventListener(
+      'manifest-loaded',
+      () => (this.version = app.short_name + ' ' + app.version),
+      { once: true },
+    );
   }
 
   static get styles() {

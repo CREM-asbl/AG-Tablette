@@ -9,9 +9,12 @@ export const loadManifest = async () => {
   const manifest = await manifest_file.json();
   app.version = manifest.version;
   app.short_name = manifest.short_name;
-  return manifest;
+  window.dispatchEvent(new CustomEvent('manifest-loaded'));
 };
 
-loadManifest().then(manifest => {
-  updateMetadata({ title: `${manifest.short_name} ${manifest.version}` });
-});
+window.addEventListener(
+  'manifest-loaded',
+  () => updateMetadata({ title: `${app.short_name} ${app.version}` }),
+  { once: true },
+);
+loadManifest();
