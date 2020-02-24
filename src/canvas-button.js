@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
-import { app } from './js/App';
-import { Shape } from './js/Objects/Shape';
-import { Point } from './js/Objects/Point';
+import { app } from './Core/App';
+import { Shape } from './Objects/Shape';
+import { Point } from './Objects/Point';
 
 class CanvasButton extends LitElement {
   static get properties() {
@@ -21,8 +21,8 @@ class CanvasButton extends LitElement {
       }
 
       :host([active]) canvas {
-        border: 1px solid var(--button-border-color);
-        background-color: var(--button-background-color);
+        border: 1px solid black;
+        background-color: #0ff;
       }
 
       canvas {

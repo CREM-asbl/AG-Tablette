@@ -1,5 +1,4 @@
 import { LitElement, html, css } from 'lit-element';
-import './shapes-list';
 import './div-main-canvas';
 import './flex-toolbar';
 import './toolbar-kit';
@@ -13,17 +12,18 @@ import './popups/notification';
 import './version-item';
 import './completehistory-tools';
 
-import { app } from './js/App';
-import './js/FileManager';
-import './js/SelectManager';
-import './js/WorkspaceManager';
-import './js/GroupManager';
-import './js/ShapeManager';
-import './js/DrawManager';
-import './js/CompleteHistoryManager';
-import { HistoryManager } from './js/HistoryManager';
-import './js/Manifest';
-import { createElem } from './js/Tools/general';
+import { app } from './Core/App';
+import './Core/Manifest';
+
+import './Managers/FileManager';
+import './Managers/SelectManager';
+import './Managers/WorkspaceManager';
+import './Managers/GroupManager';
+import './Managers/ShapeManager';
+import './Managers/DrawManager';
+import './Managers/CompleteHistoryManager';
+import { HistoryManager } from './Managers/HistoryManager';
+import { createElem } from './Core/Tools/general';
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -121,13 +121,6 @@ class AGTabletteApp extends LitElement {
         height: 100%;
       }
 
-      shapes-list {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-      }
-
       #app-canvas-mode-text {
         padding: 4px;
         overflow: hidden;
@@ -149,12 +142,6 @@ class AGTabletteApp extends LitElement {
         height: 0;
         border: none;
         background: transparent;
-      }
-
-      @media (min-width: 600px) {
-        shapes-list {
-          left: ${app.settings.get('mainMenuWidth')}px;
-        }
       }
     `;
   }
@@ -266,8 +253,6 @@ class AGTabletteApp extends LitElement {
         <div-main-canvas id="div-main-canvas" ></div-main-canvas>
       </div>
 
-      <shapes-list></shapes-list>
-
       <settings-popup></settings-popup>
 
       <save-popup></save-popup>
@@ -340,7 +325,7 @@ class AGTabletteApp extends LitElement {
         break;
       case 'help':
         import('./popups/help-popup');
-        createElem('hlep-popup');
+        createElem('help-popup');
         window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:

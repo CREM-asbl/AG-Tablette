@@ -1,8 +1,8 @@
-import { app } from '../js/App';
-import { State } from '../js/States/State';
-import { uniqId } from '../js/Tools/general';
-import { ShapeManager } from '../js/ShapeManager';
-import { Segment } from '../js/Objects/Segment';
+import { app } from '../Core/App';
+import { State } from '../Core/States/State';
+import { uniqId } from '../Core/Tools/general';
+import { ShapeManager } from '../Managers/ShapeManager';
+import { Segment } from '../Objects/Segment';
 import { html } from 'lit-element';
 
 /**

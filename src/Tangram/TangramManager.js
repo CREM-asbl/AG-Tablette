@@ -1,13 +1,13 @@
-import { app } from '../js/App';
+import { app } from '../Core/App';
 import { Tangram } from './Tangram';
-import { standardTangramKit } from '../js/ShapesKits/standardTangramKit';
-import { Shape } from '../js/Objects/Shape';
-import { ShapeManager } from '../js/ShapeManager';
-import { getComplementaryColor } from '../js/Tools/general';
-import { Point } from '../js/Objects/Point';
-import { Segment } from '../js/Objects/Segment';
-import { SelectManager } from '../js/SelectManager';
-import { Silhouette } from '../js/Objects/Silhouette';
+import { standardTangramKit } from '../Core/ShapesKits/standardTangramKit';
+import { Shape } from '../Objects/Shape';
+import { ShapeManager } from '../Managers/ShapeManager';
+import { getComplementaryColor } from '../Core/Tools/general';
+import { Point } from '../Objects/Point';
+import { Segment } from '../Objects/Segment';
+import { SelectManager } from '../Managers/SelectManager';
+import { Silhouette } from '../Objects/Silhouette';
 
 app.tangrams = { main: [], local: [] };
 

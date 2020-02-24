@@ -1,5 +1,5 @@
 import { LitElement, html, css, unsafeCSS } from 'lit-element';
-import { EnvironmentManager } from './js/EnvironmentManager';
+import { EnvironmentManager } from './Managers/EnvironmentManager';
 
 class AgEnvironnements extends LitElement {
   // constructor() {

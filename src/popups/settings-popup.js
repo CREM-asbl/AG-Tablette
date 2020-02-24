@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
 import '../version-item';
-import { app } from '../js/App';
-import { Settings } from '../js/Settings';
+import { app } from '../Core/App';
+import { Settings } from '../Core/Settings';
 import { TemplatePopup } from './template-popup';
 
 class SettingsPopup extends LitElement {

@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { app } from './js/App';
+import { app } from './Core/App';
 
 class AgApp extends LitElement {
   static get properties() {

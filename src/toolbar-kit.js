@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit-element';
 import './flex-toolbar';
 import './canvas-button';
-import { app } from './js/App';
+import { app } from './Core/App';
 
 class ToolbarKit extends LitElement {
   static get properties() {

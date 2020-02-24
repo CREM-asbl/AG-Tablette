@@ -1,7 +1,5 @@
-import { app } from '../js/App';
-import { State } from '../js/States/State';
-import { Tangram } from './Tangram';
-import { Point } from '../js/Objects/Point';
+import { app } from '../Core/App';
+import { State } from '../Core/States/State';
 import { TangramManager } from './TangramManager';
 
 /**
@@ -126,7 +124,7 @@ export class SilhouetteCreatorState extends State {
   //   app.tangramManager.addLocalTangram(tangram);
 
   //   let json = JSON.stringify(tangram.saveToObject());
-  //   const file = new Blob([json], { type: 'application/json' });
+  //   const file = new Blob([json], { type: 'application/Coreon' });
   //   const downloader = document.createElement('a');
   //   downloader.href = window.URL.createObjectURL(file);
   //   downloader.download = name + '.json';

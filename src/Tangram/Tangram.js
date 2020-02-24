@@ -1,6 +1,6 @@
-import { uniqId } from '../js/Tools/general';
-import { Shape } from '../js/Objects/Shape';
-import { Silhouette } from '../js/Objects/Silhouette';
+import { uniqId } from '../Core/Tools/general';
+import { Shape } from '../Objects/Shape';
+import { Silhouette } from '../Objects/Silhouette';
 
 export class Tangram {
   /**

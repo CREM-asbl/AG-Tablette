@@ -1,5 +1,5 @@
-import { Action } from '../js/States/Actions/Action';
-import { ShapeManager } from '../js/ShapeManager';
+import { Action } from '../Core/States/Action';
+import { ShapeManager } from '../Managers/ShapeManager';
 
 export class Rotate45Action extends Action {
   constructor() {

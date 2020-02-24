@@ -1,6 +1,6 @@
-import { app } from '../js/App';
-import { State } from '../js/States/State';
-import { ShapeManager } from '../js/ShapeManager';
+import { app } from '../Core/App';
+import { State } from '../Core/States/State';
+import { ShapeManager } from '../Managers/ShapeManager';
 
 /**
  * Tourner une forme (ou un ensemble de formes liées) sur l'espace de travail

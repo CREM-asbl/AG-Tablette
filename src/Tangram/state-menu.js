@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
-import { app } from '../js/App';
+import { app } from '../Core/App';
 
 class StateMenu extends LitElement {
   constructor() {

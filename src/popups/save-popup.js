@@ -1,8 +1,8 @@
 import { LitElement, html } from 'lit-element';
 import '../version-item';
-import { app } from '../js/App';
+import { app } from '../Core/App';
 import { TemplatePopup } from './template-popup';
-import { FileManager } from '../js/FileManager';
+import { FileManager } from '../Managers/FileManager';
 
 class SavePopup extends LitElement {
   static get properties() {

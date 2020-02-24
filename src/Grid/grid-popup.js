@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { app } from '../js/App';
+import { app } from '../Core/App';
 import { TemplatePopup } from '../popups/template-popup';
 
 class GridPopup extends LitElement {

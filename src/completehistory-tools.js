@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
-import { app } from './js/App';
-import { CompleteHistoryManager } from './js/CompleteHistoryManager';
+import { app } from './Core/App';
+import { CompleteHistoryManager } from './Managers/CompleteHistoryManager';
 
 class completeHistoryTools extends LitElement {
   static get properties() {

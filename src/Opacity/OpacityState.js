@@ -1,10 +1,10 @@
-import { app } from '../js/App';
-import { State } from '../js/States/State';
-import { GroupManager } from '../js/GroupManager';
-import { ShapeManager } from '../js/ShapeManager';
+import { app } from '../Core/App';
+import { State } from '../Core/States/State';
+import { GroupManager } from '../Managers/GroupManager';
+import { ShapeManager } from '../Managers/ShapeManager';
 import { html } from 'lit-element';
 import './opacity-popup';
-import { createElem } from '../js/Tools/general';
+import { createElem } from '../Core/Tools/general';
 
 /**
  * Modifier l'opacité d'une forme

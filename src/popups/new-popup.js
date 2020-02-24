@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from './template-popup';
-import { WorkspaceManager } from '../js/WorkspaceManager';
-import { Workspace } from '../js/Objects/Workspace';
+import { WorkspaceManager } from '../Managers/WorkspaceManager';
+import { Workspace } from '../Objects/Workspace';
 
 class NewPopup extends LitElement {
   constructor() {

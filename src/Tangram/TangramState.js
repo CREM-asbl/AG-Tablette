@@ -1,7 +1,4 @@
-import { app } from '../js/App';
-import { State } from '../js/States/State';
-import { Tangram } from './Tangram';
-import { Point } from '../js/Objects/Point';
+import { State } from '../Core/States/State';
 import { TangramManager } from './TangramManager';
 
 /**

@@ -1,9 +1,9 @@
-import { app } from '../js/App';
-import { State } from '../js/States/State';
-import { Segment } from '../js/Objects/Segment';
+import { app } from '../Core/App';
+import { State } from '../Core/States/State';
+import { Segment } from '../Objects/Segment';
 import { html } from 'lit-element';
-import './divide-popup.js';
-import { createElem } from '../js/Tools/general';
+import './divide-popup';
+import { createElem } from '../Core/Tools/general';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)

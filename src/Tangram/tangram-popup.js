@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
-import { app } from '../js/App';
+import { app } from '../Core/App';
 import { TemplatePopup } from '../popups/template-popup';
 
 class TangramPopup extends LitElement {
