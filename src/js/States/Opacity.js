@@ -32,7 +32,7 @@ export class OpacityState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     this.currentStep = 'choose-opacity';

@@ -27,7 +27,7 @@ export class BuildCenterState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     setTimeout(

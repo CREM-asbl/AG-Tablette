@@ -47,13 +47,11 @@ export class DivideState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     this.currentStep = 'choose-nb-parts';
     createElem('divide-popup');
-    // window.dispatchEvent(new CustomEvent('open-divide-popup'));
-    // app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     app.workspace.selectionConstraints.eventType = 'click';

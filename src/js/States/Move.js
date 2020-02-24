@@ -44,7 +44,7 @@ export class MoveState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     this.currentStep = 'listen-canvas-click';

@@ -30,7 +30,7 @@ export class DeleteState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
+   * initialiser l'état
    */
   start() {
     setTimeout(() => {
