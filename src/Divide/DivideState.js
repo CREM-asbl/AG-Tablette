@@ -1,7 +1,8 @@
-import { app } from '../App';
-import { State } from './State';
-import { Segment } from '../Objects/Segment';
+import { app } from '../js/App';
+import { State } from '../js/States/State';
+import { Segment } from '../js/Objects/Segment';
 import { html } from 'lit-element';
+import './divide-popup.js';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -49,7 +50,10 @@ export class DivideState extends State {
    */
   start() {
     this.currentStep = 'choose-nb-parts';
-    window.dispatchEvent(new CustomEvent('open-divide-popup'));
+    const popup = document.createElement('divide-popup');
+    popup.style.display = 'block';
+    document.querySelector('body').appendChild(popup);
+    // window.dispatchEvent(new CustomEvent('open-divide-popup'));
     // app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));

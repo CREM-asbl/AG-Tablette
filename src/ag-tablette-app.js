@@ -7,7 +7,6 @@ import './toolbar-section';
 import './icon-button';
 import './popups/new-popup';
 import './popups/opacity-popup';
-import './popups/divide-popup';
 import './popups/settings-popup';
 import './popups/help-popup';
 import './popups/save-popup';
@@ -61,9 +60,9 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('open-opacity-popup', () => {
       this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
     });
-    window.addEventListener('open-divide-popup', () => {
-      this.shadowRoot.querySelector('divide-popup').style.display = 'block';
-    });
+    // window.addEventListener('open-divide-popup', () => {
+    //   this.shadowRoot.querySelector('divide-popup').style.display = 'block';
+    // });
     window.addEventListener('open-color-picker', () => {
       this.shadowRoot.querySelector('#color-picker-label').click();
     });
@@ -279,8 +278,6 @@ class AGTabletteApp extends LitElement {
       <opacity-popup></opacity-popup>
 
       <new-popup></new-popup>
-
-      <divide-popup></divide-popup>
 
       <notif-center></notif-center>
 

@@ -1,7 +1,7 @@
-import { Action } from './Action';
-import { Point } from '../../Objects/Point';
-import { Segment } from '../../Objects/Segment';
-import { ShapeManager } from '../../ShapeManager';
+import { Action } from '../js/States/Actions/Action';
+import { Point } from '../js/Objects/Point';
+import { Segment } from '../js/Objects/Segment';
+import { ShapeManager } from '../js/ShapeManager';
 
 export class DivideAction extends Action {
   constructor() {

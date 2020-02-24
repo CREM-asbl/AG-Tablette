@@ -38,8 +38,8 @@ import { OpacityAction } from '../States/Actions/Opacity.js';
 import { ToBackgroundState } from '../States/ToBackground.js';
 import { ToBackgroundAction } from '../States/Actions/ToBackground.js';
 
-import { DivideState } from '../States/Divide.js';
-import { DivideAction } from '../States/Actions/Divide.js';
+import { DivideState } from '../../Divide/DivideState.js';
+import { DivideAction } from '../../Divide/DivideAction.js';
 
 import { MergeState } from '../../Merge/MergeState.js';
 import { MergeAction } from '../../Merge/MergeAction.js';

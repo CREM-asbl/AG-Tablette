@@ -1,6 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
-import { app } from '../js/App';
-import { TemplatePopup } from './template-popup';
+import { TemplatePopup } from '../popups/template-popup';
 
 class DividePopup extends LitElement {
   constructor() {
@@ -58,7 +57,7 @@ class DividePopup extends LitElement {
   }
 
   close() {
-    this.style.display = 'none';
+    this.remove();
   }
 
   dividePopupValidate() {
