@@ -3,6 +3,7 @@ import { State } from '../js/States/State';
 import { Segment } from '../js/Objects/Segment';
 import { html } from 'lit-element';
 import './divide-popup.js';
+import { createElem } from '../js/Tools/general';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -50,9 +51,7 @@ export class DivideState extends State {
    */
   start() {
     this.currentStep = 'choose-nb-parts';
-    const popup = document.createElement('divide-popup');
-    popup.style.display = 'block';
-    document.querySelector('body').appendChild(popup);
+    createElem('divide-popup');
     // window.dispatchEvent(new CustomEvent('open-divide-popup'));
     // app.appDiv.shadowRoot.querySelector('divide-popup').style.display = 'block';
 

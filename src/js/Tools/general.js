@@ -142,3 +142,13 @@ export function mod(x, n) {
 export function printCoord(msg, coord) {
   console.log(msg + ' ', parseInt(coord.x * 1000) / 1000, parseInt(coord.y * 1000) / 1000);
 }
+
+/**
+ * create an element and add it to document
+ * @param {String} name  name of the element to create
+ */
+export function createElem(name) {
+  const elem = document.createElement(name);
+  elem.style.display = 'block';
+  document.querySelector('body').appendChild(elem);
+}

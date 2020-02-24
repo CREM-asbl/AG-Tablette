@@ -24,6 +24,7 @@ import './js/DrawManager';
 import './js/CompleteHistoryManager';
 import { HistoryManager } from './js/HistoryManager';
 import './js/Manifest';
+import { createElem } from './js/Tools/general';
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -60,9 +61,6 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('open-opacity-popup', () => {
       this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
     });
-    // window.addEventListener('open-divide-popup', () => {
-    //   this.shadowRoot.querySelector('divide-popup').style.display = 'block';
-    // });
     window.addEventListener('open-color-picker', () => {
       this.shadowRoot.querySelector('#color-picker-label').click();
     });
@@ -343,9 +341,7 @@ class AGTabletteApp extends LitElement {
         break;
       case 'help':
         import('./popups/help-popup');
-        const popup = document.createElement('help-popup');
-        popup.style.display = 'block';
-        document.querySelector('body').appendChild(popup);
+        createElem('hlep-popup');
         window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:
