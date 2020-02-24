@@ -145,11 +145,7 @@ export class DeleteAction extends Action {
     if (this.mode == 'shape') {
       let userGroup;
 
-      let shapeCopies = this.involvedShapes.map(s => {
-        let newShape = s.copy();
-        newShape.id = s.id;
-        return newShape;
-      });
+      let shapeCopies = this.involvedShapes.map(s => s.copy(true));
       let sIndexes = this.involvedShapesIndexes.map(s => s);
 
       //reverse: pour garder le même index qu'avant la suppression!

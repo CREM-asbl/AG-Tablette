@@ -109,6 +109,8 @@ export class Workspace {
         steps: [],
         startTimestamp: new Event('useless').timeStamp,
         endTimestamp: 0,
+        startShapes: this.shapes,
+        startShapeGroups: this.shapeGroups,
       });
     }
 

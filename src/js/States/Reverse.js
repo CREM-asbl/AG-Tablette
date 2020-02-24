@@ -263,11 +263,7 @@ export class ReverseState extends State {
       window.dispatchEvent(
         new CustomEvent('draw-group', {
           detail: {
-            involvedShapes: this.involvedShapes.map(s => {
-              let newShape = s.copy();
-              newShape.id = s.id;
-              return newShape;
-            }),
+            involvedShapes: this.involvedShapes.map(s => s.copy(true)),
             fct1: s => {
               this.reverseShape(s, this.axe, this.progress);
             },

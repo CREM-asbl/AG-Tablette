@@ -1,7 +1,5 @@
-import { app } from '../App';
 import { Shape } from './Shape';
-import { Segment } from './Segment';
-import { Point } from './Point';
+import { ShapeGroup } from './ShapeGroup';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -28,6 +26,12 @@ export class CompleteHistory {
 
     // timeout id for cancelling
     this.timeoutId = null;
+
+    // the shapes that were there when the record starts
+    this.startShapes = [];
+
+    // the groups that were there when the record starts
+    this.startShapeGroups = [];
   }
 
   saveToObject() {
@@ -35,6 +39,8 @@ export class CompleteHistory {
       steps: this.steps, //.map(step => step.saveToObject()),
       startTimestamp: this.startTimestamp,
       endTimestamp: Date.now(), //this.endTimestamp,
+      startShapes: this.startShapes.map(s => s.saveToObject()),
+      startShapeGroups: this.startShapeGroups.map(group => group.saveToObject()),
     };
     return save;
   }
@@ -43,6 +49,17 @@ export class CompleteHistory {
     this.steps = object.steps;
     this.startTimestamp = object.startTimestamp;
     this.endTimestamp = object.endTimestamp;
+    this.startShapes = object.startShapes.map((s, idx) => {
+      let shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
+      shape.initFromObject(s);
+      shape.id = s.id;
+      return shape;
+    });
+    this.startShapeGroups = object.startShapeGroups.map(groupData => {
+      let group = new ShapeGroup(0, 1);
+      group.initFromObject(groupData);
+      return group;
+    });
   }
 
   // transformToObject(detail) {

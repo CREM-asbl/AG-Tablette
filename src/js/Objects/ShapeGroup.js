@@ -35,6 +35,17 @@ export class ShapeGroup {
   }
 
   /**
+   * copy a shapeGroup
+   * @param {Boolean} full si copie id aussi
+   */
+  copy(full = false) {
+    let copy = new ShapeGroup(0, 1);
+    copy.shapesIds = [...this.shapesIds];
+    if (full) copy.id = this.id;
+    return copy;
+  }
+
+  /**
    * Ajouter une forme au groupe
    * @param {number} shapeId    La forme que l'on ajoute
    */

@@ -403,10 +403,10 @@ export class Shape {
 
   /**
    * Renvoie une copie d'une forme
+   * @param  {Boolean} full si copie de l'id aussi
    * @return {Shape} la copie
    */
-  //Todo : Simplifier la copie
-  copy() {
+  copy(full = false) {
     let segments = this.segments.map(seg => seg.copy());
     let copy = new Shape(this, segments, this.name, this.familyName);
     segments.forEach(seg => (seg.shape = copy));
@@ -419,6 +419,7 @@ export class Shape {
     copy.isCenterShown = this.isCenterShown;
     copy.isReversed = this.isReversed;
     copy.opacity = this.opacity;
+    if (full) copy.id = this.id;
     return copy;
   }
 

@@ -10,9 +10,7 @@ import { HistoryManager } from './HistoryManager';
 export class CompleteHistoryManager {
   static startBrowse() {
     CompleteHistoryManager.isRunning = true;
-    if (app.environment.name == 'Grandeurs') {
-      CompleteHistoryManager.resetWorkspace();
-    }
+    CompleteHistoryManager.resetWorkspace();
     app.setState();
     app.workspace.completeHistory.videoStartTimestamp = Date.now();
     app.workspace.completeHistory.currentTimestamp =
@@ -28,8 +26,10 @@ export class CompleteHistoryManager {
   }
 
   static resetWorkspace() {
-    app.workspace.shapes = [];
-    app.workspace.shapeGroups = [];
+    app.workspace.shapes = app.workspace.completeHistory.startShapes.map(s => s.copy(true));
+    app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(gr =>
+      gr.copy(true),
+    );
     app.workspace.history = new History();
   }
 
@@ -157,7 +157,8 @@ export class CompleteHistoryManager {
   }
 
   /**
-   * @param {Event} event L'event déclencheur
+   * @param {String} type  Le type d'event (pas d'office égal à celui de l'event déclencheur)
+   * @param {Event}  event L'event déclencheur
    */
   static addStep(type, event) {
     if (CompleteHistoryManager.isRunning) return;
