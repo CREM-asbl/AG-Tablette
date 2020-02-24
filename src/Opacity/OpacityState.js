@@ -1,8 +1,9 @@
-import { app } from '../App';
-import { State } from './State';
-import { GroupManager } from '../GroupManager';
-import { ShapeManager } from '../ShapeManager';
+import { app } from '../js/App';
+import { State } from '../js/States/State';
+import { GroupManager } from '../js/GroupManager';
+import { ShapeManager } from '../js/ShapeManager';
 import { html } from 'lit-element';
+import './opacity-popup';
 
 /**
  * Modifier l'opacité d'une forme
@@ -41,7 +42,8 @@ export class OpacityState extends State {
       () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
     );
 
-    window.dispatchEvent(new CustomEvent('open-opacity-popup'));
+    createElem('opacity-popup');
+    // window.dispatchEvent(new CustomEvent('open-opacity-popup'));
     // app.appDiv.shadowRoot.querySelector('opacity-popup').style.display = 'block';
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);

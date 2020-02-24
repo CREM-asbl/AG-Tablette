@@ -6,7 +6,6 @@ import './toolbar-kit';
 import './toolbar-section';
 import './icon-button';
 import './popups/new-popup';
-import './popups/opacity-popup';
 import './popups/settings-popup';
 import './popups/help-popup';
 import './popups/save-popup';

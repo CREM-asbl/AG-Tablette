@@ -32,8 +32,8 @@ import { TranslatePlaneAction } from '../States/Actions/TranslatePlane.js';
 import { ZoomPlaneState } from '../States/ZoomPlane.js';
 import { ZoomPlaneAction } from '../States/Actions/ZoomPlane.js';
 
-import { OpacityState } from '../States/Opacity.js';
-import { OpacityAction } from '../States/Actions/Opacity.js';
+import { OpacityState } from '../../Opacity/OpacityState.js';
+import { OpacityAction } from '../../Opacity/OpacityAction.js';
 
 import { ToBackgroundState } from '../States/ToBackground.js';
 import { ToBackgroundAction } from '../States/Actions/ToBackground.js';
