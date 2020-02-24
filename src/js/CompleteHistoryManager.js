@@ -9,6 +9,9 @@ import { HistoryManager } from './HistoryManager';
  */
 export class CompleteHistoryManager {
   static startBrowse() {
+    // if call when already running
+    window.clearTimeout(app.workspace.completeHistory.timeoutId);
+
     CompleteHistoryManager.isRunning = true;
     CompleteHistoryManager.resetWorkspace();
     app.setState();
@@ -21,8 +24,6 @@ export class CompleteHistoryManager {
 
     // index de la derniere action effectuée
     CompleteHistoryManager.action_idx = 0;
-
-    // empecher que l'utilisateur choisisse un state
   }
 
   static resetWorkspace() {

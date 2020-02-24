@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit-element';
 import './flex-toolbar';
 import './icon-button';
 import { app } from './js/App';
+import { CompleteHistoryManager } from './js/CompleteHistoryManager';
 
 class ToolbarSection extends LitElement {
   static get properties() {
@@ -43,7 +44,7 @@ class ToolbarSection extends LitElement {
   }
 
   _actionHandle(event) {
-    app.setState(event.target.name);
+    if (!CompleteHistoryManager.isRunning) app.setState(event.target.name);
   }
 }
 customElements.define('toolbar-section', ToolbarSection);
