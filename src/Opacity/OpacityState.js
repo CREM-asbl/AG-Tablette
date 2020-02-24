@@ -4,6 +4,7 @@ import { GroupManager } from '../js/GroupManager';
 import { ShapeManager } from '../js/ShapeManager';
 import { html } from 'lit-element';
 import './opacity-popup';
+import { createElem } from '../js/Tools/general';
 
 /**
  * Modifier l'opacité d'une forme
@@ -13,6 +14,8 @@ export class OpacityState extends State {
     super('opacity', 'Opacité', 'tool');
 
     this.currentStep = null; // choose-opacity -> listen-canvas-click
+
+    this.opacity = 0.7;
   }
 
   /**
@@ -36,15 +39,20 @@ export class OpacityState extends State {
    * initialiser l'état
    */
   start() {
-    this.currentStep = 'choose-opacity';
-
     setTimeout(
       () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
     );
 
     createElem('opacity-popup');
-    // window.dispatchEvent(new CustomEvent('open-opacity-popup'));
-    // app.appDiv.shadowRoot.querySelector('opacity-popup').style.display = 'block';
+    window.dispatchEvent(
+      new CustomEvent('setOpacity', {
+        detail: {
+          opacity: this.opacity,
+          close: false,
+        },
+      }),
+    );
+    this.currentStep = 'choose-opacity';
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('setOpacity', this.handler);

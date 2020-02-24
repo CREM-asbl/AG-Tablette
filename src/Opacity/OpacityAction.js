@@ -1,5 +1,5 @@
-import { Action } from './Action';
-import { ShapeManager } from '../../ShapeManager';
+import { Action } from '../js/States/Actions/Action';
+import { ShapeManager } from '../js/ShapeManager';
 
 export class OpacityAction extends Action {
   constructor() {

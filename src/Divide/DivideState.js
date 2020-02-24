@@ -20,7 +20,7 @@ export class DivideState extends State {
 
     this.drawColor = '#E90CC8';
 
-    this.numberOfparts = null;
+    this.numberOfparts = 2;
   }
 
   /**
@@ -50,8 +50,13 @@ export class DivideState extends State {
    * initialiser l'état
    */
   start() {
-    this.currentStep = 'choose-nb-parts';
     createElem('divide-popup');
+    window.dispatchEvent(
+      new CustomEvent('setNumberOfParts', {
+        detail: { nbOfParts: this.numberOfparts, close: false },
+      }),
+    );
+    this.currentStep = 'choose-nb-parts';
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     app.workspace.selectionConstraints.eventType = 'click';

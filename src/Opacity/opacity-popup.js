@@ -7,7 +7,7 @@ class OpacityPopup extends LitElement {
 
     window.addEventListener('setOpacity', event => {
       this.opacity = event.detail.opacity;
-      this.close();
+      if (event.detail.close) this.close();
     });
 
     window.addEventListener('close-popup', () => this.opacityPopupValidate());
@@ -60,10 +60,10 @@ class OpacityPopup extends LitElement {
       new CustomEvent('setOpacity', {
         detail: {
           opacity: parseFloat(this.shadowRoot.getElementById('opacity_popup_select').value),
+          close: true,
         },
       }),
     );
-    this.close();
   }
 
   close() {
