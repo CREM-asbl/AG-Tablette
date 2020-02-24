@@ -50,13 +50,9 @@ export class DivideState extends State {
    * initialiser l'état
    */
   start() {
-    createElem('divide-popup');
-    window.dispatchEvent(
-      new CustomEvent('setNumberOfParts', {
-        detail: { nbOfParts: this.numberOfparts, close: false },
-      }),
-    );
     this.currentStep = 'choose-nb-parts';
+    let popup = createElem('divide-popup');
+    popup.parts = this.numberOfparts;
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     app.workspace.selectionConstraints.eventType = 'click';

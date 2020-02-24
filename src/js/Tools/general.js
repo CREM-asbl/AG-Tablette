@@ -151,4 +151,5 @@ export function createElem(name) {
   const elem = document.createElement(name);
   elem.style.display = 'block';
   document.querySelector('body').appendChild(elem);
+  return elem;
 }

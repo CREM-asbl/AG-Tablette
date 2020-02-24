@@ -39,20 +39,12 @@ export class OpacityState extends State {
    * initialiser l'état
    */
   start() {
+    this.currentStep = 'choose-opacity';
     setTimeout(
       () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
     );
-
-    createElem('opacity-popup');
-    window.dispatchEvent(
-      new CustomEvent('setOpacity', {
-        detail: {
-          opacity: this.opacity,
-          close: false,
-        },
-      }),
-    );
-    this.currentStep = 'choose-opacity';
+    let popup = createElem('opacity-popup');
+    popup.opacity = this.opacity;
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('setOpacity', this.handler);

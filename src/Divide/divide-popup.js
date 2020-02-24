@@ -8,8 +8,7 @@ class DividePopup extends LitElement {
 
     window.addEventListener('setNumberOfParts', event => {
       this.parts = event.detail.nbOfParts;
-      console.log(this.parts);
-      if (event.detail.close) this.close();
+      this.close();
     });
 
     window.addEventListener('close-popup', () => this.dividePopupValidate());

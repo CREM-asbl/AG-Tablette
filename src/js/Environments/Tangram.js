@@ -12,8 +12,8 @@ import { BackgroundColorAction } from '../States/Actions/BackgroundColor';
 import { BorderColorState } from '../States/BorderColor';
 import { BorderColorAction } from '../States/Actions/BorderColor';
 
-import { OpacityState } from '../States/Opacity';
-import { OpacityAction } from '../States/Actions/Opacity';
+import { OpacityState } from '../../Opacity/OpacityState.js';
+import { OpacityAction } from '../../Opacity/OpacityAction.js';
 
 import { BifaceState } from '../States/Biface';
 import { BifaceAction } from '../States/Actions/Biface';
