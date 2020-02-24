@@ -1,7 +1,7 @@
-import { Action } from './Action';
-import { getAverageColor, getComplementaryColor } from '../../Tools/general';
-import { Segment } from '../../Objects/Segment';
-import { ShapeManager } from '../../ShapeManager';
+import { Action } from '../js/States/Actions/Action';
+import { getAverageColor, getComplementaryColor } from '../js/Tools/general';
+import { Segment } from '../js/Objects/Segment';
+import { ShapeManager } from '../js/ShapeManager';
 
 export class MergeAction extends Action {
   constructor() {
@@ -86,53 +86,40 @@ export class MergeAction extends Action {
   }
 
   createNewSegments(shape1, shape2) {
-    let oldSegments = [...shape1.segments, ...shape2.segments],
-      subSegments = oldSegments.map(segment => segment.subSegments);
+    let segments = [shape1, shape2].map(s => s.segments.map(seg => seg.copy())).flat();
 
-    let pairs = oldSegments.map((segment, idx, segments) => {
-      return segments
-        .map((seg, i) => {
-          if (subSegments[i].some(subseg => subSegments[idx].some(subs => subs.equal(subseg)))) {
-            return i;
-          } else return -1;
-        })
-        .filter(s => s != -1);
-    });
-
-    // if trio (more than 2 segments inside another)
-    if (pairs.filter(pair => pair.length > 2).length) {
-      console.log('shape is dig (a segment has multiple joined segments)');
-      return this.alertDigShape();
+    for (let i = 0; i < segments.length; i++) {
+      let seg = segments[i];
+      let commonSegmentIdx = segments.findIndex(
+        (segment, idx) =>
+          idx != i &&
+          seg.subSegments.some(subseg =>
+            segment.subSegments.some(subseg2 => subseg.equal(subseg2)),
+          ),
+      );
+      if (commonSegmentIdx == -1) continue;
+      let commonSegment = segments[commonSegmentIdx];
+      let junction = seg.subSegments
+        .filter(subseg => commonSegment.subSegments.some(subseg2 => subseg.equal(subseg2)))
+        .sort((seg1, seg2) => (seg1.length < seg2.length ? 1 : -1))[0];
+      !commonSegment.hasSameDirection(seg) && commonSegment.reverse();
+      !junction.hasSameDirection(seg) && junction.reverse();
+      let createdSegments = [];
+      if (!seg.vertexes[0].equal(junction.vertexes[0]))
+        createdSegments.push(new Segment(seg.vertexes[0], junction.vertexes[0]));
+      if (!seg.vertexes[1].equal(junction.vertexes[1]))
+        createdSegments.push(new Segment(seg.vertexes[1], junction.vertexes[1]));
+      if (!commonSegment.vertexes[0].equal(junction.vertexes[0]))
+        createdSegments.push(new Segment(commonSegment.vertexes[0], junction.vertexes[0]));
+      if (!commonSegment.vertexes[1].equal(junction.vertexes[1]))
+        createdSegments.push(new Segment(commonSegment.vertexes[1], junction.vertexes[1]));
+      let indexToRemove = [i, commonSegmentIdx].sort((idx1, idx2) => idx1 - idx2);
+      segments.splice(indexToRemove[1], 1);
+      segments.splice(indexToRemove[0], 1, ...createdSegments);
+      i = -1;
     }
 
-    // 2D array of all segments
-    const segments_array = pairs.map((pair, idx, pairs) => {
-      if (pair.length == 1) {
-        return oldSegments[pair[0]];
-      } else if (pair.length == 2) {
-        if (pairs.slice(idx + 1).some(p => pair[0] == p[0] && pair[1] == p[1]))
-          // filter doubles
-          return null;
-        let vertexes = [...oldSegments[pair[0]].vertexes, ...oldSegments[pair[1]].vertexes];
-        vertexes.sort((v1, v2) =>
-          v1.x - v2.x > 0.1 || (Math.abs(v1.x - v2.x) < 0.1 && v1.y > v2.y) ? 1 : -1,
-        ); // imprécision : 0.1 comme limite d'égalité
-        let newSegments = [];
-        if (!vertexes[0].equal(vertexes[1]))
-          newSegments.push(new Segment(vertexes[0], vertexes[1]));
-        if (!vertexes[2].equal(vertexes[3]))
-          newSegments.push(new Segment(vertexes[2], vertexes[3]));
-        return newSegments;
-      } else {
-        console.log('cannot happen');
-        return null;
-      }
-    });
-
-    // back to 1D
-    const newSegments = segments_array.filter(p => p).flat();
-
-    return newSegments;
+    return segments;
   }
 
   linkNewSegments(segmentsList) {

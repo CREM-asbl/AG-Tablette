@@ -41,8 +41,8 @@ import { ToBackgroundAction } from '../States/Actions/ToBackground.js';
 import { DivideState } from '../States/Divide.js';
 import { DivideAction } from '../States/Actions/Divide.js';
 
-import { MergeState } from '../States/Merge.js';
-import { MergeAction } from '../States/Actions/Merge.js';
+import { MergeState } from '../../Merge/MergeState.js';
+import { MergeAction } from '../../Merge/MergeAction.js';
 
 import { CutState } from '../States/Cut.js';
 import { CutAction } from '../States/Actions/Cut.js';

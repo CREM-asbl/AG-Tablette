@@ -49,7 +49,7 @@ class HelpPopup extends LitElement {
 
           <div slot="footer">
             <version-item></version-item>
-            <button @click="${() => (this.style.display = 'none')}">OK</button>
+            <button @click="${() => this.close()}">OK</button>
           </div>
         </div>
       </template-popup>
