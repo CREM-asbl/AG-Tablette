@@ -1,5 +1,5 @@
 import { LitElement, html } from 'lit-element';
-import { TemplatePopup } from './template-popup';
+import { TemplatePopup } from '../popups/template-popup';
 
 class OpacityPopup extends LitElement {
   constructor() {
@@ -67,7 +67,7 @@ class OpacityPopup extends LitElement {
   }
 
   close() {
-    this.style.display = 'none';
+    this.remove();
   }
 }
 customElements.define('opacity-popup', OpacityPopup);
