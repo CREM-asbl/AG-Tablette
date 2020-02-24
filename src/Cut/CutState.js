@@ -1,8 +1,8 @@
-import { app } from '../App';
-import { State } from './State';
-import { Point } from '../Objects/Point';
-import { Segment } from '../Objects/Segment';
-import { mod, uniqId } from '../Tools/general';
+import { app } from '../js/App';
+import { State } from '../js/States/State';
+import { Point } from '../js/Objects/Point';
+import { Segment } from '../js/Objects/Segment';
+import { mod, uniqId } from '../js/Tools/general';
 import { html } from 'lit-element';
 
 /**

@@ -44,8 +44,8 @@ import { DivideAction } from '../States/Actions/Divide.js';
 import { MergeState } from '../../Merge/MergeState.js';
 import { MergeAction } from '../../Merge/MergeAction.js';
 
-import { CutState } from '../States/Cut.js';
-import { CutAction } from '../States/Actions/Cut.js';
+import { CutState } from '../../Cut/CutState.js';
+import { CutAction } from '../../Cut/CutAction.js';
 
 import { BifaceState } from '../States/Biface.js';
 import { BifaceAction } from '../States/Actions/Biface.js';
