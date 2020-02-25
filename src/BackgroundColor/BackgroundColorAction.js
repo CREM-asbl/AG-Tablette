@@ -1,6 +1,6 @@
 import { Action } from '../Core/States/Action';
 import { getComplementaryColor } from '../Core/Tools/general';
-import { ShapeManager } from '../Managers/ShapeManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 export class BackgroundColorAction extends Action {
   constructor() {

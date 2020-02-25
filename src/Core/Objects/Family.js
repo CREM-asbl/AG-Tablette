@@ -1,7 +1,6 @@
-import { uniqId } from '../Core/Tools/general';
-import { Segment } from './Segment';
+import { uniqId } from '../Tools/general';
+import { getComplementaryColor } from '../Tools/general';
 import { Shape } from './Shape';
-import { getComplementaryColor } from '../Core/Tools/general';
 
 /**
  * Une famille de formes.

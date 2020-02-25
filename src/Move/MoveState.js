@@ -1,9 +1,9 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { Point } from '../Objects/Point';
-import { ShapeManager } from '../Managers/ShapeManager';
 import { html } from 'lit-element';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Point } from '../Core/Objects/Point';
 
 /**
  * Déplacer une forme (ou un ensemble de formes liées) sur l'espace de travail

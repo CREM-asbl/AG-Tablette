@@ -1,6 +1,6 @@
 import { Action } from '../Core/States/Action';
-import { Point } from '../Objects/Point';
-import { ShapeManager } from '../Managers/ShapeManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Point } from '../Core/Objects/Point';
 
 export class MoveAction extends Action {
   constructor() {

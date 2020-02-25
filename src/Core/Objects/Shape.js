@@ -1,7 +1,7 @@
-import { uniqId, getComplementaryColor } from '../Core/Tools/general';
+import { app } from '../App';
+import { getComplementaryColor, uniqId } from '../Tools/general';
 import { Point } from './Point';
 import { Segment } from './Segment';
-import { app } from '../Core/App';
 
 /**
  * Représente une forme

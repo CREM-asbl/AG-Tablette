@@ -1,4 +1,4 @@
-import { uniqId } from '../Core/Tools/general';
+import { uniqId } from '../Tools/general';
 
 /**
  * Groupe de formes liées. Un tel groupe est créé par l'utilisateur à l'aide de

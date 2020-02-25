@@ -1,8 +1,8 @@
-import { app } from '../Core/App';
-import { History } from '../Objects/History';
-import { Point } from '../Objects/Point';
+import { app } from '../App';
 import { SelectManager } from './SelectManager';
 import { HistoryManager } from './HistoryManager';
+import { Point } from '../Objects/Point';
+import { History } from '../Objects/History';
 
 /**
  * Représente l'historique complet d'un espace de travail.

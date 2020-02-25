@@ -1,8 +1,8 @@
-import { LitElement, html, css, unsafeCSS } from 'lit-element';
 import { app } from './Core/App';
-import { Point } from './Objects/Point';
-import { SelectManager } from './Managers/SelectManager';
-import { CompleteHistoryManager } from './Managers/CompleteHistoryManager';
+import { LitElement, html, css, unsafeCSS } from 'lit-element';
+import { SelectManager } from './Core/Managers/SelectManager';
+import { CompleteHistoryManager } from './Core/Managers/CompleteHistoryManager';
+import { Point } from './Core/Objects/Point';
 
 class DivMainCanvas extends LitElement {
   static get properties() {

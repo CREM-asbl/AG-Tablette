@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { Point } from '../Objects/Point';
+import { Point } from '../Core/Objects/Point';
 
 //Todo: Créer un event plus précis
 addEventListener('app-state-changed', () => {

@@ -1,8 +1,8 @@
-import { app } from '../Core/App';
-import { Point } from '../../Objects/Point';
+import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
 import { GridManager } from '../../Grid/GridManager';
 import { TangramManager } from '../../Tangram/TangramManager';
+import { Point } from '../Objects/Point';
 
 /**
  * Renvoie la transformation qu'il faut appliquer aux formes pour que les 2

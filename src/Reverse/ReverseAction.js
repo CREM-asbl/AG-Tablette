@@ -1,7 +1,7 @@
 import { Action } from '../Core/States/Action';
-import { Point } from '../Objects/Point';
-import { Segment } from '../Objects/Segment';
-import { ShapeManager } from '../Managers/ShapeManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Segment } from '../Core/Objects/Segment';
+import { Point } from '../Core/Objects/Point';
 
 export class ReverseAction extends Action {
   constructor() {

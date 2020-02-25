@@ -1,4 +1,4 @@
-import { Family } from '../../Objects/Family';
+import { Family } from '../Objects/Family';
 
 /**
  * Environnement de travail: Grandeurs, Tangram, Cube... Un environnement

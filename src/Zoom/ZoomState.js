@@ -1,7 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { Point } from '../Objects/Point';
 import { html } from 'lit-element';
+import { Point } from '../Core/Objects/Point';
 
 /**
  * Zoomer/Dézoomer le plan

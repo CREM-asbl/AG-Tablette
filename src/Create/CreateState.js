@@ -1,11 +1,11 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { Shape } from '../Objects/Shape';
-import { Point } from '../Objects/Point';
 import { html } from 'lit-element';
-import './shapes-list';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { createElem } from '../Core/Tools/general';
+import { Shape } from '../Core/Objects/Shape';
+import { Point } from '../Core/Objects/Point';
+import './shapes-list';
 
 /**
  * Ajout de formes sur l'espace de travail

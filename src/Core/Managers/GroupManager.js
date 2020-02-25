@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app } from '../App';
 
 export class GroupManager {
   /**

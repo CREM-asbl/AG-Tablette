@@ -1,9 +1,9 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { Shape } from '../Objects/Shape';
-import { GroupManager } from '../Managers/GroupManager';
-import { ShapeManager } from '../Managers/ShapeManager';
 import { html } from 'lit-element';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Shape } from '../Core/Objects/Shape';
 
 /**
  * Supprimer une forme (et supprime le groupe dont la forme faisait partie s'il

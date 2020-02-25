@@ -1,9 +1,9 @@
 import { Action } from '../Core/States/Action';
-import { Segment } from '../Objects/Segment';
-import { Point } from '../Objects/Point';
 import { mod } from '../Core/Tools/general';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { Shape } from '../Objects/Shape';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Shape } from '../Core/Objects/Shape';
+import { Segment } from '../Core/Objects/Segment';
+import { Point } from '../Core/Objects/Point';
 
 export class CutAction extends Action {
   constructor() {

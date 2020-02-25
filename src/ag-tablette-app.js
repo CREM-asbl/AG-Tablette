@@ -15,14 +15,14 @@ import './completehistory-tools';
 import { app } from './Core/App';
 import './Core/Manifest';
 
-import './Managers/FileManager';
-import './Managers/SelectManager';
-import './Managers/WorkspaceManager';
-import './Managers/GroupManager';
-import './Managers/ShapeManager';
-import './Managers/DrawManager';
-import './Managers/CompleteHistoryManager';
-import { HistoryManager } from './Managers/HistoryManager';
+import './Core/Managers/FileManager';
+import './Core/Managers/SelectManager';
+import './Core/Managers/WorkspaceManager';
+import './Core/Managers/GroupManager';
+import './Core/Managers/ShapeManager';
+import './Core/Managers/DrawManager';
+import './Core/Managers/CompleteHistoryManager';
+import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
 
 class AGTabletteApp extends LitElement {

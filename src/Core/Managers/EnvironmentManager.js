@@ -1,5 +1,5 @@
-import { app } from '../Core/App';
-import { Environment } from './Environments/Environment';
+import { app } from '../App';
+import { Environment } from '../Environments/Environment';
 
 export class EnvironmentManager {
   static setEnvironment(envName) {

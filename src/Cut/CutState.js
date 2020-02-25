@@ -1,9 +1,9 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { Point } from '../Objects/Point';
-import { Segment } from '../Objects/Segment';
-import { mod, uniqId } from '../Core/Tools/general';
 import { html } from 'lit-element';
+import { mod, uniqId } from '../Core/Tools/general';
+import { Segment } from '../Core/Objects/Segment';
+import { Point } from '../Core/Objects/Point';
 
 /**
  * Découper une forme

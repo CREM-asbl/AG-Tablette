@@ -1,6 +1,5 @@
-import { Point } from './Point';
-import { app } from '../Core/App';
 import { ShapeManager } from '../Managers/ShapeManager';
+import { Point } from './Point';
 
 export class Segment {
   constructor(point1, point2, shape, idx, arcCenter, counterclockwise) {

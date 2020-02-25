@@ -1,6 +1,6 @@
 import { Action } from '../Core/States/Action';
-import { ShapeGroup } from '../Objects/ShapeGroup';
-import { GroupManager } from '../Managers/GroupManager';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 
 export class UngroupAction extends Action {
   constructor() {

@@ -1,9 +1,9 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { uniqId } from '../Core/Tools/general';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { Segment } from '../Objects/Segment';
 import { html } from 'lit-element';
+import { uniqId } from '../Core/Tools/general';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Segment } from '../Core/Objects/Segment';
 
 /**
  * Fusionner 2 formes en une nouvelle forme

@@ -1,9 +1,9 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { Point } from '../Objects/Point';
-import { Segment } from '../Objects/Segment';
-import { ShapeManager } from '../Managers/ShapeManager';
 import { html } from 'lit-element';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Segment } from '../Core/Objects/Segment';
+import { Point } from '../Core/Objects/Point';
 
 /**
  * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail

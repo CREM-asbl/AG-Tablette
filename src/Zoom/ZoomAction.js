@@ -1,6 +1,6 @@
 import { app } from '../Core/App';
 import { Action } from '../Core/States/Action';
-import { Point } from '../Objects/Point';
+import { Point } from '../Core/Objects/Point';
 
 export class ZoomAction extends Action {
   constructor() {

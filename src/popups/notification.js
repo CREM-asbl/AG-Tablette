@@ -1,5 +1,4 @@
 import { LitElement, html, css } from 'lit-element';
-import { app } from '../Core/App';
 
 export class Notification extends LitElement {
   static get properties() {

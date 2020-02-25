@@ -1,11 +1,11 @@
-import { app } from '../Core/App';
-import { uniqId } from '../Core/Tools/general';
+import { app } from '../App';
+import { uniqId } from '../Tools/general';
 import { CompleteHistory } from './CompleteHistory';
+import { Settings } from '../Settings';
+import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
 import { Shape } from './Shape';
-import { Settings } from '../Core/Settings';
 import { Point } from '../Objects/Point';
-import { History } from './History';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut

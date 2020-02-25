@@ -1,6 +1,6 @@
 import { uniqId } from '../Core/Tools/general';
-import { Shape } from '../Objects/Shape';
-import { Silhouette } from '../Objects/Silhouette';
+import { Silhouette } from '../Core/Objects/Silhouette';
+import { Shape } from '../Core/Objects/Shape';
 
 export class Tangram {
   /**

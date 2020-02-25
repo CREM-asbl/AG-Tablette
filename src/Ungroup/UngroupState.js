@@ -1,7 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { GroupManager } from '../Managers/GroupManager';
 import { html } from 'lit-element';
+import { GroupManager } from '../Core/Managers/GroupManager';
 
 /**
  * Supprimer un groupe (ne supprime pas les formes).

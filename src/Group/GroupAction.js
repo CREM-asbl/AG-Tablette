@@ -1,6 +1,6 @@
 import { Action } from '../Core/States/Action';
-import { ShapeGroup } from '../Objects/ShapeGroup';
-import { GroupManager } from '../Managers/GroupManager';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
+import { GroupManager } from '../Core/Managers/GroupManager';
 /**
  * Représente la création d'un groupe ou l'ajout d'une forme à un groupe existant
  */

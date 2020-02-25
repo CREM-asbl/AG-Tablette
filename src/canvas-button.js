@@ -1,7 +1,7 @@
-import { LitElement, html, css } from 'lit-element';
 import { app } from './Core/App';
-import { Shape } from './Objects/Shape';
-import { Point } from './Objects/Point';
+import { LitElement, html, css } from 'lit-element';
+import { Shape } from './Core/Objects/Shape';
+import { Point } from './Core/Objects/Point';
 
 class CanvasButton extends LitElement {
   static get properties() {

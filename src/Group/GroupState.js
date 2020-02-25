@@ -1,9 +1,9 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { uniqId } from '../Core/Tools/general';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { GroupManager } from '../Managers/GroupManager';
 import { html } from 'lit-element';
+import { uniqId } from '../Core/Tools/general';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { GroupManager } from '../Core/Managers/GroupManager';
 
 /**
  * Grouper des formes.

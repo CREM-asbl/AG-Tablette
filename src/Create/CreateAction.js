@@ -1,6 +1,6 @@
 import { Action } from '../Core/States/Action';
-import { Shape } from '../Objects/Shape';
-import { ShapeManager } from '../Managers/ShapeManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Shape } from '../Core/Objects/Shape';
 
 export class CreateAction extends Action {
   constructor() {

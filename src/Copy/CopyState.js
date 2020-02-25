@@ -1,10 +1,10 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
+import { html } from 'lit-element';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { uniqId } from '../Core/Tools/general';
-import { GroupManager } from '../Managers/GroupManager';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { html } from 'lit-element';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
  * Dupliquer une forme

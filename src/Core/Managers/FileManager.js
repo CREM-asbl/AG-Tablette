@@ -1,8 +1,8 @@
-import { app } from '../Core/App';
+import { app } from '../App';
+import { Settings } from '../Settings';
+import { GridManager } from '../../Grid/GridManager';
 import { WorkspaceManager } from './WorkspaceManager';
-import { Settings } from '../Core/Settings';
-import { GridManager } from '../Grid/GridManager';
-import { Tangram } from '../Tangram/Tangram';
+import { Tangram } from '../../Tangram/Tangram';
 
 export class FileManager {
   static parseFile(data) {

@@ -1,5 +1,5 @@
-import { LitElement, html, css } from 'lit-element';
 import { app } from '../Core/App';
+import { LitElement, html, css } from 'lit-element';
 
 class ShapesList extends LitElement {
   constructor() {

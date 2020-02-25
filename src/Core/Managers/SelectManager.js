@@ -1,6 +1,6 @@
-import { app } from '../Core/App';
-import { Shape } from '../Objects/Shape';
+import { app } from '../App';
 import { ShapeManager } from './ShapeManager';
+import { Shape } from '../Objects/Shape';
 
 /*
 TODO:

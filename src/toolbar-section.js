@@ -1,8 +1,8 @@
+import { app } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
+import { CompleteHistoryManager } from './Core/Managers/CompleteHistoryManager';
 import './flex-toolbar';
 import './icon-button';
-import { app } from './Core/App';
-import { CompleteHistoryManager } from './Managers/CompleteHistoryManager';
 
 class ToolbarSection extends LitElement {
   static get properties() {

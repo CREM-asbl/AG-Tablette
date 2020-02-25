@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app } from '../App';
 import { Shape } from '../Objects/Shape';
 import { Segment } from '../Objects/Segment';
 import { Point } from '../Objects/Point';

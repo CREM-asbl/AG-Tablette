@@ -1,8 +1,8 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { GroupManager } from '../Managers/GroupManager';
-import { ShapeManager } from '../Managers/ShapeManager';
 import { html } from 'lit-element';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
  * Modifier la couleur des bords d'une forme

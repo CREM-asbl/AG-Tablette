@@ -1,9 +1,9 @@
 import { Action } from '../Core/States/Action';
-import { Shape } from '../Objects/Shape';
-import { ShapeGroup } from '../Objects/ShapeGroup';
-import { Point } from '../Objects/Point';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { GroupManager } from '../Managers/GroupManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
+import { Shape } from '../Core/Objects/Shape';
+import { Point } from '../Core/Objects/Point';
 
 export class DeleteAction extends Action {
   constructor() {

@@ -1,7 +1,7 @@
 import { Action } from '../Core/States/Action';
-import { ShapeGroup } from '../Objects/ShapeGroup';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { GroupManager } from '../Managers/GroupManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 
 export class CopyAction extends Action {
   constructor() {

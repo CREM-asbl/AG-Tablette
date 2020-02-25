@@ -1,13 +1,13 @@
 import { app } from '../Core/App';
-import { Tangram } from './Tangram';
-import { standardTangramKit } from '../Core/ShapesKits/standardTangramKit';
-import { Shape } from '../Objects/Shape';
-import { ShapeManager } from '../Managers/ShapeManager';
 import { getComplementaryColor } from '../Core/Tools/general';
-import { Point } from '../Objects/Point';
-import { Segment } from '../Objects/Segment';
-import { SelectManager } from '../Managers/SelectManager';
-import { Silhouette } from '../Objects/Silhouette';
+import { standardTangramKit } from '../Core/ShapesKits/standardTangramKit';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { SelectManager } from '../Core/Managers/SelectManager';
+import { Tangram } from './Tangram';
+import { Silhouette } from '../Core/Objects/Silhouette';
+import { Shape } from '../Core/Objects/Shape';
+import { Segment } from '../Core/Objects/Segment';
+import { Point } from '../Core/Objects/Point';
 
 app.tangrams = { main: [], local: [] };
 
@@ -266,7 +266,7 @@ export class TangramManager {
     //Main
     if (!app || app.CremTangrams.length) return;
 
-    fetch('./src/CremTangrams/square.agt')
+    fetch('./src/Tangram/CremTangrams/square.agt')
       .then(response => {
         return response.text();
       })
@@ -275,7 +275,7 @@ export class TangramManager {
         if (object) app.CremTangrams.push(object);
       });
 
-    fetch('./src/CremTangrams/squareInternal.agt')
+    fetch('./src/Tangram/CremTangrams/squareInternal.agt')
       .then(response => {
         return response.text();
       })

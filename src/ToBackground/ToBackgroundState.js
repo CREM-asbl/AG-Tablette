@@ -1,7 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
-import { ShapeManager } from '../Managers/ShapeManager';
 import { html } from 'lit-element';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
  * Déplacer une forme derrière toutes les autres.
