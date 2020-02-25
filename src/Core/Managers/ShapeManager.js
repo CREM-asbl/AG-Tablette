@@ -42,14 +42,12 @@ export class ShapeManager {
    */
   static moveShapesToTheirPlace(indexes) {
     const max = app.workspace.shapes.length - 1;
-    let shapesMoved = 0;
     for (let i = 0; i < max; i++) {
       let idx = indexes.findIndex(idx => idx == i);
       if (idx != -1) {
         let shape = app.workspace.shapes[i];
         app.workspace.shapes.splice(i, 1);
         app.workspace.shapes.splice(indexes[idx], 0, shape);
-        shapesMoved++;
       }
     }
   }

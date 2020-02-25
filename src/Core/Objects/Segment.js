@@ -74,7 +74,7 @@ export class Segment {
   get subSegments() {
     let result = [];
     this.allPoints.forEach((point, idx, points) => {
-      points.slice(idx + 1).forEach((pt, i, pts) => {
+      points.slice(idx + 1).forEach(pt => {
         result.push(
           new Segment(point, pt, this.shape, this.idx, this.arcCenter, this.counterclockwise),
         );

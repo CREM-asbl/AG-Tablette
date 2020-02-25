@@ -107,9 +107,9 @@ export class ReverseState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else if (event.type == 'canvasclick') {
-      this.onClick(event.detail.mousePos);
+      this.onClick();
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -118,14 +118,14 @@ export class ReverseState extends State {
   /**
    * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, mouseCoordinates) {
+  objectSelected(shape) {
     if (this.currentStep == 'reversing-shape') return;
     if (
       this.selectedShape &&
       (this.selectedShape.id == shape.id ||
-        mouseCoordinates.dist(this.selectedShape.center) < this.symmetricalAxeLength)
+        app.workspace.lastKnownMouseCoordinates.dist(this.selectedShape.center) <
+          this.symmetricalAxeLength)
     )
       return;
 
@@ -145,18 +145,14 @@ export class ReverseState extends State {
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
-  /**
-   * Appelée lorsque l'événement click est déclanché sur le canvas
-   * @param  {Point} mouseCoordinates les coordonnées de la souris
-   */
-  onClick(mouseCoordinates) {
+  onClick() {
     if (this.currentStep != 'selecting-symmetrical-arch') return;
 
-    let clickDistance = this.selectedShape.center.dist(mouseCoordinates);
+    let clickDistance = this.selectedShape.center.dist(app.workspace.lastKnownMouseCoordinates);
     if (clickDistance > this.symmetricalAxeLength / 2) return;
 
     let shapeCenter = this.selectedShape.center,
-      angle = shapeCenter.getAngle(mouseCoordinates) % Math.PI;
+      angle = shapeCenter.getAngle(app.workspace.lastKnownMouseCoordinates) % Math.PI;
 
     let symmetricalAxeOrientation;
     if (angle <= Math.PI / 8 || angle > (7 * Math.PI) / 8) symmetricalAxeOrientation = 'H';

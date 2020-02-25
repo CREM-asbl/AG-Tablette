@@ -103,9 +103,9 @@ export class CreateState extends State {
     if (event.type == 'shape-selected') {
       this.setShape(event.detail.selectedShape);
     } else if (event.type == 'canvasmousedown') {
-      this.onMouseDown(event.detail.mousePos);
+      this.onMouseDown();
     } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp(event.detail.mousePos);
+      this.onMouseUp();
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -120,14 +120,14 @@ export class CreateState extends State {
     }
   }
 
-  onMouseDown(mouseCoordinates) {
+  onMouseDown() {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.shapeToCreate = this.selectedShape.copy();
     let shapeSize = app.settings.get('shapesSize');
 
     this.shapeToCreate.scale(shapeSize);
-    this.shapeToCreate.coordinates = mouseCoordinates;
+    this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
     this.currentStep = 'moving-shape';
@@ -135,13 +135,13 @@ export class CreateState extends State {
     this.animate();
   }
 
-  onMouseUp(mouseCoordinates) {
+  onMouseUp() {
     if (this.currentStep != 'moving-shape') return;
 
     let shapeSize = app.settings.get('shapesSize'),
       involvedShapes = [this.shapeToCreate];
 
-    this.shapeToCreate.coordinates = mouseCoordinates;
+    this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
 
     this.actions = [
       {
@@ -178,10 +178,10 @@ export class CreateState extends State {
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
-  draw(mouseCoordinates) {
+  draw() {
     if (this.currentStep != 'moving-shape' || this.status != 'running') return;
 
-    this.shapeToCreate.coordinates = mouseCoordinates;
+    this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
 
     window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: this.shapeToCreate } }));
   }

@@ -64,30 +64,30 @@ export class ZoomState extends State {
 
   _actionHandle(event) {
     if (event.type == 'canvasmousedown') {
-      this.onMouseDown(event.detail.mousePos);
+      this.onMouseDown();
     } else if (event.type == 'canvasmousemove') {
-      this.onMouseMove(event.detail.mousePos);
+      this.onMouseMove();
     } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp(event.detail.mousePos);
+      this.onMouseUp();
     } else {
       console.log('unsupported event type : ', event.type);
     }
   }
 
-  onMouseDown(mouseCoordinates) {
+  onMouseDown() {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    this.baseDist = this.getDist(mouseCoordinates);
+    this.baseDist = this.getDist(app.workspace.lastKnownMouseCoordinates);
 
     this.currentStep = 'zooming-plane';
     this.mouseMoveId = app.addListener('canvasmousemove', this.handler);
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
   }
 
-  onMouseMove(mouseCoordinates) {
+  onMouseMove() {
     if (this.currentStep != 'zooming-plane') return;
 
-    let newDist = this.getDist(mouseCoordinates),
+    let newDist = this.getDist(app.workspace.lastKnownMouseCoordinates),
       scaleOffset = newDist / this.baseDist,
       originalZoom = app.workspace.zoomLevel,
       minZoom = app.settings.get('minZoomLevel'),
@@ -118,10 +118,10 @@ export class ZoomState extends State {
     app.workspace.setZoomLevel(originalZoom, false);
   }
 
-  onMouseUp(mouseCoordinates) {
+  onMouseUp() {
     if (this.currentStep != 'zooming-plane') return;
 
-    let offset = this.getDist(mouseCoordinates) / this.baseDist,
+    let offset = this.getDist(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
       actualZoom = app.workspace.zoomLevel,
       minZoom = app.settings.get('minZoomLevel'),
       maxZoom = app.settings.get('maxZoomLevel');

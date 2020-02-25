@@ -3,7 +3,6 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Point } from '../Core/Objects/Point';
 
 /**
  * Déplacer une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -84,9 +83,9 @@ export class MoveState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp(event.detail.mousePos);
+      this.onMouseUp();
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -95,14 +94,13 @@ export class MoveState extends State {
   /**
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, mouseCoordinates) {
+  objectSelected(shape) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
-    this.startClickCoordinates = mouseCoordinates;
+    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
 
     app.workspace.editingShapes = this.involvedShapes;
     this.currentStep = 'moving-shape';
@@ -111,14 +109,12 @@ export class MoveState extends State {
     this.animate();
   }
 
-  /**
-   * Appelée lorsque l'événement mouseup est déclanché sur le canvas
-   * @param  {Point} mouseCoordinates les coordonnées de la souris
-   */
-  onMouseUp(mouseCoordinates) {
+  onMouseUp() {
     if (this.currentStep != 'moving-shape') return;
 
-    const translation = mouseCoordinates.subCoordinates(this.startClickCoordinates);
+    const translation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
+      this.startClickCoordinates,
+    );
     this.involvedShapes.forEach(shape => {
       shape.coordinates = shape.coordinates.addCoordinates(translation);
     });
@@ -154,12 +150,13 @@ export class MoveState extends State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(mouseCoordinates) {
+  draw() {
     if (this.currentStep != 'moving-shape') return;
 
-    let transformation = mouseCoordinates.subCoordinates(this.startClickCoordinates);
+    let transformation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
+      this.startClickCoordinates,
+    );
 
     window.dispatchEvent(
       new CustomEvent('draw-group', {

@@ -1,3 +1,4 @@
+import { app } from '../App';
 import { ShapeManager } from '../Managers/ShapeManager';
 
 /**

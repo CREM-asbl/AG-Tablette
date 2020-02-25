@@ -60,31 +60,31 @@ export class TranslateState extends State {
 
   _actionHandle(event) {
     if (event.type == 'canvasmousedown') {
-      this.onMouseDown(event.detail.mousePos);
+      this.onMouseDown();
     } else if (event.type == 'canvasmousemove') {
-      this.onMouseMove(event.detail.mousePos);
+      this.onMouseMove();
     } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp(event.detail.mousePos);
+      this.onMouseUp();
     } else {
       console.log('unsupported event type : ', event.type);
     }
   }
 
-  onMouseDown(mouseCoordinates) {
+  onMouseDown() {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    this.startClickCoordinates = mouseCoordinates;
+    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.currentStep = 'translating-plane';
 
     this.mouseMoveId = app.addListener('canvasmousemove', this.handler);
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
   }
 
-  onMouseMove(mouseCoordinates) {
+  onMouseMove() {
     if (this.currentStep != 'translating-plane') return;
     let factor = app.workspace.zoomLevel,
       saveOffset = app.workspace.translateOffset,
-      clickDiff = mouseCoordinates
+      clickDiff = app.workspace.lastKnownMouseCoordinates
         .subCoordinates(this.startClickCoordinates)
         .multiplyWithScalar(factor),
       offset = saveOffset.addCoordinates(clickDiff);
@@ -93,14 +93,14 @@ export class TranslateState extends State {
     app.workspace.setTranslateOffset(saveOffset, false);
   }
 
-  onMouseUp(mouseCoordinates) {
+  onMouseUp() {
     if (this.currentStep != 'translating-plane') return;
 
     let factor = app.workspace.zoomLevel;
     this.actions = [
       {
-        name: 'TranslatePlaneAction',
-        offset: mouseCoordinates
+        name: 'TranslateAction',
+        offset: app.workspace.lastKnownMouseCoordinates
           .subCoordinates(this.startClickCoordinates)
           .multiplyWithScalar(factor),
       },

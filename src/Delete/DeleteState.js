@@ -68,7 +68,7 @@ export class DeleteState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -77,9 +77,8 @@ export class DeleteState extends State {
   /**
    * Appelée par événement du SelectManager lorsqu'une forme ou un point a été sélectionné (click)
    * @param  {Object} object            La forme ou le point sélectionné
-   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(object, mouseCoordinates) {
+  objectSelected(object) {
     if (object instanceof Shape) {
       let userGroup = GroupManager.getShapeGroup(object),
         involvedShapes;

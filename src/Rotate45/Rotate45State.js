@@ -1,5 +1,6 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
+import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
@@ -70,7 +71,7 @@ export class Rotate45State extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -79,10 +80,8 @@ export class Rotate45State extends State {
   /**
    * Appelée par événement du SelectManager quand une forme est sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, mouseCoordinates) {
+  objectSelected(shape) {
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 

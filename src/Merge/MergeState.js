@@ -81,7 +81,7 @@ export class MergeState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -90,8 +90,6 @@ export class MergeState extends State {
   /**
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
   objectSelected(shape) {
     if (this.currentStep == 'listen-canvas-click') {
@@ -268,7 +266,7 @@ export class MergeState extends State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  draw(ctx) {
+  draw() {
     if (this.currentStep == 'selecting-second-shape') {
       let shape = this.firstShape,
         borderColor = shape.borderColor;

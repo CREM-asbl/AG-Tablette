@@ -87,9 +87,9 @@ export class CopyState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp(event.detail.mousePos);
+      this.onMouseUp();
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -98,9 +98,8 @@ export class CopyState extends State {
   /**
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, mouseCoordinates) {
+  objectSelected(shape) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.selectedShape = shape;
@@ -114,7 +113,7 @@ export class CopyState extends State {
       this.involvedShapes = [shape];
     }
 
-    this.startClickCoordinates = mouseCoordinates;
+    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
 
     app.removeListener('objectSelected', this.objectSelectedId);
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
@@ -122,14 +121,12 @@ export class CopyState extends State {
     this.animate();
   }
 
-  /**
-   * Appelée lorsque l'événement mouseup est déclanché sur le canvas
-   * @param  {Point} mouseCoordinates les coordonnées de la souris
-   */
-  onMouseUp(mouseCoordinates) {
+  onMouseUp() {
     if (this.currentStep != 'moving-shape') return;
 
-    let translation = mouseCoordinates.subCoordinates(this.startClickCoordinates),
+    let translation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
+        this.startClickCoordinates,
+      ),
       involvedShapesCopies = this.involvedShapes.map(shape => shape.copy()),
       selectedShapeCopy = this.selectedShape.copy();
 
@@ -165,12 +162,13 @@ export class CopyState extends State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(mouseCoordinates) {
+  draw() {
     if (this.currentStep != 'moving-shape') return;
 
-    let transformation = mouseCoordinates.subCoordinates(this.startClickCoordinates);
+    let transformation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
+      this.startClickCoordinates,
+    );
 
     window.dispatchEvent(
       new CustomEvent('draw-group', {

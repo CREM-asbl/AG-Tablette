@@ -83,9 +83,9 @@ export class RotateState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp(event.detail.mousePos);
+      this.onMouseUp();
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -94,15 +94,13 @@ export class RotateState extends State {
   /**
    * Appelée par événement du SelectManager quand une forme est sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
-   * @param  {Event} event            l'événement javascript
    */
-  objectSelected(shape, mouseCoordinates) {
+  objectSelected(shape) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
-    this.initialAngle = shape.center.getAngle(mouseCoordinates);
+    this.initialAngle = shape.center.getAngle(app.workspace.lastKnownMouseCoordinates);
 
     app.workspace.editingShapes = this.involvedShapes;
     this.currentStep = 'rotating-shape';
@@ -111,15 +109,10 @@ export class RotateState extends State {
     this.animate();
   }
 
-  /**
-   * Appelée lorsque l'événement mouseup est déclanché sur le canvas
-   * @param  {Point} mouseCoordinates les coordonnées de la souris
-   * @param  {Event} event            l'événement javascript
-   */
-  onMouseUp(mouseCoordinates) {
+  onMouseUp() {
     if (this.currentStep != 'rotating-shape') return;
 
-    let newAngle = this.selectedShape.center.getAngle(mouseCoordinates);
+    let newAngle = this.selectedShape.center.getAngle(app.workspace.lastKnownMouseCoordinates);
 
     this.actions = [
       {
@@ -138,12 +131,11 @@ export class RotateState extends State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(mouseCoordinates) {
+  draw() {
     if (this.currentStep != 'rotating-shape') return;
 
-    let newAngle = this.selectedShape.center.getAngle(mouseCoordinates),
+    let newAngle = this.selectedShape.center.getAngle(app.workspace.lastKnownMouseCoordinates),
       diffAngle = newAngle - this.initialAngle;
     let center = this.selectedShape.center;
 

@@ -90,9 +90,7 @@ export class DrawManager {
       })
       .forEach(shape => {
         DrawManager.drawShape(app.mainCtx, shape);
-        window.dispatchEvent(
-          new CustomEvent('shapeDrawn', { detail: { ctx: app.mainCtx, shape: shape } }),
-        );
+        window.dispatchEvent(new CustomEvent('shapeDrawn', { detail: { shape: shape } }));
       });
   }
 
@@ -308,7 +306,7 @@ export class DrawManager {
 }
 
 // transform
-window.addEventListener('resetTransformations', event => {
+window.addEventListener('resetTransformations', () => {
   DrawManager.resetTransformations();
 });
 window.addEventListener('translateView', event => {

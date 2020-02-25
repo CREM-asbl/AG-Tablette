@@ -49,7 +49,7 @@ export class CompleteHistory {
     this.steps = object.steps;
     this.startTimestamp = object.startTimestamp;
     this.endTimestamp = object.endTimestamp;
-    this.startShapes = object.startShapes.map((s, idx) => {
+    this.startShapes = object.startShapes.map(s => {
       let shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
       shape.initFromObject(s);
       shape.id = s.id;

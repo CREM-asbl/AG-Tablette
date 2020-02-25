@@ -16,7 +16,7 @@ class completeHistoryTools extends LitElement {
     this.index = 0;
     this.toRender = false;
 
-    window.addEventListener('start-browsing', event => {
+    window.addEventListener('start-browsing', () => {
       this.index = 0;
       this.style.display = 'block';
     });

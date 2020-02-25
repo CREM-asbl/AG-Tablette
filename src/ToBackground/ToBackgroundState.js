@@ -59,7 +59,7 @@ export class ToBackgroundState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -68,9 +68,8 @@ export class ToBackgroundState extends State {
   /**
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, mouseCoordinates) {
+  objectSelected(shape) {
     this.actions = [
       {
         name: 'ToBackgroundAction',

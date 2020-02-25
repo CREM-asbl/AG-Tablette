@@ -1,5 +1,6 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
+import { html } from 'lit-element';
 import { TangramManager } from './TangramManager';
 
 /**

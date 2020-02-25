@@ -59,11 +59,11 @@ export class State {
     });
 
     window.addEventListener('drawUpper', () => {
-      if (this.name == app.state) this.draw(app.workspace.lastKnownMouseCoordinates);
+      if (this.name == app.state) this.draw();
     });
 
     window.addEventListener('shapeDrawn', event => {
-      if (this.name == app.state) this.shapeDrawn(event.detail.ctx, event.detail.shape);
+      if (this.name == app.state) this.shapeDrawn(event.detail.shape);
     });
 
     this.handler = event => this._actionHandle(event);
@@ -78,55 +78,50 @@ export class State {
     return "Aucune aide n'est actuellement disponible pour l'élément sélectionné.";
   }
 
-  //Événements pouvant être définis. Un return false désactivera l'appel à objectSelected
   onClick(mouseCoordinates) {
-    return true;
+    throw new TypeError('method not implemented');
   }
   onMouseDown(mouseCoordinates) {
-    return true;
+    throw new TypeError('method not implemented');
   }
   onMouseMove(mouseCoordinates) {
-    return true;
+    throw new TypeError('method not implemented');
   }
   onMouseUp(mouseCoordinates) {
-    return true;
+    throw new TypeError('method not implemented');
   }
   onTouchStart(touches) {
-    return true;
+    throw new TypeError('method not implemented');
   }
   onTouchMove(touches) {
-    return true;
+    throw new TypeError('method not implemented');
   }
   onTouchEnd(touches) {
-    return true;
+    throw new TypeError('method not implemented');
   }
   onTouchCancel(touches) {
-    return true;
+    throw new TypeError('method not implemented');
   }
 
   /**
    * Appelée par événement du SelectManager quand un objet (point, forme, segment)
-   * est sélectionnée (onClick)
    * @param  {Object} object            L'objet sélectionné (Shape, Segment ou Point)
-   * @param  {Point} mouseCoordinates  Les coordonnées du click
    */
-  objectSelected(object, mouseCoordinates) {
-    return true;
+  objectSelected(object) {
+    throw new TypeError('method not implemented');
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(mouseCoordinates) {}
+  draw() {}
 
   /**
    * Appelée par la fonction de dessin après avoir dessiné une forme sur le
    * canvas principal
-   * @param  {Context2D} ctx   le canvas
-   * @param  {Shape} shape La forme dessinée
+   * @param  {Shape}      shape   La forme dessinée
    */
-  shapeDrawn(ctx, shape) {}
+  shapeDrawn(shape) {}
 
   /**
    * Exécuter les actions liée à l'état.
@@ -175,7 +170,4 @@ export class State {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
   }
-
-  //Appelé par state-menu lors d'un clic sur un des boutons.
-  clickOnStateMenuButton(btn_value) {}
 }

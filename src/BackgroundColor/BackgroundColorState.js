@@ -75,7 +75,7 @@ export class BackgroundColorState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else if (event.type == 'colorChange') {
       this.setColor(event.detail.color);
     } else {

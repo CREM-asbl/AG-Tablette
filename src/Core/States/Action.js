@@ -27,7 +27,7 @@ export class Action {
   }
 
   printIncompleteData() {
-    this.printIncompleteData();
+    throw new TypeError('method not implemented');
   }
 
   initFromObject(save) {

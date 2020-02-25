@@ -59,7 +59,7 @@ export class BifaceState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -68,9 +68,8 @@ export class BifaceState extends State {
   /**
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, mouseCoordinates) {
+  objectSelected(shape) {
     let involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
     this.actions = [
@@ -89,10 +88,9 @@ export class BifaceState extends State {
   /**
    * Appelée par la fonction de dessin après avoir dessiné une forme sur le
    * canvas principal
-   * @param  {Context2D} ctx   le canvas
-   * @param  {Shape} shape La forme dessinée
+   * @param  {Shape}  shape  La forme dessinée
    */
-  shapeDrawn(ctx, shape) {
+  shapeDrawn(shape) {
     const biface = shape.isBiface,
       center = shape.center,
       pos = { x: center.x - 17, y: center.y };

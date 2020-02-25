@@ -120,11 +120,11 @@ export class CompleteHistoryManager {
 
     app.workspace.completeHistory.historyIndex++;
     app.workspace.completeHistory.currentTimestamp = Date.now();
-    let nextTime =
-      app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex].timestamp -
-      app.workspace.completeHistory.startTimestamp -
-      (app.workspace.completeHistory.currentTimestamp -
-        app.workspace.completeHistory.videoStartTimestamp);
+    // let nextTime =
+    //   app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex].timestamp -
+    //   app.workspace.completeHistory.startTimestamp -
+    //   (app.workspace.completeHistory.currentTimestamp -
+    //     app.workspace.completeHistory.videoStartTimestamp);
     app.workspace.completeHistory.timeoutId = setTimeout(
       () => CompleteHistoryManager.executeAllSteps(),
       CompleteHistoryManager.nextTime + 50, // nextTime,
@@ -146,11 +146,11 @@ export class CompleteHistoryManager {
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
-      window.dispatchEvent(new CustomEvent('show-cursor', { detail: detail }));
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+      window.dispatchEvent(new CustomEvent('show-cursor'));
     } else if (type == 'canvasmouseup') {
       window.dispatchEvent(new CustomEvent('click-cursor', { detail: detail }));
-      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+      window.dispatchEvent(new CustomEvent(type));
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
     }

@@ -94,7 +94,7 @@ export class GroupState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -103,9 +103,8 @@ export class GroupState extends State {
   /**
    * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, mouseCoordinates) {
+  objectSelected(shape) {
     //Étapes
     if (this.currentStep == 'listen-canvas-click') {
       let userGroup = GroupManager.getShapeGroup(shape);
@@ -196,10 +195,9 @@ export class GroupState extends State {
   /**
    * Appelée par la fonction de dessin après avoir dessiné une forme sur le
    * canvas principal
-   * @param  {Context2D} ctx   le canvas
-   * @param  {Shape} shape La forme dessinée
+   * @param  {Shape}  shape  La forme dessinée
    */
-  shapeDrawn(ctx, shape) {
+  shapeDrawn(shape) {
     let group = GroupManager.getShapeGroup(shape),
       center = shape.center,
       pos = { x: center.x - 25, y: center.y };

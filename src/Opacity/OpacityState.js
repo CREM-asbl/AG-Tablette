@@ -77,7 +77,7 @@ export class OpacityState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else if (event.type == 'setOpacity') {
       this.setOpacity(event.detail.opacity);
     } else {
@@ -93,9 +93,8 @@ export class OpacityState extends State {
   /**
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
-   * @param  {Point} mouseCoordinates Les coordonnées du click
    */
-  objectSelected(shape, mouseCoordinates) {
+  objectSelected(shape) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     let group = GroupManager.getShapeGroup(shape),

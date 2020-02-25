@@ -61,7 +61,7 @@ export class PermanentZoomState extends State {
     } else if (event.type == 'canvastouchend') {
       this.onTouchEnd(event.detail.touches);
     } else if (event.type == 'canvasmousewheel') {
-      this.onMouseWheel(event.detail.mousePos, event.detail.deltaY);
+      this.onMouseWheel(event.detail.deltaY);
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -129,7 +129,7 @@ export class PermanentZoomState extends State {
     }
   }
 
-  onTouchEnd(touches) {
+  onTouchEnd() {
     if (this.currentStep != 'zooming-plane') return;
 
     let offset = this.lastDist / this.baseDist,
@@ -159,13 +159,14 @@ export class PermanentZoomState extends State {
     this.restart();
   }
 
-  onMouseWheel(mousePos, deltaY) {
+  onMouseWheel(deltaY) {
     if (this.currentStep != 'listen-canvas-click') return;
 
     let actualZoom = app.workspace.zoomLevel,
       minZoom = app.settings.get('minZoomLevel'),
       maxZoom = app.settings.get('maxZoomLevel'),
-      offset = (actualZoom - deltaY / 100) / actualZoom;
+      offset = (actualZoom - deltaY / 100) / actualZoom,
+      mousePos = app.workspace.lastKnownMouseCoordinates;
 
     if (offset * actualZoom > maxZoom) {
       // -> offset*actualZoom = maxZoom

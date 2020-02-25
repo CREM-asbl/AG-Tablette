@@ -78,7 +78,7 @@ export class CutState extends State {
 
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object, event.detail.mousePos);
+      this.objectSelected(event.detail.object);
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -171,9 +171,8 @@ export class CutState extends State {
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw(ctx) {
+  draw() {
     if (this.currentStep == 'select-second-point') {
       window.dispatchEvent(
         new CustomEvent('draw-point', {
