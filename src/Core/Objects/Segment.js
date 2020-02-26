@@ -312,6 +312,18 @@ export class Segment {
   }
 
   /**
+   * divide a segment with points and return the subsegments
+   * @param {Point[]} points the points for the divide
+   */
+  divideWith(points) {
+    points.sort((pt1, pt2) => (pt1.dist(this.vertexes[0]) > pt2.dist(this.vertexes[0]) ? 1 : -1));
+    let newSegments = [this.vertexes[0], ...points, this.vertexes[1]]
+      .map((pt, idx, pts) => (idx == 0 ? undefined : new Segment(pts[idx - 1], pt)))
+      .slice(1);
+    return newSegments;
+  }
+
+  /**
    * Find the point's projection on this.
    *
    * For circle : https://math.stackexchange.com/questions/1744354/project-a-point-within-a-circle-onto-its-edge

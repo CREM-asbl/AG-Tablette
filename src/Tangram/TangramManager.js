@@ -98,94 +98,36 @@ export class TangramManager {
     let oldSegments = shapes.map(s => s.segments.map(seg => seg.copy())).flat(),
       oldSegmentsSave = oldSegments.map(seg => seg.copy());
 
+    let cutSegments = oldSegments
+      .map((segment, idx, segments) => {
+        let vertexesInside = segments
+          .filter((seg, i) => i != idx)
+          .map(seg =>
+            seg.vertexes.filter(
+              vertex =>
+                segment.isPointOnSegment(vertex) &&
+                !segment.vertexes.some(vert => vert.equal(vertex)),
+            ),
+          )
+          .flat()
+          .filter((vertex, idx, vertexes) => vertexes.findIndex(v => v.equal(vertex)) == idx);
+        if (vertexesInside.length) return segment.divideWith(vertexesInside);
+        else return segment;
+      })
+      .flat();
+
     // TODO replace indexes by real segments
 
     // delete common segments
     let newSegments = [];
-    oldSegments.forEach((seg, i, segments) => {
+    cutSegments.forEach((seg, i, segments) => {
       if (seg.used) return;
-      let indexes = oldSegments
-        .map((segment, idx) => {
-          if (segment.equal(seg)) {
-            return idx;
-          }
-        })
-        .filter(el => el !== undefined);
-      if (indexes.length == 1) newSegments.push(seg);
-      else indexes.forEach(idx => (segments[idx].used = true));
+      let segs = segments
+        .map(segment => (segment.equal(seg) ? segment : undefined))
+        .filter(Boolean);
+      if (segs.length == 1) newSegments.push(seg);
+      else segs.forEach(seg => (seg.used = true));
     });
-
-    // delete segments inside others
-    newSegments.forEach(seg => (seg.used = false));
-    oldSegments = newSegments;
-    newSegments = [];
-    oldSegments.forEach((seg, i, segments) => {
-      if (seg.used) return;
-      let indexes = oldSegments
-        .map((segment, idx) => {
-          if (idx != i && seg.isSubsegment(segment)) {
-            return idx;
-          }
-        })
-        .filter(el => el !== undefined);
-      if (indexes.length != 0) {
-        segments[i].used = true;
-        indexes.forEach(idx => (segments[idx].used = true));
-        let subsegs = indexes.map(idx => segments[idx]);
-        subsegs.forEach(subseg => !subseg.hasSameDirection(seg) && subseg.reverse());
-        subsegs.sort((subseg1, subseg2) =>
-          subseg1.vertexes[1].dist(seg.vertexes[1]) < subseg2.vertexes[1].dist(seg.vertexes[1])
-            ? 1
-            : -1,
-        );
-        let currentSegment = seg;
-        subsegs.forEach(subseg => {
-          if (!subseg.vertexes[0].equal(currentSegment.vertexes[0]))
-            newSegments.push(new Segment(currentSegment.vertexes[0], subseg.vertexes[0]));
-          currentSegment = new Segment(subseg.vertexes[1], currentSegment.vertexes[1]);
-        });
-        if (currentSegment.length > 0.001) newSegments.push(currentSegment);
-      }
-    });
-    oldSegments.forEach(seg => {
-      return !seg.used ? newSegments.push(seg) : undefined;
-    });
-
-    // resize segments that share subSegments with others
-    newSegments.forEach(seg => (seg.used = false));
-    oldSegments = newSegments;
-    newSegments = [];
-    for (let i = 0; i < oldSegments.length; i++) {
-      let seg = oldSegments[i];
-      let commonSegmentIdx = oldSegments.findIndex(
-        (segment, idx) =>
-          idx != i &&
-          seg.subSegments.some(subseg =>
-            segment.subSegments.some(subseg2 => subseg.equal(subseg2)),
-          ),
-      );
-      if (commonSegmentIdx == -1) continue;
-      let commonSegment = oldSegments[commonSegmentIdx];
-      let junction = seg.subSegments
-        .filter(subseg => commonSegment.subSegments.some(subseg2 => subseg.equal(subseg2)))
-        .sort((seg1, seg2) => (seg1.length < seg2.length ? 1 : -1))[0];
-      !commonSegment.hasSameDirection(seg) && commonSegment.reverse();
-      !junction.hasSameDirection(seg) && junction.reverse();
-      let createdSegments = [];
-      if (!seg.vertexes[0].equal(junction.vertexes[0]))
-        createdSegments.push(new Segment(seg.vertexes[0], junction.vertexes[0]));
-      if (!seg.vertexes[1].equal(junction.vertexes[1]))
-        createdSegments.push(new Segment(seg.vertexes[1], junction.vertexes[1]));
-      if (!commonSegment.vertexes[0].equal(junction.vertexes[0]))
-        createdSegments.push(new Segment(commonSegment.vertexes[0], junction.vertexes[0]));
-      if (!commonSegment.vertexes[1].equal(junction.vertexes[1]))
-        createdSegments.push(new Segment(commonSegment.vertexes[1], junction.vertexes[1]));
-      let indexToRemove = [i, commonSegmentIdx].sort((idx1, idx2) => idx1 - idx2);
-      oldSegments.splice(indexToRemove[1], 1);
-      oldSegments.splice(indexToRemove[0], 1, ...createdSegments);
-      i = -1;
-    }
-    newSegments = oldSegments;
 
     let internalSegments = oldSegmentsSave.filter(
       oldSeg => !newSegments.some(newSeg => oldSeg.isSubsegment(newSeg)),
