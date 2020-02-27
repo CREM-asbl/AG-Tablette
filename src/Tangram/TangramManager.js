@@ -80,7 +80,7 @@ export class TangramManager {
     shape.color = '#000';
     shape.second_color = getComplementaryColor(shape.color);
     shape.opacity = 1;
-    let silhouette = new Silhouette(shape);
+    let silhouette = new Silhouette([shape]);
     return silhouette;
   }
 
@@ -115,8 +115,6 @@ export class TangramManager {
         else return segment;
       })
       .flat();
-
-    // TODO replace indexes by real segments
 
     // delete common segments
     let newSegments = [];
@@ -294,12 +292,13 @@ export class TangramManager {
    * @return {Point}
    */
   static getNearTangramPoint(point) {
-    let shape = app.tangram.silhouette.shape;
+    const shapes = app.tangram.silhouette.shapes,
+      allPoints = shapes.map(s => s.allPoints).flat();
 
     let bestPoint = null,
       bestDist = 1000 * 1000 * 1000;
 
-    shape.allPoints.forEach(tangramPt => {
+    allPoints.forEach(tangramPt => {
       if (SelectManager.arePointsInMagnetismDistance(point, tangramPt)) {
         let dist = point.dist(tangramPt);
         if (dist < bestDist) {

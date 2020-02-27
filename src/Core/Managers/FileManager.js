@@ -126,8 +126,10 @@ export class FileManager {
   }
 
   static drawTangramToSvg() {
-    if (app.tangram && app.tangram.silhouette) return app.tangram.silhouette.shape.to_svg();
-    else return '';
+    let svg_data = '';
+    if (app.tangram && app.tangram.silhouette)
+      svg_data = app.tangram.silhouette.shapes.map(s => s.to_svg()).join('\n');
+    return svg_data;
   }
 
   static saveToSvg(handle) {

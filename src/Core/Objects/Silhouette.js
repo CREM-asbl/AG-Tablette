@@ -6,23 +6,25 @@ import { Shape } from './Shape';
  */
 export class Silhouette {
   /**
-   * Constructeur
-   * @param {Shape} shapeId1   La première forme du groupe
-   * @param {Shape} shapeId2   La seconde forme du groupe
+   *
+   * @param {Shape[]} shapes les shapes représentant la silhouette
    */
-  constructor(shape) {
-    this.shape = shape;
+  constructor(shapes) {
+    this.shapes = shapes;
   }
 
   saveToObject() {
     let save = {
-      shape: this.shape.saveToObject(),
+      shapes: this.shapes.map(s => s.saveToObject()),
     };
     return save;
   }
 
   initFromObject(save) {
-    this.shape = new Shape({ x: 0, y: 0 }, null);
-    this.shape.initFromObject(save.shape);
+    this.shapes = save.shapes.map(s => {
+      let newShape = new Shape({ x: 0, y: 0 }, null);
+      newShape.initFromObject(s);
+      return newShape;
+    });
   }
 }

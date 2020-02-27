@@ -49,46 +49,63 @@ class CanvasButton extends LitElement {
    * dessine l'image sur le bouton
    */
   refresh() {
-    let shape, family;
+    let shapes, family, scale, center;
 
     if (this.silhouetteIdx == undefined) {
-      const families = app.environment.families;
-      family = families.find(fam => fam.name == this.familyName);
-      shape = family.shapes.find(shape => shape.name === this.shapeName) || family.shapes[0];
+      family = app.environment.families.find(fam => fam.name == this.familyName);
+      shapes = [family.shapes.find(shape => shape.name === this.shapeName) || family.shapes[0]];
     } else {
-      shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
-      shape.initFromObject(app.CremTangrams[this.silhouetteIdx].tangramData.silhouette.shape);
+      shapes = app.CremTangrams[this.silhouetteIdx].tangramData.silhouette.shapes.map(s => {
+        let newShape = new Shape({ x: 0, y: 0 }, null, name, this.name);
+        newShape.initFromObject(s);
+        return newShape;
+      });
     }
 
-    const isCircle = shape.isCircle(),
-      bounds = shape.bounds,
-      minX = bounds[0],
-      maxX = bounds[1],
-      minY = bounds[2],
-      maxY = bounds[3],
-      largeur = maxX - minX,
-      hauteur = maxY - minY,
-      scale = isCircle ? 0.42 : 40 / Math.max(largeur, hauteur),
-      center = isCircle
-        ? shape.segments[0].arcCenter
-        : new Point((minX + largeur / 2) * scale, (minY + hauteur / 2) * scale),
-      centerOffset = new Point(26 - center.x, 26 - center.y);
+    if (shapes.length == 1 && shapes[0].isCircle()) {
+      scale = 0.42; // arbitraire
+      center = shapes[0].segments[0].arcCenter;
+    } else {
+      let minsX = [],
+        maxsX = [],
+        minsY = [],
+        maxsY = [];
+      shapes.forEach(s => {
+        const bounds = s.bounds;
+        minsX.push(bounds[0]);
+        maxsX.push(bounds[1]);
+        minsY.push(bounds[2]);
+        maxsY.push(bounds[3]);
+      });
+      const minX = Math.min(...minsX),
+        maxX = Math.max(...maxsX),
+        minY = Math.min(...minsY),
+        maxY = Math.max(...maxsY),
+        largeur = maxX - minX,
+        hauteur = maxY - minY;
+      scale = 40 / Math.max(largeur, hauteur);
+      center = new Point((minX + largeur / 2) * scale, (minY + hauteur / 2) * scale);
+    }
+
+    const centerOffset = new Point(26 - center.x, 26 - center.y);
 
     const canvas = this.shadowRoot.querySelector('canvas'),
       ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
-    ctx.strokeStyle = '#000';
-    ctx.fillStyle = shape.color || family.defaultColor;
     ctx.translate(centerOffset.x, centerOffset.y);
     ctx.scale(scale, scale);
 
     if (this.silhouetteIdx == undefined) {
-      const path = shape.getPath();
+      ctx.strokeStyle = '#000';
+      ctx.fillStyle = shapes[0].color || family.defaultColor;
+      const path = shapes[0].getPath();
       ctx.fill(path);
       ctx.stroke(path);
     } else {
-      window.dispatchEvent(new CustomEvent('draw-shape', { detail: { ctx: ctx, shape: shape } }));
+      shapes.forEach(s =>
+        window.dispatchEvent(new CustomEvent('draw-shape', { detail: { ctx: ctx, shape: s } })),
+      );
     }
     ctx.restore();
   }

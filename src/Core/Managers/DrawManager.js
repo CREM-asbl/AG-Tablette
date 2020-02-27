@@ -69,7 +69,7 @@ export class DrawManager {
     if (app.environment.name == 'Tangram' && app.tangram && app.tangram.silhouette) {
       // let { type, id } = app.workspace.settings.get('shownTangram');
       // let tangram = app.tangramManager.getTangram(type, id);
-      DrawManager.drawShape(app.backgroundCtx, app.tangram.silhouette.shape);
+      app.tangram.silhouette.shapes.forEach(s => DrawManager.drawShape(app.backgroundCtx, s));
       // tangram.polygons.forEach(polygon => {
       //   DrawManager.drawPoint(app.backgroundCtx, polygon[0], '#E90CC8', 1);
       //   for (let i = 0; i < polygon.length - 1; i++) {
