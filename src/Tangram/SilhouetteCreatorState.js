@@ -8,7 +8,7 @@ import { TangramManager } from './TangramManager';
  */
 export class SilhouetteCreatorState extends State {
   constructor() {
-    super('silhouette-creator', 'Créer Tangram', 'tool');
+    super('silhouette-creator', 'Créer Tangram', 'tangram');
 
     // selecting-polygons -> selecting-shapes
     this.currentStep = null;

@@ -80,6 +80,7 @@ export class TangramManager {
     shape.color = '#000';
     shape.second_color = getComplementaryColor(shape.color);
     shape.opacity = 1;
+    // shape.scale(0.5, 0.5);
     let silhouette = new Silhouette([shape]);
     return silhouette;
   }

@@ -8,7 +8,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
  */
 export class Rotate45State extends State {
   constructor() {
-    super('rotate45', 'Tourner', 'move');
+    super('rotate45', 'Tourner à 45°', 'move');
 
     //La forme que l'on déplace
     this.selectedShape = null;

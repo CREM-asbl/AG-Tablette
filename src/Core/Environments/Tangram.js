@@ -1,5 +1,8 @@
 import './Common';
 
+import { SilhouetteCreatorState } from '../../Tangram/SilhouetteCreatorState';
+import '../../Tangram/TangramManager';
+
 import { GroupState } from '../../Group/GroupState';
 import { GroupAction } from '../../Group/GroupAction';
 
@@ -12,18 +15,10 @@ import { BackgroundColorAction } from '../../BackgroundColor/BackgroundColorActi
 import { BorderColorState } from '../../BorderColor/BorderColorState';
 import { BorderColorAction } from '../../BorderColor/BorderColorAction';
 
-import { OpacityState } from '../../Opacity/OpacityState';
-import { OpacityAction } from '../../Opacity/OpacityAction';
-
-import { BifaceState } from '../../Biface/BifaceState';
-import { BifaceAction } from '../../Biface/BifaceAction';
-
 import { Rotate45State } from '../../Rotate45/Rotate45State';
 import { Rotate45Action } from '../../Rotate45/Rotate45Action';
 
-import { SilhouetteCreatorState } from '../../Tangram/SilhouetteCreatorState';
-import { TangramState } from '../../Tangram/TangramState';
-import '../../Tangram/TangramManager';
+new SilhouetteCreatorState();
 
 new GroupState();
 new GroupAction();
@@ -37,16 +32,9 @@ new BackgroundColorAction();
 new BorderColorState();
 new BorderColorAction();
 
-new OpacityState();
-new OpacityAction();
-
-new BifaceState();
-new BifaceAction();
-
 new Rotate45State();
 new Rotate45Action();
 
-new SilhouetteCreatorState();
-new TangramState();
+// new TangramState();
 
 window.dispatchEvent(new CustomEvent('env-created'));
