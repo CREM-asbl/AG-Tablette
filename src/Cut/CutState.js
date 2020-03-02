@@ -227,8 +227,10 @@ export class CutState extends State {
 
   /**
    * Vérifie si le segment de droite reliant pt1 et pt2 reste bien à
-   * l'intérieur de la forme ou non, et qu'il y a au moins un point de ce
-   * segment qui n'est pas au bord de la forme.
+   * l'intérieur de la forme ou non, qu'il y a au moins un point de ce
+   * segment qui n'est pas au bord de la forme, et qu'il n'intersecte pas
+   * un segment 'interne' formé par une merge sans tous les segments
+   * qui collent parfaitement.
    * Vérifie également qu'il n'y a pas un autre sommet de la forme sur cette
    * droite.
    * @param  {Shape}  shape
@@ -239,7 +241,7 @@ export class CutState extends State {
   isLineValid(shape, pt1, pt2) {
     let length = pt1.dist(pt2),
       part = pt2.subCoordinates(pt1).multiplyWithScalar(1 / length),
-      precision = 1, //px
+      precision = 1, // px
       amountOfParts = length / precision,
       pointsInBorder = 0;
     for (let i = 1; i < amountOfParts; i++) {
@@ -248,12 +250,13 @@ export class CutState extends State {
       pointsInBorder += shape.isPointInBorder(pt) ? 1 : 0;
     }
     if (pointsInBorder > 40 * precision) return false;
+    const junction = new Segment(pt1, pt2);
+    if (shape.segments.some(seg => seg.doesIntersect(junction, false, true))) return false;
 
-    return shape.vertexes.every(vertex => {
-      return (
-        vertex.equal(pt1) || vertex.equal(pt2) || !new Segment(pt1, pt2).isPointOnSegment(vertex)
-      );
-    });
+    return shape.vertexes.every(
+      vertex =>
+        vertex.equal(pt1) || vertex.equal(pt2) || !new Segment(pt1, pt2).isPointOnSegment(vertex),
+    );
   }
 
   setSelConstraints(step) {
