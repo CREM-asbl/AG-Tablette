@@ -27,7 +27,7 @@ export class Action {
   }
 
   printIncompleteData() {
-    throw new TypeError('method not implemented');
+    console.log('Incomplete data for ', this.name, ', with object ', this);
   }
 
   initFromObject(save) {

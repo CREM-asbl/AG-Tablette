@@ -13,12 +13,17 @@ export class CutState extends State {
     super('cut', 'Découper', 'operation');
 
     // listen-canvas-click -> select-second-point -> select-third-point -> showing-points
-    //                                            -> showing-points
     this.currentStep = null;
 
     this.timeoutRef = null;
 
     this.shape = null;
+
+    this.firstPoint = null;
+
+    this.secondPoint = null;
+
+    this.centerPoint = null;
 
     this.drawColor = '#E90CC8';
   }
@@ -95,8 +100,17 @@ export class CutState extends State {
       //On a sélectionné le premier point
       this.shape = object.shape;
       this.firstPoint = object;
-      this.currentStep = 'select-second-point';
-      this.setSelConstraints(this.currentStep);
+      if (this.shape.isSegment() && this.firstPoint.type == 'segmentPoint') {
+        this.currentStep = 'showing-points';
+        this.secondPoint = null;
+        window.clearTimeout(this.timeoutRef);
+        this.timeoutRef = window.setTimeout(() => {
+          this.execute();
+        }, 500);
+      } else {
+        this.currentStep = 'select-second-point';
+        this.setSelConstraints(this.currentStep);
+      }
     } else if (this.currentStep == 'select-second-point') {
       const pt1 = this.firstPoint,
         pt2 = object;
@@ -196,11 +210,12 @@ export class CutState extends State {
           detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
         }),
       );
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: { point: this.secondPoint, color: this.drawColor, size: 2 },
-        }),
-      );
+      if (this.secondPoint)
+        window.dispatchEvent(
+          new CustomEvent('draw-point', {
+            detail: { point: this.secondPoint, color: this.drawColor, size: 2 },
+          }),
+        );
       if (this.centerPoint)
         window.dispatchEvent(
           new CustomEvent('draw-point', {
