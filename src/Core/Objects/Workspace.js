@@ -91,11 +91,7 @@ export class Workspace {
   initFromObject(wsdata) {
     this.id = wsdata.id;
 
-    this.shapes = wsdata.shapes.map(sData => {
-      let shape = new Shape({ x: 0, y: 0 }, []);
-      shape.initFromObject(sData);
-      return shape;
-    });
+    this.shapes = wsdata.shapes.map(sData => Shape.createFromObject(sData));
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);

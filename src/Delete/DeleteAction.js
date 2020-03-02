@@ -35,12 +35,7 @@ export class DeleteAction extends Action {
   initFromObject(save) {
     this.mode = save.mode;
     if (save.mode == 'shape') {
-      this.involvedShapes = save.involvedShapes.map(shape => {
-        let newShape = new Shape({ x: 0, y: 0 }, []);
-        newShape.initFromObject(shape);
-        newShape.id = shape.id;
-        return newShape;
-      });
+      this.involvedShapes = save.involvedShapes.map(shape => Shape.createFromObject(shape));
       this.involvedShapesIndexes = save.involvedShapesIndexes;
       if (!save.involvedShapesIndexes) {
         // for update history from 1.0.0

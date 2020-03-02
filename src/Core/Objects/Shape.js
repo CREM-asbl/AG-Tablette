@@ -539,6 +539,18 @@ export class Shape {
     this.opacity = save.opacity;
   }
 
+  /**
+   * crée une nouvelle instance de Shape à partir d'un objet
+   * @param {Shape}     save      l'object exemple
+   * @param {number}    newId     l'id de la nouvelle forme à créer
+   */
+  static createFromObject(save, newId = undefined) {
+    let newShape = new Shape({ x: 0, y: 0 }, null);
+    newShape.initFromObject(save);
+    if (newId) newShape.id = newId;
+    return newShape;
+  }
+
   static retrieveFrom(shape) {
     return app.workspae.getShapeById(shape.id);
   }

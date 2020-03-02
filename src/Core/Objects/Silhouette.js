@@ -21,10 +21,6 @@ export class Silhouette {
   }
 
   initFromObject(save) {
-    this.shapes = save.shapes.map(s => {
-      let newShape = new Shape({ x: 0, y: 0 }, null);
-      newShape.initFromObject(s);
-      return newShape;
-    });
+    this.shapes = save.shapes.map(s => Shape.createFromObject(s));
   }
 }

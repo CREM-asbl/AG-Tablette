@@ -55,11 +55,9 @@ class CanvasButton extends LitElement {
       family = app.environment.families.find(fam => fam.name == this.familyName);
       shapes = [family.shapes.find(shape => shape.name === this.shapeName) || family.shapes[0]];
     } else {
-      shapes = app.CremTangrams[this.silhouetteIdx].tangramData.silhouette.shapes.map(s => {
-        let newShape = new Shape({ x: 0, y: 0 }, null, name, this.name);
-        newShape.initFromObject(s);
-        return newShape;
-      });
+      shapes = app.CremTangrams[this.silhouetteIdx].tangramData.silhouette.shapes.map(s =>
+        Shape.createFromObject(s),
+      );
     }
 
     if (shapes.length == 1 && shapes[0].isCircle()) {
