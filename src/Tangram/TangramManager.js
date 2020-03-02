@@ -49,18 +49,20 @@ export class TangramManager {
 
   static createSilhouette(shapes, silhouetteMode) {
     let { newSegments, internalSegments } = TangramManager.checkGroupMerge(shapes);
-    if (!newSegments)
+    if (!newSegments) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
-          detail: { message: 'Formes creuses ou en plusieurs morceaux' },
+          detail: { message: 'Certaines formes se superposent' },
         }),
       );
+      return;
+    }
 
     newSegments = TangramManager.linkNewSegments(newSegments);
     if (!newSegments) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
-          detail: { message: 'Formes creuses ou en plusieurs morceaux' },
+          detail: { message: 'La silhouette formée crée une forme creuse' },
         }),
       );
       return;
@@ -75,13 +77,16 @@ export class TangramManager {
 
   static getSilhouetteFromSegments(segments, internalSegments) {
     let shapes = segments.map(segs => {
-      let shape = new Shape({ x: 0, y: 0 }, null, 'silhouette', 'tangram');
-      shape.setSegments(segs);
-      // shape.setInternalSegments(internalSegments);
-      shape.color = '#000';
-      shape.second_color = getComplementaryColor(shape.color);
-      shape.opacity = 1;
-      return shape;
+      let newShape = new Shape({ x: 0, y: 0 }, null, 'silhouette', 'tangram');
+      newShape.setSegments(segs);
+      newShape.color = '#000';
+      newShape.second_color = getComplementaryColor(newShape.color);
+      newShape.opacity = 1;
+      let newShapeInternalSegment = internalSegments.filter(
+        seg => newShape.isPointInPath(seg.vertexes[0]) && newShape.isPointInPath(seg.vertexes[1]),
+      );
+      newShape.setInternalSegments(newShapeInternalSegment);
+      return newShape;
     });
     let silhouette = new Silhouette(shapes);
     return silhouette;
@@ -96,7 +101,7 @@ export class TangramManager {
         }),
       )
     )
-      return null;
+      return { newSegments: null, internalSegments: null };
 
     let oldSegments = shapes.map(s => s.segments.map(seg => seg.copy())).flat(),
       oldSegmentsSave = oldSegments.map(seg => seg.copy());
