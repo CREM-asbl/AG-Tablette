@@ -74,14 +74,16 @@ export class TangramManager {
   }
 
   static getSilhouetteFromSegments(segments, internalSegments) {
-    let shape = new Shape({ x: 0, y: 0 }, null, 'silhouette', 'tangram');
-    shape.setSegments(segments);
-    shape.setInternalSegments(internalSegments);
-    shape.color = '#000';
-    shape.second_color = getComplementaryColor(shape.color);
-    shape.opacity = 1;
-    // shape.scale(0.5, 0.5);
-    let silhouette = new Silhouette([shape]);
+    let shapes = segments.map(segs => {
+      let shape = new Shape({ x: 0, y: 0 }, null, 'silhouette', 'tangram');
+      shape.setSegments(segs);
+      // shape.setInternalSegments(internalSegments);
+      shape.color = '#000';
+      shape.second_color = getComplementaryColor(shape.color);
+      shape.opacity = 1;
+      return shape;
+    });
+    let silhouette = new Silhouette(shapes);
     return silhouette;
   }
 
@@ -137,47 +139,50 @@ export class TangramManager {
 
   static linkNewSegments(segmentsList) {
     // Todo : Voir si on ne peut pas la simplifier
-    let newSegments = [];
+    let newSegments = [],
+      nextSegment,
+      segmentUsed = 0;
 
-    // segment beeing in use (may be prolongated)
-    let currentSegment = segmentsList[0].copy(false);
-    // last segment used (not modified)
-    let lastSegment = currentSegment;
-    let firstSegment = currentSegment;
-    let nextSegment;
-    let segmentUsed = 0;
+    while (segmentUsed != segmentsList.length) {
+      // segment beeing in use (may be prolongated)
+      let currentSegment = segmentsList.find(seg => !seg.isUsed),
+        // first segment used (not modified)
+        firstSegment = currentSegment,
+        newSegmentsSet = [];
 
-    newSegments.push(currentSegment);
-    segmentUsed++;
-
-    while (!firstSegment.vertexes[0].equal(currentSegment.vertexes[1])) {
-      // while not closed
-      const newPotentialSegments = segmentsList.filter(
-        seg => !seg.equal(lastSegment) && seg.contains(currentSegment.vertexes[1], false),
-      );
-      if (newPotentialSegments.length != 1) {
-        if (newPotentialSegments.length == 0) console.log('shape cannot be closed (dead end)');
-        else console.log('shape is dig (a segment has more than one segment for next)');
-        return null;
-      }
-      nextSegment = newPotentialSegments[0].copy(false);
-      if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse(true);
-
-      if (currentSegment.hasSameDirection(nextSegment, 1, 0, false)) {
-        currentSegment.vertexes[1] = nextSegment.vertexes[1];
-      } else {
-        newSegments.push(nextSegment);
-        currentSegment = nextSegment;
-      }
+      currentSegment.isUsed = true;
+      newSegmentsSet.push(currentSegment);
       segmentUsed++;
-      lastSegment = nextSegment;
-    }
-    if (segmentUsed != segmentsList.length) {
-      console.log('shape is dig (not all segments have been used)');
-      return null;
-    }
-    if (newSegments.length != 1 && currentSegment.hasSameDirection(firstSegment, 1, 0, false)) {
-      newSegments[0].vertexes[0] = newSegments.pop().vertexes[0];
+
+      while (!firstSegment.vertexes[0].equal(currentSegment.vertexes[1])) {
+        // while not closed
+        const newPotentialSegments = segmentsList.filter(
+          seg => !seg.isUsed && seg.contains(currentSegment.vertexes[1], false),
+        );
+        if (newPotentialSegments.length != 1) {
+          if (newPotentialSegments.length == 0) console.log('shape cannot be closed (dead end)');
+          else console.log('shape is dig (a segment has more than one segment for next)');
+          return null;
+        }
+        nextSegment = newPotentialSegments[0].copy(false);
+        newPotentialSegments[0].isUsed = true;
+        if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse(true);
+
+        if (currentSegment.hasSameDirection(nextSegment, 1, 0, false)) {
+          currentSegment.vertexes[1] = nextSegment.vertexes[1];
+        } else {
+          newSegmentsSet.push(nextSegment);
+          currentSegment = nextSegment;
+        }
+        segmentUsed++;
+      }
+      if (
+        newSegmentsSet.length != 1 &&
+        currentSegment.hasSameDirection(firstSegment, 1, 0, false)
+      ) {
+        newSegmentsSet[0].vertexes[0] = newSegmentsSet.pop().vertexes[0];
+      }
+      newSegments.push(newSegmentsSet);
     }
     return newSegments;
   }
