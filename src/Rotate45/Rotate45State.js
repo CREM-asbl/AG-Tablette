@@ -27,14 +27,12 @@ export class Rotate45State extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Tourner';
+    let toolName = 'Tourner à 45°';
     return html`
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une forme, puis glissez votre doigt sans relacher la forme pour la faire tourner. La
-        forme tourne autour de son centre, qui est affiché lors de la rotation. Faites tournez votre
-        doigt autour de ce centre pour faire tourner la forme.
+        Cliquez sur une forme pour la faire tourner de 45° dans le sens horloger.
       </p>
     `;
   }
