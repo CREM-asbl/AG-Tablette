@@ -28,7 +28,7 @@ export class SilhouetteCreatorState extends State {
 
     window.addEventListener('new-window', () => this.finish());
 
-    window.addEventListener('app-state-changed', () => app.state == 'tangram' && this.finish());
+    // window.addEventListener('app-state-changed', () => this.finish());
   }
 
   /**
@@ -46,37 +46,40 @@ export class SilhouetteCreatorState extends State {
         text: 'Créer silhouette',
         value: 'end',
       },
-      // {
-      //   text: 'Supprimer le dernier polygone',
-      //   value: 'delete_last_polygon',
-      // },
-      // {
-      //   text: 'Télécharger le tangram',
-      //   value: 'end_shapes',
-      // },
     ];
 
     this.showStateMenu();
-    addEventListener('state-menu-button-click', e => this.clickOnStateMenuButton(e.detail));
+    window.addEventListener('state-menu-button-click', this.handler);
 
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   restart() {
     app.workspace.shapes = [];
+    app.tangram.silhouette = null;
     TangramManager.showShapes();
 
     app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   finish() {
     window.dispatchEvent(new CustomEvent('close-state-menu'));
+    window.removeEventListener('state-menu-button-click', this.handler);
     TangramManager.hideShapes();
   }
 
   end() {
-    // document.querySelector('state-menu').remove();
     // TangramManager.hideShapes();
+  }
+
+  _actionHandle(event) {
+    if (event.type == 'state-menu-button-click') {
+      this.clickOnStateMenuButton(event.detail);
+    } else {
+      console.log('unsupported event type : ', event.type);
+    }
   }
 
   /**
@@ -90,7 +93,7 @@ export class SilhouetteCreatorState extends State {
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
         Pour créer une nouvelle silhouette, disposez les formes comme vous le désirez, <br />
-        en veillant à ce que toutes les formes soient reliées par au moins un segment. <br />
+        en veillant à ce qu'aucunes formes ne se supersopent. <br />
         Cliquez sur le bouton "Créer silhouette" une fois que vous avez terminé. <br />
       </p>
     `;
@@ -101,10 +104,11 @@ export class SilhouetteCreatorState extends State {
       this.silhouetteMode = confirm('Sauvegarder les segments internes de la silhouette ?')
         ? 'withInternalSegment'
         : 'noInternalSegment';
-      let silhouette = TangramManager.createSilhouette(app.workspace.shapes, this.silhouetteMode);
-      app.tangram.silhouette = silhouette;
-
-      window.dispatchEvent(new CustomEvent('refreshBackground'));
+      window.dispatchEvent(
+        new CustomEvent('create-silhouette', {
+          detail: { shapes: app.workspace.shapes, silhouetteMode: this.silhouetteMode },
+        }),
+      );
     }
   }
 

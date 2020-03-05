@@ -44,4 +44,9 @@ export class Tangram {
       this.silhouette.initFromObject(data.silhouette);
     }
   }
+
+  copy() {
+    let silhouetteCopy = this.silhouette ? this.silhouette.copy() : undefined;
+    return new Tangram(this.name, this.shapes.map(s => s.copy()), silhouetteCopy);
+  }
 }

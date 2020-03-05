@@ -31,6 +31,7 @@ export class CompleteHistoryManager {
     app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(gr =>
       gr.copy(true),
     );
+    app.tangram = app.workspace.completeHistory.startTangram.copy();
     app.workspace.history = new History();
   }
 
@@ -152,6 +153,7 @@ export class CompleteHistoryManager {
       window.dispatchEvent(new CustomEvent('click-cursor', { detail: detail }));
       window.dispatchEvent(new CustomEvent(type));
     } else {
+      console.log(type, detail);
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
     }
     // console.log(type, detail);
@@ -237,6 +239,15 @@ window.addEventListener('mouse-coordinates-changed', event =>
 
 window.addEventListener('actions-executed', event =>
   CompleteHistoryManager.addStep('actions-executed', event),
+);
+
+// tangram
+// window.addEventListener('state-menu-button-click', event =>
+//   CompleteHistoryManager.addStep('state-menu-button-click', event),
+// );
+
+window.addEventListener('create-silhouette', event =>
+  CompleteHistoryManager.addStep('create-silhouette', event),
 );
 
 // undo - redo

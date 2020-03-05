@@ -6,26 +6,11 @@ import { SelectManager } from '../Core/Managers/SelectManager';
 import { Tangram } from './Tangram';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
-
-app.tangrams = { main: [], local: [] };
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
 export class TangramManager {
-  // static hide() {
-  //   app.workspace.settings.set('isTangramShown', false);
-  // }
-
-  // static show(tangramType, tangramId) {
-  //   app.workspace.settings.set('isTangramShown', true);
-  //   app.workspace.settings.set('shownTangram', {
-  //     type: tangramType,
-  //     id: tangramId,
-  //   });
-  // }
-
   static showShapes() {
     app.tangram.shapes.forEach(s => ShapeManager.addShape(s.copy()));
   }
@@ -72,7 +57,9 @@ export class TangramManager {
       newSegments,
       silhouetteMode == 'withInternalSegment' ? internalSegments : [],
     );
-    return silhouette;
+    app.tangram.silhouette = silhouette;
+
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   static getSilhouetteFromSegments(segments, internalSegments) {
@@ -203,18 +190,7 @@ export class TangramManager {
     document.querySelector('body').appendChild(popup);
   }
 
-  // static addLocalTangram(tangram) {
-  //   app.tangrams.local.push(tangram);
-  //   let ls = window.localStorage,
-  //     amount = parseInt(ls.getItem('AG_TangramsAmount')),
-  //     object = tangram.saveToObject(),
-  //     json = JSON.stringify(object);
-  //   ls.setItem('AG_TangramsAmount', amount + 1);
-  //   ls.setItem('AG_TangramsList_TG' + amount, json);
-  // }
-
   static retrieveTangrams() {
-    //Main
     if (!app || app.CremTangrams.length) return;
 
     fetch('./src/Tangram/CremTangrams/square.agt')
@@ -234,67 +210,7 @@ export class TangramManager {
         let object = JSON.parse(text);
         if (object) app.CremTangrams.push(object);
       });
-
-    // const //fs = require('fs'),
-    //   dirname = '../CremTangrams';
-
-    // // function readFiles(dirname, onFileContent, onError) {
-    // fs.readdir(dirname, (err, filenames) => {
-    //   if (err) {
-    //     console.error(err);
-    //     return;
-    //   }
-    //   filenames.forEach((filename) => {
-    //     fs.readFile(dirname + filename, 'utf-8', (err, content) => {
-    //       if (err) {
-    //         onError(err);
-    //         return;
-    //       }
-
-    //       let object = JSON.parse(content);
-    //       if (object)
-    //         app.tangrams.push(object);
-    //     });
-    //   });
-    //   // });
-    // });
-
-    // app.tangrams.main = mainTangramsJSON.map(data => {
-    //   let tangram = new Tangram();
-    //   tangram.initFromObject(data);
-    //   return tangram;
-    // });
   }
-
-  // static deleteLocalTangram(id) {
-  //   let ls = window.localStorage,
-  //     index = app.tangrams.local.findIndex(tangram => tangram.id == id),
-  //     tangramAmount = parseInt(ls.getItem('AG_TangramsAmount'));
-  //   if (index == -1) return null;
-  //   app.tangrams.local.splice(index, 1);
-
-  //   //Décale les Tangrams suivants vers la gauche.
-  //   for (let i = index + 1; i < tangramAmount; i++) {
-  //     let json = ls.getItem('AG_TangramsList_TG' + i);
-  //     ls.setItem('AG_TangramsList_TG' + (i - 1), json);
-  //   }
-
-  //   ls.setItem('AG_TangramsAmount', tangramAmount - 1);
-  // }
-
-  // static getTangram(type, id) {
-  //   let tab = app.tangrams[type];
-  //   for (let i = 0; i < tab.length; i++) {
-  //     if (tab[i].id == id) return tab[i];
-  //   }
-  //   return null;
-  // }
-
-  // static getCurrentTangram() {
-  //   if (!app.workspace.settings.get('isTangramShown')) return null;
-  //   let { type, id } = app.workspace.settings.get('shownTangram');
-  //   return this.getTangram(type, id);
-  // }
 
   /**
    * Renvoie un point de la silhouette du tangram qui est proche du point reçu,
@@ -378,12 +294,6 @@ export class TangramManager {
   // }
 }
 
-/**
- * Copier-coller le contenu d'un ou plusieurs fichier(s) tangram.json.
- * Ces tangrams sont importés via la méthode retrieveTangrams()
- */
-// let mainTangramsJSON = [];
-
 let shapes = [];
 (data => {
   data.shapes.forEach(s => {
@@ -397,6 +307,10 @@ let shapes = [];
 
 window.addEventListener('new-window', () => {
   TangramManager.setTangram(new Tangram('', shapes));
+});
+
+window.addEventListener('create-silhouette', event => {
+  TangramManager.createSilhouette(event.detail.shapes, event.detail.silhouetteMode);
 });
 
 TangramManager.setTangram(new Tangram('', shapes));

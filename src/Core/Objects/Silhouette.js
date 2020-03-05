@@ -27,4 +27,8 @@ export class Silhouette {
       return newShape;
     });
   }
+
+  copy() {
+    return new Silhouette(this.shapes.map(s => s.copy()));
+  }
 }

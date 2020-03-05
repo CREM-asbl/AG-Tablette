@@ -18,7 +18,7 @@ class completeHistoryTools extends LitElement {
 
     window.addEventListener('start-browsing', () => {
       this.index = 0;
-      this.style.display = 'block';
+      if (app.workspace.completeHistory.steps.length > 1) this.style.display = 'block';
     });
 
     window.addEventListener('browsing-finished', () => {

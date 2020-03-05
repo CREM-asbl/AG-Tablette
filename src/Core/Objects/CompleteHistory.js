@@ -32,6 +32,8 @@ export class CompleteHistory {
 
     // the groups that were there when the record starts
     this.startShapeGroups = [];
+
+    this.startTangram = app.tangram;
   }
 
   saveToObject() {
@@ -41,6 +43,7 @@ export class CompleteHistory {
       endTimestamp: Date.now(), //this.endTimestamp,
       startShapes: this.startShapes.map(s => s.saveToObject()),
       startShapeGroups: this.startShapeGroups.map(group => group.saveToObject()),
+      startTangram: this.startTangram,
     };
     return save;
   }
@@ -60,6 +63,7 @@ export class CompleteHistory {
       group.initFromObject(groupData);
       return group;
     });
+    this.startTangram = object.startTangram;
   }
 
   // transformToObject(detail) {
