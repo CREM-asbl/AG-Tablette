@@ -2,6 +2,7 @@ import { Action } from '../Core/States/Action';
 import { getAverageColor, getComplementaryColor } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
+import { Shape } from '../Core/Objects/Shape';
 
 export class MergeAction extends Action {
   constructor() {
@@ -62,8 +63,8 @@ export class MergeAction extends Action {
         shape2 = ShapeManager.getShapeById(this.secondShapeId);
 
       const newSegments = this.createNewSegments(shape1, shape2);
-
       if (!newSegments) return this.alertDigShape();
+
       const linkedSegments = this.linkNewSegments(newSegments);
       if (!linkedSegments) return this.alertDigShape();
 
@@ -166,18 +167,14 @@ export class MergeAction extends Action {
   }
 
   createNewShape(shape1, shape2, newSegments) {
-    let newShape = shape1.copy();
+    let newShape = Shape.createFromSegments(newSegments, 'Custom', 'Custom');
     newShape.id = this.createdShapeId;
-    newShape.name = 'Custom';
-    newShape.familyName = 'Custom';
     newShape.color = getAverageColor(shape1.color, shape2.color);
     newShape.second_color = getComplementaryColor(newShape.color);
     newShape.borderColor = getAverageColor(shape1.borderColor, shape2.borderColor);
-    newShape.isCenterShown = false;
     newShape.opacity = (shape1.opacity + shape2.opacity) / 2;
     newShape.isBiface = shape1.isBiface && shape2.isBiface;
     newShape.isReversed = shape1.isReversed && shape2.isReversed;
-    newShape.setSegments(newSegments);
     newShape.coordinates = { x: newShape.x - 20, y: newShape.y - 20 };
     if (newShape.isCircle()) newShape.isCenterShown = true;
     ShapeManager.addShape(newShape);

@@ -531,6 +531,19 @@ export class Shape {
     this.opacity = save.opacity;
   }
 
+  static createFromSegments(segments, name, family, internalSegments = []) {
+    let newShape = new Shape({ x: 0, y: 0 }, null, name, family);
+    newShape.setSegments(segments);
+    newShape.color = '#000';
+    newShape.second_color = getComplementaryColor(newShape.color);
+    newShape.opacity = 1;
+    let newShapeInternalSegment = internalSegments.filter(
+      seg => newShape.isPointInPath(seg.vertexes[0]) && newShape.isPointInPath(seg.vertexes[1]),
+    );
+    newShape.setInternalSegments(newShapeInternalSegment);
+    return newShape;
+  }
+
   static retrieveFrom(shape) {
     return app.workspae.getShapeById(shape.id);
   }

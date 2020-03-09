@@ -9,7 +9,7 @@ import { History } from '../Objects/History';
  */
 export class CompleteHistoryManager {
   static startBrowse() {
-    // if call when already running
+    // if called when already running
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
 
     CompleteHistoryManager.isRunning = true;
@@ -153,7 +153,6 @@ export class CompleteHistoryManager {
       window.dispatchEvent(new CustomEvent('click-cursor', { detail: detail }));
       window.dispatchEvent(new CustomEvent(type));
     } else {
-      console.log(type, detail);
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
     }
     // console.log(type, detail);

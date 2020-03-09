@@ -63,18 +63,9 @@ export class TangramManager {
   }
 
   static getSilhouetteFromSegments(segments, internalSegments) {
-    let shapes = segments.map(segs => {
-      let newShape = new Shape({ x: 0, y: 0 }, null, 'silhouette', 'tangram');
-      newShape.setSegments(segs);
-      newShape.color = '#000';
-      newShape.second_color = getComplementaryColor(newShape.color);
-      newShape.opacity = 1;
-      let newShapeInternalSegment = internalSegments.filter(
-        seg => newShape.isPointInPath(seg.vertexes[0]) && newShape.isPointInPath(seg.vertexes[1]),
-      );
-      newShape.setInternalSegments(newShapeInternalSegment);
-      return newShape;
-    });
+    let shapes = segments.map(segs =>
+      Shape.createFromSegments(segs, 'silhouette', 'tangram', internalSegments),
+    );
     let silhouette = new Silhouette(shapes);
     return silhouette;
   }
