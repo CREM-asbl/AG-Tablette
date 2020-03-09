@@ -2,32 +2,34 @@
 
 Apprenti Géomètre pour tablettes !
 
-## Install the Polymer-CLI
+## Install
 
-First, make sure you have the [Polymer CLI](https://www.npmjs.com/package/polymer-cli) installed. Then run `polymer serve` to serve your application locally.
+$ npm install
 
 ## Viewing Your Application
 
 ```
-$ polymer serve
+$ npm start
 ```
 
 ## Building Your Application
 
 ```
-$ polymer build
+$ npm build
 ```
 
-This will create builds of your application in the `build/` directory, optimized to be served in production. You can then serve the built versions by giving `polymer serve` a folder to serve from:
+This will create builds of your application in the `dist/` directory, optimized to be served in production.
 
 ```
-$ polymer serve build/default
+$ npm start:build
 ```
+
+this will serve the build version in localhost
 
 ## Running Tests
 
 ```
-$ polymer test
+$ npm test
 ```
-
-Your application is already set up to be tested via [web-component-tester](https://github.com/Polymer/web-component-tester). Run `polymer test` to run your application's test suite locally.
+Project based on open-wc and lit-element.
+For more information https://open-wc.org/ and https://www.polymer-project.org/
