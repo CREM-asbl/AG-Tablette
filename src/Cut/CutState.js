@@ -129,6 +129,7 @@ export class CutState extends State {
       } else if (this.isLineValid(pt2.shape, pt1, pt2)) {
         // On a sélectionné le second point: un autre point
         this.secondPoint = pt2;
+        this.centerPoint = null;
         this.currentStep = 'showing-points';
         window.clearTimeout(this.timeoutRef);
         this.timeoutRef = window.setTimeout(() => {
