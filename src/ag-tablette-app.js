@@ -7,7 +7,6 @@ import './icon-button';
 import './popups/new-popup';
 import './popups/settings-popup';
 import './popups/help-popup';
-import './popups/save-popup';
 import './popups/notification';
 import './version-item';
 import './completehistory-tools';
@@ -254,8 +253,6 @@ class AGTabletteApp extends LitElement {
       </div>
 
       <settings-popup></settings-popup>
-
-      <save-popup></save-popup>
 
       <opacity-popup></opacity-popup>
 

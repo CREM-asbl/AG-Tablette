@@ -125,7 +125,7 @@ export class SilhouetteCreatorState extends State {
   //   app.tangramManager.addLocalTangram(tangram);
 
   //   let json = JSON.stringify(tangram.saveToObject());
-  //   const file = new Blob([json], { type: 'application/Coreon' });
+  //   const file = new Blob([json], { type: 'application/json' });
   //   const downloader = document.createElement('a');
   //   downloader.href = window.URL.createObjectURL(file);
   //   downloader.download = name + '.json';

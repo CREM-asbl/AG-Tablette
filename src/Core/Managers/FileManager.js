@@ -3,6 +3,9 @@ import { Settings } from '../Settings';
 import { GridManager } from '../../Grid/GridManager';
 import { WorkspaceManager } from './WorkspaceManager';
 import { Tangram } from '../../Tangram/Tangram';
+import { createElem } from '../Tools/general';
+import '../../popups/save-popup';
+import '../../popups/open-poup';
 
 export class FileManager {
   static parseFile(data) {
@@ -39,18 +42,16 @@ export class FileManager {
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
-  static async newOpenFile(fileHandle) {
+  static async newReadFile(fileHandle) {
     const file = await fileHandle.getFile();
     const content = await file.text();
     FileManager.parseFile(content);
   }
 
-  static oldOpenFile(file) {
+  static oldReadFile(file) {
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      FileManager.parseFile(reader.result);
-    };
+    reader.onload = () => FileManager.parseFile(reader.result);
     reader.readAsText(file);
   }
 
@@ -60,7 +61,6 @@ export class FileManager {
         accepts: [
           {
             extensions: [app.environment.extension],
-            mimeTypes: ['application/Coreon'],
           },
         ],
       };
@@ -70,8 +70,8 @@ export class FileManager {
           new CustomEvent('file-opened', { detail: { method: 'new', file: fileHandle } }),
         );
       } catch (error) {
-        console.error(error);
         // user closed open prompt
+        console.error(error);
       }
     } else {
       window.dispatchEvent(new CustomEvent('show-file-selector'));
@@ -105,8 +105,8 @@ export class FileManager {
       offsetX = app.workspace.translateOffset.x,
       offsetY = app.workspace.translateOffset.y,
       actualZoomLvl = app.workspace.zoomLevel,
-      //Ne pas voir les points apparaître:
-      marginToAdd = 20 * actualZoomLvl,
+      // Ne pas voir les points apparaître:
+      marginToAdd = 0, //20 * actualZoomLvl,
       min = {
         x: -offsetX / actualZoomLvl - marginToAdd,
         y: -offsetY / actualZoomLvl - marginToAdd,
@@ -196,7 +196,7 @@ export class FileManager {
     if (FileManager.hasNativeFS) {
       FileManager.newWriteFile(handle, json_data);
     } else {
-      const file = new Blob([json_data], { type: 'application/Coreon' });
+      const file = new Blob([json_data], { type: 'application/json' });
       const encoded_data = window.URL.createObjectURL(file);
       FileManager.downloadFile(handle.name, encoded_data);
     }
@@ -213,7 +213,7 @@ export class FileManager {
         {
           description: 'Etat',
           extensions: [app.environment.extension],
-          mimeTypes: ['text/Coreon'],
+          mimeTypes: ['application/json'],
         },
         {
           description: 'Image',
@@ -262,7 +262,7 @@ export class FileManager {
           },
           { once: true },
         );
-        window.dispatchEvent(new CustomEvent('show-save-popup'));
+        createElem('save-popup');
         break;
       default:
         console.error('unsupported file format: ', extension);
@@ -314,7 +314,7 @@ export class FileManager {
       },
       { once: true },
     );
-    window.dispatchEvent(new CustomEvent('show-save-popup'));
+    createElem('save-popup');
   }
 
   static async newWriteFile(fileHandle, contents) {
@@ -339,12 +339,15 @@ export class FileManager {
 }
 
 window.addEventListener('file-opened', event => {
-  if (event.detail.method == 'old') FileManager.oldOpenFile(event.detail.file);
-  // new
-  else FileManager.newOpenFile(event.detail.file);
+  if (event.detail.method == 'old') FileManager.oldReadFile(event.detail.file);
+  else FileManager.newReadFile(event.detail.file);
 });
 
 window.addEventListener('open-file', () => {
+  createElem('open-popup');
+});
+
+window.addEventListener('LocalOpenFile', () => {
   FileManager.openFile();
 });
 
