@@ -192,98 +192,30 @@ export class TangramManager {
     document.querySelector('body').appendChild(popup);
   }
 
-  // static addLocalTangram(tangram) {
-  //   app.tangrams.local.push(tangram);
-  //   let ls = window.localStorage,
-  //     amount = parseInt(ls.getItem('AG_TangramsAmount')),
-  //     object = tangram.saveToObject(),
-  //     json = JSON.stringify(object);
-  //   ls.setItem('AG_TangramsAmount', amount + 1);
-  //   ls.setItem('AG_TangramsList_TG' + amount, json);
-  // }
-
-  static retrieveTangrams() {
-    //Main
-    if (!app || app.CremTangrams.length) return;
-
-    fetch('./src/Tangram/CremTangrams/square.agt')
-      .then(response => {
-        return response.text();
-      })
-      .then(text => {
-        let object = JSON.parse(text);
-        if (object) app.CremTangrams.push(object);
-      });
-
-    fetch('./src/Tangram/CremTangrams/squareInternal.agt')
-      .then(response => {
-        return response.text();
-      })
-      .then(text => {
-        let object = JSON.parse(text);
-        if (object) app.CremTangrams.push(object);
-      });
-
-    // const //fs = require('fs'),
-    //   dirname = '../CremTangrams';
-
-    // // function readFiles(dirname, onFileContent, onError) {
-    // fs.readdir(dirname, (err, filenames) => {
-    //   if (err) {
-    //     console.error(err);
-    //     return;
-    //   }
-    //   filenames.forEach((filename) => {
-    //     fs.readFile(dirname + filename, 'utf-8', (err, content) => {
-    //       if (err) {
-    //         onError(err);
-    //         return;
-    //       }
-
-    //       let object = JSON.parse(content);
-    //       if (object)
-    //         app.tangrams.push(object);
-    //     });
-    //   });
-    //   // });
-    // });
-
-    // app.tangrams.main = mainTangramsJSON.map(data => {
-    //   let tangram = new Tangram();
-    //   tangram.initFromObject(data);
-    //   return tangram;
-    // });
+  static async getTangramFromServer(filename) {
+    const response = await fetch(filename, { mode: 'cors' });
+    if (response.ok) {
+      let object = await response.json();
+      if (object) return object;
+      else console.error('Failed to parse file', filename);
+    } else {
+      console.error('Failed to get file', filename);
+    }
   }
 
-  // static deleteLocalTangram(id) {
-  //   let ls = window.localStorage,
-  //     index = app.tangrams.local.findIndex(tangram => tangram.id == id),
-  //     tangramAmount = parseInt(ls.getItem('AG_TangramsAmount'));
-  //   if (index == -1) return null;
-  //   app.tangrams.local.splice(index, 1);
+  static async retrieveTangrams() {
+    if (!app || app.CremTangrams.length) return;
 
-  //   //Décale les Tangrams suivants vers la gauche.
-  //   for (let i = index + 1; i < tangramAmount; i++) {
-  //     let json = ls.getItem('AG_TangramsList_TG' + i);
-  //     ls.setItem('AG_TangramsList_TG' + (i - 1), json);
-  //   }
+    const serverURL = 'http://api.crem.be/tangram/',
+      filenames = ['Square.agt', 'SquareInternal.agt'],
+      fullFilenames = filenames.map(name => serverURL + name);
 
-  //   ls.setItem('AG_TangramsAmount', tangramAmount - 1);
-  // }
+    let jsons = await Promise.all(
+      fullFilenames.map(async filename => this.getTangramFromServer(filename)),
+    );
 
-  // static getTangram(type, id) {
-  //   let tab = app.tangrams[type];
-  //   for (let i = 0; i < tab.length; i++) {
-  //     if (tab[i].id == id) return tab[i];
-  //   }
-  //   return null;
-  // }
-
-  // static getCurrentTangram() {
-  //   if (!app.workspace.settings.get('isTangramShown')) return null;
-  //   let { type, id } = app.workspace.settings.get('shownTangram');
-  //   return this.getTangram(type, id);
-  // }
+    jsons.forEach(json => app.CremTangrams.push(json));
+  }
 
   /**
    * Renvoie un point de la silhouette du tangram qui est proche du point reçu,
