@@ -210,9 +210,9 @@ export class TangramManager {
       filenames = ['Square.agt', 'SquareInternal.agt'],
       fullFilenames = filenames.map(name => serverURL + name);
 
-    let jsons = await Promise.all(
+    let jsons = (await Promise.all(
       fullFilenames.map(async filename => this.getTangramFromServer(filename)),
-    );
+    )).filter(Boolean);
 
     jsons.forEach(json => app.CremTangrams.push(json));
   }
