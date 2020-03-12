@@ -46,9 +46,9 @@ class OpenPopup extends LitElement {
             ${this.CremTangrams.map(
               (tan, idx) =>
                 html`
-                  <canvas-button
-                    title="Tangram"
-                    silhouetteIdx="${idx}"
+                  <div
+                    style="display: flex;
+                      cursor: pointer;"
                     @click="${() => {
                       app.workspace.initFromObject(tan.wsdata);
                       app.tangram.initFromObject(tan.tangramData);
@@ -57,7 +57,11 @@ class OpenPopup extends LitElement {
                       this.close();
                     }}"
                   >
-                  </canvas-button>
+                    <canvas-button title="Tangram" silhouetteIdx="${idx}"> </canvas-button>
+                    <p style="margin: auto;">
+                      ${tan.filename}
+                    </p>
+                  </div>
                 `,
             )}
           </div>
