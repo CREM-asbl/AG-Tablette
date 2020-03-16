@@ -1,35 +1,17 @@
 import { app } from '../Core/App';
 import { getComplementaryColor } from '../Core/Tools/general';
-import { standardTangramKit } from '../Core/ShapesKits/standardTangramKit';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
-import { Tangram } from './Tangram';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
+import { FileManager } from '../Core/Managers/FileManager';
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
 export class TangramManager {
   static showShapes() {
-    app.tangram.shapes.forEach(s => ShapeManager.addShape(s.copy()));
-  }
-
-  static hideShapes() {
-    app.workspace.shapes = [];
-  }
-
-  static setTangram(tangram) {
-    app.tangram = tangram;
-
-    window.addEventListener(
-      'workspace-changed',
-      () => {
-        app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
-        app.workspace.setZoomLevel(0.8677803523248963);
-      },
-      { once: true },
-    );
+    FileManager.parseFile(app.tangramStartPos);
   }
 
   static createSilhouette(shapes, silhouetteMode) {
@@ -57,7 +39,7 @@ export class TangramManager {
       newSegments,
       silhouetteMode == 'withInternalSegment' ? internalSegments : [],
     );
-    app.tangram.silhouette = silhouette;
+    app.silhouette = silhouette;
 
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
@@ -210,7 +192,7 @@ export class TangramManager {
    * @return {Point}
    */
   static getNearTangramPoint(point) {
-    const shapes = app.tangram.silhouette.shapes,
+    const shapes = app.silhouette.shapes,
       allPoints = shapes.map(s => s.allPoints).flat();
 
     let bestPoint = null,
@@ -285,26 +267,37 @@ export class TangramManager {
   // }
 }
 
-let shapes = [];
-(data => {
-  data.shapes.forEach(s => {
-    let shape = new Shape({ x: 0, y: 0 }, null, s.name, 'tangram');
-    shape.setSegments(s.segments);
-    shape.color = data.color ? data.color : '#000';
-    shape.second_color = getComplementaryColor(shape.color);
-    shapes.push(shape);
-  });
-})(standardTangramKit);
+// let shapes = [];
+// (data => {
+//   data.shapes.forEach(s => {
+//     let shape = new Shape({ x: 0, y: 0 }, null, s.name, 'tangram');
+//     shape.setSegments(s.segments);
+//     shape.color = data.color ? data.color : '#000';
+//     shape.second_color = getComplementaryColor(shape.color);
+//     shapes.push(shape);
+//   });
+// })(standardTangramKit);
+
+fetch('src/Tangram/tangramStartPos.agt').then(async response => {
+  app.tangramStartPos = await response.text();
+});
+
+// window.addEventListener(
+//   'workspace-changed',
+//   () => {
+//     app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
+//     app.workspace.setZoomLevel(0.8677803523248963);
+//   },
+//   { once: true },
+// );
 
 window.addEventListener('new-window', () => {
-  TangramManager.setTangram(new Tangram('', shapes));
+  app.silhouette = new Silhouette();
 });
 
 window.addEventListener('create-silhouette', event => {
   TangramManager.createSilhouette(event.detail.shapes, event.detail.silhouetteMode);
 });
-
-TangramManager.setTangram(new Tangram('', shapes));
 
 app.CremTangrams = [];
 

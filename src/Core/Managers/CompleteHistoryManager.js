@@ -31,7 +31,7 @@ export class CompleteHistoryManager {
     app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(gr =>
       gr.copy(true),
     );
-    app.tangram = app.workspace.completeHistory.startTangram.copy();
+    app.silhouette = app.workspace.completeHistory.startSilhouette.copy();
     app.workspace.history = new History();
   }
 

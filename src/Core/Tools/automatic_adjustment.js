@@ -102,7 +102,7 @@ function bestPossibility(possibilities) {
 export function getShapeAdjustment(shapes, mainShape) {
   const maxRotateAngle = 0.25; //radians
   let grid = app.workspace.settings.get('isGridShown'),
-    tangram = app.environment.name == 'Tangram' && app.tangram.silhouette,
+    tangram = app.environment.name == 'Tangram' && app.silhouette,
     automaticAdjustment = app.settings.get('automaticAdjustment'),
     transformation = {
       rotation: 0,

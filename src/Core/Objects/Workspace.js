@@ -111,7 +111,7 @@ export class Workspace {
         endTimestamp: 0,
         startShapes: this.shapes,
         startShapeGroups: this.shapeGroups,
-        startTangram: app.tangram,
+        startSilhouette: app.silhouette,
       });
     }
 

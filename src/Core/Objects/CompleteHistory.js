@@ -33,7 +33,7 @@ export class CompleteHistory {
     // the groups that were there when the record starts
     this.startShapeGroups = [];
 
-    this.startTangram = app.tangram;
+    this.startSilhouette = app.silhouette;
   }
 
   saveToObject() {

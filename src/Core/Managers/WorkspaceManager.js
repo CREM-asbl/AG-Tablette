@@ -32,5 +32,5 @@ window.addEventListener('app-started', () => {
 });
 
 window.addEventListener('new-window', () => {
-  WorkspaceManager.setWorkspace(new Workspace());
+  setTimeout(() => WorkspaceManager.setWorkspace(new Workspace()), 0);
 });

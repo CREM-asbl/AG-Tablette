@@ -34,7 +34,7 @@ class TangramPopup extends LitElement {
                       silhouetteIdx="${idx}"
                       @click="${() => {
                         app.workspace.initFromObject(tan.wsdata);
-                        app.tangram.initFromObject(tan.tangramData);
+                        app.silhouette.initFromObject(tan.tangramData);
                         window.dispatchEvent(new CustomEvent('refreshMain'));
                         window.dispatchEvent(new CustomEvent('refreshBackground'));
                         this.close();

@@ -2,6 +2,7 @@ import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { TangramManager } from './TangramManager';
+import { Silhouette } from '../Core/Objects/Silhouette';
 
 /**
  * Créer un tangram
@@ -27,6 +28,8 @@ export class SilhouetteCreatorState extends State {
     this.silhouetteMode = 'noInternalSegment';
 
     window.addEventListener('new-window', () => this.finish());
+
+    window.addEventListener('open-file', () => this.finish());
   }
 
   /**
@@ -34,7 +37,7 @@ export class SilhouetteCreatorState extends State {
    */
   start() {
     app.workspace.shapes = [];
-    app.tangram.silhouette = null;
+    app.silhouette = new Silhouette();
     TangramManager.showShapes();
 
     app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
@@ -54,7 +57,7 @@ export class SilhouetteCreatorState extends State {
 
   restart() {
     app.workspace.shapes = [];
-    app.tangram.silhouette = null;
+    app.silhouette = new Silhouette();
     TangramManager.showShapes();
 
     app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
@@ -65,12 +68,9 @@ export class SilhouetteCreatorState extends State {
   finish() {
     window.dispatchEvent(new CustomEvent('close-state-menu'));
     window.removeEventListener('state-menu-button-click', this.handler);
-    TangramManager.hideShapes();
   }
 
-  end() {
-    // TangramManager.hideShapes();
-  }
+  end() {}
 
   _actionHandle(event) {
     if (event.type == 'state-menu-button-click') {
