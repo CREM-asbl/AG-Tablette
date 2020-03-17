@@ -27,7 +27,6 @@ export class CompleteHistoryManager {
   }
 
   static resetWorkspace() {
-    console.log(app.workspace.completeHistory.startTranslateOffset);
     app.workspace.setZoomLevel(app.workspace.completeHistory.startZoomLevel);
     app.workspace.setTranslateOffset(app.workspace.completeHistory.startTranslateOffset);
     app.workspace.shapes = app.workspace.completeHistory.startShapes.map(s => s.copy(true));
