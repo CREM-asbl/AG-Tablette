@@ -28,12 +28,6 @@ export class Workspace {
     this.settings = new Settings();
     this.initSettings();
 
-    // Historique des actions
-    this.history = new History();
-
-    // Historique complet des événements
-    this.completeHistory = new CompleteHistory(new Event('useless').timeStamp);
-
     // Coordonnées du dernier événement
     this.lastKnownMouseCoordinates = new Point(0, 0);
 
@@ -56,6 +50,12 @@ export class Workspace {
      * ->Le zoom du plan est appliqué après la translation du plan.
      */
     this.translateOffset = new Point(0, 0);
+
+    // Historique des actions
+    this.history = new History();
+
+    // Historique complet des événements
+    this.completeHistory = new CompleteHistory(new Event('useless').timeStamp);
   }
 
   initSettings() {
@@ -102,6 +102,9 @@ export class Workspace {
       return group;
     });
 
+    this.zoomLevel = wsdata.zoomLevel;
+    this.translateOffset = new Point(wsdata.translateOffset);
+
     if (wsdata.completeHistory) {
       this.completeHistory.initFromObject(wsdata.completeHistory);
     } else {
@@ -109,14 +112,12 @@ export class Workspace {
         steps: [],
         startTimestamp: new Event('useless').timeStamp,
         endTimestamp: 0,
+        startZoomLevel: this.zoomLevel,
+        startTranslateOffset: this.translateOffset,
         startShapes: this.shapes,
         startShapeGroups: this.shapeGroups,
       });
     }
-
-    this.zoomLevel = wsdata.zoomLevel;
-    this.translateOffset = new Point(wsdata.translateOffset);
-
     if (wsdata.settings) {
       this.settings.initFromObject(wsdata.settings);
     } else this.initSettings();
