@@ -43,7 +43,8 @@ export class Shape {
   get allOutlinePoints() {
     let points = [];
     if (this.isSegment()) points.push(this.segments[0].vertexes[0]);
-    this.segments.forEach(segment => points.push(segment.vertexes[1], ...segment.points));
+    if (this.isCircle()) points.push(...this.segments[0].points);
+    else this.segments.forEach(segment => points.push(segment.vertexes[1], ...segment.points));
     return points;
   }
 

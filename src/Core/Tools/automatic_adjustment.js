@@ -118,8 +118,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   //Générer la liste des points du groupe de formes
   let ptList = [];
   shapes.forEach(s => {
-    if (s.isCircle()) s.points && ptList.push(...s.points);
-    else ptList.push(...s.allOutlinePoints);
+    ptList.push(...s.allOutlinePoints);
     if (s.isCenterShown) ptList.push(s.center);
   });
 
