@@ -1,6 +1,4 @@
 import { app } from '../Core/App';
-import { getComplementaryColor } from '../Core/Tools/general';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { Shape } from '../Core/Objects/Shape';
@@ -180,7 +178,7 @@ export class TangramManager {
 
     const serverURL = 'http://api.crem.be/',
       folder = 'tangram/',
-      filenames = ['Square.agt', 'SquareInternal.agt'],
+      filenames = ['withInternal.agt', 'noInternal.agt'],
       fullFilenames = filenames.map(name => serverURL + folder + name);
 
     let jsons = (await Promise.all(
@@ -215,86 +213,11 @@ export class TangramManager {
 
     return bestPoint;
   }
-
-  /**
-   * Calcule l'ajustement que l'on peut appliquer à un groupe de formes, pour
-   * se coller à la silouette du tangram. Si aucune des formes n'est proche de
-   * la silouette, renvoie null.
-   * @param {[Shapes]} shapes      Liste des formes du groupe
-   * @param {Shape} mainShape   La forme sélectionnée par l'utilisateur
-   * @param {Point} coordinates Coordonnées de la forme sélectionnée
-   */
-  // static getShapeGroupOffset(shapes, mainShape, coordinates) {
-  //   //Calcule la liste des sommets des formes
-  //   let points = shapes
-  //     .map(s => {
-  //       return s.buildSteps
-  //         .filter(bs => bs.type == 'vertex')
-  //         .map(vertex => {
-  //           return {
-  //             shape: s,
-  //             relativePoint: vertex.coordinates,
-  //             realPoint: vertex.coordinates
-  //               .addCoordinates(s)
-  //               .addCoordinates(coordinates)
-  //               .subCoordinates(mainShape),
-  //           };
-  //         });
-  //     })
-  //     .reduce((total, val) => {
-  //       return total.concat(val);
-  //     }, []);
-
-  //   if (points.length == 0) return null;
-  //   let tangram = this.getCurrentTangram();
-  //   if (tangram == null) return null;
-
-  //   let tangramPoints = tangram.polygons.reduce((total, elem) => {
-  //     return total.concat(elem);
-  //   }, []);
-
-  //   let bestOffset = null,
-  //     bestDist = 1000 * 1000 * 1000;
-
-  //   points.forEach(pt => {
-  //     tangramPoints.forEach(tangramPt => {
-  //       if (app.interactionAPI.arePointsInMagnetismDistance(pt.realPoint, tangramPt)) {
-  //         let dist = pt.realPoint.addCoordinates(tangramPt);
-  //         if (dist < bestDist) {
-  //           bestDist = dist;
-  //           bestOffset = tangramPt.subCoordinates(pt.realPoint);
-  //         }
-  //       }
-  //     });
-  //   });
-
-  //   return bestOffset;
-  // }
 }
-
-// let shapes = [];
-// (data => {
-//   data.shapes.forEach(s => {
-//     let shape = new Shape({ x: 0, y: 0 }, null, s.name, 'tangram');
-//     shape.setSegments(s.segments);
-//     shape.color = data.color ? data.color : '#000';
-//     shape.second_color = getComplementaryColor(shape.color);
-//     shapes.push(shape);
-//   });
-// })(standardTangramKit);
 
 fetch('src/Tangram/tangramStartPos.agt').then(async response => {
   app.tangramStartPos = await response.text();
 });
-
-// window.addEventListener(
-//   'workspace-changed',
-//   () => {
-//     app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
-//     app.workspace.setZoomLevel(0.8677803523248963);
-//   },
-//   { once: true },
-// );
 
 window.addEventListener('new-window', () => {
   app.silhouette = new Silhouette();

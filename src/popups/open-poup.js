@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from './template-popup';
+import { FileManager } from '../Core/Managers/FileManager';
 
 class OpenPopup extends LitElement {
   static get properties() {
@@ -43,27 +44,30 @@ class OpenPopup extends LitElement {
         <template-popup>
           <h2 slot="title">Ouvrir un fichier</h2>
           <div slot="body" id="body">
-            ${this.CremTangrams.map(
-              (tan, idx) =>
-                html`
-                  <div
-                    style="display: flex;
+            ${app.environment.name == 'Tangram'
+              ? this.CremTangrams.map(
+                  (tan, idx) =>
+                    html`
+                      <div
+                        style="display: flex;
                       cursor: pointer;"
-                    @click="${() => {
-                      app.workspace.initFromObject(tan.wsdata);
-                      app.tangram.initFromObject(tan.tangramData);
-                      window.dispatchEvent(new CustomEvent('refreshMain'));
-                      window.dispatchEvent(new CustomEvent('refreshBackground'));
-                      this.close();
-                    }}"
-                  >
-                    <canvas-button title="Tangram" silhouetteIdx="${idx}"> </canvas-button>
-                    <p style="margin: auto;">
-                      ${tan.filename}
-                    </p>
-                  </div>
-                `,
-            )}
+                        @click="${() => {
+                          // app.workspace.initFromObject(tan.wsdata);
+                          // app.silhouette.initFromObject(tan.silhouetteData);
+                          FileManager.parseFile(tan);
+                          // window.dispatchEvent(new CustomEvent('refreshMain'));
+                          // window.dispatchEvent(new CustomEvent('refreshBackground'));
+                          this.close();
+                        }}"
+                      >
+                        <canvas-button title="Tangram" silhouetteIdx="${idx}"> </canvas-button>
+                        <p style="margin: auto;">
+                          ${tan.filename}
+                        </p>
+                      </div>
+                    `,
+                )
+              : undefined}
           </div>
         </template-popup>
       `;

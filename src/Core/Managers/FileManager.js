@@ -9,7 +9,12 @@ import '../../popups/open-poup';
 
 export class FileManager {
   static parseFile(data) {
-    const dataObject = JSON.parse(data);
+    let dataObject;
+    if (typeof data == 'string') {
+      dataObject = JSON.parse(data);
+    } else {
+      dataObject = data;
+    }
 
     app.lastFileVersion = dataObject.appVersion;
 
@@ -35,6 +40,7 @@ export class FileManager {
 
     if (app.environment.name == 'Tangram') {
       app.silhouette = new Silhouette();
+      console.log(dataObject.silhouetteData);
       if (dataObject.silhouetteData) app.silhouette.initFromObject(dataObject.silhouetteData);
     }
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
