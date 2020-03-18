@@ -37,6 +37,8 @@ export class CompleteHistory {
     this.startZoomLevel = 1;
 
     this.startTranslateOffset = new Point(0, 0);
+
+    this.startSilhouette = app.silhouette;
   }
 
   saveToObject() {
@@ -48,6 +50,7 @@ export class CompleteHistory {
       startTranslateOffset: this.startTranslateOffset,
       startShapes: this.startShapes.map(s => s.saveToObject()),
       startShapeGroups: this.startShapeGroups.map(group => group.saveToObject()),
+      startTangram: this.startTangram,
     };
     return save;
   }
@@ -69,6 +72,7 @@ export class CompleteHistory {
       group.initFromObject(groupData);
       return group;
     });
+    this.startTangram = object.startTangram;
   }
 
   // transformToObject(detail) {

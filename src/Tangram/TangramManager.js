@@ -1,66 +1,35 @@
 import { app } from '../Core/App';
 import { getComplementaryColor } from '../Core/Tools/general';
-import { standardTangramKit } from '../Core/ShapesKits/standardTangramKit';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
-import { Tangram } from './Tangram';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
-
-app.tangrams = { main: [], local: [] };
+import { FileManager } from '../Core/Managers/FileManager';
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
 export class TangramManager {
-  // static hide() {
-  //   app.workspace.settings.set('isTangramShown', false);
-  // }
-
-  // static show(tangramType, tangramId) {
-  //   app.workspace.settings.set('isTangramShown', true);
-  //   app.workspace.settings.set('shownTangram', {
-  //     type: tangramType,
-  //     id: tangramId,
-  //   });
-  // }
-
   static showShapes() {
-    app.tangram.shapes.forEach(s => ShapeManager.addShape(s.copy()));
-  }
-
-  static hideShapes() {
-    app.workspace.shapes = [];
-  }
-
-  static setTangram(tangram) {
-    app.tangram = tangram;
-
-    window.addEventListener(
-      'workspace-changed',
-      () => {
-        app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
-        app.workspace.setZoomLevel(0.8677803523248963);
-      },
-      { once: true },
-    );
+    FileManager.parseFile(app.tangramStartPos);
   }
 
   static createSilhouette(shapes, silhouetteMode) {
     let { newSegments, internalSegments } = TangramManager.checkGroupMerge(shapes);
-    if (!newSegments)
+    if (!newSegments) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
-          detail: { message: 'Formes creuses ou en plusieurs morceaux' },
+          detail: { message: 'Certaines formes se superposent' },
         }),
       );
+      return;
+    }
 
     newSegments = TangramManager.linkNewSegments(newSegments);
     if (!newSegments) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
-          detail: { message: 'Formes creuses ou en plusieurs morceaux' },
+          detail: { message: 'La silhouette formée crée une forme creuse' },
         }),
       );
       return;
@@ -70,17 +39,16 @@ export class TangramManager {
       newSegments,
       silhouetteMode == 'withInternalSegment' ? internalSegments : [],
     );
-    return silhouette;
+    app.silhouette = silhouette;
+
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   static getSilhouetteFromSegments(segments, internalSegments) {
-    let shape = new Shape({ x: 0, y: 0 }, null, 'silhouette', 'tangram');
-    shape.setSegments(segments);
-    shape.setInternalSegments(internalSegments);
-    shape.color = '#000';
-    shape.second_color = getComplementaryColor(shape.color);
-    shape.opacity = 1;
-    let silhouette = new Silhouette([shape]);
+    let shapes = segments.map(segs =>
+      Shape.createFromSegments(segs, 'silhouette', 'tangram', internalSegments),
+    );
+    let silhouette = new Silhouette(shapes);
     return silhouette;
   }
 
@@ -93,7 +61,7 @@ export class TangramManager {
         }),
       )
     )
-      return null;
+      return { newSegments: null, internalSegments: null };
 
     let oldSegments = shapes.map(s => s.segments.map(seg => seg.copy())).flat(),
       oldSegmentsSave = oldSegments.map(seg => seg.copy());
@@ -136,47 +104,50 @@ export class TangramManager {
 
   static linkNewSegments(segmentsList) {
     // Todo : Voir si on ne peut pas la simplifier
-    let newSegments = [];
+    let newSegments = [],
+      nextSegment,
+      segmentUsed = 0;
 
-    // segment beeing in use (may be prolongated)
-    let currentSegment = segmentsList[0].copy(false);
-    // last segment used (not modified)
-    let lastSegment = currentSegment;
-    let firstSegment = currentSegment;
-    let nextSegment;
-    let segmentUsed = 0;
+    while (segmentUsed != segmentsList.length) {
+      // segment beeing in use (may be prolongated)
+      let currentSegment = segmentsList.find(seg => !seg.isUsed),
+        // first segment used (not modified)
+        firstSegment = currentSegment,
+        newSegmentsSet = [];
 
-    newSegments.push(currentSegment);
-    segmentUsed++;
-
-    while (!firstSegment.vertexes[0].equal(currentSegment.vertexes[1])) {
-      // while not closed
-      const newPotentialSegments = segmentsList.filter(
-        seg => !seg.equal(lastSegment) && seg.contains(currentSegment.vertexes[1], false),
-      );
-      if (newPotentialSegments.length != 1) {
-        if (newPotentialSegments.length == 0) console.log('shape cannot be closed (dead end)');
-        else console.log('shape is dig (a segment has more than one segment for next)');
-        return null;
-      }
-      nextSegment = newPotentialSegments[0].copy(false);
-      if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse(true);
-
-      if (currentSegment.hasSameDirection(nextSegment, 1, 0, false)) {
-        currentSegment.vertexes[1] = nextSegment.vertexes[1];
-      } else {
-        newSegments.push(nextSegment);
-        currentSegment = nextSegment;
-      }
+      currentSegment.isUsed = true;
+      newSegmentsSet.push(currentSegment);
       segmentUsed++;
-      lastSegment = nextSegment;
-    }
-    if (segmentUsed != segmentsList.length) {
-      console.log('shape is dig (not all segments have been used)');
-      return null;
-    }
-    if (newSegments.length != 1 && currentSegment.hasSameDirection(firstSegment, 1, 0, false)) {
-      newSegments[0].vertexes[0] = newSegments.pop().vertexes[0];
+
+      while (!firstSegment.vertexes[0].equal(currentSegment.vertexes[1])) {
+        // while not closed
+        const newPotentialSegments = segmentsList.filter(
+          seg => !seg.isUsed && seg.contains(currentSegment.vertexes[1], false),
+        );
+        if (newPotentialSegments.length != 1) {
+          if (newPotentialSegments.length == 0) console.log('shape cannot be closed (dead end)');
+          else console.log('shape is dig (a segment has more than one segment for next)');
+          return null;
+        }
+        nextSegment = newPotentialSegments[0].copy(false);
+        newPotentialSegments[0].isUsed = true;
+        if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse(true);
+
+        if (currentSegment.hasSameDirection(nextSegment, 1, 0, false)) {
+          currentSegment.vertexes[1] = nextSegment.vertexes[1];
+        } else {
+          newSegmentsSet.push(nextSegment);
+          currentSegment = nextSegment;
+        }
+        segmentUsed++;
+      }
+      if (
+        newSegmentsSet.length != 1 &&
+        currentSegment.hasSameDirection(firstSegment, 1, 0, false)
+      ) {
+        newSegmentsSet[0].vertexes[0] = newSegmentsSet.pop().vertexes[0];
+      }
+      newSegments.push(newSegmentsSet);
     }
     return newSegments;
   }
@@ -192,18 +163,7 @@ export class TangramManager {
     document.querySelector('body').appendChild(popup);
   }
 
-  // static addLocalTangram(tangram) {
-  //   app.tangrams.local.push(tangram);
-  //   let ls = window.localStorage,
-  //     amount = parseInt(ls.getItem('AG_TangramsAmount')),
-  //     object = tangram.saveToObject(),
-  //     json = JSON.stringify(object);
-  //   ls.setItem('AG_TangramsAmount', amount + 1);
-  //   ls.setItem('AG_TangramsList_TG' + amount, json);
-  // }
-
   static retrieveTangrams() {
-    //Main
     if (!app || app.CremTangrams.length) return;
 
     fetch('./src/Tangram/CremTangrams/square.agt')
@@ -223,67 +183,7 @@ export class TangramManager {
         let object = JSON.parse(text);
         if (object) app.CremTangrams.push(object);
       });
-
-    // const //fs = require('fs'),
-    //   dirname = '../CremTangrams';
-
-    // // function readFiles(dirname, onFileContent, onError) {
-    // fs.readdir(dirname, (err, filenames) => {
-    //   if (err) {
-    //     console.error(err);
-    //     return;
-    //   }
-    //   filenames.forEach((filename) => {
-    //     fs.readFile(dirname + filename, 'utf-8', (err, content) => {
-    //       if (err) {
-    //         onError(err);
-    //         return;
-    //       }
-
-    //       let object = JSON.parse(content);
-    //       if (object)
-    //         app.tangrams.push(object);
-    //     });
-    //   });
-    //   // });
-    // });
-
-    // app.tangrams.main = mainTangramsJSON.map(data => {
-    //   let tangram = new Tangram();
-    //   tangram.initFromObject(data);
-    //   return tangram;
-    // });
   }
-
-  // static deleteLocalTangram(id) {
-  //   let ls = window.localStorage,
-  //     index = app.tangrams.local.findIndex(tangram => tangram.id == id),
-  //     tangramAmount = parseInt(ls.getItem('AG_TangramsAmount'));
-  //   if (index == -1) return null;
-  //   app.tangrams.local.splice(index, 1);
-
-  //   //Décale les Tangrams suivants vers la gauche.
-  //   for (let i = index + 1; i < tangramAmount; i++) {
-  //     let json = ls.getItem('AG_TangramsList_TG' + i);
-  //     ls.setItem('AG_TangramsList_TG' + (i - 1), json);
-  //   }
-
-  //   ls.setItem('AG_TangramsAmount', tangramAmount - 1);
-  // }
-
-  // static getTangram(type, id) {
-  //   let tab = app.tangrams[type];
-  //   for (let i = 0; i < tab.length; i++) {
-  //     if (tab[i].id == id) return tab[i];
-  //   }
-  //   return null;
-  // }
-
-  // static getCurrentTangram() {
-  //   if (!app.workspace.settings.get('isTangramShown')) return null;
-  //   let { type, id } = app.workspace.settings.get('shownTangram');
-  //   return this.getTangram(type, id);
-  // }
 
   /**
    * Renvoie un point de la silhouette du tangram qui est proche du point reçu,
@@ -292,7 +192,7 @@ export class TangramManager {
    * @return {Point}
    */
   static getNearTangramPoint(point) {
-    const shapes = app.tangram.silhouette.shapes,
+    const shapes = app.silhouette.shapes,
       allPoints = shapes.map(s => s.allPoints).flat();
 
     let bestPoint = null,
@@ -367,28 +267,37 @@ export class TangramManager {
   // }
 }
 
-/**
- * Copier-coller le contenu d'un ou plusieurs fichier(s) tangram.json.
- * Ces tangrams sont importés via la méthode retrieveTangrams()
- */
-// let mainTangramsJSON = [];
+// let shapes = [];
+// (data => {
+//   data.shapes.forEach(s => {
+//     let shape = new Shape({ x: 0, y: 0 }, null, s.name, 'tangram');
+//     shape.setSegments(s.segments);
+//     shape.color = data.color ? data.color : '#000';
+//     shape.second_color = getComplementaryColor(shape.color);
+//     shapes.push(shape);
+//   });
+// })(standardTangramKit);
 
-let shapes = [];
-(data => {
-  data.shapes.forEach(s => {
-    let shape = new Shape({ x: 0, y: 0 }, null, s.name, 'tangram');
-    shape.setSegments(s.segments);
-    shape.color = data.color ? data.color : '#000';
-    shape.second_color = getComplementaryColor(shape.color);
-    shapes.push(shape);
-  });
-})(standardTangramKit);
-
-window.addEventListener('new-window', () => {
-  TangramManager.setTangram(new Tangram('', shapes));
+fetch('src/Tangram/tangramStartPos.agt').then(async response => {
+  app.tangramStartPos = await response.text();
 });
 
-TangramManager.setTangram(new Tangram('', shapes));
+// window.addEventListener(
+//   'workspace-changed',
+//   () => {
+//     app.workspace.setTranslateOffset(new Point(56.325569909594186, 62.67211299799919));
+//     app.workspace.setZoomLevel(0.8677803523248963);
+//   },
+//   { once: true },
+// );
+
+window.addEventListener('new-window', () => {
+  app.silhouette = new Silhouette();
+});
+
+window.addEventListener('create-silhouette', event => {
+  TangramManager.createSilhouette(event.detail.shapes, event.detail.silhouetteMode);
+});
 
 app.CremTangrams = [];
 

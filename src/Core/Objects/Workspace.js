@@ -116,6 +116,7 @@ export class Workspace {
         startTranslateOffset: this.translateOffset,
         startShapes: this.shapes,
         startShapeGroups: this.shapeGroups,
+        startSilhouette: app.silhouette,
       });
     }
     if (wsdata.settings) {

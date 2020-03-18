@@ -10,7 +10,7 @@ export class Silhouette {
    * @param {Shape[]} shapes les shapes représentant la silhouette
    */
   constructor(shapes) {
-    this.shapes = shapes;
+    this.shapes = shapes || [];
   }
 
   saveToObject() {
@@ -26,5 +26,9 @@ export class Silhouette {
       newShape.initFromObject(s);
       return newShape;
     });
+  }
+
+  copy() {
+    return new Silhouette(this.shapes.map(s => s.copy()));
   }
 }

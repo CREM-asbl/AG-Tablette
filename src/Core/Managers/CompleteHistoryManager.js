@@ -9,7 +9,7 @@ import { History } from '../Objects/History';
  */
 export class CompleteHistoryManager {
   static startBrowse() {
-    // if call when already running
+    // if called when already running
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
 
     CompleteHistoryManager.isRunning = true;
@@ -33,6 +33,8 @@ export class CompleteHistoryManager {
     app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(gr =>
       gr.copy(true),
     );
+    if (app.environment.name == 'Tangram')
+      app.silhouette = app.workspace.completeHistory.startSilhouette.copy();
     app.workspace.history = new History();
   }
 
@@ -239,6 +241,15 @@ window.addEventListener('mouse-coordinates-changed', event =>
 
 window.addEventListener('actions-executed', event =>
   CompleteHistoryManager.addStep('actions-executed', event),
+);
+
+// tangram
+// window.addEventListener('state-menu-button-click', event =>
+//   CompleteHistoryManager.addStep('state-menu-button-click', event),
+// );
+
+window.addEventListener('create-silhouette', event =>
+  CompleteHistoryManager.addStep('create-silhouette', event),
 );
 
 // undo - redo

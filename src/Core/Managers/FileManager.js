@@ -2,7 +2,7 @@ import { app } from '../App';
 import { Settings } from '../Settings';
 import { GridManager } from '../../Grid/GridManager';
 import { WorkspaceManager } from './WorkspaceManager';
-import { Tangram } from '../../Tangram/Tangram';
+import { Silhouette } from '../Objects/Silhouette';
 
 export class FileManager {
   static parseFile(data) {
@@ -30,9 +30,9 @@ export class FileManager {
       WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
     }
 
-    if (app.environment.name == 'Tangram' && dataObject.tangramData) {
-      app.tangram = new Tangram();
-      app.tangram.initFromObject(dataObject.tangramData);
+    if (app.environment.name == 'Tangram') {
+      app.silhouette = new Silhouette();
+      if (dataObject.silhouetteData) app.silhouette.initFromObject(dataObject.silhouetteData);
     }
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -127,8 +127,7 @@ export class FileManager {
 
   static drawTangramToSvg() {
     let svg_data = '';
-    if (app.tangram && app.tangram.silhouette)
-      svg_data = app.tangram.silhouette.shapes.map(s => s.to_svg()).join('\n');
+    if (app.silhouette) svg_data = app.silhouette.shapes.map(s => s.to_svg()).join('\n');
     return svg_data;
   }
 
@@ -166,15 +165,15 @@ export class FileManager {
     if (!detail.save_settings) appSettings = undefined;
     if (!detail.save_settings) wsdata.settings = undefined;
 
-    let tangramData;
-    if (app.environment.name == 'Tangram') tangramData = app.tangram.saveToObject();
+    let silhouetteData;
+    if (app.environment.name == 'Tangram') silhouetteData = app.silhouette.saveToObject();
 
     let saveObject = {
         appVersion: app.version,
         envName: app.environment.name,
         wsdata,
         appSettings,
-        tangramData,
+        silhouetteData,
       },
       json_data = JSON.stringify(saveObject);
 

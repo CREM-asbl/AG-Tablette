@@ -90,7 +90,6 @@ export class App {
 
   removeListener(listenerName, id) {
     if (!id || !this.listenerCounter[listenerName]) {
-      // console.trace(id, listenerName, this.listenerCounter[listenerName]);
       return;
     }
     window.removeEventListener(listenerName, this.listenerCounter[listenerName][id]);
@@ -135,8 +134,6 @@ export class App {
    */
   setState(stateName, startParams) {
     this.state = stateName || undefined;
-    //Reset state-menu
-    // this.stateMenu.configureButtons([]); => utilité ?
 
     window.dispatchEvent(
       new CustomEvent('app-state-changed', {
