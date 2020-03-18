@@ -13,12 +13,17 @@ export class CutState extends State {
     super('cut', 'Découper', 'operation');
 
     // listen-canvas-click -> select-second-point -> select-third-point -> showing-points
-    //                                            -> showing-points
     this.currentStep = null;
 
     this.timeoutRef = null;
 
     this.shape = null;
+
+    this.firstPoint = null;
+
+    this.secondPoint = null;
+
+    this.centerPoint = null;
 
     this.drawColor = '#E90CC8';
   }
@@ -95,8 +100,17 @@ export class CutState extends State {
       //On a sélectionné le premier point
       this.shape = object.shape;
       this.firstPoint = object;
-      this.currentStep = 'select-second-point';
-      this.setSelConstraints(this.currentStep);
+      if (this.shape.isSegment() && this.firstPoint.type == 'segmentPoint') {
+        this.currentStep = 'showing-points';
+        this.secondPoint = null;
+        window.clearTimeout(this.timeoutRef);
+        this.timeoutRef = window.setTimeout(() => {
+          this.execute();
+        }, 500);
+      } else {
+        this.currentStep = 'select-second-point';
+        this.setSelConstraints(this.currentStep);
+      }
     } else if (this.currentStep == 'select-second-point') {
       const pt1 = this.firstPoint,
         pt2 = object;
@@ -115,6 +129,7 @@ export class CutState extends State {
       } else if (this.isLineValid(pt2.shape, pt1, pt2)) {
         // On a sélectionné le second point: un autre point
         this.secondPoint = pt2;
+        this.centerPoint = null;
         this.currentStep = 'showing-points';
         window.clearTimeout(this.timeoutRef);
         this.timeoutRef = window.setTimeout(() => {
@@ -196,11 +211,12 @@ export class CutState extends State {
           detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
         }),
       );
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: { point: this.secondPoint, color: this.drawColor, size: 2 },
-        }),
-      );
+      if (this.secondPoint)
+        window.dispatchEvent(
+          new CustomEvent('draw-point', {
+            detail: { point: this.secondPoint, color: this.drawColor, size: 2 },
+          }),
+        );
       if (this.centerPoint)
         window.dispatchEvent(
           new CustomEvent('draw-point', {
@@ -212,8 +228,10 @@ export class CutState extends State {
 
   /**
    * Vérifie si le segment de droite reliant pt1 et pt2 reste bien à
-   * l'intérieur de la forme ou non, et qu'il y a au moins un point de ce
-   * segment qui n'est pas au bord de la forme.
+   * l'intérieur de la forme ou non, qu'il y a au moins un point de ce
+   * segment qui n'est pas au bord de la forme, et qu'il n'intersecte pas
+   * un segment 'interne' formé par une merge sans tous les segments
+   * qui collent parfaitement.
    * Vérifie également qu'il n'y a pas un autre sommet de la forme sur cette
    * droite.
    * @param  {Shape}  shape
@@ -224,7 +242,7 @@ export class CutState extends State {
   isLineValid(shape, pt1, pt2) {
     let length = pt1.dist(pt2),
       part = pt2.subCoordinates(pt1).multiplyWithScalar(1 / length),
-      precision = 1, //px
+      precision = 1, // px
       amountOfParts = length / precision,
       pointsInBorder = 0;
     for (let i = 1; i < amountOfParts; i++) {
@@ -233,12 +251,13 @@ export class CutState extends State {
       pointsInBorder += shape.isPointInBorder(pt) ? 1 : 0;
     }
     if (pointsInBorder > 40 * precision) return false;
+    const junction = new Segment(pt1, pt2);
+    if (shape.segments.some(seg => seg.doesIntersect(junction, false, true))) return false;
 
-    return shape.vertexes.every(vertex => {
-      return (
-        vertex.equal(pt1) || vertex.equal(pt2) || !new Segment(pt1, pt2).isPointOnSegment(vertex)
-      );
-    });
+    return shape.vertexes.every(
+      vertex =>
+        vertex.equal(pt1) || vertex.equal(pt2) || !new Segment(pt1, pt2).isPointOnSegment(vertex),
+    );
   }
 
   setSelConstraints(step) {
