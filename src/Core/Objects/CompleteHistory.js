@@ -1,5 +1,5 @@
-import { Shape } from './Shape';
 import { ShapeGroup } from './ShapeGroup';
+import { Shape } from './Shape';
 import { Point } from './Point';
 
 /**
@@ -61,12 +61,7 @@ export class CompleteHistory {
     this.endTimestamp = object.endTimestamp;
     this.startZoomLevel = object.startZoomLevel;
     this.startTranslateOffset = object.startTranslateOffset.copy();
-    this.startShapes = object.startShapes.map(s => {
-      let shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
-      shape.initFromObject(s);
-      shape.id = s.id;
-      return shape;
-    });
+    this.startShapes = object.startShapes.map(s => Shape.createFromObject(s));
     this.startShapeGroups = object.startShapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);

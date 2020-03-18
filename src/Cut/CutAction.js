@@ -28,12 +28,9 @@ export class CutAction extends Action {
   initFromObject(save) {
     this.createdShapesIds = save.createdShapesIds;
     if (save.createdShapes) {
-      this.createdShapes = save.createdShapes.map((s, idx) => {
-        let newShape = new Shape(new Point(0, 0), []);
-        newShape.initFromObject(s);
-        newShape.id = this.createdShapesIds[idx];
-        return newShape;
-      });
+      this.createdShapes = save.createdShapes.map((s, idx) =>
+        Shape.createFromObject(s, this.createdShapesIds[idx]),
+      );
     } else {
       this.shapeId = save.shapeId;
       this.firstPoint = new Point();

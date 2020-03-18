@@ -359,11 +359,10 @@ export class Shape {
 
   /**
    * move the shape with Point or coordinates
-   * @param {{x: number, y: number}} point - point to add
+   * @param {Point} point - point to add
    * @param {number} x - other method
    * @param {number} y - other method
    * @param {number} neg - negative translation
-   * @return {{x: number, y:number}} new coordinates
    */
   translate() {
     let neg,
@@ -388,9 +387,18 @@ export class Shape {
     this.y += translation.y;
   }
 
-  scale(scaling) {
+  /**
+   *
+   * @param {Number}    scaling   scale ratio
+   * @param {Boolean}   recenter  recenter the scaled shape from the original
+   */
+  scale(scaling, recenter = false) {
+    const oldCenter = this.center;
     this.segments.forEach(seg => seg.scale(scaling));
     this.internalSegments.forEach(seg => seg.scale(scaling));
+    if (recenter) {
+      this.translate(oldCenter.subCoordinates(this.center));
+    }
   }
 
   rotate(angle, center) {
@@ -542,6 +550,17 @@ export class Shape {
       seg => newShape.isPointInPath(seg.vertexes[0]) && newShape.isPointInPath(seg.vertexes[1]),
     );
     newShape.setInternalSegments(newShapeInternalSegment);
+    return newShape;
+  }
+  /**
+   * crée une nouvelle instance de Shape à partir d'un objet
+   * @param {Shape}     save      l'object exemple
+   * @param {number}    newId     l'id de la nouvelle forme à créer
+   */
+  static createFromObject(save, newId = undefined) {
+    let newShape = new Shape({ x: 0, y: 0 }, null);
+    newShape.initFromObject(save);
+    if (newId) newShape.id = newId;
     return newShape;
   }
 
