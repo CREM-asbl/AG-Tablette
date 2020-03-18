@@ -1,5 +1,6 @@
 import { Shape } from './Shape';
 import { ShapeGroup } from './ShapeGroup';
+import { Point } from './Point';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -32,6 +33,10 @@ export class CompleteHistory {
 
     // the groups that were there when the record starts
     this.startShapeGroups = [];
+
+    this.startZoomLevel = 1;
+
+    this.startTranslateOffset = new Point(0, 0);
   }
 
   saveToObject() {
@@ -39,6 +44,8 @@ export class CompleteHistory {
       steps: this.steps, //.map(step => step.saveToObject()),
       startTimestamp: this.startTimestamp,
       endTimestamp: Date.now(), //this.endTimestamp,
+      startZoomLevel: this.startZoomLevel,
+      startTranslateOffset: this.startTranslateOffset,
       startShapes: this.startShapes.map(s => s.saveToObject()),
       startShapeGroups: this.startShapeGroups.map(group => group.saveToObject()),
     };
@@ -49,6 +56,8 @@ export class CompleteHistory {
     this.steps = object.steps;
     this.startTimestamp = object.startTimestamp;
     this.endTimestamp = object.endTimestamp;
+    this.startZoomLevel = object.startZoomLevel;
+    this.startTranslateOffset = object.startTranslateOffset.copy();
     this.startShapes = object.startShapes.map(s => {
       let shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
       shape.initFromObject(s);

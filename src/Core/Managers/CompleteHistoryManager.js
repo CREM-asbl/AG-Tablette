@@ -27,6 +27,8 @@ export class CompleteHistoryManager {
   }
 
   static resetWorkspace() {
+    app.workspace.setZoomLevel(app.workspace.completeHistory.startZoomLevel);
+    app.workspace.setTranslateOffset(app.workspace.completeHistory.startTranslateOffset);
     app.workspace.shapes = app.workspace.completeHistory.startShapes.map(s => s.copy(true));
     app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(gr =>
       gr.copy(true),
