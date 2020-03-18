@@ -163,26 +163,31 @@ export class TangramManager {
     document.querySelector('body').appendChild(popup);
   }
 
-  static retrieveTangrams() {
+  static async getTangramFromServer(filename) {
+    const response = await fetch(filename, { mode: 'cors' }),
+      smallFilename = filename.slice('http://api.crem.be'.length);
+    if (response.ok) {
+      let object = await response.json();
+      if (object) return { ...object, filename: smallFilename };
+      else console.error('Failed to parse file', smallFilename);
+    } else {
+      console.error('Failed to get file', smallFilename);
+    }
+  }
+
+  static async retrieveTangrams() {
     if (!app || app.CremTangrams.length) return;
 
-    fetch('./src/Tangram/CremTangrams/square.agt')
-      .then(response => {
-        return response.text();
-      })
-      .then(text => {
-        let object = JSON.parse(text);
-        if (object) app.CremTangrams.push(object);
-      });
+    const serverURL = 'http://api.crem.be/',
+      folder = 'tangram/',
+      filenames = ['Square.agt', 'SquareInternal.agt'],
+      fullFilenames = filenames.map(name => serverURL + folder + name);
 
-    fetch('./src/Tangram/CremTangrams/squareInternal.agt')
-      .then(response => {
-        return response.text();
-      })
-      .then(text => {
-        let object = JSON.parse(text);
-        if (object) app.CremTangrams.push(object);
-      });
+    let jsons = (await Promise.all(
+      fullFilenames.map(async filename => this.getTangramFromServer(filename)),
+    )).filter(Boolean);
+
+    jsons.forEach(json => app.CremTangrams.push(json));
   }
 
   /**

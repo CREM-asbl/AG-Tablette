@@ -23,10 +23,6 @@ class SavePopup extends LitElement {
     this.save_format = 'png';
     this.image_or_state = 'state';
 
-    window.addEventListener('show-save-popup', () => {
-      this.style.display = 'block';
-    });
-
     window.addEventListener('close-popup', () => this.close());
   }
 
@@ -118,7 +114,7 @@ class SavePopup extends LitElement {
   }
 
   close() {
-    this.style.display = 'none';
+    this.remove();
   }
 
   /**
