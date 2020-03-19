@@ -2,8 +2,9 @@ import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
 import { FileManager } from '../Core/Managers/FileManager';
+
+const serverURL = 'https://api.crem.be/';
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
@@ -163,7 +164,7 @@ export class TangramManager {
 
   static async getTangramFromServer(filename) {
     const response = await fetch(filename, { mode: 'cors' }),
-      smallFilename = filename.slice('http://api.crem.be'.length);
+      smallFilename = filename.slice(serverURL.length);
     if (response.ok) {
       let object = await response.json();
       if (object) return { ...object, filename: smallFilename };
@@ -176,8 +177,7 @@ export class TangramManager {
   static async retrieveTangrams() {
     if (!app || app.CremTangrams.length) return;
 
-    const serverURL = 'http://api.crem.be/',
-      folder = 'tangram/',
+    const folder = 'tangram/',
       filenames = ['withInternal.agt', 'noInternal.agt'],
       fullFilenames = filenames.map(name => serverURL + folder + name);
 
