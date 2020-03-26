@@ -2,12 +2,6 @@ import { LitElement, html, css, unsafeCSS } from 'lit-element';
 import { EnvironmentManager } from './Core/Managers/EnvironmentManager';
 
 class AgEnvironnements extends LitElement {
-  // constructor() {
-  //   super();
-
-  //   this.isSafari = this.isSafari
-  // }
-
   static get isSafari() {
     let ua = navigator.userAgent.toLowerCase();
     if (ua.indexOf('safari') != -1) {
@@ -56,10 +50,15 @@ class AgEnvironnements extends LitElement {
         background-size: cover;
       }
 
-      /* #Tangram {
+      #Tangram {
+         background: url('/images/Environnements/tangram.${unsafeCSS(
+           this.isSafari ? 'jpg' : 'webp',
+         )}');
+        background-repeat: no-repeat;
+        background-size: cover;
       }
 
-      #Cubes {
+      /*#Cubes {
       }
 
       #Geometrie {

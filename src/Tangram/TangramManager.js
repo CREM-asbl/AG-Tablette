@@ -4,7 +4,7 @@ import { Silhouette } from '../Core/Objects/Silhouette';
 import { Shape } from '../Core/Objects/Shape';
 import { FileManager } from '../Core/Managers/FileManager';
 
-const serverURL = 'https://api.crem.be/';
+const serverURL = 'http://api.crem.be/';
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
@@ -181,9 +181,9 @@ export class TangramManager {
       filenames = ['withInternal.agt', 'noInternal.agt'],
       fullFilenames = filenames.map(name => serverURL + folder + name);
 
-    let jsons = (await Promise.all(
-      fullFilenames.map(async filename => this.getTangramFromServer(filename)),
-    )).filter(Boolean);
+    let jsons = (
+      await Promise.all(fullFilenames.map(async filename => this.getTangramFromServer(filename)))
+    ).filter(Boolean);
 
     jsons.forEach(json => app.CremTangrams.push(json));
   }
