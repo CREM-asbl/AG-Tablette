@@ -23,6 +23,9 @@ export class Environment {
       case 'Tangram':
         import('./Tangram');
         break;
+      case 'Cubes':
+        import('./Cubes');
+        break;
     }
 
     switch (this.name) {
