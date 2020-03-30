@@ -108,7 +108,7 @@ export class DrawManager {
     ctx.lineWidth = borderSize;
     const path = shape.getPath(axeAngle);
 
-    ctx.fill(path);
+    ctx.fill(path, 'evenodd');
     ctx.globalAlpha = 1;
     ctx.stroke(path);
     ctx.save();

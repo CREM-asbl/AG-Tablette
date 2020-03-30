@@ -439,7 +439,7 @@ export class Segment {
       result.x = segment.vertexes[0].x;
       // 2 segments 'normaux'
     } else {
-      if (ma == mb) return undefined; // ajouter precision ?
+      if (Math.abs(ma - mb) < 0.001) return undefined;
       let pb = segment.vertexes[0].y - mb * segment.vertexes[0].x;
       let pa = this.vertexes[0].y - ma * this.vertexes[0].x;
       result.x = (pb - pa) / (ma - mb);
