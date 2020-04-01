@@ -38,6 +38,7 @@ export class TangramManager {
       newSegments,
       silhouetteMode == 'withInternalSegment' ? internalSegments : [],
     );
+    if (!silhouette) return;
     app.silhouette = silhouette;
 
     window.dispatchEvent(new CustomEvent('refreshBackground'));
@@ -47,8 +48,63 @@ export class TangramManager {
     let shapes = segments.map(segs =>
       Shape.createFromSegments(segs, 'silhouette', 'tangram', internalSegments),
     );
+    shapes = TangramManager.checkShapesInsideOthers(shapes);
+    if (!shapes) return;
     let silhouette = new Silhouette(shapes);
     return silhouette;
+  }
+
+  static checkShapesInsideOthers(shapes) {
+    for (let i = 0; i < shapes.length; i++) {
+      let partialInside = shapes.findIndex(
+        (s, idx) => i != idx && s.segments.some(seg => shapes[i].isSegmentInside(seg)),
+      );
+      if (partialInside != -1) {
+        let commonSegs = [
+          ...shapes[i].segments.filter(seg => shapes[partialInside].isSegmentInside(seg)),
+          ...shapes[partialInside].segments.filter(seg => shapes[i].isSegmentInside(seg)),
+        ];
+        let nonCommonSegs = [
+          ...shapes[i].segments.filter(seg => commonSegs.every(comSeg => !seg.equal(comSeg))),
+          ...shapes[partialInside].segments.filter(seg =>
+            commonSegs.every(comSeg => !seg.equal(comSeg)),
+          ),
+        ];
+        let extSegs = TangramManager.linkNewSegments(nonCommonSegs);
+        if (extSegs.length != 1) {
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: { message: 'Le silhouette créée est trop complexe' },
+            }),
+          );
+          return;
+        }
+        let intSegs = TangramManager.linkNewSegments(commonSegs);
+        if (intSegs.length != 1) {
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: { message: 'Le silhouette créée est trop complexe' },
+            }),
+          );
+          return;
+        }
+        shapes[i] = Shape.createFromSegments(extSegs[0], 'silhouette', 'tangram', [
+          ...shapes[i].internalSegments,
+          ...shapes[partialInside].internalSegments,
+        ]);
+        shapes[i].internalSegmentsSets.push(intSegs[0]);
+        shapes.splice(partialInside, 1);
+        i--;
+      } else {
+        let insideOf = shapes.findIndex((s, idx) => i != idx && s.isInside(shapes[i]));
+        if (insideOf != -1) {
+          shapes[i].internalSegmentsSets.push(shapes[insideOf].segments);
+          shapes.splice(insideOf, 1);
+          i--;
+        }
+      }
+    }
+    return shapes;
   }
 
   static checkGroupMerge(shapes) {
@@ -94,7 +150,7 @@ export class TangramManager {
       else segs.forEach(seg => (seg.used = true));
     });
 
-    let internalSegments = oldSegmentsSave.filter(
+    let internalSegments = cutSegments.filter(
       oldSeg => !newSegments.some(newSeg => oldSeg.isSubsegment(newSeg)),
     );
 
@@ -108,45 +164,55 @@ export class TangramManager {
       segmentUsed = 0;
 
     while (segmentUsed != segmentsList.length) {
-      // segment beeing in use (may be prolongated)
       let currentSegment = segmentsList.find(seg => !seg.isUsed),
-        // first segment used (not modified)
-        firstSegment = currentSegment,
-        newSegmentsSet = [];
+        newSegmentsSets = [[]],
+        savedSegmentSets = [],
+        meetingPoints = [currentSegment.vertexes[0]];
 
       currentSegment.isUsed = true;
-      newSegmentsSet.push(currentSegment);
+      newSegmentsSets[newSegmentsSets.length - 1].push(currentSegment);
       segmentUsed++;
 
-      while (!firstSegment.vertexes[0].equal(currentSegment.vertexes[1])) {
+      while (meetingPoints.length > 0) {
         // while not closed
         const newPotentialSegments = segmentsList.filter(
           seg => !seg.isUsed && seg.contains(currentSegment.vertexes[1], false),
         );
-        if (newPotentialSegments.length != 1) {
-          if (newPotentialSegments.length == 0) console.log('shape cannot be closed (dead end)');
-          else console.log('shape is dig (a segment has more than one segment for next)');
+        if (newPotentialSegments.length == 0) {
+          console.log('shape cannot be closed (dead end)');
           return null;
+        } else if (newPotentialSegments.length > 1) {
+          newSegmentsSets.push([]);
+          meetingPoints.push(currentSegment.vertexes[1]);
         }
         nextSegment = newPotentialSegments[0].copy(false);
         newPotentialSegments[0].isUsed = true;
         if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1])) nextSegment.reverse(true);
 
-        if (currentSegment.hasSameDirection(nextSegment, 1, 0, false)) {
-          currentSegment.vertexes[1] = nextSegment.vertexes[1];
-        } else {
-          newSegmentsSet.push(nextSegment);
-          currentSegment = nextSegment;
+        newSegmentsSets[newSegmentsSets.length - 1].push(nextSegment);
+        currentSegment = nextSegment;
+
+        let meetingPointIndex = meetingPoints.findIndex(mtPt =>
+          currentSegment.vertexes[1].equal(mtPt),
+        );
+        if (meetingPointIndex != -1) {
+          savedSegmentSets.push(newSegmentsSets.splice(meetingPointIndex).flat());
+          meetingPoints.splice(meetingPointIndex);
         }
         segmentUsed++;
       }
-      if (
-        newSegmentsSet.length != 1 &&
-        currentSegment.hasSameDirection(firstSegment, 1, 0, false)
-      ) {
-        newSegmentsSet[0].vertexes[0] = newSegmentsSet.pop().vertexes[0];
-      }
-      newSegments.push(newSegmentsSet);
+      const cleanedSegmentsSets = savedSegmentSets.map(segmentSet => {
+        for (let i = 0; i < segmentSet.length; i++) {
+          if (
+            segmentSet[i].hasSameDirection(segmentSet[(i + 1) % segmentSet.length], 1, 0, false)
+          ) {
+            segmentSet[i].vertexes[1] = segmentSet[(i + 1) % segmentSet.length].vertexes[1];
+            segmentSet.splice((i + 1) % segmentSet.length, 1);
+          }
+        }
+        return segmentSet;
+      });
+      newSegments.push(...cleanedSegmentsSets);
     }
     return newSegments;
   }

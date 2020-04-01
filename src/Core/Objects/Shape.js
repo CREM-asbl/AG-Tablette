@@ -23,6 +23,7 @@ export class Shape {
     this.y = y;
     this.segments = segments;
     this.internalSegments = [];
+    this.internalSegmentsSets = [];
     this.name = name;
     this.familyName = familyName;
 
@@ -174,6 +175,13 @@ export class Shape {
       seg.getPath(path, axeAngle);
     });
     path.closePath();
+    this.internalSegmentsSets.forEach(segmentsSet => {
+      path.moveTo(segmentsSet[0].vertexes[0].x, segmentsSet[0].vertexes[0].y);
+      segmentsSet.forEach(seg => {
+        seg.getPath(path, axeAngle);
+      });
+      path.closePath();
+    });
     return path;
   }
 
@@ -257,9 +265,26 @@ export class Shape {
     return selected;
   }
 
+  isSegmentInside(segment) {
+    return (
+      this.isPointInPath(segment.vertexes[0]) &&
+      this.isPointInPath(segment.vertexes[1]) &&
+      (!(this.isPointInBorder(segment.vertexes[0]) && this.isPointInBorder(segment.vertexes[1])) ||
+        (this.isPointInPath(segment.middle) && !this.isPointInBorder(segment.middle)))
+    );
+  }
+
   /* #################################################################### */
   /* ############################# OVERLAP ############################## */
   /* #################################################################### */
+
+  /**
+   * check si this est complètement dans shape
+   * @param {*} shape l'autre forme
+   */
+  isInside(shape) {
+    return this.allOutlinePoints.every(pt => shape.isPointInPath(pt));
+  }
 
   /**
    * Vérifie si cette forme se superpose avec une autre forme.
