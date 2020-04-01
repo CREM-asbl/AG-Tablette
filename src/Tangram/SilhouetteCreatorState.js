@@ -32,10 +32,16 @@ export class SilhouetteCreatorState extends State {
     window.addEventListener('open-file', () => this.finish());
   }
 
+  async getStartPosition() {
+    const response = await fetch('data/Tangram/tangramStartPos.agt');
+    return response.text();
+  }
+
   /**
    * initialiser l'état
    */
-  start() {
+  async start() {
+    if (!app.tangramStartPos) app.tangramStartPos = await this.getStartPosition();
     app.workspace.shapes = [];
     app.silhouette = new Silhouette();
     TangramManager.showShapes();

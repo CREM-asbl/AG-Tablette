@@ -281,19 +281,15 @@ export class TangramManager {
   }
 }
 
-fetch('data/Tangram/tangramStartPos.agt').then(async response => {
-  app.tangramStartPos = await response.text();
-});
+// fetch('data/Tangram/tangramStartPos.agt').then(async response => {
+//   app.tangramStartPos = await response.text();
+// });
 
 window.addEventListener('new-window', () => {
   app.silhouette = new Silhouette();
 });
 
 window.addEventListener('create-silhouette', event => {
-  // if (!app.tangramStartPos)
-  //   fetch('data/Tangram/tangramStartPos.agt').then(async response => {
-  //     app.tangramStartPos = await response.text();
-  //   });
   TangramManager.createSilhouette(event.detail.shapes, event.detail.silhouetteMode);
 });
 
