@@ -13,8 +13,7 @@
     "@webcomponents/webcomponentsjs": "^2.4.3",
     "browserslist": "^4.11.0",
     "lit-element": "^2.3.1",
-    "pwa-helpers": "^0.9.1",
-    "rollup-plugin-cpy": "^2.0.1"
+    "pwa-helpers": "^0.9.1"
   },
   "devDependencies": {
     "@open-wc/building-rollup": "^0.16.0",
@@ -50,11 +49,15 @@
     "site:build": "npm run storybook:build",
     "storybook": "start-storybook -p 9001",
     "storybook:build": "build-storybook -o _site -s storybook-static",
+    "build": "rimraf dist && rollup -c rollup.config.js && npm run copy",
     "start:build": "cd dist && es-dev-server --open",
-    "build": "rimraf dist && rollup -c rollup.config.js",
+    "build:beta": "rimraf beta && rollup -c rollup.beta.config.js && npm run copy:beta",
+    "start:build:beta": "cd beta && es-dev-server --open",
     "start": "es-dev-server --app-index index.html --node-resolve --open --watch --compatibility none",
     "start:compatibility": "es-dev-server --app-index index.html --compatibility all --node-resolve --open --watch",
-    "start:local": "es-dev-server --app-index index.html --node-resolve --open --watch --hostname 192.168.0.4"
+    "start:local": "es-dev-server --app-index index.html --node-resolve --open --watch --hostname 192.168.0.4",
+    "copy": "ncp images \"dist/images\" && copy manifest.json dist",
+    "copy:beta": "ncp images \"beta/images\" && copy manifest.json beta"
   },
   "eslintConfig": {
     "extends": [
