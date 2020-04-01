@@ -56,8 +56,8 @@
     "start": "es-dev-server --app-index index.html --node-resolve --open --watch --compatibility none",
     "start:compatibility": "es-dev-server --app-index index.html --compatibility all --node-resolve --open --watch",
     "start:local": "es-dev-server --app-index index.html --node-resolve --open --watch --hostname 192.168.0.4",
-    "copy": "ncp images \"dist/images\" && copy manifest.json dist",
-    "copy:beta": "ncp images \"beta/images\" && copy manifest.json beta"
+    "copy": "ncp images \"dist/images\" && ncp data \"dist/data\" && copy manifest.json dist",
+    "copy:beta": "ncp images \"beta/images\" && ncp data \"beta/data\" && copy manifest.json beta"
   },
   "eslintConfig": {
     "extends": [
