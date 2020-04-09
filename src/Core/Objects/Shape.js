@@ -16,18 +16,21 @@ export class Shape {
    * @param {String} name       nom de la forme
    * @param {String} familyName     nom de la famille de la forme
    */
-  constructor({ x, y }, segments, name, familyName) {
+  constructor({ x, y }, segments = null, name, familyName, path = null, color = '#aaa') {
     this.id = uniqId();
 
     this.x = x;
     this.y = y;
-    this.segments = segments || [];
     this.internalSegments = [];
     this.name = name;
     this.familyName = familyName;
+    this.path = path;
 
-    this.color = '#aaa';
-    this.second_color = getComplementaryColor('#aaa');
+    this.setSegments(segments);
+    this.initSegmentsFromPath();
+
+    this.color = color;
+    this.second_color = getComplementaryColor(color);
     this.borderColor = '#000';
     this.internalSegmentColor = '#fff';
     this.opacity = 0.7;
@@ -193,6 +196,8 @@ export class Shape {
   }
 
   initSegmentsFromPath() {
+    if (!this.path) return;
+    this.segments = [];
     const allPathElements = this.path.split(' ').filter(element => element !== '');
     let firstVertex, lastVertex, startVertex;
 
@@ -541,6 +546,7 @@ export class Shape {
   }
 
   setSegments(segments) {
+    if (!segments) return;
     this.segments = segments.map((seg, idx) => {
       let newSeg = new Segment();
       newSeg.initFromObject(seg);

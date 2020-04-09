@@ -1,5 +1,4 @@
 import { uniqId } from '../Tools/general';
-import { getComplementaryColor } from '../Tools/general';
 import { Shape } from './Shape';
 
 /**
@@ -29,11 +28,14 @@ export class Family {
       return;
     }
 
-    let shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
-    shape.setPath(path);
-    if (segments) shape.setSegments(segments);
-    shape.color = color ? color : this.defaultColor;
-    shape.second_color = getComplementaryColor(shape.color);
+    let shape = new Shape(
+      { x: 0, y: 0 },
+      segments,
+      name,
+      this.name,
+      path,
+      color ? color : this.defaultColor,
+    );
 
     this.shapes.push(shape);
   }
