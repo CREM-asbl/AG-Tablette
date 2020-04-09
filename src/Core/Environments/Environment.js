@@ -55,7 +55,7 @@ export class Environment {
     for (let [familyName, familyData] of Object.entries(kit.families)) {
       let family = new Family(familyName, familyData.color);
       familyData.shapes.forEach(shape => {
-        family.addShape(shape.name, shape.segments, shape.color);
+        family.addShape(shape);
       });
       this.families.push(family);
       this.familyNames.push(familyName);

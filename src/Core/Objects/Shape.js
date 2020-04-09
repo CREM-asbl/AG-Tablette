@@ -21,7 +21,7 @@ export class Shape {
 
     this.x = x;
     this.y = y;
-    this.segments = segments;
+    this.segments = segments || [];
     this.internalSegments = [];
     this.name = name;
     this.familyName = familyName;
@@ -162,12 +162,17 @@ export class Shape {
     return [...vertexes, ...segmentPoints];
   }
 
+  setPath(path) {
+    this.path = path;
+    this.initSegmentsFromPath();
+  }
   /**
    * Renvoie un objet Path2D permettant de dessiner la forme.
    * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
    * @return {Path2D} le path de dessin de la forme
    */
   getPath(axeAngle = undefined) {
+    if (this.path) return new Path2D(this.path);
     const path = new Path2D();
     path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
     this.segments.forEach(seg => {
@@ -185,6 +190,59 @@ export class Shape {
       });
     });
     return commonsPoints;
+  }
+
+  initSegmentsFromPath() {
+    const allPathElements = this.path.split(' ').filter(element => element !== '');
+    let firstVertex, lastVertex, startVertex;
+
+    while (allPathElements.length) {
+      const element = allPathElements.shift();
+
+      switch (element) {
+        case 'M':
+        case 'm':
+          lastVertex = { x: allPathElements.shift(), y: allPathElements.shift() };
+          startVertex = lastVertex;
+          break;
+
+        case 'L':
+        case 'l':
+          firstVertex = lastVertex;
+          lastVertex = { x: allPathElements.shift(), y: allPathElements.shift() };
+          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          break;
+
+        case 'H':
+        case 'h':
+          firstVertex = lastVertex;
+          lastVertex = { x: allPathElements.shift(), y: firstVertex.y };
+          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          break;
+
+        case 'V':
+        case 'v':
+          firstVertex = lastVertex;
+          lastVertex = { x: firstVertex.x, y: allPathElements.shift() };
+          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          break;
+
+        // case 'Z':
+        // case 'z':
+        //   firstVertex = lastVertex
+        //   lastVertex = vertexes[0]
+        //   console.log('close', firstVertex, lastVertex)
+        //   this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length))
+        //   break
+
+        /* default = closePath car case Z et z ne passe pas  */
+        default:
+          firstVertex = lastVertex;
+          lastVertex = startVertex;
+          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          break;
+      }
+    }
   }
 
   /* #################################################################### */

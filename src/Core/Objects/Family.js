@@ -23,14 +23,15 @@ export class Family {
    * @param {String} name       Nom de la forme
    * @param {[String]} steps étapes de construction de la forme
    */
-  addShape(name, segments, color) {
-    if (segments.length < 1) {
+  addShape({ name, segments, color, path }) {
+    if (!path && segments.length < 1) {
       console.error('Family.addShape error: buildSteps.length is 0');
       return;
     }
 
     let shape = new Shape({ x: 0, y: 0 }, null, name, this.name);
-    shape.setSegments(segments);
+    shape.setPath(path);
+    if (segments) shape.setSegments(segments);
     shape.color = color ? color : this.defaultColor;
     shape.second_color = getComplementaryColor(shape.color);
 
