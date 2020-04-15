@@ -108,16 +108,23 @@ export class DrawManager {
     ctx.lineWidth = borderSize;
     const path = shape.getPath(axeAngle);
 
+    ctx.save();
+    if (shape.path) {
+      ctx.translate(shape.x, shape.y);
+      ctx.scale(shape.size, shape.size);
+    }
     ctx.fill(path);
     ctx.globalAlpha = 1;
     ctx.stroke(path);
+    ctx.restore();
+
     ctx.save();
 
     if (app.settings.get('areShapesPointed') && shape.name != 'silhouette') {
       if (shape.isSegment())
         DrawManager.drawPoint(ctx, shape.segments[0].vertexes[0], '#000', 1, false);
       shape.segments.forEach(seg => {
-        if (!shape.isCircle()) DrawManager.drawPoint(ctx, seg.vertexes[1], '#000', 1, false);
+        if (!shape.isCircle()) DrawManager.drawPoint(ctx, seg.vertexes[0], '#000', 1, false);
       });
     }
     shape.internalSegments.forEach(seg => {

@@ -3,6 +3,9 @@ import { LitElement, html, css } from 'lit-element';
 import { Shape } from './Core/Objects/Shape';
 import { Point } from './Core/Objects/Point';
 
+//A quoi sert silhouetteidx ?
+//Les canvas-button sont utilisés dans tangram ?
+
 class CanvasButton extends LitElement {
   static get properties() {
     return {

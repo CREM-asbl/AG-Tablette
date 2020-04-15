@@ -480,7 +480,7 @@ export class Shape {
    */
   copy(full = false) {
     let segments = this.segments.map(seg => seg.copy());
-    let copy = new Shape(this, segments, this.name, this.familyName);
+    let copy = new Shape(this, segments, this.name, this.familyName, this.path);
     segments.forEach(seg => (seg.shape = copy));
     copy.internalSegments = this.internalSegments.map(seg => seg.copy());
     copy.color = this.color;
@@ -498,7 +498,9 @@ export class Shape {
   /**
    * convertit la shape en balise path de svg
    */
+
   to_svg() {
+    //Todo : repartir du path existant ?
     let point = new Point(this.segments[0].vertexes[0]);
     point.setToCanvasCoordinates();
     let path = 'M ' + point.x + ' ' + point.y + '\n';
@@ -582,6 +584,7 @@ export class Shape {
       opacity: this.opacity,
       segments: this.segments.map(seg => seg.saveToObject()),
       internalSegments: this.internalSegments.map(seg => seg.saveToObject()),
+      path: this.path,
     };
     return save;
   }
@@ -602,6 +605,7 @@ export class Shape {
     this.isCenterShown = save.isCenterShown;
     this.isReversed = save.isReversed;
     this.opacity = save.opacity;
+    this.path = save.path;
   }
 
   static createFromSegments(segments, name, family, internalSegments = []) {
