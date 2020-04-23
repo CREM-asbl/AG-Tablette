@@ -314,8 +314,13 @@ export class Shape {
    * @param  {Point}  point le point
    */
   isPointInPath(point) {
+    console.log(point, this.path);
     const ctx = app.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    if (this.path) {
+      ctx.translate(this.x, this.y);
+      ctx.scale(this.size, this.size);
+    }
     const selected = ctx.isPointInPath(this.getPath(), point.x, point.y);
     return selected;
   }
