@@ -314,7 +314,6 @@ export class Shape {
    * @param  {Point}  point le point
    */
   isPointInPath(point) {
-    console.log(point, this.path);
     const ctx = app.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     if (this.path) {
@@ -470,6 +469,7 @@ export class Shape {
   }
 
   rotate(angle, center) {
+    this.angle = angle;
     this.segments.forEach(seg => seg.rotate(angle, center));
     this.internalSegments.forEach(seg => seg.rotate(angle, center));
   }

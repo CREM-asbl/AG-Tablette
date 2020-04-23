@@ -417,7 +417,6 @@ export class SelectManager {
     for (let i = 0; i < constr.priority.length; i++) {
       let f = calls[constr.priority[i]],
         obj = f(mouseCoordinates, constr[constr.priority[i]]);
-      console.log(obj);
       if (obj) {
         window.dispatchEvent(
           new CustomEvent('objectSelected', {

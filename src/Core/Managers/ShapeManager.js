@@ -90,7 +90,6 @@ export class ShapeManager {
    * @return la liste des formes ([Shape])
    */
   static shapesOnPoint(point) {
-    console.log(app.workspace.shapes);
     let list = app.workspace.shapes.filter(
       shape => shape.isPointInPath(point) || shape.isPointOnSegment(point),
     );
