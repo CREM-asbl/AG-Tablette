@@ -21,6 +21,7 @@ export class Shape {
 
     this.x = x;
     this.y = y;
+    this.angle = 0;
     this.internalSegments = [];
     this.name = name;
     this.familyName = familyName;
@@ -469,7 +470,7 @@ export class Shape {
   }
 
   rotate(angle, center) {
-    this.angle = angle;
+    this.angle += angle % Math.PI;
     this.segments.forEach(seg => seg.rotate(angle, center));
     this.internalSegments.forEach(seg => seg.rotate(angle, center));
   }
@@ -496,6 +497,8 @@ export class Shape {
     copy.isCenterShown = this.isCenterShown;
     copy.isReversed = this.isReversed;
     copy.opacity = this.opacity;
+    copy.size = this.size;
+    copy.angle = this.angle;
     if (full) copy.id = this.id;
     return copy;
   }
