@@ -251,10 +251,7 @@ export class FileManager {
           }),
         );
         break;
-      case 'agg':
-      case 'agt':
-      case 'agc':
-      case 'agl':
+      default:
         window.addEventListener(
           'file-selected',
           event => {
@@ -268,10 +265,6 @@ export class FileManager {
           { once: true },
         );
         createElem('save-popup');
-        break;
-      default:
-        console.error('unsupported file format: ', extension);
-        return;
     }
   }
 
@@ -306,15 +299,8 @@ export class FileManager {
           case 'svg':
             FileManager.saveToSvg(handle);
             break;
-          case 'agg':
-          case 'agt':
-          case 'agc':
-          case 'agl':
-            FileManager.saveState(handle, detail);
-            break;
           default:
-            console.error('unsupported file format: ', extension);
-            return;
+            FileManager.saveState(handle, detail);
         }
       },
       { once: true },

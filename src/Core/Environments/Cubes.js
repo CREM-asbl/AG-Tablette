@@ -1,5 +1,5 @@
 import './Common';
-import { standardKit } from '../ShapesKits/standardKit';
+import { kit } from '../ShapesKits/cubesKit';
 import { app } from '../App';
 
 import { CreateState } from '../../Create/CreateState';
@@ -20,9 +20,6 @@ import { BorderColorAction } from '../../BorderColor/BorderColorAction';
 import { CopyState } from '../../Copy/CopyState';
 import { CopyAction } from '../../Copy/CopyAction';
 
-import { BuildCenterState } from '../../BuildCenter/BuildCenterState';
-import { BuildCenterAction } from '../../BuildCenter/BuildCenterAction';
-
 import { DeleteState } from '../../Delete/DeleteState';
 import { DeleteAction } from '../../Delete/DeleteAction';
 
@@ -39,39 +36,11 @@ import { OpacityAction } from '../../Opacity/OpacityAction';
 import { ToBackgroundState } from '../../ToBackground/ToBackgroundState';
 import { ToBackgroundAction } from '../../ToBackground/ToBackgroundAction';
 
-import { DivideState } from '../../Divide/DivideState';
-import { DivideAction } from '../../Divide/DivideAction';
-
-import { MergeState } from '../../Merge/MergeState';
-import { MergeAction } from '../../Merge/MergeAction';
-
-import { CutState } from '../../Cut/CutState';
-import { CutAction } from '../../Cut/CutAction';
-
-import { BifaceState } from '../../Biface/BifaceState';
-import { BifaceAction } from '../../Biface/BifaceAction';
-
-import { GridManager } from '../../Grid/GridManager';
-
-app.environment.loadFamilies(standardKit);
-
 new CreateState();
 new CreateAction();
 
-new BuildCenterState();
-new BuildCenterAction();
-
-new DivideState();
-new DivideAction();
-
-new CutState();
-new CutAction();
-
 new CopyState();
 new CopyAction();
-
-new MergeState();
-new MergeAction();
 
 new DeleteState();
 new DeleteAction();
@@ -94,9 +63,6 @@ new BorderColorAction();
 new OpacityState();
 new OpacityAction();
 
-new BifaceState();
-new BifaceAction();
-
 new TranslateState();
 new TranslateAction();
 
@@ -104,8 +70,8 @@ new ZoomState();
 new ZoomAction();
 new PermanentZoomState();
 
-GridManager.initState();
+app.environment.loadFamilies(kit);
 
-app.environment.extension = 'agg';
+app.environment.extension = 'agc';
 
 window.dispatchEvent(new CustomEvent('env-created'));

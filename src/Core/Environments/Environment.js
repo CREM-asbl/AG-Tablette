@@ -16,6 +16,7 @@ export class Environment {
     this.familyNames = [];
 
     // Build à besoin d'avoir les noms des fichiers pour les bundles
+    // Todo: Rendre se chargement plus souple (custom Environnement)
     switch (name) {
       case 'Grandeurs':
         import('./Grandeurs');
@@ -23,23 +24,14 @@ export class Environment {
       case 'Tangram':
         import('./Tangram');
         break;
-    }
-
-    switch (this.name) {
-      case 'Grandeurs':
-        this.extension = 'agg';
+      case 'Cubes':
+        import('./Cubes');
         break;
-      case 'Tangram':
-        this.extension = 'agt';
-        break;
-      case 'Cube':
-        this.extension = 'agc';
-        break;
-      case 'Géométrie':
-        this.extension = 'agl';
-        break;
+      // case 'Géométrie':
+      //   this.extension = 'agl';
+      //   break;
       default:
-        this.extension = 'json';
+        console.log(`Environnement ${name} pas encore pris en charge`);
     }
   }
 
@@ -52,7 +44,7 @@ export class Environment {
     for (let [familyName, familyData] of Object.entries(kit.families)) {
       let family = new Family(familyName, familyData.color);
       familyData.shapes.forEach(shape => {
-        family.addShape(shape.name, shape.segments, shape.color);
+        family.addShape(shape);
       });
       this.families.push(family);
       this.familyNames.push(familyName);

@@ -17,6 +17,7 @@ import { BorderColorAction } from '../../BorderColor/BorderColorAction';
 
 import { Rotate45State } from '../../Rotate45/Rotate45State';
 import { Rotate45Action } from '../../Rotate45/Rotate45Action';
+import { app } from '../App';
 
 new SilhouetteCreatorState();
 
@@ -36,5 +37,7 @@ new Rotate45State();
 new Rotate45Action();
 
 // new TangramState();
+
+app.environnement.extension = 'agt';
 
 window.dispatchEvent(new CustomEvent('env-created'));

@@ -16,19 +16,23 @@ export class Shape {
    * @param {String} name       nom de la forme
    * @param {String} familyName     nom de la famille de la forme
    */
-  constructor({ x, y }, segments, name, familyName) {
+  constructor({ x, y }, segments = null, name, familyName, path = null, color = '#aaa') {
     this.id = uniqId();
 
     this.x = x;
     this.y = y;
-    this.segments = segments;
+    this.angle = 0;
     this.internalSegments = [];
     this.internalSegmentsSets = [];
     this.name = name;
     this.familyName = familyName;
+    this.path = path;
 
-    this.color = '#aaa';
-    this.second_color = getComplementaryColor('#aaa');
+    this.setSegments(segments);
+    this.initSegmentsFromPath();
+
+    this.color = color;
+    this.second_color = getComplementaryColor(color);
     this.borderColor = '#000';
     this.internalSegmentColor = '#fff';
     this.opacity = 0.7;
@@ -163,12 +167,17 @@ export class Shape {
     return [...vertexes, ...segmentPoints];
   }
 
+  setPath(path) {
+    this.path = path;
+    this.initSegmentsFromPath();
+  }
   /**
    * Renvoie un objet Path2D permettant de dessiner la forme.
    * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
    * @return {Path2D} le path de dessin de la forme
    */
   getPath(axeAngle = undefined) {
+    if (this.path) return new Path2D(this.path);
     const path = new Path2D();
     path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
     this.segments.forEach(seg => {
@@ -193,6 +202,61 @@ export class Shape {
       });
     });
     return commonsPoints;
+  }
+
+  initSegmentsFromPath() {
+    if (!this.path) return;
+    this.segments = [];
+    const allPathElements = this.path.split(' ').filter(element => element !== '');
+    let firstVertex, lastVertex, startVertex;
+
+    while (allPathElements.length) {
+      const element = allPathElements.shift();
+
+      switch (element) {
+        case 'M':
+        case 'm':
+          lastVertex = { x: allPathElements.shift(), y: allPathElements.shift() };
+          startVertex = lastVertex;
+          break;
+
+        case 'L':
+        case 'l':
+          firstVertex = lastVertex;
+          lastVertex = { x: allPathElements.shift(), y: allPathElements.shift() };
+          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          break;
+
+        case 'H':
+        case 'h':
+          firstVertex = lastVertex;
+          lastVertex = { x: allPathElements.shift(), y: firstVertex.y };
+          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          break;
+
+        case 'V':
+        case 'v':
+          firstVertex = lastVertex;
+          lastVertex = { x: firstVertex.x, y: allPathElements.shift() };
+          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          break;
+
+        // case 'Z':
+        // case 'z':
+        //   firstVertex = lastVertex
+        //   lastVertex = vertexes[0]
+        //   console.log('close', firstVertex, lastVertex)
+        //   this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length))
+        //   break
+
+        /* default = closePath car case Z et z ne passe pas  */
+        default:
+          firstVertex = lastVertex;
+          lastVertex = startVertex;
+          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          break;
+      }
+    }
   }
 
   /* #################################################################### */
@@ -261,6 +325,10 @@ export class Shape {
   isPointInPath(point) {
     const ctx = app.invisibleCtx;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    if (this.path) {
+      ctx.translate(this.x, this.y);
+      ctx.scale(this.size, this.size);
+    }
     const selected = ctx.isPointInPath(this.getPath(), point.x, point.y);
     return selected;
   }
@@ -427,6 +495,7 @@ export class Shape {
   }
 
   rotate(angle, center) {
+    this.angle += angle % Math.PI;
     this.segments.forEach(seg => seg.rotate(angle, center));
     this.internalSegments.forEach(seg => seg.rotate(angle, center));
   }
@@ -442,7 +511,7 @@ export class Shape {
    */
   copy(full = false) {
     let segments = this.segments.map(seg => seg.copy());
-    let copy = new Shape(this, segments, this.name, this.familyName);
+    let copy = new Shape(this, segments, this.name, this.familyName, this.path);
     segments.forEach(seg => (seg.shape = copy));
     copy.internalSegments = this.internalSegments.map(seg => seg.copy());
     copy.color = this.color;
@@ -453,6 +522,8 @@ export class Shape {
     copy.isCenterShown = this.isCenterShown;
     copy.isReversed = this.isReversed;
     copy.opacity = this.opacity;
+    copy.size = this.size;
+    copy.angle = this.angle;
     if (full) copy.id = this.id;
     return copy;
   }
@@ -460,7 +531,9 @@ export class Shape {
   /**
    * convertit la shape en balise path de svg
    */
+
   to_svg() {
+    //Todo : repartir du path existant ?
     let point = new Point(this.segments[0].vertexes[0]);
     point.setToCanvasCoordinates();
     let path = 'M ' + point.x + ' ' + point.y + '\n';
@@ -508,6 +581,7 @@ export class Shape {
   }
 
   setSegments(segments) {
+    if (!segments) return;
     this.segments = segments.map((seg, idx) => {
       let newSeg = new Segment();
       newSeg.initFromObject(seg);
@@ -543,6 +617,7 @@ export class Shape {
       opacity: this.opacity,
       segments: this.segments.map(seg => seg.saveToObject()),
       internalSegments: this.internalSegments.map(seg => seg.saveToObject()),
+      path: this.path,
     };
     return save;
   }
@@ -563,6 +638,7 @@ export class Shape {
     this.isCenterShown = save.isCenterShown;
     this.isReversed = save.isReversed;
     this.opacity = save.opacity;
+    this.path = save.path;
   }
 
   static createFromSegments(segments, name, family, internalSegments = []) {

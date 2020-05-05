@@ -4,7 +4,6 @@ import { html } from 'lit-element';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
 import './shapes-list';
 
 /**
@@ -121,11 +120,11 @@ export class CreateState extends State {
 
   onMouseDown() {
     if (this.currentStep != 'listen-canvas-click') return;
-
     this.shapeToCreate = this.selectedShape.copy();
     let shapeSize = app.settings.get('shapesSize');
 
     this.shapeToCreate.scale(shapeSize);
+    this.shapeToCreate.size = shapeSize;
     this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 

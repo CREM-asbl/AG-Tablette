@@ -4,7 +4,7 @@ import { Silhouette } from '../Core/Objects/Silhouette';
 import { Shape } from '../Core/Objects/Shape';
 import { FileManager } from '../Core/Managers/FileManager';
 
-const serverURL = 'http://api.crem.be/';
+const serverURL = 'https://api.crem.be/';
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
