@@ -106,4 +106,6 @@ new PermanentZoomState();
 
 GridManager.initState();
 
+app.environment.extension = 'agg';
+
 window.dispatchEvent(new CustomEvent('env-created'));

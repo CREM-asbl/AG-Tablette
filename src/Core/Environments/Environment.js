@@ -16,6 +16,7 @@ export class Environment {
     this.familyNames = [];
 
     // Build à besoin d'avoir les noms des fichiers pour les bundles
+    // Todo: Rendre se chargement plus souple (custom Environnement)
     switch (name) {
       case 'Grandeurs':
         import('./Grandeurs');
@@ -26,23 +27,11 @@ export class Environment {
       case 'Cubes':
         import('./Cubes');
         break;
-    }
-
-    switch (this.name) {
-      case 'Grandeurs':
-        this.extension = 'agg';
-        break;
-      case 'Tangram':
-        this.extension = 'agt';
-        break;
-      case 'Cube':
-        this.extension = 'agc';
-        break;
-      case 'Géométrie':
-        this.extension = 'agl';
-        break;
+      // case 'Géométrie':
+      //   this.extension = 'agl';
+      //   break;
       default:
-        this.extension = 'json';
+        console.log(`Environnement ${name} pas encore pris en charge`);
     }
   }
 

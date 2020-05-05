@@ -330,6 +330,8 @@ export class FileManager {
   }
 
   static async saveFile() {
+    console.log(FileManager.hasNativeFS, 'chooseFileSystemEntries' in window);
+
     if (FileManager.hasNativeFS) {
       try {
         await FileManager.newSaveFile();

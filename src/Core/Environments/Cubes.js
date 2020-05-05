@@ -72,4 +72,6 @@ new PermanentZoomState();
 
 app.environment.loadFamilies(kit);
 
+app.environment.extension = 'agc';
+
 window.dispatchEvent(new CustomEvent('env-created'));
