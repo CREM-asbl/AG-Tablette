@@ -1,5 +1,5 @@
 export const kit = {
-  name: 'cubes',
+  name: 'Cubes',
   families: {
     'Cube 1': {
       color: '#F70',

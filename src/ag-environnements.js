@@ -51,17 +51,22 @@ class AgEnvironnements extends LitElement {
       }
 
       #Tangram {
-         background: url('/images/Environnements/tangram.${unsafeCSS(
-           this.isSafari ? 'jpg' : 'webp',
-         )}');
+        background: url('/images/Environnements/tangram.${unsafeCSS(
+          this.isSafari ? 'jpg' : 'webp',
+        )}');
         background-repeat: no-repeat;
         background-size: cover;
       }
 
-      /*#Cubes {
+      #Cubes {
+        background: url('/images/Environnements/cubes.${unsafeCSS(
+          this.isSafari ? 'png' : 'webp',
+        )}');
+        background-repeat: no-repeat;
+        background-size: cover;
       }
 
-      #Geometrie {
+      /*#Geometrie {
       } */
     `;
   }
