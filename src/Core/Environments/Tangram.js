@@ -38,6 +38,6 @@ new Rotate45Action();
 
 // new TangramState();
 
-app.environnement.extension = 'agt';
+app.environment.extension = 'agt';
 
 window.dispatchEvent(new CustomEvent('env-created'));
