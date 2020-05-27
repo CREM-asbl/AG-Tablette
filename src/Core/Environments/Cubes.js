@@ -30,9 +30,6 @@ import { ZoomState } from '../../Zoom/ZoomState';
 import { ZoomAction } from '../../Zoom/ZoomAction';
 import { PermanentZoomState } from '../../Zoom/PermanentZoomState';
 
-import { OpacityState } from '../../Opacity/OpacityState';
-import { OpacityAction } from '../../Opacity/OpacityAction';
-
 import { ToBackgroundState } from '../../ToBackground/ToBackgroundState';
 import { ToBackgroundAction } from '../../ToBackground/ToBackgroundAction';
 
@@ -59,9 +56,6 @@ new BackgroundColorAction();
 
 new BorderColorState();
 new BorderColorAction();
-
-new OpacityState();
-new OpacityAction();
 
 new TranslateState();
 new TranslateAction();

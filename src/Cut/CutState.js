@@ -40,7 +40,7 @@ export class CutState extends State {
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de découper une forme
         en deux nouvelles formes, tout en laissant la forme d'origine intacte.<br /><br />
 
-        Pour découper une forme, touchez un premiet sommet de la forme, puis éventuellement le
+        Pour découper une forme, touchez un premier sommet de la forme, puis éventuellement le
         centre de la forme (non obligatoire), et enfin un second sommet de la forme.<br /><br />
 
         <b>Note:</b> il n'est pas toujours possible de découper une forme en sélectionnant deux
