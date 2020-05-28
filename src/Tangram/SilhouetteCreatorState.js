@@ -108,9 +108,11 @@ export class SilhouetteCreatorState extends State {
       this.silhouetteMode = confirm('Sauvegarder les segments internes de la silhouette ?')
         ? 'withInternalSegment'
         : 'noInternalSegment';
+
+      console.log(app.workspace.shapes);
       window.dispatchEvent(
         new CustomEvent('create-silhouette', {
-          detail: { shapes: app.workspace.shapes, silhouetteMode: this.silhouetteMode },
+          detail: { silhouetteMode: this.silhouetteMode },
         }),
       );
     }

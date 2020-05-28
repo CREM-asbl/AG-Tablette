@@ -13,7 +13,8 @@ export class TangramManager {
     FileManager.parseFile(app.tangramStartPos);
   }
 
-  static createSilhouette(shapes, silhouetteMode) {
+  static createSilhouette(silhouetteMode) {
+    const shapes = app.workspace.shapes;
     let { newSegments, internalSegments } = TangramManager.checkGroupMerge(shapes);
     if (!newSegments) {
       window.dispatchEvent(
@@ -290,7 +291,7 @@ window.addEventListener('new-window', () => {
 });
 
 window.addEventListener('create-silhouette', event => {
-  TangramManager.createSilhouette(event.detail.shapes, event.detail.silhouetteMode);
+  TangramManager.createSilhouette(event.detail.silhouetteMode);
 });
 
 app.CremTangrams = [];

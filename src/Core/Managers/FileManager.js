@@ -174,6 +174,8 @@ export class FileManager {
     let silhouetteData;
     if (app.environment.name == 'Tangram') silhouetteData = app.silhouette.saveToObject();
 
+    console.log(wsdata.completeHistory.steps);
+
     let saveObject = {
         appVersion: app.version,
         envName: app.environment.name,
@@ -182,21 +184,6 @@ export class FileManager {
         silhouetteData,
       },
       json_data = JSON.stringify(saveObject);
-
-    // let data = wsdata.shapes.map(shape => {
-    //   return {
-    //     name: shape.name,
-    //     segments: shape.segments.map(seg => {
-    //       return {
-    //         vertexes: seg.vertexes.map(pt => {
-    //           return { x: pt.x, y: pt.y };
-    //         }),
-    //       };
-    //     }),
-    //   };
-    // });
-
-    // json_data = JSON.stringify(data);
 
     if (FileManager.hasNativeFS) {
       FileManager.newWriteFile(handle, json_data);
