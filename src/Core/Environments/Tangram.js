@@ -1,5 +1,8 @@
 import './Common';
 
+import { ReverseState } from '../../Reverse/ReverseState';
+import { ReverseAction } from '../../Reverse/ReverseAction';
+
 import { SilhouetteCreatorState } from '../../Tangram/SilhouetteCreatorState';
 import '../../Tangram/TangramManager';
 
@@ -18,6 +21,9 @@ import { BorderColorAction } from '../../BorderColor/BorderColorAction';
 import { Rotate45State } from '../../Rotate45/Rotate45State';
 import { Rotate45Action } from '../../Rotate45/Rotate45Action';
 import { app } from '../App';
+
+new ReverseState();
+new ReverseAction();
 
 new SilhouetteCreatorState();
 

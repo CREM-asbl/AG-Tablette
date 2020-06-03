@@ -5,6 +5,9 @@ import { app } from '../App';
 import { CreateState } from '../../Create/CreateState';
 import { CreateAction } from '../../Create/CreateAction';
 
+import { ReverseState } from '../../Reverse/ReverseState';
+import { ReverseAction } from '../../Reverse/ReverseAction';
+
 import { GroupState } from '../../Group/GroupState';
 import { GroupAction } from '../../Group/GroupAction';
 
@@ -57,6 +60,9 @@ app.environment.loadFamilies(standardKit);
 
 new CreateState();
 new CreateAction();
+
+new ReverseState();
+new ReverseAction();
 
 new BuildCenterState();
 new BuildCenterAction();
