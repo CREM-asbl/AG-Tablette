@@ -495,7 +495,7 @@ export class Shape {
   }
 
   rotate(angle, center) {
-    this.angle += angle % Math.PI;
+    this.angle = (this.angle + angle) % (2 * Math.PI);
     this.segments.forEach(seg => seg.rotate(angle, center));
     this.internalSegments.forEach(seg => seg.rotate(angle, center));
   }
