@@ -48,6 +48,17 @@ class SettingsPopup extends LitElement {
               />
               <label for="settings_adapt_shapes_position">Ajustement automatique</label>
             </div>
+
+            <div class="field">
+              <input
+                type="checkbox"
+                name="settings_pointed_shapes"
+                id="settings_pointed_shapes"
+                .checked="${this.settings.data.areShapesPointed}"
+                @change="${this._actionHandle}"
+              />
+              <label for="settings_pointed_shapes">Formes pointées</label>
+            </div>
           </fieldset>
 
           <br />
@@ -72,17 +83,6 @@ class SettingsPopup extends LitElement {
                   3
                 </option>
               </select>
-            </div>
-
-            <div class="field">
-              <input
-                type="checkbox"
-                name="settings_pointed_shapes"
-                id="settings_pointed_shapes"
-                .checked="${this.settings.data.areShapesPointed}"
-                @change="${this._actionHandle}"
-              />
-              <label for="settings_pointed_shapes">Formes pointées</label>
             </div>
           </fieldset>
         </div>

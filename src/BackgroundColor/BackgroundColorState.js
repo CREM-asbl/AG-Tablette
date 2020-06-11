@@ -60,7 +60,7 @@ export class BackgroundColorState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir choisi une couleur, touchez une forme pour en colorier le fond.
+        Après avoir choisi une couleur, touchez une forme pour en colorier l'intérieur.
       </p>
     `;
   }
