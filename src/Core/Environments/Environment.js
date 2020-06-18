@@ -26,6 +26,7 @@ export class Environment {
         break;
       case 'Cubes':
         import('./Cubes');
+        // this.load('cubes.json')
         break;
       // case 'Géométrie':
       //   this.extension = 'agl';
@@ -34,6 +35,23 @@ export class Environment {
         console.log(`Environnement ${name} pas encore pris en charge`);
     }
   }
+
+  // async load(file) {
+  //   const response = await fetch(`data/${file}`)
+  //   const data = await response.json()
+  //   this.loadModules(data.modules)
+  //   console.log(data.kit)
+  //   this.extension = data.extension
+  // }
+
+  // loadModules(modules) {
+  //   modules.forEach(module => {
+  //     import(`../../${module}/${module}State.js`)
+  //     import(`../../${module}/${module}Action.js`)
+  //     // new `${module}State`()
+  //     // new `${module}Action`()
+  //   })
+  // }
 
   /**
    * Charger les familles de l'environnement à partir d'un kit

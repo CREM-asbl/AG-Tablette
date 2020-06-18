@@ -1,0 +1,18 @@
+{
+  "modules": [
+    "Create",
+    "Move",
+    "Rotate",
+    "Copy",
+    "Delete",
+    "Group",
+    "Ungroup",
+    "ToBackground",
+    "BackgroundColor",
+    "BorderColor",
+    "Translate",
+    "Zoom"
+  ],
+  "extension": "agc",
+  "kit": "cubesKit"
+}
