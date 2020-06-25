@@ -534,13 +534,24 @@ export class Shape {
 
   to_svg() {
     //Todo : repartir du path existant ?
-    let point = new Point(this.segments[0].vertexes[0]);
-    point.setToCanvasCoordinates();
-    let path = 'M ' + point.x + ' ' + point.y + '\n';
-    this.segments.forEach(seg => {
-      path += seg.to_svg() + '\n';
-    });
-    path += 'Z';
+    let path = this.path;
+    let transform = this.path
+      ? `translate(${this.x}, ${this.y})
+       rotate(${this.angle ? (this.angle * 180) / Math.PI : 0} ${this.center.x - this.x} ${this
+          .center.y - this.y})
+       scale(${this.size},${this.size})`
+      : '';
+
+    if (!path) {
+      let point = new Point(this.segments[0].vertexes[0]);
+      point.setToCanvasCoordinates();
+      path = 'M ' + point.x + ' ' + point.y + '\n';
+      this.segments.forEach(seg => {
+        path += seg.to_svg() + '\n';
+      });
+      path += 'Z';
+    }
+
     let attributes = {
       d: path,
       stroke: this.borderColor,
@@ -548,6 +559,7 @@ export class Shape {
       'fill-opacity': this.opacity,
       'stroke-width': 1, // toujours à 1 ?
       'stroke-opacity': 1, // toujours à 1 ?
+      transform: transform,
     };
 
     let path_tag = '<path';
