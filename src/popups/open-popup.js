@@ -52,11 +52,7 @@ class OpenPopup extends LitElement {
                         style="display: flex;
                       cursor: pointer;"
                         @click="${() => {
-                          // app.workspace.initFromObject(tan.wsdata);
-                          // app.silhouette.initFromObject(tan.silhouetteData);
                           FileManager.parseFile(tan);
-                          // window.dispatchEvent(new CustomEvent('refreshMain'));
-                          // window.dispatchEvent(new CustomEvent('refreshBackground'));
                           this.close();
                         }}"
                       >

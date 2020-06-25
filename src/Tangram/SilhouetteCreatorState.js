@@ -29,7 +29,7 @@ export class SilhouetteCreatorState extends State {
 
     window.addEventListener('new-window', () => this.finish());
 
-    window.addEventListener('open-file', () => this.finish());
+    window.addEventListener('silhouette-opened', () => this.finish());
   }
 
   async getStartPosition() {

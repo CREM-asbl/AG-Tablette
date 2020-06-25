@@ -5,7 +5,7 @@ import { WorkspaceManager } from './WorkspaceManager';
 import { Silhouette } from '../Objects/Silhouette';
 import { createElem } from '../Tools/general';
 import '../../popups/save-popup';
-import '../../popups/open-poup';
+import '../../popups/open-popup';
 
 export class FileManager {
   static parseFile(data) {
@@ -40,8 +40,8 @@ export class FileManager {
 
     if (app.environment.name == 'Tangram') {
       app.silhouette = new Silhouette();
-      console.log(dataObject.silhouetteData);
       if (dataObject.silhouetteData) app.silhouette.initFromObject(dataObject.silhouetteData);
+      window.dispatchEvent(new CustomEvent('silhouette-opened'));
     }
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
