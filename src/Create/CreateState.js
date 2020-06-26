@@ -52,11 +52,23 @@ export class CreateState extends State {
   start(family) {
     this.currentStep = 'show-family-shapes';
     this.selectedFamily = family;
-    createElem('shapes-list');
+    const shapesNames = app.environment.getFamily(family).getShapesNames();
+
+    if (shapesNames.length === 1) {
+      const shapeRef = app.environment.getFamily(this.selectedFamily).getShape(shapesNames[0]);
+      this.setShape(shapeRef.saveToObject());
+      return;
+    }
+
+    if (!this.popup) this.popup = createElem('shapes-list');
+    this.popup.selectedFamily = family;
+    this.popup.shapesNames = shapesNames;
+    this.popup.style.display = 'flex';
 
     window.dispatchEvent(
       new CustomEvent('family-selected', { detail: { selectedFamily: this.selectedFamily } }),
     );
+
     window.addEventListener('shape-selected', this.handler);
   }
 
@@ -91,6 +103,10 @@ export class CreateState extends State {
    * stopper l'état
    */
   end() {
+    if (app.state !== this.name) {
+      this.popup.remove();
+      this.popup = null;
+    }
     window.cancelAnimationFrame(this.requestAnimFrameId);
     window.removeEventListener('shape-selected', this.handler);
     app.removeListener('canvasmousedown', this.mouseDownId);
