@@ -65,50 +65,6 @@ export class CompleteHistoryManager {
     CompleteHistoryManager.executeAllSteps();
   }
 
-  // static createNewObject(detail) {
-  //   if (!detail)
-  //     return;
-  //   let savedDetail = {};
-  //   for (let [key, value] of Object.entries(detail)) {
-  //     if (value instanceof Shape) {
-  //       let newObj = new Shape(new Point(0, 0), []);
-  //       newObj.initFromObject(value);
-  //       value = newObj;
-  //     }
-  //     else if (value instanceof Segment) {
-  //       let newObj = new Segment();
-  //       newObj.initFromObject(value);
-  //       value = newObj;
-  //     }
-  //     else if (value instanceof Point) {
-  //       let newObj = new Point();
-  //       newObj.initFromObject(value);
-  //       value = newObj;
-  //     }
-  //     else if (value instanceof Array)
-  //       value = value.map(elem => {
-  //         if (elem instanceof Shape) {
-  //           let newObj = new Shape(new Point(0, 0), []);
-  //           newObj.initFromObject(elem);
-  //           elem = newObj;
-  //         }
-  //         else if (elem instanceof Segment) {
-  //           let newObj = new Segment();
-  //           newObj.initFromObject(elem);
-  //           elem = newObj;
-  //         }
-  //         else if (elem instanceof Point) {
-  //           let newObj = new Point();
-  //           newObj.initFromObject(elem);
-  //           elem = newObj;
-  //         }
-  //         else return elem;
-  //       });
-  //     savedDetail[key] = value;
-  //   }
-  //   return savedDetail;
-  // }
-
   static executeAllSteps() {
     if (
       app.workspace.completeHistory.historyIndex >=

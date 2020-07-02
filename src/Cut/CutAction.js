@@ -29,7 +29,7 @@ export class CutAction extends Action {
     this.createdShapesIds = save.createdShapesIds;
     if (save.createdShapes) {
       this.createdShapes = save.createdShapes.map((s, idx) =>
-        Shape.createFromObject(s, this.createdShapesIds[idx]),
+        Shape.fromObject({ ...s, id: this.createdShapesIds[idx] }),
       );
     } else {
       this.shapeId = save.shapeId;

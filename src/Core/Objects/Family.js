@@ -28,14 +28,15 @@ export class Family {
       return;
     }
 
-    let shape = new Shape(
-      { x: 0, y: 0 },
-      segments,
-      name,
-      this.name,
-      path,
-      color ? color : this.defaultColor,
-    );
+    let shape = new Shape({
+      x: 0,
+      y: 0,
+      segments: segments,
+      name: name,
+      familyName: this.name,
+      path: path,
+      color: color ? color : this.defaultColor,
+    });
 
     this.shapes.push(shape);
   }

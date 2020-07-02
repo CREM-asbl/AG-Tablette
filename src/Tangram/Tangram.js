@@ -33,7 +33,7 @@ export class Tangram {
     this.id = data.id;
     this.name = data.name;
     if (data.shapes) {
-      this.shapes = data.shapes.map(sData => Shape.createFromObject(sData));
+      this.shapes = data.shapes.map(sData => Shape.fromObject(sData));
     }
     if (data.silhouette) {
       this.silhouette = new Silhouette();

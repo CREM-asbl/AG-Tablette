@@ -61,7 +61,7 @@ export class CompleteHistory {
     this.endTimestamp = object.endTimestamp;
     this.startZoomLevel = object.startZoomLevel;
     this.startTranslateOffset = object.startTranslateOffset;
-    this.startShapes = object.startShapes?.map(s => Shape.createFromObject(s));
+    this.startShapes = object.startShapes?.map(s => Shape.fromObject(s));
     this.startShapeGroups = object.startShapeGroups?.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);

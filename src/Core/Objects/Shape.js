@@ -16,17 +16,28 @@ export class Shape {
    * @param {String} name       nom de la forme
    * @param {String} familyName     nom de la famille de la forme
    */
-  constructor({ x, y }, segments = null, name, familyName, path = null, color = '#aaa') {
-    this.id = uniqId();
-
+  constructor({
+    x,
+    y,
+    segments = null,
+    name,
+    familyName,
+    path = null,
+    color = '#aaa',
+    id,
+    angle = 0,
+    size = 2,
+  }) {
+    this.id = id || uniqId();
     this.x = x;
     this.y = y;
-    this.angle = 0;
+    this.angle = angle;
     this.internalSegments = [];
     this.internalSegmentsSets = [];
     this.name = name;
     this.familyName = familyName;
     this.path = path;
+    this.size = size;
 
     this.setSegments(segments);
     this.initSegmentsFromPath();
@@ -511,7 +522,7 @@ export class Shape {
    */
   copy(full = false) {
     let segments = this.segments.map(seg => seg.copy());
-    let copy = new Shape(this, segments, this.name, this.familyName, this.path);
+    let copy = new Shape({ ...this, segments: segments });
     segments.forEach(seg => (seg.shape = copy));
     copy.internalSegments = this.internalSegments.map(seg => seg.copy());
     copy.color = this.color;
@@ -533,7 +544,6 @@ export class Shape {
    */
 
   to_svg() {
-    //Todo : repartir du path existant ?
     let path = this.path;
     let transform = this.path
       ? `translate(${this.x}, ${this.y})
@@ -615,46 +625,33 @@ export class Shape {
 
   saveToObject() {
     let save = {
-      id: this.id,
-      name: this.name,
-      familyName: this.familyName,
+      ...this,
       coordinates: this.coordinates.saveToObject(),
-      color: this.color,
-      second_color: this.second_color,
-      isBiface: this.isBiface,
-      borderColor: this.borderColor,
-      internalSegmentColor: this.internalSegmentColor,
-      isCenterShown: this.isCenterShown,
-      isReversed: this.isReversed,
-      opacity: this.opacity,
       segments: this.segments.map(seg => seg.saveToObject()),
       internalSegments: this.internalSegments.map(seg => seg.saveToObject()),
-      path: this.path,
     };
     return save;
   }
 
-  initFromObject(save) {
-    this.setSegments(save.segments);
-    if (save.internalSegments) this.setInternalSegments(save.internalSegments);
-    if (save.internalSegmentColor) this.internalSegmentColor = save.internalSegmentColor;
-    this.id = save.id;
-    this.x = save.coordinates.x;
-    this.y = save.coordinates.y;
-    this.name = save.name;
-    this.familyName = save.familyName;
-    this.color = save.color;
-    this.second_color = save.second_color;
-    this.isBiface = save.isBiface;
-    this.borderColor = save.borderColor;
-    this.isCenterShown = save.isCenterShown;
-    this.isReversed = save.isReversed;
-    this.opacity = save.opacity;
-    this.path = save.path;
+  static fromObject(save) {
+    console.log(save);
+    let shape = new Shape(save);
+    if (save.internalSegments) shape.setInternalSegments(save.internalSegments);
+    if (save.internalSegmentColor) shape.internalSegmentColor = save.internalSegmentColor;
+    shape.x = save.coordinates.x;
+    shape.y = save.coordinates.y;
+    shape.second_color = save.second_color;
+    shape.isBiface = save.isBiface;
+    shape.borderColor = save.borderColor;
+    shape.isCenterShown = save.isCenterShown;
+    shape.isReversed = save.isReversed;
+    shape.opacity = save.opacity;
+    shape.path = save.path;
+    return shape;
   }
 
   static createFromSegments(segments, name, family, internalSegments = []) {
-    let newShape = new Shape({ x: 0, y: 0 }, null, name, family);
+    let newShape = new Shape({ x: 0, y: 0, name: name, familyName: family });
     newShape.setSegments(segments);
     newShape.color = '#000';
     newShape.second_color = getComplementaryColor(newShape.color);
@@ -663,17 +660,6 @@ export class Shape {
       seg => newShape.isPointInPath(seg.vertexes[0]) && newShape.isPointInPath(seg.vertexes[1]),
     );
     newShape.setInternalSegments(newShapeInternalSegment);
-    return newShape;
-  }
-  /**
-   * crée une nouvelle instance de Shape à partir d'un objet
-   * @param {Shape}     save      l'object exemple
-   * @param {number}    newId     l'id de la nouvelle forme à créer
-   */
-  static createFromObject(save, newId = undefined) {
-    let newShape = new Shape({ x: 0, y: 0 }, null);
-    newShape.initFromObject(save);
-    if (newId) newShape.id = newId;
     return newShape;
   }
 
