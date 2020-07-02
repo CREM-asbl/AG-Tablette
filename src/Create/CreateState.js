@@ -185,7 +185,6 @@ export class CreateState extends State {
       };
       this.actions.push(moveAction);
     }
-
     this.executeAction();
     this.restart();
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -196,7 +195,6 @@ export class CreateState extends State {
     if (this.currentStep != 'moving-shape' || this.status != 'running') return;
 
     this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
-
     window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: this.shapeToCreate } }));
   }
 }

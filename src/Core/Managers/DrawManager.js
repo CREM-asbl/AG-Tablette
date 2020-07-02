@@ -123,23 +123,16 @@ export class DrawManager {
 
     ctx.save();
 
-    if (app.settings.get('areShapesPointed') && shape.name != 'silhouette') {
-      if (shape.isSegment())
-        DrawManager.drawPoint(ctx, shape.segments[0].vertexes[0], '#000', 1, false);
-      shape.segments.forEach(seg => {
-        if (!shape.isCircle()) DrawManager.drawPoint(ctx, seg.vertexes[0], '#000', 1, false);
-      });
+    if (app.settings.get('areShapesPointed') && shape.name !== 'silhouette' && !shape.isCircle()) {
+      shape.vertexes.forEach(point => DrawManager.drawPoint(ctx, point, '#000', 1, false));
     }
+
     shape.internalSegments.forEach(seg => {
       DrawManager.drawLine(ctx, seg, shape.internalSegmentColor, 1, false);
     });
-    shape.segments.forEach(seg => {
-      if (seg.points && seg.points.length) {
-        seg.points.forEach(pt => {
-          DrawManager.drawPoint(ctx, pt, '#000', 1, false);
-        });
-      }
-    });
+
+    shape.segmentPoints.forEach(point => DrawManager.drawPoint(ctx, point, '#000', 1, false));
+
     if (shape.isCenterShown) DrawManager.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
     ctx.restore();
 

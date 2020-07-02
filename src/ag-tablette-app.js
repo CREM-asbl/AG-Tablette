@@ -146,7 +146,6 @@ class AGTabletteApp extends LitElement {
   }
 
   render() {
-    console.log(app);
     return html`
       <div id="app-canvas-view">
         <div id="app-canvas-view-toolbar" class="toolbar">

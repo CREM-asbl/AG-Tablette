@@ -39,8 +39,8 @@ export class Shape {
     this.path = path;
     this.size = size;
 
-    this.setSegments(segments);
-    this.initSegmentsFromPath();
+    if (segments) this.setSegments(segments);
+    else this.initSegmentsFromPath();
 
     this.color = color;
     this.second_color = getComplementaryColor(color);
@@ -643,7 +643,6 @@ export class Shape {
     shape.isCenterShown = save.isCenterShown;
     shape.isReversed = save.isReversed;
     shape.opacity = save.opacity;
-    shape.path = save.path;
     return shape;
   }
 

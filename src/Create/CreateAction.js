@@ -47,7 +47,6 @@ export class CreateAction extends Action {
 
   undo() {
     if (!this.checkUndoParameters()) return;
-
     let shape = ShapeManager.getShapeById(this.shapeId);
     ShapeManager.deleteShape(shape);
   }

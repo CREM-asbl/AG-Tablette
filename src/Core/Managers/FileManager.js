@@ -174,8 +174,6 @@ export class FileManager {
     let silhouetteData;
     if (app.environment.name == 'Tangram') silhouetteData = app.silhouette.saveToObject();
 
-    console.log(wsdata.completeHistory.steps);
-
     let saveObject = {
         appVersion: app.version,
         envName: app.environment.name,
