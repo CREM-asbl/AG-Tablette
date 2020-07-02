@@ -24,7 +24,7 @@ export class Shape {
     familyName,
     path = null,
     color = '#aaa',
-    id,
+    id = null,
     angle = 0,
     size = 2,
   }) {
@@ -522,10 +522,11 @@ export class Shape {
    */
   copy(full = false) {
     let segments = this.segments.map(seg => seg.copy());
-    let copy = new Shape({ ...this, segments: segments });
+    let data = { ...this, segments: segments };
+    if (!full) data.id = null;
+    let copy = new Shape(data);
     segments.forEach(seg => (seg.shape = copy));
     copy.internalSegments = this.internalSegments.map(seg => seg.copy());
-    copy.color = this.color;
     copy.second_color = this.second_color;
     copy.isBiface = this.isBiface;
     copy.borderColor = this.borderColor;
@@ -533,9 +534,6 @@ export class Shape {
     copy.isCenterShown = this.isCenterShown;
     copy.isReversed = this.isReversed;
     copy.opacity = this.opacity;
-    copy.size = this.size;
-    copy.angle = this.angle;
-    if (full) copy.id = this.id;
     return copy;
   }
 
@@ -634,7 +632,6 @@ export class Shape {
   }
 
   static fromObject(save) {
-    console.log(save);
     let shape = new Shape(save);
     if (save.internalSegments) shape.setInternalSegments(save.internalSegments);
     if (save.internalSegmentColor) shape.internalSegmentColor = save.internalSegmentColor;

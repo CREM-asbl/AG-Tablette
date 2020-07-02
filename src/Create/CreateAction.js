@@ -41,7 +41,6 @@ export class CreateAction extends Action {
 
   do() {
     if (!this.checkDoParameters()) return;
-
     this.shapeToCreate.id = this.shapeId;
     ShapeManager.addShape(this.shapeToCreate);
   }

@@ -104,7 +104,7 @@ export class CreateState extends State {
    */
   end() {
     if (app.state !== this.name) {
-      this.popup.remove();
+      this.popup?.remove();
       this.popup = null;
     }
     window.cancelAnimationFrame(this.requestAnimFrameId);
