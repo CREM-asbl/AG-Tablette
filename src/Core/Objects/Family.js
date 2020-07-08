@@ -10,11 +10,16 @@ export class Family {
    * @param {String} name         Nom de la famille
    * @param {String} defaultColor Couleur par défaut des formes ("#xxxxxx")
    */
-  constructor(name, defaultColor) {
+  constructor({ name, color, shapes, opacity = 0.7 }) {
     this.name = name;
-    this.shapes = [];
-    this.defaultColor = defaultColor;
+    this.defaultColor = color;
+    this.opacity = opacity;
     this.id = uniqId();
+    this.shapes = [];
+    shapes.forEach(shape => {
+      this.addShape(shape);
+    });
+    console.log(this);
   }
 
   /**
@@ -22,7 +27,7 @@ export class Family {
    * @param {String} name       Nom de la forme
    * @param {[String]} steps étapes de construction de la forme
    */
-  addShape({ name, segments, color, path }) {
+  addShape({ name, segments, color, path, opacity }) {
     if (!path && segments.length < 1) {
       console.error('Family.addShape error: buildSteps.length is 0');
       return;
@@ -36,6 +41,7 @@ export class Family {
       familyName: this.name,
       path: path,
       color: color ? color : this.defaultColor,
+      opacity: opacity ? opacity : this.opacity,
     });
 
     this.shapes.push(shape);

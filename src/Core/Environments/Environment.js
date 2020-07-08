@@ -60,11 +60,7 @@ export class Environment {
   loadFamilies(kit) {
     this.kitName = kit.name;
     for (let [familyName, familyData] of Object.entries(kit.families)) {
-      let family = new Family(familyName, familyData.color);
-      familyData.shapes.forEach(shape => {
-        family.addShape(shape);
-      });
-      this.families.push(family);
+      this.families.push(new Family({ name: familyName, ...familyData }));
       this.familyNames.push(familyName);
     }
     window.dispatchEvent(new CustomEvent('families-loaded'));

@@ -3,6 +3,7 @@ export const kit = {
   families: {
     'Cube 1': {
       color: '#F70',
+      opacity: 1,
       shapes: [
         {
           name: 'Cube 1',
@@ -16,6 +17,7 @@ export const kit = {
     },
     'Cube 2': {
       color: '#F70',
+      opacity: 1,
       shapes: [
         {
           name: 'Cube 2',

@@ -27,6 +27,7 @@ export class Shape {
     id = null,
     angle = 0,
     size = 2,
+    opacity = 0.7,
   }) {
     this.id = id || uniqId();
     this.x = x;
@@ -38,15 +39,15 @@ export class Shape {
     this.familyName = familyName;
     this.path = path;
     this.size = size;
+    this.color = color;
+    this.opacity = opacity;
 
     if (segments) this.setSegments(segments);
     else this.initSegmentsFromPath();
 
-    this.color = color;
     this.second_color = getComplementaryColor(color);
     this.borderColor = '#000';
     this.internalSegmentColor = '#fff';
-    this.opacity = 0.7;
     this.isCenterShown = false;
     this.isReversed = false;
     this.isBiface = false;
@@ -60,7 +61,10 @@ export class Shape {
     let points = [];
     if (this.isSegment()) points.push(this.segments[0].vertexes[0]);
     if (this.isCircle()) points.push(...this.segments[0].points);
-    else this.segments.forEach(segment => points.push(segment.vertexes[1], ...segment.points));
+    else
+      this.segments.forEach(segment =>
+        points.push(segment.vertexes[1], ...segment.points)
+      );
     return points;
   }
 
@@ -109,7 +113,7 @@ export class Shape {
         total.sumY / total.amount,
         'center',
         undefined,
-        this,
+        this
       );
     }
   }
@@ -143,7 +147,7 @@ export class Shape {
         total.sumY / total.amount,
         'center',
         undefined,
-        this,
+        this
       );
     }
   }
@@ -171,7 +175,8 @@ export class Shape {
         .map(seg => seg.vertexes)
         .flat()
         .filter((vertex, idx, vertexes) => {
-          if (vertex) return vertexes.findIndex(vertex2 => vertex2.equal(vertex)) == idx;
+          if (vertex)
+            return vertexes.findIndex(vertex2 => vertex2.equal(vertex)) == idx;
           else return false;
         }),
       segmentPoints = this.segments.map(seg => seg.points).flat();
@@ -218,7 +223,9 @@ export class Shape {
   initSegmentsFromPath() {
     if (!this.path) return;
     this.segments = [];
-    const allPathElements = this.path.split(' ').filter(element => element !== '');
+    const allPathElements = this.path
+      .split(' ')
+      .filter(element => element !== '');
     let firstVertex, lastVertex, startVertex;
 
     while (allPathElements.length) {
@@ -227,29 +234,41 @@ export class Shape {
       switch (element) {
         case 'M':
         case 'm':
-          lastVertex = { x: allPathElements.shift(), y: allPathElements.shift() };
+          lastVertex = {
+            x: allPathElements.shift(),
+            y: allPathElements.shift(),
+          };
           startVertex = lastVertex;
           break;
 
         case 'L':
         case 'l':
           firstVertex = lastVertex;
-          lastVertex = { x: allPathElements.shift(), y: allPathElements.shift() };
-          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          lastVertex = {
+            x: allPathElements.shift(),
+            y: allPathElements.shift(),
+          };
+          this.segments.push(
+            new Segment(firstVertex, lastVertex, this, this.segments.length)
+          );
           break;
 
         case 'H':
         case 'h':
           firstVertex = lastVertex;
           lastVertex = { x: allPathElements.shift(), y: firstVertex.y };
-          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          this.segments.push(
+            new Segment(firstVertex, lastVertex, this, this.segments.length)
+          );
           break;
 
         case 'V':
         case 'v':
           firstVertex = lastVertex;
           lastVertex = { x: firstVertex.x, y: allPathElements.shift() };
-          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          this.segments.push(
+            new Segment(firstVertex, lastVertex, this, this.segments.length)
+          );
           break;
 
         // case 'Z':
@@ -264,7 +283,9 @@ export class Shape {
         default:
           firstVertex = lastVertex;
           lastVertex = startVertex;
-          this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length));
+          this.segments.push(
+            new Segment(firstVertex, lastVertex, this, this.segments.length)
+          );
           break;
       }
     }
@@ -308,7 +329,10 @@ export class Shape {
 
   contains(object) {
     if (object instanceof Point) {
-      if (this.allOutlinePoints.some(outline_point => outline_point.equal(object))) return true;
+      if (
+        this.allOutlinePoints.some(outline_point => outline_point.equal(object))
+      )
+        return true;
       if (this.isCenterShown && this.center.equal(object)) return true;
       return false;
     } else if (object instanceof Segment) {
@@ -348,8 +372,12 @@ export class Shape {
     return (
       this.isPointInPath(segment.vertexes[0]) &&
       this.isPointInPath(segment.vertexes[1]) &&
-      (!(this.isPointInBorder(segment.vertexes[0]) && this.isPointInBorder(segment.vertexes[1])) ||
-        (this.isPointInPath(segment.middle) && !this.isPointInBorder(segment.middle)))
+      (!(
+        this.isPointInBorder(segment.vertexes[0]) &&
+        this.isPointInBorder(segment.vertexes[1])
+      ) ||
+        (this.isPointInPath(segment.middle) &&
+          !this.isPointInBorder(segment.middle)))
     );
   }
 
@@ -378,12 +406,15 @@ export class Shape {
       s2_segments = s2.segments;
 
     // s1 in s2 ? if a point of s1 is in s2
-    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments)) return true;
+    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments))
+      return true;
     // s2 in s1 ? if a point of s2 is in s1
-    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments)) return true;
+    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments))
+      return true;
 
     // check if intersect segments
-    if (this.overlapCheckIntersectSegments(s1_segments, s2_segments)) return true;
+    if (this.overlapCheckIntersectSegments(s1_segments, s2_segments))
+      return true;
 
     return false;
   }
@@ -396,17 +427,21 @@ export class Shape {
         s2_segments.some(
           s2_segment =>
             s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)) ||
-            s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment)),
+            s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment))
         )
       )
         continue;
       vertexes_to_check = [
         ...vertexes_to_check,
-        ...s2_segments.map(seg => s1_segment.getNonCommonPointIfJoined(seg)).filter(pt => pt),
+        ...s2_segments
+          .map(seg => s1_segment.getNonCommonPointIfJoined(seg))
+          .filter(pt => pt),
       ];
       middles_to_check = [
         ...middles_to_check,
-        ...s2_segments.map(seg => s1_segment.getMiddleIfJoined(seg)).filter(pt => pt),
+        ...s2_segments
+          .map(seg => s1_segment.getMiddleIfJoined(seg))
+          .filter(pt => pt),
       ];
     }
 
@@ -415,7 +450,7 @@ export class Shape {
         (pt, idx) =>
           shape.isPointInPath(pt) &&
           shape.isPointInPath(middles_to_check[idx]) &&
-          !shape.isPointInBorder(middles_to_check[idx]),
+          !shape.isPointInBorder(middles_to_check[idx])
       )
     ) {
       console.log('shape inside another');
@@ -430,15 +465,18 @@ export class Shape {
         if (
           !s2_segments.some(s2_segment =>
             s1_segment.subSegments.some(sub1 =>
-              s2_segment.subSegments.some(sub2 => sub2.equal(sub1)),
-            ),
+              s2_segment.subSegments.some(sub2 => sub2.equal(sub1))
+            )
           ) &&
           s2_segments
             .filter(
               s2_segment =>
-                !s1_segment.equal(s2_segment) && !s1_segment.getNonCommonPointIfJoined(s2_segment),
+                !s1_segment.equal(s2_segment) &&
+                !s1_segment.getNonCommonPointIfJoined(s2_segment)
             )
-            .some(s2_segment => s1_segment.doesIntersect(s2_segment, false, true))
+            .some(s2_segment =>
+              s1_segment.doesIntersect(s2_segment, false, true)
+            )
         ) {
           console.log('intersection');
           return false;
@@ -545,8 +583,9 @@ export class Shape {
     let path = this.path;
     let transform = this.path
       ? `translate(${this.x}, ${this.y})
-       rotate(${this.angle ? (this.angle * 180) / Math.PI : 0} ${this.center.x - this.x} ${this
-          .center.y - this.y})
+       rotate(${this.angle ? (this.angle * 180) / Math.PI : 0} ${
+          this.center.x - this.x
+        } ${this.center.y - this.y})
        scale(${this.size},${this.size})`
       : '';
 
@@ -578,9 +617,12 @@ export class Shape {
 
     let point_tags = '';
     if (app.settings.get('areShapesPointed') && this.name != 'silhouette') {
-      if (this.isSegment()) point_tags += this.segments[0].vertexes[0].to_svg('#000', 1);
+      if (this.isSegment())
+        point_tags += this.segments[0].vertexes[0].to_svg('#000', 1);
       if (!this.isCircle())
-        this.segments.forEach(seg => (point_tags += seg.vertexes[1].to_svg('#000', 1)));
+        this.segments.forEach(
+          seg => (point_tags += seg.vertexes[1].to_svg('#000', 1))
+        );
     }
     this.internalSegments.forEach(seg => {
       let point = new Point(seg.vertexes[0]);
@@ -634,7 +676,8 @@ export class Shape {
   static fromObject(save) {
     let shape = new Shape(save);
     if (save.internalSegments) shape.setInternalSegments(save.internalSegments);
-    if (save.internalSegmentColor) shape.internalSegmentColor = save.internalSegmentColor;
+    if (save.internalSegmentColor)
+      shape.internalSegmentColor = save.internalSegmentColor;
     shape.x = save.coordinates.x;
     shape.y = save.coordinates.y;
     shape.second_color = save.second_color;
@@ -653,7 +696,9 @@ export class Shape {
     newShape.second_color = getComplementaryColor(newShape.color);
     newShape.opacity = 1;
     let newShapeInternalSegment = internalSegments.filter(
-      seg => newShape.isPointInPath(seg.vertexes[0]) && newShape.isPointInPath(seg.vertexes[1]),
+      seg =>
+        newShape.isPointInPath(seg.vertexes[0]) &&
+        newShape.isPointInPath(seg.vertexes[1])
     );
     newShape.setInternalSegments(newShapeInternalSegment);
     return newShape;
