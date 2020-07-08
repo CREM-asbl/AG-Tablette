@@ -544,9 +544,14 @@ export class Shape {
   }
 
   rotate(angle, center) {
+    const oldCenter = this.center;
     this.angle = (this.angle + angle) % (2 * Math.PI);
     this.segments.forEach(seg => seg.rotate(angle, center));
     this.internalSegments.forEach(seg => seg.rotate(angle, center));
+    if (!oldCenter.equal(this.center)) {
+      this.x = this.x + this.center.x - oldCenter.x;
+      this.y = this.y + this.center.y - oldCenter.y;
+    }
   }
 
   /* #################################################################### */

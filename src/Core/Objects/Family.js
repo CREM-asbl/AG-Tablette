@@ -19,7 +19,6 @@ export class Family {
     shapes.forEach(shape => {
       this.addShape(shape);
     });
-    console.log(this);
   }
 
   /**

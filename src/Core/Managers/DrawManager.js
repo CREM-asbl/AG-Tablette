@@ -61,13 +61,21 @@ export class DrawManager {
 
       let pts = GridManager.getVisibleGridPoints(min, max);
       pts.forEach(pt => {
-        DrawManager.drawPoint(app.backgroundCtx, pt, '#F00', 1.5 / actualZoomLvl, false);
+        DrawManager.drawPoint(
+          app.backgroundCtx,
+          pt,
+          '#F00',
+          1.5 / actualZoomLvl,
+          false
+        );
       });
     }
 
     //Tangram
     if (app.environment.name == 'Tangram' && app.silhouette) {
-      app.silhouette.shapes.forEach(s => DrawManager.drawShape(app.backgroundCtx, s));
+      app.silhouette.shapes.forEach(s =>
+        DrawManager.drawShape(app.backgroundCtx, s)
+      );
     }
   }
 
@@ -77,11 +85,15 @@ export class DrawManager {
     //Afficher les formes
     app.workspace.shapes
       .filter(shape => {
-        return app.workspace.editingShapes.findIndex(s => s.id == shape.id) == -1;
+        return (
+          app.workspace.editingShapes.findIndex(s => s.id == shape.id) == -1
+        );
       })
       .forEach(shape => {
         DrawManager.drawShape(app.mainCtx, shape);
-        window.dispatchEvent(new CustomEvent('shapeDrawn', { detail: { shape: shape } }));
+        window.dispatchEvent(
+          new CustomEvent('shapeDrawn', { detail: { shape: shape } })
+        );
       });
   }
 
@@ -103,10 +115,11 @@ export class DrawManager {
    */
   static drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
     ctx.strokeStyle = shape.borderColor;
-    ctx.fillStyle = shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
+    ctx.fillStyle =
+      shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
-    const path = shape.getPath(axeAngle);
+    let path = shape.getPath(axeAngle);
 
     ctx.save();
     if (shape.path) {
@@ -123,17 +136,26 @@ export class DrawManager {
 
     ctx.save();
 
-    if (app.settings.get('areShapesPointed') && shape.name !== 'silhouette' && !shape.isCircle()) {
-      shape.vertexes.forEach(point => DrawManager.drawPoint(ctx, point, '#000', 1, false));
+    if (
+      app.settings.get('areShapesPointed') &&
+      shape.name !== 'silhouette' &&
+      !shape.isCircle()
+    ) {
+      shape.vertexes.forEach(point =>
+        DrawManager.drawPoint(ctx, point, '#000', 1, false)
+      );
     }
 
     shape.internalSegments.forEach(seg => {
       DrawManager.drawLine(ctx, seg, shape.internalSegmentColor, 1, false);
     });
 
-    shape.segmentPoints.forEach(point => DrawManager.drawPoint(ctx, point, '#000', 1, false));
+    shape.segmentPoints.forEach(point =>
+      DrawManager.drawPoint(ctx, point, '#000', 1, false)
+    );
 
-    if (shape.isCenterShown) DrawManager.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
+    if (shape.isCenterShown)
+      DrawManager.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
     ctx.restore();
 
     ctx.lineWidth = 1;
@@ -156,10 +178,10 @@ export class DrawManager {
     fct2,
     borderSize = 1,
     axeAngle = undefined,
-    isReversed = false,
+    isReversed = false
   ) {
     let orderedInvolvedShapes = involvedShapes.sort((s1, s2) =>
-      ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1,
+      ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
     );
     if (isReversed) {
       orderedInvolvedShapes.reverse();
@@ -238,7 +260,7 @@ export class DrawManager {
     counterclockwise,
     color = '#000',
     size = 1,
-    doSave = true,
+    doSave = true
   ) {
     let firstAngle = center.getAngle(startPoint),
       secondAngle = center.getAngle(endPoint);
@@ -251,7 +273,14 @@ export class DrawManager {
     ctx.lineWidth = size;
 
     ctx.beginPath();
-    ctx.arc(center.x, center.y, endPoint.dist(center), firstAngle, secondAngle, counterclockwise);
+    ctx.arc(
+      center.x,
+      center.y,
+      endPoint.dist(center),
+      firstAngle,
+      secondAngle,
+      counterclockwise
+    );
     ctx.stroke();
 
     ctx.lineWidth = 1;
@@ -291,7 +320,14 @@ export class DrawManager {
     ctx.strokeStyle = color;
 
     ctx.beginPath();
-    ctx.arc(point.x, point.y, radius / app.workspace.zoomLevel, 0, 2 * Math.PI, 0);
+    ctx.arc(
+      point.x,
+      point.y,
+      radius / app.workspace.zoomLevel,
+      0,
+      2 * Math.PI,
+      0
+    );
     ctx.closePath();
     ctx.stroke();
 
@@ -327,7 +363,12 @@ window.addEventListener('refreshBackground', () => {
 // draw
 window.addEventListener('draw-shape', event => {
   const ctx = event.detail.ctx || app.upperCtx;
-  DrawManager.drawShape(ctx, event.detail.shape, event.detail.borderSize, event.detail.axeAngle);
+  DrawManager.drawShape(
+    ctx,
+    event.detail.shape,
+    event.detail.borderSize,
+    event.detail.axeAngle
+  );
 });
 window.addEventListener('draw-group', event => {
   const ctx = event.detail.ctx || app.upperCtx;
@@ -338,7 +379,7 @@ window.addEventListener('draw-group', event => {
     event.detail.fct2,
     event.detail.borderSize,
     event.detail.axeAngle,
-    event.detail.isReversed,
+    event.detail.isReversed
   );
 });
 window.addEventListener('draw-point', event => {
@@ -348,7 +389,7 @@ window.addEventListener('draw-point', event => {
     event.detail.point,
     event.detail.color,
     event.detail.size,
-    event.detail.doSave,
+    event.detail.doSave
   );
 });
 window.addEventListener('draw-line', event => {
@@ -358,7 +399,7 @@ window.addEventListener('draw-line', event => {
     event.detail.line,
     event.detail.color,
     event.detail.size,
-    event.detail.doSave,
+    event.detail.doSave
   );
 });
 window.addEventListener('draw-arc', event => {
@@ -371,7 +412,7 @@ window.addEventListener('draw-arc', event => {
     event.detail.counterclockwise,
     event.detail.color,
     event.detail.size,
-    event.detail.doSave,
+    event.detail.doSave
   );
 });
 window.addEventListener('draw-text', event => {
@@ -381,6 +422,6 @@ window.addEventListener('draw-text', event => {
     event.detail.text,
     event.detail.position,
     event.detail.color,
-    event.detail.doSave,
+    event.detail.doSave
   );
 });
