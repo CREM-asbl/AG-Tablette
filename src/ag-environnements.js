@@ -1,5 +1,5 @@
 import { LitElement, html, css, unsafeCSS } from 'lit-element';
-import { EnvironmentManager } from './Core/Managers/EnvironmentManager';
+import './Core/Environments/Environment';
 
 class AgEnvironnements extends LitElement {
   static get isSafari() {
