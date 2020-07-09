@@ -8,25 +8,20 @@ class AgApp extends LitElement {
     };
   }
 
-  constructor() {
-    super();
+  firstUpdated() {
     window.addEventListener(
       'env-created',
-      () => (this.environnement_selected = app.environment ? true : false),
+      () => (this.environnement_selected = app.environment ? true : false)
     );
   }
 
   render() {
     if (this.environnement_selected) {
       import('./ag-tablette-app');
-      return html`
-        <ag-tablette-app></ag-tablette-app>
-      `;
+      return html` <ag-tablette-app></ag-tablette-app> `;
     } else {
       import('./ag-environnements');
-      return html`
-        <ag-environnements></ag-environnements>
-      `;
+      return html` <ag-environnements></ag-environnements> `;
     }
   }
 }

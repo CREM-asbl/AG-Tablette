@@ -1,3 +1,4 @@
+import { app } from '../App';
 import './Common';
 import '../../Reverse';
 import '../../Group';
@@ -5,13 +6,7 @@ import '../../Ungroup';
 import '../../BackgroundColor';
 import '../../BorderColor';
 import '../../Rotate45';
-
-import { SilhouetteCreatorState } from '../../Tangram/SilhouetteCreatorState';
-import '../../Tangram/TangramManager';
-
-import { app } from '../App';
-
-new SilhouetteCreatorState();
+import '../../Tangram';
 
 app.environment.extension = 'agt';
 

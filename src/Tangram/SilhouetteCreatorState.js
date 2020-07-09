@@ -1,8 +1,8 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { TangramManager } from './TangramManager';
 import { Silhouette } from '../Core/Objects/Silhouette';
+import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 
 /**
  * Créer un tangram
@@ -41,19 +41,12 @@ export class SilhouetteCreatorState extends State {
    * initialiser l'état
    */
   async start() {
-    if (!app.tangramStartPos) app.tangramStartPos = await this.getStartPosition();
-    app.workspace.shapes = [];
-    app.silhouette = new Silhouette();
-    TangramManager.showShapes();
+    if (!this.tangramStartPos)
+      this.tangramStartPos = await this.getStartPosition();
+    this.showShapes();
 
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
-
-    this.buttons = [
-      {
-        text: 'Créer silhouette',
-        value: 'end',
-      },
-    ];
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.mousedown_all_shape;
 
     this.showStateMenu();
     window.addEventListener('state-menu-button-click', this.handler);
@@ -62,11 +55,9 @@ export class SilhouetteCreatorState extends State {
   }
 
   restart() {
-    app.workspace.shapes = [];
-    app.silhouette = new Silhouette();
-    TangramManager.showShapes();
-
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    this.showShapes();
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.mousedown_all_shape;
 
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
@@ -96,16 +87,20 @@ export class SilhouetteCreatorState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour créer une nouvelle silhouette, disposez les formes comme vous le désirez, <br />
+        Pour créer une nouvelle silhouette, disposez les formes comme vous le
+        désirez, <br />
         en veillant à ce qu'aucunes formes ne se supersopent. <br />
-        Cliquez sur le bouton "Créer silhouette" une fois que vous avez terminé. <br />
+        Cliquez sur le bouton "Créer silhouette" une fois que vous avez terminé.
+        <br />
       </p>
     `;
   }
 
   clickOnStateMenuButton(btn_value) {
     if (btn_value == 'end') {
-      this.silhouetteMode = confirm('Sauvegarder les segments internes de la silhouette ?')
+      this.silhouetteMode = confirm(
+        'Sauvegarder les segments internes de la silhouette ?'
+      )
         ? 'withInternalSegment'
         : 'noInternalSegment';
 
@@ -113,7 +108,7 @@ export class SilhouetteCreatorState extends State {
       window.dispatchEvent(
         new CustomEvent('create-silhouette', {
           detail: { silhouetteMode: this.silhouetteMode },
-        }),
+        })
       );
     }
   }
@@ -122,7 +117,21 @@ export class SilhouetteCreatorState extends State {
     if (document.querySelector('state-menu')) return;
     import('./state-menu');
     const menu = document.createElement('state-menu');
-    menu.buttons = this.buttons;
+    menu.buttons = [
+      {
+        text: 'Créer silhouette',
+        value: 'end',
+      },
+    ];
     document.querySelector('body').appendChild(menu);
+  }
+
+  showShapes() {
+    this.silhouette = new Silhouette();
+    const dataObject = JSON.parse(this.tangramStartPos);
+    WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
+    if (dataObject.silhouetteData)
+      this.silhouette.initFromObject(dataObject.silhouetteData);
+    window.dispatchEvent(new CustomEvent('silhouette-opened'));
   }
 }

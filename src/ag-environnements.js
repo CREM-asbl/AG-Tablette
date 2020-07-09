@@ -44,7 +44,7 @@ class AgEnvironnements extends LitElement {
 
       #Grandeurs {
         background: url('/images/Environnements/grandeurs.${unsafeCSS(
-          this.isSafari ? 'png' : 'webp',
+          this.isSafari ? 'png' : 'webp'
         )}');
         background-repeat: no-repeat;
         background-size: cover;
@@ -52,7 +52,7 @@ class AgEnvironnements extends LitElement {
 
       #Tangram {
         background: url('/images/Environnements/tangram.${unsafeCSS(
-          this.isSafari ? 'jpg' : 'webp',
+          this.isSafari ? 'jpg' : 'webp'
         )}');
         background-repeat: no-repeat;
         background-size: cover;
@@ -60,7 +60,7 @@ class AgEnvironnements extends LitElement {
 
       #Cubes {
         background: url('/images/Environnements/cubes.${unsafeCSS(
-          this.isSafari ? 'png' : 'webp',
+          this.isSafari ? 'png' : 'webp'
         )}');
         background-repeat: no-repeat;
         background-size: cover;
@@ -81,7 +81,13 @@ class AgEnvironnements extends LitElement {
   }
 
   handleClick(e) {
-    EnvironmentManager.setEnvironment(e.target.id);
+    this.dispatchEvent(
+      new CustomEvent('set-environnement', {
+        detail: e.target.id,
+        bubbles: true,
+        composed: true,
+      })
+    );
   }
 }
 customElements.define('ag-environnements', AgEnvironnements);

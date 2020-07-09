@@ -13,7 +13,6 @@ import './completehistory-tools';
 
 import { app } from './Core/App';
 import './Core/Manifest';
-
 import './Core/Managers/FileManager';
 import './Core/Managers/SelectManager';
 import './Core/Managers/WorkspaceManager';
@@ -146,6 +145,7 @@ class AGTabletteApp extends LitElement {
   }
 
   render() {
+    console.log(app);
     return html`
       <div id="app-canvas-view">
         <div id="app-canvas-view-toolbar" class="toolbar">
@@ -223,25 +223,25 @@ class AGTabletteApp extends LitElement {
 
             <toolbar-section title="Créer un tangram"
                              .buttons_states="${this.states.filter(
-                               state => state.type === 'tangram',
+                               state => state.type === 'tangram'
                              )}">
             </toolbar-section>
 
             <toolbar-section title="Mouvements"
                              .buttons_states="${this.states.filter(
-                               state => state.type === 'move',
+                               state => state.type === 'move'
                              )}">
             </toolbar-section>
 
             <toolbar-section title="Opérations"
                              .buttons_states="${this.states.filter(
-                               state => state.type === 'operation',
+                               state => state.type === 'operation'
                              )}">
             </toolbar-section>
 
             <toolbar-section title="Outils"
                              .buttons_states="${this.states.filter(
-                               state => state.type === 'tool',
+                               state => state.type === 'tool'
                              )}">
             </toolbar-section>
 
@@ -278,7 +278,7 @@ class AGTabletteApp extends LitElement {
           window.dispatchEvent(
             new CustomEvent('file-opened', {
               detail: { method: 'old', file: event.target.files[0] },
-            }),
+            })
           );
           event.target.value = null;
         }}"
@@ -290,7 +290,9 @@ class AGTabletteApp extends LitElement {
         type="color"
         @change="${e =>
           window.dispatchEvent(
-            new CustomEvent('colorChange', { detail: { color: e.target.value } }),
+            new CustomEvent('colorChange', {
+              detail: { color: e.target.value },
+            })
           )}"
       />
     `;
@@ -333,7 +335,10 @@ class AGTabletteApp extends LitElement {
         window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:
-        console.log('unknow event type: ' + event.type + ', with event: ', event);
+        console.log(
+          'unknow event type: ' + event.type + ', with event: ',
+          event
+        );
     }
     if (reset_state) {
       app.setState();

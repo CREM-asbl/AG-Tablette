@@ -2,7 +2,6 @@ import { app } from '../App';
 import { Settings } from '../Settings';
 import { GridManager } from '../../Grid/GridManager';
 import { WorkspaceManager } from './WorkspaceManager';
-import { Silhouette } from '../Objects/Silhouette';
 import { createElem } from '../Tools/general';
 import '../../popups/save-popup';
 import '../../popups/open-popup';
@@ -38,11 +37,6 @@ export class FileManager {
       WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
     }
 
-    if (app.environment.name == 'Tangram') {
-      app.silhouette = new Silhouette();
-      if (dataObject.silhouetteData) app.silhouette.initFromObject(dataObject.silhouetteData);
-      window.dispatchEvent(new CustomEvent('silhouette-opened'));
-    }
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refreshBackground'));
@@ -73,7 +67,9 @@ export class FileManager {
       try {
         let fileHandle = await window.chooseFileSystemEntries(opts);
         window.dispatchEvent(
-          new CustomEvent('file-opened', { detail: { method: 'new', file: fileHandle } }),
+          new CustomEvent('file-opened', {
+            detail: { method: 'new', file: fileHandle },
+          })
         );
       } catch (error) {
         // user closed open prompt
@@ -89,7 +85,13 @@ export class FileManager {
       canvas = app.canvas.invisible;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.drawImage(app.canvas.background, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(
+      app.canvas.background,
+      0,
+      0,
+      ctx.canvas.width,
+      ctx.canvas.height
+    );
     ctx.drawImage(app.canvas.main, 0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.drawImage(app.canvas.upper, 0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -133,7 +135,8 @@ export class FileManager {
 
   static drawTangramToSvg() {
     let svg_data = '';
-    if (app.silhouette) svg_data = app.silhouette.shapes.map(s => s.to_svg()).join('\n');
+    if (app.silhouette)
+      svg_data = app.silhouette.shapes.map(s => s.to_svg()).join('\n');
     return svg_data;
   }
 
@@ -172,7 +175,8 @@ export class FileManager {
     if (!detail.save_settings) wsdata.settings = undefined;
 
     let silhouetteData;
-    if (app.environment.name == 'Tangram') silhouetteData = app.silhouette.saveToObject();
+    if (app.environment.name == 'Tangram')
+      silhouetteData = app.silhouette.saveToObject();
 
     let saveObject = {
         appVersion: app.version,
@@ -225,7 +229,7 @@ export class FileManager {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
             detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-          }),
+          })
         );
         break;
       case 'svg':
@@ -233,7 +237,7 @@ export class FileManager {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
             detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-          }),
+          })
         );
         break;
       default:
@@ -244,10 +248,10 @@ export class FileManager {
             window.dispatchEvent(
               new CustomEvent('show-notif', {
                 detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-              }),
+              })
             );
           },
-          { once: true },
+          { once: true }
         );
         createElem('save-popup');
     }
@@ -288,7 +292,7 @@ export class FileManager {
             FileManager.saveState(handle, detail);
         }
       },
-      { once: true },
+      { once: true }
     );
     createElem('save-popup');
   }

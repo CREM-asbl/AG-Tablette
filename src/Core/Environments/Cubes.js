@@ -11,6 +11,7 @@ import '../../Delete';
 import '../../Translate';
 import '../../Zoom';
 import '../../ToBackground';
+import '../../Grid';
 
 app.environment.loadFamilies(kit);
 
