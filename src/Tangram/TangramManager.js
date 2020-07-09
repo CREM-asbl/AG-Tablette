@@ -6,42 +6,15 @@ import { Shape } from '../Core/Objects/Shape';
 const serverURL = 'https://api.crem.be/';
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
+addEventListener('file-parsed', e => {
+  const data = e.detail;
+  if (data.silhouetteData) {
+    app.silhouette = new Silhouette();
+    app.silhouette.initFromObject(data.silhouetteData);
+  }
+});
 
 export class TangramManager {
-  static createSilhouette(silhouetteMode) {
-    const shapes = app.workspace.shapes;
-    let { newSegments, internalSegments } = TangramManager.checkGroupMerge(
-      shapes
-    );
-    if (!newSegments) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: 'Certaines formes se superposent' },
-        })
-      );
-      return;
-    }
-
-    newSegments = TangramManager.linkNewSegments(newSegments);
-    if (!newSegments) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: 'La silhouette formée crée une forme creuse' },
-        })
-      );
-      return;
-    }
-
-    let silhouette = TangramManager.getSilhouetteFromSegments(
-      newSegments,
-      silhouetteMode == 'withInternalSegment' ? internalSegments : []
-    );
-    if (!silhouette) return;
-    app.silhouette = silhouette;
-
-    window.dispatchEvent(new CustomEvent('refreshBackground'));
-  }
-
   static getSilhouetteFromSegments(segments, internalSegments) {
     let shapes = segments.map(segs =>
       Shape.createFromSegments(segs, 'silhouette', 'tangram', internalSegments)
@@ -306,10 +279,6 @@ export class TangramManager {
     return bestPoint;
   }
 }
-
-window.addEventListener('create-silhouette', event => {
-  TangramManager.createSilhouette(event.detail.silhouetteMode);
-});
 
 app.CremTangrams = [];
 

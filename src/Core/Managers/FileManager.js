@@ -36,7 +36,9 @@ export class FileManager {
     } else {
       WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
     }
-
+    window.dispatchEvent(
+      new CustomEvent('file-parsed', { detail: dataObject })
+    );
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refreshBackground'));

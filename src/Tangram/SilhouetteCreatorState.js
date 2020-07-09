@@ -3,6 +3,7 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
+import { TangramManager } from './TangramManager';
 
 /**
  * Créer un tangram
@@ -43,19 +44,20 @@ export class SilhouetteCreatorState extends State {
   async start() {
     if (!this.tangramStartPos)
       this.tangramStartPos = await this.getStartPosition();
-    this.showShapes();
+    this.initShapes();
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
 
     this.showStateMenu();
     window.addEventListener('state-menu-button-click', this.handler);
+    window.addEventListener('create-silhouette', () => this.createSilhouette());
 
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   restart() {
-    this.showShapes();
+    this.initShapes();
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
 
@@ -104,13 +106,48 @@ export class SilhouetteCreatorState extends State {
         ? 'withInternalSegment'
         : 'noInternalSegment';
 
-      console.log(app.workspace.shapes);
       window.dispatchEvent(
         new CustomEvent('create-silhouette', {
           detail: { silhouetteMode: this.silhouetteMode },
         })
       );
     }
+  }
+
+  createSilhouette() {
+    const shapes = app.workspace.shapes;
+    let { newSegments, internalSegments } = TangramManager.checkGroupMerge(
+      shapes
+    );
+    if (!newSegments) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Certaines formes se superposent' },
+        })
+      );
+      return;
+    }
+
+    newSegments = TangramManager.linkNewSegments(newSegments);
+    if (!newSegments) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'La silhouette formée crée une forme creuse' },
+        })
+      );
+      return;
+    }
+
+    let silhouette = TangramManager.getSilhouetteFromSegments(
+      newSegments,
+      this.silhouetteMode == 'withInternalSegment' ? internalSegments : []
+    );
+
+    if (!silhouette) return;
+    app.silhouette = silhouette;
+    this.initShapes();
+
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   showStateMenu() {
@@ -126,12 +163,8 @@ export class SilhouetteCreatorState extends State {
     document.querySelector('body').appendChild(menu);
   }
 
-  showShapes() {
-    this.silhouette = new Silhouette();
+  initShapes() {
     const dataObject = JSON.parse(this.tangramStartPos);
     WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
-    if (dataObject.silhouetteData)
-      this.silhouette.initFromObject(dataObject.silhouetteData);
-    window.dispatchEvent(new CustomEvent('silhouette-opened'));
   }
 }
