@@ -1,7 +1,6 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { Silhouette } from '../Core/Objects/Silhouette';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 import { TangramManager } from './TangramManager';
 
@@ -25,7 +24,7 @@ export class SilhouetteCreatorState extends State {
 
     this.buttons = null;
 
-    // withInternalSegment or neInternalSegment
+    // withInternalSegment or noInternalSegment
     this.silhouetteMode = 'noInternalSegment';
 
     window.addEventListener('new-window', () => this.finish());

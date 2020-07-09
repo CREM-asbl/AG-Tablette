@@ -72,7 +72,7 @@ export class DrawManager {
     }
 
     //Tangram
-    if (app.environment.name == 'Tangram' && app.silhouette) {
+    if (app.silhouette) {
       app.silhouette.shapes.forEach(s =>
         DrawManager.drawShape(app.backgroundCtx, s)
       );
