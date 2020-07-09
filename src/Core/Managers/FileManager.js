@@ -1,6 +1,5 @@
 import { app } from '../App';
 import { Settings } from '../Settings';
-import { GridManager } from '../../Grid/GridManager';
 import { WorkspaceManager } from './WorkspaceManager';
 import { createElem } from '../Tools/general';
 import '../../popups/save-popup';
@@ -109,54 +108,8 @@ export class FileManager {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   }
 
-  static drawGridToSvg() {
-    let canvasWidth = app.canvas.main.clientWidth,
-      canvasHeight = app.canvas.main.clientHeight,
-      offsetX = app.workspace.translateOffset.x,
-      offsetY = app.workspace.translateOffset.y,
-      actualZoomLvl = app.workspace.zoomLevel,
-      // Ne pas voir les points apparaître:
-      marginToAdd = 0, //20 * actualZoomLvl,
-      min = {
-        x: -offsetX / actualZoomLvl - marginToAdd,
-        y: -offsetY / actualZoomLvl - marginToAdd,
-      },
-      max = {
-        x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
-        y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
-      },
-      svg_data = '';
-
-    let pts = GridManager.getVisibleGridPoints(min, max);
-    pts.forEach(pt => {
-      svg_data += pt.to_svg('#F00', 1.5 / actualZoomLvl);
-    });
-
-    return svg_data;
-  }
-
-  static drawTangramToSvg() {
-    let svg_data = '';
-    if (app.silhouette)
-      svg_data = app.silhouette.shapes.map(s => s.to_svg()).join('\n');
-    return svg_data;
-  }
-
   static saveToSvg(handle) {
-    const canvas = app.canvas.main;
-
-    let svg_data =
-      '<svg width="' +
-      canvas.width +
-      '" height="' +
-      canvas.height +
-      '" xmlns="http://www.w3.org/2000/svg" >\n';
-    svg_data += FileManager.drawGridToSvg();
-    svg_data += FileManager.drawTangramToSvg();
-    app.workspace.shapes.forEach(shape => {
-      svg_data += shape.to_svg() + '\n';
-    });
-    svg_data += '</svg>';
+    let svg_data = app.workspace.toSVG();
 
     if (FileManager.hasNativeFS) {
       FileManager.newWriteFile(handle, svg_data);

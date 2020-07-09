@@ -31,4 +31,8 @@ export class Silhouette {
   copy() {
     return new Silhouette(this.shapes.map(s => s.copy()));
   }
+
+  toSVG() {
+    return this.shapes.map(shape => shape.to_svg()).join('\n');
+  }
 }

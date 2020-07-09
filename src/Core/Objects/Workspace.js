@@ -6,6 +6,7 @@ import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
 import { Shape } from './Shape';
 import { Point } from '../Objects/Point';
+import { GridManager } from '../../Grid/GridManager';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -135,10 +136,12 @@ export class Workspace {
 
     if (
       wsdata.canvasSize &&
-      (wsdata.canvasSize.width != app.canvasWidth || wsdata.canvasSize.height != app.canvasHeight)
+      (wsdata.canvasSize.width != app.canvasWidth ||
+        wsdata.canvasSize.height != app.canvasHeight)
     ) {
       let scaleOffset =
-          wsdata.canvasSize.width / app.canvasWidth < wsdata.canvasSize.height / app.canvasHeight
+          wsdata.canvasSize.width / app.canvasWidth <
+          wsdata.canvasSize.height / app.canvasHeight
             ? app.canvasHeight / wsdata.canvasSize.height
             : app.canvasWidth / wsdata.canvasSize.width,
         originalZoom = this.zoomLevel,
@@ -146,9 +149,12 @@ export class Workspace {
         originalTranslateOffset = this.translateOffset,
         actualCenter = new Point(
           wsdata.canvasSize.width,
-          wsdata.canvasSize.height,
+          wsdata.canvasSize.height
         ).multiplyWithScalar(1 / originalZoom),
-        newCenter = new Point(app.canvasWidth, app.canvasHeight).multiplyWithScalar(1 / newZoom),
+        newCenter = new Point(
+          app.canvasWidth,
+          app.canvasHeight
+        ).multiplyWithScalar(1 / newZoom),
         corr = originalTranslateOffset.multiplyWithScalar(1 / originalZoom), // error with the old zoom that move the center
         newTranslateoffset = newCenter
           .subCoordinates(actualCenter)
@@ -174,7 +180,8 @@ export class Workspace {
     });
 
     wsdata.history = this.history.saveToObject();
-    if (this.completeHistory) wsdata.completeHistory = this.completeHistory.saveToObject();
+    if (this.completeHistory)
+      wsdata.completeHistory = this.completeHistory.saveToObject();
 
     wsdata.zoomLevel = this.zoomLevel;
     wsdata.translateOffset = this.translateOffset.saveToObject();
@@ -207,7 +214,9 @@ export class Workspace {
       newZoomLevel = app.settings.get('maxZoomLevel');
 
     window.dispatchEvent(
-      new CustomEvent('scaleView', { detail: { scale: newZoomLevel / this.zoomLevel } }),
+      new CustomEvent('scaleView', {
+        detail: { scale: newZoomLevel / this.zoomLevel },
+      })
     );
     this.zoomLevel = newZoomLevel;
 
@@ -226,19 +235,43 @@ export class Workspace {
   setTranslateOffset(newOffset, doRefresh = true) {
     //TODO: limiter la translation à une certaine zone? (ex 4000 sur 4000?)
     //TODO: bouton pour revenir au "centre" ?
-    window.dispatchEvent(new CustomEvent('scaleView', { detail: { scale: 1 / this.zoomLevel } }));
+    window.dispatchEvent(
+      new CustomEvent('scaleView', { detail: { scale: 1 / this.zoomLevel } })
+    );
 
     let offset = newOffset.subCoordinates(this.translateOffset);
 
-    window.dispatchEvent(new CustomEvent('translateView', { detail: { offset: offset } }));
+    window.dispatchEvent(
+      new CustomEvent('translateView', { detail: { offset: offset } })
+    );
     this.translateOffset = newOffset;
 
-    window.dispatchEvent(new CustomEvent('scaleView', { detail: { scale: this.zoomLevel } }));
+    window.dispatchEvent(
+      new CustomEvent('scaleView', { detail: { scale: this.zoomLevel } })
+    );
 
     if (doRefresh) {
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       window.dispatchEvent(new CustomEvent('refreshBackground'));
     }
+  }
+
+  toSVG() {
+    const canvas = app.canvas.main;
+    let svg_data =
+      '<svg width="' +
+      canvas.width +
+      '" height="' +
+      canvas.height +
+      '" xmlns="http://www.w3.org/2000/svg" >\n';
+    svg_data += GridManager.toSVG();
+    svg_data += app.silhouette?.toSVG();
+    this.shapes.forEach(shape => {
+      svg_data += shape.to_svg() + '\n';
+    });
+    svg_data += '</svg>';
+
+    return svg_data;
   }
 }

@@ -6,6 +6,11 @@ window.addEventListener('set-environnement', e => {
   window.dispatchEvent(new CustomEvent('env-created'));
 });
 
+// window.addEventListener('new-window', () => {
+//   app.environment =  new Environment(app.environment.name)
+//   window.dispatchEvent(new CustomEvent('env-created'))
+// })
+
 /**
  * Environnement de travail: Grandeurs, Tangram, Cube... Un environnement
  * détermine les familles de formes que l'on peut utiliser, et les actions que

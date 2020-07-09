@@ -84,7 +84,10 @@ export class GridManager {
       gridSize = app.workspace.settings.get('gridSize');
 
     if (gridType == 'square') {
-      let topleft = new Point(x - ((x - 10) % (50 * gridSize)), y - ((y - 10) % (50 * gridSize)));
+      let topleft = new Point(
+        x - ((x - 10) % (50 * gridSize)),
+        y - ((y - 10) % (50 * gridSize))
+      );
       possibilities.push(topleft);
       possibilities.push(topleft.addCoordinates(0, 50 * gridSize));
       possibilities.push(topleft.addCoordinates(50 * gridSize, 0));
@@ -102,15 +105,43 @@ export class GridManager {
 
       possibilities.push(topleft1);
       possibilities.push(topleft1.addCoordinates(50 * gridSize, 0));
-      possibilities.push(topleft1.addCoordinates(25 * gridSize, height * gridSize));
+      possibilities.push(
+        topleft1.addCoordinates(25 * gridSize, height * gridSize)
+      );
     }
 
     const closest = possibilities.sort((poss1, poss2) =>
-      point.dist(poss1) > point.dist(poss2) ? 1 : -1,
+      point.dist(poss1) > point.dist(poss2) ? 1 : -1
     )[0];
 
     closest.type = 'grid';
 
     return closest;
+  }
+
+  static toSVG() {
+    let canvasWidth = app.canvas.main.clientWidth,
+      canvasHeight = app.canvas.main.clientHeight,
+      offsetX = app.workspace.translateOffset.x,
+      offsetY = app.workspace.translateOffset.y,
+      actualZoomLvl = app.workspace.zoomLevel,
+      // Ne pas voir les points apparaître:
+      marginToAdd = 0, //20 * actualZoomLvl,
+      min = {
+        x: -offsetX / actualZoomLvl - marginToAdd,
+        y: -offsetY / actualZoomLvl - marginToAdd,
+      },
+      max = {
+        x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
+        y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
+      },
+      svg_data = '';
+
+    let pts = GridManager.getVisibleGridPoints(min, max);
+    pts.forEach(pt => {
+      svg_data += pt.to_svg('#F00', 1.5 / actualZoomLvl);
+    });
+
+    return svg_data;
   }
 }

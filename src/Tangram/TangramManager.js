@@ -6,6 +6,7 @@ import { Shape } from '../Core/Objects/Shape';
 const serverURL = 'https://api.crem.be/';
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
+
 addEventListener('file-parsed', e => {
   const data = e.detail;
   if (data.silhouetteData) {
@@ -13,6 +14,8 @@ addEventListener('file-parsed', e => {
     app.silhouette.initFromObject(data.silhouetteData);
   }
 });
+
+addEventListener('new-window', () => (app.silhouette = null));
 
 export class TangramManager {
   static getSilhouetteFromSegments(segments, internalSegments) {
