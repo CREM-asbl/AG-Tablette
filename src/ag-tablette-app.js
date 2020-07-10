@@ -255,7 +255,6 @@ class AGTabletteApp extends LitElement {
           <version-item></version-item>
         </div>
 
-        <!-- background="\${this.background}" -->
         <div-main-canvas id="div-main-canvas" ></div-main-canvas>
       </div>
 

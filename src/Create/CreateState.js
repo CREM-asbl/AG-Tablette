@@ -36,11 +36,11 @@ export class CreateState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir sélectionné une famille de formes dans le menu, vous devez appuyer sur une des
-        formes dans le menu qui apparaît en bas de l'écran. Appuyez ensuite sur l'écran pour ajouter
-        une forme.<br /><br />
-        <b>Note:</b> vous pouvez appuyer sur l'écran puis bouger votre doigt sans le relacher, pour
-        positionner plus précisément la nouvelle forme.
+        Après avoir sélectionné une famille de formes dans le menu, vous devez
+        appuyer sur une des formes dans le menu qui apparaît en bas de l'écran.
+        Appuyez ensuite sur l'écran pour ajouter une forme.<br /><br />
+        <b>Note:</b> vous pouvez appuyer sur l'écran puis bouger votre doigt
+        sans le relacher, pour positionner plus précisément la nouvelle forme.
       </p>
     `;
   }
@@ -55,7 +55,9 @@ export class CreateState extends State {
     const shapesNames = app.environment.getFamily(family).getShapesNames();
 
     if (shapesNames.length === 1) {
-      const shapeRef = app.environment.getFamily(this.selectedFamily).getShape(shapesNames[0]);
+      const shapeRef = app.environment
+        .getFamily(this.selectedFamily)
+        .getShape(shapesNames[0]);
       this.setShape(shapeRef.saveToObject());
       return;
     }
@@ -66,7 +68,9 @@ export class CreateState extends State {
     this.popup.style.display = 'flex';
 
     window.dispatchEvent(
-      new CustomEvent('family-selected', { detail: { selectedFamily: this.selectedFamily } }),
+      new CustomEvent('family-selected', {
+        detail: { selectedFamily: this.selectedFamily },
+      })
     );
 
     window.addEventListener('shape-selected', this.handler);
@@ -82,14 +86,16 @@ export class CreateState extends State {
       return;
     }
     window.dispatchEvent(
-      new CustomEvent('family-selected', { detail: { selectedFamily: this.selectedFamily } }),
+      new CustomEvent('family-selected', {
+        detail: { selectedFamily: this.selectedFamily },
+      })
     );
     if (this.selectedShape) {
       this.currentStep = 'listen-canvas-click';
       window.dispatchEvent(
         new CustomEvent('shape-selected', {
           detail: { selectedShape: this.selectedShape.saveToObject() },
-        }),
+        })
       );
     } else {
       this.currentStep = 'show-family-shapes';
@@ -111,7 +117,9 @@ export class CreateState extends State {
     window.removeEventListener('shape-selected', this.handler);
     app.removeListener('canvasmousedown', this.mouseDownId);
     app.removeListener('canvasmouseup', this.mouseUpId);
-    window.dispatchEvent(new CustomEvent('family-selected', { detail: { selectedFamily: null } }));
+    window.dispatchEvent(
+      new CustomEvent('family-selected', { detail: { selectedFamily: null } })
+    );
   }
 
   _actionHandle(event) {
@@ -129,6 +137,7 @@ export class CreateState extends State {
   setShape(shape) {
     if (shape) {
       this.selectedShape = Shape.fromObject(shape);
+      this.popup.shapeName = shape.name;
       this.currentStep = 'listen-canvas-click';
       this.mouseDownId = app.addListener('canvasmousedown', this.handler);
     }
@@ -195,6 +204,8 @@ export class CreateState extends State {
     if (this.currentStep != 'moving-shape' || this.status != 'running') return;
 
     this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
-    window.dispatchEvent(new CustomEvent('draw-shape', { detail: { shape: this.shapeToCreate } }));
+    window.dispatchEvent(
+      new CustomEvent('draw-shape', { detail: { shape: this.shapeToCreate } })
+    );
   }
 }

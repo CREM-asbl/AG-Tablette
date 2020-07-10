@@ -27,14 +27,19 @@ export class CompleteHistoryManager {
   }
 
   static resetWorkspace() {
+    console.log(app.workspace.completeHistory);
     app.workspace.setZoomLevel(app.workspace.completeHistory.startZoomLevel);
-    app.workspace.setTranslateOffset(app.workspace.completeHistory.startTranslateOffset);
-    app.workspace.shapes = app.workspace.completeHistory.startShapes.map(s => s.copy(true));
-    app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(gr =>
-      gr.copy(true),
+    app.workspace.setTranslateOffset(
+      app.workspace.completeHistory.startTranslateOffset
+    );
+    app.workspace.shapes = app.workspace.completeHistory.startShapes.map(s =>
+      s.copy(true)
+    );
+    app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(
+      gr => gr.copy(true)
     );
     if (app.environment.name == 'Tangram')
-      app.silhouette = app.workspace.completeHistory.startSilhouette.copy();
+      app.silhouette = app.workspace.completeHistory.startSilhouette?.copy();
     app.workspace.history = new History();
   }
 
@@ -42,7 +47,7 @@ export class CompleteHistoryManager {
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
     if (idx > CompleteHistoryManager.action_idx) {
       let toGo = app.workspace.completeHistory.steps.findIndex(
-        step => step.detail && step.detail.action_idx == idx - 1,
+        step => step.detail && step.detail.action_idx == idx - 1
       );
       for (
         ;
@@ -53,12 +58,16 @@ export class CompleteHistoryManager {
       }
     } else {
       app.workspace.history.index = CompleteHistoryManager.action_idx - 1;
-      for (; CompleteHistoryManager.action_idx > idx; CompleteHistoryManager.action_idx--) {
+      for (
+        ;
+        CompleteHistoryManager.action_idx > idx;
+        CompleteHistoryManager.action_idx--
+      ) {
         HistoryManager.undo();
       }
       app.workspace.completeHistory.historyIndex =
         app.workspace.completeHistory.steps.findIndex(
-          step => step.detail && step.detail.action_idx == idx - 1,
+          step => step.detail && step.detail.action_idx == idx - 1
         ) + 1;
       // setState dans le cas où le state n'a pas changé entre l'action précédente et celle en cours
     }
@@ -87,14 +96,13 @@ export class CompleteHistoryManager {
     //     app.workspace.completeHistory.videoStartTimestamp);
     app.workspace.completeHistory.timeoutId = setTimeout(
       () => CompleteHistoryManager.executeAllSteps(),
-      CompleteHistoryManager.nextTime + 50, // nextTime,
+      CompleteHistoryManager.nextTime + 50 // nextTime,
     );
     CompleteHistoryManager.nextTime = 0;
   }
 
   static executeStep(idx = app.workspace.completeHistory.historyIndex) {
     let { type, detail } = app.workspace.completeHistory.steps[idx];
-
     if (detail && detail.mousePos) {
       detail.mousePos = new Point(detail.mousePos);
     }
@@ -140,44 +148,44 @@ CompleteHistoryManager.isRunning = false;
 
 // mouse events
 window.addEventListener('canvasclick', event =>
-  CompleteHistoryManager.addStep('canvasclick', event),
+  CompleteHistoryManager.addStep('canvasclick', event)
 );
 window.addEventListener('canvasmousedown', event =>
-  CompleteHistoryManager.addStep('canvasmousedown', event),
+  CompleteHistoryManager.addStep('canvasmousedown', event)
 );
 window.addEventListener('canvasmouseup', event =>
-  CompleteHistoryManager.addStep('canvasmouseup', event),
+  CompleteHistoryManager.addStep('canvasmouseup', event)
 );
 window.addEventListener('canvasmousemove', event =>
-  CompleteHistoryManager.addStep('canvasmousemove', event),
+  CompleteHistoryManager.addStep('canvasmousemove', event)
 );
 window.addEventListener('canvastouchstart', event =>
-  CompleteHistoryManager.addStep('canvastouchstart', event),
+  CompleteHistoryManager.addStep('canvastouchstart', event)
 );
 window.addEventListener('canvastouchmove', event =>
-  CompleteHistoryManager.addStep('canvastouchmove', event),
+  CompleteHistoryManager.addStep('canvastouchmove', event)
 );
 window.addEventListener('canvastouchend', event =>
-  CompleteHistoryManager.addStep('canvastouchend', event),
+  CompleteHistoryManager.addStep('canvastouchend', event)
 );
 window.addEventListener('canvastouchcancel', event =>
-  CompleteHistoryManager.addStep('canvastouchcancel', event),
+  CompleteHistoryManager.addStep('canvastouchcancel', event)
 );
 window.addEventListener('objectSelected', event =>
-  CompleteHistoryManager.addStep('objectSelected', event),
+  CompleteHistoryManager.addStep('objectSelected', event)
 );
 
 // create events
 window.addEventListener('family-selected', event =>
-  CompleteHistoryManager.addStep('family-selected', event),
+  CompleteHistoryManager.addStep('family-selected', event)
 );
 window.addEventListener('shape-selected', event =>
-  CompleteHistoryManager.addStep('shape-selected', event),
+  CompleteHistoryManager.addStep('shape-selected', event)
 );
 
 // divide events
 window.addEventListener('setNumberOfParts', event =>
-  CompleteHistoryManager.addStep('setNumberOfParts', event),
+  CompleteHistoryManager.addStep('setNumberOfParts', event)
 );
 
 // opacity events
@@ -187,16 +195,16 @@ window.addEventListener('setOpacity', event => {
 
 // background- and bordercolor
 window.addEventListener('colorChange', event =>
-  CompleteHistoryManager.addStep('colorChange', event),
+  CompleteHistoryManager.addStep('colorChange', event)
 );
 
 // use for animation states
 window.addEventListener('mouse-coordinates-changed', event =>
-  CompleteHistoryManager.addStep('mouse-coordinates-changed', event),
+  CompleteHistoryManager.addStep('mouse-coordinates-changed', event)
 );
 
 window.addEventListener('actions-executed', event =>
-  CompleteHistoryManager.addStep('actions-executed', event),
+  CompleteHistoryManager.addStep('actions-executed', event)
 );
 
 // tangram
@@ -205,23 +213,23 @@ window.addEventListener('actions-executed', event =>
 // );
 
 window.addEventListener('create-silhouette', event =>
-  CompleteHistoryManager.addStep('create-silhouette', event),
+  CompleteHistoryManager.addStep('create-silhouette', event)
 );
 
 // undo - redo
 window.addEventListener('undo-action', event =>
-  CompleteHistoryManager.addStep('undo-action', event),
+  CompleteHistoryManager.addStep('undo-action', event)
 );
 window.addEventListener('redo-action', event =>
-  CompleteHistoryManager.addStep('redo-action', event),
+  CompleteHistoryManager.addStep('redo-action', event)
 );
 
 window.addEventListener('close-popup', event =>
-  CompleteHistoryManager.addStep('close-popup', event),
+  CompleteHistoryManager.addStep('close-popup', event)
 );
 
 window.addEventListener('app-state-changed', event =>
-  CompleteHistoryManager.addStep('app-state-changed', event),
+  CompleteHistoryManager.addStep('app-state-changed', event)
 );
 
 window.addEventListener('reverse-animation', () => {
