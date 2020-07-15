@@ -51,7 +51,7 @@ export class TangramManager {
     if (!app || app.CremTangrams.length) return;
 
     const folder = 'tangram/',
-      filenames = ['withInternal.agt', 'noInternal.agt'],
+      filenames = ['Carré.agt'],
       fullFilenames = filenames.map(name => serverURL + folder + name);
 
     let jsons = (

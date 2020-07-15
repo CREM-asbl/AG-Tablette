@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import { TemplatePopup } from './template-popup';
 import { FileManager } from '../Core/Managers/FileManager';
 
@@ -20,7 +20,14 @@ class OpenPopup extends LitElement {
   }
 
   static get styles() {
-    return TemplatePopup.template_popup_styles();
+    return [
+      TemplatePopup.template_popup_styles(),
+      css`
+        button {
+          width: 100%;
+        }
+      `,
+    ];
   }
 
   render() {
@@ -29,7 +36,9 @@ class OpenPopup extends LitElement {
         <template-popup>
           <h2 slot="title">Ouvrir un fichier</h2>
           <div slot="body" id="body">
-            <button name="LocalOpenFile" @click="${this._actionHandle}">Ouvrir en local</button>
+            <button name="LocalOpenFile" @click="${this._actionHandle}">
+              Ouvrir en local
+            </button>
 
             <br />
 
@@ -49,19 +58,22 @@ class OpenPopup extends LitElement {
                   (tan, idx) =>
                     html`
                       <div
-                        style="display: flex;
+                        style="display: flex; width: 100%;
                       cursor: pointer;"
                         @click="${() => {
                           FileManager.parseFile(tan);
                           this.close();
                         }}"
                       >
-                        <canvas-button title="Tangram" silhouetteIdx="${idx}"> </canvas-button>
+                        <canvas-button
+                          title="Tangram"
+                          silhouetteIdx="${idx}"
+                        ></canvas-button>
                         <p style="margin: auto;">
                           ${tan.filename}
                         </p>
                       </div>
-                    `,
+                    `
                 )
               : undefined}
           </div>
@@ -97,7 +109,7 @@ class OpenPopup extends LitElement {
             ' ' +
             event.target.value +
             ' ' +
-            event.target.checked,
+            event.target.checked
         );
     }
   }
