@@ -11,6 +11,7 @@ export class Silhouette {
    */
   constructor(shapes = []) {
     this.shapes = shapes.map(shape => {
+      shape.name = 'silhouette';
       shape.color = '#000';
       shape.borderColor = '#fff';
       shape.opacity = 1;

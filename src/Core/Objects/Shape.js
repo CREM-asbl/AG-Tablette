@@ -478,7 +478,6 @@ export class Shape {
               s1_segment.doesIntersect(s2_segment, false, true)
             )
         ) {
-          console.log('intersection');
           return false;
         }
         return true;
