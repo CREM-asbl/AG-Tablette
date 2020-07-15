@@ -9,8 +9,13 @@ export class Silhouette {
    *
    * @param {Shape[]} shapes les shapes représentant la silhouette
    */
-  constructor(shapes) {
-    this.shapes = shapes || [];
+  constructor(shapes = []) {
+    this.shapes = shapes.map(shape => {
+      shape.color = '#000';
+      shape.borderColor = '#fff';
+      shape.opacity = 1;
+      return shape;
+    });
   }
 
   saveToObject() {
@@ -20,12 +25,8 @@ export class Silhouette {
     return save;
   }
 
-  initFromObject(save) {
-    if (save.shapes) {
-      this.shapes = save.shapes.map(s => Shape.fromObject(s));
-    } else if (save.shape) {
-      this.shapes = [save.shape].map(s => Shape.fromObject(s));
-    }
+  static initFromObject(save) {
+    return new Silhouette(save.shapes.map(s => Shape.fromObject(s)));
   }
 
   copy() {
