@@ -37,13 +37,20 @@ export class TemplatePopup extends LitElement {
         width: 24px;
       }
 
+      [slot='title'] {
+        grid-area: 1 / 1 / 2 / 2;
+      }
+
       [slot='body'] {
-        height: calc(100% - 160px);
+        grid-area: 2 / 1 / 3 / 3;
+        display: grid;
+        place-items: center;
         overflow: auto;
         padding: 16px;
       }
 
       [slot='footer'] {
+        grid-area: 3 / 1 / 4 / 3;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -79,6 +86,8 @@ export class TemplatePopup extends LitElement {
       }
 
       #template-view {
+        display: grid;
+        grid-template-columns: 1fr 40px;
         margin: auto;
         border-radius: 4px;
         border: 2px solid gray;
@@ -87,14 +96,10 @@ export class TemplatePopup extends LitElement {
       }
 
       #popup-close {
-        position: relative;
-        font-size: 60px;
-        float: right;
+        grid-area: 1 / 2;
+        font-size: 40px;
         cursor: pointer;
         color: #555;
-        box-sizing: content-box;
-        width: 30px;
-        height: 30px;
         margin: 8px;
         overflow: hidden;
         line-height: 40%;
@@ -106,7 +111,10 @@ export class TemplatePopup extends LitElement {
     return html`
       <div class="background">
         <div id="template-view">
-          <div id="popup-close" @click="${() => window.dispatchEvent(new Event('close-popup'))}">
+          <div
+            id="popup-close"
+            @click="${() => window.dispatchEvent(new Event('close-popup'))}"
+          >
             &times;
           </div>
 

@@ -92,7 +92,10 @@ export class App {
     if (!id || !this.listenerCounter[listenerName]) {
       return;
     }
-    window.removeEventListener(listenerName, this.listenerCounter[listenerName][id]);
+    window.removeEventListener(
+      listenerName,
+      this.listenerCounter[listenerName][id]
+    );
     this.listenerCounter[listenerName][id] = null;
   }
 
@@ -138,11 +141,17 @@ export class App {
     window.dispatchEvent(
       new CustomEvent('app-state-changed', {
         detail: { state: app.state, startParams: startParams },
-      }),
+      })
     );
 
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
+  }
+
+  static showPopup(name) {
+    const popup = document.createElement(name);
+    popup.style.display = 'block';
+    document.querySelector('body').appendChild(popup);
   }
 }
 

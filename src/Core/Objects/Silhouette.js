@@ -1,19 +1,16 @@
 import { Shape } from './Shape';
 
-/**
- * Groupe de formes liées. Un tel groupe est créé par l'utilisateur à l'aide de
- * l'outil de création de groupes (Grouper/Dégrouper).
- */
 export class Silhouette {
   /**
    *
    * @param {Shape[]} shapes les shapes représentant la silhouette
    */
-  constructor(shapes = []) {
+  constructor(shapes = [], level = 1) {
     this.shapes = shapes.map(shape => {
       shape.name = 'silhouette';
       shape.color = '#000';
-      shape.borderColor = '#fff';
+      shape.borderColor = level == 1 || level == 3 ? '#fff' : '#000';
+      shape.size = level == 3 ? 1 : 2;
       shape.opacity = 1;
       return shape;
     });
@@ -26,8 +23,11 @@ export class Silhouette {
     return save;
   }
 
-  static initFromObject(save) {
-    return new Silhouette(save.shapes.map(s => Shape.fromObject(s)));
+  static initFromObject(save, level) {
+    return new Silhouette(
+      save.shapes.map(s => Shape.fromObject(s)),
+      level
+    );
   }
 
   copy() {

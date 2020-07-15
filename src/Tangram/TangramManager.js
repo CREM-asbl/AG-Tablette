@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, App } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Silhouette } from '../Core/Objects/Silhouette';
 
@@ -6,10 +6,12 @@ const serverURL = 'https://api.crem.be/';
 
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
-addEventListener('file-parsed', e => {
+addEventListener('file-parsed', async e => {
   const data = e.detail;
+  const level = await TangramManager.selectLevel();
   if (data.silhouetteData) {
-    app.silhouette = Silhouette.initFromObject(data.silhouetteData);
+    app.silhouette = Silhouette.initFromObject(data.silhouetteData, level);
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 });
 
@@ -21,11 +23,16 @@ export class TangramManager {
   }
 
   static showPopup() {
-    console.log('showPopup');
     import('./tangram-popup');
-    const popup = document.createElement('tangram-popup');
-    popup.style.display = 'block';
-    document.querySelector('body').appendChild(popup);
+    App.showPopup('tangram-popup');
+  }
+
+  static async selectLevel() {
+    await import('./level-popup');
+    App.showPopup('level-popup');
+    return new Promise(resolve =>
+      addEventListener('tangram-level-selected', e => resolve(e.detail))
+    );
   }
 
   static async getTangramFromServer(filename) {
