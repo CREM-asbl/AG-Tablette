@@ -146,10 +146,6 @@ export class DrawManager {
       );
     }
 
-    shape.internalSegments.forEach(seg => {
-      DrawManager.drawLine(ctx, seg, shape.internalSegmentColor, 1, false);
-    });
-
     shape.segmentPoints.forEach(point =>
       DrawManager.drawPoint(ctx, point, '#000', 1, false)
     );

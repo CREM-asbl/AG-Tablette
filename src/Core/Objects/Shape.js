@@ -33,8 +33,6 @@ export class Shape {
     this.x = x;
     this.y = y;
     this.angle = angle;
-    this.internalSegments = [];
-    this.internalSegmentsSets = [];
     this.name = name;
     this.familyName = familyName;
     this.path = path;
@@ -166,12 +164,8 @@ export class Shape {
     });
   }
 
-  get allSegments() {
-    return [...this.segments, ...this.internalSegments];
-  }
-
   get allPoints() {
-    let vertexes = [...this.segments, ...this.internalSegments]
+    let vertexes = this.segments
         .map(seg => seg.vertexes)
         .flat()
         .filter((vertex, idx, vertexes) => {
@@ -200,13 +194,6 @@ export class Shape {
       seg.getPath(path, axeAngle);
     });
     path.closePath();
-    this.internalSegmentsSets.forEach(segmentsSet => {
-      path.moveTo(segmentsSet[0].vertexes[0].x, segmentsSet[0].vertexes[0].y);
-      segmentsSet.forEach(seg => {
-        seg.getPath(path, axeAngle);
-      });
-      path.closePath();
-    });
     return path;
   }
 
@@ -523,34 +510,19 @@ export class Shape {
     multiplier = neg ? -1 : 1;
     const translation = new Point(x * multiplier, y * multiplier);
     this.segments.forEach(seg => seg.translate(translation));
-    this.internalSegments.forEach(seg => seg.translate(translation));
-    this.x += translation.x;
-    this.y += translation.y;
   }
 
   /**
    *
    * @param {Number}    scaling   scale ratio
-   * @param {Boolean}   recenter  recenter the scaled shape from the original
    */
-  scale(scaling, recenter = false) {
-    const oldCenter = this.center;
+  scale(scaling) {
     this.segments.forEach(seg => seg.scale(scaling));
-    this.internalSegments.forEach(seg => seg.scale(scaling));
-    if (recenter) {
-      this.translate(oldCenter.subCoordinates(this.center));
-    }
   }
 
   rotate(angle, center) {
-    const oldCenter = this.center;
     this.angle = (this.angle + angle) % (2 * Math.PI);
     this.segments.forEach(seg => seg.rotate(angle, center));
-    this.internalSegments.forEach(seg => seg.rotate(angle, center));
-    if (!oldCenter.equal(this.center)) {
-      this.x = this.x + this.center.x - oldCenter.x;
-      this.y = this.y + this.center.y - oldCenter.y;
-    }
   }
 
   /* #################################################################### */
@@ -568,7 +540,6 @@ export class Shape {
     if (!full) data.id = null;
     let copy = new Shape(data);
     segments.forEach(seg => (seg.shape = copy));
-    copy.internalSegments = this.internalSegments.map(seg => seg.copy());
     copy.second_color = this.second_color;
     copy.isBiface = this.isBiface;
     copy.borderColor = this.borderColor;
@@ -628,14 +599,7 @@ export class Shape {
           seg => (point_tags += seg.vertexes[1].to_svg('#000', 1))
         );
     }
-    this.internalSegments.forEach(seg => {
-      let point = new Point(seg.vertexes[0]);
-      point.setToCanvasCoordinates();
-      let path = '<path d="M ' + point.x + ' ' + point.y + '\n';
-      path += seg.to_svg() + '"\n';
-      path += 'stroke="' + this.internalSegmentColor + '" />\n';
-      path_tag += path;
-    });
+
     this.segments.forEach(seg => {
       //Points sur les segments
       seg.points.forEach(pt => {
@@ -657,31 +621,17 @@ export class Shape {
     });
   }
 
-  setInternalSegments(internalSegments) {
-    this.internalSegments = internalSegments.map((seg, idx) => {
-      let newSeg = new Segment();
-      newSeg.initFromObject(seg);
-      newSeg.idx = idx;
-      newSeg.shape = this;
-      return newSeg;
-    });
-  }
-
   saveToObject() {
     let save = {
       ...this,
       coordinates: this.coordinates.saveToObject(),
       segments: this.segments.map(seg => seg.saveToObject()),
-      internalSegments: this.internalSegments.map(seg => seg.saveToObject()),
     };
     return save;
   }
 
   static fromObject(save) {
     let shape = new Shape(save);
-    if (save.internalSegments) shape.setInternalSegments(save.internalSegments);
-    if (save.internalSegmentColor)
-      shape.internalSegmentColor = save.internalSegmentColor;
     shape.x = save.coordinates.x;
     shape.y = save.coordinates.y;
     shape.second_color = save.second_color;
@@ -693,18 +643,12 @@ export class Shape {
     return shape;
   }
 
-  static createFromSegments(segments, name, family, internalSegments = []) {
+  static createFromSegments(segments, name, family) {
     let newShape = new Shape({ x: 0, y: 0, name: name, familyName: family });
     newShape.setSegments(segments);
     newShape.color = '#000';
     newShape.second_color = getComplementaryColor(newShape.color);
     newShape.opacity = 1;
-    let newShapeInternalSegment = internalSegments.filter(
-      seg =>
-        newShape.isPointInPath(seg.vertexes[0]) &&
-        newShape.isPointInPath(seg.vertexes[1])
-    );
-    newShape.setInternalSegments(newShapeInternalSegment);
     return newShape;
   }
 
