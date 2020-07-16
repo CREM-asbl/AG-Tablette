@@ -16,8 +16,8 @@ export class Point {
   constructor() {
     let argc = 0;
     if (typeof arguments[argc] == 'object') {
-      this.x = arguments[argc].x;
-      this.y = arguments[argc].y;
+      this.x = parseFloat(arguments[argc].x);
+      this.y = parseFloat(arguments[argc].y);
       argc++;
     } else {
       this.x = arguments[argc++];
@@ -35,7 +35,8 @@ export class Point {
     };
     if (this.type) save.type = this.type;
     if (this.shape) save.shapeId = this.shape.id;
-    else if (this.segment && this.segment.shape) save.shapeId = this.segment.shape.id;
+    else if (this.segment && this.segment.shape)
+      save.shapeId = this.segment.shape.id;
     if (save.shapeId && this.segment) save.segmentIdx = this.segment.idx;
     return save;
   }
@@ -45,9 +46,11 @@ export class Point {
     this.y = save.y;
     if (save.type) this.type = save.type;
     if (save.shape) this.shape = save.shape;
-    else if (save.shapeId !== undefined) this.shape = ShapeManager.getShapeById(save.shapeId);
+    else if (save.shapeId !== undefined)
+      this.shape = ShapeManager.getShapeById(save.shapeId);
     if (save.segment) this.segment = save.segment;
-    else if (save.segmentIdx !== undefined) this.segment = this.shape.segments[save.segmentIdx];
+    else if (save.segmentIdx !== undefined)
+      this.segment = this.shape.segments[save.segmentIdx];
   }
 
   static retrieveFrom(point) {
@@ -156,7 +159,7 @@ export class Point {
       this.y * multiplier,
       this.type,
       this.segment,
-      this.shape,
+      this.shape
     );
     if (must_change_this) {
       this.x = new_point.x;
@@ -303,6 +306,9 @@ export class Point {
 
   setToCanvasCoordinates() {
     this.multiplyWithScalar(app.workspace.zoomLevel, true);
-    this.translate(app.workspace.translateOffset.x, app.workspace.translateOffset.y);
+    this.translate(
+      app.workspace.translateOffset.x,
+      app.workspace.translateOffset.y
+    );
   }
 }

@@ -50,7 +50,6 @@ export class Shape {
     this.isCenterShown = false;
     this.isReversed = false;
     this.isBiface = false;
-    console.log(this);
   }
 
   /* #################################################################### */
@@ -638,14 +637,15 @@ export class Shape {
 
   static fromObject(save) {
     let shape = new Shape(save);
-    shape.x = save.coordinates?.x;
-    shape.y = save.coordinates?.y;
+    if (save.coordinates) {
+      shape.x = save.coordinates.x;
+      shape.y = save.coordinates.y;
+    }
     shape.second_color = save.second_color;
     shape.isBiface = save.isBiface;
     shape.borderColor = save.borderColor;
     shape.isCenterShown = save.isCenterShown;
     shape.isReversed = save.isReversed;
-    shape.opacity = save.opacity;
     return shape;
   }
 
