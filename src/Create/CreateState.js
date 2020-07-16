@@ -137,7 +137,7 @@ export class CreateState extends State {
   setShape(shape) {
     if (shape) {
       this.selectedShape = Shape.fromObject(shape);
-      this.popup.shapeName = shape.name;
+      if (this.popup) this.popup.shapeName = shape.name;
       this.currentStep = 'listen-canvas-click';
       this.mouseDownId = app.addListener('canvasmousedown', this.handler);
     }

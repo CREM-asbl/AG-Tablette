@@ -116,6 +116,7 @@ export class Workspace {
         startSilhouette: app.silhouette,
       });
     }
+
     if (wsdata.settings) {
       this.settings.initFromObject(wsdata.settings);
     } else this.initSettings();

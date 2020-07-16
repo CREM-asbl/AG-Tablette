@@ -7,6 +7,7 @@ const serverURL = 'https://api.crem.be/';
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
 addEventListener('file-parsed', async e => {
+  document.querySelector('state-menu').remove();
   const data = e.detail;
   const level = await TangramManager.selectLevel();
   if (data.silhouetteData) {

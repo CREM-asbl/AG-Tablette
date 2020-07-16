@@ -10,7 +10,6 @@ export class Silhouette {
       shape.name = 'silhouette';
       shape.color = '#000';
       shape.borderColor = level == 1 || level == 3 ? '#fff' : '#000';
-      shape.size = level == 3 ? 1 : 2;
       shape.opacity = 1;
       return shape;
     });

@@ -17,8 +17,8 @@ export class Shape {
    * @param {String} familyName     nom de la famille de la forme
    */
   constructor({
-    x,
-    y,
+    x = 0,
+    y = 0,
     segments = null,
     name,
     familyName,
@@ -40,6 +40,7 @@ export class Shape {
     this.color = color;
     this.opacity = opacity;
 
+    //Todo: condition à supprimer quand tout en path
     if (segments) this.setSegments(segments);
     else this.initSegmentsFromPath();
 
@@ -49,6 +50,7 @@ export class Shape {
     this.isCenterShown = false;
     this.isReversed = false;
     this.isBiface = false;
+    console.log(this);
   }
 
   /* #################################################################### */
@@ -194,6 +196,18 @@ export class Shape {
       seg.getPath(path, axeAngle);
     });
     path.closePath();
+    return path;
+  }
+
+  pathToString() {
+    let path = '';
+    const point = new Point(this.segments[0].vertexes[0]);
+    point.setToCanvasCoordinates();
+    path = 'M ' + point.x + ' ' + point.y + '\n';
+    this.segments.forEach(seg => {
+      path += seg.to_svg() + '\n';
+    });
+    path += 'Z';
     return path;
   }
 
@@ -564,15 +578,7 @@ export class Shape {
        scale(${this.size},${this.size})`
       : '';
 
-    if (!path) {
-      let point = new Point(this.segments[0].vertexes[0]);
-      point.setToCanvasCoordinates();
-      path = 'M ' + point.x + ' ' + point.y + '\n';
-      this.segments.forEach(seg => {
-        path += seg.to_svg() + '\n';
-      });
-      path += 'Z';
-    }
+    if (!path) path = this.pathToString();
 
     let attributes = {
       d: path,
@@ -632,8 +638,8 @@ export class Shape {
 
   static fromObject(save) {
     let shape = new Shape(save);
-    shape.x = save.coordinates.x;
-    shape.y = save.coordinates.y;
+    shape.x = save.coordinates?.x;
+    shape.y = save.coordinates?.y;
     shape.second_color = save.second_color;
     shape.isBiface = save.isBiface;
     shape.borderColor = save.borderColor;

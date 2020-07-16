@@ -11,17 +11,6 @@ export class SilhouetteCreatorState extends State {
   constructor() {
     super('silhouette-creator', 'Créer Tangram', 'tangram');
 
-    // selecting-polygons -> selecting-shapes
-    this.currentStep = null;
-
-    this.subStep = null;
-
-    this.constr = null;
-
-    this.polygons = null;
-
-    this.shapes = [];
-
     this.buttons = null;
 
     window.addEventListener('new-window', () => this.finish());
