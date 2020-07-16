@@ -25,6 +25,7 @@ class AgEnvironnements extends LitElement {
         height: 100%;
         padding: 16px;
         box-sizing: border-box;
+        background: url('images/manifest/icon.svg') no-repeat center center lightgray;
       }
 
       div {
@@ -39,35 +40,36 @@ class AgEnvironnements extends LitElement {
       }
 
       div:hover {
-        box-shadow: 0 1px 8px black;
+        box-shadow: 0 3px 8px black;
       }
 
       #Grandeurs {
         background: url('/images/Environnements/grandeurs.${unsafeCSS(
           this.isSafari ? 'png' : 'webp'
-        )}');
+        )}') center center rgba(255, 255, 255, .9);
         background-repeat: no-repeat;
-        background-size: cover;
+        background-size: contain;
       }
 
       #Tangram {
         background: url('/images/Environnements/tangram.${unsafeCSS(
           this.isSafari ? 'jpg' : 'webp'
-        )}');
+        )}') center center rgba(255, 255, 255, .9);;
         background-repeat: no-repeat;
-        background-size: cover;
+        background-size: contain;
       }
 
       #Cubes {
         background: url('/images/Environnements/cubes.${unsafeCSS(
           this.isSafari ? 'png' : 'webp'
-        )}');
+        )}') center center rgba(255, 255, 255, .9);;
         background-repeat: no-repeat;
-        background-size: cover;
+        background-size: contain;
       }
 
-      /*#Geometrie {
-      } */
+      #Geometrie {
+        box-shadow: none;
+      }
     `;
   }
 

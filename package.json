@@ -56,7 +56,7 @@
     "site:build": "npm run storybook:build",
     "storybook": "start-storybook",
     "storybook:build": "build-storybook",
-    "build": "rimraf dist && rollup -c rollup.config.js",
+    "build": "rimraf dist && rollup -c rollup.config.js && npm run copy",
     "start:build": "npm run build && es-dev-server --root-dir dist --app-index index.html --open --compatibility none",
     "build:beta": "rimraf beta && rollup -c rollup.beta.config.js && npm run copy:beta",
     "start:build:beta": "cd beta && es-dev-server --open",
