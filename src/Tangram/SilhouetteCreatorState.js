@@ -18,8 +18,8 @@ export class SilhouetteCreatorState extends State {
     window.addEventListener('silhouette-opened', () => this.finish());
   }
 
-  async getStartPosition() {
-    const response = await fetch('data/Tangram/tangramStartPos.agt');
+  async loadKit() {
+    const response = await fetch('data/Tangram/kit.json');
     return response.text();
   }
 
@@ -27,8 +27,7 @@ export class SilhouetteCreatorState extends State {
    * initialiser l'état
    */
   async start() {
-    if (!this.tangramStartPos)
-      this.tangramStartPos = await this.getStartPosition();
+    if (!this.kit) this.kit = await this.loadKit();
     this.initShapes();
 
     app.workspace.selectionConstraints =
@@ -37,7 +36,6 @@ export class SilhouetteCreatorState extends State {
     this.showStateMenu();
     window.addEventListener('state-menu-button-click', this.handler);
     window.addEventListener('create-silhouette', () => this.createSilhouette());
-
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
@@ -45,7 +43,6 @@ export class SilhouetteCreatorState extends State {
     this.initShapes();
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
-
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
@@ -132,7 +129,7 @@ export class SilhouetteCreatorState extends State {
   }
 
   initShapes() {
-    const dataObject = JSON.parse(this.tangramStartPos);
-    WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
+    const ws = JSON.parse(this.kit);
+    WorkspaceManager.setWorkspaceFromObject(ws);
   }
 }

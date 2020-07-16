@@ -1,0 +1,137 @@
+{
+  "id": "170e2944bbf4b011",
+  "shapes": [
+    {
+      "id": "170e2d87df2b4edd",
+      "name": "Custom",
+      "familyName": "tangram",
+      "color": "#00FFFF",
+      "second_color": "#FF0000",
+      "isBiface": false,
+      "borderColor": "#000",
+      "isCenterShown": false,
+      "isReversed": false,
+      "opacity": 0.7,
+      "path": "M 170.40590180765383 575.0116538306781 L 370.4059018076538 375.01165383067803 H -29.594098192346408 Z",
+      "size": 1
+    },
+    {
+      "id": "170e2d87df268904",
+      "name": "Custom",
+      "familyName": "tangram",
+      "coordinates": {
+        "x": 0,
+        "y": 0
+      },
+      "color": "#00FFFF",
+      "second_color": "#FF0000",
+      "isBiface": false,
+      "borderColor": "#000",
+      "isCenterShown": false,
+      "isReversed": false,
+      "opacity": 0.7,
+      "path": "M -36.508290227145665 -51.49274896938567 V 348.5072510306146 L 163.49170977285456 148.50725103061436 Z",
+      "size": 1
+    },
+    {
+      "id": "170e2d87df2e0b95",
+      "name": "Custom",
+      "familyName": "tangram",
+      "coordinates": {
+        "x": 0,
+        "y": 0
+      },
+      "color": "#00FFFF",
+      "second_color": "#FF0000",
+      "isBiface": false,
+      "borderColor": "#000",
+      "isCenterShown": false,
+      "isReversed": false,
+      "opacity": 0.7,
+      "path": "M 69.62525507219789 326.71495046448103 H 269.625255072198 V 126.71495046448092 Z",
+      "size": 1
+    },
+    {
+      "id": "170e2d87df2e720c",
+      "name": "Custom",
+      "familyName": "tangram",
+      "coordinates": {
+        "x": 0,
+        "y": 0
+      },
+      "color": "#00FFFF",
+      "second_color": "#FF0000",
+      "isBiface": false,
+      "borderColor": "#000",
+      "isCenterShown": false,
+      "isReversed": false,
+      "opacity": 0.7,
+      "path": "M 227.71580526348262 653.5229340175241 L 127.71580526348251 753.5229340175242 L 327.71580526348276 753.5229340175242 Z",
+      "size": 1
+    },
+    {
+      "id": "170e2d87df28122e",
+      "name": "Custom",
+      "familyName": "tangram",
+      "coordinates": {
+        "x": 0,
+        "y": 0
+      },
+      "color": "#00FFFF",
+      "second_color": "#FF0000",
+      "isBiface": false,
+      "borderColor": "#000",
+      "isCenterShown": false,
+      "isReversed": false,
+      "opacity": 0.7,
+      "path": "M 162.20150393594898 868.8447294323729 L 262.2015039359492 968.8447294323726 V 768.8447294323726 Z",
+      "size": 1
+    },
+    {
+      "id": "170e2d87df247d14",
+      "name": "Custom",
+      "familyName": "tangram",
+      "coordinates": {
+        "x": 0,
+        "y": 0
+      },
+      "color": "#00FFFF",
+      "second_color": "#FF0000",
+      "isBiface": false,
+      "borderColor": "#000",
+      "isCenterShown": false,
+      "isReversed": false,
+      "opacity": 0.7,
+      "path": "M -9.305124047579454 994.4013770039221 L 90.6948759524206 894.4013770039221 V 694.4013770039221 L -9.305124047579454 794.4013770039221 Z",
+      "size": 1
+    },
+    {
+      "id": "170e2d87df2396eb",
+      "name": "Custom",
+      "familyName": "tangram",
+      "coordinates": {
+        "x": 0,
+        "y": 0
+      },
+      "color": "#00FFFF",
+      "second_color": "#FF0000",
+      "isBiface": false,
+      "borderColor": "#000",
+      "isCenterShown": false,
+      "isReversed": false,
+      "opacity": 0.7,
+      "path": "M 47.35320697168757 504.46908430314124 L -52.646793028312544 604.4690843031412 L 47.35320697168734 704.4690843031414 L 147.35320697168746 604.4690843031414 Z",
+      "size": 1
+    }
+  ],
+  "shapeGroups": [],
+  "zoomLevel": 0.8677803523248963,
+  "translateOffset": {
+    "x": 56.325569909594186,
+    "y": 62.67211299799919
+  },
+  "canvasSize": {
+    "width": 959,
+    "height": 948
+  }
+}
