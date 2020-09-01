@@ -157,7 +157,7 @@ export class FileManager {
 
   static async newSaveFile() {
     const opts = {
-      type: 'saveFile',
+      type: 'save-file',
       accepts: [
         {
           description: 'Etat',
