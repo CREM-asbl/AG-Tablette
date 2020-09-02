@@ -253,9 +253,10 @@ export class FileManager {
   }
 
   static async newWriteFile(fileHandle, contents) {
-    const writer = await fileHandle.createWriter();
+    console.log(fileHandle);
+    const writer = await fileHandle.createWritable();
     await writer.truncate(0);
-    await writer.write(0, contents);
+    await writer.write(contents);
     await writer.close();
   }
 

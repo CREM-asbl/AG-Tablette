@@ -51,8 +51,9 @@ export class ReverseState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour retourner une forme, touchez-là, puis touchez un des axes de symétrie apparus sur la
-        forme pour la retourner selon cet axe de symétrie.
+        Pour retourner une forme, touchez-là, puis touchez un des axes de
+        symétrie apparus sur la forme pour la retourner selon cet axe de
+        symétrie.
       </p>
     `;
   }
@@ -63,7 +64,9 @@ export class ReverseState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -78,11 +81,15 @@ export class ReverseState extends State {
       window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
-      app.workspace.selectionConstraints.points.blacklist = [this.selectedShape];
+      app.workspace.selectionConstraints.points.blacklist = [
+        this.selectedShape,
+      ];
       this.mouseClickId = app.addListener('canvasclick', this.handler);
     } else {
       setTimeout(
-        () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+        () =>
+          (app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.click_all_shape)
       );
     }
 
@@ -124,8 +131,9 @@ export class ReverseState extends State {
     if (
       this.selectedShape &&
       (this.selectedShape.id == shape.id ||
-        app.workspace.lastKnownMouseCoordinates.dist(this.selectedShape.center) <
-          this.symmetricalAxeLength)
+        app.workspace.lastKnownMouseCoordinates.dist(
+          this.selectedShape.center
+        ) < this.symmetricalAxeLength)
     )
       return;
 
@@ -138,7 +146,9 @@ export class ReverseState extends State {
     app.workspace.selectionConstraints.points.blacklist = [shape];
 
     app.removeListener('canvasclick', this.mouseClickId);
-    window.setTimeout(() => (this.mouseClickId = app.addListener('canvasclick', this.handler)));
+    window.setTimeout(
+      () => (this.mouseClickId = app.addListener('canvasclick', this.handler))
+    );
     this.currentStep = 'selecting-symmetrical-arch';
     app.workspace.editingShapes = this.involvedShapes;
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -148,15 +158,20 @@ export class ReverseState extends State {
   onClick() {
     if (this.currentStep != 'selecting-symmetrical-arch') return;
 
-    let clickDistance = this.selectedShape.center.dist(app.workspace.lastKnownMouseCoordinates);
+    let clickDistance = this.selectedShape.center.dist(
+      app.workspace.lastKnownMouseCoordinates
+    );
     if (clickDistance > this.symmetricalAxeLength / 2) return;
 
     let shapeCenter = this.selectedShape.center,
-      angle = shapeCenter.getAngle(app.workspace.lastKnownMouseCoordinates) % Math.PI;
+      angle =
+        shapeCenter.getAngle(app.workspace.lastKnownMouseCoordinates) % Math.PI;
 
     let symmetricalAxeOrientation;
-    if (angle <= Math.PI / 8 || angle > (7 * Math.PI) / 8) symmetricalAxeOrientation = 'H';
-    else if (angle > Math.PI / 8 && angle <= (3 * Math.PI) / 8) symmetricalAxeOrientation = 'NW';
+    if (angle <= Math.PI / 8 || angle > (7 * Math.PI) / 8)
+      symmetricalAxeOrientation = 'H';
+    else if (angle > Math.PI / 8 && angle <= (3 * Math.PI) / 8)
+      symmetricalAxeOrientation = 'NW';
     else if (angle > (3 * Math.PI) / 8 && angle <= (5 * Math.PI) / 8)
       symmetricalAxeOrientation = 'V';
     else symmetricalAxeOrientation = 'SW';
@@ -170,7 +185,9 @@ export class ReverseState extends State {
       shape.segments.forEach(seg => {
         if (seg.arcCenter) {
           seg.tangentPoint1 = seg.centerProjectionOnSegment(this.axeAngle);
-          seg.tangentPoint2 = seg.centerProjectionOnSegment(this.axeAngle + Math.PI / 2);
+          seg.tangentPoint2 = seg.centerProjectionOnSegment(
+            this.axeAngle + Math.PI / 2
+          );
         }
       });
     });
@@ -186,35 +203,35 @@ export class ReverseState extends State {
     if (orientation == 'V') {
       axe = new Segment(
         new Point(center.x, center.y - this.symmetricalAxeLength / 2),
-        new Point(center.x, center.y + this.symmetricalAxeLength / 2),
+        new Point(center.x, center.y + this.symmetricalAxeLength / 2)
       );
     } else if (orientation == 'NW') {
       axe = new Segment(
         new Point(
           center.x - (0.683 * this.symmetricalAxeLength) / 2,
-          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2
         ),
         new Point(
           center.x + (0.683 * this.symmetricalAxeLength) / 2,
-          center.y + (0.683 * this.symmetricalAxeLength) / 2,
-        ),
+          center.y + (0.683 * this.symmetricalAxeLength) / 2
+        )
       );
     } else if (orientation == 'H') {
       axe = new Segment(
         new Point(center.x + this.symmetricalAxeLength / 2, center.y),
-        new Point(center.x - this.symmetricalAxeLength / 2, center.y),
+        new Point(center.x - this.symmetricalAxeLength / 2, center.y)
       );
     } else {
       // SW
       axe = new Segment(
         new Point(
           center.x + (0.683 * this.symmetricalAxeLength) / 2,
-          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2
         ),
         new Point(
           center.x - (0.683 * this.symmetricalAxeLength) / 2,
-          center.y + (0.683 * this.symmetricalAxeLength) / 2,
-        ),
+          center.y + (0.683 * this.symmetricalAxeLength) / 2
+        )
       );
     }
     return axe;
@@ -232,7 +249,9 @@ export class ReverseState extends State {
           shapeId: this.selectedShape.id,
           involvedShapesIds: this.involvedShapes.map(s => s.id),
           axe: this.axe,
-          shapesPos: this.involvedShapes.map(s => ShapeManager.getShapeIndex(s)),
+          shapesPos: this.involvedShapes.map(s =>
+            ShapeManager.getShapeIndex(s)
+          ),
         },
       ];
       this.executeAction();
@@ -241,7 +260,9 @@ export class ReverseState extends State {
       window.dispatchEvent(new CustomEvent('refresh'));
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
-      this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
+      this.requestAnimFrameId = window.requestAnimationFrame(() =>
+        this.animate()
+      );
     }
   }
 
@@ -258,20 +279,24 @@ export class ReverseState extends State {
           detail: {
             involvedShapes: this.involvedShapes.map(s => s.copy(true)),
             fct1: s => {
-              this.reverseShape(s, this.axe, this.progress);
+              this.reverseShape(s, this.axe);
             },
             fct2: () => {},
             axeAngle: this.axeAngle,
             isReversed: this.progress > 0.5,
           },
-        }),
+        })
       );
 
       //Dessiner l'axe:
       window.dispatchEvent(
         new CustomEvent('draw-line', {
-          detail: { line: this.axe, color: this.symmetricalAxeColor, doSave: false },
-        }),
+          detail: {
+            line: this.axe,
+            color: this.symmetricalAxeColor,
+            doSave: false,
+          },
+        })
       );
     } else if (this.currentStep == 'selecting-symmetrical-arch') {
       window.dispatchEvent(
@@ -281,7 +306,7 @@ export class ReverseState extends State {
             fct1: () => {},
             fct2: () => {},
           },
-        }),
+        })
       );
 
       let axes = [
@@ -294,8 +319,12 @@ export class ReverseState extends State {
       axes.forEach(axe => {
         window.dispatchEvent(
           new CustomEvent('draw-line', {
-            detail: { line: axe, color: this.symmetricalAxeColor, doSave: false },
-          }),
+            detail: {
+              line: axe,
+              color: this.symmetricalAxeColor,
+              doSave: false,
+            },
+          })
         );
       });
     }
