@@ -34,6 +34,6 @@ export class Silhouette {
   }
 
   toSVG() {
-    return this.shapes.map(shape => shape.to_svg()).join('\n');
+    return this.shapes.map(shape => shape.toSVG()).join('\n');
   }
 }

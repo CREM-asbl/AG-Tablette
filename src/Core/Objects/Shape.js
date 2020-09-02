@@ -182,6 +182,7 @@ export class Shape {
     this.path = path;
     this.initSegmentsFromPath();
   }
+
   /**
    * Renvoie un objet Path2D permettant de dessiner la forme.
    * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
@@ -198,13 +199,13 @@ export class Shape {
     return path;
   }
 
-  pathToString() {
+  get path() {
     let path = '';
     const point = new Point(this.segments[0].vertexes[0]);
     point.setToCanvasCoordinates();
     path = 'M ' + point.x + ' ' + point.y + '\n';
     this.segments.forEach(seg => {
-      path += seg.to_svg() + '\n';
+      path += seg.path + '\n';
     });
     path += 'Z';
     return path;
@@ -567,7 +568,7 @@ export class Shape {
    * convertit la shape en balise path de svg
    */
 
-  to_svg() {
+  toSVG() {
     let path = this.path;
     let transform = this.path
       ? `translate(${this.x}, ${this.y})
@@ -598,21 +599,24 @@ export class Shape {
     let point_tags = '';
     if (app.settings.get('areShapesPointed') && this.name != 'silhouette') {
       if (this.isSegment())
-        point_tags += this.segments[0].vertexes[0].to_svg('#000', 1);
+        point_tags += this.segments[0].vertexes[0].toSVG('#000', 1);
       if (!this.isCircle())
         this.segments.forEach(
-          seg => (point_tags += seg.vertexes[1].to_svg('#000', 1))
+          seg => (point_tags += seg.vertexes[1].toSVG('#000', 1))
         );
     }
 
     this.segments.forEach(seg => {
       //Points sur les segments
       seg.points.forEach(pt => {
-        point_tags += pt.to_svg('#000', 1);
+        point_tags += pt.toSVG('#000', 1);
       });
     });
-    if (this.isCenterShown) point_tags += this.center.to_svg('#000', 1);
-    return path_tag + point_tags;
+    if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
+
+    let comment = '<!-- ' + this.name + '-->\n';
+
+    return comment + path_tag + point_tags + '\n';
   }
 
   setSegments(segments) {

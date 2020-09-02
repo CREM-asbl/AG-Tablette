@@ -288,7 +288,7 @@ export class Point {
   /**
    * convertit en balise circle de svg
    */
-  to_svg(color = '#000', size = 1) {
+  toSVG(color = '#000', size = 1) {
     let point = new Point(this);
     point.setToCanvasCoordinates();
     return (

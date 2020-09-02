@@ -265,11 +265,11 @@ export class Workspace {
       canvas.width +
       '" height="' +
       canvas.height +
-      '" xmlns="http://www.w3.org/2000/svg" >\n';
+      '" xmlns="http://www.w3.org/2000/svg" >\n\n';
     svg_data += GridManager.toSVG();
-    svg_data += app.silhouette?.toSVG();
+    svg_data += app.silhouette ? app.silhouette.toSVG() : '';
     this.shapes.forEach(shape => {
-      svg_data += shape.to_svg() + '\n';
+      svg_data += shape.toSVG();
     });
     svg_data += '</svg>';
 
