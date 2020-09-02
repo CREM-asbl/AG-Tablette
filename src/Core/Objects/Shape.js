@@ -35,14 +35,14 @@ export class Shape {
     this.angle = angle;
     this.name = name;
     this.familyName = familyName;
-    this.path = path;
+    // this.path = path;
     this.size = size;
     this.color = color;
     this.opacity = opacity;
 
     //Todo: condition à supprimer quand tout en path
     if (segments) this.setSegments(segments);
-    else this.initSegmentsFromPath();
+    else this.initSegmentsFromPath(path);
 
     this.second_color = getComplementaryColor(color);
     this.borderColor = '#000';
@@ -179,8 +179,8 @@ export class Shape {
   }
 
   setPath(path) {
-    this.path = path;
-    this.initSegmentsFromPath();
+    // this.path = path;
+    this.initSegmentsFromPath(path);
   }
 
   /**
@@ -221,12 +221,10 @@ export class Shape {
     return commonsPoints;
   }
 
-  initSegmentsFromPath() {
-    if (!this.path) return;
+  initSegmentsFromPath(path) {
+    // if (!this.path) return;
     this.segments = [];
-    const allPathElements = this.path
-      .split(' ')
-      .filter(element => element !== '');
+    const allPathElements = path.split(' ').filter(element => element !== '');
     let firstVertex, lastVertex, startVertex;
 
     while (allPathElements.length) {
@@ -578,7 +576,7 @@ export class Shape {
        scale(${this.size},${this.size})`
       : '';
 
-    if (!path) path = this.pathToString();
+    // if (!path) path = this.pathToString();
 
     let attributes = {
       d: path,
