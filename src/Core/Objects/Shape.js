@@ -269,6 +269,17 @@ export class Shape {
           );
           break;
 
+        // case 'A':
+        // case 'a':
+        //   firstVertex = lastVertex;
+        //   lastVertex = {
+        //     x: allPathElements.shift(),
+        //     y: allPathElements.shift(),
+        //   };
+        //   this.segments.push(
+        //     new Segment(firstVertex, lastVertex, this, this.segments.length)
+        //   );
+
         // case 'Z':
         // case 'z':
         //   firstVertex = lastVertex
