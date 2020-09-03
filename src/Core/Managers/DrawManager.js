@@ -122,13 +122,13 @@ export class DrawManager {
     let path = shape.getPath(axeAngle);
 
     ctx.save();
-    if (shape.path) {
-      ctx.translate(shape.center.x, shape.center.y);
-      ctx.rotate(shape.angle || 0);
-      ctx.translate(-shape.center.x, -shape.center.y);
-      ctx.translate(shape.x, shape.y);
-      ctx.scale(shape.size, shape.size);
-    }
+    // if (shape.path) {
+    //   ctx.translate(shape.center.x, shape.center.y);
+    //   ctx.rotate(shape.angle || 0);
+    //   ctx.translate(-shape.center.x, -shape.center.y);
+    //   ctx.translate(shape.x, shape.y);
+    //   ctx.scale(shape.size, shape.size);
+    // }
     ctx.fill(path, 'evenodd');
     ctx.globalAlpha = 1;
     ctx.stroke(path);

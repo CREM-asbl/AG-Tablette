@@ -232,20 +232,20 @@ export class Shape {
       switch (element) {
         case 'M':
         case 'm':
-          lastVertex = {
-            x: allPathElements.shift(),
-            y: allPathElements.shift(),
-          };
+          lastVertex = new Point(
+            allPathElements.shift(),
+            allPathElements.shift()
+          );
           startVertex = lastVertex;
           break;
 
         case 'L':
         case 'l':
           firstVertex = lastVertex;
-          lastVertex = {
-            x: allPathElements.shift(),
-            y: allPathElements.shift(),
-          };
+          lastVertex = new Point(
+            allPathElements.shift(),
+            allPathElements.shift()
+          );
           this.segments.push(
             new Segment(firstVertex, lastVertex, this, this.segments.length)
           );
@@ -254,7 +254,7 @@ export class Shape {
         case 'H':
         case 'h':
           firstVertex = lastVertex;
-          lastVertex = { x: allPathElements.shift(), y: firstVertex.y };
+          lastVertex = new Point(allPathElements.shift(), firstVertex.y);
           this.segments.push(
             new Segment(firstVertex, lastVertex, this, this.segments.length)
           );
@@ -263,30 +263,59 @@ export class Shape {
         case 'V':
         case 'v':
           firstVertex = lastVertex;
-          lastVertex = { x: firstVertex.x, y: allPathElements.shift() };
+          lastVertex = new Point(firstVertex.x, allPathElements.shift());
           this.segments.push(
             new Segment(firstVertex, lastVertex, this, this.segments.length)
           );
           break;
 
-        // case 'A':
-        // case 'a':
-        //   firstVertex = lastVertex;
-        //   lastVertex = {
-        //     x: allPathElements.shift(),
-        //     y: allPathElements.shift(),
-        //   };
-        //   this.segments.push(
-        //     new Segment(firstVertex, lastVertex, this, this.segments.length)
-        //   );
+        case 'A':
+        case 'a':
+          let rx = allPathElements.shift(),
+            ry = allPathElements.shift(),
+            xAxisRotation = allPathElements.shift(),
+            largeArcFlag = allPathElements.shift(),
+            sweepFlag = allPathElements.shift();
 
-        // case 'Z':
-        // case 'z':
-        //   firstVertex = lastVertex
-        //   lastVertex = vertexes[0]
-        //   console.log('close', firstVertex, lastVertex)
-        //   this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length))
-        //   break
+          let nextVertex = new Point(
+            allPathElements.shift(),
+            allPathElements.shift()
+          );
+
+          if (this.segments.length > 0 && nextVertex.equal(firstVertex)) {
+            // if circle
+            this.segments[this.segments.length - 1].vertexes[1] = nextVertex;
+            lastVertex = nextVertex;
+          } else {
+            // if arc
+            firstVertex = lastVertex;
+            lastVertex = nextVertex;
+            let arcCenter = this.getArcCenterFromSVG(
+              firstVertex,
+              lastVertex,
+              rx,
+              largeArcFlag,
+              sweepFlag
+            );
+
+            this.segments.push(
+              new Segment(
+                firstVertex,
+                lastVertex,
+                this,
+                this.segments.length,
+                arcCenter,
+                1 - sweepFlag
+              )
+            );
+          }
+
+          break;
+
+        case 'Z':
+        case 'z':
+          console.log('Z');
+          break;
 
         /* default = closePath car case Z et z ne passe pas  */
         default:
@@ -298,6 +327,55 @@ export class Shape {
           break;
       }
     }
+  }
+
+  getArcCenterFromSVG(
+    firstVertex,
+    lastVertex,
+    radius,
+    largeArcFlag,
+    sweepFlag
+  ) {
+    let middle = new Point(
+        (firstVertex.x + lastVertex.x) / 2,
+        (firstVertex.y + lastVertex.y) / 2
+      ),
+      isHorizontal = Math.abs(firstVertex.y - lastVertex.y) < 0.01,
+      isVertical = Math.abs(firstVertex.x - lastVertex.x) < 0.01,
+      distanceMiddleArcCenter = Math.sqrt(
+        Math.pow(radius, 2) -
+          (Math.pow(firstVertex.x - lastVertex.x, 2) +
+            Math.pow(firstVertex.y - lastVertex.y, 2)) /
+            4
+      );
+
+    let theta, arcCenter;
+    // theta is the angle between the segment firstvertex - lastvertex and the x-axis
+
+    if (isHorizontal) {
+      theta = firstVertex.x < lastVertex.x ? 0 : Math.PI;
+    } else if (isVertical) {
+      theta = firstVertex.y < lastVertex.y ? Math.PI / 2 : (Math.PI * 3) / 2;
+    } else {
+      theta = Math.atan2(
+        lastVertex.y - firstVertex.y,
+        lastVertex.x - firstVertex.x
+      );
+    }
+
+    if (largeArcFlag !== sweepFlag) {
+      arcCenter = middle.addCoordinates({
+        x: distanceMiddleArcCenter * Math.cos(theta + Math.PI / 2),
+        y: distanceMiddleArcCenter * Math.sin(theta + Math.PI / 2),
+      });
+    } else {
+      arcCenter = middle.addCoordinates({
+        x: distanceMiddleArcCenter * Math.cos(theta - Math.PI / 2),
+        y: distanceMiddleArcCenter * Math.sin(theta - Math.PI / 2),
+      });
+    }
+
+    return arcCenter;
   }
 
   /* #################################################################### */
@@ -368,11 +446,11 @@ export class Shape {
    */
   isPointInPath(point) {
     const ctx = app.invisibleCtx;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    if (this.path) {
-      ctx.translate(this.x, this.y);
-      ctx.scale(this.size, this.size);
-    }
+    // ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // if (this.path) {
+    //   ctx.translate(this.x, this.y);
+    //   ctx.scale(this.size, this.size);
+    // }
     const selected = ctx.isPointInPath(this.getPath(), point.x, point.y);
     return selected;
   }
