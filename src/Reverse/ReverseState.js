@@ -290,9 +290,9 @@ export class ReverseState extends State {
 
       //Dessiner l'axe:
       window.dispatchEvent(
-        new CustomEvent('draw-line', {
+        new CustomEvent('draw-segment', {
           detail: {
-            line: this.axe,
+            segment: this.axe,
             color: this.symmetricalAxeColor,
             doSave: false,
           },
@@ -318,9 +318,9 @@ export class ReverseState extends State {
 
       axes.forEach(axe => {
         window.dispatchEvent(
-          new CustomEvent('draw-line', {
+          new CustomEvent('draw-segment', {
             detail: {
-              line: axe,
+              segment: axe,
               color: this.symmetricalAxeColor,
               doSave: false,
             },

@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { GridManager } from '../../Grid/GridManager';
 import { ShapeManager } from './ShapeManager';
+import { Point } from '../Objects/Point';
 
 export class DrawManager {
   /* #################################################################### */
@@ -119,7 +120,7 @@ export class DrawManager {
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
-    let path = shape.getPath(axeAngle);
+    let path = new Path2D(shape.getSVGPath(axeAngle));
 
     ctx.save();
     // if (shape.path) {
@@ -152,8 +153,8 @@ export class DrawManager {
 
     if (shape.isCenterShown)
       DrawManager.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
-    ctx.restore();
 
+    ctx.restore();
     ctx.lineWidth = 1;
   }
 
@@ -203,9 +204,12 @@ export class DrawManager {
     ctx.fillStyle = color;
     ctx.globalAlpha = 1;
 
+    let copy = new Point(point);
+    copy.setToCanvasCoordinates();
+
     ctx.beginPath();
-    ctx.moveTo(point.x, point.y);
-    ctx.arc(point.x, point.y, size * 2, 0, 2 * Math.PI, 0);
+    ctx.moveTo(copy.x, copy.y);
+    ctx.arc(copy.x, copy.y, size * 2, 0, 2 * Math.PI, 0);
     ctx.closePath();
     ctx.fill();
 
@@ -227,9 +231,12 @@ export class DrawManager {
     ctx.globalAlpha = 1;
     ctx.lineWidth = size;
 
+    let firstVertexCopy = new Point(line.vertexes[0]),
+      secondVertexCopy = new Point(line.vertexes[1]);
+
     ctx.beginPath();
-    ctx.moveTo(line.vertexes[0].x, line.vertexes[0].y);
-    ctx.lineTo(line.vertexes[1].x, line.vertexes[1].y);
+    ctx.moveTo(firstVertexCopy.x, firstVertexCopy.y);
+    ctx.lineTo(secondVertexCopy.x, secondVertexCopy.y);
     ctx.closePath();
     ctx.stroke();
 
@@ -283,6 +290,25 @@ export class DrawManager {
     if (doSave) ctx.restore();
   }
 
+  static drawSegment(ctx, segment, color = '#000', size = 1, doSave = true) {
+    if (doSave) ctx.save();
+
+    let v0Copy = new Point(segment.vertexes[0]);
+    v0Copy.setToCanvasCoordinates();
+    let SVGPath = ['M', v0Copy.x, v0Copy.y, segment.getSVGPath()].join(' ');
+
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = size;
+
+    let path = new Path2D(SVGPath);
+
+    ctx.stroke(path);
+
+    ctx.lineWidth = 1;
+    if (doSave) ctx.restore();
+  }
+
   /**
    * Dessine un texte
    * @param  {Context2D}  ctx             Canvas
@@ -294,9 +320,19 @@ export class DrawManager {
   static drawText(ctx, text, position, color = '#000', doSave = true) {
     if (doSave) ctx.save();
 
+    console.log(app.workspace.zoomLevel);
+
+    let fontSize = 13; // * app.workspace.zoomLevel;
+    let positionCopy = new Point(position);
+    positionCopy.setToCanvasCoordinates();
+
     ctx.fillStyle = color;
-    ctx.font = '13px Arial';
-    ctx.fillText(text, position.x, position.y);
+    ctx.font = fontSize + 'px Arial';
+    ctx.fillText(
+      text,
+      positionCopy.x - (3 * text.length) / app.workspace.zoomLevel,
+      positionCopy.y + fontSize / 100
+    );
 
     if (doSave) ctx.restore();
   }
@@ -406,6 +442,16 @@ window.addEventListener('draw-arc', event => {
     event.detail.endPoint,
     event.detail.center,
     event.detail.counterclockwise,
+    event.detail.color,
+    event.detail.size,
+    event.detail.doSave
+  );
+});
+window.addEventListener('draw-segment', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawSegment(
+    ctx,
+    event.detail.segment,
     event.detail.color,
     event.detail.size,
     event.detail.doSave

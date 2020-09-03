@@ -39,9 +39,10 @@ export class RotateState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une forme, puis glissez votre doigt sans relacher la forme pour la faire tourner. La
-        forme tourne autour de son centre, qui est affiché lors de la rotation. Faites tournez votre
-        doigt autour de ce centre pour faire tourner la forme.
+        Touchez une forme, puis glissez votre doigt sans relacher la forme pour
+        la faire tourner. La forme tourne autour de son centre, qui est affiché
+        lors de la rotation. Faites tournez votre doigt autour de ce centre pour
+        faire tourner la forme.
       </p>
     `;
   }
@@ -52,7 +53,9 @@ export class RotateState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.mousedown_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -64,7 +67,9 @@ export class RotateState extends State {
   restart() {
     this.end();
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.mousedown_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -100,7 +105,9 @@ export class RotateState extends State {
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
-    this.initialAngle = shape.center.getAngle(app.workspace.lastKnownMouseCoordinates);
+    this.initialAngle = shape.center.getAngle(
+      app.workspace.lastKnownMouseCoordinates
+    );
 
     app.workspace.editingShapes = this.involvedShapes;
     this.currentStep = 'rotating-shape';
@@ -112,7 +119,9 @@ export class RotateState extends State {
   onMouseUp() {
     if (this.currentStep != 'rotating-shape') return;
 
-    let newAngle = this.selectedShape.center.getAngle(app.workspace.lastKnownMouseCoordinates);
+    let newAngle = this.selectedShape.center.getAngle(
+      app.workspace.lastKnownMouseCoordinates
+    );
 
     this.actions = [
       {
@@ -135,9 +144,9 @@ export class RotateState extends State {
   draw() {
     if (this.currentStep != 'rotating-shape') return;
 
-    let newAngle = this.selectedShape.center.getAngle(app.workspace.lastKnownMouseCoordinates),
-      diffAngle = newAngle - this.initialAngle;
     let center = this.selectedShape.center;
+    let newAngle = center.getAngle(app.workspace.lastKnownMouseCoordinates),
+      diffAngle = newAngle - this.initialAngle;
 
     window.dispatchEvent(
       new CustomEvent('draw-group', {
@@ -150,12 +159,14 @@ export class RotateState extends State {
             s.rotate(-diffAngle, center);
           },
         },
-      }),
+      })
     );
 
     //Dessiner le centre de symétrie
     window.dispatchEvent(
-      new CustomEvent('draw-point', { detail: { point: center, color: this.drawColor } }),
+      new CustomEvent('draw-point', {
+        detail: { point: center, color: this.drawColor },
+      })
     );
   }
 }

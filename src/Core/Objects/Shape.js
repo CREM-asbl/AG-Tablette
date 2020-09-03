@@ -32,7 +32,7 @@ export class Shape {
     this.id = id || uniqId();
     this.x = x;
     this.y = y;
-    this.angle = angle;
+    // this.angle = angle;
     this.name = name;
     this.familyName = familyName;
     // this.path = path;
@@ -46,7 +46,7 @@ export class Shape {
 
     this.second_color = getComplementaryColor(color);
     this.borderColor = '#000';
-    this.internalSegmentColor = '#fff';
+    // this.internalSegmentColor = '#fff';
     this.isCenterShown = false;
     this.isReversed = false;
     this.isBiface = false;
@@ -183,29 +183,33 @@ export class Shape {
     this.initSegmentsFromPath();
   }
 
-  /**
-   * Renvoie un objet Path2D permettant de dessiner la forme.
-   * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
-   * @return {Path2D} le path de dessin de la forme
-   */
-  getPath(axeAngle = undefined) {
-    if (this.path) return new Path2D(this.path);
-    const path = new Path2D();
-    path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
-    this.segments.forEach(seg => {
-      seg.getPath(path, axeAngle);
-    });
-    path.closePath();
-    return path;
-  }
+  // /**
+  //  * Renvoie un objet Path2D permettant de dessiner la forme.
+  //  * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
+  //  * @return {Path2D} le path de dessin de la forme
+  //  */
+  // getPath(axeAngle = undefined) {
+  //   if (this.path) return new Path2D(this.path);
+  //   const path = new Path2D();
+  //   path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
+  //   this.segments.forEach(seg => {
+  //     seg.getPath(path, axeAngle);
+  //   });
+  //   path.closePath();
+  //   return path;
+  // }
 
-  get path() {
+  /**
+   * convertit la shape en commande de path svg
+   * @param {Number} axeAngle - l'angle de l'axe de l'axe (pour reverse)
+   */
+  getSVGPath(axeAngle = undefined) {
     let path = '';
     const point = new Point(this.segments[0].vertexes[0]);
     point.setToCanvasCoordinates();
     path = 'M ' + point.x + ' ' + point.y + '\n';
     this.segments.forEach(seg => {
-      path += seg.path + '\n';
+      path += seg.getSVGPath(axeAngle) + '\n';
     });
     path += 'Z';
     return path;
@@ -446,12 +450,13 @@ export class Shape {
    */
   isPointInPath(point) {
     const ctx = app.invisibleCtx;
-    // ctx.setTransform(1, 0, 0, 1, 0, 0);
-    // if (this.path) {
-    //   ctx.translate(this.x, this.y);
-    //   ctx.scale(this.size, this.size);
-    // }
-    const selected = ctx.isPointInPath(this.getPath(), point.x, point.y);
+    let pointCopy = new Point(point);
+    pointCopy.setToCanvasCoordinates();
+    const selected = ctx.isPointInPath(
+      new Path2D(this.getSVGPath()),
+      pointCopy.x,
+      pointCopy.y
+    );
     return selected;
   }
 
@@ -621,7 +626,7 @@ export class Shape {
   }
 
   rotate(angle, center) {
-    this.angle = (this.angle + angle) % (2 * Math.PI);
+    // this.angle = (this.angle + angle) % (2 * Math.PI);
     this.segments.forEach(seg => seg.rotate(angle, center));
   }
 

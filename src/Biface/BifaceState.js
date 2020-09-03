@@ -21,8 +21,10 @@ export class BifaceState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Une fois sélectionné, un texte "biface" apparaît sur les formes étant bifaces.<br />
-        Touchez une forme pour qu'elle devienne biface, et touchez une seconde fois pour annuler.
+        Une fois sélectionné, un texte "biface" apparaît sur les formes étant
+        bifaces.<br />
+        Touchez une forme pour qu'elle devienne biface, et touchez une seconde
+        fois pour annuler.
       </p>
     `;
   }
@@ -32,7 +34,9 @@ export class BifaceState extends State {
    */
   start() {
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -44,7 +48,9 @@ export class BifaceState extends State {
   restart() {
     this.end();
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -93,12 +99,12 @@ export class BifaceState extends State {
   shapeDrawn(shape) {
     const biface = shape.isBiface,
       center = shape.center,
-      pos = { x: center.x - 17, y: center.y };
+      pos = { x: center.x, y: center.y };
     if (biface) {
       window.dispatchEvent(
         new CustomEvent('draw-text', {
           detail: { ctx: app.mainCtx, text: 'Biface', position: pos },
-        }),
+        })
       );
     }
   }

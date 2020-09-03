@@ -144,41 +144,41 @@ export class Segment {
     else return undefined;
   }
 
-  getPath(path, axeAngle = undefined) {
-    if (!this.arcCenter) path.lineTo(this.vertexes[1].x, this.vertexes[1].y);
-    else if (axeAngle !== undefined) {
-      let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
-        secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
-      if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
-      path.ellipse(
-        this.arcCenter.x,
-        this.arcCenter.y,
-        this.arcCenter.dist(this.tangentPoint1),
-        this.arcCenter.dist(this.tangentPoint2),
-        axeAngle,
-        firstAngle - axeAngle,
-        secondAngle - axeAngle,
-        this.counterclockwise
-      );
-    } else {
-      let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
-        secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
-      if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
-      path.arc(
-        this.arcCenter.x,
-        this.arcCenter.y,
-        this.vertexes[1].dist(this.arcCenter),
-        firstAngle,
-        secondAngle,
-        this.counterclockwise
-      );
-    }
-  }
+  // getPath(path, axeAngle = undefined) {
+  //   if (!this.arcCenter) path.lineTo(this.vertexes[1].x, this.vertexes[1].y);
+  //   else if (axeAngle !== undefined) {
+  //     let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
+  //       secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
+  //     if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
+  //     path.ellipse(
+  //       this.arcCenter.x,
+  //       this.arcCenter.y,
+  //       this.arcCenter.dist(this.tangentPoint1),
+  //       this.arcCenter.dist(this.tangentPoint2),
+  //       axeAngle,
+  //       firstAngle - axeAngle,
+  //       secondAngle - axeAngle,
+  //       this.counterclockwise
+  //     );
+  //   } else {
+  //     let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
+  //       secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
+  //     if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
+  //     path.arc(
+  //       this.arcCenter.x,
+  //       this.arcCenter.y,
+  //       this.vertexes[1].dist(this.arcCenter),
+  //       firstAngle,
+  //       secondAngle,
+  //       this.counterclockwise
+  //     );
+  //   }
+  // }
 
   /**
    * convertit le segment en commande de path svg
    */
-  get path() {
+  getSVGPath(axeAngle = undefined) {
     let v0 = new Point(this.vertexes[0]),
       v1 = new Point(this.vertexes[1]),
       path;

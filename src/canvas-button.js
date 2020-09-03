@@ -39,9 +39,7 @@ class CanvasButton extends LitElement {
   }
 
   render() {
-    return html`
-      <canvas id="canvas" width="52px" height="52px"></canvas>
-    `;
+    return html` <canvas id="canvas" width="52px" height="52px"></canvas> `;
   }
 
   updated() {
@@ -55,12 +53,17 @@ class CanvasButton extends LitElement {
     let shapes, family, scale, center;
 
     if (this.silhouetteIdx == undefined) {
-      family = app.environment.families.find(fam => fam.name == this.familyName);
-      shapes = [family.shapes.find(shape => shape.name === this.shapeName) || family.shapes[0]];
-    } else {
-      shapes = app.CremTangrams[this.silhouetteIdx].silhouetteData.shapes.map(s =>
-        Shape.fromObject(s),
+      family = app.environment.families.find(
+        fam => fam.name == this.familyName
       );
+      shapes = [
+        family.shapes.find(shape => shape.name === this.shapeName) ||
+          family.shapes[0],
+      ];
+    } else {
+      shapes = app.CremTangrams[
+        this.silhouetteIdx
+      ].silhouetteData.shapes.map(s => Shape.fromObject(s));
     }
 
     if (shapes.length == 1 && shapes[0].isCircle()) {
@@ -85,7 +88,10 @@ class CanvasButton extends LitElement {
         largeur = maxX - minX,
         hauteur = maxY - minY;
       scale = 40 / Math.max(largeur, hauteur);
-      center = new Point((minX + largeur / 2) * scale, (minY + hauteur / 2) * scale);
+      center = new Point(
+        (minX + largeur / 2) * scale,
+        (minY + hauteur / 2) * scale
+      );
     }
 
     const centerOffset = new Point(26 - center.x, 26 - center.y);
@@ -100,12 +106,14 @@ class CanvasButton extends LitElement {
     if (this.silhouetteIdx == undefined) {
       ctx.strokeStyle = '#000';
       ctx.fillStyle = shapes[0].color || family.defaultColor;
-      const path = shapes[0].getPath();
+      const path = new Path2D(shapes[0].getSVGPath());
       ctx.fill(path);
       ctx.stroke(path);
     } else {
       shapes.forEach(s =>
-        window.dispatchEvent(new CustomEvent('draw-shape', { detail: { ctx: ctx, shape: s } })),
+        window.dispatchEvent(
+          new CustomEvent('draw-shape', { detail: { ctx: ctx, shape: s } })
+        )
       );
     }
     ctx.restore();

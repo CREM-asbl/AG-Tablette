@@ -29,20 +29,22 @@ export class GroupState extends State {
     return html`
       <h2>${toolName}</h2>
       <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de former des groupes
-        de formes, qui sont alors solidaires. Une forme ne peut appartenir qu'à un seul groupe.
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
+        former des groupes de formes, qui sont alors solidaires. Une forme ne
+        peut appartenir qu'à un seul groupe.
         <br />
-        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque forme appartenant à
-        un groupe.<br /><br />
+        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque
+        forme appartenant à un groupe.<br /><br />
 
-        Pour créer un nouveau groupe, touchez deux formes n'appartenant pas à un groupe. Toutes les
-        formes touchées par la suite seront ajoutées à ce groupe.<br /><br />
+        Pour créer un nouveau groupe, touchez deux formes n'appartenant pas à un
+        groupe. Toutes les formes touchées par la suite seront ajoutées à ce
+        groupe.<br /><br />
 
-        Pour ajouter une forme à un groupe, touchez une des formes appartenant à ce groupe, puis
-        touchez la forme que vous souhaitez ajouter.<br /><br />
+        Pour ajouter une forme à un groupe, touchez une des formes appartenant à
+        ce groupe, puis touchez la forme que vous souhaitez ajouter.<br /><br />
 
-        Pour fusionner deux groupes, touchez une des formes appartenant au premier groupe, puis
-        touchez une des formes de l'autre groupe.
+        Pour fusionner deux groupes, touchez une des formes appartenant au
+        premier groupe, puis touchez une des formes de l'autre groupe.
       </p>
     `;
   }
@@ -53,7 +55,9 @@ export class GroupState extends State {
   start() {
     this.currentStep = 'listen-canvas-click';
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -66,12 +70,18 @@ export class GroupState extends State {
     this.end();
     if (this.currentStep == 'listen-canvas-click') {
       setTimeout(
-        () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+        () =>
+          (app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.click_all_shape)
       );
     } else {
       let shapesList = [];
-      if (this.currentStep == 'selecting-second-shape') shapesList = [this.firstShape];
-      else shapesList = this.group.shapesIds.map(id => ShapeManager.getShapeById(id));
+      if (this.currentStep == 'selecting-second-shape')
+        shapesList = [this.firstShape];
+      else
+        shapesList = this.group.shapesIds.map(id =>
+          ShapeManager.getShapeById(id)
+        );
 
       window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
       app.workspace.selectionConstraints.eventType = 'click';
@@ -180,8 +190,12 @@ export class GroupState extends State {
     }
 
     let shapesList = [];
-    if (this.currentStep == 'selecting-second-shape') shapesList = [this.firstShape];
-    else shapesList = this.group.shapesIds.map(id => ShapeManager.getShapeById(id));
+    if (this.currentStep == 'selecting-second-shape')
+      shapesList = [this.firstShape];
+    else
+      shapesList = this.group.shapesIds.map(id =>
+        ShapeManager.getShapeById(id)
+      );
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     app.workspace.selectionConstraints.eventType = 'click';
@@ -200,20 +214,31 @@ export class GroupState extends State {
   shapeDrawn(shape) {
     let group = GroupManager.getShapeGroup(shape),
       center = shape.center,
-      pos = { x: center.x - 25, y: center.y };
+      pos = { x: center.x, y: center.y };
     if (group) {
       let groupIndex = GroupManager.getGroupIndex(group);
       window.dispatchEvent(
         new CustomEvent('draw-text', {
-          detail: { ctx: app.mainCtx, text: 'Groupe ' + (groupIndex + 1), position: pos },
-        }),
+          detail: {
+            ctx: app.mainCtx,
+            text: 'Groupe ' + (groupIndex + 1),
+            position: pos,
+          },
+        })
       );
-    } else if (this.currentStep == 'selecting-second-shape' && this.firstShape == shape) {
+    } else if (
+      this.currentStep == 'selecting-second-shape' &&
+      this.firstShape == shape
+    ) {
       let groupIndex = app.workspace.shapeGroups.length;
       window.dispatchEvent(
         new CustomEvent('draw-text', {
-          detail: { ctx: app.mainCtx, text: 'Groupe ' + (groupIndex + 1), position: pos },
-        }),
+          detail: {
+            ctx: app.mainCtx,
+            text: 'Groupe ' + (groupIndex + 1),
+            position: pos,
+          },
+        })
       );
     }
   }

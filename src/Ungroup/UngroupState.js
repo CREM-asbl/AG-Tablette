@@ -21,10 +21,11 @@ export class UngroupState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque forme appartenant à
-        un groupe.<br /><br />
+        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque
+        forme appartenant à un groupe.<br /><br />
 
-        Pour supprimer entièrement un groupe, cliquez sur une des formes appartenant à ce groupe.
+        Pour supprimer entièrement un groupe, cliquez sur une des formes
+        appartenant à ce groupe.
       </p>
     `;
   }
@@ -34,7 +35,9 @@ export class UngroupState extends State {
    */
   start() {
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -46,7 +49,9 @@ export class UngroupState extends State {
   restart() {
     this.end();
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -96,13 +101,17 @@ export class UngroupState extends State {
   shapeDrawn(shape) {
     let group = GroupManager.getShapeGroup(shape),
       center = shape.center,
-      pos = { x: center.x - 25, y: center.y };
+      pos = { x: center.x, y: center.y };
     if (group) {
       let groupIndex = GroupManager.getGroupIndex(group);
       window.dispatchEvent(
         new CustomEvent('draw-text', {
-          detail: { ctx: app.mainCtx, text: 'Groupe ' + (groupIndex + 1), position: pos },
-        }),
+          detail: {
+            ctx: app.mainCtx,
+            text: 'Groupe ' + (groupIndex + 1),
+            position: pos,
+          },
+        })
       );
     }
   }
