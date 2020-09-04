@@ -130,7 +130,7 @@ export class DrawManager {
     //   ctx.translate(shape.x, shape.y);
     //   ctx.scale(shape.size, shape.size);
     // }
-    ctx.fill(path, 'evenodd');
+    ctx.fill(path, 'nonzero');
     ctx.globalAlpha = 1;
     ctx.stroke(path);
     ctx.restore();

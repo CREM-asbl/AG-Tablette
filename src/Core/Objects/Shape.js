@@ -647,11 +647,9 @@ export class Shape {
     let path = '';
     const point = new Point(this.segments[0].vertexes[0]);
     if (scaling == 'scale') point.setToCanvasCoordinates();
-    path = 'M ' + point.x + ' ' + point.y + '\n';
-    this.segments.forEach(seg => {
-      path += seg.getSVGPath(scaling, axeAngle) + '\n';
-    });
-    path += 'Z';
+    path = this.segments.map(seg => seg.getSVGPath(scaling, axeAngle)).join();
+
+    // path += 'Z';
     return path;
   }
 

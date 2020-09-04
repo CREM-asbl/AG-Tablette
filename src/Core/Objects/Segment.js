@@ -181,10 +181,19 @@ export class Segment {
   getSVGPath(scaling = 'scale', axeAngle = undefined) {
     let v0 = new Point(this.vertexes[0]),
       v1 = new Point(this.vertexes[1]),
-      path;
+      path,
+      moveTo = '';
+
     if (scaling == 'scale') {
       v0.setToCanvasCoordinates();
       v1.setToCanvasCoordinates();
+    }
+
+    if (
+      this.idx == 0 ||
+      !this.vertexes[0].equal(this.shape.segments[this.idx - 1].vertexes[1])
+    ) {
+      moveTo = ['M', v0.x, v0.y].join(' ') + '\n';
     }
 
     if (!this.arcCenter) {
@@ -290,7 +299,7 @@ export class Segment {
         ].join(' ');
       }
     }
-    return path;
+    return moveTo + path + '\n';
   }
 
   getArcTangent(vertexNb) {

@@ -240,7 +240,7 @@ export class Workspace {
     //   new CustomEvent('scaleView', { detail: { scale: 1 / this.zoomLevel } })
     // );
 
-    let offset = newOffset.subCoordinates(this.translateOffset);
+    // let offset = newOffset.subCoordinates(this.translateOffset);
 
     // window.dispatchEvent(
     //   new CustomEvent('translateView', { detail: { offset: offset } })
