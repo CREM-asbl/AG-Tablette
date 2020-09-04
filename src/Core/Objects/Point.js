@@ -297,7 +297,7 @@ export class Point {
       '" cy="' +
       point.y +
       '" r="' +
-      size * 2 * app.workspace.zoomLevel +
+      size * 2 + // * app.workspace.zoomLevel +
       '" fill="' +
       color +
       '" />\n'
