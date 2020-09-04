@@ -106,7 +106,7 @@ class CanvasButton extends LitElement {
     if (this.silhouetteIdx == undefined) {
       ctx.strokeStyle = '#000';
       ctx.fillStyle = shapes[0].color || family.defaultColor;
-      const path = new Path2D(shapes[0].getSVGPath());
+      const path = new Path2D(shapes[0].getSVGPath('no scale'));
       ctx.fill(path);
       ctx.stroke(path);
     } else {

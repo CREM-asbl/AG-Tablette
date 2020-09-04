@@ -66,7 +66,7 @@ export class DrawManager {
           app.backgroundCtx,
           pt,
           '#F00',
-          1.5 / actualZoomLvl,
+          1.5 * actualZoomLvl,
           false
         );
       });
@@ -120,7 +120,7 @@ export class DrawManager {
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
-    let path = new Path2D(shape.getSVGPath(axeAngle));
+    let path = new Path2D(shape.getSVGPath('scale', axeAngle));
 
     ctx.save();
     // if (shape.path) {

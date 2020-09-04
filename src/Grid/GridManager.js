@@ -139,7 +139,7 @@ export class GridManager {
 
     let pts = GridManager.getVisibleGridPoints(min, max);
     pts.forEach(pt => {
-      svg_data += pt.toSVG('#F00', 1.5 / actualZoomLvl);
+      svg_data += pt.toSVG('#F00', 1.5);
     });
 
     if (svg_data !== '') svg_data = '<!-- Grid -->\n' + svg_data + '\n';

@@ -178,16 +178,26 @@ export class Segment {
   /**
    * convertit le segment en commande de path svg
    */
-  getSVGPath(axeAngle = undefined) {
+  getSVGPath(scaling = 'scale', axeAngle = undefined) {
     let v0 = new Point(this.vertexes[0]),
       v1 = new Point(this.vertexes[1]),
       path;
-    v0.setToCanvasCoordinates();
-    v1.setToCanvasCoordinates();
-    if (this.arcCenter) {
+    if (scaling == 'scale') {
+      v0.setToCanvasCoordinates();
+      v1.setToCanvasCoordinates();
+    }
+
+    if (!this.arcCenter) {
+      // line
+      path = ['L', v1.x, v1.y].join(' ');
+    } else {
+      // arc, circle, ellipse
+
+      // }
+      // if (this.arcCenter) {
       // arc or circle
       let ctr = new Point(this.arcCenter);
-      ctr.setToCanvasCoordinates();
+      if (scaling == 'scale') ctr.setToCanvasCoordinates();
       let radius = ctr.dist(v1),
         firstAngle = ctr.getAngle(v0),
         secondAngle = ctr.getAngle(v1);
@@ -221,9 +231,6 @@ export class Segment {
           v1.y,
         ].join(' ');
       }
-    } else {
-      // line
-      path = ['L', v1.x, v1.y].join(' ');
     }
     return path;
   }

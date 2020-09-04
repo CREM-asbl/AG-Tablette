@@ -25,7 +25,7 @@ export class Shape {
     path = null,
     color = '#aaa',
     id = null,
-    angle = 0,
+    // angle = 0,
     size = 2,
     opacity = 0.7,
   }) {
@@ -198,22 +198,6 @@ export class Shape {
   //   path.closePath();
   //   return path;
   // }
-
-  /**
-   * convertit la shape en commande de path svg
-   * @param {Number} axeAngle - l'angle de l'axe de l'axe (pour reverse)
-   */
-  getSVGPath(axeAngle = undefined) {
-    let path = '';
-    const point = new Point(this.segments[0].vertexes[0]);
-    point.setToCanvasCoordinates();
-    path = 'M ' + point.x + ' ' + point.y + '\n';
-    this.segments.forEach(seg => {
-      path += seg.getSVGPath(axeAngle) + '\n';
-    });
-    path += 'Z';
-    return path;
-  }
 
   getCommonsPoints(shape) {
     const commonsPoints = [];
@@ -656,20 +640,26 @@ export class Shape {
   }
 
   /**
+   * convertit la shape en commande de path svg
+   * @param {Number} axeAngle - l'angle de l'axe de l'axe (pour reverse)
+   */
+  getSVGPath(scaling = 'scale', axeAngle = undefined) {
+    let path = '';
+    const point = new Point(this.segments[0].vertexes[0]);
+    if (scaling == 'scale') point.setToCanvasCoordinates();
+    path = 'M ' + point.x + ' ' + point.y + '\n';
+    this.segments.forEach(seg => {
+      path += seg.getSVGPath(scaling, axeAngle) + '\n';
+    });
+    path += 'Z';
+    return path;
+  }
+
+  /**
    * convertit la shape en balise path de svg
    */
-
   toSVG() {
-    let path = this.path;
-    let transform = this.path
-      ? `translate(${this.x}, ${this.y})
-       rotate(${this.angle ? (this.angle * 180) / Math.PI : 0} ${
-          this.center.x - this.x
-        } ${this.center.y - this.y})
-       scale(${this.size},${this.size})`
-      : '';
-
-    if (!path) path = this.pathToString();
+    let path = this.getSVGPath();
 
     let attributes = {
       d: path,
@@ -678,7 +668,6 @@ export class Shape {
       'fill-opacity': this.opacity,
       'stroke-width': 1, // toujours à 1 ?
       'stroke-opacity': 1, // toujours à 1 ?
-      transform: transform,
     };
 
     let path_tag = '<path';
@@ -705,7 +694,7 @@ export class Shape {
     });
     if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
 
-    let comment = '<!-- ' + this.name + '-->\n';
+    let comment = '<!-- ' + this.name + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
   }
@@ -745,7 +734,13 @@ export class Shape {
   }
 
   static createFromSegments(segments, name, family) {
-    let newShape = new Shape({ x: 0, y: 0, name: name, familyName: family });
+    let newShape = new Shape({
+      x: 0,
+      y: 0,
+      segments: [],
+      name: name,
+      familyName: family,
+    });
     newShape.setSegments(segments);
     newShape.color = '#000';
     newShape.second_color = getComplementaryColor(newShape.color);
