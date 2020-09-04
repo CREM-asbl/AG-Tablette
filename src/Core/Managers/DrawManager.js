@@ -320,8 +320,6 @@ export class DrawManager {
   static drawText(ctx, text, position, color = '#000', doSave = true) {
     if (doSave) ctx.save();
 
-    console.log(app.workspace.zoomLevel);
-
     let fontSize = 13; // * app.workspace.zoomLevel;
     let positionCopy = new Point(position);
     positionCopy.setToCanvasCoordinates();

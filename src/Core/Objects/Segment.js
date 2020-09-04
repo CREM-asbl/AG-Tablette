@@ -190,11 +190,7 @@ export class Segment {
     if (!this.arcCenter) {
       // line
       path = ['L', v1.x, v1.y].join(' ');
-    } else {
-      // arc, circle, ellipse
-
-      // }
-      // if (this.arcCenter) {
+    } else if (axeAngle === undefined) {
       // arc or circle
       let ctr = new Point(this.arcCenter);
       if (scaling == 'scale') ctr.setToCanvasCoordinates();
@@ -225,6 +221,68 @@ export class Segment {
           radius,
           radius,
           0,
+          largeArcFlag,
+          sweepFlag,
+          v1.x,
+          v1.y,
+        ].join(' ');
+      }
+    } else {
+      // ellipse arc or ellipse
+
+      let ctr = new Point(this.arcCenter);
+      if (scaling == 'scale') ctr.setToCanvasCoordinates();
+      let firstAngle = ctr.getAngle(v0),
+        secondAngle = ctr.getAngle(v1);
+
+      if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+      let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+        sweepFlag = 1;
+      if (this.counterclockwise) {
+        sweepFlag = Math.abs(sweepFlag - 1);
+        largeArcFlag = Math.abs(largeArcFlag - 1);
+      }
+
+      let rx = ctr.dist(this.tangentPoint1),
+        ry = ctr.dist(this.tangentPoint2),
+        degreeAxeAngle = (axeAngle * 180) / Math.PI;
+      // canvas path2D => radian
+      // svg path => degree
+
+      if (v0.equal(v1)) {
+        // ellipse
+        const oppositePoint = new Point(
+          ctr.multiplyWithScalar(2).subCoordinates(v0)
+        );
+
+        path = [
+          'A',
+          rx,
+          ry,
+          degreeAxeAngle,
+          largeArcFlag,
+          sweepFlag,
+          oppositePoint.x,
+          oppositePoint.y,
+        ]
+          .concat([
+            'A',
+            rx,
+            ry,
+            degreeAxeAngle,
+            largeArcFlag,
+            sweepFlag,
+            v1.x,
+            v1.y,
+          ])
+          .join(' ');
+      } else {
+        // arc ellipse
+        path = [
+          'A',
+          rx,
+          ry,
+          degreeAxeAngle,
           largeArcFlag,
           sweepFlag,
           v1.x,
@@ -381,6 +439,8 @@ export class Segment {
       this.arcCenter = newPoint;
     }
     if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
+    if (save.tangentPoint1) this.tangentPoint1 = save.tangentPoint1;
+    if (save.tangentPoint2) this.tangentPoint2 = save.tangentPoint2;
   }
 
   static retrieveFrom(segment) {
