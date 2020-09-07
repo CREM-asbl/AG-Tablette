@@ -1,7 +1,6 @@
 import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
 import { GridManager } from '../../Grid/GridManager';
-import { TangramManager } from '../../Tangram/TangramManager';
 import { Point } from '../Objects/Point';
 
 /**
@@ -45,7 +44,7 @@ function computeTransformation(e1, e2, shapes, mainShape) {
     - Que les 2 segments formés ont la même longueur
     - Que les 2 points moving sont sur le même segment et/ou aux extrémités
       d'un même segment.
-    - Si les 2 points fixed ne sont ni tangram ni grille, alors ils doivent
+    - Si les 2 points fixed ne sont pas de grille, alors ils doivent
       faire partie du même segment de la même forme.
   */
 function checkCompatibility(e1, e2) {
@@ -59,12 +58,7 @@ function checkCompatibility(e1, e2) {
 
   // if (!e1.moving.shape.contains(new Segment(e1.moving, e2.moving))) return false;
 
-  if (
-    e1.fixed.type != 'tangram' &&
-    e1.fixed.type != 'grid' &&
-    e2.fixed.type != 'tangram' &&
-    e2.fixed.type != 'grid'
-  ) {
+  if (e1.fixed.type != 'grid' && e2.fixed.type != 'grid') {
     if (e1.fixed.shape.id != e2.fixed.shape.id) return false;
     // if (!e1.fixed.shape.contains(new Segment(e1.fixed, e2.fixed))) return false;
   }
@@ -78,7 +72,9 @@ function bestPossibility(possibilities) {
       rot2 = Math.abs(poss2.rotation);
     if (Math.abs(rot1 - rot2) < 0.001)
       // equalité d'angle
-      return poss1.move.dist(new Point(0, 0)) > poss2.move.dist(new Point(0, 0)) ? 1 : -1;
+      return poss1.move.dist(new Point(0, 0)) > poss2.move.dist(new Point(0, 0))
+        ? 1
+        : -1;
     else return rot1 - rot2;
   })[0];
 
@@ -102,18 +98,18 @@ function bestPossibility(possibilities) {
 export function getShapeAdjustment(shapes, mainShape) {
   const maxRotateAngle = 0.25; //radians
   let grid = app.workspace.settings.get('isGridShown'),
-    tangram = app.environment.name == 'Tangram' && app.silhouette,
+    // tangram = app.environment.name == 'Tangram' && app.silhouette,
     automaticAdjustment = app.settings.get('automaticAdjustment'),
     transformation = {
       rotation: 0,
       move: { x: 0, y: 0 },
     };
 
-  if (!grid && !automaticAdjustment && !tangram) return transformation;
+  if (!grid && !automaticAdjustment) return transformation;
 
-  if (grid && tangram) {
-    console.error('le Tangram et la Grille ne doivent pas être activés en même temps');
-  }
+  // if (grid && tangram) {
+  //   console.error('le Tangram et la Grille ne doivent pas être activés en même temps');
+  // }
 
   //Générer la liste des points du groupe de formes
   let ptList = [];
@@ -123,21 +119,11 @@ export function getShapeAdjustment(shapes, mainShape) {
   });
 
   // Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
-  let cPtListTangram = [],
-    cPtListGrid = [],
+  let cPtListGrid = [],
     cPtListBorder = [],
     cPtListShape = [];
   ptList.forEach(point => {
-    if (point.type != 'center' && tangram) {
-      let pt = TangramManager.getNearTangramPoint(point);
-      if (pt) {
-        cPtListTangram.push({
-          fixed: pt,
-          moving: point,
-          dist: pt.dist(point),
-        });
-      }
-    } else if (grid) {
+    if (grid) {
       let pt = GridManager.getClosestGridPoint(point);
       cPtListGrid.push({
         fixed: pt,
@@ -162,44 +148,12 @@ export function getShapeAdjustment(shapes, mainShape) {
   });
 
   cPtListBorder = cPtListShape.filter(
-    pt => pt.fixed.type == 'vertex' || pt.fixed.type == 'segmentPoint',
+    pt => pt.fixed.type == 'vertex' || pt.fixed.type == 'segmentPoint'
   );
 
   // console.log(cPtListTangram, cPtListGrid, cPtListBorder, cPtListShape);
 
   let possibilities = [];
-
-  if (tangram) {
-    //segment: 2 points de la silhouette ?
-    for (let i = 0; i < cPtListTangram.length; i++) {
-      for (let j = i + 1; j < cPtListTangram.length; j++) {
-        let e1 = cPtListTangram[i],
-          e2 = cPtListTangram[j];
-        if (checkCompatibility(e1, e2)) {
-          let t = computeTransformation(e1, e2, shapes, mainShape);
-          if (Math.abs(t.rotation) <= maxRotateAngle) {
-            return t;
-          }
-        }
-      }
-    }
-
-    if (automaticAdjustment) {
-      //segment: 1 point de la silhouette et 1 point d'une autre forme ?
-      for (let i = 0; i < cPtListTangram.length; i++) {
-        for (let j = 0; j < cPtListBorder.length; j++) {
-          let e1 = cPtListTangram[i],
-            e2 = cPtListBorder[j];
-          if (checkCompatibility(e1, e2)) {
-            let t = computeTransformation(e1, e2, shapes, mainShape);
-            if (Math.abs(t.rotation) <= maxRotateAngle) {
-              return t;
-            }
-          }
-        }
-      }
-    }
-  }
 
   if (grid) {
     //segment: 2 points de la grille ?
@@ -263,23 +217,6 @@ export function getShapeAdjustment(shapes, mainShape) {
   if (possibilities.length) {
     // console.log("2 points d'une autre forme");
     return bestPossibility(possibilities);
-  }
-
-  if (tangram) {
-    //point: un seul point du tangram ?
-    let best = null,
-      bestDist = 1000 * 1000;
-    for (let i = 0; i < cPtListTangram.length; i++) {
-      let e = cPtListTangram[i];
-      if (e.dist < bestDist) {
-        bestDist = e.dist;
-        best = e;
-      }
-    }
-    if (best) {
-      transformation.move = best.fixed.subCoordinates(best.moving);
-      return transformation;
-    }
   }
 
   if (grid) {
