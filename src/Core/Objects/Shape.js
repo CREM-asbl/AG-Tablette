@@ -211,7 +211,9 @@ export class Shape {
 
   initSegmentsFromPath(path) {
     this.segments = [];
-    const allPathElements = path.split(' ').filter(element => element !== '');
+    const allPathElements = path
+      .split(/[ \n]/)
+      .filter(element => element !== '');
     let firstVertex, lastVertex, startVertex;
 
     while (allPathElements.length) {
@@ -302,16 +304,21 @@ export class Shape {
 
         case 'Z':
         case 'z':
-          console.log('Z');
-          break;
-
-        /* default = closePath car case Z et z ne passe pas  */
-        default:
           firstVertex = lastVertex;
           lastVertex = startVertex;
           this.segments.push(
             new Segment(firstVertex, lastVertex, this, this.segments.length)
           );
+          // console.log('Z');
+          break;
+
+        /* default = closePath car case Z et z ne passe pas  */
+        default:
+          // firstVertex = lastVertex;
+          // lastVertex = startVertex;
+          // this.segments.push(
+          //   new Segment(firstVertex, lastVertex, this, this.segments.length)
+          // );
           break;
       }
     }
@@ -645,10 +652,11 @@ export class Shape {
    */
   getSVGPath(scaling = 'scale', axeAngle = undefined) {
     let path = '';
-    const point = new Point(this.segments[0].vertexes[0]);
-    if (scaling == 'scale') point.setToCanvasCoordinates();
-    path = this.segments.map(seg => seg.getSVGPath(scaling, axeAngle)).join();
-
+    // const point = new Point(this.segments[0].vertexes[0]);
+    // if (scaling == 'scale') point.setToCanvasCoordinates();
+    path = this.segments
+      .map(seg => seg.getSVGPath(scaling, axeAngle))
+      .join('\n');
     // path += 'Z';
     return path;
   }
@@ -710,10 +718,11 @@ export class Shape {
 
   saveToObject() {
     let save = {
-      ...this,
+      ...{ ...this, segments: undefined },
       coordinates: this.coordinates.saveToObject(),
-      segments: this.segments.map(seg => seg.saveToObject()),
+      path: this.getSVGPath(),
     };
+    console.log(save);
     return save;
   }
 

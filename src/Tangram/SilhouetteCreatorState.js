@@ -19,7 +19,7 @@ export class SilhouetteCreatorState extends State {
   }
 
   async loadKit() {
-    const response = await fetch('data/Tangram/kit.json');
+    const response = await fetch('data/Tangram/kit2.json');
     return response.text();
   }
 

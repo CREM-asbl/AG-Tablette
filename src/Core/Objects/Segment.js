@@ -193,19 +193,20 @@ export class Segment {
       this.idx == 0 ||
       !this.vertexes[0].equal(this.shape.segments[this.idx - 1].vertexes[1])
     ) {
-      moveTo = ['M', v0.x, v0.y].join(' ') + '\n';
+      moveTo = ['M', v0.x, v0.y, ''].join(' ');
     }
 
     if (!this.arcCenter) {
       // line
       path = ['L', v1.x, v1.y].join(' ');
     } else if (axeAngle === undefined) {
-      // arc or circle
+      // circle or arc
       let ctr = new Point(this.arcCenter);
       if (scaling == 'scale') ctr.setToCanvasCoordinates();
       let radius = ctr.dist(v1),
         firstAngle = ctr.getAngle(v0),
         secondAngle = ctr.getAngle(v1);
+
       if (v0.equal(v1)) {
         // circle
         const oppositeAngle = firstAngle + Math.PI,
@@ -237,7 +238,7 @@ export class Segment {
         ].join(' ');
       }
     } else {
-      // ellipse arc or ellipse
+      // ellipse or ellipse arc
 
       let ctr = new Point(this.arcCenter);
       if (scaling == 'scale') ctr.setToCanvasCoordinates();
@@ -299,7 +300,7 @@ export class Segment {
         ].join(' ');
       }
     }
-    return moveTo + path + '\n';
+    return moveTo + path;
   }
 
   getArcTangent(vertexNb) {

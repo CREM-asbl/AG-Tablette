@@ -15,15 +15,15 @@ export class DrawManager {
   }
 
   static translateView(relativeOffset) {
-    app.upperCtx.translate(relativeOffset.x, relativeOffset.y);
-    app.mainCtx.translate(relativeOffset.x, relativeOffset.y);
-    app.backgroundCtx.translate(relativeOffset.x, relativeOffset.y);
+    // app.upperCtx.translate(relativeOffset.x, relativeOffset.y);
+    // app.mainCtx.translate(relativeOffset.x, relativeOffset.y);
+    // app.backgroundCtx.translate(relativeOffset.x, relativeOffset.y);
   }
 
   static scaleView(relativeScale) {
-    app.upperCtx.scale(relativeScale, relativeScale);
-    app.mainCtx.scale(relativeScale, relativeScale);
-    app.backgroundCtx.scale(relativeScale, relativeScale);
+    // app.upperCtx.scale(relativeScale, relativeScale);
+    // app.mainCtx.scale(relativeScale, relativeScale);
+    // app.backgroundCtx.scale(relativeScale, relativeScale);
   }
 
   /* #################################################################### */
