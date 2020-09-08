@@ -1,4 +1,4 @@
-export const kit = {
+export const cubesKit = {
   name: 'Cubes',
   families: {
     'Cube 1': {

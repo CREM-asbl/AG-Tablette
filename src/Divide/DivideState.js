@@ -32,16 +32,18 @@ export class DivideState extends State {
     return html`
       <h2>${toolName}</h2>
       <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de diviser un segment
-        d'une forme en plusieurs parties (délimitées par des points).<br />
-        Après avoir choisit en combien de partie vous souhaitez diviser le segment, touchez le
-        segment que vous souhaitez diviser.<br />
-        Il est également possible de sélectionner deux points situés sur le même segment, afin de
-        diviser le segment formé par ces deux points.<br /><br />
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
+        diviser un segment d'une forme en plusieurs parties (délimitées par des
+        points).<br />
+        Après avoir choisit en combien de partie vous souhaitez diviser le
+        segment, touchez le segment que vous souhaitez diviser.<br />
+        Il est également possible de sélectionner deux points situés sur le même
+        segment, afin de diviser le segment formé par ces deux points.<br /><br />
 
-        <b>Note:</b> il est également possible de diviser un arc de cercle, soit en touchant l'arc
-        lui-même, soit en sélectionnant deux points situés sur cet arc. Dans ce dernier cas, la
-        division est effectuée dans le sens horlogique.
+        <b>Note:</b> il est également possible de diviser un arc de cercle, soit
+        en touchant l'arc lui-même, soit en sélectionnant deux points situés sur
+        cet arc. Dans ce dernier cas, la division est effectuée dans le sens
+        horlogique.
       </p>
     `;
   }
@@ -58,7 +60,10 @@ export class DivideState extends State {
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.segments.canSelect = true;
     app.workspace.selectionConstraints.points.canSelect = true;
-    app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
+    app.workspace.selectionConstraints.points.types = [
+      'vertex',
+      'segmentPoint',
+    ];
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
@@ -81,7 +86,10 @@ export class DivideState extends State {
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.segments.canSelect = true;
       app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
+      app.workspace.selectionConstraints.points.types = [
+        'vertex',
+        'segmentPoint',
+      ];
     }
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -126,7 +134,10 @@ export class DivideState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(object) {
-    if (this.currentStep != 'listen-canvas-click' && this.currentStep != 'select-second-point')
+    if (
+      this.currentStep != 'listen-canvas-click' &&
+      this.currentStep != 'select-second-point'
+    )
       return;
 
     if (this.currentStep == 'listen-canvas-click') {
@@ -224,7 +235,8 @@ export class DivideState extends State {
       let pt1 = this.actions[0].firstPoint,
         pt2 = this.actions[0].secondPoint;
       if (pt1.type == 'segmentPoint') this.actions[0].segment = pt1.segment;
-      else if (pt2.type == 'segmentPoint') this.actions[0].segment = pt2.segment;
+      else if (pt2.type == 'segmentPoint')
+        this.actions[0].segment = pt2.segment;
       else {
         this.actions[0].segment =
           (Math.abs(pt2.segment.idx - pt1.segment.idx) > 1) ^ // si premier et dernier segment
@@ -248,45 +260,46 @@ export class DivideState extends State {
     if (this.currentStep == 'select-second-point') {
       window.dispatchEvent(
         new CustomEvent('draw-point', {
-          detail: { point: this.actions[0].firstPoint, color: this.drawColor, size: 2 },
-        }),
+          detail: {
+            point: this.actions[0].firstPoint,
+            color: this.drawColor,
+            size: 2,
+          },
+        })
       );
     }
     if (this.currentStep == 'showing-points') {
       window.dispatchEvent(
         new CustomEvent('draw-point', {
-          detail: { point: this.actions[0].firstPoint, color: this.drawColor, size: 2 },
-        }),
+          detail: {
+            point: this.actions[0].firstPoint,
+            color: this.drawColor,
+            size: 2,
+          },
+        })
       );
       window.dispatchEvent(
         new CustomEvent('draw-point', {
-          detail: { point: this.actions[0].secondPoint, color: this.drawColor, size: 2 },
-        }),
+          detail: {
+            point: this.actions[0].secondPoint,
+            color: this.drawColor,
+            size: 2,
+          },
+        })
       );
     }
     if (this.currentStep == 'showing-segment') {
       let segment = this.actions[0].segment;
 
-      if (segment.arcCenter) {
-        window.dispatchEvent(
-          new CustomEvent('draw-arc', {
-            detail: {
-              startPoint: segment.vertexes[0],
-              endPoint: segment.vertexes[1],
-              center: segment.arcCenter,
-              counterclockwise: segment.counterclockwise,
-              color: this.drawColor,
-              size: 3,
-            },
-          }),
-        );
-      } else {
-        window.dispatchEvent(
-          new CustomEvent('draw-line', {
-            detail: { line: segment, color: this.drawColor, size: 3 },
-          }),
-        );
-      }
+      window.dispatchEvent(
+        new CustomEvent('draw-segment', {
+          detail: {
+            segment: segment,
+            color: this.drawColor,
+            size: 3,
+          },
+        })
+      );
     }
   }
 
@@ -297,7 +310,9 @@ export class DivideState extends State {
   getCandidatePoints(object) {
     const shape = object.shape;
 
-    const concerned_segments = object.shape.segments.filter(seg => seg.contains(object));
+    const concerned_segments = object.shape.segments.filter(seg =>
+      seg.contains(object)
+    );
 
     let candidates = [];
 
@@ -307,7 +322,9 @@ export class DivideState extends State {
         const vertex = segment.vertexes[1];
         if (
           seg.contains(vertex) &&
-          !candidates.some(candi => candi.type == 'vertex' && candi.index == segment.idx)
+          !candidates.some(
+            candi => candi.type == 'vertex' && candi.index == segment.idx
+          )
         )
           candidates.push({
             shape: shape,

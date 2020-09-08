@@ -1,4 +1,5 @@
 import { Shape } from './Shape';
+import { App } from '../App';
 
 export class Silhouette {
   /**
@@ -6,11 +7,13 @@ export class Silhouette {
    * @param {Shape[]} shapes les shapes représentant la silhouette
    */
   constructor(shapes = [], level = 1) {
+    this.level = level;
     this.shapes = shapes.map(shape => {
       shape.name = 'silhouette';
       shape.color = '#000';
-      shape.borderColor = level == 1 || level == 3 ? '#fff' : '#000';
+      shape.borderColor = level % 2 != 1 ? '#fff' : '#000';
       shape.opacity = 1;
+      if (level == 5 || level == 6) shape.scale(2 / 3);
       return shape;
     });
   }
@@ -27,6 +30,20 @@ export class Silhouette {
       save.shapes.map(s => Shape.fromObject(s)),
       level
     );
+  }
+
+  get bounds() {
+    //minX, maxX, minY, maxY
+    let result = [[], [], [], []];
+    this.shapes.forEach(shape => {
+      shape.bounds.forEach((bound, idx) => {
+        result[idx].push(bound);
+      });
+    });
+    return result.map((value, idx) => {
+      if (idx % 2) return Math.max(...value);
+      else return Math.min(...value);
+    });
   }
 
   copy() {

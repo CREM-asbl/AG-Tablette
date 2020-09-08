@@ -1,4 +1,4 @@
-export const standardKit = {
+export const grandeursKit = {
   name: 'Formes standard',
   families: {
     'Famille du triangle équilatéral': {
@@ -8,13 +8,22 @@ export const standardKit = {
           name: 'Triangle équilatéral',
           segments: [
             {
-              vertexes: [{ x: 25, y: -43.3012701892 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 25, y: -43.3012701892 },
+                { x: 0, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 25, y: -43.3012701892 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 25, y: -43.3012701892 },
+              ],
             },
           ],
         },
@@ -23,13 +32,22 @@ export const standardKit = {
           name: 'Triangle isocèle',
           segments: [
             {
-              vertexes: [{ x: 25, y: -14.433756729747 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 25, y: -14.433756729747 },
+                { x: 0, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 25, y: -14.433756729747 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 25, y: -14.433756729747 },
+              ],
             },
           ],
         },
@@ -38,13 +56,22 @@ export const standardKit = {
           name: 'Triangle rectangle',
           segments: [
             {
-              vertexes: [{ x: 0, y: -43.3012701892 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 0, y: -43.3012701892 },
+                { x: 0, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 25, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 25, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 25, y: 0 }, { x: 0, y: -43.3012701892 }],
+              vertexes: [
+                { x: 25, y: 0 },
+                { x: 0, y: -43.3012701892 },
+              ],
             },
           ],
         },
@@ -53,16 +80,28 @@ export const standardKit = {
           name: 'Losange',
           segments: [
             {
-              vertexes: [{ x: -25, y: -43.3012701892 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: -25, y: -43.3012701892 },
+                { x: 0, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 25, y: -43.3012701892 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 25, y: -43.3012701892 },
+              ],
             },
             {
-              vertexes: [{ x: 25, y: -43.3012701892 }, { x: -25, y: -43.3012701892 }],
+              vertexes: [
+                { x: 25, y: -43.3012701892 },
+                { x: -25, y: -43.3012701892 },
+              ],
             },
           ],
         },
@@ -71,16 +110,28 @@ export const standardKit = {
           name: 'Trapèze rectangle',
           segments: [
             {
-              vertexes: [{ x: 25, y: -43.3012701892 }, { x: 0, y: -43.3012701892 }],
+              vertexes: [
+                { x: 25, y: -43.3012701892 },
+                { x: 0, y: -43.3012701892 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: -43.3012701892 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 0, y: -43.3012701892 },
+                { x: 0, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 25, y: -43.3012701892 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 25, y: -43.3012701892 },
+              ],
             },
           ],
         },
@@ -89,16 +140,28 @@ export const standardKit = {
           name: 'Trapèze isocèle',
           segments: [
             {
-              vertexes: [{ x: 25, y: -43.3012701892 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 25, y: -43.3012701892 },
+                { x: 0, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 100, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 100, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 100, y: 0 }, { x: 75, y: -43.3012701892 }],
+              vertexes: [
+                { x: 100, y: 0 },
+                { x: 75, y: -43.3012701892 },
+              ],
             },
             {
-              vertexes: [{ x: 75, y: -43.3012701892 }, { x: 25, y: -43.3012701892 }],
+              vertexes: [
+                { x: 75, y: -43.3012701892 },
+                { x: 25, y: -43.3012701892 },
+              ],
             },
           ],
         },
@@ -107,22 +170,40 @@ export const standardKit = {
           name: 'Hexagone régulier',
           segments: [
             {
-              vertexes: [{ x: 0, y: -86.6025403784 }, { x: -25, y: -43.3012701892 }],
+              vertexes: [
+                { x: 0, y: -86.6025403784 },
+                { x: -25, y: -43.3012701892 },
+              ],
             },
             {
-              vertexes: [{ x: -25, y: -43.3012701892 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: -25, y: -43.3012701892 },
+                { x: 0, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 75, y: -43.3012701892 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 75, y: -43.3012701892 },
+              ],
             },
             {
-              vertexes: [{ x: 75, y: -43.3012701892 }, { x: 50, y: -86.6025403784 }],
+              vertexes: [
+                { x: 75, y: -43.3012701892 },
+                { x: 50, y: -86.6025403784 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: -86.6025403784 }, { x: 0, y: -86.6025403784 }],
+              vertexes: [
+                { x: 50, y: -86.6025403784 },
+                { x: 0, y: -86.6025403784 },
+              ],
             },
           ],
         },
@@ -190,16 +271,28 @@ export const standardKit = {
           name: 'Carré',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 50, y: -50 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 50, y: -50 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: -50 }, { x: 0, y: -50 }],
+              vertexes: [
+                { x: 50, y: -50 },
+                { x: 0, y: -50 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: -50 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 0, y: -50 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -208,13 +301,22 @@ export const standardKit = {
           name: 'Triangle rectangle isocèle 1',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 25, y: -25 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 25, y: -25 },
+              ],
             },
             {
-              vertexes: [{ x: 25, y: -25 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 25, y: -25 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -223,13 +325,22 @@ export const standardKit = {
           name: 'Triangle rectangle isocèle 2',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 0, y: -50 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 0, y: -50 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: -50 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 0, y: -50 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -238,13 +349,22 @@ export const standardKit = {
           name: 'Triangle rectangle',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 25, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 25, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 25, y: 0 }, { x: 25, y: -50 }],
+              vertexes: [
+                { x: 25, y: 0 },
+                { x: 25, y: -50 },
+              ],
             },
             {
-              vertexes: [{ x: 25, y: -50 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 25, y: -50 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -253,16 +373,28 @@ export const standardKit = {
           name: 'Parallélogramme',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 0, y: -50 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 0, y: -50 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: -50 }, { x: -50, y: -50 }],
+              vertexes: [
+                { x: 0, y: -50 },
+                { x: -50, y: -50 },
+              ],
             },
             {
-              vertexes: [{ x: -50, y: -50 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: -50, y: -50 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -271,10 +403,16 @@ export const standardKit = {
           name: 'Octogone régulier',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 85.355339059329, y: -35.355339059329 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 85.355339059329, y: -35.355339059329 },
+              ],
             },
             {
               vertexes: [
@@ -289,7 +427,10 @@ export const standardKit = {
               ],
             },
             {
-              vertexes: [{ x: 50, y: -120.710678118658 }, { x: 0, y: -120.710678118658 }],
+              vertexes: [
+                { x: 50, y: -120.710678118658 },
+                { x: 0, y: -120.710678118658 },
+              ],
             },
             {
               vertexes: [
@@ -304,7 +445,10 @@ export const standardKit = {
               ],
             },
             {
-              vertexes: [{ x: -35.355339059329, y: -35.355339059329 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: -35.355339059329, y: -35.355339059329 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -343,13 +487,22 @@ export const standardKit = {
           name: 'Pentagone régulier',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 65.450849718737, y: -47.55282581475 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 65.450849718737, y: -47.55282581475 },
+              ],
             },
             {
-              vertexes: [{ x: 65.450849718737, y: -47.55282581475 }, { x: 25, y: -76.94208842935 }],
+              vertexes: [
+                { x: 65.450849718737, y: -47.55282581475 },
+                { x: 25, y: -76.94208842935 },
+              ],
             },
             {
               vertexes: [
@@ -358,7 +511,10 @@ export const standardKit = {
               ],
             },
             {
-              vertexes: [{ x: -15.450849718737, y: -47.55282581475 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: -15.450849718737, y: -47.55282581475 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -367,13 +523,22 @@ export const standardKit = {
           name: 'Triangle isocèle 1',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 25, y: -34.40954801175 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 25, y: -34.40954801175 },
+              ],
             },
             {
-              vertexes: [{ x: 25, y: -34.40954801175 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 25, y: -34.40954801175 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -382,13 +547,22 @@ export const standardKit = {
           name: 'Triangle isocèle 2',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 25, y: -76.9420884294 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 25, y: -76.9420884294 },
+              ],
             },
             {
-              vertexes: [{ x: 25, y: -76.9420884294 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 25, y: -76.9420884294 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -397,13 +571,22 @@ export const standardKit = {
           name: 'Triangle obtusangle',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 80.9016994375, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 80.9016994375, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 80.9016994375, y: 0 }, { x: 40.4508497187, y: -29.3892626146 }],
+              vertexes: [
+                { x: 80.9016994375, y: 0 },
+                { x: 40.4508497187, y: -29.3892626146 },
+              ],
             },
             {
-              vertexes: [{ x: 40.4508497187, y: -29.3892626146 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 40.4508497187, y: -29.3892626146 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -412,10 +595,16 @@ export const standardKit = {
           name: 'Petit losange',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 90.4508497187, y: -29.3892626146 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 90.4508497187, y: -29.3892626146 },
+              ],
             },
             {
               vertexes: [
@@ -424,7 +613,10 @@ export const standardKit = {
               ],
             },
             {
-              vertexes: [{ x: 40.4508497187, y: -29.3892626146 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: 40.4508497187, y: -29.3892626146 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -433,10 +625,16 @@ export const standardKit = {
           name: 'Décagone régulier',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 90.4508497187, y: -29.3892626146 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 90.4508497187, y: -29.3892626146 },
+              ],
             },
             {
               vertexes: [
@@ -451,13 +649,22 @@ export const standardKit = {
               ],
             },
             {
-              vertexes: [{ x: 90.4508497187, y: -124.4949142442 }, { x: 50, y: -153.8841768588 }],
+              vertexes: [
+                { x: 90.4508497187, y: -124.4949142442 },
+                { x: 50, y: -153.8841768588 },
+              ],
             },
             {
-              vertexes: [{ x: 50, y: -153.8841768588 }, { x: 0, y: -153.8841768588 }],
+              vertexes: [
+                { x: 50, y: -153.8841768588 },
+                { x: 0, y: -153.8841768588 },
+              ],
             },
             {
-              vertexes: [{ x: 0, y: -153.8841768588 }, { x: -40.4508497187, y: -124.4949142442 }],
+              vertexes: [
+                { x: 0, y: -153.8841768588 },
+                { x: -40.4508497187, y: -124.4949142442 },
+              ],
             },
             {
               vertexes: [
@@ -472,7 +679,10 @@ export const standardKit = {
               ],
             },
             {
-              vertexes: [{ x: -40.4508497187, y: -29.3892626146 }, { x: 0, y: 0 }],
+              vertexes: [
+                { x: -40.4508497187, y: -29.3892626146 },
+                { x: 0, y: 0 },
+              ],
             },
           ],
         },
@@ -494,7 +704,10 @@ export const standardKit = {
           color: '#FF0',
           segments: [
             {
-              vertexes: [{ x: 50, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 50, y: 0 },
+                { x: 50, y: 0 },
+              ],
               arcCenter: { x: 0, y: 0 },
             },
           ],
@@ -506,7 +719,10 @@ export const standardKit = {
           color: '#0F0',
           segments: [
             {
-              vertexes: [{ x: 42.53254041760199, y: 0 }, { x: 42.53254041760199, y: 0 }],
+              vertexes: [
+                { x: 42.53254041760199, y: 0 },
+                { x: 42.53254041760199, y: 0 },
+              ],
               arcCenter: { x: 0, y: 0 },
             },
           ],
@@ -518,7 +734,10 @@ export const standardKit = {
           color: '#F00',
           segments: [
             {
-              vertexes: [{ x: 35.35533905932738, y: 0 }, { x: 35.35533905932738, y: 0 }],
+              vertexes: [
+                { x: 35.35533905932738, y: 0 },
+                { x: 35.35533905932738, y: 0 },
+              ],
               arcCenter: { x: 0, y: 0 },
             },
           ],
@@ -530,7 +749,10 @@ export const standardKit = {
           color: '#FF0',
           segments: [
             {
-              vertexes: [{ x: 28.86751345948129, y: 0 }, { x: 28.86751345948129, y: 0 }],
+              vertexes: [
+                { x: 28.86751345948129, y: 0 },
+                { x: 28.86751345948129, y: 0 },
+              ],
               arcCenter: { x: 0, y: 0 },
             },
           ],
@@ -541,7 +763,10 @@ export const standardKit = {
           color: '#0F0',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 0 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 0 },
+              ],
             },
           ],
         },
@@ -551,7 +776,10 @@ export const standardKit = {
           color: '#0F0',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 50, y: 50 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 50, y: 50 },
+              ],
             },
           ],
         },
@@ -561,7 +789,10 @@ export const standardKit = {
           color: '#0F0',
           segments: [
             {
-              vertexes: [{ x: 0, y: 0 }, { x: 0, y: -43.3012701892 }],
+              vertexes: [
+                { x: 0, y: 0 },
+                { x: 0, y: -43.3012701892 },
+              ],
             },
           ],
         },

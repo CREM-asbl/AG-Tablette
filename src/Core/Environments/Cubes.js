@@ -1,5 +1,5 @@
 import './Common';
-import { kit } from '../ShapesKits/cubesKit';
+import { cubesKit } from '../ShapesKits/cubesKit';
 import { app } from '../App';
 import '../../Create';
 import '../../Copy';
@@ -13,7 +13,7 @@ import '../../Translate';
 import '../../Zoom';
 import '../../Grid';
 
-app.environment.loadFamilies(kit);
+app.environment.loadFamilies(cubesKit);
 
 app.environment.extension = 'agc';
 

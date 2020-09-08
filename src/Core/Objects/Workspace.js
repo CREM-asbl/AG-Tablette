@@ -214,11 +214,11 @@ export class Workspace {
     if (newZoomLevel > app.settings.get('maxZoomLevel'))
       newZoomLevel = app.settings.get('maxZoomLevel');
 
-    window.dispatchEvent(
-      new CustomEvent('scaleView', {
-        detail: { scale: newZoomLevel / this.zoomLevel },
-      })
-    );
+    // window.dispatchEvent(
+    //   new CustomEvent('scaleView', {
+    //     detail: { scale: newZoomLevel / this.zoomLevel },
+    //   })
+    // );
     this.zoomLevel = newZoomLevel;
 
     if (doRefresh) {
@@ -236,20 +236,20 @@ export class Workspace {
   setTranslateOffset(newOffset, doRefresh = true) {
     //TODO: limiter la translation à une certaine zone? (ex 4000 sur 4000?)
     //TODO: bouton pour revenir au "centre" ?
-    window.dispatchEvent(
-      new CustomEvent('scaleView', { detail: { scale: 1 / this.zoomLevel } })
-    );
+    // window.dispatchEvent(
+    //   new CustomEvent('scaleView', { detail: { scale: 1 / this.zoomLevel } })
+    // );
 
-    let offset = newOffset.subCoordinates(this.translateOffset);
+    // let offset = newOffset.subCoordinates(this.translateOffset);
 
-    window.dispatchEvent(
-      new CustomEvent('translateView', { detail: { offset: offset } })
-    );
+    // window.dispatchEvent(
+    //   new CustomEvent('translateView', { detail: { offset: offset } })
+    // );
     this.translateOffset = newOffset;
 
-    window.dispatchEvent(
-      new CustomEvent('scaleView', { detail: { scale: this.zoomLevel } })
-    );
+    // window.dispatchEvent(
+    //   new CustomEvent('scaleView', { detail: { scale: this.zoomLevel } })
+    // );
 
     if (doRefresh) {
       window.dispatchEvent(new CustomEvent('refresh'));

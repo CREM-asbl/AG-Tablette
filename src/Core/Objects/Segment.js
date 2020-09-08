@@ -144,53 +144,69 @@ export class Segment {
     else return undefined;
   }
 
-  getPath(path, axeAngle = undefined) {
-    if (!this.arcCenter) path.lineTo(this.vertexes[1].x, this.vertexes[1].y);
-    else if (axeAngle !== undefined) {
-      let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
-        secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
-      if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
-      path.ellipse(
-        this.arcCenter.x,
-        this.arcCenter.y,
-        this.arcCenter.dist(this.tangentPoint1),
-        this.arcCenter.dist(this.tangentPoint2),
-        axeAngle,
-        firstAngle - axeAngle,
-        secondAngle - axeAngle,
-        this.counterclockwise
-      );
-    } else {
-      let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
-        secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
-      if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
-      path.arc(
-        this.arcCenter.x,
-        this.arcCenter.y,
-        this.vertexes[1].dist(this.arcCenter),
-        firstAngle,
-        secondAngle,
-        this.counterclockwise
-      );
-    }
-  }
+  // getPath(path, axeAngle = undefined) {
+  //   if (!this.arcCenter) path.lineTo(this.vertexes[1].x, this.vertexes[1].y);
+  //   else if (axeAngle !== undefined) {
+  //     let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
+  //       secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
+  //     if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
+  //     path.ellipse(
+  //       this.arcCenter.x,
+  //       this.arcCenter.y,
+  //       this.arcCenter.dist(this.tangentPoint1),
+  //       this.arcCenter.dist(this.tangentPoint2),
+  //       axeAngle,
+  //       firstAngle - axeAngle,
+  //       secondAngle - axeAngle,
+  //       this.counterclockwise
+  //     );
+  //   } else {
+  //     let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
+  //       secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
+  //     if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
+  //     path.arc(
+  //       this.arcCenter.x,
+  //       this.arcCenter.y,
+  //       this.vertexes[1].dist(this.arcCenter),
+  //       firstAngle,
+  //       secondAngle,
+  //       this.counterclockwise
+  //     );
+  //   }
+  // }
 
   /**
    * convertit le segment en commande de path svg
    */
-  get path() {
+  getSVGPath(scaling = 'scale', axeAngle = undefined) {
     let v0 = new Point(this.vertexes[0]),
       v1 = new Point(this.vertexes[1]),
-      path;
-    v0.setToCanvasCoordinates();
-    v1.setToCanvasCoordinates();
-    if (this.arcCenter) {
-      // arc or circle
+      path,
+      moveTo = '';
+
+    if (scaling == 'scale') {
+      v0.setToCanvasCoordinates();
+      v1.setToCanvasCoordinates();
+    }
+
+    if (
+      this.idx == 0 ||
+      !this.vertexes[0].equal(this.shape.segments[this.idx - 1].vertexes[1])
+    ) {
+      moveTo = ['M', v0.x, v0.y, ''].join(' ');
+    }
+
+    if (!this.arcCenter) {
+      // line
+      path = ['L', v1.x, v1.y].join(' ');
+    } else if (axeAngle === undefined) {
+      // circle or arc
       let ctr = new Point(this.arcCenter);
-      ctr.setToCanvasCoordinates();
+      if (scaling == 'scale') ctr.setToCanvasCoordinates();
       let radius = ctr.dist(v1),
         firstAngle = ctr.getAngle(v0),
         secondAngle = ctr.getAngle(v1);
+
       if (v0.equal(v1)) {
         // circle
         const oppositeAngle = firstAngle + Math.PI,
@@ -222,10 +238,69 @@ export class Segment {
         ].join(' ');
       }
     } else {
-      // line
-      path = ['L', v1.x, v1.y].join(' ');
+      // ellipse or ellipse arc
+
+      let ctr = new Point(this.arcCenter);
+      if (scaling == 'scale') ctr.setToCanvasCoordinates();
+      let firstAngle = ctr.getAngle(v0),
+        secondAngle = ctr.getAngle(v1);
+
+      if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+      let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+        sweepFlag = 1;
+      if (this.counterclockwise) {
+        sweepFlag = Math.abs(sweepFlag - 1);
+        largeArcFlag = Math.abs(largeArcFlag - 1);
+      }
+
+      let rx = ctr.dist(this.tangentPoint1),
+        ry = ctr.dist(this.tangentPoint2),
+        degreeAxeAngle = (axeAngle * 180) / Math.PI;
+      // canvas path2D => radian
+      // svg path => degree
+
+      if (v0.equal(v1)) {
+        // ellipse
+        const oppositePoint = new Point(
+          ctr.multiplyWithScalar(2).subCoordinates(v0)
+        );
+
+        path = [
+          'A',
+          rx,
+          ry,
+          degreeAxeAngle,
+          largeArcFlag,
+          sweepFlag,
+          oppositePoint.x,
+          oppositePoint.y,
+        ]
+          .concat([
+            'A',
+            rx,
+            ry,
+            degreeAxeAngle,
+            largeArcFlag,
+            sweepFlag,
+            v1.x,
+            v1.y,
+          ])
+          .join(' ');
+      } else {
+        // arc ellipse
+        path = [
+          'A',
+          rx,
+          ry,
+          degreeAxeAngle,
+          largeArcFlag,
+          sweepFlag,
+          v1.x,
+          v1.y,
+        ].join(' ');
+      }
     }
-    return path;
+    return moveTo + path;
   }
 
   getArcTangent(vertexNb) {
@@ -374,6 +449,8 @@ export class Segment {
       this.arcCenter = newPoint;
     }
     if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
+    if (save.tangentPoint1) this.tangentPoint1 = save.tangentPoint1;
+    if (save.tangentPoint2) this.tangentPoint2 = save.tangentPoint2;
   }
 
   static retrieveFrom(segment) {

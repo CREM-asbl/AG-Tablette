@@ -20,8 +20,8 @@ export class Point {
       this.y = parseFloat(arguments[argc].y);
       argc++;
     } else {
-      this.x = arguments[argc++];
-      this.y = arguments[argc++];
+      this.x = parseFloat(arguments[argc++]);
+      this.y = parseFloat(arguments[argc++]);
     }
     if (arguments[argc++]) this.type = arguments[argc - 1]; // 'vertex', 'segmentPoint' or 'center'
     if (arguments[argc++]) this.segment = arguments[argc - 1];
@@ -297,7 +297,7 @@ export class Point {
       '" cy="' +
       point.y +
       '" r="' +
-      size * 2 * app.workspace.zoomLevel +
+      size * 2 + // * app.workspace.zoomLevel +
       '" fill="' +
       color +
       '" />\n'
@@ -311,4 +311,14 @@ export class Point {
       app.workspace.translateOffset.y
     );
   }
+
+  // resetFromCanvasCoordinates() {
+  //   this.translate(
+  //     app.workspace.translateOffset.x,
+  //     app.workspace.translateOffset.y,
+  //     // true
+  //   );
+  //   console.log('resetting', this.x, this.y);
+  //   this.multiplyWithScalar(1/app.workspace.zoomLevel, true);
+  // }
 }

@@ -7,9 +7,13 @@ const serverURL = 'https://api.crem.be/';
 addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
 addEventListener('file-parsed', async e => {
+  TangramManager.closeForbiddenCanvas();
   document.querySelector('state-menu')?.remove();
   const data = e.detail;
   const level = await TangramManager.selectLevel();
+  if (level == 3 || level == 4) {
+    await TangramManager.openForbiddenCanvas();
+  }
   if (data.silhouetteData) {
     app.silhouette = Silhouette.initFromObject(data.silhouetteData, level);
     window.dispatchEvent(new CustomEvent('refreshBackground'));
@@ -26,6 +30,18 @@ export class TangramManager {
   static showPopup() {
     import('./tangram-popup');
     App.showPopup('tangram-popup');
+  }
+
+  static async openForbiddenCanvas() {
+    await import('./forbidden-canvas.js');
+    App.showPopup('forbidden-canvas');
+    return new Promise(resolve =>
+      addEventListener('forbidden-canvas-drawn', e => resolve(e.detail))
+    );
+  }
+
+  static closeForbiddenCanvas() {
+    window.dispatchEvent(new Event('close-forbidden-canvas'));
   }
 
   static async selectLevel() {
@@ -94,3 +110,5 @@ export class TangramManager {
 app.CremTangrams = [];
 
 TangramManager.retrieveTangrams();
+
+// TangramManager.showTest();

@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { GridManager } from '../../Grid/GridManager';
 import { ShapeManager } from './ShapeManager';
+import { Point } from '../Objects/Point';
 
 export class DrawManager {
   /* #################################################################### */
@@ -14,15 +15,15 @@ export class DrawManager {
   }
 
   static translateView(relativeOffset) {
-    app.upperCtx.translate(relativeOffset.x, relativeOffset.y);
-    app.mainCtx.translate(relativeOffset.x, relativeOffset.y);
-    app.backgroundCtx.translate(relativeOffset.x, relativeOffset.y);
+    // app.upperCtx.translate(relativeOffset.x, relativeOffset.y);
+    // app.mainCtx.translate(relativeOffset.x, relativeOffset.y);
+    // app.backgroundCtx.translate(relativeOffset.x, relativeOffset.y);
   }
 
   static scaleView(relativeScale) {
-    app.upperCtx.scale(relativeScale, relativeScale);
-    app.mainCtx.scale(relativeScale, relativeScale);
-    app.backgroundCtx.scale(relativeScale, relativeScale);
+    // app.upperCtx.scale(relativeScale, relativeScale);
+    // app.mainCtx.scale(relativeScale, relativeScale);
+    // app.backgroundCtx.scale(relativeScale, relativeScale);
   }
 
   /* #################################################################### */
@@ -65,7 +66,7 @@ export class DrawManager {
           app.backgroundCtx,
           pt,
           '#F00',
-          1.5 / actualZoomLvl,
+          1.5 * actualZoomLvl,
           false
         );
       });
@@ -73,9 +74,36 @@ export class DrawManager {
 
     //Tangram
     if (app.silhouette) {
-      app.silhouette.shapes.forEach(s =>
-        DrawManager.drawShape(app.backgroundCtx, s)
+      let ctx;
+      if (app.silhouette.level != 3 && app.silhouette.level != 4) {
+        ctx = app.backgroundCtx;
+      } else {
+        ctx = app.unreachableCtx;
+      }
+
+      let bounds = app.silhouette.bounds;
+      let silhouetteCenter = new Point(
+        (bounds[1] + bounds[0]) / 2,
+        (bounds[3] + bounds[2]) / 2
       );
+      let width = app.canvasWidth / 2;
+      let height = app.canvasHeight;
+      let canvasCenter = new Point(width / 2, height / 2);
+
+      if (app.silhouette.level != 3 && app.silhouette.level != 4) {
+        canvasCenter.translate(width, 0);
+      }
+
+      silhouetteCenter.setToCanvasCoordinates();
+
+      let translation = canvasCenter.subCoordinates(silhouetteCenter);
+
+      translation.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
+
+      app.silhouette.shapes.forEach(s => {
+        s.translate(translation);
+        DrawManager.drawShape(ctx, s);
+      });
     }
   }
 
@@ -119,17 +147,19 @@ export class DrawManager {
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
-    let path = shape.getPath(axeAngle);
+    let scaleMethod =
+      ctx.canvas.width == 52 && ctx.canvas.height == 52 ? 'no scale' : 'scale';
+    let path = new Path2D(shape.getSVGPath(scaleMethod, axeAngle));
 
     ctx.save();
-    if (shape.path) {
-      ctx.translate(shape.center.x, shape.center.y);
-      ctx.rotate(shape.angle || 0);
-      ctx.translate(-shape.center.x, -shape.center.y);
-      ctx.translate(shape.x, shape.y);
-      ctx.scale(shape.size, shape.size);
-    }
-    ctx.fill(path, 'evenodd');
+    // if (shape.path) {
+    //   ctx.translate(shape.center.x, shape.center.y);
+    //   ctx.rotate(shape.angle || 0);
+    //   ctx.translate(-shape.center.x, -shape.center.y);
+    //   ctx.translate(shape.x, shape.y);
+    //   ctx.scale(shape.size, shape.size);
+    // }
+    ctx.fill(path, 'nonzero');
     ctx.globalAlpha = 1;
     ctx.stroke(path);
     ctx.restore();
@@ -152,8 +182,8 @@ export class DrawManager {
 
     if (shape.isCenterShown)
       DrawManager.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
-    ctx.restore();
 
+    ctx.restore();
     ctx.lineWidth = 1;
   }
 
@@ -203,9 +233,12 @@ export class DrawManager {
     ctx.fillStyle = color;
     ctx.globalAlpha = 1;
 
+    let copy = new Point(point);
+    copy.setToCanvasCoordinates();
+
     ctx.beginPath();
-    ctx.moveTo(point.x, point.y);
-    ctx.arc(point.x, point.y, size * 2, 0, 2 * Math.PI, 0);
+    ctx.moveTo(copy.x, copy.y);
+    ctx.arc(copy.x, copy.y, size * 2, 0, 2 * Math.PI, 0);
     ctx.closePath();
     ctx.fill();
 
@@ -227,9 +260,14 @@ export class DrawManager {
     ctx.globalAlpha = 1;
     ctx.lineWidth = size;
 
+    let firstVertexCopy = new Point(line.vertexes[0]),
+      secondVertexCopy = new Point(line.vertexes[1]);
+    firstVertexCopy.setToCanvasCoordinates();
+    secondVertexCopy.setToCanvasCoordinates();
+
     ctx.beginPath();
-    ctx.moveTo(line.vertexes[0].x, line.vertexes[0].y);
-    ctx.lineTo(line.vertexes[1].x, line.vertexes[1].y);
+    ctx.moveTo(firstVertexCopy.x, firstVertexCopy.y);
+    ctx.lineTo(secondVertexCopy.x, secondVertexCopy.y);
     ctx.closePath();
     ctx.stroke();
 
@@ -283,6 +321,25 @@ export class DrawManager {
     if (doSave) ctx.restore();
   }
 
+  static drawSegment(ctx, segment, color = '#000', size = 1, doSave = true) {
+    if (doSave) ctx.save();
+
+    let v0Copy = new Point(segment.vertexes[0]);
+    v0Copy.setToCanvasCoordinates();
+    let SVGPath = ['M', v0Copy.x, v0Copy.y, segment.getSVGPath()].join(' ');
+
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = size;
+
+    let path = new Path2D(SVGPath);
+
+    ctx.stroke(path);
+
+    ctx.lineWidth = 1;
+    if (doSave) ctx.restore();
+  }
+
   /**
    * Dessine un texte
    * @param  {Context2D}  ctx             Canvas
@@ -294,9 +351,17 @@ export class DrawManager {
   static drawText(ctx, text, position, color = '#000', doSave = true) {
     if (doSave) ctx.save();
 
+    let fontSize = 13; // * app.workspace.zoomLevel;
+    let positionCopy = new Point(position);
+    positionCopy.setToCanvasCoordinates();
+
     ctx.fillStyle = color;
-    ctx.font = '13px Arial';
-    ctx.fillText(text, position.x, position.y);
+    ctx.font = fontSize + 'px Arial';
+    ctx.fillText(
+      text,
+      positionCopy.x - (3 * text.length) / app.workspace.zoomLevel,
+      positionCopy.y + fontSize / 100
+    );
 
     if (doSave) ctx.restore();
   }
@@ -406,6 +471,16 @@ window.addEventListener('draw-arc', event => {
     event.detail.endPoint,
     event.detail.center,
     event.detail.counterclockwise,
+    event.detail.color,
+    event.detail.size,
+    event.detail.doSave
+  );
+});
+window.addEventListener('draw-segment', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawSegment(
+    ctx,
+    event.detail.segment,
     event.detail.color,
     event.detail.size,
     event.detail.doSave

@@ -1,5 +1,5 @@
 import './Common';
-import { standardKit } from '../ShapesKits/standardKit';
+import { grandeursKit } from '../ShapesKits/grandeursKit2';
 import { app } from '../App';
 import '../../Create';
 import '../../Reverse';
@@ -20,7 +20,7 @@ import '../../Translate';
 import '../../Zoom';
 import '../../Grid';
 
-app.environment.loadFamilies(standardKit);
+app.environment.loadFamilies(grandeursKit);
 
 app.environment.extension = 'agg';
 

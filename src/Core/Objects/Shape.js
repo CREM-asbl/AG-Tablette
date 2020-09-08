@@ -25,14 +25,14 @@ export class Shape {
     path = null,
     color = '#aaa',
     id = null,
-    angle = 0,
+    // angle = 0,
     size = 2,
     opacity = 0.7,
   }) {
     this.id = id || uniqId();
     this.x = x;
     this.y = y;
-    this.angle = angle;
+    // this.angle = angle;
     this.name = name;
     this.familyName = familyName;
     // this.path = path;
@@ -46,7 +46,7 @@ export class Shape {
 
     this.second_color = getComplementaryColor(color);
     this.borderColor = '#000';
-    this.internalSegmentColor = '#fff';
+    // this.internalSegmentColor = '#fff';
     this.isCenterShown = false;
     this.isReversed = false;
     this.isBiface = false;
@@ -183,33 +183,21 @@ export class Shape {
     this.initSegmentsFromPath(path);
   }
 
-  /**
-   * Renvoie un objet Path2D permettant de dessiner la forme.
-   * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
-   * @return {Path2D} le path de dessin de la forme
-   */
-  getPath(axeAngle = undefined) {
-    if (this.path) return new Path2D(this.path);
-    const path = new Path2D();
-    path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
-    this.segments.forEach(seg => {
-      seg.getPath(path, axeAngle);
-    });
-    path.closePath();
-    return path;
-  }
-
-  get path() {
-    let path = '';
-    const point = new Point(this.segments[0].vertexes[0]);
-    point.setToCanvasCoordinates();
-    path = 'M ' + point.x + ' ' + point.y + '\n';
-    this.segments.forEach(seg => {
-      path += seg.path + '\n';
-    });
-    path += 'Z';
-    return path;
-  }
+  // /**
+  //  * Renvoie un objet Path2D permettant de dessiner la forme.
+  //  * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
+  //  * @return {Path2D} le path de dessin de la forme
+  //  */
+  // getPath(axeAngle = undefined) {
+  //   if (this.path) return new Path2D(this.path);
+  //   const path = new Path2D();
+  //   path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
+  //   this.segments.forEach(seg => {
+  //     seg.getPath(path, axeAngle);
+  //   });
+  //   path.closePath();
+  //   return path;
+  // }
 
   getCommonsPoints(shape) {
     const commonsPoints = [];
@@ -222,9 +210,10 @@ export class Shape {
   }
 
   initSegmentsFromPath(path) {
-    // if (!this.path) return;
     this.segments = [];
-    const allPathElements = path.split(' ').filter(element => element !== '');
+    const allPathElements = path
+      .split(/[ \n]/)
+      .filter(element => element !== '');
     let firstVertex, lastVertex, startVertex;
 
     while (allPathElements.length) {
@@ -233,20 +222,20 @@ export class Shape {
       switch (element) {
         case 'M':
         case 'm':
-          lastVertex = {
-            x: allPathElements.shift(),
-            y: allPathElements.shift(),
-          };
+          lastVertex = new Point(
+            allPathElements.shift(),
+            allPathElements.shift()
+          );
           startVertex = lastVertex;
           break;
 
         case 'L':
         case 'l':
           firstVertex = lastVertex;
-          lastVertex = {
-            x: allPathElements.shift(),
-            y: allPathElements.shift(),
-          };
+          lastVertex = new Point(
+            allPathElements.shift(),
+            allPathElements.shift()
+          );
           this.segments.push(
             new Segment(firstVertex, lastVertex, this, this.segments.length)
           );
@@ -255,7 +244,7 @@ export class Shape {
         case 'H':
         case 'h':
           firstVertex = lastVertex;
-          lastVertex = { x: allPathElements.shift(), y: firstVertex.y };
+          lastVertex = new Point(allPathElements.shift(), firstVertex.y);
           this.segments.push(
             new Segment(firstVertex, lastVertex, this, this.segments.length)
           );
@@ -264,30 +253,124 @@ export class Shape {
         case 'V':
         case 'v':
           firstVertex = lastVertex;
-          lastVertex = { x: firstVertex.x, y: allPathElements.shift() };
+          lastVertex = new Point(firstVertex.x, allPathElements.shift());
           this.segments.push(
             new Segment(firstVertex, lastVertex, this, this.segments.length)
           );
           break;
 
-        // case 'Z':
-        // case 'z':
-        //   firstVertex = lastVertex
-        //   lastVertex = vertexes[0]
-        //   console.log('close', firstVertex, lastVertex)
-        //   this.segments.push(new Segment(firstVertex, lastVertex, this, this.segments.length))
-        //   break
+        case 'A':
+        case 'a':
+          let rx = allPathElements.shift(),
+            ry = allPathElements.shift(),
+            xAxisRotation = allPathElements.shift(),
+            largeArcFlag = allPathElements.shift(),
+            sweepFlag = allPathElements.shift();
 
-        /* default = closePath car case Z et z ne passe pas  */
-        default:
+          let nextVertex = new Point(
+            allPathElements.shift(),
+            allPathElements.shift()
+          );
+
+          if (this.segments.length > 0 && nextVertex.equal(firstVertex)) {
+            // if circle
+            this.segments[this.segments.length - 1].vertexes[1] = nextVertex;
+            lastVertex = nextVertex;
+          } else {
+            // if arc
+            firstVertex = lastVertex;
+            lastVertex = nextVertex;
+            let arcCenter = this.getArcCenterFromSVG(
+              firstVertex,
+              lastVertex,
+              rx,
+              largeArcFlag,
+              sweepFlag
+            );
+
+            this.segments.push(
+              new Segment(
+                firstVertex,
+                lastVertex,
+                this,
+                this.segments.length,
+                arcCenter,
+                1 - sweepFlag
+              )
+            );
+          }
+
+          break;
+
+        case 'Z':
+        case 'z':
           firstVertex = lastVertex;
           lastVertex = startVertex;
           this.segments.push(
             new Segment(firstVertex, lastVertex, this, this.segments.length)
           );
+          // console.log('Z');
+          break;
+
+        /* default = closePath car case Z et z ne passe pas  */
+        default:
+          // firstVertex = lastVertex;
+          // lastVertex = startVertex;
+          // this.segments.push(
+          //   new Segment(firstVertex, lastVertex, this, this.segments.length)
+          // );
           break;
       }
     }
+  }
+
+  getArcCenterFromSVG(
+    firstVertex,
+    lastVertex,
+    radius,
+    largeArcFlag,
+    sweepFlag
+  ) {
+    let middle = new Point(
+        (firstVertex.x + lastVertex.x) / 2,
+        (firstVertex.y + lastVertex.y) / 2
+      ),
+      isHorizontal = Math.abs(firstVertex.y - lastVertex.y) < 0.01,
+      isVertical = Math.abs(firstVertex.x - lastVertex.x) < 0.01,
+      distanceMiddleArcCenter = Math.sqrt(
+        Math.pow(radius, 2) -
+          (Math.pow(firstVertex.x - lastVertex.x, 2) +
+            Math.pow(firstVertex.y - lastVertex.y, 2)) /
+            4
+      );
+
+    let theta, arcCenter;
+    // theta is the angle between the segment firstvertex - lastvertex and the x-axis
+
+    if (isHorizontal) {
+      theta = firstVertex.x < lastVertex.x ? 0 : Math.PI;
+    } else if (isVertical) {
+      theta = firstVertex.y < lastVertex.y ? Math.PI / 2 : (Math.PI * 3) / 2;
+    } else {
+      theta = Math.atan2(
+        lastVertex.y - firstVertex.y,
+        lastVertex.x - firstVertex.x
+      );
+    }
+
+    if (largeArcFlag !== sweepFlag) {
+      arcCenter = middle.addCoordinates({
+        x: distanceMiddleArcCenter * Math.cos(theta + Math.PI / 2),
+        y: distanceMiddleArcCenter * Math.sin(theta + Math.PI / 2),
+      });
+    } else {
+      arcCenter = middle.addCoordinates({
+        x: distanceMiddleArcCenter * Math.cos(theta - Math.PI / 2),
+        y: distanceMiddleArcCenter * Math.sin(theta - Math.PI / 2),
+      });
+    }
+
+    return arcCenter;
   }
 
   /* #################################################################### */
@@ -358,12 +441,13 @@ export class Shape {
    */
   isPointInPath(point) {
     const ctx = app.invisibleCtx;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    if (this.path) {
-      ctx.translate(this.x, this.y);
-      ctx.scale(this.size, this.size);
-    }
-    const selected = ctx.isPointInPath(this.getPath(), point.x, point.y);
+    let pointCopy = new Point(point);
+    pointCopy.setToCanvasCoordinates();
+    const selected = ctx.isPointInPath(
+      new Path2D(this.getSVGPath()),
+      pointCopy.x,
+      pointCopy.y
+    );
     return selected;
   }
 
@@ -533,7 +617,7 @@ export class Shape {
   }
 
   rotate(angle, center) {
-    this.angle = (this.angle + angle) % (2 * Math.PI);
+    // this.angle = (this.angle + angle) % (2 * Math.PI);
     this.segments.forEach(seg => seg.rotate(angle, center));
   }
 
@@ -563,20 +647,25 @@ export class Shape {
   }
 
   /**
+   * convertit la shape en commande de path svg
+   * @param {Number} axeAngle - l'angle de l'axe de l'axe (pour reverse)
+   */
+  getSVGPath(scaling = 'scale', axeAngle = undefined) {
+    let path = '';
+    // const point = new Point(this.segments[0].vertexes[0]);
+    // if (scaling == 'scale') point.setToCanvasCoordinates();
+    path = this.segments
+      .map(seg => seg.getSVGPath(scaling, axeAngle))
+      .join('\n');
+    // path += 'Z';
+    return path;
+  }
+
+  /**
    * convertit la shape en balise path de svg
    */
-
   toSVG() {
-    let path = this.path;
-    let transform = this.path
-      ? `translate(${this.x}, ${this.y})
-       rotate(${this.angle ? (this.angle * 180) / Math.PI : 0} ${
-          this.center.x - this.x
-        } ${this.center.y - this.y})
-       scale(${this.size},${this.size})`
-      : '';
-
-    // if (!path) path = this.pathToString();
+    let path = this.getSVGPath();
 
     let attributes = {
       d: path,
@@ -585,7 +674,6 @@ export class Shape {
       'fill-opacity': this.opacity,
       'stroke-width': 1, // toujours à 1 ?
       'stroke-opacity': 1, // toujours à 1 ?
-      transform: transform,
     };
 
     let path_tag = '<path';
@@ -612,7 +700,7 @@ export class Shape {
     });
     if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
 
-    let comment = '<!-- ' + this.name + '-->\n';
+    let comment = '<!-- ' + this.name + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
   }
@@ -630,10 +718,11 @@ export class Shape {
 
   saveToObject() {
     let save = {
-      ...this,
+      ...{ ...this, segments: undefined },
       coordinates: this.coordinates.saveToObject(),
-      segments: this.segments.map(seg => seg.saveToObject()),
+      path: this.getSVGPath(),
     };
+    console.log(save);
     return save;
   }
 
@@ -652,7 +741,13 @@ export class Shape {
   }
 
   static createFromSegments(segments, name, family) {
-    let newShape = new Shape({ x: 0, y: 0, name: name, familyName: family });
+    let newShape = new Shape({
+      x: 0,
+      y: 0,
+      segments: [],
+      name: name,
+      familyName: family,
+    });
     newShape.setSegments(segments);
     newShape.color = '#000';
     newShape.second_color = getComplementaryColor(newShape.color);

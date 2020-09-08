@@ -162,7 +162,7 @@ export class FileManager {
         {
           description: 'Etat',
           extensions: [app.environment.extension],
-          mimeTypes: ['application/json'],
+          // mimeTypes: ['application/json'], // => cree un .json et pas .agg par exemple
         },
         {
           description: 'Image',
