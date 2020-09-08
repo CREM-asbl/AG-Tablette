@@ -90,6 +90,10 @@ export class DrawManager {
       let height = app.canvasHeight;
       let canvasCenter = new Point(width / 2, height / 2);
 
+      if (app.silhouette.level != 3 && app.silhouette.level != 4) {
+        canvasCenter.translate(width, 0);
+      }
+
       silhouetteCenter.setToCanvasCoordinates();
 
       let translation = canvasCenter.subCoordinates(silhouetteCenter);
@@ -143,7 +147,6 @@ export class DrawManager {
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
-    console.log(ctx, ctx.canvas.width);
     let scaleMethod =
       ctx.canvas.width == 52 && ctx.canvas.height == 52 ? 'no scale' : 'scale';
     let path = new Path2D(shape.getSVGPath(scaleMethod, axeAngle));
