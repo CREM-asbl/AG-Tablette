@@ -15,6 +15,6 @@ export const loadManifest = async () => {
 window.addEventListener(
   'manifest-loaded',
   () => updateMetadata({ title: `${app.short_name} ${app.version}` }),
-  { once: true },
+  { once: true }
 );
 loadManifest();

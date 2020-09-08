@@ -34,9 +34,11 @@ export class ReverseAction extends Action {
       // for update history from 1.0.0
       this.axe = this.getSymmetricalAxe(
         ShapeManager.getShapeById(this.shapeId),
-        save.symmetricalAxeOrientation,
+        save.symmetricalAxeOrientation
       );
-      this.shapesPos = save.involvedShapesIds.map(s => ShapeManager.getShapeIndex(s));
+      this.shapesPos = save.involvedShapesIds.map(s =>
+        ShapeManager.getShapeIndex(s)
+      );
       window.dispatchEvent(
         new CustomEvent('update-history', {
           detail: {
@@ -46,13 +48,18 @@ export class ReverseAction extends Action {
             axe: this.axe,
             shapePos: this.shapesPos,
           },
-        }),
+        })
       );
     }
   }
 
   checkDoParameters() {
-    if (!this.shapeId || !this.axe || !this.involvedShapesIds || !this.shapesPos) {
+    if (
+      !this.shapeId ||
+      !this.axe ||
+      !this.involvedShapesIds ||
+      !this.shapesPos
+    ) {
       this.printIncompleteData();
       return false;
     }
@@ -71,7 +78,7 @@ export class ReverseAction extends Action {
       this.reverseShape(s, this.axe, 1);
     });
     ShapeManager.moveShapesUp(this.shapesPos);
-    ShapeManager.reverseUpper(this.shapesPos.length);
+    ShapeManager.reverseUpperShapes(this.shapesPos.length);
   }
 
   undo() {
@@ -81,8 +88,8 @@ export class ReverseAction extends Action {
       let s = ShapeManager.getShapeById(id);
       this.reverseShape(s, this.axe, 1);
     });
-    ShapeManager.reverseUpper(this.shapesPos.length);
-    ShapeManager.moveShapesToTheirPlace(this.shapesPos);
+    ShapeManager.reverseUpperShapes(this.shapesPos.length);
+    ShapeManager.moveShapesBackToTheirPlace(this.shapesPos);
   }
 
   /**
@@ -131,35 +138,35 @@ export class ReverseAction extends Action {
     if (orientation == 'V') {
       axe = new Segment(
         new Point(center.x, center.y - this.symmetricalAxeLength / 2),
-        new Point(center.x, center.y + this.symmetricalAxeLength / 2),
+        new Point(center.x, center.y + this.symmetricalAxeLength / 2)
       );
     } else if (orientation == 'NW') {
       axe = new Segment(
         new Point(
           center.x - (0.683 * this.symmetricalAxeLength) / 2,
-          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2
         ),
         new Point(
           center.x + (0.683 * this.symmetricalAxeLength) / 2,
-          center.y + (0.683 * this.symmetricalAxeLength) / 2,
-        ),
+          center.y + (0.683 * this.symmetricalAxeLength) / 2
+        )
       );
     } else if (orientation == 'H') {
       axe = new Segment(
         new Point(center.x + this.symmetricalAxeLength / 2, center.y),
-        new Point(center.x - this.symmetricalAxeLength / 2, center.y),
+        new Point(center.x - this.symmetricalAxeLength / 2, center.y)
       );
     } else {
       // SW
       axe = new Segment(
         new Point(
           center.x + (0.683 * this.symmetricalAxeLength) / 2,
-          center.y - (0.683 * this.symmetricalAxeLength) / 2,
+          center.y - (0.683 * this.symmetricalAxeLength) / 2
         ),
         new Point(
           center.x - (0.683 * this.symmetricalAxeLength) / 2,
-          center.y + (0.683 * this.symmetricalAxeLength) / 2,
-        ),
+          center.y + (0.683 * this.symmetricalAxeLength) / 2
+        )
       );
     }
     return axe;

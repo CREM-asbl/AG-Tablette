@@ -722,7 +722,6 @@ export class Shape {
       coordinates: this.coordinates.saveToObject(),
       path: this.getSVGPath(),
     };
-    console.log(save);
     return save;
   }
 

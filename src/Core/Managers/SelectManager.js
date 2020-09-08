@@ -112,7 +112,12 @@ export class SelectManager {
    * @param  {Boolean} all si retourne tous les points et pas seulement le plus haut / proche
    * @return {Point}
    */
-  static selectPoint(mouseCoordinates, constraints, easySelection = true, all = false) {
+  static selectPoint(
+    mouseCoordinates,
+    constraints,
+    easySelection = true,
+    all = false
+  ) {
     if (!constraints.canSelect) return null;
 
     let distCheckFunction = easySelection
@@ -154,17 +159,21 @@ export class SelectManager {
             if (constr instanceof Shape) return constr.id == shape.id;
             else {
               if (constr.shape.id != shape.id) return false;
-              if (constr.type == 'center') return potentialPoint.type == 'center';
+              if (constr.type == 'center')
+                return potentialPoint.type == 'center';
               if (constr.type == 'vertex')
                 return (
                   potentialPoint.type == 'vertex' &&
-                  (constr.index == undefined || constr.index == potentialPoint.segment.idx)
+                  (constr.index == undefined ||
+                    constr.index == potentialPoint.segment.idx)
                 );
               if (constr.type == 'segmentPoint')
                 return (
                   potentialPoint.type == 'segmentPoint' &&
-                  (constr.index == undefined || constr.index == potentialPoint.segment.idx) &&
-                  (constr.coordinates == undefined || constr.coordinates.equal(potentialPoint))
+                  (constr.index == undefined ||
+                    constr.index == potentialPoint.segment.idx) &&
+                  (constr.coordinates == undefined ||
+                    constr.coordinates.equal(potentialPoint))
                 );
             }
           })
@@ -177,16 +186,19 @@ export class SelectManager {
             if (constr instanceof Shape) return constr.id == shape.id;
             else {
               if (constr.shape.id != shape.id) return false;
-              if (constr.type == 'center') return potentialPoint.type == 'center';
+              if (constr.type == 'center')
+                return potentialPoint.type == 'center';
               if (constr.type == 'vertex')
                 return (
                   potentialPoint.type == 'vertex' &&
-                  (constr.index == undefined || constr.index == potentialPoint.segment.idx)
+                  (constr.index == undefined ||
+                    constr.index == potentialPoint.segment.idx)
                 );
               if (constr.type == 'segmentPoint')
                 return (
                   potentialPoint.type == 'segmentPoint' &&
-                  (constr.index == undefined || constr.index == potentialPoint.segment.idx) &&
+                  (constr.index == undefined ||
+                    constr.index == potentialPoint.segment.idx) &&
                   constr.coordinates.equal(potentialPoint)
                 );
             }
@@ -222,20 +234,24 @@ export class SelectManager {
     });
     // sort by distance
     sortedPoints.sort(
-      (pts1, pts2) => pts1[0].dist(mouseCoordinates) - pts2[0].dist(mouseCoordinates),
+      (pts1, pts2) =>
+        pts1[0].dist(mouseCoordinates) - pts2[0].dist(mouseCoordinates)
     );
     // sort by height
     sortedPoints.forEach(toSort =>
       toSort.sort((pt1, pt2) =>
-        ShapeManager.getShapeIndex(pt1.shape) < ShapeManager.getShapeIndex(pt2.shape) ? 1 : -1,
-      ),
+        ShapeManager.getShapeIndex(pt1.shape) <
+        ShapeManager.getShapeIndex(pt2.shape)
+          ? 1
+          : -1
+      )
     );
 
     const flattedPoints = sortedPoints.flat();
 
     // calculate the best point
     if (constraints.blockHidden) {
-      const shapes = ShapeManager.shapesOnPoint(mouseCoordinates);
+      const shapes = ShapeManager.shapesThatContainsPoint(mouseCoordinates);
       for (const pt of flattedPoints) {
         const thisIndex = ShapeManager.getShapeIndex(pt.shape);
         if (
@@ -273,13 +289,18 @@ export class SelectManager {
           const projection = segment.projectionOnSegment(mouseCoordinates);
           return (
             segment.isPointOnSegment(projection) &&
-            SelectManager.arePointsInSelectionDistance(projection, mouseCoordinates)
+            SelectManager.arePointsInSelectionDistance(
+              projection,
+              mouseCoordinates
+            )
           );
         })
         .forEach(segment => {
           potentialSegments.push({
             segment: segment,
-            dist: segment.projectionOnSegment(mouseCoordinates).dist(mouseCoordinates),
+            dist: segment
+              .projectionOnSegment(mouseCoordinates)
+              .dist(mouseCoordinates),
           });
         });
     });
@@ -338,8 +359,11 @@ export class SelectManager {
     // sort by height
     sortedSegments.forEach(toSort =>
       toSort.sort((seg1, seg2) => {
-        ShapeManager.getShapeIndex(seg1.shape) < ShapeManager.getShapeIndex(seg2.shape) ? 1 : -1;
-      }),
+        ShapeManager.getShapeIndex(seg1.shape) <
+        ShapeManager.getShapeIndex(seg2.shape)
+          ? 1
+          : -1;
+      })
     );
 
     const flattedSegments = sortedSegments.flat();
@@ -358,7 +382,7 @@ export class SelectManager {
   static selectShape(mouseCoordinates, constraints) {
     if (!constraints.canSelect) return null;
 
-    let shapes = ShapeManager.shapesOnPoint(mouseCoordinates);
+    let shapes = ShapeManager.shapesThatContainsPoint(mouseCoordinates);
 
     if (constraints.whitelist != null) {
       shapes = shapes.filter(shape => {
@@ -421,7 +445,7 @@ export class SelectManager {
         window.dispatchEvent(
           new CustomEvent('objectSelected', {
             detail: { object: obj, mousePos: mouseCoordinates },
-          }),
+          })
         );
         return obj;
       }

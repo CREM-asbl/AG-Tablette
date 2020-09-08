@@ -38,14 +38,16 @@ export class CopyState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour copier une forme, appuyez sur la forme et faites glissez votre doigt dans une direction
-        sans le relacher. Relachez ensuite votre doigt une fois que la nouvelle forme est à la bonne
-        place.<br /><br />
-        <b>Attention:</b> si vous appuyez sur une forme puis relachez directement, une copie de la
-        forme aura bien été créée, mais à la même position que la forme d'origine. Il y a donc deux
-        formes l'une sur l'autre.<br /><br />
-        <b>Note:</b> la nouvelle forme créée n'est pas liée d'une manière ou d'une autre avec la
-        forme d'origine: il s'agit bien d'une copie complètement indépendante.
+        Pour copier une forme, appuyez sur la forme et faites glissez votre
+        doigt dans une direction sans le relacher. Relachez ensuite votre doigt
+        une fois que la nouvelle forme est à la bonne place.<br /><br />
+        <b>Attention:</b> si vous appuyez sur une forme puis relachez
+        directement, une copie de la forme aura bien été créée, mais à la même
+        position que la forme d'origine. Il y a donc deux formes l'une sur
+        l'autre.<br /><br />
+        <b>Note:</b> la nouvelle forme créée n'est pas liée d'une manière ou
+        d'une autre avec la forme d'origine: il s'agit bien d'une copie
+        complètement indépendante.
       </p>
     `;
   }
@@ -57,7 +59,9 @@ export class CopyState extends State {
     this.currentStep = 'listen-canvas-click';
 
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.mousedown_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -69,7 +73,9 @@ export class CopyState extends State {
   restart() {
     this.end();
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.mousedown_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -107,13 +113,18 @@ export class CopyState extends State {
     let group = GroupManager.getShapeGroup(shape);
     if (group) {
       this.involvedShapesIds = [...group.shapesIds];
-      this.involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
+      this.involvedShapes = group.shapesIds.map(id =>
+        ShapeManager.getShapeById(id)
+      );
     } else {
       this.involvedShapesIds = [shape.id];
       this.involvedShapes = [shape];
     }
 
-    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates.addCoordinates(
+      20,
+      20
+    ); // décal
 
     app.removeListener('objectSelected', this.objectSelectedId);
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
@@ -125,14 +136,17 @@ export class CopyState extends State {
     if (this.currentStep != 'moving-shape') return;
 
     let translation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
-        this.startClickCoordinates,
+        this.startClickCoordinates
       ),
       involvedShapesCopies = this.involvedShapes.map(shape => shape.copy()),
       selectedShapeCopy = this.selectedShape.copy();
 
     involvedShapesCopies.forEach(shape => shape.translate(translation));
     selectedShapeCopy.translate(translation);
-    let transformation = getShapeAdjustment(involvedShapesCopies, selectedShapeCopy);
+    let transformation = getShapeAdjustment(
+      involvedShapesCopies,
+      selectedShapeCopy
+    );
     this.actions = [
       {
         name: 'CopyAction',
@@ -167,22 +181,22 @@ export class CopyState extends State {
     if (this.currentStep != 'moving-shape') return;
 
     let transformation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
-      this.startClickCoordinates,
+      this.startClickCoordinates
     );
 
     window.dispatchEvent(
       new CustomEvent('draw-group', {
         detail: {
           involvedShapes: this.involvedShapes,
-          fct1: s => {
+          functionCalledBeforeDraw: s => {
             s.saveCoords = s.coordinates;
             s.coordinates = s.coordinates.addCoordinates(transformation);
           },
-          fct2: s => {
+          functionCalledAfterDraw: s => {
             s.coordinates = s.saveCoords;
           },
         },
-      }),
+      })
     );
   }
 }

@@ -37,7 +37,7 @@ class ForbiddenCanvas extends LitElement {
       this.unreachableCanvas.clientWidth
     );
 
-    app.unreachableCtx = this.unreachableCanvas.getContext('2d');
+    app.forbiddenCtx = this.unreachableCanvas.getContext('2d');
 
     window.dispatchEvent(new Event('forbidden-canvas-drawn'));
   }

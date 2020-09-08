@@ -152,10 +152,10 @@ export class RotateState extends State {
       new CustomEvent('draw-group', {
         detail: {
           involvedShapes: this.involvedShapes,
-          fct1: s => {
+          functionCalledBeforeDraw: s => {
             s.rotate(diffAngle, center);
           },
-          fct2: s => {
+          functionCalledAfterDraw: s => {
             s.rotate(-diffAngle, center);
           },
         },

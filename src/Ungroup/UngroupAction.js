@@ -21,7 +21,10 @@ export class UngroupAction extends Action {
       // for update history from 1.0.0
       this.groupIdx = save.groupIndex;
       this.group = new ShapeGroup(0, 1);
-      this.group.initFromObject({ id: save.groupId, shapesIds: save.groupShapesIds });
+      this.group.initFromObject({
+        id: save.groupId,
+        shapesIds: save.groupShapesIds,
+      });
       window.dispatchEvent(
         new CustomEvent('update-history', {
           detail: {
@@ -29,7 +32,7 @@ export class UngroupAction extends Action {
             group: this.group,
             groupIdx: this.groupIdx,
           },
-        }),
+        })
       );
     }
   }

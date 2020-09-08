@@ -49,7 +49,9 @@ export class CompleteHistory {
       startZoomLevel: this.startZoomLevel,
       startTranslateOffset: this.startTranslateOffset,
       startShapes: this.startShapes.map(s => s.saveToObject()),
-      startShapeGroups: this.startShapeGroups.map(group => group.saveToObject()),
+      startShapeGroups: this.startShapeGroups.map(group =>
+        group.saveToObject()
+      ),
       startTangram: this.startTangram,
     };
     return save;
@@ -93,6 +95,10 @@ export class CompleteHistory {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
   addStep(type, detail, timeStamp) {
-    this.steps.push({ type, detail: detail, timestamp: timeStamp + this.endTimestamp });
+    this.steps.push({
+      type,
+      detail: detail,
+      timestamp: timeStamp + this.endTimestamp,
+    });
   }
 }

@@ -29,7 +29,7 @@ export class CutAction extends Action {
     this.createdShapesIds = save.createdShapesIds;
     if (save.createdShapes) {
       this.createdShapes = save.createdShapes.map((s, idx) =>
-        Shape.fromObject({ ...s, id: this.createdShapesIds[idx] }),
+        Shape.fromObject({ ...s, id: this.createdShapesIds[idx] })
       );
     } else {
       this.shapeId = save.shapeId;
@@ -102,7 +102,10 @@ export class CutAction extends Action {
           let firstAngle = center.getAngle(pt1),
             secondAngle = center.getAngle(pt2);
           if (segment.counterclockwise)
-            [firstVertexAngle, secondVertexAngle] = [secondVertexAngle, firstVertexAngle];
+            [firstVertexAngle, secondVertexAngle] = [
+              secondVertexAngle,
+              firstVertexAngle,
+            ];
           if (firstAngle < firstVertexAngle) firstAngle += 2 * Math.PI;
           if (secondAngle < firstVertexAngle) secondAngle += 2 * Math.PI;
 
@@ -119,8 +122,12 @@ export class CutAction extends Action {
       }
 
       // Calculer les segments des 2 formes
-      let shape1SegPart1 = segments.slice(0, pt1.segment.idx + 1).map(seg => seg.copy(false)),
-        shape1SegPart2 = segments.slice(pt2.segment.idx + 1).map(seg => seg.copy(false)),
+      let shape1SegPart1 = segments
+          .slice(0, pt1.segment.idx + 1)
+          .map(seg => seg.copy(false)),
+        shape1SegPart2 = segments
+          .slice(pt2.segment.idx + 1)
+          .map(seg => seg.copy(false)),
         junction;
       shape1Seg = [...shape1SegPart2, ...shape1SegPart1];
       shape2Seg = segments
@@ -130,19 +137,29 @@ export class CutAction extends Action {
       if (pt1.type === 'segmentPoint') {
         let newSegment = pt1.segment.copy(false);
         newSegment.vertexes[0] = pt1.copy();
-        if (shape2Seg.length) newSegment.vertexes[1] = shape2Seg[0].vertexes[0].copy();
-        else newSegment.vertexes[1] = shape1Seg[shape1Seg.length - 1].vertexes[1].copy();
+        if (shape2Seg.length)
+          newSegment.vertexes[1] = shape2Seg[0].vertexes[0].copy();
+        else
+          newSegment.vertexes[1] = shape1Seg[
+            shape1Seg.length - 1
+          ].vertexes[1].copy();
         shape2Seg.unshift(newSegment);
-        if (shape1Seg.length) shape1Seg[shape1Seg.length - 1].vertexes[1].setCoordinates(pt1);
+        if (shape1Seg.length)
+          shape1Seg[shape1Seg.length - 1].vertexes[1].setCoordinates(pt1);
       }
 
       if (pt2.type === 'segmentPoint') {
         let newSegment = pt2.segment.copy(false);
         newSegment.vertexes[0] = pt2.copy();
-        if (shape1Seg.length) newSegment.vertexes[1] = shape1Seg[0].vertexes[0].copy();
-        else newSegment.vertexes[1] = shape2Seg[shape2Seg.length - 1].vertexes[1].copy();
+        if (shape1Seg.length)
+          newSegment.vertexes[1] = shape1Seg[0].vertexes[0].copy();
+        else
+          newSegment.vertexes[1] = shape2Seg[
+            shape2Seg.length - 1
+          ].vertexes[1].copy();
         shape1Seg.unshift(newSegment);
-        if (shape2Seg.length) shape2Seg[shape2Seg.length - 1].vertexes[1].setCoordinates(pt2);
+        if (shape2Seg.length)
+          shape2Seg[shape2Seg.length - 1].vertexes[1].setCoordinates(pt2);
       }
 
       if (centerPt) {
@@ -204,18 +221,20 @@ export class CutAction extends Action {
     shape1.coordinates = shape1.coordinates.subCoordinates(offset);
     if (shape.isSegment()) {
       shape1.coordinates = shape1.coordinates.addCoordinates(
-        new Point(segments[0].direction.y, -segments[0].direction.x).multiplyWithScalar(
-          myOffset / 2,
-        ),
+        new Point(
+          segments[0].direction.y,
+          -segments[0].direction.x
+        ).multiplyWithScalar(myOffset / 2)
       );
     }
     shape1.id = this.createdShapesIds[0];
     shape2.coordinates = shape2.coordinates.addCoordinates(offset);
     if (shape.isSegment()) {
       shape2.coordinates = shape2.coordinates.addCoordinates(
-        new Point(-segments[0].direction.y, segments[0].direction.x).multiplyWithScalar(
-          myOffset / 2,
-        ),
+        new Point(
+          -segments[0].direction.y,
+          segments[0].direction.x
+        ).multiplyWithScalar(myOffset / 2)
       );
     }
     shape2.id = this.createdShapesIds[1];

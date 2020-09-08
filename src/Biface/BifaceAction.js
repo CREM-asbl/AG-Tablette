@@ -18,7 +18,7 @@ export class BifaceAction extends Action {
       // for update history from 1.0.0
       let involvedShapes = ShapeManager.getAllBindedShapes(
         ShapeManager.getShapeById(save.shapeId),
-        true,
+        true
       );
       this.involvedShapesIds = involvedShapes.map(s => s.id);
       this.oldBiface = involvedShapes.map(s => s.isBiface);
@@ -29,7 +29,7 @@ export class BifaceAction extends Action {
             involvedShapesIds: this.involvedShapesIds,
             oldBiface: this.oldBiface,
           },
-        }),
+        })
       );
     }
   }
@@ -43,7 +43,10 @@ export class BifaceAction extends Action {
   }
 
   checkUndoParameters() {
-    if (!this.involvedShapesIds.length && this.involvedShapesIds.length != this.oldBiface.length) {
+    if (
+      !this.involvedShapesIds.length &&
+      this.involvedShapesIds.length != this.oldBiface.length
+    ) {
       this.printIncompleteData();
       return false;
     }

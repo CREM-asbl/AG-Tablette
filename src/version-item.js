@@ -15,7 +15,7 @@ class VersionItem extends LitElement {
     window.addEventListener(
       'manifest-loaded',
       () => (this.version = app.short_name + ' ' + app.version),
-      { once: true },
+      { once: true }
     );
   }
 

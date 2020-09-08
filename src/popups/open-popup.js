@@ -69,9 +69,7 @@ class OpenPopup extends LitElement {
                           title="Tangram"
                           silhouetteIdx="${idx}"
                         ></canvas-button>
-                        <p style="margin: auto;">
-                          ${tan.filename}
-                        </p>
+                        <p style="margin: auto;">${tan.filename}</p>
                       </div>
                     `
                 )

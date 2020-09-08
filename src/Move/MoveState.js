@@ -34,8 +34,9 @@ export class MoveState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour déplacer une forme, touchez la forme et glissez votre doigt sans le relacher. Relachez
-        ensuite votre doigt une fois que la forme est correctement positionnée.
+        Pour déplacer une forme, touchez la forme et glissez votre doigt sans le
+        relacher. Relachez ensuite votre doigt une fois que la forme est
+        correctement positionnée.
       </p>
     `;
   }
@@ -48,8 +49,9 @@ export class MoveState extends State {
     setTimeout(() =>
       setTimeout(
         () =>
-          (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
-      ),
+          (app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.mousedown_all_shape)
+      )
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -63,8 +65,9 @@ export class MoveState extends State {
     setTimeout(() =>
       setTimeout(
         () =>
-          (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
-      ),
+          (app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.mousedown_all_shape)
+      )
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -113,12 +116,15 @@ export class MoveState extends State {
     if (this.currentStep != 'moving-shape') return;
 
     const translation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
-      this.startClickCoordinates,
+      this.startClickCoordinates
     );
     this.involvedShapes.forEach(shape => {
       shape.coordinates = shape.coordinates.addCoordinates(translation);
     });
-    const transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape);
+    const transformation = getShapeAdjustment(
+      this.involvedShapes,
+      this.selectedShape
+    );
     this.involvedShapes.forEach(shape => {
       shape.coordinates = shape.coordinates.subCoordinates(translation);
     });
@@ -155,22 +161,22 @@ export class MoveState extends State {
     if (this.currentStep != 'moving-shape') return;
 
     let transformation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
-      this.startClickCoordinates,
+      this.startClickCoordinates
     );
 
     window.dispatchEvent(
       new CustomEvent('draw-group', {
         detail: {
           involvedShapes: this.involvedShapes,
-          fct1: s => {
+          functionCalledBeforeDraw: s => {
             s.saveCoords = s.coordinates;
             s.coordinates = s.coordinates.addCoordinates(transformation);
           },
-          fct2: s => {
+          functionCalledAfterDraw: s => {
             s.coordinates = s.saveCoords;
           },
         },
-      }),
+      })
     );
   }
 }

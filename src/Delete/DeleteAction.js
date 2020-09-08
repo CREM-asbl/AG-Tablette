@@ -35,7 +35,9 @@ export class DeleteAction extends Action {
   initFromObject(save) {
     this.mode = save.mode;
     if (save.mode == 'shape') {
-      this.involvedShapes = save.involvedShapes.map(shape => Shape.fromObject(shape));
+      this.involvedShapes = save.involvedShapes.map(shape =>
+        Shape.fromObject(shape)
+      );
       this.involvedShapesIndexes = save.involvedShapesIndexes;
       if (!save.involvedShapesIndexes) {
         // for update history from 1.0.0
@@ -50,7 +52,7 @@ export class DeleteAction extends Action {
       } else {
         // for update history from 1.0.0
         this.involvedShapesIndexes = this.involvedShapes.map(shape =>
-          ShapeManager.getShapeIndex(shape),
+          ShapeManager.getShapeIndex(shape)
         );
         let detail = {
           name: 'DeleteAction',
@@ -67,14 +69,18 @@ export class DeleteAction extends Action {
           detail.userGroupIndex = this.userGroupIndex;
           detail.userGroup = this.userGroup;
         }
-        window.dispatchEvent(new CustomEvent('update-history', { detail: detail }));
+        window.dispatchEvent(
+          new CustomEvent('update-history', { detail: detail })
+        );
       }
     } else {
       this.point = new Point();
       this.point.initFromObject(save.point);
       if (save.segmentIndex) {
         // for update history from 1.0.0
-        this.point.segment = ShapeManager.getShapeById(save.shapeId).segments[save.segmentIndex];
+        this.point.segment = ShapeManager.getShapeById(save.shapeId).segments[
+          save.segmentIndex
+        ];
         window.dispatchEvent(
           new CustomEvent('update-history', {
             detail: {
@@ -82,7 +88,7 @@ export class DeleteAction extends Action {
               mode: this.mode,
               point: this.point,
             },
-          }),
+          })
         );
       }
     }

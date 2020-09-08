@@ -39,7 +39,9 @@ export class PermanentZoomState extends State {
     this.touchStartId = app.addListener('canvastouchstart', this.handler);
     this.mouseWheelId = app.addListener('canvasmousewheel', this.handler);
     window.dispatchEvent(
-      new CustomEvent('app-state-changed', { detail: { startParams: undefined } }),
+      new CustomEvent('app-state-changed', {
+        detail: { startParams: undefined },
+      })
     );
   }
 
@@ -83,7 +85,7 @@ export class PermanentZoomState extends State {
         point2 = touches[1];
       this.centerProp = new Point(
         (point1.x + point2.x) / 2 / app.canvasWidth,
-        (point1.y + point2.y) / 2 / app.canvasHeight,
+        (point1.y + point2.y) / 2 / app.canvasHeight
       );
       this.baseDist = point1.dist(point2);
       if (this.baseDist == 0) this.baseDist = 0.001;
@@ -110,15 +112,21 @@ export class PermanentZoomState extends State {
 
       let originalTranslateOffset = app.workspace.translateOffset,
         newZoom = originalZoom * scaleOffset,
-        actualWinSize = new Point(app.canvasWidth / originalZoom, app.canvasHeight / originalZoom),
-        newWinSize = new Point(actualWinSize.x / scaleOffset, actualWinSize.y / scaleOffset),
+        actualWinSize = new Point(
+          app.canvasWidth / originalZoom,
+          app.canvasHeight / originalZoom
+        ),
+        newWinSize = new Point(
+          actualWinSize.x / scaleOffset,
+          actualWinSize.y / scaleOffset
+        ),
         newTranslateoffset = new Point(
           (originalTranslateOffset.x / originalZoom -
             (actualWinSize.x - newWinSize.x) * this.centerProp.x) *
             newZoom,
           (originalTranslateOffset.y / originalZoom -
             (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
-            newZoom,
+            newZoom
         );
 
       app.workspace.setZoomLevel(newZoom, false);
@@ -182,7 +190,10 @@ export class PermanentZoomState extends State {
         scaleOffset: offset,
         originalZoom: actualZoom,
         originalTranslateOffset: new Point(app.workspace.translateOffset),
-        centerProp: new Point(mousePos.x / app.canvasWidth, mousePos.y / app.canvasHeight),
+        centerProp: new Point(
+          mousePos.x / app.canvasWidth,
+          mousePos.y / app.canvasHeight
+        ),
       },
     ];
 

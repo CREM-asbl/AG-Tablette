@@ -24,8 +24,8 @@ export class TranslateState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez l'écran n'importe où dans la zone de dessin, et faites glissez votre doigt sans le
-        relacher, pour faire glisser le plan entier.
+        Touchez l'écran n'importe où dans la zone de dessin, et faites glissez
+        votre doigt sans le relacher, pour faire glisser le plan entier.
       </p>
     `;
   }

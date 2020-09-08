@@ -18,7 +18,8 @@ class completeHistoryTools extends LitElement {
 
     window.addEventListener('start-browsing', () => {
       this.index = 0;
-      if (app.workspace.completeHistory.steps.length > 1) this.style.display = 'block';
+      if (app.workspace.completeHistory.steps.length > 1)
+        this.style.display = 'block';
     });
 
     window.addEventListener('browsing-finished', () => {
@@ -72,13 +73,19 @@ class completeHistoryTools extends LitElement {
         ${this.sidebarElements.map((elem, idx) => {
           if (idx == this.index) {
             return html`
-              <button id="${idx}" style="background-color: blue;" @click="${this._clickHandle}">
+              <button
+                id="${idx}"
+                style="background-color: blue;"
+                @click="${this._clickHandle}"
+              >
                 ${elem.name}
               </button>
             `;
           } else {
             return html`
-              <button id="${idx}" @click="${this._clickHandle}">${elem.name}</button>
+              <button id="${idx}" @click="${this._clickHandle}">
+                ${elem.name}
+              </button>
             `;
           }
         })}

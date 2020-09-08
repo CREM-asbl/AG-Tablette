@@ -57,7 +57,7 @@ export class GroupAction extends Action {
               shapeId: this.shapeId,
               group: this.group,
             },
-          }),
+          })
         );
       }
     } else {
@@ -83,7 +83,7 @@ export class GroupAction extends Action {
               otherGroup: this.otherGroup,
               otherGroupIdx: this.otherGroupIdx,
             },
-          }),
+          })
         );
       }
     }
@@ -94,10 +94,16 @@ export class GroupAction extends Action {
       this.printIncompleteData();
       return false;
     }
-    if (this.type == 'new' && (!this.groupId || !this.shapeId || !this.secondShapeId)) {
+    if (
+      this.type == 'new' &&
+      (!this.groupId || !this.shapeId || !this.secondShapeId)
+    ) {
       this.printIncompleteData();
       return false;
-    } else if (this.type == 'add' && (this.shapeId === undefined || !this.group)) {
+    } else if (
+      this.type == 'add' &&
+      (this.shapeId === undefined || !this.group)
+    ) {
       this.printIncompleteData();
       return false;
     } else if (
@@ -118,10 +124,16 @@ export class GroupAction extends Action {
       this.printIncompleteData();
       return false;
     }
-    if (this.type == 'new' && (!this.groupId || !this.shapeId || !this.secondShapeId)) {
+    if (
+      this.type == 'new' &&
+      (!this.groupId || !this.shapeId || !this.secondShapeId)
+    ) {
       this.printIncompleteData();
       return false;
-    } else if (this.type == 'add' && (this.shapeId === undefined || !this.group)) {
+    } else if (
+      this.type == 'add' &&
+      (this.shapeId === undefined || !this.group)
+    ) {
       this.printIncompleteData();
       return false;
     } else if (
@@ -167,7 +179,9 @@ export class GroupAction extends Action {
     } else {
       let group1 = this.group,
         group2 = this.otherGroup;
-      group1.shapesIds = group1.shapesIds.filter(id1 => group2.shapesIds.every(id2 => id2 != id1));
+      group1.shapesIds = group1.shapesIds.filter(id1 =>
+        group2.shapesIds.every(id2 => id2 != id1)
+      );
       GroupManager.addGroup(group2, this.otherGroupIdx);
     }
   }

@@ -44,10 +44,16 @@ class SavePopup extends LitElement {
               id="save_popup_image_or_state"
               @change="${this._actionHandle}"
             >
-              <option value="state" ?selected="${this.image_or_state == 'state'}">
+              <option
+                value="state"
+                ?selected="${this.image_or_state == 'state'}"
+              >
                 état
               </option>
-              <option value="image" ?selected="${this.image_or_state == 'image'}">
+              <option
+                value="image"
+                ?selected="${this.image_or_state == 'image'}"
+              >
                 image
               </option>
             </select>
@@ -63,7 +69,9 @@ class SavePopup extends LitElement {
                 ?checked="${this.save_settings}"
                 @change="${this._actionHandle}"
               />
-              <label for="save_popup_settings">Sauvegarder les paramètres</label>
+              <label for="save_popup_settings"
+                >Sauvegarder les paramètres</label
+              >
             </div>
 
             <div class="field">
@@ -80,7 +88,11 @@ class SavePopup extends LitElement {
 
           <div class="part" id="image_form" style="display: none;">
             <label for="save_popup_format" style="display:inline">Format</label>
-            <select name="save_popup_format" id="save_popup_format" @change="${this._actionHandle}">
+            <select
+              name="save_popup_format"
+              id="save_popup_format"
+              @change="${this._actionHandle}"
+            >
               <option value="png" ?selected="${this.save_format == 'png'}">
                 png
               </option>
@@ -90,9 +102,14 @@ class SavePopup extends LitElement {
             </select>
           </div>
 
-          <div class="field" style="display: ${FileManager.hasNativeFS ? 'none' : 'block'}">
+          <div
+            class="field"
+            style="display: ${FileManager.hasNativeFS ? 'none' : 'block'}"
+          >
             <br />
-            <label for="save_popup_filename" style="display:inline">Nom du fichier</label>
+            <label for="save_popup_filename" style="display:inline"
+              >Nom du fichier</label
+            >
             <input
               type="text"
               name="save_popup_filename"
@@ -105,7 +122,11 @@ class SavePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button name="save_popup_submit" id="save_popup_submit" @click="${this._actionHandle}">
+          <button
+            name="save_popup_submit"
+            id="save_popup_submit"
+            @click="${this._actionHandle}"
+          >
             OK
           </button>
         </div>
@@ -138,7 +159,9 @@ class SavePopup extends LitElement {
       case 'save_popup_submit':
         this.close();
         this.extension =
-          this.image_or_state == 'state' ? app.environment.extension : this.save_format;
+          this.image_or_state == 'state'
+            ? app.environment.extension
+            : this.save_format;
         window.dispatchEvent(
           new CustomEvent('file-selected', {
             detail: {
@@ -146,7 +169,7 @@ class SavePopup extends LitElement {
               save_settings: this.save_settings,
               save_history: this.save_history,
             },
-          }),
+          })
         );
         break;
 
@@ -156,8 +179,12 @@ class SavePopup extends LitElement {
 
       case 'save_popup_image_or_state':
         this.image_or_state = event.target.value;
-        this.shadowRoot.querySelectorAll('.part').forEach(elem => (elem.style.display = 'none'));
-        this.shadowRoot.querySelector('#' + event.target.value + '_form').style.display = 'block';
+        this.shadowRoot
+          .querySelectorAll('.part')
+          .forEach(elem => (elem.style.display = 'none'));
+        this.shadowRoot.querySelector(
+          '#' + event.target.value + '_form'
+        ).style.display = 'block';
         break;
 
       default:
@@ -167,7 +194,7 @@ class SavePopup extends LitElement {
             ' ' +
             event.target.value +
             ' ' +
-            event.target.checked,
+            event.target.checked
         );
     }
   }

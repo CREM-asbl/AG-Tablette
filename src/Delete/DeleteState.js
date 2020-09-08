@@ -82,7 +82,10 @@ export class DeleteState extends State {
     if (object instanceof Shape) {
       let userGroup = GroupManager.getShapeGroup(object),
         involvedShapes;
-      if (userGroup) involvedShapes = userGroup.shapesIds.map(id => ShapeManager.getShapeById(id));
+      if (userGroup)
+        involvedShapes = userGroup.shapesIds.map(id =>
+          ShapeManager.getShapeById(id)
+        );
       else involvedShapes = [object];
 
       this.actions = [
@@ -90,7 +93,9 @@ export class DeleteState extends State {
           name: 'DeleteAction',
           mode: 'shape',
           involvedShapes: involvedShapes,
-          involvedShapesIndexes: involvedShapes.map(s => ShapeManager.getShapeIndex(s)),
+          involvedShapesIndexes: involvedShapes.map(s =>
+            ShapeManager.getShapeIndex(s)
+          ),
         },
       ];
       if (userGroup) {

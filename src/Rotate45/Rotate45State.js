@@ -32,7 +32,8 @@ export class Rotate45State extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Cliquez sur une forme pour la faire tourner de 45° dans le sens horloger.
+        Cliquez sur une forme pour la faire tourner de 45° dans le sens
+        horloger.
       </p>
     `;
   }
@@ -42,7 +43,9 @@ export class Rotate45State extends State {
    */
   start() {
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.mousedown_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -54,7 +57,9 @@ export class Rotate45State extends State {
   restart() {
     this.end();
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.mousedown_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);

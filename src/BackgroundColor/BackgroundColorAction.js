@@ -37,7 +37,10 @@ export class BackgroundColorAction extends Action {
   }
 
   checkUndoParameters() {
-    if (!this.involvedShapesIds.length || this.involvedShapesIds.length != this.oldColors.length) {
+    if (
+      !this.involvedShapesIds.length ||
+      this.involvedShapesIds.length != this.oldColors.length
+    ) {
       this.printIncompleteData();
       return false;
     }

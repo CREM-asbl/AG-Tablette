@@ -20,8 +20,8 @@ export class BuildCenterState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une forme pour construire son centre. Si le centre était déjà construit, cela va
-        supprimer le centre.
+        Touchez une forme pour construire son centre. Si le centre était déjà
+        construit, cela va supprimer le centre.
       </p>
     `;
   }
@@ -31,7 +31,9 @@ export class BuildCenterState extends State {
    */
   start() {
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -43,7 +45,9 @@ export class BuildCenterState extends State {
   restart() {
     this.end();
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);

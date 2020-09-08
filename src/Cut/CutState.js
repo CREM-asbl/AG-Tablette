@@ -37,15 +37,18 @@ export class CutState extends State {
     return html`
       <h2>${toolName}</h2>
       <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de découper une forme
-        en deux nouvelles formes, tout en laissant la forme d'origine intacte.<br /><br />
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
+        découper une forme en deux nouvelles formes, tout en laissant la forme
+        d'origine intacte.<br /><br />
 
-        Pour découper une forme, touchez un premier sommet de la forme, puis éventuellement le
-        centre de la forme (non obligatoire), et enfin un second sommet de la forme.<br /><br />
+        Pour découper une forme, touchez un premier sommet de la forme, puis
+        éventuellement le centre de la forme (non obligatoire), et enfin un
+        second sommet de la forme.<br /><br />
 
-        <b>Note:</b> il n'est pas toujours possible de découper une forme en sélectionnant deux
-        sommets quelconques. La ligne de découpe doit en effet rester à l'intérieur de la forme,
-        sans quoi la découpe ne sera pas réalisée.
+        <b>Note:</b> il n'est pas toujours possible de découper une forme en
+        sélectionnant deux sommets quelconques. La ligne de découpe doit en
+        effet rester à l'intérieur de la forme, sans quoi la découpe ne sera pas
+        réalisée.
       </p>
     `;
   }
@@ -192,36 +195,36 @@ export class CutState extends State {
       window.dispatchEvent(
         new CustomEvent('draw-point', {
           detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
-        }),
+        })
       );
     } else if (this.currentStep == 'select-third-point') {
       window.dispatchEvent(
         new CustomEvent('draw-point', {
           detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
-        }),
+        })
       );
       window.dispatchEvent(
         new CustomEvent('draw-point', {
           detail: { point: this.centerPoint, color: this.drawColor, size: 2 },
-        }),
+        })
       );
     } else if (this.currentStep == 'showing-points') {
       window.dispatchEvent(
         new CustomEvent('draw-point', {
           detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
-        }),
+        })
       );
       if (this.secondPoint)
         window.dispatchEvent(
           new CustomEvent('draw-point', {
             detail: { point: this.secondPoint, color: this.drawColor, size: 2 },
-          }),
+          })
         );
       if (this.centerPoint)
         window.dispatchEvent(
           new CustomEvent('draw-point', {
             detail: { point: this.centerPoint, color: this.drawColor, size: 2 },
-          }),
+          })
         );
     }
   }
@@ -252,11 +255,14 @@ export class CutState extends State {
     }
     if (pointsInBorder > 40 * precision) return false;
     const junction = new Segment(pt1, pt2);
-    if (shape.segments.some(seg => seg.doesIntersect(junction, false, true))) return false;
+    if (shape.segments.some(seg => seg.doesIntersect(junction, false, true)))
+      return false;
 
     return shape.vertexes.every(
       vertex =>
-        vertex.equal(pt1) || vertex.equal(pt2) || !new Segment(pt1, pt2).isPointOnSegment(vertex),
+        vertex.equal(pt1) ||
+        vertex.equal(pt2) ||
+        !new Segment(pt1, pt2).isPointOnSegment(vertex)
     );
   }
 
@@ -265,7 +271,10 @@ export class CutState extends State {
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.points.canSelect = true;
     if (step == 'listen-canvas-click') {
-      app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint'];
+      app.workspace.selectionConstraints.points.types = [
+        'vertex',
+        'segmentPoint',
+      ];
       app.workspace.selectionConstraints.points.whitelist = null;
       app.workspace.selectionConstraints.points.blacklist = null;
     } else if (step == 'select-second-point') {
@@ -273,7 +282,11 @@ export class CutState extends State {
         shape = object.shape,
         segments = shape.segments;
 
-      app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint', 'center'];
+      app.workspace.selectionConstraints.points.types = [
+        'vertex',
+        'segmentPoint',
+        'center',
+      ];
       app.workspace.selectionConstraints.points.whitelist = [shape];
 
       //blacklist
@@ -287,7 +300,8 @@ export class CutState extends State {
           segmentsToAdd.push(nextSeg);
           vertexToAdd.push(nextSeg);
         }
-      } else if (!object.segment.arcCenter) vertexToAdd.push(object.segment.idx);
+      } else if (!object.segment.arcCenter)
+        vertexToAdd.push(object.segment.idx);
       let list = vertexToAdd.map(vertex => {
         return {
           shape: shape,
@@ -309,11 +323,15 @@ export class CutState extends State {
                 };
               });
           })
-          .flat(),
+          .flat()
       );
       app.workspace.selectionConstraints.points.blacklist = list;
     } else if (step == 'select-third-point') {
-      app.workspace.selectionConstraints.points.types = ['vertex', 'segmentPoint', 'center'];
+      app.workspace.selectionConstraints.points.types = [
+        'vertex',
+        'segmentPoint',
+        'center',
+      ];
       app.workspace.selectionConstraints.points.whitelist = null;
       app.workspace.selectionConstraints.points.blacklist = null;
     }

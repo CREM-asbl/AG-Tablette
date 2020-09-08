@@ -20,8 +20,8 @@ export class ToBackgroundState extends State {
     return html`
       <h2>${toolName}</h2>
       <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de placer une forme
-        derrière toutes les autres.<br />
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
+        placer une forme derrière toutes les autres.<br />
         Touchez une forme pour la placer en arrière-plan.
       </p>
     `;
@@ -32,7 +32,9 @@ export class ToBackgroundState extends State {
    */
   start() {
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -44,7 +46,9 @@ export class ToBackgroundState extends State {
   restart() {
     this.end();
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);

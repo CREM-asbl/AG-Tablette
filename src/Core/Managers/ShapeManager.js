@@ -4,7 +4,8 @@ import { GroupManager } from './GroupManager';
 export class ShapeManager {
   /**
    * Ajoute une forme au workspace
-   * @param {Shape} shape la forme à ajouter
+   * @param {Shape} shape   La forme à ajouter
+   * @param {Numbre} index  L'index qu'elle doit avoir dans le tableau des formes
    */
   static addShape(shape, index = null) {
     if (index !== null) {
@@ -40,7 +41,7 @@ export class ShapeManager {
    * move the upper shapes back to their place, accordingly to indexes
    * @param {Number[]} indexes the final place of the shapes
    */
-  static moveShapesToTheirPlace(indexes) {
+  static moveShapesBackToTheirPlace(indexes) {
     const max = app.workspace.shapes.length - 1;
     for (let i = 0; i < max; i++) {
       let idx = indexes.findIndex(idx => idx == i);
@@ -56,7 +57,7 @@ export class ShapeManager {
    * reverse the order of the <nbr> upper shapes
    * @param {Number} nbr number of shapes to reverse
    */
-  static reverseUpper(nbr) {
+  static reverseUpperShapes(nbr) {
     let lower = app.workspace.shapes.slice(0, -nbr),
       upper = app.workspace.shapes.slice(-nbr);
     app.workspace.shapes = [...lower, ...upper.reverse()];
@@ -89,9 +90,9 @@ export class ShapeManager {
    * @param point: le point (Point)
    * @return la liste des formes ([Shape])
    */
-  static shapesOnPoint(point) {
+  static shapesThatContainsPoint(point) {
     let list = app.workspace.shapes.filter(
-      shape => shape.isPointInPath(point) || shape.isPointOnSegment(point),
+      shape => shape.isPointInPath(point) || shape.isPointOnSegment(point)
     );
     list.reverse();
     return list;

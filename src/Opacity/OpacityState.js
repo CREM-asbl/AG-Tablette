@@ -27,10 +27,11 @@ export class OpacityState extends State {
     return html`
       <h2>${toolName}</h2>
       <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de définir pour chaque
-        forme si elle est transparente, semi-transparente ou complètement opaque.<br />
-        Après avoir choisit l'une de ces 3 options dans le menu, touchez une forme pour lui
-        appliquer la modification.
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
+        définir pour chaque forme si elle est transparente, semi-transparente ou
+        complètement opaque.<br />
+        Après avoir choisit l'une de ces 3 options dans le menu, touchez une
+        forme pour lui appliquer la modification.
       </p>
     `;
   }
@@ -41,7 +42,9 @@ export class OpacityState extends State {
   start() {
     this.currentStep = 'choose-opacity';
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
     let popup = createElem('opacity-popup');
     popup.opacity = this.opacity;
@@ -60,7 +63,9 @@ export class OpacityState extends State {
       return;
     }
     setTimeout(
-      () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
+      () =>
+        (app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -99,7 +104,8 @@ export class OpacityState extends State {
 
     let group = GroupManager.getShapeGroup(shape),
       involvedShapes;
-    if (group) involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
+    if (group)
+      involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
     else involvedShapes = [shape];
 
     this.actions = [

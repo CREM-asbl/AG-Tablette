@@ -41,9 +41,7 @@ class OpacityPopup extends LitElement {
               <option value="0.7" ?selected="${this.opacity == 0.7}">
                 semi-transparent
               </option>
-              <option value="1" ?selected="${this.opacity == 1}">
-                opaque
-              </option>
+              <option value="1" ?selected="${this.opacity == 1}">opaque</option>
             </select>
           </div>
         </div>
@@ -59,9 +57,11 @@ class OpacityPopup extends LitElement {
     window.dispatchEvent(
       new CustomEvent('setOpacity', {
         detail: {
-          opacity: parseFloat(this.shadowRoot.getElementById('opacity_popup_select').value),
+          opacity: parseFloat(
+            this.shadowRoot.getElementById('opacity_popup_select').value
+          ),
         },
-      }),
+      })
     );
   }
 

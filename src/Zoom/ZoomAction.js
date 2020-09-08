@@ -39,9 +39,10 @@ export class ZoomAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let newZoom = this.originalZoom * this.scaleOffset,
-      actualWinSize = new Point(app.canvasWidth, app.canvasHeight).multiplyWithScalar(
-        1 / this.originalZoom,
-      ),
+      actualWinSize = new Point(
+        app.canvasWidth,
+        app.canvasHeight
+      ).multiplyWithScalar(1 / this.originalZoom),
       newWinSize = actualWinSize.multiplyWithScalar(1 / this.scaleOffset),
       newTranslateoffset = new Point(
         (this.originalTranslateOffset.x / this.originalZoom -
@@ -49,7 +50,7 @@ export class ZoomAction extends Action {
           newZoom,
         (this.originalTranslateOffset.y / this.originalZoom -
           (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
-          newZoom,
+          newZoom
       );
 
     app.workspace.setZoomLevel(newZoom, false);

@@ -37,7 +37,7 @@ class ToolbarSection extends LitElement {
               ?active="${state.name === app.state}"
               @click="${this._actionHandle}"
             ></icon-button>
-          `,
+          `
         )}
       </flex-toolbar>
     `;

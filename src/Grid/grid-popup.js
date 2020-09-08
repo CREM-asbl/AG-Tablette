@@ -7,7 +7,9 @@ class GridPopup extends LitElement {
     super();
     this.gridType = app.workspace.settings.get('gridType');
     this.gridSize = app.workspace.settings.get('gridSize');
-    window.addEventListener('close-popup', () => this.gridPopupValidate(), { once: true });
+    window.addEventListener('close-popup', () => this.gridPopupValidate(), {
+      once: true,
+    });
   }
 
   static get properties() {
@@ -40,7 +42,10 @@ class GridPopup extends LitElement {
               <option value="square" ?selected=${this.gridType === 'square'}>
                 Carrés
               </option>
-              <option value="triangle" ?selected=${this.gridType === 'triangle'}>
+              <option
+                value="triangle"
+                ?selected=${this.gridType === 'triangle'}
+              >
                 Triangles
               </option>
             </select>
@@ -56,21 +61,18 @@ class GridPopup extends LitElement {
               @change="${this._actionHandle}"
               ?disabled="${this.gridType === 'none'}"
             >
-              <option value="0.333333333333333" ?selected="${this.gridSize == 0.333333333333333}">
+              <option
+                value="0.333333333333333"
+                ?selected="${this.gridSize == 0.333333333333333}"
+              >
                 1/3
               </option>
               <option value="0.5" ?selected="${this.gridSize == 0.5}">
                 1/2
               </option>
-              <option value="1" ?selected="${this.gridSize == 1}">
-                1
-              </option>
-              <option value="2" ?selected="${this.gridSize == 2}">
-                2
-              </option>
-              <option value="3" ?selected="${this.gridSize == 3}">
-                3
-              </option>
+              <option value="1" ?selected="${this.gridSize == 1}">1</option>
+              <option value="2" ?selected="${this.gridSize == 2}">2</option>
+              <option value="3" ?selected="${this.gridSize == 3}">3</option>
             </select>
           </div>
         </div>
@@ -102,7 +104,10 @@ class GridPopup extends LitElement {
         app.workspace.settings.set('gridType', event.target.value);
         this.shadowRoot.getElementById('grid_popup_grid_size').disabled =
           event.target.value === 'none';
-        app.workspace.settings.set('isGridShown', event.target.value !== 'none');
+        app.workspace.settings.set(
+          'isGridShown',
+          event.target.value !== 'none'
+        );
         window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
         window.dispatchEvent(new CustomEvent('refreshBackground'));
         break;
@@ -114,7 +119,7 @@ class GridPopup extends LitElement {
             ' ' +
             event.target.value +
             ' ' +
-            event.target.checked,
+            event.target.checked
         );
     }
   }

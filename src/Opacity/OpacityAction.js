@@ -33,7 +33,10 @@ export class OpacityAction extends Action {
   }
 
   checkUndoParameters() {
-    if (!this.involvedShapesIds || this.oldOpacities.length != this.involvedShapesIds.length) {
+    if (
+      !this.involvedShapesIds ||
+      this.oldOpacities.length != this.involvedShapesIds.length
+    ) {
       this.printIncompleteData();
       return false;
     }

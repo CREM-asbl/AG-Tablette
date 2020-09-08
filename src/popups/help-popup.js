@@ -13,8 +13,9 @@ class HelpPopup extends LitElement {
     super();
 
     this.content = html`
-      Pour afficher l'aide correspondant à un des outils, opérations ou mouvements, sélectionnez cet
-      élément puis cliquez à nouveau sur le menu d'aide.
+      Pour afficher l'aide correspondant à un des outils, opérations ou
+      mouvements, sélectionnez cet élément puis cliquez à nouveau sur le menu
+      d'aide.
     `;
 
     window.addEventListener('close-popup', () => this.close());
@@ -43,9 +44,7 @@ class HelpPopup extends LitElement {
       <template-popup>
         <h2 slot="title">Aide</h2>
         <div id="helpPopupBody" slot="body">
-          <div id="helpPopupContent">
-            ${this.content}
-          </div>
+          <div id="helpPopupContent">${this.content}</div>
 
           <div slot="footer">
             <version-item></version-item>

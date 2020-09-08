@@ -8,7 +8,7 @@ module.exports = config => {
       browserStack: {
         project: 'your-name',
       },
-    }),
+    })
   );
 
   return config;

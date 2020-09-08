@@ -64,7 +64,11 @@ class ShapesList extends LitElement {
   render() {
     return html`
       <div class="container">
-        <h2>${this.shapeName ? this.shapeName.replace(/ \d+$/, '') : this.selectedFamily}</h2>
+        <h2>
+          ${this.shapeName
+            ? this.shapeName.replace(/ \d+$/, '')
+            : this.selectedFamily}
+        </h2>
         <ul>
           ${this.shapesNames.map(
             shapeName => html`
@@ -78,7 +82,7 @@ class ShapesList extends LitElement {
                 >
                 </canvas-button>
               </li>
-            `,
+            `
           )}
         </ul>
       </div>
@@ -87,9 +91,13 @@ class ShapesList extends LitElement {
 
   _clickHandle(event) {
     this.shapeName = event.target.shapeName;
-    const shapeRef = app.environment.getFamily(this.selectedFamily).getShape(this.shapeName);
+    const shapeRef = app.environment
+      .getFamily(this.selectedFamily)
+      .getShape(this.shapeName);
     window.dispatchEvent(
-      new CustomEvent('shape-selected', { detail: { selectedShape: shapeRef.saveToObject() } }),
+      new CustomEvent('shape-selected', {
+        detail: { selectedShape: shapeRef.saveToObject() },
+      })
     );
   }
 }

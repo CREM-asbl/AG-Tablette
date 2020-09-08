@@ -40,7 +40,7 @@ export class CopyAction extends Action {
             newShapesIds: this.newShapesIds,
             createdUsergroupId: this.createdUsergroupId,
           },
-        }),
+        })
       );
     }
   }
@@ -72,7 +72,9 @@ export class CopyAction extends Action {
 
     this.involvedShapesIds = this.involvedShapesIds
       .map(id => ShapeManager.getShapeById(id))
-      .sort((s1, s2) => (ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1))
+      .sort((s1, s2) =>
+        ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
+      )
       .map(s => s.id);
 
     this.involvedShapesIds.forEach((id, index) => {
@@ -88,7 +90,8 @@ export class CopyAction extends Action {
     //Si nécessaire, créer le userGroup
     if (shapesList.length > 1) {
       let userGroup = new ShapeGroup(0, 1);
-      if (Number.isFinite(this.createdUsergroupId)) userGroup.id = this.createdUsergroupId;
+      if (Number.isFinite(this.createdUsergroupId))
+        userGroup.id = this.createdUsergroupId;
       else this.createdUsergroupId = userGroup.id;
       userGroup.shapesIds = this.newShapesIds;
       GroupManager.addGroup(userGroup);

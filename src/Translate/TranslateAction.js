@@ -16,7 +16,11 @@ export class TranslateAction extends Action {
   }
 
   checkDoParameters() {
-    if (!this.offset || this.offset.x === undefined || this.offset.y === undefined) {
+    if (
+      !this.offset ||
+      this.offset.x === undefined ||
+      this.offset.y === undefined
+    ) {
       this.printIncompleteData();
       return false;
     }

@@ -25,7 +25,7 @@ export class History {
         newData.push(
           this.data[i].actions.map(step => {
             return { name: step.className, ...step.data };
-          }),
+          })
         );
       }
       this.data = newData;

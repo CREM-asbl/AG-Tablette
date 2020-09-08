@@ -25,7 +25,11 @@ export class RotateAction extends Action {
   }
 
   checkDoParameters() {
-    if (!this.shapeId || !this.involvedShapesIds || !Number.isFinite(this.rotationAngle)) {
+    if (
+      !this.shapeId ||
+      !this.involvedShapesIds ||
+      !Number.isFinite(this.rotationAngle)
+    ) {
       this.printIncompleteData();
       return false;
     }

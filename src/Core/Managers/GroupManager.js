@@ -40,7 +40,8 @@ export class GroupManager {
    */
   static getGroup(id) {
     for (let i = 0; i < app.workspace.shapeGroups.length; i++) {
-      if (app.workspace.shapeGroups[i].id == id) return app.workspace.shapeGroups[i];
+      if (app.workspace.shapeGroups[i].id == id)
+        return app.workspace.shapeGroups[i];
     }
     return null;
   }

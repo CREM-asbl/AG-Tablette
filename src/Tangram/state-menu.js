@@ -7,7 +7,7 @@ class StateMenu extends LitElement {
     this.buttons = [];
 
     window.addEventListener('close-state-menu', () =>
-      this /*.shadowRoot.querySelector('state-menu')*/.remove(),
+      this /*.shadowRoot.querySelector('state-menu')*/.remove()
     );
   }
 
@@ -50,15 +50,19 @@ class StateMenu extends LitElement {
       <div id="state-menu-buttons-list">
         ${this.buttons.map(
           button => html`
-            <button @click="${() => this.clickBtn(button.value)}">${button.text}</button>
-          `,
+            <button @click="${() => this.clickBtn(button.value)}">
+              ${button.text}
+            </button>
+          `
         )}
       </div>
     `;
   }
 
   clickBtn(value) {
-    dispatchEvent(new CustomEvent('state-menu-button-click', { detail: value }));
+    dispatchEvent(
+      new CustomEvent('state-menu-button-click', { detail: value })
+    );
   }
 }
 

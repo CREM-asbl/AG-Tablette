@@ -57,13 +57,9 @@ export class Notification extends LitElement {
     return html`
       <div class="background">
         <div id="template-view">
-          <div id="notif-close" @click="${() => this.close()}">
-            &times;
-          </div>
+          <div id="notif-close" @click="${() => this.close()}">&times;</div>
 
-          <h1>
-            ${this.title}
-          </h1>
+          <h1>${this.title}</h1>
         </div>
       </div>
     `;

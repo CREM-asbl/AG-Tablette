@@ -14,7 +14,10 @@ class SettingsPopup extends LitElement {
   constructor() {
     super();
     this.settings = app.settings;
-    addEventListener('app-settings-changed', () => (this.settings = { ...app.settings }));
+    addEventListener(
+      'app-settings-changed',
+      () => (this.settings = { ...app.settings })
+    );
 
     window.addEventListener('close-popup', () => this.close());
   }
@@ -73,13 +76,19 @@ class SettingsPopup extends LitElement {
                 id="settings_shapes_size"
                 @change="${this._actionHandle}"
               >
-                <option value="1" ?selected="${this.settings.data.shapesSize === 1}">
+                <option value="1" ?selected="${
+                  this.settings.data.shapesSize === 1
+                }">
                   1
                 </option>
-                <option value="2" ?selected="${this.settings.data.shapesSize === 2}">
+                <option value="2" ?selected="${
+                  this.settings.data.shapesSize === 2
+                }">
                   2
                 </option>
-                <option value="3" ?selected="${this.settings.data.shapesSize === 3}">
+                <option value="3" ?selected="${
+                  this.settings.data.shapesSize === 3
+                }">
                   3
                 </option>
               </select>
@@ -88,7 +97,8 @@ class SettingsPopup extends LitElement {
         </div>
           <div slot="footer">
             <version-item></version-item>
-            <button @click="${() => app.resetSettings()}">Paramètres par défaut</button>
+            <button @click="${() =>
+              app.resetSettings()}">Paramètres par défaut</button>
             <button @click="${this.close}">OK</button>
           </div>
       </div>
@@ -128,7 +138,7 @@ class SettingsPopup extends LitElement {
             ' ' +
             event.target.value +
             ' ' +
-            event.target.checked,
+            event.target.checked
         );
     }
     this.settings = { ...this.settings };

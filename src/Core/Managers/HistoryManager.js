@@ -10,11 +10,19 @@ export class HistoryManager {
   static transformToObject(action) {
     let newObject = {};
     for (let [key, value] of Object.entries(action)) {
-      if (value instanceof Shape || value instanceof Segment || value instanceof Point)
+      if (
+        value instanceof Shape ||
+        value instanceof Segment ||
+        value instanceof Point
+      )
         value = value.saveToObject();
       else if (value instanceof Array)
         value = value.map(elem => {
-          if (elem instanceof Shape || elem instanceof Segment || elem instanceof Point)
+          if (
+            elem instanceof Shape ||
+            elem instanceof Segment ||
+            elem instanceof Point
+          )
             return elem.saveToObject();
           else return elem;
         });
@@ -76,11 +84,15 @@ export class HistoryManager {
       console.error('Nothing to undo');
       return;
     }
-    let detail = [...app.workspace.history.data[app.workspace.history.index]].reverse();
+    let detail = [
+      ...app.workspace.history.data[app.workspace.history.index],
+    ].reverse();
     HistoryManager.historyIndex = app.workspace.history.index;
     detail.forEach((step, idx) => {
       HistoryManager.stepIndex = idx;
-      window.dispatchEvent(new CustomEvent('undo-' + step.name, { detail: step }));
+      window.dispatchEvent(
+        new CustomEvent('undo-' + step.name, { detail: step })
+      );
     });
     app.workspace.history.index--;
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -101,7 +113,9 @@ export class HistoryManager {
     HistoryManager.historyIndex = app.workspace.history.index + 1;
     detail.forEach((step, idx) => {
       HistoryManager.stepIndex = idx;
-      window.dispatchEvent(new CustomEvent('do-' + step.name, { detail: step }));
+      window.dispatchEvent(
+        new CustomEvent('do-' + step.name, { detail: step })
+      );
     });
     app.workspace.history.index++;
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -117,7 +131,7 @@ export class HistoryManager {
     app.workspace.history.data.splice(
       app.workspace.history.index + 1,
       app.workspace.history.length,
-      HistoryManager.transformToObjects(actions),
+      HistoryManager.transformToObjects(actions)
     );
     app.workspace.history.index = app.workspace.history.length - 1;
 
@@ -132,11 +146,17 @@ export class HistoryManager {
   }
 }
 
-window.addEventListener('actions', event => HistoryManager.addStep(event.detail));
+window.addEventListener('actions', event =>
+  HistoryManager.addStep(event.detail)
+);
 
-window.addEventListener('update-history', event => HistoryManager.updateHistory(event.detail));
+window.addEventListener('update-history', event =>
+  HistoryManager.updateHistory(event.detail)
+);
 
-window.addEventListener('action-aborted', () => HistoryManager.deleteLastStep());
+window.addEventListener('action-aborted', () =>
+  HistoryManager.deleteLastStep()
+);
 
 window.addEventListener('undo-action', () => {
   HistoryManager.undo();

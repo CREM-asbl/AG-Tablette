@@ -7,12 +7,22 @@ export function getAverageColor(...colors) {
     arglen = colors.length;
   for (let i = 0; i < arglen; i++) {
     if (!regex.test(colors[i])) {
-      console.error("getAverageColor: une couleur n'a pas été reconnue: " + colors[i]);
+      console.error(
+        "getAverageColor: une couleur n'a pas été reconnue: " + colors[i]
+      );
     }
   }
   let usableColors = colors.map(color => {
     if (color.length == 4) {
-      return ('#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3]).toUpperCase();
+      return (
+        '#' +
+        color[1] +
+        color[1] +
+        color[2] +
+        color[2] +
+        color[3] +
+        color[3]
+      ).toUpperCase();
     } else {
       return color.toUpperCase();
     }
@@ -46,7 +56,9 @@ export function getAverageColor(...colors) {
 export function getComplementaryColor(color) {
   let regex = /^#([0-9a-fA-F]{3}){1,2}$/;
   if (!regex.test(color)) {
-    console.error("App.getComplementaryColor: la couleur n'a pas été reconnue: " + color);
+    console.error(
+      "App.getComplementaryColor: la couleur n'a pas été reconnue: " + color
+    );
     return;
   }
   if (color.length == 4)
@@ -66,19 +78,19 @@ export function getComplementaryColor(color) {
       color[3];
   color = color.toUpperCase();
 
-  let hexTodec = function(hex) {
+  let hexTodec = function (hex) {
     //transforme un nombre hexadécimal à 2 chiffres en un nombre décimal
     let conversion = {
-      '0': 0,
-      '1': 1,
-      '2': 2,
-      '3': 3,
-      '4': 4,
-      '5': 5,
-      '6': 6,
-      '7': 7,
-      '8': 8,
-      '9': 9,
+      0: 0,
+      1: 1,
+      2: 2,
+      3: 3,
+      4: 4,
+      5: 5,
+      6: 6,
+      7: 7,
+      8: 8,
+      9: 9,
       A: 10,
       B: 11,
       C: 12,
@@ -88,7 +100,7 @@ export function getComplementaryColor(color) {
     };
     return conversion[hex[0]] * 16 + conversion[hex[1]];
   };
-  let decToHex = function(dec) {
+  let decToHex = function (dec) {
     //transforme un nombre décimal de 0 à 255 en hexadécimal
     let conversion = [
       '0',
@@ -140,7 +152,11 @@ export function mod(x, n) {
 }
 
 export function printCoord(msg, coord) {
-  console.log(msg + ' ', parseInt(coord.x * 1000) / 1000, parseInt(coord.y * 1000) / 1000);
+  console.log(
+    msg + ' ',
+    parseInt(coord.x * 1000) / 1000,
+    parseInt(coord.y * 1000) / 1000
+  );
 }
 
 /**

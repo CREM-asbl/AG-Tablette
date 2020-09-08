@@ -1,10 +1,7 @@
 import { app, App } from '../Core/App';
-import { SelectManager } from '../Core/Managers/SelectManager';
 import { Silhouette } from '../Core/Objects/Silhouette';
 
 const serverURL = 'https://api.crem.be/';
-
-addEventListener('close-tangram-popup', () => TangramManager.closePopup());
 
 addEventListener('file-parsed', async e => {
   TangramManager.closeForbiddenCanvas();
@@ -23,15 +20,6 @@ addEventListener('file-parsed', async e => {
 addEventListener('new-window', () => (app.silhouette = null));
 
 export class TangramManager {
-  static closePopup() {
-    document.querySelector('tangram-popup').remove();
-  }
-
-  static showPopup() {
-    import('./tangram-popup');
-    App.showPopup('tangram-popup');
-  }
-
   static async openForbiddenCanvas() {
     await import('./forbidden-canvas.js');
     App.showPopup('forbidden-canvas');
@@ -79,36 +67,8 @@ export class TangramManager {
 
     jsons.forEach(json => app.CremTangrams.push(json));
   }
-
-  /**
-   * Renvoie un point de la silhouette du tangram qui est proche du point reçu,
-   * ou null si pas de point proche.
-   * @param  {Point} point Coordonnées d'un point
-   * @return {Point}
-   */
-  static getNearTangramPoint(point) {
-    const shapes = app.silhouette.shapes,
-      allPoints = shapes.map(s => s.allPoints).flat();
-
-    let bestPoint = null,
-      bestDist = 1000 * 1000 * 1000;
-
-    allPoints.forEach(tangramPt => {
-      if (SelectManager.arePointsInMagnetismDistance(point, tangramPt)) {
-        let dist = point.dist(tangramPt);
-        if (dist < bestDist) {
-          bestDist = dist;
-          bestPoint = tangramPt;
-        }
-      }
-    });
-
-    return bestPoint;
-  }
 }
 
 app.CremTangrams = [];
 
 TangramManager.retrieveTangrams();
-
-// TangramManager.showTest();

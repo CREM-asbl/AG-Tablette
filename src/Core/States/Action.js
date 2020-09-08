@@ -4,7 +4,9 @@ import { app } from '../App';
 export class Action {
   constructor(name) {
     if (this.constructor === State) {
-      throw new TypeError('Abstract class "Action" cannot be instantiated directly');
+      throw new TypeError(
+        'Abstract class "Action" cannot be instantiated directly'
+      );
     }
 
     this.name = name;

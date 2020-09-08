@@ -33,7 +33,9 @@ class ToolbarKit extends LitElement {
     window.addEventListener(
       'family-selected',
       event =>
-        (this.selectedFamily = event.detail.selectedFamily ? event.detail.selectedFamily : ''),
+        (this.selectedFamily = event.detail.selectedFamily
+          ? event.detail.selectedFamily
+          : '')
     );
   }
 

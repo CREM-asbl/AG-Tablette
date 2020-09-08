@@ -25,10 +25,10 @@ export class ZoomState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez l'écran n'importe où dans la zone de dessin, et faites glissez votre doigt sans le
-        relacher, pour zoomer ou dézoomer le plan entier.<br />
-        Le zoom se fait par rapport au centre de l'écran: écartez votre doigt du centre pour zoomer,
-        et rapprochez-le du centre pour dézoomer.
+        Touchez l'écran n'importe où dans la zone de dessin, et faites glissez
+        votre doigt sans le relacher, pour zoomer ou dézoomer le plan entier.<br />
+        Le zoom se fait par rapport au centre de l'écran: écartez votre doigt du
+        centre pour zoomer, et rapprochez-le du centre pour dézoomer.
       </p>
     `;
   }
@@ -102,13 +102,18 @@ export class ZoomState extends State {
 
     let originalTranslateOffset = app.workspace.translateOffset,
       newZoom = originalZoom * scaleOffset,
-      actualWinSize = new Point(app.canvasWidth, app.canvasHeight).multiplyWithScalar(
-        1 / originalZoom,
-      ),
+      actualWinSize = new Point(
+        app.canvasWidth,
+        app.canvasHeight
+      ).multiplyWithScalar(1 / originalZoom),
       newWinSize = actualWinSize.multiplyWithScalar(1 / scaleOffset),
       newTranslateoffset = new Point(
-        (originalTranslateOffset.x / originalZoom - (actualWinSize.x - newWinSize.x) / 2) * newZoom,
-        (originalTranslateOffset.y / originalZoom - (actualWinSize.y - newWinSize.y) / 2) * newZoom,
+        (originalTranslateOffset.x / originalZoom -
+          (actualWinSize.x - newWinSize.x) / 2) *
+          newZoom,
+        (originalTranslateOffset.y / originalZoom -
+          (actualWinSize.y - newWinSize.y) / 2) *
+          newZoom
       );
 
     app.workspace.setZoomLevel(newZoom, false);
@@ -121,7 +126,8 @@ export class ZoomState extends State {
   onMouseUp() {
     if (this.currentStep != 'zooming-plane') return;
 
-    let offset = this.getDist(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
+    let offset =
+        this.getDist(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
       actualZoom = app.workspace.zoomLevel,
       minZoom = app.settings.get('minZoomLevel'),
       maxZoom = app.settings.get('maxZoomLevel');
@@ -148,11 +154,12 @@ export class ZoomState extends State {
   }
 
   getDist(mouseCoordinates) {
-    let halfWinSize = new Point(app.canvasWidth, app.canvasHeight).multiplyWithScalar(
-        1 / app.workspace.zoomLevel / 2,
-      ),
+    let halfWinSize = new Point(
+        app.canvasWidth,
+        app.canvasHeight
+      ).multiplyWithScalar(1 / app.workspace.zoomLevel / 2),
       translateOffset = app.workspace.translateOffset.multiplyWithScalar(
-        1 / app.workspace.zoomLevel,
+        1 / app.workspace.zoomLevel
       ),
       center = halfWinSize.subCoordinates(translateOffset),
       dist = center.dist(mouseCoordinates);

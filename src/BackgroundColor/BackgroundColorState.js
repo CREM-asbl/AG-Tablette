@@ -21,8 +21,10 @@ export class BackgroundColorState extends State {
     this.currentStep = 'listen-canvas-click';
     setTimeout(() =>
       setTimeout(
-        () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
-      ),
+        () =>
+          (app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.click_all_shape)
+      )
     );
 
     window.dispatchEvent(new CustomEvent('open-color-picker'));
@@ -42,8 +44,10 @@ export class BackgroundColorState extends State {
     }
     setTimeout(() =>
       setTimeout(
-        () => (app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape),
-      ),
+        () =>
+          (app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.click_all_shape)
+      )
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -60,7 +64,8 @@ export class BackgroundColorState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir choisi une couleur, touchez une forme pour en colorier l'intérieur.
+        Après avoir choisi une couleur, touchez une forme pour en colorier
+        l'intérieur.
       </p>
     `;
   }
@@ -97,7 +102,8 @@ export class BackgroundColorState extends State {
 
     let group = GroupManager.getShapeGroup(shape),
       involvedShapes;
-    if (group) involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
+    if (group)
+      involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
     else involvedShapes = [shape];
 
     this.actions = [

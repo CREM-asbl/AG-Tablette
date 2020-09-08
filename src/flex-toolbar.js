@@ -12,9 +12,7 @@ class FlexToolbar extends LitElement {
   }
 
   render() {
-    return html`
-      <slot></slot>
-    `;
+    return html` <slot></slot> `;
   }
 }
 customElements.define('flex-toolbar', FlexToolbar);

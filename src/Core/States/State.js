@@ -6,7 +6,9 @@ import { app } from '../App';
 export class State {
   constructor(name, title, type) {
     if (this.constructor === State) {
-      throw new TypeError('Abstract class "State" cannot be instantiated directly');
+      throw new TypeError(
+        'Abstract class "State" cannot be instantiated directly'
+      );
     }
     this.name = name;
     this.title = title;
@@ -129,12 +131,12 @@ export class State {
   executeAction() {
     window.dispatchEvent(new CustomEvent('actions', { detail: this.actions }));
     this.actions.forEach(action =>
-      window.dispatchEvent(new CustomEvent(action.name, { detail: action })),
+      window.dispatchEvent(new CustomEvent(action.name, { detail: action }))
     );
     window.dispatchEvent(
       new CustomEvent('actions-executed', {
         detail: { name: this.title, actions: this.actions },
-      }),
+      })
     );
   }
 
@@ -168,6 +170,8 @@ export class State {
    */
   animate() {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
-    this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
+    this.requestAnimFrameId = window.requestAnimationFrame(() =>
+      this.animate()
+    );
   }
 }

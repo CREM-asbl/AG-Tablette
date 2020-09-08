@@ -278,10 +278,10 @@ export class ReverseState extends State {
         new CustomEvent('draw-group', {
           detail: {
             involvedShapes: this.involvedShapes.map(s => s.copy(true)),
-            fct1: s => {
+            functionCalledBeforeDraw: s => {
               this.reverseShape(s, this.axe);
             },
-            fct2: () => {},
+            functionCalledAfterDraw: () => {},
             axeAngle: this.axeAngle,
             isReversed: this.progress > 0.5,
           },
@@ -303,8 +303,8 @@ export class ReverseState extends State {
         new CustomEvent('draw-group', {
           detail: {
             involvedShapes: this.involvedShapes,
-            fct1: () => {},
-            fct2: () => {},
+            functionCalledBeforeDraw: () => {},
+            functionCalledAfterDraw: () => {},
           },
         })
       );

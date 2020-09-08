@@ -5,51 +5,31 @@ import { Point } from '../Objects/Point';
 
 export class DrawManager {
   /* #################################################################### */
-  /* ############################# TRANSFORM ############################ */
-  /* #################################################################### */
-
-  static resetTransformations() {
-    app.upperCtx.setTransform(1, 0, 0, 1, 0, 0);
-    app.mainCtx.setTransform(1, 0, 0, 1, 0, 0);
-    app.backgroundCtx.setTransform(1, 0, 0, 1, 0, 0);
-  }
-
-  static translateView(relativeOffset) {
-    // app.upperCtx.translate(relativeOffset.x, relativeOffset.y);
-    // app.mainCtx.translate(relativeOffset.x, relativeOffset.y);
-    // app.backgroundCtx.translate(relativeOffset.x, relativeOffset.y);
-  }
-
-  static scaleView(relativeScale) {
-    // app.upperCtx.scale(relativeScale, relativeScale);
-    // app.mainCtx.scale(relativeScale, relativeScale);
-    // app.backgroundCtx.scale(relativeScale, relativeScale);
-  }
-
-  /* #################################################################### */
   /* ############################### UPDATE ############################# */
   /* #################################################################### */
 
+  /**
+   * efface un canvas
+   * @param {Context2D} ctx   le ctx à effacer
+   */
   static clearCtx(ctx) {
-    ctx.save();
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    ctx.restore();
   }
 
+  /**
+   * Refresh the background and the forbidden ctx (grid and silhouette)
+   */
   static refreshBackground() {
     DrawManager.clearCtx(app.backgroundCtx);
 
-    //Grid:
+    // Grid
     if (app.workspace.settings.get('isGridShown')) {
       let canvasWidth = app.canvas.main.clientWidth,
         canvasHeight = app.canvas.main.clientHeight,
         offsetX = app.workspace.translateOffset.x,
         offsetY = app.workspace.translateOffset.y,
         actualZoomLvl = app.workspace.zoomLevel,
-        //Ne pas voir les points apparaître:
+        // Ne pas voir les points apparaître :
         marginToAdd = 20 * actualZoomLvl,
         min = {
           x: -offsetX / actualZoomLvl - marginToAdd,
@@ -72,13 +52,15 @@ export class DrawManager {
       });
     }
 
-    //Tangram
+    // Tangram
     if (app.silhouette) {
       let ctx;
       if (app.silhouette.level != 3 && app.silhouette.level != 4) {
         ctx = app.backgroundCtx;
       } else {
-        ctx = app.unreachableCtx;
+        ctx = app.forbiddenCtx;
+        DrawManager.clearCtx(ctx);
+        // clear au cas ou
       }
 
       let bounds = app.silhouette.bounds;
@@ -107,6 +89,9 @@ export class DrawManager {
     }
   }
 
+  /**
+   * Refresh the main ctx (regular shapes)
+   */
   static refreshMain() {
     DrawManager.clearCtx(app.mainCtx);
 
@@ -125,6 +110,9 @@ export class DrawManager {
       });
   }
 
+  /**
+   * Refresh the upper ctx (animations)
+   */
   static refreshUpper() {
     DrawManager.clearCtx(app.upperCtx);
     window.dispatchEvent(new CustomEvent('drawUpper'));
@@ -137,9 +125,41 @@ export class DrawManager {
   /**
    * Dessiner une forme sur un canvas donné
    * @param  {Context2D}  ctx                  Canvas
-   * @param  {Shape}      shape                Forme à dessiner
+   * @param  {Shapes[]}   involvedShapes       Formes à dessiner
+   * @param  {Function}   functionCalledBeforeDraw                 La fonction à appliquer sur les shapes avant le dessin
+   * @param  {Function}   functionCalledAfterDraw                 La fonction à appliquer sur les shapes après le dessin
    * @param  {Number}     [borderSize=1]       Epaisseur des bordures de la forme
    * @param  {Segment}    [axeAngle=undefined] Axe de symétrie (pour reverse)
+   * @param  {Boolean}    [isReversed=false]   Si le groupe doit etre retourné
+   */
+  static drawGroup(
+    ctx,
+    involvedShapes,
+    functionCalledBeforeDraw,
+    functionCalledAfterDraw,
+    borderSize = 1,
+    axeAngle = undefined,
+    isReversed = false
+  ) {
+    let orderedInvolvedShapes = involvedShapes.sort((s1, s2) =>
+      ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
+    );
+    if (isReversed) {
+      orderedInvolvedShapes.reverse();
+    }
+    orderedInvolvedShapes.forEach(s => {
+      functionCalledBeforeDraw(s);
+      DrawManager.drawShape(ctx, s, borderSize, axeAngle);
+      functionCalledAfterDraw(s);
+    });
+  }
+
+  /**
+   * Dessiner une forme sur un canvas donné
+   * @param  {Context2D}  ctx                  Canvas
+   * @param  {Shape}      shape                Forme à dessiner
+   * @param  {Number}     [borderSize=1]       Epaisseur des bordures de la forme
+   * @param  {Number}     [axeAngle=undefined] Axe de symétrie (pour reverse)
    */
   static drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
     ctx.strokeStyle = shape.borderColor;
@@ -152,19 +172,14 @@ export class DrawManager {
     let path = new Path2D(shape.getSVGPath(scaleMethod, axeAngle));
 
     ctx.save();
-    // if (shape.path) {
-    //   ctx.translate(shape.center.x, shape.center.y);
-    //   ctx.rotate(shape.angle || 0);
-    //   ctx.translate(-shape.center.x, -shape.center.y);
-    //   ctx.translate(shape.x, shape.y);
-    //   ctx.scale(shape.size, shape.size);
-    // }
+
     ctx.fill(path, 'nonzero');
     ctx.globalAlpha = 1;
     ctx.stroke(path);
+
     ctx.restore();
 
-    ctx.save();
+    // ctx.save();
 
     if (
       app.settings.get('areShapesPointed') &&
@@ -188,35 +203,30 @@ export class DrawManager {
   }
 
   /**
-   * Dessiner une forme sur un canvas donné
-   * @param  {Context2D}  ctx                  Canvas
-   * @param  {Shapes[]}   involvedShapes       Formes à dessiner
-   * @param  {Function}   fct1                 La fonction à appliquer sur les shapes avant le dessin
-   * @param  {Function}   fct2                 La fonction à appliquer sur les shapes après le dessin
-   * @param  {Number}     [borderSize=1]       Epaisseur des bordures de la forme
-   * @param  {Segment}    [axeAngle=undefined] Axe de symétrie (pour reverse)
-   * @param  {Boolean}    [isReversed=false]   Si le groupe doit etre retourné
+   * Dessine une ligne
+   * @param  {Context2D}  ctx             Canvas
+   * @param  {Point}      line            Segment à dessiner
+   * @param  {String}     [color='#000']  Couleur de la ligne
+   * @param  {Number}     [size=1]        Epaisseur de la ligne
+   * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  static drawGroup(
-    ctx,
-    involvedShapes,
-    fct1,
-    fct2,
-    borderSize = 1,
-    axeAngle = undefined,
-    isReversed = false
-  ) {
-    let orderedInvolvedShapes = involvedShapes.sort((s1, s2) =>
-      ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
-    );
-    if (isReversed) {
-      orderedInvolvedShapes.reverse();
-    }
-    orderedInvolvedShapes.forEach(s => {
-      fct1(s);
-      DrawManager.drawShape(ctx, s, borderSize, axeAngle);
-      fct2(s);
-    });
+  static drawSegment(ctx, segment, color = '#000', size = 1, doSave = true) {
+    if (doSave) ctx.save();
+
+    let v0Copy = new Point(segment.vertexes[0]);
+    v0Copy.setToCanvasCoordinates();
+    let SVGPath = ['M', v0Copy.x, v0Copy.y, segment.getSVGPath()].join(' ');
+
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = size;
+
+    let path = new Path2D(SVGPath);
+
+    ctx.stroke(path);
+
+    ctx.lineWidth = 1;
+    if (doSave) ctx.restore();
   }
 
   /**
@@ -246,101 +256,6 @@ export class DrawManager {
   }
 
   /**
-   * Dessine un segment
-   * @param  {Context2D}  ctx             Canvas
-   * @param  {Point}      line            Segment à dessiner
-   * @param  {String}     [color='#000']  Couleur de la ligne
-   * @param  {Number}     [size=1]        Epaisseur de la ligne
-   * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
-   */
-  static drawLine(ctx, line, color = '#000', size = 1, doSave = true) {
-    if (doSave) ctx.save();
-
-    ctx.strokeStyle = color;
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = size;
-
-    let firstVertexCopy = new Point(line.vertexes[0]),
-      secondVertexCopy = new Point(line.vertexes[1]);
-    firstVertexCopy.setToCanvasCoordinates();
-    secondVertexCopy.setToCanvasCoordinates();
-
-    ctx.beginPath();
-    ctx.moveTo(firstVertexCopy.x, firstVertexCopy.y);
-    ctx.lineTo(secondVertexCopy.x, secondVertexCopy.y);
-    ctx.closePath();
-    ctx.stroke();
-
-    ctx.lineWidth = 1;
-    if (doSave) ctx.restore();
-  }
-
-  /**
-   * Dessine un texte
-   * @param  {Context2D}  ctx               Canvas
-   * @param  {String}     startPoint        Point de départ
-   * @param  {String}     endPoint          Point d'arrivée
-   * @param  {String}     center            Center
-   * @param  {Boolean}    counterclockwise  Si anti-horaire
-   * @param  {String}     [color='#000']    Couleur du texte
-   * @param  {Number}     [size=1]          Epaisseur de l'arc
-   * @param  {Boolean}    [doSave=true]     Faut-il sauvegarder le contexte du canvas (optimisation)
-   */
-  static drawArc(
-    ctx,
-    startPoint,
-    endPoint,
-    center,
-    counterclockwise,
-    color = '#000',
-    size = 1,
-    doSave = true
-  ) {
-    let firstAngle = center.getAngle(startPoint),
-      secondAngle = center.getAngle(endPoint);
-    if (startPoint.equal(endPoint)) secondAngle += 2 * Math.PI;
-
-    if (doSave) ctx.save();
-
-    ctx.strokeStyle = color;
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = size;
-
-    ctx.beginPath();
-    ctx.arc(
-      center.x,
-      center.y,
-      endPoint.dist(center),
-      firstAngle,
-      secondAngle,
-      counterclockwise
-    );
-    ctx.stroke();
-
-    ctx.lineWidth = 1;
-    if (doSave) ctx.restore();
-  }
-
-  static drawSegment(ctx, segment, color = '#000', size = 1, doSave = true) {
-    if (doSave) ctx.save();
-
-    let v0Copy = new Point(segment.vertexes[0]);
-    v0Copy.setToCanvasCoordinates();
-    let SVGPath = ['M', v0Copy.x, v0Copy.y, segment.getSVGPath()].join(' ');
-
-    ctx.strokeStyle = color;
-    ctx.globalAlpha = 1;
-    ctx.lineWidth = size;
-
-    let path = new Path2D(SVGPath);
-
-    ctx.stroke(path);
-
-    ctx.lineWidth = 1;
-    if (doSave) ctx.restore();
-  }
-
-  /**
    * Dessine un texte
    * @param  {Context2D}  ctx             Canvas
    * @param  {String}     text            Texte à dessiner
@@ -365,47 +280,7 @@ export class DrawManager {
 
     if (doSave) ctx.restore();
   }
-
-  /**
-   * Dessine un cercle
-   * @param  {Context2D}  ctx             Canvas
-   * @param  {Point}      point           Coordonnées du centre
-   * @param  {String}     [color='#000']  Couleur du bord
-   * @param  {float}      [radius=10]     Rayon
-   * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
-   */
-  static drawCircle(ctx, point, color = '#000', radius = 10, doSave = true) {
-    if (doSave) ctx.save();
-
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = color;
-
-    ctx.beginPath();
-    ctx.arc(
-      point.x,
-      point.y,
-      radius / app.workspace.zoomLevel,
-      0,
-      2 * Math.PI,
-      0
-    );
-    ctx.closePath();
-    ctx.stroke();
-
-    if (doSave) ctx.restore();
-  }
 }
-
-// transform
-window.addEventListener('resetTransformations', () => {
-  DrawManager.resetTransformations();
-});
-window.addEventListener('translateView', event => {
-  DrawManager.translateView(event.detail.offset);
-});
-window.addEventListener('scaleView', event => {
-  DrawManager.scaleView(event.detail.scale);
-});
 
 // refresh
 window.addEventListener('refresh', () => {
@@ -422,6 +297,18 @@ window.addEventListener('refreshBackground', () => {
 });
 
 // draw
+window.addEventListener('draw-group', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawGroup(
+    ctx,
+    event.detail.involvedShapes,
+    event.detail.functionCalledBeforeDraw,
+    event.detail.functionCalledAfterDraw,
+    event.detail.borderSize,
+    event.detail.axeAngle,
+    event.detail.isReversed
+  );
+});
 window.addEventListener('draw-shape', event => {
   const ctx = event.detail.ctx || app.upperCtx;
   DrawManager.drawShape(
@@ -431,16 +318,14 @@ window.addEventListener('draw-shape', event => {
     event.detail.axeAngle
   );
 });
-window.addEventListener('draw-group', event => {
+window.addEventListener('draw-segment', event => {
   const ctx = event.detail.ctx || app.upperCtx;
-  DrawManager.drawGroup(
+  DrawManager.drawSegment(
     ctx,
-    event.detail.involvedShapes,
-    event.detail.fct1,
-    event.detail.fct2,
-    event.detail.borderSize,
-    event.detail.axeAngle,
-    event.detail.isReversed
+    event.detail.segment,
+    event.detail.color,
+    event.detail.size,
+    event.detail.doSave
   );
 });
 window.addEventListener('draw-point', event => {
@@ -448,39 +333,6 @@ window.addEventListener('draw-point', event => {
   DrawManager.drawPoint(
     ctx,
     event.detail.point,
-    event.detail.color,
-    event.detail.size,
-    event.detail.doSave
-  );
-});
-window.addEventListener('draw-line', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
-  DrawManager.drawLine(
-    ctx,
-    event.detail.line,
-    event.detail.color,
-    event.detail.size,
-    event.detail.doSave
-  );
-});
-window.addEventListener('draw-arc', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
-  DrawManager.drawArc(
-    ctx,
-    event.detail.startPoint,
-    event.detail.endPoint,
-    event.detail.center,
-    event.detail.counterclockwise,
-    event.detail.color,
-    event.detail.size,
-    event.detail.doSave
-  );
-});
-window.addEventListener('draw-segment', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
-  DrawManager.drawSegment(
-    ctx,
-    event.detail.segment,
     event.detail.color,
     event.detail.size,
     event.detail.doSave
