@@ -311,4 +311,14 @@ export class Point {
       app.workspace.translateOffset.y
     );
   }
+
+  // resetFromCanvasCoordinates() {
+  //   this.translate(
+  //     app.workspace.translateOffset.x,
+  //     app.workspace.translateOffset.y,
+  //     // true
+  //   );
+  //   console.log('resetting', this.x, this.y);
+  //   this.multiplyWithScalar(1/app.workspace.zoomLevel, true);
+  // }
 }

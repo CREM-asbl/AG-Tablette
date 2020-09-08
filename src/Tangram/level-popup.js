@@ -25,7 +25,7 @@ class LevelPopup extends LitElement {
           <input
             type="range"
             min="1"
-            max="2"
+            max="4"
             value="${this.level}"
             list="level"
             @change="${e => (this.level = e.target.value)}"
@@ -33,6 +33,8 @@ class LevelPopup extends LitElement {
           <datalist id="level">
             <option value="1" label="1">1</option>
             <option value="2" label="2">2</option>
+            <option value="3" label="3">3</option>
+            <option value="4" label="4">4</option>
           </datalist>
         </div>
         <div slot="footer">

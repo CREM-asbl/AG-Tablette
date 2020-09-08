@@ -74,9 +74,32 @@ export class DrawManager {
 
     //Tangram
     if (app.silhouette) {
-      app.silhouette.shapes.forEach(s =>
-        DrawManager.drawShape(app.backgroundCtx, s)
+      let ctx;
+      if (app.silhouette.level != 3 && app.silhouette.level != 4) {
+        ctx = app.backgroundCtx;
+      } else {
+        ctx = app.unreachableCtx;
+      }
+
+      let bounds = app.silhouette.bounds;
+      let silhouetteCenter = new Point(
+        (bounds[1] + bounds[0]) / 2,
+        (bounds[3] + bounds[2]) / 2
       );
+      let width = app.canvasWidth / 2;
+      let height = app.canvasHeight;
+      let canvasCenter = new Point(width / 2, height / 2);
+
+      silhouetteCenter.setToCanvasCoordinates();
+
+      let translation = canvasCenter.subCoordinates(silhouetteCenter);
+
+      translation.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
+
+      app.silhouette.shapes.forEach(s => {
+        s.translate(translation);
+        DrawManager.drawShape(ctx, s);
+      });
     }
   }
 
@@ -120,7 +143,10 @@ export class DrawManager {
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
-    let path = new Path2D(shape.getSVGPath('scale', axeAngle));
+    console.log(ctx, ctx.canvas.width);
+    let scaleMethod =
+      ctx.canvas.width == 52 && ctx.canvas.height == 52 ? 'no scale' : 'scale';
+    let path = new Path2D(shape.getSVGPath(scaleMethod, axeAngle));
 
     ctx.save();
     // if (shape.path) {
@@ -233,6 +259,8 @@ export class DrawManager {
 
     let firstVertexCopy = new Point(line.vertexes[0]),
       secondVertexCopy = new Point(line.vertexes[1]);
+    firstVertexCopy.setToCanvasCoordinates();
+    secondVertexCopy.setToCanvasCoordinates();
 
     ctx.beginPath();
     ctx.moveTo(firstVertexCopy.x, firstVertexCopy.y);
