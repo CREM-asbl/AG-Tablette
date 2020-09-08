@@ -1,5 +1,6 @@
-import { app, App } from '../Core/App';
+import { app } from '../Core/App';
 import { Silhouette } from '../Core/Objects/Silhouette';
+import { createElem } from '../Core/Tools/general';
 
 const serverURL = 'https://api.crem.be/';
 
@@ -22,7 +23,7 @@ addEventListener('new-window', () => (app.silhouette = null));
 export class TangramManager {
   static async openForbiddenCanvas() {
     await import('./forbidden-canvas.js');
-    App.showPopup('forbidden-canvas');
+    createElem('forbidden-canvas');
     return new Promise(resolve =>
       addEventListener('forbidden-canvas-drawn', e => resolve(e.detail))
     );
@@ -34,7 +35,7 @@ export class TangramManager {
 
   static async selectLevel() {
     await import('./level-popup');
-    App.showPopup('level-popup');
+    createElem('level-popup');
     return new Promise(resolve =>
       addEventListener('tangram-level-selected', e => resolve(e.detail))
     );

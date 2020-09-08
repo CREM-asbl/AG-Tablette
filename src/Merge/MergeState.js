@@ -148,6 +148,8 @@ export class MergeState extends State {
     }
     this.secondShape = shape;
 
+    console.log(this.firstShape, this.secondShape);
+
     if (this.firstShape.getCommonsPoints(this.secondShape).length < 2) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {

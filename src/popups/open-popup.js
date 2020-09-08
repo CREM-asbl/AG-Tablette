@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import { TemplatePopup } from './template-popup';
-import { FileManager } from '../Core/Managers/FileManager';
+import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 
 class OpenPopup extends LitElement {
   static get properties() {
@@ -61,7 +61,7 @@ class OpenPopup extends LitElement {
                         style="display: flex; width: 100%;
                       cursor: pointer;"
                         @click="${() => {
-                          FileManager.parseFile(tan);
+                          OpenFileManager.parseFile(tan);
                           this.close();
                         }}"
                       >

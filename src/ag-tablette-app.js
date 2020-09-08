@@ -13,7 +13,8 @@ import './completehistory-tools';
 
 import { app } from './Core/App';
 import './Core/Manifest';
-import './Core/Managers/FileManager';
+import './Core/Managers/OpenFileManager';
+import './Core/Managers/SaveFileManager';
 import './Core/Managers/SelectManager';
 import './Core/Managers/WorkspaceManager';
 import './Core/Managers/GroupManager';
@@ -307,7 +308,7 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'save':
-        window.dispatchEvent(new CustomEvent('save-to-file'));
+        window.dispatchEvent(new CustomEvent('save-file'));
         reset_state = 1;
         break;
       case 'load':

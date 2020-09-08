@@ -1,7 +1,7 @@
 import { app } from '../Core/App';
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from './template-popup';
-import { FileManager } from '../Core/Managers/FileManager';
+import { SaveFileManager } from '../Core/Managers/SaveFileManager';
 import '../version-item';
 
 class SavePopup extends LitElement {
@@ -35,7 +35,9 @@ class SavePopup extends LitElement {
       <template-popup>
         <h2 slot="title">Sauvegarder</h2>
         <div slot="body" id="body">
-          <div style="display: ${FileManager.hasNativeFS ? 'none' : 'block'}">
+          <div
+            style="display: ${SaveFileManager.hasNativeFS ? 'none' : 'block'}"
+          >
             <label for="save_popup_image_or_state" style="display:inline"
               >Méthode de sauvegarde</label
             >
@@ -104,7 +106,7 @@ class SavePopup extends LitElement {
 
           <div
             class="field"
-            style="display: ${FileManager.hasNativeFS ? 'none' : 'block'}"
+            style="display: ${SaveFileManager.hasNativeFS ? 'none' : 'block'}"
           >
             <br />
             <label for="save_popup_filename" style="display:inline"

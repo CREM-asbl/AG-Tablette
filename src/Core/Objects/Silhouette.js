@@ -1,5 +1,4 @@
 import { Shape } from './Shape';
-import { App } from '../App';
 
 export class Silhouette {
   /**

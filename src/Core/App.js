@@ -147,12 +147,6 @@ export class App {
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
-
-  static showPopup(name) {
-    const popup = document.createElement(name);
-    popup.style.display = 'block';
-    document.querySelector('body').appendChild(popup);
-  }
 }
 
 export const app = new App();

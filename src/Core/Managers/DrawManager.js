@@ -9,7 +9,7 @@ export class DrawManager {
   /* #################################################################### */
 
   /**
-   * efface un canvas
+   * efface le contenu d'un canvas
    * @param {Context2D} ctx   le ctx à effacer
    */
   static clearCtx(ctx) {
@@ -24,23 +24,23 @@ export class DrawManager {
 
     // Grid
     if (app.workspace.settings.get('isGridShown')) {
-      let canvasWidth = app.canvas.main.clientWidth,
+      const canvasWidth = app.canvas.main.clientWidth,
         canvasHeight = app.canvas.main.clientHeight,
         offsetX = app.workspace.translateOffset.x,
         offsetY = app.workspace.translateOffset.y,
         actualZoomLvl = app.workspace.zoomLevel,
         // Ne pas voir les points apparaître :
         marginToAdd = 20 * actualZoomLvl,
-        min = {
-          x: -offsetX / actualZoomLvl - marginToAdd,
-          y: -offsetY / actualZoomLvl - marginToAdd,
-        },
-        max = {
-          x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
-          y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
-        };
+        min = new Point(
+          -offsetX / actualZoomLvl - marginToAdd,
+          -offsetY / actualZoomLvl - marginToAdd
+        ),
+        max = new Point(
+          (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
+          (canvasHeight - offsetY) / actualZoomLvl + marginToAdd
+        ),
+        pts = GridManager.getVisibleGridPoints(min, max);
 
-      let pts = GridManager.getVisibleGridPoints(min, max);
       pts.forEach(pt => {
         DrawManager.drawPoint(
           app.backgroundCtx,
@@ -63,14 +63,14 @@ export class DrawManager {
         // clear au cas ou
       }
 
-      let bounds = app.silhouette.bounds;
-      let silhouetteCenter = new Point(
-        (bounds[1] + bounds[0]) / 2,
-        (bounds[3] + bounds[2]) / 2
-      );
-      let width = app.canvasWidth / 2;
-      let height = app.canvasHeight;
-      let canvasCenter = new Point(width / 2, height / 2);
+      const bounds = app.silhouette.bounds,
+        silhouetteCenter = new Point(
+          (bounds[1] + bounds[0]) / 2,
+          (bounds[3] + bounds[2]) / 2
+        ),
+        width = app.canvasWidth / 2,
+        height = app.canvasHeight,
+        canvasCenter = new Point(width / 2, height / 2);
 
       if (app.silhouette.level != 3 && app.silhouette.level != 4) {
         canvasCenter.translate(width, 0);
@@ -78,7 +78,7 @@ export class DrawManager {
 
       silhouetteCenter.setToCanvasCoordinates();
 
-      let translation = canvasCenter.subCoordinates(silhouetteCenter);
+      const translation = canvasCenter.subCoordinates(silhouetteCenter);
 
       translation.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
 
@@ -95,7 +95,6 @@ export class DrawManager {
   static refreshMain() {
     DrawManager.clearCtx(app.mainCtx);
 
-    //Afficher les formes
     app.workspace.shapes
       .filter(shape => {
         return (
@@ -123,14 +122,14 @@ export class DrawManager {
   /* #################################################################### */
 
   /**
-   * Dessiner une forme sur un canvas donné
-   * @param  {Context2D}  ctx                  Canvas
-   * @param  {Shapes[]}   involvedShapes       Formes à dessiner
-   * @param  {Function}   functionCalledBeforeDraw                 La fonction à appliquer sur les shapes avant le dessin
-   * @param  {Function}   functionCalledAfterDraw                 La fonction à appliquer sur les shapes après le dessin
-   * @param  {Number}     [borderSize=1]       Epaisseur des bordures de la forme
-   * @param  {Segment}    [axeAngle=undefined] Axe de symétrie (pour reverse)
-   * @param  {Boolean}    [isReversed=false]   Si le groupe doit etre retourné
+   * Dessiner un groupe de formes sur un canvas donné
+   * @param  {Context2D}  ctx                        Canvas
+   * @param  {Shapes[]}   involvedShapes             Formes à dessiner
+   * @param  {Function}   functionCalledBeforeDraw   La fonction à appliquer sur les shapes avant le dessin
+   * @param  {Function}   functionCalledAfterDraw    La fonction à appliquer sur les shapes après le dessin
+   * @param  {Number}     borderSize                 Epaisseur des bordures de la forme
+   * @param  {Segment}    axeAngle                   Axe de symétrie (pour reverse)
+   * @param  {Boolean}    isReversed                 Si le groupe doit etre retourné
    */
   static drawGroup(
     ctx,
@@ -141,7 +140,7 @@ export class DrawManager {
     axeAngle = undefined,
     isReversed = false
   ) {
-    let orderedInvolvedShapes = involvedShapes.sort((s1, s2) =>
+    const orderedInvolvedShapes = involvedShapes.sort((s1, s2) =>
       ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
     );
     if (isReversed) {
@@ -158,8 +157,8 @@ export class DrawManager {
    * Dessiner une forme sur un canvas donné
    * @param  {Context2D}  ctx                  Canvas
    * @param  {Shape}      shape                Forme à dessiner
-   * @param  {Number}     [borderSize=1]       Epaisseur des bordures de la forme
-   * @param  {Number}     [axeAngle=undefined] Axe de symétrie (pour reverse)
+   * @param  {Number}      borderSize          Epaisseur des bordures de la forme
+   * @param  {Number}      axeAngle            Axe de symétrie (pour reverse)
    */
   static drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
     ctx.strokeStyle = shape.borderColor;
@@ -167,9 +166,12 @@ export class DrawManager {
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize;
-    let scaleMethod =
-      ctx.canvas.width == 52 && ctx.canvas.height == 52 ? 'no scale' : 'scale';
-    let path = new Path2D(shape.getSVGPath(scaleMethod, axeAngle));
+
+    const pathScaleMethod =
+        ctx.canvas.width == 52 && ctx.canvas.height == 52
+          ? 'no scale'
+          : 'scale',
+      path = new Path2D(shape.getSVGPath(pathScaleMethod, axeAngle));
 
     ctx.save();
 
@@ -203,7 +205,7 @@ export class DrawManager {
   }
 
   /**
-   * Dessine une ligne
+   * Dessine une ligne sur un canvas donné
    * @param  {Context2D}  ctx             Canvas
    * @param  {Point}      line            Segment à dessiner
    * @param  {String}     [color='#000']  Couleur de la ligne
@@ -213,24 +215,26 @@ export class DrawManager {
   static drawSegment(ctx, segment, color = '#000', size = 1, doSave = true) {
     if (doSave) ctx.save();
 
-    let v0Copy = new Point(segment.vertexes[0]);
-    v0Copy.setToCanvasCoordinates();
-    let SVGPath = ['M', v0Copy.x, v0Copy.y, segment.getSVGPath()].join(' ');
-
     ctx.strokeStyle = color;
     ctx.globalAlpha = 1;
     ctx.lineWidth = size;
 
-    let path = new Path2D(SVGPath);
+    const v0Copy = new Point(segment.vertexes[0]);
+    v0Copy.setToCanvasCoordinates();
+
+    const path = new Path2D(
+      ['M', v0Copy.x, v0Copy.y, segment.getSVGPath()].join(' ')
+    );
 
     ctx.stroke(path);
 
     ctx.lineWidth = 1;
+
     if (doSave) ctx.restore();
   }
 
   /**
-   * Dessiner un point
+   * Dessiner un point sur un canvas donné
    * @param  {Context2D}  ctx            Canvas
    * @param  {Point}      point          Point à dessiner
    * @param  {String}     [color="#000"] Couleur du point
@@ -243,7 +247,7 @@ export class DrawManager {
     ctx.fillStyle = color;
     ctx.globalAlpha = 1;
 
-    let copy = new Point(point);
+    const copy = new Point(point);
     copy.setToCanvasCoordinates();
 
     ctx.beginPath();
@@ -256,7 +260,7 @@ export class DrawManager {
   }
 
   /**
-   * Dessine un texte
+   * Ecrire du texte sur une canvas donné
    * @param  {Context2D}  ctx             Canvas
    * @param  {String}     text            Texte à dessiner
    * @param  {Point}      position        Coordonnées
@@ -266,8 +270,8 @@ export class DrawManager {
   static drawText(ctx, text, position, color = '#000', doSave = true) {
     if (doSave) ctx.save();
 
-    let fontSize = 13; // * app.workspace.zoomLevel;
-    let positionCopy = new Point(position);
+    const fontSize = 13,
+      positionCopy = new Point(position);
     positionCopy.setToCanvasCoordinates();
 
     ctx.fillStyle = color;
