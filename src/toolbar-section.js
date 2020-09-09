@@ -43,6 +43,9 @@ class ToolbarSection extends LitElement {
     `;
   }
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (!CompleteHistoryManager.isRunning) app.setState(event.target.name);
   }

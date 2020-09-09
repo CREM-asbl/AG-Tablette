@@ -55,6 +55,9 @@ export class PermanentZoomState extends State {
     app.removeListener('canvasmousewheel', this.mouseWheelId);
   }
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (event.type == 'canvastouchstart') {
       this.onTouchStart(event.detail.touches);

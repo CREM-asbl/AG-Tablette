@@ -10,7 +10,7 @@ export class Silhouette {
     this.shapes = shapes.map(shape => {
       shape.name = 'silhouette';
       shape.color = '#000';
-      shape.borderColor = level % 2 != 1 ? '#fff' : '#000';
+      shape.borderColor = level % 2 != 0 ? '#fff' : '#000';
       shape.opacity = 1;
       if (level == 5 || level == 6) shape.scale(2 / 3);
       return shape;

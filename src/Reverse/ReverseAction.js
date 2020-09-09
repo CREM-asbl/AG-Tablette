@@ -53,6 +53,9 @@ export class ReverseAction extends Action {
     }
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour effectuer l'action
+   */
   checkDoParameters() {
     if (
       !this.shapeId ||
@@ -66,10 +69,16 @@ export class ReverseAction extends Action {
     return true;
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour annuler l'action précédente
+   */
   checkUndoParameters() {
     return this.checkDoParameters();
   }
 
+  /**
+   * effectuer l'action en cours, appelé par un state ou l'historique
+   */
   do() {
     if (!this.checkDoParameters()) return;
 
@@ -81,6 +90,9 @@ export class ReverseAction extends Action {
     ShapeManager.reverseUpperShapes(this.shapesPos.length);
   }
 
+  /**
+   * annuler l'action précédente, appelé par l'historique
+   */
   undo() {
     if (!this.checkUndoParameters()) return;
 

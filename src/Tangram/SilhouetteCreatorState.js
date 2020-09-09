@@ -53,6 +53,9 @@ export class SilhouetteCreatorState extends State {
 
   end() {}
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (event.type == 'state-menu-button-click') {
       this.clickOnStateMenuButton(event.detail);

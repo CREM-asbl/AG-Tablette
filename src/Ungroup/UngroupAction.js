@@ -37,6 +37,9 @@ export class UngroupAction extends Action {
     }
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour effectuer l'action
+   */
   checkDoParameters() {
     if (!this.group) {
       this.printIncompleteData();
@@ -45,6 +48,9 @@ export class UngroupAction extends Action {
     return true;
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour annuler l'action précédente
+   */
   checkUndoParameters() {
     if (!this.group || this.groupIdx === undefined) {
       this.printIncompleteData();
@@ -53,6 +59,9 @@ export class UngroupAction extends Action {
     return true;
   }
 
+  /**
+   * effectuer l'action en cours, appelé par un state ou l'historique
+   */
   do() {
     if (!this.checkDoParameters()) return;
 
@@ -60,6 +69,9 @@ export class UngroupAction extends Action {
     GroupManager.deleteGroup(this.group);
   }
 
+  /**
+   * annuler l'action précédente, appelé par l'historique
+   */
   undo() {
     if (!this.checkUndoParameters()) return;
 

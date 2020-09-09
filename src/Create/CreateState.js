@@ -122,6 +122,9 @@ export class CreateState extends State {
     );
   }
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (event.type == 'shape-selected') {
       this.setShape(event.detail.selectedShape);

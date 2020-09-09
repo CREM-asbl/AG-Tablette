@@ -58,6 +58,9 @@ export class TranslateState extends State {
     app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (event.type == 'canvasmousedown') {
       this.onMouseDown();

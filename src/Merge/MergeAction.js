@@ -40,6 +40,9 @@ export class MergeAction extends Action {
     }
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour effectuer l'action
+   */
   checkDoParameters() {
     if (
       (this.mode == 'twoShapes' &&
@@ -53,10 +56,16 @@ export class MergeAction extends Action {
     return true;
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour annuler l'action précédente
+   */
   checkUndoParameters() {
     return this.checkDoParameters();
   }
 
+  /**
+   * effectuer l'action en cours, appelé par un state ou l'historique
+   */
   do() {
     if (!this.checkDoParameters()) return;
 
@@ -76,6 +85,9 @@ export class MergeAction extends Action {
     }
   }
 
+  /**
+   * annuler l'action précédente, appelé par l'historique
+   */
   undo() {
     if (!this.checkUndoParameters()) return;
 
@@ -85,11 +97,24 @@ export class MergeAction extends Action {
 
   alertDigShape() {
     window.dispatchEvent(
-      new CustomEvent('show-notif', { detail: { message: 'Formes creuses' } })
+      new CustomEvent('show-notif', {
+        detail: { message: 'La fusion crée une forme creuse.' },
+      })
     );
     return false;
   }
 
+  /**
+   * Check if all the shapes of the group can be merged
+   * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
+   */
+
+  /**
+   *
+   * @param {*} shape1 la premiere forme à fusionner
+   * @param {*} shape2 la seconde forme à fusionner
+   * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
+   */
   createNewSegments(shape1, shape2) {
     let segments = [shape1, shape2]
       .map(s => s.segments.map(seg => seg.copy()))
@@ -141,6 +166,11 @@ export class MergeAction extends Action {
     return segments;
   }
 
+  /**
+   * Crée les segments définitifs de la forme fusionnée
+   * @param {Segment[]} segmentsList   les segments à modifier
+   * @returns {Segment[]}              les segments définitifs
+   */
   linkNewSegments(segmentsList) {
     // Todo : Voir si on ne peut pas la simplifier
     let newSegments = [];
@@ -181,19 +211,29 @@ export class MergeAction extends Action {
       segmentUsed++;
       currentSegment = nextSegment;
     }
+
     if (segmentUsed != segmentsList.length) {
+      // si tous les segments n'ont pas été utilisés, la forme créée est creuse
       console.log('shape is dig (not all segments have been used)');
       return null;
     }
+
     if (
       newSegments.length != 1 &&
       currentSegment.hasSameDirection(firstSegment, 1, 0, false)
     ) {
+      // fusion dernier et premier segment s'ils sont alignés
       newSegments[0].vertexes[0] = newSegments.pop().vertexes[0];
     }
     return newSegments;
   }
 
+  /**
+   * crée la forme fusionnée et l'ajoute au workspace
+   * @param {Shape} shape1            la premiere forme a fusionner
+   * @param {Shape} shape2            la seconde forme a fusionner
+   * @param {Segment[]} newSegments   les segments de la nouvelle forme
+   */
   createNewShape(shape1, shape2, newSegments) {
     let newShape = Shape.createFromSegments(newSegments, 'Custom', 'Custom');
     newShape.id = this.createdShapeId;
@@ -211,6 +251,9 @@ export class MergeAction extends Action {
     ShapeManager.addShape(newShape);
   }
 
+  /**
+   * crée la forme fusionnée à partir de plusieurs formes et l'ajoute au workspace
+   */
   createNewShapeFromMultiple() {
     let involvedShapes = this.involvedShapesIds.map(id =>
       ShapeManager.getShapeById(id)

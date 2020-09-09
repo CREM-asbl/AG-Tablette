@@ -84,6 +84,9 @@ export class CutState extends State {
     app.removeListener('objectSelected', this.objectSelectedId);
   }
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);

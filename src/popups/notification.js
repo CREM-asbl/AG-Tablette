@@ -48,20 +48,20 @@ export class Notification extends LitElement {
 
     this.timeoutId = null;
 
-    addEventListener('show-notif', e => {
+    window.addEventListener('show-notif', e => {
       this.show(e.detail.message, e.detail.showTime);
     });
   }
 
   render() {
     return html`
-      <div class="background">
-        <div id="template-view">
-          <div id="notif-close" @click="${() => this.close()}">&times;</div>
+      <!-- <div class="background">
+        <div id="template-view"> -->
+      <div id="notif-close" @click="${() => this.close()}">&times;</div>
 
-          <h1>${this.title}</h1>
-        </div>
-      </div>
+      <h1>${this.title}</h1>
+      <!-- </div>
+      </div> -->
     `;
   }
 

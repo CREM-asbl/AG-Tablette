@@ -36,18 +36,30 @@ export class Action {
     throw new TypeError('method not implemented');
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour effectuer l'action
+   */
   checkDoParameters() {
     throw new TypeError('method not implemented');
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour annuler l'action précédente
+   */
   checkUndoParameters() {
     throw new TypeError('method not implemented');
   }
 
+  /**
+   * effectuer l'action en cours, appelé par un state ou l'historique
+   */
   do() {
     throw new TypeError('method not implemented');
   }
 
+  /**
+   * annuler l'action précédente, appelé par l'historique
+   */
   undo() {
     throw new TypeError('method not implemented');
   }

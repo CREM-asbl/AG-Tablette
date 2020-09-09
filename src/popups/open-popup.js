@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import { TemplatePopup } from './template-popup';
-import { OpenFileManager } from '../Core/Managers/OpenFileManager';
+import { app } from '../Core/App';
 
 class OpenPopup extends LitElement {
   static get properties() {
@@ -48,7 +48,7 @@ class OpenPopup extends LitElement {
           </div>
         </template-popup>
       `;
-    } else if (this.renderMode == 'selectFile') {
+    } else if (this.renderMode == 'selectServerFile') {
       return html`
         <template-popup>
           <h2 slot="title">Ouvrir un fichier</h2>
@@ -61,7 +61,11 @@ class OpenPopup extends LitElement {
                         style="display: flex; width: 100%;
                       cursor: pointer;"
                         @click="${() => {
-                          OpenFileManager.parseFile(tan);
+                          window.dispatchEvent(
+                            new CustomEvent('parse-file', {
+                              detail: { fileContent: tan },
+                            })
+                          );
                           this.close();
                         }}"
                       >
@@ -92,12 +96,12 @@ class OpenPopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'LocalOpenFile':
-        window.dispatchEvent(new CustomEvent('LocalOpenFile'));
+        window.dispatchEvent(new CustomEvent('local-open-file'));
         this.close();
         break;
 
       case 'ServerOpenFile':
-        this.renderMode = 'selectFile';
+        this.renderMode = 'selectServerFile';
         break;
 
       default:

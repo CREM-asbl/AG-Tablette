@@ -86,6 +86,9 @@ export class RotateState extends State {
     app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);

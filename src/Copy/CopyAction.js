@@ -45,6 +45,9 @@ export class CopyAction extends Action {
     }
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour effectuer l'action
+   */
   checkDoParameters() {
     if (
       !this.transformation ||
@@ -57,6 +60,9 @@ export class CopyAction extends Action {
     return true;
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour annuler l'action précédente
+   */
   checkUndoParameters() {
     if (this.involvedShapesIds.length != this.newShapesIds.length) {
       this.printIncompleteData();
@@ -65,6 +71,9 @@ export class CopyAction extends Action {
     return true;
   }
 
+  /**
+   * effectuer l'action en cours, appelé par un state ou l'historique
+   */
   do() {
     if (!this.checkDoParameters()) return;
 
@@ -98,6 +107,9 @@ export class CopyAction extends Action {
     }
   }
 
+  /**
+   * annuler l'action précédente, appelé par l'historique
+   */
   undo() {
     if (!this.checkUndoParameters()) return;
 

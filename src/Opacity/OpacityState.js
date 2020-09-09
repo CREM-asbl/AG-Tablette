@@ -80,6 +80,9 @@ export class OpacityState extends State {
     window.removeEventListener('setOpacity', this.handler);
   }
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);

@@ -15,7 +15,7 @@ export class OpenFileManager {
         ],
       };
       try {
-        let fileHandle = await window.chooseFileSystemEntries(opts);
+        const fileHandle = await window.chooseFileSystemEntries(opts);
         window.dispatchEvent(
           new CustomEvent('file-opened', {
             detail: { method: 'new', file: fileHandle },
@@ -43,18 +43,18 @@ export class OpenFileManager {
     reader.readAsText(file);
   }
 
-  static parseFile(data) {
-    let dataObject;
-    if (typeof data == 'string') {
-      dataObject = JSON.parse(data);
+  static parseFile(fileContent) {
+    let saveObject;
+    if (typeof fileContent == 'string') {
+      saveObject = JSON.parse(fileContent);
     } else {
-      dataObject = data;
+      saveObject = fileContent;
     }
 
-    app.lastFileVersion = dataObject.appVersion;
+    app.lastFileVersion = saveObject.appVersion;
 
-    if (dataObject.appSettings) {
-      app.settings.initFromObject(dataObject.appSettings);
+    if (saveObject.appSettings) {
+      app.settings.initFromObject(saveObject.appSettings);
       if (app.lastFileVersion == '1.0.0') {
         for (let [key, value] of Object.entries(app.settings.data)) {
           app.settings.data[key] = value.value;
@@ -64,16 +64,16 @@ export class OpenFileManager {
     } else app.resetSettings();
 
     if (app.lastFileVersion == '1.0.0') {
-      dataObject.settings = new Settings();
-      for (let [key, value] of Object.entries(dataObject.WSSettings)) {
-        dataObject.settings[key] = value.value;
+      saveObject.settings = new Settings();
+      for (let [key, value] of Object.entries(saveObject.WSSettings)) {
+        saveObject.settings[key] = value.value;
       }
-      WorkspaceManager.setWorkspaceFromObject(dataObject);
+      WorkspaceManager.setWorkspaceFromObject(saveObject);
     } else {
-      WorkspaceManager.setWorkspaceFromObject(dataObject.wsdata);
+      WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
     }
     window.dispatchEvent(
-      new CustomEvent('file-parsed', { detail: dataObject })
+      new CustomEvent('file-parsed', { detail: saveObject })
     );
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -81,18 +81,22 @@ export class OpenFileManager {
   }
 }
 
+window.addEventListener('open-file', () => {
+  createElem('open-popup');
+});
+
+window.addEventListener('local-open-file', () => {
+  OpenFileManager.openFile();
+});
+
 window.addEventListener('file-opened', event => {
   if (event.detail.method == 'old')
     OpenFileManager.oldReadFile(event.detail.file);
   else OpenFileManager.newReadFile(event.detail.file);
 });
 
-window.addEventListener('open-file', () => {
-  createElem('open-popup');
-});
-
-window.addEventListener('LocalOpenFile', () => {
-  OpenFileManager.openFile();
+window.addEventListener('parse-file', event => {
+  OpenFileManager.parseFile(event.detail.fileContent);
 });
 
 // Si ancien ou nouveau systeme de fichier

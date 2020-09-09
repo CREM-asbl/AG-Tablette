@@ -25,7 +25,7 @@ export class MergeState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Fusionner';
+    const toolName = 'Fusionner';
     return html`
       <h2>${toolName}</h2>
       <p>
@@ -86,6 +86,9 @@ export class MergeState extends State {
     app.removeListener('objectSelected', this.objectSelectedId);
   }
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
@@ -102,7 +105,7 @@ export class MergeState extends State {
     if (this.currentStep == 'listen-canvas-click') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
       if (this.involvedShapes.length > 1) {
-        let mergeDone = (() => {
+        const mergeDone = (() => {
           const newSegments = this.checkGroupMerge();
           if (!newSegments) return false;
 
@@ -148,12 +151,12 @@ export class MergeState extends State {
     }
     this.secondShape = shape;
 
-    console.log(this.firstShape, this.secondShape);
-
     if (this.firstShape.getCommonsPoints(this.secondShape).length < 2) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
-          detail: { message: 'Pas de segment commun' },
+          detail: {
+            message: "Il n'y a pas de segment commun entre les formes.",
+          },
         })
       );
       return;
@@ -161,7 +164,9 @@ export class MergeState extends State {
 
     if (this.firstShape.overlapsWith(this.secondShape)) {
       window.dispatchEvent(
-        new CustomEvent('show-notif', { detail: { message: 'Superposition' } })
+        new CustomEvent('show-notif', {
+          detail: { message: 'Les formes se superposent.' },
+        })
       );
       return;
     }
@@ -182,7 +187,12 @@ export class MergeState extends State {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
+  /**
+   * Check if all the shapes of the group can be merged
+   * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
+   */
   checkGroupMerge() {
+    // check if a shape overlaps another one
     if (
       this.involvedShapes.some(shape =>
         this.involvedShapes.some(s => {
@@ -193,26 +203,26 @@ export class MergeState extends State {
     )
       return null;
 
-    let segments = this.involvedShapes
+    const segments = this.involvedShapes
       .map(s => s.segments.map(seg => seg.copy()))
       .flat();
 
     for (let i = 0; i < segments.length; i++) {
-      let seg = segments[i];
-      let commonSegmentIdx = segments.findIndex(
-        (segment, idx) =>
-          idx != i &&
-          seg.subSegments.some(subseg =>
-            segment.subSegments.some(subseg2 => subseg.equal(subseg2))
-          )
-      );
+      const seg = segments[i],
+        commonSegmentIdx = segments.findIndex(
+          (segment, idx) =>
+            idx != i &&
+            seg.subSegments.some(subseg =>
+              segment.subSegments.some(subseg2 => subseg.equal(subseg2))
+            )
+        );
       if (commonSegmentIdx == -1) continue;
-      let commonSegment = segments[commonSegmentIdx];
-      let junction = seg.subSegments
-        .filter(subseg =>
-          commonSegment.subSegments.some(subseg2 => subseg.equal(subseg2))
-        )
-        .sort((seg1, seg2) => (seg1.length < seg2.length ? 1 : -1))[0];
+      const commonSegment = segments[commonSegmentIdx],
+        junction = seg.subSegments
+          .filter(subseg =>
+            commonSegment.subSegments.some(subseg2 => subseg.equal(subseg2))
+          )
+          .sort((seg1, seg2) => (seg1.length < seg2.length ? 1 : -1))[0];
       !commonSegment.hasSameDirection(seg) && commonSegment.reverse();
       !junction.hasSameDirection(seg) && junction.reverse();
       let createdSegments = [];
@@ -232,7 +242,7 @@ export class MergeState extends State {
         createdSegments.push(
           new Segment(commonSegment.vertexes[1], junction.vertexes[1])
         );
-      let indexToRemove = [i, commonSegmentIdx].sort(
+      const indexToRemove = [i, commonSegmentIdx].sort(
         (idx1, idx2) => idx1 - idx2
       );
       segments.splice(indexToRemove[1], 1);
@@ -243,6 +253,11 @@ export class MergeState extends State {
     return segments;
   }
 
+  /**
+   * Crée les segments définitifs de la forme fusionnée
+   * @param {Segment[]} segmentsList   les segments à modifier
+   * @returns {Segment[]}              les segments définitifs
+   */
   linkNewSegments(segmentsList) {
     // Todo : Voir si on ne peut pas la simplifier
     let newSegments = [];
@@ -305,10 +320,10 @@ export class MergeState extends State {
    */
   draw() {
     if (this.currentStep == 'selecting-second-shape') {
-      let shape = this.firstShape,
+      const shape = this.firstShape,
         borderColor = shape.borderColor;
-      shape.borderColor = '#E90CC8';
 
+      shape.borderColor = '#E90CC8';
       window.dispatchEvent(
         new CustomEvent('draw-shape', {
           detail: { shape: shape, borderSize: 3 },

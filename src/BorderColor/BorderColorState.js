@@ -75,6 +75,9 @@ export class BorderColorState extends State {
     window.removeEventListener('colorChange', this.handler);
   }
 
+  /**
+   * Main event handler
+   */
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);

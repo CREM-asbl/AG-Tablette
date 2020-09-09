@@ -89,6 +89,9 @@ export class GroupAction extends Action {
     }
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour effectuer l'action
+   */
   checkDoParameters() {
     if (this.type != 'new' && this.type != 'add' && this.type != 'merge') {
       this.printIncompleteData();
@@ -119,6 +122,9 @@ export class GroupAction extends Action {
     return true;
   }
 
+  /**
+   * vérifie si toutes les conditions sont réunies pour annuler l'action précédente
+   */
   checkUndoParameters() {
     if (this.type != 'new' && this.type != 'add' && this.type != 'merge') {
       this.printIncompleteData();
@@ -149,6 +155,9 @@ export class GroupAction extends Action {
     return true;
   }
 
+  /**
+   * effectuer l'action en cours, appelé par un state ou l'historique
+   */
   do() {
     if (!this.checkDoParameters()) return;
 
@@ -168,6 +177,9 @@ export class GroupAction extends Action {
     }
   }
 
+  /**
+   * annuler l'action précédente, appelé par l'historique
+   */
   undo() {
     if (!this.checkUndoParameters()) return;
 
