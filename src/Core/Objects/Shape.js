@@ -261,13 +261,13 @@ export class Shape {
 
         case 'A':
         case 'a':
-          let rx = allPathElements.shift(),
+          const rx = allPathElements.shift(),
             ry = allPathElements.shift(),
             xAxisRotation = allPathElements.shift(),
             largeArcFlag = allPathElements.shift(),
             sweepFlag = allPathElements.shift();
 
-          let nextVertex = new Point(
+          const nextVertex = new Point(
             allPathElements.shift(),
             allPathElements.shift()
           );

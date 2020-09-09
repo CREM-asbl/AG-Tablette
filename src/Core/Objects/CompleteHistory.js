@@ -1,6 +1,7 @@
 import { ShapeGroup } from './ShapeGroup';
 import { Shape } from './Shape';
 import { Point } from './Point';
+import { app } from '../App';
 
 /**
  * Représente l'historique d'un espace de travail.
