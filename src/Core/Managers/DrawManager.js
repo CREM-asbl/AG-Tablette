@@ -165,7 +165,7 @@ export class DrawManager {
     ctx.fillStyle =
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
-    ctx.lineWidth = borderSize;
+    ctx.lineWidth = borderSize * app.workspace.zoomLevel;
 
     const pathScaleMethod =
         ctx.canvas.width == 52 && ctx.canvas.height == 52
@@ -217,7 +217,7 @@ export class DrawManager {
 
     ctx.strokeStyle = color;
     ctx.globalAlpha = 1;
-    ctx.lineWidth = size;
+    ctx.lineWidth = size * app.workspace.zoomLevel;
 
     const v0Copy = new Point(segment.vertexes[0]);
     v0Copy.setToCanvasCoordinates();
@@ -252,7 +252,14 @@ export class DrawManager {
 
     ctx.beginPath();
     ctx.moveTo(copy.x, copy.y);
-    ctx.arc(copy.x, copy.y, size * 2, 0, 2 * Math.PI, 0);
+    ctx.arc(
+      copy.x,
+      copy.y,
+      size * 2 * app.workspace.zoomLevel,
+      0,
+      2 * Math.PI,
+      0
+    );
     ctx.closePath();
     ctx.fill();
 
