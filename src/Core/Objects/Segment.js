@@ -190,6 +190,7 @@ export class Segment {
     }
 
     if (
+      this.shape == undefined ||
       this.idx == 0 ||
       !this.vertexes[0].equal(this.shape.segments[this.idx - 1].vertexes[1])
     ) {

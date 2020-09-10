@@ -86,7 +86,7 @@ export class SilhouetteCreatorState extends State {
   }
 
   clickOnStateMenuButton(btn_value) {
-    if (btn_value == 'end') {
+    if (btn_value == 'create') {
       window.dispatchEvent(new CustomEvent('create-silhouette'));
     }
   }
@@ -128,7 +128,7 @@ export class SilhouetteCreatorState extends State {
     menu.buttons = [
       {
         text: 'Créer silhouette',
-        value: 'end',
+        value: 'create',
       },
     ];
     document.querySelector('body').appendChild(menu);
