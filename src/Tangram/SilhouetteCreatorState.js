@@ -35,7 +35,7 @@ export class SilhouetteCreatorState extends State {
 
     this.showStateMenu();
     window.addEventListener('state-menu-button-click', this.handler);
-    window.addEventListener('create-silhouette', () => this.createSilhouette());
+    window.addEventListener('create-silhouette', this.handler);
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
@@ -59,6 +59,8 @@ export class SilhouetteCreatorState extends State {
   _actionHandle(event) {
     if (event.type == 'state-menu-button-click') {
       this.clickOnStateMenuButton(event.detail);
+    } else if (event.type == 'create-silhouette') {
+      this.createSilhouette();
     } else {
       console.log('unsupported event type : ', event.type);
     }
@@ -106,6 +108,7 @@ export class SilhouetteCreatorState extends State {
     app.silhouette = silhouette;
     this.initShapes();
 
+    app.setState();
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
