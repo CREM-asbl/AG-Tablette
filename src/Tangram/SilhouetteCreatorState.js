@@ -3,6 +3,7 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 import { Silhouette } from '../Core/Objects/Silhouette';
+import { TangramManager } from './TangramManager';
 
 /**
  * Créer un tangram
@@ -14,8 +15,6 @@ export class SilhouetteCreatorState extends State {
     this.buttons = null;
 
     window.addEventListener('new-window', () => this.finish());
-
-    window.addEventListener('silhouette-opened', () => this.finish());
   }
 
   async loadKit() {
@@ -33,6 +32,7 @@ export class SilhouetteCreatorState extends State {
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
 
+    TangramManager.removeSilhouette();
     this.showStateMenu();
     window.addEventListener('state-menu-button-click', this.handler);
     window.addEventListener('create-silhouette', this.handler);

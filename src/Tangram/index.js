@@ -1,6 +1,6 @@
 import './TangramManager';
 import { SilhouetteCreatorState } from './SilhouetteCreatorState';
-import { SolveCheckerState } from './SolveCheckerState';
+import { SolutionCheckerState } from './SolutionCheckerState';
 
 new SilhouetteCreatorState();
-new SolveCheckerState();
+new SolutionCheckerState();

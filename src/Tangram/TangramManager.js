@@ -41,6 +41,13 @@ export class TangramManager {
     );
   }
 
+  static removeSilhouette() {
+    app.silhouette = null;
+    TangramManager.closeForbiddenCanvas();
+    window.dispatchEvent(new CustomEvent('remove-solution-checker'));
+    window.dispatchEvent(new CustomEvent('refresh-background'));
+  }
+
   static async getTangramFromServer(filename) {
     const response = await fetch(filename, { mode: 'cors' }),
       smallFilename = filename.slice(serverURL.length);
