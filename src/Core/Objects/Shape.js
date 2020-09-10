@@ -9,47 +9,48 @@ import { Segment } from './Segment';
 export class Shape {
   /**
    * Constructeur
-   * @param {float} x          position X
-   * @param {float} y          position Y
-   * @param {[Segment]} segments étapes de construction de la forme
-   *                                          (Segment, Vertex, MoveTo)
-   * @param {String} name       nom de la forme
-   * @param {String} familyName     nom de la famille de la forme
+   * @param {float} x              position X
+   * @param {float} y              position Y
+   * @param {[Segment]} segments   segments de la forme (ne pas utiliser si construction à partir de path)
+   * @param {String} path          path représentant la forme (ne pas utiliser si construction à partir de segments)
+   * @param {String} name          nom de la forme
+   * @param {String} familyName    nom de la famille de la forme
    */
   constructor({
     x = 0,
     y = 0,
     segments = null,
-    name,
-    familyName,
     path = null,
+    name = 'Custom',
+    familyName = 'Custom',
     color = '#aaa',
-    id = null,
-    // angle = 0,
-    size = 2,
     opacity = 0.7,
+    id = uniqId(),
+    size = 2,
+    borderColor = '#000',
+    isCenterShown = false,
+    isReversed = false,
+    isBiface = false,
   }) {
-    this.id = id || uniqId();
     this.x = x;
     this.y = y;
-    // this.angle = angle;
-    this.name = name;
-    this.familyName = familyName;
-    // this.path = path;
-    this.size = size;
-    this.color = color;
-    this.opacity = opacity;
 
     //Todo: condition à supprimer quand tout en path
     if (segments) this.setSegments(segments);
-    else this.initSegmentsFromPath(path);
+    else if (path) this.initSegmentsFromPath(path);
+    else this.segments = [];
 
+    this.name = name;
+    this.familyName = familyName;
+    this.color = color;
     this.second_color = getComplementaryColor(color);
-    this.borderColor = '#000';
-    // this.internalSegmentColor = '#fff';
-    this.isCenterShown = false;
-    this.isReversed = false;
-    this.isBiface = false;
+    this.opacity = opacity;
+    this.id = id;
+    this.size = size;
+    this.borderColor = borderColor;
+    this.isCenterShown = isCenterShown;
+    this.isReversed = isReversed;
+    this.isBiface = isBiface;
   }
 
   /* #################################################################### */

@@ -4,6 +4,7 @@ import { html } from 'lit-element';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
+import { Point } from '../Core/Objects/Point';
 import './shapes-list';
 
 /**
@@ -62,10 +63,10 @@ export class CreateState extends State {
       return;
     }
 
-    if (!this.popup) this.popup = createElem('shapes-list');
-    this.popup.selectedFamily = family;
-    this.popup.shapesNames = shapesNames;
-    this.popup.style.display = 'flex';
+    if (!this.shapesList) this.shapesList = createElem('shapes-list');
+    this.shapesList.selectedFamily = family;
+    this.shapesList.shapesNames = shapesNames;
+    this.shapesList.style.display = 'flex';
 
     window.dispatchEvent(
       new CustomEvent('family-selected', {
@@ -110,8 +111,8 @@ export class CreateState extends State {
    */
   end() {
     if (app.state !== this.name) {
-      this.popup?.remove();
-      this.popup = null;
+      this.shapesList.remove();
+      this.shapesList = null;
     }
     window.cancelAnimationFrame(this.requestAnimFrameId);
     window.removeEventListener('shape-selected', this.handler);
@@ -140,7 +141,7 @@ export class CreateState extends State {
   setShape(shape) {
     if (shape) {
       this.selectedShape = Shape.fromObject(shape);
-      if (this.popup) this.popup.shapeName = shape.name;
+      if (this.shapesList) this.shapesList.shapeName = shape.name;
       this.currentStep = 'listen-canvas-click';
       this.mouseDownId = app.addListener('canvasmousedown', this.handler);
     }
@@ -151,9 +152,12 @@ export class CreateState extends State {
     this.shapeToCreate = this.selectedShape.copy();
     let shapeSize = app.settings.get('shapesSize');
 
-    this.shapeToCreate.scale(shapeSize);
     this.shapeToCreate.size = shapeSize;
-    this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
+    this.shapeToCreate.scale(shapeSize);
+    // this.shapeToCreate.translate(app.workspace.translateOffset, true);
+    this.shapeToCreate.x = 0;
+    this.shapeToCreate.y = 0;
+
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
     this.currentStep = 'moving-shape';
@@ -167,7 +171,9 @@ export class CreateState extends State {
     let shapeSize = app.settings.get('shapesSize'),
       involvedShapes = [this.shapeToCreate];
 
-    this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
+    const lastCoordinates = new Point(app.workspace.lastKnownMouseCoordinates);
+    // lastCoordinates.resetFromCanvasCoordinates();
+    this.shapeToCreate.coordinates = lastCoordinates;
 
     this.actions = [
       {
