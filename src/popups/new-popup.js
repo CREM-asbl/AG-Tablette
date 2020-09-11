@@ -6,11 +6,6 @@ class NewPopup extends LitElement {
     super();
 
     window.addEventListener('close-popup', () => this.close());
-
-    window.addEventListener(
-      'open-new-popup',
-      () => (this.style.display = 'block')
-    );
   }
 
   static get styles() {
@@ -42,7 +37,7 @@ class NewPopup extends LitElement {
   }
 
   close() {
-    this.style.display = 'none';
+    this.remove();
   }
 }
 customElements.define('new-popup', NewPopup);

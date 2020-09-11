@@ -107,7 +107,7 @@ class SettingsPopup extends LitElement {
   }
 
   close() {
-    this.style.display = 'none';
+    this.remove();
   }
 
   /**

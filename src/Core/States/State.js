@@ -12,6 +12,7 @@ export class State {
     }
     this.name = name;
     this.title = title;
+    this.type = type;
 
     this.actions = null;
 
@@ -19,9 +20,9 @@ export class State {
     this.status = 'idle';
 
     app.states.push({
-      name: name,
+      name: this.name,
       title: this.title,
-      type: type,
+      type: this.type,
     });
 
     window.addEventListener('app-state-changed', event => {
