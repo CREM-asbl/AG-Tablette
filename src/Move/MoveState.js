@@ -171,13 +171,8 @@ export class MoveState extends State {
       new CustomEvent('draw-group', {
         detail: {
           involvedShapes: this.involvedShapes,
-          functionCalledBeforeDraw: s => {
-            s.saveCoords = s.coordinates;
-            s.coordinates = s.coordinates.addCoordinates(transformation);
-          },
-          functionCalledAfterDraw: s => {
-            s.coordinates = s.saveCoords;
-          },
+          functionCalledBeforeDraw: s => s.translate(transformation),
+          functionCalledAfterDraw: s => s.translate(transformation, true),
         },
       })
     );

@@ -95,7 +95,7 @@ export class CreateState extends State {
       this.currentStep = 'listen-canvas-click';
       window.dispatchEvent(
         new CustomEvent('shape-selected', {
-          detail: { selectedShape: this.selectedShape.saveToObject() },
+          detail: { selectedShape: this.selectedShape },
         })
       );
     } else {
@@ -138,10 +138,10 @@ export class CreateState extends State {
     }
   }
 
-  setShape(shape) {
-    if (shape) {
-      this.selectedShape = Shape.fromObject(shape);
-      if (this.shapesList) this.shapesList.shapeName = shape.name;
+  setShape(selectedShape) {
+    if (selectedShape) {
+      this.selectedShape = selectedShape;
+      if (this.shapesList) this.shapesList.shapeName = selectedShape.name;
       this.currentStep = 'listen-canvas-click';
       this.mouseDownId = app.addListener('canvasmousedown', this.handler);
     }
@@ -149,14 +149,11 @@ export class CreateState extends State {
 
   onMouseDown() {
     if (this.currentStep != 'listen-canvas-click') return;
-    this.shapeToCreate = this.selectedShape.copy();
+    this.shapeToCreate = new Shape({ ...this.selectedShape, id: undefined });
     let shapeSize = app.settings.get('shapesSize');
 
     this.shapeToCreate.size = shapeSize;
     this.shapeToCreate.scale(shapeSize);
-    // this.shapeToCreate.translate(app.workspace.translateOffset, true);
-    this.shapeToCreate.x = 0;
-    this.shapeToCreate.y = 0;
 
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
@@ -210,7 +207,7 @@ export class CreateState extends State {
   }
 
   draw() {
-    if (this.currentStep != 'moving-shape' || this.status != 'running') return;
+    if (this.currentStep != 'moving-shape') return;
 
     this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
     window.dispatchEvent(

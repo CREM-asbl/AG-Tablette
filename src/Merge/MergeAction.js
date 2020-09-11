@@ -1,5 +1,5 @@
 import { Action } from '../Core/States/Action';
-import { getAverageColor, getComplementaryColor } from '../Core/Tools/general';
+import { getAverageColor } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';
@@ -235,19 +235,18 @@ export class MergeAction extends Action {
    * @param {Segment[]} newSegments   les segments de la nouvelle forme
    */
   createNewShape(shape1, shape2, newSegments) {
-    let newShape = Shape.createFromSegments(newSegments, 'Custom', 'Custom');
-    newShape.id = this.createdShapeId;
-    newShape.color = getAverageColor(shape1.color, shape2.color);
-    newShape.second_color = getComplementaryColor(newShape.color);
-    newShape.borderColor = getAverageColor(
-      shape1.borderColor,
-      shape2.borderColor
-    );
-    newShape.opacity = (shape1.opacity + shape2.opacity) / 2;
-    newShape.isBiface = shape1.isBiface && shape2.isBiface;
-    newShape.isReversed = shape1.isReversed && shape2.isReversed;
-    newShape.coordinates = { x: newShape.x - 20, y: newShape.y - 20 };
-    if (newShape.isCircle()) newShape.isCenterShown = true;
+    let newShape = new Shape({
+      segments: newSegments,
+      name: 'Custom',
+      familyName: 'Custom',
+      id: this.createdShapeId,
+      color: getAverageColor(shape1.color, shape2.color),
+      borderColor: getAverageColor(shape1.borderColor, shape2.borderColor),
+      opacity: (shape1.opacity + shape2.opacity) / 2,
+      isBiface: shape1.isBiface && shape2.isBiface,
+      isReversed: shape1.isReversed && shape2.isReversed,
+    });
+    newShape.translate(-20, -20);
     ShapeManager.addShape(newShape);
   }
 
@@ -258,24 +257,20 @@ export class MergeAction extends Action {
     let involvedShapes = this.involvedShapesIds.map(id =>
       ShapeManager.getShapeById(id)
     );
-    let newShape = involvedShapes[0].copy();
-    newShape.id = this.createdShapeId;
-    newShape.name = 'Custom';
-    newShape.familyName = 'Custom';
-    newShape.color = getAverageColor(...involvedShapes.map(s => s.color));
-    newShape.second_color = getComplementaryColor(newShape.color);
-    newShape.borderColor = getAverageColor(
-      ...involvedShapes.map(s => s.borderColor)
-    );
-    newShape.isCenterShown = false;
-    newShape.opacity =
-      involvedShapes.map(s => s.opacity).reduce((acc, value) => acc + value) /
-      involvedShapes.length;
-    newShape.isBiface = involvedShapes.some(s => s.isBiface);
-    newShape.isReversed = involvedShapes.some(s => s.isReversed);
-    newShape.setSegments(this.newSegments);
-    newShape.coordinates = { x: newShape.x - 20, y: newShape.y - 20 };
-    if (newShape.isCircle()) newShape.isCenterShown = true;
+    let newShape = new Shape({
+      segments: this.newSegments,
+      name: 'Custom',
+      familyName: 'Custom',
+      id: this.createdShapeId,
+      color: getAverageColor(...involvedShapes.map(s => s.color)),
+      borderColor: getAverageColor(...involvedShapes.map(s => s.borderColor)),
+      opacity:
+        involvedShapes.map(s => s.opacity).reduce((acc, value) => acc + value) /
+        involvedShapes.length,
+      isBiface: involvedShapes.some(s => s.isBiface),
+      isReversed: involvedShapes.some(s => s.isReversed),
+    });
+    newShape.translate(-20, -20);
     ShapeManager.addShape(newShape);
   }
 }

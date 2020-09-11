@@ -88,10 +88,9 @@ export class CopyAction extends Action {
 
     this.involvedShapesIds.forEach((id, index) => {
       let s = ShapeManager.getShapeById(id),
-        copy = s.copy(),
-        newCoords = s.coordinates.addCoordinates(this.transformation);
+        copy = s.copy();
       shapesList.push(copy);
-      copy.coordinates = newCoords;
+      copy.translate(this.transformation);
       copy.id = this.newShapesIds[index];
       ShapeManager.addShape(copy);
     });

@@ -28,7 +28,7 @@ export class Shape {
     id = uniqId(),
     size = 2,
     borderColor = '#000',
-    isCenterShown = false,
+    isCenterShown = undefined,
     isReversed = false,
     isBiface = false,
   }) {
@@ -37,7 +37,7 @@ export class Shape {
 
     //Todo: condition à supprimer quand tout en path
     if (segments) this.setSegments(segments);
-    else if (path) this.initSegmentsFromPath(path);
+    else if (path) this.setSegmentsFromPath(path);
     else this.segments = [];
 
     this.name = name;
@@ -48,7 +48,8 @@ export class Shape {
     this.id = id;
     this.size = size;
     this.borderColor = borderColor;
-    this.isCenterShown = isCenterShown;
+    if (isCenterShown === undefined) this.isCenterShown = this.isCircle();
+    else this.isCenterShown = isCenterShown;
     this.isReversed = isReversed;
     this.isBiface = isBiface;
   }
@@ -89,7 +90,7 @@ export class Shape {
     const translation = new Point(coordinates).subCoordinates(this.coordinates);
     this.x = coordinates.x;
     this.y = coordinates.y;
-    this.segments.forEach(seg => seg.translate(translation));
+    this.translate(translation);
   }
 
   get center() {
@@ -179,27 +180,6 @@ export class Shape {
     return [...vertexes, ...segmentPoints];
   }
 
-  setPath(path) {
-    // this.path = path;
-    this.initSegmentsFromPath(path);
-  }
-
-  // /**
-  //  * Renvoie un objet Path2D permettant de dessiner la forme.
-  //  * @param {Number} axeAngle - l'angle de l'axe de l'axe (reverse)
-  //  * @return {Path2D} le path de dessin de la forme
-  //  */
-  // getPath(axeAngle = undefined) {
-  //   if (this.path) return new Path2D(this.path);
-  //   const path = new Path2D();
-  //   path.moveTo(this.segments[0].vertexes[0].x, this.segments[0].vertexes[0].y);
-  //   this.segments.forEach(seg => {
-  //     seg.getPath(path, axeAngle);
-  //   });
-  //   path.closePath();
-  //   return path;
-  // }
-
   getCommonsPoints(shape) {
     const commonsPoints = [];
     this.allOutlinePoints.forEach(point1 => {
@@ -210,7 +190,7 @@ export class Shape {
     return commonsPoints;
   }
 
-  initSegmentsFromPath(path) {
+  setSegmentsFromPath(path) {
     this.segments = [];
     const allPathElements = path
       .split(/[ \n]/)
@@ -395,6 +375,10 @@ export class Shape {
     return this.segments.length === 1 && !this.segments[0].arcCenter;
   }
 
+  /**
+   * say if a point is on one of the segments of the shape
+   * @param {Point} point   le point à analyser
+   */
   isPointOnSegment(point) {
     if (!this.isSegment()) return false;
 
@@ -471,7 +455,7 @@ export class Shape {
 
   /**
    * check si this est complètement dans shape
-   * @param {*} shape l'autre forme
+   * @param {Shape} shape l'autre forme
    */
   isInside(shape) {
     return this.allOutlinePoints.every(pt => shape.isPointInPath(pt));
@@ -579,7 +563,6 @@ export class Shape {
       seg.idx = idx;
       seg.reverse();
     });
-    // internal segments ?
   }
 
   /**
@@ -632,19 +615,7 @@ export class Shape {
    * @return {Shape} la copie
    */
   copy(full = false) {
-    let segments = this.segments.map(seg => seg.copy());
-    let data = { ...this, segments: segments };
-    if (!full) data.id = null;
-    let copy = new Shape(data);
-    segments.forEach(seg => (seg.shape = copy));
-    copy.second_color = this.second_color;
-    copy.isBiface = this.isBiface;
-    copy.borderColor = this.borderColor;
-    copy.internalSegmentColor = this.internalSegmentColor;
-    copy.isCenterShown = this.isCenterShown;
-    copy.isReversed = this.isReversed;
-    copy.opacity = this.opacity;
-    return copy;
+    return new Shape({ ...this, id: full ? this.id : undefined });
   }
 
   /**
@@ -720,42 +691,13 @@ export class Shape {
   saveToObject() {
     let save = {
       ...{ ...this, segments: undefined },
-      coordinates: this.coordinates.saveToObject(),
-      path: this.getSVGPath(),
+      // coordinates: this.coordinates.saveToObject(),
+      path: this.getSVGPath('no scale'),
     };
     return save;
   }
 
-  static fromObject(save) {
-    let shape = new Shape(save);
-    if (save.coordinates) {
-      shape.x = save.coordinates.x;
-      shape.y = save.coordinates.y;
-    }
-    shape.second_color = save.second_color;
-    shape.isBiface = save.isBiface;
-    shape.borderColor = save.borderColor;
-    shape.isCenterShown = save.isCenterShown;
-    shape.isReversed = save.isReversed;
-    return shape;
-  }
-
-  static createFromSegments(segments, name, family) {
-    let newShape = new Shape({
-      x: 0,
-      y: 0,
-      segments: [],
-      name: name,
-      familyName: family,
-    });
-    newShape.setSegments(segments);
-    newShape.color = '#000';
-    newShape.second_color = getComplementaryColor(newShape.color);
-    newShape.opacity = 1;
-    return newShape;
-  }
-
-  static retrieveFrom(shape) {
-    return app.workspae.getShapeById(shape.id);
-  }
+  // static retrieveFrom(shape) {
+  //   return app.workspace.getShapeById(shape.id);
+  // }
 }

@@ -123,8 +123,8 @@ export class Segment {
   }
 
   /**
-   * return the non comon point of this if this is joined to segment (1 common point)
-   * @param {*} segment
+   * return the non common point of this if this is joined to segment (1 common point)
+   * @param {Segment}  segment
    */
   getNonCommonPointIfJoined(segment) {
     let jointure = this.vertexes.filter(v1 =>
@@ -136,7 +136,7 @@ export class Segment {
 
   /**
    * return the middle of this if this is joined to segment (1 common point)
-   * @param {*} segment
+   * @param {Segment} segment
    */
   getMiddleIfJoined(segment) {
     if (this.vertexes.some(v1 => segment.vertexes.some(v2 => v1.equal(v2))))
@@ -190,6 +190,7 @@ export class Segment {
     }
 
     if (
+      !this.shape ||
       this.idx == 0 ||
       !this.vertexes[0].equal(this.shape.segments[this.idx - 1].vertexes[1])
     ) {
