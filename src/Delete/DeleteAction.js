@@ -35,9 +35,7 @@ export class DeleteAction extends Action {
   initFromObject(save) {
     this.mode = save.mode;
     if (save.mode == 'shape') {
-      this.involvedShapes = save.involvedShapes.map(shape =>
-        Shape.fromObject(shape)
-      );
+      this.involvedShapes = save.involvedShapes.map(shape => new Shape(shape));
       this.involvedShapesIndexes = save.involvedShapesIndexes;
       if (!save.involvedShapesIndexes) {
         // for update history from 1.0.0

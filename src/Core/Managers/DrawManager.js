@@ -165,7 +165,7 @@ export class DrawManager {
     ctx.fillStyle =
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
-    ctx.lineWidth = borderSize;
+    ctx.lineWidth = borderSize * app.workspace.zoomLevel;
 
     const pathScaleMethod =
         ctx.canvas.width == 52 && ctx.canvas.height == 52
@@ -217,7 +217,7 @@ export class DrawManager {
 
     ctx.strokeStyle = color;
     ctx.globalAlpha = 1;
-    ctx.lineWidth = size;
+    ctx.lineWidth = size * app.workspace.zoomLevel;
 
     const v0Copy = new Point(segment.vertexes[0]);
     v0Copy.setToCanvasCoordinates();
@@ -252,7 +252,14 @@ export class DrawManager {
 
     ctx.beginPath();
     ctx.moveTo(copy.x, copy.y);
-    ctx.arc(copy.x, copy.y, size * 2, 0, 2 * Math.PI, 0);
+    ctx.arc(
+      copy.x,
+      copy.y,
+      size * 2 * app.workspace.zoomLevel,
+      0,
+      2 * Math.PI,
+      0
+    );
     ctx.closePath();
     ctx.fill();
 
@@ -270,17 +277,17 @@ export class DrawManager {
   static drawText(ctx, text, position, color = '#000', doSave = true) {
     if (doSave) ctx.save();
 
-    const fontSize = 13,
+    const fontSize = 20,
       positionCopy = new Point(position);
+    positionCopy.translate(
+      (((-3 * fontSize) / 13) * text.length) / app.workspace.zoomLevel,
+      fontSize / 2 / app.workspace.zoomLevel
+    );
     positionCopy.setToCanvasCoordinates();
 
     ctx.fillStyle = color;
     ctx.font = fontSize + 'px Arial';
-    ctx.fillText(
-      text,
-      positionCopy.x - (3 * text.length) / app.workspace.zoomLevel,
-      positionCopy.y + fontSize / 100
-    );
+    ctx.fillText(text, positionCopy.x, positionCopy.y);
 
     if (doSave) ctx.restore();
   }

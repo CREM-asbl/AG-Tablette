@@ -17,7 +17,7 @@ export class CreateAction extends Action {
   }
 
   initFromObject(save) {
-    this.shapeToCreate = Shape.fromObject(save.shapeToCreate);
+    this.shapeToCreate = new Shape(save.shapeToCreate);
     this.shapeToCreate.size = save.shapeSize;
     this.shapeId = save.shapeId;
     this.shapeSize = save.shapeSize;

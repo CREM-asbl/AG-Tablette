@@ -1,6 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
 import { CompleteHistoryManager } from './Core/Managers/CompleteHistoryManager';
-import { app } from './Core/App';
 
 class completeHistoryTools extends LitElement {
   static get properties() {
@@ -17,23 +16,16 @@ class completeHistoryTools extends LitElement {
     this.index = 0;
     this.toRender = false;
 
-    window.addEventListener('start-browsing', () => {
-      this.index = 0;
-      if (app.workspace.completeHistory.steps.length > 1)
-        this.style.display = 'block';
-    });
+    window.addEventListener('browsing-finished', () => this.close());
 
-    window.addEventListener('browsing-finished', () => {
-      this.style.display = 'none';
-    });
+    window.addEventListener('actions-executed', () => this.index++);
 
-    window.addEventListener('actions-executed', event => {
-      if (CompleteHistoryManager.isRunning) {
-        this.index++;
-      } else {
-        this.sidebarElements.push(event.detail);
-        this.toRender = !this.toRender;
-      }
+    window.addEventListener('complete-history-steps', event => {
+      this.sidebarElements = event.detail.steps
+        .filter(step => step.type == 'actions-executed')
+        .map(step => {
+          return { name: step.detail.name };
+        });
     });
   }
 
@@ -92,6 +84,10 @@ class completeHistoryTools extends LitElement {
         })}
       </nav>
     `;
+  }
+
+  close() {
+    this.remove();
   }
 }
 customElements.define('completehistory-tools', completeHistoryTools);

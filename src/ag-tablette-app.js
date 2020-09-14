@@ -4,12 +4,8 @@ import './flex-toolbar';
 import './toolbar-kit';
 import './toolbar-section';
 import './icon-button';
-import './popups/new-popup';
-import './popups/settings-popup';
-import './popups/help-popup';
 import './popups/notification';
 import './version-item';
-import './completehistory-tools';
 
 import { app } from './Core/App';
 import './Core/Manifest';
@@ -258,15 +254,9 @@ class AGTabletteApp extends LitElement {
         <div-main-canvas id="div-main-canvas" ></div-main-canvas>
       </div>
 
-      <settings-popup></settings-popup>
-
       <opacity-popup></opacity-popup>
 
-      <new-popup></new-popup>
-
       <notif-center></notif-center>
-
-      <completehistory-tools></completehistory-tools>
 
       <input
         id="fileSelector"
@@ -304,7 +294,8 @@ class AGTabletteApp extends LitElement {
     let reset_state = 0;
     switch (event.target.name) {
       case 'settings':
-        this.shadowRoot.querySelector('settings-popup').style.display = 'block';
+        import('./popups/settings-popup');
+        createElem('settings-popup');
         reset_state = 1;
         break;
       case 'save':
@@ -316,7 +307,8 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'new':
-        window.dispatchEvent(new CustomEvent('open-new-popup'));
+        import('./popups/new-popup');
+        createElem('new-popup');
         reset_state = 1;
         break;
       case 'undo':

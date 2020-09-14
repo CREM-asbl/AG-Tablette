@@ -28,8 +28,8 @@ export class CutAction extends Action {
   initFromObject(save) {
     this.createdShapesIds = save.createdShapesIds;
     if (save.createdShapes) {
-      this.createdShapes = save.createdShapes.map((s, idx) =>
-        Shape.fromObject({ ...s, id: this.createdShapesIds[idx] })
+      this.createdShapes = save.createdShapes.map(
+        (s, idx) => new Shape({ ...s, id: this.createdShapesIds[idx] })
       );
     } else {
       this.shapeId = save.shapeId;
@@ -227,22 +227,22 @@ export class CutAction extends Action {
       distance = center2.dist(center1),
       myOffset = 20, //px
       offset = difference.multiplyWithScalar(myOffset / distance);
-    shape1.coordinates = shape1.coordinates.subCoordinates(offset);
+    shape1.translate(offset, true);
     if (shape.isSegment()) {
-      shape1.coordinates = shape1.coordinates.addCoordinates(
+      shape1.translate(
         new Point(
-          segments[0].direction.y,
-          -segments[0].direction.x
+          -segments[0].direction.x,
+          segments[0].direction.y
         ).multiplyWithScalar(myOffset / 2)
       );
     }
     shape1.id = this.createdShapesIds[0];
-    shape2.coordinates = shape2.coordinates.addCoordinates(offset);
+    shape2.translate(offset);
     if (shape.isSegment()) {
-      shape2.coordinates = shape2.coordinates.addCoordinates(
+      shape2.translate(
         new Point(
-          -segments[0].direction.y,
-          segments[0].direction.x
+          segments[0].direction.x,
+          -segments[0].direction.y
         ).multiplyWithScalar(myOffset / 2)
       );
     }

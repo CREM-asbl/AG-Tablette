@@ -3,12 +3,22 @@ import { SelectManager } from './SelectManager';
 import { HistoryManager } from './HistoryManager';
 import { Point } from '../Objects/Point';
 import { History } from '../Objects/History';
+import { createElem } from '../Tools/general';
 
 /**
  * Représente l'historique complet d'un espace de travail.
  */
 export class CompleteHistoryManager {
   static startBrowse() {
+    import('../../completehistory-tools');
+    createElem('completehistory-tools');
+    window.setTimeout(() => {
+      window.dispatchEvent(
+        new CustomEvent('complete-history-steps', {
+          detail: { steps: app.workspace.completeHistory.steps },
+        })
+      );
+    }, 300);
     // if called when already running
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
 
@@ -27,7 +37,6 @@ export class CompleteHistoryManager {
   }
 
   static resetWorkspace() {
-    console.log(app.workspace.completeHistory);
     app.workspace.setZoomLevel(app.workspace.completeHistory.startZoomLevel);
     app.workspace.setTranslateOffset(
       app.workspace.completeHistory.startTranslateOffset
@@ -38,8 +47,8 @@ export class CompleteHistoryManager {
     app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(
       gr => gr.copy(true)
     );
-    if (app.environment.name == 'Tangram')
-      app.silhouette = app.workspace.completeHistory.startSilhouette?.copy();
+    // if (app.environment.name == 'Tangram')
+    // app.silhouette = app.workspace.completeHistory.startSilhouette?.copy();
     app.workspace.history = new History();
   }
 
@@ -80,7 +89,6 @@ export class CompleteHistoryManager {
       app.workspace.completeHistory.steps.length - 1
     ) {
       CompleteHistoryManager.isRunning = false;
-      console.log('finished');
       window.dispatchEvent(new CustomEvent('browsing-finished'));
       return;
     }
@@ -122,7 +130,6 @@ export class CompleteHistoryManager {
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
     }
-    // console.log(type, detail);
   }
 
   /**

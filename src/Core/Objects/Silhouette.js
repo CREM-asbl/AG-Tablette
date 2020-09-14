@@ -26,7 +26,7 @@ export class Silhouette {
 
   static initFromObject(save, level) {
     return new Silhouette(
-      save.shapes.map(s => Shape.fromObject(s)),
+      save.shapes.map(s => new Shape(s)),
       level
     );
   }

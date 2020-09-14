@@ -61,9 +61,9 @@ class CanvasButton extends LitElement {
           family.shapes[0],
       ];
     } else {
-      shapes = app.CremTangrams[
-        this.silhouetteIdx
-      ].silhouetteData.shapes.map(s => Shape.fromObject(s));
+      shapes = app.CremTangrams[this.silhouetteIdx].silhouetteData.shapes.map(
+        s => new Shape(s)
+      );
     }
 
     if (shapes.length == 1 && shapes[0].isCircle()) {
