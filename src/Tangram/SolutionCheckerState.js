@@ -85,36 +85,22 @@ export class SolutionCheckerState extends State {
 
   checkSolution() {
     const allPointsFromWorkspace = this.getAllPoints(app.workspace.shapes);
-
     const allPointsFromSilhouette = this.getAllPoints(app.silhouette.shapes);
 
-    // const newSegmentsFromWorkspace = this.checkGroupMerge(app.workspace.shapes);
-    // const newSegmentsSetsFromWorkspace = this.linkNewSegments(
-    //   newSegmentsFromWorkspace
+    // allPointsFromWorkspace.forEach(pt =>
+    //   window.dispatchEvent(
+    //     new CustomEvent('draw-point', {
+    //       detail: { point: pt, color: '#f00', size: 2 },
+    //     })
+    //   )
     // );
-
-    // const newSegmentsFromSilhouette = this.checkGroupMerge(
-    //   app.silhouette.shapes
+    // allPointsFromSilhouette.forEach(pt =>
+    //   window.dispatchEvent(
+    //     new CustomEvent('draw-point', {
+    //       detail: { point: pt, color: '#f00', size: 2 },
+    //     })
+    //   )
     // );
-    // const newSegmentsSetsFromSilhouette = this.linkNewSegments(
-    //   newSegmentsFromSilhouette
-    // );
-
-    // newSegments.forEach(seg => window.dispatchEvent(new CustomEvent('draw-segment', { detail: {segment: seg, color:'#f00', size: 2}})));
-    allPointsFromWorkspace.forEach(pt =>
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: { point: pt, color: '#f00', size: 2 },
-        })
-      )
-    );
-    allPointsFromSilhouette.forEach(pt =>
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: { point: pt, color: '#f00', size: 2 },
-        })
-      )
-    );
 
     const setEquality = this.comparePointSets(
       allPointsFromWorkspace,
@@ -127,28 +113,24 @@ export class SolutionCheckerState extends State {
   }
 
   comparePointSets(allPointsFromWorkspace, allPointsFromSilhouette) {
-    if (
-      this.compareStrictSets(allPointsFromWorkspace, allPointsFromSilhouette)
-    ) {
+    if (this.compareStrictSets(allPointsFromWorkspace, allPointsFromSilhouette))
       return 'Equal';
-    } else if (
+    else if (
       this.compareRotationSets(allPointsFromWorkspace, allPointsFromSilhouette)
-    ) {
+    )
       return 'Rotation';
-    } else if (
+    else if (
       this.compareReverseSets(allPointsFromWorkspace, allPointsFromSilhouette)
-    ) {
+    )
       return 'Reverse';
-    } else if (
+    else if (
       this.compareReverseAndRotationSets(
         allPointsFromWorkspace,
         allPointsFromSilhouette
       )
-    ) {
+    )
       return 'Reverse and rotation';
-    } else {
-      return 'Not equal';
-    }
+    else return 'Not equal';
   }
 
   compareReverseAndRotationSets(
