@@ -277,17 +277,17 @@ export class DrawManager {
   static drawText(ctx, text, position, color = '#000', doSave = true) {
     if (doSave) ctx.save();
 
-    const fontSize = 13,
+    const fontSize = 20,
       positionCopy = new Point(position);
+    positionCopy.translate(
+      (((-3 * fontSize) / 13) * text.length) / app.workspace.zoomLevel,
+      fontSize / 2 / app.workspace.zoomLevel
+    );
     positionCopy.setToCanvasCoordinates();
 
     ctx.fillStyle = color;
     ctx.font = fontSize + 'px Arial';
-    ctx.fillText(
-      text,
-      positionCopy.x - (3 * text.length) / app.workspace.zoomLevel,
-      positionCopy.y + fontSize / 100
-    );
+    ctx.fillText(text, positionCopy.x, positionCopy.y);
 
     if (doSave) ctx.restore();
   }

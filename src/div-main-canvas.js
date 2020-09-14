@@ -130,6 +130,7 @@ class DivMainCanvas extends LitElement {
       this.cursorPos = mousePos.subCoordinates(
         new Point(this.cursorSize / 2, this.cursorSize / 2)
       );
+      this.cursorPos.setToCanvasCoordinates();
       this.cursorShow = true;
       window.clearTimeout(this.timeoutId);
       this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);

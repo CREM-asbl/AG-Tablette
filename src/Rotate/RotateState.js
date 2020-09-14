@@ -125,13 +125,38 @@ export class RotateState extends State {
     let newAngle = this.selectedShape.center.getAngle(
       app.workspace.lastKnownMouseCoordinates
     );
+    let rotationAngle = newAngle - this.initialAngle;
+    let adjustedRotationAngle = rotationAngle;
+
+    if (app.environment.name == 'Tangram') {
+      const rotationAngleInDegree = (rotationAngle / Math.PI) * 180;
+      let adjustedRotationAngleInDegree = rotationAngleInDegree;
+      adjustedRotationAngleInDegree = Math.round(rotationAngleInDegree);
+      let sign = rotationAngleInDegree > 0 ? 1 : -1;
+      let absoluteValueRotationAngleInDegree = Math.abs(
+        adjustedRotationAngleInDegree
+      );
+      if (absoluteValueRotationAngleInDegree % 5 <= 2) {
+        adjustedRotationAngleInDegree =
+          sign *
+          (absoluteValueRotationAngleInDegree -
+            (absoluteValueRotationAngleInDegree % 5));
+      } else {
+        adjustedRotationAngleInDegree =
+          sign *
+          (absoluteValueRotationAngleInDegree +
+            5 -
+            (absoluteValueRotationAngleInDegree % 5));
+      }
+      adjustedRotationAngle = (adjustedRotationAngleInDegree * Math.PI) / 180;
+    }
 
     this.actions = [
       {
         name: 'RotateAction',
         shapeId: this.selectedShape.id,
         involvedShapesIds: this.involvedShapes.map(s => s.id),
-        rotationAngle: newAngle - this.initialAngle,
+        rotationAngle: adjustedRotationAngle,
       },
     ];
 
