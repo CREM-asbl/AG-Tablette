@@ -1,6 +1,8 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 
 /**
  * Créer un tangram
@@ -82,63 +84,187 @@ export class SolutionCheckerState extends State {
   }
 
   checkSolution() {
-    const newSegmentsFromWorkspace = this.checkGroupMerge(app.workspace.shapes);
-    const newSegmentsSetsFromWorkspace = this.linkNewSegments(
-      newSegmentsFromWorkspace
-    );
+    const allPointsFromWorkspace = this.getAllPoints(app.workspace.shapes);
 
-    const newSegmentsFromSilhouette = this.checkGroupMerge(
-      app.silhouette.shapes
-    );
-    const newSegmentsSetsFromSilhouette = this.linkNewSegments(
-      newSegmentsFromSilhouette
-    );
+    const allPointsFromSilhouette = this.getAllPoints(app.silhouette.shapes);
+
+    // const newSegmentsFromWorkspace = this.checkGroupMerge(app.workspace.shapes);
+    // const newSegmentsSetsFromWorkspace = this.linkNewSegments(
+    //   newSegmentsFromWorkspace
+    // );
+
+    // const newSegmentsFromSilhouette = this.checkGroupMerge(
+    //   app.silhouette.shapes
+    // );
+    // const newSegmentsSetsFromSilhouette = this.linkNewSegments(
+    //   newSegmentsFromSilhouette
+    // );
 
     // newSegments.forEach(seg => window.dispatchEvent(new CustomEvent('draw-segment', { detail: {segment: seg, color:'#f00', size: 2}})));
-    // newSegments.forEach(seg => window.dispatchEvent(new CustomEvent('draw-point', { detail: {point: seg.vertexes[1], color:'#f00', size: 2}})));
-
-    // newSegmentsSetsFromSilhouette.forEach((set, idx) => {
-    //   let color;
-    //   if (idx % 4 == 0)
-    //     color = '#f00';
-    //   else if (idx % 4 == 1)
-    //     color = '#0f0';
-    //   else if (idx % 4 == 2)
-    //     color = '#00f';
-    //   else if (idx % 4 == 3)
-    //     color = '#ff0';
-    //   set.forEach(seg => window.dispatchEvent(new CustomEvent('draw-segment', { detail: {segment: seg, color:color, size: 2}})))
-    //   set.forEach(seg => window.dispatchEvent(new CustomEvent('draw-point', { detail: {point: seg.vertexes[1], color:color, size: 2}})))
-    // });
-
-    // newSegmentsSetsFromWorkspace.forEach((set, idx) => {
-    //   let color;
-    //   if (idx % 4 == 0)
-    //     color = '#f00';
-    //   else if (idx % 4 == 1)
-    //     color = '#0f0';
-    //   else if (idx % 4 == 2)
-    //     color = '#00f';
-    //   else if (idx % 4 == 3)
-    //     color = '#ff0';
-    //   set.forEach(seg => window.dispatchEvent(new CustomEvent('draw-segment', { detail: {segment: seg, color:color, size: 2}})))
-    //   set.forEach(seg => window.dispatchEvent(new CustomEvent('draw-point', { detail: {point: seg.vertexes[1], color:color, size: 2}})))
-    // });
-
-    const areSetsEqual = this.compareAllSets(
-      newSegmentsSetsFromWorkspace,
-      newSegmentsSetsFromSilhouette
+    allPointsFromWorkspace.forEach(pt =>
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: pt, color: '#f00', size: 2 },
+        })
+      )
+    );
+    allPointsFromSilhouette.forEach(pt =>
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: { point: pt, color: '#f00', size: 2 },
+        })
+      )
     );
 
-    if (areSetsEqual) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', { detail: { message: 'Réussi' } })
-      );
+    const setEquality = this.comparePointSets(
+      allPointsFromWorkspace,
+      allPointsFromSilhouette
+    );
+
+    window.dispatchEvent(
+      new CustomEvent('show-notif', { detail: { message: setEquality } })
+    );
+  }
+
+  comparePointSets(allPointsFromWorkspace, allPointsFromSilhouette) {
+    if (
+      this.compareStrictSets(allPointsFromWorkspace, allPointsFromSilhouette)
+    ) {
+      return 'Equal';
+    } else if (
+      this.compareRotationSets(allPointsFromWorkspace, allPointsFromSilhouette)
+    ) {
+      return 'Rotation';
+    } else if (
+      this.compareReverseSets(allPointsFromWorkspace, allPointsFromSilhouette)
+    ) {
+      return 'Reverse';
+    } else if (
+      this.compareReverseAndRotationSets(
+        allPointsFromWorkspace,
+        allPointsFromSilhouette
+      )
+    ) {
+      return 'Reverse and rotation';
     } else {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', { detail: { message: 'Raté' } })
-      );
+      return 'Not equal';
     }
+  }
+
+  compareReverseAndRotationSets(
+    allPointsFromWorkspace,
+    allPointsFromSilhouette
+  ) {
+    let allPointsFromWorkspaceCopy = allPointsFromWorkspace.map(
+      pt => new Point(pt)
+    );
+
+    let symetricalAxe = new Segment(new Point(0, 0), new Point(0, 100));
+
+    allPointsFromWorkspaceCopy.forEach(pt =>
+      this.computePointPosition(pt, symetricalAxe)
+    );
+
+    return this.compareRotationSets(
+      allPointsFromWorkspaceCopy,
+      allPointsFromSilhouette
+    );
+  }
+
+  compareReverseSets(allPointsFromWorkspace, allPointsFromSilhouette) {
+    let allPointsFromWorkspaceCopy = allPointsFromWorkspace.map(
+      pt => new Point(pt)
+    );
+
+    let symetricalAxe = new Segment(new Point(0, 0), new Point(0, 100));
+
+    allPointsFromWorkspaceCopy.forEach(pt =>
+      this.computePointPosition(pt, symetricalAxe)
+    );
+
+    return this.compareStrictSets(
+      allPointsFromWorkspaceCopy,
+      allPointsFromSilhouette
+    );
+  }
+
+  computePointPosition(point, axe) {
+    let center = axe.projectionOnSegment(point);
+
+    //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
+    point.setCoordinates({
+      x: point.x + 2 * (center.x - point.x),
+      y: point.y + 2 * (center.y - point.y),
+    });
+  }
+
+  compareRotationSets(allPointsFromWorkspace, allPointsFromSilhouette) {
+    let allPointsFromWorkspaceCopy = allPointsFromWorkspace.map(
+      pt => new Point(pt)
+    );
+
+    for (let i = 0; i < 360; i += 5) {
+      allPointsFromWorkspaceCopy.forEach(pt => pt.rotate((5 * Math.PI) / 180));
+      if (
+        this.compareStrictSets(
+          allPointsFromWorkspaceCopy,
+          allPointsFromSilhouette
+        )
+      )
+        return true;
+    }
+    return false;
+  }
+
+  compareStrictSets(allPointsFromWorkspace, allPointsFromSilhouette) {
+    let minWorkspace = this.minFromPoints(allPointsFromWorkspace);
+    let minSilhouette = this.minFromPoints(allPointsFromSilhouette);
+
+    // window.dispatchEvent(new CustomEvent('draw-point', { detail: {point: minWorkspace, color:'#00f', size: 3}}));
+    // window.dispatchEvent(new CustomEvent('draw-point', { detail: {point: minSilhouette, color:'#00f', size: 3}}));
+
+    let offset = minSilhouette.subCoordinates(minWorkspace);
+
+    let allPointsFromWorkspaceCopy = allPointsFromWorkspace.map(
+      pt => new Point(pt)
+    );
+    let allPointsFromSilhouetteCopy = allPointsFromSilhouette.map(
+      pt => new Point(pt)
+    );
+
+    allPointsFromWorkspaceCopy.forEach(pt => pt.translate(offset));
+
+    while (allPointsFromWorkspaceCopy.length > 0) {
+      let i = 0;
+      for (; i < allPointsFromSilhouetteCopy.length; i++) {
+        if (
+          allPointsFromWorkspaceCopy[0].equal(allPointsFromSilhouetteCopy[i])
+        ) {
+          allPointsFromWorkspaceCopy.splice(0, 1);
+          allPointsFromSilhouetteCopy.splice(i, 1);
+          i = -1;
+          break;
+        }
+      }
+      if (i == allPointsFromSilhouetteCopy.length) return false;
+    }
+    return true;
+  }
+
+  minFromPoints(pointSet) {
+    let result = new Point(pointSet[0]);
+    pointSet.forEach(pt => {
+      result.x = Math.min(pt.x, result.x);
+      result.y = Math.min(pt.y, result.y);
+    });
+    return result;
+  }
+
+  getAllPoints(shapes) {
+    const newSegments = this.checkGroupMerge(shapes);
+    const newSegmentsSets = this.linkNewSegments(newSegments);
+
+    return newSegmentsSets.flat().map(seg => seg.vertexes[1]);
   }
 
   checkGroupMerge(shapes) {
