@@ -66,12 +66,15 @@ export class Shape {
       this.segments.forEach(segment =>
         points.push(segment.vertexes[1], ...segment.points)
       );
+    // filter duplicates
+    points = points.filter(
+      (pt, idx) => !points.some((pt2, idx2) => idx > idx2 && pt.equal(pt2))
+    );
     return points;
   }
 
   get vertexes() {
-    if (this.isSegment()) return this.segments[0].vertexes;
-    else return this.segments.map(seg => seg.vertexes[1]);
+    return this.allOutlinePoints.filter(pt => pt.type == 'vertex');
   }
 
   get segmentPoints() {

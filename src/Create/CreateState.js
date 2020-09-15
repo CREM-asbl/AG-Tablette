@@ -111,7 +111,7 @@ export class CreateState extends State {
    */
   end() {
     if (app.state !== this.name) {
-      this.shapesList.remove();
+      if (this.shapesList) this.shapesList.remove();
       this.shapesList = null;
     }
     window.cancelAnimationFrame(this.requestAnimFrameId);

@@ -151,8 +151,6 @@ export function getShapeAdjustment(shapes, mainShape) {
     pt => pt.fixed.type == 'vertex' || pt.fixed.type == 'segmentPoint'
   );
 
-  // console.log(cPtListTangram, cPtListGrid, cPtListBorder, cPtListShape);
-
   let possibilities = [];
 
   if (grid) {
