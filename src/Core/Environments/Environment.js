@@ -39,9 +39,9 @@ export class Environment {
         import('./Cubes');
         // this.load('cubes.json')
         break;
-      // case 'Géométrie':
-      //   this.extension = 'agl';
-      //   break;
+      case 'Geometrie':
+        import('./Geometrie');
+        break;
       default:
         console.log(`Environnement ${name} pas encore pris en charge`);
     }

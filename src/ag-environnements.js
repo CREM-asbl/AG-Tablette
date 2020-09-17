@@ -82,7 +82,7 @@ class AgEnvironnements extends LitElement {
       <div id="Grandeurs" @click="${this.handleClick}">Grandeurs</div>
       <div id="Tangram" @click="${this.handleClick}">Tangram</div>
       <div id="Cubes" @click="${this.handleClick}">Cubes</div>
-      <div id="Geometrie">Géométrie</div>
+      <div id="Geometrie" @click="${this.handleClick}">Géométrie</div>
     `;
   }
 

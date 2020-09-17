@@ -223,6 +223,12 @@ class AGTabletteApp extends LitElement {
                              )}">
             </toolbar-section>
 
+            <toolbar-section title="Créer des formes"
+                             .buttons_states="${this.states.filter(
+                               state => state.type === 'geometry_creator'
+                             )}">
+            </toolbar-section>
+
             <toolbar-section title="Mouvements"
                              .buttons_states="${this.states.filter(
                                state => state.type === 'move'
