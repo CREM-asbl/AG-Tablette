@@ -52,8 +52,8 @@ export class IrregularCreateAction extends Action {
     let newShape = new Shape({
       segments: newSegments,
       id: this.shapeId,
-      name: 'Irregular_polygon',
-      familyName: 'Custom',
+      name: this.points.length + '_corner_shape',
+      familyName: 'irregular',
     });
     ShapeManager.addShape(newShape);
   }

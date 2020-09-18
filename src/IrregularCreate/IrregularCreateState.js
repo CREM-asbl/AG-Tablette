@@ -58,6 +58,8 @@ export class IrregularCreateState extends State {
    * stopper l'état
    */
   end() {
+    window.cancelAnimationFrame(this.requestAnimFrameId);
+
     app.removeListener('canvasclick', this.mouseClickId);
   }
 

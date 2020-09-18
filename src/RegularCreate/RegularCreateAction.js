@@ -74,6 +74,8 @@ export class RegularCreateAction extends Action {
     let shape = new Shape({
       segments: newSegments,
       id: this.shapeId,
+      name: this.numberOfPoints + '_corner_shape',
+      familyName: 'regular',
     });
 
     return shape;
