@@ -7,8 +7,8 @@ export class DivideAction extends Action {
   constructor() {
     super('DivideAction');
 
-    // Nombre de parties de découpe (numberOfparts-1 points)
-    this.numberOfparts = null;
+    // Nombre de parties de découpe (numberOfParts-1 points)
+    this.numberOfParts = null;
 
     // Mode de découpe: 'segment' ou 'two_points'
     this.mode = null;
@@ -27,7 +27,7 @@ export class DivideAction extends Action {
   }
 
   initFromObject(save) {
-    this.numberOfparts = save.numberOfparts;
+    this.numberOfParts = save.numberOfParts;
     this.mode = save.mode;
     if (this.mode == 'two_points') {
       this.firstPoint = new Point();
@@ -64,7 +64,7 @@ export class DivideAction extends Action {
               mode: 'two_points',
               firstPoint: this.firstPoint,
               secondPoint: this.secondPoint,
-              numberOfparts: this.numberOfparts,
+              numberOfParts: this.numberOfParts,
               segment: this.segment,
               existingPoints: this.existingPoints,
             },
@@ -76,7 +76,7 @@ export class DivideAction extends Action {
             detail: {
               name: 'DivideAction',
               mode: 'segment',
-              numberOfparts: this.numberOfparts,
+              numberOfParts: this.numberOfParts,
               segment: this.segment,
               existingPoints: this.existingPoints,
             },
@@ -90,7 +90,7 @@ export class DivideAction extends Action {
    * vérifie si toutes les conditions sont réunies pour effectuer l'action
    */
   checkDoParameters() {
-    if (!Number.isFinite(this.numberOfparts)) {
+    if (!Number.isFinite(this.numberOfParts)) {
       this.printIncompleteData();
       return false;
     }
@@ -165,12 +165,12 @@ export class DivideAction extends Action {
     if (shape.isCircle())
       this.segment.addPoint(new Point(this.segment.vertexes[1]));
 
-    let partAngle = (secondAngle - firstAngle) / this.numberOfparts,
+    let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
 
     for (
       let i = 1, nextPt = this.segment.vertexes[0];
-      i < this.numberOfparts;
+      i < this.numberOfParts;
       i++
     ) {
       const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
@@ -214,10 +214,10 @@ export class DivideAction extends Action {
     }
     if (secondAngle < firstAngle) secondAngle += Math.PI * 2;
 
-    let partAngle = (secondAngle - firstAngle) / this.numberOfparts,
+    let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
 
-    for (let i = 1, nextPt = this.firstPoint; i < this.numberOfparts; i++) {
+    for (let i = 1, nextPt = this.firstPoint; i < this.numberOfParts; i++) {
       const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
         newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
       nextPt = nextPt.copy();
@@ -229,13 +229,13 @@ export class DivideAction extends Action {
   pointsModeAddSegPoints() {
     const segLength = this.secondPoint.subCoordinates(this.firstPoint),
       part = new Point(
-        segLength.x / this.numberOfparts,
-        segLength.y / this.numberOfparts
+        segLength.x / this.numberOfParts,
+        segLength.y / this.numberOfParts
       );
 
     for (
       let i = 1, nextPt = this.firstPoint.copy();
-      i < this.numberOfparts;
+      i < this.numberOfParts;
       i++
     ) {
       nextPt = nextPt.addCoordinates(part);

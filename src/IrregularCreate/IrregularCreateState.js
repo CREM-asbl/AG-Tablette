@@ -1,11 +1,9 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Segment } from '../Core/Objects/Segment';
+import { Point } from '../Core/Objects/Point';
 import { uniqId } from '../Core/Tools/general';
 
 /**
@@ -30,7 +28,7 @@ export class IrregularCreateState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Créer des polygones irréguliers';
+    let toolName = 'Créer un polygone irrégulier';
     return html`
       <h2>${toolName}</h2>
       <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br /></p>

@@ -3,7 +3,6 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { createElem } from '../Core/Tools/general';
 import { Segment } from '../Core/Objects/Segment';
-import './divide-popup';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -20,7 +19,7 @@ export class DivideState extends State {
 
     this.drawColor = '#E90CC8';
 
-    this.numberOfparts = 2;
+    this.numberOfParts = 2;
   }
 
   /**
@@ -54,7 +53,7 @@ export class DivideState extends State {
   start() {
     this.currentStep = 'choose-nb-parts';
     let popup = createElem('divide-popup');
-    popup.parts = this.numberOfparts;
+    popup.parts = this.numberOfParts;
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     app.workspace.selectionConstraints.eventType = 'click';
@@ -126,7 +125,7 @@ export class DivideState extends State {
   }
 
   setNumberOfparts(parts) {
-    this.numberOfparts = parseInt(parts);
+    this.numberOfParts = parseInt(parts);
     this.currentStep = 'listen-canvas-click';
   }
 
@@ -233,7 +232,7 @@ export class DivideState extends State {
   }
 
   execute() {
-    this.actions[0].numberOfparts = this.numberOfparts;
+    this.actions[0].numberOfParts = this.numberOfParts;
     if (this.actions[0].mode == 'two_points') {
       let pt1 = this.actions[0].firstPoint,
         pt2 = this.actions[0].secondPoint;

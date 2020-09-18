@@ -13,6 +13,7 @@ import '../../Translate';
 import '../../Zoom';
 import '../../Grid';
 
+import '../../RegularCreate';
 import '../../IrregularCreate';
 
 app.environment.extension = 'agl';

@@ -10,7 +10,7 @@ class OpacityPopup extends LitElement {
       this.close();
     });
 
-    window.addEventListener('close-popup', () => this.opacityPopupValidate());
+    window.addEventListener('close-popup', () => this.submit());
   }
 
   static get properties() {
@@ -47,13 +47,13 @@ class OpacityPopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${this.opacityPopupValidate}">Ok</button>
+          <button @click="${this.submit}">Ok</button>
         </div>
       </template-popup>
     `;
   }
 
-  opacityPopupValidate() {
+  submit() {
     window.dispatchEvent(
       new CustomEvent('setOpacity', {
         detail: {

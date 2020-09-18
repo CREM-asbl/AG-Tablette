@@ -54,6 +54,10 @@ class LevelPopup extends LitElement {
         composed: true,
       })
     );
+    this.close();
+  }
+
+  close() {
     this.remove();
   }
 }
