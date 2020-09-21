@@ -144,6 +144,10 @@ export class Segment {
     else return undefined;
   }
 
+  getAngleWithHorizontal() {
+    return this.vertexes[0].getAngle(this.vertexes[1]);
+  }
+
   // getPath(path, axeAngle = undefined) {
   //   if (!this.arcCenter) path.lineTo(this.vertexes[1].x, this.vertexes[1].y);
   //   else if (axeAngle !== undefined) {

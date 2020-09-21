@@ -32,7 +32,7 @@ class RegularPopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Division</h2>
+        <h2 slot="title">Créer un polygone régulier</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts"
             >Créer un polygone à</label

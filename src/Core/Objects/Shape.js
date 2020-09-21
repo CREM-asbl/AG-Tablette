@@ -603,6 +603,18 @@ export class Shape {
     this.segments.forEach(seg => seg.scale(scaling));
   }
 
+  /**
+   * Applique une homothétie
+   * @param {Number} scaling   scale factor
+   * @param {Point}  center    center of the transformation
+   */
+  homothety(scaling, center = new Point(0, 0)) {
+    let newCenter = center.multiplyWithScalar(scaling);
+    this.vertexes.forEach((v, i) => console.log('v' + i, v.x, v.y));
+    this.scale(scaling);
+    this.translate(center.x - newCenter.x, center.y - newCenter.y);
+  }
+
   rotate(angle, center) {
     // this.angle = (this.angle + angle) % (2 * Math.PI);
     this.segments.forEach(seg => seg.rotate(angle, center));

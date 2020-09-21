@@ -53,7 +53,7 @@ export class SolutionCheckerState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Vérificateur de solution';
+    let toolName = this.title;
     return html`
       <h2>${toolName}</h2>
       <p>

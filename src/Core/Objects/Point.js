@@ -228,6 +228,34 @@ export class Point {
     return angle;
   }
 
+  getTransformConstraint() {
+    let constraints = {
+      isFree: false,
+      isConstrained: false,
+      isBlocked: false,
+      lines: null,
+      isInfinite: false,
+    };
+    if (this.shape.familyName.startsWith('regular')) {
+      constraints.isConstrained = true;
+      constraints.lines = [
+        {
+          segment: this.segment,
+          isInfinite: true,
+        },
+        {
+          segment: this.shape.segments[
+            (this.segment.idx + 1) % this.shape.segments.length
+          ],
+          isInfinite: true,
+        },
+      ];
+    } else if (this.shape.familyName.startsWith('irregular')) {
+      constraints.isFree = true;
+    }
+    return constraints;
+  }
+
   /**
    * distance with another Point or coordinates
    * @param {Object} point - point to compare with

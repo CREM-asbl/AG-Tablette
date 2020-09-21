@@ -64,6 +64,7 @@ class DividePopup extends LitElement {
         detail: { nbOfParts: this.parts, close: true },
       })
     );
+    this.close();
   }
 }
 customElements.define('divide-popup', DividePopup);

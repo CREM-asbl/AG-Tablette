@@ -8,7 +8,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
  */
 export class BifaceState extends State {
   constructor() {
-    super('biface', 'Biface', 'tool');
+    super('biface', 'Rendre biface', 'tool');
   }
 
   /**
@@ -16,7 +16,7 @@ export class BifaceState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Biface';
+    let toolName = this.title;
     return html`
       <h2>${toolName}</h2>
       <p>

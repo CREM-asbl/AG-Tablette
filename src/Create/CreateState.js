@@ -32,7 +32,7 @@ export class CreateState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Créer des formes';
+    let toolName = this.title;
     return html`
       <h2>${toolName}</h2>
       <p>

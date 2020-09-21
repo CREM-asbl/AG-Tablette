@@ -19,7 +19,7 @@ export class TranslateState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Glisser le plan';
+    let toolName = this.title;
     return html`
       <h2>${toolName}</h2>
       <p>

@@ -19,7 +19,7 @@ export class BorderColorState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Colorier les bords';
+    let toolName = this.title;
     return html`
       <h2>${toolName}</h2>
       <p>

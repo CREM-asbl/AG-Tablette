@@ -39,7 +39,7 @@ export class RegularCreateState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Créer un polygone régulier';
+    let toolName = this.title;
     return html`
       <h2>${toolName}</h2>
       <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br /></p>

@@ -2,6 +2,7 @@ import { app } from '../App';
 import { GridManager } from '../../Grid/GridManager';
 import { ShapeManager } from './ShapeManager';
 import { Point } from '../Objects/Point';
+import { Segment } from '../Objects/Segment';
 
 export class DrawManager {
   /* #################################################################### */
@@ -205,11 +206,11 @@ export class DrawManager {
   }
 
   /**
-   * Dessine une ligne sur un canvas donné
+   * Dessine un segment (segment de droite ou arc de cercle) sur un canvas donné
    * @param  {Context2D}  ctx             Canvas
-   * @param  {Point}      line            Segment à dessiner
-   * @param  {String}     [color='#000']  Couleur de la ligne
-   * @param  {Number}     [size=1]        Epaisseur de la ligne
+   * @param  {Segment}    segment         Segment à dessiner
+   * @param  {String}     [color='#000']  Couleur du segment
+   * @param  {Number}     [size=1]        Epaisseur du segment
    * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
    */
   static drawSegment(ctx, segment, color = '#000', size = 1, doSave = true) {
@@ -224,6 +225,49 @@ export class DrawManager {
 
     const path = new Path2D(
       ['M', v0Copy.x, v0Copy.y, segment.getSVGPath()].join(' ')
+    );
+
+    ctx.stroke(path);
+
+    ctx.lineWidth = 1;
+
+    if (doSave) ctx.restore();
+  }
+
+  /**
+   * Dessine une droite sur un canvas donné
+   * @param  {Context2D}  ctx             Canvas
+   * @param  {Segment}    segment         Segment à dessiner (base pour la droite)
+   * @param  {String}     [color='#000']  Couleur de la droite
+   * @param  {Number}     [size=1]        Epaisseur de la droite
+   * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
+   */
+  static drawLine(ctx, segment, color = '#000', size = 1, doSave = true) {
+    if (doSave) ctx.save();
+
+    ctx.strokeStyle = color;
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = size * app.workspace.zoomLevel;
+
+    let angle = segment.getAngleWithHorizontal();
+    let transformSegment = new Segment(
+      segment.vertexes[0].subCoordinates(
+        1000000 * Math.cos(angle),
+        1000000 * Math.sin(angle)
+      ),
+      segment.vertexes[1].addCoordinates(
+        1000000 * Math.cos(angle),
+        1000000 * Math.sin(angle)
+      )
+    );
+
+    const v0Copy = new Point(transformSegment.vertexes[0]);
+    v0Copy.setToCanvasCoordinates();
+
+    // console.log(['M', v0Copy.x, v0Copy.y, transformSegment.getSVGPath()].join(' '));
+
+    const path = new Path2D(
+      ['M', v0Copy.x, v0Copy.y, transformSegment.getSVGPath()].join(' ')
     );
 
     ctx.stroke(path);
@@ -332,6 +376,16 @@ window.addEventListener('draw-shape', event => {
 window.addEventListener('draw-segment', event => {
   const ctx = event.detail.ctx || app.upperCtx;
   DrawManager.drawSegment(
+    ctx,
+    event.detail.segment,
+    event.detail.color,
+    event.detail.size,
+    event.detail.doSave
+  );
+});
+window.addEventListener('draw-line', event => {
+  const ctx = event.detail.ctx || app.upperCtx;
+  DrawManager.drawLine(
     ctx,
     event.detail.segment,
     event.detail.color,

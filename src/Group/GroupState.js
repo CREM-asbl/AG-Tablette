@@ -25,7 +25,7 @@ export class GroupState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = 'Grouper';
+    let toolName = this.title;
     return html`
       <h2>${toolName}</h2>
       <p>
