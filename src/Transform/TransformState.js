@@ -2,6 +2,7 @@ import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Shape } from '../Core/Objects/Shape';
+import { SelectManager } from '../Core/Managers/SelectManager';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -20,10 +21,13 @@ export class TransformState extends State {
     this.pointSelected = null;
 
     // destination point
-    this.dest = null;
+    this.pointDest = null;
 
     // the constraints applied to pointSelected
     this.constraints = null;
+
+    // line de contrainte (segment, droite, demi-droite ou arc de cercle, cercle)
+    this.line = null;
   }
 
   /**
@@ -43,6 +47,12 @@ export class TransformState extends State {
    */
   start() {
     this.currentStep = 'show-points';
+
+    this.shapeId = null;
+    this.pointSelected = null;
+    this.pointDest = null;
+    this.constraints = null;
+    this.line = null;
 
     window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
     app.workspace.selectionConstraints.eventType = 'mousedown';
@@ -101,12 +111,26 @@ export class TransformState extends State {
   }
 
   onMouseUp() {
-    this.dest = this.actions = [
+    if (this.line == null) {
+      // pas de contrainte
+      let constraints = SelectManager.getEmptySelectionConstraints().points;
+      constraints.canSelect = true;
+      let adjustedPoint = SelectManager.selectPoint(
+        this.pointDest,
+        constraints,
+        false
+      );
+      if (adjustedPoint) {
+        this.pointDest.setCoordinates(adjustedPoint);
+      }
+    }
+
+    this.pointDest = this.actions = [
       {
         name: 'TransformAction',
         shapeId: this.shapeId,
         pointSelected: this.pointSelected,
-        pointDest: this.dest,
+        pointDest: this.pointDest,
         line: this.line,
       },
     ];
@@ -120,13 +144,11 @@ export class TransformState extends State {
         s.vertexes.forEach(pt => {
           const transformConstraints = pt.getTransformConstraint();
           const colorPicker = {
-            '#0f0': transformConstraints.isFree,
-            '#f00': transformConstraints.isBlocked,
-            '#FF8C00': transformConstraints.isConstrained,
+            [transformConstraints.isFree]: '#0f0',
+            [transformConstraints.isBlocked]: '#f00',
+            [transformConstraints.isConstrained]: '#FF8C00',
           };
-          const color = Object.entries(colorPicker).filter(
-            ([key, value]) => value
-          )[0][0];
+          const color = colorPicker[true];
 
           window.dispatchEvent(
             new CustomEvent('draw-point', {
@@ -141,23 +163,21 @@ export class TransformState extends State {
         projectionOnLine = this.projectionOnLine(
           app.workspace.lastKnownMouseCoordinates
         );
-        this.dest = projectionOnLine.projection;
+        this.pointDest = projectionOnLine.projection;
       } else {
-        this.dest = app.workspace.lastKnownMouseCoordinates;
+        this.pointDest = app.workspace.lastKnownMouseCoordinates;
       }
 
-      let colorPicker = {
-        '#0f0': this.constraints.isFree,
-        '#f00': this.constraints.isBlocked,
-        '#FF8C00': this.constraints.isConstrained,
+      const colorPicker = {
+        [this.constraints.isFree]: '#0f0',
+        [this.constraints.isBlocked]: '#f00',
+        [this.constraints.isConstrained]: '#FF8C00',
       };
-      let color = Object.entries(colorPicker).filter(
-        ([key, value]) => value
-      )[0][0];
+      const color = colorPicker[true];
 
       window.dispatchEvent(
         new CustomEvent('draw-point', {
-          detail: { point: this.dest, size: 3, color: color },
+          detail: { point: this.pointDest, size: 3, color: color },
         })
       );
 
@@ -176,8 +196,23 @@ export class TransformState extends State {
           this.line.segment.vertexes[0].equal(this.pointSelected) ? 1 : 0
         ];
         shapeCopy.homothety(
-          homothetyCenter.dist(this.dest) / this.pointSelected.segment.length,
+          homothetyCenter.dist(this.pointDest) /
+            this.pointSelected.segment.length,
           homothetyCenter
+        );
+
+        window.dispatchEvent(
+          new CustomEvent('draw-shape', { detail: { shape: shapeCopy } })
+        );
+      } else if (this.pointSelected.shape.familyName.startsWith('irregular')) {
+        let shapeCopy = new Shape(this.pointSelected.shape);
+
+        shapeCopy.segments.forEach(seg =>
+          seg.vertexes.forEach(v => {
+            if (v.equal(this.pointSelected)) {
+              v.setCoordinates(this.pointDest);
+            }
+          })
         );
 
         window.dispatchEvent(

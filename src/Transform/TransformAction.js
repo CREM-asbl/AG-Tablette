@@ -1,6 +1,7 @@
 import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
+import { mod } from '../Core/Tools/general';
 
 export class TransformAction extends Action {
   constructor() {
@@ -20,7 +21,6 @@ export class TransformAction extends Action {
   }
 
   initFromObject(save) {
-    console.log(save);
     this.shapeId = save.shapeId;
     this.pointSelected = save.pointSelected;
     this.pointDest = save.pointDest;
@@ -61,26 +61,19 @@ export class TransformAction extends Action {
       let homothetyCenter = this.line.segment.vertexes[
         this.line.segment.vertexes[0].equal(this.pointSelected) ? 1 : 0
       ];
-      console.log(homothetyCenter, shape.segments[0].vertexes[0]);
-      console.log(
-        'scaling',
-        homothetyCenter.dist(this.pointDest) / this.pointSelected.segment.length
-      );
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: {
-            point: homothetyCenter,
-            size: 3,
-            color: '#ee00ee',
-            ctx: app.mainCtx,
-          },
-        })
-      );
       shape.homothety(
         homothetyCenter.dist(this.pointDest) /
           this.pointSelected.segment.length, //.dist(this.pointSelected),
         homothetyCenter
       );
+    } else if (shape.familyName.startsWith('irregular')) {
+      this.pointSelected.setCoordinates(this.pointDest);
+      this.pointSelected.shape.segments[
+        mod(
+          this.pointSelected.segment.idx + 1,
+          this.pointSelected.shape.segments.length
+        )
+      ].vertexes[0].setCoordinates(this.pointDest);
     }
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
