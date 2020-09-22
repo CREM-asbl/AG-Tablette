@@ -609,10 +609,10 @@ export class Shape {
    * @param {Point}  center    center of the transformation
    */
   homothety(scaling, center = new Point(0, 0)) {
+    let saveCenter = new Point(center);
     let newCenter = center.multiplyWithScalar(scaling);
-    this.vertexes.forEach((v, i) => console.log('v' + i, v.x, v.y));
     this.scale(scaling);
-    this.translate(center.x - newCenter.x, center.y - newCenter.y);
+    this.translate(saveCenter.x - newCenter.x, saveCenter.y - newCenter.y);
   }
 
   rotate(angle, center) {

@@ -13,14 +13,17 @@ export class TransformState extends State {
     // show-points -> move-point
     this.currentStep = null;
 
+    // id of the shape that contains the point
+    this.shapeId = null;
+
     // point to modify
     this.pointSelected = null;
 
-    // the constraints applied to pointSelected
-    this.constraints = null;
-
     // destination point
     this.dest = null;
+
+    // the constraints applied to pointSelected
+    this.constraints = null;
   }
 
   /**
@@ -68,6 +71,7 @@ export class TransformState extends State {
     window.cancelAnimationFrame(this.requestAnimFrameId);
 
     app.removeListener('objectSelected', this.objectSelectedId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   /**
@@ -84,11 +88,10 @@ export class TransformState extends State {
   }
 
   objectSelected(point) {
-    this.point = point;
+    this.pointSelected = point;
+    this.shapeId = this.pointSelected.shape.id;
 
-    console.log(this.point);
-
-    this.constraints = this.point.getTransformConstraint();
+    this.constraints = this.pointSelected.getTransformConstraint();
 
     this.currentStep = 'move-point';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
@@ -101,7 +104,10 @@ export class TransformState extends State {
     this.dest = this.actions = [
       {
         name: 'TransformAction',
-        point: this.point,
+        shapeId: this.shapeId,
+        pointSelected: this.pointSelected,
+        pointDest: this.dest,
+        line: this.line,
       },
     ];
     this.executeAction();
@@ -112,15 +118,16 @@ export class TransformState extends State {
     if (this.currentStep == 'show-points') {
       app.workspace.shapes.forEach(s =>
         s.vertexes.forEach(pt => {
-          let transformConstraints = pt.getTransformConstraint();
-          let color;
-          if (transformConstraints.isFree) {
-            color = '#0f0';
-          } else if (transformConstraints.isBlocked) {
-            color = '#f00';
-          } else if (transformConstraints.isConstrained) {
-            color = '#ff0';
-          }
+          const transformConstraints = pt.getTransformConstraint();
+          const colorPicker = {
+            '#0f0': transformConstraints.isFree,
+            '#f00': transformConstraints.isBlocked,
+            '#FF8C00': transformConstraints.isConstrained,
+          };
+          const color = Object.entries(colorPicker).filter(
+            ([key, value]) => value
+          )[0][0];
+
           window.dispatchEvent(
             new CustomEvent('draw-point', {
               detail: { point: pt, size: 3, color: color },
@@ -129,28 +136,31 @@ export class TransformState extends State {
         })
       );
     } else if (this.currentStep == 'move-point') {
-      let nearestPoint;
+      let projectionOnLine;
       if (this.constraints.isConstrained) {
-        nearestPoint = this.nearestFromContraints(
+        projectionOnLine = this.projectionOnLine(
           app.workspace.lastKnownMouseCoordinates
         );
-        this.dest = nearestPoint.projection;
+        this.dest = projectionOnLine.projection;
       } else {
         this.dest = app.workspace.lastKnownMouseCoordinates;
       }
-      let color;
-      if (this.constraints.isFree) {
-        color = '#0f0';
-      } else if (this.constraints.isBlocked) {
-        color = '#f00';
-      } else if (this.constraints.isConstrained) {
-        color = '#FF8C00';
-      }
+
+      let colorPicker = {
+        '#0f0': this.constraints.isFree,
+        '#f00': this.constraints.isBlocked,
+        '#FF8C00': this.constraints.isConstrained,
+      };
+      let color = Object.entries(colorPicker).filter(
+        ([key, value]) => value
+      )[0][0];
+
       window.dispatchEvent(
         new CustomEvent('draw-point', {
           detail: { point: this.dest, size: 3, color: color },
         })
       );
+
       if (this.constraints.isConstrained) {
         this.constraints.lines.forEach(line => {
           window.dispatchEvent(
@@ -159,33 +169,16 @@ export class TransformState extends State {
             })
           );
         });
-        let shapeCopy = new Shape(this.point.shape);
+        let shapeCopy = new Shape(this.pointSelected.shape);
+        this.line = projectionOnLine.line;
 
-        console.log('dest', this.dest);
-        console.log('point', this.point);
-        console.log(
-          'other point',
-          nearestPoint.constraint.segment.vertexes[0].equal(this.point)
-            ? nearestPoint.constraint.segment.vertexes[1]
-            : nearestPoint.constraint.segment.vertexes[0]
-        );
-        console.log(
-          'scale',
-          this.point.dist(this.dest) / this.point.segment.length
-        );
-
+        let homothetyCenter = this.line.segment.vertexes[
+          this.line.segment.vertexes[0].equal(this.pointSelected) ? 1 : 0
+        ];
         shapeCopy.homothety(
-          nearestPoint.constraint.segment.vertexes[
-            nearestPoint.constraint.segment.vertexes[0].equal(this.point)
-              ? 1
-              : 0
-          ].dist(this.dest) / this.point.segment.length,
-          nearestPoint.constraint.segment.vertexes[0].equal(this.point)
-            ? nearestPoint.constraint.segment.vertexes[1]
-            : nearestPoint.constraint.segment.vertexes[0]
+          homothetyCenter.dist(this.dest) / this.pointSelected.segment.length,
+          homothetyCenter
         );
-
-        console.log('vertexes', shapeCopy.vertexes);
 
         window.dispatchEvent(
           new CustomEvent('draw-shape', { detail: { shape: shapeCopy } })
@@ -194,11 +187,11 @@ export class TransformState extends State {
     }
   }
 
-  nearestFromContraints(point) {
-    let projectionsOnContraints = this.constraints.lines.map(constraint => {
-      let projection = constraint.segment.projectionOnSegment(point);
+  projectionOnLine(point) {
+    let projectionsOnContraints = this.constraints.lines.map(line => {
+      let projection = line.segment.projectionOnSegment(point);
       let dist = projection.dist(point);
-      return { projection: projection, dist: dist, constraint: constraint };
+      return { projection: projection, dist: dist, line: line };
     });
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
     return projectionsOnContraints[0];

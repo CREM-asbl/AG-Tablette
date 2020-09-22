@@ -234,7 +234,6 @@ export class Point {
       isConstrained: false,
       isBlocked: false,
       lines: null,
-      isInfinite: false,
     };
     if (this.shape.familyName.startsWith('regular')) {
       constraints.isConstrained = true;
