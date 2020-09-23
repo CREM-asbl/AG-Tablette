@@ -10,7 +10,7 @@ import { SelectManager } from '../Core/Managers/SelectManager';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class TriangleRectangleState extends State {
+export class RightAngleTriangleState extends State {
   constructor() {
     super(
       'create_right_angle_triangle',
@@ -117,9 +117,11 @@ export class TriangleRectangleState extends State {
       this.currentStep = 'select-third-point';
     } else {
       // select-third-point
+      this.thirdPoint = this.projectionOnLine(newPoint).projection;
+
       this.actions = [
         {
-          name: 'TriangleRectangleAction',
+          name: 'RightAngleTriangleAction',
           firstPoint: this.firstPoint,
           secondPoint: this.secondPoint,
           thirdPoint: this.thirdPoint,
