@@ -57,7 +57,7 @@ export class TransformAction extends Action {
 
     let shape = ShapeManager.getShapeById(this.shapeId);
 
-    if (shape.familyName.startsWith('regular')) {
+    if (shape.familyName == 'regular') {
       let homothetyCenter = this.line.segment.vertexes[
         this.line.segment.vertexes[0].equal(this.pointSelected) ? 1 : 0
       ];
@@ -66,7 +66,10 @@ export class TransformAction extends Action {
           this.pointSelected.segment.length, //.dist(this.pointSelected),
         homothetyCenter
       );
-    } else if (shape.familyName.startsWith('irregular')) {
+    } else if (
+      shape.familyName == 'irregular' ||
+      shape.name == 'right-angle-triangle'
+    ) {
       this.pointSelected.setCoordinates(this.pointDest);
       this.pointSelected.shape.segments[
         mod(

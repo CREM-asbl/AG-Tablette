@@ -1,10 +1,12 @@
 import './Common';
 import { app } from '../App';
-import '../../Create';
+// import '../../Create';
 import '../../Copy';
 import '../../Delete';
 import '../../Group';
+import '../../Divide';
 import '../../Merge';
+import '../../Reverse';
 import '../../Ungroup';
 import '../../ToBackground';
 import '../../BackgroundColor';

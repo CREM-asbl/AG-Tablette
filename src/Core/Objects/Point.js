@@ -1,5 +1,7 @@
 import { app } from '../App';
 import { ShapeManager } from '../Managers/ShapeManager';
+import { Segment } from './Segment';
+import { mod } from '../Tools/general';
 
 /**
  * Représente un point du plan
@@ -235,7 +237,7 @@ export class Point {
       isBlocked: false,
       lines: null,
     };
-    if (this.shape.familyName.startsWith('regular')) {
+    if (this.shape.familyName == 'regular') {
       constraints.isConstrained = true;
       constraints.lines = [
         {
@@ -249,8 +251,51 @@ export class Point {
           isInfinite: true,
         },
       ];
-    } else if (this.shape.familyName.startsWith('irregular')) {
+    } else if (this.shape.familyName == 'irregular') {
       constraints.isFree = true;
+    } else if (this.shape.name == 'right-angle-triangle') {
+      constraints.isConstrained = true;
+      if (Math.abs(this.getVertexAngle() - Math.PI / 2) < 0.001) {
+        let hypothenus = this.shape.segments[
+          mod(this.segment.idx - 1, this.shape.segments.length)
+        ];
+        constraints.lines = [
+          {
+            segment: new Segment(
+              this.segment.vertexes[0],
+              this.segment.vertexes[0],
+              null,
+              null,
+              hypothenus.middle
+            ),
+          },
+        ];
+      } else {
+        let previousSeg = this.shape.segments[
+          mod(this.segment.idx - 1, this.shape.segments.length)
+        ];
+        let nextSeg = this.shape.segments[
+          mod(this.segment.idx + 1, this.shape.segments.length)
+        ];
+        if (
+          Math.abs(previousSeg.vertexes[1].getVertexAngle() - Math.PI / 2) <
+          0.001
+        ) {
+          constraints.lines = [
+            {
+              segment: new Segment(this, previousSeg.vertexes[1]),
+              isInfinite: true,
+            },
+          ];
+        } else {
+          constraints.lines = [
+            {
+              segment: new Segment(this, nextSeg.vertexes[1]),
+              isInfinite: true,
+            },
+          ];
+        }
+      }
     }
     return constraints;
   }
@@ -347,5 +392,22 @@ export class Point {
     );
     // console.log('resetting', this.x, this.y);
     this.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
+  }
+
+  /**
+   * get the angle formed by the 2 segments of the vertex. 0 =< value < Math.PI
+   */
+  getVertexAngle() {
+    let shape = this.shape,
+      segment = this.segment,
+      nextSegment = shape.segments[(segment.idx + 1) % shape.segments.length];
+
+    let angle1 = segment.getAngleWithHorizontal();
+    let angle2 = nextSegment.getAngleWithHorizontal();
+
+    let resultAngle = Math.abs(angle1 - angle2) % (2 * Math.PI);
+    if (resultAngle > Math.PI) resultAngle = 2 * Math.PI - resultAngle;
+
+    return resultAngle;
   }
 }

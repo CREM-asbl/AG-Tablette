@@ -101,6 +101,10 @@ export class RightAngleTriangleState extends State {
   onClick() {
     let newPoint = new Point(app.workspace.lastKnownMouseCoordinates);
 
+    if (this.currentStep == 'select-third-point') {
+      newPoint = this.projectionOnLine(newPoint).projection;
+    }
+
     let constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
     let adjustedPoint = SelectManager.selectPoint(newPoint, constraints, false);
@@ -117,7 +121,7 @@ export class RightAngleTriangleState extends State {
       this.currentStep = 'select-third-point';
     } else {
       // select-third-point
-      this.thirdPoint = this.projectionOnLine(newPoint).projection;
+      this.thirdPoint = newPoint;
 
       this.actions = [
         {
@@ -220,7 +224,6 @@ export class RightAngleTriangleState extends State {
 
   projectionOnLine(point) {
     let projectionsOnContraints = this.constraints.lines.map(line => {
-      console.log(line.segment);
       let projection = line.segment.projectionOnSegment(point);
       let dist = projection.dist(point);
       return { projection: projection, dist: dist, line: line };

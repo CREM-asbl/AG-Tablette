@@ -164,6 +164,14 @@ export class TransformState extends State {
           app.workspace.lastKnownMouseCoordinates
         );
         this.pointDest = projectionOnLine.projection;
+
+        this.constraints.lines.forEach(line => {
+          window.dispatchEvent(
+            new CustomEvent(line.isInfinite ? 'draw-line' : 'draw-segment', {
+              detail: { segment: line.segment, color: '#080' },
+            })
+          );
+        });
       } else {
         this.pointDest = app.workspace.lastKnownMouseCoordinates;
       }
@@ -181,14 +189,7 @@ export class TransformState extends State {
         })
       );
 
-      if (this.constraints.isConstrained) {
-        this.constraints.lines.forEach(line => {
-          window.dispatchEvent(
-            new CustomEvent(line.isInfinite ? 'draw-line' : 'draw-segment', {
-              detail: { segment: line.segment, color: '#080' },
-            })
-          );
-        });
+      if (this.pointSelected.shape.familyName == 'regular') {
         let shapeCopy = new Shape(this.pointSelected.shape);
         this.line = projectionOnLine.line;
 
@@ -204,7 +205,10 @@ export class TransformState extends State {
         window.dispatchEvent(
           new CustomEvent('draw-shape', { detail: { shape: shapeCopy } })
         );
-      } else if (this.pointSelected.shape.familyName.startsWith('irregular')) {
+      } else if (
+        this.pointSelected.shape.familyName == 'irregular' ||
+        this.pointSelected.shape.name == 'right-angle-triangle'
+      ) {
         let shapeCopy = new Shape(this.pointSelected.shape);
 
         shapeCopy.segments.forEach(seg =>
