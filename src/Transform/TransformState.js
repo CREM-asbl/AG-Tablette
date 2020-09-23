@@ -125,7 +125,7 @@ export class TransformState extends State {
       }
     }
 
-    this.pointDest = this.actions = [
+    this.actions = [
       {
         name: 'TransformAction',
         shapeId: this.shapeId,
