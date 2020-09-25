@@ -149,6 +149,26 @@ export class RightAngleTriangleState extends State {
               this.firstPoint,
               app.workspace.lastKnownMouseCoordinates
             ),
+            color: app.settings.get('temporaryDrawColor'),
+            size: 2,
+          },
+        })
+      );
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: {
+            point: app.workspace.lastKnownMouseCoordinates,
+            color: app.settings.get('temporaryDrawColor'),
+            size: 2,
+          },
+        })
+      );
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: {
+            point: this.firstPoint,
+            color: app.settings.get('temporaryDrawColor'),
+            size: 2,
           },
         })
       );
@@ -173,11 +193,26 @@ export class RightAngleTriangleState extends State {
           new Segment(this.secondPoint, this.thirdPoint),
           new Segment(this.thirdPoint, this.firstPoint),
         ],
+        borderColor: app.settings.get('temporaryDrawColor'),
       });
 
       window.dispatchEvent(
-        new CustomEvent('draw-shape', { detail: { shape: shape } })
+        new CustomEvent('draw-shape', {
+          detail: { shape: shape, borderSize: 2 },
+        })
       );
+
+      [this.firstPoint, this.secondPoint, this.thirdPoint].forEach(pt => {
+        window.dispatchEvent(
+          new CustomEvent('draw-point', {
+            detail: {
+              point: pt,
+              color: app.settings.get('temporaryDrawColor'),
+              size: 2,
+            },
+          })
+        );
+      });
     }
   }
 
@@ -189,17 +224,7 @@ export class RightAngleTriangleState extends State {
     let segment = new Segment(this.firstPoint, this.secondPoint);
     let angle = segment.getAngleWithHorizontal();
     let perpendicularAngle = angle + Math.PI / 2;
-    let perpendicularLine1 = {
-      segment: new Segment(
-        this.firstPoint,
-        new Point(
-          this.firstPoint.x + Math.cos(perpendicularAngle) * 100,
-          this.firstPoint.y + Math.sin(perpendicularAngle) * 100
-        )
-      ),
-      isInfinite: true,
-    };
-    let perpendicularLine2 = {
+    let perpendicularLine = {
       segment: new Segment(
         this.secondPoint,
         new Point(
@@ -209,16 +234,7 @@ export class RightAngleTriangleState extends State {
       ),
       isInfinite: true,
     };
-    let circle = {
-      segment: new Segment(
-        this.firstPoint,
-        this.firstPoint,
-        null,
-        0,
-        segment.middle
-      ),
-    };
-    constraints.lines.push(perpendicularLine1, perpendicularLine2, circle);
+    constraints.lines.push(perpendicularLine);
     return constraints;
   }
 

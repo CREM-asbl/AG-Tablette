@@ -5,7 +5,7 @@ import '../../Copy';
 import '../../Delete';
 import '../../Group';
 import '../../Divide';
-import '../../Merge';
+import '../../Cut';
 import '../../Reverse';
 import '../../Ungroup';
 import '../../ToBackground';

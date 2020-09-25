@@ -395,9 +395,10 @@ export class Point {
   }
 
   /**
-   * get the angle formed by the 2 segments of the vertex. 0 =< value < Math.PI
+   * get the positive angle formed by the 2 segments of the vertex in 0 =< value < 2 * Math.PI
+   * @param {Boolean} reduced   return value reduced to 0 =< value < Math.PI
    */
-  getVertexAngle() {
+  getVertexAngle(reduced = false) {
     let shape = this.shape,
       segment = this.segment,
       nextSegment = shape.segments[(segment.idx + 1) % shape.segments.length];
@@ -405,8 +406,9 @@ export class Point {
     let angle1 = segment.getAngleWithHorizontal();
     let angle2 = nextSegment.getAngleWithHorizontal();
 
-    let resultAngle = Math.abs(angle1 - angle2) % (2 * Math.PI);
-    if (resultAngle > Math.PI) resultAngle = 2 * Math.PI - resultAngle;
+    let resultAngle = mod(angle1 - angle2, 2 * Math.PI);
+    if (reduced && resultAngle > Math.PI)
+      resultAngle = 2 * Math.PI - resultAngle;
 
     return resultAngle;
   }

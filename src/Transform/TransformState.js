@@ -9,7 +9,7 @@ import { SelectManager } from '../Core/Managers/SelectManager';
  */
 export class TransformState extends State {
   constructor() {
-    super('transform', 'Modifier un polygone', 'geometry_creator');
+    super('transform', 'Modifier un polygone', 'operation');
 
     // show-points -> move-point
     this.currentStep = null;

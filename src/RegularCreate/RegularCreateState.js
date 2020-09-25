@@ -149,8 +149,20 @@ export class RegularCreateState extends State {
     let shape = this.createPolygon();
 
     window.dispatchEvent(
-      new CustomEvent('draw-shape', { detail: { shape: shape } })
+      new CustomEvent('draw-shape', { detail: { shape: shape, borderSize: 2 } })
     );
+
+    shape.vertexes.forEach(pt => {
+      window.dispatchEvent(
+        new CustomEvent('draw-point', {
+          detail: {
+            point: pt,
+            color: app.settings.get('temporaryDrawColor'),
+            size: 2,
+          },
+        })
+      );
+    });
   }
 
   createPolygon() {
@@ -160,6 +172,7 @@ export class RegularCreateState extends State {
 
     let shape = new Shape({
       segments: newSegments,
+      borderColor: app.settings.get('temporaryDrawColor'),
     });
 
     return shape;

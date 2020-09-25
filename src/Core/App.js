@@ -65,6 +65,12 @@ export class App {
 
     // Largeur du menu de gauche de l'application
     this.settings.set('mainMenuWidth', 250);
+
+    // Couleur de dessin des contraintes
+    this.settings.set('constraintsDrawColor', '#080');
+
+    // Couleur de dessin des contraintes
+    this.settings.set('temporaryDrawColor', '#E90CC8');
   }
 
   initEditableSettings() {
