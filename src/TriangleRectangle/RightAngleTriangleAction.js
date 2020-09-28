@@ -54,8 +54,8 @@ export class RightAngleTriangleAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
-    this.firstPoint.name = 'first-point';
-    this.secondPoint.name = 'second-point';
+    this.firstPoint.name = 'firstPoint';
+    this.secondPoint.name = 'secondPoint';
     let shape = new Shape({
       id: this.shapeId,
       segments: [

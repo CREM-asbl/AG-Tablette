@@ -4,8 +4,8 @@ import { Point } from './Point';
 export class Segment {
   constructor(point1, point2, shape, idx, arcCenter, counterclockwise) {
     this.vertexes = [
-      new Point(point1, 'vertex', this, shape),
-      new Point(point2, 'vertex', this, shape),
+      new Point(point1, 'vertex', this, shape, point1?.name),
+      new Point(point2, 'vertex', this, shape, point2?.name),
     ];
     this.points = [];
     this.shape = shape;
@@ -439,18 +439,24 @@ export class Segment {
     else if (save.shapeId) this.shape = ShapeManager.getShapeById(save.shapeId);
 
     this.vertexes = save.vertexes.map(pt => {
-      let newVertex = new Point(pt, 'vertex', this, this.shape);
+      let newVertex = new Point(pt, 'vertex', this, this.shape, pt.name);
       return newVertex;
     });
     if (save.points && save.points.length) {
       this.points = save.points.map(pt => {
-        let newPoint = new Point(pt, 'segmentPoint', this, this.shape);
+        let newPoint = new Point(pt, 'segmentPoint', this, this.shape, pt.name);
         return newPoint;
       });
     }
     if (save.idx !== undefined) this.idx = save.idx;
     if (save.arcCenter) {
-      let newPoint = new Point(save.arcCenter, 'arcCenter', this, this.shape);
+      let newPoint = new Point(
+        save.arcCenter,
+        'arcCenter',
+        this,
+        this.shape,
+        pt.name
+      );
       this.arcCenter = newPoint;
     }
     if (save.counterclockwise) this.counterclockwise = save.counterclockwise;

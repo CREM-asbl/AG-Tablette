@@ -31,6 +31,7 @@ export class Shape {
     isCenterShown = undefined,
     isReversed = false,
     isBiface = false,
+    height,
   }) {
     this.x = x;
     this.y = y;
@@ -52,6 +53,7 @@ export class Shape {
     else this.isCenterShown = isCenterShown;
     this.isReversed = isReversed;
     this.isBiface = isBiface;
+    this.height = height;
   }
 
   /* #################################################################### */
@@ -618,6 +620,68 @@ export class Shape {
   rotate(angle, center) {
     // this.angle = (this.angle + angle) % (2 * Math.PI);
     this.segments.forEach(seg => seg.rotate(angle, center));
+  }
+
+  applyTransform(pointSelected, pointDest) {
+    if (this.name == 'right-angle-triangle') {
+      let v1, v2;
+      if (pointSelected.name == 'firstPoint') {
+        v1 = pointDest;
+        v2 = this.vertexes.filter(pt => pt.name == 'secondPoint')[0];
+      } else {
+        v1 = this.vertexes.filter(pt => pt.name == 'firstPoint')[0];
+        v2 = pointDest;
+      }
+      let angle = new Segment(v1, v2).getAngleWithHorizontal();
+      let perpendicularAngle = angle + Math.PI / 2;
+      if ((this.height > 0) ^ this.isReversed) {
+        perpendicularAngle += Math.PI;
+      }
+      let absHeight = Math.abs(this.height);
+      let v3 = new Point(
+        v2.x + absHeight * Math.cos(perpendicularAngle),
+        v2.y + absHeight * Math.sin(perpendicularAngle)
+      );
+      this.segments.forEach(seg =>
+        seg.vertexes.forEach(pt => {
+          if (pt.name == 'firstPoint') {
+            pt.setCoordinates(v1);
+          } else if (pt.name == 'secondPoint') {
+            pt.setCoordinates(v2);
+          } else {
+            pt.setCoordinates(v3);
+          }
+        })
+      );
+    } else if (this.familyName == 'regular') {
+      let nbOfSegments = this.segments.length;
+      let v1, v2;
+      if (pointSelected.name == 'firstPoint') {
+        v1 = pointDest;
+        v2 = this.vertexes.filter(pt => pt.name == 'secondPoint')[0];
+      } else {
+        v1 = this.vertexes.filter(pt => pt.name == 'firstPoint')[0];
+        v2 = pointDest;
+      }
+      let externalAngle = (Math.PI * 2) / nbOfSegments;
+      let length = v1.dist(v2);
+      let startAngle = Math.atan2(-(v1.y - v2.y), -(v1.x - v2.x));
+
+      this.segments[0].vertexes[0].setCoordinates(v1);
+      this.segments[0].vertexes[1].setCoordinates(v2);
+
+      for (let i = 1; i < nbOfSegments; i++) {
+        let dx = length * Math.cos(startAngle - i * externalAngle);
+        let dy = length * Math.sin(startAngle - i * externalAngle);
+
+        let np = this.segments[i - 1].vertexes[1].addCoordinates(dx, dy);
+
+        this.segments[i].vertexes[0].setCoordinates(
+          this.segments[i - 1].vertexes[1]
+        );
+        this.segments[i].vertexes[1].setCoordinates(np);
+      }
+    }
   }
 
   /* #################################################################### */

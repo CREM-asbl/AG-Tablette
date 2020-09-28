@@ -55,7 +55,12 @@ export class RegularCreateAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
+
+    this.firstPoint.name = 'firstPoint';
+    this.secondPoint.name = 'secondPoint';
+
     let newShape = this.createPolygon();
+
     ShapeManager.addShape(newShape);
   }
 

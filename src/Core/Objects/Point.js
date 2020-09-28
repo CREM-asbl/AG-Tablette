@@ -12,8 +12,10 @@ export class Point {
    * @param {{x: number, y: number}} point - point to copy
    * @param {number} x - other method
    * @param {number} y - other method
+   * @param {String} type - type -> 'vertex', 'segmentPoint' or 'center'
    * @param {Segment} segment - parent segment
    * @param {Shape} shape - shape
+   * @param {String} name - the name -> 'firstPoint' or 'secondPoint'
    */
   constructor() {
     let argc = 0;
@@ -25,9 +27,10 @@ export class Point {
       this.x = parseFloat(arguments[argc++]);
       this.y = parseFloat(arguments[argc++]);
     }
-    if (arguments[argc++]) this.type = arguments[argc - 1]; // 'vertex', 'segmentPoint' or 'center'
+    if (arguments[argc++]) this.type = arguments[argc - 1];
     if (arguments[argc++]) this.segment = arguments[argc - 1];
     if (arguments[argc++]) this.shape = arguments[argc - 1];
+    if (arguments[argc++]) this.name = arguments[argc - 1];
   }
 
   saveToObject() {
@@ -40,6 +43,7 @@ export class Point {
     else if (this.segment && this.segment.shape)
       save.shapeId = this.segment.shape.id;
     if (save.shapeId && this.segment) save.segmentIdx = this.segment.idx;
+    if (this.name) save.name = this.name;
     return save;
   }
 
@@ -53,6 +57,7 @@ export class Point {
     if (save.segment) this.segment = save.segment;
     else if (save.segmentIdx !== undefined)
       this.segment = this.shape.segments[save.segmentIdx];
+    if (save.name) this.name = save.name;
   }
 
   static retrieveFrom(point) {
@@ -171,7 +176,14 @@ export class Point {
   }
 
   copy() {
-    return new Point(this.x, this.y, this.type, this.segment, this.shape);
+    return new Point(
+      this.x,
+      this.y,
+      this.type,
+      this.segment,
+      this.shape,
+      this.name
+    );
   }
 
   /**
@@ -238,45 +250,26 @@ export class Point {
       lines: null,
     };
     if (this.shape.familyName == 'regular') {
-      constraints.isConstrained = true;
-      constraints.lines = [
-        {
-          segment: this.segment,
-          isInfinite: true,
-        },
-        {
-          segment: this.shape.segments[
-            (this.segment.idx + 1) % this.shape.segments.length
-          ],
-          isInfinite: true,
-        },
-      ];
+      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+        constraints.isFree = true;
+      } else {
+        constraints.isBlocked = true;
+      }
     } else if (this.shape.familyName == 'irregular') {
       constraints.isFree = true;
     } else if (this.shape.name == 'right-angle-triangle') {
-      constraints.isConstrained = true;
-      if (Math.abs(this.getVertexAngle() - Math.PI / 2) < 0.001) {
-        let hypothenus = this.shape.segments[
-          mod(this.segment.idx - 1, this.shape.segments.length)
-        ];
-        constraints.lines = [
-          {
-            segment: new Segment(
-              this.segment.vertexes[0],
-              this.segment.vertexes[0],
-              null,
-              null,
-              hypothenus.middle
-            ),
-          },
-        ];
+      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+        constraints.isFree = true;
       } else {
+        constraints.isConstrained = true;
+
         let previousSeg = this.shape.segments[
           mod(this.segment.idx - 1, this.shape.segments.length)
         ];
         let nextSeg = this.shape.segments[
           mod(this.segment.idx + 1, this.shape.segments.length)
         ];
+
         if (
           Math.abs(previousSeg.vertexes[1].getVertexAngle() - Math.PI / 2) <
           0.001

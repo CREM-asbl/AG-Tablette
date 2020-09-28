@@ -189,26 +189,18 @@ export class TransformState extends State {
         })
       );
 
-      if (this.pointSelected.shape.familyName == 'regular') {
+      if (
+        this.pointSelected.name == 'firstPoint' ||
+        this.pointSelected.name == 'secondPoint'
+      ) {
         let shapeCopy = new Shape(this.pointSelected.shape);
-        this.line = projectionOnLine.line;
 
-        let homothetyCenter = this.line.segment.vertexes[
-          this.line.segment.vertexes[0].equal(this.pointSelected) ? 1 : 0
-        ];
-        shapeCopy.homothety(
-          homothetyCenter.dist(this.pointDest) /
-            this.pointSelected.segment.length,
-          homothetyCenter
-        );
+        shapeCopy.applyTransform(this.pointSelected, this.pointDest);
 
         window.dispatchEvent(
           new CustomEvent('draw-shape', { detail: { shape: shapeCopy } })
         );
-      } else if (
-        this.pointSelected.shape.familyName == 'irregular' ||
-        this.pointSelected.shape.name == 'right-angle-triangle'
-      ) {
+      } else {
         let shapeCopy = new Shape(this.pointSelected.shape);
 
         shapeCopy.segments.forEach(seg =>

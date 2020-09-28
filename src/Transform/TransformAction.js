@@ -1,6 +1,5 @@
 import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Shape } from '../Core/Objects/Shape';
 import { mod } from '../Core/Tools/general';
 
 export class TransformAction extends Action {
@@ -57,19 +56,12 @@ export class TransformAction extends Action {
 
     let shape = ShapeManager.getShapeById(this.shapeId);
 
-    if (shape.familyName == 'regular') {
-      let homothetyCenter = this.line.segment.vertexes[
-        this.line.segment.vertexes[0].equal(this.pointSelected) ? 1 : 0
-      ];
-      shape.homothety(
-        homothetyCenter.dist(this.pointDest) /
-          this.pointSelected.segment.length, //.dist(this.pointSelected),
-        homothetyCenter
-      );
-    } else if (
-      shape.familyName == 'irregular' ||
-      shape.name == 'right-angle-triangle'
+    if (
+      this.pointSelected.name == 'firstPoint' ||
+      this.pointSelected.name == 'secondPoint'
     ) {
+      shape.applyTransform(this.pointSelected, this.pointDest);
+    } else {
       this.pointSelected.setCoordinates(this.pointDest);
       this.pointSelected.shape.segments[
         mod(
