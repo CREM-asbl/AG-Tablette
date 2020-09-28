@@ -152,7 +152,7 @@ export class TransformState extends State {
 
           window.dispatchEvent(
             new CustomEvent('draw-point', {
-              detail: { point: pt, size: 3, color: color },
+              detail: { point: pt, size: 2, color: color },
             })
           );
         })
@@ -183,26 +183,17 @@ export class TransformState extends State {
       };
       const color = colorPicker[true];
 
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: { point: this.pointDest, size: 3, color: color },
-        })
-      );
+      let shapeCopy = new Shape({
+        ...this.pointSelected.shape,
+        borderColor: app.settings.get('temporaryDrawColor'),
+      });
 
       if (
         this.pointSelected.name == 'firstPoint' ||
         this.pointSelected.name == 'secondPoint'
       ) {
-        let shapeCopy = new Shape(this.pointSelected.shape);
-
         shapeCopy.applyTransform(this.pointSelected, this.pointDest);
-
-        window.dispatchEvent(
-          new CustomEvent('draw-shape', { detail: { shape: shapeCopy } })
-        );
       } else {
-        let shapeCopy = new Shape(this.pointSelected.shape);
-
         shapeCopy.segments.forEach(seg =>
           seg.vertexes.forEach(v => {
             if (v.equal(this.pointSelected)) {
@@ -210,11 +201,30 @@ export class TransformState extends State {
             }
           })
         );
-
-        window.dispatchEvent(
-          new CustomEvent('draw-shape', { detail: { shape: shapeCopy } })
-        );
       }
+      window.dispatchEvent(
+        new CustomEvent('draw-shape', {
+          detail: { shape: shapeCopy, borderSize: 2 },
+        })
+      );
+
+      shapeCopy.vertexes.forEach(pt => {
+        window.dispatchEvent(
+          new CustomEvent('draw-point', {
+            detail: {
+              point: pt,
+              size: 2,
+              color: app.settings.get('temporaryDrawColor'),
+            },
+          })
+        );
+      });
+
+      // window.dispatchEvent(
+      //   new CustomEvent('draw-point', {
+      //     detail: { point: this.pointDest, size: 3, color: color },
+      //   })
+      // );
     }
   }
 

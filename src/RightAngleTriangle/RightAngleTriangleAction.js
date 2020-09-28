@@ -56,6 +56,7 @@ export class RightAngleTriangleAction extends Action {
     if (!this.checkDoParameters()) return;
     this.firstPoint.name = 'firstPoint';
     this.secondPoint.name = 'secondPoint';
+
     let shape = new Shape({
       id: this.shapeId,
       segments: [
@@ -66,9 +67,7 @@ export class RightAngleTriangleAction extends Action {
       name: 'right-angle-triangle',
       familyName: 'triangle',
     });
-    shape.height =
-      shape.segments[1].length *
-      (shape.segments[0].vertexes[1].getVertexAngle() > Math.PI ? -1 : 1);
+    shape.recalculateHeight();
     ShapeManager.addShape(shape);
   }
 

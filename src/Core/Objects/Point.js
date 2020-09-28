@@ -289,6 +289,24 @@ export class Point {
           ];
         }
       }
+    } else if (this.shape.name == 'isosceles-triangle') {
+      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+        constraints.isFree = true;
+      } else {
+        constraints.isConstrained = true;
+
+        let oppositeSegment = this.shape.segments[
+          mod(this.segment.idx - 1, this.shape.segments.length)
+        ];
+        let middleOfSegment = oppositeSegment.middle;
+
+        constraints.lines = [
+          {
+            segment: new Segment(this, middleOfSegment),
+            isInfinite: true,
+          },
+        ];
+      }
     }
     return constraints;
   }

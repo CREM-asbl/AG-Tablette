@@ -70,6 +70,7 @@ export class TransformAction extends Action {
         )
       ].vertexes[0].setCoordinates(this.pointDest);
     }
+    shape.recalculateHeight();
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }

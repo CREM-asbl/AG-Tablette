@@ -623,37 +623,7 @@ export class Shape {
   }
 
   applyTransform(pointSelected, pointDest) {
-    if (this.name == 'right-angle-triangle') {
-      let v1, v2;
-      if (pointSelected.name == 'firstPoint') {
-        v1 = pointDest;
-        v2 = this.vertexes.filter(pt => pt.name == 'secondPoint')[0];
-      } else {
-        v1 = this.vertexes.filter(pt => pt.name == 'firstPoint')[0];
-        v2 = pointDest;
-      }
-      let angle = new Segment(v1, v2).getAngleWithHorizontal();
-      let perpendicularAngle = angle + Math.PI / 2;
-      if ((this.height > 0) ^ this.isReversed) {
-        perpendicularAngle += Math.PI;
-      }
-      let absHeight = Math.abs(this.height);
-      let v3 = new Point(
-        v2.x + absHeight * Math.cos(perpendicularAngle),
-        v2.y + absHeight * Math.sin(perpendicularAngle)
-      );
-      this.segments.forEach(seg =>
-        seg.vertexes.forEach(pt => {
-          if (pt.name == 'firstPoint') {
-            pt.setCoordinates(v1);
-          } else if (pt.name == 'secondPoint') {
-            pt.setCoordinates(v2);
-          } else {
-            pt.setCoordinates(v3);
-          }
-        })
-      );
-    } else if (this.familyName == 'regular') {
+    if (this.familyName == 'regular') {
       let nbOfSegments = this.segments.length;
       let v1, v2;
       if (pointSelected.name == 'firstPoint') {
@@ -684,7 +654,71 @@ export class Shape {
         );
         this.segments[i].vertexes[1].setCoordinates(np);
       }
+    } else if (this.name == 'right-angle-triangle') {
+      let v1, v2;
+      if (pointSelected.name == 'firstPoint') {
+        v1 = pointDest;
+        v2 = this.vertexes.filter(pt => pt.name == 'secondPoint')[0];
+      } else {
+        v1 = this.vertexes.filter(pt => pt.name == 'firstPoint')[0];
+        v2 = pointDest;
+      }
+      let angle = new Segment(v1, v2).getAngleWithHorizontal();
+      let perpendicularAngle = angle + Math.PI / 2;
+      if ((this.height > 0) ^ this.isReversed) {
+        perpendicularAngle += Math.PI;
+      }
+      let absHeight = Math.abs(this.height);
+      let v3 = new Point(
+        v2.x + absHeight * Math.cos(perpendicularAngle),
+        v2.y + absHeight * Math.sin(perpendicularAngle)
+      );
+      this.segments.forEach(seg =>
+        seg.vertexes.forEach(pt => {
+          if (pt.name == 'firstPoint') {
+            pt.setCoordinates(v1);
+          } else if (pt.name == 'secondPoint') {
+            pt.setCoordinates(v2);
+          } else {
+            pt.setCoordinates(v3);
+          }
+        })
+      );
+      console.log(this.segments);
+    } else if (this.name == 'isosceles-triangle') {
+      let v1, v2;
+      if (pointSelected.name == 'firstPoint') {
+        v1 = pointDest;
+        v2 = this.vertexes.filter(pt => pt.name == 'secondPoint')[0];
+      } else {
+        v1 = this.vertexes.filter(pt => pt.name == 'firstPoint')[0];
+        v2 = pointDest;
+      }
+      let initialSegment = new Segment(v1, v2);
+      let angle = initialSegment.getAngleWithHorizontal();
+      let perpendicularAngle = angle + Math.PI / 2;
+      if ((this.height > 0) ^ this.isReversed) {
+        perpendicularAngle += Math.PI;
+      }
+      let absHeight = Math.abs(this.height);
+      let middle = initialSegment.middle;
+      let v3 = new Point(
+        middle.x + absHeight * Math.cos(perpendicularAngle),
+        middle.y + absHeight * Math.sin(perpendicularAngle)
+      );
+      this.segments.forEach(seg =>
+        seg.vertexes.forEach(pt => {
+          if (pt.name == 'firstPoint') {
+            pt.setCoordinates(v1);
+          } else if (pt.name == 'secondPoint') {
+            pt.setCoordinates(v2);
+          } else {
+            pt.setCoordinates(v3);
+          }
+        })
+      );
     }
+    this.recalculateHeight();
   }
 
   /* #################################################################### */
@@ -777,6 +811,24 @@ export class Shape {
       path: this.getSVGPath('no scale'),
     };
     return save;
+  }
+
+  recalculateHeight() {
+    // if (this.height === undefined)
+    //   return;
+    let negativeMultiplier;
+    if (this.familyName == 'triangle') {
+      negativeMultiplier =
+        this.segments[0].vertexes[1].getVertexAngle() > Math.PI ? -1 : 1;
+    }
+    if (this.name == 'right-angle-triangle') {
+      console.log('here');
+      this.height = this.segments[1].length * negativeMultiplier;
+    } else if (this.name == 'isosceles-triangle') {
+      this.height =
+        this.segments[0].middle.dist(this.segments[1].vertexes[1]) *
+        negativeMultiplier;
+    }
   }
 
   // static retrieveFrom(shape) {
