@@ -17,8 +17,8 @@ import '../../Grid';
 
 import '../../RegularCreate';
 import '../../IrregularCreate';
+import '../../RightAngleTriangle';
 import '../../Transform';
-import '../../TriangleRectangle';
 
 app.environment.extension = 'agl';
 

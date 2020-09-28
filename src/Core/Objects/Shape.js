@@ -664,6 +664,9 @@ export class Shape {
         v2 = pointDest;
       }
       let externalAngle = (Math.PI * 2) / nbOfSegments;
+      if (shape.isReversed) {
+        externalAngle *= -1;
+      }
       let length = v1.dist(v2);
       let startAngle = Math.atan2(-(v1.y - v2.y), -(v1.x - v2.x));
 
