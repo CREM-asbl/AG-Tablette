@@ -56,10 +56,7 @@ export class TransformAction extends Action {
 
     let shape = ShapeManager.getShapeById(this.shapeId);
 
-    if (
-      this.pointSelected.name == 'firstPoint' ||
-      this.pointSelected.name == 'secondPoint'
-    ) {
+    if (this.pointSelected.name !== undefined) {
       shape.applyTransform(this.pointSelected, this.pointDest);
     } else {
       this.pointSelected.setCoordinates(this.pointDest);

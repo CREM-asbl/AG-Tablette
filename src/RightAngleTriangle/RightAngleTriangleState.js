@@ -91,8 +91,6 @@ export class RightAngleTriangleState extends State {
   _actionHandle(event) {
     if (event.type == 'canvasclick') {
       this.onClick();
-    } else if (event.type == 'setNumberOfPoints') {
-      this.setNumberOfPoints(event.detail.nbOfPoints);
     } else {
       console.log('unsupported event type : ', event.type);
     }

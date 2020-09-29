@@ -307,6 +307,25 @@ export class Point {
           },
         ];
       }
+    } else if (this.shape.name == 'rectangle') {
+      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+        constraints.isFree = true;
+      } else if (this.name == 'thirdPoint') {
+        constraints.isConstrained = true;
+
+        let previousSeg = this.shape.segments[
+          mod(this.segment.idx - 1, this.shape.segments.length)
+        ];
+
+        constraints.lines = [
+          {
+            segment: new Segment(this, previousSeg.vertexes[1]),
+            isInfinite: true,
+          },
+        ];
+      } else {
+        constraints.isBlocked = true;
+      }
     }
     return constraints;
   }

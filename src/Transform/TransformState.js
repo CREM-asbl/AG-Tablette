@@ -103,6 +103,8 @@ export class TransformState extends State {
 
     this.constraints = this.pointSelected.getTransformConstraint();
 
+    if (this.constraints.isBlocked) return;
+
     this.currentStep = 'move-point';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
 
@@ -188,10 +190,7 @@ export class TransformState extends State {
         borderColor: app.settings.get('temporaryDrawColor'),
       });
 
-      if (
-        this.pointSelected.name == 'firstPoint' ||
-        this.pointSelected.name == 'secondPoint'
-      ) {
+      if (this.pointSelected.name !== undefined) {
         shapeCopy.applyTransform(this.pointSelected, this.pointDest);
       } else {
         shapeCopy.segments.forEach(seg =>

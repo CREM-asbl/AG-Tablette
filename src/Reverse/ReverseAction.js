@@ -85,6 +85,7 @@ export class ReverseAction extends Action {
     this.involvedShapesIds.forEach(id => {
       let s = ShapeManager.getShapeById(id);
       this.reverseShape(s, this.axe, 1);
+      s.recalculateHeight();
     });
     ShapeManager.moveShapesUp(this.shapesPos);
     ShapeManager.reverseUpperShapes(this.shapesPos.length);
@@ -111,7 +112,7 @@ export class ReverseAction extends Action {
    */
   reverseShape(shape, axe) {
     shape.isReversed = !shape.isReversed;
-    shape.reverse();
+    // shape.reverse();
 
     shape.segments.forEach(seg => {
       let points = [

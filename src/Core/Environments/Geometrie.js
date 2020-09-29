@@ -20,6 +20,7 @@ import '../../RegularCreate';
 import '../../IrregularCreate';
 import '../../RightAngleTriangle';
 import '../../IsoscelesTriangle';
+import '../../Rectangle';
 import '../../Transform';
 
 app.environment.extension = 'agl';
