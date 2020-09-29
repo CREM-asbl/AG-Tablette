@@ -455,7 +455,7 @@ export class Segment {
         'arcCenter',
         this,
         this.shape,
-        pt.name
+        save.arcCenter.name
       );
       this.arcCenter = newPoint;
     }

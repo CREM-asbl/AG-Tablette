@@ -1,6 +1,5 @@
 import './Common';
 import { app } from '../App';
-// import '../../Create';
 import '../../Copy';
 import '../../Delete';
 import '../../Group';
@@ -18,9 +17,9 @@ import '../../Grid';
 
 import '../../RegularCreate';
 import '../../IrregularCreate';
-import '../../RightAngleTriangle';
-import '../../IsoscelesTriangle';
-import '../../Rectangle';
+import '../../CreateQuadrilateral';
+import '../../CreateTriangle';
+
 import '../../Transform';
 
 app.environment.extension = 'agl';

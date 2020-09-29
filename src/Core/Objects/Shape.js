@@ -718,7 +718,7 @@ export class Shape {
           }
         })
       );
-    } else if (this.name == 'rectangle') {
+    } else if (this.name == 'Rectangle') {
       let v1, v2, v3, v4;
       if (pointSelected.name == 'firstPoint') {
         v1 = pointDest;

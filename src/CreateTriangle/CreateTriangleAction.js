@@ -3,27 +3,23 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { Segment } from '../Core/Objects/Segment';
 
-export class IsoscelesTriangleAction extends Action {
+export class CreateTriangleAction extends Action {
   constructor() {
-    super('IsoscelesTriangleAction');
+    super('CreateTriangleAction');
 
-    // first point of the shape to create
-    this.firstPoint = null;
+    // points of the shape to create
+    this.points = [];
 
-    // second point of the shape to create
-    this.secondPoint = null;
-
-    // third point of the shape to create
-    this.thirdPoint = null;
+    // name of the quadrilateral to create (rectangle, losange, parallélogramme, trapèze)
+    this.quadrilateralName = null;
 
     // id of the shape to create
     this.shapeId = null;
   }
 
   initFromObject(save) {
-    this.firstPoint = save.firstPoint;
-    this.secondPoint = save.secondPoint;
-    this.thirdPoint = save.thirdPoint;
+    this.points = save.points;
+    this.quadrilateralName = save.quadrilateralName;
     this.shapeId = save.shapeId;
   }
 
@@ -54,17 +50,19 @@ export class IsoscelesTriangleAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
-    this.firstPoint.name = 'firstPoint';
-    this.secondPoint.name = 'secondPoint';
+    this.points[0].name = 'firstPoint';
+    this.points[1].name = 'secondPoint';
+    this.points[2].name = 'thirdPoint';
+
     let shape = new Shape({
       id: this.shapeId,
       segments: [
-        new Segment(this.firstPoint, this.secondPoint),
-        new Segment(this.secondPoint, this.thirdPoint),
-        new Segment(this.thirdPoint, this.firstPoint),
+        new Segment(this.points[0], this.points[1]),
+        new Segment(this.points[1], this.points[2]),
+        new Segment(this.points[2], this.points[0]),
       ],
-      name: 'isosceles-triangle',
-      familyName: 'triangle',
+      name: this.quadrilateralName,
+      familyName: '4-corner-shape',
     });
     shape.recalculateHeight();
     ShapeManager.addShape(shape);
