@@ -222,16 +222,6 @@ export class CreateQuadrilateralState extends State {
     } else if (this.quadrilateralSelected == 'Losange') {
       let diagonnalCenter = new Segment(this.points[0], this.points[2]).middle;
 
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: {
-            point: diagonnalCenter,
-            color: app.settings.get('temporaryDrawColor'),
-            size: 2,
-          },
-        })
-      );
-
       this.points[3] = new Point(
         2 * diagonnalCenter.x - this.points[1].x,
         2 * diagonnalCenter.y - this.points[1].y
@@ -264,6 +254,7 @@ export class CreateQuadrilateralState extends State {
       isFree: false,
       isConstrained: false,
       isBlocked: false,
+      isConstructed: false,
       lines: [],
       points: [],
     };
@@ -324,7 +315,7 @@ export class CreateQuadrilateralState extends State {
         };
         constraints.lines.push(constraintLine);
       } else {
-        constraints.isBlocked = true;
+        constraints.isConstructed = true;
       }
     }
     return constraints;

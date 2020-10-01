@@ -193,6 +193,7 @@ export class CreateTriangleState extends State {
       isFree: false,
       isConstrained: false,
       isBlocked: false,
+      isConstructed: false,
       lines: [],
       points: [],
     };
@@ -268,7 +269,6 @@ export class CreateTriangleState extends State {
           return { projection: pt, dist: dist };
         })
       );
-    console.log(constraints, projectionsOnContraints);
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
     return projectionsOnContraints[0].projection;
   }

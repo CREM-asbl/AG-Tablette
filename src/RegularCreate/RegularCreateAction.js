@@ -80,7 +80,7 @@ export class RegularCreateAction extends Action {
       segments: newSegments,
       id: this.shapeId,
       name: this.numberOfPoints + '_corner_shape',
-      familyName: 'regular',
+      familyName: 'Regular',
     });
 
     return shape;

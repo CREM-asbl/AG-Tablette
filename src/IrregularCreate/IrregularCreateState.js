@@ -78,7 +78,7 @@ export class IrregularCreateState extends State {
     let newPoint = new Point(app.workspace.lastKnownMouseCoordinates);
 
     if (
-      this.points.length > 0 &&
+      this.points.length > 2 &&
       SelectManager.arePointsInSelectionDistance(this.points[0], newPoint)
     ) {
       this.actions = [

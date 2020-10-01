@@ -83,7 +83,7 @@ export class GroupState extends State {
           ShapeManager.getShapeById(id)
         );
 
-      window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
       app.workspace.selectionConstraints.shapes.blacklist = shapesList;
@@ -200,7 +200,7 @@ export class GroupState extends State {
         ShapeManager.getShapeById(id)
       );
 
-    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.shapes.blacklist = shapesList;

@@ -78,7 +78,7 @@ export class ReverseState extends State {
   restart() {
     this.end();
     if (this.currentStep == 'selecting-symmetrical-arch') {
-      window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
       app.workspace.selectionConstraints.points.blacklist = [
@@ -143,7 +143,7 @@ export class ReverseState extends State {
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
-    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.points.blacklist = [shape];

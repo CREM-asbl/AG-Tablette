@@ -48,7 +48,7 @@ export class DeleteState extends State {
    */
   restart() {
     this.end();
-    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     setTimeout(() => {
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;

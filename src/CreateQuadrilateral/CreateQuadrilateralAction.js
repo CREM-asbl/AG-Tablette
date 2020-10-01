@@ -66,7 +66,7 @@ export class CreateQuadrilateralAction extends Action {
       name: this.quadrilateralName,
       familyName: '4-corner-shape',
     });
-    shape.recalculateHeight();
+    shape.setGeometryConstructionSpec();
     ShapeManager.addShape(shape);
   }
 

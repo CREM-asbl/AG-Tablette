@@ -17,8 +17,8 @@ import '../../Grid';
 
 import '../../RegularCreate';
 import '../../IrregularCreate';
-import '../../CreateQuadrilateral';
 import '../../CreateTriangle';
+import '../../CreateQuadrilateral';
 
 import '../../Transform';
 

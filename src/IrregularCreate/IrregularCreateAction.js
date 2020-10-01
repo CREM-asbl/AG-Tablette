@@ -53,7 +53,7 @@ export class IrregularCreateAction extends Action {
       segments: newSegments,
       id: this.shapeId,
       name: this.points.length + '_corner_shape',
-      familyName: 'irregular',
+      familyName: 'Irregular',
     });
     ShapeManager.addShape(newShape);
   }

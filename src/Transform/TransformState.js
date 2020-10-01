@@ -54,7 +54,13 @@ export class TransformState extends State {
     this.constraints = null;
     this.line = null;
 
-    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    app.workspace.shapes.forEach(s =>
+      s.vertexes.forEach(pt => {
+        pt.computeTransformConstraint();
+      })
+    );
+
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'mousedown';
     app.workspace.selectionConstraints.points.canSelect = true;
 
@@ -101,9 +107,10 @@ export class TransformState extends State {
     this.pointSelected = point;
     this.shapeId = this.pointSelected.shape.id;
 
-    this.constraints = this.pointSelected.getTransformConstraint();
+    this.pointSelected.computeTransformConstraint();
+    this.constraints = this.pointSelected.transformConstraints;
 
-    if (this.constraints.isBlocked) return;
+    if (this.constraints.isConstructed || this.constraints.isBlocked) return;
 
     this.currentStep = 'move-point';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
@@ -144,10 +151,11 @@ export class TransformState extends State {
     if (this.currentStep == 'show-points') {
       app.workspace.shapes.forEach(s =>
         s.vertexes.forEach(pt => {
-          const transformConstraints = pt.getTransformConstraint();
+          const transformConstraints = pt.transformConstraints;
           const colorPicker = {
             [transformConstraints.isFree]: '#0f0',
             [transformConstraints.isBlocked]: '#f00',
+            [transformConstraints.isConstructed]: '#f00',
             [transformConstraints.isConstrained]: '#FF8C00',
           };
           const color = colorPicker[true];
@@ -160,12 +168,11 @@ export class TransformState extends State {
         })
       );
     } else if (this.currentStep == 'move-point') {
-      let projectionOnLine;
       if (this.constraints.isConstrained) {
-        projectionOnLine = this.projectionOnLine(
-          app.workspace.lastKnownMouseCoordinates
+        this.pointDest = this.projectionOnConstraints(
+          app.workspace.lastKnownMouseCoordinates,
+          this.constraints
         );
-        this.pointDest = projectionOnLine.projection;
 
         this.constraints.lines.forEach(line => {
           window.dispatchEvent(
@@ -174,33 +181,28 @@ export class TransformState extends State {
             })
           );
         });
+        this.constraints.points.forEach(pt => {
+          window.dispatchEvent(
+            new CustomEvent('draw-point', {
+              detail: {
+                point: pt,
+                color: app.settings.get('constraintsDrawColor'),
+                size: 2,
+              },
+            })
+          );
+        });
       } else {
         this.pointDest = app.workspace.lastKnownMouseCoordinates;
       }
-
-      const colorPicker = {
-        [this.constraints.isFree]: '#0f0',
-        [this.constraints.isBlocked]: '#f00',
-        [this.constraints.isConstrained]: '#FF8C00',
-      };
-      const color = colorPicker[true];
 
       let shapeCopy = new Shape({
         ...this.pointSelected.shape,
         borderColor: app.settings.get('temporaryDrawColor'),
       });
 
-      if (this.pointSelected.name !== undefined) {
-        shapeCopy.applyTransform(this.pointSelected, this.pointDest);
-      } else {
-        shapeCopy.segments.forEach(seg =>
-          seg.vertexes.forEach(v => {
-            if (v.equal(this.pointSelected)) {
-              v.setCoordinates(this.pointDest);
-            }
-          })
-        );
-      }
+      shapeCopy.applyTransform(this.pointSelected, this.pointDest);
+
       window.dispatchEvent(
         new CustomEvent('draw-shape', {
           detail: { shape: shapeCopy, borderSize: 2 },
@@ -227,13 +229,20 @@ export class TransformState extends State {
     }
   }
 
-  projectionOnLine(point) {
-    let projectionsOnContraints = this.constraints.lines.map(line => {
-      let projection = line.segment.projectionOnSegment(point);
-      let dist = projection.dist(point);
-      return { projection: projection, dist: dist, line: line };
-    });
+  projectionOnConstraints(point, constraints) {
+    let projectionsOnContraints = constraints.lines
+      .map(line => {
+        let projection = line.segment.projectionOnSegment(point);
+        let dist = projection.dist(point);
+        return { projection: projection, dist: dist };
+      })
+      .concat(
+        constraints.points.map(pt => {
+          let dist = pt.dist(point);
+          return { projection: pt, dist: dist };
+        })
+      );
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
-    return projectionsOnContraints[0];
+    return projectionsOnContraints[0].projection;
   }
 }

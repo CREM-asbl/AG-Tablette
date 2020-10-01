@@ -30,7 +30,7 @@ export function isPointInPolygon(polygon, point) {
     ) {
       let eps = 0.000001;
 
-      /* Calculate the equation of the line */
+      /* Find the equation of the line */
       let dx = polygon[(i + 1) % nb_pts].x - polygon[i].x;
       let dy = polygon[(i + 1) % nb_pts].y - polygon[i].y;
       let k;

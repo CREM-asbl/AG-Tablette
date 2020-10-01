@@ -55,7 +55,7 @@ export class DivideState extends State {
     let popup = createElem('divide-popup');
     popup.parts = this.numberOfParts;
 
-    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.segments.canSelect = true;
     app.workspace.selectionConstraints.points.canSelect = true;
@@ -81,7 +81,7 @@ export class DivideState extends State {
       app.workspace.selectionConstraints = this.savedSelConstr;
       this.savedSelConstr = null;
     } else {
-      window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.segments.canSelect = true;
       app.workspace.selectionConstraints.points.canSelect = true;

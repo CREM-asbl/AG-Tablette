@@ -15,7 +15,7 @@ export class Point {
    * @param {String} type - type -> 'vertex', 'segmentPoint' or 'center'
    * @param {Segment} segment - parent segment
    * @param {Shape} shape - shape
-   * @param {String} name - the name -> 'firstPoint' or 'secondPoint'
+   * @param {String} name - the name -> 'firstPoint', 'secondPoint', 'thirdPoint', 'fourthPoint'
    */
   constructor() {
     let argc = 0;
@@ -242,64 +242,45 @@ export class Point {
     return angle;
   }
 
-  getTransformConstraint() {
+  computeTransformConstraint() {
     let constraints = {
       isFree: false,
       isConstrained: false,
       isBlocked: false,
-      lines: null,
+      isConstructed: false,
+      lines: [],
+      points: [],
     };
-    if (this.shape.familyName == 'regular') {
+    if (this.shape.familyName == 'Regular') {
       if (this.name == 'firstPoint' || this.name == 'secondPoint') {
         constraints.isFree = true;
       } else {
-        constraints.isBlocked = true;
+        constraints.isConstructed = true;
       }
-    } else if (this.shape.familyName == 'irregular') {
+    } else if (this.shape.familyName == 'Irregular') {
       constraints.isFree = true;
-    } else if (this.shape.name == 'right-angle-triangle') {
+    } else if (this.shape.name == 'RightAngleTriangle') {
       if (this.name == 'firstPoint' || this.name == 'secondPoint') {
         constraints.isFree = true;
       } else {
         constraints.isConstrained = true;
 
-        let previousSeg = this.shape.segments[
-          mod(this.segment.idx - 1, this.shape.segments.length)
+        let firstSeg = this.shape.segments[0];
+        constraints.lines = [
+          {
+            segment: new Segment(this, firstSeg.vertexes[1]),
+            isInfinite: true,
+          },
         ];
-        let nextSeg = this.shape.segments[
-          mod(this.segment.idx + 1, this.shape.segments.length)
-        ];
-
-        if (
-          Math.abs(previousSeg.vertexes[1].getVertexAngle() - Math.PI / 2) <
-          0.001
-        ) {
-          constraints.lines = [
-            {
-              segment: new Segment(this, previousSeg.vertexes[1]),
-              isInfinite: true,
-            },
-          ];
-        } else {
-          constraints.lines = [
-            {
-              segment: new Segment(this, nextSeg.vertexes[1]),
-              isInfinite: true,
-            },
-          ];
-        }
       }
-    } else if (this.shape.name == 'isosceles-triangle') {
+    } else if (this.shape.name == 'IsoscelesTriangle') {
       if (this.name == 'firstPoint' || this.name == 'secondPoint') {
         constraints.isFree = true;
       } else {
         constraints.isConstrained = true;
 
-        let oppositeSegment = this.shape.segments[
-          mod(this.segment.idx - 1, this.shape.segments.length)
-        ];
-        let middleOfSegment = oppositeSegment.middle;
-
+        let firstSeg = this.shape.segments[0];
+        let middleOfSegment = firstSeg.middle;
         constraints.lines = [
           {
             segment: new Segment(this, middleOfSegment),
@@ -307,27 +288,109 @@ export class Point {
           },
         ];
       }
-    } else if (this.shape.name == 'rectangle') {
+    } else if (this.shape.name == 'RightAngleIsoscelesTriangle') {
+      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+        constraints.isFree = true;
+      } else {
+        constraints.isConstrained = true;
+        let firstSeg = this.shape.segments[0];
+        let segmentLength = firstSeg.length;
+        let angle = firstSeg.getAngleWithHorizontal();
+        let perpendicularAngle = angle + Math.PI / 2;
+        let firstPoint = new Point(
+          firstSeg.vertexes[1].x + Math.cos(perpendicularAngle) * segmentLength,
+          firstSeg.vertexes[1].y + Math.sin(perpendicularAngle) * segmentLength
+        );
+        let secondPoint = new Point(
+          firstSeg.vertexes[1].x - Math.cos(perpendicularAngle) * segmentLength,
+          firstSeg.vertexes[1].y - Math.sin(perpendicularAngle) * segmentLength
+        );
+        constraints.points.push(firstPoint);
+        constraints.points.push(secondPoint);
+      }
+    } else if (this.shape.name == 'Rectangle') {
       if (this.name == 'firstPoint' || this.name == 'secondPoint') {
         constraints.isFree = true;
       } else if (this.name == 'thirdPoint') {
         constraints.isConstrained = true;
 
-        let previousSeg = this.shape.segments[
-          mod(this.segment.idx - 1, this.shape.segments.length)
-        ];
-
+        let firstSeg = this.shape.segments[0];
         constraints.lines = [
           {
-            segment: new Segment(this, previousSeg.vertexes[1]),
+            segment: new Segment(this, firstSeg.vertexes[1]),
             isInfinite: true,
           },
         ];
       } else {
-        constraints.isBlocked = true;
+        constraints.isConstructed = true;
+      }
+    } else if (this.shape.name == 'Losange') {
+      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+        constraints.isFree = true;
+      } else if (this.name == 'thirdPoint') {
+        constraints.isConstrained = true;
+        let constraintLine = {
+          segment: new Segment(
+            this.shape.segments[0].vertexes[0],
+            this.shape.segments[0].vertexes[0],
+            null,
+            null,
+            this.shape.segments[0].vertexes[1]
+          ),
+        };
+        constraints.lines = [constraintLine];
+      } else {
+        constraints.isConstructed = true;
+      }
+    } else if (this.shape.name == 'Parallelogram') {
+      if (
+        this.name == 'firstPoint' ||
+        this.name == 'secondPoint' ||
+        this.name == 'thirdPoint'
+      ) {
+        constraints.isFree = true;
+      } else {
+        constraints.isConstructed = true;
+      }
+    } else if (this.shape.name == 'RightAngleTrapeze') {
+      if (
+        this.name == 'firstPoint' ||
+        this.name == 'secondPoint' ||
+        this.name == 'thirdPoint'
+      ) {
+        constraints.isFree = true;
+      } else {
+        constraints.isConstructed = true;
+      }
+    } else if (this.shape.name == 'IsoscelesTrapeze') {
+      if (
+        this.name == 'firstPoint' ||
+        this.name == 'secondPoint' ||
+        this.name == 'thirdPoint'
+      ) {
+        constraints.isFree = true;
+      } else {
+        constraints.isConstructed = true;
+      }
+    } else if (this.shape.name == 'Trapeze') {
+      if (
+        this.name == 'firstPoint' ||
+        this.name == 'secondPoint' ||
+        this.name == 'thirdPoint'
+      ) {
+        constraints.isFree = true;
+      } else {
+        constraints.isConstrained = true;
+        let secondSeg = this.shape.segments[1];
+        constraints.lines = [
+          {
+            segment: new Segment(this, secondSeg.vertexes[1]),
+            isInfinite: true,
+          },
+        ];
       }
     }
-    return constraints;
+    this.transformConstraints = constraints;
   }
 
   /**

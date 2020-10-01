@@ -250,7 +250,7 @@ export class SelectManager {
 
     const flattedPoints = sortedPoints.flat();
 
-    // calculate the best point
+    // find the best point
     if (constraints.blockHidden) {
       const shapes = ShapeManager.shapesThatContainsPoint(mouseCoordinates);
       for (const pt of flattedPoints) {
@@ -455,7 +455,7 @@ export class SelectManager {
   }
 }
 
-window.addEventListener('reset-selection-constrains', () => {
+window.addEventListener('reset-selection-constraints', () => {
   app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
 });
 window.addEventListener('app-state-changed', () => {

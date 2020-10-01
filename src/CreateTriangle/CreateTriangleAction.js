@@ -19,7 +19,7 @@ export class CreateTriangleAction extends Action {
 
   initFromObject(save) {
     this.points = save.points;
-    this.quadrilateralName = save.quadrilateralName;
+    this.triangleName = save.triangleName;
     this.shapeId = save.shapeId;
   }
 
@@ -61,10 +61,10 @@ export class CreateTriangleAction extends Action {
         new Segment(this.points[1], this.points[2]),
         new Segment(this.points[2], this.points[0]),
       ],
-      name: this.quadrilateralName,
-      familyName: '4-corner-shape',
+      name: this.triangleName,
+      familyName: '3-corner-shape',
     });
-    shape.recalculateHeight();
+    shape.setGeometryConstructionSpec();
     ShapeManager.addShape(shape);
   }
 

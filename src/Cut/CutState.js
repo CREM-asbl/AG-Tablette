@@ -270,7 +270,7 @@ export class CutState extends State {
   }
 
   setSelConstraints(step) {
-    window.dispatchEvent(new CustomEvent('reset-selection-constrains'));
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.points.canSelect = true;
     if (step == 'listen-canvas-click') {
