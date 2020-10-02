@@ -1,6 +1,5 @@
 import { app } from '../App';
 import { createElem } from '../Tools/general';
-import '../../popups/save-popup';
 
 export class SaveFileManager {
   static async saveFile() {
@@ -69,6 +68,7 @@ export class SaveFileManager {
           },
           { once: true }
         );
+        import('../../popups/save-popup');
         createElem('save-popup');
     }
   }
@@ -95,6 +95,7 @@ export class SaveFileManager {
       },
       { once: true }
     );
+    import('../../popups/save-popup');
     createElem('save-popup');
   }
 
