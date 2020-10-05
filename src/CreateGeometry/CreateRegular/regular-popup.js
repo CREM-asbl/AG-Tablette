@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
-import { TemplatePopup } from '../popups/template-popup';
+import { TemplatePopup } from '../../popups/template-popup';
 
 class RegularPopup extends LitElement {
   constructor() {

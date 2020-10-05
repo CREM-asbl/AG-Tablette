@@ -15,11 +15,7 @@ import '../../Translate';
 import '../../Zoom';
 import '../../Grid';
 
-import '../../RegularCreate';
-import '../../IrregularCreate';
-import '../../CreateTriangle';
-import '../../CreateQuadrilateral';
-
+import '../../CreateGeometry';
 import '../../Transform';
 
 app.environment.extension = 'agl';

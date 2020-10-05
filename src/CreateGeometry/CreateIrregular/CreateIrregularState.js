@@ -1,15 +1,15 @@
-import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { app } from '../../Core/App';
+import { State } from '../../Core/States/State';
 import { html } from 'lit-element';
-import { SelectManager } from '../Core/Managers/SelectManager';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
-import { uniqId } from '../Core/Tools/general';
+import { SelectManager } from '../../Core/Managers/SelectManager';
+import { Segment } from '../../Core/Objects/Segment';
+import { Point } from '../../Core/Objects/Point';
+import { uniqId } from '../../Core/Tools/general';
 
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class IrregularCreateState extends State {
+export class CreateIrregularState extends State {
   constructor() {
     super(
       'create_irregular_polygon',
@@ -83,7 +83,7 @@ export class IrregularCreateState extends State {
     ) {
       this.actions = [
         {
-          name: 'IrregularCreateAction',
+          name: 'CreateIrregularAction',
           points: this.points,
           shapeId: this.shapeId,
         },

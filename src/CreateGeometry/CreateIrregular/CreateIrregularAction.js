@@ -1,11 +1,11 @@
-import { Action } from '../Core/States/Action';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
+import { Action } from '../../Core/States/Action';
+import { ShapeManager } from '../../Core/Managers/ShapeManager';
+import { Shape } from '../../Core/Objects/Shape';
+import { Segment } from '../../Core/Objects/Segment';
 
-export class IrregularCreateAction extends Action {
+export class CreateIrregularAction extends Action {
   constructor() {
-    super('IrregularCreateAction');
+    super('CreateIrregularAction');
 
     // Les sommets de la formes à créer
     this.points = null;

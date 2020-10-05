@@ -1,11 +1,11 @@
-import { Action } from '../Core/States/Action';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
+import { Action } from '../../Core/States/Action';
+import { ShapeManager } from '../../Core/Managers/ShapeManager';
+import { Shape } from '../../Core/Objects/Shape';
+import { Segment } from '../../Core/Objects/Segment';
 
-export class CreateTriangleAction extends Action {
+export class CreateQuadrilateralAction extends Action {
   constructor() {
-    super('CreateTriangleAction');
+    super('CreateQuadrilateralAction');
 
     // points of the shape to create
     this.points = [];
@@ -19,7 +19,7 @@ export class CreateTriangleAction extends Action {
 
   initFromObject(save) {
     this.points = save.points;
-    this.triangleName = save.triangleName;
+    this.quadrilateralName = save.quadrilateralName;
     this.shapeId = save.shapeId;
   }
 
@@ -53,16 +53,18 @@ export class CreateTriangleAction extends Action {
     this.points[0].name = 'firstPoint';
     this.points[1].name = 'secondPoint';
     this.points[2].name = 'thirdPoint';
+    this.points[3].name = 'fourthPoint';
 
     let shape = new Shape({
       id: this.shapeId,
       segments: [
         new Segment(this.points[0], this.points[1]),
         new Segment(this.points[1], this.points[2]),
-        new Segment(this.points[2], this.points[0]),
+        new Segment(this.points[2], this.points[3]),
+        new Segment(this.points[3], this.points[0]),
       ],
-      name: this.triangleName,
-      familyName: '3-corner-shape',
+      name: this.quadrilateralName,
+      familyName: '4-corner-shape',
     });
     shape.setGeometryConstructionSpec();
     ShapeManager.addShape(shape);

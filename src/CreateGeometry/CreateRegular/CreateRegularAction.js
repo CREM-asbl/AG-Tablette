@@ -1,12 +1,12 @@
-import { Action } from '../Core/States/Action';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
+import { Action } from '../../Core/States/Action';
+import { ShapeManager } from '../../Core/Managers/ShapeManager';
+import { Shape } from '../../Core/Objects/Shape';
+import { Segment } from '../../Core/Objects/Segment';
+import { Point } from '../../Core/Objects/Point';
 
-export class RegularCreateAction extends Action {
+export class CreateRegularAction extends Action {
   constructor() {
-    super('RegularCreateAction');
+    super('CreateRegularAction');
 
     // numbre of points in the shape
     this.numberOfPoints = 4;

@@ -1,16 +1,16 @@
-import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { app } from '../../Core/App';
+import { State } from '../../Core/States/State';
 import { html } from 'lit-element';
-import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
-import { uniqId, createElem } from '../Core/Tools/general';
-import { SelectManager } from '../Core/Managers/SelectManager';
+import { Shape } from '../../Core/Objects/Shape';
+import { Segment } from '../../Core/Objects/Segment';
+import { Point } from '../../Core/Objects/Point';
+import { uniqId, createElem } from '../../Core/Tools/general';
+import { SelectManager } from '../../Core/Managers/SelectManager';
 
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class RegularCreateState extends State {
+export class CreateRegularState extends State {
   constructor() {
     super(
       'create_regular_polygon',
@@ -128,7 +128,7 @@ export class RegularCreateState extends State {
       this.secondPoint = newPoint;
       this.actions = [
         {
-          name: 'RegularCreateAction',
+          name: 'CreateRegularAction',
           firstPoint: this.firstPoint,
           secondPoint: this.secondPoint,
           numberOfPoints: this.numberOfPoints,

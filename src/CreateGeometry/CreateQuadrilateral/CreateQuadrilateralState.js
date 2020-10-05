@@ -1,11 +1,11 @@
-import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { app } from '../../Core/App';
+import { State } from '../../Core/States/State';
 import { html } from 'lit-element';
-import { createElem, uniqId } from '../Core/Tools/general';
-import { SelectManager } from '../Core/Managers/SelectManager';
-import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
+import { createElem, uniqId } from '../../Core/Tools/general';
+import { SelectManager } from '../../Core/Managers/SelectManager';
+import { Shape } from '../../Core/Objects/Shape';
+import { Segment } from '../../Core/Objects/Segment';
+import { Point } from '../../Core/Objects/Point';
 import './quadrilaterals-list';
 
 /**

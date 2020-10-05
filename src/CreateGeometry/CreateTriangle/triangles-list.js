@@ -1,23 +1,20 @@
-import { app } from '../Core/App';
+import { app } from '../../Core/App';
 import { LitElement, html, css } from 'lit-element';
 
-class QuadrilateralsList extends LitElement {
+class TrianglesList extends LitElement {
   constructor() {
     super();
-    this.quadrilateralsNames = [
-      'Rectangle',
-      'Losange',
-      'Parallelogram',
-      'RightAngleTrapeze',
-      'IsoscelesTrapeze',
-      'Trapeze',
+    this.trianglesNames = [
+      'RightAngleTriangle',
+      'IsoscelesTriangle',
+      'RightAngleIsoscelesTriangle',
     ];
   }
 
   static get properties() {
     return {
-      quadrilateralsNames: { type: Array },
-      quadrilateralSelected: { type: String },
+      trianglesNames: { type: Array },
+      triangleSelected: { type: String },
     };
   }
 
@@ -75,16 +72,16 @@ class QuadrilateralsList extends LitElement {
   render() {
     return html`
       <div class="container">
-        <h2>Quadrilatères</h2>
+        <h2>Triangles</h2>
         <ul>
-          ${this.quadrilateralsNames.map(
-            quadrilateralName => html`
+          ${this.trianglesNames.map(
+            triangleName => html`
               <li>
                 <canvas-button
-                  title="${quadrilateralName}"
-                  shapeName="${quadrilateralName}"
+                  title="${triangleName}"
+                  shapeName="${triangleName}"
                   @click="${this._clickHandle}"
-                  ?active="${quadrilateralName === this.quadrilateralSelected}"
+                  ?active="${triangleName === this.triangleSelected}"
                 >
                 </canvas-button>
               </li>
@@ -96,13 +93,13 @@ class QuadrilateralsList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.quadrilateralSelected = event.target.shapeName;
-    console.log(this.quadrilateralSelected);
+    this.triangleSelected = event.target.shapeName;
+    console.log(this.triangleSelected);
     window.dispatchEvent(
-      new CustomEvent('quadrilateral-selected', {
-        detail: { quadrilateralSelected: this.quadrilateralSelected },
+      new CustomEvent('triangle-selected', {
+        detail: { triangleSelected: this.triangleSelected },
       })
     );
   }
 }
-customElements.define('quadrilaterals-list', QuadrilateralsList);
+customElements.define('triangles-list', TrianglesList);
