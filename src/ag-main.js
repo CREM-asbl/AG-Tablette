@@ -364,4 +364,4 @@ class AGTabletteApp extends LitElement {
   //   reader.readAsDataURL(file);
   // }
 }
-customElements.define('ag-tablette-app', AGTabletteApp);
+customElements.define('ag-main', AGTabletteApp);

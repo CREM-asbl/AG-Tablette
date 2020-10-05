@@ -17,8 +17,8 @@ class AgApp extends LitElement {
 
   render() {
     if (this.environnement_selected) {
-      import('./ag-tablette-app');
-      return html` <ag-tablette-app></ag-tablette-app> `;
+      import('./ag-main');
+      return html` <ag-main></ag-main> `;
     } else {
       import('./ag-environnements');
       return html` <ag-environnements></ag-environnements> `;
