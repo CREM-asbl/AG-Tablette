@@ -10,8 +10,8 @@ export class CreateTriangleAction extends Action {
     // points of the shape to create
     this.points = [];
 
-    // name of the quadrilateral to create (rectangle, losange, parallélogramme, trapèze)
-    this.quadrilateralName = null;
+    // name of the triangle to create (rectangle, isocele, quelconque)
+    this.triangleName = null;
 
     // id of the shape to create
     this.shapeId = null;

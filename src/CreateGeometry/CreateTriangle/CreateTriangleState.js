@@ -6,7 +6,6 @@ import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Shape } from '../../Core/Objects/Shape';
 import { Segment } from '../../Core/Objects/Segment';
 import { Point } from '../../Core/Objects/Point';
-import './triangles-list';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -49,7 +48,10 @@ export class CreateTriangleState extends State {
     this.points = [];
     this.shapeId = uniqId();
 
-    if (!this.trianglesList) this.trianglesList = createElem('triangles-list');
+    if (!this.trianglesList) {
+      import('./triangles-list');
+      this.trianglesList = createElem('triangles-list');
+    }
     this.trianglesList.style.display = 'flex';
 
     window.addEventListener('triangle-selected', this.handler);
@@ -137,8 +139,8 @@ export class CreateTriangleState extends State {
 
     if (this.currentStep == 'select-first-point') {
       this.points[0] = newPoint;
-      this.currentStep = 'select-second-point';
       this.animate();
+      this.currentStep = 'select-second-point';
     } else if (this.currentStep == 'select-second-point') {
       this.points[1] = newPoint;
       this.currentStep = 'select-third-point';

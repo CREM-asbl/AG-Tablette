@@ -6,7 +6,6 @@ import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Shape } from '../../Core/Objects/Shape';
 import { Segment } from '../../Core/Objects/Segment';
 import { Point } from '../../Core/Objects/Point';
-import './quadrilaterals-list';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -53,8 +52,10 @@ export class CreateQuadrilateralState extends State {
     this.points = [];
     this.shapeId = uniqId();
 
-    if (!this.quadrilateralsList)
+    if (!this.quadrilateralsList) {
+      import('./quadrilaterals-list');
       this.quadrilateralsList = createElem('quadrilaterals-list');
+    }
     this.quadrilateralsList.style.display = 'flex';
 
     window.addEventListener('quadrilateral-selected', this.handler);

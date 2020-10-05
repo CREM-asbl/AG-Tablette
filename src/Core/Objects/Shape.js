@@ -370,14 +370,30 @@ export class Shape {
    * @return {Boolean} true si cercle, false sinon.
    */
   isCircle() {
-    return this.segments.length == 1 && this.segments[0].arcCenter;
+    return (
+      this.segments.length == 1 &&
+      this.segments[0].arcCenter &&
+      this.segments[0].vertexes[0].equal(this.segments[0].vertexes[1]) &&
+      this.name != 'CircleArc'
+    );
   }
 
   /**
-   * say if the shape is a Segment
+   * say if the shape is a Segment (either a real segment or an arc)
    */
   isSegment() {
-    return this.segments.length === 1 && !this.segments[0].arcCenter;
+    return this.segments.length == 1 && !this.isCircle();
+  }
+
+  /**
+   * say if the shape is a circle arc
+   */
+  isCircleArc() {
+    return (
+      this.segments.length == 1 &&
+      this.segments[0].arcCenter &&
+      this.name == 'CircleArc'
+    );
   }
 
   /**

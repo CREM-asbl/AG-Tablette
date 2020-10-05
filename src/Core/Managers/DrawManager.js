@@ -176,7 +176,7 @@ export class DrawManager {
 
     ctx.save();
 
-    ctx.fill(path, 'nonzero');
+    if (shape.name != 'CircleArc') ctx.fill(path, 'nonzero');
     ctx.globalAlpha = 1;
     ctx.stroke(path);
 
