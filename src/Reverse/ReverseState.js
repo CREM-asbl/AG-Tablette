@@ -342,7 +342,7 @@ export class ReverseState extends State {
     if (this.progress > 0.5) {
       // milieu animation
       shape.isReversed = !shape.isReversed;
-      // shape.reverse();
+      shape.reverse();
     }
 
     shape.segments.forEach(seg => {

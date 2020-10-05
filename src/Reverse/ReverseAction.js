@@ -112,7 +112,7 @@ export class ReverseAction extends Action {
    */
   reverseShape(shape, axe) {
     shape.isReversed = !shape.isReversed;
-    // shape.reverse();
+    shape.reverse();
 
     shape.segments.forEach(seg => {
       let points = [

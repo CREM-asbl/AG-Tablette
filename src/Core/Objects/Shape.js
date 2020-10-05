@@ -580,9 +580,8 @@ export class Shape {
   /* #################################################################### */
 
   reverse() {
-    this.segments.reverse().forEach((seg, idx) => {
-      seg.idx = idx;
-      seg.reverse();
+    this.segments.forEach(seg => {
+      if (seg.arcCenter) seg.counterclockwise = !seg.counterclockwise;
     });
   }
 
