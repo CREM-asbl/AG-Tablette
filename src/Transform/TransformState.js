@@ -54,11 +54,11 @@ export class TransformState extends State {
     this.constraints = null;
     this.line = null;
 
-    app.workspace.shapes.forEach(s =>
-      s.vertexes.forEach(pt => {
+    app.workspace.shapes.forEach(s => {
+      s.modifiablePoints.forEach(pt => {
         pt.computeTransformConstraint();
-      })
-    );
+      });
+    });
 
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'mousedown';
@@ -149,8 +149,9 @@ export class TransformState extends State {
 
   draw() {
     if (this.currentStep == 'show-points') {
-      app.workspace.shapes.forEach(s =>
-        s.vertexes.forEach(pt => {
+      app.workspace.shapes.forEach(s => {
+        let points = s.modifiablePoints;
+        points.forEach(pt => {
           const transformConstraints = pt.transformConstraints;
           const colorPicker = {
             [transformConstraints.isFree]: '#0f0',
@@ -165,8 +166,8 @@ export class TransformState extends State {
               detail: { point: pt, size: 2, color: color },
             })
           );
-        })
-      );
+        });
+      });
     } else if (this.currentStep == 'move-point') {
       if (this.constraints.isConstrained) {
         this.pointDest = this.projectionOnConstraints(
@@ -209,7 +210,7 @@ export class TransformState extends State {
         })
       );
 
-      shapeCopy.vertexes.forEach(pt => {
+      shapeCopy.modifiablePoints.forEach(pt => {
         window.dispatchEvent(
           new CustomEvent('draw-point', {
             detail: {

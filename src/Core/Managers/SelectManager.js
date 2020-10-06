@@ -128,26 +128,34 @@ export class SelectManager {
     // all points at the correct distance
     let potentialPoints = [];
     app.workspace.shapes.forEach(shape => {
-      if (constraints.types.includes('vertex') && !shape.isCircle()) {
-        shape.vertexes
-          .filter(vertex => distCheckFunction(vertex, mouseCoordinates))
-          .forEach(vertex => {
-            potentialPoints.push(vertex);
-          });
-      }
-      if (constraints.types.includes('segmentPoint')) {
-        shape.segmentPoints
+      if (app.environment.name == 'Geometrie') {
+        shape.modifiablePoints
           .filter(point => distCheckFunction(point, mouseCoordinates))
           .forEach(point => {
             potentialPoints.push(point);
           });
-      }
-      if (
-        shape.isCenterShown &&
-        constraints.types.includes('center') &&
-        distCheckFunction(shape.center, mouseCoordinates)
-      ) {
-        potentialPoints.push(shape.center);
+      } else {
+        if (constraints.types.includes('vertex') && !shape.isCircle()) {
+          shape.vertexes
+            .filter(vertex => distCheckFunction(vertex, mouseCoordinates))
+            .forEach(vertex => {
+              potentialPoints.push(vertex);
+            });
+        }
+        if (constraints.types.includes('segmentPoint')) {
+          shape.segmentPoints
+            .filter(point => distCheckFunction(point, mouseCoordinates))
+            .forEach(point => {
+              potentialPoints.push(point);
+            });
+        }
+        if (
+          shape.isCenterShown &&
+          constraints.types.includes('center') &&
+          distCheckFunction(shape.center, mouseCoordinates)
+        ) {
+          potentialPoints.push(shape.center);
+        }
       }
     });
 

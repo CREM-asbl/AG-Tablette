@@ -10,7 +10,14 @@ export class Segment {
     this.points = [];
     this.shape = shape;
     this.idx = idx;
-    if (arcCenter) this.arcCenter = new Point(arcCenter);
+    if (arcCenter)
+      this.arcCenter = new Point(
+        arcCenter,
+        'center',
+        this,
+        shape,
+        arcCenter?.name
+      );
     if (counterclockwise) this.counterclockwise = counterclockwise;
   }
 
@@ -26,6 +33,7 @@ export class Segment {
     this.private_shape = shape;
     if (this.vertexes) this.vertexes.forEach(vertex => (vertex.shape = shape));
     if (this.points) this.points.forEach(point => (point.shape = shape));
+    if (this.arcCenter) this.arcCenter.shape = shape;
   }
 
   get bounds() {

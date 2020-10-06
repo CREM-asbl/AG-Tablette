@@ -79,6 +79,17 @@ export class Shape {
     return this.allOutlinePoints.filter(pt => pt.type == 'vertex');
   }
 
+  get modifiablePoints() {
+    let points = this.vertexes;
+    if (this.name == 'Circle') {
+      points.push(this.segments[0].vertexes[0]);
+      points.push(this.segments[0].arcCenter);
+    } else if (this.name == 'CircleArc') {
+      points.push(this.segments[0].arcCenter);
+    }
+    return points;
+  }
+
   get segmentPoints() {
     return this.segments.map(seg => seg.points).flat();
   }
@@ -678,13 +689,36 @@ export class Shape {
       this.familyName == '4-corner-shape'
     ) {
       transformMethod = 'onlyMovePoint';
+    } else if (pointSelected.name == 'firstPoint' && this.name == 'Circle') {
+      transformMethod = 'computeShape';
+    } else if (
+      (pointSelected.name == 'arcCenter' ||
+        pointSelected.name == 'firstPoint') &&
+      this.name == 'CirclePart'
+    ) {
+      transformMethod = 'computeShape';
+    } else if (this.name == 'CirclePart') {
+      transformMethod = 'onlyMovePoint';
+    } else if (
+      (pointSelected.name == 'arcCenter' ||
+        pointSelected.name == 'firstPoint') &&
+      this.name == 'CircleArc'
+    ) {
+      transformMethod = 'computeShape';
+    } else if (this.name == 'CircleArc') {
+      transformMethod = 'onlyMovePoint';
     }
 
     if (transformMethod == 'onlyMovePoint') {
       pointSelected.setCoordinates(pointDest);
-      pointSelected.shape.segments[
-        mod(pointSelected.segment.idx + 1, pointSelected.shape.segments.length)
-      ].vertexes[0].setCoordinates(pointDest);
+      let nextSeg =
+        pointSelected.shape.segments[
+          mod(
+            pointSelected.segment.idx + 1,
+            pointSelected.shape.segments.length
+          )
+        ];
+      if (!this.isCircleArc()) nextSeg.vertexes[0].setCoordinates(pointDest);
     } else if (transformMethod == 'computeShape') {
       if (this.familyName == 'Regular') {
         let externalAngle = (Math.PI * 2) / this.segments.length;
@@ -865,6 +899,74 @@ export class Shape {
             }
           })
         );
+      } else if (this.familyName == 'circle-shape') {
+        if (this.name == 'Circle') {
+          if (pointSelected.name == 'arcCenter') {
+            let diff = pointDest.subCoordinates(pointSelected);
+            this.segments[0].arcCenter.setCoordinates(pointDest);
+            this.segments[0].vertexes.forEach(v => v.translate(diff.x, diff.y));
+          } else {
+            this.segments[0].vertexes.forEach(v => v.setCoordinates(pointDest));
+          }
+        } else if (this.name == 'CirclePart') {
+          if (pointSelected.name == 'arcCenter') {
+            let diff = pointDest.subCoordinates(pointSelected);
+            this.segments[1].arcCenter.setCoordinates(pointDest);
+            this.segments.forEach(seg =>
+              seg.vertexes.forEach(v => v.translate(diff.x, diff.y))
+            );
+          } else {
+            let angle1 = this.segments[0].vertexes[0].getAngle(
+                this.segments[0].vertexes[1]
+              ),
+              angle2 = this.segments[0].vertexes[0].getAngle(
+                this.segments[1].vertexes[1]
+              ),
+              angleDiff = angle2 - angle1;
+            this.segments[0].vertexes[1].setCoordinates(pointDest);
+            this.segments[1].vertexes[0].setCoordinates(pointDest);
+            let radius = this.segments[0].length,
+              angle3 = this.segments[0].vertexes[0].getAngle(
+                this.segments[0].vertexes[1]
+              ),
+              resultAngle = angle3 + angleDiff,
+              thirdPoint = this.segments[1].arcCenter.addCoordinates(
+                radius * Math.cos(resultAngle),
+                radius * Math.sin(resultAngle)
+              );
+            this.segments[1].vertexes[1].setCoordinates(thirdPoint);
+            this.segments[2].vertexes[0].setCoordinates(thirdPoint);
+          }
+        } else if (this.name == 'CircleArc') {
+          if (pointSelected.name == 'arcCenter') {
+            let diff = pointDest.subCoordinates(pointSelected);
+            this.segments[0].arcCenter.setCoordinates(pointDest);
+            this.segments.forEach(seg =>
+              seg.vertexes.forEach(v => v.translate(diff.x, diff.y))
+            );
+          } else {
+            let angle1 = this.segments[0].arcCenter.getAngle(
+                this.segments[0].vertexes[0]
+              ),
+              angle2 = this.segments[0].arcCenter.getAngle(
+                this.segments[0].vertexes[1]
+              ),
+              angleDiff = angle2 - angle1;
+            this.segments[0].vertexes[0].setCoordinates(pointDest);
+            let radius = this.segments[0].arcCenter.dist(
+                this.segments[0].vertexes[0]
+              ),
+              angle3 = this.segments[0].arcCenter.getAngle(
+                this.segments[0].vertexes[0]
+              ),
+              resultAngle = angle3 + angleDiff;
+            let thirdPoint = this.segments[0].arcCenter.addCoordinates(
+              radius * Math.cos(resultAngle),
+              radius * Math.sin(resultAngle)
+            );
+            this.segments[0].vertexes[1].setCoordinates(thirdPoint);
+          }
+        }
       }
     }
 

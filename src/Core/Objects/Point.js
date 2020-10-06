@@ -389,6 +389,40 @@ export class Point {
           },
         ];
       }
+    } else if (this.shape.name == 'Circle') {
+      constraints.isFree = true;
+    } else if (this.shape.name == 'CirclePart') {
+      if (this.name == 'arcCenter' || this.name == 'firstPoint')
+        constraints.isFree = true;
+      else {
+        constraints.isConstrained = true;
+        let constraintLine = {
+          segment: new Segment(
+            this.shape.segments[0].vertexes[1],
+            this.shape.segments[0].vertexes[1],
+            null,
+            null,
+            this.shape.segments[0].vertexes[0]
+          ),
+        };
+        constraints.lines = [constraintLine];
+      }
+    } else if (this.shape.name == 'CircleArc') {
+      if (this.name == 'arcCenter' || this.name == 'firstPoint')
+        constraints.isFree = true;
+      else {
+        constraints.isConstrained = true;
+        let constraintLine = {
+          segment: new Segment(
+            this.shape.segments[0].vertexes[1],
+            this.shape.segments[0].vertexes[1],
+            null,
+            null,
+            this.shape.segments[0].arcCenter
+          ),
+        };
+        constraints.lines = [constraintLine];
+      }
     }
     this.transformConstraints = constraints;
   }
