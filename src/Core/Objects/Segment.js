@@ -468,8 +468,8 @@ export class Segment {
       this.arcCenter = newPoint;
     }
     if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
-    if (save.tangentPoint1) this.tangentPoint1 = save.tangentPoint1;
-    if (save.tangentPoint2) this.tangentPoint2 = save.tangentPoint2;
+    if (save.tangentPoint1) this.tangentPoint1 = new Point(save.tangentPoint1);
+    if (save.tangentPoint2) this.tangentPoint2 = new Point(save.tangentPoint2);
   }
 
   static retrieveFrom(segment) {
