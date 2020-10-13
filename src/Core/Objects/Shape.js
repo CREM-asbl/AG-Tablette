@@ -32,6 +32,7 @@ export class Shape {
     isReversed = false,
     isBiface = false,
     geometryConstructionSpec = null,
+    reference = null,
   }) {
     this.x = x;
     this.y = y;
@@ -54,6 +55,7 @@ export class Shape {
     this.isReversed = isReversed;
     this.isBiface = isBiface;
     this.geometryConstructionSpec = geometryConstructionSpec;
+    this.reference = reference;
   }
 
   /* #################################################################### */
@@ -86,6 +88,8 @@ export class Shape {
       points.push(this.segments[0].arcCenter);
     } else if (this.name == 'CircleArc') {
       points.push(this.segments[0].arcCenter);
+    } else if (this.name == 'ParalleleStraightLine') {
+      points.pop();
     }
     return points;
   }
@@ -407,6 +411,10 @@ export class Shape {
     );
   }
 
+  isStraightLine() {
+    return this.segments.length == 1 && this.segments[0].isInfinite;
+  }
+
   /**
    * say if a point is on one of the segments of the shape
    * @param {Point} point   le point à analyser
@@ -707,6 +715,10 @@ export class Shape {
       transformMethod = 'computeShape';
     } else if (this.name == 'CircleArc') {
       transformMethod = 'onlyMovePoint';
+    } else if (this.name == 'StraightLine') {
+      transformMethod = 'onlyMovePoint';
+    } else if (this.name == 'ParalleleStraightLine') {
+      transformMethod = 'computeShape';
     }
 
     if (transformMethod == 'onlyMovePoint') {
@@ -718,7 +730,8 @@ export class Shape {
             pointSelected.shape.segments.length
           )
         ];
-      if (!this.isCircleArc()) nextSeg.vertexes[0].setCoordinates(pointDest);
+      if (!this.isCircleArc() && !this.isStraightLine())
+        nextSeg.vertexes[0].setCoordinates(pointDest);
     } else if (transformMethod == 'computeShape') {
       if (this.familyName == 'Regular') {
         let externalAngle = (Math.PI * 2) / this.segments.length;
@@ -967,10 +980,38 @@ export class Shape {
             this.segments[0].vertexes[1].setCoordinates(thirdPoint);
           }
         }
+      } else if (this.familyName == 'Line') {
+        if (this.name == 'ParalleleStraightLine') {
+          let diff = pointDest.subCoordinates(pointSelected);
+          this.segments[0].vertexes.forEach(v => v.translate(diff.x, diff.y));
+        }
       }
     }
 
     this.setGeometryConstructionSpec();
+  }
+
+  updateReferenced(mustDraw = false) {
+    if (this.reference) {
+      if (this.name == 'ParalleleStraightLine') {
+        let segment = Segment.segmentWithAnglePassingThroughPoint(
+          this.reference.getAngleWithHorizontal(),
+          this.segments[0].vertexes[0]
+        );
+        segment.isInfinite = true;
+        this.setSegments([segment]);
+      }
+      if (mustDraw) {
+        let savedBorderColor = this.borderColor;
+        this.borderColor = app.settings.get('temporaryDrawColor');
+        window.dispatchEvent(
+          new CustomEvent('draw-shape', {
+            detail: { shape: this, borderSize: 2 },
+          })
+        );
+        this.borderColor = savedBorderColor;
+      }
+    }
   }
 
   /* #################################################################### */

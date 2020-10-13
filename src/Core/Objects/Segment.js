@@ -2,7 +2,15 @@ import { ShapeManager } from '../Managers/ShapeManager';
 import { Point } from './Point';
 
 export class Segment {
-  constructor(point1, point2, shape, idx, arcCenter, counterclockwise) {
+  constructor(
+    point1,
+    point2,
+    shape,
+    idx,
+    arcCenter,
+    counterclockwise,
+    isInfinite = false
+  ) {
     this.vertexes = [
       new Point(point1, 'vertex', this, shape, point1?.name),
       new Point(point2, 'vertex', this, shape, point2?.name),
@@ -19,6 +27,7 @@ export class Segment {
         arcCenter?.name
       );
     if (counterclockwise) this.counterclockwise = counterclockwise;
+    this.isInfinite = isInfinite;
   }
 
   /* #################################################################### */
@@ -156,43 +165,27 @@ export class Segment {
     return this.vertexes[0].getAngle(this.vertexes[1]);
   }
 
-  // getPath(path, axeAngle = undefined) {
-  //   if (!this.arcCenter) path.lineTo(this.vertexes[1].x, this.vertexes[1].y);
-  //   else if (axeAngle !== undefined) {
-  //     let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
-  //       secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
-  //     if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
-  //     path.ellipse(
-  //       this.arcCenter.x,
-  //       this.arcCenter.y,
-  //       this.arcCenter.dist(this.tangentPoint1),
-  //       this.arcCenter.dist(this.tangentPoint2),
-  //       axeAngle,
-  //       firstAngle - axeAngle,
-  //       secondAngle - axeAngle,
-  //       this.counterclockwise
-  //     );
-  //   } else {
-  //     let firstAngle = this.arcCenter.getAngle(this.vertexes[0]),
-  //       secondAngle = this.arcCenter.getAngle(this.vertexes[1]);
-  //     if (this.vertexes[0].equal(this.vertexes[1])) secondAngle += 2 * Math.PI;
-  //     path.arc(
-  //       this.arcCenter.x,
-  //       this.arcCenter.y,
-  //       this.vertexes[1].dist(this.arcCenter),
-  //       firstAngle,
-  //       secondAngle,
-  //       this.counterclockwise
-  //     );
-  //   }
-  // }
-
   /**
    * convertit le segment en commande de path svg
    */
   getSVGPath(scaling = 'scale', axeAngle = undefined) {
-    let v0 = new Point(this.vertexes[0]),
-      v1 = new Point(this.vertexes[1]),
+    let transformedSegment = this;
+    if (this.isInfinite) {
+      let angle = this.getAngleWithHorizontal();
+      transformedSegment = new Segment(
+        this.vertexes[0].subCoordinates(
+          10000 * Math.cos(angle),
+          10000 * Math.sin(angle)
+        ),
+        this.vertexes[1].addCoordinates(
+          10000 * Math.cos(angle),
+          10000 * Math.sin(angle)
+        )
+      );
+    }
+
+    let v0 = new Point(transformedSegment.vertexes[0]),
+      v1 = new Point(transformedSegment.vertexes[1]),
       path,
       moveTo = '';
 
@@ -417,7 +410,8 @@ export class Segment {
       this.shape,
       this.idx,
       this.arcCenter,
-      this.counterclockwise
+      this.counterclockwise,
+      this.isInfinite
     );
     if (full) {
       this.points.forEach(p => {
@@ -439,6 +433,7 @@ export class Segment {
     if (this.shape) save.shapeId = this.shape.id;
     if (this.arcCenter) save.arcCenter = this.arcCenter.saveToObject();
     if (this.counterclockwise) save.counterclockwise = this.counterclockwise;
+    save.isInfinite = this.isInfinite;
     return save;
   }
 
@@ -470,6 +465,7 @@ export class Segment {
     if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
     if (save.tangentPoint1) this.tangentPoint1 = new Point(save.tangentPoint1);
     if (save.tangentPoint2) this.tangentPoint2 = new Point(save.tangentPoint2);
+    this.isInfinite = save.isInfinite;
   }
 
   static retrieveFrom(segment) {
@@ -539,6 +535,15 @@ export class Segment {
       }
       return proj;
     }
+  }
+
+  static segmentWithAnglePassingThroughPoint(angle, point) {
+    let otherPoint = new Point(
+      point.x + Math.cos(angle) * 100,
+      point.y + Math.sin(angle) * 100
+    );
+    let newSegment = new Segment(point, otherPoint);
+    return newSegment;
   }
 
   /**

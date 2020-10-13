@@ -17,7 +17,7 @@ export class State {
     this.actions = null;
 
     // idle for nothing, paused if stopped by permanent state, running for running...
-    this.status = 'idle';
+    this.status = 'stopped';
 
     app.states.push({
       name: this.name,
@@ -30,10 +30,10 @@ export class State {
         if (this.name == app.state) {
           this.restart(true, event.detail.startParams);
         } else {
-          this.status = 'idle';
+          this.status = 'stopped';
           this.end();
         }
-      } else if (this.status == 'idle') {
+      } else if (this.status == 'stopped') {
         if (this.name == app.state) {
           this.start(event.detail.startParams);
           this.status = 'running';
@@ -54,6 +54,7 @@ export class State {
       }
     });
 
+    // called by permanent state
     window.addEventListener('abort-state', () => {
       if (this.status == 'running') {
         this.status = 'paused';
@@ -144,16 +145,19 @@ export class State {
   /**
    * initialiser l'état
    * (appelé quand l'utilisateur sélectionne le state)
+   * @param {Object} startParams        family pour Create
    */
-  start() {
+  start(startParams = null) {
     console.log('start() not implemented');
   }
 
   /**
    * réinitialiser l'état
-   * (appelé quand focus du permanent state perdu)
+   * (appelé quand focus du permanent state perdu ou si click sur state quand déjà selectionné)
+   * @param {Boolean} manualRestart     si ou resélectionne le State en cours d'utilisation
+   * @param {Object} startParams        family pour Create
    */
-  restart() {
+  restart(manualRestart = false, startParams = null) {
     console.log('restart() not implemented');
   }
 

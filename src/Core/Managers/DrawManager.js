@@ -187,7 +187,8 @@ export class DrawManager {
     if (
       app.settings.get('areShapesPointed') &&
       shape.name !== 'silhouette' &&
-      !shape.isCircle()
+      !shape.isCircle() &&
+      !shape.isStraightLine()
     ) {
       shape.vertexes.forEach(point =>
         DrawManager.drawPoint(ctx, point, '#000', 1, false)

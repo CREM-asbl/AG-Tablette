@@ -5,7 +5,6 @@ import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
-import './shapes-list';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -63,7 +62,10 @@ export class CreateState extends State {
       return;
     }
 
-    if (!this.shapesList) this.shapesList = createElem('shapes-list');
+    if (!this.shapesList) {
+      import('./shapes-list');
+      this.shapesList = createElem('shapes-list');
+    }
     this.shapesList.selectedFamily = family;
     this.shapesList.shapesNames = shapesNames;
     this.shapesList.style.display = 'flex';

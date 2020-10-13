@@ -423,6 +423,8 @@ export class Point {
         };
         constraints.lines = [constraintLine];
       }
+    } else if (this.shape.familyName == 'Line') {
+      constraints.isFree = true;
     }
     this.transformConstraints = constraints;
   }

@@ -132,4 +132,10 @@ export class ShapeManager {
     //supprime la forme
     app.workspace.shapes.splice(shapeIndex, 1);
   }
+
+  static updateReferencedShapes(mustDraw = false) {
+    app.workspace.shapes.forEach(s => {
+      s.updateReferenced(mustDraw);
+    });
+  }
 }

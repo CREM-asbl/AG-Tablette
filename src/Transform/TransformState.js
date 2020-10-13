@@ -3,6 +3,7 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Shape } from '../Core/Objects/Shape';
 import { SelectManager } from '../Core/Managers/SelectManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -221,6 +222,8 @@ export class TransformState extends State {
           })
         );
       });
+
+      ShapeManager.updateReferencedShapes(true);
 
       // window.dispatchEvent(
       //   new CustomEvent('draw-point', {
