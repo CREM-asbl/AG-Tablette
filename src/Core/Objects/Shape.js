@@ -723,7 +723,7 @@ export class Shape {
       transformMethod = 'computeShape';
     } else if (this.name == 'CircleArc') {
       transformMethod = 'onlyMovePoint';
-    } else if (this.name == 'StraightLine') {
+    } else if (this.name == 'StraightLine' || this.name == 'Segment') {
       transformMethod = 'onlyMovePoint';
     } else if (this.name == 'ParalleleStraightLine') {
       transformMethod = 'computeShape';
@@ -740,7 +740,7 @@ export class Shape {
             pointSelected.shape.segments.length
           )
         ];
-      if (!this.isCircleArc() && !this.isStraightLine())
+      if (!this.isCircleArc() && !this.isStraightLine() && !this.isSegment())
         nextSeg.vertexes[0].setCoordinates(pointDest);
     } else if (transformMethod == 'computeShape') {
       if (this.familyName == 'Regular') {

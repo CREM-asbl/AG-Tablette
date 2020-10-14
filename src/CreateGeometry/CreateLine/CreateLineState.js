@@ -72,7 +72,10 @@ export class CreateLineState extends State {
       this.linesList.lineSelected = null;
       this.currentStep = 'show-lines';
     } else {
-      if (this.lineSelected == 'StraightLine') {
+      if (
+        this.lineSelected == 'StraightLine' ||
+        this.lineSelected == 'Segment'
+      ) {
         this.currentStep = 'select-first-point';
         this.mouseClickId = app.addListener('canvasclick', this.handler);
       } else if (
@@ -127,7 +130,10 @@ export class CreateLineState extends State {
       app.removeListener('objectSelected', this.objectSelectedId);
       this.lineSelected = lineSelected;
       if (this.linesList) this.linesList.lineSelected = lineSelected;
-      if (this.lineSelected == 'StraightLine') {
+      if (
+        this.lineSelected == 'StraightLine' ||
+        this.lineSelected == 'Segment'
+      ) {
         this.currentStep = 'select-first-point';
         this.mouseClickId = app.addListener('canvasclick', this.handler);
       } else if (
@@ -185,7 +191,8 @@ export class CreateLineState extends State {
 
     if (this.currentStep == 'select-first-point') {
       this.points[0] = newPoint;
-      if (this.lineSelected == 'StraightLine') this.animate();
+      if (this.lineSelected == 'StraightLine' || this.lineSelected == 'Segment')
+        this.animate();
       this.currentStep = 'select-second-point';
     } else if (this.currentStep == 'select-second-point') {
       this.points[1] = newPoint;
@@ -210,7 +217,10 @@ export class CreateLineState extends State {
   }
 
   canCreateShape() {
-    if (this.lineSelected == 'StraightLine' && this.points.length == 2) {
+    if (
+      (this.lineSelected == 'StraightLine' || this.lineSelected == 'Segment') &&
+      this.points.length == 2
+    ) {
       return true;
     } else if (
       this.lineSelected == 'ParalleleStraightLine' &&
@@ -340,6 +350,11 @@ export class CreateLineState extends State {
         segment.isInfinite = true;
         temporaryShape = new Shape({
           segments: [segment],
+          borderColor: app.settings.get('temporaryDrawColor'),
+        });
+      } else if (this.lineSelected == 'Segment') {
+        temporaryShape = new Shape({
+          segments: [new Segment(this.points[0], this.points[1])],
           borderColor: app.settings.get('temporaryDrawColor'),
         });
       }

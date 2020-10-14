@@ -105,6 +105,13 @@ export class CreateLineAction extends Action {
         name: this.lineName,
         familyName: 'Line',
       });
+    } else if (this.lineName == 'Segment') {
+      shape = new Shape({
+        id: this.shapeId,
+        segments: [new Segment(this.points[0], this.points[1])],
+        name: this.lineName,
+        familyName: 'Line',
+      });
     }
     if (this.reference) {
       this.reference.shape.hasGeometryReferenced.push(shape.id);
