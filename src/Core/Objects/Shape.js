@@ -2,6 +2,7 @@ import { app } from '../App';
 import { getComplementaryColor, uniqId, mod } from '../Tools/general';
 import { Point } from './Point';
 import { Segment } from './Segment';
+import { ShapeManager } from '../Managers/ShapeManager';
 
 /**
  * Représente une forme
@@ -32,7 +33,9 @@ export class Shape {
     isReversed = false,
     isBiface = false,
     geometryConstructionSpec = null,
-    reference = null,
+    referenceShapeId = null,
+    referenceSegmentIdx = null,
+    hasGeometryReferenced = [],
   }) {
     this.x = x;
     this.y = y;
@@ -55,7 +58,9 @@ export class Shape {
     this.isReversed = isReversed;
     this.isBiface = isBiface;
     this.geometryConstructionSpec = geometryConstructionSpec;
-    this.reference = reference;
+    this.referenceShapeId = referenceShapeId;
+    this.referenceSegmentIdx = referenceSegmentIdx;
+    this.hasGeometryReferenced = hasGeometryReferenced;
   }
 
   /* #################################################################### */
@@ -88,7 +93,10 @@ export class Shape {
       points.push(this.segments[0].arcCenter);
     } else if (this.name == 'CircleArc') {
       points.push(this.segments[0].arcCenter);
-    } else if (this.name == 'ParalleleStraightLine') {
+    } else if (
+      this.name == 'ParalleleStraightLine' ||
+      this.name == 'PerpendicularStraightLine'
+    ) {
       points.pop();
     }
     return points;
@@ -719,6 +727,8 @@ export class Shape {
       transformMethod = 'onlyMovePoint';
     } else if (this.name == 'ParalleleStraightLine') {
       transformMethod = 'computeShape';
+    } else if (this.name == 'PerpendicularStraightLine') {
+      transformMethod = 'computeShape';
     }
 
     if (transformMethod == 'onlyMovePoint') {
@@ -981,7 +991,10 @@ export class Shape {
           }
         }
       } else if (this.familyName == 'Line') {
-        if (this.name == 'ParalleleStraightLine') {
+        if (
+          this.name == 'ParalleleStraightLine' ||
+          this.name == 'PerpendicularStraightLine'
+        ) {
           let diff = pointDest.subCoordinates(pointSelected);
           this.segments[0].vertexes.forEach(v => v.translate(diff.x, diff.y));
         }
@@ -991,27 +1004,43 @@ export class Shape {
     this.setGeometryConstructionSpec();
   }
 
-  updateReferenced(mustDraw = false) {
-    if (this.reference) {
-      if (this.name == 'ParalleleStraightLine') {
-        let segment = Segment.segmentWithAnglePassingThroughPoint(
-          this.reference.getAngleWithHorizontal(),
-          this.segments[0].vertexes[0]
-        );
-        segment.isInfinite = true;
-        this.setSegments([segment]);
-      }
-      if (mustDraw) {
-        let savedBorderColor = this.borderColor;
-        this.borderColor = app.settings.get('temporaryDrawColor');
-        window.dispatchEvent(
-          new CustomEvent('draw-shape', {
-            detail: { shape: this, borderSize: 2 },
-          })
-        );
-        this.borderColor = savedBorderColor;
-      }
+  updateGeometry(mustDraw = false) {
+    let reference = ShapeManager.getShapeById(this.referenceShapeId).segments[
+      this.referenceSegmentIdx
+    ];
+    if (this.name == 'ParalleleStraightLine') {
+      let segment = Segment.segmentWithAnglePassingThroughPoint(
+        reference.getAngleWithHorizontal(),
+        this.segments[0].vertexes[0]
+      );
+      segment.isInfinite = true;
+      this.setSegments([segment]);
+    } else if (this.name == 'PerpendicularStraightLine') {
+      let segment = Segment.segmentWithAnglePassingThroughPoint(
+        reference.getAngleWithHorizontal() + Math.PI / 2,
+        this.segments[0].vertexes[0]
+      );
+      segment.isInfinite = true;
+      this.setSegments([segment]);
     }
+    this.updateGeometryReferenced(mustDraw);
+    if (mustDraw) {
+      let savedBorderColor = this.borderColor;
+      this.borderColor = app.settings.get('temporaryDrawColor');
+      window.dispatchEvent(
+        new CustomEvent('draw-shape', {
+          detail: { shape: this, borderSize: 2 },
+        })
+      );
+      this.borderColor = savedBorderColor;
+    }
+  }
+
+  updateGeometryReferenced(mustDraw = false) {
+    this.hasGeometryReferenced.forEach(shapeId => {
+      let shape = ShapeManager.getShapeById(shapeId);
+      shape.updateGeometry(mustDraw);
+    });
   }
 
   /* #################################################################### */

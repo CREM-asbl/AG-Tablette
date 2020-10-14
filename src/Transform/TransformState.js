@@ -223,7 +223,7 @@ export class TransformState extends State {
         );
       });
 
-      ShapeManager.updateReferencedShapes(true);
+      shapeCopy.updateGeometryReferenced(true);
 
       // window.dispatchEvent(
       //   new CustomEvent('draw-point', {

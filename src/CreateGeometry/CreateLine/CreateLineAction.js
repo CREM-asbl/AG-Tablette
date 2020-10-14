@@ -86,11 +86,28 @@ export class CreateLineAction extends Action {
       shape = new Shape({
         id: this.shapeId,
         segments: [segment],
-        reference: this.reference,
+        referenceShapeId: this.reference.shape.id,
+        referenceSegmentIdx: this.reference.idx,
         name: this.lineName,
         familyName: 'Line',
       });
-      // } else if (this.lineName == 'PerpendicularStraightLine') {
+    } else if (this.lineName == 'PerpendicularStraightLine') {
+      let segment = Segment.segmentWithAnglePassingThroughPoint(
+        this.reference.getAngleWithHorizontal() + Math.PI / 2,
+        this.points[0]
+      );
+      segment.isInfinite = true;
+      shape = new Shape({
+        id: this.shapeId,
+        segments: [segment],
+        referenceShapeId: this.reference.shape.id,
+        referenceSegmentIdx: this.reference.idx,
+        name: this.lineName,
+        familyName: 'Line',
+      });
+    }
+    if (this.reference) {
+      this.reference.shape.hasGeometryReferenced.push(shape.id);
     }
     // shape.setGeometryConstructionSpec();
     ShapeManager.addShape(shape);

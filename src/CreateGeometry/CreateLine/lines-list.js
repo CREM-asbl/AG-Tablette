@@ -4,7 +4,11 @@ import { LitElement, html, css } from 'lit-element';
 class LinesList extends LitElement {
   constructor() {
     super();
-    this.linesNames = ['StraightLine', 'ParalleleStraightLine'];
+    this.linesNames = [
+      'StraightLine',
+      'ParalleleStraightLine',
+      'PerpendicularStraightLine',
+    ];
   }
 
   static get properties() {

@@ -589,47 +589,53 @@ export class Segment {
       if (angle <= bound2) return true;
       return false;
     } else {
-      let segmentLength = this.length,
-        dist1 = this.vertexes[0].dist(point),
-        dist2 = this.vertexes[1].dist(point);
-      if (dist1 + dist2 - segmentLength > precision) return false;
-      return true;
+      let projection = this.projectionOnSegment(point);
+      if (this.isInfinite) {
+        return projection.dist(point) < precision;
+      } else {
+        let segmentLength = this.length,
+          dist1 = this.vertexes[0].dist(point),
+          dist2 = this.vertexes[1].dist(point);
+        return dist1 + dist2 - segmentLength < precision;
+      }
     }
   }
 
   /**
    * point d'intersection de 2 segments (ou prolongation)
    * @param {object} segment
-   * @return le point ou undefined si segments parallèles
+   * @return le point ou null si segments parallèles
    */
   intersectPoint(segment) {
     let result = new Point(0, 0),
-      ma =
+      thisSlope =
         (this.vertexes[0].y - this.vertexes[1].y) /
         (this.vertexes[0].x - this.vertexes[1].x),
-      mb =
+      otherSegmentSlope =
         (segment.vertexes[0].y - segment.vertexes[1].y) /
         (segment.vertexes[0].x - segment.vertexes[1].x);
 
     // 2 segments verticaux
-    if (!isFinite(ma) && !isFinite(mb)) return undefined;
+    if (!isFinite(thisSlope) && !isFinite(otherSegmentSlope)) return null;
     // this vertical
-    else if (!isFinite(ma)) {
-      let pb = segment.vertexes[0].y - mb * segment.vertexes[0].x;
-      result.y = mb * this.vertexes[0].x + pb;
+    else if (!isFinite(thisSlope)) {
+      let pb =
+        segment.vertexes[0].y - otherSegmentSlope * segment.vertexes[0].x;
+      result.y = otherSegmentSlope * this.vertexes[0].x + pb;
       result.x = this.vertexes[0].x;
       // segment vertical
-    } else if (!isFinite(mb)) {
-      let pa = this.vertexes[0].y - ma * this.vertexes[0].x;
-      result.y = ma * segment.vertexes[0].x + pa;
+    } else if (!isFinite(otherSegmentSlope)) {
+      let pa = this.vertexes[0].y - thisSlope * this.vertexes[0].x;
+      result.y = thisSlope * segment.vertexes[0].x + pa;
       result.x = segment.vertexes[0].x;
-      // 2 segments 'normaux'
+      // 2 segments 'northisSlopeux'
     } else {
-      if (Math.abs(ma - mb) < 0.001) return undefined;
-      let pb = segment.vertexes[0].y - mb * segment.vertexes[0].x;
-      let pa = this.vertexes[0].y - ma * this.vertexes[0].x;
-      result.x = (pb - pa) / (ma - mb);
-      result.y = ma * result.x + pa;
+      if (thisSlopeth.abs(thisSlope - otherSegmentSlope) < 0.001) return null;
+      let pb =
+        segment.vertexes[0].y - otherSegmentSlope * segment.vertexes[0].x;
+      let pa = this.vertexes[0].y - thisSlope * this.vertexes[0].x;
+      result.x = (pb - pa) / (thisSlope - otherSegmentSlope);
+      result.y = thisSlope * result.x + pa;
     }
     return result;
   }
@@ -637,19 +643,15 @@ export class Segment {
   /**
    * check si deux segments s'intersectent
    * @param {*} segment
-   * @param {Boolean} allow_prolongation verifie si les droites s'intersectent
-   * @param {Boolean} false_if_edge_point si le point d'intersection est la terminaison d'un segment, return false
+   * @param {Boolean} allowProlongation verifie si les droites s'intersectent
+   * @param {Boolean} falseIfEdgePoint si le point d'intersection est la terminaison d'un segment, return false
    */
-  doesIntersect(
-    segment,
-    allow_prolongation = false,
-    false_if_edge_point = false
-  ) {
+  doesIntersect(segment, allowProlongation = false, falseIfEdgePoint = false) {
     let intersect_point = this.intersectPoint(segment);
     if (!intersect_point) return false;
-    if (allow_prolongation) return true;
+    if (allowProlongation) return true;
     if (
-      false_if_edge_point &&
+      falseIfEdgePoint &&
       [...this.vertexes, ...segment.vertexes].some(vertex =>
         vertex.equal(intersect_point)
       )
@@ -676,8 +678,9 @@ export class Segment {
 
   equal(segment) {
     if ((this.arcCenter == undefined) ^ (segment.arcCenter == undefined))
-      return false; // one is arc and the other not
-    if (
+      return false;
+    // one is arc and the other not
+    else if (
       (this.vertexes[0].equal(segment.vertexes[1]) &&
         this.vertexes[1].equal(segment.vertexes[0])) ||
       (this.vertexes[0].equal(segment.vertexes[0]) &&
@@ -690,8 +693,9 @@ export class Segment {
             this.vertexes[1].equal(segment.vertexes[1])
         );
       } else return true;
+    } else {
+      return false;
     }
-    return false;
   }
 
   /**

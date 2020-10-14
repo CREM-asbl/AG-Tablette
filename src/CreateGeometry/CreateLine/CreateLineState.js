@@ -75,7 +75,10 @@ export class CreateLineState extends State {
       if (this.lineSelected == 'StraightLine') {
         this.currentStep = 'select-first-point';
         this.mouseClickId = app.addListener('canvasclick', this.handler);
-      } else if (this.lineSelected == 'ParalleleStraightLine') {
+      } else if (
+        this.lineSelected == 'ParalleleStraightLine' ||
+        this.lineSelected == 'PerpendicularStraightLine'
+      ) {
         this.currentStep = 'select-reference';
         setTimeout(
           () =>
@@ -127,7 +130,10 @@ export class CreateLineState extends State {
       if (this.lineSelected == 'StraightLine') {
         this.currentStep = 'select-first-point';
         this.mouseClickId = app.addListener('canvasclick', this.handler);
-      } else if (this.lineSelected == 'ParalleleStraightLine') {
+      } else if (
+        this.lineSelected == 'ParalleleStraightLine' ||
+        this.lineSelected == 'PerpendicularStraightLine'
+      ) {
         this.currentStep = 'select-reference';
         setTimeout(
           () =>
@@ -212,6 +218,12 @@ export class CreateLineState extends State {
       this.points.length == 1
     ) {
       return true;
+    } else if (
+      this.lineSelected == 'PerpendicularStraightLine' &&
+      this.reference &&
+      this.points.length == 1
+    ) {
+      return true;
     }
   }
 
@@ -261,7 +273,8 @@ export class CreateLineState extends State {
 
     if (
       this.currentStep == 'select-first-point' &&
-      this.lineSelected == 'ParalleleStraightLine'
+      (this.lineSelected == 'ParalleleStraightLine' ||
+        this.lineSelected == 'PerpendicularStraightLine')
     )
       this.points[0] = constrainedPoint;
     else if (this.currentStep == 'select-second-point')
@@ -312,6 +325,16 @@ export class CreateLineState extends State {
       } else if (this.lineSelected == 'ParalleleStraightLine') {
         let segment = Segment.segmentWithAnglePassingThroughPoint(
           this.reference.getAngleWithHorizontal(),
+          this.points[0]
+        );
+        segment.isInfinite = true;
+        temporaryShape = new Shape({
+          segments: [segment],
+          borderColor: app.settings.get('temporaryDrawColor'),
+        });
+      } else if (this.lineSelected == 'PerpendicularStraightLine') {
+        let segment = Segment.segmentWithAnglePassingThroughPoint(
+          this.reference.getAngleWithHorizontal() + Math.PI / 2,
           this.points[0]
         );
         segment.isInfinite = true;
