@@ -732,12 +732,12 @@ export class Shape {
       transformMethod = 'computeShape';
     } else if (
       pointSelected.name == 'firstPoint' &&
-      this.name == 'ParalleleSegment'
+      (this.name == 'ParalleleSegment' || this.name == 'PerpendicularSegment')
     ) {
       transformMethod = 'computeShape';
     } else if (
       pointSelected.name == 'secondPoint' &&
-      this.name == 'ParalleleSegment'
+      (this.name == 'ParalleleSegment' || this.name == 'PerpendicularSegment')
     ) {
       transformMethod = 'onlyMovePoint';
     }
@@ -1005,7 +1005,8 @@ export class Shape {
         if (
           this.name == 'ParalleleStraightLine' ||
           this.name == 'PerpendicularStraightLine' ||
-          this.name == 'ParalleleSegment'
+          this.name == 'ParalleleSegment' ||
+          this.name == 'PerpendicularSegment'
         ) {
           let diff = pointDest.subCoordinates(pointSelected);
           this.segments[0].vertexes.forEach(v => v.translate(diff.x, diff.y));
@@ -1038,6 +1039,29 @@ export class Shape {
       let length = this.segments[0].length,
         previousAngle = this.segments[0].getAngleWithHorizontal(),
         referenceAngle = reference.getAngleWithHorizontal(),
+        nextAngle;
+
+      if (
+        isAngleBetweenTwoAngles(
+          mod(referenceAngle + Math.PI / 4, 2 * Math.PI),
+          mod(referenceAngle - Math.PI / 4, 2 * Math.PI),
+          true,
+          previousAngle
+        )
+      )
+        nextAngle = referenceAngle;
+      else nextAngle = referenceAngle + Math.PI;
+
+      this.segments[0].vertexes[1].setCoordinates(
+        new Point(
+          this.segments[0].vertexes[0].x + length * Math.cos(nextAngle),
+          this.segments[0].vertexes[0].y + length * Math.sin(nextAngle)
+        )
+      );
+    } else if (this.name == 'PerpendicularSegment') {
+      let length = this.segments[0].length,
+        previousAngle = this.segments[0].getAngleWithHorizontal(),
+        referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2,
         nextAngle;
 
       if (

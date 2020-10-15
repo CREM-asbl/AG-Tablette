@@ -81,7 +81,8 @@ export class CreateLineState extends State {
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
         this.lineSelected == 'PerpendicularStraightLine' ||
-        this.lineSelected == 'ParalleleSegment'
+        this.lineSelected == 'ParalleleSegment' ||
+        this.lineSelected == 'PerpendicularSegment'
       ) {
         this.currentStep = 'select-reference';
         setTimeout(
@@ -140,7 +141,8 @@ export class CreateLineState extends State {
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
         this.lineSelected == 'PerpendicularStraightLine' ||
-        this.lineSelected == 'ParalleleSegment'
+        this.lineSelected == 'ParalleleSegment' ||
+        this.lineSelected == 'PerpendicularSegment'
       ) {
         this.currentStep = 'select-reference';
         setTimeout(
@@ -238,6 +240,12 @@ export class CreateLineState extends State {
       return true;
     } else if (
       this.lineSelected == 'ParalleleSegment' &&
+      this.reference &&
+      this.points.length == 2
+    ) {
+      return true;
+    } else if (
+      this.lineSelected == 'PerpendicularSegment' &&
       this.reference &&
       this.points.length == 2
     ) {
@@ -392,6 +400,11 @@ export class CreateLineState extends State {
           borderColor: app.settings.get('temporaryDrawColor'),
         });
       } else if (this.lineSelected == 'ParalleleSegment') {
+        temporaryShape = new Shape({
+          segments: [new Segment(this.points[0], this.points[1])],
+          borderColor: app.settings.get('temporaryDrawColor'),
+        });
+      } else if (this.lineSelected == 'PerpendicularSegment') {
         temporaryShape = new Shape({
           segments: [new Segment(this.points[0], this.points[1])],
           borderColor: app.settings.get('temporaryDrawColor'),
