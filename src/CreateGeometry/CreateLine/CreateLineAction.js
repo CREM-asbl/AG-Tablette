@@ -86,8 +86,6 @@ export class CreateLineAction extends Action {
       shape = new Shape({
         id: this.shapeId,
         segments: [segment],
-        referenceShapeId: this.reference.shape.id,
-        referenceSegmentIdx: this.reference.idx,
         name: this.lineName,
         familyName: 'Line',
       });
@@ -100,8 +98,6 @@ export class CreateLineAction extends Action {
       shape = new Shape({
         id: this.shapeId,
         segments: [segment],
-        referenceShapeId: this.reference.shape.id,
-        referenceSegmentIdx: this.reference.idx,
         name: this.lineName,
         familyName: 'Line',
       });
@@ -112,8 +108,24 @@ export class CreateLineAction extends Action {
         name: this.lineName,
         familyName: 'Line',
       });
+    } else if (this.lineName == 'ParalleleSegment') {
+      shape = new Shape({
+        id: this.shapeId,
+        segments: [new Segment(this.points[0], this.points[1])],
+        name: this.lineName,
+        familyName: 'Line',
+      });
+    } else if (this.lineName == 'PerpendicularSegment') {
+      shape = new Shape({
+        id: this.shapeId,
+        segments: [new Segment(this.points[0], this.points[1])],
+        name: this.lineName,
+        familyName: 'Line',
+      });
     }
     if (this.reference) {
+      shape.referenceShapeId = this.reference.shape.id;
+      shape.referenceSegmentIdx = this.reference.idx;
       this.reference.shape.hasGeometryReferenced.push(shape.id);
     }
     // shape.setGeometryConstructionSpec();

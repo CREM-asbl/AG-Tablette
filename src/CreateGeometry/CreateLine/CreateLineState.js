@@ -80,7 +80,8 @@ export class CreateLineState extends State {
         this.mouseClickId = app.addListener('canvasclick', this.handler);
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
-        this.lineSelected == 'PerpendicularStraightLine'
+        this.lineSelected == 'PerpendicularStraightLine' ||
+        this.lineSelected == 'ParalleleSegment'
       ) {
         this.currentStep = 'select-reference';
         setTimeout(
@@ -138,7 +139,8 @@ export class CreateLineState extends State {
         this.mouseClickId = app.addListener('canvasclick', this.handler);
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
-        this.lineSelected == 'PerpendicularStraightLine'
+        this.lineSelected == 'PerpendicularStraightLine' ||
+        this.lineSelected == 'ParalleleSegment'
       ) {
         this.currentStep = 'select-reference';
         setTimeout(
@@ -234,6 +236,12 @@ export class CreateLineState extends State {
       this.points.length == 1
     ) {
       return true;
+    } else if (
+      this.lineSelected == 'ParalleleSegment' &&
+      this.reference &&
+      this.points.length == 2
+    ) {
+      return true;
     }
   }
 
@@ -249,7 +257,33 @@ export class CreateLineState extends State {
     if (this.currentStep == 'select-first-point') {
       constraints.isFree = true;
     } else if (this.currentStep == 'select-second-point') {
-      constraints.isFree = true;
+      if (this.lineSelected == 'ParalleleSegment') {
+        constraints.isConstrained = true;
+        let referenceAngle = this.reference.getAngleWithHorizontal();
+        let constraintLine = {
+          segment: new Segment(
+            this.points[0],
+            this.points[0].addCoordinates(
+              100 * Math.cos(referenceAngle),
+              100 * Math.sin(referenceAngle)
+            )
+          ),
+          isInfinite: true,
+        };
+        constraints.lines = [constraintLine];
+      } else if (this.lineSelected == 'PerpendicularSegment') {
+        constraints.isConstrained = true;
+        let constraintLine = {
+          segment: new Segment(
+            this.points[0],
+            this.reference.projectionOnSegment(this.points[0])
+          ),
+          isInfinite: true,
+        };
+        constraints.lines = [constraintLine];
+      } else {
+        constraints.isFree = true;
+      }
     }
     return constraints;
   }
@@ -353,6 +387,11 @@ export class CreateLineState extends State {
           borderColor: app.settings.get('temporaryDrawColor'),
         });
       } else if (this.lineSelected == 'Segment') {
+        temporaryShape = new Shape({
+          segments: [new Segment(this.points[0], this.points[1])],
+          borderColor: app.settings.get('temporaryDrawColor'),
+        });
+      } else if (this.lineSelected == 'ParalleleSegment') {
         temporaryShape = new Shape({
           segments: [new Segment(this.points[0], this.points[1])],
           borderColor: app.settings.get('temporaryDrawColor'),

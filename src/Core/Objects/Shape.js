@@ -3,6 +3,7 @@ import { getComplementaryColor, uniqId, mod } from '../Tools/general';
 import { Point } from './Point';
 import { Segment } from './Segment';
 import { ShapeManager } from '../Managers/ShapeManager';
+import { isAngleBetweenTwoAngles } from '../Tools/geometry';
 
 /**
  * Représente une forme
@@ -729,6 +730,16 @@ export class Shape {
       transformMethod = 'computeShape';
     } else if (this.name == 'PerpendicularStraightLine') {
       transformMethod = 'computeShape';
+    } else if (
+      pointSelected.name == 'firstPoint' &&
+      this.name == 'ParalleleSegment'
+    ) {
+      transformMethod = 'computeShape';
+    } else if (
+      pointSelected.name == 'secondPoint' &&
+      this.name == 'ParalleleSegment'
+    ) {
+      transformMethod = 'onlyMovePoint';
     }
 
     if (transformMethod == 'onlyMovePoint') {
@@ -993,7 +1004,8 @@ export class Shape {
       } else if (this.familyName == 'Line') {
         if (
           this.name == 'ParalleleStraightLine' ||
-          this.name == 'PerpendicularStraightLine'
+          this.name == 'PerpendicularStraightLine' ||
+          this.name == 'ParalleleSegment'
         ) {
           let diff = pointDest.subCoordinates(pointSelected);
           this.segments[0].vertexes.forEach(v => v.translate(diff.x, diff.y));
@@ -1022,6 +1034,29 @@ export class Shape {
       );
       segment.isInfinite = true;
       this.setSegments([segment]);
+    } else if (this.name == 'ParalleleSegment') {
+      let length = this.segments[0].length,
+        previousAngle = this.segments[0].getAngleWithHorizontal(),
+        referenceAngle = reference.getAngleWithHorizontal(),
+        nextAngle;
+
+      if (
+        isAngleBetweenTwoAngles(
+          mod(referenceAngle + Math.PI / 4, 2 * Math.PI),
+          mod(referenceAngle - Math.PI / 4, 2 * Math.PI),
+          true,
+          previousAngle
+        )
+      )
+        nextAngle = referenceAngle;
+      else nextAngle = referenceAngle + Math.PI;
+
+      this.segments[0].vertexes[1].setCoordinates(
+        new Point(
+          this.segments[0].vertexes[0].x + length * Math.cos(nextAngle),
+          this.segments[0].vertexes[0].y + length * Math.sin(nextAngle)
+        )
+      );
     }
     this.updateGeometryReferenced(mustDraw);
     if (mustDraw) {

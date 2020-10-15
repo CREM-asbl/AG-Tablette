@@ -2,6 +2,7 @@ import { app } from '../App';
 import { ShapeManager } from '../Managers/ShapeManager';
 import { Segment } from './Segment';
 import { mod } from '../Tools/general';
+import { Shape } from './Shape';
 
 /**
  * Représente un point du plan
@@ -424,7 +425,41 @@ export class Point {
         constraints.lines = [constraintLine];
       }
     } else if (this.shape.familyName == 'Line') {
-      constraints.isFree = true;
+      if (this.shape.name == 'ParalleleSegment' && this.name == 'secondPoint') {
+        constraints.isConstrained = true;
+        let reference = ShapeManager.getShapeById(this.shape.referenceShapeId)
+          .segments[this.shape.referenceSegmentIdx];
+        let referenceAngle = reference.getAngleWithHorizontal();
+        let constraintLine = {
+          segment: new Segment(
+            this.shape.segments[0].vertexes[0],
+            this.shape.segments[0].vertexes[0].addCoordinates(
+              100 * Math.cos(referenceAngle),
+              100 * Math.sin(referenceAngle)
+            )
+          ),
+          isInfinite: true,
+        };
+        constraints.lines = [constraintLine];
+        // } else if (this.shape.name == 'PerpendicularSegment' && this.name == 'secondPoint') {
+      } else if (
+        this.shape.name == 'PerpendicularSegment' &&
+        this.name == 'secondPoint'
+      ) {
+        constraints.isConstrained = true;
+        let reference = ShapeManager.getShapeById(this.shape.referenceShapeId)
+          .segments[this.shape.referenceSegmentIdx];
+        let constraintLine = {
+          segment: new Segment(
+            this.shape.segments[0].vertexes[0],
+            reference.projectionOnSegment(this)
+          ),
+          isInfinite: true,
+        };
+        constraints.lines = [constraintLine];
+      } else {
+        constraints.isFree = true;
+      }
     }
     this.transformConstraints = constraints;
   }
