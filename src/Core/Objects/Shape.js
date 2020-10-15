@@ -424,6 +424,10 @@ export class Shape {
     return this.segments.length == 1 && this.segments[0].isInfinite;
   }
 
+  isSemiStraightLine() {
+    return this.segments.length == 1 && this.segments[0].isSemiInfinite;
+  }
+
   /**
    * say if a point is on one of the segments of the shape
    * @param {Point} point   le point à analyser
@@ -724,7 +728,11 @@ export class Shape {
       transformMethod = 'computeShape';
     } else if (this.name == 'CircleArc') {
       transformMethod = 'onlyMovePoint';
-    } else if (this.name == 'StraightLine' || this.name == 'Segment') {
+    } else if (
+      this.name == 'StraightLine' ||
+      this.name == 'SemiStraightLine' ||
+      this.name == 'Segment'
+    ) {
       transformMethod = 'onlyMovePoint';
     } else if (this.name == 'ParalleleStraightLine') {
       transformMethod = 'computeShape';

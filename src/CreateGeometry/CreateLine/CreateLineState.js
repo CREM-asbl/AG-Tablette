@@ -74,6 +74,7 @@ export class CreateLineState extends State {
     } else {
       if (
         this.lineSelected == 'StraightLine' ||
+        this.lineSelected == 'SemiStraightLine' ||
         this.lineSelected == 'Segment'
       ) {
         this.currentStep = 'select-first-point';
@@ -134,6 +135,7 @@ export class CreateLineState extends State {
       if (this.linesList) this.linesList.lineSelected = lineSelected;
       if (
         this.lineSelected == 'StraightLine' ||
+        this.lineSelected == 'SemiStraightLine' ||
         this.lineSelected == 'Segment'
       ) {
         this.currentStep = 'select-first-point';
@@ -195,7 +197,11 @@ export class CreateLineState extends State {
 
     if (this.currentStep == 'select-first-point') {
       this.points[0] = newPoint;
-      if (this.lineSelected == 'StraightLine' || this.lineSelected == 'Segment')
+      if (
+        this.lineSelected == 'StraightLine' ||
+        this.lineSelected == 'SemiStraightLine' ||
+        this.lineSelected == 'Segment'
+      )
         this.animate();
       this.currentStep = 'select-second-point';
     } else if (this.currentStep == 'select-second-point') {
@@ -222,7 +228,9 @@ export class CreateLineState extends State {
 
   canCreateShape() {
     if (
-      (this.lineSelected == 'StraightLine' || this.lineSelected == 'Segment') &&
+      (this.lineSelected == 'StraightLine' ||
+        this.lineSelected == 'SemiStraightLine' ||
+        this.lineSelected == 'Segment') &&
       this.points.length == 2
     ) {
       return true;
@@ -392,6 +400,23 @@ export class CreateLineState extends State {
         segment.isInfinite = true;
         temporaryShape = new Shape({
           segments: [segment],
+          borderColor: app.settings.get('temporaryDrawColor'),
+        });
+      } else if (this.lineSelected == 'SemiStraightLine') {
+        console.log('here');
+        temporaryShape = new Shape({
+          segments: [
+            new Segment(
+              this.points[0],
+              this.points[1],
+              temporaryShape,
+              0,
+              null,
+              null,
+              false,
+              true
+            ),
+          ],
           borderColor: app.settings.get('temporaryDrawColor'),
         });
       } else if (this.lineSelected == 'Segment') {

@@ -9,7 +9,8 @@ export class Segment {
     idx,
     arcCenter,
     counterclockwise,
-    isInfinite = false
+    isInfinite = false,
+    isSemiInfinite = false
   ) {
     this.vertexes = [
       new Point(point1, 'vertex', this, shape, point1?.name),
@@ -28,6 +29,7 @@ export class Segment {
       );
     if (counterclockwise) this.counterclockwise = counterclockwise;
     this.isInfinite = isInfinite;
+    this.isSemiInfinite = isSemiInfinite;
   }
 
   /* #################################################################### */
@@ -177,6 +179,15 @@ export class Segment {
           10000 * Math.cos(angle),
           10000 * Math.sin(angle)
         ),
+        this.vertexes[1].addCoordinates(
+          10000 * Math.cos(angle),
+          10000 * Math.sin(angle)
+        )
+      );
+    } else if (this.isSemiInfinite) {
+      let angle = this.getAngleWithHorizontal();
+      transformedSegment = new Segment(
+        this.vertexes[0],
         this.vertexes[1].addCoordinates(
           10000 * Math.cos(angle),
           10000 * Math.sin(angle)
@@ -411,7 +422,8 @@ export class Segment {
       this.idx,
       this.arcCenter,
       this.counterclockwise,
-      this.isInfinite
+      this.isInfinite,
+      this.isSemiInfinite
     );
     if (full) {
       this.points.forEach(p => {
@@ -434,6 +446,7 @@ export class Segment {
     if (this.arcCenter) save.arcCenter = this.arcCenter.saveToObject();
     if (this.counterclockwise) save.counterclockwise = this.counterclockwise;
     save.isInfinite = this.isInfinite;
+    save.isSemiInfinite = this.isSemiInfinite;
     return save;
   }
 
@@ -466,6 +479,7 @@ export class Segment {
     if (save.tangentPoint1) this.tangentPoint1 = new Point(save.tangentPoint1);
     if (save.tangentPoint2) this.tangentPoint2 = new Point(save.tangentPoint2);
     this.isInfinite = save.isInfinite;
+    this.isSemiInfinite = save.isSemiInfinite;
   }
 
   static retrieveFrom(segment) {
@@ -592,6 +606,14 @@ export class Segment {
       let projection = this.projectionOnSegment(point);
       if (this.isInfinite) {
         return projection.dist(point) < precision;
+      } else if (this.isSemiInfinite) {
+        return (
+          projection.dist(point) < precision &&
+          Math.abs(
+            this.vertexes[0].getAngle(this.vertexes[1]) -
+              this.vertexes[0].getAngle(projection)
+          ) < 0.001
+        );
       } else {
         let segmentLength = this.length,
           dist1 = this.vertexes[0].dist(point),

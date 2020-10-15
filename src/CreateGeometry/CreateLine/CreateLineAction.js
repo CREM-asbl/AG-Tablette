@@ -101,6 +101,15 @@ export class CreateLineAction extends Action {
         name: this.lineName,
         familyName: 'Line',
       });
+    } else if (this.lineName == 'SemiStraightLine') {
+      let segment = new Segment(this.points[0], this.points[1]);
+      segment.isSemiInfinite = true;
+      shape = new Shape({
+        id: this.shapeId,
+        segments: [segment],
+        name: this.lineName,
+        familyName: 'Line',
+      });
     } else if (this.lineName == 'Segment') {
       shape = new Shape({
         id: this.shapeId,
