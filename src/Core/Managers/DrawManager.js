@@ -188,10 +188,19 @@ export class DrawManager {
       app.settings.get('areShapesPointed') &&
       shape.name !== 'silhouette' &&
       !shape.isCircle() &&
-      !shape.isStraightLine()
+      !shape.isStraightLine() &&
+      !shape.isSemiStraightLine()
     ) {
       shape.vertexes.forEach(point =>
         DrawManager.drawPoint(ctx, point, '#000', 1, false)
+      );
+    } else if (shape.isSemiStraightLine()) {
+      DrawManager.drawPoint(
+        ctx,
+        shape.segments[0].vertexes[0],
+        '#000',
+        1,
+        false
       );
     }
 

@@ -82,6 +82,8 @@ export class CreateLineState extends State {
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
         this.lineSelected == 'PerpendicularStraightLine' ||
+        this.lineSelected == 'ParalleleSemiStraightLine' ||
+        this.lineSelected == 'PerpendicularSemiStraightLine' ||
         this.lineSelected == 'ParalleleSegment' ||
         this.lineSelected == 'PerpendicularSegment'
       ) {
@@ -143,6 +145,8 @@ export class CreateLineState extends State {
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
         this.lineSelected == 'PerpendicularStraightLine' ||
+        this.lineSelected == 'ParalleleSemiStraightLine' ||
+        this.lineSelected == 'PerpendicularSemiStraightLine' ||
         this.lineSelected == 'ParalleleSegment' ||
         this.lineSelected == 'PerpendicularSegment'
       ) {
@@ -230,6 +234,8 @@ export class CreateLineState extends State {
     if (
       (this.lineSelected == 'StraightLine' ||
         this.lineSelected == 'SemiStraightLine' ||
+        this.lineSelected == 'ParalleleSemiStraightLine' ||
+        this.lineSelected == 'PerpendicularSemiStraightLine' ||
         this.lineSelected == 'Segment') &&
       this.points.length == 2
     ) {
@@ -273,7 +279,10 @@ export class CreateLineState extends State {
     if (this.currentStep == 'select-first-point') {
       constraints.isFree = true;
     } else if (this.currentStep == 'select-second-point') {
-      if (this.lineSelected == 'ParalleleSegment') {
+      if (
+        this.lineSelected == 'ParalleleSegment' ||
+        this.lineSelected == 'ParalleleSemiStraightLine'
+      ) {
         constraints.isConstrained = true;
         let referenceAngle = this.reference.getAngleWithHorizontal();
         let constraintLine = {
@@ -287,7 +296,10 @@ export class CreateLineState extends State {
           isInfinite: true,
         };
         constraints.lines = [constraintLine];
-      } else if (this.lineSelected == 'PerpendicularSegment') {
+      } else if (
+        this.lineSelected == 'PerpendicularSegment' ||
+        this.lineSelected == 'PerpendicularSemiStraightLine'
+      ) {
         constraints.isConstrained = true;
         let constraintLine = {
           segment: new Segment(
@@ -402,8 +414,11 @@ export class CreateLineState extends State {
           segments: [segment],
           borderColor: app.settings.get('temporaryDrawColor'),
         });
-      } else if (this.lineSelected == 'SemiStraightLine') {
-        console.log('here');
+      } else if (
+        this.lineSelected == 'SemiStraightLine' ||
+        this.lineSelected == 'ParalleleSemiStraightLine' ||
+        this.lineSelected == 'PerpendicularSemiStraightLine'
+      ) {
         temporaryShape = new Shape({
           segments: [
             new Segment(

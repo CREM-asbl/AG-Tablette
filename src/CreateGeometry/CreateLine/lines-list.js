@@ -9,6 +9,8 @@ class LinesList extends LitElement {
       'ParalleleStraightLine',
       'PerpendicularStraightLine',
       'SemiStraightLine',
+      'ParalleleSemiStraightLine',
+      'PerpendicularSemiStraightLine',
       'Segment',
       'ParalleleSegment',
       'PerpendicularSegment',

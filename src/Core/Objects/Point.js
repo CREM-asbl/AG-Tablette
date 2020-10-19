@@ -425,7 +425,11 @@ export class Point {
         constraints.lines = [constraintLine];
       }
     } else if (this.shape.familyName == 'Line') {
-      if (this.shape.name == 'ParalleleSegment' && this.name == 'secondPoint') {
+      if (
+        (this.shape.name == 'ParalleleSegment' ||
+          this.shape.name == 'ParalleleSemiStraightLine') &&
+        this.name == 'secondPoint'
+      ) {
         constraints.isConstrained = true;
         let reference = ShapeManager.getShapeById(this.shape.referenceShapeId)
           .segments[this.shape.referenceSegmentIdx];
@@ -441,9 +445,9 @@ export class Point {
           isInfinite: true,
         };
         constraints.lines = [constraintLine];
-        // } else if (this.shape.name == 'PerpendicularSegment' && this.name == 'secondPoint') {
       } else if (
-        this.shape.name == 'PerpendicularSegment' &&
+        (this.shape.name == 'PerpendicularSegment' ||
+          this.shape.name == 'PerpendicularSemiStraightLine') &&
         this.name == 'secondPoint'
       ) {
         constraints.isConstrained = true;
@@ -461,6 +465,7 @@ export class Point {
         constraints.isFree = true;
       }
     }
+    console.log(constraints);
     this.transformConstraints = constraints;
   }
 

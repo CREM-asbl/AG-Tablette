@@ -740,12 +740,18 @@ export class Shape {
       transformMethod = 'computeShape';
     } else if (
       pointSelected.name == 'firstPoint' &&
-      (this.name == 'ParalleleSegment' || this.name == 'PerpendicularSegment')
+      (this.name == 'ParalleleSegment' ||
+        this.name == 'PerpendicularSegment' ||
+        this.name == 'ParalleleSemiStraightLine' ||
+        this.name == 'PerpendicularSemiStraightLine')
     ) {
       transformMethod = 'computeShape';
     } else if (
       pointSelected.name == 'secondPoint' &&
-      (this.name == 'ParalleleSegment' || this.name == 'PerpendicularSegment')
+      (this.name == 'ParalleleSegment' ||
+        this.name == 'PerpendicularSegment' ||
+        this.name == 'ParalleleSemiStraightLine' ||
+        this.name == 'PerpendicularSemiStraightLine')
     ) {
       transformMethod = 'onlyMovePoint';
     }
@@ -1014,7 +1020,9 @@ export class Shape {
           this.name == 'ParalleleStraightLine' ||
           this.name == 'PerpendicularStraightLine' ||
           this.name == 'ParalleleSegment' ||
-          this.name == 'PerpendicularSegment'
+          this.name == 'PerpendicularSegment' ||
+          this.name == 'ParalleleSemiStraightLine' ||
+          this.name == 'PerpendicularSemiStraightLine'
         ) {
           let diff = pointDest.subCoordinates(pointSelected);
           this.segments[0].vertexes.forEach(v => v.translate(diff.x, diff.y));
@@ -1043,7 +1051,10 @@ export class Shape {
       );
       segment.isInfinite = true;
       this.setSegments([segment]);
-    } else if (this.name == 'ParalleleSegment') {
+    } else if (
+      this.name == 'ParalleleSemiStraightLine' ||
+      this.name == 'ParalleleSegment'
+    ) {
       let length = this.segments[0].length,
         previousAngle = this.segments[0].getAngleWithHorizontal(),
         referenceAngle = reference.getAngleWithHorizontal(),
@@ -1051,8 +1062,8 @@ export class Shape {
 
       if (
         isAngleBetweenTwoAngles(
-          mod(referenceAngle + Math.PI / 4, 2 * Math.PI),
-          mod(referenceAngle - Math.PI / 4, 2 * Math.PI),
+          mod(referenceAngle + Math.PI / 2, 2 * Math.PI),
+          mod(referenceAngle - Math.PI / 2, 2 * Math.PI),
           true,
           previousAngle
         )
@@ -1066,7 +1077,10 @@ export class Shape {
           this.segments[0].vertexes[0].y + length * Math.sin(nextAngle)
         )
       );
-    } else if (this.name == 'PerpendicularSegment') {
+    } else if (
+      this.name == 'PerpendicularSemiStraightLine' ||
+      this.name == 'PerpendicularSegment'
+    ) {
       let length = this.segments[0].length,
         previousAngle = this.segments[0].getAngleWithHorizontal(),
         referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2,
@@ -1074,8 +1088,8 @@ export class Shape {
 
       if (
         isAngleBetweenTwoAngles(
-          mod(referenceAngle + Math.PI / 4, 2 * Math.PI),
-          mod(referenceAngle - Math.PI / 4, 2 * Math.PI),
+          mod(referenceAngle + Math.PI / 2, 2 * Math.PI),
+          mod(referenceAngle - Math.PI / 2, 2 * Math.PI),
           true,
           previousAngle
         )
