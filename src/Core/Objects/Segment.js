@@ -652,7 +652,7 @@ export class Segment {
       result.x = segment.vertexes[0].x;
       // 2 segments 'northisSlopeux'
     } else {
-      if (thisSlopeth.abs(thisSlope - otherSegmentSlope) < 0.001) return null;
+      if (Math.abs(thisSlope - otherSegmentSlope) < 0.001) return null;
       let pb =
         segment.vertexes[0].y - otherSegmentSlope * segment.vertexes[0].x;
       let pa = this.vertexes[0].y - thisSlope * this.vertexes[0].x;

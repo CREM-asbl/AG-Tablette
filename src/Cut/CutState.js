@@ -256,7 +256,7 @@ export class CutState extends State {
       if (!shape.isPointInPath(pt)) return false;
       pointsInBorder += shape.isPointInBorder(pt) ? 1 : 0;
     }
-    if (pointsInBorder > 40 * precision) return false;
+    if (pointsInBorder > amountOfParts / 5) return false;
     const junction = new Segment(pt1, pt2);
     if (shape.segments.some(seg => seg.doesIntersect(junction, false, true)))
       return false;
