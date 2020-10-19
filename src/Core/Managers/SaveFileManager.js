@@ -17,26 +17,28 @@ export class SaveFileManager {
 
   static async newSaveFile() {
     const opts = {
-      type: 'save-file',
-      accepts: [
+      types: [
         {
           description: 'Etat',
-          extensions: [app.environment.extension],
-          // mimeTypes: ['application/json'], // => cree un .json et pas .agg par exemple
+          accept: {
+            'application/agmobile': ['.' + app.environment.extension],
+          },
         },
         {
-          description: 'Image',
-          extensions: ['png'],
-          mimeTypes: ['img/png'],
+          description: 'Image matricielle (png)',
+          accept: {
+            'img/png': ['.png'],
+          },
         },
         {
-          description: 'Vectoriel',
-          extensions: ['svg'],
-          mimeTypes: ['image/svg+xml'],
+          description: 'Image vectorielle (svg)',
+          accept: {
+            'image/svg+xml': ['.svg'],
+          },
         },
       ],
     };
-    const handle = await window.chooseFileSystemEntries(opts);
+    const handle = await window.showSaveFilePicker(opts);
     const extension = SaveFileManager.getExtension(handle.name);
     switch (extension) {
       case 'png':
@@ -201,4 +203,4 @@ window.addEventListener('save-file', () => {
 });
 
 // Si ancien ou nouveau systeme de fichier
-SaveFileManager.hasNativeFS = 'chooseFileSystemEntries' in window;
+SaveFileManager.hasNativeFS = 'showSaveFilePicker' in window;

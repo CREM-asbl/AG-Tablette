@@ -8,14 +8,17 @@ export class OpenFileManager {
   static async openFile() {
     if (OpenFileManager.hasNativeFS) {
       const opts = {
-        accepts: [
+        types: [
           {
-            extensions: [app.environment.extension],
+            description: 'Etat',
+            accept: {
+              'text/plain': ['.' + app.environment.extension],
+            },
           },
         ],
       };
       try {
-        const fileHandle = await window.chooseFileSystemEntries(opts);
+        const fileHandle = await window.showOpenFilePicker(opts);
         window.dispatchEvent(
           new CustomEvent('file-opened', {
             detail: { method: 'new', file: fileHandle },
@@ -86,6 +89,8 @@ window.addEventListener('open-file', () => {
 });
 
 window.addEventListener('local-open-file', () => {
+  console.log(OpenFileManager.hasNativeFS);
+  console.log('showOpenFilePicker' in window);
   OpenFileManager.openFile();
 });
 
@@ -100,4 +105,4 @@ window.addEventListener('parse-file', event => {
 });
 
 // Si ancien ou nouveau systeme de fichier
-OpenFileManager.hasNativeFS = 'chooseFileSystemEntries' in window;
+OpenFileManager.hasNativeFS = 'showOpenFilePicker' in window;
