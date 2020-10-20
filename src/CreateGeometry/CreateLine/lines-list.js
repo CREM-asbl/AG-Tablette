@@ -5,15 +5,16 @@ class LinesList extends LitElement {
   constructor() {
     super();
     this.linesNames = [
-      'StraightLine',
-      'ParalleleStraightLine',
-      'PerpendicularStraightLine',
-      'SemiStraightLine',
-      'ParalleleSemiStraightLine',
-      'PerpendicularSemiStraightLine',
       'Segment',
       'ParalleleSegment',
       'PerpendicularSegment',
+      'SemiStraightLine',
+      'ParalleleSemiStraightLine',
+      'PerpendicularSemiStraightLine',
+      'StraightLine',
+      'ParalleleStraightLine',
+      'PerpendicularStraightLine',
+      'Strip',
     ];
   }
 

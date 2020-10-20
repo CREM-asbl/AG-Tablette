@@ -10,7 +10,7 @@ import { TangramManager } from './TangramManager';
  */
 export class SilhouetteCreatorState extends State {
   constructor() {
-    super('silhouette-creator', 'Créer Tangram', 'tangram');
+    super('createSilhouette', 'Créer Tangram', 'tangram');
 
     this.buttons = null;
 

@@ -9,7 +9,7 @@ import { Segment } from '../Core/Objects/Segment';
  */
 export class SolutionCheckerState extends State {
   constructor() {
-    super('solve-checker', 'Vérifier solution Tangram', '');
+    super('solveChecker', 'Vérifier solution Tangram', '');
 
     this.buttons = null;
 

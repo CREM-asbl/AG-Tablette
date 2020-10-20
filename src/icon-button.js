@@ -5,13 +5,23 @@ class IconButton extends LitElement {
     return {
       name: String,
       src: String,
+      type: String,
     };
+  }
+
+  firstUpdated() {
+    if (this.type == 'State') {
+      this.src = '/images/States/' + this.name + '.svg';
+    } else {
+      this.src = '/images/' + this.name + '.svg';
+    }
   }
 
   static get styles() {
     return css`
       :host([disabled]) {
         opacity: 0.5;
+        pointer-events: none;
       }
 
       button {

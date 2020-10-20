@@ -12,11 +12,7 @@ import { Point } from '../../Core/Objects/Point';
  */
 export class CreateQuadrilateralState extends State {
   constructor() {
-    super(
-      'create_quadrilateral',
-      'Ajouter un quadrilatère',
-      'geometry_creator'
-    );
+    super('createQuadrilateral', 'Ajouter un quadrilatère', 'geometry_creator');
 
     // show-quadrilaterals -> select-first-point -> select-second-point -> select-third-point -> select-fourth-point
     this.currentStep = null;

@@ -12,7 +12,7 @@ import { Point } from '../../Core/Objects/Point';
  */
 export class CreateTriangleState extends State {
   constructor() {
-    super('create_triangle', 'Ajouter un triangle', 'geometry_creator');
+    super('createTriangle', 'Ajouter un triangle', 'geometry_creator');
 
     // show-triangles -> select-first-point -> select-second-point -> select-third-point
     this.currentStep = null;

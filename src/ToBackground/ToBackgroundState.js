@@ -8,7 +8,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
  */
 export class ToBackgroundState extends State {
   constructor() {
-    super('backplane', 'Arrière-plan', 'tool');
+    super('toBackground', 'Arrière-plan', 'tool');
   }
 
   /**

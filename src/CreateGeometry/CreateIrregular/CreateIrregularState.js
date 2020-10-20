@@ -12,7 +12,7 @@ import { uniqId } from '../../Core/Tools/general';
 export class CreateIrregularState extends State {
   constructor() {
     super(
-      'create_irregular_polygon',
+      'createIrregularPolygon',
       'Créer un polygone irrégulier',
       'geometry_creator'
     );

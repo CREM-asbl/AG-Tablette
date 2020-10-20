@@ -13,7 +13,7 @@ import { SelectManager } from '../../Core/Managers/SelectManager';
 export class CreateRegularState extends State {
   constructor() {
     super(
-      'create_regular_polygon',
+      'createRegularPolygon',
       'Créer un polygone régulier',
       'geometry_creator'
     );

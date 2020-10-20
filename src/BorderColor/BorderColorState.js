@@ -9,7 +9,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
  */
 export class BorderColorState extends State {
   constructor() {
-    super('border_color', 'Colorier les bords', 'tool');
+    super('borderColor', 'Colorier les bords', 'tool');
 
     this.currentStep = null; // choose-color -> listen-canvas-click
   }

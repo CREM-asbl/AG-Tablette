@@ -32,7 +32,7 @@ class ToolbarSection extends LitElement {
           state => html`
             <icon-button
               name="${state.name}"
-              src="/images/${state.name}.svg"
+              type="State"
               title="${state.title}"
               ?active="${state.name === app.state}"
               @click="${this._actionHandle}"

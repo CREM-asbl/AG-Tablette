@@ -7,7 +7,7 @@ import { html } from 'lit-element';
  */
 export class BuildCenterState extends State {
   constructor() {
-    super('center', 'Construire le centre', 'operation');
+    super('buildCenter', 'Construire le centre', 'operation');
   }
 
   /**

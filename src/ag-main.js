@@ -148,65 +148,57 @@ class AGTabletteApp extends LitElement {
           <div id="app-canvas-view-toolbar-p1">
             <div id="app-canvas-mode-text">
               <span>Mode: </span>
-              ${this.state ? this.state.title : ''}
+              ${this.state?.title}
             </div>
             <flex-toolbar>
               <icon-button
-                src="/images/delete-all.svg"
-                title="Supprimer tout"
                 name="new"
+                title="Nouvelle fenêtre"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
-                src="/images/load.svg"
-                title="Ouvrir"
                 name="load"
+                title="Ouvrir"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
-                src="/images/save.svg"
-                title="Sauvegarder"
                 name="save"
+                title="Sauvegarder"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
-                src="/images/settings.svg"
-                title="Paramètres"
                 name="settings"
+                title="Paramètres"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
-                src="/images/undo.svg"
-                title="Annuler"
                 name="undo"
+                title="Annuler"
                 ?disabled="${!this.canUndo}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
-                src="/images/redo.svg"
-                title="Refaire"
                 name="redo"
+                title="Refaire"
                 ?disabled="${!this.canRedo}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
-                src="/images/replay.svg"
-                title="replay"
                 name="replay"
+                title="replay"
                 @click="${this._actionHandle}"
               >
               </icon-button>
 
               <icon-button
-                src="/images/help.svg"
-                title="Aide"
                 name="help"
+                title="Aide"
                 @click="${this._actionHandle}">
               </icon-button>
             </flex-toolbar>
@@ -318,10 +310,10 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'undo':
-        if (this.canUndo) window.dispatchEvent(new CustomEvent('undo-action'));
+        window.dispatchEvent(new CustomEvent('undo-action'));
         break;
       case 'redo':
-        if (this.canRedo) window.dispatchEvent(new CustomEvent('redo-action'));
+        window.dispatchEvent(new CustomEvent('redo-action'));
         break;
       case 'replay':
         window.dispatchEvent(new CustomEvent('start-browsing'));

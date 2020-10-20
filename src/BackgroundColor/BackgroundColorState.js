@@ -9,7 +9,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
  */
 export class BackgroundColorState extends State {
   constructor() {
-    super('background_color', 'Colorier les formes', 'tool');
+    super('backgroundColor', 'Colorier les formes', 'tool');
 
     this.currentStep = null; // choose-color -> listen-canvas-click
   }
