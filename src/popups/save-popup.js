@@ -19,7 +19,6 @@ class SavePopup extends LitElement {
     this.filename = 'untitled';
     this.save_settings = true;
     this.save_history = true;
-    this.extension = 'agg';
     this.save_format = 'png';
     this.image_or_state = 'state';
 
@@ -137,6 +136,11 @@ class SavePopup extends LitElement {
   }
 
   close() {
+    window.dispatchEvent(
+      new CustomEvent('file-selected', {
+        detail: {},
+      })
+    );
     this.remove();
   }
 
@@ -159,20 +163,20 @@ class SavePopup extends LitElement {
         break;
 
       case 'save_popup_submit':
-        this.close();
-        this.extension =
+        let extension =
           this.image_or_state == 'state'
             ? app.environment.extension
             : this.save_format;
         window.dispatchEvent(
           new CustomEvent('file-selected', {
             detail: {
-              name: this.filename + '.' + this.extension,
+              name: this.filename + '.' + extension,
               save_settings: this.save_settings,
               save_history: this.save_history,
             },
           })
         );
+        this.close();
         break;
 
       case 'save_popup_format':

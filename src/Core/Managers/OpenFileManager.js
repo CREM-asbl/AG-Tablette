@@ -97,7 +97,7 @@ window.addEventListener('local-open-file', () => {
 window.addEventListener('file-opened', event => {
   if (event.detail.method == 'old')
     OpenFileManager.oldReadFile(event.detail.file);
-  else OpenFileManager.newReadFile(event.detail.file);
+  else OpenFileManager.newReadFile(event.detail.file[0]);
 });
 
 window.addEventListener('parse-file', event => {

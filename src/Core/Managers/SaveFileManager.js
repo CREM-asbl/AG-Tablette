@@ -79,6 +79,7 @@ export class SaveFileManager {
     window.addEventListener(
       'file-selected',
       event => {
+        if (event.detail.name === undefined) return;
         const handle = {
           ...event.detail,
         };
