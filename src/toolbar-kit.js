@@ -49,6 +49,7 @@ class ToolbarKit extends LitElement {
             <canvas-button
               name="create_shape"
               familyName="${family}"
+              title="${family}"
               ?active="${family === this.selectedFamily}"
               @click="${event => {
                 app.setState(event.target.name, event.target.familyName);

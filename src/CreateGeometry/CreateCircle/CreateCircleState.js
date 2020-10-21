@@ -12,7 +12,7 @@ import { Point } from '../../Core/Objects/Point';
  */
 export class CreateCircleState extends State {
   constructor() {
-    super('createCircle', 'Ajouter un cercle', 'geometry_creator');
+    super('createCircle', 'Créer un cercle', 'geometry_creator');
 
     // show-circles -> select-center -> select-first-point -> select-second-point
     this.currentStep = null;
@@ -23,7 +23,7 @@ export class CreateCircleState extends State {
     // points of the shape to create
     this.points = [];
 
-    // Le tyle de forme que l'on va ajouter (circle, circlePart, circleArc)
+    // Le tyle de forme que l'on va créer (circle, circlePart, circleArc)
     this.circleSelected = null;
 
     // id of the shape to create

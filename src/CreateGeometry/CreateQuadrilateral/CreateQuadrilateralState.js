@@ -12,7 +12,7 @@ import { Point } from '../../Core/Objects/Point';
  */
 export class CreateQuadrilateralState extends State {
   constructor() {
-    super('createQuadrilateral', 'Ajouter un quadrilatère', 'geometry_creator');
+    super('createQuadrilateral', 'Créer un quadrilatère', 'geometry_creator');
 
     // show-quadrilaterals -> select-first-point -> select-second-point -> select-third-point -> select-fourth-point
     this.currentStep = null;
@@ -20,7 +20,7 @@ export class CreateQuadrilateralState extends State {
     // points of the shape to create
     this.points = [];
 
-    // Le tyle de forme que l'on va ajouter (rectangle, losange, parallelogram, rightAngleTrapeze, isoscelesTrapeze, trapeze)
+    // Le tyle de forme que l'on va créer (rectangle, losange, parallelogram, rightAngleTrapeze, isoscelesTrapeze, trapeze)
     this.quadrilateralSelected = null;
 
     // id of the shape to create

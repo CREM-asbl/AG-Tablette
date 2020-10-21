@@ -11,18 +11,15 @@ import { Point } from '../Core/Objects/Point';
  */
 export class CreateState extends State {
   constructor() {
-    super('create_shape', 'Ajouter une forme');
+    super('create_shape', 'Créer une forme');
 
     // show-family-shape -> listen-canvas-click -> moving-shape
     this.currentStep = null;
 
-    // La famille sélectionnée dans le menu de gauche
     this.selectedFamily = null;
 
-    // La forme que l'on va ajouter (on ajoute une copie de cette forme)
     this.selectedShape = null;
 
-    // Shape à créer
     this.shapeToCreate = null;
   }
 

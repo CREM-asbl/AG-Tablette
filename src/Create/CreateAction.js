@@ -6,10 +6,8 @@ export class CreateAction extends Action {
   constructor() {
     super('CreateAction');
 
-    //La forme que l'on souhaite ajouter
     this.shapeToCreate = null;
 
-    //Id de la forme ajoutée
     this.shapeId = null;
 
     //Taille de la forme. Pas utilisé ici, juste pour info (pour l'aide)

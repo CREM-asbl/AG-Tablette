@@ -12,7 +12,7 @@ import { Point } from '../../Core/Objects/Point';
  */
 export class CreateTriangleState extends State {
   constructor() {
-    super('createTriangle', 'Ajouter un triangle', 'geometry_creator');
+    super('createTriangle', 'Créer un triangle', 'geometry_creator');
 
     // show-triangles -> select-first-point -> select-second-point -> select-third-point
     this.currentStep = null;
@@ -20,7 +20,7 @@ export class CreateTriangleState extends State {
     // points of the shape to create
     this.points = [];
 
-    // Le tyle de forme que l'on va ajouter (rectangle, IsoscelesTriangle, RightAngleIsoscelesTriangle, trapèze)
+    // Le tyle de forme que l'on va créer (rectangle, IsoscelesTriangle, RightAngleIsoscelesTriangle, trapèze)
     this.triangleSelected = null;
 
     // id of the shape to create
