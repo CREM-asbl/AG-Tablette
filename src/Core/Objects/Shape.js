@@ -61,7 +61,7 @@ export class Shape {
     this.geometryConstructionSpec = geometryConstructionSpec;
     this.referenceShapeId = referenceShapeId;
     this.referenceSegmentIdx = referenceSegmentIdx;
-    this.hasGeometryReferenced = hasGeometryReferenced;
+    this.hasGeometryReferenced = [...hasGeometryReferenced];
   }
 
   /* #################################################################### */
@@ -383,6 +383,21 @@ export class Shape {
     return arcCenter;
   }
 
+  static getReference(pt1, pt2) {
+    let segment = new Segment(pt1, pt2),
+      reference;
+
+    app.workspace.shapes.some(s => {
+      return s.segments.some(seg => {
+        if (seg.equal(segment)) {
+          reference = seg;
+          return true;
+        }
+      });
+    });
+    return reference;
+  }
+
   /* #################################################################### */
   /* ################################ IS ################################ */
   /* #################################################################### */
@@ -669,10 +684,14 @@ export class Shape {
     this.segments.forEach(seg => seg.rotate(angle, center));
   }
 
-  applyTransform(pointSelected, pointDest) {
+  applyTransform(pointSelected, pointDest, pointDest2) {
     let v1, v2, v3, v4;
     let transformMethod;
-    if (this.familyName == 'Irregular') {
+    if (pointDest2 !== undefined) {
+      v1 = pointDest;
+      v2 = pointDest2;
+      transformMethod = 'computeShape';
+    } else if (this.familyName == 'Irregular') {
       transformMethod = 'onlyMovePoint';
     } else if (
       pointSelected.name == 'firstPoint' &&
@@ -1033,10 +1052,8 @@ export class Shape {
     this.setGeometryConstructionSpec();
   }
 
-  updateGeometry(mustDraw = false) {
-    let reference = ShapeManager.getShapeById(this.referenceShapeId).segments[
-      this.referenceSegmentIdx
-    ];
+  updateGeometry(referenceShape, isTemporary = false) {
+    let reference = referenceShape.segments[this.referenceSegmentIdx];
     if (this.name == 'ParalleleStraightLine') {
       let segment = Segment.segmentWithAnglePassingThroughPoint(
         reference.getAngleWithHorizontal(),
@@ -1103,24 +1120,36 @@ export class Shape {
           this.segments[0].vertexes[0].y + length * Math.sin(nextAngle)
         )
       );
+    } else {
+      let v1 = this.segments[0].vertexes[0].equal(reference.vertexes[0])
+          ? reference.vertexes[0]
+          : reference.vertexes[1],
+        v2 = this.segments[0].vertexes[0].equal(reference.vertexes[0])
+          ? reference.vertexes[1]
+          : reference.vertexes[0];
+      this.applyTransform(this.segments[0].vertexes[0], v1, v2);
     }
-    this.updateGeometryReferenced(mustDraw);
-    if (mustDraw) {
-      let savedBorderColor = this.borderColor;
-      this.borderColor = app.settings.get('temporaryDrawColor');
+    this.updateGeometryReferenced(isTemporary);
+    if (isTemporary) {
       window.dispatchEvent(
         new CustomEvent('draw-shape', {
           detail: { shape: this, borderSize: 2 },
         })
       );
-      this.borderColor = savedBorderColor;
     }
   }
 
-  updateGeometryReferenced(mustDraw = false) {
+  updateGeometryReferenced(isTemporary = false) {
     this.hasGeometryReferenced.forEach(shapeId => {
-      let shape = ShapeManager.getShapeById(shapeId);
-      shape.updateGeometry(mustDraw);
+      let shape = ShapeManager.getShapeById(shapeId),
+        shapeCopy = shape;
+      if (isTemporary) {
+        shapeCopy = new Shape({
+          ...shape,
+          borderColor: app.settings.get('temporaryDrawColor'),
+        });
+      }
+      shapeCopy.updateGeometry(this, isTemporary);
     });
   }
 

@@ -126,12 +126,14 @@ export class CreateRegularState extends State {
     } else {
       // 'select-second-point'
       this.secondPoint = newPoint;
+      let reference = Shape.getReference(this.firstPoint, this.secondPoint);
       this.actions = [
         {
           name: 'CreateRegularAction',
           firstPoint: this.firstPoint,
           secondPoint: this.secondPoint,
           numberOfPoints: this.numberOfPoints,
+          reference: reference,
           shapeId: this.shapeId,
         },
       ];

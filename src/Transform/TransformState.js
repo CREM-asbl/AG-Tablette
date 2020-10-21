@@ -224,12 +224,6 @@ export class TransformState extends State {
       });
 
       shapeCopy.updateGeometryReferenced(true);
-
-      // window.dispatchEvent(
-      //   new CustomEvent('draw-point', {
-      //     detail: { point: this.pointDest, size: 3, color: color },
-      //   })
-      // );
     }
   }
 

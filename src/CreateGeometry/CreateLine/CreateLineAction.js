@@ -138,7 +138,6 @@ export class CreateLineAction extends Action {
         familyName: 'Line',
       });
     }
-    console.log(shape);
 
     if (this.reference) {
       shape.referenceShapeId = this.reference.shape.id;

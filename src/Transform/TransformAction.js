@@ -67,6 +67,7 @@ export class TransformAction extends Action {
         )
       ].vertexes[0].setCoordinates(this.pointDest);
     }
+    shape.updateGeometryReferenced(false);
     shape.setGeometryConstructionSpec();
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));

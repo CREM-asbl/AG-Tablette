@@ -25,6 +25,7 @@ export class CreateRegularAction extends Action {
     this.numberOfPoints = save.numberOfPoints;
     this.firstPoint = save.firstPoint;
     this.secondPoint = save.secondPoint;
+    this.reference = save.reference;
     this.shapeId = save.shapeId;
   }
 
@@ -60,6 +61,12 @@ export class CreateRegularAction extends Action {
     this.secondPoint.name = 'secondPoint';
 
     let newShape = this.createPolygon();
+
+    if (this.reference) {
+      newShape.referenceShapeId = this.reference.shape.id;
+      newShape.referenceSegmentIdx = this.reference.idx;
+      this.reference.shape.hasGeometryReferenced.push(newShape.id);
+    }
 
     ShapeManager.addShape(newShape);
   }

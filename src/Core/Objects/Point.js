@@ -465,7 +465,6 @@ export class Point {
         constraints.isFree = true;
       }
     }
-    console.log(constraints);
     this.transformConstraints = constraints;
   }
 
