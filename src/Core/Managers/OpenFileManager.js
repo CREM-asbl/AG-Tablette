@@ -89,8 +89,6 @@ window.addEventListener('open-file', () => {
 });
 
 window.addEventListener('local-open-file', () => {
-  console.log(OpenFileManager.hasNativeFS);
-  console.log('showOpenFilePicker' in window);
   OpenFileManager.openFile();
 });
 
