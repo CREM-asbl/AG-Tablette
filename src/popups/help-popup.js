@@ -12,6 +12,8 @@ class HelpPopup extends LitElement {
   constructor() {
     super();
 
+    console.log('created');
+
     this.content = html`
       Pour afficher l'aide correspondant à un des outils, opérations ou
       mouvements, sélectionnez cet élément puis cliquez à nouveau sur le menu

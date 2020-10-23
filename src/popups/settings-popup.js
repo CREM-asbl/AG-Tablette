@@ -66,7 +66,11 @@ class SettingsPopup extends LitElement {
 
           <br />
 
-          <fieldset>
+          <fieldset style=${
+            app.environment.name == 'Tangram' || app.environment.name == 'Cubes'
+              ? 'display:none'
+              : ''
+          }>
             <legend>Formes</legend>
 
             <div class="field">
