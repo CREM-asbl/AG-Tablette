@@ -66,7 +66,7 @@ export class Workspace {
     //Taille de la grille
     this.settings.set('gridSize', 1);
 
-    //Type de grille: 'square' ou 'triangle'
+    //Type de grille: 'square', 'horizontal-triangle', 'vertical-triangle'
     this.settings.set('gridType', 'none');
 
     //Tangram affiché ?
