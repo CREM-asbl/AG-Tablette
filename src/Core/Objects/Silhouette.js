@@ -8,12 +8,13 @@ export class Silhouette {
   constructor(shapes = [], level = 1) {
     this.level = level;
     this.shapes = shapes.map(shape => {
-      shape.name = 'silhouette';
-      shape.color = '#000';
-      shape.borderColor = level % 2 != 0 ? '#fff' : '#000';
-      shape.opacity = 1;
-      if (level == 5 || level == 6) shape.scale(2 / 3);
-      return shape;
+      let shapeCopy = new Shape(shape);
+      shapeCopy.name = 'silhouette';
+      shapeCopy.color = '#000';
+      shapeCopy.borderColor = level % 2 != 0 ? '#fff' : '#000';
+      shapeCopy.opacity = 1;
+      if (level == 5 || level == 6) shapeCopy.scale(2 / 3);
+      return shapeCopy;
     });
   }
 

@@ -3,6 +3,7 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
+import { TangramManager } from './TangramManager';
 
 /**
  * Créer un tangram
@@ -24,6 +25,7 @@ export class SolutionCheckerState extends State {
    * initialiser l'état
    */
   start() {
+    TangramManager.initShapes();
     this.showStateMenu();
     window.addEventListener('state-menu-button-click', this.handler);
   }
