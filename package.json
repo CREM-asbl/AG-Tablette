@@ -10,13 +10,13 @@
   },
   "author": "The Polymer Authors",
   "dependencies": {
-    "@webcomponents/webcomponentsjs": "^2.4.4",
+    "@webcomponents/webcomponentsjs": "^2.5.0",
     "babel-eslint": "^10.1.0",
     "browserslist": "^4.14.1",
     "core-js": "^3.6.5",
     "eslint-plugin-babel": "^5.3.1",
     "growl": "^1.10.5",
-    "joi": "^17.2.1",
+    "joi": "^17.3.0",
     "latest": "^0.2.0",
     "lit-element": "^2.4.0",
     "ncp": "^2.0.0",
@@ -29,21 +29,21 @@
     "rollup-plugin-cpy": "^2.0.1"
   },
   "devDependencies": {
-    "@open-wc/building-rollup": "^1.9.0",
-    "@open-wc/demoing-storybook": "^2.4.0",
+    "@open-wc/building-rollup": "^1.9.3",
+    "@open-wc/demoing-storybook": "^2.4.5",
     "@open-wc/eslint-config": "^3.0.0",
     "@open-wc/prettier-config": "^1.1.0",
-    "@open-wc/testing": "^2.5.25",
-    "@open-wc/testing-karma": "^4.0.5",
-    "@open-wc/testing-karma-bs": "^1.3.90",
-    "eslint": "^7.8.1",
-    "eslint-plugin-lit": "^1.2.2",
+    "@open-wc/testing": "^2.5.29",
+    "@open-wc/testing-karma": "^4.0.9",
+    "@open-wc/testing-karma-bs": "^1.3.94",
+    "eslint": "^7.12.0",
+    "eslint-plugin-lit": "^1.2.4",
     "husky": "^4.3.0",
-    "lint-staged": "^10.3.0",
+    "lint-staged": "^10.4.2",
     "rimraf": "^3.0.2",
-    "rollup": "^2.26.11",
+    "rollup": "^2.32.1",
     "wct-browser-legacy": "^1.0.2",
-    "webpack-merge": "^5.1.4"
+    "webpack-merge": "^5.2.0"
   },
   "scripts": {
     "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
@@ -69,7 +69,7 @@
     "start": "es-dev-server --app-index index.html --node-resolve --open --watch --compatibility none",
     "start:compatibility": "es-dev-server --app-index index.html --compatibility all --node-resolve --open --watch",
     "start:local": "es-dev-server --app-index index.html --node-resolve --open --watch --hostname 192.168.0.4",
-    "copy": "ncp images \"dist/images\" && ncp data \"dist/data\" && cp manifest.json dist",
+    "copy": "ncp images \"dist/images\" && ncp data \"dist/data\" && copy manifest.json dist",
     "copy:beta": "ncp images \"beta/images\" && ncp data \"beta/data\" && cp manifest.json beta"
   },
   "eslintConfig": {
