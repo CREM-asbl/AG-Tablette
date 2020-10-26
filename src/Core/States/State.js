@@ -50,7 +50,7 @@ export class State {
     window.addEventListener('get-help-text', () => {
       if (this.status == 'running') {
         const popup = document.querySelector('help-popup');
-        popup.setText(this.getHelpText());
+        setTimeout(() => popup.setText(this.getHelpText()), 100);
       }
     });
 

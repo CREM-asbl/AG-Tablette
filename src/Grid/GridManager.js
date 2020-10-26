@@ -44,8 +44,7 @@ export class GridManager {
           ptList.push(new Point(x, y));
         }
       }
-    } else {
-      //triangle
+    } else if (type == 'horizontal-triangle') {
       let approx = 43.3012701892,
         t1 = Math.ceil((minPoint.x - 10) / (50 * size)),
         startX = 10 + t1 * 50 * size,
@@ -64,6 +63,28 @@ export class GridManager {
       startY = 10 + approx * size + t2 * approx * 2 * size;
       for (let x = startX; x <= maxPoint.x; x += 50 * size) {
         for (let y = startY; y <= maxPoint.y; y += approx * 2 * size) {
+          ptList.push(new Point(x, y));
+        }
+      }
+    } else if (type == 'vertical-triangle') {
+      let approx = 43.3012701892,
+        t1 = Math.ceil((minPoint.x - 10) / (approx * 2 * size)),
+        startX = 10 + t1 * approx * 2 * size,
+        t2 = Math.ceil((minPoint.y - 10) / (50 * size)),
+        startY = 10 + t2 * 50 * size;
+
+      for (let x = startX; x <= maxPoint.x; x += approx * 2 * size) {
+        for (let y = startY; y <= maxPoint.y; y += 50 * size) {
+          ptList.push(new Point(x, y));
+        }
+      }
+
+      t1 = Math.ceil((minPoint.x - 10 - approx * size) / (approx * 2 * size));
+      startX = 10 + approx * size + t1 * approx * 2 * size;
+      t2 = Math.ceil((minPoint.y - 10 - (50 * size) / 2) / (50 * size));
+      startY = 10 + (50 * size) / 2 + t2 * 50 * size;
+      for (let x = startX; x <= maxPoint.x; x += approx * 2 * size) {
+        for (let y = startY; y <= maxPoint.y; y += 50 * size) {
           ptList.push(new Point(x, y));
         }
       }
@@ -92,8 +113,7 @@ export class GridManager {
       possibilities.push(topleft.addCoordinates(0, 50 * gridSize));
       possibilities.push(topleft.addCoordinates(50 * gridSize, 0));
       possibilities.push(topleft.addCoordinates(50 * gridSize, 50 * gridSize));
-    } else {
-      //triangle
+    } else if (gridType == 'horizontal-triangle') {
       let height = 43.3012701892,
         topY = y - ((y - 10) % (height * gridSize)),
         topX =
@@ -107,6 +127,21 @@ export class GridManager {
       possibilities.push(topleft1.addCoordinates(50 * gridSize, 0));
       possibilities.push(
         topleft1.addCoordinates(25 * gridSize, height * gridSize)
+      );
+    } else if (gridType == 'vertical-triangle') {
+      let height = 43.3012701892,
+        topX = x - ((x - 10) % (height * gridSize)),
+        topY =
+          y -
+          ((y - 10) % (50 * gridSize)) +
+          (Math.round(topX / height / gridSize) % 2) * 25 * gridSize;
+      if (topY > y) topY -= 50 * gridSize;
+      let topleft1 = new Point(topX, topY);
+
+      possibilities.push(topleft1);
+      possibilities.push(topleft1.addCoordinates(0, 50 * gridSize));
+      possibilities.push(
+        topleft1.addCoordinates(height * gridSize, 25 * gridSize)
       );
     }
 

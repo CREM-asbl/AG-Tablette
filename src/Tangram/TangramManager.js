@@ -1,6 +1,7 @@
 import { app } from '../Core/App';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { createElem } from '../Core/Tools/general';
+import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 
 const serverURL = 'https://api.crem.be/';
 
@@ -74,6 +75,18 @@ export class TangramManager {
     ).filter(Boolean);
 
     jsons.forEach(json => app.CremTangrams.push(json));
+  }
+
+  static async loadKit() {
+    const response = await fetch('data/Tangram/kit2.json');
+    return response.text();
+  }
+
+  static async initShapes() {
+    if (!TangramManager.kit)
+      TangramManager.kit = await TangramManager.loadKit();
+    const ws = JSON.parse(this.kit);
+    WorkspaceManager.setWorkspaceFromObject(ws);
   }
 }
 

@@ -39,12 +39,18 @@ class GridPopup extends LitElement {
               <option value="none" ?selected="${this.gridType === 'none'}">
                 Aucune
               </option>
-              <option value="square" ?selected=${this.gridType === 'square'}>
+              <option
+                style=${app.environment.name == 'Cubes' ? 'display:none' : ''}
+                value="square"
+                ?selected=${this.gridType === 'square'}
+              >
                 Carrés
               </option>
               <option
-                value="triangle"
-                ?selected=${this.gridType === 'triangle'}
+                value=${app.environment.name == 'Cubes'
+                  ? 'vertical-triangle'
+                  : 'horizontal-triangle'}
+                ?selected=${this.gridType.endsWith('triangle')}
               >
                 Triangles
               </option>
