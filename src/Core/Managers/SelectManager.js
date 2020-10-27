@@ -71,7 +71,7 @@ export class SelectManager {
         canSelect: false,
         //Indépendamment de whitelist et blacklist, le point doit être
         //d'un des types renseignés dans ce tableau.
-        types: ['center', 'vertex', 'segmentPoint'],
+        types: ['center', 'vertex', 'segmentPoint', 'modifiablePoint'],
         /*
                 Liste pouvant contenir différents éléments:
                     - Shape. Le point doit faire partie de cette forme ;
@@ -128,34 +128,33 @@ export class SelectManager {
     // all points at the correct distance
     let potentialPoints = [];
     app.workspace.shapes.forEach(shape => {
-      if (app.environment.name == 'Geometrie') {
+      if (constraints.types.includes('vertex') && !shape.isCircle()) {
+        shape.vertexes
+          .filter(vertex => distCheckFunction(vertex, mouseCoordinates))
+          .forEach(vertex => {
+            potentialPoints.push(vertex);
+          });
+      }
+      if (constraints.types.includes('segmentPoint')) {
+        shape.segmentPoints
+          .filter(point => distCheckFunction(point, mouseCoordinates))
+          .forEach(point => {
+            potentialPoints.push(point);
+          });
+      }
+      if (
+        shape.isCenterShown &&
+        constraints.types.includes('center') &&
+        distCheckFunction(shape.center, mouseCoordinates)
+      ) {
+        potentialPoints.push(shape.center);
+      }
+      if (constraints.types.includes('modifiablePoint')) {
         shape.modifiablePoints
           .filter(point => distCheckFunction(point, mouseCoordinates))
           .forEach(point => {
             potentialPoints.push(point);
           });
-      } else {
-        if (constraints.types.includes('vertex') && !shape.isCircle()) {
-          shape.vertexes
-            .filter(vertex => distCheckFunction(vertex, mouseCoordinates))
-            .forEach(vertex => {
-              potentialPoints.push(vertex);
-            });
-        }
-        if (constraints.types.includes('segmentPoint')) {
-          shape.segmentPoints
-            .filter(point => distCheckFunction(point, mouseCoordinates))
-            .forEach(point => {
-              potentialPoints.push(point);
-            });
-        }
-        if (
-          shape.isCenterShown &&
-          constraints.types.includes('center') &&
-          distCheckFunction(shape.center, mouseCoordinates)
-        ) {
-          potentialPoints.push(shape.center);
-        }
       }
     });
 
@@ -316,7 +315,7 @@ export class SelectManager {
 
     // apply constrains
     const constrainedSegments = potentialSegments.filter(potentialSegment => {
-      const shape = potentialSegment.shape;
+      const shape = potentialSegment.segment.shape;
       if (constraints.whitelist != null) {
         if (
           !constraints.whitelist.some(constr => {

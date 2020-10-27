@@ -99,7 +99,7 @@ export class DrawManager {
     app.workspace.shapes
       .filter(shape => {
         return (
-          app.workspace.editingShapes.findIndex(s => s.id == shape.id) == -1
+          app.workspace.editingShapesIds.findIndex(id => id == shape.id) == -1
         );
       })
       .forEach(shape => {
@@ -167,6 +167,7 @@ export class DrawManager {
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     ctx.globalAlpha = shape.opacity;
     ctx.lineWidth = borderSize * app.workspace.zoomLevel;
+    ctx.miterLimit = 1;
 
     const pathScaleMethod =
         ctx.canvas.width == 52 && ctx.canvas.height == 52
@@ -182,25 +183,13 @@ export class DrawManager {
 
     ctx.restore();
 
-    // ctx.save();
-
     if (
       app.settings.get('areShapesPointed') &&
       shape.name !== 'silhouette' &&
-      !shape.isCircle() &&
-      !shape.isStraightLine() &&
-      !shape.isSemiStraightLine()
+      (!shape.isCircle() || app.environment.name == 'Geometrie')
     ) {
       shape.vertexes.forEach(point =>
         DrawManager.drawPoint(ctx, point, '#000', 1, false)
-      );
-    } else if (shape.isSemiStraightLine()) {
-      DrawManager.drawPoint(
-        ctx,
-        shape.segments[0].vertexes[0],
-        '#000',
-        1,
-        false
       );
     }
 
@@ -210,6 +199,9 @@ export class DrawManager {
 
     if (shape.isCenterShown)
       DrawManager.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
+
+    if (shape.name == 'CircleArc')
+      DrawManager.drawPoint(ctx, shape.segments[0].arcCenter, '#000', 1, false); //Le centre de l'arc
 
     ctx.restore();
     ctx.lineWidth = 1;
@@ -273,8 +265,6 @@ export class DrawManager {
 
     const v0Copy = new Point(transformSegment.vertexes[0]);
     v0Copy.setToCanvasCoordinates();
-
-    // console.log(['M', v0Copy.x, v0Copy.y, transformSegment.getSVGPath()].join(' '));
 
     const path = new Path2D(
       ['M', v0Copy.x, v0Copy.y, transformSegment.getSVGPath()].join(' ')

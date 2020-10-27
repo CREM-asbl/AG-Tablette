@@ -90,7 +90,6 @@ class CirclesList extends LitElement {
 
   _clickHandle(event) {
     this.circleSelected = event.target.shapeName;
-    console.log(this.circleSelected);
     window.dispatchEvent(
       new CustomEvent('circle-selected', {
         detail: { circleSelected: this.circleSelected },

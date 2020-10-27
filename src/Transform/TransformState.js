@@ -65,7 +65,7 @@ export class TransformState extends State {
     app.workspace.selectionConstraints.eventType = 'mousedown';
     app.workspace.selectionConstraints.points.canSelect = true;
 
-    app.workspace.selectionConstraints.points.types = ['vertex'];
+    app.workspace.selectionConstraints.points.types = ['modifiablePoint'];
     app.workspace.selectionConstraints.points.whitelist = null;
     app.workspace.selectionConstraints.points.blacklist = null;
 

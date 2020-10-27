@@ -391,11 +391,17 @@ export class Point {
         ];
       }
     } else if (this.shape.name == 'Circle') {
-      constraints.isFree = true;
-    } else if (this.shape.name == 'CirclePart') {
-      if (this.name == 'arcCenter' || this.name == 'firstPoint')
+      if (this.name == 'arcCenter') {
+        constraints.isBlocked = true;
+      } else {
         constraints.isFree = true;
-      else {
+      }
+    } else if (this.shape.name == 'CirclePart') {
+      if (this.name == 'arcCenter') {
+        constraints.isBlocked = true;
+      } else if (this.name == 'firstPoint') {
+        constraints.isFree = true;
+      } else {
         constraints.isConstrained = true;
         let constraintLine = {
           segment: new Segment(
@@ -409,9 +415,8 @@ export class Point {
         constraints.lines = [constraintLine];
       }
     } else if (this.shape.name == 'CircleArc') {
-      if (this.name == 'arcCenter' || this.name == 'firstPoint')
-        constraints.isFree = true;
-      else {
+      if (this.name == 'firstPoint') constraints.isFree = true;
+      else if (this.name == 'secondPoint') {
         constraints.isConstrained = true;
         let constraintLine = {
           segment: new Segment(
@@ -420,6 +425,25 @@ export class Point {
             null,
             null,
             this.shape.segments[0].arcCenter
+          ),
+        };
+        constraints.lines = [constraintLine];
+      } else if (this.name == 'arcCenter') {
+        constraints.isConstrained = true;
+        let seg = new Segment(
+          this.shape.segments[0].vertexes[0],
+          this.shape.segments[0].vertexes[1]
+        );
+        let middle = seg.middle;
+        let constraintLine = {
+          segment: new Segment(
+            this.shape.segments[0].middle,
+            middle,
+            null,
+            null,
+            null,
+            null,
+            true
           ),
         };
         constraints.lines = [constraintLine];

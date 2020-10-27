@@ -49,7 +49,6 @@ export class CreateAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
     this.shapeToCreate.id = this.shapeId;
-    console.log(this.shapeToCreate.getSVGPath());
     ShapeManager.addShape(this.shapeToCreate);
   }
 

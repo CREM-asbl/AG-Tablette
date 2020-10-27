@@ -71,7 +71,8 @@ export class Shape {
   get allOutlinePoints() {
     let points = [];
     if (this.isSegment()) points.push(this.segments[0].vertexes[0]);
-    if (this.isCircle()) points.push(...this.segments[0].points);
+    if (this.isCircle() && app.environment.name !== 'Geometrie')
+      points.push(...this.segments[0].points);
     else
       this.segments.forEach(segment =>
         points.push(segment.vertexes[1], ...segment.points)
@@ -739,11 +740,7 @@ export class Shape {
       transformMethod = 'computeShape';
     } else if (this.name == 'CirclePart') {
       transformMethod = 'onlyMovePoint';
-    } else if (
-      (pointSelected.name == 'arcCenter' ||
-        pointSelected.name == 'firstPoint') &&
-      this.name == 'CircleArc'
-    ) {
+    } else if (pointSelected.name == 'firstPoint' && this.name == 'CircleArc') {
       transformMethod = 'computeShape';
     } else if (this.name == 'CircleArc') {
       transformMethod = 'onlyMovePoint';

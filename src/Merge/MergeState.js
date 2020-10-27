@@ -65,7 +65,7 @@ export class MergeState extends State {
   restart() {
     this.end();
     if (this.currentStep == 'selecting-second-shape')
-      app.workspace.editingShapes = [this.firstShape];
+      app.workspace.editingShapesIds = [this.firstShape.id];
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -81,7 +81,7 @@ export class MergeState extends State {
   end() {
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
-      app.workspace.editingShapes = [];
+      app.workspace.editingShapesIds = [];
     }
     app.removeListener('objectSelected', this.objectSelectedId);
   }
@@ -135,7 +135,7 @@ export class MergeState extends State {
       }
       this.currentStep = 'selecting-second-shape';
       this.firstShape = shape;
-      app.workspace.editingShapes = [shape];
+      app.workspace.editingShapesIds = [shape.id];
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       return;
@@ -144,7 +144,7 @@ export class MergeState extends State {
     if (this.firstShape.id == shape.id) {
       this.currentStep = 'listen-canvas-click';
       this.firstShape = null;
-      app.workspace.editingShapes = [];
+      app.workspace.editingShapesIds = [];
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       return;

@@ -101,7 +101,6 @@ class LinesList extends LitElement {
 
   _clickHandle(event) {
     this.lineSelected = event.target.shapeName;
-    console.log(this.lineSelected);
     window.dispatchEvent(
       new CustomEvent('line-selected', {
         detail: { lineSelected: this.lineSelected },

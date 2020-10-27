@@ -79,7 +79,7 @@ export class MoveState extends State {
   end() {
     window.cancelAnimationFrame(this.requestAnimFrameId);
     this.currentStep = 'listen-canvas-click';
-    app.workspace.editingShapes = [];
+    app.workspace.editingShapesIds = [];
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('canvasmouseup', this.mouseUpId);
   }
@@ -108,7 +108,7 @@ export class MoveState extends State {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
 
-    app.workspace.editingShapes = this.involvedShapes;
+    app.workspace.editingShapesIds = this.involvedShapes.map(s => s.id);
     this.currentStep = 'moving-shape';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     window.dispatchEvent(new CustomEvent('refresh'));

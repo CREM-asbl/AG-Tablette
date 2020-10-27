@@ -279,7 +279,12 @@ export class CutState extends State {
         'segmentPoint',
       ];
       app.workspace.selectionConstraints.points.whitelist = null;
-      app.workspace.selectionConstraints.points.blacklist = null;
+      app.workspace.selectionConstraints.points.blacklist = app.workspace.shapes.filter(
+        s =>
+          s.isStraightLine() ||
+          s.isSemiStraightLine() ||
+          (s.isSegment() && app.environment.name == 'Geometrie')
+      );
     } else if (step == 'select-second-point') {
       let object = this.firstPoint,
         shape = object.shape,

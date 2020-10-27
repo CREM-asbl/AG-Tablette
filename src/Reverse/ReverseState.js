@@ -105,7 +105,7 @@ export class ReverseState extends State {
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
       this.selectedShape = null;
-      app.workspace.editingShapes = [];
+      app.workspace.editingShapesIds = [];
     }
 
     app.removeListener('objectSelected', this.objectSelectedId);
@@ -153,7 +153,7 @@ export class ReverseState extends State {
       () => (this.mouseClickId = app.addListener('canvasclick', this.handler))
     );
     this.currentStep = 'selecting-symmetrical-arch';
-    app.workspace.editingShapes = this.involvedShapes;
+    app.workspace.editingShapesIds = this.involvedShapes.map(s => s.id);
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -280,7 +280,7 @@ export class ReverseState extends State {
       window.dispatchEvent(
         new CustomEvent('draw-group', {
           detail: {
-            involvedShapes: this.involvedShapes.map(s => s.copy(true)),
+            involvedShapes: this.involvedShapes.map(s => s.copy()),
             functionCalledBeforeDraw: s => {
               this.reverseShape(s, this.axe);
             },

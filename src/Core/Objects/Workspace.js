@@ -23,8 +23,8 @@ export class Workspace {
     // Liste des groupes créés par l'utilisateur
     this.shapeGroups = [];
 
-    // Liste des shapes a ne pas redessiner pendant une action
-    this.editingShapes = [];
+    // Liste des id de shapes a ne pas redessiner pendant une action
+    this.editingShapesIds = [];
 
     this.settings = new Settings();
     this.initSettings();

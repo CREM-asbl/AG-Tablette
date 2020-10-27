@@ -40,6 +40,7 @@ export class SaveFileManager {
     };
     const handle = await window.showSaveFilePicker(opts);
     const extension = SaveFileManager.getExtension(handle.name);
+    SaveFileManager.extension = extension;
     switch (extension) {
       case 'png':
         SaveFileManager.saveToPng(handle);
@@ -85,6 +86,7 @@ export class SaveFileManager {
         };
         let detail = { ...handle };
         const extension = SaveFileManager.getExtension(handle.name);
+        SaveFileManager.extension = extension;
         switch (extension) {
           case 'png':
             SaveFileManager.saveToPng(handle);
@@ -147,14 +149,17 @@ export class SaveFileManager {
     let wsdata = app.workspace.data,
       appSettings = app.settings.saveToObject();
 
-    if (!detail.save_history) wsdata.history = undefined;
-    if (!detail.save_history) wsdata.completeHistory = undefined;
+    SaveFileManager.saveHistory = detail.saveHistory;
+    SaveFileManager.saveSettings = detail.saveSettings;
 
-    if (!detail.save_settings) appSettings = undefined;
-    if (!detail.save_settings) wsdata.settings = undefined;
+    if (!detail.saveHistory) wsdata.history = undefined;
+    if (!detail.saveHistory) wsdata.completeHistory = undefined;
+
+    if (!detail.saveSettings) appSettings = undefined;
+    if (!detail.saveSettings) wsdata.settings = undefined;
 
     let silhouetteData;
-    if (app.environment.name == 'Tangram')
+    if (app.environment.name == 'Tangram' && app.silhouette)
       silhouetteData = app.silhouette.saveToObject();
 
     let saveObject = {
@@ -176,7 +181,6 @@ export class SaveFileManager {
   }
 
   static async newWriteFile(fileHandle, contents) {
-    console.log(fileHandle);
     const writer = await fileHandle.createWritable();
     await writer.truncate(0);
     await writer.write(contents);
@@ -205,3 +209,7 @@ window.addEventListener('save-file', () => {
 
 // Si ancien ou nouveau systeme de fichier
 SaveFileManager.hasNativeFS = 'showSaveFilePicker' in window;
+
+SaveFileManager.saveSettings = true;
+SaveFileManager.saveHistory = true;
+SaveFileManager.extension = 'agg';

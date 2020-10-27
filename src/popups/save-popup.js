@@ -8,19 +8,25 @@ class SavePopup extends LitElement {
   static get properties() {
     return {
       filename: { type: String },
-      save_settings: { type: Boolean },
-      save_history: { type: Boolean },
-      save_format: { type: String },
+      saveSettings: { type: Boolean },
+      saveHistory: { type: Boolean },
+      imageFormat: { type: String },
     };
   }
 
   constructor() {
     super();
     this.filename = 'untitled';
-    this.save_settings = true;
-    this.save_history = true;
-    this.save_format = 'png';
-    this.image_or_state = 'state';
+    this.saveSettings = SaveFileManager.saveSettings;
+    this.saveHistory = SaveFileManager.saveHistory;
+    this.imageFormat =
+      SaveFileManager.extension == 'png' || SaveFileManager.extension == 'svg'
+        ? SaveFileManager.extension
+        : 'png';
+    this.stateOrImage =
+      SaveFileManager.extension == 'png' || SaveFileManager.extension == 'svg'
+        ? 'image'
+        : 'state';
 
     window.addEventListener('close-popup', () => this.close());
   }
@@ -37,37 +43,35 @@ class SavePopup extends LitElement {
           <div
             style="display: ${SaveFileManager.hasNativeFS ? 'none' : 'block'}"
           >
-            <label for="save_popup_image_or_state" style="display:inline"
+            <label for="save_popup_stateOrImage" style="display:inline"
               >Méthode de sauvegarde</label
             >
             <select
-              name="save_popup_image_or_state"
-              id="save_popup_image_or_state"
+              name="save_popup_stateOrImage"
+              id="save_popup_stateOrImage"
               @change="${this._actionHandle}"
             >
-              <option
-                value="state"
-                ?selected="${this.image_or_state == 'state'}"
-              >
+              <option value="state" ?selected="${this.stateOrImage == 'state'}">
                 état
               </option>
-              <option
-                value="image"
-                ?selected="${this.image_or_state == 'image'}"
-              >
+              <option value="image" ?selected="${this.stateOrImage == 'image'}">
                 image
               </option>
             </select>
             <br /><br />
           </div>
 
-          <div class="part" id="state_form" style="display: block;">
+          <div
+            class="part"
+            id="state_form"
+            style="display: ${this.stateOrImage == 'state' ? 'block' : 'none'};"
+          >
             <div class="field">
               <input
                 type="checkbox"
                 name="save_popup_settings"
                 id="save_popup_settings"
-                ?checked="${this.save_settings}"
+                ?checked="${this.saveSettings}"
                 @change="${this._actionHandle}"
               />
               <label for="save_popup_settings"
@@ -80,24 +84,28 @@ class SavePopup extends LitElement {
                 type="checkbox"
                 name="save_popup_history"
                 id="save_popup_history"
-                ?checked="${this.save_history}"
+                ?checked="${this.saveHistory}"
                 @change="${this._actionHandle}"
               />
               <label for="save_popup_history">Sauvegarder l'historique</label>
             </div>
           </div>
 
-          <div class="part" id="image_form" style="display: none;">
+          <div
+            class="part"
+            id="image_form"
+            style="display: ${this.stateOrImage == 'image' ? 'block' : 'none'};"
+          >
             <label for="save_popup_format" style="display:inline">Format</label>
             <select
               name="save_popup_format"
               id="save_popup_format"
               @change="${this._actionHandle}"
             >
-              <option value="png" ?selected="${this.save_format == 'png'}">
+              <option value="png" ?selected="${this.imageFormat == 'png'}">
                 png
               </option>
-              <option value="svg" ?selected="${this.save_format == 'svg'}">
+              <option value="svg" ?selected="${this.imageFormat == 'svg'}">
                 svg
               </option>
             </select>
@@ -150,11 +158,11 @@ class SavePopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'save_popup_settings':
-        this.save_settings = !this.save_settings;
+        this.saveSettings = !this.saveSettings;
         break;
 
       case 'save_popup_history':
-        this.save_history = !this.save_history;
+        this.saveHistory = !this.saveHistory;
         break;
 
       case 'save_popup_filename':
@@ -164,15 +172,15 @@ class SavePopup extends LitElement {
 
       case 'save_popup_submit':
         let extension =
-          this.image_or_state == 'state'
+          this.stateOrImage == 'state'
             ? app.environment.extension
-            : this.save_format;
+            : this.imageFormat;
         window.dispatchEvent(
           new CustomEvent('file-selected', {
             detail: {
               name: this.filename + '.' + extension,
-              save_settings: this.save_settings,
-              save_history: this.save_history,
+              saveSettings: this.saveSettings,
+              saveHistory: this.saveHistory,
             },
           })
         );
@@ -180,11 +188,11 @@ class SavePopup extends LitElement {
         break;
 
       case 'save_popup_format':
-        this.save_format = event.target.value;
+        this.imageFormat = event.target.value;
         break;
 
-      case 'save_popup_image_or_state':
-        this.image_or_state = event.target.value;
+      case 'save_popup_stateOrImage':
+        this.stateOrImage = event.target.value;
         this.shadowRoot
           .querySelectorAll('.part')
           .forEach(elem => (elem.style.display = 'none'));

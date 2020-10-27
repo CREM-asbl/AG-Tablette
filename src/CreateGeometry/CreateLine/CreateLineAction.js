@@ -106,7 +106,6 @@ export class CreateLineAction extends Action {
       this.lineName == 'ParalleleSemiStraightLine' ||
       this.lineName == 'PerpendicularSemiStraightLine'
     ) {
-      console.log('here');
       let segment = new Segment(this.points[0], this.points[1]);
       segment.isSemiInfinite = true;
       shape = new Shape({
@@ -115,7 +114,6 @@ export class CreateLineAction extends Action {
         name: this.lineName,
         familyName: 'Line',
       });
-      console.log(shape);
     } else if (this.lineName == 'Segment') {
       shape = new Shape({
         id: this.shapeId,

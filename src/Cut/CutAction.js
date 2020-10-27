@@ -227,22 +227,24 @@ export class CutAction extends Action {
       distance = center2.dist(center1),
       myOffset = 20, //px
       offset = difference.multiplyWithScalar(myOffset / distance);
+
     shape1.translate(offset, true);
     if (shape.isSegment()) {
       shape1.translate(
         new Point(
-          -segments[0].direction.x,
-          segments[0].direction.y
+          -segments[0].direction.y,
+          segments[0].direction.x
         ).multiplyWithScalar(myOffset / 2)
       );
     }
     shape1.id = this.createdShapesIds[0];
+
     shape2.translate(offset);
     if (shape.isSegment()) {
       shape2.translate(
         new Point(
-          segments[0].direction.x,
-          -segments[0].direction.y
+          segments[0].direction.y,
+          -segments[0].direction.x
         ).multiplyWithScalar(myOffset / 2)
       );
     }

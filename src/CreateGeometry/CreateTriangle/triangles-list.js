@@ -94,7 +94,6 @@ class TrianglesList extends LitElement {
 
   _clickHandle(event) {
     this.triangleSelected = event.target.shapeName;
-    console.log(this.triangleSelected);
     window.dispatchEvent(
       new CustomEvent('triangle-selected', {
         detail: { triangleSelected: this.triangleSelected },

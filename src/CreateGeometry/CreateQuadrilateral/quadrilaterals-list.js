@@ -97,7 +97,6 @@ class QuadrilateralsList extends LitElement {
 
   _clickHandle(event) {
     this.quadrilateralSelected = event.target.shapeName;
-    console.log(this.quadrilateralSelected);
     window.dispatchEvent(
       new CustomEvent('quadrilateral-selected', {
         detail: { quadrilateralSelected: this.quadrilateralSelected },

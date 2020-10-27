@@ -55,14 +55,7 @@ export class DivideState extends State {
     let popup = createElem('divide-popup');
     popup.parts = this.numberOfParts;
 
-    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-    app.workspace.selectionConstraints.eventType = 'click';
-    app.workspace.selectionConstraints.segments.canSelect = true;
-    app.workspace.selectionConstraints.points.canSelect = true;
-    app.workspace.selectionConstraints.points.types = [
-      'vertex',
-      'segmentPoint',
-    ];
+    this.setSelectionConstraints();
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
@@ -81,14 +74,7 @@ export class DivideState extends State {
       app.workspace.selectionConstraints = this.savedSelConstr;
       this.savedSelConstr = null;
     } else {
-      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-      app.workspace.selectionConstraints.eventType = 'click';
-      app.workspace.selectionConstraints.segments.canSelect = true;
-      app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.points.types = [
-        'vertex',
-        'segmentPoint',
-      ];
+      this.setSelectionConstraints();
     }
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -122,6 +108,23 @@ export class DivideState extends State {
     } else {
       console.log('unsupported event type : ', event.type);
     }
+  }
+
+  setSelectionConstraints() {
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.segments.canSelect = true;
+    app.workspace.selectionConstraints.segments.blacklist = app.workspace.shapes.filter(
+      s => s.isStraightLine() || s.isSemiStraightLine()
+    );
+    app.workspace.selectionConstraints.points.canSelect = true;
+    app.workspace.selectionConstraints.points.blacklist = app.workspace.shapes.filter(
+      s => s.isStraightLine() || s.isSemiStraightLine()
+    );
+    app.workspace.selectionConstraints.points.types = [
+      'vertex',
+      'segmentPoint',
+    ];
   }
 
   setNumberOfparts(parts) {
