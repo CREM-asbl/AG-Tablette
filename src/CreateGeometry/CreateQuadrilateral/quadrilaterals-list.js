@@ -5,12 +5,14 @@ class QuadrilateralsList extends LitElement {
   constructor() {
     super();
     this.quadrilateralsNames = [
+      'Square',
       'Rectangle',
       'Losange',
       'Parallelogram',
       'RightAngleTrapeze',
       'IsoscelesTrapeze',
       'Trapeze',
+      'IrregularQuadrilateral',
     ];
   }
 

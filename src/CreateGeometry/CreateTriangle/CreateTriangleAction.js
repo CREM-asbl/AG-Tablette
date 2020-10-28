@@ -54,6 +54,13 @@ export class CreateTriangleAction extends Action {
     this.points[1].name = 'secondPoint';
     this.points[2].name = 'thirdPoint';
 
+    let familyName = '3-corner-shape';
+    if (this.triangleName == 'EquilateralTriangle') {
+      familyName = 'Regular';
+    } else if (this.triangleName == 'IrregularTriangle') {
+      familyName = 'Irregular';
+    }
+
     let shape = new Shape({
       id: this.shapeId,
       segments: [
@@ -62,7 +69,7 @@ export class CreateTriangleAction extends Action {
         new Segment(this.points[2], this.points[0]),
       ],
       name: this.triangleName,
-      familyName: '3-corner-shape',
+      familyName: familyName,
     });
     shape.setGeometryConstructionSpec();
     ShapeManager.addShape(shape);

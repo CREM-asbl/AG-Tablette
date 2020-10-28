@@ -136,7 +136,7 @@ export class CreateQuadrilateralState extends State {
     if (this.currentStep == 'select-first-point') {
       this.points[0] = newPoint;
       this.currentStep = 'select-second-point';
-      this.animate();
+      setTimeout(() => this.animate());
     } else if (this.currentStep == 'select-second-point') {
       this.points[1] = newPoint;
       this.currentStep = 'select-third-point';
@@ -167,6 +167,13 @@ export class CreateQuadrilateralState extends State {
 
   canCreateShape() {
     if (
+      this.quadrilateralSelected == 'Square' &&
+      (this.currentStep == 'select-second-point' ||
+        this.currentStep == 'select-third-point') &&
+      this.points.length >= 2
+    ) {
+      return true;
+    } else if (
       this.quadrilateralSelected == 'Rectangle' &&
       (this.currentStep == 'select-third-point' ||
         this.currentStep == 'select-fourth-point') &&
@@ -207,11 +214,33 @@ export class CreateQuadrilateralState extends State {
       this.points.length == 4
     ) {
       return true;
+    } else if (
+      this.quadrilateralSelected == 'IrregularQuadrilateral' &&
+      this.currentStep == 'select-fourth-point' &&
+      this.points.length == 4
+    ) {
+      return true;
     }
   }
 
   finishShape() {
-    if (this.quadrilateralSelected == 'Rectangle') {
+    if (this.quadrilateralSelected == 'Square') {
+      let externalAngle = (Math.PI * 2) / 4;
+
+      let length = this.points[0].dist(this.points[1]);
+
+      let startAngle = Math.atan2(
+        this.points[1].y - this.points[0].y,
+        this.points[1].x - this.points[0].x
+      );
+
+      for (let i = 0; i < 2; i++) {
+        let dx = length * Math.cos(startAngle - (i + 1) * externalAngle);
+        let dy = length * Math.sin(startAngle - (i + 1) * externalAngle);
+
+        this.points[i + 2] = this.points[i + 1].addCoordinates(dx, dy);
+      }
+    } else if (this.quadrilateralSelected == 'Rectangle') {
       this.points[3] = new Point(
         this.points[2].x - this.points[1].x + this.points[0].x,
         this.points[2].y - this.points[1].y + this.points[0].y
@@ -296,6 +325,8 @@ export class CreateQuadrilateralState extends State {
         constraints.isFree = true;
       } else if (this.quadrilateralSelected == 'Trapeze') {
         constraints.isFree = true;
+      } else if (this.quadrilateralSelected == 'IrregularQuadrilateral') {
+        constraints.isFree = true;
       }
     } else if (this.currentStep == 'select-fourth-point') {
       if (this.quadrilateralSelected == 'Trapeze') {
@@ -311,6 +342,8 @@ export class CreateQuadrilateralState extends State {
           isInfinite: true,
         };
         constraints.lines.push(constraintLine);
+      } else if (this.quadrilateralSelected == 'IrregularQuadrilateral') {
+        constraints.isFree = true;
       } else {
         constraints.isConstructed = true;
       }

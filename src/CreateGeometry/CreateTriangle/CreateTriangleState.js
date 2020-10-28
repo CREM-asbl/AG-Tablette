@@ -139,8 +139,8 @@ export class CreateTriangleState extends State {
 
     if (this.currentStep == 'select-first-point') {
       this.points[0] = newPoint;
-      this.animate();
       this.currentStep = 'select-second-point';
+      setTimeout(() => this.animate());
     } else if (this.currentStep == 'select-second-point') {
       this.points[1] = newPoint;
       this.currentStep = 'select-third-point';
@@ -149,6 +149,7 @@ export class CreateTriangleState extends State {
     }
 
     if (this.canCreateShape()) {
+      this.finishShape();
       this.actions = [
         {
           name: 'CreateTriangleAction',
@@ -167,26 +168,54 @@ export class CreateTriangleState extends State {
 
   canCreateShape() {
     if (
-      this.triangleSelected == 'RightAngleTriangle' &&
+      this.triangleSelected == 'EquilateralTriangle' &&
       (this.currentStep == 'select-second-point' ||
         this.currentStep == 'select-third-point') &&
-      this.points.length > 2
+      this.points.length >= 2
+    ) {
+      return true;
+    } else if (
+      this.triangleSelected == 'RightAngleTriangle' &&
+      this.currentStep == 'select-third-point' &&
+      this.points.length == 3
     ) {
       return true;
     } else if (
       this.triangleSelected == 'IsoscelesTriangle' &&
-      (this.currentStep == 'select-second-point' ||
-        this.currentStep == 'select-third-point') &&
-      this.points.length > 2
+      this.currentStep == 'select-third-point' &&
+      this.points.length == 3
     ) {
       return true;
     } else if (
       this.triangleSelected == 'RightAngleIsoscelesTriangle' &&
-      (this.currentStep == 'select-second-point' ||
-        this.currentStep == 'select-third-point') &&
-      this.points.length > 2
+      this.currentStep == 'select-third-point' &&
+      this.points.length == 3
     ) {
       return true;
+    } else if (
+      this.triangleSelected == 'IrregularTriangle' &&
+      this.currentStep == 'select-third-point' &&
+      this.points.length == 3
+    ) {
+      return true;
+    }
+  }
+
+  finishShape() {
+    if (this.triangleSelected == 'EquilateralTriangle') {
+      let externalAngle = (Math.PI * 2) / 3;
+
+      let length = this.points[0].dist(this.points[1]);
+
+      let startAngle = Math.atan2(
+        this.points[1].y - this.points[0].y,
+        this.points[1].x - this.points[0].x
+      );
+
+      let dx = length * Math.cos(startAngle - externalAngle);
+      let dy = length * Math.sin(startAngle - externalAngle);
+
+      this.points[2] = this.points[1].addCoordinates(dx, dy);
     }
   }
 
@@ -253,6 +282,8 @@ export class CreateTriangleState extends State {
         );
         constraints.points.push(firstPoint);
         constraints.points.push(secondPoint);
+      } else if (this.triangleSelected == 'IrregularTriangle') {
+        constraints.isFree = true;
       }
     }
     return constraints;
@@ -316,6 +347,7 @@ export class CreateTriangleState extends State {
     }
 
     if (this.canCreateShape()) {
+      this.finishShape();
       let temporaryShape = new Shape({
         segments: [
           new Segment(this.points[0], this.points[1]),

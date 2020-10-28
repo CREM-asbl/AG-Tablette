@@ -55,6 +55,13 @@ export class CreateQuadrilateralAction extends Action {
     this.points[2].name = 'thirdPoint';
     this.points[3].name = 'fourthPoint';
 
+    let familyName = '4-corner-shape';
+    if (this.quadrilateralName == 'Square') {
+      familyName = 'Regular';
+    } else if (this.quadrilateralName == 'IrregularQuadrilateral') {
+      familyName = 'Irregular';
+    }
+
     let shape = new Shape({
       id: this.shapeId,
       segments: [
@@ -64,7 +71,7 @@ export class CreateQuadrilateralAction extends Action {
         new Segment(this.points[3], this.points[0]),
       ],
       name: this.quadrilateralName,
-      familyName: '4-corner-shape',
+      familyName: familyName,
     });
     shape.setGeometryConstructionSpec();
     ShapeManager.addShape(shape);

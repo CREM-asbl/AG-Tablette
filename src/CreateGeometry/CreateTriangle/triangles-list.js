@@ -5,9 +5,11 @@ class TrianglesList extends LitElement {
   constructor() {
     super();
     this.trianglesNames = [
+      'EquilateralTriangle',
+      'RightAngleIsoscelesTriangle',
       'RightAngleTriangle',
       'IsoscelesTriangle',
-      'RightAngleIsoscelesTriangle',
+      'IrregularTriangle',
     ];
   }
 
