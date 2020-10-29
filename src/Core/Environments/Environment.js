@@ -37,7 +37,6 @@ export class Environment {
         break;
       case 'Cubes':
         import('./Cubes');
-        // this.load('cubes.json')
         break;
       case 'Geometrie':
         import('./Geometrie');

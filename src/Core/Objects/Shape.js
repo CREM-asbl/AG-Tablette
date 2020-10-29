@@ -227,6 +227,8 @@ export class Shape {
       .filter(element => element !== '');
     let firstVertex, lastVertex, startVertex;
 
+    startVertex = lastVertex = new Point(0, 0);
+
     while (allPathElements.length) {
       const element = allPathElements.shift();
 
@@ -323,7 +325,6 @@ export class Shape {
           // console.log('Z');
           break;
 
-        /* default = closePath car case Z et z ne passe pas  */
         default:
           // firstVertex = lastVertex;
           // lastVertex = startVertex;

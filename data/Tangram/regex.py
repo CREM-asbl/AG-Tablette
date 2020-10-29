@@ -1,3 +1,6 @@
+# Small script used to modify entries in tangramShapeKit easily with xOffset, yOffset and then apply a scale.
+# Ut only prints the result, it does not modify the file.
+
 import re
 
 xOffset = -56.325569909594186
@@ -13,9 +16,9 @@ def replaceH(match):
 def replaceV(match):
   return " ".join((match.group(1),  str((float(match.group(2)) - yOffset) / scale)))
 
-f = open("kit.json", "r")
+f = open("tangramShapeKit.json", "r")
 d = f.read()
-d = re.sub("([\" ][ML]) (-?[0-9]+\.?[0-9]*) (-?[0-9]+\.?[0-9]*)", replaceML, d)
-d = re.sub("([\" ][H]) (-?[0-9]+\.?[0-9]*)", replaceH, d)
-d = re.sub("([\" ][V]) (-?[0-9]+\.?[0-9]*)", replaceV, d)
+d = re.sub(r"([\" ][ML]) (-?[0-9]+\.?[0-9]*) (-?[0-9]+\.?[0-9]*)", replaceML, d)
+d = re.sub(r"([\" ][H]) (-?[0-9]+\.?[0-9]*)", replaceH, d)
+d = re.sub(r"([\" ][V]) (-?[0-9]+\.?[0-9]*)", replaceV, d)
 print(d)

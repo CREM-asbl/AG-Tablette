@@ -1,5 +1,5 @@
 import './Common';
-import { grandeursKit } from '../ShapesKits/grandeursKit2';
+import { grandeursKit } from '../ShapesKits/grandeursKit';
 import { app } from '../App';
 import '../../Create';
 import '../../Reverse';
