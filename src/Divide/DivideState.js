@@ -159,7 +159,7 @@ export class DivideState extends State {
         this.actions = [
           {
             name: 'DivideAction',
-            mode: 'two_points',
+            mode: 'twoPoints',
             firstPoint: object,
           },
         ];
@@ -236,7 +236,7 @@ export class DivideState extends State {
 
   execute() {
     this.actions[0].numberOfParts = this.numberOfParts;
-    if (this.actions[0].mode == 'two_points') {
+    if (this.actions[0].mode == 'twoPoints') {
       let pt1 = this.actions[0].firstPoint,
         pt2 = this.actions[0].secondPoint;
       if (pt1.type == 'segmentPoint') this.actions[0].segment = pt1.segment;

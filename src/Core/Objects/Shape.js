@@ -1046,7 +1046,15 @@ export class Shape {
       }
     }
 
+    this.recomputeSegmentPoints();
+
     this.setGeometryConstructionSpec();
+  }
+
+  recomputeSegmentPoints() {
+    this.segments.forEach(seg => {
+      seg.points.forEach(pt => pt.recomputeSegmentPoint());
+    });
   }
 
   updateGeometry(referenceShape, isTemporary = false) {

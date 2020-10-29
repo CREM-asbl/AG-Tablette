@@ -352,9 +352,17 @@ export class Segment {
   /* ########################## SEGMENT POINTS ########################## */
   /* #################################################################### */
 
-  addPoint({ x, y }) {
+  addPoint({ x, y, ratio }) {
     //TODO: garder les points triés?
-    let newPoint = new Point(x, y, 'segmentPoint', this, this.shape);
+    let newPoint = new Point(
+      x,
+      y,
+      'segmentPoint',
+      this,
+      this.shape,
+      undefined,
+      ratio
+    );
     if (this.points.filter(pt => pt.equal(newPoint, 0.001)).length == 0)
       // check if point already exists
       this.points.push(newPoint);
@@ -460,7 +468,14 @@ export class Segment {
     });
     if (save.points && save.points.length) {
       this.points = save.points.map(pt => {
-        let newPoint = new Point(pt, 'segmentPoint', this, this.shape, pt.name);
+        let newPoint = new Point(
+          pt,
+          'segmentPoint',
+          this,
+          this.shape,
+          pt.name,
+          pt.ratio
+        );
         return newPoint;
       });
     }

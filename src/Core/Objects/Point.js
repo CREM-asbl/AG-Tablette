@@ -15,8 +15,9 @@ export class Point {
    * @param {number} y - other method
    * @param {String} type - type -> 'vertex', 'segmentPoint' or 'center'
    * @param {Segment} segment - parent segment
-   * @param {Shape} shape - shape
+   * @param {Shape} shape - parent shape
    * @param {String} name - the name -> 'firstPoint', 'secondPoint', 'thirdPoint', 'fourthPoint'
+   * @param {Number} ratio - the ratio of this between the 2 vertexes of the segment
    */
   constructor() {
     let argc = 0;
@@ -32,6 +33,7 @@ export class Point {
     if (arguments[argc++]) this.segment = arguments[argc - 1];
     if (arguments[argc++]) this.shape = arguments[argc - 1];
     if (arguments[argc++]) this.name = arguments[argc - 1];
+    if (arguments[argc++]) this.ratio = parseFloat(arguments[argc - 1]);
   }
 
   saveToObject() {
@@ -45,6 +47,7 @@ export class Point {
       save.shapeId = this.segment.shape.id;
     if (save.shapeId && this.segment) save.segmentIdx = this.segment.idx;
     if (this.name) save.name = this.name;
+    if (isFinite(this.ratio)) save.ratio = this.ratio;
     return save;
   }
 
@@ -59,6 +62,7 @@ export class Point {
     else if (save.segmentIdx !== undefined)
       this.segment = this.shape.segments[save.segmentIdx];
     if (save.name) this.name = save.name;
+    if (isFinite(save.ratio)) this.ratio = save.ratio;
   }
 
   static retrieveFrom(point) {
@@ -183,7 +187,8 @@ export class Point {
       this.type,
       this.segment,
       this.shape,
-      this.name
+      this.name,
+      this.ratio
     );
   }
 
@@ -603,5 +608,16 @@ export class Point {
       resultAngle = 2 * Math.PI - resultAngle;
 
     return resultAngle;
+  }
+
+  recomputeSegmentPoint() {
+    let v0 = this.segment.vertexes[0],
+      angle = this.segment.getAngleWithHorizontal(),
+      length = this.segment.length;
+
+    this.setCoordinates({
+      x: v0.x + Math.cos(angle) * length * this.ratio,
+      y: v0.y + Math.sin(angle) * length * this.ratio,
+    });
   }
 }

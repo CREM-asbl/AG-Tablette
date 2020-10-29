@@ -7,19 +7,19 @@ export class DivideAction extends Action {
   constructor() {
     super('DivideAction');
 
-    // Nombre de parties de découpe (numberOfParts-1 points)
+    // Nombre de parties de découpe (numberOfParts - 1 points)
     this.numberOfParts = null;
 
-    // Mode de découpe: 'segment' ou 'two_points'
+    // Mode de découpe: 'segment' ou 'twoPoints'
     this.mode = null;
 
     // Segment, si mode segment
     this.segment = null;
 
-    // Premier point, si mode two_points
+    // Premier point, si mode twoPoints
     this.firstPoint = null;
 
-    // Second point, si mode two_points
+    // Second point, si mode twoPoints
     this.secondPoint = null;
 
     // Points existants sur le segment avant division
@@ -29,7 +29,7 @@ export class DivideAction extends Action {
   initFromObject(save) {
     this.numberOfParts = save.numberOfParts;
     this.mode = save.mode;
-    if (this.mode == 'two_points') {
+    if (this.mode == 'twoPoints') {
       this.firstPoint = new Point();
       this.firstPoint.initFromObject(save.firstPoint);
       this.secondPoint = new Point();
@@ -42,7 +42,7 @@ export class DivideAction extends Action {
       this.segment = ShapeManager.getShapeById(save.shapeId).segments[
         save.segmentIndex
       ];
-      if (this.mode == 'two_points') {
+      if (this.mode == 'twoPoints') {
         this.firstPoint.segment = this.segment;
         this.secondPoint.segment = this.segment;
       }
@@ -56,12 +56,12 @@ export class DivideAction extends Action {
       this.existingPoints = this.segment.points.map(pt => {
         return new Point(pt);
       });
-      if (this.mode == 'two_points') {
+      if (this.mode == 'twoPoints') {
         window.dispatchEvent(
           new CustomEvent('update-history', {
             detail: {
               name: 'DivideAction',
-              mode: 'two_points',
+              mode: 'twoPoints',
               firstPoint: this.firstPoint,
               secondPoint: this.secondPoint,
               numberOfParts: this.numberOfParts,
@@ -94,7 +94,7 @@ export class DivideAction extends Action {
       this.printIncompleteData();
       return false;
     }
-    if (this.mode != 'segment' && this.mode != 'two_points') {
+    if (this.mode != 'segment' && this.mode != 'twoPoints') {
       this.printIncompleteData();
       return false;
     }
@@ -102,7 +102,7 @@ export class DivideAction extends Action {
       this.printIncompleteData();
       return false;
     }
-    if (this.mode == 'two_points' && (!this.firstPoint || !this.secondPoint)) {
+    if (this.mode == 'twoPoints' && (!this.firstPoint || !this.secondPoint)) {
       this.printIncompleteData();
       return false;
     }
@@ -227,6 +227,15 @@ export class DivideAction extends Action {
   }
 
   pointsModeAddSegPoints() {
+    this.segment.vertexes[0].ratio = 0;
+    this.segment.vertexes[1].ratio = 1;
+
+    if (this.firstPoint.ratio > this.secondPoint.ratio)
+      [this.firstPoint, this.secondPoint] = [this.secondPoint, this.firstPoint];
+
+    this.ratioCap =
+      (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
+
     const segLength = this.secondPoint.subCoordinates(this.firstPoint),
       part = new Point(
         segLength.x / this.numberOfParts,
@@ -239,6 +248,7 @@ export class DivideAction extends Action {
       i++
     ) {
       nextPt = nextPt.addCoordinates(part);
+      nextPt.ratio = this.firstPoint.ratio + i * this.ratioCap;
       this.segment.addPoint(nextPt);
     }
   }
