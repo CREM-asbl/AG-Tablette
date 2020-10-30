@@ -1,35 +1,47 @@
 import { ShapeManager } from '../Managers/ShapeManager';
 import { Point } from './Point';
+import { uniqId } from '../Tools/general';
+import { app } from '../App';
 
 export class Segment {
-  constructor(
-    point1,
-    point2,
-    shape,
-    idx,
-    arcCenter,
-    counterclockwise,
+  /**
+   * @param {String}                      id
+   * @param {CanvasRenderingContext2D}    ctx
+   * @param {String}                      shapeId
+   * @param {Number}                      idx
+   * @param {[String]}                    vertexIds
+   * @param {[String]}                    divisionPointIds
+   * @param {String}                      arcCenterId
+   * @param {Boolean}                     counterclockwise
+   * @param {Boolean}                     isInfinite
+   * @param {Boolean}                     isSemiInfinite
+   */
+  constructor({
+    id = uniqId(),
+    ctx = app.mainCtx,
+    shapeId = undefined,
+    idx = undefined,
+    vertexIds = [],
+    divisionPointIds = [],
+    arcCenterId = undefined,
+    counterclockwise = false,
     isInfinite = false,
-    isSemiInfinite = false
-  ) {
-    this.vertexes = [
-      new Point(point1, 'vertex', this, shape, point1?.name),
-      new Point(point2, 'vertex', this, shape, point2?.name),
-    ];
-    this.points = [];
-    this.shape = shape;
+    isSemiInfinite = false,
+  }) {
+    this.id = id;
+    this.ctx = ctx;
+
+    this.shapeId = shapeId;
     this.idx = idx;
-    if (arcCenter)
-      this.arcCenter = new Point(
-        arcCenter,
-        'center',
-        this,
-        shape,
-        arcCenter?.name
-      );
-    if (counterclockwise) this.counterclockwise = counterclockwise;
+    this.vertexIds = [...vertexIds];
+    this.divisionPointIds = [...divisionPointIds];
+    this.shapeId = shapeId;
+    this.arcCenterId = arcCenterId;
+    this.counterclockwise = counterclockwise;
     this.isInfinite = isInfinite;
     this.isSemiInfinite = isSemiInfinite;
+
+    app.workspace.segments.push(this);
   }
 
   /* #################################################################### */
@@ -37,14 +49,27 @@ export class Segment {
   /* #################################################################### */
 
   get shape() {
-    return this.private_shape;
+    let shape = app.workspace.shapes.find(s => s.id === this.shapeId);
+    return shape;
   }
 
-  set shape(shape) {
-    this.private_shape = shape;
-    if (this.vertexes) this.vertexes.forEach(vertex => (vertex.shape = shape));
-    if (this.points) this.points.forEach(point => (point.shape = shape));
-    if (this.arcCenter) this.arcCenter.shape = shape;
+  get points() {
+    let points = [...this.divisionPoints, ...this.vertexes];
+    return points;
+  }
+
+  get vertexes() {
+    let vertexes = this.vertexIds.map(ptId =>
+      app.workspace.points.find(pt => pt.id === ptId)
+    );
+    return vertexes;
+  }
+
+  get divisionPoints() {
+    let divisionPoints = this.divisionPointIds.map(ptId =>
+      app.workspace.points.find(pt => pt.id === ptId)
+    );
+    return divisionPoints;
   }
 
   get bounds() {
@@ -80,10 +105,6 @@ export class Segment {
       return 0;
     }
     return this.arcCenter.dist(this.vertexes[1]);
-  }
-
-  get allPoints() {
-    return [...this.points, ...this.vertexes];
   }
 
   /**

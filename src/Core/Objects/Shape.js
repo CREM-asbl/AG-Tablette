@@ -11,48 +11,60 @@ import { isAngleBetweenTwoAngles } from '../Tools/geometry';
 export class Shape {
   /**
    * Constructeur
-   * @param {float} x              position X
-   * @param {float} y              position Y
-   * @param {[Segment]} segments   segments de la forme (ne pas utiliser si construction à partir de path)
-   * @param {String} path          path représentant la forme (ne pas utiliser si construction à partir de segments)
-   * @param {String} name          nom de la forme
-   * @param {String} familyName    nom de la famille de la forme
+   * @param {String}                      id
+   * @param {CanvasRenderingContext2D}    ctx
+   * @param {String}                      path
+   * @param {[String]}                    segmentIds
+   * @param {[String]}                    pointIds
+   * @param {String}                      name
+   * @param {String}                      familyName
+   * @param {String}                      color - '#rrggbb'
+   * @param {Number}                      opacity - between 0 and 1
+   * @param {Number}                      size - 1, 2 or 3
+   * @param {String}                      borderColor - '#rrggbb'
+   * @param {Boolean}                     isCenterShown
+   * @param {Boolean}                     isReversed
+   * @param {Boolean}                     isBiface
+   * @param {}                            geometryConstructionSpec // à enlever (recalculer si besoin)
+   * @param {}                            referenceShapeId // temporaire
+   * @param {}                            referenceSegmentIdx // temporaire
+   * @param {}                            hasGeometryReferenced // temporaire
    */
   constructor({
-    x = 0,
-    y = 0,
-    segments = null,
-    path = null,
+    id = uniqId(),
+    ctx = app.mainCtx,
+    path = undefined,
+    segmentIds = [],
+    pointIds = [],
     name = 'Custom',
     familyName = 'Custom',
     color = '#aaa',
     opacity = 0.7,
-    id = uniqId(),
     size = 2,
     borderColor = '#000',
     isCenterShown = undefined,
     isReversed = false,
     isBiface = false,
-    geometryConstructionSpec = null,
+    geometryConstructionSpec = null, // à enlever (recalculer si besoin)
     referenceShapeId = null,
     referenceSegmentIdx = null,
     hasGeometryReferenced = [],
   }) {
-    this.x = x;
-    this.y = y;
+    this.id = id;
+    this.ctx = ctx;
 
-    //Todo: condition à supprimer quand tout en path
-    if (segments) this.setSegments(segments);
-    else if (path) this.setSegmentsFromPath(path);
-    else this.segments = [];
+    if (path) this.setSegmentsFromPath(path);
+    else {
+      this.pointIds = [...pointIds];
+      this.segmentIds = [...segmentIds];
+    }
 
     this.name = name;
     this.familyName = familyName;
     this.color = color;
     this.second_color = getComplementaryColor(color);
-    this.opacity = opacity;
-    this.id = id;
-    this.size = size;
+    this.opacity = parseFloat(opacity);
+    this.size = parseInt(size);
     this.borderColor = borderColor;
     if (isCenterShown === undefined) this.isCenterShown = this.isCircle();
     else this.isCenterShown = isCenterShown;
@@ -62,36 +74,42 @@ export class Shape {
     this.referenceShapeId = referenceShapeId;
     this.referenceSegmentIdx = referenceSegmentIdx;
     this.hasGeometryReferenced = [...hasGeometryReferenced];
+
+    app.workspace.shapes.push(this);
   }
 
   /* #################################################################### */
   /* ############################## GET/SET ############################# */
   /* #################################################################### */
 
-  get allOutlinePoints() {
-    let points = [];
-    if (this.isSegment()) points.push(this.segments[0].vertexes[0]);
-    if (this.isCircle() && app.environment.name !== 'Geometrie')
-      points.push(...this.segments[0].points);
-    else
-      this.segments.forEach(segment =>
-        points.push(segment.vertexes[1], ...segment.points)
-      );
-    // filter duplicates
-    points = points.filter(
-      (pt, idx) => !points.some((pt2, idx2) => idx > idx2 && pt.equal(pt2))
+  get segments() {
+    let segments = this.segmentIds.map(segId =>
+      app.workspace.segments.find(seg => seg.id === segId)
+    );
+    return segments;
+  }
+
+  get points() {
+    // if (this.isCircle() && app.environment.name !== 'Geometrie') => doit-on inclure le point du cercle dans Grandeurs et Cubes ?
+    let points = this.pointIds.map(ptId =>
+      app.workspace.points.find(pt => pt.id === ptId)
     );
     return points;
   }
 
   get vertexes() {
-    return this.allOutlinePoints.filter(pt => pt.type == 'vertex');
+    let vertexes = this.points.filter(pt => pt.type === 'vertex');
+    return vertexes;
+  }
+
+  get divisionPoints() {
+    let divisionPoints = this.points.filter(pt => pt.type === 'divisionPoint');
+    return divisionPoints;
   }
 
   get modifiablePoints() {
     let points = this.vertexes;
     if (this.name == 'Circle') {
-      points.push(this.segments[0].vertexes[0]);
       points.push(this.segments[0].arcCenter);
     } else if (this.name == 'CircleArc') {
       points.push(this.segments[0].arcCenter);
@@ -102,25 +120,6 @@ export class Shape {
       points.pop();
     }
     return points;
-  }
-
-  get segmentPoints() {
-    return this.segments.map(seg => seg.points).flat();
-  }
-
-  get coordinates() {
-    return new Point(this.x, this.y);
-  }
-
-  /**
-   * définit les coordonnées de la forme
-   * @param {{x: float, y: float}} coordinates les coordonnées
-   */
-  set coordinates(coordinates) {
-    const translation = new Point(coordinates).subCoordinates(this.coordinates);
-    this.x = coordinates.x;
-    this.y = coordinates.y;
-    this.translate(translation);
   }
 
   get center() {
@@ -195,19 +194,6 @@ export class Shape {
       if (idx % 2) return Math.max(...value);
       else return Math.min(...value);
     });
-  }
-
-  get allPoints() {
-    let vertexes = this.segments
-        .map(seg => seg.vertexes)
-        .flat()
-        .filter((vertex, idx, vertexes) => {
-          if (vertex)
-            return vertexes.findIndex(vertex2 => vertex2.equal(vertex)) == idx;
-          else return false;
-        }),
-      segmentPoints = this.segments.map(seg => seg.points).flat();
-    return [...vertexes, ...segmentPoints];
   }
 
   getCommonsPoints(shape) {
@@ -1232,7 +1218,6 @@ export class Shape {
   }
 
   setSegments(segments) {
-    if (!segments) return;
     this.segments = segments.map((seg, idx) => {
       let newSeg = new Segment();
       newSeg.initFromObject(seg);

@@ -20,6 +20,12 @@ export class Workspace {
     // Liste des formes du projet ([Shape])
     this.shapes = [];
 
+    // Liste des segments du projet ([Segment])
+    this.segments = [];
+
+    // Liste des points du projet ([Point])
+    this.points = [];
+
     // Liste des groupes créés par l'utilisateur
     this.shapeGroups = [];
 

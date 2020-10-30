@@ -43,7 +43,7 @@ class ForbiddenCanvas extends LitElement {
   }
 
   render() {
-    return html` <canvas id="unreachableCanvas"></canvas> `;
+    return html` <canvas id="forbiddenCanvas"></canvas> `;
   }
 
   close() {

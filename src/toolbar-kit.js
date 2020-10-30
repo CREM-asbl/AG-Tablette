@@ -47,7 +47,6 @@ class ToolbarKit extends LitElement {
         ${this.familyNames.map(family => {
           return html`
             <canvas-button
-              name="create_shape"
               familyName="${family}"
               title="${family}"
               ?active="${family === this.selectedFamily}"

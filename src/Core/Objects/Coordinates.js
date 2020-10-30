@@ -1,75 +1,64 @@
 import { app } from '../App';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { Segment } from './Segment';
-import { mod } from '../Tools/general';
-import { Shape } from './Shape';
-import { Coordinates } from './Coordinates';
 
 /**
- * Représente un point du plan
+ * Représente une coordonnée (pour un point ou des calculs)
  */
-export class Point {
+export class Coordinates {
   /**
-   * @param {String}                      id
-   * @param {CanvasRenderingContext2D}    ctx
    * @param {Number}                      x
    * @param {Number}                      y
-   * @param {[String]}                    segmentIds
-   * @param {String}                      shapeId
-   * @param {String}                      type  -> 'vertex', 'divisionPoint' or 'center'
-   * @param {String}                      name  -> 'firstPoint', 'secondPoint', 'thirdPoint', 'fourthPoint'
-   * @param {Number}                      ratio - the ratio of this between the 2 vertexes of the segment
    */
-  constructor({
-    id = uniqId(),
-    ctx = app.mainCtx,
-    coordinates = undefined,
-    x = 0,
-    y = 0,
-    segmentIds = undefined,
-    shapeId = undefined,
-    type = undefined,
-    name = undefined,
-    ratio = undefined,
-  }) {
-    this.id = id;
-    this.ctx = ctx;
-
-    if (coordinates) this.coordinates = new Coordinates(coordinates);
-    else this.coordinates = new Coordinates(parseFloat(x), parseFloat(y));
-    this.segmentIds = segmentIds;
-    this.shapeId = shapeId;
-    this.type = type;
-    this.name = name;
-    this.ratio = parseFloat(ratio);
-
-    app.workspace.points.push(this);
+  constructor({ x = 0, y = 0 }) {
+    this.x = parseFloat(x);
+    this.y = parseFloat(y);
   }
 
-  get shape() {
-    let shape = app.workspace.shapes.find(s => s.id === this.shapeId);
-    return shape;
-  }
-
-  get segments() {
-    let segments = this.segmentIds.map(segId =>
-      app.workspace.segments.find(seg => seg.id === segId)
-    );
-    return segments;
-  }
-
-  get x() {
-    return this.coordinates.x;
-  }
-
-  get y() {
-    return this.coordinates.y;
+  setCoordinates(x, y) {
+    this.x = parseFloat(x);
+    this.y = parseFloat(y);
   }
 
   /**
+   * add a coordinates to
+   * @param {{x: number, y: number}} point - point to add
+   * @param {number} x - other method
+   * @param {number} y - other method
+   * @return {{x: number, y:number}} new coordinates
    */
-  translate() {
-    this.coordinates.translate(arguments);
+  add() {
+    let x, y;
+    if (typeof arguments[0] == 'object') {
+      x = arguments[0].x;
+      y = arguments[0].y;
+    } else {
+      x = arguments[0];
+      y = !isNaN(arguments[1]) ? arguments[1] : arguments[0];
+    }
+    x = this.x + x;
+    y = this.y + y;
+    return new Point(x, y, this.type, this.segment, this.shape);
+  }
+
+  /**
+   * sub coordinates to point without update the coordinates of the point,
+   *  if you want update, use translate with true as last parameter
+   * @param {{x: number, y: number}} point - point to sub
+   * @param {number} x - other method
+   * @param {number} y - other method
+   * @return {{x: number, y:number}} new coordinates
+   */
+  subCoordinates() {
+    let x, y;
+    if (typeof arguments[0] == 'object') {
+      x = arguments[0].x;
+      y = arguments[0].y;
+    } else {
+      x = arguments[0];
+      y = arguments[0] ? arguments[1] : arguments[0];
+    }
+    x = this.x + x * -1;
+    y = this.y + y * -1;
+    return new Point(x, y, this.type, this.segment, this.shape);
   }
 
   /**

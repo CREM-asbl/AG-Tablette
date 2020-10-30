@@ -3,7 +3,7 @@ export const grandeursKit = {
   families: {
     'Famille du triangle équilatéral': {
       color: '#FF0',
-      shapes: [
+      shapeTemplates: [
         {
           name: 'Triangle équilatéral',
           path: 'L 50 0 L 25 -43.3012701892 Z',
@@ -98,7 +98,7 @@ export const grandeursKit = {
 
     'Famille du carré': {
       color: '#F00',
-      shapes: [
+      shapeTemplates: [
         {
           name: 'Carré',
           path: 'L 50 0 L 50 -50 L 0 -50 Z',
@@ -159,7 +159,7 @@ export const grandeursKit = {
 
     'Famille du pentagone régulier': {
       color: '#0F0',
-      shapes: [
+      shapeTemplates: [
         {
           name: 'Pentagone régulier',
           path:
@@ -203,7 +203,7 @@ export const grandeursKit = {
       */
     'Disques et segments': {
       color: '#CCC',
-      shapes: [
+      shapeTemplates: [
         {
           //Circonscrit à l'hexagone -> rayon = 50.
           name: 'Disque 1',
