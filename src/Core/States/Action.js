@@ -29,7 +29,7 @@ export class Action {
   }
 
   printIncompleteData() {
-    console.log('Incomplete data for ', this.name, ', with object ', this);
+    console.error('Incomplete data for ', this.name, ', with object ', this);
   }
 
   initFromObject(save) {

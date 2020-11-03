@@ -192,9 +192,9 @@ export class MergeAction extends Action {
       );
       if (newPotentialSegments.length != 1) {
         if (newPotentialSegments.length == 0)
-          console.log('shape cannot be closed (dead end)');
+          console.alert('shape cannot be closed (dead end)');
         else
-          console.log(
+          console.alert(
             'shape is dig (a segment has more than one segment for next)'
           );
         return null;
@@ -214,7 +214,7 @@ export class MergeAction extends Action {
 
     if (segmentUsed != segmentsList.length) {
       // si tous les segments n'ont pas été utilisés, la forme créée est creuse
-      console.log('shape is dig (not all segments have been used)');
+      console.alert('shape is dig (not all segments have been used)');
       return null;
     }
 

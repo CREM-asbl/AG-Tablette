@@ -136,7 +136,7 @@ class SettingsPopup extends LitElement {
         break;
 
       default:
-        console.log(
+        console.error(
           'Settings: paramètre inconnu: ' +
             event.target.name +
             ' ' +

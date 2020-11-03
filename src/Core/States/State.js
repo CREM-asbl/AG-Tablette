@@ -148,7 +148,7 @@ export class State {
    * @param {Object} startParams        family pour Create
    */
   start(startParams = null) {
-    console.log('start() not implemented');
+    console.error('start() not implemented');
   }
 
   /**
@@ -158,7 +158,7 @@ export class State {
    * @param {Object} startParams        family pour Create
    */
   restart(manualRestart = false, startParams = null) {
-    console.log('restart() not implemented');
+    console.error('restart() not implemented');
   }
 
   /**
@@ -166,7 +166,7 @@ export class State {
    * (appelé si changement de state ou si un permanent state prend le focus)
    */
   end() {
-    console.log('end() not implemented');
+    console.error('end() not implemented');
   }
 
   /**

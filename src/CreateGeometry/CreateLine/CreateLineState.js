@@ -125,7 +125,7 @@ export class CreateLineState extends State {
     } else if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

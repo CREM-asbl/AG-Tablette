@@ -7,6 +7,7 @@ import { ShapeGroup } from './ShapeGroup';
 import { Shape } from './Shape';
 import { Point } from '../Objects/Point';
 import { GridManager } from '../../Grid/GridManager';
+import { Coordinates } from './Coordinates';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -36,7 +37,7 @@ export class Workspace {
     this.initSettings();
 
     // Coordonnées du dernier événement
-    this.lastKnownMouseCoordinates = new Point(0, 0);
+    this.lastKnownMouseCoordinates = Coordinates.nullCoordinates;
 
     // Couleur sélectionnée pour border- ou backgroundColor
     this.selectedColor = '#000';
@@ -56,7 +57,7 @@ export class Workspace {
      * vers le bas.
      * ->Le zoom du plan est appliqué après la translation du plan.
      */
-    this.translateOffset = new Point(0, 0);
+    this.translateOffset = Coordinates.nullCoordinates;
 
     // Historique des actions
     this.history = new History();

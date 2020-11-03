@@ -11,7 +11,7 @@ import { Point } from '../Core/Objects/Point';
  */
 export class CreateState extends State {
   constructor() {
-    super('create_shape', 'Ajouter une forme');
+    super('createShape', 'Ajouter une forme');
 
     // show-family-shape -> listen-canvas-click -> moving-shape
     this.currentStep = null;
@@ -49,12 +49,12 @@ export class CreateState extends State {
   start(family) {
     this.currentStep = 'show-family-shapes';
     this.selectedFamily = family;
-    const shapesNames = app.environment.getFamily(family).getShapesNames();
+    const templateNames = app.environment.getFamily(family).templateNames;
 
-    if (shapesNames.length === 1) {
+    if (templateNames.length === 1) {
       const shapeRef = app.environment
         .getFamily(this.selectedFamily)
-        .getShape(shapesNames[0]);
+        .getShape(templateNames[0]);
       this.setShape(shapeRef.saveToObject());
       return;
     }
@@ -64,7 +64,7 @@ export class CreateState extends State {
       this.shapesList = createElem('shapes-list');
     }
     this.shapesList.selectedFamily = family;
-    this.shapesList.shapesNames = shapesNames;
+    this.shapesList.templateNames = templateNames;
     this.shapesList.style.display = 'flex';
 
     window.dispatchEvent(
@@ -133,7 +133,7 @@ export class CreateState extends State {
     } else if (event.type == 'canvasmouseup') {
       this.onMouseUp();
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

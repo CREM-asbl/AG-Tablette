@@ -2,6 +2,9 @@ import { app } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
 import { Shape } from './Core/Objects/Shape';
 import { Point } from './Core/Objects/Point';
+import { Bounds } from './Core/Objects/Bounds';
+import { Coordinates } from './Core/Objects/Coordinates';
+import { mod } from './Core/Tools/general';
 
 //A quoi sert silhouetteidx ?
 //Les canvas-button sont utilisés dans tangram ?
@@ -13,6 +16,14 @@ class CanvasButton extends LitElement {
       templateName: String,
       silhouetteIdx: String,
     };
+  }
+
+  constructor() {
+    super();
+
+    this.shapes = [];
+    this.segments = [];
+    this.points = [];
   }
 
   static get styles() {
@@ -41,18 +52,10 @@ class CanvasButton extends LitElement {
     return html` <canvas id="canvas" width="52px" height="52px"></canvas> `;
   }
 
-  // vraiment utile ? ne cause pas 2 refresh à chaque changement ?
-  updated() {
-    this.refresh();
-  }
-
-  /**
-   * dessine l'image sur le bouton
-   */
-  refresh() {
+  firstUpdated() {
     const canvas = this.shadowRoot.querySelector('canvas'),
       ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    this.ctx = ctx;
 
     let shapeTemplates, family, scale, center;
 
@@ -69,53 +72,50 @@ class CanvasButton extends LitElement {
       ].silhouetteData.shapes.map(s => new Shape(s));
     }
 
-    let shapes = shapeTemplates.map(
-      template => new Shape({ ...template, ctx: ctx })
+    this.shapes = shapeTemplates.map(
+      template => new Shape({ ...template, ctx: ctx, drawingEnvironment: this })
     );
 
-    console.log(shapes);
+    if (this.shapes.length == 1 && this.shapes[0].isCircle()) {
+      scale = 0.42; // arbitraire
+      center = this.shapes[0].segments[0].arcCenter.coordinates;
+    } else {
+      let shapeBounds = this.shapes.map(s => s.bounds);
+      let totalBounds = Bounds.getOuterBounds(...shapeBounds);
+      const largeur = totalBounds.maxX - totalBounds.minX,
+        hauteur = totalBounds.maxY - totalBounds.minY;
+      scale = 40 / Math.max(largeur, hauteur);
+      center = new Coordinates({
+        x: (totalBounds.minX + largeur / 2) * scale,
+        y: (totalBounds.minY + hauteur / 2) * scale,
+      });
+    }
 
-    // if (shapeTemplates.length == 1 && shapeTemplates[0].isCircle()) {
-    //   scale = 0.42; // arbitraire
-    //   center = shapes[0].segments[0].arcCenter;
-    // } else {
-    //   let minsX = [],
-    //     maxsX = [],
-    //     minsY = [],
-    //     maxsY = [];
-    //   shapes.forEach(s => {
-    //     const bounds = s.bounds;
-    //     minsX.push(bounds[0]);
-    //     maxsX.push(bounds[1]);
-    //     minsY.push(bounds[2]);
-    //     maxsY.push(bounds[3]);
-    //   });
-    //   const minX = Math.min(...minsX),
-    //     maxX = Math.max(...maxsX),
-    //     minY = Math.min(...minsY),
-    //     maxY = Math.max(...maxsY),
-    //     largeur = maxX - minX,
-    //     hauteur = maxY - minY;
-    //   scale = 40 / Math.max(largeur, hauteur);
-    //   center = new Point(
-    //     (minX + largeur / 2) * scale,
-    //     (minY + hauteur / 2) * scale
-    //   );
-    // }
+    const centerOffset = new Coordinates({
+      x: 26 - center.x,
+      y: 26 - center.y,
+    });
 
-    // if (this.silhouetteIdx == undefined) {
-    //   ctx.strokeStyle = '#000';
-    //   ctx.fillStyle = shapes[0].color || family.defaultColor;
-    //   const path = new Path2D(shapes[0].getSVGPath('no scale'));
-    //   ctx.fill(path);
-    //   ctx.stroke(path);
-    // } else {
-    //   shapes.forEach(s =>
-    //     window.dispatchEvent(
-    //       new CustomEvent('draw-shape', { detail: { ctx: ctx, shape: s } })
-    //     )
-    //   );
-    // }
+    this.shapes.forEach(s => {
+      s.scale(scale);
+      s.translate(centerOffset);
+    });
+
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+    if (this.silhouetteIdx !== undefined) {
+      this.ctx.strokeStyle = '#000';
+      this.ctx.fillStyle = this.shapes[0].color || family.defaultColor;
+      const path = new Path2D(this.shapes[0].getSVGPath('no scale'));
+      this.ctx.fill(path);
+      this.ctx.stroke(path);
+    } else {
+      this.shapes.forEach(s =>
+        window.dispatchEvent(
+          new CustomEvent('draw-shape', { detail: { shape: s } })
+        )
+      );
+    }
   }
 
   /**

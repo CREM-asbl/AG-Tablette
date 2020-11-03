@@ -87,7 +87,7 @@ export class BackgroundColorState extends State {
     } else if (event.type == 'colorChange') {
       this.setColor(event.detail.color);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

@@ -68,7 +68,7 @@ export class PermanentZoomState extends State {
     } else if (event.type == 'canvasmousewheel') {
       this.onMouseWheel(event.detail.deltaY);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

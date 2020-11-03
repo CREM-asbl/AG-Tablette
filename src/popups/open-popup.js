@@ -105,7 +105,7 @@ class OpenPopup extends LitElement {
         break;
 
       default:
-        console.log(
+        console.error(
           'OpenPopup: paramètre inconnu: ' +
             event.target.name +
             ' ' +

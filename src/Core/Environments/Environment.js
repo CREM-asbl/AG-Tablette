@@ -40,7 +40,7 @@ export class Environment {
         import('./Geometrie');
         break;
       default:
-        console.log(`Environnement ${name} pas encore pris en charge`);
+        console.alert(`Environnement ${name} pas encore pris en charge`);
     }
   }
 
@@ -48,7 +48,6 @@ export class Environment {
   //   const response = await fetch(`data/${file}`)
   //   const data = await response.json()
   //   this.loadModules(data.modules)
-  //   console.log(data.kit)
   //   this.extension = data.extension
   // }
 
@@ -70,7 +69,7 @@ export class Environment {
     for (let [familyName, familyData] of Object.entries(kit.families)) {
       this.families.push(new Family({ name: familyName, ...familyData }));
     }
-    console.log('here');
+    // this.families = [this.families[0]];
     window.dispatchEvent(new CustomEvent('families-loaded'));
   }
 

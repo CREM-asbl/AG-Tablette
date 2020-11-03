@@ -215,7 +215,7 @@ class AGTabletteApp extends LitElement {
                              )}">
             </toolbar-section>
 
-            <toolbar-section title="Créer des formes"
+            <toolbar-section title="Formes libres"
                              .buttons_states="${this.states.filter(
                                state => state.type === 'geometry_creator'
                              )}">
@@ -324,7 +324,7 @@ class AGTabletteApp extends LitElement {
         window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:
-        console.log(
+        console.alert(
           'unknow event type: ' + event.type + ', with event: ',
           event
         );

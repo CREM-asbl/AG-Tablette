@@ -1,7 +1,7 @@
 import { app } from '../App';
 import { ShapeManager } from '../Managers/ShapeManager';
 import { Segment } from './Segment';
-import { mod } from '../Tools/general';
+import { mod, uniqId } from '../Tools/general';
 import { Shape } from './Shape';
 import { Coordinates } from './Coordinates';
 
@@ -12,6 +12,7 @@ export class Point {
   /**
    * @param {String}                      id
    * @param {CanvasRenderingContext2D}    ctx
+   * @param {*}                           drawingEnvironment
    * @param {Number}                      x
    * @param {Number}                      y
    * @param {[String]}                    segmentIds
@@ -23,10 +24,11 @@ export class Point {
   constructor({
     id = uniqId(),
     ctx = app.mainCtx,
+    drawingEnvironment = app.workspace,
     coordinates = undefined,
     x = 0,
     y = 0,
-    segmentIds = undefined,
+    segmentIds = [],
     shapeId = undefined,
     type = undefined,
     name = undefined,
@@ -34,26 +36,36 @@ export class Point {
   }) {
     this.id = id;
     this.ctx = ctx;
+    this.drawingEnvironment = drawingEnvironment;
+    this.drawingEnvironment.points.push(this);
 
-    if (coordinates) this.coordinates = new Coordinates(coordinates);
-    else this.coordinates = new Coordinates(parseFloat(x), parseFloat(y));
-    this.segmentIds = segmentIds;
+    if (coordinates !== undefined)
+      this.coordinates = new Coordinates(coordinates);
+    else
+      this.coordinates = new Coordinates({
+        x: parseFloat(x),
+        y: parseFloat(y),
+      });
+
+    this.segmentIds = [...segmentIds];
     this.shapeId = shapeId;
+    if (this.shapeId !== undefined)
+      this.drawingEnvironment.shapes
+        .find(s => s.id === this.shapeId)
+        .pointIds.push(this.id);
     this.type = type;
     this.name = name;
-    this.ratio = parseFloat(ratio);
-
-    app.workspace.points.push(this);
+    if (this.ratio !== undefined) this.ratio = parseFloat(ratio);
   }
 
   get shape() {
-    let shape = app.workspace.shapes.find(s => s.id === this.shapeId);
+    let shape = this.drawingEnvironment.shapes.find(s => s.id === this.shapeId);
     return shape;
   }
 
   get segments() {
     let segments = this.segmentIds.map(segId =>
-      app.workspace.segments.find(seg => seg.id === segId)
+      this.drawingEnvironment.segments.find(seg => seg.id === segId)
     );
     return segments;
   }
@@ -67,41 +79,23 @@ export class Point {
   }
 
   /**
+   * move this with coordinates
+   * @param {Coordinates} coordinates
+   * @param {Boolean} negativeTranslation true if the coordinates must be reversed
    */
-  translate() {
-    this.coordinates.translate(arguments);
+  translate(coordinates, negativeTranslation = false) {
+    this.coordinates = negativeTranslation
+      ? this.coordinates.substract(coordinates)
+      : this.coordinates.add(coordinates);
   }
 
   /**
-   * multiplies ths coordinates with multiplier
-   * @param {*} multiplier
-   * @param {*} must_change_this - if this must be modified
+   * multiplies this with scalar(s)
+   * @param {Number} multiplierX
+   * @param {Number} multiplierY
    */
-  multiplyWithScalar(multiplier, must_change_this = false) {
-    let new_point = new Point(
-      this.x * multiplier,
-      this.y * multiplier,
-      this.type,
-      this.segment,
-      this.shape
-    );
-    if (must_change_this) {
-      this.x = new_point.x;
-      this.y = new_point.y;
-    }
-    return new_point;
-  }
-
-  copy() {
-    return new Point(
-      this.x,
-      this.y,
-      this.type,
-      this.segment,
-      this.shape,
-      this.name,
-      this.ratio
-    );
+  multiply(multiplierX, multiplierY = multiplierX) {
+    this.coordinates = this.coordinates.multiply(multiplierX, multiplierY);
   }
 
   /**
@@ -410,97 +404,21 @@ export class Point {
   }
 
   /**
-   * distance with another Point or coordinates
-   * @param {Object} point - point to compare with
-   * @param {number} x - other method
-   * @param {number} y - other method
-   * @return {number} dist - Euclidean distance
-   */
-  dist() {
-    let x, y;
-    if (arguments.length == 1) {
-      if (arguments[0] instanceof Point || arguments[0][0] == undefined) {
-        x = arguments[0].x;
-        y = arguments[0].y;
-      } else {
-        x = arguments[0][0];
-        y = arguments[0][1];
-      }
-    } else if (arguments.length == 2) {
-      x = arguments[0];
-      y = arguments[1];
-    }
-    let pow1 = Math.pow(x - this.x, 2),
-      pow2 = Math.pow(y - this.y, 2);
-    return Math.sqrt(pow1 + pow2);
-  }
-
-  /**
-   * equality with another Point or coordinates
-   * @param {Object} point - point to compare with
-   * @param {number} x - other method
-   * @param {number} y - other method
-   * @param {number} precision - precision d'egalité (0 pour stricte)
-   */
-  equal() {
-    let x,
-      y,
-      i = 0,
-      precision = 0.001;
-    if (arguments.length == 1) {
-      if (arguments[0] instanceof Point || arguments[0][0] == undefined) {
-        x = arguments[0].x;
-        y = arguments[0].y;
-      } else {
-        x = arguments[0][0];
-        y = arguments[0][1];
-      }
-      i++;
-    } else if (arguments.length == 2) {
-      x = arguments[i++];
-      y = arguments[i++];
-    }
-    if (arguments[i] !== undefined) {
-      precision = arguments[i++];
-    }
-    return this.dist(new Point(x, y)) < precision;
-  }
-
-  /**
    * convertit en balise circle de svg
    */
   toSVG(color = '#000', size = 1) {
-    let point = new Point(this);
-    point.setToCanvasCoordinates();
+    let canvasCoordinates = this.coordinates.toCanvasCoordinates();
     return (
       '<circle cx="' +
-      point.x +
+      canvasCoordinates.x +
       '" cy="' +
-      point.y +
+      canvasCoordinates.y +
       '" r="' +
       size * 2 + // * app.workspace.zoomLevel +
       '" fill="' +
       color +
       '" />\n'
     );
-  }
-
-  setToCanvasCoordinates() {
-    this.multiplyWithScalar(app.workspace.zoomLevel, true);
-    this.translate(
-      app.workspace.translateOffset.x,
-      app.workspace.translateOffset.y
-    );
-  }
-
-  resetFromCanvasCoordinates() {
-    this.translate(
-      app.workspace.translateOffset.x,
-      app.workspace.translateOffset.y,
-      true
-    );
-    // console.log('resetting', this.x, this.y);
-    this.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
   }
 
   /**

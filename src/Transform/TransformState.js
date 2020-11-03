@@ -100,7 +100,7 @@ export class TransformState extends State {
     } else if (event.type == 'canvasmouseup') {
       this.onMouseUp();
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

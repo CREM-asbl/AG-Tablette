@@ -182,29 +182,6 @@ export class DrawManager {
     ctx.stroke(path);
 
     ctx.restore();
-
-    if (
-      app.settings.get('areShapesPointed') &&
-      shape.name !== 'silhouette' &&
-      (!shape.isCircle() || app.environment.name == 'Geometrie')
-    ) {
-      shape.vertexes.forEach(point =>
-        DrawManager.drawPoint(ctx, point, '#000', 1, false)
-      );
-    }
-
-    shape.segmentPoints.forEach(point =>
-      DrawManager.drawPoint(ctx, point, '#000', 1, false)
-    );
-
-    if (shape.isCenterShown)
-      DrawManager.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
-
-    if (shape.name == 'CircleArc')
-      DrawManager.drawPoint(ctx, shape.segments[0].arcCenter, '#000', 1, false); //Le centre de l'arc
-
-    ctx.restore();
-    ctx.lineWidth = 1;
   }
 
   /**
@@ -222,16 +199,15 @@ export class DrawManager {
     ctx.globalAlpha = 1;
     ctx.lineWidth = size * app.workspace.zoomLevel;
 
-    const v0Copy = new Point(segment.vertexes[0]);
-    v0Copy.setToCanvasCoordinates();
+    const firstCoordinates = this.vertexes[0].coordinates.toCanvasCoordinates();
 
     const path = new Path2D(
-      ['M', v0Copy.x, v0Copy.y, segment.getSVGPath()].join(' ')
+      ['M', firstCoordinates.x, firstCoordinates.y, segment.getSVGPath()].join(
+        ' '
+      )
     );
 
     ctx.stroke(path);
-
-    ctx.lineWidth = 1;
 
     if (doSave) ctx.restore();
   }
@@ -272,8 +248,6 @@ export class DrawManager {
 
     ctx.stroke(path);
 
-    ctx.lineWidth = 1;
-
     if (doSave) ctx.restore();
   }
 
@@ -291,14 +265,13 @@ export class DrawManager {
     ctx.fillStyle = color;
     ctx.globalAlpha = 1;
 
-    const copy = new Point(point);
-    copy.setToCanvasCoordinates();
+    const canvasCoodinates = point.coordinates.toCanvasCoordinates();
 
     ctx.beginPath();
-    ctx.moveTo(copy.x, copy.y);
+    ctx.moveTo(canvasCoodinates.x, canvasCoodinates.y);
     ctx.arc(
-      copy.x,
-      copy.y,
+      canvasCoodinates.x,
+      canvasCoodinates.y,
       size * 2 * app.workspace.zoomLevel,
       0,
       2 * Math.PI,
@@ -365,7 +338,7 @@ window.addEventListener('draw-group', event => {
   );
 });
 window.addEventListener('draw-shape', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const ctx = event.detail.shape.ctx || app.upperCtx;
   DrawManager.drawShape(
     ctx,
     event.detail.shape,

@@ -93,7 +93,7 @@ export class MergeState extends State {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
@@ -282,9 +282,9 @@ export class MergeState extends State {
       );
       if (newPotentialSegments.length != 1) {
         if (newPotentialSegments.length == 0)
-          console.log('shape cannot be closed (dead end)');
+          console.alert('shape cannot be closed (dead end)');
         else
-          console.log(
+          console.alert(
             'shape is dig (a segment has more than one segment for next)'
           );
         return null;
@@ -303,7 +303,7 @@ export class MergeState extends State {
       lastSegment = nextSegment;
     }
     if (segmentUsed != segmentsList.length) {
-      console.log('shape is dig (not all segments have been used)');
+      console.alert('shape is dig (not all segments have been used)');
       return null;
     }
     if (

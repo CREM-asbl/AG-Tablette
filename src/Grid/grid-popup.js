@@ -119,7 +119,7 @@ class GridPopup extends LitElement {
         break;
 
       default:
-        console.log(
+        console.error(
           'Grid popup: paramètre inconnu: ' +
             event.target.name +
             ' ' +

@@ -4,7 +4,7 @@ export const cubesKit = {
     'Cube 1': {
       color: '#F70',
       opacity: 1,
-      shapes: [
+      shapeTemplates: [
         {
           name: 'Cube 1',
           new2: `18.30127018 36.60254036`,
@@ -19,7 +19,7 @@ export const cubesKit = {
     'Cube 2': {
       color: '#F70',
       opacity: 1,
-      shapes: [
+      shapeTemplates: [
         {
           name: 'Cube 2',
           path: `H 50 L 71.650635094 -12.5 V -62.5 H 21.650635094 L 0 -50 Z

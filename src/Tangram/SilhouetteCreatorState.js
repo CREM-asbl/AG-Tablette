@@ -55,7 +55,7 @@ export class SilhouetteCreatorState extends State {
     } else if (event.type == 'create-silhouette') {
       this.createSilhouette();
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

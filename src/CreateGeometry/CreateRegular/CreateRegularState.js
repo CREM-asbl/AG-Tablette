@@ -100,7 +100,7 @@ export class CreateRegularState extends State {
     } else if (event.type == 'setNumberOfPoints') {
       this.setNumberOfPoints(event.detail.nbOfPoints);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

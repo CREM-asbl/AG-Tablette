@@ -1,5 +1,6 @@
 import { Point } from './Point';
 import { app } from '../App';
+import { Coordinates } from './Coordinates';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -35,7 +36,7 @@ export class CompleteHistory {
 
     this.startZoomLevel = 1;
 
-    this.startTranslateOffset = new Point(0, 0);
+    this.startTranslateOffset = Coordinates.nullCoordinates;
 
     this.startSilhouette = app.silhouette;
   }

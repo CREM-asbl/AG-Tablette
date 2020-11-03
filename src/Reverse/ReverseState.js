@@ -121,7 +121,7 @@ export class ReverseState extends State {
     } else if (event.type == 'canvasclick') {
       this.onClick();
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

@@ -106,7 +106,7 @@ export class DivideState extends State {
     } else if (event.type == 'setNumberOfParts') {
       this.setNumberOfparts(event.detail.nbOfParts);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
@@ -210,7 +210,7 @@ export class DivideState extends State {
           segments[0].contains(object) &&
           segments[1].contains(object)
         ) {
-          console.log('ambiguité, ne rien faire');
+          console.alert('ambiguité, ne rien faire');
           this.restart();
 
           window.dispatchEvent(new CustomEvent('refresh'));

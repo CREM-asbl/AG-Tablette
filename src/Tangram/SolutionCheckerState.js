@@ -46,7 +46,7 @@ export class SolutionCheckerState extends State {
     if (event.type == 'state-menu-button-click') {
       this.clickOnStateMenuButton(event.detail);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
@@ -326,7 +326,7 @@ export class SolutionCheckerState extends State {
           seg => !seg.isUsed && seg.contains(currentSegment.vertexes[1], false)
         );
         if (newPotentialSegments.length == 0) {
-          console.log('shape cannot be closed (dead end)');
+          console.alert('shape cannot be closed (dead end)');
           return null;
         } else if (newPotentialSegments.length > 1) {
           newSegmentsSets.push([]);
@@ -383,9 +383,6 @@ export class SolutionCheckerState extends State {
     // vérifie que les longueur des segments
     sets1.forEach((set, idx, sets) => (sets[idx] = set.map(seg => seg.length)));
     sets2.forEach((set, idx, sets) => (sets[idx] = set.map(seg => seg.length)));
-
-    // console.log(sets1);
-    // console.log(sets2);
 
     while (sets1.length != 0) {
       // on enlève les sets semblables juqu'a ne plus en avoir

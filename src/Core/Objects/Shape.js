@@ -4,6 +4,8 @@ import { Point } from './Point';
 import { Segment } from './Segment';
 import { ShapeManager } from '../Managers/ShapeManager';
 import { isAngleBetweenTwoAngles } from '../Tools/geometry';
+import { Bounds } from './Bounds';
+import { Coordinates } from './Coordinates';
 
 /**
  * Représente une forme
@@ -13,6 +15,7 @@ export class Shape {
    * Constructeur
    * @param {String}                      id
    * @param {CanvasRenderingContext2D}    ctx
+   * @param {*}                           drawingEnvironment
    * @param {String}                      path
    * @param {[String]}                    segmentIds
    * @param {[String]}                    pointIds
@@ -25,14 +28,15 @@ export class Shape {
    * @param {Boolean}                     isCenterShown
    * @param {Boolean}                     isReversed
    * @param {Boolean}                     isBiface
-   * @param {}                            geometryConstructionSpec // à enlever (recalculer si besoin)
-   * @param {}                            referenceShapeId // temporaire
-   * @param {}                            referenceSegmentIdx // temporaire
-   * @param {}                            hasGeometryReferenced // temporaire
+   * @param {*}                           geometryConstructionSpec // à enlever (recalculer si besoin)
+   * @param {*}                           referenceShapeId // temporaire
+   * @param {*}                           referenceSegmentIdx // temporaire
+   * @param {*}                           hasGeometryReferenced // temporaire
    */
   constructor({
     id = uniqId(),
     ctx = app.mainCtx,
+    drawingEnvironment = app.workspace,
     path = undefined,
     segmentIds = [],
     pointIds = [],
@@ -52,6 +56,8 @@ export class Shape {
   }) {
     this.id = id;
     this.ctx = ctx;
+    this.drawingEnvironment = drawingEnvironment;
+    this.drawingEnvironment.shapes.push(this);
 
     if (path) this.setSegmentsFromPath(path);
     else {
@@ -74,8 +80,6 @@ export class Shape {
     this.referenceShapeId = referenceShapeId;
     this.referenceSegmentIdx = referenceSegmentIdx;
     this.hasGeometryReferenced = [...hasGeometryReferenced];
-
-    app.workspace.shapes.push(this);
   }
 
   /* #################################################################### */
@@ -84,7 +88,7 @@ export class Shape {
 
   get segments() {
     let segments = this.segmentIds.map(segId =>
-      app.workspace.segments.find(seg => seg.id === segId)
+      this.drawingEnvironment.segments.find(seg => seg.id === segId)
     );
     return segments;
   }
@@ -92,7 +96,7 @@ export class Shape {
   get points() {
     // if (this.isCircle() && app.environment.name !== 'Geometrie') => doit-on inclure le point du cercle dans Grandeurs et Cubes ?
     let points = this.pointIds.map(ptId =>
-      app.workspace.points.find(pt => pt.id === ptId)
+      this.drawingEnvironment.points.find(pt => pt.id === ptId)
     );
     return points;
   }
@@ -148,6 +152,156 @@ export class Shape {
     }
   }
 
+  setSegmentsFromPath(path) {
+    const allPathElements = path
+      .split(/[ \n]/)
+      .filter(element => element !== '');
+    let firstVertex, lastVertex, startVertex;
+
+    let segmentIdx = 0;
+
+    this.pointIds = [];
+    this.segmentIds = [];
+
+    startVertex = lastVertex = new Point({
+      x: 0,
+      y: 0,
+      drawingEnvironment: this.drawingEnvironment,
+      shapeId: this.id,
+      type: 'vertex',
+    });
+
+    while (allPathElements.length) {
+      const element = allPathElements.shift();
+
+      switch (element) {
+        case 'M':
+        case 'm':
+          lastVertex = lastVertex = new Point({
+            x: allPathElements.shift(),
+            y: allPathElements.shift(),
+            drawingEnvironment: this.drawingEnvironment,
+            shapeId: this.id,
+            type: 'vertex',
+          });
+          startVertex = lastVertex;
+          break;
+
+        case 'L':
+        case 'l':
+          firstVertex = lastVertex;
+          lastVertex = new Point({
+            x: allPathElements.shift(),
+            y: allPathElements.shift(),
+            drawingEnvironment: this.drawingEnvironment,
+            shapeId: this.id,
+            type: 'vertex',
+          });
+          new Segment({
+            shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
+            idx: segmentIdx++,
+            vertexIds: [firstVertex.id, lastVertex.id],
+          });
+          break;
+
+        case 'H':
+        case 'h':
+          firstVertex = lastVertex;
+          lastVertex = new Point({
+            x: allPathElements.shift(),
+            y: firstVertex.y,
+            drawingEnvironment: this.drawingEnvironment,
+            shapeId: this.id,
+            type: 'vertex',
+          });
+          new Segment({
+            shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
+            idx: segmentIdx++,
+            vertexIds: [firstVertex.id, lastVertex.id],
+          });
+          break;
+
+        case 'V':
+        case 'v':
+          firstVertex = lastVertex;
+          lastVertex = new Point({
+            x: firstVertex.x,
+            y: allPathElements.shift(),
+            drawingEnvironment: this.drawingEnvironment,
+            shapeId: this.id,
+            type: 'vertex',
+          });
+          new Segment({
+            shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
+            idx: segmentIdx++,
+            vertexIds: [firstVertex.id, lastVertex.id],
+          });
+          break;
+
+        // case 'A':
+        // case 'a':
+        //   const rx = allPathElements.shift(),
+        //     ry = allPathElements.shift(),
+        //     xAxisRotation = allPathElements.shift(),
+        //     largeArcFlag = allPathElements.shift(),
+        //     sweepFlag = allPathElements.shift();
+
+        //   const nextVertex = new Point(
+        //     allPathElements.shift(),
+        //     allPathElements.shift()
+        //   );
+
+        //   if (this.segments.length > 0 && nextVertex.equal(firstVertex)) {
+        //     // if circle
+        //     this.segments[this.segments.length - 1].vertexes[1] = nextVertex;
+        //     lastVertex = nextVertex;
+        //   } else {
+        //     // if arc
+        //     firstVertex = lastVertex;
+        //     lastVertex = nextVertex;
+        //     let arcCenter = this.getArcCenterFromSVG(
+        //       firstVertex,
+        //       lastVertex,
+        //       rx,
+        //       largeArcFlag,
+        //       sweepFlag
+        //     );
+
+        //     this.segments.push(
+        //       new Segment(
+        //         firstVertex,
+        //         lastVertex,
+        //         this,
+        //         this.segments.length,
+        //         arcCenter,
+        //         1 - sweepFlag
+        //       )
+        //     );
+        //   }
+
+        //   break;
+
+        case 'Z':
+        case 'z':
+          firstVertex = lastVertex;
+          lastVertex = startVertex;
+          new Segment({
+            shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
+            idx: segmentIdx++,
+            vertexIds: [firstVertex.id, lastVertex.id],
+          });
+          break;
+
+        default:
+          break;
+      }
+    }
+  }
+
   /**
    * moyenne des vertexes et medianes, pour l'offset de cut
    */
@@ -183,17 +337,8 @@ export class Shape {
   }
 
   get bounds() {
-    //minX, maxX, minY, maxY
-    let result = [[], [], [], []];
-    this.segments.forEach(seg => {
-      seg.bounds.forEach((bound, idx) => {
-        result[idx].push(bound);
-      });
-    });
-    return result.map((value, idx) => {
-      if (idx % 2) return Math.max(...value);
-      else return Math.min(...value);
-    });
+    let segmentBounds = this.segments.map(seg => seg.bounds);
+    return Bounds.getOuterBounds(...segmentBounds);
   }
 
   getCommonsPoints(shape) {
@@ -204,122 +349,6 @@ export class Shape {
       });
     });
     return commonsPoints;
-  }
-
-  setSegmentsFromPath(path) {
-    this.segments = [];
-    const allPathElements = path
-      .split(/[ \n]/)
-      .filter(element => element !== '');
-    let firstVertex, lastVertex, startVertex;
-
-    startVertex = lastVertex = new Point(0, 0);
-
-    while (allPathElements.length) {
-      const element = allPathElements.shift();
-
-      switch (element) {
-        case 'M':
-        case 'm':
-          lastVertex = new Point(
-            allPathElements.shift(),
-            allPathElements.shift()
-          );
-          startVertex = lastVertex;
-          break;
-
-        case 'L':
-        case 'l':
-          firstVertex = lastVertex;
-          lastVertex = new Point(
-            allPathElements.shift(),
-            allPathElements.shift()
-          );
-          this.segments.push(
-            new Segment(firstVertex, lastVertex, this, this.segments.length)
-          );
-          break;
-
-        case 'H':
-        case 'h':
-          firstVertex = lastVertex;
-          lastVertex = new Point(allPathElements.shift(), firstVertex.y);
-          this.segments.push(
-            new Segment(firstVertex, lastVertex, this, this.segments.length)
-          );
-          break;
-
-        case 'V':
-        case 'v':
-          firstVertex = lastVertex;
-          lastVertex = new Point(firstVertex.x, allPathElements.shift());
-          this.segments.push(
-            new Segment(firstVertex, lastVertex, this, this.segments.length)
-          );
-          break;
-
-        case 'A':
-        case 'a':
-          const rx = allPathElements.shift(),
-            ry = allPathElements.shift(),
-            xAxisRotation = allPathElements.shift(),
-            largeArcFlag = allPathElements.shift(),
-            sweepFlag = allPathElements.shift();
-
-          const nextVertex = new Point(
-            allPathElements.shift(),
-            allPathElements.shift()
-          );
-
-          if (this.segments.length > 0 && nextVertex.equal(firstVertex)) {
-            // if circle
-            this.segments[this.segments.length - 1].vertexes[1] = nextVertex;
-            lastVertex = nextVertex;
-          } else {
-            // if arc
-            firstVertex = lastVertex;
-            lastVertex = nextVertex;
-            let arcCenter = this.getArcCenterFromSVG(
-              firstVertex,
-              lastVertex,
-              rx,
-              largeArcFlag,
-              sweepFlag
-            );
-
-            this.segments.push(
-              new Segment(
-                firstVertex,
-                lastVertex,
-                this,
-                this.segments.length,
-                arcCenter,
-                1 - sweepFlag
-              )
-            );
-          }
-
-          break;
-
-        case 'Z':
-        case 'z':
-          firstVertex = lastVertex;
-          lastVertex = startVertex;
-          this.segments.push(
-            new Segment(firstVertex, lastVertex, this, this.segments.length)
-          );
-          // console.log('Z');
-          break;
-
-        default:
-          // firstVertex = lastVertex;
-          // lastVertex = startVertex;
-          // this.segments.push(
-          //   new Segment(firstVertex, lastVertex, this, this.segments.length)
-          // );
-          break;
-      }
-    }
   }
 
   getArcCenterFromSVG(
@@ -462,7 +491,7 @@ export class Shape {
       if (this.segments.some(segment => segment.equal(object))) return true;
       return false;
     } else {
-      console.log('unsupported object');
+      console.alert('unsupported object');
       return false;
     }
   }
@@ -577,7 +606,7 @@ export class Shape {
           !shape.isPointInBorder(middles_to_check[idx])
       )
     ) {
-      console.log('shape inside another');
+      console.alert('shape inside another');
       return true;
     }
     return false;
@@ -621,38 +650,20 @@ export class Shape {
   }
 
   /**
-   * move the shape with Point or coordinates
-   * @param {Point} point - point to add
-   * @param {number} x - other method
-   * @param {number} y - other method
-   * @param {number} neg - negative translation
+   * move the shape with coordinates
+   * @param {Coordinates} coordinates
+   * @param {Boolean} negativeTranslation true if the coordinates must be reversed
    */
-  translate() {
-    let neg,
-      multiplier,
-      x,
-      y,
-      i = 0;
-    if (typeof arguments[i] == 'object') {
-      x = arguments[i].x;
-      y = arguments[i].y;
-      neg = arguments[++i];
-    } else {
-      x = arguments[i];
-      y = !isNaN(arguments[i + 1]) ? arguments[++i] : arguments[i];
-      neg = arguments[++i];
-    }
-    multiplier = neg ? -1 : 1;
-    const translation = new Point(x * multiplier, y * multiplier);
-    this.segments.forEach(seg => seg.translate(translation));
+  translate(coordinates, negativeTranslation = false) {
+    this.points.forEach(pt => pt.translate(coordinates, negativeTranslation));
   }
 
   /**
-   *
-   * @param {Number}    scaling   scale ratio
+   * scale the shape with scaleRatio
+   * @param {Number}    scaleRatio
    */
-  scale(scaling) {
-    this.segments.forEach(seg => seg.scale(scaling));
+  scale(scaleRatio) {
+    this.points.forEach(pt => pt.multiply(scaleRatio));
   }
 
   /**

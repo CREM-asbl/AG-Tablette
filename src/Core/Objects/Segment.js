@@ -1,12 +1,14 @@
 import { ShapeManager } from '../Managers/ShapeManager';
 import { Point } from './Point';
-import { uniqId } from '../Tools/general';
+import { uniqId, mod } from '../Tools/general';
 import { app } from '../App';
+import { Bounds } from './Bounds';
 
 export class Segment {
   /**
    * @param {String}                      id
    * @param {CanvasRenderingContext2D}    ctx
+   * @param {*}                           drawingEnvironment
    * @param {String}                      shapeId
    * @param {Number}                      idx
    * @param {[String]}                    vertexIds
@@ -19,6 +21,7 @@ export class Segment {
   constructor({
     id = uniqId(),
     ctx = app.mainCtx,
+    drawingEnvironment = app.workspace,
     shapeId = undefined,
     idx = undefined,
     vertexIds = [],
@@ -31,17 +34,32 @@ export class Segment {
     this.id = id;
     this.ctx = ctx;
 
+    this.drawingEnvironment = drawingEnvironment;
+    this.drawingEnvironment.segments.push(this);
+
     this.shapeId = shapeId;
     this.idx = idx;
     this.vertexIds = [...vertexIds];
+    this.vertexIds.forEach(vxId =>
+      this.drawingEnvironment.points
+        .find(pt => pt.id === vxId)
+        .segmentIds.push(this.id)
+    );
     this.divisionPointIds = [...divisionPointIds];
+    this.divisionPointIds.forEach(dptId =>
+      this.drawingEnvironment.points
+        .find(pt => pt.id === dptId)
+        .segmentIds.push(this.id)
+    );
     this.shapeId = shapeId;
+    if (this.shapeId !== undefined)
+      this.drawingEnvironment.shapes
+        .find(s => s.id === this.shapeId)
+        .segmentIds.push(this.id);
     this.arcCenterId = arcCenterId;
     this.counterclockwise = counterclockwise;
     this.isInfinite = isInfinite;
     this.isSemiInfinite = isSemiInfinite;
-
-    app.workspace.segments.push(this);
   }
 
   /* #################################################################### */
@@ -49,7 +67,7 @@ export class Segment {
   /* #################################################################### */
 
   get shape() {
-    let shape = app.workspace.shapes.find(s => s.id === this.shapeId);
+    let shape = this.drawingEnvironment.shapes.find(s => s.id === this.shapeId);
     return shape;
   }
 
@@ -60,43 +78,42 @@ export class Segment {
 
   get vertexes() {
     let vertexes = this.vertexIds.map(ptId =>
-      app.workspace.points.find(pt => pt.id === ptId)
+      this.drawingEnvironment.points.find(pt => pt.id === ptId)
     );
     return vertexes;
   }
 
   get divisionPoints() {
     let divisionPoints = this.divisionPointIds.map(ptId =>
-      app.workspace.points.find(pt => pt.id === ptId)
+      this.drawingEnvironment.points.find(pt => pt.id === ptId)
     );
     return divisionPoints;
   }
 
   get bounds() {
-    //minX, maxX, minY, maxY
-    let results = [undefined, undefined, undefined, undefined];
+    let v0 = this.vertexes[0],
+      v1 = this.vertexes[1];
+    let bounds = new Bounds(
+      Math.min(v0.x, v1.x),
+      Math.min(v0.y, v1.y),
+      Math.max(v0.x, v1.x),
+      Math.max(v0.y, v1.y)
+    );
     if (this.arcCenter) {
-      results = [
-        this.centerProjectionOnSegment(Math.PI),
-        this.centerProjectionOnSegment(0),
-        this.centerProjectionOnSegment(1.5 * Math.PI),
-        this.centerProjectionOnSegment(0.5 * Math.PI),
-      ];
+      let proj = this.centerProjectionOnSegment(Math.PI);
+      if (this.isPointOnSegment(proj))
+        bounds.minX = Math.min(bounds.minX, proj);
+      proj = this.centerProjectionOnSegment(1.5 * Math.PI);
+      if (this.isPointOnSegment(proj))
+        bounds.minY = Math.min(bounds.minY, proj);
+      proj = this.centerProjectionOnSegment(0);
+      if (this.isPointOnSegment(proj))
+        bounds.maxX = Math.max(bounds.maxX, proj);
+      proj = this.centerProjectionOnSegment(0.5 * Math.PI);
+      if (this.isPointOnSegment(proj))
+        bounds.maxY = Math.max(bounds.maxY, proj);
     }
-    return results.map((result, idx) => {
-      if (result == undefined || !this.isPointOnSegment(result)) {
-        if (idx % 2) {
-          if (idx < 2) return Math.max(this.vertexes[0].x, this.vertexes[1].x);
-          else return Math.max(this.vertexes[0].y, this.vertexes[1].y);
-        } else {
-          if (idx < 2) return Math.min(this.vertexes[0].x, this.vertexes[1].x);
-          else return Math.min(this.vertexes[0].y, this.vertexes[1].y);
-        }
-      } else {
-        if (idx < 2) return result.x;
-        else return result.y;
-      }
-    });
+    return bounds;
   }
 
   get radius() {
@@ -192,51 +209,45 @@ export class Segment {
    * convertit le segment en commande de path svg
    */
   getSVGPath(scaling = 'scale', axeAngle = undefined) {
-    let transformedSegment = this;
+    let firstCoordinates = this.vertexes[0].coordinates,
+      secondCoordinates = this.vertexes[1].coordinates;
     if (this.isInfinite) {
       let angle = this.getAngleWithHorizontal();
-      transformedSegment = new Segment(
-        this.vertexes[0].subCoordinates(
-          10000 * Math.cos(angle),
-          10000 * Math.sin(angle)
-        ),
-        this.vertexes[1].addCoordinates(
-          10000 * Math.cos(angle),
-          10000 * Math.sin(angle)
-        )
-      );
+      firstCoordinates = firstCoordinates.substract({
+        x: 10000 * Math.cos(angle),
+        y: 10000 * Math.sin(angle),
+      });
+      secondCoordinates = secondCoordinates.add({
+        x: 10000 * Math.cos(angle),
+        y: 10000 * Math.sin(angle),
+      });
     } else if (this.isSemiInfinite) {
       let angle = this.getAngleWithHorizontal();
-      transformedSegment = new Segment(
-        this.vertexes[0],
-        this.vertexes[1].addCoordinates(
-          10000 * Math.cos(angle),
-          10000 * Math.sin(angle)
-        )
-      );
+      secondCoordinates = secondCoordinates.add({
+        x: 10000 * Math.cos(angle),
+        y: 10000 * Math.sin(angle),
+      });
     }
-
-    let v0 = new Point(transformedSegment.vertexes[0]),
-      v1 = new Point(transformedSegment.vertexes[1]),
-      path,
-      moveTo = '';
 
     if (scaling == 'scale') {
-      v0.setToCanvasCoordinates();
-      v1.setToCanvasCoordinates();
+      firstCoordinates = firstCoordinates.toCanvasCoordinates();
+      secondCoordinates = secondCoordinates.toCanvasCoordinates();
     }
+
+    let path,
+      moveTo = '';
 
     if (
       !this.shape ||
       this.idx == 0 ||
-      !this.vertexes[0].equal(this.shape.segments[this.idx - 1].vertexes[1])
+      this.vertexIds[0] !== this.previousSegment.vertexIds[1]
     ) {
-      moveTo = ['M', v0.x, v0.y, ''].join(' ');
+      moveTo = ['M', firstCoordinates.x, firstCoordinates.y, ''].join(' ');
     }
 
     if (!this.arcCenter) {
       // line
-      path = ['L', v1.x, v1.y].join(' ');
+      path = ['L', secondCoordinates.x, secondCoordinates.y].join(' ');
     } else if (axeAngle === undefined) {
       // circle or arc
       let ctr = new Point(this.arcCenter);
@@ -338,7 +349,38 @@ export class Segment {
         ].join(' ');
       }
     }
-    return moveTo + path;
+
+    let resultingPath = moveTo + path;
+
+    return resultingPath;
+  }
+
+  get previousSegment() {
+    if (!this.shapeId) {
+      console.error('Cannot take previous Segment when no shape.');
+      return null;
+    }
+    let numberOfSegments = this.shape.segmentIds.length;
+    if (numberOfSegments == 1) {
+      console.alert('Previous Segment of Shape with one Segment returns this.');
+    }
+    let previousIdx = mod(this.idx - 1, numberOfSegments);
+    let previousSegment = this.shape.segments[previousIdx];
+    return previousSegment;
+  }
+
+  get nextSegment() {
+    if (!this.shapeId) {
+      console.error('Cannot take next Segment when no shape.');
+      return null;
+    }
+    let numberOfSegments = this.shape.segmentIds.length;
+    if (numberOfSegments == 1) {
+      console.alert('Next Segment of Shape with one Segment returns this.');
+    }
+    let nextIdx = mod(this.idx + 1, numberOfSegments);
+    let nextSegment = this.shape.segments[nextIdx];
+    return nextSegment;
   }
 
   getArcTangent(vertexNb) {
@@ -548,9 +590,9 @@ export class Segment {
    * Find the point's projection on this.
    *
    * For circle : https://math.stackexchange.com/questions/1744354/project-a-point-within-a-circle-onto-its-edge
-   * @param {*} point
+   * @param {Coordinates} coordinates
    */
-  projectionOnSegment(point) {
+  projectionOnSegment(coordinates) {
     if (this.arcCenter) {
       const angle = this.arcCenter.getAngle(point),
         projection = new Point(
@@ -565,20 +607,21 @@ export class Segment {
         p2x = this.vertexes[1].x,
         p2y = this.vertexes[1].y;
 
-      //Calculer la projection du point sur l'axe.
+      // Calculer la projection du point sur l'axe.
       if (Math.abs(p2x - p1x) < 0.001) {
         //segment vertical
-        proj = new Point({ x: p1x, y: point.y });
+        proj = new Coordinates({ x: p1x, y: coordinates.y });
       } else if (Math.abs(p2y - p1y) < 0.001) {
         //segment horizontal
-        proj = new Point({ x: point.x, y: p1y });
+        proj = new Coordinates({ x: coordinates.x, y: p1y });
       } else {
         // axe.type=='NW' || axe.type=='SW'
         let f_a = (p1y - p2y) / (p1x - p2x),
           f_b = p2y - f_a * p2x,
-          x2 = (point.x + point.y * f_a - f_a * f_b) / (f_a * f_a + 1),
+          x2 =
+            (coordinates.x + coordinates.y * f_a - f_a * f_b) / (f_a * f_a + 1),
           y2 = f_a * x2 + f_b;
-        proj = new Point({
+        proj = new Coordinates({
           x: x2,
           y: y2,
         });
@@ -731,7 +774,7 @@ export class Segment {
         this.vertexes.some(vertex => vertex.equal(object)) ||
         (matchSegmentPoints && this.points.some(point => point.equal(object)))
       );
-    else console.log('unsupported object :', object);
+    else console.alert('unsupported object :', object);
   }
 
   equal(segment) {
