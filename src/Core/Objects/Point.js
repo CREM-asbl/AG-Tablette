@@ -4,6 +4,7 @@ import { Segment } from './Segment';
 import { mod, uniqId } from '../Tools/general';
 import { Shape } from './Shape';
 import { Coordinates } from './Coordinates';
+import { DrawingEnvironment } from './DrawingEnvironment';
 
 /**
  * Représente un point du plan
@@ -11,19 +12,18 @@ import { Coordinates } from './Coordinates';
 export class Point {
   /**
    * @param {String}                      id
-   * @param {CanvasRenderingContext2D}    ctx
-   * @param {*}                           drawingEnvironment
+   * @param {DrawingEnvironment}          drawingEnvironment
+   * @param {Coordinates}                 coordinates
    * @param {Number}                      x
    * @param {Number}                      y
    * @param {[String]}                    segmentIds
    * @param {String}                      shapeId
    * @param {String}                      type  -> 'vertex', 'divisionPoint' or 'center'
    * @param {String}                      name  -> 'firstPoint', 'secondPoint', 'thirdPoint', 'fourthPoint'
-   * @param {Number}                      ratio - the ratio of this between the 2 vertexes of the segment
+   * @param {Number}                      ratio -> the ratio of this between the 2 vertexes of the segment
    */
   constructor({
     id = uniqId(),
-    ctx = app.mainCtx,
     drawingEnvironment = app.workspace,
     coordinates = undefined,
     x = 0,
@@ -35,7 +35,6 @@ export class Point {
     ratio = undefined,
   }) {
     this.id = id;
-    this.ctx = ctx;
     this.drawingEnvironment = drawingEnvironment;
     this.drawingEnvironment.points.push(this);
 

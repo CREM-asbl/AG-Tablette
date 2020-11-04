@@ -186,8 +186,8 @@ window.addEventListener('objectSelected', event =>
 window.addEventListener('family-selected', event =>
   CompleteHistoryManager.addStep('family-selected', event)
 );
-window.addEventListener('shape-selected', event =>
-  CompleteHistoryManager.addStep('shape-selected', event)
+window.addEventListener('template-selected', event =>
+  CompleteHistoryManager.addStep('template-selected', event)
 );
 
 // divide events

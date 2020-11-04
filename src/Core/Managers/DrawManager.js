@@ -3,6 +3,7 @@ import { GridManager } from '../../Grid/GridManager';
 import { ShapeManager } from './ShapeManager';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
+import { DrawingEnvironment } from '../Objects/DrawingEnvironment';
 
 export class DrawManager {
   /* #################################################################### */
@@ -155,33 +156,33 @@ export class DrawManager {
   }
 
   /**
-   * Dessiner une forme sur un canvas donné
-   * @param  {Context2D}  ctx                  Canvas
-   * @param  {Shape}      shape                Forme à dessiner
-   * @param  {Number}      borderSize          Epaisseur des bordures de la forme
-   * @param  {Number}      axeAngle            Axe de symétrie (pour reverse)
+   * Dessiner une forme dans un environement de dessin
+   * @param  {DrawingEnvironment}  drawingEnvironment
+   * @param  {Shape}               shape
+   * @param  {Number}              borderSize
+   * @param  {Number}              axeAngle             Axe de symétrie (pour reverse)
    */
-  static drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
-    ctx.strokeStyle = shape.borderColor;
-    ctx.fillStyle =
+  static drawShape(
+    drawingEnvironment,
+    shape,
+    borderSize = 1,
+    axeAngle = undefined
+  ) {
+    drawingEnvironment.ctx.strokeStyle = shape.borderColor;
+    drawingEnvironment.ctx.fillStyle =
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
-    ctx.globalAlpha = shape.opacity;
-    ctx.lineWidth = borderSize * app.workspace.zoomLevel;
-    ctx.miterLimit = 1;
+    drawingEnvironment.ctx.globalAlpha = shape.opacity;
+    drawingEnvironment.ctx.lineWidth = borderSize * app.workspace.zoomLevel;
+    drawingEnvironment.ctx.miterLimit = 1;
 
-    const pathScaleMethod =
-        ctx.canvas.width == 52 && ctx.canvas.height == 52
-          ? 'no scale'
-          : 'scale',
+    const pathScaleMethod = drawingEnvironment.mustScaleShapes
+        ? 'scale'
+        : 'no scale',
       path = new Path2D(shape.getSVGPath(pathScaleMethod, axeAngle));
 
-    ctx.save();
-
-    if (shape.name != 'CircleArc') ctx.fill(path, 'nonzero');
-    ctx.globalAlpha = 1;
-    ctx.stroke(path);
-
-    ctx.restore();
+    if (shape.name != 'CircleArc') drawingEnvironment.ctx.fill(path, 'nonzero');
+    drawingEnvironment.ctx.globalAlpha = 1;
+    drawingEnvironment.ctx.stroke(path);
   }
 
   /**
@@ -338,18 +339,20 @@ window.addEventListener('draw-group', event => {
   );
 });
 window.addEventListener('draw-shape', event => {
-  const ctx = event.detail.shape.ctx || app.upperCtx;
+  const drawingEnvironment =
+    event.detail.shape.drawingEnvironment || app.workspace;
   DrawManager.drawShape(
-    ctx,
+    drawingEnvironment,
     event.detail.shape,
     event.detail.borderSize,
     event.detail.axeAngle
   );
 });
 window.addEventListener('draw-segment', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const drawingEnvironment =
+    event.detail.shape.drawingEnvironment || app.workspace;
   DrawManager.drawSegment(
-    ctx,
+    drawingEnvironment,
     event.detail.segment,
     event.detail.color,
     event.detail.size,
@@ -357,9 +360,10 @@ window.addEventListener('draw-segment', event => {
   );
 });
 window.addEventListener('draw-line', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const drawingEnvironment =
+    event.detail.shape.drawingEnvironment || app.workspace;
   DrawManager.drawLine(
-    ctx,
+    drawingEnvironment,
     event.detail.segment,
     event.detail.color,
     event.detail.size,
@@ -367,9 +371,10 @@ window.addEventListener('draw-line', event => {
   );
 });
 window.addEventListener('draw-point', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const drawingEnvironment =
+    event.detail.shape.drawingEnvironment || app.workspace;
   DrawManager.drawPoint(
-    ctx,
+    drawingEnvironment,
     event.detail.point,
     event.detail.color,
     event.detail.size,
@@ -377,9 +382,10 @@ window.addEventListener('draw-point', event => {
   );
 });
 window.addEventListener('draw-text', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const drawingEnvironment =
+    event.detail.shape.drawingEnvironment || app.workspace;
   DrawManager.drawText(
-    ctx,
+    drawingEnvironment,
     event.detail.text,
     event.detail.position,
     event.detail.color,

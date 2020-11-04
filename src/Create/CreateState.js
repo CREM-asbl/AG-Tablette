@@ -5,6 +5,7 @@ import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -18,7 +19,7 @@ export class CreateState extends State {
 
     this.selectedFamily = null;
 
-    this.selectedShape = null;
+    this.selectedTemplate = null;
 
     this.shapeToCreate = null;
   }
@@ -52,10 +53,7 @@ export class CreateState extends State {
     const templateNames = app.environment.getFamily(family).templateNames;
 
     if (templateNames.length === 1) {
-      const shapeRef = app.environment
-        .getFamily(this.selectedFamily)
-        .getShape(templateNames[0]);
-      this.setShape(shapeRef.saveToObject());
+      this.selectTemplate(templateNames[0]);
       return;
     }
 
@@ -73,7 +71,7 @@ export class CreateState extends State {
       })
     );
 
-    window.addEventListener('shape-selected', this.handler);
+    window.addEventListener('select-template', this.handler);
   }
 
   /**
@@ -90,18 +88,18 @@ export class CreateState extends State {
         detail: { selectedFamily: this.selectedFamily },
       })
     );
-    if (this.selectedShape) {
+    if (this.templateName) {
       this.currentStep = 'listen-canvas-click';
       window.dispatchEvent(
-        new CustomEvent('shape-selected', {
-          detail: { selectedShape: this.selectedShape },
+        new CustomEvent('select-template', {
+          detail: { templateName: this.templateName },
         })
       );
     } else {
       this.currentStep = 'show-family-shapes';
     }
 
-    window.addEventListener('shape-selected', this.handler);
+    window.addEventListener('select-template', this.handler);
     this.mouseDownId = app.addListener('canvasmousedown', this.handler);
   }
 
@@ -114,7 +112,7 @@ export class CreateState extends State {
       this.shapesList = null;
     }
     window.cancelAnimationFrame(this.requestAnimFrameId);
-    window.removeEventListener('shape-selected', this.handler);
+    window.removeEventListener('select-template', this.handler);
     app.removeListener('canvasmousedown', this.mouseDownId);
     app.removeListener('canvasmouseup', this.mouseUpId);
     window.dispatchEvent(
@@ -126,8 +124,8 @@ export class CreateState extends State {
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'shape-selected') {
-      this.setShape(event.detail.selectedShape);
+    if (event.type == 'select-template') {
+      this.selectTemplate(event.detail.templateName);
     } else if (event.type == 'canvasmousedown') {
       this.onMouseDown();
     } else if (event.type == 'canvasmouseup') {
@@ -137,10 +135,13 @@ export class CreateState extends State {
     }
   }
 
-  setShape(selectedShape) {
-    if (selectedShape) {
-      this.selectedShape = selectedShape;
-      if (this.shapesList) this.shapesList.shapeName = selectedShape.name;
+  selectTemplate(templateName) {
+    if (templateName) {
+      this.templateName = templateName;
+      this.selectedTemplate = app.environment
+        .getFamily(this.selectedFamily)
+        .getTemplate(templateName);
+      // if (this.shapesList) this.shapesList.shapeName = selectedTemplate.name;
       this.currentStep = 'listen-canvas-click';
       this.mouseDownId = app.addListener('canvasmousedown', this.handler);
     }
@@ -148,7 +149,11 @@ export class CreateState extends State {
 
   onMouseDown() {
     if (this.currentStep != 'listen-canvas-click') return;
-    this.shapeToCreate = new Shape({ ...this.selectedShape, id: undefined });
+    this.shapeToCreate = new Shape({
+      ...this.selectedTemplate,
+      drawingEnvironment: app.workspace,
+      ctx: app.upperCtx,
+    });
     let shapeSize = app.settings.get('shapesSize');
 
     this.shapeToCreate.size = shapeSize;
@@ -167,38 +172,35 @@ export class CreateState extends State {
     let shapeSize = app.settings.get('shapesSize'),
       involvedShapes = [this.shapeToCreate];
 
-    const lastCoordinates = new Point(app.workspace.lastKnownMouseCoordinates);
-    // lastCoordinates.resetFromCanvasCoordinates();
-    this.shapeToCreate.coordinates = lastCoordinates;
-
     this.actions = [
       {
         name: 'CreateAction',
-        shapeToCreate: this.shapeToCreate,
+        selectedTemplate: this.selectedTemplate,
+        coordinates: app.workspace.lastKnownMouseCoordinates,
         shapeId: this.shapeToCreate.id,
         shapeSize: shapeSize,
       },
     ];
 
-    let transformation = getShapeAdjustment(involvedShapes, this.shapeToCreate);
-    if (transformation.rotation != 0) {
-      let rotateAction = {
-        name: 'RotateAction',
-        shapeId: this.shapeToCreate.id,
-        involvedShapesIds: involvedShapes.map(s => s.id),
-        rotationAngle: transformation.rotation,
-      };
-      this.actions.push(rotateAction);
-    }
-    if (transformation.move.x != 0 || transformation.move.y != 0) {
-      let moveAction = {
-        name: 'MoveAction',
-        shapeId: this.shapeToCreate.id,
-        involvedShapesIds: involvedShapes.map(s => s.id),
-        transformation: transformation.move,
-      };
-      this.actions.push(moveAction);
-    }
+    // let transformation = getShapeAdjustment(involvedShapes, this.shapeToCreate);
+    // if (transformation.rotation != 0) {
+    //   let rotateAction = {
+    //     name: 'RotateAction',
+    //     shapeId: this.shapeToCreate.id,
+    //     involvedShapesIds: involvedShapes.map(s => s.id),
+    //     rotationAngle: transformation.rotation,
+    //   };
+    //   this.actions.push(rotateAction);
+    // }
+    // if (transformation.move.x != 0 || transformation.move.y != 0) {
+    //   let moveAction = {
+    //     name: 'MoveAction',
+    //     shapeId: this.shapeToCreate.id,
+    //     involvedShapesIds: involvedShapes.map(s => s.id),
+    //     transformation: transformation.move,
+    //   };
+    //   this.actions.push(moveAction);
+    // }
     this.executeAction();
     this.restart();
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -208,7 +210,12 @@ export class CreateState extends State {
   draw() {
     if (this.currentStep != 'moving-shape') return;
 
-    this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
+    this.shapeToCreate.translate(
+      app.workspace.lastKnownMouseCoordinates.substract(
+        this.shapeToCreate.vertexes[0]
+      )
+    );
+
     window.dispatchEvent(
       new CustomEvent('draw-shape', { detail: { shape: this.shapeToCreate } })
     );

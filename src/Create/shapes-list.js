@@ -91,12 +91,9 @@ class ShapesList extends LitElement {
 
   _clickHandle(event) {
     this.templateName = event.target.templateName;
-    const shapeRef = app.environment
-      .getFamily(this.selectedFamily)
-      .getTemplate(this.templateName);
     window.dispatchEvent(
-      new CustomEvent('shape-selected', {
-        detail: { selectedShape: shapeRef.saveToObject() },
+      new CustomEvent('select-template', {
+        detail: { templateName: this.templateName },
       })
     );
   }

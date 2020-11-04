@@ -7,8 +7,7 @@ import { Bounds } from './Bounds';
 export class Segment {
   /**
    * @param {String}                      id
-   * @param {CanvasRenderingContext2D}    ctx
-   * @param {*}                           drawingEnvironment
+   * @param {DrawingEnvironment}          drawingEnvironment
    * @param {String}                      shapeId
    * @param {Number}                      idx
    * @param {[String]}                    vertexIds
@@ -20,7 +19,6 @@ export class Segment {
    */
   constructor({
     id = uniqId(),
-    ctx = app.mainCtx,
     drawingEnvironment = app.workspace,
     shapeId = undefined,
     idx = undefined,
@@ -32,7 +30,6 @@ export class Segment {
     isSemiInfinite = false,
   }) {
     this.id = id;
-    this.ctx = ctx;
 
     this.drawingEnvironment = drawingEnvironment;
     this.drawingEnvironment.segments.push(this);

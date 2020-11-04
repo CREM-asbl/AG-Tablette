@@ -74,7 +74,7 @@ export class Coordinates {
   }
 
   fromCanvasCoordinates() {
-    return this.sub(app.workspace.translateOffset).multiply(
+    return this.substract(app.workspace.translateOffset).multiply(
       1 / app.workspace.zoomLevel
     );
   }

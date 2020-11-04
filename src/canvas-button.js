@@ -5,6 +5,7 @@ import { Point } from './Core/Objects/Point';
 import { Bounds } from './Core/Objects/Bounds';
 import { Coordinates } from './Core/Objects/Coordinates';
 import { mod } from './Core/Tools/general';
+import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
 
 //A quoi sert silhouetteidx ?
 //Les canvas-button sont utilisés dans tangram ?
@@ -20,10 +21,6 @@ class CanvasButton extends LitElement {
 
   constructor() {
     super();
-
-    this.shapes = [];
-    this.segments = [];
-    this.points = [];
   }
 
   static get styles() {
@@ -55,7 +52,21 @@ class CanvasButton extends LitElement {
   firstUpdated() {
     const canvas = this.shadowRoot.querySelector('canvas'),
       ctx = canvas.getContext('2d');
-    this.ctx = ctx;
+
+    this.drawingEnvironment = new DrawingEnvironment(ctx);
+    this.drawingEnvironment.mustDrawPoints = false;
+    this.drawingEnvironment.mustScaleShapes = false;
+  }
+
+  updated() {
+    this.refresh();
+  }
+
+  /**
+   * call when the user change the selected family
+   */
+  refresh() {
+    this.drawingEnvironment.removeAllObjects();
 
     let shapeTemplates, family, scale, center;
 
@@ -73,7 +84,8 @@ class CanvasButton extends LitElement {
     }
 
     this.shapes = shapeTemplates.map(
-      template => new Shape({ ...template, ctx: ctx, drawingEnvironment: this })
+      template =>
+        new Shape({ ...template, drawingEnvironment: this.drawingEnvironment })
     );
 
     if (this.shapes.length == 1 && this.shapes[0].isCircle()) {
@@ -101,8 +113,6 @@ class CanvasButton extends LitElement {
       s.translate(centerOffset);
     });
 
-    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-
     if (this.silhouetteIdx !== undefined) {
       this.ctx.strokeStyle = '#000';
       this.ctx.fillStyle = this.shapes[0].color || family.defaultColor;
@@ -110,11 +120,7 @@ class CanvasButton extends LitElement {
       this.ctx.fill(path);
       this.ctx.stroke(path);
     } else {
-      this.shapes.forEach(s =>
-        window.dispatchEvent(
-          new CustomEvent('draw-shape', { detail: { shape: s } })
-        )
-      );
+      this.drawingEnvironment.draw();
     }
   }
 

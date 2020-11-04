@@ -14,8 +14,7 @@ export class Shape {
   /**
    * Constructeur
    * @param {String}                      id
-   * @param {CanvasRenderingContext2D}    ctx
-   * @param {*}                           drawingEnvironment
+   * @param {DrawingEnvironment}          drawingEnvironment
    * @param {String}                      path
    * @param {[String]}                    segmentIds
    * @param {[String]}                    pointIds
@@ -35,7 +34,6 @@ export class Shape {
    */
   constructor({
     id = uniqId(),
-    ctx = app.mainCtx,
     drawingEnvironment = app.workspace,
     path = undefined,
     segmentIds = [],
@@ -55,7 +53,6 @@ export class Shape {
     hasGeometryReferenced = [],
   }) {
     this.id = id;
-    this.ctx = ctx;
     this.drawingEnvironment = drawingEnvironment;
     this.drawingEnvironment.shapes.push(this);
 
@@ -102,6 +99,7 @@ export class Shape {
   }
 
   get vertexes() {
+    console.log(this.points);
     let vertexes = this.points.filter(pt => pt.type === 'vertex');
     return vertexes;
   }
