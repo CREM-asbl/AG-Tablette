@@ -4,6 +4,7 @@ import { SelectManager } from './Core/Managers/SelectManager';
 import { CompleteHistoryManager } from './Core/Managers/CompleteHistoryManager';
 import { Point } from './Core/Objects/Point';
 import { Coordinates } from './Core/Objects/Coordinates';
+import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
 
 class DivMainCanvas extends LitElement {
   constructor() {
@@ -104,18 +105,21 @@ class DivMainCanvas extends LitElement {
     this.invisibleCanvas = this.shadowRoot.querySelector('#invisibleCanvas');
 
     window.app = app;
-    app.canvas = {
-      upper: this.upperCanvas,
-      main: this.mainCanvas,
-      background: this.backgroundCanvas,
-      invisible: this.invisibleCanvas,
-    };
-    app.upperCtx = this.upperCanvas.getContext('2d');
-    app.mainCtx = this.mainCanvas.getContext('2d');
-    app.backgroundCtx = this.backgroundCanvas.getContext('2d');
-    app.invisibleCtx = this.invisibleCanvas.getContext('2d');
-
     app.start();
+
+    this.upperDrawingEnvironment = new DrawingEnvironment(this.upperCanvas);
+    app.upperDrawingEnvironment = this.upperDrawingEnvironment;
+    this.mainDrawingEnvironment = new DrawingEnvironment(this.mainCanvas);
+    app.mainDrawingEnvironment = this.mainDrawingEnvironment;
+    this.backgroundDrawingEnvironment = new DrawingEnvironment(
+      this.backgroundCanvas
+    );
+    app.backgroundDrawingEnvironment = this.backgroundDrawingEnvironment;
+    this.invisibleDrawingEnvironment = new DrawingEnvironment(
+      this.invisibleCanvas
+    );
+    app.invisibleDrawingEnvironment = this.invisibleDrawingEnvironment;
+
     window.addEventListener('setCanvasSize', () => this.setCanvasSize());
     window.dispatchEvent(new CustomEvent('setCanvasSize'));
 
@@ -152,7 +156,7 @@ class DivMainCanvas extends LitElement {
     //   );
     // });
 
-    //Events:
+    // Events
     this.upperCanvas.addEventListener('click', event => {
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);

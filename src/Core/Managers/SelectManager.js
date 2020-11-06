@@ -10,24 +10,28 @@ TODO:
 export class SelectManager {
   /**
    * Vérifier si 2 points sont à la distance de sélection l'un de l'autre.
-   * @param  {Point} pt1 premier point
-   * @param  {Point} pt2 second point
-   * @return {Boolean}     true si oui, false si non.
+   * @param  {Coordinates}  c1
+   * @param  {Coordinates}  c2
    */
-  static arePointsInSelectionDistance(pt1, pt2) {
-    let dist = pt1.dist(pt2);
-    return dist <= app.settings.get('selectionDistance');
+  static arePointsInSelectionDistance(c1, c2) {
+    let areInSelectionDistance = c1.equal(
+      c2,
+      app.settings.get('selectionDistance')
+    );
+    return areInSelectionDistance;
   }
 
   /**
    * Vérifier si 2 points sont à la distance de magnétisme l'un de l'autre.
-   * @param  {Point} pt1 premier point
-   * @param  {Point} pt2 second point
-   * @return {Boolean}     true si oui, false si non.
+   * @param  {Coordinates}  c1
+   * @param  {Coordinates}  c2
    */
-  static arePointsInMagnetismDistance(pt1, pt2) {
-    let dist = pt1.dist(pt2);
-    return dist <= app.settings.get('magnetismDistance');
+  static arePointsInMagnetismDistance(c1, c2) {
+    let areInMagnetismDistance = c1.equal(
+      c2,
+      app.settings.get('magnetismDistance')
+    );
+    return areInMagnetismDistance;
   }
 
   /**
@@ -43,9 +47,9 @@ export class SelectManager {
       blockHidden: false,
       shapes: {
         canSelect: false,
-        //Liste de Shape. La forme doit être dans ce tableau s'il est non null
+        // Liste de Shape. La forme doit être dans ce tableau s'il est non null
         whitelist: null,
-        //Liste de Shape. La forme ne doit pas être dans ce tableau s'il est non null
+        // Liste de Shape. La forme ne doit pas être dans ce tableau s'il est non null
         blacklist: null,
       },
       segments: {
@@ -73,23 +77,23 @@ export class SelectManager {
         //d'un des types renseignés dans ce tableau.
         types: ['center', 'vertex', 'segmentPoint', 'modifiablePoint'],
         /*
-                Liste pouvant contenir différents éléments:
-                    - Shape. Le point doit faire partie de cette forme ;
-                    - {'shape': Shape, 'type': 'center'}. Le point doit être le
-                      centre de la forme donnée.
-                    - {'shape': Shape, 'type': 'vertex'}. Le point doit être un
-                      sommet de la forme donnée.
-                    - {'shape': Shape, 'type': 'vertex', index: int}. Le point
-                      doit être le sommet d'index index de la forme donnée.
-                    - {'shape': Shape, 'type': 'segmentPoint'}. Le point doit
-                      être un point de segment de la forme donnée.
-                    - {'shape': Shape, 'type': 'segmentPoint', index: int}.
+                Liste pouvant contenir différents éléments sous la forme:
+                    - {'shapeId': shapeId}
+                      Le point doit faire partie de cette forme.
+                    - {'shapeId': shapeId, 'type': 'center'}
+                      Le point doit être le centre de la forme donnée.
+                    - {'shapeId': shapeId, 'type': 'vertex'}
+                      Le point doit être un sommet de la forme donnée.
+                    - {'shapeId': shapeId, 'type': 'vertex', index: int}
+                      Le point doit être le sommet d'index index de la forme donnée
+                    - {'shapeId': shapeId, 'type': 'segmentPoint'}
+                      Le point doit être un point de segment de la forme donnée.
+                    - {'shapeId': shapeId, 'type': 'segmentPoint', index: int}
                       Le point doit être un point de segment de la forme donnée,
                       et l'index du segment doit être index.
-                    - {'shape': Shape, 'type': 'segmentPoint', index: int, coordinates: Point}.
+                    - {'shapeId': shapeId, 'type': 'segmentPoint', index: int, ratio: ratio}
                       Le point doit être un point de segment de la forme donnée,
-                      dont le segment est d'index index et dont les
-                      coordonnées sont coordinates (coordonnées relatives).
+                      dont le segment est d'index index et dont le ratio vaut ratio.
                 Si tableau non null, le segment doit satisfaire au moins un des
                 élements de cette liste.
                  */
@@ -127,63 +131,39 @@ export class SelectManager {
 
     // all points at the correct distance
     let potentialPoints = [];
-    app.workspace.shapes.forEach(shape => {
-      if (constraints.types.includes('vertex') && !shape.isCircle()) {
-        shape.vertexes
-          .filter(vertex => distCheckFunction(vertex, mouseCoordinates))
-          .forEach(vertex => {
-            potentialPoints.push(vertex);
-          });
-      }
-      if (constraints.types.includes('segmentPoint')) {
-        shape.segmentPoints
-          .filter(point => distCheckFunction(point, mouseCoordinates))
-          .forEach(point => {
-            potentialPoints.push(point);
-          });
-      }
-      if (
-        shape.isCenterShown &&
-        constraints.types.includes('center') &&
-        distCheckFunction(shape.center, mouseCoordinates)
-      ) {
-        potentialPoints.push(shape.center);
-      }
-      if (constraints.types.includes('modifiablePoint')) {
-        shape.modifiablePoints
-          .filter(point => distCheckFunction(point, mouseCoordinates))
-          .forEach(point => {
-            potentialPoints.push(point);
-          });
+    app.mainDrawingEnvironment.points.forEach(pt => {
+      if (pt.visible) {
+        if (
+          constraints.types.includes(pt.type) &&
+          distCheckFunction(pt.coordinates, mouseCoordinates)
+        ) {
+          potentialPoints.push(pt);
+        }
       }
     });
 
     // apply constrains
     const constrainedPoints = potentialPoints.filter(potentialPoint => {
-      const shape = potentialPoint.shape;
       if (constraints.whitelist != null) {
         if (
           !constraints.whitelist.some(constr => {
-            if (constr instanceof Shape) return constr.id == shape.id;
-            else {
-              if (constr.shape.id != shape.id) return false;
-              if (constr.type == 'center')
-                return potentialPoint.type == 'center';
-              if (constr.type == 'vertex')
-                return (
-                  potentialPoint.type == 'vertex' &&
-                  (constr.index == undefined ||
-                    constr.index == potentialPoint.segment.idx)
-                );
-              if (constr.type == 'segmentPoint')
-                return (
-                  potentialPoint.type == 'segmentPoint' &&
-                  (constr.index == undefined ||
-                    constr.index == potentialPoint.segment.idx) &&
-                  (constr.coordinates == undefined ||
-                    constr.coordinates.equal(potentialPoint))
-                );
-            }
+            if (constr.shapeId != potentialPoint.shapeId) return false;
+            if (constr.type == 'center') return potentialPoint.type == 'center';
+            if (constr.type == 'vertex')
+              return (
+                potentialPoint.type == 'vertex' &&
+                (constr.index == undefined ||
+                  constr.index == potentialPoint.idx)
+              );
+            if (constr.type == 'divisionPoint')
+              return (
+                potentialPoint.type == 'divisionPoint' &&
+                (constr.index == undefined ||
+                  constr.index == potentialPoint.segment.idx) &&
+                (constr.ratio == undefined ||
+                  constr.ratio - potentialPoint.ratio < 0.001)
+              );
+            return true;
           })
         )
           return false;
@@ -191,25 +171,23 @@ export class SelectManager {
       if (constraints.blacklist != null) {
         if (
           constraints.blacklist.some(constr => {
-            if (constr instanceof Shape) return constr.id == shape.id;
-            else {
-              if (constr.shape.id != shape.id) return false;
-              if (constr.type == 'center')
-                return potentialPoint.type == 'center';
-              if (constr.type == 'vertex')
-                return (
-                  potentialPoint.type == 'vertex' &&
-                  (constr.index == undefined ||
-                    constr.index == potentialPoint.segment.idx)
-                );
-              if (constr.type == 'segmentPoint')
-                return (
-                  potentialPoint.type == 'segmentPoint' &&
-                  (constr.index == undefined ||
-                    constr.index == potentialPoint.segment.idx) &&
-                  constr.coordinates.equal(potentialPoint)
-                );
-            }
+            if (constr.shapeId != potentialPoint.shapeId) return false;
+            if (constr.type == 'center') return potentialPoint.type == 'center';
+            if (constr.type == 'vertex')
+              return (
+                potentialPoint.type == 'vertex' &&
+                (constr.index == undefined ||
+                  constr.index == potentialPoint.idx)
+              );
+            if (constr.type == 'divisionPoint')
+              return (
+                potentialPoint.type == 'divisionPoint' &&
+                (constr.index == undefined ||
+                  constr.index == potentialPoint.segment.idx) &&
+                (constr.ratio == undefined ||
+                  constr.ratio - potentialPoint.ratio < 0.001)
+              );
+            return true;
           })
         )
           return false;
@@ -224,59 +202,33 @@ export class SelectManager {
       return constrainedPoints.flat();
     }
 
-    // sort by distance and height
-    // cree un tableau de type [ [{Point}, {Point}], [{Point}]]
-    // avec meme distance dans meme case
-    let sortedPoints = [];
-    constrainedPoints.forEach(pt => {
-      const dist = pt.dist(mouseCoordinates);
-      for (const key in sortedPoints) {
-        const comparedDist = sortedPoints[key][0].dist(mouseCoordinates);
-        if (Math.abs(dist - comparedDist) < 0.1) {
-          // 0.1 pour distance égale
-          sortedPoints[key].push(pt);
-          return 'pushed';
-        }
-      }
-      sortedPoints.push([pt]);
-    });
-    // sort by distance
-    sortedPoints.sort(
-      (pts1, pts2) =>
-        pts1[0].dist(mouseCoordinates) - pts2[0].dist(mouseCoordinates)
-    );
-    // sort by height
-    sortedPoints.forEach(toSort =>
-      toSort.sort((pt1, pt2) =>
-        ShapeManager.getShapeIndex(pt1.shape) <
-        ShapeManager.getShapeIndex(pt2.shape)
-          ? 1
-          : -1
-      )
-    );
-
-    const flattedPoints = sortedPoints.flat();
-
-    // find the best point
+    let notHiddenPoints = constrainedPoints;
     if (constraints.blockHidden) {
+      notHiddenPoints = [];
       const shapes = ShapeManager.shapesThatContainsPoint(mouseCoordinates);
-      for (const pt of flattedPoints) {
-        const thisIndex = ShapeManager.getShapeIndex(pt.shape);
+      constrainedPoints.forEach(pt => {
+        let shapeIndex = ShapeManager.getShapeIndex(pt.shape);
         if (
-          shapes.some(s => {
-            let otherIndex = ShapeManager.getShapeIndex(s);
-            return otherIndex > thisIndex;
+          shapes.every(s => {
+            let otherShapeIndex = ShapeManager.getShapeIndex(s);
+            return otherShapeIndex < shapeIndex;
           })
         )
-          // point behind shape
-          continue;
-        return pt;
-      }
-      // all points behind other shapes
-      return null;
-    } else {
-      return flattedPoints[0];
+          notHiddenPoints.push(pt);
+      });
     }
+
+    let bestPoint = notHiddenPoints[0],
+      minDist = notHiddenPoints[0].coordinates.dist(mouseCoordinates);
+    notHiddenPoints.forEach(pt => {
+      let dist = pt.coordinates.dist(mouseCoordinates);
+      if (dist < minDist) {
+        minDist = dist;
+        bestPoint = pt;
+      }
+    });
+
+    return bestPoint;
   }
 
   /**

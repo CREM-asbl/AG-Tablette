@@ -50,10 +50,9 @@ class CanvasButton extends LitElement {
   }
 
   firstUpdated() {
-    const canvas = this.shadowRoot.querySelector('canvas'),
-      ctx = canvas.getContext('2d');
+    const canvas = this.shadowRoot.querySelector('canvas');
 
-    this.drawingEnvironment = new DrawingEnvironment(ctx);
+    this.drawingEnvironment = new DrawingEnvironment(canvas);
     this.drawingEnvironment.mustDrawPoints = false;
     this.drawingEnvironment.mustScaleShapes = false;
   }

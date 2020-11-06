@@ -60,6 +60,42 @@ export class Coordinates {
     return isEqual;
   }
 
+  /**
+   * Renvoie l'angle (en radians) entre la droite reliant this et point, et l'axe
+   * horizontal passant par this.
+   * @param  {Coordinates} coordinates
+   * @return {float}          L'angle, en radians. L'angle renvoyé est dans
+   *                              l'intervalle [0, 2PI[
+   */
+  angleWith(coordinates) {
+    let coord = coordinates.substract(this);
+    //Trouver l'angle de coord par rapport à (0,0)
+    // https://en.wikipedia.org/wiki/Atan2 -> voir image en haut à droite,
+    //  sachant qu'ici l'axe des y est inversé.
+    let angle = Math.atan2(coord.y, coord.x);
+    if (angle < 0) angle += 2 * Math.PI;
+    if (2 * Math.PI - angle < 0.00001) angle = 0;
+    return angle;
+  }
+
+  /**
+   * Rotate with rotationAngle and centre
+   * @param {Number}       rotationAngle
+   * @param {Coordinates}  center
+   */
+  rotate(rotationAngle, center = Coordinates.nullCoordinates) {
+    let startAngle = center.angleWith(this),
+      newAngle = startAngle + rotationAngle,
+      dist = this.dist(center),
+      newCoordinates = center.add(
+        new Coordinates({
+          x: dist * Math.cos(newAngle),
+          y: dist * Math.sin(newAngle),
+        })
+      );
+    return newCoordinates;
+  }
+
   dist(coordinates) {
     let pow1 = Math.pow(coordinates.x - this.x, 2),
       pow2 = Math.pow(coordinates.y - this.y, 2);

@@ -145,7 +145,7 @@ export class CreateRegularState extends State {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
-  draw() {
+  refreshStateUpper() {
     if (this.currentStep != 'select-second-point') return;
 
     let shape = this.createPolygon();

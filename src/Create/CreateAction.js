@@ -2,6 +2,7 @@ import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { ShapeTemplate } from '../Core/Objects/ShapeTemplate';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 export class CreateAction extends Action {
   constructor() {
@@ -53,11 +54,33 @@ export class CreateAction extends Action {
       ...this.selectedTemplate,
       id: this.shapeId,
       size: this.shapeSize,
-      drawingEnvironment: app.workspace,
-      ctx: app.mainCtx,
+      drawingEnvironment: app.mainDrawingEnvironment,
     });
     shape.scale(this.shapeSize);
     shape.translate(this.coordinates.substract(shape.vertexes[0]));
+
+    let transformation = getShapeAdjustment([shape], shape);
+    console.log(transformation);
+    shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
+    shape.translate(transformation.translation);
+    // if (transformation.rotation != 0) {
+    //   let rotateAction = {
+    //     name: 'RotateAction',
+    //     shapeId: this.shapeToCreate.id,
+    //     involvedShapesIds: involvedShapes.map(s => s.id),
+    //     rotationAngle: transformation.rotation,
+    //   };
+    //   this.actions.push(rotateAction);
+    // }
+    // if (transformation.move.x != 0 || transformation.move.y != 0) {
+    //   let moveAction = {
+    //     name: 'MoveAction',
+    //     shapeId: this.shapeToCreate.id,
+    //     involvedShapesIds: involvedShapes.map(s => s.id),
+    //     transformation: transformation.move,
+    //   };
+    //   this.actions.push(moveAction);
+    // }
   }
 
   /**

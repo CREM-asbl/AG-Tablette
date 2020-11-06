@@ -62,8 +62,8 @@ export class State {
       }
     });
 
-    window.addEventListener('drawUpper', () => {
-      if (this.name == app.state) this.draw();
+    window.addEventListener('refreshStateUpper', () => {
+      if (this.name == app.state) this.refreshStateUpper();
     });
 
     window.addEventListener('shapeDrawn', event => {
@@ -118,7 +118,7 @@ export class State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  draw() {}
+  refreshStateUpper() {}
 
   /**
    * Appelée par la fonction de dessin après avoir dessiné une forme sur le

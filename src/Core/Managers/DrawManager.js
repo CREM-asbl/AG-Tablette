@@ -11,14 +11,6 @@ export class DrawManager {
   /* #################################################################### */
 
   /**
-   * efface le contenu d'un canvas
-   * @param {Context2D} ctx   le ctx à effacer
-   */
-  static clearCtx(ctx) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  }
-
-  /**
    * Refresh the background and the forbidden ctx (grid and silhouette)
    */
   static refreshBackground() {
@@ -92,31 +84,31 @@ export class DrawManager {
   }
 
   /**
-   * Refresh the main ctx (regular shapes)
+   * Refresh the main canvas (regular shapes)
    */
   static refreshMain() {
-    DrawManager.clearCtx(app.mainCtx);
+    app.mainDrawingEnvironment.redraw();
 
-    app.workspace.shapes
-      .filter(shape => {
-        return (
-          app.workspace.editingShapesIds.findIndex(id => id == shape.id) == -1
-        );
-      })
-      .forEach(shape => {
-        DrawManager.drawShape(app.mainCtx, shape);
-        window.dispatchEvent(
-          new CustomEvent('shapeDrawn', { detail: { shape: shape } })
-        );
-      });
+    // app.workspace.shapes
+    //   .filter(shape => {
+    //     return (
+    //       app.workspace.editingShapesIds.findIndex(id => id == shape.id) == -1
+    //     );
+    //   })
+    //   .forEach(shape => {
+    //     DrawManager.drawShape(app.mainCtx, shape);
+    //     window.dispatchEvent(
+    //       new CustomEvent('shapeDrawn', { detail: { shape: shape } })
+    //     );
+    //   });
   }
 
   /**
-   * Refresh the upper ctx (animations)
+   * Refresh the upper canvas (animations)
    */
   static refreshUpper() {
-    DrawManager.clearCtx(app.upperCtx);
-    window.dispatchEvent(new CustomEvent('drawUpper'));
+    window.dispatchEvent(new CustomEvent('refreshStateUpper'));
+    app.upperDrawingEnvironment.redraw();
   }
 
   /* #################################################################### */
@@ -339,8 +331,7 @@ window.addEventListener('draw-group', event => {
   );
 });
 window.addEventListener('draw-shape', event => {
-  const drawingEnvironment =
-    event.detail.shape.drawingEnvironment || app.workspace;
+  const drawingEnvironment = event.detail.shape.drawingEnvironment;
   DrawManager.drawShape(
     drawingEnvironment,
     event.detail.shape,
@@ -371,8 +362,8 @@ window.addEventListener('draw-line', event => {
   );
 });
 window.addEventListener('draw-point', event => {
-  const drawingEnvironment =
-    event.detail.shape.drawingEnvironment || app.workspace;
+  const drawingEnvironment = event.detail.point.drawingEnvironment;
+  console.log(point);
   DrawManager.drawPoint(
     drawingEnvironment,
     event.detail.point,

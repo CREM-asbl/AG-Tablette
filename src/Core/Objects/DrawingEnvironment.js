@@ -5,8 +5,9 @@ export class DrawingEnvironment {
   /**
    *
    */
-  constructor(ctx) {
-    this.ctx = ctx;
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
 
     this.shapes = [];
     this.segments = [];
@@ -27,7 +28,12 @@ export class DrawingEnvironment {
   }
 
   clear() {
-    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  redraw() {
+    this.clear();
+    this.draw();
   }
 
   draw() {

@@ -273,7 +273,7 @@ export class ReverseState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw() {
+  refreshStateUpper() {
     if (this.currentStep == 'reversing-shape' && this.status == 'running') {
       //TODO: opti: ne pas devoir faire des copies à chaque refresh!
 

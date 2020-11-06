@@ -261,7 +261,7 @@ export class DivideState extends State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  draw() {
+  refreshStateUpper() {
     if (this.currentStep == 'select-second-point') {
       window.dispatchEvent(
         new CustomEvent('draw-point', {

@@ -460,10 +460,10 @@ export class Segment {
     if (this.arcCenter) this.arcCenter.multiplyWithScalar(scaling, true);
   }
 
-  rotate(angle, center = { x: 0, y: 0 }) {
-    this.allPoints.forEach(pt => pt.rotate(angle, center));
-    if (this.arcCenter) this.arcCenter.rotate(angle, center);
-  }
+  // rotate(angle, center = { x: 0, y: 0 }) {
+  //   this.allPoints.forEach(pt => pt.rotate(angle, center));
+  //   if (this.arcCenter) this.arcCenter.rotate(angle, center);
+  // }
 
   translate(coordinates) {
     if (this.vertexes)

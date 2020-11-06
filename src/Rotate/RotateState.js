@@ -169,7 +169,7 @@ export class RotateState extends State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  draw() {
+  refreshStateUpper() {
     if (this.currentStep != 'rotating-shape') return;
 
     let center = this.selectedShape.center;

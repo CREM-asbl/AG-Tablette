@@ -121,7 +121,7 @@ export class CreateIrregularState extends State {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
-  draw() {
+  refreshStateUpper() {
     this.points.forEach((pt, idx, pts) => {
       window.dispatchEvent(
         new CustomEvent('draw-point', {

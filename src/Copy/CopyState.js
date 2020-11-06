@@ -180,7 +180,7 @@ export class CopyState extends State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  draw() {
+  refreshStateUpper() {
     if (this.currentStep != 'moving-shape') return;
 
     let transformation = app.workspace.lastKnownMouseCoordinates.subCoordinates(

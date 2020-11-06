@@ -151,8 +151,7 @@ export class CreateState extends State {
     if (this.currentStep != 'listen-canvas-click') return;
     this.shapeToCreate = new Shape({
       ...this.selectedTemplate,
-      drawingEnvironment: app.workspace,
-      ctx: app.upperCtx,
+      drawingEnvironment: app.upperDrawingEnvironment,
     });
     let shapeSize = app.settings.get('shapesSize');
 
@@ -182,42 +181,21 @@ export class CreateState extends State {
       },
     ];
 
-    // let transformation = getShapeAdjustment(involvedShapes, this.shapeToCreate);
-    // if (transformation.rotation != 0) {
-    //   let rotateAction = {
-    //     name: 'RotateAction',
-    //     shapeId: this.shapeToCreate.id,
-    //     involvedShapesIds: involvedShapes.map(s => s.id),
-    //     rotationAngle: transformation.rotation,
-    //   };
-    //   this.actions.push(rotateAction);
-    // }
-    // if (transformation.move.x != 0 || transformation.move.y != 0) {
-    //   let moveAction = {
-    //     name: 'MoveAction',
-    //     shapeId: this.shapeToCreate.id,
-    //     involvedShapesIds: involvedShapes.map(s => s.id),
-    //     transformation: transformation.move,
-    //   };
-    //   this.actions.push(moveAction);
-    // }
     this.executeAction();
     this.restart();
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
-  draw() {
-    if (this.currentStep != 'moving-shape') return;
-
-    this.shapeToCreate.translate(
-      app.workspace.lastKnownMouseCoordinates.substract(
-        this.shapeToCreate.vertexes[0]
-      )
-    );
-
-    window.dispatchEvent(
-      new CustomEvent('draw-shape', { detail: { shape: this.shapeToCreate } })
-    );
+  refreshStateUpper() {
+    if (this.currentStep != 'moving-shape') {
+      app.upperDrawingEnvironment.removeAllObjects();
+    } else {
+      this.shapeToCreate.translate(
+        app.workspace.lastKnownMouseCoordinates.substract(
+          this.shapeToCreate.vertexes[0]
+        )
+      );
+    }
   }
 }

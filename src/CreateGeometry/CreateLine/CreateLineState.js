@@ -333,7 +333,7 @@ export class CreateLineState extends State {
     return projectionsOnContraints[0].projection;
   }
 
-  draw() {
+  refreshStateUpper() {
     this.constraints = this.getConstraints();
     let constrainedPoint = app.workspace.lastKnownMouseCoordinates;
     if (this.constraints.isConstrained) {

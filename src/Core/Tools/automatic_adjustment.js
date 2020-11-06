@@ -2,6 +2,7 @@ import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
 import { GridManager } from '../../Grid/GridManager';
 import { Point } from '../Objects/Point';
+import { Coordinates } from '../Objects/Coordinates';
 
 /**
  * Renvoie la transformation qu'il faut appliquer aux formes pour que les 2
@@ -10,30 +11,24 @@ import { Point } from '../Objects/Point';
  * @param  {{'moving': Object, 'fixed': Object}} e2 2eme point commun
  * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
  * @param  {Shape} mainShape      La forme principale
- * @return {{rotation: float, move: Point}}
+ * @return {{rotationAngle: float, translation: Point}}
  */
 function computeTransformation(e1, e2, shapes, mainShape) {
-  let fix1 = e1.fixed,
-    fix2 = e2.fixed,
-    moving1 = e1.moving,
-    moving2 = e2.moving;
+  let fix1 = e1.fixed.coordinates,
+    fix2 = e2.fixed.coordinates,
+    moving1 = e1.moving.coordinates,
+    moving2 = e2.moving.coordinates;
 
-  let pts = {
-      fix: fix2.subCoordinates(fix1),
-      moving: moving2.subCoordinates(moving1),
-    },
-    angles = {
-      fix: new Point(0, 0).getAngle(pts.fix),
-      moving: new Point(0, 0).getAngle(pts.moving),
-    },
-    mainAngle = angles.fix - angles.moving,
-    center = mainShape.center,
-    moving1NewCoords = moving1.getRotated(mainAngle, center),
-    translation = fix1.subCoordinates(moving1NewCoords);
+  let fixedCoordAngle = fix1.angleWith(fix2),
+    movingCoordAngle = moving1.angleWith(moving2),
+    rotationAngle = fixedCoordAngle - movingCoordAngle,
+    center = mainShape.centerCoordinates,
+    moving1NewCoords = moving1.rotate(rotationAngle, center),
+    translation = fix1.substract(moving1NewCoords);
 
   return {
-    rotation: mainAngle,
-    move: translation,
+    rotationAngle: rotationAngle,
+    translation: translation,
   };
 }
 
@@ -42,24 +37,25 @@ function computeTransformation(e1, e2, shapes, mainShape) {
     - Que les 2 points moving sont de la même forme => pourquoi ?
     - Qu'aucun des 2 points moving n'est un centre
     - Que les 2 segments formés ont la même longueur
-    - Que les 2 points moving sont sur le même segment et/ou aux extrémités
-      d'un même segment.
+    (- Que les 2 points moving sont sur le même segment et/ou aux extrémités
+      d'un même segment.)*
     - Si les 2 points fixed ne sont pas de grille, alors ils doivent
-      faire partie du même segment de la même forme.
+      faire partie (du même segment)* de la même forme.
+    * Les () indiquent que ce n'est pas/plus le cas
   */
 function checkCompatibility(e1, e2) {
-  if (e1.moving.shape.id != e2.moving.shape.id) return false;
+  if (e1.moving.shapeId != e2.moving.shapeId) return false;
 
   if (e1.moving.type == 'center' || e2.moving.type == 'center') return false;
 
-  let d1 = e1.fixed.dist(e2.fixed),
-    d2 = e1.moving.dist(e2.moving);
+  let d1 = e1.fixed.coordinates.dist(e2.fixed.coordinates),
+    d2 = e1.moving.coordinates.dist(e2.moving.coordinates);
   if (Math.abs(d1 - d2) > 1) return false;
 
   // if (!e1.moving.shape.contains(new Segment(e1.moving, e2.moving))) return false;
 
   if (e1.fixed.type != 'grid' && e2.fixed.type != 'grid') {
-    if (e1.fixed.shape.id != e2.fixed.shape.id) return false;
+    if (e1.fixed.shapeId != e2.fixed.shapeId) return false;
     // if (!e1.fixed.shape.contains(new Segment(e1.fixed, e2.fixed))) return false;
   }
 
@@ -90,8 +86,8 @@ function bestPossibility(possibilities) {
  * @param  {Shape} mainShape      La forme principale
  * @return {Object}
  *          {
- *              'rotation': float,  //Rotation à effectuer
- *              'move': Point       //Déplacement à effectuer (après la rotation)
+ *              'rotationAngle': float,     // Rotation à effectuer
+ *              'tranlation': Coordinates   // Déplacement à effectuer (après la rotation)
  *          }
  *
  */
@@ -101,8 +97,8 @@ export function getShapeAdjustment(shapes, mainShape) {
     // tangram = app.environment.name == 'Tangram' && app.silhouette,
     automaticAdjustment = app.settings.get('automaticAdjustment'),
     transformation = {
-      rotation: 0,
-      move: { x: 0, y: 0 },
+      rotationAngle: 0,
+      translation: Coordinates.nullCoordinates,
     };
 
   if (!grid && !automaticAdjustment) return transformation;
@@ -114,8 +110,8 @@ export function getShapeAdjustment(shapes, mainShape) {
   //Générer la liste des points du groupe de formes
   let ptList = [];
   shapes.forEach(s => {
-    ptList.push(...s.allOutlinePoints);
-    if (s.isCenterShown) ptList.push(s.center);
+    ptList.push(...s.points);
+    // if (s.isCenterShown) ptList.push(s.center);
   });
 
   // Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
@@ -133,22 +129,24 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
     let constr = SelectManager.getEmptySelectionConstraints().points;
     constr.canSelect = true;
-    constr.types = ['vertex', 'segmentPoint', 'center'];
-    constr.blacklist = shapes;
+    constr.types = ['vertex', 'divisionPoint', 'center'];
+    constr.blacklist = shapes.map(s => {
+      return { shapeId: s.id };
+    });
     let pts = SelectManager.selectPoint(point, constr, false, true);
     if (pts) {
       pts.forEach(pt => {
         cPtListShape.push({
           fixed: pt,
           moving: point,
-          dist: pt.dist(point),
+          dist: pt.coordinates.dist(point.coordinates),
         });
       });
     }
   });
 
   cPtListBorder = cPtListShape.filter(
-    pt => pt.fixed.type == 'vertex' || pt.fixed.type == 'segmentPoint'
+    pt => pt.fixed.type == 'vertex' || pt.fixed.type == 'divisionPoint'
   );
 
   let possibilities = [];
@@ -190,8 +188,8 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
   }
 
-  if (possibilities.length) {
-    // console.log('2 points de la grille');
+  if (possibilities.length > 0) {
+    console.log('2 points de la grille');
     return bestPossibility(possibilities);
   }
 
@@ -202,7 +200,7 @@ export function getShapeAdjustment(shapes, mainShape) {
         let e1 = cPtListBorder[i],
           e2 = cPtListBorder[j];
         if (checkCompatibility(e1, e2)) {
-          // console.log('2 points');
+          console.log('2 points');
           let t = computeTransformation(e1, e2, shapes, mainShape);
           if (Math.abs(t.rotation) <= maxRotateAngle) {
             possibilities.push(t);
@@ -212,8 +210,8 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
   }
 
-  if (possibilities.length) {
-    // console.log("2 points d'une autre forme");
+  if (possibilities.length > 0) {
+    console.log("2 points d'une autre forme");
     return bestPossibility(possibilities);
   }
 
@@ -229,8 +227,10 @@ export function getShapeAdjustment(shapes, mainShape) {
       }
     }
     if (best) {
-      transformation.move = best.fixed.subCoordinates(best.moving);
-      // console.log('1 point de la grille');
+      transformation.translation = best.fixed.coordinates.substract(
+        best.moving.coordinates
+      );
+      console.log('1 point de la grille');
       return transformation;
     }
   }
@@ -247,13 +247,15 @@ export function getShapeAdjustment(shapes, mainShape) {
       }
     }
     if (best) {
-      transformation.move = best.fixed.subCoordinates(best.moving);
-      // console.log("1 point d'une autre forme");
+      transformation.translation = best.fixed.coordinates.substract(
+        best.moving.coordinates
+      );
+      console.log("1 point d'une autre forme");
       return transformation;
     }
   }
 
-  // console.log('nothing');
+  console.log('nothing');
 
   //Rien n'a été trouvé, aucune transformation à faire.
   return transformation;

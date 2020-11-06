@@ -148,7 +148,7 @@ export class TransformState extends State {
     this.restart();
   }
 
-  draw() {
+  refreshStateUpper() {
     if (this.currentStep == 'show-points') {
       app.workspace.shapes.forEach(s => {
         let points = s.modifiablePoints;

@@ -28,11 +28,13 @@ export class Point {
     coordinates = undefined,
     x = 0,
     y = 0,
-    segmentIds = [],
     shapeId = undefined,
+    idx = undefined,
+    segmentIds = [],
     type = undefined,
     name = undefined,
     ratio = undefined,
+    visible = true,
   }) {
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
@@ -46,15 +48,17 @@ export class Point {
         y: parseFloat(y),
       });
 
-    this.segmentIds = [...segmentIds];
     this.shapeId = shapeId;
     if (this.shapeId !== undefined)
       this.drawingEnvironment.shapes
         .find(s => s.id === this.shapeId)
         .pointIds.push(this.id);
+    this.idx = idx;
+    this.segmentIds = [...segmentIds];
     this.type = type;
     this.name = name;
     if (this.ratio !== undefined) this.ratio = parseFloat(ratio);
+    this.visible = visible;
   }
 
   get shape() {
@@ -113,44 +117,6 @@ export class Point {
     this.x = newX;
     this.y = newY;
     return this.copy();
-  }
-
-  /**
-   * Same as rotate but doesn't modify this
-   * @param {*} angle
-   * @param {*} center
-   */
-  getRotated(angle, center = { x: 0, y: 0 }) {
-    let s = Math.sin(angle),
-      c = Math.cos(angle),
-      x = this.x - center.x,
-      y = this.y - center.y,
-      newX = x * c - y * s + center.x,
-      newY = x * s + y * c + center.y,
-      newPoint = this.copy();
-    newPoint.setCoordinates({ x: newX, y: newY });
-    return newPoint;
-  }
-
-  /**
-   * Renvoie l'angle (en radians) entre la droite reliant this et point, et l'axe
-   * horizontal passant par this.
-   * @param  {Point} point    Le second point
-   * @return {float}          L'angle, en radians. L'angle renvoyé est dans
-   *                              l'intervalle [0, 2PI[
-   */
-  getAngle(point) {
-    let pt = {
-      x: point.x - this.x,
-      y: point.y - this.y,
-    };
-    //Trouver l'angle de pt par rapport à (0,0)
-    // https://en.wikipedia.org/wiki/Atan2 -> voir image en haut à droite,
-    //  sachant qu'ici l'axe des y est inversé.
-    let angle = Math.atan2(pt.y, pt.x);
-    if (angle < 0) angle += 2 * Math.PI;
-    if (2 * Math.PI - angle < 0.00001) angle = 0;
-    return angle;
   }
 
   computeTransformConstraint() {

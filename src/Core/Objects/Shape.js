@@ -34,7 +34,7 @@ export class Shape {
    */
   constructor({
     id = uniqId(),
-    drawingEnvironment = app.workspace,
+    drawingEnvironment,
     path = undefined,
     segmentIds = [],
     pointIds = [],
@@ -99,7 +99,6 @@ export class Shape {
   }
 
   get vertexes() {
-    console.log(this.points);
     let vertexes = this.points.filter(pt => pt.type === 'vertex');
     return vertexes;
   }
@@ -124,31 +123,47 @@ export class Shape {
     return points;
   }
 
-  get center() {
+  get centerCoordinates() {
     if (this.isCircle()) {
       const center = this.segments[0].arcCenter;
-      return new Point(center.x, center.y, 'center', undefined, this);
+      return new Coordinates(center.coordinates);
     } else {
-      let total = {
-        sumX: 0,
-        sumY: 0,
-        amount: 0,
-      };
+      let totalCoordinates = Coordinates.nullCoordinates;
       this.vertexes.forEach(vertex => {
-        total.sumX += vertex.x;
-        total.sumY += vertex.y;
-        total.amount++;
+        totalCoordinates = totalCoordinates.add(vertex.coordinates);
       });
-
-      return new Point(
-        total.sumX / total.amount,
-        total.sumY / total.amount,
-        'center',
-        undefined,
-        this
+      let averageCoordinates = totalCoordinates.multiply(
+        1 / this.vertexes.length
       );
+      return averageCoordinates;
     }
   }
+
+  // get center() {
+  //   if (this.isCircle()) {
+  //     const center = this.segments[0].arcCenter;
+  //     return new Point(center.x, center.y, 'center', undefined, this);
+  //   } else {
+  //     let total = {
+  //       sumX: 0,
+  //       sumY: 0,
+  //       amount: 0,
+  //     };
+  //     this.vertexes.forEach(vertex => {
+  //       total.sumX += vertex.x;
+  //       total.sumY += vertex.y;
+  //       total.amount++;
+  //     });
+
+  //     return new Point(
+  //       total.sumX / total.amount,
+  //       total.sumY / total.amount,
+  //       'center',
+  //       undefined,
+  //       this
+  //     );
+  //   }
+  // }
 
   setSegmentsFromPath(path) {
     const allPathElements = path
@@ -157,6 +172,7 @@ export class Shape {
     let firstVertex, lastVertex, startVertex;
 
     let segmentIdx = 0;
+    let vertexIdx = 0;
 
     this.pointIds = [];
     this.segmentIds = [];
@@ -164,9 +180,10 @@ export class Shape {
     startVertex = lastVertex = new Point({
       x: 0,
       y: 0,
-      drawingEnvironment: this.drawingEnvironment,
       shapeId: this.id,
+      drawingEnvironment: this.drawingEnvironment,
       type: 'vertex',
+      idx: vertexIdx++,
     });
 
     while (allPathElements.length) {
@@ -178,9 +195,10 @@ export class Shape {
           lastVertex = lastVertex = new Point({
             x: allPathElements.shift(),
             y: allPathElements.shift(),
-            drawingEnvironment: this.drawingEnvironment,
             shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
             type: 'vertex',
+            idx: vertexIdx++,
           });
           startVertex = lastVertex;
           break;
@@ -191,9 +209,10 @@ export class Shape {
           lastVertex = new Point({
             x: allPathElements.shift(),
             y: allPathElements.shift(),
-            drawingEnvironment: this.drawingEnvironment,
             shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
             type: 'vertex',
+            idx: vertexIdx++,
           });
           new Segment({
             shapeId: this.id,
@@ -209,9 +228,10 @@ export class Shape {
           lastVertex = new Point({
             x: allPathElements.shift(),
             y: firstVertex.y,
-            drawingEnvironment: this.drawingEnvironment,
             shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
             type: 'vertex',
+            idx: vertexIdx++,
           });
           new Segment({
             shapeId: this.id,
@@ -227,9 +247,10 @@ export class Shape {
           lastVertex = new Point({
             x: firstVertex.x,
             y: allPathElements.shift(),
-            drawingEnvironment: this.drawingEnvironment,
             shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
             type: 'vertex',
+            idx: vertexIdx++,
           });
           new Segment({
             shapeId: this.id,
@@ -677,8 +698,9 @@ export class Shape {
   }
 
   rotate(angle, center) {
-    // this.angle = (this.angle + angle) % (2 * Math.PI);
-    this.segments.forEach(seg => seg.rotate(angle, center));
+    this.points.forEach(
+      pt => (pt.coordinates = pt.coordinates.rotate(angle, center))
+    );
   }
 
   applyTransform(pointSelected, pointDest, pointDest2) {

@@ -318,7 +318,7 @@ export class MergeState extends State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  draw() {
+  refreshStateUpper() {
     if (this.currentStep == 'selecting-second-shape') {
       const shape = this.firstShape,
         borderColor = shape.borderColor;
