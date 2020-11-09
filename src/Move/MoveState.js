@@ -3,6 +3,8 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { DrawingEnvironment } from '../Core/Objects/DrawingEnvironment';
+import { Shape } from '../Core/Objects/Shape';
 
 /**
  * Déplacer une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -79,7 +81,7 @@ export class MoveState extends State {
   end() {
     window.cancelAnimationFrame(this.requestAnimFrameId);
     this.currentStep = 'listen-canvas-click';
-    app.workspace.editingShapesIds = [];
+    app.mainDrawingEnvironment.editingShapeIds = [];
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('canvasmouseup', this.mouseUpId);
   }
@@ -107,8 +109,21 @@ export class MoveState extends State {
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+    this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
-    app.workspace.editingShapesIds = this.involvedShapes.map(s => s.id);
+    this.drawingShapes = this.involvedShapes.map(
+      s =>
+        new Shape({
+          ...s,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: s.getSVGPath(),
+          id: undefined,
+        })
+    );
+
+    app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
+      s => s.id
+    );
     this.currentStep = 'moving-shape';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -118,38 +133,18 @@ export class MoveState extends State {
   onMouseUp() {
     if (this.currentStep != 'moving-shape') return;
 
-    const translation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
+    const translation = app.workspace.lastKnownMouseCoordinates.substract(
       this.startClickCoordinates
     );
-    this.involvedShapes.forEach(shape => {
-      shape.coordinates = shape.coordinates.addCoordinates(translation);
-    });
-    const transformation = getShapeAdjustment(
-      this.involvedShapes,
-      this.selectedShape
-    );
-    this.involvedShapes.forEach(shape => {
-      shape.coordinates = shape.coordinates.subCoordinates(translation);
-    });
 
     this.actions = [
       {
         name: 'MoveAction',
         shapeId: this.selectedShape.id,
         involvedShapesIds: this.involvedShapes.map(s => s.id),
-        transformation: translation.addCoordinates(transformation.move),
+        translation: translation,
       },
     ];
-
-    if (transformation.rotation != 0) {
-      let rotateAction = {
-        name: 'RotateAction',
-        shapeId: this.selectedShape.id,
-        involvedShapesIds: this.involvedShapes.map(s => s.id),
-        rotationAngle: transformation.rotation,
-      };
-      this.actions.push(rotateAction);
-    }
 
     this.executeAction();
     this.restart();
@@ -161,20 +156,16 @@ export class MoveState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (this.currentStep != 'moving-shape') return;
+    if (this.currentStep != 'moving-shape') {
+      app.upperDrawingEnvironment.removeAllObjects();
+    } else {
+      let transformation = app.workspace.lastKnownMouseCoordinates.substract(
+        this.lastKnownMouseCoordinates
+      );
 
-    let transformation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
-      this.startClickCoordinates
-    );
+      this.drawingShapes.forEach(s => s.translate(transformation));
 
-    window.dispatchEvent(
-      new CustomEvent('draw-group', {
-        detail: {
-          involvedShapes: this.involvedShapes,
-          functionCalledBeforeDraw: s => s.translate(transformation),
-          functionCalledAfterDraw: s => s.translate(transformation, true),
-        },
-      })
-    );
+      this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
+    }
   }
 }

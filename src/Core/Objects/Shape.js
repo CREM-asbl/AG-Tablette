@@ -525,30 +525,29 @@ export class Shape {
   }
 
   /**
-   * Vérifie si un point est à l'intérieur de la forme ou non
-   * @param  {Point}  point le point
+   * Vérifie si une coordonnée est à l'intérieur de la forme ou non
+   * @param  {Coordinates}  coord  les coordonnées
    */
-  isPointInPath(point) {
-    const ctx = app.invisibleCtx;
-    let pointCopy = new Point(point);
-    pointCopy.setToCanvasCoordinates();
+  isCoordinatesInPath(coord) {
+    const ctx = app.invisibleDrawingEnvironment.ctx;
+    let canvasCoord = coord.toCanvasCoordinates();
     const selected = ctx.isPointInPath(
       new Path2D(this.getSVGPath()),
-      pointCopy.x,
-      pointCopy.y
+      canvasCoord.x,
+      canvasCoord.y
     );
     return selected;
   }
 
   isSegmentInside(segment) {
     return (
-      this.isPointInPath(segment.vertexes[0]) &&
-      this.isPointInPath(segment.vertexes[1]) &&
+      this.isCoordinatesInPath(segment.vertexes[0]) &&
+      this.isCoordinatesInPath(segment.vertexes[1]) &&
       (!(
         this.isPointInBorder(segment.vertexes[0]) &&
         this.isPointInBorder(segment.vertexes[1])
       ) ||
-        (this.isPointInPath(segment.middle) &&
+        (this.isCoordinatesInPath(segment.middle) &&
           !this.isPointInBorder(segment.middle)))
     );
   }
@@ -562,7 +561,7 @@ export class Shape {
    * @param {Shape} shape l'autre forme
    */
   isInside(shape) {
-    return this.allOutlinePoints.every(pt => shape.isPointInPath(pt));
+    return this.allOutlinePoints.every(pt => shape.isCoordinatesInPath(pt));
   }
 
   /**
@@ -620,8 +619,8 @@ export class Shape {
     if (
       vertexes_to_check.some(
         (pt, idx) =>
-          shape.isPointInPath(pt) &&
-          shape.isPointInPath(middles_to_check[idx]) &&
+          shape.isCoordinatesInPath(pt) &&
+          shape.isCoordinatesInPath(middles_to_check[idx]) &&
           !shape.isPointInBorder(middles_to_check[idx])
       )
     ) {

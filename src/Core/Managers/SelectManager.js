@@ -205,7 +205,9 @@ export class SelectManager {
     let notHiddenPoints = constrainedPoints;
     if (constraints.blockHidden) {
       notHiddenPoints = [];
-      const shapes = ShapeManager.shapesThatContainsPoint(mouseCoordinates);
+      const shapes = ShapeManager.shapesThatContainsCoordinates(
+        mouseCoordinates
+      );
       constrainedPoints.forEach(pt => {
         let shapeIndex = ShapeManager.getShapeIndex(pt.shape);
         if (
@@ -342,7 +344,9 @@ export class SelectManager {
   static selectShape(mouseCoordinates, constraints) {
     if (!constraints.canSelect) return null;
 
-    let shapes = ShapeManager.shapesThatContainsPoint(mouseCoordinates);
+    let shapes = ShapeManager.shapesThatContainsCoordinates(mouseCoordinates);
+
+    console.trace(shapes);
 
     if (constraints.whitelist != null) {
       shapes = shapes.filter(shape => {

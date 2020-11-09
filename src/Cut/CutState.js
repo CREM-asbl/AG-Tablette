@@ -253,7 +253,7 @@ export class CutState extends State {
       pointsInBorder = 0;
     for (let i = 1; i < amountOfParts; i++) {
       let pt = pt1.addCoordinates(part.multiplyWithScalar(i, false));
-      if (!shape.isPointInPath(pt)) return false;
+      if (!shape.isCoordinatesInPath(pt)) return false;
       pointsInBorder += shape.isPointInBorder(pt) ? 1 : 0;
     }
     if (pointsInBorder > amountOfParts / 5) return false;

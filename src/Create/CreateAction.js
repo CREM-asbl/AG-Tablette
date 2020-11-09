@@ -60,27 +60,8 @@ export class CreateAction extends Action {
     shape.translate(this.coordinates.substract(shape.vertexes[0]));
 
     let transformation = getShapeAdjustment([shape], shape);
-    console.log(transformation);
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
     shape.translate(transformation.translation);
-    // if (transformation.rotation != 0) {
-    //   let rotateAction = {
-    //     name: 'RotateAction',
-    //     shapeId: this.shapeToCreate.id,
-    //     involvedShapesIds: involvedShapes.map(s => s.id),
-    //     rotationAngle: transformation.rotation,
-    //   };
-    //   this.actions.push(rotateAction);
-    // }
-    // if (transformation.move.x != 0 || transformation.move.y != 0) {
-    //   let moveAction = {
-    //     name: 'MoveAction',
-    //     shapeId: this.shapeToCreate.id,
-    //     involvedShapesIds: involvedShapes.map(s => s.id),
-    //     transformation: transformation.move,
-    //   };
-    //   this.actions.push(moveAction);
-    // }
   }
 
   /**

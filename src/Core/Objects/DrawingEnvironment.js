@@ -13,6 +13,8 @@ export class DrawingEnvironment {
     this.segments = [];
     this.points = [];
 
+    this.editingShapeIds = [];
+
     this.mustDrawShapes = true;
     this.mustDrawSegments = true;
     this.mustDrawPoints = true;
@@ -38,11 +40,13 @@ export class DrawingEnvironment {
 
   draw() {
     if (this.mustDrawShapes) {
-      this.shapes.forEach(s =>
-        window.dispatchEvent(
-          new CustomEvent('draw-shape', { detail: { shape: s } })
-        )
-      );
+      this.shapes.forEach(s => {
+        if (this.editingShapeIds.findIndex(id => s.id == id) == -1) {
+          window.dispatchEvent(
+            new CustomEvent('draw-shape', { detail: { shape: s } })
+          );
+        }
+      });
     }
     if (this.mustDrawPoints) {
       this.points.forEach(pt =>
