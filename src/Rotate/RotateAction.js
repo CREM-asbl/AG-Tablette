@@ -1,5 +1,6 @@
 import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 export class RotateAction extends Action {
   constructor() {
@@ -52,12 +53,21 @@ export class RotateAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape = ShapeManager.getShapeById(this.shapeId),
-      center = shape.center;
-
-    this.involvedShapesIds.forEach(id => {
+    let involvedShape = this.involvedShapesIds.map(id => {
       let s = ShapeManager.getShapeById(id);
+      return s;
+    });
+    let shape = ShapeManager.getShapeById(this.shapeId),
+      center = shape.centerCoordinates;
+
+    involvedShape.forEach(s => {
       s.rotate(this.rotationAngle, center);
+    });
+
+    let transformation = getShapeAdjustment(involvedShape, shape);
+    involvedShape.forEach(s => {
+      shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
+      shape.translate(transformation.translation);
     });
   }
 

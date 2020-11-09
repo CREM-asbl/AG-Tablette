@@ -2,6 +2,8 @@ import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Point } from '../Core/Objects/Point';
+import { Shape } from '../Core/Objects/Shape';
 
 /**
  * Tourner une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -81,7 +83,7 @@ export class RotateState extends State {
   end() {
     window.cancelAnimationFrame(this.requestAnimFrameId);
     this.currentStep = 'listen-canvas-click';
-    app.workspace.editingShapesIds = [];
+    app.mainDrawingEnvironment.editingShapeIds = [];
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('canvasmouseup', this.mouseUpId);
   }
@@ -108,11 +110,33 @@ export class RotateState extends State {
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
-    this.initialAngle = shape.center.getAngle(
+    this.center = shape.centerCoordinates;
+    this.initialAngle = this.center.angleWith(
       app.workspace.lastKnownMouseCoordinates
     );
+    this.lastAngle = this.initialAngle;
 
-    app.workspace.editingShapesIds = this.involvedShapes.map(s => s.id);
+    this.drawingShapes = this.involvedShapes.map(
+      s =>
+        new Shape({
+          ...s,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: s.getSVGPath(),
+          id: undefined,
+        })
+    );
+
+    console.log(this.center, (this.initialAngle * 180) / Math.PI);
+
+    new Point({
+      coordinates: this.center,
+      drawingEnvironment: app.upperDrawingEnvironment,
+      color: this.drawColor,
+    });
+
+    app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
+      s => s.id
+    );
     this.currentStep = 'rotating-shape';
     this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -122,7 +146,7 @@ export class RotateState extends State {
   onMouseUp() {
     if (this.currentStep != 'rotating-shape') return;
 
-    let newAngle = this.selectedShape.center.getAngle(
+    let newAngle = this.center.angleWith(
       app.workspace.lastKnownMouseCoordinates
     );
     let rotationAngle = newAngle - this.initialAngle;
@@ -170,31 +194,17 @@ export class RotateState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (this.currentStep != 'rotating-shape') return;
+    if (this.currentStep != 'rotating-shape') {
+      app.upperDrawingEnvironment.removeAllObjects();
+    } else {
+      let newAngle = this.center.angleWith(
+          app.workspace.lastKnownMouseCoordinates
+        ),
+        diffAngle = newAngle - this.lastAngle;
 
-    let center = this.selectedShape.center;
-    let newAngle = center.getAngle(app.workspace.lastKnownMouseCoordinates),
-      diffAngle = newAngle - this.initialAngle;
+      this.drawingShapes.forEach(s => s.rotate(diffAngle, this.center));
 
-    window.dispatchEvent(
-      new CustomEvent('draw-group', {
-        detail: {
-          involvedShapes: this.involvedShapes,
-          functionCalledBeforeDraw: s => {
-            s.rotate(diffAngle, center);
-          },
-          functionCalledAfterDraw: s => {
-            s.rotate(-diffAngle, center);
-          },
-        },
-      })
-    );
-
-    //Dessiner le centre de symétrie
-    window.dispatchEvent(
-      new CustomEvent('draw-point', {
-        detail: { point: center, color: this.drawColor },
-      })
-    );
+      this.lastAngle = newAngle;
+    }
   }
 }

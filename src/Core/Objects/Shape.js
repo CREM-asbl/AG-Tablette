@@ -177,14 +177,41 @@ export class Shape {
     this.pointIds = [];
     this.segmentIds = [];
 
-    startVertex = lastVertex = new Point({
-      x: 0,
-      y: 0,
-      shapeId: this.id,
-      drawingEnvironment: this.drawingEnvironment,
-      type: 'vertex',
-      idx: vertexIdx++,
-    });
+    let createLineTo = (x, y) => {
+      let coordinates = new Coordinates({ x, y });
+      firstVertex = lastVertex;
+      if (this.contains(coordinates)) {
+        lastVertex = this.points.find(
+          pt =>
+            pt.coordinates.x == coordinates.x &&
+            pt.coordinates.y == coordinates.y
+        );
+      } else {
+        lastVertex = new Point({
+          coordinates: coordinates,
+          shapeId: this.id,
+          drawingEnvironment: this.drawingEnvironment,
+          type: 'vertex',
+          idx: vertexIdx++,
+        });
+      }
+      new Segment({
+        shapeId: this.id,
+        drawingEnvironment: this.drawingEnvironment,
+        idx: segmentIdx++,
+        vertexIds: [firstVertex.id, lastVertex.id],
+      });
+    };
+
+    if (allPathElements[0] != 'M')
+      startVertex = lastVertex = new Point({
+        x: 0,
+        y: 0,
+        shapeId: this.id,
+        drawingEnvironment: this.drawingEnvironment,
+        type: 'vertex',
+        idx: vertexIdx++,
+      });
 
     while (allPathElements.length) {
       const element = allPathElements.shift();
@@ -192,72 +219,40 @@ export class Shape {
       switch (element) {
         case 'M':
         case 'm':
-          lastVertex = lastVertex = new Point({
+          let coordinates = new Coordinates({
             x: allPathElements.shift(),
             y: allPathElements.shift(),
-            shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
-            type: 'vertex',
-            idx: vertexIdx++,
           });
-          startVertex = lastVertex;
+          if (this.contains(coordinates)) {
+            startVertex = lastVertex = this.points.find(
+              pt =>
+                pt.coordinates.x == coordinates.x &&
+                pt.coordinates.y == coordinates.y
+            );
+          } else {
+            startVertex = lastVertex = new Point({
+              coordinates: coordinates,
+              shapeId: this.id,
+              drawingEnvironment: this.drawingEnvironment,
+              type: 'vertex',
+              idx: vertexIdx++,
+            });
+          }
           break;
 
         case 'L':
         case 'l':
-          firstVertex = lastVertex;
-          lastVertex = new Point({
-            x: allPathElements.shift(),
-            y: allPathElements.shift(),
-            shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
-            type: 'vertex',
-            idx: vertexIdx++,
-          });
-          new Segment({
-            shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
-            idx: segmentIdx++,
-            vertexIds: [firstVertex.id, lastVertex.id],
-          });
+          createLineTo(allPathElements.shift(), allPathElements.shift());
           break;
 
         case 'H':
         case 'h':
-          firstVertex = lastVertex;
-          lastVertex = new Point({
-            x: allPathElements.shift(),
-            y: firstVertex.y,
-            shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
-            type: 'vertex',
-            idx: vertexIdx++,
-          });
-          new Segment({
-            shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
-            idx: segmentIdx++,
-            vertexIds: [firstVertex.id, lastVertex.id],
-          });
+          createLineTo(allPathElements.shift(), lastVertex.y);
           break;
 
         case 'V':
         case 'v':
-          firstVertex = lastVertex;
-          lastVertex = new Point({
-            x: firstVertex.x,
-            y: allPathElements.shift(),
-            shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
-            type: 'vertex',
-            idx: vertexIdx++,
-          });
-          new Segment({
-            shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
-            idx: segmentIdx++,
-            vertexIds: [firstVertex.id, lastVertex.id],
-          });
+          createLineTo(lastVertex.x, allPathElements.shift());
           break;
 
         // case 'A':
@@ -305,14 +300,7 @@ export class Shape {
 
         case 'Z':
         case 'z':
-          firstVertex = lastVertex;
-          lastVertex = startVertex;
-          new Segment({
-            shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
-            idx: segmentIdx++,
-            vertexIds: [firstVertex.id, lastVertex.id],
-          });
+          createLineTo(startVertex.x, startVertex.y);
           break;
 
         default:
@@ -508,6 +496,10 @@ export class Shape {
       return false;
     } else if (object instanceof Segment) {
       if (this.segments.some(segment => segment.equal(object))) return true;
+      return false;
+    } else if (object instanceof Coordinates) {
+      if (this.points.some(pt => pt.coordinates.equal(object))) return true;
+      // if (this.isCenterShown && this.center.equal(object)) return true;
       return false;
     } else {
       console.alert('unsupported object');

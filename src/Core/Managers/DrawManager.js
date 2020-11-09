@@ -252,7 +252,14 @@ export class DrawManager {
    * @param  {Number}     [size=1]       Taille du point
    * @param  {Boolean}    [doSave=true]  Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  static drawPoint(ctx, point, color = '#000', size = 1, doSave = true) {
+  static drawPoint(
+    drawingEnvironment,
+    point,
+    color = '#000',
+    size = 1,
+    doSave = true
+  ) {
+    let ctx = drawingEnvironment.ctx;
     if (doSave) ctx.save();
 
     ctx.fillStyle = color;
@@ -363,7 +370,6 @@ window.addEventListener('draw-line', event => {
 });
 window.addEventListener('draw-point', event => {
   const drawingEnvironment = event.detail.point.drawingEnvironment;
-  console.log(point);
   DrawManager.drawPoint(
     drawingEnvironment,
     event.detail.point,

@@ -59,6 +59,8 @@ export class CreateAction extends Action {
     shape.scale(this.shapeSize);
     shape.translate(this.coordinates.substract(shape.vertexes[0]));
 
+    console.log(shape.points, shape.segments);
+
     let transformation = getShapeAdjustment([shape], shape);
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
     shape.translate(transformation.translation);

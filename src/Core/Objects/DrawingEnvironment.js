@@ -51,7 +51,9 @@ export class DrawingEnvironment {
     if (this.mustDrawPoints) {
       this.points.forEach(pt =>
         window.dispatchEvent(
-          new CustomEvent('draw-points', { detail: { point: pt } })
+          new CustomEvent('draw-point', {
+            detail: { point: pt, color: pt.color },
+          })
         )
       );
     }

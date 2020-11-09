@@ -202,7 +202,7 @@ export function getShapeAdjustment(shapes, mainShape) {
         if (checkCompatibility(e1, e2)) {
           console.log('2 points');
           let t = computeTransformation(e1, e2, shapes, mainShape);
-          if (Math.abs(t.rotation) <= maxRotateAngle) {
+          if (Math.abs(t.rotationAngle) <= maxRotateAngle) {
             possibilities.push(t);
           }
         }
