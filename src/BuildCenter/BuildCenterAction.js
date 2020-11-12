@@ -38,6 +38,7 @@ export class BuildCenterAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let shape = ShapeManager.getShapeById(this.shapeId);
+    console.log(shape.isCenterShown);
     shape.isCenterShown = !shape.isCenterShown;
   }
 

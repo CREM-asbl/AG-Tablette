@@ -45,7 +45,7 @@ export class Shape {
     opacity = 0.7,
     size = 2,
     borderColor = '#000',
-    isCenterShown = undefined,
+    _isCenterShown = undefined,
     isReversed = false,
     isBiface = false,
     geometryConstructionSpec = null, // à enlever (recalculer si besoin)
@@ -71,8 +71,8 @@ export class Shape {
     this.opacity = parseFloat(opacity);
     this.size = parseInt(size);
     this.borderColor = borderColor;
-    if (isCenterShown === undefined) this.isCenterShown = this.isCircle();
-    else this.isCenterShown = isCenterShown;
+    if (_isCenterShown === undefined) this._isCenterShown = this.isCircle();
+    else this._isCenterShown = _isCenterShown;
     this.isReversed = isReversed;
     this.isBiface = isBiface;
     this.geometryConstructionSpec = geometryConstructionSpec;
@@ -141,31 +141,29 @@ export class Shape {
     }
   }
 
-  // get center() {
-  //   if (this.isCircle()) {
-  //     const center = this.segments[0].arcCenter;
-  //     return new Point(center.x, center.y, 'center', undefined, this);
-  //   } else {
-  //     let total = {
-  //       sumX: 0,
-  //       sumY: 0,
-  //       amount: 0,
-  //     };
-  //     this.vertexes.forEach(vertex => {
-  //       total.sumX += vertex.x;
-  //       total.sumY += vertex.y;
-  //       total.amount++;
-  //     });
+  get isCenterShown() {
+    let isCenterShown = this._isCenterShown;
+    return isCenterShown;
+  }
 
-  //     return new Point(
-  //       total.sumX / total.amount,
-  //       total.sumY / total.amount,
-  //       'center',
-  //       undefined,
-  //       this
-  //     );
-  //   }
-  // }
+  set isCenterShown(value) {
+    if (value && !this.isCenterShown) {
+      let centerCoordinates = this.centerCoordinates;
+      new Point({
+        coordinates: centerCoordinates,
+        shapeId: this.id,
+        drawingEnvironment: this.drawingEnvironment,
+        type: 'center',
+        // visible: this.isPointed,
+      });
+    } else if (!value && this.isCenterShown) {
+      let pointId = this.points.find(pt => pt.type == 'center').id;
+      this.drawingEnvironment.removeObjectById(pointId, 'point');
+      let index = this.pointIds.findIndex(pt => pt.id == pointId);
+      this.pointIds.splice(index, 1);
+    }
+    this._isCenterShown = value;
+  }
 
   setSegmentsFromPath(path) {
     const allPathElements = path
