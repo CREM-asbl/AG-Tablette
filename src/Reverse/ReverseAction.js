@@ -10,7 +10,7 @@ export class ReverseAction extends Action {
     //L'id de la forme que l'on tourne
     this.shapeId = null;
 
-    this.axe = null;
+    this.axis = null;
 
     /*
         Liste des formes solidaires à la la forme que l'on déplace, y compris
@@ -26,7 +26,11 @@ export class ReverseAction extends Action {
   initFromObject(save) {
     this.shapeId = save.shapeId;
     this.involvedShapesIds = save.involvedShapesIds;
-    if (save.axe) {
+    if (save.selectedAxisId) {
+      this.axis = app.upperDrawingEnvironment.segments.find(
+        seg => seg.id == save.selectedAxisId
+      );
+    } else if (save.axe) {
       this.axe = new Segment();
       this.axe.initFromObject(save.axe);
       this.shapesPos = save.shapesPos;
@@ -59,7 +63,7 @@ export class ReverseAction extends Action {
   checkDoParameters() {
     if (
       !this.shapeId ||
-      !this.axe ||
+      !this.axis ||
       !this.involvedShapesIds ||
       !this.shapesPos
     ) {
@@ -84,11 +88,11 @@ export class ReverseAction extends Action {
 
     this.involvedShapesIds.forEach(id => {
       let s = ShapeManager.getShapeById(id);
-      this.reverseShape(s, this.axe, 1);
-      s.setGeometryConstructionSpec();
+      this.reverseShape(s);
+      // s.setGeometryConstructionSpec();
     });
-    ShapeManager.moveShapesUp(this.shapesPos);
-    ShapeManager.reverseUpperShapes(this.shapesPos.length);
+    // ShapeManager.moveShapesUp(this.shapesPos);
+    // ShapeManager.reverseUpperShapes(this.shapesPos.length);
   }
 
   /**
@@ -108,23 +112,13 @@ export class ReverseAction extends Action {
   /**
    * Retourne une forme
    * @param  {Shape} shape       la forme à retourner
-   * @param  {Object} axe        L'axe de symétrie à utiliser
    */
-  reverseShape(shape, axe) {
+  reverseShape(shape) {
     shape.isReversed = !shape.isReversed;
     shape.reverse();
 
-    shape.segments.forEach(seg => {
-      let points = [
-        ...seg.vertexes,
-        ...seg.points,
-        seg.arcCenter,
-        seg.tangentPoint1,
-        seg.tangentPoint2,
-      ];
-      points.forEach(pt => {
-        if (pt) this.computePointPosition(pt, axe);
-      });
+    shape.points.forEach(pt => {
+      this.computePointPosition(pt);
     });
   }
 
@@ -134,14 +128,13 @@ export class ReverseAction extends Action {
    * @param  {Object} axe      L'axe de symétrie
    * @return {Point}          Nouvelles coordonnées
    */
-  computePointPosition(point, axe) {
-    let center = axe.projectionOnSegment(point);
+  computePointPosition(point) {
+    let center = this.axis.projectionOnSegment(point);
 
     //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
-    point.setCoordinates({
-      x: point.x + 2 * (center.x - point.x),
-      y: point.y + 2 * (center.y - point.y),
-    });
+    point.coordinates = point.coordinates.add(
+      center.substract(point.coordinates).multiply(2)
+    );
   }
 
   // for update history from 1.0.0

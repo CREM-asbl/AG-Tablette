@@ -90,9 +90,13 @@ export class ShapeManager {
    * plus en arrière.
    * @param {Coordinates} coord
    */
-  static shapesThatContainsCoordinates(coord) {
-    let list = app.mainDrawingEnvironment.shapes.filter(
-      shape => shape.isCoordinatesInPath(coord) || shape.isPointOnSegment(coord)
+  static shapesThatContainsCoordinates(coord, constraints) {
+    let allShapes = [...app.mainDrawingEnvironment.shapes];
+    if (constraints.canSelectFromUpper)
+      allShapes.push(...app.upperDrawingEnvironment.shapes);
+    let list = allShapes.filter(
+      shape =>
+        shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnSegment(coord)
     );
     list.reverse();
     return list;

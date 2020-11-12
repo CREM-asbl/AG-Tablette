@@ -45,6 +45,7 @@ export class SelectManager {
       //du + au - prioritaire. Les 3 valeurs doivent se retrouver dans le tableau.
       priority: ['points', 'segments', 'shapes'],
       blockHidden: false,
+      canSelectFromUpper: false,
       shapes: {
         canSelect: false,
         // Liste de Shape. La forme doit être dans ce tableau s'il est non null
@@ -56,10 +57,10 @@ export class SelectManager {
         canSelect: false,
         /*
                 Liste pouvant contenir différents éléments:
-                    - Shape. Le segment doit faire partie de cette forme ;
-                    - {'shape': Shape, 'index': int}. Le segment doit faire
-                      partie de cette forme et doit avoir l'index index (dans
-                      buildSteps).
+                    - {'shapeId': shapeId}
+                      Le segment doit faire partie de cette forme.
+                    - {'shapeId': shapeId, 'index': int}
+                      Le segment doit être le segment n° index de la forme
                 Si tableau non null, le segment doit satisfaire au moins un des
                 élements de cette liste.
                  */
@@ -131,7 +132,10 @@ export class SelectManager {
 
     // all points at the correct distance
     let potentialPoints = [];
-    app.mainDrawingEnvironment.points.forEach(pt => {
+    let allPoints = [...app.mainDrawingEnvironment.points];
+    if (constraints.canSelectFromUpper)
+      allPoints.push(...app.upperDrawingEnvironment.points);
+    allPoints.forEach(pt => {
       if (pt.visible) {
         if (
           constraints.types.includes(pt.type) &&
@@ -233,51 +237,36 @@ export class SelectManager {
     return bestPoint;
   }
 
-  /**
-   * Essaie de sélectionner un segment, en fonction des contraintes données.
-   * Renvoie null si pas de segment.
-   * @param  {Point} mouseCoordinates
-   * @param  {Object} constraints      Contraintes. Voir selectionConstraints.segments.
-   * @return {Segment}
-   */
   static selectSegment(mouseCoordinates, constraints) {
     if (!constraints.canSelect) return null;
 
     // all segments at the correct distance
     let potentialSegments = [];
-    app.workspace.shapes.forEach(shape => {
-      shape.segments
-        .filter(segment => {
-          const projection = segment.projectionOnSegment(mouseCoordinates);
-          return (
-            segment.isPointOnSegment(projection) &&
-            SelectManager.arePointsInSelectionDistance(
-              projection,
-              mouseCoordinates
-            )
-          );
-        })
-        .forEach(segment => {
-          potentialSegments.push({
-            segment: segment,
-            dist: segment
-              .projectionOnSegment(mouseCoordinates)
-              .dist(mouseCoordinates),
-          });
+    let allSegments = [...app.mainDrawingEnvironment.segments];
+    if (constraints.canSelectFromUpper)
+      allSegments.push(...app.upperDrawingEnvironment.segments);
+    allSegments.forEach(seg => {
+      const projection = seg.projectionOnSegment(mouseCoordinates);
+      if (
+        seg.isCoordinatesOnSegment(projection) &&
+        SelectManager.arePointsInSelectionDistance(projection, mouseCoordinates)
+      ) {
+        potentialSegments.push({
+          segment: seg,
+          dist: projection.dist(mouseCoordinates),
         });
+      }
     });
 
     // apply constrains
     const constrainedSegments = potentialSegments.filter(potentialSegment => {
-      const shape = potentialSegment.segment.shape;
+      let segment = potentialSegment.segment;
       if (constraints.whitelist != null) {
         if (
           !constraints.whitelist.some(constr => {
-            if (constr instanceof Shape) return constr.id == shape.id;
-            else {
-              if (constr.shape.id != shape.id) return false;
-              return constr.index == potentialSegment.segment.idx;
-            }
+            if (constr.shapeId != segment.shapeId) return false;
+            if (constr.index !== undefined) return constr.index == segment.idx;
+            return true;
           })
         )
           return false;
@@ -285,11 +274,9 @@ export class SelectManager {
       if (constraints.blacklist != null) {
         if (
           constraints.blacklist.some(constr => {
-            if (constr instanceof Shape) return constr.id == shape.id;
-            else {
-              if (constr.shape.id != shape.id) return false;
-              return constr.index == potentialSegment.segment.idx;
-            }
+            if (constr.shapeId != segment.shapeId) return false;
+            if (constr.index !== undefined) return constr.index == segment.idx;
+            return true;
           })
         )
           return false;
@@ -300,38 +287,20 @@ export class SelectManager {
     // if no possibilities
     if (constrainedSegments.length == 0) return null;
 
-    // sort by distance and height
-    // cree un tableau de type [ [{Point}, {Point}], [{Point}]]
-    // avec meme distance dans meme case
-    let sortedSegments = [];
-    constrainedSegments.forEach(seg => {
-      const dist = seg.dist;
-      for (const key in sortedSegments) {
-        const comparedDist = sortedSegments[key].dist;
-        if (Math.abs(dist - comparedDist) < 0.1) {
-          // 0.1 pour distance égale
-          sortedSegments[key].push(seg);
-          return 'pushed';
-        }
-      }
-      sortedSegments.push([seg]);
-    });
-    // sort by distance
-    sortedSegments.sort((segs1, segs2) => segs1[0].dist - segs2[0].dist);
-    // sort by height
-    sortedSegments.forEach(toSort =>
-      toSort.sort((seg1, seg2) => {
-        ShapeManager.getShapeIndex(seg1.shape) <
-        ShapeManager.getShapeIndex(seg2.shape)
-          ? 1
-          : -1;
-      })
-    );
-
-    const flattedSegments = sortedSegments.flat();
-
     // no possibilities to choose blockHidden constraints
-    return flattedSegments[0].segment;
+
+    let bestSegment = constrainedSegments[0].segment,
+      minDist = constrainedSegments[0].dist;
+    constrainedSegments.forEach(constrainedSegment => {
+      let segment = constrainedSegment.segment;
+      let dist = constrainedSegment.dist;
+      if (dist < minDist) {
+        minDist = dist;
+        bestSegment = segment;
+      }
+    });
+
+    return bestSegment;
   }
 
   /**
@@ -344,9 +313,10 @@ export class SelectManager {
   static selectShape(mouseCoordinates, constraints) {
     if (!constraints.canSelect) return null;
 
-    let shapes = ShapeManager.shapesThatContainsCoordinates(mouseCoordinates);
-
-    console.trace(shapes);
+    let shapes = ShapeManager.shapesThatContainsCoordinates(
+      mouseCoordinates,
+      constraints
+    );
 
     if (constraints.whitelist != null) {
       shapes = shapes.filter(shape => {

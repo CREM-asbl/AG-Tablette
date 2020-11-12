@@ -3,6 +3,7 @@ import { Point } from './Point';
 import { uniqId, mod } from '../Tools/general';
 import { app } from '../App';
 import { Bounds } from './Bounds';
+import { Coordinates } from './Coordinates';
 
 export class Segment {
   /**
@@ -19,7 +20,7 @@ export class Segment {
    */
   constructor({
     id = uniqId(),
-    drawingEnvironment = app.workspace,
+    drawingEnvironment,
     shapeId = undefined,
     idx = undefined,
     vertexIds = [],
@@ -118,7 +119,7 @@ export class Segment {
       console.error('cannot take radius of straight segment ', this);
       return 0;
     }
-    return this.arcCenter.dist(this.vertexes[1]);
+    return this.arcCenter.coordinates.dist(this.vertexes[1].coordinates);
   }
 
   /**
@@ -126,6 +127,7 @@ export class Segment {
    * (segment d'un point/vertex à un autre point/vertex)
    */
   get subSegments() {
+    console.trace();
     let result = [];
     this.allPoints.forEach((point, idx, points) => {
       points.slice(idx + 1).forEach(pt => {
@@ -145,7 +147,7 @@ export class Segment {
   }
 
   get length() {
-    return this.vertexes[0].dist(this.vertexes[1]);
+    return this.vertexes[0].coordinates.dist(this.vertexes[1].coordinates);
   }
 
   get direction() {
@@ -199,7 +201,7 @@ export class Segment {
   }
 
   getAngleWithHorizontal() {
-    return this.vertexes[0].getAngle(this.vertexes[1]);
+    return this.vertexes[0].coordinates.angleWith(this.vertexes[1].coordinates);
   }
 
   /**
@@ -483,6 +485,7 @@ export class Segment {
   /* #################################################################### */
 
   copy(full = true) {
+    console.trace();
     let copy = new Segment(
       this.vertexes[0],
       this.vertexes[1],
@@ -558,6 +561,7 @@ export class Segment {
   }
 
   static retrieveFrom(segment) {
+    console.trace();
     let newSegmentCopy = new Segment();
     newSegmentCopy.initFromObject(segment);
     return newSegmentCopy.shape.segments[newSegmentCopy.idx];
@@ -572,6 +576,7 @@ export class Segment {
    * @param {Point[]} points the points for the divide
    */
   divideWith(points) {
+    console.trace();
     points.sort((pt1, pt2) =>
       pt1.dist(this.vertexes[0]) > pt2.dist(this.vertexes[0]) ? 1 : -1
     );
@@ -591,11 +596,8 @@ export class Segment {
    */
   projectionOnSegment(coordinates) {
     if (this.arcCenter) {
-      const angle = this.arcCenter.getAngle(point),
-        projection = new Point(
-          this.radius * Math.cos(angle) + this.arcCenter.x,
-          this.radius * Math.sin(angle) + this.arcCenter.y
-        );
+      const angle = this.arcCenter.coordinates.angleWith(coordinates);
+      const projection = this.centerProjectionOnSegment(angle);
       return projection;
     } else {
       let proj = null,
@@ -628,6 +630,7 @@ export class Segment {
   }
 
   static segmentWithAnglePassingThroughPoint(angle, point) {
+    console.trace();
     let otherPoint = new Point(
       point.x + Math.cos(angle) * 100,
       point.y + Math.sin(angle) * 100
@@ -655,17 +658,17 @@ export class Segment {
    */
   centerProjectionOnSegment(angle) {
     if (this.arcCenter) {
-      const projection = new Point(
-        this.radius * Math.cos(angle) + this.arcCenter.x,
-        this.radius * Math.sin(angle) + this.arcCenter.y
-      );
+      const projection = this.arcCenter.coordinates.add({
+        x: this.radius * Math.cos(angle),
+        y: this.radius * Math.sin(angle),
+      });
       return projection;
     } else {
       console.trace('no arc passed here');
     }
   }
 
-  isPointOnSegment(point, precision = 0.001) {
+  isCoordinatesOnSegment(point, precision = 0.001) {
     if (this.arcCenter) {
       if (Math.abs(this.arcCenter.dist(point) - this.radius) > precision)
         return false;
@@ -692,8 +695,8 @@ export class Segment {
         );
       } else {
         let segmentLength = this.length,
-          dist1 = this.vertexes[0].dist(point),
-          dist2 = this.vertexes[1].dist(point);
+          dist1 = this.vertexes[0].coordinates.dist(point),
+          dist2 = this.vertexes[1].coordinates.dist(point);
         return dist1 + dist2 - segmentLength < precision;
       }
     }

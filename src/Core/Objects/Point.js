@@ -24,7 +24,7 @@ export class Point {
    */
   constructor({
     id = uniqId(),
-    drawingEnvironment = app.workspace,
+    drawingEnvironment,
     coordinates = undefined,
     x = 0,
     y = 0,
@@ -142,6 +142,8 @@ export class Point {
       if (this.name == 'firstPoint' || this.name == 'secondPoint') {
         constraints.isFree = true;
       } else {
+        console.trace();
+
         constraints.isConstrained = true;
 
         let firstSeg = this.shape.segments[0];

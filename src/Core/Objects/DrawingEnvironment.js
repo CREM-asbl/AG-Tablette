@@ -49,13 +49,50 @@ export class DrawingEnvironment {
       });
     }
     if (this.mustDrawPoints) {
-      this.points.forEach(pt =>
-        window.dispatchEvent(
-          new CustomEvent('draw-point', {
-            detail: { point: pt, color: pt.color },
-          })
-        )
-      );
+      this.points.forEach(pt => {
+        if (pt.visible) {
+          window.dispatchEvent(
+            new CustomEvent('draw-point', {
+              detail: { point: pt, color: pt.color },
+            })
+          );
+        }
+      });
     }
+  }
+
+  /**
+   * find an object in this drawingEnvironment
+   * @param {String} id
+   * @param {String} objectType   'shape', 'segment' or 'point'
+   */
+  findObjectById(id, objectType = 'shape') {
+    let object = this[objectType + 's'].find(obj => obj.id == id);
+    return object;
+  }
+
+  /**
+   * find the index of an object in this drawingEnvironment
+   * @param {String} id
+   * @param {String} objectType   'shape', 'segment' or 'point'
+   */
+  findIndexById(id, objectType = 'shape') {
+    let index = this[objectType + 's'].findIndex(obj => obj.id == id);
+    return index;
+  }
+
+  /**
+   * remove an object from this drawingEnvironment
+   * @param {String} id
+   * @param {String} objectType   'shape', 'segment' or 'point'
+   */
+  removeObjectById(id, objectType = 'shape') {
+    if (objectType == 'shape') {
+      let object = this.findObjectById(id, objectType);
+      object.segments.forEach(seg => this.removeObjectById(seg.id, 'segment'));
+      object.points.forEach(pt => this.removeObjectById(pt.id, 'point'));
+    }
+    let index = this.findIndexById(id, objectType);
+    this[objectType + 's'].splice(index, 1);
   }
 }

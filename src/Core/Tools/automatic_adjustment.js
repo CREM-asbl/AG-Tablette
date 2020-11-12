@@ -64,11 +64,12 @@ function checkCompatibility(e1, e2) {
 
 function bestPossibility(possibilities) {
   const best = possibilities.sort((poss1, poss2) => {
-    const rot1 = Math.abs(poss1.rotation),
-      rot2 = Math.abs(poss2.rotation);
+    const rot1 = Math.abs(poss1.rotationAngle),
+      rot2 = Math.abs(poss2.rotationAngle);
     if (Math.abs(rot1 - rot2) < 0.001)
       // equalité d'angle
-      return poss1.move.dist(new Point(0, 0)) > poss2.move.dist(new Point(0, 0))
+      return poss1.translation.dist(Coordinates.nullCoordinates) >
+        poss2.translation.dist(Coordinates.nullCoordinates)
         ? 1
         : -1;
     else return rot1 - rot2;
@@ -159,7 +160,7 @@ export function getShapeAdjustment(shapes, mainShape) {
           e2 = cPtListGrid[j];
         if (checkCompatibility(e1, e2)) {
           let t = computeTransformation(e1, e2, shapes, mainShape);
-          if (Math.abs(t.rotation) <= maxRotateAngle) {
+          if (Math.abs(t.rotationAngle) <= maxRotateAngle) {
             possibilities.push(t);
           }
         }
@@ -179,7 +180,7 @@ export function getShapeAdjustment(shapes, mainShape) {
             e2 = cPtListBorder[j];
           if (checkCompatibility(e1, e2)) {
             let t = computeTransformation(e1, e2, shapes, mainShape);
-            if (Math.abs(t.rotation) <= maxRotateAngle) {
+            if (Math.abs(t.rotationAngle) <= maxRotateAngle) {
               possibilities.push(t);
             }
           }

@@ -35,6 +35,7 @@ export class Shape {
   constructor({
     id = uniqId(),
     drawingEnvironment,
+    isPointed = true,
     path = undefined,
     segmentIds = [],
     pointIds = [],
@@ -55,6 +56,7 @@ export class Shape {
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
     this.drawingEnvironment.shapes.push(this);
+    this.isPointed = isPointed;
 
     if (path) this.setSegmentsFromPath(path);
     else {
@@ -193,6 +195,7 @@ export class Shape {
           drawingEnvironment: this.drawingEnvironment,
           type: 'vertex',
           idx: vertexIdx++,
+          visible: this.isPointed,
         });
       }
       new Segment({
@@ -211,6 +214,7 @@ export class Shape {
         drawingEnvironment: this.drawingEnvironment,
         type: 'vertex',
         idx: vertexIdx++,
+        visible: this.isPointed,
       });
 
     while (allPathElements.length) {
@@ -236,6 +240,7 @@ export class Shape {
               drawingEnvironment: this.drawingEnvironment,
               type: 'vertex',
               idx: vertexIdx++,
+              visible: this.isPointed,
             });
           }
           break;
@@ -408,6 +413,7 @@ export class Shape {
   }
 
   static getReference(pt1, pt2) {
+    console.trace();
     let segment = new Segment(pt1, pt2),
       reference;
 
@@ -471,14 +477,14 @@ export class Shape {
    * say if a point is on one of the segments of the shape
    * @param {Point} point   le point à analyser
    */
-  isPointOnSegment(point) {
+  isCoordinatesOnSegment(point) {
     if (!this.isSegment()) return false;
 
     const segment = this.segments[0];
 
     let projection = segment.projectionOnSegment(point);
 
-    if (!segment.isPointOnSegment(projection)) return false;
+    if (!segment.isCoordinatesOnSegment(projection)) return false;
 
     let dist = point.dist(projection);
 
@@ -817,6 +823,7 @@ export class Shape {
         }
       } else if (this.familyName == '3-corner-shape') {
         if (this.name == 'RightAngleTriangle') {
+          console.trace();
           let angle = new Segment(v1, v2).getAngleWithHorizontal();
           let perpendicularAngle = angle + Math.PI / 2;
           if (this.geometryConstructionSpec.height > 0) {
@@ -828,6 +835,7 @@ export class Shape {
             v2.y + absHeight * Math.sin(perpendicularAngle)
           );
         } else if (this.name == 'IsoscelesTriangle') {
+          console.trace();
           let initialSegment = new Segment(v1, v2);
           let angle = initialSegment.getAngleWithHorizontal();
           let perpendicularAngle = angle + Math.PI / 2;
@@ -841,6 +849,7 @@ export class Shape {
             middleOfSegment.y + absHeight * Math.sin(perpendicularAngle)
           );
         } else if (this.name == 'RightAngleIsoscelesTriangle') {
+          console.trace();
           let initialSegment = new Segment(v1, v2);
           let angle = initialSegment.getAngleWithHorizontal();
           let perpendicularAngle = angle + Math.PI / 2;
@@ -867,6 +876,7 @@ export class Shape {
       } else if (this.familyName == '4-corner-shape') {
         if (this.name == 'Rectangle') {
           if (pointSelected.name != 'thirdPoint') {
+            console.trace();
             let angle = new Segment(v1, v2).getAngleWithHorizontal();
             let perpendicularAngle = angle + Math.PI / 2;
             if (this.geometryConstructionSpec.height > 0) {
@@ -881,6 +891,7 @@ export class Shape {
           v4 = new Point(v3.x - v2.x + v1.x, v3.y - v2.y + v1.y);
         } else if (this.name == 'Losange') {
           if (pointSelected.name != 'thirdPoint') {
+            console.trace();
             let firstSegment = new Segment(v1, v2);
             let angle =
               firstSegment.getAngleWithHorizontal() -
@@ -894,6 +905,7 @@ export class Shape {
           v4 = new Point(v3.x - v2.x + v1.x, v3.y - v2.y + v1.y);
         } else if (this.name == 'Parallelogram') {
           if (pointSelected.name != 'thirdPoint') {
+            console.trace();
             let angle =
               new Segment(v1, v2).getAngleWithHorizontal() -
               this.geometryConstructionSpec.angle;
@@ -905,6 +917,7 @@ export class Shape {
           }
           v4 = new Point(v3.x - v2.x + v1.x, v3.y - v2.y + v1.y);
         } else if (this.name == 'RightAngleTrapeze') {
+          console.trace();
           let initialSegment = new Segment(v1, v2);
           if (pointSelected.name != 'thirdPoint') {
             let angle =
@@ -922,6 +935,7 @@ export class Shape {
             v3.y - projection.y + v1.y
           );
         } else if (this.name == 'IsoscelesTrapeze') {
+          console.trace();
           let initialSegment = new Segment(v1, v2);
           if (pointSelected.name != 'thirdPoint') {
             let angle =
@@ -940,6 +954,7 @@ export class Shape {
             v3.y - 2 * projection.y + 2 * middleOfSegment.y
           );
         } else if (this.name == 'Trapeze') {
+          console.trace();
           let firstSegment = new Segment(v1, v2);
           if (pointSelected.name != 'thirdPoint') {
             let angle =
@@ -1240,6 +1255,7 @@ export class Shape {
   }
 
   setSegments(segments) {
+    console.trace();
     this.segments = segments.map((seg, idx) => {
       let newSeg = new Segment();
       newSeg.initFromObject(seg);
