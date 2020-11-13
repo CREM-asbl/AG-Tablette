@@ -186,7 +186,6 @@ class DivMainCanvas extends LitElement {
         'mousedown' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
-      console.log('mouseDown');
       app.dispatchEv(new CustomEvent('canvasmousedown'));
     });
 

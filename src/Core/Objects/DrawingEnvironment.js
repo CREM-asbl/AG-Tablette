@@ -95,4 +95,16 @@ export class DrawingEnvironment {
     let index = this.findIndexById(id, objectType);
     this[objectType + 's'].splice(index, 1);
   }
+
+  getCommonSegmentOfTwoPoints(pt1Id, pt2Id) {
+    let pt1 = this.findObjectById(pt1Id, 'point');
+    let pt2 = this.findObjectById(pt2Id, 'point');
+    let segmentIds1 = pt1.segmentIds;
+    let segmentIds2 = pt2.segmentIds;
+    let commonSegmentId = segmentIds1.find(
+      id1 => segmentIds2.findIndex(id2 => id2 == id1) != -1
+    );
+    let commonSegment = this.segments.find(seg => seg.id == commonSegmentId);
+    return commonSegment;
+  }
 }

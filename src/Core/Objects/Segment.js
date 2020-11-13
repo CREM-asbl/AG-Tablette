@@ -207,7 +207,7 @@ export class Segment {
   /**
    * convertit le segment en commande de path svg
    */
-  getSVGPath(scaling = 'scale', axeAngle = undefined) {
+  getSVGPath(scaling = 'scale', axeAngle = undefined, includeMoveTo = false) {
     let firstCoordinates = this.vertexes[0].coordinates,
       secondCoordinates = this.vertexes[1].coordinates;
     if (this.isInfinite) {
@@ -239,7 +239,8 @@ export class Segment {
     if (
       !this.shape ||
       this.idx == 0 ||
-      this.vertexIds[0] !== this.previousSegment.vertexIds[1]
+      this.vertexIds[0] !== this.previousSegment.vertexIds[1] ||
+      includeMoveTo
     ) {
       moveTo = ['M', firstCoordinates.x, firstCoordinates.y, ''].join(' ');
     }
@@ -414,20 +415,23 @@ export class Segment {
   /* ########################## SEGMENT POINTS ########################## */
   /* #################################################################### */
 
-  addPoint({ x, y, ratio }) {
+  addPoint(coordinates, ratio) {
     //TODO: garder les points triés?
-    let newPoint = new Point(
-      x,
-      y,
-      'segmentPoint',
-      this,
-      this.shape,
-      undefined,
-      ratio
-    );
-    if (this.points.filter(pt => pt.equal(newPoint, 0.001)).length == 0)
-      // check if point already exists
-      this.points.push(newPoint);
+    // if doesnt already exist
+    if (
+      this.divisionPoints.findIndex(pt => Math.abs(pt.ratio - ratio) < 0.001) ==
+      -1
+    ) {
+      let newPoint = new Point({
+        coordinates: coordinates,
+        type: 'divisionPoint',
+        ratio: ratio,
+        drawingEnvironment: this.drawingEnvironment,
+        shapeId: this.shapeId,
+        segmentIds: [this.id],
+      });
+      this.divisionPointIds.push(newPoint.id);
+    }
   }
 
   /**

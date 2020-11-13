@@ -36,6 +36,7 @@ export class Point {
     ratio = undefined,
     visible = true,
     color = '#000',
+    size = 1,
   }) {
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
@@ -61,6 +62,7 @@ export class Point {
     if (this.ratio !== undefined) this.ratio = parseFloat(ratio);
     this.visible = visible;
     this.color = color;
+    this.size = size;
   }
 
   get shape() {

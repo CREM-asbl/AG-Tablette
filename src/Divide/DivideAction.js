@@ -2,6 +2,7 @@ import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 export class DivideAction extends Action {
   constructor() {
@@ -30,60 +31,75 @@ export class DivideAction extends Action {
     this.numberOfParts = save.numberOfParts;
     this.mode = save.mode;
     if (this.mode == 'twoPoints') {
-      this.firstPoint = new Point();
-      this.firstPoint.initFromObject(save.firstPoint);
-      this.secondPoint = new Point();
-      this.secondPoint.initFromObject(save.secondPoint);
+      this.firstPoint = app.mainDrawingEnvironment.findObjectById(
+        save.firstPointId,
+        'point'
+      );
+      this.secondPoint = app.mainDrawingEnvironment.findObjectById(
+        save.secondPointId,
+        'point'
+      );
     }
-    if (save.segment) {
-      this.segment = Segment.retrieveFrom(save.segment);
-    } else {
-      // for update history from 1.0.0
-      this.segment = ShapeManager.getShapeById(save.shapeId).segments[
-        save.segmentIndex
-      ];
-      if (this.mode == 'twoPoints') {
-        this.firstPoint.segment = this.segment;
-        this.secondPoint.segment = this.segment;
-      }
-    }
-    if (save.existingPoints) {
-      this.existingPoints = save.existingPoints.map(pt => {
-        return new Point(pt);
-      });
-    } else {
-      // for update history from 1.0.0
-      this.existingPoints = this.segment.points.map(pt => {
-        return new Point(pt);
-      });
-      if (this.mode == 'twoPoints') {
-        window.dispatchEvent(
-          new CustomEvent('update-history', {
-            detail: {
-              name: 'DivideAction',
-              mode: 'twoPoints',
-              firstPoint: this.firstPoint,
-              secondPoint: this.secondPoint,
-              numberOfParts: this.numberOfParts,
-              segment: this.segment,
-              existingPoints: this.existingPoints,
-            },
-          })
-        );
-      } else {
-        window.dispatchEvent(
-          new CustomEvent('update-history', {
-            detail: {
-              name: 'DivideAction',
-              mode: 'segment',
-              numberOfParts: this.numberOfParts,
-              segment: this.segment,
-              existingPoints: this.existingPoints,
-            },
-          })
-        );
-      }
-    }
+    this.segment = app.mainDrawingEnvironment.findObjectById(
+      save.segmentId,
+      'segment'
+    );
+    // if (this.mode == 'twoPoints') {
+    //   this.firstPoint = new Point();
+    //   this.firstPoint.initFromObject(save.firstPoint);
+    //   this.secondPoint = new Point();
+    //   this.secondPoint.initFromObject(save.secondPoint);
+    // }
+    // if (save.segment) {
+    //   this.segment = Segment.retrieveFrom(save.segment);
+    // } else {
+    //   // for update history from 1.0.0
+    //   this.segment = ShapeManager.getShapeById(save.shapeId).segments[
+    //     save.segmentIndex
+    //   ];
+    //   if (this.mode == 'twoPoints') {
+    //     this.firstPoint.segment = this.segment;
+    //     this.secondPoint.segment = this.segment;
+    //   }
+    // }
+
+    // if (save.existingPoints) {
+    //   this.existingPoints = save.existingPoints.map(pt => {
+    //     return new Point(pt);
+    //   });
+    // } else {
+    //   // for update history from 1.0.0
+    //   this.existingPoints = this.segment.points.map(pt => {
+    //     return new Point(pt);
+    //   });
+    //   if (this.mode == 'twoPoints') {
+    //     window.dispatchEvent(
+    //       new CustomEvent('update-history', {
+    //         detail: {
+    //           name: 'DivideAction',
+    //           mode: 'twoPoints',
+    //           firstPoint: this.firstPoint,
+    //           secondPoint: this.secondPoint,
+    //           numberOfParts: this.numberOfParts,
+    //           segment: this.segment,
+    //           existingPoints: this.existingPoints,
+    //         },
+    //       })
+    //     );
+    //   } else {
+    //     window.dispatchEvent(
+    //       new CustomEvent('update-history', {
+    //         detail: {
+    //           name: 'DivideAction',
+    //           mode: 'segment',
+    //           numberOfParts: this.numberOfParts,
+    //           segment: this.segment,
+    //           existingPoints: this.existingPoints,
+    //         },
+    //       })
+    //     );
+    //   }
+    // }
   }
 
   /**
@@ -233,23 +249,22 @@ export class DivideAction extends Action {
     if (this.firstPoint.ratio > this.secondPoint.ratio)
       [this.firstPoint, this.secondPoint] = [this.secondPoint, this.firstPoint];
 
-    this.ratioCap =
+    const ratioCap =
       (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
 
-    const segLength = this.secondPoint.subCoordinates(this.firstPoint),
-      part = new Point(
-        segLength.x / this.numberOfParts,
-        segLength.y / this.numberOfParts
-      );
+    const segLength = this.secondPoint.coordinates.substract(
+      this.firstPoint.coordinates
+    );
+    const part = segLength.multiply(1 / this.numberOfParts);
 
     for (
-      let i = 1, nextPt = this.firstPoint.copy();
+      let i = 1, coord = this.firstPoint.coordinates;
       i < this.numberOfParts;
       i++
     ) {
-      nextPt = nextPt.addCoordinates(part);
-      nextPt.ratio = this.firstPoint.ratio + i * this.ratioCap;
-      this.segment.addPoint(nextPt);
+      coord = coord.add(part);
+      let ratio = this.firstPoint.ratio + i * ratioCap;
+      this.segment.addPoint(coord, ratio);
     }
   }
 }

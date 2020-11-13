@@ -45,6 +45,7 @@ export class Shape {
     opacity = 0.7,
     size = 2,
     borderColor = '#000',
+    borderSize = 1,
     _isCenterShown = undefined,
     isReversed = false,
     isBiface = false,
@@ -71,8 +72,10 @@ export class Shape {
     this.opacity = parseFloat(opacity);
     this.size = parseInt(size);
     this.borderColor = borderColor;
-    if (_isCenterShown === undefined) this._isCenterShown = this.isCircle();
-    else this._isCenterShown = _isCenterShown;
+    this.borderSize = borderSize;
+    this._isCenterShown = false;
+    if (_isCenterShown === undefined) this.isCenterShown = this.isCircle();
+    else this.isCenterShown = _isCenterShown;
     this.isReversed = isReversed;
     this.isBiface = isBiface;
     this.geometryConstructionSpec = geometryConstructionSpec;

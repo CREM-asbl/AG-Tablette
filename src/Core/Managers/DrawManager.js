@@ -154,17 +154,13 @@ export class DrawManager {
    * @param  {Number}              borderSize
    * @param  {Number}              axeAngle             Axe de symétrie (pour reverse)
    */
-  static drawShape(
-    drawingEnvironment,
-    shape,
-    borderSize = 1,
-    axeAngle = undefined
-  ) {
+  static drawShape(drawingEnvironment, shape, axeAngle = undefined) {
     drawingEnvironment.ctx.strokeStyle = shape.borderColor;
     drawingEnvironment.ctx.fillStyle =
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
     drawingEnvironment.ctx.globalAlpha = shape.opacity;
-    drawingEnvironment.ctx.lineWidth = borderSize * app.workspace.zoomLevel;
+    drawingEnvironment.ctx.lineWidth =
+      shape.borderSize * app.workspace.zoomLevel;
     drawingEnvironment.ctx.miterLimit = 1;
 
     const pathScaleMethod = drawingEnvironment.mustScaleShapes
@@ -252,13 +248,7 @@ export class DrawManager {
    * @param  {Number}     [size=1]       Taille du point
    * @param  {Boolean}    [doSave=true]  Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  static drawPoint(
-    drawingEnvironment,
-    point,
-    color = '#000',
-    size = 1,
-    doSave = true
-  ) {
+  static drawPoint(drawingEnvironment, point, color = '#000', doSave = true) {
     let ctx = drawingEnvironment.ctx;
     if (doSave) ctx.save();
 
@@ -272,7 +262,7 @@ export class DrawManager {
     ctx.arc(
       canvasCoodinates.x,
       canvasCoodinates.y,
-      size * 2 * app.workspace.zoomLevel,
+      point.size * 2 * app.workspace.zoomLevel,
       0,
       2 * Math.PI,
       0
@@ -342,7 +332,6 @@ window.addEventListener('draw-shape', event => {
   DrawManager.drawShape(
     drawingEnvironment,
     event.detail.shape,
-    event.detail.borderSize,
     event.detail.axeAngle
   );
 });
@@ -374,7 +363,6 @@ window.addEventListener('draw-point', event => {
     drawingEnvironment,
     event.detail.point,
     event.detail.color,
-    event.detail.size,
     event.detail.doSave
   );
 });

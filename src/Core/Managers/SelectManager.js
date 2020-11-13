@@ -76,7 +76,7 @@ export class SelectManager {
         canSelect: false,
         //Indépendamment de whitelist et blacklist, le point doit être
         //d'un des types renseignés dans ce tableau.
-        types: ['center', 'vertex', 'segmentPoint', 'modifiablePoint'],
+        types: ['center', 'vertex', 'divisionPoint', 'modifiablePoint'],
         /*
                 Liste pouvant contenir différents éléments sous la forme:
                     - {'shapeId': shapeId}
@@ -87,12 +87,12 @@ export class SelectManager {
                       Le point doit être un sommet de la forme donnée.
                     - {'shapeId': shapeId, 'type': 'vertex', index: int}
                       Le point doit être le sommet d'index index de la forme donnée
-                    - {'shapeId': shapeId, 'type': 'segmentPoint'}
+                    - {'shapeId': shapeId, 'type': 'divisionPoint'}
                       Le point doit être un point de segment de la forme donnée.
-                    - {'shapeId': shapeId, 'type': 'segmentPoint', index: int}
+                    - {'shapeId': shapeId, 'type': 'divisionPoint', index: int}
                       Le point doit être un point de segment de la forme donnée,
                       et l'index du segment doit être index.
-                    - {'shapeId': shapeId, 'type': 'segmentPoint', index: int, ratio: ratio}
+                    - {'shapeId': shapeId, 'type': 'divisionPoint', index: int, ratio: ratio}
                       Le point doit être un point de segment de la forme donnée,
                       dont le segment est d'index index et dont le ratio vaut ratio.
                 Si tableau non null, le segment doit satisfaire au moins un des
@@ -163,7 +163,7 @@ export class SelectManager {
               return (
                 potentialPoint.type == 'divisionPoint' &&
                 (constr.index == undefined ||
-                  constr.index == potentialPoint.segment.idx) &&
+                  constr.index == potentialPoint.segments[0].idx) &&
                 (constr.ratio == undefined ||
                   constr.ratio - potentialPoint.ratio < 0.001)
               );
@@ -187,7 +187,7 @@ export class SelectManager {
               return (
                 potentialPoint.type == 'divisionPoint' &&
                 (constr.index == undefined ||
-                  constr.index == potentialPoint.segment.idx) &&
+                  constr.index == potentialPoint.segments[0].idx) &&
                 (constr.ratio == undefined ||
                   constr.ratio - potentialPoint.ratio < 0.001)
               );

@@ -126,8 +126,6 @@ export class RotateState extends State {
         })
     );
 
-    console.log(this.center, (this.initialAngle * 180) / Math.PI);
-
     new Point({
       coordinates: this.center,
       drawingEnvironment: app.upperDrawingEnvironment,
