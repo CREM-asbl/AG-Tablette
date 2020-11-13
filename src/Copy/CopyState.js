@@ -5,6 +5,8 @@ import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { uniqId } from '../Core/Tools/general';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { Shape } from '../Core/Objects/Shape';
 
 /**
  * Dupliquer une forme
@@ -26,6 +28,8 @@ export class CopyState extends State {
         elle-même
          */
     this.involvedShapes = [];
+
+    this.translateOffset = new Coordinates({ x: -20, y: -20 });
   }
 
   /**
@@ -113,63 +117,44 @@ export class CopyState extends State {
 
     this.selectedShape = shape;
 
-    let group = GroupManager.getShapeGroup(shape);
-    if (group) {
-      this.involvedShapesIds = [...group.shapesIds];
-      this.involvedShapes = group.shapesIds.map(id =>
-        ShapeManager.getShapeById(id)
-      );
-    } else {
-      this.involvedShapesIds = [shape.id];
-      this.involvedShapes = [shape];
-    }
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+    this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
-    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates.addCoordinates(
-      20,
-      20
-    ); // décal
+    this.drawingShapes = this.involvedShapes.map(s => {
+      let newShape = new Shape({
+        ...s,
+        drawingEnvironment: app.upperDrawingEnvironment,
+        path: s.getSVGPath(),
+        id: undefined,
+      });
+      newShape.translate(this.translateOffset);
+      return newShape;
+    });
 
-    app.removeListener('objectSelected', this.objectSelectedId);
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
     this.currentStep = 'moving-shape';
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
   }
 
   onMouseUp() {
     if (this.currentStep != 'moving-shape') return;
 
-    let translation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
-        this.startClickCoordinates
-      ),
-      involvedShapesCopies = this.involvedShapes.map(shape => shape.copy()),
-      selectedShapeCopy = this.selectedShape.copy();
+    let translation = app.workspace.lastKnownMouseCoordinates
+      .substract(this.startClickCoordinates)
+      .add(this.translateOffset);
 
-    involvedShapesCopies.forEach(shape => shape.translate(translation));
-    selectedShapeCopy.translate(translation);
-    let transformation = getShapeAdjustment(
-      involvedShapesCopies,
-      selectedShapeCopy
-    );
+    this.involvedShapesIds = this.involvedShapes.map(s => s.id);
     this.actions = [
       {
         name: 'CopyAction',
         involvedShapesIds: this.involvedShapesIds,
         newShapesIds: this.involvedShapesIds.map(() => uniqId()),
-        transformation: translation.addCoordinates(transformation.move),
+        transformation: translation,
         createdUsergroupId: uniqId(),
       },
     ];
-    if (transformation.rotation != 0) {
-      let rotateAction = {
-        name: 'RotateAction',
-        shapeId: this.actions[0].newShapesIds[
-          this.involvedShapesIds.findIndex(idx => idx == this.selectedShape.id)
-        ],
-        involvedShapesIds: this.actions[0].newShapesIds,
-        rotationAngle: transformation.rotation,
-      };
-      this.actions.push(rotateAction);
-    }
 
     this.executeAction();
     this.restart();
@@ -181,20 +166,16 @@ export class CopyState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (this.currentStep != 'moving-shape') return;
+    if (this.currentStep != 'moving-shape') {
+      app.upperDrawingEnvironment.removeAllObjects();
+    } else {
+      let transformation = app.workspace.lastKnownMouseCoordinates.substract(
+        this.lastKnownMouseCoordinates
+      );
 
-    let transformation = app.workspace.lastKnownMouseCoordinates.subCoordinates(
-      this.startClickCoordinates
-    );
+      this.drawingShapes.forEach(s => s.translate(transformation));
 
-    window.dispatchEvent(
-      new CustomEvent('draw-group', {
-        detail: {
-          involvedShapes: this.involvedShapes,
-          functionCalledBeforeDraw: s => s.translate(transformation),
-          functionCalledAfterDraw: s => s.translate(transformation, true),
-        },
-      })
-    );
+      this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
+    }
   }
 }
