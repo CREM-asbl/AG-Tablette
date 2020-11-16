@@ -37,7 +37,7 @@ export class DeleteState extends State {
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
       app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.points.types = ['segmentPoint'];
+      app.workspace.selectionConstraints.points.types = ['divisionPoint'];
     });
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -53,7 +53,7 @@ export class DeleteState extends State {
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
       app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.points.types = ['segmentPoint'];
+      app.workspace.selectionConstraints.points.types = ['divisionPoint'];
     });
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -83,19 +83,14 @@ export class DeleteState extends State {
    */
   objectSelected(object) {
     if (object instanceof Shape) {
-      let userGroup = GroupManager.getShapeGroup(object),
-        involvedShapes;
-      if (userGroup)
-        involvedShapes = userGroup.shapesIds.map(id =>
-          ShapeManager.getShapeById(id)
-        );
-      else involvedShapes = [object];
+      let involvedShapes = ShapeManager.getAllBindedShapes(object, true);
+      let userGroup = GroupManager.getShapeGroup(object);
 
       this.actions = [
         {
           name: 'DeleteAction',
           mode: 'shape',
-          involvedShapes: involvedShapes,
+          involvedShapeIds: involvedShapes.map(s => s.id),
           involvedShapesIndexes: involvedShapes.map(s =>
             ShapeManager.getShapeIndex(s)
           ),
@@ -112,7 +107,7 @@ export class DeleteState extends State {
         {
           name: 'DeleteAction',
           mode: 'point',
-          point: object,
+          pointId: object.id,
         },
       ];
     }

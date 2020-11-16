@@ -4,6 +4,7 @@ import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
+import { app } from '../Core/App';
 
 export class DeleteAction extends Action {
   constructor() {
@@ -34,62 +35,72 @@ export class DeleteAction extends Action {
 
   initFromObject(save) {
     this.mode = save.mode;
-    if (save.mode == 'shape') {
-      this.involvedShapes = save.involvedShapes.map(shape => new Shape(shape));
-      this.involvedShapesIndexes = save.involvedShapesIndexes;
-      if (!save.involvedShapesIndexes) {
-        // for update history from 1.0.0
-        this.involvedShapesIndexes = save.involvedShapes.map(() => 0);
-      }
-      this.userGroupId = save.userGroupId;
-      this.userGroupLastShapeId = save.userGroupLastShapeId;
-      this.userGroupIndex = save.userGroupIndex;
-      if (save.involvedShapesIndexes) {
-        this.involvedShapesIndexes = save.involvedShapesIndexes;
-        this.userGroup = save.userGroup;
-      } else {
-        // for update history from 1.0.0
-        this.involvedShapesIndexes = this.involvedShapes.map(shape =>
-          ShapeManager.getShapeIndex(shape)
-        );
-        let detail = {
-          name: 'DeleteAction',
-          mode: this.mode,
-          involvedShapes: this.involvedShapes,
-          involvedShapesIndexes: this.involvedShapesIndexes,
-        };
-        if (save.userGroupId) {
-          this.userGroup = new ShapeGroup(0, 1);
-          this.userGroup.initFromObject({
-            id: save.userGroupId,
-            shapesIds: this.involvedShapes.map(s => s.id),
-          });
-          detail.userGroupIndex = this.userGroupIndex;
-          detail.userGroup = this.userGroup;
-        }
-        window.dispatchEvent(
-          new CustomEvent('update-history', { detail: detail })
-        );
-      }
-    } else {
-      this.point = new Point();
-      this.point.initFromObject(save.point);
-      if (save.segmentIndex) {
-        // for update history from 1.0.0
-        this.point.segment = ShapeManager.getShapeById(save.shapeId).segments[
-          save.segmentIndex
-        ];
-        window.dispatchEvent(
-          new CustomEvent('update-history', {
-            detail: {
-              name: 'DeleteAction',
-              mode: this.mode,
-              point: this.point,
-            },
-          })
-        );
-      }
+    if (this.mode == 'shape') {
+      this.involvedShapes = save.involvedShapeIds.map(id =>
+        app.mainDrawingEnvironment.findObjectById(id, 'shape')
+      );
+    } else if (this.mode == 'point') {
+      this.point = app.mainDrawingEnvironment.findObjectById(
+        save.pointId,
+        'point'
+      );
     }
+    // if (save.mode == 'shape') {
+    //   this.involvedShapes = save.involvedShapes.map(shape => new Shape(shape));
+    //   this.involvedShapesIndexes = save.involvedShapesIndexes;
+    //   if (!save.involvedShapesIndexes) {
+    //     // for update history from 1.0.0
+    //     this.involvedShapesIndexes = save.involvedShapes.map(() => 0);
+    //   }
+    //   this.userGroupId = save.userGroupId;
+    //   this.userGroupLastShapeId = save.userGroupLastShapeId;
+    //   this.userGroupIndex = save.userGroupIndex;
+    //   if (save.involvedShapesIndexes) {
+    //     this.involvedShapesIndexes = save.involvedShapesIndexes;
+    //     this.userGroup = save.userGroup;
+    //   } else {
+    //     // for update history from 1.0.0
+    //     this.involvedShapesIndexes = this.involvedShapes.map(shape =>
+    //       ShapeManager.getShapeIndex(shape)
+    //     );
+    //     let detail = {
+    //       name: 'DeleteAction',
+    //       mode: this.mode,
+    //       involvedShapes: this.involvedShapes,
+    //       involvedShapesIndexes: this.involvedShapesIndexes,
+    //     };
+    //     if (save.userGroupId) {
+    //       this.userGroup = new ShapeGroup(0, 1);
+    //       this.userGroup.initFromObject({
+    //         id: save.userGroupId,
+    //         shapesIds: this.involvedShapes.map(s => s.id),
+    //       });
+    //       detail.userGroupIndex = this.userGroupIndex;
+    //       detail.userGroup = this.userGroup;
+    //     }
+    //     window.dispatchEvent(
+    //       new CustomEvent('update-history', { detail: detail })
+    //     );
+    //   }
+    // } else {
+    //   this.point = new Point();
+    //   this.point.initFromObject(save.point);
+    //   if (save.segmentIndex) {
+    //     // for update history from 1.0.0
+    //     this.point.segment = ShapeManager.getShapeById(save.shapeId).segments[
+    //       save.segmentIndex
+    //     ];
+    //     window.dispatchEvent(
+    //       new CustomEvent('update-history', {
+    //         detail: {
+    //           name: 'DeleteAction',
+    //           mode: this.mode,
+    //           point: this.point,
+    //         },
+    //       })
+    //     );
+    //   }
+    // }
   }
 
   /**
@@ -119,7 +130,6 @@ export class DeleteAction extends Action {
     if (this.mode == 'shape') {
       let userGroup = GroupManager.getShapeGroup(this.involvedShapes[0]);
 
-      this.involvedShapesIndexes = [];
       this.involvedShapes.forEach(s => {
         /*
           Pas besoin de trier involvedShapes par index décroissants;
@@ -127,12 +137,8 @@ export class DeleteAction extends Action {
           bien identiques (car on récupère l'index de s après avoir supprimé les
           formes précédentes!).
          */
-        let index = ShapeManager.getShapeIndex(s);
-        if (index == -1) console.error('Shape not found');
-        this.involvedShapesIndexes.push(index);
-
         if (userGroup) userGroup.deleteShape(s.id);
-        ShapeManager.deleteShape(s);
+        app.mainDrawingEnvironment.removeObjectById(s.id, 'shape');
       });
 
       if (userGroup) {
@@ -142,8 +148,10 @@ export class DeleteAction extends Action {
       }
     } else {
       // point
-      let segment = this.point.segment;
+      let segment = this.point.segments[0];
       segment.deletePoint(this.point);
+      let shape = segment.shape;
+      console.log(shape.pointIds.length);
     }
   }
 

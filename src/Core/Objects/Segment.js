@@ -445,14 +445,25 @@ export class Segment {
   }
 
   deletePoint(point) {
-    let i = this.points.findIndex(pt => {
-      return pt.equal(point, 0.001);
+    let pointId = point.id;
+    let i = this.divisionPointIds.findIndex(divisionPointId => {
+      return pointId == divisionPointId;
     });
     if (i == -1) {
       console.error("couldn't delete point from segment");
       return null;
     }
-    this.points.splice(i, 1);
+    this.divisionPointIds.splice(i, 1);
+    i = this.shape.pointIds.findIndex(shapePointId => {
+      return pointId == shapePointId;
+    });
+    console.log(i);
+    if (i == -1) {
+      console.error("couldn't delete point from shape");
+      return null;
+    }
+    this.shape.pointIds.splice(i, 1);
+    app.mainDrawingEnvironment.removeObjectById(pointId, 'point');
   }
 
   /* #################################################################### */
