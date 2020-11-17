@@ -45,12 +45,23 @@ export class DrawingEnvironment {
           window.dispatchEvent(
             new CustomEvent('draw-shape', { detail: { shape: s } })
           );
+          if (this.mustDrawPoints) {
+            this.points.forEach(pt => {
+              if (pt.visible && pt.shapeId === s.id) {
+                window.dispatchEvent(
+                  new CustomEvent('draw-point', {
+                    detail: { point: pt, color: pt.color },
+                  })
+                );
+              }
+            });
+          }
         }
       });
     }
     if (this.mustDrawPoints) {
       this.points.forEach(pt => {
-        if (pt.visible) {
+        if (pt.visible && pt.shapeId === undefined) {
           window.dispatchEvent(
             new CustomEvent('draw-point', {
               detail: { point: pt, color: pt.color },

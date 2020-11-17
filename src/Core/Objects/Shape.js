@@ -321,31 +321,25 @@ export class Shape {
   get fake_center() {
     if (this.isCircle()) {
       const center = this.segments[0].arcCenter;
-      return new Point(center.x, center.y, 'center', undefined, this);
+      return new Coordinates(center);
     } else {
       let total = {
-        sumX: 0,
-        sumY: 0,
+        x: 0,
+        y: 0,
         amount: 0,
       };
       this.vertexes.forEach(vertex => {
-        total.sumX += vertex.x;
-        total.sumY += vertex.y;
+        total.x += vertex.x;
+        total.y += vertex.y;
         total.amount++;
       });
       this.segments.forEach(seg => {
-        total.sumX += seg.middle.x;
-        total.sumY += seg.middle.y;
+        total.x += seg.middle.x;
+        total.y += seg.middle.y;
         total.amount++;
       });
 
-      return new Point(
-        total.sumX / total.amount,
-        total.sumY / total.amount,
-        'center',
-        undefined,
-        this
-      );
+      return new Coordinates(total).multiply(1 / total.amount);
     }
   }
 
@@ -520,7 +514,7 @@ export class Shape {
    * @return {Boolean}       true si le point se trouve sur le bord.
    */
   isPointInBorder(point) {
-    return this.segments.some(seg => seg.isPointOnSegment(point));
+    return this.segments.some(seg => seg.isCoordinatesOnSegment(point));
   }
 
   /**
@@ -1316,7 +1310,25 @@ export class Shape {
     }
   }
 
-  // static retrieveFrom(shape) {
-  //   return app.workspace.getShapeById(shape.id);
-  // }
+  cleanSameDirectionSegment() {
+    for (let i = 0; i < this.segments.length; i++) {
+      const nextIdx = mod(i + 1, this.segments.length);
+      if (
+        this.segments[i].hasSameDirection(this.segments[nextIdx], 1, 0, false)
+      ) {
+        //todo remove from drawingenv
+        app.mainDrawingEnvironment.removeObjectById(
+          this.segments[i].vertexIds[1],
+          'point'
+        );
+        this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
+        app.mainDrawingEnvironment.removeObjectById(
+          this.segmentIds[nextIdx],
+          'segment'
+        );
+        this.segmentIds.splice(nextIdx, 1);
+        i--; // try to merge this new segment again!
+      }
+    }
+  }
 }

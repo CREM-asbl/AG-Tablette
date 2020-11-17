@@ -59,7 +59,7 @@ export class Point {
     this.segmentIds = [...segmentIds];
     this.type = type;
     this.name = name;
-    if (this.ratio !== undefined) this.ratio = parseFloat(ratio);
+    if (ratio !== undefined) this.ratio = parseFloat(ratio);
     this.visible = visible;
     this.color = color;
     this.size = size;

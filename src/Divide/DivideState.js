@@ -86,7 +86,6 @@ export class DivideState extends State {
   end() {
     window.clearTimeout(this.timeoutRef);
     if (this.status != 'paused' || this.currentStep == 'showing-points') {
-      console.log('here');
       this.currentStep = 'listen-canvas-click';
     } else if (!this.savedSelConstr) {
       // paused
@@ -118,7 +117,6 @@ export class DivideState extends State {
   }
 
   setSelectionConstraints() {
-    console.log('there');
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.points.types = [
@@ -147,10 +145,7 @@ export class DivideState extends State {
       let segments = firstPoint.segmentIds.map(segId =>
         app.mainDrawingEnvironment.findObjectById(segId, 'segment')
       );
-      let potentialPoints = segments
-        .map(seg => seg.vertexes)
-        .flat()
-        .filter(vertex => vertex.id != firstPoint.id);
+      let potentialPoints = segments.map(seg => seg.vertexes).flat(); // attention, on a 2x firstPoint dans les points potentiels
       // add vertexes to whitelist
       app.workspace.selectionConstraints.points.whitelist = potentialPoints.map(
         pt => {
@@ -167,7 +162,6 @@ export class DivideState extends State {
           };
         })
       );
-      console.log(app.workspace.selectionConstraints.points.whitelist);
     }
   }
 
@@ -227,7 +221,6 @@ export class DivideState extends State {
         return;
       }
     } else {
-      console.log(object);
       // select-second-point
       let pt1 = app.mainDrawingEnvironment.findObjectById(
         this.actions[0].firstPointId,
@@ -237,6 +230,10 @@ export class DivideState extends State {
       if (pt1.id == object.id) {
         // pt1 = object => désélectionner le point.
         this.currentStep = 'listen-canvas-click';
+        app.upperDrawingEnvironment.removeObjectById(
+          app.upperDrawingEnvironment.points[0].id,
+          'point'
+        );
         this.actions = null;
 
         this.setSelectionConstraints();

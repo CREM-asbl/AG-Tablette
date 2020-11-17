@@ -165,7 +165,7 @@ export class SelectManager {
                 (constr.index == undefined ||
                   constr.index == potentialPoint.segments[0].idx) &&
                 (constr.ratio == undefined ||
-                  constr.ratio - potentialPoint.ratio < 0.001)
+                  Math.abs(constr.ratio - potentialPoint.ratio) < 0.001)
               );
             return true;
           })
@@ -189,7 +189,7 @@ export class SelectManager {
                 (constr.index == undefined ||
                   constr.index == potentialPoint.segments[0].idx) &&
                 (constr.ratio == undefined ||
-                  constr.ratio - potentialPoint.ratio < 0.001)
+                  Math.abs(constr.ratio - potentialPoint.ratio) < 0.001)
               );
             return true;
           })

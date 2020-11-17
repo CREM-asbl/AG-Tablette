@@ -23,6 +23,8 @@ export class Segment {
     drawingEnvironment,
     shapeId = undefined,
     idx = undefined,
+    createFromNothing = false,
+    vertexCoordinates = undefined,
     vertexIds = [],
     divisionPointIds = [],
     arcCenterId = undefined,
@@ -37,23 +39,36 @@ export class Segment {
 
     this.shapeId = shapeId;
     this.idx = idx;
-    this.vertexIds = [...vertexIds];
-    this.vertexIds.forEach(vxId =>
-      this.drawingEnvironment.points
-        .find(pt => pt.id === vxId)
-        .segmentIds.push(this.id)
-    );
-    this.divisionPointIds = [...divisionPointIds];
-    this.divisionPointIds.forEach(dptId =>
-      this.drawingEnvironment.points
-        .find(pt => pt.id === dptId)
-        .segmentIds.push(this.id)
-    );
-    this.shapeId = shapeId;
-    if (this.shapeId !== undefined)
-      this.drawingEnvironment.shapes
-        .find(s => s.id === this.shapeId)
-        .segmentIds.push(this.id);
+    if (createFromNothing) {
+      this.vertexIds = vertexCoordinates.map((vCoord, idx) => {
+        let newPoint = new Point({
+          drawingEnvironment: this.drawingEnvironment,
+          segmentIds: [this.id],
+          idx: idx,
+          type: 'vertex',
+          coordinates: vCoord,
+        });
+        return newPoint.id;
+      });
+    } else {
+      this.vertexIds = [...vertexIds];
+      this.vertexIds.forEach(vxId =>
+        this.drawingEnvironment.points
+          .find(pt => pt.id === vxId)
+          .segmentIds.push(this.id)
+      );
+      this.divisionPointIds = [...divisionPointIds];
+      this.divisionPointIds.forEach(dptId =>
+        this.drawingEnvironment.points
+          .find(pt => pt.id === dptId)
+          .segmentIds.push(this.id)
+      );
+      this.shapeId = shapeId;
+      if (this.shapeId !== undefined)
+        this.drawingEnvironment.shapes
+          .find(s => s.id === this.shapeId)
+          .segmentIds.push(this.id);
+    }
     this.arcCenterId = arcCenterId;
     this.counterclockwise = counterclockwise;
     this.isInfinite = isInfinite;
@@ -151,9 +166,11 @@ export class Segment {
   }
 
   get direction() {
-    const originVector = this.vertexes[1].subCoordinates(this.vertexes[0]);
-    originVector.multiplyWithScalar(1 / this.length, true);
-    return originVector;
+    const originVector = this.vertexes[1].coordinates.substract(
+      this.vertexes[0].coordinates
+    );
+    const normalOriginVector = originVector.multiply(1 / this.length);
+    return normalOriginVector;
   }
 
   get middle() {
@@ -171,10 +188,9 @@ export class Segment {
       );
       return middle;
     } else {
-      return new Point(
-        (this.vertexes[0].x + this.vertexes[1].x) / 2,
-        (this.vertexes[0].y + this.vertexes[1].y) / 2
-      );
+      return this.vertexes[0].coordinates
+        .add(this.vertexes[1].coordinates)
+        .multiply(1 / 2);
     }
   }
 
@@ -722,8 +738,8 @@ export class Segment {
    * @param {object} segment
    * @return le point ou null si segments parallèles
    */
-  intersectPoint(segment) {
-    let result = new Point(0, 0),
+  intersectionWith(segment) {
+    let result = Coordinates.nullCoordinates,
       thisSlope =
         (this.vertexes[0].y - this.vertexes[1].y) /
         (this.vertexes[0].x - this.vertexes[1].x),
@@ -744,8 +760,9 @@ export class Segment {
       let pa = this.vertexes[0].y - thisSlope * this.vertexes[0].x;
       result.y = thisSlope * segment.vertexes[0].x + pa;
       result.x = segment.vertexes[0].x;
-      // 2 segments 'northisSlopeux'
+      // 2 segments 'normaux'
     } else {
+      // 2 segments parallèles
       if (Math.abs(thisSlope - otherSegmentSlope) < 0.001) return null;
       let pb =
         segment.vertexes[0].y - otherSegmentSlope * segment.vertexes[0].x;
@@ -763,19 +780,19 @@ export class Segment {
    * @param {Boolean} falseIfEdgePoint si le point d'intersection est la terminaison d'un segment, return false
    */
   doesIntersect(segment, allowProlongation = false, falseIfEdgePoint = false) {
-    let intersect_point = this.intersectPoint(segment);
-    if (!intersect_point) return false;
+    let intersection = this.intersectionWith(segment);
+    if (!intersection) return false;
     if (allowProlongation) return true;
     if (
       falseIfEdgePoint &&
       [...this.vertexes, ...segment.vertexes].some(vertex =>
-        vertex.equal(intersect_point)
+        vertex.coordinates.equal(intersection)
       )
     )
       return false;
     if (
-      this.isPointOnSegment(intersect_point) &&
-      segment.isPointOnSegment(intersect_point)
+      this.isCoordinatesOnSegment(intersection) &&
+      segment.isCoordinatesOnSegment(intersection)
     )
       return true;
     return false;
