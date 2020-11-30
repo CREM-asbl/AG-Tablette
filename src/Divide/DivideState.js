@@ -255,7 +255,7 @@ export class DivideState extends State {
             (pt1.segmentIds[0] == object.segmentIds[1] &&
               pt1.segmentIds[1] == object.segmentIds[0])
           ) {
-            console.alert('ambiguité, ne rien faire');
+            console.warn('ambiguité, ne rien faire');
             this.restart();
 
             window.dispatchEvent(new CustomEvent('refresh'));

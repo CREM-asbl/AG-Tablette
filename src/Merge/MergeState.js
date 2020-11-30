@@ -1,9 +1,9 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { uniqId } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
+import { Shape } from '../Core/Objects/Shape';
 
 /**
  * Fusionner 2 formes en une nouvelle forme
@@ -25,7 +25,7 @@ export class MergeState extends State {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    const toolName = 'Fusionner';
+    const toolName = this.title;
     return html`
       <h2>${toolName}</h2>
       <p>
@@ -65,7 +65,7 @@ export class MergeState extends State {
   restart() {
     this.end();
     if (this.currentStep == 'selecting-second-shape')
-      app.workspace.editingShapesIds = [this.firstShape.id];
+      app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -81,7 +81,8 @@ export class MergeState extends State {
   end() {
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
-      app.workspace.editingShapesIds = [];
+      app.mainDrawingEnvironment.editingShapeIds = [];
+      app.upperDrawingEnvironment.removeAllObjects();
     }
     app.removeListener('objectSelected', this.objectSelectedId);
   }
@@ -102,87 +103,85 @@ export class MergeState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
+    let mustExecuteAction = false;
     if (this.currentStep == 'listen-canvas-click') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
-      if (this.involvedShapes.length > 1) {
-        const mergeDone = (() => {
-          const newSegments = this.checkGroupMerge();
-          if (!newSegments) return false;
+      // if (this.involvedShapes.length > 1) {
+      //   // execute a groupMerge if possible
+      //   const newSegments = this.checkGroupMerge();
+      //   if (!newSegments) return false;
 
-          const linkedSegments = this.linkNewSegments(newSegments);
-          if (!linkedSegments) return false;
+      //   const linkedSegments = this.linkNewSegments(newSegments);
+      //   if (!linkedSegments) return false;
 
-          this.actions = [
-            {
-              name: 'MergeAction',
-              mode: 'mulitpleShapes',
-              involvedShapesIds: this.involvedShapes.map(s => s.id),
-              newSegments: linkedSegments,
-              createdShapeId: uniqId(),
-            },
-          ];
-
-          this.executeAction();
-          this.restart();
-          window.dispatchEvent(new CustomEvent('refresh'));
-          window.dispatchEvent(new CustomEvent('refreshUpper'));
-          return true;
-        })();
-        if (mergeDone) {
-          this.restart();
-          return;
-        }
+      //   this.actions = [
+      //     {
+      //       name: 'MergeAction',
+      //       mode: 'multipleShapes',
+      //       involvedShapesIds: this.involvedShapes.map(s => s.id),
+      //       newSegments: linkedSegments,
+      //       createdShapeId: uniqId(),
+      //     },
+      //   ];
+      //   mustExecuteAction = true;
+      // }
+      if (!mustExecuteAction) {
+        this.currentStep = 'selecting-second-shape';
+        this.firstShapeId = shape.id;
+        app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
+        this.drawingShapes = new Shape({
+          ...shape,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: shape.getSVGPath(),
+          id: undefined,
+          borderColor: '#E90CC8',
+          borderSize: 3,
+        });
       }
-      this.currentStep = 'selecting-second-shape';
-      this.firstShape = shape;
-      app.workspace.editingShapesIds = [shape.id];
-      window.dispatchEvent(new CustomEvent('refresh'));
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-      return;
-    }
-    if (this.currentStep != 'selecting-second-shape') return;
-    if (this.firstShape.id == shape.id) {
-      this.currentStep = 'listen-canvas-click';
-      this.firstShape = null;
-      app.workspace.editingShapesIds = [];
-      window.dispatchEvent(new CustomEvent('refresh'));
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-      return;
-    }
-    this.secondShape = shape;
-
-    if (this.firstShape.getCommonsPoints(this.secondShape).length < 2) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: {
-            message: "Il n'y a pas de segment commun entre les formes.",
+    } else if (this.currentStep == 'selecting-second-shape') {
+      if (this.firstShapeId == shape.id) {
+        // deselect firstShape
+        this.currentStep = 'listen-canvas-click';
+        this.firstShapeId = null;
+        app.mainDrawingEnvironment.editingShapeIds = [];
+      } else {
+        this.secondShapeId = shape.id;
+        this.actions = [
+          {
+            name: 'MergeAction',
+            mode: 'twoShapes',
+            firstShapeId: this.firstShapeId,
+            secondShapeId: this.secondShapeId,
           },
-        })
-      );
-      return;
+        ];
+        mustExecuteAction = true;
+      }
     }
 
-    if (this.firstShape.overlapsWith(this.secondShape)) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: 'Les formes se superposent.' },
-        })
-      );
-      return;
+    // if (this.firstShape.getCommonsPoints(this.secondShape).length < 2) {
+    //   window.dispatchEvent(
+    //     new CustomEvent('show-notif', {
+    //       detail: {
+    //         message: "Il n'y a pas de segment commun entre les formes.",
+    //       },
+    //     })
+    //   );
+    //   return;
+    // }
+
+    // if (this.firstShape.overlapsWith(this.secondShape)) {
+    //   window.dispatchEvent(
+    //     new CustomEvent('show-notif', {
+    //       detail: { message: 'Les formes se superposent.' },
+    //     })
+    //   );
+    //   return;
+    // }
+
+    if (mustExecuteAction) {
+      this.executeAction();
+      this.restart();
     }
-
-    this.actions = [
-      {
-        name: 'MergeAction',
-        mode: 'twoShapes',
-        firstShapeId: this.firstShape.id,
-        secondShapeId: this.secondShape.id,
-        createdShapeId: uniqId(),
-      },
-    ];
-
-    this.executeAction();
-    this.restart();
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
@@ -282,9 +281,9 @@ export class MergeState extends State {
       );
       if (newPotentialSegments.length != 1) {
         if (newPotentialSegments.length == 0)
-          console.alert('shape cannot be closed (dead end)');
+          console.warn('shape cannot be closed (dead end)');
         else
-          console.alert(
+          console.warn(
             'shape is dig (a segment has more than one segment for next)'
           );
         return null;
@@ -303,7 +302,7 @@ export class MergeState extends State {
       lastSegment = nextSegment;
     }
     if (segmentUsed != segmentsList.length) {
-      console.alert('shape is dig (not all segments have been used)');
+      console.warn('shape is dig (not all segments have been used)');
       return null;
     }
     if (
@@ -319,17 +318,16 @@ export class MergeState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (this.currentStep == 'selecting-second-shape') {
-      const shape = this.firstShape,
-        borderColor = shape.borderColor;
-
-      shape.borderColor = '#E90CC8';
-      window.dispatchEvent(
-        new CustomEvent('draw-shape', {
-          detail: { shape: shape, borderSize: 3 },
-        })
-      );
-      shape.borderColor = borderColor;
-    }
+    // if (this.currentStep == 'selecting-second-shape') {
+    //   const shape = this.firstShape,
+    //     borderColor = shape.borderColor;
+    //   shape.borderColor = '#E90CC8';
+    //   window.dispatchEvent(
+    //     new CustomEvent('draw-shape', {
+    //       detail: { shape: shape, borderSize: 3 },
+    //     })
+    //   );
+    //   shape.borderColor = borderColor;
+    // }
   }
 }

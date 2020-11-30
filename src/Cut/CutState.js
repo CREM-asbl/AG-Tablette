@@ -189,6 +189,12 @@ export class CutState extends State {
         this.currentStep = 'listen-canvas-click';
         this.setSelectionConstraints(this.currentStep);
       } else if (this.isLineValid(pt2.shape, this.centerPoint, pt2)) {
+        new Point({
+          coordinates: object.coordinates,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          color: this.drawColor,
+          size: 2,
+        });
         this.secondPoint = pt2;
         this.currentStep = 'showing-points';
         window.clearTimeout(this.timeoutRef);

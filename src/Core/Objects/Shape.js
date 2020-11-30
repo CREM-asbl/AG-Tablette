@@ -184,11 +184,7 @@ export class Shape {
       let coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       if (this.contains(coordinates)) {
-        lastVertex = this.points.find(
-          pt =>
-            pt.coordinates.x == coordinates.x &&
-            pt.coordinates.y == coordinates.y
-        );
+        lastVertex = this.points.find(pt => pt.coordinates.equal(coordinates));
       } else {
         lastVertex = new Point({
           coordinates: coordinates,
@@ -229,10 +225,8 @@ export class Shape {
             y: allPathElements.shift(),
           });
           if (this.contains(coordinates)) {
-            startVertex = lastVertex = this.points.find(
-              pt =>
-                pt.coordinates.x == coordinates.x &&
-                pt.coordinates.y == coordinates.y
+            startVertex = lastVertex = this.points.find(pt =>
+              pt.coordinates.equal(coordinates)
             );
           } else {
             startVertex = lastVertex = new Point({
@@ -503,7 +497,7 @@ export class Shape {
       // if (this.isCenterShown && this.center.equal(object)) return true;
       return false;
     } else {
-      console.alert('unsupported object');
+      console.warn('unsupported object');
       return false;
     }
   }
@@ -617,7 +611,7 @@ export class Shape {
           !shape.isPointInBorder(middles_to_check[idx])
       )
     ) {
-      console.alert('shape inside another');
+      console.warn('shape inside another');
       return true;
     }
     return false;
@@ -1316,12 +1310,15 @@ export class Shape {
       if (
         this.segments[i].hasSameDirection(this.segments[nextIdx], 1, 0, false)
       ) {
-        //todo remove from drawingenv
-        app.mainDrawingEnvironment.removeObjectById(
-          this.segments[i].vertexIds[1],
-          'point'
-        );
+        let middlePointId = this.segments[i].vertexIds[1];
+        let ptIdx = this.pointIds.findIndex(ptId => ptId == middlePointId);
+        this.pointIds.splice(ptIdx, 1);
+        app.mainDrawingEnvironment.removeObjectById(middlePointId, 'point');
         this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
+        let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
+          id => id == this.segmentIds[nextIdx]
+        );
+        this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
         app.mainDrawingEnvironment.removeObjectById(
           this.segmentIds[nextIdx],
           'segment'
@@ -1330,5 +1327,6 @@ export class Shape {
         i--; // try to merge this new segment again!
       }
     }
+    this.segments.forEach((seg, idx) => (seg.idx = idx));
   }
 }

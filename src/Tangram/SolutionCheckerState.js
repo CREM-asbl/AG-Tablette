@@ -326,7 +326,7 @@ export class SolutionCheckerState extends State {
           seg => !seg.isUsed && seg.contains(currentSegment.vertexes[1], false)
         );
         if (newPotentialSegments.length == 0) {
-          console.alert('shape cannot be closed (dead end)');
+          console.warn('shape cannot be closed (dead end)');
           return null;
         } else if (newPotentialSegments.length > 1) {
           newSegmentsSets.push([]);

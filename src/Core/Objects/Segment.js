@@ -24,7 +24,8 @@ export class Segment {
     shapeId = undefined,
     idx = undefined,
     createFromNothing = false,
-    vertexCoordinates = undefined,
+    vertexCoordinates = [],
+    divisionPointInfos = [],
     vertexIds = [],
     divisionPointIds = [],
     arcCenterId = undefined,
@@ -44,9 +45,21 @@ export class Segment {
         let newPoint = new Point({
           drawingEnvironment: this.drawingEnvironment,
           segmentIds: [this.id],
+          shapeId: this.shapeId,
           idx: idx,
           type: 'vertex',
           coordinates: vCoord,
+        });
+        return newPoint.id;
+      });
+      this.divisionPointIds = divisionPointInfos.map(dInfo => {
+        let newPoint = new Point({
+          drawingEnvironment: this.drawingEnvironment,
+          segmentIds: [this.id],
+          shapeId: this.shapeId,
+          type: 'divisionPoint',
+          coordinates: dInfo.coordinates,
+          ratio: dInfo.ratio,
         });
         return newPoint.id;
       });
@@ -378,7 +391,7 @@ export class Segment {
     }
     let numberOfSegments = this.shape.segmentIds.length;
     if (numberOfSegments == 1) {
-      console.alert('Previous Segment of Shape with one Segment returns this.');
+      console.warn('Previous Segment of Shape with one Segment returns this.');
     }
     let previousIdx = mod(this.idx - 1, numberOfSegments);
     let previousSegment = this.shape.segments[previousIdx];
@@ -392,7 +405,7 @@ export class Segment {
     }
     let numberOfSegments = this.shape.segmentIds.length;
     if (numberOfSegments == 1) {
-      console.alert('Next Segment of Shape with one Segment returns this.');
+      console.warn('Next Segment of Shape with one Segment returns this.');
     }
     let nextIdx = mod(this.idx + 1, numberOfSegments);
     let nextSegment = this.shape.segments[nextIdx];
@@ -454,10 +467,30 @@ export class Segment {
    * sort segment points from vertexes[start]
    * @param {*} start
    */
-  sortPoints(start = 0) {
-    this.points.sort((pt1, pt2) =>
-      pt1.dist(this.vertexes[start]) > pt2.dist(this.vertexes[start]) ? 1 : -1
-    );
+  sortDivisionPoints(start = 0) {
+    if (this.divisionPointIds.length != 0)
+      this.divisionPoints.forEach(div =>
+        console.log(
+          'not sorted',
+          div.coordinates.x,
+          div.coordinates.y,
+          div.ratio
+        )
+      );
+    this.divisionPointIds.sort((id1, id2) => {
+      let pt1 = this.drawingEnvironment.findObjectById(id1, 'point');
+      let pt2 = this.drawingEnvironment.findObjectById(id2, 'point');
+      return (pt1.ratio - pt2.ratio) * (-start * 2 + 1);
+    });
+    if (this.divisionPointIds.length != 0)
+      this.divisionPoints.forEach(div =>
+        console.log(
+          '    sorted',
+          div.coordinates.x,
+          div.coordinates.y,
+          div.ratio
+        )
+      );
   }
 
   deletePoint(point) {
@@ -506,7 +539,8 @@ export class Segment {
   }
 
   reverse(changeClockwise = false) {
-    this.vertexes.reverse();
+    this.vertexIds.reverse();
+    this.divisionPoints.forEach(pt => (pt.ratio = 1 - pt.ratio));
     if (this.arcCenter && changeClockwise)
       this.counterclockwise = !this.counterclockwise;
   }
@@ -806,7 +840,13 @@ export class Segment {
         this.vertexes.some(vertex => vertex.equal(object)) ||
         (matchSegmentPoints && this.points.some(point => point.equal(object)))
       );
-    else console.alert('unsupported object :', object);
+    else if (object instanceof Coordinates) {
+      return (
+        this.vertexes.some(vertex => vertex.coordinates.equal(object)) ||
+        (matchSegmentPoints &&
+          this.points.some(point => point.coordinates.equal(object)))
+      );
+    } else console.warn('unsupported object :', object);
   }
 
   equal(segment) {
@@ -814,10 +854,10 @@ export class Segment {
       return false;
     // one is arc and the other not
     else if (
-      (this.vertexes[0].equal(segment.vertexes[1]) &&
-        this.vertexes[1].equal(segment.vertexes[0])) ||
-      (this.vertexes[0].equal(segment.vertexes[0]) &&
-        this.vertexes[1].equal(segment.vertexes[1]))
+      (this.vertexes[0].coordinates.equal(segment.vertexes[1].coordinates) &&
+        this.vertexes[1].coordinates.equal(segment.vertexes[0].coordinates)) ||
+      (this.vertexes[0].coordinates.equal(segment.vertexes[0].coordinates) &&
+        this.vertexes[1].coordinates.equal(segment.vertexes[1].coordinates))
     ) {
       if (this.arcCenter) {
         return (

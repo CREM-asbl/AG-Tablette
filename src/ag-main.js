@@ -324,7 +324,7 @@ class AGTabletteApp extends LitElement {
         window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:
-        console.alert(
+        console.warn(
           'unknow event type: ' + event.type + ', with event: ',
           event
         );

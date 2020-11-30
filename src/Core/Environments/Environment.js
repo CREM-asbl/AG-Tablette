@@ -40,7 +40,7 @@ export class Environment {
         import('./Geometrie');
         break;
       default:
-        console.alert(`Environnement ${name} pas encore pris en charge`);
+        console.warn(`Environnement ${name} pas encore pris en charge`);
     }
   }
 
