@@ -151,7 +151,6 @@ export class DeleteAction extends Action {
       let segment = this.point.segments[0];
       segment.deletePoint(this.point);
       let shape = segment.shape;
-      console.log(shape.pointIds.length);
     }
   }
 

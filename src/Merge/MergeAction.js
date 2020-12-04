@@ -158,22 +158,6 @@ export class MergeAction extends Action {
           secondSegment
         );
         if (commonCoordinates) {
-          console.log(
-            '---',
-            firstSegment.vertexes[0].coordinates.x,
-            firstSegment.vertexes[0].coordinates.y,
-            '\n   ',
-            firstSegment.vertexes[1].coordinates.x,
-            firstSegment.vertexes[1].coordinates.y
-          );
-          console.log(
-            '---',
-            secondSegment.vertexes[0].coordinates.x,
-            secondSegment.vertexes[0].coordinates.y,
-            '\n   ',
-            secondSegment.vertexes[1].coordinates.x,
-            secondSegment.vertexes[1].coordinates.y
-          );
           // todo: quand on crée un nouveau segment, copier les points de division de son modele
           // si on veut faire la fusion d'un groupe
           if (
@@ -234,26 +218,6 @@ export class MergeAction extends Action {
           }
           segments1.splice(i, 1);
           segments2.splice(j, 1);
-          segments1.forEach(seg =>
-            console.log(
-              '--',
-              seg.vertexes[0].coordinates.x,
-              seg.vertexes[0].coordinates.y,
-              '\n  ',
-              seg.vertexes[1].coordinates.x,
-              seg.vertexes[1].coordinates.y
-            )
-          );
-          segments2.forEach(seg =>
-            console.log(
-              '--',
-              seg.vertexes[0].coordinates.x,
-              seg.vertexes[0].coordinates.y,
-              '\n  ',
-              seg.vertexes[1].coordinates.x,
-              seg.vertexes[1].coordinates.y
-            )
-          );
           i = -1;
           break;
         }
@@ -285,14 +249,6 @@ export class MergeAction extends Action {
         }
       });
     });
-    if (firstCommonCoordinates != null && secondCommonCoordinates != null)
-      console.log(
-        'commoncoordinates',
-        firstCommonCoordinates.x,
-        firstCommonCoordinates.y,
-        secondCommonCoordinates.x,
-        secondCommonCoordinates.y
-      );
     if (firstCommonCoordinates != null && secondCommonCoordinates != null)
       return [firstCommonCoordinates, secondCommonCoordinates];
     else return null;
@@ -362,7 +318,6 @@ export class MergeAction extends Action {
    * @param {String} path
    */
   createNewShape(shape1, shape2, path) {
-    console.log(path);
     let newShape = new Shape({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: path,

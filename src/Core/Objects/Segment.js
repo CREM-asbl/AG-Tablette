@@ -468,29 +468,11 @@ export class Segment {
    * @param {*} start
    */
   sortDivisionPoints(start = 0) {
-    if (this.divisionPointIds.length != 0)
-      this.divisionPoints.forEach(div =>
-        console.log(
-          'not sorted',
-          div.coordinates.x,
-          div.coordinates.y,
-          div.ratio
-        )
-      );
     this.divisionPointIds.sort((id1, id2) => {
       let pt1 = this.drawingEnvironment.findObjectById(id1, 'point');
       let pt2 = this.drawingEnvironment.findObjectById(id2, 'point');
       return (pt1.ratio - pt2.ratio) * (-start * 2 + 1);
     });
-    if (this.divisionPointIds.length != 0)
-      this.divisionPoints.forEach(div =>
-        console.log(
-          '    sorted',
-          div.coordinates.x,
-          div.coordinates.y,
-          div.ratio
-        )
-      );
   }
 
   deletePoint(point) {
@@ -506,7 +488,6 @@ export class Segment {
     i = this.shape.pointIds.findIndex(shapePointId => {
       return pointId == shapePointId;
     });
-    console.log(i);
     if (i == -1) {
       console.error("couldn't delete point from shape");
       return null;

@@ -164,7 +164,6 @@ export class CutAction extends Action {
       }
       firstPath.push('L', pt2.coordinates.x, pt2.coordinates.y);
       let endJunctionIndex = pt2.idx || pt2.segments[0].idx;
-      console.log(endJunctionIndex);
       if (!(pt2.type == 'vertex' && pt2.idx === 0)) {
         for (let i = endJunctionIndex + 1; i <= nbOfSegments; i++) {
           firstPath.push(

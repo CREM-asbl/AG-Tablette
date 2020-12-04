@@ -281,16 +281,22 @@ export class DrawManager {
    * @param  {String}     [color='#000']  Couleur du texte
    * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  static drawText(ctx, text, position, color = '#000', doSave = true) {
+  static drawText(
+    drawingEnvironment,
+    text,
+    position,
+    color = '#000',
+    doSave = true
+  ) {
+    let ctx = drawingEnvironment.ctx;
     if (doSave) ctx.save();
 
-    const fontSize = 20,
-      positionCopy = new Point(position);
-    positionCopy.translate(
-      (((-3 * fontSize) / 13) * text.length) / app.workspace.zoomLevel,
-      fontSize / 2 / app.workspace.zoomLevel
-    );
-    positionCopy.setToCanvasCoordinates();
+    const fontSize = 20;
+    let positionCopy = position.add({
+      x: (((-3 * fontSize) / 13) * text.length) / app.workspace.zoomLevel,
+      y: fontSize / 2 / app.workspace.zoomLevel,
+    });
+    positionCopy = positionCopy.toCanvasCoordinates();
 
     ctx.fillStyle = color;
     ctx.font = fontSize + 'px Arial';
@@ -368,12 +374,12 @@ window.addEventListener('draw-point', event => {
 });
 window.addEventListener('draw-text', event => {
   const drawingEnvironment =
-    event.detail.shape.drawingEnvironment || app.workspace;
+    event.detail.text.drawingEnvironment || app.workspace;
   DrawManager.drawText(
     drawingEnvironment,
-    event.detail.text,
-    event.detail.position,
-    event.detail.color,
+    event.detail.text.message,
+    event.detail.text.coordinates,
+    event.detail.text.color,
     event.detail.doSave
   );
 });

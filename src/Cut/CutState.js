@@ -128,7 +128,6 @@ export class CutState extends State {
         pt2 = object;
       if (pt1.id == pt2.id) {
         // Désélectionner le premier point
-        console.log(app.upperDrawingEnvironment.points);
         this.shape = null;
         app.upperDrawingEnvironment.removeObjectById(
           app.upperDrawingEnvironment.points[0].id,

@@ -41,7 +41,6 @@ export class GroupAction extends Action {
     if (this.type == 'new') {
       this.shapeId = save.shapeId;
       this.secondShapeId = save.secondShapeId;
-      this.groupId = save.groupId;
     } else if (this.type == 'add') {
       this.shapeId = save.shapeId;
       if (save.group) {
@@ -159,11 +158,10 @@ export class GroupAction extends Action {
    * effectuer l'action en cours, appelé par un state ou l'historique
    */
   do() {
-    if (!this.checkDoParameters()) return;
+    // if (!this.checkDoParameters()) return;
 
     if (this.type == 'new') {
       let group = new ShapeGroup(this.shapeId, this.secondShapeId);
-      group.id = this.groupId;
       GroupManager.addGroup(group);
     } else if (this.type == 'add') {
       this.group.addShape(this.shapeId);
@@ -181,7 +179,7 @@ export class GroupAction extends Action {
    * annuler l'action précédente, appelé par l'historique
    */
   undo() {
-    if (!this.checkUndoParameters()) return;
+    // if (!this.checkUndoParameters()) return;
 
     if (this.type == 'new') {
       let group = GroupManager.getGroup(this.groupId);

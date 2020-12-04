@@ -4,6 +4,7 @@ import { html } from 'lit-element';
 import { uniqId } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GroupManager } from '../Core/Managers/GroupManager';
+import { Text } from '../Core/Objects/Text';
 
 /**
  * Grouper des formes.
@@ -54,6 +55,16 @@ export class GroupState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
+    app.mainDrawingEnvironment.shapes.map(s => {
+      if (GroupManager.getShapeGroup(s) != null) {
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          type: 'group',
+        });
+      }
+    });
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -61,6 +72,7 @@ export class GroupState extends State {
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
@@ -68,6 +80,16 @@ export class GroupState extends State {
    */
   restart() {
     this.end();
+    app.mainDrawingEnvironment.shapes.map(s => {
+      if (GroupManager.getShapeGroup(s) != null) {
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          type: 'group',
+        });
+      }
+    });
     if (this.currentStep == 'listen-canvas-click') {
       setTimeout(
         () =>
@@ -75,21 +97,23 @@ export class GroupState extends State {
             app.fastSelectionConstraints.click_all_shape)
       );
     } else {
-      let shapesList = [];
+      let shapeIdsList = [];
       if (this.currentStep == 'selecting-second-shape')
-        shapesList = [this.firstShape];
-      else
-        shapesList = this.group.shapesIds.map(id =>
-          ShapeManager.getShapeById(id)
-        );
+        shapeIdsList = [this.firstShape.id];
+      else shapeIdsList = this.group.shapesIds;
 
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
-      app.workspace.selectionConstraints.shapes.blacklist = shapesList;
+      app.workspace.selectionConstraints.shapes.blacklist = shapeIdsList.map(
+        id => {
+          return { shapeId: id };
+        }
+      );
     }
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
@@ -98,8 +122,10 @@ export class GroupState extends State {
   end() {
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
+      app.upperDrawingEnvironment.removeAllObjects();
     }
     app.removeListener('objectSelected', this.objectSelectedId);
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
@@ -118,15 +144,21 @@ export class GroupState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    //Étapes
     if (this.currentStep == 'listen-canvas-click') {
       let userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
         this.currentStep = 'filling-group';
       } else {
-        this.firstShape = shape;
+        this.firstShapeId = shape.id;
         this.currentStep = 'selecting-second-shape';
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: shape.centerCoordinates,
+          message: 'Groupe ' + (app.workspace.shapeGroups.length + 1),
+          referenceId: this.firstShapeId,
+          type: 'group',
+        });
       }
     } else if (this.currentStep == 'selecting-second-shape') {
       let userGroup = GroupManager.getShapeGroup(shape);
@@ -136,24 +168,28 @@ export class GroupState extends State {
           {
             name: 'GroupAction',
             type: 'add',
-            shapeId: this.firstShape.id,
-            group: userGroup,
+            shapeId: this.firstShapeId,
+            group: this.group,
           },
         ];
         this.executeAction();
       } else {
-        this.groupId = uniqId();
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: shape.centerCoordinates,
+          referenceId: shape.id,
+          type: 'group',
+        });
         this.actions = [
           {
             name: 'GroupAction',
             type: 'new',
-            shapeId: this.firstShape.id,
+            shapeId: this.firstShapeId,
             secondShapeId: shape.id,
-            groupId: this.groupId,
           },
         ];
         this.executeAction();
-        this.group = GroupManager.getGroup(this.groupId);
+        this.group = GroupManager.getShapeGroup(shape);
       }
       this.currentStep = 'filling-group';
     } else {
@@ -180,6 +216,12 @@ export class GroupState extends State {
         ];
         this.executeAction();
       } else {
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: shape.centerCoordinates,
+          referenceId: shape.id,
+          type: 'group',
+        });
         this.actions = [
           {
             name: 'GroupAction',
@@ -192,57 +234,21 @@ export class GroupState extends State {
       }
     }
 
-    let shapesList = [];
+    let shapeIdsList = [];
     if (this.currentStep == 'selecting-second-shape')
-      shapesList = [this.firstShape];
-    else
-      shapesList = this.group.shapesIds.map(id =>
-        ShapeManager.getShapeById(id)
-      );
+      shapeIdsList = [this.firstShapeId];
+    else shapeIdsList = this.group.shapesIds;
 
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.shapes.canSelect = true;
-    app.workspace.selectionConstraints.shapes.blacklist = shapesList;
+    app.workspace.selectionConstraints.shapes.blacklist = shapeIdsList.map(
+      sId => {
+        return { shapeId: sId };
+      }
+    );
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
-  }
-
-  /**
-   * Appelée par la fonction de dessin après avoir dessiné une forme sur le
-   * canvas principal
-   * @param  {Shape}  shape  La forme dessinée
-   */
-  shapeDrawn(shape) {
-    let group = GroupManager.getShapeGroup(shape),
-      center = shape.center,
-      pos = { x: center.x, y: center.y };
-    if (group) {
-      let groupIndex = GroupManager.getGroupIndex(group);
-      window.dispatchEvent(
-        new CustomEvent('draw-text', {
-          detail: {
-            ctx: app.mainCtx,
-            text: 'Groupe ' + (groupIndex + 1),
-            position: pos,
-          },
-        })
-      );
-    } else if (
-      this.currentStep == 'selecting-second-shape' &&
-      this.firstShape == shape
-    ) {
-      let groupIndex = app.workspace.shapeGroups.length;
-      window.dispatchEvent(
-        new CustomEvent('draw-text', {
-          detail: {
-            ctx: app.mainCtx,
-            text: 'Groupe ' + (groupIndex + 1),
-            position: pos,
-          },
-        })
-      );
-    }
   }
 }

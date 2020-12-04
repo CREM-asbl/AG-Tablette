@@ -89,7 +89,6 @@ export class ReverseState extends State {
         this.selectedShape,
       ];
     } else {
-      console.log(this.currentStep);
       setTimeout(
         () =>
           (app.workspace.selectionConstraints =
@@ -106,7 +105,6 @@ export class ReverseState extends State {
   end() {
     window.cancelAnimationFrame(this.requestAnimFrameId);
     app.upperDrawingEnvironment.removeAllObjects();
-    console.log('remove');
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
       this.selectedShape = null;
@@ -137,8 +135,6 @@ export class ReverseState extends State {
       this.currentStep == 'selecting-symmetry-axis' &&
       object instanceof Segment
     ) {
-      console.log(app.mainDrawingEnvironment.segments.length);
-
       this.axis
         .filter(axis => axis.id != object.shape.id)
         .forEach(axis =>
@@ -212,14 +208,10 @@ export class ReverseState extends State {
         { shapeId: this.selectedShape.id },
       ];
 
-      console.log(app.mainDrawingEnvironment.segments.length);
-
       this.currentStep = 'selecting-symmetry-axis';
       window.dispatchEvent(new CustomEvent('refreshUpper'));
-      console.log(app.mainDrawingEnvironment.segments.length);
 
       window.dispatchEvent(new CustomEvent('refresh'));
-      console.log(app.mainDrawingEnvironment.segments.length);
     }
   }
 

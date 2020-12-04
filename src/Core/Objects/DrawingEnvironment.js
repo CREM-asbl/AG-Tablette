@@ -12,6 +12,7 @@ export class DrawingEnvironment {
     this.shapes = [];
     this.segments = [];
     this.points = [];
+    this.texts = [];
 
     this.editingShapeIds = [];
 
@@ -26,6 +27,7 @@ export class DrawingEnvironment {
     this.shapes = [];
     this.segments = [];
     this.points = [];
+    this.texts = [];
     this.clear();
   }
 
@@ -35,6 +37,7 @@ export class DrawingEnvironment {
 
   redraw() {
     this.clear();
+    this.texts.forEach(text => text.updateMessage());
     this.draw();
   }
 
@@ -70,6 +73,13 @@ export class DrawingEnvironment {
         }
       });
     }
+    this.texts.forEach(text => {
+      window.dispatchEvent(
+        new CustomEvent('draw-text', {
+          detail: { text: text },
+        })
+      );
+    });
   }
 
   /**

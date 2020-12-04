@@ -264,7 +264,6 @@ export class DivideAction extends Action {
     ) {
       coord = coord.add(part);
       let ratio = this.firstPoint.ratio + i * ratioCap;
-      console.log(ratio);
       this.segment.addPoint(coord, ratio);
     }
   }

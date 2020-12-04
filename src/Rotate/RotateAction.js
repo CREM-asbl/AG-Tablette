@@ -66,8 +66,8 @@ export class RotateAction extends Action {
 
     let transformation = getShapeAdjustment(involvedShape, shape);
     involvedShape.forEach(s => {
-      shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
-      shape.translate(transformation.translation);
+      s.rotate(transformation.rotationAngle, shape.centerCoordinates);
+      s.translate(transformation.translation);
     });
   }
 

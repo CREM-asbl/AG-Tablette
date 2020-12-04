@@ -67,6 +67,7 @@ export class UngroupAction extends Action {
 
     this.group = GroupManager.getGroup(this.group.id);
     GroupManager.deleteGroup(this.group);
+    console.log(app.workspace.shapeGroups);
   }
 
   /**
