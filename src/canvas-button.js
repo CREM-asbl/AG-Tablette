@@ -1,10 +1,8 @@
 import { app } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
 import { Shape } from './Core/Objects/Shape';
-import { Point } from './Core/Objects/Point';
 import { Bounds } from './Core/Objects/Bounds';
 import { Coordinates } from './Core/Objects/Coordinates';
-import { mod } from './Core/Tools/general';
 import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
 
 //A quoi sert silhouetteidx ?

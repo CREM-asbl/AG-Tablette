@@ -2,7 +2,6 @@ import { Action } from '../../Core/States/Action';
 import { ShapeManager } from '../../Core/Managers/ShapeManager';
 import { Shape } from '../../Core/Objects/Shape';
 import { Segment } from '../../Core/Objects/Segment';
-import { Point } from '../../Core/Objects/Point';
 
 export class CreateRegularAction extends Action {
   constructor() {

@@ -1,8 +1,6 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { uniqId } from '../Core/Tools/general';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Text } from '../Core/Objects/Text';
 

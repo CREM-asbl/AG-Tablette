@@ -3,7 +3,7 @@ import { getAverageColor } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
+import { app } from '../Core/App';
 
 export class MergeAction extends Action {
   constructor() {

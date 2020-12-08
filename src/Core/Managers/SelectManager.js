@@ -1,6 +1,5 @@
 import { app } from '../App';
 import { ShapeManager } from './ShapeManager';
-import { Shape } from '../Objects/Shape';
 
 /*
 TODO:

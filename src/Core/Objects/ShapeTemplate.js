@@ -1,5 +1,3 @@
-import { app } from '../App';
-
 /**
  * Représente un modèle de forme
  */

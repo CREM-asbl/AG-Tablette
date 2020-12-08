@@ -3,7 +3,6 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
 import { Shape } from '../Core/Objects/Shape';
 import { Coordinates } from '../Core/Objects/Coordinates';
 

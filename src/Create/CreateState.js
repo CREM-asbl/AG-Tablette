@@ -1,11 +1,8 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
-import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -168,8 +165,7 @@ export class CreateState extends State {
   onMouseUp() {
     if (this.currentStep != 'moving-shape') return;
 
-    let shapeSize = app.settings.get('shapesSize'),
-      involvedShapes = [this.shapeToCreate];
+    let shapeSize = app.settings.get('shapesSize');
 
     this.actions = [
       {

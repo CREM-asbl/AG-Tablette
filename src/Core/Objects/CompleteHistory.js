@@ -1,4 +1,3 @@
-import { Point } from './Point';
 import { app } from '../App';
 import { Coordinates } from './Coordinates';
 

@@ -2,6 +2,7 @@ import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
+import { app } from '../Core/App';
 
 export class ReverseAction extends Action {
   constructor() {

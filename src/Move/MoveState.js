@@ -1,9 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { DrawingEnvironment } from '../Core/Objects/DrawingEnvironment';
 import { Shape } from '../Core/Objects/Shape';
 
 /**

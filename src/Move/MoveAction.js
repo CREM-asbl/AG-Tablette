@@ -1,6 +1,5 @@
 import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Point } from '../Core/Objects/Point';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 export class MoveAction extends Action {

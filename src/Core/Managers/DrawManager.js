@@ -3,7 +3,6 @@ import { GridManager } from '../../Grid/GridManager';
 import { ShapeManager } from './ShapeManager';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
-import { DrawingEnvironment } from '../Objects/DrawingEnvironment';
 
 export class DrawManager {
   /* #################################################################### */

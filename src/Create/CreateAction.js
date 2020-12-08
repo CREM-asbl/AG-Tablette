@@ -3,6 +3,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { ShapeTemplate } from '../Core/Objects/ShapeTemplate';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { app } from '../Core/App';
 
 export class CreateAction extends Action {
   constructor() {

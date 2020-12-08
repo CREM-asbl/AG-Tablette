@@ -1,8 +1,6 @@
 import { Action } from '../Core/States/Action';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
-import { Coordinates } from '../Core/Objects/Coordinates';
+import { app } from '../Core/App';
 
 export class DivideAction extends Action {
   constructor() {

@@ -1,7 +1,6 @@
 import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
 import { GridManager } from '../../Grid/GridManager';
-import { Point } from '../Objects/Point';
 import { Coordinates } from '../Objects/Coordinates';
 
 /**
@@ -11,7 +10,7 @@ import { Coordinates } from '../Objects/Coordinates';
  * @param  {{'moving': Object, 'fixed': Object}} e2 2eme point commun
  * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
  * @param  {Shape} mainShape      La forme principale
- * @return {{rotationAngle: float, translation: Point}}
+ * @return {{rotationAngle: float, translation: Coordinates}}
  */
 function computeTransformation(e1, e2, shapes, mainShape) {
   let fix1 = e1.fixed.coordinates,

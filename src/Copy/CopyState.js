@@ -1,9 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { uniqId } from '../Core/Tools/general';
-import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Shape } from '../Core/Objects/Shape';

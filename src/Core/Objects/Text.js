@@ -1,10 +1,6 @@
 import { app } from '../App';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { Segment } from './Segment';
-import { mod, uniqId } from '../Tools/general';
-import { Shape } from './Shape';
+import { uniqId } from '../Tools/general';
 import { Coordinates } from './Coordinates';
-import { DrawingEnvironment } from './DrawingEnvironment';
 import { GroupManager } from '../Managers/GroupManager';
 
 /**

@@ -1,6 +1,5 @@
 import { app } from '../App';
 import { GroupManager } from './GroupManager';
-import { Coordinates } from '../Objects/Coordinates';
 
 export class ShapeManager {
   /**

@@ -1,10 +1,7 @@
-import { app } from '../App';
 import { ShapeManager } from '../Managers/ShapeManager';
 import { Segment } from './Segment';
 import { mod, uniqId } from '../Tools/general';
-import { Shape } from './Shape';
 import { Coordinates } from './Coordinates';
-import { DrawingEnvironment } from './DrawingEnvironment';
 
 /**
  * Représente un point du plan

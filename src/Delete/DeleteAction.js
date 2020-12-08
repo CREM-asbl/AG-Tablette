@@ -2,8 +2,6 @@ import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
-import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
 import { app } from '../Core/App';
 
 export class DeleteAction extends Action {
@@ -150,7 +148,6 @@ export class DeleteAction extends Action {
       // point
       let segment = this.point.segments[0];
       segment.deletePoint(this.point);
-      let shape = segment.shape;
     }
   }
 
