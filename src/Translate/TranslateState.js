@@ -1,6 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Faire translater le plan
@@ -76,7 +77,10 @@ export class TranslateState extends State {
   onMouseDown() {
     if (this.currentStep != 'listen-canvas-click') return;
 
-    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+    this.startClickCoordinates = new Coordinates(
+      app.workspace.lastKnownMouseCoordinates
+    );
+    this.startOffset = new Coordinates(app.workspace.translateOffset);
     this.currentStep = 'translating-plane';
 
     this.mouseMoveId = app.addListener('canvasmousemove', this.handler);
@@ -85,27 +89,28 @@ export class TranslateState extends State {
 
   onMouseMove() {
     if (this.currentStep != 'translating-plane') return;
-    let factor = app.workspace.zoomLevel,
-      saveOffset = app.workspace.translateOffset,
-      clickDiff = app.workspace.lastKnownMouseCoordinates
-        .subCoordinates(this.startClickCoordinates)
-        .multiplyWithScalar(factor),
-      offset = saveOffset.addCoordinates(clickDiff);
 
-    app.workspace.setTranslateOffset(offset);
-    app.workspace.setTranslateOffset(saveOffset, false);
+    let newOffset = app.workspace.translateOffset.add(
+      app.workspace.lastKnownMouseCoordinates
+        .substract(this.startClickCoordinates)
+        .multiply(app.workspace.zoomLevel)
+    );
+
+    console.log(newOffset);
+
+    app.workspace.setTranslateOffset(newOffset);
+    app.workspace.setTranslateOffset(this.startOffset, false);
   }
 
   onMouseUp() {
     if (this.currentStep != 'translating-plane') return;
 
-    let factor = app.workspace.zoomLevel;
     this.actions = [
       {
         name: 'TranslateAction',
         offset: app.workspace.lastKnownMouseCoordinates
-          .subCoordinates(this.startClickCoordinates)
-          .multiplyWithScalar(factor),
+          .substract(this.startClickCoordinates)
+          .multiply(app.workspace.zoomLevel),
       },
     ];
     this.executeAction();

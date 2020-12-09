@@ -184,7 +184,7 @@ export class ReverseState extends State {
           new Shape({
             ...s,
             drawingEnvironment: app.upperDrawingEnvironment,
-            path: s.getSVGPath(),
+            path: s.getSVGPath('no scale'),
             id: undefined,
           })
       );

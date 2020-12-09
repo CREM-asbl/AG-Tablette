@@ -123,7 +123,7 @@ export class CopyState extends State {
       let newShape = new Shape({
         ...s,
         drawingEnvironment: app.upperDrawingEnvironment,
-        path: s.getSVGPath(),
+        path: s.getSVGPath('no scale'),
         id: undefined,
       });
       newShape.translate(this.translateOffset);

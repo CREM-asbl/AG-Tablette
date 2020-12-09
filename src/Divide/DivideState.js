@@ -192,7 +192,7 @@ export class DivideState extends State {
           drawingEnvironment: app.upperDrawingEnvironment,
           borderColor: this.drawColor,
           borderSize: 3,
-          path: object.getSVGPath(undefined, undefined, true),
+          path: object.getSVGPath('no scale', undefined, true),
           id: undefined,
         });
 

@@ -132,7 +132,7 @@ export class MergeState extends State {
         this.drawingShapes = new Shape({
           ...shape,
           drawingEnvironment: app.upperDrawingEnvironment,
-          path: shape.getSVGPath(),
+          path: shape.getSVGPath('no scale'),
           id: undefined,
           borderColor: '#E90CC8',
           borderSize: 3,

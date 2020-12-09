@@ -13,73 +13,64 @@ export class DrawManager {
    * Refresh the background and the forbidden ctx (grid and silhouette)
    */
   static refreshBackground() {
-    DrawManager.clearCtx(app.backgroundCtx);
-
-    // Grid
-    if (app.workspace.settings.get('isGridShown')) {
-      const canvasWidth = app.canvas.main.clientWidth,
-        canvasHeight = app.canvas.main.clientHeight,
-        offsetX = app.workspace.translateOffset.x,
-        offsetY = app.workspace.translateOffset.y,
-        actualZoomLvl = app.workspace.zoomLevel,
-        // Ne pas voir les points apparaître :
-        marginToAdd = 20 * actualZoomLvl,
-        min = new Point(
-          -offsetX / actualZoomLvl - marginToAdd,
-          -offsetY / actualZoomLvl - marginToAdd
-        ),
-        max = new Point(
-          (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
-          (canvasHeight - offsetY) / actualZoomLvl + marginToAdd
-        ),
-        pts = GridManager.getVisibleGridPoints(min, max);
-
-      pts.forEach(pt => {
-        DrawManager.drawPoint(
-          app.backgroundCtx,
-          pt,
-          '#F00',
-          1.5 * actualZoomLvl,
-          false
-        );
-      });
-    }
-
-    // Tangram
-    if (app.silhouette) {
-      let ctx;
-      if (app.silhouette.level != 3 && app.silhouette.level != 4) {
-        ctx = app.backgroundCtx;
-      } else {
-        ctx = app.forbiddenCtx;
-        DrawManager.clearCtx(ctx);
-        // clear au cas ou
-      }
-
-      const bounds = app.silhouette.bounds,
-        silhouetteCenter = new Point(
-          (bounds[1] + bounds[0]) / 2,
-          (bounds[3] + bounds[2]) / 2
-        ),
-        width = app.canvasWidth / 2,
-        height = app.canvasHeight,
-        canvasCenter = new Point(width / 2, height / 2);
-
-      if (app.silhouette.level != 3 && app.silhouette.level != 4) {
-        canvasCenter.translate(width, 0);
-      }
-
-      silhouetteCenter.setToCanvasCoordinates();
-
-      const translation = canvasCenter.subCoordinates(silhouetteCenter);
-
-      translation.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
-
-      app.silhouette.shapes.forEach(s => {
-        s.translate(translation);
-        DrawManager.drawShape(ctx, s);
-      });
-    }
+    // DrawManager.clearCtx(app.backgroundCtx);
+    // // Grid
+    // if (app.workspace.settings.get('isGridShown')) {
+    //   const canvasWidth = app.canvas.main.clientWidth,
+    //     canvasHeight = app.canvas.main.clientHeight,
+    //     offsetX = app.workspace.translateOffset.x,
+    //     offsetY = app.workspace.translateOffset.y,
+    //     actualZoomLvl = app.workspace.zoomLevel,
+    //     // Ne pas voir les points apparaître :
+    //     marginToAdd = 20 * actualZoomLvl,
+    //     min = new Point(
+    //       -offsetX / actualZoomLvl - marginToAdd,
+    //       -offsetY / actualZoomLvl - marginToAdd
+    //     ),
+    //     max = new Point(
+    //       (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
+    //       (canvasHeight - offsetY) / actualZoomLvl + marginToAdd
+    //     ),
+    //     pts = GridManager.getVisibleGridPoints(min, max);
+    //   pts.forEach(pt => {
+    //     DrawManager.drawPoint(
+    //       app.backgroundCtx,
+    //       pt,
+    //       '#F00',
+    //       1.5 * actualZoomLvl,
+    //       false
+    //     );
+    //   });
+    // }
+    // // Tangram
+    // if (app.silhouette) {
+    //   let ctx;
+    //   if (app.silhouette.level != 3 && app.silhouette.level != 4) {
+    //     ctx = app.backgroundCtx;
+    //   } else {
+    //     ctx = app.forbiddenCtx;
+    //     DrawManager.clearCtx(ctx);
+    //     // clear au cas ou
+    //   }
+    //   const bounds = app.silhouette.bounds,
+    //     silhouetteCenter = new Point(
+    //       (bounds[1] + bounds[0]) / 2,
+    //       (bounds[3] + bounds[2]) / 2
+    //     ),
+    //     width = app.canvasWidth / 2,
+    //     height = app.canvasHeight,
+    //     canvasCenter = new Point(width / 2, height / 2);
+    //   if (app.silhouette.level != 3 && app.silhouette.level != 4) {
+    //     canvasCenter.translate(width, 0);
+    //   }
+    //   silhouetteCenter.setToCanvasCoordinates();
+    //   const translation = canvasCenter.subCoordinates(silhouetteCenter);
+    //   translation.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
+    //   app.silhouette.shapes.forEach(s => {
+    //     s.translate(translation);
+    //     DrawManager.drawShape(ctx, s);
+    //   });
+    // }
   }
 
   /**
@@ -87,19 +78,6 @@ export class DrawManager {
    */
   static refreshMain() {
     app.mainDrawingEnvironment.redraw();
-
-    // app.workspace.shapes
-    //   .filter(shape => {
-    //     return (
-    //       app.workspace.editingShapesIds.findIndex(id => id == shape.id) == -1
-    //     );
-    //   })
-    //   .forEach(shape => {
-    //     DrawManager.drawShape(app.mainCtx, shape);
-    //     window.dispatchEvent(
-    //       new CustomEvent('shapeDrawn', { detail: { shape: shape } })
-    //     );
-    //   });
   }
 
   /**

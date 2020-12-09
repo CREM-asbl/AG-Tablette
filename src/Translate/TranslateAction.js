@@ -11,8 +11,7 @@ export class TranslateAction extends Action {
   }
 
   initFromObject(save) {
-    this.offset = new Point();
-    this.offset.initFromObject(save.offset);
+    this.offset = save.offset;
   }
 
   /**
@@ -44,7 +43,9 @@ export class TranslateAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let originalOffset = app.workspace.translateOffset,
-      newOffset = originalOffset.addCoordinates(this.offset);
+      newOffset = originalOffset.add(this.offset);
+
+    console.log('end', newOffset);
 
     app.workspace.setTranslateOffset(newOffset);
   }

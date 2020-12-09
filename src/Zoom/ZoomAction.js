@@ -1,6 +1,6 @@
 import { app } from '../Core/App';
 import { Action } from '../Core/States/Action';
-import { Point } from '../Core/Objects/Point';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 export class ZoomAction extends Action {
   constructor() {
@@ -19,7 +19,9 @@ export class ZoomAction extends Action {
   initFromObject(save) {
     this.scaleOffset = save.scaleOffset;
     this.originalZoom = save.originalZoom;
-    this.originalTranslateOffset = new Point(save.originalTranslateOffset);
+    this.originalTranslateOffset = new Coordinates(
+      save.originalTranslateOffset
+    );
     this.centerProp = save.centerProp;
   }
 
@@ -48,19 +50,30 @@ export class ZoomAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let newZoom = this.originalZoom * this.scaleOffset,
-      actualWinSize = new Point(
-        app.canvasWidth,
-        app.canvasHeight
-      ).multiplyWithScalar(1 / this.originalZoom),
-      newWinSize = actualWinSize.multiplyWithScalar(1 / this.scaleOffset),
-      newTranslateoffset = new Point(
-        (this.originalTranslateOffset.x / this.originalZoom -
-          (actualWinSize.x - newWinSize.x) * this.centerProp.x) *
-          newZoom,
-        (this.originalTranslateOffset.y / this.originalZoom -
-          (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
-          newZoom
-      );
+      actualWinSize = new Coordinates({
+        x: app.canvasWidth,
+        y: app.canvasHeight,
+      }).multiply(1 / this.originalZoom),
+      newWinSize = actualWinSize.multiply(1 / this.scaleOffset),
+      newTranslateoffset = this.originalTranslateOffset
+        .multiply(1 / this.originalZoom)
+        .add(
+          newWinSize
+            .substract(actualWinSize)
+            .multiply(this.centerProp.x, this.centerProp.y)
+        )
+        .multiply(newZoom);
+
+    console.log(
+      'original zoom',
+      this.originalZoom,
+      '\nnew zoom',
+      newZoom,
+      '\noriginalTranslateOffset',
+      this.originalTranslateOffset,
+      '\nnewTranslateOffset',
+      newTranslateoffset
+    );
 
     app.workspace.setZoomLevel(newZoom, false);
     app.workspace.setTranslateOffset(newTranslateoffset);

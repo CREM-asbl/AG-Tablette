@@ -97,7 +97,7 @@ export class CopyAction extends Action {
       let newShape = new Shape({
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,
-        path: s.getSVGPath(),
+        path: s.getSVGPath('no scale'),
         id: undefined,
       });
       shapesList.push(newShape);
