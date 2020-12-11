@@ -13,6 +13,10 @@ export class DrawManager {
    * Refresh the background and the forbidden ctx (grid and silhouette)
    */
   static refreshBackground() {
+    app.backgroundDrawingEnvironment.mustDrawGrid = app.workspace.settings.get(
+      'isGridShown'
+    );
+    app.backgroundDrawingEnvironment.redraw();
     // DrawManager.clearCtx(app.backgroundCtx);
     // // Grid
     // if (app.workspace.settings.get('isGridShown')) {

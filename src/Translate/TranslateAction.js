@@ -45,8 +45,6 @@ export class TranslateAction extends Action {
     let originalOffset = app.workspace.translateOffset,
       newOffset = originalOffset.add(this.offset);
 
-    console.log('end', newOffset);
-
     app.workspace.setTranslateOffset(newOffset);
   }
 

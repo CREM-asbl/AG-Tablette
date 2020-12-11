@@ -89,7 +89,6 @@ export class ZoomState extends State {
 
   onMouseMove() {
     if (this.currentStep != 'zooming-plane') return;
-    console.log('here');
 
     let scaleOffset =
         this.getDist(app.workspace.lastKnownMouseCoordinates) / this.baseDist,

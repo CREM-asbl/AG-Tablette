@@ -64,17 +64,6 @@ export class ZoomAction extends Action {
         )
         .multiply(newZoom);
 
-    console.log(
-      'original zoom',
-      this.originalZoom,
-      '\nnew zoom',
-      newZoom,
-      '\noriginalTranslateOffset',
-      this.originalTranslateOffset,
-      '\nnewTranslateOffset',
-      newTranslateoffset
-    );
-
     app.workspace.setZoomLevel(newZoom, false);
     app.workspace.setTranslateOffset(newTranslateoffset);
   }

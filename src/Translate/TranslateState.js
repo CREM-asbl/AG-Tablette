@@ -96,8 +96,6 @@ export class TranslateState extends State {
         .multiply(app.workspace.zoomLevel)
     );
 
-    console.log(newOffset);
-
     app.workspace.setTranslateOffset(newOffset);
     app.workspace.setTranslateOffset(this.startOffset, false);
   }

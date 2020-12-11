@@ -1,3 +1,4 @@
+import { GridManager } from '../../Grid/GridManager';
 /**
  * Représente les bords (d'une figure ou d'un segment)
  */
@@ -21,6 +22,8 @@ export class DrawingEnvironment {
     this.mustDrawPoints = true;
 
     this.mustScaleShapes = true;
+
+    this.mustDrawGrid = false;
   }
 
   removeAllObjects() {
@@ -38,6 +41,10 @@ export class DrawingEnvironment {
   redraw() {
     this.clear();
     this.texts.forEach(text => text.updateMessage());
+    if (this.mustDrawGrid) {
+      this.removeAllObjects();
+      GridManager.drawGridPoints();
+    }
     this.draw();
   }
 

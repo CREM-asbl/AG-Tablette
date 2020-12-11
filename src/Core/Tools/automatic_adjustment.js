@@ -120,11 +120,12 @@ export function getShapeAdjustment(shapes, mainShape) {
     cPtListShape = [];
   ptList.forEach(point => {
     if (grid) {
-      let pt = GridManager.getClosestGridPoint(point);
+      let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+      console.log(gridPoint);
       cPtListGrid.push({
-        fixed: pt,
+        fixed: gridPoint,
         moving: point,
-        dist: pt.dist(point),
+        dist: gridPoint.coordinates.dist(point.coordinates),
       });
     }
     let constr = SelectManager.getEmptySelectionConstraints().points;
