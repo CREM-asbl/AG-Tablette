@@ -116,28 +116,35 @@ export class Segment {
     return divisionPoints;
   }
 
-  get bounds() {
-    let v0 = this.vertexes[0],
-      v1 = this.vertexes[1];
-    let bounds = new Bounds(
-      Math.min(v0.x, v1.x),
-      Math.min(v0.y, v1.y),
-      Math.max(v0.x, v1.x),
-      Math.max(v0.y, v1.y)
+  get arcCenter() {
+    let arcCenter = this.drawingEnvironment.points.find(
+      pt => pt.id === this.arcCenterId
     );
-    if (this.arcCenter) {
+    return arcCenter;
+  }
+
+  get bounds() {
+    let firstCoordinates = this.vertexes[0].coordinates,
+      secondCoordinates = this.vertexes[1].coordinates;
+    let bounds = new Bounds(
+      Math.min(firstCoordinates.x, secondCoordinates.x),
+      Math.min(firstCoordinates.y, secondCoordinates.y),
+      Math.max(firstCoordinates.x, secondCoordinates.x),
+      Math.max(firstCoordinates.y, secondCoordinates.y)
+    );
+    if (this.isArc()) {
       let proj = this.centerProjectionOnSegment(Math.PI);
-      if (this.isPointOnSegment(proj))
-        bounds.minX = Math.min(bounds.minX, proj);
+      if (this.isCoordinatesOnSegment(proj))
+        bounds.minX = Math.min(bounds.minX, proj.x);
       proj = this.centerProjectionOnSegment(1.5 * Math.PI);
-      if (this.isPointOnSegment(proj))
-        bounds.minY = Math.min(bounds.minY, proj);
+      if (this.isCoordinatesOnSegment(proj))
+        bounds.minY = Math.min(bounds.minY, proj.y);
       proj = this.centerProjectionOnSegment(0);
-      if (this.isPointOnSegment(proj))
-        bounds.maxX = Math.max(bounds.maxX, proj);
+      if (this.isCoordinatesOnSegment(proj))
+        bounds.maxX = Math.max(bounds.maxX, proj.x);
       proj = this.centerProjectionOnSegment(0.5 * Math.PI);
-      if (this.isPointOnSegment(proj))
-        bounds.maxY = Math.max(bounds.maxY, proj);
+      if (this.isCoordinatesOnSegment(proj))
+        bounds.maxY = Math.max(bounds.maxY, proj.y);
     }
     return bounds;
   }
@@ -187,17 +194,17 @@ export class Segment {
   }
 
   get middle() {
-    if (this.arcCenter) {
-      let center = this.arcCenter,
-        firstAngle = center.getAngle(this.vertexes[0]),
-        secondAngle = center.getAngle(this.vertexes[1]),
+    if (this.isArc()) {
+      let centerCoordinates = this.arcCenter,
+        firstAngle = centerCoordinates.angleWith(this.vertexes[0].coordinates),
+        secondAngle = centerCoordinates.angleWith(this.vertexes[1].coordinates),
         middleAngle = (firstAngle + secondAngle) / 2;
 
       if (this.counterclockwise ^ (firstAngle > secondAngle))
         middleAngle += Math.PI;
       const middle = new Point(
-        this.radius * Math.cos(middleAngle) + center.x,
-        this.radius * Math.sin(middleAngle) + center.y
+        this.radius * Math.cos(middleAngle) + centerCoordinates.x,
+        this.radius * Math.sin(middleAngle) + centerCoordinates.y
       );
       return middle;
     } else {
@@ -277,23 +284,43 @@ export class Segment {
     if (!this.arcCenter) {
       // line
       path = ['L', secondCoordinates.x, secondCoordinates.y].join(' ');
-    } else if (axeAngle === undefined) {
+    } else if (this.axisAngle === undefined) {
       // circle or arc
-      let ctr = new Point(this.arcCenter);
-      if (scaling == 'scale') ctr.setToCanvasCoordinates();
-      let radius = ctr.dist(v1),
-        firstAngle = ctr.getAngle(v0),
-        secondAngle = ctr.getAngle(v1);
+      let centerCoordinates = this.arcCenter.coordinates;
+      if (scaling == 'scale')
+        centerCoordinates = centerCoordinates.toCanvasCoordinates();
 
-      if (v0.equal(v1)) {
+      let radius = centerCoordinates.dist(secondCoordinates),
+        firstAngle = centerCoordinates.angleWith(firstCoordinates),
+        secondAngle = centerCoordinates.angleWith(secondCoordinates);
+
+      if (firstCoordinates.equal(secondCoordinates)) {
         // circle
         const oppositeAngle = firstAngle + Math.PI,
-          oppositePoint = new Point(
-            ctr.x + Math.cos(oppositeAngle) * radius,
-            ctr.y + Math.sin(oppositeAngle) * radius
-          );
-        path = ['A', radius, radius, 0, 1, 0, oppositePoint.x, oppositePoint.y]
-          .concat(['A', radius, radius, 0, 1, 0, v1.x, v1.y])
+          oppositeCoordinates = new Coordinates({
+            x: centerCoordinates.x + Math.cos(oppositeAngle) * radius,
+            y: centerCoordinates.y + Math.sin(oppositeAngle) * radius,
+          });
+        path = [
+          'A',
+          radius,
+          radius,
+          0,
+          1,
+          0,
+          oppositeCoordinates.x,
+          oppositeCoordinates.y,
+        ]
+          .concat([
+            'A',
+            radius,
+            radius,
+            0,
+            1,
+            0,
+            secondCoordinates.x,
+            secondCoordinates.y,
+          ])
           .join(' ');
       } else {
         // arc
@@ -311,17 +338,20 @@ export class Segment {
           0,
           largeArcFlag,
           sweepFlag,
-          v1.x,
-          v1.y,
+          secondCoordinates.x,
+          secondCoordinates.y,
         ].join(' ');
       }
     } else {
       // ellipse or ellipse arc
 
-      let ctr = new Point(this.arcCenter);
-      if (scaling == 'scale') ctr.setToCanvasCoordinates();
-      let firstAngle = ctr.getAngle(v0),
-        secondAngle = ctr.getAngle(v1);
+      let centerCoordinates = this.arcCenter.coordinates;
+      if (scaling == 'scale')
+        centerCoordinates = centerCoordinates.toCanvasCoordinates();
+
+      let radius = centerCoordinates.dist(secondCoordinates),
+        firstAngle = centerCoordinates.angleWith(firstCoordinates),
+        secondAngle = centerCoordinates.angleWith(secondCoordinates);
 
       if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
       let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
@@ -331,37 +361,37 @@ export class Segment {
         largeArcFlag = Math.abs(largeArcFlag - 1);
       }
 
-      let rx = ctr.dist(this.tangentPoint1),
-        ry = ctr.dist(this.tangentPoint2),
-        degreeAxeAngle = (axeAngle * 180) / Math.PI;
+      let rx = centerCoordinates.dist(this.tangentPoint1),
+        ry = centerCoordinates.dist(this.tangentPoint2),
+        degreeAxisAngle = (this.axisAngle * 180) / Math.PI;
       // canvas path2D => radian
       // svg path => degree
 
-      if (v0.equal(v1)) {
+      if (firstCoordinates.equal(secondCoordinates)) {
         // ellipse
-        const oppositePoint = new Point(
-          ctr.multiplyWithScalar(2).subCoordinates(v0)
-        );
+        const oppositeCoordinates = centerCoordinates
+          .multiply(2)
+          .substract(firstCoordinates);
 
         path = [
           'A',
           rx,
           ry,
-          degreeAxeAngle,
+          degreeAxisAngle,
           largeArcFlag,
           sweepFlag,
-          oppositePoint.x,
-          oppositePoint.y,
+          oppositeCoordinates.x,
+          oppositeCoordinates.y,
         ]
           .concat([
             'A',
             rx,
             ry,
-            degreeAxeAngle,
+            degreeAxisAngle,
             largeArcFlag,
             sweepFlag,
-            v1.x,
-            v1.y,
+            secondCoordinates.x,
+            secondCoordinates.y,
           ])
           .join(' ');
       } else {
@@ -370,11 +400,11 @@ export class Segment {
           'A',
           rx,
           ry,
-          degreeAxeAngle,
+          degreeAxisAngle,
           largeArcFlag,
           sweepFlag,
-          v1.x,
-          v1.y,
+          secondCoordinates.x,
+          secondCoordinates.y,
         ].join(' ');
       }
     }
@@ -415,27 +445,26 @@ export class Segment {
   getArcTangent(vertexNb) {
     let vertex = this.vertexes[vertexNb],
       center = this.arcCenter,
-      originVector = vertex.subCoordinates(center),
+      originVector = vertex.coordinates.substract(center.coordinates),
       perpendicularOriginVector;
-    originVector.multiplyWithScalar(1 / this.radius, true);
+    originVector = originVector.multiply(1 / this.radius);
     if (this.counterclockwise)
-      perpendicularOriginVector = new Point(
-        1,
-        -originVector.x / originVector.y
-      );
+      perpendicularOriginVector = new Coordinates({
+        x: 1,
+        y: -originVector.x / originVector.y,
+      });
     else
-      perpendicularOriginVector = new Point(
-        -1,
-        originVector.x / originVector.y
-      );
+      perpendicularOriginVector = new Coordinates({
+        x: -1,
+        y: originVector.x / originVector.y,
+      });
     if (perpendicularOriginVector.y == Infinity)
-      perpendicularOriginVector.setCoordinates({ x: 0, y: 1 });
-    if (perpendicularOriginVector.y == -Infinity)
-      perpendicularOriginVector.setCoordinates({ x: 0, y: -1 });
+      perpendicularOriginVector = new Coordinates({ x: 0, y: 1 });
+    else if (perpendicularOriginVector.y == -Infinity)
+      perpendicularOriginVector = new Coordinates({ x: 0, y: -1 });
     else
-      perpendicularOriginVector.multiplyWithScalar(
-        1 / new Point(0, 0).dist(perpendicularOriginVector),
-        true
+      perpendicularOriginVector = perpendicularOriginVector.multiply(
+        1 / Coordinates.nullCoordinates.dist(perpendicularOriginVector)
       );
     return perpendicularOriginVector;
   }
@@ -547,8 +576,8 @@ export class Segment {
         copy.addPoint(p);
       });
     }
-    if (this.tangentPoint1) copy.tangentPoint1 = new Point(this.tangentPoint1);
-    if (this.tangentPoint2) copy.tangentPoint2 = new Point(this.tangentPoint2);
+    // if (this.tangentCoord1) copy.tangentCoord1 = new Coordinates(this.tangentCoord1);
+    // if (this.tangentCoord2) copy.tangentCoord2 = new Coordinates(this.tangentCoord2);
     return copy;
   }
 
@@ -600,8 +629,8 @@ export class Segment {
       this.arcCenter = newPoint;
     }
     if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
-    if (save.tangentPoint1) this.tangentPoint1 = new Point(save.tangentPoint1);
-    if (save.tangentPoint2) this.tangentPoint2 = new Point(save.tangentPoint2);
+    // if (save.tangentCoord1) this.tangentCoord1 = new Coordinates(save.tangentCoord1);
+    // if (save.tangentCoord2) this.tangentCoord2 = new Coordinates(save.tangentCoord2);
     this.isInfinite = save.isInfinite;
     this.isSemiInfinite = save.isSemiInfinite;
   }
@@ -700,7 +729,7 @@ export class Segment {
    * Find the angle's projection on this arc.
    *
    * For circle : https://math.stackexchange.com/questions/1744354/project-a-point-within-a-circle-onto-its-edge
-   * @param {*} point
+   * @param {*} angle
    */
   centerProjectionOnSegment(angle) {
     if (this.arcCenter) {
@@ -714,13 +743,20 @@ export class Segment {
     }
   }
 
-  isCoordinatesOnSegment(point, precision = 0.001) {
-    if (this.arcCenter) {
-      if (Math.abs(this.arcCenter.dist(point) - this.radius) > precision)
+  isCoordinatesOnSegment(coord, precision = 0.001) {
+    if (this.isArc()) {
+      if (
+        Math.abs(this.arcCenter.coordinates.dist(coord) - this.radius) >
+        precision
+      )
         return false;
-      let angle = this.arcCenter.getAngle(point),
-        bound1 = this.arcCenter.getAngle(this.vertexes[0]),
-        bound2 = this.arcCenter.getAngle(this.vertexes[1]);
+      let angle = this.arcCenter.coordinates.angleWith(coord),
+        bound1 = this.arcCenter.coordinates.angleWith(
+          this.vertexes[0].coordinates
+        ),
+        bound2 = this.arcCenter.coordinates.angleWith(
+          this.vertexes[1].coordinates
+        );
       if (Math.abs(bound1 - bound2) < 0.001) return true;
       if (this.counterclockwise) [bound1, bound2] = [bound2, bound1];
       if (angle < bound1) angle += Math.PI * 2;
@@ -728,12 +764,12 @@ export class Segment {
       if (angle <= bound2) return true;
       return false;
     } else {
-      let projection = this.projectionOnSegment(point);
+      let projection = this.projectionOnSegment(coord);
       if (this.isInfinite) {
-        return projection.dist(point) < precision;
+        return projection.dist(coord) < precision;
       } else if (this.isSemiInfinite) {
         return (
-          projection.dist(point) < precision &&
+          projection.dist(coord) < precision &&
           Math.abs(
             this.vertexes[0].getAngle(this.vertexes[1]) -
               this.vertexes[0].getAngle(projection)
@@ -741,8 +777,8 @@ export class Segment {
         );
       } else {
         let segmentLength = this.length,
-          dist1 = this.vertexes[0].coordinates.dist(point),
-          dist2 = this.vertexes[1].coordinates.dist(point);
+          dist1 = this.vertexes[0].coordinates.dist(coord),
+          dist2 = this.vertexes[1].coordinates.dist(coord);
         return dist1 + dist2 - segmentLength < precision;
       }
     }
@@ -861,23 +897,24 @@ export class Segment {
    */
   hasSameDirection(segment, vertexNb1, vertexNb2, matchArcAndOther = true) {
     let dir1, dir2;
+    if (!matchArcAndOther && this.isArc() ^ segment.isArc()) return false;
     if (
-      !matchArcAndOther &&
-      (this.arcCenter != undefined) ^ (segment.arcCenter != undefined)
+      this.isArc() &&
+      segment.isArc() &&
+      !this.arcCenter.coordinates.equal(segment.arcCenter.coordinates, 0.001)
     )
       return false;
-    if (
-      this.arcCenter != undefined &&
-      segment.arcCenter != undefined &&
-      !this.arcCenter.equal(segment.arcCenter, 0.001)
-    )
-      return false;
-    if (this.arcCenter) dir1 = this.getArcTangent(vertexNb1);
+    if (this.isArc()) dir1 = this.getArcTangent(vertexNb1);
     else dir1 = this.direction;
-    if (segment.arcCenter) dir2 = segment.getArcTangent(vertexNb2);
+    if (segment.isArc()) dir2 = segment.getArcTangent(vertexNb2);
     else dir2 = segment.direction;
     return (
       Math.abs(dir1.x - dir2.x) < 0.001 && Math.abs(dir1.y - dir2.y) < 0.001
     );
+  }
+
+  isArc() {
+    let isArc = this.arcCenter ? true : false;
+    return isArc;
   }
 }

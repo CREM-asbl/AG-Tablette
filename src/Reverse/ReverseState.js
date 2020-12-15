@@ -5,6 +5,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
 
 /**
  * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -147,10 +148,35 @@ export class ReverseState extends State {
       this.drawingShapes.forEach(shape => {
         shape.segments.forEach(seg => {
           if (seg.arcCenter) {
-            seg.tangentPoint1 = seg.centerProjectionOnSegment(this.axisAngle);
-            seg.tangentPoint2 = seg.centerProjectionOnSegment(
+            let tangentCoord1 = seg.centerProjectionOnSegment(this.axisAngle);
+            let tangentPoint1 = new Point({
+              drawingEnvironment: app.upperDrawingEnvironment,
+              coordinates: tangentCoord1,
+              startCoordinates: new Coordinates(tangentCoord1),
+              endCoordinates: new Coordinates({
+                x: tangentCoord1.x + 2 * (seg.arcCenter.x - tangentCoord1.x),
+                y: tangentCoord1.y + 2 * (seg.arcCenter.y - tangentCoord1.y),
+              }),
+              visible: false,
+            });
+            seg.tangentPoint1 = tangentPoint1;
+
+            let tangentCoord2 = seg.centerProjectionOnSegment(
               this.axisAngle + Math.PI / 2
             );
+            let tangentPoint2 = new Point({
+              drawingEnvironment: app.upperDrawingEnvironment,
+              coordinates: tangentCoord2,
+              startCoordinates: new Coordinates(tangentCoord2),
+              endCoordinates: new Coordinates({
+                x: tangentCoord2.x + 2 * (seg.arcCenter.x - tangentCoord2.x),
+                y: tangentCoord2.y + 2 * (seg.arcCenter.y - tangentCoord2.y),
+              }),
+              visible: false,
+            });
+            seg.tangentPoint2 = tangentPoint2;
+
+            seg.axisAngle = this.axisAngle;
           }
         });
       });
@@ -158,11 +184,11 @@ export class ReverseState extends State {
       app.upperDrawingEnvironment.points.forEach(point => {
         let center = this.selectedAxis.projectionOnSegment(point);
 
+        point.startCoordinates = new Coordinates(point.coordinates);
         point.endCoordinates = new Coordinates({
           x: point.x + 2 * (center.x - point.x),
           y: point.y + 2 * (center.y - point.y),
         });
-        point.startCoordinates = new Coordinates(point.coordinates);
       });
 
       this.currentStep = 'reversing-shape';

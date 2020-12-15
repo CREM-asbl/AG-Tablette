@@ -59,8 +59,10 @@ export class Shape {
     this.drawingEnvironment.shapes.push(this);
     this.isPointed = isPointed;
 
-    if (path) this.setSegmentsFromPath(path);
-    else {
+    if (path) {
+      this.setSegmentsFromPath(path);
+      if (this.isCircle()) this.vertexes[0].visible = false;
+    } else {
       this.pointIds = [...pointIds];
       this.segmentIds = [...segmentIds];
     }
@@ -156,11 +158,11 @@ export class Shape {
         coordinates: centerCoordinates,
         shapeId: this.id,
         drawingEnvironment: this.drawingEnvironment,
-        type: 'center',
+        type: 'shapeCenter',
         // visible: this.isPointed,
       });
     } else if (!value && this.isCenterShown) {
-      let pointId = this.points.find(pt => pt.type == 'center').id;
+      let pointId = this.points.find(pt => pt.type == 'shapeCenter').id;
       this.drawingEnvironment.removeObjectById(pointId, 'point');
       let index = this.pointIds.findIndex(pt => pt.id == pointId);
       this.pointIds.splice(index, 1);
@@ -179,6 +181,8 @@ export class Shape {
 
     this.pointIds = [];
     this.segmentIds = [];
+
+    let nextVertexCoordinates = null;
 
     let createLineTo = (x, y) => {
       let coordinates = new Coordinates({ x, y });
@@ -220,17 +224,17 @@ export class Shape {
       switch (element) {
         case 'M':
         case 'm':
-          let coordinates = new Coordinates({
+          nextVertexCoordinates = new Coordinates({
             x: allPathElements.shift(),
             y: allPathElements.shift(),
           });
-          if (this.contains(coordinates)) {
+          if (this.contains(nextVertexCoordinates)) {
             startVertex = lastVertex = this.points.find(pt =>
-              pt.coordinates.equal(coordinates)
+              pt.nextVertexCoordinates.equal(nextVertexCoordinates)
             );
           } else {
             startVertex = lastVertex = new Point({
-              coordinates: coordinates,
+              coordinates: nextVertexCoordinates,
               shapeId: this.id,
               drawingEnvironment: this.drawingEnvironment,
               type: 'vertex',
@@ -255,48 +259,53 @@ export class Shape {
           createLineTo(lastVertex.x, allPathElements.shift());
           break;
 
-        // case 'A':
-        // case 'a':
-        //   const rx = allPathElements.shift(),
-        //     ry = allPathElements.shift(),
-        //     xAxisRotation = allPathElements.shift(),
-        //     largeArcFlag = allPathElements.shift(),
-        //     sweepFlag = allPathElements.shift();
+        case 'A':
+        case 'a':
+          const rx = allPathElements.shift(),
+            ry = allPathElements.shift(),
+            xAxisRotation = allPathElements.shift(),
+            largeArcFlag = allPathElements.shift(),
+            sweepFlag = allPathElements.shift();
 
-        //   const nextVertex = new Point(
-        //     allPathElements.shift(),
-        //     allPathElements.shift()
-        //   );
+          firstVertex = lastVertex;
+          nextVertexCoordinates = new Coordinates({
+            x: allPathElements.shift(),
+            y: allPathElements.shift(),
+          });
+          if (this.contains(nextVertexCoordinates)) {
+            lastVertex = this.points.find(pt =>
+              pt.coordinates.equal(nextVertexCoordinates)
+            );
+          } else {
+            lastVertex = new Point({
+              coordinates: nextVertexCoordinates,
+              shapeId: this.id,
+              drawingEnvironment: this.drawingEnvironment,
+              type: 'vertex',
+              idx: vertexIdx++,
+              visible: this.isPointed,
+            });
+          }
 
-        //   if (this.segments.length > 0 && nextVertex.equal(firstVertex)) {
-        //     // if circle
-        //     this.segments[this.segments.length - 1].vertexes[1] = nextVertex;
-        //     lastVertex = nextVertex;
-        //   } else {
-        //     // if arc
-        //     firstVertex = lastVertex;
-        //     lastVertex = nextVertex;
-        //     let arcCenter = this.getArcCenterFromSVG(
-        //       firstVertex,
-        //       lastVertex,
-        //       rx,
-        //       largeArcFlag,
-        //       sweepFlag
-        //     );
+          let arcCenter = this.getArcCenterFromSVG(
+            firstVertex,
+            lastVertex,
+            rx,
+            largeArcFlag,
+            sweepFlag
+          );
 
-        //     this.segments.push(
-        //       new Segment(
-        //         firstVertex,
-        //         lastVertex,
-        //         this,
-        //         this.segments.length,
-        //         arcCenter,
-        //         1 - sweepFlag
-        //       )
-        //     );
-        //   }
+          new Segment({
+            shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
+            idx: segmentIdx++,
+            vertexIds: [firstVertex.id, lastVertex.id],
+            arcCenterId: arcCenter.id,
+          });
 
-        //   break;
+          this.cleanSameDirectionSegment();
+
+          break;
 
         case 'Z':
         case 'z':
@@ -359,10 +368,9 @@ export class Shape {
     largeArcFlag,
     sweepFlag
   ) {
-    let middle = new Point(
-        (firstVertex.x + lastVertex.x) / 2,
-        (firstVertex.y + lastVertex.y) / 2
-      ),
+    let middle = firstVertex.coordinates
+        .add(lastVertex.coordinates)
+        .multiply(1 / 2),
       isHorizontal = Math.abs(firstVertex.y - lastVertex.y) < 0.01,
       isVertical = Math.abs(firstVertex.x - lastVertex.x) < 0.01,
       distanceMiddleArcCenter = Math.sqrt(
@@ -372,7 +380,7 @@ export class Shape {
             4
       );
 
-    let theta, arcCenter;
+    let theta, arcCenterCoordinates;
     // theta is the angle between the segment firstvertex - lastvertex and the x-axis
 
     if (isHorizontal) {
@@ -387,16 +395,23 @@ export class Shape {
     }
 
     if (largeArcFlag !== sweepFlag) {
-      arcCenter = middle.addCoordinates({
+      arcCenterCoordinates = middle.add({
         x: distanceMiddleArcCenter * Math.cos(theta + Math.PI / 2),
         y: distanceMiddleArcCenter * Math.sin(theta + Math.PI / 2),
       });
     } else {
-      arcCenter = middle.addCoordinates({
+      arcCenterCoordinates = middle.add({
         x: distanceMiddleArcCenter * Math.cos(theta - Math.PI / 2),
         y: distanceMiddleArcCenter * Math.sin(theta - Math.PI / 2),
       });
     }
+    let arcCenter = new Point({
+      drawingEnvironment: this.drawingEnvironment,
+      coordinates: arcCenterCoordinates,
+      shapeId: this.id,
+      type: 'arcCenter',
+      visible: false,
+    });
 
     return arcCenter;
   }
@@ -430,8 +445,10 @@ export class Shape {
   isCircle() {
     return (
       this.segments.length == 1 &&
-      this.segments[0].arcCenter &&
-      this.segments[0].vertexes[0].equal(this.segments[0].vertexes[1]) &&
+      this.segments[0].isArc() &&
+      this.segments[0].vertexes[0].coordinates.equal(
+        this.segments[0].vertexes[1].coordinates
+      ) &&
       this.name != 'CircleArc'
     );
   }
@@ -1190,12 +1207,9 @@ export class Shape {
    */
   getSVGPath(scaling = 'scale', axeAngle = undefined) {
     let path = '';
-    // const point = new Point(this.segments[0].vertexes[0]);
-    // if (scaling == 'scale') point.setToCanvasCoordinates();
     path = this.segments
       .map(seg => seg.getSVGPath(scaling, axeAngle))
       .join('\n');
-    // path += 'Z';
     return path;
   }
 
@@ -1306,20 +1320,31 @@ export class Shape {
 
   cleanSameDirectionSegment() {
     for (let i = 0; i < this.segments.length; i++) {
-      const nextIdx = mod(i + 1, this.segments.length);
+      const nextIdx = mod(i + 1, this.segmentIds.length);
+      if (nextIdx == i) break;
       if (
         this.segments[i].hasSameDirection(this.segments[nextIdx], 1, 0, false)
       ) {
         let middlePointId = this.segments[i].vertexIds[1];
         let ptIdx = this.pointIds.findIndex(ptId => ptId == middlePointId);
         this.pointIds.splice(ptIdx, 1);
-        app.mainDrawingEnvironment.removeObjectById(middlePointId, 'point');
+        this.drawingEnvironment.removeObjectById(middlePointId, 'point');
         this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
         let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
           id => id == this.segmentIds[nextIdx]
         );
         this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
-        app.mainDrawingEnvironment.removeObjectById(
+        if (this.segments[nextIdx].arcCenterId) {
+          this.drawingEnvironment.removeObjectById(
+            this.segments[nextIdx].arcCenterId,
+            'point'
+          );
+          idx = this.pointIds.findIndex(
+            id => id == this.segments[nextIdx].arcCenterId
+          );
+          this.pointIds.splice(idx, 1);
+        }
+        this.drawingEnvironment.removeObjectById(
           this.segmentIds[nextIdx],
           'segment'
         );

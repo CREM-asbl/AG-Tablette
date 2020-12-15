@@ -75,12 +75,12 @@ export class SelectManager {
         canSelect: false,
         //Indépendamment de whitelist et blacklist, le point doit être
         //d'un des types renseignés dans ce tableau.
-        types: ['center', 'vertex', 'divisionPoint', 'modifiablePoint'],
+        types: ['shapeCenter', 'vertex', 'divisionPoint', 'modifiablePoint'],
         /*
                 Liste pouvant contenir différents éléments sous la forme:
                     - {'shapeId': shapeId}
                       Le point doit faire partie de cette forme.
-                    - {'shapeId': shapeId, 'type': 'center'}
+                    - {'shapeId': shapeId, 'type': 'shapeCenter'}
                       Le point doit être le centre de la forme donnée.
                     - {'shapeId': shapeId, 'type': 'vertex'}
                       Le point doit être un sommet de la forme donnée.
@@ -151,7 +151,8 @@ export class SelectManager {
         if (
           !constraints.whitelist.some(constr => {
             if (constr.shapeId != potentialPoint.shapeId) return false;
-            if (constr.type == 'center') return potentialPoint.type == 'center';
+            if (constr.type == 'shapeCenter')
+              return potentialPoint.type == 'shapeCenter';
             if (constr.type == 'vertex')
               return (
                 potentialPoint.type == 'vertex' &&
@@ -175,7 +176,8 @@ export class SelectManager {
         if (
           constraints.blacklist.some(constr => {
             if (constr.shapeId != potentialPoint.shapeId) return false;
-            if (constr.type == 'center') return potentialPoint.type == 'center';
+            if (constr.type == 'shapeCenter')
+              return potentialPoint.type == 'shapeCenter';
             if (constr.type == 'vertex')
               return (
                 potentialPoint.type == 'vertex' &&

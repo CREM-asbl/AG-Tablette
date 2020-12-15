@@ -15,7 +15,7 @@ export class Point {
    * @param {Number}                      y
    * @param {[String]}                    segmentIds
    * @param {String}                      shapeId
-   * @param {String}                      type  -> 'vertex', 'divisionPoint' or 'center'
+   * @param {String}                      type  -> 'vertex', 'divisionPoint', 'arcCenter' or 'shapeCenter'
    * @param {String}                      name  -> 'firstPoint', 'secondPoint', 'thirdPoint', 'fourthPoint'
    * @param {Number}                      ratio -> the ratio of this between the 2 vertexes of the segment
    */

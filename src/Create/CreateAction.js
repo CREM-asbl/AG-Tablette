@@ -58,7 +58,7 @@ export class CreateAction extends Action {
       drawingEnvironment: app.mainDrawingEnvironment,
     });
     shape.scale(this.shapeSize);
-    shape.translate(this.coordinates.substract(shape.vertexes[0]));
+    shape.translate(this.coordinates);
 
     let transformation = getShapeAdjustment([shape], shape);
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);

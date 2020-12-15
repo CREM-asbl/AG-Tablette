@@ -45,7 +45,8 @@ function computeTransformation(e1, e2, shapes, mainShape) {
 function checkCompatibility(e1, e2) {
   if (e1.moving.shapeId != e2.moving.shapeId) return false;
 
-  if (e1.moving.type == 'center' || e2.moving.type == 'center') return false;
+  if (e1.moving.type == 'shapeCenter' || e2.moving.type == 'shapeCenter')
+    return false;
 
   let d1 = e1.fixed.coordinates.dist(e2.fixed.coordinates),
     d2 = e1.moving.coordinates.dist(e2.moving.coordinates);
@@ -130,7 +131,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
     let constr = SelectManager.getEmptySelectionConstraints().points;
     constr.canSelect = true;
-    constr.types = ['vertex', 'divisionPoint', 'center'];
+    constr.types = ['vertex', 'divisionPoint', 'shapeCenter'];
     constr.blacklist = shapes.map(s => {
       return { shapeId: s.id };
     });

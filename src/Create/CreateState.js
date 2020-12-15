@@ -3,6 +3,7 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -155,6 +156,8 @@ export class CreateState extends State {
     this.shapeToCreate.size = shapeSize;
     this.shapeToCreate.scale(shapeSize);
 
+    this.currentShapePos = Coordinates.nullCoordinates;
+
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
     this.currentStep = 'moving-shape';
@@ -188,10 +191,9 @@ export class CreateState extends State {
       app.upperDrawingEnvironment.removeAllObjects();
     } else {
       this.shapeToCreate.translate(
-        app.workspace.lastKnownMouseCoordinates.substract(
-          this.shapeToCreate.vertexes[0]
-        )
+        app.workspace.lastKnownMouseCoordinates.substract(this.currentShapePos)
       );
+      this.currentShapePos = app.workspace.lastKnownMouseCoordinates;
     }
   }
 }

@@ -142,7 +142,7 @@ export class CutState extends State {
           color: this.drawColor,
           size: 2,
         });
-        if (pt2.type == 'center') {
+        if (pt2.type == 'shapeCenter') {
           // On a sélectionné le second point: le centre
           this.centerPoint = pt2;
           this.currentStep = 'select-third-point';
@@ -162,7 +162,7 @@ export class CutState extends State {
       const pt1 = this.firstPoint,
         pt2 = object;
       //On a sélectionné le dernier point
-      if (pt2.type == 'center') {
+      if (pt2.type == 'shapeCenter') {
         // Désélectionner le centre
         this.centerPoint = null;
         app.upperDrawingEnvironment.removeObjectById(
@@ -333,7 +333,7 @@ export class CutState extends State {
       app.workspace.selectionConstraints.points.types = [
         'vertex',
         'divisionPoint',
-        'center',
+        'shapeCenter',
       ];
       app.workspace.selectionConstraints.points.whitelist = [
         { shapeId: shape.id },
@@ -375,7 +375,7 @@ export class CutState extends State {
       app.workspace.selectionConstraints.points.types = [
         'vertex',
         'divisionPoint',
-        'center',
+        'shapeCenter',
       ];
 
       let shape = this.firstPoint.shape;
