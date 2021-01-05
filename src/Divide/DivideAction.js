@@ -1,6 +1,7 @@
 import { Action } from '../Core/States/Action';
 import { Point } from '../Core/Objects/Point';
 import { app } from '../Core/App';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 export class DivideAction extends Action {
   constructor() {
@@ -165,33 +166,42 @@ export class DivideAction extends Action {
   }
 
   segmentModeAddArcPoints() {
+    this.firstPoint = this.segment.vertexes[0];
+    this.secondPoint = this.segment.vertexes[1];
+    this.segment.vertexes[1].ratio = 1;
+    this.segment.vertexes[0].ratio = 0;
+
     let shape = this.segment.shape,
       center = this.segment.arcCenter,
-      firstAngle = center.getAngle(this.segment.vertexes[0]),
-      secondAngle = center.getAngle(this.segment.vertexes[1]);
+      firstAngle = center.coordinates.angleWith(this.firstPoint.coordinates),
+      secondAngle = center.coordinates.angleWith(this.secondPoint.coordinates);
     if (this.segment.counterclockwise)
       [firstAngle, secondAngle] = [secondAngle, firstAngle];
-    if (this.segment.vertexes[0].equal(this.segment.vertexes[1]))
+    if (this.firstPoint.coordinates.equal(this.secondPoint.coordinates))
       secondAngle += 2 * Math.PI;
     else if (firstAngle > secondAngle) secondAngle += 2 * Math.PI;
 
     // Pour un cercle entier, on ajoute un point de division supplémentaire
-    if (shape.isCircle())
-      this.segment.addPoint(new Point(this.segment.vertexes[1]));
+    if (shape.isCircle()) this.segment.vertexes[0].visible = true;
+
+    let ratioCap =
+      (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
+    if (this.firstPoint.ratio == this.secondPoint.ratio)
+      ratioCap = 1 / this.numberOfParts;
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
 
     for (
-      let i = 1, nextPt = this.segment.vertexes[0];
+      let i = 1, coord = this.firstPoint.coordinates;
       i < this.numberOfParts;
       i++
     ) {
       const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
         newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
-      nextPt = nextPt.copy();
-      nextPt.setCoordinates({ x: newX, y: newY });
-      this.segment.addPoint(nextPt);
+      coord = new Coordinates({ x: newX, y: newY });
+      let ratio = this.firstPoint.ratio + i * ratioCap;
+      this.segment.addPoint(coord, ratio);
     }
   }
 
@@ -202,15 +212,21 @@ export class DivideAction extends Action {
   }
 
   pointsModeAddArcPoints() {
+    if (this.firstPoint.coordinates.equal(this.segment.vertexes[0].coordinates))
+      this.firstPoint.ratio = 0;
+    else if (
+      this.secondPoint.coordinates.equal(this.segment.vertexes[1].coordinates)
+    )
+      this.secondPoint.ratio = 1;
     let shape = this.segment.shape,
       center = this.segment.arcCenter,
-      firstAngle = center.getAngle(this.firstPoint),
-      secondAngle = center.getAngle(this.secondPoint);
+      firstAngle = center.coordinates.angleWith(this.firstPoint.coordinates),
+      secondAngle = center.coordinates.angleWith(this.secondPoint.coordinates);
     if (!shape.isCircle()) {
-      let firstVertexAngle = this.segment.arcCenter.getAngle(
+      let firstVertexAngle = this.segment.arcCenter.angleWith(
           this.segment.vertexes[0]
         ),
-        secondVertexAngle = this.segment.arcCenter.getAngle(
+        secondVertexAngle = this.segment.arcCenter.angleWith(
           this.segment.vertexes[1]
         );
       if (this.segment.counterclockwise)
@@ -226,17 +242,27 @@ export class DivideAction extends Action {
         [firstAngle, secondAngle] = [secondAngle, firstAngle];
       }
     }
-    if (secondAngle < firstAngle) secondAngle += Math.PI * 2;
+    let ratioCap =
+      (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
+    if (secondAngle < firstAngle) {
+      secondAngle += Math.PI * 2;
+    }
+    if (ratioCap < 0) ratioCap += 0.5;
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
 
-    for (let i = 1, nextPt = this.firstPoint; i < this.numberOfParts; i++) {
+    for (
+      let i = 1, coord = this.firstPoint.coordinates;
+      i < this.numberOfParts;
+      i++
+    ) {
       const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
         newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
-      nextPt = nextPt.copy();
-      nextPt.setCoordinates({ x: newX, y: newY });
-      this.segment.addPoint(nextPt);
+      coord = new Coordinates({ x: newX, y: newY });
+      let ratio = this.firstPoint.ratio + i * ratioCap;
+      if (ratio > 1) ratio--;
+      this.segment.addPoint(coord, ratio);
     }
   }
 

@@ -187,9 +187,8 @@ export class Shape {
     let createLineTo = (x, y) => {
       let coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
-      if (this.contains(coordinates)) {
-        lastVertex = this.points.find(pt => pt.coordinates.equal(coordinates));
-      } else {
+      lastVertex = this.points.find(pt => pt.coordinates.equal(coordinates));
+      if (lastVertex == undefined || lastVertex.type != 'vertex') {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,

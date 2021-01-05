@@ -194,6 +194,7 @@ export class DivideState extends State {
           borderSize: 3,
           path: object.getSVGPath('no scale', undefined, true),
           id: undefined,
+          color: '#0000',
         });
 
         this.currentStep = 'showing-segment';
@@ -256,6 +257,7 @@ export class DivideState extends State {
               pt1.segmentIds[1] == object.segmentIds[0])
           ) {
             console.warn('ambiguité, ne rien faire');
+            app.upperDrawingEnvironment.removeAllObjects();
             this.restart();
 
             window.dispatchEvent(new CustomEvent('refresh'));
@@ -271,6 +273,55 @@ export class DivideState extends State {
           drawingEnvironment: app.upperDrawingEnvironment,
           color: this.drawColor,
           size: 2,
+        });
+
+        let firstCoordinates = pt1.coordinates,
+          secondCoordinates = object.coordinates;
+        let commonSegment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
+          this.actions[0].firstPointId,
+          this.actions[0].secondPointId
+        );
+        let path = [
+          'M',
+          firstCoordinates.x,
+          firstCoordinates.y,
+          'L',
+          secondCoordinates.x,
+          secondCoordinates.y,
+        ].join(' ');
+        if (commonSegment.isArc) {
+          let centerCoordinates = commonSegment.arcCenter.coordinates,
+            firstAngle = centerCoordinates.angleWith(firstCoordinates),
+            secondAngle = centerCoordinates.angleWith(secondCoordinates);
+          if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+          let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+            sweepFlag = 1;
+          if (this.counterclockwise) {
+            sweepFlag = Math.abs(sweepFlag - 1);
+            largeArcFlag = Math.abs(largeArcFlag - 1);
+          }
+          path = [
+            'M',
+            firstCoordinates.x,
+            firstCoordinates.y,
+            'A',
+            commonSegment.radius,
+            commonSegment.radius,
+            0,
+            largeArcFlag,
+            sweepFlag,
+            secondCoordinates.x,
+            secondCoordinates.y,
+          ].join(' ');
+        }
+
+        new Shape({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          borderColor: this.drawColor,
+          borderSize: 3,
+          path: path,
+          id: undefined,
+          color: '#0000',
         });
       }
     }

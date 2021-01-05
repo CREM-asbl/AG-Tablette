@@ -195,17 +195,17 @@ export class Segment {
 
   get middle() {
     if (this.isArc()) {
-      let centerCoordinates = this.arcCenter,
+      let centerCoordinates = this.arcCenter.coordinates,
         firstAngle = centerCoordinates.angleWith(this.vertexes[0].coordinates),
         secondAngle = centerCoordinates.angleWith(this.vertexes[1].coordinates),
         middleAngle = (firstAngle + secondAngle) / 2;
 
       if (this.counterclockwise ^ (firstAngle > secondAngle))
         middleAngle += Math.PI;
-      const middle = new Point(
-        this.radius * Math.cos(middleAngle) + centerCoordinates.x,
-        this.radius * Math.sin(middleAngle) + centerCoordinates.y
-      );
+      const middle = new Coordinates({
+        x: this.radius * Math.cos(middleAngle) + centerCoordinates.x,
+        y: this.radius * Math.sin(middleAngle) + centerCoordinates.y,
+      });
       return middle;
     } else {
       return this.vertexes[0].coordinates

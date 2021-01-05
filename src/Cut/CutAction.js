@@ -134,71 +134,57 @@ export class CutAction extends Action {
       }
 
       let nbOfSegments = shape.segmentIds.length;
+      this.currentPoint = shape.vertexes[0];
 
       firstPath = [
         'M',
-        shape.vertexes[0].coordinates.x,
-        shape.vertexes[0].coordinates.y,
+        this.currentPoint.coordinates.x,
+        this.currentPoint.coordinates.y,
       ];
       for (let i = 0; i < nbOfSegments; i++) {
         if (pt1.type === 'divisionPoint' && pt1.segments[0].idx === i) {
-          firstPath.push('L', pt1.coordinates.x, pt1.coordinates.y);
+          this.addPathElem(firstPath, pt1);
           break;
         } else {
-          firstPath.push(
-            'L',
-            shape.vertexes[i + 1].coordinates.x,
-            shape.vertexes[i + 1].coordinates.y
-          );
+          this.addPathElem(firstPath, shape.vertexes[i + 1]);
         }
         if (pt1.type === 'vertex' && pt1.idx === i + 1) {
           break;
         }
       }
       if (this.centerPoint) {
-        firstPath.push(
-          'L',
-          this.centerPoint.coordinates.x,
-          this.centerPoint.coordinates.y
-        );
+        this.addPathElem(firstPath, this.centerPoint);
       }
-      firstPath.push('L', pt2.coordinates.x, pt2.coordinates.y);
+      this.addPathElem(firstPath, pt2, false);
       let endJunctionIndex = pt2.idx || pt2.segments[0].idx;
       if (!(pt2.type == 'vertex' && pt2.idx === 0)) {
         for (let i = endJunctionIndex + 1; i <= nbOfSegments; i++) {
-          firstPath.push(
-            'L',
-            shape.vertexes[i % nbOfSegments].coordinates.x,
-            shape.vertexes[i % nbOfSegments].coordinates.y
-          );
+          this.addPathElem(firstPath, shape.vertexes[i % nbOfSegments]);
         }
       }
 
-      secondPath = ['M', pt1.coordinates.x, pt1.coordinates.y];
+      this.currentPoint = pt1;
+      secondPath = [
+        'M',
+        this.currentPoint.coordinates.x,
+        this.currentPoint.coordinates.y,
+      ];
       endJunctionIndex = pt1.idx || pt1.segments[0].idx;
       for (let i = endJunctionIndex; i < nbOfSegments; i++) {
         if (pt2.type === 'divisionPoint' && pt2.segments[0].idx === i) {
-          secondPath.push('L', pt2.coordinates.x, pt2.coordinates.y);
+          this.addPathElem(secondPath, pt2);
           break;
         } else {
-          secondPath.push(
-            'L',
-            shape.vertexes[(i + 1) % nbOfSegments].coordinates.x,
-            shape.vertexes[(i + 1) % nbOfSegments].coordinates.y
-          );
+          this.addPathElem(secondPath, shape.vertexes[(i + 1) % nbOfSegments]);
         }
         if (pt2.type === 'vertex' && pt2.idx === (i + 1) % nbOfSegments) {
           break;
         }
       }
       if (this.centerPoint) {
-        secondPath.push(
-          'L',
-          this.centerPoint.coordinates.x,
-          this.centerPoint.coordinates.y
-        );
+        this.addPathElem(secondPath, this.centerPoint);
       }
-      secondPath.push('L', pt1.coordinates.x, pt1.coordinates.y);
+      this.addPathElem(secondPath, pt1, false);
     }
 
     firstPath = firstPath.join(' ');
@@ -217,9 +203,6 @@ export class CutAction extends Action {
       borderColor: shape.borderColor,
     });
 
-    shape1.cleanSameDirectionSegment();
-    shape2.cleanSameDirectionSegment();
-
     // Modifier les coordonnées
     let center1 = shape1.fake_center,
       center2 = shape2.fake_center,
@@ -237,7 +220,6 @@ export class CutAction extends Action {
         }).multiply(myOffset / 2)
       );
     }
-    // shape1.id = this.createdShapesIds[0];
 
     shape2.translate(offset);
     if (shape.isSegment()) {
@@ -248,10 +230,48 @@ export class CutAction extends Action {
         }).multiply(myOffset / 2)
       );
     }
-    // shape2.id = this.createdShapesIds[1];
+  }
 
-    // ShapeManager.addShape(shape1);
-    // ShapeManager.addShape(shape2);
+  addPathElem(path, nextPoint, mustFollowArc) {
+    let commonSegment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
+      this.currentPoint.id,
+      nextPoint.id
+    );
+    if (
+      commonSegment == undefined ||
+      !commonSegment.isArc() ||
+      mustFollowArc == false
+    ) {
+      path.push('L', nextPoint.coordinates.x, nextPoint.coordinates.y);
+      this.currentPoint = nextPoint;
+    } else {
+      let firstCoord = this.currentPoint.coordinates;
+      let secondCoord = nextPoint.coordinates;
+
+      let centerCoordinates = commonSegment.arcCenter.coordinates;
+      let radius = centerCoordinates.dist(secondCoord),
+        firstAngle = centerCoordinates.angleWith(firstCoord),
+        secondAngle = centerCoordinates.angleWith(secondCoord);
+
+      if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+      let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+        sweepFlag = 1;
+      if (this.counterclockwise) {
+        sweepFlag = Math.abs(sweepFlag - 1);
+        largeArcFlag = Math.abs(largeArcFlag - 1);
+      }
+      path.push(
+        'A',
+        radius,
+        radius,
+        0,
+        largeArcFlag,
+        sweepFlag,
+        secondCoord.x,
+        secondCoord.y
+      );
+      this.currentPoint = nextPoint;
+    }
   }
 
   /**
