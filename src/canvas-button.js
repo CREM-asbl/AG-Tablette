@@ -82,7 +82,11 @@ class CanvasButton extends LitElement {
 
     this.shapes = shapeTemplates.map(
       template =>
-        new Shape({ ...template, drawingEnvironment: this.drawingEnvironment })
+        new Shape({
+          ...template,
+          drawingEnvironment: this.drawingEnvironment,
+          opacity: 1,
+        })
     );
 
     if (this.shapes.length == 1 && this.shapes[0].isCircle()) {

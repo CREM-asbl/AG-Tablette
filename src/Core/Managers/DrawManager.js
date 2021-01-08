@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { GridManager } from '../../Grid/GridManager';
 import { ShapeManager } from './ShapeManager';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';

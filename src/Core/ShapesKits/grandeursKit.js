@@ -1,3 +1,10 @@
+/**
+ * Vert : 0 208 132
+ * Orange : 255 105 0
+ * Jaune : 255 255 0
+ * Bleu : 0 108 170
+ */
+
 export const grandeursKit = {
   name: 'Formes standard',
   families: {

@@ -2,6 +2,7 @@ import { ShapeManager } from '../Managers/ShapeManager';
 import { Segment } from './Segment';
 import { mod, uniqId } from '../Tools/general';
 import { Coordinates } from './Coordinates';
+import { app } from '../App';
 
 /**
  * Représente un point du plan
@@ -417,5 +418,34 @@ export class Point {
       x: v0.x + Math.cos(angle) * length * this.ratio,
       y: v0.y + Math.sin(angle) * length * this.ratio,
     });
+  }
+
+  saveToObject() {
+    return this.saveData();
+  }
+
+  saveData() {
+    let data = {
+      id: this.id,
+      coordinates: this.coordinates,
+      shapeId: this.shapeId,
+      idx: this.idx,
+      segmentIds: this.segmentIds,
+      type: this.type,
+      name: this.name,
+      ratio: this.ratio,
+      visible: this.visible,
+      color: this.color,
+      size: this.size,
+    };
+    return data;
+  }
+
+  static loadFromData(data) {
+    let point = new Point({
+      drawingEnvironment: app.mainDrawingEnvironment,
+    });
+    Object.assign(point, data);
+    point.coordinates = new Coordinates(point.coordinates);
   }
 }

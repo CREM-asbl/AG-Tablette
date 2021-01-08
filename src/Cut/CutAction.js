@@ -203,6 +203,9 @@ export class CutAction extends Action {
       borderColor: shape.borderColor,
     });
 
+    shape1.cleanSameDirectionSegment();
+    shape2.cleanSameDirectionSegment();
+
     // Modifier les coordonnées
     let center1 = shape1.fake_center,
       center2 = shape2.fake_center,
@@ -256,7 +259,7 @@ export class CutAction extends Action {
       if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
       let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
         sweepFlag = 1;
-      if (this.counterclockwise) {
+      if (commonSegment.counterclockwise) {
         sweepFlag = Math.abs(sweepFlag - 1);
         largeArcFlag = Math.abs(largeArcFlag - 1);
       }

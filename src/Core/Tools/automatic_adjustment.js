@@ -111,7 +111,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   //Générer la liste des points du groupe de formes
   let ptList = [];
   shapes.forEach(s => {
-    ptList.push(...s.points);
+    ptList.push(...s.vertexes, ...s.divisionPoints);
     // if (s.isCenterShown) ptList.push(s.center);
   });
 

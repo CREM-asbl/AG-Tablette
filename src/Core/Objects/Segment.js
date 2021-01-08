@@ -26,6 +26,7 @@ export class Segment {
     createFromNothing = false,
     vertexCoordinates = [],
     divisionPointInfos = [],
+    arcCenterCoordinates = null,
     vertexIds = [],
     divisionPointIds = [],
     arcCenterId = undefined,
@@ -63,6 +64,18 @@ export class Segment {
         });
         return newPoint.id;
       });
+      if (arcCenterCoordinates != undefined) {
+        console.log('create arc');
+        let arcCenter = new Point({
+          drawingEnvironment: this.drawingEnvironment,
+          segmentIds: [this.id],
+          shapeId: this.shapeId,
+          type: 'arcCenter',
+          coordinates: arcCenterCoordinates,
+          visible: false,
+        });
+        this.arcCenterId = arcCenter.id;
+      }
     } else {
       this.vertexIds = [...vertexIds];
       this.vertexIds.forEach(vxId =>
@@ -81,11 +94,12 @@ export class Segment {
         this.drawingEnvironment.shapes
           .find(s => s.id === this.shapeId)
           .segmentIds.push(this.id);
+      this.arcCenterId = arcCenterId;
     }
-    this.arcCenterId = arcCenterId;
     this.counterclockwise = counterclockwise;
     this.isInfinite = isInfinite;
     this.isSemiInfinite = isSemiInfinite;
+    console.log('segment created');
   }
 
   /* #################################################################### */
@@ -581,20 +595,21 @@ export class Segment {
     return copy;
   }
 
-  saveToObject() {
-    const save = {
-      vertexes: this.vertexes.map(pt => pt.saveToObject()),
-    };
-    if (this.points && this.points.length)
-      save.points = this.points.map(pt => pt.saveToObject());
-    if (this.idx !== undefined) save.idx = this.idx;
-    if (this.shape) save.shapeId = this.shape.id;
-    if (this.arcCenter) save.arcCenter = this.arcCenter.saveToObject();
-    if (this.counterclockwise) save.counterclockwise = this.counterclockwise;
-    save.isInfinite = this.isInfinite;
-    save.isSemiInfinite = this.isSemiInfinite;
-    return save;
-  }
+  // saveToObject() {
+  //   return this.saveData();
+  //   const save = {
+  //     vertexes: this.vertexes.map(pt => pt.saveToObject()),
+  //   };
+  //   if (this.points && this.points.length)
+  //     save.points = this.points.map(pt => pt.saveToObject());
+  //   if (this.idx !== undefined) save.idx = this.idx;
+  //   if (this.shape) save.shapeId = this.shape.id;
+  //   if (this.arcCenter) save.arcCenter = this.arcCenter.saveToObject();
+  //   if (this.counterclockwise) save.counterclockwise = this.counterclockwise;
+  //   save.isInfinite = this.isInfinite;
+  //   save.isSemiInfinite = this.isSemiInfinite;
+  //   return save;
+  // }
 
   initFromObject(save) {
     if (save.shape) this.shape = save.shape;
@@ -916,5 +931,28 @@ export class Segment {
   isArc() {
     let isArc = this.arcCenter ? true : false;
     return isArc;
+  }
+
+  saveData() {
+    let data = {
+      id: this.id,
+      shapeId: this.shapeId,
+      idx: this.idx,
+      divisionPointInfos: this.divisionPointInfos,
+      vertexIds: this.vertexIds,
+      divisionPointIds: this.divisionPointIds,
+      arcCenterId: this.arcCenterId,
+      counterclockwise: this.counterclockwise,
+      isInfinite: this.isInfinite,
+      isSemiInfinite: this.isSemiInfinite,
+    };
+    return data;
+  }
+
+  static loadFromData(data) {
+    let segment = new Segment({
+      drawingEnvironment: app.mainDrawingEnvironment,
+    });
+    Object.assign(segment, data);
   }
 }

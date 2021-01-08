@@ -1,6 +1,5 @@
 import { app } from '../Core/App';
 import { Action } from '../Core/States/Action';
-import { Point } from '../Core/Objects/Point';
 
 export class TranslateAction extends Action {
   constructor() {

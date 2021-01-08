@@ -131,7 +131,6 @@ export class State {
    * Exécuter les actions liée à l'état.
    */
   executeAction() {
-    window.dispatchEvent(new CustomEvent('actions', { detail: this.actions }));
     this.actions.forEach(action =>
       window.dispatchEvent(new CustomEvent(action.name, { detail: action }))
     );

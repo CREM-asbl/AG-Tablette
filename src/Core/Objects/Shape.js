@@ -174,6 +174,7 @@ export class Shape {
     const allPathElements = path
       .split(/[ \n]/)
       .filter(element => element !== '');
+    console.log(allPathElements);
     let firstVertex, lastVertex, startVertex;
 
     let segmentIdx = 0;
@@ -229,7 +230,7 @@ export class Shape {
           });
           if (this.contains(nextVertexCoordinates)) {
             startVertex = lastVertex = this.points.find(pt =>
-              pt.nextVertexCoordinates.equal(nextVertexCoordinates)
+              pt.coordinates.equal(nextVertexCoordinates)
             );
           } else {
             startVertex = lastVertex = new Point({
@@ -271,11 +272,10 @@ export class Shape {
             x: allPathElements.shift(),
             y: allPathElements.shift(),
           });
-          if (this.contains(nextVertexCoordinates)) {
-            lastVertex = this.points.find(pt =>
-              pt.coordinates.equal(nextVertexCoordinates)
-            );
-          } else {
+          lastVertex = this.points.find(pt =>
+            pt.coordinates.equal(nextVertexCoordinates)
+          );
+          if (lastVertex == undefined || lastVertex.type != 'vertex') {
             lastVertex = new Point({
               coordinates: nextVertexCoordinates,
               shapeId: this.id,
@@ -300,6 +300,7 @@ export class Shape {
             idx: segmentIdx++,
             vertexIds: [firstVertex.id, lastVertex.id],
             arcCenterId: arcCenter.id,
+            counterclockwise: sweepFlag == 0,
           });
 
           this.cleanSameDirectionSegment();
@@ -1267,14 +1268,15 @@ export class Shape {
     });
   }
 
-  saveToObject() {
-    let save = {
-      ...{ ...this, segments: undefined },
-      // coordinates: this.coordinates.saveToObject(),
-      path: this.getSVGPath('no scale'),
-    };
-    return save;
-  }
+  // saveToObject() {
+  //   return this.saveData();
+  //   let save = {
+  //     ...{ ...this, segments: undefined },
+  //     // coordinates: this.coordinates.saveToObject(),
+  //     path: this.getSVGPath('no scale'),
+  //   };
+  //   return save;
+  // }
 
   setGeometryConstructionSpec() {
     this.geometryConstructionSpec = {};
@@ -1352,5 +1354,34 @@ export class Shape {
       }
     }
     this.segments.forEach((seg, idx) => (seg.idx = idx));
+  }
+
+  saveData() {
+    let data = {
+      id: this.id,
+      segmentIds: this.segmentIds,
+      pointIds: this.pointIds,
+      name: this.name,
+      familyName: this.familyName,
+      color: this.color,
+      opacity: this.opacity,
+      size: this.size,
+      borderColor: this.borderColor,
+      borderSize: this.borderSize,
+      _isCenterShown: this.isCenterShown,
+      isReversed: this.isReversed,
+      isBiface: this.isBiface,
+      referenceShapeId: this.referenceShapeId,
+      referenceSegmentIdx: this.referenceSegmentIdx,
+      hasGeometryReferenced: this.hasGeometryReferenced,
+    };
+    return data;
+  }
+
+  static loadFromData(data) {
+    let shape = new Shape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+    });
+    Object.assign(shape, data);
   }
 }

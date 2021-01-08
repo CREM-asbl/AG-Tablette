@@ -2,6 +2,9 @@ import { GridManager } from '../../Grid/GridManager';
 /**
  * Représente les bords (d'une figure ou d'un segment)
  */
+import { Shape } from './Shape';
+import { Segment } from './Segment';
+import { Point } from './Point';
 export class DrawingEnvironment {
   /**
    *
@@ -20,10 +23,9 @@ export class DrawingEnvironment {
     this.mustDrawShapes = true;
     this.mustDrawSegments = true;
     this.mustDrawPoints = true;
+    this.mustDrawGrid = false;
 
     this.mustScaleShapes = true;
-
-    this.mustDrawGrid = false;
   }
 
   removeAllObjects() {
@@ -134,5 +136,29 @@ export class DrawingEnvironment {
     );
     let commonSegment = this.segments.find(seg => seg.id == commonSegmentId);
     return commonSegment;
+  }
+
+  saveData() {
+    let data = {
+      shapesData: this.shapes.map(shape => shape.saveData()),
+      segmentsData: this.segments.map(segment => segment.saveData()),
+      pointsData: this.points.map(point => point.saveData()),
+    };
+    return data;
+  }
+
+  loadFromData(data) {
+    this.removeAllObjects();
+    if (data != undefined) {
+      console.log(data);
+      data.shapesData.forEach(shapeData => Shape.loadFromData(shapeData));
+      data.segmentsData.forEach(segmentData =>
+        Segment.loadFromData(segmentData)
+      );
+      data.pointsData.forEach(pointData => Point.loadFromData(pointData));
+      console.log(this);
+    } else {
+      console.log('nothing to see here');
+    }
   }
 }

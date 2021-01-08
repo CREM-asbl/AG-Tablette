@@ -4,7 +4,6 @@ import { CompleteHistory } from './CompleteHistory';
 import { Settings } from '../Settings';
 import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
-import { Shape } from './Shape';
 import { Point } from '../Objects/Point';
 import { GridManager } from '../../Grid/GridManager';
 import { Coordinates } from './Coordinates';
@@ -99,7 +98,8 @@ export class Workspace {
   initFromObject(wsdata) {
     this.id = wsdata.id;
 
-    this.shapes = wsdata.shapes.map(sData => new Shape(sData));
+    // this.shapes = wsdata.shapes.map(sData => new Shape(sData));
+    app.mainDrawingEnvironment.loadFromData(wsdata.objects);
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -107,7 +107,7 @@ export class Workspace {
     });
 
     this.zoomLevel = wsdata.zoomLevel;
-    this.translateOffset = new Point(wsdata.translateOffset);
+    this.translateOffset = new Coordinates(wsdata.translateOffset);
 
     if (wsdata.completeHistory) {
       this.completeHistory.initFromObject(wsdata.completeHistory);
@@ -139,7 +139,7 @@ export class Workspace {
       }
       window.dispatchEvent(new CustomEvent('history-changed'));
     } else {
-      this.history.initFromObject({ index: -1, data: [] });
+      this.history.resetToDefault();
     }
 
     if (
@@ -180,9 +180,10 @@ export class Workspace {
 
     wsdata.id = this.id;
 
-    wsdata.shapes = this.shapes.map(s => {
-      return s.saveToObject();
-    });
+    // wsdata.shapes = this.shapes.map(s => {
+    //   return s.saveToObject();
+    // });
+    wsdata.objects = app.mainDrawingEnvironment.saveData();
     wsdata.shapeGroups = this.shapeGroups.map(group => {
       return group.saveToObject();
     });
@@ -192,7 +193,7 @@ export class Workspace {
       wsdata.completeHistory = this.completeHistory.saveToObject();
 
     wsdata.zoomLevel = this.zoomLevel;
-    wsdata.translateOffset = this.translateOffset.saveToObject();
+    wsdata.translateOffset = this.translateOffset;
 
     wsdata.settings = this.settings.saveToObject();
 

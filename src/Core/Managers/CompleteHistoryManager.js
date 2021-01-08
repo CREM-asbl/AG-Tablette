@@ -210,9 +210,9 @@ window.addEventListener('mouse-coordinates-changed', event =>
   CompleteHistoryManager.addStep('mouse-coordinates-changed', event)
 );
 
-window.addEventListener('actions-executed', event =>
-  CompleteHistoryManager.addStep('actions-executed', event)
-);
+// window.addEventListener('actions-executed', event =>
+//   CompleteHistoryManager.addStep('actions-executed', event)
+// );
 
 // tangram
 // window.addEventListener('state-menu-button-click', event =>

@@ -124,6 +124,8 @@ export class MergeAction extends Action {
         divisionPointInfos: seg.divisionPoints.map(d => {
           return { coordinates: d.coordinates, ratio: d.ratio };
         }),
+        arcCenterCoordinates: seg.arcCenter?.coordinates,
+        counterclockwise: seg.counterclockwise,
       });
       return segmentCopy;
     });
@@ -135,6 +137,8 @@ export class MergeAction extends Action {
         divisionPointInfos: seg.divisionPoints.map(d => {
           return { coordinates: d.coordinates, ratio: d.ratio };
         }),
+        arcCenterCoordinates: seg.arcCenter?.coordinates,
+        counterclockwise: seg.counterclockwise,
       });
       return segmentCopy;
     });
@@ -158,6 +162,7 @@ export class MergeAction extends Action {
           secondSegment
         );
         if (commonCoordinates) {
+          console.log('wtf');
           // todo: quand on crée un nouveau segment, copier les points de division de son modele
           // si on veut faire la fusion d'un groupe
           if (
@@ -171,6 +176,8 @@ export class MergeAction extends Action {
                   firstSegment.vertexes[0].coordinates,
                   commonCoordinates[0],
                 ],
+                arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
+                counterclockwise: firstSegment.counterclockwise,
               })
             );
           }
@@ -185,6 +192,8 @@ export class MergeAction extends Action {
                   commonCoordinates[1],
                   firstSegment.vertexes[1].coordinates,
                 ],
+                arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
+                counterclockwise: firstSegment.counterclockwise,
               })
             );
           }
@@ -199,6 +208,8 @@ export class MergeAction extends Action {
                   secondSegment.vertexes[0].coordinates,
                   commonCoordinates[0],
                 ],
+                arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
+                counterclockwise: firstSegment.counterclockwise,
               })
             );
           }
@@ -213,6 +224,8 @@ export class MergeAction extends Action {
                   commonCoordinates[1],
                   secondSegment.vertexes[1].coordinates,
                 ],
+                arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
+                counterclockwise: firstSegment.counterclockwise,
               })
             );
           }
@@ -228,6 +241,8 @@ export class MergeAction extends Action {
   }
 
   getCommonCoordinates(firstSegment, secondSegment) {
+    // todo à changer si on peut faire des arcs de cercles concaves
+    if (firstSegment.isArc() || secondSegment.isArc()) return null;
     let firstCommonCoordinates = null;
     let secondCommonCoordinates = null;
     [
@@ -260,23 +275,22 @@ export class MergeAction extends Action {
    * @returns {Segment[]}              les segments définitifs
    */
   linkNewSegments(segmentsList) {
+    console.log(segmentsList);
     let startCoordinates = segmentsList[0].vertexes[0].coordinates;
     let path = ['M', startCoordinates.x, startCoordinates.y];
     let segmentUsed = 0;
     let numberOfSegments = segmentsList.length;
-    let currentCoordinates;
 
     let nextSegmentIndex = 0;
-    let nextCoordinates = segmentsList[0].vertexes[1].coordinates;
-    path.push('L', nextCoordinates.x, nextCoordinates.y);
+    this.addPathElem(path, segmentsList[0]);
+    this.lastUsedCoordinates = segmentsList[0].vertexes[1].coordinates;
     segmentsList.splice(nextSegmentIndex, 1);
     segmentUsed++;
 
-    while (!nextCoordinates.equal(startCoordinates)) {
-      currentCoordinates = nextCoordinates;
+    while (!this.lastUsedCoordinates.equal(startCoordinates)) {
       const potentialSegmentIdx = segmentsList
         .map((seg, idx) =>
-          seg.contains(currentCoordinates, false) ? idx : undefined
+          seg.contains(this.lastUsedCoordinates, false) ? idx : undefined
         )
         .filter(seg => Number.isInteger(seg));
       if (potentialSegmentIdx.length != 1) {
@@ -290,12 +304,14 @@ export class MergeAction extends Action {
       }
       nextSegmentIndex = potentialSegmentIdx[0];
       let nextSegment = segmentsList[nextSegmentIndex];
-      if (nextSegment.vertexes[0].coordinates.equal(currentCoordinates)) {
-        nextCoordinates = nextSegment.vertexes[1].coordinates;
-      } else {
-        nextCoordinates = nextSegment.vertexes[0].coordinates;
+      let mustReverse = false;
+      if (
+        !nextSegment.vertexes[0].coordinates.equal(this.lastUsedCoordinates)
+      ) {
+        mustReverse = true;
       }
-      path.push('L', nextCoordinates.x, nextCoordinates.y);
+      this.addPathElem(path, nextSegment, mustReverse);
+      // path.push('L', this.lastUsedCoordinates.x, this.lastUsedCoordinates.y);
       segmentsList.splice(nextSegmentIndex, 1);
       segmentUsed++;
     }
@@ -309,6 +325,39 @@ export class MergeAction extends Action {
     path = path.join(' ');
 
     return path;
+  }
+
+  addPathElem(path, segment, mustReverse) {
+    let firstCoord = segment.vertexes[0].coordinates;
+    let secondCoord = segment.vertexes[1].coordinates;
+    if (mustReverse) [firstCoord, secondCoord] = [secondCoord, firstCoord];
+    this.lastUsedCoordinates = secondCoord;
+    if (!segment.isArc()) {
+      path.push('L', secondCoord.x, secondCoord.y);
+    } else {
+      let centerCoordinates = segment.arcCenter.coordinates;
+      let radius = centerCoordinates.dist(secondCoord),
+        firstAngle = centerCoordinates.angleWith(firstCoord),
+        secondAngle = centerCoordinates.angleWith(secondCoord);
+
+      if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+      let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+        sweepFlag = 1;
+      if (segment.counterclockwise) {
+        sweepFlag = Math.abs(sweepFlag - 1);
+        largeArcFlag = Math.abs(largeArcFlag - 1);
+      }
+      path.push(
+        'A',
+        radius,
+        radius,
+        0,
+        largeArcFlag,
+        sweepFlag,
+        secondCoord.x,
+        secondCoord.y
+      );
+    }
   }
 
   /**

@@ -281,6 +281,7 @@ export class DivideState extends State {
           this.actions[0].firstPointId,
           this.actions[0].secondPointId
         );
+        let shape = object.shape;
         let path = [
           'M',
           firstCoordinates.x,
@@ -289,17 +290,36 @@ export class DivideState extends State {
           secondCoordinates.x,
           secondCoordinates.y,
         ].join(' ');
-        if (commonSegment.isArc) {
+        if (commonSegment.isArc()) {
+          if (!shape.isCircle()) {
+            commonSegment.vertexes[0].ratio = 0;
+            commonSegment.vertexes[1].ratio = 1;
+            console.log(pt1.ratio, object.ratio);
+            console.log(commonSegment.counterclockwise);
+            if ((pt1.ratio > object.ratio) ^ commonSegment.counterclockwise) {
+              console.log('here');
+              [this.actions[0].firstPointId, this.actions[0].secondPointId] = [
+                this.actions[0].secondPointId,
+                this.actions[0].firstPointId,
+              ];
+              [firstCoordinates, secondCoordinates] = [
+                secondCoordinates,
+                firstCoordinates,
+              ];
+            }
+          }
           let centerCoordinates = commonSegment.arcCenter.coordinates,
             firstAngle = centerCoordinates.angleWith(firstCoordinates),
             secondAngle = centerCoordinates.angleWith(secondCoordinates);
           if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
           let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
             sweepFlag = 1;
-          if (this.counterclockwise) {
-            sweepFlag = Math.abs(sweepFlag - 1);
-            largeArcFlag = Math.abs(largeArcFlag - 1);
-          }
+          // if (shape.isCircle()) {
+          //   if (this.counterclockwise) {
+          //     sweepFlag = Math.abs(sweepFlag - 1);
+          //     largeArcFlag = Math.abs(largeArcFlag - 1);
+          //   }
+          // }
           path = [
             'M',
             firstCoordinates.x,

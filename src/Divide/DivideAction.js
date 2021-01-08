@@ -1,5 +1,4 @@
 import { Action } from '../Core/States/Action';
-import { Point } from '../Core/Objects/Point';
 import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 
@@ -219,35 +218,20 @@ export class DivideAction extends Action {
     )
       this.secondPoint.ratio = 1;
     let shape = this.segment.shape,
-      center = this.segment.arcCenter,
-      firstAngle = center.coordinates.angleWith(this.firstPoint.coordinates),
-      secondAngle = center.coordinates.angleWith(this.secondPoint.coordinates);
-    if (!shape.isCircle()) {
-      let firstVertexAngle = this.segment.arcCenter.angleWith(
-          this.segment.vertexes[0]
-        ),
-        secondVertexAngle = this.segment.arcCenter.angleWith(
-          this.segment.vertexes[1]
-        );
-      if (this.segment.counterclockwise)
-        [firstVertexAngle, secondVertexAngle] = [
-          secondVertexAngle,
-          firstVertexAngle,
-        ];
-      if (firstAngle < firstVertexAngle) firstAngle += Math.PI * 2;
-      if (secondAngle < firstVertexAngle) secondAngle += Math.PI * 2;
-      if (secondVertexAngle < firstVertexAngle)
-        secondVertexAngle += Math.PI * 2;
-      if ((secondAngle < firstAngle) ^ this.segment.counterclockwise) {
-        [firstAngle, secondAngle] = [secondAngle, firstAngle];
-      }
-    }
-    let ratioCap =
-      (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
+      centerCoordinates = this.segment.arcCenter.coordinates,
+      firstAngle = centerCoordinates.angleWith(this.firstPoint.coordinates),
+      secondAngle = centerCoordinates.angleWith(this.secondPoint.coordinates);
     if (secondAngle < firstAngle) {
       secondAngle += Math.PI * 2;
     }
-    if (ratioCap < 0) ratioCap += 0.5;
+    console.log('firstPoint ratio', this.firstPoint.ratio);
+    console.log('secondPoint ratio', this.secondPoint.ratio);
+    let ratioCap =
+      (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
+    if (shape.isCircle()) {
+      if (ratioCap < 0) ratioCap += 1 / this.numberOfParts;
+    }
+    console.log('ratioCap', ratioCap);
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
@@ -257,10 +241,13 @@ export class DivideAction extends Action {
       i < this.numberOfParts;
       i++
     ) {
-      const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
-        newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
+      const newX =
+          radius * Math.cos(firstAngle + partAngle * i) + centerCoordinates.x,
+        newY =
+          radius * Math.sin(firstAngle + partAngle * i) + centerCoordinates.y;
       coord = new Coordinates({ x: newX, y: newY });
       let ratio = this.firstPoint.ratio + i * ratioCap;
+      console.log('ratio', ratio);
       if (ratio > 1) ratio--;
       this.segment.addPoint(coord, ratio);
     }
