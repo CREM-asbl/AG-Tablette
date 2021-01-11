@@ -69,7 +69,6 @@ export class Environment {
     for (let [familyName, familyData] of Object.entries(kit.families)) {
       this.families.push(new Family({ name: familyName, ...familyData }));
     }
-    // this.families = [this.families[0]];
     window.dispatchEvent(new CustomEvent('families-loaded'));
   }
 

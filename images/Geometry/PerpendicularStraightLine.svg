@@ -9,6 +9,6 @@
     stroke-width:10px;
   }
 </style>
-<path class="st0" d="M 60 50 L 60 140"/>
-<path class="st0" d="M 170 0 L 120 200"/>
+<path stroke-dasharray="10,10" class="st0" d="M 80 0 L 80 200"/>
+<path class="st0" d="M 0 100 L 200 100"/>
 </svg>

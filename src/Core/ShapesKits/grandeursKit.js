@@ -1,15 +1,8 @@
-/**
- * Vert : 0 208 132
- * Orange : 255 105 0
- * Jaune : 255 255 0
- * Bleu : 0 108 170
- */
-
 export const grandeursKit = {
   name: 'Formes standard',
   families: {
     'Famille du triangle équilatéral': {
-      color: '#FF0',
+      color: '#ffff00',
       shapeTemplates: [
         {
           name: 'Triangle équilatéral',
@@ -104,7 +97,7 @@ export const grandeursKit = {
     },
 
     'Famille du carré': {
-      color: '#F00',
+      color: '#FF6900',
       shapeTemplates: [
         {
           name: 'Carré',
@@ -165,7 +158,7 @@ export const grandeursKit = {
     },
 
     'Famille du pentagone régulier': {
-      color: '#0F0',
+      color: '#00D084',
       shapeTemplates: [
         {
           name: 'Pentagone régulier',
@@ -221,7 +214,7 @@ export const grandeursKit = {
         {
           //Circonscrit au pentagone -> rayon = 42.53254041760199.
           name: 'Disque 2',
-          color: '#0F0',
+          color: '#00D084',
           path:
             'M 42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 -42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 42.53254041760199 0',
         },
@@ -229,7 +222,7 @@ export const grandeursKit = {
         {
           //Circonscrit au carré -> rayon = 35.35533905932738.
           name: 'Disque 3',
-          color: '#F00',
+          color: '#FF6900',
           path:
             'M 35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 -35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 35.35533905932738 0',
         },

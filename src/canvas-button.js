@@ -17,10 +17,6 @@ class CanvasButton extends LitElement {
     };
   }
 
-  constructor() {
-    super();
-  }
-
   static get styles() {
     return css`
       :host {

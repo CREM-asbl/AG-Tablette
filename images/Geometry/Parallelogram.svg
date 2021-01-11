@@ -4,11 +4,9 @@
 <style type="text/css">
 	path {
     fill:#d473d4;
-    stroke:#d473d4;
+    stroke:#000;
     stroke-miterlimit:10;
-    stroke-width:10px;
   }
 </style>
-<path class="st0" d="M 60 50 L 60 140"/>
-<path class="st0" d="M 170 0 L 120 200"/>
+<path class="st0" d="M 20 160 L 150 160 L 180 40 L 50 40 L 20 160"/>
 </svg>

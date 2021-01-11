@@ -3,12 +3,12 @@
 	 viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve">
 <style type="text/css">
 	path {
-    fill:#d473d4;
+    fill:#0000;
     stroke:#d473d4;
-    stroke-miterlimit:10;
     stroke-width:10px;
+    stroke-miterlimit:10;
   }
 </style>
-<path class="st0" d="M 60 50 L 60 140"/>
-<path class="st0" d="M 170 0 L 120 200"/>
+<path class="st0" d="M 160 160 A 120 120 0 0 0 40 40"/>
+<circle cx="40" cy="160" r="7" fill="#d473d4"/>
 </svg>
