@@ -4,6 +4,7 @@ import { GroupManager } from '../Core/Managers/GroupManager';
 import { Shape } from '../Core/Objects/Shape';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { app } from '../Core/App';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 
 export class CopyAction extends Action {
   constructor() {
@@ -102,7 +103,6 @@ export class CopyAction extends Action {
       });
       shapesList.push(newShape);
       newShape.translate(this.transformation);
-      // newShape.id = this.newShapesIds[index];
     });
 
     let transformation = getShapeAdjustment(shapesList, shapesList[0]);
@@ -116,14 +116,11 @@ export class CopyAction extends Action {
     });
 
     //Si nécessaire, créer le userGroup
-    // if (shapesList.length > 1) {
-    //   let userGroup = new ShapeGroup(0, 1);
-    //   if (Number.isFinite(this.createdUsergroupId))
-    //     userGroup.id = this.createdUsergroupId;
-    //   else this.createdUsergroupId = userGroup.id;
-    //   userGroup.shapesIds = this.newShapesIds;
-    //   GroupManager.addGroup(userGroup);
-    // }
+    if (shapesList.length > 1) {
+      let userGroup = new ShapeGroup(0, 1);
+      userGroup.shapesIds = shapesList.map(s => s.id);
+      GroupManager.addGroup(userGroup);
+    }
   }
 
   /**

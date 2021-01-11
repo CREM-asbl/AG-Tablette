@@ -1,129 +1,601 @@
 {
   "id": "170e2944bbf4b011",
-  "shapes": [
-    {
-      "id": "170e2d87df2b4edd",
-      "name": "Custom",
-      "familyName": "tangram",
-      "color": "#00FFFF",
-      "second_color": "#FF0000",
-      "isBiface": false,
-      "borderColor": "#000",
-      "isCenterShown": false,
-      "isReversed": false,
-      "opacity": 0.7,
-      "path": "M 196.75311640993573 553.3694438504566 L 370.309186874915 379.8133733854773 H 23.197045944956276 Z",
-      "size": 1
-    },
-    {
-      "id": "170e2d87df268904",
-      "name": "Custom",
-      "familyName": "tangram",
-      "coordinates": {
-        "x": 0,
-        "y": 0
+  "objects": {
+    "shapesData": [
+      {
+        "id": "170e2d87df2b4edd",
+        "segmentIds": ["176e14f3b4d888a7", "176e14f3b4d8a602", "176e14f3b4d6d509"],
+        "pointIds": ["176e14f3b4dd5ec8", "176e14f3b4d8e05a", "176e14f3b4d939b0"],
+        "name": "Custom",
+        "familyName": "tangram",
+        "color": "#00FFFF",
+        "isBiface": false,
+        "borderColor": "#000",
+        "_isCenterShown": false,
+        "isReversed": false,
+        "opacity": 0.7,
+        "path": "M 196.75311640993573 553.3694438504566 L 370.309186874915 379.8133733854773 H 23.197045944956276 Z",
+        "size": 1
       },
-      "color": "#00FFFF",
-      "second_color": "#FF0000",
-      "isBiface": false,
-      "borderColor": "#000",
-      "isCenterShown": false,
-      "isReversed": false,
-      "opacity": 0.7,
-      "path": "M 17.197045944956187 9.701232455518513 V 356.8133733854773 L 190.75311640993564 183.2573029204978 Z",
-      "size": 1
-    },
-    {
-      "id": "170e2d87df2e0b95",
-      "name": "Custom",
-      "familyName": "tangram",
-      "coordinates": {
-        "x": 0,
-        "y": 0
+      {
+        "id": "170e2d87df268904",
+        "segmentIds": ["176e14f3b4d714c9", "176e14f3b4d74dba", "176e14f3b4dd3e05"],
+        "pointIds": ["176e14f3b4d319b5", "176e14f3b4dd4159", "176e14f3b4d97f90"],
+        "name": "Custom",
+        "familyName": "tangram",
+        "color": "#00FFFF",
+        "isBiface": false,
+        "borderColor": "#000",
+        "_isCenterShown": false,
+        "isReversed": false,
+        "opacity": 0.7,
+        "path": "M 17.197045944956187 9.701232455518513 V 356.8133733854773 L 190.75311640993564 183.2573029204978 Z",
+        "size": 1
       },
-      "color": "#00FFFF",
-      "second_color": "#FF0000",
-      "isBiface": false,
-      "borderColor": "#000",
-      "isCenterShown": false,
-      "isReversed": false,
-      "opacity": 0.7,
-      "path": "M 109.29765127831087 337.90244312222785 H 282.85372174329024 V 164.34637265724848 Z",
-      "size": 1
-    },
-    {
-      "id": "170e2d87df2e720c",
-      "name": "Custom",
-      "familyName": "tangram",
-      "coordinates": {
-        "x": 0,
-        "y": 0
+      {
+        "id": "170e2d87df2e0b95",
+        "segmentIds": ["176e14f3b4d438f7", "176e14f3b4d779cd", "176e14f3b4d4e454"],
+        "pointIds": ["176e14f3b4d10751", "176e14f3b4d3f2ad", "176e14f3b4d341ab"],
+        "name": "Custom",
+        "familyName": "tangram",
+        "color": "#00FFFF",
+        "isBiface": false,
+        "borderColor": "#000",
+        "_isCenterShown": false,
+        "isReversed": false,
+        "opacity": 0.7,
+        "path": "M 109.29765127831087 337.90244312222785 H 282.85372174329024 V 164.34637265724848 Z",
+        "size": 1
       },
-      "color": "#00FFFF",
-      "second_color": "#FF0000",
-      "isBiface": false,
-      "borderColor": "#000",
-      "isCenterShown": false,
-      "isReversed": false,
-      "opacity": 0.7,
-      "path": "M 246.48552462254062 621.4999902324764 L 159.7074893900509 708.2780254649662 L 333.2635598550304 708.2780254649662 Z",
-      "size": 1
-    },
-    {
-      "id": "170e2d87df28122e",
-      "name": "Custom",
-      "familyName": "tangram",
-      "coordinates": {
-        "x": 0,
-        "y": 0
+      {
+        "id": "170e2d87df2e720c",
+        "segmentIds": ["176e14f3b4d916df", "176e14f3b4d2e5dc", "176e14f3b4d4f40d"],
+        "pointIds": ["176e14f3b4d193cc", "176e14f3b4dcca00", "176e14f3b4dd40ee"],
+        "name": "Custom",
+        "familyName": "tangram",
+        "color": "#00FFFF",
+        "isBiface": false,
+        "borderColor": "#000",
+        "_isCenterShown": false,
+        "isReversed": false,
+        "opacity": 0.7,
+        "path": "M 246.48552462254062 621.4999902324764 L 159.7074893900509 708.2780254649662 L 333.2635598550304 708.2780254649662 Z",
+        "size": 1
       },
-      "color": "#00FFFF",
-      "second_color": "#FF0000",
-      "isBiface": false,
-      "borderColor": "#000",
-      "isCenterShown": false,
-      "isReversed": false,
-      "opacity": 0.7,
-      "path": "M 189.63350113421407 808.3520137208031 L 276.4115363667039 895.1300489532925 V 721.5739784883133 Z",
-      "size": 1
-    },
-    {
-      "id": "170e2d87df247d14",
-      "name": "Custom",
-      "familyName": "tangram",
-      "coordinates": {
-        "x": 0,
-        "y": 0
+      {
+        "id": "170e2d87df28122e",
+        "segmentIds": ["176e14f3b4d4a2e8", "176e14f3b4db582a", "176e14f3b4dbd407"],
+        "pointIds": ["176e14f3b4d25313", "176e14f3b4d34723", "176e14f3b4dbe56a"],
+        "name": "Custom",
+        "familyName": "tangram",
+        "color": "#00FFFF",
+        "isBiface": false,
+        "borderColor": "#000",
+        "_isCenterShown": false,
+        "isReversed": false,
+        "opacity": 0.7,
+        "path": "M 189.63350113421407 808.3520137208031 L 276.4115363667039 895.1300489532925 V 721.5739784883133 Z",
+        "size": 1
       },
-      "color": "#00FFFF",
-      "second_color": "#FF0000",
-      "isBiface": false,
-      "borderColor": "#000",
-      "isCenterShown": false,
-      "isReversed": false,
-      "opacity": 0.7,
-      "path": "M 40.803419076612855 917.307605587175 L 127.58145430910253 830.5295703546853 V 656.9734998897061 L 40.803419076612855 743.7515351221957 Z",
-      "size": 1
-    },
-    {
-      "id": "170e2d87df2396eb",
-      "name": "Custom",
-      "familyName": "tangram",
-      "coordinates": {
-        "x": 0,
-        "y": 0
+      {
+        "id": "170e2d87df247d14",
+        "segmentIds": ["176e14f3b4d60153", "176e14f3b4da950e", "176e14f3b4dab21a", "176e14f3b4d404ea"],
+        "pointIds": ["176e14f3b4d50861", "176e14f3b4d8e51a", "176e14f3b4dd905c", "176e14f3b4d355b8"],
+        "name": "Custom",
+        "familyName": "tangram",
+        "color": "#00FFFF",
+        "isBiface": false,
+        "borderColor": "#000",
+        "_isCenterShown": false,
+        "isReversed": false,
+        "opacity": 0.7,
+        "path": "M 40.803419076612855 917.307605587175 L 127.58145430910253 830.5295703546853 V 656.9734998897061 L 40.803419076612855 743.7515351221957 Z",
+        "size": 1
       },
-      "color": "#00FFFF",
-      "second_color": "#FF0000",
-      "isBiface": false,
-      "borderColor": "#000",
-      "isCenterShown": false,
-      "isReversed": false,
-      "opacity": 0.7,
-      "path": "M 89.97040553065298 492.15398801194715 L 3.192370298163267 578.9320232444368 L 89.9704055306528 665.7100584769265 L 176.74844076314253 578.9320232444369 Z",
-      "size": 1
-    }
-  ],
+      {
+        "id": "170e2d87df2396eb",
+        "segmentIds": ["176e14f3b4d420b8", "176e14f3b4deecd", "176e14f3b4d8f584", "176e14f3b4dd3bd3"],
+        "pointIds": ["176e14f3b4d29972", "176e14f3b4dc32fd", "176e14f3b4d2b7de", "176e14f3b4d5d399"],
+        "name": "Custom",
+        "familyName": "tangram",
+        "color": "#00FFFF",
+        "isBiface": false,
+        "borderColor": "#000",
+        "_isCenterShown": false,
+        "isReversed": false,
+        "opacity": 0.7,
+        "path": "M 89.97040553065298 492.15398801194715 L 3.192370298163267 578.9320232444368 L 89.9704055306528 665.7100584769265 L 176.74844076314253 578.9320232444369 Z",
+        "size": 1
+      }
+    ],
+    "pointsData": [
+      {
+        "id": "176e14f3b4dd5ec8",
+        "coordinates":{"x": 196.75311640993573,"y": 553.3694438504566},
+        "shapeId":"170e2d87df2b4edd",
+        "idx":0,
+        "segmentIds":["176e14f3b4d6d509","176e14f3b4d888a7"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d8e05a",
+        "coordinates":{"x": 370.309186874915,"y": 379.8133733854773},
+        "shapeId":"170e2d87df2b4edd",
+        "idx":1,
+        "segmentIds":["176e14f3b4d888a7","176e14f3b4d8a602"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d939b0",
+        "coordinates":{"x": 23.197045944956276,"y": 379.8133733854773},
+        "shapeId":"170e2d87df2b4edd",
+        "idx":2,
+        "segmentIds":["176e14f3b4d8a602","176e14f3b4d6d509"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d319b5",
+        "coordinates":{"x": 17.197045944956187,"y": 9.701232455518513},
+        "shapeId":"170e2d87df268904",
+        "idx":0,
+        "segmentIds":["176e14f3b4d714c9","176e14f3b4dd3e05"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4dd4159",
+        "coordinates":{"x": 17.197045944956187,"y": 356.8133733854773},
+        "shapeId":"170e2d87df268904",
+        "idx":1,
+        "segmentIds":["176e14f3b4d74dba","176e14f3b4d714c9"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d97f90",
+        "coordinates":{"x": 190.75311640993564,"y": 183.2573029204978},
+        "shapeId":"170e2d87df268904",
+        "idx":2,
+        "segmentIds":["176e14f3b4dd3e05","176e14f3b4d74dba"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d10751",
+        "coordinates":{"x": 109.29765127831087,"y": 337.90244312222785},
+        "shapeId":"170e2d87df2e0b95",
+        "idx":0,
+        "segmentIds":["176e14f3b4d438f7","176e14f3b4d4e454"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d3f2ad",
+        "coordinates":{"x": 282.85372174329024,"y": 337.90244312222785},
+        "shapeId":"170e2d87df2e0b95",
+        "idx":1,
+        "segmentIds":["176e14f3b4d779cd","176e14f3b4d438f7"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d341ab",
+        "coordinates":{"x": 282.85372174329024,"y": 164.34637265724848},
+        "shapeId":"170e2d87df2e0b95",
+        "idx":2,
+        "segmentIds":["176e14f3b4d4e454","176e14f3b4d779cd"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d193cc",
+        "coordinates":{"x": 246.48552462254062,"y": 621.4999902324764},
+        "shapeId":"170e2d87df2e720c",
+        "idx":0,
+        "segmentIds":["176e14f3b4d916df","176e14f3b4d4f40d"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4dcca00",
+        "coordinates":{"x": 159.7074893900509,"y": 708.2780254649662},
+        "shapeId":"170e2d87df2e720c",
+        "idx":1,
+        "segmentIds":["176e14f3b4d2e5dc","176e14f3b4d916df"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4dd40ee",
+        "coordinates":{"x": 333.2635598550304,"y": 708.2780254649662},
+        "shapeId":"170e2d87df2e720c",
+        "idx":2,
+        "segmentIds":["176e14f3b4d4f40d","176e14f3b4d2e5dc"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d25313",
+        "coordinates":{"x": 189.63350113421407,"y": 808.3520137208031},
+        "shapeId":"170e2d87df28122e",
+        "idx":0,
+        "segmentIds":["176e14f3b4d4a2e8","176e14f3b4dbd407"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d34723",
+        "coordinates":{"x": 276.4115363667039,"y": 895.1300489532925},
+        "shapeId":"170e2d87df28122e",
+        "idx":1,
+        "segmentIds":["176e14f3b4db582a","176e14f3b4d4a2e8"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4dbe56a",
+        "coordinates":{"x": 276.4115363667039,"y": 721.5739784883133},
+        "shapeId":"170e2d87df28122e",
+        "idx":2,
+        "segmentIds":["176e14f3b4dbd407","176e14f3b4db582a"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d50861",
+        "coordinates":{"x": 40.803419076612855,"y": 917.307605587175},
+        "shapeId":"170e2d87df247d14",
+        "idx":0,
+        "segmentIds":["176e14f3b4d60153","176e14f3b4d404ea"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d8e51a",
+        "coordinates":{"x": 127.58145430910253,"y": 830.5295703546853},
+        "shapeId":"170e2d87df247d14",
+        "idx":1,
+        "segmentIds":["176e14f3b4da950e","176e14f3b4d60153"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4dd905c",
+        "coordinates":{"x": 127.58145430910253,"y": 656.9734998897061},
+        "shapeId":"170e2d87df247d14",
+        "idx":2,
+        "segmentIds":["176e14f3b4dab21a","176e14f3b4da950e"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d355b8",
+        "coordinates":{"x": 40.803419076612855,"y": 743.7515351221957},
+        "shapeId":"170e2d87df247d14",
+        "idx":3,
+        "segmentIds":["176e14f3b4d404ea","176e14f3b4dab21a"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d29972",
+        "coordinates":{"x": 89.97040553065298,"y": 492.15398801194715},
+        "shapeId":"170e2d87df2396eb",
+        "idx":0,
+        "segmentIds":["176e14f3b4d420b8","176e14f3b4dd3bd3"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4dc32fd",
+        "coordinates":{"x": 3.192370298163267,"y": 578.9320232444368},
+        "shapeId":"170e2d87df2396eb",
+        "idx":1,
+        "segmentIds":["176e14f3b4deecd","176e14f3b4d420b8"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d2b7de",
+        "coordinates":{"x": 89.9704055306528,"y": 665.7100584769265},
+        "shapeId":"170e2d87df2396eb",
+        "idx":2,
+        "segmentIds":["176e14f3b4d8f584","176e14f3b4deecd"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      },
+      {
+        "id": "176e14f3b4d5d399",
+        "coordinates":{"x": 176.74844076314253,"y": 578.9320232444369},
+        "shapeId":"170e2d87df2396eb",
+        "idx":3,
+        "segmentIds":["176e14f3b4dd3bd3","176e14f3b4d8f584"],
+        "type":"vertex",
+        "visible":true,
+        "color":"#000",
+        "size":1
+      }
+    ],
+    "segmentsData": [
+      {
+        "id":"176e14f3b4d888a7",
+        "shapeId":"170e2d87df2b4edd",
+        "idx":0,
+				"vertexIds":["176e14f3b4dd5ec8","176e14f3b4d8e05a"],
+				"divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id":"176e14f3b4d8a602",
+        "shapeId":"170e2d87df2b4edd",
+        "idx":1,
+				"vertexIds":["176e14f3b4d8e05a","176e14f3b4d939b0"],
+				"divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id":"176e14f3b4d6d509",
+        "shapeId":"170e2d87df2b4edd",
+        "idx":2,
+				"vertexIds":["176e14f3b4d939b0","176e14f3b4dd5ec8"],
+				"divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d714c9",
+        "shapeId":"170e2d87df268904",
+        "idx":0,
+        "vertexIds":["176e14f3b4d319b5","176e14f3b4dd4159"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d74dba",
+        "shapeId":"170e2d87df268904",
+        "idx":1,
+        "vertexIds":["176e14f3b4dd4159","176e14f3b4d97f90"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4dd3e05",
+        "shapeId":"170e2d87df268904",
+        "idx":2,
+        "vertexIds":["176e14f3b4d97f90","176e14f3b4d319b5"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d438f7",
+        "shapeId":"170e2d87df2e0b95",
+        "idx":0,
+        "vertexIds":["176e14f3b4d10751","176e14f3b4d3f2ad"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d779cd",
+        "shapeId":"170e2d87df2e0b95",
+        "idx":1,
+        "vertexIds":["176e14f3b4d3f2ad","176e14f3b4d341ab"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d4e454",
+        "shapeId":"170e2d87df2e0b95",
+        "idx":2,
+        "vertexIds":["176e14f3b4d341ab","176e14f3b4d10751"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d916df",
+        "shapeId":"170e2d87df2e720c",
+        "idx":0,
+        "vertexIds":["176e14f3b4d193cc","176e14f3b4dcca00"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d2e5dc",
+        "shapeId":"170e2d87df2e720c",
+        "idx":1,
+        "vertexIds":["176e14f3b4dcca00","176e14f3b4dd40ee"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d4f40d",
+        "shapeId":"170e2d87df2e720c",
+        "idx":2,
+        "vertexIds":["176e14f3b4dd40ee","176e14f3b4d193cc"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d4a2e8",
+        "shapeId":"170e2d87df28122e",
+        "idx":0,
+        "vertexIds":["176e14f3b4d25313","176e14f3b4d34723"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4db582a",
+        "shapeId":"170e2d87df28122e",
+        "idx":1,
+        "vertexIds":["176e14f3b4d34723","176e14f3b4dbe56a"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4dbd407",
+        "shapeId":"170e2d87df28122e",
+        "idx":2,
+        "vertexIds":["176e14f3b4dbe56a","176e14f3b4d25313"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d60153",
+        "shapeId":"170e2d87df247d14",
+        "idx":0,
+        "vertexIds":["176e14f3b4d50861","176e14f3b4d8e51a"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4da950e",
+        "shapeId":"170e2d87df247d14",
+        "idx":1,
+        "vertexIds":["176e14f3b4d8e51a","176e14f3b4dd905c"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4dab21a",
+        "shapeId":"170e2d87df247d14",
+        "idx":2,
+        "vertexIds":["176e14f3b4dd905c","176e14f3b4d355b8"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d404ea",
+        "shapeId":"170e2d87df247d14",
+        "idx":3,
+        "vertexIds":["176e14f3b4d355b8","176e14f3b4d50861"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d420b8",
+        "shapeId":"170e2d87df2396eb",
+        "idx":0,
+        "vertexIds":["176e14f3b4d29972","176e14f3b4dc32fd"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4deecd",
+        "shapeId":"170e2d87df2396eb",
+        "idx":1,
+        "vertexIds":["176e14f3b4dc32fd","176e14f3b4d2b7de"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4d8f584",
+        "shapeId":"170e2d87df2396eb",
+        "idx":2,
+        "vertexIds":["176e14f3b4d2b7de","176e14f3b4d5d399"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      },
+      {
+        "id": "176e14f3b4dd3bd3",
+        "shapeId":"170e2d87df2396eb",
+        "idx":3,
+        "vertexIds":["176e14f3b4d5d399","176e14f3b4d29972"],
+        "divisionPointIds":[],
+        "counterclockwise":false,
+        "isInfinite":false,
+        "isSemiInfinite":false
+      }
+    ]
+  },
   "shapeGroups": [],
   "zoomLevel": 1,
   "translateOffset": {

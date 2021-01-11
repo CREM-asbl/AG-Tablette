@@ -99,7 +99,6 @@ export class Segment {
     this.counterclockwise = counterclockwise;
     this.isInfinite = isInfinite;
     this.isSemiInfinite = isSemiInfinite;
-    console.log('segment created');
   }
 
   /* #################################################################### */

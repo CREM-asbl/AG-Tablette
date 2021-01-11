@@ -85,7 +85,8 @@ export class SilhouetteCreatorState extends State {
   }
 
   createSilhouette() {
-    const shapes = app.workspace.shapes;
+    app.backgroundDrawingEnvironment.removeAllObjects();
+    const shapes = app.mainDrawingEnvironment.shapes;
 
     if (this.hasOverlapedShape(shapes)) {
       window.dispatchEvent(

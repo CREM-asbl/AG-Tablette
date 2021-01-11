@@ -156,7 +156,6 @@ export class DrawingEnvironment {
         Segment.loadFromData(segmentData)
       );
       data.pointsData.forEach(pointData => Point.loadFromData(pointData));
-      console.log(this);
     } else {
       console.log('nothing to see here');
     }

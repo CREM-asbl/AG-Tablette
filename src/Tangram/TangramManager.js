@@ -78,7 +78,7 @@ export class TangramManager {
   }
 
   static async loadKit() {
-    const response = await fetch('data/Tangram/kit2.json');
+    const response = await fetch('data/Tangram/tangramShapeKit.json');
     return response.text();
   }
 

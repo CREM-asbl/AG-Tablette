@@ -30,12 +30,14 @@ export class State {
         if (this.name == app.state) {
           this.restart(true, event.detail.startParams);
         } else {
+          console.log(this.name);
           this.status = 'stopped';
           this.end();
         }
       } else if (this.status == 'stopped') {
         if (this.name == app.state) {
-          this.start(event.detail.startParams);
+          console.log(this.name);
+          window.setTimeout(() => this.start(event.detail.startParams), 0);
           this.status = 'running';
         }
       } else {
@@ -64,10 +66,6 @@ export class State {
 
     window.addEventListener('refreshStateUpper', () => {
       if (this.name == app.state) this.refreshStateUpper();
-    });
-
-    window.addEventListener('shapeDrawn', event => {
-      if (this.name == app.state) this.shapeDrawn(event.detail.shape);
     });
 
     this.handler = event => this._actionHandle(event);
@@ -119,13 +117,6 @@ export class State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {}
-
-  /**
-   * Appelée par la fonction de dessin après avoir dessiné une forme sur le
-   * canvas principal
-   * @param  {Shape}      shape   La forme dessinée
-   */
-  shapeDrawn(shape) {}
 
   /**
    * Exécuter les actions liée à l'état.

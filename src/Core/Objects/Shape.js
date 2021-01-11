@@ -60,6 +60,7 @@ export class Shape {
     this.isPointed = isPointed;
 
     if (path) {
+      console.log('using path');
       this.setSegmentsFromPath(path);
       if (this.isCircle()) this.vertexes[0].visible = false;
     } else {
@@ -174,7 +175,6 @@ export class Shape {
     const allPathElements = path
       .split(/[ \n]/)
       .filter(element => element !== '');
-    console.log(allPathElements);
     let firstVertex, lastVertex, startVertex;
 
     let segmentIdx = 0;
@@ -580,16 +580,16 @@ export class Shape {
       s1_segments = s1.segments,
       s2_segments = s2.segments;
 
-    // s1 in s2 ? if a point of s1 is in s2
-    if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments))
-      return true;
-    // s2 in s1 ? if a point of s2 is in s1
-    if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments))
-      return true;
+    // // s1 in s2 ? if a point of s1 is in s2
+    // if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments))
+    //   return true;
+    // // s2 in s1 ? if a point of s2 is in s1
+    // if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments))
+    //   return true;
 
-    // check if intersect segments
-    if (this.overlapCheckIntersectSegments(s1_segments, s2_segments))
-      return true;
+    // // check if intersect segments
+    // if (this.overlapCheckIntersectSegments(s1_segments, s2_segments))
+    //   return true;
 
     return false;
   }
@@ -1365,6 +1365,7 @@ export class Shape {
       familyName: this.familyName,
       color: this.color,
       opacity: this.opacity,
+      path: this.getSVGPath(false),
       size: this.size,
       borderColor: this.borderColor,
       borderSize: this.borderSize,

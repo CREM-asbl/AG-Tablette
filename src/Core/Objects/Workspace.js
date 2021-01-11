@@ -100,6 +100,7 @@ export class Workspace {
 
     // this.shapes = wsdata.shapes.map(sData => new Shape(sData));
     app.mainDrawingEnvironment.loadFromData(wsdata.objects);
+    app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -155,20 +156,20 @@ export class Workspace {
         originalZoom = this.zoomLevel,
         newZoom = originalZoom * scaleOffset,
         originalTranslateOffset = this.translateOffset,
-        actualCenter = new Point(
-          wsdata.canvasSize.width,
-          wsdata.canvasSize.height
-        ).multiplyWithScalar(1 / originalZoom),
-        newCenter = new Point(
-          app.canvasWidth,
-          app.canvasHeight
-        ).multiplyWithScalar(1 / newZoom),
-        corr = originalTranslateOffset.multiplyWithScalar(1 / originalZoom), // error with the old zoom that move the center
+        actualCenter = new Coordinates({
+          x: wsdata.canvasSize.width,
+          y: wsdata.canvasSize.height,
+        }).multiply(1 / originalZoom),
+        newCenter = new Coordinates({
+          x: app.canvasWidth,
+          y: app.canvasHeight,
+        }).multiply(1 / newZoom),
+        corr = originalTranslateOffset.multiply(1 / originalZoom), // error with the old zoom that move the center
         newTranslateoffset = newCenter
-          .subCoordinates(actualCenter)
-          .multiplyWithScalar(0.5)
-          .addCoordinates(corr)
-          .multiplyWithScalar(newZoom);
+          .substract(actualCenter)
+          .multiply(0.5)
+          .add(corr)
+          .multiply(newZoom);
 
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
@@ -184,6 +185,7 @@ export class Workspace {
     //   return s.saveToObject();
     // });
     wsdata.objects = app.mainDrawingEnvironment.saveData();
+    wsdata.backObjects = app.backgroundDrawingEnvironment.saveData();
     wsdata.shapeGroups = this.shapeGroups.map(group => {
       return group.saveToObject();
     });
