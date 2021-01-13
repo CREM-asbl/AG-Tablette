@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+         viewBox="0 0 14 14" xml:space="preserve">
+<style type="text/css">
+        path {
+    stroke:#000;
+    stroke-miterlimit:10;
+    background:#000;
+  }
+</style>
+<!-- <path stroke-width="0" fill="#d3d3d3" d="M 1.0 1.0 L 1.0 13.0 L 13.0 13.0 L 13.0 1.0 Z" /> -->
+<rect style="stroke-width:0.1; stroke:#000" fill="#d3d3d3" x="1" y="1" width="12" height="12" rx="1" ry="1" />
+
+<path stroke-width="0.04" fill="#FF6900" class="st0" d="M 2.0 2.0 L 6.0 2.0 L 4.0 4.0 L 6.0 6.0 L 2.0 6.0 Z"/>
+<path stroke-width="0.04" fill="#FF6900" class="st0" d="M 12.0 2.0 L 12.0 6.0 L 10.0 4.0 L 8.0 6.0 L 8.0 2.0 Z"/>
+<path stroke-width="0.04" fill="#FF6900" class="st0" d="M 12.0 12.0 L 8.0 12.0 L 10.0 10.0 L 8.0 8.0 L 12.0 8.0 Z"/>
+<path stroke-width="0.04" fill="#FF6900" class="st0" d="M 2.0 12.0 L 2.0 8.0 L 4.0 10.0 L 6.0 8.0 L 6.0 12.0 Z"/>
+
+<path stroke-width="0.04" fill="#006CAA" class="st0" d="M 6.0 2.0 L 8.0 4.0 L 6.0 4.0 L 6.0 6.0 L 4.0 4.0 Z"/>
+<path stroke-width="0.04" fill="#006CAA" class="st0" d="M 12.0 6.0 L 10.0 8.0 L 10.0 6.0 L 8.0 6.0 L 10.0 4.0 Z"/>
+<path stroke-width="0.04" fill="#006CAA" class="st0" d="M 8.0 12.0 L 6.0 10.0 L 8.0 10.0 L 8.0 8.0 L 10.0 10.0 Z"/>
+<path stroke-width="0.04" fill="#006CAA" class="st0" d="M 2.0 8.0 L 4.0 6.0 L 4.0 8.0 L 6.0 8.0 L 4.0 10.0 Z"/>
+
+<path stroke-width="0.04" fill="#FFFF00" class="st0" d="M 8.0 4.0 L 8.0 6.0 L 7.0 5.0 L 6.0 6.0 L 6.0 4.0 Z"/>
+<path stroke-width="0.04" fill="#FFFF00" class="st0" d="M 10.0 8.0 L 8.0 8.0 L 9.0 7.0 L 8.0 6.0 L 10.0 6.0 Z"/>
+<path stroke-width="0.04" fill="#FFFF00" class="st0" d="M 6.0 10.0 L 6.0 8.0 L 7.0 9.0 L 8.0 8.0 L 8.0 10.0 Z"/>
+<path stroke-width="0.04" fill="#FFFF00" class="st0" d="M 4.0 6.0 L 6.0 6.0 L 5.0 7.0 L 6.0 8.0 L 4.0 8.0 Z"/>
+
+<path stroke-width="0.04" fill="#00D084" class="st0" d="M 7.0 5.0 L 8.0 6.0 L 7.0 7.0 L 6.0 6.0 Z"/>
+<path stroke-width="0.04" fill="#00D084" class="st0" d="M 9.0 7.0 L 8.0 8.0 L 7.0 7.0 L 8.0 6.0 Z"/>
+<path stroke-width="0.04" fill="#00D084" class="st0" d="M 7.0 9.0 L 6.0 8.0 L 7.0 7.0 L 8.0 8.0 Z"/>
+<path stroke-width="0.04" fill="#00D084" class="st0" d="M 5.0 7.0 L 6.0 6.0 L 7.0 7.0 L 6.0 8.0 Z"/>
+</svg>
