@@ -25,8 +25,7 @@ class AgEnvironnements extends LitElement {
         height: 100%;
         padding: 16px;
         box-sizing: border-box;
-        background: url('images/manifest/icon.svg') no-repeat center center
-          lightgray;
+        background: /* url('images/manifest/icon.svg') no-repeat center center */ lightgray;
       }
 
       div {
@@ -45,28 +44,34 @@ class AgEnvironnements extends LitElement {
       }
 
       #Grandeurs {
-        background: url('/images/Environnements/grandeurs.${unsafeCSS(
+        background: url('/images/Environnements/grandeurs_test2.jpg') center
+          center rgba(255, 255, 255, 0.9);
+        /* background: url('/images/Environnements/grandeurs.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
           )}')
-          center center rgba(255, 255, 255, 0.9);
+          center center rgba(255, 255, 255, 0.9); */
         background-repeat: no-repeat;
         background-size: contain;
       }
 
       #Tangram {
-        background: url('/images/Environnements/tangram.${unsafeCSS(
+        background: url('/images/Environnements/tangram_test2.jpg') center
+          center rgba(255, 255, 255, 0.9);
+        /* background: url('/images/Environnements/tangram.\${unsafeCSS(
             this.isSafari ? 'jpg' : 'webp'
           )}')
-          center center rgba(255, 255, 255, 0.9);
+          center center rgba(255, 255, 255, 0.9); */
         background-repeat: no-repeat;
         background-size: contain;
       }
 
       #Cubes {
-        background: url('/images/Environnements/cubes.${unsafeCSS(
+        background: url('/images/Environnements/cubes_test2.jpg') center center
+          rgba(255, 255, 255, 0.9);
+        /* background: url('/images/Environnements/cubes.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
           )}')
-          center center rgba(255, 255, 255, 0.9);
+          center center rgba(255, 255, 255, 0.9); */
         background-repeat: no-repeat;
         background-size: contain;
       }
@@ -83,6 +88,10 @@ class AgEnvironnements extends LitElement {
       <div id="Tangram" @click="${this.handleClick}">Tangram</div>
       <div id="Cubes" @click="${this.handleClick}">Cubes</div>
       <div id="Geometrie" @click="${this.handleClick}">Géométrie</div>
+      <img
+        src="images/manifest/icon_test.svg"
+        style="transform: rotate(45deg);position: absolute; top:37%; left:37%; width: 26%; height: 26%;"
+      />
     `;
   }
 

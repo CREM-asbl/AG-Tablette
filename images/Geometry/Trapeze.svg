@@ -5,6 +5,7 @@
 	path {
     fill:#d473d4;
     stroke:#000;
+    stroke-width:10;
     stroke-miterlimit:10;
   }
 </style>

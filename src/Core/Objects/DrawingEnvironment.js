@@ -57,7 +57,7 @@ export class DrawingEnvironment {
           window.dispatchEvent(
             new CustomEvent('draw-shape', { detail: { shape: s } })
           );
-          if (this.mustDrawPoints) {
+          if (this.mustDrawPoints && app.settings.get('areShapesPointed')) {
             this.points.forEach(pt => {
               if (pt.visible && pt.shapeId === s.id) {
                 window.dispatchEvent(
