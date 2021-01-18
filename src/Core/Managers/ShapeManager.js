@@ -95,7 +95,7 @@ export class ShapeManager {
       allShapes.push(...app.upperDrawingEnvironment.shapes);
     let list = allShapes.filter(
       shape =>
-        shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnSegment(coord)
+        shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnBorder(coord)
     );
     list.reverse();
     return list;

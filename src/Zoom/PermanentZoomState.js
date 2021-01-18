@@ -1,6 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { Point } from '../Core/Objects/Point';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Zoomer/Dézoomer le plan
@@ -74,6 +75,7 @@ export class PermanentZoomState extends State {
 
   onTouchStart(touches) {
     if (touches.length == 2) {
+      app.upperDrawingEnvironment.removeAllObjects();
       window.dispatchEvent(new CustomEvent('abort-state'));
       this.touchMoveId = app.addListener('canvastouchmove', this.handler);
       this.touchEndId = app.addListener('canvastouchend', this.handler);
@@ -86,10 +88,10 @@ export class PermanentZoomState extends State {
     if (this.currentStep == 'listen-canvas-click') {
       let point1 = touches[0],
         point2 = touches[1];
-      this.centerProp = new Point(
-        (point1.x + point2.x) / 2 / app.canvasWidth,
-        (point1.y + point2.y) / 2 / app.canvasHeight
-      );
+      this.centerProp = new Coordinates({
+        x: (point1.x + point2.x) / 2 / app.canvasWidth,
+        y: (point1.y + point2.y) / 2 / app.canvasHeight,
+      });
       this.baseDist = point1.dist(point2);
       if (this.baseDist == 0) this.baseDist = 0.001;
 
@@ -115,22 +117,19 @@ export class PermanentZoomState extends State {
 
       let originalTranslateOffset = app.workspace.translateOffset,
         newZoom = originalZoom * scaleOffset,
-        actualWinSize = new Point(
-          app.canvasWidth / originalZoom,
-          app.canvasHeight / originalZoom
-        ),
-        newWinSize = new Point(
-          actualWinSize.x / scaleOffset,
-          actualWinSize.y / scaleOffset
-        ),
-        newTranslateoffset = new Point(
-          (originalTranslateOffset.x / originalZoom -
-            (actualWinSize.x - newWinSize.x) * this.centerProp.x) *
-            newZoom,
-          (originalTranslateOffset.y / originalZoom -
-            (actualWinSize.y - newWinSize.y) * this.centerProp.y) *
-            newZoom
-        );
+        actualWinSize = new Coordinates({
+          x: app.canvasWidth,
+          y: app.canvasHeight,
+        }).multiply(1 / originalZoom),
+        newWinSize = actualWinSize.multiply(1 / scaleOffset),
+        newTranslateoffset = originalTranslateOffset
+          .multiply(1 / originalZoom)
+          .add(
+            newWinSize
+              .substract(actualWinSize)
+              .multiply(this.centerProp.x, this.centerProp.y)
+          )
+          .multiply(newZoom);
 
       app.workspace.setZoomLevel(newZoom, false);
       app.workspace.setTranslateOffset(newTranslateoffset);
@@ -161,7 +160,7 @@ export class PermanentZoomState extends State {
         name: 'ZoomAction',
         scaleOffset: offset,
         originalZoom: actualZoom,
-        originalTranslateOffset: new Point(app.workspace.translateOffset),
+        originalTranslateOffset: new Coordinates(app.workspace.translateOffset),
         centerProp: this.centerProp,
       },
     ];
@@ -192,10 +191,10 @@ export class PermanentZoomState extends State {
         name: 'ZoomAction',
         scaleOffset: offset,
         originalZoom: actualZoom,
-        originalTranslateOffset: new Point(app.workspace.translateOffset),
-        centerProp: new Point(
-          mousePos.x / app.canvasWidth,
-          mousePos.y / app.canvasHeight
+        originalTranslateOffset: new Coordinates(app.workspace.translateOffset),
+        centerProp: mousePos.multiply(
+          1 / app.canvasWidth,
+          1 / app.canvasHeight
         ),
       },
     ];

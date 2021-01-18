@@ -13,7 +13,13 @@ export class SilhouetteCreatorState extends State {
 
     this.buttons = null;
 
+    this.isUserWarnedAboutOverlap = false;
+
     window.addEventListener('new-window', () => this.finish());
+
+    window.addEventListener('app-state-changed', event => {
+      if (event.detail.state == 'solveChecker') this.finish();
+    });
   }
 
   /**
@@ -22,6 +28,8 @@ export class SilhouetteCreatorState extends State {
   async start() {
     TangramManager.initShapes();
 
+    this.isUserWarnedAboutOverlap = false;
+
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
 
@@ -29,19 +37,21 @@ export class SilhouetteCreatorState extends State {
     this.showStateMenu();
     window.addEventListener('state-menu-button-click', this.handler);
     window.addEventListener('create-silhouette', this.handler);
+    window.addEventListener('actions-executed', this.handler);
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   restart() {
     TangramManager.initShapes();
+    this.isUserWarnedAboutOverlap = false;
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   finish() {
-    window.dispatchEvent(new CustomEvent('close-state-menu'));
     window.removeEventListener('state-menu-button-click', this.handler);
+    window.removeEventListener('actions-executed', this.handler);
   }
 
   end() {}
@@ -54,6 +64,8 @@ export class SilhouetteCreatorState extends State {
       this.clickOnStateMenuButton(event.detail);
     } else if (event.type == 'create-silhouette') {
       this.createSilhouette();
+    } else if (event.type == 'actions-executed') {
+      this.verifyOverlappingShapes();
     } else {
       console.error('unsupported event type : ', event.type);
     }
@@ -111,6 +123,31 @@ export class SilhouetteCreatorState extends State {
         else return s.overlapsWith(shape);
       })
     );
+  }
+
+  verifyOverlappingShapes() {
+    app.mainDrawingEnvironment.shapes.forEach(s => {
+      s.isOverlappingAnotherInTangram = false;
+    });
+    app.mainDrawingEnvironment.shapes.forEach((s, idx, shapes) => {
+      let index = app.mainDrawingEnvironment.shapes.findIndex(s2 => {
+        if (s.id == s2.id) return false;
+        if (s.overlapsWith(s2)) return true;
+        return false;
+      });
+      if (index != -1) {
+        if (!this.isUserWarnedAboutOverlap) {
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: { message: 'Certaines formes se superposent' },
+            })
+          );
+          this.isUserWarnedAboutOverlap = true;
+        }
+        s.isOverlappingAnotherInTangram = true;
+        shapes[index].isOverlappingAnotherInTangram = true;
+      }
+    });
   }
 
   showStateMenu() {

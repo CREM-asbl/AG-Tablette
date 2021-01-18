@@ -203,31 +203,31 @@ export class GridManager {
     return closestPoint;
   }
 
-  static toSVG() {
-    let canvasWidth = app.canvas.main.clientWidth,
-      canvasHeight = app.canvas.main.clientHeight,
-      offsetX = app.workspace.translateOffset.x,
-      offsetY = app.workspace.translateOffset.y,
-      actualZoomLvl = app.workspace.zoomLevel,
-      // Ne pas voir les points apparaître:
-      marginToAdd = 0, //20 * actualZoomLvl,
-      min = {
-        x: -offsetX / actualZoomLvl - marginToAdd,
-        y: -offsetY / actualZoomLvl - marginToAdd,
-      },
-      max = {
-        x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
-        y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
-      },
-      svg_data = '';
+  // static toSVG() {
+  //   let canvasWidth = app.canvas.main.clientWidth,
+  //     canvasHeight = app.canvas.main.clientHeight,
+  //     offsetX = app.workspace.translateOffset.x,
+  //     offsetY = app.workspace.translateOffset.y,
+  //     actualZoomLvl = app.workspace.zoomLevel,
+  //     // Ne pas voir les points apparaître:
+  //     marginToAdd = 0, //20 * actualZoomLvl,
+  //     min = {
+  //       x: -offsetX / actualZoomLvl - marginToAdd,
+  //       y: -offsetY / actualZoomLvl - marginToAdd,
+  //     },
+  //     max = {
+  //       x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
+  //       y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
+  //     },
+  //     svg_data = '';
 
-    let pts = GridManager.getVisibleGridPoints(min, max);
-    pts.forEach(pt => {
-      svg_data += pt.toSVG('#F00', 1.5);
-    });
+  //   let pts = GridManager.getVisibleGridPoints(min, max);
+  //   pts.forEach(pt => {
+  //     svg_data += pt.toSVG('#F00', 1.5);
+  //   });
 
-    if (svg_data !== '') svg_data = '<!-- Grid -->\n' + svg_data + '\n';
+  //   if (svg_data !== '') svg_data = '<!-- Grid -->\n' + svg_data + '\n';
 
-    return svg_data;
-  }
+  //   return svg_data;
+  // }
 }

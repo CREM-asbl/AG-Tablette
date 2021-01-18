@@ -44,36 +44,39 @@ class AgEnvironnements extends LitElement {
       }
 
       #Grandeurs {
-        background: url('/images/Environnements/grandeurs_test2.jpg') center
-          center rgba(255, 255, 255, 0.9);
+        /* background: url('/images/Environnements/grandeurs_test4.jpg') center
+          center rgba(255, 255, 255, 0.9); */
+
         /* background: url('/images/Environnements/grandeurs.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
           )}')
           center center rgba(255, 255, 255, 0.9); */
         background-repeat: no-repeat;
-        background-size: contain;
+        background-size: cover;
       }
 
       #Tangram {
-        background: url('/images/Environnements/tangram_test2.jpg') center
-          center rgba(255, 255, 255, 0.9);
+        /* background: url('/images/Environnements/tangram_test4.jpg') center
+          center rgba(255, 255, 255, 0.9); */
+
         /* background: url('/images/Environnements/tangram.\${unsafeCSS(
             this.isSafari ? 'jpg' : 'webp'
           )}')
           center center rgba(255, 255, 255, 0.9); */
         background-repeat: no-repeat;
-        background-size: contain;
+        background-size: cover;
       }
 
       #Cubes {
-        background: url('/images/Environnements/cubes_test2.jpg') center center
-          rgba(255, 255, 255, 0.9);
+        /* background: url('/images/Environnements/cubes_test3.jpg') center center
+          rgba(255, 255, 255, 0.9); */
+
         /* background: url('/images/Environnements/cubes.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
           )}')
           center center rgba(255, 255, 255, 0.9); */
         background-repeat: no-repeat;
-        background-size: contain;
+        background-size: cover;
       }
 
       #Geometrie {
@@ -90,7 +93,7 @@ class AgEnvironnements extends LitElement {
       <div id="Geometrie" @click="${this.handleClick}">Géométrie</div>
       <img
         src="images/manifest/icon_test.svg"
-        style="transform: rotate(45deg);position: absolute; top:37%; left:37%; width: 26%; height: 26%;"
+        style="position: absolute; top: calc(50% - 13vmin); left: calc(50% - 13vmin); width: 26vmin; height: 26vmin; transform: rotate(45deg);"
       />
     `;
   }

@@ -60,7 +60,6 @@ export class Shape {
     this.isPointed = isPointed;
 
     if (path) {
-      console.log('using path');
       this.setSegmentsFromPath(path);
       if (this.isCircle()) this.vertexes[0].visible = false;
     } else {
@@ -479,25 +478,6 @@ export class Shape {
     return this.segments.length == 1 && this.segments[0].isSemiInfinite;
   }
 
-  /**
-   * say if a point is on one of the segments of the shape
-   * @param {Point} point   le point à analyser
-   */
-  isCoordinatesOnSegment(point) {
-    if (!this.isSegment()) return false;
-
-    const segment = this.segments[0];
-
-    let projection = segment.projectionOnSegment(point);
-
-    if (!segment.isCoordinatesOnSegment(projection)) return false;
-
-    let dist = point.dist(projection);
-
-    if (dist <= app.settings.get('selectionDistance')) return true;
-    return false;
-  }
-
   contains(object) {
     if (object instanceof Point) {
       if (
@@ -521,11 +501,10 @@ export class Shape {
 
   /**
    * Vérifie si un point se trouve sur un bord de la forme.
-   * @param  {Point}  point Le point (coordonnées absolues)
-   * @return {Boolean}       true si le point se trouve sur le bord.
+   * @param  {Coordinates}  coordinates
    */
-  isPointInBorder(point) {
-    return this.segments.some(seg => seg.isCoordinatesOnSegment(point));
+  isCoordinatesOnBorder(coordinates) {
+    return this.segments.some(seg => seg.isCoordinatesOnSegment(coordinates));
   }
 
   /**
@@ -580,85 +559,56 @@ export class Shape {
       s1_segments = s1.segments,
       s2_segments = s2.segments;
 
-    // // s1 in s2 ? if a point of s1 is in s2
-    // if (this.overlapCheckIfShapeIsInsideAnother(s2, s1_segments, s2_segments))
-    //   return true;
-    // // s2 in s1 ? if a point of s2 is in s1
-    // if (this.overlapCheckIfShapeIsInsideAnother(s1, s2_segments, s1_segments))
-    //   return true;
+    // s1 in s2 ? if a point of s1 is in s2
+    if (this.isThisInsideAnotherShape(shape)) return true;
+    // s2 in s1 ? if a point of s2 is in s1
+    if (shape.isThisInsideAnotherShape(this)) return true;
 
-    // // check if intersect segments
-    // if (this.overlapCheckIntersectSegments(s1_segments, s2_segments))
-    //   return true;
+    // check if intersect segments
+    if (this.doesThisIntersectAnotherShape(s1_segments, s2_segments))
+      return true;
 
     return false;
   }
 
-  overlapCheckIfShapeIsInsideAnother(shape, s1_segments, s2_segments) {
-    let vertexes_to_check = [],
-      middles_to_check = [];
+  isThisInsideAnotherShape(shape) {
+    let s1_segments = this.segments,
+      s2_segments = shape.segments;
     for (let s1_segment of s1_segments) {
       if (
         s2_segments.some(
           s2_segment =>
-            s2_segment.subSegments.some(subSeg => subSeg.equal(s1_segment)) ||
-            s1_segment.subSegments.some(subSeg => subSeg.equal(s2_segment))
+            s2_segment.contains(s1_segment) || s1_segment.contains(s2_segment)
         )
       )
         continue;
-      vertexes_to_check = [
-        ...vertexes_to_check,
-        ...s2_segments
-          .map(seg => s1_segment.getNonCommonPointIfJoined(seg))
-          .filter(pt => pt),
-      ];
-      middles_to_check = [
-        ...middles_to_check,
-        ...s2_segments
-          .map(seg => s1_segment.getMiddleIfJoined(seg))
-          .filter(pt => pt),
-      ];
-    }
-
-    if (
-      vertexes_to_check.some(
-        (pt, idx) =>
-          shape.isCoordinatesInPath(pt) &&
-          shape.isCoordinatesInPath(middles_to_check[idx]) &&
-          !shape.isPointInBorder(middles_to_check[idx])
-      )
-    ) {
-      console.warn('shape inside another');
-      return true;
+      if (
+        shape.isCoordinatesInPath(s1_segment.vertexes[0].coordinates) &&
+        shape.isCoordinatesInPath(s1_segment.vertexes[1].coordinates) &&
+        shape.isCoordinatesInPath(s1_segment.middle) &&
+        !shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
+        !shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
+        !shape.isCoordinatesOnBorder(s1_segment.middle)
+      ) {
+        console.warn('shape inside another');
+        return true;
+      }
     }
     return false;
   }
 
-  overlapCheckIntersectSegments(s1_segments, s2_segments) {
+  doesThisIntersectAnotherShape(s1_segments, s2_segments) {
     if (
-      !s1_segments.every(s1_segment => {
-        if (
-          !s2_segments.some(s2_segment =>
-            s1_segment.subSegments.some(sub1 =>
-              s2_segment.subSegments.some(sub2 => sub2.equal(sub1))
-            )
-          ) &&
-          s2_segments
-            .filter(
-              s2_segment =>
-                !s1_segment.equal(s2_segment) &&
-                !s1_segment.getNonCommonPointIfJoined(s2_segment)
-            )
-            .some(s2_segment =>
-              s1_segment.doesIntersect(s2_segment, false, true)
-            )
-        ) {
-          return false;
-        }
-        return true;
-      })
-    )
+      s1_segments.some(s1_segment =>
+        s2_segments.some(s2_segment =>
+          s1_segment.doesIntersect(s2_segment, false, true)
+        )
+      )
+    ) {
+      console.warn('shape intersects another');
       return true;
+    }
+    return false;
   }
 
   /* #################################################################### */
@@ -693,11 +643,11 @@ export class Shape {
    * @param {Number} scaling   scale factor
    * @param {Point}  center    center of the transformation
    */
-  homothety(scaling, center = new Point(0, 0)) {
-    let saveCenter = new Point(center);
-    let newCenter = center.multiplyWithScalar(scaling);
+  homothety(scaling, center = Coordinates.nullCoordinates) {
+    let saveCenter = new Coordinates(center);
+    let newCenter = center.multiply(scaling);
     this.scale(scaling);
-    this.translate(saveCenter.x - newCenter.x, saveCenter.y - newCenter.y);
+    this.translate(saveCenter.substract(newCenter));
   }
 
   rotate(angle, center) {
@@ -1246,7 +1196,7 @@ export class Shape {
 
     this.segments.forEach(seg => {
       //Points sur les segments
-      seg.points.forEach(pt => {
+      seg.divisionPoints.forEach(pt => {
         point_tags += pt.toSVG('#000', 1);
       });
     });

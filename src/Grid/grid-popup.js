@@ -51,9 +51,14 @@ class GridPopup extends LitElement {
                 value="horizontal-triangle"
                 ?selected=${this.gridType === 'horizontal-triangle'}
               >
-                Triangles 1
+                ${app.environment.name == 'Geometrie'
+                  ? 'Triangles'
+                  : 'Triangles 1'}
               </option>
               <option
+                style=${app.environment.name == 'Geometrie'
+                  ? 'display:none'
+                  : ''}
                 value="vertical-triangle"
                 ?selected=${this.gridType === 'vertical-triangle'}
               >

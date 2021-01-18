@@ -138,6 +138,8 @@ export class DrawManager {
     drawingEnvironment.ctx.strokeStyle = shape.borderColor;
     drawingEnvironment.ctx.fillStyle =
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
+    if (shape.isOverlappingAnotherInTangram)
+      drawingEnvironment.ctx.fillStyle = '#F00';
     drawingEnvironment.ctx.globalAlpha = shape.opacity;
     drawingEnvironment.ctx.lineWidth =
       shape.borderSize * app.workspace.zoomLevel;

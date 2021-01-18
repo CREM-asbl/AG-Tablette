@@ -294,10 +294,7 @@ export class DivideState extends State {
           if (!shape.isCircle()) {
             commonSegment.vertexes[0].ratio = 0;
             commonSegment.vertexes[1].ratio = 1;
-            console.log(pt1.ratio, object.ratio);
-            console.log(commonSegment.counterclockwise);
             if ((pt1.ratio > object.ratio) ^ commonSegment.counterclockwise) {
-              console.log('here');
               [this.actions[0].firstPointId, this.actions[0].secondPointId] = [
                 this.actions[0].secondPointId,
                 this.actions[0].firstPointId,

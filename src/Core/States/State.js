@@ -30,13 +30,11 @@ export class State {
         if (this.name == app.state) {
           this.restart(true, event.detail.startParams);
         } else {
-          console.log(this.name);
           this.status = 'stopped';
           this.end();
         }
       } else if (this.status == 'stopped') {
         if (this.name == app.state) {
-          console.log(this.name);
           window.setTimeout(() => this.start(event.detail.startParams), 0);
           this.status = 'running';
         }

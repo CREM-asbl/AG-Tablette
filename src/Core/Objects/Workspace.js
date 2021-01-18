@@ -257,18 +257,24 @@ export class Workspace {
   }
 
   toSVG() {
-    const canvas = app.canvas.main;
     let svg_data =
       '<svg width="' +
-      canvas.width +
+      app.canvasWidth +
       '" height="' +
-      canvas.height +
+      app.canvasHeight +
       '" xmlns="http://www.w3.org/2000/svg" >\n\n';
-    svg_data += GridManager.toSVG();
-    svg_data += app.silhouette ? app.silhouette.toSVG() : '';
-    this.shapes.forEach(shape => {
-      svg_data += shape.toSVG();
-    });
+    svg_data += app.backgroundDrawingEnvironment.toSVG();
+    svg_data += app.mainDrawingEnvironment.toSVG();
+    if (document.body.querySelector('forbidden-canvas') != null) {
+      svg_data +=
+        '<rect x="' +
+        app.canvasWidth / 2 +
+        '" width="' +
+        app.canvasWidth / 2 +
+        '" height="' +
+        app.canvasHeight +
+        '" style="fill:rgb(255,0,0, 0.2);" />';
+    }
     svg_data += '</svg>';
 
     return svg_data;

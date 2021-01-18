@@ -91,6 +91,32 @@ export class DrawingEnvironment {
     });
   }
 
+  toSVG() {
+    let svg_data = '';
+    if (this.mustDrawShapes) {
+      this.shapes.forEach(s => {
+        if (this.editingShapeIds.findIndex(id => s.id == id) == -1) {
+          svg_data += s.toSVG();
+          if (this.mustDrawPoints && app.settings.get('areShapesPointed')) {
+            this.points.forEach(pt => {
+              if (pt.visible && pt.shapeId === s.id) {
+                svg_data += pt.toSVG();
+              }
+            });
+          }
+        }
+      });
+    }
+    if (this.mustDrawPoints) {
+      this.points.forEach(pt => {
+        if (pt.visible && pt.shapeId === undefined) {
+          svg_data += pt.toSVG();
+        }
+      });
+    }
+    return svg_data;
+  }
+
   /**
    * find an object in this drawingEnvironment
    * @param {String} id
@@ -150,7 +176,6 @@ export class DrawingEnvironment {
   loadFromData(data) {
     this.removeAllObjects();
     if (data != undefined) {
-      console.log(data);
       data.shapesData.forEach(shapeData => Shape.loadFromData(shapeData));
       data.segmentsData.forEach(segmentData =>
         Segment.loadFromData(segmentData)

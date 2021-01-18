@@ -1,9 +1,13 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { Point } from '../Core/Objects/Point';
-import { Segment } from '../Core/Objects/Segment';
 import { TangramManager } from './TangramManager';
+import { Segment } from '../Core/Objects/Segment';
+import { Shape } from '../Core/Objects/Shape';
+import { Bounds } from '../Core/Objects/Bounds';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 
 /**
  * Créer un tangram
@@ -12,7 +16,7 @@ export class SolutionCheckerState extends State {
   constructor() {
     super('solveChecker', 'Vérifier solution Tangram', '');
 
-    this.buttons = null;
+    this.solutionShapeIds = [];
 
     window.addEventListener('new-window', () => this.finish());
 
@@ -24,10 +28,14 @@ export class SolutionCheckerState extends State {
   /**
    * initialiser l'état
    */
-  start() {
-    TangramManager.initShapes();
-    this.showStateMenu();
-    window.addEventListener('state-menu-button-click', this.handler);
+  start(mustRefresh = true) {
+    if (mustRefresh) {
+      TangramManager.initShapes();
+      this.showStateMenu();
+      window.addEventListener('state-menu-button-click', this.handler);
+      window.addEventListener('app-state-changed', this.handler);
+      this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    }
   }
 
   restart() {}
@@ -35,6 +43,8 @@ export class SolutionCheckerState extends State {
   finish() {
     window.dispatchEvent(new CustomEvent('close-state-menu'));
     window.removeEventListener('state-menu-button-click', this.handler);
+    window.removeEventListener('app-state-changed', this.handler);
+    app.removeListener('objectSelected', this.objectSelectedId);
   }
 
   end() {}
@@ -45,6 +55,21 @@ export class SolutionCheckerState extends State {
   _actionHandle(event) {
     if (event.type == 'state-menu-button-click') {
       this.clickOnStateMenuButton(event.detail);
+    } else if (event.type == 'app-state-changed') {
+      if (
+        event.detail.state != 'rotate' &&
+        event.detail.state != 'rotate45' &&
+        event.detail.state != 'move' &&
+        event.detail.state != 'solveChecker'
+      ) {
+        this.clickOnStateMenuButton('uncheck');
+      }
+    } else if (event.type == 'objectSelected') {
+      let object = event.detail.object;
+      let index = this.solutionShapeIds.findIndex(id => object.id == id);
+      if (index == -1) {
+        this.clickOnStateMenuButton('uncheck');
+      }
     } else {
       console.error('unsupported event type : ', event.type);
     }
@@ -69,201 +94,112 @@ export class SolutionCheckerState extends State {
   showStateMenu() {
     if (document.querySelector('state-menu')) return;
     import('./state-menu');
-    const menu = document.createElement('state-menu');
-    menu.buttons = [
+    this.stateMenu = document.createElement('state-menu');
+    this.stateMenu.buttons = [
       {
         text: 'Vérifier solution',
         value: 'check',
       },
     ];
-    document.querySelector('body').appendChild(menu);
+    document.querySelector('body').appendChild(this.stateMenu);
   }
 
   clickOnStateMenuButton(btn_value) {
     if (btn_value == 'check') {
+      app.setState(this.name, false);
       this.checkSolution();
+      this.stateMenu.buttons = [
+        {
+          text: 'Annuler vérification',
+          value: 'uncheck',
+        },
+      ];
+    } else if (btn_value == 'uncheck') {
+      this.eraseSolution();
+      this.stateMenu.buttons = [
+        {
+          text: 'Vérifier solution',
+          value: 'check',
+        },
+      ];
     }
+  }
+
+  eraseSolution() {
+    if (this.solutionShapeIds.length > 1) {
+      let firstShape = app.mainDrawingEnvironment.findObjectById(
+        this.solutionShapeIds[0]
+      );
+      let group = GroupManager.getShapeGroup(firstShape);
+      GroupManager.deleteGroup(group);
+    }
+    this.solutionShapeIds.forEach(id =>
+      app.mainDrawingEnvironment.removeObjectById(id)
+    );
+    this.solutionShapeIds = [];
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   checkSolution() {
-    const allPointsFromWorkspace = this.getAllPoints(app.workspace.shapes);
-    const allPointsFromSilhouette = this.getAllPoints(app.silhouette.shapes);
+    this.solutionShapeIds = [];
 
-    // allPointsFromWorkspace.forEach(pt =>
-    //   window.dispatchEvent(
-    //     new CustomEvent('draw-point', {
-    //       detail: { point: pt, color: '#f00', size: 2 },
-    //     })
-    //   )
-    // );
-    // allPointsFromSilhouette.forEach(pt =>
-    //   window.dispatchEvent(
-    //     new CustomEvent('draw-point', {
-    //       detail: { point: pt, color: '#f00', size: 2 },
-    //     })
-    //   )
-    // );
-
-    const setEquality = this.comparePointSets(
-      allPointsFromWorkspace,
-      allPointsFromSilhouette
+    let segmentsList = this.checkGroupMerge(
+      app.backgroundDrawingEnvironment.shapes
     );
 
-    window.dispatchEvent(
-      new CustomEvent('show-notif', { detail: { message: setEquality } })
-    );
-  }
+    let paths = this.linkNewSegments(segmentsList);
 
-  comparePointSets(allPointsFromWorkspace, allPointsFromSilhouette) {
-    if (this.compareStrictSets(allPointsFromWorkspace, allPointsFromSilhouette))
-      return 'Equal';
-    else if (
-      this.compareRotationSets(allPointsFromWorkspace, allPointsFromSilhouette)
-    )
-      return 'Rotation';
-    else if (
-      this.compareReverseSets(allPointsFromWorkspace, allPointsFromSilhouette)
-    )
-      return 'Reverse';
-    else if (
-      this.compareReverseAndRotationSets(
-        allPointsFromWorkspace,
-        allPointsFromSilhouette
-      )
-    )
-      return 'Reverse and rotation';
-    else return 'Not equal';
-  }
+    let shapes = [];
 
-  compareReverseAndRotationSets(
-    allPointsFromWorkspace,
-    allPointsFromSilhouette
-  ) {
-    let allPointsFromWorkspaceCopy = allPointsFromWorkspace.map(
-      pt => new Point(pt)
-    );
-
-    let symetricalAxe = new Segment(new Point(0, 0), new Point(0, 100));
-
-    allPointsFromWorkspaceCopy.forEach(pt =>
-      this.computePointPosition(pt, symetricalAxe)
-    );
-
-    return this.compareRotationSets(
-      allPointsFromWorkspaceCopy,
-      allPointsFromSilhouette
-    );
-  }
-
-  compareReverseSets(allPointsFromWorkspace, allPointsFromSilhouette) {
-    let allPointsFromWorkspaceCopy = allPointsFromWorkspace.map(
-      pt => new Point(pt)
-    );
-
-    let symetricalAxe = new Segment(new Point(0, 0), new Point(0, 100));
-
-    allPointsFromWorkspaceCopy.forEach(pt =>
-      this.computePointPosition(pt, symetricalAxe)
-    );
-
-    return this.compareStrictSets(
-      allPointsFromWorkspaceCopy,
-      allPointsFromSilhouette
-    );
-  }
-
-  computePointPosition(point, axe) {
-    let center = axe.projectionOnSegment(point);
-
-    //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
-    point.setCoordinates({
-      x: point.x + 2 * (center.x - point.x),
-      y: point.y + 2 * (center.y - point.y),
+    paths.forEach(path => {
+      let shape = new Shape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: path,
+        color: '#0000',
+        borderColor: '#00D084',
+        borderSize: 2,
+        isPointed: false,
+      });
+      shape.cleanSameDirectionSegment();
+      shape.translate({ x: -app.canvasWidth / 2, y: 0 });
+      this.solutionShapeIds.push(shape.id);
+      shapes.push(shape);
     });
-  }
 
-  compareRotationSets(allPointsFromWorkspace, allPointsFromSilhouette) {
-    let allPointsFromWorkspaceCopy = allPointsFromWorkspace.map(
-      pt => new Point(pt)
-    );
-
-    for (let i = 0; i < 360; i += 5) {
-      allPointsFromWorkspaceCopy.forEach(pt => pt.rotate((5 * Math.PI) / 180));
-      if (
-        this.compareStrictSets(
-          allPointsFromWorkspaceCopy,
-          allPointsFromSilhouette
-        )
-      )
-        return true;
+    let areShapeScaled =
+      app.backgroundDrawingEnvironment.shapes[0].size == 0.66;
+    if (areShapeScaled) {
+      let silhouetteBounds = Bounds.getOuterBounds(
+        ...shapes.map(s => s.bounds)
+      );
+      let center = new Coordinates({
+        x: (silhouetteBounds.maxX + silhouetteBounds.minX) / 2,
+        y: (silhouetteBounds.maxY + silhouetteBounds.minY) / 2,
+      });
+      shapes.forEach(s => s.homothety(3 / 2, center));
     }
-    return false;
-  }
 
-  compareStrictSets(allPointsFromWorkspace, allPointsFromSilhouette) {
-    let minWorkspace = this.minFromPoints(allPointsFromWorkspace);
-    let minSilhouette = this.minFromPoints(allPointsFromSilhouette);
-
-    // window.dispatchEvent(new CustomEvent('draw-point', { detail: {point: minWorkspace, color:'#00f', size: 3}}));
-    // window.dispatchEvent(new CustomEvent('draw-point', { detail: {point: minSilhouette, color:'#00f', size: 3}}));
-
-    let offset = minSilhouette.subCoordinates(minWorkspace);
-
-    let allPointsFromWorkspaceCopy = allPointsFromWorkspace.map(
-      pt => new Point(pt)
-    );
-    let allPointsFromSilhouetteCopy = allPointsFromSilhouette.map(
-      pt => new Point(pt)
-    );
-
-    allPointsFromWorkspaceCopy.forEach(pt => pt.translate(offset));
-
-    while (allPointsFromWorkspaceCopy.length > 0) {
-      let i = 0;
-      for (; i < allPointsFromSilhouetteCopy.length; i++) {
-        if (
-          allPointsFromWorkspaceCopy[0].equal(allPointsFromSilhouetteCopy[i])
-        ) {
-          allPointsFromWorkspaceCopy.splice(0, 1);
-          allPointsFromSilhouetteCopy.splice(i, 1);
-          i = -1;
-          break;
-        }
-      }
-      if (i == allPointsFromSilhouetteCopy.length) return false;
+    if (this.solutionShapeIds.length > 1) {
+      let userGroup = new ShapeGroup(0, 1);
+      userGroup.shapesIds = [...this.solutionShapeIds];
+      GroupManager.addGroup(userGroup);
     }
-    return true;
-  }
 
-  minFromPoints(pointSet) {
-    let result = new Point(pointSet[0]);
-    pointSet.forEach(pt => {
-      result.x = Math.min(pt.x, result.x);
-      result.y = Math.min(pt.y, result.y);
-    });
-    return result;
-  }
-
-  getAllPoints(shapes) {
-    const newSegments = this.checkGroupMerge(shapes);
-    const newSegmentsSets = this.linkNewSegments(newSegments);
-
-    return newSegmentsSets.flat().map(seg => seg.vertexes[1]);
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   checkGroupMerge(shapes) {
-    // check if a shape overlaps another one
-    if (
-      shapes.some(shape =>
-        shapes.some(s => {
-          if (s.id == shape.id) return false;
-          else return s.overlapsWith(shape);
+    let oldSegments = shapes
+      .map(s =>
+        s.segments.map(seg => {
+          return new Segment({
+            drawingEnvironment: app.invisibleDrawingEnvironment,
+            createFromNothing: true,
+            vertexCoordinates: seg.vertexes.map(vx => vx.coordinates),
+          });
         })
       )
-    )
-      return null;
-
-    let oldSegments = shapes.map(s => s.segments.map(seg => seg.copy())).flat();
+      .flat();
 
     let cutSegments = oldSegments
       .map((segment, idx, segments) => {
@@ -272,14 +208,18 @@ export class SolutionCheckerState extends State {
           .map(seg =>
             seg.vertexes.filter(
               vertex =>
-                segment.isPointOnSegment(vertex) &&
-                !segment.vertexes.some(vert => vert.equal(vertex))
+                segment.isCoordinatesOnSegment(vertex.coordinates) &&
+                !segment.vertexes.some(vert =>
+                  vert.coordinates.equal(vertex.coordinates)
+                )
             )
           )
           .flat()
           .filter(
             (vertex, idx, vertexes) =>
-              vertexes.findIndex(v => v.equal(vertex)) == idx
+              vertexes.findIndex(v =>
+                v.coordinates.equal(vertex.coordinates)
+              ) == idx
           );
         if (vertexesInside.length) return segment.divideWith(vertexesInside);
         else return segment;
@@ -297,148 +237,95 @@ export class SolutionCheckerState extends State {
       else segs.forEach(seg => (seg.used = true));
     });
 
-    // let internalSegments = cutSegments.filter(
-    //   oldSeg => !newSegments.some(newSeg => oldSeg.isSubsegment(newSeg))
-    // );
-
     return newSegments;
   }
 
   linkNewSegments(segmentsList) {
-    // Todo : Voir si on ne peut pas la simplifier
-    let newSegments = [],
-      nextSegment,
-      segmentUsed = 0;
+    let paths = [];
+    let segmentUsed = 0;
+    let numberOfSegments = segmentsList.length;
+    let numberOfPathCreated = 0;
 
-    while (segmentUsed != segmentsList.length) {
-      let currentSegment = segmentsList.find(seg => !seg.isUsed),
-        newSegmentsSets = [[]],
-        savedSegmentSets = [],
-        meetingPoints = [currentSegment.vertexes[0]];
+    while (segmentUsed != numberOfSegments) {
+      let startCoordinates = segmentsList[0].vertexes[0].coordinates;
+      paths.push([]);
+      paths[numberOfPathCreated].push(
+        'M',
+        startCoordinates.x,
+        startCoordinates.y
+      );
 
-      currentSegment.isUsed = true;
-      newSegmentsSets[newSegmentsSets.length - 1].push(currentSegment);
+      let nextSegmentIndex = 0;
+      this.addPathElem(paths[numberOfPathCreated], segmentsList[0]);
+      this.lastUsedCoordinates = segmentsList[0].vertexes[1].coordinates;
+      segmentsList.splice(nextSegmentIndex, 1);
       segmentUsed++;
 
-      while (meetingPoints.length > 0) {
-        // while not closed
-        const newPotentialSegments = segmentsList.filter(
-          seg => !seg.isUsed && seg.contains(currentSegment.vertexes[1], false)
-        );
-        if (newPotentialSegments.length == 0) {
-          console.warn('shape cannot be closed (dead end)');
+      while (!this.lastUsedCoordinates.equal(startCoordinates)) {
+        const potentialSegmentIdx = segmentsList
+          .map((seg, idx) =>
+            seg.contains(this.lastUsedCoordinates, false) ? idx : undefined
+          )
+          .filter(seg => Number.isInteger(seg));
+        if (potentialSegmentIdx.length != 1) {
+          if (potentialSegmentIdx.length == 0)
+            console.warn('shape cannot be closed (dead end)');
+          else
+            console.warn(
+              'shape is dig (a segment has more than one segment for next)'
+            );
           return null;
-        } else if (newPotentialSegments.length > 1) {
-          newSegmentsSets.push([]);
-          meetingPoints.push(currentSegment.vertexes[1]);
         }
-        nextSegment = newPotentialSegments[0].copy(false);
-        newPotentialSegments[0].isUsed = true;
-        if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1]))
-          nextSegment.reverse(true);
-
-        newSegmentsSets[newSegmentsSets.length - 1].push(nextSegment);
-        currentSegment = nextSegment;
-
-        let meetingPointIndex = meetingPoints.findIndex(mtPt =>
-          currentSegment.vertexes[1].equal(mtPt)
-        );
-        if (meetingPointIndex != -1) {
-          savedSegmentSets.push(
-            newSegmentsSets.splice(meetingPointIndex).flat()
-          );
-          meetingPoints.splice(meetingPointIndex);
+        nextSegmentIndex = potentialSegmentIdx[0];
+        let nextSegment = segmentsList[nextSegmentIndex];
+        let mustReverse = false;
+        if (
+          !nextSegment.vertexes[0].coordinates.equal(this.lastUsedCoordinates)
+        ) {
+          mustReverse = true;
         }
+        this.addPathElem(paths[numberOfPathCreated], nextSegment, mustReverse);
+        segmentsList.splice(nextSegmentIndex, 1);
         segmentUsed++;
       }
-      const cleanedSegmentsSets = savedSegmentSets.map(segmentSet => {
-        for (let i = 0; i < segmentSet.length; i++) {
-          if (
-            segmentSet[i].hasSameDirection(
-              segmentSet[(i + 1) % segmentSet.length],
-              1,
-              0,
-              false
-            )
-          ) {
-            segmentSet[i].vertexes[1] =
-              segmentSet[(i + 1) % segmentSet.length].vertexes[1];
-            segmentSet.splice((i + 1) % segmentSet.length, 1);
-          }
-        }
-        return segmentSet;
-      });
-      newSegments.push(...cleanedSegmentsSets);
+      numberOfPathCreated++;
     }
-    return newSegments;
+
+    paths = paths.map(path => path.join(' '));
+
+    return paths;
   }
 
-  compareAllSets(sets1, sets2) {
-    // if (sets1.length != sets2.length)
-    //   return false
+  addPathElem(path, segment, mustReverse) {
+    let firstCoord = segment.vertexes[0].coordinates;
+    let secondCoord = segment.vertexes[1].coordinates;
+    if (mustReverse) [firstCoord, secondCoord] = [secondCoord, firstCoord];
+    this.lastUsedCoordinates = secondCoord;
+    if (!segment.isArc()) {
+      path.push('L', secondCoord.x, secondCoord.y);
+    } else {
+      let centerCoordinates = segment.arcCenter.coordinates;
+      let radius = centerCoordinates.dist(secondCoord),
+        firstAngle = centerCoordinates.angleWith(firstCoord),
+        secondAngle = centerCoordinates.angleWith(secondCoord);
 
-    sets1.sort((elem1, elem2) => (elem1.length < elem2.length ? 1 : -1));
-    sets2.sort((elem1, elem2) => (elem1.length < elem2.length ? 1 : -1));
-
-    // vérifie que les longueur des segments
-    sets1.forEach((set, idx, sets) => (sets[idx] = set.map(seg => seg.length)));
-    sets2.forEach((set, idx, sets) => (sets[idx] = set.map(seg => seg.length)));
-
-    while (sets1.length != 0) {
-      // on enlève les sets semblables juqu'a ne plus en avoir
-      let currentFirstWorkingSet = sets1[0];
-      let sets2Iterator = 0;
-      for (; sets2Iterator < sets2.length; sets2Iterator++) {
-        let currentSecondWorkingSet = sets2[sets2Iterator];
-        // si tous les sets de la meme longueur ont été vérifié et qu'aucun ne match
-        if (currentFirstWorkingSet.length != currentSecondWorkingSet.length)
-          return false;
-        // si les deux sets sont les mêmes, les enlève
-        if (
-          this.compareSets(currentFirstWorkingSet, currentSecondWorkingSet) ==
-          true
-        ) {
-          sets1.splice(0, 1);
-          sets2.splice(sets2Iterator, 1);
-          sets2Iterator = -1;
-          break;
-        }
+      if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+      let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+        sweepFlag = 1;
+      if (segment.counterclockwise) {
+        sweepFlag = Math.abs(sweepFlag - 1);
+        largeArcFlag = Math.abs(largeArcFlag - 1);
       }
-      // si aucun set ne match
-      if (sets2Iterator == sets2.length) return false;
+      path.push(
+        'A',
+        radius,
+        radius,
+        0,
+        largeArcFlag,
+        sweepFlag,
+        secondCoord.x,
+        secondCoord.y
+      );
     }
-    return true;
-  }
-
-  compareSets(set1, set2) {
-    let startLength = set1[0];
-    for (let i = 0; i < set2.length; i++) {
-      if (this.compareLength(set2[i], startLength)) {
-        if (this.iterateOverSets(set1, set2, i, 1)) return true;
-        else if (this.iterateOverSets(set1, set2, i, -1)) return true;
-      }
-    }
-    return false;
-  }
-
-  iterateOverSets(set1, set2, set2Start, set2Direction) {
-    for (
-      let set1Iterator = 0, set2Iterator = set2Start;
-      set1Iterator < set1.length;
-      set1Iterator++
-    ) {
-      if (this.compareLength(set1[set1Iterator], set2[set2Iterator])) {
-        set2Iterator += set2Direction;
-        if (set2Iterator < 0) set2Iterator = set2.length - 1;
-        else if (set2Iterator == set2.length) set2Iterator = 0;
-      } else {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  compareLength(length1, length2) {
-    return Math.abs(length1 - length2) < 0.01;
   }
 }

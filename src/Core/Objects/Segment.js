@@ -65,7 +65,6 @@ export class Segment {
         return newPoint.id;
       });
       if (arcCenterCoordinates != undefined) {
-        console.log('create arc');
         let arcCenter = new Point({
           drawingEnvironment: this.drawingEnvironment,
           segmentIds: [this.id],
@@ -667,11 +666,20 @@ export class Segment {
   divideWith(points) {
     console.trace();
     points.sort((pt1, pt2) =>
-      pt1.dist(this.vertexes[0]) > pt2.dist(this.vertexes[0]) ? 1 : -1
+      pt1.coordinates.dist(this.vertexes[0].coordinates) >
+      pt2.coordinates.dist(this.vertexes[0].coordinates)
+        ? 1
+        : -1
     );
     let newSegments = [this.vertexes[0], ...points, this.vertexes[1]]
       .map((pt, idx, pts) =>
-        idx == 0 ? undefined : new Segment(pts[idx - 1], pt)
+        idx == 0
+          ? undefined
+          : new Segment({
+              drawingEnvironment: this.drawingEnvironment,
+              createFromNothing: true,
+              vertexCoordinates: [pts[idx - 1].coordinates, pt.coordinates],
+            })
       )
       .slice(1);
     return newSegments;
@@ -805,34 +813,36 @@ export class Segment {
    */
   intersectionWith(segment) {
     let result = Coordinates.nullCoordinates,
-      thisSlope =
-        (this.vertexes[0].y - this.vertexes[1].y) /
-        (this.vertexes[0].x - this.vertexes[1].x),
-      otherSegmentSlope =
-        (segment.vertexes[0].y - segment.vertexes[1].y) /
-        (segment.vertexes[0].x - segment.vertexes[1].x);
+      thisv0x = this.vertexes[0].x,
+      thisv0y = this.vertexes[0].y,
+      thisv1x = this.vertexes[1].x,
+      thisv1y = this.vertexes[1].y,
+      segmentv0x = segment.vertexes[0].x,
+      segmentv0y = segment.vertexes[0].y,
+      segmentv1x = segment.vertexes[1].x,
+      segmentv1y = segment.vertexes[1].y,
+      thisSlope = (thisv0y - thisv1y) / (thisv0x - thisv1x),
+      segmentSlope = (segmentv0y - segmentv1y) / (segmentv0x - segmentv1x);
 
     // 2 segments verticaux
-    if (!isFinite(thisSlope) && !isFinite(otherSegmentSlope)) return null;
+    if (!isFinite(thisSlope) && !isFinite(segmentSlope)) return null;
     // this vertical
     else if (!isFinite(thisSlope)) {
-      let pb =
-        segment.vertexes[0].y - otherSegmentSlope * segment.vertexes[0].x;
-      result.y = otherSegmentSlope * this.vertexes[0].x + pb;
-      result.x = this.vertexes[0].x;
+      let pb = segmentv0y - segmentSlope * segmentv0x;
+      result.y = segmentSlope * thisv0x + pb;
+      result.x = thisv0x;
       // segment vertical
-    } else if (!isFinite(otherSegmentSlope)) {
-      let pa = this.vertexes[0].y - thisSlope * this.vertexes[0].x;
-      result.y = thisSlope * segment.vertexes[0].x + pa;
-      result.x = segment.vertexes[0].x;
+    } else if (!isFinite(segmentSlope)) {
+      let pa = thisv0y - thisSlope * thisv0x;
+      result.y = thisSlope * segmentv0x + pa;
+      result.x = segmentv0x;
       // 2 segments 'normaux'
     } else {
       // 2 segments parallèles
-      if (Math.abs(thisSlope - otherSegmentSlope) < 0.001) return null;
-      let pb =
-        segment.vertexes[0].y - otherSegmentSlope * segment.vertexes[0].x;
-      let pa = this.vertexes[0].y - thisSlope * this.vertexes[0].x;
-      result.x = (pb - pa) / (thisSlope - otherSegmentSlope);
+      if (Math.abs(thisSlope - segmentSlope) < 0.001) return null;
+      let pb = segmentv0y - segmentSlope * segment.vertexes[0].x;
+      let pa = thisv0y - thisSlope * this.vertexes[0].x;
+      result.x = (pb - pa) / (thisSlope - segmentSlope);
       result.y = thisSlope * result.x + pa;
     }
     return result;
@@ -864,9 +874,18 @@ export class Segment {
   }
 
   contains(object, matchSegmentPoints = true) {
-    if (object instanceof Segment)
-      return this.subSegments.some(subSeg => subSeg.equal(object));
-    else if (object instanceof Point)
+    if (object instanceof Segment) {
+      if (matchSegmentPoints) {
+        return object.vertexes.every(
+          vx =>
+            this.points.findIndex(point =>
+              point.coordinates.equal(vx.coordinates)
+            ) != -1
+        );
+      } else {
+        console.warn('not implemented yet');
+      }
+    } else if (object instanceof Point)
       return (
         this.vertexes.some(vertex => vertex.equal(object)) ||
         (matchSegmentPoints && this.points.some(point => point.equal(object)))

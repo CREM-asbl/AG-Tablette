@@ -162,7 +162,6 @@ export class MergeAction extends Action {
           secondSegment
         );
         if (commonCoordinates) {
-          console.log('wtf');
           // todo: quand on crée un nouveau segment, copier les points de division de son modele
           // si on veut faire la fusion d'un groupe
           if (
@@ -275,7 +274,6 @@ export class MergeAction extends Action {
    * @returns {Segment[]}              les segments définitifs
    */
   linkNewSegments(segmentsList) {
-    console.log(segmentsList);
     let startCoordinates = segmentsList[0].vertexes[0].coordinates;
     let path = ['M', startCoordinates.x, startCoordinates.y];
     let segmentUsed = 0;

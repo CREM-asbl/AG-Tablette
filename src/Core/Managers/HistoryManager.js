@@ -50,9 +50,7 @@ export class HistoryManager {
       return;
     }
     app.workspace.history.index--;
-    console.log('load from ', app.workspace.history.index);
     let data = app.workspace.history.data[app.workspace.history.index];
-    console.log(app.workspace.history.data[0]);
     app.mainDrawingEnvironment.loadFromData(data);
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -69,7 +67,6 @@ export class HistoryManager {
       return;
     }
     app.workspace.history.index++;
-    console.log('load from ', app.workspace.history.index);
     let data = app.workspace.history.data[app.workspace.history.index];
     app.mainDrawingEnvironment.loadFromData(data);
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -81,11 +78,6 @@ export class HistoryManager {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
   static addStep() {
-    console.log(
-      app.workspace.history.index,
-      app.workspace.history.length,
-      app.mainDrawingEnvironment.saveData()
-    );
     app.workspace.history.data.splice(
       app.workspace.history.index + 1,
       app.workspace.history.length,

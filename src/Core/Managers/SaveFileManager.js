@@ -109,18 +109,30 @@ export class SaveFileManager {
   }
 
   static saveToPng(handle) {
-    const ctx = app.invisibleCtx,
-      canvas = app.canvas.invisible;
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const ctx = app.invisibleDrawingEnvironment.ctx,
+      canvas = ctx.canvas,
+      width = canvas.width,
+      height = canvas.height;
+    ctx.clearRect(0, 0, width, height);
+
+    // pour avoir un fond blanc, si transparent, enlever les 3 prochaines lignes
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, width, height);
+
     ctx.drawImage(
-      app.canvas.background,
+      app.backgroundDrawingEnvironment.ctx.canvas,
       0,
       0,
-      ctx.canvas.width,
-      ctx.canvas.height
+      width,
+      height
     );
-    ctx.drawImage(app.canvas.main, 0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.drawImage(app.canvas.upper, 0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.drawImage(app.mainDrawingEnvironment.ctx.canvas, 0, 0, width, height);
+
+    let forbiddenCanvas = document.body.querySelector('forbidden-canvas');
+    if (forbiddenCanvas != null) {
+      ctx.fillStyle = '#ff000033';
+      ctx.fillRect(width / 2, 0, width / 2, height);
+    }
 
     if (SaveFileManager.hasNativeFS) {
       // edge support for toBlob ?
@@ -131,7 +143,7 @@ export class SaveFileManager {
       const encoded_data = canvas.toDataURL();
       SaveFileManager.downloadFile(handle.name, encoded_data);
     }
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.clearRect(0, 0, width, height);
   }
 
   static saveToSvg(handle) {
@@ -174,7 +186,7 @@ export class SaveFileManager {
     if (SaveFileManager.hasNativeFS) {
       SaveFileManager.newWriteFile(handle, json_data);
     } else {
-      const file = new Blob([json_data], { type: 'application/json' });
+      const file = new Blob([json_data], { type: 'application/agmobile' });
       const encoded_data = window.URL.createObjectURL(file);
       SaveFileManager.downloadFile(handle.name, encoded_data);
     }

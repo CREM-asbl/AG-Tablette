@@ -52,6 +52,9 @@ class AGTabletteApp extends LitElement {
       this.canUndo = HistoryManager.canUndo();
       this.canRedo = HistoryManager.canRedo();
     });
+    window.addEventListener('workspace-changed', () => {
+      window.dispatchEvent(new CustomEvent('history-changed'));
+    });
     window.addEventListener('open-opacity-popup', () => {
       this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
     });

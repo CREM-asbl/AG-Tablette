@@ -20,9 +20,12 @@ export class Silhouette {
         borderColor: level % 2 != 0 ? '#fff' : '#000',
         opacity: 1,
         isPointed: false,
+        size: 1,
       });
-      console.log(shapeCopy);
-      if (level == 5 || level == 6) shapeCopy.scale(2 / 3);
+      if (level == 5 || level == 6) {
+        shapeCopy.scale(2 / 3);
+        shapeCopy.size = 0.66;
+      }
       return shapeCopy;
     });
 
@@ -62,12 +65,4 @@ export class Silhouette {
     let bounds = Bounds.getOuterBounds(...this.shapes.map(s => s.bounds));
     return bounds;
   }
-
-  // copy() {
-  //   return new Silhouette(this.shapes.map(s => s.copy()));
-  // }
-
-  // toSVG() {
-  //   return this.shapes.map(shape => shape.toSVG()).join('\n');
-  // }
 }

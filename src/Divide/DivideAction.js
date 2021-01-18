@@ -224,14 +224,11 @@ export class DivideAction extends Action {
     if (secondAngle < firstAngle) {
       secondAngle += Math.PI * 2;
     }
-    console.log('firstPoint ratio', this.firstPoint.ratio);
-    console.log('secondPoint ratio', this.secondPoint.ratio);
     let ratioCap =
       (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
     if (shape.isCircle()) {
       if (ratioCap < 0) ratioCap += 1 / this.numberOfParts;
     }
-    console.log('ratioCap', ratioCap);
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
@@ -247,7 +244,6 @@ export class DivideAction extends Action {
           radius * Math.sin(firstAngle + partAngle * i) + centerCoordinates.y;
       coord = new Coordinates({ x: newX, y: newY });
       let ratio = this.firstPoint.ratio + i * ratioCap;
-      console.log('ratio', ratio);
       if (ratio > 1) ratio--;
       this.segment.addPoint(coord, ratio);
     }
