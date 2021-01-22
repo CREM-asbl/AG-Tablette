@@ -14,7 +14,7 @@ import { Coordinates } from '../../Core/Objects/Coordinates';
  */
 export class CreateTriangleState extends State {
   constructor() {
-    super('createTriangle', 'Créer un triangle', 'geometry_creator');
+    super('createTriangle', 'Créer un triangle', 'geometryCreator');
 
     // show-triangles -> select-points
     this.currentStep = null;

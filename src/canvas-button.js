@@ -5,9 +5,6 @@ import { Bounds } from './Core/Objects/Bounds';
 import { Coordinates } from './Core/Objects/Coordinates';
 import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
 
-//A quoi sert silhouetteidx ?
-//Les canvas-button sont utilisés dans tangram ?
-
 class CanvasButton extends LitElement {
   static get properties() {
     return {
@@ -25,14 +22,16 @@ class CanvasButton extends LitElement {
       }
 
       :host([active]) canvas {
-        border: 1px solid black;
+        /* border: 1px solid black; */
         background-color: #0ff;
       }
 
       canvas {
-        background: #fff;
-        border: 1px solid black;
-        box-sizing: border-box;
+        background: #fff0;
+        box-shadow: 0px 0px 3px var(--menu-shadow-color);
+        border-radius: 3px;
+        /* border: 1px solid black;
+        box-sizing: border-box; */
         width: 52px;
         height: 52px;
       }
@@ -71,9 +70,9 @@ class CanvasButton extends LitElement {
         ) || family.shapeTemplates[0],
       ];
     } else {
-      console.log(app.CremTangrams[this.silhouetteIdx]);
-      shapeTemplates =
-        app.CremTangrams[this.silhouetteIdx].silhouetteData.shapesData;
+      shapeTemplates = app.CremTangrams[
+        this.silhouetteIdx
+      ].silhouetteData.shapes.map(s => new Shape(s));
     }
 
     this.shapes = shapeTemplates.map(
@@ -110,7 +109,15 @@ class CanvasButton extends LitElement {
       s.translate(centerOffset);
     });
 
-    this.drawingEnvironment.draw();
+    if (this.silhouetteIdx !== undefined) {
+      this.ctx.strokeStyle = '#000';
+      this.ctx.fillStyle = this.shapes[0].color || family.defaultColor;
+      const path = new Path2D(this.shapes[0].getSVGPath('no scale'));
+      this.ctx.fill(path);
+      this.ctx.stroke(path);
+    } else {
+      this.drawingEnvironment.draw();
+    }
   }
 
   /**

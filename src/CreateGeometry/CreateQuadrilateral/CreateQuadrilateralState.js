@@ -14,7 +14,7 @@ import { Coordinates } from '../../Core/Objects/Coordinates';
  */
 export class CreateQuadrilateralState extends State {
   constructor() {
-    super('createQuadrilateral', 'Créer un quadrilatère', 'geometry_creator');
+    super('createQuadrilateral', 'Créer un quadrilatère', 'geometryCreator');
 
     // show-quadrilaterals -> select-points
     this.currentStep = null;

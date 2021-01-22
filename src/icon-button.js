@@ -28,27 +28,28 @@ class IconButton extends LitElement {
 
       button {
         display: inline-block;
-        box-sizing: border-box;
+        border: none;
+        /* box-sizing: border-box; */
         height: 52px;
         width: 52px;
         padding: 0;
         margin: 2px;
-        background: white;
+        background: #fff0;
         outline: none;
         background-repeat: no-repeat;
         background-size: 100% 100%;
+        box-shadow: 0px 0px 3px var(--menu-shadow-color);
+        border-radius: 3px;
       }
 
       :host([active]) button {
-        border-color: var(--button-border-color);
-        background-color: var(--button-background-color);
+        background-color: var(--button-selected-background-color);
         outline: none;
       }
 
       img {
         height: 100%;
         width: 100%;
-        box-sizing: border-box;
         -webkit-user-select: none;
         -khtml-user-select: none;
         -moz-user-select: none;

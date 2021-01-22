@@ -12,7 +12,7 @@ import { Point } from '../../Core/Objects/Point';
  */
 export class CreateLineState extends State {
   constructor() {
-    super('createLine', 'Créer une ligne', 'geometry_creator');
+    super('createLine', 'Créer une ligne', 'geometryCreator');
 
     // show-lines -> select-reference -> select-first-point -> select-second-point
     this.currentStep = null;

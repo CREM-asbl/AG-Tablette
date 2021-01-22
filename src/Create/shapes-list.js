@@ -16,9 +16,9 @@ class ShapesList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: 0px;
+        /* left: calc(300 + 100%); */
+        /* right: 0; */
       }
 
       .container {

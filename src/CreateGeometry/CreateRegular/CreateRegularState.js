@@ -16,7 +16,7 @@ export class CreateRegularState extends State {
     super(
       'createRegularPolygon',
       'Créer un polygone régulier',
-      'geometry_creator'
+      'geometryCreator'
     );
 
     // listen-canvas-click -> select-second-point
