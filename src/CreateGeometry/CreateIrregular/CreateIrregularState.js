@@ -5,6 +5,8 @@ import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Segment } from '../../Core/Objects/Segment';
 import { Point } from '../../Core/Objects/Point';
 import { uniqId } from '../../Core/Tools/general';
+import { Coordinates } from '../../Core/Objects/Coordinates';
+import { Shape } from '../../Core/Objects/Shape';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -43,7 +45,7 @@ export class CreateIrregularState extends State {
 
     this.shapeId = uniqId();
 
-    this.mouseClickId = app.addListener('canvasclick', this.handler);
+    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
   }
 
   /**
@@ -58,86 +60,117 @@ export class CreateIrregularState extends State {
    * stopper l'état
    */
   end() {
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
 
-    app.removeListener('canvasclick', this.mouseClickId);
+    app.removeListener('canvasmousedown', this.mouseDownId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'canvasclick') {
-      this.onClick();
+    if (event.type == 'canvasmousedown') {
+      this.onMouseDown();
+    } else if (event.type == 'canvasmouseup') {
+      this.onMouseUp();
     } else {
       console.error('unsupported event type : ', event.type);
     }
   }
 
-  onClick() {
-    let newPoint = new Point(app.workspace.lastKnownMouseCoordinates);
+  onMouseDown() {
+    let newCoordinates = new Coordinates(
+      app.workspace.lastKnownMouseCoordinates
+    );
 
+    this.points.push(
+      new Point({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        coordinates: newCoordinates,
+        color: app.settings.get('temporaryDrawColor'),
+        size: 2,
+      })
+    );
+    if (this.points.length > 1) {
+      let seg = new Segment({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        vertexIds: [
+          this.points[this.points.length - 2].id,
+          this.points[this.points.length - 1].id,
+        ],
+      });
+      new Shape({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        segmentIds: [seg.id],
+        pointIds: seg.vertexIds,
+        borderColor: app.settings.get('temporaryDrawColor'),
+      });
+    }
+    app.removeListener('canvasmousedown', this.mouseDownId);
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    this.animate();
+  }
+
+  onMouseUp() {
     if (
       this.points.length > 2 &&
-      SelectManager.arePointsInSelectionDistance(this.points[0], newPoint)
+      SelectManager.areCoordinatesInMagnetismDistance(
+        this.points[0].coordinates,
+        this.points[this.points.length - 1].coordinates
+      )
     ) {
+      this.stopAnimation();
+      // this.adjustPoint(this.points[this.points.length - 1]);
       this.actions = [
         {
           name: 'CreateIrregularAction',
-          points: this.points,
-          shapeId: this.shapeId,
+          coordinates: this.points.map(pt => pt.coordinates),
+          reference: null, //reference,
         },
       ];
       this.executeAction();
+      app.upperDrawingEnvironment.removeAllObjects();
       this.restart();
-      window.dispatchEvent(new CustomEvent('refresh'));
-    } else if (
-      this.points.some(pt =>
-        SelectManager.arePointsInMagnetismDistance(pt, newPoint)
-      )
-    ) {
-      // si point egal à point de la forme
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: "La forme créée n'est pas valide." },
-        })
-      );
-      return;
     } else {
-      // regarder ajustement avec points des autres formes
+      this.stopAnimation();
+      // this.adjustPoint(this.points[this.points.length - 1]);
+      this.currentStep = '';
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.currentStep = 'listen-canvas-click';
+      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      app.removeListener('canvasmouseup', this.mouseUpId);
+    }
+  }
+
+  adjustPoint(point) {
+    if (
+      this.points.length > 2 &&
+      SelectManager.areCoordinatesInMagnetismDistance(
+        this.points[0].coordinates,
+        point.coordinates
+      )
+    )
+      point.coordinates = new Coordinates(this.points[0].coordinates);
+    else {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;
-      let adjustedPoint = SelectManager.selectPoint(
-        newPoint,
+      let adjustedCoordinates = SelectManager.selectPoint(
+        point.coordinates,
         constraints,
         false
       );
-      if (adjustedPoint) {
-        this.points.push(new Point(adjustedPoint));
-      } else {
-        this.points.push(newPoint);
-      }
+      if (adjustedCoordinates)
+        point.coordinates = new Coordinates(adjustedCoordinates);
     }
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   refreshStateUpper() {
-    this.points.forEach((pt, idx, pts) => {
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: { point: pt, color: '#E90CC8', size: 2 },
-        })
+    if (this.currentStep == 'listen-canvas-click' && this.points.length > 0) {
+      this.points[this.points.length - 1].coordinates = new Coordinates(
+        app.workspace.lastKnownMouseCoordinates
       );
-      if (idx > 0)
-        window.dispatchEvent(
-          new CustomEvent('draw-segment', {
-            detail: {
-              segment: new Segment(pts[idx - 1], pt),
-              color: '#E90CC8',
-              size: 2,
-            },
-          })
-        );
-    });
+      this.adjustPoint(this.points[this.points.length - 1]);
+    }
   }
 }

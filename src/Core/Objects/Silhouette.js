@@ -23,8 +23,8 @@ export class Silhouette {
         size: 1,
       });
       if (level == 5 || level == 6) {
-        shapeCopy.scale(2 / 3);
-        shapeCopy.size = 0.66;
+        shapeCopy.scale(0.6);
+        shapeCopy.size = 0.6;
       }
       return shapeCopy;
     });

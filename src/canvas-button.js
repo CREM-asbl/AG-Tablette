@@ -71,9 +71,9 @@ class CanvasButton extends LitElement {
         ) || family.shapeTemplates[0],
       ];
     } else {
-      shapeTemplates = app.CremTangrams[
-        this.silhouetteIdx
-      ].silhouetteData.shapes.map(s => new Shape(s));
+      console.log(app.CremTangrams[this.silhouetteIdx]);
+      shapeTemplates =
+        app.CremTangrams[this.silhouetteIdx].silhouetteData.shapesData;
     }
 
     this.shapes = shapeTemplates.map(
@@ -110,15 +110,7 @@ class CanvasButton extends LitElement {
       s.translate(centerOffset);
     });
 
-    if (this.silhouetteIdx !== undefined) {
-      this.ctx.strokeStyle = '#000';
-      this.ctx.fillStyle = this.shapes[0].color || family.defaultColor;
-      const path = new Path2D(this.shapes[0].getSVGPath('no scale'));
-      this.ctx.fill(path);
-      this.ctx.stroke(path);
-    } else {
-      this.drawingEnvironment.draw();
-    }
+    this.drawingEnvironment.draw();
   }
 
   /**

@@ -97,7 +97,7 @@ export const grandeursKit = {
     },
 
     'Famille du carré': {
-      color: '#FF6900',
+      color: '#f46c2e',
       shapeTemplates: [
         {
           name: 'Carré',

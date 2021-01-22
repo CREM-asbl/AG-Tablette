@@ -71,6 +71,8 @@ export class CreateRegularAction extends Action {
       newShape.referenceSegmentIdx = this.reference.idx;
       this.reference.shape.hasGeometryReferenced.push(newShape.id);
     }
+
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**

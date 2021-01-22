@@ -108,7 +108,7 @@ export class CreateLineState extends State {
       if (this.linesList) this.linesList.remove();
       this.linesList = null;
     }
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
     window.removeEventListener('line-selected', this.handler);
     app.removeListener('canvasclick', this.mouseClickId);
     app.removeListener('objectSelected', this.objectSelectedId);

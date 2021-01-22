@@ -84,7 +84,7 @@ export class TransformState extends State {
    * stopper l'état
    */
   end() {
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
 
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('canvasmouseup', this.mouseUpId);

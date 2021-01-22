@@ -206,7 +206,7 @@ class AGTabletteApp extends LitElement {
 
           <div id="app-canvas-view-toolbar-p2">
 
-            <toolbar-section title="Créer un tangram"
+            <toolbar-section title="Créer une silhouette"
                              .buttons_states="${this.states.filter(
                                state => state.type === 'tangram'
                              )}">

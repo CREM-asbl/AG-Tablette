@@ -60,7 +60,7 @@ class StateMenu extends LitElement {
   }
 
   clickBtn(value) {
-    dispatchEvent(
+    window.dispatchEvent(
       new CustomEvent('state-menu-button-click', { detail: value })
     );
   }

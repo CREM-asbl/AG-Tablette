@@ -49,7 +49,7 @@ class AgEnvironnements extends LitElement {
 
         /* background: url('/images/Environnements/grandeurs.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
-          )}')
+          )}');
           center center rgba(255, 255, 255, 0.9); */
         background-repeat: no-repeat;
         background-size: cover;
@@ -61,7 +61,7 @@ class AgEnvironnements extends LitElement {
 
         /* background: url('/images/Environnements/tangram.\${unsafeCSS(
             this.isSafari ? 'jpg' : 'webp'
-          )}')
+          )}');
           center center rgba(255, 255, 255, 0.9); */
         background-repeat: no-repeat;
         background-size: cover;
@@ -73,7 +73,7 @@ class AgEnvironnements extends LitElement {
 
         /* background: url('/images/Environnements/cubes.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
-          )}')
+          )}');
           center center rgba(255, 255, 255, 0.9); */
         background-repeat: no-repeat;
         background-size: cover;

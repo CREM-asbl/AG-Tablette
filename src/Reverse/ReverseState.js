@@ -103,7 +103,7 @@ export class ReverseState extends State {
    * stopper l'état
    */
   end() {
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
     app.upperDrawingEnvironment.removeAllObjects();
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';

@@ -8,19 +8,15 @@ export class CreateTriangleAction extends Action {
     super('CreateTriangleAction');
 
     // points of the shape to create
-    this.points = [];
+    this.coordinates = [];
 
     // name of the triangle to create (rectangle, isocele, quelconque)
     this.triangleName = null;
-
-    // id of the shape to create
-    this.shapeId = null;
   }
 
   initFromObject(save) {
-    this.points = save.points;
+    this.coordinates = save.coordinates;
     this.triangleName = save.triangleName;
-    this.shapeId = save.shapeId;
   }
 
   /**
@@ -50,9 +46,6 @@ export class CreateTriangleAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
-    this.points[0].name = 'firstPoint';
-    this.points[1].name = 'secondPoint';
-    this.points[2].name = 'thirdPoint';
 
     let familyName = '3-corner-shape';
     if (this.triangleName == 'EquilateralTriangle') {
@@ -61,18 +54,23 @@ export class CreateTriangleAction extends Action {
       familyName = 'Irregular';
     }
 
+    let path = ['M', this.coordinates[0].x, this.coordinates[0].y];
+    path.push('L', this.coordinates[1].x, this.coordinates[1].y);
+    path.push('L', this.coordinates[2].x, this.coordinates[2].y);
+    path.push('L', this.coordinates[0].x, this.coordinates[0].y);
+    path = path.join(' ');
+
     let shape = new Shape({
-      id: this.shapeId,
-      segments: [
-        new Segment(this.points[0], this.points[1]),
-        new Segment(this.points[1], this.points[2]),
-        new Segment(this.points[2], this.points[0]),
-      ],
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: path,
       name: this.triangleName,
       familyName: familyName,
     });
-    shape.setGeometryConstructionSpec();
-    ShapeManager.addShape(shape);
+
+    shape.points[0].name = 'firstPoint';
+    shape.points[1].name = 'secondPoint';
+    shape.points[2].name = 'thirdPoint';
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**

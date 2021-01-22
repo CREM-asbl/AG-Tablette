@@ -79,6 +79,15 @@ export class Coordinates {
   }
 
   /**
+   * return this middle of this and coordinates
+   * @param {*} coordinates
+   */
+  middleWith(coordinates) {
+    let middle = this.add(coordinates).multiply(1 / 2);
+    return middle;
+  }
+
+  /**
    * Rotate with rotationAngle and centre
    * @param {Number}       rotationAngle
    * @param {Coordinates}  center

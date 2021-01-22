@@ -109,7 +109,7 @@ export class CreateState extends State {
       if (this.shapesList) this.shapesList.remove();
       this.shapesList = null;
     }
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
     window.removeEventListener('select-template', this.handler);
     app.removeListener('canvasmousedown', this.mouseDownId);
     app.removeListener('canvasmouseup', this.mouseUpId);

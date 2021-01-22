@@ -93,7 +93,7 @@ export class CreateCircleState extends State {
       if (this.circlesList) this.circlesList.remove();
       this.circlesList = null;
     }
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
     window.removeEventListener('circle-selected', this.handler);
     app.removeListener('canvasclick', this.mouseDownId);
   }

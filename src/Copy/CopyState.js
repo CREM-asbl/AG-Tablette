@@ -87,7 +87,7 @@ export class CopyState extends State {
    * stopper l'état
    */
   end() {
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
     this.currentStep = 'listen-canvas-click';
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('canvasmouseup', this.mouseUpId);

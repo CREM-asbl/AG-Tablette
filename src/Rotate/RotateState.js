@@ -81,7 +81,7 @@ export class RotateState extends State {
    * stopper l'état
    */
   end() {
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
     this.currentStep = 'listen-canvas-click';
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.removeListener('objectSelected', this.objectSelectedId);

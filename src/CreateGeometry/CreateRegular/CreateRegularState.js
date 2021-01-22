@@ -58,7 +58,7 @@ export class CreateRegularState extends State {
     this.firstCoordinates = null;
     this.secondCoordinates = null;
 
-    this.mouseClickId = app.addListener('canvasclick', this.handler);
+    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
     window.addEventListener('setNumberOfPoints', this.handler);
   }
 
@@ -77,16 +77,17 @@ export class CreateRegularState extends State {
 
     this.currentStep = 'listen-canvas-click';
 
-    this.mouseClickId = app.addListener('canvasclick', this.handler);
+    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
 
-    app.removeListener('canvasclick', this.mouseClickId);
+    app.removeListener('canvasmousedown', this.mouseDownId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
     window.removeEventListener('setNumberOfPoints', this.handler);
   }
 
@@ -94,8 +95,10 @@ export class CreateRegularState extends State {
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'canvasclick') {
-      this.onClick();
+    if (event.type == 'canvasmousedown') {
+      this.onMouseDown();
+    } else if (event.type == 'canvasmouseup') {
+      this.onMouseUp();
     } else if (event.type == 'setNumberOfPoints') {
       this.setNumberOfPoints(event.detail.nbOfPoints);
     } else {
@@ -108,61 +111,102 @@ export class CreateRegularState extends State {
     this.currentStep = 'listen-canvas-click';
   }
 
-  onClick() {
+  onMouseDown() {
     let newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates
     );
 
-    let constraints = SelectManager.getEmptySelectionConstraints().points;
-    constraints.canSelect = true;
-    let adjustedCoordinates = SelectManager.selectPoint(
-      newCoordinates,
-      constraints,
-      false
-    );
-    if (adjustedCoordinates) {
-      newCoordinates = new Coordinates(adjustedCoordinates);
-    }
-
     if (this.currentStep == 'listen-canvas-click') {
-      this.firstCoordinates = newCoordinates;
-      this.currentStep = 'select-second-point';
+      this.firstPoint = new Point({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        coordinates: newCoordinates,
+        color: app.settings.get('temporaryDrawColor'),
+        size: 2,
+      });
+      app.removeListener('canvasmousedown', this.mouseDownId);
+      this.mouseUpId = app.addListener('canvasmouseup', this.handler);
       this.animate();
     } else {
       // 'select-second-point'
-      this.secondCoordinates = newCoordinates;
+      this.secondPoint = new Point({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        coordinates: newCoordinates,
+        color: app.settings.get('temporaryDrawColor'),
+        size: 2,
+      });
+      this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+      this.animate();
       // let reference = Shape.getReference(this.firstCoordinates, this.secondCoordinates);
-      this.actions = [
-        {
-          name: 'CreateRegularAction',
-          firstCoordinates: this.firstCoordinates,
-          secondCoordinates: this.secondCoordinates,
-          numberOfPoints: this.numberOfPoints,
-          reference: null, //reference,
-        },
-      ];
-      this.executeAction();
-      this.restart();
+
       window.dispatchEvent(new CustomEvent('refresh'));
     }
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
+  onMouseUp() {
+    if (this.currentStep == 'listen-canvas-click') {
+      this.stopAnimation();
+      this.adjustPoint(this.firstPoint);
+      this.currentStep = '';
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.currentStep = 'select-second-point';
+      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      app.removeListener('canvasmouseup', this.mouseUpId);
+    } else if (this.currentStep == 'select-second-point') {
+      this.stopAnimation();
+      this.adjustPoint(this.secondPoint);
+      this.actions = [
+        {
+          name: 'CreateRegularAction',
+          firstCoordinates: this.firstPoint.coordinates,
+          secondCoordinates: this.secondPoint.coordinates,
+          numberOfPoints: this.numberOfPoints,
+          reference: null, //reference,
+        },
+      ];
+      this.executeAction();
+      app.upperDrawingEnvironment.removeAllObjects();
+      this.restart();
+    }
+  }
+
+  adjustPoint(point) {
+    let constraints = SelectManager.getEmptySelectionConstraints().points;
+    constraints.canSelect = true;
+    let adjustedCoordinates = SelectManager.selectPoint(
+      point.coordinates,
+      constraints,
+      false
+    );
+    if (adjustedCoordinates) {
+      point.coordinates = new Coordinates(adjustedCoordinates);
+    }
+  }
+
   refreshStateUpper() {
-    app.upperDrawingEnvironment.removeAllObjects();
-    if (this.currentStep == 'select-second-point') {
-      let newCoordinates = new Coordinates(
+    if (this.currentStep == 'listen-canvas-click') {
+      this.firstPoint.coordinates = new Coordinates(
+        app.workspace.lastKnownMouseCoordinates
+      );
+    } else if (this.currentStep == 'select-second-point') {
+      this.secondPoint.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates
       );
 
-      let path = this.getPath(this.firstCoordinates, newCoordinates);
+      let path = this.getPath(
+        this.firstPoint.coordinates,
+        this.secondPoint.coordinates
+      );
 
-      new Shape({
+      if (this.shapeDrawnId)
+        app.upperDrawingEnvironment.removeObjectById(this.shapeDrawnId);
+
+      this.shapeDrawnId = new Shape({
         path: path,
         drawingEnvironment: app.upperDrawingEnvironment,
         borderColor: app.settings.get('temporaryDrawColor'),
-      });
+      }).id;
     }
   }
 

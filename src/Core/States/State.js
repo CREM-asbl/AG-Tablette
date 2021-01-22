@@ -167,4 +167,8 @@ export class State {
       this.animate()
     );
   }
+
+  stopAnimation() {
+    window.cancelAnimationFrame(this.requestAnimFrameId);
+  }
 }

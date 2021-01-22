@@ -220,9 +220,9 @@ export class Segment {
       });
       return middle;
     } else {
-      return this.vertexes[0].coordinates
-        .add(this.vertexes[1].coordinates)
-        .multiply(1 / 2);
+      return this.vertexes[0].coordinates.middleWith(
+        this.vertexes[1].coordinates
+      );
     }
   }
 

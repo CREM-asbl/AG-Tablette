@@ -143,13 +143,17 @@ export class DrawingEnvironment {
    * @param {String} objectType   'shape', 'segment' or 'point'
    */
   removeObjectById(id, objectType = 'shape') {
-    if (objectType == 'shape') {
-      let object = this.findObjectById(id, objectType);
-      object.segments.forEach(seg => this.removeObjectById(seg.id, 'segment'));
-      object.points.forEach(pt => this.removeObjectById(pt.id, 'point'));
-    }
     let index = this.findIndexById(id, objectType);
-    this[objectType + 's'].splice(index, 1);
+    if (index != -1) {
+      if (objectType == 'shape') {
+        let object = this.findObjectById(id, objectType);
+        object.segments.forEach(seg =>
+          this.removeObjectById(seg.id, 'segment')
+        );
+        object.points.forEach(pt => this.removeObjectById(pt.id, 'point'));
+      }
+      this[objectType + 's'].splice(index, 1);
+    }
   }
 
   getCommonSegmentOfTwoPoints(pt1Id, pt2Id) {

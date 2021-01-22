@@ -12,7 +12,7 @@ export class SelectManager {
    * @param  {Coordinates}  c1
    * @param  {Coordinates}  c2
    */
-  static arePointsInSelectionDistance(c1, c2) {
+  static areCoordinatesInSelectionDistance(c1, c2) {
     let areInSelectionDistance = c1.equal(
       c2,
       app.settings.get('selectionDistance')
@@ -25,7 +25,7 @@ export class SelectManager {
    * @param  {Coordinates}  c1
    * @param  {Coordinates}  c2
    */
-  static arePointsInMagnetismDistance(c1, c2) {
+  static areCoordinatesInMagnetismDistance(c1, c2) {
     let areInMagnetismDistance = c1.equal(
       c2,
       app.settings.get('magnetismDistance')
@@ -126,8 +126,8 @@ export class SelectManager {
     if (!constraints.canSelect) return null;
 
     let distCheckFunction = easySelection
-      ? SelectManager.arePointsInSelectionDistance
-      : SelectManager.arePointsInMagnetismDistance;
+      ? SelectManager.areCoordinatesInSelectionDistance
+      : SelectManager.areCoordinatesInMagnetismDistance;
 
     // all points at the correct distance
     let potentialPoints = [];
@@ -250,7 +250,10 @@ export class SelectManager {
       const projection = seg.projectionOnSegment(mouseCoordinates);
       if (
         seg.isCoordinatesOnSegment(projection) &&
-        SelectManager.arePointsInSelectionDistance(projection, mouseCoordinates)
+        SelectManager.areCoordinatesInSelectionDistance(
+          projection,
+          mouseCoordinates
+        )
       ) {
         potentialSegments.push({
           segment: seg,
