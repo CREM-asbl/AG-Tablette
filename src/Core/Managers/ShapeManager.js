@@ -70,7 +70,7 @@ export class ShapeManager {
    * @return {int}       l'index de cette forme dans le tableau des formes
    */
   static getShapeIndex(shape) {
-    return app.workspace.shapes.findIndex(s => s.id == shape.id);
+    return app.mainDrawingEnvironment.shapes.findIndex(s => s.id == shape.id);
   }
 
   /**
@@ -79,20 +79,23 @@ export class ShapeManager {
    * @return {Shape}         l'objet forme, ou null si la forme n'existe pas
    */
   static getShapeById(id) {
-    let shape = app.workspace.shapes.find(s => s.id == id);
+    let shape = app.mainDrawingEnvironment.shapes.find(s => s.id == id);
     return shape ? shape : null;
   }
 
   /**
-   * Renvoie la liste des formes contenant un certain point.
+   * Renvoie la liste des formes contenant une certaine coordonnée.
    * Le tableau renvoyé est trié de la forme la plus en avant à la forme la
    * plus en arrière.
-   * @param point: le point (Point)
-   * @return la liste des formes ([Shape])
+   * @param {Coordinates} coord
    */
-  static shapesThatContainsPoint(point) {
-    let list = app.workspace.shapes.filter(
-      shape => shape.isPointInPath(point) || shape.isPointOnSegment(point)
+  static shapesThatContainsCoordinates(coord, constraints) {
+    let allShapes = [...app.mainDrawingEnvironment.shapes];
+    if (constraints.canSelectFromUpper)
+      allShapes.push(...app.upperDrawingEnvironment.shapes);
+    let list = allShapes.filter(
+      shape =>
+        shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnBorder(coord)
     );
     list.reverse();
     return list;

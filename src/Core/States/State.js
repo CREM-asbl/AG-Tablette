@@ -35,7 +35,7 @@ export class State {
         }
       } else if (this.status == 'stopped') {
         if (this.name == app.state) {
-          this.start(event.detail.startParams);
+          window.setTimeout(() => this.start(event.detail.startParams), 0);
           this.status = 'running';
         }
       } else {
@@ -62,12 +62,8 @@ export class State {
       }
     });
 
-    window.addEventListener('drawUpper', () => {
-      if (this.name == app.state) this.draw();
-    });
-
-    window.addEventListener('shapeDrawn', event => {
-      if (this.name == app.state) this.shapeDrawn(event.detail.shape);
+    window.addEventListener('refreshStateUpper', () => {
+      if (this.name == app.state) this.refreshStateUpper();
     });
 
     this.handler = event => this._actionHandle(event);
@@ -118,20 +114,12 @@ export class State {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  draw() {}
-
-  /**
-   * Appelée par la fonction de dessin après avoir dessiné une forme sur le
-   * canvas principal
-   * @param  {Shape}      shape   La forme dessinée
-   */
-  shapeDrawn(shape) {}
+  refreshStateUpper() {}
 
   /**
    * Exécuter les actions liée à l'état.
    */
   executeAction() {
-    window.dispatchEvent(new CustomEvent('actions', { detail: this.actions }));
     this.actions.forEach(action =>
       window.dispatchEvent(new CustomEvent(action.name, { detail: action }))
     );
@@ -148,7 +136,7 @@ export class State {
    * @param {Object} startParams        family pour Create
    */
   start(startParams = null) {
-    console.log('start() not implemented');
+    console.error('start() not implemented');
   }
 
   /**
@@ -158,7 +146,7 @@ export class State {
    * @param {Object} startParams        family pour Create
    */
   restart(manualRestart = false, startParams = null) {
-    console.log('restart() not implemented');
+    console.error('restart() not implemented');
   }
 
   /**
@@ -166,7 +154,7 @@ export class State {
    * (appelé si changement de state ou si un permanent state prend le focus)
    */
   end() {
-    console.log('end() not implemented');
+    console.error('end() not implemented');
   }
 
   /**
@@ -178,5 +166,9 @@ export class State {
     this.requestAnimFrameId = window.requestAnimationFrame(() =>
       this.animate()
     );
+  }
+
+  stopAnimation() {
+    window.cancelAnimationFrame(this.requestAnimFrameId);
   }
 }

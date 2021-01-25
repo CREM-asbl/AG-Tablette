@@ -1,12 +1,15 @@
 import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
+import { ShapeTemplate } from '../Core/Objects/ShapeTemplate';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { app } from '../Core/App';
 
 export class CreateAction extends Action {
   constructor() {
     super('CreateAction');
 
-    this.shapeToCreate = null;
+    this.selectedTemplate = null;
 
     this.shapeId = null;
 
@@ -15,8 +18,8 @@ export class CreateAction extends Action {
   }
 
   initFromObject(save) {
-    this.shapeToCreate = new Shape(save.shapeToCreate);
-    this.shapeToCreate.size = save.shapeSize;
+    this.selectedTemplate = save.selectedTemplate;
+    this.coordinates = save.coordinates;
     this.shapeId = save.shapeId;
     this.shapeSize = save.shapeSize;
   }
@@ -25,7 +28,7 @@ export class CreateAction extends Action {
    * vérifie si toutes les conditions sont réunies pour effectuer l'action
    */
   checkDoParameters() {
-    if (!(this.shapeToCreate instanceof Shape)) {
+    if (!(this.selectedTemplate instanceof ShapeTemplate)) {
       this.printIncompleteData();
       return false;
     }
@@ -48,8 +51,18 @@ export class CreateAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
-    this.shapeToCreate.id = this.shapeId;
-    ShapeManager.addShape(this.shapeToCreate);
+    let shape = new Shape({
+      ...this.selectedTemplate,
+      id: this.shapeId,
+      size: this.shapeSize,
+      drawingEnvironment: app.mainDrawingEnvironment,
+    });
+    shape.scale(this.shapeSize);
+    shape.translate(this.coordinates);
+
+    let transformation = getShapeAdjustment([shape], shape);
+    shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
+    shape.translate(transformation.translation);
   }
 
   /**

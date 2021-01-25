@@ -8,23 +8,22 @@ export class CreateLineAction extends Action {
     super('CreateLineAction');
 
     // points of the shape to create
-    this.points = [];
+    this.coordinates = [];
 
     // name of the quadrilateral to create (StraightLine, ...)
     this.lineName = null;
 
     // reference of the shape (for parallele or perpendicular)
-    this.reference = null;
+    this.referenceId = null;
 
     // id of the shape to create
     this.shapeId = null;
   }
 
   initFromObject(save) {
-    this.points = save.points;
+    this.coordinates = save.coordinates;
     this.lineName = save.lineName;
-    this.reference = save.reference;
-    this.shapeId = save.shapeId;
+    this.referenceId = save.referenceId;
   }
 
   /**
@@ -54,96 +53,63 @@ export class CreateLineAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
-    this.points[0].name = 'firstPoint';
-    if (this.points[1]) {
-      this.points[1].name = 'secondPoint';
-    }
+
+    let path = [
+      'M',
+      this.coordinates[0].x,
+      this.coordinates[0].y,
+      'L',
+      this.coordinates[1].x,
+      this.coordinates[1].y,
+    ].join(' ');
 
     let shape;
-    if (this.lineName == 'StraightLine') {
+    if (
+      this.lineName == 'StraightLine' ||
+      this.lineName == 'ParalleleStraightLine' ||
+      this.lineName == 'PerpendicularStraightLine'
+    ) {
       shape = new Shape({
-        id: this.shapeId,
-        segments: [
-          new Segment(
-            this.points[0],
-            this.points[1],
-            null,
-            null,
-            null,
-            null,
-            true
-          ),
-        ],
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: path,
         name: this.lineName,
         familyName: 'Line',
       });
-    } else if (this.lineName == 'ParalleleStraightLine') {
-      let segment = Segment.segmentWithAnglePassingThroughPoint(
-        this.reference.getAngleWithHorizontal(),
-        this.points[0]
-      );
-      segment.isInfinite = true;
-      shape = new Shape({
-        id: this.shapeId,
-        segments: [segment],
-        name: this.lineName,
-        familyName: 'Line',
-      });
-    } else if (this.lineName == 'PerpendicularStraightLine') {
-      let segment = Segment.segmentWithAnglePassingThroughPoint(
-        this.reference.getAngleWithHorizontal() + Math.PI / 2,
-        this.points[0]
-      );
-      segment.isInfinite = true;
-      shape = new Shape({
-        id: this.shapeId,
-        segments: [segment],
-        name: this.lineName,
-        familyName: 'Line',
-      });
+      shape.segments[0].isInfinite = true;
     } else if (
       this.lineName == 'SemiStraightLine' ||
       this.lineName == 'ParalleleSemiStraightLine' ||
       this.lineName == 'PerpendicularSemiStraightLine'
     ) {
-      let segment = new Segment(this.points[0], this.points[1]);
-      segment.isSemiInfinite = true;
       shape = new Shape({
-        id: this.shapeId,
-        segments: [segment],
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: path,
         name: this.lineName,
         familyName: 'Line',
       });
-    } else if (this.lineName == 'Segment') {
+      shape.segments[0].isSemiInfinite = true;
+    } else if (
+      this.lineName == 'Segment' ||
+      this.lineName == 'ParalleleSegment' ||
+      this.lineName == 'PerpendicularSegment'
+    ) {
       shape = new Shape({
-        id: this.shapeId,
-        segments: [new Segment(this.points[0], this.points[1])],
-        name: this.lineName,
-        familyName: 'Line',
-      });
-    } else if (this.lineName == 'ParalleleSegment') {
-      shape = new Shape({
-        id: this.shapeId,
-        segments: [new Segment(this.points[0], this.points[1])],
-        name: this.lineName,
-        familyName: 'Line',
-      });
-    } else if (this.lineName == 'PerpendicularSegment') {
-      shape = new Shape({
-        id: this.shapeId,
-        segments: [new Segment(this.points[0], this.points[1])],
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: path,
         name: this.lineName,
         familyName: 'Line',
       });
     }
 
     if (this.reference) {
-      shape.referenceShapeId = this.reference.shape.id;
-      shape.referenceSegmentIdx = this.reference.idx;
+      shape.referenceId = this.referenceId;
       this.reference.shape.hasGeometryReferenced.push(shape.id);
     }
-    // shape.setGeometryConstructionSpec();
-    ShapeManager.addShape(shape);
+
+    shape.points[0].name = 'firstPoint';
+    shape.points[1].name = 'secondPoint';
+
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**

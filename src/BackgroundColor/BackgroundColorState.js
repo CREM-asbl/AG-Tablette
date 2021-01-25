@@ -87,7 +87,7 @@ export class BackgroundColorState extends State {
     } else if (event.type == 'colorChange') {
       this.setColor(event.detail.color);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
@@ -117,16 +117,6 @@ export class BackgroundColorState extends State {
         oldColors: involvedShapes.map(s => s.color),
       },
     ];
-
-    // setOpacity quand transparent
-    if (involvedShapes.some(shape => shape.opacity != 1)) {
-      this.actions.push({
-        name: 'OpacityAction',
-        involvedShapesIds: involvedShapes.map(s => s.id),
-        opacity: 0.7,
-        oldOpacities: involvedShapes.map(s => s.opacity),
-      });
-    }
     this.executeAction();
 
     window.dispatchEvent(new CustomEvent('refresh'));

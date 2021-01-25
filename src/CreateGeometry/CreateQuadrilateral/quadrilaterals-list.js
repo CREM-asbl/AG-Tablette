@@ -82,13 +82,14 @@ class QuadrilateralsList extends LitElement {
           ${this.quadrilateralsNames.map(
             quadrilateralName => html`
               <li>
-                <canvas-button
+                <icon-button
                   title="${quadrilateralName}"
-                  shapeName="${quadrilateralName}"
+                  type="Geometry"
+                  name="${quadrilateralName}"
                   @click="${this._clickHandle}"
                   ?active="${quadrilateralName === this.quadrilateralSelected}"
                 >
-                </canvas-button>
+                </icon-button>
               </li>
             `
           )}
@@ -98,7 +99,7 @@ class QuadrilateralsList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.quadrilateralSelected = event.target.shapeName;
+    this.quadrilateralSelected = event.target.name;
     window.dispatchEvent(
       new CustomEvent('quadrilateral-selected', {
         detail: { quadrilateralSelected: this.quadrilateralSelected },

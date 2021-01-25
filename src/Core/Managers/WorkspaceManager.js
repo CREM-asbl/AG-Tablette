@@ -32,5 +32,10 @@ window.addEventListener('app-started', () => {
 });
 
 window.addEventListener('new-window', () => {
-  setTimeout(() => WorkspaceManager.setWorkspace(new Workspace()), 0);
+  setTimeout(() => {
+    app.mainDrawingEnvironment.removeAllObjects();
+    app.upperDrawingEnvironment.removeAllObjects();
+    app.backgroundDrawingEnvironment.removeAllObjects();
+    WorkspaceManager.setWorkspace(new Workspace());
+  }, 0);
 });

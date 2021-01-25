@@ -6,9 +6,9 @@ class StateMenu extends LitElement {
     super();
     this.buttons = [];
 
-    window.addEventListener('close-state-menu', () =>
-      this /*.shadowRoot.querySelector('state-menu')*/.remove()
-    );
+    window.addEventListener('close-state-menu', () => {
+      this /*.shadowRoot.querySelector('state-menu')*/.remove();
+    });
   }
 
   static get properties() {
@@ -60,7 +60,7 @@ class StateMenu extends LitElement {
   }
 
   clickBtn(value) {
-    dispatchEvent(
+    window.dispatchEvent(
       new CustomEvent('state-menu-button-click', { detail: value })
     );
   }

@@ -1,8 +1,6 @@
 import { Action } from '../../Core/States/Action';
 import { ShapeManager } from '../../Core/Managers/ShapeManager';
 import { Shape } from '../../Core/Objects/Shape';
-import { Segment } from '../../Core/Objects/Segment';
-import { Point } from '../../Core/Objects/Point';
 
 export class CreateRegularAction extends Action {
   constructor() {
@@ -12,10 +10,10 @@ export class CreateRegularAction extends Action {
     this.numberOfPoints = 4;
 
     // first point of the shape to create
-    this.firstPoint = null;
+    this.firstCoordinates = null;
 
     // second point of the shape to create
-    this.secondPoint = null;
+    this.secondCoordinates = null;
 
     // id of the shape to create
     this.shapeId = null;
@@ -23,10 +21,9 @@ export class CreateRegularAction extends Action {
 
   initFromObject(save) {
     this.numberOfPoints = save.numberOfPoints;
-    this.firstPoint = save.firstPoint;
-    this.secondPoint = save.secondPoint;
-    this.reference = save.reference;
-    this.shapeId = save.shapeId;
+    this.firstCoordinates = save.firstCoordinates;
+    this.secondCoordinates = save.secondCoordinates;
+    // this.reference = save.reference;
   }
 
   /**
@@ -57,10 +54,17 @@ export class CreateRegularAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    this.firstPoint.name = 'firstPoint';
-    this.secondPoint.name = 'secondPoint';
+    let path = this.getPath(this.firstCoordinates, this.secondCoordinates);
 
-    let newShape = this.createPolygon();
+    let newShape = new Shape({
+      path: path,
+      drawingEnvironment: app.mainDrawingEnvironment,
+      name: this.numberOfPoints + '_corner_shape',
+      familyName: 'Regular',
+    });
+
+    newShape.points[0].name = 'firstPoint';
+    newShape.points[1].name = 'secondPoint';
 
     if (this.reference) {
       newShape.referenceShapeId = this.reference.shape.id;
@@ -68,7 +72,7 @@ export class CreateRegularAction extends Action {
       this.reference.shape.hasGeometryReferenced.push(newShape.id);
     }
 
-    ShapeManager.addShape(newShape);
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**
@@ -80,49 +84,73 @@ export class CreateRegularAction extends Action {
     ShapeManager.deleteShape(shape);
   }
 
-  createPolygon() {
-    let newSegments = this.getNewSegments();
-
-    let shape = new Shape({
-      segments: newSegments,
-      id: this.shapeId,
-      name: this.numberOfPoints + '_corner_shape',
-      familyName: 'Regular',
-    });
-
-    return shape;
-  }
-
-  getNewSegments() {
+  getPath(firstCoordinates, secondCoordinates) {
     let externalAngle = (Math.PI * 2) / this.numberOfPoints;
 
-    let segments = [];
+    let path = [
+      'M',
+      firstCoordinates.x,
+      firstCoordinates.y,
+      'L',
+      secondCoordinates.x,
+      secondCoordinates.y,
+    ];
 
-    segments.push(new Segment(this.firstPoint, this.secondPoint));
-
-    let length = this.firstPoint.dist(this.secondPoint);
+    let length = firstCoordinates.dist(secondCoordinates);
 
     let startAngle = Math.atan2(
-      -(this.firstPoint.y - this.secondPoint.y),
-      -(this.firstPoint.x - this.secondPoint.x)
+      -(firstCoordinates.y - secondCoordinates.y),
+      -(firstCoordinates.x - secondCoordinates.x)
     );
+
+    let currentCoordinates = secondCoordinates;
 
     for (let i = 0; i < this.numberOfPoints - 2; i++) {
       let dx = length * Math.cos(startAngle - (i + 1) * externalAngle);
       let dy = length * Math.sin(startAngle - (i + 1) * externalAngle);
 
-      let np = segments[i].vertexes[1].addCoordinates(dx, dy);
+      currentCoordinates = currentCoordinates.add({ x: dx, y: dy });
 
-      segments.push(new Segment(segments[i].vertexes[1], np));
+      path.push('L', currentCoordinates.x, currentCoordinates.y);
     }
 
-    segments.push(
-      new Segment(
-        segments[this.numberOfPoints - 2].vertexes[1],
-        this.firstPoint
-      )
-    );
+    path.push('L', firstCoordinates.x, firstCoordinates.y);
 
-    return segments;
+    path = path.join(' ');
+
+    return path;
   }
+
+  // getNewSegments() {
+  //   let externalAngle = (Math.PI * 2) / this.numberOfPoints;
+
+  //   let segments = [];
+
+  //   segments.push(new Segment(this.firstPoint, this.secondPoint));
+
+  //   let length = this.firstPoint.dist(this.secondPoint);
+
+  //   let startAngle = Math.atan2(
+  //     -(this.firstPoint.y - this.secondPoint.y),
+  //     -(this.firstPoint.x - this.secondPoint.x)
+  //   );
+
+  //   for (let i = 0; i < this.numberOfPoints - 2; i++) {
+  //     let dx = length * Math.cos(startAngle - (i + 1) * externalAngle);
+  //     let dy = length * Math.sin(startAngle - (i + 1) * externalAngle);
+
+  //     let np = segments[i].vertexes[1].addCoordinates(dx, dy);
+
+  //     segments.push(new Segment(segments[i].vertexes[1], np));
+  //   }
+
+  //   segments.push(
+  //     new Segment(
+  //       segments[this.numberOfPoints - 2].vertexes[1],
+  //       this.firstPoint
+  //     )
+  //   );
+
+  //   return segments;
+  // }
 }

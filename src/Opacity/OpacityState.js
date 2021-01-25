@@ -89,7 +89,7 @@ export class OpacityState extends State {
     } else if (event.type == 'setOpacity') {
       this.setOpacity(event.detail.opacity);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

@@ -1,7 +1,6 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
  * Déplacer une forme derrière toutes les autres.
@@ -68,7 +67,7 @@ export class ToBackgroundState extends State {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
@@ -80,7 +79,7 @@ export class ToBackgroundState extends State {
     this.actions = [
       {
         name: 'ToBackgroundAction',
-        oldIndex: ShapeManager.getShapeIndex(shape),
+        shapeId: shape.id,
       },
     ];
     this.executeAction();

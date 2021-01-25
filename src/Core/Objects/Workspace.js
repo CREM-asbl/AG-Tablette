@@ -4,9 +4,9 @@ import { CompleteHistory } from './CompleteHistory';
 import { Settings } from '../Settings';
 import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
-import { Shape } from './Shape';
 import { Point } from '../Objects/Point';
 import { GridManager } from '../../Grid/GridManager';
+import { Coordinates } from './Coordinates';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -20,6 +20,12 @@ export class Workspace {
     // Liste des formes du projet ([Shape])
     this.shapes = [];
 
+    // Liste des segments du projet ([Segment])
+    this.segments = [];
+
+    // Liste des points du projet ([Point])
+    this.points = [];
+
     // Liste des groupes créés par l'utilisateur
     this.shapeGroups = [];
 
@@ -30,7 +36,7 @@ export class Workspace {
     this.initSettings();
 
     // Coordonnées du dernier événement
-    this.lastKnownMouseCoordinates = new Point(0, 0);
+    this.lastKnownMouseCoordinates = Coordinates.nullCoordinates;
 
     // Couleur sélectionnée pour border- ou backgroundColor
     this.selectedColor = '#000';
@@ -50,7 +56,7 @@ export class Workspace {
      * vers le bas.
      * ->Le zoom du plan est appliqué après la translation du plan.
      */
-    this.translateOffset = new Point(0, 0);
+    this.translateOffset = Coordinates.nullCoordinates;
 
     // Historique des actions
     this.history = new History();
@@ -92,7 +98,9 @@ export class Workspace {
   initFromObject(wsdata) {
     this.id = wsdata.id;
 
-    this.shapes = wsdata.shapes.map(sData => new Shape(sData));
+    // this.shapes = wsdata.shapes.map(sData => new Shape(sData));
+    app.mainDrawingEnvironment.loadFromData(wsdata.objects);
+    app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -100,7 +108,7 @@ export class Workspace {
     });
 
     this.zoomLevel = wsdata.zoomLevel;
-    this.translateOffset = new Point(wsdata.translateOffset);
+    this.translateOffset = new Coordinates(wsdata.translateOffset);
 
     if (wsdata.completeHistory) {
       this.completeHistory.initFromObject(wsdata.completeHistory);
@@ -132,7 +140,7 @@ export class Workspace {
       }
       window.dispatchEvent(new CustomEvent('history-changed'));
     } else {
-      this.history.initFromObject({ index: -1, data: [] });
+      this.history.resetToDefault();
     }
 
     if (
@@ -148,20 +156,20 @@ export class Workspace {
         originalZoom = this.zoomLevel,
         newZoom = originalZoom * scaleOffset,
         originalTranslateOffset = this.translateOffset,
-        actualCenter = new Point(
-          wsdata.canvasSize.width,
-          wsdata.canvasSize.height
-        ).multiplyWithScalar(1 / originalZoom),
-        newCenter = new Point(
-          app.canvasWidth,
-          app.canvasHeight
-        ).multiplyWithScalar(1 / newZoom),
-        corr = originalTranslateOffset.multiplyWithScalar(1 / originalZoom), // error with the old zoom that move the center
+        actualCenter = new Coordinates({
+          x: wsdata.canvasSize.width,
+          y: wsdata.canvasSize.height,
+        }).multiply(1 / originalZoom),
+        newCenter = new Coordinates({
+          x: app.canvasWidth,
+          y: app.canvasHeight,
+        }).multiply(1 / newZoom),
+        corr = originalTranslateOffset.multiply(1 / originalZoom), // error with the old zoom that move the center
         newTranslateoffset = newCenter
-          .subCoordinates(actualCenter)
-          .multiplyWithScalar(0.5)
-          .addCoordinates(corr)
-          .multiplyWithScalar(newZoom);
+          .substract(actualCenter)
+          .multiply(0.5)
+          .add(corr)
+          .multiply(newZoom);
 
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
@@ -173,9 +181,11 @@ export class Workspace {
 
     wsdata.id = this.id;
 
-    wsdata.shapes = this.shapes.map(s => {
-      return s.saveToObject();
-    });
+    // wsdata.shapes = this.shapes.map(s => {
+    //   return s.saveToObject();
+    // });
+    wsdata.objects = app.mainDrawingEnvironment.saveData();
+    wsdata.backObjects = app.backgroundDrawingEnvironment.saveData();
     wsdata.shapeGroups = this.shapeGroups.map(group => {
       return group.saveToObject();
     });
@@ -185,7 +195,7 @@ export class Workspace {
       wsdata.completeHistory = this.completeHistory.saveToObject();
 
     wsdata.zoomLevel = this.zoomLevel;
-    wsdata.translateOffset = this.translateOffset.saveToObject();
+    wsdata.translateOffset = this.translateOffset;
 
     wsdata.settings = this.settings.saveToObject();
 
@@ -236,20 +246,8 @@ export class Workspace {
   setTranslateOffset(newOffset, doRefresh = true) {
     //TODO: limiter la translation à une certaine zone? (ex 4000 sur 4000?)
     //TODO: bouton pour revenir au "centre" ?
-    // window.dispatchEvent(
-    //   new CustomEvent('scaleView', { detail: { scale: 1 / this.zoomLevel } })
-    // );
 
-    // let offset = newOffset.subCoordinates(this.translateOffset);
-
-    // window.dispatchEvent(
-    //   new CustomEvent('translateView', { detail: { offset: offset } })
-    // );
     this.translateOffset = newOffset;
-
-    // window.dispatchEvent(
-    //   new CustomEvent('scaleView', { detail: { scale: this.zoomLevel } })
-    // );
 
     if (doRefresh) {
       window.dispatchEvent(new CustomEvent('refresh'));
@@ -259,18 +257,24 @@ export class Workspace {
   }
 
   toSVG() {
-    const canvas = app.canvas.main;
     let svg_data =
       '<svg width="' +
-      canvas.width +
+      app.canvasWidth +
       '" height="' +
-      canvas.height +
-      '" xmlns="http://www.w3.org/2000/svg" >\n\n';
-    svg_data += GridManager.toSVG();
-    svg_data += app.silhouette ? app.silhouette.toSVG() : '';
-    this.shapes.forEach(shape => {
-      svg_data += shape.toSVG();
-    });
+      app.canvasHeight +
+      '" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n';
+    svg_data += app.backgroundDrawingEnvironment.toSVG();
+    svg_data += app.mainDrawingEnvironment.toSVG();
+    if (document.body.querySelector('forbidden-canvas') != null) {
+      svg_data +=
+        '<rect x="' +
+        app.canvasWidth / 2 +
+        '" width="' +
+        app.canvasWidth / 2 +
+        '" height="' +
+        app.canvasHeight +
+        '" style="fill:rgb(255,0,0, 0.2);" />';
+    }
     svg_data += '</svg>';
 
     return svg_data;

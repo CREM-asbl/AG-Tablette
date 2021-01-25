@@ -8,7 +8,7 @@ export class CreateQuadrilateralAction extends Action {
     super('CreateQuadrilateralAction');
 
     // points of the shape to create
-    this.points = [];
+    this.coordinates = [];
 
     // name of the quadrilateral to create (rectangle, losange, parallélogramme, trapèze)
     this.quadrilateralName = null;
@@ -18,9 +18,8 @@ export class CreateQuadrilateralAction extends Action {
   }
 
   initFromObject(save) {
-    this.points = save.points;
+    this.coordinates = save.coordinates;
     this.quadrilateralName = save.quadrilateralName;
-    this.shapeId = save.shapeId;
   }
 
   /**
@@ -50,10 +49,6 @@ export class CreateQuadrilateralAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
-    this.points[0].name = 'firstPoint';
-    this.points[1].name = 'secondPoint';
-    this.points[2].name = 'thirdPoint';
-    this.points[3].name = 'fourthPoint';
 
     let familyName = '4-corner-shape';
     if (this.quadrilateralName == 'Square') {
@@ -62,19 +57,25 @@ export class CreateQuadrilateralAction extends Action {
       familyName = 'Irregular';
     }
 
+    let path = ['M', this.coordinates[0].x, this.coordinates[0].y];
+    path.push('L', this.coordinates[1].x, this.coordinates[1].y);
+    path.push('L', this.coordinates[2].x, this.coordinates[2].y);
+    path.push('L', this.coordinates[3].x, this.coordinates[3].y);
+    path.push('L', this.coordinates[0].x, this.coordinates[0].y);
+    path = path.join(' ');
+
     let shape = new Shape({
-      id: this.shapeId,
-      segments: [
-        new Segment(this.points[0], this.points[1]),
-        new Segment(this.points[1], this.points[2]),
-        new Segment(this.points[2], this.points[3]),
-        new Segment(this.points[3], this.points[0]),
-      ],
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: path,
       name: this.quadrilateralName,
       familyName: familyName,
     });
-    shape.setGeometryConstructionSpec();
-    ShapeManager.addShape(shape);
+
+    shape.points[0].name = 'firstPoint';
+    shape.points[1].name = 'secondPoint';
+    shape.points[2].name = 'thirdPoint';
+    shape.points[3].name = 'fourthPoint';
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**

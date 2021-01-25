@@ -42,7 +42,6 @@ export class BorderColorState extends State {
     );
 
     window.dispatchEvent(new CustomEvent('open-color-picker'));
-    // app.appDiv.shadowRoot.querySelector('#color-picker-label').click();
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
@@ -84,7 +83,7 @@ export class BorderColorState extends State {
     } else if (event.type == 'colorChange') {
       this.setColor(event.detail.color);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 

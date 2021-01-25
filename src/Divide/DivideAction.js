@@ -1,7 +1,6 @@
 import { Action } from '../Core/States/Action';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
+import { app } from '../Core/App';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 export class DivideAction extends Action {
   constructor() {
@@ -30,60 +29,75 @@ export class DivideAction extends Action {
     this.numberOfParts = save.numberOfParts;
     this.mode = save.mode;
     if (this.mode == 'twoPoints') {
-      this.firstPoint = new Point();
-      this.firstPoint.initFromObject(save.firstPoint);
-      this.secondPoint = new Point();
-      this.secondPoint.initFromObject(save.secondPoint);
+      this.firstPoint = app.mainDrawingEnvironment.findObjectById(
+        save.firstPointId,
+        'point'
+      );
+      this.secondPoint = app.mainDrawingEnvironment.findObjectById(
+        save.secondPointId,
+        'point'
+      );
     }
-    if (save.segment) {
-      this.segment = Segment.retrieveFrom(save.segment);
-    } else {
-      // for update history from 1.0.0
-      this.segment = ShapeManager.getShapeById(save.shapeId).segments[
-        save.segmentIndex
-      ];
-      if (this.mode == 'twoPoints') {
-        this.firstPoint.segment = this.segment;
-        this.secondPoint.segment = this.segment;
-      }
-    }
-    if (save.existingPoints) {
-      this.existingPoints = save.existingPoints.map(pt => {
-        return new Point(pt);
-      });
-    } else {
-      // for update history from 1.0.0
-      this.existingPoints = this.segment.points.map(pt => {
-        return new Point(pt);
-      });
-      if (this.mode == 'twoPoints') {
-        window.dispatchEvent(
-          new CustomEvent('update-history', {
-            detail: {
-              name: 'DivideAction',
-              mode: 'twoPoints',
-              firstPoint: this.firstPoint,
-              secondPoint: this.secondPoint,
-              numberOfParts: this.numberOfParts,
-              segment: this.segment,
-              existingPoints: this.existingPoints,
-            },
-          })
-        );
-      } else {
-        window.dispatchEvent(
-          new CustomEvent('update-history', {
-            detail: {
-              name: 'DivideAction',
-              mode: 'segment',
-              numberOfParts: this.numberOfParts,
-              segment: this.segment,
-              existingPoints: this.existingPoints,
-            },
-          })
-        );
-      }
-    }
+    this.segment = app.mainDrawingEnvironment.findObjectById(
+      save.segmentId,
+      'segment'
+    );
+    // if (this.mode == 'twoPoints') {
+    //   this.firstPoint = new Point();
+    //   this.firstPoint.initFromObject(save.firstPoint);
+    //   this.secondPoint = new Point();
+    //   this.secondPoint.initFromObject(save.secondPoint);
+    // }
+    // if (save.segment) {
+    //   this.segment = Segment.retrieveFrom(save.segment);
+    // } else {
+    //   // for update history from 1.0.0
+    //   this.segment = ShapeManager.getShapeById(save.shapeId).segments[
+    //     save.segmentIndex
+    //   ];
+    //   if (this.mode == 'twoPoints') {
+    //     this.firstPoint.segment = this.segment;
+    //     this.secondPoint.segment = this.segment;
+    //   }
+    // }
+
+    // if (save.existingPoints) {
+    //   this.existingPoints = save.existingPoints.map(pt => {
+    //     return new Point(pt);
+    //   });
+    // } else {
+    //   // for update history from 1.0.0
+    //   this.existingPoints = this.segment.points.map(pt => {
+    //     return new Point(pt);
+    //   });
+    //   if (this.mode == 'twoPoints') {
+    //     window.dispatchEvent(
+    //       new CustomEvent('update-history', {
+    //         detail: {
+    //           name: 'DivideAction',
+    //           mode: 'twoPoints',
+    //           firstPoint: this.firstPoint,
+    //           secondPoint: this.secondPoint,
+    //           numberOfParts: this.numberOfParts,
+    //           segment: this.segment,
+    //           existingPoints: this.existingPoints,
+    //         },
+    //       })
+    //     );
+    //   } else {
+    //     window.dispatchEvent(
+    //       new CustomEvent('update-history', {
+    //         detail: {
+    //           name: 'DivideAction',
+    //           mode: 'segment',
+    //           numberOfParts: this.numberOfParts,
+    //           segment: this.segment,
+    //           existingPoints: this.existingPoints,
+    //         },
+    //       })
+    //     );
+    //   }
+    // }
   }
 
   /**
@@ -151,33 +165,42 @@ export class DivideAction extends Action {
   }
 
   segmentModeAddArcPoints() {
+    this.firstPoint = this.segment.vertexes[0];
+    this.secondPoint = this.segment.vertexes[1];
+    this.segment.vertexes[1].ratio = 1;
+    this.segment.vertexes[0].ratio = 0;
+
     let shape = this.segment.shape,
       center = this.segment.arcCenter,
-      firstAngle = center.getAngle(this.segment.vertexes[0]),
-      secondAngle = center.getAngle(this.segment.vertexes[1]);
+      firstAngle = center.coordinates.angleWith(this.firstPoint.coordinates),
+      secondAngle = center.coordinates.angleWith(this.secondPoint.coordinates);
     if (this.segment.counterclockwise)
       [firstAngle, secondAngle] = [secondAngle, firstAngle];
-    if (this.segment.vertexes[0].equal(this.segment.vertexes[1]))
+    if (this.firstPoint.coordinates.equal(this.secondPoint.coordinates))
       secondAngle += 2 * Math.PI;
     else if (firstAngle > secondAngle) secondAngle += 2 * Math.PI;
 
     // Pour un cercle entier, on ajoute un point de division supplémentaire
-    if (shape.isCircle())
-      this.segment.addPoint(new Point(this.segment.vertexes[1]));
+    if (shape.isCircle()) this.segment.vertexes[0].visible = true;
+
+    let ratioCap =
+      (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
+    if (this.firstPoint.ratio == this.secondPoint.ratio)
+      ratioCap = 1 / this.numberOfParts;
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
 
     for (
-      let i = 1, nextPt = this.segment.vertexes[0];
+      let i = 1, coord = this.firstPoint.coordinates;
       i < this.numberOfParts;
       i++
     ) {
       const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
         newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
-      nextPt = nextPt.copy();
-      nextPt.setCoordinates({ x: newX, y: newY });
-      this.segment.addPoint(nextPt);
+      coord = new Coordinates({ x: newX, y: newY });
+      let ratio = this.firstPoint.ratio + i * ratioCap;
+      this.segment.addPoint(coord, ratio);
     }
   }
 
@@ -188,41 +211,41 @@ export class DivideAction extends Action {
   }
 
   pointsModeAddArcPoints() {
+    if (this.firstPoint.coordinates.equal(this.segment.vertexes[0].coordinates))
+      this.firstPoint.ratio = 0;
+    else if (
+      this.secondPoint.coordinates.equal(this.segment.vertexes[1].coordinates)
+    )
+      this.secondPoint.ratio = 1;
     let shape = this.segment.shape,
-      center = this.segment.arcCenter,
-      firstAngle = center.getAngle(this.firstPoint),
-      secondAngle = center.getAngle(this.secondPoint);
-    if (!shape.isCircle()) {
-      let firstVertexAngle = this.segment.arcCenter.getAngle(
-          this.segment.vertexes[0]
-        ),
-        secondVertexAngle = this.segment.arcCenter.getAngle(
-          this.segment.vertexes[1]
-        );
-      if (this.segment.counterclockwise)
-        [firstVertexAngle, secondVertexAngle] = [
-          secondVertexAngle,
-          firstVertexAngle,
-        ];
-      if (firstAngle < firstVertexAngle) firstAngle += Math.PI * 2;
-      if (secondAngle < firstVertexAngle) secondAngle += Math.PI * 2;
-      if (secondVertexAngle < firstVertexAngle)
-        secondVertexAngle += Math.PI * 2;
-      if ((secondAngle < firstAngle) ^ this.segment.counterclockwise) {
-        [firstAngle, secondAngle] = [secondAngle, firstAngle];
-      }
+      centerCoordinates = this.segment.arcCenter.coordinates,
+      firstAngle = centerCoordinates.angleWith(this.firstPoint.coordinates),
+      secondAngle = centerCoordinates.angleWith(this.secondPoint.coordinates);
+    if (secondAngle < firstAngle) {
+      secondAngle += Math.PI * 2;
     }
-    if (secondAngle < firstAngle) secondAngle += Math.PI * 2;
+    let ratioCap =
+      (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
+    if (shape.isCircle()) {
+      if (ratioCap < 0) ratioCap += 1 / this.numberOfParts;
+    }
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
 
-    for (let i = 1, nextPt = this.firstPoint; i < this.numberOfParts; i++) {
-      const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
-        newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
-      nextPt = nextPt.copy();
-      nextPt.setCoordinates({ x: newX, y: newY });
-      this.segment.addPoint(nextPt);
+    for (
+      let i = 1, coord = this.firstPoint.coordinates;
+      i < this.numberOfParts;
+      i++
+    ) {
+      const newX =
+          radius * Math.cos(firstAngle + partAngle * i) + centerCoordinates.x,
+        newY =
+          radius * Math.sin(firstAngle + partAngle * i) + centerCoordinates.y;
+      coord = new Coordinates({ x: newX, y: newY });
+      let ratio = this.firstPoint.ratio + i * ratioCap;
+      if (ratio > 1) ratio--;
+      this.segment.addPoint(coord, ratio);
     }
   }
 
@@ -233,23 +256,22 @@ export class DivideAction extends Action {
     if (this.firstPoint.ratio > this.secondPoint.ratio)
       [this.firstPoint, this.secondPoint] = [this.secondPoint, this.firstPoint];
 
-    this.ratioCap =
+    const ratioCap =
       (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
 
-    const segLength = this.secondPoint.subCoordinates(this.firstPoint),
-      part = new Point(
-        segLength.x / this.numberOfParts,
-        segLength.y / this.numberOfParts
-      );
+    const segLength = this.secondPoint.coordinates.substract(
+      this.firstPoint.coordinates
+    );
+    const part = segLength.multiply(1 / this.numberOfParts);
 
     for (
-      let i = 1, nextPt = this.firstPoint.copy();
+      let i = 1, coord = this.firstPoint.coordinates;
       i < this.numberOfParts;
       i++
     ) {
-      nextPt = nextPt.addCoordinates(part);
-      nextPt.ratio = this.firstPoint.ratio + i * this.ratioCap;
-      this.segment.addPoint(nextPt);
+      coord = coord.add(part);
+      let ratio = this.firstPoint.ratio + i * ratioCap;
+      this.segment.addPoint(coord, ratio);
     }
   }
 }

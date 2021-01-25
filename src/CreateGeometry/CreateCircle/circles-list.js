@@ -73,13 +73,14 @@ class CirclesList extends LitElement {
           ${this.circlesNames.map(
             circleName => html`
               <li>
-                <canvas-button
+                <icon-button
                   title="${circleName}"
-                  shapeName="${circleName}"
+                  type="Geometry"
+                  name="${circleName}"
                   @click="${this._clickHandle}"
                   ?active="${circleName === this.circleSelected}"
                 >
-                </canvas-button>
+                </icon-button>
               </li>
             `
           )}
@@ -89,7 +90,7 @@ class CirclesList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.circleSelected = event.target.shapeName;
+    this.circleSelected = event.target.name;
     window.dispatchEvent(
       new CustomEvent('circle-selected', {
         detail: { circleSelected: this.circleSelected },

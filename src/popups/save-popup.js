@@ -202,7 +202,7 @@ class SavePopup extends LitElement {
         break;
 
       default:
-        console.log(
+        console.error(
           'SavePopup: paramètre inconnu: ' +
             event.target.name +
             ' ' +

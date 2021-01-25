@@ -2,6 +2,7 @@ import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Text } from '../Core/Objects/Text';
 
 /**
  * Rendre une shape biface
@@ -33,6 +34,17 @@ export class BifaceState extends State {
    * initialiser l'état
    */
   start() {
+    app.mainDrawingEnvironment.shapes.map(s => {
+      if (s.isBiface) {
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          message: 'Biface',
+          type: 'biface',
+        });
+      }
+    });
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -47,6 +59,17 @@ export class BifaceState extends State {
    */
   restart() {
     this.end();
+    app.mainDrawingEnvironment.shapes.map(s => {
+      if (s.isBiface) {
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          message: 'Biface',
+          type: 'biface',
+        });
+      }
+    });
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -60,6 +83,7 @@ export class BifaceState extends State {
    * stopper l'état
    */
   end() {
+    app.upperDrawingEnvironment.removeAllObjects();
     app.removeListener('objectSelected', this.objectSelectedId);
   }
 
@@ -70,7 +94,7 @@ export class BifaceState extends State {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
@@ -90,25 +114,9 @@ export class BifaceState extends State {
     ];
 
     this.executeAction();
+    this.restart();
 
     window.dispatchEvent(new CustomEvent('refresh'));
-  }
-
-  /**
-   * Appelée par la fonction de dessin après avoir dessiné une forme sur le
-   * canvas principal
-   * @param  {Shape}  shape  La forme dessinée
-   */
-  shapeDrawn(shape) {
-    const biface = shape.isBiface,
-      center = shape.center,
-      pos = { x: center.x, y: center.y };
-    if (biface) {
-      window.dispatchEvent(
-        new CustomEvent('draw-text', {
-          detail: { ctx: app.mainCtx, text: 'Biface', position: pos },
-        })
-      );
-    }
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 }

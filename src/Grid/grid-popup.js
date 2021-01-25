@@ -47,12 +47,22 @@ class GridPopup extends LitElement {
                 Carrés
               </option>
               <option
-                value=${app.environment.name == 'Cubes'
-                  ? 'vertical-triangle'
-                  : 'horizontal-triangle'}
-                ?selected=${this.gridType.endsWith('triangle')}
+                style=${app.environment.name == 'Cubes' ? 'display:none' : ''}
+                value="horizontal-triangle"
+                ?selected=${this.gridType === 'horizontal-triangle'}
               >
-                Triangles
+                ${app.environment.name == 'Geometrie'
+                  ? 'Triangles'
+                  : 'Triangles 1'}
+              </option>
+              <option
+                style=${app.environment.name == 'Geometrie'
+                  ? 'display:none'
+                  : ''}
+                value="vertical-triangle"
+                ?selected=${this.gridType === 'vertical-triangle'}
+              >
+                ${app.environment.name == 'Cubes' ? 'Triangles' : 'Triangles 2'}
               </option>
             </select>
           </div>
@@ -119,7 +129,7 @@ class GridPopup extends LitElement {
         break;
 
       default:
-        console.log(
+        console.error(
           'Grid popup: paramètre inconnu: ' +
             event.target.name +
             ' ' +

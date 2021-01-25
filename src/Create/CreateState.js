@@ -1,24 +1,23 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Ajout de formes sur l'espace de travail
  */
 export class CreateState extends State {
   constructor() {
-    super('create_shape', 'Ajouter une forme');
+    super('createShape', 'Ajouter une forme');
 
     // show-family-shape -> listen-canvas-click -> moving-shape
     this.currentStep = null;
 
     this.selectedFamily = null;
 
-    this.selectedShape = null;
+    this.selectedTemplate = null;
 
     this.shapeToCreate = null;
   }
@@ -49,13 +48,10 @@ export class CreateState extends State {
   start(family) {
     this.currentStep = 'show-family-shapes';
     this.selectedFamily = family;
-    const shapesNames = app.environment.getFamily(family).getShapesNames();
+    const templateNames = app.environment.getFamily(family).templateNames;
 
-    if (shapesNames.length === 1) {
-      const shapeRef = app.environment
-        .getFamily(this.selectedFamily)
-        .getShape(shapesNames[0]);
-      this.setShape(shapeRef.saveToObject());
+    if (templateNames.length === 1) {
+      this.selectTemplate(templateNames[0]);
       return;
     }
 
@@ -64,7 +60,7 @@ export class CreateState extends State {
       this.shapesList = createElem('shapes-list');
     }
     this.shapesList.selectedFamily = family;
-    this.shapesList.shapesNames = shapesNames;
+    this.shapesList.templateNames = templateNames;
     this.shapesList.style.display = 'flex';
 
     window.dispatchEvent(
@@ -73,7 +69,7 @@ export class CreateState extends State {
       })
     );
 
-    window.addEventListener('shape-selected', this.handler);
+    window.addEventListener('select-template', this.handler);
   }
 
   /**
@@ -90,18 +86,18 @@ export class CreateState extends State {
         detail: { selectedFamily: this.selectedFamily },
       })
     );
-    if (this.selectedShape) {
+    if (this.templateName) {
       this.currentStep = 'listen-canvas-click';
       window.dispatchEvent(
-        new CustomEvent('shape-selected', {
-          detail: { selectedShape: this.selectedShape },
+        new CustomEvent('select-template', {
+          detail: { templateName: this.templateName },
         })
       );
     } else {
       this.currentStep = 'show-family-shapes';
     }
 
-    window.addEventListener('shape-selected', this.handler);
+    window.addEventListener('select-template', this.handler);
     this.mouseDownId = app.addListener('canvasmousedown', this.handler);
   }
 
@@ -113,8 +109,8 @@ export class CreateState extends State {
       if (this.shapesList) this.shapesList.remove();
       this.shapesList = null;
     }
-    window.cancelAnimationFrame(this.requestAnimFrameId);
-    window.removeEventListener('shape-selected', this.handler);
+    this.stopAnimation();
+    window.removeEventListener('select-template', this.handler);
     app.removeListener('canvasmousedown', this.mouseDownId);
     app.removeListener('canvasmouseup', this.mouseUpId);
     window.dispatchEvent(
@@ -126,21 +122,24 @@ export class CreateState extends State {
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'shape-selected') {
-      this.setShape(event.detail.selectedShape);
+    if (event.type == 'select-template') {
+      this.selectTemplate(event.detail.templateName);
     } else if (event.type == 'canvasmousedown') {
       this.onMouseDown();
     } else if (event.type == 'canvasmouseup') {
       this.onMouseUp();
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
-  setShape(selectedShape) {
-    if (selectedShape) {
-      this.selectedShape = selectedShape;
-      if (this.shapesList) this.shapesList.shapeName = selectedShape.name;
+  selectTemplate(templateName) {
+    if (templateName) {
+      this.templateName = templateName;
+      this.selectedTemplate = app.environment
+        .getFamily(this.selectedFamily)
+        .getTemplate(templateName);
+      // if (this.shapesList) this.shapesList.shapeName = selectedTemplate.name;
       this.currentStep = 'listen-canvas-click';
       this.mouseDownId = app.addListener('canvasmousedown', this.handler);
     }
@@ -148,11 +147,16 @@ export class CreateState extends State {
 
   onMouseDown() {
     if (this.currentStep != 'listen-canvas-click') return;
-    this.shapeToCreate = new Shape({ ...this.selectedShape, id: undefined });
+    this.shapeToCreate = new Shape({
+      ...this.selectedTemplate,
+      drawingEnvironment: app.upperDrawingEnvironment,
+    });
     let shapeSize = app.settings.get('shapesSize');
 
     this.shapeToCreate.size = shapeSize;
     this.shapeToCreate.scale(shapeSize);
+
+    this.currentShapePos = Coordinates.nullCoordinates;
 
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
@@ -164,53 +168,32 @@ export class CreateState extends State {
   onMouseUp() {
     if (this.currentStep != 'moving-shape') return;
 
-    let shapeSize = app.settings.get('shapesSize'),
-      involvedShapes = [this.shapeToCreate];
-
-    const lastCoordinates = new Point(app.workspace.lastKnownMouseCoordinates);
-    // lastCoordinates.resetFromCanvasCoordinates();
-    this.shapeToCreate.coordinates = lastCoordinates;
+    let shapeSize = app.settings.get('shapesSize');
 
     this.actions = [
       {
         name: 'CreateAction',
-        shapeToCreate: this.shapeToCreate,
+        selectedTemplate: this.selectedTemplate,
+        coordinates: app.workspace.lastKnownMouseCoordinates,
         shapeId: this.shapeToCreate.id,
         shapeSize: shapeSize,
       },
     ];
 
-    let transformation = getShapeAdjustment(involvedShapes, this.shapeToCreate);
-    if (transformation.rotation != 0) {
-      let rotateAction = {
-        name: 'RotateAction',
-        shapeId: this.shapeToCreate.id,
-        involvedShapesIds: involvedShapes.map(s => s.id),
-        rotationAngle: transformation.rotation,
-      };
-      this.actions.push(rotateAction);
-    }
-    if (transformation.move.x != 0 || transformation.move.y != 0) {
-      let moveAction = {
-        name: 'MoveAction',
-        shapeId: this.shapeToCreate.id,
-        involvedShapesIds: involvedShapes.map(s => s.id),
-        transformation: transformation.move,
-      };
-      this.actions.push(moveAction);
-    }
     this.executeAction();
     this.restart();
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
-  draw() {
-    if (this.currentStep != 'moving-shape') return;
-
-    this.shapeToCreate.coordinates = app.workspace.lastKnownMouseCoordinates;
-    window.dispatchEvent(
-      new CustomEvent('draw-shape', { detail: { shape: this.shapeToCreate } })
-    );
+  refreshStateUpper() {
+    if (this.currentStep != 'moving-shape') {
+      app.upperDrawingEnvironment.removeAllObjects();
+    } else {
+      this.shapeToCreate.translate(
+        app.workspace.lastKnownMouseCoordinates.substract(this.currentShapePos)
+      );
+      this.currentShapePos = app.workspace.lastKnownMouseCoordinates;
+    }
   }
 }

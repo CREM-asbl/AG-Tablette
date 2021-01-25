@@ -151,14 +151,6 @@ export function mod(x, n) {
   return ((x % n) + n) % n;
 }
 
-export function printCoord(msg, coord) {
-  console.log(
-    msg + ' ',
-    parseInt(coord.x * 1000) / 1000,
-    parseInt(coord.y * 1000) / 1000
-  );
-}
-
 /**
  * create an element and add it to document
  * @param {String} name  name of the element to create

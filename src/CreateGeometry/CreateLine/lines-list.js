@@ -14,7 +14,7 @@ class LinesList extends LitElement {
       'StraightLine',
       'ParalleleStraightLine',
       'PerpendicularStraightLine',
-      'Strip',
+      // 'Strip',
     ];
   }
 
@@ -84,13 +84,14 @@ class LinesList extends LitElement {
           ${this.linesNames.map(
             lineName => html`
               <li>
-                <canvas-button
+                <icon-button
                   title="${lineName}"
-                  shapeName="${lineName}"
+                  type="Geometry"
+                  name="${lineName}"
                   @click="${this._clickHandle}"
                   ?active="${lineName === this.lineSelected}"
                 >
-                </canvas-button>
+                </icon-button>
               </li>
             `
           )}
@@ -100,7 +101,7 @@ class LinesList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.lineSelected = event.target.shapeName;
+    this.lineSelected = event.target.name;
     window.dispatchEvent(
       new CustomEvent('line-selected', {
         detail: { lineSelected: this.lineSelected },

@@ -59,8 +59,21 @@ export class BackgroundColorAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
+    let mustChangeOpacity = false;
+
+    // setOpacity quand transparent
+    if (
+      this.involvedShapesIds.some(sId => {
+        let s = ShapeManager.getShapeById(sId);
+        return s.opacity != 1;
+      })
+    ) {
+      mustChangeOpacity = true;
+    }
+
     this.involvedShapesIds.forEach(id => {
       let s = ShapeManager.getShapeById(id);
+      if (mustChangeOpacity) s.opacity = 0.7;
       s.color = this.selectedColor;
       s.second_color = getComplementaryColor(s.color);
     });

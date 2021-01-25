@@ -3,6 +3,8 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { createElem } from '../Core/Tools/general';
 import { Segment } from '../Core/Objects/Segment';
+import { Shape } from '../Core/Objects/Shape';
+import { Point } from '../Core/Objects/Point';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -55,9 +57,6 @@ export class DivideState extends State {
     let popup = createElem('divide-popup');
     popup.parts = this.numberOfParts;
 
-    this.setSelectionConstraints();
-
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('setNumberOfParts', this.handler);
   }
 
@@ -106,30 +105,64 @@ export class DivideState extends State {
     } else if (event.type == 'setNumberOfParts') {
       this.setNumberOfparts(event.detail.nbOfParts);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
-  }
-
-  setSelectionConstraints() {
-    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-    app.workspace.selectionConstraints.eventType = 'click';
-    app.workspace.selectionConstraints.segments.canSelect = true;
-    app.workspace.selectionConstraints.segments.blacklist = app.workspace.shapes.filter(
-      s => s.isStraightLine() || s.isSemiStraightLine()
-    );
-    app.workspace.selectionConstraints.points.canSelect = true;
-    app.workspace.selectionConstraints.points.blacklist = app.workspace.shapes.filter(
-      s => s.isStraightLine() || s.isSemiStraightLine()
-    );
-    app.workspace.selectionConstraints.points.types = [
-      'vertex',
-      'segmentPoint',
-    ];
   }
 
   setNumberOfparts(parts) {
     this.numberOfParts = parseInt(parts);
     this.currentStep = 'listen-canvas-click';
+    this.setSelectionConstraints();
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
+  setSelectionConstraints() {
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.points.types = [
+      'vertex',
+      'divisionPoint',
+    ];
+    if (this.currentStep == 'listen-canvas-click') {
+      app.workspace.selectionConstraints.segments.canSelect = true;
+      app.workspace.selectionConstraints.segments.blacklist = app.mainDrawingEnvironment.shapes
+        .filter(s => s.isStraightLine() || s.isSemiStraightLine())
+        .map(s => {
+          return { shapeId: s.id };
+        });
+      app.workspace.selectionConstraints.points.canSelect = true;
+      app.workspace.selectionConstraints.points.blacklist = app.mainDrawingEnvironment.shapes
+        .filter(s => s.isStraightLine() || s.isSemiStraightLine())
+        .map(s => {
+          return { shapeId: s.id };
+        });
+    } else if (this.currentStep == 'select-second-point') {
+      app.workspace.selectionConstraints.points.canSelect = true;
+      let firstPoint = app.mainDrawingEnvironment.findObjectById(
+        this.actions[0].firstPointId,
+        'point'
+      );
+      let segments = firstPoint.segmentIds.map(segId =>
+        app.mainDrawingEnvironment.findObjectById(segId, 'segment')
+      );
+      let potentialPoints = segments.map(seg => seg.vertexes).flat(); // attention, on a 2x firstPoint dans les points potentiels
+      // add vertexes to whitelist
+      app.workspace.selectionConstraints.points.whitelist = potentialPoints.map(
+        pt => {
+          return { shapeId: firstPoint.shapeId, type: 'vertex', index: pt.idx };
+        }
+      );
+      // add divisionPoints to whitelist
+      app.workspace.selectionConstraints.points.whitelist.push(
+        ...segments.map(seg => {
+          return {
+            shapeId: firstPoint.shapeId,
+            type: 'divisionPoint',
+            index: seg.idx,
+          };
+        })
+      );
+    }
   }
 
   /**
@@ -151,25 +184,38 @@ export class DivideState extends State {
           {
             name: 'DivideAction',
             mode: 'segment',
-            segment: object,
+            segmentId: object.id,
           },
         ];
+
+        new Shape({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          borderColor: this.drawColor,
+          borderSize: 3,
+          path: object.getSVGPath('no scale', undefined, true),
+          id: undefined,
+          color: '#0000',
+        });
+
         this.currentStep = 'showing-segment';
       } else {
         this.actions = [
           {
             name: 'DivideAction',
             mode: 'twoPoints',
-            firstPoint: object,
+            firstPointId: object.id,
           },
         ];
         this.currentStep = 'select-second-point';
 
-        //Liste des points que l'on peut sélectionner comme 2ème point:
-        let pointsList = this.getCandidatePoints(object);
+        new Point({
+          coordinates: object.coordinates,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          color: this.drawColor,
+          size: 2,
+        });
 
-        app.workspace.selectionConstraints.segments.canSelect = false;
-        app.workspace.selectionConstraints.points.whitelist = pointsList;
+        this.setSelectionConstraints();
 
         window.dispatchEvent(new CustomEvent('refresh'));
         window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -177,52 +223,123 @@ export class DivideState extends State {
       }
     } else {
       // select-second-point
-      let pt1 = this.actions[0].firstPoint;
+      let pt1 = app.mainDrawingEnvironment.findObjectById(
+        this.actions[0].firstPointId,
+        'point'
+      );
 
-      if (
-        pt1.type == object.type &&
-        pt1.segment.idx == object.segment.idx &&
-        (pt1.pointType == 'vertex' || pt1.equal(object))
-      ) {
+      if (pt1.id == object.id) {
         // pt1 = object => désélectionner le point.
         this.currentStep = 'listen-canvas-click';
+        app.upperDrawingEnvironment.removeObjectById(
+          app.upperDrawingEnvironment.points[0].id,
+          'point'
+        );
         this.actions = null;
 
-        //reset selection constraints:
-        app.workspace.selectionConstraints.segments.canSelect = true;
-        app.workspace.selectionConstraints.points.whitelist = null;
+        this.setSelectionConstraints();
 
         window.dispatchEvent(new CustomEvent('refresh'));
         window.dispatchEvent(new CustomEvent('refreshUpper'));
         return;
-      } else if (pt1.type == 'vertex' && object.type == 'vertex') {
-        /*
-            Vérifie s'il y a une ambiguité sur l'action à réaliser: si les 2
-            poins sont reliés par un arc de cercle, et aussi par un segment (la
-            forme est donc constituée uniquement de 2 sommets, un segment et un
-            arc de cercle), on annulle l'action.
-             */
-        let segments = object.shape.segments;
-        if (
-          segments.length == 2 &&
-          segments[0].contains(pt1) &&
-          segments[1].contains(pt1) &&
-          segments[0].contains(object) &&
-          segments[1].contains(object)
-        ) {
-          console.log('ambiguité, ne rien faire');
-          this.restart();
-
-          window.dispatchEvent(new CustomEvent('refresh'));
-          window.dispatchEvent(new CustomEvent('refreshUpper'));
-          return;
-        } else {
-          this.actions[0].secondPoint = object;
-          this.currentStep = 'showing-points';
-        }
       } else {
-        this.actions[0].secondPoint = object;
+        if (pt1.type == 'vertex' && object.type == 'vertex') {
+          /*
+              Vérifie s'il y a une ambiguité sur l'action à réaliser: si les 2
+              poins sont reliés par un arc de cercle, et aussi par un segment (la
+              forme est donc constituée uniquement de 2 sommets, un segment et un
+              arc de cercle), on annule l'action.
+               */
+          if (
+            (pt1.segmentIds[0] == object.segmentIds[0] &&
+              pt1.segmentIds[1] == object.segmentIds[1]) ||
+            (pt1.segmentIds[0] == object.segmentIds[1] &&
+              pt1.segmentIds[1] == object.segmentIds[0])
+          ) {
+            console.warn('ambiguité, ne rien faire');
+            app.upperDrawingEnvironment.removeAllObjects();
+            this.restart();
+
+            window.dispatchEvent(new CustomEvent('refresh'));
+            window.dispatchEvent(new CustomEvent('refreshUpper'));
+            return;
+          }
+        }
+        this.actions[0].secondPointId = object.id;
         this.currentStep = 'showing-points';
+
+        new Point({
+          coordinates: object.coordinates,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          color: this.drawColor,
+          size: 2,
+        });
+
+        let firstCoordinates = pt1.coordinates,
+          secondCoordinates = object.coordinates;
+        let commonSegment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
+          this.actions[0].firstPointId,
+          this.actions[0].secondPointId
+        );
+        let shape = object.shape;
+        let path = [
+          'M',
+          firstCoordinates.x,
+          firstCoordinates.y,
+          'L',
+          secondCoordinates.x,
+          secondCoordinates.y,
+        ].join(' ');
+        if (commonSegment.isArc()) {
+          if (!shape.isCircle()) {
+            commonSegment.vertexes[0].ratio = 0;
+            commonSegment.vertexes[1].ratio = 1;
+            if ((pt1.ratio > object.ratio) ^ commonSegment.counterclockwise) {
+              [this.actions[0].firstPointId, this.actions[0].secondPointId] = [
+                this.actions[0].secondPointId,
+                this.actions[0].firstPointId,
+              ];
+              [firstCoordinates, secondCoordinates] = [
+                secondCoordinates,
+                firstCoordinates,
+              ];
+            }
+          }
+          let centerCoordinates = commonSegment.arcCenter.coordinates,
+            firstAngle = centerCoordinates.angleWith(firstCoordinates),
+            secondAngle = centerCoordinates.angleWith(secondCoordinates);
+          if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+          let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+            sweepFlag = 1;
+          // if (shape.isCircle()) {
+          //   if (this.counterclockwise) {
+          //     sweepFlag = Math.abs(sweepFlag - 1);
+          //     largeArcFlag = Math.abs(largeArcFlag - 1);
+          //   }
+          // }
+          path = [
+            'M',
+            firstCoordinates.x,
+            firstCoordinates.y,
+            'A',
+            commonSegment.radius,
+            commonSegment.radius,
+            0,
+            largeArcFlag,
+            sweepFlag,
+            secondCoordinates.x,
+            secondCoordinates.y,
+          ].join(' ');
+        }
+
+        new Shape({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          borderColor: this.drawColor,
+          borderSize: 3,
+          path: path,
+          id: undefined,
+          color: '#0000',
+        });
       }
     }
 
@@ -237,113 +354,18 @@ export class DivideState extends State {
   execute() {
     this.actions[0].numberOfParts = this.numberOfParts;
     if (this.actions[0].mode == 'twoPoints') {
-      let pt1 = this.actions[0].firstPoint,
-        pt2 = this.actions[0].secondPoint;
-      if (pt1.type == 'segmentPoint') this.actions[0].segment = pt1.segment;
-      else if (pt2.type == 'segmentPoint')
-        this.actions[0].segment = pt2.segment;
-      else {
-        this.actions[0].segment =
-          (Math.abs(pt2.segment.idx - pt1.segment.idx) > 1) ^ // si premier et dernier segment
-          (pt1.segment.idx > pt2.segment.idx)
-            ? pt1.segment
-            : pt2.segment;
-      }
+      let segment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
+        this.actions[0].firstPointId,
+        this.actions[0].secondPointId
+      );
+      this.actions[0].segmentId = segment.id;
     }
-    this.actions[0].existingPoints = [...this.actions[0].segment.points];
+    // this.actions[0].existingPoints = [...this.actions[0].segment.divisionPoints];
     this.executeAction();
+    app.upperDrawingEnvironment.removeAllObjects();
     this.restart();
 
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
-  }
-
-  /**
-   * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   */
-  draw() {
-    if (this.currentStep == 'select-second-point') {
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: {
-            point: this.actions[0].firstPoint,
-            color: this.drawColor,
-            size: 2,
-          },
-        })
-      );
-    }
-    if (this.currentStep == 'showing-points') {
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: {
-            point: this.actions[0].firstPoint,
-            color: this.drawColor,
-            size: 2,
-          },
-        })
-      );
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: {
-            point: this.actions[0].secondPoint,
-            color: this.drawColor,
-            size: 2,
-          },
-        })
-      );
-    }
-    if (this.currentStep == 'showing-segment') {
-      let segment = this.actions[0].segment;
-
-      window.dispatchEvent(
-        new CustomEvent('draw-segment', {
-          detail: {
-            segment: segment,
-            color: this.drawColor,
-            size: 3,
-          },
-        })
-      );
-    }
-  }
-
-  /**
-   * Calcule la liste des points que l'on peut sélectionner comme 2ème point
-   * @return {[Object]} Liste de points
-   */
-  getCandidatePoints(object) {
-    const shape = object.shape;
-
-    const concerned_segments = object.shape.segments.filter(seg =>
-      seg.contains(object)
-    );
-
-    let candidates = [];
-
-    concerned_segments.forEach(seg => {
-      if (!seg) return;
-      object.shape.segments.forEach(segment => {
-        const vertex = segment.vertexes[1];
-        if (
-          seg.contains(vertex) &&
-          !candidates.some(
-            candi => candi.type == 'vertex' && candi.index == segment.idx
-          )
-        )
-          candidates.push({
-            shape: shape,
-            type: 'vertex',
-            index: segment.idx,
-          });
-      });
-      candidates.push({
-        shape: shape,
-        type: 'segmentPoint',
-        index: seg.idx,
-      });
-    });
-
-    return candidates;
   }
 }

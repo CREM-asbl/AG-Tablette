@@ -1,7 +1,9 @@
 import { app } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
 import { Shape } from './Core/Objects/Shape';
-import { Point } from './Core/Objects/Point';
+import { Bounds } from './Core/Objects/Bounds';
+import { Coordinates } from './Core/Objects/Coordinates';
+import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
 
 //A quoi sert silhouetteidx ?
 //Les canvas-button sont utilisés dans tangram ?
@@ -10,9 +12,8 @@ class CanvasButton extends LitElement {
   static get properties() {
     return {
       familyName: String,
-      shapeName: String,
+      templateName: String,
       silhouetteIdx: String,
-      name: String,
     };
   }
 
@@ -42,81 +43,73 @@ class CanvasButton extends LitElement {
     return html` <canvas id="canvas" width="52px" height="52px"></canvas> `;
   }
 
+  firstUpdated() {
+    const canvas = this.shadowRoot.querySelector('canvas');
+
+    this.drawingEnvironment = new DrawingEnvironment(canvas);
+    this.drawingEnvironment.mustDrawPoints = false;
+    this.drawingEnvironment.mustScaleShapes = false;
+  }
+
   updated() {
     this.refresh();
   }
 
   /**
-   * dessine l'image sur le bouton
+   * call when the user change the selected family
    */
   refresh() {
-    let shapes, family, scale, center;
+    this.drawingEnvironment.removeAllObjects();
 
-    if (this.silhouetteIdx == undefined) {
-      family = app.environment.families.find(
-        fam => fam.name == this.familyName
-      );
-      shapes = [
-        family.shapes.find(shape => shape.name === this.shapeName) ||
-          family.shapes[0],
+    let shapeTemplates, family, scale, center;
+
+    if (this.silhouetteIdx === undefined) {
+      family = app.environment.getFamily(this.familyName);
+      shapeTemplates = [
+        family.shapeTemplates.find(
+          template => template.name === this.templateName
+        ) || family.shapeTemplates[0],
       ];
     } else {
-      shapes = app.CremTangrams[this.silhouetteIdx].silhouetteData.shapes.map(
-        s => new Shape(s)
-      );
+      shapeTemplates =
+        app.CremTangrams[this.silhouetteIdx].silhouetteData.shapesData;
     }
 
-    if (shapes.length == 1 && shapes[0].isCircle()) {
+    this.shapes = shapeTemplates.map(
+      template =>
+        new Shape({
+          ...template,
+          drawingEnvironment: this.drawingEnvironment,
+          opacity: 1,
+        })
+    );
+
+    if (this.shapes.length == 1 && this.shapes[0].isCircle()) {
       scale = 0.42; // arbitraire
-      center = shapes[0].segments[0].arcCenter;
+      center = this.shapes[0].segments[0].arcCenter.coordinates;
     } else {
-      let minsX = [],
-        maxsX = [],
-        minsY = [],
-        maxsY = [];
-      shapes.forEach(s => {
-        const bounds = s.bounds;
-        minsX.push(bounds[0]);
-        maxsX.push(bounds[1]);
-        minsY.push(bounds[2]);
-        maxsY.push(bounds[3]);
-      });
-      const minX = Math.min(...minsX),
-        maxX = Math.max(...maxsX),
-        minY = Math.min(...minsY),
-        maxY = Math.max(...maxsY),
-        largeur = maxX - minX,
-        hauteur = maxY - minY;
+      let shapeBounds = this.shapes.map(s => s.bounds);
+      let totalBounds = Bounds.getOuterBounds(...shapeBounds);
+      const largeur = totalBounds.maxX - totalBounds.minX,
+        hauteur = totalBounds.maxY - totalBounds.minY;
       scale = 40 / Math.max(largeur, hauteur);
-      center = new Point(
-        (minX + largeur / 2) * scale,
-        (minY + hauteur / 2) * scale
-      );
+      center = new Coordinates({
+        x: (totalBounds.minX + largeur / 2) * scale,
+        y: (totalBounds.minY + hauteur / 2) * scale,
+      });
     }
 
-    const centerOffset = new Point(26 - center.x, 26 - center.y);
+    const centerOffset = new Coordinates({
+      x: 26 - center.x,
+      y: 26 - center.y,
+    });
 
-    const canvas = this.shadowRoot.querySelector('canvas'),
-      ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.translate(centerOffset.x, centerOffset.y);
-    ctx.scale(scale, scale);
+    this.shapes.forEach(s => {
+      s.scale(scale);
+      s.translate(centerOffset);
+    });
 
-    if (this.silhouetteIdx == undefined) {
-      ctx.strokeStyle = '#000';
-      ctx.fillStyle = shapes[0].color || family.defaultColor;
-      const path = new Path2D(shapes[0].getSVGPath('no scale'));
-      ctx.fill(path);
-      ctx.stroke(path);
-    } else {
-      shapes.forEach(s =>
-        window.dispatchEvent(
-          new CustomEvent('draw-shape', { detail: { ctx: ctx, shape: s } })
-        )
-      );
-    }
-    ctx.restore();
+    this.drawingEnvironment.draw();
   }
 
   /**

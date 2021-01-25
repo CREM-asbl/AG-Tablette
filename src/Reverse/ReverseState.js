@@ -3,6 +3,8 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
+import { Shape } from '../Core/Objects/Shape';
+import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 
 /**
@@ -30,7 +32,9 @@ export class ReverseState extends State {
     //Couleur des axes de symétrie
     this.symmetricalAxeColor = '#080';
 
-    this.axeAngle = null;
+    this.axis = [];
+
+    this.axisAngle = null;
 
     //Longueur en pixels des 4 arcs de symétrie
     this.symmetricalAxeLength = 200;
@@ -77,14 +81,13 @@ export class ReverseState extends State {
    */
   restart() {
     this.end();
-    if (this.currentStep == 'selecting-symmetrical-arch') {
+    if (this.currentStep == 'selecting-symmetry-axis') {
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
       app.workspace.selectionConstraints.points.blacklist = [
         this.selectedShape,
       ];
-      this.mouseClickId = app.addListener('canvasclick', this.handler);
     } else {
       setTimeout(
         () =>
@@ -93,7 +96,6 @@ export class ReverseState extends State {
       );
     }
 
-    this.mouseClickId = app.addListener('canvasclick', this.handler);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -101,15 +103,15 @@ export class ReverseState extends State {
    * stopper l'état
    */
   end() {
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
+    app.upperDrawingEnvironment.removeAllObjects();
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
       this.selectedShape = null;
-      app.workspace.editingShapesIds = [];
+      app.mainDrawingEnvironment.editingShapeIds = [];
     }
 
     app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasclick', this.mouseClickId);
   }
 
   /**
@@ -118,132 +120,188 @@ export class ReverseState extends State {
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
-    } else if (event.type == 'canvasclick') {
-      this.onClick();
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
   /**
    * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
-   * @param  {Shape} shape            La forme sélectionnée
+   * @param  {Object} object            La forme sélectionnée
    */
-  objectSelected(shape) {
+  objectSelected(object) {
     if (this.currentStep == 'reversing-shape') return;
     if (
-      this.selectedShape &&
-      (this.selectedShape.id == shape.id ||
-        app.workspace.lastKnownMouseCoordinates.dist(
-          this.selectedShape.center
-        ) < this.symmetricalAxeLength)
-    )
-      return;
+      this.currentStep == 'selecting-symmetry-axis' &&
+      object instanceof Segment
+    ) {
+      this.axis
+        .filter(axis => axis.id != object.shape.id)
+        .forEach(axis =>
+          app.upperDrawingEnvironment.removeObjectById(axis.id, 'shape')
+        );
 
-    this.selectedShape = shape;
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+      this.startTime = Date.now();
+      this.selectedAxis = object;
+      this.axisAngle = this.selectedAxis.getAngleWithHorizontal();
 
-    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-    app.workspace.selectionConstraints.eventType = 'click';
-    app.workspace.selectionConstraints.shapes.canSelect = true;
-    app.workspace.selectionConstraints.points.blacklist = [shape];
+      this.drawingShapes.forEach(shape => {
+        shape.segments.forEach(seg => {
+          if (seg.arcCenter) {
+            let tangentCoord1 = seg.centerProjectionOnSegment(this.axisAngle);
+            let tangentPoint1 = new Point({
+              drawingEnvironment: app.upperDrawingEnvironment,
+              coordinates: tangentCoord1,
+              startCoordinates: new Coordinates(tangentCoord1),
+              endCoordinates: new Coordinates({
+                x: tangentCoord1.x + 2 * (seg.arcCenter.x - tangentCoord1.x),
+                y: tangentCoord1.y + 2 * (seg.arcCenter.y - tangentCoord1.y),
+              }),
+              visible: false,
+            });
+            seg.tangentPoint1 = tangentPoint1;
 
-    app.removeListener('canvasclick', this.mouseClickId);
-    window.setTimeout(
-      () => (this.mouseClickId = app.addListener('canvasclick', this.handler))
-    );
-    this.currentStep = 'selecting-symmetrical-arch';
-    app.workspace.editingShapesIds = this.involvedShapes.map(s => s.id);
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('refresh'));
-  }
+            let tangentCoord2 = seg.centerProjectionOnSegment(
+              this.axisAngle + Math.PI / 2
+            );
+            let tangentPoint2 = new Point({
+              drawingEnvironment: app.upperDrawingEnvironment,
+              coordinates: tangentCoord2,
+              startCoordinates: new Coordinates(tangentCoord2),
+              endCoordinates: new Coordinates({
+                x: tangentCoord2.x + 2 * (seg.arcCenter.x - tangentCoord2.x),
+                y: tangentCoord2.y + 2 * (seg.arcCenter.y - tangentCoord2.y),
+              }),
+              visible: false,
+            });
+            seg.tangentPoint2 = tangentPoint2;
 
-  onClick() {
-    if (this.currentStep != 'selecting-symmetrical-arch') return;
-
-    let clickDistance = this.selectedShape.center.dist(
-      app.workspace.lastKnownMouseCoordinates
-    );
-    if (clickDistance > this.symmetricalAxeLength / 2) return;
-
-    let shapeCenter = this.selectedShape.center,
-      angle =
-        shapeCenter.getAngle(app.workspace.lastKnownMouseCoordinates) % Math.PI;
-
-    let symmetricalAxeOrientation;
-    if (angle <= Math.PI / 8 || angle > (7 * Math.PI) / 8)
-      symmetricalAxeOrientation = 'H';
-    else if (angle > Math.PI / 8 && angle <= (3 * Math.PI) / 8)
-      symmetricalAxeOrientation = 'NW';
-    else if (angle > (3 * Math.PI) / 8 && angle <= (5 * Math.PI) / 8)
-      symmetricalAxeOrientation = 'V';
-    else symmetricalAxeOrientation = 'SW';
-
-    this.currentStep = 'reversing-shape';
-    this.startTime = Date.now();
-    this.axe = this.getSymmetricalAxe(symmetricalAxeOrientation);
-    this.axeAngle = this.axe.vertexes[0].getAngle(this.axe.vertexes[1]);
-
-    this.involvedShapes.forEach(shape => {
-      shape.segments.forEach(seg => {
-        if (seg.arcCenter) {
-          seg.tangentPoint1 = seg.centerProjectionOnSegment(this.axeAngle);
-          seg.tangentPoint2 = seg.centerProjectionOnSegment(
-            this.axeAngle + Math.PI / 2
-          );
-        }
+            seg.axisAngle = this.axisAngle;
+          }
+        });
       });
-    });
 
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('reverse-animation'));
-    this.animate();
+      app.upperDrawingEnvironment.points.forEach(point => {
+        let center = this.selectedAxis.projectionOnSegment(point);
+
+        point.startCoordinates = new Coordinates(point.coordinates);
+        point.endCoordinates = new Coordinates({
+          x: point.x + 2 * (center.x - point.x),
+          y: point.y + 2 * (center.y - point.y),
+        });
+      });
+
+      this.currentStep = 'reversing-shape';
+
+      window.dispatchEvent(new CustomEvent('refresh'));
+      window.dispatchEvent(new CustomEvent('reverse-animation'));
+      this.animate();
+    } else if (object instanceof Shape) {
+      this.selectedShape = object;
+      this.center = this.selectedShape.centerCoordinates;
+      this.involvedShapes = ShapeManager.getAllBindedShapes(
+        this.selectedShape,
+        true
+      );
+
+      app.upperDrawingEnvironment.removeAllObjects();
+      this.drawingShapes = this.involvedShapes.map(
+        s =>
+          new Shape({
+            ...s,
+            drawingEnvironment: app.upperDrawingEnvironment,
+            path: s.getSVGPath('no scale'),
+            id: undefined,
+          })
+      );
+      app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
+        s => s.id
+      );
+      this.createAllSymmetryAxis();
+
+      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+      app.workspace.selectionConstraints.eventType = 'click';
+      app.workspace.selectionConstraints.segments.canSelect = true;
+      app.workspace.selectionConstraints.segments.whitelist = this.axis.map(
+        s => {
+          return { shapeId: s.id };
+        }
+      );
+      app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
+      app.workspace.selectionConstraints.shapes.canSelect = true;
+      app.workspace.selectionConstraints.shapes.blacklist = [
+        { shapeId: this.selectedShape.id },
+      ];
+
+      this.currentStep = 'selecting-symmetry-axis';
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+
+      window.dispatchEvent(new CustomEvent('refresh'));
+    }
   }
 
-  getSymmetricalAxe(orientation) {
-    let center = this.selectedShape.center,
-      axe;
-    if (orientation == 'V') {
-      axe = new Segment(
-        new Point(center.x, center.y - this.symmetricalAxeLength / 2),
-        new Point(center.x, center.y + this.symmetricalAxeLength / 2)
-      );
+  createAllSymmetryAxis() {
+    this.axis[0] = this.createSymmetryAxis('N');
+    this.axis[1] = this.createSymmetryAxis('NW');
+    this.axis[2] = this.createSymmetryAxis('W');
+    this.axis[3] = this.createSymmetryAxis('SW');
+  }
+
+  createSymmetryAxis(orientation) {
+    let path = '';
+    if (orientation == 'N') {
+      path = [
+        'M',
+        this.center.x,
+        this.center.y - this.symmetricalAxeLength / 2,
+        'L',
+        this.center.x,
+        this.center.y + this.symmetricalAxeLength / 2,
+      ].join(' ');
     } else if (orientation == 'NW') {
-      axe = new Segment(
-        new Point(
-          center.x - (0.683 * this.symmetricalAxeLength) / 2,
-          center.y - (0.683 * this.symmetricalAxeLength) / 2
-        ),
-        new Point(
-          center.x + (0.683 * this.symmetricalAxeLength) / 2,
-          center.y + (0.683 * this.symmetricalAxeLength) / 2
-        )
-      );
-    } else if (orientation == 'H') {
-      axe = new Segment(
-        new Point(center.x + this.symmetricalAxeLength / 2, center.y),
-        new Point(center.x - this.symmetricalAxeLength / 2, center.y)
-      );
+      path = [
+        'M',
+        this.center.x - (0.683 * this.symmetricalAxeLength) / 2,
+        this.center.y - (0.683 * this.symmetricalAxeLength) / 2,
+        'L',
+        this.center.x + (0.683 * this.symmetricalAxeLength) / 2,
+        this.center.y + (0.683 * this.symmetricalAxeLength) / 2,
+      ].join(' ');
+    } else if (orientation == 'W') {
+      path = [
+        'M',
+        this.center.x - this.symmetricalAxeLength / 2,
+        this.center.y,
+        'L',
+        this.center.x + this.symmetricalAxeLength / 2,
+        this.center.y,
+      ].join(' ');
+    } else if (orientation == 'SW') {
+      path = [
+        'M',
+        this.center.x + (0.683 * this.symmetricalAxeLength) / 2,
+        this.center.y - (0.683 * this.symmetricalAxeLength) / 2,
+        'L',
+        this.center.x - (0.683 * this.symmetricalAxeLength) / 2,
+        this.center.y + (0.683 * this.symmetricalAxeLength) / 2,
+      ].join(' ');
     } else {
-      // SW
-      axe = new Segment(
-        new Point(
-          center.x + (0.683 * this.symmetricalAxeLength) / 2,
-          center.y - (0.683 * this.symmetricalAxeLength) / 2
-        ),
-        new Point(
-          center.x - (0.683 * this.symmetricalAxeLength) / 2,
-          center.y + (0.683 * this.symmetricalAxeLength) / 2
-        )
-      );
+      console.error('orientation not supported : ', orientation);
     }
-    return axe;
+    let axis = new Shape({
+      drawingEnvironment: app.upperDrawingEnvironment,
+      path: path,
+      borderColor: this.symmetricalAxeColor,
+      isPointed: false,
+    });
+    return axis;
   }
 
   /**
    * Gère l'animation du retournement.
    */
   animate() {
+    this.lastProgress = this.progress || 0;
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.state == 'reverse') {
       this.actions = [
@@ -251,7 +309,7 @@ export class ReverseState extends State {
           name: 'ReverseAction',
           shapeId: this.selectedShape.id,
           involvedShapesIds: this.involvedShapes.map(s => s.id),
-          axe: this.axe,
+          selectedAxisId: this.selectedAxis.id,
           shapesPos: this.involvedShapes.map(s =>
             ShapeManager.getShapeIndex(s)
           ),
@@ -273,105 +331,23 @@ export class ReverseState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
-  draw() {
+  refreshStateUpper() {
     if (this.currentStep == 'reversing-shape' && this.status == 'running') {
-      //TODO: opti: ne pas devoir faire des copies à chaque refresh!
-
-      window.dispatchEvent(
-        new CustomEvent('draw-group', {
-          detail: {
-            involvedShapes: this.involvedShapes.map(s => s.copy()),
-            functionCalledBeforeDraw: s => {
-              this.reverseShape(s, this.axe);
-            },
-            functionCalledAfterDraw: () => {},
-            axeAngle: this.axeAngle,
-            isReversed: this.progress > 0.5,
-          },
-        })
-      );
-
-      //Dessiner l'axe:
-      window.dispatchEvent(
-        new CustomEvent('draw-segment', {
-          detail: {
-            segment: this.axe,
-            color: this.symmetricalAxeColor,
-            doSave: false,
-          },
-        })
-      );
-    } else if (this.currentStep == 'selecting-symmetrical-arch') {
-      window.dispatchEvent(
-        new CustomEvent('draw-group', {
-          detail: {
-            involvedShapes: this.involvedShapes,
-            functionCalledBeforeDraw: () => {},
-            functionCalledAfterDraw: () => {},
-          },
-        })
-      );
-
-      let axes = [
-        this.getSymmetricalAxe('V'),
-        this.getSymmetricalAxe('NW'),
-        this.getSymmetricalAxe('H'),
-        this.getSymmetricalAxe('SW'),
-      ];
-
-      axes.forEach(axe => {
-        window.dispatchEvent(
-          new CustomEvent('draw-segment', {
-            detail: {
-              segment: axe,
-              color: this.symmetricalAxeColor,
-              doSave: false,
-            },
-          })
+      app.upperDrawingEnvironment.points.forEach(point => {
+        point.coordinates = point.startCoordinates.substract(
+          point.startCoordinates
+            .substract(point.endCoordinates)
+            .multiply(this.progress)
         );
       });
+
+      if (this.progress > 0.5 && this.lastProgress < 0.5) {
+        // milieu animation
+        app.upperDrawingEnvironment.shapes.forEach(s => {
+          s.isReversed = !s.isReversed;
+          s.reverse();
+        });
+      }
     }
-  }
-
-  /**
-   * Retourne une forme
-   * @param  {Shape} shape       la forme à retourner
-   * @param  {Object} axe        L'axe de symétrie à utiliser
-   */
-  reverseShape(shape, axe) {
-    if (this.progress > 0.5) {
-      // milieu animation
-      shape.isReversed = !shape.isReversed;
-      shape.reverse();
-    }
-
-    shape.segments.forEach(seg => {
-      let points = [
-        ...seg.vertexes,
-        ...seg.points,
-        seg.arcCenter,
-        seg.tangentPoint1,
-        seg.tangentPoint2,
-      ];
-      points.forEach(pt => {
-        if (pt) this.computePointPosition(pt, axe);
-      });
-    });
-  }
-
-  /**
-   * Calcule les nouvelles coordonnées d'un point lors de l'animation d'une symétrie axiale
-   * @param  {Point} point    le point
-   * @param  {Object} axe      L'axe de symétrie
-   * @return {Point}          Nouvelles coordonnées
-   */
-  computePointPosition(point, axe) {
-    let center = axe.projectionOnSegment(point);
-
-    //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
-    point.setCoordinates({
-      x: point.x + 2 * (center.x - point.x) * this.progress,
-      y: point.y + 2 * (center.y - point.y) * this.progress,
-    });
   }
 }

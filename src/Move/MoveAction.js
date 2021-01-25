@@ -1,6 +1,6 @@
 import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Point } from '../Core/Objects/Point';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 export class MoveAction extends Action {
   constructor() {
@@ -10,7 +10,7 @@ export class MoveAction extends Action {
     this.shapeId = null;
 
     //Le déplacement à appliquer aux formes (à additionner aux coordonnées)
-    this.transformation = null;
+    this.translation = null;
 
     /*
         Liste des formes solidaires à la forme que l'on déplace, y compris
@@ -21,7 +21,7 @@ export class MoveAction extends Action {
 
   initFromObject(save) {
     this.shapeId = save.shapeId;
-    this.transformation = new Point(save.transformation);
+    this.translation = save.translation;
     this.involvedShapesIds = save.involvedShapesIds;
   }
 
@@ -31,9 +31,9 @@ export class MoveAction extends Action {
   checkDoParameters() {
     if (
       !this.shapeId ||
-      !this.transformation ||
-      this.transformation.x === undefined ||
-      this.transformation.y === undefined
+      !this.translation ||
+      this.translation.x === undefined ||
+      this.translation.y === undefined
     ) {
       this.printIncompleteData();
       return false;
@@ -54,10 +54,20 @@ export class MoveAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    this.involvedShapesIds.forEach(id => {
-      let s = ShapeManager.getShapeById(id),
-        newCoords = s.coordinates.addCoordinates(this.transformation);
-      s.coordinates = newCoords;
+    let involvedShape = this.involvedShapesIds.map(id => {
+      let s = ShapeManager.getShapeById(id);
+      return s;
+    });
+    let shape = ShapeManager.getShapeById(this.shapeId);
+
+    involvedShape.forEach(s => {
+      s.translate(this.translation);
+    });
+
+    let transformation = getShapeAdjustment(involvedShape, shape);
+    involvedShape.forEach(s => {
+      s.rotate(transformation.rotationAngle, shape.centerCoordinates);
+      s.translate(transformation.translation);
     });
   }
 
@@ -69,7 +79,7 @@ export class MoveAction extends Action {
 
     this.involvedShapesIds.forEach(id => {
       let s = ShapeManager.getShapeById(id),
-        newCoords = s.coordinates.subCoordinates(this.transformation);
+        newCoords = s.coordinates.subCoordinates(this.translation);
       s.coordinates = newCoords;
     });
   }

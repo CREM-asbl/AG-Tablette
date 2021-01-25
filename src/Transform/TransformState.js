@@ -3,7 +3,6 @@ import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Shape } from '../Core/Objects/Shape';
 import { SelectManager } from '../Core/Managers/SelectManager';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -85,7 +84,7 @@ export class TransformState extends State {
    * stopper l'état
    */
   end() {
-    window.cancelAnimationFrame(this.requestAnimFrameId);
+    this.stopAnimation();
 
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('canvasmouseup', this.mouseUpId);
@@ -100,7 +99,7 @@ export class TransformState extends State {
     } else if (event.type == 'canvasmouseup') {
       this.onMouseUp();
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
@@ -148,7 +147,7 @@ export class TransformState extends State {
     this.restart();
   }
 
-  draw() {
+  refreshStateUpper() {
     if (this.currentStep == 'show-points') {
       app.workspace.shapes.forEach(s => {
         let points = s.modifiablePoints;

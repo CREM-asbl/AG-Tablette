@@ -47,12 +47,11 @@ class ToolbarKit extends LitElement {
         ${this.familyNames.map(family => {
           return html`
             <canvas-button
-              name="create_shape"
               familyName="${family}"
               title="${family}"
               ?active="${family === this.selectedFamily}"
               @click="${event => {
-                app.setState(event.target.name, event.target.familyName);
+                app.setState('createShape', event.target.familyName);
                 this.selectedFamily = event.target.familyName;
               }}"
             >

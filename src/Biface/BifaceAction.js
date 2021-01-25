@@ -65,7 +65,11 @@ export class BifaceAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let value_to_set = !this.oldBiface.every(old => old);
+    let value_to_set = !this.involvedShapesIds.every(id => {
+      let s = ShapeManager.getShapeById(id);
+      return s.isBiface;
+    });
+    // let value_to_set = !this.oldBiface.every(old => old);
     this.involvedShapesIds.forEach(id => {
       let s = ShapeManager.getShapeById(id);
       s.isBiface = value_to_set;
