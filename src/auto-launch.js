@@ -10,8 +10,10 @@ if ('launchQueue' in window) {
     }
 
     for (const fileHandle of launchParams.files) {
+      console.log(fileHandle)
       const pathArray = fileHandle.split('.')
       const extension = pathArray[pathArray.length - 1]
+      console.log(extension)
       switch (extension) {
         case 'agg':
           app.environment = new Environment('Grandeurs')
