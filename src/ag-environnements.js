@@ -44,8 +44,8 @@ class AgEnvironnements extends LitElement {
       }
 
       #Grandeurs {
-        /* background: url('/images/Environnements/grandeurs_test4.jpg') center
-          center rgba(255, 255, 255, 0.9); */
+        background: url('/images/Environnements/grandeurs_test4.jpg') center
+          center rgba(255, 255, 255, 0.9);
 
         /* background: url('/images/Environnements/grandeurs.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
@@ -56,8 +56,8 @@ class AgEnvironnements extends LitElement {
       }
 
       #Tangram {
-        /* background: url('/images/Environnements/tangram_test4.jpg') center
-          center rgba(255, 255, 255, 0.9); */
+        background: url('/images/Environnements/tangram_test4.jpg') center
+          center rgba(255, 255, 255, 0.9);
 
         /* background: url('/images/Environnements/tangram.\${unsafeCSS(
             this.isSafari ? 'jpg' : 'webp'
@@ -68,8 +68,8 @@ class AgEnvironnements extends LitElement {
       }
 
       #Cubes {
-        /* background: url('/images/Environnements/cubes_test3.jpg') center center
-          rgba(255, 255, 255, 0.9); */
+        background: url('/images/Environnements/cubes_test3.jpg') center center
+          rgba(255, 255, 255, 0.9);
 
         /* background: url('/images/Environnements/cubes.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
