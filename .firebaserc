@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "apprenti-geometre"
+  },
+  "targets": {
+    "apprenti-geometre": {
+      "hosting": {
+        "ag-beta": [
+          "dist"
+        ]
+      }
+    }
   }
 }
