@@ -68,8 +68,8 @@
     "start:compatibility": "es-dev-server --app-index index.html --compatibility all --node-resolve --open --watch",
     "start:local": "es-dev-server --app-index index.html --node-resolve --open --watch --hostname 192.168.0.4",
     "copy": "ncp images \"dist/images\" && copy manifest.json dist",
-    "deploy": "npm run build && firebase deploy --only default",
-    "deploy:beta": "npm run build && firebase deploy --only beta"
+    "deploy": "npm run build && firebase deploy --only hosting:default",
+    "deploy:beta": "npm run build && firebase deploy --only hosting:beta"
   },
   "eslintConfig": {
     "extends": [

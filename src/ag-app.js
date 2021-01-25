@@ -1,5 +1,6 @@
 import { app } from './Core/App';
 import { LitElement, html } from 'lit-element';
+import './auto-launch'
 
 class AgApp extends LitElement {
   static get properties() {

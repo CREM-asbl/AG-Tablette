@@ -1,6 +1,6 @@
 {
-  "name": "Apprenti Géomètre Mobile",
-  "short_name": "AG Mobile",
+  "name": "Apprenti Géomètre Mobile Beta",
+  "short_name": "AG Mobile Beta",
   "version": "1.0.7 Beta",
   "icons": [
     {
@@ -23,27 +23,27 @@
   "description": "Version mobile d'Apprenti Géomètre",
   "file_handlers": [
     {
-      "action": "/grandeur",
+      "action": "/",
       "accept": {
-        "text/json": ".agg"
+        "application/agmobile": ".agg"
       }
     },
     {
-      "action": "/tangram",
+      "action": "/",
       "accept": {
-        "text/json": ".agc"
+        "application/agmobile": ".agt"
       }
     },
     {
-      "action": "/cubes",
+      "action": "/",
       "accept": {
-        "text/json": ".agc"
+        "application/agmobile": ".agc"
       }
     },
     {
-      "action": "/geometrie",
+      "action": "/",
       "accept": {
-        "text/json": ".agl"
+        "application/agmobile": ".agl"
       }
     }
   ]

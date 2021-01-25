@@ -1,7 +1,7 @@
 {
   "hosting": [
     {
-      "target": "apprenti-geometre",
+      "target": "default",
       "public": "dist",
       "ignore": [
         "firebase.json",
@@ -15,7 +15,7 @@
       ]
     },
     {
-      "target": "ag-beta",
+      "target": "beta",
       "public": "dist",
       "ignore": [
         "firebase.json",
