@@ -20,5 +20,31 @@
   "display": "fullscreen",
   "background_color": "#3f51b5",
   "theme_color": "#3f51b5",
-  "description": "Version mobile d'Apprenti Géomètre"
+  "description": "Version mobile d'Apprenti Géomètre",
+  "file_handlers": [
+    {
+      "action": "/grandeur",
+      "accept": {
+        "text/json": ".agg"
+      }
+    },
+    {
+      "action": "/tangram",
+      "accept": {
+        "text/json": ".agc"
+      }
+    },
+    {
+      "action": "/cubes",
+      "accept": {
+        "text/json": ".agc"
+      }
+    },
+    {
+      "action": "/geometrie",
+      "accept": {
+        "text/json": ".agl"
+      }
+    }
+  ]
 }
