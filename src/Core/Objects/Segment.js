@@ -793,8 +793,9 @@ export class Segment {
         return (
           projection.dist(coord) < precision &&
           Math.abs(
-            this.vertexes[0].getAngle(this.vertexes[1]) -
-              this.vertexes[0].getAngle(projection)
+            this.vertexes[0].coordinates.angleWith(
+              this.vertexes[1].coordinates
+            ) - this.vertexes[0].coordinates.angleWith(projection)
           ) < 0.001
         );
       } else {

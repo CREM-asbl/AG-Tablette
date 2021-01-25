@@ -71,7 +71,6 @@ class CanvasButton extends LitElement {
         ) || family.shapeTemplates[0],
       ];
     } else {
-      console.log(app.CremTangrams[this.silhouetteIdx]);
       shapeTemplates =
         app.CremTangrams[this.silhouetteIdx].silhouetteData.shapesData;
     }

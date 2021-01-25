@@ -92,6 +92,7 @@ export class CreateTriangleState extends State {
     this.stopAnimation();
     window.removeEventListener('triangle-selected', this.handler);
     app.removeListener('canvasmousedown', this.mouseDownId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   /**

@@ -14,7 +14,7 @@ class LinesList extends LitElement {
       'StraightLine',
       'ParalleleStraightLine',
       'PerpendicularStraightLine',
-      'Strip',
+      // 'Strip',
     ];
   }
 

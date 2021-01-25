@@ -6,6 +6,7 @@ import { ShapeManager } from '../Managers/ShapeManager';
 import { isAngleBetweenTwoAngles } from '../Tools/geometry';
 import { Bounds } from './Bounds';
 import { Coordinates } from './Coordinates';
+import { number } from '@open-wc/demoing-storybook';
 
 /**
  * Représente une forme
@@ -50,8 +51,7 @@ export class Shape {
     isReversed = false,
     isBiface = false,
     geometryConstructionSpec = null, // à enlever (recalculer si besoin)
-    referenceShapeId = null,
-    referenceSegmentIdx = null,
+    referenceId = null,
     hasGeometryReferenced = [],
   }) {
     this.id = id;
@@ -81,8 +81,7 @@ export class Shape {
     this.isReversed = isReversed;
     this.isBiface = isBiface;
     this.geometryConstructionSpec = geometryConstructionSpec;
-    this.referenceShapeId = referenceShapeId;
-    this.referenceSegmentIdx = referenceSegmentIdx;
+    this.referenceId = referenceId;
     this.hasGeometryReferenced = [...hasGeometryReferenced];
   }
 
@@ -378,6 +377,8 @@ export class Shape {
             Math.pow(firstVertex.y - lastVertex.y, 2)) /
             4
       );
+
+    if (isNaN(distanceMiddleArcCenter)) distanceMiddleArcCenter = 0;
 
     let theta, arcCenterCoordinates;
     // theta is the angle between the segment firstvertex - lastvertex and the x-axis
@@ -1202,7 +1203,8 @@ export class Shape {
     });
     if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
 
-    let comment = '<!-- ' + this.name + ' -->\n';
+    let comment =
+      '<!-- ' + this.name.replace('e', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
   }

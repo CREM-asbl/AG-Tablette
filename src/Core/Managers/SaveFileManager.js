@@ -152,6 +152,13 @@ export class SaveFileManager {
     if (SaveFileManager.hasNativeFS) {
       SaveFileManager.newWriteFile(handle, svg_data);
     } else {
+      // should fix unicode encoding
+      svg_data = encodeURIComponent(svg_data).replace(
+        /%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+          return String.fromCharCode('0x' + p1);
+        }
+      );
       const encoded_data = 'data:image/svg+xml;base64,' + btoa(svg_data);
       SaveFileManager.downloadFile(handle.name, encoded_data);
     }

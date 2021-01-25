@@ -262,7 +262,7 @@ export class Workspace {
       app.canvasWidth +
       '" height="' +
       app.canvasHeight +
-      '" xmlns="http://www.w3.org/2000/svg" >\n\n';
+      '" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n';
     svg_data += app.backgroundDrawingEnvironment.toSVG();
     svg_data += app.mainDrawingEnvironment.toSVG();
     if (document.body.querySelector('forbidden-canvas') != null) {
