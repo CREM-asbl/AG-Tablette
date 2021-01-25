@@ -5,8 +5,11 @@
   "targets": {
     "apprenti-geometre": {
       "hosting": {
-        "ag-beta": [
-          "dist"
+        "default": [
+          "apprenti-geometre"
+        ],
+        "beta": [
+          "ag-beta"
         ]
       }
     }
