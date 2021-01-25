@@ -52,7 +52,9 @@ class SettingsPopup extends LitElement {
               <label for="settings_adapt_shapes_position">Ajustement automatique</label>
             </div>
 
-            <div class="field">
+            <div class="field" style=${
+              app.environment.name == 'Tangram' ? 'display:none' : ''
+            }>
               <input
                 type="checkbox"
                 name="settings_pointed_shapes"
@@ -136,7 +138,7 @@ class SettingsPopup extends LitElement {
         break;
 
       default:
-        console.log(
+        console.error(
           'Settings: paramètre inconnu: ' +
             event.target.name +
             ' ' +

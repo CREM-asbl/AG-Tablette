@@ -3,8 +3,8 @@ import { app } from '../App';
 export class GroupManager {
   /**
    * Ajouter un groupe à l'espace de travail
-   * @param {Group} group       Le groupe
-   * @param {int}	index         L'index où placer le groupe. Par défaut: à la fin
+   * @param {Group}   group       Le groupe
+   * @param {Number}  index       L'index où placer le groupe. Par défaut: à la fin
    */
   static addGroup(group, index = app.workspace.shapeGroups.length) {
     app.workspace.shapeGroups.splice(index, 0, group);
@@ -12,8 +12,8 @@ export class GroupManager {
 
   /**
    * Récupérer l'index d'un groupe dans le tableau de groupes
-   * @param  {Group} group       Le groupe
-   * @return {int}               L'index (peut varier dans le temps!)
+   * @param  {Group}  group       Le groupe
+   * @return {Number}             L'index (peut varier dans le temps!)
    */
   static getGroupIndex(group) {
     return app.workspace.shapeGroups.findIndex(gr => gr.id == group.id);

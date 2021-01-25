@@ -8,15 +8,11 @@ export class CreateIrregularAction extends Action {
     super('CreateIrregularAction');
 
     // Les sommets de la formes à créer
-    this.points = null;
-
-    // Id de la forme à créer
-    this.shapeId = null;
+    this.coordinates = null;
   }
 
   initFromObject(save) {
-    this.points = save.points; //.map(pt => new Point(pt));
-    this.shapeId = save.shapeId;
+    this.coordinates = save.coordinates; //.map(pt => new Point(pt));
   }
 
   /**
@@ -46,16 +42,21 @@ export class CreateIrregularAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
-    let newSegments = this.points.map(
-      (pt, idx, pts) => new Segment(pt, pts[(idx + 1) % pts.length])
-    );
-    let newShape = new Shape({
-      segments: newSegments,
-      id: this.shapeId,
-      name: this.points.length + '_corner_shape',
+    let path = [];
+    this.coordinates.forEach((coord, idx) => {
+      if (idx == 0) path.push('M', coord.x, coord.y);
+      else if (idx == this.coordinates.length - 1)
+        path.push('L', this.coordinates[0].x, this.coordinates[0].y);
+      else path.push('L', coord.x, coord.y);
+    });
+    path = path.join(' ');
+    new Shape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: path,
+      name: this.coordinates.length + '_corner_shape',
       familyName: 'Irregular',
     });
-    ShapeManager.addShape(newShape);
+    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   /**

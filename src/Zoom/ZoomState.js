@@ -1,7 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
-import { Point } from '../Core/Objects/Point';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Zoomer/Dézoomer le plan
@@ -73,7 +73,7 @@ export class ZoomState extends State {
     } else if (event.type == 'canvasmouseup') {
       this.onMouseUp();
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
@@ -90,13 +90,13 @@ export class ZoomState extends State {
   onMouseMove() {
     if (this.currentStep != 'zooming-plane') return;
 
-    let newDist = this.getDist(app.workspace.lastKnownMouseCoordinates),
-      scaleOffset = newDist / this.baseDist,
+    let scaleOffset =
+        this.getDist(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
       originalZoom = app.workspace.zoomLevel,
       minZoom = app.settings.get('minZoomLevel'),
       maxZoom = app.settings.get('maxZoomLevel');
     if (scaleOffset * originalZoom > maxZoom) {
-      // -> scaleOffset*originalZoom = maxZoom
+      // -> scaleOffset * originalZoom = maxZoom
       scaleOffset = maxZoom / originalZoom - 0.001;
     }
     if (scaleOffset * originalZoom < minZoom) {
@@ -105,19 +105,15 @@ export class ZoomState extends State {
 
     let originalTranslateOffset = app.workspace.translateOffset,
       newZoom = originalZoom * scaleOffset,
-      actualWinSize = new Point(
-        app.canvasWidth,
-        app.canvasHeight
-      ).multiplyWithScalar(1 / originalZoom),
-      newWinSize = actualWinSize.multiplyWithScalar(1 / scaleOffset),
-      newTranslateoffset = new Point(
-        (originalTranslateOffset.x / originalZoom -
-          (actualWinSize.x - newWinSize.x) / 2) *
-          newZoom,
-        (originalTranslateOffset.y / originalZoom -
-          (actualWinSize.y - newWinSize.y) / 2) *
-          newZoom
-      );
+      actualWinSize = new Coordinates({
+        x: app.canvasWidth,
+        y: app.canvasHeight,
+      }).multiply(1 / originalZoom),
+      newWinSize = actualWinSize.multiply(1 / scaleOffset),
+      newTranslateoffset = originalTranslateOffset
+        .multiply(1 / originalZoom)
+        .add(newWinSize.substract(actualWinSize).multiply(1 / 2))
+        .multiply(newZoom);
 
     app.workspace.setZoomLevel(newZoom, false);
     app.workspace.setTranslateOffset(newTranslateoffset);
@@ -129,26 +125,26 @@ export class ZoomState extends State {
   onMouseUp() {
     if (this.currentStep != 'zooming-plane') return;
 
-    let offset =
+    let scaleOffset =
         this.getDist(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
       actualZoom = app.workspace.zoomLevel,
       minZoom = app.settings.get('minZoomLevel'),
       maxZoom = app.settings.get('maxZoomLevel');
-    if (offset * actualZoom > maxZoom) {
-      // -> offset*actualZoom = maxZoom
-      offset = maxZoom / actualZoom - 0.001;
+    if (scaleOffset * actualZoom > maxZoom) {
+      // -> scaleOffset * actualZoom = maxZoom
+      scaleOffset = maxZoom / actualZoom - 0.001;
     }
-    if (offset * actualZoom < minZoom) {
-      offset = minZoom / actualZoom + 0.001;
+    if (scaleOffset * actualZoom < minZoom) {
+      scaleOffset = minZoom / actualZoom + 0.001;
     }
 
     this.actions = [
       {
         name: 'ZoomAction',
-        scaleOffset: offset,
+        scaleOffset: scaleOffset,
         originalZoom: actualZoom,
         originalTranslateOffset: app.workspace.translateOffset,
-        centerProp: new Point(0.5, 0.5),
+        centerProp: new Coordinates({ x: 0.5, y: 0.5 }),
       },
     ];
 
@@ -157,14 +153,14 @@ export class ZoomState extends State {
   }
 
   getDist(mouseCoordinates) {
-    let halfWinSize = new Point(
-        app.canvasWidth,
-        app.canvasHeight
-      ).multiplyWithScalar(1 / app.workspace.zoomLevel / 2),
-      translateOffset = app.workspace.translateOffset.multiplyWithScalar(
+    let halfWinSize = new Coordinates({
+        x: app.canvasWidth,
+        y: app.canvasHeight,
+      }).multiply(1 / app.workspace.zoomLevel / 2),
+      translateOffset = app.workspace.translateOffset.multiply(
         1 / app.workspace.zoomLevel
       ),
-      center = halfWinSize.subCoordinates(translateOffset),
+      center = halfWinSize.substract(translateOffset),
       dist = center.dist(mouseCoordinates);
 
     if (dist == 0) dist = 0.001;

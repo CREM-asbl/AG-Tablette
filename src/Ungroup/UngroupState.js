@@ -2,6 +2,7 @@ import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { GroupManager } from '../Core/Managers/GroupManager';
+import { Text } from '../Core/Objects/Text';
 
 /**
  * Supprimer un groupe (ne supprime pas les formes).
@@ -34,6 +35,16 @@ export class UngroupState extends State {
    * initialiser l'état
    */
   start() {
+    app.mainDrawingEnvironment.shapes.map(s => {
+      if (GroupManager.getShapeGroup(s) != null) {
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          type: 'group',
+        });
+      }
+    });
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -41,6 +52,7 @@ export class UngroupState extends State {
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
@@ -48,6 +60,16 @@ export class UngroupState extends State {
    */
   restart() {
     this.end();
+    app.mainDrawingEnvironment.shapes.map(s => {
+      if (GroupManager.getShapeGroup(s) != null) {
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          type: 'group',
+        });
+      }
+    });
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -61,6 +83,7 @@ export class UngroupState extends State {
    * stopper l'état
    */
   end() {
+    app.upperDrawingEnvironment.removeAllObjects();
     app.removeListener('objectSelected', this.objectSelectedId);
   }
 
@@ -71,7 +94,7 @@ export class UngroupState extends State {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else {
-      console.log('unsupported event type : ', event.type);
+      console.error('unsupported event type : ', event.type);
     }
   }
 
@@ -90,32 +113,10 @@ export class UngroupState extends State {
         },
       ];
       this.executeAction();
+      this.restart();
 
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       window.dispatchEvent(new CustomEvent('refresh'));
-    }
-  }
-
-  /**
-   * Appelée par la fonction de dessin après avoir dessiné une forme sur le
-   * canvas principal
-   * @param  {Shape}  shape    La forme dessinée
-   */
-  shapeDrawn(shape) {
-    let group = GroupManager.getShapeGroup(shape),
-      center = shape.center,
-      pos = { x: center.x, y: center.y };
-    if (group) {
-      let groupIndex = GroupManager.getGroupIndex(group);
-      window.dispatchEvent(
-        new CustomEvent('draw-text', {
-          detail: {
-            ctx: app.mainCtx,
-            text: 'Groupe ' + (groupIndex + 1),
-            position: pos,
-          },
-        })
-      );
     }
   }
 }

@@ -4,9 +4,9 @@
 <style type="text/css">
 	path {
     fill:#d473d4;
-    stroke:#000;
-    stroke-width:3;
+    stroke:#d473d4;
     stroke-miterlimit:10;
+    stroke-width:10px;
   }
 </style>
 <path class="st0" d="M 60 50 L 60 140"/>

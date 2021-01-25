@@ -24,10 +24,8 @@ export class Environment {
 
     this.families = [];
 
-    this.familyNames = [];
-
     // Build à besoin d'avoir les noms des fichiers pour les bundles
-    // Todo: Rendre se chargement plus souple (custom Environnement)
+    // Todo: Rendre ce chargement plus souple (custom Environnement)
     switch (name) {
       case 'Grandeurs':
         import('./Grandeurs');
@@ -37,13 +35,12 @@ export class Environment {
         break;
       case 'Cubes':
         import('./Cubes');
-        // this.load('cubes.json')
         break;
       case 'Geometrie':
         import('./Geometrie');
         break;
       default:
-        console.log(`Environnement ${name} pas encore pris en charge`);
+        console.warn(`Environnement ${name} pas encore pris en charge`);
     }
   }
 
@@ -51,7 +48,6 @@ export class Environment {
   //   const response = await fetch(`data/${file}`)
   //   const data = await response.json()
   //   this.loadModules(data.modules)
-  //   console.log(data.kit)
   //   this.extension = data.extension
   // }
 
@@ -72,23 +68,23 @@ export class Environment {
     this.kitName = kit.name;
     for (let [familyName, familyData] of Object.entries(kit.families)) {
       this.families.push(new Family({ name: familyName, ...familyData }));
-      this.familyNames.push(familyName);
     }
     window.dispatchEvent(new CustomEvent('families-loaded'));
   }
 
   /**
    * Renvoie la liste des noms des familles de formes
-   * @return liste des noms ([String])
+   * @return {[String]}
    */
-  getFamiliesNames() {
-    return this.families.map(f => f.name);
+  get familyNames() {
+    if (this.families) return this.families.map(f => f.name);
+    else return [];
   }
 
   /**
    * Récupère une famille à partir de son nom
-   * @param name: le nom de la famille (String)
-   * @return la famille (Family)
+   * @param {String}  name    le nom de la famille
+   * @return {Family}
    */
   getFamily(name) {
     let list = this.families.find(family => family.name === name);

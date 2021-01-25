@@ -52,6 +52,9 @@ class AGTabletteApp extends LitElement {
       this.canUndo = HistoryManager.canUndo();
       this.canRedo = HistoryManager.canRedo();
     });
+    window.addEventListener('workspace-changed', () => {
+      window.dispatchEvent(new CustomEvent('history-changed'));
+    });
     window.addEventListener('open-opacity-popup', () => {
       this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
     });
@@ -62,12 +65,6 @@ class AGTabletteApp extends LitElement {
 
   static get styles() {
     return css`
-      :host {
-        --primary-color: #abcedf;
-        --button-border-color: black;
-        --button-background-color: #0ff;
-      }
-
       #app-canvas-view {
         display: flex;
         width: 100%;
@@ -209,13 +206,13 @@ class AGTabletteApp extends LitElement {
 
           <div id="app-canvas-view-toolbar-p2">
 
-            <toolbar-section title="Créer un tangram"
+            <toolbar-section title="Créer une silhouette"
                              .buttons_states="${this.states.filter(
                                state => state.type === 'tangram'
                              )}">
             </toolbar-section>
 
-            <toolbar-section title="Créer des formes"
+            <toolbar-section title="Formes libres"
                              .buttons_states="${this.states.filter(
                                state => state.type === 'geometry_creator'
                              )}">
@@ -324,7 +321,7 @@ class AGTabletteApp extends LitElement {
         window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:
-        console.log(
+        console.warn(
           'unknow event type: ' + event.type + ', with event: ',
           event
         );

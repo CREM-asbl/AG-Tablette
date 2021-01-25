@@ -1,5 +1,5 @@
 import { uniqId } from '../Tools/general';
-import { Shape } from './Shape';
+import { ShapeTemplate } from './ShapeTemplate';
 
 /**
  * Une famille de formes.
@@ -8,64 +8,64 @@ export class Family {
   /**
    * Constructeur
    * @param {String} name         Nom de la famille
-   * @param {String} defaultColor Couleur par défaut des formes ("#xxxxxx")
+   * @param {String} defaultColor Couleur par défaut des formes ("#rrggbb")
    */
-  constructor({ name, color, shapes, opacity = 0.7 }) {
+  constructor({ name, color, shapeTemplates, opacity = 0.7 }) {
     this.name = name;
     this.defaultColor = color;
     this.opacity = opacity;
     this.id = uniqId();
-    this.shapes = [];
-    shapes.forEach(shape => {
-      this.addShape(shape);
+    this.shapeTemplates = [];
+    shapeTemplates.forEach(shapeTemplate => {
+      this.addTemplate(shapeTemplate);
     });
   }
 
   /**
-   * Ajouter une forme à la famille
-   * @param {String} name       Nom de la forme
-   * @param {[String]} steps étapes de construction de la forme
+   * Ajouter un modèle venant d'un kit à la famille
    */
-  addShape({ name, segments, color, path, opacity }) {
-    if (!path && segments.length < 1) {
-      console.error('Family.addShape error: buildSteps.length is 0');
+  addTemplate({ name, color, path, opacity }) {
+    if (!path) {
+      console.error('Family.addTemplate error: no path');
       return;
     }
 
-    let shape = new Shape({
-      x: 0,
-      y: 0,
-      segments: segments,
+    let shapeTemplate = new ShapeTemplate({
+      path: path,
       name: name,
       familyName: this.name,
-      path: path,
       color: color ? color : this.defaultColor,
       opacity: opacity ? opacity : this.opacity,
     });
 
-    this.shapes.push(shape);
+    this.shapeTemplates.push(shapeTemplate);
   }
 
   /**
-   * récupérer la liste des noms des formes de la famille
+   * récupérer la liste des noms des modèles de la famille
    * @return [String]
    */
-  getShapesNames() {
-    return this.shapes.map(shape => shape.name);
+  get templateNames() {
+    return this.shapeTemplates.map(template => template.name);
   }
 
   /**
-   * Renvoie une forme d'une famille à partir de son nom
+   * Renvoie un modèle d'une famille à partir de son nom
    * @param name: le nom de la forme
    * @return Objet de type Shape (sans coordonnées)
    */
-  getShape(name) {
-    for (let i = 0; i < this.shapes.length; i++) {
-      if (this.shapes[i].name == name) {
-        return this.shapes[i];
-      }
+  getTemplate(name) {
+    let template = this.shapeTemplates.find(
+      shapeTemplate => shapeTemplate.name === name
+    );
+    if (template !== undefined) {
+      return template;
+    } else {
+      console.error(
+        "Family.getTemplate: '" + name + "' not found in",
+        this.templateNames
+      );
+      return null;
     }
-    console.error('Family.getShape: shape not found');
-    return null;
   }
 }

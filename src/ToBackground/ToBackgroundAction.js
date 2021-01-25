@@ -5,19 +5,18 @@ export class ToBackgroundAction extends Action {
   constructor() {
     super('ToBackgroundAction');
 
-    //L'index original de la forme dans workspace.shapes
-    this.oldIndex = null;
+    this.shapeId = null;
   }
 
   initFromObject(save) {
-    this.oldIndex = save.oldIndex;
+    this.shapeId = save.shapeId;
   }
 
   /**
    * vérifie si toutes les conditions sont réunies pour effectuer l'action
    */
   checkDoParameters() {
-    if (!Number.isFinite(this.oldIndex)) {
+    if (!this.shapeId) {
       this.printIncompleteData();
       return false;
     }
@@ -37,8 +36,9 @@ export class ToBackgroundAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape = app.workspace.shapes.splice(this.oldIndex, 1)[0];
-    app.workspace.shapes.unshift(shape);
+    let shapeIndex = app.mainDrawingEnvironment.findIndexById(this.shapeId);
+    let shape = app.mainDrawingEnvironment.shapes.splice(shapeIndex, 1)[0];
+    app.mainDrawingEnvironment.shapes.unshift(shape);
   }
 
   /**

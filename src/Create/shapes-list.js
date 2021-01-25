@@ -4,9 +4,9 @@ import { LitElement, html, css } from 'lit-element';
 class ShapesList extends LitElement {
   static get properties() {
     return {
-      shapeName: { type: String },
+      templateName: { type: String },
       selectedFamily: { type: String },
-      shapesNames: { type: Array },
+      templateNames: { type: Array },
     };
   }
 
@@ -65,20 +65,20 @@ class ShapesList extends LitElement {
     return html`
       <div class="container">
         <h2>
-          ${this.shapeName
-            ? this.shapeName.replace(/ \d+$/, '')
+          ${this.templateName
+            ? this.templateName.replace(/ \d+$/, '')
             : this.selectedFamily}
         </h2>
         <ul>
-          ${this.shapesNames.map(
-            shapeName => html`
+          ${this.templateNames.map(
+            templateName => html`
               <li>
                 <canvas-button
-                  title="${shapeName.replace(/ \d+$/, '')}"
+                  title="${templateName.replace(/ \d+$/, '')}"
                   familyName="${this.selectedFamily}"
-                  shapeName="${shapeName}"
+                  templateName="${templateName}"
                   @click="${this._clickHandle}"
-                  ?active="${shapeName === this.shapeName}"
+                  ?active="${templateName === this.templateName}"
                 >
                 </canvas-button>
               </li>
@@ -90,13 +90,10 @@ class ShapesList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.shapeName = event.target.shapeName;
-    const shapeRef = app.environment
-      .getFamily(this.selectedFamily)
-      .getShape(this.shapeName);
+    this.templateName = event.target.templateName;
     window.dispatchEvent(
-      new CustomEvent('shape-selected', {
-        detail: { selectedShape: shapeRef.saveToObject() },
+      new CustomEvent('select-template', {
+        detail: { templateName: this.templateName },
       })
     );
   }

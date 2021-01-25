@@ -79,13 +79,14 @@ class TrianglesList extends LitElement {
           ${this.trianglesNames.map(
             triangleName => html`
               <li>
-                <canvas-button
+                <icon-button
                   title="${triangleName}"
-                  shapeName="${triangleName}"
+                  type="Geometry"
+                  name="${triangleName}"
                   @click="${this._clickHandle}"
                   ?active="${triangleName === this.triangleSelected}"
                 >
-                </canvas-button>
+                </icon-button>
               </li>
             `
           )}
@@ -95,7 +96,7 @@ class TrianglesList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.triangleSelected = event.target.shapeName;
+    this.triangleSelected = event.target.name;
     window.dispatchEvent(
       new CustomEvent('triangle-selected', {
         detail: { triangleSelected: this.triangleSelected },

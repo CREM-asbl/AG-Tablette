@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { GridManager } from '../../Grid/GridManager';
 import { ShapeManager } from './ShapeManager';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
@@ -10,112 +9,86 @@ export class DrawManager {
   /* #################################################################### */
 
   /**
-   * efface le contenu d'un canvas
-   * @param {Context2D} ctx   le ctx à effacer
-   */
-  static clearCtx(ctx) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  }
-
-  /**
    * Refresh the background and the forbidden ctx (grid and silhouette)
    */
   static refreshBackground() {
-    DrawManager.clearCtx(app.backgroundCtx);
-
-    // Grid
-    if (app.workspace.settings.get('isGridShown')) {
-      const canvasWidth = app.canvas.main.clientWidth,
-        canvasHeight = app.canvas.main.clientHeight,
-        offsetX = app.workspace.translateOffset.x,
-        offsetY = app.workspace.translateOffset.y,
-        actualZoomLvl = app.workspace.zoomLevel,
-        // Ne pas voir les points apparaître :
-        marginToAdd = 20 * actualZoomLvl,
-        min = new Point(
-          -offsetX / actualZoomLvl - marginToAdd,
-          -offsetY / actualZoomLvl - marginToAdd
-        ),
-        max = new Point(
-          (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
-          (canvasHeight - offsetY) / actualZoomLvl + marginToAdd
-        ),
-        pts = GridManager.getVisibleGridPoints(min, max);
-
-      pts.forEach(pt => {
-        DrawManager.drawPoint(
-          app.backgroundCtx,
-          pt,
-          '#F00',
-          1.5 * actualZoomLvl,
-          false
-        );
-      });
-    }
-
-    // Tangram
-    if (app.silhouette) {
-      let ctx;
-      if (app.silhouette.level != 3 && app.silhouette.level != 4) {
-        ctx = app.backgroundCtx;
-      } else {
-        ctx = app.forbiddenCtx;
-        DrawManager.clearCtx(ctx);
-        // clear au cas ou
-      }
-
-      const bounds = app.silhouette.bounds,
-        silhouetteCenter = new Point(
-          (bounds[1] + bounds[0]) / 2,
-          (bounds[3] + bounds[2]) / 2
-        ),
-        width = app.canvasWidth / 2,
-        height = app.canvasHeight,
-        canvasCenter = new Point(width / 2, height / 2);
-
-      if (app.silhouette.level != 3 && app.silhouette.level != 4) {
-        canvasCenter.translate(width, 0);
-      }
-
-      silhouetteCenter.setToCanvasCoordinates();
-
-      const translation = canvasCenter.subCoordinates(silhouetteCenter);
-
-      translation.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
-
-      app.silhouette.shapes.forEach(s => {
-        s.translate(translation);
-        DrawManager.drawShape(ctx, s);
-      });
-    }
+    app.backgroundDrawingEnvironment.mustDrawGrid = app.workspace.settings.get(
+      'isGridShown'
+    );
+    app.backgroundDrawingEnvironment.redraw();
+    // DrawManager.clearCtx(app.backgroundCtx);
+    // // Grid
+    // if (app.workspace.settings.get('isGridShown')) {
+    //   const canvasWidth = app.canvas.main.clientWidth,
+    //     canvasHeight = app.canvas.main.clientHeight,
+    //     offsetX = app.workspace.translateOffset.x,
+    //     offsetY = app.workspace.translateOffset.y,
+    //     actualZoomLvl = app.workspace.zoomLevel,
+    //     // Ne pas voir les points apparaître :
+    //     marginToAdd = 20 * actualZoomLvl,
+    //     min = new Point(
+    //       -offsetX / actualZoomLvl - marginToAdd,
+    //       -offsetY / actualZoomLvl - marginToAdd
+    //     ),
+    //     max = new Point(
+    //       (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
+    //       (canvasHeight - offsetY) / actualZoomLvl + marginToAdd
+    //     ),
+    //     pts = GridManager.getVisibleGridPoints(min, max);
+    //   pts.forEach(pt => {
+    //     DrawManager.drawPoint(
+    //       app.backgroundCtx,
+    //       pt,
+    //       '#F00',
+    //       1.5 * actualZoomLvl,
+    //       false
+    //     );
+    //   });
+    // }
+    // // Tangram
+    // if (app.silhouette) {
+    //   let ctx;
+    //   if (app.silhouette.level != 3 && app.silhouette.level != 4) {
+    //     ctx = app.backgroundCtx;
+    //   } else {
+    //     ctx = app.forbiddenCtx;
+    //     DrawManager.clearCtx(ctx);
+    //     // clear au cas ou
+    //   }
+    //   const bounds = app.silhouette.bounds,
+    //     silhouetteCenter = new Point(
+    //       (bounds[1] + bounds[0]) / 2,
+    //       (bounds[3] + bounds[2]) / 2
+    //     ),
+    //     width = app.canvasWidth / 2,
+    //     height = app.canvasHeight,
+    //     canvasCenter = new Point(width / 2, height / 2);
+    //   if (app.silhouette.level != 3 && app.silhouette.level != 4) {
+    //     canvasCenter.translate(width, 0);
+    //   }
+    //   silhouetteCenter.setToCanvasCoordinates();
+    //   const translation = canvasCenter.subCoordinates(silhouetteCenter);
+    //   translation.multiplyWithScalar(1 / app.workspace.zoomLevel, true);
+    //   app.silhouette.shapes.forEach(s => {
+    //     s.translate(translation);
+    //     DrawManager.drawShape(ctx, s);
+    //   });
+    // }
   }
 
   /**
-   * Refresh the main ctx (regular shapes)
+   * Refresh the main canvas (regular shapes)
    */
   static refreshMain() {
-    DrawManager.clearCtx(app.mainCtx);
-
-    app.workspace.shapes
-      .filter(shape => {
-        return (
-          app.workspace.editingShapesIds.findIndex(id => id == shape.id) == -1
-        );
-      })
-      .forEach(shape => {
-        DrawManager.drawShape(app.mainCtx, shape);
-        window.dispatchEvent(
-          new CustomEvent('shapeDrawn', { detail: { shape: shape } })
-        );
-      });
+    app.mainDrawingEnvironment.redraw();
   }
 
   /**
-   * Refresh the upper ctx (animations)
+   * Refresh the upper canvas (animations)
    */
   static refreshUpper() {
-    DrawManager.clearCtx(app.upperCtx);
-    window.dispatchEvent(new CustomEvent('drawUpper'));
+    window.dispatchEvent(new CustomEvent('refreshStateUpper'));
+    app.upperDrawingEnvironment.redraw();
   }
 
   /* #################################################################### */
@@ -155,56 +128,31 @@ export class DrawManager {
   }
 
   /**
-   * Dessiner une forme sur un canvas donné
-   * @param  {Context2D}  ctx                  Canvas
-   * @param  {Shape}      shape                Forme à dessiner
-   * @param  {Number}      borderSize          Epaisseur des bordures de la forme
-   * @param  {Number}      axeAngle            Axe de symétrie (pour reverse)
+   * Dessiner une forme dans un environement de dessin
+   * @param  {DrawingEnvironment}  drawingEnvironment
+   * @param  {Shape}               shape
+   * @param  {Number}              borderSize
+   * @param  {Number}              axeAngle             Axe de symétrie (pour reverse)
    */
-  static drawShape(ctx, shape, borderSize = 1, axeAngle = undefined) {
-    ctx.strokeStyle = shape.borderColor;
-    ctx.fillStyle =
+  static drawShape(drawingEnvironment, shape, axeAngle = undefined) {
+    drawingEnvironment.ctx.strokeStyle = shape.borderColor;
+    drawingEnvironment.ctx.fillStyle =
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
-    ctx.globalAlpha = shape.opacity;
-    ctx.lineWidth = borderSize * app.workspace.zoomLevel;
-    ctx.miterLimit = 1;
+    if (shape.isOverlappingAnotherInTangram)
+      drawingEnvironment.ctx.fillStyle = '#F00';
+    drawingEnvironment.ctx.globalAlpha = shape.opacity;
+    drawingEnvironment.ctx.lineWidth =
+      shape.borderSize * app.workspace.zoomLevel;
+    drawingEnvironment.ctx.miterLimit = 1;
 
-    const pathScaleMethod =
-        ctx.canvas.width == 52 && ctx.canvas.height == 52
-          ? 'no scale'
-          : 'scale',
+    const pathScaleMethod = drawingEnvironment.mustScaleShapes
+        ? 'scale'
+        : 'no scale',
       path = new Path2D(shape.getSVGPath(pathScaleMethod, axeAngle));
 
-    ctx.save();
-
-    if (shape.name != 'CircleArc') ctx.fill(path, 'nonzero');
-    ctx.globalAlpha = 1;
-    ctx.stroke(path);
-
-    ctx.restore();
-
-    if (
-      app.settings.get('areShapesPointed') &&
-      shape.name !== 'silhouette' &&
-      (!shape.isCircle() || app.environment.name == 'Geometrie')
-    ) {
-      shape.vertexes.forEach(point =>
-        DrawManager.drawPoint(ctx, point, '#000', 1, false)
-      );
-    }
-
-    shape.segmentPoints.forEach(point =>
-      DrawManager.drawPoint(ctx, point, '#000', 1, false)
-    );
-
-    if (shape.isCenterShown)
-      DrawManager.drawPoint(ctx, shape.center, '#000', 1, false); //Le centre
-
-    if (shape.name == 'CircleArc')
-      DrawManager.drawPoint(ctx, shape.segments[0].arcCenter, '#000', 1, false); //Le centre de l'arc
-
-    ctx.restore();
-    ctx.lineWidth = 1;
+    if (shape.name != 'CircleArc') drawingEnvironment.ctx.fill(path, 'nonzero');
+    drawingEnvironment.ctx.globalAlpha = 1;
+    drawingEnvironment.ctx.stroke(path);
   }
 
   /**
@@ -222,16 +170,15 @@ export class DrawManager {
     ctx.globalAlpha = 1;
     ctx.lineWidth = size * app.workspace.zoomLevel;
 
-    const v0Copy = new Point(segment.vertexes[0]);
-    v0Copy.setToCanvasCoordinates();
+    const firstCoordinates = this.vertexes[0].coordinates.toCanvasCoordinates();
 
     const path = new Path2D(
-      ['M', v0Copy.x, v0Copy.y, segment.getSVGPath()].join(' ')
+      ['M', firstCoordinates.x, firstCoordinates.y, segment.getSVGPath()].join(
+        ' '
+      )
     );
 
     ctx.stroke(path);
-
-    ctx.lineWidth = 1;
 
     if (doSave) ctx.restore();
   }
@@ -272,8 +219,6 @@ export class DrawManager {
 
     ctx.stroke(path);
 
-    ctx.lineWidth = 1;
-
     if (doSave) ctx.restore();
   }
 
@@ -285,21 +230,21 @@ export class DrawManager {
    * @param  {Number}     [size=1]       Taille du point
    * @param  {Boolean}    [doSave=true]  Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  static drawPoint(ctx, point, color = '#000', size = 1, doSave = true) {
+  static drawPoint(drawingEnvironment, point, color = '#000', doSave = true) {
+    let ctx = drawingEnvironment.ctx;
     if (doSave) ctx.save();
 
     ctx.fillStyle = color;
     ctx.globalAlpha = 1;
 
-    const copy = new Point(point);
-    copy.setToCanvasCoordinates();
+    const canvasCoodinates = point.coordinates.toCanvasCoordinates();
 
     ctx.beginPath();
-    ctx.moveTo(copy.x, copy.y);
+    ctx.moveTo(canvasCoodinates.x, canvasCoodinates.y);
     ctx.arc(
-      copy.x,
-      copy.y,
-      size * 2 * app.workspace.zoomLevel,
+      canvasCoodinates.x,
+      canvasCoodinates.y,
+      point.size * 2 * app.workspace.zoomLevel,
       0,
       2 * Math.PI,
       0
@@ -318,16 +263,22 @@ export class DrawManager {
    * @param  {String}     [color='#000']  Couleur du texte
    * @param  {Boolean}    [doSave=true]   Faut-il sauvegarder le contexte du canvas (optimisation)
    */
-  static drawText(ctx, text, position, color = '#000', doSave = true) {
+  static drawText(
+    drawingEnvironment,
+    text,
+    position,
+    color = '#000',
+    doSave = true
+  ) {
+    let ctx = drawingEnvironment.ctx;
     if (doSave) ctx.save();
 
-    const fontSize = 20,
-      positionCopy = new Point(position);
-    positionCopy.translate(
-      (((-3 * fontSize) / 13) * text.length) / app.workspace.zoomLevel,
-      fontSize / 2 / app.workspace.zoomLevel
-    );
-    positionCopy.setToCanvasCoordinates();
+    const fontSize = 20;
+    let positionCopy = position.add({
+      x: (((-3 * fontSize) / 13) * text.length) / app.workspace.zoomLevel,
+      y: fontSize / 2 / app.workspace.zoomLevel,
+    });
+    positionCopy = positionCopy.toCanvasCoordinates();
 
     ctx.fillStyle = color;
     ctx.font = fontSize + 'px Arial';
@@ -365,18 +316,18 @@ window.addEventListener('draw-group', event => {
   );
 });
 window.addEventListener('draw-shape', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const drawingEnvironment = event.detail.shape.drawingEnvironment;
   DrawManager.drawShape(
-    ctx,
+    drawingEnvironment,
     event.detail.shape,
-    event.detail.borderSize,
     event.detail.axeAngle
   );
 });
 window.addEventListener('draw-segment', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const drawingEnvironment =
+    event.detail.shape.drawingEnvironment || app.workspace;
   DrawManager.drawSegment(
-    ctx,
+    drawingEnvironment,
     event.detail.segment,
     event.detail.color,
     event.detail.size,
@@ -384,9 +335,10 @@ window.addEventListener('draw-segment', event => {
   );
 });
 window.addEventListener('draw-line', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const drawingEnvironment =
+    event.detail.shape.drawingEnvironment || app.workspace;
   DrawManager.drawLine(
-    ctx,
+    drawingEnvironment,
     event.detail.segment,
     event.detail.color,
     event.detail.size,
@@ -394,22 +346,22 @@ window.addEventListener('draw-line', event => {
   );
 });
 window.addEventListener('draw-point', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const drawingEnvironment = event.detail.point.drawingEnvironment;
   DrawManager.drawPoint(
-    ctx,
+    drawingEnvironment,
     event.detail.point,
     event.detail.color,
-    event.detail.size,
     event.detail.doSave
   );
 });
 window.addEventListener('draw-text', event => {
-  const ctx = event.detail.ctx || app.upperCtx;
+  const drawingEnvironment =
+    event.detail.text.drawingEnvironment || app.workspace;
   DrawManager.drawText(
-    ctx,
-    event.detail.text,
-    event.detail.position,
-    event.detail.color,
+    drawingEnvironment,
+    event.detail.text.message,
+    event.detail.text.coordinates,
+    event.detail.text.color,
     event.detail.doSave
   );
 });

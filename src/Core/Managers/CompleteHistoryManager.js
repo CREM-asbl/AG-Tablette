@@ -186,8 +186,8 @@ window.addEventListener('objectSelected', event =>
 window.addEventListener('family-selected', event =>
   CompleteHistoryManager.addStep('family-selected', event)
 );
-window.addEventListener('shape-selected', event =>
-  CompleteHistoryManager.addStep('shape-selected', event)
+window.addEventListener('template-selected', event =>
+  CompleteHistoryManager.addStep('template-selected', event)
 );
 
 // divide events
@@ -210,9 +210,9 @@ window.addEventListener('mouse-coordinates-changed', event =>
   CompleteHistoryManager.addStep('mouse-coordinates-changed', event)
 );
 
-window.addEventListener('actions-executed', event =>
-  CompleteHistoryManager.addStep('actions-executed', event)
-);
+// window.addEventListener('actions-executed', event =>
+//   CompleteHistoryManager.addStep('actions-executed', event)
+// );
 
 // tangram
 // window.addEventListener('state-menu-button-click', event =>

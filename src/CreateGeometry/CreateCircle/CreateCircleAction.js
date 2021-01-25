@@ -2,13 +2,14 @@ import { Action } from '../../Core/States/Action';
 import { ShapeManager } from '../../Core/Managers/ShapeManager';
 import { Shape } from '../../Core/Objects/Shape';
 import { Segment } from '../../Core/Objects/Segment';
+import { Point } from '../../Core/Objects/Point';
 
 export class CreateCircleAction extends Action {
   constructor() {
     super('CreateCircleAction');
 
     // points of the shape to create
-    this.points = [];
+    this.coordinates = [];
 
     // name of the quadrilateral to create (rectangle, losange, parallélogramme, trapèze)
     this.circleName = null;
@@ -18,9 +19,9 @@ export class CreateCircleAction extends Action {
   }
 
   initFromObject(save) {
-    this.arcCenter = save.arcCenter;
-    this.points = save.points;
+    this.coordinates = save.coordinates;
     this.circleName = save.circleName;
+    this.clockwise = save.clockwise;
     this.shapeId = save.shapeId;
   }
 
@@ -51,64 +52,72 @@ export class CreateCircleAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
-    this.arcCenter.name = 'arcCenter';
-    this.points[0].name = 'firstPoint';
 
-    let shape;
+    let points = this.coordinates.map(
+      coord =>
+        new Point({
+          drawingEnvironment: app.mainDrawingEnvironment,
+          coordinates: coord,
+          type: 'vertex',
+        })
+    );
+    let segments = [];
+
+    let idx = 0;
     if (this.circleName == 'Circle') {
-      shape = new Shape({
-        id: this.shapeId,
-        segments: [
-          new Segment(
-            this.points[0],
-            this.points[0],
-            null,
-            null,
-            this.arcCenter
-          ),
-        ],
-        name: this.circleName,
-        familyName: 'circle-shape',
+      let seg = new Segment({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        idx: idx++,
+        vertexIds: [points[1].id, points[1].id],
+        arcCenterId: points[0].id,
       });
-    } else if (this.circleName == 'CirclePart') {
-      this.points[1].name = 'secondPoint';
-      shape = new Shape({
-        id: this.shapeId,
-        segments: [
-          new Segment(this.arcCenter, this.points[0]),
-          new Segment(
-            this.points[0],
-            this.points[1],
-            null,
-            null,
-            this.arcCenter,
-            true
-          ),
-          new Segment(this.points[1], this.arcCenter),
-        ],
-        name: this.circleName,
-        familyName: 'circle-shape',
-      });
-    } else if (this.circleName == 'CircleArc') {
-      this.points[1].name = 'secondPoint';
-      shape = new Shape({
-        id: this.shapeId,
-        segments: [
-          new Segment(
-            this.points[0],
-            this.points[1],
-            null,
-            null,
-            this.arcCenter,
-            true
-          ),
-        ],
-        name: this.circleName,
-        familyName: 'circle-shape',
-      });
+      segments.push(seg);
     }
-    // shape.setGeometryConstructionSpec();
-    ShapeManager.addShape(shape);
+    if (this.circleName == 'CirclePart') {
+      let seg = new Segment({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        idx: idx++,
+        vertexIds: [points[0].id, points[1].id],
+      });
+      segments.push(seg);
+    }
+    if (this.circleName == 'CirclePart' || this.circleName == 'CircleArc') {
+      let seg = new Segment({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        idx: idx++,
+        vertexIds: [points[1].id, points[2].id],
+        arcCenterId: points[0].id,
+        counterclockwise: !this.clockwise,
+      });
+      segments.push(seg);
+    }
+    if (this.circleName == 'CirclePart') {
+      let seg = new Segment({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        idx: idx++,
+        vertexIds: [points[2].id, points[0].id],
+      });
+      segments.push(seg);
+    }
+
+    let shape = new Shape({
+      id: this.shapeId,
+      drawingEnvironment: app.mainDrawingEnvironment,
+      segmentIds: segments.map(seg => seg.id),
+      pointIds: points.map(pt => pt.id),
+      name: this.circleName,
+      familyName: 'circle-shape',
+    });
+
+    segments.forEach((seg, idx) => {
+      seg.idx = idx;
+      seg.shapeId = shape.id;
+    });
+
+    window.dispatchEvent(new CustomEvent('refresh'));
+
+    // shape.points[0].name = 'arcCenter';
+    // shape.points[1].name = 'firstPoint';
   }
 
   /**

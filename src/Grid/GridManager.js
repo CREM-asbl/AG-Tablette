@@ -1,5 +1,6 @@
 import { app } from '../Core/App';
 import { Point } from '../Core/Objects/Point';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 //Todo: Créer un event plus précis
 addEventListener('app-state-changed', () => {
@@ -28,91 +29,136 @@ export class GridManager {
    * triangle est équilatéral.
    * 		(-> Ex de points: (60, 10), ...)
    */
-  static getVisibleGridPoints(minPoint, maxPoint) {
+  static drawGridPoints() {
     if (!app.workspace.settings.get('isGridShown')) return [];
 
-    let ptList = [],
-      size = app.workspace.settings.get('gridSize'),
+    const canvasWidth = app.canvasWidth,
+      canvasHeight = app.canvasHeight,
+      offsetX = app.workspace.translateOffset.x,
+      offsetY = app.workspace.translateOffset.y,
+      actualZoomLvl = app.workspace.zoomLevel,
+      // Ne pas voir les points apparaître :
+      marginToAdd = 20 * actualZoomLvl,
+      minCoord = new Coordinates({
+        x: -offsetX / actualZoomLvl - marginToAdd,
+        y: -offsetY / actualZoomLvl - marginToAdd,
+      }),
+      maxCoord = new Coordinates({
+        x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
+        y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
+      });
+
+    let size = app.workspace.settings.get('gridSize'),
       type = app.workspace.settings.get('gridType');
     if (type == 'square') {
-      let t1 = Math.ceil((minPoint.x - 10) / (50 * size)),
+      let t1 = Math.ceil((minCoord.x - 10) / (50 * size)),
         startX = 10 + t1 * 50 * size,
-        t2 = Math.ceil((minPoint.y - 10) / (50 * size)),
+        t2 = Math.ceil((minCoord.y - 10) / (50 * size)),
         startY = 10 + t2 * 50 * size;
-      for (let x = startX; x <= maxPoint.x; x += 50 * size) {
-        for (let y = startY; y <= maxPoint.y; y += 50 * size) {
-          ptList.push(new Point(x, y));
+      for (let x = startX; x <= maxCoord.x; x += 50 * size) {
+        for (let y = startY; y <= maxCoord.y; y += 50 * size) {
+          new Point({
+            drawingEnvironment: app.backgroundDrawingEnvironment,
+            x,
+            y,
+            color: '#F00',
+            size: 1.5 * actualZoomLvl,
+          });
         }
       }
     } else if (type == 'horizontal-triangle') {
       let approx = 43.3012701892,
-        t1 = Math.ceil((minPoint.x - 10) / (50 * size)),
+        t1 = Math.ceil((minCoord.x - 10) / (50 * size)),
         startX = 10 + t1 * 50 * size,
-        t2 = Math.ceil((minPoint.y - 10) / (approx * 2 * size)),
+        t2 = Math.ceil((minCoord.y - 10) / (approx * 2 * size)),
         startY = 10 + t2 * approx * 2 * size;
 
-      for (let x = startX; x <= maxPoint.x; x += 50 * size) {
-        for (let y = startY; y <= maxPoint.y; y += approx * 2 * size) {
-          ptList.push(new Point(x, y));
+      for (let x = startX; x <= maxCoord.x; x += 50 * size) {
+        for (let y = startY; y <= maxCoord.y; y += approx * 2 * size) {
+          new Point({
+            drawingEnvironment: app.backgroundDrawingEnvironment,
+            x,
+            y,
+            color: '#F00',
+            size: 1.5 * actualZoomLvl,
+          });
         }
       }
 
-      t1 = Math.ceil((minPoint.x - 10 - (50 * size) / 2) / (50 * size));
+      t1 = Math.ceil((minCoord.x - 10 - (50 * size) / 2) / (50 * size));
       startX = 10 + (50 * size) / 2 + t1 * 50 * size;
-      t2 = Math.ceil((minPoint.y - 10 - approx * size) / (approx * 2 * size));
+      t2 = Math.ceil((minCoord.y - 10 - approx * size) / (approx * 2 * size));
       startY = 10 + approx * size + t2 * approx * 2 * size;
-      for (let x = startX; x <= maxPoint.x; x += 50 * size) {
-        for (let y = startY; y <= maxPoint.y; y += approx * 2 * size) {
-          ptList.push(new Point(x, y));
+      for (let x = startX; x <= maxCoord.x; x += 50 * size) {
+        for (let y = startY; y <= maxCoord.y; y += approx * 2 * size) {
+          new Point({
+            drawingEnvironment: app.backgroundDrawingEnvironment,
+            x,
+            y,
+            color: '#F00',
+            size: 1.5 * actualZoomLvl,
+          });
         }
       }
     } else if (type == 'vertical-triangle') {
       let approx = 43.3012701892,
-        t1 = Math.ceil((minPoint.x - 10) / (approx * 2 * size)),
+        t1 = Math.ceil((minCoord.x - 10) / (approx * 2 * size)),
         startX = 10 + t1 * approx * 2 * size,
-        t2 = Math.ceil((minPoint.y - 10) / (50 * size)),
+        t2 = Math.ceil((minCoord.y - 10) / (50 * size)),
         startY = 10 + t2 * 50 * size;
 
-      for (let x = startX; x <= maxPoint.x; x += approx * 2 * size) {
-        for (let y = startY; y <= maxPoint.y; y += 50 * size) {
-          ptList.push(new Point(x, y));
+      for (let x = startX; x <= maxCoord.x; x += approx * 2 * size) {
+        for (let y = startY; y <= maxCoord.y; y += 50 * size) {
+          new Point({
+            drawingEnvironment: app.backgroundDrawingEnvironment,
+            x,
+            y,
+            color: '#F00',
+            size: 1.5 * actualZoomLvl,
+          });
         }
       }
 
-      t1 = Math.ceil((minPoint.x - 10 - approx * size) / (approx * 2 * size));
+      t1 = Math.ceil((minCoord.x - 10 - approx * size) / (approx * 2 * size));
       startX = 10 + approx * size + t1 * approx * 2 * size;
-      t2 = Math.ceil((minPoint.y - 10 - (50 * size) / 2) / (50 * size));
+      t2 = Math.ceil((minCoord.y - 10 - (50 * size) / 2) / (50 * size));
       startY = 10 + (50 * size) / 2 + t2 * 50 * size;
-      for (let x = startX; x <= maxPoint.x; x += approx * 2 * size) {
-        for (let y = startY; y <= maxPoint.y; y += 50 * size) {
-          ptList.push(new Point(x, y));
+      for (let x = startX; x <= maxCoord.x; x += approx * 2 * size) {
+        for (let y = startY; y <= maxCoord.y; y += 50 * size) {
+          new Point({
+            drawingEnvironment: app.backgroundDrawingEnvironment,
+            x,
+            y,
+            color: '#F00',
+            size: 1.5 * actualZoomLvl,
+          });
         }
       }
     }
-    return ptList;
   }
 
   /**
-   * Renvoie le point de la grille le plus proche d'un point.
-   * @param  {Point} point Le point
-   * @return {Point}       Un point de la grille
+   * Renvoie la coordonnée du point de la grille le plus proche.
+   * @param  {Coordinates} coord
+   * @return {Point}
    */
-  static getClosestGridPoint(point) {
-    let x = point.x,
-      y = point.y,
+  static getClosestGridPoint(coord) {
+    let x = coord.x,
+      y = coord.y,
       possibilities = [],
       gridType = app.workspace.settings.get('gridType'),
       gridSize = app.workspace.settings.get('gridSize');
 
     if (gridType == 'square') {
-      let topleft = new Point(
-        x - ((x - 10) % (50 * gridSize)),
-        y - ((y - 10) % (50 * gridSize))
-      );
+      let topleft = new Coordinates({
+        x: x - ((x - 10) % (50 * gridSize)),
+        y: y - ((y - 10) % (50 * gridSize)),
+      });
+      // closest point on top and left
       possibilities.push(topleft);
-      possibilities.push(topleft.addCoordinates(0, 50 * gridSize));
-      possibilities.push(topleft.addCoordinates(50 * gridSize, 0));
-      possibilities.push(topleft.addCoordinates(50 * gridSize, 50 * gridSize));
+      possibilities.push(topleft.add({ x: 0, y: 50 * gridSize }));
+      possibilities.push(topleft.add({ x: 50 * gridSize, y: 0 }));
+      possibilities.push(topleft.add({ x: 50 * gridSize, y: 50 * gridSize }));
     } else if (gridType == 'horizontal-triangle') {
       let height = 43.3012701892,
         topY = y - ((y - 10) % (height * gridSize)),
@@ -121,12 +167,12 @@ export class GridManager {
           ((x - 10) % (50 * gridSize)) +
           (Math.round(topY / height / gridSize) % 2) * 25 * gridSize;
       if (topX > x) topX -= 50 * gridSize;
-      let topleft1 = new Point(topX, topY);
+      let topleft1 = new Coordinates({ x: topX, y: topY });
 
       possibilities.push(topleft1);
-      possibilities.push(topleft1.addCoordinates(50 * gridSize, 0));
+      possibilities.push(topleft1.add({ x: 50 * gridSize, y: 0 }));
       possibilities.push(
-        topleft1.addCoordinates(25 * gridSize, height * gridSize)
+        topleft1.add({ x: 25 * gridSize, y: height * gridSize })
       );
     } else if (gridType == 'vertical-triangle') {
       let height = 43.3012701892,
@@ -136,49 +182,52 @@ export class GridManager {
           ((y - 10) % (50 * gridSize)) +
           (Math.round(topX / height / gridSize) % 2) * 25 * gridSize;
       if (topY > y) topY -= 50 * gridSize;
-      let topleft1 = new Point(topX, topY);
+      let topleft1 = new Coordinates({ x: topX, y: topY });
 
       possibilities.push(topleft1);
-      possibilities.push(topleft1.addCoordinates(0, 50 * gridSize));
+      possibilities.push(topleft1.add({ x: 0, y: 50 * gridSize }));
       possibilities.push(
-        topleft1.addCoordinates(height * gridSize, 25 * gridSize)
+        topleft1.add({ x: height * gridSize, y: 25 * gridSize })
       );
     }
 
-    const closest = possibilities.sort((poss1, poss2) =>
-      point.dist(poss1) > point.dist(poss2) ? 1 : -1
+    const closestCoord = possibilities.sort((poss1, poss2) =>
+      coord.dist(poss1) > coord.dist(poss2) ? 1 : -1
     )[0];
 
-    closest.type = 'grid';
+    const closestPoint = app.backgroundDrawingEnvironment.points.find(pt =>
+      pt.coordinates.equal(closestCoord)
+    );
+    closestPoint.type = 'grid';
 
-    return closest;
+    return closestPoint;
   }
 
-  static toSVG() {
-    let canvasWidth = app.canvas.main.clientWidth,
-      canvasHeight = app.canvas.main.clientHeight,
-      offsetX = app.workspace.translateOffset.x,
-      offsetY = app.workspace.translateOffset.y,
-      actualZoomLvl = app.workspace.zoomLevel,
-      // Ne pas voir les points apparaître:
-      marginToAdd = 0, //20 * actualZoomLvl,
-      min = {
-        x: -offsetX / actualZoomLvl - marginToAdd,
-        y: -offsetY / actualZoomLvl - marginToAdd,
-      },
-      max = {
-        x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
-        y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
-      },
-      svg_data = '';
+  // static toSVG() {
+  //   let canvasWidth = app.canvas.main.clientWidth,
+  //     canvasHeight = app.canvas.main.clientHeight,
+  //     offsetX = app.workspace.translateOffset.x,
+  //     offsetY = app.workspace.translateOffset.y,
+  //     actualZoomLvl = app.workspace.zoomLevel,
+  //     // Ne pas voir les points apparaître:
+  //     marginToAdd = 0, //20 * actualZoomLvl,
+  //     min = {
+  //       x: -offsetX / actualZoomLvl - marginToAdd,
+  //       y: -offsetY / actualZoomLvl - marginToAdd,
+  //     },
+  //     max = {
+  //       x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
+  //       y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
+  //     },
+  //     svg_data = '';
 
-    let pts = GridManager.getVisibleGridPoints(min, max);
-    pts.forEach(pt => {
-      svg_data += pt.toSVG('#F00', 1.5);
-    });
+  //   let pts = GridManager.getVisibleGridPoints(min, max);
+  //   pts.forEach(pt => {
+  //     svg_data += pt.toSVG('#F00', 1.5);
+  //   });
 
-    if (svg_data !== '') svg_data = '<!-- Grid -->\n' + svg_data + '\n';
+  //   if (svg_data !== '') svg_data = '<!-- Grid -->\n' + svg_data + '\n';
 
-    return svg_data;
-  }
+  //   return svg_data;
+  // }
 }

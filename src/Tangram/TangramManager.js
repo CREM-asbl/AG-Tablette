@@ -65,7 +65,7 @@ export class TangramManager {
     if (!app || app.CremTangrams.length) return;
 
     const folder = 'tangram/',
-      filenames = ['Carré.agt'],
+      filenames = ['Carre.agt'],
       fullFilenames = filenames.map(name => serverURL + folder + name);
 
     let jsons = (
@@ -78,7 +78,7 @@ export class TangramManager {
   }
 
   static async loadKit() {
-    const response = await fetch('data/Tangram/kit2.json');
+    const response = await fetch('data/Tangram/tangramShapeKit.json');
     return response.text();
   }
 

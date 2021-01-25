@@ -1,6 +1,9 @@
 import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GroupManager } from '../Core/Managers/GroupManager';
+import { Shape } from '../Core/Objects/Shape';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { app } from '../Core/App';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 
 export class CopyAction extends Action {
@@ -79,29 +82,43 @@ export class CopyAction extends Action {
 
     let shapesList = [];
 
-    this.involvedShapesIds = this.involvedShapesIds
-      .map(id => ShapeManager.getShapeById(id))
-      .sort((s1, s2) =>
-        ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
-      )
-      .map(s => s.id);
+    let involvedShapes = this.involvedShapesIds.map(id =>
+      app.mainDrawingEnvironment.findObjectById(id, 'shape')
+    );
 
-    this.involvedShapesIds.forEach((id, index) => {
-      let s = ShapeManager.getShapeById(id),
-        copy = s.copy();
-      shapesList.push(copy);
-      copy.translate(this.transformation);
-      copy.id = this.newShapesIds[index];
-      ShapeManager.addShape(copy);
+    // sort shapes by height
+    // this.involvedShapesIds = this.involvedShapesIds
+    //   .map(id => ShapeManager.getShapeById(id))
+    //   .sort((s1, s2) =>
+    //     ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
+    //   )
+    //   .map(s => s.id);
+
+    involvedShapes.forEach(s => {
+      let newShape = new Shape({
+        ...s,
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: s.getSVGPath('no scale'),
+        id: undefined,
+      });
+      shapesList.push(newShape);
+      newShape.translate(this.transformation);
+    });
+
+    let transformation = getShapeAdjustment(shapesList, shapesList[0]);
+
+    shapesList.forEach(newShape => {
+      newShape.rotate(
+        transformation.rotationAngle,
+        shapesList[0].centerCoordinates
+      );
+      newShape.translate(transformation.translation);
     });
 
     //Si nécessaire, créer le userGroup
     if (shapesList.length > 1) {
       let userGroup = new ShapeGroup(0, 1);
-      if (Number.isFinite(this.createdUsergroupId))
-        userGroup.id = this.createdUsergroupId;
-      else this.createdUsergroupId = userGroup.id;
-      userGroup.shapesIds = this.newShapesIds;
+      userGroup.shapesIds = shapesList.map(s => s.id);
       GroupManager.addGroup(userGroup);
     }
   }

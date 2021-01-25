@@ -1,6 +1,5 @@
 import { app } from '../Core/App';
 import { Action } from '../Core/States/Action';
-import { Point } from '../Core/Objects/Point';
 
 export class TranslateAction extends Action {
   constructor() {
@@ -11,8 +10,7 @@ export class TranslateAction extends Action {
   }
 
   initFromObject(save) {
-    this.offset = new Point();
-    this.offset.initFromObject(save.offset);
+    this.offset = save.offset;
   }
 
   /**
@@ -44,7 +42,7 @@ export class TranslateAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let originalOffset = app.workspace.translateOffset,
-      newOffset = originalOffset.addCoordinates(this.offset);
+      newOffset = originalOffset.add(this.offset);
 
     app.workspace.setTranslateOffset(newOffset);
   }

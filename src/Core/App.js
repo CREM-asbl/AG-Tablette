@@ -113,7 +113,7 @@ export class App {
 
   resetSettings() {
     this.initEditableSettings();
-    dispatchEvent(new CustomEvent('app-settings-changed'));
+    window.dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
