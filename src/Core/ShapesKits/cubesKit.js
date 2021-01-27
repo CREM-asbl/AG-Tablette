@@ -2,7 +2,7 @@ export const cubesKit = {
   name: 'Cubes',
   families: {
     'Cube 1': {
-      color: '#f46c2e',
+      color: '#801f00',
       opacity: 1,
       shapeTemplates: [
         {
@@ -17,7 +17,7 @@ export const cubesKit = {
       ],
     },
     'Cube 2': {
-      color: '#f46c2e',
+      color: '#801f00',
       opacity: 1,
       shapeTemplates: [
         {

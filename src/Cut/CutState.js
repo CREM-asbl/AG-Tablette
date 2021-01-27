@@ -287,7 +287,7 @@ export class CutState extends State {
     for (let i = 1; i < amountOfParts; i++) {
       let coord = pt1.coordinates.add(part.multiply(i));
       if (!shape.isCoordinatesInPath(coord)) return false;
-      pointsInBorder += shape.isPointInBorder(coord) ? 1 : 0;
+      pointsInBorder += shape.isCoordinatesOnBorder(coord) ? 1 : 0;
     }
     if (pointsInBorder > amountOfParts / 5) return false;
     const junction = new Segment({

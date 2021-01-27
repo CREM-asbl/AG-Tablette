@@ -97,7 +97,7 @@ export const grandeursKit = {
     },
 
     'Famille du carré': {
-      color: '#f46c2e',
+      color: '#801f00',
       shapeTemplates: [
         {
           name: 'Carré',
@@ -222,7 +222,7 @@ export const grandeursKit = {
         {
           //Circonscrit au carré -> rayon = 35.35533905932738.
           name: 'Disque 3',
-          color: '#f46c2e',
+          color: '#801f00',
           path:
             'M 35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 -35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 35.35533905932738 0',
         },

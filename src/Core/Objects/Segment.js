@@ -664,7 +664,6 @@ export class Segment {
    * @param {Point[]} points the points for the divide
    */
   divideWith(points) {
-    console.trace();
     points.sort((pt1, pt2) =>
       pt1.coordinates.dist(this.vertexes[0].coordinates) >
       pt2.coordinates.dist(this.vertexes[0].coordinates)
