@@ -349,14 +349,15 @@ export class Shape {
     return Bounds.getOuterBounds(...segmentBounds);
   }
 
-  getCommonsPoints(shape) {
-    const commonsPoints = [];
-    this.allOutlinePoints.forEach(point1 => {
-      shape.allOutlinePoints.forEach(point2 => {
-        if (point1.equal(point2)) commonsPoints.push(new Point(point1));
+  getCommonsCoordinates(shape) {
+    const commonsCoordinates = [];
+    this.points.forEach(point1 => {
+      shape.points.forEach(point2 => {
+        if (point1.coordinates.equal(point2.coordinates))
+          commonsCoordinates.push(point1.coordinates);
       });
     });
-    return commonsPoints;
+    return commonsCoordinates;
   }
 
   getArcCenterFromSVG(
@@ -528,11 +529,11 @@ export class Shape {
       this.isCoordinatesInPath(segment.vertexes[0]) &&
       this.isCoordinatesInPath(segment.vertexes[1]) &&
       (!(
-        this.isPointInBorder(segment.vertexes[0]) &&
-        this.isPointInBorder(segment.vertexes[1])
+        this.isCoordinatesOnBorder(segment.vertexes[0]) &&
+        this.isCoordinatesOnBorder(segment.vertexes[1])
       ) ||
         (this.isCoordinatesInPath(segment.middle) &&
-          !this.isPointInBorder(segment.middle)))
+          !this.isCoordinatesOnBorder(segment.middle)))
     );
   }
 
