@@ -1,97 +1,92 @@
 {
-  "name": "@crem/apprenti-geometre",
-  "version": "3.0.0",
-  "resolutions": {
-    "inherits": "2.0.3",
-    "samsam": "1.1.3",
-    "supports-color": "3.1.2",
-    "type-detect": "1.0.0",
-    "@webcomponents/webcomponentsjs": "2.0.0-beta.2"
-  },
-  "author": "The Polymer Authors",
-  "dependencies": {
-    "@webcomponents/webcomponentsjs": "^2.5.0",
-    "babel-eslint": "^10.1.0",
-    "browserslist": "^4.14.1",
-    "core-js": "^3.6.5",
-    "eslint-plugin-babel": "^5.3.1",
-    "growl": "^1.10.5",
-    "joi": "^17.3.0",
-    "latest": "^0.2.0",
-    "lit-element": "^2.4.0",
-    "ncp": "^2.0.0",
-    "newest": "^1.0.6",
-    "node": "^14.8.0",
-    "npm": "^6.14.9",
-    "outdated": "^0.1.1",
-    "plugins": "^0.4.2",
-    "pwa-helpers": "^0.9.1",
-    "redos": "^1.0.1",
-    "rollup-plugin-cpy": "^2.0.1"
-  },
-  "devDependencies": {
-    "@open-wc/building-rollup": "^1.9.3",
-    "@open-wc/demoing-storybook": "^2.4.5",
-    "@open-wc/eslint-config": "^3.0.0",
-    "@open-wc/prettier-config": "^1.1.0",
-    "@open-wc/testing": "^2.5.29",
-    "@open-wc/testing-karma": "^4.0.9",
-    "@open-wc/testing-karma-bs": "^1.3.94",
-    "eslint": "^7.12.0",
-    "eslint-plugin-lit": "^1.2.4",
-    "husky": "^4.3.0",
-    "lint-staged": "^10.4.2",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.32.1",
-    "wct-browser-legacy": "^1.0.2",
-    "webpack-merge": "^5.2.0"
-  },
-  "scripts": {
-    "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
-    "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
-    "lint:prettier": "prettier \"**/*.js\" --check --ignore-path .gitignore",
-    "format:prettier": "prettier \"**/*.js\" --write --ignore-path .gitignore",
-    "lint": "npm run lint:eslint && npm run lint:prettier",
-    "format": "npm run format:eslint && npm run format:prettier",
-    "test": "karma start --coverage",
-    "test:watch": "karma start --auto-watch=true --single-run=false",
-    "test:update-snapshots": "karma start --update-snapshots",
-    "test:prune-snapshots": "karma start --prune-snapshots",
-    "test:compatibility": "karma start --compatibility all --coverage",
-    "test:compatibility:watch": "karma start --compatibility all --auto-watch=true --single-run=false",
-    "test:bs": "karma start karma.bs.config.js --compatibility all --coverage",
-    "site:build": "npm run storybook:build",
-    "storybook": "start-storybook",
-    "storybook:build": "build-storybook",
-    "build": "rimraf dist && rollup -c rollup.config.js && npm run copy",
-    "start:build": "cd dist && es-dev-server --open",
-    "start": "es-dev-server --app-index index.html --node-resolve --open --watch --compatibility none",
-    "start:compatibility": "es-dev-server --app-index index.html --compatibility all --node-resolve --open --watch",
-    "start:local": "es-dev-server --app-index index.html --node-resolve --open --watch --hostname 192.168.0.4",
-    "copy": "ncp images \"dist/images\" && copy manifest.json dist",
-    "deploy": "npm run build && firebase deploy --only hosting:default",
-    "deploy:beta": "npm run build && firebase deploy --only hosting:beta"
-  },
-  "eslintConfig": {
-    "extends": [
-      "@open-wc/eslint-config",
-      "eslint-config-prettier"
-    ]
-  },
-  "prettier": {
-    "singleQuote": true,
-    "arrowParens": "avoid"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
+    "name": "@crem/apprenti-geometre",
+    "version": "3.0.0",
+    "resolutions": {
+        "inherits": "2.0.3",
+        "samsam": "1.1.3",
+        "supports-color": "3.1.2",
+        "type-detect": "1.0.0",
+        "@webcomponents/webcomponentsjs": "2.0.0-beta.2"
+    },
+    "author": "The Polymer Authors",
+    "dependencies": {
+        "@webcomponents/webcomponentsjs": "^2.5.0",
+        "babel-eslint": "^10.1.0",
+        "browserslist": "^4.14.1",
+        "core-js": "^3.6.5",
+        "eslint-plugin-babel": "^5.3.1",
+        "growl": "^1.10.5",
+        "joi": "^17.3.0",
+        "latest": "^0.2.0",
+        "lit-element": "^2.4.0",
+        "ncp": "^2.0.0",
+        "newest": "^1.0.6",
+        "node": "^14.8.0",
+        "npm": "^6.14.9",
+        "outdated": "^0.1.1",
+        "plugins": "^0.4.2",
+        "pwa-helpers": "^0.9.1",
+        "redos": "^1.0.1",
+        "rollup-plugin-cpy": "^2.0.1"
+    },
+    "devDependencies": {
+        "@open-wc/building-rollup": "^1.9.3",
+        "@open-wc/demoing-storybook": "^2.4.5",
+        "@open-wc/eslint-config": "^3.0.0",
+        "@open-wc/prettier-config": "^1.1.0",
+        "@open-wc/testing": "^2.5.29",
+        "@open-wc/testing-karma": "^4.0.9",
+        "@open-wc/testing-karma-bs": "^1.3.94",
+        "eslint": "^7.12.0",
+        "eslint-plugin-lit": "^1.2.4",
+        "husky": "^4.3.0",
+        "lint-staged": "^10.4.2",
+        "rimraf": "^3.0.2",
+        "rollup": "^2.32.1",
+        "wct-browser-legacy": "^1.0.2",
+        "webpack-merge": "^5.2.0"
+    },
+    "scripts": {
+        "lint:eslint": "eslint --ext .js,.html . --ignore-path .gitignore",
+        "format:eslint": "eslint --ext .js,.html . --fix --ignore-path .gitignore",
+        "lint:prettier": "prettier \"**/*.js\" --check --ignore-path .gitignore",
+        "format:prettier": "prettier \"**/*.js\" --write --ignore-path .gitignore",
+        "lint": "npm run lint:eslint && npm run lint:prettier",
+        "format": "npm run format:eslint && npm run format:prettier",
+        "test": "karma start --coverage",
+        "test:watch": "karma start --auto-watch=true --single-run=false",
+        "test:update-snapshots": "karma start --update-snapshots",
+        "test:prune-snapshots": "karma start --prune-snapshots",
+        "test:compatibility": "karma start --compatibility all --coverage",
+        "test:compatibility:watch": "karma start --compatibility all --auto-watch=true --single-run=false",
+        "test:bs": "karma start karma.bs.config.js --compatibility all --coverage",
+        "site:build": "npm run storybook:build",
+        "storybook": "start-storybook",
+        "storybook:build": "build-storybook",
+        "build": "rimraf dist && rollup -c rollup.config.js && npm run copy",
+        "start:build": "cd dist && es-dev-server --open",
+        "start": "es-dev-server --app-index index.html --node-resolve --open --watch --compatibility none",
+        "start:compatibility": "es-dev-server --app-index index.html --compatibility all --node-resolve --open --watch",
+        "start:local": "es-dev-server --app-index index.html --node-resolve --open --watch --hostname 192.168.0.4",
+        "copy": "ncp images \"dist/images\" && ncp data \"dist/data\" && copy manifest.json dist",
+        "deploy": "npm run build && firebase deploy --only hosting:default",
+        "deploy:beta": "npm run build && firebase deploy --only hosting:beta"
+    },
+    "eslintConfig": {
+        "extends": [
+            "@open-wc/eslint-config",
+            "eslint-config-prettier"
+        ]
+    },
+    "prettier": {
+        "singleQuote": true,
+        "arrowParens": "avoid"
+    },
+    "lint-staged": {
+        "*.js": [
+            "eslint --fix",
+            "prettier --write",
+            "git add"
+        ]
     }
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint --fix",
-      "prettier --write",
-      "git add"
-    ]
-  }
 }
