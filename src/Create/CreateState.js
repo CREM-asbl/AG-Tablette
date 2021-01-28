@@ -62,6 +62,7 @@ export class CreateState extends State {
     this.shapesList.selectedFamily = family;
     this.shapesList.templateNames = templateNames;
     this.shapesList.style.display = 'flex';
+    this.shapesList.templateName = null;
 
     window.dispatchEvent(
       new CustomEvent('family-selected', {
