@@ -197,6 +197,10 @@ export class GroupState extends State {
         //La forme fait partie d'un autre groupe, on fusionne
         let index1 = GroupManager.getGroupIndex(this.group),
           index2 = GroupManager.getGroupIndex(userGroup);
+        if (index1 == index2) {
+          window.dispatchEvent(new CustomEvent('show-notif', {detail: {message: 'La forme choisie fait déjà partie du groupe'}}));
+          return;
+        }
         //On garde le groupe ayant l'index le plus petit
         if (index1 > index2) {
           [index1, index2] = [index2, index1];
