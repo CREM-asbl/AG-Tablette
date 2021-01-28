@@ -488,6 +488,7 @@ export class Segment {
   addPoint(coordinates, ratio) {
     //TODO: garder les points triés?
     // if doesnt already exist
+    console.log(this.divisionPointIds, this.divisionPoints, this.drawingEnvironment);
     if (
       this.divisionPoints.findIndex(pt => Math.abs(pt.ratio - ratio) < 0.001) ==
       -1
@@ -502,6 +503,7 @@ export class Segment {
       });
       this.divisionPointIds.push(newPoint.id);
     }
+    console.log(this.divisionPointIds);
   }
 
   /**
@@ -956,9 +958,8 @@ export class Segment {
       id: this.id,
       shapeId: this.shapeId,
       idx: this.idx,
-      divisionPointInfos: this.divisionPointInfos,
-      vertexIds: this.vertexIds,
-      divisionPointIds: this.divisionPointIds,
+      vertexIds: [...this.vertexIds],
+      divisionPointIds: [...this.divisionPointIds],
       arcCenterId: this.arcCenterId,
       counterclockwise: this.counterclockwise,
       isInfinite: this.isInfinite,

@@ -1317,8 +1317,8 @@ export class Shape {
   saveData() {
     let data = {
       id: this.id,
-      segmentIds: this.segmentIds,
-      pointIds: this.pointIds,
+      segmentIds: [...this.segmentIds],
+      pointIds: [...this.pointIds],
       name: this.name,
       familyName: this.familyName,
       color: this.color,

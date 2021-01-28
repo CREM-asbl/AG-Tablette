@@ -430,7 +430,7 @@ export class Point {
       coordinates: this.coordinates,
       shapeId: this.shapeId,
       idx: this.idx,
-      segmentIds: this.segmentIds,
+      segmentIds: [...this.segmentIds],
       type: this.type,
       name: this.name,
       ratio: this.ratio,
