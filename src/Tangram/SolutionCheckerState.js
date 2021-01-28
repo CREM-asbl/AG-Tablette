@@ -155,7 +155,8 @@ export class SolutionCheckerState extends State {
       let shape = new Shape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: path,
-        color: '#0000',
+        color: '#000',
+        opacity: 0,
         borderColor: '#00D084',
         borderSize: 2,
         isPointed: false,

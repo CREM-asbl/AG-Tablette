@@ -194,7 +194,8 @@ export class DivideState extends State {
           borderSize: 3,
           path: object.getSVGPath('no scale', undefined, true),
           id: undefined,
-          color: '#0000',
+          color: '#000',
+          opacity: 0,
         });
 
         this.currentStep = 'showing-segment';
@@ -338,7 +339,8 @@ export class DivideState extends State {
           borderSize: 3,
           path: path,
           id: undefined,
-          color: '#0000',
+          color: '#000',
+          opacity: 0,
         });
       }
     }
