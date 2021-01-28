@@ -112,7 +112,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   let ptList = [];
   shapes.forEach(s => {
     ptList.push(...s.vertexes, ...s.divisionPoints);
-    // if (s.isCenterShown) ptList.push(s.center);
+    if (s.isCenterShown) ptList.push(s.center);
   });
 
   // Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).

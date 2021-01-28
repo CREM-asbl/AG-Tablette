@@ -114,6 +114,11 @@ export class Shape {
     return divisionPoints;
   }
 
+  get center() {
+    let center = this.points.filter(pt => pt.type === 'shapeCenter')[0];
+    return center;
+  }
+
   get modifiablePoints() {
     let points = this.vertexes;
     if (this.name == 'Circle') {
