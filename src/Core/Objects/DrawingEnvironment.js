@@ -43,10 +43,8 @@ export class DrawingEnvironment {
   redraw() {
     this.clear();
     this.texts.forEach(text => text.updateMessage());
-    if (this.mustDrawGrid) {
-      this.removeAllObjects();
+    if (this.mustDrawGrid)
       GridManager.drawGridPoints();
-    }
     this.draw();
   }
 
