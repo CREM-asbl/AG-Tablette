@@ -162,7 +162,8 @@ export class SolutionCheckerState extends State {
         isPointed: false,
       });
       // shape.cleanSameDirectionSegment();
-      shape.translate({ x: -app.canvasWidth / 2, y: 0 });
+      let translateOffset = new Coordinates({ x: -app.canvasWidth / 2, y: 0 }).multiply(1 / app.workspace.zoomLevel);
+      shape.translate(translateOffset);
       this.solutionShapeIds.push(shape.id);
       shapes.push(shape);
     });
