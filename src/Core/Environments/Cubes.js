@@ -1,6 +1,6 @@
 import './Common';
 import { cubesKit } from '../ShapesKits/cubesKit';
-import { app } from '../App';
+import { app, setState } from '../App';
 import '../../Create';
 import '../../Copy';
 import '../../Delete';
@@ -17,4 +17,4 @@ app.environment.loadFamilies(cubesKit);
 
 app.environment.extension = 'agc';
 
-window.dispatchEvent(new CustomEvent('env-created'));
+window.dispatchEvent(new CustomEvent('state-changed'));

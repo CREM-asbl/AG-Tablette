@@ -20,4 +20,4 @@ import '../../Transform';
 
 app.environment.extension = 'agl';
 
-window.dispatchEvent(new CustomEvent('env-created'));
+window.dispatchEvent(new CustomEvent('state-changed'));

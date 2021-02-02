@@ -24,4 +24,4 @@ app.environment.loadFamilies(grandeursKit);
 
 app.environment.extension = 'agg';
 
-window.dispatchEvent(new CustomEvent('env-created'));
+window.dispatchEvent(new CustomEvent('state-changed'));

@@ -1,5 +1,6 @@
-import { LitElement, html, css, unsafeCSS } from 'lit-element';
-import './Core/Environments/Environment';
+import { LitElement, html, css} from 'lit-element';
+import { setState } from './Core/App';
+import { Environment } from './Core/Environments/Environment';
 
 class AgEnvironnements extends LitElement {
   static get isSafari() {
@@ -91,21 +92,13 @@ class AgEnvironnements extends LitElement {
       <div id="Tangram" @click="${this.handleClick}">Tangram</div>
       <div id="Cubes" @click="${this.handleClick}">Cubes</div>
       <div id="Geometrie" @click="${this.handleClick}">Géométrie</div>
-      <img
-        src="images/manifest/icon_test.svg"
-        style="position: absolute; top: calc(50% - 13vmin); left: calc(50% - 13vmin); width: 26vmin; height: 26vmin; transform: rotate(45deg);"
-      />
+      <img src="images/manifest/icon_test.svg"
+        style="position: absolute; top: calc(50% - 13vmin); left: calc(50% - 13vmin); width: 26vmin; height: 26vmin; transform: rotate(45deg);" />
     `;
   }
 
   handleClick(e) {
-    this.dispatchEvent(
-      new CustomEvent('set-environnement', {
-        detail: e.target.id,
-        bubbles: true,
-        composed: true,
-      })
-    );
+    setState({ environment: new Environment(e.target.id) })
   }
 }
 customElements.define('ag-environnements', AgEnvironnements);

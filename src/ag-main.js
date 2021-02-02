@@ -19,6 +19,7 @@ import './Core/Managers/DrawManager';
 import './Core/Managers/CompleteHistoryManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
+import './auto-launch'
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -45,7 +46,10 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('app-state-changed', () => {
       this.setState();
     });
-    window.addEventListener('env-created', () => {
+    // window.addEventListener('env-created', () => {
+    //   this.setState();
+    // // });
+    window.addEventListener('state-changed', () => {
       this.setState();
     });
     window.addEventListener('history-changed', () => {

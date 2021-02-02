@@ -11,4 +11,4 @@ import '../../Tangram';
 app.environment.extension = 'agt';
 app.settings.set('areShapesPointed', false);
 
-window.dispatchEvent(new CustomEvent('env-created'));
+window.dispatchEvent(new CustomEvent('state-changed'));

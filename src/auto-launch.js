@@ -1,6 +1,13 @@
-import { app } from './Core/App';
+import { app, setState } from './Core/App';
 import { Environment } from './Core/Environments/Environment';
 import { OpenFileManager } from './Core/Managers/OpenFileManager';
+
+export const environmentsByExtensions = {
+    'agg': 'Grandeurs',
+    'agt': 'Tangram',
+    'agc': 'Cubes',
+    'agl': 'Geometrie'
+}
 
 if ('launchQueue' in window) {
     window.launchQueue.setConsumer(launchParams => {
@@ -12,20 +19,7 @@ if ('launchQueue' in window) {
         for (const fileHandle of launchParams.files) {
             const pathArray = fileHandle.name.split('.')
             const extension = pathArray[pathArray.length - 1]
-            switch (extension) {
-                case 'agg':
-                    app.environment = new Environment('Grandeurs');
-                    break;
-                case 'agt':
-                    app.environment = new Environment('Tangram');
-                    break;
-                case 'agc':
-                    app.environment = new Environment('Cubes');
-                    break;
-                case 'agl':
-                    app.environment = new Environment('Geometrie');
-                    break;
-            }
+            setState({ environnement: new Environment(environmentsByExtensions[extension]) })
             OpenFileManager.newReadFile(fileHandle);
         }
     });

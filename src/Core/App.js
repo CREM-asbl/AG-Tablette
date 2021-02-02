@@ -155,3 +155,15 @@ export class App {
 }
 
 export const app = new App();
+
+//Préparation à un state-changed plus général
+//Ceci permettra aussi de réduire le nombre de listener par la suite
+export const setState = update => {
+  // app n'est pour l'instant pas itérable
+  // app = [...app, update]
+  for (let key in update) {
+    app[key] = update[key]
+  }
+  console.log(app)
+  window.dispatchEvent(new CustomEvent('state-changed', { detail: app }))
+}

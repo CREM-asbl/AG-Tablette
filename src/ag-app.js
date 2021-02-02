@@ -1,6 +1,5 @@
 import { app } from './Core/App';
 import { LitElement, html } from 'lit-element';
-import './auto-launch'
 
 class AgApp extends LitElement {
   static get properties() {
@@ -10,7 +9,7 @@ class AgApp extends LitElement {
   }
 
   firstUpdated() {
-    window.addEventListener('env-created', () => {
+    window.addEventListener('state-changed', () => {
       this.environnement_selected = app.environment != undefined;
     });
   }

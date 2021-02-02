@@ -1,15 +1,4 @@
 import { Family } from '../Objects/Family';
-import { app } from '../App';
-
-window.addEventListener('set-environnement', e => {
-  app.environment = new Environment(e.detail);
-  window.dispatchEvent(new CustomEvent('env-created'));
-});
-
-// window.addEventListener('new-window', () => {
-//   app.environment =  new Environment(app.environment.name)
-//   window.dispatchEvent(new CustomEvent('env-created'))
-// })
 
 /**
  * Environnement de travail: Grandeurs, Tangram, Cube... Un environnement
