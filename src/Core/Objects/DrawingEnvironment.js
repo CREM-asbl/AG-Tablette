@@ -179,10 +179,8 @@ export class DrawingEnvironment {
     this.removeAllObjects();
     if (data != undefined) {
       data.shapesData.forEach(shapeData => Shape.loadFromData(shapeData));
-      data.segmentsData.forEach(segmentData => {
+      data.segmentsData.forEach(segmentData =>
         Segment.loadFromData(segmentData)
-        console.log(segmentData);
-      }
       );
       data.pointsData.forEach(pointData => Point.loadFromData(pointData));
     } else {

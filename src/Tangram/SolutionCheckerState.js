@@ -161,8 +161,9 @@ export class SolutionCheckerState extends State {
         borderSize: 2,
         isPointed: false,
       });
-      shape.cleanSameDirectionSegment();
-      shape.translate({ x: -app.canvasWidth / 2, y: 0 });
+      // shape.cleanSameDirectionSegment();
+      let translateOffset = new Coordinates({ x: -app.canvasWidth / 2, y: 0 }).multiply(1 / app.workspace.zoomLevel);
+      shape.translate(translateOffset);
       this.solutionShapeIds.push(shape.id);
       shapes.push(shape);
     });
@@ -268,13 +269,8 @@ export class SolutionCheckerState extends State {
             seg.contains(this.lastUsedCoordinates, false) ? idx : undefined
           )
           .filter(seg => Number.isInteger(seg));
-        if (potentialSegmentIdx.length != 1) {
-          if (potentialSegmentIdx.length == 0)
-            console.warn('shape cannot be closed (dead end)');
-          else
-            console.warn(
-              'shape is dig (a segment has more than one segment for next)'
-            );
+        if (potentialSegmentIdx.length == 0) {
+          console.warn('shape cannot be closed (dead end)');
           return null;
         }
         nextSegmentIndex = potentialSegmentIdx[0];

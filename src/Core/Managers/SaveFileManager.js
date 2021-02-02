@@ -2,7 +2,18 @@ import { app } from '../App';
 import { createElem } from '../Tools/general';
 
 export class SaveFileManager {
-  static async saveFile() {
+  static async saveFile(actionAfter) {
+    if (actionAfter == 'new') {
+      window.addEventListener('show-notif', event => {
+        if (event.detail.message.startsWith('Sauvegardé'))
+          window.dispatchEvent(new CustomEvent('new-window'));
+      });
+    } else if (actionAfter == 'open') {
+      window.addEventListener('show-notif', event => {
+        if (event.detail.message.startsWith('Sauvegardé'))
+          window.dispatchEvent(new CustomEvent('open-file'));
+      });
+    }
     if (SaveFileManager.hasNativeFS) {
       try {
         await SaveFileManager.newSaveFile();
@@ -222,8 +233,8 @@ export class SaveFileManager {
   }
 }
 
-window.addEventListener('save-file', () => {
-  SaveFileManager.saveFile();
+window.addEventListener('save-file', event => {
+  SaveFileManager.saveFile(event.detail?.actionAfter);
 });
 
 // Si ancien ou nouveau systeme de fichier

@@ -158,7 +158,7 @@ export const grandeursKit = {
     },
 
     'Famille du pentagone régulier': {
-      color: '#00D084',
+      color: '#006CAA',
       shapeTemplates: [
         {
           name: 'Pentagone régulier',
@@ -214,7 +214,7 @@ export const grandeursKit = {
         {
           //Circonscrit au pentagone -> rayon = 42.53254041760199.
           name: 'Disque 2',
-          color: '#00D084',
+          color: '#006CAA',
           path:
             'M 42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 -42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 42.53254041760199 0',
         },

@@ -1,7 +1,7 @@
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from './template-popup';
 
-class NewPopup extends LitElement {
+class LeaveConfirmationPopup extends LitElement {
   constructor() {
     super();
 
@@ -22,21 +22,30 @@ class NewPopup extends LitElement {
         <h2 slot="title">Nouvelle fenêtre</h2>
         <div slot="body" id="body">
           <p>
-            Voulez-vous vraiment une nouvelle fenêtre ? <br />
+            Voulez-vous enregistrer votre travail avant de quitter ? <br />
             Attention votre travail actuel sera perdu !
           </p>
         </div>
 
         <div slot="footer">
-          <button @click="${this.close}">Annuler</button>
-          <button id="focus" @click="${this.confirm}">OK</button>
+          <button id="focus" @click="${this.close}">Annuler</button>
+          <button @click="${this.confirm}">Non</button>
+          <button @click="${this.saveWork}">Oui</button>
         </div>
       </template-popup>
     `;
   }
 
+  saveWork() {
+    window.dispatchEvent(new CustomEvent('save-file', {detail: {actionAfter: this.actionAfter}}));
+    this.close();
+  }
+
   confirm() {
-    window.dispatchEvent(new CustomEvent('new-window'));
+    if (this.actionAfter == 'new')
+      window.dispatchEvent(new CustomEvent('new-window'));
+    else if (this.actionAfter == 'open')
+      window.dispatchEvent(new CustomEvent('open-file'));
     this.close();
   }
 
@@ -44,4 +53,4 @@ class NewPopup extends LitElement {
     this.remove();
   }
 }
-customElements.define('new-popup', NewPopup);
+customElements.define('leave-confirmation-popup', LeaveConfirmationPopup);
