@@ -1,6 +1,5 @@
-/node_modules
-/dist
-/.firebase
-.storybook
-/beta
-coverage
+.snowpack
+build
+node_modules
+.firebase
+*.log

@@ -6,7 +6,6 @@ import { ShapeManager } from '../Managers/ShapeManager';
 import { isAngleBetweenTwoAngles } from '../Tools/geometry';
 import { Bounds } from './Bounds';
 import { Coordinates } from './Coordinates';
-import { number } from '@open-wc/demoing-storybook';
 
 /**
  * Représente une forme
