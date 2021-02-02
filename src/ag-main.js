@@ -148,55 +148,22 @@ class AGTabletteApp extends LitElement {
               ${this.state?.title}
             </div>
             <flex-toolbar>
-              <icon-button
-                name="new"
-                title="Nouvelle fenêtre"
-                @click="${this._actionHandle}"
-              >
+              <icon-button name="new" title="Nouvelle fenêtre" @click="${this._actionHandle}">
               </icon-button>
-              <icon-button
-                name="load"
-                title="Ouvrir"
-                @click="${this._actionHandle}"
-              >
+              <icon-button name="load" title="Ouvrir" @click="${this._actionHandle}">
               </icon-button>
-              <icon-button
-                name="save"
-                title="Sauvegarder"
-                @click="${this._actionHandle}"
-              >
+              <icon-button name="save" title="Sauvegarder" @click="${this._actionHandle}">
               </icon-button>
-              <icon-button
-                name="settings"
-                title="Paramètres"
-                @click="${this._actionHandle}"
-              >
+              <icon-button name="settings" title="Paramètres" @click="${this._actionHandle}">
               </icon-button>
-              <icon-button
-                name="undo"
-                title="Annuler"
-                ?disabled="${!this.canUndo}"
-                @click="${this._actionHandle}"
-              >
+              <icon-button name="undo" title="Annuler" ?disabled="${!this.canUndo}" @click="${this._actionHandle}">
               </icon-button>
-              <icon-button
-                name="redo"
-                title="Refaire"
-                ?disabled="${!this.canRedo}"
-                @click="${this._actionHandle}"
-              >
+              <icon-button name="redo" title="Refaire" ?disabled="${!this.canRedo}" @click="${this._actionHandle}">
               </icon-button>
-              <icon-button
-                name="replay"
-                title="replay"
-                @click="${this._actionHandle}"
-              >
+              <icon-button name="replay" title="replay" @click="${this._actionHandle}">
               </icon-button>
 
-              <icon-button
-                name="help"
-                title="Aide"
-                @click="${this._actionHandle}">
+              <icon-button name="help" title="Aide" @click="${this._actionHandle}">
               </icon-button>
             </flex-toolbar>
 
@@ -206,79 +173,64 @@ class AGTabletteApp extends LitElement {
 
           <div id="app-canvas-view-toolbar-p2">
 
-            <toolbar-section title="Créer une silhouette"
-                             .buttons_states="${this.states.filter(
-                               state => state.type === 'tangram'
-                             )}">
+            <toolbar-section title="Créer une silhouette" .buttons_states="${this.states.filter(
+            state => state.type === 'tangram'
+          )}">
             </toolbar-section>
 
-            <toolbar-section title="Formes libres"
-                             .buttons_states="${this.states.filter(
-                               state => state.type === 'geometry_creator'
-                             )}">
+            <toolbar-section title="Formes libres" .buttons_states="${this.states.filter(
+            state => state.type === 'geometry_creator'
+          )}">
             </toolbar-section>
 
-            <toolbar-section title="Mouvements"
-                             .buttons_states="${this.states.filter(
-                               state => state.type === 'move'
-                             )}">
+            <toolbar-section title="Mouvements" .buttons_states="${this.states.filter(
+            state => state.type === 'move'
+          )}">
             </toolbar-section>
 
-            <toolbar-section title="Opérations"
-                             .buttons_states="${this.states.filter(
-                               state => state.type === 'operation'
-                             )}">
+            <toolbar-section title="Opérations" .buttons_states="${this.states.filter(
+            state => state.type === 'operation'
+          )}">
             </toolbar-section>
 
-            <toolbar-section title="Outils"
-                             .buttons_states="${this.states.filter(
-                               state => state.type === 'tool'
-                             )}">
+            <toolbar-section title="Outils" .buttons_states="${this.states.filter(
+            state => state.type === 'tool'
+          )}">
             </toolbar-section>
 
-              <!-- <icon-button src="/images/wallpaper.svg"
-                                title="Fond d'écran"
-                                name="wallpaper"
-                                @click="\${this.loadBackground}">
-                        </icon-button> -->
+            <!-- <icon-button src="/images/wallpaper.svg"
+                                                  title="Fond d'écran"
+                                                  name="wallpaper"
+                                                  @click="\${this.loadBackground}">
+                                          </icon-button> -->
             </flex-toolbar>
           </div>
           <version-item></version-item>
         </div>
 
-        <div-main-canvas id="div-main-canvas" ></div-main-canvas>
+        <div-main-canvas id="div-main-canvas"></div-main-canvas>
       </div>
 
       <opacity-popup></opacity-popup>
 
       <notif-center></notif-center>
 
-      <input
-        id="fileSelector"
-        accept=".${app.environment.extension}"
-        type="file"
-        style="display: none"
-        @change="${event => {
-          window.dispatchEvent(
-            new CustomEvent('file-opened', {
-              detail: { method: 'old', file: event.target.files[0] },
-            })
-          );
-          event.target.value = null;
-        }}"
-      />
+      <input id="fileSelector" accept=".${app.environment.extension}" type="file" style="display: none" @change="${event => {
+              window.dispatchEvent(
+                new CustomEvent('file-opened', {
+                  detail: { method: 'old', file: event.target.files[0] },
+                })
+              );
+              event.target.value = null;
+            }}" />
 
       <label id="color-picker-label" for="color-picker" hidden></label>
-      <input
-        id="color-picker"
-        type="color"
-        @change="${e =>
-          window.dispatchEvent(
-            new CustomEvent('colorChange', {
-              detail: { color: e.target.value },
-            })
-          )}"
-      />
+      <input id="color-picker" type="color" @change="${e =>
+              window.dispatchEvent(
+                new CustomEvent('colorChange', {
+                  detail: { color: e.target.value },
+                })
+              )}" />
     `;
   }
 
@@ -299,6 +251,10 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'load':
+        if (app.workspace.history.index === -1) {
+          window.dispatchEvent(new CustomEvent('open-file'))
+          return
+        }
         import('./popups/leave-confirmation-popup');
         leaveConfirmationPopup = createElem('leave-confirmation-popup');
         leaveConfirmationPopup.actionAfter = 'open';
@@ -339,7 +295,7 @@ class AGTabletteApp extends LitElement {
     this.states = [...app.states];
     this.stateName = app.state;
     this.state = this.states.find(st => st.name == this.stateName);
-    if(location.hostname === 'localhost') {
+    if (location.hostname === 'localhost') {
       console.log(app)
     }
   }

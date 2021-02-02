@@ -30,17 +30,13 @@ class OpenPopup extends LitElement {
     ];
   }
 
-  updated() {
-    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
-  }
-
   render() {
     if (this.renderMode == 'selectMethod') {
       return html`
         <template-popup>
           <h2 slot="title">Ouvrir un fichier</h2>
           <div slot="body" id="body">
-            <button id="focus" name="LocalOpenFile" @click="${this._actionHandle}">
+            <button id="focus" autofocus name="LocalOpenFile" @click="${this._actionHandle}">
               Ouvrir en local
             </button>
 
