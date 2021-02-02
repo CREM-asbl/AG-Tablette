@@ -32,6 +32,10 @@ class LevelPopup extends LitElement {
     ];
   }
 
+  updated() {
+    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+  }
+
   render() {
     return html`
       <template-popup>
@@ -85,7 +89,7 @@ class LevelPopup extends LitElement {
           </datalist> -->
         </div>
         <div slot="footer">
-          <button @click="${this.submit}">Ok</button>
+          <button id="focus" @click="${this.submit}">Ok</button>
         </div>
       </template-popup>
     `;

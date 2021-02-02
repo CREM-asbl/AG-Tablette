@@ -35,6 +35,10 @@ class SavePopup extends LitElement {
     return TemplatePopup.template_popup_styles();
   }
 
+  updated() {
+    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+  }
+
   render() {
     return html`
       <template-popup>
@@ -133,7 +137,7 @@ class SavePopup extends LitElement {
         <div slot="footer">
           <button
             name="save_popup_submit"
-            id="save_popup_submit"
+            id="focus"
             @click="${this._actionHandle}"
           >
             OK
