@@ -42,7 +42,10 @@ class LeaveConfirmationPopup extends LitElement {
   }
 
   confirm() {
-    window.dispatchEvent(new CustomEvent('new-window'));
+    if (this.actionAfter == 'new')
+      window.dispatchEvent(new CustomEvent('new-window'));
+    else if (this.actionAfter == 'open')
+      window.dispatchEvent(new CustomEvent('open-file'));
     this.close();
   }
 
