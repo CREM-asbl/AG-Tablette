@@ -25,6 +25,9 @@ function computeTransformation(e1, e2, shapes, mainShape) {
     moving1NewCoords = moving1.rotate(rotationAngle, center),
     translation = fix1.substract(moving1NewCoords);
 
+  if (rotationAngle < 0)
+    rotationAngle += 2 * Math.PI;
+
   return {
     rotationAngle: rotationAngle,
     translation: translation,
