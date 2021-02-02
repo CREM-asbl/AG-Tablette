@@ -339,7 +339,9 @@ class AGTabletteApp extends LitElement {
     this.states = [...app.states];
     this.stateName = app.state;
     this.state = this.states.find(st => st.name == this.stateName);
-    console.log(app)
+    if(location.hostname === 'localhost') {
+      console.log(app)
+    }
   }
 
   // // Todo: Placer dans un objet BackgroundImage ?
