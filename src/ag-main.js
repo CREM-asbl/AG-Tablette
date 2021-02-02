@@ -287,6 +287,7 @@ class AGTabletteApp extends LitElement {
    */
   _actionHandle(event) {
     let reset_state = 0;
+    let leaveConfirmationPopup;
     switch (event.target.name) {
       case 'settings':
         import('./popups/settings-popup');
@@ -298,12 +299,15 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'load':
-        window.dispatchEvent(new CustomEvent('open-file'));
+        import('./popups/leave-confirmation-popup');
+        leaveConfirmationPopup = createElem('leave-confirmation-popup');
+        leaveConfirmationPopup.actionAfter = 'open';
         reset_state = 1;
         break;
       case 'new':
-        import('./popups/new-popup');
-        createElem('new-popup');
+        import('./popups/leave-confirmation-popup');
+        leaveConfirmationPopup = createElem('leave-confirmation-popup');
+        leaveConfirmationPopup.actionAfter = 'new';
         reset_state = 1;
         break;
       case 'undo':

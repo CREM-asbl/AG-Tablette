@@ -39,6 +39,10 @@ class HelpPopup extends LitElement {
     this.content = text;
   }
 
+  updated() {
+    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+  }
+
   render() {
     return html`
       <template-popup>
@@ -48,7 +52,7 @@ class HelpPopup extends LitElement {
 
           <div slot="footer">
             <version-item></version-item>
-            <button @click="${() => this.close()}">OK</button>
+            <button id="focus" @click="${() => this.close()}">OK</button>
           </div>
         </div>
       </template-popup>

@@ -109,6 +109,7 @@ export class MoveState extends State {
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
+    this.involvedShapes.sort((s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2));
     this.drawingShapes = this.involvedShapes.map(
       s =>
         new Shape({

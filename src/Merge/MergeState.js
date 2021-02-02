@@ -244,8 +244,6 @@ export class MergeState extends State {
             }
             return true;
           });
-        console.log(pointsInside);
-        console.log(segment.divideWith(pointsInside));
         if (pointsInside.length) return segment.divideWith(pointsInside);
         else return segment;
       })
