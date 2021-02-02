@@ -116,6 +116,7 @@ export class RotateState extends State {
     );
     this.lastAngle = this.initialAngle;
 
+    this.involvedShapes.sort((s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2));
     this.drawingShapes = this.involvedShapes.map(
       s =>
         new Shape({
