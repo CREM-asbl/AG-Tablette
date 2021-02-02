@@ -143,7 +143,6 @@ export class App {
    */
   setState(stateName, startParams) {
     this.state = stateName || undefined;
-
     window.dispatchEvent(
       new CustomEvent('app-state-changed', {
         detail: { state: app.state, startParams: startParams },
