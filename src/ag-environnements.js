@@ -1,6 +1,6 @@
-import { LitElement, html, css} from 'lit-element';
+import { LitElement, html, css } from 'lit-element';
 import { setState } from './Core/App';
-import { Environment } from './Core/Environments/Environment';
+import { Environment, loadEnvironnement } from './Core/Environments/Environment';
 
 class AgEnvironnements extends LitElement {
   static get isSafari() {
@@ -97,8 +97,8 @@ class AgEnvironnements extends LitElement {
     `;
   }
 
-  handleClick(e) {
-    setState({ environment: new Environment(e.target.id) })
+  async handleClick(e) {
+    setState({ environment: await loadEnvironnement(e.target.id) })
   }
 }
 customElements.define('ag-environnements', AgEnvironnements);

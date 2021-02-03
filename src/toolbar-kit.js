@@ -27,9 +27,7 @@ class ToolbarKit extends LitElement {
 
     this.familyNames = app.environment.familyNames || [];
 
-    window.addEventListener('families-loaded', () => {
-      this.familyNames = [...app.environment.familyNames];
-    });
+    window.addEventListener('state-changed', () => this.familyNames = app.environment.familyNames);
     window.addEventListener(
       'family-selected',
       event =>

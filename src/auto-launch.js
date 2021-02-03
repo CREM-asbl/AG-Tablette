@@ -1,6 +1,5 @@
-import { app, setState } from './Core/App';
+import { setState } from './Core/App';
 import { Environment } from './Core/Environments/Environment';
-import { OpenFileManager } from './Core/Managers/OpenFileManager';
 
 export const environmentsByExtensions = {
     'agg': 'Grandeurs',
@@ -11,6 +10,7 @@ export const environmentsByExtensions = {
 
 if ('launchQueue' in window) {
     window.launchQueue.setConsumer(launchParams => {
+        console.log('launch')
         // Nothing to do when the queue is empty.
         if (!launchParams.files.length) {
             return;
@@ -19,8 +19,11 @@ if ('launchQueue' in window) {
         for (const fileHandle of launchParams.files) {
             const pathArray = fileHandle.name.split('.')
             const extension = pathArray[pathArray.length - 1]
-            setState({ environnement: new Environment(environmentsByExtensions[extension]) })
-            OpenFileManager.newReadFile(fileHandle);
+            console.log(environmentsByExtensions[extension])
+            setState({
+                environnement: new Environment(environmentsByExtensions[extension]),
+                fileToOpen: fileHandle
+            })
         }
     });
 }

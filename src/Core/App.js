@@ -1,6 +1,8 @@
 import { Settings } from './Settings';
 import { uniqId } from './Tools/general';
 
+window.dev_mode = location.hostname === 'localhost'
+
 /**
  * Classe principale de l'application
  */
@@ -164,6 +166,7 @@ export const setState = update => {
   for (let key in update) {
     app[key] = update[key]
   }
-  console.log(app)
+  // if (window.dev_mode)
+    console.log(app)
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }))
 }

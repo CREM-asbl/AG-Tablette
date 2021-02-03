@@ -9,7 +9,7 @@ import './version-item';
 
 import { app } from './Core/App';
 import './Core/Manifest';
-import './Core/Managers/OpenFileManager';
+import { OpenFileManager } from './Core/Managers/OpenFileManager';
 import './Core/Managers/SaveFileManager';
 import './Core/Managers/SelectManager';
 import './Core/Managers/WorkspaceManager';
@@ -19,7 +19,8 @@ import './Core/Managers/DrawManager';
 import './Core/Managers/CompleteHistoryManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
-import './auto-launch'
+
+if (app.fileToOPen) OpenFileManager.newReadFile(fileHandle);
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -46,9 +47,6 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('app-state-changed', () => {
       this.setState();
     });
-    // window.addEventListener('env-created', () => {
-    //   this.setState();
-    // // });
     window.addEventListener('state-changed', () => {
       this.setState();
     });
@@ -177,37 +175,23 @@ class AGTabletteApp extends LitElement {
 
           <div id="app-canvas-view-toolbar-p2">
 
-            <toolbar-section title="Créer une silhouette" .buttons_states="${this.states.filter(
-            state => state.type === 'tangram'
-          )}">
+            <toolbar-section title="Créer une silhouette"
+              .buttons_states="${this.states.filter(state => state.type === 'tangram')}">
             </toolbar-section>
 
-            <toolbar-section title="Formes libres" .buttons_states="${this.states.filter(
-            state => state.type === 'geometry_creator'
-          )}">
+            <toolbar-section title="Formes libres"
+              .buttons_states="${this.states.filter(state => state.type === 'geometry_creator')}">
             </toolbar-section>
 
-            <toolbar-section title="Mouvements" .buttons_states="${this.states.filter(
-            state => state.type === 'move'
-          )}">
+            <toolbar-section title="Mouvements" .buttons_states="${this.states.filter(state => state.type === 'move')}">
             </toolbar-section>
 
-            <toolbar-section title="Opérations" .buttons_states="${this.states.filter(
-            state => state.type === 'operation'
-          )}">
+            <toolbar-section title="Opérations" .buttons_states="${this.states.filter(state => state.type === 'operation')}">
             </toolbar-section>
 
-            <toolbar-section title="Outils" .buttons_states="${this.states.filter(
-            state => state.type === 'tool'
-          )}">
+            <toolbar-section title="Outils" .buttons_states="${this.states.filter(state => state.type === 'tool')}">
             </toolbar-section>
 
-            <!-- <icon-button src="/images/wallpaper.svg"
-                                                  title="Fond d'écran"
-                                                  name="wallpaper"
-                                                  @click="\${this.loadBackground}">
-                                          </icon-button> -->
-            </flex-toolbar>
           </div>
           <version-item></version-item>
         </div>
@@ -299,9 +283,7 @@ class AGTabletteApp extends LitElement {
     this.states = [...app.states];
     this.stateName = app.state;
     this.state = this.states.find(st => st.name == this.stateName);
-    if (location.hostname === 'localhost') {
-      console.log(app)
-    }
+    if (location.hostname === 'localhost') console.log(app)
   }
 
   // // Todo: Placer dans un objet BackgroundImage ?
