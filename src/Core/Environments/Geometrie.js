@@ -16,7 +16,7 @@ import '../../Zoom';
 import '../../Grid';
 
 import '../../CreateGeometry';
-import '../../Transform';
+// import '../../Transform';
 
 app.environment.extension = 'agl';
 

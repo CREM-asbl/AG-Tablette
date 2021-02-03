@@ -186,12 +186,12 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-              <icon-button
+              <!-- <icon-button
                 name="replay"
                 title="replay"
-                @click="${this._actionHandle}"
+                @click="\${this._actionHandle}"
               >
-              </icon-button>
+              </icon-button> -->
 
               <icon-button
                 name="help"

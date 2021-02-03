@@ -252,10 +252,12 @@ export class DivideState extends State {
               arc de cercle), on annule l'action.
                */
           if (
-            (pt1.segmentIds[0] == object.segmentIds[0] &&
-              pt1.segmentIds[1] == object.segmentIds[1]) ||
-            (pt1.segmentIds[0] == object.segmentIds[1] &&
-              pt1.segmentIds[1] == object.segmentIds[0])
+            (pt1.segmentIds.length == 2 && object.segmentIds.length == 2) && (
+              (pt1.segmentIds[0] == object.segmentIds[0] &&
+                pt1.segmentIds[1] == object.segmentIds[1]) ||
+              (pt1.segmentIds[0] == object.segmentIds[1] &&
+                pt1.segmentIds[1] == object.segmentIds[0])
+            )
           ) {
             console.warn('ambiguité, ne rien faire');
             app.upperDrawingEnvironment.removeAllObjects();
