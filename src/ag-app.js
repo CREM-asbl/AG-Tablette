@@ -9,10 +9,10 @@ class AgApp extends LitElement {
     };
   }
 
-  firstUpdated() {
-    window.addEventListener('state-changed', () => {
-      this.environnement_selected = app.environment != undefined;
-    });
+  connectedCallback() {
+    super.connectedCallback()
+    this.setState()
+    window.addEventListener('state-changed', () => this.setState());
   }
 
   render() {
@@ -23,6 +23,10 @@ class AgApp extends LitElement {
       import('./ag-environnements');
       return html` <ag-environnements></ag-environnements> `;
     }
+  }
+
+  setState() {
+    this.environnement_selected = app.environment !== undefined;
   }
 }
 customElements.define('ag-app', AgApp);

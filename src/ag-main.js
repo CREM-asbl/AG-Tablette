@@ -20,7 +20,7 @@ import './Core/Managers/CompleteHistoryManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
 
-if (app.fileToOPen) OpenFileManager.newReadFile(fileHandle);
+if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen)
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -221,6 +221,10 @@ class AGTabletteApp extends LitElement {
               )}" />
     `;
   }
+
+  // firstUpdated() {
+  //   console.log(app)
+  // }
 
   /**
    * Main event handler

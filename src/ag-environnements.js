@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import { setState } from './Core/App';
-import { Environment, loadEnvironnement } from './Core/Environments/Environment';
+import { loadEnvironnement } from './Core/Environments/Environment';
 
 class AgEnvironnements extends LitElement {
   static get isSafari() {

@@ -166,7 +166,6 @@ export const setState = update => {
   for (let key in update) {
     app[key] = update[key]
   }
-  // if (window.dev_mode)
-    console.log(app)
+  if (window.dev_mode) console.log(app)
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }))
 }
