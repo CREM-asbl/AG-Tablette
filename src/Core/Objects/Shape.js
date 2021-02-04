@@ -510,7 +510,6 @@ export class Shape {
    * @param  {Coordinates}  coordinates
    */
   isCoordinatesOnBorder(coordinates) {
-    console.log(this.segments);
     return this.segments.some(seg => seg.isCoordinatesOnSegment(coordinates));
   }
 
