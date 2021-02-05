@@ -1311,6 +1311,7 @@ export class Shape {
       }
     }
     this.segments.forEach((seg, idx) => (seg.idx = idx));
+    this.vertexes.forEach((vx, idx) => (vx.idx = idx));
   }
 
   saveData() {
