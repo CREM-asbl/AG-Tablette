@@ -5,8 +5,8 @@ import { Settings } from '../Settings';
 import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
 import { Point } from '../Objects/Point';
-import { GridManager } from '../../Grid/GridManager';
 import { Coordinates } from './Coordinates';
+import { HistoryManager } from '../Managers/HistoryManager';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -95,7 +95,11 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
-  initFromObject(wsdata) {
+  initFromObject(wsdata, ignoreHistory = false) {
+    if (!wsdata) {
+      app.mainDrawingEnvironment.loadFromData(null);
+      return;
+    }
     this.id = wsdata.id;
 
     // this.shapes = wsdata.shapes.map(sData => new Shape(sData));
@@ -130,18 +134,20 @@ export class Workspace {
       this.settings.initFromObject(wsdata.settings);
     } else this.initSettings();
 
-    if (wsdata.history) {
-      if (app.lastFileVersion == '1.0.0') {
-        this.history.initFromObject({
-          data: wsdata.history.history,
-          index: wsdata.history.historyIndex,
-        });
+    if (!ignoreHistory) {
+      if (wsdata.history) {
+        if (app.lastFileVersion == '1.0.0') {
+          this.history.initFromObject({
+            data: wsdata.history.history,
+            index: wsdata.history.historyIndex,
+          });
+        } else {
+          this.history.initFromObject(wsdata.history);
+        }
+        window.dispatchEvent(new CustomEvent('history-changed'));
       } else {
-        this.history.initFromObject(wsdata.history);
+        this.history.resetToDefault();
       }
-      window.dispatchEvent(new CustomEvent('history-changed'));
-    } else {
-      this.history.resetToDefault();
     }
 
     // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);

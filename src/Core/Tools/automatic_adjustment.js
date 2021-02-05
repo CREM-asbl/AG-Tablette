@@ -128,7 +128,6 @@ export function getShapeAdjustment(shapes, mainShape) {
   let cPtListGrid = [],
     cPtListBorder = [],
     cPtListShape = [];
-  console.log(app.backgroundDrawingEnvironment.points.map(pt => pt.coordinates));
   ptList.forEach(point => {
     if (grid) {
       let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
