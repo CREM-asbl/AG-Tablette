@@ -1,5 +1,7 @@
 import { OpacityState } from './OpacityState';
 import { OpacityAction } from './OpacityAction';
 
-new OpacityState();
-new OpacityAction();
+export default {
+  state: new OpacityState(),
+  action: new OpacityAction()
+}

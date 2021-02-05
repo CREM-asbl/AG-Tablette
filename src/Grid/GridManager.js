@@ -13,14 +13,6 @@ addEventListener('app-state-changed', () => {
 });
 
 export class GridManager {
-  static initState() {
-    app.states.push({
-      name: 'grid',
-      title: 'Grille',
-      type: 'tool',
-    });
-  }
-
   /**
    * Le point de référence de la grille est le point (10,10).
    * Si grille carrée: le côté du carré est de 50 unités. (-> ex de points:

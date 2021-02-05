@@ -1,3 +1,9 @@
 import { GridManager } from './GridManager';
 
-GridManager.initState();
+export default {
+  state: {
+    name: 'grid',
+    title: 'Grille',
+    type: 'tool',
+  }
+}

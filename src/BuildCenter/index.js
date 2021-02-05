@@ -1,5 +1,7 @@
 import { BuildCenterState } from './BuildCenterState';
 import { BuildCenterAction } from './BuildCenterAction';
 
-new BuildCenterState();
-new BuildCenterAction();
+export default {
+  state: new BuildCenterState(),
+  action: new BuildCenterAction()
+}
