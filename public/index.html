@@ -28,8 +28,14 @@
 
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js');
+            window.addEventListener('load', async () => {
+                const registration = await navigator.serviceWorker.register('./sw.js');
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    newWorker.addEventListener("statechange", () => {
+                        console.log("App: Nouvel état :", newWorker.state);
+                    });
+                })
             });
         }
     </script>
@@ -56,11 +62,11 @@
 <body>
     <ag-app>
 
-    <script type="module" src="/dist/ag-app.js" crossorigin></script>
+        <script type="module" src="/dist/ag-app.js" crossorigin></script>
 
-    <noscript>
-        Veuillez activer javascript afin de profiter de cette application
-    </noscript>
+        <noscript>
+            Veuillez activer javascript afin de profiter de cette application
+        </noscript>
 </body>
 
 </html>
