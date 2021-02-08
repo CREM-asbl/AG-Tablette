@@ -97,7 +97,7 @@ export const grandeursKit = {
     },
 
     'Famille du carré': {
-      color: '#f46c2e',
+      color: '#ff0000',
       shapeTemplates: [
         {
           name: 'Carré',
@@ -158,7 +158,7 @@ export const grandeursKit = {
     },
 
     'Famille du pentagone régulier': {
-      color: '#006CAA',
+      color: '#00D084',
       shapeTemplates: [
         {
           name: 'Pentagone régulier',
@@ -214,7 +214,7 @@ export const grandeursKit = {
         {
           //Circonscrit au pentagone -> rayon = 42.53254041760199.
           name: 'Disque 2',
-          color: '#006CAA',
+          color: '#00D084',
           path:
             'M 42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 -42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 42.53254041760199 0',
         },
@@ -222,7 +222,7 @@ export const grandeursKit = {
         {
           //Circonscrit au carré -> rayon = 35.35533905932738.
           name: 'Disque 3',
-          color: '#f46c2e',
+          color: '#ff0000',
           path:
             'M 35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 -35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 35.35533905932738 0',
         },

@@ -307,6 +307,9 @@ export class MergeState extends State {
       segmentUsed++;
     }
 
+    if (segmentsList.length > 0)
+      return null;
+
     path = path.join(' ');
 
     return path;
