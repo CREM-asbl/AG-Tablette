@@ -191,10 +191,17 @@ export class GridManager {
       );
     }
 
-    const closestCoord = possibilities.sort((poss1, poss2) =>
+    possibilities.sort((poss1, poss2) =>
       coord.dist(poss1) > coord.dist(poss2) ? 1 : -1
-    )[0];
+    );
+    possibilities = possibilities.filter(poss =>
+      app.backgroundDrawingEnvironment.points.findIndex(pt => pt.coordinates.equal(poss)) != -1
+    );
 
+    if (possibilities.length == 0)
+      return null;
+
+    const closestCoord = possibilities[0];
     const closestPoint = app.backgroundDrawingEnvironment.points.find(pt =>
       pt.coordinates.equal(closestCoord)
     );

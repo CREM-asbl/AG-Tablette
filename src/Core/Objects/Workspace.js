@@ -5,8 +5,8 @@ import { Settings } from '../Settings';
 import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
 import { Point } from '../Objects/Point';
-import { GridManager } from '../../Grid/GridManager';
 import { Coordinates } from './Coordinates';
+import { HistoryManager } from '../Managers/HistoryManager';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -95,12 +95,17 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
-  initFromObject(wsdata) {
+  initFromObject(wsdata, ignoreHistory = false) {
+    if (!wsdata) {
+      app.mainDrawingEnvironment.loadFromData(null);
+      return;
+    }
     this.id = wsdata.id;
 
     // this.shapes = wsdata.shapes.map(sData => new Shape(sData));
     app.mainDrawingEnvironment.loadFromData(wsdata.objects);
-    app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
+    if (app.environment.name == 'Tangram')
+      app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -129,51 +134,68 @@ export class Workspace {
       this.settings.initFromObject(wsdata.settings);
     } else this.initSettings();
 
-    if (wsdata.history) {
-      if (app.lastFileVersion == '1.0.0') {
-        this.history.initFromObject({
-          data: wsdata.history.history,
-          index: wsdata.history.historyIndex,
-        });
+    if (!ignoreHistory) {
+      if (wsdata.history) {
+        if (app.lastFileVersion == '1.0.0') {
+          this.history.initFromObject({
+            data: wsdata.history.history,
+            index: wsdata.history.historyIndex,
+          });
+        } else {
+          this.history.initFromObject(wsdata.history);
+        }
+        window.dispatchEvent(new CustomEvent('history-changed'));
       } else {
-        this.history.initFromObject(wsdata.history);
+        this.history.resetToDefault();
       }
-      window.dispatchEvent(new CustomEvent('history-changed'));
-    } else {
-      this.history.resetToDefault();
     }
 
-    if (
-      wsdata.canvasSize &&
-      (wsdata.canvasSize.width != app.canvasWidth ||
-        wsdata.canvasSize.height != app.canvasHeight)
-    ) {
-      let scaleOffset =
-          wsdata.canvasSize.width / app.canvasWidth <
-          wsdata.canvasSize.height / app.canvasHeight
-            ? app.canvasHeight / wsdata.canvasSize.height
-            : app.canvasWidth / wsdata.canvasSize.width,
-        originalZoom = this.zoomLevel,
-        newZoom = originalZoom * scaleOffset,
-        originalTranslateOffset = this.translateOffset,
-        actualCenter = new Coordinates({
-          x: wsdata.canvasSize.width,
-          y: wsdata.canvasSize.height,
-        }).multiply(1 / originalZoom),
-        newCenter = new Coordinates({
-          x: app.canvasWidth,
-          y: app.canvasHeight,
-        }).multiply(1 / newZoom),
-        corr = originalTranslateOffset.multiply(1 / originalZoom), // error with the old zoom that move the center
-        newTranslateoffset = newCenter
-          .substract(actualCenter)
-          .multiply(0.5)
-          .add(corr)
-          .multiply(newZoom);
+    // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
+    // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
 
-      this.setZoomLevel(newZoom, false);
-      this.setTranslateOffset(newTranslateoffset);
-    }
+    // if (
+    //   wsdata.canvasSize &&
+    //   (wsdata.canvasSize.width != app.canvasWidth ||
+    //     wsdata.canvasSize.height != app.canvasHeight)
+    // ) {
+    //   let scaleOffset =
+    //       wsdata.canvasSize.width / app.canvasWidth <
+    //       wsdata.canvasSize.height / app.canvasHeight
+    //         ? app.canvasHeight / wsdata.canvasSize.height
+    //         : app.canvasWidth / wsdata.canvasSize.width,
+    //     originalZoom = this.zoomLevel,
+    //     newZoom = originalZoom * scaleOffset,
+    //     originalTranslateOffset = this.translateOffset,
+    //     actualCenter = new Coordinates({
+    //       x: wsdata.canvasSize.width,
+    //       y: wsdata.canvasSize.height,
+    //     }).multiply(1 / originalZoom / 2),
+    //     newCenter = new Coordinates({
+    //       x: app.canvasWidth,
+    //       y: app.canvasHeight,
+    //     }).multiply(1 / newZoom / 2),
+    //     corr = originalTranslateOffset.multiply(1 / originalZoom), // error with the old zoom that move the center
+    //     newTranslateoffset = newCenter
+    //       .substract(actualCenter)
+    //       // .multiply(0.5)
+    //       .add(corr)
+    //       .multiply(newZoom);
+
+
+    //   // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
+    //   // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
+    //   // console.log('originalZoom', originalZoom);
+    //   // console.log('newZoom', newZoom);
+    //   // console.log('scaleOffset', scaleOffset);
+    //   // console.log('original translate offset', this.translateOffset);
+    //   // console.log('actual Center', actualCenter);
+    //   // console.log('new Center', newCenter);
+    //   // console.log('corr', corr);
+    //   // console.log('new translate offset', newTranslateoffset);
+
+    //   this.setZoomLevel(newZoom, false);
+    //   this.setTranslateOffset(newTranslateoffset);
+    // }
   }
 
   get data() {

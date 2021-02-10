@@ -109,17 +109,17 @@ export class MergeState extends State {
       if (this.involvedShapes.length > 1) {
         // execute a groupMerge if possible
         const path = this.getPathFromGroup();
-        if (!path) return false;
-
-        this.actions = [
-          {
-            name: 'MergeAction',
-            mode: 'multipleShapes',
-            involvedShapesIds: this.involvedShapes.map(s => s.id),
-            path: path,
-          },
-        ];
-        mustExecuteAction = true;
+        if (path) {
+          this.actions = [
+            {
+              name: 'MergeAction',
+              mode: 'multipleShapes',
+              involvedShapesIds: this.involvedShapes.map(s => s.id),
+              path: path,
+            },
+          ];
+          mustExecuteAction = true;
+        }
       }
       if (!mustExecuteAction) {
         this.currentStep = 'selecting-second-shape';
@@ -193,6 +193,9 @@ export class MergeState extends State {
 
   getPathFromGroup() {
     let segmentsList = this.checkGroupMerge(this.involvedShapes);
+
+    if (!segmentsList)
+      return null;
 
     let path = this.linkNewSegments(segmentsList);
 
@@ -303,6 +306,9 @@ export class MergeState extends State {
       segmentsList.splice(nextSegmentIndex, 1);
       segmentUsed++;
     }
+
+    if (segmentsList.length > 0)
+      return null;
 
     path = path.join(' ');
 

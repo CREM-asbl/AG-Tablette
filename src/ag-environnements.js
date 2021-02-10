@@ -26,7 +26,7 @@ class AgEnvironnements extends LitElement {
         height: 100%;
         padding: 16px;
         box-sizing: border-box;
-        background: /* url('images/manifest/icon.svg') no-repeat center center */ lightgray;
+        background: lightgray;
       }
 
       div {
@@ -92,8 +92,10 @@ class AgEnvironnements extends LitElement {
       <div id="Tangram" @click="${this.handleClick}">Tangram</div>
       <div id="Cubes" @click="${this.handleClick}">Cubes</div>
       <div id="Geometrie" @click="${this.handleClick}">Géométrie</div>
-      <img src="images/manifest/icon_test.svg"
-        style="position: absolute; top: calc(50% - 13vmin); left: calc(50% - 13vmin); width: 26vmin; height: 26vmin; transform: rotate(45deg);" />
+      <img
+        src="images/manifest/icon.svg"
+        style="position: absolute; top: calc(50% - 13vmin); left: calc(50% - 13vmin); width: 26vmin; height: 26vmin; transform: rotate(45deg);"
+      />
     `;
   }
 

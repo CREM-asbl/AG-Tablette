@@ -1311,6 +1311,7 @@ export class Shape {
       }
     }
     this.segments.forEach((seg, idx) => (seg.idx = idx));
+    this.vertexes.forEach((vx, idx) => (vx.idx = idx));
   }
 
   saveData() {
@@ -1321,6 +1322,7 @@ export class Shape {
       name: this.name,
       familyName: this.familyName,
       color: this.color,
+      second_color: this.second_color,
       opacity: this.opacity,
       path: this.getSVGPath(false),
       size: this.size,

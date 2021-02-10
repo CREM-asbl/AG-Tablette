@@ -162,8 +162,12 @@ class AGTabletteApp extends LitElement {
               </icon-button>
               <icon-button name="redo" title="Refaire" ?disabled="${!this.canRedo}" @click="${this._actionHandle}">
               </icon-button>
-              <icon-button name="replay" title="replay" @click="${this._actionHandle}">
-              </icon-button>
+              <!-- <icon-button
+                name="replay"
+                title="replay"
+                @click="\${this._actionHandle}"
+              >
+              </icon-button> -->
 
               <icon-button name="help" title="Aide" @click="${this._actionHandle}">
               </icon-button>
