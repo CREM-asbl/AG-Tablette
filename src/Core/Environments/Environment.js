@@ -7,7 +7,7 @@ export const loadEnvironnement = async name => {
     await loadModules(config.default.modules)
     if (config.default.settings) app.settings.update(config.default.settings)
 
-    return new Environment(config.default, await loadFamilies(config.default.kit))
+    return new Environment(config.default, await loadKit(config.default.kit))
   }
   catch (error) {
     console.warn(`Environnement ${name} pas encore pris en charge`);
@@ -19,15 +19,16 @@ const loadModules = async modules => {
   return Promise.all(modules.map(async module => await import(`../../${module}/index.js`)))
 }
 
-const loadFamilies = async name => {
-  if(!name) return []
+const loadKit = async name => {
+  if(!name) return null
   const module = await import(`../ShapesKits/${name}.js`)
   const kit = module[name]
   let families = []
   for (let [familyName, familyData] of Object.entries(kit.families)) {
     families.push(new Family({ name: familyName, ...familyData }));
   }
-  return families
+  const kitContent = {name: kit.name, families}
+  return kitContent;
 }
 
 /**
@@ -36,14 +37,19 @@ const loadFamilies = async name => {
  * l'on peut réaliser.
  */
 export class Environment {
-  constructor({ name, kit = null, extension }, families = []) {
+  constructor({ name, extension }, kitContent = null) {
     this.name = name;
 
-    this.kitName = kit;
-
-    this.families = families;
-
     this.extension = extension
+
+    this.kitName = this.name;
+
+    this.families = [];
+    if (kitContent) {
+      this.kitName = kitContent.name;
+
+      this.families = kitContent.families;
+    }
   }
 
   /**

@@ -8,6 +8,7 @@ class ToolbarKit extends LitElement {
     return {
       familyNames: { type: Array },
       selectedFamily: { type: String },
+      envName: { type: String },
     };
   }
 
@@ -26,8 +27,12 @@ class ToolbarKit extends LitElement {
     super();
 
     this.familyNames = app.environment.familyNames || [];
+    this.envName = app.environment.kitName;
 
-    window.addEventListener('state-changed', () => this.familyNames = app.environment.familyNames);
+    window.addEventListener('state-changed', () => {
+      this.familyNames = app.environment.familyNames;
+      this.envName = app.environment.kitName;
+    });
     window.addEventListener(
       'family-selected',
       event =>
@@ -40,7 +45,7 @@ class ToolbarKit extends LitElement {
   render() {
     if (!this.familyNames.length) return html``;
     return html`
-      <div class="toolbar-separator">${app.environment.kitName}</div>
+      <div class="toolbar-separator">${this.envName}</div>
       <flex-toolbar>
         ${this.familyNames.map(family => {
           return html`
