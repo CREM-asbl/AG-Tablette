@@ -1,5 +1,7 @@
 import { GroupState } from './GroupState';
 import { GroupAction } from './GroupAction';
 
-new GroupState();
-new GroupAction();
+export default {
+  state: new GroupState(),
+  action: new GroupAction()
+}

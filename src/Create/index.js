@@ -1,5 +1,8 @@
 import { CreateState } from './CreateState';
 import { CreateAction } from './CreateAction';
 
-new CreateState();
-new CreateAction();
+export default {
+  state: new CreateState(),
+  action: new CreateAction()
+}
+

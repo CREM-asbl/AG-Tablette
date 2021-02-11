@@ -1,5 +1,7 @@
 import { ToBackgroundState } from './ToBackgroundState';
 import { ToBackgroundAction } from './ToBackgroundAction';
 
-new ToBackgroundState();
-new ToBackgroundAction();
+export default {
+  state: new ToBackgroundState(),
+  action: new ToBackgroundAction()
+}

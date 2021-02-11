@@ -1,5 +1,7 @@
 import { CopyState } from './CopyState';
 import { CopyAction } from './CopyAction';
 
-new CopyState();
-new CopyAction();
+export default {
+  state: new CopyState(),
+  action: new CopyAction()
+}

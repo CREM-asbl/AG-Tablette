@@ -2,6 +2,7 @@ import './TangramManager';
 import { SilhouetteCreatorState } from './SilhouetteCreatorState';
 import { SolutionCheckerState } from './SolutionCheckerState';
 
-new SilhouetteCreatorState();
+export default {
+  state: new SilhouetteCreatorState()
+}
 new SolutionCheckerState();
-console.log('Tangram loaded')

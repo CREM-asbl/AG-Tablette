@@ -1,5 +1,7 @@
 import { UngroupState } from './UngroupState';
 import { UngroupAction } from './UngroupAction';
 
-new UngroupState();
-new UngroupAction();
+export default {
+  state: new UngroupState(),
+  action: new UngroupAction()
+}
