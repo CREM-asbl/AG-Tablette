@@ -2,11 +2,13 @@
   "scripts": {
     "start": "snowpack dev",
     "build": "snowpack build && workbox generateSW",
-    "test": "echo \"This template does not include a test runner by default.\" && exit 1",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\"",
     "deploy": "npm run build && firebase deploy --only hosting:default",
-    "deploy:beta": "npm run build && firebase deploy --only hosting:beta"
+    "deploy:beta": "npm run build && firebase deploy --only hosting:beta",
+    "test": "[[ -n $npm_config_folder && -d test/$npm_config_folder ]] && { npm run test:folder; exit 0;} || npm run test:all",
+    "test:folder": "echo \"running tests in folder $npm_config_folder\" && web-test-runner \"test/$npm_config_folder/*.test.js\" --node-resolve",
+    "test:all": "echo \"running all tests\" && web-test-runner \"test/**/*.test.js\" --node-resolve"
   },
   "dependencies": {
     "lit-element": "^2.3.1",
@@ -15,8 +17,10 @@
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-proposal-decorators": "^7.10.5",
+    "@esm-bundle/chai": "^4.3.0",
     "@snowpack/plugin-babel": "^2.1.6",
     "@snowpack/plugin-dotenv": "^2.0.5",
+    "@web/test-runner": "^0.12.15",
     "prettier": "^2.0.5",
     "snowpack": "^3.0.1"
   }
