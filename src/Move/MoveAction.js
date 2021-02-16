@@ -1,6 +1,6 @@
 import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { magnetizeShapes } from '../Core/Tools/magnetism';
 
 export class MoveAction extends Action {
   constructor() {
@@ -54,21 +54,17 @@ export class MoveAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let involvedShape = this.involvedShapesIds.map(id => {
+    let involvedShapes = this.involvedShapesIds.map(id => {
       let s = ShapeManager.getShapeById(id);
       return s;
     });
     let shape = ShapeManager.getShapeById(this.shapeId);
 
-    involvedShape.forEach(s => {
+    involvedShapes.forEach(s => {
       s.translate(this.translation);
     });
 
-    let transformation = getShapeAdjustment(involvedShape, shape);
-    involvedShape.forEach(s => {
-      s.rotate(transformation.rotationAngle, shape.centerCoordinates);
-      s.translate(transformation.translation);
-    });
+    involvedShapes = magnetizeShapes(shape, involvedShapes);
   }
 
   /**

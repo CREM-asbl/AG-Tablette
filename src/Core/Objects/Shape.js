@@ -634,6 +634,7 @@ export class Shape {
    */
   translate(coordinates, negativeTranslation = false) {
     this.points.forEach(pt => pt.translate(coordinates, negativeTranslation));
+    return this;
   }
 
   /**
@@ -660,6 +661,7 @@ export class Shape {
     this.points.forEach(
       pt => (pt.coordinates = pt.coordinates.rotate(angle, center))
     );
+    return this;
   }
 
   applyTransform(pointSelected, pointDest, pointDest2) {

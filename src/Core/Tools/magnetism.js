@@ -8,11 +8,10 @@ import { Coordinates } from '../Objects/Coordinates';
  * segments reliant les points de e1 et e2 soient superposés.
  * @param  {{'moving': Object, 'fixed': Object}} e1 1er point commun
  * @param  {{'moving': Object, 'fixed': Object}} e2 2eme point commun
- * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
  * @param  {Shape} mainShape      La forme principale
  * @return {{rotationAngle: float, translation: Coordinates}}
  */
-function computeTransformation(e1, e2, shapes, mainShape) {
+function computeTransformation(e1, e2, mainShape) {
   const maxRotateAngle = 0.25; //radians
   let fix1 = e1.fixed.coordinates,
     fix2 = e2.fixed.coordinates,
@@ -85,16 +84,14 @@ function bestPossibility(possibilities) {
     else return rot1 - rot2;
   })[0];
 
-  // console.log(best);
-
   return best;
 }
 
 /**
  * Calcule la transformation (déplacement et/ou rotation) qu'il faut appliquer à
  * un groupe de formes en fonction de la grille et de l'ajustement automatique.
- * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
  * @param  {Shape} mainShape      La forme principale
+ * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
  * @return {Object}
  *          {
  *              'rotationAngle': float,     // Rotation à effectuer
@@ -102,7 +99,7 @@ function bestPossibility(possibilities) {
  *          }
  *
  */
-export function getShapeAdjustment(shapes, mainShape) {
+function getShapeAdjustment(mainShape, shapes = [mainShape]) {
   let grid = app.workspace.settings.get('isGridShown'),
     // tangram = app.environment.name == 'Tangram' && app.silhouette,
     automaticAdjustment = app.settings.get('automaticAdjustment'),
@@ -170,7 +167,7 @@ export function getShapeAdjustment(shapes, mainShape) {
         let e1 = cPtListGrid[i],
           e2 = cPtListGrid[j];
         if (checkCompatibility(e1, e2)) {
-          let t = computeTransformation(e1, e2, shapes, mainShape);
+          let t = computeTransformation(e1, e2, mainShape);
           possibilities.push(t);
         }
       }
@@ -188,7 +185,7 @@ export function getShapeAdjustment(shapes, mainShape) {
           let e1 = cPtListGrid[i],
             e2 = cPtListBorder[j];
           if (checkCompatibility(e1, e2)) {
-            let t = computeTransformation(e1, e2, shapes, mainShape);
+            let t = computeTransformation(e1, e2, mainShape);
             possibilities.push(t);
           }
         }
@@ -209,7 +206,7 @@ export function getShapeAdjustment(shapes, mainShape) {
           e2 = cPtListBorder[j];
         if (checkCompatibility(e1, e2)) {
           console.log('2 points');
-          let t = computeTransformation(e1, e2, shapes, mainShape);
+          let t = computeTransformation(e1, e2, mainShape);
           possibilities.push(t);
         }
       }
@@ -263,6 +260,19 @@ export function getShapeAdjustment(shapes, mainShape) {
 
   console.log('nothing');
 
-  //Rien n'a été trouvé, aucune transformation à faire.
+  // Rien n'a été trouvé, aucune transformation à faire.
   return transformation;
+}
+
+export function magnetizeShapes(mainShape, shapes = [mainShape]) {
+  const transformation = getShapeAdjustment(mainShape, shapes);
+  const magnetizedShapes = shapes.map(shape => {
+    const rotatedShape = shape.rotate(
+      transformation.rotationAngle,
+      mainShape.centerCoordinates
+    );
+    const translatedShape = rotatedShape.translate(transformation.translation);
+    return translatedShape;
+  });
+  return magnetizedShapes;
 }

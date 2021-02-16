@@ -2,7 +2,7 @@ import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Shape } from '../Core/Objects/Shape';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { magnetizeShapes } from '../Core/Tools/magnetism';
 import { app } from '../Core/App';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 
@@ -105,15 +105,7 @@ export class CopyAction extends Action {
       newShape.translate(this.transformation);
     });
 
-    let transformation = getShapeAdjustment(shapesList, shapesList[0]);
-
-    shapesList.forEach(newShape => {
-      newShape.rotate(
-        transformation.rotationAngle,
-        shapesList[0].centerCoordinates
-      );
-      newShape.translate(transformation.translation);
-    });
+    shapesList = magnetizeShapes(shapesList[0], shapesList);
 
     //Si nécessaire, créer le userGroup
     if (shapesList.length > 1) {

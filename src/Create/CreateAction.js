@@ -2,7 +2,7 @@ import { Action } from '../Core/States/Action';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { ShapeTemplate } from '../Core/Objects/ShapeTemplate';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { magnetizeShapes } from '../Core/Tools/magnetism';
 import { app } from '../Core/App';
 
 export class CreateAction extends Action {
@@ -60,9 +60,7 @@ export class CreateAction extends Action {
     shape.scale(this.shapeSize);
     shape.translate(this.coordinates);
 
-    let transformation = getShapeAdjustment([shape], shape);
-    shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
-    shape.translate(transformation.translation);
+    shape = magnetizeShapes(shape)[0];
   }
 
   /**
