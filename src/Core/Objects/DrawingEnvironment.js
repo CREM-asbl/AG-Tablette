@@ -159,11 +159,12 @@ export class DrawingEnvironment {
     let pt2 = this.findObjectById(pt2Id, 'point');
     let segmentIds1 = pt1.segmentIds;
     let segmentIds2 = pt2.segmentIds;
-    let commonSegmentId = segmentIds1.find(
+    let commonSegmentIds = segmentIds1.filter(
       id1 => segmentIds2.findIndex(id2 => id2 == id1) != -1
     );
-    let commonSegment = this.segments.find(seg => seg.id == commonSegmentId);
-    return commonSegment;
+    let commonSegments = commonSegmentIds.map(id => this.segments.find(seg => seg.id == id));
+    commonSegments.sort((seg1, seg2) => seg2.idx - seg1.idx);
+    return commonSegments[0];
   }
 
   saveData() {

@@ -460,6 +460,10 @@ export class Segment {
       originVector = vertex.coordinates.substract(center.coordinates),
       perpendicularOriginVector;
     originVector = originVector.multiply(1 / this.radius);
+    if (Math.abs(originVector.y) < 0.001)
+      originVector.y = 0;
+    if (Math.abs(originVector.x) < 0.001)
+      originVector.x = 0;
     if (this.counterclockwise)
       perpendicularOriginVector = new Coordinates({
         x: 1,

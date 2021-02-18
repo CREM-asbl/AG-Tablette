@@ -174,8 +174,6 @@ export class DivideAction extends Action {
       center = this.segment.arcCenter,
       firstAngle = center.coordinates.angleWith(this.firstPoint.coordinates),
       secondAngle = center.coordinates.angleWith(this.secondPoint.coordinates);
-    if (this.segment.counterclockwise)
-      [firstAngle, secondAngle] = [secondAngle, firstAngle];
     if (this.firstPoint.coordinates.equal(this.secondPoint.coordinates))
       secondAngle += 2 * Math.PI;
     else if (firstAngle > secondAngle) secondAngle += 2 * Math.PI;
@@ -190,6 +188,9 @@ export class DivideAction extends Action {
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
+
+    if (this.segment.counterclockwise)
+      partAngle *= -1;
 
     for (
       let i = 1, coord = this.firstPoint.coordinates;
