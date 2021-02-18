@@ -45,6 +45,7 @@ export class BifaceState extends State {
         });
       }
     });
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
