@@ -19,18 +19,18 @@ class LeaveConfirmationPopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Nouvelle fenêtre</h2>
+        <h2 slot="title">${this.actionAfter == 'new' ? 'Nouvelle fenêtre' : 'Ouvrir un fichier'}</h2>
         <div slot="body" id="body">
           <p>
-            Voulez-vous enregistrer votre travail avant de quitter ? <br />
+            Voulez-vous partir sans enregistrer votre travail ? <br />
             Attention votre travail actuel sera perdu !
           </p>
         </div>
 
         <div slot="footer">
+          <button @click="${this.confirm}">Oui</button>
           <button id="focus" @click="${this.close}">Annuler</button>
-          <button @click="${this.confirm}">Non</button>
-          <button @click="${this.saveWork}">Oui</button>
+          <button @click="${this.saveWork}">Enregistrer</button>
         </div>
       </template-popup>
     `;
