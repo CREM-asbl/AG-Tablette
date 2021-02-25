@@ -17,8 +17,8 @@ class ShapesList extends LitElement {
         justify-content: center;
         position: absolute;
         bottom: 0;
-        left: 0;
-        right: 0;
+        /* left: 0; */
+        /* right: 0; */
       }
 
       .container {
@@ -52,10 +52,10 @@ class ShapesList extends LitElement {
         padding: 0;
         height: 54px;
       }
-
-      @media (min-width: 600px) {
+      @media (max-width: 600px) {
         :host {
-          left: ${app.settings.get('mainMenuWidth')}px;
+          right: 0;
+          left: auto;
         }
       }
     `;
@@ -63,6 +63,11 @@ class ShapesList extends LitElement {
 
   render() {
     return html`
+      <style>
+        :host {
+          left: calc(50% + (${app.settings.get('mainMenuWidth')}px / 2) - (${this.templateNames.length} / 2 * 54px));
+        }
+      </style>
       <div class="container">
         <h2>
           ${this.templateName
