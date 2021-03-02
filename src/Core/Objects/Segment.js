@@ -566,6 +566,7 @@ export class Segment {
 
   reverse(changeClockwise = false) {
     this.vertexIds.reverse();
+    this.vertexes.forEach((vx, idx) => (vx.idx = idx));
     this.divisionPoints.forEach(pt => (pt.ratio = 1 - pt.ratio));
     if (this.arcCenter && changeClockwise)
       this.counterclockwise = !this.counterclockwise;

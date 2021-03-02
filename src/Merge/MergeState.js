@@ -140,6 +140,7 @@ export class MergeState extends State {
         this.currentStep = 'listen-canvas-click';
         this.firstShapeId = null;
         app.mainDrawingEnvironment.editingShapeIds = [];
+        app.upperDrawingEnvironment.removeAllObjects();
       } else {
         this.secondShapeId = shape.id;
         this.actions = [

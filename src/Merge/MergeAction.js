@@ -343,10 +343,6 @@ export class MergeAction extends Action {
         sweepFlag = Math.abs(sweepFlag - 1);
         largeArcFlag = Math.abs(largeArcFlag - 1);
       }
-      if (mustReverse) {
-        sweepFlag = Math.abs(sweepFlag - 1);
-        largeArcFlag = Math.abs(largeArcFlag - 1);
-      }
       path.push(
         'A',
         radius,
