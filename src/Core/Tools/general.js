@@ -161,3 +161,8 @@ export function createElem(name) {
   document.querySelector('body').appendChild(elem);
   return elem;
 }
+
+export function isAlmostInfinite(number) {
+  let isReallyBigNumber = !isFinite(number) || Math.abs(number) > 1000000000;
+  return isReallyBigNumber;
+}
