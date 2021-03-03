@@ -976,5 +976,7 @@ export class Segment {
       drawingEnvironment: app.mainDrawingEnvironment,
     });
     Object.assign(segment, data);
+    segment.vertexIds = [...data.vertexIds];
+    segment.divisionPointIds = [...data.divisionPointIds];
   }
 }

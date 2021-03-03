@@ -189,8 +189,9 @@ export class DivideAction extends Action {
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
 
-    if (this.segment.counterclockwise)
-      partAngle *= -1;
+    if (this.segment.counterclockwise && !this.firstPoint.coordinates.equal(this.secondPoint.coordinates)) {
+      partAngle = (secondAngle - firstAngle - 2 * Math.PI) / this.numberOfParts;
+    }
 
     for (
       let i = 1, coord = this.firstPoint.coordinates;
