@@ -104,10 +104,10 @@ export class ReverseState extends State {
    */
   end() {
     this.stopAnimation();
-    app.upperDrawingEnvironment.removeAllObjects();
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
       this.selectedShape = null;
+      app.upperDrawingEnvironment.removeAllObjects();
       app.mainDrawingEnvironment.editingShapeIds = [];
     }
 

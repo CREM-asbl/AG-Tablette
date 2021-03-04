@@ -78,6 +78,8 @@ export class MoveState extends State {
    */
   end() {
     this.stopAnimation();
+    if (this.status != 'paused')
+      app.upperDrawingEnvironment.removeAllObjects();
     this.currentStep = 'listen-canvas-click';
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.removeListener('objectSelected', this.objectSelectedId);
@@ -155,9 +157,7 @@ export class MoveState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (this.currentStep != 'moving-shape') {
-      app.upperDrawingEnvironment.removeAllObjects();
-    } else {
+    if (this.currentStep == 'moving-shape') {
       let transformation = app.workspace.lastKnownMouseCoordinates.substract(
         this.lastKnownMouseCoordinates
       );

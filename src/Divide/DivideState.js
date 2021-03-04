@@ -91,6 +91,8 @@ export class DivideState extends State {
       // paused
       this.savedSelConstr = app.workspace.selectionConstraints;
     }
+    if (this.status != 'paused')
+      app.upperDrawingEnvironment.removeAllObjects();
 
     app.removeListener('objectSelected', this.objectSelectedId);
     window.removeEventListener('setNumberOfParts', this.handler);
@@ -260,7 +262,6 @@ export class DivideState extends State {
             )
           ) {
             console.warn('ambiguité, ne rien faire');
-            app.upperDrawingEnvironment.removeAllObjects();
             this.restart();
 
             window.dispatchEvent(new CustomEvent('refresh'));
@@ -366,7 +367,6 @@ export class DivideState extends State {
     }
     // this.actions[0].existingPoints = [...this.actions[0].segment.divisionPoints];
     this.executeAction();
-    app.upperDrawingEnvironment.removeAllObjects();
     this.restart();
 
     window.dispatchEvent(new CustomEvent('refresh'));
