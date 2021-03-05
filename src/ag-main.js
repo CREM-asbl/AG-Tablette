@@ -140,6 +140,13 @@ class AGTabletteApp extends LitElement {
     `;
   }
 
+  updated() {
+    if (app.environment.name != 'Grandeurs') {
+      console.log(this.shadowRoot.querySelectorAll('.onlyGrandeurs'))
+      this.shadowRoot.querySelectorAll('.onlyGrandeurs').forEach(el => el.style.display = 'none');
+    }
+  }
+
   render() {
     return html`
       <div id="app-canvas-view">
@@ -162,12 +169,13 @@ class AGTabletteApp extends LitElement {
               </icon-button>
               <icon-button name="redo" title="Refaire" ?disabled="${!this.canRedo}" @click="${this._actionHandle}">
               </icon-button>
-              <!-- <icon-button
+              <icon-button
+                class="onlyGrandeurs"
                 name="replay"
                 title="replay"
-                @click="\${this._actionHandle}"
+                @click="${this._actionHandle}"
               >
-              </icon-button> -->
+              </icon-button>
 
               <icon-button name="help" title="Aide" @click="${this._actionHandle}">
               </icon-button>

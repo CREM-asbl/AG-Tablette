@@ -37,7 +37,7 @@ export class CompleteHistory {
 
     this.startTranslateOffset = Coordinates.nullCoordinates;
 
-    this.startSilhouette = app.silhouette;
+    // this.startSilhouette = app.silhouette;
   }
 
   saveToObject() {
@@ -51,7 +51,7 @@ export class CompleteHistory {
       startShapeGroups: this.startShapeGroups.map(group =>
         group.saveToObject()
       ),
-      startTangram: this.startTangram,
+      // startTangram: this.startTangram,
     };
     return save;
   }
@@ -68,7 +68,7 @@ export class CompleteHistory {
     //   group.initFromObject(groupData);
     //   return group;
     // });
-    this.startTangram = object.startTangram;
+    // this.startTangram = object.startTangram;
   }
 
   // transformToObject(detail) {

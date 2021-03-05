@@ -52,6 +52,8 @@ export class HistoryManager {
     app.setState();
     app.workspace.history.index--;
     let data = app.workspace.history.data[app.workspace.history.index];
+    if (app.workspace.history.index == -1)
+      data = app.workspace.history.startSituation;
     app.workspace.initFromObject(data, true);
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));

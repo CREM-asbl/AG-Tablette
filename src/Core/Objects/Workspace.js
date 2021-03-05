@@ -124,9 +124,9 @@ export class Workspace {
         endTimestamp: 0,
         startZoomLevel: this.zoomLevel,
         startTranslateOffset: this.translateOffset,
-        startShapes: this.shapes,
+        startShapes: app.mainDrawingEnvironment.shapes,
         startShapeGroups: this.shapeGroups,
-        startSilhouette: app.silhouette,
+        // startSilhouette: app.silhouette,
       });
     }
 
@@ -147,6 +147,7 @@ export class Workspace {
         window.dispatchEvent(new CustomEvent('history-changed'));
       } else {
         this.history.resetToDefault();
+        this.history.startSituation = this.data;
       }
     }
 

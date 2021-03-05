@@ -41,8 +41,8 @@ export class CompleteHistoryManager {
     app.workspace.setTranslateOffset(
       app.workspace.completeHistory.startTranslateOffset
     );
-    app.workspace.shapes = app.workspace.completeHistory.startShapes.map(s =>
-      s.copy(true)
+    app.workspace.completeHistory.startShapes.map(s =>
+      new Shape(s)
     );
     app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(
       gr => gr.copy(true)
