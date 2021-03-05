@@ -1,6 +1,6 @@
 import { ShapeManager } from '../Managers/ShapeManager';
 import { Point } from './Point';
-import { uniqId, mod } from '../Tools/general';
+import { uniqId, mod, isAlmostInfinite } from '../Tools/general';
 import { app } from '../App';
 import { Bounds } from './Bounds';
 import { Coordinates } from './Coordinates';
@@ -830,14 +830,14 @@ export class Segment {
       segmentSlope = (segmentv0y - segmentv1y) / (segmentv0x - segmentv1x);
 
     // 2 segments verticaux
-    if (!isFinite(thisSlope) && !isFinite(segmentSlope)) return null;
+    if (isAlmostInfinite(thisSlope) && isAlmostInfinite(segmentSlope)) return null;
     // this vertical
-    else if (!isFinite(thisSlope)) {
+    else if (isAlmostInfinite(thisSlope)) {
       let pb = segmentv0y - segmentSlope * segmentv0x;
       result.y = segmentSlope * thisv0x + pb;
       result.x = thisv0x;
       // segment vertical
-    } else if (!isFinite(segmentSlope)) {
+    } else if (isAlmostInfinite(segmentSlope)) {
       let pa = thisv0y - thisSlope * thisv0x;
       result.y = thisSlope * segmentv0x + pa;
       result.x = segmentv0x;
