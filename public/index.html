@@ -26,19 +26,20 @@
     <meta property="og:image:width" content="512" />
     <meta property="og:description" content="Logiciel mobile de géométrie dynamique">
 
-    <script>
+    <script type="module">
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', async () => {
-                const registration = await navigator.serviceWorker.register('./sw.js');
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener("statechange", () => {
-                        console.log("App: Nouvel état :", newWorker.state);
-                    });
-                })
-            });
+          window.addEventListener('load', async () => {
+            const sw = await navigator.serviceWorker.register('/sw.js')
+            sw.addEventListener('updatefound', () => {
+              sw.installing.addEventListener('statechange', () => {
+                if (sw.waiting) {
+                  sw.waiting.postMessage('skipWaiting')
+                }
+              })
+            })
+          });
         }
-    </script>
+      </script>
 
     <style>
         html,
