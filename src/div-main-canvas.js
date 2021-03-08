@@ -13,20 +13,18 @@ class DivMainCanvas extends LitElement {
     this.shapes = [];
     this.segments = [];
     this.points = [];
-  }
-  // constructor() {
-  //   super();
 
-  //   // this.cursorPos = new Point(0, 0);
-  //   // this.cursorSize = 20;
-  //   // this.cursorShow = false;
-  // }
+    this.cursorPos = Coordinates.nullCoordinates;
+    this.cursorSize = 20;
+    this.cursorShow = false;
+  }
+
   static get properties() {
     return {
       background: String, // utile ?
-      // cursorPos: Object,
-      // cursorSize: Number,
-      // cursorShow: Boolean,
+      cursorPos: Object,
+      cursorSize: Number,
+      cursorShow: Boolean,
       animCursorX: Number,
       animCursorY: Number,
     };
@@ -97,6 +95,14 @@ class DivMainCanvas extends LitElement {
       <!-- for the current event (ex: moving shape -->
       <canvas id="upperCanvas"></canvas>
 
+      <img
+        src="/images/fake_cursor.png"
+        height="${this.cursorSize}"
+        width="${this.cursorSize}"
+        style="margin-left: ${this.cursorPos.x}px; margin-top: ${this.cursorPos.y}px; display: ${this.cursorShow ? 'inline' : 'none'}"
+      >
+      </img>
+
       <!-- <div class="clickEffect" style="margin-left: \${this.animCursorX}px; margin-top:\${this.animCursorY};"></div> -->
     `;
   }
@@ -137,10 +143,10 @@ class DivMainCanvas extends LitElement {
 
     window.addEventListener('show-cursor', () => {
       let mousePos = app.workspace.lastKnownMouseCoordinates;
-      this.cursorPos = mousePos.subCoordinates(
+      this.cursorPos = mousePos.substract(
         new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 })
       );
-      this.cursorPos.setToCanvasCoordinates();
+      this.cursorPos.toCanvasCoordinates();
       this.cursorShow = true;
       window.clearTimeout(this.timeoutId);
       this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);

@@ -10,6 +10,19 @@ class ShapesList extends LitElement {
     };
   }
 
+  constructor() {
+    super();
+
+    console.log('constructor');
+
+    window.addEventListener('select-template', event => this.changeTemplateName(event));
+  }
+
+  changeTemplateName(event) {
+    console.log("change template");
+    this.templateName = event.detail.templateName;
+  }
+
   static get styles() {
     return css`
       :host {
