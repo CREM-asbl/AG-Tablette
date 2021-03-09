@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
@@ -10,7 +10,7 @@ import { Point } from '../Core/Objects/Point';
 /**
  * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail
  */
-export class ReverseState extends State {
+export class ReverseTool extends Tool {
   constructor() {
     super('reverse', 'Retourner', 'move');
 

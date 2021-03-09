@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
@@ -7,7 +7,7 @@ import { Point } from '../Core/Objects/Point';
 /**
  * Découper une forme
  */
-export class CutState extends State {
+export class CutTool extends Tool {
   constructor() {
     super('cut', 'Découper', 'operation');
 

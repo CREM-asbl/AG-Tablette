@@ -11,7 +11,7 @@ import { Shape } from '../../Core/Objects/Shape';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateIrregularState extends State {
+export class CreateIrregularTool extends Tool {
   constructor() {
     super(
       'createIrregularPolygon',

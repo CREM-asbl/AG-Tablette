@@ -12,7 +12,7 @@ import { Coordinates } from '../../Core/Objects/Coordinates';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateTriangleState extends State {
+export class CreateTriangleTool extends Tool {
   constructor() {
     super('createTriangle', 'Créer un triangle', 'geometry_creator');
 

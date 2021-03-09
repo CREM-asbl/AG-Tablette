@@ -13,7 +13,7 @@ import { isAngleBetweenTwoAngles } from '../../Core/Tools/geometry';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateCircleState extends State {
+export class CreateCircleTool extends Tool {
   constructor() {
     super('createCircle', 'Créer un cercle', 'geometry_creator');
 

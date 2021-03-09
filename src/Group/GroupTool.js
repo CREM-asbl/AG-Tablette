@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Text } from '../Core/Objects/Text';
@@ -7,7 +7,7 @@ import { Text } from '../Core/Objects/Text';
 /**
  * Grouper des formes.
  */
-export class GroupState extends State {
+export class GroupTool extends Tool {
   constructor() {
     super('group', 'Grouper', 'tool');
 

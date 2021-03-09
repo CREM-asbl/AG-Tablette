@@ -1,7 +1,5 @@
 import { app } from '../App';
 import { SelectManager } from './SelectManager';
-import { HistoryManager } from './HistoryManager';
-import { Point } from '../Objects/Point';
 import { History } from '../Objects/History';
 import { createElem } from '../Tools/general';
 import { Coordinates } from '../Objects/Coordinates';
@@ -26,7 +24,7 @@ export class CompleteHistoryManager {
     CompleteHistoryManager.saveHistory = {...app.workspace.history};
     CompleteHistoryManager.isRunning = true;
     CompleteHistoryManager.resetWorkspace();
-    app.setState();
+    app.setTool();
     app.workspace.completeHistory.videoStartTimestamp = Date.now();
     app.workspace.completeHistory.currentTimestamp =
       app.workspace.completeHistory.videoStartTimestamp;
@@ -54,7 +52,6 @@ export class CompleteHistoryManager {
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
     let data = CompleteHistoryManager.saveHistory.data[idx - 1];
     app.workspace.initFromObject(data, true);
-    console.log(data);
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     app.workspace.completeHistory.historyIndex = app.workspace.completeHistory.steps.findIndex(
@@ -102,8 +99,8 @@ export class CompleteHistoryManager {
 
     if (type == 'actions-executed') {
       CompleteHistoryManager.action_idx++;
-    } else if (type == 'app-state-changed') {
-      app.setState(detail.state, detail.startParams);
+    } else if (type == 'tool-changed') {
+      app.setTool(detail.state, detail.startParams);
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
@@ -132,8 +129,6 @@ export class CompleteHistoryManager {
       detail.action_idx = app.workspace.completeHistory.steps.filter(step => {
         return step.detail && step.detail.actions;
       }).length;
-      console.log(detail);
-      // detail.actions = HistoryManager.transformToObjects(detail.actions);
     }
     app.workspace.completeHistory.addStep(type, detail, timeStamp);
   }
@@ -223,8 +218,8 @@ window.addEventListener('close-popup', event =>
   CompleteHistoryManager.addStep('close-popup', event)
 );
 
-window.addEventListener('app-state-changed', event =>
-  CompleteHistoryManager.addStep('app-state-changed', event)
+window.addEventListener('tool-changed', event =>
+  CompleteHistoryManager.addStep('tool-changed', event)
 );
 
 window.addEventListener('reverse-animation', () => {

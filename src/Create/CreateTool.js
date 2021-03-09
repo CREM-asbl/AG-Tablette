@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
@@ -8,7 +8,7 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateState extends State {
+export class CreateTool extends Tool {
   constructor() {
     super('createShape', 'Ajouter une forme');
 

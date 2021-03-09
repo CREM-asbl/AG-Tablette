@@ -1,12 +1,12 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Zoomer/Dézoomer le plan
  */
-export class ZoomState extends State {
+export class ZoomTool extends Tool {
   constructor() {
     super('zoom', 'Zoomer', 'tool');
 

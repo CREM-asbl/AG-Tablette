@@ -11,7 +11,7 @@ import { Coordinates } from '../../Core/Objects/Coordinates';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateRegularState extends State {
+export class CreateRegularTool extends Tool {
   constructor() {
     super(
       'createRegularPolygon',

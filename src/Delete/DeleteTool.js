@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -9,7 +9,7 @@ import { Shape } from '../Core/Objects/Shape';
  * Supprimer une forme (et supprime le groupe dont la forme faisait partie s'il
  * ne restait que 2 formes dans le groupe)
  */
-export class DeleteState extends State {
+export class DeleteTool extends Tool {
   constructor() {
     super('delete', 'Supprimer une forme', 'tool');
   }

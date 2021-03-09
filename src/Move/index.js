@@ -1,7 +1,7 @@
-import { MoveState } from './MoveState';
+import { MoveTool } from './MoveTool';
 import { MoveAction } from './MoveAction';
 
 export default {
-  state: new MoveState(),
+  tool: new MoveTool(),
   action: new MoveAction()
 }

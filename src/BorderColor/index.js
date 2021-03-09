@@ -1,7 +1,7 @@
-import { BorderColorState } from './BorderColorState';
+import { BorderColorTool } from './BorderColorTool';
 import { BorderColorAction } from './BorderColorAction';
 
 export default {
-  state: new BorderColorState(),
+  tool: new BorderColorTool(),
   action: new BorderColorAction()
 }

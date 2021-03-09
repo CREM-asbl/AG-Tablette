@@ -1,13 +1,15 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Text } from '../Core/Objects/Text';
 
 /**
- * Construire le centre d'une forme (l'afficher)
+ * Rendre une shape biface
  */
-export class BuildCenterState extends State {
+export class BifaceTool extends Tool {
   constructor() {
-    super('buildCenter', 'Construire le centre', 'operation');
+    super('biface', 'Rendre biface', 'tool');
   }
 
   /**
@@ -20,8 +22,10 @@ export class BuildCenterState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une forme pour construire son centre. Si le centre était déjà
-        construit, cela va supprimer le centre.
+        Une fois sélectionné, un texte "biface" apparaît sur les formes étant
+        bifaces.<br />
+        Touchez une forme pour qu'elle devienne biface, et touchez une seconde
+        fois pour annuler.
       </p>
     `;
   }
@@ -30,6 +34,18 @@ export class BuildCenterState extends State {
    * initialiser l'état
    */
   start() {
+    app.mainDrawingEnvironment.shapes.map(s => {
+      if (s.isBiface) {
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          message: 'Biface',
+          type: 'biface',
+        });
+      }
+    });
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -44,6 +60,17 @@ export class BuildCenterState extends State {
    */
   restart() {
     this.end();
+    app.mainDrawingEnvironment.shapes.map(s => {
+      if (s.isBiface) {
+        new Text({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          message: 'Biface',
+          type: 'biface',
+        });
+      }
+    });
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -57,6 +84,7 @@ export class BuildCenterState extends State {
    * stopper l'état
    */
   end() {
+    app.upperDrawingEnvironment.removeAllObjects();
     app.removeListener('objectSelected', this.objectSelectedId);
   }
 
@@ -76,15 +104,20 @@ export class BuildCenterState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
+    let involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+
     this.actions = [
       {
-        name: 'BuildCenterAction',
-        shapeId: shape.id,
+        name: 'BifaceAction',
+        involvedShapesIds: involvedShapes.map(s => s.id),
+        oldBiface: involvedShapes.map(s => s.isBiface),
       },
     ];
+
     this.executeAction();
     this.restart();
 
     window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 }

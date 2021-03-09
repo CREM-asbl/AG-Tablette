@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { TangramManager } from './TangramManager';
@@ -7,7 +7,7 @@ import { TangramManager } from './TangramManager';
 /**
  * Créer un tangram
  */
-export class SilhouetteCreatorState extends State {
+export class SilhouetteCreatorTool extends Tool {
   constructor() {
     super('createSilhouette', 'Créer Tangram', 'tangram');
 
@@ -17,7 +17,7 @@ export class SilhouetteCreatorState extends State {
 
     window.addEventListener('new-window', () => this.finish());
 
-    window.addEventListener('app-state-changed', event => {
+    window.addEventListener('tool-changed', event => {
       if (event.detail.state == 'solveChecker') this.finish();
     });
   }

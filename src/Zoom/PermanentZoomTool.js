@@ -1,12 +1,12 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Zoomer/Dézoomer le plan
  */
-export class PermanentZoomState extends State {
+export class PermanentZoomTool extends Tool {
   constructor() {
     super('permanent_zoom', 'Zoomer');
 
@@ -40,7 +40,7 @@ export class PermanentZoomState extends State {
     this.touchStartId = app.addListener('canvastouchstart', this.handler);
     this.mouseWheelId = app.addListener('canvasmousewheel', this.handler);
     window.dispatchEvent(
-      new CustomEvent('app-state-changed', {
+      new CustomEvent('tool-changed', {
         detail: { startParams: undefined },
       })
     );

@@ -44,7 +44,7 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
     });
-    window.addEventListener('app-state-changed', () => {
+    window.addEventListener('tool-changed', () => {
       this.setState();
     });
     window.addEventListener('state-changed', () => {
@@ -290,12 +290,12 @@ class AGTabletteApp extends LitElement {
         );
     }
     if (reset_state) {
-      app.setState();
+      app.setTool();
     }
   }
 
   setState() {
-    this.states = [...app.states];
+    this.states = [...app.tools];
     this.stateName = app.state;
     this.state = this.states.find(st => st.name == this.stateName);
     if (location.hostname === 'localhost') console.log(app)

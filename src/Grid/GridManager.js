@@ -3,7 +3,7 @@ import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
 
 //Todo: Créer un event plus précis
-addEventListener('app-state-changed', () => {
+addEventListener('tool-changed', () => {
   if (app.state === 'grid') {
     import('./grid-popup');
     const popup = document.createElement('grid-popup');

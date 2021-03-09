@@ -1,33 +1,17 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
- * Modifier la couleur des bords d'une forme
+ * Modifier la couleur de fond d'une forme
  */
-export class BorderColorState extends State {
+export class BackgroundColorTool extends Tool {
   constructor() {
-    super('borderColor', 'Colorier les bords', 'tool');
+    super('backgroundColor', 'Colorier les formes', 'tool');
 
     this.currentStep = null; // choose-color -> listen-canvas-click
-  }
-
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    let toolName = this.title;
-    return html`
-      <h2>${toolName}</h2>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir choisi une couleur, touchez une forme pour en colorier les
-        bords.
-      </p>
-    `;
   }
 
   /**
@@ -35,10 +19,12 @@ export class BorderColorState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+    setTimeout(() =>
+      setTimeout(
+        () =>
+          (app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.click_all_shape)
+      )
     );
 
     window.dispatchEvent(new CustomEvent('open-color-picker'));
@@ -56,14 +42,32 @@ export class BorderColorState extends State {
       this.start();
       return;
     }
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+    setTimeout(() =>
+      setTimeout(
+        () =>
+          (app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.click_all_shape)
+      )
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('colorChange', this.handler);
+  }
+
+  /**
+   * Renvoie l'aide à afficher à l'utilisateur
+   * @return {String} L'aide, en HTML
+   */
+  getHelpText() {
+    let toolName = this.title;
+    return html`
+      <h2>${toolName}</h2>
+      <p>
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Après avoir choisi une couleur, touchez une forme pour en colorier
+        l'intérieur.
+      </p>
+    `;
   }
 
   /**
@@ -107,13 +111,12 @@ export class BorderColorState extends State {
 
     this.actions = [
       {
-        name: 'BorderColorAction',
+        name: 'BackgroundColorAction',
         involvedShapesIds: involvedShapes.map(s => s.id),
         selectedColor: app.workspace.selectedColor,
-        oldColors: involvedShapes.map(s => s.borderColor),
+        oldColors: involvedShapes.map(s => s.color),
       },
     ];
-
     this.executeAction();
 
     window.dispatchEvent(new CustomEvent('refresh'));

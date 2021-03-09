@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { uniqId } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -9,7 +9,7 @@ import { Shape } from '../Core/Objects/Shape';
 /**
  * Dupliquer une forme
  */
-export class CopyState extends State {
+export class CopyTool extends Tool {
   constructor() {
     super('copy', 'Copier', 'operation');
 

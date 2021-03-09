@@ -12,7 +12,7 @@ import { Coordinates } from '../../Core/Objects/Coordinates';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateQuadrilateralState extends State {
+export class CreateQuadrilateralTool extends Tool {
   constructor() {
     super('createQuadrilateral', 'Créer un quadrilatère', 'geometry_creator');
 

@@ -20,26 +20,6 @@ export class HistoryManager {
     return app.workspace.history.index < app.workspace.history.length - 1;
   }
 
-  // static updateHistory(action) {
-  //   app.workspace.history.data[HistoryManager.historyIndex][
-  //     HistoryManager.stepIndex
-  //   ] = HistoryManager.transformToObject(action);
-  // }
-
-  // static updateBackup() {
-  //   let wsData = app.workspace.data;
-  //   app.workspace.shapes = [];
-  //   app.workspace.shapeGroups = [];
-  //   app.setState();
-  //   app.workspace.history.index = -1;
-  //   for (let i = 0; i < app.workspace.history.length; i++) {
-  //     HistoryManager.redo();
-  //   }
-  //   wsData.history.data = app.workspace.history.data;
-  //   app.lastFileVersion = app.version;
-  //   app.workspace.initFromObject(wsData);
-  // }
-
   /**
    * Annuler une étape. Cela fait reculer le curseur de l'historique d'un
    * élément.
@@ -49,7 +29,7 @@ export class HistoryManager {
       console.error('Nothing to undo');
       return;
     }
-    app.setState();
+    app.setTool();
     app.workspace.history.index--;
     let data = app.workspace.history.data[app.workspace.history.index];
     if (app.workspace.history.index == -1)
@@ -69,7 +49,7 @@ export class HistoryManager {
       console.error('Nothing to redo');
       return;
     }
-    app.setState();
+    app.setTool();
     app.workspace.history.index++;
     let data = app.workspace.history.data[app.workspace.history.index];
     app.workspace.initFromObject(data, true);

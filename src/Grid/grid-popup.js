@@ -102,7 +102,7 @@ class GridPopup extends LitElement {
 
   gridPopupValidate() {
     this.remove();
-    app.setState();
+    app.setTool();
   }
 
   /**

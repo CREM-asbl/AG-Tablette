@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { createElem } from '../Core/Tools/general';
 import { Segment } from '../Core/Objects/Segment';
@@ -9,7 +9,7 @@ import { Point } from '../Core/Objects/Point';
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
  */
-export class DivideState extends State {
+export class DivideTool extends Tool {
   constructor() {
     super('divide', 'Diviser', 'operation');
 

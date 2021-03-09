@@ -1,7 +1,7 @@
-import { ReverseState } from './ReverseState';
+import { ReverseTool } from './ReverseTool';
 import { ReverseAction } from './ReverseAction';
 
 export default {
-  state: new ReverseState(),
+  tool: new ReverseTool(),
   action: new ReverseAction()
 }

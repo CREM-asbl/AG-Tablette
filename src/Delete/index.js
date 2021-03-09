@@ -1,7 +1,7 @@
-import { DeleteState } from './DeleteState';
+import { DeleteTool } from './DeleteTool';
 import { DeleteAction } from './DeleteAction';
 
 export default {
-  state: new DeleteState(),
+  tool: new DeleteTool(),
   action: new DeleteAction()
 }

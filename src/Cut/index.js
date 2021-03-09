@@ -1,7 +1,7 @@
-import { CutState } from './CutState';
+import { CutTool } from './CutTool';
 import { CutAction } from './CutAction';
 
 export default {
-  state: new CutState(),
+  tool: new CutTool(),
   action: new CutAction(),
 }

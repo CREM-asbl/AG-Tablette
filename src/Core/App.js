@@ -17,14 +17,14 @@ export class App {
     this.canvasWidth = null;
     this.canvasHeight = null;
 
-    // L'état de l'application
-    this.state = null;
+    // L'outil sélectionné
+    this.toolSelected = null;
 
-    // Les états possibles
-    this.states = [];
+    // Les outils possibles
+    this.tools = [];
 
-    // Les actions possibles
-    this.actions = [];
+    // // Les actions possibles
+    // this.actions = [];
 
     // compteur d'écouteurs pour certains event
     this.listenerCounter = {};
@@ -143,10 +143,10 @@ export class App {
    * @param {String} stateName   Le nom de l'état
    * @param {Object} startParams paramètres à transmettre à state.start()
    */
-  setState(stateName, startParams) {
+  setTool(stateName, startParams) {
     this.state = stateName || undefined;
     window.dispatchEvent(
-      new CustomEvent('app-state-changed', {
+      new CustomEvent('tool-changed', {
         detail: { state: app.state, startParams: startParams },
       })
     );

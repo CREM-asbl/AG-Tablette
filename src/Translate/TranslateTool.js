@@ -1,12 +1,12 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Faire translater le plan
  */
-export class TranslateState extends State {
+export class TranslateTool extends Tool {
   constructor() {
     super('translate', 'Déplacer le plan', 'tool');
 

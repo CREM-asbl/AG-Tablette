@@ -1,4 +1,4 @@
-import { CreateIrregularState } from './CreateIrregularState';
+import { CreateIrregularTool } from './CreateIrregularTool';
 import { CreateIrregularAction } from './CreateIrregularAction';
 
 new CreateIrregularState();

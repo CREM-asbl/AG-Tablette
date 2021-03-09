@@ -1,4 +1,4 @@
-import { CreateRegularState } from './CreateRegularState';
+import { CreateRegularTool } from './CreateRegularTool';
 import { CreateRegularAction } from './CreateRegularAction';
 import './regular-popup';
 

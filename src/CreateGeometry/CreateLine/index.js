@@ -1,4 +1,4 @@
-import { CreateLineState } from './CreateLineState';
+import { CreateLineTool } from './CreateLineTool';
 import { CreateLineAction } from './CreateLineAction';
 
 new CreateLineState();

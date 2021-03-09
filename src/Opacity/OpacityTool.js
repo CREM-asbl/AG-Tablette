@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { createElem } from '../Core/Tools/general';
 import { GroupManager } from '../Core/Managers/GroupManager';
@@ -9,7 +9,7 @@ import './opacity-popup';
 /**
  * Modifier l'opacité d'une forme
  */
-export class OpacityState extends State {
+export class OpacityTool extends Tool {
   constructor() {
     super('opacity', 'Opacité', 'tool');
 

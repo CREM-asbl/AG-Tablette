@@ -1,9 +1,9 @@
-import { State } from './State';
+import { Tool } from './Tool';
 import { app } from '../App';
 
 export class Action {
   constructor(name) {
-    if (this.constructor === State) {
+    if (this.constructor === Action) {
       throw new TypeError(
         'Abstract class "Action" cannot be instantiated directly'
       );

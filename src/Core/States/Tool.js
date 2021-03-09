@@ -3,9 +3,9 @@ import { app } from '../App';
 /**
  * Cette classe abstraite représente un état possible de l'application
  */
-export class State {
+export class Tool {
   constructor(name, title, type) {
-    if (this.constructor === State) {
+    if (this.constructor === Tool) {
       throw new TypeError(
         'Abstract class "State" cannot be instantiated directly'
       );
@@ -25,7 +25,7 @@ export class State {
     //   type: this.type,
     // });
 
-    window.addEventListener('app-state-changed', event => {
+    window.addEventListener('tool-changed', event => {
       if (this.status == 'running') {
         if (this.name == app.state) {
           this.restart(true, event.detail.startParams);

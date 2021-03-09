@@ -1,15 +1,15 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { GroupManager } from '../Core/Managers/GroupManager';
 import { Text } from '../Core/Objects/Text';
 
 /**
- * Rendre une shape biface
+ * Supprimer un groupe (ne supprime pas les formes).
  */
-export class BifaceState extends State {
+export class UngroupTool extends Tool {
   constructor() {
-    super('biface', 'Rendre biface', 'tool');
+    super('ungroup', 'Dégrouper', 'tool');
   }
 
   /**
@@ -22,10 +22,11 @@ export class BifaceState extends State {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Une fois sélectionné, un texte "biface" apparaît sur les formes étant
-        bifaces.<br />
-        Touchez une forme pour qu'elle devienne biface, et touchez une seconde
-        fois pour annuler.
+        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque
+        forme appartenant à un groupe.<br /><br />
+
+        Pour supprimer entièrement un groupe, cliquez sur une des formes
+        appartenant à ce groupe.
       </p>
     `;
   }
@@ -35,17 +36,15 @@ export class BifaceState extends State {
    */
   start() {
     app.mainDrawingEnvironment.shapes.map(s => {
-      if (s.isBiface) {
+      if (GroupManager.getShapeGroup(s) != null) {
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
           coordinates: s.centerCoordinates,
           referenceId: s.id,
-          message: 'Biface',
-          type: 'biface',
+          type: 'group',
         });
       }
     });
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
@@ -53,6 +52,7 @@ export class BifaceState extends State {
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
@@ -61,13 +61,12 @@ export class BifaceState extends State {
   restart() {
     this.end();
     app.mainDrawingEnvironment.shapes.map(s => {
-      if (s.isBiface) {
+      if (GroupManager.getShapeGroup(s) != null) {
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
           coordinates: s.centerCoordinates,
           referenceId: s.id,
-          message: 'Biface',
-          type: 'biface',
+          type: 'group',
         });
       }
     });
@@ -100,24 +99,24 @@ export class BifaceState extends State {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
+   * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    let involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    let userGroup = GroupManager.getShapeGroup(shape);
+    if (userGroup) {
+      this.actions = [
+        {
+          name: 'UngroupAction',
+          group: userGroup,
+          groupIdx: GroupManager.getGroupIndex(userGroup),
+        },
+      ];
+      this.executeAction();
+      this.restart();
 
-    this.actions = [
-      {
-        name: 'BifaceAction',
-        involvedShapesIds: involvedShapes.map(s => s.id),
-        oldBiface: involvedShapes.map(s => s.isBiface),
-      },
-    ];
-
-    this.executeAction();
-    this.restart();
-
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      window.dispatchEvent(new CustomEvent('refresh'));
+    }
   }
 }

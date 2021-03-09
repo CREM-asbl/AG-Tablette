@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
@@ -7,7 +7,7 @@ import { Shape } from '../Core/Objects/Shape';
 /**
  * Déplacer une forme (ou un ensemble de formes liées) sur l'espace de travail
  */
-export class MoveState extends State {
+export class MoveTool extends Tool {
   constructor() {
     super('move', 'Déplacer', 'move');
 

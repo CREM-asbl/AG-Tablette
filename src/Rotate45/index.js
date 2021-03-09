@@ -1,7 +1,7 @@
-import { Rotate45State } from './Rotate45State';
+import { Rotate45Tool } from './Rotate45Tool';
 import { Rotate45Action } from './Rotate45Action';
 
 export default {
-  state: new Rotate45State(),
+  tool: new Rotate45Tool(),
   action: new Rotate45Action()
 }

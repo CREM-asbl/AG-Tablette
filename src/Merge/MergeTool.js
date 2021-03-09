@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
@@ -8,7 +8,7 @@ import { Shape } from '../Core/Objects/Shape';
 /**
  * Fusionner 2 formes en une nouvelle forme
  */
-export class MergeState extends State {
+export class MergeTool extends Tool {
   constructor() {
     super('merge', 'Fusionner', 'operation');
 

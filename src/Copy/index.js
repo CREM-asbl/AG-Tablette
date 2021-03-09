@@ -1,7 +1,7 @@
-import { CopyState } from './CopyState';
+import { CopyTool } from './CopyTool';
 import { CopyAction } from './CopyAction';
 
 export default {
-  state: new CopyState(),
+  tool: new CopyTool(),
   action: new CopyAction()
 }

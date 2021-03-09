@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { TangramManager } from './TangramManager';
 import { Segment } from '../Core/Objects/Segment';
@@ -12,7 +12,7 @@ import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 /**
  * Créer un tangram
  */
-export class SolutionCheckerState extends State {
+export class SolutionCheckerTool extends Tool {
   constructor() {
     super('solveChecker', 'Vérifier solution Tangram', '');
 
@@ -22,7 +22,7 @@ export class SolutionCheckerState extends State {
 
     window.addEventListener('remove-solution-checker', () => this.finish());
 
-    window.addEventListener('file-parsed', () => app.setState(this.name));
+    window.addEventListener('file-parsed', () => app.setTool(this.name));
   }
 
   /**
@@ -33,7 +33,7 @@ export class SolutionCheckerState extends State {
       TangramManager.initShapes();
       this.showStateMenu();
       window.addEventListener('state-menu-button-click', this.handler);
-      window.addEventListener('app-state-changed', this.handler);
+      window.addEventListener('tool-changed', this.handler);
       this.objectSelectedId = app.addListener('objectSelected', this.handler);
     }
   }
@@ -43,7 +43,7 @@ export class SolutionCheckerState extends State {
   finish() {
     window.dispatchEvent(new CustomEvent('close-state-menu'));
     window.removeEventListener('state-menu-button-click', this.handler);
-    window.removeEventListener('app-state-changed', this.handler);
+    window.removeEventListener('tool-changed', this.handler);
     app.removeListener('objectSelected', this.objectSelectedId);
   }
 
@@ -55,7 +55,7 @@ export class SolutionCheckerState extends State {
   _actionHandle(event) {
     if (event.type == 'state-menu-button-click') {
       this.clickOnStateMenuButton(event.detail);
-    } else if (event.type == 'app-state-changed') {
+    } else if (event.type == 'tool-changed') {
       if (
         event.detail.state != 'rotate' &&
         event.detail.state != 'rotate45' &&
@@ -106,7 +106,7 @@ export class SolutionCheckerState extends State {
 
   clickOnStateMenuButton(btn_value) {
     if (btn_value == 'check') {
-      app.setState(this.name, false);
+      app.setTool(this.name, false);
       this.checkSolution();
       this.stateMenu.buttons = [
         {

@@ -17,7 +17,7 @@ export const loadEnvironnement = async name => {
 
 const loadModules = async list => {
   const modules = await Promise.all(list.map(async module => await import(`../../${module}/index.js`)))
-  app.states = modules.map(module => module.default.state)
+  app.tools = modules.map(module => module.default.tool)
 }
 
 const loadKit = async name => {

@@ -1,7 +1,7 @@
-import { UngroupState } from './UngroupState';
+import { UngroupTool } from './UngroupTool';
 import { UngroupAction } from './UngroupAction';
 
 export default {
-  state: new UngroupState(),
+  tool: new UngroupTool(),
   action: new UngroupAction()
 }

@@ -1,13 +1,25 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
- * Déplacer une forme derrière toutes les autres.
+ * Tourner une forme (ou un ensemble de formes liées) sur l'espace de travail
  */
-export class ToBackgroundState extends State {
+export class Rotate45Tool extends Tool {
   constructor() {
-    super('toBackground', 'Arrière-plan', 'tool');
+    super('rotate45', 'Tourner à 45°', 'move');
+
+    //La forme que l'on déplace
+    this.selectedShape = null;
+
+    /*
+        L'ensemble des formes liées à la forme sélectionnée, y compris la forme
+        elle-même
+         */
+    this.involvedShapes = [];
+
+    this.handler = event => this._actionHandle(event);
   }
 
   /**
@@ -19,9 +31,9 @@ export class ToBackgroundState extends State {
     return html`
       <h2>${toolName}</h2>
       <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        placer une forme derrière toutes les autres.<br />
-        Touchez une forme pour la placer en arrière-plan.
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
+        Cliquez sur une forme pour la faire tourner de 45° dans le sens
+        horloger.
       </p>
     `;
   }
@@ -33,7 +45,7 @@ export class ToBackgroundState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.mousedown_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -47,7 +59,7 @@ export class ToBackgroundState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.mousedown_all_shape)
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -72,18 +84,23 @@ export class ToBackgroundState extends State {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
+   * Appelée par événement du SelectManager quand une forme est sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
+    this.selectedShape = shape;
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+
     this.actions = [
       {
-        name: 'ToBackgroundAction',
-        shapeId: shape.id,
+        name: 'Rotate45Action',
+        shapeId: this.selectedShape.id,
+        involvedShapesIds: this.involvedShapes.map(s => s.id),
       },
     ];
-    this.executeAction();
 
+    this.executeAction();
+    this.restart();
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 }

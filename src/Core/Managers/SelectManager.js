@@ -395,7 +395,7 @@ export class SelectManager {
 window.addEventListener('reset-selection-constraints', () => {
   app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
 });
-window.addEventListener('app-state-changed', () => {
+window.addEventListener('tool-changed', () => {
   app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
 });
 let click_all_shape_constr = SelectManager.getEmptySelectionConstraints();

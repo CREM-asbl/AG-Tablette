@@ -12,7 +12,7 @@ import { GeometryConstraint } from '../../Core/Objects/GeometryConstraint';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateLineState extends State {
+export class CreateLineTool extends Tool {
   constructor() {
     super('createLine', 'Créer une ligne', 'geometry_creator');
 
