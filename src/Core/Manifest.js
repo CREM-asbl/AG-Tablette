@@ -1,6 +1,8 @@
 //script de récupération du fichier de configuration manifest.json
 // et mise à jour de l'affichage de la version
 
+//Todo: Remplacer par un load JSON => simplification
+
 import { updateMetadata } from 'pwa-helpers/metadata';
 import { app } from './App';
 
