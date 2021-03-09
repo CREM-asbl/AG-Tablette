@@ -115,19 +115,21 @@ export class Workspace {
     this.zoomLevel = wsdata.zoomLevel;
     this.translateOffset = new Coordinates(wsdata.translateOffset);
 
-    if (wsdata.completeHistory) {
-      this.completeHistory.initFromObject(wsdata.completeHistory);
-    } else {
-      this.completeHistory.initFromObject({
-        steps: [],
-        startTimestamp: new Event('useless').timeStamp,
-        endTimestamp: 0,
-        startZoomLevel: this.zoomLevel,
-        startTranslateOffset: this.translateOffset,
-        startShapes: app.mainDrawingEnvironment.shapes,
-        startShapeGroups: this.shapeGroups,
-        // startSilhouette: app.silhouette,
-      });
+    if (!ignoreHistory) {
+      if (wsdata.completeHistory) {
+        this.completeHistory.initFromObject(wsdata.completeHistory);
+      } else {
+        this.completeHistory.initFromObject({
+          steps: [],
+          startTimestamp: new Event('useless').timeStamp,
+          endTimestamp: 0,
+          startZoomLevel: this.zoomLevel,
+          startTranslateOffset: this.translateOffset,
+          startShapes: app.mainDrawingEnvironment.shapes,
+          startShapeGroups: this.shapeGroups,
+          // startSilhouette: app.silhouette,
+        });
+      }
     }
 
     if (wsdata.settings) {

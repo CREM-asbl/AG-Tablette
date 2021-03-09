@@ -38,64 +38,33 @@ export class CompleteHistoryManager {
     CompleteHistoryManager.action_idx = 0;
   }
 
+  static stopBrowsing() {
+    CompleteHistoryManager.isRunning = false;
+    app.workspace.history.initFromObject(CompleteHistoryManager.saveHistory);
+    window.dispatchEvent(new CustomEvent('browsing-finished'));
+  }
+
   static resetWorkspace() {
     app.workspace.initFromObject(app.workspace.history.startSituation, true);
-    // app.workspace.setZoomLevel(app.workspace.completeHistory.startZoomLevel);
-    // app.workspace.setTranslateOffset(
-    //   app.workspace.completeHistory.startTranslateOffset
-    // );
-    // app.workspace.completeHistory.startShapes.map(s =>
-    //   new Shape(s)
-    // );
-    // app.workspace.shapeGroups = app.workspace.completeHistory.startShapeGroups.map(
-    //   gr => gr.copy(true)
-    // );
-    // // if (app.environment.name == 'Tangram')
-    // // app.silhouette = app.workspace.completeHistory.startSilhouette?.copy();
+
     app.workspace.history = new History();
   }
 
   static moveTo(idx) {
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
-    let data = CompleteHistoryManager.saveHistory.data[idx];
-    console.log(data);
+    let data = CompleteHistoryManager.saveHistory.data[idx - 1];
     app.workspace.initFromObject(data, true);
-    console.log(idx, app.workspace.completeHistory.steps);
+    console.log(data);
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
     app.workspace.completeHistory.historyIndex = app.workspace.completeHistory.steps.findIndex(
       step => step.detail && step.detail.action_idx == idx - 1
-    ); // à changer avec tableau de correspondance history_idx -> complete_history_idx
+    ); // à changer avec tableau de correspondance history_idx -> complete_history_idx ?
 
-    console.log(app.workspace.completeHistory.historyIndex);
+    if (app.workspace.completeHistory.historyIndex == -1) {
+      app.workspace.completeHistory.historyIndex = 0;
+    }
 
-    // if (idx > CompleteHistoryManager.action_idx) {
-    //   let toGo = app.workspace.completeHistory.steps.findIndex(
-    //     step => step.detail && step.detail.action_idx == idx - 1
-    //   );
-    //   for (
-    //     ;
-    //     app.workspace.completeHistory.historyIndex < toGo;
-    //     app.workspace.completeHistory.historyIndex++
-    //   ) {
-    //     CompleteHistoryManager.executeStep();
-    //   }
-    // } else {
-    //   console.log(app.workspace.completeHistory.steps.length);
-    //   app.workspace.history.index = CompleteHistoryManager.action_idx - 1;
-    //   for (
-    //     ;
-    //     CompleteHistoryManager.action_idx > idx;
-    //     CompleteHistoryManager.action_idx--
-    //   ) {
-    //     console.log('undo');
-    //     HistoryManager.undo();
-    //   }
-    //   app.workspace.completeHistory.historyIndex =
-    //     app.workspace.completeHistory.steps.findIndex(
-    //       step => step.detail && step.detail.action_idx == idx - 1
-    //     ) + 1;
-    //   // setState dans le cas où le state n'a pas changé entre l'action précédente et celle en cours
-    // }
-    // console.log(app.workspace.completeHistory.steps.length);
     CompleteHistoryManager.executeAllSteps();
   }
 
@@ -104,22 +73,20 @@ export class CompleteHistoryManager {
       app.workspace.completeHistory.historyIndex >=
       app.workspace.completeHistory.steps.length - 1
     ) {
-      console.log('index :', app.workspace.completeHistory.historyIndex);
-      console.log('length :', app.workspace.completeHistory.steps.length);
-      CompleteHistoryManager.isRunning = false;
-      window.dispatchEvent(new CustomEvent('browsing-finished'));
+      CompleteHistoryManager.stopBrowsing();
       return;
     }
 
     CompleteHistoryManager.executeStep();
-
     app.workspace.completeHistory.historyIndex++;
     app.workspace.completeHistory.currentTimestamp = Date.now();
+
     // let nextTime =
     //   app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex].timestamp -
     //   app.workspace.completeHistory.startTimestamp -
     //   (app.workspace.completeHistory.currentTimestamp -
     //     app.workspace.completeHistory.videoStartTimestamp);
+
     app.workspace.completeHistory.timeoutId = setTimeout(
       () => CompleteHistoryManager.executeAllSteps(),
       CompleteHistoryManager.nextTime + 50 // nextTime,
@@ -142,6 +109,8 @@ export class CompleteHistoryManager {
     } else if (type == 'mouse-coordinates-changed') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('show-cursor'));
+    } else if (type == 'setNumberOfParts') {
+      window.dispatchEvent(new CustomEvent('close-popup'));
     } else if (type == 'canvasmouseup') {
       // window.dispatchEvent(new CustomEvent('click-cursor', { detail: detail }));
       window.dispatchEvent(new CustomEvent(type));
@@ -163,6 +132,7 @@ export class CompleteHistoryManager {
       detail.action_idx = app.workspace.completeHistory.steps.filter(step => {
         return step.detail && step.detail.actions;
       }).length;
+      console.log(detail);
       // detail.actions = HistoryManager.transformToObjects(detail.actions);
     }
     app.workspace.completeHistory.addStep(type, detail, timeStamp);

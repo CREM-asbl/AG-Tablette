@@ -142,7 +142,6 @@ class AGTabletteApp extends LitElement {
 
   updated() {
     if (app.environment.name != 'Grandeurs') {
-      console.log(this.shadowRoot.querySelectorAll('.onlyGrandeurs'))
       this.shadowRoot.querySelectorAll('.onlyGrandeurs').forEach(el => el.style.display = 'none');
     }
   }
