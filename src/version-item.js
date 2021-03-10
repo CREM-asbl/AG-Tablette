@@ -1,22 +1,13 @@
 import { app } from './Core/App';
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css, property } from 'lit-element';
 
 class VersionItem extends LitElement {
+
+  @property({type: String}) version = `${app.short_name} ${app.version}`
   static get properties() {
     return {
       version: String,
     };
-  }
-
-  constructor() {
-    super();
-    this.version = app.short_name + ' ' + app.version;
-
-    window.addEventListener(
-      'manifest-loaded',
-      () => (this.version = app.short_name + ' ' + app.version),
-      { once: true }
-    );
   }
 
   static get styles() {

@@ -8,7 +8,6 @@ import './popups/notification';
 import './version-item';
 
 import { app } from './Core/App';
-import './Core/Manifest';
 import { OpenFileManager } from './Core/Managers/OpenFileManager';
 import './Core/Managers/SaveFileManager';
 import './Core/Managers/SelectManager';
