@@ -2,6 +2,8 @@ import { app } from './Core/App';
 import { LitElement, html } from 'lit-element';
 import './auto-launch'
 
+import { openFileFromId } from './Core/Database/requests';
+
 class AgApp extends LitElement {
   static get properties() {
     return {
@@ -10,9 +12,17 @@ class AgApp extends LitElement {
   }
 
   connectedCallback() {
-    super.connectedCallback()
-    this.setState()
+    super.connectedCallback();
+    this.setState();
     window.addEventListener('state-changed', () => this.setState());
+    this.parseURL();
+  }
+
+  parseURL() {
+    let parsedUrl = new URL(window.location.href);
+    let activityId = parsedUrl.searchParams.get("activityId");
+    if (activityId)
+      openFileFromId(activityId);
   }
 
   render() {

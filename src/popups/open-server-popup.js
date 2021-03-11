@@ -1,16 +1,27 @@
 import { LitElement, html, css } from 'lit-element';
 import { TemplatePopup } from './template-popup';
 import { app } from '../Core/App';
-import { createElem } from '../Core/Tools/general';
+import { getFilesInfosFromEnvironment, readFileFromServer } from '../Core/Database/requests';
+import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 
-class OpenPopup extends LitElement {
+class OpenServerPopup extends LitElement {
   static get properties() {
     return {
+      filesInfos: Array
     };
   }
 
   constructor() {
     super();
+
+    this.filesInfos = [];
+
+    window.addEventListener('filesInfos-request-done', async event => {
+      console.log(event.detail.filesInfos);
+      this.filesInfos = event.detail.filesInfos;
+    });
+
+    getFilesInfosFromEnvironment()
 
     window.addEventListener('close-popup', () => this.close());
   }
@@ -27,23 +38,25 @@ class OpenPopup extends LitElement {
   }
 
   updated() {
-    window.setTimeout(() => this.shadowRoot.querySelector("#focus")?.focus(), 200);
   }
 
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Ouvrir un fichier</h2>
+        <h2 slot="title">Ouvrir un fichier sur le serveur</h2>
         <div slot="body" id="body">
-          <button id="focus" name="LocalOpenFile" @click="${this._actionHandle}">
-            Ouvrir en local
-          </button>
-
-          <br />
-
-          <button name="ServerOpenFile" @click="${this._actionHandle}">
-            Ouvrir sur le serveur
-          </button>
+          ${this.filesInfos.length > 0 ? this.filesInfos.map(fileInfo => {
+            console.log(fileInfo);
+            return html`
+              <button @click="${async () => {
+                let fileContent = await readFileFromServer(fileInfo.url);
+                OpenFileManager.parseFile(fileContent);
+                this.close();
+              }}">
+                ${fileInfo.Titre}
+              </button>
+            `
+          }) : 'Aucun fichier trouvé'}
         </div>
       </template-popup>
     `;
@@ -57,6 +70,8 @@ class OpenPopup extends LitElement {
    * event handler principal
    */
   _actionHandle(event) {
+    console.log(event);
+    console.log(event.target);
     switch (event.target.name) {
       case 'LocalOpenFile':
         window.dispatchEvent(new CustomEvent('local-open-file'));
@@ -64,9 +79,7 @@ class OpenPopup extends LitElement {
         break;
 
       case 'ServerOpenFile':
-        import('./open-server-popup');
-        createElem('open-server-popup');
-        this.close();
+        this.renderMode = 'selectServerFile';
         break;
 
       default:
@@ -81,4 +94,4 @@ class OpenPopup extends LitElement {
     }
   }
 }
-customElements.define('open-popup', OpenPopup);
+customElements.define('open-server-popup', OpenServerPopup);
