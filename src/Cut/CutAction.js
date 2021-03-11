@@ -130,7 +130,7 @@ export class CutAction extends Action {
           if ((pt1.ratio || 0) > (pt2.ratio || 0)) {
             [pt1, pt2] = [pt2, pt1];
           }
-          [pt1, pt2] = [pt2, pt1];
+          // [pt1, pt2] = [pt2, pt1];
         }
       }
 
@@ -190,6 +190,9 @@ export class CutAction extends Action {
 
     firstPath = firstPath.join(' ');
     secondPath = secondPath.join(' ');
+
+    console.log(firstPath);
+    console.log(secondPath);
 
     let shape1 = new Shape({
       drawingEnvironment: app.mainDrawingEnvironment,
