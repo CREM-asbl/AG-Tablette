@@ -6,7 +6,7 @@ import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
 import { Point } from '../Objects/Point';
 import { Coordinates } from './Coordinates';
-import { HistoryManager } from '../Managers/HistoryManager';
+import { GridManager } from '../../Grid/GridManager';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -75,14 +75,14 @@ export class Workspace {
     //Type de grille: 'square', 'horizontal-triangle', 'vertical-triangle'
     this.settings.set('gridType', 'none');
 
-    //Tangram affiché ?
-    this.settings.set('isTangramShown', false);
+    // //Tangram affiché ?
+    // this.settings.set('isTangramShown', false);
 
-    //Type (main/local) et id du tangram affiché.
-    this.settings.set('shownTangram', {
-      type: null, //'main' ou 'local'
-      id: null,
-    });
+    // //Type (main/local) et id du tangram affiché.
+    // this.settings.set('shownTangram', {
+    //   type: null, //'main' ou 'local'
+    //   id: null,
+    // });
 
     window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
   }
@@ -106,6 +106,8 @@ export class Workspace {
     app.mainDrawingEnvironment.loadFromData(wsdata.objects);
     if (app.environment.name == 'Tangram')
       app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
+    else
+      app.backgroundDrawingEnvironment.clear();
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -134,6 +136,10 @@ export class Workspace {
 
     if (wsdata.settings) {
       this.settings.initFromObject(wsdata.settings);
+      if (this.settings.get('isGridShown')) {
+        GridManager.drawGridPoints();
+        window.dispatchEvent(new CustomEvent('refreshBackground'));
+      }
     } else this.initSettings();
 
     if (!ignoreHistory) {

@@ -1,14 +1,13 @@
 import { app } from '../Core/App';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { createElem } from '../Core/Tools/general';
 
 //Todo: Créer un event plus précis
 addEventListener('app-state-changed', () => {
   if (app.state === 'grid') {
     import('./grid-popup');
-    const popup = document.createElement('grid-popup');
-    popup.style.display = 'block';
-    document.querySelector('body').appendChild(popup);
+    createElem('grid-popup');
   }
 });
 
@@ -22,7 +21,7 @@ export class GridManager {
    * 		(-> Ex de points: (60, 10), ...)
    */
   static drawGridPoints() {
-    if (!app.workspace.settings.get('isGridShown')) return [];
+    if (!app.workspace.settings.get('isGridShown')) return;
 
     const canvasWidth = app.canvasWidth,
       canvasHeight = app.canvasHeight,

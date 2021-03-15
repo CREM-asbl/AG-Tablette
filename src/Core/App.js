@@ -71,7 +71,7 @@ export class App {
     // Couleur de dessin des contraintes
     this.settings.set('constraintsDrawColor', '#080');
 
-    // Couleur de dessin des contraintes
+    // Couleur de dessin des formes temporaires (Géométrie)
     this.settings.set('temporaryDrawColor', '#E90CC8');
   }
 
