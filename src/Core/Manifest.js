@@ -1,22 +1,7 @@
-//script de récupération du fichier de configuration manifest.json
-// et mise à jour de l'affichage de la version
-
-//Todo: Remplacer par un load JSON => simplification
-
 import { updateMetadata } from 'pwa-helpers/metadata';
 import { app } from './App';
+import manifest from '../../public/manifest.json'
 
-export const loadManifest = async () => {
-  const manifest_file = await fetch('./manifest.json');
-  const manifest = await manifest_file.json();
-  app.version = manifest.version;
-  app.short_name = manifest.short_name;
-  window.dispatchEvent(new CustomEvent('manifest-loaded'));
-};
-
-window.addEventListener(
-  'manifest-loaded',
-  () => updateMetadata({ title: `${app.short_name} ${app.version}` }),
-  { once: true }
-);
-loadManifest();
+app.version = manifest.version;
+app.short_name = manifest.short_name;
+updateMetadata({ title: `${app.short_name} ${app.version}` })
