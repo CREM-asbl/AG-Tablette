@@ -32,7 +32,7 @@ class VersionItem extends LitElement {
 
   render() {
     return html`
-      <img src="/images/manifest/icon.svg" />
+      <img src="/images/manifest/icon-512.png" />
       <div class="version">${this.version}</div>
     `;
   }
