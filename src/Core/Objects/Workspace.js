@@ -162,49 +162,49 @@ export class Workspace {
     // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
     // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
 
-    // if (
-    //   wsdata.canvasSize &&
-    //   (wsdata.canvasSize.width != app.canvasWidth ||
-    //     wsdata.canvasSize.height != app.canvasHeight)
-    // ) {
-    //   let scaleOffset =
-    //       wsdata.canvasSize.width / app.canvasWidth <
-    //       wsdata.canvasSize.height / app.canvasHeight
-    //         ? app.canvasHeight / wsdata.canvasSize.height
-    //         : app.canvasWidth / wsdata.canvasSize.width,
-    //     originalZoom = this.zoomLevel,
-    //     newZoom = originalZoom * scaleOffset,
-    //     originalTranslateOffset = this.translateOffset,
-    //     actualCenter = new Coordinates({
-    //       x: wsdata.canvasSize.width,
-    //       y: wsdata.canvasSize.height,
-    //     }).multiply(1 / originalZoom / 2),
-    //     newCenter = new Coordinates({
-    //       x: app.canvasWidth,
-    //       y: app.canvasHeight,
-    //     }).multiply(1 / newZoom / 2),
-    //     corr = originalTranslateOffset.multiply(1 / originalZoom), // error with the old zoom that move the center
-    //     newTranslateoffset = newCenter
-    //       .substract(actualCenter)
-    //       // .multiply(0.5)
-    //       .add(corr)
-    //       .multiply(newZoom);
+    if (
+      wsdata.canvasSize &&
+      (wsdata.canvasSize.width != app.canvasWidth ||
+        wsdata.canvasSize.height != app.canvasHeight)
+    ) {
+      let scaleOffset =
+          wsdata.canvasSize.width / app.canvasWidth <
+          wsdata.canvasSize.height / app.canvasHeight
+            ? app.canvasHeight / wsdata.canvasSize.height
+            : app.canvasWidth / wsdata.canvasSize.width,
+        originalZoom = this.zoomLevel,
+        newZoom = originalZoom * scaleOffset,
+        originalTranslateOffset = this.translateOffset,
+        actualCenter = new Coordinates({
+          x: wsdata.canvasSize.width,
+          y: wsdata.canvasSize.height,
+        }).multiply(1 / originalZoom / 2),
+        newCenter = new Coordinates({
+          x: app.canvasWidth,
+          y: app.canvasHeight,
+        }).multiply(1 / newZoom / 2),
+        corr = originalTranslateOffset.multiply(1 / originalZoom), // error with the old zoom that move the center
+        newTranslateoffset = newCenter
+          .substract(actualCenter)
+          // .multiply(0.5)
+          .add(corr)
+          .multiply(newZoom);
 
 
-    //   // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
-    //   // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
-    //   // console.log('originalZoom', originalZoom);
-    //   // console.log('newZoom', newZoom);
-    //   // console.log('scaleOffset', scaleOffset);
-    //   // console.log('original translate offset', this.translateOffset);
-    //   // console.log('actual Center', actualCenter);
-    //   // console.log('new Center', newCenter);
-    //   // console.log('corr', corr);
-    //   // console.log('new translate offset', newTranslateoffset);
+      // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
+      // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
+      // console.log('originalZoom', originalZoom);
+      // console.log('newZoom', newZoom);
+      // console.log('scaleOffset', scaleOffset);
+      // console.log('original translate offset', this.translateOffset);
+      // console.log('actual Center', actualCenter);
+      // console.log('new Center', newCenter);
+      // console.log('corr', corr);
+      // console.log('new translate offset', newTranslateoffset);
 
-    //   this.setZoomLevel(newZoom, false);
-    //   this.setTranslateOffset(newTranslateoffset);
-    // }
+      this.setZoomLevel(newZoom, false);
+      this.setTranslateOffset(newTranslateoffset);
+    }
   }
 
   get data() {
