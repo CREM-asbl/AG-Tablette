@@ -104,9 +104,6 @@ export class Shape {
   }
 
   get vertexes() {
-    console.log(this.pointIds);
-    console.log(this.points);
-    console.log(this.points.map(pt => pt.type));
     let vertexes = this.points.filter(pt => pt.type === 'vertex');
     return vertexes;
   }

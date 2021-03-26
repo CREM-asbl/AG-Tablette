@@ -54,6 +54,7 @@ class AGTabletteApp extends LitElement {
       this.canRedo = HistoryManager.canRedo();
     });
     window.addEventListener('workspace-changed', () => {
+      this.shadowRoot.querySelector("#color-picker").value = "#000000";
       window.dispatchEvent(new CustomEvent('history-changed'));
     });
     window.addEventListener('open-opacity-popup', () => {
