@@ -104,6 +104,9 @@ export class Shape {
   }
 
   get vertexes() {
+    console.log(this.pointIds);
+    console.log(this.points);
+    console.log(this.points.map(pt => pt.type));
     let vertexes = this.points.filter(pt => pt.type === 'vertex');
     return vertexes;
   }
@@ -1343,5 +1346,7 @@ export class Shape {
       drawingEnvironment: app.mainDrawingEnvironment,
     });
     Object.assign(shape, data);
+    shape.segmentIds = [...data.segmentIds];
+    shape.pointIds = [...data.pointIds];
   }
 }

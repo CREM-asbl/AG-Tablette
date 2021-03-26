@@ -191,9 +191,6 @@ export class CutAction extends Action {
     firstPath = firstPath.join(' ');
     secondPath = secondPath.join(' ');
 
-    console.log(firstPath);
-    console.log(secondPath);
-
     let shape1 = new Shape({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: firstPath,

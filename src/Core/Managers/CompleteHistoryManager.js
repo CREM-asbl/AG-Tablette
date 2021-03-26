@@ -54,7 +54,6 @@ export class CompleteHistoryManager {
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
     let data = CompleteHistoryManager.saveHistory.data[idx - 1];
     app.workspace.initFromObject(data, true);
-    console.log(data);
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     app.workspace.completeHistory.historyIndex = app.workspace.completeHistory.steps.findIndex(
@@ -132,7 +131,6 @@ export class CompleteHistoryManager {
       detail.action_idx = app.workspace.completeHistory.steps.filter(step => {
         return step.detail && step.detail.actions;
       }).length;
-      console.log(detail);
       // detail.actions = HistoryManager.transformToObjects(detail.actions);
     }
     app.workspace.completeHistory.addStep(type, detail, timeStamp);

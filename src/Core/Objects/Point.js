@@ -447,5 +447,6 @@ export class Point {
     });
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);
+    point.segmentIds = [...data.segmentIds];
   }
 }
