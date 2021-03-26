@@ -107,7 +107,6 @@ export class MergeState extends State {
     if (this.currentStep == 'listen-canvas-click') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
       if (this.involvedShapes.length > 1) {
-        // execute a groupMerge if possible
         const path = this.getPathFromGroup();
         if (path) {
           this.actions = [
@@ -119,9 +118,17 @@ export class MergeState extends State {
             },
           ];
           mustExecuteAction = true;
+        } else {
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message: "Le groupe ne peut pas être fusionné",
+              },
+            })
+          );
+          return;
         }
-      }
-      if (!mustExecuteAction) {
+      } else {
         this.currentStep = 'selecting-second-shape';
         this.firstShapeId = shape.id;
         app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
@@ -142,16 +149,45 @@ export class MergeState extends State {
         app.mainDrawingEnvironment.editingShapeIds = [];
         app.upperDrawingEnvironment.removeAllObjects();
       } else {
-        this.secondShapeId = shape.id;
-        this.actions = [
-          {
-            name: 'MergeAction',
-            mode: 'twoShapes',
-            firstShapeId: this.firstShapeId,
-            secondShapeId: this.secondShapeId,
-          },
-        ];
-        mustExecuteAction = true;
+        let group = ShapeManager.getAllBindedShapes(shape, true);
+        if (group.length > 1) {
+          let firstShape = app.mainDrawingEnvironment.findObjectById(
+            this.firstShapeId
+          );
+          this.involvedShapes = [...group, firstShape];
+          const path = this.getPathFromGroup();
+          if (path) {
+            this.actions = [
+              {
+                name: 'MergeAction',
+                mode: 'multipleShapes',
+                involvedShapesIds: this.involvedShapes.map(s => s.id),
+                path: path,
+              },
+            ];
+            mustExecuteAction = true;
+          } else {
+            window.dispatchEvent(
+              new CustomEvent('show-notif', {
+                detail: {
+                  message: "La forme ne peut pas être fusionnée au groupe",
+                },
+              })
+            );
+            return;
+          }
+        } else {
+          this.secondShapeId = shape.id;
+          this.actions = [
+            {
+              name: 'MergeAction',
+              mode: 'twoShapes',
+              firstShapeId: this.firstShapeId,
+              secondShapeId: this.secondShapeId,
+            },
+          ];
+          mustExecuteAction = true;
+        }
       }
     }
 
@@ -188,6 +224,7 @@ export class MergeState extends State {
       this.executeAction();
       this.restart();
     }
+
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
