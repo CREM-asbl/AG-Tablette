@@ -178,18 +178,13 @@ export class Workspace {
         actualCenter = new Coordinates({
           x: wsdata.canvasSize.width,
           y: wsdata.canvasSize.height,
-        }).multiply(1 / originalZoom / 2),
+        }).multiply(1 / 2).substract(originalTranslateOffset).multiply(newZoom / originalZoom),
         newCenter = new Coordinates({
           x: app.canvasWidth,
           y: app.canvasHeight,
-        }).multiply(1 / newZoom / 2),
-        corr = originalTranslateOffset.multiply(1 / originalZoom), // error with the old zoom that move the center
+        }).multiply(1 / 2),
         newTranslateoffset = newCenter
-          .substract(actualCenter)
-          // .multiply(0.5)
-          .add(corr)
-          .multiply(newZoom);
-
+          .substract(actualCenter);
 
       // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
       // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
