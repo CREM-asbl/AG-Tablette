@@ -100,6 +100,13 @@ export class CompleteHistoryManager {
     }
 
     if (type == 'actions-executed') {
+      if (detail.name == 'Retourner') {
+        CompleteHistoryManager.nextTime = 2 * 1000;
+      } else if (detail.name == 'Diviser') {
+        CompleteHistoryManager.nextTime = 0.5 * 1000;
+      } else if (detail.name == 'Découper') {
+        CompleteHistoryManager.nextTime = 0.5 * 1000;
+      }
       CompleteHistoryManager.action_idx++;
     } else if (type == 'app-state-changed') {
       app.setState(detail.state, detail.startParams);
@@ -224,10 +231,6 @@ window.addEventListener('close-popup', event =>
 window.addEventListener('app-state-changed', event =>
   CompleteHistoryManager.addStep('app-state-changed', event)
 );
-
-window.addEventListener('reverse-animation', () => {
-  CompleteHistoryManager.nextTime = 2 * 1000;
-});
 
 window.addEventListener('start-browsing', () => {
   CompleteHistoryManager.startBrowse();

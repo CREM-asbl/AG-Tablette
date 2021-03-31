@@ -45,7 +45,9 @@ class completeHistoryTools extends LitElement {
         right: 10px;
         width: 200px;
         height: 96vh;
+        height: calc(var(--vh, 1vh) * 96);
         bottom: 2vh;
+        bottom: calc(var(--vh, 1vh) * 2);
         border: 2px solid black;
       }
 

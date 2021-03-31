@@ -194,7 +194,6 @@ export class ReverseState extends State {
       this.currentStep = 'reversing-shape';
 
       window.dispatchEvent(new CustomEvent('refresh'));
-      window.dispatchEvent(new CustomEvent('reverse-animation'));
       this.animate();
     } else if (object instanceof Shape) {
       this.selectedShape = object;

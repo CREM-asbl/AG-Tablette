@@ -63,6 +63,14 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('open-color-picker', () => {
       this.shadowRoot.querySelector('#color-picker-label').click();
     });
+
+    // vh error in tablette => custom vh
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    window.addEventListener('resize', () => {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    });
   }
 
   static get styles() {
