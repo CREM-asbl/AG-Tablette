@@ -2,6 +2,7 @@ import { app } from './Core/App';
 import './Core/Manifest';
 import { LitElement, html } from 'lit-element';
 import './auto-launch'
+import './backbutton-manager'
 
 class AgApp extends LitElement {
   static get properties() {

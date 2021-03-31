@@ -14,7 +14,7 @@ module.exports = {
     // "bundle": true,
   },
   packageOptions: {
-    source: "remote"
+    source: "remote-next"
   },
   devOptions: {
     port: 8000

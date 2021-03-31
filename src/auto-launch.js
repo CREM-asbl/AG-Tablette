@@ -1,6 +1,5 @@
-import { app, setState } from './Core/App';
+import { setState } from './Core/App';
 import { loadEnvironnement } from './Core/Environments/Environment';
-import { OpenFileManager } from './Core/Managers/OpenFileManager';
 
 export const environmentsByExtensions = {
     'agg': 'Grandeurs',
