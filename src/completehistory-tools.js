@@ -6,27 +6,21 @@ class completeHistoryTools extends LitElement {
     return {
       sidebarElements: Array,
       index: Number,
-      toRender: Boolean,
     };
   }
 
   constructor() {
     super();
-    this.sidebarElements = [];
+    this.sidebarElements = app.workspace.completeHistory.steps
+      .filter(step => step.type == 'actions-executed')
+      .map(step => {
+        return { name: step.detail.name };
+      });
     this.index = 0;
-    this.toRender = false;
 
     window.addEventListener('browsing-finished', () => this.close());
 
     window.addEventListener('actions-executed', () => this.index++);
-
-    window.addEventListener('complete-history-steps', event => {
-      this.sidebarElements = event.detail.steps
-        .filter(step => step.type == 'actions-executed')
-        .map(step => {
-          return { name: step.detail.name };
-        });
-    });
   }
 
   static get styles() {
@@ -36,11 +30,8 @@ class completeHistoryTools extends LitElement {
       }
 
       nav#sidebar {
-        display: flex;
-        flex-direction: column;
         justify-content: start;
         z-index: 10;
-        overflow: auto;
         position: absolute;
         right: 10px;
         width: 200px;
@@ -51,6 +42,12 @@ class completeHistoryTools extends LitElement {
         border: 2px solid black;
       }
 
+      #action-container {
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+      }
+
       nav#sidebar button {
         margin: 5px;
       }
@@ -58,32 +55,64 @@ class completeHistoryTools extends LitElement {
   }
 
   _clickHandle(event) {
-    CompleteHistoryManager.moveTo(event.target.id);
-    this.index = event.target.id;
+    switch (event.target.name) {
+      case 'action-button':
+        CompleteHistoryManager.moveTo(event.target.id);
+        this.index = event.target.id;
+        break;
+      case 'undo':
+        if (this.index == 0) {
+          console.log('break');
+          break;
+        }
+        this.index--;
+        CompleteHistoryManager.moveTo(this.index);
+        break;
+      case 'stop':
+        CompleteHistoryManager.stopBrowsing();
+        break;
+      case 'pause':
+        CompleteHistoryManager.pauseBrowsing();
+        event.target.name = 'play';
+        break;
+      case 'play':
+        CompleteHistoryManager.playBrowsing();
+        event.target.name = 'pause';
+        break;
+      case 'redo':
+        if (this.index >= this.sidebarElements.length - 1) {
+          console.log('break');
+          break;
+        }
+        this.index++;
+        CompleteHistoryManager.moveTo(this.index);
+        break;
+    }
   }
 
   render() {
     return html`
       <nav id="sidebar">
+        <div id="command-container">
+          <icon-button name="undo" title="étape précédente" @click="${this._clickHandle}"></icon-button>
+          <icon-button name="stop" title="arrêter" @click="${this._clickHandle}"></icon-button>
+          <icon-button name="pause" title="pause" @click="${this._clickHandle}"></icon-button>
+          <icon-button name="redo" title="étape suivante" @click="${this._clickHandle}"></icon-button>
+        </div>
+        <div id='action-container'>
         ${this.sidebarElements.map((elem, idx) => {
-          if (idx == this.index) {
-            return html`
-              <button
-                id="${idx}"
-                style="background-color: blue;"
-                @click="${this._clickHandle}"
-              >
-                ${elem.name}
-              </button>
-            `;
-          } else {
-            return html`
-              <button id="${idx}" @click="${this._clickHandle}">
-                ${elem.name}
-              </button>
-            `;
-          }
+          return html`
+            <button
+              id="${idx}"
+              style="background-color: ${idx == this.index ? 'blue' : 'white'}"
+              @click="${this._clickHandle}"
+              name="action-button"
+            >
+              ${elem.name}
+            </button>
+          `;
         })}
+        </div>
       </nav>
     `;
   }

@@ -10,16 +10,9 @@ import { Coordinates } from '../Objects/Coordinates';
  * Représente l'historique complet d'un espace de travail.
  */
 export class CompleteHistoryManager {
-  static startBrowse() {
+  static startBrowsing() {
     import('../../completehistory-tools');
     createElem('completehistory-tools');
-    window.setTimeout(() => {
-      window.dispatchEvent(
-        new CustomEvent('complete-history-steps', {
-          detail: { steps: app.workspace.completeHistory.steps },
-        })
-      );
-    }, 300);
     // if called when already running
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
 
@@ -39,9 +32,23 @@ export class CompleteHistoryManager {
   }
 
   static stopBrowsing() {
-    CompleteHistoryManager.isRunning = false;
-    app.workspace.history.initFromObject(CompleteHistoryManager.saveHistory);
+    window.clearTimeout(app.workspace.completeHistory.timeoutId);
     window.dispatchEvent(new CustomEvent('browsing-finished'));
+    CompleteHistoryManager.isRunning = false;
+    CompleteHistoryManager.moveTo(app.workspace.completeHistory.steps.filter(step => step.type == 'actions-executed').length);
+    app.workspace.history.initFromObject(CompleteHistoryManager.saveHistory);
+    app.setState();
+  }
+
+  static pauseBrowsing() {
+    window.clearTimeout(app.workspace.completeHistory.timeoutId);
+  }
+
+  static playBrowsing() {
+    app.workspace.completeHistory.timeoutId = setTimeout(
+      () => CompleteHistoryManager.executeAllSteps(),
+      CompleteHistoryManager.nextTime + 50 // nextTime,
+    );
   }
 
   static resetWorkspace() {
@@ -51,7 +58,7 @@ export class CompleteHistoryManager {
   }
 
   static moveTo(idx) {
-    window.clearTimeout(app.workspace.completeHistory.timeoutId);
+    // window.clearTimeout(app.workspace.completeHistory.timeoutId);
     let data = CompleteHistoryManager.saveHistory.data[idx - 1];
     app.workspace.initFromObject(data, true);
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -64,7 +71,7 @@ export class CompleteHistoryManager {
       app.workspace.completeHistory.historyIndex = 0;
     }
 
-    CompleteHistoryManager.executeAllSteps();
+    // CompleteHistoryManager.executeAllSteps();
   }
 
   static executeAllSteps() {
@@ -77,6 +84,8 @@ export class CompleteHistoryManager {
     }
 
     CompleteHistoryManager.executeStep();
+    if (!CompleteHistoryManager.isRunning)
+      return;
     app.workspace.completeHistory.historyIndex++;
     app.workspace.completeHistory.currentTimestamp = Date.now();
 
@@ -108,6 +117,9 @@ export class CompleteHistoryManager {
         CompleteHistoryManager.nextTime = 0.5 * 1000;
       }
       CompleteHistoryManager.action_idx++;
+      if (app.workspace.completeHistory.steps.filter(step => step.type == 'actions-executed').length == CompleteHistoryManager.action_idx) {
+        CompleteHistoryManager.stopBrowsing();
+      }
     } else if (type == 'app-state-changed') {
       app.setState(detail.state, detail.startParams);
     } else if (type == 'objectSelected') {
@@ -136,7 +148,7 @@ export class CompleteHistoryManager {
     if (type == 'objectSelected') detail.object = undefined;
     if (type == 'actions-executed') {
       detail.action_idx = app.workspace.completeHistory.steps.filter(step => {
-        return step.detail && step.detail.actions;
+        return step.type == 'actions-executed';
       }).length;
       // detail.actions = HistoryManager.transformToObjects(detail.actions);
     }
@@ -233,5 +245,5 @@ window.addEventListener('app-state-changed', event =>
 );
 
 window.addEventListener('start-browsing', () => {
-  CompleteHistoryManager.startBrowse();
+  CompleteHistoryManager.startBrowsing();
 });
