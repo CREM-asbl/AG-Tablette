@@ -91,6 +91,7 @@ export class CreateQuadrilateralState extends State {
     this.stopAnimation();
     window.removeEventListener('quadrilateral-selected', this.handler);
     app.removeListener('canvasmousedown', this.mouseDownId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   /**

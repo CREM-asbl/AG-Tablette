@@ -6,8 +6,11 @@ export class History {
     // Index de la dernière tâche réalisée
     this.index = -1;
 
-    // Historique des actions
+    // Historique des états du workspace
     this.data = [];
+
+    // Etat du workspace à l'ouverture
+    this.startSituation = null;
   }
 
   // transformFromPreviousVersion() {
@@ -38,6 +41,7 @@ export class History {
     let save = {
       index: this.index,
       data: this.data,
+      startSituation: this.startSituation,
     };
     return save;
   }
@@ -45,6 +49,7 @@ export class History {
   initFromObject(object) {
     this.index = object.index;
     this.data = object.data;
+    this.startSituation = object.startSituation;
     // if (app.lastFileVersion == '1.0.0') {
     //   this.transformFromPreviousVersion();
     // }
@@ -53,5 +58,6 @@ export class History {
   resetToDefault() {
     this.index = -1;
     this.data = [];
+    this.startSituation = null;
   }
 }

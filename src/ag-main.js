@@ -7,8 +7,7 @@ import './popups/notification';
 import './version-item';
 
 import { app } from './Core/App';
-import './Core/Manifest';
-import './Core/Managers/OpenFileManager';
+import { OpenFileManager } from './Core/Managers/OpenFileManager';
 import './Core/Managers/SaveFileManager';
 import './Core/Managers/SelectManager';
 import './Core/Managers/WorkspaceManager';
@@ -19,6 +18,8 @@ import './Core/Managers/CompleteHistoryManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
 import { TemplateToolbar } from './template-toolbar';
+
+if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen)
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -45,7 +46,7 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('app-state-changed', () => {
       this.setState();
     });
-    window.addEventListener('env-created', () => {
+    window.addEventListener('state-changed', () => {
       this.setState();
     });
     window.addEventListener('history-changed', () => {
@@ -53,6 +54,7 @@ class AGTabletteApp extends LitElement {
       this.canRedo = HistoryManager.canRedo();
     });
     window.addEventListener('workspace-changed', () => {
+      this.shadowRoot.querySelector("#color-picker").value = "#000000";
       window.dispatchEvent(new CustomEvent('history-changed'));
     });
     window.addEventListener('open-opacity-popup', () => {
@@ -60,6 +62,14 @@ class AGTabletteApp extends LitElement {
     });
     window.addEventListener('open-color-picker', () => {
       this.shadowRoot.querySelector('#color-picker-label').click();
+    });
+
+    // vh error in tablette => custom vh
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    window.addEventListener('resize', () => {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
     });
   }
 
@@ -119,6 +129,12 @@ class AGTabletteApp extends LitElement {
     ];
   }
 
+  updated() {
+    if (app.environment.name != 'Grandeurs') {
+      this.shadowRoot.querySelectorAll('.onlyGrandeurs').forEach(el => el.style.display = 'none');
+    }
+  }
+
   render() {
     return html`
       <div id="app-view">
@@ -134,39 +150,18 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-              <icon-button
-                name="load"
-                title="Ouvrir"
-                @click="${this._actionHandle}"
-              >
+              <icon-button name="load" title="Ouvrir" @click="${this._actionHandle}">
+              </icon-button>
+              <icon-button name="save" title="Sauvegarder" @click="${this._actionHandle}">
+              </icon-button>
+              <icon-button name="settings" title="Paramètres" @click="${this._actionHandle}">
+              </icon-button>
+              <icon-button name="undo" title="Annuler" ?disabled="${!this.canUndo}" @click="${this._actionHandle}">
+              </icon-button>
+              <icon-button name="redo" title="Refaire" ?disabled="${!this.canRedo}" @click="${this._actionHandle}">
               </icon-button>
               <icon-button
-                name="save"
-                title="Sauvegarder"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                name="settings"
-                title="Paramètres"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                name="undo"
-                title="Annuler"
-                ?disabled="${!this.canUndo}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
-                name="redo"
-                title="Refaire"
-                ?disabled="${!this.canRedo}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>
-              <icon-button
+                class="onlyGrandeurs"
                 name="replay"
                 title="replay"
                 @click="${this._actionHandle}"
@@ -237,40 +232,35 @@ class AGTabletteApp extends LitElement {
 
       <notif-center></notif-center>
 
-      <input
-        id="fileSelector"
-        accept=".${app.environment.extension}"
-        type="file"
-        style="display: none"
-        @change="${event => {
-          window.dispatchEvent(
-            new CustomEvent('file-opened', {
-              detail: { method: 'old', file: event.target.files[0] },
-            })
-          );
-          event.target.value = null;
-        }}"
-      />
+      <input id="fileSelector" accept=".${app.environment.extension}" type="file" style="display: none" @change="${event => {
+              window.dispatchEvent(
+                new CustomEvent('file-opened', {
+                  detail: { method: 'old', file: event.target.files[0] },
+                })
+              );
+              event.target.value = null;
+            }}" />
 
       <label id="color-picker-label" for="color-picker" hidden></label>
-      <input
-        id="color-picker"
-        type="color"
-        @change="${e =>
-          window.dispatchEvent(
-            new CustomEvent('colorChange', {
-              detail: { color: e.target.value },
-            })
-          )}"
-      />
+      <input id="color-picker" type="color" @change="${e =>
+              window.dispatchEvent(
+                new CustomEvent('colorChange', {
+                  detail: { color: e.target.value },
+                })
+              )}" />
     `;
   }
+
+  // firstUpdated() {
+  //   console.log(app)
+  // }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
     let reset_state = 0;
+    let leaveConfirmationPopup;
     switch (event.target.name) {
       case 'settings':
         import('./popups/settings-popup');
@@ -282,12 +272,19 @@ class AGTabletteApp extends LitElement {
         reset_state = 1;
         break;
       case 'load':
-        window.dispatchEvent(new CustomEvent('open-file'));
+        if (app.workspace.history.index === -1) {
+          window.dispatchEvent(new CustomEvent('open-file'))
+          return
+        }
+        import('./popups/leave-confirmation-popup');
+        leaveConfirmationPopup = createElem('leave-confirmation-popup');
+        leaveConfirmationPopup.actionAfter = 'open';
         reset_state = 1;
         break;
       case 'new':
-        import('./popups/new-popup');
-        createElem('new-popup');
+        import('./popups/leave-confirmation-popup');
+        leaveConfirmationPopup = createElem('leave-confirmation-popup');
+        leaveConfirmationPopup.actionAfter = 'new';
         reset_state = 1;
         break;
       case 'undo':
@@ -319,6 +316,7 @@ class AGTabletteApp extends LitElement {
     this.states = [...app.states];
     this.stateName = app.state;
     this.state = this.states.find(st => st.name == this.stateName);
+    // if (location.hostname === 'localhost') console.log(app)
   }
 
   // // Todo: Placer dans un objet BackgroundImage ?

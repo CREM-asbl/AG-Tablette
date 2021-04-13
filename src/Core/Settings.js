@@ -25,6 +25,10 @@ export class Settings {
     this.data[name] = value;
   }
 
+  update(updates) {
+    this.data = { ...this.data, ...updates }
+  }
+
   saveToObject() {
     return { ...this.data };
   }

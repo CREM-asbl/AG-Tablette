@@ -79,6 +79,8 @@ export class CutState extends State {
     window.clearTimeout(this.timeoutRef);
     if (this.status != 'paused' || this.currentStep == 'showing-points')
       this.currentStep = 'listen-canvas-click';
+    if (this.status != 'paused')
+      app.upperDrawingEnvironment.removeAllObjects();
 
     app.removeListener('objectSelected', this.objectSelectedId);
   }
@@ -218,7 +220,6 @@ export class CutState extends State {
     ];
     this.executeAction();
     this.currentStep = 'listen-canvas-click';
-    app.upperDrawingEnvironment.removeAllObjects();
     this.restart();
 
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -287,7 +288,7 @@ export class CutState extends State {
     for (let i = 1; i < amountOfParts; i++) {
       let coord = pt1.coordinates.add(part.multiply(i));
       if (!shape.isCoordinatesInPath(coord)) return false;
-      pointsInBorder += shape.isPointInBorder(coord) ? 1 : 0;
+      pointsInBorder += shape.isCoordinatesOnBorder(coord) ? 1 : 0;
     }
     if (pointsInBorder > amountOfParts / 5) return false;
     const junction = new Segment({

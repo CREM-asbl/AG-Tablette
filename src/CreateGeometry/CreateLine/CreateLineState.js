@@ -6,6 +6,8 @@ import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Shape } from '../../Core/Objects/Shape';
 import { Segment } from '../../Core/Objects/Segment';
 import { Point } from '../../Core/Objects/Point';
+import { Coordinates } from '../../Core/Objects/Coordinates';
+import { GeometryConstraint } from '../../Core/Objects/GeometryConstraint';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -14,17 +16,17 @@ export class CreateLineState extends State {
   constructor() {
     super('createLine', 'Créer une ligne', 'geometryCreator');
 
-    // show-lines -> select-reference -> select-first-point -> select-second-point
+    // show-lines -> select-reference -> select-points
     this.currentStep = null;
 
     // points of the shape to create
     this.points = [];
 
-    // la référence pour la contruction de parallèles ou perpendiculaires
-    this.reference = null;
+    // points drawn by the user
+    this.numberOfPointsDrawn = 0;
 
-    // id of the shape to create
-    this.shapeId = null;
+    // la référence pour la contruction de parallèles ou perpendiculaires
+    this.referenceId = null;
   }
 
   /**
@@ -45,10 +47,6 @@ export class CreateLineState extends State {
   start() {
     this.currentStep = 'show-lines';
 
-    this.points = [];
-    this.reference = null;
-    this.shapeId = uniqId();
-
     if (!this.linesList) {
       import('./lines-list');
       this.linesList = createElem('lines-list');
@@ -64,10 +62,6 @@ export class CreateLineState extends State {
   restart(manualRestart = false) {
     this.end();
 
-    this.points = [];
-    this.reference = null;
-    this.shapeId = uniqId();
-
     if (manualRestart || !this.lineSelected) {
       this.linesList.lineSelected = null;
       this.currentStep = 'show-lines';
@@ -77,8 +71,12 @@ export class CreateLineState extends State {
         this.lineSelected == 'SemiStraightLine' ||
         this.lineSelected == 'Segment'
       ) {
-        this.currentStep = 'select-first-point';
-        this.mouseClickId = app.addListener('canvasclick', this.handler);
+        this.points = [];
+        this.segments = [];
+        this.numberOfPointsDrawn = 0;
+        this.getConstraints(this.numberOfPointsDrawn);
+        this.currentStep = 'select-points';
+        this.mouseDownId = app.addListener('canvasmousedown', this.handler);
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
         this.lineSelected == 'PerpendicularStraightLine' ||
@@ -93,7 +91,14 @@ export class CreateLineState extends State {
             (app.workspace.selectionConstraints =
               app.fastSelectionConstraints.click_all_segments)
         );
-        this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+        setTimeout(
+          () =>
+            (this.objectSelectedId = app.addListener(
+              'objectSelected',
+              this.handler
+            ))
+        );
       }
     }
 
@@ -110,20 +115,23 @@ export class CreateLineState extends State {
     }
     this.stopAnimation();
     window.removeEventListener('line-selected', this.handler);
-    app.removeListener('canvasclick', this.mouseClickId);
+    app.removeListener('canvasmousedown', this.mouseDownId);
     app.removeListener('objectSelected', this.objectSelectedId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
   }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'line-selected') {
-      this.setLine(event.detail.lineSelected);
-    } else if (event.type == 'canvasclick') {
-      this.onClick();
+    if (event.type == 'canvasmousedown') {
+      this.onMouseDown();
+    } else if (event.type == 'canvasmouseup') {
+      this.onMouseUp();
     } else if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
+    } else if (event.type == 'line-selected') {
+      this.setLine(event.detail.lineSelected);
     } else {
       console.error('unsupported event type : ', event.type);
     }
@@ -131,7 +139,11 @@ export class CreateLineState extends State {
 
   setLine(lineSelected) {
     if (lineSelected) {
-      app.removeListener('canvasclick', this.mouseClickId);
+      this.points = [];
+      this.segments = [];
+      this.numberOfPointsDrawn = 0;
+      this.getConstraints(this.numberOfPointsDrawn);
+      app.removeListener('canvasmousedown', this.mouseDownId);
       app.removeListener('objectSelected', this.objectSelectedId);
       this.lineSelected = lineSelected;
       if (this.linesList) this.linesList.lineSelected = lineSelected;
@@ -140,8 +152,8 @@ export class CreateLineState extends State {
         this.lineSelected == 'SemiStraightLine' ||
         this.lineSelected == 'Segment'
       ) {
-        this.currentStep = 'select-first-point';
-        this.mouseClickId = app.addListener('canvasclick', this.handler);
+        this.currentStep = 'select-points';
+        this.mouseDownId = app.addListener('canvasmousedown', this.handler);
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
         this.lineSelected == 'PerpendicularStraightLine' ||
@@ -168,318 +180,205 @@ export class CreateLineState extends State {
   objectSelected(segment) {
     if (this.currentStep != 'select-reference') return;
 
-    this.reference = segment;
+    this.referenceId = segment.id;
 
-    this.currentStep = 'select-first-point';
-    this.animate();
+    new Shape({
+      drawingEnvironment: app.upperDrawingEnvironment,
+      path: segment.getSVGPath('scale', undefined, true),
+      borderColor: app.settings.get('constraintsDrawColor'),
+      borderSize: 2,
+    });
+
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+
+    this.currentStep = 'select-points';
     window.setTimeout(() => {
-      this.mouseClickId = app.addListener('canvasclick', this.handler);
+      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
     });
   }
 
-  onClick() {
-    let newPoint = new Point(app.workspace.lastKnownMouseCoordinates);
+  onMouseDown() {
+    let newCoordinates = new Coordinates(
+      app.workspace.lastKnownMouseCoordinates
+    );
 
-    this.constraints = this.getConstraints();
-    if (this.constraints.isConstrained) {
-      newPoint = this.projectionOnConstraints(
-        app.workspace.lastKnownMouseCoordinates,
-        this.constraints
-      );
-    } else {
-      let constraints = SelectManager.getEmptySelectionConstraints().points;
-      constraints.canSelect = true;
-      let adjustedPoint = SelectManager.selectPoint(
-        newPoint,
-        constraints,
-        false
-      );
-      if (adjustedPoint) {
-        newPoint = new Point(adjustedPoint);
+    if (this.currentStep == 'select-points') {
+      this.points[this.numberOfPointsDrawn] = new Point({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        coordinates: newCoordinates,
+        color: app.settings.get('temporaryDrawColor'),
+        size: 2,
+      });
+      this.numberOfPointsDrawn++;
+      if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+        if (this.numberOfPointsDrawn < 2) this.finishShape();
+        let seg = new Segment({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          vertexIds: [this.points[0].id, this.points[1].id],
+          // isInfinite: this.lineSelected.endsWith('Parallele')
+        });
+        if (this.lineSelected.endsWith('SemiStraightLine')) {
+          seg.isSemiInfinite = true;
+        } else if (this.lineSelected.endsWith('StraightLine')) {
+          seg.isInfinite = true;
+        }
+        this.segments.push(seg);
+        let shape = new Shape({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          segmentIds: this.segments.map(seg => seg.id),
+          pointIds: this.points.map(pt => pt.id),
+          borderColor: app.settings.get('temporaryDrawColor'),
+        });
+        this.segments.forEach((seg, idx) => {
+          seg.idx = idx;
+          seg.shapeId = shape.id;
+        });
       }
+      app.removeListener('canvasmousedown', this.mouseDownId);
+      this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+      this.animate();
     }
+  }
 
-    if (this.currentStep == 'select-first-point') {
-      this.points[0] = newPoint;
-      if (
-        this.lineSelected == 'StraightLine' ||
-        this.lineSelected == 'SemiStraightLine' ||
-        this.lineSelected == 'Segment'
-      )
-        this.animate();
-      this.currentStep = 'select-second-point';
-    } else if (this.currentStep == 'select-second-point') {
-      this.points[1] = newPoint;
-    }
-
-    if (this.canCreateShape()) {
+  onMouseUp() {
+    if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+      this.stopAnimation();
       this.actions = [
         {
           name: 'CreateLineAction',
-          points: this.points,
-          reference: this.reference,
+          coordinates: this.points.map(pt => pt.coordinates),
           lineName: this.lineSelected,
-          shapeId: this.shapeId,
+          referenceId: this.referenceId,
         },
       ];
       this.executeAction();
+      app.upperDrawingEnvironment.removeAllObjects();
       this.restart();
-      window.dispatchEvent(new CustomEvent('refresh'));
-    }
-
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-  }
-
-  canCreateShape() {
-    if (
-      (this.lineSelected == 'StraightLine' ||
-        this.lineSelected == 'SemiStraightLine' ||
-        this.lineSelected == 'ParalleleSemiStraightLine' ||
-        this.lineSelected == 'PerpendicularSemiStraightLine' ||
-        this.lineSelected == 'Segment') &&
-      this.points.length == 2
-    ) {
-      return true;
-    } else if (
-      this.lineSelected == 'ParalleleStraightLine' &&
-      this.reference &&
-      this.points.length == 1
-    ) {
-      return true;
-    } else if (
-      this.lineSelected == 'PerpendicularStraightLine' &&
-      this.reference &&
-      this.points.length == 1
-    ) {
-      return true;
-    } else if (
-      this.lineSelected == 'ParalleleSegment' &&
-      this.reference &&
-      this.points.length == 2
-    ) {
-      return true;
-    } else if (
-      this.lineSelected == 'PerpendicularSegment' &&
-      this.reference &&
-      this.points.length == 2
-    ) {
-      return true;
+    } else {
+      this.getConstraints(this.numberOfPointsDrawn);
+      this.currentStep = '';
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.currentStep = 'select-points';
+      this.stopAnimation();
+      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      app.removeListener('canvasmouseup', this.mouseUpId);
     }
   }
 
-  getConstraints() {
-    let constraints = {
-      isFree: false,
-      isConstrained: false,
-      isBlocked: false,
-      isConstructed: false,
-      lines: [],
-      points: [],
-    };
-    if (this.currentStep == 'select-first-point') {
-      constraints.isFree = true;
-    } else if (this.currentStep == 'select-second-point') {
-      if (
-        this.lineSelected == 'ParalleleSegment' ||
-        this.lineSelected == 'ParalleleSemiStraightLine'
-      ) {
-        constraints.isConstrained = true;
-        let referenceAngle = this.reference.getAngleWithHorizontal();
-        let constraintLine = {
-          segment: new Segment(
-            this.points[0],
-            this.points[0].addCoordinates(
-              100 * Math.cos(referenceAngle),
-              100 * Math.sin(referenceAngle)
-            )
-          ),
-          isInfinite: true,
-        };
-        constraints.lines = [constraintLine];
-      } else if (
-        this.lineSelected == 'PerpendicularSegment' ||
-        this.lineSelected == 'PerpendicularSemiStraightLine'
-      ) {
-        constraints.isConstrained = true;
-        let constraintLine = {
-          segment: new Segment(
-            this.points[0],
-            this.reference.projectionOnSegment(this.points[0])
-          ),
-          isInfinite: true,
-        };
-        constraints.lines = [constraintLine];
-      } else {
-        constraints.isFree = true;
-      }
-    }
-    return constraints;
-  }
-
-  projectionOnConstraints(point, constraints) {
-    let projectionsOnContraints = constraints.lines
-      .map(line => {
-        let projection = line.segment.projectionOnSegment(point);
-        let dist = projection.dist(point);
-        return { projection: projection, dist: dist };
-      })
-      .concat(
-        constraints.points.map(pt => {
-          let dist = pt.dist(point);
-          return { projection: pt, dist: dist };
-        })
+  adjustPoint(point) {
+    if (this.constraints.isFree) {
+      let constraints = SelectManager.getEmptySelectionConstraints().points;
+      constraints.canSelect = true;
+      let adjustedCoordinates = SelectManager.selectPoint(
+        point.coordinates,
+        constraints,
+        false
       );
-    projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
-    return projectionsOnContraints[0].projection;
+      if (adjustedCoordinates) {
+        point.coordinates = new Coordinates(adjustedCoordinates);
+      }
+    } else {
+      let adjustedCoordinates = this.constraints.projectionOnConstraints(
+        point.coordinates
+      );
+      point.coordinates = new Coordinates(adjustedCoordinates);
+    }
   }
 
   refreshStateUpper() {
-    this.constraints = this.getConstraints();
-    let constrainedPoint = app.workspace.lastKnownMouseCoordinates;
-    if (this.constraints.isConstrained) {
-      constrainedPoint = this.projectionOnConstraints(
-        app.workspace.lastKnownMouseCoordinates,
-        this.constraints
+    if (this.currentStep == 'select-points') {
+      this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
+        app.workspace.lastKnownMouseCoordinates
       );
-    }
-
-    if (
-      this.currentStep == 'select-first-point' &&
-      (this.lineSelected == 'ParalleleStraightLine' ||
-        this.lineSelected == 'PerpendicularStraightLine')
-    )
-      this.points[0] = constrainedPoint;
-    else if (this.currentStep == 'select-second-point')
-      this.points[1] = constrainedPoint;
-
-    if (this.constraints.isConstrained) {
-      this.constraints.lines.forEach(ln => {
-        window.dispatchEvent(
-          new CustomEvent(ln.isInfinite ? 'draw-line' : 'draw-segment', {
-            detail: {
-              segment: ln.segment,
-              color: app.settings.get('constraintsDrawColor'),
-              size: 1,
-            },
-          })
-        );
-      });
-      this.constraints.points.forEach(pt => {
-        window.dispatchEvent(
-          new CustomEvent('draw-point', {
-            detail: {
-              point: pt,
-              color: app.settings.get('constraintsDrawColor'),
-              size: 2,
-            },
-          })
-        );
-      });
-    }
-
-    if (this.canCreateShape()) {
-      let temporaryShape;
-      if (this.lineSelected == 'StraightLine') {
-        temporaryShape = new Shape({
-          segments: [
-            new Segment(
-              this.points[0],
-              this.points[1],
-              temporaryShape,
-              0,
-              null,
-              null,
-              true
-            ),
-          ],
-          borderColor: app.settings.get('temporaryDrawColor'),
-        });
-      } else if (this.lineSelected == 'ParalleleStraightLine') {
-        let segment = Segment.segmentWithAnglePassingThroughPoint(
-          this.reference.getAngleWithHorizontal(),
-          this.points[0]
-        );
-        segment.isInfinite = true;
-        temporaryShape = new Shape({
-          segments: [segment],
-          borderColor: app.settings.get('temporaryDrawColor'),
-        });
-      } else if (this.lineSelected == 'PerpendicularStraightLine') {
-        let segment = Segment.segmentWithAnglePassingThroughPoint(
-          this.reference.getAngleWithHorizontal() + Math.PI / 2,
-          this.points[0]
-        );
-        segment.isInfinite = true;
-        temporaryShape = new Shape({
-          segments: [segment],
-          borderColor: app.settings.get('temporaryDrawColor'),
-        });
-      } else if (
-        this.lineSelected == 'SemiStraightLine' ||
-        this.lineSelected == 'ParalleleSemiStraightLine' ||
-        this.lineSelected == 'PerpendicularSemiStraightLine'
+      this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
+      if (
+        this.numberOfPointsDrawn == this.numberOfPointsRequired() &&
+        this.numberOfPointsDrawn < 2
       ) {
-        temporaryShape = new Shape({
-          segments: [
-            new Segment(
-              this.points[0],
-              this.points[1],
-              temporaryShape,
-              0,
-              null,
-              null,
-              false,
-              true
-            ),
-          ],
-          borderColor: app.settings.get('temporaryDrawColor'),
-        });
-      } else if (this.lineSelected == 'Segment') {
-        temporaryShape = new Shape({
-          segments: [new Segment(this.points[0], this.points[1])],
-          borderColor: app.settings.get('temporaryDrawColor'),
-        });
-      } else if (this.lineSelected == 'ParalleleSegment') {
-        temporaryShape = new Shape({
-          segments: [new Segment(this.points[0], this.points[1])],
-          borderColor: app.settings.get('temporaryDrawColor'),
-        });
-      } else if (this.lineSelected == 'PerpendicularSegment') {
-        temporaryShape = new Shape({
-          segments: [new Segment(this.points[0], this.points[1])],
-          borderColor: app.settings.get('temporaryDrawColor'),
-        });
+        this.finishShape();
       }
+    }
+  }
 
-      window.dispatchEvent(
-        new CustomEvent('draw-shape', {
-          detail: { shape: temporaryShape, borderSize: 2 },
-        })
+  numberOfPointsRequired() {
+    let numberOfPointsRequired = 0;
+    if (this.lineSelected == 'Segment') numberOfPointsRequired = 2;
+    else if (this.lineSelected == 'ParalleleSegment')
+      numberOfPointsRequired = 2;
+    else if (this.lineSelected == 'PerpendicularSegment')
+      numberOfPointsRequired = 2;
+    else if (this.lineSelected == 'SemiStraightLine')
+      numberOfPointsRequired = 2;
+    else if (this.lineSelected == 'ParalleleSemiStraightLine')
+      numberOfPointsRequired = 2;
+    else if (this.lineSelected == 'PerpendicularSemiStraightLine')
+      numberOfPointsRequired = 2;
+    else if (this.lineSelected == 'StraightLine') numberOfPointsRequired = 2;
+    else if (this.lineSelected == 'ParalleleStraightLine')
+      numberOfPointsRequired = 1;
+    else if (this.lineSelected == 'PerpendicularStraightLine')
+      numberOfPointsRequired = 1;
+    return numberOfPointsRequired;
+  }
+
+  finishShape() {
+    let newCoordinates;
+    if (this.lineSelected == 'ParalleleStraightLine') {
+      let referenceSegment = app.mainDrawingEnvironment.findObjectById(
+        this.referenceId,
+        'segment'
+      );
+      newCoordinates = this.points[0].coordinates
+        .substract(referenceSegment.vertexes[0].coordinates)
+        .add(referenceSegment.vertexes[1].coordinates);
+    } else if (this.lineSelected == 'PerpendicularStraightLine') {
+      let referenceSegment = app.mainDrawingEnvironment.findObjectById(
+        this.referenceId,
+        'segment'
+      );
+      newCoordinates = referenceSegment.projectionOnSegment(
+        this.points[0].coordinates
       );
     }
 
-    if (this.reference) {
-      window.dispatchEvent(
-        new CustomEvent('draw-segment', {
-          detail: {
-            segment: this.reference,
-            color: app.settings.get('temporaryDrawColor'),
-            size: 2,
-          },
-        })
-      );
+    if (this.points.length == 1) {
+      this.points[1] = new Point({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        coordinates: newCoordinates,
+        color: app.settings.get('temporaryDrawColor'),
+        size: 2,
+        visible: false,
+      });
+    } else {
+      this.points[1].coordinates = newCoordinates;
     }
+  }
 
-    this.points.forEach(pt => {
-      window.dispatchEvent(
-        new CustomEvent('draw-point', {
-          detail: {
-            point: pt,
-            color: app.settings.get('temporaryDrawColor'),
-            size: 2,
-          },
-        })
-      );
-    });
+  getConstraints(pointNb) {
+    if (pointNb == 0) {
+      this.constraints = new GeometryConstraint('isFree');
+    } else if (pointNb == 1) {
+      if (this.lineSelected.startsWith('Parallele')) {
+        let referenceSegment = app.mainDrawingEnvironment.findObjectById(
+          this.referenceId,
+          'segment'
+        );
+        let secondCoordinates = this.points[0].coordinates
+          .substract(referenceSegment.vertexes[0].coordinates)
+          .add(referenceSegment.vertexes[1].coordinates);
+        let lines = [[this.points[0].coordinates, secondCoordinates]];
+        this.constraints = new GeometryConstraint('isContrained', lines);
+      } else if (this.lineSelected.startsWith('Perpendicular')) {
+        let referenceSegment = app.mainDrawingEnvironment.findObjectById(
+          this.referenceId,
+          'segment'
+        );
+        let secondCoordinates = referenceSegment.projectionOnSegment(
+          this.points[0].coordinates
+        );
+        let lines = [[this.points[0].coordinates, secondCoordinates]];
+        this.constraints = new GeometryConstraint('isContrained', lines);
+      }
+    }
   }
 }

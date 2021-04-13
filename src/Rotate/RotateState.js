@@ -82,6 +82,8 @@ export class RotateState extends State {
    */
   end() {
     this.stopAnimation();
+    if (this.status != 'paused')
+      app.upperDrawingEnvironment.removeAllObjects();
     this.currentStep = 'listen-canvas-click';
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.removeListener('objectSelected', this.objectSelectedId);
@@ -116,6 +118,7 @@ export class RotateState extends State {
     );
     this.lastAngle = this.initialAngle;
 
+    this.involvedShapes.sort((s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2));
     this.drawingShapes = this.involvedShapes.map(
       s =>
         new Shape({
@@ -192,9 +195,7 @@ export class RotateState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (this.currentStep != 'rotating-shape') {
-      app.upperDrawingEnvironment.removeAllObjects();
-    } else {
+    if (this.currentStep == 'rotating-shape') {
       let newAngle = this.center.angleWith(
           app.workspace.lastKnownMouseCoordinates
         ),

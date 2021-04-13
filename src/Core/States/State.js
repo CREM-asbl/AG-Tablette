@@ -19,11 +19,11 @@ export class State {
     // idle for nothing, paused if stopped by permanent state, running for running...
     this.status = 'stopped';
 
-    app.states.push({
-      name: this.name,
-      title: this.title,
-      type: this.type,
-    });
+    // app.states.push({
+    //   name: this.name,
+    //   title: this.title,
+    //   type: this.type,
+    // });
 
     window.addEventListener('app-state-changed', event => {
       if (this.status == 'running') {

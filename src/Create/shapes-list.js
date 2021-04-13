@@ -10,6 +10,16 @@ class ShapesList extends LitElement {
     };
   }
 
+  constructor() {
+    super();
+
+    window.addEventListener('select-template', event => this.changeTemplateName(event));
+  }
+
+  changeTemplateName(event) {
+    this.templateName = event.detail.templateName;
+  }
+
   static get styles() {
     return css`
       :host {
@@ -52,10 +62,10 @@ class ShapesList extends LitElement {
         padding: 0;
         height: 54px;
       }
-
-      @media (min-width: 600px) {
+      @media (max-width: 600px) {
         :host {
-          left: ${app.settings.get('mainMenuWidth')}px;
+          right: 0;
+          left: auto;
         }
       }
     `;
@@ -63,6 +73,11 @@ class ShapesList extends LitElement {
 
   render() {
     return html`
+      <style>
+        :host {
+          left: calc(50% + (${app.settings.get('mainMenuWidth')}px / 2) - (${this.templateNames.length} / 2 * 54px));
+        }
+      </style>
       <div class="container">
         <h2>
           ${this.templateName

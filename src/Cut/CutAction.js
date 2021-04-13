@@ -130,6 +130,7 @@ export class CutAction extends Action {
           if ((pt1.ratio || 0) > (pt2.ratio || 0)) {
             [pt1, pt2] = [pt2, pt1];
           }
+          // [pt1, pt2] = [pt2, pt1];
         }
       }
 
@@ -153,7 +154,7 @@ export class CutAction extends Action {
         }
       }
       if (this.centerPoint) {
-        this.addPathElem(firstPath, this.centerPoint);
+        this.addPathElem(firstPath, this.centerPoint, false);
       }
       this.addPathElem(firstPath, pt2, false);
       let endJunctionIndex = pt2.idx || pt2.segments[0].idx;
@@ -182,7 +183,7 @@ export class CutAction extends Action {
         }
       }
       if (this.centerPoint) {
-        this.addPathElem(secondPath, this.centerPoint);
+        this.addPathElem(secondPath, this.centerPoint, false);
       }
       this.addPathElem(secondPath, pt1, false);
     }
@@ -236,14 +237,15 @@ export class CutAction extends Action {
   }
 
   addPathElem(path, nextPoint, mustFollowArc) {
-    let commonSegment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
-      this.currentPoint.id,
-      nextPoint.id
-    );
+    let segment;
+    if (mustFollowArc !== false) {
+      let segmentIdx = Number.isInteger(this.currentPoint.idx) ? this.currentPoint.idx : this.currentPoint.segments[0].idx;
+      segment = this.currentPoint.shape.segments[segmentIdx];
+    }
     if (
-      commonSegment == undefined ||
-      !commonSegment.isArc() ||
-      mustFollowArc == false
+      segment == undefined ||
+      !segment.isArc() ||
+      mustFollowArc === false
     ) {
       path.push('L', nextPoint.coordinates.x, nextPoint.coordinates.y);
       this.currentPoint = nextPoint;
@@ -251,7 +253,7 @@ export class CutAction extends Action {
       let firstCoord = this.currentPoint.coordinates;
       let secondCoord = nextPoint.coordinates;
 
-      let centerCoordinates = commonSegment.arcCenter.coordinates;
+      let centerCoordinates = segment.arcCenter.coordinates;
       let radius = centerCoordinates.dist(secondCoord),
         firstAngle = centerCoordinates.angleWith(firstCoord),
         secondAngle = centerCoordinates.angleWith(secondCoord);
@@ -259,7 +261,7 @@ export class CutAction extends Action {
       if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
       let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
         sweepFlag = 1;
-      if (commonSegment.counterclockwise) {
+      if (segment.counterclockwise) {
         sweepFlag = Math.abs(sweepFlag - 1);
         largeArcFlag = Math.abs(largeArcFlag - 1);
       }

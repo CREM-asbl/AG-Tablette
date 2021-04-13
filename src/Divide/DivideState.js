@@ -91,6 +91,8 @@ export class DivideState extends State {
       // paused
       this.savedSelConstr = app.workspace.selectionConstraints;
     }
+    if (this.status != 'paused')
+      app.upperDrawingEnvironment.removeAllObjects();
 
     app.removeListener('objectSelected', this.objectSelectedId);
     window.removeEventListener('setNumberOfParts', this.handler);
@@ -194,7 +196,8 @@ export class DivideState extends State {
           borderSize: 3,
           path: object.getSVGPath('no scale', undefined, true),
           id: undefined,
-          color: '#0000',
+          color: '#000',
+          opacity: 0,
         });
 
         this.currentStep = 'showing-segment';
@@ -251,13 +254,14 @@ export class DivideState extends State {
               arc de cercle), on annule l'action.
                */
           if (
-            (pt1.segmentIds[0] == object.segmentIds[0] &&
-              pt1.segmentIds[1] == object.segmentIds[1]) ||
-            (pt1.segmentIds[0] == object.segmentIds[1] &&
-              pt1.segmentIds[1] == object.segmentIds[0])
+            (pt1.segmentIds.length == 2 && object.segmentIds.length == 2) && (
+              (pt1.segmentIds[0] == object.segmentIds[0] &&
+                pt1.segmentIds[1] == object.segmentIds[1]) ||
+              (pt1.segmentIds[0] == object.segmentIds[1] &&
+                pt1.segmentIds[1] == object.segmentIds[0])
+            )
           ) {
             console.warn('ambiguité, ne rien faire');
-            app.upperDrawingEnvironment.removeAllObjects();
             this.restart();
 
             window.dispatchEvent(new CustomEvent('refresh'));
@@ -338,7 +342,8 @@ export class DivideState extends State {
           borderSize: 3,
           path: path,
           id: undefined,
-          color: '#0000',
+          color: '#000',
+          opacity: 0,
         });
       }
     }
@@ -362,7 +367,6 @@ export class DivideState extends State {
     }
     // this.actions[0].existingPoints = [...this.actions[0].segment.divisionPoints];
     this.executeAction();
-    app.upperDrawingEnvironment.removeAllObjects();
     this.restart();
 
     window.dispatchEvent(new CustomEvent('refresh'));

@@ -1,5 +1,7 @@
 import { TransformState } from './TransformState';
 import { TransformAction } from './TransformAction';
 
-new TransformState();
-new TransformAction();
+export default {
+  state: new TransformState(),
+  action: new TransformAction()
+}

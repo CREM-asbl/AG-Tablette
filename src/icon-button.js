@@ -10,6 +10,7 @@ class IconButton extends LitElement {
   }
 
   firstUpdated() {
+    //Todo: Refacto (ce code ne devrait pas se trouver ici)
     if (this.type == 'State') {
       this.src = '/images/States/' + this.name + '.svg';
     } else if (this.type == 'Geometry') {
@@ -60,6 +61,7 @@ class IconButton extends LitElement {
   }
 
   render() {
+    if(!this.src) return
     return html`
       <button style="background-image:url('${this.src}')"></button>
     `;

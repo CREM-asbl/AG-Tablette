@@ -101,6 +101,7 @@ class GridPopup extends LitElement {
   }
 
   gridPopupValidate() {
+    window.dispatchEvent(new CustomEvent('actions-executed', { detail: {name: 'grille'}}));
     this.remove();
     app.setState();
   }

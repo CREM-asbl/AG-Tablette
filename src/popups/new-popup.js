@@ -12,6 +12,10 @@ class NewPopup extends LitElement {
     return TemplatePopup.template_popup_styles();
   }
 
+  updated() {
+    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+  }
+
   render() {
     return html`
       <template-popup>
@@ -25,7 +29,7 @@ class NewPopup extends LitElement {
 
         <div slot="footer">
           <button @click="${this.close}">Annuler</button>
-          <button @click="${this.confirm}">OK</button>
+          <button id="focus" @click="${this.confirm}">OK</button>
         </div>
       </template-popup>
     `;

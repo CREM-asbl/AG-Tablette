@@ -104,10 +104,10 @@ export class ReverseState extends State {
    */
   end() {
     this.stopAnimation();
-    app.upperDrawingEnvironment.removeAllObjects();
     if (this.status != 'paused') {
       this.currentStep = 'listen-canvas-click';
       this.selectedShape = null;
+      app.upperDrawingEnvironment.removeAllObjects();
       app.mainDrawingEnvironment.editingShapeIds = [];
     }
 
@@ -194,7 +194,6 @@ export class ReverseState extends State {
       this.currentStep = 'reversing-shape';
 
       window.dispatchEvent(new CustomEvent('refresh'));
-      window.dispatchEvent(new CustomEvent('reverse-animation'));
       this.animate();
     } else if (object instanceof Shape) {
       this.selectedShape = object;
@@ -205,6 +204,7 @@ export class ReverseState extends State {
       );
 
       app.upperDrawingEnvironment.removeAllObjects();
+      this.involvedShapes.sort((s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2));
       this.drawingShapes = this.involvedShapes.map(
         s =>
           new Shape({

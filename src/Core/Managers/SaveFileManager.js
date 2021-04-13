@@ -2,7 +2,16 @@ import { app } from '../App';
 import { createElem } from '../Tools/general';
 
 export class SaveFileManager {
-  static async saveFile() {
+  static async saveFile(actionAfter) {
+    window.removeEventListener('new-window', SaveFileManager.actionAfterNewWindow);
+    window.removeEventListener('open-file', SaveFileManager.actionAfterOpenFile);
+    if (actionAfter == 'new') {
+      window.addEventListener('show-notif', SaveFileManager.actionAfterNewWindow
+      , {once: true});
+    } else if (actionAfter == 'open') {
+      window.addEventListener('show-notif', SaveFileManager.actionAfterOpenFile
+      , {once: true});
+    }
     if (SaveFileManager.hasNativeFS) {
       try {
         await SaveFileManager.newSaveFile();
@@ -13,6 +22,16 @@ export class SaveFileManager {
     } else {
       SaveFileManager.oldSaveFile();
     }
+  }
+
+  static actionAfterNewWindow(event) {
+    if (event.detail.message.startsWith('Sauvegardé'))
+      window.dispatchEvent(new CustomEvent('new-window'));
+  }
+
+  static actionAfterOpenFile(event) {
+    if (event.detail.message.startsWith('Sauvegardé'))
+      window.dispatchEvent(new CustomEvent('open-file'));
   }
 
   static async newSaveFile() {
@@ -152,6 +171,13 @@ export class SaveFileManager {
     if (SaveFileManager.hasNativeFS) {
       SaveFileManager.newWriteFile(handle, svg_data);
     } else {
+      // should fix unicode encoding
+      svg_data = encodeURIComponent(svg_data).replace(
+        /%([0-9A-F]{2})/g,
+        function toSolidBytes(match, p1) {
+          return String.fromCharCode('0x' + p1);
+        }
+      );
       const encoded_data = 'data:image/svg+xml;base64,' + btoa(svg_data);
       SaveFileManager.downloadFile(handle.name, encoded_data);
     }
@@ -215,8 +241,9 @@ export class SaveFileManager {
   }
 }
 
-window.addEventListener('save-file', () => {
-  SaveFileManager.saveFile();
+window.addEventListener('save-file', event => {
+  console.log(event);
+  SaveFileManager.saveFile(event.detail?.actionAfter);
 });
 
 // Si ancien ou nouveau systeme de fichier

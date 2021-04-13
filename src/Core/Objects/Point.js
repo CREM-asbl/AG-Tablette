@@ -430,7 +430,7 @@ export class Point {
       coordinates: this.coordinates,
       shapeId: this.shapeId,
       idx: this.idx,
-      segmentIds: this.segmentIds,
+      segmentIds: [...this.segmentIds],
       type: this.type,
       name: this.name,
       ratio: this.ratio,
@@ -447,5 +447,6 @@ export class Point {
     });
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);
+    point.segmentIds = [...data.segmentIds];
   }
 }

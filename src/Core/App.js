@@ -1,6 +1,8 @@
 import { Settings } from './Settings';
 import { uniqId } from './Tools/general';
 
+window.dev_mode = location.hostname === 'localhost'
+
 /**
  * Classe principale de l'application
  */
@@ -69,7 +71,7 @@ export class App {
     // Couleur de dessin des contraintes
     this.settings.set('constraintsDrawColor', '#080');
 
-    // Couleur de dessin des contraintes
+    // Couleur de dessin des formes temporaires (Géométrie)
     this.settings.set('temporaryDrawColor', '#E90CC8');
   }
 
@@ -143,7 +145,6 @@ export class App {
    */
   setState(stateName, startParams) {
     this.state = stateName || undefined;
-
     window.dispatchEvent(
       new CustomEvent('app-state-changed', {
         detail: { state: app.state, startParams: startParams },
@@ -156,3 +157,15 @@ export class App {
 }
 
 export const app = new App();
+
+//Préparation à un state-changed plus général
+//Ceci permettra aussi de réduire le nombre de listener par la suite
+export const setState = update => {
+  // app n'est pour l'instant pas itérable
+  // app = [...app, update]
+  for (let key in update) {
+    app[key] = update[key]
+  }
+  if (window.dev_mode) console.log(app)
+  window.dispatchEvent(new CustomEvent('state-changed', { detail: app }))
+}

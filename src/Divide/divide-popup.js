@@ -32,7 +32,7 @@ class DividePopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Division</h2>
+        <h2 slot="title">Diviser</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts">Diviser en</label>
           <select @change="${e => (this.parts = e.target.value)}">

@@ -67,7 +67,7 @@ class RegularPopup extends LitElement {
             <option value="19" label="19">19</option>
             <option value="20" label="20">20</option>
           </datalist>
-          <span> cotés</span>
+          <span> ${this.points} cotés</span>
         </div>
 
         <div slot="footer">

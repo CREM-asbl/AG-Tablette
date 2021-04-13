@@ -1,5 +1,6 @@
 import { app } from '../App';
 import { GroupManager } from './GroupManager';
+import { SelectManager } from './SelectManager';
 
 export class ShapeManager {
   /**
@@ -94,8 +95,18 @@ export class ShapeManager {
     if (constraints.canSelectFromUpper)
       allShapes.push(...app.upperDrawingEnvironment.shapes);
     let list = allShapes.filter(
-      shape =>
-        shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnBorder(coord)
+      shape => {
+        if (shape.isSegment()) {
+          const seg = shape.segments[0];
+          const projection = seg.projectionOnSegment(coord);
+          return  seg.isCoordinatesOnSegment(projection) &&
+            SelectManager.areCoordinatesInSelectionDistance(
+              projection,
+              coord
+            );
+        } else
+          return shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnBorder(coord);
+      }
     );
     list.reverse();
     return list;

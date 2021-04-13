@@ -50,8 +50,7 @@ export class Shape {
     isReversed = false,
     isBiface = false,
     geometryConstructionSpec = null, // à enlever (recalculer si besoin)
-    referenceShapeId = null,
-    referenceSegmentIdx = null,
+    referenceId = null,
     hasGeometryReferenced = [],
   }) {
     this.id = id;
@@ -81,8 +80,7 @@ export class Shape {
     this.isReversed = isReversed;
     this.isBiface = isBiface;
     this.geometryConstructionSpec = geometryConstructionSpec;
-    this.referenceShapeId = referenceShapeId;
-    this.referenceSegmentIdx = referenceSegmentIdx;
+    this.referenceId = referenceId;
     this.hasGeometryReferenced = [...hasGeometryReferenced];
   }
 
@@ -113,6 +111,11 @@ export class Shape {
   get divisionPoints() {
     let divisionPoints = this.points.filter(pt => pt.type === 'divisionPoint');
     return divisionPoints;
+  }
+
+  get center() {
+    let center = this.points.filter(pt => pt.type === 'shapeCenter')[0];
+    return center;
   }
 
   get modifiablePoints() {
@@ -350,14 +353,15 @@ export class Shape {
     return Bounds.getOuterBounds(...segmentBounds);
   }
 
-  getCommonsPoints(shape) {
-    const commonsPoints = [];
-    this.allOutlinePoints.forEach(point1 => {
-      shape.allOutlinePoints.forEach(point2 => {
-        if (point1.equal(point2)) commonsPoints.push(new Point(point1));
+  getCommonsCoordinates(shape) {
+    const commonsCoordinates = [];
+    this.points.forEach(point1 => {
+      shape.points.forEach(point2 => {
+        if (point1.coordinates.equal(point2.coordinates))
+          commonsCoordinates.push(point1.coordinates);
       });
     });
-    return commonsPoints;
+    return commonsCoordinates;
   }
 
   getArcCenterFromSVG(
@@ -378,6 +382,8 @@ export class Shape {
             Math.pow(firstVertex.y - lastVertex.y, 2)) /
             4
       );
+
+    if (isNaN(distanceMiddleArcCenter)) distanceMiddleArcCenter = 0;
 
     let theta, arcCenterCoordinates;
     // theta is the angle between the segment firstvertex - lastvertex and the x-axis
@@ -527,11 +533,11 @@ export class Shape {
       this.isCoordinatesInPath(segment.vertexes[0]) &&
       this.isCoordinatesInPath(segment.vertexes[1]) &&
       (!(
-        this.isPointInBorder(segment.vertexes[0]) &&
-        this.isPointInBorder(segment.vertexes[1])
+        this.isCoordinatesOnBorder(segment.vertexes[0]) &&
+        this.isCoordinatesOnBorder(segment.vertexes[1])
       ) ||
         (this.isCoordinatesInPath(segment.middle) &&
-          !this.isPointInBorder(segment.middle)))
+          !this.isCoordinatesOnBorder(segment.middle)))
     );
   }
 
@@ -1202,7 +1208,8 @@ export class Shape {
     });
     if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
 
-    let comment = '<!-- ' + this.name + ' -->\n';
+    let comment =
+      '<!-- ' + this.name.replace('e', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
   }
@@ -1304,16 +1311,18 @@ export class Shape {
       }
     }
     this.segments.forEach((seg, idx) => (seg.idx = idx));
+    this.vertexes.forEach((vx, idx) => (vx.idx = idx));
   }
 
   saveData() {
     let data = {
       id: this.id,
-      segmentIds: this.segmentIds,
-      pointIds: this.pointIds,
+      segmentIds: [...this.segmentIds],
+      pointIds: [...this.pointIds],
       name: this.name,
       familyName: this.familyName,
       color: this.color,
+      second_color: this.second_color,
       opacity: this.opacity,
       path: this.getSVGPath(false),
       size: this.size,
@@ -1334,5 +1343,7 @@ export class Shape {
       drawingEnvironment: app.mainDrawingEnvironment,
     });
     Object.assign(shape, data);
+    shape.segmentIds = [...data.segmentIds];
+    shape.pointIds = [...data.pointIds];
   }
 }

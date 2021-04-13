@@ -49,9 +49,12 @@ export class HistoryManager {
       console.error('Nothing to undo');
       return;
     }
+    app.setState();
     app.workspace.history.index--;
     let data = app.workspace.history.data[app.workspace.history.index];
-    app.mainDrawingEnvironment.loadFromData(data);
+    if (app.workspace.history.index == -1)
+      data = app.workspace.history.startSituation;
+    app.workspace.initFromObject(data, true);
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('history-changed'));
@@ -66,9 +69,10 @@ export class HistoryManager {
       console.error('Nothing to redo');
       return;
     }
+    app.setState();
     app.workspace.history.index++;
     let data = app.workspace.history.data[app.workspace.history.index];
-    app.mainDrawingEnvironment.loadFromData(data);
+    app.workspace.initFromObject(data, true);
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('history-changed'));
   }
@@ -81,7 +85,7 @@ export class HistoryManager {
     app.workspace.history.data.splice(
       app.workspace.history.index + 1,
       app.workspace.history.length,
-      app.mainDrawingEnvironment.saveData()
+      HistoryManager.saveData()
     );
     app.workspace.history.index = app.workspace.history.length - 1;
 
@@ -93,6 +97,14 @@ export class HistoryManager {
     app.workspace.history.index = app.workspace.history.length - 1;
 
     window.dispatchEvent(new CustomEvent('history-changed'));
+  }
+
+  static saveData() {
+    let data = app.workspace.data;
+    data.history = undefined;
+    data.completeHistory = undefined;
+
+    return data;
   }
 }
 

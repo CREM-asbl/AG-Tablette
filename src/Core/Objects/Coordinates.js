@@ -13,11 +13,6 @@ export class Coordinates {
     this.y = parseFloat(y);
   }
 
-  set(x, y) {
-    this.x = parseFloat(x);
-    this.y = parseFloat(y);
-  }
-
   /**
    * add coordinates to this
    * @param {coordinates}  coordinates

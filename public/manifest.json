@@ -1,0 +1,50 @@
+{
+  "name": "Apprenti Géomètre Mobile Beta",
+  "short_name": "AG Mobile Beta",
+  "version": "1.0.15 Beta",
+  "icons": [
+    {
+      "src": "images/manifest/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "images/manifest/maskable_icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#3f51b5",
+  "theme_color": "#3f51b5",
+  "description": "Version mobile d'Apprenti Géomètre",
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "application/agmobile": ".agg"
+      }
+    },
+    {
+      "action": "/",
+      "accept": {
+        "application/agmobile": ".agt"
+      }
+    },
+    {
+      "action": "/",
+      "accept": {
+        "application/agmobile": ".agc"
+      }
+    },
+    {
+      "action": "/",
+      "accept": {
+        "application/agmobile": ".agl"
+      }
+    }
+  ]
+}

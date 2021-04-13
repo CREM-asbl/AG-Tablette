@@ -1,26 +1,17 @@
 import { app } from '../Core/App';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { createElem } from '../Core/Tools/general';
 
 //Todo: Créer un event plus précis
 addEventListener('app-state-changed', () => {
   if (app.state === 'grid') {
     import('./grid-popup');
-    const popup = document.createElement('grid-popup');
-    popup.style.display = 'block';
-    document.querySelector('body').appendChild(popup);
+    createElem('grid-popup');
   }
 });
 
 export class GridManager {
-  static initState() {
-    app.states.push({
-      name: 'grid',
-      title: 'Grille',
-      type: 'tool',
-    });
-  }
-
   /**
    * Le point de référence de la grille est le point (10,10).
    * Si grille carrée: le côté du carré est de 50 unités. (-> ex de points:
@@ -30,7 +21,7 @@ export class GridManager {
    * 		(-> Ex de points: (60, 10), ...)
    */
   static drawGridPoints() {
-    if (!app.workspace.settings.get('isGridShown')) return [];
+    if (!app.workspace.settings.get('isGridShown')) return;
 
     const canvasWidth = app.canvasWidth,
       canvasHeight = app.canvasHeight,
@@ -191,10 +182,17 @@ export class GridManager {
       );
     }
 
-    const closestCoord = possibilities.sort((poss1, poss2) =>
+    possibilities.sort((poss1, poss2) =>
       coord.dist(poss1) > coord.dist(poss2) ? 1 : -1
-    )[0];
+    );
+    possibilities = possibilities.filter(poss =>
+      app.backgroundDrawingEnvironment.points.findIndex(pt => pt.coordinates.equal(poss)) != -1
+    );
 
+    if (possibilities.length == 0)
+      return null;
+
+    const closestCoord = possibilities[0];
     const closestPoint = app.backgroundDrawingEnvironment.points.find(pt =>
       pt.coordinates.equal(closestCoord)
     );

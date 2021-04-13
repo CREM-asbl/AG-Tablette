@@ -35,13 +35,21 @@ class SavePopup extends LitElement {
     return TemplatePopup.template_popup_styles();
   }
 
+  updated() {
+    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+    if (app.environment.name == 'Tangram')
+      this.shadowRoot.querySelectorAll('.hideIfTangram').forEach(el => el.style.display = 'none');
+    if (SaveFileManager.hasNativeFS)
+      this.shadowRoot.querySelectorAll('.hideIfHasNativeFS').forEach(el => el.style.display = 'none');
+  }
+
   render() {
     return html`
       <template-popup>
         <h2 slot="title">Sauvegarder</h2>
         <div slot="body" id="body">
           <div
-            style="display: ${SaveFileManager.hasNativeFS ? 'none' : 'block'}"
+            class="hideIfHasNativeFS"
           >
             <label for="save_popup_stateOrImage" style="display:inline"
               >Méthode de sauvegarde</label
@@ -79,7 +87,7 @@ class SavePopup extends LitElement {
               >
             </div>
 
-            <div class="field">
+            <div class="field hideIfTangram">
               <input
                 type="checkbox"
                 name="save_popup_history"
@@ -112,8 +120,7 @@ class SavePopup extends LitElement {
           </div>
 
           <div
-            class="field"
-            style="display: ${SaveFileManager.hasNativeFS ? 'none' : 'block'}"
+            class="field hideIfHasNativeFS"
           >
             <br />
             <label for="save_popup_filename" style="display:inline"
@@ -133,7 +140,7 @@ class SavePopup extends LitElement {
         <div slot="footer">
           <button
             name="save_popup_submit"
-            id="save_popup_submit"
+            id="focus"
             @click="${this._actionHandle}"
           >
             OK

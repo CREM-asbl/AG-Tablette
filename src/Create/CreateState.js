@@ -62,6 +62,7 @@ export class CreateState extends State {
     this.shapesList.selectedFamily = family;
     this.shapesList.templateNames = templateNames;
     this.shapesList.style.display = 'flex';
+    this.shapesList.templateName = null;
 
     window.dispatchEvent(
       new CustomEvent('family-selected', {
@@ -109,6 +110,9 @@ export class CreateState extends State {
       if (this.shapesList) this.shapesList.remove();
       this.shapesList = null;
     }
+    if (this.status != 'paused')
+      app.upperDrawingEnvironment.removeAllObjects();
+
     this.stopAnimation();
     window.removeEventListener('select-template', this.handler);
     app.removeListener('canvasmousedown', this.mouseDownId);
@@ -187,9 +191,7 @@ export class CreateState extends State {
   }
 
   refreshStateUpper() {
-    if (this.currentStep != 'moving-shape') {
-      app.upperDrawingEnvironment.removeAllObjects();
-    } else {
+    if (this.currentStep == 'moving-shape') {
       this.shapeToCreate.translate(
         app.workspace.lastKnownMouseCoordinates.substract(this.currentShapePos)
       );

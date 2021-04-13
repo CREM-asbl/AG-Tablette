@@ -106,26 +106,29 @@ export class MergeState extends State {
     let mustExecuteAction = false;
     if (this.currentStep == 'listen-canvas-click') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
-      // if (this.involvedShapes.length > 1) {
-      //   // execute a groupMerge if possible
-      //   const newSegments = this.checkGroupMerge();
-      //   if (!newSegments) return false;
-
-      //   const linkedSegments = this.linkNewSegments(newSegments);
-      //   if (!linkedSegments) return false;
-
-      //   this.actions = [
-      //     {
-      //       name: 'MergeAction',
-      //       mode: 'multipleShapes',
-      //       involvedShapesIds: this.involvedShapes.map(s => s.id),
-      //       newSegments: linkedSegments,
-      //       createdShapeId: uniqId(),
-      //     },
-      //   ];
-      //   mustExecuteAction = true;
-      // }
-      if (!mustExecuteAction) {
+      if (this.involvedShapes.length > 1) {
+        const path = this.getPathFromGroup();
+        if (path) {
+          this.actions = [
+            {
+              name: 'MergeAction',
+              mode: 'multipleShapes',
+              involvedShapesIds: this.involvedShapes.map(s => s.id),
+              path: path,
+            },
+          ];
+          mustExecuteAction = true;
+        } else {
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message: "Le groupe ne peut pas être fusionné",
+              },
+            })
+          );
+          return;
+        }
+      } else {
         this.currentStep = 'selecting-second-shape';
         this.firstShapeId = shape.id;
         app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
@@ -144,57 +147,104 @@ export class MergeState extends State {
         this.currentStep = 'listen-canvas-click';
         this.firstShapeId = null;
         app.mainDrawingEnvironment.editingShapeIds = [];
+        app.upperDrawingEnvironment.removeAllObjects();
       } else {
-        this.secondShapeId = shape.id;
-        this.actions = [
-          {
-            name: 'MergeAction',
-            mode: 'twoShapes',
-            firstShapeId: this.firstShapeId,
-            secondShapeId: this.secondShapeId,
-          },
-        ];
-        mustExecuteAction = true;
+        let group = ShapeManager.getAllBindedShapes(shape, true);
+        if (group.length > 1) {
+          let firstShape = app.mainDrawingEnvironment.findObjectById(
+            this.firstShapeId
+          );
+          this.involvedShapes = [...group, firstShape];
+          const path = this.getPathFromGroup();
+          if (path) {
+            this.actions = [
+              {
+                name: 'MergeAction',
+                mode: 'multipleShapes',
+                involvedShapesIds: this.involvedShapes.map(s => s.id),
+                path: path,
+              },
+            ];
+            mustExecuteAction = true;
+          } else {
+            window.dispatchEvent(
+              new CustomEvent('show-notif', {
+                detail: {
+                  message: "La forme ne peut pas être fusionnée au groupe",
+                },
+              })
+            );
+            return;
+          }
+        } else {
+          this.secondShapeId = shape.id;
+          this.actions = [
+            {
+              name: 'MergeAction',
+              mode: 'twoShapes',
+              firstShapeId: this.firstShapeId,
+              secondShapeId: this.secondShapeId,
+            },
+          ];
+          mustExecuteAction = true;
+        }
       }
     }
 
-    // if (this.firstShape.getCommonsPoints(this.secondShape).length < 2) {
-    //   window.dispatchEvent(
-    //     new CustomEvent('show-notif', {
-    //       detail: {
-    //         message: "Il n'y a pas de segment commun entre les formes.",
-    //       },
-    //     })
-    //   );
-    //   return;
-    // }
-
-    // if (this.firstShape.overlapsWith(this.secondShape)) {
-    //   window.dispatchEvent(
-    //     new CustomEvent('show-notif', {
-    //       detail: { message: 'Les formes se superposent.' },
-    //     })
-    //   );
-    //   return;
-    // }
-
     if (mustExecuteAction) {
+      if (this.actions[0].mode == 'twoShapes') {
+        let firstShape = app.mainDrawingEnvironment.findObjectById(
+          this.firstShapeId
+        );
+        let secondShape = app.mainDrawingEnvironment.findObjectById(
+          this.secondShapeId
+        );
+
+        if (firstShape.getCommonsCoordinates(secondShape).length < 2) {
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message: "Il n'y a pas de segment commun entre les formes.",
+              },
+            })
+          );
+          return;
+        }
+
+        if (firstShape.overlapsWith(secondShape)) {
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: { message: 'Les formes se superposent.' },
+            })
+          );
+          return;
+        }
+      }
+
       this.executeAction();
       this.restart();
     }
+
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
-  /**
-   * Check if all the shapes of the group can be merged
-   * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
-   */
-  checkGroupMerge() {
+  getPathFromGroup() {
+    let segmentsList = this.checkGroupMerge(this.involvedShapes);
+
+    if (!segmentsList)
+      return null;
+
+    let path = this.linkNewSegments(segmentsList);
+
+    return path;
+  }
+
+  checkGroupMerge(shapes) {
     // check if a shape overlaps another one
     if (
-      this.involvedShapes.some(shape =>
-        this.involvedShapes.some(s => {
+      shapes.some(shape =>
+        shapes.some(s => {
           if (s.id == shape.id) return false;
           else return s.overlapsWith(shape);
         })
@@ -202,85 +252,79 @@ export class MergeState extends State {
     )
       return null;
 
-    const segments = this.involvedShapes
-      .map(s => s.segments.map(seg => seg.copy()))
+    let oldSegments = shapes
+      .map(s =>
+        s.segments.map(seg => {
+          return new Segment({
+            drawingEnvironment: app.invisibleDrawingEnvironment,
+            createFromNothing: true,
+            vertexCoordinates: seg.vertexes.map(vx => vx.coordinates),
+            divisionPointInfos: seg.divisionPoints.map(dp => {
+              return { coordinates: dp.coordinates, ratio: dp.ratio };
+            }),
+          });
+        })
+      )
       .flat();
 
-    for (let i = 0; i < segments.length; i++) {
-      const seg = segments[i],
-        commonSegmentIdx = segments.findIndex(
-          (segment, idx) =>
-            idx != i &&
-            seg.subSegments.some(subseg =>
-              segment.subSegments.some(subseg2 => subseg.equal(subseg2))
+    let cutSegments = oldSegments
+      .map((segment, idx, segments) => {
+        let pointsInside = segments
+          .filter((seg, i) => i != idx)
+          .map(seg =>
+            seg.points.filter(pt1 =>
+              segment.divisionPoints.some(pt2 =>
+                pt1.coordinates.equal(pt2.coordinates)
+              )
             )
-        );
-      if (commonSegmentIdx == -1) continue;
-      const commonSegment = segments[commonSegmentIdx],
-        junction = seg.subSegments
-          .filter(subseg =>
-            commonSegment.subSegments.some(subseg2 => subseg.equal(subseg2))
           )
-          .sort((seg1, seg2) => (seg1.length < seg2.length ? 1 : -1))[0];
-      !commonSegment.hasSameDirection(seg) && commonSegment.reverse();
-      !junction.hasSameDirection(seg) && junction.reverse();
-      let createdSegments = [];
-      if (!seg.vertexes[0].equal(junction.vertexes[0]))
-        createdSegments.push(
-          new Segment(seg.vertexes[0], junction.vertexes[0])
-        );
-      if (!seg.vertexes[1].equal(junction.vertexes[1]))
-        createdSegments.push(
-          new Segment(seg.vertexes[1], junction.vertexes[1])
-        );
-      if (!commonSegment.vertexes[0].equal(junction.vertexes[0]))
-        createdSegments.push(
-          new Segment(commonSegment.vertexes[0], junction.vertexes[0])
-        );
-      if (!commonSegment.vertexes[1].equal(junction.vertexes[1]))
-        createdSegments.push(
-          new Segment(commonSegment.vertexes[1], junction.vertexes[1])
-        );
-      const indexToRemove = [i, commonSegmentIdx].sort(
-        (idx1, idx2) => idx1 - idx2
-      );
-      segments.splice(indexToRemove[1], 1);
-      segments.splice(indexToRemove[0], 1, ...createdSegments);
-      i = -1;
-    }
+          .flat()
+          .filter((pt, idx, pts) => {
+            for (let i = idx + 1; i < pts.length; i++) {
+              if (pts[i].coordinates.equal(pt.coordinates)) return false;
+            }
+            return true;
+          });
+        if (pointsInside.length) return segment.divideWith(pointsInside);
+        else return segment;
+      })
+      .flat();
 
-    return segments;
+    // delete common segments
+    let newSegments = [];
+    cutSegments.forEach((seg, i, segments) => {
+      if (seg.used) return;
+      let segs = segments
+        .map(segment => (segment.equal(seg) ? segment : undefined))
+        .filter(Boolean);
+      if (segs.length == 1) newSegments.push(seg);
+      else segs.forEach(seg => (seg.used = true));
+    });
+
+    return newSegments;
   }
 
-  /**
-   * Crée les segments définitifs de la forme fusionnée
-   * @param {Segment[]} segmentsList   les segments à modifier
-   * @returns {Segment[]}              les segments définitifs
-   */
   linkNewSegments(segmentsList) {
-    // Todo : Voir si on ne peut pas la simplifier
-    let newSegments = [];
-
-    // segment beeing in use (may be prolongated)
-    let currentSegment = segmentsList[0].copy(false);
-    // last segment used (not modified)
-    let lastSegment = currentSegment;
-    let firstSegment = currentSegment;
-    let nextSegment;
+    let path = [];
     let segmentUsed = 0;
 
-    newSegments.push(currentSegment);
+    let startCoordinates = segmentsList[0].vertexes[0].coordinates;
+    path.push('M', startCoordinates.x, startCoordinates.y);
+
+    let nextSegmentIndex = 0;
+    this.addPathElem(path, segmentsList[0]);
+    this.lastUsedCoordinates = segmentsList[0].vertexes[1].coordinates;
+    segmentsList.splice(nextSegmentIndex, 1);
     segmentUsed++;
 
-    while (!firstSegment.vertexes[0].equal(currentSegment.vertexes[1])) {
-      // while not closed
-      const newPotentialSegments = segmentsList.filter(
-        seg =>
-          !seg.equal(lastSegment) &&
-          seg.contains(currentSegment.vertexes[1], false)
-      );
-      if (newPotentialSegments.length != 1) {
-        if (newPotentialSegments.length == 0)
+    while (!this.lastUsedCoordinates.equal(startCoordinates)) {
+      const potentialSegmentIdx = segmentsList
+        .map((seg, idx) =>
+          seg.contains(this.lastUsedCoordinates, false) ? idx : undefined
+        )
+        .filter(seg => Number.isInteger(seg));
+      if (potentialSegmentIdx.length != 1) {
+        if (potentialSegmentIdx.length == 0)
           console.warn('shape cannot be closed (dead end)');
         else
           console.warn(
@@ -288,30 +332,58 @@ export class MergeState extends State {
           );
         return null;
       }
-      nextSegment = newPotentialSegments[0].copy(false);
-      if (nextSegment.vertexes[1].equal(currentSegment.vertexes[1]))
-        nextSegment.reverse(true);
-
-      if (currentSegment.hasSameDirection(nextSegment, 1, 0, false)) {
-        currentSegment.vertexes[1] = nextSegment.vertexes[1];
-      } else {
-        newSegments.push(nextSegment);
-        currentSegment = nextSegment;
+      nextSegmentIndex = potentialSegmentIdx[0];
+      let nextSegment = segmentsList[nextSegmentIndex];
+      let mustReverse = false;
+      if (
+        !nextSegment.vertexes[0].coordinates.equal(this.lastUsedCoordinates)
+      ) {
+        mustReverse = true;
       }
+      this.addPathElem(path, nextSegment, mustReverse);
+      segmentsList.splice(nextSegmentIndex, 1);
       segmentUsed++;
-      lastSegment = nextSegment;
     }
-    if (segmentUsed != segmentsList.length) {
-      console.warn('shape is dig (not all segments have been used)');
+
+    if (segmentsList.length > 0)
       return null;
+
+    path = path.join(' ');
+
+    return path;
+  }
+
+  addPathElem(path, segment, mustReverse) {
+    let firstCoord = segment.vertexes[0].coordinates;
+    let secondCoord = segment.vertexes[1].coordinates;
+    if (mustReverse) [firstCoord, secondCoord] = [secondCoord, firstCoord];
+    this.lastUsedCoordinates = secondCoord;
+    if (!segment.isArc()) {
+      path.push('L', secondCoord.x, secondCoord.y);
+    } else {
+      let centerCoordinates = segment.arcCenter.coordinates;
+      let radius = centerCoordinates.dist(secondCoord),
+        firstAngle = centerCoordinates.angleWith(firstCoord),
+        secondAngle = centerCoordinates.angleWith(secondCoord);
+
+      if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+      let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+        sweepFlag = 1;
+      if (segment.counterclockwise) {
+        sweepFlag = Math.abs(sweepFlag - 1);
+        largeArcFlag = Math.abs(largeArcFlag - 1);
+      }
+      path.push(
+        'A',
+        radius,
+        radius,
+        0,
+        largeArcFlag,
+        sweepFlag,
+        secondCoord.x,
+        secondCoord.y
+      );
     }
-    if (
-      newSegments.length != 1 &&
-      currentSegment.hasSameDirection(firstSegment, 1, 0, false)
-    ) {
-      newSegments[0].vertexes[0] = newSegments.pop().vertexes[0];
-    }
-    return newSegments;
   }
 
   /**

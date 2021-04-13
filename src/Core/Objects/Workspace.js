@@ -5,8 +5,8 @@ import { Settings } from '../Settings';
 import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
 import { Point } from '../Objects/Point';
-import { GridManager } from '../../Grid/GridManager';
 import { Coordinates } from './Coordinates';
+import { GridManager } from '../../Grid/GridManager';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -75,14 +75,14 @@ export class Workspace {
     //Type de grille: 'square', 'horizontal-triangle', 'vertical-triangle'
     this.settings.set('gridType', 'none');
 
-    //Tangram affiché ?
-    this.settings.set('isTangramShown', false);
+    // //Tangram affiché ?
+    // this.settings.set('isTangramShown', false);
 
-    //Type (main/local) et id du tangram affiché.
-    this.settings.set('shownTangram', {
-      type: null, //'main' ou 'local'
-      id: null,
-    });
+    // //Type (main/local) et id du tangram affiché.
+    // this.settings.set('shownTangram', {
+    //   type: null, //'main' ou 'local'
+    //   id: null,
+    // });
 
     window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
   }
@@ -95,12 +95,19 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
-  initFromObject(wsdata) {
+  initFromObject(wsdata, ignoreHistory = false) {
+    if (!wsdata) {
+      app.mainDrawingEnvironment.loadFromData(null);
+      return;
+    }
     this.id = wsdata.id;
 
     // this.shapes = wsdata.shapes.map(sData => new Shape(sData));
     app.mainDrawingEnvironment.loadFromData(wsdata.objects);
-    app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
+    if (app.environment.name == 'Tangram')
+      app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
+    else
+      app.backgroundDrawingEnvironment.clear();
     this.shapeGroups = wsdata.shapeGroups.map(groupData => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -110,38 +117,50 @@ export class Workspace {
     this.zoomLevel = wsdata.zoomLevel;
     this.translateOffset = new Coordinates(wsdata.translateOffset);
 
-    if (wsdata.completeHistory) {
-      this.completeHistory.initFromObject(wsdata.completeHistory);
-    } else {
-      this.completeHistory.initFromObject({
-        steps: [],
-        startTimestamp: new Event('useless').timeStamp,
-        endTimestamp: 0,
-        startZoomLevel: this.zoomLevel,
-        startTranslateOffset: this.translateOffset,
-        startShapes: this.shapes,
-        startShapeGroups: this.shapeGroups,
-        startSilhouette: app.silhouette,
-      });
+    if (!ignoreHistory) {
+      if (wsdata.completeHistory) {
+        this.completeHistory.initFromObject(wsdata.completeHistory);
+      } else {
+        this.completeHistory.initFromObject({
+          steps: [],
+          startTimestamp: new Event('useless').timeStamp,
+          endTimestamp: 0,
+          startZoomLevel: this.zoomLevel,
+          startTranslateOffset: this.translateOffset,
+          startShapes: app.mainDrawingEnvironment.shapes,
+          startShapeGroups: this.shapeGroups,
+          // startSilhouette: app.silhouette,
+        });
+      }
     }
 
     if (wsdata.settings) {
       this.settings.initFromObject(wsdata.settings);
+      if (this.settings.get('isGridShown')) {
+        GridManager.drawGridPoints();
+        window.dispatchEvent(new CustomEvent('refreshBackground'));
+      }
     } else this.initSettings();
 
-    if (wsdata.history) {
-      if (app.lastFileVersion == '1.0.0') {
-        this.history.initFromObject({
-          data: wsdata.history.history,
-          index: wsdata.history.historyIndex,
-        });
+    if (!ignoreHistory) {
+      if (wsdata.history) {
+        if (app.lastFileVersion == '1.0.0') {
+          this.history.initFromObject({
+            data: wsdata.history.history,
+            index: wsdata.history.historyIndex,
+          });
+        } else {
+          this.history.initFromObject(wsdata.history);
+        }
+        window.dispatchEvent(new CustomEvent('history-changed'));
       } else {
-        this.history.initFromObject(wsdata.history);
+        this.history.resetToDefault();
+        this.history.startSituation = this.data;
       }
-      window.dispatchEvent(new CustomEvent('history-changed'));
-    } else {
-      this.history.resetToDefault();
     }
+
+    // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
+    // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
 
     if (
       wsdata.canvasSize &&
@@ -159,17 +178,24 @@ export class Workspace {
         actualCenter = new Coordinates({
           x: wsdata.canvasSize.width,
           y: wsdata.canvasSize.height,
-        }).multiply(1 / originalZoom),
+        }).multiply(1 / 2).substract(originalTranslateOffset).multiply(newZoom / originalZoom),
         newCenter = new Coordinates({
           x: app.canvasWidth,
           y: app.canvasHeight,
-        }).multiply(1 / newZoom),
-        corr = originalTranslateOffset.multiply(1 / originalZoom), // error with the old zoom that move the center
+        }).multiply(1 / 2),
         newTranslateoffset = newCenter
-          .substract(actualCenter)
-          .multiply(0.5)
-          .add(corr)
-          .multiply(newZoom);
+          .substract(actualCenter);
+
+      // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
+      // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
+      // console.log('originalZoom', originalZoom);
+      // console.log('newZoom', newZoom);
+      // console.log('scaleOffset', scaleOffset);
+      // console.log('original translate offset', this.translateOffset);
+      // console.log('actual Center', actualCenter);
+      // console.log('new Center', newCenter);
+      // console.log('corr', corr);
+      // console.log('new translate offset', newTranslateoffset);
 
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
@@ -262,7 +288,7 @@ export class Workspace {
       app.canvasWidth +
       '" height="' +
       app.canvasHeight +
-      '" xmlns="http://www.w3.org/2000/svg" >\n\n';
+      '" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n';
     svg_data += app.backgroundDrawingEnvironment.toSVG();
     svg_data += app.mainDrawingEnvironment.toSVG();
     if (document.body.querySelector('forbidden-canvas') != null) {

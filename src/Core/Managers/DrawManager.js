@@ -12,6 +12,9 @@ export class DrawManager {
    * Refresh the background and the forbidden ctx (grid and silhouette)
    */
   static refreshBackground() {
+    if (app.environment.name !== 'Tangram') {
+      app.backgroundDrawingEnvironment.removeAllObjects();
+    }
     app.backgroundDrawingEnvironment.mustDrawGrid = app.workspace.settings.get(
       'isGridShown'
     );

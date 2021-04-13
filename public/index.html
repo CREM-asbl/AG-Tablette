@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <title>AG Mobile</title>
+    <meta name="description" content="Version mobile d'Apprenti Géomètre">
+
+    <link rel="icon" href="/images/favicon.ico">
+
+    <!-- pwa data -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3f51b5">
+
+    <!-- Default Open graph -->
+    <meta property="og:title" content="Apprenti Géomètre Mobile">
+    <meta property="og:url" content="https://ag.crem.be">
+    <meta property="og:type" content="application">
+    <meta property="og:site_name" content="AG Mobile">
+    <meta property="og:image" content="https://ag-beta.crem.be/images/manifest/icon-512.png">
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:description" content="Logiciel mobile de géométrie dynamique">
+
+    <script type="module">
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', async () => {
+            const sw = await navigator.serviceWorker.register('/sw.js')
+            sw.addEventListener('updatefound', () => {
+              sw.installing.addEventListener('statechange', () => {
+                if (sw.waiting) {
+                  sw.waiting.postMessage('skipWaiting')
+                }
+              })
+            })
+          });
+        }
+      </script>
+
+    <style>
+        html,
+        body,
+        ag-tablette-app {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-y: hidden;
+        }
+
+        body {
+            --menu-background-color: #F2F2F2;
+            --button-selected-background-color: #0ff;
+            --menu-shadow-color: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <ag-app>
+
+        <script type="module" src="/dist/ag-app.js" crossorigin></script>
+
+        <noscript>
+            Veuillez activer javascript afin de profiter de cette application
+        </noscript>
+</body>
+
+</html>

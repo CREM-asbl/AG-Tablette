@@ -8,6 +8,7 @@ class ToolbarKit extends LitElement {
     return {
       familyNames: { type: Array },
       selectedFamily: { type: String },
+      envName: { type: String },
     };
   }
 
@@ -19,9 +20,11 @@ class ToolbarKit extends LitElement {
     super();
 
     this.familyNames = app.environment.familyNames || [];
+    this.envName = app.environment.kitName;
 
-    window.addEventListener('families-loaded', () => {
-      this.familyNames = [...app.environment.familyNames];
+    window.addEventListener('state-changed', () => {
+      this.familyNames = app.environment.familyNames;
+      this.envName = app.environment.kitName;
     });
     window.addEventListener(
       'family-selected',

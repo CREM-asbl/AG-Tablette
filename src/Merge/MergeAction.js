@@ -36,7 +36,7 @@ export class MergeAction extends Action {
     } else {
       this.mode = 'multipleShapes';
       this.involvedShapesIds = save.involvedShapesIds;
-      this.newSegments = save.newSegments;
+      this.path = save.path;
     }
   }
 
@@ -44,15 +44,15 @@ export class MergeAction extends Action {
    * vérifie si toutes les conditions sont réunies pour effectuer l'action
    */
   checkDoParameters() {
-    if (
-      (this.mode == 'twoShapes' &&
-        (!this.firstShapeId || !this.secondShapeId)) ||
-      (this.mode == 'multipleShapes' &&
-        (!this.involvedShapesIds || !this.newSegments))
-    ) {
-      this.printIncompleteData();
-      return false;
-    }
+    // if (
+    //   (this.mode == 'twoShapes' &&
+    //     (!this.firstShapeId || !this.secondShapeId)) ||
+    //   (this.mode == 'multipleShapes' &&
+    //     (!this.involvedShapesIds || !this.newSegments))
+    // ) {
+    //   this.printIncompleteData();
+    //   return false;
+    // }
     return true;
   }
 
@@ -79,9 +79,12 @@ export class MergeAction extends Action {
       const path = this.linkNewSegments(newSegments);
       if (!path) return this.alertDigShape();
 
-      this.createNewShape(shape1, shape2, path);
+      this.createNewShape(path, shape1, shape2);
     } else {
-      this.createNewShapeFromMultiple();
+      let shapes = this.involvedShapesIds.map(id =>
+        app.mainDrawingEnvironment.findObjectById(id)
+      );
+      this.createNewShape(this.path, ...shapes);
     }
   }
 
@@ -103,11 +106,6 @@ export class MergeAction extends Action {
     );
     return false;
   }
-
-  /**
-   * Check if all the shapes of the group can be merged
-   * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
-   */
 
   /**
    *
@@ -360,47 +358,24 @@ export class MergeAction extends Action {
 
   /**
    * crée la forme fusionnée et l'ajoute au workspace
-   * @param {Shape} shape1            la premiere forme a fusionner
-   * @param {Shape} shape2            la seconde forme a fusionner
    * @param {String} path
+   * @param {Shape} shapes            les formes a fusionner
    */
-  createNewShape(shape1, shape2, path) {
+  createNewShape(path, ...shapes) {
     let newShape = new Shape({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: path,
       name: 'Custom',
       familyName: 'Custom',
-      color: getAverageColor(shape1.color, shape2.color),
-      borderColor: getAverageColor(shape1.borderColor, shape2.borderColor),
-      opacity: (shape1.opacity + shape2.opacity) / 2,
-      isBiface: shape1.isBiface && shape2.isBiface,
-      isReversed: shape1.isReversed && shape2.isReversed,
+      color: getAverageColor(...shapes.map(s => s.color)),
+      borderColor: getAverageColor(...shapes.map(s => s.borderColor)),
+      opacity:
+        shapes.map(s => s.opacity).reduce((acc, value) => acc + value) /
+        shapes.length,
+      isBiface: shapes.some(s => s.isBiface),
+      isReversed: shapes.some(s => s.isReversed),
     });
     newShape.cleanSameDirectionSegment();
     newShape.translate({ x: -20, y: -20 });
-  }
-
-  /**
-   * crée la forme fusionnée à partir de plusieurs formes et l'ajoute au workspace
-   */
-  createNewShapeFromMultiple() {
-    let involvedShapes = this.involvedShapesIds.map(id =>
-      ShapeManager.getShapeById(id)
-    );
-    let newShape = new Shape({
-      segments: this.newSegments,
-      name: 'Custom',
-      familyName: 'Custom',
-      id: this.createdShapeId,
-      color: getAverageColor(...involvedShapes.map(s => s.color)),
-      borderColor: getAverageColor(...involvedShapes.map(s => s.borderColor)),
-      opacity:
-        involvedShapes.map(s => s.opacity).reduce((acc, value) => acc + value) /
-        involvedShapes.length,
-      isBiface: involvedShapes.some(s => s.isBiface),
-      isReversed: involvedShapes.some(s => s.isReversed),
-    });
-    newShape.translate(-20, -20);
-    ShapeManager.addShape(newShape);
   }
 }

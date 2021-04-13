@@ -13,6 +13,7 @@ import { Coordinates } from '../Objects/Coordinates';
  * @return {{rotationAngle: float, translation: Coordinates}}
  */
 function computeTransformation(e1, e2, shapes, mainShape) {
+  const maxRotateAngle = 0.25; //radians
   let fix1 = e1.fixed.coordinates,
     fix2 = e2.fixed.coordinates,
     moving1 = e1.moving.coordinates,
@@ -24,6 +25,14 @@ function computeTransformation(e1, e2, shapes, mainShape) {
     center = mainShape.centerCoordinates,
     moving1NewCoords = moving1.rotate(rotationAngle, center),
     translation = fix1.substract(moving1NewCoords);
+
+  if (rotationAngle < 0)
+    rotationAngle += 2 * Math.PI;
+  if (rotationAngle >= 2 * Math.PI)
+    rotationAngle %= 2 * Math.PI;
+
+  if (rotationAngle > maxRotateAngle && rotationAngle < 2 * Math.PI - rotationAngle)
+    return undefined;
 
   return {
     rotationAngle: rotationAngle,
@@ -63,6 +72,7 @@ function checkCompatibility(e1, e2) {
 }
 
 function bestPossibility(possibilities) {
+  possibilities.filter(Boolean);
   const best = possibilities.sort((poss1, poss2) => {
     const rot1 = Math.abs(poss1.rotationAngle),
       rot2 = Math.abs(poss2.rotationAngle);
@@ -93,7 +103,6 @@ function bestPossibility(possibilities) {
  *
  */
 export function getShapeAdjustment(shapes, mainShape) {
-  const maxRotateAngle = 0.25; //radians
   let grid = app.workspace.settings.get('isGridShown'),
     // tangram = app.environment.name == 'Tangram' && app.silhouette,
     automaticAdjustment = app.settings.get('automaticAdjustment'),
@@ -112,7 +121,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   let ptList = [];
   shapes.forEach(s => {
     ptList.push(...s.vertexes, ...s.divisionPoints);
-    // if (s.isCenterShown) ptList.push(s.center);
+    if (s.isCenterShown) ptList.push(s.center);
   });
 
   // Pour chaque point, calculer le(s) point(s) le(s) plus proche(s).
@@ -122,12 +131,13 @@ export function getShapeAdjustment(shapes, mainShape) {
   ptList.forEach(point => {
     if (grid) {
       let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
-      console.log(gridPoint);
-      cPtListGrid.push({
-        fixed: gridPoint,
-        moving: point,
-        dist: gridPoint.coordinates.dist(point.coordinates),
-      });
+      if (gridPoint) {
+        cPtListGrid.push({
+          fixed: gridPoint,
+          moving: point,
+          dist: gridPoint.coordinates.dist(point.coordinates),
+        });
+      }
     }
     let constr = SelectManager.getEmptySelectionConstraints().points;
     constr.canSelect = true;
@@ -161,9 +171,7 @@ export function getShapeAdjustment(shapes, mainShape) {
           e2 = cPtListGrid[j];
         if (checkCompatibility(e1, e2)) {
           let t = computeTransformation(e1, e2, shapes, mainShape);
-          if (Math.abs(t.rotationAngle) <= maxRotateAngle) {
-            possibilities.push(t);
-          }
+          possibilities.push(t);
         }
       }
     }
@@ -181,9 +189,7 @@ export function getShapeAdjustment(shapes, mainShape) {
             e2 = cPtListBorder[j];
           if (checkCompatibility(e1, e2)) {
             let t = computeTransformation(e1, e2, shapes, mainShape);
-            if (Math.abs(t.rotationAngle) <= maxRotateAngle) {
-              possibilities.push(t);
-            }
+            possibilities.push(t);
           }
         }
       }
@@ -204,9 +210,7 @@ export function getShapeAdjustment(shapes, mainShape) {
         if (checkCompatibility(e1, e2)) {
           console.log('2 points');
           let t = computeTransformation(e1, e2, shapes, mainShape);
-          if (Math.abs(t.rotationAngle) <= maxRotateAngle) {
-            possibilities.push(t);
-          }
+          possibilities.push(t);
         }
       }
     }

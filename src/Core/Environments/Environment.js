@@ -1,15 +1,36 @@
-import { Family } from '../Objects/Family';
 import { app } from '../App';
+import { Family } from '../Objects/Family';
 
-window.addEventListener('set-environnement', e => {
-  app.environment = new Environment(e.detail);
-  window.dispatchEvent(new CustomEvent('env-created'));
-});
+export const loadEnvironnement = async name => {
+  try {
+    const config = await import(`./${name}.js`)
+    await loadModules(config.default.modules)
+    if (config.default.settings) app.settings.update(config.default.settings)
 
-// window.addEventListener('new-window', () => {
-//   app.environment =  new Environment(app.environment.name)
-//   window.dispatchEvent(new CustomEvent('env-created'))
-// })
+    return new Environment(config.default, await loadKit(config.default.kit))
+  }
+  catch (error) {
+    console.warn(`Environnement ${name} pas encore pris en charge`);
+    console.log(error)
+  }
+}
+
+const loadModules = async list => {
+  const modules = await Promise.all(list.map(async module => await import(`../../${module}/index.js`)))
+  app.states = modules.map(module => module.default.state)
+}
+
+const loadKit = async name => {
+  if(!name) return null
+  const module = await import(`../ShapesKits/${name}.js`)
+  const kit = module[name]
+  let families = []
+  for (let [familyName, familyData] of Object.entries(kit.families)) {
+    families.push(new Family({ name: familyName, ...familyData }));
+  }
+  const kitContent = {name: kit.name, families}
+  return kitContent;
+}
 
 /**
  * Environnement de travail: Grandeurs, Tangram, Cube... Un environnement
@@ -17,59 +38,19 @@ window.addEventListener('set-environnement', e => {
  * l'on peut réaliser.
  */
 export class Environment {
-  constructor(name) {
+  constructor({ name, extension }, kitContent = null) {
     this.name = name;
 
-    this.kitName = '';
+    this.extension = extension
+
+    this.kitName = this.name;
 
     this.families = [];
+    if (kitContent) {
+      this.kitName = kitContent.name;
 
-    // Build à besoin d'avoir les noms des fichiers pour les bundles
-    // Todo: Rendre ce chargement plus souple (custom Environnement)
-    switch (name) {
-      case 'Grandeurs':
-        import('./Grandeurs');
-        break;
-      case 'Tangram':
-        import('./Tangram');
-        break;
-      case 'Cubes':
-        import('./Cubes');
-        break;
-      case 'Geometrie':
-        import('./Geometrie');
-        break;
-      default:
-        console.warn(`Environnement ${name} pas encore pris en charge`);
+      this.families = kitContent.families;
     }
-  }
-
-  // async load(file) {
-  //   const response = await fetch(`data/${file}`)
-  //   const data = await response.json()
-  //   this.loadModules(data.modules)
-  //   this.extension = data.extension
-  // }
-
-  // loadModules(modules) {
-  //   modules.forEach(module => {
-  //     import(`../../${module}/${module}State.js`)
-  //     import(`../../${module}/${module}Action.js`)
-  //     // new `${module}State`()
-  //     // new `${module}Action`()
-  //   })
-  // }
-
-  /**
-   * Charger les familles de l'environnement à partir d'un kit
-   * @param  {Data} kit données du kit à charger
-   */
-  loadFamilies(kit) {
-    this.kitName = kit.name;
-    for (let [familyName, familyData] of Object.entries(kit.families)) {
-      this.families.push(new Family({ name: familyName, ...familyData }));
-    }
-    window.dispatchEvent(new CustomEvent('families-loaded'));
   }
 
   /**

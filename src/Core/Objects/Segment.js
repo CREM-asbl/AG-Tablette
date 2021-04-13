@@ -1,6 +1,6 @@
 import { ShapeManager } from '../Managers/ShapeManager';
 import { Point } from './Point';
-import { uniqId, mod } from '../Tools/general';
+import { uniqId, mod, isAlmostInfinite } from '../Tools/general';
 import { app } from '../App';
 import { Bounds } from './Bounds';
 import { Coordinates } from './Coordinates';
@@ -460,6 +460,10 @@ export class Segment {
       originVector = vertex.coordinates.substract(center.coordinates),
       perpendicularOriginVector;
     originVector = originVector.multiply(1 / this.radius);
+    if (Math.abs(originVector.y) < 0.001)
+      originVector.y = 0;
+    if (Math.abs(originVector.x) < 0.001)
+      originVector.x = 0;
     if (this.counterclockwise)
       perpendicularOriginVector = new Coordinates({
         x: 1,
@@ -562,6 +566,7 @@ export class Segment {
 
   reverse(changeClockwise = false) {
     this.vertexIds.reverse();
+    this.vertexes.forEach((vx, idx) => (vx.idx = idx));
     this.divisionPoints.forEach(pt => (pt.ratio = 1 - pt.ratio));
     if (this.arcCenter && changeClockwise)
       this.counterclockwise = !this.counterclockwise;
@@ -664,7 +669,6 @@ export class Segment {
    * @param {Point[]} points the points for the divide
    */
   divideWith(points) {
-    console.trace();
     points.sort((pt1, pt2) =>
       pt1.coordinates.dist(this.vertexes[0].coordinates) >
       pt2.coordinates.dist(this.vertexes[0].coordinates)
@@ -793,8 +797,9 @@ export class Segment {
         return (
           projection.dist(coord) < precision &&
           Math.abs(
-            this.vertexes[0].getAngle(this.vertexes[1]) -
-              this.vertexes[0].getAngle(projection)
+            this.vertexes[0].coordinates.angleWith(
+              this.vertexes[1].coordinates
+            ) - this.vertexes[0].coordinates.angleWith(projection)
           ) < 0.001
         );
       } else {
@@ -825,14 +830,14 @@ export class Segment {
       segmentSlope = (segmentv0y - segmentv1y) / (segmentv0x - segmentv1x);
 
     // 2 segments verticaux
-    if (!isFinite(thisSlope) && !isFinite(segmentSlope)) return null;
+    if (isAlmostInfinite(thisSlope) && isAlmostInfinite(segmentSlope)) return null;
     // this vertical
-    else if (!isFinite(thisSlope)) {
+    else if (isAlmostInfinite(thisSlope)) {
       let pb = segmentv0y - segmentSlope * segmentv0x;
       result.y = segmentSlope * thisv0x + pb;
       result.x = thisv0x;
       // segment vertical
-    } else if (!isFinite(segmentSlope)) {
+    } else if (isAlmostInfinite(segmentSlope)) {
       let pa = thisv0y - thisSlope * thisv0x;
       result.y = thisSlope * segmentv0x + pa;
       result.x = segmentv0x;
@@ -956,9 +961,8 @@ export class Segment {
       id: this.id,
       shapeId: this.shapeId,
       idx: this.idx,
-      divisionPointInfos: this.divisionPointInfos,
-      vertexIds: this.vertexIds,
-      divisionPointIds: this.divisionPointIds,
+      vertexIds: [...this.vertexIds],
+      divisionPointIds: [...this.divisionPointIds],
       arcCenterId: this.arcCenterId,
       counterclockwise: this.counterclockwise,
       isInfinite: this.isInfinite,
@@ -972,5 +976,7 @@ export class Segment {
       drawingEnvironment: app.mainDrawingEnvironment,
     });
     Object.assign(segment, data);
+    segment.vertexIds = [...data.vertexIds];
+    segment.divisionPointIds = [...data.divisionPointIds];
   }
 }
