@@ -1,5 +1,6 @@
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from '../popups/template-popup';
+import { CompleteHistoryManager } from '../Core/Managers/CompleteHistoryManager';
 
 class OpacityPopup extends LitElement {
   constructor() {
@@ -10,7 +11,13 @@ class OpacityPopup extends LitElement {
       this.close();
     });
 
-    window.addEventListener('close-popup', () => this.submit());
+    window.addEventListener('close-popup', () => {
+      if (CompleteHistoryManager.isRunning) {
+        this.close();
+      } else {
+        this.submitAndClose();
+      }
+    });
   }
 
   static get properties() {
@@ -47,7 +54,7 @@ class OpacityPopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${this.submit}">Ok</button>
+          <button @click="${this.submitAndClose}">Ok</button>
         </div>
       </template-popup>
     `;
@@ -67,6 +74,11 @@ class OpacityPopup extends LitElement {
 
   close() {
     this.remove();
+  }
+
+  submitAndClose() {
+    this.submit();
+    this.close();
   }
 }
 customElements.define('opacity-popup', OpacityPopup);

@@ -100,6 +100,7 @@ export class Workspace {
       this.translateOffset = Coordinates.nullCoordinates;
       this.zoomLevel = 1;
       app.mainDrawingEnvironment.loadFromData(null);
+      app.backgroundDrawingEnvironment.clear();
       return;
     }
     this.id = wsdata.id;
@@ -118,9 +119,6 @@ export class Workspace {
 
     this.zoomLevel = wsdata.zoomLevel;
     this.translateOffset = new Coordinates(wsdata.translateOffset);
-
-    console.log(this.zoomLevel);
-    console.log(this.translateOffset);
 
     if (
       wsdata.canvasSize &&

@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
+import { CompleteHistoryManager } from '../Core/Managers/CompleteHistoryManager';
 import { TemplatePopup } from '../popups/template-popup';
 
 class DividePopup extends LitElement {
@@ -6,7 +7,13 @@ class DividePopup extends LitElement {
     super();
     this.parts = 2;
 
-    window.addEventListener('close-popup', () => this.submit());
+    window.addEventListener('close-popup', () => {
+      if (CompleteHistoryManager.isRunning) {
+        this.close();
+      } else {
+        this.submitAndClose();
+      }
+    });
   }
 
   static get properties() {
@@ -48,14 +55,10 @@ class DividePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${this.submit}">Ok</button>
+          <button @click="${this.submitAndClose}">Ok</button>
         </div>
       </template-popup>
     `;
-  }
-
-  close() {
-    this.remove();
   }
 
   submit() {
@@ -64,6 +67,14 @@ class DividePopup extends LitElement {
         detail: { nbOfParts: this.parts, close: true },
       })
     );
+  }
+
+  close() {
+    this.remove();
+  }
+
+  submitAndClose() {
+    this.submit();
     this.close();
   }
 }

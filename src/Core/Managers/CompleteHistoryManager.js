@@ -1,7 +1,5 @@
 import { app } from '../App';
 import { SelectManager } from './SelectManager';
-import { HistoryManager } from './HistoryManager';
-import { Point } from '../Objects/Point';
 import { History } from '../Objects/History';
 import { createElem } from '../Tools/general';
 import { Coordinates } from '../Objects/Coordinates';
@@ -115,8 +113,10 @@ export class CompleteHistoryManager {
         CompleteHistoryManager.nextTime = 0.5 * 1000;
       } else if (detail.name == 'Découper') {
         CompleteHistoryManager.nextTime = 0.5 * 1000;
+      } else if (detail.name == 'grille') {
+        window.dispatchEvent(new CustomEvent('close-popup'));
       }
-      console.log('action executed');
+      console.log('action executed', detail);
       CompleteHistoryManager.action_idx++;
       if (app.workspace.completeHistory.steps.filter(step => step.type == 'actions-executed').length == CompleteHistoryManager.action_idx) {
         CompleteHistoryManager.stopBrowsing();
@@ -129,6 +129,8 @@ export class CompleteHistoryManager {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('show-cursor'));
     } else if (type == 'setNumberOfParts') {
+      console.log('event dispatched');
+      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('close-popup'));
     } else if (type == 'canvasmouseup') {
       // window.dispatchEvent(new CustomEvent('click-cursor', { detail: detail }));
@@ -244,10 +246,13 @@ window.addEventListener('close-popup', event =>
   CompleteHistoryManager.addStep('close-popup', event)
 );
 
+window.addEventListener('gridAction', event =>
+  CompleteHistoryManager.addStep('gridAction', event)
+);
+
 window.addEventListener('app-state-changed', event =>
   CompleteHistoryManager.addStep('app-state-changed', event)
 );
-
 window.addEventListener('start-browsing', () => {
   CompleteHistoryManager.startBrowsing();
 });

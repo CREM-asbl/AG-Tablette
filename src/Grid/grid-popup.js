@@ -1,14 +1,28 @@
 import { app } from '../Core/App';
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from '../popups/template-popup';
+import { CompleteHistoryManager } from '../Core/Managers/CompleteHistoryManager';
 
 class GridPopup extends LitElement {
   constructor() {
     super();
     this.gridType = app.workspace.settings.get('gridType');
     this.gridSize = app.workspace.settings.get('gridSize');
-    window.addEventListener('close-popup', () => this.gridPopupValidate(), {
+    window.addEventListener('close-popup', () => {
+        this.submitAndClose();
+    }, {
       once: true,
+    });
+
+    window.addEventListener('gridAction', event => {
+      app.workspace.settings.set('gridSize', event.detail.gridSize);
+      app.workspace.settings.set('gridType',  event.detail.gridType);
+      app.workspace.settings.set(
+        'isGridShown',
+        'gridType' !== 'none'
+      );
+      window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
+      window.dispatchEvent(new CustomEvent('refreshBackground'));
     });
   }
 
@@ -94,16 +108,28 @@ class GridPopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${this.gridPopupValidate}">OK</button>
+          <button @click="${this.submitAndClose}">OK</button>
         </div>
       </template-popup>
     `;
   }
 
-  gridPopupValidate() {
+  submit() {
+    window.dispatchEvent(new CustomEvent('gridAction', { detail: {
+      gridSize: app.workspace.settings.get('gridSize'),
+      gridType: app.workspace.settings.get('gridType'),
+    }}));
     window.dispatchEvent(new CustomEvent('actions-executed', { detail: {name: 'grille'}}));
-    this.remove();
     app.setState();
+  }
+
+  close() {
+    this.remove();
+  }
+
+  submitAndClose() {
+    this.submit();
+    this.close();
   }
 
   /**
