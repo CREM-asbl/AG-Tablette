@@ -143,10 +143,10 @@ class DivMainCanvas extends LitElement {
 
     window.addEventListener('show-cursor', () => {
       let mousePos = app.workspace.lastKnownMouseCoordinates;
-      this.cursorPos = mousePos.substract(
+      this.cursorPos = mousePos.toCanvasCoordinates();
+      this.cursorPos = this.cursorPos.substract(
         new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 })
       );
-      this.cursorPos.toCanvasCoordinates();
       this.cursorShow = true;
       window.clearTimeout(this.timeoutId);
       this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);

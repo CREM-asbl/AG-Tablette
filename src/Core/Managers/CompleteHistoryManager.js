@@ -11,14 +11,14 @@ import { Coordinates } from '../Objects/Coordinates';
  */
 export class CompleteHistoryManager {
   static startBrowsing() {
+    CompleteHistoryManager.isRunning = true;
     import('../../completehistory-tools');
     createElem('completehistory-tools');
     // if called when already running
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
 
     CompleteHistoryManager.saveHistory = {...app.workspace.history};
-    CompleteHistoryManager.isRunning = true;
-    CompleteHistoryManager.resetWorkspace();
+    CompleteHistoryManager.setWorkspaceToStartSituation();
     app.setState();
     app.workspace.completeHistory.videoStartTimestamp = Date.now();
     app.workspace.completeHistory.currentTimestamp =
@@ -34,10 +34,10 @@ export class CompleteHistoryManager {
   static stopBrowsing() {
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
     window.dispatchEvent(new CustomEvent('browsing-finished'));
-    CompleteHistoryManager.isRunning = false;
     CompleteHistoryManager.moveTo(app.workspace.completeHistory.steps.filter(step => step.type == 'actions-executed').length);
     app.workspace.history.initFromObject(CompleteHistoryManager.saveHistory);
     app.setState();
+    CompleteHistoryManager.isRunning = false;
   }
 
   static pauseBrowsing() {
@@ -51,7 +51,7 @@ export class CompleteHistoryManager {
     );
   }
 
-  static resetWorkspace() {
+  static setWorkspaceToStartSituation() {
     app.workspace.initFromObject(app.workspace.history.startSituation, true);
 
     app.workspace.history = new History();
@@ -116,6 +116,7 @@ export class CompleteHistoryManager {
       } else if (detail.name == 'Découper') {
         CompleteHistoryManager.nextTime = 0.5 * 1000;
       }
+      console.log('action executed');
       CompleteHistoryManager.action_idx++;
       if (app.workspace.completeHistory.steps.filter(step => step.type == 'actions-executed').length == CompleteHistoryManager.action_idx) {
         CompleteHistoryManager.stopBrowsing();
@@ -170,6 +171,9 @@ window.addEventListener('canvasmouseup', event =>
 );
 window.addEventListener('canvasmousemove', event =>
   CompleteHistoryManager.addStep('canvasmousemove', event)
+);
+window.addEventListener('canvasmousewheel', event =>
+  CompleteHistoryManager.addStep('canvasmousewheel', event)
 );
 window.addEventListener('canvastouchstart', event =>
   CompleteHistoryManager.addStep('canvastouchstart', event)

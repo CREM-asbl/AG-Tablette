@@ -27,16 +27,6 @@ export class CompleteHistory {
     // timeout id for cancelling
     this.timeoutId = null;
 
-    // the shapes that were there when the record starts
-    this.startShapes = [];
-
-    // the groups that were there when the record starts
-    this.startShapeGroups = [];
-
-    this.startZoomLevel = 1;
-
-    this.startTranslateOffset = Coordinates.nullCoordinates;
-
     // this.startSilhouette = app.silhouette;
   }
 
@@ -45,12 +35,6 @@ export class CompleteHistory {
       steps: this.steps, //.map(step => step.saveToObject()),
       startTimestamp: this.startTimestamp,
       endTimestamp: Date.now(), //this.endTimestamp,
-      startZoomLevel: this.startZoomLevel,
-      startTranslateOffset: this.startTranslateOffset,
-      startShapes: this.startShapes.map(s => s.saveToObject()),
-      startShapeGroups: this.startShapeGroups.map(group =>
-        group.saveToObject()
-      ),
       // startTangram: this.startTangram,
     };
     return save;
@@ -60,14 +44,6 @@ export class CompleteHistory {
     this.steps = object.steps;
     this.startTimestamp = object.startTimestamp;
     this.endTimestamp = object.endTimestamp;
-    this.startZoomLevel = object.startZoomLevel;
-    this.startTranslateOffset = object.startTranslateOffset;
-    // this.startShapes = object.startShapes?.map(s => new Shape(s));
-    // this.startShapeGroups = object.startShapeGroups?.map(groupData => {
-    //   let group = new ShapeGroup(0, 1);
-    //   group.initFromObject(groupData);
-    //   return group;
-    // });
     // this.startTangram = object.startTangram;
   }
 
