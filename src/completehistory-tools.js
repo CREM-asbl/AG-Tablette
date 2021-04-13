@@ -30,11 +30,13 @@ class completeHistoryTools extends LitElement {
       }
 
       nav#sidebar {
+        display: flex;
         justify-content: start;
+        flex-direction: column;
         z-index: 10;
         position: absolute;
         right: 10px;
-        width: 200px;
+        width: calc(4 * 56px + 7 * 2px);
         height: 96vh;
         height: calc(var(--vh, 1vh) * 96);
         bottom: 2vh;
@@ -42,14 +44,23 @@ class completeHistoryTools extends LitElement {
         border: 2px solid black;
       }
 
-      #action-container {
+      #command-container {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-evenly;
+        margin-top: 2px;
+        margin-bottom: 2px;
+      }
+
+      #action-container {
         overflow: auto;
       }
 
       nav#sidebar button {
         margin: 5px;
+        width: calc(100% - 2 * 5px);
+        height: 2vh;
+        height: calc(var(--vh, 1vh) * 5);
       }
     `;
   }
