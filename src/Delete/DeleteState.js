@@ -11,7 +11,7 @@ import { Shape } from '../Core/Objects/Shape';
  */
 export class DeleteState extends State {
   constructor() {
-    super('delete', 'Supprimer une forme', 'tool');
+    super('delete', 'Supprimer', 'tool');
   }
 
   /**
