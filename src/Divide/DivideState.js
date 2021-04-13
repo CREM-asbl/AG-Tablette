@@ -57,7 +57,6 @@ export class DivideState extends State {
     let popup = createElem('divide-popup');
     popup.parts = this.numberOfParts;
 
-    console.log('event created');
     window.addEventListener('setNumberOfParts', this.handler);
   }
 
@@ -106,7 +105,6 @@ export class DivideState extends State {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else if (event.type == 'setNumberOfParts') {
-      console.log('setNumberOfParts', event.detail.nbOfParts);
       this.setNumberOfparts(event.detail.nbOfParts);
     } else {
       console.error('unsupported event type : ', event.type);

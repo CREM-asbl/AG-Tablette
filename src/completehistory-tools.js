@@ -73,7 +73,6 @@ class completeHistoryTools extends LitElement {
         break;
       case 'undo':
         if (this.index == 0) {
-          console.log('break');
           break;
         }
         this.index--;
@@ -92,7 +91,6 @@ class completeHistoryTools extends LitElement {
         break;
       case 'redo':
         if (this.index >= this.sidebarElements.length - 1) {
-          console.log('break');
           break;
         }
         this.index++;

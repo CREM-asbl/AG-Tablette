@@ -69,7 +69,7 @@ export class CompleteHistoryManager {
       app.workspace.completeHistory.historyIndex = 0;
     }
 
-    // CompleteHistoryManager.executeAllSteps();
+    CompleteHistoryManager.action_idx = idx - 1;
   }
 
   static executeAllSteps() {
@@ -116,7 +116,6 @@ export class CompleteHistoryManager {
       } else if (detail.name == 'grille') {
         window.dispatchEvent(new CustomEvent('close-popup'));
       }
-      console.log('action executed', detail);
       CompleteHistoryManager.action_idx++;
       if (app.workspace.completeHistory.steps.filter(step => step.type == 'actions-executed').length == CompleteHistoryManager.action_idx) {
         CompleteHistoryManager.stopBrowsing();
@@ -129,7 +128,6 @@ export class CompleteHistoryManager {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('show-cursor'));
     } else if (type == 'setNumberOfParts') {
-      console.log('event dispatched');
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('close-popup'));
     } else if (type == 'canvasmouseup') {
