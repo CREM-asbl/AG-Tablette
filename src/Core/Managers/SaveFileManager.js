@@ -3,16 +3,14 @@ import { createElem } from '../Tools/general';
 
 export class SaveFileManager {
   static async saveFile(actionAfter) {
+    window.removeEventListener('new-window', SaveFileManager.actionAfterNewWindow);
+    window.removeEventListener('open-file', SaveFileManager.actionAfterOpenFile);
     if (actionAfter == 'new') {
-      window.addEventListener('show-notif', event => {
-        if (event.detail.message.startsWith('Sauvegardé'))
-          window.dispatchEvent(new CustomEvent('new-window'));
-      });
+      window.addEventListener('show-notif', SaveFileManager.actionAfterNewWindow
+      , {once: true});
     } else if (actionAfter == 'open') {
-      window.addEventListener('show-notif', event => {
-        if (event.detail.message.startsWith('Sauvegardé'))
-          window.dispatchEvent(new CustomEvent('open-file'));
-      });
+      window.addEventListener('show-notif', SaveFileManager.actionAfterOpenFile
+      , {once: true});
     }
     if (SaveFileManager.hasNativeFS) {
       try {
@@ -24,6 +22,16 @@ export class SaveFileManager {
     } else {
       SaveFileManager.oldSaveFile();
     }
+  }
+
+  static actionAfterNewWindow(event) {
+    if (event.detail.message.startsWith('Sauvegardé'))
+      window.dispatchEvent(new CustomEvent('new-window'));
+  }
+
+  static actionAfterOpenFile(event) {
+    if (event.detail.message.startsWith('Sauvegardé'))
+      window.dispatchEvent(new CustomEvent('open-file'));
   }
 
   static async newSaveFile() {
@@ -234,6 +242,7 @@ export class SaveFileManager {
 }
 
 window.addEventListener('save-file', event => {
+  console.log(event);
   SaveFileManager.saveFile(event.detail?.actionAfter);
 });
 
