@@ -22,20 +22,26 @@ class IconButton extends LitElement {
 
   static get styles() {
     return css`
+      :host {
+        display: block;
+        margin: 2px;
+        height: 52px;
+        width: 52px;
+      }
+
       :host([disabled]) {
         opacity: 0.5;
         pointer-events: none;
       }
 
       button {
-        display: inline-block;
         border: none;
         /* box-sizing: border-box; */
-        height: 52px;
-        width: 52px;
-        padding: 0;
-        margin: 2px;
-        background: #fff0;
+        height: 100%;
+        width: 100%;
+        padding: 0px;
+        /* margin: 2px; */
+        background: #fff;
         outline: none;
         background-repeat: no-repeat;
         background-size: 100% 100%;
@@ -44,7 +50,7 @@ class IconButton extends LitElement {
       }
 
       :host([active]) button {
-        background-color: var(--button-selected-background-color);
+        background-color: var(--theme-color);
         outline: none;
       }
 

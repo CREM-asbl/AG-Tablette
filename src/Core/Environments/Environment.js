@@ -38,12 +38,15 @@ const loadKit = async name => {
  * l'on peut réaliser.
  */
 export class Environment {
-  constructor({ name, extension }, kitContent = null) {
+  constructor({ name, extension, themeColor, themeColorSoft }, kitContent = null) {
     this.name = name;
 
     this.extension = extension
 
     this.kitName = this.name;
+
+    document.documentElement.style.setProperty('--theme-color', themeColor);
+    document.documentElement.style.setProperty('--theme-color-soft', themeColorSoft);
 
     this.families = [];
     if (kitContent) {

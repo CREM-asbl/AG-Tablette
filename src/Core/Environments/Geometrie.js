@@ -20,5 +20,6 @@ export default {
     "Grid",
     "Transform"
   ],
-  "extension": "agg"
+  "extension": "agg",
+  "themeColor": "#FF0000"
 }

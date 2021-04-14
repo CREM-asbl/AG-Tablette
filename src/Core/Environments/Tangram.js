@@ -14,5 +14,6 @@ export default {
   "extension": "agt",
   "settings": {
     "areShapesPointed": false
-  }
+  },
+  "themeColor": "#006CAA"
 }

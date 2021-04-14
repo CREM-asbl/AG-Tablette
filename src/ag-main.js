@@ -90,11 +90,11 @@ class AGTabletteApp extends LitElement {
           flex-direction: column;
           padding: 10px;
           box-sizing: border-box;
-          background-color: var(--menu-background-color);
+          background-color: var(--theme-color);
           overflow: hidden;
           flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
-          box-shadow: 0px 0px 5px var(--menu-shadow-color);
-          margin: 5px;
+          /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
+          margin: 3px;
 
           -webkit-user-select: none;
           -khtml-user-select: none;
@@ -141,7 +141,7 @@ class AGTabletteApp extends LitElement {
         <div id="app-menu">
           <template-toolbar title="hell">
             <h2 slot="title">
-              ${this.state != undefined ? this.state.title : 'AG Mobile'}
+              ${this.state != undefined ? this.state.title : app.environment.name}
             </h2>
             <div slot="body">
               <icon-button

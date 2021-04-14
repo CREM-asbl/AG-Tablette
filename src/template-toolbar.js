@@ -46,6 +46,7 @@ export class TemplateToolbar extends LitElement {
         margin: auto;
         border-radius: 7px;
         overflow-y: hidden;
+        background-color: #ffffffb0;
 
         margin-bottom: 10px;
         box-shadow: 0px 0px 5px var(--menu-shadow-color);
@@ -58,9 +59,6 @@ export class TemplateToolbar extends LitElement {
     return html`
       <div
         id="template-view"
-        style="background-color: ${this.title == 'hell'
-          ? '#d6d6d6'
-          : '#E3E3E3'}"
       >
         <slot name="title"></slot>
 

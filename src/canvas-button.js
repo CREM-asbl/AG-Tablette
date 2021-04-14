@@ -19,21 +19,22 @@ class CanvasButton extends LitElement {
       :host {
         display: block;
         margin: 2px;
+        width: 52px;
+        height: 52px;
       }
 
       :host([active]) canvas {
         /* border: 1px solid black; */
-        background-color: #0ff;
+        background-color: var(--theme-color);
       }
 
       canvas {
-        background: #fff0;
+        background: #fff;
         box-shadow: 0px 0px 3px var(--menu-shadow-color);
         border-radius: 3px;
-        /* border: 1px solid black;
-        box-sizing: border-box; */
-        width: 52px;
-        height: 52px;
+        /* width: 52px;
+        height: 52px; */
+        padding: 0px;
       }
     `;
   }

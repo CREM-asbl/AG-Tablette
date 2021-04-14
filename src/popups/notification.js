@@ -14,17 +14,18 @@ export class Notification extends LitElement {
         position: absolute;
         top: 10px;
         right: 10px;
+        border-radius: 7px;
       }
 
-      h1 {
-        text-align: right;
+      div {
+        text-align: center;
         max-width: 200px;
         font-size: 1.5em;
-        padding: 15px;
-        padding-right: 55px;
+        font-weight: bold;
+        padding: 10px;
         margin: 0;
       }
-
+/*
       #notif-close {
         position: relative;
         font-size: 60px;
@@ -37,7 +38,7 @@ export class Notification extends LitElement {
         margin-top: 15px;
         margin-right: 35px;
         line-height: 40%;
-      }
+      } */
     `;
   }
 
@@ -48,6 +49,9 @@ export class Notification extends LitElement {
 
     this.timeoutId = null;
 
+    this.backgroundColor = document.documentElement.style.getPropertyValue('--theme-color-soft');
+    this.fontColor = '#000000';
+
     window.addEventListener('show-notif', e => {
       this.show(e.detail.message, e.detail.showTime);
     });
@@ -55,13 +59,7 @@ export class Notification extends LitElement {
 
   render() {
     return html`
-      <!-- <div class="background">
-        <div id="template-view"> -->
-      <div id="notif-close" @click="${() => this.close()}">&times;</div>
-
-      <h1>${this.title}</h1>
-      <!-- </div>
-      </div> -->
+      <div>${this.title}</div>
     `;
   }
 
@@ -69,13 +67,35 @@ export class Notification extends LitElement {
     window.clearTimeout(this.timeoutId);
     this.title = message;
     this.style.display = 'block';
+    this.style.backgroundColor = this.backgroundColor;
+    this.style.color = this.fontColor;
+
+    let offset = -200;
+    this.style.right = offset + 'px';
+    this.intervalId = window.setInterval(() => {
+      offset += 10;
+      this.style.right = offset + 'px';
+      if (offset == 10)
+        window.clearInterval(this.intervalId);
+    }, 5);
     if (showTime) {
       this.timeoutId = window.setTimeout(() => this.close(), showTime * 1000);
     }
   }
 
   close() {
-    this.style.display = 'none';
+    let i = 250;
+    this.intervalId = window.setInterval(() => {
+      i -= 250 / 10;
+      this.style.backgroundColor = this.backgroundColor + i.toString(16).padStart(2, '0');
+      this.style.color = this.fontColor + i.toString(16);
+      console.log(this.style.backgroundColor);
+      console.log(this.style.color);
+      if (i == 0) {
+        window.clearInterval(this.intervalId);
+        this.style.display = 'none';
+      }
+    }, 10);
   }
 }
 customElements.define('notif-center', Notification);
