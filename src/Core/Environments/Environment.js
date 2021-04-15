@@ -11,7 +11,7 @@ export const loadEnvironnement = async name => {
   }
   catch (error) {
     console.warn(`Environnement ${name} pas encore pris en charge`);
-    console.log(error)
+    console.error(error);
   }
 }
 

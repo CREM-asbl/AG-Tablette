@@ -20,5 +20,5 @@ export default {
     "Grid",
     "Transform"
   ],
-  "extension": "agg"
+  "extension": "agl"
 }

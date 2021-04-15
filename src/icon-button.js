@@ -9,7 +9,7 @@ class IconButton extends LitElement {
     };
   }
 
-  firstUpdated() {
+  updated() {
     //Todo: Refacto (ce code ne devrait pas se trouver ici)
     if (this.type == 'State') {
       this.src = '/images/States/' + this.name + '.svg';
@@ -28,11 +28,11 @@ class IconButton extends LitElement {
       }
 
       button {
-        display: inline-block;
+        display: block;
         box-sizing: border-box;
         height: 52px;
         width: 52px;
-        padding: 0;
+        padding: 0px;
         margin: 2px;
         background: white;
         outline: none;

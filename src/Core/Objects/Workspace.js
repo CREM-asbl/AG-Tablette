@@ -97,7 +97,10 @@ export class Workspace {
 
   initFromObject(wsdata, ignoreHistory = false) {
     if (!wsdata) {
+      this.translateOffset = Coordinates.nullCoordinates;
+      this.zoomLevel = 1;
       app.mainDrawingEnvironment.loadFromData(null);
+      app.backgroundDrawingEnvironment.clear();
       return;
     }
     this.id = wsdata.id;
@@ -116,51 +119,6 @@ export class Workspace {
 
     this.zoomLevel = wsdata.zoomLevel;
     this.translateOffset = new Coordinates(wsdata.translateOffset);
-
-    if (!ignoreHistory) {
-      if (wsdata.completeHistory) {
-        this.completeHistory.initFromObject(wsdata.completeHistory);
-      } else {
-        this.completeHistory.initFromObject({
-          steps: [],
-          startTimestamp: new Event('useless').timeStamp,
-          endTimestamp: 0,
-          startZoomLevel: this.zoomLevel,
-          startTranslateOffset: this.translateOffset,
-          startShapes: app.mainDrawingEnvironment.shapes,
-          startShapeGroups: this.shapeGroups,
-          // startSilhouette: app.silhouette,
-        });
-      }
-    }
-
-    if (wsdata.settings) {
-      this.settings.initFromObject(wsdata.settings);
-      if (this.settings.get('isGridShown')) {
-        GridManager.drawGridPoints();
-        window.dispatchEvent(new CustomEvent('refreshBackground'));
-      }
-    } else this.initSettings();
-
-    if (!ignoreHistory) {
-      if (wsdata.history) {
-        if (app.lastFileVersion == '1.0.0') {
-          this.history.initFromObject({
-            data: wsdata.history.history,
-            index: wsdata.history.historyIndex,
-          });
-        } else {
-          this.history.initFromObject(wsdata.history);
-        }
-        window.dispatchEvent(new CustomEvent('history-changed'));
-      } else {
-        this.history.resetToDefault();
-        this.history.startSituation = this.data;
-      }
-    }
-
-    // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
-    // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
 
     if (
       wsdata.canvasSize &&
@@ -186,19 +144,46 @@ export class Workspace {
         newTranslateoffset = newCenter
           .substract(actualCenter);
 
-      // console.log('previous canvas size', wsdata.canvasSize.width, wsdata.canvasSize.height);
-      // console.log('this canvas size', app.canvasWidth, app.canvasHeight);
-      // console.log('originalZoom', originalZoom);
-      // console.log('newZoom', newZoom);
-      // console.log('scaleOffset', scaleOffset);
-      // console.log('original translate offset', this.translateOffset);
-      // console.log('actual Center', actualCenter);
-      // console.log('new Center', newCenter);
-      // console.log('corr', corr);
-      // console.log('new translate offset', newTranslateoffset);
-
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
+    }
+
+    if (wsdata.settings) {
+      this.settings.initFromObject(wsdata.settings);
+      if (this.settings.get('isGridShown')) {
+        GridManager.drawGridPoints();
+        window.dispatchEvent(new CustomEvent('refreshBackground'));
+      }
+    } else this.initSettings();
+
+    if (!ignoreHistory) {
+      if (wsdata.history) {
+        if (app.lastFileVersion == '1.0.0') {
+          this.history.initFromObject({
+            data: wsdata.history.history,
+            index: wsdata.history.historyIndex,
+          });
+        } else {
+          this.history.initFromObject(wsdata.history);
+        }
+        window.dispatchEvent(new CustomEvent('history-changed'));
+      } else {
+        this.history.resetToDefault();
+        this.history.startSituation = {...this.data};
+      }
+    }
+
+    if (!ignoreHistory) {
+      if (wsdata.completeHistory) {
+        this.completeHistory.initFromObject(wsdata.completeHistory);
+      } else {
+        this.completeHistory.initFromObject({
+          steps: [],
+          startTimestamp: new Event('useless').timeStamp,
+          endTimestamp: 0,
+          // startSilhouette: app.silhouette,
+        });
+      }
     }
   }
 
