@@ -32,8 +32,6 @@ class CanvasButton extends LitElement {
         background: #fff;
         box-shadow: 0px 0px 3px var(--menu-shadow-color);
         border-radius: 3px;
-        /* width: 52px;
-        height: 52px; */
         padding: 0px;
       }
     `;

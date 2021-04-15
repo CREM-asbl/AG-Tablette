@@ -69,33 +69,49 @@ export class Notification extends LitElement {
     this.style.display = 'block';
     this.style.backgroundColor = this.backgroundColor;
     this.style.color = this.fontColor;
-
-    let offset = -200;
-    this.style.right = offset + 'px';
-    this.intervalId = window.setInterval(() => {
-      offset += 10;
-      this.style.right = offset + 'px';
-      if (offset == 10)
-        window.clearInterval(this.intervalId);
-    }, 5);
+    this.showAnimation(-200);
     if (showTime) {
       this.timeoutId = window.setTimeout(() => this.close(), showTime * 1000);
     }
   }
 
+  showAnimation(offset) {
+    this.style.right = offset + 'px';
+    if (offset >= 10) {
+      this.style.right = '10px';
+      return;
+    }
+    offset += 20;
+    this.showAnimFrameId = window.requestAnimationFrame(() =>
+      this.showAnimation(offset)
+    );
+  }
+
   close() {
+    this.closeAnimation(256);
     let i = 250;
     this.intervalId = window.setInterval(() => {
       i -= 250 / 10;
       this.style.backgroundColor = this.backgroundColor + i.toString(16).padStart(2, '0');
       this.style.color = this.fontColor + i.toString(16);
-      console.log(this.style.backgroundColor);
-      console.log(this.style.color);
       if (i == 0) {
         window.clearInterval(this.intervalId);
         this.style.display = 'none';
       }
     }, 10);
+  }
+
+  closeAnimation(opacity) {
+    this.style.backgroundColor = this.backgroundColor + opacity.toString(16).padStart(2, '0');
+    this.style.color = this.fontColor + opacity.toString(16);
+    if (opacity <= 0) {
+      this.style.display = 'none';
+      return;
+    }
+    opacity -= 256 / 16;
+    this.closeAnimFrameId = window.requestAnimationFrame(() =>
+      this.closeAnimation(opacity)
+    );
   }
 }
 customElements.define('notif-center', Notification);

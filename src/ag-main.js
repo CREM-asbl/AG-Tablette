@@ -91,7 +91,7 @@ class AGTabletteApp extends LitElement {
           padding: 10px;
           box-sizing: border-box;
           background-color: var(--theme-color);
-          overflow: hidden;
+          overflow: scroll;
           flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
           /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
           margin: 3px;
@@ -224,7 +224,8 @@ class AGTabletteApp extends LitElement {
                               name="wallpaper"
                               @click="\${this.loadBackground}">
                       </icon-button> -->
-          <version-item></version-item>
+
+          <!-- <version-item></version-item> -->
         </div>
 
         <div-main-canvas id="div-main-canvas"></div-main-canvas>
