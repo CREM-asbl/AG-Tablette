@@ -48,7 +48,7 @@ class IconButton extends LitElement {
       }
 
       :host([active]) button {
-        background-color: var(--theme-color);
+        background-color: var(--button-selected-background-color);
         outline: none;
       }
 

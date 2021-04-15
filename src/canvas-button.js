@@ -25,7 +25,7 @@ class CanvasButton extends LitElement {
 
       :host([active]) canvas {
         /* border: 1px solid black; */
-        background-color: var(--theme-color);
+        background-color: var(--button-selected-background-color);
       }
 
       canvas {
