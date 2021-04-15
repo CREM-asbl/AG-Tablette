@@ -5,9 +5,6 @@ import { Bounds } from './Core/Objects/Bounds';
 import { Coordinates } from './Core/Objects/Coordinates';
 import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
 
-//A quoi sert silhouetteidx ?
-//Les canvas-button sont utilisés dans tangram ?
-
 class CanvasButton extends LitElement {
   static get properties() {
     return {
@@ -22,19 +19,20 @@ class CanvasButton extends LitElement {
       :host {
         display: block;
         margin: 2px;
+        width: 52px;
+        height: 52px;
       }
 
       :host([active]) canvas {
-        border: 1px solid black;
-        background-color: #0ff;
+        /* border: 1px solid black; */
+        background-color: var(--button-selected-background-color);
       }
 
       canvas {
         background: #fff;
-        border: 1px solid black;
-        box-sizing: border-box;
-        width: 52px;
-        height: 52px;
+        box-shadow: 0px 0px 3px var(--menu-shadow-color);
+        border-radius: 3px;
+        padding: 0px;
       }
     `;
   }
@@ -109,7 +107,15 @@ class CanvasButton extends LitElement {
       s.translate(centerOffset);
     });
 
-    this.drawingEnvironment.draw();
+    if (this.silhouetteIdx !== undefined) {
+      this.ctx.strokeStyle = '#000';
+      this.ctx.fillStyle = this.shapes[0].color || family.defaultColor;
+      const path = new Path2D(this.shapes[0].getSVGPath('no scale'));
+      this.ctx.fill(path);
+      this.ctx.stroke(path);
+    } else {
+      this.drawingEnvironment.draw();
+    }
   }
 
   /**

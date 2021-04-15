@@ -16,7 +16,7 @@ export class CreateIrregularState extends State {
     super(
       'createIrregularPolygon',
       'Créer un polygone irrégulier',
-      'geometry_creator'
+      'geometryCreator'
     );
 
     // listen-canvas-click

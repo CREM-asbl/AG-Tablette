@@ -13,6 +13,8 @@ class ShapesList extends LitElement {
   constructor() {
     super();
 
+    // console.log(document.documentElement.style.getPropertyValue('--theme-color'));
+
     window.addEventListener('select-template', event => this.changeTemplateName(event));
   }
 
@@ -26,42 +28,44 @@ class ShapesList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: 0;
-        /* left: 0; */
+        bottom: 0px;
+        /* left: calc(300 + 100%); */
         /* right: 0; */
       }
 
       .container {
-        background: white;
+        background: var(--theme-color-soft);
         box-shadow: 0 1px 3px gray;
         z-index: 100;
         box-sizing: border-box;
         overflow: auto;
+        border-radius: 7px;
+        margin-bottom: 3px;
+        /* padding: 3px; */
       }
 
       h2 {
         padding: 4px;
         margin: 0;
         text-align: center;
-        background: gray;
-        color: white;
         font-size: 1.2rem;
       }
 
-      ul {
+      #list {
         display: flex;
-        margin: 0;
-        padding: 0;
+        margin: 3px;
+        /* padding: 2px; */
         list-style: none;
+        justify-content: space-evenly;
         overflow-x: auto;
         overflow-y: hidden;
       }
 
-      li {
+      /* li {
         margin: 0;
         padding: 0;
-        height: 54px;
-      }
+        height: 56px;
+      } */
       @media (max-width: 600px) {
         :host {
           right: 0;
@@ -84,22 +88,20 @@ class ShapesList extends LitElement {
             ? this.templateName.replace(/ \d+$/, '')
             : this.selectedFamily}
         </h2>
-        <ul>
+        <div id="list">
           ${this.templateNames.map(
             templateName => html`
-              <li>
-                <canvas-button
-                  title="${templateName.replace(/ \d+$/, '')}"
-                  familyName="${this.selectedFamily}"
-                  templateName="${templateName}"
-                  @click="${this._clickHandle}"
-                  ?active="${templateName === this.templateName}"
-                >
-                </canvas-button>
-              </li>
+              <canvas-button
+                title="${templateName.replace(/ \d+$/, '')}"
+                familyName="${this.selectedFamily}"
+                templateName="${templateName}"
+                @click="${this._clickHandle}"
+                ?active="${templateName === this.templateName}"
+              >
+              </canvas-button>
             `
           )}
-        </ul>
+        </div>
       </div>
     `;
   }

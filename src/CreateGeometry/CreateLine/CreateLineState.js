@@ -14,7 +14,7 @@ import { GeometryConstraint } from '../../Core/Objects/GeometryConstraint';
  */
 export class CreateLineState extends State {
   constructor() {
-    super('createLine', 'Créer une ligne', 'geometry_creator');
+    super('createLine', 'Créer une ligne', 'geometryCreator');
 
     // show-lines -> select-reference -> select-points
     this.currentStep = null;

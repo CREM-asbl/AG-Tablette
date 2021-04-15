@@ -15,7 +15,7 @@ import { isAngleBetweenTwoAngles } from '../../Core/Tools/geometry';
  */
 export class CreateCircleState extends State {
   constructor() {
-    super('createCircle', 'Créer un cercle', 'geometry_creator');
+    super('createCircle', 'Créer un cercle', 'geometryCreator');
 
     // show-quadrilaterals -> select-points -> select-direction
     this.currentStep = null;

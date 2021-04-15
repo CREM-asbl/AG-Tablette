@@ -22,5 +22,7 @@ export default {
     "Zoom",
     "Grid"],
   "kit": "grandeursKit",
-  "extension": "agg"
+  "extension": "agg",
+  "themeColor": "#00D084",
+  "themeColorSoft": "#C4F1D9"
 }

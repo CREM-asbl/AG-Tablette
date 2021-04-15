@@ -1,6 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
 import './div-main-canvas';
-import './flex-toolbar';
 import './toolbar-kit';
 import './toolbar-section';
 import './icon-button';
@@ -18,6 +17,7 @@ import './Core/Managers/DrawManager';
 import './Core/Managers/CompleteHistoryManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
+import { TemplateToolbar } from './template-toolbar';
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen)
 
@@ -74,78 +74,59 @@ class AGTabletteApp extends LitElement {
   }
 
   static get styles() {
-    return css`
-      #app-canvas-view {
-        display: flex;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        height: 100%;
-      }
+    return [
+      TemplateToolbar.templateToolbarStyles(),
+      css`
+        #app-view {
+          display: flex;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          height: 100%;
+        }
 
-      #app-canvas-view > .toolbar {
-        display: flex;
-        flex-flow: column;
-        padding: 4px;
-        height: 100%;
-        box-sizing: border-box;
-        border-right: 1px solid gray;
-        background-color: var(--primary-color);
-        overflow: hidden;
-        flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
-      }
+        #app-menu {
+          display: flex;
+          flex-direction: column;
+          padding: 10px;
+          box-sizing: border-box;
+          background-color: var(--theme-color);
+          overflow: scroll;
+          flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
+          /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
+          margin: 3px;
 
-      #app-canvas-view-toolbar {
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -o-user-select: none;
-        user-select: none;
-      }
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -o-user-select: none;
+          user-select: none;
+          border-radius: 10px;
+        }
 
-      #app-canvas-view-toolbar-p1 {
-        padding-bottom: 8px;
-        border-bottom: 1px solid lightslategray;
-      }
+        div-main-canvas {
+          width: 100%;
+          height: 100%;
+        }
 
-      #app-canvas-view-toolbar-p2 {
-        flex: 1;
-        overflow-y: auto;
-      }
+        version-item {
+          position: absolute;
+          bottom: 20px;
+        }
 
-      .toolbar-separator {
-        font-weight: bold;
-        margin: 12px 0;
-      }
-
-      div-main-canvas {
-        width: 100%;
-        height: 100%;
-      }
-
-      #app-canvas-mode-text {
-        padding: 4px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-
-      #app-canvas-mode-text span {
-        color: #444;
-      }
-
-      /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
-      input[type='color'] {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 21vw;
-        width: 0;
-        height: 0;
-        border: none;
-        background: transparent;
-      }
-    `;
+        /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
+        input[type='color'] {
+          opacity: 0;
+          position: absolute;
+          top: 0;
+          left: 21vw;
+          width: 0;
+          height: 0;
+          border: none;
+          background: transparent;
+        }
+      `,
+    ];
   }
 
   updated() {
@@ -156,15 +137,18 @@ class AGTabletteApp extends LitElement {
 
   render() {
     return html`
-      <div id="app-canvas-view">
-        <div id="app-canvas-view-toolbar" class="toolbar">
-          <div id="app-canvas-view-toolbar-p1">
-            <div id="app-canvas-mode-text">
-              <span>Mode: </span>
-              ${this.state?.title}
-            </div>
-            <flex-toolbar>
-              <icon-button name="new" title="Nouvelle fenêtre" @click="${this._actionHandle}">
+      <div id="app-view">
+        <div id="app-menu">
+          <template-toolbar title="hell">
+            <h2 slot="title">
+              ${this.state != undefined ? this.state.title : app.environment.name}
+            </h2>
+            <div slot="body">
+              <icon-button
+                name="new"
+                title="Nouvelle fenêtre"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
               <icon-button name="load" title="Ouvrir" @click="${this._actionHandle}">
               </icon-button>
@@ -184,41 +168,68 @@ class AGTabletteApp extends LitElement {
               >
               </icon-button>
 
-              <icon-button name="help" title="Aide" @click="${this._actionHandle}">
+              <icon-button
+                name="help"
+                title="Aide"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
-            </flex-toolbar>
+            </div>
+          </template-toolbar>
 
-            <toolbar-kit></toolbar-kit>
+          <toolbar-kit></toolbar-kit>
 
-          </div>
+          <toolbar-section
+            title="Créer une silhouette"
+            .buttons_states="${this.states.filter(
+              state => state.type === 'tangram'
+            )}"
+          >
+          </toolbar-section>
 
-          <div id="app-canvas-view-toolbar-p2">
+          <toolbar-section
+            title="Formes libres"
+            .buttons_states="${this.states.filter(
+              state => state.type === 'geometryCreator'
+            )}"
+          >
+          </toolbar-section>
 
-            <toolbar-section title="Créer une silhouette"
-              .buttons_states="${this.states.filter(state => state.type === 'tangram')}">
-            </toolbar-section>
+          <toolbar-section
+            title="Mouvements"
+            .buttons_states="${this.states.filter(
+              state => state.type === 'move'
+            )}"
+          >
+          </toolbar-section>
 
-            <toolbar-section title="Formes libres"
-              .buttons_states="${this.states.filter(state => state.type === 'geometry_creator')}">
-            </toolbar-section>
+          <toolbar-section
+            title="Opérations"
+            .buttons_states="${this.states.filter(
+              state => state.type === 'operation'
+            )}"
+          >
+          </toolbar-section>
 
-            <toolbar-section title="Mouvements" .buttons_states="${this.states.filter(state => state.type === 'move')}">
-            </toolbar-section>
+          <toolbar-section
+            title="Outils"
+            .buttons_states="${this.states.filter(
+              state => state.type === 'tool'
+            )}"
+          >
+          </toolbar-section>
 
-            <toolbar-section title="Opérations" .buttons_states="${this.states.filter(state => state.type === 'operation')}">
-            </toolbar-section>
+          <!-- <icon-button src="/images/wallpaper.svg"
+                              title="Fond d'écran"
+                              name="wallpaper"
+                              @click="\${this.loadBackground}">
+                      </icon-button> -->
 
-            <toolbar-section title="Outils" .buttons_states="${this.states.filter(state => state.type === 'tool')}">
-            </toolbar-section>
-
-          </div>
-          <version-item></version-item>
+          <!-- <version-item></version-item> -->
         </div>
 
         <div-main-canvas id="div-main-canvas"></div-main-canvas>
       </div>
-
-      <opacity-popup></opacity-popup>
 
       <notif-center></notif-center>
 

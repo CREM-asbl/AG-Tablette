@@ -1,7 +1,7 @@
 import { app } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
-import './flex-toolbar';
 import './canvas-button';
+import { TemplateToolbar } from './template-toolbar';
 
 class ToolbarKit extends LitElement {
   static get properties() {
@@ -13,14 +13,7 @@ class ToolbarKit extends LitElement {
   }
 
   static get styles() {
-    return [
-      css`
-        .toolbar-separator {
-          font-weight: bold;
-          margin: 12px 0;
-        }
-      `,
-    ];
+    return [TemplateToolbar.templateToolbarStyles()];
   }
 
   constructor() {
@@ -45,23 +38,25 @@ class ToolbarKit extends LitElement {
   render() {
     if (!this.familyNames.length) return html``;
     return html`
-      <div class="toolbar-separator">${this.envName}</div>
-      <flex-toolbar>
-        ${this.familyNames.map(family => {
-          return html`
-            <canvas-button
-              familyName="${family}"
-              title="${family}"
-              ?active="${family === this.selectedFamily}"
-              @click="${event => {
-                app.setState('createShape', event.target.familyName);
-                this.selectedFamily = event.target.familyName;
-              }}"
-            >
-            </canvas-button>
-          `;
-        })}
-      </flex-toolbar>
+      <template-toolbar>
+        <h2 slot="title">${app.environment.kitName}</h2>
+        <div slot="body">
+          ${this.familyNames.map(family => {
+            return html`
+              <canvas-button
+                familyName="${family}"
+                title="${family}"
+                ?active="${family === this.selectedFamily}"
+                @click="${event => {
+                  app.setState('createShape', event.target.familyName);
+                  this.selectedFamily = event.target.familyName;
+                }}"
+              >
+              </canvas-button>
+            `;
+          })}
+        </div>
+      </template-toolbar>
     `;
   }
 }
