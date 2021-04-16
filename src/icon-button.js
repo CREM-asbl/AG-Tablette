@@ -36,11 +36,12 @@ class IconButton extends LitElement {
 
       button {
         display: block;
-        box-sizing: border-box;
+        border: none;
+        /* box-sizing: border-box; */
         height: 52px;
         width: 52px;
         padding: 0px;
-        margin: 2px;
+        /* margin: 2px; */
         background: white;
         outline: none;
         background-repeat: no-repeat;
