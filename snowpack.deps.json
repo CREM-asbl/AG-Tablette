@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "pwa-helpers": "^0.9.1"
-  },
-  "lock": {
-    "pwa-helpers#^0.9.1": "pwa-helpers@v0.9.1-ZVjiVp1vVz0U3RkmHK4p"
-  }
-}

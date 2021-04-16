@@ -10,18 +10,13 @@
     "test:folder": "echo \"running tests in folder $npm_config_folder\" && web-test-runner \"test/$npm_config_folder/*.test.js\" --node-resolve",
     "test:all": "echo \"running all tests\" && web-test-runner \"test/**/*.test.js\" --node-resolve"
   },
-  "dependencies": {
-    "lit-element": "^2.3.1",
-    "lit-html": "^1.2.1"
-  },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/plugin-proposal-decorators": "^7.10.5",
     "@esm-bundle/chai": "^4.3.0",
-    "@snowpack/plugin-babel": "^2.1.6",
+    "@snowpack/plugin-babel": "^2.1.7",
     "@snowpack/plugin-dotenv": "^2.0.5",
     "@web/test-runner": "^0.12.15",
-    "prettier": "^2.0.5",
-    "snowpack": "^3.2.0-pre.2"
+    "prettier": "^2.0.5"
   }
 }
