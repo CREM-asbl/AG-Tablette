@@ -6,21 +6,21 @@ export class BuildCenterAction extends Action {
     super('BuildCenterAction');
 
     //L'id de la forme dont on va colorier les bords
-    this.shapeId = null;
+    this.involvedShapesIds = null;
   }
 
   initFromObject(save) {
-    this.shapeId = save.shapeId;
+    this.involvedShapesIds = save.involvedShapesIds;
   }
 
   /**
    * vérifie si toutes les conditions sont réunies pour effectuer l'action
    */
   checkDoParameters() {
-    if (!this.shapeId) {
-      this.printIncompleteData();
-      return false;
-    }
+    // if (!this.shapeId) {
+    //   this.printIncompleteData();
+    //   return false;
+    // }
     return true;
   }
 
@@ -37,8 +37,15 @@ export class BuildCenterAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shape = ShapeManager.getShapeById(this.shapeId);
-    shape.isCenterShown = !shape.isCenterShown;
+    let involvedShapes = this.involvedShapesIds.map(id =>
+      app.mainDrawingEnvironment.findObjectById(id, 'shape')
+    );
+
+    let mustShowCenter = involvedShapes.some(s => {
+      return !s.isCenterShown;
+    });
+
+    involvedShapes.map(s => s.isCenterShown = mustShowCenter);
   }
 
   /**

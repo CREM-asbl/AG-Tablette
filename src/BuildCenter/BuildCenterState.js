@@ -1,6 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
  * Construire le centre d'une forme (l'afficher)
@@ -76,10 +77,11 @@ export class BuildCenterState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
+    let involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.actions = [
       {
         name: 'BuildCenterAction',
-        shapeId: shape.id,
+        involvedShapesIds: involvedShapes.map(s => s.id),
       },
     ];
     this.executeAction();
