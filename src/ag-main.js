@@ -89,24 +89,27 @@ class AGTabletteApp extends LitElement {
           display: flex;
           flex-direction: column;
           padding: 10px;
+          border-radius: 10px;
           box-sizing: border-box;
           background-color: var(--theme-color);
+          flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
+          margin: 3px;
+          /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
+
+          /* scrollbar hidden */
           -ms-overflow-style: none;  /* IE and Edge */
           scrollbar-width: none;  /* Firefox */
           overflow-y: scroll;
           overflow-x: hidden;
-          flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
-          /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
-          margin: 3px;
 
           -webkit-user-select: none;
           -khtml-user-select: none;
           -moz-user-select: none;
           -o-user-select: none;
           user-select: none;
-          border-radius: 10px;
         }
 
+        /* scrollbar hidden */
         #app-menu::-webkit-scrollbar {
           display: none;
         }

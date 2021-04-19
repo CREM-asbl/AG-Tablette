@@ -160,7 +160,10 @@ export class GroupState extends State {
       }
     } else if (this.currentStep == 'selecting-second-shape') {
       let userGroup = GroupManager.getShapeGroup(shape);
-      if (userGroup) {
+      if (shape.id == this.firstShapeId) {
+        window.dispatchEvent(new CustomEvent('show-notif', {detail: {message: 'La forme choisie fait déjà partie du groupe'}}));
+        return;
+      } else if (userGroup) {
         this.group = userGroup;
         this.actions = [
           {
