@@ -1,6 +1,7 @@
 import { app } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
  * Déplacer une forme derrière toutes les autres.
@@ -76,10 +77,12 @@ export class ToBackgroundState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes.sort((s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2));
     this.actions = [
       {
         name: 'ToBackgroundAction',
-        shapeId: shape.id,
+        involvedShapesIds: this.involvedShapes.map(s => s.id),
       },
     ];
     this.executeAction();

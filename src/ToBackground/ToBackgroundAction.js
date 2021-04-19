@@ -5,21 +5,21 @@ export class ToBackgroundAction extends Action {
   constructor() {
     super('ToBackgroundAction');
 
-    this.shapeId = null;
+    this.involvedShapesIds = null;
   }
 
   initFromObject(save) {
-    this.shapeId = save.shapeId;
+    this.involvedShapesIds = save.involvedShapesIds;
   }
 
   /**
    * vérifie si toutes les conditions sont réunies pour effectuer l'action
    */
   checkDoParameters() {
-    if (!this.shapeId) {
-      this.printIncompleteData();
-      return false;
-    }
+    // if (!this.shapeId) {
+    //   this.printIncompleteData();
+    //   return false;
+    // }
     return true;
   }
 
@@ -36,9 +36,11 @@ export class ToBackgroundAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let shapeIndex = app.mainDrawingEnvironment.findIndexById(this.shapeId);
-    let shape = app.mainDrawingEnvironment.shapes.splice(shapeIndex, 1)[0];
-    app.mainDrawingEnvironment.shapes.unshift(shape);
+    this.involvedShapesIds.forEach((sId, index) => {
+      let shapeIndex = app.mainDrawingEnvironment.findIndexById(sId);
+      let shape = app.mainDrawingEnvironment.shapes.splice(shapeIndex, 1)[0];
+      app.mainDrawingEnvironment.shapes.splice(index, 0, shape);
+    });
   }
 
   /**
