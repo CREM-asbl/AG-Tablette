@@ -1,25 +1,31 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { LitElement, html, css } from 'lit-element';
 
 class ShapesList extends LitElement {
   static get properties() {
     return {
-      templateName: { type: String },
       selectedFamily: { type: String },
       templateNames: { type: Array },
+      selectedTemplate: { type: String },
     };
   }
 
   constructor() {
     super();
 
-    // console.log(document.documentElement.style.getPropertyValue('--theme-color'));
+    this.selectedFamily = app.tool.selectedFamily;
+    this.templateNames = app.environment.getFamily(app.tool.selectedFamily).templateNames;
+    this.selectedTemplate = app.tool.selectedTemplate;
 
-    window.addEventListener('select-template', event => this.changeTemplateName(event));
-  }
-
-  changeTemplateName(event) {
-    this.templateName = event.detail.templateName;
+    window.addEventListener('tool-changed', () => {
+      if (app.tool.name == 'createShape') {
+        this.selectedFamily = app.tool.selectedFamily;
+      this.templateNames = app.environment.getFamily(app.tool.selectedFamily).templateNames;
+        this.selectedTemplate = app.tool.selectedTemplate;
+      } else {
+        this.remove();
+      }
+    });
   }
 
   static get styles() {
@@ -84,8 +90,8 @@ class ShapesList extends LitElement {
       </style>
       <div class="container">
         <h2>
-          ${this.templateName
-            ? this.templateName.replace(/ \d+$/, '')
+          ${this.selectedTemplate
+            ? this.selectedTemplate.replace(/ \d+$/, '')
             : this.selectedFamily}
         </h2>
         <div id="list">
@@ -96,7 +102,7 @@ class ShapesList extends LitElement {
                 familyName="${this.selectedFamily}"
                 templateName="${templateName}"
                 @click="${this._clickHandle}"
-                ?active="${templateName === this.templateName}"
+                ?active="${templateName === this.selectedTemplate}"
               >
               </canvas-button>
             `
@@ -107,12 +113,7 @@ class ShapesList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.templateName = event.target.templateName;
-    window.dispatchEvent(
-      new CustomEvent('select-template', {
-        detail: { templateName: this.templateName },
-      })
-    );
+    setState({ tool: { ...app.tool, selectedTemplate: event.target.templateName, currentStep: 'listen-canvas-click' } });
   }
 }
 customElements.define('shapes-list', ShapesList);

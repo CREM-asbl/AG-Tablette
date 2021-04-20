@@ -1,9 +1,10 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
  * Ajout de formes sur l'espace de travail
@@ -20,6 +21,8 @@ export class CreateState extends State {
     this.selectedTemplate = null;
 
     this.shapeToCreate = null;
+
+    window.addEventListener('tool-changed', this.handler);
   }
 
   /**
@@ -42,92 +45,23 @@ export class CreateState extends State {
   }
 
   /**
-   * (ré-)initialiser l'état
-   * @param  {String} family Nom de la famille sélectionnée
-   */
-  start(family) {
-    this.currentStep = 'show-family-shapes';
-    this.selectedFamily = family;
-    const templateNames = app.environment.getFamily(family).templateNames;
-
-    if (templateNames.length === 1) {
-      this.selectTemplate(templateNames[0]);
-      return;
-    }
-
-    if (!this.shapesList) {
-      import('./shapes-list');
-      this.shapesList = createElem('shapes-list');
-    }
-    this.shapesList.selectedFamily = family;
-    this.shapesList.templateNames = templateNames;
-    this.shapesList.style.display = 'flex';
-    this.shapesList.templateName = null;
-
-    window.dispatchEvent(
-      new CustomEvent('family-selected', {
-        detail: { selectedFamily: this.selectedFamily },
-      })
-    );
-
-    window.addEventListener('select-template', this.handler);
-  }
-
-  /**
-   * ré-initialiser l'état
-   */
-  restart(manualRestart = false, family) {
-    this.end();
-    if (manualRestart) {
-      this.start(family);
-      return;
-    }
-    window.dispatchEvent(
-      new CustomEvent('family-selected', {
-        detail: { selectedFamily: this.selectedFamily },
-      })
-    );
-    if (this.templateName) {
-      this.currentStep = 'listen-canvas-click';
-      window.dispatchEvent(
-        new CustomEvent('select-template', {
-          detail: { templateName: this.templateName },
-        })
-      );
-    } else {
-      this.currentStep = 'show-family-shapes';
-    }
-
-    window.addEventListener('select-template', this.handler);
-    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
-  }
-
-  /**
-   * stopper l'état
-   */
-  end() {
-    if (app.state !== this.name) {
-      if (this.shapesList) this.shapesList.remove();
-      this.shapesList = null;
-    }
-    if (this.status != 'paused')
-      app.upperDrawingEnvironment.removeAllObjects();
-
-    this.stopAnimation();
-    window.removeEventListener('select-template', this.handler);
-    app.removeListener('canvasmousedown', this.mouseDownId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
-    window.dispatchEvent(
-      new CustomEvent('family-selected', { detail: { selectedFamily: null } })
-    );
-  }
-
-  /**
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'select-template') {
-      this.selectTemplate(event.detail.templateName);
+    if (event.type == 'tool-changed') {
+      console.log(app.tool.name);
+      if (app.tool.name == this.name) {
+        console.log(app.tool.currentStep);
+        if (app.tool.currentStep == 'start') {
+          this.start();
+        } else if (app.tool.currentStep == 'listen-canvas-click') {
+          this.startListening();
+        } else if (app.tool.currentStep == 'moving-shape') {
+          this.startMoving();
+        }
+      } else {
+        this.end();
+      }
     } else if (event.type == 'canvasmousedown') {
       this.onMouseDown();
     } else if (event.type == 'canvasmouseup') {
@@ -137,22 +71,53 @@ export class CreateState extends State {
     }
   }
 
-  selectTemplate(templateName) {
-    if (templateName) {
-      this.templateName = templateName;
-      this.selectedTemplate = app.environment
-        .getFamily(this.selectedFamily)
-        .getTemplate(templateName);
-      // if (this.shapesList) this.shapesList.shapeName = selectedTemplate.name;
-      this.currentStep = 'listen-canvas-click';
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+  /**
+   * (ré-)initialiser l'état
+   * @param  {String} family Nom de la famille sélectionnée
+   */
+  start() {
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
+    console.log(this.shapesList);
+    if (!this.shapesList) {
+      import('./shapes-list');
+      this.shapesList = createElem('shapes-list');
     }
   }
 
+  startListening() {
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
+    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+  }
+
+  startMoving() {
+    this.stopAnimation();
+    this.removeListeners();
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+  }
+
+  /**
+   * stopper l'état
+   */
+  end() {
+    this.shapesList = null;
+
+    this.stopAnimation();
+    this.removeListeners();
+  }
+
   onMouseDown() {
-    if (this.currentStep != 'listen-canvas-click') return;
+    if (app.tool.currentStep != 'listen-canvas-click') return;
+
+    const selectedTemplate = app.environment
+      .getFamily(app.tool.selectedFamily)
+      .getTemplate(app.tool.selectedTemplate);
+
     this.shapeToCreate = new Shape({
-      ...this.selectedTemplate,
+      ...selectedTemplate,
       drawingEnvironment: app.upperDrawingEnvironment,
     });
     let shapeSize = app.settings.get('shapesSize');
@@ -164,38 +129,56 @@ export class CreateState extends State {
 
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
-    this.currentStep = 'moving-shape';
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    console.log(this.shapeToCreate);
+
+    setState({tool: {...app.tool, currentStep: 'moving-shape'}});
     this.animate();
   }
 
   onMouseUp() {
-    if (this.currentStep != 'moving-shape') return;
-
-    let shapeSize = app.settings.get('shapesSize');
-
-    this.actions = [
-      {
-        name: 'CreateAction',
-        selectedTemplate: this.selectedTemplate,
-        coordinates: app.workspace.lastKnownMouseCoordinates,
-        shapeId: this.shapeToCreate.id,
-        shapeSize: shapeSize,
-      },
-    ];
+    if (app.tool.currentStep != 'moving-shape') return;
 
     this.executeAction();
-    this.restart();
+    setState({ tool: { ...app.tool, currentStep: 'listen-canvas-click' } });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   refreshStateUpper() {
-    if (this.currentStep == 'moving-shape') {
+    if (app.tool.currentStep == 'moving-shape') {
+      console.log(this.shapeToCreate);
+
       this.shapeToCreate.translate(
         app.workspace.lastKnownMouseCoordinates.substract(this.currentShapePos)
       );
       this.currentShapePos = app.workspace.lastKnownMouseCoordinates;
     }
+  }
+
+  executeAction() {
+    const shapeSize = app.settings.get('shapesSize'),
+      shapeCoordinates = app.workspace.lastKnownMouseCoordinates;
+
+    const selectedTemplate = app.environment
+      .getFamily(app.tool.selectedFamily)
+      .getTemplate(app.tool.selectedTemplate);
+
+    let shape = new Shape({
+      ...selectedTemplate,
+      size: shapeSize,
+      drawingEnvironment: app.mainDrawingEnvironment,
+    });
+    shape.scale(shapeSize);
+    shape.translate(shapeCoordinates);
+
+    let transformation = getShapeAdjustment([shape], shape);
+    shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
+    shape.translate(transformation.translation);
+
+    window.dispatchEvent(
+      new CustomEvent('actions-executed', {
+        detail: { name: this.title },
+      })
+    );
   }
 }

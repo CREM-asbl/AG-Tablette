@@ -192,12 +192,12 @@ window.addEventListener('objectSelected', event =>
 );
 
 // create events
-window.addEventListener('family-selected', event =>
-  CompleteHistoryManager.addStep('family-selected', event)
-);
-window.addEventListener('select-template', event =>
-  CompleteHistoryManager.addStep('select-template', event)
-);
+// window.addEventListener('family-selected', event =>
+//   CompleteHistoryManager.addStep('family-selected', event)
+// );
+// window.addEventListener('select-template', event =>
+//   CompleteHistoryManager.addStep('select-template', event)
+// );
 
 // divide events
 window.addEventListener('setNumberOfParts', event =>

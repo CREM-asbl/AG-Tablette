@@ -1,8 +1,9 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
  * Déplacer une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -22,6 +23,8 @@ export class MoveState extends State {
 
     // L'ensemble des formes liées à la forme sélectionnée, y compris la forme elle-même
     this.involvedShapes = [];
+
+    window.addEventListener('tool-changed', this.handler);
   }
 
   /**
@@ -42,55 +45,20 @@ export class MoveState extends State {
   }
 
   /**
-   * initialiser l'état
-   */
-  start() {
-    this.currentStep = 'listen-canvas-click';
-    setTimeout(() =>
-      setTimeout(
-        () =>
-          (app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.mousedown_all_shape)
-      )
-    );
-
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-  }
-
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    setTimeout(() =>
-      setTimeout(
-        () =>
-          (app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.mousedown_all_shape)
-      )
-    );
-
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-  }
-
-  /**
-   * stopper l'état
-   */
-  end() {
-    this.stopAnimation();
-    if (this.status != 'paused')
-      app.upperDrawingEnvironment.removeAllObjects();
-    this.currentStep = 'listen-canvas-click';
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
-  }
-
-  /**
    * Main event handler
    */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
+   _actionHandle(event) {
+    if (event.type == 'tool-changed') {
+      if (app.tool.name == this.name) {
+        if (app.tool.currentStep == 'start') {
+          this.start();
+        } else if (app.tool.currentStep == 'moving-shape') {
+          this.startMoving();
+        }
+      } else {
+        this.end();
+      }
+    } else if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else if (event.type == 'canvasmouseup') {
       this.onMouseUp();
@@ -100,11 +68,40 @@ export class MoveState extends State {
   }
 
   /**
+   * initialiser l'état
+   */
+  start() {
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
+
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.mousedown_all_shape;
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
+  startMoving() {
+    this.removeListeners();
+
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+  }
+
+  /**
+   * stopper l'état
+   */
+  end() {
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    this.stopAnimation();
+    this.removeListeners();
+  }
+
+  /**
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    if (this.currentStep != 'listen-canvas-click') return;
+    if (app.tool.currentStep != 'start') return;
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
@@ -125,30 +122,17 @@ export class MoveState extends State {
     app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
       s => s.id
     );
-    this.currentStep = 'moving-shape';
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    setState({ tool: { ...app.tool, currentStep: 'moving-shape' } })
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
   }
 
   onMouseUp() {
-    if (this.currentStep != 'moving-shape') return;
+    if (app.tool.currentStep != 'moving-shape') return;
 
-    const translation = app.workspace.lastKnownMouseCoordinates.substract(
-      this.startClickCoordinates
-    );
-
-    this.actions = [
-      {
-        name: 'MoveAction',
-        shapeId: this.selectedShape.id,
-        involvedShapesIds: this.involvedShapes.map(s => s.id),
-        translation: translation,
-      },
-    ];
-
+    console.log('mouseup')
     this.executeAction();
-    this.restart();
+    setState({ tool: { ...app.tool, currentStep: 'start' } })
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -157,7 +141,7 @@ export class MoveState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (this.currentStep == 'moving-shape') {
+    if (app.tool.currentStep == 'moving-shape') {
       let transformation = app.workspace.lastKnownMouseCoordinates.substract(
         this.lastKnownMouseCoordinates
       );
@@ -166,5 +150,21 @@ export class MoveState extends State {
 
       this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
     }
+  }
+
+  executeAction() {
+    const translation = app.workspace.lastKnownMouseCoordinates.substract(
+      this.startClickCoordinates
+    );
+
+    this.involvedShapes.forEach(s => {
+      s.translate(translation);
+    });
+
+    let transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape);
+    this.involvedShapes.forEach(s => {
+      s.rotate(transformation.rotationAngle, this.selectedShape.centerCoordinates);
+      s.translate(transformation.translation);
+    });
   }
 }

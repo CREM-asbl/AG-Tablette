@@ -51,18 +51,6 @@ export class CreateAction extends Action {
    */
   do() {
     if (!this.checkDoParameters()) return;
-    let shape = new Shape({
-      ...this.selectedTemplate,
-      id: this.shapeId,
-      size: this.shapeSize,
-      drawingEnvironment: app.mainDrawingEnvironment,
-    });
-    shape.scale(this.shapeSize);
-    shape.translate(this.coordinates);
-
-    let transformation = getShapeAdjustment([shape], shape);
-    shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
-    shape.translate(transformation.translation);
   }
 
   /**

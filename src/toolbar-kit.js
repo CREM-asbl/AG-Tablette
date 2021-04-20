@@ -1,4 +1,4 @@
-import { app } from './Core/App';
+import { app, setState } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
 import './canvas-button';
 import { TemplateToolbar } from './template-toolbar';
@@ -27,11 +27,8 @@ class ToolbarKit extends LitElement {
       this.envName = app.environment.kitName;
     });
     window.addEventListener(
-      'family-selected',
-      event =>
-        (this.selectedFamily = event.detail.selectedFamily
-          ? event.detail.selectedFamily
-          : '')
+      'tool-changed',
+      () => this.selectedFamily = app.tool?.selectedFamily
     );
   }
 
@@ -47,9 +44,9 @@ class ToolbarKit extends LitElement {
                 familyName="${family}"
                 title="${family}"
                 ?active="${family === this.selectedFamily}"
-                @click="${event => {
-                  app.setState('createShape', event.target.familyName);
-                  this.selectedFamily = event.target.familyName;
+                @click="${() => {
+                  console.log('here');
+                  setState({ tool: { name: 'createShape', selectedFamily: family, currentStep: 'start'}});
                 }}"
               >
               </canvas-button>

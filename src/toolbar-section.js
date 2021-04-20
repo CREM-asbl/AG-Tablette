@@ -1,4 +1,4 @@
-import { app } from './Core/App';
+import { app, setState } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
 import { CompleteHistoryManager } from './Core/Managers/CompleteHistoryManager';
 import './icon-button';
@@ -28,7 +28,7 @@ class ToolbarSection extends LitElement {
                 name="${state.name}"
                 type="State"
                 title="${state.title}"
-                ?active="${state.name === app.state}"
+                ?active="${state.name === app.state || state.name === app.tool?.name}"
                 @click="${this._actionHandle}"
               ></icon-button>
             `
@@ -42,7 +42,16 @@ class ToolbarSection extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
-    if (!CompleteHistoryManager.isRunning) app.setState(event.target.name);
+    if (!CompleteHistoryManager.isRunning) {
+      switch (event.target.name) {
+        case 'move':
+          setState({tool: {name: event.target.name, currentStep: 'start'}});
+          break;
+        default:
+          app.setState(event.target.name);
+          break;
+      }
+    }
   }
 }
 customElements.define('toolbar-section', ToolbarSection);

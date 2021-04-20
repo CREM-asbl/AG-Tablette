@@ -168,4 +168,8 @@ export const setState = update => {
   }
   if (window.dev_mode) console.log(app)
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }))
+  if ('tool' in update) {
+    console.log(update.tool);
+    window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }))
+  }
 }

@@ -63,10 +63,13 @@ export class State {
     });
 
     window.addEventListener('refreshStateUpper', () => {
-      if (this.name == app.state) this.refreshStateUpper();
+      if (this.name == app.tool?.name) this.refreshStateUpper();
     });
 
+
     this.handler = event => this._actionHandle(event);
+
+    // window.addEventListener('tool-changed', this.handler);
   }
 
   /**
@@ -170,5 +173,11 @@ export class State {
 
   stopAnimation() {
     window.cancelAnimationFrame(this.requestAnimFrameId);
+  }
+
+  removeListeners() {
+    app.removeListener('canvasmousedown', this.mouseDownId);
+    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('objectSelected', this.objectSelectedId);
   }
 }

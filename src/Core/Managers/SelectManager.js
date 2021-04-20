@@ -395,9 +395,9 @@ export class SelectManager {
 window.addEventListener('reset-selection-constraints', () => {
   app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
 });
-window.addEventListener('app-state-changed', () => {
-  app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
-});
+// window.addEventListener('app-state-changed', () => {
+//   app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
+// });
 let click_all_shape_constr = SelectManager.getEmptySelectionConstraints();
 click_all_shape_constr.eventType = 'click';
 click_all_shape_constr.shapes.canSelect = true;
