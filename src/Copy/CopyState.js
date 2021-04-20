@@ -15,9 +15,6 @@ export class CopyState extends State {
 
     this.currentStep = null; // listen-canvas-click -> moving-shape
 
-    //La forme que l'on duplique
-    this.selectedShape = null;
-
     //coordonnées de la souris lorsque la duplication a commencé
     this.startClickCoordinates = null;
 
@@ -112,8 +109,6 @@ export class CopyState extends State {
    */
   objectSelected(shape) {
     if (this.currentStep != 'listen-canvas-click') return;
-
-    this.selectedShape = shape;
 
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
