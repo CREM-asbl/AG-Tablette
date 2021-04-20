@@ -37,15 +37,15 @@ export class BuildCenterAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let involvedShapes = this.involvedShapesIds.map(id =>
-      app.mainDrawingEnvironment.findObjectById(id, 'shape')
+    let involvedShapes = this.involvedShapesIds.map((id) =>
+      app.mainDrawingEnvironment.findObjectById(id, 'shape'),
     );
 
-    let mustShowCenter = involvedShapes.some(s => {
+    let mustShowCenter = involvedShapes.some((s) => {
       return !s.isCenterShown;
     });
 
-    involvedShapes.map(s => s.isCenterShown = mustShowCenter);
+    involvedShapes.map((s) => (s.isCenterShown = mustShowCenter));
   }
 
   /**

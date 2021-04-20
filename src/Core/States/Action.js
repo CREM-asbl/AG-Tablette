@@ -5,7 +5,7 @@ export class Action {
   constructor(name) {
     if (this.constructor === State) {
       throw new TypeError(
-        'Abstract class "Action" cannot be instantiated directly'
+        'Abstract class "Action" cannot be instantiated directly',
       );
     }
 
@@ -13,12 +13,12 @@ export class Action {
 
     app.actions = { ...app.actions, [name]: name };
 
-    this.initAndDo = event => {
+    this.initAndDo = (event) => {
       this.initFromObject(event.detail);
       this.do();
     };
 
-    this.initAndUndo = event => {
+    this.initAndUndo = (event) => {
       this.initFromObject(event.detail);
       this.undo();
     };

@@ -3,5 +3,5 @@ import { OpacityAction } from './OpacityAction';
 
 export default {
   state: new OpacityState(),
-  action: new OpacityAction()
-}
+  action: new OpacityAction(),
+};

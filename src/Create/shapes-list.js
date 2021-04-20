@@ -14,13 +14,17 @@ class ShapesList extends LitElement {
     super();
 
     this.selectedFamily = app.tool.selectedFamily;
-    this.templateNames = app.environment.getFamily(app.tool.selectedFamily).templateNames;
+    this.templateNames = app.environment.getFamily(
+      app.tool.selectedFamily,
+    ).templateNames;
     this.selectedTemplate = app.tool.selectedTemplate;
 
     window.addEventListener('tool-changed', () => {
       if (app.tool.name == 'createShape') {
         this.selectedFamily = app.tool.selectedFamily;
-      this.templateNames = app.environment.getFamily(app.tool.selectedFamily).templateNames;
+        this.templateNames = app.environment.getFamily(
+          app.tool.selectedFamily,
+        ).templateNames;
         this.selectedTemplate = app.tool.selectedTemplate;
       } else {
         this.remove();
@@ -85,7 +89,10 @@ class ShapesList extends LitElement {
     return html`
       <style>
         :host {
-          left: calc(50% + (${app.settings.get('mainMenuWidth')}px / 2) - (${this.templateNames.length} / 2 * 54px));
+          left: calc(
+            50% + (${app.settings.get('mainMenuWidth')}px / 2) -
+              (${this.templateNames.length} / 2 * 54px)
+          );
         }
       </style>
       <div class="container">
@@ -96,7 +103,7 @@ class ShapesList extends LitElement {
         </h2>
         <div id="list">
           ${this.templateNames.map(
-            templateName => html`
+            (templateName) => html`
               <canvas-button
                 title="${templateName.replace(/ \d+$/, '')}"
                 familyName="${this.selectedFamily}"
@@ -105,7 +112,7 @@ class ShapesList extends LitElement {
                 ?active="${templateName === this.selectedTemplate}"
               >
               </canvas-button>
-            `
+            `,
           )}
         </div>
       </div>
@@ -113,7 +120,13 @@ class ShapesList extends LitElement {
   }
 
   _clickHandle(event) {
-    setState({ tool: { ...app.tool, selectedTemplate: event.target.templateName, currentStep: 'listen-canvas-click' } });
+    setState({
+      tool: {
+        ...app.tool,
+        selectedTemplate: event.target.templateName,
+        currentStep: 'listen',
+      },
+    });
   }
 }
 customElements.define('shapes-list', ShapesList);

@@ -3,5 +3,5 @@ import { GroupAction } from './GroupAction';
 
 export default {
   state: new GroupState(),
-  action: new GroupAction()
-}
+  action: new GroupAction(),
+};

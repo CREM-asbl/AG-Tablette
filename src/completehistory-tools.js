@@ -12,8 +12,8 @@ class completeHistoryTools extends LitElement {
   constructor() {
     super();
     this.sidebarElements = app.workspace.completeHistory.steps
-      .filter(step => step.type == 'actions-executed')
-      .map(step => {
+      .filter((step) => step.type == 'actions-executed')
+      .map((step) => {
         return { name: step.detail.name };
       });
     this.index = 0;
@@ -103,24 +103,42 @@ class completeHistoryTools extends LitElement {
     return html`
       <nav id="sidebar">
         <div id="command-container">
-          <icon-button name="undo" title="étape précédente" @click="${this._clickHandle}"></icon-button>
-          <icon-button name="stop" title="arrêter" @click="${this._clickHandle}"></icon-button>
-          <icon-button name="pause" title="pause" @click="${this._clickHandle}"></icon-button>
-          <icon-button name="redo" title="étape suivante" @click="${this._clickHandle}"></icon-button>
+          <icon-button
+            name="undo"
+            title="étape précédente"
+            @click="${this._clickHandle}"
+          ></icon-button>
+          <icon-button
+            name="stop"
+            title="arrêter"
+            @click="${this._clickHandle}"
+          ></icon-button>
+          <icon-button
+            name="pause"
+            title="pause"
+            @click="${this._clickHandle}"
+          ></icon-button>
+          <icon-button
+            name="redo"
+            title="étape suivante"
+            @click="${this._clickHandle}"
+          ></icon-button>
         </div>
-        <div id='action-container'>
-        ${this.sidebarElements.map((elem, idx) => {
-          return html`
-            <button
-              id="${idx}"
-              style="background-color: ${idx == this.index ? 'blue' : 'white'}"
-              @click="${this._clickHandle}"
-              name="action-button"
-            >
-              ${elem.name}
-            </button>
-          `;
-        })}
+        <div id="action-container">
+          ${this.sidebarElements.map((elem, idx) => {
+            return html`
+              <button
+                id="${idx}"
+                style="background-color: ${idx == this.index
+                  ? 'blue'
+                  : 'white'}"
+                @click="${this._clickHandle}"
+                name="action-button"
+              >
+                ${elem.name}
+              </button>
+            `;
+          })}
         </div>
       </nav>
     `;

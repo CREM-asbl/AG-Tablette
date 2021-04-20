@@ -29,7 +29,7 @@ export class ReverseAction extends Action {
     this.involvedShapesIds = save.involvedShapesIds;
     if (save.selectedAxisId) {
       this.axis = app.upperDrawingEnvironment.segments.find(
-        seg => seg.id == save.selectedAxisId
+        (seg) => seg.id == save.selectedAxisId,
       );
     } else if (save.axe) {
       this.axe = new Segment();
@@ -39,10 +39,10 @@ export class ReverseAction extends Action {
       // for update history from 1.0.0
       this.axe = this.getSymmetricalAxe(
         ShapeManager.getShapeById(this.shapeId),
-        save.symmetricalAxeOrientation
+        save.symmetricalAxeOrientation,
       );
-      this.shapesPos = save.involvedShapesIds.map(s =>
-        ShapeManager.getShapeIndex(s)
+      this.shapesPos = save.involvedShapesIds.map((s) =>
+        ShapeManager.getShapeIndex(s),
       );
       window.dispatchEvent(
         new CustomEvent('update-history', {
@@ -53,7 +53,7 @@ export class ReverseAction extends Action {
             axe: this.axe,
             shapePos: this.shapesPos,
           },
-        })
+        }),
       );
     }
   }
@@ -87,7 +87,7 @@ export class ReverseAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id);
       this.reverseShape(s);
       // s.setGeometryConstructionSpec();
@@ -102,7 +102,7 @@ export class ReverseAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id);
       this.reverseShape(s, this.axe, 1);
     });
@@ -118,7 +118,7 @@ export class ReverseAction extends Action {
     shape.isReversed = !shape.isReversed;
     shape.reverse();
 
-    shape.points.forEach(pt => {
+    shape.points.forEach((pt) => {
       this.computePointPosition(pt);
     });
   }
@@ -134,7 +134,7 @@ export class ReverseAction extends Action {
 
     //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
     point.coordinates = point.coordinates.add(
-      center.substract(point.coordinates).multiply(2)
+      center.substract(point.coordinates).multiply(2),
     );
   }
 
@@ -145,35 +145,35 @@ export class ReverseAction extends Action {
     if (orientation == 'V') {
       axe = new Segment(
         new Point(center.x, center.y - this.symmetricalAxeLength / 2),
-        new Point(center.x, center.y + this.symmetricalAxeLength / 2)
+        new Point(center.x, center.y + this.symmetricalAxeLength / 2),
       );
     } else if (orientation == 'NW') {
       axe = new Segment(
         new Point(
           center.x - (0.683 * this.symmetricalAxeLength) / 2,
-          center.y - (0.683 * this.symmetricalAxeLength) / 2
+          center.y - (0.683 * this.symmetricalAxeLength) / 2,
         ),
         new Point(
           center.x + (0.683 * this.symmetricalAxeLength) / 2,
-          center.y + (0.683 * this.symmetricalAxeLength) / 2
-        )
+          center.y + (0.683 * this.symmetricalAxeLength) / 2,
+        ),
       );
     } else if (orientation == 'H') {
       axe = new Segment(
         new Point(center.x + this.symmetricalAxeLength / 2, center.y),
-        new Point(center.x - this.symmetricalAxeLength / 2, center.y)
+        new Point(center.x - this.symmetricalAxeLength / 2, center.y),
       );
     } else {
       // SW
       axe = new Segment(
         new Point(
           center.x + (0.683 * this.symmetricalAxeLength) / 2,
-          center.y - (0.683 * this.symmetricalAxeLength) / 2
+          center.y - (0.683 * this.symmetricalAxeLength) / 2,
         ),
         new Point(
           center.x - (0.683 * this.symmetricalAxeLength) / 2,
-          center.y + (0.683 * this.symmetricalAxeLength) / 2
-        )
+          center.y + (0.683 * this.symmetricalAxeLength) / 2,
+        ),
       );
     }
     return axe;

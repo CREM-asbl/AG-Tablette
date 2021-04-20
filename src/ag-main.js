@@ -19,7 +19,7 @@ import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
 import { TemplateToolbar } from './template-toolbar';
 
-if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen)
+if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -54,7 +54,7 @@ class AGTabletteApp extends LitElement {
       this.canRedo = HistoryManager.canRedo();
     });
     window.addEventListener('workspace-changed', () => {
-      this.shadowRoot.querySelector("#color-picker").value = "#000000";
+      this.shadowRoot.querySelector('#color-picker').value = '#000000';
       window.dispatchEvent(new CustomEvent('history-changed'));
     });
     window.addEventListener('open-opacity-popup', () => {
@@ -97,8 +97,8 @@ class AGTabletteApp extends LitElement {
           /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
 
           /* scrollbar hidden */
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
           overflow-y: scroll;
           overflow-x: hidden;
 
@@ -141,7 +141,9 @@ class AGTabletteApp extends LitElement {
 
   updated() {
     if (app.environment.name != 'Grandeurs') {
-      this.shadowRoot.querySelectorAll('.onlyGrandeurs').forEach(el => el.style.display = 'none');
+      this.shadowRoot
+        .querySelectorAll('.onlyGrandeurs')
+        .forEach((el) => (el.style.display = 'none'));
     }
   }
 
@@ -151,7 +153,9 @@ class AGTabletteApp extends LitElement {
         <div id="app-menu">
           <template-toolbar title="hell">
             <h2 slot="title">
-              ${this.state != undefined ? this.state.title : app.environment.name}
+              ${this.state != undefined
+                ? this.state.title
+                : app.environment.name}
             </h2>
             <div slot="body">
               <icon-button
@@ -160,15 +164,37 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-              <icon-button name="load" title="Ouvrir" @click="${this._actionHandle}">
+              <icon-button
+                name="load"
+                title="Ouvrir"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
-              <icon-button name="save" title="Sauvegarder" @click="${this._actionHandle}">
+              <icon-button
+                name="save"
+                title="Sauvegarder"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
-              <icon-button name="settings" title="Paramètres" @click="${this._actionHandle}">
+              <icon-button
+                name="settings"
+                title="Paramètres"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
-              <icon-button name="undo" title="Annuler" ?disabled="${!this.canUndo}" @click="${this._actionHandle}">
+              <icon-button
+                name="undo"
+                title="Annuler"
+                ?disabled="${!this.canUndo}"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
-              <icon-button name="redo" title="Refaire" ?disabled="${!this.canRedo}" @click="${this._actionHandle}">
+              <icon-button
+                name="redo"
+                title="Refaire"
+                ?disabled="${!this.canRedo}"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
               <icon-button
                 class="onlyGrandeurs"
@@ -192,7 +218,7 @@ class AGTabletteApp extends LitElement {
           <toolbar-section
             title="Créer une silhouette"
             .buttons_states="${this.states.filter(
-              state => state.type === 'tangram'
+              (state) => state.type === 'tangram',
             )}"
           >
           </toolbar-section>
@@ -200,7 +226,7 @@ class AGTabletteApp extends LitElement {
           <toolbar-section
             title="Formes libres"
             .buttons_states="${this.states.filter(
-              state => state.type === 'geometryCreator'
+              (state) => state.type === 'geometryCreator',
             )}"
           >
           </toolbar-section>
@@ -208,7 +234,7 @@ class AGTabletteApp extends LitElement {
           <toolbar-section
             title="Mouvements"
             .buttons_states="${this.states.filter(
-              state => state.type === 'move'
+              (state) => state.type === 'move',
             )}"
           >
           </toolbar-section>
@@ -216,7 +242,7 @@ class AGTabletteApp extends LitElement {
           <toolbar-section
             title="Opérations"
             .buttons_states="${this.states.filter(
-              state => state.type === 'operation'
+              (state) => state.type === 'operation',
             )}"
           >
           </toolbar-section>
@@ -224,7 +250,7 @@ class AGTabletteApp extends LitElement {
           <toolbar-section
             title="Outils"
             .buttons_states="${this.states.filter(
-              state => state.type === 'tool'
+              (state) => state.type === 'tool',
             )}"
           >
           </toolbar-section>
@@ -243,22 +269,32 @@ class AGTabletteApp extends LitElement {
 
       <notif-center></notif-center>
 
-      <input id="fileSelector" accept=".${app.environment.extension}" type="file" style="display: none" @change="${event => {
-              window.dispatchEvent(
-                new CustomEvent('file-opened', {
-                  detail: { method: 'old', file: event.target.files[0] },
-                })
-              );
-              event.target.value = null;
-            }}" />
+      <input
+        id="fileSelector"
+        accept=".${app.environment.extension}"
+        type="file"
+        style="display: none"
+        @change="${(event) => {
+          window.dispatchEvent(
+            new CustomEvent('file-opened', {
+              detail: { method: 'old', file: event.target.files[0] },
+            }),
+          );
+          event.target.value = null;
+        }}"
+      />
 
       <label id="color-picker-label" for="color-picker" hidden></label>
-      <input id="color-picker" type="color" @change="${e =>
-              window.dispatchEvent(
-                new CustomEvent('colorChange', {
-                  detail: { color: e.target.value },
-                })
-              )}" />
+      <input
+        id="color-picker"
+        type="color"
+        @change="${(e) =>
+          window.dispatchEvent(
+            new CustomEvent('colorChange', {
+              detail: { color: e.target.value },
+            }),
+          )}"
+      />
     `;
   }
 
@@ -284,8 +320,8 @@ class AGTabletteApp extends LitElement {
         break;
       case 'load':
         if (app.workspace.history.index === -1) {
-          window.dispatchEvent(new CustomEvent('open-file'))
-          return
+          window.dispatchEvent(new CustomEvent('open-file'));
+          return;
         }
         import('./popups/leave-confirmation-popup');
         leaveConfirmationPopup = createElem('leave-confirmation-popup');
@@ -315,7 +351,7 @@ class AGTabletteApp extends LitElement {
       default:
         console.warn(
           'unknow event type: ' + event.type + ', with event: ',
-          event
+          event,
         );
     }
     if (reset_state) {
@@ -326,7 +362,7 @@ class AGTabletteApp extends LitElement {
   setState() {
     this.states = [...app.states];
     this.stateName = app.state;
-    this.state = this.states.find(st => st.name == this.stateName);
+    this.state = this.states.find((st) => st.name == this.stateName);
     // if (location.hostname === 'localhost') console.log(app)
   }
 

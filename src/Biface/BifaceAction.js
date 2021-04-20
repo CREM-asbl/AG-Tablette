@@ -18,10 +18,10 @@ export class BifaceAction extends Action {
       // for update history from 1.0.0
       let involvedShapes = ShapeManager.getAllBindedShapes(
         ShapeManager.getShapeById(save.shapeId),
-        true
+        true,
       );
-      this.involvedShapesIds = involvedShapes.map(s => s.id);
-      this.oldBiface = involvedShapes.map(s => s.isBiface);
+      this.involvedShapesIds = involvedShapes.map((s) => s.id);
+      this.oldBiface = involvedShapes.map((s) => s.isBiface);
       window.dispatchEvent(
         new CustomEvent('update-history', {
           detail: {
@@ -29,7 +29,7 @@ export class BifaceAction extends Action {
             involvedShapesIds: this.involvedShapesIds,
             oldBiface: this.oldBiface,
           },
-        })
+        }),
       );
     }
   }
@@ -65,12 +65,12 @@ export class BifaceAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let value_to_set = !this.involvedShapesIds.every(id => {
+    let value_to_set = !this.involvedShapesIds.every((id) => {
       let s = ShapeManager.getShapeById(id);
       return s.isBiface;
     });
     // let value_to_set = !this.oldBiface.every(old => old);
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id);
       s.isBiface = value_to_set;
     });

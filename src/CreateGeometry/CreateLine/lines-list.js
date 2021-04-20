@@ -82,7 +82,7 @@ class LinesList extends LitElement {
         <h2>lines</h2>
         <ul>
           ${this.linesNames.map(
-            lineName => html`
+            (lineName) => html`
               <li>
                 <icon-button
                   title="${lineName}"
@@ -93,7 +93,7 @@ class LinesList extends LitElement {
                 >
                 </icon-button>
               </li>
-            `
+            `,
           )}
         </ul>
       </div>
@@ -105,7 +105,7 @@ class LinesList extends LitElement {
     window.dispatchEvent(
       new CustomEvent('line-selected', {
         detail: { lineSelected: this.lineSelected },
-      })
+      }),
     );
   }
 }

@@ -163,7 +163,7 @@ export class GridManager {
       possibilities.push(topleft1);
       possibilities.push(topleft1.add({ x: 50 * gridSize, y: 0 }));
       possibilities.push(
-        topleft1.add({ x: 25 * gridSize, y: height * gridSize })
+        topleft1.add({ x: 25 * gridSize, y: height * gridSize }),
       );
     } else if (gridType == 'vertical-triangle') {
       let height = 43.3012701892,
@@ -178,23 +178,25 @@ export class GridManager {
       possibilities.push(topleft1);
       possibilities.push(topleft1.add({ x: 0, y: 50 * gridSize }));
       possibilities.push(
-        topleft1.add({ x: height * gridSize, y: 25 * gridSize })
+        topleft1.add({ x: height * gridSize, y: 25 * gridSize }),
       );
     }
 
     possibilities.sort((poss1, poss2) =>
-      coord.dist(poss1) > coord.dist(poss2) ? 1 : -1
+      coord.dist(poss1) > coord.dist(poss2) ? 1 : -1,
     );
-    possibilities = possibilities.filter(poss =>
-      app.backgroundDrawingEnvironment.points.findIndex(pt => pt.coordinates.equal(poss)) != -1
+    possibilities = possibilities.filter(
+      (poss) =>
+        app.backgroundDrawingEnvironment.points.findIndex((pt) =>
+          pt.coordinates.equal(poss),
+        ) != -1,
     );
 
-    if (possibilities.length == 0)
-      return null;
+    if (possibilities.length == 0) return null;
 
     const closestCoord = possibilities[0];
-    const closestPoint = app.backgroundDrawingEnvironment.points.find(pt =>
-      pt.coordinates.equal(closestCoord)
+    const closestPoint = app.backgroundDrawingEnvironment.points.find((pt) =>
+      pt.coordinates.equal(closestCoord),
     );
     closestPoint.type = 'grid';
 

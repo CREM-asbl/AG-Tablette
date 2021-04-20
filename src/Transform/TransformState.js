@@ -54,8 +54,8 @@ export class TransformState extends State {
     this.constraints = null;
     this.line = null;
 
-    app.workspace.shapes.forEach(s => {
-      s.modifiablePoints.forEach(pt => {
+    app.workspace.shapes.forEach((s) => {
+      s.modifiablePoints.forEach((pt) => {
         pt.computeTransformConstraint();
       });
     });
@@ -87,7 +87,7 @@ export class TransformState extends State {
     this.stopAnimation();
 
     app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
   /**
@@ -96,8 +96,8 @@ export class TransformState extends State {
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
+    } else if (event.type == 'canvasMouseUp') {
+      this.canvasMouseUp();
     } else {
       console.error('unsupported event type : ', event.type);
     }
@@ -113,13 +113,13 @@ export class TransformState extends State {
     if (this.constraints.isConstructed || this.constraints.isBlocked) return;
 
     this.currentStep = 'move-point';
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
 
     this.animate();
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
-  onMouseUp() {
+  canvasMouseUp() {
     if (this.line == null) {
       // pas de contrainte
       let constraints = SelectManager.getEmptySelectionConstraints().points;
@@ -127,7 +127,7 @@ export class TransformState extends State {
       let adjustedPoint = SelectManager.selectPoint(
         this.pointDest,
         constraints,
-        false
+        false,
       );
       if (adjustedPoint) {
         this.pointDest.setCoordinates(adjustedPoint);
@@ -149,9 +149,9 @@ export class TransformState extends State {
 
   refreshStateUpper() {
     if (this.currentStep == 'show-points') {
-      app.workspace.shapes.forEach(s => {
+      app.workspace.shapes.forEach((s) => {
         let points = s.modifiablePoints;
-        points.forEach(pt => {
+        points.forEach((pt) => {
           const transformConstraints = pt.transformConstraints;
           const colorPicker = {
             [transformConstraints.isFree]: '#0f0',
@@ -164,7 +164,7 @@ export class TransformState extends State {
           window.dispatchEvent(
             new CustomEvent('draw-point', {
               detail: { point: pt, size: 2, color: color },
-            })
+            }),
           );
         });
       });
@@ -172,17 +172,17 @@ export class TransformState extends State {
       if (this.constraints.isConstrained) {
         this.pointDest = this.projectionOnConstraints(
           app.workspace.lastKnownMouseCoordinates,
-          this.constraints
+          this.constraints,
         );
 
-        this.constraints.lines.forEach(line => {
+        this.constraints.lines.forEach((line) => {
           window.dispatchEvent(
             new CustomEvent(line.isInfinite ? 'draw-line' : 'draw-segment', {
               detail: { segment: line.segment, color: '#080' },
-            })
+            }),
           );
         });
-        this.constraints.points.forEach(pt => {
+        this.constraints.points.forEach((pt) => {
           window.dispatchEvent(
             new CustomEvent('draw-point', {
               detail: {
@@ -190,7 +190,7 @@ export class TransformState extends State {
                 color: app.settings.get('constraintsDrawColor'),
                 size: 2,
               },
-            })
+            }),
           );
         });
       } else {
@@ -207,10 +207,10 @@ export class TransformState extends State {
       window.dispatchEvent(
         new CustomEvent('draw-shape', {
           detail: { shape: shapeCopy, borderSize: 2 },
-        })
+        }),
       );
 
-      shapeCopy.modifiablePoints.forEach(pt => {
+      shapeCopy.modifiablePoints.forEach((pt) => {
         window.dispatchEvent(
           new CustomEvent('draw-point', {
             detail: {
@@ -218,7 +218,7 @@ export class TransformState extends State {
               size: 2,
               color: app.settings.get('temporaryDrawColor'),
             },
-          })
+          }),
         );
       });
 
@@ -228,16 +228,16 @@ export class TransformState extends State {
 
   projectionOnConstraints(point, constraints) {
     let projectionsOnContraints = constraints.lines
-      .map(line => {
+      .map((line) => {
         let projection = line.segment.projectionOnSegment(point);
         let dist = projection.dist(point);
         return { projection: projection, dist: dist };
       })
       .concat(
-        constraints.points.map(pt => {
+        constraints.points.map((pt) => {
           let dist = pt.dist(point);
           return { projection: pt, dist: dist };
-        })
+        }),
       );
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
     return projectionsOnContraints[0].projection;

@@ -3,5 +3,5 @@ import { TranslateAction } from './TranslateAction';
 
 export default {
   state: new TranslateState(),
-  action: new TranslateAction()
-}
+  action: new TranslateAction(),
+};

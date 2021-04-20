@@ -28,15 +28,15 @@ export class CutAction extends Action {
     this.shapeId = save.shapeId;
     this.firstPoint = app.mainDrawingEnvironment.findObjectById(
       save.firstPointId,
-      'point'
+      'point',
     );
     this.secondPoint = app.mainDrawingEnvironment.findObjectById(
       save.secondPointId,
-      'point'
+      'point',
     );
     this.centerPoint = app.mainDrawingEnvironment.findObjectById(
       save.centerPointId,
-      'point'
+      'point',
     );
 
     // this.createdShapesIds = save.createdShapesIds;
@@ -93,7 +93,7 @@ export class CutAction extends Action {
 
     let shape = app.mainDrawingEnvironment.findObjectById(
         this.shapeId,
-        'shape'
+        'shape',
       ),
       pt1 = this.firstPoint,
       pt2 = this.secondPoint,
@@ -221,7 +221,7 @@ export class CutAction extends Action {
         new Coordinates({
           x: -shape.segments[0].direction.y,
           y: shape.segments[0].direction.x,
-        }).multiply(myOffset / 2)
+        }).multiply(myOffset / 2),
       );
     }
 
@@ -231,7 +231,7 @@ export class CutAction extends Action {
         new Coordinates({
           x: shape.segments[0].direction.y,
           y: -shape.segments[0].direction.x,
-        }).multiply(myOffset / 2)
+        }).multiply(myOffset / 2),
       );
     }
   }
@@ -239,14 +239,12 @@ export class CutAction extends Action {
   addPathElem(path, nextPoint, mustFollowArc) {
     let segment;
     if (mustFollowArc !== false) {
-      let segmentIdx = Number.isInteger(this.currentPoint.idx) ? this.currentPoint.idx : this.currentPoint.segments[0].idx;
+      let segmentIdx = Number.isInteger(this.currentPoint.idx)
+        ? this.currentPoint.idx
+        : this.currentPoint.segments[0].idx;
       segment = this.currentPoint.shape.segments[segmentIdx];
     }
-    if (
-      segment == undefined ||
-      !segment.isArc() ||
-      mustFollowArc === false
-    ) {
+    if (segment == undefined || !segment.isArc() || mustFollowArc === false) {
       path.push('L', nextPoint.coordinates.x, nextPoint.coordinates.y);
       this.currentPoint = nextPoint;
     } else {
@@ -273,7 +271,7 @@ export class CutAction extends Action {
         largeArcFlag,
         sweepFlag,
         secondCoord.x,
-        secondCoord.y
+        secondCoord.y,
       );
       this.currentPoint = nextPoint;
     }
@@ -285,7 +283,7 @@ export class CutAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    this.createdShapesIds.forEach(id => {
+    this.createdShapesIds.forEach((id) => {
       const shape = ShapeManager.getShapeById(id);
       ShapeManager.deleteShape(shape);
     });

@@ -42,26 +42,25 @@ export class DrawingEnvironment {
 
   redraw() {
     this.clear();
-    this.texts.forEach(text => text.updateMessage());
-    if (this.mustDrawGrid)
-      GridManager.drawGridPoints();
+    this.texts.forEach((text) => text.updateMessage());
+    if (this.mustDrawGrid) GridManager.drawGridPoints();
     this.draw();
   }
 
   draw() {
     if (this.mustDrawShapes) {
-      this.shapes.forEach(s => {
-        if (this.editingShapeIds.findIndex(id => s.id == id) == -1) {
+      this.shapes.forEach((s) => {
+        if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
           window.dispatchEvent(
-            new CustomEvent('draw-shape', { detail: { shape: s } })
+            new CustomEvent('draw-shape', { detail: { shape: s } }),
           );
           if (this.mustDrawPoints && app.settings.get('areShapesPointed')) {
-            this.points.forEach(pt => {
+            this.points.forEach((pt) => {
               if (pt.visible && pt.shapeId === s.id) {
                 window.dispatchEvent(
                   new CustomEvent('draw-point', {
                     detail: { point: pt, color: pt.color },
-                  })
+                  }),
                 );
               }
             });
@@ -70,21 +69,21 @@ export class DrawingEnvironment {
       });
     }
     if (this.mustDrawPoints) {
-      this.points.forEach(pt => {
+      this.points.forEach((pt) => {
         if (pt.visible && pt.shapeId === undefined) {
           window.dispatchEvent(
             new CustomEvent('draw-point', {
               detail: { point: pt, color: pt.color },
-            })
+            }),
           );
         }
       });
     }
-    this.texts.forEach(text => {
+    this.texts.forEach((text) => {
       window.dispatchEvent(
         new CustomEvent('draw-text', {
           detail: { text: text },
-        })
+        }),
       );
     });
   }
@@ -92,11 +91,11 @@ export class DrawingEnvironment {
   toSVG() {
     let svg_data = '';
     if (this.mustDrawShapes) {
-      this.shapes.forEach(s => {
-        if (this.editingShapeIds.findIndex(id => s.id == id) == -1) {
+      this.shapes.forEach((s) => {
+        if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
           svg_data += s.toSVG();
           if (this.mustDrawPoints && app.settings.get('areShapesPointed')) {
-            this.points.forEach(pt => {
+            this.points.forEach((pt) => {
               if (pt.visible && pt.shapeId === s.id) {
                 svg_data += pt.toSVG();
               }
@@ -106,7 +105,7 @@ export class DrawingEnvironment {
       });
     }
     if (this.mustDrawPoints) {
-      this.points.forEach(pt => {
+      this.points.forEach((pt) => {
         if (pt.visible && pt.shapeId === undefined) {
           svg_data += pt.toSVG();
         }
@@ -121,7 +120,7 @@ export class DrawingEnvironment {
    * @param {String} objectType   'shape', 'segment' or 'point'
    */
   findObjectById(id, objectType = 'shape') {
-    let object = this[objectType + 's'].find(obj => obj.id == id);
+    let object = this[objectType + 's'].find((obj) => obj.id == id);
     return object;
   }
 
@@ -131,7 +130,7 @@ export class DrawingEnvironment {
    * @param {String} objectType   'shape', 'segment' or 'point'
    */
   findIndexById(id, objectType = 'shape') {
-    let index = this[objectType + 's'].findIndex(obj => obj.id == id);
+    let index = this[objectType + 's'].findIndex((obj) => obj.id == id);
     return index;
   }
 
@@ -145,10 +144,10 @@ export class DrawingEnvironment {
     if (index != -1) {
       if (objectType == 'shape') {
         let object = this.findObjectById(id, objectType);
-        object.segments.forEach(seg =>
-          this.removeObjectById(seg.id, 'segment')
+        object.segments.forEach((seg) =>
+          this.removeObjectById(seg.id, 'segment'),
         );
-        object.points.forEach(pt => this.removeObjectById(pt.id, 'point'));
+        object.points.forEach((pt) => this.removeObjectById(pt.id, 'point'));
       }
       this[objectType + 's'].splice(index, 1);
     }
@@ -160,18 +159,20 @@ export class DrawingEnvironment {
     let segmentIds1 = pt1.segmentIds;
     let segmentIds2 = pt2.segmentIds;
     let commonSegmentIds = segmentIds1.filter(
-      id1 => segmentIds2.findIndex(id2 => id2 == id1) != -1
+      (id1) => segmentIds2.findIndex((id2) => id2 == id1) != -1,
     );
-    let commonSegments = commonSegmentIds.map(id => this.segments.find(seg => seg.id == id));
+    let commonSegments = commonSegmentIds.map((id) =>
+      this.segments.find((seg) => seg.id == id),
+    );
     commonSegments.sort((seg1, seg2) => seg2.idx - seg1.idx);
     return commonSegments[0];
   }
 
   saveData() {
     let data = {
-      shapesData: this.shapes.map(shape => shape.saveData()),
-      segmentsData: this.segments.map(segment => segment.saveData()),
-      pointsData: this.points.map(point => point.saveData()),
+      shapesData: this.shapes.map((shape) => shape.saveData()),
+      segmentsData: this.segments.map((segment) => segment.saveData()),
+      pointsData: this.points.map((point) => point.saveData()),
     };
     return data;
   }
@@ -179,11 +180,11 @@ export class DrawingEnvironment {
   loadFromData(data) {
     this.removeAllObjects();
     if (data != undefined) {
-      data.shapesData.forEach(shapeData => Shape.loadFromData(shapeData));
-      data.segmentsData.forEach(segmentData =>
-        Segment.loadFromData(segmentData)
+      data.shapesData.forEach((shapeData) => Shape.loadFromData(shapeData));
+      data.segmentsData.forEach((segmentData) =>
+        Segment.loadFromData(segmentData),
       );
-      data.pointsData.forEach(pointData => Point.loadFromData(pointData));
+      data.pointsData.forEach((pointData) => Point.loadFromData(pointData));
     } else {
       console.log('nothing to see here');
     }

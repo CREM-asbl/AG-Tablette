@@ -79,8 +79,7 @@ export class CutState extends State {
     window.clearTimeout(this.timeoutRef);
     if (this.status != 'paused' || this.currentStep == 'showing-points')
       this.currentStep = 'listen-canvas-click';
-    if (this.status != 'paused')
-      app.upperDrawingEnvironment.removeAllObjects();
+    if (this.status != 'paused') app.upperDrawingEnvironment.removeAllObjects();
 
     app.removeListener('objectSelected', this.objectSelectedId);
   }
@@ -132,7 +131,7 @@ export class CutState extends State {
         this.shape = null;
         app.upperDrawingEnvironment.removeObjectById(
           app.upperDrawingEnvironment.points[0].id,
-          'point'
+          'point',
         );
         this.firstPoint = null;
         this.currentStep = 'listen-canvas-click';
@@ -169,7 +168,7 @@ export class CutState extends State {
         this.centerPoint = null;
         app.upperDrawingEnvironment.removeObjectById(
           app.upperDrawingEnvironment.points[1].id,
-          'point'
+          'point',
         );
         this.currentStep = 'select-second-point';
         this.setSelectionConstraints(this.currentStep);
@@ -180,11 +179,11 @@ export class CutState extends State {
         this.centerPoint = null;
         app.upperDrawingEnvironment.removeObjectById(
           app.upperDrawingEnvironment.points[1].id,
-          'point'
+          'point',
         );
         app.upperDrawingEnvironment.removeObjectById(
           app.upperDrawingEnvironment.points[0].id,
-          'point'
+          'point',
         );
         this.currentStep = 'listen-canvas-click';
         this.setSelectionConstraints(this.currentStep);
@@ -296,14 +295,14 @@ export class CutState extends State {
       vertexCoordinates: [pt1.coordinates, pt2.coordinates],
       createFromNothing: true,
     });
-    if (shape.segments.some(seg => seg.doesIntersect(junction, false, true)))
+    if (shape.segments.some((seg) => seg.doesIntersect(junction, false, true)))
       return false;
 
     return shape.vertexes.every(
-      vertex =>
+      (vertex) =>
         vertex.coordinates.equal(pt1.coordinates) ||
         vertex.coordinates.equal(pt2.coordinates) ||
-        !junction.isCoordinatesOnSegment(vertex.coordinates)
+        !junction.isCoordinatesOnSegment(vertex.coordinates),
     );
   }
 
@@ -319,12 +318,12 @@ export class CutState extends State {
       app.workspace.selectionConstraints.points.whitelist = null;
       app.workspace.selectionConstraints.points.blacklist = app.workspace.shapes
         .filter(
-          s =>
+          (s) =>
             s.isStraightLine() ||
             s.isSemiStraightLine() ||
-            (s.isSegment() && app.environment.name == 'Geometrie')
+            (s.isSegment() && app.environment.name == 'Geometrie'),
         )
-        .map(s => {
+        .map((s) => {
           return { shapeId: s.id };
         });
     } else if (step == 'select-second-point') {
@@ -342,15 +341,15 @@ export class CutState extends State {
 
       let segmentsToAddToBlacklist = [];
 
-      concernedSegments.forEach(seg => {
+      concernedSegments.forEach((seg) => {
         if (!seg.arcCenter) {
           segmentsToAddToBlacklist.push(seg);
         }
       });
 
       let blacklist = segmentsToAddToBlacklist
-        .map(seg =>
-          seg.points.map(pt => {
+        .map((seg) =>
+          seg.points.map((pt) => {
             if (pt.id != this.firstPoint.id) {
               if (pt.type == 'vertex') {
                 return {
@@ -367,10 +366,10 @@ export class CutState extends State {
                 };
               }
             }
-          })
+          }),
         )
         .flat()
-        .filter(pt => pt);
+        .filter((pt) => pt);
       app.workspace.selectionConstraints.points.blacklist = blacklist;
     } else if (step == 'select-third-point') {
       app.workspace.selectionConstraints.points.types = [

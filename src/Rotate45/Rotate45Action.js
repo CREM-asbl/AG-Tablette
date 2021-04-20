@@ -47,7 +47,7 @@ export class Rotate45Action extends Action {
     let shape = ShapeManager.getShapeById(this.shapeId),
       center = shape.centerCoordinates;
 
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id);
       s.rotate(Math.PI / 4, center);
     });
@@ -62,7 +62,7 @@ export class Rotate45Action extends Action {
     let shape = ShapeManager.getShapeById(this.shapeId),
       center = shape.center;
 
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id);
       s.rotate(-Math.PI / 4, center);
     });

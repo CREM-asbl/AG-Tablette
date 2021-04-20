@@ -34,7 +34,7 @@ export class BifaceState extends State {
    * initialiser l'état
    */
   start() {
-    app.mainDrawingEnvironment.shapes.map(s => {
+    app.mainDrawingEnvironment.shapes.map((s) => {
       if (s.isBiface) {
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
@@ -49,7 +49,7 @@ export class BifaceState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -60,7 +60,7 @@ export class BifaceState extends State {
    */
   restart() {
     this.end();
-    app.mainDrawingEnvironment.shapes.map(s => {
+    app.mainDrawingEnvironment.shapes.map((s) => {
       if (s.isBiface) {
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
@@ -74,7 +74,7 @@ export class BifaceState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -109,8 +109,8 @@ export class BifaceState extends State {
     this.actions = [
       {
         name: 'BifaceAction',
-        involvedShapesIds: involvedShapes.map(s => s.id),
-        oldBiface: involvedShapes.map(s => s.isBiface),
+        involvedShapesIds: involvedShapes.map((s) => s.id),
+        oldBiface: involvedShapes.map((s) => s.isBiface),
       },
     ];
 

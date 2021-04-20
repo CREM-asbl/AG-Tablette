@@ -8,19 +8,20 @@ class GridPopup extends LitElement {
     super();
     this.gridType = app.workspace.settings.get('gridType');
     this.gridSize = app.workspace.settings.get('gridSize');
-    window.addEventListener('close-popup', () => {
+    window.addEventListener(
+      'close-popup',
+      () => {
         this.submitAndClose();
-    }, {
-      once: true,
-    });
+      },
+      {
+        once: true,
+      },
+    );
 
-    window.addEventListener('gridAction', event => {
+    window.addEventListener('gridAction', (event) => {
       app.workspace.settings.set('gridSize', event.detail.gridSize);
-      app.workspace.settings.set('gridType',  event.detail.gridType);
-      app.workspace.settings.set(
-        'isGridShown',
-        'gridType' !== 'none'
-      );
+      app.workspace.settings.set('gridType', event.detail.gridType);
+      app.workspace.settings.set('isGridShown', 'gridType' !== 'none');
       window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
       window.dispatchEvent(new CustomEvent('refreshBackground'));
     });
@@ -115,11 +116,17 @@ class GridPopup extends LitElement {
   }
 
   submit() {
-    window.dispatchEvent(new CustomEvent('gridAction', { detail: {
-      gridSize: app.workspace.settings.get('gridSize'),
-      gridType: app.workspace.settings.get('gridType'),
-    }}));
-    window.dispatchEvent(new CustomEvent('actions-executed', { detail: {name: 'grille'}}));
+    window.dispatchEvent(
+      new CustomEvent('gridAction', {
+        detail: {
+          gridSize: app.workspace.settings.get('gridSize'),
+          gridType: app.workspace.settings.get('gridType'),
+        },
+      }),
+    );
+    window.dispatchEvent(
+      new CustomEvent('actions-executed', { detail: { name: 'grille' } }),
+    );
     app.setState();
   }
 
@@ -149,7 +156,7 @@ class GridPopup extends LitElement {
           event.target.value === 'none';
         app.workspace.settings.set(
           'isGridShown',
-          event.target.value !== 'none'
+          event.target.value !== 'none',
         );
         window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
         window.dispatchEvent(new CustomEvent('refreshBackground'));
@@ -162,7 +169,7 @@ class GridPopup extends LitElement {
             ' ' +
             event.target.value +
             ' ' +
-            event.target.checked
+            event.target.checked,
         );
     }
   }

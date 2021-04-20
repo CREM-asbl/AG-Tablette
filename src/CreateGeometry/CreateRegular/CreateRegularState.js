@@ -16,7 +16,7 @@ export class CreateRegularState extends State {
     super(
       'createRegularPolygon',
       'Créer un polygone régulier',
-      'geometryCreator'
+      'geometryCreator',
     );
 
     // listen-canvas-click -> select-second-point
@@ -58,7 +58,7 @@ export class CreateRegularState extends State {
     this.firstCoordinates = null;
     this.secondCoordinates = null;
 
-    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     window.addEventListener('setNumberOfPoints', this.handler);
   }
 
@@ -77,7 +77,7 @@ export class CreateRegularState extends State {
 
     this.currentStep = 'listen-canvas-click';
 
-    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
   /**
@@ -86,8 +86,8 @@ export class CreateRegularState extends State {
   end() {
     this.stopAnimation();
 
-    app.removeListener('canvasmousedown', this.mouseDownId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseDown', this.mouseDownId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
     window.removeEventListener('setNumberOfPoints', this.handler);
   }
 
@@ -95,10 +95,10 @@ export class CreateRegularState extends State {
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'canvasmousedown') {
-      this.onMouseDown();
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
+    if (event.type == 'canvasMouseDown') {
+      this.canvasMouseDown();
+    } else if (event.type == 'canvasMouseUp') {
+      this.canvasMouseUp();
     } else if (event.type == 'setNumberOfPoints') {
       this.setNumberOfPoints(event.detail.nbOfPoints);
     } else {
@@ -111,9 +111,9 @@ export class CreateRegularState extends State {
     this.currentStep = 'listen-canvas-click';
   }
 
-  onMouseDown() {
+  canvasMouseDown() {
     let newCoordinates = new Coordinates(
-      app.workspace.lastKnownMouseCoordinates
+      app.workspace.lastKnownMouseCoordinates,
     );
 
     if (this.currentStep == 'listen-canvas-click') {
@@ -123,8 +123,8 @@ export class CreateRegularState extends State {
         color: app.settings.get('temporaryDrawColor'),
         size: 2,
       });
-      app.removeListener('canvasmousedown', this.mouseDownId);
-      this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+      app.removeListener('canvasMouseDown', this.mouseDownId);
+      this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
       this.animate();
     } else {
       // 'select-second-point'
@@ -134,7 +134,7 @@ export class CreateRegularState extends State {
         color: app.settings.get('temporaryDrawColor'),
         size: 2,
       });
-      this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+      this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
       this.animate();
       // let reference = Shape.getReference(this.firstCoordinates, this.secondCoordinates);
 
@@ -144,15 +144,15 @@ export class CreateRegularState extends State {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
-  onMouseUp() {
+  canvasMouseUp() {
     if (this.currentStep == 'listen-canvas-click') {
       this.stopAnimation();
       this.adjustPoint(this.firstPoint);
       this.currentStep = '';
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.currentStep = 'select-second-point';
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
-      app.removeListener('canvasmouseup', this.mouseUpId);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+      app.removeListener('canvasMouseUp', this.mouseUpId);
     } else if (this.currentStep == 'select-second-point') {
       this.stopAnimation();
       this.adjustPoint(this.secondPoint);
@@ -177,7 +177,7 @@ export class CreateRegularState extends State {
     let adjustedCoordinates = SelectManager.selectPoint(
       point.coordinates,
       constraints,
-      false
+      false,
     );
     if (adjustedCoordinates) {
       point.coordinates = new Coordinates(adjustedCoordinates);
@@ -187,16 +187,16 @@ export class CreateRegularState extends State {
   refreshStateUpper() {
     if (this.currentStep == 'listen-canvas-click') {
       this.firstPoint.coordinates = new Coordinates(
-        app.workspace.lastKnownMouseCoordinates
+        app.workspace.lastKnownMouseCoordinates,
       );
     } else if (this.currentStep == 'select-second-point') {
       this.secondPoint.coordinates = new Coordinates(
-        app.workspace.lastKnownMouseCoordinates
+        app.workspace.lastKnownMouseCoordinates,
       );
 
       let path = this.getPath(
         this.firstPoint.coordinates,
-        this.secondPoint.coordinates
+        this.secondPoint.coordinates,
       );
 
       if (this.shapeDrawnId)
@@ -226,7 +226,7 @@ export class CreateRegularState extends State {
 
     let startAngle = Math.atan2(
       -(firstCoordinates.y - secondCoordinates.y),
-      -(firstCoordinates.x - secondCoordinates.x)
+      -(firstCoordinates.x - secondCoordinates.x),
     );
 
     let currentCoordinates = secondCoordinates;

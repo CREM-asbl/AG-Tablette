@@ -3,5 +3,5 @@ import { CopyAction } from './CopyAction';
 
 export default {
   state: new CopyState(),
-  action: new CopyAction()
-}
+  action: new CopyAction(),
+};

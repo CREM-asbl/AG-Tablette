@@ -91,8 +91,7 @@ export class DivideState extends State {
       // paused
       this.savedSelConstr = app.workspace.selectionConstraints;
     }
-    if (this.status != 'paused')
-      app.upperDrawingEnvironment.removeAllObjects();
+    if (this.status != 'paused') app.upperDrawingEnvironment.removeAllObjects();
 
     app.removeListener('objectSelected', this.objectSelectedId);
     window.removeEventListener('setNumberOfParts', this.handler);
@@ -128,41 +127,41 @@ export class DivideState extends State {
     if (this.currentStep == 'listen-canvas-click') {
       app.workspace.selectionConstraints.segments.canSelect = true;
       app.workspace.selectionConstraints.segments.blacklist = app.mainDrawingEnvironment.shapes
-        .filter(s => s.isStraightLine() || s.isSemiStraightLine())
-        .map(s => {
+        .filter((s) => s.isStraightLine() || s.isSemiStraightLine())
+        .map((s) => {
           return { shapeId: s.id };
         });
       app.workspace.selectionConstraints.points.canSelect = true;
       app.workspace.selectionConstraints.points.blacklist = app.mainDrawingEnvironment.shapes
-        .filter(s => s.isStraightLine() || s.isSemiStraightLine())
-        .map(s => {
+        .filter((s) => s.isStraightLine() || s.isSemiStraightLine())
+        .map((s) => {
           return { shapeId: s.id };
         });
     } else if (this.currentStep == 'select-second-point') {
       app.workspace.selectionConstraints.points.canSelect = true;
       let firstPoint = app.mainDrawingEnvironment.findObjectById(
         this.actions[0].firstPointId,
-        'point'
+        'point',
       );
-      let segments = firstPoint.segmentIds.map(segId =>
-        app.mainDrawingEnvironment.findObjectById(segId, 'segment')
+      let segments = firstPoint.segmentIds.map((segId) =>
+        app.mainDrawingEnvironment.findObjectById(segId, 'segment'),
       );
-      let potentialPoints = segments.map(seg => seg.vertexes).flat(); // attention, on a 2x firstPoint dans les points potentiels
+      let potentialPoints = segments.map((seg) => seg.vertexes).flat(); // attention, on a 2x firstPoint dans les points potentiels
       // add vertexes to whitelist
       app.workspace.selectionConstraints.points.whitelist = potentialPoints.map(
-        pt => {
+        (pt) => {
           return { shapeId: firstPoint.shapeId, type: 'vertex', index: pt.idx };
-        }
+        },
       );
       // add divisionPoints to whitelist
       app.workspace.selectionConstraints.points.whitelist.push(
-        ...segments.map(seg => {
+        ...segments.map((seg) => {
           return {
             shapeId: firstPoint.shapeId,
             type: 'divisionPoint',
             index: seg.idx,
           };
-        })
+        }),
       );
     }
   }
@@ -228,7 +227,7 @@ export class DivideState extends State {
       // select-second-point
       let pt1 = app.mainDrawingEnvironment.findObjectById(
         this.actions[0].firstPointId,
-        'point'
+        'point',
       );
 
       if (pt1.id == object.id) {
@@ -236,7 +235,7 @@ export class DivideState extends State {
         this.currentStep = 'listen-canvas-click';
         app.upperDrawingEnvironment.removeObjectById(
           app.upperDrawingEnvironment.points[0].id,
-          'point'
+          'point',
         );
         this.actions = null;
 
@@ -254,12 +253,12 @@ export class DivideState extends State {
               arc de cercle), on annule l'action.
                */
           if (
-            (pt1.segmentIds.length == 2 && object.segmentIds.length == 2) && (
-              (pt1.segmentIds[0] == object.segmentIds[0] &&
-                pt1.segmentIds[1] == object.segmentIds[1]) ||
+            pt1.segmentIds.length == 2 &&
+            object.segmentIds.length == 2 &&
+            ((pt1.segmentIds[0] == object.segmentIds[0] &&
+              pt1.segmentIds[1] == object.segmentIds[1]) ||
               (pt1.segmentIds[0] == object.segmentIds[1] &&
-                pt1.segmentIds[1] == object.segmentIds[0])
-            )
+                pt1.segmentIds[1] == object.segmentIds[0]))
           ) {
             console.warn('ambiguité, ne rien faire');
             this.restart();
@@ -283,7 +282,7 @@ export class DivideState extends State {
           secondCoordinates = object.coordinates;
         let commonSegment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
           this.actions[0].firstPointId,
-          this.actions[0].secondPointId
+          this.actions[0].secondPointId,
         );
         let shape = object.shape;
         let path = [
@@ -361,7 +360,7 @@ export class DivideState extends State {
     if (this.actions[0].mode == 'twoPoints') {
       let segment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
         this.actions[0].firstPointId,
-        this.actions[0].secondPointId
+        this.actions[0].secondPointId,
       );
       this.actions[0].segmentId = segment.id;
     }

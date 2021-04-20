@@ -65,7 +65,7 @@ class CanvasButton extends LitElement {
       family = app.environment.getFamily(this.familyName);
       shapeTemplates = [
         family.shapeTemplates.find(
-          template => template.name === this.templateName
+          (template) => template.name === this.templateName,
         ) || family.shapeTemplates[0],
       ];
     } else {
@@ -74,19 +74,19 @@ class CanvasButton extends LitElement {
     }
 
     this.shapes = shapeTemplates.map(
-      template =>
+      (template) =>
         new Shape({
           ...template,
           drawingEnvironment: this.drawingEnvironment,
           opacity: 1,
-        })
+        }),
     );
 
     if (this.shapes.length == 1 && this.shapes[0].isCircle()) {
       scale = 0.42; // arbitraire
       center = this.shapes[0].segments[0].arcCenter.coordinates;
     } else {
-      let shapeBounds = this.shapes.map(s => s.bounds);
+      let shapeBounds = this.shapes.map((s) => s.bounds);
       let totalBounds = Bounds.getOuterBounds(...shapeBounds);
       const largeur = totalBounds.maxX - totalBounds.minX,
         hauteur = totalBounds.maxY - totalBounds.minY;
@@ -102,7 +102,7 @@ class CanvasButton extends LitElement {
       y: 26 - center.y,
     });
 
-    this.shapes.forEach(s => {
+    this.shapes.forEach((s) => {
       s.scale(scale);
       s.translate(centerOffset);
     });

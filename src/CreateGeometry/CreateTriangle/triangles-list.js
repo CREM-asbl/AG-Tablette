@@ -77,7 +77,7 @@ class TrianglesList extends LitElement {
         <h2>Triangles</h2>
         <ul>
           ${this.trianglesNames.map(
-            triangleName => html`
+            (triangleName) => html`
               <li>
                 <icon-button
                   title="${triangleName}"
@@ -88,7 +88,7 @@ class TrianglesList extends LitElement {
                 >
                 </icon-button>
               </li>
-            `
+            `,
           )}
         </ul>
       </div>
@@ -100,7 +100,7 @@ class TrianglesList extends LitElement {
     window.dispatchEvent(
       new CustomEvent('triangle-selected', {
         detail: { triangleSelected: this.triangleSelected },
-      })
+      }),
     );
   }
 }

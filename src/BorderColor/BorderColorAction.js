@@ -55,7 +55,7 @@ export class BorderColorAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id);
       s.borderColor = this.selectedColor;
     });

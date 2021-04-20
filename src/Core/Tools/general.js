@@ -8,11 +8,11 @@ export function getAverageColor(...colors) {
   for (let i = 0; i < arglen; i++) {
     if (!regex.test(colors[i])) {
       console.error(
-        "getAverageColor: une couleur n'a pas été reconnue: " + colors[i]
+        "getAverageColor: une couleur n'a pas été reconnue: " + colors[i],
       );
     }
   }
-  let usableColors = colors.map(color => {
+  let usableColors = colors.map((color) => {
     if (color.length == 4) {
       return (
         '#' +
@@ -31,7 +31,7 @@ export function getAverageColor(...colors) {
   let red = 0,
     green = 0,
     blue = 0;
-  usableColors.forEach(color => {
+  usableColors.forEach((color) => {
     red += parseInt(color[1] + color[2], 16);
     green += parseInt(color[3] + color[4], 16);
     blue += parseInt(color[5] + color[6], 16);
@@ -57,7 +57,7 @@ export function getComplementaryColor(color) {
   let regex = /^#([0-9a-fA-F]{3}){1,2}$/;
   if (!regex.test(color)) {
     console.error(
-      "App.getComplementaryColor: la couleur n'a pas été reconnue: " + color
+      "App.getComplementaryColor: la couleur n'a pas été reconnue: " + color,
     );
     return;
   }

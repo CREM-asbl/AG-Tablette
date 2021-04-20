@@ -20,7 +20,7 @@ export class ZoomAction extends Action {
     this.scaleOffset = save.scaleOffset;
     this.originalZoom = save.originalZoom;
     this.originalTranslateOffset = new Coordinates(
-      save.originalTranslateOffset
+      save.originalTranslateOffset,
     );
     this.centerProp = save.centerProp;
   }
@@ -60,7 +60,7 @@ export class ZoomAction extends Action {
         .add(
           newWinSize
             .substract(actualWinSize)
-            .multiply(this.centerProp.x, this.centerProp.y)
+            .multiply(this.centerProp.x, this.centerProp.y),
         )
         .multiply(newZoom);
 

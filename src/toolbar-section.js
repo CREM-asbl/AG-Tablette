@@ -23,15 +23,16 @@ class ToolbarSection extends LitElement {
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
           ${this.buttons_states.map(
-            state => html`
+            (state) => html`
               <icon-button
                 name="${state.name}"
                 type="State"
                 title="${state.title}"
-                ?active="${state.name === app.state || state.name === app.tool?.name}"
+                ?active="${state.name === app.state ||
+                state.name === app.tool?.name}"
                 @click="${this._actionHandle}"
               ></icon-button>
-            `
+            `,
           )}
         </div>
       </template-toolbar>
@@ -46,7 +47,8 @@ class ToolbarSection extends LitElement {
       switch (event.target.name) {
         case 'move':
         case 'rotate':
-          setState({tool: {name: event.target.name, currentStep: 'start'}});
+        case 'reverse':
+          setState({ tool: { name: event.target.name, currentStep: 'start' } });
           break;
         default:
           app.setState(event.target.name);

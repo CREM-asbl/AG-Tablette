@@ -53,7 +53,7 @@ export class MergeState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -69,7 +69,7 @@ export class MergeState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -113,7 +113,7 @@ export class MergeState extends State {
             {
               name: 'MergeAction',
               mode: 'multipleShapes',
-              involvedShapesIds: this.involvedShapes.map(s => s.id),
+              involvedShapesIds: this.involvedShapes.map((s) => s.id),
               path: path,
             },
           ];
@@ -122,9 +122,9 @@ export class MergeState extends State {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: {
-                message: "Le groupe ne peut pas être fusionné",
+                message: 'Le groupe ne peut pas être fusionné',
               },
-            })
+            }),
           );
           return;
         }
@@ -152,7 +152,7 @@ export class MergeState extends State {
         let group = ShapeManager.getAllBindedShapes(shape, true);
         if (group.length > 1) {
           let firstShape = app.mainDrawingEnvironment.findObjectById(
-            this.firstShapeId
+            this.firstShapeId,
           );
           this.involvedShapes = [...group, firstShape];
           const path = this.getPathFromGroup();
@@ -161,7 +161,7 @@ export class MergeState extends State {
               {
                 name: 'MergeAction',
                 mode: 'multipleShapes',
-                involvedShapesIds: this.involvedShapes.map(s => s.id),
+                involvedShapesIds: this.involvedShapes.map((s) => s.id),
                 path: path,
               },
             ];
@@ -170,9 +170,9 @@ export class MergeState extends State {
             window.dispatchEvent(
               new CustomEvent('show-notif', {
                 detail: {
-                  message: "La forme ne peut pas être fusionnée au groupe",
+                  message: 'La forme ne peut pas être fusionnée au groupe',
                 },
-              })
+              }),
             );
             return;
           }
@@ -194,10 +194,10 @@ export class MergeState extends State {
     if (mustExecuteAction) {
       if (this.actions[0].mode == 'twoShapes') {
         let firstShape = app.mainDrawingEnvironment.findObjectById(
-          this.firstShapeId
+          this.firstShapeId,
         );
         let secondShape = app.mainDrawingEnvironment.findObjectById(
-          this.secondShapeId
+          this.secondShapeId,
         );
 
         if (firstShape.getCommonsCoordinates(secondShape).length < 2) {
@@ -206,7 +206,7 @@ export class MergeState extends State {
               detail: {
                 message: "Il n'y a pas de segment commun entre les formes.",
               },
-            })
+            }),
           );
           return;
         }
@@ -215,7 +215,7 @@ export class MergeState extends State {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: { message: 'Les formes se superposent.' },
-            })
+            }),
           );
           return;
         }
@@ -232,8 +232,7 @@ export class MergeState extends State {
   getPathFromGroup() {
     let segmentsList = this.checkGroupMerge(this.involvedShapes);
 
-    if (!segmentsList)
-      return null;
+    if (!segmentsList) return null;
 
     let path = this.linkNewSegments(segmentsList);
 
@@ -243,27 +242,27 @@ export class MergeState extends State {
   checkGroupMerge(shapes) {
     // check if a shape overlaps another one
     if (
-      shapes.some(shape =>
-        shapes.some(s => {
+      shapes.some((shape) =>
+        shapes.some((s) => {
           if (s.id == shape.id) return false;
           else return s.overlapsWith(shape);
-        })
+        }),
       )
     )
       return null;
 
     let oldSegments = shapes
-      .map(s =>
-        s.segments.map(seg => {
+      .map((s) =>
+        s.segments.map((seg) => {
           return new Segment({
             drawingEnvironment: app.invisibleDrawingEnvironment,
             createFromNothing: true,
-            vertexCoordinates: seg.vertexes.map(vx => vx.coordinates),
-            divisionPointInfos: seg.divisionPoints.map(dp => {
+            vertexCoordinates: seg.vertexes.map((vx) => vx.coordinates),
+            divisionPointInfos: seg.divisionPoints.map((dp) => {
               return { coordinates: dp.coordinates, ratio: dp.ratio };
             }),
           });
-        })
+        }),
       )
       .flat();
 
@@ -271,12 +270,12 @@ export class MergeState extends State {
       .map((segment, idx, segments) => {
         let pointsInside = segments
           .filter((seg, i) => i != idx)
-          .map(seg =>
-            seg.points.filter(pt1 =>
-              segment.divisionPoints.some(pt2 =>
-                pt1.coordinates.equal(pt2.coordinates)
-              )
-            )
+          .map((seg) =>
+            seg.points.filter((pt1) =>
+              segment.divisionPoints.some((pt2) =>
+                pt1.coordinates.equal(pt2.coordinates),
+              ),
+            ),
           )
           .flat()
           .filter((pt, idx, pts) => {
@@ -295,10 +294,10 @@ export class MergeState extends State {
     cutSegments.forEach((seg, i, segments) => {
       if (seg.used) return;
       let segs = segments
-        .map(segment => (segment.equal(seg) ? segment : undefined))
+        .map((segment) => (segment.equal(seg) ? segment : undefined))
         .filter(Boolean);
       if (segs.length == 1) newSegments.push(seg);
-      else segs.forEach(seg => (seg.used = true));
+      else segs.forEach((seg) => (seg.used = true));
     });
 
     return newSegments;
@@ -320,15 +319,15 @@ export class MergeState extends State {
     while (!this.lastUsedCoordinates.equal(startCoordinates)) {
       const potentialSegmentIdx = segmentsList
         .map((seg, idx) =>
-          seg.contains(this.lastUsedCoordinates, false) ? idx : undefined
+          seg.contains(this.lastUsedCoordinates, false) ? idx : undefined,
         )
-        .filter(seg => Number.isInteger(seg));
+        .filter((seg) => Number.isInteger(seg));
       if (potentialSegmentIdx.length != 1) {
         if (potentialSegmentIdx.length == 0)
           console.warn('shape cannot be closed (dead end)');
         else
           console.warn(
-            'shape is dig (a segment has more than one segment for next)'
+            'shape is dig (a segment has more than one segment for next)',
           );
         return null;
       }
@@ -345,8 +344,7 @@ export class MergeState extends State {
       segmentUsed++;
     }
 
-    if (segmentsList.length > 0)
-      return null;
+    if (segmentsList.length > 0) return null;
 
     path = path.join(' ');
 
@@ -381,7 +379,7 @@ export class MergeState extends State {
         largeArcFlag,
         sweepFlag,
         secondCoord.x,
-        secondCoord.y
+        secondCoord.y,
       );
     }
   }

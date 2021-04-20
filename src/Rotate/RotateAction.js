@@ -53,19 +53,19 @@ export class RotateAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let involvedShape = this.involvedShapesIds.map(id => {
+    let involvedShape = this.involvedShapesIds.map((id) => {
       let s = ShapeManager.getShapeById(id);
       return s;
     });
     let shape = ShapeManager.getShapeById(this.shapeId),
       center = shape.centerCoordinates;
 
-    involvedShape.forEach(s => {
+    involvedShape.forEach((s) => {
       s.rotate(this.rotationAngle, center);
     });
 
     let transformation = getShapeAdjustment(involvedShape, shape);
-    involvedShape.forEach(s => {
+    involvedShape.forEach((s) => {
       s.rotate(transformation.rotationAngle, center);
       s.translate(transformation.translation);
     });
@@ -80,7 +80,7 @@ export class RotateAction extends Action {
     let shape = ShapeManager.getShapeById(this.shapeId),
       center = shape.center;
 
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id);
       s.rotate(-this.rotationAngle, center);
     });

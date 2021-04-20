@@ -4,5 +4,5 @@ import './divide-popup';
 
 export default {
   state: new DivideState(),
-  action: new DivideAction()
-}
+  action: new DivideAction(),
+};

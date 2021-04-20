@@ -100,7 +100,7 @@ class AgEnvironnements extends LitElement {
   }
 
   async handleClick(e) {
-    setState({ environment: await loadEnvironnement(e.target.id) })
+    setState({ environment: await loadEnvironnement(e.target.id) });
   }
 }
 customElements.define('ag-environnements', AgEnvironnements);

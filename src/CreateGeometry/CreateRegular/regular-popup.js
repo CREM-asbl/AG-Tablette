@@ -43,7 +43,7 @@ class RegularPopup extends LitElement {
             max="20"
             value="${this.points}"
             list="level"
-            @change="${e => (this.points = e.target.value)}"
+            @change="${(e) => (this.points = e.target.value)}"
           />
           <datalist id="level">
             <option value="1" label="1">1</option>
@@ -81,7 +81,7 @@ class RegularPopup extends LitElement {
     window.dispatchEvent(
       new CustomEvent('setNumberOfPoints', {
         detail: { nbOfPoints: this.points },
-      })
+      }),
     );
     this.close();
   }

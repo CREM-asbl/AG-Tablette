@@ -95,7 +95,7 @@ export class Coordinates {
         new Coordinates({
           x: dist * Math.cos(newAngle),
           y: dist * Math.sin(newAngle),
-        })
+        }),
       );
     return newCoordinates;
   }
@@ -109,13 +109,13 @@ export class Coordinates {
 
   toCanvasCoordinates() {
     return this.multiply(app.workspace.zoomLevel).add(
-      app.workspace.translateOffset
+      app.workspace.translateOffset,
     );
   }
 
   fromCanvasCoordinates() {
     return this.substract(app.workspace.translateOffset).multiply(
-      1 / app.workspace.zoomLevel
+      1 / app.workspace.zoomLevel,
     );
   }
 

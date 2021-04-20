@@ -16,7 +16,7 @@ export class GroupManager {
    * @return {Number}             L'index (peut varier dans le temps!)
    */
   static getGroupIndex(group) {
-    return app.workspace.shapeGroups.findIndex(gr => gr.id == group.id);
+    return app.workspace.shapeGroups.findIndex((gr) => gr.id == group.id);
   }
 
   /**
@@ -25,7 +25,7 @@ export class GroupManager {
    * @return {Group}               le groupe, ou null s'il n'y en a pas.
    */
   static getShapeGroup(shape) {
-    let group = app.workspace.shapeGroups.find(gr => gr.contains(shape.id));
+    let group = app.workspace.shapeGroups.find((gr) => gr.contains(shape.id));
     return group ? group : null;
   }
 

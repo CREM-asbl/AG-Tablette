@@ -3,5 +3,5 @@ import { BorderColorAction } from './BorderColorAction';
 
 export default {
   state: new BorderColorState(),
-  action: new BorderColorAction()
-}
+  action: new BorderColorAction(),
+};

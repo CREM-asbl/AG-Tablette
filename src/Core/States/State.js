@@ -7,7 +7,7 @@ export class State {
   constructor(name, title, type) {
     if (this.constructor === State) {
       throw new TypeError(
-        'Abstract class "State" cannot be instantiated directly'
+        'Abstract class "State" cannot be instantiated directly',
       );
     }
     this.name = name;
@@ -25,7 +25,7 @@ export class State {
     //   type: this.type,
     // });
 
-    window.addEventListener('app-state-changed', event => {
+    window.addEventListener('app-state-changed', (event) => {
       if (this.status == 'running') {
         if (this.name == app.state) {
           this.restart(true, event.detail.startParams);
@@ -66,8 +66,7 @@ export class State {
       if (this.name == app.tool?.name) this.refreshStateUpper();
     });
 
-
-    this.handler = event => this._actionHandle(event);
+    this.handler = (event) => this.eventHandler(event);
 
     // window.addEventListener('tool-changed', this.handler);
   }
@@ -84,13 +83,13 @@ export class State {
   onClick(mouseCoordinates) {
     throw new TypeError('method not implemented');
   }
-  onMouseDown(mouseCoordinates) {
+  canvasMouseDown(mouseCoordinates) {
     throw new TypeError('method not implemented');
   }
   onMouseMove(mouseCoordinates) {
     throw new TypeError('method not implemented');
   }
-  onMouseUp(mouseCoordinates) {
+  canvasMouseUp(mouseCoordinates) {
     throw new TypeError('method not implemented');
   }
   onTouchStart(touches) {
@@ -123,13 +122,13 @@ export class State {
    * Exécuter les actions liée à l'état.
    */
   executeAction() {
-    this.actions.forEach(action =>
-      window.dispatchEvent(new CustomEvent(action.name, { detail: action }))
+    this.actions.forEach((action) =>
+      window.dispatchEvent(new CustomEvent(action.name, { detail: action })),
     );
     window.dispatchEvent(
       new CustomEvent('actions-executed', {
         detail: { name: this.title, actions: this.actions },
-      })
+      }),
     );
   }
 
@@ -167,7 +166,7 @@ export class State {
   animate() {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.requestAnimFrameId = window.requestAnimationFrame(() =>
-      this.animate()
+      this.animate(),
     );
   }
 
@@ -176,8 +175,24 @@ export class State {
   }
 
   removeListeners() {
-    app.removeListener('canvasmousedown', this.mouseDownId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseDown', this.mouseDownId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
     app.removeListener('objectSelected', this.objectSelectedId);
+  }
+
+  eventHandler(event) {
+    if (event.type == 'tool-changed') {
+      if (app.tool.name == this.name) {
+        this[app.tool.currentStep]();
+      } else if (app.tool.currentStep == 'start') {
+        this.end();
+      }
+    } else {
+      if (event.type == 'objectSelected') {
+        this.objectSelected(event.detail.object);
+      } else {
+        this[event.type]();
+      }
+    }
   }
 }

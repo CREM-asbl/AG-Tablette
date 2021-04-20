@@ -66,7 +66,7 @@ export class SolutionCheckerState extends State {
       }
     } else if (event.type == 'objectSelected') {
       let object = event.detail.object;
-      let index = this.solutionShapeIds.findIndex(id => object.id == id);
+      let index = this.solutionShapeIds.findIndex((id) => object.id == id);
       if (index == -1) {
         this.clickOnStateMenuButton('uncheck');
       }
@@ -128,13 +128,13 @@ export class SolutionCheckerState extends State {
   eraseSolution() {
     if (this.solutionShapeIds.length > 1) {
       let firstShape = app.mainDrawingEnvironment.findObjectById(
-        this.solutionShapeIds[0]
+        this.solutionShapeIds[0],
       );
       let group = GroupManager.getShapeGroup(firstShape);
       GroupManager.deleteGroup(group);
     }
-    this.solutionShapeIds.forEach(id =>
-      app.mainDrawingEnvironment.removeObjectById(id)
+    this.solutionShapeIds.forEach((id) =>
+      app.mainDrawingEnvironment.removeObjectById(id),
     );
     this.solutionShapeIds = [];
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -144,14 +144,14 @@ export class SolutionCheckerState extends State {
     this.solutionShapeIds = [];
 
     let segmentsList = this.checkGroupMerge(
-      app.backgroundDrawingEnvironment.shapes
+      app.backgroundDrawingEnvironment.shapes,
     );
 
     let paths = this.linkNewSegments(segmentsList);
 
     let shapes = [];
 
-    paths.forEach(path => {
+    paths.forEach((path) => {
       let shape = new Shape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: path,
@@ -162,7 +162,10 @@ export class SolutionCheckerState extends State {
         isPointed: false,
       });
       // shape.cleanSameDirectionSegment();
-      let translateOffset = new Coordinates({ x: -app.canvasWidth / 2, y: 0 }).multiply(1 / app.workspace.zoomLevel);
+      let translateOffset = new Coordinates({
+        x: -app.canvasWidth / 2,
+        y: 0,
+      }).multiply(1 / app.workspace.zoomLevel);
       shape.translate(translateOffset);
       this.solutionShapeIds.push(shape.id);
       shapes.push(shape);
@@ -172,13 +175,13 @@ export class SolutionCheckerState extends State {
       app.backgroundDrawingEnvironment.shapes[0].size == 0.66;
     if (areShapeScaled) {
       let silhouetteBounds = Bounds.getOuterBounds(
-        ...shapes.map(s => s.bounds)
+        ...shapes.map((s) => s.bounds),
       );
       let center = new Coordinates({
         x: (silhouetteBounds.maxX + silhouetteBounds.minX) / 2,
         y: (silhouetteBounds.maxY + silhouetteBounds.minY) / 2,
       });
-      shapes.forEach(s => s.homothety(3 / 2, center));
+      shapes.forEach((s) => s.homothety(3 / 2, center));
     }
 
     if (this.solutionShapeIds.length > 1) {
@@ -192,14 +195,14 @@ export class SolutionCheckerState extends State {
 
   checkGroupMerge(shapes) {
     let oldSegments = shapes
-      .map(s =>
-        s.segments.map(seg => {
+      .map((s) =>
+        s.segments.map((seg) => {
           return new Segment({
             drawingEnvironment: app.invisibleDrawingEnvironment,
             createFromNothing: true,
-            vertexCoordinates: seg.vertexes.map(vx => vx.coordinates),
+            vertexCoordinates: seg.vertexes.map((vx) => vx.coordinates),
           });
-        })
+        }),
       )
       .flat();
 
@@ -207,21 +210,21 @@ export class SolutionCheckerState extends State {
       .map((segment, idx, segments) => {
         let vertexesInside = segments
           .filter((seg, i) => i != idx)
-          .map(seg =>
+          .map((seg) =>
             seg.vertexes.filter(
-              vertex =>
+              (vertex) =>
                 segment.isCoordinatesOnSegment(vertex.coordinates) &&
-                !segment.vertexes.some(vert =>
-                  vert.coordinates.equal(vertex.coordinates)
-                )
-            )
+                !segment.vertexes.some((vert) =>
+                  vert.coordinates.equal(vertex.coordinates),
+                ),
+            ),
           )
           .flat()
           .filter(
             (vertex, idx, vertexes) =>
-              vertexes.findIndex(v =>
-                v.coordinates.equal(vertex.coordinates)
-              ) == idx
+              vertexes.findIndex((v) =>
+                v.coordinates.equal(vertex.coordinates),
+              ) == idx,
           );
         if (vertexesInside.length) return segment.divideWith(vertexesInside);
         else return segment;
@@ -233,10 +236,10 @@ export class SolutionCheckerState extends State {
     cutSegments.forEach((seg, i, segments) => {
       if (seg.used) return;
       let segs = segments
-        .map(segment => (segment.equal(seg) ? segment : undefined))
+        .map((segment) => (segment.equal(seg) ? segment : undefined))
         .filter(Boolean);
       if (segs.length == 1) newSegments.push(seg);
-      else segs.forEach(seg => (seg.used = true));
+      else segs.forEach((seg) => (seg.used = true));
     });
 
     return newSegments;
@@ -254,7 +257,7 @@ export class SolutionCheckerState extends State {
       paths[numberOfPathCreated].push(
         'M',
         startCoordinates.x,
-        startCoordinates.y
+        startCoordinates.y,
       );
 
       let nextSegmentIndex = 0;
@@ -266,9 +269,9 @@ export class SolutionCheckerState extends State {
       while (!this.lastUsedCoordinates.equal(startCoordinates)) {
         const potentialSegmentIdx = segmentsList
           .map((seg, idx) =>
-            seg.contains(this.lastUsedCoordinates, false) ? idx : undefined
+            seg.contains(this.lastUsedCoordinates, false) ? idx : undefined,
           )
-          .filter(seg => Number.isInteger(seg));
+          .filter((seg) => Number.isInteger(seg));
         if (potentialSegmentIdx.length == 0) {
           console.warn('shape cannot be closed (dead end)');
           return null;
@@ -288,7 +291,7 @@ export class SolutionCheckerState extends State {
       numberOfPathCreated++;
     }
 
-    paths = paths.map(path => path.join(' '));
+    paths = paths.map((path) => path.join(' '));
 
     return paths;
   }
@@ -321,7 +324,7 @@ export class SolutionCheckerState extends State {
         largeArcFlag,
         sweepFlag,
         secondCoord.x,
-        secondCoord.y
+        secondCoord.y,
       );
     }
   }

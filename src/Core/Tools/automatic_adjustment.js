@@ -26,12 +26,13 @@ function computeTransformation(e1, e2, shapes, mainShape) {
     moving1NewCoords = moving1.rotate(rotationAngle, center),
     translation = fix1.substract(moving1NewCoords);
 
-  if (rotationAngle < 0)
-    rotationAngle += 2 * Math.PI;
-  if (rotationAngle >= 2 * Math.PI)
-    rotationAngle %= 2 * Math.PI;
+  if (rotationAngle < 0) rotationAngle += 2 * Math.PI;
+  if (rotationAngle >= 2 * Math.PI) rotationAngle %= 2 * Math.PI;
 
-  if (rotationAngle > maxRotateAngle && rotationAngle < 2 * Math.PI - rotationAngle)
+  if (
+    rotationAngle > maxRotateAngle &&
+    rotationAngle < 2 * Math.PI - rotationAngle
+  )
     return undefined;
 
   return {
@@ -119,7 +120,7 @@ export function getShapeAdjustment(shapes, mainShape) {
 
   //Générer la liste des points du groupe de formes
   let ptList = [];
-  shapes.forEach(s => {
+  shapes.forEach((s) => {
     ptList.push(...s.vertexes, ...s.divisionPoints);
     if (s.isCenterShown) ptList.push(s.center);
   });
@@ -128,7 +129,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   let cPtListGrid = [],
     cPtListBorder = [],
     cPtListShape = [];
-  ptList.forEach(point => {
+  ptList.forEach((point) => {
     if (grid) {
       let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
       if (gridPoint) {
@@ -142,12 +143,12 @@ export function getShapeAdjustment(shapes, mainShape) {
     let constr = SelectManager.getEmptySelectionConstraints().points;
     constr.canSelect = true;
     constr.types = ['vertex', 'divisionPoint', 'shapeCenter'];
-    constr.blacklist = shapes.map(s => {
+    constr.blacklist = shapes.map((s) => {
       return { shapeId: s.id };
     });
     let pts = SelectManager.selectPoint(point, constr, false, true);
     if (pts) {
-      pts.forEach(pt => {
+      pts.forEach((pt) => {
         cPtListShape.push({
           fixed: pt,
           moving: point,
@@ -158,7 +159,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   });
 
   cPtListBorder = cPtListShape.filter(
-    pt => pt.fixed.type == 'vertex' || pt.fixed.type == 'divisionPoint'
+    (pt) => pt.fixed.type == 'vertex' || pt.fixed.type == 'divisionPoint',
   );
 
   let possibilities = [];
@@ -234,7 +235,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
     if (best) {
       transformation.translation = best.fixed.coordinates.substract(
-        best.moving.coordinates
+        best.moving.coordinates,
       );
       console.log('1 point de la grille');
       return transformation;
@@ -254,7 +255,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
     if (best) {
       transformation.translation = best.fixed.coordinates.substract(
-        best.moving.coordinates
+        best.moving.coordinates,
       );
       console.log("1 point d'une autre forme");
       return transformation;

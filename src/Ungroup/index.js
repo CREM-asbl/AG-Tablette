@@ -3,5 +3,5 @@ import { UngroupAction } from './UngroupAction';
 
 export default {
   state: new UngroupState(),
-  action: new UngroupAction()
-}
+  action: new UngroupAction(),
+};

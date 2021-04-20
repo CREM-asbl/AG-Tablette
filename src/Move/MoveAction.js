@@ -54,18 +54,18 @@ export class MoveAction extends Action {
   do() {
     if (!this.checkDoParameters()) return;
 
-    let involvedShape = this.involvedShapesIds.map(id => {
+    let involvedShape = this.involvedShapesIds.map((id) => {
       let s = ShapeManager.getShapeById(id);
       return s;
     });
     let shape = ShapeManager.getShapeById(this.shapeId);
 
-    involvedShape.forEach(s => {
+    involvedShape.forEach((s) => {
       s.translate(this.translation);
     });
 
     let transformation = getShapeAdjustment(involvedShape, shape);
-    involvedShape.forEach(s => {
+    involvedShape.forEach((s) => {
       s.rotate(transformation.rotationAngle, shape.centerCoordinates);
       s.translate(transformation.translation);
     });
@@ -77,7 +77,7 @@ export class MoveAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id),
         newCoords = s.coordinates.subCoordinates(this.translation);
       s.coordinates = newCoords;

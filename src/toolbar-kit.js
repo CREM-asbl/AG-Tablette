@@ -28,7 +28,7 @@ class ToolbarKit extends LitElement {
     });
     window.addEventListener(
       'tool-changed',
-      () => this.selectedFamily = app.tool?.selectedFamily
+      () => (this.selectedFamily = app.tool?.selectedFamily),
     );
   }
 
@@ -38,7 +38,7 @@ class ToolbarKit extends LitElement {
       <template-toolbar>
         <h2 slot="title">${app.environment.kitName}</h2>
         <div slot="body">
-          ${this.familyNames.map(family => {
+          ${this.familyNames.map((family) => {
             return html`
               <canvas-button
                 familyName="${family}"
@@ -46,7 +46,13 @@ class ToolbarKit extends LitElement {
                 ?active="${family === this.selectedFamily}"
                 @click="${() => {
                   console.log('here');
-                  setState({ tool: { name: 'createShape', selectedFamily: family, currentStep: 'start'}});
+                  setState({
+                    tool: {
+                      name: 'createShape',
+                      selectedFamily: family,
+                      currentStep: 'start',
+                    },
+                  });
                 }}"
               >
               </canvas-button>

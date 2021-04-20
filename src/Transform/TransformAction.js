@@ -63,7 +63,7 @@ export class TransformAction extends Action {
       this.pointSelected.shape.segments[
         mod(
           this.pointSelected.segment.idx + 1,
-          this.pointSelected.shape.segments.length
+          this.pointSelected.shape.segments.length,
         )
       ].vertexes[0].setCoordinates(this.pointDest);
     }

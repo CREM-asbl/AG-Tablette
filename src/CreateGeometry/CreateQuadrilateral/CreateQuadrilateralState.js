@@ -66,9 +66,9 @@ export class CreateQuadrilateralState extends State {
       window.dispatchEvent(
         new CustomEvent('quadrilateral-selected', {
           detail: { quadrilateralSelected: this.quadrilateralSelected },
-        })
+        }),
       );
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     } else {
       this.currentStep = 'show-quadrilaterals';
     }
@@ -90,18 +90,18 @@ export class CreateQuadrilateralState extends State {
     }
     this.stopAnimation();
     window.removeEventListener('quadrilateral-selected', this.handler);
-    app.removeListener('canvasmousedown', this.mouseDownId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseDown', this.mouseDownId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'canvasmousedown') {
-      this.onMouseDown();
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
+    if (event.type == 'canvasMouseDown') {
+      this.canvasMouseDown();
+    } else if (event.type == 'canvasMouseUp') {
+      this.canvasMouseUp();
     } else if (event.type == 'quadrilateral-selected') {
       this.setQuadrilateral(event.detail.quadrilateralSelected);
     } else {
@@ -119,13 +119,13 @@ export class CreateQuadrilateralState extends State {
       this.segments = [];
       this.getConstraints(this.numberOfPointsDrawn);
       this.currentStep = 'select-points';
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     }
   }
 
-  onMouseDown() {
+  canvasMouseDown() {
     let newCoordinates = new Coordinates(
-      app.workspace.lastKnownMouseCoordinates
+      app.workspace.lastKnownMouseCoordinates,
     );
 
     if (this.currentStep == 'select-points') {
@@ -155,8 +155,8 @@ export class CreateQuadrilateralState extends State {
         this.segments.push(seg);
         let shape = new Shape({
           drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: this.segments.map(seg => seg.id),
-          pointIds: this.points.map(pt => pt.id),
+          segmentIds: this.segments.map((seg) => seg.id),
+          pointIds: this.points.map((pt) => pt.id),
           borderColor: app.settings.get('temporaryDrawColor'),
         });
         this.segments.forEach((seg, idx) => {
@@ -171,19 +171,19 @@ export class CreateQuadrilateralState extends State {
           borderColor: app.settings.get('temporaryDrawColor'),
         });
       }
-      app.removeListener('canvasmousedown', this.mouseDownId);
-      this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+      app.removeListener('canvasMouseDown', this.mouseDownId);
+      this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
       this.animate();
     }
   }
 
-  onMouseUp() {
+  canvasMouseUp() {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.actions = [
         {
           name: 'CreateQuadrilateralAction',
-          coordinates: this.points.map(pt => pt.coordinates),
+          coordinates: this.points.map((pt) => pt.coordinates),
           quadrilateralName: this.quadrilateralSelected,
           reference: null, //reference,
         },
@@ -197,8 +197,8 @@ export class CreateQuadrilateralState extends State {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.currentStep = 'select-points';
       this.stopAnimation();
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
-      app.removeListener('canvasmouseup', this.mouseUpId);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+      app.removeListener('canvasMouseUp', this.mouseUpId);
     }
   }
 
@@ -209,14 +209,14 @@ export class CreateQuadrilateralState extends State {
       let adjustedCoordinates = SelectManager.selectPoint(
         point.coordinates,
         constraints,
-        false
+        false,
       );
       if (adjustedCoordinates) {
         point.coordinates = new Coordinates(adjustedCoordinates);
       }
     } else {
       let adjustedCoordinates = this.constraints.projectionOnConstraints(
-        point.coordinates
+        point.coordinates,
       );
       point.coordinates = new Coordinates(adjustedCoordinates);
     }
@@ -225,7 +225,7 @@ export class CreateQuadrilateralState extends State {
   refreshStateUpper() {
     if (this.currentStep == 'select-points') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
-        app.workspace.lastKnownMouseCoordinates
+        app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
       if (
@@ -264,14 +264,14 @@ export class CreateQuadrilateralState extends State {
       let length = this.points[0].coordinates.dist(this.points[1].coordinates);
 
       let startAngle = this.points[0].coordinates.angleWith(
-        this.points[1].coordinates
+        this.points[1].coordinates,
       );
 
       for (let i = 0; i < 2; i++) {
         let dx = length * Math.cos(startAngle - externalAngle * (i + 1));
         let dy = length * Math.sin(startAngle - externalAngle * (i + 1));
         let newCoordinates = this.points[i + 1].coordinates.add(
-          new Coordinates({ x: dx, y: dy })
+          new Coordinates({ x: dx, y: dy }),
         );
         if (this.points.length == i + 2) {
           this.points[i + 2] = new Point({
@@ -295,21 +295,21 @@ export class CreateQuadrilateralState extends State {
           .add(this.points[0].coordinates);
       } else if (this.quadrilateralSelected == 'Losange') {
         let diagonnalCenter = this.points[0].coordinates.middleWith(
-          this.points[2].coordinates
+          this.points[2].coordinates,
         );
         newCoordinates = diagonnalCenter
           .multiply(2)
           .substract(this.points[1].coordinates);
       } else if (this.quadrilateralSelected == 'RightAngleTrapeze') {
         let projection = this.segments[0].projectionOnSegment(
-          this.points[2].coordinates
+          this.points[2].coordinates,
         );
         newCoordinates = this.points[2].coordinates
           .substract(projection)
           .add(this.points[0].coordinates);
       } else if (this.quadrilateralSelected == 'IsoscelesTrapeze') {
         let projection = this.segments[0].projectionOnSegment(
-          this.points[2].coordinates
+          this.points[2].coordinates,
         );
         let middleOfSegment = this.segments[0].middle;
         newCoordinates = this.points[2].coordinates
@@ -334,14 +334,14 @@ export class CreateQuadrilateralState extends State {
           new Segment({
             drawingEnvironment: app.upperDrawingEnvironment,
             vertexIds: [this.points[1].id, this.points[2].id],
-          })
+          }),
         );
       if (this.numberOfPointsRequired() < 4)
         this.segments.push(
           new Segment({
             drawingEnvironment: app.upperDrawingEnvironment,
             vertexIds: [this.points[2].id, this.points[3].id],
-          })
+          }),
         );
     }
   }
@@ -354,7 +354,7 @@ export class CreateQuadrilateralState extends State {
     } else if (pointNb == 2) {
       if (this.quadrilateralSelected == 'Rectangle') {
         let angle = this.points[0].coordinates.angleWith(
-          this.points[1].coordinates
+          this.points[1].coordinates,
         );
         let perpendicularAngle = angle + Math.PI / 2;
         let lines = [

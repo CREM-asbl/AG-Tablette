@@ -70,9 +70,9 @@ export class CreateCircleState extends State {
       window.dispatchEvent(
         new CustomEvent('circle-selected', {
           detail: { circleSelected: this.circleSelected },
-        })
+        }),
       );
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     } else {
       this.currentStep = 'show-circles';
     }
@@ -96,18 +96,18 @@ export class CreateCircleState extends State {
     this.stopAnimation();
     window.removeEventListener('circle-selected', this.handler);
     app.removeListener('canvasclick', this.mouseClickId);
-    app.removeListener('canvasmousedown', this.mouseDownId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseDown', this.mouseDownId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'canvasmousedown') {
-      this.onMouseDown();
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
+    if (event.type == 'canvasMouseDown') {
+      this.canvasMouseDown();
+    } else if (event.type == 'canvasMouseUp') {
+      this.canvasMouseUp();
     } else if (event.type == 'canvasclick') {
       this.onClick();
     } else if (event.type == 'circle-selected') {
@@ -127,13 +127,13 @@ export class CreateCircleState extends State {
       this.clockwise = undefined;
       this.getConstraints(this.numberOfPointsDrawn);
       this.currentStep = 'select-points';
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     }
   }
 
-  onMouseDown() {
+  canvasMouseDown() {
     let newCoordinates = new Coordinates(
-      app.workspace.lastKnownMouseCoordinates
+      app.workspace.lastKnownMouseCoordinates,
     );
 
     if (this.currentStep == 'select-points') {
@@ -154,8 +154,8 @@ export class CreateCircleState extends State {
           this.segments.push(seg);
           new Shape({
             drawingEnvironment: app.upperDrawingEnvironment,
-            segmentIds: this.segments.map(seg => seg.id),
-            pointIds: this.points.map(pt => pt.id),
+            segmentIds: this.segments.map((seg) => seg.id),
+            pointIds: this.points.map((pt) => pt.id),
             borderColor: app.settings.get('temporaryDrawColor'),
           });
         } else if (this.circleSelected == 'CirclePart') {
@@ -166,8 +166,8 @@ export class CreateCircleState extends State {
           this.segments.push(seg);
           new Shape({
             drawingEnvironment: app.upperDrawingEnvironment,
-            segmentIds: this.segments.map(seg => seg.id),
-            pointIds: this.points.map(pt => pt.id),
+            segmentIds: this.segments.map((seg) => seg.id),
+            pointIds: this.points.map((pt) => pt.id),
             borderColor: app.settings.get('temporaryDrawColor'),
           });
         }
@@ -198,19 +198,19 @@ export class CreateCircleState extends State {
         }
         new Shape({
           drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: this.segments.map(seg => seg.id),
-          pointIds: this.points.map(pt => pt.id),
+          segmentIds: this.segments.map((seg) => seg.id),
+          pointIds: this.points.map((pt) => pt.id),
           borderColor: app.settings.get('temporaryDrawColor'),
           opacity: this.circleSelected == 'CirclePart' ? 0.7 : 0,
         });
       }
-      app.removeListener('canvasmousedown', this.mouseDownId);
-      this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+      app.removeListener('canvasMouseDown', this.mouseDownId);
+      this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
       this.animate();
     }
   }
 
-  onMouseUp() {
+  canvasMouseUp() {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       if (
         this.circleSelected == 'CirclePart' ||
@@ -218,10 +218,10 @@ export class CreateCircleState extends State {
       ) {
         this.stopAnimation();
         this.showArrow();
-        app.removeListener('canvasmouseup', this.mouseUpId);
+        app.removeListener('canvasMouseUp', this.mouseUpId);
         window.setTimeout(
           () =>
-            (this.mouseClickId = app.addListener('canvasclick', this.handler))
+            (this.mouseClickId = app.addListener('canvasclick', this.handler)),
         );
         return;
       }
@@ -229,7 +229,7 @@ export class CreateCircleState extends State {
       this.actions = [
         {
           name: 'CreateCircleAction',
-          coordinates: this.points.map(pt => pt.coordinates),
+          coordinates: this.points.map((pt) => pt.coordinates),
           circleName: this.circleSelected,
           clockwise: this.clockwise,
           reference: null, //reference,
@@ -244,8 +244,8 @@ export class CreateCircleState extends State {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.currentStep = 'select-points';
       this.stopAnimation();
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
-      app.removeListener('canvasmouseup', this.mouseUpId);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+      app.removeListener('canvasMouseUp', this.mouseUpId);
     }
   }
 
@@ -256,26 +256,26 @@ export class CreateCircleState extends State {
 
   onClick() {
     let angle = this.points[0].coordinates.angleWith(
-      app.workspace.lastKnownMouseCoordinates
+      app.workspace.lastKnownMouseCoordinates,
     );
     let startAngle = this.points[0].coordinates.angleWith(
-      this.points[1].coordinates
+      this.points[1].coordinates,
     );
     let endAngle = this.points[0].coordinates.angleWith(
-      this.points[2].coordinates
+      this.points[2].coordinates,
     );
     let isAngleInside = isAngleBetweenTwoAngles(
       startAngle,
       endAngle,
       false,
-      angle
+      angle,
     );
     this.clockwise = isAngleInside;
     this.stopAnimation();
     this.actions = [
       {
         name: 'CreateCircleAction',
-        coordinates: this.points.map(pt => pt.coordinates),
+        coordinates: this.points.map((pt) => pt.coordinates),
         circleName: this.circleSelected,
         clockwise: this.clockwise,
         reference: null, //reference,
@@ -293,14 +293,14 @@ export class CreateCircleState extends State {
       let adjustedCoordinates = SelectManager.selectPoint(
         point.coordinates,
         constraints,
-        false
+        false,
       );
       if (adjustedCoordinates) {
         point.coordinates = new Coordinates(adjustedCoordinates);
       }
     } else {
       let adjustedCoordinates = this.constraints.projectionOnConstraints(
-        point.coordinates
+        point.coordinates,
       );
       point.coordinates = new Coordinates(adjustedCoordinates);
     }
@@ -309,7 +309,7 @@ export class CreateCircleState extends State {
   refreshStateUpper() {
     if (this.currentStep == 'select-points') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
-        app.workspace.lastKnownMouseCoordinates
+        app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
     }

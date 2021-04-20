@@ -1,3 +1,4 @@
-if (!window.dev_mode) window.onbeforeunload = event => {
-  return false
-}
+if (!window.dev_mode)
+  window.onbeforeunload = (event) => {
+    return false;
+  };

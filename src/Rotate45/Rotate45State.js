@@ -19,7 +19,7 @@ export class Rotate45State extends State {
          */
     this.involvedShapes = [];
 
-    this.handler = event => this._actionHandle(event);
+    this.handler = (event) => this._actionHandle(event);
   }
 
   /**
@@ -45,7 +45,7 @@ export class Rotate45State extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape)
+          app.fastSelectionConstraints.mousedown_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -59,7 +59,7 @@ export class Rotate45State extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape)
+          app.fastSelectionConstraints.mousedown_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -84,7 +84,7 @@ export class Rotate45State extends State {
   }
 
   /**
-   * Appelée par événement du SelectManager quand une forme est sélectionnée (onMouseDown)
+   * Appelée par événement du SelectManager quand une forme est sélectionnée (canvasMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
@@ -95,7 +95,7 @@ export class Rotate45State extends State {
       {
         name: 'Rotate45Action',
         shapeId: this.selectedShape.id,
-        involvedShapesIds: this.involvedShapes.map(s => s.id),
+        involvedShapesIds: this.involvedShapes.map((s) => s.id),
       },
     ];
 

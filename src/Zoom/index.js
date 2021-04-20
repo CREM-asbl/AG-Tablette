@@ -4,6 +4,6 @@ import { PermanentZoomState } from './PermanentZoomState';
 
 export default {
   state: new ZoomState(),
-  action: new ZoomAction()
-}
+  action: new ZoomAction(),
+};
 new PermanentZoomState();

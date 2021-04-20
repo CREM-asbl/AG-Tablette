@@ -109,9 +109,8 @@ export class Workspace {
     app.mainDrawingEnvironment.loadFromData(wsdata.objects);
     if (app.environment.name == 'Tangram')
       app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
-    else
-      app.backgroundDrawingEnvironment.clear();
-    this.shapeGroups = wsdata.shapeGroups.map(groupData => {
+    else app.backgroundDrawingEnvironment.clear();
+    this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
       return group;
@@ -136,13 +135,15 @@ export class Workspace {
         actualCenter = new Coordinates({
           x: wsdata.canvasSize.width,
           y: wsdata.canvasSize.height,
-        }).multiply(1 / 2).substract(originalTranslateOffset).multiply(newZoom / originalZoom),
+        })
+          .multiply(1 / 2)
+          .substract(originalTranslateOffset)
+          .multiply(newZoom / originalZoom),
         newCenter = new Coordinates({
           x: app.canvasWidth,
           y: app.canvasHeight,
         }).multiply(1 / 2),
-        newTranslateoffset = newCenter
-          .substract(actualCenter);
+        newTranslateoffset = newCenter.substract(actualCenter);
 
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
@@ -169,7 +170,7 @@ export class Workspace {
         window.dispatchEvent(new CustomEvent('history-changed'));
       } else {
         this.history.resetToDefault();
-        this.history.startSituation = {...this.data};
+        this.history.startSituation = { ...this.data };
       }
     }
 
@@ -197,7 +198,7 @@ export class Workspace {
     // });
     wsdata.objects = app.mainDrawingEnvironment.saveData();
     wsdata.backObjects = app.backgroundDrawingEnvironment.saveData();
-    wsdata.shapeGroups = this.shapeGroups.map(group => {
+    wsdata.shapeGroups = this.shapeGroups.map((group) => {
       return group.saveToObject();
     });
 

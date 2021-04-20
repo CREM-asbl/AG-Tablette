@@ -15,7 +15,7 @@ export class CompleteHistoryManager {
     // if called when already running
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
 
-    CompleteHistoryManager.saveHistory = {...app.workspace.history};
+    CompleteHistoryManager.saveHistory = { ...app.workspace.history };
     CompleteHistoryManager.setWorkspaceToStartSituation();
     app.setState();
     app.workspace.completeHistory.videoStartTimestamp = Date.now();
@@ -32,7 +32,11 @@ export class CompleteHistoryManager {
   static stopBrowsing() {
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
     window.dispatchEvent(new CustomEvent('browsing-finished'));
-    CompleteHistoryManager.moveTo(app.workspace.completeHistory.steps.filter(step => step.type == 'actions-executed').length);
+    CompleteHistoryManager.moveTo(
+      app.workspace.completeHistory.steps.filter(
+        (step) => step.type == 'actions-executed',
+      ).length,
+    );
     app.workspace.history.initFromObject(CompleteHistoryManager.saveHistory);
     app.setState();
     CompleteHistoryManager.isRunning = false;
@@ -45,7 +49,7 @@ export class CompleteHistoryManager {
   static playBrowsing() {
     app.workspace.completeHistory.timeoutId = setTimeout(
       () => CompleteHistoryManager.executeAllSteps(),
-      CompleteHistoryManager.nextTime + 50 // nextTime,
+      CompleteHistoryManager.nextTime + 50, // nextTime,
     );
   }
 
@@ -62,7 +66,7 @@ export class CompleteHistoryManager {
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     app.workspace.completeHistory.historyIndex = app.workspace.completeHistory.steps.findIndex(
-      step => step.detail && step.detail.action_idx == idx - 1
+      (step) => step.detail && step.detail.action_idx == idx - 1,
     ); // à changer avec tableau de correspondance history_idx -> complete_history_idx ?
 
     if (app.workspace.completeHistory.historyIndex == -1) {
@@ -82,8 +86,7 @@ export class CompleteHistoryManager {
     }
 
     CompleteHistoryManager.executeStep();
-    if (!CompleteHistoryManager.isRunning)
-      return;
+    if (!CompleteHistoryManager.isRunning) return;
     app.workspace.completeHistory.historyIndex++;
     app.workspace.completeHistory.currentTimestamp = Date.now();
 
@@ -95,7 +98,7 @@ export class CompleteHistoryManager {
 
     app.workspace.completeHistory.timeoutId = setTimeout(
       () => CompleteHistoryManager.executeAllSteps(),
-      CompleteHistoryManager.nextTime + 50 // nextTime,
+      CompleteHistoryManager.nextTime + 50, // nextTime,
     );
     CompleteHistoryManager.nextTime = 0;
   }
@@ -117,7 +120,11 @@ export class CompleteHistoryManager {
         window.dispatchEvent(new CustomEvent('close-popup'));
       }
       CompleteHistoryManager.action_idx++;
-      if (app.workspace.completeHistory.steps.filter(step => step.type == 'actions-executed').length == CompleteHistoryManager.action_idx) {
+      if (
+        app.workspace.completeHistory.steps.filter(
+          (step) => step.type == 'actions-executed',
+        ).length == CompleteHistoryManager.action_idx
+      ) {
         CompleteHistoryManager.stopBrowsing();
       }
     } else if (type == 'app-state-changed') {
@@ -130,7 +137,7 @@ export class CompleteHistoryManager {
     } else if (type == 'setNumberOfParts') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('close-popup'));
-    } else if (type == 'canvasmouseup') {
+    } else if (type == 'canvasMouseUp') {
       // window.dispatchEvent(new CustomEvent('click-cursor', { detail: detail }));
       window.dispatchEvent(new CustomEvent(type));
     } else {
@@ -148,7 +155,7 @@ export class CompleteHistoryManager {
       timeStamp = event.timeStamp;
     if (type == 'objectSelected') detail.object = undefined;
     if (type == 'actions-executed') {
-      detail.action_idx = app.workspace.completeHistory.steps.filter(step => {
+      detail.action_idx = app.workspace.completeHistory.steps.filter((step) => {
         return step.type == 'actions-executed';
       }).length;
       // detail.actions = HistoryManager.transformToObjects(detail.actions);
@@ -160,35 +167,35 @@ export class CompleteHistoryManager {
 CompleteHistoryManager.isRunning = false;
 
 // mouse events
-window.addEventListener('canvasclick', event =>
-  CompleteHistoryManager.addStep('canvasclick', event)
+window.addEventListener('canvasclick', (event) =>
+  CompleteHistoryManager.addStep('canvasclick', event),
 );
-window.addEventListener('canvasmousedown', event =>
-  CompleteHistoryManager.addStep('canvasmousedown', event)
+window.addEventListener('canvasMouseDown', (event) =>
+  CompleteHistoryManager.addStep('canvasMouseDown', event),
 );
-window.addEventListener('canvasmouseup', event =>
-  CompleteHistoryManager.addStep('canvasmouseup', event)
+window.addEventListener('canvasMouseUp', (event) =>
+  CompleteHistoryManager.addStep('canvasMouseUp', event),
 );
-window.addEventListener('canvasmousemove', event =>
-  CompleteHistoryManager.addStep('canvasmousemove', event)
+window.addEventListener('canvasmousemove', (event) =>
+  CompleteHistoryManager.addStep('canvasmousemove', event),
 );
-window.addEventListener('canvasmousewheel', event =>
-  CompleteHistoryManager.addStep('canvasmousewheel', event)
+window.addEventListener('canvasmousewheel', (event) =>
+  CompleteHistoryManager.addStep('canvasmousewheel', event),
 );
-window.addEventListener('canvastouchstart', event =>
-  CompleteHistoryManager.addStep('canvastouchstart', event)
+window.addEventListener('canvastouchstart', (event) =>
+  CompleteHistoryManager.addStep('canvastouchstart', event),
 );
-window.addEventListener('canvastouchmove', event =>
-  CompleteHistoryManager.addStep('canvastouchmove', event)
+window.addEventListener('canvastouchmove', (event) =>
+  CompleteHistoryManager.addStep('canvastouchmove', event),
 );
-window.addEventListener('canvastouchend', event =>
-  CompleteHistoryManager.addStep('canvastouchend', event)
+window.addEventListener('canvastouchend', (event) =>
+  CompleteHistoryManager.addStep('canvastouchend', event),
 );
-window.addEventListener('canvastouchcancel', event =>
-  CompleteHistoryManager.addStep('canvastouchcancel', event)
+window.addEventListener('canvastouchcancel', (event) =>
+  CompleteHistoryManager.addStep('canvastouchcancel', event),
 );
-window.addEventListener('objectSelected', event =>
-  CompleteHistoryManager.addStep('objectSelected', event)
+window.addEventListener('objectSelected', (event) =>
+  CompleteHistoryManager.addStep('objectSelected', event),
 );
 
 // create events
@@ -200,27 +207,27 @@ window.addEventListener('objectSelected', event =>
 // );
 
 // divide events
-window.addEventListener('setNumberOfParts', event =>
-  CompleteHistoryManager.addStep('setNumberOfParts', event)
+window.addEventListener('setNumberOfParts', (event) =>
+  CompleteHistoryManager.addStep('setNumberOfParts', event),
 );
 
 // opacity events
-window.addEventListener('setOpacity', event => {
+window.addEventListener('setOpacity', (event) => {
   CompleteHistoryManager.addStep('setOpacity', event);
 });
 
 // background- and bordercolor
-window.addEventListener('colorChange', event =>
-  CompleteHistoryManager.addStep('colorChange', event)
+window.addEventListener('colorChange', (event) =>
+  CompleteHistoryManager.addStep('colorChange', event),
 );
 
 // use for animation states
-window.addEventListener('mouse-coordinates-changed', event =>
-  CompleteHistoryManager.addStep('mouse-coordinates-changed', event)
+window.addEventListener('mouse-coordinates-changed', (event) =>
+  CompleteHistoryManager.addStep('mouse-coordinates-changed', event),
 );
 
-window.addEventListener('actions-executed', event =>
-  CompleteHistoryManager.addStep('actions-executed', event)
+window.addEventListener('actions-executed', (event) =>
+  CompleteHistoryManager.addStep('actions-executed', event),
 );
 
 // tangram
@@ -228,28 +235,28 @@ window.addEventListener('actions-executed', event =>
 //   CompleteHistoryManager.addStep('state-menu-button-click', event),
 // );
 
-window.addEventListener('create-silhouette', event =>
-  CompleteHistoryManager.addStep('create-silhouette', event)
+window.addEventListener('create-silhouette', (event) =>
+  CompleteHistoryManager.addStep('create-silhouette', event),
 );
 
 // undo - redo
-window.addEventListener('undo-action', event =>
-  CompleteHistoryManager.addStep('undo-action', event)
+window.addEventListener('undo-action', (event) =>
+  CompleteHistoryManager.addStep('undo-action', event),
 );
-window.addEventListener('redo-action', event =>
-  CompleteHistoryManager.addStep('redo-action', event)
-);
-
-window.addEventListener('close-popup', event =>
-  CompleteHistoryManager.addStep('close-popup', event)
+window.addEventListener('redo-action', (event) =>
+  CompleteHistoryManager.addStep('redo-action', event),
 );
 
-window.addEventListener('gridAction', event =>
-  CompleteHistoryManager.addStep('gridAction', event)
+window.addEventListener('close-popup', (event) =>
+  CompleteHistoryManager.addStep('close-popup', event),
 );
 
-window.addEventListener('app-state-changed', event =>
-  CompleteHistoryManager.addStep('app-state-changed', event)
+window.addEventListener('gridAction', (event) =>
+  CompleteHistoryManager.addStep('gridAction', event),
+);
+
+window.addEventListener('app-state-changed', (event) =>
+  CompleteHistoryManager.addStep('app-state-changed', event),
 );
 window.addEventListener('start-browsing', () => {
   CompleteHistoryManager.startBrowsing();

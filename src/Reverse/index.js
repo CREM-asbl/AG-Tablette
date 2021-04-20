@@ -3,5 +3,5 @@ import { ReverseAction } from './ReverseAction';
 
 export default {
   state: new ReverseState(),
-  action: new ReverseAction()
-}
+  action: new ReverseAction(),
+};

@@ -20,7 +20,7 @@ export class Bounds {
       minY = bounds[0].minY,
       maxX = bounds[0].maxX,
       maxY = bounds[0].maxY;
-    bounds.forEach(bound => {
+    bounds.forEach((bound) => {
       minX = Math.min(minX, bound.minX);
       minY = Math.min(minY, bound.minY);
       maxX = Math.max(maxX, bound.maxX);

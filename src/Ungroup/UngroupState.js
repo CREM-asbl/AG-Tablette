@@ -35,7 +35,7 @@ export class UngroupState extends State {
    * initialiser l'état
    */
   start() {
-    app.mainDrawingEnvironment.shapes.map(s => {
+    app.mainDrawingEnvironment.shapes.map((s) => {
       if (GroupManager.getShapeGroup(s) != null) {
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
@@ -48,7 +48,7 @@ export class UngroupState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -60,7 +60,7 @@ export class UngroupState extends State {
    */
   restart() {
     this.end();
-    app.mainDrawingEnvironment.shapes.map(s => {
+    app.mainDrawingEnvironment.shapes.map((s) => {
       if (GroupManager.getShapeGroup(s) != null) {
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
@@ -73,7 +73,7 @@ export class UngroupState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);

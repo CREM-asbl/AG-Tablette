@@ -38,7 +38,7 @@ export class BorderColorState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     window.dispatchEvent(new CustomEvent('open-color-picker'));
@@ -59,7 +59,7 @@ export class BorderColorState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -102,15 +102,17 @@ export class BorderColorState extends State {
     let group = GroupManager.getShapeGroup(shape),
       involvedShapes;
     if (group)
-      involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
+      involvedShapes = group.shapesIds.map((id) =>
+        ShapeManager.getShapeById(id),
+      );
     else involvedShapes = [shape];
 
     this.actions = [
       {
         name: 'BorderColorAction',
-        involvedShapesIds: involvedShapes.map(s => s.id),
+        involvedShapesIds: involvedShapes.map((s) => s.id),
         selectedColor: app.workspace.selectedColor,
-        oldColors: involvedShapes.map(s => s.borderColor),
+        oldColors: involvedShapes.map((s) => s.borderColor),
       },
     ];
 

@@ -60,7 +60,7 @@ export class CopyState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape)
+          app.fastSelectionConstraints.mousedown_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -74,7 +74,7 @@ export class CopyState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape)
+          app.fastSelectionConstraints.mousedown_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -87,7 +87,7 @@ export class CopyState extends State {
     this.stopAnimation();
     this.currentStep = 'listen-canvas-click';
     app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
   /**
@@ -96,15 +96,15 @@ export class CopyState extends State {
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
+    } else if (event.type == 'canvasMouseUp') {
+      this.canvasMouseUp();
     } else {
       console.error('unsupported event type : ', event.type);
     }
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (onMouseDown)
+   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (canvasMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
@@ -114,8 +114,11 @@ export class CopyState extends State {
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
-    this.involvedShapes.sort((s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2));
-    this.drawingShapes = this.involvedShapes.map(s => {
+    this.involvedShapes.sort(
+      (s1, s2) =>
+        ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
+    );
+    this.drawingShapes = this.involvedShapes.map((s) => {
       let newShape = new Shape({
         ...s,
         drawingEnvironment: app.upperDrawingEnvironment,
@@ -127,19 +130,19 @@ export class CopyState extends State {
     });
 
     this.currentStep = 'moving-shape';
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
   }
 
-  onMouseUp() {
+  canvasMouseUp() {
     if (this.currentStep != 'moving-shape') return;
 
     let translation = app.workspace.lastKnownMouseCoordinates
       .substract(this.startClickCoordinates)
       .add(this.translateOffset);
 
-    this.involvedShapesIds = this.involvedShapes.map(s => s.id);
+    this.involvedShapesIds = this.involvedShapes.map((s) => s.id);
     this.actions = [
       {
         name: 'CopyAction',
@@ -164,10 +167,10 @@ export class CopyState extends State {
       app.upperDrawingEnvironment.removeAllObjects();
     } else {
       let transformation = app.workspace.lastKnownMouseCoordinates.substract(
-        this.lastKnownMouseCoordinates
+        this.lastKnownMouseCoordinates,
       );
 
-      this.drawingShapes.forEach(s => s.translate(transformation));
+      this.drawingShapes.forEach((s) => s.translate(transformation));
 
       this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
     }

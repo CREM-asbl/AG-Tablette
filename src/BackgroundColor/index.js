@@ -3,5 +3,5 @@ import { BackgroundColorAction } from './BackgroundColorAction';
 
 export default {
   state: new BackgroundColorState(),
-  action: new BackgroundColorAction()
-}
+  action: new BackgroundColorAction(),
+};

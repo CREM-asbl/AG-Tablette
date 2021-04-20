@@ -99,7 +99,9 @@ class DivMainCanvas extends LitElement {
         src="/images/fake_cursor.png"
         height="${this.cursorSize}"
         width="${this.cursorSize}"
-        style="margin-left: ${this.cursorPos.x}px; margin-top: ${this.cursorPos.y}px; display: ${this.cursorShow ? 'inline' : 'none'}"
+        style="margin-left: ${this.cursorPos.x}px; margin-top: ${
+      this.cursorPos.y
+    }px; display: ${this.cursorShow ? 'inline' : 'none'}"
       >
       </img>
 
@@ -124,20 +126,20 @@ class DivMainCanvas extends LitElement {
     this.mainDrawingEnvironment = new DrawingEnvironment(this.mainCanvas);
     app.mainDrawingEnvironment = this.mainDrawingEnvironment;
     this.backgroundDrawingEnvironment = new DrawingEnvironment(
-      this.backgroundCanvas
+      this.backgroundCanvas,
     );
     app.backgroundDrawingEnvironment = this.backgroundDrawingEnvironment;
     this.invisibleDrawingEnvironment = new DrawingEnvironment(
-      this.invisibleCanvas
+      this.invisibleCanvas,
     );
     app.invisibleDrawingEnvironment = this.invisibleDrawingEnvironment;
 
     window.addEventListener('setCanvasSize', () => this.setCanvasSize());
     window.dispatchEvent(new CustomEvent('setCanvasSize'));
 
-    window.addEventListener('mouse-coordinates-changed', event => {
+    window.addEventListener('mouse-coordinates-changed', (event) => {
       app.workspace.lastKnownMouseCoordinates = new Coordinates(
-        event.detail.mousePos
+        event.detail.mousePos,
       );
     });
 
@@ -145,7 +147,7 @@ class DivMainCanvas extends LitElement {
       let mousePos = app.workspace.lastKnownMouseCoordinates;
       this.cursorPos = mousePos.toCanvasCoordinates();
       this.cursorPos = this.cursorPos.substract(
-        new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 })
+        new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 }),
       );
       this.cursorShow = true;
       window.clearTimeout(this.timeoutId);
@@ -169,13 +171,13 @@ class DivMainCanvas extends LitElement {
     // });
 
     // Events
-    this.upperCanvas.addEventListener('click', event => {
+    this.upperCanvas.addEventListener('click', (event) => {
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
       if (
         app.listenerCounter.objectSelected &&
@@ -185,57 +187,57 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasclick'));
     });
 
-    this.upperCanvas.addEventListener('mousedown', event => {
+    this.upperCanvas.addEventListener('mousedown', (event) => {
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
       if (
         app.listenerCounter.objectSelected &&
         'mousedown' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
-      app.dispatchEv(new CustomEvent('canvasmousedown'));
+      app.dispatchEv(new CustomEvent('canvasMouseDown'));
     });
 
-    this.upperCanvas.addEventListener('mouseup', event => {
+    this.upperCanvas.addEventListener('mouseup', (event) => {
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
-      app.dispatchEv(new CustomEvent('canvasmouseup'));
+      app.dispatchEv(new CustomEvent('canvasMouseUp'));
     });
 
-    this.upperCanvas.addEventListener('mousemove', event => {
+    this.upperCanvas.addEventListener('mousemove', (event) => {
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
       app.dispatchEv(new CustomEvent('canvasmousemove'));
     });
 
-    this.upperCanvas.addEventListener('mouseout', event => {
+    this.upperCanvas.addEventListener('mouseout', (event) => {
       event.preventDefault();
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
-      app.dispatchEv(new CustomEvent('canvasmouseup'));
+      app.dispatchEv(new CustomEvent('canvasMouseUp'));
     });
 
-    this.upperCanvas.addEventListener('mousewheel', event => {
+    this.upperCanvas.addEventListener('mousewheel', (event) => {
       event.preventDefault();
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = new Coordinates({
@@ -245,7 +247,7 @@ class DivMainCanvas extends LitElement {
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
       let detail = {
         deltaY: event.deltaY,
@@ -253,14 +255,14 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasmousewheel', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchstart', event => {
+    this.upperCanvas.addEventListener('touchstart', (event) => {
       event.preventDefault();
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
       if (
         app.listenerCounter.objectSelected &&
@@ -275,21 +277,21 @@ class DivMainCanvas extends LitElement {
           new Coordinates({
             x: touch.clientX - app.settings.get('mainMenuWidth'),
             y: touch.clientY,
-          })
+          }),
         );
       }
-      app.dispatchEv(new CustomEvent('canvasmousedown'));
+      app.dispatchEv(new CustomEvent('canvasMouseDown'));
       app.dispatchEv(new CustomEvent('canvastouchstart', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchmove', event => {
+    this.upperCanvas.addEventListener('touchmove', (event) => {
       event.preventDefault();
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
       let detail = {
         touches: [],
@@ -299,11 +301,11 @@ class DivMainCanvas extends LitElement {
           new Coordinates({
             x: touch.clientX - app.settings.get('mainMenuWidth'),
             y: touch.clientY,
-          })
+          }),
         );
       }
       if (this.isOutsideOfCanvas(mousePos)) {
-        app.dispatchEv(new CustomEvent('canvasmouseup'));
+        app.dispatchEv(new CustomEvent('canvasMouseUp'));
         app.dispatchEv(new CustomEvent('canvastouchend', { detail: detail }));
         return;
       }
@@ -311,14 +313,14 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvastouchmove', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchend', event => {
+    this.upperCanvas.addEventListener('touchend', (event) => {
       event.preventDefault();
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
       if (
         app.listenerCounter.objectSelected &&
@@ -333,22 +335,22 @@ class DivMainCanvas extends LitElement {
           new Coordinates({
             x: touch.clientX - app.settings.get('mainMenuWidth'),
             y: touch.clientY,
-          })
+          }),
         );
       }
-      app.dispatchEv(new CustomEvent('canvasmouseup'));
+      app.dispatchEv(new CustomEvent('canvasMouseUp'));
       app.dispatchEv(new CustomEvent('canvasclick'));
       app.dispatchEv(new CustomEvent('canvastouchend', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchcancel', event => {
+    this.upperCanvas.addEventListener('touchcancel', (event) => {
       event.preventDefault();
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
       if (
         app.listenerCounter.objectSelected &&
@@ -363,22 +365,22 @@ class DivMainCanvas extends LitElement {
           new Coordinates({
             x: touch.clientX - app.settings.get('mainMenuWidth'),
             y: touch.clientY,
-          })
+          }),
         );
       }
-      app.dispatchEv(new CustomEvent('canvasmouseup'));
+      app.dispatchEv(new CustomEvent('canvasMouseUp'));
       app.dispatchEv(new CustomEvent('canvasclick'));
       app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchcancel', event => {
+    this.upperCanvas.addEventListener('touchcancel', (event) => {
       event.preventDefault();
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
-        })
+        }),
       );
       if (
         app.listenerCounter.objectSelected &&
@@ -393,10 +395,10 @@ class DivMainCanvas extends LitElement {
           new Coordinates({
             x: touch.clientX - app.settings.get('mainMenuWidth'),
             y: touch.clientY,
-          })
+          }),
         );
       }
-      app.dispatchEv(new CustomEvent('canvasmouseup'));
+      app.dispatchEv(new CustomEvent('canvasMouseUp'));
       app.dispatchEv(new CustomEvent('canvasclick'));
       app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
     });

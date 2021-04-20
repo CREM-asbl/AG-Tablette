@@ -23,8 +23,8 @@ export class BackgroundColorState extends State {
       setTimeout(
         () =>
           (app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.click_all_shape)
-      )
+            app.fastSelectionConstraints.click_all_shape),
+      ),
     );
 
     window.dispatchEvent(new CustomEvent('open-color-picker'));
@@ -46,8 +46,8 @@ export class BackgroundColorState extends State {
       setTimeout(
         () =>
           (app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.click_all_shape)
-      )
+            app.fastSelectionConstraints.click_all_shape),
+      ),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -106,15 +106,17 @@ export class BackgroundColorState extends State {
     let group = GroupManager.getShapeGroup(shape),
       involvedShapes;
     if (group)
-      involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
+      involvedShapes = group.shapesIds.map((id) =>
+        ShapeManager.getShapeById(id),
+      );
     else involvedShapes = [shape];
 
     this.actions = [
       {
         name: 'BackgroundColorAction',
-        involvedShapesIds: involvedShapes.map(s => s.id),
+        involvedShapesIds: involvedShapes.map((s) => s.id),
         selectedColor: app.workspace.selectedColor,
-        oldColors: involvedShapes.map(s => s.color),
+        oldColors: involvedShapes.map((s) => s.color),
       },
     ];
     this.executeAction();

@@ -32,7 +32,7 @@ export class UngroupAction extends Action {
             group: this.group,
             groupIdx: this.groupIdx,
           },
-        })
+        }),
       );
     }
   }

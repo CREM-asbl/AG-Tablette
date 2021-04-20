@@ -13,13 +13,20 @@ class LeaveConfirmationPopup extends LitElement {
   }
 
   updated() {
-    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+    window.setTimeout(
+      () => this.shadowRoot.querySelector('#focus').focus(),
+      200,
+    );
   }
 
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">${this.actionAfter == 'new' ? 'Nouvelle fenêtre' : 'Ouvrir un fichier'}</h2>
+        <h2 slot="title">
+          ${this.actionAfter == 'new'
+            ? 'Nouvelle fenêtre'
+            : 'Ouvrir un fichier'}
+        </h2>
         <div slot="body" id="body">
           <p>
             Voulez-vous partir sans enregistrer votre travail ? <br />
@@ -37,7 +44,11 @@ class LeaveConfirmationPopup extends LitElement {
   }
 
   saveWork() {
-    window.dispatchEvent(new CustomEvent('save-file', {detail: {actionAfter: this.actionAfter}}));
+    window.dispatchEvent(
+      new CustomEvent('save-file', {
+        detail: { actionAfter: this.actionAfter },
+      }),
+    );
     this.close();
   }
 

@@ -34,13 +34,13 @@ export class DeleteAction extends Action {
   initFromObject(save) {
     this.mode = save.mode;
     if (this.mode == 'shape') {
-      this.involvedShapes = save.involvedShapeIds.map(id =>
-        app.mainDrawingEnvironment.findObjectById(id, 'shape')
+      this.involvedShapes = save.involvedShapeIds.map((id) =>
+        app.mainDrawingEnvironment.findObjectById(id, 'shape'),
       );
     } else if (this.mode == 'point') {
       this.point = app.mainDrawingEnvironment.findObjectById(
         save.pointId,
-        'point'
+        'point',
       );
     }
     // if (save.mode == 'shape') {
@@ -128,7 +128,7 @@ export class DeleteAction extends Action {
     if (this.mode == 'shape') {
       let userGroup = GroupManager.getShapeGroup(this.involvedShapes[0]);
 
-      this.involvedShapes.forEach(s => {
+      this.involvedShapes.forEach((s) => {
         /*
           Pas besoin de trier involvedShapes par index décroissants;
           dans undo(), en les ajoutant dans l'ordre inverse, les index resteront
@@ -160,8 +160,8 @@ export class DeleteAction extends Action {
     if (this.mode == 'shape') {
       let userGroup;
 
-      let shapeCopies = this.involvedShapes.map(s => s.copy(true));
-      let sIndexes = this.involvedShapesIndexes.map(s => s);
+      let shapeCopies = this.involvedShapes.map((s) => s.copy(true));
+      let sIndexes = this.involvedShapesIndexes.map((s) => s);
 
       //reverse: pour garder le même index qu'avant la suppression!
       shapeCopies.reverse();

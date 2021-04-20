@@ -80,7 +80,7 @@ class QuadrilateralsList extends LitElement {
         <h2>Quadrilatères</h2>
         <ul>
           ${this.quadrilateralsNames.map(
-            quadrilateralName => html`
+            (quadrilateralName) => html`
               <li>
                 <icon-button
                   title="${quadrilateralName}"
@@ -91,7 +91,7 @@ class QuadrilateralsList extends LitElement {
                 >
                 </icon-button>
               </li>
-            `
+            `,
           )}
         </ul>
       </div>
@@ -103,7 +103,7 @@ class QuadrilateralsList extends LitElement {
     window.dispatchEvent(
       new CustomEvent('quadrilateral-selected', {
         detail: { quadrilateralSelected: this.quadrilateralSelected },
-      })
+      }),
     );
   }
 }

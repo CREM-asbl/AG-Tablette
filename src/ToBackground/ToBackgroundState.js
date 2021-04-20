@@ -34,7 +34,7 @@ export class ToBackgroundState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -48,7 +48,7 @@ export class ToBackgroundState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -78,11 +78,14 @@ export class ToBackgroundState extends State {
    */
   objectSelected(shape) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
-    this.involvedShapes.sort((s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2));
+    this.involvedShapes.sort(
+      (s1, s2) =>
+        ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
+    );
     this.actions = [
       {
         name: 'ToBackgroundAction',
-        involvedShapesIds: this.involvedShapes.map(s => s.id),
+        involvedShapesIds: this.involvedShapes.map((s) => s.id),
       },
     ];
     this.executeAction();

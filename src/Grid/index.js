@@ -5,5 +5,5 @@ export default {
     name: 'grid',
     title: 'Grille',
     type: 'tool',
-  }
-}
+  },
+};

@@ -13,7 +13,7 @@ export class ShapeGroup {
   constructor(shapeId1, shapeId2) {
     if (shapeId1 === shapeId2) {
       throw new Error(
-        'Une même forme ne peut pas être ajoutée 2 fois à un groupe'
+        'Une même forme ne peut pas être ajoutée 2 fois à un groupe',
       );
     }
     //La liste des formes contenues dans le groupe
@@ -66,7 +66,7 @@ export class ShapeGroup {
    */
   deleteShape(shapeId) {
     let length = this.shapesIds.length;
-    this.shapesIds = this.shapesIds.filter(id => shapeId != id);
+    this.shapesIds = this.shapesIds.filter((id) => shapeId != id);
     if (length == this.shapesIds.length)
       console.error("Couldn't delete shape from user group.");
   }

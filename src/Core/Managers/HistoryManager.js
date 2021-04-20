@@ -85,7 +85,7 @@ export class HistoryManager {
     app.workspace.history.data.splice(
       app.workspace.history.index + 1,
       app.workspace.history.length,
-      HistoryManager.saveData()
+      HistoryManager.saveData(),
     );
     app.workspace.history.index = app.workspace.history.length - 1;
 
@@ -110,12 +110,12 @@ export class HistoryManager {
 
 window.addEventListener('actions-executed', () => HistoryManager.addStep());
 
-window.addEventListener('update-history', event =>
-  HistoryManager.updateHistory(event.detail)
+window.addEventListener('update-history', (event) =>
+  HistoryManager.updateHistory(event.detail),
 );
 
 window.addEventListener('action-aborted', () =>
-  HistoryManager.deleteLastStep()
+  HistoryManager.deleteLastStep(),
 );
 
 window.addEventListener('undo-action', () => {

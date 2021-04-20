@@ -25,7 +25,7 @@ export class Notification extends LitElement {
         padding: 10px;
         margin: 0;
       }
-/*
+      /*
       #notif-close {
         position: relative;
         font-size: 60px;
@@ -49,18 +49,18 @@ export class Notification extends LitElement {
 
     this.timeoutId = null;
 
-    this.backgroundColor = document.documentElement.style.getPropertyValue('--theme-color-soft');
+    this.backgroundColor = document.documentElement.style.getPropertyValue(
+      '--theme-color-soft',
+    );
     this.fontColor = '#000000';
 
-    window.addEventListener('show-notif', e => {
+    window.addEventListener('show-notif', (e) => {
       this.show(e.detail.message, e.detail.showTime);
     });
   }
 
   render() {
-    return html`
-      <div>${this.title}</div>
-    `;
+    return html` <div>${this.title}</div> `;
   }
 
   show(message = this.title, showTime = 3) {
@@ -83,7 +83,7 @@ export class Notification extends LitElement {
     }
     offset += 20;
     this.showAnimFrameId = window.requestAnimationFrame(() =>
-      this.showAnimation(offset)
+      this.showAnimation(offset),
     );
   }
 
@@ -92,7 +92,8 @@ export class Notification extends LitElement {
     let i = 250;
     this.intervalId = window.setInterval(() => {
       i -= 250 / 10;
-      this.style.backgroundColor = this.backgroundColor + i.toString(16).padStart(2, '0');
+      this.style.backgroundColor =
+        this.backgroundColor + i.toString(16).padStart(2, '0');
       this.style.color = this.fontColor + i.toString(16);
       if (i == 0) {
         window.clearInterval(this.intervalId);
@@ -102,7 +103,8 @@ export class Notification extends LitElement {
   }
 
   closeAnimation(opacity) {
-    this.style.backgroundColor = this.backgroundColor + opacity.toString(16).padStart(2, '0');
+    this.style.backgroundColor =
+      this.backgroundColor + opacity.toString(16).padStart(2, '0');
     this.style.color = this.fontColor + opacity.toString(16);
     if (opacity <= 0) {
       this.style.display = 'none';
@@ -110,7 +112,7 @@ export class Notification extends LitElement {
     }
     opacity -= 256 / 16;
     this.closeAnimFrameId = window.requestAnimationFrame(() =>
-      this.closeAnimation(opacity)
+      this.closeAnimation(opacity),
     );
   }
 }

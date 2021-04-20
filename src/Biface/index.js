@@ -3,5 +3,5 @@ import { BifaceAction } from './BifaceAction';
 
 export default {
   state: new BifaceState(),
-  action: new BifaceAction()
-}
+  action: new BifaceAction(),
+};

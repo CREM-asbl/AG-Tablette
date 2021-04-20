@@ -31,16 +31,16 @@ export class DivideAction extends Action {
     if (this.mode == 'twoPoints') {
       this.firstPoint = app.mainDrawingEnvironment.findObjectById(
         save.firstPointId,
-        'point'
+        'point',
       );
       this.secondPoint = app.mainDrawingEnvironment.findObjectById(
         save.secondPointId,
-        'point'
+        'point',
       );
     }
     this.segment = app.mainDrawingEnvironment.findObjectById(
       save.segmentId,
-      'segment'
+      'segment',
     );
     // if (this.mode == 'twoPoints') {
     //   this.firstPoint = new Point();
@@ -160,8 +160,8 @@ export class DivideAction extends Action {
     if (!this.checkUndoParameters()) return;
 
     this.segment.points
-      .filter(pt => !this.existingPoints.find(extPt => extPt.equal(pt)))
-      .forEach(pt => this.segment.deletePoint(pt));
+      .filter((pt) => !this.existingPoints.find((extPt) => extPt.equal(pt)))
+      .forEach((pt) => this.segment.deletePoint(pt));
   }
 
   segmentModeAddArcPoints() {
@@ -189,7 +189,10 @@ export class DivideAction extends Action {
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
 
-    if (this.segment.counterclockwise && !this.firstPoint.coordinates.equal(this.secondPoint.coordinates)) {
+    if (
+      this.segment.counterclockwise &&
+      !this.firstPoint.coordinates.equal(this.secondPoint.coordinates)
+    ) {
       partAngle = (secondAngle - firstAngle - 2 * Math.PI) / this.numberOfParts;
     }
 
@@ -262,7 +265,7 @@ export class DivideAction extends Action {
       (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
 
     const segLength = this.secondPoint.coordinates.substract(
-      this.firstPoint.coordinates
+      this.firstPoint.coordinates,
     );
     const part = segLength.multiply(1 / this.numberOfParts);
 

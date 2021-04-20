@@ -53,7 +53,7 @@ export class GroupState extends State {
    */
   start() {
     this.currentStep = 'listen-canvas-click';
-    app.mainDrawingEnvironment.shapes.map(s => {
+    app.mainDrawingEnvironment.shapes.map((s) => {
       if (GroupManager.getShapeGroup(s) != null) {
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
@@ -66,7 +66,7 @@ export class GroupState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -78,7 +78,7 @@ export class GroupState extends State {
    */
   restart() {
     this.end();
-    app.mainDrawingEnvironment.shapes.map(s => {
+    app.mainDrawingEnvironment.shapes.map((s) => {
       if (GroupManager.getShapeGroup(s) != null) {
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
@@ -92,7 +92,7 @@ export class GroupState extends State {
       setTimeout(
         () =>
           (app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.click_all_shape)
+            app.fastSelectionConstraints.click_all_shape),
       );
     } else {
       let shapeIdsList = [];
@@ -104,9 +104,9 @@ export class GroupState extends State {
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
       app.workspace.selectionConstraints.shapes.blacklist = shapeIdsList.map(
-        id => {
+        (id) => {
           return { shapeId: id };
-        }
+        },
       );
     }
 
@@ -161,7 +161,11 @@ export class GroupState extends State {
     } else if (this.currentStep == 'selecting-second-shape') {
       let userGroup = GroupManager.getShapeGroup(shape);
       if (shape.id == this.firstShapeId) {
-        window.dispatchEvent(new CustomEvent('show-notif', {detail: {message: 'La forme choisie fait déjà partie du groupe'}}));
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: 'La forme choisie fait déjà partie du groupe' },
+          }),
+        );
         return;
       } else if (userGroup) {
         this.group = userGroup;
@@ -201,7 +205,13 @@ export class GroupState extends State {
         let index1 = GroupManager.getGroupIndex(this.group),
           index2 = GroupManager.getGroupIndex(userGroup);
         if (index1 == index2) {
-          window.dispatchEvent(new CustomEvent('show-notif', {detail: {message: 'La forme choisie fait déjà partie du groupe'}}));
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message: 'La forme choisie fait déjà partie du groupe',
+              },
+            }),
+          );
           return;
         }
         //On garde le groupe ayant l'index le plus petit
@@ -248,9 +258,9 @@ export class GroupState extends State {
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.shapes.blacklist = shapeIdsList.map(
-      sId => {
+      (sId) => {
         return { shapeId: sId };
-      }
+      },
     );
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));

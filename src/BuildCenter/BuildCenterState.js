@@ -34,7 +34,7 @@ export class BuildCenterState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -48,7 +48,7 @@ export class BuildCenterState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -81,7 +81,7 @@ export class BuildCenterState extends State {
     this.actions = [
       {
         name: 'BuildCenterAction',
-        involvedShapesIds: involvedShapes.map(s => s.id),
+        involvedShapesIds: involvedShapes.map((s) => s.id),
       },
     ];
     this.executeAction();

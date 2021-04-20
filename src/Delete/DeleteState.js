@@ -90,9 +90,9 @@ export class DeleteState extends State {
         {
           name: 'DeleteAction',
           mode: 'shape',
-          involvedShapeIds: involvedShapes.map(s => s.id),
-          involvedShapesIndexes: involvedShapes.map(s =>
-            ShapeManager.getShapeIndex(s)
+          involvedShapeIds: involvedShapes.map((s) => s.id),
+          involvedShapesIndexes: involvedShapes.map((s) =>
+            ShapeManager.getShapeIndex(s),
           ),
         },
       ];

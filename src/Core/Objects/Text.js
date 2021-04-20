@@ -59,7 +59,7 @@ export class Text {
   updateMessage() {
     if (this.type == 'group') {
       let shape = app.mainDrawingEnvironment.shapes.find(
-        s => s.id == this.referenceId
+        (s) => s.id == this.referenceId,
       );
       let group = GroupManager.getShapeGroup(shape);
       if (group == null) return;

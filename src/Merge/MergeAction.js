@@ -81,8 +81,8 @@ export class MergeAction extends Action {
 
       this.createNewShape(path, shape1, shape2);
     } else {
-      let shapes = this.involvedShapesIds.map(id =>
-        app.mainDrawingEnvironment.findObjectById(id)
+      let shapes = this.involvedShapesIds.map((id) =>
+        app.mainDrawingEnvironment.findObjectById(id),
       );
       this.createNewShape(this.path, ...shapes);
     }
@@ -102,7 +102,7 @@ export class MergeAction extends Action {
     window.dispatchEvent(
       new CustomEvent('show-notif', {
         detail: { message: 'La fusion crée une forme creuse.' },
-      })
+      }),
     );
     return false;
   }
@@ -114,12 +114,12 @@ export class MergeAction extends Action {
    * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
    */
   createNewSegments(shape1, shape2) {
-    let segments1 = shape1.segments.map(seg => {
+    let segments1 = shape1.segments.map((seg) => {
       let segmentCopy = new Segment({
         drawingEnvironment: app.invisibleDrawingEnvironment,
         createFromNothing: true,
-        vertexCoordinates: seg.vertexes.map(v => v.coordinates),
-        divisionPointInfos: seg.divisionPoints.map(d => {
+        vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
+        divisionPointInfos: seg.divisionPoints.map((d) => {
           return { coordinates: d.coordinates, ratio: d.ratio };
         }),
         arcCenterCoordinates: seg.arcCenter?.coordinates,
@@ -127,12 +127,12 @@ export class MergeAction extends Action {
       });
       return segmentCopy;
     });
-    let segments2 = shape2.segments.map(seg => {
+    let segments2 = shape2.segments.map((seg) => {
       let segmentCopy = new Segment({
         drawingEnvironment: app.invisibleDrawingEnvironment,
         createFromNothing: true,
-        vertexCoordinates: seg.vertexes.map(v => v.coordinates),
-        divisionPointInfos: seg.divisionPoints.map(d => {
+        vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
+        divisionPointInfos: seg.divisionPoints.map((d) => {
           return { coordinates: d.coordinates, ratio: d.ratio };
         }),
         arcCenterCoordinates: seg.arcCenter?.coordinates,
@@ -140,8 +140,8 @@ export class MergeAction extends Action {
       });
       return segmentCopy;
     });
-    segments1.forEach(seg => seg.sortDivisionPoints());
-    segments2.forEach(seg => seg.sortDivisionPoints());
+    segments1.forEach((seg) => seg.sortDivisionPoints());
+    segments2.forEach((seg) => seg.sortDivisionPoints());
 
     for (let i = 0; i < segments1.length; i++) {
       for (let j = 0; j < segments2.length; j++) {
@@ -150,14 +150,14 @@ export class MergeAction extends Action {
         if (
           Math.abs(
             firstSegment.getAngleWithHorizontal() -
-              secondSegment.getAngleWithHorizontal()
+              secondSegment.getAngleWithHorizontal(),
           ) > 0.01
         ) {
           secondSegment.reverse();
         }
         let commonCoordinates = this.getCommonCoordinates(
           firstSegment,
-          secondSegment
+          secondSegment,
         );
         if (commonCoordinates) {
           // todo: quand on crée un nouveau segment, copier les points de division de son modele
@@ -175,7 +175,7 @@ export class MergeAction extends Action {
                 ],
                 arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
                 counterclockwise: firstSegment.counterclockwise,
-              })
+              }),
             );
           }
           if (
@@ -191,7 +191,7 @@ export class MergeAction extends Action {
                 ],
                 arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
                 counterclockwise: firstSegment.counterclockwise,
-              })
+              }),
             );
           }
           if (
@@ -207,7 +207,7 @@ export class MergeAction extends Action {
                 ],
                 arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
                 counterclockwise: firstSegment.counterclockwise,
-              })
+              }),
             );
           }
           if (
@@ -223,7 +223,7 @@ export class MergeAction extends Action {
                 ],
                 arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
                 counterclockwise: firstSegment.counterclockwise,
-              })
+              }),
             );
           }
           segments1.splice(i, 1);
@@ -246,12 +246,12 @@ export class MergeAction extends Action {
       firstSegment.vertexes[0],
       ...firstSegment.divisionPoints,
       firstSegment.vertexes[1],
-    ].forEach(pt1 => {
+    ].forEach((pt1) => {
       [
         secondSegment.vertexes[0],
         ...secondSegment.divisionPoints,
         secondSegment.vertexes[1],
-      ].forEach(pt2 => {
+      ].forEach((pt2) => {
         if (pt1.coordinates.equal(pt2.coordinates)) {
           if (firstCommonCoordinates == null) {
             firstCommonCoordinates = pt1.coordinates;
@@ -286,15 +286,15 @@ export class MergeAction extends Action {
     while (!this.lastUsedCoordinates.equal(startCoordinates)) {
       const potentialSegmentIdx = segmentsList
         .map((seg, idx) =>
-          seg.contains(this.lastUsedCoordinates, false) ? idx : undefined
+          seg.contains(this.lastUsedCoordinates, false) ? idx : undefined,
         )
-        .filter(seg => Number.isInteger(seg));
+        .filter((seg) => Number.isInteger(seg));
       if (potentialSegmentIdx.length != 1) {
         if (potentialSegmentIdx.length == 0)
           console.warn('shape cannot be closed (dead end)');
         else
           console.warn(
-            'shape is dig (a segment has more than one segment for next)'
+            'shape is dig (a segment has more than one segment for next)',
           );
         return null;
       }
@@ -351,7 +351,7 @@ export class MergeAction extends Action {
         largeArcFlag,
         sweepFlag,
         secondCoord.x,
-        secondCoord.y
+        secondCoord.y,
       );
     }
   }
@@ -367,13 +367,13 @@ export class MergeAction extends Action {
       path: path,
       name: 'Custom',
       familyName: 'Custom',
-      color: getAverageColor(...shapes.map(s => s.color)),
-      borderColor: getAverageColor(...shapes.map(s => s.borderColor)),
+      color: getAverageColor(...shapes.map((s) => s.color)),
+      borderColor: getAverageColor(...shapes.map((s) => s.borderColor)),
       opacity:
-        shapes.map(s => s.opacity).reduce((acc, value) => acc + value) /
+        shapes.map((s) => s.opacity).reduce((acc, value) => acc + value) /
         shapes.length,
-      isBiface: shapes.some(s => s.isBiface),
-      isReversed: shapes.some(s => s.isReversed),
+      isBiface: shapes.some((s) => s.isBiface),
+      isReversed: shapes.some((s) => s.isReversed),
     });
     newShape.cleanSameDirectionSegment();
     newShape.translate({ x: -20, y: -20 });

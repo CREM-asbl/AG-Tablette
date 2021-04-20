@@ -15,7 +15,7 @@ export class RotateState extends State {
 
     this.drawColor = '#080';
 
-    this.currentStep = null; // listen-canvas-click -> rotating-shape
+    this.currentStep = null; // listen-canvas-click -> rotate
 
     //La forme que l'on déplace
     this.selectedShape = null;
@@ -51,29 +51,6 @@ export class RotateState extends State {
   }
 
   /**
-   * Main event handler
-   */
-   _actionHandle(event) {
-    if (event.type == 'tool-changed') {
-      if (app.tool.name == this.name) {
-        if (app.tool.currentStep == 'start') {
-          this.start();
-        } else if (app.tool.currentStep == 'rotating-shape') {
-          this.startRotating();
-        }
-      } else if (app.tool.currentStep == 'start') {
-        this.end();
-      }
-    } else if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  /**
    * initialiser l'état
    */
   start() {
@@ -87,10 +64,10 @@ export class RotateState extends State {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  startRotating() {
+  rotate() {
     this.removeListeners();
 
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
@@ -104,7 +81,7 @@ export class RotateState extends State {
   }
 
   /**
-   * Appelée par événement du SelectManager quand une forme est sélectionnée (onMouseDown)
+   * Appelée par événement du SelectManager quand une forme est sélectionnée (canvasMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
@@ -114,19 +91,22 @@ export class RotateState extends State {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.center = shape.centerCoordinates;
     this.initialAngle = this.center.angleWith(
-      app.workspace.lastKnownMouseCoordinates
+      app.workspace.lastKnownMouseCoordinates,
     );
     this.lastAngle = this.initialAngle;
 
-    this.involvedShapes.sort((s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2));
+    this.involvedShapes.sort(
+      (s1, s2) =>
+        ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
+    );
     this.drawingShapes = this.involvedShapes.map(
-      s =>
+      (s) =>
         new Shape({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: s.getSVGPath('no scale'),
           id: undefined,
-        })
+        }),
     );
 
     new Point({
@@ -136,19 +116,19 @@ export class RotateState extends State {
     });
 
     app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
-      s => s.id
+      (s) => s.id,
     );
-    setState({ tool: { ...app.tool, currentStep: 'rotating-shape' } });
+    setState({ tool: { ...app.tool, currentStep: 'rotate' } });
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
     console.log(app.mainDrawingEnvironment.editingShapeIds);
   }
 
-  onMouseUp() {
-    if (app.tool.currentStep != 'rotating-shape') return;
+  canvasMouseUp() {
+    if (app.tool.currentStep != 'rotate') return;
 
     let newAngle = this.center.angleWith(
-      app.workspace.lastKnownMouseCoordinates
+      app.workspace.lastKnownMouseCoordinates,
     );
     let rotationAngle = newAngle - this.initialAngle;
     this.adjustedRotationAngle = rotationAngle;
@@ -159,7 +139,7 @@ export class RotateState extends State {
       adjustedRotationAngleInDegree = Math.round(rotationAngleInDegree);
       let sign = rotationAngleInDegree > 0 ? 1 : -1;
       let absoluteValueRotationAngleInDegree = Math.abs(
-        adjustedRotationAngleInDegree
+        adjustedRotationAngleInDegree,
       );
       if (absoluteValueRotationAngleInDegree % 5 <= 2) {
         adjustedRotationAngleInDegree =
@@ -173,7 +153,8 @@ export class RotateState extends State {
             5 -
             (absoluteValueRotationAngleInDegree % 5));
       }
-      this.adjustedRotationAngle = (adjustedRotationAngleInDegree * Math.PI) / 180;
+      this.adjustedRotationAngle =
+        (adjustedRotationAngleInDegree * Math.PI) / 180;
     }
 
     this.executeAction();
@@ -187,14 +168,14 @@ export class RotateState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (app.tool.currentStep == 'rotating-shape') {
+    if (app.tool.currentStep == 'rotate') {
       console.log('here');
       let newAngle = this.center.angleWith(
-          app.workspace.lastKnownMouseCoordinates
+          app.workspace.lastKnownMouseCoordinates,
         ),
         diffAngle = newAngle - this.lastAngle;
 
-      this.drawingShapes.forEach(s => s.rotate(diffAngle, this.center));
+      this.drawingShapes.forEach((s) => s.rotate(diffAngle, this.center));
 
       this.lastAngle = newAngle;
     }
@@ -203,12 +184,15 @@ export class RotateState extends State {
   executeAction() {
     let center = this.selectedShape.centerCoordinates;
 
-    this.involvedShapes.forEach(s => {
+    this.involvedShapes.forEach((s) => {
       s.rotate(this.adjustedRotationAngle, center);
     });
 
-    let transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape);
-    this.involvedShapes.forEach(s => {
+    let transformation = getShapeAdjustment(
+      this.involvedShapes,
+      this.selectedShape,
+    );
+    this.involvedShapes.forEach((s) => {
       s.rotate(transformation.rotationAngle, center);
       s.translate(transformation.translation);
     });

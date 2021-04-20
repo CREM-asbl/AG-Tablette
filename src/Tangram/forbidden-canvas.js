@@ -25,16 +25,16 @@ class ForbiddenCanvas extends LitElement {
 
   firstUpdated() {
     this.unreachableCanvas = this.shadowRoot.querySelector(
-      '#unreachableCanvas'
+      '#unreachableCanvas',
     );
 
     this.unreachableCanvas.setAttribute(
       'height',
-      this.unreachableCanvas.clientHeight
+      this.unreachableCanvas.clientHeight,
     );
     this.unreachableCanvas.setAttribute(
       'width',
-      this.unreachableCanvas.clientWidth
+      this.unreachableCanvas.clientWidth,
     );
 
     app.forbiddenCtx = this.unreachableCanvas.getContext('2d');

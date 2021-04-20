@@ -13,7 +13,7 @@ export class CreateState extends State {
   constructor() {
     super('createShape', 'Ajouter une forme');
 
-    // show-family-shape -> listen-canvas-click -> moving-shape
+    // start -> listen -> move
     this.currentStep = null;
 
     this.selectedFamily = null;
@@ -45,32 +45,6 @@ export class CreateState extends State {
   }
 
   /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'tool-changed') {
-      if (app.tool.name == this.name) {
-        console.log(app.tool.currentStep);
-        if (app.tool.currentStep == 'start') {
-          this.start();
-        } else if (app.tool.currentStep == 'listen-canvas-click') {
-          this.startListening();
-        } else if (app.tool.currentStep == 'moving-shape') {
-          this.startMoving();
-        }
-      } else if (app.tool.currentStep == 'start') {
-        this.end();
-      }
-    } else if (event.type == 'canvasmousedown') {
-      this.onMouseDown();
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  /**
    * (ré-)initialiser l'état
    * @param  {String} family Nom de la famille sélectionnée
    */
@@ -78,24 +52,23 @@ export class CreateState extends State {
     app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
-    console.log(this.shapesList);
     if (!this.shapesList) {
       import('./shapes-list');
       this.shapesList = createElem('shapes-list');
     }
   }
 
-  startListening() {
+  listen() {
     app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
-    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
-  startMoving() {
+  move() {
     this.stopAnimation();
     this.removeListeners();
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
@@ -109,8 +82,8 @@ export class CreateState extends State {
     this.removeListeners();
   }
 
-  onMouseDown() {
-    if (app.tool.currentStep != 'listen-canvas-click') return;
+  canvasMouseDown() {
+    if (app.tool.currentStep != 'listen') return;
 
     const selectedTemplate = app.environment
       .getFamily(app.tool.selectedFamily)
@@ -131,25 +104,25 @@ export class CreateState extends State {
 
     console.log(this.shapeToCreate);
 
-    setState({tool: {...app.tool, currentStep: 'moving-shape'}});
+    setState({ tool: { ...app.tool, currentStep: 'move' } });
     this.animate();
   }
 
-  onMouseUp() {
-    if (app.tool.currentStep != 'moving-shape') return;
+  canvasMouseUp() {
+    if (app.tool.currentStep != 'move') return;
 
     this.executeAction();
-    setState({ tool: { ...app.tool, currentStep: 'listen-canvas-click' } });
+    setState({ tool: { ...app.tool, currentStep: 'listen' } });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'moving-shape') {
+    if (app.tool.currentStep == 'move') {
       console.log(this.shapeToCreate);
 
       this.shapeToCreate.translate(
-        app.workspace.lastKnownMouseCoordinates.substract(this.currentShapePos)
+        app.workspace.lastKnownMouseCoordinates.substract(this.currentShapePos),
       );
       this.currentShapePos = app.workspace.lastKnownMouseCoordinates;
     }
@@ -178,7 +151,7 @@ export class CreateState extends State {
     window.dispatchEvent(
       new CustomEvent('actions-executed', {
         detail: { name: this.title },
-      })
+      }),
     );
   }
 }

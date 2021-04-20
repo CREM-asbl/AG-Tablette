@@ -22,7 +22,7 @@ export class OpenFileManager {
         window.dispatchEvent(
           new CustomEvent('file-opened', {
             detail: { method: 'new', file: fileHandle },
-          })
+          }),
         );
       } catch (error) {
         // user closed open prompt
@@ -76,7 +76,7 @@ export class OpenFileManager {
       WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
     }
     window.dispatchEvent(
-      new CustomEvent('file-parsed', { detail: saveObject })
+      new CustomEvent('file-parsed', { detail: saveObject }),
     );
     window.dispatchEvent(new CustomEvent('app-settings-changed'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -92,13 +92,13 @@ window.addEventListener('local-open-file', () => {
   OpenFileManager.openFile();
 });
 
-window.addEventListener('file-opened', event => {
+window.addEventListener('file-opened', (event) => {
   if (event.detail.method == 'old')
     OpenFileManager.oldReadFile(event.detail.file);
   else OpenFileManager.newReadFile(event.detail.file[0]);
 });
 
-window.addEventListener('parse-file', event => {
+window.addEventListener('parse-file', (event) => {
   OpenFileManager.parseFile(event.detail.fileContent);
 });
 

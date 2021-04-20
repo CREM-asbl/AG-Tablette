@@ -22,18 +22,21 @@ class LevelPopup extends LitElement {
           text-align: left;
           margin-bottom: 3px;
         }
-        input[type=radio] {
+        input[type='radio'] {
           display: inline;
         }
         label {
           display: inline;
         }
-      `
+      `,
     ];
   }
 
   updated() {
-    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+    window.setTimeout(
+      () => this.shadowRoot.querySelector('#focus').focus(),
+      200,
+    );
   }
 
   render() {
@@ -41,34 +44,69 @@ class LevelPopup extends LitElement {
       <template-popup>
         <h2 slot="title">Niveau de difficulté</h2>
         <div slot="body">
-          <div class="choice" @click="${() => this.level = 1}">
-            <input type="radio" id="level1" name="level" value="1"
-              .checked="${this.level == 1}">
+          <div class="choice" @click="${() => (this.level = 1)}">
+            <input
+              type="radio"
+              id="level1"
+              name="level"
+              value="1"
+              .checked="${this.level == 1}"
+            />
             <label for="level1">1 Avec lignes</label>
           </div>
-          <div class="choice" @click="${() => this.level = 2}">
-            <input type="radio" id="level2" name="level" value="2"
-              .checked="${this.level == 2}">
+          <div class="choice" @click="${() => (this.level = 2)}">
+            <input
+              type="radio"
+              id="level2"
+              name="level"
+              value="2"
+              .checked="${this.level == 2}"
+            />
             <label for="level2">2 Sans ligne</label>
           </div>
-          <div class="choice" @click="${() => this.level = 3}">
-            <input type="radio" id="level3" name="level" value="3"
-              .checked="${this.level == 3}">
+          <div class="choice" @click="${() => (this.level = 3)}">
+            <input
+              type="radio"
+              id="level3"
+              name="level"
+              value="3"
+              .checked="${this.level == 3}"
+            />
             <label for="level3">3 Pas de superposition avec lignes</label>
           </div>
-          <div class="choice" @click="${() => this.level = 4}">
-            <input type="radio" id="level4" name="level" value="4"
-              .checked="${this.level == 4}">
+          <div class="choice" @click="${() => (this.level = 4)}">
+            <input
+              type="radio"
+              id="level4"
+              name="level"
+              value="4"
+              .checked="${this.level == 4}"
+            />
             <label for="level4">4 Pas de superposition sans ligne</label>
           </div>
-          <div class="choice" @click="${() => this.level = 5}">
-            <input type="radio" id="level5" name="level" value="5"
-              .checked="${this.level == 5}">
+          <div class="choice" @click="${() => (this.level = 5)}">
+            <input
+              type="radio"
+              id="level5"
+              name="level"
+              value="5"
+              .checked="${this.level == 5}"
+            />
             <label for="level5">5 Echelle avec lignes</label>
           </div>
-          <div class="choice" @click="${() => {this.level = 6}}">
-            <input type="radio" id="level6" name="level" value="6"
-              .checked="${this.level == 6}">
+          <div
+            class="choice"
+            @click="${() => {
+              this.level = 6;
+            }}"
+          >
+            <input
+              type="radio"
+              id="level6"
+              name="level"
+              value="6"
+              .checked="${this.level == 6}"
+            />
             <label for="level6">6 Echelle sans ligne</label>
           </div>
           <!-- <input
@@ -101,7 +139,7 @@ class LevelPopup extends LitElement {
         detail: this.level,
         bubbles: true,
         composed: true,
-      })
+      }),
     );
     this.close();
   }

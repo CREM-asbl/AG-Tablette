@@ -10,7 +10,7 @@ export class Silhouette {
    */
   constructor(shapes = [], loadFromSave = false, level = 1) {
     this.level = level;
-    this.shapes = shapes.map(shape => {
+    this.shapes = shapes.map((shape) => {
       let shapeCopy = new Shape({
         ...shape,
         path: loadFromSave ? shape.path : shape.getSVGPath(false),
@@ -40,14 +40,14 @@ export class Silhouette {
     silhouetteCenter = silhouetteCenter.toCanvasCoordinates();
     let translation = expectedCenter.substract(silhouetteCenter);
     translation = translation.multiply(1 / app.workspace.zoomLevel);
-    this.shapes.forEach(s => {
+    this.shapes.forEach((s) => {
       s.translate(translation);
     });
   }
 
   saveToObject() {
     let save = {
-      shapesData: app.backgroundDrawingEnvironment.shapes.map(s => {
+      shapesData: app.backgroundDrawingEnvironment.shapes.map((s) => {
         let shapeData = s.saveData();
         shapeData.segmentIds = undefined;
         shapeData.pointIds = undefined;
@@ -62,7 +62,7 @@ export class Silhouette {
   }
 
   get bounds() {
-    let bounds = Bounds.getOuterBounds(...this.shapes.map(s => s.bounds));
+    let bounds = Bounds.getOuterBounds(...this.shapes.map((s) => s.bounds));
     return bounds;
   }
 }

@@ -16,7 +16,7 @@ class SettingsPopup extends LitElement {
     this.settings = app.settings;
     addEventListener(
       'app-settings-changed',
-      () => (this.settings = { ...app.settings })
+      () => (this.settings = { ...app.settings }),
     );
 
     window.addEventListener('close-popup', () => this.close());
@@ -34,7 +34,10 @@ class SettingsPopup extends LitElement {
   }
 
   updated() {
-    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+    window.setTimeout(
+      () => this.shadowRoot.querySelector('#focus').focus(),
+      200,
+    );
   }
 
   render() {
@@ -56,7 +59,9 @@ class SettingsPopup extends LitElement {
               <label for="settings_adapt_shapes_position">Ajustement automatique</label>
             </div>
 
-            <div class="field" style=${app.environment.name == 'Tangram' ? 'display:none;' : ''}>
+            <div class="field" style=${
+              app.environment.name == 'Tangram' ? 'display:none;' : ''
+            }>
               <input
                 type="checkbox"
                 name="settings_pointed_shapes"
@@ -70,7 +75,8 @@ class SettingsPopup extends LitElement {
 
           <br />
 
-          <fieldset style=${app.environment.name == 'Tangram' || app.environment.name == 'Cubes'
+          <fieldset style=${
+            app.environment.name == 'Tangram' || app.environment.name == 'Cubes'
               ? 'display:none'
               : ''
           }>
@@ -145,7 +151,7 @@ class SettingsPopup extends LitElement {
             ' ' +
             event.target.value +
             ' ' +
-            event.target.checked
+            event.target.checked,
         );
     }
     this.settings = { ...this.settings };

@@ -44,7 +44,7 @@ export class OpacityState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
     let popup = createElem('opacity-popup');
     popup.opacity = this.opacity;
@@ -65,7 +65,7 @@ export class OpacityState extends State {
     setTimeout(
       () =>
         (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape)
+          app.fastSelectionConstraints.click_all_shape),
     );
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -108,15 +108,17 @@ export class OpacityState extends State {
     let group = GroupManager.getShapeGroup(shape),
       involvedShapes;
     if (group)
-      involvedShapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
+      involvedShapes = group.shapesIds.map((id) =>
+        ShapeManager.getShapeById(id),
+      );
     else involvedShapes = [shape];
 
     this.actions = [
       {
         name: 'OpacityAction',
-        involvedShapesIds: involvedShapes.map(s => s.id),
+        involvedShapesIds: involvedShapes.map((s) => s.id),
         opacity: this.opacity,
-        oldOpacities: involvedShapes.map(s => s.opacity),
+        oldOpacities: involvedShapes.map((s) => s.opacity),
       },
     ];
     this.executeAction();

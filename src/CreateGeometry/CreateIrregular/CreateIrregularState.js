@@ -16,7 +16,7 @@ export class CreateIrregularState extends State {
     super(
       'createIrregularPolygon',
       'Créer un polygone irrégulier',
-      'geometryCreator'
+      'geometryCreator',
     );
 
     // listen-canvas-click
@@ -45,7 +45,7 @@ export class CreateIrregularState extends State {
 
     this.shapeId = uniqId();
 
-    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
   /**
@@ -62,26 +62,26 @@ export class CreateIrregularState extends State {
   end() {
     this.stopAnimation();
 
-    app.removeListener('canvasmousedown', this.mouseDownId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseDown', this.mouseDownId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'canvasmousedown') {
-      this.onMouseDown();
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
+    if (event.type == 'canvasMouseDown') {
+      this.canvasMouseDown();
+    } else if (event.type == 'canvasMouseUp') {
+      this.canvasMouseUp();
     } else {
       console.error('unsupported event type : ', event.type);
     }
   }
 
-  onMouseDown() {
+  canvasMouseDown() {
     let newCoordinates = new Coordinates(
-      app.workspace.lastKnownMouseCoordinates
+      app.workspace.lastKnownMouseCoordinates,
     );
 
     this.points.push(
@@ -90,7 +90,7 @@ export class CreateIrregularState extends State {
         coordinates: newCoordinates,
         color: app.settings.get('temporaryDrawColor'),
         size: 2,
-      })
+      }),
     );
     if (this.points.length > 1) {
       let seg = new Segment({
@@ -107,17 +107,17 @@ export class CreateIrregularState extends State {
         borderColor: app.settings.get('temporaryDrawColor'),
       });
     }
-    app.removeListener('canvasmousedown', this.mouseDownId);
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    app.removeListener('canvasMouseDown', this.mouseDownId);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
     this.animate();
   }
 
-  onMouseUp() {
+  canvasMouseUp() {
     if (
       this.points.length > 2 &&
       SelectManager.areCoordinatesInMagnetismDistance(
         this.points[0].coordinates,
-        this.points[this.points.length - 1].coordinates
+        this.points[this.points.length - 1].coordinates,
       )
     ) {
       this.stopAnimation();
@@ -125,7 +125,7 @@ export class CreateIrregularState extends State {
       this.actions = [
         {
           name: 'CreateIrregularAction',
-          coordinates: this.points.map(pt => pt.coordinates),
+          coordinates: this.points.map((pt) => pt.coordinates),
           reference: null, //reference,
         },
       ];
@@ -138,8 +138,8 @@ export class CreateIrregularState extends State {
       this.currentStep = '';
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.currentStep = 'listen-canvas-click';
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
-      app.removeListener('canvasmouseup', this.mouseUpId);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+      app.removeListener('canvasMouseUp', this.mouseUpId);
     }
   }
 
@@ -148,7 +148,7 @@ export class CreateIrregularState extends State {
       this.points.length > 2 &&
       SelectManager.areCoordinatesInMagnetismDistance(
         this.points[0].coordinates,
-        point.coordinates
+        point.coordinates,
       )
     )
       point.coordinates = new Coordinates(this.points[0].coordinates);
@@ -158,7 +158,7 @@ export class CreateIrregularState extends State {
       let adjustedCoordinates = SelectManager.selectPoint(
         point.coordinates,
         constraints,
-        false
+        false,
       );
       if (adjustedCoordinates)
         point.coordinates = new Coordinates(adjustedCoordinates);
@@ -168,7 +168,7 @@ export class CreateIrregularState extends State {
   refreshStateUpper() {
     if (this.currentStep == 'listen-canvas-click' && this.points.length > 0) {
       this.points[this.points.length - 1].coordinates = new Coordinates(
-        app.workspace.lastKnownMouseCoordinates
+        app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.points.length - 1]);
     }

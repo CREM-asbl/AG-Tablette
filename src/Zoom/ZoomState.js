@@ -40,7 +40,7 @@ export class ZoomState extends State {
     this.currentStep = 'listen-canvas-click';
     this.baseDist = null;
 
-    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
   /**
@@ -50,41 +50,41 @@ export class ZoomState extends State {
     this.end();
     this.currentStep = 'listen-canvas-click';
 
-    this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    app.removeListener('canvasmousedown', this.mouseDownId);
+    app.removeListener('canvasMouseDown', this.mouseDownId);
     app.removeListener('canvasmousemove', this.mouseMoveId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'canvasmousedown') {
-      this.onMouseDown();
+    if (event.type == 'canvasMouseDown') {
+      this.canvasMouseDown();
     } else if (event.type == 'canvasmousemove') {
       this.onMouseMove();
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
+    } else if (event.type == 'canvasMouseUp') {
+      this.canvasMouseUp();
     } else {
       console.error('unsupported event type : ', event.type);
     }
   }
 
-  onMouseDown() {
+  canvasMouseDown() {
     if (this.currentStep != 'listen-canvas-click') return;
 
     this.baseDist = this.getDist(app.workspace.lastKnownMouseCoordinates);
 
     this.currentStep = 'zooming-plane';
     this.mouseMoveId = app.addListener('canvasmousemove', this.handler);
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   onMouseMove() {
@@ -122,7 +122,7 @@ export class ZoomState extends State {
     app.workspace.setZoomLevel(originalZoom, false);
   }
 
-  onMouseUp() {
+  canvasMouseUp() {
     if (this.currentStep != 'zooming-plane') return;
 
     let scaleOffset =
@@ -158,7 +158,7 @@ export class ZoomState extends State {
         y: app.canvasHeight,
       }).multiply(1 / app.workspace.zoomLevel / 2),
       translateOffset = app.workspace.translateOffset.multiply(
-        1 / app.workspace.zoomLevel
+        1 / app.workspace.zoomLevel,
       ),
       center = halfWinSize.substract(translateOffset),
       dist = center.dist(mouseCoordinates);

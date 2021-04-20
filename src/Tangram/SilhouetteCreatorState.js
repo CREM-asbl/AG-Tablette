@@ -17,7 +17,7 @@ export class SilhouetteCreatorState extends State {
 
     window.addEventListener('new-window', () => this.finish());
 
-    window.addEventListener('app-state-changed', event => {
+    window.addEventListener('app-state-changed', (event) => {
       if (event.detail.state == 'solveChecker') this.finish();
     });
   }
@@ -104,7 +104,7 @@ export class SilhouetteCreatorState extends State {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
           detail: { message: 'Certaines formes se superposent' },
-        })
+        }),
       );
       return;
     }
@@ -117,20 +117,20 @@ export class SilhouetteCreatorState extends State {
   }
 
   hasOverlapedShape(shapes) {
-    return shapes.some(shape =>
-      shapes.some(s => {
+    return shapes.some((shape) =>
+      shapes.some((s) => {
         if (s.id == shape.id) return false;
         else return s.overlapsWith(shape);
-      })
+      }),
     );
   }
 
   verifyOverlappingShapes() {
-    app.mainDrawingEnvironment.shapes.forEach(s => {
+    app.mainDrawingEnvironment.shapes.forEach((s) => {
       s.isOverlappingAnotherInTangram = false;
     });
     app.mainDrawingEnvironment.shapes.forEach((s, idx, shapes) => {
-      let index = app.mainDrawingEnvironment.shapes.findIndex(s2 => {
+      let index = app.mainDrawingEnvironment.shapes.findIndex((s2) => {
         if (s.id == s2.id) return false;
         if (s.overlapsWith(s2)) return true;
         return false;
@@ -140,7 +140,7 @@ export class SilhouetteCreatorState extends State {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: { message: 'Certaines formes se superposent' },
-            })
+            }),
           );
           this.isUserWarnedAboutOverlap = true;
         }

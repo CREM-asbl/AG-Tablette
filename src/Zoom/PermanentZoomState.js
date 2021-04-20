@@ -42,7 +42,7 @@ export class PermanentZoomState extends State {
     window.dispatchEvent(
       new CustomEvent('app-state-changed', {
         detail: { startParams: undefined },
-      })
+      }),
     );
   }
 
@@ -127,7 +127,7 @@ export class PermanentZoomState extends State {
           .add(
             newWinSize
               .substract(actualWinSize)
-              .multiply(this.centerProp.x, this.centerProp.y)
+              .multiply(this.centerProp.x, this.centerProp.y),
           )
           .multiply(newZoom);
 
@@ -194,7 +194,7 @@ export class PermanentZoomState extends State {
         originalTranslateOffset: new Coordinates(app.workspace.translateOffset),
         centerProp: mousePos.multiply(
           1 / app.canvasWidth,
-          1 / app.canvasHeight
+          1 / app.canvasHeight,
         ),
       },
     ];

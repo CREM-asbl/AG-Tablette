@@ -3,5 +3,5 @@ import { MergeAction } from './MergeAction';
 
 export default {
   state: new MergeState(),
-  action: new MergeAction()
-}
+  action: new MergeAction(),
+};

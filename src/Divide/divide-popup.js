@@ -42,7 +42,7 @@ class DividePopup extends LitElement {
         <h2 slot="title">Diviser</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts">Diviser en</label>
-          <select @change="${e => (this.parts = e.target.value)}">
+          <select @change="${(e) => (this.parts = e.target.value)}">
             <option value="2" ?selected="${this.parts == 2}">2</option>
             <option value="3" ?selected="${this.parts == 3}">3</option>
             <option value="4" ?selected="${this.parts == 4}">4</option>
@@ -65,7 +65,7 @@ class DividePopup extends LitElement {
     window.dispatchEvent(
       new CustomEvent('setNumberOfParts', {
         detail: { nbOfParts: this.parts, close: true },
-      })
+      }),
     );
   }
 

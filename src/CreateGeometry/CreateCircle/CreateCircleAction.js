@@ -54,12 +54,12 @@ export class CreateCircleAction extends Action {
     if (!this.checkDoParameters()) return;
 
     let points = this.coordinates.map(
-      coord =>
+      (coord) =>
         new Point({
           drawingEnvironment: app.mainDrawingEnvironment,
           coordinates: coord,
           type: 'vertex',
-        })
+        }),
     );
     let segments = [];
 
@@ -103,8 +103,8 @@ export class CreateCircleAction extends Action {
     let shape = new Shape({
       id: this.shapeId,
       drawingEnvironment: app.mainDrawingEnvironment,
-      segmentIds: segments.map(seg => seg.id),
-      pointIds: points.map(pt => pt.id),
+      segmentIds: segments.map((seg) => seg.id),
+      pointIds: points.map((pt) => pt.id),
       name: this.circleName,
       familyName: 'circle-shape',
     });

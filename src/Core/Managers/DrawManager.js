@@ -16,7 +16,7 @@ export class DrawManager {
       app.backgroundDrawingEnvironment.removeAllObjects();
     }
     app.backgroundDrawingEnvironment.mustDrawGrid = app.workspace.settings.get(
-      'isGridShown'
+      'isGridShown',
     );
     app.backgroundDrawingEnvironment.redraw();
     // DrawManager.clearCtx(app.backgroundCtx);
@@ -115,15 +115,15 @@ export class DrawManager {
     functionCalledAfterDraw,
     borderSize = 1,
     axeAngle = undefined,
-    isReversed = false
+    isReversed = false,
   ) {
     const orderedInvolvedShapes = involvedShapes.sort((s1, s2) =>
-      ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
+      ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1,
     );
     if (isReversed) {
       orderedInvolvedShapes.reverse();
     }
-    orderedInvolvedShapes.forEach(s => {
+    orderedInvolvedShapes.forEach((s) => {
       functionCalledBeforeDraw(s);
       DrawManager.drawShape(ctx, s, borderSize, axeAngle);
       functionCalledAfterDraw(s);
@@ -177,8 +177,8 @@ export class DrawManager {
 
     const path = new Path2D(
       ['M', firstCoordinates.x, firstCoordinates.y, segment.getSVGPath()].join(
-        ' '
-      )
+        ' ',
+      ),
     );
 
     ctx.stroke(path);
@@ -205,19 +205,19 @@ export class DrawManager {
     let transformSegment = new Segment(
       segment.vertexes[0].subCoordinates(
         1000000 * Math.cos(angle),
-        1000000 * Math.sin(angle)
+        1000000 * Math.sin(angle),
       ),
       segment.vertexes[1].addCoordinates(
         1000000 * Math.cos(angle),
-        1000000 * Math.sin(angle)
-      )
+        1000000 * Math.sin(angle),
+      ),
     );
 
     const v0Copy = new Point(transformSegment.vertexes[0]);
     v0Copy.setToCanvasCoordinates();
 
     const path = new Path2D(
-      ['M', v0Copy.x, v0Copy.y, transformSegment.getSVGPath()].join(' ')
+      ['M', v0Copy.x, v0Copy.y, transformSegment.getSVGPath()].join(' '),
     );
 
     ctx.stroke(path);
@@ -250,7 +250,7 @@ export class DrawManager {
       point.size * 2 * app.workspace.zoomLevel,
       0,
       2 * Math.PI,
-      0
+      0,
     );
     ctx.closePath();
     ctx.fill();
@@ -271,7 +271,7 @@ export class DrawManager {
     text,
     position,
     color = '#000',
-    doSave = true
+    doSave = true,
   ) {
     let ctx = drawingEnvironment.ctx;
     if (doSave) ctx.save();
@@ -306,7 +306,7 @@ window.addEventListener('refreshBackground', () => {
 });
 
 // draw
-window.addEventListener('draw-group', event => {
+window.addEventListener('draw-group', (event) => {
   const ctx = event.detail.ctx || app.upperCtx;
   DrawManager.drawGroup(
     ctx,
@@ -315,18 +315,18 @@ window.addEventListener('draw-group', event => {
     event.detail.functionCalledAfterDraw,
     event.detail.borderSize,
     event.detail.axeAngle,
-    event.detail.isReversed
+    event.detail.isReversed,
   );
 });
-window.addEventListener('draw-shape', event => {
+window.addEventListener('draw-shape', (event) => {
   const drawingEnvironment = event.detail.shape.drawingEnvironment;
   DrawManager.drawShape(
     drawingEnvironment,
     event.detail.shape,
-    event.detail.axeAngle
+    event.detail.axeAngle,
   );
 });
-window.addEventListener('draw-segment', event => {
+window.addEventListener('draw-segment', (event) => {
   const drawingEnvironment =
     event.detail.shape.drawingEnvironment || app.workspace;
   DrawManager.drawSegment(
@@ -334,10 +334,10 @@ window.addEventListener('draw-segment', event => {
     event.detail.segment,
     event.detail.color,
     event.detail.size,
-    event.detail.doSave
+    event.detail.doSave,
   );
 });
-window.addEventListener('draw-line', event => {
+window.addEventListener('draw-line', (event) => {
   const drawingEnvironment =
     event.detail.shape.drawingEnvironment || app.workspace;
   DrawManager.drawLine(
@@ -345,19 +345,19 @@ window.addEventListener('draw-line', event => {
     event.detail.segment,
     event.detail.color,
     event.detail.size,
-    event.detail.doSave
+    event.detail.doSave,
   );
 });
-window.addEventListener('draw-point', event => {
+window.addEventListener('draw-point', (event) => {
   const drawingEnvironment = event.detail.point.drawingEnvironment;
   DrawManager.drawPoint(
     drawingEnvironment,
     event.detail.point,
     event.detail.color,
-    event.detail.doSave
+    event.detail.doSave,
   );
 });
-window.addEventListener('draw-text', event => {
+window.addEventListener('draw-text', (event) => {
   const drawingEnvironment =
     event.detail.text.drawingEnvironment || app.workspace;
   DrawManager.drawText(
@@ -365,6 +365,6 @@ window.addEventListener('draw-text', event => {
     event.detail.text.message,
     event.detail.text.coordinates,
     event.detail.text.color,
-    event.detail.doSave
+    event.detail.doSave,
   );
 });

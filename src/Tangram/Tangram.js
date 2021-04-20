@@ -24,7 +24,7 @@ export class Tangram {
       id: this.id,
       name: this.name,
     };
-    if (this.shapes) data.shapes = this.shapes.map(s => s.saveToObject());
+    if (this.shapes) data.shapes = this.shapes.map((s) => s.saveToObject());
     if (this.silhouette) data.silhouette = this.silhouette.saveToObject();
     return data;
   }
@@ -33,7 +33,7 @@ export class Tangram {
     this.id = data.id;
     this.name = data.name;
     if (data.shapes) {
-      this.shapes = data.shapes.map(sData => new Shape(sData));
+      this.shapes = data.shapes.map((sData) => new Shape(sData));
     }
     if (data.silhouette) {
       this.silhouette = new Silhouette();

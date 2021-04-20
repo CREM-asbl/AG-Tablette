@@ -4,4 +4,4 @@ import { CutAction } from './CutAction';
 export default {
   state: new CutState(),
   action: new CutAction(),
-}
+};

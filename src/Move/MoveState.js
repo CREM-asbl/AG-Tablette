@@ -12,7 +12,7 @@ export class MoveState extends State {
   constructor() {
     super('move', 'Déplacer', 'move');
 
-    // listen-canvas-click -> moving-shape
+    // listen-canvas-click -> move
     this.currentStep = null;
 
     // La forme que l'on déplace
@@ -45,29 +45,6 @@ export class MoveState extends State {
   }
 
   /**
-   * Main event handler
-   */
-   _actionHandle(event) {
-    if (event.type == 'tool-changed') {
-      if (app.tool.name == this.name) {
-        if (app.tool.currentStep == 'start') {
-          this.start();
-        } else if (app.tool.currentStep == 'moving-shape') {
-          this.startMoving();
-        }
-      } else if (app.tool.currentStep == 'start') {
-        this.end();
-      }
-    } else if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  /**
    * initialiser l'état
    */
   start() {
@@ -81,10 +58,10 @@ export class MoveState extends State {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  startMoving() {
+  move() {
     this.removeListeners();
 
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
@@ -98,7 +75,7 @@ export class MoveState extends State {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (onMouseDown)
+   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (canvasMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
@@ -109,31 +86,33 @@ export class MoveState extends State {
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
-    this.involvedShapes.sort((s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2));
+    this.involvedShapes.sort(
+      (s1, s2) =>
+        ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
+    );
     this.drawingShapes = this.involvedShapes.map(
-      s =>
+      (s) =>
         new Shape({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: s.getSVGPath('no scale'),
           id: undefined,
-        })
+        }),
     );
 
     app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
-      s => s.id
+      (s) => s.id,
     );
-    setState({ tool: { ...app.tool, currentStep: 'moving-shape' } });
+    setState({ tool: { ...app.tool, currentStep: 'move' } });
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
   }
 
-  onMouseUp() {
-    if (app.tool.currentStep != 'moving-shape') return;
+  canvasMouseUp() {
+    if (app.tool.currentStep != 'move') return;
 
-    console.log('mouseup')
     this.executeAction();
-    setState({ tool: { ...app.tool, currentStep: 'start' } })
+    setState({ tool: { ...app.tool, currentStep: 'start' } });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -142,12 +121,12 @@ export class MoveState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (app.tool.currentStep == 'moving-shape') {
+    if (app.tool.currentStep == 'move') {
       let transformation = app.workspace.lastKnownMouseCoordinates.substract(
-        this.lastKnownMouseCoordinates
+        this.lastKnownMouseCoordinates,
       );
 
-      this.drawingShapes.forEach(s => s.translate(transformation));
+      this.drawingShapes.forEach((s) => s.translate(transformation));
 
       this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
     }
@@ -155,16 +134,22 @@ export class MoveState extends State {
 
   executeAction() {
     const translation = app.workspace.lastKnownMouseCoordinates.substract(
-      this.startClickCoordinates
+      this.startClickCoordinates,
     );
 
-    this.involvedShapes.forEach(s => {
+    this.involvedShapes.forEach((s) => {
       s.translate(translation);
     });
 
-    let transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape);
-    this.involvedShapes.forEach(s => {
-      s.rotate(transformation.rotationAngle, this.selectedShape.centerCoordinates);
+    let transformation = getShapeAdjustment(
+      this.involvedShapes,
+      this.selectedShape,
+    );
+    this.involvedShapes.forEach((s) => {
+      s.rotate(
+        transformation.rotationAngle,
+        this.selectedShape.centerCoordinates,
+      );
       s.translate(transformation.translation);
     });
   }

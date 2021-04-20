@@ -63,7 +63,7 @@ export class BackgroundColorAction extends Action {
 
     // setOpacity quand transparent
     if (
-      this.involvedShapesIds.some(sId => {
+      this.involvedShapesIds.some((sId) => {
         let s = ShapeManager.getShapeById(sId);
         return s.opacity != 1;
       })
@@ -71,7 +71,7 @@ export class BackgroundColorAction extends Action {
       mustChangeOpacity = true;
     }
 
-    this.involvedShapesIds.forEach(id => {
+    this.involvedShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id);
       if (mustChangeOpacity) s.opacity = 0.7;
       s.color = this.selectedColor;

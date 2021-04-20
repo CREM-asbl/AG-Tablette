@@ -100,7 +100,7 @@ export class CreateRegularAction extends Action {
 
     let startAngle = Math.atan2(
       -(firstCoordinates.y - secondCoordinates.y),
-      -(firstCoordinates.x - secondCoordinates.x)
+      -(firstCoordinates.x - secondCoordinates.x),
     );
 
     let currentCoordinates = secondCoordinates;

@@ -3,6 +3,5 @@ import { CreateAction } from './CreateAction';
 
 export default {
   state: new CreateState(),
-  action: new CreateAction()
-}
-
+  action: new CreateAction(),
+};

@@ -71,9 +71,9 @@ export class CreateTriangleState extends State {
       window.dispatchEvent(
         new CustomEvent('triangle-selected', {
           detail: { triangleSelected: this.triangleSelected },
-        })
+        }),
       );
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     } else {
       this.currentStep = 'show-triangles';
     }
@@ -91,18 +91,18 @@ export class CreateTriangleState extends State {
     }
     this.stopAnimation();
     window.removeEventListener('triangle-selected', this.handler);
-    app.removeListener('canvasmousedown', this.mouseDownId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseDown', this.mouseDownId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'canvasmousedown') {
-      this.onMouseDown();
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
+    if (event.type == 'canvasMouseDown') {
+      this.canvasMouseDown();
+    } else if (event.type == 'canvasMouseUp') {
+      this.canvasMouseUp();
     } else if (event.type == 'triangle-selected') {
       this.setTriangle(event.detail.triangleSelected);
     } else {
@@ -120,13 +120,13 @@ export class CreateTriangleState extends State {
       this.numberOfPointsDrawn = 0;
       this.segments = [];
       this.getConstraints(this.numberOfPointsDrawn);
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     }
   }
 
-  onMouseDown() {
+  canvasMouseDown() {
     let newCoordinates = new Coordinates(
-      app.workspace.lastKnownMouseCoordinates
+      app.workspace.lastKnownMouseCoordinates,
     );
 
     if (this.currentStep == 'select-points') {
@@ -156,8 +156,8 @@ export class CreateTriangleState extends State {
         this.segments.push(seg);
         let shape = new Shape({
           drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: this.segments.map(seg => seg.id),
-          pointIds: this.points.map(pt => pt.id),
+          segmentIds: this.segments.map((seg) => seg.id),
+          pointIds: this.points.map((pt) => pt.id),
           borderColor: app.settings.get('temporaryDrawColor'),
         });
         this.segments.forEach((seg, idx) => {
@@ -172,19 +172,19 @@ export class CreateTriangleState extends State {
           borderColor: app.settings.get('temporaryDrawColor'),
         });
       }
-      app.removeListener('canvasmousedown', this.mouseDownId);
-      this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+      app.removeListener('canvasMouseDown', this.mouseDownId);
+      this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
       this.animate();
     }
   }
 
-  onMouseUp() {
+  canvasMouseUp() {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.actions = [
         {
           name: 'CreateTriangleAction',
-          coordinates: this.points.map(pt => pt.coordinates),
+          coordinates: this.points.map((pt) => pt.coordinates),
           triangleName: this.triangleSelected,
           reference: null, //reference,
         },
@@ -198,8 +198,8 @@ export class CreateTriangleState extends State {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.currentStep = 'select-points';
       this.stopAnimation();
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
-      app.removeListener('canvasmouseup', this.mouseUpId);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+      app.removeListener('canvasMouseUp', this.mouseUpId);
     }
   }
 
@@ -210,14 +210,14 @@ export class CreateTriangleState extends State {
       let adjustedCoordinates = SelectManager.selectPoint(
         point.coordinates,
         constraints,
-        false
+        false,
       );
       if (adjustedCoordinates) {
         point.coordinates = new Coordinates(adjustedCoordinates);
       }
     } else {
       let adjustedCoordinates = this.constraints.projectionOnConstraints(
-        point.coordinates
+        point.coordinates,
       );
       point.coordinates = new Coordinates(adjustedCoordinates);
     }
@@ -226,7 +226,7 @@ export class CreateTriangleState extends State {
   refreshStateUpper() {
     if (this.currentStep == 'select-points') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
-        app.workspace.lastKnownMouseCoordinates
+        app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
       if (
@@ -260,14 +260,14 @@ export class CreateTriangleState extends State {
       let length = this.points[0].coordinates.dist(this.points[1].coordinates);
 
       let startAngle = this.points[0].coordinates.angleWith(
-        this.points[1].coordinates
+        this.points[1].coordinates,
       );
 
       let dx = length * Math.cos(startAngle - externalAngle);
       let dy = length * Math.sin(startAngle - externalAngle);
 
       let newCoordinates = this.points[1].coordinates.add(
-        new Coordinates({ x: dx, y: dy })
+        new Coordinates({ x: dx, y: dy }),
       );
 
       if (this.points.length == 2) {
@@ -286,7 +286,7 @@ export class CreateTriangleState extends State {
           new Segment({
             drawingEnvironment: app.upperDrawingEnvironment,
             vertexIds: [this.points[1].id, this.points[2].id],
-          })
+          }),
         );
       }
     }
@@ -300,7 +300,7 @@ export class CreateTriangleState extends State {
     } else if (pointNb == 2) {
       if (this.triangleSelected == 'RightAngleTriangle') {
         let angle = this.points[0].coordinates.angleWith(
-          this.points[1].coordinates
+          this.points[1].coordinates,
         );
         let perpendicularAngle = angle + Math.PI / 2;
         let lines = [
@@ -315,10 +315,10 @@ export class CreateTriangleState extends State {
         this.constraints = new GeometryConstraint('isContrained', lines);
       } else if (this.triangleSelected == 'IsoscelesTriangle') {
         let angle = this.points[0].coordinates.angleWith(
-          this.points[1].coordinates
+          this.points[1].coordinates,
         );
         let middle = this.points[0].coordinates.middleWith(
-          this.points[1].coordinates
+          this.points[1].coordinates,
         );
         let perpendicularAngle = angle + Math.PI / 2;
         let lines = [
@@ -333,10 +333,10 @@ export class CreateTriangleState extends State {
         this.constraints = new GeometryConstraint('isContrained', lines);
       } else if (this.triangleSelected == 'RightAngleIsoscelesTriangle') {
         let angle = this.points[0].coordinates.angleWith(
-          this.points[1].coordinates
+          this.points[1].coordinates,
         );
         let length = this.points[0].coordinates.dist(
-          this.points[1].coordinates
+          this.points[1].coordinates,
         );
         let perpendicularAngle = angle + Math.PI / 2;
         let points = [
@@ -344,13 +344,13 @@ export class CreateTriangleState extends State {
             new Coordinates({
               x: Math.cos(perpendicularAngle) * length,
               y: Math.sin(perpendicularAngle) * length,
-            })
+            }),
           ),
           this.points[1].coordinates.substract(
             new Coordinates({
               x: Math.cos(perpendicularAngle) * length,
               y: Math.sin(perpendicularAngle) * length,
-            })
+            }),
           ),
         ];
         this.constraints = new GeometryConstraint('isContrained', [], points);

@@ -43,7 +43,7 @@ export class CopyAction extends Action {
             newShapesIds: this.newShapesIds,
             createdUsergroupId: this.createdUsergroupId,
           },
-        })
+        }),
       );
     }
   }
@@ -82,8 +82,8 @@ export class CopyAction extends Action {
 
     let shapesList = [];
 
-    let involvedShapes = this.involvedShapesIds.map(id =>
-      app.mainDrawingEnvironment.findObjectById(id, 'shape')
+    let involvedShapes = this.involvedShapesIds.map((id) =>
+      app.mainDrawingEnvironment.findObjectById(id, 'shape'),
     );
 
     // sort shapes by height
@@ -94,7 +94,7 @@ export class CopyAction extends Action {
     //   )
     //   .map(s => s.id);
 
-    involvedShapes.forEach(s => {
+    involvedShapes.forEach((s) => {
       let newShape = new Shape({
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,
@@ -107,10 +107,10 @@ export class CopyAction extends Action {
 
     let transformation = getShapeAdjustment(shapesList, shapesList[0]);
 
-    shapesList.forEach(newShape => {
+    shapesList.forEach((newShape) => {
       newShape.rotate(
         transformation.rotationAngle,
-        shapesList[0].centerCoordinates
+        shapesList[0].centerCoordinates,
       );
       newShape.translate(transformation.translation);
     });
@@ -118,7 +118,7 @@ export class CopyAction extends Action {
     //Si nécessaire, créer le userGroup
     if (shapesList.length > 1) {
       let userGroup = new ShapeGroup(0, 1);
-      userGroup.shapesIds = shapesList.map(s => s.id);
+      userGroup.shapesIds = shapesList.map((s) => s.id);
       GroupManager.addGroup(userGroup);
     }
   }
@@ -129,7 +129,7 @@ export class CopyAction extends Action {
   undo() {
     if (!this.checkUndoParameters()) return;
 
-    this.newShapesIds.forEach(id => {
+    this.newShapesIds.forEach((id) => {
       let s = ShapeManager.getShapeById(id);
       ShapeManager.deleteShape(s);
     });

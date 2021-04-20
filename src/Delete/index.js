@@ -3,5 +3,5 @@ import { DeleteAction } from './DeleteAction';
 
 export default {
   state: new DeleteState(),
-  action: new DeleteAction()
-}
+  action: new DeleteAction(),
+};

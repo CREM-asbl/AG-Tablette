@@ -3,5 +3,5 @@ import { ToBackgroundAction } from './ToBackgroundAction';
 
 export default {
   state: new ToBackgroundState(),
-  action: new ToBackgroundAction()
-}
+  action: new ToBackgroundAction(),
+};
