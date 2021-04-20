@@ -147,11 +147,5 @@ export class CreateState extends State {
     let transformation = getShapeAdjustment([shape], shape);
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
     shape.translate(transformation.translation);
-
-    window.dispatchEvent(
-      new CustomEvent('actions-executed', {
-        detail: { name: this.title },
-      }),
-    );
   }
 }

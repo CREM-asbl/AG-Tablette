@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -9,6 +9,8 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 export class BuildCenterState extends State {
   constructor() {
     super('buildCenter', 'Construire le centre', 'operation');
+
+    window.addEventListener('tool-changed', this.handler);
   }
 
   /**
@@ -31,26 +33,10 @@ export class BuildCenterState extends State {
    * initialiser l'état
    */
   start() {
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
+    this.removeListeners();
 
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-  }
-
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
-
+    app.workspace.selectionConstraints =
+          app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -58,18 +44,7 @@ export class BuildCenterState extends State {
    * stopper l'état
    */
   end() {
-    app.removeListener('objectSelected', this.objectSelectedId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+    this.removeListeners();
   }
 
   /**
@@ -77,16 +52,17 @@ export class BuildCenterState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    let involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
-    this.actions = [
-      {
-        name: 'BuildCenterAction',
-        involvedShapesIds: involvedShapes.map((s) => s.id),
-      },
-    ];
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.executeAction();
-    this.restart();
-
+    setState({ tool: { ...app.tool, currentStep: 'start' } });
     window.dispatchEvent(new CustomEvent('refresh'));
+  }
+
+  executeAction() {
+    let mustShowCenter = this.involvedShapes.some((s) => {
+      return !s.isCenterShown;
+    });
+
+    this.involvedShapes.map((s) => (s.isCenterShown = mustShowCenter));
   }
 }

@@ -48,6 +48,7 @@ class ToolbarSection extends LitElement {
         case 'move':
         case 'rotate':
         case 'reverse':
+        case 'buildCenter':
           setState({ tool: { name: event.target.name, currentStep: 'start' } });
           break;
         default:
