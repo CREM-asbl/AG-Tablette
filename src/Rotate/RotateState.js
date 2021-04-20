@@ -1,9 +1,10 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Point } from '../Core/Objects/Point';
 import { Shape } from '../Core/Objects/Shape';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
  * Tourner une forme (ou un ensemble de formes liées) sur l'espace de travail
@@ -27,6 +28,8 @@ export class RotateState extends State {
         elle-même
          */
     this.involvedShapes = [];
+
+    window.addEventListener('tool-changed', this.handler);
   }
 
   /**
@@ -48,51 +51,20 @@ export class RotateState extends State {
   }
 
   /**
-   * initialiser l'état
-   */
-  start() {
-    this.currentStep = 'listen-canvas-click';
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape)
-    );
-
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-  }
-
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape)
-    );
-
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-  }
-
-  /**
-   * stopper l'état
-   */
-  end() {
-    this.stopAnimation();
-    if (this.status != 'paused')
-      app.upperDrawingEnvironment.removeAllObjects();
-    this.currentStep = 'listen-canvas-click';
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
-  }
-
-  /**
    * Main event handler
    */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
+   _actionHandle(event) {
+    if (event.type == 'tool-changed') {
+      if (app.tool.name == this.name) {
+        if (app.tool.currentStep == 'start') {
+          this.start();
+        } else if (app.tool.currentStep == 'rotating-shape') {
+          this.startRotating();
+        }
+      } else if (app.tool.currentStep == 'start') {
+        this.end();
+      }
+    } else if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else if (event.type == 'canvasmouseup') {
       this.onMouseUp();
@@ -102,11 +74,41 @@ export class RotateState extends State {
   }
 
   /**
+   * initialiser l'état
+   */
+  start() {
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
+
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.mousedown_all_shape;
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
+  startRotating() {
+    this.removeListeners();
+
+    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+  }
+
+  /**
+   * stopper l'état
+   */
+  end() {
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.removeListeners();
+    this.stopAnimation();
+  }
+
+  /**
    * Appelée par événement du SelectManager quand une forme est sélectionnée (onMouseDown)
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    if (this.currentStep != 'listen-canvas-click') return;
+    if (app.tool.currentStep != 'start') return;
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
@@ -136,20 +138,20 @@ export class RotateState extends State {
     app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
       s => s.id
     );
-    this.currentStep = 'rotating-shape';
-    this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+    setState({ tool: { ...app.tool, currentStep: 'rotating-shape' } });
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
+    console.log(app.mainDrawingEnvironment.editingShapeIds);
   }
 
   onMouseUp() {
-    if (this.currentStep != 'rotating-shape') return;
+    if (app.tool.currentStep != 'rotating-shape') return;
 
     let newAngle = this.center.angleWith(
       app.workspace.lastKnownMouseCoordinates
     );
     let rotationAngle = newAngle - this.initialAngle;
-    let adjustedRotationAngle = rotationAngle;
+    this.adjustedRotationAngle = rotationAngle;
 
     if (app.environment.name == 'Tangram') {
       const rotationAngleInDegree = (rotationAngle / Math.PI) * 180;
@@ -171,29 +173,22 @@ export class RotateState extends State {
             5 -
             (absoluteValueRotationAngleInDegree % 5));
       }
-      adjustedRotationAngle = (adjustedRotationAngleInDegree * Math.PI) / 180;
+      this.adjustedRotationAngle = (adjustedRotationAngleInDegree * Math.PI) / 180;
     }
 
-    this.actions = [
-      {
-        name: 'RotateAction',
-        shapeId: this.selectedShape.id,
-        involvedShapesIds: this.involvedShapes.map(s => s.id),
-        rotationAngle: adjustedRotationAngle,
-      },
-    ];
-
     this.executeAction();
-    this.restart();
+    setState({ tool: { ...app.tool, currentStep: 'start' } });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
+    console.log(app.mainDrawingEnvironment.editingShapeIds);
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (this.currentStep == 'rotating-shape') {
+    if (app.tool.currentStep == 'rotating-shape') {
+      console.log('here');
       let newAngle = this.center.angleWith(
           app.workspace.lastKnownMouseCoordinates
         ),
@@ -203,5 +198,19 @@ export class RotateState extends State {
 
       this.lastAngle = newAngle;
     }
+  }
+
+  executeAction() {
+    let center = this.selectedShape.centerCoordinates;
+
+    this.involvedShapes.forEach(s => {
+      s.rotate(this.adjustedRotationAngle, center);
+    });
+
+    let transformation = getShapeAdjustment(this.involvedShapes, this.selectedShape);
+    this.involvedShapes.forEach(s => {
+      s.rotate(transformation.rotationAngle, center);
+      s.translate(transformation.translation);
+    });
   }
 }

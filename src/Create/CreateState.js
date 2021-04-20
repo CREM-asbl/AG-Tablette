@@ -49,7 +49,6 @@ export class CreateState extends State {
    */
   _actionHandle(event) {
     if (event.type == 'tool-changed') {
-      console.log(app.tool.name);
       if (app.tool.name == this.name) {
         console.log(app.tool.currentStep);
         if (app.tool.currentStep == 'start') {
@@ -59,7 +58,7 @@ export class CreateState extends State {
         } else if (app.tool.currentStep == 'moving-shape') {
           this.startMoving();
         }
-      } else {
+      } else if (app.tool.currentStep == 'start') {
         this.end();
       }
     } else if (event.type == 'canvasmousedown') {
@@ -105,6 +104,7 @@ export class CreateState extends State {
   end() {
     this.shapesList = null;
 
+    app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }

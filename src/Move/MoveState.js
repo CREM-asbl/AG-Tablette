@@ -55,7 +55,7 @@ export class MoveState extends State {
         } else if (app.tool.currentStep == 'moving-shape') {
           this.startMoving();
         }
-      } else {
+      } else if (app.tool.currentStep == 'start') {
         this.end();
       }
     } else if (event.type == 'objectSelected') {
@@ -92,6 +92,7 @@ export class MoveState extends State {
    */
   end() {
     app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -122,7 +123,7 @@ export class MoveState extends State {
     app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
       s => s.id
     );
-    setState({ tool: { ...app.tool, currentStep: 'moving-shape' } })
+    setState({ tool: { ...app.tool, currentStep: 'moving-shape' } });
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
   }

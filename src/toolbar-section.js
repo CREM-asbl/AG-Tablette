@@ -45,6 +45,7 @@ class ToolbarSection extends LitElement {
     if (!CompleteHistoryManager.isRunning) {
       switch (event.target.name) {
         case 'move':
+        case 'rotate':
           setState({tool: {name: event.target.name, currentStep: 'start'}});
           break;
         default:
