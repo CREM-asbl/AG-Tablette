@@ -1,10 +1,11 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { uniqId } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Shape } from '../Core/Objects/Shape';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
  * Dupliquer une forme
@@ -25,6 +26,8 @@ export class CopyState extends State {
     this.involvedShapes = [];
 
     this.translateOffset = new Coordinates({ x: -20, y: -20 });
+
+    window.addEventListener('tool-changed', this.handler);
   }
 
   /**
@@ -55,39 +58,28 @@ export class CopyState extends State {
    * initialiser l'état
    */
   start() {
-    this.currentStep = 'listen-canvas-click';
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
 
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape),
-    );
-
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.mousedown_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape),
-    );
+  move() {
+    this.removeListeners();
 
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
+    app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
-    this.currentStep = 'listen-canvas-click';
-    app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasMouseUp', this.mouseUpId);
+    this.removeListeners();
   }
 
   /**
@@ -108,7 +100,7 @@ export class CopyState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    if (this.currentStep != 'listen-canvas-click') return;
+    if (app.tool.currentStep != 'start') return;
 
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
@@ -129,32 +121,20 @@ export class CopyState extends State {
       return newShape;
     });
 
-    this.currentStep = 'moving-shape';
-    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+    setState({ tool: { ...app.tool, currentStep: 'move' } });
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
   }
 
   canvasMouseUp() {
-    if (this.currentStep != 'moving-shape') return;
+    if (app.tool.currentStep != 'move') return;
 
-    let translation = app.workspace.lastKnownMouseCoordinates
+    this.translation = app.workspace.lastKnownMouseCoordinates
       .substract(this.startClickCoordinates)
       .add(this.translateOffset);
 
-    this.involvedShapesIds = this.involvedShapes.map((s) => s.id);
-    this.actions = [
-      {
-        name: 'CopyAction',
-        involvedShapesIds: this.involvedShapesIds,
-        newShapesIds: this.involvedShapesIds.map(() => uniqId()),
-        transformation: translation,
-        createdUsergroupId: uniqId(),
-      },
-    ];
-
     this.executeAction();
-    this.restart();
+    setState({ tool: { ...app.tool, currentStep: 'start' } });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -163,9 +143,7 @@ export class CopyState extends State {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (this.currentStep != 'moving-shape') {
-      app.upperDrawingEnvironment.removeAllObjects();
-    } else {
+    if (app.tool.currentStep == 'move') {
       let transformation = app.workspace.lastKnownMouseCoordinates.substract(
         this.lastKnownMouseCoordinates,
       );
@@ -173,6 +151,46 @@ export class CopyState extends State {
       this.drawingShapes.forEach((s) => s.translate(transformation));
 
       this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
+    }
+  }
+
+  executeAction() {
+    let shapesList = [];
+
+    // sort shapes by height
+    // this.involvedShapesIds = this.involvedShapesIds
+    //   .map(id => ShapeManager.getShapeById(id))
+    //   .sort((s1, s2) =>
+    //     ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
+    //   )
+    //   .map(s => s.id);
+
+    this.involvedShapes.forEach((s) => {
+      let newShape = new Shape({
+        ...s,
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: s.getSVGPath('no scale'),
+        id: undefined,
+      });
+      shapesList.push(newShape);
+      newShape.translate(this.translation);
+    });
+
+    let transformation = getShapeAdjustment(shapesList, shapesList[0]);
+
+    shapesList.forEach((newShape) => {
+      newShape.rotate(
+        transformation.rotationAngle,
+        shapesList[0].centerCoordinates,
+      );
+      newShape.translate(transformation.translation);
+    });
+
+    //Si nécessaire, créer le userGroup
+    if (shapesList.length > 1) {
+      let userGroup = new ShapeGroup(0, 1);
+      userGroup.shapesIds = shapesList.map((s) => s.id);
+      GroupManager.addGroup(userGroup);
     }
   }
 }
