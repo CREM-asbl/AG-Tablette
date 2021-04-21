@@ -44,6 +44,8 @@ class ToolbarSection extends LitElement {
    */
   _actionHandle(event) {
     if (!CompleteHistoryManager.isRunning) {
+      setState({ tool: { name: event.target.name, currentStep: 'start' } });
+      return;
       switch (event.target.name) {
         case 'move':
         case 'rotate':
@@ -53,7 +55,6 @@ class ToolbarSection extends LitElement {
         case 'divide':
         case 'cut':
         case 'merge':
-          setState({ tool: { name: event.target.name, currentStep: 'start' } });
           break;
         default:
           app.setState(event.target.name);

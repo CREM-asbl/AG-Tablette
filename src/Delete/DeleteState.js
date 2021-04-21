@@ -33,29 +33,9 @@ export class DeleteState extends State {
    * initialiser l'état
    */
   start() {
-    setTimeout(() => {
-      app.workspace.selectionConstraints.eventType = 'click';
-      app.workspace.selectionConstraints.shapes.canSelect = true;
-      app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.points.types = ['divisionPoint'];
-    });
+    this.removeListeners();
 
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-  }
-
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-    setTimeout(() => {
-      app.workspace.selectionConstraints.eventType = 'click';
-      app.workspace.selectionConstraints.shapes.canSelect = true;
-      app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.points.types = ['divisionPoint'];
-    });
-
+    this.setSelectionConstraints()
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -63,18 +43,15 @@ export class DeleteState extends State {
    * stopper l'état
    */
   end() {
-    app.removeListener('objectSelected', this.objectSelectedId);
+    this.removeListeners();
   }
 
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+  setSelectionConstraints() {
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.shapes.canSelect = true;
+    app.workspace.selectionConstraints.points.canSelect = true;
+    app.workspace.selectionConstraints.points.types = ['divisionPoint'];
   }
 
   /**
@@ -83,36 +60,34 @@ export class DeleteState extends State {
    */
   objectSelected(object) {
     if (object instanceof Shape) {
-      let involvedShapes = ShapeManager.getAllBindedShapes(object, true);
-      let userGroup = GroupManager.getShapeGroup(object);
-
-      this.actions = [
-        {
-          name: 'DeleteAction',
-          mode: 'shape',
-          involvedShapeIds: involvedShapes.map((s) => s.id),
-          involvedShapesIndexes: involvedShapes.map((s) =>
-            ShapeManager.getShapeIndex(s),
-          ),
-        },
-      ];
-      if (userGroup) {
-        this.actions[0].userGroup = userGroup;
-        this.actions[0].userGroupIndex = GroupManager.getGroupIndex(userGroup);
-      }
+      this.mode = 'shape';
+      this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
+      this.userGroup = GroupManager.getShapeGroup(object);
     } else {
       // point
-
-      this.actions = [
-        {
-          name: 'DeleteAction',
-          mode: 'point',
-          pointId: object.id,
-        },
-      ];
+      this.mode = 'point';
+      this.point = object;
     }
     this.executeAction();
 
     window.dispatchEvent(new CustomEvent('refresh'));
+  }
+
+  executeAction() {
+    if (this.mode == 'shape') {
+      this.involvedShapes.forEach((s) => {
+        // if (userGroup) userGroup.deleteShape(s.id);
+        app.mainDrawingEnvironment.removeObjectById(s.id, 'shape');
+      });
+
+      if (this.userGroup) {
+        GroupManager.deleteGroup(userGroup);
+      }
+    } else {
+      console.log('here');
+      // point
+      let segment = this.point.segments[0];
+      segment.deletePoint(this.point);
+    }
   }
 }
