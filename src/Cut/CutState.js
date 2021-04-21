@@ -1,8 +1,9 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
+import { Shape } from '../Core/Objects/Shape';
 
 /**
  * Découper une forme
@@ -25,6 +26,8 @@ export class CutState extends State {
     this.centerPoint = null;
 
     this.drawColor = '#E90CC8';
+
+    window.addEventListener('tool-changed', this.handler);
   }
 
   /**
@@ -56,43 +59,37 @@ export class CutState extends State {
    * initialiser l'état
    */
   start() {
-    this.currentStep = 'listen-canvas-click';
-    setTimeout(() => this.setSelectionConstraints(this.currentStep));
+    this.removeListeners();
 
+    this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    setTimeout(() => this.setSelectionConstraints(this.currentStep));
+  selectSecondPoint() {
+    this.removeListeners();
 
+    this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
+  selectThirdPoint() {
+    this.removeListeners();
+
+    this.setSelectionConstraints();
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
+  cut() {
+    this.removeListeners();
   }
 
   /**
    * stopper l'état
    */
   end() {
+    this.removeListeners();
+    app.upperDrawingEnvironment.removeAllObjects();
     window.clearTimeout(this.timeoutRef);
-    if (this.status != 'paused' || this.currentStep == 'showing-points')
-      this.currentStep = 'listen-canvas-click';
-    if (this.status != 'paused') app.upperDrawingEnvironment.removeAllObjects();
-
-    app.removeListener('objectSelected', this.objectSelectedId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
   }
 
   /**
@@ -102,7 +99,7 @@ export class CutState extends State {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(object) {
-    if (this.currentStep == 'listen-canvas-click') {
+    if (app.tool.currentStep == 'start') {
       //On a sélectionné le premier point
       this.shape = object.shape;
       this.firstPoint = object;
@@ -113,17 +110,12 @@ export class CutState extends State {
         size: 2,
       });
       if (this.shape.isSegment() && this.firstPoint.type == 'divisionPoint') {
-        this.currentStep = 'showing-points';
         this.secondPoint = null;
-        window.clearTimeout(this.timeoutRef);
-        this.timeoutRef = window.setTimeout(() => {
-          this.execute();
-        }, 500);
+        setState({ tool: { ...app.tool, currentStep: 'cut' } });
       } else {
-        this.currentStep = 'select-second-point';
-        this.setSelectionConstraints(this.currentStep);
+        setState({ tool: { ...app.tool, currentStep: 'selectSecondPoint' } });
       }
-    } else if (this.currentStep == 'select-second-point') {
+    } else if (app.tool.currentStep == 'selectSecondPoint') {
       const pt1 = this.firstPoint,
         pt2 = object;
       if (pt1.id == pt2.id) {
@@ -134,8 +126,7 @@ export class CutState extends State {
           'point',
         );
         this.firstPoint = null;
-        this.currentStep = 'listen-canvas-click';
-        this.setSelectionConstraints(this.currentStep);
+        setState({ tool: { ...app.tool, currentStep: 'start' } });
       } else if (this.isLineValid(pt2.shape, pt1, pt2)) {
         new Point({
           coordinates: object.coordinates,
@@ -146,20 +137,15 @@ export class CutState extends State {
         if (pt2.type == 'shapeCenter') {
           // On a sélectionné le second point: le centre
           this.centerPoint = pt2;
-          this.currentStep = 'select-third-point';
-          this.setSelectionConstraints(this.currentStep);
+          setState({ tool: { ...app.tool, currentStep: 'selectThirdPoint' } });
         } else {
           // On a sélectionné le second point: un autre point
           this.secondPoint = pt2;
           this.centerPoint = null;
-          this.currentStep = 'showing-points';
-          window.clearTimeout(this.timeoutRef);
-          this.timeoutRef = window.setTimeout(() => {
-            this.execute();
-          }, 500);
+          setState({ tool: { ...app.tool, currentStep: 'cut' } });
         }
       }
-    } else if (this.currentStep == 'select-third-point') {
+    } else if (app.tool.currentStep == 'selectThirdPoint') {
       const pt1 = this.firstPoint,
         pt2 = object;
       //On a sélectionné le dernier point
@@ -170,8 +156,7 @@ export class CutState extends State {
           app.upperDrawingEnvironment.points[1].id,
           'point',
         );
-        this.currentStep = 'select-second-point';
-        this.setSelectionConstraints(this.currentStep);
+        setState({ tool: { ...app.tool, currentStep: 'selectSecondPoint' } });
       } else if (pt1.id == pt2.id) {
         // Désélectionner le premier point et le centre
         this.shape = null;
@@ -185,8 +170,7 @@ export class CutState extends State {
           app.upperDrawingEnvironment.points[0].id,
           'point',
         );
-        this.currentStep = 'listen-canvas-click';
-        this.setSelectionConstraints(this.currentStep);
+        setState({ tool: { ...app.tool, currentStep: 'start' } });
       } else if (this.isLineValid(pt2.shape, this.centerPoint, pt2)) {
         new Point({
           coordinates: object.coordinates,
@@ -195,77 +179,27 @@ export class CutState extends State {
           size: 2,
         });
         this.secondPoint = pt2;
-        this.currentStep = 'showing-points';
-        window.clearTimeout(this.timeoutRef);
-        this.timeoutRef = window.setTimeout(() => {
-          this.execute();
-        }, 500);
+        setState({ tool: { ...app.tool, currentStep: 'cut' } });
       }
+    }
+
+    if (app.tool.currentStep == 'cut') {
+      this.executeAnimation();
     }
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
-  execute() {
-    this.actions = [
-      {
-        name: 'CutAction',
-        shapeId: this.shape.id,
-        firstPointId: this.firstPoint.id,
-        secondPointId: this.secondPoint?.id,
-        centerPointId: this.centerPoint?.id,
-        // createdShapesIds: [uniqId(), uniqId()],
-      },
-    ];
-    this.executeAction();
-    this.currentStep = 'listen-canvas-click';
-    this.restart();
+  executeAnimation() {
+    window.clearTimeout(this.timeoutRef);
+    this.timeoutRef = window.setTimeout(() => {
+      this.executeAction();
+      setState({ tool: { ...app.tool, currentStep: 'start' } });
 
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+      window.dispatchEvent(new CustomEvent('refresh'));
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+    }, 500);
   }
-
-  // /**
-  //  * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-  //  */
-  // refreshStateUpper() {
-  //   if (this.currentStep == 'select-second-point') {
-  //     window.dispatchEvent(
-  //       new CustomEvent('draw-point', {
-  //         detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
-  //       })
-  //     );
-  //   } else if (this.currentStep == 'select-third-point') {
-  //     window.dispatchEvent(
-  //       new CustomEvent('draw-point', {
-  //         detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
-  //       })
-  //     );
-  //     window.dispatchEvent(
-  //       new CustomEvent('draw-point', {
-  //         detail: { point: this.centerPoint, color: this.drawColor, size: 2 },
-  //       })
-  //     );
-  //   } else if (this.currentStep == 'showing-points') {
-  //     window.dispatchEvent(
-  //       new CustomEvent('draw-point', {
-  //         detail: { point: this.firstPoint, color: this.drawColor, size: 2 },
-  //       })
-  //     );
-  //     if (this.secondPoint)
-  //       window.dispatchEvent(
-  //         new CustomEvent('draw-point', {
-  //           detail: { point: this.secondPoint, color: this.drawColor, size: 2 },
-  //         })
-  //       );
-  //     if (this.centerPoint)
-  //       window.dispatchEvent(
-  //         new CustomEvent('draw-point', {
-  //           detail: { point: this.centerPoint, color: this.drawColor, size: 2 },
-  //         })
-  //       );
-  //   }
-  // }
 
   /**
    * Vérifie si le segment de droite reliant pt1 et pt2 :
@@ -306,11 +240,11 @@ export class CutState extends State {
     );
   }
 
-  setSelectionConstraints(step) {
+  setSelectionConstraints() {
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.points.canSelect = true;
-    if (step == 'listen-canvas-click') {
+    if (app.tool.currentStep == 'start') {
       app.workspace.selectionConstraints.points.types = [
         'vertex',
         'divisionPoint',
@@ -326,7 +260,7 @@ export class CutState extends State {
         .map((s) => {
           return { shapeId: s.id };
         });
-    } else if (step == 'select-second-point') {
+    } else if (app.tool.currentStep == 'selectSecondPoint') {
       let shape = this.firstPoint.shape,
         concernedSegments = this.firstPoint.segments;
 
@@ -371,7 +305,7 @@ export class CutState extends State {
         .flat()
         .filter((pt) => pt);
       app.workspace.selectionConstraints.points.blacklist = blacklist;
-    } else if (step == 'select-third-point') {
+    } else if (app.tool.currentStep == 'selectThirdPoint') {
       app.workspace.selectionConstraints.points.types = [
         'vertex',
         'divisionPoint',
@@ -383,6 +317,194 @@ export class CutState extends State {
         { shapeId: shape.id },
       ];
       app.workspace.selectionConstraints.points.blacklist = null;
+    }
+  }
+
+
+  /**
+   * effectuer l'action en cours, appelé par un state ou l'historique
+   */
+   executeAction() {
+    let shape = this.shape,
+      pt1 = this.firstPoint,
+      pt2 = this.secondPoint,
+      firstPath,
+      secondPath;
+
+    if (shape.isSegment()) {
+      firstPath = [
+        'M',
+        shape.segments[0].vertexes[0].x,
+        shape.segments[0].vertexes[0].y,
+        'L',
+        pt1.x,
+        pt1.y,
+      ];
+      secondPath = [
+        'M',
+        pt1.x,
+        pt1.y,
+        'L',
+        shape.segments[0].vertexes[1].x,
+        shape.segments[0].vertexes[1].y,
+      ];
+    } else {
+      // Trier les 2 points:
+      if (pt1.type == 'vertex' && pt1.idx === 0) {
+        [pt1, pt2] = [pt2, pt1];
+      } else if (!(pt2.type == 'vertex' && pt2.idx === 0)) {
+        let pt1Idx = pt1.idx || pt1.segments[0].idx;
+        let pt2Idx = pt2.idx || pt2.segments[0].idx;
+        if (pt1Idx > pt2Idx) {
+          [pt1, pt2] = [pt2, pt1];
+        } else if (pt1Idx === pt2Idx) {
+          if ((pt1.ratio || 0) > (pt2.ratio || 0)) {
+            [pt1, pt2] = [pt2, pt1];
+          }
+          // [pt1, pt2] = [pt2, pt1];
+        }
+      }
+
+      let nbOfSegments = shape.segmentIds.length;
+      this.currentPoint = shape.vertexes[0];
+
+      firstPath = [
+        'M',
+        this.currentPoint.coordinates.x,
+        this.currentPoint.coordinates.y,
+      ];
+      for (let i = 0; i < nbOfSegments; i++) {
+        if (pt1.type === 'divisionPoint' && pt1.segments[0].idx === i) {
+          this.addPathElem(firstPath, pt1);
+          break;
+        } else {
+          this.addPathElem(firstPath, shape.vertexes[i + 1]);
+        }
+        if (pt1.type === 'vertex' && pt1.idx === i + 1) {
+          break;
+        }
+      }
+      if (this.centerPoint) {
+        this.addPathElem(firstPath, this.centerPoint, false);
+      }
+      this.addPathElem(firstPath, pt2, false);
+      let endJunctionIndex = pt2.idx || pt2.segments[0].idx;
+      if (!(pt2.type == 'vertex' && pt2.idx === 0)) {
+        for (let i = endJunctionIndex + 1; i <= nbOfSegments; i++) {
+          this.addPathElem(firstPath, shape.vertexes[i % nbOfSegments]);
+        }
+      }
+
+      this.currentPoint = pt1;
+      secondPath = [
+        'M',
+        this.currentPoint.coordinates.x,
+        this.currentPoint.coordinates.y,
+      ];
+      endJunctionIndex = pt1.idx || pt1.segments[0].idx;
+      for (let i = endJunctionIndex; i < nbOfSegments; i++) {
+        if (pt2.type === 'divisionPoint' && pt2.segments[0].idx === i) {
+          this.addPathElem(secondPath, pt2);
+          break;
+        } else {
+          this.addPathElem(secondPath, shape.vertexes[(i + 1) % nbOfSegments]);
+        }
+        if (pt2.type === 'vertex' && pt2.idx === (i + 1) % nbOfSegments) {
+          break;
+        }
+      }
+      if (this.centerPoint) {
+        this.addPathElem(secondPath, this.centerPoint, false);
+      }
+      this.addPathElem(secondPath, pt1, false);
+    }
+
+    firstPath = firstPath.join(' ');
+    secondPath = secondPath.join(' ');
+
+    let shape1 = new Shape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: firstPath,
+      color: shape.color,
+      borderColor: shape.borderColor,
+    });
+    let shape2 = new Shape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: secondPath,
+      color: shape.color,
+      borderColor: shape.borderColor,
+    });
+
+    shape1.cleanSameDirectionSegment();
+    shape2.cleanSameDirectionSegment();
+
+    // Modifier les coordonnées
+    let center1 = shape1.fake_center,
+      center2 = shape2.fake_center,
+      difference = center2.substract(center1),
+      distance = center2.dist(center1),
+      myOffset = 20, //px
+      offset = difference.multiply(myOffset / distance);
+
+    shape1.translate(offset.multiply(-1));
+    if (shape.isSegment()) {
+      shape1.translate(
+        new Coordinates({
+          x: -shape.segments[0].direction.y,
+          y: shape.segments[0].direction.x,
+        }).multiply(myOffset / 2),
+      );
+    }
+
+    shape2.translate(offset);
+    if (shape.isSegment()) {
+      shape2.translate(
+        new Coordinates({
+          x: shape.segments[0].direction.y,
+          y: -shape.segments[0].direction.x,
+        }).multiply(myOffset / 2),
+      );
+    }
+  }
+
+  addPathElem(path, nextPoint, mustFollowArc) {
+    let segment;
+    if (mustFollowArc !== false) {
+      let segmentIdx = Number.isInteger(this.currentPoint.idx)
+        ? this.currentPoint.idx
+        : this.currentPoint.segments[0].idx;
+      segment = this.currentPoint.shape.segments[segmentIdx];
+    }
+    if (segment == undefined || !segment.isArc() || mustFollowArc === false) {
+      path.push('L', nextPoint.coordinates.x, nextPoint.coordinates.y);
+      this.currentPoint = nextPoint;
+    } else {
+      let firstCoord = this.currentPoint.coordinates;
+      let secondCoord = nextPoint.coordinates;
+
+      let centerCoordinates = segment.arcCenter.coordinates;
+      let radius = centerCoordinates.dist(secondCoord),
+        firstAngle = centerCoordinates.angleWith(firstCoord),
+        secondAngle = centerCoordinates.angleWith(secondCoord);
+
+      if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+      let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+        sweepFlag = 1;
+      if (segment.counterclockwise) {
+        sweepFlag = Math.abs(sweepFlag - 1);
+        largeArcFlag = Math.abs(largeArcFlag - 1);
+      }
+      path.push(
+        'A',
+        radius,
+        radius,
+        0,
+        largeArcFlag,
+        sweepFlag,
+        secondCoord.x,
+        secondCoord.y,
+      );
+      this.currentPoint = nextPoint;
     }
   }
 }
