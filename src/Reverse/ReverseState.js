@@ -44,7 +44,7 @@ export class ReverseState extends State {
 
     this.requestAnimFrameId = null;
 
-    window.addEventListener('tool-changed', this.handler);
+
   }
 
   /**

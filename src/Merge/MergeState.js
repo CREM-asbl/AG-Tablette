@@ -1,9 +1,10 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';
+import { getAverageColor } from '../Core/Tools/general';
 
 /**
  * Fusionner 2 formes en une nouvelle forme
@@ -49,29 +50,21 @@ export class MergeState extends State {
    * initialiser l'état
    */
   start() {
-    this.currentStep = 'listen-canvas-click';
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
 
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    if (this.currentStep == 'selecting-second-shape')
-      app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
+  selectSecondShape() {
+    this.removeListeners();
 
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -79,23 +72,10 @@ export class MergeState extends State {
    * stopper l'état
    */
   end() {
-    if (this.status != 'paused') {
-      this.currentStep = 'listen-canvas-click';
-      app.mainDrawingEnvironment.editingShapeIds = [];
-      app.upperDrawingEnvironment.removeAllObjects();
-    }
-    app.removeListener('objectSelected', this.objectSelectedId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
   }
 
   /**
@@ -104,19 +84,12 @@ export class MergeState extends State {
    */
   objectSelected(shape) {
     let mustExecuteAction = false;
-    if (this.currentStep == 'listen-canvas-click') {
+    if (app.tool.currentStep == 'start') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
       if (this.involvedShapes.length > 1) {
-        const path = this.getPathFromGroup();
-        if (path) {
-          this.actions = [
-            {
-              name: 'MergeAction',
-              mode: 'multipleShapes',
-              involvedShapesIds: this.involvedShapes.map((s) => s.id),
-              path: path,
-            },
-          ];
+        this.path = this.getPathFromGroup();
+        if (this.path) {
+          this.mode = 'multipleShapes';
           mustExecuteAction = true;
         } else {
           window.dispatchEvent(
@@ -129,9 +102,9 @@ export class MergeState extends State {
           return;
         }
       } else {
-        this.currentStep = 'selecting-second-shape';
         this.firstShapeId = shape.id;
         app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
+        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
         this.drawingShapes = new Shape({
           ...shape,
           drawingEnvironment: app.upperDrawingEnvironment,
@@ -141,13 +114,11 @@ export class MergeState extends State {
           borderSize: 3,
         });
       }
-    } else if (this.currentStep == 'selecting-second-shape') {
+    } else if (app.tool.currentStep == 'selectSecondShape') {
       if (this.firstShapeId == shape.id) {
         // deselect firstShape
-        this.currentStep = 'listen-canvas-click';
+        setState({ tool: { ...app.tool, currentStep: 'start' } });
         this.firstShapeId = null;
-        app.mainDrawingEnvironment.editingShapeIds = [];
-        app.upperDrawingEnvironment.removeAllObjects();
       } else {
         let group = ShapeManager.getAllBindedShapes(shape, true);
         if (group.length > 1) {
@@ -157,14 +128,7 @@ export class MergeState extends State {
           this.involvedShapes = [...group, firstShape];
           const path = this.getPathFromGroup();
           if (path) {
-            this.actions = [
-              {
-                name: 'MergeAction',
-                mode: 'multipleShapes',
-                involvedShapesIds: this.involvedShapes.map((s) => s.id),
-                path: path,
-              },
-            ];
+            this.mode = 'multipleShapes';
             mustExecuteAction = true;
           } else {
             window.dispatchEvent(
@@ -178,55 +142,64 @@ export class MergeState extends State {
           }
         } else {
           this.secondShapeId = shape.id;
-          this.actions = [
-            {
-              name: 'MergeAction',
-              mode: 'twoShapes',
-              firstShapeId: this.firstShapeId,
-              secondShapeId: this.secondShapeId,
-            },
-          ];
+
+          let firstShape = app.mainDrawingEnvironment.findObjectById(
+            this.firstShapeId,
+            );
+          let secondShape = app.mainDrawingEnvironment.findObjectById(
+            this.secondShapeId,
+          );
+
+          if (firstShape.getCommonsCoordinates(secondShape).length < 2) {
+            window.dispatchEvent(
+              new CustomEvent('show-notif', {
+                detail: {
+                  message: "Il n'y a pas de segment commun entre les formes.",
+                },
+              }),
+            );
+            return;
+          }
+
+          if (firstShape.overlapsWith(secondShape)) {
+            window.dispatchEvent(
+              new CustomEvent('show-notif', {
+                detail: { message: 'Les formes se superposent.' },
+              }),
+            );
+            return;
+          }
+
+          this.mode = 'twoShapes';
           mustExecuteAction = true;
         }
       }
     }
 
     if (mustExecuteAction) {
-      if (this.actions[0].mode == 'twoShapes') {
-        let firstShape = app.mainDrawingEnvironment.findObjectById(
-          this.firstShapeId,
-        );
-        let secondShape = app.mainDrawingEnvironment.findObjectById(
-          this.secondShapeId,
-        );
-
-        if (firstShape.getCommonsCoordinates(secondShape).length < 2) {
-          window.dispatchEvent(
-            new CustomEvent('show-notif', {
-              detail: {
-                message: "Il n'y a pas de segment commun entre les formes.",
-              },
-            }),
-          );
-          return;
-        }
-
-        if (firstShape.overlapsWith(secondShape)) {
-          window.dispatchEvent(
-            new CustomEvent('show-notif', {
-              detail: { message: 'Les formes se superposent.' },
-            }),
-          );
-          return;
-        }
-      }
-
       this.executeAction();
-      this.restart();
+      setState({ tool: { ...app.tool, currentStep: 'start' } });
     }
 
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
+  }
+
+  executeAction() {
+    if (this.mode == 'twoShapes') {
+      let shape1 = ShapeManager.getShapeById(this.firstShapeId),
+        shape2 = ShapeManager.getShapeById(this.secondShapeId);
+
+      const newSegments = this.createNewSegments(shape1, shape2);
+      if (!newSegments) return this.alertDigShape();
+
+      const path = this.linkNewSegments(newSegments);
+      if (!path) return this.alertDigShape();
+
+      this.createNewShape(path, shape1, shape2);
+    } else {
+      this.createNewShape(this.path, ...this.involvedShapes);
+    }
   }
 
   getPathFromGroup() {
@@ -303,12 +276,175 @@ export class MergeState extends State {
     return newSegments;
   }
 
-  linkNewSegments(segmentsList) {
-    let path = [];
-    let segmentUsed = 0;
+  /**
+   *
+   * @param {Shape} shape1 la premiere forme à fusionner
+   * @param {Shape} shape2 la seconde forme à fusionner
+   * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
+   */
+  createNewSegments(shape1, shape2) {
+    let segments1 = shape1.segments.map((seg) => {
+      let segmentCopy = new Segment({
+        drawingEnvironment: app.invisibleDrawingEnvironment,
+        createFromNothing: true,
+        vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
+        divisionPointInfos: seg.divisionPoints.map((d) => {
+          return { coordinates: d.coordinates, ratio: d.ratio };
+        }),
+        arcCenterCoordinates: seg.arcCenter?.coordinates,
+        counterclockwise: seg.counterclockwise,
+      });
+      return segmentCopy;
+    });
+    let segments2 = shape2.segments.map((seg) => {
+      let segmentCopy = new Segment({
+        drawingEnvironment: app.invisibleDrawingEnvironment,
+        createFromNothing: true,
+        vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
+        divisionPointInfos: seg.divisionPoints.map((d) => {
+          return { coordinates: d.coordinates, ratio: d.ratio };
+        }),
+        arcCenterCoordinates: seg.arcCenter?.coordinates,
+        counterclockwise: seg.counterclockwise,
+      });
+      return segmentCopy;
+    });
+    segments1.forEach((seg) => seg.sortDivisionPoints());
+    segments2.forEach((seg) => seg.sortDivisionPoints());
 
+    for (let i = 0; i < segments1.length; i++) {
+      for (let j = 0; j < segments2.length; j++) {
+        let firstSegment = segments1[i];
+        let secondSegment = segments2[j];
+        if (
+          Math.abs(
+            firstSegment.getAngleWithHorizontal() -
+              secondSegment.getAngleWithHorizontal(),
+          ) > 0.01
+        ) {
+          secondSegment.reverse();
+        }
+        let commonCoordinates = this.getCommonCoordinates(
+          firstSegment,
+          secondSegment,
+        );
+        if (commonCoordinates) {
+          // todo: quand on crée un nouveau segment, copier les points de division de son modele
+          // si on veut faire la fusion d'un groupe
+          if (
+            !firstSegment.vertexes[0].coordinates.equal(commonCoordinates[0])
+          ) {
+            segments1.push(
+              new Segment({
+                drawingEnvironment: app.invisibleDrawingEnvironment,
+                createFromNothing: true,
+                vertexCoordinates: [
+                  firstSegment.vertexes[0].coordinates,
+                  commonCoordinates[0],
+                ],
+                arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
+                counterclockwise: firstSegment.counterclockwise,
+              }),
+            );
+          }
+          if (
+            !firstSegment.vertexes[1].coordinates.equal(commonCoordinates[1])
+          ) {
+            segments1.push(
+              new Segment({
+                drawingEnvironment: app.invisibleDrawingEnvironment,
+                createFromNothing: true,
+                vertexCoordinates: [
+                  commonCoordinates[1],
+                  firstSegment.vertexes[1].coordinates,
+                ],
+                arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
+                counterclockwise: firstSegment.counterclockwise,
+              }),
+            );
+          }
+          if (
+            !secondSegment.vertexes[0].coordinates.equal(commonCoordinates[0])
+          ) {
+            segments2.push(
+              new Segment({
+                drawingEnvironment: app.invisibleDrawingEnvironment,
+                createFromNothing: true,
+                vertexCoordinates: [
+                  secondSegment.vertexes[0].coordinates,
+                  commonCoordinates[0],
+                ],
+                arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
+                counterclockwise: firstSegment.counterclockwise,
+              }),
+            );
+          }
+          if (
+            !secondSegment.vertexes[1].coordinates.equal(commonCoordinates[1])
+          ) {
+            segments2.push(
+              new Segment({
+                drawingEnvironment: app.invisibleDrawingEnvironment,
+                createFromNothing: true,
+                vertexCoordinates: [
+                  commonCoordinates[1],
+                  secondSegment.vertexes[1].coordinates,
+                ],
+                arcCenterCoordinates: firstSegment.arcCenter?.coordinates,
+                counterclockwise: firstSegment.counterclockwise,
+              }),
+            );
+          }
+          segments1.splice(i, 1);
+          segments2.splice(j, 1);
+          i = -1;
+          break;
+        }
+      }
+    }
+    let segments = [...segments1, ...segments2];
+    return segments;
+  }
+
+  getCommonCoordinates(firstSegment, secondSegment) {
+    // todo à changer si on peut faire des arcs de cercles concaves
+    if (firstSegment.isArc() || secondSegment.isArc()) return null;
+    let firstCommonCoordinates = null;
+    let secondCommonCoordinates = null;
+    [
+      firstSegment.vertexes[0],
+      ...firstSegment.divisionPoints,
+      firstSegment.vertexes[1],
+    ].forEach((pt1) => {
+      [
+        secondSegment.vertexes[0],
+        ...secondSegment.divisionPoints,
+        secondSegment.vertexes[1],
+      ].forEach((pt2) => {
+        if (pt1.coordinates.equal(pt2.coordinates)) {
+          if (firstCommonCoordinates == null) {
+            firstCommonCoordinates = pt1.coordinates;
+          } else {
+            secondCommonCoordinates = pt1.coordinates;
+          }
+        }
+      });
+    });
+    if (firstCommonCoordinates != null && secondCommonCoordinates != null)
+      return [firstCommonCoordinates, secondCommonCoordinates];
+    else return null;
+  }
+
+  /**
+   * Crée les segments définitifs de la forme fusionnée
+   * @param {Segment[]} segmentsList   les segments à modifier
+   * @returns {Segment[]}              les segments définitifs
+   */
+  linkNewSegments(segmentsList) {
     let startCoordinates = segmentsList[0].vertexes[0].coordinates;
-    path.push('M', startCoordinates.x, startCoordinates.y);
+    let path = ['M', startCoordinates.x, startCoordinates.y];
+    let segmentUsed = 0;
+    let numberOfSegments = segmentsList.length;
 
     let nextSegmentIndex = 0;
     this.addPathElem(path, segmentsList[0]);
@@ -344,7 +480,11 @@ export class MergeState extends State {
       segmentUsed++;
     }
 
-    if (segmentsList.length > 0) return null;
+    if (segmentUsed != numberOfSegments) {
+      // si tous les segments n'ont pas été utilisés, la forme créée est creuse
+      console.warn('shape is dig (not all segments have been used)');
+      return null;
+    }
 
     path = path.join(' ');
 
@@ -385,19 +525,25 @@ export class MergeState extends State {
   }
 
   /**
-   * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
+   * crée la forme fusionnée et l'ajoute au workspace
+   * @param {String} path
+   * @param {Shape} shapes            les formes a fusionner
    */
-  refreshStateUpper() {
-    // if (this.currentStep == 'selecting-second-shape') {
-    //   const shape = this.firstShape,
-    //     borderColor = shape.borderColor;
-    //   shape.borderColor = '#E90CC8';
-    //   window.dispatchEvent(
-    //     new CustomEvent('draw-shape', {
-    //       detail: { shape: shape, borderSize: 3 },
-    //     })
-    //   );
-    //   shape.borderColor = borderColor;
-    // }
+  createNewShape(path, ...shapes) {
+    let newShape = new Shape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: path,
+      name: 'Custom',
+      familyName: 'Custom',
+      color: getAverageColor(...shapes.map((s) => s.color)),
+      borderColor: getAverageColor(...shapes.map((s) => s.borderColor)),
+      opacity:
+        shapes.map((s) => s.opacity).reduce((acc, value) => acc + value) /
+        shapes.length,
+      isBiface: shapes.some((s) => s.isBiface),
+      isReversed: shapes.some((s) => s.isReversed),
+    });
+    newShape.cleanSameDirectionSegment();
+    newShape.translate({ x: -20, y: -20 });
   }
 }

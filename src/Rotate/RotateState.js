@@ -28,8 +28,6 @@ export class RotateState extends State {
         elle-même
          */
     this.involvedShapes = [];
-
-    window.addEventListener('tool-changed', this.handler);
   }
 
   /**

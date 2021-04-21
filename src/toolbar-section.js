@@ -52,6 +52,7 @@ class ToolbarSection extends LitElement {
         case 'copy':
         case 'divide':
         case 'cut':
+        case 'merge':
           setState({ tool: { name: event.target.name, currentStep: 'start' } });
           break;
         default:

@@ -21,8 +21,6 @@ export class CreateState extends State {
     this.selectedTemplate = null;
 
     this.shapeToCreate = null;
-
-    window.addEventListener('tool-changed', this.handler);
   }
 
   /**

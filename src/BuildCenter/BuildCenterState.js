@@ -10,7 +10,7 @@ export class BuildCenterState extends State {
   constructor() {
     super('buildCenter', 'Construire le centre', 'operation');
 
-    window.addEventListener('tool-changed', this.handler);
+
   }
 
   /**

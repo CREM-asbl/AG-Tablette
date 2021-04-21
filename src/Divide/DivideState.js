@@ -23,7 +23,7 @@ export class DivideState extends State {
 
     this.numberOfParts = 2;
 
-    window.addEventListener('tool-changed', this.handler);
+
   }
 
   /**

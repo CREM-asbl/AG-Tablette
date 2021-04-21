@@ -27,7 +27,7 @@ export class CopyState extends State {
 
     this.translateOffset = new Coordinates({ x: -20, y: -20 });
 
-    window.addEventListener('tool-changed', this.handler);
+
   }
 
   /**

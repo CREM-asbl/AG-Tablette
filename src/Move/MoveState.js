@@ -23,8 +23,6 @@ export class MoveState extends State {
 
     // L'ensemble des formes liées à la forme sélectionnée, y compris la forme elle-même
     this.involvedShapes = [];
-
-    window.addEventListener('tool-changed', this.handler);
   }
 
   /**

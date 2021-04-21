@@ -68,7 +68,7 @@ export class State {
 
     this.handler = (event) => this.eventHandler(event);
 
-    // window.addEventListener('tool-changed', this.handler);
+    window.addEventListener('tool-changed', this.handler);
   }
 
   /**

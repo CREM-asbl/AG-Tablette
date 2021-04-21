@@ -27,7 +27,7 @@ export class CutState extends State {
 
     this.drawColor = '#E90CC8';
 
-    window.addEventListener('tool-changed', this.handler);
+
   }
 
   /**
