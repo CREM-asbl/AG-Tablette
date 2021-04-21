@@ -12,19 +12,18 @@ export class App {
     this.settings = new Settings();
     this.initSettings();
 
-    this.canvas = null;
-
     this.canvasWidth = null;
     this.canvasHeight = null;
 
-    // L'état de l'application
-    this.state = null;
+    // L'outil sélectionné
+    this.tool = {};
 
     // Les états possibles
-    this.states = [];
+    this.tools = [];
 
-    // Les actions possibles
-    this.actions = [];
+    this.workspaceSettings = {
+      numberOfDivisionParts: 2,
+    };
 
     // compteur d'écouteurs pour certains event
     this.listenerCounter = {};
@@ -169,7 +168,12 @@ export const setState = (update) => {
   if (window.dev_mode) console.log(app);
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   if ('tool' in update) {
-    console.log(update.tool);
+    let toolInfo = app.tools.find(tool => tool.name == app.tool.name);
+    console.log(toolInfo)
+    if (toolInfo) {
+      app.tool.title = toolInfo.title;
+      app.tool.type = toolInfo.type;
+    }
     window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
   }
 };

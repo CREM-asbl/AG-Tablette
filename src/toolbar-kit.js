@@ -48,7 +48,7 @@ class ToolbarKit extends LitElement {
                   console.log('here');
                   setState({
                     tool: {
-                      name: 'createShape',
+                      name: 'create',
                       selectedFamily: family,
                       currentStep: 'start',
                     },

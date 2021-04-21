@@ -166,3 +166,9 @@ export function isAlmostInfinite(number) {
   let isReallyBigNumber = !isFinite(number) || Math.abs(number) > 1000000000;
   return isReallyBigNumber;
 }
+
+export function range(start, end) {
+  let numberOfelems = end - start;
+  return Array.apply(0, Array(numberOfelems))
+    .map((element, index) => index + start);
+}

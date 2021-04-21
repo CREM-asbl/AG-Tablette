@@ -9,7 +9,7 @@ import { Text } from '../Core/Objects/Text';
  */
 export class BifaceState extends State {
   constructor() {
-    super('biface', 'Rendre biface', 'tool');
+    super('biface', 'Biface', 'tool');
   }
 
   /**

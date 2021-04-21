@@ -27,9 +27,8 @@ class AGTabletteApp extends LitElement {
       canUndo: Boolean,
       canRedo: Boolean,
       background: String,
-      states: Array,
-      stateName: String,
-      state: Object,
+      tools: Array,
+      tool: Object,
     };
   }
 
@@ -38,15 +37,13 @@ class AGTabletteApp extends LitElement {
     app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
-    this.setState();
+    this.tools = app.tools;
+    this.tool = app.tool;
 
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
     });
     window.addEventListener('app-state-changed', () => {
-      this.setState();
-    });
-    window.addEventListener('state-changed', () => {
       this.setState();
     });
     window.addEventListener('history-changed', () => {
@@ -62,6 +59,12 @@ class AGTabletteApp extends LitElement {
     });
     window.addEventListener('open-color-picker', () => {
       this.shadowRoot.querySelector('#color-picker-label').click();
+    });
+
+    window.addEventListener('state-changed', () => {
+      console.log(app.tool, app.tools);
+      this.tools = app.tools;
+      this.tool = app.tool;
     });
 
     // vh error in tablette => custom vh
@@ -153,8 +156,8 @@ class AGTabletteApp extends LitElement {
         <div id="app-menu">
           <template-toolbar title="hell">
             <h2 slot="title">
-              ${this.state != undefined
-                ? this.state.title
+              ${this.tool?.title != undefined
+                ? this.tool.title
                 : app.environment.name}
             </h2>
             <div slot="body">
@@ -217,40 +220,40 @@ class AGTabletteApp extends LitElement {
 
           <toolbar-section
             title="Créer une silhouette"
-            .buttons_states="${this.states.filter(
-              (state) => state.type === 'tangram',
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'tangram',
             )}"
           >
           </toolbar-section>
 
           <toolbar-section
             title="Formes libres"
-            .buttons_states="${this.states.filter(
-              (state) => state.type === 'geometryCreator',
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'geometryCreator',
             )}"
           >
           </toolbar-section>
 
           <toolbar-section
             title="Mouvements"
-            .buttons_states="${this.states.filter(
-              (state) => state.type === 'move',
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'move',
             )}"
           >
           </toolbar-section>
 
           <toolbar-section
             title="Opérations"
-            .buttons_states="${this.states.filter(
-              (state) => state.type === 'operation',
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'operation',
             )}"
           >
           </toolbar-section>
 
           <toolbar-section
             title="Outils"
-            .buttons_states="${this.states.filter(
-              (state) => state.type === 'tool',
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'tool',
             )}"
           >
           </toolbar-section>
@@ -306,17 +309,17 @@ class AGTabletteApp extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
-    let reset_state = 0;
+    let resetTool = false;
     let leaveConfirmationPopup;
     switch (event.target.name) {
       case 'settings':
         import('./popups/settings-popup');
         createElem('settings-popup');
-        reset_state = 1;
+        resetTool = true;
         break;
       case 'save':
         window.dispatchEvent(new CustomEvent('save-file'));
-        reset_state = 1;
+        resetTool = true;
         break;
       case 'load':
         if (app.workspace.history.index === -1) {
@@ -326,13 +329,13 @@ class AGTabletteApp extends LitElement {
         import('./popups/leave-confirmation-popup');
         leaveConfirmationPopup = createElem('leave-confirmation-popup');
         leaveConfirmationPopup.actionAfter = 'open';
-        reset_state = 1;
+        resetTool = true;
         break;
       case 'new':
         import('./popups/leave-confirmation-popup');
         leaveConfirmationPopup = createElem('leave-confirmation-popup');
         leaveConfirmationPopup.actionAfter = 'new';
-        reset_state = 1;
+        resetTool = true;
         break;
       case 'undo':
         window.dispatchEvent(new CustomEvent('undo-action'));
@@ -354,17 +357,18 @@ class AGTabletteApp extends LitElement {
           event,
         );
     }
-    if (reset_state) {
-      app.setState();
+    if (resetTool) {
+      setState({ tool: null });
     }
   }
 
-  setState() {
-    this.states = [...app.states];
-    this.stateName = app.state;
-    this.state = this.states.find((st) => st.name == this.stateName);
-    // if (location.hostname === 'localhost') console.log(app)
-  }
+  // setState() {
+  //   console.trace('ag-main setState called');
+  //   this.states = [...app.states];
+  //   this.stateName = app.state;
+  //   this.state = this.states.find((st) => st.name == this.stateName);
+  //   // if (location.hostname === 'localhost') console.log(app)
+  // }
 
   // // Todo: Placer dans un objet BackgroundImage ?
   // loadBackground() {

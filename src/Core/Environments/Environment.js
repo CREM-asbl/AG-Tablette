@@ -1,4 +1,4 @@
-import { app } from '../App';
+import { app, setState } from '../App';
 import { Family } from '../Objects/Family';
 
 export const loadEnvironnement = async (name) => {
@@ -18,7 +18,7 @@ const loadModules = async (list) => {
   const modules = await Promise.all(
     list.map(async (module) => await import(`../../${module}/index.js`)),
   );
-  app.states = modules.map((module) => module.default.state);
+  setState({ tools: modules.map((module) => {return {name: module.default.state.name, title: module.default.state.title, type: module.default.state.type}}) });
 };
 
 const loadKit = async (name) => {

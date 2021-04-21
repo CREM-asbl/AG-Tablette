@@ -1,11 +1,12 @@
 import { LitElement, html, css } from 'lit-element';
+import { app, setState } from '../Core/App';
 import { CompleteHistoryManager } from '../Core/Managers/CompleteHistoryManager';
 import { TemplatePopup } from '../popups/template-popup';
+import { range } from '../Core/Tools/general';
 
 class DividePopup extends LitElement {
   constructor() {
     super();
-    this.parts = 2;
 
     window.addEventListener('close-popup', () => {
       if (CompleteHistoryManager.isRunning) {
@@ -14,6 +15,9 @@ class DividePopup extends LitElement {
         this.submitAndClose();
       }
     });
+
+    this.parts = app.workspaceSettings.numberOfDivisionParts;
+    window.addEventListener('state-changed', () => this.parts = app.workspaceSettings.numberOfDivisionParts);
   }
 
   static get properties() {
@@ -42,16 +46,10 @@ class DividePopup extends LitElement {
         <h2 slot="title">Diviser</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts">Diviser en</label>
-          <select @change="${(e) => (this.parts = e.target.value)}">
-            <option value="2" ?selected="${this.parts == 2}">2</option>
-            <option value="3" ?selected="${this.parts == 3}">3</option>
-            <option value="4" ?selected="${this.parts == 4}">4</option>
-            <option value="5" ?selected="${this.parts == 5}">5</option>
-            <option value="6" ?selected="${this.parts == 6}">6</option>
-            <option value="7" ?selected="${this.parts == 7}">7</option>
-            <option value="8" ?selected="${this.parts == 8}">8</option>
+          <select @change="${this.changeNumberOfParts}">
+            ${range(2, 9).map(x => html`<option value="${x}" ?selected="${this.parts == x}">${x}</option>`)}
           </select>
-          <span> parties</span>
+          <span>parties</span>
         </div>
 
         <div slot="footer">
@@ -61,12 +59,13 @@ class DividePopup extends LitElement {
     `;
   }
 
+  changeNumberOfParts(event) {
+    console.log('here');
+    setState({ workspaceSettings: { ...app.workspaceSettings, numberOfDivisionParts: event.target.value } });
+  }
+
   submit() {
-    window.dispatchEvent(
-      new CustomEvent('setNumberOfParts', {
-        detail: { nbOfParts: this.parts, close: true },
-      }),
-    );
+    setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
   }
 
   close() {

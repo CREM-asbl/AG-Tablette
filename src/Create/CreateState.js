@@ -11,7 +11,7 @@ import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
  */
 export class CreateState extends State {
   constructor() {
-    super('createShape', 'Ajouter une forme');
+    super('create', 'Ajouter une forme');
 
     // start -> listen -> move
     this.currentStep = null;
