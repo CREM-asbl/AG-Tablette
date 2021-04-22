@@ -50,7 +50,8 @@ export class TranslateState extends State {
   /**
    * stopper l'état
    */
-  end() {this.removeListeners
+  end() {
+    this.removeListeners();
   }
 
   canvasMouseDown() {

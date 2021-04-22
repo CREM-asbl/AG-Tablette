@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -33,65 +33,43 @@ export class ZoomState extends State {
     `;
   }
 
+
   /**
    * initialiser l'état
    */
-  start() {
-    this.currentStep = 'listen-canvas-click';
-    this.baseDist = null;
+   start() {
+    this.removeListeners();
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    this.currentStep = 'listen-canvas-click';
+  zoom() {
+    this.removeListeners();
 
-    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+    this.mouseMoveId = app.addListener('canvasMouseMove', this.handler);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    app.removeListener('canvasMouseDown', this.mouseDownId);
-    app.removeListener('canvasMouseMove', this.mouseMoveId);
-    app.removeListener('canvasMouseUp', this.mouseUpId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'canvasMouseDown') {
-      this.canvasMouseDown();
-    } else if (event.type == 'canvasMouseMove') {
-      this.onMouseMove();
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+    this.removeListeners();
   }
 
   canvasMouseDown() {
-    if (this.currentStep != 'listen-canvas-click') return;
+    if (app.tool.currentStep != 'start') return;
 
-    this.baseDist = this.getDist(app.workspace.lastKnownMouseCoordinates);
+    this.baseDist = this.getDistanceFromScreenCenter(app.workspace.lastKnownMouseCoordinates);
 
-    this.currentStep = 'zooming-plane';
-    this.mouseMoveId = app.addListener('canvasMouseMove', this.handler);
-    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+    setState({ tool: { ...app.tool, currentStep: 'zoom' } });
   }
 
-  onMouseMove() {
-    if (this.currentStep != 'zooming-plane') return;
+  canvasMouseMove() {
+    if (app.tool.currentStep != 'zoom') return;
 
     let scaleOffset =
-        this.getDist(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
+        this.getDistanceFromScreenCenter(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
       originalZoom = app.workspace.zoomLevel,
       minZoom = app.settings.get('minZoomLevel'),
       maxZoom = app.settings.get('maxZoomLevel');
@@ -123,36 +101,48 @@ export class ZoomState extends State {
   }
 
   canvasMouseUp() {
-    if (this.currentStep != 'zooming-plane') return;
+    if (app.tool.currentStep != 'zoom') return;
 
-    let scaleOffset =
-        this.getDist(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
-      actualZoom = app.workspace.zoomLevel,
-      minZoom = app.settings.get('minZoomLevel'),
+    this.scaleOffset = this.getDistanceFromScreenCenter(app.workspace.lastKnownMouseCoordinates) / this.baseDist;
+    this.originalZoom = app.workspace.zoomLevel;
+    this.originalTranslateOffset = app.workspace.translateOffset;
+    this.centerProp = new Coordinates({ x: 0.5, y: 0.5 });
+
+    const minZoom = app.settings.get('minZoomLevel'),
       maxZoom = app.settings.get('maxZoomLevel');
-    if (scaleOffset * actualZoom > maxZoom) {
-      // -> scaleOffset * actualZoom = maxZoom
-      scaleOffset = maxZoom / actualZoom - 0.001;
+    if (this.scaleOffset * this.originalZoom > maxZoom) {
+      // -> scaleOffset * originalZoom = maxZoom
+      this.scaleOffset = maxZoom / this.originalZoom - 0.001;
     }
-    if (scaleOffset * actualZoom < minZoom) {
-      scaleOffset = minZoom / actualZoom + 0.001;
+    if (this.scaleOffset * this.originalZoom < minZoom) {
+      this.scaleOffset = minZoom / this.originalZoom + 0.001;
     }
-
-    this.actions = [
-      {
-        name: 'ZoomAction',
-        scaleOffset: scaleOffset,
-        originalZoom: actualZoom,
-        originalTranslateOffset: app.workspace.translateOffset,
-        centerProp: new Coordinates({ x: 0.5, y: 0.5 }),
-      },
-    ];
 
     this.executeAction();
-    this.restart();
+    setState({ tool: { ...app.tool, currentStep: 'start' } });
   }
 
-  getDist(mouseCoordinates) {
+  executeAction() {
+    let newZoom = this.originalZoom * this.scaleOffset,
+      actualWinSize = new Coordinates({
+        x: app.canvasWidth,
+        y: app.canvasHeight,
+      }).multiply(1 / this.originalZoom),
+      newWinSize = actualWinSize.multiply(1 / this.scaleOffset),
+      newTranslateoffset = this.originalTranslateOffset
+        .multiply(1 / this.originalZoom)
+        .add(
+          newWinSize
+            .substract(actualWinSize)
+            .multiply(this.centerProp.x, this.centerProp.y),
+        )
+        .multiply(newZoom);
+
+    app.workspace.setZoomLevel(newZoom, false);
+    app.workspace.setTranslateOffset(newTranslateoffset);
+  }
+
+  getDistanceFromScreenCenter(mouseCoordinates) {
     let halfWinSize = new Coordinates({
         x: app.canvasWidth,
         y: app.canvasHeight,
