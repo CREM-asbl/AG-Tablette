@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -31,26 +31,10 @@ export class ToBackgroundState extends State {
    * initialiser l'état
    */
   start() {
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
+    this.removeListeners();
 
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-  }
-
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
-
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -58,7 +42,7 @@ export class ToBackgroundState extends State {
    * stopper l'état
    */
   end() {
-    app.removeListener('objectSelected', this.objectSelectedId);
+    this.removeListeners();
   }
 
   /**
@@ -82,14 +66,17 @@ export class ToBackgroundState extends State {
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
-    this.actions = [
-      {
-        name: 'ToBackgroundAction',
-        involvedShapesIds: this.involvedShapes.map((s) => s.id),
-      },
-    ];
     this.executeAction();
+    setState({ tool: { ...app.tool, currentStep: 'start' } });
 
     window.dispatchEvent(new CustomEvent('refresh'));
+  }
+
+  executeAction() {
+    this.involvedShapes.forEach((s, index) => {
+      let shapeIndex = app.mainDrawingEnvironment.findIndexById(s.id);
+      let shape = app.mainDrawingEnvironment.shapes.splice(shapeIndex, 1)[0];
+      app.mainDrawingEnvironment.shapes.splice(index, 0, shape);
+    });
   }
 }
