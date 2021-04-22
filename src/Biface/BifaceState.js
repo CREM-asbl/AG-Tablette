@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -30,53 +30,27 @@ export class BifaceState extends State {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
-    app.mainDrawingEnvironment.shapes.map((s) => {
-      if (s.isBiface) {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: s.centerCoordinates,
-          referenceId: s.id,
-          message: 'Biface',
-          type: 'biface',
-        });
-      }
-    });
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.removeListeners();
 
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-  }
+    setTimeout(() => {
+      app.mainDrawingEnvironment.shapes.map((s) => {
+        if (s.isBiface) {
+          new Text({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: s.centerCoordinates,
+            referenceId: s.id,
+            message: 'Biface',
+            type: 'biface',
+          });
+        }
+      });
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+    }, 50);
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    app.mainDrawingEnvironment.shapes.map((s) => {
-      if (s.isBiface) {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: s.centerCoordinates,
-          referenceId: s.id,
-          message: 'Biface',
-          type: 'biface',
-        });
-      }
-    });
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
-
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -85,18 +59,7 @@ export class BifaceState extends State {
    */
   end() {
     app.upperDrawingEnvironment.removeAllObjects();
-    app.removeListener('objectSelected', this.objectSelectedId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+    this.removeListeners();
   }
 
   /**
@@ -104,20 +67,23 @@ export class BifaceState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    let involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
-
-    this.actions = [
-      {
-        name: 'BifaceAction',
-        involvedShapesIds: involvedShapes.map((s) => s.id),
-        oldBiface: involvedShapes.map((s) => s.isBiface),
-      },
-    ];
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
     this.executeAction();
-    this.restart();
+    setState({ tool: { ...app.tool, currentStep: 'start' } });
 
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
+  }
+
+  executeAction() {
+    // if ! all biface => set to biface
+    // else set to not biface
+    let valueToSet = !this.involvedShapes.every((s) => {
+      return s.isBiface;
+    });
+    this.involvedShapes.forEach((s) => {
+      s.isBiface = valueToSet;
+    });
   }
 }
