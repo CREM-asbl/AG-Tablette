@@ -100,8 +100,6 @@ export class CreateState extends State {
 
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
-    console.log(this.shapeToCreate);
-
     setState({ tool: { ...app.tool, currentStep: 'move' } });
     this.animate();
   }
@@ -117,8 +115,6 @@ export class CreateState extends State {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'move') {
-      console.log(this.shapeToCreate);
-
       this.shapeToCreate.translate(
         app.workspace.lastKnownMouseCoordinates.substract(this.currentShapePos),
       );

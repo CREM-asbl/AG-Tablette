@@ -45,7 +45,6 @@ class ToolbarKit extends LitElement {
                 title="${family}"
                 ?active="${family === this.selectedFamily}"
                 @click="${() => {
-                  console.log('here');
                   setState({
                     tool: {
                       name: 'create',

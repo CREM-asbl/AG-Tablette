@@ -119,7 +119,6 @@ export class RotateState extends State {
     setState({ tool: { ...app.tool, currentStep: 'rotate' } });
     window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
-    console.log(app.mainDrawingEnvironment.editingShapeIds);
   }
 
   canvasMouseUp() {
@@ -159,7 +158,6 @@ export class RotateState extends State {
     setState({ tool: { ...app.tool, currentStep: 'start' } });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
-    console.log(app.mainDrawingEnvironment.editingShapeIds);
   }
 
   /**
@@ -167,7 +165,6 @@ export class RotateState extends State {
    */
   refreshStateUpper() {
     if (app.tool.currentStep == 'rotate') {
-      console.log('here');
       let newAngle = this.center.angleWith(
           app.workspace.lastKnownMouseCoordinates,
         ),

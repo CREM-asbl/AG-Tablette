@@ -62,7 +62,6 @@ class AGTabletteApp extends LitElement {
     });
 
     window.addEventListener('state-changed', () => {
-      console.log(app.tool, app.tools);
       this.tools = app.tools;
       this.tool = app.tool;
     });

@@ -60,7 +60,6 @@ class DividePopup extends LitElement {
   }
 
   changeNumberOfParts(event) {
-    console.log('here');
     setState({ workspaceSettings: { ...app.workspaceSettings, numberOfDivisionParts: event.target.value } });
   }
 

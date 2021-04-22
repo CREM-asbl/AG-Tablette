@@ -1,8 +1,9 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Text } from '../Core/Objects/Text';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 
 /**
  * Grouper des formes.
@@ -52,89 +53,50 @@ export class GroupState extends State {
    * initialiser l'état
    */
   start() {
-    this.currentStep = 'listen-canvas-click';
-    app.mainDrawingEnvironment.shapes.map((s) => {
-      if (GroupManager.getShapeGroup(s) != null) {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: s.centerCoordinates,
-          referenceId: s.id,
-          type: 'group',
-        });
-      }
-    });
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.removeListeners();
 
+    setTimeout(() => {
+      app.mainDrawingEnvironment.shapes.map((s) => {
+        if (GroupManager.getShapeGroup(s) != null) {
+          new Text({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: s.centerCoordinates,
+            referenceId: s.id,
+            type: 'group',
+          });
+        }
+      });
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+    }, 50);
+
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    app.mainDrawingEnvironment.shapes.map((s) => {
-      if (GroupManager.getShapeGroup(s) != null) {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: s.centerCoordinates,
-          referenceId: s.id,
-          type: 'group',
-        });
-      }
-    });
-    if (this.currentStep == 'listen-canvas-click') {
-      setTimeout(
-        () =>
-          (app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.click_all_shape),
-      );
-    } else {
-      let shapeIdsList = [];
-      if (this.currentStep == 'selecting-second-shape')
-        shapeIdsList = [this.firstShape.id];
-      else shapeIdsList = this.group.shapesIds;
+  selectSecondShape() {
+    this.removeListeners();
 
-      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-      app.workspace.selectionConstraints.eventType = 'click';
-      app.workspace.selectionConstraints.shapes.canSelect = true;
-      app.workspace.selectionConstraints.shapes.blacklist = shapeIdsList.map(
-        (id) => {
-          return { shapeId: id };
-        },
-      );
-    }
-
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+  }
+
+  fillGroup() {
+    this.removeListeners();
+
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    if (this.status != 'paused') {
-      this.currentStep = 'listen-canvas-click';
-      app.upperDrawingEnvironment.removeAllObjects();
-    }
-    app.removeListener('objectSelected', this.objectSelectedId);
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.removeListeners();
   }
 
   /**
@@ -142,14 +104,14 @@ export class GroupState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    if (this.currentStep == 'listen-canvas-click') {
+    if (app.tool.currentStep == 'start') {
       let userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
-        this.currentStep = 'filling-group';
+        setState({ tool: { ...app.tool, currentStep: 'fillGroup' } });
       } else {
         this.firstShapeId = shape.id;
-        this.currentStep = 'selecting-second-shape';
+        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
           coordinates: shape.centerCoordinates,
@@ -158,7 +120,7 @@ export class GroupState extends State {
           type: 'group',
         });
       }
-    } else if (this.currentStep == 'selecting-second-shape') {
+    } else if (app.tool.currentStep == 'selectSecondShape') {
       let userGroup = GroupManager.getShapeGroup(shape);
       if (shape.id == this.firstShapeId) {
         window.dispatchEvent(
@@ -169,14 +131,7 @@ export class GroupState extends State {
         return;
       } else if (userGroup) {
         this.group = userGroup;
-        this.actions = [
-          {
-            name: 'GroupAction',
-            type: 'add',
-            shapeId: this.firstShapeId,
-            group: this.group,
-          },
-        ];
+        this.mode = 'add';
         this.executeAction();
       } else {
         new Text({
@@ -185,25 +140,19 @@ export class GroupState extends State {
           referenceId: shape.id,
           type: 'group',
         });
-        this.actions = [
-          {
-            name: 'GroupAction',
-            type: 'new',
-            shapeId: this.firstShapeId,
-            secondShapeId: shape.id,
-          },
-        ];
+        this.mode = 'new';
+        this.secondShapeId = shape.id;
         this.executeAction();
         this.group = GroupManager.getShapeGroup(shape);
       }
-      this.currentStep = 'filling-group';
+      setState({ tool: { ...app.tool, currentStep: 'fillGroup' } });
     } else {
-      // filling-group
-      let userGroup = GroupManager.getShapeGroup(shape);
-      if (userGroup) {
+      // fillGroup
+      this.secondGroup = GroupManager.getShapeGroup(shape);
+      if (this.secondGroup) {
         //La forme fait partie d'un autre groupe, on fusionne
         let index1 = GroupManager.getGroupIndex(this.group),
-          index2 = GroupManager.getGroupIndex(userGroup);
+          index2 = GroupManager.getGroupIndex(this.secondGroup);
         if (index1 == index2) {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
@@ -217,18 +166,9 @@ export class GroupState extends State {
         //On garde le groupe ayant l'index le plus petit
         if (index1 > index2) {
           [index1, index2] = [index2, index1];
-          [this.group, userGroup] = [userGroup, this.group];
+          [this.group, this.secondGroup] = [this.secondGroup, this.group];
         }
-        this.actions = [
-          {
-            name: 'GroupAction',
-            type: 'merge',
-            group: this.group,
-            groupIdx: index1,
-            otherGroup: userGroup,
-            otherGroupIdx: index2,
-          },
-        ];
+        this.mode = 'merge';
         this.executeAction();
       } else {
         new Text({
@@ -237,33 +177,30 @@ export class GroupState extends State {
           referenceId: shape.id,
           type: 'group',
         });
-        this.actions = [
-          {
-            name: 'GroupAction',
-            type: 'add',
-            shapeId: shape.id,
-            group: this.group,
-          },
-        ];
+        this.mode = 'add';
+        this.firstShapeId = shape.id;
         this.executeAction();
       }
     }
 
-    let shapeIdsList = [];
-    if (this.currentStep == 'selecting-second-shape')
-      shapeIdsList = [this.firstShapeId];
-    else shapeIdsList = this.group.shapesIds;
-
-    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-    app.workspace.selectionConstraints.eventType = 'click';
-    app.workspace.selectionConstraints.shapes.canSelect = true;
-    app.workspace.selectionConstraints.shapes.blacklist = shapeIdsList.map(
-      (sId) => {
-        return { shapeId: sId };
-      },
-    );
-
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
+  }
+
+  executeAction() {
+    if (this.mode == 'new') {
+      let group = new ShapeGroup(this.firstShapeId, this.secondShapeId);
+      GroupManager.addGroup(group);
+      console.log(app.workspace.shapeGroups);
+    } else if (this.mode == 'add') {
+      this.group.addShape(this.firstShapeId);
+    } else {
+      // merge
+      let group1 = this.group,
+        group2 = this.otherGroup;
+
+      group1.shapesIds = [...group1.shapesIds, ...group2.shapesIds];
+      GroupManager.deleteGroup(group2);
+    }
   }
 }

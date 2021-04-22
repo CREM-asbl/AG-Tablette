@@ -387,8 +387,6 @@ export class DivideState extends State {
   segmentModeAddSegPoints() {
     this.firstPoint = this.segment.vertexes[0];
     this.secondPoint = this.segment.vertexes[1];
-    console.log(this.firstPoint);
-    console.log(this.secondPoint);
     this.pointsModeAddSegPoints();
   }
 

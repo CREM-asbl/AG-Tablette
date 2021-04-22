@@ -254,7 +254,6 @@ export class SaveFileManager {
 }
 
 window.addEventListener('save-file', (event) => {
-  console.log(event);
   SaveFileManager.saveFile(event.detail?.actionAfter);
 });
 
