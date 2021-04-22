@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { GroupManager } from '../Core/Managers/GroupManager';
@@ -35,47 +35,25 @@ export class UngroupState extends State {
    * initialiser l'état
    */
   start() {
-    app.mainDrawingEnvironment.shapes.map((s) => {
-      if (GroupManager.getShapeGroup(s) != null) {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: s.centerCoordinates,
-          referenceId: s.id,
-          type: 'group',
-        });
-      }
-    });
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
+    app.upperDrawingEnvironment.removeAllObjects();
+    this.removeListeners();
 
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-  }
+    setTimeout(() => {
+      app.mainDrawingEnvironment.shapes.map((s) => {
+        if (GroupManager.getShapeGroup(s) != null) {
+          new Text({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: s.centerCoordinates,
+            referenceId: s.id,
+            type: 'group',
+          });
+        }
+      });
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+    }, 50);
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    app.mainDrawingEnvironment.shapes.map((s) => {
-      if (GroupManager.getShapeGroup(s) != null) {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: s.centerCoordinates,
-          referenceId: s.id,
-          type: 'group',
-        });
-      }
-    });
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
-
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -84,18 +62,7 @@ export class UngroupState extends State {
    */
   end() {
     app.upperDrawingEnvironment.removeAllObjects();
-    app.removeListener('objectSelected', this.objectSelectedId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+    this.removeListeners();
   }
 
   /**
@@ -103,20 +70,19 @@ export class UngroupState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    let userGroup = GroupManager.getShapeGroup(shape);
-    if (userGroup) {
-      this.actions = [
-        {
-          name: 'UngroupAction',
-          group: userGroup,
-          groupIdx: GroupManager.getGroupIndex(userGroup),
-        },
-      ];
+    this.userGroup = GroupManager.getShapeGroup(shape);
+    if (this.userGroup) {
       this.executeAction();
-      this.restart();
+      setState({ tool: { ...app.tool, currentStep: 'start' } });
 
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       window.dispatchEvent(new CustomEvent('refresh'));
+    } else {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'La forme sélectionnée ne fait pas partie d\'un groupe' } }));
     }
+  }
+
+  executeAction() {
+    GroupManager.deleteGroup(this.userGroup);
   }
 }
