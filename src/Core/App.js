@@ -181,4 +181,7 @@ export const setState = (update) => {
     }
     window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
   }
+  if ('workspaceSettings' in update) {
+    window.dispatchEvent(new CustomEvent('workspaceSettings-changed', { detail: app }));
+  }
 };

@@ -11,6 +11,13 @@ addEventListener('tool-changed', () => {
   }
 });
 
+addEventListener('workspaceSettings-changed', () => {
+  app.backgroundDrawingEnvironment.removeAllObjects();
+  if (app.workspaceSettings.gridShown) {
+    GridManager.drawGridPoints();
+  }
+})
+
 export class GridManager {
   /**
    * Le point de référence de la grille est le point (10,10).

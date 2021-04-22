@@ -1,4 +1,4 @@
-import { app } from '../App';
+import { app, setState } from '../App';
 import { uniqId } from '../Tools/general';
 import { CompleteHistory } from './CompleteHistory';
 import { Settings } from '../Settings';
@@ -32,9 +32,6 @@ export class Workspace {
     // Liste des id de shapes a ne pas redessiner pendant une action
     this.editingShapesIds = [];
 
-    this.settings = new Settings();
-    this.initSettings();
-
     // Coordonnées du dernier événement
     this.lastKnownMouseCoordinates = Coordinates.nullCoordinates;
 
@@ -63,26 +60,6 @@ export class Workspace {
 
     // Historique complet des événements
     this.completeHistory = new CompleteHistory(new Event('useless').timeStamp);
-  }
-
-  initSettings() {
-    //La grille est-elle affichée ?
-    this.settings.set('isGridShown', false);
-
-    //Taille de la grille
-    this.settings.set('gridSize', 1);
-
-    //Type de grille: 'square', 'horizontal-triangle', 'vertical-triangle'
-    this.settings.set('gridType', 'none');
-
-    // //Tangram affiché ?
-    // this.settings.set('isTangramShown', false);
-
-    // //Type (main/local) et id du tangram affiché.
-    // this.settings.set('shownTangram', {
-    //   type: null, //'main' ou 'local'
-    //   id: null,
-    // });
   }
 
   set selectionConstraints(value) {
@@ -148,12 +125,8 @@ export class Workspace {
     }
 
     if (wsdata.settings) {
-      this.settings.initFromObject(wsdata.settings);
-      if (this.settings.get('isGridShown')) {
-        GridManager.drawGridPoints();
-        window.dispatchEvent(new CustomEvent('refreshBackground'));
-      }
-    } else this.initSettings();
+      setState({ workspaceSettings: {...wsdata.settings} });
+    }
 
     if (!ignoreHistory) {
       if (wsdata.history) {
@@ -207,7 +180,7 @@ export class Workspace {
     wsdata.zoomLevel = this.zoomLevel;
     wsdata.translateOffset = this.translateOffset;
 
-    wsdata.settings = this.settings.saveToObject();
+    wsdata.settings = {...app.workspaceSettings};
 
     wsdata.canvasSize = { width: app.canvasWidth, height: app.canvasHeight };
 
