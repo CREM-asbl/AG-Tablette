@@ -6,7 +6,7 @@ import './icon-button';
 import './popups/notification';
 import './version-item';
 
-import { app } from './Core/App';
+import { app, setState } from './Core/App';
 import { OpenFileManager } from './Core/Managers/OpenFileManager';
 import './Core/Managers/SaveFileManager';
 import './Core/Managers/SelectManager';
@@ -290,12 +290,28 @@ class AGTabletteApp extends LitElement {
       <input
         id="color-picker"
         type="color"
-        @change="${(e) =>
-          window.dispatchEvent(
-            new CustomEvent('colorChange', {
-              detail: { color: e.target.value },
-            }),
-          )}"
+        @change="${e =>
+          {
+            console.log('color changed');
+            if (app.tool.name == 'backgroundColor') {
+              setState({
+                workspaceSettings: {
+                  ...app.workspaceSettings,
+                  shapeFillColor: e.target.value,
+                },
+                tool: { ...app.tool, currentStep: 'selectShape' },
+              });
+            } else if (app.tool.name == 'borderColor') {
+              setState({
+                workspaceSettings: {
+                  ...app.workspaceSettings,
+                  shapeBorderColor: e.target.value,
+                },
+                tool: { ...app.tool, currentStep: 'selectShape' },
+              });
+            }
+          }
+        }"
       />
     `;
   }
