@@ -24,6 +24,8 @@ export class App {
     this.workspaceSettings = {
       numberOfDivisionParts: 2,
       shapeFillColor: '#000000',
+      shapeBorderColor: '#000000',
+      shapeOpacity: 0.7,
     };
 
     // compteur d'écouteurs pour certains event

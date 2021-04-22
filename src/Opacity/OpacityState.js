@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { createElem } from '../Core/Tools/general';
@@ -40,62 +40,24 @@ export class OpacityState extends State {
    * initialiser l'état
    */
   start() {
-    this.currentStep = 'choose-opacity';
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
-    let popup = createElem('opacity-popup');
-    popup.opacity = this.opacity;
+    this.removeListeners();
 
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    window.addEventListener('setOpacity', this.handler);
+    createElem('opacity-popup');
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart(manualRestart = false) {
-    this.end();
-    if (manualRestart) {
-      this.start();
-      return;
-    }
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
+  selectObject() {
+    this.removeListeners();
 
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    window.addEventListener('setOpacity', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    app.removeListener('objectSelected', this.objectSelectedId);
-    window.removeEventListener('setOpacity', this.handler);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else if (event.type == 'setOpacity') {
-      this.setOpacity(event.detail.opacity);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  setOpacity(opacity) {
-    this.opacity = opacity;
-    this.currentStep = 'listen-canvas-click';
+    this.removeListeners();
   }
 
   /**
@@ -103,26 +65,19 @@ export class OpacityState extends State {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    if (this.currentStep != 'listen-canvas-click') return;
+    if (app.tool.currentStep != 'selectObject') return;
 
-    let group = GroupManager.getShapeGroup(shape),
-      involvedShapes;
-    if (group)
-      involvedShapes = group.shapesIds.map((id) =>
-        ShapeManager.getShapeById(id),
-      );
-    else involvedShapes = [shape];
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
-    this.actions = [
-      {
-        name: 'OpacityAction',
-        involvedShapesIds: involvedShapes.map((s) => s.id),
-        opacity: this.opacity,
-        oldOpacities: involvedShapes.map((s) => s.opacity),
-      },
-    ];
     this.executeAction();
+    setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
 
     window.dispatchEvent(new CustomEvent('refresh'));
+  }
+
+  executeAction() {
+    this.involvedShapes.forEach((s) => {
+      s.opacity = app.workspaceSettings.shapeOpacity;
+    });
   }
 }
