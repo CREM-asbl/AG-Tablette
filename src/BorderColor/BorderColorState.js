@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { GroupManager } from '../Core/Managers/GroupManager';
@@ -33,91 +33,46 @@ export class BorderColorState extends State {
   /**
    * initialiser l'état
    */
-  start() {
-    this.currentStep = 'listen-canvas-click';
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
-
+   start() {
+    this.removeListeners();
     window.dispatchEvent(new CustomEvent('open-color-picker'));
 
+    app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    window.addEventListener('colorChange', this.handler);
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart(manualRestart = false) {
-    this.end();
-    if (manualRestart) {
-      this.start();
-      return;
-    }
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape),
-    );
+  selectShape() {
+    this.removeListeners();
 
+    app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    window.addEventListener('colorChange', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    app.removeListener('objectSelected', this.objectSelectedId);
-    window.removeEventListener('colorChange', this.handler);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else if (event.type == 'colorChange') {
-      this.setColor(event.detail.color);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  setColor(color) {
-    app.workspace.selectedColor = color;
-    this.currentStep = 'listen-canvas-click';
+    this.removeListeners();
   }
 
   /**
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
    */
-  objectSelected(shape) {
-    if (this.currentStep != 'listen-canvas-click') return;
-
-    let group = GroupManager.getShapeGroup(shape),
-      involvedShapes;
-    if (group)
-      involvedShapes = group.shapesIds.map((id) =>
-        ShapeManager.getShapeById(id),
-      );
-    else involvedShapes = [shape];
-
-    this.actions = [
-      {
-        name: 'BorderColorAction',
-        involvedShapesIds: involvedShapes.map((s) => s.id),
-        selectedColor: app.workspace.selectedColor,
-        oldColors: involvedShapes.map((s) => s.borderColor),
-      },
-    ];
+   objectSelected(shape) {
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
     this.executeAction();
+    setState({ tool: { ...app.tool, currentStep: 'selectShape' } });
 
     window.dispatchEvent(new CustomEvent('refresh'));
+  }
+
+  executeAction() {
+    this.involvedShapes.forEach((s) => {
+      s.borderColor = app.workspaceSettings.shapeBorderColor;
+    });
   }
 }
