@@ -176,8 +176,8 @@ window.addEventListener('canvasMouseDown', (event) =>
 window.addEventListener('canvasMouseUp', (event) =>
   CompleteHistoryManager.addStep('canvasMouseUp', event),
 );
-window.addEventListener('canvasmousemove', (event) =>
-  CompleteHistoryManager.addStep('canvasmousemove', event),
+window.addEventListener('canvasMouseMove', (event) =>
+  CompleteHistoryManager.addStep('canvasMouseMove', event),
 );
 window.addEventListener('canvasmousewheel', (event) =>
   CompleteHistoryManager.addStep('canvasmousewheel', event),

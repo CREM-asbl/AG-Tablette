@@ -58,7 +58,7 @@ export class ZoomState extends State {
    */
   end() {
     app.removeListener('canvasMouseDown', this.mouseDownId);
-    app.removeListener('canvasmousemove', this.mouseMoveId);
+    app.removeListener('canvasMouseMove', this.mouseMoveId);
     app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
@@ -68,7 +68,7 @@ export class ZoomState extends State {
   _actionHandle(event) {
     if (event.type == 'canvasMouseDown') {
       this.canvasMouseDown();
-    } else if (event.type == 'canvasmousemove') {
+    } else if (event.type == 'canvasMouseMove') {
       this.onMouseMove();
     } else if (event.type == 'canvasMouseUp') {
       this.canvasMouseUp();
@@ -83,7 +83,7 @@ export class ZoomState extends State {
     this.baseDist = this.getDist(app.workspace.lastKnownMouseCoordinates);
 
     this.currentStep = 'zooming-plane';
-    this.mouseMoveId = app.addListener('canvasmousemove', this.handler);
+    this.mouseMoveId = app.addListener('canvasMouseMove', this.handler);
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 

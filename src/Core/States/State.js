@@ -175,6 +175,7 @@ export class State {
   }
 
   removeListeners() {
+    app.removeListener('canvasMouseMove', this.mouseMoveId);
     app.removeListener('canvasMouseDown', this.mouseDownId);
     app.removeListener('canvasMouseUp', this.mouseUpId);
     app.removeListener('objectSelected', this.objectSelectedId);

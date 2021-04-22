@@ -222,7 +222,7 @@ class DivMainCanvas extends LitElement {
           detail: { mousePos: mousePos },
         }),
       );
-      app.dispatchEv(new CustomEvent('canvasmousemove'));
+      app.dispatchEv(new CustomEvent('canvasMouseMove'));
     });
 
     this.upperCanvas.addEventListener('mouseout', (event) => {
@@ -309,7 +309,7 @@ class DivMainCanvas extends LitElement {
         app.dispatchEv(new CustomEvent('canvastouchend', { detail: detail }));
         return;
       }
-      app.dispatchEv(new CustomEvent('canvasmousemove'));
+      app.dispatchEv(new CustomEvent('canvasMouseMove'));
       app.dispatchEv(new CustomEvent('canvastouchmove', { detail: detail }));
     });
 

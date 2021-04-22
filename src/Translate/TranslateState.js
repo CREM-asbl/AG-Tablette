@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { State } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -35,60 +35,37 @@ export class TranslateState extends State {
    * initialiser l'état
    */
   start() {
-    this.currentStep = 'listen-canvas-click';
+    this.removeListeners();
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    this.currentStep = 'listen-canvas-click';
+  translate() {
+    this.removeListeners();
 
-    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+    this.mouseMoveId = app.addListener('canvasMouseMove', this.handler);
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
    * stopper l'état
    */
-  end() {
-    app.removeListener('canvasMouseDown', this.mouseDownId);
-    app.removeListener('canvasmousemove', this.mouseMoveId);
-    app.removeListener('canvasMouseUp', this.mouseUpId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'canvasMouseDown') {
-      this.canvasMouseDown();
-    } else if (event.type == 'canvasmousemove') {
-      this.onMouseMove();
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+  end() {this.removeListeners
   }
 
   canvasMouseDown() {
-    if (this.currentStep != 'listen-canvas-click') return;
+    if (app.tool.currentStep != 'start') return;
 
     this.startClickCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
     this.startOffset = new Coordinates(app.workspace.translateOffset);
-    this.currentStep = 'translating-plane';
 
-    this.mouseMoveId = app.addListener('canvasmousemove', this.handler);
-    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+    setState({ tool: { ...app.tool, currentStep: 'translate' } });
   }
 
-  onMouseMove() {
-    if (this.currentStep != 'translating-plane') return;
+  canvasMouseMove() {
+    if (app.tool.currentStep != 'translate') return;
 
     let newOffset = app.workspace.translateOffset.add(
       app.workspace.lastKnownMouseCoordinates
@@ -101,17 +78,19 @@ export class TranslateState extends State {
   }
 
   canvasMouseUp() {
-    if (this.currentStep != 'translating-plane') return;
+    if (app.tool.currentStep != 'translate') return;
 
-    this.actions = [
-      {
-        name: 'TranslateAction',
-        offset: app.workspace.lastKnownMouseCoordinates
-          .substract(this.startClickCoordinates)
-          .multiply(app.workspace.zoomLevel),
-      },
-    ];
     this.executeAction();
-    this.restart();
+    setState({ tool: { ...app.tool, currentStep: 'start' } });
+  }
+
+  executeAction() {
+    let newOffset = app.workspace.translateOffset.add(
+      app.workspace.lastKnownMouseCoordinates
+      .substract(this.startClickCoordinates)
+      .multiply(app.workspace.zoomLevel)
+    );
+
+    app.workspace.setTranslateOffset(newOffset);
   }
 }
