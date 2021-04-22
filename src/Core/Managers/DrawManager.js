@@ -15,9 +15,7 @@ export class DrawManager {
     if (app.environment.name !== 'Tangram') {
       app.backgroundDrawingEnvironment.removeAllObjects();
     }
-    app.backgroundDrawingEnvironment.mustDrawGrid = app.workspace.settings.get(
-      'isGridShown',
-    );
+    app.backgroundDrawingEnvironment.mustDrawGrid = app.workspaceSettings.gridShown;
     app.backgroundDrawingEnvironment.redraw();
     // DrawManager.clearCtx(app.backgroundCtx);
     // // Grid

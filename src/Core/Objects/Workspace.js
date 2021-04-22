@@ -83,8 +83,6 @@ export class Workspace {
     //   type: null, //'main' ou 'local'
     //   id: null,
     // });
-
-    window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
   }
 
   set selectionConstraints(value) {

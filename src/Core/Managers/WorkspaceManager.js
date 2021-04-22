@@ -13,7 +13,6 @@ export class WorkspaceManager {
     }
     app.workspace = workspace;
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-    window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
     window.dispatchEvent(new CustomEvent('workspace-changed'));
     app.refreshWindow();
   }
@@ -22,7 +21,6 @@ export class WorkspaceManager {
     let ws = new Workspace();
     WorkspaceManager.setWorkspace(ws);
     ws.initFromObject(data);
-    window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
     app.refreshWindow();
   }
 }

@@ -183,7 +183,9 @@ export class State {
 
   eventHandler(event) {
     if (event.type == 'tool-changed') {
-      if (app.tool.name == this.name) {
+      if (!app.tool) {
+        this.end();
+      } else if (app.tool.name == this.name) {
         this[app.tool.currentStep]();
       } else if (app.tool.currentStep == 'start') {
         this.end();

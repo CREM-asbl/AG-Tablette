@@ -26,6 +26,9 @@ export class App {
       shapeFillColor: '#000000',
       shapeBorderColor: '#000000',
       shapeOpacity: 0.7,
+      gridShown: false,
+      gridType: 'Aucune',
+      gridSize: 1,
     };
 
     // compteur d'écouteurs pour certains event
@@ -171,8 +174,7 @@ export const setState = (update) => {
   if (window.dev_mode) console.log(app);
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   if ('tool' in update) {
-    let toolInfo = app.tools.find(tool => tool.name == app.tool.name);
-    console.log(toolInfo)
+    let toolInfo = app.tools.find(tool => tool.name == app.tool?.name);
     if (toolInfo) {
       app.tool.title = toolInfo.title;
       app.tool.type = toolInfo.type;
