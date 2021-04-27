@@ -1,7 +1,5 @@
-import { TranslateState } from './TranslateState';
-import { TranslateAction } from './TranslateAction';
+import { TranslateTool } from './TranslateTool';
 
 export default {
-  state: new TranslateState(),
-  action: new TranslateAction(),
+  tool: new TranslateTool(),
 };

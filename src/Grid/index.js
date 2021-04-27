@@ -1,7 +1,7 @@
 import { GridManager } from './GridManager';
 
 export default {
-  state: {
+  tool: {
     name: 'grid',
     title: 'Grille',
     type: 'tool',

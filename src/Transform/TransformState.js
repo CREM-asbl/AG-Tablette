@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Shape } from '../Core/Objects/Shape';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -7,7 +7,7 @@ import { SelectManager } from '../Core/Managers/SelectManager';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class TransformState extends State {
+export class TransformTool extends Tool {
   constructor() {
     super('transform', 'Modifier un polygone', 'operation');
 

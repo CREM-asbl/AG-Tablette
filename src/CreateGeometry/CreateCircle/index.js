@@ -1,5 +1,4 @@
-import { CreateCircleState } from './CreateCircleState';
-import { CreateCircleAction } from './CreateCircleAction';
+import { CreateCircleTool } from './CreateCircleTool';
 
 new CreateCircleState();
 new CreateCircleAction();

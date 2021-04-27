@@ -125,6 +125,14 @@ class GridPopup extends LitElement {
   submitAndClose() {
     this.submit();
     this.close();
+    console.trace('actions-executed dispatched');
+    if (!CompleteHistoryManager.isRunning) {
+      window.dispatchEvent(
+        new CustomEvent('actions-executed', {
+          detail: { name: 'Grille' },
+        }),
+      );
+    }
   }
 
   /**
@@ -140,7 +148,6 @@ class GridPopup extends LitElement {
             gridShown: event.target.value !== 'none'
           }
         });
-        window.dispatchEvent(new CustomEvent('refreshBackground'));
         break;
 
       case 'grid_popup_grid_size':
@@ -150,7 +157,6 @@ class GridPopup extends LitElement {
             gridSize: event.target.value,
           }
         });
-        window.dispatchEvent(new CustomEvent('refreshBackground'));
         break;
 
       default:

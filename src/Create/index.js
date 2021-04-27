@@ -1,7 +1,5 @@
-import { CreateState } from './CreateState';
-import { CreateAction } from './CreateAction';
+import { CreateTool } from './CreateTool';
 
 export default {
-  state: new CreateState(),
-  action: new CreateAction(),
+  tool: new CreateTool(),
 };

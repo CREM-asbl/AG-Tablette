@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/State';
 import { html } from 'lit-element';
 import { TangramManager } from './TangramManager';
 import { Segment } from '../Core/Objects/Segment';
@@ -12,7 +12,7 @@ import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 /**
  * Créer un tangram
  */
-export class SolutionCheckerState extends State {
+export class SolutionCheckerTool extends Tool {
   constructor() {
     super('solveChecker', 'Vérifier solution Tangram', '');
 
@@ -22,7 +22,7 @@ export class SolutionCheckerState extends State {
 
     window.addEventListener('remove-solution-checker', () => this.finish());
 
-    window.addEventListener('file-parsed', () => app.setState(this.name));
+    window.addEventListener('file-parsed', () => app.setState(this.name));  // use setState instead of app.setState
   }
 
   /**
@@ -106,7 +106,7 @@ export class SolutionCheckerState extends State {
 
   clickOnStateMenuButton(btn_value) {
     if (btn_value == 'check') {
-      app.setState(this.name, false);
+      app.setState(this.name, false); // use setState instead of app.setState
       this.checkSolution();
       this.stateMenu.buttons = [
         {

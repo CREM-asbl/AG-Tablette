@@ -9,11 +9,10 @@ class DividePopup extends LitElement {
     super();
 
     window.addEventListener('close-popup', () => {
-      if (CompleteHistoryManager.isRunning) {
-        this.close();
-      } else {
-        this.submitAndClose();
-      }
+      this.submitAndClose();
+    },
+    {
+      once: true,
     });
 
     this.parts = app.workspaceSettings.numberOfDivisionParts;
@@ -64,7 +63,7 @@ class DividePopup extends LitElement {
   }
 
   submit() {
-    setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
+    setState({ tool: { ...app.tool, name: 'divide', currentStep: 'selectObject' } });
   }
 
   close() {

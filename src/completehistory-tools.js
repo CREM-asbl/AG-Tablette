@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
+import { app } from './Core/App';
 import { CompleteHistoryManager } from './Core/Managers/CompleteHistoryManager';
 
 class completeHistoryTools extends LitElement {
@@ -20,7 +21,9 @@ class completeHistoryTools extends LitElement {
 
     window.addEventListener('browsing-finished', () => this.close());
 
-    window.addEventListener('actions-executed', () => this.index++);
+    window.addEventListener('fullHistory-changed', () => {
+      this.index = app.fullHistory.actionIndex;
+    });
   }
 
   static get styles() {
@@ -68,8 +71,9 @@ class completeHistoryTools extends LitElement {
   _clickHandle(event) {
     switch (event.target.name) {
       case 'action-button':
-        CompleteHistoryManager.moveTo(event.target.id);
-        this.index = event.target.id;
+        let idx = event.target.id.substring(1);
+        CompleteHistoryManager.moveTo(idx);
+        this.index = idx;
         break;
       case 'undo':
         if (this.index == 0) {
@@ -90,7 +94,7 @@ class completeHistoryTools extends LitElement {
         event.target.name = 'pause';
         break;
       case 'redo':
-        if (this.index >= this.sidebarElements.length - 1) {
+        if (this.index >= app.fullHistory.numberOfActions - 1) {
           break;
         }
         this.index++;
@@ -101,6 +105,14 @@ class completeHistoryTools extends LitElement {
 
   render() {
     return html`
+      <style>
+        button {
+          background-color: #0000;
+        }
+        button#b${this.index} {
+          background-color: #00F;
+        }
+      </style>
       <nav id="sidebar">
         <div id="command-container">
           <icon-button
@@ -128,10 +140,8 @@ class completeHistoryTools extends LitElement {
           ${this.sidebarElements.map((elem, idx) => {
             return html`
               <button
-                id="${idx}"
-                style="background-color: ${idx == this.index
-                  ? 'blue'
-                  : 'white'}"
+                id="b${idx}"
+                idx="${idx}"
                 @click="${this._clickHandle}"
                 name="action-button"
               >

@@ -1,7 +1,5 @@
-import { TransformState } from './TransformState';
-import { TransformAction } from './TransformAction';
+import { TransformTool } from './TransformTool';
 
 export default {
-  state: new TransformState(),
-  action: new TransformAction(),
+  tool: new TransformTool(),
 };

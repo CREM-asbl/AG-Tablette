@@ -59,7 +59,7 @@ export class Workspace {
     this.history = new History();
 
     // Historique complet des événements
-    this.completeHistory = new CompleteHistory(new Event('useless').timeStamp);
+    this.completeHistory = new CompleteHistory();
   }
 
   set selectionConstraints(value) {
@@ -142,6 +142,7 @@ export class Workspace {
       } else {
         this.history.resetToDefault();
         this.history.startSituation = { ...this.data };
+        this.history.startWorkspaceSettings = {...app.workspaceSettings};
       }
     }
 
@@ -151,8 +152,6 @@ export class Workspace {
       } else {
         this.completeHistory.initFromObject({
           steps: [],
-          startTimestamp: new Event('useless').timeStamp,
-          endTimestamp: 0,
           // startSilhouette: app.silhouette,
         });
       }

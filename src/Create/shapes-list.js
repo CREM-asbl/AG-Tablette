@@ -20,7 +20,7 @@ class ShapesList extends LitElement {
     this.selectedTemplate = app.tool.selectedTemplate;
 
     window.addEventListener('tool-changed', () => {
-      if (app.tool.name == 'create') {
+      if (app.tool?.name == 'create') {
         this.selectedFamily = app.tool.selectedFamily;
         this.templateNames = app.environment.getFamily(
           app.tool.selectedFamily,

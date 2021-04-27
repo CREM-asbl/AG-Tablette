@@ -26,7 +26,7 @@ export class ShapeGroup {
   saveToObject() {
     let save = {
       id: this.id,
-      shapesIds: this.shapesIds,
+      shapesIds: [...this.shapesIds],
     };
     return save;
   }

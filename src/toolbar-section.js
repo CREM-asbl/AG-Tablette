@@ -45,21 +45,6 @@ class ToolbarSection extends LitElement {
   _actionHandle(event) {
     if (!CompleteHistoryManager.isRunning) {
       setState({ tool: { name: event.target.name, currentStep: 'start' } });
-      return;
-      switch (event.target.name) {
-        case 'move':
-        case 'rotate':
-        case 'reverse':
-        case 'buildCenter':
-        case 'copy':
-        case 'divide':
-        case 'cut':
-        case 'merge':
-          break;
-        default:
-          app.setState(event.target.name);
-          break;
-      }
     }
   }
 }

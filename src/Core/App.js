@@ -18,7 +18,7 @@ export class App {
     // L'outil sélectionné
     this.tool = {};
 
-    // Les états possibles
+    // Les outils possibles
     this.tools = [];
 
     this.workspaceSettings = {
@@ -30,6 +30,11 @@ export class App {
       gridType: 'Aucune',
       gridSize: 1,
     };
+
+    this.fullHistory = {
+      actionIndex: 0,
+      numberOfActions: 0,
+    }
 
     // compteur d'écouteurs pour certains event
     this.listenerCounter = {};
@@ -171,7 +176,7 @@ export const setState = (update) => {
   for (let key in update) {
     app[key] = update[key];
   }
-  if (window.dev_mode) console.log(app);
+  // if (window.dev_mode) console.log(app);
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   if ('tool' in update) {
     let toolInfo = app.tools.find(tool => tool.name == app.tool?.name);
@@ -184,4 +189,10 @@ export const setState = (update) => {
   if ('workspaceSettings' in update) {
     window.dispatchEvent(new CustomEvent('workspaceSettings-changed', { detail: app }));
   }
+  if ('fullHistory' in update) {
+    window.dispatchEvent(new CustomEvent('fullHistory-changed', { detail: app }));
+  }
+  window.dispatchEvent(new CustomEvent('refreshUpper'));
+  window.dispatchEvent(new CustomEvent('refresh'));
+  window.dispatchEvent(new CustomEvent('refreshBackground'));
 };

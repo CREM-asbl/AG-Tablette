@@ -1,5 +1,4 @@
-import { CreateTriangleState } from './CreateTriangleState';
-import { CreateTriangleAction } from './CreateTriangleAction';
+import { CreateTriangleTool } from './CreateTriangleTool';
 
 new CreateTriangleState();
 new CreateTriangleAction();

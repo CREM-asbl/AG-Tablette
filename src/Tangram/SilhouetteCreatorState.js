@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { State } from '../Core/States/State';
+import { Tool } from '../Core/States/State';
 import { html } from 'lit-element';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { TangramManager } from './TangramManager';
@@ -7,7 +7,7 @@ import { TangramManager } from './TangramManager';
 /**
  * Créer un tangram
  */
-export class SilhouetteCreatorState extends State {
+export class SilhouetteCreatorTool extends Tool {
   constructor() {
     super('createSilhouette', 'Créer Tangram', 'tangram');
 

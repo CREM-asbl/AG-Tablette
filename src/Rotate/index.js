@@ -1,7 +1,5 @@
-import { RotateState } from './RotateState';
-import { RotateAction } from './RotateAction';
+import { RotateTool } from './RotateTool';
 
 export default {
-  state: new RotateState(),
-  action: new RotateAction(),
+  tool: new RotateTool(),
 };

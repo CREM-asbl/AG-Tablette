@@ -11,11 +11,10 @@ class OpacityPopup extends LitElement {
     window.addEventListener('state-changed', () => this.opacity = app.workspaceSettings.shapeOpacity);
 
     window.addEventListener('close-popup', () => {
-      if (CompleteHistoryManager.isRunning) {
-        this.close();
-      } else {
-        this.submitAndClose();
-      }
+      this.submitAndClose();
+    },
+    {
+      once: true,
     });
   }
 
@@ -66,7 +65,7 @@ class OpacityPopup extends LitElement {
   }
 
   submit() {
-    setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
+    setState({ tool: { ...app.tool, name: 'opacity', currentStep: 'selectObject' } });
   }
 
   close() {

@@ -1,5 +1,5 @@
 import { app } from '../../Core/App';
-import { State } from '../../Core/States/State';
+import { Tool } from '../../Core/States/State';
 import { html } from 'lit-element';
 import { Shape } from '../../Core/Objects/Shape';
 import { Segment } from '../../Core/Objects/Segment';
@@ -11,7 +11,7 @@ import { Coordinates } from '../../Core/Objects/Coordinates';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateRegularState extends State {
+export class CreateRegularTool extends Tool {
   constructor() {
     super(
       'createRegularPolygon',

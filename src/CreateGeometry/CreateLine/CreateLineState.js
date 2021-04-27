@@ -1,5 +1,5 @@
 import { app } from '../../Core/App';
-import { State } from '../../Core/States/State';
+import { Tool } from '../../Core/States/State';
 import { html } from 'lit-element';
 import { createElem, uniqId } from '../../Core/Tools/general';
 import { SelectManager } from '../../Core/Managers/SelectManager';
@@ -12,7 +12,7 @@ import { GeometryConstraint } from '../../Core/Objects/GeometryConstraint';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateLineState extends State {
+export class CreateLineTool extends Tool {
   constructor() {
     super('createLine', 'Créer une ligne', 'geometryCreator');
 

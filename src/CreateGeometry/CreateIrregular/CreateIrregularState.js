@@ -1,5 +1,5 @@
 import { app } from '../../Core/App';
-import { State } from '../../Core/States/State';
+import { Tool } from '../../Core/States/State';
 import { html } from 'lit-element';
 import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Segment } from '../../Core/Objects/Segment';
@@ -11,7 +11,7 @@ import { Shape } from '../../Core/Objects/Shape';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateIrregularState extends State {
+export class CreateIrregularTool extends Tool {
   constructor() {
     super(
       'createIrregularPolygon',

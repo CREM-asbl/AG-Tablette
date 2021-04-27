@@ -29,6 +29,7 @@ class AGTabletteApp extends LitElement {
       background: String,
       tools: Array,
       tool: Object,
+      colorPickerValue: String,
     };
   }
 
@@ -39,6 +40,7 @@ class AGTabletteApp extends LitElement {
     this.canRedo = false;
     this.tools = app.tools;
     this.tool = app.tool;
+    this.colorPickerValue = '#000000';
 
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
@@ -51,14 +53,26 @@ class AGTabletteApp extends LitElement {
       this.canRedo = HistoryManager.canRedo();
     });
     window.addEventListener('workspace-changed', () => {
+      this.colorPickerValue = '#000000';
       this.shadowRoot.querySelector('#color-picker').value = '#000000';
       window.dispatchEvent(new CustomEvent('history-changed'));
     });
     window.addEventListener('open-opacity-popup', () => {
       this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
     });
-    window.addEventListener('open-color-picker', () => {
-      this.shadowRoot.querySelector('#color-picker-label').click();
+    window.addEventListener('tool-changed', () => {
+      if (app.tool?.currentStep == 'start') {
+        if (app.tool.name == 'backgroundColor') {
+          this.shadowRoot.querySelector('#color-picker').value = app.workspaceSettings.shapeFillColor;
+          this.colorPickerValue = app.workspaceSettings.shapeFillColor;
+        } else if (app.tool.name == 'borderColor') {
+          this.shadowRoot.querySelector('#color-picker').value = app.workspaceSettings.shapeBorderColor;
+          this.colorPickerValue = app.workspaceSettings.shapeBorderColor;
+        } else {
+          return;
+        }
+        this.shadowRoot.querySelector('#color-picker-label').click();
+      }
     });
 
     window.addEventListener('state-changed', () => {
@@ -290,9 +304,9 @@ class AGTabletteApp extends LitElement {
       <input
         id="color-picker"
         type="color"
+        value="${this.colorPickerValue}"
         @change="${e =>
           {
-            console.log('color changed');
             if (app.tool.name == 'backgroundColor') {
               setState({
                 workspaceSettings: {
@@ -315,10 +329,6 @@ class AGTabletteApp extends LitElement {
       />
     `;
   }
-
-  // firstUpdated() {
-  //   console.log(app)
-  // }
 
   /**
    * Main event handler

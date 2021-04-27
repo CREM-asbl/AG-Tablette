@@ -1,7 +1,5 @@
-import { ToBackgroundState } from './ToBackgroundState';
-import { ToBackgroundAction } from './ToBackgroundAction';
+import { ToBackgroundTool } from './ToBackgroundTool';
 
 export default {
-  state: new ToBackgroundState(),
-  action: new ToBackgroundAction(),
+  tool: new ToBackgroundTool(),
 };

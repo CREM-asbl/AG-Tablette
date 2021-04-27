@@ -1,7 +1,5 @@
-import { BifaceState } from './BifaceState';
-import { BifaceAction } from './BifaceAction';
+import { BifaceTool } from './BifaceTool';
 
 export default {
-  state: new BifaceState(),
-  action: new BifaceAction(),
+  tool: new BifaceTool(),
 };

@@ -1,4 +1,4 @@
-import { app } from '../App';
+import { app, setState } from '../App';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -30,7 +30,6 @@ export class HistoryManager {
   //   let wsData = app.workspace.data;
   //   app.workspace.shapes = [];
   //   app.workspace.shapeGroups = [];
-  //   app.setState();
   //   app.workspace.history.index = -1;
   //   for (let i = 0; i < app.workspace.history.length; i++) {
   //     HistoryManager.redo();
@@ -49,7 +48,7 @@ export class HistoryManager {
       console.error('Nothing to undo');
       return;
     }
-    app.setState();
+    setState({ tool: null });
     app.workspace.history.index--;
     let data = app.workspace.history.data[app.workspace.history.index];
     if (app.workspace.history.index == -1)
@@ -69,7 +68,7 @@ export class HistoryManager {
       console.error('Nothing to redo');
       return;
     }
-    app.setState();
+    setState({ tool: null });
     app.workspace.history.index++;
     let data = app.workspace.history.data[app.workspace.history.index];
     app.workspace.initFromObject(data, true);

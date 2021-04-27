@@ -1,5 +1,5 @@
 import { app } from '../../Core/App';
-import { State } from '../../Core/States/State';
+import { Tool } from '../../Core/States/State';
 import { html } from 'lit-element';
 import { createElem, uniqId } from '../../Core/Tools/general';
 import { SelectManager } from '../../Core/Managers/SelectManager';
@@ -12,7 +12,7 @@ import { Coordinates } from '../../Core/Objects/Coordinates';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateQuadrilateralState extends State {
+export class CreateQuadrilateralTool extends Tool {
   constructor() {
     super('createQuadrilateral', 'Créer un quadrilatère', 'geometryCreator');
 

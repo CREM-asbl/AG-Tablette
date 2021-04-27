@@ -1,9 +1,7 @@
-import { ZoomState } from './ZoomState';
-import { ZoomAction } from './ZoomAction';
-import { PermanentZoomState } from './PermanentZoomState';
+import { ZoomTool } from './ZoomTool';
+import { PermanentZoomTool } from './PermanentZoomTool';
 
 export default {
-  state: new ZoomState(),
-  action: new ZoomAction(),
+  tool: new ZoomTool(),
 };
-new PermanentZoomState();
+new PermanentZoomTool();

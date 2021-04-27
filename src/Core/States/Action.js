@@ -1,4 +1,4 @@
-import { State } from './State';
+import { Tool } from './Tool';
 import { app } from '../App';
 
 export class Action {

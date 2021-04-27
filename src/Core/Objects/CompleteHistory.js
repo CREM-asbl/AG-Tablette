@@ -5,24 +5,12 @@ import { Coordinates } from './Coordinates';
  * Représente l'historique d'un espace de travail.
  */
 export class CompleteHistory {
-  constructor(startTimestamp) {
+  constructor() {
     // Historique des actions
     this.steps = [];
 
     // index de la prochaine action à effectuer
     this.historyIndex = null;
-
-    // timestamp courant
-    this.currentTimestamp = null;
-
-    // start of the video
-    this.videoStartTimestamp = null;
-
-    // workspace open timestamp
-    this.startTimestamp = startTimestamp;
-
-    // workspace close timestamp
-    this.endTimestamp = 0;
 
     // timeout id for cancelling
     this.timeoutId = null;
@@ -33,8 +21,6 @@ export class CompleteHistory {
   saveToObject() {
     let save = {
       steps: this.steps, //.map(step => step.saveToObject()),
-      startTimestamp: this.startTimestamp,
-      endTimestamp: Date.now(), //this.endTimestamp,
       // startTangram: this.startTangram,
     };
     return save;
@@ -42,8 +28,6 @@ export class CompleteHistory {
 
   initFromObject(object) {
     this.steps = object.steps;
-    this.startTimestamp = object.startTimestamp;
-    this.endTimestamp = object.endTimestamp;
     // this.startTangram = object.startTangram;
   }
 
@@ -69,11 +53,10 @@ export class CompleteHistory {
    * Ajouter une étape (ensemble d'action) à l'historique (l'étape n'est pas
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
-  addStep(type, detail, timeStamp) {
+  addStep(type, detail) {
     this.steps.push({
       type,
       detail: detail,
-      timestamp: timeStamp + this.endTimestamp,
     });
   }
 }

@@ -1,7 +1,5 @@
-import { OpacityState } from './OpacityState';
-import { OpacityAction } from './OpacityAction';
+import { OpacityTool } from './OpacityTool';
 
 export default {
-  state: new OpacityState(),
-  action: new OpacityAction(),
+  tool: new OpacityTool(),
 };

@@ -252,7 +252,7 @@ class DivMainCanvas extends LitElement {
       let detail = {
         deltaY: event.deltaY,
       };
-      app.dispatchEv(new CustomEvent('canvasmousewheel', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvasMouseWheel', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchstart', (event) => {
@@ -281,7 +281,7 @@ class DivMainCanvas extends LitElement {
         );
       }
       app.dispatchEv(new CustomEvent('canvasMouseDown'));
-      app.dispatchEv(new CustomEvent('canvastouchstart', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvasTouchStart', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchmove', (event) => {
@@ -306,11 +306,11 @@ class DivMainCanvas extends LitElement {
       }
       if (this.isOutsideOfCanvas(mousePos)) {
         app.dispatchEv(new CustomEvent('canvasMouseUp'));
-        app.dispatchEv(new CustomEvent('canvastouchend', { detail: detail }));
+        app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
         return;
       }
       app.dispatchEv(new CustomEvent('canvasMouseMove'));
-      app.dispatchEv(new CustomEvent('canvastouchmove', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvasTouchMove', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchend', (event) => {
@@ -340,7 +340,7 @@ class DivMainCanvas extends LitElement {
       }
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
       app.dispatchEv(new CustomEvent('canvasclick'));
-      app.dispatchEv(new CustomEvent('canvastouchend', { detail: detail }));
+      app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
     });
 
     this.upperCanvas.addEventListener('touchcancel', (event) => {

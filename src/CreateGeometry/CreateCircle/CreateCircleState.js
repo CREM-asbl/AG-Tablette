@@ -1,5 +1,5 @@
 import { app } from '../../Core/App';
-import { State } from '../../Core/States/State';
+import { Tool } from '../../Core/States/State';
 import { html } from 'lit-element';
 import { createElem, uniqId } from '../../Core/Tools/general';
 import { SelectManager } from '../../Core/Managers/SelectManager';
@@ -13,7 +13,7 @@ import { isAngleBetweenTwoAngles } from '../../Core/Tools/geometry';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateCircleState extends State {
+export class CreateCircleTool extends Tool {
   constructor() {
     super('createCircle', 'Créer un cercle', 'geometryCreator');
 
