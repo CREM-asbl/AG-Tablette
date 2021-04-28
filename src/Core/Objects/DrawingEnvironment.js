@@ -65,6 +65,16 @@ export class DrawingEnvironment {
                 );
               }
             });
+          } else if (this.mustDrawPoints) {
+            this.points.forEach((pt) => {
+              if (pt.visible && pt.shapeId === s.id && (pt.type == 'shapeCenter' || pt.type == 'divisionPoint' || pt.shape.isCircle())) {
+                window.dispatchEvent(
+                  new CustomEvent('draw-point', {
+                    detail: { point: pt, color: pt.color },
+                  }),
+                );
+              }
+            });
           }
         }
       });
