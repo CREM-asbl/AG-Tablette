@@ -11,7 +11,7 @@ export class App {
     this.canvasHeight = null;
 
     // L'outil sélectionné
-    this.tool = {};
+    this.tool = null;
 
     // Les outils possibles
     this.tools = [];
@@ -38,7 +38,12 @@ export class App {
       'gridSize': 1,
     }
 
-    this.defaultSettings = {...this.settings};
+    this.history = {
+      index: -1,
+      steps: [],
+      startSituation: null,
+      startSettings: {...this.settings},
+    }
 
     this.fullHistory = {
       index: 0,
@@ -46,8 +51,14 @@ export class App {
       numberOfActions: 0,
       steps: [],
       isRunning: false,
-
     }
+
+    this.defaultState = {
+      tool: null,
+      settings: {...this.settings},
+      history: {...this.history},
+      fullHistory: {...this.fullHistory},
+    };
 
     // compteur d'écouteurs pour certains event
     this.listenerCounter = {};
@@ -82,7 +93,7 @@ export class App {
 
   resetSettings() {
     setState({ settings: {
-      ...app.defaultSettings
+      ...app.defaultState.settings
     }});
   }
 
@@ -99,23 +110,6 @@ export class App {
 
   refreshWindow() {
     window.dispatchEvent(new CustomEvent('setCanvasSize'));
-  }
-
-  /**
-   * Définir l'état actuel de l'application (l'outil actuel)
-   * @param {String} stateName   Le nom de l'état
-   * @param {Object} startParams paramètres à transmettre à state.start()
-   */
-  setState(stateName, startParams) {
-    this.state = stateName || undefined;
-    window.dispatchEvent(
-      new CustomEvent('app-state-changed', {
-        detail: { state: app.state, startParams: startParams },
-      }),
-    );
-
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 }
 
@@ -142,11 +136,11 @@ export const setState = (update) => {
   if ('settings' in update) {
     window.dispatchEvent(new CustomEvent('settings-changed', { detail: app }));
   }
-  if ('settings' in update) {
-    window.dispatchEvent(new CustomEvent('appSettings-changed', { detail: app }));
-  }
   if ('fullHistory' in update) {
     window.dispatchEvent(new CustomEvent('fullHistory-changed', { detail: app }));
+  }
+  if ('history' in update) {
+    window.dispatchEvent(new CustomEvent('history-changed', { detail: app }));
   }
   window.dispatchEvent(new CustomEvent('refreshUpper'));
   window.dispatchEvent(new CustomEvent('refresh'));

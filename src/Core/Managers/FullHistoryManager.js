@@ -1,6 +1,5 @@
 import { app, setState } from '../App';
 import { SelectManager } from './SelectManager';
-import { History } from '../Objects/History';
 import { createElem } from '../Tools/general';
 import { Coordinates } from '../Objects/Coordinates';
 
@@ -21,7 +20,7 @@ export class FullHistoryManager {
     // if called when already running
     window.clearTimeout(app.fullHistory.timeoutId);
 
-    FullHistoryManager.saveHistory = {...app.workspace.history};
+    FullHistoryManager.saveHistory = {...app.history};
     FullHistoryManager.setWorkspaceToStartSituation();
     setState({
       tool: null,
@@ -42,13 +41,13 @@ export class FullHistoryManager {
     window.clearTimeout(app.fullHistory.timeoutId);
     window.dispatchEvent(new CustomEvent('browsing-finished'));
     FullHistoryManager.moveTo(app.fullHistory.numberOfActions);
-    app.workspace.history.initFromObject(FullHistoryManager.saveHistory);
     setState({
       tool: null,
       fullHistory: {
         ...app.fullHistory,
         isRunning: false,
-      }
+      },
+      history: {...FullHistoryManager.saveHistory},
     });
   }
 
@@ -70,10 +69,8 @@ export class FullHistoryManager {
   }
 
   static setWorkspaceToStartSituation() {
-    setState({ settings: {...app.workspace.history.startSettings} });
-    app.workspace.initFromObject(app.workspace.history.startSituation, true);
-
-    app.workspace.history = new History();
+    setState({ settings: {...app.history.startSettings}, history: {...app.defaultState.history}});
+    app.workspace.initFromObject(app.history.startSituation);
   }
 
   static moveTo(actionIndex) {
@@ -83,9 +80,11 @@ export class FullHistoryManager {
       (step) => step.detail?.actionIndex === actionIndex - 1,
     );
 
+    console.log(actionIndex, index, app.fullHistory.steps[index])
+
     let data = app.fullHistory.steps[index]?.detail.data;
     if (data) {
-      app.workspace.initFromObject({...data}, true);
+      app.workspace.initFromObject({...data});
     } else {
       FullHistoryManager.setWorkspaceToStartSituation();
     }
@@ -93,7 +92,6 @@ export class FullHistoryManager {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
 
     index++;
-
     setState({ fullHistory: { ...app.fullHistory, actionIndex, index } });
   }
 
@@ -133,7 +131,6 @@ export class FullHistoryManager {
       } else if (detail.name == 'Découper') {
         FullHistoryManager.nextTime = 0.5 * 1000;
       }
-      console.log('add-fullstep actionIndex', app.fullHistory.actionIndex + 1);
       setState({ fullHistory: { ...app.fullHistory, actionIndex: app.fullHistory.actionIndex + 1 } });
       if (app.fullHistory.numberOfActions == app.fullHistory.actionIndex)
         setTimeout(() => FullHistoryManager.stopBrowsing(), FullHistoryManager.nextTime);
@@ -169,7 +166,7 @@ export class FullHistoryManager {
     let detail = { ...event.detail };
     if (type == 'objectSelected') detail.object = undefined;
     if (type == 'add-fullstep') {
-      detail.index = app.fullHistory.steps.filter((step) => {
+      detail.actionIndex = app.fullHistory.steps.filter((step) => {
         return step.type == 'add-fullstep';
       }).length;
       let data = app.workspace.data;

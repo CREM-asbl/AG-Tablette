@@ -1,7 +1,6 @@
 import { app, setState } from '../App';
 import { uniqId } from '../Tools/general';
 import { Settings } from '../Settings';
-import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
 import { Point } from '../Objects/Point';
 import { Coordinates } from './Coordinates';
@@ -53,9 +52,6 @@ export class Workspace {
      * ->Le zoom du plan est appliqué après la translation du plan.
      */
     this.translateOffset = Coordinates.nullCoordinates;
-
-    // Historique des actions
-    this.history = new History();
   }
 
   set selectionConstraints(value) {
@@ -66,7 +62,7 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
-  initFromObject(wsdata, ignoreHistory = false) {
+  initFromObject(wsdata) {
     if (!wsdata) {
       this.translateOffset = Coordinates.nullCoordinates;
       this.zoomLevel = 1;
@@ -119,17 +115,6 @@ export class Workspace {
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
     }
-
-    if (!ignoreHistory) {
-      if (wsdata.history) {
-        this.history.initFromObject(wsdata.history);
-        window.dispatchEvent(new CustomEvent('history-changed'));
-      } else {
-        this.history.resetToDefault();
-        this.history.startSituation = { ...this.data };
-        this.history.startSettings = {...app.settings};
-      }
-    }
   }
 
   get data() {
@@ -145,8 +130,6 @@ export class Workspace {
     wsdata.shapeGroups = this.shapeGroups.map((group) => {
       return group.saveToObject();
     });
-
-    wsdata.history = this.history.saveToObject();
 
     wsdata.zoomLevel = this.zoomLevel;
     wsdata.translateOffset = this.translateOffset;

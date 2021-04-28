@@ -9,7 +9,7 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canUndo() {
-    return app.workspace.history.index != -1;
+    return app.history.index != -1;
   }
 
   /**
@@ -17,27 +17,8 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canRedo() {
-    return app.workspace.history.index < app.workspace.history.length - 1;
+    return app.history.index < app.history.steps.length - 1;
   }
-
-  // static updateHistory(action) {
-  //   app.workspace.history.data[HistoryManager.historyIndex][
-  //     HistoryManager.stepIndex
-  //   ] = HistoryManager.transformToObject(action);
-  // }
-
-  // static updateBackup() {
-  //   let wsData = app.workspace.data;
-  //   app.workspace.shapes = [];
-  //   app.workspace.shapeGroups = [];
-  //   app.workspace.history.index = -1;
-  //   for (let i = 0; i < app.workspace.history.length; i++) {
-  //     HistoryManager.redo();
-  //   }
-  //   wsData.history.data = app.workspace.history.data;
-  //   app.lastFileVersion = app.version;
-  //   app.workspace.initFromObject(wsData);
-  // }
 
   /**
    * Annuler une étape. Cela fait reculer le curseur de l'historique d'un
@@ -48,22 +29,19 @@ export class HistoryManager {
       console.error('Nothing to undo');
       return;
     }
-    setState({ tool: null });
-    app.workspace.history.index--;
-    let data = app.workspace.history.data[app.workspace.history.index];
-    if (app.workspace.history.index == -1) {
-      data = app.workspace.history.startSituation;
+    let index = app.history.index - 1;
+    let data = app.history.steps[index];
+    if (index == -1) {
+      data = app.history.startSituation;
     }
-    app.workspace.initFromObject(data, true);
+    app.workspace.initFromObject(data);
+    setState({ tool: null, history: {...app.history, index} });
     if (!data) {
       setState({settings: {...app.defaultSettings}});
     } else {
       setState({settings: {...data.settings}});
     }
     window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Annuler'}}));
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
   /**
@@ -75,14 +53,14 @@ export class HistoryManager {
       console.error('Nothing to redo');
       return;
     }
-    setState({ tool: null });
-    app.workspace.history.index++;
-    let data = app.workspace.history.data[app.workspace.history.index];
-    app.workspace.initFromObject(data, true);
-    setState({settings: {...data.settings}});
+    let index = app.history.index + 1;
+    let data = app.history.steps[index];
+    if (index == -1) {
+      data = app.history.startSituation;
+    }
+    app.workspace.initFromObject(data);
+    setState({ tool: null, history: {...app.history, index}, settings: {...data.settings}});
     window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Refaire'}}));
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('history-changed'));
   }
 
   /**
@@ -90,26 +68,19 @@ export class HistoryManager {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
   static addStep() {
-    app.workspace.history.data.splice(
-      app.workspace.history.index + 1,
-      app.workspace.history.length,
+    let steps = [...app.history.steps];
+    steps.splice(
+      app.history.index + 1,
+      app.history.steps.length,
       HistoryManager.saveData(),
     );
-    app.workspace.history.index = app.workspace.history.length - 1;
-
-    window.dispatchEvent(new CustomEvent('history-changed'));
+    let index = steps.length - 1;
+    setState({ history: {...app.history, steps, index}});
   }
 
-  static deleteLastStep() {
-    app.workspace.history.length--;
-    app.workspace.history.index = app.workspace.history.length - 1;
-
-    window.dispatchEvent(new CustomEvent('history-changed'));
-  }
 
   static saveData() {
     let data = app.workspace.data;
-    data.history = undefined;
     data.settings = {...app.settings};
 
     return data;
@@ -120,10 +91,6 @@ window.addEventListener('actions-executed', () => HistoryManager.addStep());
 
 window.addEventListener('update-history', (event) =>
   HistoryManager.updateHistory(event.detail),
-);
-
-window.addEventListener('action-aborted', () =>
-  HistoryManager.deleteLastStep(),
 );
 
 window.addEventListener('undo', () => {

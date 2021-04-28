@@ -15,7 +15,7 @@ import './Core/Managers/GroupManager';
 import './Core/Managers/ShapeManager';
 import './Core/Managers/DrawManager';
 import './Core/Managers/FullHistoryManager';
-import './Core/Managers/HistoryManager';
+import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
 import { TemplateToolbar } from './template-toolbar';
 
@@ -45,9 +45,6 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
     });
-    window.addEventListener('app-state-changed', () => {
-      this.setState();
-    });
     window.addEventListener('history-changed', () => {
       this.canUndo = HistoryManager.canUndo();
       this.canRedo = HistoryManager.canRedo();
@@ -55,7 +52,6 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('workspace-changed', () => {
       this.colorPickerValue = '#000000';
       this.shadowRoot.querySelector('#color-picker').value = '#000000';
-      window.dispatchEvent(new CustomEvent('history-changed'));
     });
     window.addEventListener('open-opacity-popup', () => {
       this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
@@ -347,7 +343,7 @@ class AGTabletteApp extends LitElement {
         resetTool = true;
         break;
       case 'load':
-        if (app.workspace.history.index === -1) {
+        if (app.history.index === -1) {
           window.dispatchEvent(new CustomEvent('open-file'));
           return;
         }
