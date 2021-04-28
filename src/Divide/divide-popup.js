@@ -1,6 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
 import { app, setState } from '../Core/App';
-import { CompleteHistoryManager } from '../Core/Managers/CompleteHistoryManager';
 import { TemplatePopup } from '../popups/template-popup';
 import { range } from '../Core/Tools/general';
 

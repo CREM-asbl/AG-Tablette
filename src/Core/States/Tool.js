@@ -1,5 +1,4 @@
 import { app } from '../App';
-import { CompleteHistoryManager } from '../Managers/CompleteHistoryManager';
 
 /**
  * Cette classe abstraite représente un état possible de l'application

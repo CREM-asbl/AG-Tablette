@@ -1,10 +1,8 @@
 import { app } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
 import { SelectManager } from './Core/Managers/SelectManager';
-import { CompleteHistoryManager } from './Core/Managers/CompleteHistoryManager';
 import { Coordinates } from './Core/Objects/Coordinates';
 import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
-import { Text } from './Core/Objects/Text';
 
 class DivMainCanvas extends LitElement {
   constructor() {
@@ -172,7 +170,7 @@ class DivMainCanvas extends LitElement {
 
     // Events
     this.upperCanvas.addEventListener('click', (event) => {
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
@@ -188,7 +186,7 @@ class DivMainCanvas extends LitElement {
     });
 
     this.upperCanvas.addEventListener('mousedown', (event) => {
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
@@ -204,7 +202,7 @@ class DivMainCanvas extends LitElement {
     });
 
     this.upperCanvas.addEventListener('mouseup', (event) => {
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
@@ -215,7 +213,7 @@ class DivMainCanvas extends LitElement {
     });
 
     this.upperCanvas.addEventListener('mousemove', (event) => {
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
@@ -227,7 +225,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('mouseout', (event) => {
       event.preventDefault();
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
@@ -239,7 +237,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('mousewheel', (event) => {
       event.preventDefault();
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = new Coordinates({
         x: event.clientX - app.settings.mainMenuWidth,
         y: event.clientY,
@@ -257,7 +255,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('touchstart', (event) => {
       event.preventDefault();
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
@@ -286,7 +284,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('touchmove', (event) => {
       event.preventDefault();
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
@@ -315,7 +313,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('touchend', (event) => {
       event.preventDefault();
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
@@ -345,7 +343,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('touchcancel', (event) => {
       event.preventDefault();
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
@@ -375,7 +373,7 @@ class DivMainCanvas extends LitElement {
 
     this.upperCanvas.addEventListener('touchcancel', (event) => {
       event.preventDefault();
-      if (CompleteHistoryManager.isRunning) return;
+      if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {

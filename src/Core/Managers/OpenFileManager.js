@@ -60,15 +60,10 @@ export class OpenFileManager {
       setState({ settings: {...saveObject.settings}});
     } else app.resetSettings();
 
-    if (app.lastFileVersion == '1.0.0') {
-      saveObject.settings = new Settings();
-      for (let [key, value] of Object.entries(saveObject.WSSettings)) {
-        saveObject.settings[key] = value.value;
-      }
-      WorkspaceManager.setWorkspaceFromObject(saveObject);
-    } else {
-      WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
-    }
+    if (saveObject.fullHistory)
+      setState({ fullHistory: {...saveObject.fullHistory}});
+
+    WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
     window.dispatchEvent(
       new CustomEvent('file-parsed', { detail: saveObject }),
     );

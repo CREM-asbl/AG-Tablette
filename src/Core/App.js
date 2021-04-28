@@ -41,8 +41,12 @@ export class App {
     this.defaultSettings = {...this.settings};
 
     this.fullHistory = {
+      index: 0,
       actionIndex: 0,
       numberOfActions: 0,
+      steps: [],
+      isRunning: false,
+
     }
 
     // compteur d'écouteurs pour certains event

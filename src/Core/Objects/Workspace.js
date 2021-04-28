@@ -1,6 +1,5 @@
 import { app, setState } from '../App';
 import { uniqId } from '../Tools/general';
-import { CompleteHistory } from './CompleteHistory';
 import { Settings } from '../Settings';
 import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
@@ -57,9 +56,6 @@ export class Workspace {
 
     // Historique des actions
     this.history = new History();
-
-    // Historique complet des événements
-    this.completeHistory = new CompleteHistory();
   }
 
   set selectionConstraints(value) {
@@ -134,17 +130,6 @@ export class Workspace {
         this.history.startSettings = {...app.settings};
       }
     }
-
-    if (!ignoreHistory) {
-      if (wsdata.completeHistory) {
-        this.completeHistory.initFromObject(wsdata.completeHistory);
-      } else {
-        this.completeHistory.initFromObject({
-          steps: [],
-          // startSilhouette: app.silhouette,
-        });
-      }
-    }
   }
 
   get data() {
@@ -162,8 +147,6 @@ export class Workspace {
     });
 
     wsdata.history = this.history.saveToObject();
-    if (this.completeHistory)
-      wsdata.completeHistory = this.completeHistory.saveToObject();
 
     wsdata.zoomLevel = this.zoomLevel;
     wsdata.translateOffset = this.translateOffset;

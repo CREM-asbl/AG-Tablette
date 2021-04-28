@@ -1,6 +1,5 @@
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from '../popups/template-popup';
-import { CompleteHistoryManager } from '../Core/Managers/CompleteHistoryManager';
 import { setState } from '../Core/App';
 
 class OpacityPopup extends LitElement {

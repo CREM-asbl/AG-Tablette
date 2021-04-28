@@ -1,7 +1,6 @@
 import { app, setState } from '../Core/App';
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from '../popups/template-popup';
-import { CompleteHistoryManager } from '../Core/Managers/CompleteHistoryManager';
 
 class GridPopup extends LitElement {
   constructor() {
@@ -125,7 +124,7 @@ class GridPopup extends LitElement {
   submitAndClose() {
     this.submit();
     this.close();
-    if (!CompleteHistoryManager.isRunning) {
+    if (!app.fullHistory.isRunning) {
       window.dispatchEvent(
         new CustomEvent('actions-executed', {
           detail: { name: 'Grille' },

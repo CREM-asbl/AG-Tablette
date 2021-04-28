@@ -1,6 +1,5 @@
 import { app, setState } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
-import { CompleteHistoryManager } from './Core/Managers/CompleteHistoryManager';
 import './icon-button';
 import { TemplateToolbar } from './template-toolbar';
 
@@ -43,7 +42,7 @@ class ToolbarSection extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
-    if (!CompleteHistoryManager.isRunning) {
+    if (!app.fullHistory.isRunning) {
       setState({ tool: { name: event.target.name, currentStep: 'start' } });
     }
   }

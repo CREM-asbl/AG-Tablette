@@ -14,8 +14,8 @@ import './Core/Managers/WorkspaceManager';
 import './Core/Managers/GroupManager';
 import './Core/Managers/ShapeManager';
 import './Core/Managers/DrawManager';
-import './Core/Managers/CompleteHistoryManager';
-import { HistoryManager } from './Core/Managers/HistoryManager';
+import './Core/Managers/FullHistoryManager';
+import './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
 import { TemplateToolbar } from './template-toolbar';
 

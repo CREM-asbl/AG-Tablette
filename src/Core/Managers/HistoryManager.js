@@ -110,7 +110,6 @@ export class HistoryManager {
   static saveData() {
     let data = app.workspace.data;
     data.history = undefined;
-    data.completeHistory = undefined;
     data.settings = {...app.settings};
 
     return data;
