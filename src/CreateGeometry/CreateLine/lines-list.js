@@ -70,7 +70,7 @@ class LinesList extends LitElement {
 
       @media (min-width: 600px) {
         :host {
-          left: ${app.settings.get('mainMenuWidth')}px;
+          left: ${app.settings.mainMenuWidth}px;
         }
       }
     `;

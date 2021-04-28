@@ -6,9 +6,9 @@ import { CompleteHistoryManager } from '../Core/Managers/CompleteHistoryManager'
 class GridPopup extends LitElement {
   constructor() {
     super();
-    this.gridType = app.workspaceSettings.gridType;
-    this.gridSize = app.workspaceSettings.gridSize;
-    this.gridShown = app.workspaceSettings.gridType !== 'none';
+    this.gridType = app.settings.gridType;
+    this.gridSize = app.settings.gridSize;
+    this.gridShown = app.settings.gridType !== 'none';
     window.addEventListener(
       'close-popup',
       () => {
@@ -19,10 +19,10 @@ class GridPopup extends LitElement {
       },
     );
 
-    window.addEventListener('state-changed', () => {
-      this.gridType = app.workspaceSettings.gridType;
-      this.gridSize = app.workspaceSettings.gridSize;
-      this.gridShown = app.workspaceSettings.gridType !== 'none';
+    window.addEventListener('settings-changed', () => {
+      this.gridType = app.settings.gridType;
+      this.gridSize = app.settings.gridSize;
+      this.gridShown = app.settings.gridType !== 'none';
     });
   }
 
@@ -39,6 +39,7 @@ class GridPopup extends LitElement {
   }
 
   render() {
+    console.log(this.gridType);
     return html`
       <template-popup>
         <h2 slot="title">Grille</h2>
@@ -125,7 +126,6 @@ class GridPopup extends LitElement {
   submitAndClose() {
     this.submit();
     this.close();
-    console.trace('actions-executed dispatched');
     if (!CompleteHistoryManager.isRunning) {
       window.dispatchEvent(
         new CustomEvent('actions-executed', {
@@ -141,9 +141,9 @@ class GridPopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'grid_popup_grid_type':
-        setState({ workspaceSettings:
+        setState({ settings:
           {
-            ...app.workspaceSettings,
+            ...app.settings,
             gridType: event.target.value,
             gridShown: event.target.value !== 'none'
           }
@@ -151,9 +151,9 @@ class GridPopup extends LitElement {
         break;
 
       case 'grid_popup_grid_size':
-        setState({ workspaceSettings:
+        setState({ settings:
           {
-            ...app.workspaceSettings,
+            ...app.settings,
             gridSize: event.target.value,
           }
         });

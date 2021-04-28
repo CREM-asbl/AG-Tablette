@@ -155,7 +155,7 @@ class DivMainCanvas extends LitElement {
     });
 
     // window.addEventListener('click-cursor', event => {
-    //   this.animCursorX = event.detail.mousePos.x;// + app.settings.get('mainMenuWidth');
+    //   this.animCursorX = event.detail.mousePos.x;// + app.settings.mainMenuWidth;
     //   this.animCursorY = event.detail.mousePos.y;
     //   let elem = this.shadowRoot.querySelector('.clickEffect');
     //   elem.className = 'clickEffect runAnim';
@@ -241,7 +241,7 @@ class DivMainCanvas extends LitElement {
       event.preventDefault();
       if (CompleteHistoryManager.isRunning) return;
       let mousePos = new Coordinates({
-        x: event.clientX - app.settings.get('mainMenuWidth'),
+        x: event.clientX - app.settings.mainMenuWidth,
         y: event.clientY,
       });
       window.dispatchEvent(
@@ -275,7 +275,7 @@ class DivMainCanvas extends LitElement {
       for (let touch of event.touches) {
         detail.touches.push(
           new Coordinates({
-            x: touch.clientX - app.settings.get('mainMenuWidth'),
+            x: touch.clientX - app.settings.mainMenuWidth,
             y: touch.clientY,
           }),
         );
@@ -299,7 +299,7 @@ class DivMainCanvas extends LitElement {
       for (let touch of event.touches) {
         detail.touches.push(
           new Coordinates({
-            x: touch.clientX - app.settings.get('mainMenuWidth'),
+            x: touch.clientX - app.settings.mainMenuWidth,
             y: touch.clientY,
           }),
         );
@@ -333,7 +333,7 @@ class DivMainCanvas extends LitElement {
       for (let touch of event.changedTouches) {
         detail.touches.push(
           new Coordinates({
-            x: touch.clientX - app.settings.get('mainMenuWidth'),
+            x: touch.clientX - app.settings.mainMenuWidth,
             y: touch.clientY,
           }),
         );
@@ -363,7 +363,7 @@ class DivMainCanvas extends LitElement {
       for (let touch of event.changedTouches) {
         detail.touches.push(
           new Coordinates({
-            x: touch.clientX - app.settings.get('mainMenuWidth'),
+            x: touch.clientX - app.settings.mainMenuWidth,
             y: touch.clientY,
           }),
         );
@@ -393,7 +393,7 @@ class DivMainCanvas extends LitElement {
       for (let touch of event.changedTouches) {
         detail.touches.push(
           new Coordinates({
-            x: touch.clientX - app.settings.get('mainMenuWidth'),
+            x: touch.clientX - app.settings.mainMenuWidth,
             y: touch.clientY,
           }),
         );
@@ -420,7 +420,7 @@ class DivMainCanvas extends LitElement {
       event.changedTouches[0].clientX !== undefined
     ) {
       response.x =
-        event.changedTouches[0].clientX - app.settings.get('mainMenuWidth');
+        event.changedTouches[0].clientX - app.settings.mainMenuWidth;
       response.y = event.changedTouches[0].clientY;
     } else if (event.offsetX !== undefined) {
       response.x = event.offsetX;

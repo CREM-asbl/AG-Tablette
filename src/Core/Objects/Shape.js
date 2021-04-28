@@ -1145,7 +1145,7 @@ export class Shape {
       if (isTemporary) {
         shapeCopy = new Shape({
           ...shape,
-          borderColor: app.settings.get('temporaryDrawColor'),
+          borderColor: app.settings.temporaryDrawColor,
         });
       }
       shapeCopy.updateGeometry(this, isTemporary);
@@ -1199,7 +1199,7 @@ export class Shape {
     path_tag += '/>\n';
 
     let point_tags = '';
-    if (app.settings.get('areShapesPointed') && this.name != 'silhouette') {
+    if (app.settings.areShapesPointed && this.name != 'silhouette') {
       if (this.isSegment())
         point_tags += this.segments[0].vertexes[0].toSVG('#000', 1);
       if (!this.isCircle())

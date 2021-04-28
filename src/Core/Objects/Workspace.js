@@ -124,25 +124,14 @@ export class Workspace {
       this.setTranslateOffset(newTranslateoffset);
     }
 
-    if (wsdata.settings) {
-      setState({ workspaceSettings: {...wsdata.settings} });
-    }
-
     if (!ignoreHistory) {
       if (wsdata.history) {
-        if (app.lastFileVersion == '1.0.0') {
-          this.history.initFromObject({
-            data: wsdata.history.history,
-            index: wsdata.history.historyIndex,
-          });
-        } else {
-          this.history.initFromObject(wsdata.history);
-        }
+        this.history.initFromObject(wsdata.history);
         window.dispatchEvent(new CustomEvent('history-changed'));
       } else {
         this.history.resetToDefault();
         this.history.startSituation = { ...this.data };
-        this.history.startWorkspaceSettings = {...app.workspaceSettings};
+        this.history.startSettings = {...app.settings};
       }
     }
 
@@ -179,8 +168,6 @@ export class Workspace {
     wsdata.zoomLevel = this.zoomLevel;
     wsdata.translateOffset = this.translateOffset;
 
-    wsdata.settings = {...app.workspaceSettings};
-
     wsdata.canvasSize = { width: app.canvasWidth, height: app.canvasHeight };
 
     return wsdata;
@@ -201,10 +188,10 @@ export class Workspace {
    * @param {Boolean} [doRefresh=true] false: ne pas rafraichir les canvas
    */
   setZoomLevel(newZoomLevel, doRefresh = true) {
-    if (newZoomLevel < app.settings.get('minZoomLevel'))
-      newZoomLevel = app.settings.get('minZoomLevel');
-    if (newZoomLevel > app.settings.get('maxZoomLevel'))
-      newZoomLevel = app.settings.get('maxZoomLevel');
+    if (newZoomLevel < app.settings.minZoomLevel)
+      newZoomLevel = app.settings.minZoomLevel;
+    if (newZoomLevel > app.settings.maxZoomLevel)
+      newZoomLevel = app.settings.maxZoomLevel;
 
     // window.dispatchEvent(
     //   new CustomEvent('scaleView', {

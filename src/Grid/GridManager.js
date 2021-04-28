@@ -11,9 +11,9 @@ addEventListener('tool-changed', () => {
   }
 });
 
-addEventListener('workspaceSettings-changed', () => {
+addEventListener('settings-changed', () => {
   app.backgroundDrawingEnvironment.removeAllObjects();
-  if (app.workspaceSettings.gridShown) {
+  if (app.settings.gridShown) {
     GridManager.drawGridPoints();
   }
 })
@@ -28,7 +28,7 @@ export class GridManager {
    * 		(-> Ex de points: (60, 10), ...)
    */
   static drawGridPoints() {
-    if (!app.workspaceSettings.gridShown) return;
+    if (!app.settings.gridShown) return;
 
     const canvasWidth = app.canvasWidth,
       canvasHeight = app.canvasHeight,
@@ -46,8 +46,8 @@ export class GridManager {
         y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
       });
 
-    let size = app.workspaceSettings.gridSize,
-      type = app.workspaceSettings.gridType;
+    let size = app.settings.gridSize,
+      type = app.settings.gridType;
     if (type == 'square') {
       let t1 = Math.ceil((minCoord.x - 10) / (50 * size)),
         startX = 10 + t1 * 50 * size,
@@ -144,8 +144,8 @@ export class GridManager {
     let x = coord.x,
       y = coord.y,
       possibilities = [],
-      gridType = app.workspaceSettings.gridType,
-      gridSize = app.workspaceSettings.gridSize;
+      gridType = app.settings.gridType,
+      gridSize = app.settings.gridSize;
 
     if (gridType == 'square') {
       let topleft = new Coordinates({

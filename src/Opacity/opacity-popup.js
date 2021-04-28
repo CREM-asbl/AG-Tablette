@@ -7,8 +7,8 @@ class OpacityPopup extends LitElement {
   constructor() {
     super();
 
-    this.opacity = app.workspaceSettings.shapeOpacity;
-    window.addEventListener('state-changed', () => this.opacity = app.workspaceSettings.shapeOpacity);
+    this.opacity = app.settings.shapeOpacity;
+    window.addEventListener('state-changed', () => this.opacity = app.settings.shapeOpacity);
 
     window.addEventListener('close-popup', () => {
       this.submitAndClose();
@@ -61,7 +61,7 @@ class OpacityPopup extends LitElement {
   }
 
   changeOpacity(event) {
-    setState({ workspaceSettings: { ...app.workspaceSettings, shapeOpacity: event.target.value } });
+    setState({ settings: { ...app.settings, shapeOpacity: event.target.value } });
   }
 
   submit() {

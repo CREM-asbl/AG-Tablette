@@ -75,8 +75,8 @@ export class PermanentZoomTool extends Tool {
 
       let scaleOffset = newDist / this.baseDist,
         originalZoom = app.workspace.zoomLevel,
-        minZoom = app.settings.get('minZoomLevel'),
-        maxZoom = app.settings.get('maxZoomLevel');
+        minZoom = app.settings.minZoomLevel,
+        maxZoom = app.settings.maxZoomLevel;
       if (scaleOffset * originalZoom > maxZoom) {
         // -> scaleOffset*originalZoom = maxZoom
         scaleOffset = maxZoom / originalZoom - 0.001;
@@ -114,8 +114,8 @@ export class PermanentZoomTool extends Tool {
 
     let offset = this.lastDist / this.baseDist,
       actualZoom = app.workspace.zoomLevel,
-      minZoom = app.settings.get('minZoomLevel'),
-      maxZoom = app.settings.get('maxZoomLevel');
+      minZoom = app.settings.minZoomLevel,
+      maxZoom = app.settings.maxZoomLevel;
 
     if (offset * actualZoom > maxZoom) {
       // -> offset*actualZoom = maxZoom
@@ -133,8 +133,8 @@ export class PermanentZoomTool extends Tool {
 
   canvasMouseWheel(deltaY) {
     let actualZoom = app.workspace.zoomLevel,
-      minZoom = app.settings.get('minZoomLevel'),
-      maxZoom = app.settings.get('maxZoomLevel'),
+      minZoom = app.settings.minZoomLevel,
+      maxZoom = app.settings.maxZoomLevel,
       offset = (actualZoom - deltaY / 100) / actualZoom,
       mousePos = app.workspace.lastKnownMouseCoordinates;
 

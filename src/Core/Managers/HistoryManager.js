@@ -51,9 +51,16 @@ export class HistoryManager {
     setState({ tool: null });
     app.workspace.history.index--;
     let data = app.workspace.history.data[app.workspace.history.index];
-    if (app.workspace.history.index == -1)
+    if (app.workspace.history.index == -1) {
       data = app.workspace.history.startSituation;
+    }
     app.workspace.initFromObject(data, true);
+    if (!data) {
+      setState({settings: {...app.defaultSettings}});
+    } else {
+      setState({settings: {...data.settings}});
+    }
+    window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Annuler'}}));
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('history-changed'));
@@ -72,6 +79,8 @@ export class HistoryManager {
     app.workspace.history.index++;
     let data = app.workspace.history.data[app.workspace.history.index];
     app.workspace.initFromObject(data, true);
+    setState({settings: {...data.settings}});
+    window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Refaire'}}));
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('history-changed'));
   }
@@ -102,6 +111,7 @@ export class HistoryManager {
     let data = app.workspace.data;
     data.history = undefined;
     data.completeHistory = undefined;
+    data.settings = {...app.settings};
 
     return data;
   }
@@ -117,9 +127,9 @@ window.addEventListener('action-aborted', () =>
   HistoryManager.deleteLastStep(),
 );
 
-window.addEventListener('undo-action', () => {
+window.addEventListener('undo', () => {
   HistoryManager.undo();
 });
-window.addEventListener('redo-action', () => {
+window.addEventListener('redo', () => {
   HistoryManager.redo();
 });

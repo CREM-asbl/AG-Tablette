@@ -5,7 +5,7 @@ export const loadEnvironnement = async (name) => {
   try {
     const config = await import(`./${name}.js`);
     await loadModules(config.default.modules);
-    if (config.default.settings) app.settings.update(config.default.settings);
+    // if (config.default.settings) app.settings.update(config.default.settings);
 
     return new Environment(config.default, await loadKit(config.default.kit));
   } catch (error) {

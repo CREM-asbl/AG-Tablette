@@ -63,11 +63,11 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('tool-changed', () => {
       if (app.tool?.currentStep == 'start') {
         if (app.tool.name == 'backgroundColor') {
-          this.shadowRoot.querySelector('#color-picker').value = app.workspaceSettings.shapeFillColor;
-          this.colorPickerValue = app.workspaceSettings.shapeFillColor;
+          this.shadowRoot.querySelector('#color-picker').value = app.settings.shapeFillColor;
+          this.colorPickerValue = app.settings.shapeFillColor;
         } else if (app.tool.name == 'borderColor') {
-          this.shadowRoot.querySelector('#color-picker').value = app.workspaceSettings.shapeBorderColor;
-          this.colorPickerValue = app.workspaceSettings.shapeBorderColor;
+          this.shadowRoot.querySelector('#color-picker').value = app.settings.shapeBorderColor;
+          this.colorPickerValue = app.settings.shapeBorderColor;
         } else {
           return;
         }
@@ -108,7 +108,7 @@ class AGTabletteApp extends LitElement {
           border-radius: 10px;
           box-sizing: border-box;
           background-color: var(--theme-color);
-          flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
+          flex: 0 0 ${app.settings.mainMenuWidth}px;
           margin: 3px;
           /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
 
@@ -309,16 +309,16 @@ class AGTabletteApp extends LitElement {
           {
             if (app.tool.name == 'backgroundColor') {
               setState({
-                workspaceSettings: {
-                  ...app.workspaceSettings,
+                settings: {
+                  ...app.settings,
                   shapeFillColor: e.target.value,
                 },
                 tool: { ...app.tool, currentStep: 'selectShape' },
               });
             } else if (app.tool.name == 'borderColor') {
               setState({
-                workspaceSettings: {
-                  ...app.workspaceSettings,
+                settings: {
+                  ...app.settings,
                   shapeBorderColor: e.target.value,
                 },
                 tool: { ...app.tool, currentStep: 'selectShape' },
@@ -363,10 +363,10 @@ class AGTabletteApp extends LitElement {
         resetTool = true;
         break;
       case 'undo':
-        window.dispatchEvent(new CustomEvent('undo-action'));
+        window.dispatchEvent(new CustomEvent('undo'));
         break;
       case 'redo':
-        window.dispatchEvent(new CustomEvent('redo-action'));
+        window.dispatchEvent(new CustomEvent('redo'));
         break;
       case 'replay':
         window.dispatchEvent(new CustomEvent('start-browsing'));

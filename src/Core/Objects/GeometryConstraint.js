@@ -48,7 +48,7 @@ export class GeometryConstraint {
       let s = new Shape({
         drawingEnvironment: app.upperDrawingEnvironment,
         path: path,
-        borderColor: app.settings.get('constraintsDrawColor'),
+        borderColor: app.settings.constraintsDrawColor,
         opacity: 0,
       });
       return s.segments[0];
@@ -58,7 +58,7 @@ export class GeometryConstraint {
         new Point({
           drawingEnvironment: app.upperDrawingEnvironment,
           coordinates: pt,
-          color: app.settings.get('constraintsDrawColor'),
+          color: app.settings.constraintsDrawColor,
           size: 2,
         }),
     );

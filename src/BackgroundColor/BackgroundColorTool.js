@@ -82,7 +82,7 @@ export class BackgroundColorTool extends Tool {
 
     this.involvedShapes.forEach((s) => {
       if (mustChangeOpacity) s.opacity = 0.7;
-      s.color = app.workspaceSettings.shapeFillColor;
+      s.color = app.settings.shapeFillColor;
       s.second_color = getComplementaryColor(s.color);
     });
   }

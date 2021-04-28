@@ -15,8 +15,8 @@ class DividePopup extends LitElement {
       once: true,
     });
 
-    this.parts = app.workspaceSettings.numberOfDivisionParts;
-    window.addEventListener('state-changed', () => this.parts = app.workspaceSettings.numberOfDivisionParts);
+    this.parts = app.settings.numberOfDivisionParts;
+    window.addEventListener('state-changed', () => this.parts = app.settings.numberOfDivisionParts);
   }
 
   static get properties() {
@@ -59,7 +59,7 @@ class DividePopup extends LitElement {
   }
 
   changeNumberOfParts(event) {
-    setState({ workspaceSettings: { ...app.workspaceSettings, numberOfDivisionParts: event.target.value } });
+    setState({ settings: { ...app.settings, numberOfDivisionParts: event.target.value } });
   }
 
   submit() {

@@ -132,7 +132,7 @@ export class CreateQuadrilateralTool extends Tool {
       this.points[this.numberOfPointsDrawn] = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
         coordinates: newCoordinates,
-        color: app.settings.get('temporaryDrawColor'),
+        color: app.settings.temporaryDrawColor,
         size: 2,
       });
       this.numberOfPointsDrawn++;
@@ -157,7 +157,7 @@ export class CreateQuadrilateralTool extends Tool {
           drawingEnvironment: app.upperDrawingEnvironment,
           segmentIds: this.segments.map((seg) => seg.id),
           pointIds: this.points.map((pt) => pt.id),
-          borderColor: app.settings.get('temporaryDrawColor'),
+          borderColor: app.settings.temporaryDrawColor,
         });
         this.segments.forEach((seg, idx) => {
           seg.idx = idx;
@@ -168,7 +168,7 @@ export class CreateQuadrilateralTool extends Tool {
           drawingEnvironment: app.upperDrawingEnvironment,
           segmentIds: [this.segments[this.numberOfPointsDrawn - 2].id],
           pointIds: this.segments[this.numberOfPointsDrawn - 2].vertexIds,
-          borderColor: app.settings.get('temporaryDrawColor'),
+          borderColor: app.settings.temporaryDrawColor,
         });
       }
       app.removeListener('canvasMouseDown', this.mouseDownId);
@@ -277,7 +277,7 @@ export class CreateQuadrilateralTool extends Tool {
           this.points[i + 2] = new Point({
             drawingEnvironment: app.upperDrawingEnvironment,
             coordinates: newCoordinates,
-            color: app.settings.get('temporaryDrawColor'),
+            color: app.settings.temporaryDrawColor,
             size: 2,
           });
         } else {
@@ -320,7 +320,7 @@ export class CreateQuadrilateralTool extends Tool {
         this.points[3] = new Point({
           drawingEnvironment: app.upperDrawingEnvironment,
           coordinates: newCoordinates,
-          color: app.settings.get('temporaryDrawColor'),
+          color: app.settings.temporaryDrawColor,
           size: 2,
         });
       } else {

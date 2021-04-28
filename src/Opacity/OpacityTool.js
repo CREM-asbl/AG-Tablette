@@ -75,7 +75,7 @@ export class OpacityTool extends Tool {
 
    _executeAction() {
     this.involvedShapes.forEach((s) => {
-      s.opacity = app.workspaceSettings.shapeOpacity;
+      s.opacity = app.settings.shapeOpacity;
     });
   }
 }

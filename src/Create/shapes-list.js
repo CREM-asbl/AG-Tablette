@@ -90,7 +90,7 @@ class ShapesList extends LitElement {
       <style>
         :host {
           left: calc(
-            50% + (${app.settings.get('mainMenuWidth')}px / 2) -
+            50% + (${app.settings.mainMenuWidth}px / 2) -
               (${this.templateNames.length} / 2 * 54px)
           );
         }

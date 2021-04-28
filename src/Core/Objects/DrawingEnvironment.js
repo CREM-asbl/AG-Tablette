@@ -54,7 +54,7 @@ export class DrawingEnvironment {
           window.dispatchEvent(
             new CustomEvent('draw-shape', { detail: { shape: s } }),
           );
-          if (this.mustDrawPoints && app.settings.get('areShapesPointed')) {
+          if (this.mustDrawPoints && app.settings.areShapesPointed) {
             this.points.forEach((pt) => {
               if (pt.visible && pt.shapeId === s.id) {
                 window.dispatchEvent(
@@ -94,7 +94,7 @@ export class DrawingEnvironment {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
           svg_data += s.toSVG();
-          if (this.mustDrawPoints && app.settings.get('areShapesPointed')) {
+          if (this.mustDrawPoints && app.settings.areShapesPointed) {
             this.points.forEach((pt) => {
               if (pt.visible && pt.shapeId === s.id) {
                 svg_data += pt.toSVG();

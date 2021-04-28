@@ -53,10 +53,16 @@ export class CompleteHistory {
    * Ajouter une étape (ensemble d'action) à l'historique (l'étape n'est pas
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
-  addStep(type, detail) {
+  addStep(type, detail, fullStep) {
+    let data = app.workspace.data;
+    data.history = undefined;
+    data.completeHistory = undefined;
+    data.settings = {...app.settings};
     this.steps.push({
       type,
       detail: detail,
+      fullStep,
+      data,
     });
   }
 }

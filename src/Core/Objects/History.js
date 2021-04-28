@@ -12,7 +12,7 @@ export class History {
     // Etat du workspace à l'ouverture
     this.startSituation = null;
 
-    this.startWorkspaceSettings = {...app.workspaceSettings};
+    this.startSettings = {...app.settings};
   }
 
   // transformFromPreviousVersion() {

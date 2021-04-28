@@ -1,4 +1,4 @@
-import { app } from '../App';
+import { app, setState } from '../App';
 import { Settings } from '../Settings';
 import { WorkspaceManager } from './WorkspaceManager';
 import { createElem } from '../Tools/general';
@@ -56,14 +56,8 @@ export class OpenFileManager {
 
     app.lastFileVersion = saveObject.appVersion;
 
-    if (saveObject.appSettings) {
-      app.settings.initFromObject(saveObject.appSettings);
-      if (app.lastFileVersion == '1.0.0') {
-        for (let [key, value] of Object.entries(app.settings.data)) {
-          app.settings.data[key] = value.value;
-        }
-      }
-      app.initNonEditableSettings();
+    if (saveObject.settings) {
+      setState({ settings: {...saveObject.settings}});
     } else app.resetSettings();
 
     if (app.lastFileVersion == '1.0.0') {
@@ -78,9 +72,6 @@ export class OpenFileManager {
     window.dispatchEvent(
       new CustomEvent('file-parsed', { detail: saveObject }),
     );
-    window.dispatchEvent(new CustomEvent('app-settings-changed'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 }
 

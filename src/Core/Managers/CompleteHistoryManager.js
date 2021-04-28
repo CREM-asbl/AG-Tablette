@@ -15,7 +15,7 @@ export class CompleteHistoryManager {
     // if called when already running
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
 
-    CompleteHistoryManager.saveHistory = { ...app.workspace.history };
+    CompleteHistoryManager.saveHistory = {...app.workspace.history};
     CompleteHistoryManager.setWorkspaceToStartSituation();
     setState({ tool: null });
     app.workspace.completeHistory.historyIndex = 0;
@@ -27,7 +27,9 @@ export class CompleteHistoryManager {
       {
         ...app.fullHistory,
         actionIndex: 0,
-        numberOfActions: app.workspace.completeHistory.steps.filter((step) => step.type == 'actions-executed').length,
+        numberOfActions: app.workspace.completeHistory.steps.filter((step) => {
+          return step.type == 'add-fullstep'
+        }).length,
       }
     });
   }
@@ -35,11 +37,8 @@ export class CompleteHistoryManager {
   static stopBrowsing() {
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
     window.dispatchEvent(new CustomEvent('browsing-finished'));
-    CompleteHistoryManager.moveTo(
-      app.workspace.completeHistory.steps.filter(
-        (step) => step.type == 'actions-executed',
-      ).length,
-    );
+    console.log(app.fullHistory.numberOfActions);
+    CompleteHistoryManager.moveTo(app.fullHistory.numberOfActions);
     app.workspace.history.initFromObject(CompleteHistoryManager.saveHistory);
     setState({ tool: null });
     CompleteHistoryManager.isRunning = false;
@@ -57,7 +56,7 @@ export class CompleteHistoryManager {
   }
 
   static setWorkspaceToStartSituation() {
-    setState({ workspaceSettings: {...app.workspace.history.startWorkspaceSettings} });
+    setState({ settings: {...app.workspace.history.startSettings} });
     app.workspace.initFromObject(app.workspace.history.startSituation, true);
 
     app.workspace.history = new History();
@@ -65,17 +64,22 @@ export class CompleteHistoryManager {
 
   static moveTo(idx) {
     // window.clearTimeout(app.workspace.completeHistory.timeoutId);
-    let data = CompleteHistoryManager.saveHistory.data[idx - 1];
-    app.workspace.initFromObject(data, true);
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    console.log()
+
     app.workspace.completeHistory.historyIndex = app.workspace.completeHistory.steps.findIndex(
       (step) => step.detail && step.detail.actionIndex == idx - 1,
-    ); // à changer avec tableau de correspondance history_idx -> complete_history_idx ?
+    );
 
     if (app.workspace.completeHistory.historyIndex == -1) {
       app.workspace.completeHistory.historyIndex = 0;
     }
+
+    console.log(app.workspace.completeHistory.historyIndex, app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex]);
+
+    let data = app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex].data;
+    app.workspace.initFromObject({...data}, true);
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
 
     setState({ fullHistory: { ...app.fullHistory, actionIndex: idx - 1 } });
   }
@@ -106,7 +110,7 @@ export class CompleteHistoryManager {
       detail.mousePos = new Coordinates(detail.mousePos);
     }
 
-    if (type == 'actions-executed') {
+    if (type == 'add-fullstep') {
       if (detail.name == 'Retourner') {
         CompleteHistoryManager.nextTime = 2 * 1000;
       } else if (detail.name == 'Diviser') {
@@ -122,8 +126,8 @@ export class CompleteHistoryManager {
       if (['divide', 'opacity', 'grid'].includes(app.tool.name) && app.tool.currentStep == 'start') {
         window.dispatchEvent(new CustomEvent('close-popup'));
       }
-    } else if (type == 'workspaceSettings-changed') {
-      setState({ workspaceSettings: {...detail} });
+    } else if (type == 'settings-changed') {
+      setState({ settings: {...detail} });
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
@@ -148,9 +152,9 @@ export class CompleteHistoryManager {
     if (CompleteHistoryManager.isRunning) return;
     let detail = { ...event.detail };
     if (type == 'objectSelected') detail.object = undefined;
-    if (type == 'actions-executed') {
+    if (type == 'add-fullstep') {
       detail.actionIndex = app.workspace.completeHistory.steps.filter((step) => {
-        return step.type == 'actions-executed';
+        return step.type == 'add-fullstep';
       }).length;
       // detail.actions = HistoryManager.transformToObjects(detail.actions);
     }
@@ -221,7 +225,11 @@ window.addEventListener('mouse-coordinates-changed', (event) =>
 );
 
 window.addEventListener('actions-executed', (event) =>
-  CompleteHistoryManager.addStep('actions-executed', event),
+  window.dispatchEvent(
+    new CustomEvent('add-fullstep', {
+      detail: { name: event.detail.name },
+    }),
+  )
 );
 
 // tangram
@@ -234,11 +242,12 @@ window.addEventListener('create-silhouette', (event) =>
 );
 
 // undo - redo
-window.addEventListener('undo-action', (event) =>
-  CompleteHistoryManager.addStep('undo-action', event),
+window.addEventListener('undo', (event) =>
+  CompleteHistoryManager.addStep('undo', event),
 );
-window.addEventListener('redo-action', (event) =>
-  CompleteHistoryManager.addStep('redo-action', event),
+window.addEventListener('redo', (event) => {
+  CompleteHistoryManager.addStep('redo', event)
+}
 );
 
 // window.addEventListener('close-popup', (event) =>
@@ -248,8 +257,12 @@ window.addEventListener('redo-action', (event) =>
 window.addEventListener('tool-changed', () => {
   CompleteHistoryManager.addStep('tool-changed', { detail: app.tool });
 });
-window.addEventListener('workspaceSettings-changed', () => {
-  CompleteHistoryManager.addStep('workspaceSettings-changed', { detail: app.workspaceSettings });
+window.addEventListener('settings-changed', () => {
+  CompleteHistoryManager.addStep('settings-changed', { detail: app.settings });
+});
+
+window.addEventListener('add-fullstep', event => {
+  CompleteHistoryManager.addStep('add-fullstep', event);
 });
 
 window.addEventListener('start-browsing', () => {

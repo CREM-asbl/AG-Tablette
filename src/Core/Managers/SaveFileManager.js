@@ -197,7 +197,7 @@ export class SaveFileManager {
 
   static saveState(handle, detail) {
     let wsdata = app.workspace.data,
-      appSettings = app.settings.saveToObject();
+      settings = {...app.settings};
 
     SaveFileManager.saveHistory = detail.saveHistory;
     SaveFileManager.saveSettings = detail.saveSettings;
@@ -206,7 +206,6 @@ export class SaveFileManager {
     if (!detail.saveHistory) wsdata.completeHistory = undefined;
 
     if (!detail.saveSettings) appSettings = undefined;
-    if (!detail.saveSettings) wsdata.settings = undefined;
 
     let silhouetteData;
     if (app.environment.name == 'Tangram' && app.silhouette)
@@ -216,7 +215,7 @@ export class SaveFileManager {
         appVersion: app.version,
         envName: app.environment.name,
         wsdata,
-        appSettings,
+        settings,
         silhouetteData,
       },
       json_data = JSON.stringify(saveObject);

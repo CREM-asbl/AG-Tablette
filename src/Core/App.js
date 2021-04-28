@@ -1,4 +1,3 @@
-import { Settings } from './Settings';
 import { uniqId } from './Tools/general';
 
 window.dev_mode = location.hostname === 'localhost';
@@ -8,10 +7,6 @@ window.dev_mode = location.hostname === 'localhost';
  */
 export class App {
   constructor() {
-    //Paramètres de l'application
-    this.settings = new Settings();
-    this.initSettings();
-
     this.canvasWidth = null;
     this.canvasHeight = null;
 
@@ -21,15 +16,29 @@ export class App {
     // Les outils possibles
     this.tools = [];
 
-    this.workspaceSettings = {
-      numberOfDivisionParts: 2,
-      shapeFillColor: '#000000',
-      shapeBorderColor: '#000000',
-      shapeOpacity: 0.7,
-      gridShown: false,
-      gridType: 'Aucune',
-      gridSize: 1,
-    };
+    this.settings = {
+      'magnetismDistance': 10,
+      'selectionDistance': 20,
+      'precision': 1.5,
+      'maxZoomLevel': 10,
+      'minZoomLevel': 0.1,
+      'mainMenuWidth': 250,
+      'constraintsDrawColor': '#080',
+      'temporaryDrawColor': '#E90CC8',
+
+      'automaticAdjustment': true,
+      'areShapesPointed': true,
+      'shapesSize': 2,
+      'numberOfDivisionParts': 2,
+      'shapeFillColor': '#000000',
+      'shapeBorderColor': '#000000',
+      'shapeOpacity': 0.7,
+      'gridShown': false,
+      'gridType': 'none',
+      'gridSize': 1,
+    }
+
+    this.defaultSettings = {...this.settings};
 
     this.fullHistory = {
       actionIndex: 0,
@@ -38,62 +47,6 @@ export class App {
 
     // compteur d'écouteurs pour certains event
     this.listenerCounter = {};
-  }
-
-  /* #################################################################### */
-  /* ########################## INIT FUNCTIONS ########################## */
-  /* #################################################################### */
-
-  /**
-   * Initialiser les paramètres de l'application
-   */
-  initSettings() {
-    this.initNonEditableSettings();
-    this.initEditableSettings();
-  }
-
-  initNonEditableSettings() {
-    /**
-     * Distance en dessous de laquelle 2 points se collent l'un à l'autre (quand on ajoute une forme par exemple)
-     */
-    this.settings.set('magnetismDistance', 10);
-
-    /**
-     * Distance maximale entre les coordonnées du clic et un élément, pour
-     * qu'il puisse être sélectionné.
-     */
-    this.settings.set('selectionDistance', 20);
-
-    /**
-     * La précision, en pixels. (2 points à moins de 'precision' pixels de distance sont considérés comme étant au même endroit )
-     */
-    this.settings.set('precision', 1.5);
-
-    // Niveau de zoom maximal de l'interface
-    this.settings.set('maxZoomLevel', 10);
-
-    // Niveau de zoom minimal de l'interface
-    this.settings.set('minZoomLevel', 0.1);
-
-    // Largeur du menu de gauche de l'application
-    this.settings.set('mainMenuWidth', 250);
-
-    // Couleur de dessin des contraintes
-    this.settings.set('constraintsDrawColor', '#080');
-
-    // Couleur de dessin des formes temporaires (Géométrie)
-    this.settings.set('temporaryDrawColor', '#E90CC8');
-  }
-
-  initEditableSettings() {
-    // Ajustement automatique des formes activé ?
-    this.settings.set('automaticAdjustment', true);
-
-    // true si les formes ajoutées à l'avenir auront leurs sommets visibles
-    this.settings.set('areShapesPointed', true);
-
-    // taille des formes qui seront ajoutées (1, 2 ou 3)
-    this.settings.set('shapesSize', 2);
   }
 
   addListener(listenerName, func) {
@@ -124,9 +77,9 @@ export class App {
   }
 
   resetSettings() {
-    this.initEditableSettings();
-    window.dispatchEvent(new CustomEvent('app-settings-changed'));
-    window.dispatchEvent(new CustomEvent('refresh'));
+    setState({ settings: {
+      ...app.defaultSettings
+    }});
   }
 
   start() {
@@ -139,10 +92,6 @@ export class App {
 
     window.dispatchEvent(new CustomEvent('app-started'));
   }
-
-  /* #################################################################### */
-  /* ############################## OTHER ############################### */
-  /* #################################################################### */
 
   refreshWindow() {
     window.dispatchEvent(new CustomEvent('setCanvasSize'));
@@ -186,8 +135,11 @@ export const setState = (update) => {
     }
     window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
   }
-  if ('workspaceSettings' in update) {
-    window.dispatchEvent(new CustomEvent('workspaceSettings-changed', { detail: app }));
+  if ('settings' in update) {
+    window.dispatchEvent(new CustomEvent('settings-changed', { detail: app }));
+  }
+  if ('settings' in update) {
+    window.dispatchEvent(new CustomEvent('appSettings-changed', { detail: app }));
   }
   if ('fullHistory' in update) {
     window.dispatchEvent(new CustomEvent('fullHistory-changed', { detail: app }));

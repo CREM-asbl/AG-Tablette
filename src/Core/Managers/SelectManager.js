@@ -15,7 +15,7 @@ export class SelectManager {
   static areCoordinatesInSelectionDistance(c1, c2) {
     let areInSelectionDistance = c1.equal(
       c2,
-      app.settings.get('selectionDistance'),
+      app.settings.selectionDistance,
     );
     return areInSelectionDistance;
   }
@@ -28,7 +28,7 @@ export class SelectManager {
   static areCoordinatesInMagnetismDistance(c1, c2) {
     let areInMagnetismDistance = c1.equal(
       c2,
-      app.settings.get('magnetismDistance'),
+      app.settings.magnetismDistance,
     );
     return areInMagnetismDistance;
   }

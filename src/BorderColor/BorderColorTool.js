@@ -69,7 +69,7 @@ export class BorderColorTool extends Tool {
 
    _executeAction() {
     this.involvedShapes.forEach((s) => {
-      s.borderColor = app.workspaceSettings.shapeBorderColor;
+      s.borderColor = app.settings.shapeBorderColor;
     });
   }
 }

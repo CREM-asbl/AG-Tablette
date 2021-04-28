@@ -88,7 +88,7 @@ export class CreateIrregularTool extends Tool {
       new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
         coordinates: newCoordinates,
-        color: app.settings.get('temporaryDrawColor'),
+        color: app.settings.temporaryDrawColor,
         size: 2,
       }),
     );
@@ -104,7 +104,7 @@ export class CreateIrregularTool extends Tool {
         drawingEnvironment: app.upperDrawingEnvironment,
         segmentIds: [seg.id],
         pointIds: seg.vertexIds,
-        borderColor: app.settings.get('temporaryDrawColor'),
+        borderColor: app.settings.temporaryDrawColor,
       });
     }
     app.removeListener('canvasMouseDown', this.mouseDownId);

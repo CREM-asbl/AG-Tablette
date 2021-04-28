@@ -325,7 +325,7 @@ export class DivideTool extends Tool {
         'segment',
       );
     }
-    this.numberOfParts = app.workspaceSettings.numberOfDivisionParts;
+    this.numberOfParts = app.settings.numberOfDivisionParts;
     if (this.mode == 'segment') {
       if (this.segment.arcCenter) this.segmentModeAddArcPoints();
       else this.segmentModeAddSegPoints();

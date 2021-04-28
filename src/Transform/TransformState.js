@@ -187,7 +187,7 @@ export class TransformTool extends Tool {
             new CustomEvent('draw-point', {
               detail: {
                 point: pt,
-                color: app.settings.get('constraintsDrawColor'),
+                color: app.settings.constraintsDrawColor,
                 size: 2,
               },
             }),
@@ -199,7 +199,7 @@ export class TransformTool extends Tool {
 
       let shapeCopy = new Shape({
         ...this.pointSelected.shape,
-        borderColor: app.settings.get('temporaryDrawColor'),
+        borderColor: app.settings.temporaryDrawColor,
       });
 
       shapeCopy.applyTransform(this.pointSelected, this.pointDest);
@@ -216,7 +216,7 @@ export class TransformTool extends Tool {
             detail: {
               point: pt,
               size: 2,
-              color: app.settings.get('temporaryDrawColor'),
+              color: app.settings.temporaryDrawColor,
             },
           }),
         );

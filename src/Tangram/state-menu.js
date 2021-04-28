@@ -31,7 +31,7 @@ class StateMenu extends LitElement {
         max-width: calc(100% - 230px);
         overflow-y: auto;
         max-height: 30%;
-        left: ${app.settings.get('mainMenuWidth') + 5}px;
+        left: ${app.settings.mainMenuWidth + 5}px;
       }
 
       div#state-menu-buttons-list > button {

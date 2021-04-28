@@ -120,7 +120,7 @@ export class CreateRegularTool extends Tool {
       this.firstPoint = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
         coordinates: newCoordinates,
-        color: app.settings.get('temporaryDrawColor'),
+        color: app.settings.temporaryDrawColor,
         size: 2,
       });
       app.removeListener('canvasMouseDown', this.mouseDownId);
@@ -131,7 +131,7 @@ export class CreateRegularTool extends Tool {
       this.secondPoint = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
         coordinates: newCoordinates,
-        color: app.settings.get('temporaryDrawColor'),
+        color: app.settings.temporaryDrawColor,
         size: 2,
       });
       this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
@@ -205,7 +205,7 @@ export class CreateRegularTool extends Tool {
       this.shapeDrawnId = new Shape({
         path: path,
         drawingEnvironment: app.upperDrawingEnvironment,
-        borderColor: app.settings.get('temporaryDrawColor'),
+        borderColor: app.settings.temporaryDrawColor,
       }).id;
     }
   }

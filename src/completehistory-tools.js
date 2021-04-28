@@ -13,7 +13,7 @@ class completeHistoryTools extends LitElement {
   constructor() {
     super();
     this.sidebarElements = app.workspace.completeHistory.steps
-      .filter((step) => step.type == 'actions-executed')
+      .filter((step) => step.type == 'add-fullstep')
       .map((step) => {
         return { name: step.detail.name };
       });

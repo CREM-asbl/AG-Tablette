@@ -185,7 +185,7 @@ export class CreateLineTool extends Tool {
     new Shape({
       drawingEnvironment: app.upperDrawingEnvironment,
       path: segment.getSVGPath('scale', undefined, true),
-      borderColor: app.settings.get('constraintsDrawColor'),
+      borderColor: app.settings.constraintsDrawColor,
       borderSize: 2,
     });
 
@@ -206,7 +206,7 @@ export class CreateLineTool extends Tool {
       this.points[this.numberOfPointsDrawn] = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
         coordinates: newCoordinates,
-        color: app.settings.get('temporaryDrawColor'),
+        color: app.settings.temporaryDrawColor,
         size: 2,
       });
       this.numberOfPointsDrawn++;
@@ -227,7 +227,7 @@ export class CreateLineTool extends Tool {
           drawingEnvironment: app.upperDrawingEnvironment,
           segmentIds: this.segments.map((seg) => seg.id),
           pointIds: this.points.map((pt) => pt.id),
-          borderColor: app.settings.get('temporaryDrawColor'),
+          borderColor: app.settings.temporaryDrawColor,
         });
         this.segments.forEach((seg, idx) => {
           seg.idx = idx;
@@ -345,7 +345,7 @@ export class CreateLineTool extends Tool {
       this.points[1] = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
         coordinates: newCoordinates,
-        color: app.settings.get('temporaryDrawColor'),
+        color: app.settings.temporaryDrawColor,
         size: 2,
         visible: false,
       });

@@ -99,7 +99,7 @@ export class CreateTool extends Tool {
       ...selectedTemplate,
       drawingEnvironment: app.upperDrawingEnvironment,
     });
-    let shapeSize = app.settings.get('shapesSize');
+    let shapeSize = app.settings.shapesSize;
 
     this.shapeToCreate.size = shapeSize;
     this.shapeToCreate.scale(shapeSize);
@@ -129,7 +129,7 @@ export class CreateTool extends Tool {
   }
 
    _executeAction() {
-    const shapeSize = app.settings.get('shapesSize'),
+    const shapeSize = app.settings.shapesSize,
       shapeCoordinates = app.workspace.lastKnownMouseCoordinates;
 
     const selectedTemplate = app.environment

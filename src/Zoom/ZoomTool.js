@@ -71,8 +71,8 @@ export class ZoomTool extends Tool {
     let scaleOffset =
         this.getDistanceFromScreenCenter(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
       originalZoom = app.workspace.zoomLevel,
-      minZoom = app.settings.get('minZoomLevel'),
-      maxZoom = app.settings.get('maxZoomLevel');
+      minZoom = app.settings.minZoomLevel,
+      maxZoom = app.settings.maxZoomLevel;
     if (scaleOffset * originalZoom > maxZoom) {
       // -> scaleOffset * originalZoom = maxZoom
       scaleOffset = maxZoom / originalZoom - 0.001;
@@ -108,8 +108,8 @@ export class ZoomTool extends Tool {
     this.originalTranslateOffset = app.workspace.translateOffset;
     this.centerProp = new Coordinates({ x: 0.5, y: 0.5 });
 
-    const minZoom = app.settings.get('minZoomLevel'),
-      maxZoom = app.settings.get('maxZoomLevel');
+    const minZoom = app.settings.minZoomLevel,
+      maxZoom = app.settings.maxZoomLevel;
     if (this.scaleOffset * this.originalZoom > maxZoom) {
       // -> scaleOffset * originalZoom = maxZoom
       this.scaleOffset = maxZoom / this.originalZoom - 0.001;
