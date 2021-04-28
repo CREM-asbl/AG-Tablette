@@ -73,14 +73,12 @@ class completeHistoryTools extends LitElement {
       case 'action-button':
         let idx = event.target.id.substring(1);
         CompleteHistoryManager.moveTo(idx);
-        this.index = idx;
         break;
       case 'undo':
         if (this.index == 0) {
           break;
         }
-        this.index--;
-        CompleteHistoryManager.moveTo(this.index);
+        CompleteHistoryManager.moveTo(this.index - 1);
         break;
       case 'stop':
         CompleteHistoryManager.stopBrowsing();
@@ -97,8 +95,7 @@ class completeHistoryTools extends LitElement {
         if (this.index >= app.fullHistory.numberOfActions - 1) {
           break;
         }
-        this.index++;
-        CompleteHistoryManager.moveTo(this.index);
+        CompleteHistoryManager.moveTo(this.index + 1);
         break;
     }
   }

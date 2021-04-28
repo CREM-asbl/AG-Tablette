@@ -69,19 +69,21 @@ export class CompleteHistoryManager {
     // window.clearTimeout(app.workspace.completeHistory.timeoutId);
 
     app.workspace.completeHistory.historyIndex = app.workspace.completeHistory.steps.findIndex(
-      (step) => step.detail && step.detail.actionIndex == idx - 1,
+      (step) => step.detail?.actionIndex === idx - 1,
     );
 
-    if (app.workspace.completeHistory.historyIndex == -1) {
-      app.workspace.completeHistory.historyIndex = 0;
+    let data = app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex]?.detail.data;
+    if (data) {
+      app.workspace.initFromObject({...data}, true);
+    } else {
+      CompleteHistoryManager.setWorkspaceToStartSituation();
     }
-
-    let data = app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex].data;
-    app.workspace.initFromObject({...data}, true);
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
 
-    setState({ fullHistory: { ...app.fullHistory, actionIndex: idx - 1 } });
+    app.workspace.completeHistory.historyIndex++;
+
+    setState({ fullHistory: { ...app.fullHistory, actionIndex: idx } });
   }
 
   static executeAllSteps() {
@@ -118,6 +120,7 @@ export class CompleteHistoryManager {
       } else if (detail.name == 'Découper') {
         CompleteHistoryManager.nextTime = 0.5 * 1000;
       }
+      console.log('add-fullstep actionIndex', app.fullHistory.actionIndex + 1);
       setState({ fullHistory: { ...app.fullHistory, actionIndex: app.fullHistory.actionIndex + 1 } });
       if (app.fullHistory.numberOfActions == app.fullHistory.actionIndex)
         setTimeout(() => CompleteHistoryManager.stopBrowsing(), CompleteHistoryManager.nextTime);
@@ -156,7 +159,11 @@ export class CompleteHistoryManager {
       detail.actionIndex = app.workspace.completeHistory.steps.filter((step) => {
         return step.type == 'add-fullstep';
       }).length;
-      // detail.actions = HistoryManager.transformToObjects(detail.actions);
+      let data = app.workspace.data;
+      data.history = undefined;
+      data.completeHistory = undefined;
+      data.settings = {...app.settings};
+      detail.data = data;
     }
     app.workspace.completeHistory.addStep(type, detail);
   }
