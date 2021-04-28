@@ -39,7 +39,6 @@ class GridPopup extends LitElement {
   }
 
   render() {
-    console.log(this.gridType);
     return html`
       <template-popup>
         <h2 slot="title">Grille</h2>

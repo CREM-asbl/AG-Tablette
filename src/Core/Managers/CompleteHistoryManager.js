@@ -9,6 +9,13 @@ import { Coordinates } from '../Objects/Coordinates';
  */
 export class CompleteHistoryManager {
   static startBrowsing() {
+    let numberOfActions = app.workspace.completeHistory.steps.filter((step) => {
+      return step.type == 'add-fullstep'
+    }).length;
+    if (numberOfActions == 0) {
+      window.dispatchEvent(new CustomEvent('show-notif', {detail: {message: 'L\'historique est vide.'}}));
+      return;
+    }
     CompleteHistoryManager.isRunning = true;
     import('../../completehistory-tools');
     createElem('completehistory-tools');
@@ -22,14 +29,11 @@ export class CompleteHistoryManager {
     CompleteHistoryManager.executeAllSteps();
     CompleteHistoryManager.nextTime = 0;
 
-    // index de la derniere action effectuée
     setState({ fullHistory:
       {
         ...app.fullHistory,
         actionIndex: 0,
-        numberOfActions: app.workspace.completeHistory.steps.filter((step) => {
-          return step.type == 'add-fullstep'
-        }).length,
+        numberOfActions: numberOfActions,
       }
     });
   }
@@ -37,7 +41,6 @@ export class CompleteHistoryManager {
   static stopBrowsing() {
     window.clearTimeout(app.workspace.completeHistory.timeoutId);
     window.dispatchEvent(new CustomEvent('browsing-finished'));
-    console.log(app.fullHistory.numberOfActions);
     CompleteHistoryManager.moveTo(app.fullHistory.numberOfActions);
     app.workspace.history.initFromObject(CompleteHistoryManager.saveHistory);
     setState({ tool: null });
@@ -64,7 +67,6 @@ export class CompleteHistoryManager {
 
   static moveTo(idx) {
     // window.clearTimeout(app.workspace.completeHistory.timeoutId);
-    console.log()
 
     app.workspace.completeHistory.historyIndex = app.workspace.completeHistory.steps.findIndex(
       (step) => step.detail && step.detail.actionIndex == idx - 1,
@@ -73,8 +75,6 @@ export class CompleteHistoryManager {
     if (app.workspace.completeHistory.historyIndex == -1) {
       app.workspace.completeHistory.historyIndex = 0;
     }
-
-    console.log(app.workspace.completeHistory.historyIndex, app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex]);
 
     let data = app.workspace.completeHistory.steps[app.workspace.completeHistory.historyIndex].data;
     app.workspace.initFromObject({...data}, true);
