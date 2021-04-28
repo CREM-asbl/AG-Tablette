@@ -51,7 +51,7 @@ export class DeleteTool extends Tool {
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.points.canSelect = true;
-    app.workspace.selectionConstraints.points.types = ['divisionPoint'];
+    app.workspace.selectionConstraints.points.types = ['divisionPoint', 'vertex'];
   }
 
   /**
@@ -65,8 +65,15 @@ export class DeleteTool extends Tool {
       this.userGroup = GroupManager.getShapeGroup(object);
     } else {
       // point
-      this.mode = 'point';
-      this.point = object;
+      if (object.type == 'divisionPoint') {
+        this.point = object;
+        this.mode = 'divisionPoint';
+      } else {
+        if (object.shape.isCircle()) {
+          this.point = object;
+          this.mode = 'vertex';
+        }
+      }
     }
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
@@ -82,10 +89,13 @@ export class DeleteTool extends Tool {
       if (this.userGroup) {
         GroupManager.deleteGroup(this.userGroup);
       }
-    } else {
+    } else if (this.mode == 'divisionPoint') {
       // point
       let segment = this.point.segments[0];
       segment.deletePoint(this.point);
+    } else if (this.mode == 'vertex') {
+      // point
+      this.point.visible = false;
     }
   }
 }

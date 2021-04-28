@@ -5,7 +5,7 @@ import { createElem } from '../Core/Tools/general';
 import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
