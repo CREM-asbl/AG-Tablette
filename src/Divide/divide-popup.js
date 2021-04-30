@@ -14,8 +14,15 @@ class DividePopup extends LitElement {
       once: true,
     });
 
-    this.parts = app.settings.numberOfDivisionParts;
-    window.addEventListener('state-changed', () => this.parts = app.settings.numberOfDivisionParts);
+    this.updateProperties = () => {
+      this.parts = app.settings.numberOfDivisionParts;
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      this.updateProperties();
+    }
+    window.addEventListener('settings-changed', this.eventHandler);
   }
 
   static get properties() {
@@ -67,6 +74,7 @@ class DividePopup extends LitElement {
 
   close() {
     this.remove();
+    window.removeEventListener('settings-changed', this.eventHandler);
   }
 
   submitAndClose() {

@@ -13,23 +13,27 @@ class ShapesList extends LitElement {
   constructor() {
     super();
 
-    this.selectedFamily = app.tool.selectedFamily;
-    this.templateNames = app.environment.getFamily(
-      app.tool.selectedFamily,
-    ).templateNames;
-    this.selectedTemplate = app.tool.selectedTemplate;
+    this.updateProperties = () => {
+      this.selectedFamily = app.tool.selectedFamily;
+      this.templateNames = app.environment.getFamily(
+        app.tool.selectedFamily,
+      ).templateNames;
+      this.selectedTemplate = app.tool.selectedTemplate;
+    };
+    this.updateProperties();
 
-    window.addEventListener('tool-changed', () => {
-      if (app.tool?.name == 'create') {
-        this.selectedFamily = app.tool.selectedFamily;
-        this.templateNames = app.environment.getFamily(
-          app.tool.selectedFamily,
-        ).templateNames;
-        this.selectedTemplate = app.tool.selectedTemplate;
-      } else {
-        this.remove();
-      }
-    });
+    this.eventHandler = () => {
+      if (app.tool?.name == 'create')
+        this.updateProperties();
+      else
+        this.close();
+    }
+    this.close = () => {
+      this.remove();
+      window.removeEventListener('tool-changed', this.eventHandler);
+    }
+
+    window.addEventListener('tool-changed', this.eventHandler);
   }
 
   static get styles() {

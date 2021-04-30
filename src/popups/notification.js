@@ -89,17 +89,6 @@ export class Notification extends LitElement {
 
   close() {
     this.closeAnimation(256);
-    let i = 250;
-    this.intervalId = window.setInterval(() => {
-      i -= 250 / 10;
-      this.style.backgroundColor =
-        this.backgroundColor + i.toString(16).padStart(2, '0');
-      this.style.color = this.fontColor + i.toString(16);
-      if (i == 0) {
-        window.clearInterval(this.intervalId);
-        this.style.display = 'none';
-      }
-    }, 10);
   }
 
   closeAnimation(opacity) {
@@ -110,7 +99,7 @@ export class Notification extends LitElement {
       this.style.display = 'none';
       return;
     }
-    opacity -= 256 / 16;
+    opacity -= 256 / 8;
     this.closeAnimFrameId = window.requestAnimationFrame(() =>
       this.closeAnimation(opacity),
     );

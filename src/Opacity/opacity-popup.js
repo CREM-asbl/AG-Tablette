@@ -6,15 +6,23 @@ class OpacityPopup extends LitElement {
   constructor() {
     super();
 
-    this.opacity = app.settings.shapeOpacity;
-    window.addEventListener('state-changed', () => this.opacity = app.settings.shapeOpacity);
-
     window.addEventListener('close-popup', () => {
       this.submitAndClose();
     },
     {
       once: true,
     });
+
+    this.updateProperties = () => {
+      this.opacity = app.settings.shapeOpacity;
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      this.updateProperties();
+    }
+    window.addEventListener('settings-changed', this.eventHandler);
+
   }
 
   static get properties() {
@@ -69,6 +77,7 @@ class OpacityPopup extends LitElement {
 
   close() {
     this.remove();
+    window.removeEventListener('settings-changed', this.eventHandler);
   }
 
   submitAndClose() {

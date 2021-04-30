@@ -20,8 +20,6 @@ export class FullHistoryManager {
     // if called when already running
     window.clearTimeout(app.fullHistory.timeoutId);
 
-    FullHistoryManager.saveHistory = {...app.history};
-    FullHistoryManager.setWorkspaceToStartSituation();
     setState({
       tool: null,
       fullHistory: {
@@ -32,14 +30,15 @@ export class FullHistoryManager {
         isRunning: true,
       }
     });
+    FullHistoryManager.saveHistory = {...app.history};
+    FullHistoryManager.setWorkspaceToStartSituation();
 
-    FullHistoryManager.executeAllSteps();
     FullHistoryManager.nextTime = 0;
+    FullHistoryManager.executeAllSteps();
   }
 
   static stopBrowsing() {
     window.clearTimeout(app.fullHistory.timeoutId);
-    window.dispatchEvent(new CustomEvent('browsing-finished'));
     FullHistoryManager.moveTo(app.fullHistory.numberOfActions);
     setState({
       tool: null,
@@ -80,17 +79,14 @@ export class FullHistoryManager {
       (step) => step.detail?.actionIndex === actionIndex - 1,
     );
 
-    console.log(actionIndex, index, app.fullHistory.steps[index])
-
     let data = app.fullHistory.steps[index]?.detail.data;
     if (data) {
       app.workspace.initFromObject({...data});
     } else {
       FullHistoryManager.setWorkspaceToStartSituation();
     }
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
 
+    // not to re-execute fullStep
     index++;
     setState({ fullHistory: { ...app.fullHistory, actionIndex, index } });
   }

@@ -5,24 +5,25 @@ import { TemplatePopup } from '../popups/template-popup';
 class GridPopup extends LitElement {
   constructor() {
     super();
-    this.gridType = app.settings.gridType;
-    this.gridSize = app.settings.gridSize;
-    this.gridShown = app.settings.gridType !== 'none';
-    window.addEventListener(
-      'close-popup',
-      () => {
-        this.submitAndClose();
-      },
-      {
-        once: true,
-      },
-    );
 
-    window.addEventListener('settings-changed', () => {
+    window.addEventListener('close-popup', () => {
+      this.submitAndClose();
+    },
+    {
+      once: true,
+    });
+
+    this.updateProperties = () => {
       this.gridType = app.settings.gridType;
       this.gridSize = app.settings.gridSize;
       this.gridShown = app.settings.gridType !== 'none';
-    });
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      this.updateProperties();
+    }
+    window.addEventListener('settings-changed', this.eventHandler);
   }
 
   static get properties() {
@@ -119,6 +120,7 @@ class GridPopup extends LitElement {
 
   close() {
     this.remove();
+    window.removeEventListener('settings-changed', this.eventHandler);
   }
 
   submitAndClose() {

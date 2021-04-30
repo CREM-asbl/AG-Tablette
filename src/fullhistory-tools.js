@@ -19,11 +19,17 @@ class FullHistoryTools extends LitElement {
       });
     this.index = 0;
 
-    window.addEventListener('browsing-finished', () => this.close());
-
-    window.addEventListener('fullHistory-changed', () => {
-      this.index = app.fullHistory.actionIndex;
-    });
+    this.eventHandler = () => {
+      if (app.fullHistory.isRunning)
+        this.index = app.fullHistory.actionIndex;
+      else
+        this.close();
+    };
+    this.close = () => {
+      this.remove();
+      window.removeEventListener('fullHistory-changed', this.eventHandler);
+    };
+    window.addEventListener('fullHistory-changed', this.eventHandler);
   }
 
   static get styles() {
@@ -68,17 +74,18 @@ class FullHistoryTools extends LitElement {
     `;
   }
 
-  _clickHandle(event) {
+  _clickHandler(event) {
+    let index = parseInt(this.index);
     switch (event.target.name) {
       case 'action-button':
-        let idx = event.target.id.substring(1);
+        let idx = parseInt(event.target.id);
         FullHistoryManager.moveTo(idx);
         break;
       case 'undo':
-        if (this.index == 0) {
+        if (index == 0) {
           break;
         }
-        FullHistoryManager.moveTo(this.index - 1);
+        FullHistoryManager.moveTo(index - 1);
         break;
       case 'stop':
         FullHistoryManager.stopBrowsing();
@@ -92,10 +99,10 @@ class FullHistoryTools extends LitElement {
         event.target.name = 'pause';
         break;
       case 'redo':
-        if (this.index >= app.fullHistory.numberOfActions - 1) {
+        if (index >= app.fullHistory.numberOfActions - 1) {
           break;
         }
-        FullHistoryManager.moveTo(this.index + 1);
+        FullHistoryManager.moveTo(index + 1);
         break;
     }
   }
@@ -115,22 +122,22 @@ class FullHistoryTools extends LitElement {
           <icon-button
             name="undo"
             title="étape précédente"
-            @click="${this._clickHandle}"
+            @click="${this._clickHandler}"
           ></icon-button>
           <icon-button
             name="stop"
             title="arrêter"
-            @click="${this._clickHandle}"
+            @click="${this._clickHandler}"
           ></icon-button>
           <icon-button
             name="pause"
             title="pause"
-            @click="${this._clickHandle}"
+            @click="${this._clickHandler}"
           ></icon-button>
           <icon-button
             name="redo"
             title="étape suivante"
-            @click="${this._clickHandle}"
+            @click="${this._clickHandler}"
           ></icon-button>
         </div>
         <div id="action-container">
@@ -139,7 +146,7 @@ class FullHistoryTools extends LitElement {
               <button
                 id="b${idx}"
                 idx="${idx}"
-                @click="${this._clickHandle}"
+                @click="${this._clickHandler}"
                 name="action-button"
               >
                 ${elem.name}
@@ -149,10 +156,6 @@ class FullHistoryTools extends LitElement {
         </div>
       </nav>
     `;
-  }
-
-  close() {
-    this.remove();
   }
 }
 customElements.define('fullhistory-tools', FullHistoryTools);
