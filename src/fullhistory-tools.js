@@ -78,7 +78,7 @@ class FullHistoryTools extends LitElement {
     let index = parseInt(this.index);
     switch (event.target.name) {
       case 'action-button':
-        let idx = parseInt(event.target.id);
+        let idx = parseInt(event.target.id.substring(1));
         FullHistoryManager.moveTo(idx);
         break;
       case 'undo':
@@ -145,7 +145,6 @@ class FullHistoryTools extends LitElement {
             return html`
               <button
                 id="b${idx}"
-                idx="${idx}"
                 @click="${this._clickHandler}"
                 name="action-button"
               >

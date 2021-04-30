@@ -59,19 +59,24 @@ export class OpenFileManager {
 
     if (saveObject.settings) {
       setState({ settings: {...saveObject.settings}});
-    } else app.resetSettings();
+    } else {
+      app.resetSettings();
+    }
 
-    if (saveObject.fullHistory)
-    setState({ fullHistory: {...saveObject.fullHistory}});
+    if (saveObject.fullHistory) {
+      setState({ fullHistory: {...saveObject.fullHistory}});
+    } else {
+      setState({
+        fullHistory: {...app.defaultState.fullHistory},
+      });
+    }
 
     if (saveObject.history) {
       setState({ history: {...saveObject.history}});
     } else {
-      setState(
-        {
-          history: {...app.defaultState.history, startSituation: {...app.workspace.data}, startSettings: {...app.settings}},
-        }
-      );
+      setState({
+        history: {...app.defaultState.history, startSituation: {...app.workspace.data}, startSettings: {...app.settings}},
+      });
     }
 
     window.dispatchEvent(

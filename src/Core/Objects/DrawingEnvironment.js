@@ -1,10 +1,9 @@
 import { GridManager } from '../../Grid/GridManager';
-/**
- * Représente les bords (d'une figure ou d'un segment)
- */
 import { Shape } from './Shape';
 import { Segment } from './Segment';
 import { Point } from './Point';
+import { app } from '../App';
+
 export class DrawingEnvironment {
   /**
    *

@@ -45,6 +45,10 @@ class ToolbarKit extends LitElement {
                 title="${family}"
                 ?active="${family === this.selectedFamily}"
                 @click="${() => {
+                  if (app.fullHistory.isRunning) {
+                    console.warn('cannot interact when fullHisto is running');
+                    return;
+                  }
                   setState({
                     tool: {
                       name: 'create',

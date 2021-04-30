@@ -26,7 +26,7 @@ export class HistoryManager {
    */
   static undo() {
     if (!HistoryManager.canUndo()) {
-      console.error('Nothing to undo');
+      console.warn('Nothing to undo');
       return;
     }
     let index = app.history.index - 1;
@@ -37,7 +37,7 @@ export class HistoryManager {
     app.workspace.initFromObject(data);
     let settings;
     if (!data) {
-      settings = {...app.defaultSettings};
+      settings = {...app.settings, gridShown: app.settings.gridShown, gridType: app.settings.gridType, gridSize: app.settings.gridSize};
     } else {
       settings = {...app.settings, ...data.settings};
     }
@@ -51,7 +51,7 @@ export class HistoryManager {
    */
   static redo() {
     if (!HistoryManager.canRedo()) {
-      console.error('Nothing to redo');
+      console.warn('Nothing to redo');
       return;
     }
     let index = app.history.index + 1;

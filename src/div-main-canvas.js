@@ -1,4 +1,4 @@
-import { app } from './Core/App';
+import { app, setState } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
 import { SelectManager } from './Core/Managers/SelectManager';
 import { Coordinates } from './Core/Objects/Coordinates';
@@ -116,9 +116,6 @@ class DivMainCanvas extends LitElement {
     this.backgroundCanvas = this.shadowRoot.querySelector('#backgroundCanvas');
     this.invisibleCanvas = this.shadowRoot.querySelector('#invisibleCanvas');
 
-    window.app = app;
-    app.start();
-
     this.upperDrawingEnvironment = new DrawingEnvironment(this.upperCanvas);
     app.upperDrawingEnvironment = this.upperDrawingEnvironment;
     this.mainDrawingEnvironment = new DrawingEnvironment(this.mainCanvas);
@@ -132,8 +129,16 @@ class DivMainCanvas extends LitElement {
     );
     app.invisibleDrawingEnvironment = this.invisibleDrawingEnvironment;
 
-    window.addEventListener('setCanvasSize', () => this.setCanvasSize());
-    window.dispatchEvent(new CustomEvent('setCanvasSize'));
+    setState({started: true});
+
+    this.setCanvasSize();
+    window.onresize = () => {
+      this.setCanvasSize();
+    };
+    window.onorientationchange = () => {
+      this.setCanvasSize();
+    };
+    window.addEventListener('workspace-changed', () => this.setCanvasSize());
 
     window.addEventListener('mouse-coordinates-changed', (event) => {
       app.workspace.lastKnownMouseCoordinates = new Coordinates(

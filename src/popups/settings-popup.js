@@ -58,19 +58,6 @@ class SettingsPopup extends LitElement {
               />
               <label for="settings_automatic_adjustment">Ajustement automatique</label>
             </div>
-
-            <div class="field" style=${
-              app.environment.name == 'Tangram' ? 'display:none;' : ''
-            }>
-              <input
-                type="checkbox"
-                name="settings_shapes_pointed"
-                id="settings_shapes_pointed"
-                .checked="${this.settings.areShapesPointed}"
-                @change="${this._actionHandle}"
-              />
-              <label for="settings_shapes_pointed">Formes pointées</label>
-            </div>
           </fieldset>
 
           <br />
@@ -105,6 +92,19 @@ class SettingsPopup extends LitElement {
                   3
                 </option>
               </select>
+            </div>
+
+            <div class="field" style=${
+              app.environment.name == 'Tangram' ? 'display:none;' : ''
+            }>
+              <input
+                type="checkbox"
+                name="settings_shapes_pointed"
+                id="settings_shapes_pointed"
+                .checked="${this.settings.areShapesPointed}"
+                @change="${this._actionHandle}"
+              />
+              <label for="settings_shapes_pointed">Formes pointées</label>
             </div>
           </fieldset>
         </div>

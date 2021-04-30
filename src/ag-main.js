@@ -330,6 +330,10 @@ class AGTabletteApp extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
+    if (app.fullHistory.isRunning) {
+      console.warn('cannot interact when fullHisto is running');
+      return;
+    }
     let resetTool = false;
     let leaveConfirmationPopup;
     switch (event.target.name) {

@@ -54,6 +54,8 @@ export class App {
       isRunning: false,
     }
 
+    this.started = false;
+
     this.defaultState = {
       tool: null,
       settings: {...this.settings},
@@ -94,23 +96,15 @@ export class App {
 
   resetSettings() {
     setState({ settings: {
-      ...app.defaultState.settings
+      ...app.defaultState.settings,
+      gridShown: app.settings.gridShown,
+      gridType: app.settings.gridType,
+      gridSize: app.settings.gridSize,
     }});
   }
 
   start() {
-    window.onresize = () => {
-      this.refreshWindow();
-    };
-    window.onorientationchange = () => {
-      this.refreshWindow();
-    };
-
     window.dispatchEvent(new CustomEvent('app-started'));
-  }
-
-  refreshWindow() {
-    window.dispatchEvent(new CustomEvent('setCanvasSize'));
   }
 }
 
@@ -143,7 +137,12 @@ export const setState = (update) => {
   if ('history' in update) {
     window.dispatchEvent(new CustomEvent('history-changed', { detail: app }));
   }
-  window.dispatchEvent(new CustomEvent('refreshUpper'));
-  window.dispatchEvent(new CustomEvent('refresh'));
-  window.dispatchEvent(new CustomEvent('refreshBackground'));
+  if ('started' in update) {
+    window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
+  }
+  if (app.started) {
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
+  }
 };
