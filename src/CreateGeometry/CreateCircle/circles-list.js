@@ -59,7 +59,7 @@ class CirclesList extends LitElement {
 
       @media (min-width: 600px) {
         :host {
-          left: ${app.settings.get('mainMenuWidth')}px;
+          left: ${app.settings.mainMenuWidth}px;
         }
       }
     `;
@@ -71,7 +71,7 @@ class CirclesList extends LitElement {
         <h2>Circles</h2>
         <ul>
           ${this.circlesNames.map(
-            circleName => html`
+            (circleName) => html`
               <li>
                 <icon-button
                   title="${circleName}"
@@ -82,7 +82,7 @@ class CirclesList extends LitElement {
                 >
                 </icon-button>
               </li>
-            `
+            `,
           )}
         </ul>
       </div>
@@ -94,7 +94,7 @@ class CirclesList extends LitElement {
     window.dispatchEvent(
       new CustomEvent('circle-selected', {
         detail: { circleSelected: this.circleSelected },
-      })
+      }),
     );
   }
 }

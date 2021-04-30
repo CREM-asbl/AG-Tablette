@@ -3,14 +3,26 @@ import { createElem } from '../Tools/general';
 
 export class SaveFileManager {
   static async saveFile(actionAfter) {
-    window.removeEventListener('new-window', SaveFileManager.actionAfterNewWindow);
-    window.removeEventListener('open-file', SaveFileManager.actionAfterOpenFile);
+    window.removeEventListener(
+      'new-window',
+      SaveFileManager.actionAfterNewWindow,
+    );
+    window.removeEventListener(
+      'open-file',
+      SaveFileManager.actionAfterOpenFile,
+    );
     if (actionAfter == 'new') {
-      window.addEventListener('show-notif', SaveFileManager.actionAfterNewWindow
-      , {once: true});
+      window.addEventListener(
+        'show-notif',
+        SaveFileManager.actionAfterNewWindow,
+        { once: true },
+      );
     } else if (actionAfter == 'open') {
-      window.addEventListener('show-notif', SaveFileManager.actionAfterOpenFile
-      , {once: true});
+      window.addEventListener(
+        'show-notif',
+        SaveFileManager.actionAfterOpenFile,
+        { once: true },
+      );
     }
     if (SaveFileManager.hasNativeFS) {
       try {
@@ -66,7 +78,7 @@ export class SaveFileManager {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
             detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-          })
+          }),
         );
         break;
       case 'svg':
@@ -74,21 +86,21 @@ export class SaveFileManager {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
             detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-          })
+          }),
         );
         break;
       default:
         window.addEventListener(
           'file-selected',
-          event => {
+          (event) => {
             SaveFileManager.saveState(handle, { ...event.detail });
             window.dispatchEvent(
               new CustomEvent('show-notif', {
                 detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-              })
+              }),
             );
           },
-          { once: true }
+          { once: true },
         );
         import('../../popups/save-popup');
         createElem('save-popup');
@@ -98,7 +110,7 @@ export class SaveFileManager {
   static oldSaveFile() {
     window.addEventListener(
       'file-selected',
-      event => {
+      (event) => {
         if (event.detail.name === undefined) return;
         const handle = {
           ...event.detail,
@@ -117,7 +129,7 @@ export class SaveFileManager {
             SaveFileManager.saveState(handle, detail);
         }
       },
-      { once: true }
+      { once: true },
     );
     import('../../popups/save-popup');
     createElem('save-popup');
@@ -143,7 +155,7 @@ export class SaveFileManager {
       0,
       0,
       width,
-      height
+      height,
     );
     ctx.drawImage(app.mainDrawingEnvironment.ctx.canvas, 0, 0, width, height);
 
@@ -155,7 +167,7 @@ export class SaveFileManager {
 
     if (SaveFileManager.hasNativeFS) {
       // edge support for toBlob ?
-      canvas.toBlob(blob => {
+      canvas.toBlob((blob) => {
         SaveFileManager.newWriteFile(handle, blob);
       });
     } else {
@@ -176,7 +188,7 @@ export class SaveFileManager {
         /%([0-9A-F]{2})/g,
         function toSolidBytes(match, p1) {
           return String.fromCharCode('0x' + p1);
-        }
+        },
       );
       const encoded_data = 'data:image/svg+xml;base64,' + btoa(svg_data);
       SaveFileManager.downloadFile(handle.name, encoded_data);
@@ -185,27 +197,28 @@ export class SaveFileManager {
 
   static saveState(handle, detail) {
     let wsdata = app.workspace.data,
-      appSettings = app.settings.saveToObject();
+      settings = {...app.settings},
+      history = {...app.history},
+      fullHistory = {...app.fullHistory};
 
     SaveFileManager.saveHistory = detail.saveHistory;
     SaveFileManager.saveSettings = detail.saveSettings;
 
-    if (!detail.saveHistory) wsdata.history = undefined;
-    if (!detail.saveHistory) wsdata.completeHistory = undefined;
+    if (!detail.saveHistory) history = undefined;
+    if (!detail.saveHistory) fullHistory = undefined;
 
-    if (!detail.saveSettings) appSettings = undefined;
-    if (!detail.saveSettings) wsdata.settings = undefined;
+    if (!detail.saveSettings) settings = undefined;
 
-    let silhouetteData;
-    if (app.environment.name == 'Tangram' && app.silhouette)
-      silhouetteData = app.silhouette.saveToObject();
+    // let silhouetteData;
+    // if (app.environment.name == 'Tangram' && app.silhouette)
+    //   silhouetteData = app.silhouette.saveToObject();
 
     let saveObject = {
         appVersion: app.version,
         envName: app.environment.name,
         wsdata,
-        appSettings,
-        silhouetteData,
+        settings,
+        fullHistory,
       },
       json_data = JSON.stringify(saveObject);
 
@@ -241,8 +254,7 @@ export class SaveFileManager {
   }
 }
 
-window.addEventListener('save-file', event => {
-  console.log(event);
+window.addEventListener('save-file', (event) => {
   SaveFileManager.saveFile(event.detail?.actionAfter);
 });
 

@@ -1,5 +1,5 @@
 import { app } from '../../Core/App';
-import { State } from '../../Core/States/State';
+import { Tool } from '../../Core/States/State';
 import { html } from 'lit-element';
 import { createElem, uniqId } from '../../Core/Tools/general';
 import { SelectManager } from '../../Core/Managers/SelectManager';
@@ -12,7 +12,7 @@ import { GeometryConstraint } from '../../Core/Objects/GeometryConstraint';
 /**
  * Ajout de formes sur l'espace de travail
  */
-export class CreateLineState extends State {
+export class CreateLineTool extends Tool {
   constructor() {
     super('createLine', 'Créer une ligne', 'geometryCreator');
 
@@ -76,7 +76,7 @@ export class CreateLineState extends State {
         this.numberOfPointsDrawn = 0;
         this.getConstraints(this.numberOfPointsDrawn);
         this.currentStep = 'select-points';
-        this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+        this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
         this.lineSelected == 'PerpendicularStraightLine' ||
@@ -89,15 +89,15 @@ export class CreateLineState extends State {
         setTimeout(
           () =>
             (app.workspace.selectionConstraints =
-              app.fastSelectionConstraints.click_all_segments)
+              app.fastSelectionConstraints.click_all_segments),
         );
 
         setTimeout(
           () =>
             (this.objectSelectedId = app.addListener(
               'objectSelected',
-              this.handler
-            ))
+              this.handler,
+            )),
         );
       }
     }
@@ -115,19 +115,19 @@ export class CreateLineState extends State {
     }
     this.stopAnimation();
     window.removeEventListener('line-selected', this.handler);
-    app.removeListener('canvasmousedown', this.mouseDownId);
+    app.removeListener('canvasMouseDown', this.mouseDownId);
     app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasmouseup', this.mouseUpId);
+    app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
-    if (event.type == 'canvasmousedown') {
-      this.onMouseDown();
-    } else if (event.type == 'canvasmouseup') {
-      this.onMouseUp();
+    if (event.type == 'canvasMouseDown') {
+      this.canvasMouseDown();
+    } else if (event.type == 'canvasMouseUp') {
+      this.canvasMouseUp();
     } else if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else if (event.type == 'line-selected') {
@@ -143,7 +143,7 @@ export class CreateLineState extends State {
       this.segments = [];
       this.numberOfPointsDrawn = 0;
       this.getConstraints(this.numberOfPointsDrawn);
-      app.removeListener('canvasmousedown', this.mouseDownId);
+      app.removeListener('canvasMouseDown', this.mouseDownId);
       app.removeListener('objectSelected', this.objectSelectedId);
       this.lineSelected = lineSelected;
       if (this.linesList) this.linesList.lineSelected = lineSelected;
@@ -153,7 +153,7 @@ export class CreateLineState extends State {
         this.lineSelected == 'Segment'
       ) {
         this.currentStep = 'select-points';
-        this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+        this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
       } else if (
         this.lineSelected == 'ParalleleStraightLine' ||
         this.lineSelected == 'PerpendicularStraightLine' ||
@@ -166,7 +166,7 @@ export class CreateLineState extends State {
         setTimeout(
           () =>
             (app.workspace.selectionConstraints =
-              app.fastSelectionConstraints.click_all_segments)
+              app.fastSelectionConstraints.click_all_segments),
         );
         this.objectSelectedId = app.addListener('objectSelected', this.handler);
       }
@@ -185,7 +185,7 @@ export class CreateLineState extends State {
     new Shape({
       drawingEnvironment: app.upperDrawingEnvironment,
       path: segment.getSVGPath('scale', undefined, true),
-      borderColor: app.settings.get('constraintsDrawColor'),
+      borderColor: app.settings.constraintsDrawColor,
       borderSize: 2,
     });
 
@@ -193,20 +193,20 @@ export class CreateLineState extends State {
 
     this.currentStep = 'select-points';
     window.setTimeout(() => {
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     });
   }
 
-  onMouseDown() {
+  canvasMouseDown() {
     let newCoordinates = new Coordinates(
-      app.workspace.lastKnownMouseCoordinates
+      app.workspace.lastKnownMouseCoordinates,
     );
 
     if (this.currentStep == 'select-points') {
       this.points[this.numberOfPointsDrawn] = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
         coordinates: newCoordinates,
-        color: app.settings.get('temporaryDrawColor'),
+        color: app.settings.temporaryDrawColor,
         size: 2,
       });
       this.numberOfPointsDrawn++;
@@ -225,28 +225,28 @@ export class CreateLineState extends State {
         this.segments.push(seg);
         let shape = new Shape({
           drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: this.segments.map(seg => seg.id),
-          pointIds: this.points.map(pt => pt.id),
-          borderColor: app.settings.get('temporaryDrawColor'),
+          segmentIds: this.segments.map((seg) => seg.id),
+          pointIds: this.points.map((pt) => pt.id),
+          borderColor: app.settings.temporaryDrawColor,
         });
         this.segments.forEach((seg, idx) => {
           seg.idx = idx;
           seg.shapeId = shape.id;
         });
       }
-      app.removeListener('canvasmousedown', this.mouseDownId);
-      this.mouseUpId = app.addListener('canvasmouseup', this.handler);
+      app.removeListener('canvasMouseDown', this.mouseDownId);
+      this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
       this.animate();
     }
   }
 
-  onMouseUp() {
+  canvasMouseUp() {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.actions = [
         {
           name: 'CreateLineAction',
-          coordinates: this.points.map(pt => pt.coordinates),
+          coordinates: this.points.map((pt) => pt.coordinates),
           lineName: this.lineSelected,
           referenceId: this.referenceId,
         },
@@ -260,8 +260,8 @@ export class CreateLineState extends State {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.currentStep = 'select-points';
       this.stopAnimation();
-      this.mouseDownId = app.addListener('canvasmousedown', this.handler);
-      app.removeListener('canvasmouseup', this.mouseUpId);
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+      app.removeListener('canvasMouseUp', this.mouseUpId);
     }
   }
 
@@ -272,14 +272,14 @@ export class CreateLineState extends State {
       let adjustedCoordinates = SelectManager.selectPoint(
         point.coordinates,
         constraints,
-        false
+        false,
       );
       if (adjustedCoordinates) {
         point.coordinates = new Coordinates(adjustedCoordinates);
       }
     } else {
       let adjustedCoordinates = this.constraints.projectionOnConstraints(
-        point.coordinates
+        point.coordinates,
       );
       point.coordinates = new Coordinates(adjustedCoordinates);
     }
@@ -288,7 +288,7 @@ export class CreateLineState extends State {
   refreshStateUpper() {
     if (this.currentStep == 'select-points') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
-        app.workspace.lastKnownMouseCoordinates
+        app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
       if (
@@ -326,7 +326,7 @@ export class CreateLineState extends State {
     if (this.lineSelected == 'ParalleleStraightLine') {
       let referenceSegment = app.mainDrawingEnvironment.findObjectById(
         this.referenceId,
-        'segment'
+        'segment',
       );
       newCoordinates = this.points[0].coordinates
         .substract(referenceSegment.vertexes[0].coordinates)
@@ -334,10 +334,10 @@ export class CreateLineState extends State {
     } else if (this.lineSelected == 'PerpendicularStraightLine') {
       let referenceSegment = app.mainDrawingEnvironment.findObjectById(
         this.referenceId,
-        'segment'
+        'segment',
       );
       newCoordinates = referenceSegment.projectionOnSegment(
-        this.points[0].coordinates
+        this.points[0].coordinates,
       );
     }
 
@@ -345,7 +345,7 @@ export class CreateLineState extends State {
       this.points[1] = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
         coordinates: newCoordinates,
-        color: app.settings.get('temporaryDrawColor'),
+        color: app.settings.temporaryDrawColor,
         size: 2,
         visible: false,
       });
@@ -361,7 +361,7 @@ export class CreateLineState extends State {
       if (this.lineSelected.startsWith('Parallele')) {
         let referenceSegment = app.mainDrawingEnvironment.findObjectById(
           this.referenceId,
-          'segment'
+          'segment',
         );
         let secondCoordinates = this.points[0].coordinates
           .substract(referenceSegment.vertexes[0].coordinates)
@@ -371,10 +371,10 @@ export class CreateLineState extends State {
       } else if (this.lineSelected.startsWith('Perpendicular')) {
         let referenceSegment = app.mainDrawingEnvironment.findObjectById(
           this.referenceId,
-          'segment'
+          'segment',
         );
         let secondCoordinates = referenceSegment.projectionOnSegment(
-          this.points[0].coordinates
+          this.points[0].coordinates,
         );
         let lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isContrained', lines);

@@ -31,7 +31,10 @@ class OpenPopup extends LitElement {
   }
 
   updated() {
-    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+    window.setTimeout(
+      () => this.shadowRoot.querySelector('#focus').focus(),
+      200,
+    );
   }
 
   render() {
@@ -40,7 +43,11 @@ class OpenPopup extends LitElement {
         <template-popup>
           <h2 slot="title">Ouvrir un fichier</h2>
           <div slot="body" id="body">
-            <button id="focus" name="LocalOpenFile" @click="${this._actionHandle}">
+            <button
+              id="focus"
+              name="LocalOpenFile"
+              @click="${this._actionHandle}"
+            >
               Ouvrir en local
             </button>
 
@@ -68,7 +75,7 @@ class OpenPopup extends LitElement {
                           window.dispatchEvent(
                             new CustomEvent('parse-file', {
                               detail: { fileContent: tan },
-                            })
+                            }),
                           );
                           this.close();
                         }}"
@@ -79,7 +86,7 @@ class OpenPopup extends LitElement {
                         ></canvas-button>
                         <p style="margin: auto;">${tan.filename}</p>
                       </div>
-                    `
+                    `,
                 )
               : undefined}
           </div>
@@ -115,7 +122,7 @@ class OpenPopup extends LitElement {
             ' ' +
             event.target.value +
             ' ' +
-            event.target.checked
+            event.target.checked,
         );
     }
   }

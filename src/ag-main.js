@@ -6,7 +6,7 @@ import './icon-button';
 import './popups/notification';
 import './version-item';
 
-import { app } from './Core/App';
+import { app, setState } from './Core/App';
 import { OpenFileManager } from './Core/Managers/OpenFileManager';
 import './Core/Managers/SaveFileManager';
 import './Core/Managers/SelectManager';
@@ -14,12 +14,12 @@ import './Core/Managers/WorkspaceManager';
 import './Core/Managers/GroupManager';
 import './Core/Managers/ShapeManager';
 import './Core/Managers/DrawManager';
-import './Core/Managers/CompleteHistoryManager';
+import './Core/Managers/FullHistoryManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
 import { TemplateToolbar } from './template-toolbar';
 
-if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen)
+if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
 class AGTabletteApp extends LitElement {
   static get properties() {
@@ -27,9 +27,9 @@ class AGTabletteApp extends LitElement {
       canUndo: Boolean,
       canRedo: Boolean,
       background: String,
-      states: Array,
-      stateName: String,
-      state: Object,
+      tools: Array,
+      tool: Object,
+      colorPickerValue: String,
     };
   }
 
@@ -38,30 +38,42 @@ class AGTabletteApp extends LitElement {
     app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
-    this.setState();
+    this.tools = app.tools;
+    this.tool = app.tool;
+    this.colorPickerValue = '#000000';
 
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
-    });
-    window.addEventListener('app-state-changed', () => {
-      this.setState();
-    });
-    window.addEventListener('state-changed', () => {
-      this.setState();
     });
     window.addEventListener('history-changed', () => {
       this.canUndo = HistoryManager.canUndo();
       this.canRedo = HistoryManager.canRedo();
     });
     window.addEventListener('workspace-changed', () => {
-      this.shadowRoot.querySelector("#color-picker").value = "#000000";
-      window.dispatchEvent(new CustomEvent('history-changed'));
+      this.colorPickerValue = '#000000';
+      this.shadowRoot.querySelector('#color-picker').value = '#000000';
     });
     window.addEventListener('open-opacity-popup', () => {
       this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
     });
-    window.addEventListener('open-color-picker', () => {
-      this.shadowRoot.querySelector('#color-picker-label').click();
+    window.addEventListener('tool-changed', () => {
+      if (app.tool?.currentStep == 'start') {
+        if (app.tool.name == 'backgroundColor') {
+          this.shadowRoot.querySelector('#color-picker').value = app.settings.shapeFillColor;
+          this.colorPickerValue = app.settings.shapeFillColor;
+        } else if (app.tool.name == 'borderColor') {
+          this.shadowRoot.querySelector('#color-picker').value = app.settings.shapeBorderColor;
+          this.colorPickerValue = app.settings.shapeBorderColor;
+        } else {
+          return;
+        }
+        this.shadowRoot.querySelector('#color-picker-label').click();
+      }
+    });
+
+    window.addEventListener('state-changed', () => {
+      this.tools = app.tools;
+      this.tool = app.tool;
     });
 
     // vh error in tablette => custom vh
@@ -92,13 +104,13 @@ class AGTabletteApp extends LitElement {
           border-radius: 10px;
           box-sizing: border-box;
           background-color: var(--theme-color);
-          flex: 0 0 ${app.settings.get('mainMenuWidth')}px;
+          flex: 0 0 ${app.settings.mainMenuWidth}px;
           margin: 3px;
           /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
 
           /* scrollbar hidden */
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
           overflow-y: scroll;
           overflow-x: hidden;
 
@@ -141,7 +153,9 @@ class AGTabletteApp extends LitElement {
 
   updated() {
     if (app.environment.name != 'Grandeurs') {
-      this.shadowRoot.querySelectorAll('.onlyGrandeurs').forEach(el => el.style.display = 'none');
+      this.shadowRoot
+        .querySelectorAll('.onlyGrandeurs')
+        .forEach((el) => (el.style.display = 'none'));
     }
   }
 
@@ -149,9 +163,11 @@ class AGTabletteApp extends LitElement {
     return html`
       <div id="app-view">
         <div id="app-menu">
-          <template-toolbar title="hell">
+          <template-toolbar>
             <h2 slot="title">
-              ${this.state != undefined ? this.state.title : app.environment.name}
+              ${this.tool?.title != undefined
+                ? this.tool.title
+                : app.environment.name}
             </h2>
             <div slot="body">
               <icon-button
@@ -160,15 +176,37 @@ class AGTabletteApp extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-              <icon-button name="load" title="Ouvrir" @click="${this._actionHandle}">
+              <icon-button
+                name="load"
+                title="Ouvrir"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
-              <icon-button name="save" title="Sauvegarder" @click="${this._actionHandle}">
+              <icon-button
+                name="save"
+                title="Sauvegarder"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
-              <icon-button name="settings" title="Paramètres" @click="${this._actionHandle}">
+              <icon-button
+                name="settings"
+                title="Paramètres"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
-              <icon-button name="undo" title="Annuler" ?disabled="${!this.canUndo}" @click="${this._actionHandle}">
+              <icon-button
+                name="undo"
+                title="Annuler"
+                ?disabled="${!this.canUndo}"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
-              <icon-button name="redo" title="Refaire" ?disabled="${!this.canRedo}" @click="${this._actionHandle}">
+              <icon-button
+                name="redo"
+                title="Refaire"
+                ?disabled="${!this.canRedo}"
+                @click="${this._actionHandle}"
+              >
               </icon-button>
               <icon-button
                 class="onlyGrandeurs"
@@ -191,40 +229,40 @@ class AGTabletteApp extends LitElement {
 
           <toolbar-section
             title="Créer une silhouette"
-            .buttons_states="${this.states.filter(
-              state => state.type === 'tangram'
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'tangram',
             )}"
           >
           </toolbar-section>
 
           <toolbar-section
             title="Formes libres"
-            .buttons_states="${this.states.filter(
-              state => state.type === 'geometryCreator'
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'geometryCreator',
             )}"
           >
           </toolbar-section>
 
           <toolbar-section
             title="Mouvements"
-            .buttons_states="${this.states.filter(
-              state => state.type === 'move'
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'move',
             )}"
           >
           </toolbar-section>
 
           <toolbar-section
             title="Opérations"
-            .buttons_states="${this.states.filter(
-              state => state.type === 'operation'
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'operation',
             )}"
           >
           </toolbar-section>
 
           <toolbar-section
             title="Outils"
-            .buttons_states="${this.states.filter(
-              state => state.type === 'tool'
+            .buttons_states="${this.tools.filter(
+              (tool) => tool.type === 'tool',
             )}"
           >
           </toolbar-section>
@@ -243,66 +281,92 @@ class AGTabletteApp extends LitElement {
 
       <notif-center></notif-center>
 
-      <input id="fileSelector" accept=".${app.environment.extension}" type="file" style="display: none" @change="${event => {
-              window.dispatchEvent(
-                new CustomEvent('file-opened', {
-                  detail: { method: 'old', file: event.target.files[0] },
-                })
-              );
-              event.target.value = null;
-            }}" />
+      <input
+        id="fileSelector"
+        accept=".${app.environment.extension}"
+        type="file"
+        style="display: none"
+        @change="${(event) => {
+          window.dispatchEvent(
+            new CustomEvent('file-opened', {
+              detail: { method: 'old', file: event.target.files[0] },
+            }),
+          );
+          event.target.value = null;
+        }}"
+      />
 
       <label id="color-picker-label" for="color-picker" hidden></label>
-      <input id="color-picker" type="color" @change="${e =>
-              window.dispatchEvent(
-                new CustomEvent('colorChange', {
-                  detail: { color: e.target.value },
-                })
-              )}" />
+      <input
+        id="color-picker"
+        type="color"
+        value="${this.colorPickerValue}"
+        @change="${e =>
+          {
+            if (app.tool.name == 'backgroundColor') {
+              setState({
+                settings: {
+                  ...app.settings,
+                  shapeFillColor: e.target.value,
+                },
+                tool: { ...app.tool, currentStep: 'selectShape' },
+              });
+            } else if (app.tool.name == 'borderColor') {
+              setState({
+                settings: {
+                  ...app.settings,
+                  shapeBorderColor: e.target.value,
+                },
+                tool: { ...app.tool, currentStep: 'selectShape' },
+              });
+            }
+          }
+        }"
+      />
     `;
   }
-
-  // firstUpdated() {
-  //   console.log(app)
-  // }
 
   /**
    * Main event handler
    */
   _actionHandle(event) {
-    let reset_state = 0;
+    if (app.fullHistory.isRunning) {
+      console.warn('cannot interact when fullHisto is running');
+      return;
+    }
+    let resetTool = false;
     let leaveConfirmationPopup;
     switch (event.target.name) {
       case 'settings':
         import('./popups/settings-popup');
         createElem('settings-popup');
-        reset_state = 1;
+        resetTool = true;
         break;
       case 'save':
         window.dispatchEvent(new CustomEvent('save-file'));
-        reset_state = 1;
+        resetTool = true;
         break;
       case 'load':
-        if (app.workspace.history.index === -1) {
-          window.dispatchEvent(new CustomEvent('open-file'))
-          return
+        if (app.history.index === -1) {
+          window.dispatchEvent(new CustomEvent('open-file'));
+          return;
         }
         import('./popups/leave-confirmation-popup');
         leaveConfirmationPopup = createElem('leave-confirmation-popup');
         leaveConfirmationPopup.actionAfter = 'open';
-        reset_state = 1;
+        resetTool = true;
         break;
       case 'new':
         import('./popups/leave-confirmation-popup');
         leaveConfirmationPopup = createElem('leave-confirmation-popup');
         leaveConfirmationPopup.actionAfter = 'new';
-        reset_state = 1;
+        resetTool = true;
         break;
       case 'undo':
-        window.dispatchEvent(new CustomEvent('undo-action'));
+        window.dispatchEvent(new CustomEvent('undo'));
         break;
       case 'redo':
-        window.dispatchEvent(new CustomEvent('redo-action'));
+        window.dispatchEvent(new CustomEvent('redo'));
         break;
       case 'replay':
         window.dispatchEvent(new CustomEvent('start-browsing'));
@@ -315,20 +379,21 @@ class AGTabletteApp extends LitElement {
       default:
         console.warn(
           'unknow event type: ' + event.type + ', with event: ',
-          event
+          event,
         );
     }
-    if (reset_state) {
-      app.setState();
+    if (resetTool) {
+      setState({ tool: null });
     }
   }
 
-  setState() {
-    this.states = [...app.states];
-    this.stateName = app.state;
-    this.state = this.states.find(st => st.name == this.stateName);
-    // if (location.hostname === 'localhost') console.log(app)
-  }
+  // setState() {
+  //   console.trace('ag-main setState called');
+  //   this.states = [...app.states];
+  //   this.stateName = app.state;
+  //   this.state = this.states.find((st) => st.name == this.stateName);
+  //   // if (location.hostname === 'localhost') console.log(app)
+  // }
 
   // // Todo: Placer dans un objet BackgroundImage ?
   // loadBackground() {

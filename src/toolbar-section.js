@@ -1,6 +1,5 @@
-import { app } from './Core/App';
+import { app, setState } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
-import { CompleteHistoryManager } from './Core/Managers/CompleteHistoryManager';
 import './icon-button';
 import { TemplateToolbar } from './template-toolbar';
 
@@ -23,15 +22,16 @@ class ToolbarSection extends LitElement {
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
           ${this.buttons_states.map(
-            state => html`
+            (state) => html`
               <icon-button
                 name="${state.name}"
                 type="State"
                 title="${state.title}"
-                ?active="${state.name === app.state}"
+                ?active="${state.name === app.state ||
+                state.name === app.tool?.name}"
                 @click="${this._actionHandle}"
               ></icon-button>
-            `
+            `,
           )}
         </div>
       </template-toolbar>
@@ -42,7 +42,9 @@ class ToolbarSection extends LitElement {
    * Main event handler
    */
   _actionHandle(event) {
-    if (!CompleteHistoryManager.isRunning) app.setState(event.target.name);
+    if (!app.fullHistory.isRunning) {
+      setState({ tool: { name: event.target.name, currentStep: 'start' } });
+    }
   }
 }
 customElements.define('toolbar-section', ToolbarSection);

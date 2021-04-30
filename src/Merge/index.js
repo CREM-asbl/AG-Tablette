@@ -1,7 +1,5 @@
-import { MergeState } from './MergeState';
-import { MergeAction } from './MergeAction';
+import { MergeTool } from './MergeTool';
 
 export default {
-  state: new MergeState(),
-  action: new MergeAction()
-}
+  tool: new MergeTool(),
+};

@@ -31,7 +31,7 @@ class StateMenu extends LitElement {
         max-width: calc(100% - 230px);
         overflow-y: auto;
         max-height: 30%;
-        left: ${app.settings.get('mainMenuWidth') + 5}px;
+        left: ${app.settings.mainMenuWidth + 5}px;
       }
 
       div#state-menu-buttons-list > button {
@@ -49,11 +49,11 @@ class StateMenu extends LitElement {
     return html`
       <div id="state-menu-buttons-list">
         ${this.buttons.map(
-          button => html`
+          (button) => html`
             <button @click="${() => this.clickBtn(button.value)}">
               ${button.text}
             </button>
-          `
+          `,
         )}
       </div>
     `;
@@ -61,7 +61,7 @@ class StateMenu extends LitElement {
 
   clickBtn(value) {
     window.dispatchEvent(
-      new CustomEvent('state-menu-button-click', { detail: value })
+      new CustomEvent('state-menu-button-click', { detail: value }),
     );
   }
 }

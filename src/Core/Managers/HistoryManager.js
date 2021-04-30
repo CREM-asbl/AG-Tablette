@@ -1,4 +1,4 @@
-import { app } from '../App';
+import { app, setState } from '../App';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -9,7 +9,7 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canUndo() {
-    return app.workspace.history.index != -1;
+    return app.history.index != -1;
   }
 
   /**
@@ -17,28 +17,8 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canRedo() {
-    return app.workspace.history.index < app.workspace.history.length - 1;
+    return app.history.index < app.history.steps.length - 1;
   }
-
-  // static updateHistory(action) {
-  //   app.workspace.history.data[HistoryManager.historyIndex][
-  //     HistoryManager.stepIndex
-  //   ] = HistoryManager.transformToObject(action);
-  // }
-
-  // static updateBackup() {
-  //   let wsData = app.workspace.data;
-  //   app.workspace.shapes = [];
-  //   app.workspace.shapeGroups = [];
-  //   app.setState();
-  //   app.workspace.history.index = -1;
-  //   for (let i = 0; i < app.workspace.history.length; i++) {
-  //     HistoryManager.redo();
-  //   }
-  //   wsData.history.data = app.workspace.history.data;
-  //   app.lastFileVersion = app.version;
-  //   app.workspace.initFromObject(wsData);
-  // }
 
   /**
    * Annuler une étape. Cela fait reculer le curseur de l'historique d'un
@@ -46,18 +26,23 @@ export class HistoryManager {
    */
   static undo() {
     if (!HistoryManager.canUndo()) {
-      console.error('Nothing to undo');
+      console.warn('Nothing to undo');
       return;
     }
-    app.setState();
-    app.workspace.history.index--;
-    let data = app.workspace.history.data[app.workspace.history.index];
-    if (app.workspace.history.index == -1)
-      data = app.workspace.history.startSituation;
-    app.workspace.initFromObject(data, true);
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('history-changed'));
+    let index = app.history.index - 1;
+    let data = app.history.steps[index];
+    if (index == -1) {
+      data = app.history.startSituation;
+    }
+    app.workspace.initFromObject(data);
+    let settings;
+    if (!data) {
+      settings = {...app.settings, gridShown: app.settings.gridShown, gridType: app.settings.gridType, gridSize: app.settings.gridSize};
+    } else {
+      settings = {...app.settings, ...data.settings};
+    }
+    setState({ tool: null, history: {...app.history, index}, settings });
+    window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Annuler'}}));
   }
 
   /**
@@ -66,15 +51,18 @@ export class HistoryManager {
    */
   static redo() {
     if (!HistoryManager.canRedo()) {
-      console.error('Nothing to redo');
+      console.warn('Nothing to redo');
       return;
     }
-    app.setState();
-    app.workspace.history.index++;
-    let data = app.workspace.history.data[app.workspace.history.index];
-    app.workspace.initFromObject(data, true);
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('history-changed'));
+    let index = app.history.index + 1;
+    let data = app.history.steps[index];
+    if (index == -1) {
+      data = app.history.startSituation;
+    }
+    app.workspace.initFromObject(data);
+    let settings = {...app.settings, ...data.settings};
+    setState({ tool: null, history: {...app.history, index}, settings});
+    window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Refaire'}}));
   }
 
   /**
@@ -82,27 +70,20 @@ export class HistoryManager {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
   static addStep() {
-    app.workspace.history.data.splice(
-      app.workspace.history.index + 1,
-      app.workspace.history.length,
-      HistoryManager.saveData()
+    let steps = [...app.history.steps];
+    steps.splice(
+      app.history.index + 1,
+      app.history.steps.length,
+      HistoryManager.saveData(),
     );
-    app.workspace.history.index = app.workspace.history.length - 1;
-
-    window.dispatchEvent(new CustomEvent('history-changed'));
+    let index = steps.length - 1;
+    setState({ history: {...app.history, steps, index}});
   }
 
-  static deleteLastStep() {
-    app.workspace.history.length--;
-    app.workspace.history.index = app.workspace.history.length - 1;
-
-    window.dispatchEvent(new CustomEvent('history-changed'));
-  }
 
   static saveData() {
     let data = app.workspace.data;
-    data.history = undefined;
-    data.completeHistory = undefined;
+    data.settings = { gridShown: app.settings.gridShown, gridType: app.settings.gridType, gridSize: app.settings.gridSize };
 
     return data;
   }
@@ -110,17 +91,13 @@ export class HistoryManager {
 
 window.addEventListener('actions-executed', () => HistoryManager.addStep());
 
-window.addEventListener('update-history', event =>
-  HistoryManager.updateHistory(event.detail)
+window.addEventListener('update-history', (event) =>
+  HistoryManager.updateHistory(event.detail),
 );
 
-window.addEventListener('action-aborted', () =>
-  HistoryManager.deleteLastStep()
-);
-
-window.addEventListener('undo-action', () => {
+window.addEventListener('undo', () => {
   HistoryManager.undo();
 });
-window.addEventListener('redo-action', () => {
+window.addEventListener('redo', () => {
   HistoryManager.redo();
 });

@@ -1,4 +1,4 @@
-import { app } from '../App';
+import { app, setState } from '../App';
 import { Workspace } from '../Objects/Workspace';
 
 export class WorkspaceManager {
@@ -13,17 +13,13 @@ export class WorkspaceManager {
     }
     app.workspace = workspace;
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-    window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
     window.dispatchEvent(new CustomEvent('workspace-changed'));
-    app.refreshWindow();
   }
 
   static setWorkspaceFromObject(data) {
     let ws = new Workspace();
     WorkspaceManager.setWorkspace(ws);
     ws.initFromObject(data);
-    window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
-    app.refreshWindow();
   }
 }
 
@@ -32,10 +28,11 @@ window.addEventListener('app-started', () => {
 });
 
 window.addEventListener('new-window', () => {
-  setTimeout(() => {
-    app.mainDrawingEnvironment.removeAllObjects();
-    app.upperDrawingEnvironment.removeAllObjects();
-    app.backgroundDrawingEnvironment.removeAllObjects();
-    WorkspaceManager.setWorkspace(new Workspace());
-  }, 0);
+  // setTimeout(() => {
+  app.mainDrawingEnvironment.removeAllObjects();
+  app.upperDrawingEnvironment.removeAllObjects();
+  app.backgroundDrawingEnvironment.removeAllObjects();
+  setState({ history: app.defaultState.history, fullHistory: app.defaultState.fullHistory, settings: {...app.settings, gridShown: app.defaultState.settings.gridShown, gridType: app.defaultState.settings.gridType, gridSize: app.defaultState.settings.gridSize} });
+  WorkspaceManager.setWorkspace(new Workspace());
+  // }, 0);
 });

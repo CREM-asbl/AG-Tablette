@@ -129,7 +129,7 @@ export class TemplatePopup extends LitElement {
   }
 }
 
-addEventListener('keyup', e => {
+addEventListener('keyup', (e) => {
   e.key === 'Escape' && window.dispatchEvent(new Event('close-popup'));
 });
 

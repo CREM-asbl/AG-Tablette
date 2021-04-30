@@ -1,5 +1,4 @@
-import { CreateQuadrilateralState } from './CreateQuadrilateralState';
-import { CreateQuadrilateralAction } from './CreateQuadrilateralAction';
+import { CreateQuadrilateralTool } from './CreateQuadrilateralTool';
 
 new CreateQuadrilateralState();
 new CreateQuadrilateralAction();

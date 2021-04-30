@@ -26,7 +26,7 @@ export class Settings {
   }
 
   update(updates) {
-    this.data = { ...this.data, ...updates }
+    this.data = { ...this.data, ...updates };
   }
 
   saveToObject() {

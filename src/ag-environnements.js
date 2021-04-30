@@ -95,12 +95,13 @@ class AgEnvironnements extends LitElement {
       <img
         src="images/manifest/icon.svg"
         style="position: absolute; top: calc(50% - 13vmin); left: calc(50% - 13vmin); width: 26vmin; height: 26vmin; transform: rotate(45deg);"
+        draggable="false"
       />
     `;
   }
 
   async handleClick(e) {
-    setState({ environment: await loadEnvironnement(e.target.id) })
+    setState({ environment: await loadEnvironnement(e.target.id) });
   }
 }
 customElements.define('ag-environnements', AgEnvironnements);

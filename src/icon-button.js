@@ -68,7 +68,7 @@ class IconButton extends LitElement {
   }
 
   render() {
-    if(!this.src) return
+    if (!this.src) return;
     return html`
       <button style="background-image:url('${this.src}')"></button>
     `;

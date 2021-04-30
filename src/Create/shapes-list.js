@@ -1,25 +1,39 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { LitElement, html, css } from 'lit-element';
 
 class ShapesList extends LitElement {
   static get properties() {
     return {
-      templateName: { type: String },
       selectedFamily: { type: String },
       templateNames: { type: Array },
+      selectedTemplate: { type: String },
     };
   }
 
   constructor() {
     super();
 
-    // console.log(document.documentElement.style.getPropertyValue('--theme-color'));
+    this.updateProperties = () => {
+      this.selectedFamily = app.tool.selectedFamily;
+      this.templateNames = app.environment.getFamily(
+        app.tool.selectedFamily,
+      ).templateNames;
+      this.selectedTemplate = app.tool.selectedTemplate;
+    };
+    this.updateProperties();
 
-    window.addEventListener('select-template', event => this.changeTemplateName(event));
-  }
+    this.eventHandler = () => {
+      if (app.tool?.name == 'create')
+        this.updateProperties();
+      else
+        this.close();
+    }
+    this.close = () => {
+      this.remove();
+      window.removeEventListener('tool-changed', this.eventHandler);
+    }
 
-  changeTemplateName(event) {
-    this.templateName = event.detail.templateName;
+    window.addEventListener('tool-changed', this.eventHandler);
   }
 
   static get styles() {
@@ -79,27 +93,30 @@ class ShapesList extends LitElement {
     return html`
       <style>
         :host {
-          left: calc(50% + (${app.settings.get('mainMenuWidth')}px / 2) - (${this.templateNames.length} / 2 * 54px));
+          left: calc(
+            50% + (${app.settings.mainMenuWidth}px / 2) -
+              (${this.templateNames.length} / 2 * 54px)
+          );
         }
       </style>
       <div class="container">
         <h2>
-          ${this.templateName
-            ? this.templateName.replace(/ \d+$/, '')
+          ${this.selectedTemplate
+            ? this.selectedTemplate.replace(/ \d+$/, '')
             : this.selectedFamily}
         </h2>
         <div id="list">
           ${this.templateNames.map(
-            templateName => html`
+            (templateName) => html`
               <canvas-button
                 title="${templateName.replace(/ \d+$/, '')}"
                 familyName="${this.selectedFamily}"
                 templateName="${templateName}"
                 @click="${this._clickHandle}"
-                ?active="${templateName === this.templateName}"
+                ?active="${templateName === this.selectedTemplate}"
               >
               </canvas-button>
-            `
+            `,
           )}
         </div>
       </div>
@@ -107,12 +124,13 @@ class ShapesList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.templateName = event.target.templateName;
-    window.dispatchEvent(
-      new CustomEvent('select-template', {
-        detail: { templateName: this.templateName },
-      })
-    );
+    setState({
+      tool: {
+        ...app.tool,
+        selectedTemplate: event.target.templateName,
+        currentStep: 'listen',
+      },
+    });
   }
 }
 customElements.define('shapes-list', ShapesList);

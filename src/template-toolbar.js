@@ -57,9 +57,7 @@ export class TemplateToolbar extends LitElement {
 
   render() {
     return html`
-      <div
-        id="template-view"
-      >
+      <div id="template-view">
         <slot name="title"></slot>
 
         <slot name="body"></slot>

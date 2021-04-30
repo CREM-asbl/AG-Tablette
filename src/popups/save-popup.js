@@ -36,11 +36,18 @@ class SavePopup extends LitElement {
   }
 
   updated() {
-    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+    window.setTimeout(
+      () => this.shadowRoot.querySelector('#focus').focus(),
+      200,
+    );
     if (app.environment.name == 'Tangram')
-      this.shadowRoot.querySelectorAll('.hideIfTangram').forEach(el => el.style.display = 'none');
+      this.shadowRoot
+        .querySelectorAll('.hideIfTangram')
+        .forEach((el) => (el.style.display = 'none'));
     if (SaveFileManager.hasNativeFS)
-      this.shadowRoot.querySelectorAll('.hideIfHasNativeFS').forEach(el => el.style.display = 'none');
+      this.shadowRoot
+        .querySelectorAll('.hideIfHasNativeFS')
+        .forEach((el) => (el.style.display = 'none'));
   }
 
   render() {
@@ -48,9 +55,7 @@ class SavePopup extends LitElement {
       <template-popup>
         <h2 slot="title">Sauvegarder</h2>
         <div slot="body" id="body">
-          <div
-            class="hideIfHasNativeFS"
-          >
+          <div class="hideIfHasNativeFS">
             <label for="save_popup_stateOrImage" style="display:inline"
               >Méthode de sauvegarde</label
             >
@@ -119,9 +124,7 @@ class SavePopup extends LitElement {
             </select>
           </div>
 
-          <div
-            class="field hideIfHasNativeFS"
-          >
+          <div class="field hideIfHasNativeFS">
             <br />
             <label for="save_popup_filename" style="display:inline"
               >Nom du fichier</label
@@ -154,7 +157,7 @@ class SavePopup extends LitElement {
     window.dispatchEvent(
       new CustomEvent('file-selected', {
         detail: {},
-      })
+      }),
     );
     this.remove();
   }
@@ -189,7 +192,7 @@ class SavePopup extends LitElement {
               saveSettings: this.saveSettings,
               saveHistory: this.saveHistory,
             },
-          })
+          }),
         );
         this.close();
         break;
@@ -202,9 +205,9 @@ class SavePopup extends LitElement {
         this.stateOrImage = event.target.value;
         this.shadowRoot
           .querySelectorAll('.part')
-          .forEach(elem => (elem.style.display = 'none'));
+          .forEach((elem) => (elem.style.display = 'none'));
         this.shadowRoot.querySelector(
-          '#' + event.target.value + '_form'
+          '#' + event.target.value + '_form',
         ).style.display = 'block';
         break;
 
@@ -215,7 +218,7 @@ class SavePopup extends LitElement {
             ' ' +
             event.target.value +
             ' ' +
-            event.target.checked
+            event.target.checked,
         );
     }
   }

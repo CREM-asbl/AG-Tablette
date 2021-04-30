@@ -1,8 +1,8 @@
 import './TangramManager';
-import { SilhouetteCreatorState } from './SilhouetteCreatorState';
-import { SolutionCheckerState } from './SolutionCheckerState';
+import { SilhouetteCreatorTool } from './SilhouetteCreatorTool';
+import { SolutionCheckerTool } from './SolutionCheckerTool';
 
 export default {
-  state: new SilhouetteCreatorState()
-}
+  tool: new SilhouetteCreatorTool(),
+};
 new SolutionCheckerState();

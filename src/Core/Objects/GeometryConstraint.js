@@ -13,7 +13,7 @@ export class GeometryConstraint {
    */
   constructor(type, lines = [], points = []) {
     this.type = type;
-    this.segments = lines.map(ln => {
+    this.segments = lines.map((ln) => {
       let path = '';
       if (ln.length == 2) {
         // segment de droite
@@ -48,19 +48,19 @@ export class GeometryConstraint {
       let s = new Shape({
         drawingEnvironment: app.upperDrawingEnvironment,
         path: path,
-        borderColor: app.settings.get('constraintsDrawColor'),
+        borderColor: app.settings.constraintsDrawColor,
         opacity: 0,
       });
       return s.segments[0];
     });
     this.points = points.map(
-      pt =>
+      (pt) =>
         new Point({
           drawingEnvironment: app.upperDrawingEnvironment,
           coordinates: pt,
-          color: app.settings.get('constraintsDrawColor'),
+          color: app.settings.constraintsDrawColor,
           size: 2,
-        })
+        }),
     );
   }
 
@@ -82,16 +82,16 @@ export class GeometryConstraint {
 
   projectionOnConstraints(coordinates) {
     let projectionsOnContraints = this.segments
-      .map(segment => {
+      .map((segment) => {
         let projection = segment.projectionOnSegment(coordinates);
         let dist = projection.dist(coordinates);
         return { projection: projection, dist: dist };
       })
       .concat(
-        this.points.map(pt => {
+        this.points.map((pt) => {
           let dist = pt.coordinates.dist(coordinates);
           return { projection: pt.coordinates, dist: dist };
-        })
+        }),
       );
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
     return projectionsOnContraints[0].projection;

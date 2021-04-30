@@ -51,7 +51,7 @@ export class Point {
     this.shapeId = shapeId;
     if (this.shapeId !== undefined)
       this.drawingEnvironment.shapes
-        .find(s => s.id === this.shapeId)
+        .find((s) => s.id === this.shapeId)
         .pointIds.push(this.id);
     this.idx = idx;
     this.segmentIds = [...segmentIds];
@@ -64,13 +64,15 @@ export class Point {
   }
 
   get shape() {
-    let shape = this.drawingEnvironment.shapes.find(s => s.id === this.shapeId);
+    let shape = this.drawingEnvironment.shapes.find(
+      (s) => s.id === this.shapeId,
+    );
     return shape;
   }
 
   get segments() {
-    let segments = this.segmentIds.map(segId =>
-      this.drawingEnvironment.segments.find(seg => seg.id === segId)
+    let segments = this.segmentIds.map((segId) =>
+      this.drawingEnvironment.segments.find((seg) => seg.id === segId),
     );
     return segments;
   }
@@ -180,11 +182,11 @@ export class Point {
         let perpendicularAngle = angle + Math.PI / 2;
         let firstPoint = new Point(
           firstSeg.vertexes[1].x + Math.cos(perpendicularAngle) * segmentLength,
-          firstSeg.vertexes[1].y + Math.sin(perpendicularAngle) * segmentLength
+          firstSeg.vertexes[1].y + Math.sin(perpendicularAngle) * segmentLength,
         );
         let secondPoint = new Point(
           firstSeg.vertexes[1].x - Math.cos(perpendicularAngle) * segmentLength,
-          firstSeg.vertexes[1].y - Math.sin(perpendicularAngle) * segmentLength
+          firstSeg.vertexes[1].y - Math.sin(perpendicularAngle) * segmentLength,
         );
         constraints.points.push(firstPoint);
         constraints.points.push(secondPoint);
@@ -216,7 +218,7 @@ export class Point {
             this.shape.segments[0].vertexes[0],
             null,
             null,
-            this.shape.segments[0].vertexes[1]
+            this.shape.segments[0].vertexes[1],
           ),
         };
         constraints.lines = [constraintLine];
@@ -289,7 +291,7 @@ export class Point {
             this.shape.segments[0].vertexes[1],
             null,
             null,
-            this.shape.segments[0].vertexes[0]
+            this.shape.segments[0].vertexes[0],
           ),
         };
         constraints.lines = [constraintLine];
@@ -304,7 +306,7 @@ export class Point {
             this.shape.segments[0].vertexes[1],
             null,
             null,
-            this.shape.segments[0].arcCenter
+            this.shape.segments[0].arcCenter,
           ),
         };
         constraints.lines = [constraintLine];
@@ -312,7 +314,7 @@ export class Point {
         constraints.isConstrained = true;
         let seg = new Segment(
           this.shape.segments[0].vertexes[0],
-          this.shape.segments[0].vertexes[1]
+          this.shape.segments[0].vertexes[1],
         );
         let middle = seg.middle;
         let constraintLine = {
@@ -323,7 +325,7 @@ export class Point {
             null,
             null,
             null,
-            true
+            true,
           ),
         };
         constraints.lines = [constraintLine];
@@ -343,8 +345,8 @@ export class Point {
             this.shape.segments[0].vertexes[0],
             this.shape.segments[0].vertexes[0].addCoordinates(
               100 * Math.cos(referenceAngle),
-              100 * Math.sin(referenceAngle)
-            )
+              100 * Math.sin(referenceAngle),
+            ),
           ),
           isInfinite: true,
         };
@@ -360,7 +362,7 @@ export class Point {
         let constraintLine = {
           segment: new Segment(
             this.shape.segments[0].vertexes[0],
-            reference.projectionOnSegment(this)
+            reference.projectionOnSegment(this),
           ),
           isInfinite: true,
         };

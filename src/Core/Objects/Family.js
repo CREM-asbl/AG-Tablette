@@ -16,7 +16,7 @@ export class Family {
     this.opacity = opacity;
     this.id = uniqId();
     this.shapeTemplates = [];
-    shapeTemplates.forEach(shapeTemplate => {
+    shapeTemplates.forEach((shapeTemplate) => {
       this.addTemplate(shapeTemplate);
     });
   }
@@ -46,7 +46,7 @@ export class Family {
    * @return [String]
    */
   get templateNames() {
-    return this.shapeTemplates.map(template => template.name);
+    return this.shapeTemplates.map((template) => template.name);
   }
 
   /**
@@ -56,14 +56,14 @@ export class Family {
    */
   getTemplate(name) {
     let template = this.shapeTemplates.find(
-      shapeTemplate => shapeTemplate.name === name
+      (shapeTemplate) => shapeTemplate.name === name,
     );
     if (template !== undefined) {
       return template;
     } else {
       console.error(
         "Family.getTemplate: '" + name + "' not found in",
-        this.templateNames
+        this.templateNames,
       );
       return null;
     }

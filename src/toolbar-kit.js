@@ -1,4 +1,4 @@
-import { app } from './Core/App';
+import { app, setState } from './Core/App';
 import { LitElement, html, css } from 'lit-element';
 import './canvas-button';
 import { TemplateToolbar } from './template-toolbar';
@@ -27,11 +27,8 @@ class ToolbarKit extends LitElement {
       this.envName = app.environment.kitName;
     });
     window.addEventListener(
-      'family-selected',
-      event =>
-        (this.selectedFamily = event.detail.selectedFamily
-          ? event.detail.selectedFamily
-          : '')
+      'tool-changed',
+      () => (this.selectedFamily = app.tool?.selectedFamily),
     );
   }
 
@@ -41,15 +38,24 @@ class ToolbarKit extends LitElement {
       <template-toolbar>
         <h2 slot="title">${app.environment.kitName}</h2>
         <div slot="body">
-          ${this.familyNames.map(family => {
+          ${this.familyNames.map((family) => {
             return html`
               <canvas-button
                 familyName="${family}"
                 title="${family}"
                 ?active="${family === this.selectedFamily}"
-                @click="${event => {
-                  app.setState('createShape', event.target.familyName);
-                  this.selectedFamily = event.target.familyName;
+                @click="${() => {
+                  if (app.fullHistory.isRunning) {
+                    console.warn('cannot interact when fullHisto is running');
+                    return;
+                  }
+                  setState({
+                    tool: {
+                      name: 'create',
+                      selectedFamily: family,
+                      currentStep: 'start',
+                    },
+                  });
                 }}"
               >
               </canvas-button>

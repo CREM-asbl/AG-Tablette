@@ -26,7 +26,7 @@ export class ShapeManager {
     let shapesMoved = 0;
     let newIndexes = new Array(indexes.length);
     for (let i = max; i >= 0; i--) {
-      let idx = indexes.findIndex(idx => idx == i);
+      let idx = indexes.findIndex((idx) => idx == i);
       if (idx != -1) {
         let shape = app.workspace.shapes[i];
         app.workspace.shapes.splice(i, 1);
@@ -45,7 +45,7 @@ export class ShapeManager {
   static moveShapesBackToTheirPlace(indexes) {
     const max = app.workspace.shapes.length - 1;
     for (let i = 0; i < max; i++) {
-      let idx = indexes.findIndex(idx => idx == i);
+      let idx = indexes.findIndex((idx) => idx == i);
       if (idx != -1) {
         let shape = app.workspace.shapes[i];
         app.workspace.shapes.splice(i, 1);
@@ -71,7 +71,7 @@ export class ShapeManager {
    * @return {int}       l'index de cette forme dans le tableau des formes
    */
   static getShapeIndex(shape) {
-    return app.mainDrawingEnvironment.shapes.findIndex(s => s.id == shape.id);
+    return app.mainDrawingEnvironment.shapes.findIndex((s) => s.id == shape.id);
   }
 
   /**
@@ -80,7 +80,7 @@ export class ShapeManager {
    * @return {Shape}         l'objet forme, ou null si la forme n'existe pas
    */
   static getShapeById(id) {
-    let shape = app.mainDrawingEnvironment.shapes.find(s => s.id == id);
+    let shape = app.mainDrawingEnvironment.shapes.find((s) => s.id == id);
     return shape ? shape : null;
   }
 
@@ -94,20 +94,19 @@ export class ShapeManager {
     let allShapes = [...app.mainDrawingEnvironment.shapes];
     if (constraints.canSelectFromUpper)
       allShapes.push(...app.upperDrawingEnvironment.shapes);
-    let list = allShapes.filter(
-      shape => {
-        if (shape.isSegment()) {
-          const seg = shape.segments[0];
-          const projection = seg.projectionOnSegment(coord);
-          return  seg.isCoordinatesOnSegment(projection) &&
-            SelectManager.areCoordinatesInSelectionDistance(
-              projection,
-              coord
-            );
-        } else
-          return shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnBorder(coord);
-      }
-    );
+    let list = allShapes.filter((shape) => {
+      if (shape.isSegment()) {
+        const seg = shape.segments[0];
+        const projection = seg.projectionOnSegment(coord);
+        return (
+          seg.isCoordinatesOnSegment(projection) &&
+          SelectManager.areCoordinatesInSelectionDistance(projection, coord)
+        );
+      } else
+        return (
+          shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnBorder(coord)
+        );
+    });
     list.reverse();
     return list;
   }
@@ -124,11 +123,11 @@ export class ShapeManager {
     let shapes = [shape],
       group = GroupManager.getShapeGroup(shape);
     if (group) {
-      shapes = group.shapesIds.map(id => ShapeManager.getShapeById(id));
+      shapes = group.shapesIds.map((id) => ShapeManager.getShapeById(id));
     }
 
     if (!includeReceivedShape) {
-      shapes = shapes.filter(s => s.id != shape.id);
+      shapes = shapes.filter((s) => s.id != shape.id);
     }
     return shapes;
   }
@@ -148,7 +147,7 @@ export class ShapeManager {
   }
 
   static updateReferencedShapes(mustDraw = false) {
-    app.workspace.shapes.forEach(s => {
+    app.workspace.shapes.forEach((s) => {
       s.updateReferenced(mustDraw);
     });
   }

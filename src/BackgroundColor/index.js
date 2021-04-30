@@ -1,7 +1,5 @@
-import { BackgroundColorState } from './BackgroundColorState';
-import { BackgroundColorAction } from './BackgroundColorAction';
+import { BackgroundColorTool } from './BackgroundColorTool';
 
 export default {
-  state: new BackgroundColorState(),
-  action: new BackgroundColorAction()
-}
+  tool: new BackgroundColorTool(),
+};

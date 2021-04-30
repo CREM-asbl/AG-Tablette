@@ -1,8 +1,6 @@
-import { DivideState } from './DivideState';
-import { DivideAction } from './DivideAction';
+import { DivideTool } from './DivideTool';
 import './divide-popup';
 
 export default {
-  state: new DivideState(),
-  action: new DivideAction()
-}
+  tool: new DivideTool(),
+};

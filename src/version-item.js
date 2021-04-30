@@ -2,8 +2,7 @@ import { app } from './Core/App';
 import { LitElement, html, css, property } from 'lit-element';
 
 class VersionItem extends LitElement {
-
-  @property({type: String}) version = `${app.short_name} ${app.version}`
+  @property({ type: String }) version = `${app.short_name} ${app.version}`;
   static get properties() {
     return {
       version: String,

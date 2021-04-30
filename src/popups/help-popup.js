@@ -40,7 +40,10 @@ class HelpPopup extends LitElement {
   }
 
   updated() {
-    window.setTimeout(() => this.shadowRoot.querySelector("#focus").focus(), 200);
+    window.setTimeout(
+      () => this.shadowRoot.querySelector('#focus').focus(),
+      200,
+    );
   }
 
   render() {

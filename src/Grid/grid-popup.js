@@ -1,36 +1,36 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from '../popups/template-popup';
-import { CompleteHistoryManager } from '../Core/Managers/CompleteHistoryManager';
 
 class GridPopup extends LitElement {
   constructor() {
     super();
-    this.gridType = app.workspace.settings.get('gridType');
-    this.gridSize = app.workspace.settings.get('gridSize');
+
     window.addEventListener('close-popup', () => {
-        this.submitAndClose();
-    }, {
+      this.submitAndClose();
+    },
+    {
       once: true,
     });
 
-    window.addEventListener('gridAction', event => {
-      app.workspace.settings.set('gridSize', event.detail.gridSize);
-      app.workspace.settings.set('gridType',  event.detail.gridType);
-      app.workspace.settings.set(
-        'isGridShown',
-        'gridType' !== 'none'
-      );
-      window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
-      window.dispatchEvent(new CustomEvent('refreshBackground'));
-    });
+    this.updateProperties = () => {
+      this.gridType = app.settings.gridType;
+      this.gridSize = app.settings.gridSize;
+      this.gridShown = app.settings.gridType !== 'none';
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      this.updateProperties();
+    }
+    window.addEventListener('settings-changed', this.eventHandler);
   }
 
   static get properties() {
     return {
-      isGridShown: Boolean,
+      gridShown: Boolean,
       gridType: String,
-      gridSize: { type: Number },
+      gridSize: Number,
     };
   }
 
@@ -115,21 +115,24 @@ class GridPopup extends LitElement {
   }
 
   submit() {
-    window.dispatchEvent(new CustomEvent('gridAction', { detail: {
-      gridSize: app.workspace.settings.get('gridSize'),
-      gridType: app.workspace.settings.get('gridType'),
-    }}));
-    window.dispatchEvent(new CustomEvent('actions-executed', { detail: {name: 'grille'}}));
-    app.setState();
+    setState({ tool: null });
   }
 
   close() {
     this.remove();
+    window.removeEventListener('settings-changed', this.eventHandler);
   }
 
   submitAndClose() {
     this.submit();
     this.close();
+    if (!app.fullHistory.isRunning) {
+      window.dispatchEvent(
+        new CustomEvent('actions-executed', {
+          detail: { name: 'Grille' },
+        }),
+      );
+    }
   }
 
   /**
@@ -137,22 +140,23 @@ class GridPopup extends LitElement {
    */
   _actionHandle(event) {
     switch (event.target.name) {
-      case 'grid_popup_grid_size':
-        app.workspace.settings.set('gridSize', event.target.value);
-        window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
-        window.dispatchEvent(new CustomEvent('refreshBackground'));
+      case 'grid_popup_grid_type':
+        setState({ settings:
+          {
+            ...app.settings,
+            gridType: event.target.value,
+            gridShown: event.target.value !== 'none'
+          }
+        });
         break;
 
-      case 'grid_popup_grid_type':
-        app.workspace.settings.set('gridType', event.target.value);
-        this.shadowRoot.getElementById('grid_popup_grid_size').disabled =
-          event.target.value === 'none';
-        app.workspace.settings.set(
-          'isGridShown',
-          event.target.value !== 'none'
-        );
-        window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
-        window.dispatchEvent(new CustomEvent('refreshBackground'));
+      case 'grid_popup_grid_size':
+        setState({ settings:
+          {
+            ...app.settings,
+            gridSize: event.target.value,
+          }
+        });
         break;
 
       default:
@@ -162,7 +166,7 @@ class GridPopup extends LitElement {
             ' ' +
             event.target.value +
             ' ' +
-            event.target.checked
+            event.target.checked,
         );
     }
   }

@@ -1,7 +1,5 @@
-import { BuildCenterState } from './BuildCenterState';
-import { BuildCenterAction } from './BuildCenterAction';
+import { BuildCenterTool } from './BuildCenterTool';
 
 export default {
-  state: new BuildCenterState(),
-  action: new BuildCenterAction()
-}
+  tool: new BuildCenterTool(),
+};

@@ -1,8 +1,6 @@
-import { app } from '../App';
+import { app, setState } from '../App';
 import { uniqId } from '../Tools/general';
-import { CompleteHistory } from './CompleteHistory';
 import { Settings } from '../Settings';
-import { History } from './History';
 import { ShapeGroup } from './ShapeGroup';
 import { Point } from '../Objects/Point';
 import { Coordinates } from './Coordinates';
@@ -32,9 +30,6 @@ export class Workspace {
     // Liste des id de shapes a ne pas redessiner pendant une action
     this.editingShapesIds = [];
 
-    this.settings = new Settings();
-    this.initSettings();
-
     // Coordonnées du dernier événement
     this.lastKnownMouseCoordinates = Coordinates.nullCoordinates;
 
@@ -57,34 +52,6 @@ export class Workspace {
      * ->Le zoom du plan est appliqué après la translation du plan.
      */
     this.translateOffset = Coordinates.nullCoordinates;
-
-    // Historique des actions
-    this.history = new History();
-
-    // Historique complet des événements
-    this.completeHistory = new CompleteHistory(new Event('useless').timeStamp);
-  }
-
-  initSettings() {
-    //La grille est-elle affichée ?
-    this.settings.set('isGridShown', false);
-
-    //Taille de la grille
-    this.settings.set('gridSize', 1);
-
-    //Type de grille: 'square', 'horizontal-triangle', 'vertical-triangle'
-    this.settings.set('gridType', 'none');
-
-    // //Tangram affiché ?
-    // this.settings.set('isTangramShown', false);
-
-    // //Type (main/local) et id du tangram affiché.
-    // this.settings.set('shownTangram', {
-    //   type: null, //'main' ou 'local'
-    //   id: null,
-    // });
-
-    window.dispatchEvent(new CustomEvent('workspace-settings-changed'));
   }
 
   set selectionConstraints(value) {
@@ -95,7 +62,7 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
-  initFromObject(wsdata, ignoreHistory = false) {
+  initFromObject(wsdata) {
     if (!wsdata) {
       this.translateOffset = Coordinates.nullCoordinates;
       this.zoomLevel = 1;
@@ -109,9 +76,8 @@ export class Workspace {
     app.mainDrawingEnvironment.loadFromData(wsdata.objects);
     if (app.environment.name == 'Tangram')
       app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
-    else
-      app.backgroundDrawingEnvironment.clear();
-    this.shapeGroups = wsdata.shapeGroups.map(groupData => {
+    else app.backgroundDrawingEnvironment.clear();
+    this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
       return group;
@@ -136,54 +102,18 @@ export class Workspace {
         actualCenter = new Coordinates({
           x: wsdata.canvasSize.width,
           y: wsdata.canvasSize.height,
-        }).multiply(1 / 2).substract(originalTranslateOffset).multiply(newZoom / originalZoom),
+        })
+          .multiply(1 / 2)
+          .substract(originalTranslateOffset)
+          .multiply(newZoom / originalZoom),
         newCenter = new Coordinates({
           x: app.canvasWidth,
           y: app.canvasHeight,
         }).multiply(1 / 2),
-        newTranslateoffset = newCenter
-          .substract(actualCenter);
+        newTranslateoffset = newCenter.substract(actualCenter);
 
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
-    }
-
-    if (wsdata.settings) {
-      this.settings.initFromObject(wsdata.settings);
-      if (this.settings.get('isGridShown')) {
-        GridManager.drawGridPoints();
-        window.dispatchEvent(new CustomEvent('refreshBackground'));
-      }
-    } else this.initSettings();
-
-    if (!ignoreHistory) {
-      if (wsdata.history) {
-        if (app.lastFileVersion == '1.0.0') {
-          this.history.initFromObject({
-            data: wsdata.history.history,
-            index: wsdata.history.historyIndex,
-          });
-        } else {
-          this.history.initFromObject(wsdata.history);
-        }
-        window.dispatchEvent(new CustomEvent('history-changed'));
-      } else {
-        this.history.resetToDefault();
-        this.history.startSituation = {...this.data};
-      }
-    }
-
-    if (!ignoreHistory) {
-      if (wsdata.completeHistory) {
-        this.completeHistory.initFromObject(wsdata.completeHistory);
-      } else {
-        this.completeHistory.initFromObject({
-          steps: [],
-          startTimestamp: new Event('useless').timeStamp,
-          endTimestamp: 0,
-          // startSilhouette: app.silhouette,
-        });
-      }
     }
   }
 
@@ -197,18 +127,12 @@ export class Workspace {
     // });
     wsdata.objects = app.mainDrawingEnvironment.saveData();
     wsdata.backObjects = app.backgroundDrawingEnvironment.saveData();
-    wsdata.shapeGroups = this.shapeGroups.map(group => {
+    wsdata.shapeGroups = this.shapeGroups.map((group) => {
       return group.saveToObject();
     });
 
-    wsdata.history = this.history.saveToObject();
-    if (this.completeHistory)
-      wsdata.completeHistory = this.completeHistory.saveToObject();
-
     wsdata.zoomLevel = this.zoomLevel;
     wsdata.translateOffset = this.translateOffset;
-
-    wsdata.settings = this.settings.saveToObject();
 
     wsdata.canvasSize = { width: app.canvasWidth, height: app.canvasHeight };
 
@@ -230,10 +154,10 @@ export class Workspace {
    * @param {Boolean} [doRefresh=true] false: ne pas rafraichir les canvas
    */
   setZoomLevel(newZoomLevel, doRefresh = true) {
-    if (newZoomLevel < app.settings.get('minZoomLevel'))
-      newZoomLevel = app.settings.get('minZoomLevel');
-    if (newZoomLevel > app.settings.get('maxZoomLevel'))
-      newZoomLevel = app.settings.get('maxZoomLevel');
+    if (newZoomLevel < app.settings.minZoomLevel)
+      newZoomLevel = app.settings.minZoomLevel;
+    if (newZoomLevel > app.settings.maxZoomLevel)
+      newZoomLevel = app.settings.maxZoomLevel;
 
     // window.dispatchEvent(
     //   new CustomEvent('scaleView', {

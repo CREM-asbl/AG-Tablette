@@ -15,7 +15,7 @@ export class SelectManager {
   static areCoordinatesInSelectionDistance(c1, c2) {
     let areInSelectionDistance = c1.equal(
       c2,
-      app.settings.get('selectionDistance')
+      app.settings.selectionDistance,
     );
     return areInSelectionDistance;
   }
@@ -28,7 +28,7 @@ export class SelectManager {
   static areCoordinatesInMagnetismDistance(c1, c2) {
     let areInMagnetismDistance = c1.equal(
       c2,
-      app.settings.get('magnetismDistance')
+      app.settings.magnetismDistance,
     );
     return areInMagnetismDistance;
   }
@@ -121,7 +121,7 @@ export class SelectManager {
     mouseCoordinates,
     constraints,
     easySelection = true,
-    all = false
+    all = false,
   ) {
     if (!constraints.canSelect) return null;
 
@@ -134,7 +134,7 @@ export class SelectManager {
     let allPoints = [...app.mainDrawingEnvironment.points];
     if (constraints.canSelectFromUpper)
       allPoints.push(...app.upperDrawingEnvironment.points);
-    allPoints.forEach(pt => {
+    allPoints.forEach((pt) => {
       if (pt.visible) {
         if (
           constraints.types.includes(pt.type) &&
@@ -146,10 +146,10 @@ export class SelectManager {
     });
 
     // apply constrains
-    const constrainedPoints = potentialPoints.filter(potentialPoint => {
+    const constrainedPoints = potentialPoints.filter((potentialPoint) => {
       if (constraints.whitelist != null) {
         if (
-          !constraints.whitelist.some(constr => {
+          !constraints.whitelist.some((constr) => {
             if (constr.shapeId != potentialPoint.shapeId) return false;
             if (constr.type == 'shapeCenter')
               return potentialPoint.type == 'shapeCenter';
@@ -174,7 +174,7 @@ export class SelectManager {
       }
       if (constraints.blacklist != null) {
         if (
-          constraints.blacklist.some(constr => {
+          constraints.blacklist.some((constr) => {
             if (constr.shapeId != potentialPoint.shapeId) return false;
             if (constr.type == 'shapeCenter')
               return potentialPoint.type == 'shapeCenter';
@@ -211,12 +211,12 @@ export class SelectManager {
     if (constraints.blockHidden) {
       notHiddenPoints = [];
       const shapes = ShapeManager.shapesThatContainsCoordinates(
-        mouseCoordinates
+        mouseCoordinates,
       );
-      constrainedPoints.forEach(pt => {
+      constrainedPoints.forEach((pt) => {
         let shapeIndex = ShapeManager.getShapeIndex(pt.shape);
         if (
-          shapes.every(s => {
+          shapes.every((s) => {
             let otherShapeIndex = ShapeManager.getShapeIndex(s);
             return otherShapeIndex < shapeIndex;
           })
@@ -227,7 +227,7 @@ export class SelectManager {
 
     let bestPoint = notHiddenPoints[0],
       minDist = notHiddenPoints[0].coordinates.dist(mouseCoordinates);
-    notHiddenPoints.forEach(pt => {
+    notHiddenPoints.forEach((pt) => {
       let dist = pt.coordinates.dist(mouseCoordinates);
       if (dist < minDist) {
         minDist = dist;
@@ -246,13 +246,13 @@ export class SelectManager {
     let allSegments = [...app.mainDrawingEnvironment.segments];
     if (constraints.canSelectFromUpper)
       allSegments.push(...app.upperDrawingEnvironment.segments);
-    allSegments.forEach(seg => {
+    allSegments.forEach((seg) => {
       const projection = seg.projectionOnSegment(mouseCoordinates);
       if (
         seg.isCoordinatesOnSegment(projection) &&
         SelectManager.areCoordinatesInSelectionDistance(
           projection,
-          mouseCoordinates
+          mouseCoordinates,
         )
       ) {
         potentialSegments.push({
@@ -263,11 +263,11 @@ export class SelectManager {
     });
 
     // apply constrains
-    const constrainedSegments = potentialSegments.filter(potentialSegment => {
+    const constrainedSegments = potentialSegments.filter((potentialSegment) => {
       let segment = potentialSegment.segment;
       if (constraints.whitelist != null) {
         if (
-          !constraints.whitelist.some(constr => {
+          !constraints.whitelist.some((constr) => {
             if (constr.shapeId != segment.shapeId) return false;
             if (constr.index !== undefined) return constr.index == segment.idx;
             return true;
@@ -277,7 +277,7 @@ export class SelectManager {
       }
       if (constraints.blacklist != null) {
         if (
-          constraints.blacklist.some(constr => {
+          constraints.blacklist.some((constr) => {
             if (constr.shapeId != segment.shapeId) return false;
             if (constr.index !== undefined) return constr.index == segment.idx;
             return true;
@@ -295,7 +295,7 @@ export class SelectManager {
 
     let bestSegment = constrainedSegments[0].segment,
       minDist = constrainedSegments[0].dist;
-    constrainedSegments.forEach(constrainedSegment => {
+    constrainedSegments.forEach((constrainedSegment) => {
       let segment = constrainedSegment.segment;
       let dist = constrainedSegment.dist;
       if (dist < minDist) {
@@ -319,20 +319,20 @@ export class SelectManager {
 
     let shapes = ShapeManager.shapesThatContainsCoordinates(
       mouseCoordinates,
-      constraints
+      constraints,
     );
 
     if (constraints.whitelist != null) {
-      shapes = shapes.filter(shape => {
-        return constraints.whitelist.some(shape2 => {
+      shapes = shapes.filter((shape) => {
+        return constraints.whitelist.some((shape2) => {
           return shape.id == shape2.id;
         });
       });
     }
 
     if (constraints.blacklist != null) {
-      shapes = shapes.filter(shape => {
-        return constraints.blacklist.every(shape2 => {
+      shapes = shapes.filter((shape) => {
+        return constraints.blacklist.every((shape2) => {
           return shape.id != shape2.id;
         });
       });
@@ -367,7 +367,7 @@ export class SelectManager {
       };
     //Vérification que priority est bien défini
     if (
-      !constr.priority.every(p => {
+      !constr.priority.every((p) => {
         return ['points', 'segments', 'shapes'].includes(p);
       }) ||
       constr.priority.length != 3
@@ -383,7 +383,7 @@ export class SelectManager {
         window.dispatchEvent(
           new CustomEvent('objectSelected', {
             detail: { object: obj, mousePos: mouseCoordinates },
-          })
+          }),
         );
         return obj;
       }
@@ -395,9 +395,7 @@ export class SelectManager {
 window.addEventListener('reset-selection-constraints', () => {
   app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
 });
-window.addEventListener('app-state-changed', () => {
-  app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
-});
+
 let click_all_shape_constr = SelectManager.getEmptySelectionConstraints();
 click_all_shape_constr.eventType = 'click';
 click_all_shape_constr.shapes.canSelect = true;

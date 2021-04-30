@@ -1,7 +1,5 @@
-import { GroupState } from './GroupState';
-import { GroupAction } from './GroupAction';
+import { GroupTool } from './GroupTool';
 
 export default {
-  state: new GroupState(),
-  action: new GroupAction()
-}
+  tool: new GroupTool(),
+};
