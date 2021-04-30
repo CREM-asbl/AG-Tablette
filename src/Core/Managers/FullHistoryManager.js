@@ -131,6 +131,8 @@ export class FullHistoryManager {
       } else if (detail.name == 'Découper') {
         FullHistoryManager.nextTime = 0.5 * 1000;
       }
+      let data = detail.data;
+      app.workspace.initFromObject(data);
       setState({ fullHistory: { ...app.fullHistory, actionIndex: app.fullHistory.actionIndex + 1 } });
       if (app.fullHistory.numberOfActions == app.fullHistory.actionIndex)
         setTimeout(() => FullHistoryManager.stopBrowsing(), FullHistoryManager.nextTime);

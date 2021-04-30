@@ -33,6 +33,7 @@ export class App {
       'shapeFillColor': '#000000',
       'shapeBorderColor': '#000000',
       'shapeOpacity': 0.7,
+
       'gridShown': false,
       'gridType': 'none',
       'gridSize': 1,

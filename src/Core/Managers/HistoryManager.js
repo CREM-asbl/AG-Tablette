@@ -35,12 +35,13 @@ export class HistoryManager {
       data = app.history.startSituation;
     }
     app.workspace.initFromObject(data);
-    setState({ tool: null, history: {...app.history, index} });
+    let settings;
     if (!data) {
-      setState({settings: {...app.defaultSettings}});
+      settings = {...app.defaultSettings};
     } else {
-      setState({settings: {...data.settings}});
+      settings = {...app.settings, ...data.settings};
     }
+    setState({ tool: null, history: {...app.history, index}, settings });
     window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Annuler'}}));
   }
 
@@ -59,7 +60,8 @@ export class HistoryManager {
       data = app.history.startSituation;
     }
     app.workspace.initFromObject(data);
-    setState({ tool: null, history: {...app.history, index}, settings: {...data.settings}});
+    let settings = {...app.settings, ...data.settings};
+    setState({ tool: null, history: {...app.history, index}, settings});
     window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Refaire'}}));
   }
 
@@ -81,7 +83,7 @@ export class HistoryManager {
 
   static saveData() {
     let data = app.workspace.data;
-    data.settings = {...app.settings};
+    data.settings = { gridShown: app.settings.gridShown, gridType: app.settings.gridType, gridSize: app.settings.gridSize };
 
     return data;
   }

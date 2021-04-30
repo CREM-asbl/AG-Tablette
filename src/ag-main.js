@@ -163,7 +163,7 @@ class AGTabletteApp extends LitElement {
     return html`
       <div id="app-view">
         <div id="app-menu">
-          <template-toolbar title="hell">
+          <template-toolbar>
             <h2 slot="title">
               ${this.tool?.title != undefined
                 ? this.tool.title
