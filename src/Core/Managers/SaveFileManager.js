@@ -219,6 +219,7 @@ export class SaveFileManager {
         wsdata,
         settings,
         fullHistory,
+        history,
       },
       json_data = JSON.stringify(saveObject);
 
