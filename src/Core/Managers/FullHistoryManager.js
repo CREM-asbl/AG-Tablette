@@ -89,6 +89,13 @@ export class FullHistoryManager {
     let data = app.fullHistory.steps[index]?.detail.data;
     if (data) {
       app.workspace.initFromObject({ ...data });
+      let settings = {
+        ...app.settings,
+        gridShown: data.settings.gridShown,
+        gridType: data.settings.gridType,
+        gridSize: data.settings.gridSize,
+      };
+      setState({settings});
     } else {
       FullHistoryManager.setWorkspaceToStartSituation();
     }
