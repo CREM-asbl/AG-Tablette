@@ -145,7 +145,7 @@ export class MergeTool extends Tool {
 
           let firstShape = app.mainDrawingEnvironment.findObjectById(
             this.firstShapeId,
-            );
+          );
           let secondShape = app.mainDrawingEnvironment.findObjectById(
             this.secondShapeId,
           );
@@ -178,15 +178,16 @@ export class MergeTool extends Tool {
 
     if (mustExecuteAction) {
       this.executeAction();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'start' },
+      });
     } else {
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
     }
-
   }
 
-   _executeAction() {
+  _executeAction() {
     if (this.mode == 'twoShapes') {
       let shape1 = ShapeManager.getShapeById(this.firstShapeId),
         shape2 = ShapeManager.getShapeById(this.secondShapeId);

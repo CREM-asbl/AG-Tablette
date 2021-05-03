@@ -73,13 +73,21 @@ export class UngroupTool extends Tool {
     this.userGroup = GroupManager.getShapeGroup(shape);
     if (this.userGroup) {
       this.executeAction();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'start' },
+      });
     } else {
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'La forme sélectionnée ne fait pas partie d\'un groupe' } }));
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: {
+            message: "La forme sélectionnée ne fait pas partie d'un groupe",
+          },
+        }),
+      );
     }
   }
 
-   _executeAction() {
+  _executeAction() {
     GroupManager.deleteGroup(this.userGroup);
   }
 }

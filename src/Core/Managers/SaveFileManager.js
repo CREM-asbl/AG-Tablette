@@ -197,9 +197,9 @@ export class SaveFileManager {
 
   static saveState(handle, detail) {
     let wsdata = app.workspace.data,
-      settings = {...app.settings},
-      history = {...app.history},
-      fullHistory = {...app.fullHistory};
+      settings = { ...app.settings },
+      history = { ...app.history },
+      fullHistory = { ...app.fullHistory };
 
     SaveFileManager.saveHistory = detail.saveHistory;
     SaveFileManager.saveSettings = detail.saveSettings;

@@ -128,7 +128,7 @@ export class MoveTool extends Tool {
     }
   }
 
-   _executeAction() {
+  _executeAction() {
     const translation = app.workspace.lastKnownMouseCoordinates.substract(
       this.startClickCoordinates,
     );

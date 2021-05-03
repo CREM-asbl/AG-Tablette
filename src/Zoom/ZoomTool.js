@@ -33,11 +33,10 @@ export class ZoomTool extends Tool {
     `;
   }
 
-
   /**
    * initialiser l'état
    */
-   start() {
+  start() {
     this.removeListeners();
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
@@ -60,7 +59,9 @@ export class ZoomTool extends Tool {
   canvasMouseDown() {
     if (app.tool.currentStep != 'start') return;
 
-    this.baseDist = this.getDistanceFromScreenCenter(app.workspace.lastKnownMouseCoordinates);
+    this.baseDist = this.getDistanceFromScreenCenter(
+      app.workspace.lastKnownMouseCoordinates,
+    );
 
     setState({ tool: { ...app.tool, currentStep: 'zoom' } });
   }
@@ -69,7 +70,9 @@ export class ZoomTool extends Tool {
     if (app.tool.currentStep != 'zoom') return;
 
     let scaleOffset =
-        this.getDistanceFromScreenCenter(app.workspace.lastKnownMouseCoordinates) / this.baseDist,
+        this.getDistanceFromScreenCenter(
+          app.workspace.lastKnownMouseCoordinates,
+        ) / this.baseDist,
       originalZoom = app.workspace.zoomLevel,
       minZoom = app.settings.minZoomLevel,
       maxZoom = app.settings.maxZoomLevel;
@@ -103,7 +106,10 @@ export class ZoomTool extends Tool {
   canvasMouseUp() {
     if (app.tool.currentStep != 'zoom') return;
 
-    this.scaleOffset = this.getDistanceFromScreenCenter(app.workspace.lastKnownMouseCoordinates) / this.baseDist;
+    this.scaleOffset =
+      this.getDistanceFromScreenCenter(
+        app.workspace.lastKnownMouseCoordinates,
+      ) / this.baseDist;
     this.originalZoom = app.workspace.zoomLevel;
     this.originalTranslateOffset = app.workspace.translateOffset;
     this.centerProp = new Coordinates({ x: 0.5, y: 0.5 });
@@ -122,7 +128,7 @@ export class ZoomTool extends Tool {
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
   }
 
-   _executeAction() {
+  _executeAction() {
     let newZoom = this.originalZoom * this.scaleOffset,
       actualWinSize = new Coordinates({
         x: app.canvasWidth,

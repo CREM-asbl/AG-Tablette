@@ -9,10 +9,14 @@ import { Coordinates } from '../Objects/Coordinates';
 export class FullHistoryManager {
   static startBrowsing() {
     let numberOfActions = app.fullHistory.steps.filter((step) => {
-      return step.type == 'add-fullstep'
+      return step.type == 'add-fullstep';
     }).length;
     if (numberOfActions == 0) {
-      window.dispatchEvent(new CustomEvent('show-notif', {detail: {message: 'L\'historique est vide.'}}));
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: "L'historique est vide." },
+        }),
+      );
       return;
     }
     import('../../fullhistory-tools');
@@ -28,9 +32,9 @@ export class FullHistoryManager {
         actionIndex: 0,
         numberOfActions: numberOfActions,
         isRunning: true,
-      }
+      },
     });
-    FullHistoryManager.saveHistory = {...app.history};
+    FullHistoryManager.saveHistory = { ...app.history };
     FullHistoryManager.setWorkspaceToStartSituation();
 
     FullHistoryManager.nextTime = 0;
@@ -46,7 +50,7 @@ export class FullHistoryManager {
         ...app.fullHistory,
         isRunning: false,
       },
-      history: {...FullHistoryManager.saveHistory},
+      history: { ...FullHistoryManager.saveHistory },
     });
   }
 
@@ -58,17 +62,20 @@ export class FullHistoryManager {
     let timeoutId = setTimeout(
       () => FullHistoryManager.executeAllSteps(),
       FullHistoryManager.nextTime + 50,
-    )
-    setState({ fullHistory:
-      {
+    );
+    setState({
+      fullHistory: {
         ...app.fullHistory,
         timeoutId,
-      }
+      },
     });
   }
 
   static setWorkspaceToStartSituation() {
-    setState({ settings: {...app.history.startSettings}, history: {...app.defaultState.history}});
+    setState({
+      settings: { ...app.history.startSettings },
+      history: { ...app.defaultState.history },
+    });
     app.workspace.initFromObject(app.history.startSituation);
   }
 
@@ -81,7 +88,7 @@ export class FullHistoryManager {
 
     let data = app.fullHistory.steps[index]?.detail.data;
     if (data) {
-      app.workspace.initFromObject({...data});
+      app.workspace.initFromObject({ ...data });
     } else {
       FullHistoryManager.setWorkspaceToStartSituation();
     }
@@ -92,10 +99,7 @@ export class FullHistoryManager {
   }
 
   static executeAllSteps() {
-    if (
-      app.fullHistory.index >=
-      app.fullHistory.steps.length - 1
-    ) {
+    if (app.fullHistory.index >= app.fullHistory.steps.length - 1) {
       FullHistoryManager.stopBrowsing();
       return;
     }
@@ -107,7 +111,7 @@ export class FullHistoryManager {
     let timeoutId = setTimeout(
       () => FullHistoryManager.executeAllSteps(),
       FullHistoryManager.nextTime + 50, // nextTime,
-    )
+    );
     setState({ fullHistory: { ...app.fullHistory, index, timeoutId } });
 
     FullHistoryManager.nextTime = 0;
@@ -129,16 +133,27 @@ export class FullHistoryManager {
       }
       let data = detail.data;
       app.workspace.initFromObject(data);
-      setState({ fullHistory: { ...app.fullHistory, actionIndex: app.fullHistory.actionIndex + 1 } });
+      setState({
+        fullHistory: {
+          ...app.fullHistory,
+          actionIndex: app.fullHistory.actionIndex + 1,
+        },
+      });
       if (app.fullHistory.numberOfActions == app.fullHistory.actionIndex)
-        setTimeout(() => FullHistoryManager.stopBrowsing(), FullHistoryManager.nextTime);
+        setTimeout(
+          () => FullHistoryManager.stopBrowsing(),
+          FullHistoryManager.nextTime,
+        );
     } else if (type == 'tool-changed') {
-      setState({ tool: {...detail} });
-      if (['divide', 'opacity', 'grid'].includes(app.tool.name) && app.tool.currentStep == 'start') {
+      setState({ tool: { ...detail } });
+      if (
+        ['divide', 'opacity', 'grid'].includes(app.tool.name) &&
+        app.tool.currentStep == 'start'
+      ) {
         window.dispatchEvent(new CustomEvent('close-popup'));
       }
     } else if (type == 'settings-changed') {
-      setState({ settings: {...detail} });
+      setState({ settings: { ...detail } });
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
@@ -169,10 +184,10 @@ export class FullHistoryManager {
       }).length;
       let data = app.workspace.data;
       data.history = undefined;
-      data.settings = {...app.settings};
+      data.settings = { ...app.settings };
       detail.data = data;
     }
-    let steps = [...app.fullHistory.steps, {type, detail}];
+    let steps = [...app.fullHistory.steps, { type, detail }];
     setState({ fullHistory: { ...app.fullHistory, steps } });
   }
 }
@@ -242,7 +257,7 @@ window.addEventListener('actions-executed', (event) =>
     new CustomEvent('add-fullstep', {
       detail: { name: event.detail.name },
     }),
-  )
+  ),
 );
 
 // tangram
@@ -259,9 +274,8 @@ window.addEventListener('undo', (event) =>
   FullHistoryManager.addStep('undo', event),
 );
 window.addEventListener('redo', (event) => {
-  FullHistoryManager.addStep('redo', event)
-}
-);
+  FullHistoryManager.addStep('redo', event);
+});
 
 // window.addEventListener('close-popup', (event) =>
 //   FullHistoryManager.addStep('close-popup', event),
@@ -274,7 +288,7 @@ window.addEventListener('settings-changed', () => {
   FullHistoryManager.addStep('settings-changed', { detail: app.settings });
 });
 
-window.addEventListener('add-fullstep', event => {
+window.addEventListener('add-fullstep', (event) => {
   FullHistoryManager.addStep('add-fullstep', event);
 });
 

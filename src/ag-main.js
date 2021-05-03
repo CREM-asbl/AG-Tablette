@@ -59,10 +59,12 @@ class AGTabletteApp extends LitElement {
     window.addEventListener('tool-changed', () => {
       if (app.tool?.currentStep == 'start') {
         if (app.tool.name == 'backgroundColor') {
-          this.shadowRoot.querySelector('#color-picker').value = app.settings.shapeFillColor;
+          this.shadowRoot.querySelector('#color-picker').value =
+            app.settings.shapeFillColor;
           this.colorPickerValue = app.settings.shapeFillColor;
         } else if (app.tool.name == 'borderColor') {
-          this.shadowRoot.querySelector('#color-picker').value = app.settings.shapeBorderColor;
+          this.shadowRoot.querySelector('#color-picker').value =
+            app.settings.shapeBorderColor;
           this.colorPickerValue = app.settings.shapeBorderColor;
         } else {
           return;
@@ -301,27 +303,25 @@ class AGTabletteApp extends LitElement {
         id="color-picker"
         type="color"
         value="${this.colorPickerValue}"
-        @change="${e =>
-          {
-            if (app.tool.name == 'backgroundColor') {
-              setState({
-                settings: {
-                  ...app.settings,
-                  shapeFillColor: e.target.value,
-                },
-                tool: { ...app.tool, currentStep: 'selectShape' },
-              });
-            } else if (app.tool.name == 'borderColor') {
-              setState({
-                settings: {
-                  ...app.settings,
-                  shapeBorderColor: e.target.value,
-                },
-                tool: { ...app.tool, currentStep: 'selectShape' },
-              });
-            }
+        @change="${(e) => {
+          if (app.tool.name == 'backgroundColor') {
+            setState({
+              settings: {
+                ...app.settings,
+                shapeFillColor: e.target.value,
+              },
+              tool: { ...app.tool, currentStep: 'selectShape' },
+            });
+          } else if (app.tool.name == 'borderColor') {
+            setState({
+              settings: {
+                ...app.settings,
+                shapeBorderColor: e.target.value,
+              },
+              tool: { ...app.tool, currentStep: 'selectShape' },
+            });
           }
-        }"
+        }}"
       />
     `;
   }

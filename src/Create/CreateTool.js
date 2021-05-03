@@ -128,7 +128,7 @@ export class CreateTool extends Tool {
     }
   }
 
-   _executeAction() {
+  _executeAction() {
     const shapeSize = app.settings.shapesSize,
       shapeCoordinates = app.workspace.lastKnownMouseCoordinates;
 

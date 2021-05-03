@@ -85,11 +85,11 @@ export class TranslateTool extends Tool {
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
   }
 
-   _executeAction() {
+  _executeAction() {
     let newOffset = app.workspace.translateOffset.add(
       app.workspace.lastKnownMouseCoordinates
-      .substract(this.startClickCoordinates)
-      .multiply(app.workspace.zoomLevel)
+        .substract(this.startClickCoordinates)
+        .multiply(app.workspace.zoomLevel),
     );
 
     app.workspace.setTranslateOffset(newOffset);

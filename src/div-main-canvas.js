@@ -129,7 +129,7 @@ class DivMainCanvas extends LitElement {
     );
     app.invisibleDrawingEnvironment = this.invisibleDrawingEnvironment;
 
-    setState({started: true});
+    setState({ started: true });
 
     this.setCanvasSize();
     window.onresize = () => {
@@ -422,8 +422,7 @@ class DivMainCanvas extends LitElement {
       event.changedTouches[0] &&
       event.changedTouches[0].clientX !== undefined
     ) {
-      response.x =
-        event.changedTouches[0].clientX - app.settings.mainMenuWidth;
+      response.x = event.changedTouches[0].clientX - app.settings.mainMenuWidth;
       response.y = event.changedTouches[0].clientY;
     } else if (event.offsetX !== undefined) {
       response.x = event.offsetX;

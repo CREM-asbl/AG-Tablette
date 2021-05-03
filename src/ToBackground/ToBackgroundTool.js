@@ -60,7 +60,7 @@ export class ToBackgroundTool extends Tool {
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
-   _executeAction() {
+  _executeAction() {
     this.involvedShapes.forEach((s, index) => {
       let shapeIndex = app.mainDrawingEnvironment.findIndexById(s.id);
       let shape = app.mainDrawingEnvironment.shapes.splice(shapeIndex, 1)[0];

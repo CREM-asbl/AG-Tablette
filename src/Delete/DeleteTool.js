@@ -35,7 +35,7 @@ export class DeleteTool extends Tool {
   start() {
     this.removeListeners();
 
-    this.setSelectionConstraints()
+    this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -51,7 +51,10 @@ export class DeleteTool extends Tool {
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.points.canSelect = true;
-    app.workspace.selectionConstraints.points.types = ['divisionPoint', 'vertex'];
+    app.workspace.selectionConstraints.points.types = [
+      'divisionPoint',
+      'vertex',
+    ];
   }
 
   /**
@@ -79,7 +82,7 @@ export class DeleteTool extends Tool {
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
   }
 
-   _executeAction() {
+  _executeAction() {
     if (this.mode == 'shape') {
       this.involvedShapes.forEach((s) => {
         // if (userGroup) userGroup.deleteShape(s.id);

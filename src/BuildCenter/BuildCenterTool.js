@@ -9,8 +9,6 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 export class BuildCenterTool extends Tool {
   constructor() {
     super('buildCenter', 'Construire le centre', 'operation');
-
-
   }
 
   /**
@@ -36,7 +34,7 @@ export class BuildCenterTool extends Tool {
     this.removeListeners();
 
     app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.click_all_shape;
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -57,7 +55,7 @@ export class BuildCenterTool extends Tool {
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
   }
 
-   _executeAction() {
+  _executeAction() {
     let mustShowCenter = this.involvedShapes.some((s) => {
       return !s.isCenterShown;
     });

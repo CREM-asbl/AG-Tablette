@@ -32,7 +32,16 @@ window.addEventListener('new-window', () => {
   app.mainDrawingEnvironment.removeAllObjects();
   app.upperDrawingEnvironment.removeAllObjects();
   app.backgroundDrawingEnvironment.removeAllObjects();
-  setState({ history: app.defaultState.history, fullHistory: app.defaultState.fullHistory, settings: {...app.settings, gridShown: app.defaultState.settings.gridShown, gridType: app.defaultState.settings.gridType, gridSize: app.defaultState.settings.gridSize} });
+  setState({
+    history: app.defaultState.history,
+    fullHistory: app.defaultState.fullHistory,
+    settings: {
+      ...app.settings,
+      gridShown: app.defaultState.settings.gridShown,
+      gridType: app.defaultState.settings.gridType,
+      gridSize: app.defaultState.settings.gridSize,
+    },
+  });
   WorkspaceManager.setWorkspace(new Workspace());
   // }, 0);
 });

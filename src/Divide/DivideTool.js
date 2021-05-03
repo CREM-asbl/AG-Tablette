@@ -23,8 +23,6 @@ export class DivideTool extends Tool {
     this.drawColor = '#E90CC8';
 
     this.numberOfParts = 2;
-
-
   }
 
   /**
@@ -72,7 +70,10 @@ export class DivideTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 
-    let firstPoint = app.mainDrawingEnvironment.findObjectById(app.tool.firstPointId, 'point');
+    let firstPoint = app.mainDrawingEnvironment.findObjectById(
+      app.tool.firstPointId,
+      'point',
+    );
     new Point({
       coordinates: firstPoint.coordinates,
       drawingEnvironment: app.upperDrawingEnvironment,
@@ -173,7 +174,13 @@ export class DivideTool extends Tool {
         this.firstPointId = object.id;
 
         this.setSelectionConstraints();
-        setState({ tool: { ...app.tool, currentStep: 'selectSecondPoint', firstPointId: this.firstPointId } });
+        setState({
+          tool: {
+            ...app.tool,
+            currentStep: 'selectSecondPoint',
+            firstPointId: this.firstPointId,
+          },
+        });
       }
     } else if (app.tool.currentStep == 'selectSecondPoint') {
       let pt1 = app.mainDrawingEnvironment.findObjectById(
@@ -300,11 +307,13 @@ export class DivideTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+      });
     }, 500);
   }
 
-   _executeAction() {
+  _executeAction() {
     if (this.mode == 'twoPoints') {
       this.segment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
         this.firstPointId,

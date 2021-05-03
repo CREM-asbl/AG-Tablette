@@ -22,7 +22,7 @@ export class SolutionCheckerTool extends Tool {
 
     window.addEventListener('remove-solution-checker', () => this.finish());
 
-    window.addEventListener('file-parsed', () => app.setState(this.name));  // use setState instead of app.setState
+    window.addEventListener('file-parsed', () => app.setState(this.name)); // use setState instead of app.setState
   }
 
   /**

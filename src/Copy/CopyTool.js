@@ -28,8 +28,6 @@ export class CopyTool extends Tool {
     this.involvedShapes = [];
 
     this.translateOffset = new Coordinates({ x: -20, y: -20 });
-
-
   }
 
   /**
@@ -154,7 +152,7 @@ export class CopyTool extends Tool {
     }
   }
 
-   _executeAction() {
+  _executeAction() {
     let shapesList = [];
 
     // sort shapes by height

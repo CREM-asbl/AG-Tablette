@@ -43,8 +43,6 @@ export class ReverseTool extends Tool {
     this.involvedShapes = [];
 
     this.requestAnimFrameId = null;
-
-
   }
 
   /**
@@ -142,7 +140,11 @@ export class ReverseTool extends Tool {
    * @param  {Object} object            La forme sélectionnée
    */
   objectSelected(object) {
-    if ((app.tool.currentStep == 'start' || app.tool.currentStep == 'selectAxis') && object instanceof Shape) {
+    if (
+      (app.tool.currentStep == 'start' ||
+        app.tool.currentStep == 'selectAxis') &&
+      object instanceof Shape
+    ) {
       let selectedShape = object;
 
       // let involvedShapes = ShapeManager.getAllBindedShapes(
@@ -154,13 +156,13 @@ export class ReverseTool extends Tool {
       //     ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
       // );
 
-      setState({ tool:
-        {
+      setState({
+        tool: {
           ...app.tool,
           currentStep: 'selectAxis',
           selectedShapeId: selectedShape.id,
           // involvedShapeIds: involvedShapes.map(s => s.id)
-        }
+        },
       });
     } else if (
       app.tool.currentStep == 'selectAxis' &&
@@ -215,25 +217,30 @@ export class ReverseTool extends Tool {
         });
       });
 
-      this.axes
-        .forEach((axis) =>
-          app.upperDrawingEnvironment.removeObjectById(axis.id, 'shape'),
-        );
+      this.axes.forEach((axis) =>
+        app.upperDrawingEnvironment.removeObjectById(axis.id, 'shape'),
+      );
 
-      setState({ tool: { ...app.tool, currentStep: 'reverse', axisAngle: this.axisAngle } });
+      setState({
+        tool: {
+          ...app.tool,
+          currentStep: 'reverse',
+          axisAngle: this.axisAngle,
+        },
+      });
       window.dispatchEvent(new CustomEvent('refresh'));
     }
   }
 
   createAllAxes() {
     this.axes[0] = this.createAxis(Math.PI / 2);
-    this.axes[1] = this.createAxis(3 * Math.PI / 4);
+    this.axes[1] = this.createAxis((3 * Math.PI) / 4);
     this.axes[2] = this.createAxis(0);
     this.axes[3] = this.createAxis(Math.PI / 4);
   }
 
   createAxis(orientation) {
-  let path = '';
+    let path = '';
     if (Math.abs(orientation - Math.PI / 2) < 0.01) {
       path = [
         'M',
@@ -261,7 +268,7 @@ export class ReverseTool extends Tool {
         this.center.x + this.axisLength / 2,
         this.center.y,
       ].join(' ');
-    } else if (Math.abs(orientation - 3 * Math.PI / 4) < 0.01) {
+    } else if (Math.abs(orientation - (3 * Math.PI) / 4) < 0.01) {
       path = [
         'M',
         this.center.x + (0.683 * this.axisLength) / 2,
@@ -290,7 +297,9 @@ export class ReverseTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name == 'reverse') {
       this.executeAction();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'start' },
+      });
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
@@ -324,7 +333,7 @@ export class ReverseTool extends Tool {
     }
   }
 
-   _executeAction() {
+  _executeAction() {
     let selectedAxis = this.createAxis(app.tool.axisAngle).segments[0];
     let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
     let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);

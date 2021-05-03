@@ -19,7 +19,7 @@ export class BackgroundColorTool extends Tool {
    * Renvoie l'aide à afficher à l'utilisateur
    * @return {String} L'aide, en HTML
    */
-   getHelpText() {
+  getHelpText() {
     let toolName = this.title;
     return html`
       <h2>${toolName}</h2>
@@ -38,7 +38,7 @@ export class BackgroundColorTool extends Tool {
     this.removeListeners();
 
     app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.click_all_shape;
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -46,7 +46,7 @@ export class BackgroundColorTool extends Tool {
     this.removeListeners();
 
     app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.click_all_shape;
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -65,10 +65,12 @@ export class BackgroundColorTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectShape' } });
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'selectShape' },
+    });
   }
 
-   _executeAction() {
+  _executeAction() {
     let mustChangeOpacity = false;
 
     // setOpacity quand transparent

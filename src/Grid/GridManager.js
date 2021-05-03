@@ -16,7 +16,7 @@ addEventListener('settings-changed', () => {
   if (app.settings.gridShown) {
     GridManager.drawGridPoints();
   }
-})
+});
 
 export class GridManager {
   /**

@@ -33,11 +33,11 @@ export class BorderColorTool extends Tool {
   /**
    * initialiser l'état
    */
-   start() {
+  start() {
     this.removeListeners();
 
     app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.click_all_shape;
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -45,7 +45,7 @@ export class BorderColorTool extends Tool {
     this.removeListeners();
 
     app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.click_all_shape;
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -60,14 +60,16 @@ export class BorderColorTool extends Tool {
    * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
    * @param  {Shape} shape            La forme sélectionnée
    */
-   objectSelected(shape) {
+  objectSelected(shape) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectShape' } });
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'selectShape' },
+    });
   }
 
-   _executeAction() {
+  _executeAction() {
     this.involvedShapes.forEach((s) => {
       s.borderColor = app.settings.shapeBorderColor;
     });

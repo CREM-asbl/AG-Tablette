@@ -18,7 +18,15 @@ const loadModules = async (list) => {
   const modules = await Promise.all(
     list.map(async (module) => await import(`../../${module}/index.js`)),
   );
-  setState({ tools: modules.map((module) => {return {name: module.default.tool.name, title: module.default.tool.title, type: module.default.tool.type}}) });
+  setState({
+    tools: modules.map((module) => {
+      return {
+        name: module.default.tool.name,
+        title: module.default.tool.title,
+        type: module.default.tool.type,
+      };
+    }),
+  });
 };
 
 const loadKit = async (name) => {

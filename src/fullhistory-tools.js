@@ -20,10 +20,8 @@ class FullHistoryTools extends LitElement {
     this.index = 0;
 
     this.eventHandler = () => {
-      if (app.fullHistory.isRunning)
-        this.index = app.fullHistory.actionIndex;
-      else
-        this.close();
+      if (app.fullHistory.isRunning) this.index = app.fullHistory.actionIndex;
+      else this.close();
     };
     this.close = () => {
       this.remove();
@@ -114,7 +112,7 @@ class FullHistoryTools extends LitElement {
           background-color: #0000;
         }
         button#b${this.index} {
-          background-color: #00F;
+          background-color: #00f;
         }
       </style>
       <nav id="sidebar">

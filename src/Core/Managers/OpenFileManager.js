@@ -58,24 +58,28 @@ export class OpenFileManager {
     WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
 
     if (saveObject.settings) {
-      setState({ settings: {...saveObject.settings}});
+      setState({ settings: { ...saveObject.settings } });
     } else {
       app.resetSettings();
     }
 
     if (saveObject.fullHistory) {
-      setState({ fullHistory: {...saveObject.fullHistory}});
+      setState({ fullHistory: { ...saveObject.fullHistory } });
     } else {
       setState({
-        fullHistory: {...app.defaultState.fullHistory},
+        fullHistory: { ...app.defaultState.fullHistory },
       });
     }
 
     if (saveObject.history) {
-      setState({ history: {...saveObject.history}});
+      setState({ history: { ...saveObject.history } });
     } else {
       setState({
-        history: {...app.defaultState.history, startSituation: {...app.workspace.data}, startSettings: {...app.settings}},
+        history: {
+          ...app.defaultState.history,
+          startSituation: { ...app.workspace.data },
+          startSettings: { ...app.settings },
+        },
       });
     }
 

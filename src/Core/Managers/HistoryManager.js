@@ -37,12 +37,19 @@ export class HistoryManager {
     app.workspace.initFromObject(data);
     let settings;
     if (!data) {
-      settings = {...app.settings, gridShown: app.settings.gridShown, gridType: app.settings.gridType, gridSize: app.settings.gridSize};
+      settings = {
+        ...app.settings,
+        gridShown: app.settings.gridShown,
+        gridType: app.settings.gridType,
+        gridSize: app.settings.gridSize,
+      };
     } else {
-      settings = {...app.settings, ...data.settings};
+      settings = { ...app.settings, ...data.settings };
     }
-    setState({ tool: null, history: {...app.history, index}, settings });
-    window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Annuler'}}));
+    setState({ tool: null, history: { ...app.history, index }, settings });
+    window.dispatchEvent(
+      new CustomEvent('add-fullstep', { detail: { name: 'Annuler' } }),
+    );
   }
 
   /**
@@ -60,9 +67,11 @@ export class HistoryManager {
       data = app.history.startSituation;
     }
     app.workspace.initFromObject(data);
-    let settings = {...app.settings, ...data.settings};
-    setState({ tool: null, history: {...app.history, index}, settings});
-    window.dispatchEvent(new CustomEvent('add-fullstep', {detail: {name: 'Refaire'}}));
+    let settings = { ...app.settings, ...data.settings };
+    setState({ tool: null, history: { ...app.history, index }, settings });
+    window.dispatchEvent(
+      new CustomEvent('add-fullstep', { detail: { name: 'Refaire' } }),
+    );
   }
 
   /**
@@ -77,13 +86,16 @@ export class HistoryManager {
       HistoryManager.saveData(),
     );
     let index = steps.length - 1;
-    setState({ history: {...app.history, steps, index}});
+    setState({ history: { ...app.history, steps, index } });
   }
-
 
   static saveData() {
     let data = app.workspace.data;
-    data.settings = { gridShown: app.settings.gridShown, gridType: app.settings.gridType, gridSize: app.settings.gridSize };
+    data.settings = {
+      gridShown: app.settings.gridShown,
+      gridType: app.settings.gridType,
+      gridSize: app.settings.gridSize,
+    };
 
     return data;
   }

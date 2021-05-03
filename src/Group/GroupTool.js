@@ -146,7 +146,9 @@ export class GroupTool extends Tool {
         this.group = GroupManager.getShapeGroup(shape);
       }
       this.executeAction();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'fillGroup' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'fillGroup' },
+      });
     } else {
       // fillGroup
       this.secondGroup = GroupManager.getShapeGroup(shape);
@@ -181,7 +183,9 @@ export class GroupTool extends Tool {
         this.firstShapeId = shape.id;
       }
       this.executeAction();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'fillGroup' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'fillGroup' },
+      });
     }
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));

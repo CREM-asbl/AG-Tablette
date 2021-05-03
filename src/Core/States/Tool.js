@@ -47,7 +47,7 @@ export class Tool {
   /**
    * Exécuter les actions liée à l'état.
    */
-   executeAction() {
+  executeAction() {
     this._executeAction();
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -110,7 +110,11 @@ export class Tool {
     } else {
       if (event.type == 'objectSelected') {
         this.objectSelected(event.detail.object);
-      } else if (['canvasTouchStart', 'canvasTouchMove', 'canvasTouchEnd'].includes(event.type)) {
+      } else if (
+        ['canvasTouchStart', 'canvasTouchMove', 'canvasTouchEnd'].includes(
+          event.type,
+        )
+      ) {
         this[event.type](event.detail.touches);
       } else if (event.type == 'canvasMouseWheel') {
         this[event.type](event.detail.deltaY);

@@ -13,7 +13,7 @@ class SettingsPopup extends LitElement {
 
   constructor() {
     super();
-    this.settings = {...app.settings};
+    this.settings = { ...app.settings };
 
     addEventListener(
       'settings-changed',
@@ -76,19 +76,13 @@ class SettingsPopup extends LitElement {
                 id="settings_shapes_size"
                 @change="${this._actionHandle}"
               >
-                <option value="1" ?selected="${
-                  this.settings.shapesSize === 1
-                }">
+                <option value="1" ?selected="${this.settings.shapesSize === 1}">
                   1
                 </option>
-                <option value="2" ?selected="${
-                  this.settings.shapesSize === 2
-                }">
+                <option value="2" ?selected="${this.settings.shapesSize === 2}">
                   2
                 </option>
-                <option value="3" ?selected="${
-                  this.settings.shapesSize === 3
-                }">
+                <option value="3" ?selected="${this.settings.shapesSize === 3}">
                   3
                 </option>
               </select>
@@ -129,24 +123,30 @@ class SettingsPopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'settings_automatic_adjustment':
-        setState({ settings: {
-          ...app.settings,
-          'automaticAdjustment': event.target.checked,
-        }});
+        setState({
+          settings: {
+            ...app.settings,
+            automaticAdjustment: event.target.checked,
+          },
+        });
         break;
 
       case 'settings_shapes_size':
-        setState({ settings: {
-          ...app.settings,
-          'shapesSize': parseInt(event.target.value),
-        }});
+        setState({
+          settings: {
+            ...app.settings,
+            shapesSize: parseInt(event.target.value),
+          },
+        });
         break;
 
       case 'settings_shapes_pointed':
-        setState({ settings: {
-          ...app.settings,
-          'areShapesPointed': event.target.checked,
-        }});
+        setState({
+          settings: {
+            ...app.settings,
+            areShapesPointed: event.target.checked,
+          },
+        });
         break;
 
       default:

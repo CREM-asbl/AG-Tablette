@@ -7,12 +7,15 @@ class DividePopup extends LitElement {
   constructor() {
     super();
 
-    window.addEventListener('close-popup', () => {
-      this.submitAndClose();
-    },
-    {
-      once: true,
-    });
+    window.addEventListener(
+      'close-popup',
+      () => {
+        this.submitAndClose();
+      },
+      {
+        once: true,
+      },
+    );
 
     this.updateProperties = () => {
       this.parts = app.settings.numberOfDivisionParts;
@@ -21,7 +24,7 @@ class DividePopup extends LitElement {
 
     this.eventHandler = () => {
       this.updateProperties();
-    }
+    };
     window.addEventListener('settings-changed', this.eventHandler);
   }
 
@@ -52,7 +55,12 @@ class DividePopup extends LitElement {
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts">Diviser en</label>
           <select @change="${this.changeNumberOfParts}">
-            ${range(2, 9).map(x => html`<option value="${x}" ?selected="${this.parts == x}">${x}</option>`)}
+            ${range(2, 9).map(
+              (x) =>
+                html`<option value="${x}" ?selected="${this.parts == x}">
+                  ${x}
+                </option>`,
+            )}
           </select>
           <span>parties</span>
         </div>
@@ -65,11 +73,15 @@ class DividePopup extends LitElement {
   }
 
   changeNumberOfParts(event) {
-    setState({ settings: { ...app.settings, numberOfDivisionParts: event.target.value } });
+    setState({
+      settings: { ...app.settings, numberOfDivisionParts: event.target.value },
+    });
   }
 
   submit() {
-    setState({ tool: { ...app.tool, name: 'divide', currentStep: 'selectObject' } });
+    setState({
+      tool: { ...app.tool, name: 'divide', currentStep: 'selectObject' },
+    });
   }
 
   close() {

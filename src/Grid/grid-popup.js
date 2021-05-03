@@ -6,12 +6,15 @@ class GridPopup extends LitElement {
   constructor() {
     super();
 
-    window.addEventListener('close-popup', () => {
-      this.submitAndClose();
-    },
-    {
-      once: true,
-    });
+    window.addEventListener(
+      'close-popup',
+      () => {
+        this.submitAndClose();
+      },
+      {
+        once: true,
+      },
+    );
 
     this.updateProperties = () => {
       this.gridType = app.settings.gridType;
@@ -22,7 +25,7 @@ class GridPopup extends LitElement {
 
     this.eventHandler = () => {
       this.updateProperties();
-    }
+    };
     window.addEventListener('settings-changed', this.eventHandler);
   }
 
@@ -141,21 +144,21 @@ class GridPopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'grid_popup_grid_type':
-        setState({ settings:
-          {
+        setState({
+          settings: {
             ...app.settings,
             gridType: event.target.value,
-            gridShown: event.target.value !== 'none'
-          }
+            gridShown: event.target.value !== 'none',
+          },
         });
         break;
 
       case 'grid_popup_grid_size':
-        setState({ settings:
-          {
+        setState({
+          settings: {
             ...app.settings,
             gridSize: event.target.value,
-          }
+          },
         });
         break;
 

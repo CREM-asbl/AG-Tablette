@@ -17,34 +17,34 @@ export class App {
     this.tools = [];
 
     this.settings = {
-      'magnetismDistance': 10,
-      'selectionDistance': 20,
-      'precision': 1.5,
-      'maxZoomLevel': 10,
-      'minZoomLevel': 0.1,
-      'mainMenuWidth': 250,
-      'constraintsDrawColor': '#080',
-      'temporaryDrawColor': '#E90CC8',
+      magnetismDistance: 10,
+      selectionDistance: 20,
+      precision: 1.5,
+      maxZoomLevel: 10,
+      minZoomLevel: 0.1,
+      mainMenuWidth: 250,
+      constraintsDrawColor: '#080',
+      temporaryDrawColor: '#E90CC8',
 
-      'automaticAdjustment': true,
-      'areShapesPointed': true,
-      'shapesSize': 2,
-      'numberOfDivisionParts': 2,
-      'shapeFillColor': '#000000',
-      'shapeBorderColor': '#000000',
-      'shapeOpacity': 0.7,
+      automaticAdjustment: true,
+      areShapesPointed: true,
+      shapesSize: 2,
+      numberOfDivisionParts: 2,
+      shapeFillColor: '#000000',
+      shapeBorderColor: '#000000',
+      shapeOpacity: 0.7,
 
-      'gridShown': false,
-      'gridType': 'none',
-      'gridSize': 1,
-    }
+      gridShown: false,
+      gridType: 'none',
+      gridSize: 1,
+    };
 
     this.history = {
       index: -1,
       steps: [],
       startSituation: null,
-      startSettings: {...this.settings},
-    }
+      startSettings: { ...this.settings },
+    };
 
     this.fullHistory = {
       index: 0,
@@ -52,15 +52,15 @@ export class App {
       numberOfActions: 0,
       steps: [],
       isRunning: false,
-    }
+    };
 
     this.started = false;
 
     this.defaultState = {
       tool: null,
-      settings: {...this.settings},
-      history: {...this.history},
-      fullHistory: {...this.fullHistory},
+      settings: { ...this.settings },
+      history: { ...this.history },
+      fullHistory: { ...this.fullHistory },
     };
 
     // compteur d'écouteurs pour certains event
@@ -95,12 +95,14 @@ export class App {
   }
 
   resetSettings() {
-    setState({ settings: {
-      ...app.defaultState.settings,
-      gridShown: app.settings.gridShown,
-      gridType: app.settings.gridType,
-      gridSize: app.settings.gridSize,
-    }});
+    setState({
+      settings: {
+        ...app.defaultState.settings,
+        gridShown: app.settings.gridShown,
+        gridType: app.settings.gridType,
+        gridSize: app.settings.gridSize,
+      },
+    });
   }
 
   start() {
@@ -121,7 +123,7 @@ export const setState = (update) => {
   // if (window.dev_mode) console.log(app);
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   if ('tool' in update) {
-    let toolInfo = app.tools.find(tool => tool.name == app.tool?.name);
+    let toolInfo = app.tools.find((tool) => tool.name == app.tool?.name);
     if (toolInfo) {
       app.tool.title = toolInfo.title;
       app.tool.type = toolInfo.type;
@@ -132,7 +134,9 @@ export const setState = (update) => {
     window.dispatchEvent(new CustomEvent('settings-changed', { detail: app }));
   }
   if ('fullHistory' in update) {
-    window.dispatchEvent(new CustomEvent('fullHistory-changed', { detail: app }));
+    window.dispatchEvent(
+      new CustomEvent('fullHistory-changed', { detail: app }),
+    );
   }
   if ('history' in update) {
     window.dispatchEvent(new CustomEvent('history-changed', { detail: app }));

@@ -133,17 +133,26 @@ export class CutTool extends Tool {
   }
 
   get firstPoint() {
-    let firstPoint = app.mainDrawingEnvironment.findObjectById(app.tool.firstPointId, 'point');
+    let firstPoint = app.mainDrawingEnvironment.findObjectById(
+      app.tool.firstPointId,
+      'point',
+    );
     return firstPoint;
   }
 
   get centerPoint() {
-    let centerPoint = app.mainDrawingEnvironment.findObjectById(app.tool.centerPointId, 'point');
+    let centerPoint = app.mainDrawingEnvironment.findObjectById(
+      app.tool.centerPointId,
+      'point',
+    );
     return centerPoint;
   }
 
   get secondPoint() {
-    let secondPoint = app.mainDrawingEnvironment.findObjectById(app.tool.secondPointId, 'point');
+    let secondPoint = app.mainDrawingEnvironment.findObjectById(
+      app.tool.secondPointId,
+      'point',
+    );
     return secondPoint;
   }
 
@@ -158,23 +167,41 @@ export class CutTool extends Tool {
       //On a sélectionné le premier point
       if (object.shape.isSegment() && object.type == 'divisionPoint') {
         this.secondPoint = null;
-        setState({ tool: { ...app.tool, currentStep: 'cut', firstPointId: object.id } });
+        setState({
+          tool: { ...app.tool, currentStep: 'cut', firstPointId: object.id },
+        });
       } else {
-        setState({ tool: { ...app.tool, currentStep: 'selectSecondPoint', firstPointId: object.id } });
+        setState({
+          tool: {
+            ...app.tool,
+            currentStep: 'selectSecondPoint',
+            firstPointId: object.id,
+          },
+        });
       }
     } else if (app.tool.currentStep == 'selectSecondPoint') {
       const pt1 = this.firstPoint,
         pt2 = object;
       if (pt1.id == pt2.id) {
         // Désélectionner le premier point
-        setState({ tool: { ...app.tool, currentStep: 'start', firstPointId: undefined } });
+        setState({
+          tool: { ...app.tool, currentStep: 'start', firstPointId: undefined },
+        });
       } else if (this.isLineValid(pt1.shape, pt1, pt2)) {
         if (pt2.type == 'shapeCenter') {
           // On a sélectionné le second point: le centre
-          setState({ tool: { ...app.tool, currentStep: 'selectThirdPoint', centerPointId: pt2.id } });
+          setState({
+            tool: {
+              ...app.tool,
+              currentStep: 'selectThirdPoint',
+              centerPointId: pt2.id,
+            },
+          });
         } else {
           // On a sélectionné le second point: un autre point
-          setState({ tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id } });
+          setState({
+            tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
+          });
         }
       }
     } else if (app.tool.currentStep == 'selectThirdPoint') {
@@ -183,12 +210,27 @@ export class CutTool extends Tool {
       //On a sélectionné le dernier point
       if (pt2.type == 'shapeCenter') {
         // Désélectionner le centre
-        setState({ tool: { ...app.tool, currentStep: 'selectSecondPoint', centerPointId: undefined } });
+        setState({
+          tool: {
+            ...app.tool,
+            currentStep: 'selectSecondPoint',
+            centerPointId: undefined,
+          },
+        });
       } else if (pt1.id == pt2.id) {
         // Désélectionner le premier point et le centre
-        setState({ tool: { ...app.tool, currentStep: 'start', firstPointId: undefined , centerPointId: undefined} });
+        setState({
+          tool: {
+            ...app.tool,
+            currentStep: 'start',
+            firstPointId: undefined,
+            centerPointId: undefined,
+          },
+        });
       } else if (this.isLineValid(pt2.shape, this.centerPoint, pt2)) {
-        setState({ tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id } });
+        setState({
+          tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
+        });
       }
     }
 
@@ -203,7 +245,16 @@ export class CutTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'start', firstPointId: undefined, secondPointId: undefined, centerPointId: undefined } });
+      setState({
+        tool: {
+          ...app.tool,
+          name: this.name,
+          currentStep: 'start',
+          firstPointId: undefined,
+          secondPointId: undefined,
+          centerPointId: undefined,
+        },
+      });
     }, 500);
   }
 
@@ -326,11 +377,10 @@ export class CutTool extends Tool {
     }
   }
 
-
   /**
    * effectuer l'action en cours, appelé par un state ou l'historique
    */
-    _executeAction() {
+  _executeAction() {
     let pt1 = this.firstPoint,
       pt2 = this.secondPoint,
       shape = pt1.shape,

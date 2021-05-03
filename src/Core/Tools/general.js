@@ -169,6 +169,7 @@ export function isAlmostInfinite(number) {
 
 export function range(start, end) {
   let numberOfelems = end - start;
-  return Array.apply(0, Array(numberOfelems))
-    .map((element, index) => index + start);
+  return Array.apply(0, Array(numberOfelems)).map(
+    (element, index) => index + start,
+  );
 }

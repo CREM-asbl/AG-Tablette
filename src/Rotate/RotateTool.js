@@ -174,7 +174,7 @@ export class RotateTool extends Tool {
     }
   }
 
-   _executeAction() {
+  _executeAction() {
     let center = this.selectedShape.centerCoordinates;
 
     this.involvedShapes.forEach((s) => {

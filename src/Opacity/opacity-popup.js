@@ -6,12 +6,15 @@ class OpacityPopup extends LitElement {
   constructor() {
     super();
 
-    window.addEventListener('close-popup', () => {
-      this.submitAndClose();
-    },
-    {
-      once: true,
-    });
+    window.addEventListener(
+      'close-popup',
+      () => {
+        this.submitAndClose();
+      },
+      {
+        once: true,
+      },
+    );
 
     this.updateProperties = () => {
       this.opacity = app.settings.shapeOpacity;
@@ -20,9 +23,8 @@ class OpacityPopup extends LitElement {
 
     this.eventHandler = () => {
       this.updateProperties();
-    }
+    };
     window.addEventListener('settings-changed', this.eventHandler);
-
   }
 
   static get properties() {
@@ -53,9 +55,7 @@ class OpacityPopup extends LitElement {
               <option value="0.7" ?selected="${this.opacity == 0.7}">
                 semi-transparent
               </option>
-              <option value="1" ?selected="${this.opacity == 1}">
-                opaque
-              </option>
+              <option value="1" ?selected="${this.opacity == 1}">opaque</option>
             </select>
           </div>
         </div>
@@ -68,11 +68,15 @@ class OpacityPopup extends LitElement {
   }
 
   changeOpacity(event) {
-    setState({ settings: { ...app.settings, shapeOpacity: event.target.value } });
+    setState({
+      settings: { ...app.settings, shapeOpacity: event.target.value },
+    });
   }
 
   submit() {
-    setState({ tool: { ...app.tool, name: 'opacity', currentStep: 'selectObject' } });
+    setState({
+      tool: { ...app.tool, name: 'opacity', currentStep: 'selectObject' },
+    });
   }
 
   close() {

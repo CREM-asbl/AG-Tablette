@@ -50,7 +50,7 @@ export class PermanentZoomTool extends Tool {
   canvasTouchStart(touches) {
     if (touches.length == 2) {
       let point1 = touches[0],
-      point2 = touches[1];
+        point2 = touches[1];
       this.centerProp = new Coordinates({
         x: (point1.x + point2.x) / 2 / app.canvasWidth,
         y: (point1.y + point2.y) / 2 / app.canvasHeight,
@@ -59,7 +59,9 @@ export class PermanentZoomTool extends Tool {
       if (this.baseDist == 0) this.baseDist = 0.001;
 
       app.upperDrawingEnvironment.removeAllObjects();
-      setState({ tool: { name: this.name, currentStep: 'start', mode: 'touch' } });
+      setState({
+        tool: { name: this.name, currentStep: 'start', mode: 'touch' },
+      });
     }
   }
 
@@ -156,9 +158,11 @@ export class PermanentZoomTool extends Tool {
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'init' } });
   }
 
-   _executeAction() {
+  _executeAction() {
     let originalZoom = app.workspace.zoomLevel;
-    let originalTranslateOffset = new Coordinates(app.workspace.translateOffset);
+    let originalTranslateOffset = new Coordinates(
+      app.workspace.translateOffset,
+    );
 
     let newZoom = originalZoom * this.scaleOffset,
       actualWinSize = new Coordinates({

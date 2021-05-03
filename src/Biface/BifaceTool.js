@@ -73,7 +73,7 @@ export class BifaceTool extends Tool {
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
   }
 
-   _executeAction() {
+  _executeAction() {
     // if ! all biface => set to biface
     // else set to not biface
     let valueToSet = !this.involvedShapes.every((s) => {

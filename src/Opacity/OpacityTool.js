@@ -70,10 +70,12 @@ export class OpacityTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+    });
   }
 
-   _executeAction() {
+  _executeAction() {
     this.involvedShapes.forEach((s) => {
       s.opacity = app.settings.shapeOpacity;
     });
