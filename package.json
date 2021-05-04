@@ -18,5 +18,9 @@
     "@snowpack/plugin-dotenv": "^2.0.5",
     "@web/test-runner": "^0.12.15",
     "prettier": "^2.0.5"
+  },
+  "dependencies": {
+    "lit": "*",
+    "pwa-helpers": "^0.9.1"
   }
 }
