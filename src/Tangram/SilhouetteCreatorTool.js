@@ -17,8 +17,8 @@ export class SilhouetteCreatorTool extends Tool {
 
     window.addEventListener('new-window', () => this.finish());
 
-    window.addEventListener('app-state-changed', (event) => {
-      if (event.detail.state == 'solveChecker') this.finish();
+    window.addEventListener('tool-changed', () => {
+      if (app.tool.name == 'solveChecker') this.finish();
     });
   }
 

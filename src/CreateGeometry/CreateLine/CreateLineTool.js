@@ -1,5 +1,5 @@
 import { app } from '../../Core/App';
-import { Tool } from '../../Core/States/State';
+import { Tool } from '../../Core/States/Tool';
 import { html } from 'lit-element';
 import { createElem, uniqId } from '../../Core/Tools/general';
 import { SelectManager } from '../../Core/Managers/SelectManager';

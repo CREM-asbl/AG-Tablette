@@ -1,5 +1,5 @@
 import { app } from '../../Core/App';
-import { Tool } from '../../Core/States/State';
+import { Tool } from '../../Core/States/Tool';
 import { html } from 'lit-element';
 import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Segment } from '../../Core/Objects/Segment';
