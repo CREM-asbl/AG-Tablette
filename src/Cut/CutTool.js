@@ -50,6 +50,7 @@ export class CutTool extends Tool {
    */
   start() {
     this.removeListeners();
+    app.upperDrawingEnvironment.removeAllObjects();
 
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -381,6 +382,7 @@ export class CutTool extends Tool {
    * effectuer l'action en cours, appelé par un state ou l'historique
    */
   _executeAction() {
+    console.log('execute');
     let pt1 = this.firstPoint,
       pt2 = this.secondPoint,
       shape = pt1.shape,
