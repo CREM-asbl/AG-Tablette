@@ -58,6 +58,9 @@ export class PermanentZoomTool extends Tool {
       this.baseDist = point1.dist(point2);
       if (this.baseDist == 0) this.baseDist = 0.001;
 
+      this.originalTranslateOffset = app.workspace.translateOffset;
+      this.originalZoom = app.workspace.zoomLevel;
+
       app.upperDrawingEnvironment.removeAllObjects();
       setState({
         tool: { name: this.name, currentStep: 'start', mode: 'touch' },
@@ -76,26 +79,25 @@ export class PermanentZoomTool extends Tool {
       this.lastDist = newDist;
 
       let scaleOffset = newDist / this.baseDist,
-        originalZoom = app.workspace.zoomLevel,
         minZoom = app.settings.minZoomLevel,
         maxZoom = app.settings.maxZoomLevel;
-      if (scaleOffset * originalZoom > maxZoom) {
+      if (scaleOffset * this.originalZoom > maxZoom) {
         // -> scaleOffset*originalZoom = maxZoom
-        scaleOffset = maxZoom / originalZoom - 0.001;
+        scaleOffset = maxZoom / this.originalZoom - 0.001;
       }
-      if (scaleOffset * originalZoom < minZoom) {
-        scaleOffset = minZoom / originalZoom + 0.001;
+      if (scaleOffset * this.originalZoom < minZoom) {
+        scaleOffset = minZoom / this.originalZoom + 0.001;
       }
 
-      let originalTranslateOffset = app.workspace.translateOffset,
-        newZoom = originalZoom * scaleOffset,
+      let
+        newZoom = this.originalZoom * scaleOffset,
         actualWinSize = new Coordinates({
           x: app.canvasWidth,
           y: app.canvasHeight,
-        }).multiply(1 / originalZoom),
+        }).multiply(1 / this.originalZoom),
         newWinSize = actualWinSize.multiply(1 / scaleOffset),
-        newTranslateoffset = originalTranslateOffset
-          .multiply(1 / originalZoom)
+        newTranslateoffset = this.originalTranslateOffset
+          .multiply(1 / this.originalZoom)
           .add(
             newWinSize
               .substract(actualWinSize)
@@ -105,9 +107,6 @@ export class PermanentZoomTool extends Tool {
 
       app.workspace.setZoomLevel(newZoom, false);
       app.workspace.setTranslateOffset(newTranslateoffset);
-
-      app.workspace.setTranslateOffset(originalTranslateOffset, false);
-      app.workspace.setZoomLevel(originalZoom, false);
     }
   }
 
@@ -115,7 +114,7 @@ export class PermanentZoomTool extends Tool {
     if (app.tool.currentStep != 'start') return;
 
     let offset = this.lastDist / this.baseDist,
-      actualZoom = app.workspace.zoomLevel,
+      actualZoom = this.originalZoom,
       minZoom = app.settings.minZoomLevel,
       maxZoom = app.settings.maxZoomLevel;
 
@@ -134,18 +133,20 @@ export class PermanentZoomTool extends Tool {
   }
 
   canvasMouseWheel(deltaY) {
-    let actualZoom = app.workspace.zoomLevel,
-      minZoom = app.settings.minZoomLevel,
+    this.originalTranslateOffset = app.workspace.translateOffset;
+    this.originalZoom = app.workspace.zoomLevel;
+
+    let minZoom = app.settings.minZoomLevel,
       maxZoom = app.settings.maxZoomLevel,
-      offset = (actualZoom - deltaY / 100) / actualZoom,
+      offset = (this.originalZoom - deltaY / 100) / this.originalZoom,
       mousePos = app.workspace.lastKnownMouseCoordinates;
 
-    if (offset * actualZoom > maxZoom) {
-      // -> offset*actualZoom = maxZoom
-      offset = maxZoom / actualZoom - 0.001;
+    if (offset * this.originalZoom > maxZoom) {
+      // -> offset*originalZoom = maxZoom
+      offset = maxZoom / this.originalZoom - 0.001;
     }
-    if (offset * actualZoom < minZoom) {
-      offset = minZoom / actualZoom + 0.001;
+    if (offset * this.originalZoom < minZoom) {
+      offset = minZoom / this.originalZoom + 0.001;
     }
 
     this.scaleOffset = offset;
@@ -159,9 +160,9 @@ export class PermanentZoomTool extends Tool {
   }
 
   _executeAction() {
-    let originalZoom = app.workspace.zoomLevel;
+    let originalZoom = this.originalZoom;
     let originalTranslateOffset = new Coordinates(
-      app.workspace.translateOffset,
+      this.originalTranslateOffset,
     );
 
     let newZoom = originalZoom * this.scaleOffset,
