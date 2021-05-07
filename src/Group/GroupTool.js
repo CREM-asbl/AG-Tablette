@@ -201,7 +201,7 @@ export class GroupTool extends Tool {
     } else {
       // merge
       let group1 = this.group,
-        group2 = this.otherGroup;
+        group2 = this.secondGroup;
 
       group1.shapesIds = [...group1.shapesIds, ...group2.shapesIds];
       GroupManager.deleteGroup(group2);
