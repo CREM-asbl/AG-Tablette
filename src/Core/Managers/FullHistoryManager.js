@@ -153,13 +153,8 @@ export class FullHistoryManager {
         );
     } else if (type == 'tool-changed') {
       setState({ tool: { ...detail } });
-      if (
-        ['divide', 'opacity', 'grid'].includes(app.tool.name) &&
-        app.tool.currentStep == 'start'
-      ) {
-        window.dispatchEvent(new CustomEvent('close-popup'));
-      }
     } else if (type == 'settings-changed') {
+      FullHistoryManager.nextTime = 1 * 1000;
       setState({ settings: { ...detail } });
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
@@ -269,9 +264,9 @@ window.addEventListener('redo', (event) => {
   FullHistoryManager.addStep('redo', event);
 });
 
-// window.addEventListener('close-popup', (event) =>
-//   FullHistoryManager.addStep('close-popup', event),
-// );
+window.addEventListener('close-popup', (event) =>
+  FullHistoryManager.addStep('close-popup', event)
+);
 
 window.addEventListener('tool-changed', () => {
   FullHistoryManager.addStep('tool-changed', { detail: app.tool });

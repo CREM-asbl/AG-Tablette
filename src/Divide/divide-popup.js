@@ -66,7 +66,7 @@ class DividePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${this.submitAndClose}">Ok</button>
+          <button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}">Ok</button>
         </div>
       </template-popup>
     `;

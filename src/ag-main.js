@@ -53,10 +53,11 @@ class AGTabletteApp extends LitElement {
       this.colorPickerValue = '#000000';
       this.shadowRoot.querySelector('#color-picker').value = '#000000';
     });
-    window.addEventListener('open-opacity-popup', () => {
-      this.shadowRoot.querySelector('opacity-popup').style.display = 'block';
-    });
     window.addEventListener('tool-changed', () => {
+      this.tools = app.tools;
+      this.tool = app.tool;
+      if (app.fullHistory.isRunning)
+        return;
       if (app.tool?.currentStep == 'start') {
         if (app.tool.name == 'backgroundColor') {
           this.shadowRoot.querySelector('#color-picker').value =
@@ -69,13 +70,8 @@ class AGTabletteApp extends LitElement {
         } else {
           return;
         }
-        this.shadowRoot.querySelector('#color-picker-label').click();
+        this.shadowRoot.querySelector('#color-picker').click();
       }
-    });
-
-    window.addEventListener('state-changed', () => {
-      this.tools = app.tools;
-      this.tool = app.tool;
     });
 
     // vh error in tablette => custom vh
@@ -298,12 +294,11 @@ class AGTabletteApp extends LitElement {
         }}"
       />
 
-      <label id="color-picker-label" for="color-picker" hidden></label>
       <input
         id="color-picker"
         type="color"
         value="${this.colorPickerValue}"
-        @change="${(e) => {
+        @input="${e => {
           if (app.tool.name == 'backgroundColor') {
             setState({
               settings: {
