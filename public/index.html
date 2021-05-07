@@ -37,6 +37,11 @@
           }
         }
       });
+
+      navigator.serviceWorker.oncontrollerchange = () => {
+        if (confirm(`Mise à jour disponible.\nMettre à jour?`))
+          location.reload()
+      }
     }
   </script>
 
