@@ -1,6 +1,6 @@
 import { LitElement, html } from 'lit-element';
 import { TemplatePopup } from '../popups/template-popup';
-import { setState } from '../Core/App';
+import { app, setState } from '../Core/App';
 
 class OpacityPopup extends LitElement {
   constructor() {

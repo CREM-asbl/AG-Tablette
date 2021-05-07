@@ -239,21 +239,6 @@ window.addEventListener('objectSelected', (event) =>
 //   FullHistoryManager.addStep('select-template', event)
 // );
 
-// divide events
-window.addEventListener('setNumberOfParts', (event) =>
-  FullHistoryManager.addStep('setNumberOfParts', event),
-);
-
-// opacity events
-window.addEventListener('setOpacity', (event) => {
-  FullHistoryManager.addStep('setOpacity', event);
-});
-
-// background- and bordercolor
-window.addEventListener('colorChange', (event) =>
-  FullHistoryManager.addStep('colorChange', event),
-);
-
 // use for animation states
 window.addEventListener('mouse-coordinates-changed', (event) =>
   FullHistoryManager.addStep('mouse-coordinates-changed', event),

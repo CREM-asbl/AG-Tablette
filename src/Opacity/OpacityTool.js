@@ -2,7 +2,6 @@ import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
 import { html } from 'lit-element';
 import { createElem } from '../Core/Tools/general';
-import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import './opacity-popup';
 
