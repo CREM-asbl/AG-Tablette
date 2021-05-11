@@ -321,6 +321,9 @@ export class MergeTool extends Tool {
       for (let j = 0; j < segments2.length; j++) {
         let firstSegment = segments1[i];
         let secondSegment = segments2[j];
+        if (firstSegment.isArc() || secondSegment.isArc()) {
+          continue;
+        }
         if (
           Math.abs(
             firstSegment.getAngleWithHorizontal() -
@@ -499,9 +502,8 @@ export class MergeTool extends Tool {
   addPathElem(path, segment, mustReverse) {
     let firstCoord = segment.vertexes[0].coordinates;
     let secondCoord = segment.vertexes[1].coordinates;
-    if (mustReverse) [firstCoord, secondCoord] = [secondCoord, firstCoord];
-    this.lastUsedCoordinates = secondCoord;
     if (!segment.isArc()) {
+      if (mustReverse) [firstCoord, secondCoord] = [secondCoord, firstCoord];
       path.push('L', secondCoord.x, secondCoord.y);
     } else {
       let centerCoordinates = segment.arcCenter.coordinates;
@@ -516,6 +518,12 @@ export class MergeTool extends Tool {
         sweepFlag = Math.abs(sweepFlag - 1);
         largeArcFlag = Math.abs(largeArcFlag - 1);
       }
+
+      if (mustReverse) {
+        [firstCoord, secondCoord] = [secondCoord, firstCoord];
+        sweepFlag = Math.abs(sweepFlag - 1);
+      }
+
       path.push(
         'A',
         radius,
@@ -527,6 +535,7 @@ export class MergeTool extends Tool {
         secondCoord.y,
       );
     }
+    this.lastUsedCoordinates = secondCoord;
   }
 
   /**
