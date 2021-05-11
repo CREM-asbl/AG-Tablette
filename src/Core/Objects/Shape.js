@@ -596,9 +596,9 @@ export class Shape {
         shape.isCoordinatesInPath(s1_segment.vertexes[0].coordinates) &&
         shape.isCoordinatesInPath(s1_segment.vertexes[1].coordinates) &&
         shape.isCoordinatesInPath(s1_segment.middle) &&
-        !shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
-        !shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
-        !shape.isCoordinatesOnBorder(s1_segment.middle)
+        !(shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
+        shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
+        shape.isCoordinatesOnBorder(s1_segment.middle))
       ) {
         console.warn('shape inside another');
         return true;

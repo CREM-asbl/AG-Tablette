@@ -193,7 +193,6 @@ export class MergeTool extends Tool {
         shape2 = ShapeManager.getShapeById(this.secondShapeId);
 
       const newSegments = this.createNewSegments(shape1, shape2);
-      if (!newSegments) return this.alertDigShape();
 
       const path = this.linkNewSegments(newSegments);
       if (!path) return this.alertDigShape();
@@ -202,6 +201,10 @@ export class MergeTool extends Tool {
     } else {
       this.createNewShape(this.path, ...this.involvedShapes);
     }
+  }
+
+  alertDigShape() {
+    window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'La forme créée est creuse' } }));
   }
 
   getPathFromGroup() {
