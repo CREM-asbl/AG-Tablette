@@ -37,6 +37,7 @@ export class FullHistoryManager {
     FullHistoryManager.saveHistory = { ...app.history };
     FullHistoryManager.setWorkspaceToStartSituation();
 
+    FullHistoryManager.isClicked = false;
     FullHistoryManager.nextTime = 0;
     FullHistoryManager.executeAllSteps();
   }
@@ -161,8 +162,12 @@ export class FullHistoryManager {
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
-      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
-      window.dispatchEvent(new CustomEvent('show-cursor'));
+      if (FullHistoryManager.isClicked) {
+        window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+        window.dispatchEvent(new CustomEvent('show-cursor'));
+      } else {
+        FullHistoryManager.nextTime = -50;
+      }
     } else if (type == 'setNumberOfParts') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('close-popup'));
@@ -171,6 +176,11 @@ export class FullHistoryManager {
       window.dispatchEvent(new CustomEvent(type));
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+    }
+    if (type == 'canvasMouseUp') {
+      FullHistoryManager.isClicked = false;
+    } else if (type == 'canvasMouseDown') {
+      FullHistoryManager.isClicked = true;
     }
   }
 
