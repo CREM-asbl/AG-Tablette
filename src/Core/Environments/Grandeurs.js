@@ -24,6 +24,6 @@ export default {
   ],
   kit: 'grandeursKit',
   extension: 'agg',
-  themeColor: '#00D084',
+  themeColor: '#57D99B',
   themeColorSoft: '#C4F1D9',
 };

@@ -103,11 +103,10 @@ class AGTabletteApp extends LitElement {
           box-sizing: border-box;
           background-color: var(--theme-color);
           flex: 0 0 ${app.settings.mainMenuWidth}px;
-          margin: 3px;
           /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
 
           /* scrollbar hidden */
-          -ms-overflow-style: none; /* IE and Edge */
+          /* -ms-overflow-style: none; /* IE and Edge * /
           scrollbar-width: none; /* Firefox */
           overflow-y: scroll;
           overflow-x: hidden;
@@ -120,9 +119,9 @@ class AGTabletteApp extends LitElement {
         }
 
         /* scrollbar hidden */
-        #app-menu::-webkit-scrollbar {
+        /* #app-menu::-webkit-scrollbar {
           display: none;
-        }
+        } */
 
         div-main-canvas {
           width: 100%;
