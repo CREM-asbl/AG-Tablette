@@ -12,10 +12,13 @@ class FullHistoryTools extends LitElement {
 
   constructor() {
     super();
+    let previousStepTimestamp = 0;
     this.sidebarElements = app.fullHistory.steps
       .filter((step) => step.type == 'add-fullstep')
       .map((step) => {
-        return { name: step.detail.name };
+        let time = step.timeStamp - previousStepTimestamp;
+        previousStepTimestamp = step.timeStamp;
+        return { name: step.detail.name, time };
       });
     this.index = 0;
 
@@ -147,6 +150,8 @@ class FullHistoryTools extends LitElement {
                 name="action-button"
               >
                 ${elem.name}
+                (${Math.floor(elem.time / 1000 / 60) > 0 ? Math.floor(elem.time / 1000 / 60) % 60 + 'm' : ''}
+                ${Math.floor(elem.time / 100) / 10 % 60}s)
               </button>
             `;
           })}

@@ -17,7 +17,8 @@ module.exports = {
     source: "remote-next"
   },
   devOptions: {
-    port: 8000
+    port: 8000,
+    open: "chrome"
   },
   buildOptions: {
     /* ... */

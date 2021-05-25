@@ -201,10 +201,14 @@ export class FullHistoryManager {
       data.settings = { ...app.settings };
       detail.data = data;
     }
-    let steps = [...app.fullHistory.steps, { type, detail }];
+    console.log(FullHistoryManager.startTimestamp);
+    let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
+    let steps = [...app.fullHistory.steps, { type, detail, timeStamp }];
     setState({ fullHistory: { ...app.fullHistory, steps } });
   }
 }
+
+FullHistoryManager.startTimestamp = Date.now();
 
 // mouse events
 window.addEventListener('canvasclick', (event) =>
