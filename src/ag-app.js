@@ -8,6 +8,7 @@ class AgApp extends LitElement {
   static get properties() {
     return {
       environnement_selected: { type: Boolean },
+      environmentLoading: { type: Boolean },
     };
   }
 
@@ -21,14 +22,21 @@ class AgApp extends LitElement {
     if (this.environnement_selected) {
       import('./ag-main');
       return html` <ag-main></ag-main> `;
-    } else {
+    } else if (!this.environmentLoading) {
       import('./ag-environnements');
       return html` <ag-environnements></ag-environnements> `;
+    } else {
+      return html`
+        <div>
+          Loading
+        </div>
+      `;
     }
   }
 
   setState() {
     this.environnement_selected = app.environment !== undefined;
+    this.environmentLoading = app.environmentLoading;
   }
 }
 customElements.define('ag-app', AgApp);
