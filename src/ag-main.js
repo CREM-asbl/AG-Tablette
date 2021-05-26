@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import './div-main-canvas';
+import { TemplateToolbar } from './template-toolbar';
 import './toolbar-kit';
 import './toolbar-section';
 import './icon-button';
@@ -17,7 +18,6 @@ import './Core/Managers/DrawManager';
 import './Core/Managers/FullHistoryManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
-import { TemplateToolbar } from './template-toolbar';
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
