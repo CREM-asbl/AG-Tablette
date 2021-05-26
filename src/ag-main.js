@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
 import './div-main-canvas';
 import './toolbar-kit';
 import './toolbar-section';
@@ -18,10 +18,12 @@ import './Core/Managers/FullHistoryManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';
 import { createElem } from './Core/Tools/general';
 import { TemplateToolbar } from './template-toolbar';
+import { customElement } from 'lit/decorators.js';
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
-class AGTabletteApp extends LitElement {
+@customElement('ag-main')
+class AGMain extends LitElement {
   static get properties() {
     return {
       canUndo: Boolean,
@@ -406,4 +408,3 @@ class AGTabletteApp extends LitElement {
   //   reader.readAsDataURL(file);
   // }
 }
-customElements.define('ag-main', AGTabletteApp);

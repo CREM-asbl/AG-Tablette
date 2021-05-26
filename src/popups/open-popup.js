@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
 import { TemplatePopup } from './template-popup';
 import { app } from '../Core/App';
 

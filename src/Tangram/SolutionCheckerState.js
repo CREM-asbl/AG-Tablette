@@ -1,6 +1,6 @@
 import { app } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
-import { html } from 'lit-element';
+import { html } from 'lit';
 import { TangramManager } from './TangramManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';

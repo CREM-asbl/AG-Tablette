@@ -215,6 +215,7 @@ export class SaveFileManager {
 
     let saveObject = {
         appVersion: app.version,
+        timestamp: Date.now(),
         envName: app.environment.name,
         wsdata,
         settings,

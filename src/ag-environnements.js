@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
 import { setState } from './Core/App';
 import { loadEnvironnement } from './Core/Environments/Environment';
 

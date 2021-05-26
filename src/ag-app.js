@@ -1,6 +1,6 @@
 import { app } from './Core/App';
 import './Core/Manifest';
-import { LitElement, html } from 'lit-element';
+import { LitElement, html } from 'lit';
 import './auto-launch';
 import './backbutton-manager';
 

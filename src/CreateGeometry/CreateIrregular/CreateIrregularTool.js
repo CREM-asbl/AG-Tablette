@@ -1,6 +1,6 @@
 import { app } from '../../Core/App';
 import { Tool } from '../../Core/States/Tool';
-import { html } from 'lit-element';
+import { html } from 'lit';
 import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Segment } from '../../Core/Objects/Segment';
 import { Point } from '../../Core/Objects/Point';

@@ -17,10 +17,11 @@
     "@snowpack/plugin-babel": "^2.1.7",
     "@snowpack/plugin-dotenv": "^2.0.5",
     "@web/test-runner": "^0.12.15",
+    "babel-plugin-root-import": "^6.6.0",
     "prettier": "^2.0.5"
   },
   "dependencies": {
-    "lit": "*",
+    "lit": "^2.0.0-rc.2",
     "pwa-helpers": "^0.9.1"
   }
 }

@@ -1,6 +1,6 @@
 import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
-import { html } from 'lit-element';
+import { html } from 'lit';
 import { createElem } from '../Core/Tools/general';
 import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';

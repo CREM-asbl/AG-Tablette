@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html } from 'lit';
 import { TemplatePopup } from '../popups/template-popup';
 import { app, setState } from '../Core/App';
 

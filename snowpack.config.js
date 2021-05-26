@@ -4,7 +4,7 @@ module.exports = {
     public: { url: '/', static: true },
     src: { url: '/dist' },
   },
-  plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv'],
+  plugins: ['@snowpack/plugin-babel', '@snowpack/plugin-dotenv', 'babel-plugin-root-import'],
   routes: [
     /* Enable an SPA Fallback in development: */
     // {"match": "routes", "src": ".*", "dest": "/index.html"},
@@ -17,7 +17,8 @@ module.exports = {
     source: "remote-next"
   },
   devOptions: {
-    port: 8000
+    port: 8000,
+    open: 'chrome'
   },
   buildOptions: {
     /* ... */

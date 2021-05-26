@@ -1,6 +1,6 @@
 import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
-import { html } from 'lit-element';
+import { html } from 'lit';
 import { uniqId } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';

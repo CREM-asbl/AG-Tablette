@@ -1,5 +1,5 @@
 import { app } from '../Core/App';
-import { LitElement, html } from 'lit-element';
+import { LitElement, html } from 'lit';
 import { TemplatePopup } from './template-popup';
 import { SaveFileManager } from '../Core/Managers/SaveFileManager';
 import '../version-item';

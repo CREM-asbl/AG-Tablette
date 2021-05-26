@@ -1,5 +1,5 @@
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
 import { TemplatePopup } from './template-popup';
 import { Settings } from '../Core/Settings';
 import '../version-item';

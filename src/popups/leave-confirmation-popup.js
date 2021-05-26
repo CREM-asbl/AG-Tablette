@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit-element';
+import { LitElement, html } from 'lit';
 import { TemplatePopup } from './template-popup';
 
 class LeaveConfirmationPopup extends LitElement {
