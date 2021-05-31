@@ -5,7 +5,7 @@ import { FullHistoryManager } from './Core/Managers/FullHistoryManager';
 class FullHistoryTools extends LitElement {
   static get properties() {
     return {
-      sidebarElements: Array,
+      tools: Array,
       index: Number,
     };
   }
@@ -13,13 +13,30 @@ class FullHistoryTools extends LitElement {
   constructor() {
     super();
     let previousStepTimestamp = 0;
-    this.sidebarElements = app.fullHistory.steps
-      .filter((step) => step.type == 'add-fullstep')
+    this.tools = app.fullHistory.steps
+      .filter((step) => step.type == 'tool-changed' && step.detail?.currentStep == 'start')
       .map((step) => {
         let time = step.timeStamp - previousStepTimestamp;
         previousStepTimestamp = step.timeStamp;
-        return { name: step.detail.name, time };
+        return { name: step.detail.title, time, timeStamp: step.timeStamp, actions: [] };
       });
+    let toolIndex = -1;
+    let actionIndex = 0;
+    app.fullHistory.steps
+      .filter((step) => step.type == 'add-fullstep')
+      .forEach((step) => {
+        let timeStamp = step.timeStamp;
+        while (this.tools[toolIndex + 1]?.timeStamp < timeStamp) {
+          toolIndex++;
+          previousStepTimestamp = this.tools[toolIndex].timeStamp;
+        }
+        this.tools[toolIndex].actions.push({ name: step.detail.name, time: timeStamp - previousStepTimestamp, timeStamp, actionIndex });
+        actionIndex++;
+        previousStepTimestamp = this.tools[toolIndex].actions[this.tools[toolIndex].actions.length - 1].timeStamp;
+      });
+    this.tools.forEach(tool => {
+      tool.time = tool.actions.reduce((time, action) => time + action.time, 0)
+    });
     this.index = 0;
 
     this.eventHandler = () => {
@@ -66,11 +83,29 @@ class FullHistoryTools extends LitElement {
         overflow: auto;
       }
 
-      nav#sidebar button {
-        margin: 5px;
+      .action-div {
         width: calc(100% - 2 * 5px);
+        margin: 10px auto;
+        border-radius: 7px;
+        overflow-y: hidden;
+        box-shadow: 0px 0px 5px var(--menu-shadow-color);
+      }
+
+      h2 {
+        text-align: center;
+        font-size: 1.1em;
+        font-weight: bold;
+        margin: 6px 0;
+      }
+
+      .action-button {
+        margin: 5px 10px;
+        width: calc(100% - 2 * 5px - 10px);
         height: 2vh;
         height: calc(var(--vh, 1vh) * 5);
+        border-radius: 3px;
+        box-shadow: 0px 0px 5px var(--menu-shadow-color);
+        border: none;
       }
     `;
   }
@@ -112,10 +147,14 @@ class FullHistoryTools extends LitElement {
     return html`
       <style>
         button {
-          background-color: #0000;
+          background-color: #fff;
         }
         button#b${this.index} {
-          background-color: #00f;
+          background-color: var(--button-selected-background-color);
+        }
+        .action-div {
+          background-color: ${getComputedStyle(document.documentElement)
+    .getPropertyValue('--theme-color') + '4F'}
         }
       </style>
       <nav id="sidebar">
@@ -142,17 +181,32 @@ class FullHistoryTools extends LitElement {
           ></icon-button>
         </div>
         <div id="action-container">
-          ${this.sidebarElements.map((elem, idx) => {
+          ${this.tools.map((elem, idx) => {
             return html`
-              <button
-                id="b${idx}"
-                @click="${this._clickHandler}"
-                name="action-button"
+              <div
+                name="action-div"
+                class="action-div"
               >
-                ${elem.name}
-                (${Math.floor(elem.time / 1000 / 60) > 0 ? Math.floor(elem.time / 1000 / 60) % 60 + 'm' : ''}
-                ${Math.floor(elem.time / 100) / 10 % 60}s)
-              </button>
+                <h2>
+                  ${elem.name}
+                  (${Math.floor(elem.time / 1000 / 60) > 0 ? Math.floor(elem.time / 1000 / 60) % 60 + 'm '  : '' + Math.floor(elem.time / 100) / 10 % 60}s)
+                </h2>
+                ${
+                  elem.actions.map((action, idx) => {
+                    return html`
+                      <button
+                        id="b${action.actionIndex}"
+                        @click="${this._clickHandler}"
+                        name="action-button"
+                        class="action-button"
+                      >
+                        ${idx + 1}
+                        (${Math.floor(action.time / 1000 / 60) > 0 ? Math.floor(action.time / 1000 / 60) % 60 + 'm ' : ''}${Math.floor(action.time / 100) / 10 % 60}s)
+                      </button>
+                    `;
+                  })
+                }
+              </div>
             `;
           })}
         </div>

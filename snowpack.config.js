@@ -14,7 +14,10 @@ module.exports = {
     // "bundle": true,
   },
   packageOptions: {
-    source: "remote-next"
+    source: "remote-next",
+    knownEntrypoints: [
+      "lit-element/lit-element.js"
+    ]
   },
   devOptions: {
     port: 8000,
