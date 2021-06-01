@@ -1,4 +1,4 @@
-import { app, setState } from '../App';
+import { setState } from '../App';
 import { Family } from '../Objects/Family';
 
 export const loadEnvironnement = async (name) => {
