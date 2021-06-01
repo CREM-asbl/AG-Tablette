@@ -46,6 +46,10 @@ export class MoveTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
@@ -77,7 +81,7 @@ export class MoveTool extends Tool {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    if (app.tool.currentStep != 'start') return;
+    if (app.tool.currentStep != 'listen') return;
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
@@ -110,7 +114,7 @@ export class MoveTool extends Tool {
     if (app.tool.currentStep != 'move') return;
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   /**

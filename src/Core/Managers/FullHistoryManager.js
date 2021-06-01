@@ -37,6 +37,7 @@ export class FullHistoryManager {
     FullHistoryManager.saveHistory = { ...app.history };
     FullHistoryManager.setWorkspaceToStartSituation();
 
+    FullHistoryManager.isClicked = false;
     FullHistoryManager.nextTime = 0;
     FullHistoryManager.executeAllSteps();
   }
@@ -84,8 +85,10 @@ export class FullHistoryManager {
 
     let index = app.fullHistory.steps.findIndex(
       (step) => step.detail?.actionIndex === actionIndex - 1,
-    );
+      );
 
+    app.upperDrawingEnvironment.removeAllObjects(); // temporary patch
+    app.upperDrawingEnvironment.redraw(); // temporary patch
     let data = app.fullHistory.steps[index]?.detail.data;
     if (data) {
       app.workspace.initFromObject({ ...data });
@@ -161,8 +164,12 @@ export class FullHistoryManager {
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
-      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
-      window.dispatchEvent(new CustomEvent('show-cursor'));
+      if (FullHistoryManager.isClicked) {
+        window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+        window.dispatchEvent(new CustomEvent('show-cursor'));
+      } else {
+        FullHistoryManager.nextTime = -50;
+      }
     } else if (type == 'setNumberOfParts') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('close-popup'));
@@ -171,6 +178,11 @@ export class FullHistoryManager {
       window.dispatchEvent(new CustomEvent(type));
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+    }
+    if (type == 'canvasMouseUp') {
+      FullHistoryManager.isClicked = false;
+    } else if (type == 'canvasMouseDown') {
+      FullHistoryManager.isClicked = true;
     }
   }
 
@@ -191,10 +203,13 @@ export class FullHistoryManager {
       data.settings = { ...app.settings };
       detail.data = data;
     }
-    let steps = [...app.fullHistory.steps, { type, detail }];
+    let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
+    let steps = [...app.fullHistory.steps, { type, detail, timeStamp }];
     setState({ fullHistory: { ...app.fullHistory, steps } });
   }
 }
+
+FullHistoryManager.startTimestamp = Date.now();
 
 // mouse events
 window.addEventListener('canvasclick', (event) =>
