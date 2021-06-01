@@ -85,8 +85,10 @@ export class FullHistoryManager {
 
     let index = app.fullHistory.steps.findIndex(
       (step) => step.detail?.actionIndex === actionIndex - 1,
-    );
+      );
 
+    app.upperDrawingEnvironment.removeAllObjects(); // temporary patch
+    app.upperDrawingEnvironment.redraw(); // temporary patch
     let data = app.fullHistory.steps[index]?.detail.data;
     if (data) {
       app.workspace.initFromObject({ ...data });
