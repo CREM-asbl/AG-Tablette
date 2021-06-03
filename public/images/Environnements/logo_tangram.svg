@@ -1,0 +1,36 @@
+<svg width="800" height="500" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >
+
+<!-- -337.5 -->
+<!-- -187.5 -->
+
+<!-- Custom -->
+<path d="M 337.5 187.5 L 400.0 250.0
+L 462.5 187.5
+L 337.5 187.5" stroke="#000" fill="#fff8" fill-opacity="0.7" stroke-width="2" stroke-opacity="1"/>
+<!-- Custom -->
+<path d="M 337.5 187.5 L 337.5 312.5
+L 400.0 250.0
+L 337.5 187.5" stroke="#000" fill="#fff8" fill-opacity="0.7" stroke-width="2" stroke-opacity="1"/>
+<!-- Custom -->
+<path d="M 400.0 312.5 L 462.5 250.0
+L 462.5 312.5
+L 400.0 312.5" stroke="#000" fill="#fff8" fill-opacity="0.7" stroke-width="2" stroke-opacity="1"/>
+<!-- Custom -->
+<path d="M 337.5 312.5 L 368.75 281.25
+L 400.0 312.5
+L 337.5 312.5" stroke="#000" fill="#fff8" fill-opacity="0.7" stroke-width="2" stroke-opacity="1"/>
+<!-- Custom -->
+<path d="M 400.0 250.0 L 431.25 218.75
+L 431.25 281.25
+L 400.0 250.0" stroke="#000" fill="#fff8" fill-opacity="0.7" stroke-width="2" stroke-opacity="1"/>
+<!-- Custom -->
+<path d="M 431.25 281.25 L 462.5 250.0
+L 462.5 187.5
+L 431.25 218.75
+L 431.25 281.25" stroke="#000" fill="#fff8" fill-opacity="0.7" stroke-width="2" stroke-opacity="1"/>
+<!-- Custom -->
+<path d="M 368.75 281.25 L 400.0 250.0
+L 431.25 281.25
+L 400.0 312.5
+L 368.75 281.25" stroke="#000" fill="#fff8" fill-opacity="0.7" stroke-width="2" stroke-opacity="1"/>
+</svg>
