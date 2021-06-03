@@ -5,4 +5,4 @@ import { SolutionCheckerTool } from './SolutionCheckerTool';
 export default {
   tool: new SilhouetteCreatorTool(),
 };
-new SolutionCheckerState();
+new SolutionCheckerTool();

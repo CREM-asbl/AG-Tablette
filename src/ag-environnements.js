@@ -20,11 +20,11 @@ class AgEnvironnements extends LitElement {
       :host {
         display: grid;
         grid-template: 1fr 1fr / 1fr 1fr;
-        gap: 16px;
+        gap: 24px;
         justify-items: center;
         align-items: center;
         height: 100%;
-        padding: 16px;
+        padding: 24px;
         box-sizing: border-box;
         background: lightgray;
       }
@@ -45,39 +45,36 @@ class AgEnvironnements extends LitElement {
       }
 
       #Grandeurs {
-        background: url('/images/Environnements/grandeurs_test4.jpg') center
-          center rgba(255, 255, 255, 0.9);
+        background: url('/images/Environnements/logo_grandeurs.svg') center
+          center #0baf73;
 
         /* background: url('/images/Environnements/grandeurs.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
           )}');
           center center rgba(255, 255, 255, 0.9); */
-        background-repeat: no-repeat;
-        background-size: cover;
       }
 
       #Tangram {
-        background: url('/images/Environnements/tangram_test4.jpg') center
-          center rgba(255, 255, 255, 0.9);
+        background: url('/images/Environnements/logo_tangram.svg') center
+          center #006CAA;
 
         /* background: url('/images/Environnements/tangram.\${unsafeCSS(
             this.isSafari ? 'jpg' : 'webp'
           )}');
           center center rgba(255, 255, 255, 0.9); */
-        background-repeat: no-repeat;
-        background-size: cover;
+
       }
 
       #Cubes {
-        background: url('/images/Environnements/cubes_test3.jpg') center center
-          rgba(255, 255, 255, 0.9);
+        background: url('/images/Environnements/logo_cubes.svg') center center
+        #cf5f2c;
 
         /* background: url('/images/Environnements/cubes.\${unsafeCSS(
             this.isSafari ? 'png' : 'webp'
           )}');
           center center rgba(255, 255, 255, 0.9); */
-        background-repeat: no-repeat;
-        background-size: cover;
+        /* background-repeat: no-repeat;
+        background-size: cover; */
       }
 
       #Geometrie {
