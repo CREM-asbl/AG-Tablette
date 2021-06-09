@@ -344,10 +344,7 @@ class AGMain extends LitElement {
         resetTool = true;
         break;
       case 'load':
-        if (app.history.index === -1) {
-          window.dispatchEvent(new CustomEvent('open-file'));
-          return;
-        }
+        window.dispatchEvent(new CustomEvent('open-file'));
         resetTool = true;
         break;
       case 'new':
