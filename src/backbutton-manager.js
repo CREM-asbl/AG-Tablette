@@ -1,4 +1,4 @@
-import { setState } from './Core/App';
+import { app } from './Core/App';
 import { goToHomePage } from './Core/Tools/general';
 
 // if (!window.dev_mode)
@@ -6,6 +6,9 @@ import { goToHomePage } from './Core/Tools/general';
 //   return false;
 // };
 window.onpopstate = e => {
-  goToHomePage();
+  if (app.environment?.name?.length > 0 && confirm('retourner à la page d\'accueil ?'))
+    goToHomePage();
+  else
+    history.pushState({}, "main page");
   // setState({environment: undefined, environmentLoading: false});
 }
