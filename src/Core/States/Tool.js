@@ -15,7 +15,7 @@ export class Tool {
     this.type = type;
 
     window.addEventListener('get-help-text', () => {
-      if (app.tool.name == this.name) {
+      if (app.tool?.name == this.name) {
         const popup = document.querySelector('help-popup');
         setTimeout(() => popup.setText(this.getHelpText()), 100);
       }
