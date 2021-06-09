@@ -173,3 +173,7 @@ export function range(start, end) {
     (element, index) => index + start,
   );
 }
+
+export function goToHomePage() {
+  window.location.reload();
+}

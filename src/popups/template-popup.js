@@ -47,6 +47,7 @@ export class TemplatePopup extends LitElement {
         place-items: center;
         overflow: auto;
         padding: 16px;
+        text-align: center;
       }
 
       [slot='footer'] {

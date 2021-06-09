@@ -20,6 +20,7 @@ class AgApp extends LitElement {
 
   render() {
     if (this.environnement_selected) {
+      history.pushState({ environment: app.environment.name }, "main page");
       import('./ag-main');
       return html` <ag-main></ag-main> `;
     } else if (!this.environmentLoading) {

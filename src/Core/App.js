@@ -122,6 +122,9 @@ export const setState = (update) => {
   }
   // if (window.dev_mode) console.log(app);
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+  if ('environment' in update) {
+    window.dispatchEvent(new CustomEvent('environment-changed', { detail: app }));
+  }
   if ('tool' in update) {
     let toolInfo = app.tools.find((tool) => tool.name == app.tool?.name);
     if (toolInfo) {

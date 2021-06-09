@@ -43,6 +43,10 @@ class OpenPopup extends LitElement {
         <template-popup>
           <h2 slot="title">Ouvrir un fichier</h2>
           <div slot="body" id="body">
+            <p>
+              Voulez-vous partir sans enregistrer votre travail ? <br>
+              Attention votre travail actuel sera perdu !
+            </p>
             <button
               id="focus"
               name="LocalOpenFile"

@@ -22,7 +22,7 @@ class ToolbarKit extends LitElement {
     this.familyNames = app.environment.familyNames || [];
     this.envName = app.environment.kitName;
 
-    window.addEventListener('state-changed', () => {
+    window.addEventListener('environment-changed', () => {
       this.familyNames = app.environment.familyNames;
       this.envName = app.environment.kitName;
     });

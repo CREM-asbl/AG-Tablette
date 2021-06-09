@@ -152,7 +152,7 @@ class AGMain extends LitElement {
   }
 
   updated() {
-    if (app.environment.name != 'Grandeurs') {
+    if (app.environment?.name != 'Grandeurs') {
       this.shadowRoot
         .querySelectorAll('.onlyGrandeurs')
         .forEach((el) => (el.style.display = 'none'));
@@ -332,7 +332,7 @@ class AGMain extends LitElement {
       return;
     }
     let resetTool = false;
-    let leaveConfirmationPopup;
+    let HomePopup;
     switch (event.target.name) {
       case 'settings':
         import('./popups/settings-popup');
@@ -348,15 +348,11 @@ class AGMain extends LitElement {
           window.dispatchEvent(new CustomEvent('open-file'));
           return;
         }
-        import('./popups/leave-confirmation-popup');
-        leaveConfirmationPopup = createElem('leave-confirmation-popup');
-        leaveConfirmationPopup.actionAfter = 'open';
         resetTool = true;
         break;
       case 'new':
-        import('./popups/leave-confirmation-popup');
-        leaveConfirmationPopup = createElem('leave-confirmation-popup');
-        leaveConfirmationPopup.actionAfter = 'new';
+        import('./popups/home-popup');
+        createElem('home-popup');
         resetTool = true;
         break;
       case 'undo':
