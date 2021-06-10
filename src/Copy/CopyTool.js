@@ -116,6 +116,9 @@ export class CopyTool extends Tool {
         drawingEnvironment: app.upperDrawingEnvironment,
         path: s.getSVGPath('no scale'),
         id: undefined,
+        divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
+          return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
+        })).flat(),
       });
       newShape.translate(this.translateOffset);
       return newShape;
@@ -169,6 +172,9 @@ export class CopyTool extends Tool {
         drawingEnvironment: app.mainDrawingEnvironment,
         path: s.getSVGPath('no scale'),
         id: undefined,
+        divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
+          return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
+        })).flat(),
       });
       shapesList.push(newShape);
       newShape.translate(this.translation);

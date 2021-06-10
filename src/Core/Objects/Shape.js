@@ -52,6 +52,7 @@ export class Shape {
     geometryConstructionSpec = null, // à enlever (recalculer si besoin)
     referenceId = null,
     hasGeometryReferenced = [],
+    divisionPointInfos = [],
   }) {
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
@@ -60,6 +61,19 @@ export class Shape {
 
     if (path) {
       this.setSegmentsFromPath(path);
+      this.pointIds = [...this.pointIds, ...divisionPointInfos.map((dInfo) => {
+        let segment = this.segments[dInfo.segmentIdx];
+        let newPoint = new Point({
+          drawingEnvironment: this.drawingEnvironment,
+          segmentIds: [segment.id],
+          shapeId: this.id,
+          type: 'divisionPoint',
+          coordinates: dInfo.coordinates,
+          ratio: dInfo.ratio,
+        });
+        segment.divisionPointIds.push(newPoint.id);
+        return newPoint.id;
+      })];
       if (this.isCircle()) this.vertexes[0].visible = false;
     } else {
       this.pointIds = [...pointIds];
