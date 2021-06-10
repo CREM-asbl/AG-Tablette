@@ -87,8 +87,6 @@ export class FullHistoryManager {
       (step) => step.detail?.actionIndex === actionIndex - 1,
       );
 
-    app.upperDrawingEnvironment.removeAllObjects(); // temporary patch
-    app.upperDrawingEnvironment.redraw(); // temporary patch
     let data = app.fullHistory.steps[index]?.detail.data;
     if (data) {
       app.workspace.initFromObject({ ...data });
@@ -102,6 +100,9 @@ export class FullHistoryManager {
     } else {
       FullHistoryManager.setWorkspaceToStartSituation();
     }
+
+    app.upperDrawingEnvironment.removeAllObjects(); // temporary patch
+    app.upperDrawingEnvironment.redraw(); // temporary patch
 
     // not to re-execute fullStep
     index++;
@@ -131,6 +132,14 @@ export class FullHistoryManager {
     let { type, detail } = app.fullHistory.steps[index];
     if (detail && detail.mousePos) {
       detail.mousePos = new Coordinates(detail.mousePos);
+    }
+
+    let nextType = app.fullHistory.steps[index + 1].type;
+
+    if (type == 'canvasMouseUp') {
+      FullHistoryManager.isClicked = false;
+    } else if (type == 'canvasMouseDown') {
+      FullHistoryManager.isClicked = true;
     }
 
     if (type == 'add-fullstep') {
@@ -164,7 +173,7 @@ export class FullHistoryManager {
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
-      if (FullHistoryManager.isClicked) {
+      if (FullHistoryManager.isClicked || nextType == 'objectSelected') {
         window.dispatchEvent(new CustomEvent(type, { detail: detail }));
         window.dispatchEvent(new CustomEvent('show-cursor'));
       } else {
@@ -178,11 +187,6 @@ export class FullHistoryManager {
       window.dispatchEvent(new CustomEvent(type));
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
-    }
-    if (type == 'canvasMouseUp') {
-      FullHistoryManager.isClicked = false;
-    } else if (type == 'canvasMouseDown') {
-      FullHistoryManager.isClicked = true;
     }
   }
 

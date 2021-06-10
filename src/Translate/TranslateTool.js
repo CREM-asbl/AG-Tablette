@@ -35,6 +35,10 @@ export class TranslateTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     this.removeListeners();
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
@@ -55,7 +59,8 @@ export class TranslateTool extends Tool {
   }
 
   canvasMouseDown() {
-    if (app.tool.currentStep != 'start') return;
+    console.log('down', app.tool.currentStep);
+    if (app.tool.currentStep != 'listen') return;
 
     this.startClickCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
@@ -66,6 +71,7 @@ export class TranslateTool extends Tool {
   }
 
   canvasMouseMove() {
+    console.log('move', app.tool.currentStep);
     if (app.tool.currentStep != 'translate') return;
 
     let newOffset = app.workspace.translateOffset.add(
@@ -82,7 +88,7 @@ export class TranslateTool extends Tool {
     if (app.tool.currentStep != 'translate') return;
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   _executeAction() {

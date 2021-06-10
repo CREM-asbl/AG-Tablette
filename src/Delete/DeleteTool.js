@@ -33,6 +33,10 @@ export class DeleteTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     this.removeListeners();
 
     this.setSelectionConstraints();
@@ -79,7 +83,7 @@ export class DeleteTool extends Tool {
       }
     }
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   _executeAction() {

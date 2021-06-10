@@ -31,6 +31,10 @@ export class ToBackgroundTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     this.removeListeners();
 
     app.workspace.selectionConstraints =

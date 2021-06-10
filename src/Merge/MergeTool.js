@@ -50,6 +50,10 @@ export class MergeTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
@@ -58,6 +62,7 @@ export class MergeTool extends Tool {
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
   }
 
   selectSecondShape() {
@@ -84,7 +89,7 @@ export class MergeTool extends Tool {
    */
   objectSelected(shape) {
     let mustExecuteAction = false;
-    if (app.tool.currentStep == 'start') {
+    if (app.tool.currentStep == 'listen') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
       if (this.involvedShapes.length > 1) {
         this.path = this.getPathFromGroup();
@@ -117,7 +122,7 @@ export class MergeTool extends Tool {
     } else if (app.tool.currentStep == 'selectSecondShape') {
       if (this.firstShapeId == shape.id) {
         // deselect firstShape
-        setState({ tool: { ...app.tool, currentStep: 'start' } });
+        setState({ tool: { ...app.tool, currentStep: 'listen' } });
         this.firstShapeId = null;
       } else {
         let group = ShapeManager.getAllBindedShapes(shape, true);
@@ -179,7 +184,7 @@ export class MergeTool extends Tool {
     if (mustExecuteAction) {
       this.executeAction();
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'start' },
+        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
       });
     } else {
       window.dispatchEvent(new CustomEvent('refresh'));

@@ -31,6 +31,10 @@ export class BuildCenterTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     this.removeListeners();
 
     app.workspace.selectionConstraints =
@@ -52,7 +56,7 @@ export class BuildCenterTool extends Tool {
   objectSelected(shape) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   _executeAction() {

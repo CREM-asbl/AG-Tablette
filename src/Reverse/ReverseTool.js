@@ -66,6 +66,10 @@ export class ReverseTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
@@ -144,7 +148,7 @@ export class ReverseTool extends Tool {
    */
   objectSelected(object) {
     if (
-      (app.tool.currentStep == 'start' ||
+      (app.tool.currentStep == 'listen' ||
         app.tool.currentStep == 'selectAxis') &&
       object instanceof Shape
     ) {
@@ -301,7 +305,7 @@ export class ReverseTool extends Tool {
     if (this.progress > 1 && app.tool.name == 'reverse') {
       this.executeAction();
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'start' },
+        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
       });
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));

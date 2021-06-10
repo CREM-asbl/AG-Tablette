@@ -31,6 +31,10 @@ export class BifaceTool extends Tool {
   }
 
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
@@ -70,7 +74,7 @@ export class BifaceTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   _executeAction() {

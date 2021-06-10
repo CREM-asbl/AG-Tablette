@@ -52,6 +52,10 @@ export class RotateTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
@@ -83,7 +87,7 @@ export class RotateTool extends Tool {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    if (app.tool.currentStep != 'start') return;
+    if (app.tool.currentStep != 'listen') return;
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
@@ -158,7 +162,7 @@ export class RotateTool extends Tool {
     }
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   /**

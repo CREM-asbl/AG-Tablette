@@ -307,7 +307,7 @@ class AGMain extends LitElement {
                 ...app.settings,
                 shapeFillColor: e.target.value,
               },
-              tool: { ...app.tool, currentStep: 'selectShape' },
+              tool: { ...app.tool, currentStep: 'listen' },
             });
           } else if (app.tool.name == 'borderColor') {
             setState({
@@ -315,7 +315,7 @@ class AGMain extends LitElement {
                 ...app.settings,
                 shapeBorderColor: e.target.value,
               },
-              tool: { ...app.tool, currentStep: 'selectShape' },
+              tool: { ...app.tool, currentStep: 'listen' },
             });
           }
         }}"

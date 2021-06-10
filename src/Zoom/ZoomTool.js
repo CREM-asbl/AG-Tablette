@@ -37,6 +37,10 @@ export class ZoomTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     this.removeListeners();
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
@@ -57,7 +61,7 @@ export class ZoomTool extends Tool {
   }
 
   canvasMouseDown() {
-    if (app.tool.currentStep != 'start') return;
+    if (app.tool.currentStep != 'listen') return;
 
     this.baseDist = this.getDistanceFromScreenCenter(
       app.workspace.lastKnownMouseCoordinates,
@@ -125,7 +129,7 @@ export class ZoomTool extends Tool {
     }
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   _executeAction() {

@@ -49,6 +49,10 @@ export class CutTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     this.removeListeners();
     app.upperDrawingEnvironment.removeAllObjects();
 
@@ -164,7 +168,7 @@ export class CutTool extends Tool {
    * @param  {Event} event            l'événement javascript
    */
   objectSelected(object) {
-    if (app.tool.currentStep == 'start') {
+    if (app.tool.currentStep == 'listen') {
       //On a sélectionné le premier point
       if (object.shape.isSegment() && object.type == 'divisionPoint') {
         this.secondPoint = null;
@@ -186,7 +190,7 @@ export class CutTool extends Tool {
       if (pt1.id == pt2.id) {
         // Désélectionner le premier point
         setState({
-          tool: { ...app.tool, currentStep: 'start', firstPointId: undefined },
+          tool: { ...app.tool, currentStep: 'listen', firstPointId: undefined },
         });
       } else if (this.isLineValid(pt1.shape, pt1, pt2)) {
         if (pt2.type == 'shapeCenter') {
@@ -223,7 +227,7 @@ export class CutTool extends Tool {
         setState({
           tool: {
             ...app.tool,
-            currentStep: 'start',
+            currentStep: 'listen',
             firstPointId: undefined,
             centerPointId: undefined,
           },
@@ -250,7 +254,7 @@ export class CutTool extends Tool {
         tool: {
           ...app.tool,
           name: this.name,
-          currentStep: 'start',
+          currentStep: 'listen',
           firstPointId: undefined,
           secondPointId: undefined,
           centerPointId: undefined,
@@ -302,7 +306,7 @@ export class CutTool extends Tool {
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.points.canSelect = true;
-    if (app.tool.currentStep == 'start') {
+    if (app.tool.currentStep == 'listen') {
       app.workspace.selectionConstraints.points.types = [
         'vertex',
         'divisionPoint',
@@ -382,7 +386,6 @@ export class CutTool extends Tool {
    * effectuer l'action en cours, appelé par un state ou l'historique
    */
   _executeAction() {
-    console.log('execute');
     let pt1 = this.firstPoint,
       pt2 = this.secondPoint,
       shape = pt1.shape,

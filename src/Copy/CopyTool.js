@@ -58,6 +58,10 @@ export class CopyTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
@@ -100,7 +104,7 @@ export class CopyTool extends Tool {
    * @param  {Shape} shape            La forme sélectionnée
    */
   objectSelected(shape) {
-    if (app.tool.currentStep != 'start') return;
+    if (app.tool.currentStep != 'listen') return;
 
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
@@ -137,7 +141,7 @@ export class CopyTool extends Tool {
       .add(this.translateOffset);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'start' } });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   /**

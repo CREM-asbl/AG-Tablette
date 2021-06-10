@@ -63,7 +63,7 @@ export class PermanentZoomTool extends Tool {
 
       app.upperDrawingEnvironment.removeAllObjects();
       setState({
-        tool: { name: this.name, currentStep: 'start', mode: 'touch' },
+        tool: { name: this.name, currentStep: 'start', mode: 'touch', title: this.title },
       });
     }
   }
@@ -155,8 +155,8 @@ export class PermanentZoomTool extends Tool {
       1 / app.canvasHeight,
     );
 
+    setState({ tool: { name: this.name, currentStep: 'start', mode: 'wheel', title: this.title } });
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'init' } });
   }
 
   _executeAction() {

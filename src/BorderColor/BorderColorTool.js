@@ -34,14 +34,10 @@ export class BorderColorTool extends Tool {
    * initialiser l'état
    */
   start() {
-    this.removeListeners();
-
-    app.workspace.selectionConstraints =
-      app.fastSelectionConstraints.click_all_shape;
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
 
-  selectShape() {
+  listen() {
     this.removeListeners();
 
     app.workspace.selectionConstraints =
@@ -65,7 +61,7 @@ export class BorderColorTool extends Tool {
 
     this.executeAction();
     setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'selectShape' },
+      tool: { ...app.tool, name: this.name, currentStep: 'listen' },
     });
   }
 

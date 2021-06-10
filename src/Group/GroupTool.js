@@ -53,6 +53,10 @@ export class GroupTool extends Tool {
    * initialiser l'état
    */
   start() {
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  listen() {
     app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
@@ -106,7 +110,7 @@ export class GroupTool extends Tool {
   objectSelected(shape) {
     let mustExecuteAction = false;
 
-    if (app.tool.currentStep == 'start') {
+    if (app.tool.currentStep == 'listen') {
       let userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
