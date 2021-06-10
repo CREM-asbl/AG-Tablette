@@ -3,6 +3,7 @@ import './Core/Manifest';
 import { LitElement, html } from 'lit';
 import './auto-launch';
 import './backbutton-manager';
+import './Firebase/firebase-init'
 
 class AgApp extends LitElement {
   static get properties() {
