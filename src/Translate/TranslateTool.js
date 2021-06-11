@@ -59,7 +59,6 @@ export class TranslateTool extends Tool {
   }
 
   canvasMouseDown() {
-    console.log('down', app.tool.currentStep);
     if (app.tool.currentStep != 'listen') return;
 
     this.startClickCoordinates = new Coordinates(
@@ -71,7 +70,6 @@ export class TranslateTool extends Tool {
   }
 
   canvasMouseMove() {
-    console.log('move', app.tool.currentStep);
     if (app.tool.currentStep != 'translate') return;
 
     let newOffset = app.workspace.translateOffset.add(

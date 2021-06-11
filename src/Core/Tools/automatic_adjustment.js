@@ -3,6 +3,12 @@ import { SelectManager } from '../Managers/SelectManager';
 import { GridManager } from '../../Grid/GridManager';
 import { Coordinates } from '../Objects/Coordinates';
 
+function reduceAngle(angle) {
+  while (angle < -Math.PI) angle += 2 * Math.PI;
+  while (angle >= Math.PI) angle -= 2 * Math.PI;
+  return angle;
+}
+
 /**
  * Renvoie la transformation qu'il faut appliquer aux formes pour que les 2
  * segments reliant les points de e1 et e2 soient superposés.
@@ -26,12 +32,10 @@ function computeTransformation(e1, e2, shapes, mainShape) {
     moving1NewCoords = moving1.rotate(rotationAngle, center),
     translation = fix1.substract(moving1NewCoords);
 
-  if (rotationAngle < 0) rotationAngle += 2 * Math.PI;
-  if (rotationAngle >= 2 * Math.PI) rotationAngle %= 2 * Math.PI;
+  rotationAngle = reduceAngle(rotationAngle);
 
   if (
-    rotationAngle > maxRotateAngle &&
-    rotationAngle < 2 * Math.PI - rotationAngle
+    Math.abs(rotationAngle) > maxRotateAngle
   )
     return undefined;
 
@@ -75,8 +79,8 @@ function checkCompatibility(e1, e2) {
 function bestPossibility(possibilities) {
   possibilities.filter(Boolean);
   const best = possibilities.sort((poss1, poss2) => {
-    const rot1 = Math.abs(poss1.rotationAngle),
-      rot2 = Math.abs(poss2.rotationAngle);
+    const rot1 = Math.abs(reduceAngle(poss1.rotationAngle)),
+      rot2 = Math.abs(reduceAngle(poss2.rotationAngle));
     if (Math.abs(rot1 - rot2) < 0.001)
       // equalité d'angle
       return poss1.translation.dist(Coordinates.nullCoordinates) >
@@ -157,6 +161,8 @@ export function getShapeAdjustment(shapes, mainShape) {
       });
     }
   });
+
+  console.log(cPtListGrid);
 
   cPtListBorder = cPtListShape.filter(
     (pt) => pt.fixed.type == 'vertex' || pt.fixed.type == 'divisionPoint',
