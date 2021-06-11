@@ -15,11 +15,23 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/images/manifest/icon-192.png">
     <meta name="theme-color" content="#3f51b5">
-    <script>
+    <script type="module">
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js');
+            window.addEventListener('load', async () => {
+                const sw = await navigator.serviceWorker.register('/sw.js')
+                sw.onupdatefound = () => {
+                    sw.installing.onstatechange = () => {
+                        if (sw.waiting) {
+                            sw.waiting.postMessage({ type: "SKIP_WAITING" })
+                        }
+                    }
+                }
             });
+
+            navigator.serviceWorker.oncontrollerchange = () => {
+                if (confirm(`Mise à jour disponible.\nMettre à jour ?`))
+                    location.reload()
+            }
         }
     </script>
 

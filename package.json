@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "snowpack dev",
-    "build": "snowpack build && workbox generateSW",
+    "build": "snowpack build --reload && workbox generateSW",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\"",
     "deploy": "npm run build && firebase deploy --only hosting:default",
@@ -21,6 +21,7 @@
     "prettier": "^2.0.5"
   },
   "dependencies": {
+    "firebase": "^9.0.0-beta.2",
     "lit": "^2.0.0-rc.2",
     "pwa-helpers": "^0.9.1"
   }
