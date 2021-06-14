@@ -59,7 +59,7 @@ export class CreateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    this.openShapeList();
+    // this.openShapeList();
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
@@ -67,7 +67,7 @@ export class CreateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    this.openShapeList();
+    // this.openShapeList();
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -82,7 +82,13 @@ export class CreateTool extends Tool {
   }
 
   openShapeList() {
-    if (!this.shapesList) {
+    let templateNames = app.environment.getFamily(
+      app.tool.selectedFamily,
+    ).templateNames;
+    if (templateNames.length == 1) {
+      let selectedTemplate = templateNames[0];
+      setTimeout(() => setState({ tool: { ...app.tool, currentStep: 'listen', selectedTemplate }}), 50);
+    } else if (!this.shapesList) {
       import('./shapes-list');
       this.shapesList = createElem('shapes-list');
     }

@@ -152,7 +152,7 @@ class AGMain extends LitElement {
   }
 
   updated() {
-    if (app.environment?.name != 'Grandeurs') {
+    if (app.environment?.name != 'Grandeurs' && app.environment?.name != 'Cubes') {
       this.shadowRoot
         .querySelectorAll('.onlyGrandeurs')
         .forEach((el) => (el.style.display = 'none'));

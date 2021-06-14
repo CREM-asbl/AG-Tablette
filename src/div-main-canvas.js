@@ -97,9 +97,9 @@ class DivMainCanvas extends LitElement {
         src="/images/fake_cursor.png"
         height="${this.cursorSize}"
         width="${this.cursorSize}"
-        style="margin-left: ${this.cursorPos.x}px; margin-top: ${
+        style="margin-left: ${this.cursorPos.x}px; z-index: 50; position: relative; margin-top: ${
       this.cursorPos.y
-    }px; display: ${this.cursorShow ? 'inline' : 'none'}"
+    }px; display: ${this.cursorShow ? 'block' : 'none'}"
       >
       </img>
 

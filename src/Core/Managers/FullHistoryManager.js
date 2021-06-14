@@ -101,12 +101,12 @@ export class FullHistoryManager {
       FullHistoryManager.setWorkspaceToStartSituation();
     }
 
-    app.upperDrawingEnvironment.removeAllObjects(); // temporary patch
-    app.upperDrawingEnvironment.redraw(); // temporary patch
-
     // not to re-execute fullStep
     index++;
     setState({ fullHistory: { ...app.fullHistory, actionIndex, index } });
+
+    app.upperDrawingEnvironment.removeAllObjects(); // temporary patch
+    app.upperDrawingEnvironment.redraw(); // temporary patch
   }
 
   static executeAllSteps() {
