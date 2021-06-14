@@ -101,7 +101,7 @@ class AgEnvironnements extends LitElement {
   }
 
   async handleClick(e) {
-    setState({environmentLoading: true});
+    setState({ environmentLoading: true });
     setState({ environment: await loadEnvironnement(e.target.id) });
   }
 }

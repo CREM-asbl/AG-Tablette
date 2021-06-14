@@ -175,5 +175,5 @@ export function range(start, end) {
 }
 
 export function goToHomePage() {
-  window.location.reload();
+  window.location = window.location.href.split("?")[0];
 }

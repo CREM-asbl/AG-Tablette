@@ -67,6 +67,7 @@ export function openFileFromId(id) {
   window.addEventListener('doc-request-done', async event => {
     if (event.detail.status == 'successful') {
       let data = event.detail.docData;
+      setState({ environmentLoading: true });
       setState({ environment: await loadEnvironnement(data.Environment) });
       let fileContent = await readFileFromServer(data.url);
 

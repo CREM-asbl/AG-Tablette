@@ -4,6 +4,7 @@ import { LitElement, html } from 'lit';
 import './auto-launch';
 import './backbutton-manager';
 import { openFileFromId } from './Firebase/firebase-init';
+// import { uniqId } from './Core/Tools/general';
 
 class AgApp extends LitElement {
   static get properties() {
