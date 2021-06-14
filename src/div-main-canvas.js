@@ -129,8 +129,6 @@ class DivMainCanvas extends LitElement {
     );
     app.invisibleDrawingEnvironment = this.invisibleDrawingEnvironment;
 
-    setState({ started: true });
-
     this.setCanvasSize();
     window.onresize = () => {
       this.setCanvasSize();
@@ -138,6 +136,9 @@ class DivMainCanvas extends LitElement {
     window.onorientationchange = () => {
       this.setCanvasSize();
     };
+
+    setState({ started: true });
+
     window.addEventListener('workspace-changed', () => this.setCanvasSize());
 
     window.addEventListener('mouse-coordinates-changed', (event) => {

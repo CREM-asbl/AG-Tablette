@@ -9,8 +9,9 @@ export class DrawingEnvironment {
    *
    */
   constructor(canvas) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext('2d');
+    if (canvas) {
+      this.canvas = canvas;
+    }
 
     this.shapes = [];
     this.segments = [];
@@ -27,6 +28,11 @@ export class DrawingEnvironment {
     this.mustScaleShapes = true;
   }
 
+  set canvas(canvas) {
+    this._canvas = canvas;
+    this.ctx = this._canvas.getContext('2d');
+  }
+
   removeAllObjects() {
     this.shapes = [];
     this.segments = [];
@@ -36,7 +42,9 @@ export class DrawingEnvironment {
   }
 
   clear() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (this.ctx) {
+      this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    }
   }
 
   redraw() {

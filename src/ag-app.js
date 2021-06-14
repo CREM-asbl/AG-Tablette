@@ -3,7 +3,7 @@ import './Core/Manifest';
 import { LitElement, html } from 'lit';
 import './auto-launch';
 import './backbutton-manager';
-import './Firebase/firebase-init'
+import { openFileFromId } from './Firebase/firebase-init';
 
 class AgApp extends LitElement {
   static get properties() {
@@ -17,6 +17,14 @@ class AgApp extends LitElement {
     super.connectedCallback();
     this.setState();
     window.addEventListener('state-changed', () => this.setState());
+    this.parseURL();
+  }
+
+  parseURL() {
+    let parsedUrl = new URL(window.location.href);
+    let activityId = parsedUrl.searchParams.get("activityId");
+    if (activityId)
+      openFileFromId(activityId);
   }
 
   render() {
