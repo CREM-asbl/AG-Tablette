@@ -59,7 +59,7 @@ export class CreateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    this.openShapeList();
+    // this.openShapeList();
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
@@ -67,7 +67,7 @@ export class CreateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    this.openShapeList();
+    // this.openShapeList();
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -82,13 +82,21 @@ export class CreateTool extends Tool {
   }
 
   openShapeList() {
-    if (!this.shapesList) {
+    let templateNames = app.environment.getFamily(
+      app.tool.selectedFamily,
+    ).templateNames;
+    if (templateNames.length == 1) {
+      console.log('here');
+      let selectedTemplate = templateNames[0];
+      setState({ tool: { ...app.tool, currentStep: 'listen', selectedTemplate }});
+    } else if (!this.shapesList) {
       import('./shapes-list');
       this.shapesList = createElem('shapes-list');
     }
   }
 
   canvasMouseDown() {
+    console.log(app.tool.currentStep);
     if (app.tool.currentStep != 'listen') return;
 
     const selectedTemplate = app.environment
@@ -103,6 +111,8 @@ export class CreateTool extends Tool {
 
     this.shapeToCreate.size = shapeSize;
     this.shapeToCreate.scale(shapeSize);
+
+    console.log(this.shapeToCreate.points.map(pt => pt.coordinates));
 
     this.currentShapePos = Coordinates.nullCoordinates;
 

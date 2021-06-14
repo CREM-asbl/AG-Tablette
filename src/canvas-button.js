@@ -114,7 +114,7 @@ class CanvasButton extends LitElement {
       this.ctx.fill(path);
       this.ctx.stroke(path);
     } else {
-      this.drawingEnvironment.draw();
+      this.drawingEnvironment.draw('no scale');
     }
   }
 

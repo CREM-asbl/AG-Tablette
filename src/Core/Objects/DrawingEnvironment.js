@@ -46,12 +46,12 @@ export class DrawingEnvironment {
     this.draw();
   }
 
-  draw() {
+  draw(scaling = 'scale') {
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
           window.dispatchEvent(
-            new CustomEvent('draw-shape', { detail: { shape: s } }),
+            new CustomEvent('draw-shape', { detail: { shape: s, scaling } }),
           );
           if (this.mustDrawPoints && app.settings.areShapesPointed) {
             this.points.forEach((pt) => {

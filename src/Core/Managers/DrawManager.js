@@ -77,7 +77,7 @@ export class DrawManager {
    * @param  {Number}              borderSize
    * @param  {Number}              axeAngle             Axe de symétrie (pour reverse)
    */
-  static drawShape(drawingEnvironment, shape, axeAngle = undefined) {
+  static drawShape(drawingEnvironment, shape, axeAngle = undefined, scaling) {
     drawingEnvironment.ctx.strokeStyle = shape.borderColor;
     drawingEnvironment.ctx.fillStyle =
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
@@ -86,6 +86,9 @@ export class DrawManager {
     drawingEnvironment.ctx.globalAlpha = shape.opacity;
     drawingEnvironment.ctx.lineWidth =
       shape.borderSize * app.workspace.zoomLevel;
+    if (scaling == 'no scale')
+      drawingEnvironment.ctx.lineWidth =
+        shape.borderSize;
     drawingEnvironment.ctx.miterLimit = 1;
 
     const pathScaleMethod = drawingEnvironment.mustScaleShapes
@@ -264,6 +267,7 @@ window.addEventListener('draw-shape', (event) => {
     drawingEnvironment,
     event.detail.shape,
     event.detail.axeAngle,
+    event.detail.scaling,
   );
 });
 window.addEventListener('draw-segment', (event) => {
