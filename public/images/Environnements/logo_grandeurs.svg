@@ -30,7 +30,7 @@ L 337.5 346.175" stroke="#000" fill="#fff0" fill-opacity="1" stroke-width="2" st
 <circle cx="400.0" cy="237.921824527" r="4" fill="#000" />
 
 <!-- Segment 3 -->
-<path d="M 400.0 346.175 L 400.0 237.921824527" stroke="#000" fill="#0F0" fill-opacity="1" stroke-width="2" stroke-opacity="1"/>
+<!-- <path d="M 400.0 346.175 L 400.0 237.921824527" stroke="#000" fill="#0F0" fill-opacity="1" stroke-width="2" stroke-opacity="1"/>
 <circle cx="400.0" cy="346.175" r="4" fill="#000" />
-<circle cx="400.0" cy="237.921824527" r="4" fill="#000" />
+<circle cx="400.0" cy="237.921824527" r="4" fill="#000" /> -->
 </svg>
