@@ -16,4 +16,5 @@ export default {
     areShapesPointed: false,
   },
   themeColor: '#006CAA',
+  themeColorSoft: '#BCD3E6',
 };

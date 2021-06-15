@@ -18,4 +18,5 @@ export default {
   kit: 'cubesKit',
   extension: 'agc',
   themeColor: '#f46c2e',
+  themeColorSoft: '#FED3C2',
 };
