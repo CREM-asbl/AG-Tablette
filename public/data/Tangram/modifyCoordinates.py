@@ -18,7 +18,7 @@ def replaceV(match):
 
 f = open("tangramShapeKit.json", "r")
 d = f.read()
-d = re.sub(r"([\" ][ML]) (-?[0-9]+\.?[0-9]*) (-?[0-9]+\.?[0-9]*)", replaceML, d)
-d = re.sub(r"([\" ][H]) (-?[0-9]+\.?[0-9]*)", replaceH, d)
-d = re.sub(r"([\" ][V]) (-?[0-9]+\.?[0-9]*)", replaceV, d)
+d = re.sub(r"([\" \n][ML]) (-?[0-9]+\.?[0-9]*) (-?[0-9]+\.?[0-9]*)", replaceML, d)
+d = re.sub(r"([\" \n][H]) (-?[0-9]+\.?[0-9]*)", replaceH, d)
+d = re.sub(r"([\" \n][V]) (-?[0-9]+\.?[0-9]*)", replaceV, d)
 print(d)

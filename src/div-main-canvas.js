@@ -241,8 +241,7 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
     });
 
-    this.upperCanvas.addEventListener('mousewheel', (event) => {
-      event.preventDefault();
+    let handleWheel = (event) => {
       if (app.fullHistory.isRunning) return;
       let mousePos = new Coordinates({
         x: event.clientX - app.settings.mainMenuWidth,
@@ -253,11 +252,27 @@ class DivMainCanvas extends LitElement {
           detail: { mousePos: mousePos },
         }),
       );
+      let correctedDeltaY = event.deltaY;
+      if (event.deltaY > 0) {
+        correctedDeltaY = event.deltaY / 10 + 1;
+      } else if (event.deltaY < 0) {
+        correctedDeltaY = event.deltaY / 10 - 1;
+      }
       let detail = {
-        deltaY: event.deltaY,
+        deltaY: correctedDeltaY,
       };
       app.dispatchEv(new CustomEvent('canvasMouseWheel', { detail: detail }));
+    }
+
+    // this.upperCanvas.addEventListener('mousewheel', (event) => {
+    //   event.preventDefault();
+    //   handleWheel(event);
+    // });
+    this.upperCanvas.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      handleWheel(event);
     });
+
 
     this.upperCanvas.addEventListener('touchstart', (event) => {
       event.preventDefault();

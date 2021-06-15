@@ -1,0 +1,36 @@
+<svg width="800" height="500" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >
+
+<!-- -337.5 -->
+<!-- -221.175 -->
+
+<!-- Pentagone régulier -->
+<path d="M 337.5 346.175 L 462.5 346.175 L 501.1271242968425 227.29293546312502 L 400.0 153.81977892662502 L 298.8728757031575 227.29293546312502 L 337.5 346.175" stroke="#000" fill="#fff6" fill-opacity="1" stroke-width="2" stroke-opacity="1"/>
+<circle cx="337.5" cy="346.175" r="4" fill="#000" />
+<circle cx="462.5" cy="346.175" r="4" fill="#000" />
+<circle cx="501.1271242968425" cy="227.29293546312502" r="4" fill="#000" />
+<circle cx="400.0" cy="153.81977892662502" r="4" fill="#000" />
+<circle cx="298.8728757031575" cy="227.29293546312502" r="4" fill="#000" />
+
+<!-- Carré -->
+<path d="M 337.5 346.175 L 462.5 346.175
+L 462.5 221.175
+L 337.5 221.175
+L 337.5 346.175" stroke="#000" fill="#fff0" fill-opacity="1" stroke-width="2" stroke-opacity="1"/>
+<circle cx="337.5" cy="346.175" r="4" fill="#000" />
+<circle cx="462.5" cy="346.175" r="4" fill="#000" />
+<circle cx="462.5" cy="221.175" r="4" fill="#000" />
+<circle cx="337.5" cy="221.175" r="4" fill="#000" />
+
+<!-- Triangle équilatéral -->
+<path d="M 337.5 346.175 L 462.5 346.175
+L 400.0 237.921824527
+L 337.5 346.175" stroke="#000" fill="#fff0" fill-opacity="1" stroke-width="2" stroke-opacity="1"/>
+<circle cx="337.5" cy="346.175" r="4" fill="#000" />
+<circle cx="462.5" cy="346.175" r="4" fill="#000" />
+<circle cx="400.0" cy="237.921824527" r="4" fill="#000" />
+
+<!-- Segment 3 -->
+<path d="M 400.0 346.175 L 400.0 237.921824527" stroke="#000" fill="#0F0" fill-opacity="1" stroke-width="2" stroke-opacity="1"/>
+<circle cx="400.0" cy="346.175" r="4" fill="#000" />
+<circle cx="400.0" cy="237.921824527" r="4" fill="#000" />
+</svg>

@@ -46,11 +46,11 @@ export class TemplateToolbar extends LitElement {
         margin: auto;
         border-radius: 7px;
         overflow-y: hidden;
-        background-color: #ffffffb0;
+        background-color: var(--theme-color-soft);
 
         margin-bottom: 10px;
         box-shadow: 0px 0px 5px var(--menu-shadow-color);
-        width: calc(208 + 15);
+        width: calc(4 * (52 + 2 + 2));
       }
     `;
   }
