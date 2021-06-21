@@ -1,0 +1,28 @@
+<svg width="800" height="500" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg">
+
+<!-- Carré -->
+<path d="M 381.6875 338.225 L 506.6875 338.225 L 506.6875 213.225 L 381.6875 213.225 L 381.6875 338.225"
+  stroke="#000" fill="#fff6" fill-opacity="1" stroke-width="2" stroke-opacity="1"
+/>
+
+<!-- Carré -->
+<path d="M 381.6875 338.225 L 470.0625 249.850 L 433.4375 213.225"
+  stroke="#000" fill="#fff0" fill-opacity="1" stroke-width="2" stroke-opacity="1"
+/>
+
+<!-- Carré -->
+<path d="M 381.6875 338.225 L 381.6875 213.225 L 433.4375 213.225 L 381.6875 161.475 L 293.3125 249.850 Z"
+  stroke="#000" fill="#fff6" fill-opacity="1" stroke-width="2" stroke-opacity="1"
+/>
+
+<circle cx="381.6875" cy="338.225" r="3" fill="#000" />
+<circle cx="506.6875" cy="338.225" r="3" fill="#000" />
+<circle cx="506.6875" cy="213.225" r="3" fill="#000" />
+<circle cx="381.6875" cy="213.225" r="3" fill="#000" />
+<circle cx="470.0625" cy="249.850" r="3" fill="#000" />
+<circle cx="381.6875" cy="161.475" r="3" fill="#000" />
+<circle cx="293.3125" cy="249.850" r="3" fill="#000" />
+
+<path d="M 506.6875 213.225 A 125 125 0 0 0 381.6875 161.475" stroke="#000" fill="#fff0" fill-opacity="1" stroke-width="2" stroke-opacity="1"/>
+
+</svg>
