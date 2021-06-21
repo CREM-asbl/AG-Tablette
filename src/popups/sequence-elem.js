@@ -21,9 +21,16 @@ class SequenceElem extends LitElement {
   static get styles() {
     return [
       css`
-        :host {
-          height: 20px;
-          width: 100%;
+
+        details {
+          cursor: pointer;
+          width: 90%;
+          text-align: left;
+          background-color: var(--theme-color-soft);
+          border-radius: 3px;
+          box-shadow: 0px 0px 3px var(--menu-shadow-color);
+          margin: auto;
+          margin-bottom: 3px;
         }
       `,
     ];

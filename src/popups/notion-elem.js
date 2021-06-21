@@ -22,8 +22,16 @@ class NotionElem extends LitElement {
     return [
       css`
         :host {
-          height: 20px;
           width: 100%;
+        }
+
+        details {
+          cursor: pointer;
+          text-align: left;
+          background-color: var(--theme-color-soft);
+          border-radius: 3px;
+          box-shadow: 0px 0px 3px var(--menu-shadow-color);
+          margin-bottom: 5px;
         }
       `,
     ];

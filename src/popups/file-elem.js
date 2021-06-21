@@ -19,9 +19,16 @@ class FileElem extends LitElement {
   static get styles() {
     return [
       css`
-        :host {
-          height: 20px;
-          width: 100%;
+
+        div {
+          cursor: pointer;
+          text-align: center;
+          width: 90%;
+          background-color: var(--theme-color);
+          border-radius: 3px;
+          box-shadow: 0px 0px 3px var(--menu-shadow-color);
+          margin: auto;
+          margin-bottom: 3px;
         }
       `,
     ];
