@@ -28,8 +28,74 @@ export function connectDB() {
   app.db = db;
 }
 
+async function handleNotionRequest(searchAssociated, requestFunction) {
+  let querySnapshot = await requestFunction();
+  let notionInfo = [];
+  querySnapshot.forEach(doc => notionInfo.push({id: doc.id, ...doc.data()}));
+  if (notionInfo.length > 0) {
+    if (searchAssociated) {
+      let notionInfosWithSequences = await findAlsoSequence(notionInfo, false);
+      return notionInfosWithSequences;
+    }
+    return notionInfo;
+  } else {
+    // window.dispatchEvent(new CustomEvent('filesInfos-request-done', { detail: { status: 'failed' } }));
+    // console.log('request error');
+  }
+}
+
+export async function findAllNotions(searchAssociated = true) {
+  connectDB();
+  let notionInfos = await handleNotionRequest(searchAssociated, () => app.db.collection("Notions").get());
+  return notionInfos;
+}
+
+async function handleSequenceRequest(searchAssociated, requestFunction) {
+  let querySnapshot = await requestFunction();
+  let sequenceInfo = [];
+  querySnapshot.forEach(doc => sequenceInfo.push({id: doc.id, ...doc.data()}));
+  if (sequenceInfo.length > 0) {
+    if (searchAssociated) {
+      let sequenceInfosWithFiles = await findAlsoFile(sequenceInfo, false);
+      let sequenceInfosWithNotion = await findAlsoNotion(sequenceInfosWithFiles, false);
+      return sequenceInfosWithNotion;
+    }
+    return sequenceInfo;
+  } else {
+    // window.dispatchEvent(new CustomEvent('filesInfos-request-done', { detail: { status: 'failed' } }));
+    // console.log('request error');
+  }
+}
+
+export async function findSequencesByIds(ids, searchAssociated = true) {
+  connectDB();
+  let sequenceInfos = await handleSequenceRequest(searchAssociated, () => app.db.collection("Sequences").where(firebase.firestore.FieldPath.documentId(), 'in', ids).get());
+  return sequenceInfos;
+}
+
+async function handleFileRequest(searchAssociated, requestFunction) {
+  let querySnapshot = await requestFunction();
+  let filesInfos = [];
+  querySnapshot.forEach(doc => filesInfos.push({id: doc.id, ...doc.data()}));
+  if (filesInfos.length > 0) {
+    if (searchAssociated) {
+      let fileInfosWithSequence = await findAlsoSequence(filesInfos);
+      return fileInfosWithSequence;
+    }
+    return filesInfos;
+  } else {
+    console.error('no file found');
+  }
+}
+
+export async function findFilesByIds(ids, searchAssociated = true) {
+  connectDB();
+  let filesInfos = await handleFileRequest(searchAssociated, () => app.db.collection("Files").where(firebase.firestore.FieldPath.documentId(), 'in', ids).get());
+  return filesInfos;
+}
+
 export function getDataFromDocId(id) {
-  app.db.collection("Activites").doc(id).get().then((doc) => {
+  app.db.collection("Files").doc(id).get().then((doc) => {
     if (doc.exists) {
       window.dispatchEvent(new CustomEvent('doc-request-done', { detail: { status: 'successful', docData: doc.data() } }));
     } else {
@@ -40,7 +106,7 @@ export function getDataFromDocId(id) {
 }
 
 export function getFilesInfosFromEnvironment() {
-  app.db.collection("Activites").where('Environment', '==', app.environment.name).get().then((querySnapshot) => {
+  app.db.collection("Files").where('Environment', '==', app.environment.name).get().then((querySnapshot) => {
     let filesInfos = [];
     querySnapshot.forEach(doc => filesInfos.push(doc.data()));
     if (filesInfos.length > 0) {
@@ -69,7 +135,7 @@ export function openFileFromId(id) {
       let data = event.detail.docData;
       setState({ environmentLoading: true });
       setState({ environment: await loadEnvironnement(data.Environment) });
-      let fileContent = await readFileFromServer(data.url);
+      let fileContent = await readFileFromServer(data.URL);
 
       // à retirer quand tout est centralisé dans app
       app.upperDrawingEnvironment = new DrawingEnvironment();

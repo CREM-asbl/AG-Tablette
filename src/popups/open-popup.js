@@ -1,20 +1,17 @@
 import { LitElement, html, css } from 'lit';
 import { TemplatePopup } from './template-popup';
 import { app } from '../Core/App';
+import { createElem } from '../Core/Tools/general';
+import './open-server-popup';
 
 class OpenPopup extends LitElement {
   static get properties() {
     return {
-      renderMode: String,
     };
   }
 
   constructor() {
     super();
-
-    this.CremTangrams = app.CremTangrams;
-
-    this.renderMode = 'selectMethod';
 
     window.addEventListener('close-popup', () => this.close());
   }
@@ -31,74 +28,37 @@ class OpenPopup extends LitElement {
   }
 
   updated() {
-    window.setTimeout(
-      () => this.shadowRoot.querySelector('#focus').focus(),
-      200,
-    );
+    // window.setTimeout(
+    //   () => this.shadowRoot.querySelector('#focus').focus(),
+    //   200,
+    // );
   }
 
   render() {
-    if (this.renderMode == 'selectMethod') {
-      return html`
-        <template-popup>
-          <h2 slot="title">Ouvrir un fichier</h2>
-          <div slot="body" id="body">
-            <p>
-              Voulez-vous partir sans enregistrer votre travail ? <br>
-              Attention votre travail actuel sera perdu !
-            </p>
-            <button
-              id="focus"
-              name="LocalOpenFile"
-              @click="${this._actionHandle}"
-            >
-              Ouvrir en local
-            </button>
+    return html`
+      <template-popup>
+        <h2 slot="title">Ouvrir un fichier</h2>
+        <div slot="body" id="body">
+          <p>
+            Voulez-vous partir sans enregistrer votre travail ? <br>
+            Attention votre travail actuel sera perdu !
+          </p>
+          <button
+            id="focus"
+            name="LocalOpenFile"
+            @click="${this._actionHandle}"
+          >
+            Ouvrir en local
+          </button>
 
-            <br />
+          <br />
 
-            <button name="ServerOpenFile" @click="${this._actionHandle}">
-              Ouvrir sur le serveur
-            </button>
-          </div>
-        </template-popup>
-      `;
-    } else if (this.renderMode == 'selectServerFile') {
-      return html`
-        <template-popup>
-          <h2 slot="title">Ouvrir un fichier</h2>
-          <div slot="body" id="body">
-            ${app.environment.name == 'Tangram'
-              ? this.CremTangrams.map(
-                  (tan, idx) =>
-                    html`
-                      <div
-                        style="display: flex; width: 100%;
-                      cursor: pointer;"
-                        @click="${() => {
-                          window.dispatchEvent(
-                            new CustomEvent('parse-file', {
-                              detail: { fileContent: tan },
-                            }),
-                          );
-                          this.close();
-                        }}"
-                      >
-                        <canvas-button
-                          title="Tangram"
-                          silhouetteIdx="${idx}"
-                        ></canvas-button>
-                        <p style="margin: auto;">${tan.filename}</p>
-                      </div>
-                    `,
-                )
-              : undefined}
-          </div>
-        </template-popup>
-      `;
-    } else {
-      return html``;
-    }
+          <button name="ServerOpenFile" @click="${this._actionHandle}">
+            Ouvrir sur le serveur
+          </button>
+        </div>
+      </template-popup>
+    `;
   }
 
   close() {
@@ -116,7 +76,8 @@ class OpenPopup extends LitElement {
         break;
 
       case 'ServerOpenFile':
-        this.renderMode = 'selectServerFile';
+        createElem('open-server-popup');
+        this.close();
         break;
 
       default:

@@ -33,7 +33,7 @@ class AgEnvironnements extends LitElement {
         width: 100%;
         height: 100%;
         box-shadow: 0 1px 2px black;
-        font-size: 2.6rem;
+        font-size: 2.3rem;
         font-weight: bold;
         /* text-align: center; */
         background: rgba(0, 0, 0, 0.5);
