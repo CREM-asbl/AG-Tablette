@@ -104,7 +104,10 @@ class AgEnvironnements extends LitElement {
       }
 
       #Geometrie {
-        box-shadow: none;
+        background: no-repeat url('/images/Environnements/logo_geometrie.svg') center center
+        #888;
+
+        background-size: auto 150%;
       }
     `;
   }
