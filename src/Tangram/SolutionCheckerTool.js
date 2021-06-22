@@ -1,6 +1,6 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
-import { html } from 'lit';
+import { html } from 'lit-element';
 import { TangramManager } from './TangramManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';
@@ -18,68 +18,30 @@ export class SolutionCheckerTool extends Tool {
 
     this.solutionShapeIds = [];
 
-    window.addEventListener('new-window', () => this.finish());
-
-    window.addEventListener('remove-solution-checker', () => this.finish());
-
-    window.addEventListener('file-parsed', () => app.setState(this.name)); // use setState instead of app.setState
-  }
-
-  /**
-   * initialiser l'état
-   */
-  start(mustRefresh = true) {
-    if (mustRefresh) {
-      TangramManager.initShapes();
-      this.showStateMenu();
-      window.addEventListener('state-menu-button-click', this.handler);
-      window.addEventListener('app-state-changed', this.handler);
-      this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    }
-  }
-
-  restart() {}
-
-  finish() {
-    window.dispatchEvent(new CustomEvent('close-state-menu'));
-    window.removeEventListener('state-menu-button-click', this.handler);
-    window.removeEventListener('app-state-changed', this.handler);
-    app.removeListener('objectSelected', this.objectSelectedId);
-  }
-
-  end() {}
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'state-menu-button-click') {
-      this.clickOnStateMenuButton(event.detail);
-    } else if (event.type == 'app-state-changed') {
-      if (
-        event.detail.state != 'rotate' &&
-        event.detail.state != 'rotate45' &&
-        event.detail.state != 'move' &&
-        event.detail.state != 'solveChecker'
-      ) {
-        this.clickOnStateMenuButton('uncheck');
+    addEventListener('file-parsed', async (e) => {
+      TangramManager.closeForbiddenCanvas();
+      app.backgroundDrawingEnvironment.removeAllObjects();
+      // document.querySelector('state-menu')?.remove();
+      const data = e.detail;
+      const level = await TangramManager.selectLevel();
+      if (level == 3 || level == 4) {
+        await TangramManager.openForbiddenCanvas();
       }
-    } else if (event.type == 'objectSelected') {
-      let object = event.detail.object;
-      let index = this.solutionShapeIds.findIndex((id) => object.id == id);
-      if (index == -1) {
-        this.clickOnStateMenuButton('uncheck');
+      let backObjects = data.wsdata.backObjects,
+        isSilhouetteShown = false;
+      if (backObjects) {
+        Silhouette.initFromObject(backObjects, level);
+        isSilhouetteShown = true;
       }
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+      setState({ tangram: {...app.defaultState.tangram, isSilhouetteShown }, tool: { name: this.name, currentStep: 'start' } });
+    });
   }
 
   /**
    * Renvoie l'aide à afficher à l'utilisateur
    * @return {String} L'aide, en HTML
    */
-  getHelpText() {
+   getHelpText() {
     let toolName = this.title;
     return html`
       <h2>${toolName}</h2>
@@ -91,37 +53,91 @@ export class SolutionCheckerTool extends Tool {
     `;
   }
 
-  showStateMenu() {
-    if (document.querySelector('state-menu')) return;
-    import('./state-menu');
-    this.stateMenu = document.createElement('state-menu');
+  /**
+   * initialiser l'état
+   */
+  start() {
+    TangramManager.initShapes();
+    this.showStateMenu();
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    window.addEventListener('tangram-changed', this.handler);
+    window.addEventListener('new-window', this.handler);
+  }
+
+  check() {
+    console.log('checking')
+    this.checkSolution();
+    this.stateMenu.buttons = [
+      {
+        text: 'Annuler vérification',
+        value: 'uncheck',
+      },
+    ];
+  }
+
+  uncheck() {
+    console.log('unchecking')
+    this.eraseSolution();
     this.stateMenu.buttons = [
       {
         text: 'Vérifier solution',
         value: 'check',
       },
     ];
-    document.querySelector('body').appendChild(this.stateMenu);
   }
 
-  clickOnStateMenuButton(btn_value) {
-    if (btn_value == 'check') {
-      app.setState(this.name, false); // use setState instead of app.setState
-      this.checkSolution();
-      this.stateMenu.buttons = [
-        {
-          text: 'Annuler vérification',
-          value: 'uncheck',
-        },
-      ];
-    } else if (btn_value == 'uncheck') {
-      this.eraseSolution();
-      this.stateMenu.buttons = [
-        {
-          text: 'Vérifier solution',
-          value: 'check',
-        },
-      ];
+  end() {
+  }
+
+  eventHandler(event) {
+    if (event.type == 'tool-changed') {
+      if (app.tool?.name == this.name) {
+        this[app.tool.currentStep]();
+      } else if (app.tool?.currentStep == 'start') {
+        if (
+          app.tool.name != 'rotate' &&
+          app.tool.name != 'rotate45' &&
+          app.tool.name != 'move' &&
+          app.tool.name != 'solveChecker'
+        ) {
+          setState({ tangram: { ...app.tangram, currentStep: 'uncheck' }});
+        }
+      }
+    } else if (event.type == 'tangram-changed') {
+      if (['check', 'uncheck'].includes(app.tangram.currentStep)) {
+        this[app.tangram.currentStep]();
+      }
+    } else if (event.type == 'objectSelected') {
+      this.objectSelected(event.detail.object);
+    } else if (event.type == 'new-window') {
+      this.end();
+    }
+  }
+
+  removeListeners() {
+    app.removeListener('objectSelected', this.objectSelectedId);
+    window.removeEventListener('tangram-changed', this.handler);
+
+  }
+
+  objectSelected(object) {
+    let index = this.solutionShapeIds.findIndex((id) => object.id == id);
+    if (index == -1) {
+      setState({ tangram: { ...app.tangram, currentStep: 'uncheck' }})
+    }
+  }
+
+  showStateMenu() {
+    setState({
+      tangram: {
+        buttonText: 'Vérifier solution',
+        buttonValue: 'check',
+      }
+    });
+    if (!document.querySelector('state-menu')) {
+      import('./state-menu');
+      const stateMenu = document.createElement('state-menu');
+      document.querySelector('body').appendChild(stateMenu);
     }
   }
 

@@ -1,25 +1,11 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { createElem } from '../Core/Tools/general';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 
 const serverURL = 'https://api.crem.be/';
 
-addEventListener('file-parsed', async (e) => {
-  TangramManager.closeForbiddenCanvas();
-  document.querySelector('state-menu')?.remove();
-  const data = e.detail;
-  const level = await TangramManager.selectLevel();
-  if (level == 3 || level == 4) {
-    await TangramManager.openForbiddenCanvas();
-  }
-  if (data.silhouetteData) {
-    app.silhouette = Silhouette.initFromObject(data.silhouetteData, level);
-    window.dispatchEvent(new CustomEvent('refreshBackground'));
-  }
-});
-
-addEventListener('new-window', () => (app.silhouette = null));
+addEventListener('new-window', () => setState({ tangram: {...app.defaultState.tangram } }));
 
 export class TangramManager {
   static async openForbiddenCanvas() {
@@ -43,9 +29,8 @@ export class TangramManager {
   }
 
   static removeSilhouette() {
-    app.silhouette = null;
+    app.backgroundDrawingEnvironment.removeAllObjects();
     TangramManager.closeForbiddenCanvas();
-    window.dispatchEvent(new CustomEvent('remove-solution-checker'));
     window.dispatchEvent(new CustomEvent('refresh-background'));
   }
 

@@ -109,7 +109,7 @@ function bestPossibility(possibilities) {
  */
 export function getShapeAdjustment(shapes, mainShape) {
   let grid = app.settings.gridShown,
-    // tangram = app.environment.name == 'Tangram' && app.silhouette,
+    // tangram = app.tangram.isSilhouetteShown,
     automaticAdjustment = app.settings.automaticAdjustment,
     transformation = {
       rotationAngle: 0,

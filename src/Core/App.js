@@ -54,6 +54,12 @@ export class App {
       isRunning: false,
     };
 
+    this.tangram = {
+      isSilhouetteShown: false,
+      currentStep: null,
+      button: null,
+    }
+
     this.started = false;
 
     this.defaultState = {
@@ -61,6 +67,7 @@ export class App {
       settings: { ...this.settings },
       history: { ...this.history },
       fullHistory: { ...this.fullHistory },
+      tangram: { ...this.tangram },
     };
 
     // compteur d'écouteurs pour certains event
@@ -132,6 +139,9 @@ export const setState = (update) => {
       app.tool.type = toolInfo.type;
     }
     window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
+  }
+  if ('tangram' in update) {
+    window.dispatchEvent(new CustomEvent('tangram-changed', { detail: app }));
   }
   if ('settings' in update) {
     window.dispatchEvent(new CustomEvent('settings-changed', { detail: app }));

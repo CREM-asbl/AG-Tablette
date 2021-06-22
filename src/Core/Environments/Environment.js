@@ -1,11 +1,11 @@
-import { setState } from '../App';
+import { app, setState } from '../App';
 import { Family } from '../Objects/Family';
 
 export const loadEnvironnement = async (name) => {
   try {
     const config = await import(`./${name}.js`);
+    if (config.default.settings) setState({ settings: {...app.settings, ...config.default.settings } });
     await loadModules(config.default.modules);
-    // if (config.default.settings) app.settings.update(config.default.settings);
 
     return new Environment(config.default, await loadKit(config.default.kit));
   } catch (error) {

@@ -12,7 +12,7 @@ addEventListener('tool-changed', () => {
 });
 
 addEventListener('settings-changed', () => {
-  app.backgroundDrawingEnvironment.removeAllObjects();
+  app.backgroundDrawingEnvironment?.removeAllObjects();
   if (app.settings.gridShown) {
     GridManager.drawGridPoints();
   }

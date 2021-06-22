@@ -1,14 +1,27 @@
-import { app } from '../Core/App';
-import { LitElement, html, css } from 'lit';
+import { app, setState } from '../Core/App';
+import { LitElement, html, css } from 'lit-element';
 
 class StateMenu extends LitElement {
   constructor() {
     super();
-    this.buttons = [];
+    this.updateProperties = () => {
+      this.buttonText = app.tangram.buttonText;
+      this.buttonValue = app.tangram.buttonValue;
+    };
+    this.updateProperties();
 
-    window.addEventListener('close-state-menu', () => {
-      this /*.shadowRoot.querySelector('state-menu')*/.remove();
-    });
+    this.eventHandler = e => {
+      if (e.type == 'tangram-changed') this.updateProperties();
+      else if (e.type == 'new-window') this.close();
+    };
+    this.close = () => {
+      this.remove();
+      window.removeEventListener('tangram-changed', this.eventHandler);
+      window.removeEventListener('new-window', this.eventHandler);
+    };
+
+    window.addEventListener('tangram-changed', this.eventHandler);
+    window.addEventListener('new-window', this.eventHandler);
   }
 
   static get properties() {
@@ -33,7 +46,6 @@ class StateMenu extends LitElement {
         max-height: 30%;
         left: ${app.settings.mainMenuWidth + 5}px;
       }
-
       div#state-menu-buttons-list > button {
         font-size: 20px;
         border-radius: 5px;
@@ -48,22 +60,15 @@ class StateMenu extends LitElement {
   render() {
     return html`
       <div id="state-menu-buttons-list">
-        ${this.buttons.map(
-          (button) => html`
-            <button @click="${() => this.clickBtn(button.value)}">
-              ${button.text}
-            </button>
-          `,
-        )}
+        <button @click="${() => this.clickHandler(this.buttonValue)}">
+          ${this.buttonText}
+        </button>
       </div>
     `;
   }
 
-  clickBtn(value) {
-    window.dispatchEvent(
-      new CustomEvent('state-menu-button-click', { detail: value }),
-    );
+  clickHandler(value) {
+    setState({ tangram: { ...app.tangram, currentStep: value }});
   }
 }
-
 customElements.define('state-menu', StateMenu);

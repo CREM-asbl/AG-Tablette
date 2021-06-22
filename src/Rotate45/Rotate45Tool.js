@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -10,16 +10,14 @@ export class Rotate45Tool extends Tool {
   constructor() {
     super('rotate45', 'Tourner à 45°', 'move');
 
-    //La forme que l'on déplace
+    // La forme que l'on déplace
     this.selectedShape = null;
 
     /*
-        L'ensemble des formes liées à la forme sélectionnée, y compris la forme
-        elle-même
-         */
+      L'ensemble des formes liées à la forme sélectionnée, y compris la forme
+      elle-même
+    */
     this.involvedShapes = [];
-
-    this.handler = (event) => this._actionHandle(event);
   }
 
   /**
@@ -38,29 +36,15 @@ export class Rotate45Tool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape),
-    );
-
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    setTimeout(
-      () =>
-        (app.workspace.selectionConstraints =
-          app.fastSelectionConstraints.mousedown_all_shape),
-    );
+  listen() {
+    this.removeListeners();
+
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.mousedown_all_shape;
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -69,18 +53,7 @@ export class Rotate45Tool extends Tool {
    * stopper l'état
    */
   end() {
-    app.removeListener('objectSelected', this.objectSelectedId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+    this.removeListeners();
   }
 
   /**
@@ -91,16 +64,14 @@ export class Rotate45Tool extends Tool {
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
 
-    this.actions = [
-      {
-        name: 'Rotate45Action',
-        shapeId: this.selectedShape.id,
-        involvedShapesIds: this.involvedShapes.map((s) => s.id),
-      },
-    ];
-
     this.executeAction();
-    this.restart();
-    window.dispatchEvent(new CustomEvent('refresh'));
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+  }
+
+  _executeAction() {
+    let centerCoord = this.selectedShape.centerCoordinates;
+    this.involvedShapes.forEach((s) => {
+      s.rotate(Math.PI / 4, centerCoord);
+    });
   }
 }

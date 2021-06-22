@@ -1,6 +1,6 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
-import { html } from 'lit';
+import { html } from 'lit-element';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { TangramManager } from './TangramManager';
 
@@ -11,64 +11,54 @@ export class SilhouetteCreatorTool extends Tool {
   constructor() {
     super('createSilhouette', 'Créer Tangram', 'tangram');
 
-    this.buttons = null;
-
     this.isUserWarnedAboutOverlap = false;
-
-    window.addEventListener('new-window', () => this.finish());
-
-    window.addEventListener('tool-changed', () => {
-      if (app.tool.name == 'solveChecker') this.finish();
-    });
   }
 
   /**
    * initialiser l'état
    */
   async start() {
+    this.removeListeners();
+
     TangramManager.initShapes();
-
-    this.isUserWarnedAboutOverlap = false;
-
-    app.workspace.selectionConstraints =
-      app.fastSelectionConstraints.mousedown_all_shape;
-
+    console.log('remove silhouette');
     TangramManager.removeSilhouette();
     this.showStateMenu();
-    window.addEventListener('state-menu-button-click', this.handler);
-    window.addEventListener('create-silhouette', this.handler);
-    window.addEventListener('actions-executed', this.handler);
-    window.dispatchEvent(new CustomEvent('refreshBackground'));
-  }
 
-  restart() {
-    TangramManager.initShapes();
     this.isUserWarnedAboutOverlap = false;
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
-    window.dispatchEvent(new CustomEvent('refreshBackground'));
+    window.addEventListener('new-window', this.handler);
+    window.addEventListener('actions-executed', this.handler);
+    window.addEventListener('tangram-changed', this.handler);
   }
 
-  finish() {
-    window.removeEventListener('state-menu-button-click', this.handler);
-    window.removeEventListener('actions-executed', this.handler);
+  end() {
+    this.removeListeners();
   }
 
-  end() {}
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'state-menu-button-click') {
-      this.clickOnStateMenuButton(event.detail);
-    } else if (event.type == 'create-silhouette') {
-      this.createSilhouette();
+  eventHandler(event) {
+    if (event.type == 'tool-changed') {
+      if (app.tool?.name == this.name) {
+        this[app.tool.currentStep]();
+      } else if (app.tool?.name == 'solveChecker') { // à changer
+        this.end();
+      }
+    } else if (event.type == 'tangram-changed') {
+      if (app.tangram.currentStep == 'createSilhouette') {
+        this.createSilhouette();
+      }
     } else if (event.type == 'actions-executed') {
       this.verifyOverlappingShapes();
-    } else {
-      console.error('unsupported event type : ', event.type);
+    } else if (event.type == 'new-window') {
+      this.end();
     }
+  }
+
+  removeListeners() {
+    window.removeEventListener('actions-executed', this.handler);
+    window.removeEventListener('tangram-changed', this.handler);
+    window.removeEventListener('new-window', this.handler);
   }
 
   /**
@@ -90,12 +80,6 @@ export class SilhouetteCreatorTool extends Tool {
     `;
   }
 
-  clickOnStateMenuButton(btn_value) {
-    if (btn_value == 'create') {
-      window.dispatchEvent(new CustomEvent('create-silhouette'));
-    }
-  }
-
   createSilhouette() {
     app.backgroundDrawingEnvironment.removeAllObjects();
     const shapes = app.mainDrawingEnvironment.shapes;
@@ -103,16 +87,20 @@ export class SilhouetteCreatorTool extends Tool {
     if (this.hasOverlapedShape(shapes)) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
-          detail: { message: 'Certaines formes se superposent' },
+          detail: { message: 'Certaines formes se superposent.' },
         }),
       );
       return;
     }
-    const silhouette = new Silhouette(shapes);
 
-    if (!silhouette) return;
-    app.silhouette = silhouette;
+    new Silhouette(shapes);
+    setState({ tangram: {...app.tangram, isSilhouetteShown: true, currentStep: null } });
 
+    window.dispatchEvent(
+      new CustomEvent('actions-executed', {
+        detail: { name: 'Créer une silhouette' },
+      }),
+    );
     window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
@@ -139,7 +127,7 @@ export class SilhouetteCreatorTool extends Tool {
         if (!this.isUserWarnedAboutOverlap) {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
-              detail: { message: 'Certaines formes se superposent' },
+              detail: { message: 'Certaines formes se superposent.' },
             }),
           );
           this.isUserWarnedAboutOverlap = true;
@@ -151,15 +139,16 @@ export class SilhouetteCreatorTool extends Tool {
   }
 
   showStateMenu() {
-    if (document.querySelector('state-menu')) return;
-    import('./state-menu');
-    const menu = document.createElement('state-menu');
-    menu.buttons = [
-      {
-        text: 'Créer silhouette',
-        value: 'create',
-      },
-    ];
-    document.querySelector('body').appendChild(menu);
+    setState({
+      tangram: {
+        buttonText: 'Créer silhouette',
+        buttonValue: 'createSilhouette',
+      }
+    });
+    if (!document.querySelector('state-menu')) {
+      import('./state-menu');
+      const stateMenu = document.createElement('state-menu');
+      document.querySelector('body').appendChild(stateMenu);
+    }
   }
 }
