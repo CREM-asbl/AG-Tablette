@@ -129,7 +129,7 @@ class AgEnvironnements extends LitElement {
           Cubes
         </div>
       </div>
-      <div id="Geometrie" name="Geometrie" class="envTile" @click="${() => this.handleClick('')}">
+      <div id="Geometrie" name="Geometrie" class="envTile" @click="${() => this.handleClick('Geometrie')}">
         <div class="textTop envText" name="Geometrie">
           Géométrie
         </div>
