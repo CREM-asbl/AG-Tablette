@@ -176,7 +176,7 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
-                name="load"
+                name="open"
                 title="Ouvrir"
                 @click="${this._actionHandle}"
               >
@@ -342,7 +342,7 @@ class AGMain extends LitElement {
         window.dispatchEvent(new CustomEvent('save-file'));
         resetTool = true;
         break;
-      case 'load':
+      case 'open':
         window.dispatchEvent(new CustomEvent('open-file'));
         resetTool = true;
         break;
@@ -381,7 +381,6 @@ class AGMain extends LitElement {
   //   this.states = [...app.states];
   //   this.stateName = app.state;
   //   this.state = this.states.find((st) => st.name == this.stateName);
-  //   // if (location.hostname === 'localhost') console.log(app)
   // }
 
   // // Todo: Placer dans un objet BackgroundImage ?

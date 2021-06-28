@@ -41,7 +41,6 @@ class NotionElem extends LitElement {
     if (typeof this.sequenceIds == "string") {
       this.sequenceIds = this.sequenceIds.split(',');
     }
-    console.log(this.sequenceIds);
   }
 
   render() {

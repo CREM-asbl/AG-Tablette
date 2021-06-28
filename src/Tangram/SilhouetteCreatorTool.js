@@ -21,7 +21,6 @@ export class SilhouetteCreatorTool extends Tool {
     this.removeListeners();
 
     TangramManager.initShapes();
-    console.log('remove silhouette');
     TangramManager.removeSilhouette();
     this.showStateMenu();
 

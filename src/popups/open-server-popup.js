@@ -36,8 +36,6 @@ class OpenServerPopup extends LitElement {
   async firstUpdated() {
     let notionInfos = await findAllNotions(false);
     this.notionInfos = notionInfos;
-    console.log(this.notionInfos[0].Title);
-    console.log(this.notionInfos[0].Sequence_ids);
   }
 
   updated() {

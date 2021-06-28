@@ -37,11 +37,9 @@ class SequenceElem extends LitElement {
   }
 
   updated() {
-    console.log(this.fileIds);
     if (typeof this.fileIds == "string") {
       this.fileIds = this.fileIds.split(',');
     }
-    console.log(this.fileIds);
   }
 
   render() {
@@ -57,7 +55,6 @@ class SequenceElem extends LitElement {
    * event handler principal
    */
   async summaryClick() {
-    console.log(this.fileIds);
     let fileInfos = await findFilesByIds(this.fileIds, false);
     this.fileInfos = fileInfos;
     this.fileInfos.sort((el1, el2) => {
@@ -65,7 +62,6 @@ class SequenceElem extends LitElement {
         return 1;
       return -1;
     });
-    console.log(this.fileIds);
   }
 }
 customElements.define('sequence-elem', SequenceElem);

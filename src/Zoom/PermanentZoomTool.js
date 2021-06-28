@@ -61,6 +61,14 @@ export class PermanentZoomTool extends Tool {
       this.originalTranslateOffset = app.workspace.translateOffset;
       this.originalZoom = app.workspace.zoomLevel;
 
+      if (app.tool) {
+        if (app.tool.name != this.name)
+          this.previousUsedTool = { name: app.tool.name, selectedFamily: app.tool.selectedFamily };
+      } else {
+        this.previousUsedTool = null;
+      }
+      clearTimeout(this.timeoutId);
+
       app.upperDrawingEnvironment.removeAllObjects();
       setState({
         tool: { name: this.name, currentStep: 'start', mode: 'touch', title: this.title },
@@ -130,9 +138,23 @@ export class PermanentZoomTool extends Tool {
 
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'init' } });
+
+    this.timeoutId = setTimeout(() => {
+      this.isLastActionZoom = false;
+      if (this.previousUsedTool)
+        setState({ tool: { ...this.previousUsedTool, currentStep: 'start' } });
+    }, 300);
   }
 
   canvasMouseWheel(deltaY) {
+    if (app.tool) {
+      if (app.tool.name != this.name)
+        this.previousUsedTool = { name: app.tool.name, selectedFamily: app.tool.selectedFamily };
+    } else {
+      this.previousUsedTool = null;
+    }
+    clearTimeout(this.timeoutId);
+
     this.originalTranslateOffset = app.workspace.translateOffset;
     this.originalZoom = app.workspace.zoomLevel;
 
@@ -155,11 +177,27 @@ export class PermanentZoomTool extends Tool {
       1 / app.canvasHeight,
     );
 
-    setState({ tool: { name: this.name, currentStep: 'start', mode: 'wheel', title: this.title } });
-    this.executeAction();
+    if (this.isLastActionZoom)
+      this.applyZoom();
+    else {
+      setState({ tool: { name: this.name, currentStep: 'start', mode: 'wheel', title: this.title } });
+      this.executeAction();
+    }
+
+    this.isLastActionZoom = true;
+
+    this.timeoutId = setTimeout(() => {
+      this.isLastActionZoom = false;
+      if (this.previousUsedTool)
+        setState({ tool: { ...this.previousUsedTool, currentStep: 'start' } });
+    }, 300);
   }
 
   _executeAction() {
+    this.applyZoom();
+  }
+
+  applyZoom() {
     let originalZoom = this.originalZoom;
     let originalTranslateOffset = new Coordinates(
       this.originalTranslateOffset,

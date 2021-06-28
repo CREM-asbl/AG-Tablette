@@ -65,7 +65,6 @@ export class SolutionCheckerTool extends Tool {
   }
 
   check() {
-    console.log('checking')
     this.checkSolution();
     this.stateMenu.buttons = [
       {
@@ -76,7 +75,6 @@ export class SolutionCheckerTool extends Tool {
   }
 
   uncheck() {
-    console.log('unchecking')
     this.eraseSolution();
     this.stateMenu.buttons = [
       {
