@@ -105,7 +105,14 @@ class AGMain extends LitElement {
           box-sizing: border-box;
           background-color: var(--theme-color);
           flex: 0 0 ${app.settings.mainMenuWidth}px;
-          /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
+          /* peut tester ça sur windows pour afficher la scrollbar si besoin */
+          /* .myContainer {
+            overflow-y: hidden !important;
+          }
+
+          .myContainer:hover {
+            overflow-y: auto !important;
+          } */
 
           /* scrollbar hidden */
           /* -ms-overflow-style: none; IE and Edge */
