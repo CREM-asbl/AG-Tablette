@@ -49,9 +49,19 @@ export class OpenFileManager {
   static parseFile(fileContent) {
     let saveObject;
     if (typeof fileContent == 'string') {
-      saveObject = JSON.parse(fileContent);
+      try {
+        saveObject = JSON.parse(fileContent);
+      } catch(e) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier.' } }));
+        return;
+      }
     } else {
       saveObject = fileContent;
+    }
+
+    if (saveObject.envName != app.environment.name) {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. C\'est un fichier ' + saveObject.envName + '.' } }));
+      return;
     }
 
     app.lastFileVersion = saveObject.appVersion;
