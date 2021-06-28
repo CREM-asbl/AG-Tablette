@@ -22,7 +22,7 @@ export class App {
       precision: 1.5,
       maxZoomLevel: 10,
       minZoomLevel: 0.1,
-      mainMenuWidth: 250,
+      mainMenuWidth: 265,
       constraintsDrawColor: '#080',
       temporaryDrawColor: '#E90CC8',
 

@@ -37,7 +37,6 @@ class AGMain extends LitElement {
 
   constructor() {
     super();
-    app.appDiv = this;
     this.canUndo = false;
     this.canRedo = false;
     this.tools = app.tools;
@@ -101,6 +100,7 @@ class AGMain extends LitElement {
           display: flex;
           flex-direction: column;
           padding: 10px;
+          padding-right: 25px;
           border-radius: 10px;
           box-sizing: border-box;
           background-color: var(--theme-color);
@@ -108,8 +108,8 @@ class AGMain extends LitElement {
           /* box-shadow: 0px 0px 5px var(--menu-shadow-color); */
 
           /* scrollbar hidden */
-          -ms-overflow-style: none; /* IE and Edge */
-          scrollbar-width: none; /* Firefox */
+          /* -ms-overflow-style: none; IE and Edge */
+          /* scrollbar-width: none; Firefox */
           overflow-y: scroll;
           overflow-x: hidden;
 
@@ -121,9 +121,9 @@ class AGMain extends LitElement {
         }
 
         /* scrollbar hidden */
-        #app-menu::-webkit-scrollbar {
+        /* #app-menu::-webkit-scrollbar {
           display: none;
-        }
+        } */
 
         div-main-canvas {
           width: 100%;
