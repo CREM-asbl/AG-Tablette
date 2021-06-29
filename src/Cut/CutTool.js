@@ -4,6 +4,7 @@ import { html } from 'lit';
 import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
 import { Shape } from '../Core/Objects/Shape';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Découper une forme
@@ -119,12 +120,14 @@ export class CutTool extends Tool {
         size: 2,
       });
     }
-    new Point({
-      coordinates: secondPoint.coordinates,
-      drawingEnvironment: app.upperDrawingEnvironment,
-      color: this.drawColor,
-      size: 2,
-    });
+    if (centerPoint != undefined) {
+      new Point({
+        coordinates: secondPoint.coordinates,
+        drawingEnvironment: app.upperDrawingEnvironment,
+        color: this.drawColor,
+        size: 2,
+      });
+    }
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
@@ -171,9 +174,8 @@ export class CutTool extends Tool {
     if (app.tool.currentStep == 'listen') {
       //On a sélectionné le premier point
       if (object.shape.isSegment() && object.type == 'divisionPoint') {
-        this.secondPoint = null;
         setState({
-          tool: { ...app.tool, currentStep: 'cut', firstPointId: object.id },
+          tool: { ...app.tool, currentStep: 'cut', firstPointId: object.id, centerPointId: undefined, secondPointId: undefined },
         });
       } else {
         setState({
