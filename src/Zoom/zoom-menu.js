@@ -48,14 +48,12 @@ class ZoomMenu extends LitElement {
         overflow-y: auto;
         max-height: 30%;
         left: ${app.settings.mainMenuWidth + 5}px;
-      }
-      div#state-menu-buttons-list > button {
-        font-size: 20px;
-        border-radius: 5px;
-        margin: 5px;
-        padding: 4px;
-        display: inline-block;
-        background-color: #bbb;
+
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -o-user-select: none;
+        user-select: none;
       }
     `;
   }
@@ -78,15 +76,15 @@ class ZoomMenu extends LitElement {
 
   getZoomFromPosition(position) {
     // position will be between 0 and 100
-    var minp = 0;
-    var maxp = 100;
+    let minp = 0;
+    let maxp = 100;
 
     // The result should be between 0.1 an 10
-    var minv = Math.log10(app.settings.minZoomLevel);
-    var maxv = Math.log10(app.settings.maxZoomLevel);
+    let minv = Math.log10(app.settings.minZoomLevel);
+    let maxv = Math.log10(app.settings.maxZoomLevel);
 
     // calculate adjustment factor
-    var scale = (maxv - minv) / (maxp - minp);
+    let scale = (maxv - minv) / (maxp - minp);
 
     let zoomLevel = Math.pow(10, minv + scale * (position - minp));
     return zoomLevel;
@@ -94,15 +92,15 @@ class ZoomMenu extends LitElement {
 
   getPositionFromZoom(zoomLevel) {
     // position will be between 0 and 100
-    var minp = 0;
-    var maxp = 100;
+    let minp = 0;
+    let maxp = 100;
 
     // The result should be between 0.1 an 10
-    var minv = Math.log10(app.settings.minZoomLevel);
-    var maxv = Math.log10(app.settings.maxZoomLevel);
+    let minv = Math.log10(app.settings.minZoomLevel);
+    let maxv = Math.log10(app.settings.maxZoomLevel);
 
     // calculate adjustment factor
-    var scale = (maxv - minv) / (maxp - minp);
+    let scale = (maxv - minv) / (maxp - minp);
 
     let pos = (Math.log10(zoomLevel) - minv) / scale + minp;
     return pos;

@@ -908,8 +908,10 @@ export class Segment {
   }
 
   equal(segment) {
-    if ((this.arcCenter == undefined) ^ (segment.arcCenter == undefined))
+    console.log(this, segment);
+    if ((this.isArc()) ^ (segment.isArc())) {
       return false;
+    }
     // one is arc and the other not
     else if (
       (this.vertexes[0].coordinates.equal(segment.vertexes[1].coordinates) &&
@@ -917,14 +919,15 @@ export class Segment {
       (this.vertexes[0].coordinates.equal(segment.vertexes[0].coordinates) &&
         this.vertexes[1].coordinates.equal(segment.vertexes[1].coordinates))
     ) {
-      if (this.arcCenter) {
+      if (this.isArc()) {
         return (
-          this.arcCenter.equal(segment.arcCenter) &&
+          this.arcCenter.coordinates.equal(segment.arcCenter.coordinates) &&
           (this.counterclockwise != segment.counterclockwise) ^
-            this.vertexes[1].equal(segment.vertexes[1])
+            this.vertexes[1].coordinates.equal(segment.vertexes[1].coordinates)
         );
       } else return true;
     } else {
+      console.log('nothing');
       return false;
     }
   }

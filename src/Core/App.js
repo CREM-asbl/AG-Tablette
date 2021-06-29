@@ -60,6 +60,7 @@ export class App {
       button: null,
     }
 
+    this.stepSinceSave = false,
     this.started = false;
 
     this.defaultState = {
@@ -68,6 +69,7 @@ export class App {
       history: { ...this.history },
       fullHistory: { ...this.fullHistory },
       tangram: { ...this.tangram },
+      stepSinceSave: this.stepSinceSave,
     };
 
     // compteur d'écouteurs pour certains event
@@ -156,6 +158,9 @@ export const setState = (update) => {
   }
   if ('started' in update) {
     window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
+  }
+  if ('stepSinceSave' in update) {
+    console.log(app.stepSinceSave);
   }
   if (app.started) {
     window.dispatchEvent(new CustomEvent('refreshUpper'));

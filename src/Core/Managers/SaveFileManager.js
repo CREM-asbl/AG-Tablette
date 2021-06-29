@@ -1,4 +1,4 @@
-import { app } from '../App';
+import { app, setState } from '../App';
 import { createElem } from '../Tools/general';
 
 export class SaveFileManager {
@@ -200,6 +200,7 @@ export class SaveFileManager {
       const encoded_data = window.URL.createObjectURL(file);
       SaveFileManager.downloadFile(handle.name, encoded_data);
     }
+    setState({ stepSinceSave: false });
   }
 
   static async newWriteFile(fileHandle, contents) {

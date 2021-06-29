@@ -40,8 +40,10 @@ class FullHistoryTools extends LitElement {
     this.index = 0;
 
     this.eventHandler = () => {
-      if (app.fullHistory.isRunning) this.index = app.fullHistory.actionIndex;
-      else this.close();
+      if (app.fullHistory.isRunning) {
+        this.index = app.fullHistory.actionIndex;
+        this.shadowRoot.getElementById( 'b' + this.index )?.parentNode.scrollIntoView();
+      } else this.close();
     };
     this.close = () => {
       this.remove();

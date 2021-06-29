@@ -81,7 +81,7 @@ export class FullHistoryManager {
   }
 
   static moveTo(actionIndex) {
-    // window.clearTimeout(app.workspace.FullHistory.timeoutId);
+    FullHistoryManager.pauseBrowsing();
 
     let index = app.fullHistory.steps.findIndex(
       (step) => step.detail?.actionIndex === actionIndex - 1,
@@ -206,6 +206,7 @@ export class FullHistoryManager {
       data.history = undefined;
       data.settings = { ...app.settings };
       detail.data = data;
+      setState({ stepSinceSave: true });
     }
     let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
     let steps = [...app.fullHistory.steps, { type, detail, timeStamp }];
