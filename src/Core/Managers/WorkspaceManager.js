@@ -41,6 +41,7 @@ window.addEventListener('new-window', () => {
       gridType: app.defaultState.settings.gridType,
       gridSize: app.defaultState.settings.gridSize,
     },
+    stepSinceSave: app.defaultState.stepSinceSave,
   });
   WorkspaceManager.setWorkspace(new Workspace());
   // }, 0);

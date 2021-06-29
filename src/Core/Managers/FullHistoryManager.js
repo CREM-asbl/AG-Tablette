@@ -206,6 +206,7 @@ export class FullHistoryManager {
       data.history = undefined;
       data.settings = { ...app.settings };
       detail.data = data;
+      setState({ stepSinceSave: true });
     }
     let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
     let steps = [...app.fullHistory.steps, { type, detail, timeStamp }];

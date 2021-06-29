@@ -1,6 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { TemplatePopup } from './template-popup';
 import { goToHomePage } from '../Core/Tools/general';
+import { app } from '../Core/App';
+import './save-warning';
 
 class HomePopup extends LitElement {
   constructor() {
@@ -34,10 +36,9 @@ class HomePopup extends LitElement {
           ${'Nouvelle fenêtre'}
         </h2>
         <div slot="body" id="body">
-          <p>
-            Voulez-vous partir sans enregistrer votre travail ? <br />
-            Attention votre travail actuel sera perdu !
-          </p>
+          ${app.stepSinceSave ? html`
+            <save-warning></save-warning>
+          ` : ''}
         </div>
 
         <div slot="footer">

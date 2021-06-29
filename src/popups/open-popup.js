@@ -3,6 +3,7 @@ import { TemplatePopup } from './template-popup';
 import { app } from '../Core/App';
 import { createElem } from '../Core/Tools/general';
 import './open-server-popup';
+import './save-warning';
 
 class OpenPopup extends LitElement {
   static get properties() {
@@ -23,6 +24,7 @@ class OpenPopup extends LitElement {
         button {
           width: 100%;
         }
+
       `,
     ];
   }
@@ -35,14 +37,15 @@ class OpenPopup extends LitElement {
   }
 
   render() {
+    console.log(app.stepSinceSave);
     return html`
       <template-popup>
         <h2 slot="title">Ouvrir un fichier</h2>
         <div slot="body" id="body">
-          <p>
-            Voulez-vous partir sans enregistrer votre travail ? <br>
-            Attention votre travail actuel sera perdu !
-          </p>
+          ${app.stepSinceSave ? html`
+            <save-warning></save-warning>
+            <br />
+          ` : ''}
           <button
             id="focus"
             name="LocalOpenFile"
