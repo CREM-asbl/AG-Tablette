@@ -48,14 +48,12 @@ class ZoomMenu extends LitElement {
         overflow-y: auto;
         max-height: 30%;
         left: ${app.settings.mainMenuWidth + 5}px;
-      }
-      div#state-menu-buttons-list > button {
-        font-size: 20px;
-        border-radius: 5px;
-        margin: 5px;
-        padding: 4px;
-        display: inline-block;
-        background-color: #bbb;
+
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -o-user-select: none;
+        user-select: none;
       }
     `;
   }
