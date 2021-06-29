@@ -76,15 +76,15 @@ class ZoomMenu extends LitElement {
 
   getZoomFromPosition(position) {
     // position will be between 0 and 100
-    var minp = 0;
-    var maxp = 100;
+    let minp = 0;
+    let maxp = 100;
 
     // The result should be between 0.1 an 10
-    var minv = Math.log10(app.settings.minZoomLevel);
-    var maxv = Math.log10(app.settings.maxZoomLevel);
+    let minv = Math.log10(app.settings.minZoomLevel);
+    let maxv = Math.log10(app.settings.maxZoomLevel);
 
     // calculate adjustment factor
-    var scale = (maxv - minv) / (maxp - minp);
+    let scale = (maxv - minv) / (maxp - minp);
 
     let zoomLevel = Math.pow(10, minv + scale * (position - minp));
     return zoomLevel;
@@ -92,15 +92,15 @@ class ZoomMenu extends LitElement {
 
   getPositionFromZoom(zoomLevel) {
     // position will be between 0 and 100
-    var minp = 0;
-    var maxp = 100;
+    let minp = 0;
+    let maxp = 100;
 
     // The result should be between 0.1 an 10
-    var minv = Math.log10(app.settings.minZoomLevel);
-    var maxv = Math.log10(app.settings.maxZoomLevel);
+    let minv = Math.log10(app.settings.minZoomLevel);
+    let maxv = Math.log10(app.settings.maxZoomLevel);
 
     // calculate adjustment factor
-    var scale = (maxv - minv) / (maxp - minp);
+    let scale = (maxv - minv) / (maxp - minp);
 
     let pos = (Math.log10(zoomLevel) - minv) / scale + minp;
     return pos;
