@@ -244,6 +244,7 @@ export class MergeTool extends Tool {
             divisionPointInfos: seg.divisionPoints.map((dp) => {
               return { coordinates: dp.coordinates, ratio: dp.ratio };
             }),
+            arcCenterCoordinates: seg.arcCenter?.coordinates,
           });
         }),
       )
@@ -275,7 +276,9 @@ export class MergeTool extends Tool {
     // delete common segments
     let newSegments = [];
     cutSegments.forEach((seg, i, segments) => {
-      if (seg.used) return;
+      if (seg.used) {
+        return;
+      }
       let segs = segments
         .map((segment) => (segment.equal(seg) ? segment : undefined))
         .filter(Boolean);
