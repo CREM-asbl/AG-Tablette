@@ -138,7 +138,7 @@ export class CreateRegularTool extends Tool {
       this.animate();
       // let reference = Shape.getReference(this.firstCoordinates, this.secondCoordinates);
 
-      window.dispatchEvent(new CustomEvent('refresh'));
+      // window.dispatchEvent(new CustomEvent('refresh'));
     }
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));

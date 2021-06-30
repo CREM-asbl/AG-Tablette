@@ -124,7 +124,6 @@ export class RotateTool extends Tool {
       (s) => s.id,
     );
     setState({ tool: { ...app.tool, currentStep: 'rotate' } });
-    window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
   }
 

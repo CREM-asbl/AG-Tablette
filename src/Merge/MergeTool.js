@@ -109,7 +109,6 @@ export class MergeTool extends Tool {
       } else {
         this.firstShapeId = shape.id;
         app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
-        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
         this.drawingShapes = new Shape({
           ...shape,
           drawingEnvironment: app.upperDrawingEnvironment,
@@ -118,12 +117,13 @@ export class MergeTool extends Tool {
           borderColor: '#E90CC8',
           borderSize: 3,
         });
+        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
     } else if (app.tool.currentStep == 'selectSecondShape') {
       if (this.firstShapeId == shape.id) {
         // deselect firstShape
-        setState({ tool: { ...app.tool, currentStep: 'listen' } });
         this.firstShapeId = null;
+        setState({ tool: { ...app.tool, currentStep: 'listen' } });
       } else {
         let group = ShapeManager.getAllBindedShapes(shape, true);
         if (group.length > 1) {
@@ -187,8 +187,8 @@ export class MergeTool extends Tool {
         tool: { ...app.tool, name: this.name, currentStep: 'listen' },
       });
     } else {
-      window.dispatchEvent(new CustomEvent('refresh'));
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      // window.dispatchEvent(new CustomEvent('refresh'));
+      // window.dispatchEvent(new CustomEvent('refreshUpper'));
     }
   }
 

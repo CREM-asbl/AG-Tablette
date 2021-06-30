@@ -21,7 +21,6 @@ class ToolbarKit extends LitElement {
     super();
 
     this.updateProperties = () => {
-      console.log(app.menuIconSize);
       this.iconSize = app.menuIconSize;
     };
     this.updateProperties();
@@ -46,7 +45,6 @@ class ToolbarKit extends LitElement {
   }
 
   render() {
-    console.log(this.iconSize);
     if (!this.familyNames.length) return html``;
     return html`
       <template-toolbar>

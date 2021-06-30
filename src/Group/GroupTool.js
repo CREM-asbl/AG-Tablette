@@ -60,7 +60,7 @@ export class GroupTool extends Tool {
     app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
-    setTimeout(() => {
+    // setTimeout(() => {
       app.mainDrawingEnvironment.shapes.map((s) => {
         if (GroupManager.getShapeGroup(s) != null) {
           new Text({
@@ -71,8 +71,8 @@ export class GroupTool extends Tool {
           });
         }
       });
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-    }, 50);
+      // window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // }, 50);
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
@@ -117,7 +117,6 @@ export class GroupTool extends Tool {
         setState({ tool: { ...app.tool, currentStep: 'fillGroup' } });
       } else {
         this.firstShapeId = shape.id;
-        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
         new Text({
           drawingEnvironment: app.upperDrawingEnvironment,
           coordinates: shape.centerCoordinates,
@@ -125,6 +124,7 @@ export class GroupTool extends Tool {
           referenceId: this.firstShapeId,
           type: 'group',
         });
+        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
     } else if (app.tool.currentStep == 'selectSecondShape') {
       let userGroup = GroupManager.getShapeGroup(shape);
@@ -192,8 +192,8 @@ export class GroupTool extends Tool {
       });
     }
 
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('refresh'));
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   _executeAction() {

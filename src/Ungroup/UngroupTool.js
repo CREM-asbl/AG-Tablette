@@ -42,7 +42,7 @@ export class UngroupTool extends Tool {
     app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
-    setTimeout(() => {
+    // setTimeout(() => {
       app.mainDrawingEnvironment.shapes.map((s) => {
         if (GroupManager.getShapeGroup(s) != null) {
           new Text({
@@ -53,8 +53,8 @@ export class UngroupTool extends Tool {
           });
         }
       });
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-    }, 50);
+      // window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // }, 50);
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;

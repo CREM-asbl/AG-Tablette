@@ -61,7 +61,7 @@ export class ToBackgroundTool extends Tool {
     );
     this.executeAction();
 
-    window.dispatchEvent(new CustomEvent('refresh'));
+    // window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   _executeAction() {

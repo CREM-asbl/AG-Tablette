@@ -80,7 +80,7 @@ export class DivideTool extends Tool {
       color: this.drawColor,
       size: 2,
     });
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -218,7 +218,6 @@ export class DivideTool extends Tool {
         }
         this.secondPointId = object.id;
         this.mode = 'twoPoints';
-        setState({ tool: { ...app.tool, currentStep: 'divide' } });
 
         new Point({
           coordinates: object.coordinates,
@@ -293,14 +292,15 @@ export class DivideTool extends Tool {
           color: '#000',
           opacity: 0,
         });
+        setState({ tool: { ...app.tool, currentStep: 'divide' } });
       }
     }
 
     if (app.tool.currentStep == 'divide') {
       this.executeAnimation();
     }
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // window.dispatchEvent(new CustomEvent('refresh'));
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   executeAnimation() {

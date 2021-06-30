@@ -118,9 +118,6 @@ export class ReverseTool extends Tool {
       { shapeId: selectedShape.id },
     ];
 
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('refresh'));
-
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -235,7 +232,6 @@ export class ReverseTool extends Tool {
           axisAngle: this.axisAngle,
         },
       });
-      window.dispatchEvent(new CustomEvent('refresh'));
     }
   }
 

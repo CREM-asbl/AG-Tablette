@@ -38,7 +38,7 @@ export class BifaceTool extends Tool {
     app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
-    setTimeout(() => {
+    // setTimeout(() => {
       app.mainDrawingEnvironment.shapes.map((s) => {
         if (s.isBiface) {
           new Text({
@@ -50,8 +50,8 @@ export class BifaceTool extends Tool {
           });
         }
       });
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-    }, 50);
+      // window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // }, 50);
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;

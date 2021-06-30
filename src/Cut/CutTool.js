@@ -71,7 +71,7 @@ export class CutTool extends Tool {
       color: this.drawColor,
       size: 2,
     });
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -94,7 +94,7 @@ export class CutTool extends Tool {
       color: this.drawColor,
       size: 2,
     });
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -120,7 +120,7 @@ export class CutTool extends Tool {
         size: 2,
       });
     }
-    if (centerPoint != undefined) {
+    if (secondPoint != undefined) {
       new Point({
         coordinates: secondPoint.coordinates,
         drawingEnvironment: app.upperDrawingEnvironment,
@@ -128,7 +128,7 @@ export class CutTool extends Tool {
         size: 2,
       });
     }
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
@@ -244,8 +244,8 @@ export class CutTool extends Tool {
     if (app.tool.currentStep == 'cut') {
       this.executeAnimation();
     }
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // window.dispatchEvent(new CustomEvent('refresh'));
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   executeAnimation() {

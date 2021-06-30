@@ -129,7 +129,6 @@ export class CopyTool extends Tool {
     });
 
     setState({ tool: { ...app.tool, currentStep: 'move' } });
-    window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
   }
 

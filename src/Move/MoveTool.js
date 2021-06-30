@@ -109,7 +109,6 @@ export class MoveTool extends Tool {
       (s) => s.id,
     );
     setState({ tool: { ...app.tool, currentStep: 'move' } });
-    window.dispatchEvent(new CustomEvent('refresh'));
     this.animate();
   }
 

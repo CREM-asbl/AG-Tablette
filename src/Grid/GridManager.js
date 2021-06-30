@@ -16,6 +16,7 @@ addEventListener('settings-changed', () => {
   if (app.settings.gridShown) {
     GridManager.drawGridPoints();
   }
+  window.dispatchEvent(new CustomEvent('refreshBackground'));
 });
 
 export class GridManager {

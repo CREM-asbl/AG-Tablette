@@ -37,7 +37,6 @@ class OpenPopup extends LitElement {
   }
 
   render() {
-    console.log(app.stepSinceSave);
     return html`
       <template-popup>
         <h2 slot="title">Ouvrir un fichier</h2>

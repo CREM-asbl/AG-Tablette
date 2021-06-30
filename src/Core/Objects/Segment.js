@@ -908,7 +908,6 @@ export class Segment {
   }
 
   equal(segment) {
-    console.log(this, segment);
     if ((this.isArc()) ^ (segment.isArc())) {
       return false;
     }
@@ -927,7 +926,6 @@ export class Segment {
         );
       } else return true;
     } else {
-      console.log('nothing');
       return false;
     }
   }

@@ -116,7 +116,7 @@ export class TransformTool extends Tool {
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
 
     this.animate();
-    window.dispatchEvent(new CustomEvent('refresh'));
+    // window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   canvasMouseUp() {
