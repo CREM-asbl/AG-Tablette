@@ -118,6 +118,8 @@ class AGMain extends LitElement {
           background-color: var(--theme-color);
           flex: 0 0 ${app.settings.mainMenuWidth}px;
 
+          scrollbar-width: thin;
+
           /* scrollbar hidden */
           /* -ms-overflow-style: none; IE and Edge */
           /* scrollbar-width: none; Firefox */
