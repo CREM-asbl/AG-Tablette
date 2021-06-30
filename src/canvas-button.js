@@ -11,6 +11,7 @@ class CanvasButton extends LitElement {
       familyName: String,
       templateName: String,
       silhouetteIdx: String,
+      size: Number,
     };
   }
 
@@ -19,8 +20,8 @@ class CanvasButton extends LitElement {
       :host {
         display: block;
         margin: 2px;
-        width: 52px;
-        height: 52px;
+        /* width: 52px;
+        height: 52px; */
       }
 
       :host([active]) canvas {
@@ -37,8 +38,19 @@ class CanvasButton extends LitElement {
     `;
   }
 
+  constructor() {
+    super();
+
+    const resizeObserver = new ResizeObserver(() => {
+      this.size = this.offsetWidth;
+    });
+
+    resizeObserver.observe(this);
+    this.size = this.offsetWidth;
+  }
+
   render() {
-    return html` <canvas id="canvas" width="52px" height="52px"></canvas> `;
+    return html` <canvas id="canvas" width="${this.size}px" height="${this.size}px"></canvas> `;
   }
 
   firstUpdated() {
@@ -57,6 +69,7 @@ class CanvasButton extends LitElement {
    * call when the user change the selected family
    */
   refresh() {
+    let canvasSize = this.size;
     this.drawingEnvironment.removeAllObjects();
 
     let shapeTemplates, family, scale, center;
@@ -83,14 +96,14 @@ class CanvasButton extends LitElement {
     );
 
     if (this.shapes.length == 1 && this.shapes[0].isCircle()) {
-      scale = 0.42; // arbitraire
+      scale = 0.42 * canvasSize / 52; // arbitraire
       center = this.shapes[0].segments[0].arcCenter.coordinates;
     } else {
       let shapeBounds = this.shapes.map((s) => s.bounds);
       let totalBounds = Bounds.getOuterBounds(...shapeBounds);
       const largeur = totalBounds.maxX - totalBounds.minX,
         hauteur = totalBounds.maxY - totalBounds.minY;
-      scale = 40 / Math.max(largeur, hauteur);
+      scale = 40 * canvasSize / 52 / Math.max(largeur, hauteur);
       center = new Coordinates({
         x: (totalBounds.minX + largeur / 2) * scale,
         y: (totalBounds.minY + hauteur / 2) * scale,
@@ -98,8 +111,8 @@ class CanvasButton extends LitElement {
     }
 
     const centerOffset = new Coordinates({
-      x: 26 - center.x,
-      y: 26 - center.y,
+      x: canvasSize / 2 - center.x,
+      y: canvasSize / 2 - center.y,
     });
 
     this.shapes.forEach((s) => {

@@ -19,6 +19,7 @@ class ShapesList extends LitElement {
         app.tool.selectedFamily,
       ).templateNames;
       this.selectedTemplate = app.tool.selectedTemplate;
+      this.iconSize = app.menuIconSize;
     };
     this.updateProperties();
 
@@ -32,6 +33,7 @@ class ShapesList extends LitElement {
     };
 
     window.addEventListener('tool-changed', this.eventHandler);
+    window.addEventListener('menuIconSize-changed', this.eventHandler);
   }
 
   static get styles() {
@@ -107,6 +109,7 @@ class ShapesList extends LitElement {
           ${this.templateNames.map(
             (templateName) => html`
               <canvas-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 title="${templateName.replace(/ \d+$/, '')}"
                 familyName="${this.selectedFamily}"
                 templateName="${templateName}"

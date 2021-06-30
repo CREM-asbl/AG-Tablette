@@ -25,8 +25,6 @@ class IconButton extends LitElement {
       :host {
         display: block;
         margin: 2px;
-        height: 52px;
-        width: 52px;
       }
 
       :host([disabled]) {
@@ -38,8 +36,8 @@ class IconButton extends LitElement {
         display: block;
         border: none;
         /* box-sizing: border-box; */
-        height: 52px;
-        width: 52px;
+        height: 100%;
+        width: 100%;
         padding: 0px;
         /* margin: 2px; */
         background: white;

@@ -9,6 +9,7 @@ class ToolbarKit extends LitElement {
       familyNames: { type: Array },
       selectedFamily: { type: String },
       envName: { type: String },
+      iconSize: { type: Number },
     };
   }
 
@@ -18,6 +19,18 @@ class ToolbarKit extends LitElement {
 
   constructor() {
     super();
+
+    this.updateProperties = () => {
+      console.log(app.menuIconSize);
+      this.iconSize = app.menuIconSize;
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      this.updateProperties();
+    };
+
+    window.addEventListener('menuIconSize-changed', this.eventHandler);
 
     this.familyNames = app.environment.familyNames || [];
     this.envName = app.environment.kitName;
@@ -33,6 +46,7 @@ class ToolbarKit extends LitElement {
   }
 
   render() {
+    console.log(this.iconSize);
     if (!this.familyNames.length) return html``;
     return html`
       <template-toolbar>
@@ -41,6 +55,7 @@ class ToolbarKit extends LitElement {
           ${this.familyNames.map((family) => {
             return html`
               <canvas-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 familyName="${family}"
                 title="${family}"
                 ?active="${family === this.selectedFamily}"

@@ -22,7 +22,7 @@ export class App {
       precision: 1.5,
       maxZoomLevel: 10,
       minZoomLevel: 0.1,
-      mainMenuWidth: 265,
+      mainMenuWidth: 250,
       constraintsDrawColor: '#080',
       temporaryDrawColor: '#E90CC8',
 
@@ -159,8 +159,8 @@ export const setState = (update) => {
   if ('started' in update) {
     window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
   }
-  if ('stepSinceSave' in update) {
-    console.log(app.stepSinceSave);
+  if ('menuIconSize' in update) {
+    window.dispatchEvent(new CustomEvent('menuIconSize-changed', { detail: app }));
   }
   if (app.started) {
     window.dispatchEvent(new CustomEvent('refreshUpper'));

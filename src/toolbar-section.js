@@ -4,6 +4,21 @@ import './icon-button';
 import { TemplateToolbar } from './template-toolbar';
 
 class ToolbarSection extends LitElement {
+  constructor() {
+    super();
+
+    this.updateProperties = () => {
+      this.iconSize = app.menuIconSize;
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      this.updateProperties();
+    };
+
+    window.addEventListener('menuIconSize-changed', this.eventHandler);
+  }
+
   static get properties() {
     return {
       title: { type: String },
@@ -16,6 +31,7 @@ class ToolbarSection extends LitElement {
   }
 
   render() {
+    setState({ menuIconSize: (this.offsetWidth - 22) / 4 });
     if (!this.buttons_states.length) return html``;
     return html`
       <template-toolbar>
@@ -24,6 +40,7 @@ class ToolbarSection extends LitElement {
           ${this.buttons_states.map(
             (state) => html`
               <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="${state.name}"
                 type="State"
                 title="${state.title}"

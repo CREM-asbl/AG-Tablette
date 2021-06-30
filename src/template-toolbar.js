@@ -29,6 +29,7 @@ export class TemplateToolbar extends LitElement {
         margin: 3px;
         /* justify-content: space-evenly; */
       }
+
       /*
       [slot='footer'] {
         grid-area: 3 / 1 / 4 / 3;

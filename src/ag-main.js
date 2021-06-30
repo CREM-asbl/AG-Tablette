@@ -32,6 +32,7 @@ class AGMain extends LitElement {
       tools: Array,
       tool: Object,
       colorPickerValue: String,
+      iconSize: Number,
     };
   }
 
@@ -82,6 +83,17 @@ class AGMain extends LitElement {
       let vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
     });
+
+    this.updateProperties = () => {
+      this.iconSize = app.menuIconSize;
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      this.updateProperties();
+    };
+
+    window.addEventListener('menuIconSize-changed', this.eventHandler);
   }
 
   static get styles() {
@@ -100,19 +112,11 @@ class AGMain extends LitElement {
           display: flex;
           flex-direction: column;
           padding: 10px;
-          padding-right: 25px;
+          /* padding-right: 50px; */
           border-radius: 10px;
           box-sizing: border-box;
           background-color: var(--theme-color);
           flex: 0 0 ${app.settings.mainMenuWidth}px;
-          /* peut tester ça sur windows pour afficher la scrollbar si besoin */
-          /* .myContainer {
-            overflow-y: hidden !important;
-          }
-
-          .myContainer:hover {
-            overflow-y: auto !important;
-          } */
 
           /* scrollbar hidden */
           /* -ms-overflow-style: none; IE and Edge */
@@ -177,30 +181,35 @@ class AGMain extends LitElement {
             </h2>
             <div slot="body">
               <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="new"
                 title="Nouvelle fenêtre"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="open"
                 title="Ouvrir"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="save"
                 title="Sauvegarder"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="settings"
                 title="Paramètres"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="undo"
                 title="Annuler"
                 ?disabled="${!this.canUndo}"
@@ -208,6 +217,7 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="redo"
                 title="Refaire"
                 ?disabled="${!this.canRedo}"
@@ -215,6 +225,7 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 class="onlyGrandeurs"
                 name="replay"
                 title="replay"
@@ -223,6 +234,7 @@ class AGMain extends LitElement {
               </icon-button>
 
               <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="help"
                 title="Aide"
                 @click="${this._actionHandle}"

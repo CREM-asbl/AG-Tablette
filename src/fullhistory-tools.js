@@ -164,21 +164,25 @@ class FullHistoryTools extends LitElement {
       <nav id="sidebar">
         <div id="command-container">
           <icon-button
+            style="width: 52px; height: 52px;"
             name="undo"
             title="étape précédente"
             @click="${this._clickHandler}"
           ></icon-button>
           <icon-button
+            style="width: 52px; height: 52px;"
             name="stop"
             title="arrêter"
             @click="${this._clickHandler}"
           ></icon-button>
           <icon-button
+            style="width: 52px; height: 52px;"
             name="pause"
             title="pause"
             @click="${this._clickHandler}"
           ></icon-button>
           <icon-button
+            style="width: 52px; height: 52px;"
             name="redo"
             title="étape suivante"
             @click="${this._clickHandler}"
