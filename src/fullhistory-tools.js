@@ -7,11 +7,13 @@ class FullHistoryTools extends LitElement {
     return {
       tools: Array,
       index: Number,
+      playPauseButton: String,
     };
   }
 
   constructor() {
     super();
+    this.playPauseButton = 'pause';
     let previousStepTimestamp = 0;
     this.tools = app.fullHistory.steps
       .filter((step) => step.type == 'tool-changed' && step.detail?.currentStep == 'start')
@@ -116,8 +118,10 @@ class FullHistoryTools extends LitElement {
 
   _clickHandler(event) {
     let index = parseInt(this.index);
+    console.log(event.target.name);
     switch (event.target.name) {
       case 'action-button':
+        this.setPlayPause('play');
         let idx = parseInt(event.target.id.substring(1));
         FullHistoryManager.moveTo(idx);
         break;
@@ -125,26 +129,32 @@ class FullHistoryTools extends LitElement {
         if (index == 0) {
           break;
         }
+        this.setPlayPause('play');
         FullHistoryManager.moveTo(index - 1);
         break;
       case 'stop':
         FullHistoryManager.stopBrowsing();
         break;
       case 'pause':
+        this.setPlayPause('play');
         FullHistoryManager.pauseBrowsing();
-        event.target.name = 'play';
         break;
       case 'play':
+        this.setPlayPause('pause');
         FullHistoryManager.playBrowsing();
-        event.target.name = 'pause';
         break;
       case 'redo':
         if (index >= app.fullHistory.numberOfActions - 1) {
           break;
         }
+        this.setPlayPause('play');
         FullHistoryManager.moveTo(index + 1);
         break;
     }
+  }
+
+  setPlayPause(state) {
+    this.playPauseButton = state;
   }
 
   render() {
@@ -177,8 +187,8 @@ class FullHistoryTools extends LitElement {
           ></icon-button>
           <icon-button
             style="width: 52px; height: 52px;"
-            name="pause"
-            title="pause"
+            name="${this.playPauseButton}"
+            title="${this.playPauseButton}"
             @click="${this._clickHandler}"
           ></icon-button>
           <icon-button
