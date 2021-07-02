@@ -96,6 +96,9 @@ export class OpenFileManager {
     window.dispatchEvent(
       new CustomEvent('file-parsed', { detail: saveObject }),
     );
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 }
 
