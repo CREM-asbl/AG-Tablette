@@ -147,6 +147,7 @@ class SettingsPopup extends LitElement {
             areShapesPointed: event.target.checked,
           },
         });
+        window.dispatchEvent(new CustomEvent('refresh'));
         break;
 
       default:
