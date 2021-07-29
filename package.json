@@ -21,7 +21,7 @@
     "prettier": "^2.0.5"
   },
   "dependencies": {
-    "firebase": "^9.0.0-beta.2",
+    "firebase": "^8.8.0",
     "lit": "^2.0.0-rc.2",
     "npm": "^7.16.0",
     "pwa-helpers": "^0.9.1",
