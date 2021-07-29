@@ -207,7 +207,7 @@ class FullHistoryTools extends LitElement {
               >
                 <h2>
                   ${elem.name}
-                  (${Math.floor(elem.time / 1000 / 60) > 0 ? Math.floor(elem.time / 1000 / 60) % 60 + 'm '  : '' + Math.floor(elem.time / 100) / 10 % 60}s)
+                  (${(Math.floor(elem.time / 1000 / 60) > 0 ? Math.floor(elem.time / 1000 / 60) + 'm ' : '') + new Number(elem.time / 1000 % 60).toFixed(1) + 's'})
                 </h2>
                 ${
                   elem.actions.map((action, idx) => {
@@ -219,7 +219,7 @@ class FullHistoryTools extends LitElement {
                         class="action-button"
                       >
                         ${idx + 1}
-                        (${Math.floor(action.time / 1000 / 60) > 0 ? Math.floor(action.time / 1000 / 60) % 60 + 'm ' : ''}${Math.floor(action.time / 100) / 10 % 60}s)
+                        (${(Math.floor(action.time / 1000 / 60) > 0 ? Math.floor(action.time / 1000 / 60) + 'm ' : '') + new Number(action.time / 1000 % 60).toFixed(1) + 's'})
                       </button>
                     `;
                   })
