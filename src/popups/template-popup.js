@@ -81,7 +81,7 @@ export class TemplatePopup extends LitElement {
     return css`
       .background {
         display: flex;
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: rgba(102, 102, 102, 0.5);
         position: absolute;
         top: 0;
         left: 0;
@@ -95,7 +95,7 @@ export class TemplatePopup extends LitElement {
         grid-template-columns: 1fr 40px;
         margin: auto;
         border-radius: 7px;
-        box-shadow: 0px 0px 3px var(--menu-shadow-color);
+        box-shadow: 0px 0px 30px rgb(102, 102, 102);
         /* border: 2px solid gray; */
         background-color: var(--theme-color-soft);
         overflow-y: hidden;
@@ -107,8 +107,11 @@ export class TemplatePopup extends LitElement {
         cursor: pointer;
         color: #555;
         margin: 8px;
-        overflow: hidden;
+        /* overflow: hidden; */
         line-height: 40%;
+
+        display: grid;
+        text-align: right;
       }
     `;
   }

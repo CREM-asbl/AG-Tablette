@@ -362,7 +362,9 @@ export class DivideTool extends Tool {
     else if (firstAngle > secondAngle) secondAngle += 2 * Math.PI;
 
     // Pour un cercle entier, on ajoute un point de division supplémentaire
-    if (shape.isCircle()) this.segment.vertexes[0].visible = true;
+    if (shape.isCircle()) {
+      this.segment.addPoint(this.firstPoint.coordinates, this.firstPoint.ratio);
+    }
 
     let ratioCap =
       (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;

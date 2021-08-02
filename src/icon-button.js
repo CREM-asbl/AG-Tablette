@@ -51,6 +51,7 @@ class IconButton extends LitElement {
       :host([active]) button {
         background-color: var(--button-selected-background-color);
         outline: none;
+        box-shadow: inset 0px 0px 1px var(--menu-shadow-color);
       }
 
       img {

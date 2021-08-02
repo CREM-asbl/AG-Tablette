@@ -39,12 +39,12 @@ class DivMainCanvas extends LitElement {
         position: absolute;
         top: 0px;
       }
-      /*
+
       canvas#backgroundCanvas {
         background-color: #fff;
         position: absolute;
         top: 0px;
-      } */
+      }
 
       /* div.clickEffect {
         position: fixed;

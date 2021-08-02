@@ -394,6 +394,21 @@ export class CutTool extends Tool {
       firstPath,
       secondPath;
 
+    if (pt1.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
+      pt1 = shape.segments[0].vertexes[0];
+    }
+    if (pt1.coordinates.equal(shape.segments[shape.segments.length - 1].vertexes[1].coordinates)) {
+      pt1 = shape.segments[shape.segments.length - 1].vertexes[1];
+    }
+    if (pt2) {
+      if (pt2.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
+        pt2 = shape.segments[0].vertexes[0];
+      }
+      if (pt2.coordinates.equal(shape.segments[shape.segments.length - 1].vertexes[1].coordinates)) {
+        pt2 = shape.segments[shape.segments.length - 1].vertexes[1];
+      }
+    }
+
     if (shape.isSegment()) {
       firstPath = [
         'M',

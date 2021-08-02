@@ -25,6 +25,9 @@ class OpenPopup extends LitElement {
           width: 100%;
         }
 
+        #focus {
+          margin-bottom: 18px;
+        }
       `,
     ];
   }
@@ -52,8 +55,6 @@ class OpenPopup extends LitElement {
           >
             Ouvrir en local
           </button>
-
-          <br />
 
           <button name="ServerOpenFile" @click="${this._actionHandle}">
             Ouvrir sur le serveur

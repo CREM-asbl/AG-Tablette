@@ -57,7 +57,6 @@ export class DeleteTool extends Tool {
     app.workspace.selectionConstraints.points.canSelect = true;
     app.workspace.selectionConstraints.points.types = [
       'divisionPoint',
-      'vertex',
     ];
   }
 

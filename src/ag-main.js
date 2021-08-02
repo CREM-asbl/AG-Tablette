@@ -101,6 +101,7 @@ class AGMain extends LitElement {
       TemplateToolbar.templateToolbarStyles(),
       css`
         #app-view {
+          background-color: var(--theme-color-soft);
           display: flex;
           width: 100%;
           margin: 0;

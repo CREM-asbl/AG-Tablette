@@ -12,7 +12,7 @@ export class OpenFileManager {
           {
             description: 'Etat',
             accept: {
-              'text/plain': ['.' + app.environment.extension],
+              'app/json': ['.' + app.environment.extension],
             },
           },
         ],

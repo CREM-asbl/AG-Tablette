@@ -69,6 +69,8 @@ export class Environment {
 
       this.families = kitContent.families;
     }
+
+    document.querySelector('meta[name="theme-color"]').setAttribute("content", document.documentElement.style.getPropertyValue('--theme-color-soft'));
   }
 
   /**
