@@ -3,18 +3,6 @@ import { setState } from './Core/App';
 import { loadEnvironnement } from './Core/Environments/Environment';
 
 class AgEnvironnements extends LitElement {
-  static get isSafari() {
-    let ua = navigator.userAgent.toLowerCase();
-    if (ua.indexOf('safari') != -1) {
-      if (ua.indexOf('chrome') > -1) {
-        return false; // Chrome
-      } else {
-        return true; // Safari
-      }
-    }
-    return false;
-  }
-
   static get styles() {
     return css`
       :host {
@@ -68,11 +56,6 @@ class AgEnvironnements extends LitElement {
         background: no-repeat url('/images/Environnements/logo_grandeurs.svg') center center #0baf73;
 
         background-size: auto 150%;
-
-        /* background: url('/images/Environnements/grandeurs.\${unsafeCSS(
-            this.isSafari ? 'png' : 'webp'
-          )}');
-          center center rgba(255, 255, 255, 0.9); */
       }
 
       #Tangram {
@@ -80,13 +63,6 @@ class AgEnvironnements extends LitElement {
           center #006CAA;
 
         background-size: auto 180%;
-
-
-        /* background: url('/images/Environnements/tangram.\${unsafeCSS(
-            this.isSafari ? 'jpg' : 'webp'
-          )}');
-          center center rgba(255, 255, 255, 0.9); */
-
       }
 
       #Cubes {
@@ -94,13 +70,6 @@ class AgEnvironnements extends LitElement {
         #cf5f2c;
 
         background-size: auto 150%;
-
-        /* background: url('/images/Environnements/cubes.\${unsafeCSS(
-            this.isSafari ? 'png' : 'webp'
-          )}');
-          center center rgba(255, 255, 255, 0.9); */
-        /* background-repeat: no-repeat;
-        background-size: cover; */
       }
 
       #Geometrie {

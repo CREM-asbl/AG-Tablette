@@ -4,7 +4,15 @@ export class TemplatePopup extends LitElement {
   static get properties() {
     return {
       title: { type: String },
+      popupHeight: { type: Number }
     };
+  }
+
+  constructor() {
+    super();
+
+    this.popupHeight = 70;
+    this.movementSpeed = 7;
   }
 
   /**
@@ -116,9 +124,20 @@ export class TemplatePopup extends LitElement {
     `;
   }
 
+  updateHeight() {
+    // this.movementSpeed *= 2;
+    if (this.popupHeight > 0)
+      this.popupHeight -= this.movementSpeed;
+    window.requestAnimationFrame(() => this.updateHeight());
+  }
+
+  firstUpdated() {
+    window.requestAnimationFrame(() => this.updateHeight());
+  }
+
   render() {
     return html`
-      <div class="background">
+      <div class="background" style="padding-bottom: ${this.popupHeight}px;">
         <div id="template-view">
           <div
             id="popup-close"
