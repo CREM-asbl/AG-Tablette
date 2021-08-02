@@ -16,11 +16,17 @@ class FullHistoryTools extends LitElement {
     this.playPauseButton = 'pause';
     let previousStepTimestamp = 0;
     this.tools = app.fullHistory.steps
-      .filter((step) => step.type == 'tool-changed' && step.detail?.currentStep == 'start')
+      .filter((step) => (step.type == 'tool-changed' && step.detail?.currentStep == 'start') || step.type == 'undo' || step.type == 'redo')
       .map((step) => {
         let time = step.timeStamp - previousStepTimestamp;
         previousStepTimestamp = step.timeStamp;
-        return { name: step.detail.title, time, timeStamp: step.timeStamp, actions: [] };
+        let name = step.detail.title;
+        if (step.type == 'undo') {
+          name = 'Annuler';
+        } else if (step.type == 'redo') {
+          name = 'Refaire';
+        }
+        return { name, time, timeStamp: step.timeStamp, actions: [] };
       });
     let toolIndex = -1;
     let actionIndex = 0;
