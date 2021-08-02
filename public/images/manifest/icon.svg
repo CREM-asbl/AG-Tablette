@@ -7,11 +7,6 @@
     stroke-miterlimit:10;
     background:#000;
   }
-
-  rect {
-    -webkit-filter: drop-shadow( 0px 0px 0.1px rgba(0, 0, 0));
-    filter: drop-shadow( 0px 0px 0.1px rgba(0, 0, 0));
-  }
 </style>
 <!-- <path stroke-width="0" fill="#d3d3d3" d="M 0.1 0.1 L 0.1 12.1 L 12.1 12.1 L 12.1 0.1 Z" /> -->
 <rect fill="#d3d3d3" x="0.1" y="0.1" width="12" height="12" rx="1" ry="1" />

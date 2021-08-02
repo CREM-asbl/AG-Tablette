@@ -109,6 +109,23 @@ class AgEnvironnements extends LitElement {
 
         background-size: auto 150%;
       }
+
+      .logo-wrapper {
+        position: absolute;
+        top: calc(50% - 13vmin);
+        left: calc(50% - 13vmin);
+        width: 26vmin;
+        height: 26vmin;
+        transform: rotate(45deg);
+
+        filter: drop-shadow( 0px 0px 2px rgba(0, 0, 0));
+        -webkit-filter: drop-shadow( 0px 0px 2px rgba(0, 0, 0));
+      }
+
+      img {
+        width: 26vmin;
+        height: 26vmin;
+      }
     `;
   }
 
@@ -134,11 +151,12 @@ class AgEnvironnements extends LitElement {
           Géométrie
         </div>
       </div>
-      <img
-        src="images/manifest/icon.svg"
-        style="position: absolute; top: calc(50% - 13vmin); left: calc(50% - 13vmin); width: 26vmin; height: 26vmin; transform: rotate(45deg);"
-        draggable="false"
-      />
+      <div class="logo-wrapper">
+        <img
+          src="images/manifest/icon.svg"
+          draggable="false"
+        />
+      </div>
     `;
   }
 
