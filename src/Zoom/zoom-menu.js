@@ -65,11 +65,10 @@ class ZoomMenu extends LitElement {
   render() {
     return html`
       <div class="container">
-        <div style="float: left">${app.settings.minZoomLevel}</div>
-        <div style="float: right">${app.settings.maxZoomLevel}</div>
+        <div style="float: left">-</div>
+        <div style="float: right">+</div>
         <div style="margin: 0 auto; width: 100px; text-align: center;">1</div>
         <input type="range" min="0" max="100" value="${this.startPosition}" class="slider" id="myRange" @input="${e => this.showResult(e.target.value)}" @change="${e => this.applyZoom(e.target.value)}">
-        <div>Valeur : ${this.zoomLevel.toFixed(2)}</div>
       </div>
     `;
   }
