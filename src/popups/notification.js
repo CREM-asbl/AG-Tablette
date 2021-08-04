@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import { createElem } from '../Core/Tools/general';
 
 export class Notification extends LitElement {
   static get properties() {
@@ -18,6 +19,7 @@ export class Notification extends LitElement {
       }
 
       div {
+        cursor: pointer;
         text-align: center;
         max-width: 200px;
         font-size: 1.5em;
@@ -60,7 +62,7 @@ export class Notification extends LitElement {
   }
 
   render() {
-    return html` <div>${this.title}</div> `;
+    return html`<div @click="${() => this.showHelp()}">${this.title}</div> `;
   }
 
   show(message = this.title, showTime = 3) {
@@ -103,6 +105,12 @@ export class Notification extends LitElement {
     this.closeAnimFrameId = window.requestAnimationFrame(() =>
       this.closeAnimation(opacity),
     );
+  }
+
+  showHelp() {
+    import('./help-popup');
+    createElem('help-popup');
+    window.dispatchEvent(new CustomEvent('get-help-text'));
   }
 }
 customElements.define('notif-center', Notification);

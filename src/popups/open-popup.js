@@ -28,6 +28,10 @@ class OpenPopup extends LitElement {
         #focus {
           margin-bottom: 18px;
         }
+
+        save-warning {
+          margin-bottom: 18px;
+        }
       `,
     ];
   }
@@ -46,7 +50,6 @@ class OpenPopup extends LitElement {
         <div slot="body" id="body">
           ${app.stepSinceSave ? html`
             <save-warning></save-warning>
-            <br />
           ` : ''}
           <button
             id="focus"
