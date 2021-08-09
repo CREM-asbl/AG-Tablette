@@ -64,10 +64,9 @@ export class CreateTool extends Tool {
   }
 
   move() {
-    this.stopAnimation();
+    // this.stopAnimation();
     this.removeListeners();
 
-    // this.openShapeList();
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
