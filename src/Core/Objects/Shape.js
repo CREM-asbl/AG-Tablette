@@ -8,7 +8,7 @@ import { Bounds } from './Bounds';
 import { Coordinates } from './Coordinates';
 
 /**
- * Représente une forme
+ * Représente une figure
  */
 export class Shape {
   /**
@@ -458,7 +458,7 @@ export class Shape {
   /* #################################################################### */
 
   /**
-   * Renvoie true si la forme est un cercle, c'est-à-dire si buildSteps
+   * Renvoie true si la figure est un cercle, c'est-à-dire si buildSteps
    * commence par un moveTo puis est uniquement composé de segments de
    * type arc.
    * @return {Boolean} true si cercle, false sinon.
@@ -524,7 +524,7 @@ export class Shape {
   }
 
   /**
-   * Vérifie si un point se trouve sur un bord de la forme.
+   * Vérifie si un point se trouve sur un bord de la figure.
    * @param  {Coordinates}  coordinates
    */
   isCoordinatesOnBorder(coordinates) {
@@ -532,7 +532,7 @@ export class Shape {
   }
 
   /**
-   * Vérifie si une coordonnée est à l'intérieur de la forme ou non
+   * Vérifie si une coordonnée est à l'intérieur de la figure ou non
    * @param  {Coordinates}  coord  les coordonnées
    */
   isCoordinatesInPath(coord) {
@@ -565,16 +565,16 @@ export class Shape {
 
   /**
    * check si this est complètement dans shape
-   * @param {Shape} shape l'autre forme
+   * @param {Shape} shape l'autre figure
    */
   isInside(shape) {
     return this.allOutlinePoints.every((pt) => shape.isCoordinatesInPath(pt));
   }
 
   /**
-   * Vérifie si cette forme se superpose avec une autre forme.
-   * @param  {Shape} shape L'autre forme
-   * @return {overlap}     true: si les 2 formes se superposent
+   * Vérifie si cette figure se superpose avec une autre figure.
+   * @param  {Shape} shape L'autre figure
+   * @return {overlap}     true: si les 2 figures se superposent
    *    considéré vrai si deux segments sont confondu mais n'ont qu'un point commun ! => peut-etre probleme dans environnement libre
    */
   overlapsWith(shape) {
@@ -1171,7 +1171,7 @@ export class Shape {
   /* #################################################################### */
 
   /**
-   * Renvoie une copie d'une forme
+   * Renvoie une copie d'une figure
    * @param  {Boolean} full si copie de l'id aussi
    * @return {Shape} la copie
    */

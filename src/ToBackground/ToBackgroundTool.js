@@ -4,7 +4,7 @@ import { html } from 'lit';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
- * Déplacer une forme derrière toutes les autres.
+ * Déplacer une figure derrière toutes les autres.
  */
 export class ToBackgroundTool extends Tool {
   constructor() {
@@ -21,8 +21,8 @@ export class ToBackgroundTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        placer une forme derrière toutes les autres.<br />
-        Touchez une forme pour la placer en arrière-plan.
+        placer une figure derrière toutes les autres.<br />
+        Touchez une figure pour la placer en arrière-plan.
       </p>
     `;
   }
@@ -50,8 +50,8 @@ export class ToBackgroundTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (click)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);

@@ -5,7 +5,7 @@ import { Shape } from '../Core/Objects/Shape';
 import { SelectManager } from '../Core/Managers/SelectManager';
 
 /**
- * Ajout de formes sur l'espace de travail
+ * Ajout de figures sur l'espace de travail
  */
 export class TransformTool extends Tool {
   constructor() {

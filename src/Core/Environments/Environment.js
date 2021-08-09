@@ -43,7 +43,7 @@ const loadKit = async (name) => {
 
 /**
  * Environnement de travail: Grandeurs, Tangram, Cube... Un environnement
- * détermine les familles de formes que l'on peut utiliser, et les actions que
+ * détermine les familles de figures que l'on peut utiliser, et les actions que
  * l'on peut réaliser.
  */
 export class Environment {
@@ -74,7 +74,7 @@ export class Environment {
   }
 
   /**
-   * Renvoie la liste des noms des familles de formes
+   * Renvoie la liste des noms des familles de figures
    * @return {[String]}
    */
   get familyNames() {

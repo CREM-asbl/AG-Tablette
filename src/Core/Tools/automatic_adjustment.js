@@ -10,12 +10,12 @@ function reduceAngle(angle) {
 }
 
 /**
- * Renvoie la transformation qu'il faut appliquer aux formes pour que les 2
+ * Renvoie la transformation qu'il faut appliquer aux figures pour que les 2
  * segments reliant les points de e1 et e2 soient superposés.
  * @param  {{'moving': Object, 'fixed': Object}} e1 1er point commun
  * @param  {{'moving': Object, 'fixed': Object}} e2 2eme point commun
- * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
- * @param  {Shape} mainShape      La forme principale
+ * @param  {[Shape]} shapes       Le groupe de figures que l'on déplace
+ * @param  {Shape} mainShape      La figure principale
  * @return {{rotationAngle: float, translation: Coordinates}}
  */
 function computeTransformation(e1, e2, shapes, mainShape) {
@@ -47,13 +47,13 @@ function computeTransformation(e1, e2, shapes, mainShape) {
 
 /*
     Vérifie:
-    - Que les 2 points moving sont de la même forme => pourquoi ?
+    - Que les 2 points moving sont de la même figure => pourquoi ?
     - Qu'aucun des 2 points moving n'est un centre
     - Que les 2 segments formés ont la même longueur
     (- Que les 2 points moving sont sur le même segment et/ou aux extrémités
       d'un même segment.)*
     - Si les 2 points fixed ne sont pas de grille, alors ils doivent
-      faire partie (du même segment)* de la même forme.
+      faire partie (du même segment)* de la même figure.
     * Les () indiquent que ce n'est pas/plus le cas
   */
 function checkCompatibility(e1, e2) {
@@ -97,9 +97,9 @@ function bestPossibility(possibilities) {
 
 /**
  * Calcule la transformation (déplacement et/ou rotation) qu'il faut appliquer à
- * un groupe de formes en fonction de la grille et de l'ajustement automatique.
- * @param  {[Shape]} shapes       Le groupe de formes que l'on déplace
- * @param  {Shape} mainShape      La forme principale
+ * un groupe de figures en fonction de la grille et de l'ajustement automatique.
+ * @param  {[Shape]} shapes       Le groupe de figures que l'on déplace
+ * @param  {Shape} mainShape      La figure principale
  * @return {Object}
  *          {
  *              'rotationAngle': float,     // Rotation à effectuer
@@ -122,7 +122,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   //   console.error('le Tangram et la Grille ne doivent pas être activés en même temps');
   // }
 
-  //Générer la liste des points du groupe de formes
+  //Générer la liste des points du groupe de figures
   let ptList = [];
   shapes.forEach((s) => {
     ptList.push(...s.vertexes, ...s.divisionPoints);
@@ -184,12 +184,12 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
 
     /*
-        La grille attire les formes vers ses points. Mais si l'ajustement automatique
-        n'est pas activé, la forme est uniquement translatée: il n'y a pas de légère
+        La grille attire les figures vers ses points. Mais si l'ajustement automatique
+        n'est pas activé, la figure est uniquement translatée: il n'y a pas de légère
         rotation (d'ajustement) possible.
          */
     if (automaticAdjustment) {
-      //segment: 1 point de la grille et 1 point d'une autre forme ?
+      //segment: 1 point de la grille et 1 point d'une autre figure ?
       for (let i = 0; i < cPtListGrid.length; i++) {
         for (let j = 0; j < cPtListBorder.length; j++) {
           let e1 = cPtListGrid[i],
@@ -209,7 +209,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   }
 
   if (automaticAdjustment) {
-    //segment: 2 points d'autres formes ?
+    //segment: 2 points d'autres figures ?
     for (let i = 0; i < cPtListBorder.length; i++) {
       for (let j = i + 1; j < cPtListBorder.length; j++) {
         let e1 = cPtListBorder[i],
@@ -224,7 +224,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   }
 
   if (possibilities.length > 0) {
-    console.log("2 points d'une autre forme");
+    console.log("2 points d'une autre figure");
     return bestPossibility(possibilities);
   }
 
@@ -249,7 +249,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   }
 
   if (automaticAdjustment) {
-    //point un seul point d'une autre forme?
+    //point un seul point d'une autre figure?
     let best = null,
       bestDist = 1000 * 1000;
     for (let i = 0; i < cPtListShape.length; i++) {
@@ -263,7 +263,7 @@ export function getShapeAdjustment(shapes, mainShape) {
       transformation.translation = best.fixed.coordinates.substract(
         best.moving.coordinates,
       );
-      console.log("1 point d'une autre forme");
+      console.log("1 point d'une autre figure");
       return transformation;
     }
   }

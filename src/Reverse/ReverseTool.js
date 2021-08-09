@@ -8,7 +8,7 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 
 /**
- * Retourner une forme (ou un ensemble de formes liées) sur l'espace de travail
+ * Retourner une figure (ou un ensemble de figures liées) sur l'espace de travail
  */
 export class ReverseTool extends Tool {
   constructor() {
@@ -17,7 +17,7 @@ export class ReverseTool extends Tool {
     // start -> select-axis -> reverse
     this.currentStep = null;
 
-    //La forme que l'on retourne
+    //La figure que l'on retourne
     this.selectedShape = null;
 
     //Timestamp au démarrage de l'animation
@@ -39,7 +39,7 @@ export class ReverseTool extends Tool {
     //Longueur en pixels des 4 arcs de symétrie
     this.axisLength = 200;
 
-    // L'ensemble des formes liées à la forme sélectionnée, y compris la forme elle-même
+    // L'ensemble des figures liées à la figure sélectionnée, y compris la figure elle-même
     this.involvedShapes = [];
 
     this.requestAnimFrameId = null;
@@ -55,8 +55,8 @@ export class ReverseTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour retourner une forme, touchez-là, puis touchez un des axes de
-        symétrie apparus sur la forme pour la retourner selon cet axe de
+        Pour retourner une figure, touchez-là, puis touchez un des axes de
+        symétrie apparus sur la figure pour la retourner selon cet axe de
         symétrie.
       </p>
     `;
@@ -140,8 +140,8 @@ export class ReverseTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
-   * @param  {Object} object            La forme sélectionnée
+   * Appelée par événement du SelectManager quand une figure est sélectionnée (onClick)
+   * @param  {Object} object            La figure sélectionnée
    */
   objectSelected(object) {
     if (
@@ -346,8 +346,8 @@ export class ReverseTool extends Tool {
   }
 
   /**
-   * Retourne une forme
-   * @param  {Shape} shape       la forme à retourner
+   * Retourne une figure
+   * @param  {Shape} shape       la figure à retourner
    */
   reverseShape(shape, selectedAxis) {
     shape.isReversed = !shape.isReversed;

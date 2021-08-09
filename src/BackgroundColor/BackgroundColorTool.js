@@ -6,11 +6,11 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { getComplementaryColor } from '../Core/Tools/general';
 
 /**
- * Modifier la couleur de fond d'une forme
+ * Modifier la couleur de fond d'une figure
  */
 export class BackgroundColorTool extends Tool {
   constructor() {
-    super('backgroundColor', 'Colorier les formes', 'tool');
+    super('backgroundColor', 'Colorier les figures', 'tool');
 
     this.currentStep = null; // choose-color -> listen-canvas-click
   }
@@ -25,7 +25,7 @@ export class BackgroundColorTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir choisi une couleur, touchez une forme pour en colorier
+        Après avoir choisi une couleur, touchez une figure pour en colorier
         l'intérieur.
       </p>
     `;
@@ -54,8 +54,8 @@ export class BackgroundColorTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (click)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);

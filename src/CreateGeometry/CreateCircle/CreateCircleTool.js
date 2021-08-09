@@ -11,7 +11,7 @@ import { Coordinates } from '../../Core/Objects/Coordinates';
 import { isAngleBetweenTwoAngles } from '../../Core/Tools/geometry';
 
 /**
- * Ajout de formes sur l'espace de travail
+ * Ajout de figures sur l'espace de travail
  */
 export class CreateCircleTool extends Tool {
   constructor() {
@@ -28,7 +28,7 @@ export class CreateCircleTool extends Tool {
 
     this.clockwise = undefined;
 
-    // Le tyle de forme que l'on va créer (circle, circlePart, circleArc)
+    // Le tyle de figure que l'on va créer (circle, circlePart, circleArc)
     this.circleSelected = null;
   }
 

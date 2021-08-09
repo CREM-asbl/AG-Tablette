@@ -70,9 +70,9 @@ export class SilhouetteCreatorTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour créer une nouvelle silhouette, disposez les formes comme vous le
+        Pour créer une nouvelle silhouette, disposez les figures comme vous le
         désirez, <br />
-        en veillant à ce qu'aucunes formes ne se supersopent. <br />
+        en veillant à ce qu'aucunes figures ne se supersopent. <br />
         Cliquez sur le bouton "Créer silhouette" une fois que vous avez terminé.
         <br />
       </p>
@@ -86,7 +86,7 @@ export class SilhouetteCreatorTool extends Tool {
     if (this.hasOverlapedShape(shapes)) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
-          detail: { message: 'Certaines formes se superposent.' },
+          detail: { message: 'Certaines figures se superposent.' },
         }),
       );
       return;
@@ -126,7 +126,7 @@ export class SilhouetteCreatorTool extends Tool {
         if (!this.isUserWarnedAboutOverlap) {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
-              detail: { message: 'Certaines formes se superposent.' },
+              detail: { message: 'Certaines figures se superposent.' },
             }),
           );
           this.isUserWarnedAboutOverlap = true;

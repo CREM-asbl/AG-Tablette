@@ -20,8 +20,8 @@ export class GroupManager {
   }
 
   /**
-   * Récupérer le groupe d'une forme
-   * @param  {Shape} shape         la forme
+   * Récupérer le groupe d'une figure
+   * @param  {Shape} shape         la figure
    * @return {Group}               le groupe, ou null s'il n'y en a pas.
    */
   static getShapeGroup(shape) {

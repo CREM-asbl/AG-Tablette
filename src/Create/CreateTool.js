@@ -7,11 +7,11 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
- * Ajout de formes sur l'espace de travail
+ * Ajout de figures sur l'espace de travail
  */
 export class CreateTool extends Tool {
   constructor() {
-    super('create', 'Ajouter une forme');
+    super('create', 'Ajouter une figure');
 
     // start -> listen -> move
     this.currentStep = null;
@@ -33,11 +33,11 @@ export class CreateTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir sélectionné une famille de formes dans le menu, vous devez
-        appuyer sur une des formes dans le menu qui apparaît en bas de l'écran.
-        Appuyez ensuite sur l'écran pour ajouter une forme.<br /><br />
+        Après avoir sélectionné une famille de figures dans le menu, vous devez
+        appuyer sur une des figures dans le menu qui apparaît en bas de l'écran.
+        Appuyez ensuite sur l'écran pour ajouter une figure.<br /><br />
         <b>Note:</b> vous pouvez appuyer sur l'écran puis bouger votre doigt
-        sans le relacher, pour positionner plus précisément la nouvelle forme.
+        sans le relacher, pour positionner plus précisément la nouvelle figure.
       </p>
     `;
   }

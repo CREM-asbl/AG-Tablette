@@ -15,7 +15,7 @@ export class Workspace {
     // Identifiant unique de l'espace de travail
     this.id = uniqId();
 
-    // Liste des formes du projet ([Shape])
+    // Liste des figures du projet ([Shape])
     this.shapes = [];
 
     // Liste des segments du projet ([Segment])
@@ -39,7 +39,7 @@ export class Workspace {
     // Opacité sélectionnée dans le popup
     this.selectedOpacity = 0.7;
 
-    // contrainte de sélection pour formes, segments et points
+    // contrainte de sélection pour figures, segments et points
     this.selectionConstraints = {};
 
     // Niveau de zoom de l'interface

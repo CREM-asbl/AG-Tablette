@@ -257,7 +257,7 @@ class AGMain extends LitElement {
           </toolbar-section>
 
           <toolbar-section
-            title="Formes libres"
+            title="Figures libres"
             .buttons_states="${this.tools.filter(
               (tool) => tool.type === 'geometryCreator',
             )}"

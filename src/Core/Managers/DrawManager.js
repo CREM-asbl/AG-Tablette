@@ -39,12 +39,12 @@ export class DrawManager {
   /* #################################################################### */
 
   /**
-   * Dessiner un groupe de formes sur un canvas donné
+   * Dessiner un groupe de figures sur un canvas donné
    * @param  {Context2D}  ctx                        Canvas
-   * @param  {Shapes[]}   involvedShapes             Formes à dessiner
+   * @param  {Shapes[]}   involvedShapes             Figures à dessiner
    * @param  {Function}   functionCalledBeforeDraw   La fonction à appliquer sur les shapes avant le dessin
    * @param  {Function}   functionCalledAfterDraw    La fonction à appliquer sur les shapes après le dessin
-   * @param  {Number}     borderSize                 Epaisseur des bordures de la forme
+   * @param  {Number}     borderSize                 Epaisseur des bordures de la figure
    * @param  {Segment}    axeAngle                   Axe de symétrie (pour reverse)
    * @param  {Boolean}    isReversed                 Si le groupe doit etre retourné
    */
@@ -71,7 +71,7 @@ export class DrawManager {
   }
 
   /**
-   * Dessiner une forme dans un environement de dessin
+   * Dessiner une figure dans un environement de dessin
    * @param  {DrawingEnvironment}  drawingEnvironment
    * @param  {Shape}               shape
    * @param  {Number}              borderSize

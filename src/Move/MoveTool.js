@@ -6,7 +6,7 @@ import { Shape } from '../Core/Objects/Shape';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
- * Déplacer une forme (ou un ensemble de formes liées) sur l'espace de travail
+ * Déplacer une figure (ou un ensemble de figures liées) sur l'espace de travail
  */
 export class MoveTool extends Tool {
   constructor() {
@@ -15,13 +15,13 @@ export class MoveTool extends Tool {
     // listen-canvas-click -> move
     this.currentStep = null;
 
-    // La forme que l'on déplace
+    // La figure que l'on déplace
     this.selectedShape = null;
 
     // Coordonnées de la souris lorsque le déplacement a commencé
     this.startClickCoordinates = null;
 
-    // L'ensemble des formes liées à la forme sélectionnée, y compris la forme elle-même
+    // L'ensemble des figures liées à la figure sélectionnée, y compris la figure elle-même
     this.involvedShapes = [];
   }
 
@@ -35,8 +35,8 @@ export class MoveTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour déplacer une forme, touchez la forme et glissez votre doigt sans le
-        relacher. Relachez ensuite votre doigt une fois que la forme est
+        Pour déplacer une figure, touchez la figure et glissez votre doigt sans le
+        relacher. Relachez ensuite votre doigt une fois que la figure est
         correctement positionnée.
       </p>
     `;
@@ -77,8 +77,8 @@ export class MoveTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (canvasMouseDown)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (canvasMouseDown)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;

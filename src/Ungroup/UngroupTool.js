@@ -5,7 +5,7 @@ import { GroupManager } from '../Core/Managers/GroupManager';
 import { Text } from '../Core/Objects/Text';
 
 /**
- * Supprimer un groupe (ne supprime pas les formes).
+ * Supprimer un groupe (ne supprime pas les figures).
  */
 export class UngroupTool extends Tool {
   constructor() {
@@ -23,9 +23,9 @@ export class UngroupTool extends Tool {
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
         Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque
-        forme appartenant à un groupe.<br /><br />
+        figure appartenant à un groupe.<br /><br />
 
-        Pour supprimer entièrement un groupe, cliquez sur une des formes
+        Pour supprimer entièrement un groupe, cliquez sur une des figures
         appartenant à ce groupe.
       </p>
     `;
@@ -70,8 +70,8 @@ export class UngroupTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager quand une figure est sélectionnée (onClick)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     this.userGroup = GroupManager.getShapeGroup(shape);
@@ -84,7 +84,7 @@ export class UngroupTool extends Tool {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
           detail: {
-            message: "La forme sélectionnée ne fait pas partie d'un groupe",
+            message: "La figure sélectionnée ne fait pas partie d'un groupe",
           },
         }),
       );

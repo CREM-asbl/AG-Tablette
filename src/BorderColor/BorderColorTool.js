@@ -5,7 +5,7 @@ import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
- * Modifier la couleur des bords d'une forme
+ * Modifier la couleur des bords d'une figure
  */
 export class BorderColorTool extends Tool {
   constructor() {
@@ -24,7 +24,7 @@ export class BorderColorTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir choisi une couleur, touchez une forme pour en colorier les
+        Après avoir choisi une couleur, touchez une figure pour en colorier les
         bords.
       </p>
     `;
@@ -53,8 +53,8 @@ export class BorderColorTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (click)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);

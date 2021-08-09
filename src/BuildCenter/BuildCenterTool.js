@@ -4,7 +4,7 @@ import { html } from 'lit';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
- * Construire le centre d'une forme (l'afficher)
+ * Construire le centre d'une figure (l'afficher)
  */
 export class BuildCenterTool extends Tool {
   constructor() {
@@ -21,7 +21,7 @@ export class BuildCenterTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une forme pour construire son centre. Si le centre était déjà
+        Touchez une figure pour construire son centre. Si le centre était déjà
         construit, cela va supprimer le centre.
       </p>
     `;
@@ -50,8 +50,8 @@ export class BuildCenterTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (click)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);

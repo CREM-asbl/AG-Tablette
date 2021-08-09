@@ -4,17 +4,17 @@ import { html } from 'lit';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
- * Tourner une forme (ou un ensemble de formes liées) sur l'espace de travail
+ * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
  */
 export class Rotate45Tool extends Tool {
   constructor() {
     super('rotate45', 'Tourner à 45°', 'move');
 
-    // La forme que l'on déplace
+    // La figure que l'on déplace
     this.selectedShape = null;
 
     /*
-      L'ensemble des formes liées à la forme sélectionnée, y compris la forme
+      L'ensemble des figures liées à la figure sélectionnée, y compris la figure
       elle-même
     */
     this.involvedShapes = [];
@@ -30,7 +30,7 @@ export class Rotate45Tool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Cliquez sur une forme pour la faire tourner de 45° dans le sens
+        Cliquez sur une figure pour la faire tourner de 45° dans le sens
         horloger.
       </p>
     `;
@@ -57,8 +57,8 @@ export class Rotate45Tool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager quand une forme est sélectionnée (canvasMouseDown)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager quand une figure est sélectionnée (canvasMouseDown)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     this.selectedShape = shape;

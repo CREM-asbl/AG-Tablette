@@ -35,7 +35,7 @@ export class DivideTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        diviser un segment d'une forme en plusieurs parties (délimitées par des
+        diviser un segment d'une figure en plusieurs parties (délimitées par des
         points).<br />
         Après avoir choisit en combien de partie vous souhaitez diviser le
         segment, touchez le segment que vous souhaitez diviser.<br />
@@ -202,7 +202,7 @@ export class DivideTool extends Tool {
           /*
               Vérifie s'il y a une ambiguité sur l'action à réaliser: si les 2
               poins sont reliés par un arc de cercle, et aussi par un segment (la
-              forme est donc constituée uniquement de 2 sommets, un segment et un
+              figure est donc constituée uniquement de 2 sommets, un segment et un
               arc de cercle), on annule l'action.
                */
           if (

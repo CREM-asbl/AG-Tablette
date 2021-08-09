@@ -2,13 +2,13 @@ import { uniqId } from '../Tools/general';
 import { ShapeTemplate } from './ShapeTemplate';
 
 /**
- * Une famille de formes.
+ * Une famille de figures.
  */
 export class Family {
   /**
    * Constructeur
    * @param {String} name         Nom de la famille
-   * @param {String} defaultColor Couleur par défaut des formes ("#rrggbb")
+   * @param {String} defaultColor Couleur par défaut des figures ("#rrggbb")
    */
   constructor({ name, color, shapeTemplates, opacity = 0.7 }) {
     this.name = name;
@@ -51,7 +51,7 @@ export class Family {
 
   /**
    * Renvoie un modèle d'une famille à partir de son nom
-   * @param name: le nom de la forme
+   * @param name: le nom de la figure
    * @return Objet de type Shape (sans coordonnées)
    */
   getTemplate(name) {

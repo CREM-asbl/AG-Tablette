@@ -1,6 +1,6 @@
 /**
  * Calcule la moyene de x couleurs.
- * @param {String} colors couleurs (RGB) sous la forme #xxxxxx ou #xxx (lettres minuscules ou majuscules)
+ * @param {String} colors couleurs (RGB) sous la figure #xxxxxx ou #xxx (lettres minuscules ou majuscules)
  */
 export function getAverageColor(...colors) {
   let regex = /^#([0-9a-fA-F]{3}){1,2}$/,
@@ -51,7 +51,7 @@ export function getAverageColor(...colors) {
 
 /**
  * Calcule la couleur complémentaire d'une couleur.
- * @param color: couleur (RGB) sous la forme #xxxxxx ou #xxx (lettres minuscules ou majuscules)
+ * @param color: couleur (RGB) sous la figure #xxxxxx ou #xxx (lettres minuscules ou majuscules)
  */
 export function getComplementaryColor(color) {
   let regex = /^#([0-9a-fA-F]{3}){1,2}$/;
@@ -62,7 +62,7 @@ export function getComplementaryColor(color) {
     return;
   }
   if (color.length == 4)
-    //transforme #abc en #aabbcc
+    //transfigure #abc en #aabbcc
     color =
       '#' +
       color[1] +
@@ -79,7 +79,7 @@ export function getComplementaryColor(color) {
   color = color.toUpperCase();
 
   let hexTodec = function (hex) {
-    //transforme un nombre hexadécimal à 2 chiffres en un nombre décimal
+    //transfigure un nombre hexadécimal à 2 chiffres en un nombre décimal
     let conversion = {
       0: 0,
       1: 1,
@@ -101,7 +101,7 @@ export function getComplementaryColor(color) {
     return conversion[hex[0]] * 16 + conversion[hex[1]];
   };
   let decToHex = function (dec) {
-    //transforme un nombre décimal de 0 à 255 en hexadécimal
+    //transfigure un nombre décimal de 0 à 255 en hexadécimal
     let conversion = [
       '0',
       '1',

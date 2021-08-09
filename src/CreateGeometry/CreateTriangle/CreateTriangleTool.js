@@ -10,7 +10,7 @@ import { GeometryConstraint } from '../../Core/Objects/GeometryConstraint';
 import { Coordinates } from '../../Core/Objects/Coordinates';
 
 /**
- * Ajout de formes sur l'espace de travail
+ * Ajout de figures sur l'espace de travail
  */
 export class CreateTriangleTool extends Tool {
   constructor() {
@@ -25,7 +25,7 @@ export class CreateTriangleTool extends Tool {
     // points drawn by the user
     this.numberOfPointsDrawn = 0;
 
-    // Le tyle de forme que l'on va créer (rectangle, IsoscelesTriangle, RightAngleIsoscelesTriangle, trapèze)
+    // Le tyle de figure que l'on va créer (rectangle, IsoscelesTriangle, RightAngleIsoscelesTriangle, trapèze)
     this.triangleSelected = null;
   }
 

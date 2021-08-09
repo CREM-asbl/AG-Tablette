@@ -67,10 +67,10 @@ class SettingsPopup extends LitElement {
               ? 'display:none'
               : ''
           }>
-            <legend>Formes</legend>
+            <legend>Figures</legend>
 
             <div class="field">
-              <label for="settings_shapes_size">Taille des formes</label>
+              <label for="settings_shapes_size">Taille des figures</label>
               <select
                 name="settings_shapes_size"
                 id="settings_shapes_size"
@@ -98,7 +98,7 @@ class SettingsPopup extends LitElement {
                 .checked="${this.settings.areShapesPointed}"
                 @change="${this._actionHandle}"
               />
-              <label for="settings_shapes_pointed">Formes pointées</label>
+              <label for="settings_shapes_pointed">Figures pointées</label>
             </div>
           </fieldset>
         </div>

@@ -10,7 +10,7 @@ import { Coordinates } from '../../Core/Objects/Coordinates';
 import { GeometryConstraint } from '../../Core/Objects/GeometryConstraint';
 
 /**
- * Ajout de formes sur l'espace de travail
+ * Ajout de figures sur l'espace de travail
  */
 export class CreateLineTool extends Tool {
   constructor() {

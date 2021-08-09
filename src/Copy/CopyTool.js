@@ -10,7 +10,7 @@ import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { GroupManager } from '../Core/Managers/GroupManager';
 
 /**
- * Dupliquer une forme
+ * Dupliquer une figure
  */
 export class CopyTool extends Tool {
   constructor() {
@@ -22,7 +22,7 @@ export class CopyTool extends Tool {
     this.startClickCoordinates = null;
 
     /*
-        L'ensemble des formes liées à la forme sélectionnée, y compris la forme
+        L'ensemble des figures liées à la figure sélectionnée, y compris la figure
         elle-même
          */
     this.involvedShapes = [];
@@ -40,15 +40,15 @@ export class CopyTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour copier une forme, appuyez sur la forme et faites glissez votre
+        Pour copier une figure, appuyez sur la figure et faites glissez votre
         doigt dans une direction sans le relacher. Relachez ensuite votre doigt
-        une fois que la nouvelle forme est à la bonne place.<br /><br />
-        <b>Attention:</b> si vous appuyez sur une forme puis relachez
-        directement, une copie de la forme aura bien été créée, mais à la même
-        position que la forme d'origine. Il y a donc deux formes l'une sur
+        une fois que la nouvelle figure est à la bonne place.<br /><br />
+        <b>Attention:</b> si vous appuyez sur une figure puis relachez
+        directement, une copie de la figure aura bien été créée, mais à la même
+        position que la figure d'origine. Il y a donc deux figures l'une sur
         l'autre.<br /><br />
-        <b>Note:</b> la nouvelle forme créée n'est pas liée d'une manière ou
-        d'une autre avec la forme d'origine: il s'agit bien d'une copie
+        <b>Note:</b> la nouvelle figure créée n'est pas liée d'une manière ou
+        d'une autre avec la figure d'origine: il s'agit bien d'une copie
         complètement indépendante.
       </p>
     `;
@@ -100,8 +100,8 @@ export class CopyTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (canvasMouseDown)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (canvasMouseDown)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;

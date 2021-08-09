@@ -1,5 +1,5 @@
 export const grandeursKit = {
-  name: 'Formes standard',
+  name: 'Figures standard',
   families: {
     'Famille du triangle équilatéral': {
       color: '#ffff00',

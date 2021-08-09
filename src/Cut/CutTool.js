@@ -7,7 +7,7 @@ import { Shape } from '../Core/Objects/Shape';
 import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
- * Découper une forme
+ * Découper une figure
  */
 export class CutTool extends Tool {
   constructor() {
@@ -31,16 +31,16 @@ export class CutTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        découper une forme en deux nouvelles formes, tout en laissant la forme
+        découper une figure en deux nouvelles figures, tout en laissant la figure
         d'origine intacte.<br /><br />
 
-        Pour découper une forme, touchez un premier sommet de la forme, puis
-        éventuellement le centre de la forme (non obligatoire), et enfin un
-        second sommet de la forme.<br /><br />
+        Pour découper une figure, touchez un premier sommet de la figure, puis
+        éventuellement le centre de la figure (non obligatoire), et enfin un
+        second sommet de la figure.<br /><br />
 
-        <b>Note:</b> il n'est pas toujours possible de découper une forme en
+        <b>Note:</b> il n'est pas toujours possible de découper une figure en
         sélectionnant deux sommets quelconques. La ligne de découpe doit en
-        effet rester à l'intérieur de la forme, sans quoi la découpe ne sera pas
+        effet rester à l'intérieur de la figure, sans quoi la découpe ne sera pas
         réalisée.
       </p>
     `;
@@ -267,14 +267,14 @@ export class CutTool extends Tool {
 
   /**
    * Vérifie si le segment de droite reliant pt1 et pt2 :
-   * - reste bien à l'intérieur de la forme ou non,
+   * - reste bien à l'intérieur de la figure ou non,
    * - ne soit pas confondu (ou en partie confondu) avec un autre segment (au moins 1/5 commun),
-   * - ne contient pas un autre sommet de la forme,
-   * - n'intersecte pas un autre segment de la forme
+   * - ne contient pas un autre sommet de la figure,
+   * - n'intersecte pas un autre segment de la figure
    * @param  {Shape}  shape
    * @param  {Point}  pt1  coordonnées du point 1
    * @param  {Point}  pt2  coordonnées du point 2
-   * @return {Boolean}     Retourne false s'il sort de la forme.
+   * @return {Boolean}     Retourne false s'il sort de la figure.
    */
   isLineValid(shape, pt1, pt2) {
     let length = pt1.coordinates.dist(pt2.coordinates),

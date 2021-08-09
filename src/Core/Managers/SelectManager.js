@@ -41,9 +41,9 @@ export class SelectManager {
       canSelectFromUpper: false,
       shapes: {
         canSelect: false,
-        // Liste de Shape. La forme doit être dans ce tableau s'il est non null
+        // Liste de Shape. La figure doit être dans ce tableau s'il est non null
         whitelist: null,
-        // Liste de Shape. La forme ne doit pas être dans ce tableau s'il est non null
+        // Liste de Shape. La figure ne doit pas être dans ce tableau s'il est non null
         blacklist: null,
       },
       segments: {
@@ -51,9 +51,9 @@ export class SelectManager {
         /*
                 Liste pouvant contenir différents éléments:
                     - {'shapeId': shapeId}
-                      Le segment doit faire partie de cette forme.
+                      Le segment doit faire partie de cette figure.
                     - {'shapeId': shapeId, 'index': int}
-                      Le segment doit être le segment n° index de la forme
+                      Le segment doit être le segment n° index de la figure
                 Si tableau non null, le segment doit satisfaire au moins un des
                 élements de cette liste.
                  */
@@ -71,22 +71,22 @@ export class SelectManager {
         //d'un des types renseignés dans ce tableau.
         types: ['shapeCenter', 'vertex', 'divisionPoint', 'modifiablePoint'],
         /*
-                Liste pouvant contenir différents éléments sous la forme:
+                Liste pouvant contenir différents éléments sous la figure:
                     - {'shapeId': shapeId}
-                      Le point doit faire partie de cette forme.
+                      Le point doit faire partie de cette figure.
                     - {'shapeId': shapeId, 'type': 'shapeCenter'}
-                      Le point doit être le centre de la forme donnée.
+                      Le point doit être le centre de la figure donnée.
                     - {'shapeId': shapeId, 'type': 'vertex'}
-                      Le point doit être un sommet de la forme donnée.
+                      Le point doit être un sommet de la figure donnée.
                     - {'shapeId': shapeId, 'type': 'vertex', index: int}
-                      Le point doit être le sommet d'index index de la forme donnée
+                      Le point doit être le sommet d'index index de la figure donnée
                     - {'shapeId': shapeId, 'type': 'divisionPoint'}
-                      Le point doit être un point de segment de la forme donnée.
+                      Le point doit être un point de segment de la figure donnée.
                     - {'shapeId': shapeId, 'type': 'divisionPoint', index: int}
-                      Le point doit être un point de segment de la forme donnée,
+                      Le point doit être un point de segment de la figure donnée,
                       et l'index du segment doit être index.
                     - {'shapeId': shapeId, 'type': 'divisionPoint', index: int, ratio: ratio}
-                      Le point doit être un point de segment de la forme donnée,
+                      Le point doit être un point de segment de la figure donnée,
                       dont le segment est d'index index et dont le ratio vaut ratio.
                 Si tableau non null, le segment doit satisfaire au moins un des
                 élements de cette liste.
@@ -302,8 +302,8 @@ export class SelectManager {
   }
 
   /**
-   * Essaie de sélectionner une forme, en fonction des contraintes données.
-   * Renvoie null si pas de forme.
+   * Essaie de sélectionner une figure, en fonction des contraintes données.
+   * Renvoie null si pas de figure.
    * @param  {Point} mouseCoordinates
    * @param  {Object} constraints      Contraintes. Voir selectionConstraints.shapes.
    * @return {Shape}
@@ -337,12 +337,12 @@ export class SelectManager {
   }
 
   /**
-   * Essaie de sélectionner un objet (point, segment, forme) en fonction des
+   * Essaie de sélectionner un objet (point, segment, figure) en fonction des
    * contraintes définies via setSelectionConstraints. Renvoie null si aucun
    * objet n'a pu être sélectionné.
    * @param  {Point} mouseCoordinates
    * @return {Object} Renvoie soit:
-   *          - Pour une forme: un objet de type Shape;
+   *          - Pour une figure: un objet de type Shape;
    *          - Pour un segment: un objet de type Segment;
    *          - Pour un point: un objet de type Point;
    */

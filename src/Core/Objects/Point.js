@@ -393,7 +393,7 @@ export class Point {
   }
 
   /**
-   * get the positive angle formed by the 2 segments of the vertex in 0 =< value < 2 * Math.PI
+   * get the positive angle figured by the 2 segments of the vertex in 0 =< value < 2 * Math.PI
    * @param {Boolean} reduced   return value reduced to 0 =< value < Math.PI
    */
   getVertexAngle(reduced = false) {

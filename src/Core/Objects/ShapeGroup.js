@@ -1,22 +1,22 @@
 import { uniqId } from '../Tools/general';
 
 /**
- * Groupe de formes liées. Un tel groupe est créé par l'utilisateur à l'aide de
+ * Groupe de figures liées. Un tel groupe est créé par l'utilisateur à l'aide de
  * l'outil de création de groupes (Grouper/Dégrouper).
  */
 export class ShapeGroup {
   /**
    * Constructeur
-   * @param {Shape} shapeId1   La première forme du groupe
-   * @param {Shape} shapeId2   La seconde forme du groupe
+   * @param {Shape} shapeId1   La première figure du groupe
+   * @param {Shape} shapeId2   La seconde figure du groupe
    */
   constructor(shapeId1, shapeId2) {
     if (shapeId1 === shapeId2) {
       throw new Error(
-        'Une même forme ne peut pas être ajoutée 2 fois à un groupe',
+        'Une même figure ne peut pas être ajoutée 2 fois à un groupe',
       );
     }
-    //La liste des formes contenues dans le groupe
+    //La liste des figures contenues dans le groupe
     this.shapesIds = [shapeId1, shapeId2];
 
     //Identifiant unique du groupe
@@ -48,8 +48,8 @@ export class ShapeGroup {
   }
 
   /**
-   * Ajouter une forme au groupe
-   * @param {number} shapeId    La forme que l'on ajoute
+   * Ajouter une figure au groupe
+   * @param {number} shapeId    La figure que l'on ajoute
    */
   addShape(shapeId) {
     if (this.contains(shapeId)) {
@@ -60,9 +60,9 @@ export class ShapeGroup {
   }
 
   /**
-   * Retirer une forme du groupe. Ne supprime pas le groupe s'il ne reste
-   * qu'une ou zéro formes (cela doit être fait manuellement).
-   * @param {number} shapeId    La forme que l'on retire
+   * Retirer une figure du groupe. Ne supprime pas le groupe s'il ne reste
+   * qu'une ou zéro figures (cela doit être fait manuellement).
+   * @param {number} shapeId    La figure que l'on retire
    */
   deleteShape(shapeId) {
     let length = this.shapesIds.length;
@@ -72,8 +72,8 @@ export class ShapeGroup {
   }
 
   /**
-   * Vérifier si une forme fait partie du groupe
-   * @param  {number} shapeId la forme
+   * Vérifier si une figure fait partie du groupe
+   * @param  {number} shapeId la figure
    * @return {Boolean}       true si elle fait partie du groupe, false sinon
    */
   contains(shapeId) {

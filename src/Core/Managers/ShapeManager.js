@@ -4,9 +4,9 @@ import { SelectManager } from './SelectManager';
 
 export class ShapeManager {
   /**
-   * Ajoute une forme au workspace
-   * @param {Shape} shape   La forme à ajouter
-   * @param {Numbre} index  L'index qu'elle doit avoir dans le tableau des formes
+   * Ajoute une figure au workspace
+   * @param {Shape} shape   La figure à ajouter
+   * @param {Numbre} index  L'index qu'elle doit avoir dans le tableau des figures
    */
   static addShape(shape, index = null) {
     if (index !== null) {
@@ -65,19 +65,19 @@ export class ShapeManager {
   }
 
   /**
-   * Renvoie l'index d'une forme (index dans le tableau de formes du
-   * Workspace actuel), ou -1 si la forme n'a pas été trouvée.
-   * @param  {Shape} shape la forme
-   * @return {int}       l'index de cette forme dans le tableau des formes
+   * Renvoie l'index d'une figure (index dans le tableau de figures du
+   * Workspace actuel), ou -1 si la figure n'a pas été trouvée.
+   * @param  {Shape} shape la figure
+   * @return {int}       l'index de cette figure dans le tableau des figures
    */
   static getShapeIndex(shape) {
     return app.mainDrawingEnvironment.shapes.findIndex((s) => s.id == shape.id);
   }
 
   /**
-   * Renvoie la forme ayant un certain id
-   * @param  {int} id l'id de la forme
-   * @return {Shape}         l'objet forme, ou null si la forme n'existe pas
+   * Renvoie la figure ayant un certain id
+   * @param  {int} id l'id de la figure
+   * @return {Shape}         l'objet figure, ou null si la figure n'existe pas
    */
   static getShapeById(id) {
     let shape = app.mainDrawingEnvironment.shapes.find((s) => s.id == id);
@@ -85,8 +85,8 @@ export class ShapeManager {
   }
 
   /**
-   * Renvoie la liste des formes contenant une certaine coordonnée.
-   * Le tableau renvoyé est trié de la forme la plus en avant à la forme la
+   * Renvoie la liste des figures contenant une certaine coordonnée.
+   * Le tableau renvoyé est trié de la figure la plus en avant à la figure la
    * plus en arrière.
    * @param {Coordinates} coord
    */
@@ -112,12 +112,12 @@ export class ShapeManager {
   }
 
   /**
-   * Renvoie la liste des formes solidaires à la forme donnée (c'est-à-dire
+   * Renvoie la liste des figures solidaires à la figure donnée (c'est-à-dire
    * faisant partie du même groupe).
-   * @param  {Shape} shape Une forme
-   * @param  {Boolean} [includeReceivedShape=false] true: inclus la forme
+   * @param  {Shape} shape Une figure
+   * @param  {Boolean} [includeReceivedShape=false] true: inclus la figure
    * 												   reçue dans les résultats
-   * @return {[Shape]}     Les formes liées
+   * @return {[Shape]}     Les figures liées
    */
   static getAllBindedShapes(shape, includeReceivedShape = false) {
     let shapes = [shape],
@@ -133,8 +133,8 @@ export class ShapeManager {
   }
 
   /**
-   * Supprime une forme. Ne la supprime pas des groupes (à faire manuellement)
-   * @param  {Shape} shape La forme à supprimer
+   * Supprime une figure. Ne la supprime pas des groupes (à faire manuellement)
+   * @param  {Shape} shape La figure à supprimer
    */
   static deleteShape(shape) {
     let shapeIndex = ShapeManager.getShapeIndex(shape);
@@ -142,7 +142,7 @@ export class ShapeManager {
       console.error("Workspace.deleteShape: couldn't delete the shape");
       return;
     }
-    //supprime la forme
+    //supprime la figure
     app.workspace.shapes.splice(shapeIndex, 1);
   }
 

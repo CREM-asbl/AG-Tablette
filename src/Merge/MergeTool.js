@@ -7,7 +7,7 @@ import { Shape } from '../Core/Objects/Shape';
 import { getAverageColor } from '../Core/Tools/general';
 
 /**
- * Fusionner 2 formes en une nouvelle forme
+ * Fusionner 2 figures en une nouvelle figure
  */
 export class MergeTool extends Tool {
   constructor() {
@@ -31,16 +31,16 @@ export class MergeTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        fusionner deux formes ayant au moins un côté commun en une seule forme.
-        Une nouvelle forme (le fruit de la fusion) est créée, et les deux formes
+        fusionner deux figures ayant au moins un côté commun en une seule figure.
+        Une nouvelle figure (le fruit de la fusion) est créée, et les deux figures
         d'origine restent intactes.<br />
 
-        Pour fusionner les deux formes, touchez la première forme puis la
+        Pour fusionner les deux figures, touchez la première figure puis la
         seconde.<br /><br />
 
-        <b>Note:</b> pour qu'une fusion entre deux formes soit possible, il faut
-        que les deux formes aient au moins un segment en commun (un côté entier,
-        ou une partie d'un côté). Il ne faut pas que les deux formes se
+        <b>Note:</b> pour qu'une fusion entre deux figures soit possible, il faut
+        que les deux figures aient au moins un segment en commun (un côté entier,
+        ou une partie d'un côté). Il ne faut pas que les deux figures se
         chevauchent pour que la fusion puisse être réalisée.
       </p>
     `;
@@ -84,8 +84,8 @@ export class MergeTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (onClick)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (onClick)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     let mustExecuteAction = false;
@@ -139,7 +139,7 @@ export class MergeTool extends Tool {
             window.dispatchEvent(
               new CustomEvent('show-notif', {
                 detail: {
-                  message: 'La forme ne peut pas être fusionnée au groupe',
+                  message: 'La figure ne peut pas être fusionnée au groupe',
                 },
               }),
             );
@@ -159,7 +159,7 @@ export class MergeTool extends Tool {
             window.dispatchEvent(
               new CustomEvent('show-notif', {
                 detail: {
-                  message: "Il n'y a pas de segment commun entre les formes.",
+                  message: "Il n'y a pas de segment commun entre les figures.",
                 },
               }),
             );
@@ -169,7 +169,7 @@ export class MergeTool extends Tool {
           if (firstShape.overlapsWith(secondShape)) {
             window.dispatchEvent(
               new CustomEvent('show-notif', {
-                detail: { message: 'Les formes se superposent.' },
+                detail: { message: 'Les figures se superposent.' },
               }),
             );
             return;
@@ -209,7 +209,7 @@ export class MergeTool extends Tool {
   }
 
   alertDigShape() {
-    window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'La forme créée est creuse' } }));
+    window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'La figure créée est creuse' } }));
   }
 
   getPathFromGroup() {
@@ -291,8 +291,8 @@ export class MergeTool extends Tool {
 
   /**
    *
-   * @param {Shape} shape1 la premiere forme à fusionner
-   * @param {Shape} shape2 la seconde forme à fusionner
+   * @param {Shape} shape1 la premiere figure à fusionner
+   * @param {Shape} shape2 la seconde figure à fusionner
    * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
    */
   createNewSegments(shape1, shape2) {
@@ -452,7 +452,7 @@ export class MergeTool extends Tool {
   }
 
   /**
-   * Crée les segments définitifs de la forme fusionnée
+   * Crée les segments définitifs de la figure fusionnée
    * @param {Segment[]} segmentsList   les segments à modifier
    * @returns {Segment[]}              les segments définitifs
    */
@@ -497,7 +497,7 @@ export class MergeTool extends Tool {
     }
 
     if (segmentUsed != numberOfSegments) {
-      // si tous les segments n'ont pas été utilisés, la forme créée est creuse
+      // si tous les segments n'ont pas été utilisés, la figure créée est creuse
       console.warn('shape is dig (not all segments have been used)');
       return null;
     }
@@ -547,9 +547,9 @@ export class MergeTool extends Tool {
   }
 
   /**
-   * crée la forme fusionnée et l'ajoute au workspace
+   * crée la figure fusionnée et l'ajoute au workspace
    * @param {String} path
-   * @param {Shape} shapes            les formes a fusionner
+   * @param {Shape} shapes            les figures a fusionner
    */
   createNewShape(path, ...shapes) {
     let newShape = new Shape({

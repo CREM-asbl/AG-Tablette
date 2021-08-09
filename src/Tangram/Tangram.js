@@ -5,7 +5,7 @@ import { Shape } from '../Core/Objects/Shape';
 export class Tangram {
   /**
    * Constructeur
-   * @param {[Shape]} shapes   Liste des formes nécessaires pour construire le
+   * @param {[Shape]} shapes   Liste des figures nécessaires pour construire le
    *                           le tangram.
    * @param {Object} silhouette Liste de polygones (= de tableaux de points)
    */

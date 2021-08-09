@@ -6,7 +6,7 @@ import { Text } from '../Core/Objects/Text';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 
 /**
- * Grouper des formes.
+ * Grouper des figures.
  */
 export class GroupTool extends Tool {
   constructor() {
@@ -30,21 +30,21 @@ export class GroupTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        former des groupes de formes, qui sont alors solidaires. Une forme ne
+        figurer des groupes de figures, qui sont alors solidaires. Une figure ne
         peut appartenir qu'à un seul groupe.
         <br />
         Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque
-        forme appartenant à un groupe.<br /><br />
+        figure appartenant à un groupe.<br /><br />
 
-        Pour créer un nouveau groupe, touchez deux formes n'appartenant pas à un
-        groupe. Toutes les formes touchées par la suite seront ajoutées à ce
+        Pour créer un nouveau groupe, touchez deux figures n'appartenant pas à un
+        groupe. Toutes les figures touchées par la suite seront ajoutées à ce
         groupe.<br /><br />
 
-        Pour ajouter une forme à un groupe, touchez une des formes appartenant à
-        ce groupe, puis touchez la forme que vous souhaitez ajouter.<br /><br />
+        Pour ajouter une figure à un groupe, touchez une des figures appartenant à
+        ce groupe, puis touchez la figure que vous souhaitez ajouter.<br /><br />
 
-        Pour fusionner deux groupes, touchez une des formes appartenant au
-        premier groupe, puis touchez une des formes de l'autre groupe.
+        Pour fusionner deux groupes, touchez une des figures appartenant au
+        premier groupe, puis touchez une des figures de l'autre groupe.
       </p>
     `;
   }
@@ -104,8 +104,8 @@ export class GroupTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager quand une forme est sélectionnée (onClick)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager quand une figure est sélectionnée (onClick)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     let mustExecuteAction = false;
@@ -131,7 +131,7 @@ export class GroupTool extends Tool {
       if (shape.id == this.firstShapeId) {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
-            detail: { message: 'La forme choisie fait déjà partie du groupe' },
+            detail: { message: 'La figure choisie fait déjà partie du groupe' },
           }),
         );
         return;
@@ -157,14 +157,14 @@ export class GroupTool extends Tool {
       // fillGroup
       this.secondGroup = GroupManager.getShapeGroup(shape);
       if (this.secondGroup) {
-        //La forme fait partie d'un autre groupe, on fusionne
+        //La figure fait partie d'un autre groupe, on fusionne
         let index1 = GroupManager.getGroupIndex(this.group),
           index2 = GroupManager.getGroupIndex(this.secondGroup);
         if (index1 == index2) {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: {
-                message: 'La forme choisie fait déjà partie du groupe',
+                message: 'La figure choisie fait déjà partie du groupe',
               },
             }),
           );

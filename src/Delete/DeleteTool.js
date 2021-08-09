@@ -6,8 +6,8 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 
 /**
- * Supprimer une forme (et supprime le groupe dont la forme faisait partie s'il
- * ne restait que 2 formes dans le groupe)
+ * Supprimer une figure (et supprime le groupe dont la figure faisait partie s'il
+ * ne restait que 2 figures dans le groupe)
  */
 export class DeleteTool extends Tool {
   constructor() {
@@ -24,7 +24,7 @@ export class DeleteTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une forme pour la supprimer de l'espace de travail.
+        Touchez une figure pour la supprimer de l'espace de travail.
       </p>
     `;
   }
@@ -61,8 +61,8 @@ export class DeleteTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme ou un point a été sélectionné (click)
-   * @param  {Object} object            La forme ou le point sélectionné
+   * Appelée par événement du SelectManager lorsqu'une figure ou un point a été sélectionné (click)
+   * @param  {Object} object            La figure ou le point sélectionné
    */
   objectSelected(object) {
     if (object instanceof Shape) {

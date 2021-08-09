@@ -22,9 +22,9 @@ export class BifaceTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Une fois sélectionné, un texte "biface" apparaît sur les formes étant
+        Une fois sélectionné, un texte "biface" apparaît sur les figures étant
         bifaces.<br />
-        Touchez une forme pour qu'elle devienne biface, et touchez une seconde
+        Touchez une figure pour qu'elle devienne biface, et touchez une seconde
         fois pour annuler.
       </p>
     `;
@@ -67,8 +67,8 @@ export class BifaceTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager lorsqu'une figures a été sélectionnée (click)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);

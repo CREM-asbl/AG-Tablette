@@ -7,7 +7,7 @@ import { Shape } from '../Core/Objects/Shape';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
- * Tourner une forme (ou un ensemble de formes liées) sur l'espace de travail
+ * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
  */
 export class RotateTool extends Tool {
   constructor() {
@@ -17,14 +17,14 @@ export class RotateTool extends Tool {
 
     this.currentStep = null; // listen-canvas-click -> rotate
 
-    //La forme que l'on déplace
+    //La figure que l'on déplace
     this.selectedShape = null;
 
-    //L'angle initial entre le centre de la forme et la position de la souris
+    //L'angle initial entre le centre de la figure et la position de la souris
     this.initialAngle = null;
 
     /*
-        L'ensemble des formes liées à la forme sélectionnée, y compris la forme
+        L'ensemble des figures liées à la figure sélectionnée, y compris la figure
         elle-même
          */
     this.involvedShapes = [];
@@ -40,10 +40,10 @@ export class RotateTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une forme, puis glissez votre doigt sans relacher la forme pour
-        la faire tourner. La forme tourne autour de son centre, qui est affiché
+        Touchez une figure, puis glissez votre doigt sans relacher la figure pour
+        la faire tourner. La figure tourne autour de son centre, qui est affiché
         lors de la rotation. Faites tournez votre doigt autour de ce centre pour
-        faire tourner la forme.
+        faire tourner la figure.
       </p>
     `;
   }
@@ -83,8 +83,8 @@ export class RotateTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager quand une forme est sélectionnée (canvasMouseDown)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager quand une figure est sélectionnée (canvasMouseDown)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;

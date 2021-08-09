@@ -6,7 +6,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import './opacity-popup';
 
 /**
- * Modifier l'opacité d'une forme
+ * Modifier l'opacité d'une figure
  */
 export class OpacityTool extends Tool {
   constructor() {
@@ -27,10 +27,10 @@ export class OpacityTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        définir pour chaque forme si elle est transparente, semi-transparente ou
+        définir pour chaque figure si elle est transparente, semi-transparente ou
         complètement opaque.<br />
         Après avoir choisit l'une de ces 3 options dans le menu, touchez une
-        forme pour lui appliquer la modification.
+        figure pour lui appliquer la modification.
       </p>
     `;
   }
@@ -60,8 +60,8 @@ export class OpacityTool extends Tool {
   }
 
   /**
-   * Appelée par événement du SelectManager lorsqu'une forme a été sélectionnée (click)
-   * @param  {Shape} shape            La forme sélectionnée
+   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (click)
+   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'selectObject') return;
