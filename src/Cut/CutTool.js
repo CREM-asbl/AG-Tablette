@@ -194,28 +194,26 @@ export class CutTool extends Tool {
         setState({
           tool: { ...app.tool, currentStep: 'listen', firstPointId: undefined },
         });
-      } else {
-        if (pt1.shape.id != pt2.shape.id) {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
-        } else if (this.isLineValid(pt1.shape, pt1, pt2)) {
-          if (pt2.type == 'shapeCenter') {
-            // On a sélectionné le second point: le centre
-            setState({
-              tool: {
-                ...app.tool,
-                currentStep: 'selectThirdPoint',
-                centerPointId: pt2.id,
-              },
-            });
-          } else {
-            // On a sélectionné le second point: un autre point
-            setState({
-              tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
-            });
-          }
+      } else if (pt1.shape.id != pt2.shape.id) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
+      } else if (this.isLineValid(pt1.shape, pt1, pt2)) {
+        if (pt2.type == 'shapeCenter') {
+          // On a sélectionné le second point: le centre
+          setState({
+            tool: {
+              ...app.tool,
+              currentStep: 'selectThirdPoint',
+              centerPointId: pt2.id,
+            },
+          });
         } else {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent pouvoir être reliés.' } }));
+          // On a sélectionné le second point: un autre point
+          setState({
+            tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
+          });
         }
+      } else {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent pouvoir être reliés.' } }));
       }
     } else if (app.tool.currentStep == 'selectThirdPoint') {
       const pt1 = this.firstPoint,

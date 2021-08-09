@@ -120,30 +120,6 @@ export class DivideTool extends Tool {
         });
     } else if (app.tool.currentStep == 'selectSecondPoint') {
       app.workspace.selectionConstraints.points.canSelect = true;
-      let firstPoint = app.mainDrawingEnvironment.findObjectById(
-        this.firstPointId,
-        'point',
-      );
-      let segments = firstPoint.segmentIds.map((segId) =>
-        app.mainDrawingEnvironment.findObjectById(segId, 'segment'),
-      );
-      let potentialPoints = segments.map((seg) => seg.vertexes).flat(); // attention, on a 2x firstPoint dans les points potentiels
-      // add vertexes to whitelist
-      app.workspace.selectionConstraints.points.whitelist = potentialPoints.map(
-        (pt) => {
-          return { shapeId: firstPoint.shapeId, type: 'vertex', index: pt.idx };
-        },
-      );
-      // add divisionPoints to whitelist
-      app.workspace.selectionConstraints.points.whitelist.push(
-        ...segments.map((seg) => {
-          return {
-            shapeId: firstPoint.shapeId,
-            type: 'divisionPoint',
-            index: seg.idx,
-          };
-        }),
-      );
     }
   }
 
@@ -197,6 +173,10 @@ export class DivideTool extends Tool {
 
         this.setSelectionConstraints();
         setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
+      } else if (pt1.shape.id != object.shape.id) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir à la même figure.' } }));
+      } else if (!pt1.segments.map(seg => seg.id).some(idPt1 => object.segments.map(seg => seg.id).some(idObject => idObject == idPt1))) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir au même segment' } }));
       } else {
         if (pt1.type == 'vertex' && object.type == 'vertex') {
           /*
@@ -204,7 +184,7 @@ export class DivideTool extends Tool {
               poins sont reliés par un arc de cercle, et aussi par un segment (la
               forme est donc constituée uniquement de 2 sommets, un segment et un
               arc de cercle), on annule l'action.
-               */
+                */
           if (
             pt1.segmentIds.length == 2 &&
             object.segmentIds.length == 2 &&
