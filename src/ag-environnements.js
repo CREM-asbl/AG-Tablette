@@ -79,7 +79,29 @@ class AgEnvironnements extends LitElement {
         background-size: auto 150%;
       }
 
+      .watermark
+      {
+        position: absolute;
+        text-align: center;
+        left: 50%;
+        top: 50%;
+        width: 100%;
+        font-size: 1.2em;
+        margin:3px;
+        opacity:1;
+        z-index: 98;
+        background-color: rgba(0, 0, 0, 0.5);
+        color:white;
+      }
+
+      .rotate {
+
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%) translateX(-50%) rotate(-30deg);
+      }
+
       .logo-wrapper {
+        z-index: 99;
         position: absolute;
         top: calc(50% - 13vmin);
         left: calc(50% - 13vmin);
@@ -109,15 +131,24 @@ class AgEnvironnements extends LitElement {
         <div class="textBottom envText" name="Tangram">
           Tangram
         </div>
+        <div class="watermark rotate">
+          En développement
+        </div>
       </div>
       <div id="Cubes" name="Cubes" class="envTile" @click="${() => this.handleClick('Cubes')}">
         <div class="textTop envText" name="Cubes">
           Cubes
         </div>
+        <div class="watermark rotate">
+          En développement
+        </div>
       </div>
       <div id="Geometrie" name="Geometrie" class="envTile" @click="${() => this.handleClick('Geometrie')}">
         <div class="textTop envText" name="Geometrie">
           Géométrie
+        </div>
+        <div class="watermark rotate">
+          En développement
         </div>
       </div>
       <div class="logo-wrapper">
@@ -130,6 +161,10 @@ class AgEnvironnements extends LitElement {
   }
 
   async handleClick(e) {
+    if (e != 'Grandeurs') {
+      console.log('Only Grandeurs supported here');
+      return;
+    }
     setState({ environmentLoading: true });
     setState({ environment: await loadEnvironnement(e) });
   }
