@@ -194,6 +194,8 @@ export class CutTool extends Tool {
         setState({
           tool: { ...app.tool, currentStep: 'listen', firstPointId: undefined },
         });
+      } else if (pt1.shape.id != pt2.shape.id) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
       } else if (this.isLineValid(pt1.shape, pt1, pt2)) {
         if (pt2.type == 'shapeCenter') {
           // On a sélectionné le second point: le centre
@@ -210,6 +212,8 @@ export class CutTool extends Tool {
             tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
           });
         }
+      } else {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent pouvoir être reliés.' } }));
       }
     } else if (app.tool.currentStep == 'selectThirdPoint') {
       const pt1 = this.firstPoint,
@@ -234,10 +238,14 @@ export class CutTool extends Tool {
             centerPointId: undefined,
           },
         });
+      } else if (pt1.shape.id != pt2.shape.id) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
       } else if (this.isLineValid(pt2.shape, this.centerPoint, pt2)) {
         setState({
           tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
         });
+      } else {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent pouvoir être reliés.' } }));
       }
     }
 
@@ -325,62 +333,17 @@ export class CutTool extends Tool {
           return { shapeId: s.id };
         });
     } else if (app.tool.currentStep == 'selectSecondPoint') {
-      let shape = this.firstPoint.shape,
-        concernedSegments = this.firstPoint.segments;
-
       app.workspace.selectionConstraints.points.types = [
         'vertex',
         'divisionPoint',
         'shapeCenter',
       ];
-      app.workspace.selectionConstraints.points.whitelist = [
-        { shapeId: shape.id },
-      ];
-
-      let segmentsToAddToBlacklist = [];
-
-      concernedSegments.forEach((seg) => {
-        if (!seg.arcCenter) {
-          segmentsToAddToBlacklist.push(seg);
-        }
-      });
-
-      let blacklist = segmentsToAddToBlacklist
-        .map((seg) =>
-          seg.points.map((pt) => {
-            if (pt.id != this.firstPoint.id) {
-              if (pt.type == 'vertex') {
-                return {
-                  shapeId: shape.id,
-                  type: 'vertex',
-                  index: pt.idx,
-                };
-              } else {
-                return {
-                  shapeId: shape.id,
-                  type: 'divisionPoint',
-                  index: pt.segments[0].idx,
-                  ratio: pt.ratio,
-                };
-              }
-            }
-          }),
-        )
-        .flat()
-        .filter((pt) => pt);
-      app.workspace.selectionConstraints.points.blacklist = blacklist;
     } else if (app.tool.currentStep == 'selectThirdPoint') {
       app.workspace.selectionConstraints.points.types = [
         'vertex',
         'divisionPoint',
         'shapeCenter',
       ];
-
-      let shape = this.firstPoint.shape;
-      app.workspace.selectionConstraints.points.whitelist = [
-        { shapeId: shape.id },
-      ];
-      app.workspace.selectionConstraints.points.blacklist = null;
     }
   }
 
