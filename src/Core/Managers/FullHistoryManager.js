@@ -96,7 +96,7 @@ export class FullHistoryManager {
         gridType: data.settings.gridType,
         gridSize: data.settings.gridSize,
       };
-      setState({settings});
+      setState({ settings });
     } else {
       FullHistoryManager.setWorkspaceToStartSituation();
     }
@@ -107,6 +107,16 @@ export class FullHistoryManager {
 
     app.upperDrawingEnvironment.removeAllObjects(); // temporary patch
     app.upperDrawingEnvironment.redraw(); // temporary patch
+
+    let tool = null;
+    for (let i = index; i > 0; i--) {
+      if (app.fullHistory.steps[i].type == 'tool-changed') {
+        let toolName = app.fullHistory.steps[i].detail.name;
+        tool = { name: toolName, currentStep: 'start' };
+        break;
+      }
+    }
+    setState({ tool });
   }
 
   static executeAllSteps() {
