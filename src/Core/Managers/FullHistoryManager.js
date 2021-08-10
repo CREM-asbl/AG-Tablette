@@ -44,7 +44,7 @@ export class FullHistoryManager {
 
   static stopBrowsing() {
     window.clearTimeout(app.fullHistory.timeoutId);
-    FullHistoryManager.moveTo(app.fullHistory.numberOfActions);
+    FullHistoryManager.moveTo(app.fullHistory.numberOfActions, false);
     setState({
       tool: null,
       fullHistory: {
@@ -80,7 +80,7 @@ export class FullHistoryManager {
     app.workspace.initFromObject(app.history.startSituation);
   }
 
-  static moveTo(actionIndex) {
+  static moveTo(actionIndex, startSelectedTool = true) {
     FullHistoryManager.pauseBrowsing();
 
     let index = app.fullHistory.steps.findIndex(
@@ -108,15 +108,17 @@ export class FullHistoryManager {
     app.upperDrawingEnvironment.removeAllObjects(); // temporary patch
     app.upperDrawingEnvironment.redraw(); // temporary patch
 
-    let tool = null;
-    for (let i = index; i > 0; i--) {
-      if (app.fullHistory.steps[i].type == 'tool-changed') {
-        let toolName = app.fullHistory.steps[i].detail.name;
-        tool = { name: toolName, currentStep: 'start' };
-        break;
+    if (startSelectedTool) {
+      let tool = null;
+      for (let i = index; i > 0; i--) {
+        if (app.fullHistory.steps[i].type == 'tool-changed') {
+          let toolName = app.fullHistory.steps[i].detail.name;
+          tool = { name: toolName, currentStep: 'start' };
+          break;
+        }
       }
+      setState({ tool });
     }
-    setState({ tool });
   }
 
   static executeAllSteps() {
