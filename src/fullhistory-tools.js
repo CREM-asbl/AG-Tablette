@@ -13,7 +13,7 @@ class FullHistoryTools extends LitElement {
 
   constructor() {
     super();
-    this.playPauseButton = 'pause';
+    this.playPauseButton = 'play';
     let previousStepTimestamp = 0;
     this.tools = app.fullHistory.steps
       .filter((step) => (step.type == 'tool-changed' && step.detail?.currentStep == 'start') || step.type == 'undo' || step.type == 'redo')

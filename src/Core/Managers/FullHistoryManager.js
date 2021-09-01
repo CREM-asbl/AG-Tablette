@@ -39,7 +39,7 @@ export class FullHistoryManager {
 
     FullHistoryManager.isClicked = false;
     FullHistoryManager.nextTime = 0;
-    FullHistoryManager.executeAllSteps();
+    // FullHistoryManager.executeAllSteps();
   }
 
   static stopBrowsing() {
