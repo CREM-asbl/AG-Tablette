@@ -59,12 +59,17 @@ export class OpenFileManager {
       saveObject = fileContent;
     }
 
+    if (saveObject.appVersion == '1.0.0') {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. La version n\'est plus prise en charge.' } }));
+      return;
+    }
+
     if (saveObject.envName != app.environment.name) {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. C\'est un fichier ' + saveObject.envName + '.' } }));
       return;
     }
 
-    app.lastFileVersion = saveObject.appVersion;
+    // app.lastFileVersion = saveObject.appVersion;
     WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
 
     if (saveObject.settings) {

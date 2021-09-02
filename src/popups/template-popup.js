@@ -126,9 +126,10 @@ export class TemplatePopup extends LitElement {
 
   updateHeight() {
     // this.movementSpeed *= 2;
-    if (this.popupHeight > 0)
+    if (this.popupHeight > 0) {
       this.popupHeight -= this.movementSpeed;
-    window.requestAnimationFrame(() => this.updateHeight());
+      window.requestAnimationFrame(() => this.updateHeight());
+    }
   }
 
   firstUpdated() {
