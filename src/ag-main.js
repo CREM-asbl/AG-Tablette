@@ -29,10 +29,10 @@ class AGMain extends LitElement {
       canUndo: Boolean,
       canRedo: Boolean,
       background: String,
-      tools: Array,
       tool: Object,
       colorPickerValue: String,
       iconSize: Number,
+      toolbarSections: Array,
     };
   }
 
@@ -40,7 +40,6 @@ class AGMain extends LitElement {
     super();
     this.canUndo = false;
     this.canRedo = false;
-    this.tools = app.tools;
     this.tool = app.tool;
     this.colorPickerValue = '#000000';
 
@@ -56,7 +55,6 @@ class AGMain extends LitElement {
       this.shadowRoot.querySelector('#color-picker').value = '#000000';
     });
     window.addEventListener('tool-changed', () => {
-      this.tools = app.tools;
       this.tool = app.tool;
       if (app.fullHistory.isRunning)
         return;
@@ -109,7 +107,7 @@ class AGMain extends LitElement {
           height: 100%;
         }
 
-        #app-menu {
+        #left-menu {
           display: flex;
           flex-direction: column;
           padding: 10px;
@@ -135,7 +133,7 @@ class AGMain extends LitElement {
         }
 
         /* scrollbar hidden */
-        /* #app-menu::-webkit-scrollbar {
+        /* #left-menu::-webkit-scrollbar {
           display: none;
         } */
 
@@ -172,10 +170,15 @@ class AGMain extends LitElement {
     }
   }
 
+  async firstUpdated() {
+    let sectionImport = await import(`./toolbarSectionsDef.js`);
+    this.toolbarSections = sectionImport.default.sections;
+  }
+
   render() {
     return html`
       <div id="app-view">
-        <div id="app-menu">
+        <div id="left-menu">
           <template-toolbar>
             <h2 slot="title">
               ${this.tool?.title != undefined
@@ -248,53 +251,19 @@ class AGMain extends LitElement {
 
           <toolbar-kit></toolbar-kit>
 
-          <toolbar-section
-            title="Créer une silhouette"
-            .buttons_states="${this.tools.filter(
-              (tool) => tool.type === 'tangram',
-            )}"
-          >
-          </toolbar-section>
-
-          <toolbar-section
-            title="Figures libres"
-            .buttons_states="${this.tools.filter(
-              (tool) => tool.type === 'geometryCreator',
-            )}"
-          >
-          </toolbar-section>
-
-          <toolbar-section
-            title="Mouvements"
-            .buttons_states="${this.tools.filter(
-              (tool) => tool.type === 'move',
-            )}"
-          >
-          </toolbar-section>
-
-          <toolbar-section
-            title="Opérations"
-            .buttons_states="${this.tools.filter(
-              (tool) => tool.type === 'operation',
-            )}"
-          >
-          </toolbar-section>
-
-          <toolbar-section
-            title="Outils"
-            .buttons_states="${this.tools.filter(
-              (tool) => tool.type === 'tool',
-            )}"
-          >
-          </toolbar-section>
+          ${this.toolbarSections?.map(section => html`
+            <toolbar-section
+              title="${section.title}"
+              toolsType="${section.name}"
+            >
+            </toolbar-section>
+          `)}
 
           <!-- <icon-button src="/images/wallpaper.svg"
                               title="Fond d'écran"
                               name="wallpaper"
                               @click="\${this.loadBackground}">
                       </icon-button> -->
-
-          <!-- <version-item></version-item> -->
         </div>
 
         <div-main-canvas id="div-main-canvas"></div-main-canvas>

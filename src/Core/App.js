@@ -57,7 +57,8 @@ export class App {
     this.tangram = {
       isSilhouetteShown: false,
       currentStep: null,
-      button: null,
+      buttonText: null,
+      buttonValue: null,
     }
 
     this.stepSinceSave = false,

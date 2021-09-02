@@ -9,6 +9,9 @@ class ToolbarSection extends LitElement {
 
     this.updateProperties = () => {
       this.iconSize = app.menuIconSize;
+      this.tools = app.tools.filter(
+        (tool) => tool.type === this.toolsType,
+      );
     };
     this.updateProperties();
 
@@ -17,12 +20,14 @@ class ToolbarSection extends LitElement {
     };
 
     window.addEventListener('menuIconSize-changed', this.eventHandler);
+    window.addEventListener('tool-changed', this.eventHandler);
   }
 
   static get properties() {
     return {
       title: { type: String },
-      buttons_states: { type: Array },
+      toolsType: { type: String },
+      tools: { type: Array },
     };
   }
 
@@ -31,24 +36,24 @@ class ToolbarSection extends LitElement {
   }
 
   render() {
-    setState({ menuIconSize: (this.offsetWidth - 22) / 4 });
-    if (!this.buttons_states.length) return html``;
+    if (!app.menuIconSize)
+      setState({ menuIconSize: (this.offsetWidth - 22) / 4 });
+    if (!this.tools.length) return html``;
     return html`
       <template-toolbar>
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
-          ${this.buttons_states.map(
-            (state) => html`
+          ${this.tools.map(
+            (tool) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                name="${state.name}"
+                name="${tool.name}"
                 type="State"
-                title="${state.title}"
-                ?active="${state.name === app.state ||
-                state.name === app.tool?.name}"
+                title="${tool.title}"
+                ?active="${tool.name === app.tool?.name}"
                 @click="${this._actionHandle}"
               ></icon-button>
-            `,
+            `
           )}
         </div>
       </template-toolbar>

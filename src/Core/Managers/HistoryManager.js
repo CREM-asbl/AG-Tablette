@@ -35,7 +35,7 @@ export class HistoryManager {
       data = app.history.startSituation;
     }
     app.workspace.initFromObject(data);
-    let settings;
+    let settings, tangram;
     if (!data) {
       settings = {
         ...app.settings,
@@ -43,10 +43,20 @@ export class HistoryManager {
         gridType: app.settings.gridType,
         gridSize: app.settings.gridSize,
       };
+      tangram = {
+        ...app.defaultState.tangram,
+      }
     } else {
       settings = { ...app.settings, ...data.settings };
+      tangram = {
+        ...app.defaultState.tangram,
+        isSilhouetteShown: data.tangram.isSilhouetteShown,
+        buttonText: data.tangram.buttonText,
+        buttonValue: data.tangram.buttonValue,
+      }
     }
-    setState({ tool: null, history: { ...app.history, index }, settings });
+
+    setState({ tool: null, history: { ...app.history, index }, settings, tangram });
     window.dispatchEvent(
       new CustomEvent('add-fullstep', { detail: { name: 'Annuler' } }),
     );
@@ -68,7 +78,13 @@ export class HistoryManager {
     }
     app.workspace.initFromObject(data);
     let settings = { ...app.settings, ...data.settings };
-    setState({ tool: null, history: { ...app.history, index }, settings });
+    let tangram = {
+      ...app.defaultState.tangram,
+      isSilhouetteShown: data.tangram.isSilhouetteShown,
+      buttonText: data.tangram.buttonText,
+      buttonValue: data.tangram.buttonValue,
+    }
+    setState({ tool: null, history: { ...app.history, index }, settings, tangram });
     window.dispatchEvent(
       new CustomEvent('add-fullstep', { detail: { name: 'Refaire' } }),
     );
@@ -96,6 +112,11 @@ export class HistoryManager {
       gridType: app.settings.gridType,
       gridSize: app.settings.gridSize,
     };
+    data.tangram = {
+      isSilhouetteShown: app.tangram?.isSilhouetteShown,
+      buttonText: app.tangram?.buttonText,
+      buttonValue: app.tangram?.buttonValue,
+    }
 
     return data;
   }
