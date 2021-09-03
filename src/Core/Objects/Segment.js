@@ -964,6 +964,7 @@ export class Segment {
     let data = {
       id: this.id,
       shapeId: this.shapeId,
+      position: this.drawingEnvironment?.name,
       idx: this.idx,
       vertexIds: [...this.vertexIds],
       divisionPointIds: [...this.divisionPointIds],
@@ -976,8 +977,11 @@ export class Segment {
   }
 
   static loadFromData(data) {
+    if (!data.position) {
+      data.position = 'main';
+    }
     let segment = new Segment({
-      drawingEnvironment: app.mainDrawingEnvironment,
+      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
     });
     Object.assign(segment, data);
     segment.vertexIds = [...data.vertexIds];

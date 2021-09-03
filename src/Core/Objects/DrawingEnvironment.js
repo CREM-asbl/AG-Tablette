@@ -8,10 +8,12 @@ export class DrawingEnvironment {
   /**
    *
    */
-  constructor(canvas) {
+  constructor(canvas, name) {
     if (canvas) {
       this.canvas = canvas;
     }
+
+    this.name = name;
 
     this.shapes = [];
     this.segments = [];
@@ -203,7 +205,9 @@ export class DrawingEnvironment {
   loadFromData(data) {
     this.removeAllObjects();
     if (data != undefined) {
-      data.shapesData.forEach((shapeData) => Shape.loadFromData(shapeData));
+      data.shapesData.forEach((shapeData) => {
+        Shape.loadFromData(shapeData)
+      });
       data.segmentsData.forEach((segmentData) =>
         Segment.loadFromData(segmentData),
       );

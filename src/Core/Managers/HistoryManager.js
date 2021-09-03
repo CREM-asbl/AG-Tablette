@@ -48,11 +48,14 @@ export class HistoryManager {
       }
     } else {
       settings = { ...app.settings, ...data.settings };
-      tangram = {
-        ...app.defaultState.tangram,
-        isSilhouetteShown: data.tangram.isSilhouetteShown,
-        buttonText: data.tangram.buttonText,
-        buttonValue: data.tangram.buttonValue,
+      if (app.environment.name == 'Tangram') {
+
+        tangram = {
+          ...app.defaultState.tangram,
+          isSilhouetteShown: data.tangram.isSilhouetteShown,
+          buttonText: data.tangram.buttonText,
+          buttonValue: data.tangram.buttonValue,
+        }
       }
     }
 

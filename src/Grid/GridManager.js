@@ -12,6 +12,8 @@ addEventListener('tool-changed', () => {
 });
 
 addEventListener('settings-changed', () => {
+  if (app.environment?.name == 'Tangram')
+    return;
   app.backgroundDrawingEnvironment?.removeAllObjects();
   if (app.settings.gridShown) {
     GridManager.drawGridPoints();

@@ -1341,6 +1341,7 @@ export class Shape {
       id: this.id,
       segmentIds: [...this.segmentIds],
       pointIds: [...this.pointIds],
+      position: this.drawingEnvironment?.name,
       name: this.name,
       familyName: this.familyName,
       color: this.color,
@@ -1361,8 +1362,11 @@ export class Shape {
   }
 
   static loadFromData(data) {
+    if (!data.position) {
+      data.position = 'main';
+    }
     let shape = new Shape({
-      drawingEnvironment: app.mainDrawingEnvironment,
+      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
     });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];

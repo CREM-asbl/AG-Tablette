@@ -431,6 +431,7 @@ export class Point {
       id: this.id,
       coordinates: this.coordinates,
       shapeId: this.shapeId,
+      position: this.drawingEnvironment?.name,
       idx: this.idx,
       segmentIds: [...this.segmentIds],
       type: this.type,
@@ -444,8 +445,11 @@ export class Point {
   }
 
   static loadFromData(data) {
+    if (!data.position) {
+      data.position = 'main';
+    }
     let point = new Point({
-      drawingEnvironment: app.mainDrawingEnvironment,
+      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
     });
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);
