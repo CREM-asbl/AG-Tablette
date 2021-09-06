@@ -141,13 +141,7 @@ class SavePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button
-            name="save_popup_submit"
-            id="focus"
-            @click="${this._actionHandle}"
-          >
-            OK
-          </button>
+          <color-button id="focus" name="save_popup_submit" @click="${this._actionHandle}" innerText="OK"></color-button>
         </div>
       </template-popup>
     `;

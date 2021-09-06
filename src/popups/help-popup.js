@@ -54,7 +54,7 @@ class HelpPopup extends LitElement {
           <div id="helpPopupContent">${this.content}</div>
 
           <div slot="footer">
-            <button id="focus" @click="${() => this.close()}">OK</button>
+            <color-button id="focus" @click="${() => this.close()}" innerText="Ok"></color-button>
           </div>
         </div>
       </template-popup>

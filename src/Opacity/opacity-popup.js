@@ -1,4 +1,4 @@
-import { LitElement, html } from 'lit';
+import { LitElement, html, css } from 'lit';
 import { TemplatePopup } from '../popups/template-popup';
 import { app, setState } from '../Core/App';
 
@@ -34,7 +34,11 @@ class OpacityPopup extends LitElement {
   }
 
   static get styles() {
-    return TemplatePopup.template_popup_styles();
+    return [
+      TemplatePopup.template_popup_styles(),
+      css`
+      `,
+    ];
   }
 
   render() {
@@ -43,25 +47,27 @@ class OpacityPopup extends LitElement {
         <h2 slot="title">Opacité</h2>
         <div slot="body" id="body">
           <div class="field">
-            <label for="opacity_popup_select">Opacité</label>
+            <label for="opacity_popup_select">Rendre une forme</label>
             <select
               name="opacity_popup_select"
               id="opacity_popup_select"
               @change="${this.changeOpacity}"
             >
               <option value="0" ?selected="${this.opacity == 0}">
-                transparent
+                transparente
               </option>
               <option value="0.7" ?selected="${this.opacity == 0.7}">
-                semi-transparent
+                semi-transparente
               </option>
-              <option value="1" ?selected="${this.opacity == 1}">opaque</option>
+              <option value="1" ?selected="${this.opacity == 1}">
+                opaque
+              </option>
             </select>
           </div>
         </div>
 
         <div slot="footer">
-          <button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}">Ok</button>
+          <color-button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}" innerText="Ok"></color-button>
         </div>
       </template-popup>
     `;

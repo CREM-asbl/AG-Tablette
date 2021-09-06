@@ -66,6 +66,10 @@ class FullHistoryTools extends LitElement {
         display: none;
       }
 
+      button {
+        cursor: pointer;
+      }
+
       nav#sidebar {
         display: flex;
         justify-content: start;
@@ -124,10 +128,9 @@ class FullHistoryTools extends LitElement {
 
   _clickHandler(event) {
     let index = parseInt(this.index);
-    console.log(event.target.name);
     switch (event.target.name) {
       case 'action-button':
-        this.setPlayPause('play');
+        this.setPlayPause('pause');
         let idx = parseInt(event.target.id.substring(1));
         FullHistoryManager.moveTo(idx);
         break;

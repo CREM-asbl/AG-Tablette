@@ -19,9 +19,6 @@ class RegularPopup extends LitElement {
     return [
       TemplatePopup.template_popup_styles(),
       css`
-        label {
-          display: inline-block;
-        }
         select {
           width: 2rem;
         }
@@ -71,7 +68,7 @@ class RegularPopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${this.submit}">Ok</button>
+          <color-button @click="${this.submit}" innerText="Ok" backgroundColor="${getComputedStyle(document.documentElement).getPropertyValue('--theme-color')}"></color-button>
         </div>
       </template-popup>
     `;

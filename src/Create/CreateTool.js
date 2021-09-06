@@ -81,6 +81,7 @@ export class CreateTool extends Tool {
   }
 
   openShapeList() {
+    console.log(app.tool);
     let templateNames = app.environment.getFamily(
       app.tool.selectedFamily,
     ).templateNames;

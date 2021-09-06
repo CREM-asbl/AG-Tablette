@@ -111,7 +111,7 @@ class GridPopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}">OK</button>
+          <color-button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}" innerText="Ok"></color-button>
         </div>
       </template-popup>
     `;

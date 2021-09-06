@@ -104,9 +104,8 @@ class SettingsPopup extends LitElement {
         </div>
         <div slot="footer">
           <version-item></version-item>
-          <button @click="${() =>
-            app.resetSettings()}">Paramètres par défaut</button>
-          <button id="focus" @click="${this.close}">OK</button>
+          <color-button @click="${() => app.resetSettings()}" innerText="Paramètres par défaut"></color-button>
+          <color-button id="focus" @click="${this.close}" innerText="OK"></color-button>
         </div>
       </div>
      </template-popup>

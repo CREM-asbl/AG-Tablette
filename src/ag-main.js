@@ -6,6 +6,7 @@ import './toolbar-section';
 import './icon-button';
 import './popups/notification';
 import './version-item';
+import './color-button';
 
 import { app, setState } from './Core/App';
 import { OpenFileManager } from './Core/Managers/OpenFileManager';
@@ -124,12 +125,6 @@ class AGMain extends LitElement {
           /* scrollbar-width: none; Firefox */
           overflow-y: scroll;
           overflow-x: hidden;
-
-          -webkit-user-select: none;
-          -khtml-user-select: none;
-          -moz-user-select: none;
-          -o-user-select: none;
-          user-select: none;
         }
 
         /* scrollbar hidden */

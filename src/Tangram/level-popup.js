@@ -127,7 +127,7 @@ class LevelPopup extends LitElement {
           </datalist> -->
         </div>
         <div slot="footer">
-          <button id="focus" @click="${this.submit}">Ok</button>
+          <color-button id="focus" @click="${this.submit}" innerText="OK"></color-button>
         </div>
       </template-popup>
     `;

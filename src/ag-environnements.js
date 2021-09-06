@@ -36,10 +36,6 @@ class AgEnvironnements extends LitElement {
       .envText {
         width: 100%;
         text-align: center;
-        -webkit-user-select: none; /* Safari */
-        -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* IE10+/Edge */
-        user-select: none; /* Standard */
       }
 
       .textBottom {

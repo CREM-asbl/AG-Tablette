@@ -33,6 +33,7 @@ class IconButton extends LitElement {
       }
 
       button {
+        cursor: pointer;
         display: block;
         border: none;
         /* box-sizing: border-box; */
@@ -48,6 +49,10 @@ class IconButton extends LitElement {
         border-radius: 3px;
       }
 
+      :host :hover {
+        background-color: var(--button-hover-background-color)
+      }
+
       :host([active]) button {
         background-color: var(--button-selected-background-color);
         outline: none;
@@ -57,11 +62,6 @@ class IconButton extends LitElement {
       img {
         height: 100%;
         width: 100%;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -o-user-select: none;
-        user-select: none;
       }
     `;
   }

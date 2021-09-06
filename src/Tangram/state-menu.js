@@ -63,9 +63,7 @@ class StateMenu extends LitElement {
   render() {
     return html`
       <div id="state-menu-buttons-list">
-        <button @click="${() => this.clickHandler(this.buttonValue)}">
-          ${this.buttonText}
-        </button>
+        <color-button @click="${() => this.clickHandler(this.buttonValue)}" innerText="${this.buttonText}"></color-button>
       </div>
     `;
   }
