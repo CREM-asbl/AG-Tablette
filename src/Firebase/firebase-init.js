@@ -1,11 +1,11 @@
-import firebase from "firebase/app"
+import firebase from "firebase/compat/app"
 import config from "./firebase-config.json"
-import 'firebase/analytics'
-import 'firebase/performance'
+import 'firebase/compat/analytics'
+import 'firebase/compat/performance'
 
 import { app, setState } from '../Core/App';
 
-import 'firebase/firestore';
+import 'firebase/compat/firestore';
 import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import { loadEnvironnement } from '../Core/Environments/Environment';
 import { DrawingEnvironment } from '../Core/Objects/DrawingEnvironment';
