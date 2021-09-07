@@ -136,6 +136,8 @@ export function openFileFromId(id) {
       setState({ environmentLoading: true });
       setState({ environment: await loadEnvironnement(data.Environment) });
       let fileContent = await readFileFromServer(data.URL);
+      if (fileContent)
+        setState({ fileFromServer: true });
 
       // à retirer quand tout est centralisé dans app
       app.upperDrawingEnvironment = new DrawingEnvironment();
