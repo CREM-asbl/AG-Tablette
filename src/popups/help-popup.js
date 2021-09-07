@@ -31,6 +31,14 @@ class HelpPopup extends LitElement {
         div#helpPopupBody {
           max-width: 600px;
         }
+        :host {
+          -webkit-touch-callout: text; /* iOS Safari */
+            -webkit-user-select: text; /* Safari */
+             -khtml-user-select: text; /* Konqueror HTML */
+               -moz-user-select: text; /* Old versions of Firefox */
+                -ms-user-select: text; /* Internet Explorer/Edge */
+                    user-select: text;
+        }
       `,
     ];
   }

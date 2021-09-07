@@ -9,7 +9,7 @@ class IconButton extends LitElement {
     };
   }
 
-  firstUpdated() {
+  updated() {
     //Todo: Refacto (ce code ne devrait pas se trouver ici)
     if (this.type == 'State') {
       this.src = '/images/States/' + this.name + '.svg';

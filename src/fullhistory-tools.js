@@ -130,7 +130,7 @@ class FullHistoryTools extends LitElement {
     let index = parseInt(this.index);
     switch (event.target.name) {
       case 'action-button':
-        this.setPlayPause('pause');
+        this.setPlayPause('play');
         let idx = parseInt(event.target.id.substring(1));
         FullHistoryManager.moveTo(idx);
         break;
@@ -167,6 +167,7 @@ class FullHistoryTools extends LitElement {
   }
 
   render() {
+    console.log(this.playPauseButton);
     return html`
       <style>
         button {
