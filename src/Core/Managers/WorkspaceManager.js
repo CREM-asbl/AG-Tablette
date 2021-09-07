@@ -24,7 +24,8 @@ export class WorkspaceManager {
 }
 
 window.addEventListener('app-started', () => {
-  WorkspaceManager.setWorkspace(new Workspace());
+  if (!app.db)
+    WorkspaceManager.setWorkspace(new Workspace());
 });
 
 window.addEventListener('new-window', () => {
