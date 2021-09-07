@@ -145,7 +145,6 @@ export const setState = (update) => {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshBackground'));
-
   }
   if ('tangram' in update) {
     window.dispatchEvent(new CustomEvent('tangram-changed', { detail: app }));
