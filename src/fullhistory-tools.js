@@ -167,7 +167,6 @@ class FullHistoryTools extends LitElement {
   }
 
   render() {
-    console.log(this.playPauseButton);
     return html`
       <style>
         button {

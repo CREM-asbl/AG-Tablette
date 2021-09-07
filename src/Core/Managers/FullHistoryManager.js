@@ -112,8 +112,8 @@ export class FullHistoryManager {
       let tool = null;
       for (let i = index; i > 0; i--) {
         if (app.fullHistory.steps[i].type == 'tool-changed') {
-          let toolName = app.fullHistory.steps[i].detail.name;
-          tool = { name: toolName, currentStep: 'start' };
+          let toolInfo = app.fullHistory.steps[i].detail;
+          tool = { ...toolInfo, currentStep: 'start' };
           break;
         }
       }
