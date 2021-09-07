@@ -113,6 +113,10 @@ export class FullHistoryManager {
       for (let i = index; i > 0; i--) {
         if (app.fullHistory.steps[i].type == 'tool-changed') {
           let toolInfo = app.fullHistory.steps[i].detail;
+          let currentStep = 'start';
+          if (toolInfo.name == 'divide' || toolInfo.name == 'opacity') {
+            currentStep = 'selectObject';
+          }
           tool = { ...toolInfo, currentStep: 'start' };
           break;
         }
