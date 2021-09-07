@@ -133,11 +133,11 @@ export function openFileFromId(id) {
   window.addEventListener('doc-request-done', async event => {
     if (event.detail.status == 'successful') {
       let data = event.detail.docData;
+      let fileContent = await readFileFromServer(data.URL);
+      window.addEventListener('app-started', () => OpenFileManager.parseFile(fileContent), {once: true});
+
       setState({ environmentLoading: true });
       setState({ environment: await loadEnvironnement(data.Environment) });
-      let fileContent = await readFileFromServer(data.URL);
-      if (fileContent)
-        setState({ fileFromServer: true });
 
       // à retirer quand tout est centralisé dans app
       app.upperDrawingEnvironment = new DrawingEnvironment();
@@ -145,8 +145,6 @@ export function openFileFromId(id) {
       app.backgroundDrawingEnvironment = new DrawingEnvironment();
       app.invisibleDrawingEnvironment = new DrawingEnvironment();
       // ---
-
-      window.addEventListener('app-started', () => OpenFileManager.parseFile(fileContent), {once: true});
     }
   }, { once: true });
   getDataFromDocId(id);
