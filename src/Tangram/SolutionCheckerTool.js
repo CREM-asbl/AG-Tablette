@@ -8,6 +8,7 @@ import { Bounds } from '../Core/Objects/Bounds';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
+import { Silhouette } from '../Core/Objects/Silhouette';
 
 /**
  * Créer un tangram
@@ -24,6 +25,7 @@ export class SolutionCheckerTool extends Tool {
       // document.querySelector('state-menu')?.remove();
       const data = e.detail;
       const level = await TangramManager.selectLevel();
+      await TangramManager.initShapes();
       if (level == 3 || level == 4) {
         await TangramManager.openForbiddenCanvas();
       }
@@ -57,7 +59,6 @@ export class SolutionCheckerTool extends Tool {
    * initialiser l'état
    */
   start() {
-    TangramManager.initShapes();
     this.showStateMenu();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('tangram-changed', this.handler);
@@ -66,25 +67,27 @@ export class SolutionCheckerTool extends Tool {
 
   check() {
     this.checkSolution();
-    this.stateMenu.buttons = [
-      {
-        text: 'Annuler vérification',
-        value: 'uncheck',
-      },
-    ];
+    setState({
+      tangram: {
+        buttonText: 'Annuler vérification',
+        buttonValue: 'uncheck',
+      }
+    });
   }
 
   uncheck() {
     this.eraseSolution();
-    this.stateMenu.buttons = [
-      {
-        text: 'Vérifier solution',
-        value: 'check',
-      },
-    ];
+    setState({
+      tangram: {
+        buttonText: 'Vérifier solution',
+        buttonValue: 'check',
+      }
+    });
   }
 
   end() {
+    TangramManager.closeForbiddenCanvas();
+    this.removeListeners();
   }
 
   eventHandler(event) {
@@ -92,7 +95,9 @@ export class SolutionCheckerTool extends Tool {
       if (app.tool?.name == this.name) {
         this[app.tool.currentStep]();
       } else if (app.tool?.currentStep == 'start') {
-        if (
+        if (app.tool.name == 'createSilhouette') {
+          this.end();
+        } else if (
           app.tool.name != 'rotate' &&
           app.tool.name != 'rotate45' &&
           app.tool.name != 'move' &&
@@ -105,6 +110,13 @@ export class SolutionCheckerTool extends Tool {
       if (['check', 'uncheck'].includes(app.tangram.currentStep)) {
         this[app.tangram.currentStep]();
       }
+      if (app.tangram.buttonValue == "check" || app.tangram.buttonValue == "uncheck") {
+        if (!document.querySelector('state-menu')) {
+          import('./state-menu');
+          const stateMenu = document.createElement('state-menu');
+          document.querySelector('body').appendChild(stateMenu);
+        }
+      }
     } else if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     } else if (event.type == 'new-window') {
@@ -115,7 +127,7 @@ export class SolutionCheckerTool extends Tool {
   removeListeners() {
     app.removeListener('objectSelected', this.objectSelectedId);
     window.removeEventListener('tangram-changed', this.handler);
-
+    window.removeEventListener('new-window', this.handler);
   }
 
   objectSelected(object) {
@@ -132,11 +144,6 @@ export class SolutionCheckerTool extends Tool {
         buttonValue: 'check',
       }
     });
-    if (!document.querySelector('state-menu')) {
-      import('./state-menu');
-      const stateMenu = document.createElement('state-menu');
-      document.querySelector('body').appendChild(stateMenu);
-    }
   }
 
   eraseSolution() {

@@ -175,6 +175,8 @@ export class SaveFileManager {
 
     if (!detail.saveHistory) history = undefined;
     if (!detail.saveHistory) fullHistory = undefined;
+    if (app.environment.name == 'Tangram') history = undefined;
+    if (app.environment.name == 'Tangram') fullHistory = undefined;
 
     if (!detail.saveSettings) settings = undefined;
 

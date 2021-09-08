@@ -49,12 +49,13 @@ export class HistoryManager {
     } else {
       settings = { ...app.settings, ...data.settings };
       if (app.environment.name == 'Tangram') {
-
-        tangram = {
-          ...app.defaultState.tangram,
-          isSilhouetteShown: data.tangram.isSilhouetteShown,
-          buttonText: data.tangram.buttonText,
-          buttonValue: data.tangram.buttonValue,
+        if (data.tangram) {
+          tangram = {
+            ...app.defaultState.tangram,
+            isSilhouetteShown: data.tangram.isSilhouetteShown,
+            buttonText: data.tangram.buttonText,
+            buttonValue: data.tangram.buttonValue,
+          }
         }
       }
     }
@@ -87,7 +88,6 @@ export class HistoryManager {
       buttonText: data.tangram.buttonText,
       buttonValue: data.tangram.buttonValue,
     }
-    console.log(tangram);
     setState({ tool: null, history: { ...app.history, index }, settings, tangram });
     window.dispatchEvent(
       new CustomEvent('add-fullstep', { detail: { name: 'Refaire' } }),
@@ -120,7 +120,7 @@ export class HistoryManager {
       isSilhouetteShown: app.tangram?.isSilhouetteShown,
       buttonText: app.tangram?.buttonText,
       buttonValue: app.tangram?.buttonValue,
-    }
+    };
 
     return data;
   }

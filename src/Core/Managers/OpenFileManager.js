@@ -71,6 +71,8 @@ export class OpenFileManager {
 
     // app.lastFileVersion = saveObject.appVersion;
     WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
+    if (app.environment.name == 'Tangram')
+      app.mainDrawingEnvironment.removeAllObjects();
 
     if (saveObject.settings) {
       setState({ settings: { ...saveObject.settings } });
@@ -92,7 +94,15 @@ export class OpenFileManager {
       setState({
         history: {
           ...app.defaultState.history,
-          startSituation: { ...app.workspace.data },
+          startSituation: {
+            ...app.workspace.data,
+            tangram: {
+              isSilhouetteShown: true,
+              currentStep: 'start',
+              buttonText: 'Vérifier solution',
+              buttonValue: 'check',
+            }
+          },
           startSettings: { ...app.settings },
         },
       });
