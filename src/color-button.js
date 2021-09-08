@@ -6,6 +6,7 @@ class ColorButton extends LitElement {
     return {
       innerText: String,
       textColor: String,
+      name: String,
     };
   }
 

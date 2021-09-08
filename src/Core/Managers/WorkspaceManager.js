@@ -25,7 +25,6 @@ export class WorkspaceManager {
 
 window.addEventListener('app-started', () => {
   if (!app.fileFromServer) {
-    console.log('new empty workspace');
     WorkspaceManager.setWorkspace(new Workspace());
   }
 }, {once: true});

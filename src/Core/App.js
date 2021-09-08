@@ -130,7 +130,6 @@ export const setState = (update) => {
   for (const [key, value] of Object.entries(update)) {
     app[key] = value;
   }
-  // if (window.dev_mode) console.log(app);
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   if ('environment' in update) {
     window.dispatchEvent(new CustomEvent('environment-changed', { detail: app }));

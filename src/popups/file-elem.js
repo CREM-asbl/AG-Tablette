@@ -9,6 +9,7 @@ class FileElem extends LitElement {
     return {
       title: String,
       fileName: String,
+      env: String,
     };
   }
 
@@ -34,9 +35,26 @@ class FileElem extends LitElement {
     ];
   }
 
+  firstUpdated() {
+    let extension = this.getExtension(this.title);
+
+    const environmentsByExtensions = {
+      agg: 'Grandeurs',
+      agt: 'Tangram',
+      agc: 'Cubes',
+      agl: 'Geometrie',
+    };
+
+    this.env = environmentsByExtensions[extension];
+  }
+
+  getExtension(fileName) {
+    return fileName.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2);
+  }
+
   render() {
     return html`
-      <div @click="${this.openFile}">${this.title}</div>
+      <div @click="${this.openFile}">${this.title} ${this.env ? '(' + this.env + ')' : ''}</div>
     `;
   }
 
