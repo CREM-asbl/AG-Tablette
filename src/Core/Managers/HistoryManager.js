@@ -87,6 +87,7 @@ export class HistoryManager {
       buttonText: data.tangram.buttonText,
       buttonValue: data.tangram.buttonValue,
     }
+    console.log(tangram);
     setState({ tool: null, history: { ...app.history, index }, settings, tangram });
     window.dispatchEvent(
       new CustomEvent('add-fullstep', { detail: { name: 'Refaire' } }),
