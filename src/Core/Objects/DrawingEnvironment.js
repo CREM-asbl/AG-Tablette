@@ -150,8 +150,8 @@ export class DrawingEnvironment {
   }
 
   findObjectsByName(name, objectType = 'shape') {
-    let object = this[objectType + 's'].find((obj) => obj.name == name);
-    return object;
+    let objects = this[objectType + 's'].filter((obj) => obj.name == name);
+    return objects;
   }
 
   /**

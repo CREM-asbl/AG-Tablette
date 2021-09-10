@@ -35,7 +35,6 @@ export class SolutionCheckerTool extends Tool {
           },
         },
       });
-      console.log(app.history.startSituation.objects);
       if (level == 3 || level == 4) {
         await TangramManager.openForbiddenCanvas();
       }
@@ -164,15 +163,16 @@ export class SolutionCheckerTool extends Tool {
   }
 
   eraseSolution() {
-    if (this.solutionShapeIds.length > 1) {
-      let firstShape = app.mainDrawingEnvironment.findObjectById(
-        this.solutionShapeIds[0],
-      );
-      let group = GroupManager.getShapeGroup(firstShape);
+    let solutionShapes = app.mainDrawingEnvironment.findObjectsByName(
+      'tangramChecker'
+    );
+
+    if (solutionShapes.length > 1) {
+      let group = GroupManager.getShapeGroup(solutionShapes[0]);
       GroupManager.deleteGroup(group);
     }
-    this.solutionShapeIds.forEach((id) =>
-      app.mainDrawingEnvironment.removeObjectById(id),
+    solutionShapes.forEach((s) =>
+      app.mainDrawingEnvironment.removeObjectById(s.id),
     );
     this.solutionShapeIds = [];
     window.dispatchEvent(new CustomEvent('refresh'));
