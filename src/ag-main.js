@@ -158,7 +158,7 @@ class AGMain extends LitElement {
   }
 
   updated() {
-    if (app.environment?.name != 'Grandeurs' && app.environment?.name != 'Cubes') {
+    if (app.environment?.name == 'Geometrie') {
       this.shadowRoot
         .querySelectorAll('.onlyGrandeurs')
         .forEach((el) => (el.style.display = 'none'));
@@ -317,7 +317,6 @@ class AGMain extends LitElement {
       return;
     }
     let resetTool = false;
-    let HomePopup;
     switch (event.target.name) {
       case 'settings':
         import('./popups/settings-popup');

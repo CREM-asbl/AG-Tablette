@@ -4,7 +4,7 @@ import { Family } from '../Objects/Family';
 export const loadEnvironnement = async (name) => {
   try {
     const config = await import(`./${name}.js`);
-    if (config.default.settings) setState({ settings: {...app.settings, ...config.default.settings } });
+    if (config.default.settings) setState({ settings: {...app.settings, ...config.default.settings }, history: { ...app.history, startSettings: { ...app.history.startSettings, ...config.default.settings } } });
     await loadModules(config.default.modules);
 
     return new Environment(config.default, await loadKit(config.default.kit));

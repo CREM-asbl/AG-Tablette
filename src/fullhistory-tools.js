@@ -21,6 +21,7 @@ class FullHistoryTools extends LitElement {
         let time = step.timeStamp - previousStepTimestamp;
         previousStepTimestamp = step.timeStamp;
         let name = step.detail.title;
+        console.log(step.detail);
         if (step.type == 'undo') {
           name = 'Annuler';
         } else if (step.type == 'redo') {
@@ -28,6 +29,7 @@ class FullHistoryTools extends LitElement {
         }
         return { name, time, timeStamp: step.timeStamp, actions: [] };
       });
+    console.log(this.tools);
     let toolIndex = -1;
     let actionIndex = 0;
     app.fullHistory.steps

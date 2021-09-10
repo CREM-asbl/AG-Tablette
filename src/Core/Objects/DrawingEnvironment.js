@@ -141,11 +141,16 @@ export class DrawingEnvironment {
 
   /**
    * find an object in this drawingEnvironment
-   * @param {String} id
+   * @param {String} name
    * @param {String} objectType   'shape', 'segment' or 'point'
    */
   findObjectById(id, objectType = 'shape') {
     let object = this[objectType + 's'].find((obj) => obj.id == id);
+    return object;
+  }
+
+  findObjectsByName(name, objectType = 'shape') {
+    let object = this[objectType + 's'].find((obj) => obj.name == name);
     return object;
   }
 
@@ -212,6 +217,7 @@ export class DrawingEnvironment {
         Segment.loadFromData(segmentData),
       );
       data.pointsData.forEach((pointData) => Point.loadFromData(pointData));
+      this.redraw();
     } else {
       console.log('nothing to see here');
     }

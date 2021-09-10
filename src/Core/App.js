@@ -99,9 +99,9 @@ export class App {
   }
 
   dispatchEv(event) {
-    if (app.listenerCounter[event.type]) {
+    // if (app.listenerCounter[event.type]) {
       window.dispatchEvent(event);
-    }
+    // }
   }
 
   resetSettings() {

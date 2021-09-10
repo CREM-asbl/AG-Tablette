@@ -73,11 +73,11 @@ export class FullHistoryManager {
   }
 
   static setWorkspaceToStartSituation() {
+    app.workspace.initFromObject(app.history.startSituation);
     setState({
       settings: { ...app.history.startSettings },
       history: { ...app.defaultState.history },
     });
-    app.workspace.initFromObject(app.history.startSituation);
   }
 
   static moveTo(actionIndex, startSelectedTool = true) {
@@ -174,6 +174,7 @@ export class FullHistoryManager {
             ...app.fullHistory,
             actionIndex: app.fullHistory.actionIndex + 1,
           },
+          tangram: { ...data.tangram },
         });
       }, FullHistoryManager.nextTime + 30);
       if (app.fullHistory.numberOfActions == app.fullHistory.actionIndex)
@@ -221,8 +222,12 @@ export class FullHistoryManager {
       let data = app.workspace.data;
       data.history = undefined;
       data.settings = { ...app.settings };
+      data.tangram = { ...app.tangram };
       detail.data = data;
       setState({ stepSinceSave: true });
+    }
+    if (type == 'tool-changed' && detail.name == 'solveChecker') {
+      return;
     }
     let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
     let steps = [...app.fullHistory.steps, { type, detail, timeStamp }];

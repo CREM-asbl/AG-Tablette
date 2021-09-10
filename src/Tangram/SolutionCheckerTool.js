@@ -26,6 +26,16 @@ export class SolutionCheckerTool extends Tool {
       const data = e.detail;
       const level = await TangramManager.selectLevel();
       await TangramManager.initShapes();
+      setState({
+        history: {
+          ...app.history,
+          startSituation: {
+            ...app.history.startSituation,
+            objects: app.mainDrawingEnvironment.saveData(),
+          },
+        },
+      });
+      console.log(app.history.startSituation.objects);
       if (level == 3 || level == 4) {
         await TangramManager.openForbiddenCanvas();
       }
@@ -71,8 +81,14 @@ export class SolutionCheckerTool extends Tool {
       tangram: {
         buttonText: 'Annuler vérification',
         buttonValue: 'uncheck',
-      }
+      },
+      tool: { name: 'verifySolution', title: 'Vérifier la solution', currentStep: 'start' }
     });
+    window.dispatchEvent(
+      new CustomEvent('actions-executed', {
+        detail: { name: 'Vérifier la solution' },
+      }),
+    );
   }
 
   uncheck() {
@@ -101,7 +117,8 @@ export class SolutionCheckerTool extends Tool {
           app.tool.name != 'rotate' &&
           app.tool.name != 'rotate45' &&
           app.tool.name != 'move' &&
-          app.tool.name != 'solveChecker'
+          app.tool.name != 'solveChecker' &&
+          app.tool.name != 'verifySolution'
         ) {
           setState({ tangram: { ...app.tangram, currentStep: 'uncheck' }});
         }
@@ -181,6 +198,7 @@ export class SolutionCheckerTool extends Tool {
         borderColor: '#00D084',
         borderSize: 2,
         isPointed: false,
+        name: 'tangramChecker',
       });
       // shape.cleanSameDirectionSegment();
       let translateOffset = new Coordinates({

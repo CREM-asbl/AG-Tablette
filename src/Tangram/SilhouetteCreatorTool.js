@@ -108,14 +108,14 @@ export class SilhouetteCreatorTool extends Tool {
     }
 
     new Silhouette(shapes);
-    setState({ tangram: {...app.tangram, isSilhouetteShown: true, currentStep: null } });
+    setState({ tangram: {...app.tangram, isSilhouetteShown: true, currentStep: 'start' }, tool: { title: 'Afficher la silhouette', currentStep: 'start' } });
 
     window.dispatchEvent(
       new CustomEvent('actions-executed', {
         detail: { name: 'Afficher la silhouette' },
       }),
     );
-    window.dispatchEvent(new CustomEvent('refreshBackground'));
+    // window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 
   hasOverlapedShape(shapes) {
