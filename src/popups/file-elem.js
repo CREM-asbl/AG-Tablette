@@ -54,7 +54,7 @@ class FileElem extends LitElement {
 
   render() {
     return html`
-      <div @click="${this.openFile}">${this.title} ${this.env ? '(' + this.env + ')' : ''}</div>
+      <div @click="${this.openFile}">${this.title.slice(0, -4)} ${this.env ? '(' + this.env + ')' : ''}</div>
     `;
   }
 
