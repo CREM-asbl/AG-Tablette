@@ -1,22 +1,16 @@
-import { app } from '../../Core/App';
+import { app } from '../Core/App';
 import { LitElement, html, css } from 'lit';
 
-class TrianglesList extends LitElement {
+class CirclesList extends LitElement {
   constructor() {
     super();
-    this.trianglesNames = [
-      'EquilateralTriangle',
-      'RightAngleIsoscelesTriangle',
-      'RightAngleTriangle',
-      'IsoscelesTriangle',
-      'IrregularTriangle',
-    ];
+    this.circlesNames = ['Circle', 'CirclePart', 'CircleArc'];
   }
 
   static get properties() {
     return {
-      trianglesNames: { type: Array },
-      triangleSelected: { type: String },
+      circlesNames: { type: Array },
+      circleSelected: { type: String },
     };
   }
 
@@ -74,17 +68,17 @@ class TrianglesList extends LitElement {
   render() {
     return html`
       <div class="container">
-        <h2>Triangles</h2>
+        <h2>Circles</h2>
         <ul>
-          ${this.trianglesNames.map(
-            (triangleName) => html`
+          ${this.circlesNames.map(
+            (circleName) => html`
               <li>
                 <icon-button
-                  title="${triangleName}"
+                  title="${circleName}"
                   type="Geometry"
-                  name="${triangleName}"
+                  name="${circleName}"
                   @click="${this._clickHandle}"
-                  ?active="${triangleName === this.triangleSelected}"
+                  ?active="${circleName === this.circleSelected}"
                 >
                 </icon-button>
               </li>
@@ -96,12 +90,12 @@ class TrianglesList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.triangleSelected = event.target.name;
+    this.circleSelected = event.target.name;
     window.dispatchEvent(
-      new CustomEvent('triangle-selected', {
-        detail: { triangleSelected: this.triangleSelected },
+      new CustomEvent('circle-selected', {
+        detail: { circleSelected: this.circleSelected },
       }),
     );
   }
 }
-customElements.define('triangles-list', TrianglesList);
+customElements.define('circles-list', CirclesList);

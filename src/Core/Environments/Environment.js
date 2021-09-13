@@ -18,6 +18,7 @@ const loadModules = async (list) => {
   const modules = await Promise.all(
     list.map(async (module) => await import(`../../${module}/index.js`)),
   );
+  console.log(modules);
   setState({
     tools: modules.map((module) => {
       return {

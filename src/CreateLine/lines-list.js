@@ -1,25 +1,27 @@
-import { app } from '../../Core/App';
+import { app } from '../Core/App';
 import { LitElement, html, css } from 'lit';
 
-class QuadrilateralsList extends LitElement {
+class LinesList extends LitElement {
   constructor() {
     super();
-    this.quadrilateralsNames = [
-      'Square',
-      'Rectangle',
-      'Losange',
-      'Parallelogram',
-      'RightAngleTrapeze',
-      'IsoscelesTrapeze',
-      'Trapeze',
-      'IrregularQuadrilateral',
+    this.linesNames = [
+      'Segment',
+      'ParalleleSegment',
+      'PerpendicularSegment',
+      'SemiStraightLine',
+      'ParalleleSemiStraightLine',
+      'PerpendicularSemiStraightLine',
+      'StraightLine',
+      'ParalleleStraightLine',
+      'PerpendicularStraightLine',
+      // 'Strip',
     ];
   }
 
   static get properties() {
     return {
-      quadrilateralsNames: { type: Array },
-      quadrilateralSelected: { type: String },
+      linesNames: { type: Array },
+      lineSelected: { type: String },
     };
   }
 
@@ -77,17 +79,17 @@ class QuadrilateralsList extends LitElement {
   render() {
     return html`
       <div class="container">
-        <h2>Quadrilatères</h2>
+        <h2>lines</h2>
         <ul>
-          ${this.quadrilateralsNames.map(
-            (quadrilateralName) => html`
+          ${this.linesNames.map(
+            (lineName) => html`
               <li>
                 <icon-button
-                  title="${quadrilateralName}"
+                  title="${lineName}"
                   type="Geometry"
-                  name="${quadrilateralName}"
+                  name="${lineName}"
                   @click="${this._clickHandle}"
-                  ?active="${quadrilateralName === this.quadrilateralSelected}"
+                  ?active="${lineName === this.lineSelected}"
                 >
                 </icon-button>
               </li>
@@ -99,12 +101,12 @@ class QuadrilateralsList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.quadrilateralSelected = event.target.name;
+    this.lineSelected = event.target.name;
     window.dispatchEvent(
-      new CustomEvent('quadrilateral-selected', {
-        detail: { quadrilateralSelected: this.quadrilateralSelected },
+      new CustomEvent('line-selected', {
+        detail: { lineSelected: this.lineSelected },
       }),
     );
   }
 }
-customElements.define('quadrilaterals-list', QuadrilateralsList);
+customElements.define('lines-list', LinesList);

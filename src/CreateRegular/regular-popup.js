@@ -1,12 +1,29 @@
 import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from '../../popups/template-popup';
+import { TemplatePopup } from '../popups/template-popup';
 
 class RegularPopup extends LitElement {
   constructor() {
     super();
-    this.points = 3;
 
-    window.addEventListener('close-popup', () => this.submit());
+    window.addEventListener(
+      'close-popup',
+      () => {
+        this.submitAndClose();
+      },
+      {
+        once: true,
+      },
+    );
+
+    this.updateProperties = () => {
+      this.points = app.settings.numberOfRegularPoints;
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      this.updateProperties();
+    };
+    window.addEventListener('settings-changed', this.eventHandler);
   }
 
   static get properties() {
@@ -40,11 +57,9 @@ class RegularPopup extends LitElement {
             max="20"
             value="${this.points}"
             list="level"
-            @change="${(e) => (this.points = e.target.value)}"
+            @change="${this.changeNumberOfPoints}"
           />
           <datalist id="level">
-            <option value="1" label="1">1</option>
-            <option value="2" label="2">2</option>
             <option value="3" label="3">3</option>
             <option value="4" label="4">4</option>
             <option value="5" label="5">5</option>
@@ -74,17 +89,26 @@ class RegularPopup extends LitElement {
     `;
   }
 
+  changeNumberOfPoints(event) {
+    setState({
+      settings: { ...app.settings, numberOfRegularPoints: event.target.value },
+    });
+  }
+
   submit() {
-    window.dispatchEvent(
-      new CustomEvent('setNumberOfPoints', {
-        detail: { nbOfPoints: this.points },
-      }),
-    );
-    this.close();
+    setState({
+      tool: { ...app.tool, name: 'createRegularPolygon', currentStep: 'drawFirstPoint' },
+    });
   }
 
   close() {
     this.remove();
+    window.removeEventListener('settings-changed', this.eventHandler);
+  }
+
+  submitAndClose() {
+    this.submit();
+    this.close();
   }
 }
 customElements.define('regular-popup', RegularPopup);

@@ -1,22 +1,22 @@
-import { app } from '../../Core/App';
-import { Tool } from '../../Core/States/Tool';
+import { app } from '../Core/App';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem, uniqId } from '../../Core/Tools/general';
-import { SelectManager } from '../../Core/Managers/SelectManager';
-import { Shape } from '../../Core/Objects/Shape';
-import { Segment } from '../../Core/Objects/Segment';
-import { Point } from '../../Core/Objects/Point';
-import { GeometryConstraint } from '../../Core/Objects/GeometryConstraint';
-import { Coordinates } from '../../Core/Objects/Coordinates';
+import { createElem, uniqId } from '../Core/Tools/general';
+import { SelectManager } from '../Core/Managers/SelectManager';
+import { Shape } from '../Core/Objects/Shape';
+import { Segment } from '../Core/Objects/Segment';
+import { Point } from '../Core/Objects/Point';
+import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  * Ajout de figures sur l'espace de travail
  */
-export class CreateTriangleTool extends Tool {
+export class CreateQuadrilateralTool extends Tool {
   constructor() {
-    super('createTriangle', 'Créer un triangle', 'geometryCreator');
+    super('createQuadrilateral', 'Créer un quadrilatère', 'geometryCreator');
 
-    // show-triangles -> select-points
+    // show-quadrilaterals -> select-points
     this.currentStep = null;
 
     // points of the shape to create
@@ -26,7 +26,7 @@ export class CreateTriangleTool extends Tool {
     this.numberOfPointsDrawn = 0;
 
     // Le tyle de figure que l'on va créer (rectangle, IsoscelesTriangle, RightAngleIsoscelesTriangle, trapèze)
-    this.triangleSelected = null;
+    this.quadrilateralSelected = null;
   }
 
   /**
@@ -45,15 +45,15 @@ export class CreateTriangleTool extends Tool {
    * (ré-)initialiser l'état
    */
   start() {
-    this.currentStep = 'show-triangles';
+    this.currentStep = 'show-quadrilaterals';
 
-    if (!this.trianglesList) {
-      import('./triangles-list');
-      this.trianglesList = createElem('triangles-list');
+    if (!this.quadrilateralsList) {
+      import('./quadrilaterals-list');
+      this.quadrilateralsList = createElem('quadrilaterals-list');
     }
-    this.trianglesList.style.display = 'flex';
+    this.quadrilateralsList.style.display = 'flex';
 
-    window.addEventListener('triangle-selected', this.handler);
+    window.addEventListener('quadrilateral-selected', this.handler);
   }
 
   /**
@@ -61,24 +61,23 @@ export class CreateTriangleTool extends Tool {
    */
   restart() {
     this.end();
+    if (this.quadrilateralSelected) {
+      this.currentStep = 'select-points';
+      window.dispatchEvent(
+        new CustomEvent('quadrilateral-selected', {
+          detail: { quadrilateralSelected: this.quadrilateralSelected },
+        }),
+      );
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+    } else {
+      this.currentStep = 'show-quadrilaterals';
+    }
     this.points = [];
     this.numberOfPointsDrawn = 0;
     this.segments = [];
     this.getConstraints(this.numberOfPointsDrawn);
 
-    if (this.triangleSelected) {
-      this.currentStep = 'select-points';
-      window.dispatchEvent(
-        new CustomEvent('triangle-selected', {
-          detail: { triangleSelected: this.triangleSelected },
-        }),
-      );
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-    } else {
-      this.currentStep = 'show-triangles';
-    }
-
-    window.addEventListener('triangle-selected', this.handler);
+    window.addEventListener('quadrilateral-selected', this.handler);
   }
 
   /**
@@ -86,11 +85,11 @@ export class CreateTriangleTool extends Tool {
    */
   end() {
     if (app.state !== this.name) {
-      if (this.trianglesList) this.trianglesList.remove();
-      this.trianglesList = null;
+      if (this.quadrilateralsList) this.quadrilateralsList.remove();
+      this.quadrilateralsList = null;
     }
     this.stopAnimation();
-    window.removeEventListener('triangle-selected', this.handler);
+    window.removeEventListener('quadrilateral-selected', this.handler);
     app.removeListener('canvasMouseDown', this.mouseDownId);
     app.removeListener('canvasMouseUp', this.mouseUpId);
   }
@@ -103,23 +102,23 @@ export class CreateTriangleTool extends Tool {
       this.canvasMouseDown();
     } else if (event.type == 'canvasMouseUp') {
       this.canvasMouseUp();
-    } else if (event.type == 'triangle-selected') {
-      this.setTriangle(event.detail.triangleSelected);
+    } else if (event.type == 'quadrilateral-selected') {
+      this.setQuadrilateral(event.detail.quadrilateralSelected);
     } else {
       console.error('unsupported event type : ', event.type);
     }
   }
 
-  setTriangle(triangleSelected) {
-    if (triangleSelected) {
-      this.triangleSelected = triangleSelected;
-      if (this.trianglesList)
-        this.trianglesList.triangleSelected = triangleSelected;
-      this.currentStep = 'select-points';
+  setQuadrilateral(quadrilateralSelected) {
+    if (quadrilateralSelected) {
+      this.quadrilateralSelected = quadrilateralSelected;
+      if (this.quadrilateralsList)
+        this.quadrilateralsList.quadrilateralSelected = quadrilateralSelected;
       this.points = [];
       this.numberOfPointsDrawn = 0;
       this.segments = [];
       this.getConstraints(this.numberOfPointsDrawn);
+      this.currentStep = 'select-points';
       this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     }
   }
@@ -148,10 +147,10 @@ export class CreateTriangleTool extends Tool {
         this.segments.push(seg);
       }
       if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
-        if (this.numberOfPointsDrawn < 3) this.finishShape();
+        if (this.numberOfPointsDrawn < 4) this.finishShape();
         let seg = new Segment({
           drawingEnvironment: app.upperDrawingEnvironment,
-          vertexIds: [this.points[2].id, this.points[0].id],
+          vertexIds: [this.points[3].id, this.points[0].id],
         });
         this.segments.push(seg);
         let shape = new Shape({
@@ -167,8 +166,8 @@ export class CreateTriangleTool extends Tool {
       } else if (this.numberOfPointsDrawn > 1) {
         new Shape({
           drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: [this.segments[0].id],
-          pointIds: this.segments[0].vertexIds,
+          segmentIds: [this.segments[this.numberOfPointsDrawn - 2].id],
+          pointIds: this.segments[this.numberOfPointsDrawn - 2].vertexIds,
           borderColor: app.settings.temporaryDrawColor,
         });
       }
@@ -183,9 +182,9 @@ export class CreateTriangleTool extends Tool {
       this.stopAnimation();
       this.actions = [
         {
-          name: 'CreateTriangleAction',
+          name: 'CreateQuadrilateralAction',
           coordinates: this.points.map((pt) => pt.coordinates),
-          triangleName: this.triangleSelected,
+          quadrilateralName: this.quadrilateralSelected,
           reference: null, //reference,
         },
       ];
@@ -231,7 +230,7 @@ export class CreateTriangleTool extends Tool {
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
       if (
         this.numberOfPointsDrawn == this.numberOfPointsRequired() &&
-        this.numberOfPointsDrawn < 3
+        this.numberOfPointsDrawn < 4
       ) {
         this.finishShape();
       }
@@ -240,22 +239,27 @@ export class CreateTriangleTool extends Tool {
 
   numberOfPointsRequired() {
     let numberOfPointsRequired = 0;
-    if (this.triangleSelected == 'EquilateralTriangle')
-      numberOfPointsRequired = 2;
-    else if (this.triangleSelected == 'RightAngleTriangle')
+    if (this.quadrilateralSelected == 'Square') numberOfPointsRequired = 2;
+    else if (this.quadrilateralSelected == 'Rectangle')
       numberOfPointsRequired = 3;
-    else if (this.triangleSelected == 'IsoscelesTriangle')
+    else if (this.quadrilateralSelected == 'Losange')
       numberOfPointsRequired = 3;
-    else if (this.triangleSelected == 'RightAngleIsoscelesTriangle')
+    else if (this.quadrilateralSelected == 'Parallelogram')
       numberOfPointsRequired = 3;
-    else if (this.triangleSelected == 'IrregularTriangle')
+    else if (this.quadrilateralSelected == 'RightAngleTrapeze')
       numberOfPointsRequired = 3;
+    else if (this.quadrilateralSelected == 'IsoscelesTrapeze')
+      numberOfPointsRequired = 3;
+    else if (this.quadrilateralSelected == 'Trapeze')
+      numberOfPointsRequired = 4;
+    else if (this.quadrilateralSelected == 'IrregularQuadrilateral')
+      numberOfPointsRequired = 4;
     return numberOfPointsRequired;
   }
 
   finishShape() {
-    if (this.triangleSelected == 'EquilateralTriangle') {
-      let externalAngle = (Math.PI * 2) / 3;
+    if (this.quadrilateralSelected == 'Square') {
+      let externalAngle = (Math.PI * 2) / 4;
 
       let length = this.points[0].coordinates.dist(this.points[1].coordinates);
 
@@ -263,32 +267,82 @@ export class CreateTriangleTool extends Tool {
         this.points[1].coordinates,
       );
 
-      let dx = length * Math.cos(startAngle - externalAngle);
-      let dy = length * Math.sin(startAngle - externalAngle);
-
-      let newCoordinates = this.points[1].coordinates.add(
-        new Coordinates({ x: dx, y: dy }),
-      );
-
-      if (this.points.length == 2) {
-        this.points[2] = new Point({
+      for (let i = 0; i < 2; i++) {
+        let dx = length * Math.cos(startAngle - externalAngle * (i + 1));
+        let dy = length * Math.sin(startAngle - externalAngle * (i + 1));
+        let newCoordinates = this.points[i + 1].coordinates.add(
+          new Coordinates({ x: dx, y: dy }),
+        );
+        if (this.points.length == i + 2) {
+          this.points[i + 2] = new Point({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: newCoordinates,
+            color: app.settings.temporaryDrawColor,
+            size: 2,
+          });
+        } else {
+          this.points[i + 2].coordinates = newCoordinates;
+        }
+      }
+    } else if (this.numberOfPointsRequired() < 4) {
+      let newCoordinates = Coordinates.nullCoordinates;
+      if (
+        this.quadrilateralSelected == 'Rectangle' ||
+        this.quadrilateralSelected == 'Parallelogram'
+      ) {
+        newCoordinates = this.points[2].coordinates
+          .substract(this.points[1].coordinates)
+          .add(this.points[0].coordinates);
+      } else if (this.quadrilateralSelected == 'Losange') {
+        let diagonnalCenter = this.points[0].coordinates.middleWith(
+          this.points[2].coordinates,
+        );
+        newCoordinates = diagonnalCenter
+          .multiply(2)
+          .substract(this.points[1].coordinates);
+      } else if (this.quadrilateralSelected == 'RightAngleTrapeze') {
+        let projection = this.segments[0].projectionOnSegment(
+          this.points[2].coordinates,
+        );
+        newCoordinates = this.points[2].coordinates
+          .substract(projection)
+          .add(this.points[0].coordinates);
+      } else if (this.quadrilateralSelected == 'IsoscelesTrapeze') {
+        let projection = this.segments[0].projectionOnSegment(
+          this.points[2].coordinates,
+        );
+        let middleOfSegment = this.segments[0].middle;
+        newCoordinates = this.points[2].coordinates
+          .substract(projection.multiply(2))
+          .add(middleOfSegment.multiply(2));
+      }
+      if (this.points.length == 3) {
+        this.points[3] = new Point({
           drawingEnvironment: app.upperDrawingEnvironment,
           coordinates: newCoordinates,
           color: app.settings.temporaryDrawColor,
           size: 2,
         });
       } else {
-        this.points[2].coordinates = newCoordinates;
+        this.points[3].coordinates = newCoordinates;
       }
+    }
 
-      if (this.segments.length == 1) {
+    if (this.segments.length < 4) {
+      if (this.numberOfPointsRequired() < 3)
         this.segments.push(
           new Segment({
             drawingEnvironment: app.upperDrawingEnvironment,
             vertexIds: [this.points[1].id, this.points[2].id],
           }),
         );
-      }
+      if (this.numberOfPointsRequired() < 4)
+        this.segments.push(
+          new Segment({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            vertexIds: [this.points[2].id, this.points[3].id],
+          }),
+        );
     }
   }
 
@@ -298,7 +352,7 @@ export class CreateTriangleTool extends Tool {
     } else if (pointNb == 1) {
       this.constraints = new GeometryConstraint('isFree');
     } else if (pointNb == 2) {
-      if (this.triangleSelected == 'RightAngleTriangle') {
+      if (this.quadrilateralSelected == 'Rectangle') {
         let angle = this.points[0].coordinates.angleWith(
           this.points[1].coordinates,
         );
@@ -313,49 +367,31 @@ export class CreateTriangleTool extends Tool {
           ],
         ];
         this.constraints = new GeometryConstraint('isContrained', lines);
-      } else if (this.triangleSelected == 'IsoscelesTriangle') {
-        let angle = this.points[0].coordinates.angleWith(
-          this.points[1].coordinates,
-        );
-        let middle = this.points[0].coordinates.middleWith(
-          this.points[1].coordinates,
-        );
-        let perpendicularAngle = angle + Math.PI / 2;
+      } else if (this.quadrilateralSelected == 'Losange') {
         let lines = [
           [
-            middle,
-            new Coordinates({
-              x: middle.x + Math.cos(perpendicularAngle) * 100,
-              y: middle.y + Math.sin(perpendicularAngle) * 100,
-            }),
+            this.points[0].coordinates,
+            this.points[0].coordinates,
+            this.points[1].coordinates,
           ],
         ];
         this.constraints = new GeometryConstraint('isContrained', lines);
-      } else if (this.triangleSelected == 'RightAngleIsoscelesTriangle') {
-        let angle = this.points[0].coordinates.angleWith(
-          this.points[1].coordinates,
-        );
-        let length = this.points[0].coordinates.dist(
-          this.points[1].coordinates,
-        );
-        let perpendicularAngle = angle + Math.PI / 2;
-        let points = [
-          this.points[1].coordinates.add(
-            new Coordinates({
-              x: Math.cos(perpendicularAngle) * length,
-              y: Math.sin(perpendicularAngle) * length,
-            }),
-          ),
-          this.points[1].coordinates.substract(
-            new Coordinates({
-              x: Math.cos(perpendicularAngle) * length,
-              y: Math.sin(perpendicularAngle) * length,
-            }),
-          ),
+      } else {
+        this.constraints = new GeometryConstraint('isFree');
+      }
+    } else if (pointNb == 3) {
+      if (this.quadrilateralSelected == 'Trapeze') {
+        let lines = [
+          [
+            this.points[2].coordinates,
+            this.points[2].coordinates
+              .substract(this.points[1].coordinates)
+              .add(this.points[0].coordinates),
+          ],
         ];
-        this.constraints = new GeometryConstraint('isContrained', [], points);
-      } else if (this.triangleSelected == 'IrregularTriangle') {
-        new GeometryConstraint('isFree');
+        this.constraints = new GeometryConstraint('isContrained', lines);
+      } else {
+        this.constraints = new GeometryConstraint('isFree');
       }
     }
   }

@@ -1,16 +1,25 @@
-import { app } from '../../Core/App';
+import { app } from '../Core/App';
 import { LitElement, html, css } from 'lit';
 
-class CirclesList extends LitElement {
+class QuadrilateralsList extends LitElement {
   constructor() {
     super();
-    this.circlesNames = ['Circle', 'CirclePart', 'CircleArc'];
+    this.quadrilateralsNames = [
+      'Square',
+      'Rectangle',
+      'Losange',
+      'Parallelogram',
+      'RightAngleTrapeze',
+      'IsoscelesTrapeze',
+      'Trapeze',
+      'IrregularQuadrilateral',
+    ];
   }
 
   static get properties() {
     return {
-      circlesNames: { type: Array },
-      circleSelected: { type: String },
+      quadrilateralsNames: { type: Array },
+      quadrilateralSelected: { type: String },
     };
   }
 
@@ -68,17 +77,17 @@ class CirclesList extends LitElement {
   render() {
     return html`
       <div class="container">
-        <h2>Circles</h2>
+        <h2>Quadrilatères</h2>
         <ul>
-          ${this.circlesNames.map(
-            (circleName) => html`
+          ${this.quadrilateralsNames.map(
+            (quadrilateralName) => html`
               <li>
                 <icon-button
-                  title="${circleName}"
+                  title="${quadrilateralName}"
                   type="Geometry"
-                  name="${circleName}"
+                  name="${quadrilateralName}"
                   @click="${this._clickHandle}"
-                  ?active="${circleName === this.circleSelected}"
+                  ?active="${quadrilateralName === this.quadrilateralSelected}"
                 >
                 </icon-button>
               </li>
@@ -90,12 +99,12 @@ class CirclesList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.circleSelected = event.target.name;
+    this.quadrilateralSelected = event.target.name;
     window.dispatchEvent(
-      new CustomEvent('circle-selected', {
-        detail: { circleSelected: this.circleSelected },
+      new CustomEvent('quadrilateral-selected', {
+        detail: { quadrilateralSelected: this.quadrilateralSelected },
       }),
     );
   }
 }
-customElements.define('circles-list', CirclesList);
+customElements.define('quadrilaterals-list', QuadrilateralsList);

@@ -1,13 +1,13 @@
-import { app } from '../../Core/App';
-import { Tool } from '../../Core/States/Tool';
+import { app } from '../Core/App';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem, uniqId } from '../../Core/Tools/general';
-import { SelectManager } from '../../Core/Managers/SelectManager';
-import { Shape } from '../../Core/Objects/Shape';
-import { Segment } from '../../Core/Objects/Segment';
-import { Point } from '../../Core/Objects/Point';
-import { Coordinates } from '../../Core/Objects/Coordinates';
-import { GeometryConstraint } from '../../Core/Objects/GeometryConstraint';
+import { createElem, uniqId } from '../Core/Tools/general';
+import { SelectManager } from '../Core/Managers/SelectManager';
+import { Shape } from '../Core/Objects/Shape';
+import { Segment } from '../Core/Objects/Segment';
+import { Point } from '../Core/Objects/Point';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
 
 /**
  * Ajout de figures sur l'espace de travail

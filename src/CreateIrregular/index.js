@@ -1,4 +1,5 @@
 import { CreateIrregularTool } from './CreateIrregularTool';
 
-new CreateIrregularState();
-new CreateIrregularAction();
+export default {
+  tool: new CreateIrregularTool(),
+};

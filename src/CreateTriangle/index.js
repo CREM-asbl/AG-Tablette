@@ -1,4 +1,5 @@
 import { CreateTriangleTool } from './CreateTriangleTool';
 
-new CreateTriangleState();
-new CreateTriangleAction();
+export default {
+  tool: new CreateTriangleTool(),
+};
