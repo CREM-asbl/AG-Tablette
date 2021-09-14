@@ -14,7 +14,7 @@ import { Coordinates } from '../Core/Objects/Coordinates';
  */
 export class CreateQuadrilateralTool extends Tool {
   constructor() {
-    super('createQuadrilateral', 'Créer un quadrilatère', 'geometryCreator');
+    super('createQuadrilateral', 'Dessiner un quadrilatère', 'geometryCreator');
 
     // show-quadrilaterals -> select-points
     this.currentStep = null;

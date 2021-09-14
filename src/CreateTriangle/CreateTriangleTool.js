@@ -14,7 +14,7 @@ import { Coordinates } from '../Core/Objects/Coordinates';
  */
 export class CreateTriangleTool extends Tool {
   constructor() {
-    super('createTriangle', 'Créer un triangle', 'geometryCreator');
+    super('createTriangle', 'Dessiner un triangle', 'geometryCreator');
 
     // show-triangles -> select-points
     this.currentStep = null;

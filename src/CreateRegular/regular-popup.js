@@ -47,18 +47,18 @@ class RegularPopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Créer un polygone régulier</h2>
+        <h2 slot="title">Dessiner un polygone régulier</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts"
-            >Créer un polygone à</label
-          >
+            >Dessiner un polygone à ${this.points} cotés
+          </label>
           <input
             type="range"
             min="3"
             max="20"
             value="${this.points}"
             list="level"
-            @change="${this.changeNumberOfPoints}"
+            @input="${this.changeNumberOfPoints}"
           />
           <datalist id="level">
             <option value="3" label="3">3</option>
@@ -80,7 +80,6 @@ class RegularPopup extends LitElement {
             <option value="19" label="19">19</option>
             <option value="20" label="20">20</option>
           </datalist>
-          <span> ${this.points} cotés</span>
         </div>
 
         <div slot="footer">
