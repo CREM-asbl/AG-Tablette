@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
 import { createElem, uniqId } from '../Core/Tools/general';
@@ -41,164 +41,113 @@ export class CreateQuadrilateralTool extends Tool {
     `;
   }
 
-  /**
-   * (ré-)initialiser l'état
-   */
   start() {
-    this.currentStep = 'show-quadrilaterals';
+    this.removeListeners();
+    this.stopAnimation();
 
-    if (!this.quadrilateralsList) {
-      import('./quadrilaterals-list');
-      this.quadrilateralsList = createElem('quadrilaterals-list');
-    }
-    this.quadrilateralsList.style.display = 'flex';
-
-    window.addEventListener('quadrilateral-selected', this.handler);
+    import('./quadrilaterals-list');
+    createElem('quadrilaterals-list');
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    if (this.quadrilateralSelected) {
-      this.currentStep = 'select-points';
-      window.dispatchEvent(
-        new CustomEvent('quadrilateral-selected', {
-          detail: { quadrilateralSelected: this.quadrilateralSelected },
-        }),
-      );
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-    } else {
-      this.currentStep = 'show-quadrilaterals';
-    }
+  async drawFirstPoint() {
+    let quadrilateralsDef = await import(`./quadrilateralsDef.js`);
+    this.quadrilateralDef = quadrilateralsDef[app.tool.selectedQuadrilateral];
+    console.log(this.quadrilateralDef);
+
     this.points = [];
-    this.numberOfPointsDrawn = 0;
     this.segments = [];
+    this.numberOfPointsDrawn = 0;
+
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
+  }
+
+  drawPoint() {
+    this.removeListeners();
+    this.stopAnimation();
+
     this.getConstraints(this.numberOfPointsDrawn);
 
-    window.addEventListener('quadrilateral-selected', this.handler);
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+  }
+
+  animatePoint() {
+    this.removeListeners();
+    this.animate();
+
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    if (app.state !== this.name) {
-      if (this.quadrilateralsList) this.quadrilateralsList.remove();
-      this.quadrilateralsList = null;
-    }
+    this.removeListeners();
     this.stopAnimation();
-    window.removeEventListener('quadrilateral-selected', this.handler);
-    app.removeListener('canvasMouseDown', this.mouseDownId);
-    app.removeListener('canvasMouseUp', this.mouseUpId);
   }
 
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'canvasMouseDown') {
-      this.canvasMouseDown();
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else if (event.type == 'quadrilateral-selected') {
-      this.setQuadrilateral(event.detail.quadrilateralSelected);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  setQuadrilateral(quadrilateralSelected) {
-    if (quadrilateralSelected) {
-      this.quadrilateralSelected = quadrilateralSelected;
-      if (this.quadrilateralsList)
-        this.quadrilateralsList.quadrilateralSelected = quadrilateralSelected;
-      this.points = [];
-      this.numberOfPointsDrawn = 0;
-      this.segments = [];
-      this.getConstraints(this.numberOfPointsDrawn);
-      this.currentStep = 'select-points';
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-    }
-  }
 
   canvasMouseDown() {
     let newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
 
-    if (this.currentStep == 'select-points') {
-      this.points[this.numberOfPointsDrawn] = new Point({
+    this.points[this.numberOfPointsDrawn] = new Point({
+      drawingEnvironment: app.upperDrawingEnvironment,
+      coordinates: newCoordinates,
+      color: app.settings.temporaryDrawColor,
+      size: 2,
+    });
+    this.numberOfPointsDrawn++;
+    if (this.numberOfPointsDrawn > 1) {
+      let seg = new Segment({
         drawingEnvironment: app.upperDrawingEnvironment,
-        coordinates: newCoordinates,
-        color: app.settings.temporaryDrawColor,
-        size: 2,
+        vertexIds: [
+          this.points[this.numberOfPointsDrawn - 2].id,
+          this.points[this.numberOfPointsDrawn - 1].id,
+        ],
       });
-      this.numberOfPointsDrawn++;
-      if (this.numberOfPointsDrawn > 1) {
-        let seg = new Segment({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          vertexIds: [
-            this.points[this.numberOfPointsDrawn - 2].id,
-            this.points[this.numberOfPointsDrawn - 1].id,
-          ],
-        });
-        this.segments.push(seg);
-      }
-      if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
-        if (this.numberOfPointsDrawn < 4) this.finishShape();
-        let seg = new Segment({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          vertexIds: [this.points[3].id, this.points[0].id],
-        });
-        this.segments.push(seg);
-        let shape = new Shape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: this.segments.map((seg) => seg.id),
-          pointIds: this.points.map((pt) => pt.id),
-          borderColor: app.settings.temporaryDrawColor,
-        });
-        this.segments.forEach((seg, idx) => {
-          seg.idx = idx;
-          seg.shapeId = shape.id;
-        });
-      } else if (this.numberOfPointsDrawn > 1) {
-        new Shape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: [this.segments[this.numberOfPointsDrawn - 2].id],
-          pointIds: this.segments[this.numberOfPointsDrawn - 2].vertexIds,
-          borderColor: app.settings.temporaryDrawColor,
-        });
-      }
-      app.removeListener('canvasMouseDown', this.mouseDownId);
-      this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
-      this.animate();
+      this.segments.push(seg);
     }
+    console.log('there', this.numberOfPointsDrawn, this.numberOfPointsRequired());
+    if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+      console.log('here', this.numberOfPointsDrawn);
+      if (this.numberOfPointsDrawn < 4) this.finishShape();
+      let seg = new Segment({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        vertexIds: [this.points[3].id, this.points[0].id],
+      });
+      this.segments.push(seg);
+      let shape = new Shape({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        segmentIds: this.segments.map((seg) => seg.id),
+        pointIds: this.points.map((pt) => pt.id),
+        borderColor: app.settings.temporaryDrawColor,
+      });
+      this.segments.forEach((seg, idx) => {
+        seg.idx = idx;
+        seg.shapeId = shape.id;
+      });
+    } else if (this.numberOfPointsDrawn > 1) {
+      new Shape({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        segmentIds: [this.segments[this.numberOfPointsDrawn - 2].id],
+        pointIds: this.segments[this.numberOfPointsDrawn - 2].vertexIds,
+        borderColor: app.settings.temporaryDrawColor,
+      });
+    }
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
   }
 
   canvasMouseUp() {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
-      this.actions = [
-        {
-          name: 'CreateQuadrilateralAction',
-          coordinates: this.points.map((pt) => pt.coordinates),
-          quadrilateralName: this.quadrilateralSelected,
-          reference: null, //reference,
-        },
-      ];
       this.executeAction();
       app.upperDrawingEnvironment.removeAllObjects();
-      this.restart();
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      this.currentStep = '';
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-      this.currentStep = 'select-points';
-      this.stopAnimation();
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-      app.removeListener('canvasMouseUp', this.mouseUpId);
+      // window.dispatchEvent(new CustomEvent('refreshUpper'));
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
     }
   }
 
@@ -223,7 +172,7 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (this.currentStep == 'select-points') {
+    if (app.tool.currentStep == 'animatePoint') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
@@ -238,6 +187,49 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   numberOfPointsRequired() {
+    console.log(this.quadrilateralDef.numberOfPointsRequired);
+    return this.quadrilateralDef.numberOfPointsRequired;
+  }
+
+  finishShape() {
+    console.log('here');
+    this.quadrilateralDef.finishShape(this.points, this.segments);
+  }
+
+  getConstraints(pointNb) {
+    this.constraints = this.quadrilateralDef.constraints[pointNb](this.points, this.segments);
+  }
+
+  _executeAction() {
+    let familyName = '4-corner-shape';
+    if (app.tool.selectedTriangle == 'Square') {
+      familyName = 'Regular';
+    } else if (app.tool.selectedTriangle == 'IrregularQuadrilateral') {
+      familyName = 'Irregular';
+    }
+
+    let path = ['M', this.points[0].coordinates.x, this.points[0].coordinates.y];
+    path.push('L', this.points[1].coordinates.x, this.points[1].coordinates.y);
+    path.push('L', this.points[2].coordinates.x, this.points[2].coordinates.y);
+    path.push('L', this.points[3].coordinates.x, this.points[3].coordinates.y);
+    path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
+    path = path.join(' ');
+
+    let shape = new Shape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: path,
+      name: app.tool.selectedTriangle,
+      familyName: familyName,
+    });
+
+    shape.points[0].name = 'firstPoint';
+    shape.points[1].name = 'secondPoint';
+    shape.points[2].name = 'thirdPoint';
+    shape.points[3].name = 'fourthPoint';
+    // window.dispatchEvent(new CustomEvent('refresh'));
+  }
+
+  numberOfPointsRequired2() {
     let numberOfPointsRequired = 0;
     if (this.quadrilateralSelected == 'Square') numberOfPointsRequired = 2;
     else if (this.quadrilateralSelected == 'Rectangle')
@@ -257,33 +249,9 @@ export class CreateQuadrilateralTool extends Tool {
     return numberOfPointsRequired;
   }
 
-  finishShape() {
+  finishShape2() {
     if (this.quadrilateralSelected == 'Square') {
-      let externalAngle = (Math.PI * 2) / 4;
 
-      let length = this.points[0].coordinates.dist(this.points[1].coordinates);
-
-      let startAngle = this.points[0].coordinates.angleWith(
-        this.points[1].coordinates,
-      );
-
-      for (let i = 0; i < 2; i++) {
-        let dx = length * Math.cos(startAngle - externalAngle * (i + 1));
-        let dy = length * Math.sin(startAngle - externalAngle * (i + 1));
-        let newCoordinates = this.points[i + 1].coordinates.add(
-          new Coordinates({ x: dx, y: dy }),
-        );
-        if (this.points.length == i + 2) {
-          this.points[i + 2] = new Point({
-            drawingEnvironment: app.upperDrawingEnvironment,
-            coordinates: newCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          });
-        } else {
-          this.points[i + 2].coordinates = newCoordinates;
-        }
-      }
     } else if (this.numberOfPointsRequired() < 4) {
       let newCoordinates = Coordinates.nullCoordinates;
       if (
@@ -346,7 +314,7 @@ export class CreateQuadrilateralTool extends Tool {
     }
   }
 
-  getConstraints(pointNb) {
+  getConstraints2(pointNb) {
     if (pointNb == 0) {
       this.constraints = new GeometryConstraint('isFree');
     } else if (pointNb == 1) {

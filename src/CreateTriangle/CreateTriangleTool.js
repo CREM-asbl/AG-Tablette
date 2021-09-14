@@ -53,7 +53,7 @@ export class CreateTriangleTool extends Tool {
   }
 
   async drawFirstPoint() {
-    let triangleDef = await import(`./triangleDef.js`);
+    let triangleDef = await import(`./trianglesDef.js`);
     this.triangleDef = triangleDef[app.tool.selectedTriangle];
 
     this.points = [];

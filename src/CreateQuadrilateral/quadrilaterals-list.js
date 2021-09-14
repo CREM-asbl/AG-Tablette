@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { LitElement, html, css } from 'lit';
 
 class QuadrilateralsList extends LitElement {
@@ -14,12 +14,30 @@ class QuadrilateralsList extends LitElement {
       'Trapeze',
       'IrregularQuadrilateral',
     ];
+
+    this.updateProperties = () => {
+      this.selectedQuadrilateral = app.tool.selectedQuadrilateral;
+      this.iconSize = app.menuIconSize;
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      if (app.tool?.name == 'createQuadrilateral') this.updateProperties();
+      else this.close();
+    };
+    this.close = () => {
+      this.remove();
+      window.removeEventListener('tool-changed', this.eventHandler);
+    };
+
+    window.addEventListener('tool-changed', this.eventHandler);
+    window.addEventListener('menuIconSize-changed', this.eventHandler);
   }
 
   static get properties() {
     return {
       quadrilateralsNames: { type: Array },
-      quadrilateralSelected: { type: String },
+      selectedQuadrilateral: { type: String },
     };
   }
 
@@ -29,46 +47,43 @@ class QuadrilateralsList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: 0px;
+        /* left: calc(300 + 100%); */
+        /* right: 0; */
       }
 
       .container {
-        background: white;
+        background: var(--theme-color-soft);
         box-shadow: 0 1px 3px gray;
         z-index: 100;
         box-sizing: border-box;
         overflow: auto;
+        border-radius: 7px;
+        margin-bottom: 3px;
+        /* padding: 3px; */
       }
 
       h2 {
         padding: 4px;
         margin: 0;
         text-align: center;
-        background: gray;
-        color: white;
         font-size: 1.2rem;
       }
 
-      ul {
+      #list {
         display: flex;
-        margin: 0;
-        padding: 0;
+        margin: 3px;
+        /* padding: 2px; */
         list-style: none;
+        justify-content: space-evenly;
         overflow-x: auto;
         overflow-y: hidden;
       }
 
-      li {
-        margin: 0;
-        padding: 0;
-        height: 54px;
-      }
-
-      @media (min-width: 600px) {
+      @media (max-width: 600px) {
         :host {
-          left: ${app.settings.mainMenuWidth}px;
+          right: 0;
+          left: auto;
         }
       }
     `;
@@ -76,35 +91,43 @@ class QuadrilateralsList extends LitElement {
 
   render() {
     return html`
+    <style>
+        :host {
+          left: calc(
+            50% + (${app.settings.mainMenuWidth}px / 2) -
+              (${this.quadrilateralsNames.length} / 2 * 54px)
+          );
+        }
+      </style>
       <div class="container">
-        <h2>Quadrilatères</h2>
-        <ul>
+        <h2>Triangles</h2>
+        <div id="list">
           ${this.quadrilateralsNames.map(
             (quadrilateralName) => html`
-              <li>
-                <icon-button
-                  title="${quadrilateralName}"
-                  type="Geometry"
-                  name="${quadrilateralName}"
-                  @click="${this._clickHandle}"
-                  ?active="${quadrilateralName === this.quadrilateralSelected}"
-                >
-                </icon-button>
-              </li>
+              <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
+                title="${quadrilateralName}"
+                type="Geometry"
+                name="${quadrilateralName}"
+                @click="${this._clickHandle}"
+                ?active="${quadrilateralName === this.selectedQuadrilateral}"
+              >
+              </icon-button>
             `,
           )}
-        </ul>
+        </div>
       </div>
     `;
   }
 
   _clickHandle(event) {
-    this.quadrilateralSelected = event.target.name;
-    window.dispatchEvent(
-      new CustomEvent('quadrilateral-selected', {
-        detail: { quadrilateralSelected: this.quadrilateralSelected },
-      }),
-    );
+    setState({
+      tool: {
+        ...app.tool,
+        selectedQuadrilateral: event.target.name,
+        currentStep: 'drawFirstPoint',
+      },
+    });
   }
 }
 customElements.define('quadrilaterals-list', QuadrilateralsList);
