@@ -158,114 +158,22 @@ export class CreateIrregularTool extends Tool {
     }
   }
 
-
   _executeAction() {
-    const shapeSize = 1;
+    let familyName = 'Irregular';
 
-    let path = this.linkSegments(this.segments);
-    console.log(path);
-
-    let shape = new Shape({
-      path: path,
-      borderColor: '#000000',
-      size: shapeSize,
-      drawingEnvironment: app.mainDrawingEnvironment,
-    });
-
-    let transformation = getShapeAdjustment([shape], shape);
-    shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
-    shape.translate(transformation.translation);
-    app.upperDrawingEnvironment.removeAllObjects();
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-  }
-
-  linkSegments(segmentsList) {
-    let startCoordinates = segmentsList[0].vertexes[0].coordinates;
-    let path = ['M', startCoordinates.x, startCoordinates.y];
-    let segmentUsed = 0;
-    let numberOfSegments = segmentsList.length;
-
-    let nextSegmentIndex = 0;
-    this.addPathElem(path, segmentsList[0]);
-    this.lastUsedCoordinates = segmentsList[0].vertexes[1].coordinates;
-    segmentsList.splice(nextSegmentIndex, 1);
-    segmentUsed++;
-
-    while (!this.lastUsedCoordinates.equal(startCoordinates)) {
-      const potentialSegmentIdx = segmentsList
-        .map((seg, idx) =>
-          seg.contains(this.lastUsedCoordinates, false) ? idx : undefined,
-        )
-        .filter((seg) => Number.isInteger(seg));
-      if (potentialSegmentIdx.length != 1) {
-        if (potentialSegmentIdx.length == 0)
-          console.warn('shape cannot be closed (dead end)');
-        else
-          console.warn(
-            'shape is dig (a segment has more than one segment for next)',
-          );
-        return null;
-      }
-      nextSegmentIndex = potentialSegmentIdx[0];
-      let nextSegment = segmentsList[nextSegmentIndex];
-      let mustReverse = false;
-      if (
-        !nextSegment.vertexes[0].coordinates.equal(this.lastUsedCoordinates)
-      ) {
-        mustReverse = true;
-      }
-      this.addPathElem(path, nextSegment, mustReverse);
-      segmentsList.splice(nextSegmentIndex, 1);
-      segmentUsed++;
-    }
-
-    if (segmentUsed != numberOfSegments) {
-      // si tous les segments n'ont pas été utilisés, la figure créée est creuse
-      console.warn('shape is dig (not all segments have been used)');
-      return null;
-    }
-
+    let path = ['M', this.points[0].coordinates.x, this.points[0].coordinates.y];
+    this.points.forEach((point, i) => {
+      if (i != 0)
+        path.push('L', point.coordinates.x, point.coordinates.y);
+    })
+    path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');
 
-    return path;
-  }
-
-  addPathElem(path, segment, mustReverse) {
-    let firstCoord = segment.vertexes[0].coordinates;
-    let secondCoord = segment.vertexes[1].coordinates;
-    if (!segment.isArc()) {
-      if (mustReverse) [firstCoord, secondCoord] = [secondCoord, firstCoord];
-      path.push('L', secondCoord.x, secondCoord.y);
-    } else {
-      let centerCoordinates = segment.arcCenter.coordinates;
-      let radius = centerCoordinates.dist(secondCoord),
-        firstAngle = centerCoordinates.angleWith(firstCoord),
-        secondAngle = centerCoordinates.angleWith(secondCoord);
-
-      if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
-      let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
-        sweepFlag = 1;
-      if (segment.counterclockwise) {
-        sweepFlag = Math.abs(sweepFlag - 1);
-        largeArcFlag = Math.abs(largeArcFlag - 1);
-      }
-
-      if (mustReverse) {
-        [firstCoord, secondCoord] = [secondCoord, firstCoord];
-        sweepFlag = Math.abs(sweepFlag - 1);
-      }
-
-      path.push(
-        'A',
-        radius,
-        radius,
-        0,
-        largeArcFlag,
-        sweepFlag,
-        secondCoord.x,
-        secondCoord.y,
-      );
-    }
-    this.lastUsedCoordinates = secondCoord;
+    let shape = new Shape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: path,
+      name: app.tool.selectedTriangle,
+      familyName: familyName,
+    });
   }
 }

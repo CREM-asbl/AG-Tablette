@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { LitElement, html, css } from 'lit';
 
 class TrianglesList extends LitElement {
@@ -13,28 +13,28 @@ class TrianglesList extends LitElement {
     ];
 
     this.updateProperties = () => {
+      this.selectedTriangle = app.tool.selectedTriangle;
       this.iconSize = app.menuIconSize;
     };
     this.updateProperties();
 
     this.eventHandler = () => {
-      // if (app.tool?.name == 'createTrangle')
-        this.updateProperties();
-      // else this.close();
+      if (app.tool?.name == 'createTriangle') this.updateProperties();
+      else this.close();
     };
     this.close = () => {
       this.remove();
-      // window.removeEventListener('tool-changed', this.eventHandler);
+      window.removeEventListener('tool-changed', this.eventHandler);
     };
 
-    // window.addEventListener('tool-changed', this.eventHandler);
+    window.addEventListener('tool-changed', this.eventHandler);
     window.addEventListener('menuIconSize-changed', this.eventHandler);
   }
 
   static get properties() {
     return {
       trianglesNames: { type: Array },
-      triangleSelected: { type: String },
+      selectedTriangle: { type: String },
     };
   }
 
@@ -107,7 +107,7 @@ class TrianglesList extends LitElement {
                 type="Geometry"
                 name="${triangleName}"
                 @click="${this._clickHandle}"
-                ?active="${triangleName === this.triangleSelected}"
+                ?active="${triangleName === this.selectedTriangle}"
               >
               </icon-button>
             `,
@@ -118,12 +118,13 @@ class TrianglesList extends LitElement {
   }
 
   _clickHandle(event) {
-    this.triangleSelected = event.target.name;
-    window.dispatchEvent(
-      new CustomEvent('triangle-selected', {
-        detail: { triangleSelected: this.triangleSelected },
-      }),
-    );
+    setState({
+      tool: {
+        ...app.tool,
+        selectedTriangle: event.target.name,
+        currentStep: 'drawFirstPoint',
+      },
+    });
   }
 }
 customElements.define('triangles-list', TrianglesList);

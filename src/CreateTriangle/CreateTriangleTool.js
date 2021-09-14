@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
 import { createElem, uniqId } from '../Core/Tools/general';
@@ -45,83 +45,46 @@ export class CreateTriangleTool extends Tool {
    * (ré-)initialiser l'état
    */
   start() {
-    this.currentStep = 'show-triangles';
+    this.removeListeners();
+    this.stopAnimation();
 
-    if (!this.trianglesList) {
-      import('./triangles-list');
-      this.trianglesList = createElem('triangles-list');
-    }
-    this.trianglesList.style.display = 'flex';
-
-    window.addEventListener('triangle-selected', this.handler);
+    import('./triangles-list');
+    createElem('triangles-list');
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
+  async drawFirstPoint() {
+    let triangleDef = await import(`./triangleDef.js`);
+    this.triangleDef = triangleDef[app.tool.selectedTriangle];
+
     this.points = [];
-    this.numberOfPointsDrawn = 0;
     this.segments = [];
+    this.numberOfPointsDrawn = 0;
+
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
+  }
+
+  drawPoint() {
+    this.removeListeners();
+    this.stopAnimation();
+
     this.getConstraints(this.numberOfPointsDrawn);
 
-    if (this.triangleSelected) {
-      this.currentStep = 'select-points';
-      window.dispatchEvent(
-        new CustomEvent('triangle-selected', {
-          detail: { triangleSelected: this.triangleSelected },
-        }),
-      );
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-    } else {
-      this.currentStep = 'show-triangles';
-    }
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+  }
 
-    window.addEventListener('triangle-selected', this.handler);
+  animatePoint() {
+    this.removeListeners();
+    this.animate();
+
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
-    if (app.state !== this.name) {
-      if (this.trianglesList) this.trianglesList.remove();
-      this.trianglesList = null;
-    }
+    this.removeListeners();
     this.stopAnimation();
-    window.removeEventListener('triangle-selected', this.handler);
-    app.removeListener('canvasMouseDown', this.mouseDownId);
-    app.removeListener('canvasMouseUp', this.mouseUpId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'canvasMouseDown') {
-      this.canvasMouseDown();
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else if (event.type == 'triangle-selected') {
-      this.setTriangle(event.detail.triangleSelected);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  setTriangle(triangleSelected) {
-    if (triangleSelected) {
-      this.triangleSelected = triangleSelected;
-      if (this.trianglesList)
-        this.trianglesList.triangleSelected = triangleSelected;
-      this.currentStep = 'select-points';
-      this.points = [];
-      this.numberOfPointsDrawn = 0;
-      this.segments = [];
-      this.getConstraints(this.numberOfPointsDrawn);
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-    }
   }
 
   canvasMouseDown() {
@@ -129,77 +92,61 @@ export class CreateTriangleTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
 
-    if (this.currentStep == 'select-points') {
-      this.points[this.numberOfPointsDrawn] = new Point({
+    this.points[this.numberOfPointsDrawn] = new Point({
+      drawingEnvironment: app.upperDrawingEnvironment,
+      coordinates: newCoordinates,
+      color: app.settings.temporaryDrawColor,
+      size: 2,
+    });
+    this.numberOfPointsDrawn++;
+    if (this.numberOfPointsDrawn > 1) {
+      let seg = new Segment({
         drawingEnvironment: app.upperDrawingEnvironment,
-        coordinates: newCoordinates,
-        color: app.settings.temporaryDrawColor,
-        size: 2,
+        vertexIds: [
+          this.points[this.numberOfPointsDrawn - 2].id,
+          this.points[this.numberOfPointsDrawn - 1].id,
+        ],
       });
-      this.numberOfPointsDrawn++;
-      if (this.numberOfPointsDrawn > 1) {
-        let seg = new Segment({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          vertexIds: [
-            this.points[this.numberOfPointsDrawn - 2].id,
-            this.points[this.numberOfPointsDrawn - 1].id,
-          ],
-        });
-        this.segments.push(seg);
-      }
-      if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
-        if (this.numberOfPointsDrawn < 3) this.finishShape();
-        let seg = new Segment({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          vertexIds: [this.points[2].id, this.points[0].id],
-        });
-        this.segments.push(seg);
-        let shape = new Shape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: this.segments.map((seg) => seg.id),
-          pointIds: this.points.map((pt) => pt.id),
-          borderColor: app.settings.temporaryDrawColor,
-        });
-        this.segments.forEach((seg, idx) => {
-          seg.idx = idx;
-          seg.shapeId = shape.id;
-        });
-      } else if (this.numberOfPointsDrawn > 1) {
-        new Shape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: [this.segments[0].id],
-          pointIds: this.segments[0].vertexIds,
-          borderColor: app.settings.temporaryDrawColor,
-        });
-      }
-      app.removeListener('canvasMouseDown', this.mouseDownId);
-      this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
-      this.animate();
+      this.segments.push(seg);
     }
+    if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+      if (this.numberOfPointsDrawn < 3) this.finishShape();
+      let seg = new Segment({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        vertexIds: [this.points[2].id, this.points[0].id],
+      });
+      this.segments.push(seg);
+      let shape = new Shape({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        segmentIds: this.segments.map((seg) => seg.id),
+        pointIds: this.points.map((pt) => pt.id),
+        borderColor: app.settings.temporaryDrawColor,
+      });
+      this.segments.forEach((seg, idx) => {
+        seg.idx = idx;
+        seg.shapeId = shape.id;
+      });
+    } else if (this.numberOfPointsDrawn > 1) {
+      new Shape({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        segmentIds: [this.segments[0].id],
+        pointIds: this.segments[0].vertexIds,
+        borderColor: app.settings.temporaryDrawColor,
+      });
+    }
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
   }
 
   canvasMouseUp() {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
-      this.actions = [
-        {
-          name: 'CreateTriangleAction',
-          coordinates: this.points.map((pt) => pt.coordinates),
-          triangleName: this.triangleSelected,
-          reference: null, //reference,
-        },
-      ];
       this.executeAction();
       app.upperDrawingEnvironment.removeAllObjects();
-      this.restart();
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      this.currentStep = '';
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-      this.currentStep = 'select-points';
-      this.stopAnimation();
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-      app.removeListener('canvasMouseUp', this.mouseUpId);
+      // window.dispatchEvent(new CustomEvent('refreshUpper'));
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
     }
   }
 
@@ -224,7 +171,7 @@ export class CreateTriangleTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (this.currentStep == 'select-points') {
+    if (app.tool.currentStep == 'animatePoint') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
@@ -239,124 +186,41 @@ export class CreateTriangleTool extends Tool {
   }
 
   numberOfPointsRequired() {
-    let numberOfPointsRequired = 0;
-    if (this.triangleSelected == 'EquilateralTriangle')
-      numberOfPointsRequired = 2;
-    else if (this.triangleSelected == 'RightAngleTriangle')
-      numberOfPointsRequired = 3;
-    else if (this.triangleSelected == 'IsoscelesTriangle')
-      numberOfPointsRequired = 3;
-    else if (this.triangleSelected == 'RightAngleIsoscelesTriangle')
-      numberOfPointsRequired = 3;
-    else if (this.triangleSelected == 'IrregularTriangle')
-      numberOfPointsRequired = 3;
-    return numberOfPointsRequired;
+    return this.triangleDef.numberOfPointsToRequired;
   }
 
   finishShape() {
-    if (this.triangleSelected == 'EquilateralTriangle') {
-      let externalAngle = (Math.PI * 2) / 3;
-
-      let length = this.points[0].coordinates.dist(this.points[1].coordinates);
-
-      let startAngle = this.points[0].coordinates.angleWith(
-        this.points[1].coordinates,
-      );
-
-      let dx = length * Math.cos(startAngle - externalAngle);
-      let dy = length * Math.sin(startAngle - externalAngle);
-
-      let newCoordinates = this.points[1].coordinates.add(
-        new Coordinates({ x: dx, y: dy }),
-      );
-
-      if (this.points.length == 2) {
-        this.points[2] = new Point({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: newCoordinates,
-          color: app.settings.temporaryDrawColor,
-          size: 2,
-        });
-      } else {
-        this.points[2].coordinates = newCoordinates;
-      }
-
-      if (this.segments.length == 1) {
-        this.segments.push(
-          new Segment({
-            drawingEnvironment: app.upperDrawingEnvironment,
-            vertexIds: [this.points[1].id, this.points[2].id],
-          }),
-        );
-      }
-    }
+    this.triangleDef.finishShape(this.points, this.segments);
   }
 
   getConstraints(pointNb) {
-    if (pointNb == 0) {
-      this.constraints = new GeometryConstraint('isFree');
-    } else if (pointNb == 1) {
-      this.constraints = new GeometryConstraint('isFree');
-    } else if (pointNb == 2) {
-      if (this.triangleSelected == 'RightAngleTriangle') {
-        let angle = this.points[0].coordinates.angleWith(
-          this.points[1].coordinates,
-        );
-        let perpendicularAngle = angle + Math.PI / 2;
-        let lines = [
-          [
-            this.points[1].coordinates,
-            new Coordinates({
-              x: this.points[1].x + Math.cos(perpendicularAngle) * 100,
-              y: this.points[1].y + Math.sin(perpendicularAngle) * 100,
-            }),
-          ],
-        ];
-        this.constraints = new GeometryConstraint('isContrained', lines);
-      } else if (this.triangleSelected == 'IsoscelesTriangle') {
-        let angle = this.points[0].coordinates.angleWith(
-          this.points[1].coordinates,
-        );
-        let middle = this.points[0].coordinates.middleWith(
-          this.points[1].coordinates,
-        );
-        let perpendicularAngle = angle + Math.PI / 2;
-        let lines = [
-          [
-            middle,
-            new Coordinates({
-              x: middle.x + Math.cos(perpendicularAngle) * 100,
-              y: middle.y + Math.sin(perpendicularAngle) * 100,
-            }),
-          ],
-        ];
-        this.constraints = new GeometryConstraint('isContrained', lines);
-      } else if (this.triangleSelected == 'RightAngleIsoscelesTriangle') {
-        let angle = this.points[0].coordinates.angleWith(
-          this.points[1].coordinates,
-        );
-        let length = this.points[0].coordinates.dist(
-          this.points[1].coordinates,
-        );
-        let perpendicularAngle = angle + Math.PI / 2;
-        let points = [
-          this.points[1].coordinates.add(
-            new Coordinates({
-              x: Math.cos(perpendicularAngle) * length,
-              y: Math.sin(perpendicularAngle) * length,
-            }),
-          ),
-          this.points[1].coordinates.substract(
-            new Coordinates({
-              x: Math.cos(perpendicularAngle) * length,
-              y: Math.sin(perpendicularAngle) * length,
-            }),
-          ),
-        ];
-        this.constraints = new GeometryConstraint('isContrained', [], points);
-      } else if (this.triangleSelected == 'IrregularTriangle') {
-        new GeometryConstraint('isFree');
-      }
+    this.constraints = this.triangleDef.constraints[pointNb](this.points, this.segments);
+  }
+
+  _executeAction() {
+    let familyName = '3-corner-shape';
+    if (app.tool.selectedTriangle == 'EquilateralTriangle') {
+      familyName = 'Regular';
+    } else if (app.tool.selectedTriangle == 'IrregularTriangle') {
+      familyName = 'Irregular';
     }
+
+    let path = ['M', this.points[0].coordinates.x, this.points[0].coordinates.y];
+    path.push('L', this.points[1].coordinates.x, this.points[1].coordinates.y);
+    path.push('L', this.points[2].coordinates.x, this.points[2].coordinates.y);
+    path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
+    path = path.join(' ');
+
+    let shape = new Shape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: path,
+      name: app.tool.selectedTriangle,
+      familyName: familyName,
+    });
+
+    shape.points[0].name = 'firstPoint';
+    shape.points[1].name = 'secondPoint';
+    shape.points[2].name = 'thirdPoint';
+    // window.dispatchEvent(new CustomEvent('refresh'));
   }
 }
