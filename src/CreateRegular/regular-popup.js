@@ -1,5 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { TemplatePopup } from '../popups/template-popup';
+import { app, setState } from '../Core/App';
 
 class RegularPopup extends LitElement {
   constructor() {
@@ -83,7 +84,7 @@ class RegularPopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <color-button @click="${this.submit}" innerText="Ok" backgroundColor="${getComputedStyle(document.documentElement).getPropertyValue('--theme-color')}"></color-button>
+          <color-button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}" innerText="Ok" backgroundColor="${getComputedStyle(document.documentElement).getPropertyValue('--theme-color')}"></color-button>
         </div>
       </template-popup>
     `;

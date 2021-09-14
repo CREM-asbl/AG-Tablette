@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
 import { Shape } from '../Core/Objects/Shape';
@@ -7,6 +7,7 @@ import { Point } from '../Core/Objects/Point';
 import { uniqId, createElem } from '../Core/Tools/general';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -135,7 +136,7 @@ export class CreateRegularTool extends Tool {
       this.adjustPoint(this.firstPoint);
       window.dispatchEvent(new CustomEvent('refreshUpper'));
 
-      setState({ tool: { ...app.tool, currentStep: 'selectSecondPoint' } });
+      setState({ tool: { ...app.tool, currentStep: 'drawSecondPoint' } });
     } else {
       this.stopAnimation();
       this.adjustPoint(this.secondPoint);
@@ -148,10 +149,10 @@ export class CreateRegularTool extends Tool {
           reference: null, //reference,
         },
       ];
-      this.executeAction();
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
       });
+      this.executeAction();
     }
   }
 
@@ -164,19 +165,21 @@ export class CreateRegularTool extends Tool {
       false,
     );
     if (adjustedCoordinates) {
-      point.coordinates = new Coordinates(adjustedCoordinates);
+      point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
     }
   }
 
   refreshStateUpper() {
-    if (this.currentStep == 'animateFirstPoint') {
+    if (app.tool.currentStep == 'animateFirstPoint') {
       this.firstPoint.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
-    } else if (this.currentStep == 'select-second-point') {
+      this.adjustPoint(this.firstPoint);
+    } else if (app.tool.currentStep == 'animateSecondPoint') {
       this.secondPoint.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
+      this.adjustPoint(this.secondPoint);
 
       let path = this.getPath(
         this.firstPoint.coordinates,
@@ -230,5 +233,25 @@ export class CreateRegularTool extends Tool {
     path = path.join(' ');
 
     return path;
+  }
+
+  _executeAction() {
+    const shapeSize = 1;
+
+    let shapeDrawn = app.upperDrawingEnvironment.findObjectById(this.shapeDrawnId);
+
+    let shape = new Shape({
+      ...shapeDrawn,
+      path: shapeDrawn.getSVGPath(),
+      borderColor: '#000000',
+      size: shapeSize,
+      drawingEnvironment: app.mainDrawingEnvironment,
+    });
+
+    let transformation = getShapeAdjustment([shape], shape);
+    shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
+    shape.translate(transformation.translation);
+    app.upperDrawingEnvironment.removeAllObjects();
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 }
