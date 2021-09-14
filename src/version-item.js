@@ -38,4 +38,3 @@ class VersionItem extends LitElement {
     `;
   }
 }
-// customElements.define('version-item', VersionItem);

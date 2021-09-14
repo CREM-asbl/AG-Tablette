@@ -28,7 +28,7 @@
   <script type="module">
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', async () => {
-        const sw = await navigator.serviceWorker.register('/sw.js')
+        const sw = await navigator.serviceWorker.register('/service-worker.js')
         sw.onupdatefound = () => {
           sw.installing.onstatechange = () => {
             if (sw.waiting) {
