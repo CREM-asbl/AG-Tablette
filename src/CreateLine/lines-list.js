@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { LitElement, html, css } from 'lit';
 
 class LinesList extends LitElement {
@@ -16,12 +16,30 @@ class LinesList extends LitElement {
       'PerpendicularStraightLine',
       // 'Strip',
     ];
+
+    this.updateProperties = () => {
+      this.selectedLine = app.tool.selectedLine;
+      this.iconSize = app.menuIconSize;
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      if (app.tool?.name == 'createLine') this.updateProperties();
+      else this.close();
+    };
+    this.close = () => {
+      this.remove();
+      window.removeEventListener('tool-changed', this.eventHandler);
+    };
+
+    window.addEventListener('tool-changed', this.eventHandler);
+    window.addEventListener('menuIconSize-changed', this.eventHandler);
   }
 
   static get properties() {
     return {
       linesNames: { type: Array },
-      lineSelected: { type: String },
+      selectedLine: { type: String },
     };
   }
 
@@ -31,46 +49,43 @@ class LinesList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        bottom: 0px;
+        /* left: calc(300 + 100%); */
+        /* right: 0; */
       }
 
       .container {
-        background: white;
+        background: var(--theme-color-soft);
         box-shadow: 0 1px 3px gray;
         z-index: 100;
         box-sizing: border-box;
         overflow: auto;
+        border-radius: 7px;
+        margin-bottom: 3px;
+        /* padding: 3px; */
       }
 
       h2 {
         padding: 4px;
         margin: 0;
         text-align: center;
-        background: gray;
-        color: white;
         font-size: 1.2rem;
       }
 
-      ul {
+      #list {
         display: flex;
-        margin: 0;
-        padding: 0;
+        margin: 3px;
+        /* padding: 2px; */
         list-style: none;
+        justify-content: space-evenly;
         overflow-x: auto;
         overflow-y: hidden;
       }
 
-      li {
-        margin: 0;
-        padding: 0;
-        height: 54px;
-      }
-
-      @media (min-width: 600px) {
+      @media (max-width: 600px) {
         :host {
-          left: ${app.settings.mainMenuWidth}px;
+          right: 0;
+          left: auto;
         }
       }
     `;
@@ -78,35 +93,43 @@ class LinesList extends LitElement {
 
   render() {
     return html`
+      <style>
+        :host {
+          left: calc(
+            50% + (${app.settings.mainMenuWidth}px / 2) -
+              (${this.linesNames.length} / 2 * 54px)
+          );
+        }
+      </style>
       <div class="container">
-        <h2>lines</h2>
-        <ul>
+        <h2>Lignes</h2>
+        <div id="list">
           ${this.linesNames.map(
             (lineName) => html`
-              <li>
-                <icon-button
-                  title="${lineName}"
-                  type="Geometry"
-                  name="${lineName}"
-                  @click="${this._clickHandle}"
-                  ?active="${lineName === this.lineSelected}"
-                >
-                </icon-button>
-              </li>
+              <icon-button
+                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
+                title="${lineName}"
+                type="Geometry"
+                name="${lineName}"
+                @click="${this._clickHandle}"
+                ?active="${lineName === this.lineSelected}"
+              >
+              </icon-button>
             `,
           )}
-        </ul>
+        </div>
       </div>
     `;
   }
 
   _clickHandle(event) {
-    this.lineSelected = event.target.name;
-    window.dispatchEvent(
-      new CustomEvent('line-selected', {
-        detail: { lineSelected: this.lineSelected },
-      }),
-    );
+    setState({
+      tool: {
+        ...app.tool,
+        selectedLine: event.target.name,
+        currentStep: 'drawFirstPoint',
+      },
+    });
   }
 }
 customElements.define('lines-list', LinesList);

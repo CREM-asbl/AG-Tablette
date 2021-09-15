@@ -44,133 +44,78 @@ export class CreateLineTool extends Tool {
   /**
    * (ré-)initialiser l'état
    */
-  start() {
-    this.currentStep = 'show-lines';
+   start() {
+    this.removeListeners();
+    this.stopAnimation();
 
-    if (!this.linesList) {
-      import('./lines-list');
-      this.linesList = createElem('lines-list');
-    }
-    this.linesList.style.display = 'flex';
-
-    window.addEventListener('line-selected', this.handler);
+    import('./lines-list');
+    createElem('lines-list');
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart(manualRestart = false) {
-    this.end();
+  drawFirstPoint() {
+    // let lineDef = await import(`./linesDef.js`);
+    // this.lineDef = lineDef[app.tool.selectedLine];
 
-    if (manualRestart || !this.lineSelected) {
-      this.linesList.lineSelected = null;
-      this.currentStep = 'show-lines';
-    } else {
-      if (
-        this.lineSelected == 'StraightLine' ||
-        this.lineSelected == 'SemiStraightLine' ||
-        this.lineSelected == 'Segment'
-      ) {
-        this.points = [];
-        this.segments = [];
-        this.numberOfPointsDrawn = 0;
-        this.getConstraints(this.numberOfPointsDrawn);
-        this.currentStep = 'select-points';
-        this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-      } else if (
-        this.lineSelected == 'ParalleleStraightLine' ||
-        this.lineSelected == 'PerpendicularStraightLine' ||
-        this.lineSelected == 'ParalleleSemiStraightLine' ||
-        this.lineSelected == 'PerpendicularSemiStraightLine' ||
-        this.lineSelected == 'ParalleleSegment' ||
-        this.lineSelected == 'PerpendicularSegment'
-      ) {
-        this.currentStep = 'select-reference';
-        setTimeout(
-          () =>
-            (app.workspace.selectionConstraints =
-              app.fastSelectionConstraints.click_all_segments),
-        );
+    this.points = [];
+    this.segments = [];
+    this.numberOfPointsDrawn = 0;
 
-        setTimeout(
-          () =>
-            (this.objectSelectedId = app.addListener(
-              'objectSelected',
-              this.handler,
-            )),
-        );
-      }
+    if (
+      this.lineSelected == 'StraightLine' ||
+      this.lineSelected == 'SemiStraightLine' ||
+      this.lineSelected == 'Segment'
+    ) {
+      this.getConstraints(this.numberOfPointsDrawn);
+      setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
+    } else if (
+      this.lineSelected == 'ParalleleStraightLine' ||
+      this.lineSelected == 'PerpendicularStraightLine' ||
+      this.lineSelected == 'ParalleleSemiStraightLine' ||
+      this.lineSelected == 'PerpendicularSemiStraightLine' ||
+      this.lineSelected == 'ParalleleSegment' ||
+      this.lineSelected == 'PerpendicularSegment'
+    ) {
+      setTimeout(
+        () =>
+          (app.workspace.selectionConstraints =
+            app.fastSelectionConstraints.click_all_segments),
+      );
+      setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);
     }
+  }
 
-    window.addEventListener('line-selected', this.handler);
+  selectReference() {
+    setTimeout(
+      () =>
+        (this.objectSelectedId = app.addListener(
+          'objectSelected',
+          this.handler,
+        )),
+    );
+  }
+
+  drawPoint() {
+    this.removeListeners();
+    this.stopAnimation();
+
+    this.getConstraints(this.numberOfPointsDrawn);
+
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+  }
+
+  animatePoint() {
+    this.removeListeners();
+    this.animate();
+
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
    * stopper l'état
    */
-  end() {
-    if (app.state !== this.name) {
-      if (this.linesList) this.linesList.remove();
-      this.linesList = null;
-    }
+   end() {
+    this.removeListeners();
     this.stopAnimation();
-    window.removeEventListener('line-selected', this.handler);
-    app.removeListener('canvasMouseDown', this.mouseDownId);
-    app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasMouseUp', this.mouseUpId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'canvasMouseDown') {
-      this.canvasMouseDown();
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else if (event.type == 'line-selected') {
-      this.setLine(event.detail.lineSelected);
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  setLine(lineSelected) {
-    if (lineSelected) {
-      this.points = [];
-      this.segments = [];
-      this.numberOfPointsDrawn = 0;
-      this.getConstraints(this.numberOfPointsDrawn);
-      app.removeListener('canvasMouseDown', this.mouseDownId);
-      app.removeListener('objectSelected', this.objectSelectedId);
-      this.lineSelected = lineSelected;
-      if (this.linesList) this.linesList.lineSelected = lineSelected;
-      if (
-        this.lineSelected == 'StraightLine' ||
-        this.lineSelected == 'SemiStraightLine' ||
-        this.lineSelected == 'Segment'
-      ) {
-        this.currentStep = 'select-points';
-        this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-      } else if (
-        this.lineSelected == 'ParalleleStraightLine' ||
-        this.lineSelected == 'PerpendicularStraightLine' ||
-        this.lineSelected == 'ParalleleSemiStraightLine' ||
-        this.lineSelected == 'PerpendicularSemiStraightLine' ||
-        this.lineSelected == 'ParalleleSegment' ||
-        this.lineSelected == 'PerpendicularSegment'
-      ) {
-        this.currentStep = 'select-reference';
-        setTimeout(
-          () =>
-            (app.workspace.selectionConstraints =
-              app.fastSelectionConstraints.click_all_segments),
-        );
-        this.objectSelectedId = app.addListener('objectSelected', this.handler);
-      }
-    }
   }
 
   /**
@@ -178,7 +123,7 @@ export class CreateLineTool extends Tool {
    * @param  {Segment} segment            Le segment sélectionnée
    */
   objectSelected(segment) {
-    if (this.currentStep != 'select-reference') return;
+    if (app.tool.currentStep != 'selectReference') return;
 
     this.referenceId = segment.id;
 
@@ -191,10 +136,7 @@ export class CreateLineTool extends Tool {
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
 
-    this.currentStep = 'select-points';
-    window.setTimeout(() => {
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-    });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } })
   }
 
   canvasMouseDown() {
@@ -202,7 +144,7 @@ export class CreateLineTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
 
-    if (this.currentStep == 'select-points') {
+    if (app.tool.currentStep == 'drawPoint') {
       this.points[this.numberOfPointsDrawn] = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
         coordinates: newCoordinates,
@@ -234,34 +176,20 @@ export class CreateLineTool extends Tool {
           seg.shapeId = shape.id;
         });
       }
-      app.removeListener('canvasMouseDown', this.mouseDownId);
-      this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
-      this.animate();
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
     }
   }
 
   canvasMouseUp() {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
-      this.actions = [
-        {
-          name: 'CreateLineAction',
-          coordinates: this.points.map((pt) => pt.coordinates),
-          lineName: this.lineSelected,
-          referenceId: this.referenceId,
-        },
-      ];
       this.executeAction();
       app.upperDrawingEnvironment.removeAllObjects();
-      this.restart();
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      this.currentStep = '';
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-      this.currentStep = 'select-points';
       this.stopAnimation();
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-      app.removeListener('canvasMouseUp', this.mouseUpId);
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
     }
   }
 
@@ -275,7 +203,7 @@ export class CreateLineTool extends Tool {
         false,
       );
       if (adjustedCoordinates) {
-        point.coordinates = new Coordinates(adjustedCoordinates);
+        point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
       }
     } else {
       let adjustedCoordinates = this.constraints.projectionOnConstraints(
@@ -286,7 +214,7 @@ export class CreateLineTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (this.currentStep == 'select-points') {
+    if (app.tool.currentStep == 'animatePoint') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
