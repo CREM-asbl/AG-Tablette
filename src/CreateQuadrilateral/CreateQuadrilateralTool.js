@@ -52,7 +52,6 @@ export class CreateQuadrilateralTool extends Tool {
   async drawFirstPoint() {
     let quadrilateralsDef = await import(`./quadrilateralsDef.js`);
     this.quadrilateralDef = quadrilateralsDef[app.tool.selectedQuadrilateral];
-    console.log(this.quadrilateralDef);
 
     this.points = [];
     this.segments = [];
@@ -108,9 +107,7 @@ export class CreateQuadrilateralTool extends Tool {
       });
       this.segments.push(seg);
     }
-    console.log('there', this.numberOfPointsDrawn, this.numberOfPointsRequired());
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
-      console.log('here', this.numberOfPointsDrawn);
       if (this.numberOfPointsDrawn < 4) this.finishShape();
       let seg = new Segment({
         drawingEnvironment: app.upperDrawingEnvironment,
@@ -187,12 +184,10 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   numberOfPointsRequired() {
-    console.log(this.quadrilateralDef.numberOfPointsRequired);
     return this.quadrilateralDef.numberOfPointsRequired;
   }
 
   finishShape() {
-    console.log('here');
     this.quadrilateralDef.finishShape(this.points, this.segments);
   }
 

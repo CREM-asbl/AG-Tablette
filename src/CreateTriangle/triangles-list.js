@@ -88,7 +88,7 @@ class TrianglesList extends LitElement {
 
   render() {
     return html`
-    <style>
+      <style>
         :host {
           left: calc(
             50% + (${app.settings.mainMenuWidth}px / 2) -

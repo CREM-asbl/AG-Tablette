@@ -157,7 +157,7 @@ export const Parallelogram = {
     } else {
       points[3].coordinates = newCoordinates;
     }
-    finishShapeEnd(points, segments, Losange.numberOfPointsRequired);
+    finishShapeEnd(points, segments, Parallelogram.numberOfPointsRequired);
   }
 }
 
@@ -185,7 +185,7 @@ export const RightAngleTrapeze = {
     } else {
       points[3].coordinates = newCoordinates;
     }
-    finishShapeEnd(points, segments, Losange.numberOfPointsRequired);
+    finishShapeEnd(points, segments, RightAngleTrapeze.numberOfPointsRequired);
   }
 }
 
@@ -214,7 +214,7 @@ export const IsoscelesTrapeze = {
     } else {
       points[3].coordinates = newCoordinates;
     }
-    finishShapeEnd(points, segments, Losange.numberOfPointsRequired);
+    finishShapeEnd(points, segments, IsoscelesTrapeze.numberOfPointsRequired);
   }
 }
 

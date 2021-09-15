@@ -91,6 +91,7 @@ export class Tool {
     app.removeListener('canvasMouseMove', this.mouseMoveId);
     app.removeListener('canvasMouseDown', this.mouseDownId);
     app.removeListener('canvasMouseUp', this.mouseUpId);
+    app.removeListener('canvasClick', this.mouseClickId);
     app.removeListener('objectSelected', this.objectSelectedId);
     // app.removeListener('canvasTouchStart', this.touchStartId);
     app.removeListener('canvasTouchMove', this.touchMoveId);
