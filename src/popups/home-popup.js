@@ -33,7 +33,7 @@ class HomePopup extends LitElement {
     return html`
       <template-popup>
         <h2 slot="title">
-          ${'Nouvelle fenêtre'}
+          ${'Accueil'}
         </h2>
         <div slot="body" id="body">
           ${app.stepSinceSave ? html`
