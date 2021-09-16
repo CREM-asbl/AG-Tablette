@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
 import { createElem, uniqId } from '../Core/Tools/general';
@@ -53,44 +53,37 @@ export class CreateLineTool extends Tool {
   }
 
   drawFirstPoint() {
-    // let lineDef = await import(`./linesDef.js`);
-    // this.lineDef = lineDef[app.tool.selectedLine];
+    this.removeListeners();
+    this.stopAnimation();
 
     this.points = [];
     this.segments = [];
     this.numberOfPointsDrawn = 0;
 
     if (
-      this.lineSelected == 'StraightLine' ||
-      this.lineSelected == 'SemiStraightLine' ||
-      this.lineSelected == 'Segment'
+      app.tool.selectedLine == 'StraightLine' ||
+      app.tool.selectedLine == 'SemiStraightLine' ||
+      app.tool.selectedLine == 'Segment'
     ) {
       this.getConstraints(this.numberOfPointsDrawn);
       setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
     } else if (
-      this.lineSelected == 'ParalleleStraightLine' ||
-      this.lineSelected == 'PerpendicularStraightLine' ||
-      this.lineSelected == 'ParalleleSemiStraightLine' ||
-      this.lineSelected == 'PerpendicularSemiStraightLine' ||
-      this.lineSelected == 'ParalleleSegment' ||
-      this.lineSelected == 'PerpendicularSegment'
+      app.tool.selectedLine == 'ParalleleStraightLine' ||
+      app.tool.selectedLine == 'PerpendicularStraightLine' ||
+      app.tool.selectedLine == 'ParalleleSemiStraightLine' ||
+      app.tool.selectedLine == 'PerpendicularSemiStraightLine' ||
+      app.tool.selectedLine == 'ParalleleSegment' ||
+      app.tool.selectedLine == 'PerpendicularSegment'
     ) {
-      setTimeout(
-        () =>
-          (app.workspace.selectionConstraints =
-            app.fastSelectionConstraints.click_all_segments),
-      );
       setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);
     }
   }
 
   selectReference() {
-    setTimeout(
-      () =>
-        (this.objectSelectedId = app.addListener(
-          'objectSelected',
-          this.handler,
-        )),
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_segments;
+    this.objectSelectedId = app.addListener(
+      'objectSelected',
+      this.handler,
     );
   }
 
@@ -113,7 +106,7 @@ export class CreateLineTool extends Tool {
   /**
    * stopper l'état
    */
-   end() {
+  end() {
     this.removeListeners();
     this.stopAnimation();
   }
@@ -157,11 +150,11 @@ export class CreateLineTool extends Tool {
         let seg = new Segment({
           drawingEnvironment: app.upperDrawingEnvironment,
           vertexIds: [this.points[0].id, this.points[1].id],
-          // isInfinite: this.lineSelected.endsWith('Parallele')
+          // isInfinite: app.tool.selectedLine.endsWith('Parallele')
         });
-        if (this.lineSelected.endsWith('SemiStraightLine')) {
+        if (app.tool.selectedLine.endsWith('SemiStraightLine')) {
           seg.isSemiInfinite = true;
-        } else if (this.lineSelected.endsWith('StraightLine')) {
+        } else if (app.tool.selectedLine.endsWith('StraightLine')) {
           seg.isInfinite = true;
         }
         this.segments.push(seg);
@@ -230,28 +223,28 @@ export class CreateLineTool extends Tool {
 
   numberOfPointsRequired() {
     let numberOfPointsRequired = 0;
-    if (this.lineSelected == 'Segment') numberOfPointsRequired = 2;
-    else if (this.lineSelected == 'ParalleleSegment')
+    if (app.tool.selectedLine == 'Segment') numberOfPointsRequired = 2;
+    else if (app.tool.selectedLine == 'ParalleleSegment')
       numberOfPointsRequired = 2;
-    else if (this.lineSelected == 'PerpendicularSegment')
+    else if (app.tool.selectedLine == 'PerpendicularSegment')
       numberOfPointsRequired = 2;
-    else if (this.lineSelected == 'SemiStraightLine')
+    else if (app.tool.selectedLine == 'SemiStraightLine')
       numberOfPointsRequired = 2;
-    else if (this.lineSelected == 'ParalleleSemiStraightLine')
+    else if (app.tool.selectedLine == 'ParalleleSemiStraightLine')
       numberOfPointsRequired = 2;
-    else if (this.lineSelected == 'PerpendicularSemiStraightLine')
+    else if (app.tool.selectedLine == 'PerpendicularSemiStraightLine')
       numberOfPointsRequired = 2;
-    else if (this.lineSelected == 'StraightLine') numberOfPointsRequired = 2;
-    else if (this.lineSelected == 'ParalleleStraightLine')
+    else if (app.tool.selectedLine == 'StraightLine') numberOfPointsRequired = 2;
+    else if (app.tool.selectedLine == 'ParalleleStraightLine')
       numberOfPointsRequired = 1;
-    else if (this.lineSelected == 'PerpendicularStraightLine')
+    else if (app.tool.selectedLine == 'PerpendicularStraightLine')
       numberOfPointsRequired = 1;
     return numberOfPointsRequired;
   }
 
   finishShape() {
     let newCoordinates;
-    if (this.lineSelected == 'ParalleleStraightLine') {
+    if (app.tool.selectedLine == 'ParalleleStraightLine') {
       let referenceSegment = app.mainDrawingEnvironment.findObjectById(
         this.referenceId,
         'segment',
@@ -259,7 +252,7 @@ export class CreateLineTool extends Tool {
       newCoordinates = this.points[0].coordinates
         .substract(referenceSegment.vertexes[0].coordinates)
         .add(referenceSegment.vertexes[1].coordinates);
-    } else if (this.lineSelected == 'PerpendicularStraightLine') {
+    } else if (app.tool.selectedLine == 'PerpendicularStraightLine') {
       let referenceSegment = app.mainDrawingEnvironment.findObjectById(
         this.referenceId,
         'segment',
@@ -286,7 +279,7 @@ export class CreateLineTool extends Tool {
     if (pointNb == 0) {
       this.constraints = new GeometryConstraint('isFree');
     } else if (pointNb == 1) {
-      if (this.lineSelected.startsWith('Parallele')) {
+      if (app.tool.selectedLine.startsWith('Parallele')) {
         let referenceSegment = app.mainDrawingEnvironment.findObjectById(
           this.referenceId,
           'segment',
@@ -296,7 +289,7 @@ export class CreateLineTool extends Tool {
           .add(referenceSegment.vertexes[1].coordinates);
         let lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isContrained', lines);
-      } else if (this.lineSelected.startsWith('Perpendicular')) {
+      } else if (app.tool.selectedLine.startsWith('Perpendicular')) {
         let referenceSegment = app.mainDrawingEnvironment.findObjectById(
           this.referenceId,
           'segment',
@@ -308,5 +301,67 @@ export class CreateLineTool extends Tool {
         this.constraints = new GeometryConstraint('isContrained', lines);
       }
     }
+  }
+
+  _executeAction() {
+    let path = [
+      'M',
+      this.points[0].coordinates.x,
+      this.points[0].coordinates.y,
+      'L',
+      this.points[1].coordinates.x,
+      this.points[1].coordinates.y,
+    ].join(' ');
+
+    let shape;
+    if (
+      app.tool.selectedLine == 'StraightLine' ||
+      app.tool.selectedLine == 'ParalleleStraightLine' ||
+      app.tool.selectedLine == 'PerpendicularStraightLine'
+    ) {
+      shape = new Shape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: path,
+        name: app.tool.selectedLine,
+        familyName: 'Line',
+      });
+      shape.segments[0].isInfinite = true;
+      if (app.tool.selectedLine == 'ParalleleStraightLine' ||
+        app.tool.selectedLine == 'PerpendicularStraightLine') {
+        shape.points[1].visible = false;
+      }
+    } else if (
+      app.tool.selectedLine == 'SemiStraightLine' ||
+      app.tool.selectedLine == 'ParalleleSemiStraightLine' ||
+      app.tool.selectedLine == 'PerpendicularSemiStraightLine'
+    ) {
+      shape = new Shape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: path,
+        name: app.tool.selectedLine,
+        familyName: 'Line',
+      });
+      shape.segments[0].isSemiInfinite = true;
+    } else if (
+      app.tool.selectedLine == 'Segment' ||
+      app.tool.selectedLine == 'ParalleleSegment' ||
+      app.tool.selectedLine == 'PerpendicularSegment'
+    ) {
+      shape = new Shape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: path,
+        name: app.tool.selectedLine,
+        familyName: 'Line',
+      });
+    }
+
+    if (this.reference) {
+      shape.referenceId = this.referenceId;
+      this.reference.shape.hasGeometryReferenced.push(shape.id);
+    }
+
+    shape.points[0].name = 'firstPoint';
+    shape.points[1].name = 'secondPoint';
+
   }
 }

@@ -112,7 +112,7 @@ class LinesList extends LitElement {
                 type="Geometry"
                 name="${lineName}"
                 @click="${this._clickHandle}"
-                ?active="${lineName === this.lineSelected}"
+                ?active="${lineName === this.selectedLine}"
               >
               </icon-button>
             `,
