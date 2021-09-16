@@ -1,7 +1,7 @@
 {
-  "name": "Apprenti Géomètre Mobile",
-  "short_name": "AG Mobile",
-  "version": "1.0.27",
+  "name": "Apprenti Géomètre mobile",
+  "short_name": "AG mobile",
+  "version": "1.0.30",
   "icons": [
     {
       "src": "images/manifest/icon-512.png",
@@ -18,8 +18,7 @@
   ],
   "start_url": "/",
   "display": "fullscreen",
-  "background_color": "#3f51b5",
-  "theme_color": "#3f51b5",
+  "theme_color": "lightgrey",
   "description": "Version mobile d'Apprenti Géomètre",
   "file_handlers": [
     {

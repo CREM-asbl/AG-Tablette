@@ -5,6 +5,8 @@ class StateMenu extends LitElement {
   constructor() {
     super();
     this.updateProperties = () => {
+      if (app.tangram?.buttonText == undefined)
+        this.remove();
       this.buttonText = app.tangram.buttonText;
       this.buttonValue = app.tangram.buttonValue;
     };
@@ -26,7 +28,8 @@ class StateMenu extends LitElement {
 
   static get properties() {
     return {
-      buttons: { type: Array },
+      buttonValue: { type: String },
+      buttonText: { type: String },
     };
   }
 

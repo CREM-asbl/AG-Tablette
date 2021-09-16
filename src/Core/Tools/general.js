@@ -10,6 +10,7 @@ export function getAverageColor(...colors) {
       console.error(
         "getAverageColor: une couleur n'a pas été reconnue: " + colors[i],
       );
+      return;
     }
   }
   let usableColors = colors.map((color) => {
@@ -128,6 +129,72 @@ export function getComplementaryColor(color) {
     blue = 255 - hexTodec(color[5] + color[6]);
 
   return '#' + decToHex(red) + decToHex(green) + decToHex(blue);
+}
+
+export function RGBFromColor(color) {
+  let regex = /^#([0-9a-fA-F]{3}){1,2}$/;
+  if (!regex.test(color)) {
+    console.error(
+      "App.getComplementaryColor: la couleur n'a pas été reconnue: " + color,
+    );
+    return;
+  }
+  if (color.length == 4)
+    //transfigure #abc en #aabbcc
+    color =
+      '#' +
+      color[1] +
+      '' +
+      color[1] +
+      '' +
+      color[2] +
+      '' +
+      color[2] +
+      '' +
+      color[3] +
+      '' +
+      color[3];
+  color = color.toUpperCase();
+
+  let hexTodec = function (hex) {
+    //transfigure un nombre hexadécimal à 2 chiffres en un nombre décimal
+    let conversion = {
+      0: 0,
+      1: 1,
+      2: 2,
+      3: 3,
+      4: 4,
+      5: 5,
+      6: 6,
+      7: 7,
+      8: 8,
+      9: 9,
+      A: 10,
+      B: 11,
+      C: 12,
+      D: 13,
+      E: 14,
+      F: 15,
+    };
+    return conversion[hex[0]] * 16 + conversion[hex[1]];
+  };
+
+  let red = hexTodec(color[1] + color[2]),
+    green = hexTodec(color[3] + color[4]),
+    blue = hexTodec(color[5] + color[6]);
+
+  return {red, green, blue};
+}
+
+export function rgb2hex(rgb) {
+  rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+}
+
+export function hex(x) {
+  let hexDigits = new Array
+    ("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f");
+  return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
 }
 
 /**

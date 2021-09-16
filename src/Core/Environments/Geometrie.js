@@ -1,9 +1,14 @@
 export default {
   name: 'Geometrie',
   modules: [
+    'CreateTriangle',
+    'CreateQuadrilateral',
+    'CreateRegular',
+    'CreateIrregular',
+    'CreateCircle',
+    'CreateLine',
     'Move',
     'Rotate',
-    'CreateGeometry',
     'Reverse',
     'BuildCenter',
     'Divide',
@@ -18,8 +23,9 @@ export default {
     'Translate',
     'Zoom',
     'Grid',
-    'Transform',
+    // 'Transform',
   ],
   extension: 'agl',
-  themeColor: '#FF0000',
+  themeColor: '#888888',
+  themeColorSoft: '#B8B8B8',
 };

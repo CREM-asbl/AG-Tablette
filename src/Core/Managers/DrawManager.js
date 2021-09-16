@@ -14,8 +14,8 @@ export class DrawManager {
   static refreshBackground() {
     if (app.environment.name !== 'Tangram') {
       app.backgroundDrawingEnvironment.removeAllObjects();
+      app.backgroundDrawingEnvironment.mustDrawGrid = app.settings.gridShown;
     }
-    app.backgroundDrawingEnvironment.mustDrawGrid = app.settings.gridShown;
     app.backgroundDrawingEnvironment.redraw();
   }
 
@@ -245,6 +245,7 @@ window.addEventListener('refreshUpper', () => {
   DrawManager.refreshUpper();
 });
 window.addEventListener('refreshBackground', () => {
+
   DrawManager.refreshBackground();
 });
 

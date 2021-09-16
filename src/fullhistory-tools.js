@@ -13,7 +13,7 @@ class FullHistoryTools extends LitElement {
 
   constructor() {
     super();
-    this.playPauseButton = 'pause';
+    this.playPauseButton = 'play';
     let previousStepTimestamp = 0;
     this.tools = app.fullHistory.steps
       .filter((step) => (step.type == 'tool-changed' && step.detail?.currentStep == 'start') || step.type == 'undo' || step.type == 'redo')
@@ -64,6 +64,10 @@ class FullHistoryTools extends LitElement {
     return css`
       :host {
         display: none;
+      }
+
+      button {
+        cursor: pointer;
       }
 
       nav#sidebar {
@@ -124,7 +128,6 @@ class FullHistoryTools extends LitElement {
 
   _clickHandler(event) {
     let index = parseInt(this.index);
-    console.log(event.target.name);
     switch (event.target.name) {
       case 'action-button':
         this.setPlayPause('play');

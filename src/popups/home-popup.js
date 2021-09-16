@@ -33,7 +33,7 @@ class HomePopup extends LitElement {
     return html`
       <template-popup>
         <h2 slot="title">
-          ${'Nouvelle fenêtre'}
+          ${'Accueil'}
         </h2>
         <div slot="body" id="body">
           ${app.stepSinceSave ? html`
@@ -42,9 +42,9 @@ class HomePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${this.goToHomePage}">Page d'accueil</button>
-          <button @click="${this.newWindow}">Espace de travail vide</button>
-          <button id="focus" @click="${this.close}">Annuler</button>
+          <color-button @click="${this.goToHomePage}" innerText="Page d'accueil"></color-button>
+          <color-button @click="${this.newWindow}" innerText="Espace de travail vide"></color-button>
+          <color-button id="focus" @click="${this.close}" innerText="Annuler"></color-button>
         </div>
       </template-popup>
     `;

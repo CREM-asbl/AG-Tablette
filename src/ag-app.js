@@ -1,10 +1,11 @@
-import { app } from './Core/App';
+import { app, setState } from './Core/App';
 import './Core/Manifest';
 import { LitElement, html } from 'lit';
 import './auto-launch';
 import './backbutton-manager';
 import { openFileFromId } from './Firebase/firebase-init';
 // import { uniqId } from './Core/Tools/general';
+import { loadEnvironnement } from './Core/Environments/Environment';
 
 class AgApp extends LitElement {
   static get properties() {
@@ -23,6 +24,11 @@ class AgApp extends LitElement {
 
   parseURL() {
     let parsedUrl = new URL(window.location.href);
+    let part = parsedUrl.searchParams.get("interface");
+    if (part) {
+      this.openEnv(part);
+      return;
+    }
     let activityId = parsedUrl.searchParams.get("activityId");
     if (activityId)
       openFileFromId(activityId);
@@ -43,6 +49,13 @@ class AgApp extends LitElement {
         </div>
       `;
     }
+  }
+
+  async openEnv(e) {
+    if (app?.short_name == "AG mobile" && e != "Grandeurs")
+      return;
+    this.setState({ environmentLoading: true });
+    setState({ environment: await loadEnvironnement(e) });
   }
 
   setState() {

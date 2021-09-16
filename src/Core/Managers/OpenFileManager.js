@@ -59,13 +59,20 @@ export class OpenFileManager {
       saveObject = fileContent;
     }
 
+    if (saveObject.appVersion == '1.0.0') {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. La version n\'est plus prise en charge.' } }));
+      return;
+    }
+
     if (saveObject.envName != app.environment.name) {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. C\'est un fichier ' + saveObject.envName + '.' } }));
       return;
     }
 
-    app.lastFileVersion = saveObject.appVersion;
+    // app.lastFileVersion = saveObject.appVersion;
     WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
+    if (app.environment.name == 'Tangram')
+      app.mainDrawingEnvironment.removeAllObjects();
 
     if (saveObject.settings) {
       setState({ settings: { ...saveObject.settings } });
@@ -87,7 +94,15 @@ export class OpenFileManager {
       setState({
         history: {
           ...app.defaultState.history,
-          startSituation: { ...app.workspace.data },
+          startSituation: {
+            ...app.workspace.data,
+            tangram: {
+              isSilhouetteShown: true,
+              currentStep: 'start',
+              buttonText: 'Vérifier solution',
+              buttonValue: 'check',
+            }
+          },
           startSettings: { ...app.settings },
         },
       });

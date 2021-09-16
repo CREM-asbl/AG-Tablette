@@ -1,12 +1,13 @@
-import { app } from '../../Core/App';
-import { Tool } from '../../Core/States/Tool';
+import { app, setState } from '../Core/App';
+import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { SelectManager } from '../../Core/Managers/SelectManager';
-import { Segment } from '../../Core/Objects/Segment';
-import { Point } from '../../Core/Objects/Point';
-import { uniqId } from '../../Core/Tools/general';
-import { Coordinates } from '../../Core/Objects/Coordinates';
-import { Shape } from '../../Core/Objects/Shape';
+import { SelectManager } from '../Core/Managers/SelectManager';
+import { Segment } from '../Core/Objects/Segment';
+import { Point } from '../Core/Objects/Point';
+import { uniqId } from '../Core/Tools/general';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { Shape } from '../Core/Objects/Shape';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -15,7 +16,7 @@ export class CreateIrregularTool extends Tool {
   constructor() {
     super(
       'createIrregularPolygon',
-      'Créer un polygone irrégulier',
+      'Dessiner un polygone irrégulier',
       'geometryCreator',
     );
 
@@ -41,42 +42,33 @@ export class CreateIrregularTool extends Tool {
    * (ré-)initialiser l'état
    */
   start() {
-    this.points = [];
+    this.removeListeners();
 
-    this.shapeId = uniqId();
+    this.points = [];
+    this.segments = [];
+
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
+  }
+
+  drawPoint() {
+    this.removeListeners();
+    this.stopAnimation();
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    this.start();
+  animatePoint() {
+    this.animate();
+
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
    * stopper l'état
    */
   end() {
+    this.removeListeners();
     this.stopAnimation();
-
-    app.removeListener('canvasMouseDown', this.mouseDownId);
-    app.removeListener('canvasMouseUp', this.mouseUpId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'canvasMouseDown') {
-      this.canvasMouseDown();
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
   }
 
   canvasMouseDown() {
@@ -100,6 +92,7 @@ export class CreateIrregularTool extends Tool {
           this.points[this.points.length - 1].id,
         ],
       });
+      this.segments.push(seg);
       new Shape({
         drawingEnvironment: app.upperDrawingEnvironment,
         segmentIds: [seg.id],
@@ -107,9 +100,9 @@ export class CreateIrregularTool extends Tool {
         borderColor: app.settings.temporaryDrawColor,
       });
     }
-    app.removeListener('canvasMouseDown', this.mouseDownId);
-    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
-    this.animate();
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+    });
   }
 
   canvasMouseUp() {
@@ -121,25 +114,16 @@ export class CreateIrregularTool extends Tool {
       )
     ) {
       this.stopAnimation();
-      // this.adjustPoint(this.points[this.points.length - 1]);
-      this.actions = [
-        {
-          name: 'CreateIrregularAction',
-          coordinates: this.points.map((pt) => pt.coordinates),
-          reference: null, //reference,
-        },
-      ];
+
       this.executeAction();
       app.upperDrawingEnvironment.removeAllObjects();
-      this.restart();
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'start' },
+      });
     } else {
-      this.stopAnimation();
-      // this.adjustPoint(this.points[this.points.length - 1]);
-      this.currentStep = '';
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
-      this.currentStep = 'listen-canvas-click';
-      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-      app.removeListener('canvasMouseUp', this.mouseUpId);
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      });
     }
   }
 
@@ -161,16 +145,35 @@ export class CreateIrregularTool extends Tool {
         false,
       );
       if (adjustedCoordinates)
-        point.coordinates = new Coordinates(adjustedCoordinates);
+        point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
     }
   }
 
   refreshStateUpper() {
-    if (this.currentStep == 'listen-canvas-click' && this.points.length > 0) {
+    if (app.tool.currentStep == 'animatePoint') {
       this.points[this.points.length - 1].coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.points.length - 1]);
     }
+  }
+
+  _executeAction() {
+    let familyName = 'Irregular';
+
+    let path = ['M', this.points[0].coordinates.x, this.points[0].coordinates.y];
+    this.points.forEach((point, i) => {
+      if (i != 0)
+        path.push('L', point.coordinates.x, point.coordinates.y);
+    })
+    path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
+    path = path.join(' ');
+
+    let shape = new Shape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+      path: path,
+      name: app.tool.selectedTriangle,
+      familyName: familyName,
+    });
   }
 }

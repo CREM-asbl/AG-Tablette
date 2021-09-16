@@ -38,11 +38,12 @@ class DividePopup extends LitElement {
     return [
       TemplatePopup.template_popup_styles(),
       css`
-        label {
-          display: inline-block;
+        span {
+          font-weight: normal;
         }
         select {
-          width: 2rem;
+          text-align: center;
+          width: 2.5rem;
         }
       `,
     ];
@@ -66,7 +67,7 @@ class DividePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}">Ok</button>
+          <color-button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}" innerText="Ok"></color-button>
         </div>
       </template-popup>
     `;

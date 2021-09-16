@@ -18,10 +18,15 @@ class CanvasButton extends LitElement {
   static get styles() {
     return css`
       :host {
+        cursor: pointer;
         display: block;
         margin: 2px;
         /* width: 52px;
         height: 52px; */
+      }
+
+      :host :hover {
+        background-color: var(--button-hover-background-color)
       }
 
       :host([active]) canvas {

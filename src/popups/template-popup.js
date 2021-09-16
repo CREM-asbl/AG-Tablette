@@ -67,9 +67,9 @@ export class TemplatePopup extends LitElement {
       }
 
       label {
-        display: block;
+        display: inline-block;
+        font-weight: normal;
         margin: 0 4px;
-        font-weight: bold;
         font-size: 1rem;
       }
 
@@ -81,6 +81,22 @@ export class TemplatePopup extends LitElement {
         border: none;
         box-shadow: 0px 0px 3px var(--menu-shadow-color);
         border-radius: 3px;
+      }
+
+      color-button {
+        display: block;
+        padding: 8px 16px;
+        margin: 0 4px;
+        background-color: var(--theme-color);
+        border: none;
+        box-shadow: 0px 0px 3px var(--menu-shadow-color);
+        border-radius: 3px;
+        cursor: pointer;
+      }
+
+      color-button:hover {
+        opacity: 0.8;
+        box-shadow: 0px 0px 5px var(--menu-shadow-color);
       }
     `;
   }
@@ -126,9 +142,10 @@ export class TemplatePopup extends LitElement {
 
   updateHeight() {
     // this.movementSpeed *= 2;
-    if (this.popupHeight > 0)
+    if (this.popupHeight > 0) {
       this.popupHeight -= this.movementSpeed;
-    window.requestAnimationFrame(() => this.updateHeight());
+      window.requestAnimationFrame(() => this.updateHeight());
+    }
   }
 
   firstUpdated() {

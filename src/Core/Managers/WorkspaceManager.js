@@ -24,8 +24,10 @@ export class WorkspaceManager {
 }
 
 window.addEventListener('app-started', () => {
-  WorkspaceManager.setWorkspace(new Workspace());
-});
+  if (!app.fileFromServer) {
+    WorkspaceManager.setWorkspace(new Workspace());
+  }
+}, {once: true});
 
 window.addEventListener('new-window', () => {
   // setTimeout(() => {

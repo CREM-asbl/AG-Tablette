@@ -21,7 +21,9 @@ class OpenPopup extends LitElement {
     return [
       TemplatePopup.template_popup_styles(),
       css`
-        button {
+        color-button {
+          padding: 8px 0px;
+          margin: 0px;
           width: 100%;
         }
 
@@ -51,17 +53,9 @@ class OpenPopup extends LitElement {
           ${app.stepSinceSave ? html`
             <save-warning></save-warning>
           ` : ''}
-          <button
-            id="focus"
-            name="LocalOpenFile"
-            @click="${this._actionHandle}"
-          >
-            Ouvrir en local
-          </button>
+          <color-button id="focus" name="LocalOpenFile" @click="${this._actionHandle}" innerText="Ouvrir en local"></color-button>
 
-          <button name="ServerOpenFile" @click="${this._actionHandle}">
-            Ouvrir sur le serveur
-          </button>
+          <color-button name="ServerOpenFile" @click="${this._actionHandle}" innerText="Ouvrir sur le serveur"></color-button>
         </div>
       </template-popup>
     `;

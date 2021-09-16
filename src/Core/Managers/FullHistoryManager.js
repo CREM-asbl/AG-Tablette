@@ -39,7 +39,7 @@ export class FullHistoryManager {
 
     FullHistoryManager.isClicked = false;
     FullHistoryManager.nextTime = 0;
-    FullHistoryManager.executeAllSteps();
+    // FullHistoryManager.executeAllSteps();
   }
 
   static stopBrowsing() {
@@ -73,11 +73,11 @@ export class FullHistoryManager {
   }
 
   static setWorkspaceToStartSituation() {
+    app.workspace.initFromObject(app.history.startSituation);
     setState({
       settings: { ...app.history.startSettings },
       history: { ...app.defaultState.history },
     });
-    app.workspace.initFromObject(app.history.startSituation);
   }
 
   static moveTo(actionIndex, startSelectedTool = true) {
@@ -112,8 +112,12 @@ export class FullHistoryManager {
       let tool = null;
       for (let i = index; i > 0; i--) {
         if (app.fullHistory.steps[i].type == 'tool-changed') {
-          let toolName = app.fullHistory.steps[i].detail.name;
-          tool = { name: toolName, currentStep: 'start' };
+          let toolInfo = app.fullHistory.steps[i].detail;
+          let currentStep = 'start';
+          if (toolInfo.name == 'divide' || toolInfo.name == 'opacity') {
+            currentStep = 'selectObject';
+          }
+          tool = { ...toolInfo, currentStep: 'start' };
           break;
         }
       }
@@ -170,6 +174,7 @@ export class FullHistoryManager {
             ...app.fullHistory,
             actionIndex: app.fullHistory.actionIndex + 1,
           },
+          tangram: { ...data.tangram },
         });
       }, FullHistoryManager.nextTime + 30);
       if (app.fullHistory.numberOfActions == app.fullHistory.actionIndex)
@@ -217,8 +222,12 @@ export class FullHistoryManager {
       let data = app.workspace.data;
       data.history = undefined;
       data.settings = { ...app.settings };
+      data.tangram = { ...app.tangram };
       detail.data = data;
       setState({ stepSinceSave: true });
+    }
+    if (type == 'tool-changed' && detail.name == 'solveChecker') {
+      return;
     }
     let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
     let steps = [...app.fullHistory.steps, { type, detail, timeStamp }];
@@ -229,8 +238,8 @@ export class FullHistoryManager {
 FullHistoryManager.startTimestamp = Date.now();
 
 // mouse events
-window.addEventListener('canvasclick', (event) =>
-  FullHistoryManager.addStep('canvasclick', event),
+window.addEventListener('canvasClick', (event) =>
+  FullHistoryManager.addStep('canvasClick', event),
 );
 window.addEventListener('canvasMouseDown', (event) =>
   FullHistoryManager.addStep('canvasMouseDown', event),

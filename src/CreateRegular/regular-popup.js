@@ -1,12 +1,30 @@
 import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from '../../popups/template-popup';
+import { TemplatePopup } from '../popups/template-popup';
+import { app, setState } from '../Core/App';
 
 class RegularPopup extends LitElement {
   constructor() {
     super();
-    this.points = 3;
 
-    window.addEventListener('close-popup', () => this.submit());
+    window.addEventListener(
+      'close-popup',
+      () => {
+        this.submitAndClose();
+      },
+      {
+        once: true,
+      },
+    );
+
+    this.updateProperties = () => {
+      this.points = app.settings.numberOfRegularPoints;
+    };
+    this.updateProperties();
+
+    this.eventHandler = () => {
+      this.updateProperties();
+    };
+    window.addEventListener('settings-changed', this.eventHandler);
   }
 
   static get properties() {
@@ -19,9 +37,6 @@ class RegularPopup extends LitElement {
     return [
       TemplatePopup.template_popup_styles(),
       css`
-        label {
-          display: inline-block;
-        }
         select {
           width: 2rem;
         }
@@ -32,22 +47,20 @@ class RegularPopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Créer un polygone régulier</h2>
+        <h2 slot="title">Dessiner un polygone régulier</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts"
-            >Créer un polygone à</label
-          >
+            >Dessiner un polygone à ${this.points} cotés
+          </label>
           <input
             type="range"
             min="3"
             max="20"
             value="${this.points}"
             list="level"
-            @change="${(e) => (this.points = e.target.value)}"
+            @input="${this.changeNumberOfPoints}"
           />
           <datalist id="level">
-            <option value="1" label="1">1</option>
-            <option value="2" label="2">2</option>
             <option value="3" label="3">3</option>
             <option value="4" label="4">4</option>
             <option value="5" label="5">5</option>
@@ -67,27 +80,35 @@ class RegularPopup extends LitElement {
             <option value="19" label="19">19</option>
             <option value="20" label="20">20</option>
           </datalist>
-          <span> ${this.points} cotés</span>
         </div>
 
         <div slot="footer">
-          <button @click="${this.submit}">Ok</button>
+          <color-button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}" innerText="Ok" backgroundColor="${getComputedStyle(document.documentElement).getPropertyValue('--theme-color')}"></color-button>
         </div>
       </template-popup>
     `;
   }
 
+  changeNumberOfPoints(event) {
+    setState({
+      settings: { ...app.settings, numberOfRegularPoints: event.target.value },
+    });
+  }
+
   submit() {
-    window.dispatchEvent(
-      new CustomEvent('setNumberOfPoints', {
-        detail: { nbOfPoints: this.points },
-      }),
-    );
-    this.close();
+    setState({
+      tool: { ...app.tool, name: 'createRegularPolygon', currentStep: 'drawFirstPoint' },
+    });
   }
 
   close() {
     this.remove();
+    window.removeEventListener('settings-changed', this.eventHandler);
+  }
+
+  submitAndClose() {
+    this.submit();
+    this.close();
   }
 }
 customElements.define('regular-popup', RegularPopup);

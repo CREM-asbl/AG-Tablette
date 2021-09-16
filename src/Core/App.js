@@ -30,6 +30,7 @@ export class App {
       areShapesPointed: true,
       shapesSize: 2,
       numberOfDivisionParts: 2,
+      numberOfRegularPoints: 3,
       shapeFillColor: '#000000',
       shapeBorderColor: '#000000',
       shapeOpacity: 0.7,
@@ -57,7 +58,8 @@ export class App {
     this.tangram = {
       isSilhouetteShown: false,
       currentStep: null,
-      button: null,
+      buttonText: null,
+      buttonValue: null,
     }
 
     this.stepSinceSave = false,
@@ -98,9 +100,9 @@ export class App {
   }
 
   dispatchEv(event) {
-    if (app.listenerCounter[event.type]) {
+    // if (app.listenerCounter[event.type]) {
       window.dispatchEvent(event);
-    }
+    // }
   }
 
   resetSettings() {
@@ -129,7 +131,6 @@ export const setState = (update) => {
   for (const [key, value] of Object.entries(update)) {
     app[key] = value;
   }
-  // if (window.dev_mode) console.log(app);
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   if ('environment' in update) {
     window.dispatchEvent(new CustomEvent('environment-changed', { detail: app }));
@@ -144,7 +145,6 @@ export const setState = (update) => {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshBackground'));
-
   }
   if ('tangram' in update) {
     window.dispatchEvent(new CustomEvent('tangram-changed', { detail: app }));

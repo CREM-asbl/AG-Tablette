@@ -1,4 +1,5 @@
 import { CreateLineTool } from './CreateLineTool';
 
-new CreateLineState();
-new CreateLineAction();
+export default {
+  tool: new CreateLineTool(),
+};

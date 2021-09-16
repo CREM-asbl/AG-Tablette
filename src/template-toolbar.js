@@ -15,11 +15,10 @@ export class TemplateToolbar extends LitElement {
       [slot='title'] {
         text-align: center;
         font-size: 1.2em;
-        font-weight: bold;
         margin: 12px 0;
         text-overflow: ellipsis;
         overflow: hidden;
-        white-space: nowrap;
+        /* white-space: nowrap; */
       }
 
       [slot='body'] {

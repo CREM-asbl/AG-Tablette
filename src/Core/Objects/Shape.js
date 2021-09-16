@@ -74,7 +74,9 @@ export class Shape {
         segment.divisionPointIds.push(newPoint.id);
         return newPoint.id;
       })];
-      if (this.isCircle()) this.vertexes[0].visible = false;
+      if (this.isCircle() && app.environment.name != 'Geometrie') {
+        this.vertexes[0].visible = false;
+      }
     } else {
       this.pointIds = [...pointIds];
       this.segmentIds = [...segmentIds];
@@ -1341,6 +1343,7 @@ export class Shape {
       id: this.id,
       segmentIds: [...this.segmentIds],
       pointIds: [...this.pointIds],
+      position: this.drawingEnvironment?.name,
       name: this.name,
       familyName: this.familyName,
       color: this.color,
@@ -1361,8 +1364,11 @@ export class Shape {
   }
 
   static loadFromData(data) {
+    if (!data.position) {
+      data.position = 'main';
+    }
     let shape = new Shape({
-      drawingEnvironment: app.mainDrawingEnvironment,
+      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
     });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];

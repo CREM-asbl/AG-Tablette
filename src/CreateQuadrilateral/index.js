@@ -1,4 +1,5 @@
 import { CreateQuadrilateralTool } from './CreateQuadrilateralTool';
 
-new CreateQuadrilateralState();
-new CreateQuadrilateralAction();
+export default {
+  tool: new CreateQuadrilateralTool(),
+};

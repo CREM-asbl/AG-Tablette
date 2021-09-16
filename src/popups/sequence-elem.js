@@ -42,11 +42,19 @@ class SequenceElem extends LitElement {
     }
   }
 
+  lastElemOfPath(path) {
+    let lastElem = path.substring(path.lastIndexOf('/') + 1);
+    return lastElem;
+  }
+
   render() {
     return html`
       <details name="summary">
         <summary name="summary" @click="${this.summaryClick}">${this.title}</summary>
-        ${this.fileInfos.map(info => html`<file-elem  title="${info.Title}" fileName="${info.URL}"></file-elem>`)}
+        ${this.fileInfos.map(info => {
+          let shortFilename = this.lastElemOfPath(info.URL);
+          return html`<file-elem  title="${shortFilename}" fileName="${info.URL}"></file-elem>`
+        })}
       </details>
     `;
   }

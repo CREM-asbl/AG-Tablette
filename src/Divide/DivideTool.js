@@ -54,6 +54,9 @@ export class DivideTool extends Tool {
    * initialiser l'état
    */
   start() {
+    window.clearTimeout(this.timeoutRef);
+    this.removeListeners();
+
     createElem('divide-popup');
   }
 

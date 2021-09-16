@@ -8,10 +8,12 @@ export class DrawingEnvironment {
   /**
    *
    */
-  constructor(canvas) {
+  constructor(canvas, name) {
     if (canvas) {
       this.canvas = canvas;
     }
+
+    this.name = name;
 
     this.shapes = [];
     this.segments = [];
@@ -139,12 +141,17 @@ export class DrawingEnvironment {
 
   /**
    * find an object in this drawingEnvironment
-   * @param {String} id
+   * @param {String} name
    * @param {String} objectType   'shape', 'segment' or 'point'
    */
   findObjectById(id, objectType = 'shape') {
     let object = this[objectType + 's'].find((obj) => obj.id == id);
     return object;
+  }
+
+  findObjectsByName(name, objectType = 'shape') {
+    let objects = this[objectType + 's'].filter((obj) => obj.name == name);
+    return objects;
   }
 
   /**
@@ -203,11 +210,14 @@ export class DrawingEnvironment {
   loadFromData(data) {
     this.removeAllObjects();
     if (data != undefined) {
-      data.shapesData.forEach((shapeData) => Shape.loadFromData(shapeData));
+      data.shapesData.forEach((shapeData) => {
+        Shape.loadFromData(shapeData)
+      });
       data.segmentsData.forEach((segmentData) =>
         Segment.loadFromData(segmentData),
       );
       data.pointsData.forEach((pointData) => Point.loadFromData(pointData));
+      this.redraw();
     } else {
       console.log('nothing to see here');
     }
