@@ -178,6 +178,7 @@ export function getShapeAdjustment(shapes, mainShape) {
           e2 = cPtListGrid[j];
         if (checkCompatibility(e1, e2)) {
           let t = computeTransformation(e1, e2, shapes, mainShape);
+          console.log(t);
           possibilities.push(t);
         }
       }
@@ -203,7 +204,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
   }
 
-  if (possibilities.length > 0) {
+  if (possibilities.filter(Boolean).length > 0) {
     console.log('2 points de la grille');
     return bestPossibility(possibilities);
   }
@@ -223,7 +224,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
   }
 
-  if (possibilities.length > 0) {
+  if (possibilities.filter(Boolean).length > 0) {
     console.log("2 points d'une autre figure");
     return bestPossibility(possibilities);
   }
