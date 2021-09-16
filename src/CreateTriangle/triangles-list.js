@@ -12,6 +12,14 @@ class TrianglesList extends LitElement {
       'IrregularTriangle',
     ];
 
+    this.triangleTitle = {
+      'EquilateralTriangle': 'Triangle équilatéral',
+      'RightAngleIsoscelesTriangle': 'Triangle isocèle rectangle',
+      'RightAngleTriangle': 'Triangle rectangle',
+      'IsoscelesTriangle': 'Triangle isocèle',
+      'IrregularTriangle': 'Triangle',
+    }
+
     this.updateProperties = () => {
       this.selectedTriangle = app.tool.selectedTriangle;
       this.iconSize = app.menuIconSize;
@@ -97,7 +105,11 @@ class TrianglesList extends LitElement {
         }
       </style>
       <div class="container">
-        <h2>Triangles</h2>
+        <h2>
+          ${this.selectedTriangle
+            ? this.triangleTitle[this.selectedTriangle]
+            : 'Triangles'}
+        </h2>
         <div id="list">
           ${this.trianglesNames.map(
             (triangleName) => html`

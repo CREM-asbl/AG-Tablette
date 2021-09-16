@@ -355,13 +355,13 @@ export class CreateLineTool extends Tool {
       });
     }
 
-    if (this.reference) {
+    if (this.referenceId) {
       shape.referenceId = this.referenceId;
-      this.reference.shape.hasGeometryReferenced.push(shape.id);
+      let reference = app.mainDrawingEnvironment.findObjectById(this.referenceId, 'segment');
+      reference.shape.hasGeometryReferenced.push(shape.id);
     }
 
     shape.points[0].name = 'firstPoint';
     shape.points[1].name = 'secondPoint';
-
   }
 }

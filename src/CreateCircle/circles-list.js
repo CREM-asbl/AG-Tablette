@@ -6,6 +6,12 @@ class CirclesList extends LitElement {
     super();
     this.circlesNames = ['Circle', 'CirclePart', 'CircleArc'];
 
+    this.circleTitle = {
+      'Circle': 'Disque',
+      'CirclePart': 'Secteur circulaire',
+      'CircleArc': 'Arc de cercle',
+    }
+
     this.updateProperties = () => {
       this.selectedCircle = app.tool.selectedCircle;
       this.iconSize = app.menuIconSize;
@@ -91,7 +97,11 @@ class CirclesList extends LitElement {
         }
       </style>
       <div class="container">
-        <h2>Circles</h2>
+        <h2>
+          ${this.selectedCircle
+            ? this.circleTitle[this.selectedCircle]
+            : 'Cercles'}
+        </h2>
         <div id="list">
           ${this.circlesNames.map(
             (circleName) => html`
