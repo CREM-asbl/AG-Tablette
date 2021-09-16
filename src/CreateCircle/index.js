@@ -1,4 +1,5 @@
 import { CreateCircleTool } from './CreateCircleTool';
 
-new CreateCircleState();
-new CreateCircleAction();
+export default {
+  tool: new CreateCircleTool(),
+};

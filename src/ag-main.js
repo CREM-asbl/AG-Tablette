@@ -112,7 +112,6 @@ class AGMain extends LitElement {
           display: flex;
           flex-direction: column;
           padding: 10px;
-          /* padding-right: 50px; */
           border-radius: 10px;
           box-sizing: border-box;
           background-color: var(--theme-color);

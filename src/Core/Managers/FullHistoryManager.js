@@ -238,8 +238,8 @@ export class FullHistoryManager {
 FullHistoryManager.startTimestamp = Date.now();
 
 // mouse events
-window.addEventListener('canvasclick', (event) =>
-  FullHistoryManager.addStep('canvasclick', event),
+window.addEventListener('canvasClick', (event) =>
+  FullHistoryManager.addStep('canvasClick', event),
 );
 window.addEventListener('canvasMouseDown', (event) =>
   FullHistoryManager.addStep('canvasMouseDown', event),

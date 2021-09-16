@@ -189,7 +189,7 @@ class DivMainCanvas extends LitElement {
         'click' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
-      app.dispatchEv(new CustomEvent('canvasclick'));
+      app.dispatchEv(new CustomEvent('canvasClick'));
     });
 
     this.upperCanvas.addEventListener('mousedown', (event) => {
@@ -359,7 +359,7 @@ class DivMainCanvas extends LitElement {
         );
       }
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
-      app.dispatchEv(new CustomEvent('canvasclick'));
+      app.dispatchEv(new CustomEvent('canvasClick'));
       app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
     });
 
@@ -389,7 +389,7 @@ class DivMainCanvas extends LitElement {
         );
       }
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
-      app.dispatchEv(new CustomEvent('canvasclick'));
+      app.dispatchEv(new CustomEvent('canvasClick'));
       app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
     });
 
@@ -419,7 +419,7 @@ class DivMainCanvas extends LitElement {
         );
       }
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
-      app.dispatchEv(new CustomEvent('canvasclick'));
+      app.dispatchEv(new CustomEvent('canvasClick'));
       app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
     });
   }

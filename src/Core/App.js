@@ -30,6 +30,7 @@ export class App {
       areShapesPointed: true,
       shapesSize: 2,
       numberOfDivisionParts: 2,
+      numberOfRegularPoints: 3,
       shapeFillColor: '#000000',
       shapeBorderColor: '#000000',
       shapeOpacity: 0.7,

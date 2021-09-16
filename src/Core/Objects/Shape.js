@@ -74,7 +74,9 @@ export class Shape {
         segment.divisionPointIds.push(newPoint.id);
         return newPoint.id;
       })];
-      if (this.isCircle()) this.vertexes[0].visible = false;
+      if (this.isCircle() && app.environment.name != 'Geometrie') {
+        this.vertexes[0].visible = false;
+      }
     } else {
       this.pointIds = [...pointIds];
       this.segmentIds = [...segmentIds];

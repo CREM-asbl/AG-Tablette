@@ -18,8 +18,7 @@
   ],
   "start_url": "/",
   "display": "fullscreen",
-  "background_color": "#3f51b5",
-  "theme_color": "#3f51b5",
+  "theme_color": "lightgrey",
   "description": "Version mobile d'Apprenti Géomètre",
   "file_handlers": [
     {
