@@ -47,7 +47,7 @@ class NotionElem extends LitElement {
     return html`
       <details name="summary">
         <summary name="summary" @click="${this.summaryClick}">${this.title}</summary>
-        ${this.sequenceInfos.map(info => html`<sequence-elem  title="${info.Title}" fileIds="${info.File_ids}"></sequence-elem>`)}
+        ${this.sequenceInfos.filter(info => info?.isHidden != true).map(info => html`<sequence-elem  title="${info.Title}" fileIds="${info.File_ids}"></sequence-elem>`)}
       </details>
     `;
   }
