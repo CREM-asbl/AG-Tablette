@@ -8,7 +8,6 @@ import { app, setState } from '../Core/App';
 import 'firebase/compat/firestore';
 import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import { loadEnvironnement } from '../Core/Environments/Environment';
-import { DrawingEnvironment } from '../Core/Objects/DrawingEnvironment';
 
 firebase.initializeApp(config)
 
@@ -139,11 +138,13 @@ export function openFileFromId(id) {
       setState({ environmentLoading: true });
       setState({ environment: await loadEnvironnement(data.Environment) });
 
+      const DrawingEnvironmentModule = await import('../Core/Objects/DrawingEnvironment.js');
+
       // à retirer quand tout est centralisé dans app
-      app.upperDrawingEnvironment = new DrawingEnvironment();
-      app.mainDrawingEnvironment = new DrawingEnvironment();
-      app.backgroundDrawingEnvironment = new DrawingEnvironment();
-      app.invisibleDrawingEnvironment = new DrawingEnvironment();
+      app.upperDrawingEnvironment = new DrawingEnvironmentModule.DrawingEnvironment();
+      app.mainDrawingEnvironment = new DrawingEnvironmentModule.DrawingEnvironment();
+      app.backgroundDrawingEnvironment = new DrawingEnvironmentModule.DrawingEnvironment();
+      app.invisibleDrawingEnvironment = new DrawingEnvironmentModule.DrawingEnvironment();
       // ---
     }
   }, { once: true });
