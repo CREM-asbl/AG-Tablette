@@ -97,7 +97,7 @@ export async function openFileFromId(id) {
     let fileContent = await readFileFromServer(data.URL);
     window.addEventListener('app-started', () => OpenFileManager.parseFile(fileContent), {once: true});
 
-    setState({ environmentLoading: true });
+    setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(data.Environment) });
 
     const DrawingEnvironmentModule = await import('../Core/Objects/DrawingEnvironment.js');

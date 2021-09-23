@@ -64,6 +64,7 @@ export class App {
 
     this.stepSinceSave = false,
     this.started = false;
+    this.appLoading = false;
 
     this.defaultState = {
       tool: null,

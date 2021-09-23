@@ -11,8 +11,14 @@ class AgApp extends LitElement {
   static get properties() {
     return {
       environnement_selected: { type: Boolean },
-      environmentLoading: { type: Boolean },
+      appLoading: { type: Boolean },
     };
+  }
+
+  constructor() {
+    super();
+
+    this.appLoading = false;
   }
 
   connectedCallback() {
@@ -35,32 +41,34 @@ class AgApp extends LitElement {
   }
 
   render() {
+    let toRender = [];
+    if (this.appLoading) {
+      import('./loading-elem');
+      toRender.push(html`<loading-elem></loading-elem>`);
+    }
     if (this.environnement_selected) {
       history.pushState({}, "main page");
-      import('./ag-main');
-      return html` <ag-main></ag-main> `;
-    } else if (!this.environmentLoading) {
+      const AGmainLoader = import('./ag-main');
+      toRender.push( html`<ag-main></ag-main>`);
+    } else if (!this.appLoading) {
       import('./ag-environnements');
       return html` <ag-environnements></ag-environnements> `;
-    } else {
-      return html`
-        <div>
-          Loading
-        </div>
-      `;
     }
+    return toRender;
   }
 
   async openEnv(e) {
     if (app?.short_name == "AG mobile" && e != "Grandeurs")
       return;
-    this.setState({ environmentLoading: true });
+    setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(e) });
   }
 
   setState() {
+    if (app.appLoading) {
+      this.appLoading = true;
+    }
     this.environnement_selected = app.environment !== undefined;
-    this.environmentLoading = app.environmentLoading;
   }
 }
 customElements.define('ag-app', AgApp);

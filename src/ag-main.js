@@ -167,6 +167,7 @@ class AGMain extends LitElement {
   async firstUpdated() {
     let sectionImport = await import(`./toolbarSectionsDef.js`);
     this.toolbarSections = sectionImport.default.sections;
+    setState({ appLoading: false });
   }
 
   render() {
