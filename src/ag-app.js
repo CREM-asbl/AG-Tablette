@@ -25,7 +25,7 @@ class AgApp extends LitElement {
   parseURL() {
     let parsedUrl = new URL(window.location.href);
     let part = parsedUrl.searchParams.get("interface");
-    if (part) {
+    if (['Grandeurs', 'Tangram', 'Cubes', 'Geometrie'].includes(part)) {
       this.openEnv(part);
       return;
     }
