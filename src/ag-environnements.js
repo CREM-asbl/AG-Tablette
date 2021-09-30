@@ -96,22 +96,22 @@ class AgEnvironnements extends LitElement {
 
   render() {
     return html`
-      <div id="Grandeurs" name="Grandeurs" class="envTile" @click="${() => this.handleClick('Grandeurs')}">
+      <div id="Grandeurs" name="Grandeurs" class="envTile" @click="${() => this.handleClick('Grandeurs')}" alt="logo Grandeurs">
         <div class="textBottom envText" name="Grandeurs">
           Grandeurs
         </div>
       </div>
-      <div id="Tangram" name="Tangram" class="envTile" @click="${() => this.handleClick('Tangram')}">
+      <div id="Tangram" name="Tangram" class="envTile" @click="${() => this.handleClick('Tangram')}" alt="logo Tangram">
         <div class="textBottom envText" name="Tangram">
           Tangram
         </div>
       </div>
-      <div id="Cubes" name="Cubes" class="envTile" @click="${() => this.handleClick('Cubes')}">
+      <div id="Cubes" name="Cubes" class="envTile" @click="${() => this.handleClick('Cubes')}" alt="logo Cubes">
         <div class="textTop envText" name="Cubes">
           Cubes
         </div>
       </div>
-      <div id="Geometrie" name="Geometrie" class="envTile" @click="${() => this.handleClick('Geometrie')}">
+      <div id="Geometrie" name="Geometrie" class="envTile" @click="${() => this.handleClick('Geometrie')}" alt="logo Géométrie">
         <div class="textTop envText" name="Geometrie">
           Géométrie
         </div>
@@ -120,13 +120,14 @@ class AgEnvironnements extends LitElement {
         <img
           src="images/manifest/icon.svg"
           draggable="false"
+          alt="logo"
         />
       </div>
     `;
   }
 
   async handleClick(e) {
-    setState({ environmentLoading: true });
+    setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(e) });
   }
 }

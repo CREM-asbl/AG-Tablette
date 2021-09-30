@@ -117,7 +117,7 @@ export class FullHistoryManager {
           if (toolInfo.name == 'divide' || toolInfo.name == 'opacity') {
             currentStep = 'selectObject';
           }
-          tool = { ...toolInfo, currentStep: 'start' };
+          tool = { ...toolInfo, currentStep };
           break;
         }
       }

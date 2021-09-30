@@ -1,8 +1,5 @@
 import { app, setState } from '../App';
-import { Settings } from '../Settings';
-import { WorkspaceManager } from './WorkspaceManager';
 import { createElem } from '../Tools/general';
-import '../../popups/open-popup';
 
 export class OpenFileManager {
   static async openFile() {
@@ -46,7 +43,7 @@ export class OpenFileManager {
     reader.readAsText(file);
   }
 
-  static parseFile(fileContent) {
+  static async parseFile(fileContent) {
     let saveObject;
     if (typeof fileContent == 'string') {
       try {
@@ -70,7 +67,8 @@ export class OpenFileManager {
     }
 
     // app.lastFileVersion = saveObject.appVersion;
-    WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
+    const WorkspaceManagerModule = await import('./WorkspaceManager.js');
+    WorkspaceManagerModule.WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
     if (app.environment.name == 'Tangram')
       app.mainDrawingEnvironment.removeAllObjects();
 
@@ -117,7 +115,8 @@ export class OpenFileManager {
   }
 }
 
-window.addEventListener('open-file', () => {
+window.addEventListener('open-file', async () => {
+  await import('../../popups/open-popup');
   createElem('open-popup');
 });
 
