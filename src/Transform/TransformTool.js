@@ -9,7 +9,7 @@ import { SelectManager } from '../Core/Managers/SelectManager';
  */
 export class TransformTool extends Tool {
   constructor() {
-    super('transform', 'Modifier un polygone', 'operation');
+    super('transform', 'Modifier une figure', 'operation');
 
     // show-points -> move-point
     this.currentStep = null;
@@ -42,12 +42,7 @@ export class TransformTool extends Tool {
     `;
   }
 
-  /**
-   * (ré-)initialiser l'état
-   */
   start() {
-    this.currentStep = 'show-points';
-
     this.shapeId = null;
     this.pointSelected = null;
     this.pointDest = null;
@@ -60,6 +55,10 @@ export class TransformTool extends Tool {
       });
     });
 
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+  }
+
+  selectPoint() {
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'mousedown';
     app.workspace.selectionConstraints.points.canSelect = true;
@@ -69,38 +68,17 @@ export class TransformTool extends Tool {
     app.workspace.selectionConstraints.points.blacklist = null;
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    this.start();
+  transform() {
+
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
-
-    app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasMouseUp', this.mouseUpId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+    this.removeListeners();
   }
 
   objectSelected(point) {
