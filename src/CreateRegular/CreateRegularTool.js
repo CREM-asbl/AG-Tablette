@@ -34,7 +34,7 @@ export class CreateRegularTool extends Tool {
   getHelpText() {
     let toolName = this.title;
     return html`
-      <h2>${toolName}</h2>
+      <h3>${toolName}</h3>
       <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br /></p>
     `;
   }

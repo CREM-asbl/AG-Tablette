@@ -27,7 +27,7 @@ export class Rotate45Tool extends Tool {
   getHelpText() {
     let toolName = this.title;
     return html`
-      <h2>${toolName}</h2>
+      <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
         Cliquez sur une figure pour la faire tourner de 45° dans le sens

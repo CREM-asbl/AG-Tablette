@@ -1,6 +1,6 @@
 import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
-import { html } from 'lit-element';
+import { html } from 'lit';
 import { TangramManager } from './TangramManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';
@@ -55,11 +55,12 @@ export class SolutionCheckerTool extends Tool {
    getHelpText() {
     let toolName = this.title;
     return html`
-      <h2>${toolName}</h2>
+      <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Vous pouvez réaliser le Tangram et vérifier votre solution en appuyant
-        sur le bouton prévu à cet effet.<br />
+        Vous pouvez réaliser le puzzle et vérifier votre solution en appuyant
+        sur le bouton "Vérifier la solution".<br />
+        Le contour de la silhouette apparait et peut se superposer avec les figures.
       </p>
     `;
   }
@@ -78,7 +79,7 @@ export class SolutionCheckerTool extends Tool {
     this.checkSolution();
     setState({
       tangram: {
-        buttonText: 'Annuler vérification',
+        buttonText: 'Annuler la vérification',
         buttonValue: 'uncheck',
       },
       tool: { name: 'verifySolution', title: 'Vérifier la solution', currentStep: 'start' }
@@ -94,7 +95,7 @@ export class SolutionCheckerTool extends Tool {
     this.eraseSolution();
     setState({
       tangram: {
-        buttonText: 'Vérifier solution',
+        buttonText: 'Vérifier la solution',
         buttonValue: 'check',
       }
     });
@@ -211,7 +212,7 @@ export class SolutionCheckerTool extends Tool {
     });
 
     let areShapeScaled =
-      app.backgroundDrawingEnvironment.shapes[0].size == 0.66;
+      app.backgroundDrawingEnvironment.shapes[0].size == 0.6;
     if (areShapeScaled) {
       let silhouetteBounds = Bounds.getOuterBounds(
         ...shapes.map((s) => s.bounds),
@@ -220,7 +221,7 @@ export class SolutionCheckerTool extends Tool {
         x: (silhouetteBounds.maxX + silhouetteBounds.minX) / 2,
         y: (silhouetteBounds.maxY + silhouetteBounds.minY) / 2,
       });
-      shapes.forEach((s) => s.homothety(3 / 2, center));
+      shapes.forEach((s) => s.homothety(10 / 6, center));
     }
 
     if (this.solutionShapeIds.length > 1) {

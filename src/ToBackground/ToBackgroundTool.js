@@ -18,7 +18,7 @@ export class ToBackgroundTool extends Tool {
   getHelpText() {
     let toolName = this.title;
     return html`
-      <h2>${toolName}</h2>
+      <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
         placer une figure derrière toutes les autres.<br />

@@ -24,9 +24,10 @@ export class TemplatePopup extends LitElement {
         display: none;
       }
 
-      h2 {
+      h2, h3 {
         padding: 16px;
         margin: 0;
+        font-size: 1.5em;
       }
 
       .field {
@@ -55,15 +56,17 @@ export class TemplatePopup extends LitElement {
         place-items: center;
         overflow: auto;
         padding: 16px;
+        padding-top: 3px;
         text-align: center;
       }
 
       [slot='footer'] {
         grid-area: 3 / 1 / 4 / 3;
         display: flex;
-        justify-content: space-between;
+        justify-content: space-evenly;
         align-items: center;
         padding: 16px;
+        padding-top: 0px;
       }
 
       label {

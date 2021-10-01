@@ -18,12 +18,12 @@
     "@snowpack/plugin-dotenv": "^2.0.5",
     "@web/test-runner": "^0.12.15",
     "babel-plugin-root-import": "^6.6.0",
-    "prettier": "^2.0.5"
+    "prettier": "^2.4.1"
   },
   "dependencies": {
-    "firebase": "^9.0.1",
-    "lit": "^2.0.0-rc.2",
-    "npm": "^7.16.0",
+    "firebase": "^9.0.2",
+    "lit": "^2.0.0",
+    "npm": "^7.24.0",
     "pwa-helpers": "^0.9.1",
     "tslib": "^2.2.0"
   }

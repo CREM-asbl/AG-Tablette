@@ -21,7 +21,7 @@ module.exports = {
   },
   devOptions: {
     port: 8000,
-    open: "chromium"
+    open: "chrome"
   },
   buildOptions: {
     /* ... */

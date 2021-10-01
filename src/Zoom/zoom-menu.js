@@ -1,5 +1,5 @@
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit-element';
+import { LitElement, html, css } from 'lit';
 import { Coordinates } from '../Core/Objects/Coordinates';
 
 class ZoomMenu extends LitElement {

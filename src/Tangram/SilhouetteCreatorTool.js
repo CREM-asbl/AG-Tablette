@@ -1,6 +1,6 @@
 import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
-import { html } from 'lit-element';
+import { html } from 'lit';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { TangramManager } from './TangramManager';
 
@@ -9,7 +9,7 @@ import { TangramManager } from './TangramManager';
  */
 export class SilhouetteCreatorTool extends Tool {
   constructor() {
-    super('createSilhouette', 'Créer une silhouette', 'tangram');
+    super('createSilhouette', 'Créer une silhouette', 'tool');
 
     this.isUserWarnedAboutOverlap = false;
   }
@@ -38,6 +38,7 @@ export class SilhouetteCreatorTool extends Tool {
       }),
     );
     window.addEventListener('actions-executed', this.handler);
+    window.addEventListener('add-fullstep', this.handler);
   }
 
   end() {
@@ -66,11 +67,15 @@ export class SilhouetteCreatorTool extends Tool {
       this.verifyOverlappingShapes();
     } else if (event.type == 'new-window') {
       this.end();
+    } else if (event.type == 'add-fullstep' && (event.detail.name == 'Refaire' || event.detail.name == 'Annuler')) {
+      this.verifyOverlappingShapes();
+      window.dispatchEvent(new CustomEvent('refresh'));
     }
   }
 
   removeListeners() {
     window.removeEventListener('actions-executed', this.handler);
+    window.removeEventListener('add-fullstep', this.handler);
     window.removeEventListener('tangram-changed', this.handler);
     window.removeEventListener('new-window', this.handler);
   }
@@ -82,13 +87,13 @@ export class SilhouetteCreatorTool extends Tool {
   getHelpText() {
     let toolName = this.title;
     return html`
-      <h2>${toolName}</h2>
+      <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
         Pour créer une nouvelle silhouette, disposez les figures comme vous le
         désirez, <br />
         en veillant à ce qu'aucunes figures ne se supersopent. <br />
-        Cliquez sur le bouton "Créer silhouette" une fois que vous avez terminé.
+        Cliquez sur le bouton "Afficher la silhouette" une fois que vous avez terminé.
         <br />
       </p>
     `;

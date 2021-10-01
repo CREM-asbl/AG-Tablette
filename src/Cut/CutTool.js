@@ -28,7 +28,7 @@ export class CutTool extends Tool {
   getHelpText() {
     let toolName = this.title;
     return html`
-      <h2>${toolName}</h2>
+      <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
         découper une figure en deux nouvelles figures, tout en laissant la figure
@@ -290,7 +290,7 @@ export class CutTool extends Tool {
       precision = 1, // px
       amountOfParts = length / precision,
       pointsInBorder = 0;
-    for (let i = 1; i < amountOfParts; i++) {
+    for (let i = 1; i < amountOfParts - 1; i++) {
       let coord = pt1.coordinates.add(part.multiply(i));
       if (!shape.isCoordinatesInPath(coord)) return false;
       pointsInBorder += shape.isCoordinatesOnBorder(coord) ? 1 : 0;
@@ -303,7 +303,6 @@ export class CutTool extends Tool {
     });
     if (shape.segments.some((seg) => seg.doesIntersect(junction, false, true)))
       return false;
-
     return shape.vertexes.every(
       (vertex) =>
         vertex.coordinates.equal(pt1.coordinates) ||

@@ -46,24 +46,6 @@ export class TangramManager {
     }
   }
 
-  static async retrieveTangrams() {
-    if (!app || app.CremTangrams.length) return;
-
-    const folder = 'tangram/',
-      filenames = ['Carre.agt'],
-      fullFilenames = filenames.map((name) => serverURL + folder + name);
-
-    let jsons = (
-      await Promise.all(
-        fullFilenames.map(async (filename) =>
-          this.getTangramFromServer(filename),
-        ),
-      )
-    ).filter(Boolean);
-
-    jsons.forEach((json) => app.CremTangrams.push(json));
-  }
-
   static async loadKit() {
     const response = await fetch('data/Tangram/tangramShapeKit.json');
     return response.text();
@@ -76,7 +58,3 @@ export class TangramManager {
     WorkspaceManager.setWorkspaceFromObject(ws);
   }
 }
-
-app.CremTangrams = [];
-
-TangramManager.retrieveTangrams();
