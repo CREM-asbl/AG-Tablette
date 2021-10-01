@@ -3,6 +3,7 @@ import { TemplatePopup } from './template-popup';
 import './open-server-popup';
 import { findFilesByIds, openFileFromId, readFileFromServer } from '../Firebase/firebase-init';
 import { OpenFileManager } from '../Core/Managers/OpenFileManager';
+import { app } from '../Core/App';
 
 class FileElem extends LitElement {
   static get properties() {
@@ -10,6 +11,7 @@ class FileElem extends LitElement {
       title: String,
       fileName: String,
       env: String,
+      fileId: String,
     };
   }
 
@@ -62,6 +64,9 @@ class FileElem extends LitElement {
    * event handler principal
    */
   async openFile() {
+    if (this.env != app.environment.name && confirm('Voulez-vous ouvrir ce fichier dans ' + this.env + '?')) {
+      window.location.href = location.protocol + '//' + location.host + location.pathname + '?activityId=' + this.fileId;
+    }
     let fileContent = await readFileFromServer(this.fileName);
     OpenFileManager.parseFile(fileContent);
     window.dispatchEvent(new CustomEvent('close-popup'));
