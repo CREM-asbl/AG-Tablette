@@ -212,7 +212,7 @@ export class SolutionCheckerTool extends Tool {
     });
 
     let areShapeScaled =
-      app.backgroundDrawingEnvironment.shapes[0].size == 0.66;
+      app.backgroundDrawingEnvironment.shapes[0].size == 0.6;
     if (areShapeScaled) {
       let silhouetteBounds = Bounds.getOuterBounds(
         ...shapes.map((s) => s.bounds),
@@ -221,7 +221,7 @@ export class SolutionCheckerTool extends Tool {
         x: (silhouetteBounds.maxX + silhouetteBounds.minX) / 2,
         y: (silhouetteBounds.maxY + silhouetteBounds.minY) / 2,
       });
-      shapes.forEach((s) => s.homothety(3 / 2, center));
+      shapes.forEach((s) => s.homothety(10 / 6, center));
     }
 
     if (this.solutionShapeIds.length > 1) {
