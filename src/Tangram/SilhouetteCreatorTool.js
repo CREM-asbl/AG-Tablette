@@ -38,6 +38,7 @@ export class SilhouetteCreatorTool extends Tool {
       }),
     );
     window.addEventListener('actions-executed', this.handler);
+    window.addEventListener('add-fullstep', this.handler);
   }
 
   end() {
@@ -66,11 +67,15 @@ export class SilhouetteCreatorTool extends Tool {
       this.verifyOverlappingShapes();
     } else if (event.type == 'new-window') {
       this.end();
+    } else if (event.type == 'add-fullstep' && (event.detail.name == 'Refaire' || event.detail.name == 'Annuler')) {
+      this.verifyOverlappingShapes();
+      window.dispatchEvent(new CustomEvent('refresh'));
     }
   }
 
   removeListeners() {
     window.removeEventListener('actions-executed', this.handler);
+    window.removeEventListener('add-fullstep', this.handler);
     window.removeEventListener('tangram-changed', this.handler);
     window.removeEventListener('new-window', this.handler);
   }
