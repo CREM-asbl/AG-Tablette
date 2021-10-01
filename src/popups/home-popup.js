@@ -18,6 +18,14 @@ class HomePopup extends LitElement {
         p {
           text-align: center;
         }
+
+        [slot='body'] {
+          padding: 0;
+        }
+
+        [slot='footer'] {
+          padding-top: 16px;
+        }
       `,
     ];
   }

@@ -30,7 +30,7 @@ export class CreateTool extends Tool {
   getHelpText() {
     let toolName = this.title;
     return html`
-      <h2>${toolName}</h2>
+      <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
         Après avoir sélectionné une famille de figures dans le menu, vous devez

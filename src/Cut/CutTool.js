@@ -28,7 +28,7 @@ export class CutTool extends Tool {
   getHelpText() {
     let toolName = this.title;
     return html`
-      <h2>${toolName}</h2>
+      <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
         découper une figure en deux nouvelles figures, tout en laissant la figure

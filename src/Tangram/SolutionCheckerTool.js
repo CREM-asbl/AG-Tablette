@@ -55,7 +55,7 @@ export class SolutionCheckerTool extends Tool {
    getHelpText() {
     let toolName = this.title;
     return html`
-      <h2>${toolName}</h2>
+      <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
         Vous pouvez réaliser le puzzle et vérifier votre solution en appuyant

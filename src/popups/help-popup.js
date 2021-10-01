@@ -39,6 +39,10 @@ class HelpPopup extends LitElement {
                 -ms-user-select: text; /* Internet Explorer/Edge */
                     user-select: text;
         }
+
+        h3 {
+          padding: 0;
+        }
       `,
     ];
   }
@@ -59,12 +63,11 @@ class HelpPopup extends LitElement {
       <template-popup>
         <h2 slot="title">Aide</h2>
         <div id="helpPopupBody" slot="body">
-          <div id="helpPopupContent">${this.content}</div>
-
-          <div slot="footer">
+          ${this.content}
+        </div>
+        <div slot="footer">
             <color-button id="focus" @click="${() => this.close()}" innerText="Ok"></color-button>
           </div>
-        </div>
       </template-popup>
     `;
   }
