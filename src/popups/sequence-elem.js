@@ -53,7 +53,7 @@ class SequenceElem extends LitElement {
         <summary name="summary" @click="${this.summaryClick}">${this.title}</summary>
         ${this.fileInfos.map(info => {
           let shortFilename = this.lastElemOfPath(info.URL);
-          return html`<file-elem  title="${shortFilename}" fileName="${info.URL}"></file-elem>`
+          return html`<file-elem title="${shortFilename}" fileId="${info.id}" fileName="${info.URL}"></file-elem>`
         })}
       </details>
     `;
