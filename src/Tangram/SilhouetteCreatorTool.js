@@ -9,7 +9,7 @@ import { TangramManager } from './TangramManager';
  */
 export class SilhouetteCreatorTool extends Tool {
   constructor() {
-    super('createSilhouette', 'Créer une silhouette', 'tangram');
+    super('createSilhouette', 'Créer une silhouette', 'tool');
 
     this.isUserWarnedAboutOverlap = false;
   }
@@ -88,7 +88,7 @@ export class SilhouetteCreatorTool extends Tool {
         Pour créer une nouvelle silhouette, disposez les figures comme vous le
         désirez, <br />
         en veillant à ce qu'aucunes figures ne se supersopent. <br />
-        Cliquez sur le bouton "Créer silhouette" une fois que vous avez terminé.
+        Cliquez sur le bouton "Afficher la silhouette" une fois que vous avez terminé.
         <br />
       </p>
     `;

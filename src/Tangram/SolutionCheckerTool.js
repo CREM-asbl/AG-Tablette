@@ -58,8 +58,9 @@ export class SolutionCheckerTool extends Tool {
       <h2>${toolName}</h2>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Vous pouvez réaliser le Tangram et vérifier votre solution en appuyant
-        sur le bouton prévu à cet effet.<br />
+        Vous pouvez réaliser le puzzle et vérifier votre solution en appuyant
+        sur le bouton "Vérifier la solution".<br />
+        Le contour de la silhouette apparait et peut se superposer avec les figures.
       </p>
     `;
   }
@@ -78,7 +79,7 @@ export class SolutionCheckerTool extends Tool {
     this.checkSolution();
     setState({
       tangram: {
-        buttonText: 'Annuler vérification',
+        buttonText: 'Annuler la vérification',
         buttonValue: 'uncheck',
       },
       tool: { name: 'verifySolution', title: 'Vérifier la solution', currentStep: 'start' }
@@ -94,7 +95,7 @@ export class SolutionCheckerTool extends Tool {
     this.eraseSolution();
     setState({
       tangram: {
-        buttonText: 'Vérifier solution',
+        buttonText: 'Vérifier la solution',
         buttonValue: 'check',
       }
     });
