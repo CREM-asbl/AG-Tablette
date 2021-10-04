@@ -15,7 +15,7 @@ export const grandeursKit = {
         },
 
         {
-          name: 'Triangle rectangle',
+          name: 'Triangle rectangle 1',
           path: 'L 25 0 L 0 -43.3012701892 Z',
         },
 
@@ -115,7 +115,7 @@ export const grandeursKit = {
         },
 
         {
-          name: 'Triangle rectangle',
+          name: 'Triangle rectangle 2',
           path: 'L 25 0 L 25 -50 Z',
         },
 

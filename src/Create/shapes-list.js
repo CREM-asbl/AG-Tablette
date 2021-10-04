@@ -1,6 +1,5 @@
 import { app, setState } from '../Core/App';
 import { LitElement, html, css } from 'lit';
-import '../canvas-button';
 
 class ShapesList extends LitElement {
   static get properties() {
@@ -108,17 +107,19 @@ class ShapesList extends LitElement {
         </h2>
         <div id="list">
           ${this.templateNames.map(
-            (templateName) => html`
-              <canvas-button
+            (templateName) => {
+              console.log(templateName)
+              return html`
+              <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${templateName.replace(/ \d+$/, '')}"
-                familyName="${this.selectedFamily}"
-                templateName="${templateName}"
-                @click="${this._clickHandle}"
+                name="${templateName}"
+                type="Create"
+                title="${templateName}"
                 ?active="${templateName === this.selectedTemplate}"
+                @click="${this._clickHandle}"
               >
-              </canvas-button>
-            `,
+              </icon-button>
+            `},
           )}
         </div>
       </div>
@@ -129,7 +130,7 @@ class ShapesList extends LitElement {
     setState({
       tool: {
         ...app.tool,
-        selectedTemplate: event.target.templateName,
+        selectedTemplate: event.target.name,
         currentStep: 'listen',
       },
     });

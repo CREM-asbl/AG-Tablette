@@ -3,11 +3,11 @@
              viewBox="0 0 52 52" width="52px" height="52px" xml:space="preserve">
     <style type="text/css">
             path {
-        fill:#FF0;
+        fill:#ff0000;
         stroke:#000;
         stroke-width:1;
         stroke-miterlimit:10;
       }
     </style>
-    <path class="st0" d="M 47 26 A 21 21 0 1 0 5 26 A 21 21 0 1 0 47 26"/>
+    <path class="st0" d="M 40.8492424049175 26 A 14.849242404917497 14.849242404917497 0 1 0 11.150757595082503 26 A 14.849242404917497 14.849242404917497 0 1 0 40.8492424049175 26"/>
     </svg>

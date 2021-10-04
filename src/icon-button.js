@@ -11,14 +11,15 @@ class IconButton extends LitElement {
 
   updated() {
     //Todo: Refacto (ce code ne devrait pas se trouver ici)
+    let name = this.name.replaceAll('é', 'e').replaceAll('è', 'e');
     if (this.type == 'State') {
-      this.src = '/images/States/' + this.name + '.svg';
+      this.src = '/images/States/' + name + '.svg';
     } else if (this.type == 'Geometry') {
-      this.src = '/images/Geometry/' + this.name + '.svg';
+      this.src = '/images/Geometry/' + name + '.svg';
     } else if (this.type == 'Create') {
-      this.src = '/images/Create/' + this.name + '.svg';
+      this.src = '/images/Create/' + name + '.svg';
     } else {
-      this.src = '/images/' + this.name + '.svg';
+      this.src = '/images/' + name + '.svg';
     }
   }
 

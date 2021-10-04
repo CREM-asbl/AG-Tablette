@@ -151,7 +151,7 @@ class AgApp extends LitElement {
     <path class="st0" d="${path}"/>
     </svg>`
 
-    const file = { name: shapeTemplate.name + ".svg", lastModified: new Date(), input: filecontent };
+    const file = { name: shapeTemplate.name.replaceAll('é', 'e').replaceAll('è', 'e') + ".svg", lastModified: new Date(), input: filecontent };
     return file;
   }
 
