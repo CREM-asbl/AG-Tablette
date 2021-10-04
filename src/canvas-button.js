@@ -79,18 +79,14 @@ class CanvasButton extends LitElement {
 
     let shapeTemplates, family, scale, center;
 
-    if (this.silhouetteIdx === undefined) {
-      family = app.environment.getFamily(this.familyName);
-      shapeTemplates = [
-        family.shapeTemplates.find(
-          (template) => template.name === this.templateName,
-        ) || family.shapeTemplates[0],
-      ];
-    } else {
-      shapeTemplates =
-        app.CremTangrams[this.silhouetteIdx].silhouetteData.shapesData;
-    }
+    family = app.environment.getFamily(this.familyName);
+    shapeTemplates = [
+      family.shapeTemplates.find(
+        (template) => template.name === this.templateName,
+      ) || family.shapeTemplates[0],
+    ];
 
+    console.log(shapeTemplates);
     this.shapes = shapeTemplates.map(
       (template) =>
         new Shape({

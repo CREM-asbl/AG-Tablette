@@ -21,6 +21,7 @@
     "prettier": "^2.4.1"
   },
   "dependencies": {
+    "client-zip": "^2.0.0",
     "firebase": "^9.0.2",
     "lit": "^2.0.0",
     "npm": "^7.24.0",

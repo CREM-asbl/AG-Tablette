@@ -15,6 +15,8 @@ class IconButton extends LitElement {
       this.src = '/images/States/' + this.name + '.svg';
     } else if (this.type == 'Geometry') {
       this.src = '/images/Geometry/' + this.name + '.svg';
+    } else if (this.type == 'Create') {
+      this.src = '/images/Create/' + this.name + '.svg';
     } else {
       this.src = '/images/' + this.name + '.svg';
     }

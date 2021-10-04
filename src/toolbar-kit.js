@@ -1,6 +1,5 @@
 import { app, setState } from './Core/App';
 import { LitElement, html, css } from 'lit';
-import './canvas-button';
 import { TemplateToolbar } from './template-toolbar';
 
 class ToolbarKit extends LitElement {
@@ -50,13 +49,14 @@ class ToolbarKit extends LitElement {
       <template-toolbar>
         <h2 slot="title">${app.environment.kitName}</h2>
         <div slot="body">
-          ${this.familyNames.map((family) => {
+          ${this.familyNames.map((familyName) => {
             return html`
-              <canvas-button
+              <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                familyName="${family}"
-                title="${family}"
-                ?active="${family === this.selectedFamily}"
+                name="${app.environment.families.find(family => family.name == familyName).shapeTemplates[0].name}"
+                type="Create"
+                title="${familyName}"
+                ?active="${familyName === this.selectedFamily}"
                 @click="${() => {
                   if (app.fullHistory.isRunning) {
                     console.warn('cannot interact when fullHisto is running');
@@ -65,13 +65,13 @@ class ToolbarKit extends LitElement {
                   setState({
                     tool: {
                       name: 'create',
-                      selectedFamily: family,
+                      selectedFamily: familyName,
                       currentStep: 'start',
                     },
                   });
                 }}"
               >
-              </canvas-button>
+              </icon-button>
             `;
           })}
         </div>

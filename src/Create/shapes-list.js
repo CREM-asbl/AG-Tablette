@@ -1,5 +1,6 @@
 import { app, setState } from '../Core/App';
 import { LitElement, html, css } from 'lit';
+import '../canvas-button';
 
 class ShapesList extends LitElement {
   static get properties() {

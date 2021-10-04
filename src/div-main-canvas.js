@@ -41,7 +41,9 @@ class DivMainCanvas extends LitElement {
       }
 
       canvas#backgroundCanvas {
-        border-radius: 10px;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+        /* border-radius: 10px; */
         background-color: #fff;
         position: absolute;
         top: 0px;

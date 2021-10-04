@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+         viewBox="0 0 52 52" style="enable-background:new 0 0 52 52;" xml:space="preserve">
+<style type="text/css">
+        path {
+    fill:#FF0;
+    stroke:#000;
+    stroke-width:1;
+    stroke-miterlimit:10;
+  }
+</style>
+<path class="st0" d="M 47.0 26.0 A 21.0 21.0 0 1 0 5.0 26.0 A 21.0 21.0 0 1 0 47.0 26.0"/>
+</svg>
