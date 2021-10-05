@@ -50,7 +50,7 @@ export class Shape {
     isReversed = false,
     isBiface = false,
     geometryConstructionSpec = null, // à enlever (recalculer si besoin)
-    referenceId = null,
+    // referenceId = null,
     hasGeometryReferenced = [],
     divisionPointInfos = [],
   }) {
@@ -96,7 +96,7 @@ export class Shape {
     this.isReversed = isReversed;
     this.isBiface = isBiface;
     this.geometryConstructionSpec = geometryConstructionSpec;
-    this.referenceId = referenceId;
+    // this.referenceId = referenceId;
     this.hasGeometryReferenced = [...hasGeometryReferenced];
   }
 

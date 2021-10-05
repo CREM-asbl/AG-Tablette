@@ -411,16 +411,16 @@ export class Point {
     return resultAngle;
   }
 
-  recomputeSegmentPoint() {
-    let v0 = this.segment.vertexes[0],
-      angle = this.segment.getAngleWithHorizontal(),
-      length = this.segment.length;
+  // recomputeSegmentPoint() {
+  //   let v0 = this.segment.vertexes[0],
+  //     angle = this.segment.getAngleWithHorizontal(),
+  //     length = this.segment.length;
 
-    this.setCoordinates({
-      x: v0.x + Math.cos(angle) * length * this.ratio,
-      y: v0.y + Math.sin(angle) * length * this.ratio,
-    });
-  }
+  //   this.setCoordinates({
+  //     x: v0.x + Math.cos(angle) * length * this.ratio,
+  //     y: v0.y + Math.sin(angle) * length * this.ratio,
+  //   });
+  // }
 
   saveToObject() {
     return this.saveData();
