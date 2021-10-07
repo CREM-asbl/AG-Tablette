@@ -4,6 +4,9 @@ import { html } from 'lit';
 import { Shape } from '../Core/Objects/Shape';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { computeShapeTransform, computeAllShapeTransform } from '../GeometryTools/recomputeShape';
+import { getAllInvolvedShapes } from '../GeometryTools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -44,23 +47,29 @@ export class TransformTool extends Tool {
   }
 
   start() {
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
+
     this.shapeId = null;
     this.pointSelected = null;
     this.pointDest = null;
     this.constraints = null;
     this.line = null;
 
-    app.workspace.shapes.forEach((s) => {
-      s.modifiablePoints.forEach((pt) => {
+    app.mainDrawingEnvironment.shapes.forEach((s) => {
+      s.vertexes.forEach((pt) => {
         pt.computeTransformConstraint();
+        console.log(pt.transformConstraints);
       });
     });
 
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } }), 50);
   }
 
   selectPoint() {
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
+
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'mousedown';
     app.workspace.selectionConstraints.points.canSelect = true;
@@ -69,6 +78,7 @@ export class TransformTool extends Tool {
     app.workspace.selectionConstraints.points.whitelist = null;
     app.workspace.selectionConstraints.points.blacklist = null;
 
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -86,24 +96,22 @@ export class TransformTool extends Tool {
     this.removeListeners();
   }
 
-  getAllInvolvedShapes(shape, involvedShapes) {
-    shape.hasGeometryReferenced.forEach(ref => {
-      let s = app.mainDrawingEnvironment.findObjectById(ref);
-      involvedShapes = [...involvedShapes, s];
-      this.getAllInvolvedShapes(s, involvedShapes);
-    });
-    return involvedShapes;
-  }
-
   objectSelected(point) {
     // this.shapeId = this.pointSelected.shape.id;
+
+    if (point.reference) {
+      point = app.mainDrawingEnvironment.findObjectById(point.reference, 'point');
+    }
+
+    app.upperDrawingEnvironment.removeAllObjects();
 
     point.computeTransformConstraint();
     this.constraints = point.transformConstraints;
 
     this.pointSelectedId = point.id;
 
-    let involvedShapes = this.getAllInvolvedShapes(point.shape, [point.shape]);
+    let involvedShapes = [point.shape];
+    getAllInvolvedShapes(point.shape, involvedShapes);
     console.log(involvedShapes);
 
     this.drawingShapes = involvedShapes.map(
@@ -126,6 +134,7 @@ export class TransformTool extends Tool {
         });
         newShape.points.forEach((pt, idx) => {
           pt.segmentIds = [...s.points[idx].segmentIds];
+          pt.reference = s.points[idx].reference;
         });
         return newShape;
       }
@@ -144,22 +153,33 @@ export class TransformTool extends Tool {
   }
 
   canvasMouseUp() {
-    if (this.line == null) {
-      // pas de contrainte
-      let constraints = SelectManager.getEmptySelectionConstraints().points;
-      constraints.canSelect = true;
-      let adjustedPoint = SelectManager.selectPoint(
-        this.pointDest,
-        constraints,
-        false,
-      );
-      if (adjustedPoint) {
-        this.pointDest.setCoordinates(adjustedPoint);
-      }
-    }
+    this.stopAnimation();
+    // if (this.line == null) {
+    //   // pas de contrainte
+    //   let constraints = SelectManager.getEmptySelectionConstraints().points;
+    //   constraints.canSelect = true;
+    //   let adjustedPoint = SelectManager.selectPoint(
+    //     this.pointDest,
+    //     constraints,
+    //     false,
+    //   );
+    //   if (adjustedPoint) {
+    //     this.pointDest.setCoordinates(adjustedPoint);
+    //   }
+    // }
 
     this.executeAction();
-    this.restart();
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } })
+    // this.restart();
+  }
+
+  _executeAction() {
+    app.mainDrawingEnvironment.editingShapeIds.forEach((sId, idxS) => {
+      let s = app.mainDrawingEnvironment.findObjectById(sId);
+      s.points.forEach((pt, idxPt) => {
+        pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
+      });
+    });
   }
 
   refreshStateUpper() {
@@ -167,8 +187,36 @@ export class TransformTool extends Tool {
     if (app.tool.currentStep == 'transform') {
       let point = app.upperDrawingEnvironment.findObjectById(this.pointSelectedId, 'point');
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
-      console.log('here');
-      this.computeShapeTransform(point.shape);
+      computeShapeTransform(point.shape);
+      computeAllShapeTransform(point.shape);
+    } else if (app.tool.currentStep == 'selectPoint') {
+      app.mainDrawingEnvironment.shapes.forEach((s) => {
+        let points = s.vertexes;
+        points.forEach((pt) => {
+          const transformConstraints = pt.transformConstraints;
+          console.log(transformConstraints);
+          const colorPicker = {
+            [transformConstraints.isFree]: '#0f0',
+            [transformConstraints.isBlocked]: '#f00',
+            [transformConstraints.isConstructed]: '#f00',
+            [transformConstraints.isConstrained]: '#FF8C00',
+          };
+          const color = colorPicker[true];
+
+          if (color != '#f00')
+            new Point({
+              drawingEnvironment: app.upperDrawingEnvironment,
+              coordinates: pt.coordinates,
+              size: 2,
+              color: color,
+            })
+          // window.dispatchEvent(
+          //   new CustomEvent('draw-point', {
+          //     detail: { point: pt, size: 2, color: color },
+          //   }),
+          // );
+        });
+      });
     }
     return;
     if (this.currentStep == 'show-points') {
@@ -246,29 +294,6 @@ export class TransformTool extends Tool {
       });
 
       shapeCopy.updateGeometryReferenced(true);
-    }
-  }
-  computeShapeTransform(shape) {
-    console.log(shape);
-    if (shape.familyName == 'Regular') {
-      let externalAngle = (Math.PI * 2) / shape.segments.length;
-      if (shape.isReversed) {
-        externalAngle *= -1;
-      }
-      let v1 = shape.segments[0].vertexes[0].coordinates;
-      let v2 = shape.segments[0].vertexes[1].coordinates;
-
-      let length = v1.dist(v2);
-      let startAngle = Math.atan2(-(v1.y - v2.y), -(v1.x - v2.x));
-
-      for (let i = 2; i < shape.vertexes.length; i++) {
-        let dx = length * Math.cos(startAngle - (i - 1) * externalAngle);
-        let dy = length * Math.sin(startAngle - (i - 1) * externalAngle);
-
-        let coord = shape.vertexes[i - 1].coordinates.add(new Coordinates({x: dx, y: dy}));
-
-        shape.vertexes[i].coordinates = coord;
-      }
     }
   }
 

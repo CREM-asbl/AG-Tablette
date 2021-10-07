@@ -89,6 +89,9 @@ export class DeleteTool extends Tool {
     if (this.mode == 'shape') {
       this.involvedShapes.forEach((s) => {
         // if (userGroup) userGroup.deleteShape(s.id);
+        app.mainDrawingEnvironment.shapes.forEach(s2 => {
+          s2.hasGeometryReferenced = s2.hasGeometryReferenced.filter(id => id != s.id);
+        });
         app.mainDrawingEnvironment.removeObjectById(s.id, 'shape');
       });
 

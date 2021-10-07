@@ -35,6 +35,7 @@ export class Point {
     visible = true,
     color = '#000',
     size = 1,
+    reference = null,
   }) {
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
@@ -61,6 +62,7 @@ export class Point {
     this.visible = visible;
     this.color = color;
     this.size = size;
+    this.reference = reference;
   }
 
   get shape() {
@@ -132,8 +134,14 @@ export class Point {
       lines: [],
       points: [],
     };
+    if (this.reference) {
+      let refPoint = this.drawingEnvironment.findObjectById(this.reference, 'point');
+      refPoint.computeTransformConstraint();
+      this.transformConstraints = refPoint.transformConstraints;
+      return;
+    }
     if (this.shape.familyName == 'Regular') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+      if (this.idx < 2) {
         constraints.isFree = true;
       } else {
         constraints.isConstructed = true;
@@ -440,6 +448,7 @@ export class Point {
       visible: this.visible,
       color: this.color,
       size: this.size,
+      reference: this.reference,
     };
     return data;
   }
