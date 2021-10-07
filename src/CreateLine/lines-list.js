@@ -17,6 +17,18 @@ class LinesList extends LitElement {
       // 'Strip',
     ];
 
+    this.lineTitle = {
+      'Segment': 'Segment',
+      'ParalleleSegment': 'Segment parallèle',
+      'PerpendicularSegment': 'Segment perpendiculaire',
+      'SemiStraightLine': 'Demi-droite',
+      'ParalleleSemiStraightLine': 'Demi-droite parallèle',
+      'PerpendicularSemiStraightLine': 'Demi-droite perpendiculaire',
+      'StraightLine': 'Droite',
+      'ParalleleStraightLine': 'Droite parallèle',
+      'PerpendicularStraightLine': 'Droite perpendiculaire',
+    }
+
     this.updateProperties = () => {
       this.selectedLine = app.tool.selectedLine;
       this.iconSize = app.menuIconSize;
@@ -102,7 +114,11 @@ class LinesList extends LitElement {
         }
       </style>
       <div class="container">
-        <h2>Lignes</h2>
+        <h2>
+          ${this.selectedLine
+            ? this.lineTitle[this.selectedLine]
+            : 'Lignes'}
+        </h2>
         <div id="list">
           ${this.linesNames.map(
             (lineName) => html`

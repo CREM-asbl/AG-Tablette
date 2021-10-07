@@ -1,15 +1,19 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
 import { Shape } from '../Core/Objects/Shape';
 import { SelectManager } from '../Core/Managers/SelectManager';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { computeShapeTransform, computeAllShapeTransform } from '../GeometryTools/recomputeShape';
+import { getAllInvolvedShapes } from '../GeometryTools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
  */
 export class TransformTool extends Tool {
   constructor() {
-    super('transform', 'Modifier un polygone', 'operation');
+    super('transform', 'Modifier une figure', 'operation');
 
     // show-points -> move-point
     this.currentStep = null;
@@ -42,11 +46,9 @@ export class TransformTool extends Tool {
     `;
   }
 
-  /**
-   * (ré-)initialiser l'état
-   */
   start() {
-    this.currentStep = 'show-points';
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
 
     this.shapeId = null;
     this.pointSelected = null;
@@ -54,100 +56,169 @@ export class TransformTool extends Tool {
     this.constraints = null;
     this.line = null;
 
-    app.workspace.shapes.forEach((s) => {
-      s.modifiablePoints.forEach((pt) => {
+    app.mainDrawingEnvironment.shapes.forEach((s) => {
+      s.vertexes.forEach((pt) => {
         pt.computeTransformConstraint();
+        console.log(pt.transformConstraints);
       });
     });
+
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } }), 50);
+  }
+
+  selectPoint() {
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
 
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'mousedown';
     app.workspace.selectionConstraints.points.canSelect = true;
 
-    app.workspace.selectionConstraints.points.types = ['modifiablePoint'];
+    app.workspace.selectionConstraints.points.types = ['vertex'];
     app.workspace.selectionConstraints.points.whitelist = null;
     app.workspace.selectionConstraints.points.blacklist = null;
 
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.dispatchEvent(new CustomEvent('refreshUpper'));
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  /**
-   * ré-initialiser l'état
-   */
-  restart() {
-    this.end();
-    this.start();
+  transform() {
+    this.removeListeners();
+
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+    this.animate();
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
+    app.mainDrawingEnvironment.editingShapeIds = [];
+    app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
-
-    app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('canvasMouseUp', this.mouseUpId);
-  }
-
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
+    this.removeListeners();
   }
 
   objectSelected(point) {
-    this.pointSelected = point;
-    this.shapeId = this.pointSelected.shape.id;
+    // this.shapeId = this.pointSelected.shape.id;
 
-    this.pointSelected.computeTransformConstraint();
-    this.constraints = this.pointSelected.transformConstraints;
+    if (point.reference) {
+      point = app.mainDrawingEnvironment.findObjectById(point.reference, 'point');
+    }
 
-    if (this.constraints.isConstructed || this.constraints.isBlocked) return;
+    app.upperDrawingEnvironment.removeAllObjects();
 
-    this.currentStep = 'move-point';
-    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+    point.computeTransformConstraint();
+    this.constraints = point.transformConstraints;
 
-    this.animate();
+    this.pointSelectedId = point.id;
+
+    let involvedShapes = [point.shape];
+    getAllInvolvedShapes(point.shape, involvedShapes);
+    console.log(involvedShapes);
+
+    this.drawingShapes = involvedShapes.map(
+      (s) => {
+        let newShape = new Shape({
+          ...s,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: s.getSVGPath('no scale'),
+          divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx, id: dp.id };
+          })).flat(),
+        });
+        let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
+        let ptIds = newShape.points.map((seg, idx) => seg.id = s.points[idx].id);
+        newShape.segmentIds = [...segIds];
+        newShape.pointIds = [...ptIds];
+        newShape.segments.forEach((seg, idx) => {
+          seg.vertexIds = [...s.segments[idx].vertexIds];
+          seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
+        });
+        newShape.points.forEach((pt, idx) => {
+          pt.segmentIds = [...s.points[idx].segmentIds];
+          pt.reference = s.points[idx].reference;
+        });
+        return newShape;
+      }
+    );
+    console.log(this.drawingShapes);
+
+    app.mainDrawingEnvironment.editingShapeIds = involvedShapes.map(
+      (s) => s.id,
+    );
+
+    console.log(this.constraints);
+    // if (this.constraints.isConstructed || this.constraints.isBlocked) return;
+
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
     // window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   canvasMouseUp() {
-    if (this.line == null) {
-      // pas de contrainte
-      let constraints = SelectManager.getEmptySelectionConstraints().points;
-      constraints.canSelect = true;
-      let adjustedPoint = SelectManager.selectPoint(
-        this.pointDest,
-        constraints,
-        false,
-      );
-      if (adjustedPoint) {
-        this.pointDest.setCoordinates(adjustedPoint);
-      }
-    }
+    this.stopAnimation();
+    // if (this.line == null) {
+    //   // pas de contrainte
+    //   let constraints = SelectManager.getEmptySelectionConstraints().points;
+    //   constraints.canSelect = true;
+    //   let adjustedPoint = SelectManager.selectPoint(
+    //     this.pointDest,
+    //     constraints,
+    //     false,
+    //   );
+    //   if (adjustedPoint) {
+    //     this.pointDest.setCoordinates(adjustedPoint);
+    //   }
+    // }
 
-    this.actions = [
-      {
-        name: 'TransformAction',
-        shapeId: this.shapeId,
-        pointSelected: this.pointSelected,
-        pointDest: this.pointDest,
-        line: this.line,
-      },
-    ];
     this.executeAction();
-    this.restart();
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } })
+    // this.restart();
+  }
+
+  _executeAction() {
+    app.mainDrawingEnvironment.editingShapeIds.forEach((sId, idxS) => {
+      let s = app.mainDrawingEnvironment.findObjectById(sId);
+      s.points.forEach((pt, idxPt) => {
+        pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
+      });
+    });
   }
 
   refreshStateUpper() {
+    console.log(app.tool.currentStep);
+    if (app.tool.currentStep == 'transform') {
+      let point = app.upperDrawingEnvironment.findObjectById(this.pointSelectedId, 'point');
+      point.coordinates = app.workspace.lastKnownMouseCoordinates;
+      computeShapeTransform(point.shape);
+      computeAllShapeTransform(point.shape);
+    } else if (app.tool.currentStep == 'selectPoint') {
+      app.mainDrawingEnvironment.shapes.forEach((s) => {
+        let points = s.vertexes;
+        points.forEach((pt) => {
+          const transformConstraints = pt.transformConstraints;
+          console.log(transformConstraints);
+          const colorPicker = {
+            [transformConstraints.isFree]: '#0f0',
+            [transformConstraints.isBlocked]: '#f00',
+            [transformConstraints.isConstructed]: '#f00',
+            [transformConstraints.isConstrained]: '#FF8C00',
+          };
+          const color = colorPicker[true];
+
+          if (color != '#f00')
+            new Point({
+              drawingEnvironment: app.upperDrawingEnvironment,
+              coordinates: pt.coordinates,
+              size: 2,
+              color: color,
+            })
+          // window.dispatchEvent(
+          //   new CustomEvent('draw-point', {
+          //     detail: { point: pt, size: 2, color: color },
+          //   }),
+          // );
+        });
+      });
+    }
+    return;
     if (this.currentStep == 'show-points') {
       app.workspace.shapes.forEach((s) => {
         let points = s.modifiablePoints;

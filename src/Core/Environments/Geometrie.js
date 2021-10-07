@@ -23,7 +23,7 @@ export default {
     'Translate',
     'Zoom',
     'Grid',
-    // 'Transform',
+    'Transform',
   ],
   extension: 'agl',
   themeColor: '#888888',

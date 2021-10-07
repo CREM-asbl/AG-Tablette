@@ -140,15 +140,6 @@ export class CreateRegularTool extends Tool {
     } else {
       this.stopAnimation();
       this.adjustPoint(this.secondPoint);
-      this.actions = [
-        {
-          name: 'CreateRegularAction',
-          firstCoordinates: this.firstPoint.coordinates,
-          secondCoordinates: this.secondPoint.coordinates,
-          numberOfPoints: this.numberOfPoints,
-          reference: null, //reference,
-        },
-      ];
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
       });
@@ -243,6 +234,7 @@ export class CreateRegularTool extends Tool {
     let shape = new Shape({
       ...shapeDrawn,
       path: shapeDrawn.getSVGPath(),
+      familyName: 'Regular',
       borderColor: '#000000',
       size: shapeSize,
       drawingEnvironment: app.mainDrawingEnvironment,
@@ -251,6 +243,19 @@ export class CreateRegularTool extends Tool {
     let transformation = getShapeAdjustment([shape], shape);
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
     shape.translate(transformation.translation);
+    let ref;
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.vertexes[0].reference = ref.id;
+      console.log(app.mainDrawingEnvironment.shapes);
+    }
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.vertexes[1].reference = ref.id;
+      console.log(app.mainDrawingEnvironment.shapes);
+    }
     app.upperDrawingEnvironment.removeAllObjects();
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }

@@ -15,6 +15,17 @@ class QuadrilateralsList extends LitElement {
       'IrregularQuadrilateral',
     ];
 
+    this.quadrilateralTitle = {
+      'Square': 'Carré',
+      'Rectangle': 'Rectangle',
+      'Losange': 'Losange',
+      'Parallelogram': 'Parallélogramme',
+      'RightAngleTrapeze': 'Trapèze rectangle',
+      'IsoscelesTrapeze': 'Trapèze isocèle',
+      'Trapeze': 'Trapèze',
+      'IrregularQuadrilateral': 'Quadrilatère',
+    }
+
     this.updateProperties = () => {
       this.selectedQuadrilateral = app.tool.selectedQuadrilateral;
       this.iconSize = app.menuIconSize;
@@ -100,7 +111,11 @@ class QuadrilateralsList extends LitElement {
         }
       </style>
       <div class="container">
-        <h2>Triangles</h2>
+        <h2>
+          ${this.selectedQuadrilateral
+            ? this.quadrilateralTitle[this.selectedQuadrilateral]
+            : 'Quadrilatères'}
+        </h2>
         <div id="list">
           ${this.quadrilateralsNames.map(
             (quadrilateralName) => html`
