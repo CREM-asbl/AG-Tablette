@@ -59,7 +59,6 @@ export class TransformTool extends Tool {
     app.mainDrawingEnvironment.shapes.forEach((s) => {
       s.vertexes.forEach((pt) => {
         pt.computeTransformConstraint();
-        console.log(pt.transformConstraints);
       });
     });
 
@@ -112,7 +111,6 @@ export class TransformTool extends Tool {
 
     let involvedShapes = [point.shape];
     getAllInvolvedShapes(point.shape, involvedShapes);
-    console.log(involvedShapes);
 
     this.drawingShapes = involvedShapes.map(
       (s) => {
@@ -139,13 +137,11 @@ export class TransformTool extends Tool {
         return newShape;
       }
     );
-    console.log(this.drawingShapes);
 
     app.mainDrawingEnvironment.editingShapeIds = involvedShapes.map(
       (s) => s.id,
     );
 
-    console.log(this.constraints);
     // if (this.constraints.isConstructed || this.constraints.isBlocked) return;
 
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
@@ -183,7 +179,6 @@ export class TransformTool extends Tool {
   }
 
   refreshStateUpper() {
-    console.log(app.tool.currentStep);
     if (app.tool.currentStep == 'transform') {
       let point = app.upperDrawingEnvironment.findObjectById(this.pointSelectedId, 'point');
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
@@ -194,7 +189,6 @@ export class TransformTool extends Tool {
         let points = s.vertexes;
         points.forEach((pt) => {
           const transformConstraints = pt.transformConstraints;
-          console.log(transformConstraints);
           const colorPicker = {
             [transformConstraints.isFree]: '#0f0',
             [transformConstraints.isBlocked]: '#f00',

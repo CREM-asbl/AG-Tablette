@@ -133,7 +133,6 @@ class AgApp extends LitElement {
         path = path.slice(0, match.index) +
           replaces[i](match) +
           path.slice(match.index + match[0].length);
-        console.log(path);
       });
     }
 

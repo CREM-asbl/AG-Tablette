@@ -9,7 +9,6 @@ export function computeAllShapeTransform(shape) {
       if (pt.reference) {
         let ptRef = app.upperDrawingEnvironment.findObjectById(pt.reference, 'point');
         if (!ptRef || ptRef.shape.id != shape.id) {
-          console.log('wrong shape')
         } else {
           pt.coordinates = new Coordinates(ptRef.coordinates);
         }

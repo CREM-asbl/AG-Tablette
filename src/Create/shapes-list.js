@@ -108,7 +108,6 @@ class ShapesList extends LitElement {
         <div id="list">
           ${this.templateNames.map(
             (templateName) => {
-              console.log(templateName)
               return html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
