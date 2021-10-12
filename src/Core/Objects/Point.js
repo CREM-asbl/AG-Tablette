@@ -200,15 +200,14 @@ export class Point {
         constraints.points.push(secondPoint);
       }
     } else if (this.shape.name == 'Rectangle') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+      if (this.idx < 2) {
         constraints.isFree = true;
-      } else if (this.name == 'thirdPoint') {
+      } else if (this.idx == 2) {
         constraints.isConstrained = true;
 
-        let firstSeg = this.shape.segments[0];
         constraints.lines = [
           {
-            segment: new Segment(this, firstSeg.vertexes[1]),
+            segment: this.shape.segments[1],
             isInfinite: true,
           },
         ];
@@ -216,9 +215,9 @@ export class Point {
         constraints.isConstructed = true;
       }
     } else if (this.shape.name == 'Losange') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+      if (this.idx < 2) {
         constraints.isFree = true;
-      } else if (this.name == 'thirdPoint') {
+      } else if (this.idx == 2) {
         constraints.isConstrained = true;
         let constraintLine = {
           segment: new Segment(
@@ -234,41 +233,25 @@ export class Point {
         constraints.isConstructed = true;
       }
     } else if (this.shape.name == 'Parallelogram') {
-      if (
-        this.name == 'firstPoint' ||
-        this.name == 'secondPoint' ||
-        this.name == 'thirdPoint'
-      ) {
+      if (this.idx < 3) {
         constraints.isFree = true;
       } else {
         constraints.isConstructed = true;
       }
     } else if (this.shape.name == 'RightAngleTrapeze') {
-      if (
-        this.name == 'firstPoint' ||
-        this.name == 'secondPoint' ||
-        this.name == 'thirdPoint'
-      ) {
+      if (this.idx < 3) {
         constraints.isFree = true;
       } else {
         constraints.isConstructed = true;
       }
     } else if (this.shape.name == 'IsoscelesTrapeze') {
-      if (
-        this.name == 'firstPoint' ||
-        this.name == 'secondPoint' ||
-        this.name == 'thirdPoint'
-      ) {
+      if (this.idx < 3) {
         constraints.isFree = true;
       } else {
         constraints.isConstructed = true;
       }
     } else if (this.shape.name == 'Trapeze') {
-      if (
-        this.name == 'firstPoint' ||
-        this.name == 'secondPoint' ||
-        this.name == 'thirdPoint'
-      ) {
+      if (this.idx < 3) {
         constraints.isFree = true;
       } else {
         constraints.isConstrained = true;

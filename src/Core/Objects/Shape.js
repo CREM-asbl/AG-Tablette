@@ -49,10 +49,10 @@ export class Shape {
     _isCenterShown = undefined,
     isReversed = false,
     isBiface = false,
-    geometryConstructionSpec = null, // à enlever (recalculer si besoin)
     // referenceId = null,
     hasGeometryReferenced = [],
     divisionPointInfos = [],
+    constructionSpec = {},
   }) {
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
@@ -95,9 +95,8 @@ export class Shape {
     else this.isCenterShown = _isCenterShown;
     this.isReversed = isReversed;
     this.isBiface = isBiface;
-    this.geometryConstructionSpec = geometryConstructionSpec;
-    // this.referenceId = referenceId;
     this.hasGeometryReferenced = [...hasGeometryReferenced];
+    this.constructionSpec = constructionSpec;
   }
 
   /* #################################################################### */
@@ -1359,6 +1358,7 @@ export class Shape {
       referenceShapeId: this.referenceShapeId,
       referenceSegmentIdx: this.referenceSegmentIdx,
       hasGeometryReferenced: this.hasGeometryReferenced,
+      constructionSpec: this.constructionSpec,
     };
     return data;
   }

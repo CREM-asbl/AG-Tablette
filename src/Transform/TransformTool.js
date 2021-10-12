@@ -5,7 +5,12 @@ import { Shape } from '../Core/Objects/Shape';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
-import { computeShapeTransform, computeAllShapeTransform } from '../GeometryTools/recomputeShape';
+import {
+    computeShapeTransform,
+    computeAllShapeTransform,
+    computeConstructionSpec,
+    projectionOnConstraints
+} from '../GeometryTools/recomputeShape';
 import { getAllInvolvedShapes } from '../GeometryTools/general';
 
 /**
@@ -133,6 +138,7 @@ export class TransformTool extends Tool {
         newShape.points.forEach((pt, idx) => {
           pt.segmentIds = [...s.points[idx].segmentIds];
           pt.reference = s.points[idx].reference;
+          pt.transformConstraints = s.points[idx].transformConstraints;
         });
         return newShape;
       }
@@ -181,9 +187,20 @@ export class TransformTool extends Tool {
   refreshStateUpper() {
     if (app.tool.currentStep == 'transform') {
       let point = app.upperDrawingEnvironment.findObjectById(this.pointSelectedId, 'point');
+      if (!this.constraintsDrawn) {
+        this.drawConstraints(point);
+      }
+      let shape = point.shape;
+      if (shape.name == 'Rectangle' && point.idx < 2) {
+        computeConstructionSpec(shape);
+      }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
-      computeShapeTransform(point.shape);
-      computeAllShapeTransform(point.shape);
+      if (shape.name == 'Rectangle' && point.idx == 2) {
+        point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+        computeConstructionSpec(shape);
+      }
+      computeShapeTransform(shape, point.idx, this.constraints);
+      computeAllShapeTransform(shape);
     } else if (app.tool.currentStep == 'selectPoint') {
       app.mainDrawingEnvironment.shapes.forEach((s) => {
         let points = s.vertexes;
@@ -212,99 +229,25 @@ export class TransformTool extends Tool {
         });
       });
     }
-    return;
-    if (this.currentStep == 'show-points') {
-      app.workspace.shapes.forEach((s) => {
-        let points = s.modifiablePoints;
-        points.forEach((pt) => {
-          const transformConstraints = pt.transformConstraints;
-          const colorPicker = {
-            [transformConstraints.isFree]: '#0f0',
-            [transformConstraints.isBlocked]: '#f00',
-            [transformConstraints.isConstructed]: '#f00',
-            [transformConstraints.isConstrained]: '#FF8C00',
-          };
-          const color = colorPicker[true];
-
-          window.dispatchEvent(
-            new CustomEvent('draw-point', {
-              detail: { point: pt, size: 2, color: color },
-            }),
-          );
-        });
-      });
-    } else if (this.currentStep == 'move-point') {
-      if (this.constraints.isConstrained) {
-        this.pointDest = this.projectionOnConstraints(
-          app.workspace.lastKnownMouseCoordinates,
-          this.constraints,
-        );
-
-        this.constraints.lines.forEach((line) => {
-          window.dispatchEvent(
-            new CustomEvent(line.isInfinite ? 'draw-line' : 'draw-segment', {
-              detail: { segment: line.segment, color: '#080' },
-            }),
-          );
-        });
-        this.constraints.points.forEach((pt) => {
-          window.dispatchEvent(
-            new CustomEvent('draw-point', {
-              detail: {
-                point: pt,
-                color: app.settings.constraintsDrawColor,
-                size: 2,
-              },
-            }),
-          );
-        });
-      } else {
-        this.pointDest = app.workspace.lastKnownMouseCoordinates;
-      }
-
-      let shapeCopy = new Shape({
-        ...this.pointSelected.shape,
-        borderColor: app.settings.temporaryDrawColor,
-      });
-
-      shapeCopy.applyTransform(this.pointSelected, this.pointDest);
-
-      window.dispatchEvent(
-        new CustomEvent('draw-shape', {
-          detail: { shape: shapeCopy, borderSize: 2 },
-        }),
-      );
-
-      shapeCopy.modifiablePoints.forEach((pt) => {
-        window.dispatchEvent(
-          new CustomEvent('draw-point', {
-            detail: {
-              point: pt,
-              size: 2,
-              color: app.settings.temporaryDrawColor,
-            },
-          }),
-        );
-      });
-
-      shapeCopy.updateGeometryReferenced(true);
-    }
   }
 
-  projectionOnConstraints(point, constraints) {
-    let projectionsOnContraints = constraints.lines
-      .map((line) => {
-        let projection = line.segment.projectionOnSegment(point);
-        let dist = projection.dist(point);
-        return { projection: projection, dist: dist };
-      })
-      .concat(
-        constraints.points.map((pt) => {
-          let dist = pt.dist(point);
-          return { projection: pt, dist: dist };
-        }),
-      );
-    projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
-    return projectionsOnContraints[0].projection;
+  drawConstraints(point) {
+    if (point.transformConstraints.isConstrained) {
+      if (point.transformConstraints.lines) {
+        point.transformConstraints.lines.forEach(ln => {
+          let segment = ln.segment;
+          let shape = new Shape({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            path: 'M ' + segment.vertexes[0].coordinates.x + ' ' + segment.vertexes[0].coordinates.y + ' L ' + segment.vertexes[1].coordinates.x + ' ' + segment.vertexes[1].coordinates.y,
+            borderColor: app.settings.constraintsDrawColor,
+          });
+          if (ln.isInfinite)
+            shape.segments[0].isInfinite = true;
+          shape.vertexes[0].visible = false;
+          shape.vertexes[1].visible = false;
+        });
+      }
+      this.constraintsDrawn = true;
+    }
   }
 }

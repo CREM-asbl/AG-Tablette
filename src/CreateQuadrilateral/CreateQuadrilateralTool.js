@@ -8,6 +8,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -197,9 +198,9 @@ export class CreateQuadrilateralTool extends Tool {
 
   _executeAction() {
     let familyName = '4-corner-shape';
-    if (app.tool.selectedTriangle == 'Square') {
+    if (app.tool.selectedQuadrilateral == 'Square') {
       familyName = 'Regular';
-    } else if (app.tool.selectedTriangle == 'IrregularQuadrilateral') {
+    } else if (app.tool.selectedQuadrilateral == 'IrregularQuadrilateral') {
       familyName = 'Irregular';
     }
 
@@ -213,14 +214,22 @@ export class CreateQuadrilateralTool extends Tool {
     let shape = new Shape({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: path,
-      name: app.tool.selectedTriangle,
+      name: app.tool.selectedQuadrilateral,
       familyName: familyName,
     });
 
-    shape.points[0].name = 'firstPoint';
-    shape.points[1].name = 'secondPoint';
-    shape.points[2].name = 'thirdPoint';
-    shape.points[3].name = 'fourthPoint';
+    let ref;
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.vertexes[0].reference = ref.id;
+    }
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.vertexes[1].reference = ref.id;
+    }
+    computeConstructionSpec(shape);
     // window.dispatchEvent(new CustomEvent('refresh'));
   }
 }

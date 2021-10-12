@@ -90,8 +90,6 @@ function bestPossibility(possibilities) {
     else return rot1 - rot2;
   })[0];
 
-  // console.log(best);
-
   return best;
 }
 
@@ -162,8 +160,6 @@ export function getShapeAdjustment(shapes, mainShape) {
     }
   });
 
-  console.log(cPtListGrid);
-
   cPtListBorder = cPtListShape.filter(
     (pt) => pt.fixed.type == 'vertex' || pt.fixed.type == 'divisionPoint',
   );
@@ -178,7 +174,6 @@ export function getShapeAdjustment(shapes, mainShape) {
           e2 = cPtListGrid[j];
         if (checkCompatibility(e1, e2)) {
           let t = computeTransformation(e1, e2, shapes, mainShape);
-          console.log(t);
           possibilities.push(t);
         }
       }
