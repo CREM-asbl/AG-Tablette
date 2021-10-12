@@ -248,13 +248,11 @@ export class CreateRegularTool extends Tool {
       if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
         ref.shape.hasGeometryReferenced.push(shape.id);
       shape.vertexes[0].reference = ref.id;
-      console.log(app.mainDrawingEnvironment.shapes);
     }
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
       if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
         ref.shape.hasGeometryReferenced.push(shape.id);
       shape.vertexes[1].reference = ref.id;
-      console.log(app.mainDrawingEnvironment.shapes);
     }
     app.upperDrawingEnvironment.removeAllObjects();
     window.dispatchEvent(new CustomEvent('refreshUpper'));

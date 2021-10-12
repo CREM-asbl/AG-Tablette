@@ -64,7 +64,7 @@ async function handleSequenceRequest(searchAssociated, query) {
 export async function findSequencesByIds(ids, searchAssociated = true) {
   // connectDB();
   let sequenceInfos = await handleSequenceRequest(searchAssociated, query(collection(db, "Sequences")));//, where(FieldPath.documentId(), 'in', ids)));
-  sequenceInfos = sequenceInfos.filter(sequenceInfo => ids.includes(sequenceInfo.id));
+  sequenceInfos = sequenceInfos.filter(sequenceInfo => ids.includes(sequenceInfo.id)); // modifier pour en tenir compte dans la requête
   return sequenceInfos;
 }
 
@@ -87,7 +87,7 @@ async function handleFileRequest(searchAssociated, query) {
 
 export async function findFilesByIds(ids, searchAssociated = true) {
   let fileInfos = await handleFileRequest(searchAssociated, query(collection(db, "Files")));//, where(FieldPath.documentId(), 'in', ids)));
-  fileInfos = fileInfos.filter(fileInfo => ids.includes(fileInfo.id));
+  fileInfos = fileInfos.filter(fileInfo => ids.includes(fileInfo.id)); // modifier pour en tenir compte dans la requête
   return fileInfos;
 }
 
