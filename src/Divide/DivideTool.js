@@ -141,7 +141,7 @@ export class DivideTool extends Tool {
           drawingEnvironment: app.upperDrawingEnvironment,
           borderColor: this.drawColor,
           borderSize: 3,
-          path: object.getSVGPath('no scale', undefined, true),
+          path: object.getSVGPath('no scale', true),
           id: undefined,
           color: '#000',
           opacity: 0,

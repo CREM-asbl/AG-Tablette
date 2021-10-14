@@ -71,6 +71,7 @@ export class TransformTool extends Tool {
   }
 
   selectPoint() {
+    this.constraintsDrawn = false;
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
 
@@ -94,6 +95,7 @@ export class TransformTool extends Tool {
   }
 
   end() {
+    this.constraintsDrawn = false;
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
@@ -191,13 +193,27 @@ export class TransformTool extends Tool {
         this.drawConstraints(point);
       }
       let shape = point.shape;
-      if (shape.name == 'Rectangle' && point.idx < 2) {
-        computeConstructionSpec(shape);
+      if (point.idx < 2) {
+        switch (shape.name) {
+          case 'Rectangle':
+          case 'Losange':
+            computeConstructionSpec(shape);
+            break;
+          default:
+            break;
+        }
       }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
-      if (shape.name == 'Rectangle' && point.idx == 2) {
-        point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-        computeConstructionSpec(shape);
+      if (point.idx == 2) {
+        switch (shape.name) {
+          case 'Rectangle':
+          case 'Losange':
+            point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+            computeConstructionSpec(shape);
+            break;
+          default:
+            break;
+        }
       }
       computeShapeTransform(shape, point.idx, this.constraints);
       computeAllShapeTransform(shape);
@@ -238,13 +254,13 @@ export class TransformTool extends Tool {
           let segment = ln.segment;
           let shape = new Shape({
             drawingEnvironment: app.upperDrawingEnvironment,
-            path: 'M ' + segment.vertexes[0].coordinates.x + ' ' + segment.vertexes[0].coordinates.y + ' L ' + segment.vertexes[1].coordinates.x + ' ' + segment.vertexes[1].coordinates.y,
+            path: segment.getSVGPath('no scale', true),
             borderColor: app.settings.constraintsDrawColor,
+            opacity: 0,
           });
           if (ln.isInfinite)
             shape.segments[0].isInfinite = true;
-          shape.vertexes[0].visible = false;
-          shape.vertexes[1].visible = false;
+          shape.vertexes.forEach(pt => pt.visible = false);
         });
       }
       this.constraintsDrawn = true;

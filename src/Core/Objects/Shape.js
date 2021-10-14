@@ -1182,12 +1182,11 @@ export class Shape {
 
   /**
    * convertit la shape en commande de path svg
-   * @param {Number} axeAngle - l'angle de l'axe de l'axe (pour reverse)
    */
-  getSVGPath(scaling = 'scale', axeAngle = undefined) {
+  getSVGPath(scaling = 'scale') {
     let path = '';
     path = this.segments
-      .map((seg) => seg.getSVGPath(scaling, axeAngle))
+      .map((seg) => seg.getSVGPath(scaling))
       .join('\n');
     return path;
   }

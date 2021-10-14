@@ -257,7 +257,7 @@ export class Segment {
   /**
    * convertit le segment en commande de path svg
    */
-  getSVGPath(scaling = 'scale', axeAngle = undefined, includeMoveTo = false) {
+  getSVGPath(scaling = 'scale', includeMoveTo = false) {
     let firstCoordinates = this.vertexes[0].coordinates,
       secondCoordinates = this.vertexes[1].coordinates;
     if (this.isInfinite) {

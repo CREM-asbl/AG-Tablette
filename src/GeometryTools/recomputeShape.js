@@ -49,6 +49,20 @@ export function computeShapeTransform(shape) {
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
+  } else if (shape.name == 'Losange') {
+    let firstSegment = shape.segments[0];
+    let angle =
+      firstSegment.getAngleWithHorizontal() -
+      shape.constructionSpec.angle;
+    let length = firstSegment.length;
+
+    shape.vertexes[2].coordinates = new Coordinates({
+      x: shape.vertexes[1].x + length * Math.cos(angle),
+      y: shape.vertexes[1].y + length * Math.sin(angle),
+    });
+    shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
+      .substract(shape.vertexes[1].coordinates)
+      .add(shape.vertexes[0].coordinates);
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
 }
@@ -74,13 +88,12 @@ export function computeDivisionPoint(point) {
 
 export function computeConstructionSpec(shape) {
   if (shape.name == 'Rectangle') {
+    let angle = shape.vertexes[1].getVertexAngle();
     shape.constructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);
-    let firstAngle = shape.vertexes[0].coordinates.angleWith(shape.vertexes[1].coordinates);
-    let secondAngle = shape.vertexes[1].coordinates.angleWith(shape.vertexes[2].coordinates);
-    if (secondAngle > firstAngle)
-      firstAngle += 2 * Math.PI;
-    if (firstAngle - secondAngle < Math.PI / 2 + .1 && firstAngle - secondAngle > Math.PI / 2 - .1)
+    if (angle < Math.PI / 2 + .1 && angle > Math.PI / 2 - .1)
       shape.constructionSpec.height *= -1;
+  } else if (shape.name == 'Losange') {
+    shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
   }
 }
 

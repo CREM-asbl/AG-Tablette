@@ -220,14 +220,14 @@ export class Point {
       } else if (this.idx == 2) {
         constraints.isConstrained = true;
         let constraintLine = {
-          segment: new Segment(
-            this.shape.segments[0].vertexes[0],
-            this.shape.segments[0].vertexes[0],
-            null,
-            null,
-            this.shape.segments[0].vertexes[1],
-          ),
+          segment: new Segment({
+            drawingEnvironment: app.invisibleDrawingEnvironment,
+            createFromNothing: true,
+            vertexCoordinates: [this.shape.vertexes[0].coordinates],
+            arcCenterCoordinates: this.shape.vertexes[1].coordinates,
+          }),
         };
+        constraintLine.segment.vertexIds[1] = constraintLine.segment.vertexIds[0];
         constraints.lines = [constraintLine];
       } else {
         constraints.isConstructed = true;
@@ -389,8 +389,8 @@ export class Point {
    */
   getVertexAngle(reduced = false) {
     let shape = this.shape,
-      segment = this.segment,
-      nextSegment = shape.segments[(segment.idx + 1) % shape.segments.length];
+      segment = this.segments[0],
+      nextSegment = this.segments[1];
 
     let angle1 = segment.getAngleWithHorizontal();
     let angle2 = nextSegment.getAngleWithHorizontal();

@@ -43,6 +43,7 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   start() {
+    app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
 
@@ -51,6 +52,7 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   async drawFirstPoint() {
+    app.upperDrawingEnvironment.removeAllObjects();
     let quadrilateralsDef = await import(`./quadrilateralsDef.js`);
     this.quadrilateralDef = quadrilateralsDef[app.tool.selectedQuadrilateral];
 
@@ -81,6 +83,7 @@ export class CreateQuadrilateralTool extends Tool {
    * stopper l'état
    */
   end() {
+    app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
   }
