@@ -197,6 +197,7 @@ export class TransformTool extends Tool {
         switch (shape.name) {
           case 'Rectangle':
           case 'Losange':
+          case 'Parallelogram':
             computeConstructionSpec(shape);
             break;
           default:
@@ -208,6 +209,7 @@ export class TransformTool extends Tool {
         switch (shape.name) {
           case 'Rectangle':
           case 'Losange':
+          case 'Parallelogram':
             point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
             computeConstructionSpec(shape);
             break;
@@ -215,7 +217,7 @@ export class TransformTool extends Tool {
             break;
         }
       }
-      computeShapeTransform(shape, point.idx, this.constraints);
+      computeShapeTransform(shape, [0]);
       computeAllShapeTransform(shape);
     } else if (app.tool.currentStep == 'selectPoint') {
       app.mainDrawingEnvironment.shapes.forEach((s) => {

@@ -681,384 +681,384 @@ export class Shape {
     );
   }
 
-  applyTransform(pointSelected, pointDest, pointDest2) {
-    let v1, v2, v3, v4;
-    let transformMethod;
-    if (pointDest2 !== undefined) {
-      v1 = pointDest;
-      v2 = pointDest2;
-      transformMethod = 'computeShape';
-    } else if (this.familyName == 'Irregular') {
-      transformMethod = 'onlyMovePoint';
-    } else if (
-      pointSelected.name == 'firstPoint' &&
-      (this.familyName == 'Regular' ||
-        this.familyName == '3-corner-shape' ||
-        this.familyName == '4-corner-shape')
-    ) {
-      v1 = pointDest;
-      v2 = this.vertexes.filter((pt) => pt.name == 'secondPoint')[0];
-      transformMethod = 'computeShape';
-    } else if (
-      pointSelected.name == 'secondPoint' &&
-      (this.familyName == 'Regular' ||
-        this.familyName == '3-corner-shape' ||
-        this.familyName == '4-corner-shape')
-    ) {
-      v1 = this.vertexes.filter((pt) => pt.name == 'firstPoint')[0];
-      v2 = pointDest;
-      transformMethod = 'computeShape';
-    } else if (
-      pointSelected.name == 'thirdPoint' &&
-      this.familyName == '3-corner-shape'
-    ) {
-      transformMethod = 'onlyMovePoint';
-    } else if (
-      pointSelected.name == 'thirdPoint' &&
-      this.familyName == '4-corner-shape'
-    ) {
-      v1 = this.vertexes.filter((pt) => pt.name == 'firstPoint')[0];
-      v2 = this.vertexes.filter((pt) => pt.name == 'secondPoint')[0];
-      v3 = pointDest;
-      transformMethod = 'computeShape';
-    } else if (
-      pointSelected.name == 'fourthPoint' &&
-      this.familyName == '4-corner-shape'
-    ) {
-      transformMethod = 'onlyMovePoint';
-    } else if (pointSelected.name == 'firstPoint' && this.name == 'Circle') {
-      transformMethod = 'computeShape';
-    } else if (
-      (pointSelected.name == 'arcCenter' ||
-        pointSelected.name == 'firstPoint') &&
-      this.name == 'CirclePart'
-    ) {
-      transformMethod = 'computeShape';
-    } else if (this.name == 'CirclePart') {
-      transformMethod = 'onlyMovePoint';
-    } else if (pointSelected.name == 'firstPoint' && this.name == 'CircleArc') {
-      transformMethod = 'computeShape';
-    } else if (this.name == 'CircleArc') {
-      transformMethod = 'onlyMovePoint';
-    } else if (
-      this.name == 'StraightLine' ||
-      this.name == 'SemiStraightLine' ||
-      this.name == 'Segment'
-    ) {
-      transformMethod = 'onlyMovePoint';
-    } else if (this.name == 'ParalleleStraightLine') {
-      transformMethod = 'computeShape';
-    } else if (this.name == 'PerpendicularStraightLine') {
-      transformMethod = 'computeShape';
-    } else if (
-      pointSelected.name == 'firstPoint' &&
-      (this.name == 'ParalleleSegment' ||
-        this.name == 'PerpendicularSegment' ||
-        this.name == 'ParalleleSemiStraightLine' ||
-        this.name == 'PerpendicularSemiStraightLine')
-    ) {
-      transformMethod = 'computeShape';
-    } else if (
-      pointSelected.name == 'secondPoint' &&
-      (this.name == 'ParalleleSegment' ||
-        this.name == 'PerpendicularSegment' ||
-        this.name == 'ParalleleSemiStraightLine' ||
-        this.name == 'PerpendicularSemiStraightLine')
-    ) {
-      transformMethod = 'onlyMovePoint';
-    }
+  // applyTransform(pointSelected, pointDest, pointDest2) {
+  //   let v1, v2, v3, v4;
+  //   let transformMethod;
+  //   if (pointDest2 !== undefined) {
+  //     v1 = pointDest;
+  //     v2 = pointDest2;
+  //     transformMethod = 'computeShape';
+  //   } else if (this.familyName == 'Irregular') {
+  //     transformMethod = 'onlyMovePoint';
+  //   } else if (
+  //     pointSelected.name == 'firstPoint' &&
+  //     (this.familyName == 'Regular' ||
+  //       this.familyName == '3-corner-shape' ||
+  //       this.familyName == '4-corner-shape')
+  //   ) {
+  //     v1 = pointDest;
+  //     v2 = this.vertexes.filter((pt) => pt.name == 'secondPoint')[0];
+  //     transformMethod = 'computeShape';
+  //   } else if (
+  //     pointSelected.name == 'secondPoint' &&
+  //     (this.familyName == 'Regular' ||
+  //       this.familyName == '3-corner-shape' ||
+  //       this.familyName == '4-corner-shape')
+  //   ) {
+  //     v1 = this.vertexes.filter((pt) => pt.name == 'firstPoint')[0];
+  //     v2 = pointDest;
+  //     transformMethod = 'computeShape';
+  //   } else if (
+  //     pointSelected.name == 'thirdPoint' &&
+  //     this.familyName == '3-corner-shape'
+  //   ) {
+  //     transformMethod = 'onlyMovePoint';
+  //   } else if (
+  //     pointSelected.name == 'thirdPoint' &&
+  //     this.familyName == '4-corner-shape'
+  //   ) {
+  //     v1 = this.vertexes.filter((pt) => pt.name == 'firstPoint')[0];
+  //     v2 = this.vertexes.filter((pt) => pt.name == 'secondPoint')[0];
+  //     v3 = pointDest;
+  //     transformMethod = 'computeShape';
+  //   } else if (
+  //     pointSelected.name == 'fourthPoint' &&
+  //     this.familyName == '4-corner-shape'
+  //   ) {
+  //     transformMethod = 'onlyMovePoint';
+  //   } else if (pointSelected.name == 'firstPoint' && this.name == 'Circle') {
+  //     transformMethod = 'computeShape';
+  //   } else if (
+  //     (pointSelected.name == 'arcCenter' ||
+  //       pointSelected.name == 'firstPoint') &&
+  //     this.name == 'CirclePart'
+  //   ) {
+  //     transformMethod = 'computeShape';
+  //   } else if (this.name == 'CirclePart') {
+  //     transformMethod = 'onlyMovePoint';
+  //   } else if (pointSelected.name == 'firstPoint' && this.name == 'CircleArc') {
+  //     transformMethod = 'computeShape';
+  //   } else if (this.name == 'CircleArc') {
+  //     transformMethod = 'onlyMovePoint';
+  //   } else if (
+  //     this.name == 'StraightLine' ||
+  //     this.name == 'SemiStraightLine' ||
+  //     this.name == 'Segment'
+  //   ) {
+  //     transformMethod = 'onlyMovePoint';
+  //   } else if (this.name == 'ParalleleStraightLine') {
+  //     transformMethod = 'computeShape';
+  //   } else if (this.name == 'PerpendicularStraightLine') {
+  //     transformMethod = 'computeShape';
+  //   } else if (
+  //     pointSelected.name == 'firstPoint' &&
+  //     (this.name == 'ParalleleSegment' ||
+  //       this.name == 'PerpendicularSegment' ||
+  //       this.name == 'ParalleleSemiStraightLine' ||
+  //       this.name == 'PerpendicularSemiStraightLine')
+  //   ) {
+  //     transformMethod = 'computeShape';
+  //   } else if (
+  //     pointSelected.name == 'secondPoint' &&
+  //     (this.name == 'ParalleleSegment' ||
+  //       this.name == 'PerpendicularSegment' ||
+  //       this.name == 'ParalleleSemiStraightLine' ||
+  //       this.name == 'PerpendicularSemiStraightLine')
+  //   ) {
+  //     transformMethod = 'onlyMovePoint';
+  //   }
 
-    if (transformMethod == 'onlyMovePoint') {
-      pointSelected.setCoordinates(pointDest);
-      let nextSeg =
-        pointSelected.shape.segments[
-          mod(
-            pointSelected.segment.idx + 1,
-            pointSelected.shape.segments.length,
-          )
-        ];
-      if (!this.isCircleArc() && !this.isStraightLine() && !this.isSegment())
-        nextSeg.vertexes[0].setCoordinates(pointDest);
-    } else if (transformMethod == 'computeShape') {
-      if (this.familyName == 'Regular') {
-        let externalAngle = (Math.PI * 2) / this.segments.length;
-        if (this.isReversed) {
-          externalAngle *= -1;
-        }
-        let length = v1.dist(v2);
-        let startAngle = Math.atan2(-(v1.y - v2.y), -(v1.x - v2.x));
+  //   if (transformMethod == 'onlyMovePoint') {
+  //     pointSelected.setCoordinates(pointDest);
+  //     let nextSeg =
+  //       pointSelected.shape.segments[
+  //         mod(
+  //           pointSelected.segment.idx + 1,
+  //           pointSelected.shape.segments.length,
+  //         )
+  //       ];
+  //     if (!this.isCircleArc() && !this.isStraightLine() && !this.isSegment())
+  //       nextSeg.vertexes[0].setCoordinates(pointDest);
+  //   } else if (transformMethod == 'computeShape') {
+  //     if (this.familyName == 'Regular') {
+  //       let externalAngle = (Math.PI * 2) / this.segments.length;
+  //       if (this.isReversed) {
+  //         externalAngle *= -1;
+  //       }
+  //       let length = v1.dist(v2);
+  //       let startAngle = Math.atan2(-(v1.y - v2.y), -(v1.x - v2.x));
 
-        this.segments[0].vertexes[0].setCoordinates(v1);
-        this.segments[0].vertexes[1].setCoordinates(v2);
+  //       this.segments[0].vertexes[0].setCoordinates(v1);
+  //       this.segments[0].vertexes[1].setCoordinates(v2);
 
-        for (let i = 1; i < this.segments.length; i++) {
-          let dx = length * Math.cos(startAngle - i * externalAngle);
-          let dy = length * Math.sin(startAngle - i * externalAngle);
+  //       for (let i = 1; i < this.segments.length; i++) {
+  //         let dx = length * Math.cos(startAngle - i * externalAngle);
+  //         let dy = length * Math.sin(startAngle - i * externalAngle);
 
-          let np = this.segments[i - 1].vertexes[1].addCoordinates(dx, dy);
+  //         let np = this.segments[i - 1].vertexes[1].addCoordinates(dx, dy);
 
-          this.segments[i].vertexes[0].setCoordinates(
-            this.segments[i - 1].vertexes[1],
-          );
-          this.segments[i].vertexes[1].setCoordinates(np);
-        }
-      } else if (this.familyName == '3-corner-shape') {
-        if (this.name == 'RightAngleTriangle') {
-          console.trace();
-          let angle = new Segment(v1, v2).getAngleWithHorizontal();
-          let perpendicularAngle = angle + Math.PI / 2;
-          if (this.geometryConstructionSpec.height > 0) {
-            perpendicularAngle += Math.PI;
-          }
-          let absHeight = Math.abs(this.geometryConstructionSpec.height);
-          v3 = new Point(
-            v2.x + absHeight * Math.cos(perpendicularAngle),
-            v2.y + absHeight * Math.sin(perpendicularAngle),
-          );
-        } else if (this.name == 'IsoscelesTriangle') {
-          console.trace();
-          let initialSegment = new Segment(v1, v2);
-          let angle = initialSegment.getAngleWithHorizontal();
-          let perpendicularAngle = angle + Math.PI / 2;
-          if (this.geometryConstructionSpec.height > 0) {
-            perpendicularAngle += Math.PI;
-          }
-          let absHeight = Math.abs(this.geometryConstructionSpec.height);
-          let middleOfSegment = initialSegment.middle;
-          v3 = new Point(
-            middleOfSegment.x + absHeight * Math.cos(perpendicularAngle),
-            middleOfSegment.y + absHeight * Math.sin(perpendicularAngle),
-          );
-        } else if (this.name == 'RightAngleIsoscelesTriangle') {
-          console.trace();
-          let initialSegment = new Segment(v1, v2);
-          let angle = initialSegment.getAngleWithHorizontal();
-          let perpendicularAngle = angle + Math.PI / 2;
-          if (this.geometryConstructionSpec.height > 0) {
-            perpendicularAngle += Math.PI;
-          }
-          let segmentLength = initialSegment.length;
-          v3 = new Point(
-            v2.x + segmentLength * Math.cos(perpendicularAngle),
-            v2.y + segmentLength * Math.sin(perpendicularAngle),
-          );
-        }
-        this.segments.forEach((seg) =>
-          seg.vertexes.forEach((pt) => {
-            if (pt.name == 'firstPoint') {
-              pt.setCoordinates(v1);
-            } else if (pt.name == 'secondPoint') {
-              pt.setCoordinates(v2);
-            } else {
-              pt.setCoordinates(v3);
-            }
-          }),
-        );
-      } else if (this.familyName == '4-corner-shape') {
-        if (this.name == 'Rectangle') {
-          if (pointSelected.name != 'thirdPoint') {
-            console.trace();
-            let angle = new Segment(v1, v2).getAngleWithHorizontal();
-            let perpendicularAngle = angle + Math.PI / 2;
-            if (this.geometryConstructionSpec.height > 0) {
-              perpendicularAngle += Math.PI;
-            }
-            let absHeight = Math.abs(this.geometryConstructionSpec.height);
-            v3 = new Point(
-              v2.x + absHeight * Math.cos(perpendicularAngle),
-              v2.y + absHeight * Math.sin(perpendicularAngle),
-            );
-          }
-          v4 = new Point(v3.x - v2.x + v1.x, v3.y - v2.y + v1.y);
-        } else if (this.name == 'Losange') {
-          if (pointSelected.name != 'thirdPoint') {
-            console.trace();
-            let firstSegment = new Segment(v1, v2);
-            let angle =
-              firstSegment.getAngleWithHorizontal() -
-              this.geometryConstructionSpec.angle;
-            let length = firstSegment.length;
-            v3 = new Point(
-              v2.x + length * Math.cos(angle),
-              v2.y + length * Math.sin(angle),
-            );
-          }
-          v4 = new Point(v3.x - v2.x + v1.x, v3.y - v2.y + v1.y);
-        } else if (this.name == 'Parallelogram') {
-          if (pointSelected.name != 'thirdPoint') {
-            console.trace();
-            let angle =
-              new Segment(v1, v2).getAngleWithHorizontal() -
-              this.geometryConstructionSpec.angle;
-            let length = this.geometryConstructionSpec.segmentLength;
-            v3 = new Point(
-              v2.x + length * Math.cos(angle),
-              v2.y + length * Math.sin(angle),
-            );
-          }
-          v4 = new Point(v3.x - v2.x + v1.x, v3.y - v2.y + v1.y);
-        } else if (this.name == 'RightAngleTrapeze') {
-          console.trace();
-          let initialSegment = new Segment(v1, v2);
-          if (pointSelected.name != 'thirdPoint') {
-            let angle =
-              initialSegment.getAngleWithHorizontal() -
-              this.geometryConstructionSpec.angle;
-            let length = this.geometryConstructionSpec.segmentLength;
-            v3 = new Point(
-              v2.x + length * Math.cos(angle),
-              v2.y + length * Math.sin(angle),
-            );
-          }
-          let projection = initialSegment.projectionOnSegment(v3);
-          v4 = new Point(
-            v3.x - projection.x + v1.x,
-            v3.y - projection.y + v1.y,
-          );
-        } else if (this.name == 'IsoscelesTrapeze') {
-          console.trace();
-          let initialSegment = new Segment(v1, v2);
-          if (pointSelected.name != 'thirdPoint') {
-            let angle =
-              initialSegment.getAngleWithHorizontal() -
-              this.geometryConstructionSpec.angle;
-            let length = this.geometryConstructionSpec.segmentLength;
-            v3 = new Point(
-              v2.x + length * Math.cos(angle),
-              v2.y + length * Math.sin(angle),
-            );
-          }
-          let projection = initialSegment.projectionOnSegment(v3);
-          let middleOfSegment = initialSegment.middle;
-          v4 = new Point(
-            v3.x - 2 * projection.x + 2 * middleOfSegment.x,
-            v3.y - 2 * projection.y + 2 * middleOfSegment.y,
-          );
-        } else if (this.name == 'Trapeze') {
-          console.trace();
-          let firstSegment = new Segment(v1, v2);
-          if (pointSelected.name != 'thirdPoint') {
-            let angle =
-              firstSegment.getAngleWithHorizontal() -
-              this.geometryConstructionSpec.angle;
-            let length = this.geometryConstructionSpec.segmentLength;
-            v3 = new Point(
-              v2.x + length * Math.cos(angle),
-              v2.y + length * Math.sin(angle),
-            );
-          }
-          let angle = firstSegment.getAngleWithHorizontal();
-          let length = this.geometryConstructionSpec.segmentLength2;
-          v4 = new Point(
-            v3.x + length * Math.cos(angle),
-            v3.y + length * Math.sin(angle),
-          );
-        }
+  //         this.segments[i].vertexes[0].setCoordinates(
+  //           this.segments[i - 1].vertexes[1],
+  //         );
+  //         this.segments[i].vertexes[1].setCoordinates(np);
+  //       }
+  //     } else if (this.familyName == '3-corner-shape') {
+  //       if (this.name == 'RightAngleTriangle') {
+  //         console.trace();
+  //         let angle = new Segment(v1, v2).getAngleWithHorizontal();
+  //         let perpendicularAngle = angle + Math.PI / 2;
+  //         if (this.geometryConstructionSpec.height > 0) {
+  //           perpendicularAngle += Math.PI;
+  //         }
+  //         let absHeight = Math.abs(this.geometryConstructionSpec.height);
+  //         v3 = new Point(
+  //           v2.x + absHeight * Math.cos(perpendicularAngle),
+  //           v2.y + absHeight * Math.sin(perpendicularAngle),
+  //         );
+  //       } else if (this.name == 'IsoscelesTriangle') {
+  //         console.trace();
+  //         let initialSegment = new Segment(v1, v2);
+  //         let angle = initialSegment.getAngleWithHorizontal();
+  //         let perpendicularAngle = angle + Math.PI / 2;
+  //         if (this.geometryConstructionSpec.height > 0) {
+  //           perpendicularAngle += Math.PI;
+  //         }
+  //         let absHeight = Math.abs(this.geometryConstructionSpec.height);
+  //         let middleOfSegment = initialSegment.middle;
+  //         v3 = new Point(
+  //           middleOfSegment.x + absHeight * Math.cos(perpendicularAngle),
+  //           middleOfSegment.y + absHeight * Math.sin(perpendicularAngle),
+  //         );
+  //       } else if (this.name == 'RightAngleIsoscelesTriangle') {
+  //         console.trace();
+  //         let initialSegment = new Segment(v1, v2);
+  //         let angle = initialSegment.getAngleWithHorizontal();
+  //         let perpendicularAngle = angle + Math.PI / 2;
+  //         if (this.geometryConstructionSpec.height > 0) {
+  //           perpendicularAngle += Math.PI;
+  //         }
+  //         let segmentLength = initialSegment.length;
+  //         v3 = new Point(
+  //           v2.x + segmentLength * Math.cos(perpendicularAngle),
+  //           v2.y + segmentLength * Math.sin(perpendicularAngle),
+  //         );
+  //       }
+  //       this.segments.forEach((seg) =>
+  //         seg.vertexes.forEach((pt) => {
+  //           if (pt.name == 'firstPoint') {
+  //             pt.setCoordinates(v1);
+  //           } else if (pt.name == 'secondPoint') {
+  //             pt.setCoordinates(v2);
+  //           } else {
+  //             pt.setCoordinates(v3);
+  //           }
+  //         }),
+  //       );
+  //     } else if (this.familyName == '4-corner-shape') {
+  //       if (this.name == 'Rectangle') {
+  //         if (pointSelected.name != 'thirdPoint') {
+  //           console.trace();
+  //           let angle = new Segment(v1, v2).getAngleWithHorizontal();
+  //           let perpendicularAngle = angle + Math.PI / 2;
+  //           if (this.geometryConstructionSpec.height > 0) {
+  //             perpendicularAngle += Math.PI;
+  //           }
+  //           let absHeight = Math.abs(this.geometryConstructionSpec.height);
+  //           v3 = new Point(
+  //             v2.x + absHeight * Math.cos(perpendicularAngle),
+  //             v2.y + absHeight * Math.sin(perpendicularAngle),
+  //           );
+  //         }
+  //         v4 = new Point(v3.x - v2.x + v1.x, v3.y - v2.y + v1.y);
+  //       } else if (this.name == 'Losange') {
+  //         if (pointSelected.name != 'thirdPoint') {
+  //           console.trace();
+  //           let firstSegment = new Segment(v1, v2);
+  //           let angle =
+  //             firstSegment.getAngleWithHorizontal() -
+  //             this.geometryConstructionSpec.angle;
+  //           let length = firstSegment.length;
+  //           v3 = new Point(
+  //             v2.x + length * Math.cos(angle),
+  //             v2.y + length * Math.sin(angle),
+  //           );
+  //         }
+  //         v4 = new Point(v3.x - v2.x + v1.x, v3.y - v2.y + v1.y);
+  //       } else if (this.name == 'Parallelogram') {
+  //         if (pointSelected.name != 'thirdPoint') {
+  //           console.trace();
+  //           let angle =
+  //             new Segment(v1, v2).getAngleWithHorizontal() -
+  //             this.geometryConstructionSpec.angle;
+  //           let length = this.geometryConstructionSpec.segmentLength;
+  //           v3 = new Point(
+  //             v2.x + length * Math.cos(angle),
+  //             v2.y + length * Math.sin(angle),
+  //           );
+  //         }
+  //         v4 = new Point(v3.x - v2.x + v1.x, v3.y - v2.y + v1.y);
+  //       } else if (this.name == 'RightAngleTrapeze') {
+  //         console.trace();
+  //         let initialSegment = new Segment(v1, v2);
+  //         if (pointSelected.name != 'thirdPoint') {
+  //           let angle =
+  //             initialSegment.getAngleWithHorizontal() -
+  //             this.geometryConstructionSpec.angle;
+  //           let length = this.geometryConstructionSpec.segmentLength;
+  //           v3 = new Point(
+  //             v2.x + length * Math.cos(angle),
+  //             v2.y + length * Math.sin(angle),
+  //           );
+  //         }
+  //         let projection = initialSegment.projectionOnSegment(v3);
+  //         v4 = new Point(
+  //           v3.x - projection.x + v1.x,
+  //           v3.y - projection.y + v1.y,
+  //         );
+  //       } else if (this.name == 'IsoscelesTrapeze') {
+  //         console.trace();
+  //         let initialSegment = new Segment(v1, v2);
+  //         if (pointSelected.name != 'thirdPoint') {
+  //           let angle =
+  //             initialSegment.getAngleWithHorizontal() -
+  //             this.geometryConstructionSpec.angle;
+  //           let length = this.geometryConstructionSpec.segmentLength;
+  //           v3 = new Point(
+  //             v2.x + length * Math.cos(angle),
+  //             v2.y + length * Math.sin(angle),
+  //           );
+  //         }
+  //         let projection = initialSegment.projectionOnSegment(v3);
+  //         let middleOfSegment = initialSegment.middle;
+  //         v4 = new Point(
+  //           v3.x - 2 * projection.x + 2 * middleOfSegment.x,
+  //           v3.y - 2 * projection.y + 2 * middleOfSegment.y,
+  //         );
+  //       } else if (this.name == 'Trapeze') {
+  //         console.trace();
+  //         let firstSegment = new Segment(v1, v2);
+  //         if (pointSelected.name != 'thirdPoint') {
+  //           let angle =
+  //             firstSegment.getAngleWithHorizontal() -
+  //             this.geometryConstructionSpec.angle;
+  //           let length = this.geometryConstructionSpec.segmentLength;
+  //           v3 = new Point(
+  //             v2.x + length * Math.cos(angle),
+  //             v2.y + length * Math.sin(angle),
+  //           );
+  //         }
+  //         let angle = firstSegment.getAngleWithHorizontal();
+  //         let length = this.geometryConstructionSpec.segmentLength2;
+  //         v4 = new Point(
+  //           v3.x + length * Math.cos(angle),
+  //           v3.y + length * Math.sin(angle),
+  //         );
+  //       }
 
-        this.segments.forEach((seg) =>
-          seg.vertexes.forEach((pt) => {
-            if (pt.name == 'firstPoint') {
-              pt.setCoordinates(v1);
-            } else if (pt.name == 'secondPoint') {
-              pt.setCoordinates(v2);
-            } else if (pt.name == 'thirdPoint') {
-              pt.setCoordinates(v3);
-            } else {
-              pt.setCoordinates(v4);
-            }
-          }),
-        );
-      } else if (this.familyName == 'circle-shape') {
-        if (this.name == 'Circle') {
-          if (pointSelected.name == 'arcCenter') {
-            let diff = pointDest.subCoordinates(pointSelected);
-            this.segments[0].arcCenter.setCoordinates(pointDest);
-            this.segments[0].vertexes.forEach((v) =>
-              v.translate(diff.x, diff.y),
-            );
-          } else {
-            this.segments[0].vertexes.forEach((v) =>
-              v.setCoordinates(pointDest),
-            );
-          }
-        } else if (this.name == 'CirclePart') {
-          if (pointSelected.name == 'arcCenter') {
-            let diff = pointDest.subCoordinates(pointSelected);
-            this.segments[1].arcCenter.setCoordinates(pointDest);
-            this.segments.forEach((seg) =>
-              seg.vertexes.forEach((v) => v.translate(diff.x, diff.y)),
-            );
-          } else {
-            let angle1 = this.segments[0].vertexes[0].getAngle(
-                this.segments[0].vertexes[1],
-              ),
-              angle2 = this.segments[0].vertexes[0].getAngle(
-                this.segments[1].vertexes[1],
-              ),
-              angleDiff = angle2 - angle1;
-            this.segments[0].vertexes[1].setCoordinates(pointDest);
-            this.segments[1].vertexes[0].setCoordinates(pointDest);
-            let radius = this.segments[0].length,
-              angle3 = this.segments[0].vertexes[0].getAngle(
-                this.segments[0].vertexes[1],
-              ),
-              resultAngle = angle3 + angleDiff,
-              thirdPoint = this.segments[1].arcCenter.addCoordinates(
-                radius * Math.cos(resultAngle),
-                radius * Math.sin(resultAngle),
-              );
-            this.segments[1].vertexes[1].setCoordinates(thirdPoint);
-            this.segments[2].vertexes[0].setCoordinates(thirdPoint);
-          }
-        } else if (this.name == 'CircleArc') {
-          if (pointSelected.name == 'arcCenter') {
-            let diff = pointDest.subCoordinates(pointSelected);
-            this.segments[0].arcCenter.setCoordinates(pointDest);
-            this.segments.forEach((seg) =>
-              seg.vertexes.forEach((v) => v.translate(diff.x, diff.y)),
-            );
-          } else {
-            let angle1 = this.segments[0].arcCenter.getAngle(
-                this.segments[0].vertexes[0],
-              ),
-              angle2 = this.segments[0].arcCenter.getAngle(
-                this.segments[0].vertexes[1],
-              ),
-              angleDiff = angle2 - angle1;
-            this.segments[0].vertexes[0].setCoordinates(pointDest);
-            let radius = this.segments[0].arcCenter.dist(
-                this.segments[0].vertexes[0],
-              ),
-              angle3 = this.segments[0].arcCenter.getAngle(
-                this.segments[0].vertexes[0],
-              ),
-              resultAngle = angle3 + angleDiff;
-            let thirdPoint = this.segments[0].arcCenter.addCoordinates(
-              radius * Math.cos(resultAngle),
-              radius * Math.sin(resultAngle),
-            );
-            this.segments[0].vertexes[1].setCoordinates(thirdPoint);
-          }
-        }
-      } else if (this.familyName == 'Line') {
-        if (
-          this.name == 'ParalleleStraightLine' ||
-          this.name == 'PerpendicularStraightLine' ||
-          this.name == 'ParalleleSegment' ||
-          this.name == 'PerpendicularSegment' ||
-          this.name == 'ParalleleSemiStraightLine' ||
-          this.name == 'PerpendicularSemiStraightLine'
-        ) {
-          let diff = pointDest.subCoordinates(pointSelected);
-          this.segments[0].vertexes.forEach((v) => v.translate(diff.x, diff.y));
-        }
-      }
-    }
+  //       this.segments.forEach((seg) =>
+  //         seg.vertexes.forEach((pt) => {
+  //           if (pt.name == 'firstPoint') {
+  //             pt.setCoordinates(v1);
+  //           } else if (pt.name == 'secondPoint') {
+  //             pt.setCoordinates(v2);
+  //           } else if (pt.name == 'thirdPoint') {
+  //             pt.setCoordinates(v3);
+  //           } else {
+  //             pt.setCoordinates(v4);
+  //           }
+  //         }),
+  //       );
+  //     } else if (this.familyName == 'circle-shape') {
+  //       if (this.name == 'Circle') {
+  //         if (pointSelected.name == 'arcCenter') {
+  //           let diff = pointDest.subCoordinates(pointSelected);
+  //           this.segments[0].arcCenter.setCoordinates(pointDest);
+  //           this.segments[0].vertexes.forEach((v) =>
+  //             v.translate(diff.x, diff.y),
+  //           );
+  //         } else {
+  //           this.segments[0].vertexes.forEach((v) =>
+  //             v.setCoordinates(pointDest),
+  //           );
+  //         }
+  //       } else if (this.name == 'CirclePart') {
+  //         if (pointSelected.name == 'arcCenter') {
+  //           let diff = pointDest.subCoordinates(pointSelected);
+  //           this.segments[1].arcCenter.setCoordinates(pointDest);
+  //           this.segments.forEach((seg) =>
+  //             seg.vertexes.forEach((v) => v.translate(diff.x, diff.y)),
+  //           );
+  //         } else {
+  //           let angle1 = this.segments[0].vertexes[0].getAngle(
+  //               this.segments[0].vertexes[1],
+  //             ),
+  //             angle2 = this.segments[0].vertexes[0].getAngle(
+  //               this.segments[1].vertexes[1],
+  //             ),
+  //             angleDiff = angle2 - angle1;
+  //           this.segments[0].vertexes[1].setCoordinates(pointDest);
+  //           this.segments[1].vertexes[0].setCoordinates(pointDest);
+  //           let radius = this.segments[0].length,
+  //             angle3 = this.segments[0].vertexes[0].getAngle(
+  //               this.segments[0].vertexes[1],
+  //             ),
+  //             resultAngle = angle3 + angleDiff,
+  //             thirdPoint = this.segments[1].arcCenter.addCoordinates(
+  //               radius * Math.cos(resultAngle),
+  //               radius * Math.sin(resultAngle),
+  //             );
+  //           this.segments[1].vertexes[1].setCoordinates(thirdPoint);
+  //           this.segments[2].vertexes[0].setCoordinates(thirdPoint);
+  //         }
+  //       } else if (this.name == 'CircleArc') {
+  //         if (pointSelected.name == 'arcCenter') {
+  //           let diff = pointDest.subCoordinates(pointSelected);
+  //           this.segments[0].arcCenter.setCoordinates(pointDest);
+  //           this.segments.forEach((seg) =>
+  //             seg.vertexes.forEach((v) => v.translate(diff.x, diff.y)),
+  //           );
+  //         } else {
+  //           let angle1 = this.segments[0].arcCenter.getAngle(
+  //               this.segments[0].vertexes[0],
+  //             ),
+  //             angle2 = this.segments[0].arcCenter.getAngle(
+  //               this.segments[0].vertexes[1],
+  //             ),
+  //             angleDiff = angle2 - angle1;
+  //           this.segments[0].vertexes[0].setCoordinates(pointDest);
+  //           let radius = this.segments[0].arcCenter.dist(
+  //               this.segments[0].vertexes[0],
+  //             ),
+  //             angle3 = this.segments[0].arcCenter.getAngle(
+  //               this.segments[0].vertexes[0],
+  //             ),
+  //             resultAngle = angle3 + angleDiff;
+  //           let thirdPoint = this.segments[0].arcCenter.addCoordinates(
+  //             radius * Math.cos(resultAngle),
+  //             radius * Math.sin(resultAngle),
+  //           );
+  //           this.segments[0].vertexes[1].setCoordinates(thirdPoint);
+  //         }
+  //       }
+  //     } else if (this.familyName == 'Line') {
+  //       if (
+  //         this.name == 'ParalleleStraightLine' ||
+  //         this.name == 'PerpendicularStraightLine' ||
+  //         this.name == 'ParalleleSegment' ||
+  //         this.name == 'PerpendicularSegment' ||
+  //         this.name == 'ParalleleSemiStraightLine' ||
+  //         this.name == 'PerpendicularSemiStraightLine'
+  //       ) {
+  //         let diff = pointDest.subCoordinates(pointSelected);
+  //         this.segments[0].vertexes.forEach((v) => v.translate(diff.x, diff.y));
+  //       }
+  //     }
+  //   }
 
-    this.recomputeSegmentPoints();
+  //   this.recomputeSegmentPoints();
 
-    this.setGeometryConstructionSpec();
-  }
+  //   this.setGeometryConstructionSpec();
+  // }
 
   recomputeSegmentPoints() {
     this.segments.forEach((seg) => {
@@ -1257,46 +1257,46 @@ export class Shape {
   //   return save;
   // }
 
-  setGeometryConstructionSpec() {
-    this.geometryConstructionSpec = {};
-    let negativeMultiplier;
-    if (this.familyName == '3-corner-shape' || this.name == 'Rectangle') {
-      negativeMultiplier =
-        this.segments[0].vertexes[1].getVertexAngle() > Math.PI ? -1 : 1;
-    } else if (this.name == 'Trapeze') {
-      negativeMultiplier = this.segments[0].hasSameDirection(this.segments[2])
-        ? 1
-        : -1;
-    }
-    if (
-      this.name == 'RightAngleTriangle' ||
-      this.name == 'RightAngleIsoscelesTriangle' ||
-      this.name == 'Rectangle'
-    ) {
-      this.geometryConstructionSpec.height =
-        this.segments[1].length * negativeMultiplier;
-    } else if (this.name == 'IsoscelesTriangle') {
-      this.geometryConstructionSpec.height =
-        this.segments[0].middle.dist(this.segments[1].vertexes[1]) *
-        negativeMultiplier;
-    } else if (this.name == 'Losange') {
-      this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
-    } else if (this.name == 'Parallelogram') {
-      this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
-      this.geometryConstructionSpec.segmentLength = this.segments[1].length;
-    } else if (this.name == 'RightAngleTrapeze') {
-      this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
-      this.geometryConstructionSpec.segmentLength = this.segments[1].length;
-    } else if (this.name == 'IsoscelesTrapeze') {
-      this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
-      this.geometryConstructionSpec.segmentLength = this.segments[1].length;
-    } else if (this.name == 'Trapeze') {
-      this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
-      this.geometryConstructionSpec.segmentLength = this.segments[1].length;
-      this.geometryConstructionSpec.segmentLength2 =
-        this.segments[2].length * negativeMultiplier;
-    }
-  }
+  // setGeometryConstructionSpec() {
+  //   this.geometryConstructionSpec = {};
+  //   let negativeMultiplier;
+  //   if (this.familyName == '3-corner-shape' || this.name == 'Rectangle') {
+  //     negativeMultiplier =
+  //       this.segments[0].vertexes[1].getVertexAngle() > Math.PI ? -1 : 1;
+  //   } else if (this.name == 'Trapeze') {
+  //     negativeMultiplier = this.segments[0].hasSameDirection(this.segments[2])
+  //       ? 1
+  //       : -1;
+  //   }
+  //   if (
+  //     this.name == 'RightAngleTriangle' ||
+  //     this.name == 'RightAngleIsoscelesTriangle' ||
+  //     this.name == 'Rectangle'
+  //   ) {
+  //     this.geometryConstructionSpec.height =
+  //       this.segments[1].length * negativeMultiplier;
+  //   } else if (this.name == 'IsoscelesTriangle') {
+  //     this.geometryConstructionSpec.height =
+  //       this.segments[0].middle.dist(this.segments[1].vertexes[1]) *
+  //       negativeMultiplier;
+  //   } else if (this.name == 'Losange') {
+  //     this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
+  //   } else if (this.name == 'Parallelogram') {
+  //     this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
+  //     this.geometryConstructionSpec.segmentLength = this.segments[1].length;
+  //   } else if (this.name == 'RightAngleTrapeze') {
+  //     this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
+  //     this.geometryConstructionSpec.segmentLength = this.segments[1].length;
+  //   } else if (this.name == 'IsoscelesTrapeze') {
+  //     this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
+  //     this.geometryConstructionSpec.segmentLength = this.segments[1].length;
+  //   } else if (this.name == 'Trapeze') {
+  //     this.geometryConstructionSpec.angle = this.segments[0].vertexes[1].getVertexAngle();
+  //     this.geometryConstructionSpec.segmentLength = this.segments[1].length;
+  //     this.geometryConstructionSpec.segmentLength2 =
+  //       this.segments[2].length * negativeMultiplier;
+  //   }
+  // }
 
   cleanSameDirectionSegment() {
     for (let i = 0; i < this.segments.length; i++) {

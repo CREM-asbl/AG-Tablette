@@ -5,21 +5,23 @@ export function computeAllShapeTransform(shape) {
   if (app.environment.name != 'Geometrie') return;
   shape.hasGeometryReferenced.forEach(ref => {
     let sRef = app.upperDrawingEnvironment.findObjectById(ref);
+    let ptsMoved = [];
     sRef.points.forEach(pt => {
       if (pt.reference) {
         let ptRef = app.upperDrawingEnvironment.findObjectById(pt.reference, 'point');
         if (!ptRef || ptRef.shape.id != shape.id) {
         } else {
           pt.coordinates = new Coordinates(ptRef.coordinates);
+          ptsMoved.push(pt.idx);
         }
       }
     })
-    computeShapeTransform(sRef);
+    computeShapeTransform(sRef, ptsMoved);
     computeAllShapeTransform(sRef);
   })
 }
 
-export function computeShapeTransform(shape) {
+export function computeShapeTransform(shape, ptsMoved) {
   if (app.environment.name != 'Geometrie') return;
   if (shape.familyName == 'Regular') {
     let externalAngle = (Math.PI * 2) / shape.segments.length;
@@ -63,6 +65,46 @@ export function computeShapeTransform(shape) {
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
+  } else if (shape.name == 'Parallelogram') {
+    console.log(ptsMoved, ptsMoved.includes(2));
+    if (ptsMoved.includes(0) && ptsMoved.includes(2)) {
+      let l = shape.vertexes[0].coordinates.dist(shape.vertexes[2].coordinates);
+      let fsl = shape.constructionSpec.firstSegmentLength;
+      let a = Math.PI - shape.constructionSpec.angle;
+      let b = Math.asin(fsl / l * Math.sin(a));
+      let c = Math.PI - a - b;
+      let refAngle = shape.vertexes[0].coordinates.angleWith(shape.vertexes[2].coordinates);
+      let resultAngle = c + refAngle;
+      shape.vertexes[1].coordinates = new Coordinates({
+        x: shape.vertexes[0].x + fsl * Math.cos(resultAngle),
+        y: shape.vertexes[0].y + fsl * Math.sin(resultAngle),
+      });
+    } else if (ptsMoved.includes(2)) {
+      let secondSegment = shape.segments[1];
+      let angle =
+        secondSegment.getAngleWithHorizontal() +
+        shape.constructionSpec.angle - Math.PI;
+      let length = shape.constructionSpec.firstSegmentLength;
+
+      shape.vertexes[0].coordinates = new Coordinates({
+        x: shape.vertexes[1].x + length * Math.cos(angle),
+        y: shape.vertexes[1].y + length * Math.sin(angle),
+      });
+    } else if (shape.vertexes[2].reference == null) {
+      let firstSegment = shape.segments[0];
+      let angle =
+        firstSegment.getAngleWithHorizontal() -
+        shape.constructionSpec.angle;
+      let length = shape.constructionSpec.secondSegmentLength;
+
+      shape.vertexes[2].coordinates = new Coordinates({
+        x: shape.vertexes[1].x + length * Math.cos(angle),
+        y: shape.vertexes[1].y + length * Math.sin(angle),
+      });
+    }
+    shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
+      .substract(shape.vertexes[1].coordinates)
+      .add(shape.vertexes[0].coordinates);
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
 }
@@ -94,10 +136,16 @@ export function computeConstructionSpec(shape) {
       shape.constructionSpec.height *= -1;
   } else if (shape.name == 'Losange') {
     shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
+  } else if (shape.name == 'Parallelogram') {
+    shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
+    shape.constructionSpec.firstSegmentLength = shape.segments[0].length;
+    shape.constructionSpec.secondSegmentLength = shape.segments[1].length;
   }
 }
 
 export function projectionOnConstraints(coordinates, constraints) {
+  if (constraints.isFree)
+    return coordinates;
   let projectionsOnContraints = constraints.lines
     .map((line) => {
       let projection = line.segment.projectionOnSegment(coordinates);
