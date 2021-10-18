@@ -1,6 +1,7 @@
 {
   "scripts": {
     "start": "snowpack dev",
+    "start-emulators": "firebase emulators:start --only hosting",
     "build": "snowpack build --reload && workbox generateSW",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\"",
