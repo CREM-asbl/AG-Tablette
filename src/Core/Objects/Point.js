@@ -255,13 +255,14 @@ export class Point {
         constraints.isFree = true;
       } else {
         constraints.isConstrained = true;
-        let secondSeg = this.shape.segments[1];
-        constraints.lines = [
-          {
-            segment: new Segment(this, secondSeg.vertexes[1]),
-            isInfinite: true,
-          },
-        ];
+        constraints.lines = [{
+          segment: new Segment({
+            drawingEnvironment: app.invisibleDrawingEnvironment,
+            createFromNothing: true,
+            vertexCoordinates: [this.shape.vertexes[2].coordinates, this.shape.vertexes[3].coordinates],
+          }),
+          isInfinite: true,
+        }];
       }
     } else if (this.shape.name == 'Circle') {
       if (this.name == 'arcCenter') {

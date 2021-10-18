@@ -66,7 +66,6 @@ export function computeShapeTransform(shape, ptsMoved) {
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
   } else if (shape.name == 'Parallelogram') {
-    console.log(ptsMoved, ptsMoved.includes(2));
     if (ptsMoved.includes(0) && ptsMoved.includes(2)) {
       let l = shape.vertexes[0].coordinates.dist(shape.vertexes[2].coordinates);
       let fsl = shape.constructionSpec.firstSegmentLength;
@@ -105,6 +104,130 @@ export function computeShapeTransform(shape, ptsMoved) {
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
+  } else if (shape.name == 'RightAngleTrapeze') {
+    if (ptsMoved.includes(0) && ptsMoved.includes(2)) {
+      let l = shape.vertexes[0].coordinates.dist(shape.vertexes[2].coordinates);
+      let fsl = shape.constructionSpec.firstSegmentLength;
+      let a = Math.PI - shape.constructionSpec.angle;
+      let b = Math.asin(fsl / l * Math.sin(a));
+      let c = Math.PI - a - b;
+      let refAngle = shape.vertexes[0].coordinates.angleWith(shape.vertexes[2].coordinates);
+      let resultAngle = c + refAngle;
+      shape.vertexes[1].coordinates = new Coordinates({
+        x: shape.vertexes[0].x + fsl * Math.cos(resultAngle),
+        y: shape.vertexes[0].y + fsl * Math.sin(resultAngle),
+      });
+    } else if (ptsMoved.includes(2)) {
+      let secondSegment = shape.segments[1];
+      let angle =
+        secondSegment.getAngleWithHorizontal() +
+        shape.constructionSpec.angle - Math.PI;
+      let length = shape.constructionSpec.firstSegmentLength;
+
+      shape.vertexes[0].coordinates = new Coordinates({
+        x: shape.vertexes[1].x + length * Math.cos(angle),
+        y: shape.vertexes[1].y + length * Math.sin(angle),
+      });
+    } else if (shape.vertexes[2].reference == null) {
+      let firstSegment = shape.segments[0];
+      let angle =
+        firstSegment.getAngleWithHorizontal() -
+        shape.constructionSpec.angle;
+      let length = shape.constructionSpec.secondSegmentLength;
+
+      shape.vertexes[2].coordinates = new Coordinates({
+        x: shape.vertexes[1].x + length * Math.cos(angle),
+        y: shape.vertexes[1].y + length * Math.sin(angle),
+      });
+    }
+    let projection = shape.segments[0].projectionOnSegment(shape.vertexes[2].coordinates);
+    shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
+      .substract(projection)
+      .add(shape.vertexes[0].coordinates);
+  } else if (shape.name == 'IsoscelesTrapeze') {
+    if (ptsMoved.includes(0) && ptsMoved.includes(2)) {
+      let l = shape.vertexes[0].coordinates.dist(shape.vertexes[2].coordinates);
+      let fsl = shape.constructionSpec.firstSegmentLength;
+      let a = Math.PI - shape.constructionSpec.angle;
+      let b = Math.asin(fsl / l * Math.sin(a));
+      let c = Math.PI - a - b;
+      let refAngle = shape.vertexes[0].coordinates.angleWith(shape.vertexes[2].coordinates);
+      let resultAngle = c + refAngle;
+      shape.vertexes[1].coordinates = new Coordinates({
+        x: shape.vertexes[0].x + fsl * Math.cos(resultAngle),
+        y: shape.vertexes[0].y + fsl * Math.sin(resultAngle),
+      });
+    } else if (ptsMoved.includes(2)) {
+      let secondSegment = shape.segments[1];
+      let angle =
+        secondSegment.getAngleWithHorizontal() +
+        shape.constructionSpec.angle - Math.PI;
+      let length = shape.constructionSpec.firstSegmentLength;
+
+      shape.vertexes[0].coordinates = new Coordinates({
+        x: shape.vertexes[1].x + length * Math.cos(angle),
+        y: shape.vertexes[1].y + length * Math.sin(angle),
+      });
+    } else if (shape.vertexes[2].reference == null) {
+      let firstSegment = shape.segments[0];
+      let angle =
+        firstSegment.getAngleWithHorizontal() -
+        shape.constructionSpec.angle;
+      let length = shape.constructionSpec.secondSegmentLength;
+
+      shape.vertexes[2].coordinates = new Coordinates({
+        x: shape.vertexes[1].x + length * Math.cos(angle),
+        y: shape.vertexes[1].y + length * Math.sin(angle),
+      });
+    }
+    let projection = shape.segments[0].projectionOnSegment(shape.vertexes[2].coordinates);
+    let middleOfSegment = shape.segments[0].middle;
+    shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
+      .substract(projection.multiply(2))
+      .add(middleOfSegment.multiply(2));
+  } else if (shape.name == 'Trapeze') {
+    // if (ptsMoved.includes(0) && ptsMoved.includes(2)) {
+    //   let l = shape.vertexes[0].coordinates.dist(shape.vertexes[2].coordinates);
+    //   let fsl = shape.constructionSpec.firstSegmentLength;
+    //   let a = Math.PI - shape.constructionSpec.angle;
+    //   let b = Math.asin(fsl / l * Math.sin(a));
+    //   let c = Math.PI - a - b;
+    //   let refAngle = shape.vertexes[0].coordinates.angleWith(shape.vertexes[2].coordinates);
+    //   let resultAngle = c + refAngle;
+    //   shape.vertexes[1].coordinates = new Coordinates({
+    //     x: shape.vertexes[0].x + fsl * Math.cos(resultAngle),
+    //     y: shape.vertexes[0].y + fsl * Math.sin(resultAngle),
+    //   });
+    // } else if (ptsMoved.includes(2)) {
+    //   let secondSegment = shape.segments[1];
+    //   let angle =
+    //     secondSegment.getAngleWithHorizontal() +
+    //     shape.constructionSpec.angle - Math.PI;
+    //   let length = shape.constructionSpec.firstSegmentLength;
+
+    //   shape.vertexes[0].coordinates = new Coordinates({
+    //     x: shape.vertexes[1].x + length * Math.cos(angle),
+    //     y: shape.vertexes[1].y + length * Math.sin(angle),
+    //   });
+    // } else
+    // if (shape.vertexes[2].reference == null) {
+      let firstSegment = shape.segments[0];
+      let angle =
+        firstSegment.getAngleWithHorizontal() -
+        shape.constructionSpec.angle;
+      let length = shape.constructionSpec.secondSegmentLength;
+
+      shape.vertexes[2].coordinates = new Coordinates({
+        x: shape.vertexes[1].x + length * Math.cos(angle),
+        y: shape.vertexes[1].y + length * Math.sin(angle),
+      });
+    // }
+    length = shape.constructionSpec.thirdSegmentLength;
+    angle = firstSegment.getAngleWithHorizontal();
+    shape.vertexes[3].coordinates = new Coordinates({
+      x: shape.vertexes[2].x + length * Math.cos(angle),
+      y: shape.vertexes[2].y + length * Math.sin(angle),
+    });
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
 }
@@ -140,6 +263,21 @@ export function computeConstructionSpec(shape) {
     shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
     shape.constructionSpec.firstSegmentLength = shape.segments[0].length;
     shape.constructionSpec.secondSegmentLength = shape.segments[1].length;
+  } else if (shape.name == 'RightAngleTrapeze') {
+    shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
+    shape.constructionSpec.firstSegmentLength = shape.segments[0].length;
+    shape.constructionSpec.secondSegmentLength = shape.segments[1].length;
+  } else if (shape.name == 'IsoscelesTrapeze') {
+    shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
+    shape.constructionSpec.firstSegmentLength = shape.segments[0].length;
+    shape.constructionSpec.secondSegmentLength = shape.segments[1].length;
+  } else if (shape.name == 'Trapeze') {
+    shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
+    shape.constructionSpec.firstSegmentLength = shape.segments[0].length;
+    shape.constructionSpec.secondSegmentLength = shape.segments[1].length;
+    shape.constructionSpec.thirdSegmentLength = shape.segments[2].length;
+    if (Math.abs(shape.segments[0].getAngleWithHorizontal() - shape.segments[2].getAngleWithHorizontal()) > 0.1)
+      shape.constructionSpec.thirdSegmentLength *= -1;
   }
 }
 

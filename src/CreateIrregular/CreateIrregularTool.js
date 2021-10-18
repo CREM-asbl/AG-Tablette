@@ -175,5 +175,14 @@ export class CreateIrregularTool extends Tool {
       name: app.tool.selectedTriangle,
       familyName: familyName,
     });
+
+    let ref;
+    shape.vertexes.forEach((vx, i) => {
+      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[i].id).find(pt => pt.coordinates.equal(shape.vertexes[i].coordinates))) {
+        if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+          ref.shape.hasGeometryReferenced.push(shape.id);
+        shape.vertexes[i].reference = ref.id;
+      }
+    });
   }
 }

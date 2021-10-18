@@ -198,6 +198,9 @@ export class TransformTool extends Tool {
           case 'Rectangle':
           case 'Losange':
           case 'Parallelogram':
+          case 'RightAngleTrapeze':
+          case 'IsoscelesTrapeze':
+          case 'Trapeze':
             computeConstructionSpec(shape);
             break;
           default:
@@ -205,12 +208,15 @@ export class TransformTool extends Tool {
         }
       }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
-      if (point.idx == 2) {
+      if (point.idx >= 2) {
         switch (shape.name) {
           case 'Rectangle':
           case 'Losange':
-          case 'Parallelogram':
+          case 'Trapeze':
             point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+          case 'Parallelogram':
+          case 'RightAngleTrapeze':
+          case 'IsoscelesTrapeze':
             computeConstructionSpec(shape);
             break;
           default:
