@@ -184,7 +184,7 @@ class AGMain extends LitElement {
             <div slot="body">
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                name="new"
+                name="home"
                 title="Accueil"
                 @click="${this._actionHandle}"
               >
