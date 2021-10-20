@@ -53,10 +53,7 @@ export class MoveTool extends Tool {
   }
 
   listen() {
-    this.lastAdjusment = {
-      rotationAngle: 0,
-      translation: Coordinates.nullCoordinates,
-    };
+    this.lastAdjusment = null;
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
     this.stopAnimation();
@@ -154,8 +151,10 @@ export class MoveTool extends Tool {
       );
 
       this.shapesToMove.forEach((s) => {
-        s.translate(Coordinates.nullCoordinates.substract(this.lastAdjusment.translation));
-        s.rotate(this.lastAdjusment.rotationAngle * -1);
+        if (this.lastAdjusment) {
+          s.translate(Coordinates.nullCoordinates.substract(this.lastAdjusment.translation));
+          s.rotate(this.lastAdjusment.rotationAngle * -1, this.lastAdjusment.centerCoord);
+        }
         s.translate(translation);
       });
 
@@ -163,11 +162,14 @@ export class MoveTool extends Tool {
         this.shapesToMove,
         mainShape,
       );
-      this.lastAdjusment = adjustment;
+      this.lastAdjusment = {
+        ...adjustment,
+        centerCoord: new Coordinates(mainShape.centerCoordinates),
+      };
       this.shapesToMove.forEach((s) => {
         s.rotate(
           adjustment.rotationAngle,
-          this.selectedShape.centerCoordinates,
+          mainShape.centerCoordinates,
         );
         s.translate(adjustment.translation);
       });
