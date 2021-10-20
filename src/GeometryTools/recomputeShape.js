@@ -262,6 +262,58 @@ export function computeShapeTransform(shape, ptsMoved) {
       x: middle.x + height * Math.cos(angle),
       y: middle.y + height * Math.sin(angle),
     });
+  } else if (shape.name == 'ParalleleSegment') {
+    let seg = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    let angle = seg.getAngleWithHorizontal();
+    let segLength = shape.constructionSpec.segmentLength;
+
+    shape.vertexes[1].coordinates = new Coordinates({
+      x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
+      y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
+    });
+  } else if (shape.name == 'PerpendicularSegment') {
+    let seg = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
+    let segLength = shape.constructionSpec.segmentLength;
+
+    shape.vertexes[1].coordinates = new Coordinates({
+      x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
+      y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
+    });
+  } else if (shape.name == 'ParalleleSemiStraightLine') {
+    let seg = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    let angle = seg.getAngleWithHorizontal();
+    let segLength = shape.constructionSpec.segmentLength;
+
+    shape.vertexes[1].coordinates = new Coordinates({
+      x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
+      y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
+    });
+  } else if (shape.name == 'PerpendicularSemiStraightLine') {
+    let seg = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
+    let segLength = shape.constructionSpec.segmentLength;
+
+    shape.vertexes[1].coordinates = new Coordinates({
+      x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
+      y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
+    });
+  } else if (shape.name == 'ParalleleStraightLine') {
+    let seg = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    let angle = seg.getAngleWithHorizontal();
+
+    shape.vertexes[1].coordinates = new Coordinates({
+      x: shape.vertexes[0].coordinates.x + 100 * Math.cos(angle),
+      y: shape.vertexes[0].coordinates.y + 100 * Math.sin(angle),
+    });
+  } else if (shape.name == 'PerpendicularStraightLine') {
+    let seg = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
+
+    shape.vertexes[1].coordinates = new Coordinates({
+      x: shape.vertexes[0].coordinates.x + 100 * Math.cos(angle),
+      y: shape.vertexes[0].coordinates.y + 100 * Math.sin(angle),
+    });
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
 }
@@ -321,6 +373,16 @@ export function computeConstructionSpec(shape) {
     shape.constructionSpec.height = shape.segments[0].middle.dist(shape.vertexes[2].coordinates);
     if (shape.vertexes[1].getVertexAngle() > Math.PI)
       shape.constructionSpec.height *= -1;
+  } else if (
+    shape.name == 'ParalleleSemiStraightLine' ||
+    shape.name == 'PerpendicularSemiStraightLine' ||
+    shape.name == 'ParalleleSegment' ||
+    shape.name == 'PerpendicularSegment'
+  ) {
+    shape.constructionSpec.segmentLength = shape.segments[0].length;
+    let reference = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    if (Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal()) > 0.1)
+      shape.constructionSpec.segmentLength *= -1;
   }
 }
 

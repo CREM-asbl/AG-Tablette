@@ -28,7 +28,7 @@ export class Shape {
    * @param {Boolean}                     isReversed
    * @param {Boolean}                     isBiface
    * @param {*}                           geometryConstructionSpec // à enlever (recalculer si besoin)
-   * @param {*}                           referenceShapeId // temporaire
+   * @param {*}                           referenceId // temporaire
    * @param {*}                           referenceSegmentIdx // temporaire
    * @param {*}                           hasGeometryReferenced // temporaire
    */
@@ -49,7 +49,7 @@ export class Shape {
     _isCenterShown = undefined,
     isReversed = false,
     isBiface = false,
-    // referenceId = null,
+    referenceId = null,
     hasGeometryReferenced = [],
     divisionPointInfos = [],
     constructionSpec = {},
@@ -97,6 +97,7 @@ export class Shape {
     this.isBiface = isBiface;
     this.hasGeometryReferenced = [...hasGeometryReferenced];
     this.constructionSpec = constructionSpec;
+    this.referenceId = referenceId;
   }
 
   /* #################################################################### */
@@ -1183,10 +1184,10 @@ export class Shape {
   /**
    * convertit la shape en commande de path svg
    */
-  getSVGPath(scaling = 'scale') {
+  getSVGPath(scaling = 'scale', infiniteCheck = true) {
     let path = '';
     path = this.segments
-      .map((seg) => seg.getSVGPath(scaling))
+      .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
       .join('\n');
     return path;
   }
@@ -1354,7 +1355,7 @@ export class Shape {
       _isCenterShown: this.isCenterShown,
       isReversed: this.isReversed,
       isBiface: this.isBiface,
-      referenceShapeId: this.referenceShapeId,
+      referenceId: this.referenceId,
       referenceSegmentIdx: this.referenceSegmentIdx,
       hasGeometryReferenced: this.hasGeometryReferenced,
       constructionSpec: this.constructionSpec,

@@ -324,41 +324,47 @@ export class Point {
       if (
         (this.shape.name == 'ParalleleSegment' ||
           this.shape.name == 'ParalleleSemiStraightLine') &&
-        this.name == 'secondPoint'
+        this.idx == 1
       ) {
         constraints.isConstrained = true;
-        let reference = ShapeManager.getShapeById(this.shape.referenceShapeId)
-          .segments[this.shape.referenceSegmentIdx];
+        let reference = app.mainDrawingEnvironment.findObjectById(this.shape.referenceId, 'segment');
         let referenceAngle = reference.getAngleWithHorizontal();
         let constraintLine = {
-          segment: new Segment(
-            this.shape.segments[0].vertexes[0],
-            this.shape.segments[0].vertexes[0].addCoordinates(
-              100 * Math.cos(referenceAngle),
-              100 * Math.sin(referenceAngle),
-            ),
-          ),
+          segment: new Segment({
+            drawingEnvironment: app.invisibleDrawingEnvironment,
+            createFromNothing: true,
+            vertexCoordinates: [this.shape.vertexes[0], this.shape.vertexes[0].coordinates.add(new Coordinates({
+              x: 100 * Math.cos(referenceAngle),
+              y: 100 * Math.sin(referenceAngle),
+            }))],
+          }),
           isInfinite: true,
         };
         constraints.lines = [constraintLine];
       } else if (
         (this.shape.name == 'PerpendicularSegment' ||
           this.shape.name == 'PerpendicularSemiStraightLine') &&
-        this.name == 'secondPoint'
+        this.idx == 1
       ) {
         constraints.isConstrained = true;
-        let reference = ShapeManager.getShapeById(this.shape.referenceShapeId)
-          .segments[this.shape.referenceSegmentIdx];
+        let reference = app.mainDrawingEnvironment.findObjectById(this.shape.referenceId, 'segment');
+        let referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2;
         let constraintLine = {
-          segment: new Segment(
-            this.shape.segments[0].vertexes[0],
-            reference.projectionOnSegment(this),
-          ),
+          segment: new Segment({
+            drawingEnvironment: app.invisibleDrawingEnvironment,
+            createFromNothing: true,
+            vertexCoordinates: [this.shape.vertexes[0], this.shape.vertexes[0].coordinates.add(new Coordinates({
+              x: 100 * Math.cos(referenceAngle),
+              y: 100 * Math.sin(referenceAngle),
+            }))],
+          }),
           isInfinite: true,
         };
         constraints.lines = [constraintLine];
-      } else {
+      } else if (this.idx == 0) {
         constraints.isFree = true;
+      } else if (this.idx == 1) {
+        constraints.isConstructed = true;
       }
     }
     this.transformConstraints = constraints;

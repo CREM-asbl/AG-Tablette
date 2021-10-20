@@ -124,7 +124,7 @@ export class TransformTool extends Tool {
         let newShape = new Shape({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
-          path: s.getSVGPath('no scale'),
+          path: s.getSVGPath('no scale', false, false),
           divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
             return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx, id: dp.id };
           })).flat(),
@@ -134,12 +134,15 @@ export class TransformTool extends Tool {
         newShape.segmentIds = [...segIds];
         newShape.pointIds = [...ptIds];
         newShape.segments.forEach((seg, idx) => {
+          seg.isInfinite = s.segments[idx].isInfinite;
+          seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
           seg.vertexIds = [...s.segments[idx].vertexIds];
           seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
         });
         newShape.points.forEach((pt, idx) => {
           pt.segmentIds = [...s.points[idx].segmentIds];
           pt.reference = s.points[idx].reference;
+          pt.visible = s.points[idx].visible;
           pt.transformConstraints = s.points[idx].transformConstraints;
         });
         return newShape;

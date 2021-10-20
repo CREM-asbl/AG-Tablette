@@ -8,6 +8,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
+import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -257,9 +258,11 @@ export class CreateLineTool extends Tool {
         this.referenceId,
         'segment',
       );
-      newCoordinates = referenceSegment.projectionOnSegment(
-        this.points[0].coordinates,
-      );
+      let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+      newCoordinates = this.points[0].coordinates.add(new Coordinates({
+        x: 100 * Math.cos(angle),
+        y: 100 * Math.sin(angle),
+      }))
     }
 
     if (this.points.length == 1) {
@@ -361,7 +364,19 @@ export class CreateLineTool extends Tool {
       reference.shape.hasGeometryReferenced.push(shape.id);
     }
 
-    shape.points[0].name = 'firstPoint';
-    shape.points[1].name = 'secondPoint';
+    let ref;
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.vertexes[0].reference = ref.id;
+    }
+    if (shape.name == 'Segment' || shape.name == 'SemiStraightLine')
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.vertexes[1].reference = ref.id;
+    }
+
+    computeConstructionSpec(shape);
   }
 }

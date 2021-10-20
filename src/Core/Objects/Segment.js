@@ -257,10 +257,10 @@ export class Segment {
   /**
    * convertit le segment en commande de path svg
    */
-  getSVGPath(scaling = 'scale', includeMoveTo = false) {
+  getSVGPath(scaling = 'scale', includeMoveTo = false, infiniteCheck = true) {
     let firstCoordinates = this.vertexes[0].coordinates,
       secondCoordinates = this.vertexes[1].coordinates;
-    if (this.isInfinite) {
+    if (infiniteCheck && this.isInfinite) {
       let angle = this.getAngleWithHorizontal();
       firstCoordinates = firstCoordinates.substract({
         x: 10000 * Math.cos(angle),
@@ -270,7 +270,7 @@ export class Segment {
         x: 10000 * Math.cos(angle),
         y: 10000 * Math.sin(angle),
       });
-    } else if (this.isSemiInfinite) {
+    } else if (infiniteCheck && this.isSemiInfinite) {
       let angle = this.getAngleWithHorizontal();
       secondCoordinates = secondCoordinates.add({
         x: 10000 * Math.cos(angle),
