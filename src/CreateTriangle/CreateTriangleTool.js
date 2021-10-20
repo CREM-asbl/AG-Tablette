@@ -8,6 +8,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -218,9 +219,24 @@ export class CreateTriangleTool extends Tool {
       familyName: familyName,
     });
 
-    shape.points[0].name = 'firstPoint';
-    shape.points[1].name = 'secondPoint';
-    shape.points[2].name = 'thirdPoint';
-    // window.dispatchEvent(new CustomEvent('refresh'));
+    let ref;
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.vertexes[0].reference = ref.id;
+    }
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.vertexes[1].reference = ref.id;
+    }
+    if (shape.name == 'IrregularTriangle') {
+      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[2].id).find(pt => pt.coordinates.equal(shape.vertexes[2].coordinates))) {
+        if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+          ref.shape.hasGeometryReferenced.push(shape.id);
+        shape.vertexes[2].reference = ref.id;
+      }
+    }
+    computeConstructionSpec(shape);
   }
 }

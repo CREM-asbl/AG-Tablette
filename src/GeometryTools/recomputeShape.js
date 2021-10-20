@@ -228,6 +228,40 @@ export function computeShapeTransform(shape, ptsMoved) {
       x: shape.vertexes[2].x + length * Math.cos(angle),
       y: shape.vertexes[2].y + length * Math.sin(angle),
     });
+  } else if (shape.name == 'RightAngleIsoscelesTriangle') {
+    let firstSegment = shape.segments[0];
+    let angle =
+      firstSegment.getAngleWithHorizontal() -
+      shape.constructionSpec.angle;
+    let length = firstSegment.length;
+
+    shape.vertexes[2].coordinates = new Coordinates({
+      x: shape.vertexes[1].x + length * Math.cos(angle),
+      y: shape.vertexes[1].y + length * Math.sin(angle),
+    });
+  } else if (shape.name == 'RightAngleTriangle') {
+    let firstSegment = shape.segments[0];
+    let angle =
+      firstSegment.getAngleWithHorizontal() -
+      shape.constructionSpec.angle;
+    let length = shape.constructionSpec.secondSegmentLength;
+
+    shape.vertexes[2].coordinates = new Coordinates({
+      x: shape.vertexes[1].x + length * Math.cos(angle),
+      y: shape.vertexes[1].y + length * Math.sin(angle),
+    });
+  } else if (shape.name == 'IsoscelesTriangle') {
+    let firstSegment = shape.segments[0];
+    let middle = firstSegment.middle;
+    let angle =
+      firstSegment.getAngleWithHorizontal() -
+      Math.PI / 2;
+    let height = shape.constructionSpec.height;
+
+    shape.vertexes[2].coordinates = new Coordinates({
+      x: middle.x + height * Math.cos(angle),
+      y: middle.y + height * Math.sin(angle),
+    });
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
 }
@@ -278,6 +312,15 @@ export function computeConstructionSpec(shape) {
     shape.constructionSpec.thirdSegmentLength = shape.segments[2].length;
     if (Math.abs(shape.segments[0].getAngleWithHorizontal() - shape.segments[2].getAngleWithHorizontal()) > 0.1)
       shape.constructionSpec.thirdSegmentLength *= -1;
+  } else if (shape.name == 'RightAngleIsoscelesTriangle') {
+    shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
+  } else if (shape.name == 'RightAngleTriangle') {
+    shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
+    shape.constructionSpec.secondSegmentLength = shape.segments[1].length;
+  } else if (shape.name == 'IsoscelesTriangle') {
+    shape.constructionSpec.height = shape.segments[0].middle.dist(shape.vertexes[2].coordinates);
+    if (shape.vertexes[1].getVertexAngle() > Math.PI)
+      shape.constructionSpec.height *= -1;
   }
 }
 

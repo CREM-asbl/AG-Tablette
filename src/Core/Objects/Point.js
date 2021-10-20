@@ -149,38 +149,36 @@ export class Point {
     } else if (this.shape.familyName == 'Irregular') {
       constraints.isFree = true;
     } else if (this.shape.name == 'RightAngleTriangle') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+      if (this.idx < 2) {
         constraints.isFree = true;
       } else {
-        console.trace();
-
         constraints.isConstrained = true;
-
-        let firstSeg = this.shape.segments[0];
         constraints.lines = [
           {
-            segment: new Segment(this, firstSeg.vertexes[1]),
+            segment: this.shape.segments[1],
             isInfinite: true,
           },
         ];
       }
     } else if (this.shape.name == 'IsoscelesTriangle') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+      if (this.idx < 2) {
         constraints.isFree = true;
       } else {
         constraints.isConstrained = true;
 
         let firstSeg = this.shape.segments[0];
         let middleOfSegment = firstSeg.middle;
-        constraints.lines = [
-          {
-            segment: new Segment(this, middleOfSegment),
-            isInfinite: true,
-          },
-        ];
+        constraints.lines = [{
+          segment: new Segment({
+            drawingEnvironment: app.invisibleDrawingEnvironment,
+            createFromNothing: true,
+            vertexCoordinates: [this.coordinates, middleOfSegment],
+          }),
+          isInfinite: true,
+        }];
       }
     } else if (this.shape.name == 'RightAngleIsoscelesTriangle') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+      if (this.idx < 2) {
         constraints.isFree = true;
       } else {
         constraints.isConstrained = true;
@@ -188,14 +186,14 @@ export class Point {
         let segmentLength = firstSeg.length;
         let angle = firstSeg.getAngleWithHorizontal();
         let perpendicularAngle = angle + Math.PI / 2;
-        let firstPoint = new Point(
-          firstSeg.vertexes[1].x + Math.cos(perpendicularAngle) * segmentLength,
-          firstSeg.vertexes[1].y + Math.sin(perpendicularAngle) * segmentLength,
-        );
-        let secondPoint = new Point(
-          firstSeg.vertexes[1].x - Math.cos(perpendicularAngle) * segmentLength,
-          firstSeg.vertexes[1].y - Math.sin(perpendicularAngle) * segmentLength,
-        );
+        let firstPoint = new Coordinates({
+          x: firstSeg.vertexes[1].x + Math.cos(perpendicularAngle) * segmentLength,
+          y: firstSeg.vertexes[1].y + Math.sin(perpendicularAngle) * segmentLength,
+        });
+        let secondPoint = new Coordinates({
+          x: firstSeg.vertexes[1].x - Math.cos(perpendicularAngle) * segmentLength,
+          y: firstSeg.vertexes[1].y - Math.sin(perpendicularAngle) * segmentLength,
+        });
         constraints.points.push(firstPoint);
         constraints.points.push(secondPoint);
       }

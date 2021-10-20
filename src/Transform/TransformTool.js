@@ -201,6 +201,9 @@ export class TransformTool extends Tool {
           case 'RightAngleTrapeze':
           case 'IsoscelesTrapeze':
           case 'Trapeze':
+          case 'RightAngleIsoscelesTriangle':
+          case 'RightAngleTriangle':
+          case 'IsoscelesTriangle':
             computeConstructionSpec(shape);
             break;
           default:
@@ -213,6 +216,9 @@ export class TransformTool extends Tool {
           case 'Rectangle':
           case 'Losange':
           case 'Trapeze':
+          case 'RightAngleIsoscelesTriangle':
+          case 'RightAngleTriangle':
+          case 'IsoscelesTriangle':
             point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
           case 'Parallelogram':
           case 'RightAngleTrapeze':
@@ -257,20 +263,26 @@ export class TransformTool extends Tool {
 
   drawConstraints(point) {
     if (point.transformConstraints.isConstrained) {
-      if (point.transformConstraints.lines) {
-        point.transformConstraints.lines.forEach(ln => {
-          let segment = ln.segment;
-          let shape = new Shape({
-            drawingEnvironment: app.upperDrawingEnvironment,
-            path: segment.getSVGPath('no scale', true),
-            borderColor: app.settings.constraintsDrawColor,
-            opacity: 0,
-          });
-          if (ln.isInfinite)
-            shape.segments[0].isInfinite = true;
-          shape.vertexes.forEach(pt => pt.visible = false);
+      point.transformConstraints.lines.forEach(ln => {
+        let segment = ln.segment;
+        let shape = new Shape({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: segment.getSVGPath('no scale', true),
+          borderColor: app.settings.constraintsDrawColor,
+          opacity: 0,
         });
-      }
+        if (ln.isInfinite)
+          shape.segments[0].isInfinite = true;
+        shape.vertexes.forEach(pt => pt.visible = false);
+      });
+      point.transformConstraints.points.forEach(pt => {
+        new Point({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: pt,
+          color: app.settings.constraintsDrawColor,
+          size: 2,
+        });
+      });
       this.constraintsDrawn = true;
     }
   }
