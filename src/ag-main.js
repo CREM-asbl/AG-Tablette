@@ -332,7 +332,7 @@ class AGMain extends LitElement {
         window.dispatchEvent(new CustomEvent('open-file'));
         resetTool = true;
         break;
-      case 'new':
+      case 'home':
         import('./popups/home-popup');
         createElem('home-popup');
         resetTool = true;
