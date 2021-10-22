@@ -63,13 +63,15 @@ class SettingsPopup extends LitElement {
           <br />
 
           <fieldset style=${
-            app.environment.name == 'Tangram' || app.environment.name == 'Cubes'
+            app.environment.name == 'Tangram'
               ? 'display:none'
               : ''
           }>
             <legend>Figures</legend>
 
-            <div class="field">
+            <div class="field" style=${
+              app.environment.name == 'Cubes' ? 'display:none;' : ''
+            }>
               <label for="settings_shapes_size">Taille des figures</label>
               <select
                 name="settings_shapes_size"
