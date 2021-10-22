@@ -1,4 +1,4 @@
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { createElem } from '../Core/Tools/general';
@@ -6,8 +6,37 @@ import { createElem } from '../Core/Tools/general';
 //Todo: Créer un event plus précis
 addEventListener('tool-changed', () => {
   if (app.tool?.name === 'grid') {
-    import('./grid-popup');
-    createElem('grid-popup');
+    if (app.environment.name == 'Cubes') {
+      if (app.settings.gridShown) {
+        setState({
+          settings: {
+            ...app.settings,
+            gridType: 'none',
+            gridShown: false,
+            gridSize: 2,
+          },
+        });
+      } else {
+        setState({
+          settings: {
+            ...app.settings,
+            gridType: 'vertical-triangle',
+            gridShown: true,
+            gridSize: 2,
+          },
+        });
+      }
+      if (!app.fullHistory.isRunning) {
+        window.dispatchEvent(
+          new CustomEvent('actions-executed', {
+            detail: { name: 'Grille' },
+          }),
+        );
+      }
+    } else {
+      import('./grid-popup');
+      createElem('grid-popup');
+    }
   }
 });
 

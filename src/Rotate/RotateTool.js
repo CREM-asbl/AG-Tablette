@@ -114,11 +114,12 @@ export class RotateTool extends Tool {
         }),
     );
 
-    new Point({
-      coordinates: this.center,
-      drawingEnvironment: app.upperDrawingEnvironment,
-      color: this.drawColor,
-    });
+    if (app.environment.name != 'Cubes')
+      new Point({
+        coordinates: this.center,
+        drawingEnvironment: app.upperDrawingEnvironment,
+        color: this.drawColor,
+      });
 
     app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
       (s) => s.id,

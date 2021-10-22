@@ -116,6 +116,7 @@ export class MoveTool extends Tool {
         newShape.segments.forEach((seg, idx) => {
           seg.vertexIds = [...s.segments[idx].vertexIds];
           seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
+          seg.arcCenterId = s.segments[idx].arcCenterId;
         });
         newShape.points.forEach((pt, idx) => {
           pt.segmentIds = [...s.points[idx].segmentIds];
