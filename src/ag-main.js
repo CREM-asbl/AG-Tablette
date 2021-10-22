@@ -18,7 +18,7 @@ import './Core/Managers/ShapeManager';
 import './Core/Managers/DrawManager';
 import './Core/Managers/FullHistoryManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';
-import { createElem } from './Core/Tools/general';
+import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
 import { customElement } from 'lit/decorators.js';
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
@@ -153,6 +153,14 @@ class AGMain extends LitElement {
           border: none;
           background: transparent;
         }
+
+        h3 {
+          padding: 0;
+          margin: 0 0 10px;
+          text-align: center;
+          font-size: 1em;
+          font-weight: normal;
+        }
       `,
     ];
   }
@@ -168,6 +176,15 @@ class AGMain extends LitElement {
   async firstUpdated() {
     let sectionImport = await import(`./toolbarSectionsDef.js`);
     this.toolbarSections = sectionImport.default.sections;
+    let backgroundColor = rgb2hex(window.getComputedStyle(this.shadowRoot.querySelector('#left-menu'), null).backgroundColor);
+    if (!backgroundColor)
+      backgroundColor = '#ffffff';
+    let rgb = RGBFromColor(backgroundColor);
+    if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114 > 140) {
+      this.textColor = "#000000";
+    } else {
+      this.textColor = "#ffffff";
+    }
     setState({ appLoading: false });
   }
 
@@ -176,11 +193,6 @@ class AGMain extends LitElement {
       <div id="app-view">
         <div id="left-menu">
           <template-toolbar>
-            <h2 slot="title">
-              ${this.tool?.title != undefined
-                ? this.tool.title
-                : app.environment.name}
-            </h2>
             <div slot="body">
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
@@ -244,6 +256,12 @@ class AGMain extends LitElement {
               </icon-button>
             </div>
           </template-toolbar>
+
+          <h3 style="color: ${this.textColor}">
+            ${this.tool?.title != undefined
+              ? "mode: " + this.tool.title
+              : "Sélectionnez une fonctionnalité"}
+          </h3>
 
           <toolbar-kit></toolbar-kit>
 
