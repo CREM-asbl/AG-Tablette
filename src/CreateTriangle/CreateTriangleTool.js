@@ -122,6 +122,7 @@ export class CreateTriangleTool extends Tool {
         segmentIds: this.segments.map((seg) => seg.id),
         pointIds: this.points.map((pt) => pt.id),
         borderColor: app.settings.temporaryDrawColor,
+        opacity: 0,
       });
       this.segments.forEach((seg, idx) => {
         seg.idx = idx;
@@ -133,6 +134,7 @@ export class CreateTriangleTool extends Tool {
         segmentIds: [this.segments[0].id],
         pointIds: this.segments[0].vertexIds,
         borderColor: app.settings.temporaryDrawColor,
+        opacity: 0,
       });
     }
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
@@ -217,6 +219,7 @@ export class CreateTriangleTool extends Tool {
       path: path,
       name: app.tool.selectedTriangle,
       familyName: familyName,
+      opacity: 0,
     });
 
     let ref;

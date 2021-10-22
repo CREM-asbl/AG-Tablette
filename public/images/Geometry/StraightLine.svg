@@ -3,10 +3,10 @@
 	 viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve">
 <style type="text/css">
 	path {
-    fill:#d473d4;
-    stroke:#d473d4;
+    fill:#fff0;
+    stroke:#000;
     stroke-miterlimit:10;
-    stroke-width:10px;
+    stroke-width:7px;
   }
 </style>
 <path class="st0" d="M 0 190 L 200 60"/>

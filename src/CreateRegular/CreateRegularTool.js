@@ -184,7 +184,13 @@ export class CreateRegularTool extends Tool {
         path: path,
         drawingEnvironment: app.upperDrawingEnvironment,
         borderColor: app.settings.temporaryDrawColor,
+        opacity: 0,
       }).id;
+      let shape = app.upperDrawingEnvironment.findObjectById(this.shapeDrawnId);
+      shape.vertexes.forEach(vx => {
+        vx.color = app.settings.temporaryDrawColor;
+        vx.size = 2;
+      })
     }
   }
 
@@ -238,6 +244,7 @@ export class CreateRegularTool extends Tool {
       borderColor: '#000000',
       size: shapeSize,
       drawingEnvironment: app.mainDrawingEnvironment,
+      opacity: 0,
     });
 
     let transformation = getShapeAdjustment([shape], shape);

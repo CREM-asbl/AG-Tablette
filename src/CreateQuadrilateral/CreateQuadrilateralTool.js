@@ -123,6 +123,7 @@ export class CreateQuadrilateralTool extends Tool {
         segmentIds: this.segments.map((seg) => seg.id),
         pointIds: this.points.map((pt) => pt.id),
         borderColor: app.settings.temporaryDrawColor,
+        opacity: 0,
       });
       this.segments.forEach((seg, idx) => {
         seg.idx = idx;
@@ -134,6 +135,7 @@ export class CreateQuadrilateralTool extends Tool {
         segmentIds: [this.segments[this.numberOfPointsDrawn - 2].id],
         pointIds: this.segments[this.numberOfPointsDrawn - 2].vertexIds,
         borderColor: app.settings.temporaryDrawColor,
+        opacity: 0,
       });
     }
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
@@ -219,6 +221,7 @@ export class CreateQuadrilateralTool extends Tool {
       path: path,
       name: app.tool.selectedQuadrilateral,
       familyName: familyName,
+      opacity: 0,
     });
 
     let ref;

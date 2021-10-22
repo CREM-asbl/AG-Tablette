@@ -98,6 +98,7 @@ export class CreateIrregularTool extends Tool {
         segmentIds: [seg.id],
         pointIds: seg.vertexIds,
         borderColor: app.settings.temporaryDrawColor,
+        opacity: 0,
       });
     }
     setState({
@@ -174,6 +175,7 @@ export class CreateIrregularTool extends Tool {
       path: path,
       name: app.tool.selectedTriangle,
       familyName: familyName,
+      opacity: 0,
     });
 
     let ref;

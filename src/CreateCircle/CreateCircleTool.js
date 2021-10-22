@@ -125,6 +125,7 @@ export class CreateCircleTool extends Tool {
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
             borderColor: app.settings.temporaryDrawColor,
+            opacity: 0,
           });
         } else if (app.tool.selectedCircle == 'CirclePart') {
           let seg = new Segment({
@@ -137,6 +138,7 @@ export class CreateCircleTool extends Tool {
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
             borderColor: app.settings.temporaryDrawColor,
+            opacity: 0,
           });
         }
       } else if (this.numberOfPointsDrawn == 3) {
@@ -169,7 +171,7 @@ export class CreateCircleTool extends Tool {
           segmentIds: this.segments.map((seg) => seg.id),
           pointIds: this.points.map((pt) => pt.id),
           borderColor: app.settings.temporaryDrawColor,
-          opacity: app.tool.selectedCircle == 'CirclePart' ? 0.7 : 0,
+          opacity: 0,
         });
       }
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
@@ -337,6 +339,7 @@ export class CreateCircleTool extends Tool {
       pointIds: points.map(pt => pt.id),
       name: app.tool.selectedCircle,
       familyName: 'circle-shape',
+      opacity: 0,
     });
 
     segments.forEach((seg, idx) => {
