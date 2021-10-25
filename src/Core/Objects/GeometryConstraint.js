@@ -12,6 +12,8 @@ export class GeometryConstraint {
    * @param {[Point]} points      pout isContructed
    */
   constructor(type, lines = [], points = []) {
+    let oldConstraints = app.upperDrawingEnvironment.shapes.filter(s => s.borderColor == app.settings.constraintsDrawColor);
+    app.upperDrawingEnvironment.removeObjectById(oldConstraints.map(s => s.id));
     this.type = type;
     this.segments = lines.map((ln) => {
       let path = '';

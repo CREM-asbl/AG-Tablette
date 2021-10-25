@@ -124,7 +124,7 @@ class LinesList extends LitElement {
             (lineName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${lineName}"
+                title="${this.lineTitle[lineName]}"
                 type="Geometry"
                 name="${lineName}"
                 @click="${this._clickHandle}"

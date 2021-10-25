@@ -235,7 +235,7 @@ export class CreateQuadrilateralTool extends Tool {
         ref.shape.hasGeometryReferenced.push(shape.id);
       shape.vertexes[1].reference = ref.id;
     }
-    if (shape.name == 'Parallelogram' || shape.name == 'RightAngleTrapeze' || shape.name == 'IsoscelesTrapeze' || shape.name == 'IrregularQuadrilateral') {
+    if (shape.name == 'Parallelogram' /*|| shape.name == 'RightAngleTrapeze'*/ || shape.name == 'IsoscelesTrapeze' || shape.name == 'IrregularQuadrilateral') {
       if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[2].id).find(pt => pt.coordinates.equal(shape.vertexes[2].coordinates))) {
         if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
           ref.shape.hasGeometryReferenced.push(shape.id);

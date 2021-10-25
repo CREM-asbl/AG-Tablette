@@ -7,7 +7,7 @@ class CirclesList extends LitElement {
     this.circlesNames = ['Circle', 'CirclePart', 'CircleArc'];
 
     this.circleTitle = {
-      'Circle': 'Disque',
+      'Circle': 'Cercle',
       'CirclePart': 'Secteur circulaire',
       'CircleArc': 'Arc de cercle',
     }
@@ -107,7 +107,7 @@ class CirclesList extends LitElement {
             (circleName) => html`
             <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${circleName}"
+                title="${this.circleTitle[circleName]}"
                 type="Geometry"
                 name="${circleName}"
                 @click="${this._clickHandle}"

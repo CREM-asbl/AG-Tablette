@@ -103,8 +103,6 @@ export class TransformTool extends Tool {
   }
 
   objectSelected(point) {
-    // this.shapeId = this.pointSelected.shape.id;
-
     if (point.reference) {
       point = app.mainDrawingEnvironment.findObjectById(point.reference, 'point');
     }
@@ -196,14 +194,16 @@ export class TransformTool extends Tool {
         this.drawConstraints(point);
       }
       let shape = point.shape;
-      if (point.idx < 2) {
+      if (shape.name == 'Trapeze' && point.idx < 3) {
+        computeConstructionSpec(shape);
+      } else if (point.idx < 2) {
         switch (shape.name) {
           case 'Rectangle':
           case 'Losange':
           case 'Parallelogram':
-          case 'RightAngleTrapeze':
+          // case 'RightAngleTrapeze':
+          case 'RightAngleTrapeze2':
           case 'IsoscelesTrapeze':
-          case 'Trapeze':
           case 'RightAngleIsoscelesTriangle':
           case 'RightAngleTriangle':
           case 'IsoscelesTriangle':
@@ -214,25 +214,30 @@ export class TransformTool extends Tool {
         }
       }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
-      if (point.idx >= 2) {
+      if (shape.name == 'Trapeze' && point.idx >= 3) {
+        point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+        computeConstructionSpec(shape);
+      } else if (point.idx >= 2) {
         switch (shape.name) {
           case 'Rectangle':
           case 'Losange':
-          case 'Trapeze':
           case 'RightAngleIsoscelesTriangle':
           case 'RightAngleTriangle':
           case 'IsoscelesTriangle':
+          case 'RightAngleTrapeze2':
             point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
           case 'Parallelogram':
-          case 'RightAngleTrapeze':
+          // case 'RightAngleTrapeze':
           case 'IsoscelesTrapeze':
-            computeConstructionSpec(shape);
+            computeConstructionSpec(shape, point.idx);
             break;
           default:
             break;
         }
       }
       computeShapeTransform(shape, [0]);
+      if (shape.name == 'RightAngleTrapeze2')
+        computeConstructionSpec(shape);
       computeAllShapeTransform(shape);
     } else if (app.tool.currentStep == 'selectPoint') {
       app.mainDrawingEnvironment.shapes.forEach((s) => {

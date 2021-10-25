@@ -161,32 +161,73 @@ export const Parallelogram = {
   }
 }
 
-export const RightAngleTrapeze = {
-  numberOfPointsRequired: 3,
+// export const RightAngleTrapeze = {
+//   numberOfPointsRequired: 3,
+//   constraints: [
+//     () => new GeometryConstraint('isFree'),
+//     () => new GeometryConstraint('isFree'),
+//     () => new GeometryConstraint('isFree'),
+//   ],
+//   finishShape: (points, segments) => {
+//     let projection = segments[0].projectionOnSegment(
+//       points[2].coordinates,
+//     );
+//     let newCoordinates = points[2].coordinates
+//       .substract(projection)
+//       .add(points[0].coordinates);
+//     if (points.length == 3) {
+//       points[3] = new Point({
+//         drawingEnvironment: app.upperDrawingEnvironment,
+//         coordinates: newCoordinates,
+//         color: app.settings.temporaryDrawColor,
+//         size: 2,
+//       });
+//     } else {
+//       points[3].coordinates = newCoordinates;
+//     }
+//     finishShapeEnd(points, segments, RightAngleTrapeze.numberOfPointsRequired);
+//   }
+// }
+
+export const RightAngleTrapeze2 = {
+  numberOfPointsRequired: 4,
   constraints: [
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
-    () => new GeometryConstraint('isFree'),
-  ],
-  finishShape: (points, segments) => {
-    let projection = segments[0].projectionOnSegment(
-      points[2].coordinates,
-    );
-    let newCoordinates = points[2].coordinates
-      .substract(projection)
-      .add(points[0].coordinates);
-    if (points.length == 3) {
-      points[3] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
-        coordinates: newCoordinates,
-        color: app.settings.temporaryDrawColor,
-        size: 2,
-      });
-    } else {
-      points[3].coordinates = newCoordinates;
+    (points) => {
+      let angle = points[0].coordinates.angleWith(
+        points[1].coordinates,
+      );
+      let perpendicularAngle = angle + Math.PI / 2;
+      let lines = [
+        [
+          points[1].coordinates,
+          new Coordinates({
+            x: points[1].x + Math.cos(perpendicularAngle) * 100,
+            y: points[1].y + Math.sin(perpendicularAngle) * 100,
+          }),
+        ],
+      ];
+      return new GeometryConstraint('isContrained', lines);
+    },
+    (points) => {
+      let angle = points[1].coordinates.angleWith(
+        points[2].coordinates,
+      );
+      let perpendicularAngle = angle + Math.PI / 2;
+      let lines = [
+        [
+          points[2].coordinates,
+          new Coordinates({
+            x: points[2].x + Math.cos(perpendicularAngle) * 100,
+            y: points[2].y + Math.sin(perpendicularAngle) * 100,
+          }),
+        ],
+      ];
+      return new GeometryConstraint('isContrained', lines);
     }
-    finishShapeEnd(points, segments, RightAngleTrapeze.numberOfPointsRequired);
-  }
+  ],
+  finishShape: () => {}
 }
 
 export const IsoscelesTrapeze = {

@@ -115,7 +115,7 @@ class TrianglesList extends LitElement {
             (triangleName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${triangleName}"
+                title="${this.triangleTitle[triangleName]}"
                 type="Geometry"
                 name="${triangleName}"
                 @click="${this._clickHandle}"

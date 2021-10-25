@@ -236,11 +236,24 @@ export class Point {
       } else {
         constraints.isConstructed = true;
       }
-    } else if (this.shape.name == 'RightAngleTrapeze') {
-      if (this.idx < 3) {
+    // } else if (this.shape.name == 'RightAngleTrapeze') {
+    //   if (this.idx < 3) {
+    //     constraints.isFree = true;
+    //   } else {
+    //     constraints.isConstructed = true;
+    //   }
+    } else if (this.shape.name == 'RightAngleTrapeze2') {
+      if (this.idx < 2) {
         constraints.isFree = true;
       } else {
-        constraints.isConstructed = true;
+        constraints.isConstrained = true;
+
+        constraints.lines = [
+          {
+            segment: this.shape.segments[this.idx - 1],
+            isInfinite: true,
+          },
+        ];
       }
     } else if (this.shape.name == 'IsoscelesTrapeze') {
       if (this.idx < 3) {

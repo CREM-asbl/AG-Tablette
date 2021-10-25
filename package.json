@@ -2,11 +2,12 @@
   "scripts": {
     "start": "snowpack dev",
     "start-emulators": "firebase emulators:start --only hosting",
-    "build": "snowpack build --reload && workbox generateSW",
+    "build": "snowpack build && workbox generateSW",
     "format": "prettier --write \"src/**/*.js\"",
     "lint": "prettier --check \"src/**/*.js\"",
     "deploy": "npm run build && firebase deploy --only hosting:default",
     "deploy:beta": "npm run build && firebase deploy --only hosting:beta",
+    "deploy:beta2": "npm run build && firebase hosting:channel:deploy",
     "test": "[[ -n $npm_config_folder && -d test/$npm_config_folder ]] && { npm run test:folder; exit 0;} || npm run test:all",
     "test:folder": "echo \"running tests in folder $npm_config_folder\" && web-test-runner \"test/$npm_config_folder/*.test.js\" --node-resolve",
     "test:all": "echo \"running all tests\" && web-test-runner \"test/**/*.test.js\" --node-resolve"
@@ -25,7 +26,7 @@
     "client-zip": "^2.0.0",
     "firebase": "^9.0.2",
     "lit": "^2.0.0",
-    "npm": "^7.24.0",
+    "npm": "^8.1.1",
     "pwa-helpers": "^0.9.1",
     "tslib": "^2.2.0"
   }

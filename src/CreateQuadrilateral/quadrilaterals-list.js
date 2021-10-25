@@ -9,7 +9,8 @@ class QuadrilateralsList extends LitElement {
       'Rectangle',
       'Losange',
       'Parallelogram',
-      'RightAngleTrapeze',
+      // 'RightAngleTrapeze',
+      'RightAngleTrapeze2',
       'IsoscelesTrapeze',
       'Trapeze',
       'IrregularQuadrilateral',
@@ -20,7 +21,8 @@ class QuadrilateralsList extends LitElement {
       'Rectangle': 'Rectangle',
       'Losange': 'Losange',
       'Parallelogram': 'Parallélogramme',
-      'RightAngleTrapeze': 'Trapèze rectangle',
+      // 'RightAngleTrapeze': 'Trapèze rectangle',
+      'RightAngleTrapeze2': 'Trapèze rectangle 2',
       'IsoscelesTrapeze': 'Trapèze isocèle',
       'Trapeze': 'Trapèze',
       'IrregularQuadrilateral': 'Quadrilatère',
@@ -121,7 +123,7 @@ class QuadrilateralsList extends LitElement {
             (quadrilateralName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${quadrilateralName}"
+                title="${this.quadrilateralTitle[quadrilateralName]}"
                 type="Geometry"
                 name="${quadrilateralName}"
                 @click="${this._clickHandle}"
