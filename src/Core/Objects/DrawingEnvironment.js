@@ -219,7 +219,7 @@ export class DrawingEnvironment {
       data.pointsData.forEach((pointData) => Point.loadFromData(pointData));
       this.redraw();
     } else {
-      console.log('nothing to see here');
+      console.warn('nothing to see here');
     }
   }
 }

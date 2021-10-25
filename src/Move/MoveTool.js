@@ -110,17 +110,18 @@ export class MoveTool extends Tool {
           })).flat(),
         });
         let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
-        let ptIds = newShape.points.map((seg, idx) => seg.id = s.points[idx].id);
+        let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
         newShape.segmentIds = [...segIds];
         newShape.pointIds = [...ptIds];
+        newShape.points.forEach((pt, idx) => {
+          pt.segmentIds = [...s.points[idx].segmentIds];
+          pt.reference = s.points[idx].reference;
+          pt.type = s.points[idx].type;
+        });
         newShape.segments.forEach((seg, idx) => {
           seg.vertexIds = [...s.segments[idx].vertexIds];
           seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
           seg.arcCenterId = s.segments[idx].arcCenterId;
-        });
-        newShape.points.forEach((pt, idx) => {
-          pt.segmentIds = [...s.points[idx].segmentIds];
-          pt.reference = s.points[idx].reference;
         });
         return newShape;
       }

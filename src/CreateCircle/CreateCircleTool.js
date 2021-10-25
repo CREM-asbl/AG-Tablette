@@ -286,6 +286,13 @@ export class CreateCircleTool extends Tool {
   }
 
   _executeAction() {
+    if (app.tool.selectedCircle == 'CirclePart') {
+      this.points.push(new Point({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        coordinates: this.points[0].coordinates,
+        type: 'arcCenter',
+      }));
+    }
     let points = this.points.map(
       pt =>
         new Point({
@@ -298,37 +305,44 @@ export class CreateCircleTool extends Tool {
 
     let idx = 0;
     if (app.tool.selectedCircle == 'Circle') {
+      points[0].type = 'arcCenter';
+      [points[0], points[1]] = [points[1], points[0]];
       let seg = new Segment({
         drawingEnvironment: app.mainDrawingEnvironment,
         idx: idx++,
-        vertexIds: [points[1].id, points[1].id],
-        arcCenterId: points[0].id,
+        vertexIds: [points[0].id, points[0].id],
+        arcCenterId: points[1].id,
       });
       segments.push(seg);
-    }
-    if (app.tool.selectedCircle == 'CirclePart') {
+    } else if (app.tool.selectedCircle == 'CirclePart') {
       let seg = new Segment({
         drawingEnvironment: app.mainDrawingEnvironment,
         idx: idx++,
         vertexIds: [points[0].id, points[1].id],
       });
       segments.push(seg);
-    }
-    if (app.tool.selectedCircle == 'CirclePart' || app.tool.selectedCircle == 'CircleArc') {
-      let seg = new Segment({
+      seg = new Segment({
         drawingEnvironment: app.mainDrawingEnvironment,
         idx: idx++,
         vertexIds: [points[1].id, points[2].id],
-        arcCenterId: points[0].id,
+        arcCenterId: points[3].id,
         counterclockwise: !this.clockwise,
       });
       segments.push(seg);
-    }
-    if (app.tool.selectedCircle == 'CirclePart') {
-      let seg = new Segment({
+      seg = new Segment({
         drawingEnvironment: app.mainDrawingEnvironment,
         idx: idx++,
         vertexIds: [points[2].id, points[0].id],
+      });
+      segments.push(seg);
+    } else if (app.tool.selectedCircle == 'CircleArc') {
+      [points[0], points[1], points[2]] = [points[1], points[2], points[0]];
+      let seg = new Segment({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        idx: idx++,
+        vertexIds: [points[0].id, points[1].id],
+        arcCenterId: points[2].id,
+        counterclockwise: !this.clockwise,
       });
       segments.push(seg);
     }
