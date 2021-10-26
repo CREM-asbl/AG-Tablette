@@ -138,6 +138,11 @@ export class CreateLineTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
 
+    if (this.constraints.type == 'isConstrained' && !this.constraints.projectionOnConstraints(newCoordinates, true)) {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point sur la contrainte.' } }))
+      return;
+    }
+
     if (app.tool.currentStep == 'drawPoint') {
       this.points[this.numberOfPointsDrawn] = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
@@ -291,7 +296,7 @@ export class CreateLineTool extends Tool {
           .substract(referenceSegment.vertexes[0].coordinates)
           .add(referenceSegment.vertexes[1].coordinates);
         let lines = [[this.points[0].coordinates, secondCoordinates]];
-        this.constraints = new GeometryConstraint('isContrained', lines);
+        this.constraints = new GeometryConstraint('isConstrained', lines);
       } else if (app.tool.selectedLine.startsWith('Perpendicular')) {
         let referenceSegment = app.mainDrawingEnvironment.findObjectById(
           this.referenceId,
@@ -301,7 +306,7 @@ export class CreateLineTool extends Tool {
           this.points[0].coordinates,
         );
         let lines = [[this.points[0].coordinates, secondCoordinates]];
-        this.constraints = new GeometryConstraint('isContrained', lines);
+        this.constraints = new GeometryConstraint('isConstrained', lines);
       }
     }
   }

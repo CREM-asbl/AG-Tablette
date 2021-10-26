@@ -78,7 +78,7 @@ export const Rectangle = {
           }),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: (points, segments) => {
@@ -112,7 +112,7 @@ export const Losange = {
           points[1].coordinates,
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: (points, segments) => {
@@ -208,7 +208,7 @@ export const RightAngleTrapeze2 = {
           }),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     },
     (points) => {
       let angle = points[1].coordinates.angleWith(
@@ -224,7 +224,7 @@ export const RightAngleTrapeze2 = {
           }),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: () => {}
@@ -274,7 +274,7 @@ export const Trapeze = {
             .add(points[0].coordinates),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: () => {}

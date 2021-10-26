@@ -82,7 +82,7 @@ export class GeometryConstraint {
     return this.type == 'isConstructed';
   }
 
-  projectionOnConstraints(coordinates) {
+  projectionOnConstraints(coordinates, errorWhenTooFar = false) {
     let projectionsOnContraints = this.segments
       .map((segment) => {
         let projection = segment.projectionOnSegment(coordinates);
@@ -96,6 +96,9 @@ export class GeometryConstraint {
         }),
       );
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
+    if (errorWhenTooFar && projectionsOnContraints[0].dist > app.settings.selectionDistance) {
+      return null;
+    }
     return projectionsOnContraints[0].projection;
   }
 }
