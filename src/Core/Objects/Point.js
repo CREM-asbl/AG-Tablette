@@ -376,6 +376,13 @@ export class Point {
         constraints.lines = [constraintLine];
       } else if (this.idx == 0) {
         constraints.isFree = true;
+      } else if (
+        (this.shape.name == 'Segment' ||
+          this.shape.name == 'SemiStraightLine' ||
+          this.shape.name == 'StraightLine') &&
+        this.idx == 1
+      ) {
+        constraints.isFree = true;
       } else if (this.idx == 1) {
         constraints.isConstructed = true;
       }

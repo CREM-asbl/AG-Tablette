@@ -267,7 +267,7 @@ export class CreateLineTool extends Tool {
       newCoordinates = this.points[0].coordinates.add(new Coordinates({
         x: 100 * Math.cos(angle),
         y: 100 * Math.sin(angle),
-      }))
+      }));
     }
 
     if (this.points.length == 1) {
@@ -302,9 +302,11 @@ export class CreateLineTool extends Tool {
           this.referenceId,
           'segment',
         );
-        let secondCoordinates = referenceSegment.projectionOnSegment(
-          this.points[0].coordinates,
-        );
+        let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+        let secondCoordinates = this.points[0].coordinates.add(new Coordinates({
+          x: 100 * Math.cos(angle),
+          y: 100 * Math.sin(angle),
+        }));
         let lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isConstrained', lines);
       }
