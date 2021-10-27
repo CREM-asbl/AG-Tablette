@@ -7,4 +7,10 @@ export function getAllInvolvedShapes(shape, involvedShapes) {
       involvedShapes.push(s);
     getAllInvolvedShapes(s, involvedShapes);
   });
+  if (shape.referenceId) {
+    let seg = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    let s = seg.shape;
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id))
+      involvedShapes.push(s);
+  }
 }

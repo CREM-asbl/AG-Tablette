@@ -13,7 +13,7 @@ export class SelectManager {
    * @param  {Coordinates}  c2
    */
   static areCoordinatesInSelectionDistance(c1, c2) {
-    let areInSelectionDistance = c1.equal(c2, app.settings.selectionDistance);
+    let areInSelectionDistance = c1.equal(c2, app.settings.selectionDistance / app.workspace.zoomLevel);
     return areInSelectionDistance;
   }
 
@@ -23,7 +23,7 @@ export class SelectManager {
    * @param  {Coordinates}  c2
    */
   static areCoordinatesInMagnetismDistance(c1, c2) {
-    let areInMagnetismDistance = c1.equal(c2, app.settings.magnetismDistance);
+    let areInMagnetismDistance = c1.equal(c2, app.settings.magnetismDistance / app.workspace.zoomLevel);
     return areInMagnetismDistance;
   }
 

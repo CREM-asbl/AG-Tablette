@@ -75,7 +75,7 @@ export const RightAngleIsoscelesTriangle = {
           }),
         ),
       ];
-      return new GeometryConstraint('isContrained', [], constraintsPoints);
+      return new GeometryConstraint('isConstrained', [], constraintsPoints);
     }
   ],
   finishShape: () => {},
@@ -100,7 +100,7 @@ export const RightAngleTriangle = {
           }),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: () => {},
@@ -128,7 +128,7 @@ export const IsoscelesTriangle = {
           }),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: () => {},

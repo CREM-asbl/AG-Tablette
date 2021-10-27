@@ -233,16 +233,16 @@ export class CreateRegularTool extends Tool {
   }
 
   _executeAction() {
-    const shapeSize = 1;
+    // const shapeSize = 1;
 
     let shapeDrawn = app.upperDrawingEnvironment.findObjectById(this.shapeDrawnId);
 
     let shape = new Shape({
       ...shapeDrawn,
-      path: shapeDrawn.getSVGPath(),
+      path: shapeDrawn.getSVGPath('no-scale'),
       familyName: 'Regular',
       borderColor: '#000000',
-      size: shapeSize,
+      // size: shapeSize,
       drawingEnvironment: app.mainDrawingEnvironment,
       opacity: 0,
     });

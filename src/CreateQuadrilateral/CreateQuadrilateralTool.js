@@ -94,6 +94,11 @@ export class CreateQuadrilateralTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
 
+    if (this.constraints.type == 'isConstrained' && !this.constraints.projectionOnConstraints(newCoordinates, true)) {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point sur la contrainte.' } }))
+      return;
+    }
+
     this.points[this.numberOfPointsDrawn] = new Point({
       drawingEnvironment: app.upperDrawingEnvironment,
       coordinates: newCoordinates,

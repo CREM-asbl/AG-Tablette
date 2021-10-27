@@ -188,6 +188,11 @@ export function computeShapeTransform(shape, ptsMoved) {
     });
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+  if (shape.isCenterShown) {
+    shape.isCenterShown = false;
+    shape.isCenterShown = true;
+  }
+  // shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
 }
 
 export function computeDivisionPoint(point) {
@@ -256,13 +261,20 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
       shape.constructionSpec.height *= -1;
   } else if (
     shape.name == 'ParalleleSemiStraightLine' ||
-    shape.name == 'PerpendicularSemiStraightLine' ||
-    shape.name == 'ParalleleSegment' ||
-    shape.name == 'PerpendicularSegment'
+    shape.name == 'ParalleleSegment'
   ) {
     shape.constructionSpec.segmentLength = shape.segments[0].length;
     let reference = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
     if (Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal()) > 0.1)
+      shape.constructionSpec.segmentLength *= -1;
+  } else if (
+    shape.name == 'PerpendicularSemiStraightLine' ||
+    shape.name == 'PerpendicularSegment'
+  ) {
+    shape.constructionSpec.segmentLength = shape.segments[0].length;
+    let reference = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    if (Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal() + Math.PI / 2) > 0.1 &&
+      Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal() + Math.PI / 2 - 2 * Math.PI) > 0.1)
       shape.constructionSpec.segmentLength *= -1;
   }
 }

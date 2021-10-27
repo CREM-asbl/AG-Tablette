@@ -192,7 +192,16 @@ class AGMain extends LitElement {
     return html`
       <div id="app-view">
         <div id="left-menu">
+          <h3 style="color: ${this.textColor}">
+            ${this.tool?.title != undefined
+              ? "mode: " + this.tool.title
+              : "Sélectionnez une fonctionnalité"}
+          </h3>
           <template-toolbar>
+            <!-- <h2 slot="title">
+              ${'Outils généraux'}
+            </h2> -->
+
             <div slot="body">
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
@@ -256,12 +265,6 @@ class AGMain extends LitElement {
               </icon-button>
             </div>
           </template-toolbar>
-
-          <h3 style="color: ${this.textColor}">
-            ${this.tool?.title != undefined
-              ? "mode: " + this.tool.title
-              : "Sélectionnez une fonctionnalité"}
-          </h3>
 
           <toolbar-kit></toolbar-kit>
 

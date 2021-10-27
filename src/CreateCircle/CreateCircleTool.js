@@ -104,6 +104,11 @@ export class CreateCircleTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
 
+    if (this.constraints.type == 'isConstrained' && !this.constraints.projectionOnConstraints(newCoordinates, true)) {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point sur la contrainte.' } }))
+      return;
+    }
+
     if (app.tool.currentStep == 'drawPoint') {
       this.points[this.numberOfPointsDrawn] = new Point({
         drawingEnvironment: app.upperDrawingEnvironment,
@@ -271,7 +276,7 @@ export class CreateCircleTool extends Tool {
             this.points[0].coordinates,
           ],
         ];
-        this.constraints = new GeometryConstraint('isContrained', lines);
+        this.constraints = new GeometryConstraint('isConstrained', lines);
       } else if (app.tool.selectedCircle == 'CircleArc') {
         let lines = [
           [
@@ -280,7 +285,7 @@ export class CreateCircleTool extends Tool {
             this.points[0].coordinates,
           ],
         ];
-        this.constraints = new GeometryConstraint('isContrained', lines);
+        this.constraints = new GeometryConstraint('isConstrained', lines);
       }
     }
   }

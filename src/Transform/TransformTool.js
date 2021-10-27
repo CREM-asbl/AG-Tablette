@@ -213,6 +213,17 @@ export class TransformTool extends Tool {
             break;
         }
       }
+      if (point.idx == 0) {
+        switch (shape.name) {
+          case 'ParalleleSemiStraightLine':
+          case 'PerpendicularSemiStraightLine':
+          case 'ParalleleSegment':
+          case 'PerpendicularSegment':
+            computeConstructionSpec(shape);
+          default:
+            break;
+        }
+      }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
       if (shape.name == 'Trapeze' && point.idx >= 3) {
         point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
@@ -235,6 +246,18 @@ export class TransformTool extends Tool {
             break;
         }
       }
+      if (point.idx == 1) {
+        switch (shape.name) {
+          case 'ParalleleSemiStraightLine':
+          case 'PerpendicularSemiStraightLine':
+          case 'ParalleleSegment':
+          case 'PerpendicularSegment':
+            point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+            computeConstructionSpec(shape);
+          default:
+            break;
+        }
+      }
       computeShapeTransform(shape, [0]);
       if (shape.name == 'RightAngleTrapeze2')
         computeConstructionSpec(shape);
@@ -252,7 +275,7 @@ export class TransformTool extends Tool {
           };
           const color = colorPicker[true];
 
-          if (color != '#f00')
+          if (color != '#f00' && color != undefined)
             new Point({
               drawingEnvironment: app.upperDrawingEnvironment,
               coordinates: pt.coordinates,
