@@ -102,10 +102,13 @@ export class ShapeManager {
           seg.isCoordinatesOnSegment(projection) &&
           SelectManager.areCoordinatesInSelectionDistance(projection, coord)
         );
-      } else
+      } else if (shape.isPoint()) {
+        return SelectManager.areCoordinatesInSelectionDistance(coord, shape.points[0].coordinates);
+      } else {
         return (
           shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnBorder(coord)
         );
+      }
     });
     list.reverse();
     return list;

@@ -7,6 +7,7 @@ export default {
     'CreateIrregular',
     'CreateCircle',
     'CreateLine',
+    'CreatePoint',
     'Move',
     'Rotate',
     'Reverse',

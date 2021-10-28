@@ -502,6 +502,10 @@ export class Shape {
     return this.segments.length == 1 && this.segments[0].isSemiInfinite;
   }
 
+  isPoint() {
+    return this.segments.length == 0 && this.points.length == 1;
+  }
+
   contains(object) {
     if (object instanceof Point) {
       if (
@@ -807,9 +811,13 @@ export class Shape {
    */
   getSVGPath(scaling = 'scale', infiniteCheck = true) {
     let path = '';
-    path = this.segments
-      .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
-      .join('\n');
+    if (this.isPoint()) {
+      path = `M ${this.points[0].coordinates.x} ${this.points[0].coordinates.y}`
+    } else {
+      path = this.segments
+        .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
+        .join('\n');
+    }
     return path;
   }
 

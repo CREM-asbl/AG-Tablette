@@ -186,6 +186,17 @@ export function computeShapeTransform(shape, ptsMoved) {
       x: shape.vertexes[0].coordinates.x + 100 * Math.cos(angle),
       y: shape.vertexes[0].coordinates.y + 100 * Math.sin(angle),
     });
+  } else if (shape.name == 'PointOnLine') {
+    let ref = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    let coord = ref.projectionOnSegment(shape.points[0].coordinates);
+    if (!ref.isCoordinatesOnSegment(coord)) {
+      if (coord.dist(ref.vertexes[0].coordinates) < coord.dist(ref.vertexes[1].coordinates)) {
+        coord = ref.vertexes[0].coordinates;
+      } else {
+        coord = ref.vertexes[1].coordinates;
+      }
+    }
+    shape.points[0].coordinates = coord;
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   if (shape.isCenterShown) {
