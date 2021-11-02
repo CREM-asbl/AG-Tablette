@@ -17,7 +17,7 @@ export class App {
     this.tools = [];
 
     this.settings = {
-      magnetismDistance: 10,
+      magnetismDistance: 20,
       selectionDistance: 20,
       precision: 1.5,
       maxZoomLevel: 10,
