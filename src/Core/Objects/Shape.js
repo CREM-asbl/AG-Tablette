@@ -50,6 +50,7 @@ export class Shape {
     isReversed = false,
     isBiface = false,
     referenceId = null,
+    referenceId2 = null,
     hasGeometryReferenced = [],
     divisionPointInfos = [],
     constructionSpec = {},
@@ -98,6 +99,7 @@ export class Shape {
     this.hasGeometryReferenced = [...hasGeometryReferenced];
     this.constructionSpec = constructionSpec;
     this.referenceId = referenceId;
+    this.referenceId2 = referenceId2;
   }
 
   /* #################################################################### */
@@ -934,6 +936,7 @@ export class Shape {
       isReversed: this.isReversed,
       isBiface: this.isBiface,
       referenceId: this.referenceId,
+      referenceId2: this.referenceId2,
       referenceSegmentIdx: this.referenceSegmentIdx,
       hasGeometryReferenced: this.hasGeometryReferenced,
       constructionSpec: this.constructionSpec,

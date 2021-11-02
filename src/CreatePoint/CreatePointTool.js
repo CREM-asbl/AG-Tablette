@@ -58,7 +58,15 @@ export class CreatePointTool extends Tool {
     this.removeListeners();
     this.stopAnimation();
 
-    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+    if (app.tool.selectedPoint == 'PointOnIntersection') {
+      app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_segments;
+      this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    } else {
+      this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+    }
+  }
+
+  selectSecondSegment() {
   }
 
   animatePoint() {
@@ -74,6 +82,34 @@ export class CreatePointTool extends Tool {
   end() {
     this.removeListeners();
     this.stopAnimation();
+  }
+
+  objectSelected(segment) {
+    new Shape({
+      drawingEnvironment: app.upperDrawingEnvironment,
+      borderColor: app.settings.temporaryDrawColor,
+      borderSize: 3,
+      path: segment.getSVGPath('no scale', true),
+      id: undefined,
+      color: '#000',
+      opacity: 0,
+    });
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    if (app.tool.currentStep == 'drawPoint') {
+      this.referenceId1 = segment.id;
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectSecondSegment' } });
+    } else {
+      this.referenceId2 = segment.id;
+      this.executeAnimation();
+    }
+  }
+
+  executeAnimation() {
+    window.clearTimeout(this.timeoutRef);
+    this.timeoutRef = window.setTimeout(() => {
+      this.executeAction();
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
+    }, 500);
   }
 
   canvasMouseDown() {
@@ -155,7 +191,7 @@ export class CreatePointTool extends Tool {
       });
     } else if (app.tool.selectedPoint == 'PointOnLine') {
       if (!this.referenceId) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une ligne pour placer le point.' } }))
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une ligne pour placer le point.' } }));
         return;
       }
       shape = new Shape({
@@ -169,7 +205,7 @@ export class CreatePointTool extends Tool {
       reference.shape.hasGeometryReferenced.push(shape.id);
     } else if (app.tool.selectedPoint == 'PointOnShape') {
       if (!this.referenceId) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une figure pour placer le point.' } }))
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une figure pour placer le point.' } }));
         return;
       }
       shape = new Shape({
@@ -181,6 +217,24 @@ export class CreatePointTool extends Tool {
       shape.referenceId = this.referenceId;
       let reference = app.mainDrawingEnvironment.findObjectById(this.referenceId, 'shape');
       reference.hasGeometryReferenced.push(shape.id);
+    } else if (app.tool.selectedPoint == 'PointOnIntersection') {
+      let firstSeg = app.mainDrawingEnvironment.findObjectById(this.referenceId1, 'segment');
+      let secondSeg = app.mainDrawingEnvironment.findObjectById(this.referenceId2, 'segment');
+      let coord =  firstSeg.intersectionWith(secondSeg);
+      if (!coord) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir deux lignes non parallèles' } }));
+        return;
+      }
+      shape = new Shape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: `M ${coord.x} ${coord.y}`,
+        name: app.tool.selectedPoint,
+        familyName: 'Point',
+      });
+      shape.referenceId = this.referenceId1;
+      shape.referenceId2 = this.referenceId2;
+      firstSeg.shape.hasGeometryReferenced.push(shape.id);
+      secondSeg.shape.hasGeometryReferenced.push(shape.id);
     }
   }
 }

@@ -17,4 +17,10 @@ export function getAllInvolvedShapes(shape, involvedShapes) {
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id))
       involvedShapes.push(s);
   }
+  if (shape.referenceId2) {
+    let seg = app.mainDrawingEnvironment.findObjectById(shape.referenceId2, 'segment');
+    let s = seg.shape;
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id))
+      involvedShapes.push(s);
+  }
 }

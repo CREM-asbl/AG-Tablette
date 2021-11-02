@@ -389,7 +389,13 @@ export class Point {
     } else if (
       this.shape.familyName == 'Point'
     ) {
-      constraints.isConstrained = true;
+      if (this.shape.name == 'Point') {
+        constraints.isFree = true;
+      } else if (this.shape.name == 'PointOnLine' || this.shape.name == 'PointOnShape') {
+        constraints.isConstrained = true;
+      } else {
+        constraints.isConstructed = true;
+      }
     }
     this.transformConstraints = constraints;
   }

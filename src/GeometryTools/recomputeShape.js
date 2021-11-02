@@ -4,7 +4,9 @@ import { app } from '../Core/App';
 export function computeAllShapeTransform(shape) {
   if (app.environment.name != 'Geometrie') return;
   shape.hasGeometryReferenced.forEach(ref => {
+    console.log(ref);
     let sRef = app.upperDrawingEnvironment.findObjectById(ref);
+    console.log(sRef);
     let ptsMoved = [];
     sRef.points.forEach(pt => {
       if (pt.reference) {
@@ -219,14 +221,12 @@ export function computeShapeTransform(shape, ptsMoved) {
       return p1.dist - p2.dist
     });
     shape.points[0].coordinates = projections[0].proj;
-    // if (!ref.isCoordinatesOnSegment(coord)) {
-    //   if (coord.dist(ref.vertexes[0].coordinates) < coord.dist(ref.vertexes[1].coordinates)) {
-    //     coord = ref.vertexes[0].coordinates;
-    //   } else {
-    //     coord = ref.vertexes[1].coordinates;
-    //   }
-    // }
-    // shape.points[0].coordinates = coord;
+  } else if (shape.name == 'PointOnIntersection') {
+    console.log('here');
+    let firstSeg = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+    let secondSeg = app.upperDrawingEnvironment.findObjectById(shape.referenceId2, 'segment');
+    let coord =  firstSeg.intersectionWith(secondSeg);
+    shape.points[0].coordinates = coord;
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   if (shape.isCenterShown) {
