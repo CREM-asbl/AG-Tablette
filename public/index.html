@@ -13,7 +13,8 @@
 
   <!-- pwa data -->
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="lightgrey">
+  <meta name="theme-color" content="lightgrey" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="lightgrey" media="(prefers-color-scheme: dark)">
 
   <!-- Default Open graph -->
   <meta property="og:title" content="Apprenti Géomètre mobile">
@@ -39,7 +40,7 @@
       });
 
       navigator.serviceWorker.oncontrollerchange = () => {
-        if (confirm(`Mise à jour disponible.\nMettre à jour?`))
+        if (confirm(`Mise à jour disponible.\nMettre à jour ?`))
           location.reload()
       }
     }

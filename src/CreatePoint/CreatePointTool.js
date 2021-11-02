@@ -110,7 +110,6 @@ export class CreatePointTool extends Tool {
           },
         );
         if (reference) {
-          console.log(reference);
           newCoord = reference.projectionOnSegment(point.coordinates);
           this.referenceId = reference.id;
         } else {
@@ -118,6 +117,20 @@ export class CreatePointTool extends Tool {
         }
         if (newCoord)
           point.coordinates = newCoord;
+        break;
+      case 'PointOnShape':
+        reference = SelectManager.selectShape(
+          point.coordinates,
+          {
+            canSelect: true,
+          },
+        );
+        if (reference) {
+          console.log(reference);
+          this.referenceId = reference.id;
+        } else {
+          this.referenceId = null;
+        }
         break;
     }
   }
@@ -136,7 +149,7 @@ export class CreatePointTool extends Tool {
     if (app.tool.selectedPoint == 'Point') {
       shape = new Shape({
         drawingEnvironment: app.mainDrawingEnvironment,
-        path: path,
+        path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
         name: app.tool.selectedPoint,
         familyName: 'Point',
       });
@@ -154,6 +167,20 @@ export class CreatePointTool extends Tool {
       shape.referenceId = this.referenceId;
       let reference = app.mainDrawingEnvironment.findObjectById(this.referenceId, 'segment');
       reference.shape.hasGeometryReferenced.push(shape.id);
+    } else if (app.tool.selectedPoint == 'PointOnShape') {
+      if (!this.referenceId) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une figure pour placer le point.' } }))
+        return;
+      }
+      shape = new Shape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
+        name: app.tool.selectedPoint,
+        familyName: 'Point',
+      });
+      shape.referenceId = this.referenceId;
+      let reference = app.mainDrawingEnvironment.findObjectById(this.referenceId, 'shape');
+      reference.hasGeometryReferenced.push(shape.id);
     }
   }
 }

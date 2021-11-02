@@ -197,6 +197,36 @@ export function computeShapeTransform(shape, ptsMoved) {
       }
     }
     shape.points[0].coordinates = coord;
+  } else if (shape.name == 'PointOnShape') {
+    let coord = shape.points[0].coordinates;
+    let ref = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'shape');
+    if (ref.isCoordinatesInPath(coord) || ref.isCoordinatesOnBorder(coord)) {
+      return
+    }
+    let projections = ref.segments.map(seg => {
+      let proj = seg.projectionOnSegment(coord);
+      if (!seg.isCoordinatesOnSegment(proj)) {
+        if (proj.dist(seg.vertexes[0].coordinates) < proj.dist(seg.vertexes[1].coordinates)) {
+          proj = seg.vertexes[0].coordinates;
+        } else {
+          proj = seg.vertexes[1].coordinates;
+        }
+      }
+      let dist = proj.dist(coord);
+      return {proj, dist};
+    });
+    projections.sort((p1, p2) => {
+      return p1.dist - p2.dist
+    });
+    shape.points[0].coordinates = projections[0].proj;
+    // if (!ref.isCoordinatesOnSegment(coord)) {
+    //   if (coord.dist(ref.vertexes[0].coordinates) < coord.dist(ref.vertexes[1].coordinates)) {
+    //     coord = ref.vertexes[0].coordinates;
+    //   } else {
+    //     coord = ref.vertexes[1].coordinates;
+    //   }
+    // }
+    // shape.points[0].coordinates = coord;
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   if (shape.isCenterShown) {

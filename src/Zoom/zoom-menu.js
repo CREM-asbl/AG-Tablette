@@ -59,9 +59,9 @@ class ZoomMenu extends LitElement {
   render() {
     return html`
       <div class="container">
-        <div style="float: left"><span @click="${() => this.changePosition(this.position - 1)}">-</span></div>
-        <div style="float: right"><span @click="${() => this.changePosition(this.position + 1)}">+</span></div>
-        <div style="margin: 0 auto; width: 100px; text-align: center;"><span @click="${() => this.changePosition(50)}">1</span></div>
+        <div style="float: left; cursor: pointer;"><span @click="${() => this.changePosition(this.position - 1)}">-</span></div>
+        <div style="float: right; cursor: pointer;"><span @click="${() => this.changePosition(this.position + 1)}">+</span></div>
+        <div style="margin: 0 auto; width: 100px; text-align: center; cursor: pointer;"><span @click="${() => this.changePosition(50)}">1</span></div>
         <input type="range" min="0" max="100" value="${this.position}" class="slider" id="myRange" @input="${e => this.showResult(e.target.value)}" @change="${e => this.applyZoom(e.target.value)}">
       </div>
     `;

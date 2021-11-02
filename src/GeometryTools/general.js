@@ -9,7 +9,11 @@ export function getAllInvolvedShapes(shape, involvedShapes) {
   });
   if (shape.referenceId) {
     let seg = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
-    let s = seg.shape;
+    let s;
+    if (seg)
+      s = seg.shape;
+    else
+      s = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'shape');
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id))
       involvedShapes.push(s);
   }

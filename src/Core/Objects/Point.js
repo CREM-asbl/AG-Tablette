@@ -386,6 +386,10 @@ export class Point {
       } else if (this.idx == 1) {
         constraints.isConstructed = true;
       }
+    } else if (
+      this.shape.familyName == 'Point'
+    ) {
+      constraints.isConstrained = true;
     }
     this.transformConstraints = constraints;
   }
