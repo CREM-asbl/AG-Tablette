@@ -26,15 +26,6 @@ export class SolutionCheckerTool extends Tool {
       const data = e.detail;
       const level = await TangramManager.selectLevel();
       await TangramManager.initShapes();
-      setState({
-        history: {
-          ...app.history,
-          startSituation: {
-            ...app.history.startSituation,
-            objects: app.mainDrawingEnvironment.saveData(),
-          },
-        },
-      });
       if (level == 3 || level == 4) {
         await TangramManager.openForbiddenCanvas();
       }
@@ -44,7 +35,18 @@ export class SolutionCheckerTool extends Tool {
         Silhouette.initFromObject(backObjects, level);
         isSilhouetteShown = true;
       }
-      setState({ tangram: {...app.defaultState.tangram, isSilhouetteShown }, tool: { name: this.name, currentStep: 'start' } });
+      setState({
+        history: {
+          ...app.history,
+          startSituation: {
+            ...app.history.startSituation,
+            objects: app.mainDrawingEnvironment.saveData(),
+            backObjects: app.backgroundDrawingEnvironment.saveData(),
+          },
+        },
+        tangram: {...app.defaultState.tangram, isSilhouetteShown },
+        tool: { name: this.name, currentStep: 'start' }
+      });
     });
   }
 

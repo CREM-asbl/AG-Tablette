@@ -56,6 +56,7 @@ class StateMenu extends LitElement {
         padding: 4px;
         display: inline-block;
         background-color: #bbb;
+        cursor: pointer;
       }
     `;
   }
