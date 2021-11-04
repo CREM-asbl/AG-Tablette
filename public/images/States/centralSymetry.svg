@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve">
+<style type="text/css">
+	path {
+    stroke-miterlimit:10;
+  }
+</style>
+<path stroke-width="5" fill="#fff" stroke="#b4b4b4" stroke-dasharray="20.42345833,6.35586458" d="M 35 80 L 120 15 L 130 90 Z"/>
+<path stroke-width="5" fill="#b4b4b4" stroke="#000" class="st0" d="M 165 120 L 80 185 L 70 110 Z"/>
+<circle cx="100" cy="100" r="10" fill="#6BC3FF"/>
+<!-- <path stroke-width="5" fill="#fff0" stroke="#000" class="st0" d="M 130 15 A 100 100 1 0 1 130 185"/>
+<path stroke-width="0" fill="#000" stroke="#000" class="st0" d="M 130 185 L 170 175 L 140 145 Z"/> -->
+</svg>

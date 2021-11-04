@@ -8,9 +8,9 @@ import { Point } from '../Core/Objects/Point';
 
 /**
  */
-export class CentralSymetryTool extends Tool {
+export class RotationTool extends Tool {
   constructor() {
-    super('centralSymetry', 'Symétrie centrale', 'transformation');
+    super('rotation', 'Rotation', 'transformation');
   }
 
   /**

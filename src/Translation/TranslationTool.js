@@ -11,7 +11,7 @@ import { Coordinates } from '../Core/Objects/Coordinates';
  */
 export class TranslationTool extends Tool {
   constructor() {
-    super('Translation', 'Translation', 'transformation');
+    super('translation', 'Translation', 'transformation');
   }
 
   /**

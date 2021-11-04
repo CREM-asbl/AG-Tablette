@@ -1,4 +1,5 @@
 import { uniqId } from './Tools/general';
+import { Coordinates } from './Objects/Coordinates';
 
 window.dev_mode = location.hostname === 'localhost';
 
