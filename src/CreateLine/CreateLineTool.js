@@ -124,7 +124,7 @@ export class CreateLineTool extends Tool {
     new Shape({
       drawingEnvironment: app.upperDrawingEnvironment,
       path: segment.getSVGPath('scale', true),
-      borderColor: app.settings.constraintsDrawColor,
+      borderColor: app.settings.referenceDrawColor,
       borderSize: 2,
     });
 

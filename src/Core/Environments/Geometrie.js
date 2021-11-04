@@ -25,6 +25,8 @@ export default {
     'Zoom',
     'Grid',
     'Transform',
+    'OrthogonalSymetry',
+    'CentralSymetry',
   ],
   extension: 'agl',
   themeColor: '#888888',
