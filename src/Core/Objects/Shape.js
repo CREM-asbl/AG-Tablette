@@ -526,7 +526,7 @@ export class Shape {
       // if (this.isCenterShown && this.center.equal(object)) return true;
       return false;
     } else {
-      console.warn('unsupported object');
+      console.info('unsupported object');
       return false;
     }
   }
@@ -622,7 +622,7 @@ export class Shape {
         shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
         shape.isCoordinatesOnBorder(s1_segment.middle))
       ) {
-        console.warn('shape inside another');
+        console.info('shape inside another');
         return true;
       }
     }
@@ -637,7 +637,7 @@ export class Shape {
         ),
       )
     ) {
-      console.warn('shape intersects another');
+      console.info('shape intersects another');
       return true;
     }
     return false;

@@ -335,7 +335,7 @@ class AGMain extends LitElement {
    */
   _actionHandle(event) {
     if (app.fullHistory.isRunning) {
-      console.warn('cannot interact when fullHisto is running');
+      console.info('cannot interact when fullHisto is running');
       return;
     }
     let resetTool = false;
@@ -373,7 +373,7 @@ class AGMain extends LitElement {
         window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:
-        console.warn(
+        console.info(
           'unknow event type: ' + event.type + ', with event: ',
           event,
         );

@@ -200,7 +200,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   }
 
   if (possibilities.filter(Boolean).length > 0) {
-    console.warn('2 points de la grille');
+    console.info('2 points de la grille');
     return bestPossibility(possibilities);
   }
 
@@ -211,7 +211,7 @@ export function getShapeAdjustment(shapes, mainShape) {
         let e1 = cPtListBorder[i],
           e2 = cPtListBorder[j];
         if (checkCompatibility(e1, e2)) {
-          console.warn('2 points');
+          console.info('2 points');
           let t = computeTransformation(e1, e2, shapes, mainShape);
           possibilities.push(t);
         }
@@ -220,7 +220,7 @@ export function getShapeAdjustment(shapes, mainShape) {
   }
 
   if (possibilities.filter(Boolean).length > 0) {
-    console.warn("2 points d'une autre figure");
+    console.info("2 points d'une autre figure");
     return bestPossibility(possibilities);
   }
 
@@ -239,7 +239,7 @@ export function getShapeAdjustment(shapes, mainShape) {
       transformation.translation = best.fixed.coordinates.substract(
         best.moving.coordinates,
       );
-      console.warn('1 point de la grille');
+      console.info('1 point de la grille');
       return transformation;
     }
   }
@@ -259,12 +259,12 @@ export function getShapeAdjustment(shapes, mainShape) {
       transformation.translation = best.fixed.coordinates.substract(
         best.moving.coordinates,
       );
-      console.warn("1 point d'une autre figure");
+      console.info("1 point d'une autre figure");
       return transformation;
     }
   }
 
-  console.warn('nothing');
+  console.info('nothing');
 
   //Rien n'a été trouvé, aucune transformation à faire.
   return transformation;

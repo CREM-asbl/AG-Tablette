@@ -162,7 +162,6 @@ export class CreatePointTool extends Tool {
           },
         );
         if (reference) {
-          console.log(reference);
           this.referenceId = reference.id;
         } else {
           this.referenceId = null;

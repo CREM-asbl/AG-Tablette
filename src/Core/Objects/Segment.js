@@ -435,7 +435,7 @@ export class Segment {
     }
     let numberOfSegments = this.shape.segmentIds.length;
     if (numberOfSegments == 1) {
-      console.warn('Previous Segment of Shape with one Segment returns this.');
+      console.info('Previous Segment of Shape with one Segment returns this.');
     }
     let previousIdx = mod(this.idx - 1, numberOfSegments);
     let previousSegment = this.shape.segments[previousIdx];
@@ -449,7 +449,7 @@ export class Segment {
     }
     let numberOfSegments = this.shape.segmentIds.length;
     if (numberOfSegments == 1) {
-      console.warn('Next Segment of Shape with one Segment returns this.');
+      console.info('Next Segment of Shape with one Segment returns this.');
     }
     let nextIdx = mod(this.idx + 1, numberOfSegments);
     let nextSegment = this.shape.segments[nextIdx];
@@ -891,7 +891,7 @@ export class Segment {
             ) != -1,
         );
       } else {
-        console.warn('not implemented yet');
+        console.info('not implemented yet');
       }
     } else if (object instanceof Point)
       return (
@@ -904,7 +904,7 @@ export class Segment {
         (matchSegmentPoints &&
           this.points.some((point) => point.coordinates.equal(object)))
       );
-    } else console.warn('unsupported object :', object);
+    } else console.info('unsupported object :', object);
   }
 
   equal(segment) {

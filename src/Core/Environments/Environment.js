@@ -9,7 +9,7 @@ export const loadEnvironnement = async (name) => {
 
     return new Environment(config.default, await loadKit(config.default.kit));
   } catch (error) {
-    console.warn(`Environnement ${name} pas encore pris en charge`);
+    console.info(`Environnement ${name} pas encore pris en charge`);
     console.error(error);
   }
 };

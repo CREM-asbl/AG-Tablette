@@ -476,9 +476,9 @@ export class MergeTool extends Tool {
         .filter((seg) => Number.isInteger(seg));
       if (potentialSegmentIdx.length != 1) {
         if (potentialSegmentIdx.length == 0)
-          console.warn('shape cannot be closed (dead end)');
+          console.info('shape cannot be closed (dead end)');
         else
-          console.warn(
+          console.info(
             'shape is dig (a segment has more than one segment for next)',
           );
         return null;
@@ -498,7 +498,7 @@ export class MergeTool extends Tool {
 
     if (segmentUsed != numberOfSegments) {
       // si tous les segments n'ont pas été utilisés, la figure créée est creuse
-      console.warn('shape is dig (not all segments have been used)');
+      console.info('shape is dig (not all segments have been used)');
       return null;
     }
 

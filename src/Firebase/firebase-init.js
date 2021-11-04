@@ -34,7 +34,7 @@ async function handleNotionRequest(searchAssociated, query) {
     // }
     return notionInfos;
   } else {
-    console.warn('request error');
+    console.info('request error');
   }
 }
 
@@ -57,7 +57,7 @@ async function handleSequenceRequest(searchAssociated, query) {
     // }
     return sequenceInfos;
   } else {
-    console.warn('request error');
+    console.info('request error');
   }
 }
 
@@ -81,7 +81,7 @@ async function handleFileRequest(searchAssociated, query) {
     // }
     return fileInfos;
   } else {
-    console.warn('request error');
+    console.info('request error');
   }
 }
 
@@ -119,7 +119,7 @@ export async function getDataFromDocId(id) {
     return docSnap.data();
   } else {
     // doc.data() will be undefined in this case
-    console.warn("No such document!");
+    console.info("No such document!");
   }
 }
 
@@ -141,7 +141,7 @@ export async function readFileFromServer(filename) {
 //     if (filesInfos.length > 0) {
 //       window.dispatchEvent(new CustomEvent('filesInfos-request-done', { detail: { status: 'successful', filesInfos: filesInfos } }));
 //     } else {
-//       console.warn('request error');
+//       console.info('request error');
 //     }
 //   });
 // }

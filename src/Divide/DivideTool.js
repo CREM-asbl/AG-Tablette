@@ -196,7 +196,7 @@ export class DivideTool extends Tool {
               (pt1.segmentIds[0] == object.segmentIds[1] &&
                 pt1.segmentIds[1] == object.segmentIds[0]))
           ) {
-            console.warn('ambiguité, ne rien faire');
+            console.info('ambiguité, ne rien faire');
           }
         }
         this.secondPointId = object.id;

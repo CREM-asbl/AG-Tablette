@@ -315,7 +315,7 @@ export class SolutionCheckerTool extends Tool {
           )
           .filter((seg) => Number.isInteger(seg));
         if (potentialSegmentIdx.length == 0) {
-          console.warn('shape cannot be closed (dead end)');
+          console.info('shape cannot be closed (dead end)');
           return null;
         }
         nextSegmentIndex = potentialSegmentIdx[0];
