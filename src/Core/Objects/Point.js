@@ -140,7 +140,7 @@ export class Point {
       this.transformConstraints = refPoint.transformConstraints;
       return;
     }
-    if (this.type == 'divisionPoint') {
+    if (this.type == 'divisionPoint' || this.type == 'shapeCenter') {
       constraints.isConstructed = true;
     }
     if (this.shape.familyName == 'Regular') {

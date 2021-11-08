@@ -227,8 +227,9 @@ export function computeShapeTransform(shape, ptsMoved) {
   }
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   if (shape.isCenterShown) {
-    shape.isCenterShown = false;
-    shape.isCenterShown = true;
+    shape.center.coordinates = shape.centerCoordinates;
+    // shape.isCenterShown = false;
+    // shape.isCenterShown = true;
   }
   // shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
 }
