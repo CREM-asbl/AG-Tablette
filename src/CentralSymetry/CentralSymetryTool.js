@@ -64,7 +64,13 @@ export class CentralSymetryTool extends Tool {
     // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
     // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
     // involvedShapes.forEach((s) => {
-      this.object.rotate(Math.PI, this.reference.coordinates);
+    let newShape = new Shape({
+      ...this.object,
+      drawingEnvironment: app.mainDrawingEnvironment,
+      id: undefined,
+      path: this.object.getSVGPath('no scale'),
+    });
+    newShape.rotate(Math.PI, this.reference.coordinates);
     // });
   }
 

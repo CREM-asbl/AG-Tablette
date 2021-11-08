@@ -102,7 +102,13 @@ export class TranslationTool extends Tool {
     // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
     // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
     // involvedShapes.forEach((s) => {
-    this.object.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
+    let newShape = new Shape({
+      ...this.object,
+      drawingEnvironment: app.mainDrawingEnvironment,
+      id: undefined,
+      path: this.object.getSVGPath('no scale'),
+    });
+    newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
     // });
   }
 

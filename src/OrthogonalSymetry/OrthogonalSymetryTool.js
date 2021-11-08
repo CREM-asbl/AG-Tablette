@@ -103,14 +103,17 @@ export class OrthogonalSymetryTool extends Tool {
     // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
     // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
     // involvedShapes.forEach((s) => {
-      this.reverseShape(this.object, selectedAxis);
+    let newShape = new Shape({
+      ...this.object,
+      drawingEnvironment: app.mainDrawingEnvironment,
+      id: undefined,
+      path: this.object.getSVGPath('no scale'),
+    });
+    this.reverseShape(newShape, selectedAxis);
     // });
   }
 
   reverseShape(shape, selectedAxis) {
-    shape.isReversed = !shape.isReversed;
-    shape.reverse();
-
     shape.points.forEach((pt) => {
       this.computePointPosition(pt, selectedAxis);
     });
