@@ -19,6 +19,8 @@
   "start_url": "/",
   "display": "fullscreen",
   "theme_color": "lightgrey",
+  "background_color": "white",
+  "orientation": "landscape",
   "description": "Version mobile d'Apprenti Géomètre",
   "file_handlers": [
     {
@@ -44,6 +46,18 @@
       "accept": {
         "application/agmobile": ".agl"
       }
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Grandeurs",
+      "description": "Ouvre la partie Grandeurs",
+      "url": "/?interface=Grandeurs"
+    },
+    {
+      "name": "Cubes",
+      "description": "Ouvre la partie Cubes",
+      "url": "/?interface=Cubes"
     }
   ]
 }

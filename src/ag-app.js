@@ -6,7 +6,7 @@ import './backbutton-manager';
 import { openFileFromId } from './Firebase/firebase-init';
 // import { uniqId } from './Core/Tools/general';
 import { loadEnvironnement } from './Core/Environments/Environment';
-import { Shape } from './Core/Objects/Shape';
+// import { Shape } from './Core/Objects/Shape';
 import { Coordinates } from './Core/Objects/Coordinates';
 import { downloadZip } from "https://cdn.jsdelivr.net/npm/client-zip/index.js"
 
@@ -78,10 +78,12 @@ class AgApp extends LitElement {
     this.environnement_selected = app.environment !== undefined;
   }
 
-  static computeFile(shapeTemplate) {
+  static async computeFile(shapeTemplate) {
+    const shapeImport = await import('./Core/Objects/Shape');
+    // console.log(shapeImport);
     let canvasSize = 52;
     let shape =
-      new Shape({
+      new shapeImport.Shape({
         ...shapeTemplate,
         drawingEnvironment: app.invisibleDrawingEnvironment,
         opacity: 1,

@@ -370,6 +370,18 @@ export class CreateCircleTool extends Tool {
       pt.shapeId = shape.id;
     });
 
+    let ref;
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.vertexes[0].reference = ref.id;
+    }
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.center.id).find(pt => pt.coordinates.equal(shape.center.coordinates))) {
+      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
+        ref.shape.hasGeometryReferenced.push(shape.id);
+      shape.center.reference = ref.id;
+    }
+
     // window.dispatchEvent(new CustomEvent('refresh'));
   }
 }
