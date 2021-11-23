@@ -1,0 +1,6 @@
+[{
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target" : { "namespace": "android_app", "package_name": "be.crem.ag.twa",
+                     "sha256_cert_fingerprints": ["CC:1C:DD:8E:70:74:31:80:B4:18:49:EF:10:83:6E:42:12:ED:39:F8:C7:3A:42:32:C2:DD:B6:D4:77:23:19:0D"] }
+      }
+]

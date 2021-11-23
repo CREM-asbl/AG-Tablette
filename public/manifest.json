@@ -16,10 +16,14 @@
       "purpose": "maskable"
     }
   ],
+  "id": "/",
   "start_url": "/",
   "display": "fullscreen",
   "theme_color": "lightgrey",
+  "background_color": "lightgrey",
+  "orientation": "landscape",
   "description": "Version mobile d'Apprenti Géomètre",
+  "lang": "fr-BE",
   "file_handlers": [
     {
       "action": "/",
@@ -45,5 +49,35 @@
         "application/agmobile": ".agl"
       }
     }
+  ],
+  "screenshots": [
+    {
+      "src": "images/manifest/screenshot1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp"
+    },
+    {
+      "src": "images/manifest/screenshot2.webp",
+      "sizes": "1280x800",
+      "type": "image/webp"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=be.crem.ag.twa",
+      "id": "be.crem.ag.twa"
+    },
+    {
+      "platform": "windows",
+      "url": "https://www.microsoft.com/store/apps/9N7GCZKN4404",
+      "id": "9N7GCZKN4404"
+    }
+  ],
+  "iarc_rating_id": "f9d62869-1282-4b76-a35a-0095105eacfb",
+  "categories": [
+    "education",
+    "kids",
+    "utilities"
   ]
 }
