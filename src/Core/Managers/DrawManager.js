@@ -75,9 +75,8 @@ export class DrawManager {
    * @param  {DrawingEnvironment}  drawingEnvironment
    * @param  {Shape}               shape
    * @param  {Number}              borderSize
-   * @param  {Number}              axeAngle             Axe de symétrie (pour reverse)
    */
-  static drawShape(drawingEnvironment, shape, axeAngle = undefined, scaling) {
+  static drawShape(drawingEnvironment, shape, scaling) {
     drawingEnvironment.ctx.strokeStyle = shape.borderColor;
     drawingEnvironment.ctx.fillStyle =
       shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
@@ -94,11 +93,18 @@ export class DrawManager {
     const pathScaleMethod = drawingEnvironment.mustScaleShapes
         ? 'scale'
         : 'no scale',
-      path = new Path2D(shape.getSVGPath(pathScaleMethod, axeAngle));
+      path = new Path2D(shape.getSVGPath(pathScaleMethod));
 
     if (shape.name != 'CircleArc') drawingEnvironment.ctx.fill(path, 'nonzero');
     drawingEnvironment.ctx.globalAlpha = 1;
-    drawingEnvironment.ctx.stroke(path);
+    if (shape.segments.some(seg => seg.color != undefined)) {
+      shape.segments.forEach(seg => {
+        let path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
+        drawingEnvironment.ctx.strokeStyle = seg.color ? seg.color : '#000';
+        drawingEnvironment.ctx.stroke(path);
+      });
+    } else
+      drawingEnvironment.ctx.stroke(path);
   }
 
   /**
@@ -267,7 +273,6 @@ window.addEventListener('draw-shape', (event) => {
   DrawManager.drawShape(
     drawingEnvironment,
     event.detail.shape,
-    event.detail.axeAngle,
     event.detail.scaling,
   );
 });

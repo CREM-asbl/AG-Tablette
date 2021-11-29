@@ -7,14 +7,14 @@ class PointsList extends LitElement {
     this.pointsNames = [
       'Point',
       'PointOnLine',
-      'PointOnShape',
+      // 'PointOnShape',
       'PointOnIntersection',
     ];
 
     this.pointTitle = {
       'Point': 'Point',
-      'PointOnLine': 'Point sur ligne',
-      'PointOnShape': 'Point sur figure',
+      'PointOnLine': 'Point sur objet',
+      // 'PointOnShape': 'Point sur figure',
       'PointOnIntersection': 'Point d\'intersection',
     }
 

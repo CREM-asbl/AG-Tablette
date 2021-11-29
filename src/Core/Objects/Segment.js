@@ -33,6 +33,7 @@ export class Segment {
     counterclockwise = false,
     isInfinite = false,
     isSemiInfinite = false,
+    color = undefined,
   }) {
     this.id = id;
 
@@ -98,6 +99,7 @@ export class Segment {
     this.counterclockwise = counterclockwise;
     this.isInfinite = isInfinite;
     this.isSemiInfinite = isSemiInfinite;
+    this.color = color;
   }
 
   /* #################################################################### */

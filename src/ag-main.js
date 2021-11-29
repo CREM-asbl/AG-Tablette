@@ -251,7 +251,7 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 class="onlyGrandeurs"
                 name="replay"
-                title="replay"
+                title="Rejouer"
                 @click="${this._actionHandle}"
               >
               </icon-button>

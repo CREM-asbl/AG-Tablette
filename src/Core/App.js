@@ -26,7 +26,8 @@ export class App {
       mainMenuWidth: 250,
       constraintsDrawColor: '#080',
       temporaryDrawColor: '#E90CC8',
-      referenceDrawColor: '#6BC3FF',
+      referenceDrawColor: '#a6dbff',
+      referenceDrawColor2: '#4a88b2',
 
       automaticAdjustment: true,
       areShapesPointed: true,

@@ -116,9 +116,11 @@ export class RotationTool extends Tool {
           pointIds: arcPoints.map(pt => pt.id),
           name: 'arrow',
           familyName: 'circle-shape',
-          borderColor: app.settings.referenceDrawColor,
+          // borderColor: app.settings.referenceDrawColor,
           opacity: 0,
         });
+        this.arcShape.segments[0].color = app.settings.referenceDrawColor;
+        this.arcShape.segments[1].color = app.settings.referenceDrawColor2;
 
         let arrowAngle = angle - Math.PI / 2;
         if (seg.counterclockwise)
@@ -154,8 +156,8 @@ export class RotationTool extends Tool {
         this.arrowShape1 = new Shape({
           drawingEnvironment: app.upperDrawingEnvironment,
           path: `M ${projectionCoord.x} ${projectionCoord.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} Z`,
-          borderColor: app.settings.referenceDrawColor,
-          color: app.settings.referenceDrawColor,
+          borderColor: app.settings.referenceDrawColor2,
+          color: app.settings.referenceDrawColor2,
           name: 'arrow',
           borderSize: 2,
           isPointed: false,
