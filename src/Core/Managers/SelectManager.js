@@ -98,6 +98,8 @@ export class SelectManager {
                 éléments de cette liste.
                  */
         blacklist: null,
+        // one, allInDistance, allSuperimposed
+        numberOfObjects: 'one',
       },
     };
   }
@@ -115,7 +117,6 @@ export class SelectManager {
     mouseCoordinates,
     constraints,
     easySelection = true,
-    all = false,
   ) {
     if (!constraints.canSelect) return null;
 
@@ -197,7 +198,7 @@ export class SelectManager {
     // if no possibilities
     if (constrainedPoints.length == 0) return null;
 
-    if (all) {
+    if (constraints.numberOfObjects == "allInDistance") {
       return constrainedPoints.flat();
     }
 
@@ -219,6 +220,13 @@ export class SelectManager {
       });
     }
 
+    console.log(notHiddenPoints);
+    notHiddenPoints.sort((pt1, pt2) => {
+      let dist1 = pt1.coordinates.dist(mouseCoordinates);
+      let dist2 = pt2.coordinates.dist(mouseCoordinates);
+      return dist2 - dist1;
+    });
+    console.log(notHiddenPoints);
     let bestPoint = notHiddenPoints[0],
       minDist = notHiddenPoints[0].coordinates.dist(mouseCoordinates);
     notHiddenPoints.forEach((pt) => {
@@ -229,7 +237,19 @@ export class SelectManager {
       }
     });
 
-    return bestPoint;
+    if (constraints.numberOfObjects == 'one')
+      return notHiddenPoints[0];
+    else if (constraints.numberOfObjects == 'allSuperimposed') {
+      let coordPt1 = notHiddenPoints[0].coordinates;
+      let i = 1;
+      for (; i < notHiddenPoints.length; i++) {
+        if (coordPt1.dist(notHiddenPoints[i]) > 0.01) {
+          console.log(notHiddenPoints, notHiddenPoints.slice(0, i));
+          return notHiddenPoints.slice(0, i);
+        }
+      }
+      return notHiddenPoints.slice(0, i);
+    }
   }
 
   static selectSegment(mouseCoordinates, constraints) {

@@ -148,7 +148,8 @@ export function getShapeAdjustment(shapes, mainShape) {
     constr.blacklist = shapes.map((s) => {
       return { shapeId: s.id };
     });
-    let pts = SelectManager.selectPoint(point, constr, false, true);
+    constr.numberOfObjects = 'allInDistance';
+    let pts = SelectManager.selectPoint(point, constr, false);
     if (pts) {
       pts.forEach((pt) => {
         cPtListShape.push({
