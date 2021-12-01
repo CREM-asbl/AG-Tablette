@@ -220,13 +220,12 @@ export class SelectManager {
       });
     }
 
-    console.log(notHiddenPoints);
     notHiddenPoints.sort((pt1, pt2) => {
       let dist1 = pt1.coordinates.dist(mouseCoordinates);
       let dist2 = pt2.coordinates.dist(mouseCoordinates);
-      return dist2 - dist1;
+      return dist1 - dist2;
     });
-    console.log(notHiddenPoints);
+
     let bestPoint = notHiddenPoints[0],
       minDist = notHiddenPoints[0].coordinates.dist(mouseCoordinates);
     notHiddenPoints.forEach((pt) => {
@@ -244,7 +243,6 @@ export class SelectManager {
       let i = 1;
       for (; i < notHiddenPoints.length; i++) {
         if (coordPt1.dist(notHiddenPoints[i]) > 0.01) {
-          console.log(notHiddenPoints, notHiddenPoints.slice(0, i));
           return notHiddenPoints.slice(0, i);
         }
       }

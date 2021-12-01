@@ -66,7 +66,10 @@ export class CutTool extends Tool {
     app.upperDrawingEnvironment.removeAllObjects();
 
     new Point({
-      coordinates: this.firstPoint.coordinates,
+      coordinates: app.mainDrawingEnvironment.findObjectById(
+        app.tool.firstPointIds[0],
+        'point',
+      ).coordinates,
       drawingEnvironment: app.upperDrawingEnvironment,
       color: this.drawColor,
       size: 2,
@@ -173,7 +176,7 @@ export class CutTool extends Tool {
   objectSelected(object) {
     if (app.tool.currentStep == 'listen') {
       //On a sélectionné le premier point
-      if (object.shape.isSegment() && object.type == 'divisionPoint') {
+      if (object[0].shape.isSegment() && object[0].type == 'divisionPoint') {
         setState({
           tool: { ...app.tool, currentStep: 'cut', firstPointId: object.id, centerPointId: undefined, secondPointId: undefined },
         });
@@ -182,44 +185,75 @@ export class CutTool extends Tool {
           tool: {
             ...app.tool,
             currentStep: 'selectSecondPoint',
-            firstPointId: object.id,
+            firstPointIds: object.map(pt => pt.id),
           },
         });
       }
     } else if (app.tool.currentStep == 'selectSecondPoint') {
-      const pt1 = this.firstPoint,
-        pt2 = object;
-      if (pt1.id == pt2.id) {
+      let firstPoints = app.tool.firstPointIds.map(ptId => app.mainDrawingEnvironment.findObjectById(
+        ptId,
+        'point',
+      ));
+      let newObjects = [...object];
+      let cutPoints = [];
+      for (let i = 0; i < firstPoints.length; i++) {
+        for (let j = 0; j < newObjects.length; j++) {
+          if (firstPoints[i].shapeId == newObjects[j].shapeId) {
+            cutPoints.push([firstPoints[i], newObjects[j]]);
+            firstPoints.splice(i, 1);
+            newObjects.splice(j, 1);
+            i = -1;
+          }
+          if (i == -1)
+            break;
+        }
+      }
+
+      let pt1 = cutPoints[0][0];
+      let pt2 = cutPoints[0][1];
+
+      if (cutPoints.length == 0) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
+        return;
+      } else if (pt1.id == pt2.id) {
         // Désélectionner le premier point
         setState({
           tool: { ...app.tool, currentStep: 'listen', firstPointId: undefined },
         });
-      } else if (pt1.shape.id != pt2.shape.id) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
-      } else if (this.isLineValid(pt1.shape, pt1, pt2)) {
+      } else {
+        for (let i = 0; i < cutPoints.length; i++) {
+          if (!this.isLineValid(cutPoints[i][0].shape, cutPoints[i][0], cutPoints[i][1])) {
+            cutPoints.splice(i, 1);
+            i = -1;
+          }
+        }
+        if (cutPoints.length == 0) {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent pouvoir être reliés.' } }));
+          return;
+        }
         if (pt2.type == 'shapeCenter') {
           // On a sélectionné le second point: le centre
           setState({
             tool: {
               ...app.tool,
               currentStep: 'selectThirdPoint',
+              firstPointId: pt1.id,
               centerPointId: pt2.id,
             },
           });
         } else {
           // On a sélectionné le second point: un autre point
           setState({
-            tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
+            tool: { ...app.tool, currentStep: 'cut', firstPointId: cutPoints[0][0].id, secondPointId: cutPoints[0][1].id },
           });
         }
-      } else {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent pouvoir être reliés.' } }));
       }
     } else if (app.tool.currentStep == 'selectThirdPoint') {
       const pt1 = this.firstPoint,
-        pt2 = object;
-      //On a sélectionné le dernier point
-      if (pt2.type == 'shapeCenter') {
+        pt2 = object.find(pt => pt.shapeId == pt1.shapeId);
+      if (!pt2) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
+      } else if (pt2.type == 'shapeCenter') {
         // Désélectionner le centre
         setState({
           tool: {
@@ -238,8 +272,6 @@ export class CutTool extends Tool {
             centerPointId: undefined,
           },
         });
-      } else if (pt1.shape.id != pt2.shape.id) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
       } else if (this.isLineValid(pt2.shape, this.centerPoint, pt2)) {
         setState({
           tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
@@ -331,18 +363,21 @@ export class CutTool extends Tool {
         .map((s) => {
           return { shapeId: s.id };
         });
+      app.workspace.selectionConstraints.points.numberOfObjects = 'allSuperimposed';
     } else if (app.tool.currentStep == 'selectSecondPoint') {
       app.workspace.selectionConstraints.points.types = [
         'vertex',
         'divisionPoint',
         'shapeCenter',
       ];
+      app.workspace.selectionConstraints.points.numberOfObjects = 'allSuperimposed';
     } else if (app.tool.currentStep == 'selectThirdPoint') {
       app.workspace.selectionConstraints.points.types = [
         'vertex',
         'divisionPoint',
         'shapeCenter',
       ];
+      app.workspace.selectionConstraints.points.numberOfObjects = 'allSuperimposed';
     }
   }
 
