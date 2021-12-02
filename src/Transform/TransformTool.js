@@ -141,6 +141,7 @@ export class TransformTool extends Tool {
           pt.segmentIds = [...s.points[idx].segmentIds];
           pt.reference = s.points[idx].reference;
           pt.visible = s.points[idx].visible;
+          pt.ratio = s.points[idx].ratio;
           pt.transformConstraints = s.points[idx].transformConstraints;
         });
         return newShape;
@@ -183,6 +184,7 @@ export class TransformTool extends Tool {
       let s = app.mainDrawingEnvironment.findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
         pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
+        pt.ratio = this.drawingShapes[idxS].points[idxPt].ratio;
       });
     });
   }
@@ -257,6 +259,16 @@ export class TransformTool extends Tool {
           default:
             break;
         }
+      }
+      if (shape.name == 'PointOnLine') {
+        let reference = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+        point.coordinates = reference.projectionOnSegment(point.coordinates);
+        let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
+        if (ratio < 0)
+          ratio = 0;
+        if (ratio > 1)
+          ratio = 1;
+        point.ratio = ratio;
       }
       computeShapeTransform(shape, [0]);
       if (shape.name == 'RightAngleTrapeze2')
