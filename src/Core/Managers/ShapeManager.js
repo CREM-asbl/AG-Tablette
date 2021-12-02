@@ -90,7 +90,7 @@ export class ShapeManager {
    * plus en arrière.
    * @param {Coordinates} coord
    */
-  static shapesThatContainsCoordinates(coord, constraints) {
+  static shapesThatContainsCoordinates(coord, constraints = {}) {
     let allShapes = [...app.mainDrawingEnvironment.shapes];
     if (constraints.canSelectFromUpper)
       allShapes.push(...app.upperDrawingEnvironment.shapes);

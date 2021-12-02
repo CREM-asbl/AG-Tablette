@@ -96,6 +96,7 @@ export class Tool {
     // app.removeListener('canvasTouchStart', this.touchStartId);
     app.removeListener('canvasTouchMove', this.touchMoveId);
     app.removeListener('canvasTouchEnd', this.touchEndId);
+    app.removeListener('canvasLongPress', this.longPressId);
     // app.removeListener('canvasMouseWheel', this.mouseWheelId);
   }
 

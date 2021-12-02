@@ -5,6 +5,7 @@ import { createElem } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
+import { SelectManager } from '../Core/Managers/SelectManager';
 
 /**
  */
@@ -39,13 +40,31 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   selectObject() {
+    this.removeListeners();
+
     this.setSelectionConstraints();
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    this.longPressId = app.addListener('canvasLongPress', this.handler);
   }
 
   end() {
     app.upperDrawingEnvironment.removeAllObjects();
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
+  }
+
+  canvasLongPress() {
+    let coordinates = app.workspace.lastKnownMouseCoordinates;
+    this.potentialShapes = ShapeManager.shapesThatContainsCoordinates(coordinates);
+    import('./select-menu');
+    let elem = createElem('select-menu');
+    elem.potentialShapes = this.potentialShapes;
+
+    window.addEventListener('shapeSelected', e => {
+      this.object = app.mainDrawingEnvironment.findObjectById(e.detail.shapeId);
+      if (this.object)
+        this.executeAction();
+    }, { once: true });
   }
 
   objectSelected(object) {
@@ -146,7 +165,7 @@ export class OrthogonalSymetryTool extends Tool {
       }
     } else {
       app.workspace.selectionConstraints =
-        app.fastSelectionConstraints.mousedown_all_shape;
+        app.fastSelectionConstraints.click_all_shape;
     }
   }
 }
