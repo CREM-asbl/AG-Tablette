@@ -6,12 +6,15 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
 import { SelectManager } from '../Core/Managers/SelectManager';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  */
 export class OrthogonalSymetryTool extends Tool {
   constructor() {
     super('orthogonalSymetry', 'Symétrie orthogonale', 'transformation');
+
+    this.duration = 2;
   }
 
   /**
@@ -40,11 +43,22 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   selectObject() {
+    if (this.drawingShapes)
+      this.drawingShapes.forEach(s => {
+        app.upperDrawingEnvironment.removeObjectById(s.id);
+      })
     this.removeListeners();
 
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     this.longPressId = app.addListener('canvasLongPress', this.handler);
+  }
+
+  ortho() {
+    this.removeListeners();
+
+    this.startTime = Date.now();
+    this.animate();
   }
 
   end() {
@@ -63,7 +77,8 @@ export class OrthogonalSymetryTool extends Tool {
     window.addEventListener('shapeSelected', e => {
       this.object = app.mainDrawingEnvironment.findObjectById(e.detail.shapeId);
       if (this.object)
-        this.executeAction();
+        this.animate();
+        // this.executeAction();
     }, { once: true });
   }
 
@@ -111,9 +126,78 @@ export class OrthogonalSymetryTool extends Tool {
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
       }
     } else {
-      this.object = object;
-      // this.animate();
+      this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
+      this.drawingShapes = this.involvedShapes.map(
+        (s) =>
+          new Shape({
+            ...s,
+            drawingEnvironment: app.upperDrawingEnvironment,
+            path: s.getSVGPath('no scale'),
+            id: undefined,
+            divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
+              return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
+            })).flat(),
+          }),
+      );
+      // app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
+      //   (s) => s.id,
+      // );
+      setState({
+        tool: {
+          ...app.tool,
+          currentStep: 'ortho'
+        }
+      })
+      // this.executeAction();
+    }
+  }
+
+  animate() {
+    this.lastProgress = this.progress || 0;
+    if (this.lastProgress == 0) {
+      app.upperDrawingEnvironment.points.forEach((point) => {
+        let center = this.referenceShape.segments[0].projectionOnSegment(point);
+
+        point.startCoordinates = new Coordinates(point.coordinates);
+        console.log(point.startCoordinates);
+        point.endCoordinates = new Coordinates({
+          x: point.x + 2 * (center.x - point.x),
+          y: point.y + 2 * (center.y - point.y),
+        });
+      });
+    }
+    this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
+    if (this.progress > 1 && app.tool.name == 'orthogonalSymetry') {
       this.executeAction();
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+      });
+    } else {
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.requestAnimFrameId = window.requestAnimationFrame(() =>
+        this.animate(),
+      );
+    }
+  }
+
+  refreshStateUpper() {
+    if (app.tool.currentStep == 'ortho') {
+      app.upperDrawingEnvironment.points.forEach((point) => {
+        if (point.startCoordinates)
+          point.coordinates = point.startCoordinates.substract(
+            point.startCoordinates
+              .substract(point.endCoordinates)
+              .multiply(this.progress),
+          );
+      });
+
+      if (this.progress >= 0.5 && this.lastProgress < 0.5) {
+        // milieu animation
+        app.upperDrawingEnvironment.shapes.forEach((s) => {
+          s.isReversed = !s.isReversed;
+          s.reverse();
+        });
+      }
     }
   }
 
@@ -122,13 +206,35 @@ export class OrthogonalSymetryTool extends Tool {
     // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
     // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
     // involvedShapes.forEach((s) => {
-    let newShape = new Shape({
-      ...this.object,
-      drawingEnvironment: app.mainDrawingEnvironment,
-      id: undefined,
-      path: this.object.getSVGPath('no scale'),
+    this.involvedShapes.forEach(s => {
+      let newShape = new Shape({
+        ...s,
+        drawingEnvironment: app.mainDrawingEnvironment,
+        id: undefined,
+        path: s.getSVGPath('no scale'),
+        geometryTransformationCharacteristicElementIds: [this.firstReference.id],
+        geometryTransformationParentShapeId: s.id,
+        geometryTransformationChildShapeIds: [],
+        geometryTransformationName: 'orthogonalSymetry',
+      });
+      if (this.secondReference)
+        newShape.geometryTransformationCharacteristicElementIds.push(this.secondReference.id);
+      s.geometryTransformationChildShapeIds.push(newShape.id);
+      if (newShape.geometryTransformationCharacteristicElementIds.length == 1) {
+        let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryTransformationCharacteristicElementIds[0], 'segment');
+        if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
+          ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+        }
+      } else {
+        newShape.geometryTransformationCharacteristicElementIds.forEach(refId => {
+          let ref = app.mainDrawingEnvironment.findObjectById(refId, 'point');
+          if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
+            ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+          }
+        });
+      }
+      this.reverseShape(newShape, selectedAxis);
     });
-    this.reverseShape(newShape, selectedAxis);
     // });
   }
 

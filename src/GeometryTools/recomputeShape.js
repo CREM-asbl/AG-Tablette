@@ -18,7 +18,47 @@ export function computeAllShapeTransform(shape) {
     })
     computeShapeTransform(sRef, ptsMoved);
     computeAllShapeTransform(sRef);
-  })
+  });
+  shape.geometryTransformationChildShapeIds.forEach(childId => {
+    let child = app.upperDrawingEnvironment.findObjectById(childId);
+    let parentVertexes = app.upperDrawingEnvironment.findObjectById(child.geometryTransformationParentShapeId).vertexes;
+    child.vertexes.forEach((pt, idx) => {
+      pt.coordinates = parentVertexes[idx].coordinates;
+    });
+    let axis;
+    if (child.geometryTransformationName == 'orthogonalSymetry') {
+      if (child.geometryTransformationCharacteristicElementIds.length == 1) {
+        console.log(child.geometryTransformationCharacteristicElementIds);
+        axis = app.mainDrawingEnvironment.findObjectById(child.geometryTransformationCharacteristicElementIds[0], 'segment');
+      } else {
+        child.geometryTransformationCharacteristicElementIds.forEach(refId => {
+          let ref = app.mainDrawingEnvironment.findObjectById(refId, 'point');
+          if (!ref.shape.geometryTransformationChildShapeIds.includes(child.id)) {
+            ref.shape.geometryTransformationChildShapeIds.push(child.id);
+          }
+        });
+      }
+    }
+    reverseShape(child, axis);
+    // computeShapeTransform(child);
+    computeAllShapeTransform(child);
+  });
+}
+
+function reverseShape(shape, selectedAxis) {
+  console.log(selectedAxis);
+  shape.points.forEach((pt) => {
+    computePointPosition(pt, selectedAxis);
+  });
+}
+
+function computePointPosition(point, selectedAxis) {
+  let center = selectedAxis.projectionOnSegment(point);
+
+  //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
+  point.coordinates = point.coordinates.add(
+    center.substract(point.coordinates).multiply(2),
+  );
 }
 
 export function computeShapeTransform(shape, ptsMoved) {

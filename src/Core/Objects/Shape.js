@@ -54,6 +54,10 @@ export class Shape {
     hasGeometryReferenced = [],
     divisionPointInfos = [],
     constructionSpec = {},
+    geometryTransformationChildShapeIds = [],
+    geometryTransformationParentShapeId = null,
+    geometryTransformationCharacteristicElementIds = [],
+    geometryTransformationName = name,
   }) {
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
@@ -100,6 +104,10 @@ export class Shape {
     this.constructionSpec = constructionSpec;
     this.referenceId = referenceId;
     this.referenceId2 = referenceId2;
+    this.geometryTransformationChildShapeIds = geometryTransformationChildShapeIds;
+    this.geometryTransformationParentShapeId = geometryTransformationParentShapeId;
+    this.geometryTransformationCharacteristicElementIds = geometryTransformationCharacteristicElementIds;
+    this.geometryTransformationName = geometryTransformationName;
   }
 
   /* #################################################################### */

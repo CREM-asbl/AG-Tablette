@@ -3,9 +3,34 @@ import { app } from '../Core/App';
 export function getAllInvolvedShapes(shape, involvedShapes) {
   shape.hasGeometryReferenced.forEach(ref => {
     let s = app.mainDrawingEnvironment.findObjectById(ref);
-    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id))
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
-    getAllInvolvedShapes(s, involvedShapes);
+      getAllInvolvedShapes(s, involvedShapes);
+    }
+  });
+  shape.geometryTransformationChildShapeIds.forEach(sId => {
+    let s = app.mainDrawingEnvironment.findObjectById(sId);
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+      involvedShapes.push(s);
+      getAllInvolvedShapes(s, involvedShapes);
+    }
+  });
+  if (shape.geometryTransformationParentShapeId) {
+    let s = app.mainDrawingEnvironment.findObjectById(shape.geometryTransformationParentShapeId);
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+      involvedShapes.push(s);
+      getAllInvolvedShapes(s, involvedShapes);
+    }
+  }
+  shape.geometryTransformationCharacteristicElementIds.forEach(sId => {
+    let objectType = 'segment';
+    if (shape.geometryTransformationCharacteristicElementIds.length == 2)
+      objectType = 'point';
+    let s = app.mainDrawingEnvironment.findObjectById(sId, objectType).shape;
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+      involvedShapes.push(s);
+      getAllInvolvedShapes(s, involvedShapes);
+    }
   });
   if (shape.referenceId) {
     let seg = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
