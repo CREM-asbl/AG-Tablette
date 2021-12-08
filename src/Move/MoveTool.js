@@ -87,6 +87,11 @@ export class MoveTool extends Tool {
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
+    if (shape.geometryTransformationName != null) {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
+      return;
+    }
+
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.shapesToCopy = [...this.involvedShapes];

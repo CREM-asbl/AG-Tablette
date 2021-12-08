@@ -82,6 +82,7 @@ export class TransformTool extends Tool {
     app.workspace.selectionConstraints.points.types = ['vertex'];
     app.workspace.selectionConstraints.points.whitelist = null;
     app.workspace.selectionConstraints.points.blacklist = null;
+    app.workspace.selectionConstraints.points.numberOfObjects = 'allInDistance';
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -102,15 +103,25 @@ export class TransformTool extends Tool {
     this.removeListeners();
   }
 
-  objectSelected(point) {
-    if (point.reference) {
-      point = app.mainDrawingEnvironment.findObjectById(point.reference, 'point');
+  objectSelected(points) {
+    let point = null;
+    for (let i = 0; i < points.length; i++) {
+      if (!points[i].reference) {
+        points[i].computeTransformConstraint();
+        let constraints = points[i].transformConstraints;
+        if (!constraints.isBlocked && !constraints.isConstructed) {
+          point = points[i];
+          break;
+        }
+      }
     }
 
-    app.upperDrawingEnvironment.removeAllObjects();
+    if (!point)
+      return
 
-    point.computeTransformConstraint();
     this.constraints = point.transformConstraints;
+
+    app.upperDrawingEnvironment.removeAllObjects();
 
     this.pointSelectedId = point.id;
 

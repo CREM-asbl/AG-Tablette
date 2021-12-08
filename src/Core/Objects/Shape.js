@@ -57,7 +57,8 @@ export class Shape {
     geometryTransformationChildShapeIds = [],
     geometryTransformationParentShapeId = null,
     geometryTransformationCharacteristicElementIds = [],
-    geometryTransformationName = name,
+    geometryTransformationName = null,
+    geometryTransformationRotationAngle = null,
   }) {
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
@@ -108,6 +109,7 @@ export class Shape {
     this.geometryTransformationParentShapeId = geometryTransformationParentShapeId;
     this.geometryTransformationCharacteristicElementIds = geometryTransformationCharacteristicElementIds;
     this.geometryTransformationName = geometryTransformationName;
+    this.geometryTransformationRotationAngle = geometryTransformationRotationAngle;
   }
 
   /* #################################################################### */

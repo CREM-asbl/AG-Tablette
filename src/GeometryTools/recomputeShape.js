@@ -1,5 +1,6 @@
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { app } from '../Core/App';
+import { Shape } from '../Core/Objects/Shape';
 
 export function computeAllShapeTransform(shape) {
   if (app.environment.name != 'Geometrie') return;
@@ -28,25 +29,46 @@ export function computeAllShapeTransform(shape) {
     let axis;
     if (child.geometryTransformationName == 'orthogonalSymetry') {
       if (child.geometryTransformationCharacteristicElementIds.length == 1) {
-        console.log(child.geometryTransformationCharacteristicElementIds);
-        axis = app.mainDrawingEnvironment.findObjectById(child.geometryTransformationCharacteristicElementIds[0], 'segment');
+        axis = app.upperDrawingEnvironment.findObjectById(child.geometryTransformationCharacteristicElementIds[0], 'segment');
       } else {
-        child.geometryTransformationCharacteristicElementIds.forEach(refId => {
-          let ref = app.mainDrawingEnvironment.findObjectById(refId, 'point');
-          if (!ref.shape.geometryTransformationChildShapeIds.includes(child.id)) {
-            ref.shape.geometryTransformationChildShapeIds.push(child.id);
-          }
+        let pts = child.geometryTransformationCharacteristicElementIds.map(refId =>
+          app.upperDrawingEnvironment.findObjectById(refId, 'point')
+        );
+        let axisShape = new Shape({
+          drawingEnvironment: app.invisibleDrawingEnvironment,
+          path: `M ${pts[0].coordinates.x} ${pts[0].coordinates.y} L ${pts[1].coordinates.x} ${pts[1].coordinates.y}`,
+          borderColor: app.settings.referenceDrawColor,
+          borderSize: 2,
         });
+        axis = axisShape.segments[0];
       }
+      reverseShape(child, axis);
+    } else if (child.geometryTransformationName == 'centralSymetry') {
+      let center = app.upperDrawingEnvironment.findObjectById(child.geometryTransformationCharacteristicElementIds[0], 'point').coordinates;
+      child.rotate(Math.PI, center);
+    } else if (child.geometryTransformationName == 'translation') {
+      let pts = child.geometryTransformationCharacteristicElementIds.map(refId =>
+        app.upperDrawingEnvironment.findObjectById(refId, 'point')
+      );
+      child.translate(pts[1].coordinates.substract(pts[0].coordinates));
+    } else if (child.geometryTransformationName == 'rotation') {
+      let pts = child.geometryTransformationCharacteristicElementIds.map(refId =>
+        app.upperDrawingEnvironment.findObjectById(refId, 'point')
+      );
+      let angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
+
+      if (angle > Math.PI) angle -= 2 * Math.PI;
+      if (angle < -Math.PI) angle += 2 * Math.PI;
+      angle *= -1;
+
+      child.rotate(angle, pts[0].coordinates);
     }
-    reverseShape(child, axis);
     // computeShapeTransform(child);
     computeAllShapeTransform(child);
   });
 }
 
 function reverseShape(shape, selectedAxis) {
-  console.log(selectedAxis);
   shape.points.forEach((pt) => {
     computePointPosition(pt, selectedAxis);
   });

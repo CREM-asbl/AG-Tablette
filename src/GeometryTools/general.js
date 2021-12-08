@@ -23,9 +23,10 @@ export function getAllInvolvedShapes(shape, involvedShapes) {
     }
   }
   shape.geometryTransformationCharacteristicElementIds.forEach(sId => {
-    let objectType = 'segment';
-    if (shape.geometryTransformationCharacteristicElementIds.length == 2)
-      objectType = 'point';
+    let objectType = 'point';
+    if (shape.geometryTransformationName == 'orthogonalSymetry')
+      if (shape.geometryTransformationCharacteristicElementIds.length == 1)
+        objectType = 'segment';
     let s = app.mainDrawingEnvironment.findObjectById(sId, objectType).shape;
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);

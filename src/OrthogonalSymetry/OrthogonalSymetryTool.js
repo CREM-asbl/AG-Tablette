@@ -159,7 +159,6 @@ export class OrthogonalSymetryTool extends Tool {
         let center = this.referenceShape.segments[0].projectionOnSegment(point);
 
         point.startCoordinates = new Coordinates(point.coordinates);
-        console.log(point.startCoordinates);
         point.endCoordinates = new Coordinates({
           x: point.x + 2 * (center.x - point.x),
           y: point.y + 2 * (center.y - point.y),
@@ -203,9 +202,7 @@ export class OrthogonalSymetryTool extends Tool {
 
   _executeAction() {
     let selectedAxis = this.referenceShape.segments[0];
-    // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
-    // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
-    // involvedShapes.forEach((s) => {
+
     this.involvedShapes.forEach(s => {
       let newShape = new Shape({
         ...s,
@@ -235,7 +232,6 @@ export class OrthogonalSymetryTool extends Tool {
       }
       this.reverseShape(newShape, selectedAxis);
     });
-    // });
   }
 
   reverseShape(shape, selectedAxis) {

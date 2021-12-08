@@ -38,6 +38,7 @@ export class RotationTool extends Tool {
     this.removeListeners();
 
     this.references = [];
+    this.realReferences = [];
 
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -68,12 +69,14 @@ export class RotationTool extends Tool {
   objectSelected(object) {
     if (app.tool.currentStep == 'selectReference') {
       this.references.push(
-      new Point({
-        coordinates: object.coordinates,
-        drawingEnvironment: app.upperDrawingEnvironment,
-        color: app.settings.referenceDrawColor,
-        size: 2,
-      }));
+        new Point({
+          coordinates: object.coordinates,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          color: app.settings.referenceDrawColor,
+          size: 2,
+        })
+      );
+      this.realReferences.push(object);
       if (this.references.length == 4) {
         this.angle = this.references[2].coordinates.angleWith(this.references[1].coordinates) - this.references[2].coordinates.angleWith(this.references[3].coordinates);
 
@@ -165,7 +168,7 @@ export class RotationTool extends Tool {
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectDirection' } });
       }
     } else {
-      this.object = object;
+      this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
       // this.animate();
       this.executeAction();
     }
@@ -188,8 +191,8 @@ export class RotationTool extends Tool {
       false,
       angle,
     );
-    const clockwise = isAngleInside;
-    let segIdx = this.arcShape.segments.findIndex(seg => seg.counterclockwise == clockwise);
+    this.clockwise = isAngleInside;
+    let segIdx = this.arcShape.segments.findIndex(seg => seg.counterclockwise == this.clockwise);
     app.upperDrawingEnvironment.removeObjectById(
       this.arcShape.segmentIds[segIdx],
       'segment',
@@ -203,17 +206,27 @@ export class RotationTool extends Tool {
   }
 
   _executeAction() {
-    // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
-    // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
-    // involvedShapes.forEach((s) => {
-    let newShape = new Shape({
-      ...this.object,
-      drawingEnvironment: app.mainDrawingEnvironment,
-      id: undefined,
-      path: this.object.getSVGPath('no scale'),
+    this.involvedShapes.forEach(s => {
+      let newShape = new Shape({
+        ...s,
+        drawingEnvironment: app.mainDrawingEnvironment,
+        id: undefined,
+        path: s.getSVGPath('no scale'),
+        geometryTransformationCharacteristicElementIds: this.realReferences.map(ref => ref.id),
+        geometryTransformationParentShapeId: s.id,
+        geometryTransformationChildShapeIds: [],
+        geometryTransformationName: 'rotation',
+        // geometryTransformationRotationAngle: this.angle,
+      });
+      s.geometryTransformationChildShapeIds.push(newShape.id);
+      newShape.geometryTransformationCharacteristicElementIds.map(refId => {
+        let ref = app.mainDrawingEnvironment.findObjectById(refId, 'point');
+        if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
+          ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+        }
+      });
+      newShape.rotate(this.angle, this.references[0].coordinates);
     });
-    newShape.rotate(this.angle, this.references[0].coordinates);
-    // });
   }
 
   setSelectionConstraints() {

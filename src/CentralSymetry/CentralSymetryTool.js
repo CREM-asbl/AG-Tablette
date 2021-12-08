@@ -54,24 +54,31 @@ export class CentralSymetryTool extends Tool {
       });
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
     } else {
-      this.object = object;
+      this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
       // this.animate();
       this.executeAction();
     }
   }
 
   _executeAction() {
-    // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
-    // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
-    // involvedShapes.forEach((s) => {
-    let newShape = new Shape({
-      ...this.object,
-      drawingEnvironment: app.mainDrawingEnvironment,
-      id: undefined,
-      path: this.object.getSVGPath('no scale'),
+    this.involvedShapes.forEach(s => {
+      let newShape = new Shape({
+        ...s,
+        drawingEnvironment: app.mainDrawingEnvironment,
+        id: undefined,
+        path: s.getSVGPath('no scale'),
+        geometryTransformationCharacteristicElementIds: [this.reference.id],
+        geometryTransformationParentShapeId: s.id,
+        geometryTransformationChildShapeIds: [],
+        geometryTransformationName: 'centralSymetry',
+      });
+      s.geometryTransformationChildShapeIds.push(newShape.id);
+      let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryTransformationCharacteristicElementIds[0], 'point');
+      if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
+        ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+      }
+      newShape.rotate(Math.PI, this.reference.coordinates);
     });
-    newShape.rotate(Math.PI, this.reference.coordinates);
-    // });
   }
 
   setSelectionConstraints() {

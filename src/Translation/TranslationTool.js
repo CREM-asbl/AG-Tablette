@@ -92,24 +92,47 @@ export class TranslationTool extends Tool {
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
       }
     } else {
-      this.object = object;
+      this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
       // this.animate();
       this.executeAction();
     }
   }
 
   _executeAction() {
-    // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
-    // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
-    // involvedShapes.forEach((s) => {
-    let newShape = new Shape({
-      ...this.object,
-      drawingEnvironment: app.mainDrawingEnvironment,
-      id: undefined,
-      path: this.object.getSVGPath('no scale'),
+    this.involvedShapes.forEach(s => {
+      let newShape = new Shape({
+        ...s,
+        drawingEnvironment: app.mainDrawingEnvironment,
+        id: undefined,
+        path: s.getSVGPath('no scale'),
+        geometryTransformationCharacteristicElementIds: [this.firstReference.id, this.secondReference.id],
+        geometryTransformationParentShapeId: s.id,
+        geometryTransformationChildShapeIds: [],
+        geometryTransformationName: 'translation',
+      });
+      s.geometryTransformationChildShapeIds.push(newShape.id);
+      let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryTransformationCharacteristicElementIds[0], 'point');
+      if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
+        ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+      }
+      ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryTransformationCharacteristicElementIds[1], 'point');
+      if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
+        ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+      }
+      newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
     });
-    newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
+
+    // // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
+    // // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
+    // // involvedShapes.forEach((s) => {
+    // let newShape = new Shape({
+    //   ...this.object,
+    //   drawingEnvironment: app.mainDrawingEnvironment,
+    //   id: undefined,
+    //   path: this.object.getSVGPath('no scale'),
     // });
+    // newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
+    // // });
   }
 
   setSelectionConstraints() {
