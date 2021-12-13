@@ -5,12 +5,15 @@ import { createElem } from '../Core/Tools/general';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
  */
 export class CentralSymetryTool extends Tool {
   constructor() {
     super('centralSymetry', 'Symétrie centrale', 'transformation');
+
+    this.duration = app.settings.geometryTransformationAnimationDuration;
   }
 
   /**
@@ -34,7 +37,21 @@ export class CentralSymetryTool extends Tool {
   }
 
   selectObject() {
+    if (this.drawingShapes)
+      this.drawingShapes.forEach(s => {
+        app.upperDrawingEnvironment.removeObjectById(s.id);
+      })
+    this.removeListeners();
+
     this.setSelectionConstraints();
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
+  central() {
+    this.removeListeners();
+
+    this.startTime = Date.now();
+    this.animate();
   }
 
   end() {
@@ -55,8 +72,62 @@ export class CentralSymetryTool extends Tool {
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
     } else {
       this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
-      // this.animate();
+      this.drawingShapes = this.involvedShapes.map(
+        (s) =>
+        new Shape({
+          ...s,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: s.getSVGPath('no scale'),
+          id: undefined,
+          divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
+          })).flat(),
+        }),
+      );
+      setState({
+        tool: {
+          ...app.tool,
+          currentStep: 'central'
+        }
+      });
+    }
+  }
+
+  animate() {
+    this.lastProgress = this.progress || 0;
+    if (this.lastProgress == 0) {
+      app.upperDrawingEnvironment.points.forEach((point) => {
+        point.startCoordinates = new Coordinates(point.coordinates);
+        point.endCoordinates = new Coordinates({
+          x: point.x + 2 * (this.reference.x - point.x),
+          y: point.y + 2 * (this.reference.y - point.y),
+        });
+      });
+    }
+    this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
+    if (this.progress > 1 && app.tool.name == 'centralSymetry') {
       this.executeAction();
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+      });
+    } else {
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.requestAnimFrameId = window.requestAnimationFrame(() =>
+        this.animate(),
+      );
+    }
+  }
+
+  refreshStateUpper() {
+    if (app.tool.currentStep == 'central') {
+      app.upperDrawingEnvironment.points.forEach((point) => {
+        if (point.startCoordinates)
+          point.coordinates = point.startCoordinates.substract(
+            point.startCoordinates
+              .substract(point.endCoordinates)
+              .multiply(this.progress),
+          );
+      });
     }
   }
 

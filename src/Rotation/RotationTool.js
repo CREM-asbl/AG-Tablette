@@ -14,6 +14,8 @@ import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 export class RotationTool extends Tool {
   constructor() {
     super('rotation', 'Rotation', 'transformation');
+
+    this.duration = app.settings.geometryTransformationAnimationDuration;
   }
 
   start() {
@@ -54,10 +56,22 @@ export class RotationTool extends Tool {
   }
 
   selectObject() {
+    if (this.drawingShapes)
+      this.drawingShapes.forEach(s => {
+        app.upperDrawingEnvironment.removeObjectById(s.id);
+      })
+
     this.removeListeners();
 
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
+  rot() {
+    this.removeListeners();
+
+    this.startTime = Date.now();
+    this.animate();
   }
 
   end() {
@@ -169,8 +183,24 @@ export class RotationTool extends Tool {
       }
     } else {
       this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
-      // this.animate();
-      this.executeAction();
+      this.drawingShapes = this.involvedShapes.map(
+        (s) =>
+          new Shape({
+            ...s,
+            drawingEnvironment: app.upperDrawingEnvironment,
+            path: s.getSVGPath('no scale'),
+            id: undefined,
+            divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
+              return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
+            })).flat(),
+          }),
+      );
+      setState({
+        tool: {
+          ...app.tool,
+          currentStep: 'rot'
+        }
+      });
     }
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
@@ -203,6 +233,53 @@ export class RotationTool extends Tool {
       this['arrowShape' + segIdx].id,
     );
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+  }
+
+
+  animate() {
+    this.lastProgress = this.progress || 0;
+    if (this.lastProgress == 0) {
+      this.drawingShapes.forEach(s => s.points.forEach((point) => {
+        point.startCoordinates = new Coordinates(point.coordinates);
+        let startAngle = this.references[2].coordinates.angleWith(
+          point.coordinates
+        );
+        let length = this.references[2].coordinates.dist(point.coordinates);
+        point.endCoordinates = new Coordinates({
+          x: this.references[2].x + Math.cos(startAngle + this.angle) * length,
+          y: this.references[2].x + Math.sin(startAngle + this.angle) * length,
+        });
+      }));
+    }
+    this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
+    if (this.progress > 1 && app.tool.name == 'rotation') {
+      this.executeAction();
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+      });
+    } else {
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.requestAnimFrameId = window.requestAnimationFrame(() =>
+        this.animate(),
+      );
+    }
+  }
+
+  refreshStateUpper() {
+    if (app.tool.currentStep == 'rot') {
+      app.upperDrawingEnvironment.points.forEach((point) => {
+        if (point.startCoordinates) {
+          let startAngle = this.references[2].coordinates.angleWith(
+            point.startCoordinates
+          );
+          let length = this.references[2].coordinates.dist(point.startCoordinates);
+          point.coordinates = new Coordinates({
+            x: this.references[2].x + Math.cos(startAngle + this.angle * this.progress) * length,
+            y: this.references[2].y + Math.sin(startAngle + this.angle * this.progress) * length,
+          });
+        }
+      });
+    }
   }
 
   _executeAction() {

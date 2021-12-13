@@ -45,7 +45,6 @@ class SelectMenu extends LitElement {
   }
 
   render() {
-    console.log(this.potentialShapes);
     return html`
       <template-popup>
         <h2 slot="title">

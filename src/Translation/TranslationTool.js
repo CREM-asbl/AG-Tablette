@@ -12,6 +12,8 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 export class TranslationTool extends Tool {
   constructor() {
     super('translation', 'Translation', 'transformation');
+
+    this.duration = app.settings.geometryTransformationAnimationDuration;
   }
 
   /**
@@ -40,7 +42,20 @@ export class TranslationTool extends Tool {
   }
 
   selectObject() {
+    if (this.drawingShapes)
+      this.drawingShapes.forEach(s => {
+        app.upperDrawingEnvironment.removeObjectById(s.id);
+      })
+
     this.setSelectionConstraints();
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
+  trans() {
+    this.removeListeners();
+
+    this.startTime = Date.now();
+    this.animate();
   }
 
   end() {
@@ -93,8 +108,66 @@ export class TranslationTool extends Tool {
       }
     } else {
       this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
+      this.drawingShapes = this.involvedShapes.map(
+        (s) =>
+          new Shape({
+            ...s,
+            drawingEnvironment: app.upperDrawingEnvironment,
+            path: s.getSVGPath('no scale'),
+            id: undefined,
+            divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
+              return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
+            })).flat(),
+          }),
+      );
       // this.animate();
+      setState({
+        tool: {
+          ...app.tool,
+          currentStep: 'trans'
+        }
+      });
+      // this.executeAction();
+    }
+  }
+
+  animate() {
+    this.lastProgress = this.progress || 0;
+    if (this.lastProgress == 0) {
+      let vector = this.secondReference.coordinates.substract(this.firstReference.coordinates);
+      this.drawingShapes.forEach(s => s.points.forEach((point) => {
+        point.startCoordinates = new Coordinates(point.coordinates);
+        point.endCoordinates = new Coordinates({
+          x: point.x + vector.x,
+          y: point.y + vector.y,
+        });
+      }));
+    }
+    this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
+    if (this.progress > 1 && app.tool.name == 'translation') {
       this.executeAction();
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+      });
+    } else {
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.requestAnimFrameId = window.requestAnimationFrame(() =>
+        this.animate(),
+      );
+    }
+  }
+
+  refreshStateUpper() {
+    if (app.tool.currentStep == 'trans') {
+      app.upperDrawingEnvironment.points.forEach((point) => {
+        if (point.startCoordinates) {
+          point.coordinates = point.startCoordinates.substract(
+            point.startCoordinates
+              .substract(point.endCoordinates)
+              .multiply(this.progress),
+          );
+        }
+      });
     }
   }
 

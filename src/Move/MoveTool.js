@@ -122,6 +122,7 @@ export class MoveTool extends Tool {
           pt.segmentIds = [...s.points[idx].segmentIds];
           pt.reference = s.points[idx].reference;
           pt.type = s.points[idx].type;
+          pt.ratio = s.points[idx].ratio;
         });
         newShape.segments.forEach((seg, idx) => {
           seg.vertexIds = [...s.segments[idx].vertexIds];
@@ -152,37 +153,63 @@ export class MoveTool extends Tool {
    */
   refreshStateUpper() {
     if (app.tool.currentStep == 'move') {
-      let mainShape = app.upperDrawingEnvironment.findObjectById(this.selectedShape.id);
-      let translation = app.workspace.lastKnownMouseCoordinates.substract(
-        this.lastKnownMouseCoordinates,
-      );
 
-      this.shapesToMove.forEach((s) => {
-        if (this.lastAdjusment) {
-          s.translate(Coordinates.nullCoordinates.substract(this.lastAdjusment.translation));
-          s.rotate(this.lastAdjusment.rotationAngle * -1, this.lastAdjusment.centerCoord);
-        }
-        s.translate(translation);
-      });
+      if (this.shapesToMove.length == 1 && this.shapesToMove[0].name == 'PointOnLine') {
+        let s = this.shapesToMove[0];
 
-      let adjustment = getShapeAdjustment(
-        this.shapesToMove,
-        mainShape,
-      );
-      this.lastAdjusment = {
-        ...adjustment,
-        centerCoord: new Coordinates(mainShape.centerCoordinates),
-      };
-      this.shapesToMove.forEach((s) => {
-        s.rotate(
-          adjustment.rotationAngle,
-          mainShape.centerCoordinates,
+        let point = s.points[0];
+        let reference = app.mainDrawingEnvironment.findObjectById(s.referenceId, 'segment');
+        point.coordinates = reference.projectionOnSegment(app.workspace.lastKnownMouseCoordinates);
+        let ratio = reference.vertexes[0].coordinates.dist(point.coordinates) / reference.length;
+        if (ratio < 0)
+          ratio = 0;
+        if (ratio > 1)
+          ratio = 1;
+        point.ratio = ratio;
+
+        let firstPoint = reference.vertexes[0];
+        let secondPoint = reference.vertexes[1];
+
+        const segLength = secondPoint.coordinates.substract(
+          firstPoint.coordinates,
         );
-        s.translate(adjustment.translation);
-      });
-      this.shapesToMove.forEach(s => {
-        computeAllShapeTransform(s);
-      });
+        const part = segLength.multiply(point.ratio);
+
+        let coord = firstPoint.coordinates.add(part);
+        point.coordinates = coord;
+      } else {
+        let mainShape = app.upperDrawingEnvironment.findObjectById(this.selectedShape.id);
+        let translation = app.workspace.lastKnownMouseCoordinates.substract(
+          this.lastKnownMouseCoordinates,
+        );
+
+        this.shapesToMove.forEach((s) => {
+          if (this.lastAdjusment) {
+            s.translate(Coordinates.nullCoordinates.substract(this.lastAdjusment.translation));
+            s.rotate(this.lastAdjusment.rotationAngle * -1, this.lastAdjusment.centerCoord);
+          }
+          s.translate(translation);
+        });
+
+        let adjustment = getShapeAdjustment(
+          this.shapesToMove,
+          mainShape,
+        );
+        this.lastAdjusment = {
+          ...adjustment,
+          centerCoord: new Coordinates(mainShape.centerCoordinates),
+        };
+        this.shapesToMove.forEach((s) => {
+          s.rotate(
+            adjustment.rotationAngle,
+            mainShape.centerCoordinates,
+          );
+          s.translate(adjustment.translation);
+        });
+        this.shapesToMove.forEach(s => {
+          computeAllShapeTransform(s);
+        });
+      }
 
       this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
     }

@@ -250,26 +250,15 @@ export function computeShapeTransform(shape, ptsMoved) {
     });
   } else if (shape.name == 'PointOnLine') {
     let ref = app.upperDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
-    // let coord = ref.projectionOnSegment(shape.points[0].coordinates);
-    // if (!ref.isCoordinatesOnSegment(coord)) {
-    //   if (coord.dist(ref.vertexes[0].coordinates) < coord.dist(ref.vertexes[1].coordinates)) {
-    //     coord = ref.vertexes[0].coordinates;
-    //   } else {
-    //     coord = ref.vertexes[1].coordinates;
-    //   }
-    // }
 
     let firstPoint = ref.vertexes[0];
     let secondPoint = ref.vertexes[1];
-    firstPoint.ratio = 0;
-    secondPoint.ratio = 1;
 
     const segLength = secondPoint.coordinates.substract(
       firstPoint.coordinates,
     );
     const part = segLength.multiply(shape.points[0].ratio);
 
-    console.log({...shape.points[0]});
 
     let coord = firstPoint.coordinates.add(part);
     shape.points[0].coordinates = coord;

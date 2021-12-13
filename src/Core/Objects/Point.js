@@ -134,7 +134,6 @@ export class Point {
       lines: [],
       points: [],
     };
-    console.log(this.shape.geometryTransformationName);
     if (this.reference) {
       let refPoint = this.drawingEnvironment.findObjectById(this.reference, 'point');
       refPoint.computeTransformConstraint();

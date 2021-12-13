@@ -14,7 +14,7 @@ export class OrthogonalSymetryTool extends Tool {
   constructor() {
     super('orthogonalSymetry', 'Symétrie orthogonale', 'transformation');
 
-    this.duration = 2;
+    this.duration = app.settings.geometryTransformationAnimationDuration;
   }
 
   /**
@@ -147,7 +147,7 @@ export class OrthogonalSymetryTool extends Tool {
           ...app.tool,
           currentStep: 'ortho'
         }
-      })
+      });
       // this.executeAction();
     }
   }
