@@ -950,8 +950,13 @@ export class Shape {
       referenceId: this.referenceId,
       referenceId2: this.referenceId2,
       referenceSegmentIdx: this.referenceSegmentIdx,
-      hasGeometryReferenced: this.hasGeometryReferenced,
+      hasGeometryReferenced: [...this.hasGeometryReferenced],
       constructionSpec: this.constructionSpec,
+      geometryTransformationChildShapeIds: [...this.geometryTransformationChildShapeIds],
+      geometryTransformationParentShapeId: this.geometryTransformationParentShapeId,
+      geometryTransformationCharacteristicElementIds: [...this.geometryTransformationCharacteristicElementIds],
+      geometryTransformationName: this.geometryTransformationName,
+      geometryVisible: this.geometryVisible,
     };
     return data;
   }

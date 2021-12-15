@@ -2,6 +2,7 @@ import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
 import { GridManager } from '../../Grid/GridManager';
 import { Coordinates } from '../Objects/Coordinates';
+import { getAllChildren } from '../../GeometryTools/general';
 
 function reduceAngle(angle) {
   while (angle < -Math.PI) angle += 2 * Math.PI;
@@ -120,6 +121,11 @@ export function getShapeAdjustment(shapes, mainShape) {
   //   console.error('le Tangram et la Grille ne doivent pas être activés en même temps');
   // }
 
+  let shapesAndAllChildren = [...shapes];
+  if (app.environment.name == 'Geometrie') {
+    getAllChildren(mainShape, shapesAndAllChildren);
+  }
+
   //Générer la liste des points du groupe de figures
   let ptList = [];
   shapes.forEach((s) => {
@@ -145,7 +151,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     let constr = SelectManager.getEmptySelectionConstraints().points;
     constr.canSelect = true;
     constr.types = ['vertex', 'divisionPoint', 'shapeCenter'];
-    constr.blacklist = shapes.map((s) => {
+    constr.blacklist = shapesAndAllChildren.map((s) => {
       return { shapeId: s.id };
     });
     constr.numberOfObjects = 'allInDistance';

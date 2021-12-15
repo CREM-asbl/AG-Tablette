@@ -50,3 +50,13 @@ export function getAllInvolvedShapes(shape, involvedShapes) {
       involvedShapes.push(s);
   }
 }
+
+export function getAllChildren(shape, involvedShapes) {
+  shape.geometryTransformationChildShapeIds.forEach(sId => {
+    let s = app.mainDrawingEnvironment.findObjectById(sId);
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+      involvedShapes.push(s);
+      getAllChildren(s, involvedShapes);
+    }
+  });
+}

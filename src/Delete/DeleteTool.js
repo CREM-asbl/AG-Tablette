@@ -92,6 +92,7 @@ export class DeleteTool extends Tool {
         app.mainDrawingEnvironment.shapes.forEach(s2 => {
           s2.hasGeometryReferenced = s2.hasGeometryReferenced.filter(id => id != s.id);
         });
+        this.deleteChildren(s);
         app.mainDrawingEnvironment.removeObjectById(s.id, 'shape');
       });
 
@@ -106,5 +107,15 @@ export class DeleteTool extends Tool {
       // point
       this.point.visible = false;
     }
+  }
+
+  deleteChildren(shape) {
+    shape.geometryTransformationChildShapeIds.forEach(childId => {
+      let child = app.mainDrawingEnvironment.findObjectById(childId);
+      if (child) {
+        this.deleteChildren(child);
+      }
+    });
+    app.mainDrawingEnvironment.removeObjectById(shape.id, 'shape');
   }
 }
