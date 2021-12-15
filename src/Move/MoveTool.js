@@ -91,6 +91,10 @@ export class MoveTool extends Tool {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
       return;
     }
+    if (shape.referenceId != null) {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être déplacées.' } }));
+      return;
+    }
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
@@ -109,7 +113,7 @@ export class MoveTool extends Tool {
         let newShape = new Shape({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
-          path: s.getSVGPath('no scale'),
+          path: s.getSVGPath('no scale', false, false),
           divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
             return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx, id: dp.id };
           })).flat(),
@@ -123,8 +127,11 @@ export class MoveTool extends Tool {
           pt.reference = s.points[idx].reference;
           pt.type = s.points[idx].type;
           pt.ratio = s.points[idx].ratio;
+          pt.visible = s.points[idx].visible;
         });
         newShape.segments.forEach((seg, idx) => {
+          seg.isInfinite = s.segments[idx].isInfinite;
+          seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
           seg.vertexIds = [...s.segments[idx].vertexIds];
           seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
           seg.arcCenterId = s.segments[idx].arcCenterId;
