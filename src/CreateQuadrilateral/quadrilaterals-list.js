@@ -22,7 +22,7 @@ class QuadrilateralsList extends LitElement {
       'Losange': 'Losange',
       'Parallelogram': 'Parallélogramme',
       // 'RightAngleTrapeze': 'Trapèze rectangle',
-      'RightAngleTrapeze2': 'Trapèze rectangle 2',
+      'RightAngleTrapeze2': 'Trapèze rectangle',
       'IsoscelesTrapeze': 'Trapèze isocèle',
       'Trapeze': 'Trapèze',
       'IrregularQuadrilateral': 'Quadrilatère',
