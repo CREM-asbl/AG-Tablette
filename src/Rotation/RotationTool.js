@@ -94,8 +94,8 @@ export class RotationTool extends Tool {
       if (this.references.length == 4) {
         this.angle = this.references[2].coordinates.angleWith(this.references[1].coordinates) - this.references[2].coordinates.angleWith(this.references[3].coordinates);
 
-        if (this.angle > Math.PI) this.angle -= 2 * Math.PI;
-        if (this.angle < -Math.PI) this.angle += 2 * Math.PI;
+        // if (this.angle > Math.PI) this.angle -= 2 * Math.PI;
+        // if (this.angle < -Math.PI) this.angle += 2 * Math.PI;
         this.angle *= -1;
 
         let radius = this.references[1].coordinates.dist(this.references[2].coordinates);
@@ -229,6 +229,12 @@ export class RotationTool extends Tool {
     );
     this.arcShape.segmentIds.splice(segIdx, 1);
     this.arcShape.segments.forEach((seg, idx) => (seg.idx = idx));
+
+    if (!(this.angle < 0 ^ this.clockwise)) {
+      if (this.angle > 0) this.angle -= 2 * Math.PI;
+      else if (this.angle < 0) this.angle += 2 * Math.PI;
+    }
+
     app.upperDrawingEnvironment.removeObjectById(
       this['arrowShape' + segIdx].id,
     );
