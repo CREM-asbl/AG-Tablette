@@ -274,10 +274,16 @@ export class TransformTool extends Tool {
       if (shape.name == 'PointOnLine') {
         let reference = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
         point.coordinates = reference.projectionOnSegment(point.coordinates);
-        let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
-        if (ratio < 0)
+        // let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
+        let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
+        let ratioY = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
+        let ratio = ratioX;
+        if (isNaN(ratio))
+          ratio = ratioY;
+
+        if (ratio < 0 && !(reference.shape.name.endsWith('StraightLine') && !reference.shape.name.endsWith('SeminStraightLine')))
           ratio = 0;
-        if (ratio > 1)
+        if (ratio > 1 && !reference.shape.name.endsWith('StraightLine'))
           ratio = 1;
         point.ratio = ratio;
       }

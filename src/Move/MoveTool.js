@@ -91,7 +91,7 @@ export class MoveTool extends Tool {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
       return;
     }
-    if (shape.referenceId != null) {
+    if (shape.referenceId != null && shape.name != 'PointOnLine') {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être déplacées.' } }));
       return;
     }
@@ -167,12 +167,20 @@ export class MoveTool extends Tool {
         let point = s.points[0];
         let reference = app.mainDrawingEnvironment.findObjectById(s.referenceId, 'segment');
         point.coordinates = reference.projectionOnSegment(app.workspace.lastKnownMouseCoordinates);
-        let ratio = reference.vertexes[0].coordinates.dist(point.coordinates) / reference.length;
-        if (ratio < 0)
+        // let ratio = reference.vertexes[0].coordinates.dist(point.coordinates) / reference.length;
+        let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
+        let ratioY = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
+        let ratio = ratioX;
+        if (isNaN(ratio))
+          ratio = ratioY;
+
+        if (ratio < 0 && !(reference.shape.name.endsWith('StraightLine') && !reference.shape.name.endsWith('SeminStraightLine')))
           ratio = 0;
-        if (ratio > 1)
+        if (ratio > 1 && !reference.shape.name.endsWith('StraightLine'))
           ratio = 1;
         point.ratio = ratio;
+
+        console.log(point.ratio)
 
         let firstPoint = reference.vertexes[0];
         let secondPoint = reference.vertexes[1];

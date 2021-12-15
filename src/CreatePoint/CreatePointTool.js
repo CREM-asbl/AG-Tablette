@@ -202,7 +202,13 @@ export class CreatePointTool extends Tool {
       shape.referenceId = this.referenceId;
       let reference = app.mainDrawingEnvironment.findObjectById(this.referenceId, 'segment');
 
-      let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
+      let ratioX = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
+      let ratioY = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
+      let ratio = ratioX;
+      if (isNaN(ratio))
+        ratio = ratioY;
+      // let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
+
       shape.points[0].ratio = ratio;
 
       reference.shape.hasGeometryReferenced.push(shape.id);
