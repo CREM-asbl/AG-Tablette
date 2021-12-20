@@ -329,7 +329,6 @@ export class ReverseTool extends Tool {
       if (this.progress >= 0.5 && this.lastProgress < 0.5) {
         // milieu animation
         app.upperDrawingEnvironment.shapes.forEach((s) => {
-          s.isReversed = !s.isReversed;
           s.reverse();
         });
       }
@@ -350,7 +349,6 @@ export class ReverseTool extends Tool {
    * @param  {Shape} shape       la figure à retourner
    */
   reverseShape(shape, selectedAxis) {
-    shape.isReversed = !shape.isReversed;
     shape.reverse();
 
     shape.points.forEach((pt) => {

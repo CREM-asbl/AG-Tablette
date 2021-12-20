@@ -78,8 +78,7 @@ export class DrawManager {
    */
   static drawShape(drawingEnvironment, shape, scaling) {
     drawingEnvironment.ctx.strokeStyle = shape.borderColor;
-    drawingEnvironment.ctx.fillStyle =
-      shape.isBiface && shape.isReversed ? shape.second_color : shape.color;
+    drawingEnvironment.ctx.fillStyle = shape.color;
     if (shape.isOverlappingAnotherInTangram)
       drawingEnvironment.ctx.fillStyle = '#F00';
     drawingEnvironment.ctx.globalAlpha = shape.opacity;

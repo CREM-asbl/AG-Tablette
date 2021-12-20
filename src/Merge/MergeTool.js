@@ -563,7 +563,7 @@ export class MergeTool extends Tool {
         shapes.map((s) => s.opacity).reduce((acc, value) => acc + value) /
         shapes.length,
       isBiface: shapes.some((s) => s.isBiface),
-      isReversed: shapes.some((s) => s.isReversed),
+      // isReversed: shapes.some((s) => s.isReversed),
     });
     newShape.cleanSameDirectionSegment();
     newShape.translate({ x: -20, y: -20 });

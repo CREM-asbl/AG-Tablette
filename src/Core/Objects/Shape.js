@@ -92,7 +92,6 @@ export class Shape {
     this.name = name;
     this.familyName = familyName;
     this.color = color;
-    this.second_color = getComplementaryColor(color);
     this.opacity = parseFloat(opacity);
     this.size = parseInt(size);
     this.borderColor = borderColor;
@@ -663,6 +662,9 @@ export class Shape {
     this.segments.forEach((seg) => {
       if (seg.arcCenter) seg.counterclockwise = !seg.counterclockwise;
     });
+    if (this.isBiface)
+      this.color = getComplementaryColor(this.color);
+    this.isReversed = !this.isReversed;
   }
 
   /**
@@ -844,7 +846,7 @@ export class Shape {
     let attributes = {
       d: path,
       stroke: this.borderColor,
-      fill: this.isBiface && this.isReversed ? this.second_color : this.color,
+      fill: this.color,
       'fill-opacity': this.opacity,
       'stroke-width': 1, // toujours à 1 ?
       'stroke-opacity': 1, // toujours à 1 ?
@@ -938,7 +940,6 @@ export class Shape {
       name: this.name,
       familyName: this.familyName,
       color: this.color,
-      second_color: this.second_color,
       opacity: this.opacity,
       path: this.getSVGPath(false),
       size: this.size,

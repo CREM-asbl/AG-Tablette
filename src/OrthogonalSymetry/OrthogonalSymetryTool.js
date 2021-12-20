@@ -193,7 +193,6 @@ export class OrthogonalSymetryTool extends Tool {
       if (this.progress >= 0.5 && this.lastProgress < 0.5) {
         // milieu animation
         app.upperDrawingEnvironment.shapes.forEach((s) => {
-          s.isReversed = !s.isReversed;
           s.reverse();
         });
       }

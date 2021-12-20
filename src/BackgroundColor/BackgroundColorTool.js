@@ -3,7 +3,6 @@ import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { getComplementaryColor } from '../Core/Tools/general';
 
 /**
  * Modifier la couleur de fond d'une figure
@@ -81,7 +80,6 @@ export class BackgroundColorTool extends Tool {
     this.involvedShapes.forEach((s) => {
       if (mustChangeOpacity) s.opacity = 0.7;
       s.color = app.settings.shapeFillColor;
-      s.second_color = getComplementaryColor(s.color);
     });
   }
 }
