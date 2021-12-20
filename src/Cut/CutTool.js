@@ -198,10 +198,19 @@ export class CutTool extends Tool {
       let cutPoints = [];
       for (let i = 0; i < firstPoints.length; i++) {
         for (let j = 0; j < newObjects.length; j++) {
-          if (firstPoints[i].shapeId == newObjects[j].shapeId) {
+          let firstShapeId = firstPoints[i].shapeId;
+          if (firstPoints[i].shape.name == 'PointOnLine') {
+            firstShapeId = app.mainDrawingEnvironment.findObjectById(firstPoints[i].shape.referenceId, 'segment').shapeId;
+          }
+          let secondShapeId = newObjects[j].shapeId;
+          if (newObjects[j].shape.name == 'PointOnLine') {
+            secondShapeId = app.mainDrawingEnvironment.findObjectById(newObjects[j].shape.referenceId, 'segment').shapeId;
+          }
+          if (firstShapeId == secondShapeId) {
             cutPoints.push([firstPoints[i], newObjects[j]]);
             firstPoints.splice(i, 1);
             newObjects.splice(j, 1);
+            this.shapeId = firstShapeId;
             i = -1;
           }
           if (i == -1)
@@ -221,8 +230,9 @@ export class CutTool extends Tool {
           tool: { ...app.tool, currentStep: 'listen', firstPointId: undefined },
         });
       } else {
+        let shape = app.mainDrawingEnvironment.findObjectById(this.shapeId);
         for (let i = 0; i < cutPoints.length; i++) {
-          if (!this.isLineValid(cutPoints[i][0].shape, cutPoints[i][0], cutPoints[i][1])) {
+          if (!this.isLineValid(shape, cutPoints[i][0], cutPoints[i][1])) {
             cutPoints.splice(i, 1);
             i = -1;
           }
@@ -324,17 +334,22 @@ export class CutTool extends Tool {
       pointsInBorder = 0;
     for (let i = 1; i < amountOfParts - 1; i++) {
       let coord = pt1.coordinates.add(part.multiply(i));
-      if (!shape.isCoordinatesInPath(coord)) return false;
+      if (!shape.isCoordinatesInPath(coord)) {
+        return false;
+      }
       pointsInBorder += shape.isCoordinatesOnBorder(coord) ? 1 : 0;
     }
-    if (pointsInBorder > amountOfParts / 5) return false;
+    if (pointsInBorder > amountOfParts / 5) {
+      return false;
+    }
     const junction = new Segment({
       drawingEnvironment: app.invisibleDrawingEnvironment,
       vertexCoordinates: [pt1.coordinates, pt2.coordinates],
       createFromNothing: true,
     });
-    if (shape.segments.some((seg) => seg.doesIntersect(junction, false, true)))
+    if (shape.segments.some((seg) => seg.doesIntersect(junction, false, true))) {
       return false;
+    }
     return shape.vertexes.every(
       (vertex) =>
         vertex.coordinates.equal(pt1.coordinates) ||
@@ -387,7 +402,7 @@ export class CutTool extends Tool {
   _executeAction() {
     let pt1 = this.firstPoint,
       pt2 = this.secondPoint,
-      shape = pt1.shape,
+      shape = app.mainDrawingEnvironment.findObjectById(this.shapeId),
       firstPath,
       secondPath;
 
@@ -425,11 +440,17 @@ export class CutTool extends Tool {
       ];
     } else {
       // Trier les 2 points:
-      if (pt1.type == 'vertex' && pt1.idx === 0) {
+      if (pt1.type == 'vertex' && pt1.idx === 0 && pt1.shape.name != 'PointOnLine') {
         [pt1, pt2] = [pt2, pt1];
-      } else if (!(pt2.type == 'vertex' && pt2.idx === 0)) {
-        let pt1Idx = pt1.idx || pt1.segments[0].idx;
-        let pt2Idx = pt2.idx || pt2.segments[0].idx;
+      } else if (!(pt2.type == 'vertex' && pt2.idx === 0 && pt2.shape.name != 'PointOnLine')) {
+        let pt1Idx = pt1.idx || pt1.segments[0]?.idx;
+        let pt2Idx = pt2.idx || pt2.segments[0]?.idx;
+        if (pt1.shape.name == 'PointOnLine') {
+          pt1Idx = app.mainDrawingEnvironment.findObjectById(pt1.shape.referenceId, 'segment').idx;
+        }
+        if (pt2.shape.name == 'PointOnLine') {
+          pt2Idx = app.mainDrawingEnvironment.findObjectById(pt2.shape.referenceId, 'segment').idx;
+        }
         if (pt1Idx > pt2Idx) {
           [pt1, pt2] = [pt2, pt1];
         } else if (pt1Idx === pt2Idx) {
@@ -452,6 +473,9 @@ export class CutTool extends Tool {
         if (pt1.type === 'divisionPoint' && pt1.segments[0].idx === i) {
           this.addPathElem(firstPath, pt1);
           break;
+        } else if (pt1.shape.name === 'PointOnLine' && app.mainDrawingEnvironment.findObjectById(pt1.shape.referenceId, 'segment').idx == i) {
+          this.addPathElem(firstPath, pt1);
+          break;
         } else {
           this.addPathElem(firstPath, shape.vertexes[i + 1]);
         }
@@ -463,8 +487,11 @@ export class CutTool extends Tool {
         this.addPathElem(firstPath, this.centerPoint, false);
       }
       this.addPathElem(firstPath, pt2, false);
-      let endJunctionIndex = pt2.idx || pt2.segments[0].idx;
-      if (!(pt2.type == 'vertex' && pt2.idx === 0)) {
+      let endJunctionIndex = pt2.idx || pt2.segments[0]?.idx;
+      if (pt2.shape.name == 'PointOnLine') {
+        endJunctionIndex = app.mainDrawingEnvironment.findObjectById(pt2.shape.referenceId, 'segment').idx;
+      }
+      if (!(pt2.type == 'vertex' && pt2.idx === 0 && pt2.shapeId == this.shapeId)) {
         for (let i = endJunctionIndex + 1; i <= nbOfSegments; i++) {
           this.addPathElem(firstPath, shape.vertexes[i % nbOfSegments]);
         }
@@ -476,9 +503,12 @@ export class CutTool extends Tool {
         this.currentPoint.coordinates.x,
         this.currentPoint.coordinates.y,
       ];
-      endJunctionIndex = pt1.idx || pt1.segments[0].idx;
+      endJunctionIndex = pt1.idx || pt1.segments[0]?.idx || app.mainDrawingEnvironment.findObjectById(pt1.shape.referenceId, 'segment').idx;
       for (let i = endJunctionIndex; i < nbOfSegments; i++) {
         if (pt2.type === 'divisionPoint' && pt2.segments[0].idx === i) {
+          this.addPathElem(secondPath, pt2);
+          break;
+        } else if (pt2.shape.name === 'PointOnLine' && app.mainDrawingEnvironment.findObjectById(pt2.shape.referenceId, 'segment').idx == i) {
           this.addPathElem(secondPath, pt2);
           break;
         } else {
@@ -502,12 +532,14 @@ export class CutTool extends Tool {
       path: firstPath,
       color: shape.color,
       borderColor: shape.borderColor,
+      opacity: shape.opacity,
     });
     let shape2 = new Shape({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: secondPath,
       color: shape.color,
       borderColor: shape.borderColor,
+      opacity: shape.opacity,
     });
 
     shape1.cleanSameDirectionSegment();

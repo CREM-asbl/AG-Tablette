@@ -180,8 +180,6 @@ export class MoveTool extends Tool {
           ratio = 1;
         point.ratio = ratio;
 
-        console.log(point.ratio)
-
         let firstPoint = reference.vertexes[0];
         let secondPoint = reference.vertexes[1];
 
