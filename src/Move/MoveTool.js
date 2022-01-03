@@ -53,6 +53,7 @@ export class MoveTool extends Tool {
   }
 
   listen() {
+    this.pointOnLineRatio = null;
     this.lastAdjusment = null;
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
@@ -87,11 +88,12 @@ export class MoveTool extends Tool {
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
+    console.log(shape)
     if (shape.geometryTransformationName != null) {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
       return;
     }
-    if (shape.referenceId != null && shape.name != 'PointOnLine') {
+    if (shape.vertexes.some(vx => vx.reference != null) && shape.name != 'PointOnLine') {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être déplacées.' } }));
       return;
     }
@@ -179,6 +181,7 @@ export class MoveTool extends Tool {
         if (ratio > 1 && !reference.shape.name.endsWith('StraightLine'))
           ratio = 1;
         point.ratio = ratio;
+        this.pointOnLineRatio = ratio;
 
         let firstPoint = reference.vertexes[0];
         let secondPoint = reference.vertexes[1];
@@ -233,6 +236,8 @@ export class MoveTool extends Tool {
       let s = app.mainDrawingEnvironment.findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
         pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
+        if (this.pointOnLineRatio)
+          pt.ratio = this.pointOnLineRatio;
       });
     });
   }

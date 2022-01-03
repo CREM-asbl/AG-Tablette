@@ -377,7 +377,7 @@ export class CreateLineTool extends Tool {
         ref.shape.hasGeometryReferenced.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
-    if (shape.name == 'Segment' || shape.name == 'SemiStraightLine')
+    if (shape.name == 'Segment' || shape.name == 'SemiStraightLine' || shape.name == 'StraightLine')
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
       if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
         ref.shape.hasGeometryReferenced.push(shape.id);

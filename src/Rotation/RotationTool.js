@@ -14,12 +14,11 @@ import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 export class RotationTool extends Tool {
   constructor() {
     super('rotation', 'Rotation', 'transformation');
-
-    this.duration = app.settings.geometryTransformationAnimationDuration;
   }
 
   start() {
     this.removeListeners();
+    this.duration = app.settings.geometryTransformationAnimation ? app.settings.geometryTransformationAnimationDuration : 0.001;
 
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);
   }
@@ -247,13 +246,13 @@ export class RotationTool extends Tool {
     if (this.lastProgress == 0) {
       this.drawingShapes.forEach(s => s.points.forEach((point) => {
         point.startCoordinates = new Coordinates(point.coordinates);
-        let startAngle = this.references[2].coordinates.angleWith(
+        let startAngle = this.references[0].coordinates.angleWith(
           point.coordinates
         );
-        let length = this.references[2].coordinates.dist(point.coordinates);
+        let length = this.references[0].coordinates.dist(point.coordinates);
         point.endCoordinates = new Coordinates({
-          x: this.references[2].x + Math.cos(startAngle + this.angle) * length,
-          y: this.references[2].x + Math.sin(startAngle + this.angle) * length,
+          x: this.references[0].x + Math.cos(startAngle + this.angle) * length,
+          y: this.references[0].x + Math.sin(startAngle + this.angle) * length,
         });
       }));
     }
@@ -275,13 +274,13 @@ export class RotationTool extends Tool {
     if (app.tool.currentStep == 'rot') {
       app.upperDrawingEnvironment.points.forEach((point) => {
         if (point.startCoordinates) {
-          let startAngle = this.references[2].coordinates.angleWith(
+          let startAngle = this.references[0].coordinates.angleWith(
             point.startCoordinates
           );
-          let length = this.references[2].coordinates.dist(point.startCoordinates);
+          let length = this.references[0].coordinates.dist(point.startCoordinates);
           point.coordinates = new Coordinates({
-            x: this.references[2].x + Math.cos(startAngle + this.angle * this.progress) * length,
-            y: this.references[2].y + Math.sin(startAngle + this.angle * this.progress) * length,
+            x: this.references[0].x + Math.cos(startAngle + this.angle * this.progress) * length,
+            y: this.references[0].y + Math.sin(startAngle + this.angle * this.progress) * length,
           });
         }
       });

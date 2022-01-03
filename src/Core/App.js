@@ -30,6 +30,7 @@ export class App {
       referenceDrawColor2: '#4a88b2',
 
       geometryTransformationAnimationDuration: 1,
+      geometryTransformationAnimation: false,
 
       automaticAdjustment: true,
       areShapesPointed: true,

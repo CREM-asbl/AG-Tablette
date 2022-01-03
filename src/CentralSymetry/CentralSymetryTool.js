@@ -12,8 +12,6 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 export class CentralSymetryTool extends Tool {
   constructor() {
     super('centralSymetry', 'Symétrie centrale', 'transformation');
-
-    this.duration = app.settings.geometryTransformationAnimationDuration;
   }
 
   /**
@@ -21,6 +19,7 @@ export class CentralSymetryTool extends Tool {
    */
   start() {
     this.removeListeners();
+    this.duration = app.settings.geometryTransformationAnimation ? app.settings.geometryTransformationAnimationDuration : 0.001;
 
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);
   }

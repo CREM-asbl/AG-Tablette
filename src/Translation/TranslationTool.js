@@ -12,8 +12,6 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 export class TranslationTool extends Tool {
   constructor() {
     super('translation', 'Translation', 'transformation');
-
-    this.duration = app.settings.geometryTransformationAnimationDuration;
   }
 
   /**
@@ -21,6 +19,7 @@ export class TranslationTool extends Tool {
    */
   start() {
     this.removeListeners();
+    this.duration = app.settings.geometryTransformationAnimation ? app.settings.geometryTransformationAnimationDuration : 0.001;
 
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectFirstReference' } }), 50);
   }

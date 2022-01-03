@@ -13,8 +13,6 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 export class OrthogonalSymetryTool extends Tool {
   constructor() {
     super('orthogonalSymetry', 'Symétrie orthogonale', 'transformation');
-
-    this.duration = app.settings.geometryTransformationAnimationDuration;
   }
 
   /**
@@ -22,6 +20,7 @@ export class OrthogonalSymetryTool extends Tool {
    */
   start() {
     this.removeListeners();
+    this.duration = app.settings.geometryTransformationAnimation ? app.settings.geometryTransformationAnimationDuration : 0.001;
 
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectFirstReference' } }), 50);
   }
@@ -40,6 +39,7 @@ export class OrthogonalSymetryTool extends Tool {
   selectReference() {
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    this.mouseClickId = app.addListener('canvasClick', this.handler);
   }
 
   selectObject() {
@@ -51,7 +51,11 @@ export class OrthogonalSymetryTool extends Tool {
 
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    this.longPressId = app.addListener('canvasLongPress', this.handler);
+    // this.longPressId = app.addListener('canvasLongPress', this.handler);
+  }
+
+  canvasClick() {
+
   }
 
   ortho() {
@@ -67,20 +71,20 @@ export class OrthogonalSymetryTool extends Tool {
     this.removeListeners();
   }
 
-  canvasLongPress() {
-    let coordinates = app.workspace.lastKnownMouseCoordinates;
-    this.potentialShapes = ShapeManager.shapesThatContainsCoordinates(coordinates);
-    import('./select-menu');
-    let elem = createElem('select-menu');
-    elem.potentialShapes = this.potentialShapes;
+  // canvasLongPress() {
+  //   let coordinates = app.workspace.lastKnownMouseCoordinates;
+  //   this.potentialShapes = ShapeManager.shapesThatContainsCoordinates(coordinates);
+  //   import('./select-menu');
+  //   let elem = createElem('select-menu');
+  //   elem.potentialShapes = this.potentialShapes;
 
-    window.addEventListener('shapeSelected', e => {
-      this.object = app.mainDrawingEnvironment.findObjectById(e.detail.shapeId);
-      if (this.object)
-        this.animate();
-        // this.executeAction();
-    }, { once: true });
-  }
+  //   window.addEventListener('shapeSelected', e => {
+  //     this.object = app.mainDrawingEnvironment.findObjectById(e.detail.shapeId);
+  //     if (this.object)
+  //       this.animate();
+  //       // this.executeAction();
+  //   }, { once: true });
+  // }
 
   objectSelected(object) {
     if (app.tool.currentStep == 'selectReference') {

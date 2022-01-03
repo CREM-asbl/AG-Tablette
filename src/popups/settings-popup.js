@@ -58,6 +58,17 @@ class SettingsPopup extends LitElement {
               />
               <label for="settings_automatic_adjustment">Ajustement automatique</label>
             </div>
+
+            <div class="field">
+              <input
+                type="checkbox"
+                name="settings_animation_in_geometry_tranformations"
+                id="settings_animation_in_geometry_tranformations"
+                .checked="${this.settings.geometryTransformationAnimation}"
+                @change="${this._actionHandle}"
+              />
+              <label for="settings_animation_in_geometry_tranformations">Animation des tranformations</label>
+            </div>
           </fieldset>
 
           <br />
@@ -128,6 +139,15 @@ class SettingsPopup extends LitElement {
           settings: {
             ...app.settings,
             automaticAdjustment: event.target.checked,
+          },
+        });
+        break;
+
+      case 'settings_animation_in_geometry_tranformations':
+        setState({
+          settings: {
+            ...app.settings,
+            geometryTransformationAnimation: event.target.checked,
           },
         });
         break;

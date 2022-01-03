@@ -503,7 +503,10 @@ export class CutTool extends Tool {
         this.currentPoint.coordinates.x,
         this.currentPoint.coordinates.y,
       ];
-      endJunctionIndex = pt1.idx || pt1.segments[0]?.idx || app.mainDrawingEnvironment.findObjectById(pt1.shape.referenceId, 'segment').idx;
+      endJunctionIndex = pt1.idx || pt1.segments[0]?.idx;
+      if (pt1.shape.name == 'PointOnLine') {
+        endJunctionIndex = app.mainDrawingEnvironment.findObjectById(pt1.shape.referenceId, 'segment').idx;
+      }
       for (let i = endJunctionIndex; i < nbOfSegments; i++) {
         if (pt2.type === 'divisionPoint' && pt2.segments[0].idx === i) {
           this.addPathElem(secondPath, pt2);
