@@ -14,6 +14,7 @@ class LinesList extends LitElement {
       'StraightLine',
       'ParalleleStraightLine',
       'PerpendicularStraightLine',
+      'Vector',
       // 'Strip',
     ];
 
@@ -27,6 +28,7 @@ class LinesList extends LitElement {
       'StraightLine': 'Droite',
       'ParalleleStraightLine': 'Droite parallèle',
       'PerpendicularStraightLine': 'Droite perpendiculaire',
+      'Vector': 'Vecteur',
     }
 
     this.updateProperties = () => {
