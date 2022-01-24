@@ -142,7 +142,7 @@ class AgApp extends LitElement {
              viewBox="0 0 52 52" width="52px" height="52px" xml:space="preserve">
     <style type="text/css">
             path {
-        fill:${shapeTemplate.color};
+        fill:${shapeTemplate.fillColor};
         stroke:#000;
         stroke-width:1;
         stroke-miterlimit:10;

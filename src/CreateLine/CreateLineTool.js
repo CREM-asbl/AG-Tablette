@@ -9,6 +9,8 @@ import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -27,7 +29,7 @@ export class CreateLineTool extends Tool {
     this.numberOfPointsDrawn = 0;
 
     // la référence pour la contruction de parallèles ou perpendiculaires
-    this.referenceId = null;
+    this.geometryParentObjectId = null;
   }
 
   /**
@@ -119,13 +121,13 @@ export class CreateLineTool extends Tool {
   objectSelected(segment) {
     if (app.tool.currentStep != 'selectReference') return;
 
-    this.referenceId = segment.id;
+    this.geometryParentObjectId = segment.id;
 
-    new Shape({
+    new LineShape({
       drawingEnvironment: app.upperDrawingEnvironment,
       path: segment.getSVGPath('scale', true),
-      borderColor: app.settings.referenceDrawColor,
-      borderSize: 2,
+      strokeColor: app.settings.referenceDrawColor,
+      strokeWidth: 2,
     });
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -164,11 +166,11 @@ export class CreateLineTool extends Tool {
           seg.isInfinite = true;
         }
         this.segments.push(seg);
-        let shape = new Shape({
+        let shape = new LineShape({
           drawingEnvironment: app.upperDrawingEnvironment,
           segmentIds: this.segments.map((seg) => seg.id),
           pointIds: this.points.map((pt) => pt.id),
-          borderColor: app.settings.temporaryDrawColor,
+          strokeColor: app.settings.temporaryDrawColor,
         });
         this.segments.forEach((seg, idx) => {
           seg.idx = idx;
@@ -252,7 +254,7 @@ export class CreateLineTool extends Tool {
     let newCoordinates;
     if (app.tool.selectedLine == 'ParalleleStraightLine') {
       let referenceSegment = app.mainDrawingEnvironment.findObjectById(
-        this.referenceId,
+        this.geometryParentObjectId,
         'segment',
       );
       newCoordinates = this.points[0].coordinates
@@ -260,7 +262,7 @@ export class CreateLineTool extends Tool {
         .add(referenceSegment.vertexes[1].coordinates);
     } else if (app.tool.selectedLine == 'PerpendicularStraightLine') {
       let referenceSegment = app.mainDrawingEnvironment.findObjectById(
-        this.referenceId,
+        this.geometryParentObjectId,
         'segment',
       );
       let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
@@ -289,7 +291,7 @@ export class CreateLineTool extends Tool {
     } else if (pointNb == 1) {
       if (app.tool.selectedLine.startsWith('Parallele')) {
         let referenceSegment = app.mainDrawingEnvironment.findObjectById(
-          this.referenceId,
+          this.geometryParentObjectId,
           'segment',
         );
         let secondCoordinates = this.points[0].coordinates
@@ -299,7 +301,7 @@ export class CreateLineTool extends Tool {
         this.constraints = new GeometryConstraint('isConstrained', lines);
       } else if (app.tool.selectedLine.startsWith('Perpendicular')) {
         let referenceSegment = app.mainDrawingEnvironment.findObjectById(
-          this.referenceId,
+          this.geometryParentObjectId,
           'segment',
         );
         let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
@@ -329,11 +331,12 @@ export class CreateLineTool extends Tool {
       app.tool.selectedLine == 'ParalleleStraightLine' ||
       app.tool.selectedLine == 'PerpendicularStraightLine'
     ) {
-      shape = new Shape({
+      shape = new LineShape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: path,
         name: app.tool.selectedLine,
         familyName: 'Line',
+        geometryObject: new GeometryObject({}),
       });
       shape.segments[0].isInfinite = true;
       if (app.tool.selectedLine == 'ParalleleStraightLine' ||
@@ -345,11 +348,12 @@ export class CreateLineTool extends Tool {
       app.tool.selectedLine == 'ParalleleSemiStraightLine' ||
       app.tool.selectedLine == 'PerpendicularSemiStraightLine'
     ) {
-      shape = new Shape({
+      shape = new LineShape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: path,
         name: app.tool.selectedLine,
         familyName: 'Line',
+        geometryObject: new GeometryObject({}),
       });
       shape.segments[0].isSemiInfinite = true;
     } else if (
@@ -357,30 +361,31 @@ export class CreateLineTool extends Tool {
       app.tool.selectedLine == 'ParalleleSegment' ||
       app.tool.selectedLine == 'PerpendicularSegment'
     ) {
-      shape = new Shape({
+      shape = new LineShape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: path,
         name: app.tool.selectedLine,
         familyName: 'Line',
+        geometryObject: new GeometryObject({}),
       });
     }
 
-    if (this.referenceId) {
-      shape.referenceId = this.referenceId;
-      let reference = app.mainDrawingEnvironment.findObjectById(this.referenceId, 'segment');
-      reference.shape.hasGeometryReferenced.push(shape.id);
+    if (this.geometryParentObjectId) {
+      shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId;
+      let reference = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId, 'segment');
+      reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }
 
     let ref;
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
-      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-        ref.shape.hasGeometryReferenced.push(shape.id);
+      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
     if (shape.name == 'Segment' || shape.name == 'SemiStraightLine' || shape.name == 'StraightLine')
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
-      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-        ref.shape.hasGeometryReferenced.push(shape.id);
+      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[1].reference = ref.id;
     }
 

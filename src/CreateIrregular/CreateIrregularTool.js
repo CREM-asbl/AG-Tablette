@@ -8,6 +8,7 @@ import { uniqId } from '../Core/Tools/general';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Shape } from '../Core/Objects/Shape';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -93,12 +94,12 @@ export class CreateIrregularTool extends Tool {
         ],
       });
       this.segments.push(seg);
-      new Shape({
+      new RegularShape({
         drawingEnvironment: app.upperDrawingEnvironment,
         segmentIds: [seg.id],
         pointIds: seg.vertexIds,
-        borderColor: app.settings.temporaryDrawColor,
-        opacity: 0,
+        strokeColor: app.settings.temporaryDrawColor,
+        fillOpacity: 0,
       });
     }
     setState({
@@ -170,19 +171,19 @@ export class CreateIrregularTool extends Tool {
     // path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');
 
-    let shape = new Shape({
+    let shape = new RegularShape({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: path,
       name: app.tool.selectedTriangle,
       familyName: familyName,
-      opacity: 0,
+      fillOpacity: 0,
     });
 
     let ref;
     shape.vertexes.forEach((vx, i) => {
       if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[i].id).find(pt => pt.coordinates.equal(shape.vertexes[i].coordinates))) {
-        if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-          ref.shape.hasGeometryReferenced.push(shape.id);
+        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.vertexes[i].reference = ref.id;
       }
     });

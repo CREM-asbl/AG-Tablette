@@ -11,7 +11,7 @@ export class Silhouette {
   constructor(shapes = [], loadFromSave = false, level = 1) {
     this.level = level;
     this.shapes = shapes.map((shape) => {
-      let shapeCopy = new Shape({
+      let shapeCopy = new shape.construcor({
         ...shape,
         path: loadFromSave ? shape.path : shape.getSVGPath(false),
         drawingEnvironment: app.backgroundDrawingEnvironment,

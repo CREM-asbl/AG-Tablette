@@ -3,6 +3,7 @@ import { Shape } from './Shape';
 import { Segment } from './Segment';
 import { Point } from './Point';
 import { app } from '../App';
+import { NewShape } from './Shapes/NewShape';
 
 export class DrawingEnvironment {
   /**
@@ -211,7 +212,7 @@ export class DrawingEnvironment {
     this.removeAllObjects();
     if (data != undefined) {
       data.shapesData.forEach((shapeData) => {
-        Shape.loadFromData(shapeData)
+        NewShape.loadFromData(shapeData)
       });
       data.segmentsData.forEach((segmentData) =>
         Segment.loadFromData(segmentData),

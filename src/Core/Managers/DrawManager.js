@@ -77,16 +77,7 @@ export class DrawManager {
    * @param  {Number}              borderSize
    */
   static drawShape(drawingEnvironment, shape, scaling) {
-    drawingEnvironment.ctx.strokeStyle = shape.borderColor;
-    drawingEnvironment.ctx.fillStyle = shape.color;
-    if (shape.isOverlappingAnotherInTangram)
-      drawingEnvironment.ctx.fillStyle = '#F00';
-    drawingEnvironment.ctx.globalAlpha = shape.opacity;
-    drawingEnvironment.ctx.lineWidth =
-      shape.borderSize * app.workspace.zoomLevel;
-    if (scaling == 'no scale')
-      drawingEnvironment.ctx.lineWidth =
-        shape.borderSize;
+    shape.setCtxForDrawing(drawingEnvironment.ctx, scaling);
     drawingEnvironment.ctx.miterLimit = 1;
 
     const pathScaleMethod = drawingEnvironment.mustScaleShapes

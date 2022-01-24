@@ -11,13 +11,13 @@ export class ShapeTemplate {
     path = undefined,
     name = 'Custom',
     familyName = 'Custom',
-    color = '#aaa',
-    opacity = 0.7,
+    fillColor = '#aaa',
+    fillOpacity = 0.7,
   }) {
     this.path = path;
     this.name = name;
     this.familyName = familyName;
-    this.color = color;
-    this.opacity = opacity;
+    this.fillColor = fillColor;
+    this.fillOpacity = fillOpacity;
   }
 }

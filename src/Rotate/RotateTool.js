@@ -103,7 +103,7 @@ export class RotateTool extends Tool {
     );
     this.drawingShapes = this.involvedShapes.map(
       (s) =>
-        new Shape({
+        new s.constructor({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: s.getSVGPath('no scale'),

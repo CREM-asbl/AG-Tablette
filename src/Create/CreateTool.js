@@ -5,6 +5,8 @@ import { createElem } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shape';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -100,10 +102,17 @@ export class CreateTool extends Tool {
       .getFamily(app.tool.selectedFamily)
       .getTemplate(app.tool.selectedTemplate);
 
-    this.shapeToCreate = new Shape({
-      ...selectedTemplate,
-      drawingEnvironment: app.upperDrawingEnvironment,
-    });
+    if (selectedTemplate.name.startsWith('Segment')) {
+      this.shapeToCreate = new LineShape({
+        ...selectedTemplate,
+        drawingEnvironment: app.upperDrawingEnvironment,
+      });
+    } else {
+      this.shapeToCreate = new RegularShape({
+        ...selectedTemplate,
+        drawingEnvironment: app.upperDrawingEnvironment,
+      });
+    }
     let shapeSize = app.settings.shapesSize;
 
     this.shapeToCreate.size = shapeSize;
@@ -141,11 +150,20 @@ export class CreateTool extends Tool {
       .getFamily(app.tool.selectedFamily)
       .getTemplate(app.tool.selectedTemplate);
 
-    let shape = new Shape({
-      ...selectedTemplate,
-      size: shapeSize,
-      drawingEnvironment: app.mainDrawingEnvironment,
-    });
+    let shape;
+    if (selectedTemplate.name.startsWith('Segment')) {
+       shape = new LineShape({
+        ...selectedTemplate,
+        size: shapeSize,
+        drawingEnvironment: app.mainDrawingEnvironment,
+      });
+    } else {
+      shape = new RegularShape({
+        ...selectedTemplate,
+        size: shapeSize,
+        drawingEnvironment: app.mainDrawingEnvironment,
+      });
+    }
     shape.scale(shapeSize);
     shape.translate(shapeCoordinates);
 

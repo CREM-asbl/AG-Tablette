@@ -9,6 +9,8 @@ import { Point } from '../Core/Objects/Point';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -122,24 +124,24 @@ export class CreateTriangleTool extends Tool {
         vertexIds: [this.points[2].id, this.points[0].id],
       });
       this.segments.push(seg);
-      let shape = new Shape({
+      let shape = new RegularShape({
         drawingEnvironment: app.upperDrawingEnvironment,
         segmentIds: this.segments.map((seg) => seg.id),
         pointIds: this.points.map((pt) => pt.id),
-        borderColor: app.settings.temporaryDrawColor,
-        opacity: 0,
+        strokeColor: app.settings.temporaryDrawColor,
+        fillOpacity: 0,
       });
       this.segments.forEach((seg, idx) => {
         seg.idx = idx;
         seg.shapeId = shape.id;
       });
     } else if (this.numberOfPointsDrawn > 1) {
-      new Shape({
+      new RegularShape({
         drawingEnvironment: app.upperDrawingEnvironment,
         segmentIds: [this.segments[0].id],
         pointIds: this.segments[0].vertexIds,
-        borderColor: app.settings.temporaryDrawColor,
-        opacity: 0,
+        strokeColor: app.settings.temporaryDrawColor,
+        fillOpacity: 0,
       });
     }
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
@@ -219,29 +221,30 @@ export class CreateTriangleTool extends Tool {
     path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');
 
-    let shape = new Shape({
+    let shape = new RegularShape({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: path,
       name: app.tool.selectedTriangle,
       familyName: familyName,
-      opacity: 0,
+      fillOpacity: 0,
+      geometryObject: new GeometryObject({}),
     });
 
     let ref;
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
-      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-        ref.shape.hasGeometryReferenced.push(shape.id);
+      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
-      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-        ref.shape.hasGeometryReferenced.push(shape.id);
+      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[1].reference = ref.id;
     }
     if (shape.name == 'IrregularTriangle') {
       if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[2].id).find(pt => pt.coordinates.equal(shape.vertexes[2].coordinates))) {
-        if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-          ref.shape.hasGeometryReferenced.push(shape.id);
+        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.vertexes[2].reference = ref.id;
       }
     }

@@ -2,7 +2,7 @@ import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
 import { GridManager } from '../../Grid/GridManager';
 import { Coordinates } from '../Objects/Coordinates';
-import { getAllChildren } from '../../GeometryTools/general';
+import { getAllChildrenInGeometry } from '../../GeometryTools/general';
 
 function reduceAngle(angle) {
   while (angle < -Math.PI) angle += 2 * Math.PI;
@@ -123,7 +123,7 @@ export function getShapeAdjustment(shapes, mainShape) {
 
   let shapesAndAllChildren = [...shapes];
   if (app.environment.name == 'Geometrie') {
-    getAllChildren(mainShape, shapesAndAllChildren);
+    shapes.forEach(s => getAllChildrenInGeometry(s, shapesAndAllChildren));
   }
 
   //Générer la liste des points du groupe de figures

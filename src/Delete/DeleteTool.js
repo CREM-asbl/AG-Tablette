@@ -4,6 +4,7 @@ import { html } from 'lit';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
+import { NewShape } from '../Core/Objects/Shapes/NewShape';
 
 /**
  * Supprimer une figure (et supprime le groupe dont la figure faisait partie s'il
@@ -65,7 +66,7 @@ export class DeleteTool extends Tool {
    * @param  {Object} object            La figure ou le point sélectionné
    */
   objectSelected(object) {
-    if (object instanceof Shape) {
+    if (object instanceof NewShape) {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
       this.userGroup = GroupManager.getShapeGroup(object);
@@ -90,7 +91,7 @@ export class DeleteTool extends Tool {
       this.involvedShapes.forEach((s) => {
         // if (userGroup) userGroup.deleteShape(s.id);
         app.mainDrawingEnvironment.shapes.forEach(s2 => {
-          s2.hasGeometryReferenced = s2.hasGeometryReferenced.filter(id => id != s.id);
+          s2.geometryObject.geometryChildShapeIds = s2.geometryObject.geometryChildShapeIds.filter(id => id != s.id);
         });
         this.deleteChildren(s);
         app.mainDrawingEnvironment.removeObjectById(s.id, 'shape');

@@ -1,19 +1,16 @@
-import { app } from '../App';
-import { getComplementaryColor, uniqId, mod } from '../Tools/general';
-import { Point } from './Point';
-import { Segment } from './Segment';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { isAngleBetweenTwoAngles } from '../Tools/geometry';
-import { Bounds } from './Bounds';
-import { Coordinates } from './Coordinates';
-import { RegularShape } from './Shapes/RegularShape';
+import { app } from '../../App';
+import { getComplementaryColor, uniqId, mod } from '../../Tools/general';
+import { Point } from './../Point';
+import { Segment } from './../Segment';
+import { Bounds } from '../Bounds';
+import { Coordinates } from '../Coordinates';
+import { RegularShape } from './RegularShape';
 
 /**
  * Représente une figure
  */
-export class Shape {
+export class NewShape {
   /**
-   * Constructeur
    * @param {String}                      id
    * @param {DrawingEnvironment}          drawingEnvironment
    * @param {String}                      path
@@ -36,37 +33,29 @@ export class Shape {
   constructor({
     id = uniqId(),
     drawingEnvironment,
-    isPointed = true,
+
     path = undefined,
     segmentIds = [],
     pointIds = [],
+    divisionPointInfos = [],
+
     name = 'Custom',
     familyName = 'Custom',
-    color = '#aaa',
-    opacity = 0.7,
+
+    strokeColor = '#000',
+    strokeWidth = 1,
+
+    isPointed = true,
     size = 2,
-    borderColor = '#000',
-    borderSize = 1,
     _isCenterShown = undefined,
     isReversed = false,
     isBiface = false,
-    referenceId = null,
-    referenceId2 = null,
-    hasGeometryReferenced = [],
-    divisionPointInfos = [],
-    constructionSpec = {},
-    geometryTransformationChildShapeIds = [],
-    geometryTransformationParentShapeId = null,
-    geometryTransformationCharacteristicElementIds = [],
-    geometryTransformationName = null,
-    // geometryTransformationRotationAngle = null,
-    geometryVisible = true,
+
+    geometryObject = null,
   }) {
-    new RegularShape({drawingEnvironment});
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
     this.drawingEnvironment.shapes.push(this);
-    this.isPointed = isPointed;
 
     if (path) {
       this.setSegmentsFromPath(path);
@@ -93,26 +82,21 @@ export class Shape {
 
     this.name = name;
     this.familyName = familyName;
-    this.color = color;
-    this.opacity = parseFloat(opacity);
+
+    this.strokeColor = strokeColor;
+    this.strokeWidth = strokeWidth;
+
+    this.isPointed = isPointed;
     this.size = parseInt(size);
-    this.borderColor = borderColor;
-    this.borderSize = borderSize;
     this._isCenterShown = false;
     if (_isCenterShown === undefined) this.isCenterShown = this.isCircle();
     else this.isCenterShown = _isCenterShown;
     this.isReversed = isReversed;
     this.isBiface = isBiface;
-    this.geometryObject.geometryChildShapeIds = [...geometryObject.geometryChildShapeIds];
-    this.constructionSpec = constructionSpec;
-    this.referenceId = referenceId;
-    this.referenceId2 = referenceId2;
-    this.geometryTransformationChildShapeIds = [...geometryTransformationChildShapeIds];
-    this.geometryTransformationParentShapeId = geometryTransformationParentShapeId;
-    this.geometryTransformationCharacteristicElementIds = [...geometryTransformationCharacteristicElementIds];
-    this.geometryTransformationName = geometryTransformationName;
-    // this.geometryTransformationRotationAngle = geometryTransformationRotationAngle;
-    this.geometryVisible = geometryVisible;
+
+    if (geometryObject) {
+      this.geometryObject = geometryObject;
+    }
   }
 
   /* #################################################################### */
@@ -149,21 +133,6 @@ export class Shape {
   get center() {
     let center = this.points.filter((pt) => pt.type === 'shapeCenter')[0];
     return center;
-  }
-
-  get modifiablePoints() {
-    let points = this.vertexes;
-    if (this.name == 'Circle') {
-      points.push(this.segments[0].arcCenter);
-    } else if (this.name == 'CircleArc') {
-      points.push(this.segments[0].arcCenter);
-    } else if (
-      this.name == 'ParalleleStraightLine' ||
-      this.name == 'PerpendicularStraightLine'
-    ) {
-      points.pop();
-    }
-    return points;
   }
 
   get centerCoordinates() {
@@ -454,71 +423,32 @@ export class Shape {
     return arcCenter;
   }
 
-  static getReference(pt1, pt2) {
-    console.trace();
-    let segment = new Segment(pt1, pt2),
-      reference;
-
-    app.workspace.shapes.some((s) => {
-      return s.segments.some((seg) => {
-        if (seg.equal(segment)) {
-          reference = seg;
-          return true;
-        }
-      });
-    });
-    return reference;
-  }
-
   /* #################################################################### */
   /* ################################ IS ################################ */
   /* #################################################################### */
 
-  /**
-   * Renvoie true si la figure est un cercle, c'est-à-dire si buildSteps
-   * commence par un moveTo puis est uniquement composé de segments de
-   * type arc.
-   * @return {Boolean} true si cercle, false sinon.
-   */
   isCircle() {
-    return (
-      this.segments.length == 1 &&
-      this.segments[0].isArc() &&
-      this.segments[0].vertexes[0].coordinates.equal(
-        this.segments[0].vertexes[1].coordinates,
-      ) &&
-      this.name != 'CircleArc'
-    );
+    return false;
   }
 
-  /**
-   * say if the shape is a Segment (either a real segment or an arc)
-   */
   isSegment() {
-    return this.segments.length == 1 && !this.isCircle();
+    return false;
   }
 
-  /**
-   * say if the shape is a circle arc
-   */
   isCircleArc() {
-    return (
-      this.segments.length == 1 &&
-      this.segments[0].arcCenter &&
-      this.name == 'CircleArc'
-    );
+    return false;
   }
 
   isStraightLine() {
-    return this.segments.length == 1 && this.segments[0].isInfinite;
+    return false;
   }
 
   isSemiStraightLine() {
-    return this.segments.length == 1 && this.segments[0].isSemiInfinite;
+    return false;
   }
 
   isPoint() {
-    return this.segments.length == 0 && this.points.length == 1;
+    return false;
   }
 
   contains(object) {
@@ -544,40 +474,16 @@ export class Shape {
     }
   }
 
-  /**
-   * Vérifie si un point se trouve sur un bord de la figure.
-   * @param  {Coordinates}  coordinates
-   */
   isCoordinatesOnBorder(coordinates) {
     return this.segments.some((seg) => seg.isCoordinatesOnSegment(coordinates));
   }
 
-  /**
-   * Vérifie si une coordonnée est à l'intérieur de la figure ou non
-   * @param  {Coordinates}  coord  les coordonnées
-   */
-  isCoordinatesInPath(coord) {
-    const ctx = app.invisibleDrawingEnvironment.ctx;
-    let canvasCoord = coord.toCanvasCoordinates();
-    const selected = ctx.isPointInPath(
-      new Path2D(this.getSVGPath()),
-      canvasCoord.x,
-      canvasCoord.y,
-    );
-    return selected;
+  isCoordinatesInPath(coordinates) {
+    return false;
   }
 
   isSegmentInside(segment) {
-    return (
-      this.isCoordinatesInPath(segment.vertexes[0]) &&
-      this.isCoordinatesInPath(segment.vertexes[1]) &&
-      (!(
-        this.isCoordinatesOnBorder(segment.vertexes[0]) &&
-        this.isCoordinatesOnBorder(segment.vertexes[1])
-      ) ||
-        (this.isCoordinatesInPath(segment.middle) &&
-          !this.isCoordinatesOnBorder(segment.middle)))
-    );
+    return false;
   }
 
   /* #################################################################### */
@@ -591,18 +497,10 @@ export class Shape {
    *    considéré vrai si deux segments sont confondu mais n'ont qu'un point commun ! => peut-etre probleme dans environnement libre
    */
   overlapsWith(shape) {
-    let s1 = this,
-      s2 = shape,
-      s1_segments = s1.segments,
-      s2_segments = s2.segments;
-
-    // s1 in s2 ? if a point of s1 is in s2
     if (this.isThisInsideAnotherShape(shape)) return true;
-    // s2 in s1 ? if a point of s2 is in s1
     if (shape.isThisInsideAnotherShape(this)) return true;
 
-    // check if intersect segments
-    if (this.doesThisIntersectAnotherShape(s1_segments, s2_segments))
+    if (this.doesIntersectAnotherShape(this.segments, shape.segments))
       return true;
 
     return false;
@@ -634,7 +532,7 @@ export class Shape {
     return false;
   }
 
-  doesThisIntersectAnotherShape(s1_segments, s2_segments) {
+  doesIntersectAnotherShape(s1_segments, s2_segments) {
     if (
       s1_segments.some((s1_segment) =>
         s2_segments.some((s2_segment) =>
@@ -667,7 +565,9 @@ export class Shape {
    * @param {Boolean} negativeTranslation true if the coordinates must be reversed
    */
   translate(coordinates, negativeTranslation = false) {
-    this.points.forEach((pt) => pt.translate(coordinates, negativeTranslation));
+    if (negativeTranslation)
+      coordinates = coordinates.multiply(-1);
+    this.points.forEach((pt) => pt.translate(coordinates));
   }
 
   /**
@@ -696,31 +596,27 @@ export class Shape {
     );
   }
 
+  recomputeSegmentPoints() {
+    this.segments.forEach((seg) => {
+      seg.points.forEach((pt) => pt.recomputeSegmentPoint());
+    });
+  }
+
   /* #################################################################### */
   /* ############################## OTHER ############################### */
   /* #################################################################### */
 
   /**
-   * Renvoie une copie d'une figure
-   * @param  {Boolean} full si copie de l'id aussi
-   * @return {Shape} la copie
-   */
-  copy(full = false) {
-    return new Shape({ ...this, id: full ? this.id : undefined });
-  }
-
-  /**
    * convertit la shape en commande de path svg
    */
   getSVGPath(scaling = 'scale', infiniteCheck = true) {
-    let path = '';
-    if (this.isPoint()) {
-      path = `M ${this.points[0].coordinates.x} ${this.points[0].coordinates.y}`
-    } else {
-      path = this.segments
+    // if (this.isPoint()) {
+    //   path = `M ${this.points[0].coordinates.x} ${this.points[0].coordinates.y}`
+    // } else {
+    let path = this.segments
         .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
         .join('\n');
-    }
+    // }
     return path;
   }
 
@@ -732,11 +628,11 @@ export class Shape {
 
     let attributes = {
       d: path,
-      stroke: this.borderColor,
-      fill: this.color,
-      'fill-opacity': this.opacity,
-      'stroke-width': 1, // toujours à 1 ?
+      fill: this.fillColor,
+      'fill-opacity': this.fillOpacity,
+      stroke: this.strokeColor,
       'stroke-opacity': 1, // toujours à 1 ?
+      'stroke-width': this.strokeWidth,
     };
 
     let path_tag = '<path';
@@ -810,30 +706,25 @@ export class Shape {
   saveData() {
     let data = {
       id: this.id,
+      position: this.drawingEnvironment?.name,
+      type: 'newShape',
+
+      path: this.getSVGPath(false),
       segmentIds: [...this.segmentIds],
       pointIds: [...this.pointIds],
-      position: this.drawingEnvironment?.name,
+
       name: this.name,
       familyName: this.familyName,
       color: this.color,
-      opacity: this.opacity,
-      path: this.getSVGPath(false),
+
+      strokeColor: this.strokeColor,
+      strokeWidth: this.strokeWidth,
+
+      isPointed: this.isPointed,
       size: this.size,
-      borderColor: this.borderColor,
-      borderSize: this.borderSize,
       _isCenterShown: this.isCenterShown,
       isReversed: this.isReversed,
       isBiface: this.isBiface,
-      referenceId: this.referenceId,
-      referenceId2: this.referenceId2,
-      referenceSegmentIdx: this.referenceSegmentIdx,
-      hasGeometryReferenced: [...this.geometryObject.geometryChildShapeIds],
-      constructionSpec: this.constructionSpec,
-      geometryTransformationChildShapeIds: [...this.geometryTransformationChildShapeIds],
-      geometryTransformationParentShapeId: this.geometryTransformationParentShapeId,
-      geometryTransformationCharacteristicElementIds: [...this.geometryTransformationCharacteristicElementIds],
-      geometryTransformationName: this.geometryTransformationName,
-      geometryVisible: this.geometryVisible,
     };
     return data;
   }
@@ -842,11 +733,15 @@ export class Shape {
     if (!data.position) {
       data.position = 'main';
     }
-    let shape = new Shape({
-      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
-    });
-    Object.assign(shape, data);
-    shape.segmentIds = [...data.segmentIds];
-    shape.pointIds = [...data.pointIds];
+    if (data.type == 'newShape') {
+      let shape = new NewShape({
+        drawingEnvironment: app[data.position + 'DrawingEnvironment'],
+      });
+      Object.assign(shape, data);
+      shape.segmentIds = [...data.segmentIds];
+      shape.pointIds = [...data.pointIds];
+    } else if (data.type == 'RegularShape') {
+      RegularShape.loadFromData(data);
+    }
   }
 }

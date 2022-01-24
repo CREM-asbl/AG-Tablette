@@ -115,7 +115,7 @@ export class CopyTool extends Tool {
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
     this.drawingShapes = this.involvedShapes.map((s) => {
-      let newShape = new Shape({
+      let newShape = new s.constructor({
         ...s,
         drawingEnvironment: app.upperDrawingEnvironment,
         path: s.getSVGPath('no scale'),
@@ -170,7 +170,7 @@ export class CopyTool extends Tool {
     //   .map(s => s.id);
 
     this.involvedShapes.forEach((s) => {
-      let newShape = new Shape({
+      let newShape = new s.constructor({
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,
         path: s.getSVGPath('no scale'),

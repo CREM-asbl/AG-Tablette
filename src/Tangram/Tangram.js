@@ -1,6 +1,7 @@
 import { uniqId } from '../Core/Tools/general';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { Shape } from '../Core/Objects/Shape';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 
 export class Tangram {
   /**
@@ -33,7 +34,7 @@ export class Tangram {
     this.id = data.id;
     this.name = data.name;
     if (data.shapes) {
-      this.shapes = data.shapes.map((sData) => new Shape(sData));
+      this.shapes = data.shapes.map((sData) => new RegularShape(sData));
     }
     if (data.silhouette) {
       this.silhouette = new Silhouette();

@@ -9,6 +9,7 @@ import { Point } from '../Core/Objects/Point';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -125,7 +126,7 @@ export class CreateCircleTool extends Tool {
             arcCenterId: this.points[0].id,
           });
           this.segments.push(seg);
-          new Shape({
+          new RegularShape({
             drawingEnvironment: app.upperDrawingEnvironment,
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
@@ -138,7 +139,7 @@ export class CreateCircleTool extends Tool {
             vertexIds: [this.points[0].id, this.points[1].id],
           });
           this.segments.push(seg);
-          new Shape({
+          new RegularShape({
             drawingEnvironment: app.upperDrawingEnvironment,
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
@@ -171,7 +172,7 @@ export class CreateCircleTool extends Tool {
           });
           this.segments.push(seg);
         }
-        new Shape({
+        new RegularShape({
           drawingEnvironment: app.upperDrawingEnvironment,
           segmentIds: this.segments.map((seg) => seg.id),
           pointIds: this.points.map((pt) => pt.id),
@@ -352,13 +353,13 @@ export class CreateCircleTool extends Tool {
       segments.push(seg);
     }
 
-    let shape = new Shape({
+    let shape = new RegularShape({
       drawingEnvironment: app.mainDrawingEnvironment,
       segmentIds: segments.map(seg => seg.id),
       pointIds: points.map(pt => pt.id),
       name: app.tool.selectedCircle,
       familyName: 'circle-shape',
-      opacity: 0,
+      fillOpacity: 0,
     });
 
     segments.forEach((seg, idx) => {
@@ -372,13 +373,13 @@ export class CreateCircleTool extends Tool {
 
     let ref;
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
-      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-        ref.shape.hasGeometryReferenced.push(shape.id);
+      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.center.id).find(pt => pt.coordinates.equal(shape.center.coordinates))) {
-      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-        ref.shape.hasGeometryReferenced.push(shape.id);
+      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.center.reference = ref.id;
     }
 

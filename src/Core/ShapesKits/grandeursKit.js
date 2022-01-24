@@ -2,7 +2,7 @@ export const grandeursKit = {
   name: 'Figures standard',
   families: {
     'Famille du triangle équilatéral': {
-      color: '#ffff00',
+      fillColor: '#ffff00',
       shapeTemplates: [
         {
           name: 'Triangle équilatéral',
@@ -97,7 +97,7 @@ export const grandeursKit = {
     },
 
     'Famille du carré': {
-      color: '#ff0000',
+      fillColor: '#ff0000',
       shapeTemplates: [
         {
           name: 'Carré',
@@ -158,7 +158,7 @@ export const grandeursKit = {
     },
 
     'Famille du pentagone régulier': {
-      color: '#00D084',
+      fillColor: '#00D084',
       shapeTemplates: [
         {
           name: 'Pentagone régulier',
@@ -202,19 +202,19 @@ export const grandeursKit = {
       Les cercles doivent également être dessinés dans le sens trigonométrique.
       */
     'Disques et segments': {
-      color: '#CCC',
+      fillColor: '#CCC',
       shapeTemplates: [
         {
           //Circonscrit à l'hexagone -> rayon = 50.
           name: 'Disque 1',
-          color: '#FF0',
+          fillColor: '#FF0',
           path: 'M 50 0 A 50 50 0 1 0 -50 0 A 50 50 0 1 0 50 0',
         },
 
         {
           //Circonscrit au pentagone -> rayon = 42.53254041760199.
           name: 'Disque 2',
-          color: '#00D084',
+          fillColor: '#00D084',
           path:
             'M 42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 -42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 42.53254041760199 0',
         },
@@ -222,7 +222,7 @@ export const grandeursKit = {
         {
           //Circonscrit au carré -> rayon = 35.35533905932738.
           name: 'Disque 3',
-          color: '#ff0000',
+          fillColor: '#ff0000',
           path:
             'M 35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 -35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 35.35533905932738 0',
         },
@@ -230,26 +230,26 @@ export const grandeursKit = {
         {
           //Circonscrit au triangle équilatéral -> rayon = 28.86751345948129.
           name: 'Disque 4',
-          color: '#FF0',
+          fillColor: '#FF0',
           path:
             'M 28.86751345948129 0 A 28.86751345948129 28.86751345948129 0 1 0 -28.86751345948129 0 A 28.86751345948129 28.86751345948129 0 1 0 28.86751345948129 0',
         },
 
         {
           name: 'Segment 1',
-          color: '#0F0',
+          fillColor: '#0F0',
           path: 'L 50 0',
         },
 
         {
           name: 'Segment 2',
-          color: '#0F0',
+          fillColor: '#0F0',
           path: 'L 50 50',
         },
 
         {
           name: 'Segment 3',
-          color: '#0F0',
+          fillColor: '#0F0',
           path: 'L 0 -43.3012701892',
         },
       ],

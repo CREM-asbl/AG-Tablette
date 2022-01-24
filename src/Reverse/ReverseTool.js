@@ -6,6 +6,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
 
 /**
  * Retourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -89,7 +90,7 @@ export class ReverseTool extends Tool {
     let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
     this.drawingShapes = involvedShapes.map(
       (s) =>
-        new Shape({
+        new s.constructor({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: s.getSVGPath('no scale'),
@@ -283,10 +284,10 @@ export class ReverseTool extends Tool {
     } else {
       console.error('orientation not supported : ', orientation);
     }
-    let axis = new Shape({
+    let axis = new LineShape({
       drawingEnvironment: app.upperDrawingEnvironment,
       path: path,
-      borderColor: this.symmetricalAxeColor,
+      strokeColor: this.symmetricalAxeColor,
       isPointed: false,
     });
     return axis;

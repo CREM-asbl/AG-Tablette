@@ -109,13 +109,13 @@ export class MergeTool extends Tool {
       } else {
         this.firstShapeId = shape.id;
         app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
-        this.drawingShapes = new Shape({
+        this.drawingShapes = new shape.constructor({
           ...shape,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: shape.getSVGPath('no scale'),
           id: undefined,
-          borderColor: '#E90CC8',
-          borderSize: 3,
+          strokeColor: '#E90CC8',
+          strokeWidth: 3,
         });
         setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
@@ -552,15 +552,15 @@ export class MergeTool extends Tool {
    * @param {Shape} shapes            les figures a fusionner
    */
   createNewShape(path, ...shapes) {
-    let newShape = new Shape({
+    let newShape = new shapes[0].constructor({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: path,
       name: 'Custom',
       familyName: 'Custom',
-      color: getAverageColor(...shapes.map((s) => s.color)),
-      borderColor: getAverageColor(...shapes.map((s) => s.borderColor)),
-      opacity:
-        shapes.map((s) => s.opacity).reduce((acc, value) => acc + value) /
+      fillColor: getAverageColor(...shapes.map((s) => s.fillColor)),
+      strokeColor: getAverageColor(...shapes.map((s) => s.strokeColor)),
+      fillOpacity:
+        shapes.map((s) => s.fillOpacity).reduce((acc, value) => acc + value) /
         shapes.length,
       isBiface: shapes.some((s) => s.isBiface),
       // isReversed: shapes.some((s) => s.isReversed),

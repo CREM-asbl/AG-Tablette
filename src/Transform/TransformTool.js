@@ -11,7 +11,8 @@ import {
     computeConstructionSpec,
     projectionOnConstraints
 } from '../GeometryTools/recomputeShape';
-import { getAllInvolvedShapes } from '../GeometryTools/general';
+import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -126,11 +127,11 @@ export class TransformTool extends Tool {
     this.pointSelectedId = point.id;
 
     let involvedShapes = [point.shape];
-    getAllInvolvedShapes(point.shape, involvedShapes);
+    getAllLinkedShapesInGeometry(point.shape, involvedShapes);
 
     this.drawingShapes = involvedShapes.map(
       (s) => {
-        let newShape = new Shape({
+        let newShape = new s.constructor({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: s.getSVGPath('no scale', false, false),
@@ -325,11 +326,11 @@ export class TransformTool extends Tool {
     if (point.transformConstraints.isConstrained) {
       point.transformConstraints.lines.forEach(ln => {
         let segment = ln.segment;
-        let shape = new Shape({
+        let shape = new LineShape({
           drawingEnvironment: app.upperDrawingEnvironment,
           path: segment.getSVGPath('no scale', true),
-          borderColor: app.settings.constraintsDrawColor,
-          opacity: 0,
+          strokeColor: app.settings.constraintsDrawColor,
+          fillOpacity: 0,
         });
         if (ln.isInfinite)
           shape.segments[0].isInfinite = true;

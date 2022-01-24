@@ -8,6 +8,8 @@ import { uniqId, createElem } from '../Core/Tools/general';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -180,13 +182,13 @@ export class CreateRegularTool extends Tool {
       if (this.shapeDrawnId)
         app.upperDrawingEnvironment.removeObjectById(this.shapeDrawnId);
 
-      this.shapeDrawnId = new Shape({
+      let shape = new RegularShape({
         path: path,
         drawingEnvironment: app.upperDrawingEnvironment,
-        borderColor: app.settings.temporaryDrawColor,
-        opacity: 0,
-      }).id;
-      let shape = app.upperDrawingEnvironment.findObjectById(this.shapeDrawnId);
+        strokeColor: app.settings.temporaryDrawColor,
+        fillOpacity: 0,
+      });
+      this.shapeDrawnId = shape.id;
       shape.vertexes.forEach(vx => {
         vx.color = app.settings.temporaryDrawColor;
         vx.size = 2;
@@ -233,18 +235,16 @@ export class CreateRegularTool extends Tool {
   }
 
   _executeAction() {
-    // const shapeSize = 1;
-
     let shapeDrawn = app.upperDrawingEnvironment.findObjectById(this.shapeDrawnId);
 
-    let shape = new Shape({
+    let shape = new RegularShape({
       ...shapeDrawn,
+      drawingEnvironment: app.mainDrawingEnvironment,
       path: shapeDrawn.getSVGPath('no-scale'),
       familyName: 'Regular',
-      borderColor: '#000000',
-      // size: shapeSize,
-      drawingEnvironment: app.mainDrawingEnvironment,
-      opacity: 0,
+      strokeColor: '#000000',
+      fillOpacity: 0,
+      geometryObject: new GeometryObject({}),
     });
 
     let transformation = getShapeAdjustment([shape], shape);
@@ -252,13 +252,13 @@ export class CreateRegularTool extends Tool {
     shape.translate(transformation.translation);
     let ref;
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
-      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-        ref.shape.hasGeometryReferenced.push(shape.id);
+      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
     if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
-      if (ref.shape.hasGeometryReferenced.indexOf(shape.id) === -1)
-        ref.shape.hasGeometryReferenced.push(shape.id);
+      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[1].reference = ref.id;
     }
     app.upperDrawingEnvironment.removeAllObjects();

@@ -530,19 +530,19 @@ export class CutTool extends Tool {
     firstPath = firstPath.join(' ');
     secondPath = secondPath.join(' ');
 
-    let shape1 = new Shape({
+    let shape1 = new shape.constructor({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: firstPath,
-      color: shape.color,
-      borderColor: shape.borderColor,
-      opacity: shape.opacity,
+      fillColor: shape.fillColor,
+      fillOpacity: shape.fillOpacity,
+      strokeColor: shape.strokeColor,
     });
-    let shape2 = new Shape({
+    let shape2 = new shape.constructor({
       drawingEnvironment: app.mainDrawingEnvironment,
       path: secondPath,
-      color: shape.color,
-      borderColor: shape.borderColor,
-      opacity: shape.opacity,
+      fillColor: shape.fillColor,
+      fillOpacity: shape.fillOpacity,
+      strokeColor: shape.strokeColor,
     });
 
     shape1.cleanSameDirectionSegment();

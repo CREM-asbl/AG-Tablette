@@ -9,6 +9,7 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { Silhouette } from '../Core/Objects/Silhouette';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 
 /**
  * Créer un tangram
@@ -193,13 +194,13 @@ export class SolutionCheckerTool extends Tool {
     let shapes = [];
 
     paths.forEach((path) => {
-      let shape = new Shape({
+      let shape = new RegularShape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: path,
         color: '#000',
-        opacity: 0,
-        borderColor: '#00D084',
-        borderSize: 2,
+        fillOpacity: 0,
+        strokeColor: '#00D084',
+        strokeSize: 2,
         isPointed: false,
         name: 'tangramChecker',
       });

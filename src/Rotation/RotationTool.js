@@ -8,6 +8,7 @@ import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 
 /**
  */
@@ -184,7 +185,7 @@ export class RotationTool extends Tool {
       this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
       this.drawingShapes = this.involvedShapes.map(
         (s) =>
-          new Shape({
+          new s.constructor({
             ...s,
             drawingEnvironment: app.upperDrawingEnvironment,
             path: s.getSVGPath('no scale'),
@@ -289,22 +290,23 @@ export class RotationTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.forEach(s => {
-      let newShape = new Shape({
+      let newShape = new s.constructor({
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,
         id: undefined,
         path: s.getSVGPath('no scale'),
-        geometryTransformationCharacteristicElementIds: this.realReferences.map(ref => ref.id),
-        geometryTransformationParentShapeId: s.id,
-        geometryTransformationChildShapeIds: [],
-        geometryTransformationName: 'rotation',
-        // geometryTransformationRotationAngle: this.angle,
+        geometryObject: new GeometryObject({
+          geometryTransformationChildShapeIds: [],
+          geometryTransformationParentShapeId: s.id,
+          geometryTransformationCharacteristicElementIds: this.realReferences.map(ref => ref.id),
+          geometryTransformationName: 'rotation',
+        }),
       });
-      s.geometryTransformationChildShapeIds.push(newShape.id);
-      newShape.geometryTransformationCharacteristicElementIds.map(refId => {
+      s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+      newShape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId => {
         let ref = app.mainDrawingEnvironment.findObjectById(refId, 'point');
-        if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
-          ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+        if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+          ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
       });
       newShape.rotate(this.angle, this.references[0].coordinates);

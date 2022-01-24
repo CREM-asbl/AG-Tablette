@@ -6,6 +6,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -139,14 +140,12 @@ export class DivideTool extends Tool {
       if (object instanceof Segment) {
         this.segmentId = object.id;
 
-        new Shape({
+        new LineShape({
           drawingEnvironment: app.upperDrawingEnvironment,
-          borderColor: this.drawColor,
-          borderSize: 3,
+          strokeColor: this.drawColor,
+          strokeWidth: 3,
           path: object.getSVGPath('no scale', true),
           id: undefined,
-          color: '#000',
-          opacity: 0,
         });
 
         this.mode = 'segment';
@@ -298,14 +297,12 @@ export class DivideTool extends Tool {
         this.mode = 'twoPoints';
         this.pointsToDivide = pointsToDivide;
 
-        new Shape({
+        new LineShape({
           drawingEnvironment: app.upperDrawingEnvironment,
-          borderColor: this.drawColor,
-          borderSize: 3,
+          strokeColor: this.drawColor,
+          strokeWidth: 3,
           path: path,
           id: undefined,
-          color: '#000',
-          opacity: 0,
         });
         setState({ tool: { ...app.tool, currentStep: 'divide' } });
       }

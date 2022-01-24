@@ -6,6 +6,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 
 /**
  */
@@ -73,7 +74,7 @@ export class CentralSymetryTool extends Tool {
       this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
       this.drawingShapes = this.involvedShapes.map(
         (s) =>
-        new Shape({
+        new s.constructor({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: s.getSVGPath('no scale'),
@@ -132,20 +133,22 @@ export class CentralSymetryTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.forEach(s => {
-      let newShape = new Shape({
+      let newShape = new s.constructor({
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,
         id: undefined,
         path: s.getSVGPath('no scale'),
-        geometryTransformationCharacteristicElementIds: [this.reference.id],
-        geometryTransformationParentShapeId: s.id,
-        geometryTransformationChildShapeIds: [],
-        geometryTransformationName: 'centralSymetry',
+        geometryObject: new GeometryObject({
+          geometryTransformationChildShapeIds: [],
+          geometryTransformationParentShapeId: s.id,
+          geometryTransformationCharacteristicElementIds: [this.reference.id],
+          geometryTransformationName: 'centralSymetry',
+        }),
       });
-      s.geometryTransformationChildShapeIds.push(newShape.id);
-      let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryTransformationCharacteristicElementIds[0], 'point');
-      if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
-        ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+      s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+      let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
+      if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+        ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       }
       newShape.rotate(Math.PI, this.reference.coordinates);
     });

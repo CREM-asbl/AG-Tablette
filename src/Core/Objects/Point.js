@@ -140,7 +140,7 @@ export class Point {
       constraints = refPoint.transformConstraints;
     } else if (this.type == 'divisionPoint' || this.type == 'shapeCenter') {
       constraints.isConstructed = true;
-    } else if (this.shape.geometryTransformationName != null) {
+    } else if (this.shape.geometryObject.geometryTransformationName != null) {
       constraints.isConstructed = true;
     } else {
       if (this.shape.familyName == 'Regular') {
@@ -343,7 +343,7 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = app.mainDrawingEnvironment.findObjectById(this.shape.referenceId, 'segment');
+          let reference = app.mainDrawingEnvironment.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
           let referenceAngle = reference.getAngleWithHorizontal();
           let constraintLine = {
             segment: new Segment({
@@ -363,7 +363,7 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = app.mainDrawingEnvironment.findObjectById(this.shape.referenceId, 'segment');
+          let reference = app.mainDrawingEnvironment.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
           let referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2;
           let constraintLine = {
             segment: new Segment({

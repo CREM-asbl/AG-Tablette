@@ -72,7 +72,6 @@ export class Workspace {
     }
     this.id = wsdata.id;
 
-    // this.shapes = wsdata.shapes.map(sData => new Shape(sData));
     app.mainDrawingEnvironment.loadFromData(wsdata.objects);
     if (app.environment.name == 'Tangram')
       app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);

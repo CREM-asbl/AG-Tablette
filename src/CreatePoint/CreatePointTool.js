@@ -211,7 +211,7 @@ export class CreatePointTool extends Tool {
 
       shape.points[0].ratio = ratio;
 
-      reference.shape.hasGeometryReferenced.push(shape.id);
+      reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     } else if (app.tool.selectedPoint == 'PointOnShape') {
       if (!this.referenceId) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une figure pour placer le point.' } }));
@@ -225,7 +225,7 @@ export class CreatePointTool extends Tool {
       });
       shape.referenceId = this.referenceId;
       let reference = app.mainDrawingEnvironment.findObjectById(this.referenceId, 'shape');
-      reference.hasGeometryReferenced.push(shape.id);
+      reference.geometryObject.geometryChildShapeIds.push(shape.id);
     } else if (app.tool.selectedPoint == 'PointOnIntersection') {
       let firstSeg = app.mainDrawingEnvironment.findObjectById(this.referenceId1, 'segment');
       let secondSeg = app.mainDrawingEnvironment.findObjectById(this.referenceId2, 'segment');
@@ -242,8 +242,8 @@ export class CreatePointTool extends Tool {
       });
       shape.referenceId = this.referenceId1;
       shape.referenceId2 = this.referenceId2;
-      firstSeg.shape.hasGeometryReferenced.push(shape.id);
-      secondSeg.shape.hasGeometryReferenced.push(shape.id);
+      firstSeg.shape.geometryObject.geometryChildShapeIds.push(shape.id);
+      secondSeg.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }
   }
 }

@@ -5,7 +5,7 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
-import { getAllInvolvedShapes } from '../GeometryTools/general';
+import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
 import { Coordinates } from '../Core/Objects/Coordinates';
 
 /**
@@ -88,7 +88,6 @@ export class MoveTool extends Tool {
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
-    console.log(shape)
     if (shape.geometryTransformationName != null) {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
       return;
@@ -101,7 +100,9 @@ export class MoveTool extends Tool {
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
     this.shapesToCopy = [...this.involvedShapes];
-    this.shapesToCopy.forEach(s => getAllInvolvedShapes(s, this.shapesToCopy));
+    this.shapesToCopy.forEach(s => {
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy)
+    });
 
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
@@ -112,7 +113,7 @@ export class MoveTool extends Tool {
     );
     this.drawingShapes = this.shapesToCopy.map(
       (s) => {
-        let newShape = new Shape({
+        let newShape = new s.constructor({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: s.getSVGPath('no scale', false, false),

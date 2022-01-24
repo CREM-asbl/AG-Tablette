@@ -6,6 +6,8 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
 
 /**
  */
@@ -95,7 +97,7 @@ export class TranslationTool extends Tool {
           x: 20 * Math.cos(angle - 0.35),
           y: 20 * Math.sin(angle - 0.35),
         }));
-        this.referenceShape = new Shape({
+        this.referenceShape = new LineShape({
           drawingEnvironment: app.upperDrawingEnvironment,
           path: `M ${this.firstReference.coordinates.x} ${this.firstReference.coordinates.y} L ${this.secondReference.coordinates.x} ${this.secondReference.coordinates.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} L ${this.secondReference.coordinates.x} ${this.secondReference.coordinates.y}`,
           borderColor: app.settings.referenceDrawColor,
@@ -109,7 +111,7 @@ export class TranslationTool extends Tool {
       this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
       this.drawingShapes = this.involvedShapes.map(
         (s) =>
-          new Shape({
+          new s.constructor({
             ...s,
             drawingEnvironment: app.upperDrawingEnvironment,
             path: s.getSVGPath('no scale'),
@@ -172,39 +174,29 @@ export class TranslationTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.forEach(s => {
-      let newShape = new Shape({
+      let newShape = new s.constructor({
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,
         id: undefined,
         path: s.getSVGPath('no scale'),
-        geometryTransformationCharacteristicElementIds: [this.firstReference.id, this.secondReference.id],
-        geometryTransformationParentShapeId: s.id,
-        geometryTransformationChildShapeIds: [],
-        geometryTransformationName: 'translation',
+        geometryObject: new GeometryObject({
+          geometryTransformationChildShapeIds: [],
+          geometryTransformationParentShapeId: s.id,
+          geometryTransformationCharacteristicElementIds: [this.firstReference.id, this.secondReference.id],
+          geometryTransformationName: 'translation',
+        }),
       });
-      s.geometryTransformationChildShapeIds.push(newShape.id);
-      let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryTransformationCharacteristicElementIds[0], 'point');
-      if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
-        ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+      s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+      let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
+      if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+        ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       }
-      ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryTransformationCharacteristicElementIds[1], 'point');
-      if (!ref.shape.geometryTransformationChildShapeIds.includes(newShape.id)) {
-        ref.shape.geometryTransformationChildShapeIds.push(newShape.id);
+      ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[1], 'point');
+      if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+        ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       }
       newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
     });
-
-    // // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
-    // // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
-    // // involvedShapes.forEach((s) => {
-    // let newShape = new Shape({
-    //   ...this.object,
-    //   drawingEnvironment: app.mainDrawingEnvironment,
-    //   id: undefined,
-    //   path: this.object.getSVGPath('no scale'),
-    // });
-    // newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
-    // // });
   }
 
   setSelectionConstraints() {

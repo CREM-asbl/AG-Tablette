@@ -3,6 +3,7 @@ import { Coordinates } from './Coordinates';
 import { Segment } from './Segment';
 import { Shape } from './Shape';
 import { Point } from './Point';
+import { LineShape } from './Shapes/LineShape';
 
 export class GeometryConstraint {
   /**
@@ -47,11 +48,11 @@ export class GeometryConstraint {
           .concat(['A', radius, radius, 0, 1, 0, ln[1].x, ln[1].y])
           .join(' ');
       }
-      let s = new Shape({
+      let s = new LineShape({
         drawingEnvironment: app.upperDrawingEnvironment,
         path: path,
-        borderColor: app.settings.constraintsDrawColor,
-        opacity: 0,
+        strokeColor: app.settings.constraintsDrawColor,
+        fillOpacity: 0,
       });
       return s.segments[0];
     });

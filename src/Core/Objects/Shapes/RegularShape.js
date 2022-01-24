@@ -1,118 +1,45 @@
-import { app } from '../App';
-import { getComplementaryColor, uniqId, mod } from '../Tools/general';
-import { Point } from './Point';
-import { Segment } from './Segment';
-import { ShapeManager } from '../Managers/ShapeManager';
-import { isAngleBetweenTwoAngles } from '../Tools/geometry';
-import { Bounds } from './Bounds';
-import { Coordinates } from './Coordinates';
-import { RegularShape } from './Shapes/RegularShape';
+import { app } from '../../App';
+import { getComplementaryColor, uniqId, mod } from '../../Tools/general';
+import { Point } from '../Point';
+import { Segment } from '../Segment';
+import { ShapeManager } from '../../Managers/ShapeManager';
+import { isAngleBetweenTwoAngles } from '../../Tools/geometry';
+import { Bounds } from '../Bounds';
+import { Coordinates } from '../Coordinates';
+import { NewShape } from './NewShape';
 
 /**
- * Représente une figure
+ * Représente une figure classique (rectangle, disque, ...)
  */
-export class Shape {
-  /**
-   * Constructeur
-   * @param {String}                      id
-   * @param {DrawingEnvironment}          drawingEnvironment
-   * @param {String}                      path
-   * @param {[String]}                    segmentIds
-   * @param {[String]}                    pointIds
-   * @param {String}                      name
-   * @param {String}                      familyName
-   * @param {String}                      color - '#rrggbb'
-   * @param {Number}                      opacity - between 0 and 1
-   * @param {Number}                      size - 1, 2 or 3
-   * @param {String}                      borderColor - '#rrggbb'
-   * @param {Boolean}                     isCenterShown
-   * @param {Boolean}                     isReversed
-   * @param {Boolean}                     isBiface
-   * @param {*}                           geometryConstructionSpec // à enlever (recalculer si besoin)
-   * @param {*}                           referenceId // temporaire
-   * @param {*}                           referenceSegmentIdx // temporaire
-   * @param {*}                           hasGeometryReferenced // temporaire
-   */
+export class RegularShape extends NewShape {
+
   constructor({
     id = uniqId(),
     drawingEnvironment,
-    isPointed = true,
+
     path = undefined,
     segmentIds = [],
     pointIds = [],
+    divisionPointInfos = [],
+
     name = 'Custom',
     familyName = 'Custom',
-    color = '#aaa',
-    opacity = 0.7,
+
+    strokeColor = '#000',
+    strokeWidth = 1,
+    fillColor = '#aaa',
+    fillOpacity = 0.7,
+
+    isPointed = true,
     size = 2,
-    borderColor = '#000',
-    borderSize = 1,
     _isCenterShown = undefined,
     isReversed = false,
     isBiface = false,
-    referenceId = null,
-    referenceId2 = null,
-    hasGeometryReferenced = [],
-    divisionPointInfos = [],
-    constructionSpec = {},
-    geometryTransformationChildShapeIds = [],
-    geometryTransformationParentShapeId = null,
-    geometryTransformationCharacteristicElementIds = [],
-    geometryTransformationName = null,
-    // geometryTransformationRotationAngle = null,
-    geometryVisible = true,
   }) {
-    new RegularShape({drawingEnvironment});
-    this.id = id;
-    this.drawingEnvironment = drawingEnvironment;
-    this.drawingEnvironment.shapes.push(this);
-    this.isPointed = isPointed;
+    super(arguments[0]);
 
-    if (path) {
-      this.setSegmentsFromPath(path);
-      this.pointIds = [...this.pointIds, ...divisionPointInfos.map((dInfo) => {
-        let segment = this.segments[dInfo.segmentIdx];
-        let newPoint = new Point({
-          drawingEnvironment: this.drawingEnvironment,
-          segmentIds: [segment.id],
-          shapeId: this.id,
-          type: 'divisionPoint',
-          coordinates: dInfo.coordinates,
-          ratio: dInfo.ratio,
-        });
-        segment.divisionPointIds.push(newPoint.id);
-        return newPoint.id;
-      })];
-      if (this.isCircle() && app.environment.name != 'Geometrie') {
-        this.vertexes[0].visible = false;
-      }
-    } else {
-      this.pointIds = [...pointIds];
-      this.segmentIds = [...segmentIds];
-    }
-
-    this.name = name;
-    this.familyName = familyName;
-    this.color = color;
-    this.opacity = parseFloat(opacity);
-    this.size = parseInt(size);
-    this.borderColor = borderColor;
-    this.borderSize = borderSize;
-    this._isCenterShown = false;
-    if (_isCenterShown === undefined) this.isCenterShown = this.isCircle();
-    else this.isCenterShown = _isCenterShown;
-    this.isReversed = isReversed;
-    this.isBiface = isBiface;
-    this.geometryObject.geometryChildShapeIds = [...geometryObject.geometryChildShapeIds];
-    this.constructionSpec = constructionSpec;
-    this.referenceId = referenceId;
-    this.referenceId2 = referenceId2;
-    this.geometryTransformationChildShapeIds = [...geometryTransformationChildShapeIds];
-    this.geometryTransformationParentShapeId = geometryTransformationParentShapeId;
-    this.geometryTransformationCharacteristicElementIds = [...geometryTransformationCharacteristicElementIds];
-    this.geometryTransformationName = geometryTransformationName;
-    // this.geometryTransformationRotationAngle = geometryTransformationRotationAngle;
-    this.geometryVisible = geometryVisible;
+    this.fillColor = fillColor;
+    this.fillOpacity = fillOpacity;
   }
 
   /* #################################################################### */
@@ -149,21 +76,6 @@ export class Shape {
   get center() {
     let center = this.points.filter((pt) => pt.type === 'shapeCenter')[0];
     return center;
-  }
-
-  get modifiablePoints() {
-    let points = this.vertexes;
-    if (this.name == 'Circle') {
-      points.push(this.segments[0].arcCenter);
-    } else if (this.name == 'CircleArc') {
-      points.push(this.segments[0].arcCenter);
-    } else if (
-      this.name == 'ParalleleStraightLine' ||
-      this.name == 'PerpendicularStraightLine'
-    ) {
-      points.pop();
-    }
-    return points;
   }
 
   get centerCoordinates() {
@@ -454,32 +366,21 @@ export class Shape {
     return arcCenter;
   }
 
-  static getReference(pt1, pt2) {
-    console.trace();
-    let segment = new Segment(pt1, pt2),
-      reference;
-
-    app.workspace.shapes.some((s) => {
-      return s.segments.some((seg) => {
-        if (seg.equal(segment)) {
-          reference = seg;
-          return true;
-        }
-      });
-    });
-    return reference;
+  setCtxForDrawing(ctx, scaling) {
+    ctx.strokeStyle = this.strokeColor;
+    ctx.fillStyle = this.fillColor;
+    if (this.isOverlappingAnotherInTangram)
+      ctx.fillStyle = '#F00';
+    ctx.globalAlpha = this.fillOpacity;
+    ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
+    if (scaling == 'no scale')
+      ctx.lineWidth = this.strokeWidth;
   }
 
   /* #################################################################### */
   /* ################################ IS ################################ */
   /* #################################################################### */
 
-  /**
-   * Renvoie true si la figure est un cercle, c'est-à-dire si buildSteps
-   * commence par un moveTo puis est uniquement composé de segments de
-   * type arc.
-   * @return {Boolean} true si cercle, false sinon.
-   */
   isCircle() {
     return (
       this.segments.length == 1 &&
@@ -491,78 +392,13 @@ export class Shape {
     );
   }
 
-  /**
-   * say if the shape is a Segment (either a real segment or an arc)
-   */
-  isSegment() {
-    return this.segments.length == 1 && !this.isCircle();
-  }
-
-  /**
-   * say if the shape is a circle arc
-   */
-  isCircleArc() {
-    return (
-      this.segments.length == 1 &&
-      this.segments[0].arcCenter &&
-      this.name == 'CircleArc'
-    );
-  }
-
-  isStraightLine() {
-    return this.segments.length == 1 && this.segments[0].isInfinite;
-  }
-
-  isSemiStraightLine() {
-    return this.segments.length == 1 && this.segments[0].isSemiInfinite;
-  }
-
-  isPoint() {
-    return this.segments.length == 0 && this.points.length == 1;
-  }
-
-  contains(object) {
-    if (object instanceof Point) {
-      if (
-        this.allOutlinePoints.some((outline_point) =>
-          outline_point.equal(object),
-        )
-      )
-        return true;
-      if (this.isCenterShown && this.center.equal(object)) return true;
-      return false;
-    } else if (object instanceof Segment) {
-      if (this.segments.some((segment) => segment.equal(object))) return true;
-      return false;
-    } else if (object instanceof Coordinates) {
-      if (this.points.some((pt) => pt.coordinates.equal(object))) return true;
-      // if (this.isCenterShown && this.center.equal(object)) return true;
-      return false;
-    } else {
-      console.info('unsupported object');
-      return false;
-    }
-  }
-
-  /**
-   * Vérifie si un point se trouve sur un bord de la figure.
-   * @param  {Coordinates}  coordinates
-   */
-  isCoordinatesOnBorder(coordinates) {
-    return this.segments.some((seg) => seg.isCoordinatesOnSegment(coordinates));
-  }
-
-  /**
-   * Vérifie si une coordonnée est à l'intérieur de la figure ou non
-   * @param  {Coordinates}  coord  les coordonnées
-   */
-  isCoordinatesInPath(coord) {
+  isCoordinatesInPath(coordinates) {
     const ctx = app.invisibleDrawingEnvironment.ctx;
-    let canvasCoord = coord.toCanvasCoordinates();
+    let canvasCoordinates = coordinates.toCanvasCoordinates();
     const selected = ctx.isPointInPath(
       new Path2D(this.getSVGPath()),
-      canvasCoord.x,
-      canvasCoord.y,
+      canvasCoordinates.x,
+      canvasCoordinates.y,
     );
     return selected;
   }
@@ -583,6 +419,14 @@ export class Shape {
   /* #################################################################### */
   /* ############################# OVERLAP ############################## */
   /* #################################################################### */
+
+  /**
+   * check si this est complètement dans shape
+   * @param {Shape} shape l'autre figure
+   */
+  isInside(shape) {
+    return this.allOutlinePoints.every((pt) => shape.isCoordinatesInPath(pt));
+  }
 
   /**
    * Vérifie si cette figure se superpose avec une autre figure.
@@ -657,7 +501,7 @@ export class Shape {
       if (seg.arcCenter) seg.counterclockwise = !seg.counterclockwise;
     });
     if (this.isBiface)
-      this.color = getComplementaryColor(this.color);
+      this.fillColor = getComplementaryColor(this.fillColor);
     this.isReversed = !this.isReversed;
   }
 
@@ -701,26 +545,12 @@ export class Shape {
   /* #################################################################### */
 
   /**
-   * Renvoie une copie d'une figure
-   * @param  {Boolean} full si copie de l'id aussi
-   * @return {Shape} la copie
-   */
-  copy(full = false) {
-    return new Shape({ ...this, id: full ? this.id : undefined });
-  }
-
-  /**
    * convertit la shape en commande de path svg
    */
-  getSVGPath(scaling = 'scale', infiniteCheck = true) {
-    let path = '';
-    if (this.isPoint()) {
-      path = `M ${this.points[0].coordinates.x} ${this.points[0].coordinates.y}`
-    } else {
-      path = this.segments
-        .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
-        .join('\n');
-    }
+  getSVGPath(scaling = 'scale') {
+    let path = this.segments
+      .map((seg) => seg.getSVGPath(scaling, false, false))
+      .join('\n');
     return path;
   }
 
@@ -732,10 +562,10 @@ export class Shape {
 
     let attributes = {
       d: path,
-      stroke: this.borderColor,
-      fill: this.color,
-      'fill-opacity': this.opacity,
-      'stroke-width': 1, // toujours à 1 ?
+      stroke: this.strokeColor,
+      fill: this.fillColor,
+      'fill-opacity': this.fillOpacity,
+      'stroke-width': this.strokeWidth,
       'stroke-opacity': 1, // toujours à 1 ?
     };
 
@@ -808,33 +638,10 @@ export class Shape {
   }
 
   saveData() {
-    let data = {
-      id: this.id,
-      segmentIds: [...this.segmentIds],
-      pointIds: [...this.pointIds],
-      position: this.drawingEnvironment?.name,
-      name: this.name,
-      familyName: this.familyName,
-      color: this.color,
-      opacity: this.opacity,
-      path: this.getSVGPath(false),
-      size: this.size,
-      borderColor: this.borderColor,
-      borderSize: this.borderSize,
-      _isCenterShown: this.isCenterShown,
-      isReversed: this.isReversed,
-      isBiface: this.isBiface,
-      referenceId: this.referenceId,
-      referenceId2: this.referenceId2,
-      referenceSegmentIdx: this.referenceSegmentIdx,
-      hasGeometryReferenced: [...this.geometryObject.geometryChildShapeIds],
-      constructionSpec: this.constructionSpec,
-      geometryTransformationChildShapeIds: [...this.geometryTransformationChildShapeIds],
-      geometryTransformationParentShapeId: this.geometryTransformationParentShapeId,
-      geometryTransformationCharacteristicElementIds: [...this.geometryTransformationCharacteristicElementIds],
-      geometryTransformationName: this.geometryTransformationName,
-      geometryVisible: this.geometryVisible,
-    };
+    let data = super.saveData();
+    data.type = 'RegularShape';
+    data.fillColor = this.fillColor;
+    data.fillOpacity = this.fillOpacity;
     return data;
   }
 
@@ -842,7 +649,7 @@ export class Shape {
     if (!data.position) {
       data.position = 'main';
     }
-    let shape = new Shape({
+    let shape = new RegularShape({
       drawingEnvironment: app[data.position + 'DrawingEnvironment'],
     });
     Object.assign(shape, data);
