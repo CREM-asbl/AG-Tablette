@@ -42,11 +42,11 @@ class SettingsPopup extends LitElement {
 
   render() {
     return html`
-     <template-popup>
-      <h2 slot="title">Paramètres</h2>
-      <div slot="body">
-        <fieldset>
-            <legend>Général</legend>
+      <template-popup>
+        <h2 slot="title">Paramètres</h2>
+        <div slot="body">
+          <fieldset>
+            <legend>Environnement général</legend>
 
             <div class="field">
               <input
@@ -59,7 +59,11 @@ class SettingsPopup extends LitElement {
               <label for="settings_automatic_adjustment">Ajustement automatique</label>
             </div>
 
-            <div class="field">
+            <div class="field" style=${
+              app.environment.name != 'Geometrie'
+                ? 'display:none'
+                : ''
+            }>
               <input
                 type="checkbox"
                 name="settings_animation_in_geometry_tranformations"
@@ -114,14 +118,14 @@ class SettingsPopup extends LitElement {
               <label for="settings_shapes_pointed">Figures pointées</label>
             </div>
           </fieldset>
+          </div>
+          <div slot="footer">
+            <version-item></version-item>
+            <color-button @click="${() => app.resetSettings()}" innerText="Paramètres par défaut"></color-button>
+            <color-button id="focus" @click="${this.close}" innerText="OK"></color-button>
+          </div>
         </div>
-        <div slot="footer">
-          <version-item></version-item>
-          <color-button @click="${() => app.resetSettings()}" innerText="Paramètres par défaut"></color-button>
-          <color-button id="focus" @click="${this.close}" innerText="OK"></color-button>
-        </div>
-      </div>
-     </template-popup>
+      </template-popup>
     `;
   }
 

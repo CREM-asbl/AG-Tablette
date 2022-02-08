@@ -288,9 +288,14 @@ export function computeShapeTransform(shape, ptsMoved) {
   } else if (shape.name == 'PointOnIntersection') {
     let firstSeg = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let secondSeg = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId2, 'segment');
-    let coord =  firstSeg.intersectionWith(secondSeg);
-    shape.points[0].coordinates = coord;
+    let coords = firstSeg.intersectionWith(secondSeg);
+    if (!coords)
+      coords = [new Coordinates({ x: -1000000001, y: -1000000001})];
+    if (coords.length == 1)
+      coords[1] = new Coordinates({ x: -1000000000, y: -1000000000});
+    shape.points.forEach((pt, idx) => pt.coordinates = coords[idx]);
   }
+
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   if (shape.isCenterShown) {
     shape.center.coordinates = shape.centerCoordinates;
@@ -301,13 +306,23 @@ export function computeShapeTransform(shape, ptsMoved) {
 export function computeDivisionPoint(point) {
   if (app.environment.name != 'Geometrie') return;
   let segment = point.segments[0];
+  if (point.shape.isCircle()) {
+    let startAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[0].coordinates);
+    let newAngle = startAngle + point.ratio * 2 * Math.PI;
+    let newCoordinates = new Coordinates({
+      x: segment.arcCenter.coordinates.x + segment.radius * Math.cos(newAngle),
+      y: segment.arcCenter.coordinates.y + segment.radius * Math.sin(newAngle),
+    });
+    point.coordinates = newCoordinates;
+    return;
+  }
   let firstPoint = segment.vertexes[0];
   let secondPoint = segment.vertexes[1];
   firstPoint.ratio = 0;
   secondPoint.ratio = 1;
 
-  if (firstPoint.ratio > secondPoint.ratio)
-    [firstPoint, secondPoint] = [secondPoint, firstPoint];
+  // if (firstPoint.ratio > secondPoint.ratio)
+  //   [firstPoint, secondPoint] = [secondPoint, firstPoint];
 
   const segLength = secondPoint.coordinates.substract(
     firstPoint.coordinates,
@@ -366,7 +381,6 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     shape.name == 'ParalleleSemiStraightLine' ||
     shape.name == 'ParalleleSegment'
   ) {
-    console.log(shape);
     shape.geometryObject.geometryConstructionSpec.segmentLength = shape.segments[0].length;
     let reference = app.mainDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     if (Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal()) > 0.1)

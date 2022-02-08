@@ -16,7 +16,7 @@ export class GeometryObject {
     geometryIsVisible = true,
   }) {
     this.geometryChildShapeIds = [...geometryChildShapeIds];
-    this.geometryConstructionSpec = geometryConstructionSpec;
+    this.geometryConstructionSpec = {...geometryConstructionSpec};
     this.geometryParentObjectId1 = geometryParentObjectId1;
     this.geometryParentObjectId2 = geometryParentObjectId2;
     this.geometryTransformationChildShapeIds = [...geometryTransformationChildShapeIds];
@@ -29,7 +29,7 @@ export class GeometryObject {
   saveData() {
     let data = {
       geometryChildShapeIds: [...this.geometryChildShapeIds],
-      geometryConstructionSpec: this.geometryConstructionSpec,
+      geometryConstructionSpec: {...this.geometryConstructionSpec},
       geometryParentObjectId1: this.geometryParentObjectId1,
       geometryParentObjectId2: this.geometryParentObjectId2,
       geometryTransformationChildShapeIds: [...this.geometryTransformationChildShapeIds],
@@ -42,10 +42,12 @@ export class GeometryObject {
   }
 
   static loadFromData(data) {
-    let object = new GeometryObject({
-    });
-    Object.assign(shape, data);
-    shape.segmentIds = [...data.segmentIds];
-    shape.pointIds = [...data.pointIds];
+    let object = new GeometryObject(data);
+    // Object.assign(object, data);
+    // object.geometryChildShapeIds = [...data.geometryChildShapeIds];
+    // object.geometryConstructionSpec = {...data.geometryConstructionSpec};
+    // object.geometryTransformationChildShapeIds = [...data.geometryTransformationChildShapeIds];
+    // object.geometryTransformationCharacteristicElementIds = [...data.geometryTransformationCharacteristicElementIds];
+    return object;
   }
 }

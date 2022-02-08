@@ -85,7 +85,7 @@ class AgApp extends LitElement {
       new shapeImport.Shape({
         ...shapeTemplate,
         drawingEnvironment: app.invisibleDrawingEnvironment,
-        opacity: 1,
+        fillOpacity: 1,
       });
 
     let scale, center;

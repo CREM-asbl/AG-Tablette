@@ -100,7 +100,7 @@ export class MergeTool extends Tool {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: {
-                message: 'Le groupe ne peut pas être fusionné',
+                message: 'Le groupe ne peut pas être fusionné.',
               },
             }),
           );

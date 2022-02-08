@@ -15,10 +15,6 @@ class HomePopup extends LitElement {
     return [
       TemplatePopup.template_popup_styles(),
       css`
-        p {
-          text-align: center;
-        }
-
         [slot='body'] {
           padding: 0;
         }

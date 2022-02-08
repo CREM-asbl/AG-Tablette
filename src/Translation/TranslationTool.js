@@ -8,6 +8,7 @@ import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 
 /**
  */
@@ -88,21 +89,12 @@ export class TranslationTool extends Tool {
           color: app.settings.referenceDrawColor,
           size: 2,
         });
-        let angle = this.secondReference.coordinates.angleWith(this.firstReference.coordinates);
-        let firstTriangleCoord = this.secondReference.coordinates.add(new Coordinates({
-          x: 20 * Math.cos(angle + 0.35),
-          y: 20 * Math.sin(angle + 0.35),
-        }));
-        let secondTriangleCoord = this.secondReference.coordinates.add(new Coordinates({
-          x: 20 * Math.cos(angle - 0.35),
-          y: 20 * Math.sin(angle - 0.35),
-        }));
-        this.referenceShape = new LineShape({
+        this.referenceShape = new ArrowLineShape({
           drawingEnvironment: app.upperDrawingEnvironment,
-          path: `M ${this.firstReference.coordinates.x} ${this.firstReference.coordinates.y} L ${this.secondReference.coordinates.x} ${this.secondReference.coordinates.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} L ${this.secondReference.coordinates.x} ${this.secondReference.coordinates.y}`,
-          borderColor: app.settings.referenceDrawColor,
-          color: app.settings.referenceDrawColor,
-          borderSize: 2,
+          path: `M ${this.firstReference.coordinates.x} ${this.firstReference.coordinates.y} L ${this.secondReference.coordinates.x} ${this.secondReference.coordinates.y}`,
+          strokeColor: app.settings.referenceDrawColor,
+          fillColor: app.settings.referenceDrawColor,
+          strokeWidth: 2,
           isPointed: false,
         });
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });

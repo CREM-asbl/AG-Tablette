@@ -9,6 +9,10 @@ import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -27,7 +31,7 @@ export class CreatePointTool extends Tool {
     this.numberOfPointsDrawn = 0;
 
     // la référence pour la contruction de parallèles ou perpendiculaires
-    this.referenceId = null;
+    this.geometryParentObjectId1 = null;
   }
 
   /**
@@ -85,21 +89,21 @@ export class CreatePointTool extends Tool {
   }
 
   objectSelected(segment) {
-    new Shape({
+    new LineShape({
       drawingEnvironment: app.upperDrawingEnvironment,
-      borderColor: app.settings.temporaryDrawColor,
-      borderSize: 3,
+      strokeColor: app.settings.temporaryDrawColor,
+      strokeWidth: 3,
       path: segment.getSVGPath('no scale', true),
       id: undefined,
-      color: '#000',
-      opacity: 0,
+      fillColor: '#000',
+      fillOpacity: 0,
     });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     if (app.tool.currentStep == 'drawPoint') {
-      this.referenceId1 = segment.id;
+      this.geometryParentObjectId1 = segment.id;
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectSecondSegment' } });
     } else {
-      this.referenceId2 = segment.id;
+      this.geometryParentObjectId2 = segment.id;
       this.executeAnimation();
     }
   }
@@ -147,9 +151,9 @@ export class CreatePointTool extends Tool {
         );
         if (reference) {
           newCoord = reference.projectionOnSegment(point.coordinates);
-          this.referenceId = reference.id;
+          this.geometryParentObjectId1 = reference.id;
         } else {
-          this.referenceId = null;
+          this.geometryParentObjectId1 = null;
         }
         if (newCoord)
           point.coordinates = newCoord;
@@ -162,9 +166,9 @@ export class CreatePointTool extends Tool {
           },
         );
         if (reference) {
-          this.referenceId = reference.id;
+          this.geometryParentObjectId1 = reference.id;
         } else {
-          this.referenceId = null;
+          this.geometryParentObjectId1 = null;
         }
         break;
     }
@@ -182,25 +186,27 @@ export class CreatePointTool extends Tool {
   _executeAction() {
     let shape;
     if (app.tool.selectedPoint == 'Point') {
-      shape = new Shape({
+      shape = new SinglePointShape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
         name: app.tool.selectedPoint,
         familyName: 'Point',
+        geometryObject: new GeometryObject({}),
       });
     } else if (app.tool.selectedPoint == 'PointOnLine') {
-      if (!this.referenceId) {
+      if (!this.geometryParentObjectId1) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une ligne pour placer le point.' } }));
         return;
       }
-      shape = new Shape({
+      shape = new SinglePointShape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
         name: app.tool.selectedPoint,
         familyName: 'Point',
+        geometryObject: new GeometryObject({}),
       });
-      shape.referenceId = this.referenceId;
-      let reference = app.mainDrawingEnvironment.findObjectById(this.referenceId, 'segment');
+      shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
+      let reference = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId1, 'segment');
 
       let ratioX = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
       let ratioY = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
@@ -213,35 +219,39 @@ export class CreatePointTool extends Tool {
 
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     } else if (app.tool.selectedPoint == 'PointOnShape') {
-      if (!this.referenceId) {
+      if (!this.geometryParentObjectId1) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une figure pour placer le point.' } }));
         return;
       }
-      shape = new Shape({
+      shape = new RegularShape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
         name: app.tool.selectedPoint,
         familyName: 'Point',
+        geometryObject: new GeometryObject({}),
       });
-      shape.referenceId = this.referenceId;
-      let reference = app.mainDrawingEnvironment.findObjectById(this.referenceId, 'shape');
+      shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
+      let reference = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId1, 'shape');
       reference.geometryObject.geometryChildShapeIds.push(shape.id);
     } else if (app.tool.selectedPoint == 'PointOnIntersection') {
-      let firstSeg = app.mainDrawingEnvironment.findObjectById(this.referenceId1, 'segment');
-      let secondSeg = app.mainDrawingEnvironment.findObjectById(this.referenceId2, 'segment');
-      let coord =  firstSeg.intersectionWith(secondSeg);
-      if (!coord) {
+      let firstSeg = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId1, 'segment');
+      let secondSeg = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId2, 'segment');
+      let coords =  firstSeg.intersectionWith(secondSeg);
+      if (!coords) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir deux lignes non parallèles' } }));
         return;
       }
-      shape = new Shape({
+      if (coords.length == 1)
+        coords[1] = new Coordinates({ x: -1000000000, y: -1000000000});
+      shape = new SinglePointShape({
         drawingEnvironment: app.mainDrawingEnvironment,
-        path: `M ${coord.x} ${coord.y}`,
+        path: coords.map(coord => `M ${coord.x} ${coord.y}`).join(' '),
         name: app.tool.selectedPoint,
         familyName: 'Point',
+        geometryObject: new GeometryObject({}),
       });
-      shape.referenceId = this.referenceId1;
-      shape.referenceId2 = this.referenceId2;
+      shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
+      shape.geometryObject.geometryParentObjectId2 = this.geometryParentObjectId2;
       firstSeg.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       secondSeg.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }

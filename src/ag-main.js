@@ -220,7 +220,7 @@ class AGMain extends LitElement {
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="save"
-                title="Sauvegarder"
+                title="Enregistrer"
                 @click="${this._actionHandle}"
               >
               </icon-button>

@@ -7,6 +7,7 @@ import { Shape } from '../Core/Objects/Shape';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { NewShape } from '../Core/Objects/Shapes/NewShape';
 
 /**
  * Retourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -18,26 +19,26 @@ export class ReverseTool extends Tool {
     // start -> select-axis -> reverse
     this.currentStep = null;
 
-    //La figure que l'on retourne
+    // La figure que l'on retourne
     this.selectedShape = null;
 
-    //Timestamp au démarrage de l'animation
+    // Timestamp au démarrage de l'animation
     this.startTime = null;
 
     // Objet représentant l'axe de symétrie utilisée pour le retournement
     this.axis = null;
 
-    //Durée en secondes de l'animation
+    // Durée en secondes de l'animation
     this.duration = 2;
 
-    //Couleur des axes de symétrie
+    // Couleur des axes de symétrie
     this.symmetricalAxeColor = '#080';
 
     this.axes = [];
 
     this.axisAngle = null;
 
-    //Longueur en pixels des 4 arcs de symétrie
+    // Longueur en pixels des 4 arcs de symétrie
     this.axisLength = 200;
 
     // L'ensemble des figures liées à la figure sélectionnée, y compris la figure elle-même
@@ -148,7 +149,7 @@ export class ReverseTool extends Tool {
     if (
       (app.tool.currentStep == 'listen' ||
         app.tool.currentStep == 'selectAxis') &&
-      object instanceof Shape
+      object instanceof NewShape
     ) {
       let selectedShape = object;
 

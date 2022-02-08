@@ -9,6 +9,8 @@ import { Segment } from '../Core/Objects/Segment';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 
 /**
  */
@@ -118,67 +120,101 @@ export class RotationTool extends Tool {
           counterclockwise: this.angle < 0,
         });
         this.seg = seg;
+        let ref1Copy = new Point({
+          coordinates: this.references[1].coordinates,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          color: app.settings.referenceDrawColor,
+          size: 0.1,
+        });
+        let projectionCopy = new Point({
+          coordinates: projectionCoord,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          color: app.settings.referenceDrawColor,
+          size: 0.1,
+        });
+        let ref2Copy = new Point({
+          coordinates: this.references[2].coordinates,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          color: app.settings.referenceDrawColor,
+          size: 0.1,
+        });
         let seg2 = new Segment({
           drawingEnvironment: app.upperDrawingEnvironment,
           idx: 0,
-          vertexIds: [this.references[1].id, projection.id],
-          arcCenterId: this.references[2].id,
+          vertexIds: [ref1Copy.id, projectionCopy.id],
+          arcCenterId: ref2Copy.id,
           counterclockwise: this.angle >= 0,
         });
         this.seg2 = seg2;
-        let arcPoints = [this.references[1], projection, this.references[2]];
-        this.arcShape = new Shape({
+        let arcPoints0 = [this.references[1], projection, this.references[2]];
+        let arcPoints1 = [ref1Copy, projectionCopy, ref2Copy];
+        this.arcShape0 = new ArrowLineShape({
           drawingEnvironment: app.upperDrawingEnvironment,
-          segmentIds: [seg.id, seg2.id],
-          pointIds: arcPoints.map(pt => pt.id),
+          segmentIds: [seg.id],
+          pointIds: arcPoints0.map(pt => pt.id),
           name: 'arrow',
           familyName: 'circle-shape',
-          // borderColor: app.settings.referenceDrawColor,
-          opacity: 0,
+          strokeColor: app.settings.referenceDrawColor,
+          fillOpacity: 0,
+          geometryObject: {},
         });
-        this.arcShape.segments[0].color = app.settings.referenceDrawColor;
-        this.arcShape.segments[1].color = app.settings.referenceDrawColor2;
+        this.arcShape1 = new ArrowLineShape({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          segmentIds: [seg2.id],
+          pointIds: arcPoints1.map(pt => pt.id),
+          name: 'arrow',
+          familyName: 'circle-shape',
+          strokeColor: app.settings.referenceDrawColor2,
+          fillOpacity: 0,
+          geometryObject: {},
+        });
 
-        let arrowAngle = angle - Math.PI / 2;
-        if (seg.counterclockwise)
-          arrowAngle += Math.PI;
-        let firstTriangleCoord = projectionCoord.add(new Coordinates({
-          x: 20 * Math.cos(arrowAngle + 0.35),
-          y: 20 * Math.sin(arrowAngle + 0.35),
-        }));
-        let secondTriangleCoord = projectionCoord.add(new Coordinates({
-          x: 20 * Math.cos(arrowAngle - 0.35),
-          y: 20 * Math.sin(arrowAngle - 0.35),
-        }));
-        this.arrowShape0 = new Shape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          path: `M ${projectionCoord.x} ${projectionCoord.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} Z`,
-          borderColor: app.settings.referenceDrawColor,
-          color: app.settings.referenceDrawColor,
-          name: 'arrow',
-          borderSize: 2,
-          isPointed: false,
-        });
-        arrowAngle = angle + Math.PI / 2;
-        if (seg.counterclockwise)
-          arrowAngle += Math.PI;
-        firstTriangleCoord = projectionCoord.add(new Coordinates({
-          x: 20 * Math.cos(arrowAngle + 0.35),
-          y: 20 * Math.sin(arrowAngle + 0.35),
-        }));
-        secondTriangleCoord = projectionCoord.add(new Coordinates({
-          x: 20 * Math.cos(arrowAngle - 0.35),
-          y: 20 * Math.sin(arrowAngle - 0.35),
-        }));
-        this.arrowShape1 = new Shape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          path: `M ${projectionCoord.x} ${projectionCoord.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} Z`,
-          borderColor: app.settings.referenceDrawColor2,
-          color: app.settings.referenceDrawColor2,
-          name: 'arrow',
-          borderSize: 2,
-          isPointed: false,
-        });
+        // this.arcShape0.segments[0].color = app.settings.referenceDrawColor;
+        // this.arcShape1.segments[0].color = app.settings.referenceDrawColor2;
+
+
+        // let arrowAngle = angle - Math.PI / 2;
+        // if (seg.counterclockwise)
+        //   arrowAngle += Math.PI;
+        // let firstTriangleCoord = projectionCoord.add(new Coordinates({
+        //   x: 20 * Math.cos(arrowAngle + 0.35),
+        //   y: 20 * Math.sin(arrowAngle + 0.35),
+        // }));
+        // let secondTriangleCoord = projectionCoord.add(new Coordinates({
+        //   x: 20 * Math.cos(arrowAngle - 0.35),
+        //   y: 20 * Math.sin(arrowAngle - 0.35),
+        // }));
+        // this.arrowShape0 = new ArrowLineShape({
+        //   drawingEnvironment: app.upperDrawingEnvironment,
+        //   path: `M ${projectionCoord.x} ${projectionCoord.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} Z`,
+        //   borderColor: app.settings.referenceDrawColor,
+        //   color: app.settings.referenceDrawColor,
+        //   name: 'arrow',
+        //   borderSize: 2,
+        //   isPointed: false,
+        //   geometryObject: {},
+        // });
+        // arrowAngle = angle + Math.PI / 2;
+        // if (seg.counterclockwise)
+        //   arrowAngle += Math.PI;
+        // firstTriangleCoord = projectionCoord.add(new Coordinates({
+        //   x: 20 * Math.cos(arrowAngle + 0.35),
+        //   y: 20 * Math.sin(arrowAngle + 0.35),
+        // }));
+        // secondTriangleCoord = projectionCoord.add(new Coordinates({
+        //   x: 20 * Math.cos(arrowAngle - 0.35),
+        //   y: 20 * Math.sin(arrowAngle - 0.35),
+        // }));
+        // this.arrowShape1 = new RegularShape({
+        //   drawingEnvironment: app.upperDrawingEnvironment,
+        //   path: `M ${projectionCoord.x} ${projectionCoord.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} Z`,
+        //   borderColor: app.settings.referenceDrawColor2,
+        //   color: app.settings.referenceDrawColor2,
+        //   name: 'arrow',
+        //   borderSize: 2,
+        //   isPointed: false,
+        //   geometryObject: {},
+        // });
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectDirection' } });
       }
     } else {
@@ -222,22 +258,26 @@ export class RotationTool extends Tool {
       angle,
     );
     this.clockwise = isAngleInside;
-    let segIdx = this.arcShape.segments.findIndex(seg => seg.counterclockwise == this.clockwise);
-    app.upperDrawingEnvironment.removeObjectById(
-      this.arcShape.segmentIds[segIdx],
-      'segment',
-    );
-    this.arcShape.segmentIds.splice(segIdx, 1);
-    this.arcShape.segments.forEach((seg, idx) => (seg.idx = idx));
+    if (this.arcShape0.segments[0].counterclockwise == this.clockwise) {
+      app.upperDrawingEnvironment.removeObjectById(
+        this.arcShape0.id,
+        'shape',
+      );
+    } else {
+      app.upperDrawingEnvironment.removeObjectById(
+        this.arcShape1.id,
+        'shape',
+      );
+    }
 
     if (!(this.angle < 0 ^ this.clockwise)) {
       if (this.angle > 0) this.angle -= 2 * Math.PI;
       else if (this.angle < 0) this.angle += 2 * Math.PI;
     }
 
-    app.upperDrawingEnvironment.removeObjectById(
-      this['arrowShape' + segIdx].id,
-    );
+    // app.upperDrawingEnvironment.removeObjectById(
+    //   this['arrowShape' + segIdx].id,
+    // );
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
   }
 

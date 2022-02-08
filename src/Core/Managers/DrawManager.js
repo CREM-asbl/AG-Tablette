@@ -83,7 +83,7 @@ export class DrawManager {
     const pathScaleMethod = drawingEnvironment.mustScaleShapes
         ? 'scale'
         : 'no scale',
-      path = new Path2D(shape.getSVGPath(pathScaleMethod));
+      path = new Path2D(shape.getSVGPath(pathScaleMethod, true, true));
 
     if (shape.name != 'CircleArc') drawingEnvironment.ctx.fill(path, 'nonzero');
     drawingEnvironment.ctx.globalAlpha = 1;

@@ -209,6 +209,7 @@ export class DivideTool extends Tool {
         }
         if (pointsToDivide.length == 0) {
           window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir au même segment' } }));
+          return;
         }
 
         let pt1 = pointsToDivide[0][0];

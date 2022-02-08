@@ -821,6 +821,9 @@ export class Segment {
    * @return le point ou null si segments parallèles
    */
   intersectionWith(segment) {
+    if (this.isArc() || segment.isArc()) {
+      return this.arcIntersectionWith(segment);
+    }
     let result = Coordinates.nullCoordinates,
       thisv0x = this.vertexes[0].x,
       thisv0y = this.vertexes[0].y,
@@ -856,6 +859,35 @@ export class Segment {
       result.y = thisSlope * result.x + pa;
     }
     return result;
+  }
+
+  arcIntersectionWith(segment) {
+    if (this.isArc() && segment.isArc()) { // two circles
+
+    } else if (this.isArc() && !segment.isArc()) { // a circle and a right line
+      let projection = segment.projectionOnSegment(this.arcCenter.coordinates);
+      let dist1 = projection.dist(this.arcCenter.coordinates);
+      let hypothenusLength = this.radius;
+      if (dist1 > hypothenusLength)
+        return null;
+      else if (Math.abs(dist1 - hypothenusLength) < 1)
+        return [projection];
+      else {
+        let dist2 = Math.sqrt(Math.pow(hypothenusLength, 2) - Math.pow(dist1, 2));
+        let segmentAngle = segment.getAngleWithHorizontal();
+        let firstCoord = new Coordinates({
+          x: projection.x + Math.cos(segmentAngle) * dist2,
+          y: projection.y + Math.sin(segmentAngle) * dist2,
+        });
+        let secondCoord = new Coordinates({
+          x: projection.x + Math.cos(segmentAngle) * -dist2,
+          y: projection.y + Math.sin(segmentAngle) * -dist2,
+        });
+        return [firstCoord, secondCoord];
+      }
+    } else if (!this.isArc() && segment.isArc()) {
+      return segment.arcIntersectionWith(this);
+    }
   }
 
   /**

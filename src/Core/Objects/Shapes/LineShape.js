@@ -583,13 +583,9 @@ export class LineShape extends NewShape {
    */
   getSVGPath(scaling = 'scale', infiniteCheck = true) {
     let path = '';
-    if (this.isPoint()) {
-      path = `M ${this.points[0].coordinates.x} ${this.points[0].coordinates.y}`
-    } else {
-      path = this.segments
-        .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
-        .join('\n');
-    }
+    path = this.segments
+      .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
+      .join('\n');
     return path;
   }
 

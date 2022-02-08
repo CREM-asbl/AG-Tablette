@@ -2,8 +2,8 @@ export const cubesKit = {
   name: 'Cubes',
   families: {
     'Cube 1': {
-      color: '#f46c2e',
-      opacity: 1,
+      fillColor: '#f46c2e',
+      fillOpacity: 1,
       shapeTemplates: [
         {
           name: 'Cube 1',
@@ -16,8 +16,8 @@ export const cubesKit = {
       ],
     },
     'Cube 2': {
-      color: '#f46c2e',
-      opacity: 1,
+      fillColor: '#f46c2e',
+      fillOpacity: 1,
       shapeTemplates: [
         {
           name: 'Cube 2',

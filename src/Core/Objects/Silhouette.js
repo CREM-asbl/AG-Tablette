@@ -16,9 +16,9 @@ export class Silhouette {
         path: loadFromSave ? shape.path : shape.getSVGPath(false),
         drawingEnvironment: app.backgroundDrawingEnvironment,
         name: 'silhouette',
-        color: '#000',
-        borderColor: level % 2 != 0 ? '#fff' : '#000',
-        opacity: 1,
+        fillColor: '#000',
+        strokeColor: level % 2 != 0 ? '#fff' : '#000',
+        fillOpacity: 1,
         isPointed: false,
         size: 1,
       });

@@ -382,7 +382,8 @@ export class Point {
         } else if (
           (this.shape.name == 'Segment' ||
             this.shape.name == 'SemiStraightLine' ||
-            this.shape.name == 'StraightLine') &&
+            this.shape.name == 'StraightLine' ||
+            this.shape.name == 'Vector') &&
           this.idx == 1
         ) {
           constraints.isFree = true;

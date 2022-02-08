@@ -90,10 +90,8 @@ export class DeleteTool extends Tool {
     if (this.mode == 'shape') {
       this.involvedShapes.forEach((s) => {
         // if (userGroup) userGroup.deleteShape(s.id);
-        app.mainDrawingEnvironment.shapes.forEach(s2 => {
-          s2.geometryObject.geometryChildShapeIds = s2.geometryObject.geometryChildShapeIds.filter(id => id != s.id);
-        });
-        this.deleteChildren(s);
+        if (app.environment.name == 'Geometrie')
+          this.deleteChildren(s);
         app.mainDrawingEnvironment.removeObjectById(s.id, 'shape');
       });
 
@@ -111,7 +109,19 @@ export class DeleteTool extends Tool {
   }
 
   deleteChildren(shape) {
-    shape.geometryTransformationChildShapeIds.forEach(childId => {
+    app.mainDrawingEnvironment.shapes.forEach(s => {
+      s.geometryObject.geometryChildShapeIds = s.geometryObject.geometryChildShapeIds.filter(id => id != shape.id);
+    });
+    app.mainDrawingEnvironment.shapes.forEach(s => {
+      s.geometryObject.geometryTransformationChildShapeIds = s.geometryObject.geometryTransformationChildShapeIds.filter(id => id != shape.id);
+    });
+    shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
+      let child = app.mainDrawingEnvironment.findObjectById(childId);
+      if (child) {
+        this.deleteChildren(child);
+      }
+    });
+    shape.geometryObject.geometryChildShapeIds.forEach(childId => {
       let child = app.mainDrawingEnvironment.findObjectById(childId);
       if (child) {
         this.deleteChildren(child);

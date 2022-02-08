@@ -57,6 +57,7 @@ export class NewShape {
     this.drawingEnvironment = drawingEnvironment;
     this.drawingEnvironment.shapes.push(this);
 
+    this.isPointed = isPointed; // used for path, do not move
     if (path) {
       this.setSegmentsFromPath(path);
       this.pointIds = [...this.pointIds, ...divisionPointInfos.map((dInfo) => {
@@ -86,7 +87,6 @@ export class NewShape {
     this.strokeColor = strokeColor;
     this.strokeWidth = strokeWidth;
 
-    this.isPointed = isPointed;
     this.size = parseInt(size);
     this._isCenterShown = false;
     if (_isCenterShown === undefined) this.isCenterShown = this.isCircle();
@@ -726,6 +726,9 @@ export class NewShape {
       isReversed: this.isReversed,
       isBiface: this.isBiface,
     };
+    if (this.geometryObject) {
+      data.geometryObject = this.geometryObject.saveData();
+    }
     return data;
   }
 

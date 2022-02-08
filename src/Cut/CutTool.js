@@ -5,6 +5,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { Point } from '../Core/Objects/Point';
 import { Shape } from '../Core/Objects/Shape';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 
 /**
  * Découper une figure
@@ -178,7 +179,7 @@ export class CutTool extends Tool {
       //On a sélectionné le premier point
       if (object[0].shape.isSegment() && object[0].type == 'divisionPoint') {
         setState({
-          tool: { ...app.tool, currentStep: 'cut', firstPointId: object.id, centerPointId: undefined, secondPointId: undefined },
+          tool: { ...app.tool, currentStep: 'cut', firstPointId: object[0].id, centerPointId: undefined, secondPointId: undefined },
         });
       } else {
         setState({
@@ -406,22 +407,8 @@ export class CutTool extends Tool {
       firstPath,
       secondPath;
 
-    if (pt1.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
-      pt1 = shape.segments[0].vertexes[0];
-    }
-    if (pt1.coordinates.equal(shape.segments[shape.segments.length - 1].vertexes[1].coordinates)) {
-      pt1 = shape.segments[shape.segments.length - 1].vertexes[1];
-    }
-    if (pt2) {
-      if (pt2.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
-        pt2 = shape.segments[0].vertexes[0];
-      }
-      if (pt2.coordinates.equal(shape.segments[shape.segments.length - 1].vertexes[1].coordinates)) {
-        pt2 = shape.segments[shape.segments.length - 1].vertexes[1];
-      }
-    }
-
-    if (shape.isSegment()) {
+    if (pt1.shape.isSegment()) {
+      shape = pt1.shape;
       firstPath = [
         'M',
         shape.segments[0].vertexes[0].x,
@@ -439,6 +426,21 @@ export class CutTool extends Tool {
         shape.segments[0].vertexes[1].y,
       ];
     } else {
+      if (pt1.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
+        pt1 = shape.segments[0].vertexes[0];
+      }
+      if (pt1.coordinates.equal(shape.segments[shape.segments.length - 1].vertexes[1].coordinates)) {
+        pt1 = shape.segments[shape.segments.length - 1].vertexes[1];
+      }
+      if (pt2) {
+        if (pt2.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
+          pt2 = shape.segments[0].vertexes[0];
+        }
+        if (pt2.coordinates.equal(shape.segments[shape.segments.length - 1].vertexes[1].coordinates)) {
+          pt2 = shape.segments[shape.segments.length - 1].vertexes[1];
+        }
+      }
+
       // Trier les 2 points:
       if (pt1.type == 'vertex' && pt1.idx === 0 && pt1.shape.name != 'PointOnLine') {
         [pt1, pt2] = [pt2, pt1];
@@ -544,6 +546,11 @@ export class CutTool extends Tool {
       fillOpacity: shape.fillOpacity,
       strokeColor: shape.strokeColor,
     });
+
+    if (app.environment.name == 'Geometrie') {
+      shape1.geometryObject = new GeometryObject({});
+      shape2.geometryObject = new GeometryObject({});
+    }
 
     shape1.cleanSameDirectionSegment();
     shape2.cleanSameDirectionSegment();

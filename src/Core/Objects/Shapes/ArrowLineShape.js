@@ -51,26 +51,29 @@ export class ArrowLineShape extends LineShape {
   /**
    * convertit la shape en commande de path svg
    */
-  getSVGPath(scaling = 'scale', infiniteCheck = true) {
+  getSVGPath(scaling = 'scale', infiniteCheck = true, forDrawing = false) {
     let path = '';
     path = this.segments
       .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
       .join('\n');
-    let seg = this.segments[0];
-    let arrowEndCoordinates = seg.vertexIds[1].coordinates;
-    if (this.isCircleArc()) {
-      seg = this.segments[0].getArcTangent(1);
+    if (forDrawing) {
+      let seg = this.segments[0];
+      let arrowEndCoordinates = seg.vertexes[1].coordinates;
+      let arrowAngle = seg.getAngleWithHorizontal() + Math.PI;
+      if (seg.isArc()) {
+        let originVector = this.segments[0].getArcTangent(1);
+        arrowAngle = Math.atan2(originVector.y, originVector.x) + Math.PI;
+      }
+      let firstTriangleCoord = arrowEndCoordinates.add(new Coordinates({
+        x: 20 * Math.cos(arrowAngle + 0.35),
+        y: 20 * Math.sin(arrowAngle + 0.35),
+      }));
+      let secondTriangleCoord = arrowEndCoordinates.add(new Coordinates({
+        x: 20 * Math.cos(arrowAngle - 0.35),
+        y: 20 * Math.sin(arrowAngle - 0.35),
+      }));
+      path += ` M ${arrowEndCoordinates.x} ${arrowEndCoordinates.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} M ${arrowEndCoordinates.x} ${arrowEndCoordinates.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y}`;
     }
-    let arrowAngle = seg.getAngleWithHorizontal();
-    let firstTriangleCoord = arrowEndCoordinates.add(new Coordinates({
-      x: 20 * Math.cos(arrowAngle + 0.35),
-      y: 20 * Math.sin(arrowAngle + 0.35),
-    }));
-    let secondTriangleCoord = arrowEndCoordinates.add(new Coordinates({
-      x: 20 * Math.cos(arrowAngle - 0.35),
-      y: 20 * Math.sin(arrowAngle - 0.35),
-    }));
-    path += `M ${arrowEndCoordinates.x} ${arrowEndCoordinates.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} Z`;
     return path;
   }
 

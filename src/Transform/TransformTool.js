@@ -148,6 +148,7 @@ export class TransformTool extends Tool {
           seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
           seg.vertexIds = [...s.segments[idx].vertexIds];
           seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
+          seg.arcCenterId = s.segments[idx].arcCenterId;
         });
         newShape.points.forEach((pt, idx) => {
           pt.segmentIds = [...s.points[idx].segmentIds];
@@ -155,6 +156,7 @@ export class TransformTool extends Tool {
           pt.visible = s.points[idx].visible;
           pt.ratio = s.points[idx].ratio;
           pt.transformConstraints = s.points[idx].transformConstraints;
+          pt.type = s.points[idx].type;
         });
         return newShape;
       }
@@ -273,7 +275,7 @@ export class TransformTool extends Tool {
         }
       }
       if (shape.name == 'PointOnLine') {
-        let reference = app.mainDrawingEnvironment.findObjectById(shape.referenceId, 'segment');
+        let reference = app.mainDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
         point.coordinates = reference.projectionOnSegment(point.coordinates);
         // let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
         let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);

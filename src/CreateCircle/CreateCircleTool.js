@@ -10,6 +10,8 @@ import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -130,8 +132,8 @@ export class CreateCircleTool extends Tool {
             drawingEnvironment: app.upperDrawingEnvironment,
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
-            borderColor: app.settings.temporaryDrawColor,
-            opacity: 0,
+            strokeColor: app.settings.temporaryDrawColor,
+            fillOpacity: 0,
           });
         } else if (app.tool.selectedCircle == 'CirclePart') {
           let seg = new Segment({
@@ -143,8 +145,8 @@ export class CreateCircleTool extends Tool {
             drawingEnvironment: app.upperDrawingEnvironment,
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
-            borderColor: app.settings.temporaryDrawColor,
-            opacity: 0,
+            strokeColor: app.settings.temporaryDrawColor,
+            fillOpacity: 0,
           });
         }
       } else if (this.numberOfPointsDrawn == 3) {
@@ -176,8 +178,8 @@ export class CreateCircleTool extends Tool {
           drawingEnvironment: app.upperDrawingEnvironment,
           segmentIds: this.segments.map((seg) => seg.id),
           pointIds: this.points.map((pt) => pt.id),
-          borderColor: app.settings.temporaryDrawColor,
-          opacity: 0,
+          strokeColor: app.settings.temporaryDrawColor,
+          fillOpacity: 0,
         });
       }
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
@@ -353,14 +355,28 @@ export class CreateCircleTool extends Tool {
       segments.push(seg);
     }
 
-    let shape = new RegularShape({
-      drawingEnvironment: app.mainDrawingEnvironment,
-      segmentIds: segments.map(seg => seg.id),
-      pointIds: points.map(pt => pt.id),
-      name: app.tool.selectedCircle,
-      familyName: 'circle-shape',
-      fillOpacity: 0,
-    });
+    let shape;
+    if (app.tool.selectedCircle == 'CircleArc') {
+      shape = new LineShape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        segmentIds: segments.map(seg => seg.id),
+        pointIds: points.map(pt => pt.id),
+        name: app.tool.selectedCircle,
+        familyName: 'circle-shape',
+        fillOpacity: 0,
+        geometryObject: new GeometryObject({}),
+      });
+    } else {
+      shape = new RegularShape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        segmentIds: segments.map(seg => seg.id),
+        pointIds: points.map(pt => pt.id),
+        name: app.tool.selectedCircle,
+        familyName: 'circle-shape',
+        fillOpacity: 0,
+        geometryObject: new GeometryObject({}),
+      });
+    }
 
     segments.forEach((seg, idx) => {
       seg.idx = idx;
@@ -377,10 +393,11 @@ export class CreateCircleTool extends Tool {
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.center.id).find(pt => pt.coordinates.equal(shape.center.coordinates))) {
+    // si pas circle-part
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[0].arcCenter.coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      shape.center.reference = ref.id;
+      shape.segments[0].arcCenter.reference = ref.id;
     }
 
     // window.dispatchEvent(new CustomEvent('refresh'));

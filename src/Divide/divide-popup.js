@@ -63,7 +63,7 @@ class DividePopup extends LitElement {
                 </option>`,
             )}
           </select>
-          <span>parties</span>
+          <span>parts</span>
         </div>
 
         <div slot="footer">

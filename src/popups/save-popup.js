@@ -53,12 +53,12 @@ class SavePopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Sauvegarder</h2>
+        <h2 slot="title">Enregistrer</h2>
         <div slot="body" id="body">
           <div class="hideIfHasNativeFS">
-            <label for="save_popup_stateOrImage" style="display:inline"
-              >Méthode de sauvegarde</label
-            >
+            <label for="save_popup_stateOrImage" style="display:inline">
+              Méthode d'enregistrement
+            </label>
             <select
               name="save_popup_stateOrImage"
               id="save_popup_stateOrImage"
@@ -88,7 +88,7 @@ class SavePopup extends LitElement {
                 @change="${this._actionHandle}"
               />
               <label for="save_popup_settings"
-                >Sauvegarder les paramètres</label
+                >Enregistrer les paramètres</label
               >
             </div>
 
@@ -100,7 +100,7 @@ class SavePopup extends LitElement {
                 ?checked="${this.saveHistory}"
                 @change="${this._actionHandle}"
               />
-              <label for="save_popup_history">Sauvegarder l'historique</label>
+              <label for="save_popup_history">Enregistrer l'historique</label>
             </div>
           </div>
 
