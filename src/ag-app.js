@@ -79,10 +79,10 @@ class AgApp extends LitElement {
   }
 
   static async computeFile(shapeTemplate) {
-    const shapeImport = await import('./Core/Objects/Shape');
+    const shapeImport = await import('./Core/Objects/Shapes/NewShape');
     let canvasSize = 52;
     let shape =
-      new shapeImport.Shape({
+      new shapeImport.NewShape({
         ...shapeTemplate,
         drawingEnvironment: app.invisibleDrawingEnvironment,
         fillOpacity: 1,
