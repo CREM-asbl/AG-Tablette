@@ -3,12 +3,14 @@ import { Shape } from './Shape';
 import { Segment } from './Segment';
 import { Point } from './Point';
 import { app } from '../App';
+
 import { NewShape } from './Shapes/NewShape';
+import { LineShape } from './Shapes/LineShape';
+import { RegularShape } from './Shapes/RegularShape';
+import { SinglePointShape } from './Shapes/SinglePointShape';
+import { ArrowLineShape } from './Shapes/ArrowLineShape';
 
 export class DrawingEnvironment {
-  /**
-   *
-   */
   constructor(canvas, name) {
     if (canvas) {
       this.canvas = canvas;
@@ -211,9 +213,20 @@ export class DrawingEnvironment {
   loadFromData(data) {
     this.removeAllObjects();
     if (data != undefined) {
+      console.log(data.shapesData);
       data.shapesData.forEach((shapeData) => {
-        NewShape.loadFromData(shapeData)
+        if (shapeData.type == 'NewShape')
+          NewShape.loadFromData(shapeData);
+        else if (shapeData.type == 'RegularShape')
+          RegularShape.loadFromData(shapeData);
+        else if (shapeData.type == 'LineShape')
+          LineShape.loadFromData(shapeData);
+        else if (shapeData.type == 'SinglePointShape')
+          SinglePointShape.loadFromData(shapeData);
+        else if (shapeData.type == 'ArrowLineShape')
+          ArrowLineShape.loadFromData(shapeData);
       });
+      console.log(this.shapes);
       data.segmentsData.forEach((segmentData) =>
         Segment.loadFromData(segmentData),
       );

@@ -466,16 +466,20 @@ export class Segment {
     originVector = originVector.multiply(1 / this.radius);
     if (Math.abs(originVector.y) < 0.001) originVector.y = 0;
     if (Math.abs(originVector.x) < 0.001) originVector.x = 0;
-    if (this.counterclockwise)
-      perpendicularOriginVector = new Coordinates({
-        x: 1,
-        y: -originVector.x / originVector.y,
-      });
-    else
-      perpendicularOriginVector = new Coordinates({
-        x: -1,
-        y: originVector.x / originVector.y,
-      });
+    let xCoordinate = 1;
+    if (originVector.y > 0)
+      xCoordinate *= -1;
+    let yCoordinate = originVector.x / originVector.y;
+    if (originVector.y < 0)
+      yCoordinate *= -1;
+    if (this.counterclockwise) {
+      xCoordinate *= -1;
+      yCoordinate *= -1;
+    }
+    perpendicularOriginVector = new Coordinates({
+      x: xCoordinate,
+      y: yCoordinate,
+    });
     if (perpendicularOriginVector.y == Infinity)
       perpendicularOriginVector = new Coordinates({ x: 0, y: 1 });
     else if (perpendicularOriginVector.y == -Infinity)

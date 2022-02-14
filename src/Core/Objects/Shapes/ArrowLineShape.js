@@ -5,6 +5,7 @@ import { Segment } from '../Segment';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
 import { LineShape } from './LineShape';
+import { GeometryObject } from './GeometryObject';
 
 /**
  * Représente une figure linéaire (segment, demi-droite, droite, arc de cercle)
@@ -176,5 +177,7 @@ export class ArrowLineShape extends LineShape {
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];
     shape.pointIds = [...data.pointIds];
+    if (data.geometryObject)
+      shape.geometryObject = GeometryObject.loadFromData(data.geometryObject);
   }
 }

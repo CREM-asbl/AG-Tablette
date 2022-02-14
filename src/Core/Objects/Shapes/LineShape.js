@@ -7,6 +7,7 @@ import { isAngleBetweenTwoAngles } from '../../Tools/geometry';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
 import { NewShape } from './NewShape';
+import { GeometryObject } from './GeometryObject';
 
 /**
  * Représente une figure linéaire (segment, demi-droite, droite, arc de cercle)
@@ -688,5 +689,7 @@ export class LineShape extends NewShape {
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];
     shape.pointIds = [...data.pointIds];
+    if (data.geometryObject)
+      shape.geometryObject = GeometryObject.loadFromData(data.geometryObject);
   }
 }

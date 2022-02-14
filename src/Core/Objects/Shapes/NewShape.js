@@ -4,7 +4,6 @@ import { Point } from './../Point';
 import { Segment } from './../Segment';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
-import { RegularShape } from './RegularShape';
 
 /**
  * Représente une figure
@@ -736,15 +735,11 @@ export class NewShape {
     if (!data.position) {
       data.position = 'main';
     }
-    if (data.type == 'newShape') {
-      let shape = new NewShape({
-        drawingEnvironment: app[data.position + 'DrawingEnvironment'],
-      });
-      Object.assign(shape, data);
-      shape.segmentIds = [...data.segmentIds];
-      shape.pointIds = [...data.pointIds];
-    } else if (data.type == 'RegularShape') {
-      RegularShape.loadFromData(data);
-    }
+    let shape = new NewShape({
+      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
+    });
+    Object.assign(shape, data);
+    shape.segmentIds = [...data.segmentIds];
+    shape.pointIds = [...data.pointIds];
   }
 }

@@ -356,27 +356,15 @@ export class CreateCircleTool extends Tool {
     }
 
     let shape;
-    if (app.tool.selectedCircle == 'CircleArc') {
-      shape = new LineShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
-        segmentIds: segments.map(seg => seg.id),
-        pointIds: points.map(pt => pt.id),
-        name: app.tool.selectedCircle,
-        familyName: 'circle-shape',
-        fillOpacity: 0,
-        geometryObject: new GeometryObject({}),
-      });
-    } else {
-      shape = new RegularShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
-        segmentIds: segments.map(seg => seg.id),
-        pointIds: points.map(pt => pt.id),
-        name: app.tool.selectedCircle,
-        familyName: 'circle-shape',
-        fillOpacity: 0,
-        geometryObject: new GeometryObject({}),
-      });
-    }
+    shape = new LineShape({
+      drawingEnvironment: app.mainDrawingEnvironment,
+      segmentIds: segments.map(seg => seg.id),
+      pointIds: points.map(pt => pt.id),
+      name: app.tool.selectedCircle,
+      familyName: 'circle-shape',
+      fillOpacity: 0,
+      geometryObject: new GeometryObject({}),
+    });
 
     segments.forEach((seg, idx) => {
       seg.idx = idx;
