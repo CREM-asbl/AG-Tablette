@@ -4,7 +4,7 @@ import { LitElement, html, css } from 'lit';
 class CirclesList extends LitElement {
   constructor() {
     super();
-    this.circlesNames = ['Circle', 'CirclePart', 'CircleArc'];
+    this.circlesNames = ['Circle']//, 'CirclePart', 'CircleArc'];
 
     this.circleTitle = {
       'Circle': 'Cercle',
