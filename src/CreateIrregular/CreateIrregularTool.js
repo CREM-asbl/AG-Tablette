@@ -9,6 +9,7 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Shape } from '../Core/Objects/Shape';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -177,6 +178,7 @@ export class CreateIrregularTool extends Tool {
       name: app.tool.selectedTriangle,
       familyName: familyName,
       fillOpacity: 0,
+      geometryObject: new GeometryObject({}),
     });
 
     let ref;

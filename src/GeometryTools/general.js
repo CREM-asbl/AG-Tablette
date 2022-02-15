@@ -26,10 +26,17 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
   }
   shape.geometryObject.geometryTransformationCharacteristicElementIds.forEach(sId => {
     let objectType = 'point';
-    if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry')
-      if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1)
+    if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry' &&
+      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1)
         objectType = 'segment';
-    let s = app.mainDrawingEnvironment.findObjectById(sId, objectType).shape;
+
+    let s;
+    if (shape.geometryObject.geometryTransformationName == 'translation' &&
+      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
+        s = app.mainDrawingEnvironment.findObjectById(sId, 'shape');
+    } else {
+      s = app.mainDrawingEnvironment.findObjectById(sId, objectType).shape;
+    }
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes);

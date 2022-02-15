@@ -48,9 +48,14 @@ export function computeAllShapeTransform(shape) {
       let center = app.upperDrawingEnvironment.findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point').coordinates;
       child.rotate(Math.PI, center);
     } else if (child.geometryObject.geometryTransformationName == 'translation') {
-      let pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-        app.upperDrawingEnvironment.findObjectById(refId, 'point')
-      );
+      let pts;
+      if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
+        pts = app.upperDrawingEnvironment.findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'shape').points;
+      } else {
+        pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
+          app.upperDrawingEnvironment.findObjectById(refId, 'point')
+        );
+      }
       child.translate(pts[1].coordinates.substract(pts[0].coordinates));
     } else if (child.geometryObject.geometryTransformationName == 'rotation') {
       let pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>

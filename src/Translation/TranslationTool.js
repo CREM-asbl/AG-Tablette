@@ -69,14 +69,27 @@ export class TranslationTool extends Tool {
   objectSelected(object) {
     if (app.tool.currentStep == 'selectReference') {
       if (this.firstReference == null) {
-        this.firstReference = object;
-        new Point({
-          coordinates: this.firstReference.coordinates,
-          drawingEnvironment: app.upperDrawingEnvironment,
-          color: app.settings.referenceDrawColor,
-          size: 2,
-        });
-        setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } });
+        if (object instanceof ArrowLineShape) {
+          this.firstReference = object;
+          new ArrowLineShape({
+            path: object.getSVGPath('no scale', true),
+            drawingEnvironment: app.upperDrawingEnvironment,
+            strokeColor: app.settings.referenceDrawColor,
+          });
+          setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+        } else if (object instanceof Point) {
+          this.firstReference = object;
+          new Point({
+            coordinates: this.firstReference.coordinates,
+            drawingEnvironment: app.upperDrawingEnvironment,
+            color: app.settings.referenceDrawColor,
+            size: 2,
+          });
+          setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } });
+        } else {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez sélectionner un vecteur ou un point.' } }))
+          return;
+        }
       } else {
         this.secondReference = object;
         if (this.secondReference.id == this.firstReference.id) {
@@ -127,7 +140,11 @@ export class TranslationTool extends Tool {
   animate() {
     this.lastProgress = this.progress || 0;
     if (this.lastProgress == 0) {
-      let vector = this.secondReference.coordinates.substract(this.firstReference.coordinates);
+      let vector;
+      if (this.firstReference instanceof Point)
+        vector = this.secondReference.coordinates.substract(this.firstReference.coordinates);
+      else
+        vector = this.firstReference.points[1].coordinates.substract(this.firstReference.points[0].coordinates);
       this.drawingShapes.forEach(s => s.points.forEach((point) => {
         point.startCoordinates = new Coordinates(point.coordinates);
         point.endCoordinates = new Coordinates({
@@ -152,6 +169,7 @@ export class TranslationTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'trans') {
+      console.log('here');
       app.upperDrawingEnvironment.points.forEach((point) => {
         if (point.startCoordinates) {
           point.coordinates = point.startCoordinates.substract(
@@ -165,6 +183,7 @@ export class TranslationTool extends Tool {
   }
 
   _executeAction() {
+    let geometryTransformationCharacteristicElementIds = this.firstReference instanceof Point ? [this.firstReference.id, this.secondReference.id] : [this.firstReference.id];
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
         ...s,
@@ -174,20 +193,28 @@ export class TranslationTool extends Tool {
         geometryObject: new GeometryObject({
           geometryTransformationChildShapeIds: [],
           geometryTransformationParentShapeId: s.id,
-          geometryTransformationCharacteristicElementIds: [this.firstReference.id, this.secondReference.id],
+          geometryTransformationCharacteristicElementIds,
           geometryTransformationName: 'translation',
         }),
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
-      if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
-        ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+      if (this.firstReference instanceof Point) {
+        let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
+        if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+          ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+        }
+        ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[1], 'point');
+        if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+          ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+        }
+        newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
+      } else {
+        let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'shape');
+        if (!ref.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+          ref.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+        }
+        newShape.translate(this.firstReference.points[1].coordinates.substract(this.firstReference.points[0].coordinates))
       }
-      ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[1], 'point');
-      if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
-        ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      }
-      newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
     });
   }
 
@@ -196,6 +223,7 @@ export class TranslationTool extends Tool {
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.points.canSelect = true;
+      app.workspace.selectionConstraints.shapes.canSelect = true;
     } else {
       app.workspace.selectionConstraints =
         app.fastSelectionConstraints.mousedown_all_shape;

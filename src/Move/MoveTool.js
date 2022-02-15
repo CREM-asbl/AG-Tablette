@@ -88,7 +88,7 @@ export class MoveTool extends Tool {
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
-    if (shape.geometryTransformationName != null) {
+    if (shape.geometryObject?.geometryTransformationName != null) {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
       return;
     }
