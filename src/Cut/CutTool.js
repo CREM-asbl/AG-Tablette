@@ -549,7 +549,9 @@ export class CutTool extends Tool {
 
     if (app.environment.name == 'Geometrie') {
       shape1.geometryObject = new GeometryObject({});
+      shape1.familyName = 'Irregular';
       shape2.geometryObject = new GeometryObject({});
+      shape2.familyName = 'Irregular';
     }
 
     shape1.cleanSameDirectionSegment();

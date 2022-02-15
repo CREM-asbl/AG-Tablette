@@ -103,6 +103,10 @@ export class CreatePointTool extends Tool {
       this.geometryParentObjectId1 = segment.id;
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectSecondSegment' } });
     } else {
+      if (this.geometryParentObjectId1 == segment.id) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez sélectionner deux objets différents.' } }));
+        return
+      }
       this.geometryParentObjectId2 = segment.id;
       this.executeAnimation();
     }
@@ -238,7 +242,7 @@ export class CreatePointTool extends Tool {
       let secondSeg = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId2, 'segment');
       let coords =  firstSeg.intersectionWith(secondSeg);
       if (!coords) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir deux lignes non parallèles' } }));
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Il n\' a pas de point d\'intersection entre les deux objets sélectionnés.' } }));
         return;
       }
       if (coords.length == 1)

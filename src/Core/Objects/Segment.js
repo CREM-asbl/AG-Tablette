@@ -862,7 +862,10 @@ export class Segment {
       result.x = (pb - pa) / (thisSlope - segmentSlope);
       result.y = thisSlope * result.x + pa;
     }
-    return result;
+    if (!this.isCoordinatesOnSegment(result) || !segment.isCoordinatesOnSegment(result)) {
+      return null;
+    }
+    return [result];
   }
 
   arcIntersectionWith(segment) {

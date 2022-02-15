@@ -63,6 +63,8 @@ export class DrawingEnvironment {
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
+          if (s.geometryObject?.geometryIsVisible === false)
+            return;
           window.dispatchEvent(
             new CustomEvent('draw-shape', { detail: { shape: s, scaling } }),
           );
@@ -213,7 +215,6 @@ export class DrawingEnvironment {
   loadFromData(data) {
     this.removeAllObjects();
     if (data != undefined) {
-      console.log(data.shapesData);
       data.shapesData.forEach((shapeData) => {
         if (shapeData.type == 'NewShape')
           NewShape.loadFromData(shapeData);
@@ -226,7 +227,6 @@ export class DrawingEnvironment {
         else if (shapeData.type == 'ArrowLineShape')
           ArrowLineShape.loadFromData(shapeData);
       });
-      console.log(this.shapes);
       data.segmentsData.forEach((segmentData) =>
         Segment.loadFromData(segmentData),
       );

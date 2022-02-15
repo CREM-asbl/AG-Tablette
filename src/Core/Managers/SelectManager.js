@@ -126,7 +126,7 @@ export class SelectManager {
 
     // all points at the correct distance
     let potentialPoints = [];
-    let allPoints = [...app.mainDrawingEnvironment.points];
+    let allPoints = [...app.mainDrawingEnvironment.points].filter(pt => pt.shape.geometryObject?.geometryIsVisible !== false);;
     if (constraints.canSelectFromUpper)
       allPoints.push(...app.upperDrawingEnvironment.points);
     allPoints.forEach((pt) => {
@@ -255,7 +255,7 @@ export class SelectManager {
 
     // all segments at the correct distance
     let potentialSegments = [];
-    let allSegments = [...app.mainDrawingEnvironment.segments];
+    let allSegments = [...app.mainDrawingEnvironment.segments].filter(seg => seg.shape.geometryObject?.geometryIsVisible !== false);
     if (constraints.canSelectFromUpper)
       allSegments.push(...app.upperDrawingEnvironment.segments);
     allSegments.forEach((seg) => {
@@ -332,7 +332,7 @@ export class SelectManager {
     let shapes = ShapeManager.shapesThatContainsCoordinates(
       mouseCoordinates,
       constraints,
-    );
+    ).filter(s => s.geometryObject?.geometryIsVisible !== false);
 
     if (constraints.whitelist != null) {
       shapes = shapes.filter((shape) => {

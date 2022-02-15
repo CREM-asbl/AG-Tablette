@@ -7,6 +7,8 @@ import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -138,18 +140,24 @@ export class DivideTool extends Tool {
   objectSelected(object) {
     if (app.tool.currentStep == 'selectObject') {
       if (object instanceof Segment) {
-        this.segmentId = object.id;
+        if (object.shape instanceof ArrowLineShape) {
+          this.vectorId = object.shape.id;
+          this.mode = 'vector';
+          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+        } else {
+          this.segmentId = object.id;
 
-        new LineShape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          strokeColor: this.drawColor,
-          strokeWidth: 3,
-          path: object.getSVGPath('no scale', true),
-          id: undefined,
-        });
+          new LineShape({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            strokeColor: this.drawColor,
+            strokeWidth: 3,
+            path: object.getSVGPath('no scale', true),
+            id: undefined,
+          });
 
-        this.mode = 'segment';
-        setState({ tool: { ...app.tool, currentStep: 'divide' } });
+          this.mode = 'segment';
+          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+        }
       } else {
         this.firstPointIds = object.map(pt => pt.id);
 
@@ -347,7 +355,7 @@ export class DivideTool extends Tool {
           }
         }
       });
-    } else {
+    } else if (this.mode == 'segment') {
       this.segment = app.mainDrawingEnvironment.findObjectById(
         this.segmentId,
         'segment',
@@ -362,6 +370,34 @@ export class DivideTool extends Tool {
           this.pointsModeAddSegPoints();
         }
       }
+    } else {
+      let vector = app.mainDrawingEnvironment.findObjectById(
+        this.vectorId,
+        'shape',
+      );
+      let secondPointCoordinates = vector.vertexes[0].coordinates.add(
+        vector.vertexes[1].coordinates
+          .substract(vector.vertexes[0].coordinates)
+          .multiply(1 / this.numberOfParts)
+      );
+      let path = [
+        'M',
+        vector.segments[0].vertexes[0].x,
+        vector.segments[0].vertexes[0].y,
+        'L',
+        secondPointCoordinates.x,
+        secondPointCoordinates.y,
+      ];
+      path = path.join(' ');
+
+      let newVector = new ArrowLineShape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: path,
+        fillColor: vector.fillColor,
+        fillOpacity: vector.fillOpacity,
+        strokeColor: vector.strokeColor,
+        geometryObject: new GeometryObject({}),
+      });
     }
   }
 
