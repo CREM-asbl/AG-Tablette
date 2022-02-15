@@ -393,6 +393,8 @@ export class DivideTool extends Tool {
       let newVector = new ArrowLineShape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: path,
+        name: vector.name,
+        familyName: vector.familyName,
         fillColor: vector.fillColor,
         fillOpacity: vector.fillOpacity,
         strokeColor: vector.strokeColor,

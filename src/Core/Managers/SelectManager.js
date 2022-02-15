@@ -69,7 +69,7 @@ export class SelectManager {
         canSelect: false,
         //Indépendamment de whitelist et blacklist, le point doit être
         //d'un des types renseignés dans ce tableau.
-        types: ['shapeCenter', 'vertex', 'divisionPoint', 'modifiablePoint'],
+        types: ['shapeCenter', 'vertex', 'divisionPoint', 'modifiablePoint', 'arcCenter'],
         /*
                 Liste pouvant contenir différents éléments sous la figure:
                     - {'shapeId': shapeId}
@@ -126,7 +126,7 @@ export class SelectManager {
 
     // all points at the correct distance
     let potentialPoints = [];
-    let allPoints = [...app.mainDrawingEnvironment.points].filter(pt => pt.shape.geometryObject?.geometryIsVisible !== false);;
+    let allPoints = [...app.mainDrawingEnvironment.points].filter(pt => pt.shape.geometryObject?.geometryIsVisible !== false);
     if (constraints.canSelectFromUpper)
       allPoints.push(...app.upperDrawingEnvironment.points);
     allPoints.forEach((pt) => {

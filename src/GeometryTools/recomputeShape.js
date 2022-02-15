@@ -23,10 +23,13 @@ export function computeAllShapeTransform(shape) {
   });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
     let child = app.upperDrawingEnvironment.findObjectById(childId);
-    let parentVertexes = app.upperDrawingEnvironment.findObjectById(child.geometryObject.geometryTransformationParentShapeId).vertexes;
+    let parentShape = app.upperDrawingEnvironment.findObjectById(child.geometryObject.geometryTransformationParentShapeId)
     child.vertexes.forEach((pt, idx) => {
-      pt.coordinates = parentVertexes[idx].coordinates;
+      pt.coordinates = parentShape.vertexes[idx].coordinates;
     });
+    if (child.familyName == "circle-shape") {
+      child.segments[0].arcCenter.coordinates = parentShape.segments[0].arcCenter.coordinates;
+    }
     let axis;
     if (child.geometryObject.geometryTransformationName == 'orthogonalSymetry') {
       if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {

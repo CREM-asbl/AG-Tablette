@@ -169,7 +169,6 @@ export class TranslationTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'trans') {
-      console.log('here');
       app.upperDrawingEnvironment.points.forEach((point) => {
         if (point.startCoordinates) {
           point.coordinates = point.startCoordinates.substract(

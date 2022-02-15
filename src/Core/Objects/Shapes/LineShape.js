@@ -358,6 +358,8 @@ export class LineShape extends NewShape {
       type: 'arcCenter',
       visible: false,
     });
+    if (app.environment.name == 'Geometrie')
+      arcCenter.visible = true;
 
     return arcCenter;
   }
