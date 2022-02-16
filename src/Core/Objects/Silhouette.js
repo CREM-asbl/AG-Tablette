@@ -2,6 +2,7 @@ import { Shape } from './Shape';
 import { app } from '../App';
 import { Coordinates } from './Coordinates';
 import { Bounds } from './Bounds';
+import { RegularShape } from './Shapes/RegularShape';
 
 export class Silhouette {
   /**
@@ -11,7 +12,7 @@ export class Silhouette {
   constructor(shapes = [], loadFromSave = false, level = 1) {
     this.level = level;
     this.shapes = shapes.map((shape) => {
-      let shapeCopy = new shape.construcor({
+      let shapeCopy = new RegularShape({
         ...shape,
         path: loadFromSave ? shape.path : shape.getSVGPath(false),
         drawingEnvironment: app.backgroundDrawingEnvironment,
