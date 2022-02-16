@@ -73,6 +73,11 @@ export class ArrowLineShape extends LineShape {
         x: 20 * Math.cos(arrowAngle - 0.35),
         y: 20 * Math.sin(arrowAngle - 0.35),
       }));
+      if (scaling == 'scale') {
+        arrowEndCoordinates = arrowEndCoordinates.toCanvasCoordinates();
+        firstTriangleCoord = firstTriangleCoord.toCanvasCoordinates();
+        secondTriangleCoord = secondTriangleCoord.toCanvasCoordinates();
+      }
       path += ` M ${arrowEndCoordinates.x} ${arrowEndCoordinates.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} M ${arrowEndCoordinates.x} ${arrowEndCoordinates.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y}`;
     }
     return path;
