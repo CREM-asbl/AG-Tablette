@@ -119,7 +119,7 @@ export class TranslationTool extends Tool {
           new s.constructor({
             ...s,
             drawingEnvironment: app.upperDrawingEnvironment,
-            path: s.getSVGPath('no scale'),
+            path: s.getSVGPath('no scale', false),
             id: undefined,
             divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
               return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
@@ -188,7 +188,7 @@ export class TranslationTool extends Tool {
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,
         id: undefined,
-        path: s.getSVGPath('no scale'),
+        path: s.getSVGPath('no scale', false),
         geometryObject: new GeometryObject({
           geometryTransformationChildShapeIds: [],
           geometryTransformationParentShapeId: s.id,

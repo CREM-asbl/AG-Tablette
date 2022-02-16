@@ -36,6 +36,12 @@ export class LineShape extends NewShape {
     isBiface = false,
   }) {
     super(arguments[0]);
+
+    if (this.name.endsWith('SemiStraightLine')) {
+      this.segments[0].isSemiInfinite = true;
+    } else if (this.name.endsWith('StraightLine')) {
+      this.segments[0].isInfinite = true;
+    }
   }
 
   /* #################################################################### */

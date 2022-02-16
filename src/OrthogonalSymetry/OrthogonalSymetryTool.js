@@ -103,7 +103,7 @@ export class OrthogonalSymetryTool extends Tool {
         } else {
           this.referenceShape = new LineShape({
             drawingEnvironment: app.upperDrawingEnvironment,
-            path: this.firstReference.getSVGPath('scale', true),
+            path: this.firstReference.getSVGPath('no scale', true),
             strokeColor: app.settings.referenceDrawColor,
             strokeWidth: 2,
           });
@@ -138,7 +138,7 @@ export class OrthogonalSymetryTool extends Tool {
           new s.constructor({
             ...s,
             drawingEnvironment: app.upperDrawingEnvironment,
-            path: s.getSVGPath('no scale'),
+            path: s.getSVGPath('no scale', false),
             id: undefined,
             divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
               return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
@@ -213,7 +213,7 @@ export class OrthogonalSymetryTool extends Tool {
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,
         id: undefined,
-        path: s.getSVGPath('no scale'),
+        path: s.getSVGPath('no scale', false),
         geometryObject: new GeometryObject({
           geometryTransformationChildShapeIds: [],
           geometryTransformationParentShapeId: s.id,

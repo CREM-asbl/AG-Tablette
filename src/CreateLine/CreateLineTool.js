@@ -127,7 +127,7 @@ export class CreateLineTool extends Tool {
 
     new LineShape({
       drawingEnvironment: app.upperDrawingEnvironment,
-      path: segment.getSVGPath('scale', true),
+      path: segment.getSVGPath('no-scale', true),
       strokeColor: app.settings.referenceDrawColor,
       strokeWidth: 2,
     });
@@ -168,11 +168,15 @@ export class CreateLineTool extends Tool {
           seg.isInfinite = true;
         }
         this.segments.push(seg);
+        let familyName = 'Line';
+        let name = app.tool.selectedLine;
         let shape = new LineShape({
           drawingEnvironment: app.upperDrawingEnvironment,
           segmentIds: this.segments.map((seg) => seg.id),
           pointIds: this.points.map((pt) => pt.id),
           strokeColor: app.settings.temporaryDrawColor,
+          name,
+          familyName,
         });
         if (app.tool.selectedLine == 'Vector') {
           shape = new ArrowLineShape({
@@ -180,6 +184,8 @@ export class CreateLineTool extends Tool {
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
             strokeColor: app.settings.temporaryDrawColor,
+            name,
+            familyName,
           });
         }
         this.segments.forEach((seg, idx) => {
