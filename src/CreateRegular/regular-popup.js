@@ -40,6 +40,10 @@ class RegularPopup extends LitElement {
         select {
           width: 2rem;
         }
+
+        input {
+          width: 80%;
+        }
       `,
     ];
   }

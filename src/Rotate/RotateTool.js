@@ -98,7 +98,7 @@ export class RotateTool extends Tool {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être tournées.' } }));
       return;
     }
-    if (shape.vertexes.some(vx => vx.reference != null) && shape.name != 'PointOnLine') {
+    if (shape.points.some(vx => vx.reference != null) && shape.name != 'PointOnLine') {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être tournées.' } }));
       return;
     }

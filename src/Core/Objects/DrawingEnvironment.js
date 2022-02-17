@@ -226,8 +226,17 @@ export class DrawingEnvironment {
           SinglePointShape.loadFromData(shapeData);
         else if (shapeData.type == 'ArrowLineShape')
           ArrowLineShape.loadFromData(shapeData);
-        else
-          console.log('no type');
+        else {
+          shapeData.fillColor = shapeData.color;
+          shapeData.fillOpacity = shapeData.opacity;
+          shapeData.strokeColor = shapeData.borderColor;
+          shapeData.strokeWidth = shapeData.borderSize;
+          if (shapeData.segmentIds == 1) {
+            LineShape.loadFromData(shapeData);
+          } else {
+            RegularShape.loadFromData(shapeData);
+          }
+        }
       });
       data.segmentsData.forEach((segmentData) =>
         Segment.loadFromData(segmentData),

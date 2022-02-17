@@ -199,7 +199,7 @@ export class ReverseTool extends Tool {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être retournées.' } }));
         return;
       }
-      if (selectedShape.vertexes.some(vx => vx.reference != null) && selectedShape.name != 'PointOnLine') {
+      if (selectedShape.points.some(vx => vx.reference != null) && selectedShape.name != 'PointOnLine') {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être retournées.' } }));
         return;
       }

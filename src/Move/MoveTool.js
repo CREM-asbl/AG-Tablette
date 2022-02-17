@@ -93,7 +93,7 @@ export class MoveTool extends Tool {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
       return;
     }
-    if (shape.vertexes.some(vx => vx.reference != null) && shape.name != 'PointOnLine') {
+    if (shape.points.some(vx => vx.reference != null) && shape.name != 'PointOnLine') {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être déplacées.' } }));
       return;
     }
@@ -105,12 +105,6 @@ export class MoveTool extends Tool {
       getAllLinkedShapesInGeometry(s, this.shapesToCopy)
     });
 
-    console.log(this.shapesToCopy[0].points.map(pt => pt.coordinates.x));
-    console.log(this.shapesToCopy[1].points[0].reference);
-    console.log(this.shapesToCopy[1].points[1].reference);
-    console.log(this.shapesToCopy[2].points[0].reference);
-    console.log(this.shapesToCopy[2].points[1].reference);
-
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
@@ -118,9 +112,7 @@ export class MoveTool extends Tool {
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
-    console.log(this.shapesToCopy[0].segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
-      return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx, id: dp.id };
-    })).flat())
+
     this.drawingShapes = this.shapesToCopy.map(
       (s) => {
         let newShape = new s.constructor({
@@ -152,11 +144,6 @@ export class MoveTool extends Tool {
         return newShape;
       }
     );
-    console.log(this.drawingShapes[0].points.map(pt => pt.coordinates.x));
-    console.log(this.drawingShapes[1].points[0].reference);
-    console.log(this.drawingShapes[1].points[1].reference);
-    console.log(this.drawingShapes[2].points[0].reference);
-    console.log(this.drawingShapes[2].points[1].reference);
     this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => inShape.id == s.id));
 
     app.mainDrawingEnvironment.editingShapeIds = this.shapesToCopy.map(
