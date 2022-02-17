@@ -387,6 +387,13 @@ export class LineShape extends NewShape {
     return true;
   }
 
+  isCircle() {
+    return (
+      this.segments[0].arcCenter &&
+      this.name == 'Circle'
+    );
+  }
+
   isCircleArc() {
     return (
       this.segments[0].arcCenter &&

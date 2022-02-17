@@ -225,12 +225,13 @@ export class ReverseTool extends Tool {
             let tangentPoint1 = new Point({
               drawingEnvironment: app.upperDrawingEnvironment,
               coordinates: tangentCoord1,
-              startCoordinates: new Coordinates(tangentCoord1),
-              endCoordinates: new Coordinates({
-                x: tangentCoord1.x + 2 * (seg.arcCenter.x - tangentCoord1.x),
-                y: tangentCoord1.y + 2 * (seg.arcCenter.y - tangentCoord1.y),
-              }),
               visible: false,
+            });
+            let center = selectedAxis.projectionOnSegment(tangentPoint1);
+            tangentPoint1.startCoordinates = new Coordinates(tangentCoord1);
+            tangentPoint1.endCoordinates = new Coordinates({
+              x: tangentCoord1.x + 2 * (center.x - tangentCoord1.x),
+              y: tangentCoord1.y + 2 * (center.y - tangentCoord1.y),
             });
             seg.tangentPoint1 = tangentPoint1;
 
@@ -240,12 +241,13 @@ export class ReverseTool extends Tool {
             let tangentPoint2 = new Point({
               drawingEnvironment: app.upperDrawingEnvironment,
               coordinates: tangentCoord2,
-              startCoordinates: new Coordinates(tangentCoord2),
-              endCoordinates: new Coordinates({
-                x: tangentCoord2.x + 2 * (seg.arcCenter.x - tangentCoord2.x),
-                y: tangentCoord2.y + 2 * (seg.arcCenter.y - tangentCoord2.y),
-              }),
               visible: false,
+            });
+            center = selectedAxis.projectionOnSegment(tangentPoint2);
+            tangentPoint2.startCoordinates = new Coordinates(tangentCoord2);
+            tangentPoint2.endCoordinates = new Coordinates({
+              x: tangentCoord2.x + 2 * (center.x - tangentCoord2.x),
+              y: tangentCoord2.y + 2 * (center.y - tangentCoord2.y),
             });
             seg.tangentPoint2 = tangentPoint2;
 
@@ -377,6 +379,25 @@ export class ReverseTool extends Tool {
               .substract(point.endCoordinates)
               .multiply(this.progress),
           );
+        })
+        s.segments.forEach(seg => {
+          if (seg.arcCenter) {
+            let point = seg.tangentPoint1
+            if (point.startCoordinates)
+              point.coordinates = point.startCoordinates.substract(
+                point.startCoordinates
+                  .substract(point.endCoordinates)
+                  .multiply(this.progress)
+              );
+            let point2 = seg.tangentPoint2
+
+            if (point2.startCoordinates)
+              point2.coordinates = point2.startCoordinates.substract(
+                point2.startCoordinates
+                  .substract(point2.endCoordinates)
+                  .multiply(this.progress)
+              );
+          }
         })
         if (this.progress >= 0.5 && this.lastProgress < 0.5) {
           s.reverse();
