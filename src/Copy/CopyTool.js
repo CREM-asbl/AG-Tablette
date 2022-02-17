@@ -8,6 +8,7 @@ import { Shape } from '../Core/Objects/Shape';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { GroupManager } from '../Core/Managers/GroupManager';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 
 /**
  * Dupliquer une figure
@@ -179,6 +180,8 @@ export class CopyTool extends Tool {
           return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
         })).flat(),
       });
+      if (newShape.geometryObject)
+        newShape.geometryObject = new GeometryObject({});
       shapesList.push(newShape);
       newShape.translate(this.translation);
     });

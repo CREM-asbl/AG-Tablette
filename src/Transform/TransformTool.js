@@ -290,7 +290,7 @@ export class TransformTool extends Tool {
           ratio = 1;
         point.ratio = ratio;
       }
-      computeShapeTransform(shape, [0]);
+      computeShapeTransform(shape);
       if (shape.name == 'RightAngleTrapeze2')
         computeConstructionSpec(shape);
       computeAllShapeTransform(shape);

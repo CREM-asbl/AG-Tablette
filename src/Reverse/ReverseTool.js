@@ -8,6 +8,9 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { NewShape } from '../Core/Objects/Shapes/NewShape';
+import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
+import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 
 /**
  * Retourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -79,6 +82,7 @@ export class ReverseTool extends Tool {
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -87,21 +91,58 @@ export class ReverseTool extends Tool {
     app.upperDrawingEnvironment.removeAllObjects();
 
     let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
+
+    this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
+    this.shapesToCopy = [...this.involvedShapes];
+    this.shapesToCopy.forEach(s => {
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy)
+    });
+
     this.center = selectedShape.centerCoordinates;
-    let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
-    this.drawingShapes = involvedShapes.map(
-      (s) =>
-        new s.constructor({
+    this.initialAngle = this.center.angleWith(
+      app.workspace.lastKnownMouseCoordinates,
+    );
+    this.lastAngle = this.initialAngle;
+
+    this.shapesToCopy.sort(
+      (s1, s2) =>
+        ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
+    );
+
+    this.drawingShapes = this.shapesToCopy.map(
+      (s) => {
+        let newShape = new s.constructor({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
-          path: s.getSVGPath('no scale', false),
-          id: undefined,
+          path: s.getSVGPath('no scale', false, false),
           divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx, id: dp.id };
           })).flat(),
-        }),
+        });
+        let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
+        let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
+        newShape.segmentIds = [...segIds];
+        newShape.pointIds = [...ptIds];
+        newShape.points.forEach((pt, idx) => {
+          pt.segmentIds = [...s.points[idx].segmentIds];
+          pt.reference = s.points[idx].reference;
+          pt.type = s.points[idx].type;
+          pt.ratio = s.points[idx].ratio;
+          pt.visible = s.points[idx].visible;
+        });
+        newShape.segments.forEach((seg, idx) => {
+          seg.isInfinite = s.segments[idx].isInfinite;
+          seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
+          seg.vertexIds = [...s.segments[idx].vertexIds];
+          seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
+          seg.arcCenterId = s.segments[idx].arcCenterId;
+        });
+        return newShape;
+      }
     );
-    app.mainDrawingEnvironment.editingShapeIds = involvedShapes.map(
+    this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => inShape.id == s.id));
+
+    app.mainDrawingEnvironment.editingShapeIds = this.shapesToCopy.map(
       (s) => s.id,
     );
     this.createAllAxes();
@@ -117,7 +158,8 @@ export class ReverseTool extends Tool {
     app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.shapes.blacklist = [
-      { shapeId: selectedShape.id },
+      // { shapeId: selectedShape.id },
+      app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s instanceof SinglePointShape)
     ];
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -153,21 +195,20 @@ export class ReverseTool extends Tool {
     ) {
       let selectedShape = object;
 
-      // let involvedShapes = ShapeManager.getAllBindedShapes(
-      //   selectedShape,
-      //   true,
-      // );
-      // involvedShapes.sort(
-      //   (s1, s2) =>
-      //     ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
-      // );
+      if (selectedShape.geometryObject?.geometryTransformationName != null) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être retournées.' } }));
+        return;
+      }
+      if (selectedShape.vertexes.some(vx => vx.reference != null) && selectedShape.name != 'PointOnLine') {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être retournées.' } }));
+        return;
+      }
 
       setState({
         tool: {
           ...app.tool,
           currentStep: 'selectAxis',
           selectedShapeId: selectedShape.id,
-          // involvedShapeIds: involvedShapes.map(s => s.id)
         },
       });
     } else if (
@@ -177,7 +218,7 @@ export class ReverseTool extends Tool {
       let selectedAxis = object;
       this.axisAngle = selectedAxis.getAngleWithHorizontal();
 
-      this.drawingShapes.forEach((shape) => {
+      this.shapesToMove.forEach((shape) => {
         shape.segments.forEach((seg) => {
           if (seg.arcCenter) {
             let tangentCoord1 = seg.centerProjectionOnSegment(this.axisAngle);
@@ -211,17 +252,26 @@ export class ReverseTool extends Tool {
             seg.axisAngle = this.axisAngle;
           }
         });
+        shape.points.forEach(pt => {
+          let center = selectedAxis.projectionOnSegment(pt);
+
+          pt.startCoordinates = new Coordinates(pt.coordinates);
+          pt.endCoordinates = new Coordinates({
+            x: pt.x + 2 * (center.x - pt.x),
+            y: pt.y + 2 * (center.y - pt.y),
+          });
+        })
       });
 
-      app.upperDrawingEnvironment.points.forEach((point) => {
-        let center = selectedAxis.projectionOnSegment(point);
+      // app.upperDrawingEnvironment.points.forEach((point) => {
+      //   let center = selectedAxis.projectionOnSegment(point);
 
-        point.startCoordinates = new Coordinates(point.coordinates);
-        point.endCoordinates = new Coordinates({
-          x: point.x + 2 * (center.x - point.x),
-          y: point.y + 2 * (center.y - point.y),
-        });
-      });
+      //   point.startCoordinates = new Coordinates(point.coordinates);
+      //   point.endCoordinates = new Coordinates({
+      //     x: point.x + 2 * (center.x - point.x),
+      //     y: point.y + 2 * (center.y - point.y),
+      //   });
+      // });
 
       this.axes.forEach((axis) =>
         app.upperDrawingEnvironment.removeObjectById(axis.id, 'shape'),
@@ -319,31 +369,48 @@ export class ReverseTool extends Tool {
    */
   refreshStateUpper() {
     if (app.tool.currentStep == 'reverse') {
-      app.upperDrawingEnvironment.points.forEach((point) => {
-        if (point.startCoordinates)
+      this.shapesToMove.forEach((s) => {
+        s.points.forEach(point => {
+          if (point.startCoordinates)
           point.coordinates = point.startCoordinates.substract(
             point.startCoordinates
               .substract(point.endCoordinates)
               .multiply(this.progress),
           );
+        })
+        if (this.progress >= 0.5 && this.lastProgress < 0.5) {
+          s.reverse();
+        }
+        computeAllShapeTransform(s);
       });
 
-      if (this.progress >= 0.5 && this.lastProgress < 0.5) {
-        // milieu animation
-        app.upperDrawingEnvironment.shapes.forEach((s) => {
-          s.reverse();
-        });
-      }
+      // this.shapesToMove.forEach(s => {
+      // });
+      // app.upperDrawingEnvironment.points.forEach((point) => {
+
+      // });
+
+      // if (this.progress >= 0.5 && this.lastProgress < 0.5) {
+      //   // milieu animation
+      //   app.upperDrawingEnvironment.shapes.forEach((s) => {
+      //     s.reverse();
+      //   });
+      // }
     }
   }
 
   _executeAction() {
     let selectedAxis = this.createAxis(app.tool.axisAngle).segments[0];
-    let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
-    let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
-    involvedShapes.forEach((s) => {
+    // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
+    // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
+    app.mainDrawingEnvironment.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => shapeToMove.id == editingShapeId)).forEach((sId, idxS) => {
+      let s = app.mainDrawingEnvironment.findObjectById(sId);
+    // involvedShapes.forEach((s) => {
       this.reverseShape(s, selectedAxis);
+
+      computeAllShapeTransform(s, 'main');
     });
+    // });
   }
 
   /**

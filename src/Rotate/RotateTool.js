@@ -5,6 +5,10 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Point } from '../Core/Objects/Point';
 import { Shape } from '../Core/Objects/Shape';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
 
 /**
  * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -63,6 +67,7 @@ export class RotateTool extends Tool {
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -89,30 +94,67 @@ export class RotateTool extends Tool {
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
+    if (shape.geometryObject?.geometryTransformationName != null) {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être tournées.' } }));
+      return;
+    }
+    if (shape.vertexes.some(vx => vx.reference != null) && shape.name != 'PointOnLine') {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être tournées.' } }));
+      return;
+    }
+
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.shapesToCopy = [...this.involvedShapes];
+    this.shapesToCopy.forEach(s => {
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy)
+    });
+
+    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+    this.lastKnownMouseCoordinates = this.startClickCoordinates;
+
     this.center = shape.centerCoordinates;
     this.initialAngle = this.center.angleWith(
       app.workspace.lastKnownMouseCoordinates,
     );
     this.lastAngle = this.initialAngle;
 
-    this.involvedShapes.sort(
+    this.shapesToCopy.sort(
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
-    this.drawingShapes = this.involvedShapes.map(
-      (s) =>
-        new s.constructor({
+    this.drawingShapes = this.shapesToCopy.map(
+      (s) => {
+        let newShape = new s.constructor({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
-          path: s.getSVGPath('no scale', false),
-          id: undefined,
+          path: s.getSVGPath('no scale', false, false),
           divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx, id: dp.id };
           })).flat(),
-        }),
+        });
+        let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
+        let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
+        newShape.segmentIds = [...segIds];
+        newShape.pointIds = [...ptIds];
+        newShape.points.forEach((pt, idx) => {
+          pt.segmentIds = [...s.points[idx].segmentIds];
+          pt.reference = s.points[idx].reference;
+          pt.type = s.points[idx].type;
+          pt.ratio = s.points[idx].ratio;
+          pt.visible = s.points[idx].visible;
+        });
+        newShape.segments.forEach((seg, idx) => {
+          seg.isInfinite = s.segments[idx].isInfinite;
+          seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
+          seg.vertexIds = [...s.segments[idx].vertexIds];
+          seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
+          seg.arcCenterId = s.segments[idx].arcCenterId;
+        });
+        return newShape;
+      }
     );
+    this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => inShape.id == s.id));
 
     if (app.environment.name != 'Cubes')
       new Point({
@@ -121,7 +163,7 @@ export class RotateTool extends Tool {
         color: this.drawColor,
       });
 
-    app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
+    app.mainDrawingEnvironment.editingShapeIds = this.shapesToCopy.map(
       (s) => s.id,
     );
     setState({ tool: { ...app.tool, currentStep: 'rotate' } });
@@ -130,36 +172,6 @@ export class RotateTool extends Tool {
 
   canvasMouseUp() {
     if (app.tool.currentStep != 'rotate') return;
-
-    let newAngle = this.center.angleWith(
-      app.workspace.lastKnownMouseCoordinates,
-    );
-    let rotationAngle = newAngle - this.initialAngle;
-    this.adjustedRotationAngle = rotationAngle;
-
-    if (app.environment.name == 'Tangram') {
-      const rotationAngleInDegree = (rotationAngle / Math.PI) * 180;
-      let adjustedRotationAngleInDegree = rotationAngleInDegree;
-      adjustedRotationAngleInDegree = Math.round(rotationAngleInDegree);
-      let sign = rotationAngleInDegree > 0 ? 1 : -1;
-      let absoluteValueRotationAngleInDegree = Math.abs(
-        adjustedRotationAngleInDegree,
-      );
-      if (absoluteValueRotationAngleInDegree % 5 <= 2) {
-        adjustedRotationAngleInDegree =
-          sign *
-          (absoluteValueRotationAngleInDegree -
-            (absoluteValueRotationAngleInDegree % 5));
-      } else {
-        adjustedRotationAngleInDegree =
-          sign *
-          (absoluteValueRotationAngleInDegree +
-            5 -
-            (absoluteValueRotationAngleInDegree % 5));
-      }
-      this.adjustedRotationAngle =
-        (adjustedRotationAngleInDegree * Math.PI) / 180;
-    }
 
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
@@ -175,26 +187,36 @@ export class RotateTool extends Tool {
         ),
         diffAngle = newAngle - this.lastAngle;
 
-      this.drawingShapes.forEach((s) => s.rotate(diffAngle, this.center));
-
       this.lastAngle = newAngle;
+      this.shapesToMove.forEach((s) => {
+        s.rotate(diffAngle, this.center);
+        computeAllShapeTransform(s);
+      });
     }
+    this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
   }
 
   _executeAction() {
-    let center = this.selectedShape.centerCoordinates;
-
-    this.involvedShapes.forEach((s) => {
-      s.rotate(this.adjustedRotationAngle, center);
-    });
-
-    let transformation = getShapeAdjustment(
-      this.involvedShapes,
+    let centerCoordinates = this.selectedShape.centerCoordinates;
+    let adjustment = getShapeAdjustment(
+      this.shapesToMove,
       this.selectedShape,
     );
-    this.involvedShapes.forEach((s) => {
-      s.rotate(transformation.rotationAngle, center);
-      s.translate(transformation.translation);
+    app.mainDrawingEnvironment.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => shapeToMove.id == editingShapeId)).forEach((sId, idxS) => {
+      let s = app.mainDrawingEnvironment.findObjectById(sId);
+      s.points.forEach((pt, idxPt) => {
+        pt.coordinates = new Coordinates(this.shapesToMove[idxS].points[idxPt].coordinates);
+        if (this.pointOnLineRatio)
+          pt.ratio = this.pointOnLineRatio;
+      });
+
+      s.rotate(
+        adjustment.rotationAngle,
+        centerCoordinates,
+      );
+      s.translate(adjustment.translation);
+
+      computeAllShapeTransform(s, 'main');
     });
   }
 }
