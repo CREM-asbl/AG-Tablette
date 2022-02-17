@@ -62,6 +62,7 @@ export class MoveTool extends Tool {
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s.name == 'PointOnIntersection');
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -104,6 +105,12 @@ export class MoveTool extends Tool {
       getAllLinkedShapesInGeometry(s, this.shapesToCopy)
     });
 
+    console.log(this.shapesToCopy[0].points.map(pt => pt.coordinates.x));
+    console.log(this.shapesToCopy[1].points[0].reference);
+    console.log(this.shapesToCopy[1].points[1].reference);
+    console.log(this.shapesToCopy[2].points[0].reference);
+    console.log(this.shapesToCopy[2].points[1].reference);
+
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
@@ -111,15 +118,18 @@ export class MoveTool extends Tool {
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
+    console.log(this.shapesToCopy[0].segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
+      return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx, id: dp.id };
+    })).flat())
     this.drawingShapes = this.shapesToCopy.map(
       (s) => {
         let newShape = new s.constructor({
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: s.getSVGPath('no scale', false, false),
-          divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx, id: dp.id };
-          })).flat(),
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+          }),
         });
         let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
         let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
@@ -142,6 +152,11 @@ export class MoveTool extends Tool {
         return newShape;
       }
     );
+    console.log(this.drawingShapes[0].points.map(pt => pt.coordinates.x));
+    console.log(this.drawingShapes[1].points[0].reference);
+    console.log(this.drawingShapes[1].points[1].reference);
+    console.log(this.drawingShapes[2].points[0].reference);
+    console.log(this.drawingShapes[2].points[1].reference);
     this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => inShape.id == s.id));
 
     app.mainDrawingEnvironment.editingShapeIds = this.shapesToCopy.map(

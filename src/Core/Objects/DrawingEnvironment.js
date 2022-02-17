@@ -226,6 +226,8 @@ export class DrawingEnvironment {
           SinglePointShape.loadFromData(shapeData);
         else if (shapeData.type == 'ArrowLineShape')
           ArrowLineShape.loadFromData(shapeData);
+        else
+          console.log('no type');
       });
       data.segmentsData.forEach((segmentData) =>
         Segment.loadFromData(segmentData),

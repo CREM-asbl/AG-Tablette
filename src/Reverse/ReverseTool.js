@@ -115,9 +115,9 @@ export class ReverseTool extends Tool {
           ...s,
           drawingEnvironment: app.upperDrawingEnvironment,
           path: s.getSVGPath('no scale', false, false),
-          divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx, id: dp.id };
-          })).flat(),
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+          }),
         });
         let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
         let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
