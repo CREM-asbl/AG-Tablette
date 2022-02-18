@@ -7,6 +7,8 @@ export function computeAllShapeTransform(shape, layer = 'upper') {
   if (app.environment.name != 'Geometrie') return;
   shape.geometryObject.geometryChildShapeIds.forEach(ref => {
     let sRef = app[layer + 'DrawingEnvironment'].findObjectById(ref);
+    if (!sRef)
+      return;
     let ptsMoved = [];
     sRef.points.forEach(pt => {
       if (pt.reference) {

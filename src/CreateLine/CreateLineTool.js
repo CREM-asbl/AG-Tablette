@@ -51,6 +51,7 @@ export class CreateLineTool extends Tool {
    start() {
     this.removeListeners();
     this.stopAnimation();
+    this.geometryParentObjectId = null;
 
     import('./lines-list');
     createElem('lines-list');
