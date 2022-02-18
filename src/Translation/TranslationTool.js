@@ -189,6 +189,9 @@ export class TranslationTool extends Tool {
         drawingEnvironment: app.mainDrawingEnvironment,
         id: undefined,
         path: s.getSVGPath('no scale', false),
+        divisionPointInfos: s.divisionPoints.map((dp) => {
+          return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx };
+        }),
         geometryObject: new GeometryObject({
           geometryTransformationChildShapeIds: [],
           geometryTransformationParentShapeId: s.id,

@@ -187,6 +187,22 @@ export class CreateCircleTool extends Tool {
   }
 
   canvasMouseUp() {
+    if (this.numberOfPointsDrawn == 2 && this.points[0].coordinates.dist(this.points[1].coordinates) < app.settings.magnetismDistance) {
+      let firstPointCoordinates = this.points[0].coordinates;
+      this.numberOfPointsDrawn = 1;
+      app.upperDrawingEnvironment.removeAllObjects();
+      this.points[0] = new Point({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        coordinates: firstPointCoordinates,
+        color: app.settings.temporaryDrawColor,
+        size: 2,
+      });
+      this.segments = [];
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point autre part.' } }));
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
+      return;
+    }
+
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       if (
         app.tool.selectedCircle == 'CirclePart' ||

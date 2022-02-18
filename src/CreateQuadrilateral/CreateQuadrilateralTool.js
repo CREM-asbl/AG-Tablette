@@ -149,6 +149,96 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   canvasMouseUp() {
+    for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
+      if (this.points[i].coordinates.dist(this.points[this.numberOfPointsDrawn - 1].coordinates) < app.settings.magnetismDistance) {
+        let firstPointCoordinates = this.points[0].coordinates;
+        if (this.numberOfPointsDrawn == 2) {
+          app.upperDrawingEnvironment.removeAllObjects();
+          this.numberOfPointsDrawn = 1;
+          this.points = [new Point({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: firstPointCoordinates,
+            color: app.settings.temporaryDrawColor,
+            size: 2,
+          })];
+          this.segments = [];
+        } else if (this.numberOfPointsDrawn == 3) {
+          let secondPointCoordinates = this.points[1].coordinates;
+          app.upperDrawingEnvironment.removeAllObjects();
+          this.numberOfPointsDrawn = 2;
+          this.points = [new Point({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: firstPointCoordinates,
+            color: app.settings.temporaryDrawColor,
+            size: 2,
+          }), new Point({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: secondPointCoordinates,
+            color: app.settings.temporaryDrawColor,
+            size: 2,
+          })];
+          this.segments = [new Segment({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            vertexIds: [
+              this.points[0].id,
+              this.points[1].id,
+            ],
+          })];
+          new RegularShape({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            segmentIds: [this.segments[0].id],
+            pointIds: this.segments[0].vertexIds,
+            strokeColor: app.settings.temporaryDrawColor,
+            fillOpacity: 0,
+          });
+        } else if (this.numberOfPointsDrawn == 4) {
+          let secondPointCoordinates = this.points[1].coordinates;
+          let thirdPointCoordinates = this.points[2].coordinates;
+          app.upperDrawingEnvironment.removeAllObjects();
+          this.numberOfPointsDrawn = 3;
+          this.points = [new Point({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: firstPointCoordinates,
+            color: app.settings.temporaryDrawColor,
+            size: 2,
+          }), new Point({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: secondPointCoordinates,
+            color: app.settings.temporaryDrawColor,
+            size: 2,
+          }), new Point({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: thirdPointCoordinates,
+            color: app.settings.temporaryDrawColor,
+            size: 2,
+          })];
+          this.segments = [new Segment({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            vertexIds: [
+              this.points[0].id,
+              this.points[1].id,
+            ],
+          }), new Segment({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            vertexIds: [
+              this.points[1].id,
+              this.points[2].id,
+            ],
+          })];
+          new RegularShape({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            segmentIds: this.segments.map(seg => seg.id),
+            pointIds: this.points.map(pt => pt.id),
+            strokeColor: app.settings.temporaryDrawColor,
+            fillOpacity: 0,
+          });
+        }
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point autre part.' } }));
+        setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
+        return;
+      }
+    }
+
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.executeAction();

@@ -141,6 +141,19 @@ export class CreateRegularTool extends Tool {
       setState({ tool: { ...app.tool, currentStep: 'drawSecondPoint' } });
     } else {
       this.stopAnimation();
+      if (this.firstPoint.coordinates.dist(this.secondPoint.coordinates) < app.settings.magnetismDistance) {
+        let firstPointCoordinates = this.firstPoint.coordinates;
+        app.upperDrawingEnvironment.removeAllObjects();
+        this.firstPoint = new Point({
+          drawingEnvironment: app.upperDrawingEnvironment,
+          coordinates: firstPointCoordinates,
+          color: app.settings.temporaryDrawColor,
+          size: 2,
+        });
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point autre part.' } }));
+        setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawSecondPoint' } });
+        return;
+      }
       this.adjustPoint(this.secondPoint);
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
