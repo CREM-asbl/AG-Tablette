@@ -51,6 +51,7 @@ export class GeometryConstraint {
       let s = new LineShape({
         drawingEnvironment: app.upperDrawingEnvironment,
         path: path,
+        name: 'constraints',
         strokeColor: app.settings.constraintsDrawColor,
         fillOpacity: 0,
       });

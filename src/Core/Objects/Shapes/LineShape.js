@@ -37,6 +37,11 @@ export class LineShape extends NewShape {
   }) {
     super(arguments[0]);
 
+    let centerId = this.center?.id;
+    if (centerId && this.pointIds[2] != centerId) {
+      this.pointIds = [this.pointIds[0], this.pointIds[1], centerId, ...this.pointIds.slice(2, -1)];
+    }
+
     if (this.name.endsWith('SemiStraightLine')) {
       this.segments[0].isSemiInfinite = true;
     } else if (this.name.endsWith('StraightLine')) {

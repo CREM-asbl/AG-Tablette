@@ -295,6 +295,7 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   getConstraints(pointNb) {
+    app.upperDrawingEnvironment.findObjectsByName('constraints').forEach(obj => app.upperDrawingEnvironment.removeObjectById(obj.id));
     this.constraints = this.quadrilateralDef.constraints[pointNb](this.points, this.segments);
   }
 

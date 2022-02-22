@@ -229,7 +229,6 @@ export class CreateTriangleTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'animatePoint') {
-      console.log('animate');
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );

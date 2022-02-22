@@ -389,7 +389,6 @@ export function computeDivisionPoint(point) {
   }
   let firstPoint = segment.vertexes[0];
   let secondPoint = segment.vertexes[1];
-  console.log(firstPoint, secondPoint);
   firstPoint.ratio = 0;
   secondPoint.ratio = 1;
 
