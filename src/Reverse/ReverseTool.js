@@ -371,13 +371,14 @@ export class ReverseTool extends Tool {
    */
   refreshStateUpper() {
     if (app.tool.currentStep == 'reverse') {
+      let progressInAnimation = Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
       this.shapesToMove.forEach((s) => {
         s.points.forEach(point => {
           if (point.startCoordinates)
           point.coordinates = point.startCoordinates.substract(
             point.startCoordinates
               .substract(point.endCoordinates)
-              .multiply(this.progress),
+              .multiply(progressInAnimation),
           );
         })
         s.segments.forEach(seg => {
@@ -387,7 +388,7 @@ export class ReverseTool extends Tool {
               point.coordinates = point.startCoordinates.substract(
                 point.startCoordinates
                   .substract(point.endCoordinates)
-                  .multiply(this.progress)
+                  .multiply(progressInAnimation)
               );
             let point2 = seg.tangentPoint2
 
@@ -395,7 +396,7 @@ export class ReverseTool extends Tool {
               point2.coordinates = point2.startCoordinates.substract(
                 point2.startCoordinates
                   .substract(point2.endCoordinates)
-                  .multiply(this.progress)
+                  .multiply(progressInAnimation)
               );
           }
         })

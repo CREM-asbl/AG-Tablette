@@ -29,7 +29,7 @@ export class TranslationTool extends Tool {
 
   selectFirstReference() {
     app.upperDrawingEnvironment.removeAllObjects();
-    window.clearTimeout(this.timeoutRef);
+    this.stopAnimation();
     this.removeListeners();
 
     this.firstReference = null;
@@ -62,7 +62,7 @@ export class TranslationTool extends Tool {
 
   end() {
     app.upperDrawingEnvironment.removeAllObjects();
-    window.clearTimeout(this.timeoutRef);
+    this.stopAnimation();
     this.removeListeners();
   }
 

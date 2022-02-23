@@ -29,7 +29,7 @@ export class OrthogonalSymetryTool extends Tool {
 
   selectFirstReference() {
     app.upperDrawingEnvironment.removeAllObjects();
-    window.clearTimeout(this.timeoutRef);
+    this.stopAnimation();
     this.removeListeners();
 
     this.firstReference = null;
@@ -69,7 +69,7 @@ export class OrthogonalSymetryTool extends Tool {
 
   end() {
     app.upperDrawingEnvironment.removeAllObjects();
-    window.clearTimeout(this.timeoutRef);
+    this.stopAnimation();
     this.removeListeners();
   }
 
@@ -187,12 +187,13 @@ export class OrthogonalSymetryTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'ortho') {
+      let progressInAnimation = Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
       app.upperDrawingEnvironment.points.forEach((point) => {
         if (point.startCoordinates)
           point.coordinates = point.startCoordinates.substract(
             point.startCoordinates
               .substract(point.endCoordinates)
-              .multiply(this.progress),
+              .multiply(progressInAnimation),
           );
       });
 

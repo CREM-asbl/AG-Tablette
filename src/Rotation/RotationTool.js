@@ -26,19 +26,9 @@ export class RotationTool extends Tool {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);
   }
 
-  // selectFirstReference() {
-  //   app.upperDrawingEnvironment.removeAllObjects();
-  //   window.clearTimeout(this.timeoutRef);
-  //   this.removeListeners();
-
-  //   this.references = [];
-
-  //   setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);
-  // }
-
   selectReference() {
     app.upperDrawingEnvironment.removeAllObjects();
-    window.clearTimeout(this.timeoutRef);
+    this.stopAnimation();
     this.removeListeners();
 
     this.references = [];
@@ -78,7 +68,7 @@ export class RotationTool extends Tool {
 
   end() {
     app.upperDrawingEnvironment.removeAllObjects();
-    window.clearTimeout(this.timeoutRef);
+    this.stopAnimation();
     this.removeListeners();
   }
 

@@ -27,7 +27,7 @@ export class CentralSymetryTool extends Tool {
 
   selectReference() {
     app.upperDrawingEnvironment.removeAllObjects();
-    window.clearTimeout(this.timeoutRef);
+    this.stopAnimation();
     this.removeListeners();
 
     this.reference = null;
@@ -56,7 +56,7 @@ export class CentralSymetryTool extends Tool {
 
   end() {
     app.upperDrawingEnvironment.removeAllObjects();
-    window.clearTimeout(this.timeoutRef);
+    this.stopAnimation();
     this.removeListeners();
   }
 

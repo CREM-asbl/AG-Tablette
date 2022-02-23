@@ -29,7 +29,7 @@ export class App {
       referenceDrawColor: '#a6dbff',
       referenceDrawColor2: '#4a88b2',
 
-      geometryTransformationAnimationDuration: 1,
+      geometryTransformationAnimationDuration: 2,
       geometryTransformationAnimation: false,
 
       automaticAdjustment: true,
