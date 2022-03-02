@@ -9,6 +9,8 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
+import { GroupManager } from '../Core/Managers/GroupManager';
 
 /**
  */
@@ -183,6 +185,8 @@ export class TranslationTool extends Tool {
 
   _executeAction() {
     let geometryTransformationCharacteristicElementIds = this.firstReference instanceof Point ? [this.firstReference.id, this.secondReference.id] : [this.firstReference.id];
+
+    let newShapes = [];
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
         ...s,
@@ -217,7 +221,12 @@ export class TranslationTool extends Tool {
         }
         newShape.translate(this.firstReference.points[1].coordinates.substract(this.firstReference.points[0].coordinates))
       }
+      newShapes.push(newShape);
     });
+    if (newShapes.length > 1) {
+      let group = new ShapeGroup(...newShapes.map(s => s.id));
+      GroupManager.addGroup(group);
+    }
   }
 
   setSelectionConstraints() {

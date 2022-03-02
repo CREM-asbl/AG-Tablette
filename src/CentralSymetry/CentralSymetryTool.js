@@ -7,6 +7,8 @@ import { Shape } from '../Core/Objects/Shape';
 import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 
 /**
  */
@@ -132,6 +134,7 @@ export class CentralSymetryTool extends Tool {
   }
 
   _executeAction() {
+    let newShapes = [];
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
         ...s,
@@ -154,7 +157,12 @@ export class CentralSymetryTool extends Tool {
         ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       }
       newShape.rotate(Math.PI, this.reference.coordinates);
+      newShapes.push(newShape);
     });
+    if (newShapes.length > 1) {
+      let group = new ShapeGroup(...newShapes.map(s => s.id));
+      GroupManager.addGroup(group);
+    }
   }
 
   setSelectionConstraints() {

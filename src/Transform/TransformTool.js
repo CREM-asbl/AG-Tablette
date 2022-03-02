@@ -105,20 +105,23 @@ export class TransformTool extends Tool {
   }
 
   objectSelected(points) {
-    let point = null;
     for (let i = 0; i < points.length; i++) {
       if (!points[i].reference) {
         points[i].computeTransformConstraint();
         let constraints = points[i].transformConstraints;
-        if (!constraints.isBlocked && !constraints.isConstructed) {
-          point = points[i];
-          break;
+        if (constraints.isBlocked || constraints.isConstructed) {
+          points.splice(i, 1);
+          i--;
         }
       }
     }
 
-    if (!point)
+    if (points.length == 0)
       return
+
+    let point = points.find(point => point.shape.name == 'PointOnLine');
+    if (!point)
+      point = points[0]
 
     this.constraints = point.transformConstraints;
 
@@ -140,7 +143,7 @@ export class TransformTool extends Tool {
           }),
         });
         let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
-        let ptIds = newShape.points.map((seg, idx) => seg.id = s.points[idx].id);
+        let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
         newShape.segmentIds = [...segIds];
         newShape.pointIds = [...ptIds];
         newShape.segments.forEach((seg, idx) => {
@@ -288,6 +291,14 @@ export class TransformTool extends Tool {
           ratio = 0;
         if (ratio > 1 && !reference.shape.name.endsWith('StraightLine'))
           ratio = 1;
+        if (reference.shape.name == 'Circle') {
+          let refShape = reference.shape;
+          const angle = refShape.segments[0].arcCenter.coordinates.angleWith(point.coordinates);
+          const refAngle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates);
+          ratio = (angle - refAngle) / Math.PI / 2;
+          if (ratio < 0)
+            ratio += 1;
+        }
         point.ratio = ratio;
       }
       computeShapeTransform(shape);

@@ -4,12 +4,14 @@ import { LitElement, html, css } from 'lit';
 class CirclesList extends LitElement {
   constructor() {
     super();
-    this.circlesNames = ['Circle']//, 'CirclePart', 'CircleArc'];
+    this.circlesNames = ['Circle', '30degreesArc', '45degreesArc']//, 'CirclePart', 'CircleArc'];
 
     this.circleTitle = {
       'Circle': 'Cercle',
       'CirclePart': 'Secteur circulaire',
       'CircleArc': 'Arc de cercle',
+      '30degreesArc': 'Arc de 30°',
+      '45degreesArc': 'Arc de 45°',
     }
 
     this.updateProperties = () => {

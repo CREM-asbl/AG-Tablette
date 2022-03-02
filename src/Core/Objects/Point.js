@@ -279,15 +279,15 @@ export class Point {
           }];
         }
       } else if (this.shape.name == 'Circle') {
-        if (this.name == 'arcCenter') {
+        if (this.type == 'arcCenter') {
           constraints.isBlocked = true;
         } else {
           constraints.isFree = true;
         }
       } else if (this.shape.name == 'CirclePart') {
-        if (this.name == 'arcCenter') {
+        if (this.type == 'arcCenter') {
           constraints.isBlocked = true;
-        } else if (this.name == 'firstPoint') {
+        } else if (this.idx == 0) {
           constraints.isFree = true;
         } else {
           constraints.isConstrained = true;
@@ -303,20 +303,7 @@ export class Point {
           constraints.lines = [constraintLine];
         }
       } else if (this.shape.name == 'CircleArc') {
-        if (this.name == 'firstPoint') constraints.isFree = true;
-        else if (this.name == 'secondPoint') {
-          constraints.isConstrained = true;
-          let constraintLine = {
-            segment: new Segment(
-              this.shape.segments[0].vertexes[1],
-              this.shape.segments[0].vertexes[1],
-              null,
-              null,
-              this.shape.segments[0].arcCenter,
-            ),
-          };
-          constraints.lines = [constraintLine];
-        } else if (this.name == 'arcCenter') {
+        if (this.type == 'arcCenter') {
           constraints.isConstrained = true;
           let seg = new Segment(
             this.shape.segments[0].vertexes[0],
@@ -335,8 +322,30 @@ export class Point {
             ),
           };
           constraints.lines = [constraintLine];
+        } else if (this.idx == 0) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstrained = true;
+          let constraintLine = {
+            segment: new Segment(
+              this.shape.segments[0].vertexes[1],
+              this.shape.segments[0].vertexes[1],
+              null,
+              null,
+              this.shape.segments[0].arcCenter,
+            ),
+          };
+          constraints.lines = [constraintLine];
         }
-      } else if (this.shape.familyName == 'Line') {
+      } else if (this.shape.name == '30degreesArc' || this.shape.name == '45degreesArc') {
+        if (this.type == 'arcCenter') {
+          constraints.isBlocked = true;
+        } else if (this.idx == 0) {
+          constraints.isFree = true;
+        } else {
+          constraints.isBlocked = true;
+        }
+      }  else if (this.shape.familyName == 'Line') {
         if (
           (this.shape.name == 'ParalleleSegment' ||
             this.shape.name == 'ParalleleSemiStraightLine') &&

@@ -42,19 +42,22 @@ export class UngroupTool extends Tool {
     app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
-    // setTimeout(() => {
-      app.mainDrawingEnvironment.shapes.map((s) => {
-        if (GroupManager.getShapeGroup(s) != null) {
-          new Text({
-            drawingEnvironment: app.upperDrawingEnvironment,
-            coordinates: s.centerCoordinates,
-            referenceId: s.id,
-            type: 'group',
-          });
-        }
-      });
-      // window.dispatchEvent(new CustomEvent('refreshUpper'));
-    // }, 50);
+    app.mainDrawingEnvironment.shapes.map((s) => {
+      let currentGroup = GroupManager.getShapeGroup(s);
+      if (currentGroup != null) {
+        new s.constructor({
+          ...s,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: s.getSVGPath('no scale', false, false),
+          fillOpacity: 0,
+          strokeColor: currentGroup.color,
+          strokeWidth: 3,
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+          }),
+        });
+      }
+    });
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;

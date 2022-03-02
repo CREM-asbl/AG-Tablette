@@ -71,6 +71,7 @@ export class App {
     this.stepSinceSave = false,
     this.started = false;
     this.appLoading = false;
+    this.nextGroupColorIdx = 0;
 
     this.defaultState = {
       tool: null,

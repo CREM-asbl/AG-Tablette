@@ -12,6 +12,7 @@ import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -148,6 +149,58 @@ export class CreateCircleTool extends Tool {
             strokeColor: app.settings.temporaryDrawColor,
             fillOpacity: 0,
           });
+        } else if (app.tool.selectedCircle == '30degreesArc') {
+          let angle = this.points[0].coordinates.angleWith(this.points[1].coordinates) + Math.PI / 6;
+          let radius = this.points[0].coordinates.dist(this.points[1].coordinates);
+          let thirdPointCoordinates = new Coordinates({
+            x: this.points[0].coordinates.x + Math.cos(angle) * radius,
+            y: this.points[0].coordinates.y + Math.sin(angle) * radius,
+          })
+          this.points[this.numberOfPointsDrawn] = new Point({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: thirdPointCoordinates,
+            color: app.settings.temporaryDrawColor,
+            size: 2,
+          });
+          let seg = new Segment({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            vertexIds: [this.points[1].id, this.points[2].id],
+            arcCenterId: this.points[0].id,
+          });
+          this.segments.push(seg);
+          new ArrowLineShape({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            segmentIds: this.segments.map((seg) => seg.id),
+            pointIds: this.points.map((pt) => pt.id),
+            strokeColor: app.settings.temporaryDrawColor,
+            fillOpacity: 0,
+          });
+        } else if (app.tool.selectedCircle == '45degreesArc') {
+          let angle = this.points[0].coordinates.angleWith(this.points[1].coordinates) + Math.PI / 4;
+          let radius = this.points[0].coordinates.dist(this.points[1].coordinates);
+          let thirdPointCoordinates = new Coordinates({
+            x: this.points[0].coordinates.x + Math.cos(angle) * radius,
+            y: this.points[0].coordinates.y + Math.sin(angle) * radius,
+          })
+          this.points[this.numberOfPointsDrawn] = new Point({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            coordinates: thirdPointCoordinates,
+            color: app.settings.temporaryDrawColor,
+            size: 2,
+          });
+          let seg = new Segment({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            vertexIds: [this.points[1].id, this.points[2].id],
+            arcCenterId: this.points[0].id,
+          });
+          this.segments.push(seg);
+          new ArrowLineShape({
+            drawingEnvironment: app.upperDrawingEnvironment,
+            segmentIds: this.segments.map((seg) => seg.id),
+            pointIds: this.points.map((pt) => pt.id),
+            strokeColor: app.settings.temporaryDrawColor,
+            fillOpacity: 0,
+          });
         }
       } else if (this.numberOfPointsDrawn == 3) {
         if (
@@ -270,6 +323,23 @@ export class CreateCircleTool extends Tool {
         app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
+      if (app.tool.selectedCircle == '30degreesArc' && this.numberOfPointsDrawn == 2) {
+        let angle = this.points[0].coordinates.angleWith(this.points[1].coordinates) + Math.PI / 6;
+        let radius = this.points[0].coordinates.dist(this.points[1].coordinates);
+        let thirdPointCoordinates = new Coordinates({
+          x: this.points[0].coordinates.x + Math.cos(angle) * radius,
+          y: this.points[0].coordinates.y + Math.sin(angle) * radius,
+        });
+        this.points[this.numberOfPointsDrawn].coordinates = thirdPointCoordinates;
+      } else if (app.tool.selectedCircle == '45degreesArc' && this.numberOfPointsDrawn == 2) {
+        let angle = this.points[0].coordinates.angleWith(this.points[1].coordinates) + Math.PI / 4;
+        let radius = this.points[0].coordinates.dist(this.points[1].coordinates);
+        let thirdPointCoordinates = new Coordinates({
+          x: this.points[0].coordinates.x + Math.cos(angle) * radius,
+          y: this.points[0].coordinates.y + Math.sin(angle) * radius,
+        });
+        this.points[this.numberOfPointsDrawn].coordinates = thirdPointCoordinates;
+      }
     }
   }
 
@@ -278,6 +348,8 @@ export class CreateCircleTool extends Tool {
     if (app.tool.selectedCircle == 'Circle') numberOfPointsRequired = 2;
     else if (app.tool.selectedCircle == 'CirclePart') numberOfPointsRequired = 3;
     else if (app.tool.selectedCircle == 'CircleArc') numberOfPointsRequired = 3;
+    else if (app.tool.selectedCircle == '30degreesArc') numberOfPointsRequired = 2;
+    else if (app.tool.selectedCircle == '45degreesArc') numberOfPointsRequired = 2;
     return numberOfPointsRequired;
   }
 
@@ -369,10 +441,27 @@ export class CreateCircleTool extends Tool {
         counterclockwise: !this.clockwise,
       });
       segments.push(seg);
+    } else {
+      [points[0], points[1], points[2]] = [points[1], points[2], points[0]];
+      points[0].type = 'vertex';
+      points[0].idx = 0;
+      points[1].type = 'vertex';
+      points[1].idx = 1;
+      points[2].type = 'arcCenter';
+      let seg = new Segment({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        idx: idx++,
+        vertexIds: [points[0].id, points[1].id],
+        arcCenterId: points[2].id,
+        counterclockwise: false,
+      });
+      segments.push(seg);
     }
 
-    let shape;
-    shape = new LineShape({
+    let constructor = LineShape;
+    if (app.tool.selectedCircle.endsWith('degreesArc'))
+      constructor = ArrowLineShape;
+    let shape = new constructor({
       drawingEnvironment: app.mainDrawingEnvironment,
       segmentIds: segments.map(seg => seg.id),
       pointIds: points.map(pt => pt.id),

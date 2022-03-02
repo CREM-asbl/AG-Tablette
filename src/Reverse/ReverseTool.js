@@ -195,13 +195,21 @@ export class ReverseTool extends Tool {
     ) {
       let selectedShape = object;
 
-      if (selectedShape.geometryObject?.geometryTransformationName != null) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être retournées.' } }));
-        return;
-      }
-      if (selectedShape.points.some(vx => vx.reference != null) && selectedShape.name != 'PointOnLine') {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être retournées.' } }));
-        return;
+      this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
+      for (let i = 0; i < this.involvedShapes.length; i++) {
+        let currentShape = this.involvedShapes[i];
+        if (currentShape.geometryObject?.geometryTransformationName != null) {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être retournées.' } }));
+          return;
+        }
+        if (currentShape.name.startsWith('Parallele') || currentShape.name.startsWith('Perpendicular')) {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les lignes parallèles ne peuvent pas être retournées.' } }));
+          return;
+        }
+        if (currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être retournées, mais peuvent être copiées.' } }));
+          return;
+        }
       }
 
       setState({

@@ -89,6 +89,8 @@ export class LineShape extends NewShape {
     if (this.isCircle()) {
       const center = this.segments[0].arcCenter;
       return new Coordinates(center.coordinates);
+    } else if (this.name.endsWith('StraightLine')) {
+      return this.vertexes[0].coordinates;
     } else {
       let totalCoordinates = Coordinates.nullCoordinates;
       this.vertexes.forEach((vertex) => {
@@ -661,30 +663,83 @@ export class LineShape extends NewShape {
       if (
         this.segments[i].hasSameDirection(this.segments[nextIdx], 1, 0, false)
       ) {
-        let middlePointId = this.segments[i].vertexIds[1];
-        let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
-        this.pointIds.splice(ptIdx, 1);
-        this.drawingEnvironment.removeObjectById(middlePointId, 'point');
-        this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
-        let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
-          (id) => id == this.segmentIds[nextIdx],
-        );
-        this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
-        if (this.segments[nextIdx].arcCenterId) {
-          this.drawingEnvironment.removeObjectById(
-            this.segments[nextIdx].arcCenterId,
+        if (this.name == 'Circle' && this.segments[0].radius < 0.001) {
+          let coord = this.segments[0].arcCenter.coordinates;
+          let counterclockwise = this.segments[0].counterclockwise;
+          this.pointIds.forEach(ptId => this.drawingEnvironment.removeObjectById(
+            ptId,
             'point',
+          ));
+          this.segmentIds.forEach(segId => this.drawingEnvironment.removeObjectById(
+            segId,
+            'segment',
+          ));
+          this.pointIds = [];
+          this.segmentIds = [];
+          new Point({
+            coordinates: coord,
+            shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
+            type: 'vertex',
+            idx: 0,
+            visible: this.isPointed,
+          })
+          new Point({
+            coordinates: coord,
+            shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
+            type: 'arcCenter',
+            visible: this.isPointed,
+          })
+          // new Point({
+          //   coordinates: coord,
+          //   shapeId: this.id,
+          //   drawingEnvironment: this.drawingEnvironment,
+          //   type: 'shapeCenter',
+          //   visible: this.isPointed,
+          // })
+          new Segment({
+            shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
+            idx: 0,
+            vertexIds: [this.pointIds[0]],
+            arcCenterId: this.pointIds[1],
+            counterclockwise,
+          });
+        } else {
+          let middlePointId = this.segments[i].vertexIds[1];
+          let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
+          this.pointIds.splice(ptIdx, 1);
+          this.drawingEnvironment.removeObjectById(middlePointId, 'point');
+          this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
+          if (this.segments[i].vertexes[1]) {
+            let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
+              (id) => id == this.segmentIds[nextIdx],
+            );
+            this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
+          } else {
+            let secondPointId = this.segments[i].vertexIds[1];
+            let ptIdx = this.pointIds.findIndex((ptId) => ptId == secondPointId);
+            this.pointIds.splice(ptIdx, 1);
+            this.drawingEnvironment.removeObjectById(secondPointId, 'point');
+            // this.segments[i].vertexIds.splice(1);
+          }
+          if (this.segments[nextIdx].arcCenterId) {
+            this.drawingEnvironment.removeObjectById(
+              this.segments[nextIdx].arcCenterId,
+              'point',
+            );
+            let idx = this.pointIds.findIndex(
+              (id) => id == this.segments[nextIdx].arcCenterId,
+            );
+            this.pointIds.splice(idx, 1);
+          }
+          this.drawingEnvironment.removeObjectById(
+            this.segmentIds[nextIdx],
+            'segment',
           );
-          idx = this.pointIds.findIndex(
-            (id) => id == this.segments[nextIdx].arcCenterId,
-          );
-          this.pointIds.splice(idx, 1);
+          this.segmentIds.splice(nextIdx, 1);
         }
-        this.drawingEnvironment.removeObjectById(
-          this.segmentIds[nextIdx],
-          'segment',
-        );
-        this.segmentIds.splice(nextIdx, 1);
         i--; // try to merge this new segment again!
       }
     }

@@ -11,6 +11,8 @@ import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
+import { GroupManager } from '../Core/Managers/GroupManager';
 
 /**
  */
@@ -319,6 +321,7 @@ export class RotationTool extends Tool {
   }
 
   _executeAction() {
+    let newShapes = [];
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
         ...s,
@@ -343,7 +346,12 @@ export class RotationTool extends Tool {
         }
       });
       newShape.rotate(this.angle, this.references[0].coordinates);
+      newShapes.push(newShape);
     });
+    if (newShapes.length > 1) {
+      let group = new ShapeGroup(...newShapes.map(s => s.id));
+      GroupManager.addGroup(group);
+    }
   }
 
   setSelectionConstraints() {

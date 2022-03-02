@@ -94,17 +94,24 @@ export class RotateTool extends Tool {
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
-    if (shape.geometryObject?.geometryTransformationName != null) {
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être tournées.' } }));
-      return;
-    }
-    if (shape.points.some(vx => vx.reference != null) && shape.name != 'PointOnLine') {
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être tournées.' } }));
-      return;
-    }
-
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    for (let i = 0; i < this.involvedShapes.length; i++) {
+      let currentShape = this.involvedShapes[i];
+      if (currentShape.geometryObject?.geometryTransformationName != null) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être tournées.' } }));
+        return;
+      }
+      if (currentShape.name.startsWith('Parallele') || currentShape.name.startsWith('Perpendicular')) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les lignes parallèles ne peuvent pas être tournées.' } }));
+        return;
+      }
+      if (currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être tournées, mais peuvent être copiées.' } }));
+        return;
+      }
+    }
+
     this.shapesToCopy = [...this.involvedShapes];
     this.shapesToCopy.forEach(s => {
       getAllLinkedShapesInGeometry(s, this.shapesToCopy)

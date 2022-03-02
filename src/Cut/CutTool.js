@@ -231,8 +231,8 @@ export class CutTool extends Tool {
           tool: { ...app.tool, currentStep: 'listen', firstPointId: undefined },
         });
       } else {
-        let shape = app.mainDrawingEnvironment.findObjectById(this.shapeId);
         for (let i = 0; i < cutPoints.length; i++) {
+          let shape = cutPoints[i][0].shape;//app.mainDrawingEnvironment.findObjectById(this.shapeId);
           if (!this.isLineValid(shape, cutPoints[i][0], cutPoints[i][1])) {
             cutPoints.splice(i, 1);
             i = -1;
@@ -403,7 +403,7 @@ export class CutTool extends Tool {
   _executeAction() {
     let pt1 = this.firstPoint,
       pt2 = this.secondPoint,
-      shape = app.mainDrawingEnvironment.findObjectById(this.shapeId),
+      shape = pt1.shape,//app.mainDrawingEnvironment.findObjectById(this.shapeId),
       firstPath,
       secondPath;
 

@@ -308,8 +308,15 @@ export function computeShapeTransform(shape, layer = 'upper') {
     );
     const part = segLength.multiply(shape.points[0].ratio);
 
-
     let coord = firstPoint.coordinates.add(part);
+    if (ref.shape.name == 'Circle') {
+      let refShape = ref.shape;
+      let angle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates) + shape.points[0].ratio * Math.PI * 2;
+      coord = refShape.segments[0].arcCenter.coordinates.add({
+        x: refShape.segments[0].radius * Math.cos(angle),
+        y: refShape.segments[0].radius * Math.sin(angle),
+      });
+    }
     shape.points[0].coordinates = coord;
   } else if (shape.name == 'PointOnShape') {
     let coord = shape.points[0].coordinates;
@@ -365,6 +372,22 @@ export function computeShapeTransform(shape, layer = 'upper') {
     if (coords.length == 1)
       coords[1] = new Coordinates({ x: -1000000000, y: -1000000000});
     shape.points.forEach((pt, idx) => pt.coordinates = coords[idx]);
+  } else if (shape.name == '30degreesArc') {
+    let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + Math.PI / 6;
+    let radius = shape.segments[0].arcCenter.coordinates.dist(shape.vertexes[0].coordinates);
+    let thirdPointCoordinates = new Coordinates({
+      x: shape.segments[0].arcCenter.coordinates.x + Math.cos(angle) * radius,
+      y: shape.segments[0].arcCenter.coordinates.y + Math.sin(angle) * radius,
+    })
+    shape.vertexes[1].coordinates = thirdPointCoordinates;
+  } else if (shape.name == '45degreesArc') {
+    let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + Math.PI / 4;
+    let radius = shape.segments[0].arcCenter.coordinates.dist(shape.vertexes[0].coordinates);
+    let thirdPointCoordinates = new Coordinates({
+      x: shape.segments[0].arcCenter.coordinates.x + Math.cos(angle) * radius,
+      y: shape.segments[0].arcCenter.coordinates.y + Math.sin(angle) * radius,
+    })
+    shape.vertexes[1].coordinates = thirdPointCoordinates;
   }
 
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));

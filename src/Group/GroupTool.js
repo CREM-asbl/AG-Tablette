@@ -18,6 +18,8 @@ export class GroupTool extends Tool {
     this.group = null;
 
     this.firstShape = null;
+
+    this.groupsColor = ['#77b5fe', '#ff8400', '#096a09', '#f00020', '#03224c', '#34c924', '#d473d4', '#fd3f92'];
   }
 
   /**
@@ -60,19 +62,22 @@ export class GroupTool extends Tool {
     app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
-    // setTimeout(() => {
-      app.mainDrawingEnvironment.shapes.map((s) => {
-        if (GroupManager.getShapeGroup(s) != null) {
-          new Text({
-            drawingEnvironment: app.upperDrawingEnvironment,
-            coordinates: s.centerCoordinates,
-            referenceId: s.id,
-            type: 'group',
-          });
-        }
-      });
-      // window.dispatchEvent(new CustomEvent('refreshUpper'));
-    // }, 50);
+    app.mainDrawingEnvironment.shapes.map((s) => {
+      let currentGroup = GroupManager.getShapeGroup(s);
+      if (currentGroup != null) {
+        new s.constructor({
+          ...s,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: s.getSVGPath('no scale', false, false),
+          fillOpacity: 0,
+          strokeColor: currentGroup.color,
+          strokeWidth: 3,
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+          }),
+        });
+      }
+    });
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
@@ -117,12 +122,16 @@ export class GroupTool extends Tool {
         setState({ tool: { ...app.tool, currentStep: 'fillGroup' } });
       } else {
         this.firstShapeId = shape.id;
-        new Text({
+        new shape.constructor({
+          ...shape,
           drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: shape.centerCoordinates,
-          message: 'Groupe ' + (app.workspace.shapeGroups.length + 1),
-          referenceId: this.firstShapeId,
-          type: 'group',
+          path: shape.getSVGPath('no scale', false, false),
+          fillOpacity: 0,
+          strokeColor: this.groupsColor[app.nextGroupColorIdx % 8],
+          strokeWidth: 3,
+          divisionPointInfos: shape.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+          }),
         });
         setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
@@ -139,12 +148,6 @@ export class GroupTool extends Tool {
         this.group = userGroup;
         this.mode = 'add';
       } else {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: shape.centerCoordinates,
-          referenceId: shape.id,
-          type: 'group',
-        });
         this.mode = 'new';
         this.secondShapeId = shape.id;
         this.group = GroupManager.getShapeGroup(shape);
@@ -177,12 +180,6 @@ export class GroupTool extends Tool {
         }
         this.mode = 'merge';
       } else {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: shape.centerCoordinates,
-          referenceId: shape.id,
-          type: 'group',
-        });
         this.mode = 'add';
         this.firstShapeId = shape.id;
       }
@@ -210,5 +207,22 @@ export class GroupTool extends Tool {
       group1.shapesIds = [...group1.shapesIds, ...group2.shapesIds];
       GroupManager.deleteGroup(group2);
     }
+    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainDrawingEnvironment.shapes.map((s) => {
+      let currentGroup = GroupManager.getShapeGroup(s);
+      if (currentGroup != null) {
+        new s.constructor({
+          ...s,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: s.getSVGPath('no scale', false, false),
+          fillOpacity: 0,
+          strokeColor: currentGroup.color,
+          strokeWidth: 3,
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+          }),
+        });
+      }
+    });
   }
 }

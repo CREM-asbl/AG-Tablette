@@ -56,6 +56,9 @@ export class NewShape {
     this.drawingEnvironment = drawingEnvironment;
     this.drawingEnvironment.shapes.push(this);
 
+    this.name = name;
+    this.familyName = familyName;
+
     this.isPointed = isPointed; // used for path, do not move
     if (path) {
       this.setSegmentsFromPath(path);
@@ -79,9 +82,6 @@ export class NewShape {
       this.pointIds = [...pointIds];
       this.segmentIds = [...segmentIds];
     }
-
-    this.name = name;
-    this.familyName = familyName;
 
     this.strokeColor = strokeColor;
     this.strokeWidth = strokeWidth;

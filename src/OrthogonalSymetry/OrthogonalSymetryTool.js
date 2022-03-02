@@ -9,6 +9,8 @@ import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
+import { GroupManager } from '../Core/Managers/GroupManager';
 
 /**
  */
@@ -101,6 +103,10 @@ export class OrthogonalSymetryTool extends Tool {
           });
           setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } });
         } else {
+          // dont select arc as symetry axe
+          if (object.isArc()) {
+            return;
+          }
           this.referenceShape = new LineShape({
             drawingEnvironment: app.upperDrawingEnvironment,
             path: this.firstReference.getSVGPath('no scale', true),
@@ -209,6 +215,7 @@ export class OrthogonalSymetryTool extends Tool {
   _executeAction() {
     let selectedAxis = this.referenceShape.segments[0];
 
+    let newShapes = [];
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
         ...s,
@@ -242,7 +249,12 @@ export class OrthogonalSymetryTool extends Tool {
         });
       }
       this.reverseShape(newShape, selectedAxis);
+      newShapes.push(newShape);
     });
+    if (newShapes.length > 1) {
+      let group = new ShapeGroup(...newShapes.map(s => s.id));
+      GroupManager.addGroup(group);
+    }
   }
 
   reverseShape(shape, selectedAxis) {

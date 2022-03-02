@@ -622,55 +622,55 @@ export class Segment {
   //   return save;
   // }
 
-  initFromObject(save) {
-    if (save.shape) this.shape = save.shape;
-    else if (save.shapeId) this.shape = ShapeManager.getShapeById(save.shapeId);
+  // initFromObject(save) {
+  //   if (save.shape) this.shape = save.shape;
+  //   else if (save.shapeId) this.shape = ShapeManager.getShapeById(save.shapeId);
 
-    this.vertexes = save.vertexes.map((pt) => {
-      let newVertex = new Point(pt, 'vertex', this, this.shape, pt.name);
-      return newVertex;
-    });
-    if (save.points && save.points.length) {
-      this.points = save.points.map((pt) => {
-        let newPoint = new Point(
-          pt,
-          'segmentPoint',
-          this,
-          this.shape,
-          pt.name,
-          pt.ratio,
-        );
-        return newPoint;
-      });
-    }
-    if (save.idx !== undefined) this.idx = save.idx;
-    if (save.arcCenter) {
-      let newPoint = new Point(
-        save.arcCenter,
-        'arcCenter',
-        this,
-        this.shape,
-        save.arcCenter.name,
-      );
-      this.arcCenter = newPoint;
-    }
-    if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
-    // if (save.tangentCoord1) this.tangentCoord1 = new Coordinates(save.tangentCoord1);
-    // if (save.tangentCoord2) this.tangentCoord2 = new Coordinates(save.tangentCoord2);
-    this.isInfinite = save.isInfinite;
-    this.isSemiInfinite = save.isSemiInfinite;
-  }
+  //   this.vertexes = save.vertexes.map((pt) => {
+  //     let newVertex = new Point(pt, 'vertex', this, this.shape, pt.name);
+  //     return newVertex;
+  //   });
+  //   if (save.points && save.points.length) {
+  //     this.points = save.points.map((pt) => {
+  //       let newPoint = new Point(
+  //         pt,
+  //         'segmentPoint',
+  //         this,
+  //         this.shape,
+  //         pt.name,
+  //         pt.ratio,
+  //       );
+  //       return newPoint;
+  //     });
+  //   }
+  //   if (save.idx !== undefined) this.idx = save.idx;
+  //   if (save.arcCenter) {
+  //     let newPoint = new Point(
+  //       save.arcCenter,
+  //       'arcCenter',
+  //       this,
+  //       this.shape,
+  //       save.arcCenter.name,
+  //     );
+  //     this.arcCenter = newPoint;
+  //   }
+  //   if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
+  //   // if (save.tangentCoord1) this.tangentCoord1 = new Coordinates(save.tangentCoord1);
+  //   // if (save.tangentCoord2) this.tangentCoord2 = new Coordinates(save.tangentCoord2);
+  //   this.isInfinite = save.isInfinite;
+  //   this.isSemiInfinite = save.isSemiInfinite;
+  // }
 
-  static retrieveFrom(segment) {
-    console.trace();
-    let newSegmentCopy = new Segment();
-    newSegmentCopy.initFromObject(segment);
-    return newSegmentCopy.shape.segments[newSegmentCopy.idx];
-  }
+  // static retrieveFrom(segment) {
+  //   console.trace();
+  //   let newSegmentCopy = new Segment();
+  //   newSegmentCopy.initFromObject(segment);
+  //   return newSegmentCopy.shape.segments[newSegmentCopy.idx];
+  // }
 
-  isVertex(point) {
-    return point.equal(this.vertexes[0]) || point.equal(this.vertexes[1]);
-  }
+  // isVertex(point) {
+  //   return point.equal(this.vertexes[0]) || point.equal(this.vertexes[1]);
+  // }
 
   /**
    * divide a segment with points and return the subsegments
@@ -985,8 +985,18 @@ export class Segment {
       this.isArc() &&
       segment.isArc() &&
       !this.arcCenter.coordinates.equal(segment.arcCenter.coordinates, 0.001)
-    )
+    ) {
       return false;
+    }
+    if (
+      this.isArc() &&
+      segment.isArc() &&
+      this.arcCenter.coordinates.equal(segment.arcCenter.coordinates, 0.001) &&
+      this.radius == 0 &&
+      segment.radius == 0
+    ) {
+      return true;
+    }
     if (this.isArc()) dir1 = this.getArcTangent(vertexNb1);
     else dir1 = this.direction;
     if (segment.isArc()) dir2 = segment.getArcTangent(vertexNb2);

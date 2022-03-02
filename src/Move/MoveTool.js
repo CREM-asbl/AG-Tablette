@@ -7,6 +7,7 @@ import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 
 /**
  * Déplacer une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -62,7 +63,8 @@ export class MoveTool extends Tool {
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
-    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s.name == 'PointOnIntersection');
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s instanceof SinglePointShape);
+    // app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s.name == 'PointOnIntersection');
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -89,17 +91,26 @@ export class MoveTool extends Tool {
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
-    if (shape.geometryObject?.geometryTransformationName != null) {
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
-      return;
-    }
-    if (shape.points.some(vx => vx.reference != null) && shape.name != 'PointOnLine') {
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être déplacées.' } }));
-      return;
-    }
-
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    for (let i = 0; i < this.involvedShapes.length; i++) {
+      let currentShape = this.involvedShapes[i];
+      if (currentShape.geometryObject?.geometryTransformationName != null) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
+        return;
+      }
+      if (currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être déplacées, mais peuvent être copiées.' } }));
+        return;
+      }
+    }
+    this.involvedShapes.forEach(s => s.points.forEach(vx => {
+      if (vx.reference != null) {
+        let refPoint = app.mainDrawingEnvironment.findObjectById(vx.reference, 'point')
+        if (refPoint.shape.name == 'Point')
+        this.involvedShapes.push(refPoint.shape)
+      }
+    }));
     this.shapesToCopy = [...this.involvedShapes];
     this.shapesToCopy.forEach(s => {
       getAllLinkedShapesInGeometry(s, this.shapesToCopy)

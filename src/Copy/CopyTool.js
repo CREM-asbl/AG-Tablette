@@ -9,6 +9,7 @@ import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 
 /**
  * Dupliquer une figure
@@ -69,6 +70,7 @@ export class CopyTool extends Tool {
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -180,6 +182,10 @@ export class CopyTool extends Tool {
           return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx };
         }),
       });
+      if (newShape.name.startsWith('Parallele'))
+        newShape.name = newShape.name.slice('Parallele'.length);
+      if (newShape.name.startsWith('Perpendicular'))
+        newShape.name = newShape.name.slice('Perpendicular'.length);
       if (newShape.geometryObject)
         newShape.geometryObject = new GeometryObject({});
       shapesList.push(newShape);

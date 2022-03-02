@@ -1,4 +1,5 @@
 import { uniqId } from '../Tools/general';
+import { setState, app } from '../App';
 
 /**
  * Groupe de figures liées. Un tel groupe est créé par l'utilisateur à l'aide de
@@ -21,6 +22,9 @@ export class ShapeGroup {
 
     //Identifiant unique du groupe
     this.id = uniqId();
+
+    this.color = ['#77b5fe', '#ff8400', '#096a09', '#f00020', '#03224c', '#34c924', '#d473d4', '#fd3f92'][app.nextGroupColorIdx];
+    setState({ nextGroupColorIdx: (app.nextGroupColorIdx + 1) % 8 });
   }
 
   saveToObject() {
