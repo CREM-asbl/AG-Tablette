@@ -1,4 +1,7 @@
 import { app } from '../App';
+import { LineShape } from '../Objects/Shapes/LineShape';
+import { RegularShape } from '../Objects/Shapes/RegularShape';
+import { SinglePointShape } from '../Objects/Shapes/SinglePointShape';
 import { ShapeManager } from './ShapeManager';
 
 /*
@@ -349,8 +352,25 @@ export class SelectManager {
         });
       });
     }
-    if (shapes.length > 0) return shapes[0];
 
+    if (shapes.length > 0) {
+      if (shapes[0] instanceof RegularShape)
+        return shapes[0]
+      let idx = shapes.findIndex(s => s instanceof RegularShape);
+      if (idx != -1)
+        shapes = shapes.slice(0, idx);
+      let dists = shapes.map(s => {
+        if (s instanceof LineShape) {
+          let projection = s.segments[0].projectionOnSegment(mouseCoordinates);
+          return projection.dist(mouseCoordinates);
+        } else if (s instanceof SinglePointShape) {
+            return s.points[0].dist(mouseCoordinates);
+        }
+      });
+      const minDistance = Math.min(...dists);
+      const minDistanceIndex = dists.indexOf(minDistance);
+      return shapes[minDistanceIndex];
+    }
     return null;
   }
 

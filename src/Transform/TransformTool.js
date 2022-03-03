@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
+import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
@@ -9,6 +10,7 @@ import {
   computeAllShapeTransform,
   computeConstructionSpec, computeShapeTransform, projectionOnConstraints
 } from '../GeometryTools/recomputeShape';
+import { GridManager } from '../Grid/GridManager';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -240,6 +242,7 @@ export class TransformTool extends Tool {
         }
       }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
+      this.adjustPoint(point);
       if (shape.name == 'Trapeze' && point.idx >= 3) {
         point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
         computeConstructionSpec(shape);
@@ -328,6 +331,35 @@ export class TransformTool extends Tool {
           // );
         });
       });
+    }
+  }
+
+  adjustPoint(point) {
+    let constraints = SelectManager.getEmptySelectionConstraints().points;
+    constraints.canSelect = true;
+    if (point.shape.name == 'PointOnLine') {
+      let segment = app.upperDrawingEnvironment.findObjectById(point.shape.geometryObject.geometryParentObjectId1, 'segment');
+      constraints.whitelist = [
+        { shapeId: segment.shape.id, type: 'divisionPoint', index: segment.idx },
+        { shapeId: segment.shape.id, type: 'vertex', index: segment.idx },
+        { shapeId: segment.shape.id, type: 'vertex', index: (segment.idx + 1) % segment.shape.segmentIds.length }
+      ];
+    } else {
+      constraints.blacklist = this.drawingShapes.map((s) => {
+        return { shapeId: s.id };
+      });
+    }
+    let adjustedCoordinates = SelectManager.selectPoint(
+      point.coordinates,
+      constraints,
+      false,
+    );
+    if (adjustedCoordinates) {
+      point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
+    } else if (point.shape.name != 'PointOnLine') {
+      let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+      if (gridPoint)
+        point.coordinates = new Coordinates(gridPoint.coordinates);
     }
   }
 
