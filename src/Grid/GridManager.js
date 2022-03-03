@@ -1,6 +1,6 @@
 import { app, setState } from '../Core/App';
-import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
 import { createElem } from '../Core/Tools/general';
 
 //Todo: Créer un event plus précis

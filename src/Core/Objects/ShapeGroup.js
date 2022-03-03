@@ -1,5 +1,5 @@
+import { app, setState } from '../App';
 import { uniqId } from '../Tools/general';
-import { setState, app } from '../App';
 
 /**
  * Groupe de figures liées. Un tel groupe est créé par l'utilisateur à l'aide de

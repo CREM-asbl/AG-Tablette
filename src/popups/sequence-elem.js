@@ -1,5 +1,4 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from './template-popup';
+import { css, html, LitElement } from 'lit';
 import { findFilesByIds } from '../Firebase/firebase-init';
 import './file-elem';
 

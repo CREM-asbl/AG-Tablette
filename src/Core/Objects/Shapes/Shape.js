@@ -1,14 +1,14 @@
 import { app } from '../../App';
-import { getComplementaryColor, uniqId, mod } from '../../Tools/general';
-import { Point } from './../Point';
-import { Segment } from './../Segment';
+import { getComplementaryColor, mod, uniqId } from '../../Tools/general';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
+import { Point } from '../Point';
+import { Segment } from '../Segment';
 
 /**
  * Représente une figure
  */
-export class NewShape {
+export class Shape {
   /**
    * @param {String}                      id
    * @param {DrawingEnvironment}          drawingEnvironment
@@ -735,7 +735,7 @@ export class NewShape {
     if (!data.position) {
       data.position = 'main';
     }
-    let shape = new NewShape({
+    let shape = new Shape({
       drawingEnvironment: app[data.position + 'DrawingEnvironment'],
     });
     Object.assign(shape, data);

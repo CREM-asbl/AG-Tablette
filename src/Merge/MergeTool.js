@@ -1,9 +1,8 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
-import { Shape } from '../Core/Objects/Shape';
+import { Tool } from '../Core/States/Tool';
 import { getAverageColor } from '../Core/Tools/general';
 
 /**
@@ -85,7 +84,6 @@ export class MergeTool extends Tool {
 
   /**
    * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (onClick)
-   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     let mustExecuteAction = false;
@@ -291,8 +289,6 @@ export class MergeTool extends Tool {
 
   /**
    *
-   * @param {Shape} shape1 la premiere figure à fusionner
-   * @param {Shape} shape2 la seconde figure à fusionner
    * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
    */
   createNewSegments(shape1, shape2) {
@@ -549,7 +545,6 @@ export class MergeTool extends Tool {
   /**
    * crée la figure fusionnée et l'ajoute au workspace
    * @param {String} path
-   * @param {Shape} shapes            les figures a fusionner
    */
   createNewShape(path, ...shapes) {
     let newShape = new shapes[0].constructor({

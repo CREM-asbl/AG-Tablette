@@ -1,16 +1,12 @@
 import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
-import { html } from 'lit';
-import { createElem } from '../Core/Tools/general';
+import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
-import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
-import { ShapeGroup } from '../Core/Objects/ShapeGroup';
-import { GroupManager } from '../Core/Managers/GroupManager';
+import { Tool } from '../Core/States/Tool';
 
 /**
  */

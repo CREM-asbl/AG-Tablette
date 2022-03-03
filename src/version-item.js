@@ -1,6 +1,6 @@
-import { app } from './Core/App';
-import { LitElement, html, css } from 'lit';
+import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { app } from './Core/App';
 
 @customElement('version-item')
 class VersionItem extends LitElement {

@@ -1,13 +1,12 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
-import { Shape } from '../Core/Objects/Shape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
-import { Coordinates } from '../Core/Objects/Coordinates';
-import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
 
 /**
@@ -89,7 +88,6 @@ export class RotateTool extends Tool {
 
   /**
    * Appelée par événement du SelectManager quand une figure est sélectionnée (canvasMouseDown)
-   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;

@@ -1,8 +1,8 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from './template-popup';
-import { goToHomePage } from '../Core/Tools/general';
+import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
+import { goToHomePage } from '../Core/Tools/general';
 import './save-warning';
+import { TemplatePopup } from './template-popup';
 
 class HomePopup extends LitElement {
   constructor() {

@@ -1,18 +1,17 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem, uniqId } from '../Core/Tools/general';
+import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
-import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
-import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
-import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
+import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
-import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Tool } from '../Core/States/Tool';
+import { createElem } from '../Core/Tools/general';
+import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -308,6 +307,10 @@ export class CreateCircleTool extends Tool {
       );
       if (adjustedCoordinates) {
         point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
+      } else {
+        let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+        if (gridPoint)
+          point.coordinates = new Coordinates(gridPoint.coordinates);
       }
     } else {
       let adjustedCoordinates = this.constraints.projectionOnConstraints(

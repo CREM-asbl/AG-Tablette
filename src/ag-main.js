@@ -1,25 +1,25 @@
-import { LitElement, html, css } from 'lit';
-import './div-main-canvas';
-import { TemplateToolbar } from './template-toolbar';
-import './toolbar-kit';
-import './toolbar-section';
-import './icon-button';
-import './popups/notification';
-import './version-item';
+import { css, html, LitElement } from 'lit';
+import { customElement } from 'lit/decorators.js';
 import './color-button';
-
 import { app, setState } from './Core/App';
+import './Core/Managers/DrawManager';
+import './Core/Managers/FullHistoryManager';
+import './Core/Managers/GroupManager';
+import { HistoryManager } from './Core/Managers/HistoryManager';
 import { OpenFileManager } from './Core/Managers/OpenFileManager';
 import './Core/Managers/SaveFileManager';
 import './Core/Managers/SelectManager';
-import './Core/Managers/WorkspaceManager';
-import './Core/Managers/GroupManager';
 import './Core/Managers/ShapeManager';
-import './Core/Managers/DrawManager';
-import './Core/Managers/FullHistoryManager';
-import { HistoryManager } from './Core/Managers/HistoryManager';
+import './Core/Managers/WorkspaceManager';
 import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
-import { customElement } from 'lit/decorators.js';
+import './div-main-canvas';
+import './icon-button';
+import './popups/notification';
+import { TemplateToolbar } from './template-toolbar';
+import './toolbar-kit';
+import './toolbar-section';
+import './version-item';
+
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 

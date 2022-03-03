@@ -1,18 +1,14 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { Shape } from '../Core/Objects/Shape';
-import { SelectManager } from '../Core/Managers/SelectManager';
+import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
-import {
-    computeShapeTransform,
-    computeAllShapeTransform,
-    computeConstructionSpec,
-    projectionOnConstraints
-} from '../GeometryTools/recomputeShape';
-import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { Tool } from '../Core/States/Tool';
+import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
+import {
+  computeAllShapeTransform,
+  computeConstructionSpec, computeShapeTransform, projectionOnConstraints
+} from '../GeometryTools/recomputeShape';
 
 /**
  * Ajout de figures sur l'espace de travail

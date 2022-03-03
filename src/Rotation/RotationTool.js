@@ -1,18 +1,14 @@
 import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
-import { html } from 'lit';
-import { createElem } from '../Core/Tools/general';
+import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Shape } from '../Core/Objects/Shape';
+import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
-import { Coordinates } from '../Core/Objects/Coordinates';
-import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
-import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
-import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
-import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
-import { GroupManager } from '../Core/Managers/GroupManager';
+import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { Tool } from '../Core/States/Tool';
+import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 
 /**
  */

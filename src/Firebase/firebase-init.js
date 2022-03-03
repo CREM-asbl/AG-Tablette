@@ -1,16 +1,12 @@
-// import firebase from 'firebase/compat/app';
-// import 'firebase/compat/analytics';
-// import 'firebase/compat/performance';
-
+import { getAnalytics } from "firebase/analytics";
+import { initializeApp } from 'firebase/app';
+import { collection, doc, getDoc, getDocs, getFirestore, query } from "firebase/firestore";
+import { getPerformance } from "firebase/performance";
 import { app, setState } from '../Core/App';
-import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import { loadEnvironnement } from '../Core/Environments/Environment';
+import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import config from './firebase-config.json';
 
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, getDoc, getDocs, doc } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
-import { getPerformance } from "firebase/performance";
 
 const firebaseApp = initializeApp(config);
 const db = getFirestore(firebaseApp);

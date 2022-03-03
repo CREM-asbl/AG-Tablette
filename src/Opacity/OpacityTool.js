@@ -1,8 +1,8 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem } from '../Core/Tools/general';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Tool } from '../Core/States/Tool';
+import { createElem } from '../Core/Tools/general';
 import './opacity-popup';
 
 /**

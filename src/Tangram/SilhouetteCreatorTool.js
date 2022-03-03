@@ -1,7 +1,7 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { Silhouette } from '../Core/Objects/Silhouette';
+import { Tool } from '../Core/States/Tool';
 import { TangramManager } from './TangramManager';
 
 /**

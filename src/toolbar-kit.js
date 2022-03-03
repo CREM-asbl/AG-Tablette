@@ -1,5 +1,5 @@
+import { html, LitElement } from 'lit';
 import { app, setState } from './Core/App';
-import { LitElement, html, css } from 'lit';
 import { TemplateToolbar } from './template-toolbar';
 
 class ToolbarKit extends LitElement {

@@ -1,14 +1,13 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem } from '../Core/Tools/general';
-import { Segment } from '../Core/Objects/Segment';
-import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
+import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { Tool } from '../Core/States/Tool';
+import { createElem } from '../Core/Tools/general';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)

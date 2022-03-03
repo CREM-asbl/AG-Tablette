@@ -1,7 +1,3 @@
-import { uniqId } from '../../Tools/general';
-// import { NewShape } from './NewShape';
-import { RegularShape } from './RegularShape';
-
 export class GeometryObject {
 
   constructor({

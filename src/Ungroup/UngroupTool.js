@@ -1,8 +1,7 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
-import { Text } from '../Core/Objects/Text';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Supprimer un groupe (ne supprime pas les figures).

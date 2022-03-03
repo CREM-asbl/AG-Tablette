@@ -1,14 +1,13 @@
 import { GridManager } from '../../Grid/GridManager';
-import { Shape } from './Shape';
-import { Segment } from './Segment';
-import { Point } from './Point';
 import { app } from '../App';
-
-import { NewShape } from './Shapes/NewShape';
+import { Point } from './Point';
+import { Segment } from './Segment';
+import { ArrowLineShape } from './Shapes/ArrowLineShape';
 import { LineShape } from './Shapes/LineShape';
 import { RegularShape } from './Shapes/RegularShape';
+import { Shape } from './Shapes/Shape';
 import { SinglePointShape } from './Shapes/SinglePointShape';
-import { ArrowLineShape } from './Shapes/ArrowLineShape';
+
 
 export class DrawingEnvironment {
   constructor(canvas, name) {
@@ -216,8 +215,8 @@ export class DrawingEnvironment {
     this.removeAllObjects();
     if (data != undefined) {
       data.shapesData.forEach((shapeData) => {
-        if (shapeData.type == 'NewShape')
-          NewShape.loadFromData(shapeData);
+        if (shapeData.type == 'Shape')
+          Shape.loadFromData(shapeData);
         else if (shapeData.type == 'RegularShape')
           RegularShape.loadFromData(shapeData);
         else if (shapeData.type == 'LineShape')

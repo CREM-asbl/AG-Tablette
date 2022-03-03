@@ -1,7 +1,7 @@
 import { app, setState } from '../App';
-import { SelectManager } from './SelectManager';
-import { createElem } from '../Tools/general';
 import { Coordinates } from '../Objects/Coordinates';
+import { createElem } from '../Tools/general';
+import { SelectManager } from './SelectManager';
 
 /**
  * Représente l'historique complet d'un espace de travail.

@@ -1,7 +1,7 @@
 import { app } from '../App';
+import { GroupManager } from '../Managers/GroupManager';
 import { uniqId } from '../Tools/general';
 import { Coordinates } from './Coordinates';
-import { GroupManager } from '../Managers/GroupManager';
 
 /**
  * Représente un texte affiché à l'écran

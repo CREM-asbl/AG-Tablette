@@ -1,15 +1,13 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { uniqId } from '../Core/Tools/general';
+import { app, setState } from '../Core/App';
+import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { Shape } from '../Core/Objects/Shape';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
-import { GroupManager } from '../Core/Managers/GroupManager';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 
 /**
  * Dupliquer une figure
@@ -104,7 +102,7 @@ export class CopyTool extends Tool {
 
   /**
    * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (canvasMouseDown)
-   * @param  {Shape} shape            La figure sélectionnée
+   * @param  shape            La figure sélectionnée
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
@@ -113,6 +111,7 @@ export class CopyTool extends Tool {
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
+    // sort shape by height
     this.involvedShapes.sort(
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
@@ -163,14 +162,6 @@ export class CopyTool extends Tool {
 
   _executeAction() {
     let shapesList = [];
-
-    // sort shapes by height
-    // this.involvedShapesIds = this.involvedShapesIds
-    //   .map(id => ShapeManager.getShapeById(id))
-    //   .sort((s1, s2) =>
-    //     ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
-    //   )
-    //   .map(s => s.id);
 
     this.involvedShapes.forEach((s) => {
       let newShape = new s.constructor({

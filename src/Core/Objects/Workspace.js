@@ -1,10 +1,8 @@
-import { app, setState } from '../App';
-import { uniqId } from '../Tools/general';
-import { Settings } from '../Settings';
-import { ShapeGroup } from './ShapeGroup';
+import { app } from '../App';
 import { Point } from '../Objects/Point';
+import { uniqId } from '../Tools/general';
 import { Coordinates } from './Coordinates';
-import { GridManager } from '../../Grid/GridManager';
+import { ShapeGroup } from './ShapeGroup';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut

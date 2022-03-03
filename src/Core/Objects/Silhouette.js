@@ -1,13 +1,12 @@
-import { Shape } from './Shape';
 import { app } from '../App';
-import { Coordinates } from './Coordinates';
 import { Bounds } from './Bounds';
+import { Coordinates } from './Coordinates';
 import { RegularShape } from './Shapes/RegularShape';
 
 export class Silhouette {
   /**
    *
-   * @param {Shape[]} shapes les shapes représentant la silhouette
+   * @param {RegularShape[]} shapes les shapes représentant la silhouette
    */
   constructor(shapes = [], loadFromSave = false, level = 1) {
     this.level = level;

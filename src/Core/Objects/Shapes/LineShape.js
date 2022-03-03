@@ -1,18 +1,16 @@
 import { app } from '../../App';
-import { getComplementaryColor, uniqId, mod } from '../../Tools/general';
-import { Point } from '../Point';
-import { Segment } from '../Segment';
-import { ShapeManager } from '../../Managers/ShapeManager';
-import { isAngleBetweenTwoAngles } from '../../Tools/geometry';
+import { mod, uniqId } from '../../Tools/general';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
-import { NewShape } from './NewShape';
+import { Point } from '../Point';
+import { Segment } from '../Segment';
 import { GeometryObject } from './GeometryObject';
+import { Shape } from './Shape';
 
 /**
  * Représente une figure linéaire (segment, demi-droite, droite, arc de cercle)
  */
-export class LineShape extends NewShape {
+export class LineShape extends Shape {
 
   constructor({
     id = uniqId(),

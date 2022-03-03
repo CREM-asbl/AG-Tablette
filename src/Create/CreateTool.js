@@ -1,12 +1,11 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem } from '../Core/Tools/general';
-import { Shape } from '../Core/Objects/Shape';
+import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Tool } from '../Core/States/Tool';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { createElem } from '../Core/Tools/general';
 
 /**
  * Ajout de figures sur l'espace de travail

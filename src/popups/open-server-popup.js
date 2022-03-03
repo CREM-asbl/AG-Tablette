@@ -1,7 +1,7 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from './template-popup';
+import { css, html, LitElement } from 'lit';
 import { findAllNotions } from '../Firebase/firebase-init';
 import './notion-elem';
+import { TemplatePopup } from './template-popup';
 
 class OpenServerPopup extends LitElement {
   static get properties() {

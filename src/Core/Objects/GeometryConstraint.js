@@ -1,7 +1,5 @@
 import { app } from '../App';
 import { Coordinates } from './Coordinates';
-import { Segment } from './Segment';
-import { Shape } from './Shape';
 import { Point } from './Point';
 import { LineShape } from './Shapes/LineShape';
 

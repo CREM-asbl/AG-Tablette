@@ -1,8 +1,8 @@
-import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
-import { Coordinates } from '../Core/Objects/Coordinates';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
 import { app } from '../Core/App';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 
 export const EquilateralTriangle = {
   numberOfPointsToRequired: 2,

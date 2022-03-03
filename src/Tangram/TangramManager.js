@@ -1,7 +1,6 @@
 import { app, setState } from '../Core/App';
-import { Silhouette } from '../Core/Objects/Silhouette';
-import { createElem } from '../Core/Tools/general';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
+import { createElem } from '../Core/Tools/general';
 
 const serverURL = 'https://api.crem.be/';
 

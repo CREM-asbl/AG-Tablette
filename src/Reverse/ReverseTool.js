@@ -1,16 +1,15 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Segment } from '../Core/Objects/Segment';
-import { Shape } from '../Core/Objects/Shape';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
-import { NewShape } from '../Core/Objects/Shapes/NewShape';
+import { Shape } from '../Core/Objects/Shapes/Shape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
 import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
-import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 
 /**
  * Retourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -191,7 +190,7 @@ export class ReverseTool extends Tool {
     if (
       (app.tool.currentStep == 'listen' ||
         app.tool.currentStep == 'selectAxis') &&
-      object instanceof NewShape
+      object instanceof Shape
     ) {
       let selectedShape = object;
 

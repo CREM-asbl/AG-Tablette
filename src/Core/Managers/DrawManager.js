@@ -1,7 +1,7 @@
 import { app } from '../App';
-import { ShapeManager } from './ShapeManager';
 import { Point } from '../Objects/Point';
 import { Segment } from '../Objects/Segment';
+import { ShapeManager } from './ShapeManager';
 
 export class DrawManager {
   /* #################################################################### */

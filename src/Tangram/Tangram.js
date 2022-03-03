@@ -1,12 +1,11 @@
-import { uniqId } from '../Core/Tools/general';
-import { Silhouette } from '../Core/Objects/Silhouette';
-import { Shape } from '../Core/Objects/Shape';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Silhouette } from '../Core/Objects/Silhouette';
+import { uniqId } from '../Core/Tools/general';
 
 export class Tangram {
   /**
    * Constructeur
-   * @param {[Shape]} shapes   Liste des figures nécessaires pour construire le
+   * @param shapes   Liste des figures nécessaires pour construire le
    *                           le tangram.
    * @param {Object} silhouette Liste de polygones (= de tableaux de points)
    */

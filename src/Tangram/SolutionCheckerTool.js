@@ -1,15 +1,14 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { TangramManager } from './TangramManager';
-import { Segment } from '../Core/Objects/Segment';
-import { Shape } from '../Core/Objects/Shape';
+import { app, setState } from '../Core/App';
+import { GroupManager } from '../Core/Managers/GroupManager';
 import { Bounds } from '../Core/Objects/Bounds';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { GroupManager } from '../Core/Managers/GroupManager';
+import { Segment } from '../Core/Objects/Segment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
-import { Silhouette } from '../Core/Objects/Silhouette';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Silhouette } from '../Core/Objects/Silhouette';
+import { Tool } from '../Core/States/Tool';
+import { TangramManager } from './TangramManager';
 
 /**
  * Créer un tangram

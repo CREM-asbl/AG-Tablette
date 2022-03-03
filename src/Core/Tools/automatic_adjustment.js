@@ -1,8 +1,8 @@
+import { getAllChildrenInGeometry } from '../../GeometryTools/general';
+import { GridManager } from '../../Grid/GridManager';
 import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
-import { GridManager } from '../../Grid/GridManager';
 import { Coordinates } from '../Objects/Coordinates';
-import { getAllChildrenInGeometry } from '../../GeometryTools/general';
 
 function reduceAngle(angle) {
   while (angle < -Math.PI) angle += 2 * Math.PI;

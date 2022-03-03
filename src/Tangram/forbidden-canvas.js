@@ -1,5 +1,5 @@
+import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
-import { LitElement, html, css } from 'lit';
 
 class ForbiddenCanvas extends LitElement {
   constructor() {

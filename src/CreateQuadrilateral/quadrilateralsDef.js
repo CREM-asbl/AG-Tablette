@@ -1,8 +1,8 @@
-import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
-import { Coordinates } from '../Core/Objects/Coordinates';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
 import { app } from '../Core/App';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 
 const finishShapeEnd = (points, segments, numberOfPointsRequired) => {
   if (segments.length < 4) {

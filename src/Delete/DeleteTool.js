@@ -1,10 +1,9 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Shape } from '../Core/Objects/Shape';
-import { NewShape } from '../Core/Objects/Shapes/NewShape';
+import { Shape } from '../Core/Objects/Shapes/Shape';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Supprimer une figure (et supprime le groupe dont la figure faisait partie s'il
@@ -66,7 +65,7 @@ export class DeleteTool extends Tool {
    * @param  {Object} object            La figure ou le point sélectionné
    */
   objectSelected(object) {
-    if (object instanceof NewShape) {
+    if (object instanceof Shape) {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
       this.userGroup = GroupManager.getShapeGroup(object);

@@ -1,6 +1,6 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from '../popups/template-popup';
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
+import { TemplatePopup } from '../popups/template-popup';
 
 class RegularPopup extends LitElement {
   constructor() {

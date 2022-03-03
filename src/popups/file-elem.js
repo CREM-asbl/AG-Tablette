@@ -1,9 +1,8 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from './template-popup';
-import './open-server-popup';
-import { findFilesByIds, openFileFromId, readFileFromServer } from '../Firebase/firebase-init';
-import { OpenFileManager } from '../Core/Managers/OpenFileManager';
+import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
+import { OpenFileManager } from '../Core/Managers/OpenFileManager';
+import { readFileFromServer } from '../Firebase/firebase-init';
+import './open-server-popup';
 
 class FileElem extends LitElement {
   static get properties() {

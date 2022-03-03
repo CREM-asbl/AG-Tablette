@@ -1,7 +1,5 @@
-import { LitElement, html, css } from 'lit';
+import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import { goToHomePage } from '../Core/Tools/general';
-import { app } from '../Core/App';
 import { TemplatePopup } from '../popups/template-popup';
 
 @customElement('select-menu')

@@ -1,9 +1,8 @@
-import { ShapeManager } from '../Managers/ShapeManager';
-import { Point } from './Point';
-import { uniqId, mod, isAlmostInfinite } from '../Tools/general';
 import { app } from '../App';
+import { isAlmostInfinite, mod, uniqId } from '../Tools/general';
 import { Bounds } from './Bounds';
 import { Coordinates } from './Coordinates';
+import { Point } from './Point';
 
 export class Segment {
   /**

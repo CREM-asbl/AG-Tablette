@@ -1,5 +1,5 @@
+import { css, LitElement } from 'lit';
 import { app } from './Core/App';
-import { LitElement, html, css } from 'lit';
 
 class LoadingElem extends LitElement {
   static get properties() {

@@ -1,14 +1,12 @@
-import { app, setState } from './Core/App';
-import './Core/Manifest';
-import { LitElement, html } from 'lit';
+import { downloadZip } from "https://cdn.jsdelivr.net/npm/client-zip/index.js";
+import { html, LitElement } from 'lit';
 import './auto-launch';
 import './backbutton-manager';
-import { openFileFromId } from './Firebase/firebase-init';
-// import { uniqId } from './Core/Tools/general';
+import { app, setState } from './Core/App';
 import { loadEnvironnement } from './Core/Environments/Environment';
-// import { Shape } from './Core/Objects/Shape';
+import './Core/Manifest';
 import { Coordinates } from './Core/Objects/Coordinates';
-import { downloadZip } from "https://cdn.jsdelivr.net/npm/client-zip/index.js"
+import { openFileFromId } from './Firebase/firebase-init';
 
 class AgApp extends LitElement {
   static get properties() {
@@ -79,7 +77,7 @@ class AgApp extends LitElement {
   }
 
   static async computeFile(shapeTemplate) {
-    const shapeImport = await import('./Core/Objects/Shapes/NewShape');
+    const shapeImport = await import('./Core/Objects/Shapes/Shape');
     let canvasSize = 52;
     let shape =
       new shapeImport.NewShape({

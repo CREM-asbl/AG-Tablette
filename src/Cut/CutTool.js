@@ -1,11 +1,10 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
-import { Shape } from '../Core/Objects/Shape';
+import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Découper une figure
@@ -322,9 +321,6 @@ export class CutTool extends Tool {
    * - ne soit pas confondu (ou en partie confondu) avec un autre segment (au moins 1/5 commun),
    * - ne contient pas un autre sommet de la figure,
    * - n'intersecte pas un autre segment de la figure
-   * @param  {Shape}  shape
-   * @param  {Point}  pt1  coordonnées du point 1
-   * @param  {Point}  pt2  coordonnées du point 2
    * @return {Boolean}     Retourne false s'il sort de la figure.
    */
   isLineValid(shape, pt1, pt2) {

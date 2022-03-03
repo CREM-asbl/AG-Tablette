@@ -1,15 +1,14 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
-import { uniqId, createElem } from '../Core/Tools/general';
+import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { Point } from '../Core/Objects/Point';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Tool } from '../Core/States/Tool';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { createElem } from '../Core/Tools/general';
+import { GridManager } from '../Grid/GridManager';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -172,6 +171,10 @@ export class CreateRegularTool extends Tool {
     );
     if (adjustedCoordinates) {
       point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
+    } else {
+      let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+      if (gridPoint)
+        point.coordinates = new Coordinates(gridPoint.coordinates);
     }
   }
 

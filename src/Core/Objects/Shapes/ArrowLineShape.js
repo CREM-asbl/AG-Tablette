@@ -1,11 +1,8 @@
 import { app } from '../../App';
-import { uniqId, mod } from '../../Tools/general';
-import { Point } from '../Point';
-import { Segment } from '../Segment';
-import { Bounds } from '../Bounds';
+import { mod, uniqId } from '../../Tools/general';
 import { Coordinates } from '../Coordinates';
-import { LineShape } from './LineShape';
 import { GeometryObject } from './GeometryObject';
+import { LineShape } from './LineShape';
 
 /**
  * Représente une figure linéaire (segment, demi-droite, droite, arc de cercle)

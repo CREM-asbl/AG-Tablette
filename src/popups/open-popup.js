@@ -1,9 +1,9 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from './template-popup';
+import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
 import { createElem } from '../Core/Tools/general';
 import './open-server-popup';
 import './save-warning';
+import { TemplatePopup } from './template-popup';
 
 class OpenPopup extends LitElement {
   static get properties() {

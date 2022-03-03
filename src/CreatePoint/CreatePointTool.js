@@ -1,18 +1,15 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem, uniqId } from '../Core/Tools/general';
+import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
-import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
-import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { Point } from '../Core/Objects/Point';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
-import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
+import { createElem } from '../Core/Tools/general';
+import { GridManager } from '../Grid/GridManager';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -145,6 +142,9 @@ export class CreatePointTool extends Tool {
     let reference, newCoord;
     switch (app.tool.selectedPoint) {
       case 'Point':
+        let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+        if (gridPoint)
+          point.coordinates = new Coordinates(gridPoint.coordinates);
         break;
       case 'PointOnLine':
         reference = SelectManager.selectSegment(

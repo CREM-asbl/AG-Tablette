@@ -1,13 +1,12 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Shape } from '../Core/Objects/Shape';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
-import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
+import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
 
 /**
  * Déplacer une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -86,7 +85,6 @@ export class MoveTool extends Tool {
 
   /**
    * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (canvasMouseDown)
-   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;

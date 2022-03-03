@@ -1,6 +1,5 @@
-import { Coordinates } from '../Core/Objects/Coordinates';
 import { app } from '../Core/App';
-import { Shape } from '../Core/Objects/Shape';
+import { Coordinates } from '../Core/Objects/Coordinates';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 
 export function computeAllShapeTransform(shape, layer = 'upper') {

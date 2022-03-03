@@ -1,15 +1,12 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
-import { uniqId } from '../Core/Tools/general';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { Shape } from '../Core/Objects/Shape';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -149,6 +146,11 @@ export class CreateIrregularTool extends Tool {
       );
       if (adjustedCoordinates)
         point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
+      else {
+        let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+        if (gridPoint)
+          point.coordinates = new Coordinates(gridPoint.coordinates);
+      }
     }
   }
 
