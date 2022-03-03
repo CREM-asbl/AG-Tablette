@@ -681,21 +681,14 @@ export class LineShape extends Shape {
             type: 'vertex',
             idx: 0,
             visible: this.isPointed,
-          })
+          });
           new Point({
             coordinates: coord,
             shapeId: this.id,
             drawingEnvironment: this.drawingEnvironment,
             type: 'arcCenter',
             visible: this.isPointed,
-          })
-          // new Point({
-          //   coordinates: coord,
-          //   shapeId: this.id,
-          //   drawingEnvironment: this.drawingEnvironment,
-          //   type: 'shapeCenter',
-          //   visible: this.isPointed,
-          // })
+          });
           new Segment({
             shapeId: this.id,
             drawingEnvironment: this.drawingEnvironment,

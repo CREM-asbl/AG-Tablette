@@ -12,6 +12,7 @@ import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem } from '../Core/Tools/general';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
+import { GridManager } from '../Grid/GridManager';
 
 /**
  * Ajout de figures sur l'espace de travail

@@ -135,7 +135,7 @@ export class RegularShape extends Shape {
       let coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex') {
+      if (lastVertex == undefined || lastVertex.type != 'vertex' || this.points[this.points.length - 1].coordinates.equal(coordinates)) {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
@@ -260,6 +260,39 @@ export class RegularShape extends Shape {
 
         default:
           break;
+      }
+    }
+    // if segment length == 0
+    if (app.environment.name == 'Geometrie' && this.pointIds.length != this.segmentIds.length) {
+      let coord = this.points[0].coordinates;
+      let numberOfSegment = this.segmentIds.length;
+      this.pointIds.forEach(ptId => this.drawingEnvironment.removeObjectById(
+        ptId,
+        'point',
+      ));
+      this.segmentIds.forEach(segId => this.drawingEnvironment.removeObjectById(
+        segId,
+        'segment',
+      ));
+      this.pointIds = [];
+      this.segmentIds = [];
+      for (let idx = 0; idx < numberOfSegment; idx++) {
+        new Point({
+          coordinates: coord,
+          shapeId: this.id,
+          drawingEnvironment: this.drawingEnvironment,
+          type: 'vertex',
+          idx,
+          visible: this.isPointed,
+        });
+      }
+      for (let idx = 0; idx < numberOfSegment; idx++) {
+        new Segment({
+          shapeId: this.id,
+          drawingEnvironment: this.drawingEnvironment,
+          idx,
+          vertexIds: [this.pointIds[idx], this.pointIds[(idx + 1) % numberOfSegment]],
+        });
       }
     }
   }

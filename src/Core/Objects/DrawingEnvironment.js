@@ -230,7 +230,7 @@ export class DrawingEnvironment {
           shapeData.fillOpacity = shapeData.opacity;
           shapeData.strokeColor = shapeData.borderColor;
           shapeData.strokeWidth = shapeData.borderSize;
-          if (shapeData.segmentIds == 1) {
+          if (shapeData.segmentIds.length == 1) {
             LineShape.loadFromData(shapeData);
           } else {
             RegularShape.loadFromData(shapeData);
