@@ -67,7 +67,7 @@ export class TranslationTool extends Tool {
   objectSelected(object) {
     if (app.tool.currentStep == 'selectReference') {
       if (this.firstReference == null) {
-        if (object instanceof ArrowLineShape) {
+        if (object instanceof ArrowLineShape && !object.segments[0].arcCenter) {
           this.firstReference = object;
           new ArrowLineShape({
             path: object.getSVGPath('no scale', true),

@@ -24,15 +24,18 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
       getAllLinkedShapesInGeometry(s, involvedShapes);
     }
   }
-  shape.geometryObject.geometryTransformationCharacteristicElementIds.forEach(sId => {
+  shape.geometryObject.geometryTransformationCharacteristicElementIds.forEach((sId, idx) => {
     let objectType = 'point';
     if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry' &&
       shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1)
         objectType = 'segment';
 
     let s;
-    if (shape.geometryObject.geometryTransformationName == 'translation' &&
-      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
+    if ((shape.geometryObject.geometryTransformationName == 'translation' &&
+      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) ||
+      (shape.geometryObject.geometryTransformationName == 'rotation' &&
+      idx == 1 &&
+      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) ) {
         s = app.mainDrawingEnvironment.findObjectById(sId, 'shape');
     } else {
       s = app.mainDrawingEnvironment.findObjectById(sId, objectType).shape;

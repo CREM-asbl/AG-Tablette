@@ -62,13 +62,18 @@ export function computeAllShapeTransform(shape, layer = 'upper') {
       }
       child.translate(pts[1].coordinates.substract(pts[0].coordinates));
     } else if (child.geometryObject.geometryTransformationName == 'rotation') {
-      let pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-        app[layer + 'DrawingEnvironment'].findObjectById(refId, 'point')
-      );
-      let angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
-
-      if (angle > Math.PI) angle -= 2 * Math.PI;
-      if (angle < -Math.PI) angle += 2 * Math.PI;
+      let angle;
+      let pts;
+      if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) {
+        let arc = app[layer + 'DrawingEnvironment'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[1], 'shape')
+        angle = arc.segments[0].arcCenter.coordinates.angleWith(arc.segments[0].vertexes[0].coordinates) - arc.segments[0].arcCenter.coordinates.angleWith(arc.segments[0].vertexes[1].coordinates);
+        pts = [app[layer + 'DrawingEnvironment'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point')];
+      } else {
+        pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
+          app[layer + 'DrawingEnvironment'].findObjectById(refId, 'point')
+        );
+        angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
+      }
       angle *= -1;
 
       child.rotate(angle, pts[0].coordinates);

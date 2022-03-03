@@ -9,6 +9,6 @@
     stroke-width:7px;
   }
 </style>
-<path class="st0" d="M 40 160 L 145 90"/>
-<path stroke-width="0" fill="#000" stroke="#000" d="M 160 80 L 122 83 L 145 115 Z"/>
+<path class="st0" d="M 40 160 L 154 84"/>
+<path class="st0" d="M 160 80 L 122 83 M 160 80 L 145 115"/>
 </svg>

@@ -72,20 +72,33 @@ export class RotationTool extends Tool {
 
   objectSelected(object) {
     if (app.tool.currentStep == 'selectReference') {
-      this.references.push(
-        new Point({
-          coordinates: object.coordinates,
+      if (object instanceof ArrowLineShape && object.segments[0].arcCenter) {
+        this.references.push(new ArrowLineShape({
+          path: object.getSVGPath('no scale', true),
           drawingEnvironment: app.upperDrawingEnvironment,
-          color: app.settings.referenceDrawColor,
-          size: 2,
-        })
-      );
-      this.realReferences.push(object);
+          strokeColor: app.settings.referenceDrawColor,
+        }));
+        this.realReferences.push(object);
+        this.angle = this.references[1].segments[0].arcCenter.coordinates.angleWith(this.references[1].segments[0].vertexes[0].coordinates) - this.references[1].segments[0].arcCenter.coordinates.angleWith(this.references[1].segments[0].vertexes[1].coordinates);
+        this.angle *= -1;
+        setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+      } else if (object instanceof Point) {
+        this.references.push(
+          new Point({
+            coordinates: object.coordinates,
+            drawingEnvironment: app.upperDrawingEnvironment,
+            color: app.settings.referenceDrawColor,
+            size: 2,
+          })
+        );
+        this.realReferences.push(object);
+        this.setSelectionConstraints();
+      } else {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez sélectionner un arc ou un point.' } }))
+        return;
+      }
       if (this.references.length == 4) {
         this.angle = this.references[2].coordinates.angleWith(this.references[1].coordinates) - this.references[2].coordinates.angleWith(this.references[3].coordinates);
-
-        // if (this.angle > Math.PI) this.angle -= 2 * Math.PI;
-        // if (this.angle < -Math.PI) this.angle += 2 * Math.PI;
         this.angle *= -1;
 
         let radius = this.references[1].coordinates.dist(this.references[2].coordinates);
@@ -157,52 +170,6 @@ export class RotationTool extends Tool {
           geometryObject: {},
         });
 
-        // this.arcShape0.segments[0].color = app.settings.referenceDrawColor;
-        // this.arcShape1.segments[0].color = app.settings.referenceDrawColor2;
-
-
-        // let arrowAngle = angle - Math.PI / 2;
-        // if (seg.counterclockwise)
-        //   arrowAngle += Math.PI;
-        // let firstTriangleCoord = projectionCoord.add(new Coordinates({
-        //   x: 20 * Math.cos(arrowAngle + 0.35),
-        //   y: 20 * Math.sin(arrowAngle + 0.35),
-        // }));
-        // let secondTriangleCoord = projectionCoord.add(new Coordinates({
-        //   x: 20 * Math.cos(arrowAngle - 0.35),
-        //   y: 20 * Math.sin(arrowAngle - 0.35),
-        // }));
-        // this.arrowShape0 = new ArrowLineShape({
-        //   drawingEnvironment: app.upperDrawingEnvironment,
-        //   path: `M ${projectionCoord.x} ${projectionCoord.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} Z`,
-        //   borderColor: app.settings.referenceDrawColor,
-        //   color: app.settings.referenceDrawColor,
-        //   name: 'arrow',
-        //   borderSize: 2,
-        //   isPointed: false,
-        //   geometryObject: {},
-        // });
-        // arrowAngle = angle + Math.PI / 2;
-        // if (seg.counterclockwise)
-        //   arrowAngle += Math.PI;
-        // firstTriangleCoord = projectionCoord.add(new Coordinates({
-        //   x: 20 * Math.cos(arrowAngle + 0.35),
-        //   y: 20 * Math.sin(arrowAngle + 0.35),
-        // }));
-        // secondTriangleCoord = projectionCoord.add(new Coordinates({
-        //   x: 20 * Math.cos(arrowAngle - 0.35),
-        //   y: 20 * Math.sin(arrowAngle - 0.35),
-        // }));
-        // this.arrowShape1 = new RegularShape({
-        //   drawingEnvironment: app.upperDrawingEnvironment,
-        //   path: `M ${projectionCoord.x} ${projectionCoord.y} L ${firstTriangleCoord.x} ${firstTriangleCoord.y} L ${secondTriangleCoord.x} ${secondTriangleCoord.y} Z`,
-        //   borderColor: app.settings.referenceDrawColor2,
-        //   color: app.settings.referenceDrawColor2,
-        //   name: 'arrow',
-        //   borderSize: 2,
-        //   isPointed: false,
-        //   geometryObject: {},
-        // });
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectDirection' } });
       }
     } else {
@@ -335,10 +302,20 @@ export class RotationTool extends Tool {
         }),
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      newShape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId => {
-        let ref = app.mainDrawingEnvironment.findObjectById(refId, 'point');
-        if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
-          ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+      newShape.geometryObject.geometryTransformationCharacteristicElementIds.map((refId, idx) => {
+        let objectType = 'point';
+        if (idx == 1 && this.references[1] instanceof ArrowLineShape) {
+          objectType = 'shape';
+        }
+        let ref = app.mainDrawingEnvironment.findObjectById(refId, objectType);
+        if (objectType == 'shape') {
+          if (!ref.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+            ref.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+          }
+        } else {
+          if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+            ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+          }
         }
       });
       newShape.rotate(this.angle, this.references[0].coordinates);
@@ -355,6 +332,9 @@ export class RotationTool extends Tool {
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.points.canSelect = true;
+      if (this.references.length == 1) {
+        app.workspace.selectionConstraints.shapes.canSelect = true;
+      }
     } else {
       app.workspace.selectionConstraints =
         app.fastSelectionConstraints.mousedown_all_shape;
