@@ -143,7 +143,7 @@ export class LineShape extends Shape {
       let coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex') {
+      if (lastVertex == undefined || lastVertex.type != 'vertex' || this.points[this.points.length - 1].coordinates.equal(coordinates)) {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,

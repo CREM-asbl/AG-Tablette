@@ -217,7 +217,14 @@ export class CreatePointTool extends Tool {
       let ratio = ratioX;
       if (isNaN(ratio))
         ratio = ratioY;
-      // let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
+      if (reference.shape.name == 'Circle') {
+        let refShape = reference.shape;
+        const angle = refShape.segments[0].arcCenter.coordinates.angleWith(shape.points[0].coordinates);
+        const refAngle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates);
+        ratio = (angle - refAngle) / Math.PI / 2;
+        if (ratio < 0)
+          ratio += 1;
+      }
 
       shape.points[0].ratio = ratio;
 

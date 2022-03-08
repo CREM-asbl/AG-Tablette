@@ -364,7 +364,7 @@ export class SelectManager {
           let projection = s.segments[0].projectionOnSegment(mouseCoordinates);
           return projection.dist(mouseCoordinates);
         } else if (s instanceof SinglePointShape) {
-            return s.points[0].dist(mouseCoordinates);
+          return s.points[0].coordinates.dist(mouseCoordinates) / 10;
         }
       });
       const minDistance = Math.min(...dists);
