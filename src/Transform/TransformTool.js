@@ -344,6 +344,8 @@ export class TransformTool extends Tool {
         { shapeId: segment.shape.id, type: 'vertex', index: segment.idx },
         { shapeId: segment.shape.id, type: 'vertex', index: (segment.idx + 1) % segment.shape.segmentIds.length }
       ];
+    } else if (point.transformConstraints.isConstrained) {
+      return;
     } else {
       constraints.blacklist = this.drawingShapes.map((s) => {
         return { shapeId: s.id };
