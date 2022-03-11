@@ -29,6 +29,7 @@ export default {
     'CentralSymetry',
     'Translation',
     'Rotation',
+    'Hide',
   ],
   extension: 'agl',
   themeColor: '#888888',

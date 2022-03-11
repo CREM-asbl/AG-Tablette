@@ -99,44 +99,8 @@ function computePointPosition(point, selectedAxis) {
   );
 }
 
-// cette fonction de fonctionne pas parce que les 'parents' d'une figure doivent être dans l'upperDrawingEnvironment, or ce n'est pas le cas
-// function isShapeGeometryVisible(shape) {
-//   if (shape.points.some(pt => {
-//     if (pt.reference) {
-//       return app.upperDrawingEnvironment.findObjectById(pt.reference, 'point').shape.geometryObject.geometryIsVisible === false
-//     }
-//     return false;
-//   })) {
-//     return false;
-//   }
-//   let firstSeg = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
-//   if (firstSeg?.shape.geometryObject.geometryIsVisible === false)
-//     return false;
-//   let secondSeg = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId2, 'segment');
-//   if (secondSeg?.shape.geometryObject.geometryIsVisible === false)
-//     return false;
-//   let transformationParentShape = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryTransformationParentShapeId, 'shape');
-//   if (transformationParentShape?.geometryObject.geometryIsVisible === false)
-//     return false;
-//   let objects = [];
-//   if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-//     objects = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'segment');
-//   } else if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length > 1) {
-//     objects = shape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-//       app.upperDrawingEnvironment.findObjectById(refId, 'point')
-//     );
-//   }
-//   if (objects.some(obj => obj.shape.geometryObject.geometryIsVisible === false))
-//     return false;
-//   if (shape.name == 'PointOnIntersection')
-//     return shape.geometryObject.geometryIsVisible;
-//   return true;
-// }
-
 export function computeShapeTransform(shape, layer = 'upper') {
   if (app.environment.name != 'Geometrie') return;
-
-  // shape.geometryObject.geometryIsVisible = isShapeGeometryVisible(shape);
 
   if (shape.familyName == 'Regular') {
     let externalAngle = (Math.PI * 2) / shape.segments.length;

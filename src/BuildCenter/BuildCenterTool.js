@@ -54,7 +54,7 @@ export class BuildCenterTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
     if (this.involvedShapes.some(s => s.name.endsWith('StraightLine'))) {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Il n\'y a pas de centre sur les droites et demi-droites' }}));
       return;

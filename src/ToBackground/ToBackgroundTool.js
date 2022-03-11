@@ -54,7 +54,7 @@ export class ToBackgroundTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
     this.involvedShapes.sort(
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),

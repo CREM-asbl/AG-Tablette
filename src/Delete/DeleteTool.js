@@ -67,7 +67,7 @@ export class DeleteTool extends Tool {
   objectSelected(object) {
     if (object instanceof Shape) {
       this.mode = 'shape';
-      this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
+      this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       this.userGroup = GroupManager.getShapeGroup(object);
     } else {
       // point

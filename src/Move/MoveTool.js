@@ -90,7 +90,7 @@ export class MoveTool extends Tool {
     if (app.tool.currentStep != 'listen') return;
 
     this.selectedShape = shape;
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
     for (let i = 0; i < this.involvedShapes.length; i++) {
       let currentShape = this.involvedShapes[i];
       if (currentShape.geometryObject?.geometryTransformationName != null) {

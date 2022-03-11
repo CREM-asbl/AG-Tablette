@@ -107,7 +107,7 @@ export class CopyTool extends Tool {
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
 

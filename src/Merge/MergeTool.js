@@ -88,7 +88,7 @@ export class MergeTool extends Tool {
   objectSelected(shape) {
     let mustExecuteAction = false;
     if (app.tool.currentStep == 'listen') {
-      this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+      this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
       if (this.involvedShapes.length > 1) {
         this.path = this.getPathFromGroup();
         if (this.path) {
@@ -123,7 +123,7 @@ export class MergeTool extends Tool {
         this.firstShapeId = null;
         setState({ tool: { ...app.tool, currentStep: 'listen' } });
       } else {
-        let group = ShapeManager.getAllBindedShapes(shape, true);
+        let group = ShapeManager.getAllBindedShapes(shape);
         if (group.length > 1) {
           let firstShape = app.mainDrawingEnvironment.findObjectById(
             this.firstShapeId,

@@ -11,9 +11,6 @@ export class GroupTool extends Tool {
   constructor() {
     super('group', 'Grouper', 'tool');
 
-    // listen-canvas-click -> selecting-second-shape -> filling-group
-    this.currentStep = null;
-
     this.group = null;
 
     this.firstShape = null;
@@ -112,8 +109,6 @@ export class GroupTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    let mustExecuteAction = false;
-
     if (app.tool.currentStep == 'listen') {
       let userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {

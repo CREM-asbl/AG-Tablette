@@ -91,7 +91,7 @@ export class ReverseTool extends Tool {
 
     let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
 
-    this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
     this.shapesToCopy = [...this.involvedShapes];
     this.shapesToCopy.forEach(s => {
       getAllLinkedShapesInGeometry(s, this.shapesToCopy)
@@ -194,7 +194,7 @@ export class ReverseTool extends Tool {
     ) {
       let selectedShape = object;
 
-      this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
+      this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         let currentShape = this.involvedShapes[i];
         if (currentShape.geometryObject?.geometryTransformationName != null) {
@@ -431,7 +431,7 @@ export class ReverseTool extends Tool {
   _executeAction() {
     let selectedAxis = this.createAxis(app.tool.axisAngle).segments[0];
     // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
-    // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape, true);
+    // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
     app.mainDrawingEnvironment.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => shapeToMove.id == editingShapeId)).forEach((sId, idxS) => {
       let s = app.mainDrawingEnvironment.findObjectById(sId);
     // involvedShapes.forEach((s) => {

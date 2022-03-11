@@ -1,42 +1,34 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { Tool } from '../Core/States/Tool';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 
 /**
- * Modifier la couleur des bords d'une figure
+ * Cacher des figures.
  */
-export class BorderColorTool extends Tool {
+export class HideTool extends Tool {
   constructor() {
-    super('borderColor', 'Colorier les bords', 'tool');
-
-    this.currentStep = null; // choose-color -> listen-canvas-click
+    super('hide', 'Cacher', 'tool');
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
   getHelpText() {
     let toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir choisi une couleur, touchez une figure pour en colorier les
-        bords.
+        Vous avez sélectionné l'outil <b>"${toolName}"</b>.
       </p>
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
 
   listen() {
+    app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
     app.workspace.selectionConstraints =
@@ -44,17 +36,11 @@ export class BorderColorTool extends Tool {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
+    app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
   }
 
-  /**
-   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (click)
-   * @param  {Shape} shape            La figure sélectionnée
-   */
   objectSelected(shape) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
@@ -65,8 +51,6 @@ export class BorderColorTool extends Tool {
   }
 
   _executeAction() {
-    this.involvedShapes.forEach((s) => {
-      s.strokeColor = app.settings.shapeBorderColor;
-    });
+    this.involvedShapes.forEach(s => s.geometryObject.geometryIsHidden = true);
   }
 }

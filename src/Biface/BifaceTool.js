@@ -71,7 +71,7 @@ export class BifaceTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });

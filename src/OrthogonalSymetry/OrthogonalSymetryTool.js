@@ -134,7 +134,7 @@ export class OrthogonalSymetryTool extends Tool {
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
       }
     } else {
-      this.involvedShapes = ShapeManager.getAllBindedShapes(object, true);
+      this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       this.drawingShapes = this.involvedShapes.map(
         (s) =>
           new s.constructor({

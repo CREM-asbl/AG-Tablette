@@ -62,7 +62,7 @@ export class DrawingEnvironment {
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
-          if (s.geometryObject?.geometryIsVisible === false)
+          if (s.geometryObject?.geometryIsVisible === false || s.geometryObject?.geometryIsHidden === true)
             return;
           window.dispatchEvent(
             new CustomEvent('draw-shape', { detail: { shape: s, scaling } }),

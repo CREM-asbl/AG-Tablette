@@ -62,7 +62,7 @@ export class Rotate45Tool extends Tool {
    */
   objectSelected(shape) {
     this.selectedShape = shape;
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);

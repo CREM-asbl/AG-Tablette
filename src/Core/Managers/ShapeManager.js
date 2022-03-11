@@ -122,7 +122,7 @@ export class ShapeManager {
    * 												   reçue dans les résultats
    * @return {[Shape]}     Les figures liées
    */
-  static getAllBindedShapes(shape, includeReceivedShape = false) {
+  static getAllBindedShapes(shape, includeReceivedShape = true) {
     let shapes = [shape],
       group = GroupManager.getShapeGroup(shape);
     if (group) {
@@ -130,6 +130,7 @@ export class ShapeManager {
     }
 
     if (!includeReceivedShape) {
+      console.log('here');
       shapes = shapes.filter((s) => s.id != shape.id);
     }
     return shapes;
