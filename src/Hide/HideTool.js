@@ -1,7 +1,5 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
-import { GroupManager } from '../Core/Managers/GroupManager';
-import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { Tool } from '../Core/States/Tool';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 

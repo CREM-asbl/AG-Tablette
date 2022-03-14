@@ -103,8 +103,12 @@ export class TransformTool extends Tool {
   }
 
   objectSelected(points) {
+    console.log(points);
     for (let i = 0; i < points.length; i++) {
-      if (!points[i].reference) {
+      if (points[i].reference) {
+        points[i] = app.mainDrawingEnvironment.findObjectById(points[i].reference, 'point');
+        i--;
+      } else {
         points[i].computeTransformConstraint();
         let constraints = points[i].transformConstraints;
         if (constraints.isBlocked || constraints.isConstructed) {
@@ -305,9 +309,10 @@ export class TransformTool extends Tool {
         computeConstructionSpec(shape);
       computeAllShapeTransform(shape);
     } else if (app.tool.currentStep == 'selectPoint') {
-      app.mainDrawingEnvironment.shapes.forEach((s) => {
+      app.mainDrawingEnvironment.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
         let points = s.vertexes;
         points.forEach((pt) => {
+          console.log(pt.transformConstraints);
           const transformConstraints = pt.transformConstraints;
           const colorPicker = {
             [transformConstraints.isFree]: '#0f0',

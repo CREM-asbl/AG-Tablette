@@ -133,9 +133,10 @@ export class Point {
       lines: [],
       points: [],
     };
-    if (this.shape.geometryObject.geometryIsVisible === false || this.shape.geometryObject.geometryIsHidden === true) {
-      constraints.isBlocked = true;
-    } else if (this.reference) {
+    // if (this.shape.geometryObject.geometryIsVisible === false || this.shape.geometryObject.geometryIsHidden === true) {
+    //   constraints.isBlocked = true;
+    // } else
+    if (this.reference) {
       let refPoint = this.drawingEnvironment.findObjectById(this.reference, 'point');
       refPoint.computeTransformConstraint();
       constraints = refPoint.transformConstraints;

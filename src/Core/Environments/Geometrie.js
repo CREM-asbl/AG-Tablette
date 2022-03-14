@@ -30,6 +30,7 @@ export default {
     'Translation',
     'Rotation',
     'Hide',
+    'Show',
   ],
   extension: 'agl',
   themeColor: '#888888',
