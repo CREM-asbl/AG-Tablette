@@ -29,7 +29,6 @@ export class ShowTool extends Tool {
 
   listen() {
     this.showHidden();
-    // app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
     app.workspace.selectionConstraints =
@@ -39,7 +38,7 @@ export class ShowTool extends Tool {
   }
 
   end() {
-    console.log('end');
+    app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
   }
@@ -90,8 +89,6 @@ export class ShowTool extends Tool {
     app.mainDrawingEnvironment.editingShapeIds = app.mainDrawingEnvironment.shapes
       .filter(s => s.geometryObject.geometryIsHidden === true)
       .map(s => s.id);
-    console.log(app.mainDrawingEnvironment.editingShapeIds);
-    console.log(app.upperDrawingEnvironment.shapes);
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }

@@ -100,6 +100,8 @@ export class DeleteTool extends Tool {
     } else if (this.mode == 'divisionPoint') {
       // point
       let segment = this.point.segments[0];
+      if (app.environment.name == 'Geometrie')
+        this.deleteChildrenOfDivisionPoint(this.point);
       segment.deletePoint(this.point);
     } else if (this.mode == 'vertex') {
       // point
@@ -127,5 +129,20 @@ export class DeleteTool extends Tool {
       }
     });
     app.mainDrawingEnvironment.removeObjectById(shape.id, 'shape');
+  }
+
+  deleteChildrenOfDivisionPoint(point) {
+    let shape = point.shape;
+    // let shapesLinked = [];
+    shape.geometryObject.geometryChildShapeIds.forEach(childId => {
+      let child = app.mainDrawingEnvironment.findObjectById(childId, 'shape');
+      if (!child)
+        return;
+      if (child.vertexes.some(vx => vx.reference == point.id)) {
+        if (app.environment.name == 'Geometrie')
+          this.deleteChildren(child);
+        app.mainDrawingEnvironment.removeObjectById(child.id, 'shape');
+      }
+    });
   }
 }

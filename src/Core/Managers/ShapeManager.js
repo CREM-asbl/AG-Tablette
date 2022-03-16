@@ -130,7 +130,6 @@ export class ShapeManager {
     }
 
     if (!includeReceivedShape) {
-      console.log('here');
       shapes = shapes.filter((s) => s.id != shape.id);
     }
     return shapes;
