@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit';
 import { findFilesByIds } from '../Firebase/firebase-init';
 import './file-elem';
+import { app, setState } from '../Core/App';
 
 class SequenceElem extends LitElement {
   static get properties() {
@@ -35,7 +36,14 @@ class SequenceElem extends LitElement {
     ];
   }
 
-  updated() {
+  firstUpdated() {
+    this.isOpen = app.sequencesOpen.some(sequence => {
+      return sequence == this.title
+    });
+    if (this.isOpen) {
+      this.shadowRoot.querySelector('details').open = true;
+      this.loadFiles();
+    }
     if (typeof this.fileIds == "string") {
       this.fileIds = this.fileIds.split(',');
     }
@@ -58,10 +66,21 @@ class SequenceElem extends LitElement {
     `;
   }
 
-  /**
-   * event handler principal
-   */
   async summaryClick() {
+    this.isOpen = !this.isOpen;
+    let sequencesOpen = [...app.sequencesOpen];
+    if (this.isOpen) {
+      sequencesOpen.push(this.title);
+    } else {
+      sequencesOpen = sequencesOpen.filter(notion => notion != this.title);
+    }
+    setState({ sequencesOpen });
+    this.loadFiles();
+  }
+
+  async loadFiles() {
+    if (this.fileInfos.length > 0)
+      return;
     let fileInfos = await findFilesByIds(this.fileIds, false);
     this.fileInfos = fileInfos;
     this.fileInfos.sort((el1, el2) => {

@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit';
 import { findSequencesByIds } from '../Firebase/firebase-init';
 import './sequence-elem';
+import { app, setState } from '../Core/App';
 
 class NotionElem extends LitElement {
   static get properties() {
@@ -37,6 +38,13 @@ class NotionElem extends LitElement {
   }
 
   firstUpdated() {
+    this.isOpen = app.notionsOpen.some(notion => {
+      return notion == this.title
+    });
+    if (this.isOpen) {
+      this.shadowRoot.querySelector('details').open = true;
+      this.loadSequences();
+    }
     if (typeof this.sequenceIds == "string") {
       this.sequenceIds = this.sequenceIds.split(',');
     }
@@ -51,10 +59,21 @@ class NotionElem extends LitElement {
     `;
   }
 
-  /**
-   * event handler principal
-   */
   async summaryClick() {
+    this.isOpen = !this.isOpen;
+    let notionsOpen = [...app.notionsOpen];
+    if (this.isOpen) {
+      notionsOpen.push(this.title);
+    } else {
+      notionsOpen = notionsOpen.filter(notion => notion != this.title);
+    }
+    setState({ notionsOpen });
+    this.loadSequences();
+  }
+
+  async loadSequences() {
+    if (this.sequenceInfos.length > 0)
+      return;
     let sequenceInfos = await findSequencesByIds(this.sequenceIds, false);
     this.sequenceInfos = sequenceInfos;
     this.sequenceInfos.sort((el1, el2) => {

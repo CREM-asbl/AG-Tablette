@@ -72,6 +72,12 @@ export class App {
     this.appLoading = false;
     this.nextGroupColorIdx = 0;
 
+    this.notionsOpen = [
+    ];
+
+    this.sequencesOpen = [
+    ];
+
     this.defaultState = {
       tool: null,
       settings: { ...this.settings },
@@ -79,6 +85,7 @@ export class App {
       fullHistory: { ...this.fullHistory },
       tangram: { ...this.tangram },
       stepSinceSave: this.stepSinceSave,
+      notionsOpen: {...this.notionsOpen},
     };
 
     // compteur d'écouteurs pour certains event
