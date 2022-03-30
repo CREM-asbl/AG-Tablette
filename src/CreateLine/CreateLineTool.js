@@ -45,10 +45,7 @@ export class CreateLineTool extends Tool {
     `;
   }
 
-  /**
-   * (ré-)initialiser l'état
-   */
-   start() {
+  start() {
     this.removeListeners();
     this.stopAnimation();
     this.geometryParentObjectId = null;
@@ -66,26 +63,20 @@ export class CreateLineTool extends Tool {
     this.numberOfPointsDrawn = 0;
 
     if (
-      app.tool.selectedLine == 'StraightLine' ||
-      app.tool.selectedLine == 'SemiStraightLine' ||
-      app.tool.selectedLine == 'Segment' ||
-      app.tool.selectedLine == 'Vector'
+      !app.tool.selectedLine.startsWith('Parallele') &&
+      !app.tool.selectedLine.startsWith('Perpendicular')
     ) {
-      this.getConstraints(this.numberOfPointsDrawn);
+      app.upperDrawingEnvironment.removeAllObjects();
+      // this.getConstraints(this.numberOfPointsDrawn);
       setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
-    } else if (
-      app.tool.selectedLine == 'ParalleleStraightLine' ||
-      app.tool.selectedLine == 'PerpendicularStraightLine' ||
-      app.tool.selectedLine == 'ParalleleSemiStraightLine' ||
-      app.tool.selectedLine == 'PerpendicularSemiStraightLine' ||
-      app.tool.selectedLine == 'ParalleleSegment' ||
-      app.tool.selectedLine == 'PerpendicularSegment'
-    ) {
+    } else {
       setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);
     }
   }
 
   selectReference() {
+    app.upperDrawingEnvironment.removeAllObjects();
+
     app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_segments;
     this.objectSelectedId = app.addListener(
       'objectSelected',
@@ -109,10 +100,8 @@ export class CreateLineTool extends Tool {
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
+    app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
   }
