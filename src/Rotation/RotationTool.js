@@ -77,6 +77,7 @@ export class RotationTool extends Tool {
           path: object.getSVGPath('no scale', true),
           drawingEnvironment: app.upperDrawingEnvironment,
           strokeColor: app.settings.referenceDrawColor,
+          strokeWidth: 2,
         }));
         this.realReferences.push(object);
         this.angle = this.references[1].segments[0].arcCenter.coordinates.angleWith(this.references[1].segments[0].vertexes[0].coordinates) - this.references[1].segments[0].arcCenter.coordinates.angleWith(this.references[1].segments[0].vertexes[1].coordinates);
@@ -158,6 +159,7 @@ export class RotationTool extends Tool {
           strokeColor: app.settings.referenceDrawColor,
           fillOpacity: 0,
           geometryObject: {},
+          strokeWidth: 2,
         });
         this.arcShape1 = new ArrowLineShape({
           drawingEnvironment: app.upperDrawingEnvironment,
@@ -168,6 +170,7 @@ export class RotationTool extends Tool {
           strokeColor: app.settings.referenceDrawColor2,
           fillOpacity: 0,
           geometryObject: {},
+          strokeWidth: 2,
         });
 
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectDirection' } });
