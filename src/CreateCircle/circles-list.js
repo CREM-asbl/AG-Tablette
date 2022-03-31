@@ -102,7 +102,7 @@ class CirclesList extends LitElement {
         <h2>
           ${this.selectedCircle
             ? this.circleTitle[this.selectedCircle]
-            : 'Cercles'}
+            : 'Arcs'}
         </h2>
         <div id="list">
           ${this.circlesNames.map(
