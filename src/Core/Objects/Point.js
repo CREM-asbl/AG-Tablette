@@ -281,11 +281,7 @@ export class Point {
           }];
         }
       } else if (this.shape.name == 'Circle') {
-        if (this.type == 'arcCenter') {
-          constraints.isBlocked = true;
-        } else {
-          constraints.isFree = true;
-        }
+        constraints.isFree = true;
       } else if (this.shape.name == 'CirclePart') {
         if (this.type == 'arcCenter') {
           constraints.isBlocked = true;
@@ -341,7 +337,7 @@ export class Point {
         }
       } else if (this.shape.name == '30degreesArc' || this.shape.name == '45degreesArc') {
         if (this.type == 'arcCenter') {
-          constraints.isBlocked = true;
+          constraints.isFree = true;
         } else if (this.idx == 0) {
           constraints.isFree = true;
         } else {

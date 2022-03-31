@@ -64,6 +64,13 @@ export class TransformTool extends Tool {
       s.vertexes.forEach((pt) => {
         pt.computeTransformConstraint();
       });
+      if (s.familyName == 'circle-shape') {
+        s.points.filter(pt =>
+          pt.type == 'arcCenter'
+        ).forEach(pt => {
+          pt.computeTransformConstraint();
+        });
+      }
     });
 
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } }), 50);
@@ -78,7 +85,7 @@ export class TransformTool extends Tool {
     app.workspace.selectionConstraints.eventType = 'mousedown';
     app.workspace.selectionConstraints.points.canSelect = true;
 
-    app.workspace.selectionConstraints.points.types = ['vertex'];
+    app.workspace.selectionConstraints.points.types = ['vertex', 'arcCenter'];
     app.workspace.selectionConstraints.points.whitelist = null;
     app.workspace.selectionConstraints.points.blacklist = null;
     app.workspace.selectionConstraints.points.numberOfObjects = 'allInDistance';
@@ -309,7 +316,7 @@ export class TransformTool extends Tool {
       computeAllShapeTransform(shape);
     } else if (app.tool.currentStep == 'selectPoint') {
       app.mainDrawingEnvironment.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
-        let points = s.vertexes;
+        let points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];
         points.forEach((pt) => {
           const transformConstraints = pt.transformConstraints;
           const colorPicker = {
