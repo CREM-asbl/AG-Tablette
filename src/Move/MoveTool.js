@@ -91,17 +91,23 @@ export class MoveTool extends Tool {
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
-    for (let i = 0; i < this.involvedShapes.length; i++) {
-      let currentShape = this.involvedShapes[i];
-      if (currentShape.geometryObject?.geometryTransformationName != null) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
-        return;
+    if (app.environment.name == 'Geometrie')
+      for (let i = 0; i < this.involvedShapes.length; i++) {
+        let currentShape = this.involvedShapes[i];
+        if (currentShape.geometryObject.geometryTransformationName != null) {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
+          return;
+        }
+        if ((currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') ||
+          (currentShape.geometryObject.geometryChildShapeIds.length > 0)) {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures liées ne peuvent pas être déplacées, mais peuvent être copiées.' } }));
+          return;
+        }
+        // if (currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') {
+        //   window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être déplacées, mais peuvent être copiées.' } }));
+        //   return;
+        // }
       }
-      if (currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être déplacées, mais peuvent être copiées.' } }));
-        return;
-      }
-    }
     this.involvedShapes.forEach(s => s.points.forEach(vx => {
       if (vx.reference != null) {
         let refPoint = app.mainDrawingEnvironment.findObjectById(vx.reference, 'point')
