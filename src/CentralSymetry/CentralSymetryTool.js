@@ -79,7 +79,13 @@ export class CentralSymetryTool extends Tool {
           path: s.getSVGPath('no scale', false),
           id: undefined,
           divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx };
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
+          }),
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.points.map((pt) => {
+            return pt.color;
           }),
         }),
       );
@@ -139,7 +145,13 @@ export class CentralSymetryTool extends Tool {
         id: undefined,
         path: s.getSVGPath('no scale', false),
         divisionPointInfos: s.divisionPoints.map((dp) => {
-          return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx };
+          return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
+        }),
+        segmentsColor: s.segments.map((seg) => {
+          return seg.color;
+        }),
+        pointsColor: s.points.map((pt) => {
+          return pt.color;
         }),
         geometryObject: new GeometryObject({
           geometryTransformationChildShapeIds: [],

@@ -52,7 +52,13 @@ export class UngroupTool extends Tool {
           strokeColor: currentGroup.color,
           strokeWidth: 3,
           divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+          }),
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.points.map((pt) => {
+            return pt.color;
           }),
         });
       }

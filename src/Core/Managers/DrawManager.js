@@ -90,7 +90,7 @@ export class DrawManager {
     if (shape.segments.some(seg => seg.color != undefined)) {
       shape.segments.forEach(seg => {
         let path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
-        drawingEnvironment.ctx.strokeStyle = seg.color ? seg.color : '#000';
+        drawingEnvironment.ctx.strokeStyle = seg.color ? seg.color : shape.strokeColor;
         drawingEnvironment.ctx.stroke(path);
       });
     } else

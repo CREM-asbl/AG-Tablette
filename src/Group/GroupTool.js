@@ -69,7 +69,10 @@ export class GroupTool extends Tool {
           strokeColor: currentGroup.color,
           strokeWidth: 3,
           divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+          }),
+          pointsColor: s.points.map((pt) => {
+            return pt.color;
           }),
         });
       }
@@ -124,7 +127,10 @@ export class GroupTool extends Tool {
           strokeColor: this.groupsColor[app.nextGroupColorIdx % 8],
           strokeWidth: 3,
           divisionPointInfos: shape.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+          }),
+          pointsColor: s.points.map((pt) => {
+            return pt.color;
           }),
         });
         setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
@@ -213,7 +219,10 @@ export class GroupTool extends Tool {
           strokeColor: currentGroup.color,
           strokeWidth: 3,
           divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id };
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+          }),
+          pointsColor: s.points.map((pt) => {
+            return pt.color;
           }),
         });
       }

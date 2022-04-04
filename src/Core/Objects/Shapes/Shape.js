@@ -37,6 +37,8 @@ export class Shape {
     segmentIds = [],
     pointIds = [],
     divisionPointInfos = [],
+    segmentsColor = null,
+    pointsColor = null,
 
     name = 'Custom',
     familyName = 'Custom',
@@ -71,6 +73,7 @@ export class Shape {
           type: 'divisionPoint',
           coordinates: dInfo.coordinates,
           ratio: dInfo.ratio,
+          color: dInfo.color,
         });
         segment.divisionPointIds.push(newPoint.id);
         return newPoint.id;
@@ -81,6 +84,13 @@ export class Shape {
     } else {
       this.pointIds = [...pointIds];
       this.segmentIds = [...segmentIds];
+    }
+
+    if (segmentsColor) {
+      segmentsColor.forEach((segColor, idx) => this.segments[idx].color = segColor);
+    }
+    if (pointsColor) {
+      pointsColor.forEach((ptColor, idx) => this.points[idx].color = ptColor);
     }
 
     this.strokeColor = strokeColor;

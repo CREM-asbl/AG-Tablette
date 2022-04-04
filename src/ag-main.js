@@ -68,6 +68,10 @@ class AGMain extends LitElement {
           this.shadowRoot.querySelector('#color-picker').value =
             app.settings.shapeBorderColor;
           this.colorPickerValue = app.settings.shapeBorderColor;
+        } else if (app.tool.name == 'color') {
+          this.shadowRoot.querySelector('#color-picker').value =
+            app.settings.drawColor;
+          this.colorPickerValue = app.settings.drawColor;
         } else {
           return;
         }
@@ -321,6 +325,14 @@ class AGMain extends LitElement {
               settings: {
                 ...app.settings,
                 shapeBorderColor: e.target.value,
+              },
+              tool: { ...app.tool, currentStep: 'listen' },
+            });
+          } else if (app.tool.name == 'color') {
+            setState({
+              settings: {
+                ...app.settings,
+                drawColor: e.target.value,
               },
               tool: { ...app.tool, currentStep: 'listen' },
             });

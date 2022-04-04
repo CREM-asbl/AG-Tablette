@@ -38,6 +38,7 @@ export class App {
       numberOfRegularPoints: 3,
       shapeFillColor: '#000000',
       shapeBorderColor: '#000000',
+      drawColor: '#000000',
       shapeOpacity: 0.7,
 
       gridShown: false,

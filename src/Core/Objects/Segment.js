@@ -61,6 +61,7 @@ export class Segment {
           type: 'divisionPoint',
           coordinates: dInfo.coordinates,
           ratio: dInfo.ratio,
+          color: dInfo.color,
         });
         return newPoint.id;
       });
