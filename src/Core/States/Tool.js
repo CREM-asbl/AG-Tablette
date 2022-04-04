@@ -121,7 +121,6 @@ export class Tool {
       } else if (event.type == 'canvasMouseWheel') {
         this[event.type](event.detail.deltaY);
       } else {
-        console.log(event.type);
         this[event.type]();
       }
     }

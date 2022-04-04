@@ -6,6 +6,7 @@ import { SelectManager } from '../Core/Managers/SelectManager';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Shape } from '../Core/Objects/Shapes/Shape';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { Segment } from '../Core/Objects/Segment';
 
 /**
  * Modifier la couleur
@@ -53,7 +54,6 @@ export class ColorTool extends Tool {
     this.getConstraints();
 
     let object = SelectManager.selectObject(mouseCoordinates);
-    console.log(object);
     if (object) {
       this.object = object;
       this.executeAction();
@@ -62,7 +62,6 @@ export class ColorTool extends Tool {
   }
 
   canvasClick() {
-    console.log(this.mustPreventNextClick)
     if (this.mustPreventNextClick) {
       this.mustPreventNextClick = false;
       return;
@@ -73,6 +72,8 @@ export class ColorTool extends Tool {
 
     let object = SelectManager.selectObject(mouseCoordinates);
     if (object) {
+      if (object instanceof Segment && object.shape instanceof LineShape)
+        object = object.shape;
       this.object = object;
       this.executeAction();
     }
@@ -113,7 +114,6 @@ export class ColorTool extends Tool {
         this.object.color = app.settings.drawColor;
       }
     } else if (this.clickType == 'long') {
-      console.log('here');
       let involvedShapes = ShapeManager.getAllBindedShapes(this.object);
       involvedShapes.forEach(s => {
         s.strokeColor = app.settings.drawColor;
