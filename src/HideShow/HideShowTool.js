@@ -2,15 +2,14 @@ import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { uniqId } from '../Core/Tools/general';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 
 /**
- * Monter des figures  cachées.
+ * Cacher & monter des objets.
  */
-export class ShowTool extends Tool {
+export class HideShowTool extends Tool {
   constructor() {
-    super('show', 'Montrer', 'tool');
+    super('hideShow', 'Cacher/montrer', 'tool');
   }
 
   getHelpText() {
@@ -55,12 +54,14 @@ export class ShowTool extends Tool {
   showHidden() {
     app.upperDrawingEnvironment.removeAllObjects();
 
-    app.mainDrawingEnvironment.shapes.filter(s => s.geometryObject.geometryIsHidden === true).forEach(s => {
+    app.mainDrawingEnvironment.shapes
+      // .filter(s => s.geometryObject.geometryIsHidden === true)
+    .forEach(s => {
       let newShape = new s.constructor({
         ...s,
         drawingEnvironment: app.upperDrawingEnvironment,
         path: s.getSVGPath('no scale', false, false),
-        strokeColor: '#f00',
+        strokeColor: s.geometryObject.geometryIsHidden === true ? '#f00' : s.strokeColor,
         divisionPointInfos: s.divisionPoints.map((dp) => {
           return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
         }),
@@ -90,16 +91,25 @@ export class ShowTool extends Tool {
       return newShape;
     });
     app.mainDrawingEnvironment.editingShapeIds = app.mainDrawingEnvironment.shapes
-      .filter(s => s.geometryObject.geometryIsHidden === true)
+      // .filter(s => s.geometryObject.geometryIsHidden === true)
       .map(s => s.id);
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   _executeAction() {
+    // let involvedShapes = this.involvedShapes.map(s => s.id).map(id =>
+    //   app.mainDrawingEnvironment.findObjectById(id, 'shape')
+    // );
+    // let hasSomeShown = involvedShapes.some(s => s.geometryObject.geometryIsHidden == false);
+    // console.log(hasSomeShown);
+    // involvedShapes.forEach(s => s.geometryObject.geometryIsHidden = hasSomeShown);
     this.involvedShapes.map(s => s.id).forEach(id => {
       let s = app.mainDrawingEnvironment.findObjectById(id, 'shape');
-      s.geometryObject.geometryIsHidden = false;
+      if (s.geometryObject.geometryIsHidden === true)
+        s.geometryObject.geometryIsHidden = false;
+      else
+        s.geometryObject.geometryIsHidden = true;
     });
   }
 }

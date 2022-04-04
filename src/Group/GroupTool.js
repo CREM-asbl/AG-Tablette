@@ -129,7 +129,7 @@ export class GroupTool extends Tool {
           divisionPointInfos: shape.divisionPoints.map((dp) => {
             return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
           }),
-          pointsColor: s.points.map((pt) => {
+          pointsColor: shape.points.map((pt) => {
             return pt.color;
           }),
         });
