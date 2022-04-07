@@ -98,12 +98,6 @@ export class HideShowTool extends Tool {
   }
 
   _executeAction() {
-    // let involvedShapes = this.involvedShapes.map(s => s.id).map(id =>
-    //   app.mainDrawingEnvironment.findObjectById(id, 'shape')
-    // );
-    // let hasSomeShown = involvedShapes.some(s => s.geometryObject.geometryIsHidden == false);
-    // console.log(hasSomeShown);
-    // involvedShapes.forEach(s => s.geometryObject.geometryIsHidden = hasSomeShown);
     this.involvedShapes.map(s => s.id).forEach(id => {
       let s = app.mainDrawingEnvironment.findObjectById(id, 'shape');
       if (s.geometryObject.geometryIsHidden === true)

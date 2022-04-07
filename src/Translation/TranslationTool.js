@@ -7,6 +7,10 @@ import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { Tool } from '../Core/States/Tool';
+import { SelectManager } from '../Core/Managers/SelectManager';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { Segment } from '../Core/Objects/Segment';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 
 /**
  */
@@ -30,6 +34,7 @@ export class TranslationTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
+    this.pointsDrawn = [];
     this.firstReference = null;
     this.secondReference = null;
 
@@ -37,11 +42,35 @@ export class TranslationTool extends Tool {
   }
 
   selectReference() {
+    this.removeListeners();
+
     this.setSelectionConstraints();
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+  }
+
+  animateFirstRefPoint() {
+    this.removeListeners();
+
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.points.canSelect = true;
+    this.animate();
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+  }
+
+  animateSecondRefPoint() {
+    this.removeListeners();
+
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.points.canSelect = true;
+    this.animate();
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   selectObject() {
+    this.removeListeners();
+
     if (this.drawingShapes)
       this.drawingShapes.forEach(s => {
         app.upperDrawingEnvironment.removeObjectById(s.id);
@@ -64,84 +93,119 @@ export class TranslationTool extends Tool {
     this.removeListeners();
   }
 
-  objectSelected(object) {
-    if (app.tool.currentStep == 'selectReference') {
-      if (this.firstReference == null) {
-        if (object instanceof ArrowLineShape && !object.segments[0].arcCenter) {
-          this.firstReference = object;
-          new ArrowLineShape({
-            path: object.getSVGPath('no scale', true),
-            drawingEnvironment: app.upperDrawingEnvironment,
-            strokeColor: app.settings.referenceDrawColor,
-          });
-          setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
-        } else if (object instanceof Point) {
-          this.firstReference = object;
-          new Point({
-            coordinates: this.firstReference.coordinates,
-            drawingEnvironment: app.upperDrawingEnvironment,
-            color: app.settings.referenceDrawColor,
-            size: 2,
-          });
-          setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } });
-        } else {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez sélectionner un vecteur ou un point.' } }))
-          return;
-        }
+  canvasMouseDown() {
+    let coord = app.workspace.lastKnownMouseCoordinates;
+    if (this.firstReference == null) {
+      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+      app.workspace.selectionConstraints.eventType = 'click';
+      app.workspace.selectionConstraints.shapes.canSelect = true;
+      let object = SelectManager.selectObject(coord);
+      if (object instanceof LineShape && !object.segments[0].isArc()) {
+        this.firstReference = object;
+        new ArrowLineShape({
+          path: object.getSVGPath('no scale', true),
+          drawingEnvironment: app.upperDrawingEnvironment,
+          strokeColor: app.settings.referenceDrawColor,
+          strokeWidth: 2,
+        });
+        setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
       } else {
-        this.secondReference = object;
-        if (this.secondReference.id == this.firstReference.id) {
-          setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectFirstReference' } });
-          return;
-        }
-        new Point({
-          coordinates: this.secondReference.coordinates,
+        this.pointsDrawn.push(new Point({
+          coordinates: coord,
           drawingEnvironment: app.upperDrawingEnvironment,
           color: app.settings.referenceDrawColor,
           size: 2,
-        });
-        this.referenceShape = new ArrowLineShape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          path: `M ${this.firstReference.coordinates.x} ${this.firstReference.coordinates.y} L ${this.secondReference.coordinates.x} ${this.secondReference.coordinates.y}`,
-          strokeColor: app.settings.referenceDrawColor,
-          fillColor: app.settings.referenceDrawColor,
-          strokeWidth: 2,
-          isPointed: false,
-        });
-        setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+        }));
+        setState({ tool: { ...app.tool, name: this.name, currentStep: 'animateFirstRefPoint' } });
       }
     } else {
-      this.involvedShapes = ShapeManager.getAllBindedShapes(object);
-      this.drawingShapes = this.involvedShapes.map(
-        (s) =>
-          new s.constructor({
-            ...s,
-            drawingEnvironment: app.upperDrawingEnvironment,
-            path: s.getSVGPath('no scale', false),
-            id: undefined,
-            divisionPointInfos: s.divisionPoints.map((dp) => {
-              return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
-            }),
-            segmentsColor: s.segments.map((seg) => {
-              return seg.color;
-            }),
-            pointsColor: s.points.map((pt) => {
-              return pt.color;
-            }),
-          }),
-      );
-      // this.animate();
-      setState({
-        tool: {
-          ...app.tool,
-          currentStep: 'trans'
-        }
+      this.pointsDrawn.push(new Point({
+        coordinates: coord,
+        drawingEnvironment: app.upperDrawingEnvironment,
+        color: app.settings.referenceDrawColor,
+        size: 2,
+      }));
+      let segment = new Segment({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        vertexIds: this.pointsDrawn.map((pt) => pt.id),
       });
-      // this.executeAction();
+      new ArrowLineShape({
+        drawingEnvironment: app.upperDrawingEnvironment,
+        segmentIds: [segment.id],
+        pointIds: this.pointsDrawn.map((pt) => pt.id),
+        strokeColor: app.settings.referenceDrawColor,
+        strokeWidth: 2,
+      });
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'animateSecondRefPoint' } });
     }
   }
 
+  canvasMouseUp() {
+    this.stopAnimation();
+
+    if (app.tool.currentStep == 'animateFirstRefPoint') {
+      let coord = app.workspace.lastKnownMouseCoordinates;
+      let object = SelectManager.selectObject(coord);
+      if (object) {
+        this.firstReference = object;
+      } else {
+        this.firstReference = this.pointsDrawn[0];
+      }
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } });
+    } else {
+      let coord = app.workspace.lastKnownMouseCoordinates;
+      let object = SelectManager.selectObject(coord);
+      if (object) {
+        this.secondReference = object;
+      } else {
+        this.secondReference = this.pointsDrawn[1];
+      }
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+    }
+  }
+
+  objectSelected(object) {
+    this.involvedShapes = ShapeManager.getAllBindedShapes(object);
+    this.drawingShapes = this.involvedShapes.map(
+      (s) =>
+        new s.constructor({
+          ...s,
+          drawingEnvironment: app.upperDrawingEnvironment,
+          path: s.getSVGPath('no scale', false),
+          id: undefined,
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
+          }),
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.points.map((pt) => {
+            return pt.color;
+          }),
+        }),
+    );
+    setState({
+      tool: {
+        ...app.tool,
+        currentStep: 'trans'
+      }
+    });
+  }
+
   animate() {
+    if (app.tool.currentStep == 'animateFirstRefPoint') {
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.requestAnimFrameId = window.requestAnimationFrame(() =>
+        this.animate(),
+      );
+      return;
+    } else if (app.tool.currentStep == 'animateSecondRefPoint') {
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.requestAnimFrameId = window.requestAnimationFrame(() =>
+        this.animate(),
+      );
+      return;
+    }
     this.lastProgress = this.progress || 0;
     if (this.lastProgress == 0) {
       let vector;
@@ -182,10 +246,46 @@ export class TranslationTool extends Tool {
           );
         }
       });
+    } else if (app.tool.currentStep == 'animateFirstRefPoint') {
+      let coord = app.workspace.lastKnownMouseCoordinates;
+      let object = SelectManager.selectObject(coord);
+      if (object) {
+        this.pointsDrawn[0].coordinates = object.coordinates;
+      } else {
+        this.pointsDrawn[0].coordinates = coord;
+      }
+    } else if (app.tool.currentStep == 'animateSecondRefPoint') {
+      let coord = app.workspace.lastKnownMouseCoordinates;
+      let object = SelectManager.selectObject(coord);
+      if (object) {
+        this.pointsDrawn[1].coordinates = object.coordinates;
+      } else {
+        this.pointsDrawn[1].coordinates = coord;
+      }
     }
   }
 
   _executeAction() {
+    if (this.firstReference instanceof Point && this.firstReference.drawingEnvironment.name == 'upper') {
+      let coord = this.firstReference.coordinates;
+      this.firstReference = new SinglePointShape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: `M ${coord.x} ${coord.y}`,
+        name: 'Point',
+        familyName: 'Point',
+        geometryObject: new GeometryObject({}),
+      }).points[0];
+    }
+    if (this.firstReference instanceof Point && this.secondReference.drawingEnvironment.name == 'upper') {
+      let coord = this.secondReference.coordinates;
+      this.secondReference = new SinglePointShape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: `M ${coord.x} ${coord.y}`,
+        name: 'Point',
+        familyName: 'Point',
+        geometryObject: new GeometryObject({}),
+      }).points[0];
+    }
     let geometryTransformationCharacteristicElementIds = this.firstReference instanceof Point ? [this.firstReference.id, this.secondReference.id] : [this.firstReference.id];
 
     let newShapes = [];
@@ -239,10 +339,6 @@ export class TranslationTool extends Tool {
 
   setSelectionConstraints() {
     if (app.tool.currentStep == 'selectReference') {
-      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-      app.workspace.selectionConstraints.eventType = 'click';
-      app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.shapes.canSelect = true;
     } else {
       app.workspace.selectionConstraints =
         app.fastSelectionConstraints.mousedown_all_shape;
