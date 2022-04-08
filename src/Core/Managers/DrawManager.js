@@ -87,6 +87,8 @@ export class DrawManager {
 
     if (shape.name != 'CircleArc') drawingEnvironment.ctx.fill(path, 'nonzero');
     drawingEnvironment.ctx.globalAlpha = 1;
+    if (shape.drawHidden)
+      drawingEnvironment.ctx.setLineDash([5, 15]);
     if (shape.segments.some(seg => seg.color != undefined)) {
       shape.segments.forEach(seg => {
         let path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
@@ -95,6 +97,7 @@ export class DrawManager {
       });
     } else
       drawingEnvironment.ctx.stroke(path);
+    drawingEnvironment.ctx.setLineDash([]);
   }
 
   /**

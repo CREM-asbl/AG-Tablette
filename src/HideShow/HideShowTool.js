@@ -61,15 +61,21 @@ export class HideShowTool extends Tool {
         ...s,
         drawingEnvironment: app.upperDrawingEnvironment,
         path: s.getSVGPath('no scale', false, false),
-        strokeColor: s.geometryObject.geometryIsHidden === true ? '#f00' : s.strokeColor,
+        strokeColor: s.strokeColor,
         divisionPointInfos: s.divisionPoints.map((dp) => {
           return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+        }),
+        segmentsColor: s.segments.map((seg) => {
+          return seg.color;
         }),
         pointsColor: s.points.map((pt) => {
           return s.geometryObject.geometryIsHidden === true ? '#f00' : pt.color;
         }),
         geometryObject: new GeometryObject({...s.geometryObject, geometryIsHidden: false}),
       });
+      if (s.geometryObject.geometryIsHidden === true) {
+        newShape.drawHidden = true;
+      }
       let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
       let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
       newShape.segmentIds = [...segIds];

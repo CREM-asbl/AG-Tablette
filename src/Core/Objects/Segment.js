@@ -1023,6 +1023,7 @@ export class Segment {
       counterclockwise: this.counterclockwise,
       isInfinite: this.isInfinite,
       isSemiInfinite: this.isSemiInfinite,
+      color: this.color,
     };
     return data;
   }
