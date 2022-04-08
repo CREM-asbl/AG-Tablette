@@ -462,7 +462,7 @@ export class CreateCircleTool extends Tool {
       segments.push(seg);
     }
 
-    let constructor = LineShape;
+    let constructor = RegularShape;
     if (app.tool.selectedCircle.endsWith('degreesArc'))
       constructor = ArrowLineShape;
     let shape = new constructor({

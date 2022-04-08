@@ -45,9 +45,6 @@ export class MoveTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
@@ -73,9 +70,6 @@ export class MoveTool extends Tool {
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();

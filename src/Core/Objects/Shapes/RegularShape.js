@@ -263,7 +263,7 @@ export class RegularShape extends Shape {
       }
     }
     // if segment length == 0
-    if (app.environment.name == 'Geometrie' && this.pointIds.length != this.segmentIds.length) {
+    if (app.environment.name == 'Geometrie' && !this.isCircle() && this.pointIds.length != this.segmentIds.length) {
       let coord = this.points[0].coordinates;
       let numberOfSegment = this.segmentIds.length;
       this.pointIds.forEach(ptId => this.drawingEnvironment.removeObjectById(
@@ -394,6 +394,8 @@ export class RegularShape extends Shape {
       type: 'arcCenter',
       visible: false,
     });
+    if (app.environment.name == 'Geometrie')
+      arcCenter.visible = true;
 
     return arcCenter;
   }
@@ -415,14 +417,19 @@ export class RegularShape extends Shape {
 
   isCircle() {
     return (
-      this.segments.length == 1 &&
-      this.segments[0].isArc() &&
-      this.segments[0].vertexes[0].coordinates.equal(
-        this.segments[0].vertexes[1].coordinates,
-      ) &&
-      this.name != 'CircleArc'
+      this.name == 'Circle' || this.name.startsWith('Disque')
     );
   }
+  // isCircle() {
+  //   return (
+  //     this.segments.length == 1 &&
+  //     this.segments[0].isArc() &&
+  //     this.segments[0].vertexes[0].coordinates.equal(
+  //       this.segments[0].vertexes[1].coordinates,
+  //     ) &&
+  //     this.name != 'CircleArc'
+  //   );
+  // }
 
   isCoordinatesInPath(coordinates) {
     const ctx = app.invisibleDrawingEnvironment.ctx;
