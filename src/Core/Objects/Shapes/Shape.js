@@ -86,13 +86,6 @@ export class Shape {
       this.segmentIds = [...segmentIds];
     }
 
-    if (segmentsColor) {
-      segmentsColor.forEach((segColor, idx) => this.segments[idx].color = segColor);
-    }
-    if (pointsColor) {
-      pointsColor.forEach((ptColor, idx) => this.points[idx].color = ptColor);
-    }
-
     this.strokeColor = strokeColor;
     this.strokeWidth = strokeWidth;
 
@@ -102,6 +95,13 @@ export class Shape {
     else this.isCenterShown = _isCenterShown;
     this.isReversed = isReversed;
     this.isBiface = isBiface;
+
+    if (segmentsColor) {
+      segmentsColor.forEach((segColor, idx) => this.segments[idx].color = segColor);
+    }
+    if (pointsColor) {
+      pointsColor.forEach((ptColor, idx) => this.points[idx].color = ptColor);
+    }
 
     if (geometryObject) {
       this.geometryObject = geometryObject;
