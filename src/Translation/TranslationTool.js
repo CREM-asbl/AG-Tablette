@@ -19,9 +19,6 @@ export class TranslationTool extends Tool {
     super('translation', 'Translation', 'transformation');
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     this.removeListeners();
     this.duration = app.settings.geometryTransformationAnimation ? app.settings.geometryTransformationAnimationDuration : 0.001;
