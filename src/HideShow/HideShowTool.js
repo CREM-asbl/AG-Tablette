@@ -66,7 +66,7 @@ export class HideShowTool extends Tool {
           return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
         }),
         pointsColor: s.points.map((pt) => {
-          return pt.color;
+          return s.geometryObject.geometryIsHidden === true ? '#f00' : pt.color;
         }),
         geometryObject: new GeometryObject({...s.geometryObject, geometryIsHidden: false}),
       });

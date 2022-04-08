@@ -6,6 +6,8 @@ import { Point } from '../Core/Objects/Point';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { Tool } from '../Core/States/Tool';
+import { SelectManager } from '../Core/Managers/SelectManager';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 
 /**
  */
@@ -14,9 +16,6 @@ export class CentralSymetryTool extends Tool {
     super('centralSymetry', 'Symétrie centrale', 'transformation');
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     this.removeListeners();
     this.duration = app.settings.geometryTransformationAnimation ? app.settings.geometryTransformationAnimationDuration : 0.001;
@@ -30,9 +29,20 @@ export class CentralSymetryTool extends Tool {
     this.removeListeners();
 
     this.reference = null;
+    this.pointDrawn = null;
 
     this.setSelectionConstraints();
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+  }
+
+  animateRefPoint() {
+    this.removeListeners();
+
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.points.canSelect = true;
+    this.animate();
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   selectObject() {
@@ -59,46 +69,66 @@ export class CentralSymetryTool extends Tool {
     this.removeListeners();
   }
 
-  objectSelected(object) {
-    if (app.tool.currentStep == 'selectReference') {
+  canvasMouseDown() {
+    let coord = app.workspace.lastKnownMouseCoordinates;
+    this.pointDrawn = new Point({
+      coordinates: coord,
+      drawingEnvironment: app.upperDrawingEnvironment,
+      color: app.settings.referenceDrawColor,
+      size: 2,
+    });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'animateRefPoint' } });
+  }
+
+  canvasMouseUp() {
+    this.stopAnimation();
+
+    let coord = app.workspace.lastKnownMouseCoordinates;
+    let object = SelectManager.selectObject(coord);
+    if (object) {
       this.reference = object;
-      new Point({
-        coordinates: this.reference.coordinates,
-        drawingEnvironment: app.upperDrawingEnvironment,
-        color: app.settings.referenceDrawColor,
-        size: 2,
-      });
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
     } else {
-      this.involvedShapes = ShapeManager.getAllBindedShapes(object);
-      this.drawingShapes = this.involvedShapes.map(
-        (s) =>
-        new s.constructor({
-          ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
-          path: s.getSVGPath('no scale', false),
-          id: undefined,
-          divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
-          }),
-          segmentsColor: s.segments.map((seg) => {
-            return seg.color;
-          }),
-          pointsColor: s.points.map((pt) => {
-            return pt.color;
-          }),
-        }),
-      );
-      setState({
-        tool: {
-          ...app.tool,
-          currentStep: 'central'
-        }
-      });
+      this.reference = this.pointDrawn;
     }
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+  }
+
+  objectSelected(object) {
+    this.involvedShapes = ShapeManager.getAllBindedShapes(object);
+    this.drawingShapes = this.involvedShapes.map(
+      (s) =>
+      new s.constructor({
+        ...s,
+        drawingEnvironment: app.upperDrawingEnvironment,
+        path: s.getSVGPath('no scale', false),
+        id: undefined,
+        divisionPointInfos: s.divisionPoints.map((dp) => {
+          return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
+        }),
+        segmentsColor: s.segments.map((seg) => {
+          return seg.color;
+        }),
+        pointsColor: s.points.map((pt) => {
+          return pt.color;
+        }),
+      }),
+    );
+    setState({
+      tool: {
+        ...app.tool,
+        currentStep: 'central'
+      }
+    });
   }
 
   animate() {
+    if (app.tool.currentStep == 'animateRefPoint') {
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+      this.requestAnimFrameId = window.requestAnimationFrame(() =>
+        this.animate(),
+      );
+      return;
+    }
     this.lastProgress = this.progress || 0;
     if (this.lastProgress == 0) {
       app.upperDrawingEnvironment.points.forEach((point) => {
@@ -133,10 +163,28 @@ export class CentralSymetryTool extends Tool {
               .multiply(this.progress),
           );
       });
+    } else if (app.tool.currentStep == 'animatetRefPoint') {
+      let coord = app.workspace.lastKnownMouseCoordinates;
+      let object = SelectManager.selectObject(coord);
+      if (object) {
+        this.pointDrawn.coordinates = object.coordinates;
+      } else {
+        this.pointDrawn.coordinates = coord;
+      }
     }
   }
 
   _executeAction() {
+    if (this.reference instanceof Point && this.reference.drawingEnvironment.name == 'upper') {
+      let coord = this.reference.coordinates;
+      this.reference = new SinglePointShape({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        path: `M ${coord.x} ${coord.y}`,
+        name: 'Point',
+        familyName: 'Point',
+        geometryObject: new GeometryObject({}),
+      }).points[0];
+    }
     let newShapes = [];
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
