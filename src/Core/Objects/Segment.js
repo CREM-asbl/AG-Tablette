@@ -495,12 +495,13 @@ export class Segment {
   /* ########################## SEGMENT POINTS ########################## */
   /* #################################################################### */
 
-  addPoint(coordinates, ratio) {
-    //TODO: garder les points triés?
+  addPoint(coordinates, ratio, firstPointId, secondPointId) {
+    // TODO: garder les points triés ?
+
     // if doesnt already exist
     if (
       this.divisionPoints.findIndex(
-        (pt) => Math.abs(pt.ratio - ratio) < 0.001,
+        (pt) => pt.coordinates.dist(coordinates) < 0.001,
       ) == -1
     ) {
       let newPoint = new Point({
@@ -510,6 +511,7 @@ export class Segment {
         drawingEnvironment: this.drawingEnvironment,
         shapeId: this.shapeId,
         segmentIds: [this.id],
+        endpointIds: [firstPointId, secondPointId],
       });
       this.divisionPointIds.push(newPoint.id);
     }

@@ -35,6 +35,7 @@ export class Point {
     color = '#000',
     size = 1,
     reference = null,
+    endpointIds = [],
   }) {
     this.id = id;
     this.drawingEnvironment = drawingEnvironment;
@@ -62,6 +63,7 @@ export class Point {
     this.color = color;
     this.size = size;
     this.reference = reference;
+    this.endpointIds = [...endpointIds];
   }
 
   get shape() {
@@ -477,6 +479,7 @@ export class Point {
       color: this.color,
       size: this.size,
       reference: this.reference,
+      endpointIds: [...this.endpointIds],
     };
     return data;
   }
@@ -491,5 +494,6 @@ export class Point {
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);
     point.segmentIds = [...data.segmentIds];
+    point.endpointIds = [...data.endpointIds];
   }
 }

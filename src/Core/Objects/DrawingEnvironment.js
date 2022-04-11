@@ -190,6 +190,14 @@ export class DrawingEnvironment {
   getCommonSegmentOfTwoPoints(pt1Id, pt2Id) {
     let pt1 = this.findObjectById(pt1Id, 'point');
     let pt2 = this.findObjectById(pt2Id, 'point');
+    if (pt1.shape.name == 'PointOnLine' || pt2.shape.name == 'PointOnLine') {
+      let segId;
+      if (pt1.shape.name == 'PointOnLine')
+        segId = pt1.shape.geometryObject.geometryParentObjectId1;
+      else
+        segId = pt2.shape.geometryObject.geometryParentObjectId1;
+      return app.mainDrawingEnvironment.findObjectById(segId, 'segment');
+    }
     let segmentIds1 = pt1.segmentIds;
     let segmentIds2 = pt2.segmentIds;
     let commonSegmentIds = segmentIds1.filter(

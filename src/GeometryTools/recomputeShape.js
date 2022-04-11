@@ -6,8 +6,9 @@ export function computeAllShapeTransform(shape, layer = 'upper') {
   if (app.environment.name != 'Geometrie') return;
   shape.geometryObject.geometryChildShapeIds.forEach(ref => {
     let sRef = app[layer + 'DrawingEnvironment'].findObjectById(ref);
-    if (!sRef)
+    if (!sRef) {
       return;
+    }
     let ptsMoved = [];
     sRef.points.forEach(pt => {
       if (pt.reference) {
@@ -362,7 +363,6 @@ export function computeShapeTransform(shape, layer = 'upper') {
   if (shape.isCenterShown) {
     shape.center.coordinates = shape.centerCoordinates;
   }
-  // shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
 }
 
 export function computeDivisionPoint(point) {
@@ -371,6 +371,16 @@ export function computeDivisionPoint(point) {
   if (point.shape.isCircle()) {
     let startAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[0].coordinates);
     let newAngle = startAngle + point.ratio * 2 * Math.PI;
+    if (point.endpointIds?.length == 2) {
+      let firstPoint = app.upperDrawingEnvironment.findObjectById(point.endpointIds[0], 'point');
+      let secondPoint = app.upperDrawingEnvironment.findObjectById(point.endpointIds[1], 'point');
+      let firstAngle = segment.arcCenter.coordinates.angleWith(firstPoint.coordinates);
+      let secondAngle = segment.arcCenter.coordinates.angleWith(secondPoint.coordinates);
+      if (secondAngle < firstAngle) {
+        secondAngle += Math.PI * 2;
+      }
+      newAngle = firstAngle + point.ratio * (secondAngle - firstAngle);
+    }
     let newCoordinates = new Coordinates({
       x: segment.arcCenter.coordinates.x + segment.radius * Math.cos(newAngle),
       y: segment.arcCenter.coordinates.y + segment.radius * Math.sin(newAngle),
@@ -380,8 +390,10 @@ export function computeDivisionPoint(point) {
   }
   let firstPoint = segment.vertexes[0];
   let secondPoint = segment.vertexes[1];
-  firstPoint.ratio = 0;
-  secondPoint.ratio = 1;
+  if (point.endpointIds?.length == 2) {
+    firstPoint = app.upperDrawingEnvironment.findObjectById(point.endpointIds[0], 'point');
+    secondPoint = app.upperDrawingEnvironment.findObjectById(point.endpointIds[1], 'point');
+  }
 
   // if (firstPoint.ratio > secondPoint.ratio)
   //   [firstPoint, secondPoint] = [secondPoint, firstPoint];

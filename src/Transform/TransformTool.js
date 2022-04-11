@@ -7,8 +7,11 @@ import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
 import {
-  computeAllShapeTransform,
-  computeConstructionSpec, computeShapeTransform, projectionOnConstraints
+    computeAllShapeTransform,
+    computeConstructionSpec,
+    computeShapeTransform,
+    projectionOnConstraints,
+    computeDivisionPoint
 } from '../GeometryTools/recomputeShape';
 import { GridManager } from '../Grid/GridManager';
 
@@ -137,8 +140,9 @@ export class TransformTool extends Tool {
 
     this.pointSelectedId = point.id;
 
-    let involvedShapes = [point.shape];
-    getAllLinkedShapesInGeometry(point.shape, involvedShapes);
+    // let involvedShapes = [point.shape];
+    // getAllLinkedShapesInGeometry(point.shape, involvedShapes);
+    let involvedShapes = app.mainDrawingEnvironment.shapes;
 
     this.drawingShapes = involvedShapes.map(
       (s) => {
@@ -174,6 +178,7 @@ export class TransformTool extends Tool {
           pt.ratio = s.points[idx].ratio;
           pt.transformConstraints = s.points[idx].transformConstraints;
           pt.type = s.points[idx].type;
+          pt.endpointIds = [...s.points[idx].endpointIds];
         });
         return newShape;
       }
@@ -293,7 +298,7 @@ export class TransformTool extends Tool {
         }
       }
       if (shape.name == 'PointOnLine') {
-        let reference = app.mainDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+        let reference = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
         point.coordinates = reference.projectionOnSegment(point.coordinates);
         // let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
         let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
@@ -302,7 +307,7 @@ export class TransformTool extends Tool {
         if (isNaN(ratio))
           ratio = ratioY;
 
-        if (ratio < 0 && !(reference.shape.name.endsWith('StraightLine') && !reference.shape.name.endsWith('SeminStraightLine')))
+        if (ratio < 0 && (reference.shape.name.endsWith('SemiStraightLine') || !reference.shape.name.endsWith('StraightLine')))
           ratio = 0;
         if (ratio > 1 && !reference.shape.name.endsWith('StraightLine'))
           ratio = 1;
@@ -319,7 +324,13 @@ export class TransformTool extends Tool {
       computeShapeTransform(shape);
       if (shape.name == 'RightAngleTrapeze2')
         computeConstructionSpec(shape);
-      computeAllShapeTransform(shape);
+      if (shape.name == 'PointOnLine') {
+        let reference = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+        computeShapeTransform(reference.shape);
+        computeAllShapeTransform(reference.shape);
+      } else {
+        computeAllShapeTransform(shape);
+      }
     } else if (app.tool.currentStep == 'selectPoint') {
       app.mainDrawingEnvironment.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
         let points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];
