@@ -5,13 +5,11 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
-import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
 import {
     computeAllShapeTransform,
     computeConstructionSpec,
     computeShapeTransform,
     projectionOnConstraints,
-    computeDivisionPoint
 } from '../GeometryTools/recomputeShape';
 import { GridManager } from '../Grid/GridManager';
 

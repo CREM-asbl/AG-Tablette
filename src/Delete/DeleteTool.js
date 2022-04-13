@@ -88,7 +88,11 @@ export class DeleteTool extends Tool {
   _executeAction() {
     if (this.mode == 'shape') {
       this.involvedShapes.forEach((s) => {
-        // if (userGroup) userGroup.deleteShape(s.id);
+        if (s.name == 'PointOnLine') {
+          let segment = app.mainDrawingEnvironment.findObjectById(s.geometryObject.geometryParentObjectId1, 'segment');
+          let point = s.points[0];
+          this.deleteSubDivisionPoints(segment, point);
+        }
         if (app.environment.name == 'Geometrie')
           this.deleteChildren(s);
         app.mainDrawingEnvironment.removeObjectById(s.id, 'shape');
@@ -100,6 +104,7 @@ export class DeleteTool extends Tool {
     } else if (this.mode == 'divisionPoint') {
       // point
       let segment = this.point.segments[0];
+      this.deleteSubDivisionPoints(segment, this.point);
       if (app.environment.name == 'Geometrie')
         this.deleteChildrenOfDivisionPoint(this.point);
       segment.deletePoint(this.point);
@@ -107,6 +112,17 @@ export class DeleteTool extends Tool {
       // point
       this.point.visible = false;
     }
+  }
+
+  deleteSubDivisionPoints(segment, point) {
+    segment.divisionPoints.forEach(divPt => {
+      if (divPt.endpointIds && divPt.endpointIds.some(endPtId => endPtId == point.id)) {
+        this.deleteSubDivisionPoints(segment, divPt);
+        if (app.environment.name == 'Geometrie')
+          this.deleteChildrenOfDivisionPoint(divPt);
+        segment.deletePoint(divPt);
+      }
+    });
   }
 
   deleteChildren(shape) {
