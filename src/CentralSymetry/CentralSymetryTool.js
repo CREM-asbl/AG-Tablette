@@ -163,7 +163,7 @@ export class CentralSymetryTool extends Tool {
               .multiply(this.progress),
           );
       });
-    } else if (app.tool.currentStep == 'animatetRefPoint') {
+    } else if (app.tool.currentStep == 'animateRefPoint') {
       let coord = app.workspace.lastKnownMouseCoordinates;
       let object = SelectManager.selectObject(coord);
       if (object) {

@@ -206,16 +206,12 @@ export class OrthogonalSymetryTool extends Tool {
     }
     this.lastProgress = this.progress || 0;
     if (this.lastProgress == 0) {
-      let vector;
-      if (this.firstReference instanceof Point)
-        vector = this.secondReference.coordinates.substract(this.firstReference.coordinates);
-      else
-        vector = this.firstReference.points[1].coordinates.substract(this.firstReference.points[0].coordinates);
       this.drawingShapes.forEach(s => s.points.forEach((point) => {
+        let center = this.referenceShape.segments[0].projectionOnSegment(point);
         point.startCoordinates = new Coordinates(point.coordinates);
         point.endCoordinates = new Coordinates({
-          x: point.x + vector.x,
-          y: point.y + vector.y,
+          x: point.x + 2 * (center.x - point.x),
+          y: point.y + 2 * (center.y - point.y),
         });
       }));
     }
@@ -235,12 +231,13 @@ export class OrthogonalSymetryTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'ortho') {
+      let progressInAnimation = Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
       app.upperDrawingEnvironment.points.forEach((point) => {
         if (point.startCoordinates) {
           point.coordinates = point.startCoordinates.substract(
             point.startCoordinates
               .substract(point.endCoordinates)
-              .multiply(this.progress),
+              .multiply(progressInAnimation),
           );
         }
       });
