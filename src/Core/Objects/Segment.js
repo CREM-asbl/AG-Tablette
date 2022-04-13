@@ -906,19 +906,24 @@ export class Segment {
    * @param {Boolean} falseIfEdgePoint si le point d'intersection est la terminaison d'un segment, return false
    */
   doesIntersect(segment, allowProlongation = false, falseIfEdgePoint = false) {
-    let intersection = this.intersectionWith(segment);
-    if (!intersection) return false;
+    let intersections = this.intersectionWith(segment);
+    if (intersections == null) return false;
     if (allowProlongation) return true;
-    if (
-      falseIfEdgePoint &&
-      [...this.vertexes, ...segment.vertexes].some((vertex) =>
-        vertex.coordinates.equal(intersection),
-      )
-    )
+    if (falseIfEdgePoint) {
+      for (let i = 0; i < intersections.length; i++) {
+        if ([...this.vertexes, ...segment.vertexes].some((vertex) => vertex.coordinates.equal(intersections[i]))) {
+          intersections.splice(i, 1);
+          i--;
+        }
+      }
+    }
+    if (intersections.length == 0)
       return false;
     if (
-      this.isCoordinatesOnSegment(intersection) &&
-      segment.isCoordinatesOnSegment(intersection)
+      intersections.some(intersection =>
+        this.isCoordinatesOnSegment(intersection) &&
+        segment.isCoordinatesOnSegment(intersection)
+      )
     )
       return true;
     return false;

@@ -406,7 +406,7 @@ export class DivideTool extends Tool {
 
     // Pour un cercle entier, on ajoute un point de division supplémentaire
     if (shape.isCircle()) {
-      this.segment.addPoint(this.firstPoint.coordinates, this.firstPoint.ratio);
+      this.segment.addPoint(this.firstPoint.coordinates, this.firstPoint.ratio, this.firstPoint.id, this.secondPoint.id);
     }
 
     let ratioCap =

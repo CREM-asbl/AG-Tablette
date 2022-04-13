@@ -376,7 +376,7 @@ export function computeDivisionPoint(point) {
       let secondPoint = app.upperDrawingEnvironment.findObjectById(point.endpointIds[1], 'point');
       let firstAngle = segment.arcCenter.coordinates.angleWith(firstPoint.coordinates);
       let secondAngle = segment.arcCenter.coordinates.angleWith(secondPoint.coordinates);
-      if (secondAngle < firstAngle) {
+      if (secondAngle <= firstAngle) {
         secondAngle += Math.PI * 2;
       }
       newAngle = firstAngle + point.ratio * (secondAngle - firstAngle);

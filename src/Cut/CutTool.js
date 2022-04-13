@@ -495,7 +495,8 @@ export class CutTool extends Tool {
           this.addPathElem(firstPath, pt1);
           break;
         } else {
-          this.addPathElem(firstPath, shape.vertexes[i + 1]);
+          if (shape.vertexes[i + 1])
+            this.addPathElem(firstPath, shape.vertexes[i + 1]);
         }
         if (pt1.type === 'vertex' && pt1.idx === i + 1) {
           break;

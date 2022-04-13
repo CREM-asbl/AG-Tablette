@@ -67,7 +67,7 @@ export class TransformTool extends Tool {
       s.vertexes.forEach((pt) => {
         pt.computeTransformConstraint();
       });
-      if (s.familyName == 'circle-shape') {
+      if (s.familyName == 'circle-shape' || s.familyName == 'Irregular') {
         s.points.filter(pt =>
           pt.type == 'arcCenter'
         ).forEach(pt => {

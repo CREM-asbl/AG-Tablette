@@ -154,7 +154,11 @@ export class Point {
           constraints.isConstructed = true;
         }
       } else if (this.shape.familyName == 'Irregular') {
-        constraints.isFree = true;
+        if (this.shape.points.some(pt => pt.type == 'arcCenter')) {
+          constraints.isBlocked = true;
+        } else {
+          constraints.isFree = true;
+        }
       } else if (this.shape.name == 'RightAngleTriangle') {
         if (this.idx < 2) {
           constraints.isFree = true;
