@@ -43,9 +43,6 @@ export class CreatePointTool extends Tool {
     `;
   }
 
-  /**
-   * (ré-)initialiser l'état
-   */
    start() {
     this.removeListeners();
     this.stopAnimation();
@@ -77,9 +74,6 @@ export class CreatePointTool extends Tool {
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     this.removeListeners();
     this.stopAnimation();
@@ -89,7 +83,7 @@ export class CreatePointTool extends Tool {
     new LineShape({
       drawingEnvironment: app.upperDrawingEnvironment,
       strokeColor: app.settings.temporaryDrawColor,
-      strokeWidth: 3,
+      strokeWidth: 2,
       path: segment.getSVGPath('no scale', true),
       id: undefined,
       fillColor: '#000',

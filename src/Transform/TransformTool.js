@@ -144,6 +144,8 @@ export class TransformTool extends Tool {
     // getAllLinkedShapesInGeometry(point.shape, involvedShapes);
     let involvedShapes = app.mainDrawingEnvironment.shapes;
 
+    app.mainDrawingEnvironment.shapes.forEach(s => console.log(s.name));
+
     this.drawingShapes = involvedShapes.map(
       (s) => {
         let newShape = new s.constructor({
@@ -401,6 +403,7 @@ export class TransformTool extends Tool {
           path: segment.getSVGPath('no scale', true),
           strokeColor: app.settings.constraintsDrawColor,
           fillOpacity: 0,
+          strokeWidth: 2,
         });
         if (ln.isInfinite)
           shape.segments[0].isInfinite = true;

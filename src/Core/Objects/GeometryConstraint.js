@@ -52,6 +52,7 @@ export class GeometryConstraint {
         name: 'constraints',
         strokeColor: app.settings.constraintsDrawColor,
         fillOpacity: 0,
+        strokeWidth: 2,
       });
       return s.segments[0];
     });

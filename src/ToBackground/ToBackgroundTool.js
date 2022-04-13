@@ -27,9 +27,6 @@ export class ToBackgroundTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
@@ -42,9 +39,6 @@ export class ToBackgroundTool extends Tool {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     this.removeListeners();
   }
@@ -65,10 +59,12 @@ export class ToBackgroundTool extends Tool {
   }
 
   _executeAction() {
+    app.mainDrawingEnvironment.shapes.forEach(s => console.log(s.name));
     this.involvedShapes.forEach((s, index) => {
       let shapeIndex = app.mainDrawingEnvironment.findIndexById(s.id);
       let shape = app.mainDrawingEnvironment.shapes.splice(shapeIndex, 1)[0];
       app.mainDrawingEnvironment.shapes.splice(index, 0, shape);
     });
+    app.mainDrawingEnvironment.shapes.forEach(s => console.log(s.name));
   }
 }
