@@ -872,7 +872,19 @@ export class Segment {
 
   arcIntersectionWith(segment) {
     if (this.isArc() && segment.isArc()) { // two circles
-
+      // 1. cas pas d'intersection
+      // 2. cas 1 intersection
+      // 3. cas y0 == y1
+      const R0 = this.radius, R1 = segment.radius;
+      const x0 = this.arcCenter.coordinates.x, y0 = this.arcCenter.coordinates.y;
+      const x1 = segment.arcCenter.coordinates.x, y1 = segment.arcCenter.coordinates.y;
+      const N = (R1 ** 2 - R0 ** 2 - x1 ** 2 + x0 ** 2 - y1 ** 2 + y0 ** 2) / (2 * (y0 - y1));
+      const quotien = (x0 - x1) / (y0 - y1);
+      const A = quotien ** 2 + 1, B = (2 * y0 * quotien) - (2 * N * quotien) - 2 * x0, C = x0 ** 2 + y0 ** 2 + N ** 2 - R0 ** 2 - (2 * y0 * N);
+      const delta = Math.sqrt((B ** 2) - 4 * A * C);
+      const resultx0 = (-B + delta) / (2 * A), resultx1 = (-B - delta) / (2 * A);
+      const resulty0 = N - resultx0 * quotien, resulty1 = N - resultx1 * quotien;
+      return [new Coordinates({ x: resultx0, y: resulty0}), new Coordinates({ x: resultx1, y: resulty1})];
     } else if (this.isArc() && !segment.isArc()) { // a circle and a right line
       let projection = segment.projectionOnSegment(this.arcCenter.coordinates);
       let dist1 = projection.dist(this.arcCenter.coordinates);
