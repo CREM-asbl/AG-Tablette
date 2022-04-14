@@ -606,10 +606,14 @@ export class CutTool extends Tool {
   addPathElem(path, nextPoint, mustFollowArc) {
     let segment;
     if (mustFollowArc !== false) {
-      let segmentIdx = Number.isInteger(this.currentPoint.idx)
-        ? this.currentPoint.idx
-        : this.currentPoint.segments[0].idx;
-      segment = this.currentPoint.shape.segments[segmentIdx];
+      if (this.currentPoint.shape.name == 'PointOnLine') {
+        segment = app.mainDrawingEnvironment.findObjectById(this.currentPoint.shape.geometryObject.geometryParentObjectId1, 'segment');
+      } else {
+        let segmentIdx = Number.isInteger(this.currentPoint.idx)
+          ? this.currentPoint.idx
+          : this.currentPoint.segments[0].idx;
+        segment = this.currentPoint.shape.segments[segmentIdx];
+      }
     }
     if (segment == undefined || !segment.isArc() || mustFollowArc === false) {
       path.push('L', nextPoint.coordinates.x, nextPoint.coordinates.y);
