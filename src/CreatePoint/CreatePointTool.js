@@ -247,7 +247,7 @@ export class CreatePointTool extends Tool {
         return;
       }
       if (coords.length == 1)
-        coords[1] = new Coordinates({ x: -1000000000, y: -1000000000});
+        coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y});
       shape = new SinglePointShape({
         drawingEnvironment: app.mainDrawingEnvironment,
         path: coords.map(coord => `M ${coord.x} ${coord.y}`).join(' '),

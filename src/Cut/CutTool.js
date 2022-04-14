@@ -361,7 +361,7 @@ export class CutTool extends Tool {
       vertexCoordinates: [pt1.coordinates, pt2.coordinates],
       createFromNothing: true,
     });
-    if (shape.segments.some((seg) => seg.doesIntersect(junction, false, true))) {
+    if (shape.segments.some((seg) => seg.doesIntersect(junction, true))) {
       return false;
     }
     return shape.vertexes.every(

@@ -339,7 +339,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       return;
 
     if (coords.length == 1)
-      coords[1] = new Coordinates({ x: -1000000000, y: -1000000000});
+      coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y});
     shape.points.forEach((pt, idx) => pt.coordinates = coords[idx]);
   } else if (shape.name == '30degreesArc') {
     let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + Math.PI / 6;

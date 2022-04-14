@@ -538,7 +538,7 @@ export class LineShape extends Shape {
     if (
       s1_segments.some((s1_segment) =>
         s2_segments.some((s2_segment) =>
-          s1_segment.doesIntersect(s2_segment, false, true),
+          s1_segment.doesIntersect(s2_segment, true),
         ),
       )
     ) {

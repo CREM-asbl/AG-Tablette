@@ -169,20 +169,14 @@ export class SinglePointShape extends Shape {
             x: allPathElements.shift(),
             y: allPathElements.shift(),
           });
-          if (this.contains(nextVertexCoordinates)) {
-            startVertex = lastVertex = this.points.find((pt) =>
-              pt.coordinates.equal(nextVertexCoordinates),
-            );
-          } else {
-            startVertex = lastVertex = new Point({
-              coordinates: nextVertexCoordinates,
-              shapeId: this.id,
-              drawingEnvironment: this.drawingEnvironment,
-              type: 'vertex',
-              idx: vertexIdx++,
-              visible: this.isPointed,
-            });
-          }
+          startVertex = lastVertex = new Point({
+            coordinates: nextVertexCoordinates,
+            shapeId: this.id,
+            drawingEnvironment: this.drawingEnvironment,
+            type: 'vertex',
+            idx: vertexIdx++,
+            visible: this.isPointed,
+          });
           break;
 
         case 'L':
@@ -445,7 +439,7 @@ export class SinglePointShape extends Shape {
     if (
       s1_segments.some((s1_segment) =>
         s2_segments.some((s2_segment) =>
-          s1_segment.doesIntersect(s2_segment, false, true),
+          s1_segment.doesIntersect(s2_segment, true),
         ),
       )
     ) {

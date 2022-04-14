@@ -142,8 +142,6 @@ export class TransformTool extends Tool {
     // getAllLinkedShapesInGeometry(point.shape, involvedShapes);
     let involvedShapes = app.mainDrawingEnvironment.shapes;
 
-    app.mainDrawingEnvironment.shapes.forEach(s => console.log(s.name));
-
     this.drawingShapes = involvedShapes.map(
       (s) => {
         let newShape = new s.constructor({

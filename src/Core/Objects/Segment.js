@@ -871,6 +871,7 @@ export class Segment {
   }
 
   arcIntersectionWith(segment) {
+    let result = [];
     if (this.isArc() && segment.isArc()) { // two circles
       // formules tirées de http://math.15873.pagesperso-orange.fr/IntCercles.html
       const R0 = this.radius, R1 = segment.radius;
@@ -879,13 +880,12 @@ export class Segment {
       const dist2Centers = Math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2);
       if (dist2Centers > R0 + R1)
         return null;
-      if (dist2Centers < Math.abs(R1 - R0))
+      else if (dist2Centers < Math.abs(R1 - R0))
         return null;
-      if (Math.abs(dist2Centers - R0 - R1) < 1) {
+      else if (Math.abs(dist2Centers - R0 - R1) < 1) {
         const angleBetweenCenter = this.arcCenter.coordinates.angleWith(segment.arcCenter.coordinates);
-        return [this.centerProjectionOnSegment(angleBetweenCenter)];
-      }
-      if (dist2Centers - Math.abs(R0 - R1) < 1) {
+        return  [this.centerProjectionOnSegment(angleBetweenCenter)];
+      } else if (dist2Centers - Math.abs(R0 - R1) < 1) {
         if (R0 > R1) {
           const angleBetweenCenter = this.arcCenter.coordinates.angleWith(segment.arcCenter.coordinates);
           return [this.centerProjectionOnSegment(angleBetweenCenter)];
@@ -893,13 +893,12 @@ export class Segment {
           const angleBetweenCenter = segment.arcCenter.coordinates.angleWith(this.arcCenter.coordinates);
           return [segment.centerProjectionOnSegment(angleBetweenCenter)];
         }
-      }
-      if (y0 == y1) {
+      } else if (y0 == y1) {
         const x =  (R1 ** 2 - R0 ** 2 - x1 ** 2 + x0 ** 2) / (2 * (x0 - x1));
         const A = 1, B = -2 * y1, C = x1 ** 2 + x ** 2 - 2 * x1 * x + y1 ** 2 - R1 ** 2;
         const delta = Math.sqrt((B ** 2) - 4 * A * C);
         const resulty0 = (-B + delta) / (2 * A), resulty1 = (-B - delta) / (2 * A);
-        return [new Coordinates({ x, y: resulty0}), new Coordinates({ x, y: resulty1})];
+        result = [new Coordinates({ x, y: resulty0}), new Coordinates({ x, y: resulty1})];
       } else {
         const N = (R1 ** 2 - R0 ** 2 - x1 ** 2 + x0 ** 2 - y1 ** 2 + y0 ** 2) / (2 * (y0 - y1));
         const quotien = (x0 - x1) / (y0 - y1);
@@ -907,7 +906,7 @@ export class Segment {
         const delta = Math.sqrt((B ** 2) - 4 * A * C);
         const resultx0 = (-B + delta) / (2 * A), resultx1 = (-B - delta) / (2 * A);
         const resulty0 = N - resultx0 * quotien, resulty1 = N - resultx1 * quotien;
-        return [new Coordinates({ x: resultx0, y: resulty0}), new Coordinates({ x: resultx1, y: resulty1})];
+        result = [new Coordinates({ x: resultx0, y: resulty0}), new Coordinates({ x: resultx1, y: resulty1})];
       }
     } else if (this.isArc() && !segment.isArc()) { // a circle and a right line
       let projection = segment.projectionOnSegment(this.arcCenter.coordinates);
@@ -915,9 +914,9 @@ export class Segment {
       let hypothenusLength = this.radius;
       if (dist1 > hypothenusLength)
         return null;
-      else if (Math.abs(dist1 - hypothenusLength) < 1)
+      else if (Math.abs(dist1 - hypothenusLength) < 1) {
         return [projection];
-      else {
+      } else {
         let dist2 = Math.sqrt(Math.pow(hypothenusLength, 2) - Math.pow(dist1, 2));
         let segmentAngle = segment.getAngleWithHorizontal();
         let firstCoord = new Coordinates({
@@ -928,23 +927,27 @@ export class Segment {
           x: projection.x + Math.cos(segmentAngle) * -dist2,
           y: projection.y + Math.sin(segmentAngle) * -dist2,
         });
-        return [firstCoord, secondCoord];
+        result = [firstCoord, secondCoord];
       }
     } else if (!this.isArc() && segment.isArc()) {
       return segment.arcIntersectionWith(this);
     }
+    result = result.filter(res => this.isCoordinatesOnSegment(res) &&
+      segment.isCoordinatesOnSegment(res));
+    if (result.length == 0)
+      return null;
+    return result;
   }
 
   /**
    * check si deux segments s'intersectent
    * @param {*} segment
-   * @param {Boolean} allowProlongation verifie si les droites s'intersectent
    * @param {Boolean} falseIfEdgePoint si le point d'intersection est la terminaison d'un segment, return false
    */
-  doesIntersect(segment, allowProlongation = false, falseIfEdgePoint = false) {
+  doesIntersect(segment, falseIfEdgePoint = false) {
     let intersections = this.intersectionWith(segment);
     if (intersections == null) return false;
-    if (allowProlongation) return true;
+    // if (allowProlongation) return true;
     if (falseIfEdgePoint) {
       for (let i = 0; i < intersections.length; i++) {
         if ([...this.vertexes, ...segment.vertexes].some((vertex) => vertex.coordinates.equal(intersections[i]))) {
