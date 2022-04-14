@@ -113,6 +113,9 @@ export class CreateLineTool extends Tool {
   objectSelected(segment) {
     if (app.tool.currentStep != 'selectReference') return;
 
+    if (segment.isArc())
+      return;
+
     this.geometryParentObjectId = segment.id;
 
     new LineShape({
