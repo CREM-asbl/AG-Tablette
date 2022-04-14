@@ -134,9 +134,6 @@ export class CutTool extends Tool {
     // window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     this.removeListeners();
     app.upperDrawingEnvironment.removeAllObjects();
@@ -176,7 +173,11 @@ export class CutTool extends Tool {
   objectSelected(object) {
     if (app.tool.currentStep == 'listen') {
       //On a sélectionné le premier point
-      if (object[0].shape.isSegment() && object[0].type == 'divisionPoint') {
+      let shape = object[0].shape;
+      if (object[0].shape.name == 'PointOnLine') {
+        shape = app.mainDrawingEnvironment.findObjectById(object[0].shape.geometryObject.geometryParentObjectId1, 'segment').shape;
+      }
+      if (shape.isSegment() && (object[0].type == 'divisionPoint' || object[0].shape.name == 'PointOnLine')) {
         setState({
           tool: { ...app.tool, currentStep: 'cut', firstPointId: object[0].id, centerPointId: undefined, secondPointId: undefined },
         });
@@ -382,12 +383,17 @@ export class CutTool extends Tool {
         'divisionPoint',
       ];
       app.workspace.selectionConstraints.points.whitelist = null;
-      app.workspace.selectionConstraints.points.blacklist = app.workspace.shapes
+      console.log(app.mainDrawingEnvironment.shapes);
+      app.workspace.selectionConstraints.points.blacklist = app.mainDrawingEnvironment.shapes
         .filter(
           (s) =>
             s.isStraightLine() ||
             s.isSemiStraightLine() ||
-            (s.isSegment() && app.environment.name == 'Geometrie'),
+            (s.isSegment() && app.environment.name == 'Geometrie') ||
+            (
+              s.name == 'PointOnLine' &&
+              app.mainDrawingEnvironment.findObjectById(s.geometryObject.geometryParentObjectId1, 'segment').shape.isSegment()
+            ),
         )
         .map((s) => {
           return { shapeId: s.id };
@@ -423,8 +429,7 @@ export class CutTool extends Tool {
     if (shape.name == 'PointOnLine')
       shape = app.mainDrawingEnvironment.findObjectById(pt1.shape.geometryObject.geometryParentObjectId1, 'segment').shape;
 
-    if (pt1.shape.isSegment()) {
-      shape = pt1.shape;
+    if (shape.isSegment()) {
       firstPath = [
         'M',
         shape.segments[0].vertexes[0].x,
