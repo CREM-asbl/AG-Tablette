@@ -383,7 +383,6 @@ export class CutTool extends Tool {
         'divisionPoint',
       ];
       app.workspace.selectionConstraints.points.whitelist = null;
-      console.log(app.mainDrawingEnvironment.shapes);
       app.workspace.selectionConstraints.points.blacklist = app.mainDrawingEnvironment.shapes
         .filter(
           (s) =>

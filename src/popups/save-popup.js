@@ -179,16 +179,20 @@ class SavePopup extends LitElement {
           this.stateOrImage == 'state'
             ? app.environment.extension
             : this.imageFormat;
+        let name = this.filename + '.' + extension,
+          saveSettings = this.saveSettings,
+          saveHistory = this.saveHistory;
+        this.remove();
+        setTimeout(() =>
         window.dispatchEvent(
           new CustomEvent('file-selected', {
             detail: {
-              name: this.filename + '.' + extension,
-              saveSettings: this.saveSettings,
-              saveHistory: this.saveHistory,
+              name,
+              saveSettings,
+              saveHistory,
             },
-          }),
-        );
-        this.close();
+          })
+        ), 300);
         break;
 
       case 'save_popup_format':

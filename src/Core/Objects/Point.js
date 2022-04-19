@@ -498,6 +498,7 @@ export class Point {
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);
     point.segmentIds = [...data.segmentIds];
-    point.endpointIds = [...data.endpointIds];
+    if (data.endpointIds)
+      point.endpointIds = [...data.endpointIds];
   }
 }
