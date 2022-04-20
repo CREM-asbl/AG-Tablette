@@ -189,8 +189,8 @@ export class DivideTool extends Tool {
         let newObjects = [...object];
         for (let i = 0; i < firstPoints.length; i++) {
           for (let j = 0; j < newObjects.length; j++) {
-            for (let k = 0; k < firstPoints[i].segmentIds.length || 1; k++) {
-              for (let l = 0; l < newObjects[j].segmentIds.length || 1; l++) {
+            for (let k = 0; k < (firstPoints[i].segmentIds.length || 1); k++) {
+              for (let l = 0; l < (newObjects[j].segmentIds.length || 1); l++) {
                 let firstSegmentId, secondSegmentId;
                 if (firstPoints[i].shape.name == 'PointOnLine')
                   firstSegmentId = firstPoints[i].shape.geometryObject.geometryParentObjectId1;
