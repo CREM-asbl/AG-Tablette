@@ -15,6 +15,7 @@ export class Family {
     this.defaultFillColor = fillColor;
     this.defaultFillOpacity = fillOpacity;
     this.id = uniqId();
+    this.isVisible = true;
     this.shapeTemplates = [];
     shapeTemplates.forEach((shapeTemplate) => {
       this.addTemplate(shapeTemplate);

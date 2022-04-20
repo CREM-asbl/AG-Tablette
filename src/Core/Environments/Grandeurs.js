@@ -1,9 +1,9 @@
 export default {
   name: 'Grandeurs',
   modules: [
+    'Create',
     'Move',
     'Rotate',
-    'Create',
     'Reverse',
     'BuildCenter',
     'Divide',

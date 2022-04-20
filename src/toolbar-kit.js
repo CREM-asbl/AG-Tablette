@@ -21,6 +21,7 @@ class ToolbarKit extends LitElement {
 
     this.updateProperties = () => {
       this.iconSize = app.menuIconSize;
+      this.familyNames = app.environment.families.filter(family => family.isVisible).map(family => family.name);
     };
     this.updateProperties();
 
@@ -29,8 +30,8 @@ class ToolbarKit extends LitElement {
     };
 
     window.addEventListener('menuIconSize-changed', this.eventHandler);
+    window.addEventListener('tools-changed', this.eventHandler);
 
-    this.familyNames = app.environment.familyNames || [];
     this.envName = app.environment.kitName;
 
     window.addEventListener('environment-changed', () => {

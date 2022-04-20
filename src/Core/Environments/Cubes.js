@@ -1,9 +1,9 @@
 export default {
   name: 'Cubes',
   modules: [
+    'Create',
     'Move',
     'Rotate',
-    'Create',
     'Copy',
     'Delete',
     'Group',

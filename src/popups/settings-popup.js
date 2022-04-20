@@ -3,6 +3,7 @@ import { app, setState } from '../Core/App';
 import { Settings } from '../Core/Settings';
 import '../version-item';
 import { TemplatePopup } from './template-popup';
+import { createElem } from '../Core/Tools/general';
 
 class SettingsPopup extends LitElement {
   static get properties() {
@@ -72,6 +73,14 @@ class SettingsPopup extends LitElement {
                 @change="${this._actionHandle}"
               />
               <label for="settings_animation_in_geometry_tranformations">Animation des tranformations</label>
+            </div>
+
+            <div class="field">
+              <color-button @click="${() => {
+                import('./tool-choice-popup');
+                createElem('tool-choice-popup');
+                this.close();
+              }}" innerText="Choix des outils disponibles"></color-button>
             </div>
           </fieldset>
 

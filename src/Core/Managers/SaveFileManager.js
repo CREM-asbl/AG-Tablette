@@ -168,7 +168,9 @@ export class SaveFileManager {
     let wsdata = app.workspace.data,
       settings = { ...app.settings },
       history = { ...app.history },
-      fullHistory = { ...app.fullHistory };
+      fullHistory = { ...app.fullHistory },
+      toolsVisible = app.tools.map(tool => { return { name: tool.name, isVisible: tool.isVisible } }),
+      familiesVisible = app.environment.families.map(family => { return { name: family.name, isVisible: family.isVisible } });
 
     SaveFileManager.saveHistory = detail.saveHistory;
     SaveFileManager.saveSettings = detail.saveSettings;
@@ -192,6 +194,8 @@ export class SaveFileManager {
         settings,
         fullHistory,
         history,
+        toolsVisible,
+        familiesVisible,
       },
       json_data = JSON.stringify(saveObject);
 
