@@ -135,6 +135,32 @@ export class ShapeManager {
     return shapes;
   }
 
+  static getAllBindedShapesInGeometry(shape) {
+    let finalParents = [];
+    let getParents = (currentShape) => {
+      let parents = [];
+      currentShape.points.forEach(vx => {
+        if (vx.reference != null) {
+          parents.push(app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape);
+        }
+      });
+      if (currentShape.geometryObject.geometryParentObjectId1)
+        parents.push(app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'shape'));
+      if (currentShape.geometryObject.geometryParentObjectId2)
+        parents.push(app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId2, 'shape'));
+      if (parents.length == 0) {
+        if (!finalParents.find(finalParent => finalParent.id == currentShape.id)) {
+          finalParents.push(currentShape);
+        }
+      } else {
+        parents.forEach(parent => {
+          getParents(parent);
+        });
+      }
+    }
+    getParents(shape);
+  }
+
   /**
    * Supprime une figure. Ne la supprime pas des groupes (à faire manuellement)
    * @param  {Shape} shape La figure à supprimer
