@@ -406,6 +406,7 @@ export class CreateCircleTool extends Tool {
     let idx = 0;
     if (app.tool.selectedCircle == 'Circle') {
       points[0].type = 'arcCenter';
+      points[1].idx = 0;
       [points[0], points[1]] = [points[1], points[0]];
       let seg = new Segment({
         drawingEnvironment: app.mainDrawingEnvironment,

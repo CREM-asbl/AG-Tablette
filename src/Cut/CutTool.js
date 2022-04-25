@@ -221,6 +221,8 @@ export class CutTool extends Tool {
           for (let k = 0; k < firstShapeIds.length; k++) {
             for (let l = 0; l < secondShapeIds.length; l++) {
               if (firstShapeIds[k] == secondShapeIds[l]) {
+                if (app.mainDrawingEnvironment.findObjectById(firstShapeIds[k], 'shape').familyName == 'Line')
+                  break;
                 firstPoints[i].cutSeg = k;
                 newObjects[j].cutSeg = l;
                 cutPoints.push([firstPoints[i], newObjects[j], firstShapeIds[k]]);
@@ -240,13 +242,15 @@ export class CutTool extends Tool {
         }
       }
 
-      let pt1 = cutPoints[0][0];
-      let pt2 = cutPoints[0][1];
-
       if (cutPoints.length == 0) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
         return;
-      } else if (pt1.id == pt2.id) {
+      }
+
+      let pt1 = cutPoints[0][0];
+      let pt2 = cutPoints[0][1];
+
+      if (pt1.id == pt2.id) {
         // Désélectionner le premier point
         setState({
           tool: { ...app.tool, currentStep: 'listen', firstPointId: undefined },
