@@ -92,7 +92,7 @@ export class GridManager {
             x,
             y,
             color: '#F00',
-            size: 1.5 * actualZoomLvl,
+            size: 1.5,
           });
         }
       }
@@ -110,7 +110,7 @@ export class GridManager {
             x,
             y,
             color: '#F00',
-            size: 1.5 * actualZoomLvl,
+            size: 1.5,
           });
         }
       }
@@ -126,7 +126,7 @@ export class GridManager {
             x,
             y,
             color: '#F00',
-            size: 1.5 * actualZoomLvl,
+            size: 1.5,
           });
         }
       }
@@ -144,7 +144,7 @@ export class GridManager {
             x,
             y,
             color: '#F00',
-            size: 1.5 * actualZoomLvl,
+            size: 1.5,
           });
         }
       }
@@ -160,7 +160,7 @@ export class GridManager {
             x,
             y,
             color: '#F00',
-            size: 1.5 * actualZoomLvl,
+            size: 1.5,
           });
         }
       }
