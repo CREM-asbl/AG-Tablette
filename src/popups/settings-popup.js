@@ -94,7 +94,7 @@ class SettingsPopup extends LitElement {
             <legend>Figures</legend>
 
             <div class="field" style=${
-              app.environment.name == 'Cubes' ? 'display:none;' : ''
+              app.environment.name == 'Grandeurs' ? '' : 'display:none;'
             }>
               <label for="settings_shapes_size">Taille des figures</label>
               <select
