@@ -259,7 +259,6 @@ class AGMain extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="help"
