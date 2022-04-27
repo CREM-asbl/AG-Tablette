@@ -86,20 +86,16 @@ export class MoveTool extends Tool {
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
     if (app.environment.name == 'Geometrie')
-      // this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
+      this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         let currentShape = this.involvedShapes[i];
         if (currentShape.geometryObject.geometryTransformationName != null) {
           window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
           return;
         }
-        if ((currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') ||
-          (currentShape.geometryObject.geometryChildShapeIds.length > 0)) {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures liées ne peuvent pas être déplacées, mais peuvent être copiées.' } }));
-          return;
-        }
-        // if (currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') {
-        //   window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures construites sur des points existants ne peuvent pas être déplacées, mais peuvent être copiées.' } }));
+        // if ((currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') ||
+        //   (currentShape.geometryObject.geometryChildShapeIds.length > 0)) {
+        //   window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures liées ne peuvent pas être déplacées, mais peuvent être copiées.' } }));
         //   return;
         // }
       }
@@ -241,9 +237,9 @@ export class MoveTool extends Tool {
           );
           s.translate(adjustment.translation);
         });
-        this.shapesToMove.forEach(s => {
-          computeAllShapeTransform(s);
-        });
+        // this.shapesToMove.forEach(s => {
+        //   computeAllShapeTransform(s);
+        // });
       }
 
       this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;

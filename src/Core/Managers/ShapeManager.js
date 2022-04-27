@@ -136,7 +136,8 @@ export class ShapeManager {
   }
 
   static getAllBindedShapesInGeometry(shape) {
-    let finalParents = [];
+    let allLinkedShapes = [shape];
+
     let getParents = (currentShape) => {
       let parents = [];
       currentShape.points.forEach(vx => {
@@ -144,21 +145,71 @@ export class ShapeManager {
           parents.push(app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape);
         }
       });
-      if (currentShape.geometryObject.geometryParentObjectId1)
-        parents.push(app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'shape'));
-      if (currentShape.geometryObject.geometryParentObjectId2)
-        parents.push(app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId2, 'shape'));
-      if (parents.length == 0) {
-        if (!finalParents.find(finalParent => finalParent.id == currentShape.id)) {
-          finalParents.push(currentShape);
-        }
-      } else {
-        parents.forEach(parent => {
-          getParents(parent);
-        });
+      if (currentShape.geometryObject.geometryParentObjectId1) {
+        let seg = app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'segment');
+        let s = seg ? seg.shape : app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'shape');
+        parents.push(s);
       }
+      if (currentShape.geometryObject.geometryParentObjectId2)
+        parents.push(app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId2, 'segment').shape);
+      return parents;
     }
-    getParents(shape);
+    let getChildren = (currentShape) => {
+      let children = currentShape.geometryObject.geometryChildShapeIds.map(sId =>
+        app.mainDrawingEnvironment.findObjectById(sId)
+      );
+      return children;
+    }
+
+    let getParentAndChildren = (shape, currentShapeArray) => {
+      let parents = getParents(shape);
+      let children = getChildren(shape);
+      console.log(shape, parents, children);
+      [...parents, ...children].forEach(s => {
+        if (allLinkedShapes.every(linkedShape => linkedShape.id != s.id) && currentShapeArray.every(linkedShape => linkedShape.id != s.id)) {
+          currentShapeArray.push(s);
+          getParentAndChildren(s, currentShapeArray);
+        }
+      })
+    }
+    getParentAndChildren(shape, allLinkedShapes);
+
+    let allGroups = [];
+    let getGroups = (shapes, currentGroupArray) => {
+      shapes.forEach(s => {
+        let group = GroupManager.getShapeGroup(s);
+        if (!group)
+          return;
+        if (allGroups.every(groupFound => groupFound.id != group.id) && currentGroupArray.every(groupFound => groupFound.id != group.id)) {
+          currentGroupArray.push(group);
+        }
+      });
+    };
+    let iterateWithGroups = (workingShapes, workingGroups) => {
+      getGroups(workingShapes, workingGroups);
+      if (workingGroups.length == 0)
+        return
+
+      let newLinkedShapes = [];
+      workingGroups.forEach(group => {
+        group.shapesIds.forEach((id) => {
+          let shape = app.mainDrawingEnvironment.findObjectById(id, 'shape');
+          if (allLinkedShapes.every(linkedShape => linkedShape.id != shape.id)) {
+            newLinkedShapes.push(shape);
+          }
+        })
+      });
+      newLinkedShapes.forEach(currentShape => {
+        getParentAndChildren(currentShape, newLinkedShapes);
+      });
+
+      allLinkedShapes = [...allLinkedShapes, ...newLinkedShapes];
+      allGroups = [...allGroups, ...workingGroups];
+      iterateWithGroups(newLinkedShapes, []);
+    }
+    iterateWithGroups(allLinkedShapes, allGroups);
+
+    return allLinkedShapes;
   }
 
   /**
