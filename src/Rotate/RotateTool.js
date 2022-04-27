@@ -94,7 +94,7 @@ export class RotateTool extends Tool {
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
-    if (app.environment.name == 'Geometrie')
+    if (app.environment.name == 'Geometrie') {
       this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         let currentShape = this.involvedShapes[i];
@@ -112,6 +112,7 @@ export class RotateTool extends Tool {
         //   return;
         // }
       }
+    }
 
     this.shapesToCopy = [...this.involvedShapes];
     this.shapesToCopy.forEach(s => {

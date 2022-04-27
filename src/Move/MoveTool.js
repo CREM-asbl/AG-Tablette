@@ -85,7 +85,7 @@ export class MoveTool extends Tool {
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
-    if (app.environment.name == 'Geometrie')
+    if (app.environment.name == 'Geometrie') {
       this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         let currentShape = this.involvedShapes[i];
@@ -99,6 +99,7 @@ export class MoveTool extends Tool {
         //   return;
         // }
       }
+    }
     this.involvedShapes.forEach(s => s.points.forEach(vx => {
       if (vx.reference != null) {
         let refPoint = app.mainDrawingEnvironment.findObjectById(vx.reference, 'point')

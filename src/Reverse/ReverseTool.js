@@ -200,7 +200,7 @@ export class ReverseTool extends Tool {
       let selectedShape = object;
 
       this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
-      if (app.environment.name == 'Geometrie')
+      if (app.environment.name == 'Geometrie') {
         this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(selectedShape);
         for (let i = 0; i < this.involvedShapes.length; i++) {
           let currentShape = this.involvedShapes[i];
@@ -218,6 +218,7 @@ export class ReverseTool extends Tool {
           //   return;
           // }
         }
+      }
 
       setState({
         tool: {
