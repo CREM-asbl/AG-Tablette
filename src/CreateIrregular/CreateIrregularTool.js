@@ -38,10 +38,8 @@ export class CreateIrregularTool extends Tool {
     `;
   }
 
-  /**
-   * (ré-)initialiser l'état
-   */
   start() {
+    app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
 
     this.points = [];

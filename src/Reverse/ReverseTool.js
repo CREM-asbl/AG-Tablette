@@ -419,7 +419,7 @@ export class ReverseTool extends Tool {
         if (this.progress >= 0.5 && this.lastProgress < 0.5) {
           s.reverse();
         }
-        // computeAllShapeTransform(s);
+        computeAllShapeTransform(s, 'upper', false);
       });
 
       // this.shapesToMove.forEach(s => {
@@ -446,7 +446,7 @@ export class ReverseTool extends Tool {
     // involvedShapes.forEach((s) => {
       this.reverseShape(s, selectedAxis);
 
-      // computeAllShapeTransform(s, 'main');
+      computeAllShapeTransform(s, 'main', false);
     });
     // });
   }

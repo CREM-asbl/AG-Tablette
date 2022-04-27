@@ -43,9 +43,6 @@ export class CreateTriangleTool extends Tool {
     `;
   }
 
-  /**
-   * (ré-)initialiser l'état
-   */
   start() {
     this.removeListeners();
     this.stopAnimation();
@@ -55,6 +52,7 @@ export class CreateTriangleTool extends Tool {
   }
 
   async drawFirstPoint() {
+    app.upperDrawingEnvironment.removeAllObjects();
     let triangleDef = await import(`./trianglesDef.js`);
     this.triangleDef = triangleDef[app.tool.selectedTriangle];
 

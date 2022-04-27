@@ -44,6 +44,7 @@ export class CreatePointTool extends Tool {
   }
 
    start() {
+    app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
 

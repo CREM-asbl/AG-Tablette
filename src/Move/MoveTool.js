@@ -238,9 +238,9 @@ export class MoveTool extends Tool {
           );
           s.translate(adjustment.translation);
         });
-        // this.shapesToMove.forEach(s => {
-        //   computeAllShapeTransform(s);
-        // });
+        this.shapesToMove.forEach(s => {
+          computeAllShapeTransform(s, 'upper', false);
+        });
       }
 
       this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;

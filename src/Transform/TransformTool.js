@@ -136,6 +136,10 @@ export class TransformTool extends Tool {
 
     app.upperDrawingEnvironment.removeAllObjects();
 
+    if (!this.constraintsDrawn) {
+      this.drawConstraints(point);
+    }
+
     this.pointSelectedId = point.id;
 
     // let involvedShapes = [point.shape];
@@ -226,9 +230,6 @@ export class TransformTool extends Tool {
   refreshStateUpper() {
     if (app.tool.currentStep == 'transform') {
       let point = app.upperDrawingEnvironment.findObjectById(this.pointSelectedId, 'point');
-      if (!this.constraintsDrawn) {
-        this.drawConstraints(point);
-      }
       let shape = point.shape;
       if (shape.name == 'Trapeze' && point.idx < 3) {
         computeConstructionSpec(shape);
@@ -245,12 +246,13 @@ export class TransformTool extends Tool {
           case 'IsoscelesTriangle':
             computeConstructionSpec(shape);
             break;
-          default:
+            default:
             break;
         }
       }
-      if (point.idx == 0) {
+      if (point.idx == 0 || point.type == 'arcCenter') {
         switch (shape.name) {
+          case 'CircleArc':
           case 'ParalleleSemiStraightLine':
           case 'PerpendicularSemiStraightLine':
           case 'ParalleleSegment':
@@ -285,6 +287,7 @@ export class TransformTool extends Tool {
       }
       if (point.idx == 1) {
         switch (shape.name) {
+          case 'CircleArc':
           case 'ParalleleSemiStraightLine':
           case 'PerpendicularSemiStraightLine':
           case 'ParalleleSegment':

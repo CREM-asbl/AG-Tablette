@@ -26,6 +26,8 @@ export class LineShape extends Shape {
 
     strokeColor = '#000',
     strokeWidth = 1,
+    fillColor = '#aaa',
+    fillOpacity = 0,
 
     isPointed = true,
     size = 2,
@@ -34,6 +36,9 @@ export class LineShape extends Shape {
     isBiface = false,
   }) {
     super(arguments[0]);
+
+    this.fillColor = fillColor;
+    this.fillOpacity = fillOpacity;
 
     let centerId = this.center?.id;
     if (centerId && this.pointIds[2] != centerId) {
@@ -84,7 +89,7 @@ export class LineShape extends Shape {
   }
 
   get centerCoordinates() {
-    if (this.isCircle()) {
+    if (this.segments[0].isArc()) {
       const center = this.segments[0].arcCenter;
       return new Coordinates(center.coordinates);
     } else if (this.name.endsWith('StraightLine')) {
@@ -377,8 +382,8 @@ export class LineShape extends Shape {
 
   setCtxForDrawing(ctx, scaling) {
     ctx.strokeStyle = this.strokeColor;
-    ctx.fillStyle = '#000';
-    ctx.globalAlpha = 0;
+    ctx.fillStyle = this.fillColor;
+    ctx.globalAlpha = this.fillOpacity;
     ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
     if (scaling == 'no scale')
       ctx.lineWidth = this.strokeWidth;
@@ -451,8 +456,9 @@ export class LineShape extends Shape {
   isCoordinatesInPath(coord) {
     const ctx = app.invisibleDrawingEnvironment.ctx;
     let canvasCoord = coord.toCanvasCoordinates();
+    let path = this.getSVGPath('scale', true, false, true);
     const selected = ctx.isPointInPath(
-      new Path2D(this.getSVGPath()),
+      new Path2D(path),
       canvasCoord.x,
       canvasCoord.y,
     );
@@ -601,11 +607,15 @@ export class LineShape extends Shape {
   /**
    * convertit la shape en commande de path svg
    */
-  getSVGPath(scaling = 'scale', infiniteCheck = true) {
+  getSVGPath(scaling = 'scale', infiniteCheck = true, forDrawing = false, forDrawingButInvisible = false) {
     let path = '';
     path = this.segments
       .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
       .join('\n');
+    if (forDrawingButInvisible) {
+      if (this.vertexes[1] && this.segments[0].isArc())
+        path += ['M', this.segments[0].arcCenter.coordinates.x, this.segments[0].arcCenter.coordinates.y, 'L', this.vertexes[0].coordinates.x, this.vertexes[0].coordinates.y, 'L', this.vertexes[1].coordinates.x, this.vertexes[1].coordinates.y, 'L', this.segments[0].arcCenter.coordinates.x, this.segments[0].arcCenter.coordinates.y].join(' ');
+    }
     return path;
   }
 

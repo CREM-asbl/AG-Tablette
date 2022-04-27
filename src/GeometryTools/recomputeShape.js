@@ -1,28 +1,30 @@
 import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { mod } from '../Core/Tools/general';
 
-export function computeAllShapeTransform(shape, layer = 'upper') {
+export function computeAllShapeTransform(shape, layer = 'upper', includeChildren = true) {
   if (app.environment.name != 'Geometrie') return;
-  shape.geometryObject.geometryChildShapeIds.forEach(ref => {
-    let sRef = app[layer + 'DrawingEnvironment'].findObjectById(ref);
-    if (!sRef) {
-      return;
-    }
-    let ptsMoved = [];
-    sRef.points.forEach(pt => {
-      if (pt.reference) {
-        let ptRef = app[layer + 'DrawingEnvironment'].findObjectById(pt.reference, 'point');
-        if (!ptRef || ptRef.shape.id != shape.id) {
-        } else {
-          pt.coordinates = new Coordinates(ptRef.coordinates);
-          ptsMoved.push(pt.idx);
-        }
+  if (includeChildren)
+    shape.geometryObject.geometryChildShapeIds.forEach(ref => {
+      let sRef = app[layer + 'DrawingEnvironment'].findObjectById(ref);
+      if (!sRef) {
+        return;
       }
-    })
-    computeShapeTransform(sRef, layer);
-    computeAllShapeTransform(sRef, layer);
-  });
+      let ptsMoved = [];
+      sRef.points.forEach(pt => {
+        if (pt.reference) {
+          let ptRef = app[layer + 'DrawingEnvironment'].findObjectById(pt.reference, 'point');
+          if (!ptRef || ptRef.shape.id != shape.id) {
+          } else {
+            pt.coordinates = new Coordinates(ptRef.coordinates);
+            ptsMoved.push(pt.idx);
+          }
+        }
+      })
+      computeShapeTransform(sRef, layer);
+      computeAllShapeTransform(sRef, layer);
+    });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
     let child = app[layer + 'DrawingEnvironment'].findObjectById(childId);
     let parentShape = app[layer + 'DrawingEnvironment'].findObjectById(child.geometryObject.geometryTransformationParentShapeId)
@@ -341,8 +343,18 @@ export function computeShapeTransform(shape, layer = 'upper') {
     if (coords.length == 1)
       coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y});
     shape.points.forEach((pt, idx) => pt.coordinates = coords[idx]);
+  } else if (shape.name == 'CircleArc') {
+    let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
+    let radius = shape.segments[0].arcCenter.coordinates.dist(shape.vertexes[0].coordinates);
+    let thirdPointCoordinates = new Coordinates({
+      x: shape.segments[0].arcCenter.coordinates.x + Math.cos(angle) * radius,
+      y: shape.segments[0].arcCenter.coordinates.y + Math.sin(angle) * radius,
+    })
+    shape.vertexes[1].coordinates = thirdPointCoordinates;
   } else if (shape.name == '30degreesArc') {
     let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + Math.PI / 6;
+    if (shape.isReversed)
+      angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) - Math.PI / 6;
     let radius = shape.segments[0].arcCenter.coordinates.dist(shape.vertexes[0].coordinates);
     let thirdPointCoordinates = new Coordinates({
       x: shape.segments[0].arcCenter.coordinates.x + Math.cos(angle) * radius,
@@ -351,6 +363,8 @@ export function computeShapeTransform(shape, layer = 'upper') {
     shape.vertexes[1].coordinates = thirdPointCoordinates;
   } else if (shape.name == '45degreesArc') {
     let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + Math.PI / 4;
+    if (shape.isReversed)
+      angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) - Math.PI / 4;
     let radius = shape.segments[0].arcCenter.coordinates.dist(shape.vertexes[0].coordinates);
     let thirdPointCoordinates = new Coordinates({
       x: shape.segments[0].arcCenter.coordinates.x + Math.cos(angle) * radius,
@@ -451,6 +465,11 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     shape.geometryObject.geometryConstructionSpec.height = shape.segments[0].middle.dist(shape.vertexes[2].coordinates);
     if (shape.vertexes[1].getVertexAngle() > Math.PI)
       shape.geometryObject.geometryConstructionSpec.height *= -1;
+  } else if (shape.name == 'CircleArc') {
+    let angle2 = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates);
+    let angle1 = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[1].coordinates);
+    let angle = mod(angle1 - angle2, 2 * Math.PI);
+    shape.geometryObject.geometryConstructionSpec.angle = angle;
   } else if (
     shape.name == 'ParalleleSemiStraightLine' ||
     shape.name == 'ParalleleSegment'

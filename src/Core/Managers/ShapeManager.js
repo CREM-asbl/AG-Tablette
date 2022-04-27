@@ -95,7 +95,7 @@ export class ShapeManager {
     if (constraints.canSelectFromUpper)
       allShapes.push(...app.upperDrawingEnvironment.shapes);
     let list = allShapes.filter((shape) => {
-      if (shape.isSegment()) {
+      if (shape.isSegment() && !shape.segments[0].isArc()) {
         const seg = shape.segments[0];
         const projection = seg.projectionOnSegment(coord);
         return (
@@ -164,7 +164,6 @@ export class ShapeManager {
     let getParentAndChildren = (shape, currentShapeArray) => {
       let parents = getParents(shape);
       let children = getChildren(shape);
-      console.log(shape, parents, children);
       [...parents, ...children].forEach(s => {
         if (allLinkedShapes.every(linkedShape => linkedShape.id != s.id) && currentShapeArray.every(linkedShape => linkedShape.id != s.id)) {
           currentShapeArray.push(s);

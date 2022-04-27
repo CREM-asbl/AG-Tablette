@@ -80,12 +80,14 @@ export class DrawManager {
     shape.setCtxForDrawing(drawingEnvironment.ctx, scaling);
     drawingEnvironment.ctx.miterLimit = 1;
 
-    const pathScaleMethod = drawingEnvironment.mustScaleShapes
+    let pathScaleMethod = drawingEnvironment.mustScaleShapes
         ? 'scale'
         : 'no scale',
-      path = new Path2D(shape.getSVGPath(pathScaleMethod, true, true));
+      path = new Path2D(shape.getSVGPath(pathScaleMethod, true, false, true));
 
-    if (shape.name != 'CircleArc') drawingEnvironment.ctx.fill(path, 'nonzero');
+    //if (shape.name != 'CircleArc')
+    drawingEnvironment.ctx.fill(path, 'nonzero');
+    path = new Path2D(shape.getSVGPath(pathScaleMethod, true, true));
     drawingEnvironment.ctx.globalAlpha = 1;
     if (shape.drawHidden)
       drawingEnvironment.ctx.setLineDash([5, 15]);

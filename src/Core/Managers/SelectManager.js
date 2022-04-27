@@ -355,7 +355,7 @@ export class SelectManager {
     }
 
     if (shapes.length > 0) {
-      if (shapes[0] instanceof RegularShape)
+      if (shapes[0] instanceof RegularShape || (shapes[0] instanceof LineShape && shapes[0].segments[0].isArc()))
         return shapes[0]
       let idx = shapes.findIndex(s => s instanceof RegularShape);
       if (idx != -1)

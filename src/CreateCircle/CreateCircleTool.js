@@ -13,6 +13,7 @@ import { Tool } from '../Core/States/Tool';
 import { createElem } from '../Core/Tools/general';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { GridManager } from '../Grid/GridManager';
+import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -45,9 +46,6 @@ export class CreateCircleTool extends Tool {
     `;
   }
 
-  /**
-   * (ré-)initialiser l'état
-   */
    start() {
     this.removeListeners();
     this.stopAnimation();
@@ -57,6 +55,7 @@ export class CreateCircleTool extends Tool {
   }
 
   async drawFirstPoint() {
+    app.upperDrawingEnvironment.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
     // let triangleDef = await import(`./trianglesDef.js`);
@@ -438,6 +437,11 @@ export class CreateCircleTool extends Tool {
       segments.push(seg);
     } else if (app.tool.selectedCircle == 'CircleArc') {
       [points[0], points[1], points[2]] = [points[1], points[2], points[0]];
+      points[0].type = 'vertex';
+      points[0].idx = 0;
+      points[1].type = 'vertex';
+      points[1].idx = 1;
+      points[2].type = 'arcCenter';
       let seg = new Segment({
         drawingEnvironment: app.mainDrawingEnvironment,
         idx: idx++,
@@ -464,8 +468,11 @@ export class CreateCircleTool extends Tool {
     }
 
     let constructor = RegularShape;
-    if (app.tool.selectedCircle.endsWith('degreesArc'))
+    if (app.tool.selectedCircle == 'CircleArc')
+      constructor = LineShape;
+    else if (app.tool.selectedCircle.endsWith('degreesArc'))
       constructor = ArrowLineShape;
+
     let shape = new constructor({
       drawingEnvironment: app.mainDrawingEnvironment,
       segmentIds: segments.map(seg => seg.id),
@@ -498,6 +505,6 @@ export class CreateCircleTool extends Tool {
       shape.segments[0].arcCenter.reference = ref.id;
     }
 
-    // window.dispatchEvent(new CustomEvent('refresh'));
+    computeConstructionSpec(shape);
   }
 }

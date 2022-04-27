@@ -23,6 +23,8 @@ export class ArrowLineShape extends LineShape {
 
     strokeColor = '#000',
     strokeWidth = 1,
+    fillColor = '#aaa',
+    fillOpacity = 0,
 
     isPointed = true,
     size = 2,
@@ -35,8 +37,8 @@ export class ArrowLineShape extends LineShape {
 
   setCtxForDrawing(ctx, scaling) {
     ctx.strokeStyle = this.strokeColor;
-    ctx.fillStyle = '#000';
-    ctx.globalAlpha = 0;
+    ctx.fillStyle = this.fillColor;
+    ctx.globalAlpha = this.fillOpacity;
     ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
     if (scaling == 'no scale')
       ctx.lineWidth = this.strokeWidth;
@@ -49,11 +51,15 @@ export class ArrowLineShape extends LineShape {
   /**
    * convertit la shape en commande de path svg
    */
-  getSVGPath(scaling = 'scale', infiniteCheck = true, forDrawing = false) {
+  getSVGPath(scaling = 'scale', infiniteCheck = true, forDrawing = false, forDrawingButInvisible = false) {
     let path = '';
     path = this.segments
       .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
       .join('\n');
+    if (forDrawingButInvisible) {
+      if (this.vertexes[1] && this.segments[0].isArc())
+        path += ['M', this.segments[0].arcCenter.coordinates.x, this.segments[0].arcCenter.coordinates.y, 'L', this.vertexes[0].coordinates.x, this.vertexes[0].coordinates.y, 'L', this.vertexes[1].coordinates.x, this.vertexes[1].coordinates.y, 'L', this.segments[0].arcCenter.coordinates.x, this.segments[0].arcCenter.coordinates.y].join(' ');
+    }
     if (forDrawing) {
       let seg = this.segments[0];
       let arrowEndCoordinates = seg.vertexes[1].coordinates;

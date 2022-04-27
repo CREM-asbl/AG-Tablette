@@ -205,7 +205,7 @@ export class RotateTool extends Tool {
       this.lastAngle = newAngle;
       this.shapesToMove.forEach((s) => {
         s.rotate(diffAngle, this.center);
-        // computeAllShapeTransform(s);
+        computeAllShapeTransform(s, 'upper', false);
       });
     }
     this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
@@ -231,7 +231,7 @@ export class RotateTool extends Tool {
       );
       s.translate(adjustment.translation);
 
-      // computeAllShapeTransform(s, 'main');
+      computeAllShapeTransform(s, 'main', false);
     });
   }
 }

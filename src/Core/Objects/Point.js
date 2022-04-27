@@ -308,38 +308,54 @@ export class Point {
         }
       } else if (this.shape.name == 'CircleArc') {
         if (this.type == 'arcCenter') {
-          constraints.isConstrained = true;
-          let seg = new Segment(
-            this.shape.segments[0].vertexes[0],
-            this.shape.segments[0].vertexes[1],
-          );
-          let middle = seg.middle;
-          let constraintLine = {
-            segment: new Segment(
-              this.shape.segments[0].middle,
-              middle,
-              null,
-              null,
-              null,
-              null,
-              true,
-            ),
-          };
-          constraints.lines = [constraintLine];
+          constraints.isFree = true;
+          // let seg = new Segment(
+          //   this.shape.segments[0].vertexes[0],
+          //   this.shape.segments[0].vertexes[1],
+          // );
+          // let middle = seg.middle;
+          // let constraintLine = {
+          //   segment: new Segment(
+          //     this.shape.segments[0].middle,
+          //     middle,
+          //     null,
+          //     null,
+          //     null,
+          //     null,
+          //     true,
+          //   ),
+          // };
+          // constraints.lines = [constraintLine];
         } else if (this.idx == 0) {
           constraints.isFree = true;
         } else {
           constraints.isConstrained = true;
-          let constraintLine = {
-            segment: new Segment(
-              this.shape.segments[0].vertexes[1],
-              this.shape.segments[0].vertexes[1],
-              null,
-              null,
-              this.shape.segments[0].arcCenter,
-            ),
-          };
-          constraints.lines = [constraintLine];
+          constraints.lines = [{
+            segment: new Segment({
+              drawingEnvironment: app.invisibleDrawingEnvironment,
+              createFromNothing: true,
+              vertexCoordinates: [this.coordinates, this.coordinates],
+              arcCenterCoordinates: this.segments[0].arcCenter.coordinates,
+            }),
+          }];
+          // let lines = [
+          //   [
+          //     this.shape.segments[0].vertexes[0].coordinates,
+          //     this.shape.segments[0].vertexes[0].coordinates,
+          //     this.segments[0].arcCenter.coordinates,
+          //   ],
+          // ];
+          // this.constraints = new GeometryConstraint('isConstrained', lines);
+          // let constraintLine = {
+          //   segment: new Segment(
+          //     this.shape.segments[0].vertexes[1],
+          //     this.shape.segments[0].vertexes[1],
+          //     null,
+          //     null,
+          //     this.shape.segments[0].arcCenter,
+          //   ),
+          // };
+          // constraints.lines = [constraintLine];
         }
       } else if (this.shape.name == '30degreesArc' || this.shape.name == '45degreesArc') {
         if (this.type == 'arcCenter') {

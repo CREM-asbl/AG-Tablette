@@ -103,11 +103,11 @@ export class ColorTool extends Tool {
       if (this.object instanceof Shape) {
         let involvedShapes = ShapeManager.getAllBindedShapes(this.object);
         involvedShapes.forEach(s => {
-          if (s instanceof RegularShape) {
+          if (s instanceof LineShape && !s.segments[0].isArc()) {
+            s.strokeColor = app.settings.drawColor;
+          } else {
             s.fillOpacity = 0.7;
             s.fillColor = app.settings.drawColor;
-          } else if (s instanceof LineShape) {
-            s.strokeColor = app.settings.drawColor;
           }
         });
       } else {

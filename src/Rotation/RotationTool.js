@@ -103,6 +103,7 @@ export class RotationTool extends Tool {
           drawingEnvironment: app.upperDrawingEnvironment,
           strokeColor: app.settings.referenceDrawColor,
           strokeWidth: 2,
+          fillOpacity: 0,
         });
         this.angle = this.references[1].segments[0].arcCenter.coordinates.angleWith(this.references[1].segments[0].vertexes[0].coordinates) - this.references[1].segments[0].arcCenter.coordinates.angleWith(this.references[1].segments[0].vertexes[1].coordinates);
         this.angle *= -1;
@@ -354,6 +355,7 @@ export class RotationTool extends Tool {
     })
     let newShapes = [];
     this.involvedShapes.forEach(s => {
+      console.log(this.references);
       let newShape = new s.constructor({
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,
@@ -378,7 +380,7 @@ export class RotationTool extends Tool {
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       newShape.geometryObject.geometryTransformationCharacteristicElementIds.map((refId, idx) => {
         let objectType = 'point';
-        if (idx == 1 && this.references[1] instanceof ArrowLineShape) {
+        if (idx == 1 && this.references[1] instanceof LineShape) {
           objectType = 'shape';
         }
         let ref = app.mainDrawingEnvironment.findObjectById(refId, objectType);
