@@ -233,7 +233,7 @@ export class TransformTool extends Tool {
       let shape = point.shape;
       if (shape.name == 'Trapeze' && point.idx < 3) {
         computeConstructionSpec(shape);
-      } else if (point.idx < 2) {
+      } else if (point.idx < 2 || point.type == 'arcCenter') {
         switch (shape.name) {
           case 'Rectangle':
           case 'Losange':
@@ -244,6 +244,7 @@ export class TransformTool extends Tool {
           case 'RightAngleIsoscelesTriangle':
           case 'RightAngleTriangle':
           case 'IsoscelesTriangle':
+          case 'CirclePart':
             computeConstructionSpec(shape);
             break;
             default:
@@ -279,6 +280,7 @@ export class TransformTool extends Tool {
           case 'Parallelogram':
           // case 'RightAngleTrapeze':
           case 'IsoscelesTrapeze':
+          case 'CirclePart':
             computeConstructionSpec(shape, point.idx);
             break;
           default:

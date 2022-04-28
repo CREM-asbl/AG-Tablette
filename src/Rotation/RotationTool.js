@@ -355,7 +355,6 @@ export class RotationTool extends Tool {
     })
     let newShapes = [];
     this.involvedShapes.forEach(s => {
-      console.log(this.references);
       let newShape = new s.constructor({
         ...s,
         drawingEnvironment: app.mainDrawingEnvironment,

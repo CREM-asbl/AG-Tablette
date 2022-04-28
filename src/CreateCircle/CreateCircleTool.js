@@ -415,6 +415,13 @@ export class CreateCircleTool extends Tool {
       });
       segments.push(seg);
     } else if (app.tool.selectedCircle == 'CirclePart') {
+      points[0].type = 'vertex';
+      points[0].idx = 0;
+      points[1].type = 'vertex';
+      points[1].idx = 1;
+      points[2].type = 'vertex';
+      points[2].idx = 2;
+      points[3].type = 'arcCenter';
       let seg = new Segment({
         drawingEnvironment: app.mainDrawingEnvironment,
         idx: idx++,
@@ -493,16 +500,28 @@ export class CreateCircleTool extends Tool {
     });
 
     let ref;
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
-    // si pas circle-part
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[0].arcCenter.coordinates))) {
-      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      shape.segments[0].arcCenter.reference = ref.id;
+    if (shape.name == 'CirclePart') {
+      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[1].arcCenter.coordinates))) {
+        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
+        shape.segments[1].arcCenter.reference = ref.id;
+      }
+      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
+        shape.vertexes[1].reference = ref.id;
+      }
+    } else {
+      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[0].arcCenter.coordinates))) {
+        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
+          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
+        shape.segments[0].arcCenter.reference = ref.id;
+      }
     }
 
     computeConstructionSpec(shape);

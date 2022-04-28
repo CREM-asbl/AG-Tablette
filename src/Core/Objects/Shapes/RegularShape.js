@@ -135,7 +135,7 @@ export class RegularShape extends Shape {
       let coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex' || this.points[this.points.length - 1].coordinates.equal(coordinates)) {
+      if (lastVertex == undefined || lastVertex.type != 'vertex' || (this.points[this.points.length - 1].coordinates.equal(coordinates) && this.points[this.points.length - 1].type == 'vertex')) {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
@@ -240,7 +240,7 @@ export class RegularShape extends Shape {
             sweepFlag,
           );
 
-          new Segment({
+          let segment = new Segment({
             shapeId: this.id,
             drawingEnvironment: this.drawingEnvironment,
             idx: segmentIdx++,
@@ -248,6 +248,7 @@ export class RegularShape extends Shape {
             arcCenterId: arcCenter.id,
             counterclockwise: sweepFlag == 0,
           });
+          arcCenter.segmentIds.push(segment.id);
 
           this.cleanSameDirectionSegment();
 
@@ -588,7 +589,9 @@ export class RegularShape extends Shape {
    */
   getSVGPath(scaling = 'scale') {
     let path = this.segments
-      .map((seg) => seg.getSVGPath(scaling, false, false))
+      .map((seg) => {
+        return seg.getSVGPath(scaling, false, false)
+      })
       .join('\n');
     return path;
   }
