@@ -97,7 +97,7 @@ export class TranslationTool extends Tool {
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
       let object = SelectManager.selectObject(coord);
-      if (object instanceof LineShape && !object.segments[0].isArc()) {
+      if (object instanceof ArrowLineShape && !object.segments[0].isArc()) {
         this.firstReference = object;
         new ArrowLineShape({
           path: object.getSVGPath('no scale', true),
