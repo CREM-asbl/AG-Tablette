@@ -234,7 +234,7 @@ export class MoveTool extends Tool {
         this.shapesToMove.forEach((s) => {
           s.rotate(
             adjustment.rotationAngle,
-            mainShape.centerCoordinates,
+            this.lastAdjusment.centerCoord,
           );
           s.translate(adjustment.translation);
         });
