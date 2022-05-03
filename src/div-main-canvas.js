@@ -505,6 +505,7 @@ class DivMainCanvas extends LitElement {
 
     app.canvasWidth = this.clientWidth;
     app.canvasHeight = this.clientHeight;
+    setState({ settings: { ...app.settings, selectionDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60, magnetismDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60 } });
   }
 
   isOutsideOfCanvas(mousePos) {

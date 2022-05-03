@@ -140,7 +140,7 @@ export class CreateRegularTool extends Tool {
       setState({ tool: { ...app.tool, currentStep: 'drawSecondPoint' } });
     } else {
       this.stopAnimation();
-      if (this.firstPoint.coordinates.dist(this.secondPoint.coordinates) < app.settings.magnetismDistance) {
+      if (SelectManager.areCoordinatesInMagnetismDistance(this.firstPoint.coordinates, this.secondPoint.coordinate)) {
         let firstPointCoordinates = this.firstPoint.coordinates;
         app.upperDrawingEnvironment.removeAllObjects();
         this.firstPoint = new Point({

@@ -239,7 +239,7 @@ export class CreateCircleTool extends Tool {
   }
 
   canvasMouseUp() {
-    if (this.numberOfPointsDrawn == 2 && this.points[0].coordinates.dist(this.points[1].coordinates) < app.settings.magnetismDistance) {
+    if (this.numberOfPointsDrawn == 2 && SelectManager.areCoordinatesInMagnetismDistance(this.points[0].coordinates, this.points[1].coordinates)) {
       let firstPointCoordinates = this.points[0].coordinates;
       this.numberOfPointsDrawn = 1;
       app.upperDrawingEnvironment.removeAllObjects();

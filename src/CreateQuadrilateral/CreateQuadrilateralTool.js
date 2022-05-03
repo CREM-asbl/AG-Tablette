@@ -149,7 +149,7 @@ export class CreateQuadrilateralTool extends Tool {
 
   canvasMouseUp() {
     for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
-      if (this.points[i].coordinates.dist(this.points[this.numberOfPointsDrawn - 1].coordinates) < app.settings.magnetismDistance) {
+      if (SelectManager.areCoordinatesInMagnetismDistance(this.points[i].coordinates, this.points[this.numberOfPointsDrawn - 1].coordinates)) {
         let firstPointCoordinates = this.points[0].coordinates;
         if (this.numberOfPointsDrawn == 2) {
           app.upperDrawingEnvironment.removeAllObjects();
