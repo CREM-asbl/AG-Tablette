@@ -169,13 +169,13 @@ class AGMain extends LitElement {
     ];
   }
 
-  updated() {
-    if (app.environment?.name == 'Geometrie') {
-      this.shadowRoot
-        .querySelectorAll('.onlyGrandeurs')
-        .forEach((el) => (el.style.display = 'none'));
-    }
-  }
+  // updated() {
+  //   if (app.environment?.name == 'Geometrie') {
+  //     this.shadowRoot
+  //       .querySelectorAll('.onlyGrandeurs')
+  //       .forEach((el) => (el.style.display = 'none'));
+  //   }
+  // }
 
   async firstUpdated() {
     let sectionImport = await import(`./toolbarSectionsDef.js`);
@@ -253,7 +253,6 @@ class AGMain extends LitElement {
               </icon-button>
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                class="onlyGrandeurs"
                 name="replay"
                 title="Rejouer"
                 @click="${this._actionHandle}"

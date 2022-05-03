@@ -463,6 +463,7 @@ export class Point {
       size: this.size,
       reference: this.reference,
       endpointIds: [...this.endpointIds],
+      transformConstraints: {...this.transformConstraints},
     };
     return data;
   }

@@ -89,6 +89,12 @@ export class OrthogonalSymetryTool extends Tool {
     this.removeListeners();
   }
 
+  get referenceShape() {
+    console.log('here');
+    console.log(app.upperDrawingEnvironment.findObjectById(app.tool.referenceShapeId, 'shape'), app.upperDrawingEnvironment.shapes);
+    return app.upperDrawingEnvironment.findObjectById(app.tool.referenceShapeId, 'shape');
+  }
+
   canvasMouseDown() {
     let coord = app.workspace.lastKnownMouseCoordinates;
     if (this.firstReference == null) {
@@ -98,14 +104,14 @@ export class OrthogonalSymetryTool extends Tool {
       let object = SelectManager.selectObject(coord);
       if (object instanceof Segment && !object.isArc()) {
         this.firstReference = object;
-        this.referenceShape = new LineShape({
+        let referenceShape = new LineShape({
           path: object.getSVGPath('no scale', true),
           drawingEnvironment: app.upperDrawingEnvironment,
           strokeColor: app.settings.referenceDrawColor,
           strokeWidth: 2,
         });
-        this.referenceShape.segments[0].isInfinite = true;
-        setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+        referenceShape.segments[0].isInfinite = true;
+        setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject', referenceShapeId: referenceShape.id } });
       } else {
         this.pointsDrawn.push(new Point({
           coordinates: coord,
@@ -127,14 +133,14 @@ export class OrthogonalSymetryTool extends Tool {
         vertexIds: this.pointsDrawn.map((pt) => pt.id),
         isInfinite: true,
       });
-      this.referenceShape = new LineShape({
+      let referenceShape = new LineShape({
         drawingEnvironment: app.upperDrawingEnvironment,
         segmentIds: [segment.id],
         pointIds: this.pointsDrawn.map((pt) => pt.id),
         strokeColor: app.settings.referenceDrawColor,
         strokeWidth: 2,
       });
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'animateSecondRefPoint' } });
+      setState({ tool: { ...app.tool, name: this.name, currentStep: 'animateSecondRefPoint', referenceShapeId: referenceShape.id } });
     }
   }
 
@@ -207,7 +213,7 @@ export class OrthogonalSymetryTool extends Tool {
     this.lastProgress = this.progress || 0;
     if (this.lastProgress == 0) {
       this.drawingShapes.forEach(s => s.points.forEach((point) => {
-        let center = this.referenceShape.segments[0].projectionOnSegment(point);
+        let center = this.referenceShape.segments[0].projectionOnSegment(point.coordinates);
         point.startCoordinates = new Coordinates(point.coordinates);
         point.endCoordinates = new Coordinates({
           x: point.x + 2 * (center.x - point.x),

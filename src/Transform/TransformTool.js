@@ -78,6 +78,7 @@ export class TransformTool extends Tool {
   }
 
   selectPoint() {
+    this.removeListeners();
     this.constraintsDrawn = false;
     app.mainDrawingEnvironment.editingShapeIds = [];
     app.upperDrawingEnvironment.removeAllObjects();
@@ -198,20 +199,6 @@ export class TransformTool extends Tool {
 
   canvasMouseUp() {
     this.stopAnimation();
-    // if (this.line == null) {
-    //   // pas de contrainte
-    //   let constraints = SelectManager.getEmptySelectionConstraints().points;
-    //   constraints.canSelect = true;
-    //   let adjustedPoint = SelectManager.selectPoint(
-    //     this.pointDest,
-    //     constraints,
-    //     false,
-    //   );
-    //   if (adjustedPoint) {
-    //     this.pointDest.setCoordinates(adjustedPoint);
-    //   }
-    // }
-
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } })
     // this.restart();
