@@ -51,32 +51,8 @@ class AGMain extends LitElement {
       this.canUndo = HistoryManager.canUndo();
       this.canRedo = HistoryManager.canRedo();
     });
-    window.addEventListener('workspace-changed', () => {
-      this.colorPickerValue = '#000000';
-      this.shadowRoot.querySelector('#color-picker').value = '#000000';
-    });
     window.addEventListener('tool-changed', () => {
       this.tool = app.tool;
-      if (app.fullHistory.isRunning)
-        return;
-      if (app.tool?.currentStep == 'start') {
-        if (app.tool.name == 'backgroundColor') {
-          this.shadowRoot.querySelector('#color-picker').value =
-            app.settings.shapeFillColor;
-          this.colorPickerValue = app.settings.shapeFillColor;
-        } else if (app.tool.name == 'borderColor') {
-          this.shadowRoot.querySelector('#color-picker').value =
-            app.settings.shapeBorderColor;
-          this.colorPickerValue = app.settings.shapeBorderColor;
-        } else if (app.tool.name == 'color') {
-          this.shadowRoot.querySelector('#color-picker').value =
-            app.settings.drawColor;
-          this.colorPickerValue = app.settings.drawColor;
-        } else {
-          return;
-        }
-        this.shadowRoot.querySelector('#color-picker').click();
-      }
     });
 
     // vh error in tablette => custom vh
@@ -148,14 +124,14 @@ class AGMain extends LitElement {
 
         /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
         input[type='color'] {
-          opacity: 0;
+          /* opacity: 0; */
           position: absolute;
           top: 0;
           left: 21vw;
-          width: 0;
-          height: 0;
+          /* width: 0;
+          height: 0; */
           border: none;
-          background: transparent;
+          /* background: transparent; */
         }
 
         h3 {
@@ -303,39 +279,6 @@ class AGMain extends LitElement {
             }),
           );
           event.target.value = null;
-        }}"
-      />
-
-      <input
-        id="color-picker"
-        type="color"
-        value="${this.colorPickerValue}"
-        @input="${e => {
-          if (app.tool.name == 'backgroundColor') {
-            setState({
-              settings: {
-                ...app.settings,
-                shapeFillColor: e.target.value,
-              },
-              tool: { ...app.tool, currentStep: 'listen' },
-            });
-          } else if (app.tool.name == 'borderColor') {
-            setState({
-              settings: {
-                ...app.settings,
-                shapeBorderColor: e.target.value,
-              },
-              tool: { ...app.tool, currentStep: 'listen' },
-            });
-          } else if (app.tool.name == 'color') {
-            setState({
-              settings: {
-                ...app.settings,
-                drawColor: e.target.value,
-              },
-              tool: { ...app.tool, currentStep: 'listen' },
-            });
-          }
         }}"
       />
     `;
