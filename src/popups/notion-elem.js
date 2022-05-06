@@ -31,6 +31,7 @@ class NotionElem extends LitElement {
           background-color: var(--theme-color-soft);
           border-radius: 3px;
           box-shadow: 0px 0px 3px var(--menu-shadow-color);
+          padding: 5px;
           margin-bottom: 5px;
         }
       `,
