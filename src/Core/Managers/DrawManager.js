@@ -23,7 +23,7 @@ export class DrawManager {
    * Refresh the main canvas (regular shapes)
    */
   static refreshMain() {
-    app.mainDrawingEnvironment.redraw();
+    app.mainCanvasElem.redraw();
   }
 
   /**
@@ -31,7 +31,7 @@ export class DrawManager {
    */
   static refreshUpper() {
     window.dispatchEvent(new CustomEvent('refreshStateUpper'));
-    app.upperDrawingEnvironment.redraw();
+    app.upperCanvasElem.redraw();
   }
 
   /* #################################################################### */

@@ -38,15 +38,15 @@ export class UngroupTool extends Tool {
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.removeListeners();
 
-    app.mainDrawingEnvironment.shapes.map((s) => {
+    app.mainCanvasElem.shapes.map((s) => {
       let currentGroup = GroupManager.getShapeGroup(s);
       if (currentGroup != null) {
         new s.constructor({
           ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           path: s.getSVGPath('no scale', false, false),
           fillOpacity: 0,
           strokeColor: currentGroup.color,
@@ -73,7 +73,7 @@ export class UngroupTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.removeListeners();
   }
 

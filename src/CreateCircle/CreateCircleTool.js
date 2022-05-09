@@ -55,7 +55,7 @@ export class CreateCircleTool extends Tool {
   }
 
   async drawFirstPoint() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
     // let triangleDef = await import(`./trianglesDef.js`);
@@ -114,7 +114,7 @@ export class CreateCircleTool extends Tool {
 
     if (app.tool.currentStep == 'drawPoint') {
       this.points[this.numberOfPointsDrawn] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -123,13 +123,13 @@ export class CreateCircleTool extends Tool {
       if (this.numberOfPointsDrawn == 2) {
         if (app.tool.selectedCircle == 'Circle') {
           let seg = new Segment({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             vertexIds: [this.points[1].id, this.points[1].id],
             arcCenterId: this.points[0].id,
           });
           this.segments.push(seg);
           new RegularShape({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
             strokeColor: app.settings.temporaryDrawColor,
@@ -137,12 +137,12 @@ export class CreateCircleTool extends Tool {
           });
         } else if (app.tool.selectedCircle == 'CirclePart') {
           let seg = new Segment({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             vertexIds: [this.points[0].id, this.points[1].id],
           });
           this.segments.push(seg);
           new RegularShape({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
             strokeColor: app.settings.temporaryDrawColor,
@@ -156,19 +156,19 @@ export class CreateCircleTool extends Tool {
             y: this.points[0].coordinates.y + Math.sin(angle) * radius,
           })
           this.points[this.numberOfPointsDrawn] = new Point({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             coordinates: thirdPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
           });
           let seg = new Segment({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             vertexIds: [this.points[1].id, this.points[2].id],
             arcCenterId: this.points[0].id,
           });
           this.segments.push(seg);
           new ArrowLineShape({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
             strokeColor: app.settings.temporaryDrawColor,
@@ -182,19 +182,19 @@ export class CreateCircleTool extends Tool {
             y: this.points[0].coordinates.y + Math.sin(angle) * radius,
           })
           this.points[this.numberOfPointsDrawn] = new Point({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             coordinates: thirdPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
           });
           let seg = new Segment({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             vertexIds: [this.points[1].id, this.points[2].id],
             arcCenterId: this.points[0].id,
           });
           this.segments.push(seg);
           new ArrowLineShape({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
             strokeColor: app.settings.temporaryDrawColor,
@@ -207,13 +207,13 @@ export class CreateCircleTool extends Tool {
           app.tool.selectedCircle == 'CircleArc'
         ) {
           let seg = new Segment({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             vertexIds: [this.points[1].id, this.points[2].id],
             arcCenterId: this.points[0].id,
           });
           this.segments.push(seg);
           seg = new Segment({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             vertexIds: [this.points[2].id, this.points[1].id],
             arcCenterId: this.points[0].id,
           });
@@ -221,13 +221,13 @@ export class CreateCircleTool extends Tool {
         }
         if (app.tool.selectedCircle == 'CirclePart') {
           let seg = new Segment({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             vertexIds: [this.points[2].id, this.points[0].id],
           });
           this.segments.push(seg);
         }
         new RegularShape({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           segmentIds: this.segments.map((seg) => seg.id),
           pointIds: this.points.map((pt) => pt.id),
           strokeColor: app.settings.temporaryDrawColor,
@@ -242,9 +242,9 @@ export class CreateCircleTool extends Tool {
     if (this.numberOfPointsDrawn == 2 && SelectManager.areCoordinatesInMagnetismDistance(this.points[0].coordinates, this.points[1].coordinates)) {
       let firstPointCoordinates = this.points[0].coordinates;
       this.numberOfPointsDrawn = 1;
-      app.upperDrawingEnvironment.removeAllObjects();
+      app.upperCanvasElem.removeAllObjects();
       this.points[0] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         coordinates: firstPointCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -265,7 +265,7 @@ export class CreateCircleTool extends Tool {
       } else {
         this.stopAnimation();
         this.executeAction();
-        app.upperDrawingEnvironment.removeAllObjects();
+        app.upperCanvasElem.removeAllObjects();
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
       }
     } else {
@@ -292,7 +292,7 @@ export class CreateCircleTool extends Tool {
     );
     this.clockwise = isAngleInside;
     this.executeAction();
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
   }
 
@@ -387,7 +387,7 @@ export class CreateCircleTool extends Tool {
   _executeAction() {
     if (app.tool.selectedCircle == 'CirclePart') {
       this.points.push(new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         coordinates: this.points[0].coordinates,
         type: 'arcCenter',
       }));
@@ -395,7 +395,7 @@ export class CreateCircleTool extends Tool {
     let points = this.points.map(
       pt =>
         new Point({
-          drawingEnvironment: app.mainDrawingEnvironment,
+          drawingEnvironment: app.mainCanvasElem,
           coordinates: new Coordinates(pt.coordinates),
           type: 'vertex',
         })
@@ -408,7 +408,7 @@ export class CreateCircleTool extends Tool {
       points[1].idx = 0;
       [points[0], points[1]] = [points[1], points[0]];
       let seg = new Segment({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         idx: idx++,
         vertexIds: [points[0].id, points[0].id],
         arcCenterId: points[1].id,
@@ -423,13 +423,13 @@ export class CreateCircleTool extends Tool {
       points[2].idx = 2;
       points[3].type = 'arcCenter';
       let seg = new Segment({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         idx: idx++,
         vertexIds: [points[0].id, points[1].id],
       });
       segments.push(seg);
       seg = new Segment({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         idx: idx++,
         vertexIds: [points[1].id, points[2].id],
         arcCenterId: points[3].id,
@@ -437,7 +437,7 @@ export class CreateCircleTool extends Tool {
       });
       segments.push(seg);
       seg = new Segment({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         idx: idx++,
         vertexIds: [points[2].id, points[0].id],
       });
@@ -450,7 +450,7 @@ export class CreateCircleTool extends Tool {
       points[1].idx = 1;
       points[2].type = 'arcCenter';
       let seg = new Segment({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         idx: idx++,
         vertexIds: [points[0].id, points[1].id],
         arcCenterId: points[2].id,
@@ -465,7 +465,7 @@ export class CreateCircleTool extends Tool {
       points[1].idx = 1;
       points[2].type = 'arcCenter';
       let seg = new Segment({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         idx: idx++,
         vertexIds: [points[0].id, points[1].id],
         arcCenterId: points[2].id,
@@ -481,7 +481,7 @@ export class CreateCircleTool extends Tool {
       constructor = ArrowLineShape;
 
     let shape = new constructor({
-      drawingEnvironment: app.mainDrawingEnvironment,
+      drawingEnvironment: app.mainCanvasElem,
       segmentIds: segments.map(seg => seg.id),
       pointIds: points.map(pt => pt.id),
       name: app.tool.selectedCircle,
@@ -500,24 +500,24 @@ export class CreateCircleTool extends Tool {
     });
 
     let ref;
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+    if (ref = app.mainCanvasElem.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
     if (shape.name == 'CirclePart') {
-      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[1].arcCenter.coordinates))) {
+      if (ref = app.mainCanvasElem.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[1].arcCenter.coordinates))) {
         if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
           ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.segments[1].arcCenter.reference = ref.id;
       }
-      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+      if (ref = app.mainCanvasElem.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
         if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
           ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.vertexes[1].reference = ref.id;
       }
     } else {
-      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[0].arcCenter.coordinates))) {
+      if (ref = app.mainCanvasElem.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[0].arcCenter.coordinates))) {
         if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
           ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.segments[0].arcCenter.reference = ref.id;

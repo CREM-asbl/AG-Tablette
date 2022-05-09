@@ -196,7 +196,7 @@ export class DrawingEnvironment {
         segId = pt1.shape.geometryObject.geometryParentObjectId1;
       else
         segId = pt2.shape.geometryObject.geometryParentObjectId1;
-      return app.mainDrawingEnvironment.findObjectById(segId, 'segment');
+      return app.mainCanvasElem.findObjectById(segId, 'segment');
     }
     let segmentIds1 = pt1.segmentIds;
     let segmentIds2 = pt2.segmentIds;

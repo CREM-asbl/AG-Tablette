@@ -48,7 +48,7 @@ export class CreateTool extends Tool {
    * @param  {String} family Nom de la famille sélectionnée
    */
   start() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -56,7 +56,7 @@ export class CreateTool extends Tool {
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -76,7 +76,7 @@ export class CreateTool extends Tool {
    */
   end() {
     this.shapesList = null;
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -104,12 +104,12 @@ export class CreateTool extends Tool {
     if (selectedTemplate.name.startsWith('Segment')) {
       this.shapeToCreate = new LineShape({
         ...selectedTemplate,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
       });
     } else {
       this.shapeToCreate = new RegularShape({
         ...selectedTemplate,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
       });
     }
     let shapeSize = app.settings.shapesSize;
@@ -154,13 +154,13 @@ export class CreateTool extends Tool {
        shape = new LineShape({
         ...selectedTemplate,
         size: shapeSize,
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
       });
     } else {
       shape = new RegularShape({
         ...selectedTemplate,
         size: shapeSize,
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
       });
     }
     shape.scale(shapeSize);

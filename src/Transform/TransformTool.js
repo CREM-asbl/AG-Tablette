@@ -52,8 +52,8 @@ export class TransformTool extends Tool {
   }
 
   start() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasElem.editingShapeIds = [];
+    app.upperCanvasElem.removeAllObjects();
 
     this.shapeId = null;
     this.pointSelected = null;
@@ -61,7 +61,7 @@ export class TransformTool extends Tool {
     this.constraints = null;
     this.line = null;
 
-    app.mainDrawingEnvironment.shapes.forEach((s) => {
+    app.mainCanvasElem.shapes.forEach((s) => {
       s.vertexes.forEach((pt) => {
         pt.computeTransformConstraint();
       });
@@ -79,8 +79,8 @@ export class TransformTool extends Tool {
 
   selectPoint() {
     this.constraintsDrawn = false;
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasElem.editingShapeIds = [];
+    app.upperCanvasElem.removeAllObjects();
 
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'mousedown';
@@ -104,8 +104,8 @@ export class TransformTool extends Tool {
 
   end() {
     this.constraintsDrawn = false;
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasElem.editingShapeIds = [];
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -113,7 +113,7 @@ export class TransformTool extends Tool {
   objectSelected(points) {
     for (let i = 0; i < points.length; i++) {
       if (points[i].reference) {
-        points[i] = app.mainDrawingEnvironment.findObjectById(points[i].reference, 'point');
+        points[i] = app.mainCanvasElem.findObjectById(points[i].reference, 'point');
         i--;
       } else {
         points[i].computeTransformConstraint();
@@ -134,7 +134,7 @@ export class TransformTool extends Tool {
 
     this.constraints = point.transformConstraints;
 
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
 
     if (!this.constraintsDrawn) {
       this.drawConstraints(point);
@@ -144,13 +144,13 @@ export class TransformTool extends Tool {
 
     // let involvedShapes = [point.shape];
     // getAllLinkedShapesInGeometry(point.shape, involvedShapes);
-    let involvedShapes = app.mainDrawingEnvironment.shapes;
+    let involvedShapes = app.mainCanvasElem.shapes;
 
     this.drawingShapes = involvedShapes.map(
       (s) => {
         let newShape = new s.constructor({
           ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           path: s.getSVGPath('no scale', false, false),
           divisionPointInfos: s.divisionPoints.map((dp) => {
             return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
@@ -186,7 +186,7 @@ export class TransformTool extends Tool {
       }
     );
 
-    app.mainDrawingEnvironment.editingShapeIds = involvedShapes.map(
+    app.mainCanvasElem.editingShapeIds = involvedShapes.map(
       (s) => s.id,
     );
 
@@ -218,8 +218,8 @@ export class TransformTool extends Tool {
   }
 
   _executeAction() {
-    app.mainDrawingEnvironment.editingShapeIds.forEach((sId, idxS) => {
-      let s = app.mainDrawingEnvironment.findObjectById(sId);
+    app.mainCanvasElem.editingShapeIds.forEach((sId, idxS) => {
+      let s = app.mainCanvasElem.findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
         pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
         pt.ratio = this.drawingShapes[idxS].points[idxPt].ratio;
@@ -229,7 +229,7 @@ export class TransformTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'transform') {
-      let point = app.upperDrawingEnvironment.findObjectById(this.pointSelectedId, 'point');
+      let point = app.upperCanvasElem.findObjectById(this.pointSelectedId, 'point');
       let shape = point.shape;
       if (shape.name == 'Trapeze' && point.idx < 3) {
         computeConstructionSpec(shape);
@@ -301,7 +301,7 @@ export class TransformTool extends Tool {
         }
       }
       if (shape.name == 'PointOnLine') {
-        let reference = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+        let reference = app.upperCanvasElem.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
         point.coordinates = reference.projectionOnSegment(point.coordinates);
         // let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
         let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
@@ -328,14 +328,14 @@ export class TransformTool extends Tool {
       if (shape.name == 'RightAngleTrapeze2')
         computeConstructionSpec(shape);
       if (shape.name == 'PointOnLine') {
-        let reference = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+        let reference = app.upperCanvasElem.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
         computeShapeTransform(reference.shape);
         computeAllShapeTransform(reference.shape);
       } else {
         computeAllShapeTransform(shape);
       }
     } else if (app.tool.currentStep == 'selectPoint') {
-      app.mainDrawingEnvironment.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
+      app.mainCanvasElem.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
         let points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];
         points.forEach((pt) => {
           const transformConstraints = pt.transformConstraints;
@@ -349,7 +349,7 @@ export class TransformTool extends Tool {
 
           if (color != '#f00' && color != undefined)
             new Point({
-              drawingEnvironment: app.upperDrawingEnvironment,
+              drawingEnvironment: app.upperCanvasElem,
               coordinates: pt.coordinates,
               size: 2,
               color: color,
@@ -368,7 +368,7 @@ export class TransformTool extends Tool {
     let constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
     if (point.shape.name == 'PointOnLine') {
-      let segment = app.upperDrawingEnvironment.findObjectById(point.shape.geometryObject.geometryParentObjectId1, 'segment');
+      let segment = app.upperCanvasElem.findObjectById(point.shape.geometryObject.geometryParentObjectId1, 'segment');
       constraints.whitelist = [
         { shapeId: segment.shape.id, type: 'divisionPoint', index: segment.idx },
         { shapeId: segment.shape.id, type: 'vertex', index: segment.idx },
@@ -400,7 +400,7 @@ export class TransformTool extends Tool {
       point.transformConstraints.lines.forEach(ln => {
         let segment = ln.segment;
         let shape = new LineShape({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           path: segment.getSVGPath('no scale', true),
           strokeColor: app.settings.constraintsDrawColor,
           fillOpacity: 0,
@@ -412,7 +412,7 @@ export class TransformTool extends Tool {
       });
       point.transformConstraints.points.forEach(pt => {
         new Point({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           coordinates: pt,
           color: app.settings.constraintsDrawColor,
           size: 2,

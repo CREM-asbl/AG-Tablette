@@ -64,13 +64,13 @@ export class Workspace {
     if (!wsdata) {
       this.translateOffset = Coordinates.nullCoordinates;
       this.zoomLevel = 1;
-      app.mainDrawingEnvironment.loadFromData(null);
+      app.mainCanvasElem.loadFromData(null);
       app.backgroundDrawingEnvironment.clear();
       return;
     }
     this.id = wsdata.id;
 
-    app.mainDrawingEnvironment.loadFromData(wsdata.objects);
+    app.mainCanvasElem.loadFromData(wsdata.objects);
     if (app.environment.name == 'Tangram')
       app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
     else app.backgroundDrawingEnvironment.clear();
@@ -122,7 +122,7 @@ export class Workspace {
     // wsdata.shapes = this.shapes.map(s => {
     //   return s.saveToObject();
     // });
-    wsdata.objects = app.mainDrawingEnvironment.saveData();
+    wsdata.objects = app.mainCanvasElem.saveData();
     wsdata.backObjects = app.backgroundDrawingEnvironment.saveData();
     wsdata.shapeGroups = this.shapeGroups.map((group) => {
       return group.saveToObject();
@@ -196,7 +196,7 @@ export class Workspace {
       app.canvasHeight +
       '" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n';
     svg_data += app.backgroundDrawingEnvironment.toSVG();
-    svg_data += app.mainDrawingEnvironment.toSVG();
+    svg_data += app.mainCanvasElem.toSVG();
     if (document.body.querySelector('forbidden-canvas') != null) {
       svg_data +=
         '<rect x="' +

@@ -60,9 +60,9 @@ export class ToBackgroundTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.forEach((s, index) => {
-      let shapeIndex = app.mainDrawingEnvironment.findIndexById(s.id);
-      let shape = app.mainDrawingEnvironment.shapes.splice(shapeIndex, 1)[0];
-      app.mainDrawingEnvironment.shapes.splice(index, 0, shape);
+      let shapeIndex = app.mainCanvasElem.findIndexById(s.id);
+      let shape = app.mainCanvasElem.shapes.splice(shapeIndex, 1)[0];
+      app.mainCanvasElem.shapes.splice(index, 0, shape);
     });
   }
 }

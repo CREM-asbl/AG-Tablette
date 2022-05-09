@@ -39,7 +39,7 @@ export class CreateIrregularTool extends Tool {
   }
 
   start() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.removeListeners();
 
     this.points = [];
@@ -76,7 +76,7 @@ export class CreateIrregularTool extends Tool {
 
     this.points.push(
       new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -84,7 +84,7 @@ export class CreateIrregularTool extends Tool {
     );
     if (this.points.length > 1) {
       let seg = new Segment({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         vertexIds: [
           this.points[this.points.length - 2].id,
           this.points[this.points.length - 1].id,
@@ -92,7 +92,7 @@ export class CreateIrregularTool extends Tool {
       });
       this.segments.push(seg);
       new RegularShape({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         segmentIds: [seg.id],
         pointIds: seg.vertexIds,
         strokeColor: app.settings.temporaryDrawColor,
@@ -115,7 +115,7 @@ export class CreateIrregularTool extends Tool {
       this.stopAnimation();
 
       this.executeAction();
-      app.upperDrawingEnvironment.removeAllObjects();
+      app.upperCanvasElem.removeAllObjects();
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'start' },
       });
@@ -174,7 +174,7 @@ export class CreateIrregularTool extends Tool {
     path = path.join(' ');
 
     let shape = new RegularShape({
-      drawingEnvironment: app.mainDrawingEnvironment,
+      drawingEnvironment: app.mainCanvasElem,
       path: path,
       name: app.tool.selectedTriangle,
       familyName: familyName,
@@ -184,7 +184,7 @@ export class CreateIrregularTool extends Tool {
 
     let ref;
     shape.vertexes.forEach((vx, i) => {
-      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[i].id).find(pt => pt.coordinates.equal(shape.vertexes[i].coordinates))) {
+      if (ref = app.mainCanvasElem.points.filter(pt => pt.id != shape.vertexes[i].id).find(pt => pt.coordinates.equal(shape.vertexes[i].coordinates))) {
         if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
           ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.vertexes[i].reference = ref.id;

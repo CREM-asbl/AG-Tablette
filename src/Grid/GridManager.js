@@ -43,11 +43,12 @@ addEventListener('tool-changed', () => {
 addEventListener('settings-changed', () => {
   if (app.environment?.name == 'Tangram')
     return;
+  console.log('redraw');
   app.backgroundDrawingEnvironment?.removeAllObjects();
   if (app.settings.gridShown) {
     GridManager.drawGridPoints();
   }
-  window.dispatchEvent(new CustomEvent('refreshBackground'));
+  // window.dispatchEvent(new CustomEvent('refreshBackground'));
 });
 
 export class GridManager {
@@ -241,32 +242,4 @@ export class GridManager {
 
     return closestPoint;
   }
-
-  // static toSVG() {
-  //   let canvasWidth = app.canvas.main.clientWidth,
-  //     canvasHeight = app.canvas.main.clientHeight,
-  //     offsetX = app.workspace.translateOffset.x,
-  //     offsetY = app.workspace.translateOffset.y,
-  //     actualZoomLvl = app.workspace.zoomLevel,
-  //     // Ne pas voir les points apparaître:
-  //     marginToAdd = 0, //20 * actualZoomLvl,
-  //     min = {
-  //       x: -offsetX / actualZoomLvl - marginToAdd,
-  //       y: -offsetY / actualZoomLvl - marginToAdd,
-  //     },
-  //     max = {
-  //       x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
-  //       y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
-  //     },
-  //     svg_data = '';
-
-  //   let pts = GridManager.getVisibleGridPoints(min, max);
-  //   pts.forEach(pt => {
-  //     svg_data += pt.toSVG('#F00', 1.5);
-  //   });
-
-  //   if (svg_data !== '') svg_data = '<!-- Grid -->\n' + svg_data + '\n';
-
-  //   return svg_data;
-  // }
 }

@@ -31,9 +31,10 @@ window.addEventListener('app-started', () => {
 
 window.addEventListener('new-window', () => {
   // setTimeout(() => {
-  app.mainDrawingEnvironment.removeAllObjects();
-  app.upperDrawingEnvironment.removeAllObjects();
-  app.backgroundDrawingEnvironment.removeAllObjects();
+  app.mainCanvasElem.removeAllObjects();
+  app.upperCanvasElem.removeAllObjects();
+  app.tangramCanvasElem.removeAllObjects();
+  app.gridCanvasElem.removeAllObjects();
   app.tools.forEach(tool => tool.isVisible = true);
   app.environment.families.forEach(family => family.isVisible = true);
   setState({

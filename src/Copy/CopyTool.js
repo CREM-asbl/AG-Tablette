@@ -62,13 +62,13 @@ export class CopyTool extends Tool {
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
-    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s instanceof SinglePointShape);
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasElem.shapes.filter(s => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -82,7 +82,7 @@ export class CopyTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -119,7 +119,7 @@ export class CopyTool extends Tool {
     this.drawingShapes = this.involvedShapes.map((s) => {
       let newShape = new s.constructor({
         ...s,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         path: s.getSVGPath('no scale', false),
         id: undefined,
         divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -172,7 +172,7 @@ export class CopyTool extends Tool {
     this.involvedShapes.forEach((s) => {
       let newShape = new s.constructor({
         ...s,
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         path: s.getSVGPath('no scale', false),
         id: undefined,
         divisionPointInfos: s.divisionPoints.map((dp) => {

@@ -28,7 +28,7 @@ export const EquilateralTriangle = {
 
     if (points.length == 2) {
       points[2] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -40,7 +40,7 @@ export const EquilateralTriangle = {
     if (segments.length == 1) {
       segments.push(
         new Segment({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           vertexIds: [points[1].id, points[2].id],
         }),
       );

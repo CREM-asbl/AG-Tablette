@@ -35,14 +35,14 @@ export class BifaceTool extends Tool {
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.removeListeners();
 
     // setTimeout(() => {
-      app.mainDrawingEnvironment.shapes.map((s) => {
+      app.mainCanvasElem.shapes.map((s) => {
         if (s.isBiface) {
           new Text({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             coordinates: s.centerCoordinates,
             referenceId: s.id,
             message: 'Biface',
@@ -62,7 +62,7 @@ export class BifaceTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.removeListeners();
   }
 

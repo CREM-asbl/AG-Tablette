@@ -53,8 +53,8 @@ export class MergeTool extends Tool {
   }
 
   listen() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasElem.editingShapeIds = [];
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -76,8 +76,8 @@ export class MergeTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasElem.editingShapeIds = [];
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -106,10 +106,10 @@ export class MergeTool extends Tool {
         }
       } else {
         this.firstShapeId = shape.id;
-        app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
+        app.mainCanvasElem.editingShapeIds = [this.firstShapeId];
         this.drawingShapes = new shape.constructor({
           ...shape,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           path: shape.getSVGPath('no scale'),
           id: undefined,
           strokeColor: '#E90CC8',
@@ -125,7 +125,7 @@ export class MergeTool extends Tool {
       } else {
         let group = ShapeManager.getAllBindedShapes(shape);
         if (group.length > 1) {
-          let firstShape = app.mainDrawingEnvironment.findObjectById(
+          let firstShape = app.mainCanvasElem.findObjectById(
             this.firstShapeId,
           );
           this.involvedShapes = [...group, firstShape];
@@ -146,10 +146,10 @@ export class MergeTool extends Tool {
         } else {
           this.secondShapeId = shape.id;
 
-          let firstShape = app.mainDrawingEnvironment.findObjectById(
+          let firstShape = app.mainCanvasElem.findObjectById(
             this.firstShapeId,
           );
-          let secondShape = app.mainDrawingEnvironment.findObjectById(
+          let secondShape = app.mainCanvasElem.findObjectById(
             this.secondShapeId,
           );
 
@@ -548,7 +548,7 @@ export class MergeTool extends Tool {
    */
   createNewShape(path, ...shapes) {
     let newShape = new shapes[0].constructor({
-      drawingEnvironment: app.mainDrawingEnvironment,
+      drawingEnvironment: app.mainCanvasElem,
       path: path,
       name: 'Custom',
       familyName: 'Custom',

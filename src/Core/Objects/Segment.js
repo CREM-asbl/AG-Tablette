@@ -547,7 +547,7 @@ export class Segment {
       return null;
     }
     this.shape.pointIds.splice(i, 1);
-    app.mainDrawingEnvironment.removeObjectById(pointId, 'point');
+    app.mainCanvasElem.removeObjectById(pointId, 'point');
   }
 
   /* #################################################################### */

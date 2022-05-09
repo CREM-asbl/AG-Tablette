@@ -71,7 +71,7 @@ export class ShapeManager {
    * @return {int}       l'index de cette figure dans le tableau des figures
    */
   static getShapeIndex(shape) {
-    return app.mainDrawingEnvironment.shapes.findIndex((s) => s.id == shape.id);
+    return app.mainCanvasElem.shapes.findIndex((s) => s.id == shape.id);
   }
 
   /**
@@ -80,7 +80,7 @@ export class ShapeManager {
    * @return {Shape}         l'objet figure, ou null si la figure n'existe pas
    */
   static getShapeById(id) {
-    let shape = app.mainDrawingEnvironment.shapes.find((s) => s.id == id);
+    let shape = app.mainCanvasElem.shapes.find((s) => s.id == id);
     return shape ? shape : null;
   }
 
@@ -91,9 +91,9 @@ export class ShapeManager {
    * @param {Coordinates} coord
    */
   static shapesThatContainsCoordinates(coord, constraints = {}) {
-    let allShapes = [...app.mainDrawingEnvironment.shapes];
+    let allShapes = [...app.mainCanvasElem.shapes];
     if (constraints.canSelectFromUpper)
-      allShapes.push(...app.upperDrawingEnvironment.shapes);
+      allShapes.push(...app.upperCanvasElem.shapes);
     let list = allShapes.filter((shape) => {
       if (shape.isSegment() && !shape.segments[0].isArc()) {
         const seg = shape.segments[0];
@@ -142,21 +142,21 @@ export class ShapeManager {
       let parents = [];
       currentShape.points.forEach(vx => {
         if (vx.reference != null) {
-          parents.push(app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape);
+          parents.push(app.mainCanvasElem.findObjectById(vx.reference, 'point').shape);
         }
       });
       if (currentShape.geometryObject.geometryParentObjectId1) {
-        let seg = app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'segment');
-        let s = seg ? seg.shape : app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'shape');
+        let seg = app.mainCanvasElem.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'segment');
+        let s = seg ? seg.shape : app.mainCanvasElem.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'shape');
         parents.push(s);
       }
       if (currentShape.geometryObject.geometryParentObjectId2)
-        parents.push(app.mainDrawingEnvironment.findObjectById(currentShape.geometryObject.geometryParentObjectId2, 'segment').shape);
+        parents.push(app.mainCanvasElem.findObjectById(currentShape.geometryObject.geometryParentObjectId2, 'segment').shape);
       return parents;
     }
     let getChildren = (currentShape) => {
       let children = currentShape.geometryObject.geometryChildShapeIds.map(sId =>
-        app.mainDrawingEnvironment.findObjectById(sId)
+        app.mainCanvasElem.findObjectById(sId)
       );
       return children;
     }
@@ -192,7 +192,7 @@ export class ShapeManager {
       let newLinkedShapes = [];
       workingGroups.forEach(group => {
         group.shapesIds.forEach((id) => {
-          let shape = app.mainDrawingEnvironment.findObjectById(id, 'shape');
+          let shape = app.mainCanvasElem.findObjectById(id, 'shape');
           if (allLinkedShapes.every(linkedShape => linkedShape.id != shape.id)) {
             newLinkedShapes.push(shape);
           }

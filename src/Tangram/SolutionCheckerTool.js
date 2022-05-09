@@ -40,7 +40,7 @@ export class SolutionCheckerTool extends Tool {
           ...app.history,
           startSituation: {
             ...app.history.startSituation,
-            objects: app.mainDrawingEnvironment.saveData(),
+            objects: app.mainCanvasElem.saveData(),
             backObjects: app.backgroundDrawingEnvironment.saveData(),
           },
         },
@@ -166,7 +166,7 @@ export class SolutionCheckerTool extends Tool {
   }
 
   eraseSolution() {
-    let solutionShapes = app.mainDrawingEnvironment.findObjectsByName(
+    let solutionShapes = app.mainCanvasElem.findObjectsByName(
       'tangramChecker'
     );
 
@@ -175,7 +175,7 @@ export class SolutionCheckerTool extends Tool {
       GroupManager.deleteGroup(group);
     }
     solutionShapes.forEach((s) =>
-      app.mainDrawingEnvironment.removeObjectById(s.id),
+      app.mainCanvasElem.removeObjectById(s.id),
     );
     this.solutionShapeIds = [];
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -194,7 +194,7 @@ export class SolutionCheckerTool extends Tool {
 
     paths.forEach((path) => {
       let shape = new RegularShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         path: path,
         color: '#000',
         fillOpacity: 0,

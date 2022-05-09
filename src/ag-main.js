@@ -12,7 +12,7 @@ import './Core/Managers/SelectManager';
 import './Core/Managers/ShapeManager';
 import './Core/Managers/WorkspaceManager';
 import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
-import './div-main-canvas';
+import './canvas-container';
 import './icon-button';
 import './popups/notification';
 import { TemplateToolbar } from './template-toolbar';
@@ -112,7 +112,7 @@ class AGMain extends LitElement {
           display: none;
         } */
 
-        div-main-canvas {
+        canvas-container {
           width: 100%;
           height: 100%;
         }
@@ -262,7 +262,7 @@ class AGMain extends LitElement {
                       </icon-button> -->
         </div>
 
-        <div-main-canvas id="div-main-canvas"></div-main-canvas>
+        <canvas-container id="canvas-container"></canvas-container>
       </div>
 
       <notif-center></notif-center>

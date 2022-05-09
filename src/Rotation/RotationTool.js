@@ -28,7 +28,7 @@ export class RotationTool extends Tool {
   }
 
   selectFirstReference() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -67,7 +67,7 @@ export class RotationTool extends Tool {
   selectObject() {
     if (this.drawingShapes)
       this.drawingShapes.forEach(s => {
-        app.upperDrawingEnvironment.removeObjectById(s.id);
+        app.upperCanvasElem.removeObjectById(s.id);
       })
 
     this.removeListeners();
@@ -84,7 +84,7 @@ export class RotationTool extends Tool {
   }
 
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -100,7 +100,7 @@ export class RotationTool extends Tool {
         this.references.push(object);
         new ArrowLineShape({
           path: object.getSVGPath('no scale', true),
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           strokeColor: app.settings.referenceDrawColor,
           strokeWidth: 2,
           fillOpacity: 0,
@@ -113,7 +113,7 @@ export class RotationTool extends Tool {
     }
     this.pointsDrawn.push(new Point({
       coordinates: coord,
-      drawingEnvironment: app.upperDrawingEnvironment,
+      drawingEnvironment: app.upperCanvasElem,
       color: app.settings.referenceDrawColor,
       size: 2,
     }));
@@ -144,12 +144,12 @@ export class RotationTool extends Tool {
       });
       const projection = new Point({
         coordinates: projectionCoord,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         color: app.settings.referenceDrawColor,
         size: 0.1,
       });
       let seg = new Segment({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         idx: 0,
         vertexIds: [this.pointsDrawn[1].id, projection.id],
         arcCenterId: this.pointsDrawn[2].id,
@@ -158,24 +158,24 @@ export class RotationTool extends Tool {
       this.seg = seg;
       let ref1Copy = new Point({
         coordinates: this.pointsDrawn[1].coordinates,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         color: app.settings.referenceDrawColor,
         size: 0.1,
       });
       let projectionCopy = new Point({
         coordinates: projectionCoord,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         color: app.settings.referenceDrawColor,
         size: 0.1,
       });
       let ref2Copy = new Point({
         coordinates: this.pointsDrawn[2].coordinates,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         color: app.settings.referenceDrawColor,
         size: 0.1,
       });
       let seg2 = new Segment({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         idx: 0,
         vertexIds: [ref1Copy.id, projectionCopy.id],
         arcCenterId: ref2Copy.id,
@@ -185,7 +185,7 @@ export class RotationTool extends Tool {
       let arcPoints0 = [this.pointsDrawn[1], projection, this.pointsDrawn[2]];
       let arcPoints1 = [ref1Copy, projectionCopy, ref2Copy];
       this.arcShape0 = new ArrowLineShape({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         segmentIds: [seg.id],
         pointIds: arcPoints0.map(pt => pt.id),
         name: 'arrow',
@@ -196,7 +196,7 @@ export class RotationTool extends Tool {
         strokeWidth: 2,
       });
       this.arcShape1 = new ArrowLineShape({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         segmentIds: [seg2.id],
         pointIds: arcPoints1.map(pt => pt.id),
         name: 'arrow',
@@ -217,7 +217,7 @@ export class RotationTool extends Tool {
       (s) =>
         new s.constructor({
           ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           path: s.getSVGPath('no scale', false),
           id: undefined,
           divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -258,12 +258,12 @@ export class RotationTool extends Tool {
     );
     this.clockwise = isAngleInside;
     if (this.arcShape0.segments[0].counterclockwise == this.clockwise) {
-      app.upperDrawingEnvironment.removeObjectById(
+      app.upperCanvasElem.removeObjectById(
         this.arcShape0.id,
         'shape',
       );
     } else {
-      app.upperDrawingEnvironment.removeObjectById(
+      app.upperCanvasElem.removeObjectById(
         this.arcShape1.id,
         'shape',
       );
@@ -316,7 +316,7 @@ export class RotationTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'rot') {
-      app.upperDrawingEnvironment.points.forEach((point) => {
+      app.upperCanvasElem.points.forEach((point) => {
         if (point.startCoordinates) {
           let startAngle = this.pointsDrawn[0].coordinates.angleWith(
             point.startCoordinates
@@ -344,7 +344,7 @@ export class RotationTool extends Tool {
       if (ref instanceof Point && ref.drawingEnvironment.name == 'upper') {
         let coord = ref.coordinates;
         return new SinglePointShape({
-          drawingEnvironment: app.mainDrawingEnvironment,
+          drawingEnvironment: app.mainCanvasElem,
           path: `M ${coord.x} ${coord.y}`,
           name: 'Point',
           familyName: 'Point',
@@ -357,7 +357,7 @@ export class RotationTool extends Tool {
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
         ...s,
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         id: undefined,
         path: s.getSVGPath('no scale', false),
         divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -382,7 +382,7 @@ export class RotationTool extends Tool {
         if (idx == 1 && this.references[1] instanceof LineShape) {
           objectType = 'shape';
         }
-        let ref = app.mainDrawingEnvironment.findObjectById(refId, objectType);
+        let ref = app.mainCanvasElem.findObjectById(refId, objectType);
         if (objectType == 'shape') {
           if (!ref.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
             ref.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);

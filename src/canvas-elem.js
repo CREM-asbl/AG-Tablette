@@ -3,182 +3,292 @@ import { app, setState } from './Core/App';
 import { SelectManager } from './Core/Managers/SelectManager';
 import { Coordinates } from './Core/Objects/Coordinates';
 import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
+import { Shape } from './Core/Objects/Shapes/Shape';
+import { RegularShape } from './Core/Objects/Shapes/RegularShape';
+import { LineShape } from './Core/Objects/Shapes/LineShape';
+import { SinglePointShape } from './Core/Objects/Shapes/SinglePointShape';
+import { ArrowLineShape } from './Core/Objects/Shapes/ArrowLineShape';
+import { Segment } from './Core/Objects/Segment';
 
-class DivMainCanvas extends LitElement {
+class CanvasElem extends LitElement {
   constructor() {
     super();
 
     this.shapes = [];
     this.segments = [];
     this.points = [];
+    this.texts = [];
 
-    this.cursorPos = Coordinates.nullCoordinates;
-    this.cursorSize = 20;
-    this.cursorShow = false;
+    this.editingShapeIds = [];
+
+    this.mustDrawShapes = true;
+    this.mustDrawSegments = true;
+    this.mustDrawPoints = true;
+    this.mustDrawGrid = false;
+
+    this.mustScaleShapes = true;
   }
 
   static get properties() {
     return {
-      background: String, // utile ?
-      cursorPos: Object,
-      cursorSize: Number,
-      cursorShow: Boolean,
-      animCursorX: Number,
-      animCursorY: Number,
     };
   }
 
   static get styles() {
     return css`
-      canvas#upperCanvas,
-      canvas#mainCanvas,
-      canvas#debugCanvas,
-      canvas#invisibleCanvas,
-      canvas#backgroundCanvas {
-        background-color: rgba(0, 0, 0, 0);
-        position: absolute;
-        top: 0px;
-      }
-
-      canvas#backgroundCanvas {
-        border-top-right-radius: 10px;
-        border-bottom-right-radius: 10px;
-        /* border-radius: 10px; */
-        background-color: #fff;
-        position: absolute;
-        top: 0px;
-      }
-
-      /* div.clickEffect {
-        position: fixed;
-        box-sizing: border-box;
-        border-style: solid;
-        border-color: #000000;
-        border-radius: 50%;
-        z-index: 99999;
-        display: none;
-      }
-
-      div.runAnim {
-        animation: clickEffect 0.4s ease-out;
-      }
-
-      @keyframes clickEffect {
-        0% {
-          opacity: 1;
-          width: 0.5em;
-          height: 0.5em;
-          margin: -0.25em;
-          border-width: 0.5em;
-        }
-        100% {
-          opacity: 0.4;
-          width: 3em;
-          height: 3em;
-          margin: -1.5em;
-          border-width: 0.1em;
-        }
-      } */
     `;
   }
 
   render() {
+    if (this.id == 'backgroundCanvas') {
+      return html`
+        <style>
+          canvas {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            background-color: #fff;
+            position: absolute;
+            top: 0px;
+          }
+        </style>
+        <canvas></canvas>
+      `
+    }
     return html`
-      <!-- for background tasks (invisible canvas) -->
-      <canvas id="invisibleCanvas"></canvas>
-
-      <!--for the grid, tangram outline and background-image -->
-      <canvas id="backgroundCanvas"></canvas>
-
-      <!-- for the shapes -->
-      <canvas id="mainCanvas"></canvas>
-
-      <!-- for the current event (ex: moving shape -->
-      <canvas id="upperCanvas"></canvas>
-
-      <img
-        src="/images/fake_cursor.png"
-        height="${this.cursorSize}"
-        width="${this.cursorSize}"
-        style="margin-left: ${this.cursorPos.x}px; z-index: 50; position: relative; margin-top: ${
-      this.cursorPos.y
-    }px; display: ${this.cursorShow ? 'block' : 'none'}"
-      >
-      </img>
-
-      <!-- <div class="clickEffect" style="margin-left: \${this.animCursorX}px; margin-top:\${this.animCursorY};"></div> -->
+      <style>
+        canvas {
+          background-color: rgba(0, 0, 0, 0);
+          position: absolute;
+          width: 100%;
+          top: 0px;
+        }
+      </style>
+      <canvas></canvas>
     `;
   }
 
-  /**
-   * Défini les event-handlers du <canvas>
-   */
-  firstUpdated() {
-    this.upperCanvas = this.shadowRoot.querySelector('#upperCanvas');
-    this.mainCanvas = this.shadowRoot.querySelector('#mainCanvas');
-    this.backgroundCanvas = this.shadowRoot.querySelector('#backgroundCanvas');
-    this.invisibleCanvas = this.shadowRoot.querySelector('#invisibleCanvas');
+  removeAllObjects() {
+    this.shapes = [];
+    this.segments = [];
+    this.points = [];
+    this.texts = [];
+    this.clear();
+  }
 
-    this.upperDrawingEnvironment = new DrawingEnvironment(this.upperCanvas, 'upper');
-    app.upperDrawingEnvironment = this.upperDrawingEnvironment;
-    this.mainDrawingEnvironment = new DrawingEnvironment(this.mainCanvas, 'main');
-    app.mainDrawingEnvironment = this.mainDrawingEnvironment;
-    this.backgroundDrawingEnvironment = new DrawingEnvironment(
-      this.backgroundCanvas, 'background'
+  clear() {
+    if (this.ctx) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+  }
+
+  redraw() {
+    this.clear();
+    this.texts.forEach((text) => text.updateMessage());
+
+    // -> grid canvas
+    // if (this.mustDrawGrid) GridManager.drawGridPoints();
+    this.draw();
+  }
+
+  draw(scaling = 'scale') {
+    if (this.mustDrawShapes) {
+      this.shapes.forEach((s) => {
+        if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
+          if (s.geometryObject?.geometryIsVisible === false || s.geometryObject?.geometryIsHidden === true)
+            return;
+          window.dispatchEvent(
+            new CustomEvent('draw-shape', { detail: { shape: s, scaling } }),
+          );
+          if (this.mustDrawPoints && app.settings.areShapesPointed) {
+            this.points.forEach((pt) => {
+              if (pt.visible && pt.shapeId === s.id) {
+                window.dispatchEvent(
+                  new CustomEvent('draw-point', {
+                    detail: { point: pt, color: pt.color },
+                  }),
+                );
+              }
+            });
+          } else if (this.mustDrawPoints) {
+            this.points.forEach((pt) => {
+              if (
+                pt.visible &&
+                pt.shapeId === s.id &&
+                (pt.type == 'shapeCenter' ||
+                  pt.type == 'divisionPoint' ||
+                  pt.shape.isCircle())
+              ) {
+                window.dispatchEvent(
+                  new CustomEvent('draw-point', {
+                    detail: { point: pt, color: pt.color },
+                  }),
+                );
+              }
+            });
+          }
+        }
+      });
+    }
+    if (this.mustDrawPoints) {
+      this.points.forEach((pt) => {
+        if (pt.visible && pt.shapeId === undefined) {
+          window.dispatchEvent(
+            new CustomEvent('draw-point', {
+              detail: { point: pt, color: pt.color },
+            }),
+          );
+        }
+      });
+    }
+    this.texts.forEach((text) => {
+      window.dispatchEvent(
+        new CustomEvent('draw-text', {
+          detail: { text: text },
+        }),
+      );
+    });
+  }
+
+  toSVG() {
+    let svg_data = '';
+    if (this.mustDrawShapes) {
+      this.shapes.forEach((s) => {
+        if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
+          svg_data += s.toSVG();
+          if (this.mustDrawPoints && app.settings.areShapesPointed) {
+            this.points.forEach((pt) => {
+              if (pt.visible && pt.shapeId === s.id) {
+                svg_data += pt.toSVG();
+              }
+            });
+          }
+        }
+      });
+    }
+    if (this.mustDrawPoints) {
+      this.points.forEach((pt) => {
+        if (pt.visible && pt.shapeId === undefined) {
+          svg_data += pt.toSVG();
+        }
+      });
+    }
+    return svg_data;
+  }
+
+  findObjectById(id, objectType = 'shape') {
+    let object = this[objectType + 's'].find((obj) => obj.id == id);
+    return object;
+  }
+
+  findObjectsByName(name, objectType = 'shape') {
+    let objects = this[objectType + 's'].filter((obj) => obj.name == name);
+    return objects;
+  }
+
+  findIndexById(id, objectType = 'shape') {
+    let index = this[objectType + 's'].findIndex((obj) => obj.id == id);
+    return index;
+  }
+
+  removeObjectById(id, objectType = 'shape') {
+    let index = this.findIndexById(id, objectType);
+    if (index != -1) {
+      if (objectType == 'shape') {
+        let object = this.findObjectById(id, objectType);
+        object.segments.forEach((seg) =>
+          this.removeObjectById(seg.id, 'segment'),
+        );
+        object.points.forEach((pt) => this.removeObjectById(pt.id, 'point'));
+      }
+      this[objectType + 's'].splice(index, 1);
+    }
+  }
+
+  getCommonSegmentOfTwoPoints(pt1Id, pt2Id) {
+    let pt1 = this.findObjectById(pt1Id, 'point');
+    let pt2 = this.findObjectById(pt2Id, 'point');
+    if (pt1.shape.name == 'PointOnLine' || pt2.shape.name == 'PointOnLine') {
+      let segId;
+      if (pt1.shape.name == 'PointOnLine')
+        segId = pt1.shape.geometryObject.geometryParentObjectId1;
+      else
+        segId = pt2.shape.geometryObject.geometryParentObjectId1;
+      return app.mainCanvasElem.findObjectById(segId, 'segment');
+    }
+    let segmentIds1 = pt1.segmentIds;
+    let segmentIds2 = pt2.segmentIds;
+    let commonSegmentIds = segmentIds1.filter(
+      (id1) => segmentIds2.findIndex((id2) => id2 == id1) != -1,
     );
-    app.backgroundDrawingEnvironment = this.backgroundDrawingEnvironment;
-    this.invisibleDrawingEnvironment = new DrawingEnvironment(
-      this.invisibleCanvas, 'invisible'
+    let commonSegments = commonSegmentIds.map((id) =>
+      this.segments.find((seg) => seg.id == id),
     );
-    app.invisibleDrawingEnvironment = this.invisibleDrawingEnvironment;
+    commonSegments.sort((seg1, seg2) => seg2.idx - seg1.idx);
+    return commonSegments[0];
+  }
+
+  saveData() {
+    let data = {
+      shapesData: this.shapes.map((shape) => shape.saveData()),
+      segmentsData: this.segments.map((segment) => segment.saveData()),
+      pointsData: this.points.map((point) => point.saveData()),
+    };
+    return data;
+  }
+
+  loadFromData(data) {
+    this.removeAllObjects();
+    if (data != undefined) {
+      data.shapesData.forEach((shapeData) => {
+        if (shapeData.type == 'Shape')
+          Shape.loadFromData(shapeData);
+        else if (shapeData.type == 'RegularShape')
+          RegularShape.loadFromData(shapeData);
+        else if (shapeData.type == 'LineShape')
+          LineShape.loadFromData(shapeData);
+        else if (shapeData.type == 'SinglePointShape')
+          SinglePointShape.loadFromData(shapeData);
+        else if (shapeData.type == 'ArrowLineShape')
+          ArrowLineShape.loadFromData(shapeData);
+        else {
+          shapeData.fillColor = shapeData.color;
+          shapeData.fillOpacity = shapeData.opacity;
+          shapeData.strokeColor = shapeData.borderColor;
+          shapeData.strokeWidth = shapeData.borderSize;
+          if (shapeData.segmentIds.length == 1) {
+            LineShape.loadFromData(shapeData);
+          } else {
+            RegularShape.loadFromData(shapeData);
+          }
+        }
+      });
+      data.segmentsData.forEach((segmentData) =>
+        Segment.loadFromData(segmentData),
+      );
+      data.pointsData.forEach((pointData) => Point.loadFromData(pointData));
+      this.redraw();
+    } else {
+      console.info('nothing to see here');
+    }
+  }
+
+  firstUpdated() {
+    this.canvas = this.shadowRoot.querySelector('canvas');
+    this.canvasName = this.id.substring(0, this.id.lastIndexOf('C'));
+    this.ctx = this.canvas.getContext('2d');
+
+    app[this.canvasName + 'CanvasElem'] = this;
 
     this.setCanvasSize();
-    window.onresize = () => {
-      this.setCanvasSize();
-    };
-    window.onorientationchange = () => {
-      this.setCanvasSize();
-    };
+    window.addEventListener('resize-canvas', () => this.setCanvasSize());
 
-    setState({ started: true });
+    if (this.canvasName == 'upper') {
+      this.createListeners();
+    }
+  }
 
-    window.addEventListener('workspace-changed', () => this.setCanvasSize());
-
-    window.addEventListener('mouse-coordinates-changed', (event) => {
-      app.workspace.lastKnownMouseCoordinates = new Coordinates(
-        event.detail.mousePos,
-      );
-    });
-
-    window.addEventListener('show-cursor', () => {
-      let mousePos = app.workspace.lastKnownMouseCoordinates;
-      this.cursorPos = mousePos.toCanvasCoordinates();
-      this.cursorPos = this.cursorPos.substract(
-        new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 }),
-      );
-      this.cursorShow = true;
-      window.clearTimeout(this.timeoutId);
-      this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);
-    });
-
-    // window.addEventListener('click-cursor', event => {
-    //   this.animCursorX = event.detail.mousePos.x;// + app.settings.mainMenuWidth;
-    //   this.animCursorY = event.detail.mousePos.y;
-    //   let elem = this.shadowRoot.querySelector('.clickEffect');
-    //   elem.className = 'clickEffect runAnim';
-    //   elem.style.display = 'inline';
-    //   elem.addEventListener(
-    //     'animationend',
-    //     () => {
-    //       elem.className = 'clickEffect';
-    //       elem.style.display = 'none';
-    //     },
-    //     { once: true },
-    //   );
-    // });
-
-    // Events
-    this.upperCanvas.addEventListener('click', (event) => {
+  createListeners() {
+    this.canvas.addEventListener('click', (event) => {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
@@ -194,7 +304,7 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasClick'));
     });
 
-    this.upperCanvas.addEventListener('mousedown', (event) => {
+    this.canvas.addEventListener('mousedown', (event) => {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
@@ -211,7 +321,7 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasMouseDown'));
     });
 
-    this.upperCanvas.addEventListener('mouseup', (event) => {
+    this.canvas.addEventListener('mouseup', (event) => {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
@@ -223,7 +333,7 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
     });
 
-    this.upperCanvas.addEventListener('mousemove', (event) => {
+    this.canvas.addEventListener('mousemove', (event) => {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
@@ -235,7 +345,7 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasMouseMove'));
     });
 
-    this.upperCanvas.addEventListener('mouseout', (event) => {
+    this.canvas.addEventListener('mouseout', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
@@ -270,17 +380,17 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasMouseWheel', { detail: detail }));
     }
 
-    // this.upperCanvas.addEventListener('mousewheel', (event) => {
+    // this.canvas.addEventListener('mousewheel', (event) => {
     //   event.preventDefault();
     //   handleWheel(event);
     // });
-    this.upperCanvas.addEventListener('wheel', (event) => {
+    this.canvas.addEventListener('wheel', (event) => {
       event.preventDefault();
       handleWheel(event);
     });
 
 
-    this.upperCanvas.addEventListener('touchstart', (event) => {
+    this.canvas.addEventListener('touchstart', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
@@ -309,7 +419,7 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasTouchStart', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchmove', (event) => {
+    this.canvas.addEventListener('touchmove', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
@@ -338,7 +448,7 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasTouchMove', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchend', (event) => {
+    this.canvas.addEventListener('touchend', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
@@ -368,7 +478,7 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchcancel', (event) => {
+    this.canvas.addEventListener('touchcancel', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
@@ -398,7 +508,7 @@ class DivMainCanvas extends LitElement {
       app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
     });
 
-    this.upperCanvas.addEventListener('touchcancel', (event) => {
+    this.canvas.addEventListener('touchcancel', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
@@ -429,13 +539,6 @@ class DivMainCanvas extends LitElement {
     });
   }
 
-  /**
-   * Récupère les coordonnées de la souris à partir d'un événement javascript
-   * @param event: référence vers l'événement (Event)
-   * @return coordonnées de la souris (Point)
-   * @Error: si les coordonnées n'ont pas été trouvées, une alerte (alert())
-   *  est déclenchée et la fonction retourne null
-   */
   getMousePos(event) {
     let response = Coordinates.nullCoordinates;
 
@@ -484,28 +587,9 @@ class DivMainCanvas extends LitElement {
     return response;
   }
 
-  /**
-   * Défini les attributs width and height des 3 <canvas>.
-   * Doit être appelé au démarrage et lorsque la page est redimensionnée.
-   */
   setCanvasSize() {
-    this.upperCanvas.setAttribute('height', this.clientHeight);
-    this.mainCanvas.setAttribute('height', this.clientHeight);
-    this.backgroundCanvas.setAttribute('height', this.clientHeight);
-    this.invisibleCanvas.setAttribute('height', this.clientHeight);
-
-    this.upperCanvas.setAttribute('width', this.clientWidth);
-    this.mainCanvas.setAttribute('width', this.clientWidth);
-    this.backgroundCanvas.setAttribute('width', this.clientWidth);
-    this.invisibleCanvas.setAttribute('width', this.clientWidth);
-
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('refreshBackground'));
-
-    app.canvasWidth = this.clientWidth;
-    app.canvasHeight = this.clientHeight;
-    setState({ settings: { ...app.settings, selectionDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60, magnetismDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60 } });
+    this.canvas.setAttribute('width', app.canvasWidth);
+    this.canvas.setAttribute('height', app.canvasHeight);
   }
 
   isOutsideOfCanvas(mousePos) {
@@ -521,10 +605,10 @@ class DivMainCanvas extends LitElement {
     return false;
   }
 
-  // Ajout d'un fond d'écran fixé à droite
-  set background(touch) {
-    this.style.display = 'block';
-    this.style.background = `url('${touch}') no-repeat right`;
-  }
+  // // Ajout d'un fond d'écran fixé à droite
+  // set background(touch) {
+  //   this.style.display = 'block';
+  //   this.style.background = `url('${touch}') no-repeat right`;
+  // }
 }
-customElements.define('div-main-canvas', DivMainCanvas);
+customElements.define('canvas-elem', CanvasElem);

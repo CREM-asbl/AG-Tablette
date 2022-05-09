@@ -44,7 +44,7 @@ export class CreatePointTool extends Tool {
   }
 
    start() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
 
@@ -53,7 +53,7 @@ export class CreatePointTool extends Tool {
   }
 
   drawPoint() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
 
@@ -82,7 +82,7 @@ export class CreatePointTool extends Tool {
 
   objectSelected(segment) {
     new LineShape({
-      drawingEnvironment: app.upperDrawingEnvironment,
+      drawingEnvironment: app.upperCanvasElem,
       strokeColor: app.settings.temporaryDrawColor,
       strokeWidth: 2,
       path: segment.getSVGPath('no scale', true),
@@ -118,7 +118,7 @@ export class CreatePointTool extends Tool {
     );
 
     this.point = new Point({
-      drawingEnvironment: app.upperDrawingEnvironment,
+      drawingEnvironment: app.upperCanvasElem,
       coordinates: newCoordinates,
       color: app.settings.temporaryDrawColor,
       size: 2,
@@ -186,7 +186,7 @@ export class CreatePointTool extends Tool {
     let shape;
     if (app.tool.selectedPoint == 'Point') {
       shape = new SinglePointShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
         name: app.tool.selectedPoint,
         familyName: 'Point',
@@ -198,14 +198,14 @@ export class CreatePointTool extends Tool {
         return;
       }
       shape = new SinglePointShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
         name: app.tool.selectedPoint,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
-      let reference = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId1, 'segment');
+      let reference = app.mainCanvasElem.findObjectById(this.geometryParentObjectId1, 'segment');
 
       let ratioX = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
       let ratioY = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
@@ -230,18 +230,18 @@ export class CreatePointTool extends Tool {
         return;
       }
       shape = new RegularShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
         name: app.tool.selectedPoint,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
-      let reference = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId1, 'shape');
+      let reference = app.mainCanvasElem.findObjectById(this.geometryParentObjectId1, 'shape');
       reference.geometryObject.geometryChildShapeIds.push(shape.id);
     } else if (app.tool.selectedPoint == 'PointOnIntersection') {
-      let firstSeg = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId1, 'segment');
-      let secondSeg = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId2, 'segment');
+      let firstSeg = app.mainCanvasElem.findObjectById(this.geometryParentObjectId1, 'segment');
+      let secondSeg = app.mainCanvasElem.findObjectById(this.geometryParentObjectId2, 'segment');
       let coords =  firstSeg.intersectionWith(secondSeg);
       if (!coords) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Il n\' a pas de point d\'intersection entre les deux objets sélectionnés.' } }));
@@ -250,7 +250,7 @@ export class CreatePointTool extends Tool {
       if (coords.length == 1)
         coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y});
       shape = new SinglePointShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        drawingEnvironment: app.mainCanvasElem,
         path: coords.map(coord => `M ${coord.x} ${coord.y}`).join(' '),
         name: app.tool.selectedPoint,
         familyName: 'Point',

@@ -52,7 +52,7 @@ export class CreateTriangleTool extends Tool {
   }
 
   async drawFirstPoint() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasElem.removeAllObjects();
     let triangleDef = await import(`./trianglesDef.js`);
     this.triangleDef = triangleDef[app.tool.selectedTriangle];
 
@@ -98,7 +98,7 @@ export class CreateTriangleTool extends Tool {
     }
 
     this.points[this.numberOfPointsDrawn] = new Point({
-      drawingEnvironment: app.upperDrawingEnvironment,
+      drawingEnvironment: app.upperCanvasElem,
       coordinates: newCoordinates,
       color: app.settings.temporaryDrawColor,
       size: 2,
@@ -106,7 +106,7 @@ export class CreateTriangleTool extends Tool {
     this.numberOfPointsDrawn++;
     if (this.numberOfPointsDrawn > 1) {
       let seg = new Segment({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         vertexIds: [
           this.points[this.numberOfPointsDrawn - 2].id,
           this.points[this.numberOfPointsDrawn - 1].id,
@@ -117,12 +117,12 @@ export class CreateTriangleTool extends Tool {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       if (this.numberOfPointsDrawn < 3) this.finishShape();
       let seg = new Segment({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         vertexIds: [this.points[2].id, this.points[0].id],
       });
       this.segments.push(seg);
       let shape = new RegularShape({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         segmentIds: this.segments.map((seg) => seg.id),
         pointIds: this.points.map((pt) => pt.id),
         strokeColor: app.settings.temporaryDrawColor,
@@ -134,7 +134,7 @@ export class CreateTriangleTool extends Tool {
       });
     } else if (this.numberOfPointsDrawn > 1) {
       new RegularShape({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        drawingEnvironment: app.upperCanvasElem,
         segmentIds: [this.segments[0].id],
         pointIds: this.segments[0].vertexIds,
         strokeColor: app.settings.temporaryDrawColor,
@@ -149,10 +149,10 @@ export class CreateTriangleTool extends Tool {
       if (SelectManager.areCoordinatesInMagnetismDistance(this.points[i].coordinates, this.points[this.numberOfPointsDrawn - 1].coordinates)) {
         let firstPointCoordinates = this.points[0].coordinates;
         if (this.numberOfPointsDrawn == 2) {
-          app.upperDrawingEnvironment.removeAllObjects();
+          app.upperCanvasElem.removeAllObjects();
           this.numberOfPointsDrawn = 1;
           this.points = [new Point({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             coordinates: firstPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
@@ -160,28 +160,28 @@ export class CreateTriangleTool extends Tool {
           this.segments = [];
         } else if (this.numberOfPointsDrawn == 3) {
           let secondPointCoordinates = this.points[1].coordinates;
-          app.upperDrawingEnvironment.removeAllObjects();
+          app.upperCanvasElem.removeAllObjects();
           this.numberOfPointsDrawn = 2;
           this.points = [new Point({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             coordinates: firstPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
           }), new Point({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             coordinates: secondPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
           })];
           this.segments = [new Segment({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             vertexIds: [
               this.points[0].id,
               this.points[1].id,
             ],
           })];
           new RegularShape({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            drawingEnvironment: app.upperCanvasElem,
             segmentIds: [this.segments[0].id],
             pointIds: this.segments[0].vertexIds,
             strokeColor: app.settings.temporaryDrawColor,
@@ -197,7 +197,7 @@ export class CreateTriangleTool extends Tool {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.executeAction();
-      app.upperDrawingEnvironment.removeAllObjects();
+      app.upperCanvasElem.removeAllObjects();
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
     } else {
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
@@ -270,7 +270,7 @@ export class CreateTriangleTool extends Tool {
     path = path.join(' ');
 
     let shape = new RegularShape({
-      drawingEnvironment: app.mainDrawingEnvironment,
+      drawingEnvironment: app.mainCanvasElem,
       path: path,
       name: app.tool.selectedTriangle,
       familyName: familyName,
@@ -279,18 +279,18 @@ export class CreateTriangleTool extends Tool {
     });
 
     let ref;
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+    if (ref = app.mainCanvasElem.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+    if (ref = app.mainCanvasElem.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[1].reference = ref.id;
     }
     if (shape.name == 'IrregularTriangle') {
-      if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[2].id).find(pt => pt.coordinates.equal(shape.vertexes[2].coordinates))) {
+      if (ref = app.mainCanvasElem.points.filter(pt => pt.id != shape.vertexes[2].id).find(pt => pt.coordinates.equal(shape.vertexes[2].coordinates))) {
         if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
           ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.vertexes[2].reference = ref.id;

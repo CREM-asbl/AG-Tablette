@@ -52,15 +52,15 @@ export class MoveTool extends Tool {
   listen() {
     this.pointOnLineRatio = null;
     this.lastAdjusment = null;
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasElem.editingShapeIds = [];
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
-    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s instanceof SinglePointShape);
-    // app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s.name == 'PointOnIntersection');
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasElem.shapes.filter(s => s instanceof SinglePointShape);
+    // app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasElem.shapes.filter(s => s.name == 'PointOnIntersection');
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -71,8 +71,8 @@ export class MoveTool extends Tool {
   }
 
   end() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasElem.editingShapeIds = [];
+    app.upperCanvasElem.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -93,7 +93,7 @@ export class MoveTool extends Tool {
           window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
           return;
         }
-        // if ((currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') ||
+        // if ((currentShape.points.some(vx => (vx.reference != null && app.mainCanvasElem.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') ||
         //   (currentShape.geometryObject.geometryChildShapeIds.length > 0)) {
         //   window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures liées ne peuvent pas être déplacées, mais peuvent être copiées.' } }));
         //   return;
@@ -102,7 +102,7 @@ export class MoveTool extends Tool {
     }
     this.involvedShapes.forEach(s => s.points.forEach(vx => {
       if (vx.reference != null) {
-        let refPoint = app.mainDrawingEnvironment.findObjectById(vx.reference, 'point')
+        let refPoint = app.mainCanvasElem.findObjectById(vx.reference, 'point')
         if (refPoint.shape.name == 'Point')
         this.involvedShapes.push(refPoint.shape)
       }
@@ -124,7 +124,7 @@ export class MoveTool extends Tool {
       (s) => {
         let newShape = new s.constructor({
           ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          drawingEnvironment: app.upperCanvasElem,
           path: s.getSVGPath('no scale', false, false),
           divisionPointInfos: s.divisionPoints.map((dp) => {
             return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
@@ -159,7 +159,7 @@ export class MoveTool extends Tool {
     );
     this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => inShape.id == s.id));
 
-    app.mainDrawingEnvironment.editingShapeIds = this.shapesToCopy.map(
+    app.mainCanvasElem.editingShapeIds = this.shapesToCopy.map(
       (s) => s.id,
     );
     setState({ tool: { ...app.tool, currentStep: 'move' } });
@@ -183,7 +183,7 @@ export class MoveTool extends Tool {
         let s = this.shapesToMove[0];
 
         let point = s.points[0];
-        let reference = app.mainDrawingEnvironment.findObjectById(s.geometryObject.geometryParentObjectId1, 'segment');
+        let reference = app.mainCanvasElem.findObjectById(s.geometryObject.geometryParentObjectId1, 'segment');
         point.coordinates = reference.projectionOnSegment(app.workspace.lastKnownMouseCoordinates);
         // let ratio = reference.vertexes[0].coordinates.dist(point.coordinates) / reference.length;
         let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
@@ -210,7 +210,7 @@ export class MoveTool extends Tool {
         let coord = firstPoint.coordinates.add(part);
         point.coordinates = coord;
       } else {
-        let mainShape = app.upperDrawingEnvironment.findObjectById(this.selectedShape.id);
+        let mainShape = app.upperCanvasElem.findObjectById(this.selectedShape.id);
         let translation = app.workspace.lastKnownMouseCoordinates.substract(
           this.lastKnownMouseCoordinates,
         );
@@ -248,8 +248,8 @@ export class MoveTool extends Tool {
   }
 
   _executeAction() {
-    app.mainDrawingEnvironment.editingShapeIds.forEach((sId, idxS) => {
-      let s = app.mainDrawingEnvironment.findObjectById(sId);
+    app.mainCanvasElem.editingShapeIds.forEach((sId, idxS) => {
+      let s = app.mainCanvasElem.findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
         pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
         if (this.pointOnLineRatio)

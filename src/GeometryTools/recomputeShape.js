@@ -395,8 +395,8 @@ export function computeDivisionPoint(point) {
     let startAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[0].coordinates);
     let newAngle = startAngle + point.ratio * 2 * Math.PI;
     if (point.endpointIds?.length == 2) {
-      let firstPoint = app.upperDrawingEnvironment.findObjectById(point.endpointIds[0], 'point');
-      let secondPoint = app.upperDrawingEnvironment.findObjectById(point.endpointIds[1], 'point');
+      let firstPoint = app.upperCanvasElem.findObjectById(point.endpointIds[0], 'point');
+      let secondPoint = app.upperCanvasElem.findObjectById(point.endpointIds[1], 'point');
       let firstAngle = segment.arcCenter.coordinates.angleWith(firstPoint.coordinates);
       let secondAngle = segment.arcCenter.coordinates.angleWith(secondPoint.coordinates);
       if (secondAngle <= firstAngle) {
@@ -414,8 +414,8 @@ export function computeDivisionPoint(point) {
   let firstPoint = segment.vertexes[0];
   let secondPoint = segment.vertexes[1];
   if (point.endpointIds?.length == 2) {
-    firstPoint = app.upperDrawingEnvironment.findObjectById(point.endpointIds[0], 'point');
-    secondPoint = app.upperDrawingEnvironment.findObjectById(point.endpointIds[1], 'point');
+    firstPoint = app.upperCanvasElem.findObjectById(point.endpointIds[0], 'point');
+    secondPoint = app.upperCanvasElem.findObjectById(point.endpointIds[1], 'point');
   }
 
   // if (firstPoint.ratio > secondPoint.ratio)
@@ -489,7 +489,7 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     shape.name == 'ParalleleSegment'
   ) {
     shape.geometryObject.geometryConstructionSpec.segmentLength = shape.segments[0].length;
-    let reference = app.mainDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let reference = app.mainCanvasElem.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     if (Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal()) > 0.1)
       shape.geometryObject.geometryConstructionSpec.segmentLength *= -1;
   } else if (
@@ -497,7 +497,7 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     shape.name == 'PerpendicularSegment'
   ) {
     shape.geometryObject.geometryConstructionSpec.segmentLength = shape.segments[0].length;
-    let reference = app.mainDrawingEnvironment.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let reference = app.mainCanvasElem.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     if (Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal() + Math.PI / 2) > 0.1 &&
       Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal() + Math.PI / 2 - 2 * Math.PI) > 0.1)
       shape.geometryObject.geometryConstructionSpec.segmentLength *= -1;

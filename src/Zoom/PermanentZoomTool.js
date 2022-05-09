@@ -68,7 +68,7 @@ export class PermanentZoomTool extends Tool {
       }
       clearTimeout(this.timeoutId);
 
-      app.upperDrawingEnvironment.removeAllObjects();
+      app.upperCanvasElem.removeAllObjects();
       setState({
         tool: { name: this.name, currentStep: 'start', mode: 'touch', title: this.title },
       });

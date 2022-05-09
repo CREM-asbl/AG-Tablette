@@ -335,7 +335,7 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = app.mainDrawingEnvironment.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
+          let reference = app.mainCanvasElem.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
           let referenceAngle = reference.getAngleWithHorizontal();
           let constraintLine = {
             segment: new Segment({
@@ -355,7 +355,7 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = app.mainDrawingEnvironment.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
+          let reference = app.mainCanvasElem.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
           let referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2;
           let constraintLine = {
             segment: new Segment({
