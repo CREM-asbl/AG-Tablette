@@ -11,6 +11,7 @@ export class GeometryObject {
     geometryTransformationName = null,
     geometryIsVisible = true,
     geometryIsHidden = false,
+    geometryIsVisibleByChoice = true,
   }) {
     this.geometryChildShapeIds = [...geometryChildShapeIds];
     this.geometryConstructionSpec = {...geometryConstructionSpec};
@@ -22,6 +23,7 @@ export class GeometryObject {
     this.geometryTransformationName = geometryTransformationName;
     this.geometryIsVisible = geometryIsVisible;
     this.geometryIsHidden = geometryIsHidden;
+    this.geometryIsVisibleByChoice = geometryIsVisibleByChoice;
   }
 
   saveData() {
@@ -36,6 +38,7 @@ export class GeometryObject {
       geometryTransformationName: this.geometryTransformationName,
       geometryIsVisible: this.geometryIsVisible,
       geometryIsHidden: this.geometryIsHidden,
+      geometryIsVisibleByChoice: this.geometryIsVisibleByChoice,
     };
     return data;
   }

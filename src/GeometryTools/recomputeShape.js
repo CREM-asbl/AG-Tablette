@@ -234,6 +234,12 @@ export function computeShapeTransform(shape, layer = 'upper') {
       x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
       y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
     });
+  } else if (shape.name == 'SemiStraightLine') {
+    let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates);
+    if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
+      shape.geometryObject.geometryIsVisibleByChoice = newValue;
+      recomputeAllVisibilities(layer);
+    }
   } else if (shape.name == 'ParalleleSemiStraightLine') {
     let seg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let angle = seg.getAngleWithHorizontal();
@@ -252,6 +258,12 @@ export function computeShapeTransform(shape, layer = 'upper') {
       x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
       y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
     });
+  } else if (shape.name == 'StraightLine') {
+    let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates);
+    if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
+      shape.geometryObject.geometryIsVisibleByChoice = newValue;
+      recomputeAllVisibilities(layer);
+    }
   } else if (shape.name == 'ParalleleStraightLine') {
     let seg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let angle = seg.getAngleWithHorizontal();
@@ -315,27 +327,20 @@ export function computeShapeTransform(shape, layer = 'upper') {
     let firstSeg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let secondSeg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId2, 'segment');
     let coords = firstSeg.intersectionWith(secondSeg);
-    if (!coords) {
-      shape.geometryObject.geometryIsVisible = false;
-    } else {
-      shape.geometryObject.geometryIsVisible = true;
+    let newValue = !!coords;
+    console.log(newValue, shape.geometryObject.geometryIsVisibleByChoice);
+    if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
+      console.log('here');
+      shape.geometryObject.geometryIsVisibleByChoice = newValue;
+      recomputeAllVisibilities(layer);
     }
-    if (firstSeg.shape.geometryObject.geometryIsVisible === false)
-      shape.geometryObject.geometryIsVisible = false;
-    if (secondSeg.shape.geometryObject.geometryIsVisible === false)
-      shape.geometryObject.geometryIsVisible = false;
+    // if (!coords) {
+    //   shape.geometryObject.geometryIsVisibleByChoice = false;
+    // } else {
+    //   shape.geometryObject.geometryIsVisibleByChoice = true;
+    // }
 
-    let changeVisibilityRecursively = (shapeId, value) => {
-      let shape = app[layer + 'DrawingEnvironment'].findObjectById(shapeId);
-      shape.geometryObject.geometryIsVisible = value;
-      shape.geometryObject.geometryChildShapeIds.forEach(objId => {
-        changeVisibilityRecursively(objId, value);
-      });
-      shape.geometryObject.geometryTransformationChildShapeIds.forEach(objId => {
-        changeVisibilityRecursively(objId, value);
-      });
-    }
-    changeVisibilityRecursively(shape.id, shape.geometryObject.geometryIsVisible)
+    // recomputeAllVisibilities(layer);
 
     if (shape.geometryObject.geometryIsVisible == false)
       return;
@@ -386,6 +391,26 @@ export function computeShapeTransform(shape, layer = 'upper') {
   if (shape.isCenterShown) {
     shape.center.coordinates = shape.centerCoordinates;
   }
+}
+
+function recomputeAllVisibilities(layer) {
+  app[layer + 'DrawingEnvironment'].shapes.forEach(s => s.geometryObject.geometryIsVisible = true);
+
+  let changeVisibilityRecursively = (shapeId) => {
+    let shape = app[layer + 'DrawingEnvironment'].findObjectById(shapeId);
+    shape.geometryObject.geometryIsVisible = false;
+    shape.geometryObject.geometryChildShapeIds.forEach(objId => {
+      changeVisibilityRecursively(objId);
+    });
+    shape.geometryObject.geometryTransformationChildShapeIds.forEach(objId => {
+      changeVisibilityRecursively(objId);
+    });
+  }
+
+  app[layer + 'DrawingEnvironment'].shapes.forEach(s => {
+    if (s.geometryObject.geometryIsVisibleByChoice === false)
+      changeVisibilityRecursively(s.id)
+  });
 }
 
 export function computeDivisionPoint(point) {

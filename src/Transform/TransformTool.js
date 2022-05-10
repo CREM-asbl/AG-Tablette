@@ -247,7 +247,7 @@ export class TransformTool extends Tool {
           case 'CirclePart':
             computeConstructionSpec(shape);
             break;
-            default:
+          default:
             break;
         }
       }
