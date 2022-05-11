@@ -19,6 +19,7 @@ export default {
     'Divide',
     'Cut',
     'Copy',
+    'Duplicate',
     'Transform',
     'Delete',
     'Group',
