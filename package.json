@@ -23,8 +23,9 @@
   "dependencies": {
     "firebase": "^9.0.2",
     "lit": "^2.0.0",
-    "npm": "^7.24.0",
+    "npm": "^7.24.2",
     "pwa-helpers": "^0.9.1",
+    "snowpack": "^3.8.8",
     "tslib": "^2.2.0"
   }
 }
