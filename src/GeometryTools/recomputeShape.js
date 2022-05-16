@@ -78,13 +78,37 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
         angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
       }
       angle *= -1;
-
       child.rotate(angle, pts[0].coordinates);
     }
     child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
     // computeShapeTransform(child);
     computeAllShapeTransform(child, layer);
   });
+  if (includeChildren)
+    shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
+      let child = app[layer + 'DrawingEnvironment'].findObjectById(childId);
+      let vector = child.points[0].coordinates.substract(child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
+      let mustReverse = false,
+        rotationMultiplier = -1;
+      if (shape.isReversed ^ child.isReversed) {
+        mustReverse = true;
+        rotationMultiplier = 1;
+      }
+      child.vertexes.forEach((pt, idx) => {
+        let startCoord = shape.vertexes[idx].coordinates;
+        if (mustReverse) {
+          startCoord = new Coordinates({
+            x: startCoord.x + 2 * (child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
+            y: startCoord.y,
+          });
+        }
+        let newPointCoordinates = startCoord
+          .rotate(rotationMultiplier * child.geometryObject.geometryConstructionSpec.rotationAngle, child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates)
+          .add(vector);
+        pt.coordinates = newPointCoordinates;
+      });
+      computeAllShapeTransform(child, layer);
+    });
 }
 
 function reverseShape(shape, selectedAxis) {
@@ -164,8 +188,9 @@ export function computeShapeTransform(shape, layer = 'upper') {
     shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
 
     startAngle = shape.segments[1].getAngleWithHorizontal();
-    dx = shape.geometryObject.geometryConstructionSpec.smallBaseLength * Math.cos(startAngle + Math.PI / 2);
-    dy = shape.geometryObject.geometryConstructionSpec.smallBaseLength * Math.sin(startAngle + Math.PI / 2);
+    let multiplier = shape.geometryObject.geometryConstructionSpec.height < 0 ? 1 : -1;
+    dx = shape.geometryObject.geometryConstructionSpec.smallBaseLength * multiplier * Math.cos(startAngle + Math.PI / 2);
+    dy = shape.geometryObject.geometryConstructionSpec.smallBaseLength * multiplier * Math.sin(startAngle + Math.PI / 2);
 
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates.add(new Coordinates({x: dx, y: dy}));
   } else if (shape.name == 'IsoscelesTrapeze') {
@@ -328,9 +353,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
     let secondSeg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId2, 'segment');
     let coords = firstSeg.intersectionWith(secondSeg);
     let newValue = !!coords;
-    console.log(newValue, shape.geometryObject.geometryIsVisibleByChoice);
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
-      console.log('here');
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
       recomputeAllVisibilities(layer);
     }
@@ -455,7 +478,25 @@ export function computeDivisionPoint(point) {
 }
 
 export function computeConstructionSpec(shape, maxIndex = 100) {
-  if (shape.name == 'Rectangle') {
+  if (shape.familyName == 'duplicate') {
+    let refShape = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryDuplicateParentShapeId, 'shape');
+    shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refShape.points[0].coordinates;
+    let refShapeAngle = refShape.points[0].coordinates.angleWith(refShape.centerCoordinates);
+    let centerCoordinates = shape.centerCoordinates;
+    // let firstPointCoordinates = shape.points[0].coordinates;
+    if (refShape.isReversed ^ shape.isReversed) {
+      centerCoordinates = new Coordinates({
+        x: centerCoordinates.x + 2 * (shape.points[0].coordinates.x - centerCoordinates.x),
+        y: centerCoordinates.y,
+      });
+      // firstPointCoordinates = new Coordinates({
+      //   x: shape.points[0].coordinates.x + 2 * (shape.centerCoordinates.x - shape.points[0].coordinates.x),
+      //   y: shape.points[0].coordinates.y,
+      // });
+    }
+    let shapeAngle = shape.points[0].coordinates.angleWith(centerCoordinates);
+    shape.geometryObject.geometryConstructionSpec.rotationAngle = refShapeAngle - shapeAngle;
+  } else if (shape.name == 'Rectangle') {
     let angle = shape.vertexes[1].getVertexAngle();
     shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);
     if (angle < Math.PI / 2 + .1 && angle > Math.PI / 2 - .1)
@@ -470,14 +511,16 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
   } else if (shape.name == 'RightAngleTrapeze2') {
     let angle = shape.vertexes[1].getVertexAngle();
     shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);
-    if (Math.abs(angle - Math.PI / 2) < .1)
+    if (Math.abs(angle - Math.PI / 2) < .1) {
       shape.geometryObject.geometryConstructionSpec.height *= -1;
+    }
 
     if (maxIndex > 2) {
       angle = shape.vertexes[2].getVertexAngle();
       shape.geometryObject.geometryConstructionSpec.smallBaseLength = shape.vertexes[3].coordinates.dist(shape.vertexes[2]);
-      if (shape.geometryObject.geometryConstructionSpec.height <= 0)
+      if (shape.geometryObject.geometryConstructionSpec.height > 0 ^ Math.abs(angle - Math.PI / 2) < .1) {
         shape.geometryObject.geometryConstructionSpec.smallBaseLength *= -1;
+      }
     }
   } else if (shape.name == 'IsoscelesTrapeze') {
     // shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();

@@ -65,13 +65,11 @@ export class TransformTool extends Tool {
       s.vertexes.forEach((pt) => {
         pt.computeTransformConstraint();
       });
-      if (s.familyName == 'circle-shape' || s.familyName == 'Irregular') {
-        s.points.filter(pt =>
-          pt.type == 'arcCenter'
-        ).forEach(pt => {
-          pt.computeTransformConstraint();
-        });
-      }
+      s.points.filter(pt =>
+        pt.type == 'arcCenter'
+      ).forEach(pt => {
+        pt.computeTransformConstraint();
+      });
     });
 
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } }), 50);
@@ -231,6 +229,12 @@ export class TransformTool extends Tool {
     if (app.tool.currentStep == 'transform') {
       let point = app.upperDrawingEnvironment.findObjectById(this.pointSelectedId, 'point');
       let shape = point.shape;
+      app.upperDrawingEnvironment.shapes.forEach(s => {
+        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
+          let duplicateChild = app.upperDrawingEnvironment.findObjectById(duplicateChildId, 'shape');
+          computeConstructionSpec(duplicateChild);
+        });
+      });
       if (shape.name == 'Trapeze' && point.idx < 3) {
         computeConstructionSpec(shape);
       } else if (point.idx < 2 || point.type == 'arcCenter') {
