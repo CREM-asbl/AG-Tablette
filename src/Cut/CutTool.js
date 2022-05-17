@@ -293,8 +293,16 @@ export class CutTool extends Tool {
         shape = this.centerPoint.shape;
       object.forEach(pt => {
         let pt2Shape = pt.shape;
-        if (pt2Shape.name == 'PointOnLine' || pt2Shape.name == 'PointOnIntersection')
-          pt2Shape = app.mainDrawingEnvironment.findObjectById(pt.shape.geometryObject['geometryParentObjectId' + (pt.cutSeg + 1)], 'segment').shape;
+        if (pt2Shape.name == 'PointOnLine' || pt2Shape.name == 'PointOnIntersection') {
+          let tmpShape = app.mainDrawingEnvironment.findObjectById(pt.shape.geometryObject['geometryParentObjectId1'], 'segment').shape;
+          if (shape.id == tmpShape.id) {
+            pt2Shape = tmpShape;
+            pt.cutSeg = 0;
+          } else if (pt2Shape.name == 'PointOnIntersection') {
+            pt2Shape = app.mainDrawingEnvironment.findObjectById(pt.shape.geometryObject['geometryParentObjectId2'], 'segment').shape;
+            pt.cutSeg = 1;
+          }
+        }
         if (shape.id == pt2Shape.id) {
           pt2 = pt;
         }
@@ -323,7 +331,7 @@ export class CutTool extends Tool {
       } else {
         if (this.isLineValid(shape, this.centerPoint, pt2)) {
           setState({
-            tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id, shapeId: shape.id },
+            tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
           });
         } else {
           window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent pouvoir être reliés.' } }));
@@ -586,13 +594,71 @@ export class CutTool extends Tool {
 
     if (app.environment.name == 'Geometrie') {
       shape1.geometryObject = new GeometryObject({});
-      shape1.familyName = 'Irregular';
+      shape1.familyName = 'duplicate';
       shape2.geometryObject = new GeometryObject({});
-      shape2.familyName = 'Irregular';
+      shape2.familyName = 'duplicate';
     }
 
     shape1.cleanSameDirectionSegment();
     shape2.cleanSameDirectionSegment();
+
+    if (app.environment.name == 'Geometrie') {
+      let allPointsOfParent = shape.geometryObject.geometryChildShapeIds
+        .map(childId => app.mainDrawingEnvironment.findObjectById(childId, 'shape'))
+        .filter(child => child.name == 'PointOnLine' || child.name == 'PointOnIntersection')
+        .map(child => child.vertexes[0]);
+      allPointsOfParent = [...allPointsOfParent, ...shape.points];
+
+      let shape1Hidden = new shape.constructor({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        familyName: 'Irregular',
+        path: shape1.getSVGPath('no scale', false),
+        fillColor: shape.fillColor,
+        fillOpacity: shape.fillOpacity,
+        strokeColor: shape.strokeColor,
+        geometryObject: new GeometryObject({
+          geometryIsVisibleByChoice: false,
+          geometryIsVisible: false,
+          geometryDuplicateChildShapeIds: [shape1.id],
+        })
+      });
+      shape1.geometryObject.geometryDuplicateParentShapeId = shape1Hidden.id;
+      shape1Hidden.points.forEach(vertex => {
+        let parentVertex = allPointsOfParent.find(vx => vx.coordinates.equal(vertex.coordinates));
+        if (!parentVertex) {
+          console.info('no parent vertex for ', vertex);
+        } else {
+          vertex.reference = parentVertex.id;
+          if (!parentVertex.shape.geometryObject.geometryChildShapeIds.find(childId => childId == shape1Hidden.id))
+            parentVertex.shape.geometryObject.geometryChildShapeIds.push(shape1Hidden.id);
+        }
+      });
+
+      let shape2Hidden = new shape.constructor({
+        drawingEnvironment: app.mainDrawingEnvironment,
+        familyName: 'Irregular',
+        path: shape2.getSVGPath('no scale', false),
+        fillColor: shape.fillColor,
+        fillOpacity: shape.fillOpacity,
+        strokeColor: shape.strokeColor,
+        geometryObject: new GeometryObject({
+          geometryIsVisibleByChoice: false,
+          geometryIsVisible: false,
+          geometryDuplicateChildShapeIds: [shape2.id],
+        })
+      });
+      shape2.geometryObject.geometryDuplicateParentShapeId = shape2Hidden.id;
+      shape2Hidden.points.forEach(vertex => {
+        let parentVertex = allPointsOfParent.find(vx => vx.coordinates.equal(vertex.coordinates));
+        if (!parentVertex) {
+          console.info('no parent vertex for ', vertex);
+        } else {
+          vertex.reference = parentVertex.id;
+          if (!parentVertex.shape.geometryObject.geometryChildShapeIds.find(childId => childId == shape2Hidden.id))
+            parentVertex.shape.geometryObject.geometryChildShapeIds.push(shape2Hidden.id);
+        }
+      });
+    }
 
     // Modifier les coordonnées
     let center1 = shape1.fake_center,

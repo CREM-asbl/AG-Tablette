@@ -87,15 +87,15 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
   if (includeChildren)
     shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
       let child = app[layer + 'DrawingEnvironment'].findObjectById(childId);
-      let vector = child.points[0].coordinates.substract(child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
+      let vector = child.geometryObject.geometryConstructionSpec.childFirstPointCoordinates.substract(child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
       let mustReverse = false,
         rotationMultiplier = -1;
       if (shape.isReversed ^ child.isReversed) {
         mustReverse = true;
         rotationMultiplier = 1;
       }
-      child.vertexes.forEach((pt, idx) => {
-        let startCoord = shape.vertexes[idx].coordinates;
+      child.points.forEach((pt, idx) => {
+        let startCoord = shape.points[idx].coordinates;
         if (mustReverse) {
           startCoord = new Coordinates({
             x: startCoord.x + 2 * (child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
@@ -107,6 +107,7 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
           .add(vector);
         pt.coordinates = newPointCoordinates;
       });
+      child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
       computeAllShapeTransform(child, layer);
     });
 }
@@ -481,6 +482,7 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
   if (shape.familyName == 'duplicate') {
     let refShape = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryDuplicateParentShapeId, 'shape');
     shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refShape.points[0].coordinates;
+    shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.points[0].coordinates;
     let refShapeAngle = refShape.points[0].coordinates.angleWith(refShape.centerCoordinates);
     let centerCoordinates = shape.centerCoordinates;
     // let firstPointCoordinates = shape.points[0].coordinates;
