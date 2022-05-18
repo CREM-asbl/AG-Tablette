@@ -146,6 +146,8 @@ export class Point {
       constraints.isConstructed = true;
     } else if (this.shape.geometryObject.geometryTransformationName != null) {
       constraints.isConstructed = true;
+    } else if (this.shape.geometryObject.geometryDuplicateParentShapeId != null) {
+      constraints.isConstructed = true;
     } else {
       if (this.shape.familyName == 'Regular') {
         if (this.idx < 2) {

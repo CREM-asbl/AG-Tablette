@@ -9,8 +9,15 @@ export class GeometryObject {
     geometryTransformationParentShapeId = null,
     geometryTransformationCharacteristicElementIds = [],
     geometryTransformationName = null,
+    geometryDuplicateChildShapeIds = [],
+    geometryDuplicateParentShapeId = null,
+    geometryDuplicateInfos = {
+      rotationAngle: null,
+      parentFirstPointCoordinates: null,
+    },
     geometryIsVisible = true,
     geometryIsHidden = false,
+    geometryIsVisibleByChoice = true,
   }) {
     this.geometryChildShapeIds = [...geometryChildShapeIds];
     this.geometryConstructionSpec = {...geometryConstructionSpec};
@@ -20,8 +27,12 @@ export class GeometryObject {
     this.geometryTransformationParentShapeId = geometryTransformationParentShapeId;
     this.geometryTransformationCharacteristicElementIds = [...geometryTransformationCharacteristicElementIds];
     this.geometryTransformationName = geometryTransformationName;
+    this.geometryDuplicateChildShapeIds = [...geometryDuplicateChildShapeIds];
+    this.geometryDuplicateParentShapeId = geometryDuplicateParentShapeId;
+    this.geometryDuplicateInfos = {...geometryDuplicateInfos};
     this.geometryIsVisible = geometryIsVisible;
     this.geometryIsHidden = geometryIsHidden;
+    this.geometryIsVisibleByChoice = geometryIsVisibleByChoice;
   }
 
   saveData() {
@@ -36,6 +47,10 @@ export class GeometryObject {
       geometryTransformationName: this.geometryTransformationName,
       geometryIsVisible: this.geometryIsVisible,
       geometryIsHidden: this.geometryIsHidden,
+      geometryIsVisibleByChoice: this.geometryIsVisibleByChoice,
+      geometryDuplicateChildShapeIds: [...this.geometryDuplicateChildShapeIds],
+      geometryDuplicateParentShapeId: this.geometryDuplicateParentShapeId,
+      geometryDuplicateInfos: {...this.geometryDuplicateInfos},
     };
     return data;
   }

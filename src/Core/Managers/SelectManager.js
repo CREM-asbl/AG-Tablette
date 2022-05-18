@@ -422,7 +422,6 @@ export class SelectManager {
           return SelectManager.selectShape(mCoord, constr);
         },
       };
-    console.log(constr);
     //Vérification que priority est bien défini
     if (
       !constr.priority.every((p) => {

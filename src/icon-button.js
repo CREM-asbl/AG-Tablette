@@ -13,9 +13,7 @@ class IconButton extends LitElement {
 
   // firstUpdated() {
   //   if (this.name == 'color') {
-  //     console.log('initiated');
   //     window.addEventListener('tool-changed', () => {
-  //       console.log(app.settings.drawColor);
   //       if (app.fullHistory.isRunning)
   //         return;
   //       if (app.tool?.currentStep == 'start') {

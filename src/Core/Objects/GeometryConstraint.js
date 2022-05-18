@@ -98,7 +98,6 @@ export class GeometryConstraint {
         }),
       );
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
-    console.log(projectionsOnContraints[0]);
     if (errorWhenTooFar && !SelectManager.areCoordinatesInSelectionDistance(projectionsOnContraints[0].projection, coordinates)) {
       return null;
     }

@@ -132,6 +132,9 @@ export class DeleteTool extends Tool {
     app.mainCanvasElem.shapes.forEach(s => {
       s.geometryObject.geometryTransformationChildShapeIds = s.geometryObject.geometryTransformationChildShapeIds.filter(id => id != shape.id);
     });
+    app.mainDrawingEnvironment.shapes.forEach(s => {
+      s.geometryObject.geometryDuplicateChildShapeIds = s.geometryObject.geometryDuplicateChildShapeIds.filter(id => id != shape.id);
+    });
     shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
       let child = app.mainCanvasElem.findObjectById(childId);
       if (child) {
@@ -139,6 +142,12 @@ export class DeleteTool extends Tool {
       }
     });
     shape.geometryObject.geometryChildShapeIds.forEach(childId => {
+      let child = app.mainCanvasElem.findObjectById(childId);
+      if (child) {
+        this.deleteChildren(child);
+      }
+    });
+    shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
       let child = app.mainCanvasElem.findObjectById(childId);
       if (child) {
         this.deleteChildren(child);
