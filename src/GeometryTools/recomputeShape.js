@@ -94,8 +94,8 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
         mustReverse = true;
         rotationMultiplier = 1;
       }
-      child.points.forEach((pt, idx) => {
-        let startCoord = shape.points[idx].coordinates;
+      child.points.filter(pt => pt.type != 'divisionPoint').forEach((pt, idx) => {
+        let startCoord = shape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
         if (mustReverse) {
           startCoord = new Coordinates({
             x: startCoord.x + 2 * (child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
