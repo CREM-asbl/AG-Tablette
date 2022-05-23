@@ -12,8 +12,8 @@ export class GeometryConstraint {
    * @param {[Point]} points      pout isContructed
    */
   constructor(type, lines = [], points = []) {
-    let oldConstraints = app.upperCanvasElem.shapes.filter(s => s.borderColor == app.settings.constraintsDrawColor);
-    app.upperCanvasElem.removeObjectById(oldConstraints.map(s => s.id));
+    let oldConstraints = app.upperCanvasLayer.shapes.filter(s => s.borderColor == app.settings.constraintsDrawColor);
+    app.upperCanvasLayer.removeObjectById(oldConstraints.map(s => s.id));
     this.type = type;
     this.segments = lines.map((ln) => {
       let path = '';
@@ -48,7 +48,7 @@ export class GeometryConstraint {
           .join(' ');
       }
       let s = new LineShape({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         path: path,
         name: 'constraints',
         strokeColor: app.settings.constraintsDrawColor,
@@ -60,7 +60,7 @@ export class GeometryConstraint {
     this.points = points.map(
       (pt) =>
         new Point({
-          drawingEnvironment: app.upperCanvasElem,
+          layer: 'upper',
           coordinates: pt,
           color: app.settings.constraintsDrawColor,
           size: 2,

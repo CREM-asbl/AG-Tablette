@@ -74,8 +74,9 @@ class OpacityPopup extends LitElement {
   }
 
   changeOpacity(event) {
+    let shapeOpacity = parseFloat(event.target.value);
     setState({
-      settings: { ...app.settings, shapeOpacity: event.target.value },
+      settings: { ...app.settings, shapeOpacity },
     });
   }
 

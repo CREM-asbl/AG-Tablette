@@ -105,8 +105,8 @@ export class FullHistoryManager {
     index++;
     setState({ fullHistory: { ...app.fullHistory, actionIndex, index }, tool: undefined });
 
-    app.upperCanvasElem.removeAllObjects(); // temporary patch
-    app.upperCanvasElem.redraw(); // temporary patch
+    app.upperCanvasLayer.removeAllObjects(); // temporary patch
+    app.upperCanvasLayer.redraw(); // temporary patch
 
     if (startSelectedTool) {
       let tool = null;

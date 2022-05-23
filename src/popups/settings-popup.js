@@ -16,7 +16,7 @@ class SettingsPopup extends LitElement {
     super();
     this.settings = { ...app.settings };
 
-    addEventListener(
+    window.addEventListener(
       'settings-changed',
       () => (this.settings = { ...app.settings }),
     );

@@ -9,7 +9,6 @@ import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
-import { GridManager } from '../Grid/GridManager';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -44,7 +43,7 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   start() {
-    app.upperCanvasElem.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
 
@@ -53,7 +52,7 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   async drawFirstPoint() {
-    app.upperCanvasElem.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     let quadrilateralsDef = await import(`./quadrilateralsDef.js`);
     this.quadrilateralDef = quadrilateralsDef[app.tool.selectedQuadrilateral];
 
@@ -84,7 +83,7 @@ export class CreateQuadrilateralTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.upperCanvasElem.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
   }
@@ -101,7 +100,7 @@ export class CreateQuadrilateralTool extends Tool {
     }
 
     this.points[this.numberOfPointsDrawn] = new Point({
-      drawingEnvironment: app.upperCanvasElem,
+      layer: 'upper',
       coordinates: newCoordinates,
       color: app.settings.temporaryDrawColor,
       size: 2,
@@ -109,7 +108,7 @@ export class CreateQuadrilateralTool extends Tool {
     this.numberOfPointsDrawn++;
     if (this.numberOfPointsDrawn > 1) {
       let seg = new Segment({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         vertexIds: [
           this.points[this.numberOfPointsDrawn - 2].id,
           this.points[this.numberOfPointsDrawn - 1].id,
@@ -120,12 +119,12 @@ export class CreateQuadrilateralTool extends Tool {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       if (this.numberOfPointsDrawn < 4) this.finishShape();
       let seg = new Segment({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         vertexIds: [this.points[3].id, this.points[0].id],
       });
       this.segments.push(seg);
       let shape = new RegularShape({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         segmentIds: this.segments.map((seg) => seg.id),
         pointIds: this.points.map((pt) => pt.id),
         strokeColor: app.settings.temporaryDrawColor,
@@ -137,7 +136,7 @@ export class CreateQuadrilateralTool extends Tool {
       });
     } else if (this.numberOfPointsDrawn > 1) {
       new RegularShape({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         segmentIds: [this.segments[this.numberOfPointsDrawn - 2].id],
         pointIds: this.segments[this.numberOfPointsDrawn - 2].vertexIds,
         strokeColor: app.settings.temporaryDrawColor,
@@ -152,10 +151,10 @@ export class CreateQuadrilateralTool extends Tool {
       if (SelectManager.areCoordinatesInMagnetismDistance(this.points[i].coordinates, this.points[this.numberOfPointsDrawn - 1].coordinates)) {
         let firstPointCoordinates = this.points[0].coordinates;
         if (this.numberOfPointsDrawn == 2) {
-          app.upperCanvasElem.removeAllObjects();
+          app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 1;
           this.points = [new Point({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             coordinates: firstPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
@@ -163,28 +162,28 @@ export class CreateQuadrilateralTool extends Tool {
           this.segments = [];
         } else if (this.numberOfPointsDrawn == 3) {
           let secondPointCoordinates = this.points[1].coordinates;
-          app.upperCanvasElem.removeAllObjects();
+          app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 2;
           this.points = [new Point({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             coordinates: firstPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
           }), new Point({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             coordinates: secondPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
           })];
           this.segments = [new Segment({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             vertexIds: [
               this.points[0].id,
               this.points[1].id,
             ],
           })];
           new RegularShape({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             segmentIds: [this.segments[0].id],
             pointIds: this.segments[0].vertexIds,
             strokeColor: app.settings.temporaryDrawColor,
@@ -193,39 +192,39 @@ export class CreateQuadrilateralTool extends Tool {
         } else if (this.numberOfPointsDrawn == 4) {
           let secondPointCoordinates = this.points[1].coordinates;
           let thirdPointCoordinates = this.points[2].coordinates;
-          app.upperCanvasElem.removeAllObjects();
+          app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 3;
           this.points = [new Point({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             coordinates: firstPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
           }), new Point({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             coordinates: secondPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
           }), new Point({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             coordinates: thirdPointCoordinates,
             color: app.settings.temporaryDrawColor,
             size: 2,
           })];
           this.segments = [new Segment({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             vertexIds: [
               this.points[0].id,
               this.points[1].id,
             ],
           }), new Segment({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             vertexIds: [
               this.points[1].id,
               this.points[2].id,
             ],
           })];
           new RegularShape({
-            drawingEnvironment: app.upperCanvasElem,
+            layer: 'upper',
             segmentIds: this.segments.map(seg => seg.id),
             pointIds: this.points.map(pt => pt.id),
             strokeColor: app.settings.temporaryDrawColor,
@@ -241,7 +240,7 @@ export class CreateQuadrilateralTool extends Tool {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.executeAction();
-      app.upperCanvasElem.removeAllObjects();
+      app.upperCanvasLayer.removeAllObjects();
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
@@ -262,7 +261,7 @@ export class CreateQuadrilateralTool extends Tool {
       if (adjustedCoordinates) {
         point.coordinates = new Coordinates(adjustedCoordinates);
       } else {
-        let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+        let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
         if (gridPoint)
           point.coordinates = new Coordinates(gridPoint.coordinates);
       }
@@ -298,7 +297,7 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   getConstraints(pointNb) {
-    app.upperCanvasElem.findObjectsByName('constraints').forEach(obj => app.upperCanvasElem.removeObjectById(obj.id));
+    app.upperCanvasLayer.findObjectsByName('constraints').forEach(obj => app.upperCanvasLayer.removeObjectById(obj.id));
     this.constraints = this.quadrilateralDef.constraints[pointNb](this.points, this.segments);
   }
 
@@ -318,7 +317,7 @@ export class CreateQuadrilateralTool extends Tool {
     path = path.join(' ');
 
     let shape = new RegularShape({
-      drawingEnvironment: app.mainCanvasElem,
+      layer: 'main',
       path: path,
       name: app.tool.selectedQuadrilateral,
       familyName: familyName,
@@ -327,25 +326,25 @@ export class CreateQuadrilateralTool extends Tool {
     });
 
     let ref;
-    if (ref = app.mainCanvasElem.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
-    if (ref = app.mainCanvasElem.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[1].reference = ref.id;
     }
     if (shape.name == 'Parallelogram' /*|| shape.name == 'RightAngleTrapeze'*/ || shape.name == 'IsoscelesTrapeze' || shape.name == 'IrregularQuadrilateral') {
-      if (ref = app.mainCanvasElem.points.filter(pt => pt.id != shape.vertexes[2].id).find(pt => pt.coordinates.equal(shape.vertexes[2].coordinates))) {
+      if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[2].id).find(pt => pt.coordinates.equal(shape.vertexes[2].coordinates))) {
         if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
           ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.vertexes[2].reference = ref.id;
       }
     }
     if (shape.name == 'IrregularQuadrilateral') {
-      if (ref = app.mainCanvasElem.points.filter(pt => pt.id != shape.vertexes[3].id).find(pt => pt.coordinates.equal(shape.vertexes[3].coordinates))) {
+      if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[3].id).find(pt => pt.coordinates.equal(shape.vertexes[3].coordinates))) {
         if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
           ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.vertexes[3].reference = ref.id;

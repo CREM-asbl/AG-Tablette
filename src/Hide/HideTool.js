@@ -26,7 +26,7 @@ export class HideTool extends Tool {
   }
 
   listen() {
-    app.upperCanvasElem.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
 
     app.workspace.selectionConstraints =
@@ -35,7 +35,7 @@ export class HideTool extends Tool {
   }
 
   end() {
-    app.upperCanvasElem.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
   }
 

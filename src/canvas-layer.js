@@ -2,15 +2,16 @@ import { css, html, LitElement } from 'lit';
 import { app, setState } from './Core/App';
 import { SelectManager } from './Core/Managers/SelectManager';
 import { Coordinates } from './Core/Objects/Coordinates';
-import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
 import { Shape } from './Core/Objects/Shapes/Shape';
 import { RegularShape } from './Core/Objects/Shapes/RegularShape';
 import { LineShape } from './Core/Objects/Shapes/LineShape';
 import { SinglePointShape } from './Core/Objects/Shapes/SinglePointShape';
 import { ArrowLineShape } from './Core/Objects/Shapes/ArrowLineShape';
 import { Segment } from './Core/Objects/Segment';
+import { capitalizeFirstLetter, createElem } from './Core/Tools/general';
+import { Point } from './Core/Objects/Point';
 
-class CanvasElem extends LitElement {
+class CanvasLayer extends LitElement {
   constructor() {
     super();
 
@@ -59,7 +60,6 @@ class CanvasElem extends LitElement {
         canvas {
           background-color: rgba(0, 0, 0, 0);
           position: absolute;
-          width: 100%;
           top: 0px;
         }
       </style>
@@ -85,8 +85,13 @@ class CanvasElem extends LitElement {
     this.clear();
     this.texts.forEach((text) => text.updateMessage());
 
-    // -> grid canvas
-    // if (this.mustDrawGrid) GridManager.drawGridPoints();
+    if (this.canvasName == 'upper')
+      window.dispatchEvent(new CustomEvent('refreshStateUpper'));
+    else if (this.canvasName == 'grid') {
+      this.removeAllObjects();
+      if (app.settings.gridShown) this.drawGridPoints();
+    }
+
     this.draw();
   }
 
@@ -96,17 +101,11 @@ class CanvasElem extends LitElement {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
           if (s.geometryObject?.geometryIsVisible === false || s.geometryObject?.geometryIsHidden === true)
             return;
-          window.dispatchEvent(
-            new CustomEvent('draw-shape', { detail: { shape: s, scaling } }),
-          );
+          this.drawShape(s, scaling);
           if (this.mustDrawPoints && app.settings.areShapesPointed) {
             this.points.forEach((pt) => {
               if (pt.visible && pt.shapeId === s.id) {
-                window.dispatchEvent(
-                  new CustomEvent('draw-point', {
-                    detail: { point: pt, color: pt.color },
-                  }),
-                );
+                this.drawPoint(pt, pt.color);
               }
             });
           } else if (this.mustDrawPoints) {
@@ -118,11 +117,7 @@ class CanvasElem extends LitElement {
                   pt.type == 'divisionPoint' ||
                   pt.shape.isCircle())
               ) {
-                window.dispatchEvent(
-                  new CustomEvent('draw-point', {
-                    detail: { point: pt, color: pt.color },
-                  }),
-                );
+                this.drawPoint(pt, pt.color);
               }
             });
           }
@@ -132,20 +127,12 @@ class CanvasElem extends LitElement {
     if (this.mustDrawPoints) {
       this.points.forEach((pt) => {
         if (pt.visible && pt.shapeId === undefined) {
-          window.dispatchEvent(
-            new CustomEvent('draw-point', {
-              detail: { point: pt, color: pt.color },
-            }),
-          );
+          this.drawPoint(pt, pt.color);
         }
       });
     }
     this.texts.forEach((text) => {
-      window.dispatchEvent(
-        new CustomEvent('draw-text', {
-          detail: { text: text },
-        }),
-      );
+      this.drawText(text);
     });
   }
 
@@ -213,7 +200,7 @@ class CanvasElem extends LitElement {
         segId = pt1.shape.geometryObject.geometryParentObjectId1;
       else
         segId = pt2.shape.geometryObject.geometryParentObjectId1;
-      return app.mainCanvasElem.findObjectById(segId, 'segment');
+      return app.mainCanvasLayer.findObjectById(segId, 'segment');
     }
     let segmentIds1 = pt1.segmentIds;
     let segmentIds2 = pt2.segmentIds;
@@ -252,7 +239,7 @@ class CanvasElem extends LitElement {
           ArrowLineShape.loadFromData(shapeData);
         else {
           shapeData.fillColor = shapeData.color;
-          shapeData.fillOpacity = shapeData.opacity;
+          shapeData.fillOpacity = parseFloat(shapeData.opacity);
           shapeData.strokeColor = shapeData.borderColor;
           shapeData.strokeWidth = shapeData.borderSize;
           if (shapeData.segmentIds.length == 1) {
@@ -277,13 +264,66 @@ class CanvasElem extends LitElement {
     this.canvasName = this.id.substring(0, this.id.lastIndexOf('C'));
     this.ctx = this.canvas.getContext('2d');
 
-    app[this.canvasName + 'CanvasElem'] = this;
+    app[this.canvasName + 'CanvasLayer'] = this;
 
     this.setCanvasSize();
     window.addEventListener('resize-canvas', () => this.setCanvasSize());
 
+    window.addEventListener('refresh' + capitalizeFirstLetter(this.canvasName), () => {
+      this.redraw();
+    });
+
     if (this.canvasName == 'upper') {
       this.createListeners();
+      window.addEventListener('tool-changed', () => {
+        this.redraw();
+      });
+    } else if (this.canvasName == 'main') {
+      window.addEventListener('refresh', () => {
+        this.redraw();
+      });
+      window.addEventListener('tool-changed', () => {
+        this.redraw();
+      });
+    } else if (this.canvasName == 'grid') {
+      window.addEventListener('settings-changed', () => {
+        this.redraw();
+      });
+      window.addEventListener('tool-changed', () => {
+        if (app.tool?.name === 'grid') {
+          if (app.environment.name == 'Cubes') {
+            if (app.settings.gridShown) {
+              setState({
+                settings: {
+                  ...app.settings,
+                  gridType: 'none',
+                  gridShown: false,
+                  gridSize: 2,
+                },
+              });
+            } else {
+              setState({
+                settings: {
+                  ...app.settings,
+                  gridType: 'vertical-triangle',
+                  gridShown: true,
+                  gridSize: 2,
+                },
+              });
+            }
+            if (!app.fullHistory.isRunning) {
+              window.dispatchEvent(
+                new CustomEvent('actions-executed', {
+                  detail: { name: 'Grille' },
+                }),
+              );
+            }
+          } else {
+            import('./popups/grid-popup');
+            createElem('grid-popup');
+          }
+        }
+      });
     }
   }
 
@@ -590,6 +630,7 @@ class CanvasElem extends LitElement {
   setCanvasSize() {
     this.canvas.setAttribute('width', app.canvasWidth);
     this.canvas.setAttribute('height', app.canvasHeight);
+    this.redraw();
   }
 
   isOutsideOfCanvas(mousePos) {
@@ -605,10 +646,307 @@ class CanvasElem extends LitElement {
     return false;
   }
 
+  drawGridPoints() {
+    const canvasWidth = app.canvasWidth,
+      canvasHeight = app.canvasHeight,
+      offsetX = app.workspace.translateOffset.x,
+      offsetY = app.workspace.translateOffset.y,
+      actualZoomLvl = app.workspace.zoomLevel,
+      // Ne pas voir les points apparaître :
+      marginToAdd = 20 * actualZoomLvl,
+      minCoord = new Coordinates({
+        x: -offsetX / actualZoomLvl - marginToAdd,
+        y: -offsetY / actualZoomLvl - marginToAdd,
+      }),
+      maxCoord = new Coordinates({
+        x: (canvasWidth - offsetX) / actualZoomLvl + marginToAdd,
+        y: (canvasHeight - offsetY) / actualZoomLvl + marginToAdd,
+      });
+
+    let size = app.settings.gridSize,
+      type = app.settings.gridType;
+    if (type == 'square') {
+      let t1 = Math.ceil((minCoord.x - 10) / (50 * size)),
+        startX = 10 + t1 * 50 * size,
+        t2 = Math.ceil((minCoord.y - 10) / (50 * size)),
+        startY = 10 + t2 * 50 * size;
+      for (let x = startX; x <= maxCoord.x; x += 50 * size) {
+        for (let y = startY; y <= maxCoord.y; y += 50 * size) {
+          new Point({
+            layer: 'grid',
+            x,
+            y,
+            color: '#F00',
+            size: 1.5,
+          });
+        }
+      }
+    } else if (type == 'horizontal-triangle') {
+      let approx = 43.3012701892,
+        t1 = Math.ceil((minCoord.x - 10) / (50 * size)),
+        startX = 10 + t1 * 50 * size,
+        t2 = Math.ceil((minCoord.y - 10) / (approx * 2 * size)),
+        startY = 10 + t2 * approx * 2 * size;
+
+      for (let x = startX; x <= maxCoord.x; x += 50 * size) {
+        for (let y = startY; y <= maxCoord.y; y += approx * 2 * size) {
+          new Point({
+            layer: 'grid',
+            x,
+            y,
+            color: '#F00',
+            size: 1.5,
+          });
+        }
+      }
+
+      t1 = Math.ceil((minCoord.x - 10 - (50 * size) / 2) / (50 * size));
+      startX = 10 + (50 * size) / 2 + t1 * 50 * size;
+      t2 = Math.ceil((minCoord.y - 10 - approx * size) / (approx * 2 * size));
+      startY = 10 + approx * size + t2 * approx * 2 * size;
+      for (let x = startX; x <= maxCoord.x; x += 50 * size) {
+        for (let y = startY; y <= maxCoord.y; y += approx * 2 * size) {
+          new Point({
+            layer: 'grid',
+            x,
+            y,
+            color: '#F00',
+            size: 1.5,
+          });
+        }
+      }
+    } else if (type == 'vertical-triangle') {
+      let approx = 43.3012701892,
+        t1 = Math.ceil((minCoord.x - 10) / (approx * 2 * size)),
+        startX = 10 + t1 * approx * 2 * size,
+        t2 = Math.ceil((minCoord.y - 10) / (50 * size)),
+        startY = 10 + t2 * 50 * size;
+
+      for (let x = startX; x <= maxCoord.x; x += approx * 2 * size) {
+        for (let y = startY; y <= maxCoord.y; y += 50 * size) {
+          new Point({
+            layer: 'grid',
+            x,
+            y,
+            color: '#F00',
+            size: 1.5,
+          });
+        }
+      }
+
+      t1 = Math.ceil((minCoord.x - 10 - approx * size) / (approx * 2 * size));
+      startX = 10 + approx * size + t1 * approx * 2 * size;
+      t2 = Math.ceil((minCoord.y - 10 - (50 * size) / 2) / (50 * size));
+      startY = 10 + (50 * size) / 2 + t2 * 50 * size;
+      for (let x = startX; x <= maxCoord.x; x += approx * 2 * size) {
+        for (let y = startY; y <= maxCoord.y; y += 50 * size) {
+          new Point({
+            layer: 'grid',
+            x,
+            y,
+            color: '#F00',
+            size: 1.5,
+          });
+        }
+      }
+    }
+  }
+
+  getClosestGridPoint(coord) {
+    let x = coord.x,
+      y = coord.y,
+      possibilities = [],
+      gridType = app.settings.gridType,
+      gridSize = app.settings.gridSize;
+
+    if (gridType == 'square') {
+      let topleft = new Coordinates({
+        x: x - ((x - 10) % (50 * gridSize)),
+        y: y - ((y - 10) % (50 * gridSize)),
+      });
+      // closest point on top and left
+      possibilities.push(topleft);
+      possibilities.push(topleft.add({ x: 0, y: 50 * gridSize }));
+      possibilities.push(topleft.add({ x: 50 * gridSize, y: 0 }));
+      possibilities.push(topleft.add({ x: 50 * gridSize, y: 50 * gridSize }));
+    } else if (gridType == 'horizontal-triangle') {
+      let height = 43.3012701892,
+        topY = y - ((y - 10) % (height * gridSize)),
+        topX =
+          x -
+          ((x - 10) % (50 * gridSize)) +
+          (Math.round(topY / height / gridSize) % 2) * 25 * gridSize;
+      if (topX > x) topX -= 50 * gridSize;
+      let topleft1 = new Coordinates({ x: topX, y: topY });
+
+      possibilities.push(topleft1);
+      possibilities.push(topleft1.add({ x: 50 * gridSize, y: 0 }));
+      possibilities.push(
+        topleft1.add({ x: 25 * gridSize, y: height * gridSize }),
+      );
+    } else if (gridType == 'vertical-triangle') {
+      let height = 43.3012701892,
+        topX = x - ((x - 10) % (height * gridSize)),
+        topY =
+          y -
+          ((y - 10) % (50 * gridSize)) +
+          (Math.round(topX / height / gridSize) % 2) * 25 * gridSize;
+      if (topY > y) topY -= 50 * gridSize;
+      let topleft1 = new Coordinates({ x: topX, y: topY });
+
+      possibilities.push(topleft1);
+      possibilities.push(topleft1.add({ x: 0, y: 50 * gridSize }));
+      possibilities.push(
+        topleft1.add({ x: height * gridSize, y: 25 * gridSize }),
+      );
+    }
+
+    possibilities.sort((poss1, poss2) =>
+      coord.dist(poss1) > coord.dist(poss2) ? 1 : -1,
+    );
+    possibilities = possibilities.filter(
+      (poss) =>
+        this.points.findIndex((pt) =>
+          pt.coordinates.equal(poss),
+        ) != -1,
+    );
+
+    if (possibilities.length == 0) return null;
+
+    const closestCoord = possibilities[0];
+    const closestPoint = this.points.find((pt) =>
+      pt.coordinates.equal(closestCoord),
+    );
+    closestPoint.type = 'grid';
+
+    return closestPoint;
+  }
+
+  drawShape(shape, scaling) {
+    shape.setCtxForDrawing(this.ctx, scaling);
+    this.ctx.miterLimit = 1;
+
+    let pathScaleMethod = this.mustScaleShapes
+        ? 'scale'
+        : 'no scale',
+      path = new Path2D(shape.getSVGPath(pathScaleMethod, true, false, true));
+
+    //if (shape.name != 'CircleArc')
+    this.ctx.fill(path, 'nonzero');
+    path = new Path2D(shape.getSVGPath(pathScaleMethod, true, true));
+    this.ctx.globalAlpha = 1;
+    if (shape.drawHidden)
+      this.ctx.setLineDash([5, 15]);
+    if (shape.segments.some(seg => seg.color != undefined)) {
+      shape.segments.forEach(seg => {
+        let path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
+        this.ctx.strokeStyle = seg.color ? seg.color : shape.strokeColor;
+        this.ctx.stroke(path);
+      });
+    } else
+      this.ctx.stroke(path);
+    this.ctx.setLineDash([]);
+  }
+
+  drawPoint(point, color = '#000', doSave = true) {
+    if (doSave) this.ctx.save();
+
+    this.ctx.fillStyle = color;
+    this.ctx.globalAlpha = 1;
+
+    const canvasCoodinates = point.coordinates.toCanvasCoordinates();
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(canvasCoodinates.x, canvasCoodinates.y);
+    this.ctx.arc(
+      canvasCoodinates.x,
+      canvasCoodinates.y,
+      point.size * 2 * app.workspace.zoomLevel,
+      0,
+      2 * Math.PI,
+      0,
+    );
+    this.ctx.closePath();
+    this.ctx.fill();
+
+    if (doSave) this.ctx.restore();
+  }
+
+  drawText(
+    text,
+    position,
+    color = '#000',
+    doSave = true,
+  ) {
+    if (doSave) this.ctx.save();
+
+    const fontSize = 20;
+    let positionCopy = position.add({
+      x: (((-3 * fontSize) / 13) * text.length) / app.workspace.zoomLevel,
+      y: fontSize / 2 / app.workspace.zoomLevel,
+    });
+    positionCopy = positionCopy.toCanvasCoordinates();
+
+    this.ctx.fillStyle = color;
+    this.ctx.font = fontSize + 'px Arial';
+    this.ctx.fillText(text, positionCopy.x, positionCopy.y);
+
+    if (doSave) this.ctx.restore();
+  }
+
+  // drawSegment(segment, color = '#000', size = 1, doSave = true) {
+  //   if (doSave) this.ctx.save();
+
+  //   this.ctx.strokeStyle = color;
+  //   this.ctx.globalAlpha = 1;
+  //   this.ctx.lineWidth = size * app.workspace.zoomLevel;
+
+  //   const firstCoordinates = this.vertexes[0].coordinates.toCanvasCoordinates();
+
+  //   const path = new Path2D(
+  //     ['M', firstCoordinates.x, firstCoordinates.y, segment.getSVGPath()].join(' ')
+  //   );
+
+  //   this.ctx.stroke(path);
+
+  //   if (doSave) this.ctx.restore();
+  // }
+
+  // drawLine(segment, color = '#000', size = 1, doSave = true) {
+  //   if (doSave) this.ctx.save();
+
+  //   this.ctx.strokeStyle = color;
+  //   this.ctx.globalAlpha = 1;
+  //   this.ctx.lineWidth = size * app.workspace.zoomLevel;
+
+  //   let angle = segment.getAngleWithHorizontal();
+  //   let transformSegment = new Segment(
+  //     segment.vertexes[0].subCoordinates(
+  //       1000000 * Math.cos(angle),
+  //       1000000 * Math.sin(angle),
+  //     ),
+  //     segment.vertexes[1].addCoordinates(
+  //       1000000 * Math.cos(angle),
+  //       1000000 * Math.sin(angle),
+  //     ),
+  //   );
+
+  //   const v0Copy = new Point(transformSegment.vertexes[0]);
+  //   v0Copy.setToCanvasCoordinates();
+
+  //   const path = new Path2D(
+  //     ['M', v0Copy.x, v0Copy.y, transformSegment.getSVGPath()].join(' '),
+  //   );
+
+  //   this.ctx.stroke(path);
+
+  //   if (doSave) this.ctx.restore();
+  // }
+
   // // Ajout d'un fond d'écran fixé à droite
   // set background(touch) {
   //   this.style.display = 'block';
   //   this.style.background = `url('${touch}') no-repeat right`;
   // }
 }
-customElements.define('canvas-elem', CanvasElem);
+customElements.define('canvas-layer', CanvasLayer);

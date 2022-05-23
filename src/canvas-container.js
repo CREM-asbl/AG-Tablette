@@ -1,9 +1,7 @@
 import { css, html, LitElement } from 'lit';
 import { app, setState } from './Core/App';
-import { SelectManager } from './Core/Managers/SelectManager';
 import { Coordinates } from './Core/Objects/Coordinates';
-import { DrawingEnvironment } from './Core/Objects/DrawingEnvironment';
-import './canvas-elem';
+import './canvas-layer';
 
 class CanvasContainer extends LitElement {
   constructor() {
@@ -31,22 +29,19 @@ class CanvasContainer extends LitElement {
   render() {
     return html`
       <!-- for background tasks (invisible canvas) -->
-      <canvas-elem id="invisibleCanvas"></canvas-elem>
+      <canvas-layer id="invisibleCanvas"></canvas-layer>
 
       <!-- for background image -->
-      <canvas-elem id="backgroundCanvas"></canvas-elem>
+      <canvas-layer id="backgroundCanvas"></canvas-layer>
 
-      <!-- for grid points -->
-      <canvas-elem id="gridCanvas"></canvas-elem>
-
-      <!-- for tangram outline -->
-      <canvas-elem id="tangramCanvas"></canvas-elem>
+      <!-- for grid points or tangram outline -->
+      ${app.environment.name !== 'Tangram' ? html`<canvas-layer id="gridCanvas"></canvas-layer>` : html`<canvas-layer id="tangramCanvas"></canvas-layer>`}
 
       <!-- for the shapes -->
-      <canvas-elem id="mainCanvas"></canvas-elem>
+      <canvas-layer id="mainCanvas"></canvas-layer>
 
       <!-- for the current event (ex: moving shape) -->
-      <canvas-elem id="upperCanvas"></canvas-elem>
+      <canvas-layer id="upperCanvas"></canvas-layer>
 
       <img
         src="/images/fake_cursor.png"

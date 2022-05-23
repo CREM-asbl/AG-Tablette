@@ -21,7 +21,6 @@ export default {
     'Biface',
     'Translate',
     'Zoom',
-    'Grid',
   ],
   kit: 'grandeursKit',
   extension: 'agg',

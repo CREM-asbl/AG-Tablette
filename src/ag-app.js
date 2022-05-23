@@ -82,7 +82,7 @@ class AgApp extends LitElement {
     let shape =
       new shapeImport.NewShape({
         ...shapeTemplate,
-        drawingEnvironment: app.invisibleDrawingEnvironment,
+        layer: 'invisible',
         fillOpacity: 1,
       });
 

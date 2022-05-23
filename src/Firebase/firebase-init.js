@@ -95,15 +95,6 @@ export async function openFileFromId(id) {
 
     setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(data.Environment) });
-
-    const DrawingEnvironmentModule = await import('../Core/Objects/DrawingEnvironment.js');
-
-    // à retirer quand tout est centralisé dans app
-    app.upperCanvasElem = new DrawingEnvironmentModule.DrawingEnvironment();
-    app.mainCanvasElem = new DrawingEnvironmentModule.DrawingEnvironment();
-    app.backgroundDrawingEnvironment = new DrawingEnvironmentModule.DrawingEnvironment();
-    app.invisibleDrawingEnvironment = new DrawingEnvironmentModule.DrawingEnvironment();
-    // ---
   }
 }
 

@@ -7,14 +7,14 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
   if (app.environment.name != 'Geometrie') return;
   if (includeChildren)
     shape.geometryObject.geometryChildShapeIds.forEach(ref => {
-      let sRef = app[layer + 'DrawingEnvironment'].findObjectById(ref);
+      let sRef = app[layer + 'CanvasLayer'].findObjectById(ref);
       if (!sRef) {
         return;
       }
       let ptsMoved = [];
       sRef.points.forEach(pt => {
         if (pt.reference) {
-          let ptRef = app[layer + 'DrawingEnvironment'].findObjectById(pt.reference, 'point');
+          let ptRef = app[layer + 'CanvasLayer'].findObjectById(pt.reference, 'point');
           if (!ptRef || ptRef.shape.id != shape.id) {
           } else {
             pt.coordinates = new Coordinates(ptRef.coordinates);
@@ -26,8 +26,8 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
       computeAllShapeTransform(sRef, layer);
     });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
-    let child = app[layer + 'DrawingEnvironment'].findObjectById(childId);
-    let parentShape = app[layer + 'DrawingEnvironment'].findObjectById(child.geometryObject.geometryTransformationParentShapeId)
+    let child = app[layer + 'CanvasLayer'].findObjectById(childId);
+    let parentShape = app[layer + 'CanvasLayer'].findObjectById(child.geometryObject.geometryTransformationParentShapeId)
     child.vertexes.forEach((pt, idx) => {
       pt.coordinates = parentShape.vertexes[idx].coordinates;
     });
@@ -37,13 +37,13 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
     let axis;
     if (child.geometryObject.geometryTransformationName == 'orthogonalSymetry') {
       if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-        axis = app[layer + 'DrawingEnvironment'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'segment');
+        axis = app[layer + 'CanvasLayer'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'segment');
       } else {
         let pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-          app[layer + 'DrawingEnvironment'].findObjectById(refId, 'point')
+          app[layer + 'CanvasLayer'].findObjectById(refId, 'point')
         );
         let axisShape = new LineShape({
-          drawingEnvironment: app.invisibleDrawingEnvironment,
+          layer: 'invisible',
           path: `M ${pts[0].coordinates.x} ${pts[0].coordinates.y} L ${pts[1].coordinates.x} ${pts[1].coordinates.y}`,
           borderColor: app.settings.referenceDrawColor,
           borderSize: 2,
@@ -52,15 +52,15 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
       }
       reverseShape(child, axis);
     } else if (child.geometryObject.geometryTransformationName == 'centralSymetry') {
-      let center = app[layer + 'DrawingEnvironment'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point').coordinates;
+      let center = app[layer + 'CanvasLayer'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point').coordinates;
       child.rotate(Math.PI, center);
     } else if (child.geometryObject.geometryTransformationName == 'translation') {
       let pts;
       if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-        pts = app[layer + 'DrawingEnvironment'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'shape').points;
+        pts = app[layer + 'CanvasLayer'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'shape').points;
       } else {
         pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-          app[layer + 'DrawingEnvironment'].findObjectById(refId, 'point')
+          app[layer + 'CanvasLayer'].findObjectById(refId, 'point')
         );
       }
       child.translate(pts[1].coordinates.substract(pts[0].coordinates));
@@ -68,12 +68,12 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
       let angle;
       let pts;
       if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) {
-        let arc = app[layer + 'DrawingEnvironment'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[1], 'shape')
+        let arc = app[layer + 'CanvasLayer'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[1], 'shape')
         angle = arc.segments[0].arcCenter.coordinates.angleWith(arc.segments[0].vertexes[0].coordinates) - arc.segments[0].arcCenter.coordinates.angleWith(arc.segments[0].vertexes[1].coordinates);
-        pts = [app[layer + 'DrawingEnvironment'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point')];
+        pts = [app[layer + 'CanvasLayer'].findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point')];
       } else {
         pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-          app[layer + 'DrawingEnvironment'].findObjectById(refId, 'point')
+          app[layer + 'CanvasLayer'].findObjectById(refId, 'point')
         );
         angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
       }
@@ -86,7 +86,7 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
   });
   if (includeChildren)
     shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
-      let child = app[layer + 'DrawingEnvironment'].findObjectById(childId);
+      let child = app[layer + 'CanvasLayer'].findObjectById(childId);
       let vector = child.geometryObject.geometryConstructionSpec.childFirstPointCoordinates.substract(child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
       let mustReverse = false,
         rotationMultiplier = -1;
@@ -243,7 +243,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       y: middle.y + height * Math.sin(angle),
     });
   } else if (shape.name == 'ParalleleSegment') {
-    let seg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let seg = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let angle = seg.getAngleWithHorizontal();
     let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
 
@@ -252,7 +252,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
     });
   } else if (shape.name == 'PerpendicularSegment') {
-    let seg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let seg = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
     let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
 
@@ -267,7 +267,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       recomputeAllVisibilities(layer);
     }
   } else if (shape.name == 'ParalleleSemiStraightLine') {
-    let seg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let seg = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let angle = seg.getAngleWithHorizontal();
     let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
 
@@ -276,7 +276,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
     });
   } else if (shape.name == 'PerpendicularSemiStraightLine') {
-    let seg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let seg = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
     let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
 
@@ -291,7 +291,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       recomputeAllVisibilities(layer);
     }
   } else if (shape.name == 'ParalleleStraightLine') {
-    let seg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let seg = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let angle = seg.getAngleWithHorizontal();
 
     shape.vertexes[1].coordinates = new Coordinates({
@@ -299,7 +299,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       y: shape.vertexes[0].coordinates.y + 100 * Math.sin(angle),
     });
   } else if (shape.name == 'PerpendicularStraightLine') {
-    let seg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let seg = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
 
     shape.vertexes[1].coordinates = new Coordinates({
@@ -307,7 +307,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       y: shape.vertexes[0].coordinates.y + 100 * Math.sin(angle),
     });
   } else if (shape.name == 'PointOnLine') {
-    let ref = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let ref = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
 
     let firstPoint = ref.vertexes[0];
     let secondPoint = ref.vertexes[1];
@@ -329,7 +329,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
     shape.points[0].coordinates = coord;
   } else if (shape.name == 'PointOnShape') {
     let coord = shape.points[0].coordinates;
-    let ref = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'shape');
+    let ref = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'shape');
     if (ref.isCoordinatesInPath(coord) || ref.isCoordinatesOnBorder(coord)) {
       return
     }
@@ -350,8 +350,8 @@ export function computeShapeTransform(shape, layer = 'upper') {
     });
     shape.points[0].coordinates = projections[0].proj;
   } else if (shape.name == 'PointOnIntersection') {
-    let firstSeg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
-    let secondSeg = app[layer + 'DrawingEnvironment'].findObjectById(shape.geometryObject.geometryParentObjectId2, 'segment');
+    let firstSeg = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let secondSeg = app[layer + 'CanvasLayer'].findObjectById(shape.geometryObject.geometryParentObjectId2, 'segment');
     let coords = firstSeg.intersectionWith(secondSeg);
     let newValue = !!coords;
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
@@ -418,10 +418,10 @@ export function computeShapeTransform(shape, layer = 'upper') {
 }
 
 function recomputeAllVisibilities(layer) {
-  app[layer + 'DrawingEnvironment'].shapes.forEach(s => s.geometryObject.geometryIsVisible = true);
+  app[layer + 'CanvasLayer'].shapes.forEach(s => s.geometryObject.geometryIsVisible = true);
 
   let changeVisibilityRecursively = (shapeId) => {
-    let shape = app[layer + 'DrawingEnvironment'].findObjectById(shapeId);
+    let shape = app[layer + 'CanvasLayer'].findObjectById(shapeId);
     shape.geometryObject.geometryIsVisible = false;
     shape.geometryObject.geometryChildShapeIds.forEach(objId => {
       changeVisibilityRecursively(objId);
@@ -431,7 +431,7 @@ function recomputeAllVisibilities(layer) {
     });
   }
 
-  app[layer + 'DrawingEnvironment'].shapes.forEach(s => {
+  app[layer + 'CanvasLayer'].shapes.forEach(s => {
     if (s.geometryObject.geometryIsVisibleByChoice === false)
       changeVisibilityRecursively(s.id)
   });
@@ -444,8 +444,8 @@ export function computeDivisionPoint(point) {
     let startAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[0].coordinates);
     let newAngle = startAngle + point.ratio * 2 * Math.PI;
     if (point.endpointIds?.length == 2) {
-      let firstPoint = app.upperCanvasElem.findObjectById(point.endpointIds[0], 'point');
-      let secondPoint = app.upperCanvasElem.findObjectById(point.endpointIds[1], 'point');
+      let firstPoint = app.upperCanvasLayer.findObjectById(point.endpointIds[0], 'point');
+      let secondPoint = app.upperCanvasLayer.findObjectById(point.endpointIds[1], 'point');
       let firstAngle = segment.arcCenter.coordinates.angleWith(firstPoint.coordinates);
       let secondAngle = segment.arcCenter.coordinates.angleWith(secondPoint.coordinates);
       if (secondAngle <= firstAngle) {
@@ -463,8 +463,8 @@ export function computeDivisionPoint(point) {
   let firstPoint = segment.vertexes[0];
   let secondPoint = segment.vertexes[1];
   if (point.endpointIds?.length == 2) {
-    firstPoint = app.upperCanvasElem.findObjectById(point.endpointIds[0], 'point');
-    secondPoint = app.upperCanvasElem.findObjectById(point.endpointIds[1], 'point');
+    firstPoint = app.upperCanvasLayer.findObjectById(point.endpointIds[0], 'point');
+    secondPoint = app.upperCanvasLayer.findObjectById(point.endpointIds[1], 'point');
   }
 
   // if (firstPoint.ratio > secondPoint.ratio)
@@ -480,7 +480,7 @@ export function computeDivisionPoint(point) {
 
 export function computeConstructionSpec(shape, maxIndex = 100) {
   if (shape.familyName == 'duplicate') {
-    let refShape = app.upperDrawingEnvironment.findObjectById(shape.geometryObject.geometryDuplicateParentShapeId, 'shape');
+    let refShape = app.upperCanvasLayer.findObjectById(shape.geometryObject.geometryDuplicateParentShapeId, 'shape');
     shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refShape.points[0].coordinates;
     shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.points[0].coordinates;
     let refShapeAngle = refShape.points[0].coordinates.angleWith(refShape.centerCoordinates);
@@ -559,7 +559,7 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     shape.name == 'ParalleleSegment'
   ) {
     shape.geometryObject.geometryConstructionSpec.segmentLength = shape.segments[0].length;
-    let reference = app.mainCanvasElem.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let reference = app.mainCanvasLayer.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     if (Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal()) > 0.1)
       shape.geometryObject.geometryConstructionSpec.segmentLength *= -1;
   } else if (
@@ -567,7 +567,7 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     shape.name == 'PerpendicularSegment'
   ) {
     shape.geometryObject.geometryConstructionSpec.segmentLength = shape.segments[0].length;
-    let reference = app.mainCanvasElem.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+    let reference = app.mainCanvasLayer.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
     if (Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal() + Math.PI / 2) > 0.1 &&
       Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal() + Math.PI / 2 - 2 * Math.PI) > 0.1)
       shape.geometryObject.geometryConstructionSpec.segmentLength *= -1;

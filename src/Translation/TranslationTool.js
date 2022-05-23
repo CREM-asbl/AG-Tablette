@@ -27,7 +27,7 @@ export class TranslationTool extends Tool {
   }
 
   selectFirstReference() {
-    app.upperCanvasElem.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -70,7 +70,7 @@ export class TranslationTool extends Tool {
 
     if (this.drawingShapes)
       this.drawingShapes.forEach(s => {
-        app.upperCanvasElem.removeObjectById(s.id);
+        app.upperCanvasLayer.removeObjectById(s.id);
       })
 
     this.setSelectionConstraints();
@@ -85,7 +85,7 @@ export class TranslationTool extends Tool {
   }
 
   end() {
-    app.upperCanvasElem.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -101,7 +101,7 @@ export class TranslationTool extends Tool {
         this.firstReference = object;
         new ArrowLineShape({
           path: object.getSVGPath('no scale', true),
-          drawingEnvironment: app.upperCanvasElem,
+          layer: 'upper',
           strokeColor: app.settings.referenceDrawColor,
           strokeWidth: 2,
         });
@@ -109,7 +109,7 @@ export class TranslationTool extends Tool {
       } else {
         this.pointsDrawn.push(new Point({
           coordinates: coord,
-          drawingEnvironment: app.upperCanvasElem,
+          layer: 'upper',
           color: app.settings.referenceDrawColor,
           size: 2,
         }));
@@ -118,16 +118,16 @@ export class TranslationTool extends Tool {
     } else {
       this.pointsDrawn.push(new Point({
         coordinates: coord,
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         color: app.settings.referenceDrawColor,
         size: 2,
       }));
       let segment = new Segment({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         vertexIds: this.pointsDrawn.map((pt) => pt.id),
       });
       new ArrowLineShape({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         segmentIds: [segment.id],
         pointIds: this.pointsDrawn.map((pt) => pt.id),
         strokeColor: app.settings.referenceDrawColor,
@@ -167,7 +167,7 @@ export class TranslationTool extends Tool {
       (s) =>
         new s.constructor({
           ...s,
-          drawingEnvironment: app.upperCanvasElem,
+          layer: 'upper',
           path: s.getSVGPath('no scale', false),
           id: undefined,
           divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -234,7 +234,7 @@ export class TranslationTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'trans') {
-      app.upperCanvasElem.points.forEach((point) => {
+      app.upperCanvasLayer.points.forEach((point) => {
         if (point.startCoordinates) {
           point.coordinates = point.startCoordinates.substract(
             point.startCoordinates
@@ -263,20 +263,20 @@ export class TranslationTool extends Tool {
   }
 
   _executeAction() {
-    if (this.firstReference instanceof Point && this.firstReference.drawingEnvironment.name == 'upper') {
+    if (this.firstReference instanceof Point && this.firstReference.canvasLayer.name == 'upper') {
       let coord = this.firstReference.coordinates;
       this.firstReference = new SinglePointShape({
-        drawingEnvironment: app.mainCanvasElem,
+        layer: 'main',
         path: `M ${coord.x} ${coord.y}`,
         name: 'Point',
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       }).points[0];
     }
-    if (this.firstReference instanceof Point && this.secondReference.drawingEnvironment.name == 'upper') {
+    if (this.firstReference instanceof Point && this.secondReference.canvasLayer.name == 'upper') {
       let coord = this.secondReference.coordinates;
       this.secondReference = new SinglePointShape({
-        drawingEnvironment: app.mainCanvasElem,
+        layer: 'main',
         path: `M ${coord.x} ${coord.y}`,
         name: 'Point',
         familyName: 'Point',
@@ -289,7 +289,7 @@ export class TranslationTool extends Tool {
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
         ...s,
-        drawingEnvironment: app.mainCanvasElem,
+        layer: 'main',
         id: undefined,
         path: s.getSVGPath('no scale', false),
         divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -310,17 +310,17 @@ export class TranslationTool extends Tool {
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       if (this.firstReference instanceof Point) {
-        let ref = app.mainCanvasElem.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
+        let ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
         if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
-        ref = app.mainCanvasElem.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[1], 'point');
+        ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[1], 'point');
         if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
         newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
       } else {
-        let ref = app.mainCanvasElem.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'shape');
+        let ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'shape');
         if (!ref.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }

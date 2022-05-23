@@ -14,7 +14,7 @@ export class SinglePointShape extends Shape {
 
   constructor({
     id = uniqId(),
-    drawingEnvironment,
+    layer,
 
     path = undefined,
     segmentIds = [],
@@ -42,7 +42,7 @@ export class SinglePointShape extends Shape {
 
   get segments() {
     let segments = this.segmentIds.map((segId) =>
-      this.drawingEnvironment.segments.find((seg) => seg.id === segId),
+      this.canvasLayer.segments.find((seg) => seg.id === segId),
     );
     return segments;
   }
@@ -50,7 +50,7 @@ export class SinglePointShape extends Shape {
   get points() {
     // if (this.isCircle() && app.environment.name !== 'Geometrie') => doit-on inclure le point du cercle dans Grandeurs et Cubes ?
     let points = this.pointIds.map((ptId) =>
-      this.drawingEnvironment.points.find((pt) => pt.id === ptId),
+      this.canvasLayer.points.find((pt) => pt.id === ptId),
     );
     return points;
   }
@@ -99,13 +99,13 @@ export class SinglePointShape extends Shape {
       new Point({
         coordinates: centerCoordinates,
         shapeId: this.id,
-        drawingEnvironment: this.drawingEnvironment,
+        layer: this.layer,
         type: 'shapeCenter',
         // visible: this.isPointed,
       });
     } else if (!value && this.isCenterShown) {
       let pointId = this.points.find((pt) => pt.type == 'shapeCenter').id;
-      this.drawingEnvironment.removeObjectById(pointId, 'point');
+      this.canvasLayer.removeObjectById(pointId, 'point');
       let index = this.pointIds.findIndex((pt) => pt.id == pointId);
       this.pointIds.splice(index, 1);
     }
@@ -134,7 +134,7 @@ export class SinglePointShape extends Shape {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
-          drawingEnvironment: this.drawingEnvironment,
+          layer: this.layer,
           type: 'vertex',
           idx: vertexIdx++,
           visible: this.isPointed,
@@ -142,7 +142,7 @@ export class SinglePointShape extends Shape {
       }
       new Segment({
         shapeId: this.id,
-        drawingEnvironment: this.drawingEnvironment,
+        layer: this.layer,
         idx: segmentIdx++,
         vertexIds: [firstVertex.id, lastVertex.id],
       });
@@ -153,7 +153,7 @@ export class SinglePointShape extends Shape {
         x: 0,
         y: 0,
         shapeId: this.id,
-        drawingEnvironment: this.drawingEnvironment,
+        layer: this.layer,
         type: 'vertex',
         idx: vertexIdx++,
         visible: this.isPointed,
@@ -172,7 +172,7 @@ export class SinglePointShape extends Shape {
           startVertex = lastVertex = new Point({
             coordinates: nextVertexCoordinates,
             shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
+            layer: this.layer,
             type: 'vertex',
             idx: vertexIdx++,
             visible: this.isPointed,
@@ -214,7 +214,7 @@ export class SinglePointShape extends Shape {
             lastVertex = new Point({
               coordinates: nextVertexCoordinates,
               shapeId: this.id,
-              drawingEnvironment: this.drawingEnvironment,
+              layer: this.layer,
               type: 'vertex',
               idx: vertexIdx++,
               visible: this.isPointed,
@@ -231,7 +231,7 @@ export class SinglePointShape extends Shape {
 
           new Segment({
             shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
+            layer: this.layer,
             idx: segmentIdx++,
             vertexIds: [firstVertex.id, lastVertex.id],
             arcCenterId: arcCenter.id,
@@ -344,7 +344,7 @@ export class SinglePointShape extends Shape {
       });
     }
     let arcCenter = new Point({
-      drawingEnvironment: this.drawingEnvironment,
+      layer: this.layer,
       coordinates: arcCenterCoordinates,
       shapeId: this.id,
       type: 'arcCenter',
@@ -568,14 +568,14 @@ export class SinglePointShape extends Shape {
         let middlePointId = this.segments[i].vertexIds[1];
         let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
         this.pointIds.splice(ptIdx, 1);
-        this.drawingEnvironment.removeObjectById(middlePointId, 'point');
+        this.canvasLayer.removeObjectById(middlePointId, 'point');
         this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
         let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
           (id) => id == this.segmentIds[nextIdx],
         );
         this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
         if (this.segments[nextIdx].arcCenterId) {
-          this.drawingEnvironment.removeObjectById(
+          this.canvasLayer.removeObjectById(
             this.segments[nextIdx].arcCenterId,
             'point',
           );
@@ -584,7 +584,7 @@ export class SinglePointShape extends Shape {
           );
           this.pointIds.splice(idx, 1);
         }
-        this.drawingEnvironment.removeObjectById(
+        this.canvasLayer.removeObjectById(
           this.segmentIds[nextIdx],
           'segment',
         );
@@ -609,7 +609,7 @@ export class SinglePointShape extends Shape {
       data.position = 'main';
     }
     let shape = new SinglePointShape({
-      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
+      layer: data.position,
     });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];

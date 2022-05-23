@@ -1,6 +1,6 @@
 import { html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { TemplatePopup } from '../popups/template-popup';
+import { TemplatePopup } from './template-popup';
 
 class GridPopup extends LitElement {
   constructor() {
@@ -57,14 +57,12 @@ class GridPopup extends LitElement {
                 Aucune
               </option>
               <option
-                style=${app.environment.name == 'Cubes' ? 'display:none' : ''}
                 value="square"
                 ?selected=${this.gridType === 'square'}
               >
                 Carrés
               </option>
               <option
-                style=${app.environment.name == 'Cubes' ? 'display:none' : ''}
                 value="horizontal-triangle"
                 ?selected=${this.gridType === 'horizontal-triangle'}
               >
@@ -79,7 +77,7 @@ class GridPopup extends LitElement {
                 value="vertical-triangle"
                 ?selected=${this.gridType === 'vertical-triangle'}
               >
-                ${app.environment.name == 'Cubes' ? 'Triangles' : 'Triangles 2'}
+                Triangles 2
               </option>
             </select>
           </div>

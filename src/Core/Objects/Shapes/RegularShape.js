@@ -14,7 +14,7 @@ export class RegularShape extends Shape {
 
   constructor({
     id = uniqId(),
-    drawingEnvironment,
+    layer,
 
     path = undefined,
     segmentIds = [],
@@ -47,7 +47,7 @@ export class RegularShape extends Shape {
 
   get segments() {
     let segments = this.segmentIds.map((segId) =>
-      this.drawingEnvironment.segments.find((seg) => seg.id === segId),
+      this.canvasLayer.segments.find((seg) => seg.id === segId),
     );
     return segments;
   }
@@ -55,7 +55,7 @@ export class RegularShape extends Shape {
   get points() {
     // if (this.isCircle() && app.environment.name !== 'Geometrie') => doit-on inclure le point du cercle dans Grandeurs et Cubes ?
     let points = this.pointIds.map((ptId) =>
-      this.drawingEnvironment.points.find((pt) => pt.id === ptId),
+      this.canvasLayer.points.find((pt) => pt.id === ptId),
     );
     return points;
   }
@@ -104,13 +104,13 @@ export class RegularShape extends Shape {
       new Point({
         coordinates: centerCoordinates,
         shapeId: this.id,
-        drawingEnvironment: this.drawingEnvironment,
+        layer: this.layer,
         type: 'shapeCenter',
         // visible: this.isPointed,
       });
     } else if (!value && this.isCenterShown) {
       let pointId = this.points.find((pt) => pt.type == 'shapeCenter').id;
-      this.drawingEnvironment.removeObjectById(pointId, 'point');
+      this.canvasLayer.removeObjectById(pointId, 'point');
       let index = this.pointIds.findIndex((pt) => pt.id == pointId);
       this.pointIds.splice(index, 1);
     }
@@ -139,7 +139,7 @@ export class RegularShape extends Shape {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
-          drawingEnvironment: this.drawingEnvironment,
+          layer: this.layer,
           type: 'vertex',
           idx: vertexIdx++,
           visible: this.isPointed,
@@ -147,7 +147,7 @@ export class RegularShape extends Shape {
       }
       new Segment({
         shapeId: this.id,
-        drawingEnvironment: this.drawingEnvironment,
+        layer: this.layer,
         idx: segmentIdx++,
         vertexIds: [firstVertex.id, lastVertex.id],
       });
@@ -158,7 +158,7 @@ export class RegularShape extends Shape {
         x: 0,
         y: 0,
         shapeId: this.id,
-        drawingEnvironment: this.drawingEnvironment,
+        layer: this.layer,
         type: 'vertex',
         idx: vertexIdx++,
         visible: this.isPointed,
@@ -182,7 +182,7 @@ export class RegularShape extends Shape {
             startVertex = lastVertex = new Point({
               coordinates: nextVertexCoordinates,
               shapeId: this.id,
-              drawingEnvironment: this.drawingEnvironment,
+              layer: this.layer,
               type: 'vertex',
               idx: vertexIdx++,
               visible: this.isPointed,
@@ -225,7 +225,7 @@ export class RegularShape extends Shape {
             lastVertex = new Point({
               coordinates: nextVertexCoordinates,
               shapeId: this.id,
-              drawingEnvironment: this.drawingEnvironment,
+              layer: this.layer,
               type: 'vertex',
               idx: vertexIdx++,
               visible: this.isPointed,
@@ -242,7 +242,7 @@ export class RegularShape extends Shape {
 
           let segment = new Segment({
             shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
+            layer: this.layer,
             idx: segmentIdx++,
             vertexIds: [firstVertex.id, lastVertex.id],
             arcCenterId: arcCenter.id,
@@ -267,11 +267,11 @@ export class RegularShape extends Shape {
     if (app.environment.name == 'Geometrie' && !this.isCircle() && this.points.filter(pt => pt.type != 'arcCenter').length != this.segmentIds.length) {
       let coord = this.points[0].coordinates;
       let numberOfSegment = this.segmentIds.length;
-      this.pointIds.forEach(ptId => this.drawingEnvironment.removeObjectById(
+      this.pointIds.forEach(ptId => this.canvasLayer.removeObjectById(
         ptId,
         'point',
       ));
-      this.segmentIds.forEach(segId => this.drawingEnvironment.removeObjectById(
+      this.segmentIds.forEach(segId => this.canvasLayer.removeObjectById(
         segId,
         'segment',
       ));
@@ -281,7 +281,7 @@ export class RegularShape extends Shape {
         new Point({
           coordinates: coord,
           shapeId: this.id,
-          drawingEnvironment: this.drawingEnvironment,
+          layer: this.layer,
           type: 'vertex',
           idx,
           visible: this.isPointed,
@@ -290,7 +290,7 @@ export class RegularShape extends Shape {
       for (let idx = 0; idx < numberOfSegment; idx++) {
         new Segment({
           shapeId: this.id,
-          drawingEnvironment: this.drawingEnvironment,
+          layer: this.layer,
           idx,
           vertexIds: [this.pointIds[idx], this.pointIds[(idx + 1) % numberOfSegment]],
         });
@@ -389,7 +389,7 @@ export class RegularShape extends Shape {
       });
     }
     let arcCenter = new Point({
-      drawingEnvironment: this.drawingEnvironment,
+      layer: this.layer,
       coordinates: arcCenterCoordinates,
       shapeId: this.id,
       type: 'arcCenter',
@@ -433,7 +433,7 @@ export class RegularShape extends Shape {
   // }
 
   isCoordinatesInPath(coordinates) {
-    const ctx = app.invisibleDrawingEnvironment.ctx;
+    const ctx = app.invisibleCanvasLayer.ctx;
     let canvasCoordinates = coordinates.toCanvasCoordinates();
     const selected = ctx.isPointInPath(
       new Path2D(this.getSVGPath()),
@@ -651,11 +651,11 @@ export class RegularShape extends Shape {
         if (this.name == 'Circle' && this.segments[0].radius < 0.001) {
           let coord = this.segments[0].arcCenter.coordinates;
           let counterclockwise = this.segments[0].counterclockwise;
-          this.pointIds.forEach(ptId => this.drawingEnvironment.removeObjectById(
+          this.pointIds.forEach(ptId => this.canvasLayer.removeObjectById(
             ptId,
             'point',
           ));
-          this.segmentIds.forEach(segId => this.drawingEnvironment.removeObjectById(
+          this.segmentIds.forEach(segId => this.canvasLayer.removeObjectById(
             segId,
             'segment',
           ));
@@ -664,7 +664,7 @@ export class RegularShape extends Shape {
           new Point({
             coordinates: coord,
             shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
+            layer: this.layer,
             type: 'vertex',
             idx: 0,
             visible: this.isPointed,
@@ -672,13 +672,13 @@ export class RegularShape extends Shape {
           new Point({
             coordinates: coord,
             shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
+            layer: this.layer,
             type: 'arcCenter',
             visible: this.isPointed,
           });
           new Segment({
             shapeId: this.id,
-            drawingEnvironment: this.drawingEnvironment,
+            layer: this.layer,
             idx: 0,
             vertexIds: [this.pointIds[0]],
             arcCenterId: this.pointIds[1],
@@ -688,14 +688,14 @@ export class RegularShape extends Shape {
           let middlePointId = this.segments[i].vertexIds[1];
           let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
           this.pointIds.splice(ptIdx, 1);
-          this.drawingEnvironment.removeObjectById(middlePointId, 'point');
+          this.canvasLayer.removeObjectById(middlePointId, 'point');
           this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
           let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
             (id) => id == this.segmentIds[nextIdx],
           );
           this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
           if (this.segments[nextIdx].arcCenterId) {
-            this.drawingEnvironment.removeObjectById(
+            this.canvasLayer.removeObjectById(
               this.segments[nextIdx].arcCenterId,
               'point',
             );
@@ -704,7 +704,7 @@ export class RegularShape extends Shape {
             );
             this.pointIds.splice(idx, 1);
           }
-          this.drawingEnvironment.removeObjectById(
+          this.canvasLayer.removeObjectById(
             this.segmentIds[nextIdx],
             'segment',
           );
@@ -730,7 +730,7 @@ export class RegularShape extends Shape {
       data.position = 'main';
     }
     let shape = new RegularShape({
-      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
+      layer: data.position,
     });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];

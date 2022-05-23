@@ -1,5 +1,4 @@
 import { getAllChildrenInGeometry } from '../../GeometryTools/general';
-import { GridManager } from '../../Grid/GridManager';
 import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
 import { Coordinates } from '../Objects/Coordinates';
@@ -139,7 +138,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     cPtListShape = [];
   ptList.forEach((point) => {
     if (grid) {
-      let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+      let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
       if (gridPoint) {
         cPtListGrid.push({
           fixed: gridPoint,

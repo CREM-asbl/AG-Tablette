@@ -59,13 +59,13 @@ export class DuplicateTool extends Tool {
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
-    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s instanceof SinglePointShape);
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -76,7 +76,7 @@ export class DuplicateTool extends Tool {
   }
 
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -106,7 +106,7 @@ export class DuplicateTool extends Tool {
     this.drawingShapes = this.involvedShapes.map((s) => {
       let newShape = new s.constructor({
         ...s,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         path: s.getSVGPath('no scale', false),
         id: undefined,
         divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -156,8 +156,8 @@ export class DuplicateTool extends Tool {
     this.involvedShapes.forEach((s) => {
       let newShape = new s.constructor({
         ...s,
+        layer: 'main',
         familyName: 'duplicate',
-        drawingEnvironment: app.mainDrawingEnvironment,
         path: s.getSVGPath('no scale', false),
         id: undefined,
         divisionPointInfos: s.divisionPoints.map((dp) => {

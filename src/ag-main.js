@@ -2,7 +2,6 @@ import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import './color-button';
 import { app, setState } from './Core/App';
-import './Core/Managers/DrawManager';
 import './Core/Managers/FullHistoryManager';
 import './Core/Managers/GroupManager';
 import { HistoryManager } from './Core/Managers/HistoryManager';

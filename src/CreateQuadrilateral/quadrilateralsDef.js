@@ -9,14 +9,14 @@ const finishShapeEnd = (points, segments, numberOfPointsRequired) => {
     if (numberOfPointsRequired < 3)
       segments.push(
         new Segment({
-          drawingEnvironment: app.upperCanvasElem,
+          layer: 'upper',
           vertexIds: [points[1].id, points[2].id],
         }),
       );
     if (numberOfPointsRequired < 4)
       segments.push(
         new Segment({
-          drawingEnvironment: app.upperCanvasElem,
+          layer: 'upper',
           vertexIds: [points[2].id, points[3].id],
         }),
       );
@@ -46,7 +46,7 @@ export const Square = {
       );
       if (points.length == i + 2) {
         points[i + 2] = new Point({
-          drawingEnvironment: app.upperCanvasElem,
+          layer: 'upper',
           coordinates: newCoordinates,
           color: app.settings.temporaryDrawColor,
           size: 2,
@@ -87,7 +87,7 @@ export const Rectangle = {
       .add(points[0].coordinates);
     if (points.length == 3) {
       points[3] = new Point({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -124,7 +124,7 @@ export const Losange = {
       .substract(points[1].coordinates);
     if (points.length == 3) {
       points[3] = new Point({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -149,7 +149,7 @@ export const Parallelogram = {
       .add(points[0].coordinates);
     if (points.length == 3) {
       points[3] = new Point({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -177,7 +177,7 @@ export const Parallelogram = {
 //       .add(points[0].coordinates);
 //     if (points.length == 3) {
 //       points[3] = new Point({
-//         drawingEnvironment: app.upperCanvasElem,
+//         layer: 'upper',
 //         coordinates: newCoordinates,
 //         color: app.settings.temporaryDrawColor,
 //         size: 2,
@@ -247,7 +247,7 @@ export const IsoscelesTrapeze = {
       .add(middleOfSegment.multiply(2));
     if (points.length == 3) {
       points[3] = new Point({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,

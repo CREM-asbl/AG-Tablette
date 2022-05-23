@@ -100,8 +100,8 @@ export class SilhouetteCreatorTool extends Tool {
   }
 
   createSilhouette() {
-    app.backgroundDrawingEnvironment.removeAllObjects();
-    const shapes = app.mainCanvasElem.shapes;
+    app.tangramCanvasLayer.removeAllObjects();
+    const shapes = app.mainCanvasLayer.shapes;
 
     if (this.hasOverlapedShape(shapes)) {
       window.dispatchEvent(
@@ -133,11 +133,11 @@ export class SilhouetteCreatorTool extends Tool {
   }
 
   verifyOverlappingShapes() {
-    app.mainCanvasElem.shapes.forEach((s) => {
+    app.mainCanvasLayer.shapes.forEach((s) => {
       s.isOverlappingAnotherInTangram = false;
     });
-    app.mainCanvasElem.shapes.forEach((s, idx, shapes) => {
-      let index = app.mainCanvasElem.shapes.findIndex((s2) => {
+    app.mainCanvasLayer.shapes.forEach((s, idx, shapes) => {
+      let index = app.mainCanvasLayer.shapes.findIndex((s2) => {
         if (s.id == s2.id) return false;
         if (s.overlapsWith(s2)) return true;
         return false;

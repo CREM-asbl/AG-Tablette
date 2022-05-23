@@ -7,7 +7,6 @@ import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
-import { GridManager } from '../Grid/GridManager';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -39,7 +38,7 @@ export class CreateIrregularTool extends Tool {
   }
 
   start() {
-    app.upperCanvasElem.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
 
     this.points = [];
@@ -76,7 +75,7 @@ export class CreateIrregularTool extends Tool {
 
     this.points.push(
       new Point({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -84,7 +83,7 @@ export class CreateIrregularTool extends Tool {
     );
     if (this.points.length > 1) {
       let seg = new Segment({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         vertexIds: [
           this.points[this.points.length - 2].id,
           this.points[this.points.length - 1].id,
@@ -92,7 +91,7 @@ export class CreateIrregularTool extends Tool {
       });
       this.segments.push(seg);
       new RegularShape({
-        drawingEnvironment: app.upperCanvasElem,
+        layer: 'upper',
         segmentIds: [seg.id],
         pointIds: seg.vertexIds,
         strokeColor: app.settings.temporaryDrawColor,
@@ -115,7 +114,7 @@ export class CreateIrregularTool extends Tool {
       this.stopAnimation();
 
       this.executeAction();
-      app.upperCanvasElem.removeAllObjects();
+      app.upperCanvasLayer.removeAllObjects();
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'start' },
       });
@@ -146,7 +145,7 @@ export class CreateIrregularTool extends Tool {
       if (adjustedCoordinates)
         point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
       else {
-        let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+        let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
         if (gridPoint)
           point.coordinates = new Coordinates(gridPoint.coordinates);
       }
@@ -174,7 +173,7 @@ export class CreateIrregularTool extends Tool {
     path = path.join(' ');
 
     let shape = new RegularShape({
-      drawingEnvironment: app.mainCanvasElem,
+      layer: 'main',
       path: path,
       name: app.tool.selectedTriangle,
       familyName: familyName,
@@ -184,7 +183,7 @@ export class CreateIrregularTool extends Tool {
 
     let ref;
     shape.vertexes.forEach((vx, i) => {
-      if (ref = app.mainCanvasElem.points.filter(pt => pt.id != shape.vertexes[i].id).find(pt => pt.coordinates.equal(shape.vertexes[i].coordinates))) {
+      if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[i].id).find(pt => pt.coordinates.equal(shape.vertexes[i].coordinates))) {
         if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
           ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
         shape.vertexes[i].reference = ref.id;

@@ -7,7 +7,6 @@ import { Point } from './Point';
 export class Segment {
   /**
    * @param {String}                      id
-   * @param {DrawingEnvironment}          drawingEnvironment
    * @param {String}                      shapeId
    * @param {Number}                      idx
    * @param {[String]}                    vertexIds
@@ -19,7 +18,7 @@ export class Segment {
    */
   constructor({
     id = uniqId(),
-    drawingEnvironment,
+    layer,
     shapeId = undefined,
     idx = undefined,
     createFromNothing = false,
@@ -35,16 +34,15 @@ export class Segment {
     color = undefined,
   }) {
     this.id = id;
-
-    this.drawingEnvironment = drawingEnvironment;
-    this.drawingEnvironment.segments.push(this);
+    this.layer = layer;
+    this.canvasLayer.segments.push(this);
 
     this.shapeId = shapeId;
     this.idx = idx;
     if (createFromNothing) {
       this.vertexIds = vertexCoordinates.map((vCoord, idx) => {
         let newPoint = new Point({
-          drawingEnvironment: this.drawingEnvironment,
+          layer: this.layer,
           segmentIds: [this.id],
           shapeId: this.shapeId,
           idx: idx,
@@ -55,7 +53,7 @@ export class Segment {
       });
       this.divisionPointIds = divisionPointInfos.map((dInfo) => {
         let newPoint = new Point({
-          drawingEnvironment: this.drawingEnvironment,
+          layer: this.layer,
           segmentIds: [this.id],
           shapeId: this.shapeId,
           type: 'divisionPoint',
@@ -67,7 +65,7 @@ export class Segment {
       });
       if (arcCenterCoordinates != undefined) {
         let arcCenter = new Point({
-          drawingEnvironment: this.drawingEnvironment,
+          layer: this.layer,
           segmentIds: [this.id],
           shapeId: this.shapeId,
           type: 'arcCenter',
@@ -79,19 +77,19 @@ export class Segment {
     } else {
       this.vertexIds = [...vertexIds];
       this.vertexIds.forEach((vxId) =>
-        this.drawingEnvironment.points
+        this.canvasLayer.points
           .find((pt) => pt.id === vxId)
           .segmentIds.push(this.id),
       );
       this.divisionPointIds = [...divisionPointIds];
       this.divisionPointIds.forEach((dptId) =>
-        this.drawingEnvironment.points
+        this.canvasLayer.points
           .find((pt) => pt.id === dptId)
           .segmentIds.push(this.id),
       );
       this.shapeId = shapeId;
       if (this.shapeId !== undefined)
-        this.drawingEnvironment.shapes
+        this.canvasLayer.shapes
           .find((s) => s.id === this.shapeId)
           .segmentIds.push(this.id);
       this.arcCenterId = arcCenterId;
@@ -106,8 +104,12 @@ export class Segment {
   /* ############################## GET/SET ############################# */
   /* #################################################################### */
 
+  get canvasLayer() {
+    return app[this.layer + 'CanvasLayer'];
+  }
+
   get shape() {
-    let shape = this.drawingEnvironment.shapes.find(
+    let shape = this.canvasLayer.shapes.find(
       (s) => s.id === this.shapeId,
     );
     return shape;
@@ -120,20 +122,20 @@ export class Segment {
 
   get vertexes() {
     let vertexes = this.vertexIds.map((ptId) =>
-      this.drawingEnvironment.points.find((pt) => pt.id === ptId),
+      this.canvasLayer.points.find((pt) => pt.id === ptId),
     );
     return vertexes;
   }
 
   get divisionPoints() {
     let divisionPoints = this.divisionPointIds.map((ptId) =>
-      this.drawingEnvironment.points.find((pt) => pt.id === ptId),
+      this.canvasLayer.points.find((pt) => pt.id === ptId),
     );
     return divisionPoints;
   }
 
   get arcCenter() {
-    let arcCenter = this.drawingEnvironment.points.find(
+    let arcCenter = this.canvasLayer.points.find(
       (pt) => pt.id === this.arcCenterId,
     );
     return arcCenter;
@@ -508,7 +510,7 @@ export class Segment {
         coordinates: coordinates,
         type: 'divisionPoint',
         ratio: ratio,
-        drawingEnvironment: this.drawingEnvironment,
+        layer: this.layer,
         shapeId: this.shapeId,
         segmentIds: [this.id],
         endpointIds: [firstPointId, secondPointId],
@@ -523,8 +525,8 @@ export class Segment {
    */
   sortDivisionPoints(start = 0) {
     this.divisionPointIds.sort((id1, id2) => {
-      let pt1 = this.drawingEnvironment.findObjectById(id1, 'point');
-      let pt2 = this.drawingEnvironment.findObjectById(id2, 'point');
+      let pt1 = this.canvasLayer.findObjectById(id1, 'point');
+      let pt2 = this.canvasLayer.findObjectById(id2, 'point');
       return (pt1.ratio - pt2.ratio) * (-start * 2 + 1);
     });
   }
@@ -547,7 +549,7 @@ export class Segment {
       return null;
     }
     this.shape.pointIds.splice(i, 1);
-    app.mainCanvasElem.removeObjectById(pointId, 'point');
+    app.mainCanvasLayer.removeObjectById(pointId, 'point');
   }
 
   /* #################################################################### */
@@ -690,7 +692,7 @@ export class Segment {
         idx == 0
           ? undefined
           : new Segment({
-              drawingEnvironment: this.drawingEnvironment,
+              layer: this.layer,
               createFromNothing: true,
               vertexCoordinates: [pts[idx - 1].coordinates, pt.coordinates],
             }),
@@ -1061,7 +1063,7 @@ export class Segment {
     let data = {
       id: this.id,
       shapeId: this.shapeId,
-      position: this.drawingEnvironment?.name,
+      position: this.layer,
       idx: this.idx,
       vertexIds: [...this.vertexIds],
       divisionPointIds: [...this.divisionPointIds],
@@ -1079,7 +1081,7 @@ export class Segment {
       data.position = 'main';
     }
     let segment = new Segment({
-      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
+      layer: data.position,
     });
     Object.assign(segment, data);
     segment.vertexIds = [...data.vertexIds];

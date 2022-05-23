@@ -64,16 +64,16 @@ export class Workspace {
     if (!wsdata) {
       this.translateOffset = Coordinates.nullCoordinates;
       this.zoomLevel = 1;
-      app.mainCanvasElem.loadFromData(null);
-      app.backgroundDrawingEnvironment.clear();
+      app.mainCanvasLayer.loadFromData(null);
+      app.tangramCanvasLayer?.clear();
+      app.gridCanvasLayer.clear();
       return;
     }
     this.id = wsdata.id;
 
-    app.mainCanvasElem.loadFromData(wsdata.objects);
-    if (app.environment.name == 'Tangram')
-      app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
-    else app.backgroundDrawingEnvironment.clear();
+    app.mainCanvasLayer.loadFromData(wsdata.objects);
+    app.tangramCanvasLayer?.loadFromData(wsdata.backObjects);
+    app.gridCanvasLayer.clear();
     this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -122,8 +122,8 @@ export class Workspace {
     // wsdata.shapes = this.shapes.map(s => {
     //   return s.saveToObject();
     // });
-    wsdata.objects = app.mainCanvasElem.saveData();
-    wsdata.backObjects = app.backgroundDrawingEnvironment.saveData();
+    wsdata.objects = app.mainCanvasLayer.saveData();
+    wsdata.backObjects = app.tangramCanvasLayer?.saveData();
     wsdata.shapeGroups = this.shapeGroups.map((group) => {
       return group.saveToObject();
     });
@@ -166,7 +166,8 @@ export class Workspace {
     if (doRefresh) {
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
-      window.dispatchEvent(new CustomEvent('refreshBackground'));
+      window.dispatchEvent(new CustomEvent('refreshGrid'));
+      window.dispatchEvent(new CustomEvent('refreshTangram'));
     }
   }
 
@@ -184,7 +185,8 @@ export class Workspace {
     if (doRefresh) {
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
-      window.dispatchEvent(new CustomEvent('refreshBackground'));
+      window.dispatchEvent(new CustomEvent('refreshGrid'));
+      window.dispatchEvent(new CustomEvent('refreshTangram'));
     }
   }
 
@@ -195,8 +197,9 @@ export class Workspace {
       '" height="' +
       app.canvasHeight +
       '" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n';
-    svg_data += app.backgroundDrawingEnvironment.toSVG();
-    svg_data += app.mainCanvasElem.toSVG();
+    svg_data += app.tangramCanvasLayer.toSVG();
+    svg_data += app.gridCanvasLayer.toSVG();
+    svg_data += app.mainCanvasLayer.toSVG();
     if (document.body.querySelector('forbidden-canvas') != null) {
       svg_data +=
         '<rect x="' +
