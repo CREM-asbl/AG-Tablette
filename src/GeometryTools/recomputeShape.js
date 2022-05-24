@@ -458,24 +458,37 @@ export function computeDivisionPoint(point) {
       y: segment.arcCenter.coordinates.y + segment.radius * Math.sin(newAngle),
     });
     point.coordinates = newCoordinates;
-    return;
+  } else if (segment.isArc()) {
+    let firstAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[0].coordinates);
+    let secondAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[1].coordinates);
+    if (secondAngle <= firstAngle) {
+      secondAngle += Math.PI * 2;
+    }
+    let newAngle = firstAngle + point.ratio * (secondAngle - firstAngle);
+    if (segment.counterclockwise) {
+      // console.log(firstAngle / Math.PI * 180, secondAngle / Math.PI * 180)
+      newAngle = firstAngle - point.ratio * (2 * Math.PI - secondAngle + firstAngle);
+    }
+    let newCoordinates = new Coordinates({
+      x: segment.arcCenter.coordinates.x + segment.radius * Math.cos(newAngle),
+      y: segment.arcCenter.coordinates.y + segment.radius * Math.sin(newAngle),
+    });
+    point.coordinates = newCoordinates;
+  } else {
+    let firstPoint = segment.vertexes[0];
+    let secondPoint = segment.vertexes[1];
+    if (point.endpointIds?.length == 2) {
+      firstPoint = app.upperCanvasLayer.findObjectById(point.endpointIds[0], 'point');
+      secondPoint = app.upperCanvasLayer.findObjectById(point.endpointIds[1], 'point');
+    }
+
+    const segLength = secondPoint.coordinates.substract(
+      firstPoint.coordinates,
+    );
+    const part = segLength.multiply(point.ratio);
+
+    point.coordinates = firstPoint.coordinates.add(part);
   }
-  let firstPoint = segment.vertexes[0];
-  let secondPoint = segment.vertexes[1];
-  if (point.endpointIds?.length == 2) {
-    firstPoint = app.upperCanvasLayer.findObjectById(point.endpointIds[0], 'point');
-    secondPoint = app.upperCanvasLayer.findObjectById(point.endpointIds[1], 'point');
-  }
-
-  // if (firstPoint.ratio > secondPoint.ratio)
-  //   [firstPoint, secondPoint] = [secondPoint, firstPoint];
-
-  const segLength = secondPoint.coordinates.substract(
-    firstPoint.coordinates,
-  );
-  const part = segLength.multiply(point.ratio);
-
-  point.coordinates = firstPoint.coordinates.add(part);
 }
 
 export function computeConstructionSpec(shape, maxIndex = 100) {
