@@ -59,14 +59,14 @@ export class RotateTool extends Tool {
   }
 
   listen() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
-    app.workspace.selectionConstraints.shapes.blacklist = app.mainDrawingEnvironment.shapes.filter(s => s instanceof SinglePointShape);
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -80,8 +80,8 @@ export class RotateTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
   }
@@ -106,7 +106,7 @@ export class RotateTool extends Tool {
         //   window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les lignes parallèles ne peuvent pas être tournées.' } }));
         //   return;
         // }
-        // if ((currentShape.points.some(vx => (vx.reference != null && app.mainDrawingEnvironment.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') ||
+        // if ((currentShape.points.some(vx => (vx.reference != null && app.mainCanvasLayer.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') ||
         //   (currentShape.geometryObject.geometryChildShapeIds.length > 0)) {
         //   window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures liées ne peuvent pas être tournées, mais peuvent être copiées.' } }));
         //   return;
@@ -136,7 +136,7 @@ export class RotateTool extends Tool {
       (s) => {
         let newShape = new s.constructor({
           ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           path: s.getSVGPath('no scale', false, false),
           divisionPointInfos: s.divisionPoints.map((dp) => {
             return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
@@ -174,11 +174,11 @@ export class RotateTool extends Tool {
     if (app.environment.name != 'Cubes')
       new Point({
         coordinates: this.center,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         color: this.drawColor,
       });
 
-    app.mainDrawingEnvironment.editingShapeIds = this.shapesToCopy.map(
+    app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(
       (s) => s.id,
     );
     setState({ tool: { ...app.tool, currentStep: 'rotate' } });
@@ -217,8 +217,8 @@ export class RotateTool extends Tool {
       this.shapesToMove,
       this.selectedShape,
     );
-    app.mainDrawingEnvironment.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => shapeToMove.id == editingShapeId)).forEach((sId, idxS) => {
-      let s = app.mainDrawingEnvironment.findObjectById(sId);
+    app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => shapeToMove.id == editingShapeId)).forEach((sId, idxS) => {
+      let s = app.mainCanvasLayer.findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
         pt.coordinates = new Coordinates(this.shapesToMove[idxS].points[idxPt].coordinates);
         if (this.pointOnLineRatio)

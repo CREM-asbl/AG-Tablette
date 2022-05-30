@@ -9,7 +9,6 @@ import { Segment } from './Segment';
 export class Point {
   /**
    * @param {String}                      id
-   * @param {DrawingEnvironment}          drawingEnvironment
    * @param {Coordinates}                 coordinates
    * @param {Number}                      x
    * @param {Number}                      y
@@ -21,7 +20,7 @@ export class Point {
    */
   constructor({
     id = uniqId(),
-    drawingEnvironment,
+    layer,
     coordinates = undefined,
     x = 0,
     y = 0,
@@ -38,8 +37,8 @@ export class Point {
     endpointIds = [],
   }) {
     this.id = id;
-    this.drawingEnvironment = drawingEnvironment;
-    this.drawingEnvironment.points.push(this);
+    this.layer = layer;
+    this.canvasLayer.points.push(this);
 
     if (coordinates !== undefined)
       this.coordinates = new Coordinates(coordinates);
@@ -51,7 +50,7 @@ export class Point {
 
     this.shapeId = shapeId;
     if (this.shapeId !== undefined)
-      this.drawingEnvironment.shapes
+      this.canvasLayer.shapes
         .find((s) => s.id === this.shapeId)
         .pointIds.push(this.id);
     this.idx = idx;
@@ -66,8 +65,12 @@ export class Point {
     this.endpointIds = [...endpointIds];
   }
 
+  get canvasLayer() {
+    return app[this.layer + 'CanvasLayer'];
+  }
+
   get shape() {
-    let shape = this.drawingEnvironment.shapes.find(
+    let shape = this.canvasLayer.shapes.find(
       (s) => s.id === this.shapeId,
     );
     return shape;
@@ -75,7 +78,7 @@ export class Point {
 
   get segments() {
     let segments = this.segmentIds.map((segId) =>
-      this.drawingEnvironment.segments.find((seg) => seg.id === segId),
+      this.canvasLayer.segments.find((seg) => seg.id === segId),
     );
     return segments;
   }
@@ -139,12 +142,14 @@ export class Point {
     //   constraints.isBlocked = true;
     // } else
     if (this.reference) {
-      let refPoint = this.drawingEnvironment.findObjectById(this.reference, 'point');
+      let refPoint = this.canvasLayer.findObjectById(this.reference, 'point');
       refPoint.computeTransformConstraint();
       constraints = refPoint.transformConstraints;
     } else if (this.type == 'divisionPoint' || this.type == 'shapeCenter') {
       constraints.isConstructed = true;
     } else if (this.shape.geometryObject.geometryTransformationName != null) {
+      constraints.isConstructed = true;
+    } else if (this.shape.geometryObject.geometryDuplicateParentShapeId != null) {
       constraints.isConstructed = true;
     } else {
       if (this.shape.familyName == 'Regular') {
@@ -181,7 +186,7 @@ export class Point {
           let middleOfSegment = firstSeg.middle;
           constraints.lines = [{
             segment: new Segment({
-              drawingEnvironment: app.invisibleDrawingEnvironment,
+              layer: 'invisible',
               createFromNothing: true,
               vertexCoordinates: [this.coordinates, middleOfSegment],
             }),
@@ -230,7 +235,7 @@ export class Point {
           constraints.isConstrained = true;
           let constraintLine = {
             segment: new Segment({
-              drawingEnvironment: app.invisibleDrawingEnvironment,
+              layer: 'invisible',
               createFromNothing: true,
               vertexCoordinates: [this.shape.vertexes[0].coordinates],
               arcCenterCoordinates: this.shape.vertexes[1].coordinates,
@@ -279,7 +284,7 @@ export class Point {
           constraints.isConstrained = true;
           constraints.lines = [{
             segment: new Segment({
-              drawingEnvironment: app.invisibleDrawingEnvironment,
+              layer: 'invisible',
               createFromNothing: true,
               vertexCoordinates: [this.shape.vertexes[2].coordinates, this.shape.vertexes[3].coordinates],
             }),
@@ -297,7 +302,7 @@ export class Point {
           constraints.isConstrained = true;
           constraints.lines = [{
             segment: new Segment({
-              drawingEnvironment: app.invisibleDrawingEnvironment,
+              layer: 'invisible',
               createFromNothing: true,
               vertexCoordinates: [this.coordinates, this.coordinates],
               arcCenterCoordinates: this.segments[0].arcCenter.coordinates,
@@ -313,7 +318,7 @@ export class Point {
           constraints.isConstrained = true;
           constraints.lines = [{
             segment: new Segment({
-              drawingEnvironment: app.invisibleDrawingEnvironment,
+              layer: 'invisible',
               createFromNothing: true,
               vertexCoordinates: [this.coordinates, this.coordinates],
               arcCenterCoordinates: this.segments[0].arcCenter.coordinates,
@@ -335,11 +340,11 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = app.mainDrawingEnvironment.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
+          let reference = app.mainCanvasLayer.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
           let referenceAngle = reference.getAngleWithHorizontal();
           let constraintLine = {
             segment: new Segment({
-              drawingEnvironment: app.invisibleDrawingEnvironment,
+              layer: 'invisible',
               createFromNothing: true,
               vertexCoordinates: [this.shape.vertexes[0], this.shape.vertexes[0].coordinates.add(new Coordinates({
                 x: 100 * Math.cos(referenceAngle),
@@ -355,11 +360,11 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = app.mainDrawingEnvironment.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
+          let reference = app.mainCanvasLayer.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
           let referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2;
           let constraintLine = {
             segment: new Segment({
-              drawingEnvironment: app.invisibleDrawingEnvironment,
+              layer: 'invisible',
               createFromNothing: true,
               vertexCoordinates: [this.shape.vertexes[0], this.shape.vertexes[0].coordinates.add(new Coordinates({
                 x: 100 * Math.cos(referenceAngle),
@@ -452,7 +457,7 @@ export class Point {
       id: this.id,
       coordinates: this.coordinates,
       shapeId: this.shapeId,
-      position: this.drawingEnvironment?.name,
+      position: this.layer,
       idx: this.idx,
       segmentIds: [...this.segmentIds],
       type: this.type,
@@ -473,7 +478,7 @@ export class Point {
       data.position = 'main';
     }
     let point = new Point({
-      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
+      layer: data.position,
     });
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);

@@ -109,7 +109,7 @@ export class SaveFileManager {
   }
 
   static saveToPng(handle) {
-    const ctx = app.invisibleDrawingEnvironment.ctx,
+    const ctx = app.invisibleCanvasLayer.ctx,
       canvas = ctx.canvas,
       width = canvas.width,
       height = canvas.height;
@@ -119,14 +119,11 @@ export class SaveFileManager {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, width, height);
 
-    ctx.drawImage(
-      app.backgroundDrawingEnvironment.ctx.canvas,
-      0,
-      0,
-      width,
-      height,
-    );
-    ctx.drawImage(app.mainDrawingEnvironment.ctx.canvas, 0, 0, width, height);
+    if (app.gridCanvasLayer)
+      ctx.drawImage(app.gridCanvasLayer.canvas, 0, 0, width, height);
+    if (app.tangramCanvasLayer)
+      ctx.drawImage(app.tangramCanvasLayer.canvas, 0, 0, width, height);
+    ctx.drawImage(app.mainCanvasLayer.canvas, 0, 0, width, height);
 
     let forbiddenCanvas = document.body.querySelector('forbidden-canvas');
     if (forbiddenCanvas != null) {

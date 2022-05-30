@@ -157,9 +157,6 @@ export const setState = (update) => {
       app.tool.type = toolInfo.type;
     }
     window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
   if ('tangram' in update) {
     window.dispatchEvent(new CustomEvent('tangram-changed', { detail: app }));

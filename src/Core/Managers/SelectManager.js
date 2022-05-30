@@ -129,9 +129,9 @@ export class SelectManager {
 
     // all points at the correct distance
     let potentialPoints = [];
-    let allPoints = [...app.mainDrawingEnvironment.points].filter(pt => pt.shape.geometryObject?.geometryIsVisible !== false).filter(pt => pt.shape.geometryObject?.geometryIsHidden !== true);
+    let allPoints = [...app.mainCanvasLayer.points].filter(pt => pt.shape.geometryObject?.geometryIsVisible !== false).filter(pt => pt.shape.geometryObject?.geometryIsHidden !== true);
     if (constraints.canSelectFromUpper)
-      allPoints.push(...app.upperDrawingEnvironment.points);
+      allPoints.push(...app.upperCanvasLayer.points);
     allPoints.forEach((pt) => {
       if (pt.visible) {
         if (
@@ -216,11 +216,14 @@ export class SelectManager {
         if (
           shapes.every((s) => {
             let otherShapeIndex = ShapeManager.getShapeIndex(s);
-            return otherShapeIndex < shapeIndex;
+            return otherShapeIndex <= shapeIndex;
           })
         )
           notHiddenPoints.push(pt);
       });
+
+      // if no possibilities
+      if (notHiddenPoints.length == 0) return null;
     }
 
     notHiddenPoints.sort((pt1, pt2) => {
@@ -258,9 +261,9 @@ export class SelectManager {
 
     // all segments at the correct distance
     let potentialSegments = [];
-    let allSegments = [...app.mainDrawingEnvironment.segments].filter(seg => seg.shape.geometryObject?.geometryIsVisible !== false).filter(seg => seg.shape.geometryObject?.geometryIsHidden !== true);
+    let allSegments = [...app.mainCanvasLayer.segments].filter(seg => seg.shape.geometryObject?.geometryIsVisible !== false).filter(seg => seg.shape.geometryObject?.geometryIsHidden !== true);
     if (constraints.canSelectFromUpper)
-      allSegments.push(...app.upperDrawingEnvironment.segments);
+      allSegments.push(...app.upperCanvasLayer.segments);
     allSegments.forEach((seg) => {
       const projection = seg.projectionOnSegment(mouseCoordinates);
       if (
@@ -308,9 +311,30 @@ export class SelectManager {
 
     // no possibilities to choose blockHidden constraints
 
-    let bestSegment = constrainedSegments[0].segment,
-      minDist = constrainedSegments[0].dist;
-    constrainedSegments.forEach((constrainedSegment) => {
+    let notHiddenSegments = constrainedSegments;
+    if (constraints.blockHidden) {
+      notHiddenSegments = [];
+      const shapes = ShapeManager.shapesThatContainsCoordinates(
+        mouseCoordinates,
+      );
+      constrainedSegments.forEach((seg) => {
+        let shapeIndex = ShapeManager.getShapeIndex(seg.segment.shape);
+        if (
+          shapes.every((s) => {
+            let otherShapeIndex = ShapeManager.getShapeIndex(s);
+            return otherShapeIndex <= shapeIndex;
+          })
+        )
+          notHiddenSegments.push(seg);
+      });
+
+      // if no possibilities
+      if (notHiddenSegments.length == 0) return null;
+    }
+
+    let bestSegment = notHiddenSegments[0].segment,
+      minDist = notHiddenSegments[0].dist;
+    notHiddenSegments.forEach((constrainedSegment) => {
       let segment = constrainedSegment.segment;
       let dist = constrainedSegment.dist;
       if (dist < minDist) {

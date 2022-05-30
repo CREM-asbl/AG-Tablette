@@ -19,10 +19,9 @@ export class SolutionCheckerTool extends Tool {
 
     this.solutionShapeIds = [];
 
-    addEventListener('file-parsed', async (e) => {
+    window.addEventListener('file-parsed', async (e) => {
       TangramManager.closeForbiddenCanvas();
-      app.backgroundDrawingEnvironment.removeAllObjects();
-      // document.querySelector('state-menu')?.remove();
+      app.tangramCanvasLayer.removeAllObjects();
       const data = e.detail;
       const level = await TangramManager.selectLevel();
       await TangramManager.initShapes();
@@ -33,6 +32,7 @@ export class SolutionCheckerTool extends Tool {
         isSilhouetteShown = false;
       if (backObjects) {
         Silhouette.initFromObject(backObjects, level);
+        app.tangramCanvasLayer.redraw();
         isSilhouetteShown = true;
       }
       setState({
@@ -40,8 +40,8 @@ export class SolutionCheckerTool extends Tool {
           ...app.history,
           startSituation: {
             ...app.history.startSituation,
-            objects: app.mainDrawingEnvironment.saveData(),
-            backObjects: app.backgroundDrawingEnvironment.saveData(),
+            objects: app.mainCanvasLayer.saveData(),
+            backObjects: app.tangramCanvasLayer.saveData(),
           },
         },
         tangram: {...app.defaultState.tangram, isSilhouetteShown },
@@ -166,7 +166,7 @@ export class SolutionCheckerTool extends Tool {
   }
 
   eraseSolution() {
-    let solutionShapes = app.mainDrawingEnvironment.findObjectsByName(
+    let solutionShapes = app.mainCanvasLayer.findObjectsByName(
       'tangramChecker'
     );
 
@@ -175,7 +175,7 @@ export class SolutionCheckerTool extends Tool {
       GroupManager.deleteGroup(group);
     }
     solutionShapes.forEach((s) =>
-      app.mainDrawingEnvironment.removeObjectById(s.id),
+      app.mainCanvasLayer.removeObjectById(s.id),
     );
     this.solutionShapeIds = [];
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -185,7 +185,7 @@ export class SolutionCheckerTool extends Tool {
     this.solutionShapeIds = [];
 
     let segmentsList = this.checkGroupMerge(
-      app.backgroundDrawingEnvironment.shapes,
+      app.tangramCanvasLayer.shapes,
     );
 
     let paths = this.linkNewSegments(segmentsList);
@@ -194,7 +194,7 @@ export class SolutionCheckerTool extends Tool {
 
     paths.forEach((path) => {
       let shape = new RegularShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        layer: 'main',
         path: path,
         color: '#000',
         fillOpacity: 0,
@@ -214,7 +214,7 @@ export class SolutionCheckerTool extends Tool {
     });
 
     let areShapeScaled =
-      app.backgroundDrawingEnvironment.shapes[0].size == 0.6;
+      app.tangramCanvasLayer.shapes[0].size == 0.6;
     if (areShapeScaled) {
       let silhouetteBounds = Bounds.getOuterBounds(
         ...shapes.map((s) => s.bounds),
@@ -240,7 +240,7 @@ export class SolutionCheckerTool extends Tool {
       .map((s) =>
         s.segments.map((seg) => {
           return new Segment({
-            drawingEnvironment: app.invisibleDrawingEnvironment,
+            layer: 'invisible',
             createFromNothing: true,
             vertexCoordinates: seg.vertexes.map((vx) => vx.coordinates),
           });

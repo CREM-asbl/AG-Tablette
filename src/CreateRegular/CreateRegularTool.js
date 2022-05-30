@@ -8,7 +8,6 @@ import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { createElem } from '../Core/Tools/general';
-import { GridManager } from '../Grid/GridManager';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -62,7 +61,7 @@ export class CreateRegularTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
     this.firstPoint = new Point({
-      drawingEnvironment: app.upperDrawingEnvironment,
+      layer: 'upper',
       coordinates: newCoordinates,
       color: app.settings.temporaryDrawColor,
       size: 2,
@@ -85,7 +84,7 @@ export class CreateRegularTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
     this.secondPoint = new Point({
-      drawingEnvironment: app.upperDrawingEnvironment,
+      layer: 'upper',
       coordinates: newCoordinates,
       color: app.settings.temporaryDrawColor,
       size: 2,
@@ -140,11 +139,11 @@ export class CreateRegularTool extends Tool {
       setState({ tool: { ...app.tool, currentStep: 'drawSecondPoint' } });
     } else {
       this.stopAnimation();
-      if (this.firstPoint.coordinates.dist(this.secondPoint.coordinates) < app.settings.magnetismDistance) {
+      if (SelectManager.areCoordinatesInMagnetismDistance(this.firstPoint.coordinates, this.secondPoint.coordinates)) {
         let firstPointCoordinates = this.firstPoint.coordinates;
-        app.upperDrawingEnvironment.removeAllObjects();
+        app.upperCanvasLayer.removeAllObjects();
         this.firstPoint = new Point({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           coordinates: firstPointCoordinates,
           color: app.settings.temporaryDrawColor,
           size: 2,
@@ -172,7 +171,7 @@ export class CreateRegularTool extends Tool {
     if (adjustedCoordinates) {
       point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
     } else {
-      let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+      let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
       if (gridPoint)
         point.coordinates = new Coordinates(gridPoint.coordinates);
     }
@@ -196,11 +195,11 @@ export class CreateRegularTool extends Tool {
       );
 
       if (this.shapeDrawnId)
-        app.upperDrawingEnvironment.removeObjectById(this.shapeDrawnId);
+        app.upperCanvasLayer.removeObjectById(this.shapeDrawnId);
 
       let shape = new RegularShape({
         path: path,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         strokeColor: app.settings.temporaryDrawColor,
         fillOpacity: 0,
       });
@@ -251,11 +250,11 @@ export class CreateRegularTool extends Tool {
   }
 
   _executeAction() {
-    let shapeDrawn = app.upperDrawingEnvironment.findObjectById(this.shapeDrawnId);
+    let shapeDrawn = app.upperCanvasLayer.findObjectById(this.shapeDrawnId);
 
     let shape = new RegularShape({
       ...shapeDrawn,
-      drawingEnvironment: app.mainDrawingEnvironment,
+      layer: 'main',
       path: shapeDrawn.getSVGPath('no-scale'),
       familyName: 'Regular',
       strokeColor: '#000000',
@@ -267,17 +266,17 @@ export class CreateRegularTool extends Tool {
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
     shape.translate(transformation.translation);
     let ref;
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[1].reference = ref.id;
     }
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 }

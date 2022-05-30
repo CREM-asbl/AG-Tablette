@@ -25,9 +25,14 @@
   "dependencies": {
     "client-zip": "^2.0.0",
     "firebase": "^9.0.2",
+    "firebase-tools": "^10.9.2",
+    "idb": "^7.0.1",
     "lit": "^2.0.0",
     "npm": "^8.1.1",
     "pwa-helpers": "^0.9.1",
-    "tslib": "^2.2.0"
+    "snowpack": "^3.8.8",
+    "tslib": "^2.2.0",
+    "workbox": "^0.0.0",
+    "workbox-cli": "^6.5.3"
   }
 }

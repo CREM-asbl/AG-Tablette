@@ -84,7 +84,9 @@ export class ColorTool extends Tool {
     constraints.shapes.canSelect = true;
     if (this.clickType == 'normal') {
       constraints.segments.canSelect = true;
+      constraints.segments.blockHidden = true; // sûr ?
       constraints.points.canSelect = true;
+      constraints.points.blockHidden = true; // sûr ?
     }
     app.workspace.selectionConstraints = constraints;
   }

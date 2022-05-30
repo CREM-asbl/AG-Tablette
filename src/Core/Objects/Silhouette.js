@@ -14,7 +14,7 @@ export class Silhouette {
       let shapeCopy = new RegularShape({
         ...shape,
         path: loadFromSave ? shape.path : shape.getSVGPath(false),
-        drawingEnvironment: app.backgroundDrawingEnvironment,
+        layer: 'tangram',
         name: 'silhouette',
         fillColor: '#000',
         strokeColor: level % 2 != 0 ? '#fff' : '#000',
@@ -47,7 +47,7 @@ export class Silhouette {
 
   saveToObject() {
     let save = {
-      shapesData: app.backgroundDrawingEnvironment.shapes.map((s) => {
+      shapesData: app.tangramCanvasLayer.shapes.map((s) => {
         let shapeData = s.saveData();
         shapeData.segmentIds = undefined;
         shapeData.pointIds = undefined;

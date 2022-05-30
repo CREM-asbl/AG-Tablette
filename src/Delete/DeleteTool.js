@@ -89,13 +89,13 @@ export class DeleteTool extends Tool {
     if (this.mode == 'shape') {
       this.involvedShapes.forEach((s) => {
         if (s.name == 'PointOnLine') {
-          let segment = app.mainDrawingEnvironment.findObjectById(s.geometryObject.geometryParentObjectId1, 'segment');
+          let segment = app.mainCanvasLayer.findObjectById(s.geometryObject.geometryParentObjectId1, 'segment');
           let point = s.points[0];
           this.deleteSubDivisionPoints(segment, point);
         }
         if (app.environment.name == 'Geometrie')
           this.deleteChildren(s);
-        app.mainDrawingEnvironment.removeObjectById(s.id, 'shape');
+        app.mainCanvasLayer.removeObjectById(s.id, 'shape');
       });
 
       if (this.userGroup) {
@@ -126,38 +126,47 @@ export class DeleteTool extends Tool {
   }
 
   deleteChildren(shape) {
-    app.mainDrawingEnvironment.shapes.forEach(s => {
+    app.mainCanvasLayer.shapes.forEach(s => {
       s.geometryObject.geometryChildShapeIds = s.geometryObject.geometryChildShapeIds.filter(id => id != shape.id);
     });
-    app.mainDrawingEnvironment.shapes.forEach(s => {
+    app.mainCanvasLayer.shapes.forEach(s => {
       s.geometryObject.geometryTransformationChildShapeIds = s.geometryObject.geometryTransformationChildShapeIds.filter(id => id != shape.id);
     });
+    app.mainCanvasLayer.shapes.forEach(s => {
+      s.geometryObject.geometryDuplicateChildShapeIds = s.geometryObject.geometryDuplicateChildShapeIds.filter(id => id != shape.id);
+    });
     shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
-      let child = app.mainDrawingEnvironment.findObjectById(childId);
+      let child = app.mainCanvasLayer.findObjectById(childId);
       if (child) {
         this.deleteChildren(child);
       }
     });
     shape.geometryObject.geometryChildShapeIds.forEach(childId => {
-      let child = app.mainDrawingEnvironment.findObjectById(childId);
+      let child = app.mainCanvasLayer.findObjectById(childId);
       if (child) {
         this.deleteChildren(child);
       }
     });
-    app.mainDrawingEnvironment.removeObjectById(shape.id, 'shape');
+    shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
+      let child = app.mainCanvasLayer.findObjectById(childId);
+      if (child) {
+        this.deleteChildren(child);
+      }
+    });
+    app.mainCanvasLayer.removeObjectById(shape.id, 'shape');
   }
 
   deleteChildrenOfDivisionPoint(point) {
     let shape = point.shape;
     // let shapesLinked = [];
     shape.geometryObject.geometryChildShapeIds.forEach(childId => {
-      let child = app.mainDrawingEnvironment.findObjectById(childId, 'shape');
+      let child = app.mainCanvasLayer.findObjectById(childId, 'shape');
       if (!child)
         return;
       if (child.vertexes.some(vx => vx.reference == point.id)) {
         if (app.environment.name == 'Geometrie')
           this.deleteChildren(child);
-        app.mainDrawingEnvironment.removeObjectById(child.id, 'shape');
+        app.mainCanvasLayer.removeObjectById(child.id, 'shape');
       }
     });
   }

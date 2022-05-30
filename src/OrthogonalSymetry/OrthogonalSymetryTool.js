@@ -26,7 +26,7 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   selectFirstReference() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -69,7 +69,7 @@ export class OrthogonalSymetryTool extends Tool {
 
     if (this.drawingShapes)
       this.drawingShapes.forEach(s => {
-        app.upperDrawingEnvironment.removeObjectById(s.id);
+        app.upperCanvasLayer.removeObjectById(s.id);
       })
 
     this.setSelectionConstraints();
@@ -84,14 +84,12 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
 
   get referenceShape() {
-    console.log('here');
-    console.log(app.upperDrawingEnvironment.findObjectById(app.tool.referenceShapeId, 'shape'), app.upperDrawingEnvironment.shapes);
     return app.upperDrawingEnvironment.findObjectById(app.tool.referenceShapeId, 'shape');
   }
 
@@ -106,7 +104,7 @@ export class OrthogonalSymetryTool extends Tool {
         this.firstReference = object;
         let referenceShape = new LineShape({
           path: object.getSVGPath('no scale', true),
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           strokeColor: app.settings.referenceDrawColor,
           strokeWidth: 2,
         });
@@ -115,7 +113,7 @@ export class OrthogonalSymetryTool extends Tool {
       } else {
         this.pointsDrawn.push(new Point({
           coordinates: coord,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           color: app.settings.referenceDrawColor,
           size: 2,
         }));
@@ -124,17 +122,17 @@ export class OrthogonalSymetryTool extends Tool {
     } else {
       this.pointsDrawn.push(new Point({
         coordinates: coord,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         color: app.settings.referenceDrawColor,
         size: 2,
       }));
       let segment = new Segment({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         vertexIds: this.pointsDrawn.map((pt) => pt.id),
         isInfinite: true,
       });
-      let referenceShape = new LineShape({
-        drawingEnvironment: app.upperDrawingEnvironment,
+      referenceShape = new LineShape({
+        layer: 'upper',
         segmentIds: [segment.id],
         pointIds: this.pointsDrawn.map((pt) => pt.id),
         strokeColor: app.settings.referenceDrawColor,
@@ -174,7 +172,7 @@ export class OrthogonalSymetryTool extends Tool {
       (s) =>
         new s.constructor({
           ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           path: s.getSVGPath('no scale', false),
           id: undefined,
           divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -238,7 +236,7 @@ export class OrthogonalSymetryTool extends Tool {
   refreshStateUpper() {
     if (app.tool.currentStep == 'ortho') {
       let progressInAnimation = Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
-      app.upperDrawingEnvironment.points.forEach((point) => {
+      app.upperCanvasLayer.points.forEach((point) => {
         if (point.startCoordinates) {
           point.coordinates = point.startCoordinates.substract(
             point.startCoordinates
@@ -267,20 +265,20 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   _executeAction() {
-    if (this.firstReference instanceof Point && this.firstReference.drawingEnvironment.name == 'upper') {
+    if (this.firstReference instanceof Point && this.firstReference.canvasLayer.name == 'upper') {
       let coord = this.firstReference.coordinates;
       this.firstReference = new SinglePointShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        layer: 'main',
         path: `M ${coord.x} ${coord.y}`,
         name: 'Point',
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       }).points[0];
     }
-    if (this.firstReference instanceof Point && this.secondReference.drawingEnvironment.name == 'upper') {
+    if (this.firstReference instanceof Point && this.secondReference.canvasLayer.name == 'upper') {
       let coord = this.secondReference.coordinates;
       this.secondReference = new SinglePointShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        layer: 'main',
         path: `M ${coord.x} ${coord.y}`,
         name: 'Point',
         familyName: 'Point',
@@ -293,7 +291,7 @@ export class OrthogonalSymetryTool extends Tool {
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
         ...s,
-        drawingEnvironment: app.mainDrawingEnvironment,
+        layer: 'main',
         id: undefined,
         path: s.getSVGPath('no scale', false),
         divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -316,13 +314,13 @@ export class OrthogonalSymetryTool extends Tool {
         newShape.geometryObject.geometryTransformationCharacteristicElementIds.push(this.secondReference.id);
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       if (newShape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-        let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'segment');
+        let ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'segment');
         if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
       } else {
         newShape.geometryObject.geometryTransformationCharacteristicElementIds.forEach(refId => {
-          let ref = app.mainDrawingEnvironment.findObjectById(refId, 'point');
+          let ref = app.mainCanvasLayer.findObjectById(refId, 'point');
           if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
             ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
           }

@@ -55,15 +55,15 @@ export class GroupTool extends Tool {
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
 
-    app.mainDrawingEnvironment.shapes.map((s) => {
+    app.mainCanvasLayer.shapes.map((s) => {
       let currentGroup = GroupManager.getShapeGroup(s);
       if (currentGroup != null) {
         new s.constructor({
           ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           path: s.getSVGPath('no scale', false, false),
           fillOpacity: 0,
           strokeColor: currentGroup.color,
@@ -103,7 +103,7 @@ export class GroupTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
   }
 
@@ -121,7 +121,7 @@ export class GroupTool extends Tool {
         this.firstShapeId = shape.id;
         new shape.constructor({
           ...shape,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           path: shape.getSVGPath('no scale', false, false),
           fillOpacity: 0,
           strokeColor: this.groupsColor[app.nextGroupColorIdx % 8],
@@ -207,13 +207,13 @@ export class GroupTool extends Tool {
       group1.shapesIds = [...group1.shapesIds, ...group2.shapesIds];
       GroupManager.deleteGroup(group2);
     }
-    app.upperDrawingEnvironment.removeAllObjects();
-    app.mainDrawingEnvironment.shapes.map((s) => {
+    app.upperCanvasLayer.removeAllObjects();
+    app.mainCanvasLayer.shapes.map((s) => {
       let currentGroup = GroupManager.getShapeGroup(s);
       if (currentGroup != null) {
         new s.constructor({
           ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           path: s.getSVGPath('no scale', false, false),
           fillOpacity: 0,
           strokeColor: currentGroup.color,

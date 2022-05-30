@@ -11,7 +11,7 @@ export class ArrowLineShape extends LineShape {
 
   constructor({
     id = uniqId(),
-    drawingEnvironment,
+    layer,
 
     path = undefined,
     segmentIds = [],
@@ -141,14 +141,14 @@ export class ArrowLineShape extends LineShape {
         let middlePointId = this.segments[i].vertexIds[1];
         let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
         this.pointIds.splice(ptIdx, 1);
-        this.drawingEnvironment.removeObjectById(middlePointId, 'point');
+        this.canvasLayer.removeObjectById(middlePointId, 'point');
         this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
         let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
           (id) => id == this.segmentIds[nextIdx],
         );
         this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
         if (this.segments[nextIdx].arcCenterId) {
-          this.drawingEnvironment.removeObjectById(
+          this.canvasLayer.removeObjectById(
             this.segments[nextIdx].arcCenterId,
             'point',
           );
@@ -157,7 +157,7 @@ export class ArrowLineShape extends LineShape {
           );
           this.pointIds.splice(idx, 1);
         }
-        this.drawingEnvironment.removeObjectById(
+        this.canvasLayer.removeObjectById(
           this.segmentIds[nextIdx],
           'segment',
         );
@@ -180,7 +180,7 @@ export class ArrowLineShape extends LineShape {
       data.position = 'main';
     }
     let shape = new ArrowLineShape({
-      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
+      layer: data.position,
     });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];

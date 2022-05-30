@@ -60,7 +60,7 @@ export class DivideTool extends Tool {
   }
 
   selectObject() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 
@@ -72,13 +72,13 @@ export class DivideTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 
-    let firstPoint = app.mainDrawingEnvironment.findObjectById(
+    let firstPoint = app.mainCanvasLayer.findObjectById(
       app.tool.firstPointIds[0],
       'point',
     );
     new Point({
       coordinates: firstPoint.coordinates,
-      drawingEnvironment: app.upperDrawingEnvironment,
+      layer: 'upper',
       color: this.drawColor,
       size: 2,
     });
@@ -92,7 +92,7 @@ export class DivideTool extends Tool {
   }
 
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
   }
@@ -106,13 +106,13 @@ export class DivideTool extends Tool {
     ];
     if (app.tool.currentStep == 'selectObject') {
       app.workspace.selectionConstraints.segments.canSelect = true;
-      app.workspace.selectionConstraints.segments.blacklist = app.mainDrawingEnvironment.shapes
+      app.workspace.selectionConstraints.segments.blacklist = app.mainCanvasLayer.shapes
         .filter((s) => s.isStraightLine() || s.isSemiStraightLine())
         .map((s) => {
           return { shapeId: s.id };
         });
       app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.points.blacklist = app.mainDrawingEnvironment.shapes
+      app.workspace.selectionConstraints.points.blacklist = app.mainCanvasLayer.shapes
         .filter((s) => s.isStraightLine() || s.isSemiStraightLine())
         .map((s) => {
           return { shapeId: s.id };
@@ -141,7 +141,7 @@ export class DivideTool extends Tool {
           this.segmentId = object.id;
 
           new LineShape({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            layer: 'upper',
             strokeColor: this.drawColor,
             strokeWidth: 3,
             path: object.getSVGPath('no scale', true),
@@ -164,7 +164,7 @@ export class DivideTool extends Tool {
         });
       }
     } else if (app.tool.currentStep == 'selectSecondPoint') {
-      let pt1 = app.mainDrawingEnvironment.findObjectById(
+      let pt1 = app.mainCanvasLayer.findObjectById(
         this.firstPointIds[0],
         'point',
       );
@@ -172,8 +172,8 @@ export class DivideTool extends Tool {
 
       if (pt1.coordinates.dist(object1.coordinates) < 0.01) {
         // pt1 == object => désélectionner le point.
-        app.upperDrawingEnvironment.removeObjectById(
-          app.upperDrawingEnvironment.points[0].id,
+        app.upperCanvasLayer.removeObjectById(
+          app.upperCanvasLayer.points[0].id,
           'point',
         );
 
@@ -182,7 +182,7 @@ export class DivideTool extends Tool {
       //   window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir à la même figure.' } }));
       } else {
         let pointsToDivide = [];
-        let firstPoints = this.firstPointIds.map(ptId => app.mainDrawingEnvironment.findObjectById(
+        let firstPoints = this.firstPointIds.map(ptId => app.mainCanvasLayer.findObjectById(
           ptId,
           'point',
         ));
@@ -244,14 +244,14 @@ export class DivideTool extends Tool {
 
         new Point({
           coordinates: pt2.coordinates,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           color: this.drawColor,
           size: 2,
         });
 
         let firstCoordinates = pt1.coordinates,
           secondCoordinates = pt2.coordinates;
-        let commonSegment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
+        let commonSegment = app.mainCanvasLayer.getCommonSegmentOfTwoPoints(
           pt1.id,
           pt2.id,
         );
@@ -308,7 +308,7 @@ export class DivideTool extends Tool {
         this.pointsToDivide = pointsToDivide;
 
         new LineShape({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           strokeColor: this.drawColor,
           strokeWidth: 3,
           path: path,
@@ -341,7 +341,7 @@ export class DivideTool extends Tool {
       this.pointsToDivide.forEach(pts => {
         this.firstPoint = pts[0];
         this.secondPoint = pts[1];
-        this.segment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
+        this.segment = app.mainCanvasLayer.getCommonSegmentOfTwoPoints(
           this.firstPoint.id,
           this.secondPoint.id,
         );
@@ -351,14 +351,14 @@ export class DivideTool extends Tool {
           this.pointsModeAddSegPoints();
       });
     } else if (this.mode == 'segment') {
-      this.segment = app.mainDrawingEnvironment.findObjectById(
+      this.segment = app.mainCanvasLayer.findObjectById(
         this.segmentId,
         'segment',
       );
       if (this.segment.arcCenter) this.segmentModeAddArcPoints();
       else this.segmentModeAddSegPoints();
     } else {
-      let vector = app.mainDrawingEnvironment.findObjectById(
+      let vector = app.mainCanvasLayer.findObjectById(
         this.vectorId,
         'shape',
       );
@@ -378,7 +378,7 @@ export class DivideTool extends Tool {
       path = path.join(' ');
 
       new ArrowLineShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        layer: 'main',
         path: path,
         name: vector.name,
         familyName: vector.familyName,

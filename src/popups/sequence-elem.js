@@ -30,7 +30,9 @@ class SequenceElem extends LitElement {
           border-radius: 3px;
           box-shadow: 0px 0px 3px var(--menu-shadow-color);
           margin: auto;
-          margin-bottom: 3px;
+          margin-top: 3px;
+          margin-bottom: 5px;
+          padding: 5px;
         }
       `,
     ];

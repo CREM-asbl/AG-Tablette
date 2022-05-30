@@ -24,7 +24,7 @@ export class CentralSymetryTool extends Tool {
   }
 
   selectReference() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -48,7 +48,7 @@ export class CentralSymetryTool extends Tool {
   selectObject() {
     if (this.drawingShapes)
       this.drawingShapes.forEach(s => {
-        app.upperDrawingEnvironment.removeObjectById(s.id);
+        app.upperCanvasLayer.removeObjectById(s.id);
       })
     this.removeListeners();
 
@@ -64,7 +64,7 @@ export class CentralSymetryTool extends Tool {
   }
 
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -73,7 +73,7 @@ export class CentralSymetryTool extends Tool {
     let coord = app.workspace.lastKnownMouseCoordinates;
     this.pointDrawn = new Point({
       coordinates: coord,
-      drawingEnvironment: app.upperDrawingEnvironment,
+      layer: 'upper',
       color: app.settings.referenceDrawColor,
       size: 2,
     });
@@ -99,7 +99,7 @@ export class CentralSymetryTool extends Tool {
       (s) =>
       new s.constructor({
         ...s,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         path: s.getSVGPath('no scale', false),
         id: undefined,
         divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -131,7 +131,7 @@ export class CentralSymetryTool extends Tool {
     }
     this.lastProgress = this.progress || 0;
     if (this.lastProgress == 0) {
-      app.upperDrawingEnvironment.points.forEach((point) => {
+      app.upperCanvasLayer.points.forEach((point) => {
         point.startCoordinates = new Coordinates(point.coordinates);
         point.endCoordinates = new Coordinates({
           x: point.x + 2 * (this.reference.x - point.x),
@@ -155,7 +155,7 @@ export class CentralSymetryTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'central') {
-      app.upperDrawingEnvironment.points.forEach((point) => {
+      app.upperCanvasLayer.points.forEach((point) => {
         if (point.startCoordinates)
           point.coordinates = point.startCoordinates.substract(
             point.startCoordinates
@@ -175,10 +175,10 @@ export class CentralSymetryTool extends Tool {
   }
 
   _executeAction() {
-    if (this.reference instanceof Point && this.reference.drawingEnvironment.name == 'upper') {
+    if (this.reference instanceof Point && this.reference.layer == 'upper') {
       let coord = this.reference.coordinates;
       this.reference = new SinglePointShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        layer: 'main',
         path: `M ${coord.x} ${coord.y}`,
         name: 'Point',
         familyName: 'Point',
@@ -189,7 +189,7 @@ export class CentralSymetryTool extends Tool {
     this.involvedShapes.forEach(s => {
       let newShape = new s.constructor({
         ...s,
-        drawingEnvironment: app.mainDrawingEnvironment,
+        layer: 'main',
         id: undefined,
         path: s.getSVGPath('no scale', false),
         divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -209,7 +209,7 @@ export class CentralSymetryTool extends Tool {
         }),
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      let ref = app.mainDrawingEnvironment.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
+      let ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
       if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
         ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       }

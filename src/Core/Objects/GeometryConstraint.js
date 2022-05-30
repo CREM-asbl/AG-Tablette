@@ -2,6 +2,7 @@ import { app } from '../App';
 import { Coordinates } from './Coordinates';
 import { Point } from './Point';
 import { LineShape } from './Shapes/LineShape';
+import { SelectManager } from '../Managers/SelectManager';
 
 export class GeometryConstraint {
   /**
@@ -11,8 +12,8 @@ export class GeometryConstraint {
    * @param {[Point]} points      pout isContructed
    */
   constructor(type, lines = [], points = []) {
-    let oldConstraints = app.upperDrawingEnvironment.shapes.filter(s => s.borderColor == app.settings.constraintsDrawColor);
-    app.upperDrawingEnvironment.removeObjectById(oldConstraints.map(s => s.id));
+    let oldConstraints = app.upperCanvasLayer.shapes.filter(s => s.borderColor == app.settings.constraintsDrawColor);
+    app.upperCanvasLayer.removeObjectById(oldConstraints.map(s => s.id));
     this.type = type;
     this.segments = lines.map((ln) => {
       let path = '';
@@ -47,7 +48,7 @@ export class GeometryConstraint {
           .join(' ');
       }
       let s = new LineShape({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         path: path,
         name: 'constraints',
         strokeColor: app.settings.constraintsDrawColor,
@@ -59,7 +60,7 @@ export class GeometryConstraint {
     this.points = points.map(
       (pt) =>
         new Point({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           coordinates: pt,
           color: app.settings.constraintsDrawColor,
           size: 2,
@@ -97,7 +98,7 @@ export class GeometryConstraint {
         }),
       );
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
-    if (errorWhenTooFar && projectionsOnContraints[0].dist > app.settings.selectionDistance) {
+    if (errorWhenTooFar && !SelectManager.areCoordinatesInSelectionDistance(projectionsOnContraints[0].projection, coordinates)) {
       return null;
     }
     return projectionsOnContraints[0].projection;

@@ -11,7 +11,6 @@ import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
-import { GridManager } from '../Grid/GridManager';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -66,7 +65,7 @@ export class CreateLineTool extends Tool {
       !app.tool.selectedLine.startsWith('Parallele') &&
       !app.tool.selectedLine.startsWith('Perpendicular')
     ) {
-      app.upperDrawingEnvironment.removeAllObjects();
+      app.upperCanvasLayer.removeAllObjects();
       // this.getConstraints(this.numberOfPointsDrawn);
       setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
     } else {
@@ -75,7 +74,7 @@ export class CreateLineTool extends Tool {
   }
 
   selectReference() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
 
     app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_segments;
     this.objectSelectedId = app.addListener(
@@ -101,7 +100,7 @@ export class CreateLineTool extends Tool {
   }
 
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
   }
@@ -119,7 +118,7 @@ export class CreateLineTool extends Tool {
     this.geometryParentObjectId = segment.id;
 
     new LineShape({
-      drawingEnvironment: app.upperDrawingEnvironment,
+      layer: 'upper',
       path: segment.getSVGPath('no-scale', true),
       strokeColor: app.settings.referenceDrawColor,
       strokeWidth: 2,
@@ -142,7 +141,7 @@ export class CreateLineTool extends Tool {
 
     if (app.tool.currentStep == 'drawPoint') {
       this.points[this.numberOfPointsDrawn] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -151,7 +150,7 @@ export class CreateLineTool extends Tool {
       if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
         if (this.numberOfPointsDrawn < 2) this.finishShape();
         let seg = new Segment({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           vertexIds: [this.points[0].id, this.points[1].id],
           // isInfinite: app.tool.selectedLine.endsWith('Parallele')
         });
@@ -164,7 +163,7 @@ export class CreateLineTool extends Tool {
         let familyName = 'Line';
         let name = app.tool.selectedLine;
         let shape = new LineShape({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           segmentIds: this.segments.map((seg) => seg.id),
           pointIds: this.points.map((pt) => pt.id),
           strokeColor: app.settings.temporaryDrawColor,
@@ -173,7 +172,7 @@ export class CreateLineTool extends Tool {
         });
         if (app.tool.selectedLine == 'Vector') {
           shape = new ArrowLineShape({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            layer: 'upper',
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
             strokeColor: app.settings.temporaryDrawColor,
@@ -191,12 +190,12 @@ export class CreateLineTool extends Tool {
   }
 
   canvasMouseUp() {
-    if (this.numberOfPointsDrawn == 2 && this.points[0].coordinates.dist(this.points[1].coordinates) < app.settings.magnetismDistance) {
+    if (this.numberOfPointsDrawn == 2 && SelectManager.areCoordinatesInMagnetismDistance(this.points[0].coordinates, this.points[1].coordinates)) {
       let firstPointCoordinates = this.points[0].coordinates;
       this.numberOfPointsDrawn = 1;
-      app.upperDrawingEnvironment.removeAllObjects();
+      app.upperCanvasLayer.removeAllObjects();
       this.points[0] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         coordinates: firstPointCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -210,7 +209,7 @@ export class CreateLineTool extends Tool {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.executeAction();
-      app.upperDrawingEnvironment.removeAllObjects();
+      app.upperCanvasLayer.removeAllObjects();
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
     } else {
       this.stopAnimation();
@@ -230,7 +229,7 @@ export class CreateLineTool extends Tool {
       if (adjustedCoordinates) {
         point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
       } else {
-        let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+        let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
         if (gridPoint)
           point.coordinates = new Coordinates(gridPoint.coordinates);
       }
@@ -283,7 +282,7 @@ export class CreateLineTool extends Tool {
   finishShape() {
     let newCoordinates;
     if (app.tool.selectedLine == 'ParalleleStraightLine') {
-      let referenceSegment = app.mainDrawingEnvironment.findObjectById(
+      let referenceSegment = app.mainCanvasLayer.findObjectById(
         this.geometryParentObjectId,
         'segment',
       );
@@ -291,7 +290,7 @@ export class CreateLineTool extends Tool {
         .substract(referenceSegment.vertexes[0].coordinates)
         .add(referenceSegment.vertexes[1].coordinates);
     } else if (app.tool.selectedLine == 'PerpendicularStraightLine') {
-      let referenceSegment = app.mainDrawingEnvironment.findObjectById(
+      let referenceSegment = app.mainCanvasLayer.findObjectById(
         this.geometryParentObjectId,
         'segment',
       );
@@ -304,7 +303,7 @@ export class CreateLineTool extends Tool {
 
     if (this.points.length == 1) {
       this.points[1] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -320,7 +319,7 @@ export class CreateLineTool extends Tool {
       this.constraints = new GeometryConstraint('isFree');
     } else if (pointNb == 1) {
       if (app.tool.selectedLine.startsWith('Parallele')) {
-        let referenceSegment = app.mainDrawingEnvironment.findObjectById(
+        let referenceSegment = app.mainCanvasLayer.findObjectById(
           this.geometryParentObjectId,
           'segment',
         );
@@ -330,7 +329,7 @@ export class CreateLineTool extends Tool {
         let lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isConstrained', lines);
       } else if (app.tool.selectedLine.startsWith('Perpendicular')) {
-        let referenceSegment = app.mainDrawingEnvironment.findObjectById(
+        let referenceSegment = app.mainCanvasLayer.findObjectById(
           this.geometryParentObjectId,
           'segment',
         );
@@ -358,7 +357,7 @@ export class CreateLineTool extends Tool {
     let shape;
     if (app.tool.selectedLine == 'Vector') {
       shape = new ArrowLineShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        layer: 'main',
         path: path,
         name: app.tool.selectedLine,
         familyName: 'Line',
@@ -366,7 +365,7 @@ export class CreateLineTool extends Tool {
       });
     } else {
       shape = new LineShape({
-        drawingEnvironment: app.mainDrawingEnvironment,
+        layer: 'main',
         path: path,
         name: app.tool.selectedLine,
         familyName: 'Line',
@@ -398,18 +397,18 @@ export class CreateLineTool extends Tool {
 
     if (this.geometryParentObjectId) {
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId;
-      let reference = app.mainDrawingEnvironment.findObjectById(this.geometryParentObjectId, 'segment');
+      let reference = app.mainCanvasLayer.findObjectById(this.geometryParentObjectId, 'segment');
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }
 
     let ref;
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
+    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[0].reference = ref.id;
     }
     if (shape.name == 'Segment' || shape.name == 'SemiStraightLine' || shape.name == 'StraightLine' || shape.name == 'Vector')
-    if (ref = app.mainDrawingEnvironment.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
+    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
       if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
         ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       shape.vertexes[1].reference = ref.id;

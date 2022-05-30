@@ -53,8 +53,8 @@ export class MergeTool extends Tool {
   }
 
   listen() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -76,8 +76,8 @@ export class MergeTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -106,10 +106,10 @@ export class MergeTool extends Tool {
         }
       } else {
         this.firstShapeId = shape.id;
-        app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
+        app.mainCanvasLayer.editingShapeIds = [this.firstShapeId];
         this.drawingShapes = new shape.constructor({
           ...shape,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           path: shape.getSVGPath('no scale'),
           id: undefined,
           strokeColor: '#E90CC8',
@@ -125,7 +125,7 @@ export class MergeTool extends Tool {
       } else {
         let group = ShapeManager.getAllBindedShapes(shape);
         if (group.length > 1) {
-          let firstShape = app.mainDrawingEnvironment.findObjectById(
+          let firstShape = app.mainCanvasLayer.findObjectById(
             this.firstShapeId,
           );
           this.involvedShapes = [...group, firstShape];
@@ -146,10 +146,10 @@ export class MergeTool extends Tool {
         } else {
           this.secondShapeId = shape.id;
 
-          let firstShape = app.mainDrawingEnvironment.findObjectById(
+          let firstShape = app.mainCanvasLayer.findObjectById(
             this.firstShapeId,
           );
-          let secondShape = app.mainDrawingEnvironment.findObjectById(
+          let secondShape = app.mainCanvasLayer.findObjectById(
             this.secondShapeId,
           );
 
@@ -236,7 +236,7 @@ export class MergeTool extends Tool {
       .map((s) =>
         s.segments.map((seg) => {
           return new Segment({
-            drawingEnvironment: app.invisibleDrawingEnvironment,
+            layer: 'invisible',
             createFromNothing: true,
             vertexCoordinates: seg.vertexes.map((vx) => vx.coordinates),
             divisionPointInfos: seg.divisionPoints.map((dp) => {
@@ -294,7 +294,7 @@ export class MergeTool extends Tool {
   createNewSegments(shape1, shape2) {
     let segments1 = shape1.segments.map((seg) => {
       let segmentCopy = new Segment({
-        drawingEnvironment: app.invisibleDrawingEnvironment,
+        layer: 'invisible',
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
         divisionPointInfos: seg.divisionPoints.map((d) => {
@@ -307,7 +307,7 @@ export class MergeTool extends Tool {
     });
     let segments2 = shape2.segments.map((seg) => {
       let segmentCopy = new Segment({
-        drawingEnvironment: app.invisibleDrawingEnvironment,
+        layer: 'invisible',
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
         divisionPointInfos: seg.divisionPoints.map((d) => {
@@ -348,7 +348,7 @@ export class MergeTool extends Tool {
           ) {
             segments1.push(
               new Segment({
-                drawingEnvironment: app.invisibleDrawingEnvironment,
+                layer: 'invisible',
                 createFromNothing: true,
                 vertexCoordinates: [
                   firstSegment.vertexes[0].coordinates,
@@ -364,7 +364,7 @@ export class MergeTool extends Tool {
           ) {
             segments1.push(
               new Segment({
-                drawingEnvironment: app.invisibleDrawingEnvironment,
+                layer: 'invisible',
                 createFromNothing: true,
                 vertexCoordinates: [
                   commonCoordinates[1],
@@ -380,7 +380,7 @@ export class MergeTool extends Tool {
           ) {
             segments2.push(
               new Segment({
-                drawingEnvironment: app.invisibleDrawingEnvironment,
+                layer: 'invisible',
                 createFromNothing: true,
                 vertexCoordinates: [
                   secondSegment.vertexes[0].coordinates,
@@ -396,7 +396,7 @@ export class MergeTool extends Tool {
           ) {
             segments2.push(
               new Segment({
-                drawingEnvironment: app.invisibleDrawingEnvironment,
+                layer: 'invisible',
                 createFromNothing: true,
                 vertexCoordinates: [
                   commonCoordinates[1],
@@ -548,7 +548,7 @@ export class MergeTool extends Tool {
    */
   createNewShape(path, ...shapes) {
     let newShape = new shapes[0].constructor({
-      drawingEnvironment: app.mainDrawingEnvironment,
+      layer: 'main',
       path: path,
       name: 'Custom',
       familyName: 'Custom',

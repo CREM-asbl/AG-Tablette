@@ -12,9 +12,9 @@ import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 /**
  * Dupliquer une figure
  */
-export class CopyTool extends Tool {
+export class DuplicateTool extends Tool {
   constructor() {
-    super('copy', 'Copier', 'operation');
+    super('duplicate', 'Dupliquer', 'operation');
 
     this.currentStep = null; // listen-canvas-click -> moving-shape
 
@@ -54,9 +54,6 @@ export class CopyTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
@@ -78,18 +75,12 @@ export class CopyTool extends Tool {
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
 
-  /**
-   * Main event handler
-   */
   _actionHandle(event) {
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
@@ -100,10 +91,6 @@ export class CopyTool extends Tool {
     }
   }
 
-  /**
-   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (canvasMouseDown)
-   * @param  shape            La figure sélectionnée
-   */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
@@ -151,9 +138,6 @@ export class CopyTool extends Tool {
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
-  /**
-   * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   */
   refreshStateUpper() {
     if (app.tool.currentStep == 'move') {
       let transformation = app.workspace.lastKnownMouseCoordinates.substract(
@@ -173,6 +157,7 @@ export class CopyTool extends Tool {
       let newShape = new s.constructor({
         ...s,
         layer: 'main',
+        familyName: 'duplicate',
         path: s.getSVGPath('no scale', false),
         id: undefined,
         divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -190,7 +175,10 @@ export class CopyTool extends Tool {
       if (newShape.name.startsWith('Perpendicular'))
         newShape.name = newShape.name.slice('Perpendicular'.length);
       if (newShape.geometryObject)
-        newShape.geometryObject = new GeometryObject({});
+        newShape.geometryObject = new GeometryObject({
+          geometryDuplicateParentShapeId: s.id
+        });
+      s.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
       shapesList.push(newShape);
       newShape.translate(this.translation);
     });

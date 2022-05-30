@@ -70,7 +70,7 @@ export class OpenFileManager {
     const WorkspaceManagerModule = await import('./WorkspaceManager.js');
     WorkspaceManagerModule.WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
     if (app.environment.name == 'Tangram')
-      app.mainDrawingEnvironment.removeAllObjects();
+      app.mainCanvasLayer.removeAllObjects();
 
     if (saveObject.settings) {
       setState({ settings: { ...saveObject.settings } });

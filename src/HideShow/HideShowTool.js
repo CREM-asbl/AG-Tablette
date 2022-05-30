@@ -37,8 +37,8 @@ export class HideShowTool extends Tool {
   }
 
   end() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
   }
 
@@ -52,14 +52,14 @@ export class HideShowTool extends Tool {
   }
 
   showHidden() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
 
-    app.mainDrawingEnvironment.shapes
+    app.mainCanvasLayer.shapes
       // .filter(s => s.geometryObject.geometryIsHidden === true)
     .forEach(s => {
       let newShape = new s.constructor({
         ...s,
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         path: s.getSVGPath('no scale', false, false),
         strokeColor: s.strokeColor,
         divisionPointInfos: s.divisionPoints.map((dp) => {
@@ -96,7 +96,7 @@ export class HideShowTool extends Tool {
       });
       return newShape;
     });
-    app.mainDrawingEnvironment.editingShapeIds = app.mainDrawingEnvironment.shapes
+    app.mainCanvasLayer.editingShapeIds = app.mainCanvasLayer.shapes
       // .filter(s => s.geometryObject.geometryIsHidden === true)
       .map(s => s.id);
     window.dispatchEvent(new CustomEvent('refresh'));
@@ -105,7 +105,7 @@ export class HideShowTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.map(s => s.id).forEach(id => {
-      let s = app.mainDrawingEnvironment.findObjectById(id, 'shape');
+      let s = app.mainCanvasLayer.findObjectById(id, 'shape');
       if (s.geometryObject.geometryIsHidden === true)
         s.geometryObject.geometryIsHidden = false;
       else
