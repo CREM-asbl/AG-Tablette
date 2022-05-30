@@ -66,14 +66,13 @@ export class Workspace {
       this.zoomLevel = 1;
       app.mainCanvasLayer.loadFromData(null);
       app.tangramCanvasLayer?.clear();
-      app.gridCanvasLayer.clear();
+      app.gridCanvasLayer?.clear();
       return;
     }
     this.id = wsdata.id;
 
     app.mainCanvasLayer.loadFromData(wsdata.objects);
-    app.tangramCanvasLayer?.loadFromData(wsdata.backObjects);
-    app.gridCanvasLayer.clear();
+    app.gridCanvasLayer?.clear();
     this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -197,8 +196,10 @@ export class Workspace {
       '" height="' +
       app.canvasHeight +
       '" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n';
-    svg_data += app.tangramCanvasLayer.toSVG();
-    svg_data += app.gridCanvasLayer.toSVG();
+    if (app.gridCanvasLayer)
+      svg_data += app.gridCanvasLayer.toSVG();
+    if (app.tangramCanvasLayer)
+      svg_data += app.tangramCanvasLayer.toSVG();
     svg_data += app.mainCanvasLayer.toSVG();
     if (document.body.querySelector('forbidden-canvas') != null) {
       svg_data +=

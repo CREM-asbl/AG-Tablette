@@ -33,8 +33,8 @@ window.addEventListener('new-window', () => {
   // setTimeout(() => {
   app.mainCanvasLayer.removeAllObjects();
   app.upperCanvasLayer.removeAllObjects();
-  app.tangramCanvasLayer.removeAllObjects();
-  app.gridCanvasLayer.removeAllObjects();
+  app.tangramCanvasLayer?.removeAllObjects();
+  app.gridCanvasLayer?.removeAllObjects();
   app.tools.forEach(tool => tool.isVisible = true);
   app.environment.families.forEach(family => family.isVisible = true);
   setState({

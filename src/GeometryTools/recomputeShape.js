@@ -466,7 +466,6 @@ export function computeDivisionPoint(point) {
     }
     let newAngle = firstAngle + point.ratio * (secondAngle - firstAngle);
     if (segment.counterclockwise) {
-      // console.log(firstAngle / Math.PI * 180, secondAngle / Math.PI * 180)
       newAngle = firstAngle - point.ratio * (2 * Math.PI - secondAngle + firstAngle);
     }
     let newCoordinates = new Coordinates({

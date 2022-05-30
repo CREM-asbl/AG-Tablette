@@ -22,7 +22,6 @@ export class SolutionCheckerTool extends Tool {
     window.addEventListener('file-parsed', async (e) => {
       TangramManager.closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();
-      // document.querySelector('state-menu')?.remove();
       const data = e.detail;
       const level = await TangramManager.selectLevel();
       await TangramManager.initShapes();
@@ -33,6 +32,7 @@ export class SolutionCheckerTool extends Tool {
         isSilhouetteShown = false;
       if (backObjects) {
         Silhouette.initFromObject(backObjects, level);
+        app.tangramCanvasLayer.redraw();
         isSilhouetteShown = true;
       }
       setState({

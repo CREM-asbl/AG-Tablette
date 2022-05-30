@@ -119,8 +119,10 @@ export class SaveFileManager {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, width, height);
 
-    ctx.drawImage(app.gridCanvasLayer.canvas, 0, 0, width, height);
-    ctx.drawImage(app.tangramCanvasLayer.canvas, 0, 0, width, height);
+    if (app.gridCanvasLayer)
+      ctx.drawImage(app.gridCanvasLayer.canvas, 0, 0, width, height);
+    if (app.tangramCanvasLayer)
+      ctx.drawImage(app.tangramCanvasLayer.canvas, 0, 0, width, height);
     ctx.drawImage(app.mainCanvasLayer.canvas, 0, 0, width, height);
 
     let forbiddenCanvas = document.body.querySelector('forbidden-canvas');

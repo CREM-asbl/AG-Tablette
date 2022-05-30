@@ -14,6 +14,7 @@ export default {
     // 'BorderColor',
     'Translate',
     'Zoom',
+    'Grid',
   ],
   kit: 'cubesKit',
   extension: 'agc',

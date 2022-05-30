@@ -31,6 +31,7 @@ export default {
     'HideShow',
     'Translate',
     'Zoom',
+    'Grid',
   ],
   extension: 'agl',
   themeColor: '#888888',
