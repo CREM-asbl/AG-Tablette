@@ -10,7 +10,7 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
-import { createElem } from '../Core/Tools/general';
+import { createElem, findObjectsByName, removeObjectById } from '../Core/Tools/general';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
@@ -79,6 +79,8 @@ export class CreateCircleTool extends Tool {
   animatePoint() {
     this.removeListeners();
     this.animate();
+
+    findObjectsByName('constraints', 'upper').forEach(s => s.geometryObject.geometryIsVisible = false);
 
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
@@ -209,12 +211,14 @@ export class CreateCircleTool extends Tool {
             layer: 'upper',
             vertexIds: [this.points[1].id, this.points[2].id],
             arcCenterId: this.points[0].id,
+            color: app.settings.referenceDrawColor,
           });
           this.segments.push(seg);
           seg = new Segment({
             layer: 'upper',
             vertexIds: [this.points[2].id, this.points[1].id],
             arcCenterId: this.points[0].id,
+            color: app.settings.referenceDrawColor2,
           });
           this.segments.push(seg);
         }

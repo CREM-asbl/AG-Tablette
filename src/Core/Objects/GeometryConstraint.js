@@ -3,7 +3,8 @@ import { Coordinates } from './Coordinates';
 import { Point } from './Point';
 import { LineShape } from './Shapes/LineShape';
 import { SelectManager } from '../Managers/SelectManager';
-import { removeObjectById } from '../Tools/general';
+import { findObjectsByName, removeObjectById } from '../Tools/general';
+import { GeometryObject } from './Shapes/GeometryObject';
 
 export class GeometryConstraint {
   /**
@@ -13,8 +14,7 @@ export class GeometryConstraint {
    * @param {[Point]} points      pout isContructed
    */
   constructor(type, lines = [], points = []) {
-    let oldConstraints = app.upperCanvasLayer.shapes.filter(s => s.borderColor == app.settings.constraintsDrawColor);
-    removeObjectById(oldConstraints.map(s => s.id));
+    findObjectsByName('constraints', 'upper').forEach(s => removeObjectById(s.id));
     this.type = type;
     this.segments = lines.map((ln) => {
       let path = '';
@@ -55,6 +55,7 @@ export class GeometryConstraint {
         strokeColor: app.settings.constraintsDrawColor,
         fillOpacity: 0,
         strokeWidth: 2,
+        geometryObject: new GeometryObject({}),
       });
       return s.segments[0];
     });
