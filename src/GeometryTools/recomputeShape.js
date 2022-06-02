@@ -87,27 +87,32 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
   if (includeChildren)
     shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
       let child = findObjectById(childId);
-      let vector = child.geometryObject.geometryConstructionSpec.childFirstPointCoordinates.substract(child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
-      let mustReverse = false,
-        rotationMultiplier = -1;
-      if (shape.isReversed ^ child.isReversed) {
-        mustReverse = true;
-        rotationMultiplier = 1;
-      }
-      child.points.filter(pt => pt.type != 'divisionPoint').forEach((pt, idx) => {
-        let startCoord = shape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
-        if (mustReverse) {
-          startCoord = new Coordinates({
-            x: startCoord.x + 2 * (child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
-            y: startCoord.y,
-          });
+      if (child.name == 'PointOnLine') {
+        child.points[0].ratio = shape.points[0].ratio;
+        computeShapeTransform(child);
+      } else {
+        let vector = child.geometryObject.geometryConstructionSpec.childFirstPointCoordinates.substract(child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
+        let mustReverse = false,
+          rotationMultiplier = -1;
+        if (shape.isReversed ^ child.isReversed) {
+          mustReverse = true;
+          rotationMultiplier = 1;
         }
-        let newPointCoordinates = startCoord
-          .rotate(rotationMultiplier * child.geometryObject.geometryConstructionSpec.rotationAngle, child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates)
-          .add(vector);
-        pt.coordinates = newPointCoordinates;
-      });
-      child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+        child.points.filter(pt => pt.type != 'divisionPoint').forEach((pt, idx) => {
+          let startCoord = shape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
+          if (mustReverse) {
+            startCoord = new Coordinates({
+              x: startCoord.x + 2 * (child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
+              y: startCoord.y,
+            });
+          }
+          let newPointCoordinates = startCoord
+            .rotate(rotationMultiplier * child.geometryObject.geometryConstructionSpec.rotationAngle, child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates)
+            .add(vector);
+          pt.coordinates = newPointCoordinates;
+        });
+        child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+      }
       computeAllShapeTransform(child, layer);
     });
 }
@@ -308,16 +313,9 @@ export function computeShapeTransform(shape, layer = 'upper') {
     });
   } else if (shape.name == 'PointOnLine') {
     let ref = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    let point = shape.points[0];
 
-    let firstPoint = ref.vertexes[0];
-    let secondPoint = ref.vertexes[1];
-
-    const segLength = secondPoint.coordinates.substract(
-      firstPoint.coordinates,
-    );
-    const part = segLength.multiply(shape.points[0].ratio);
-
-    let coord = firstPoint.coordinates.add(part);
+    let coord;
     if (ref.shape.name == 'Circle') {
       let refShape = ref.shape;
       let angle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates) + shape.points[0].ratio * Math.PI * 2;
@@ -325,6 +323,29 @@ export function computeShapeTransform(shape, layer = 'upper') {
         x: refShape.segments[0].radius * Math.cos(angle),
         y: refShape.segments[0].radius * Math.sin(angle),
       });
+    } else if (ref.isArc()) {
+      let firstAngle = ref.arcCenter.coordinates.angleWith(ref.vertexes[0].coordinates);
+      let secondAngle = ref.arcCenter.coordinates.angleWith(ref.vertexes[1].coordinates);
+      if (secondAngle <= firstAngle) {
+        secondAngle += Math.PI * 2;
+      }
+      let newAngle = firstAngle + point.ratio * (secondAngle - firstAngle);
+      if (ref.counterclockwise) {
+        newAngle = firstAngle - point.ratio * (2 * Math.PI - secondAngle + firstAngle);
+      }
+      coord = new Coordinates({
+        x: ref.arcCenter.coordinates.x + ref.radius * Math.cos(newAngle),
+        y: ref.arcCenter.coordinates.y + ref.radius * Math.sin(newAngle),
+      });
+    } else {
+      let firstPoint = ref.vertexes[0];
+      let secondPoint = ref.vertexes[1];
+      const segLength = secondPoint.coordinates.substract(
+        firstPoint.coordinates,
+      );
+      const part = segLength.multiply(point.ratio);
+
+      coord = firstPoint.coordinates.add(part);
     }
     shape.points[0].coordinates = coord;
   } else if (shape.name == 'PointOnShape') {
@@ -492,6 +513,9 @@ export function computeDivisionPoint(point) {
 
 export function computeConstructionSpec(shape, maxIndex = 100) {
   if (shape.familyName == 'duplicate') {
+    if (shape.name == 'PointOnLine') {
+      return;
+    }
     let refShape = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
     shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refShape.points[0].coordinates;
     shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.points[0].coordinates;
@@ -583,6 +607,40 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     if (Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal() + Math.PI / 2) > 0.1 &&
       Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal() + Math.PI / 2 - 2 * Math.PI) > 0.1)
       shape.geometryObject.geometryConstructionSpec.segmentLength *= -1;
+  } else if (shape.name == 'PointOnLine') {
+    let ratio;
+    let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    if (reference.shape.name == 'Circle') {
+      const angle = reference.arcCenter.coordinates.angleWith(shape.points[0].coordinates);
+      const refAngle = reference.arcCenter.coordinates.angleWith(reference.vertexes[0].coordinates);
+      ratio = (angle - refAngle) / Math.PI / 2;
+      if (ratio < 0)
+        ratio += 1;
+    } else if (reference.isArc()) {
+      let angle = reference.arcCenter.coordinates.angleWith(shape.points[0].coordinates);
+      let firstAngle = reference.arcCenter.coordinates.angleWith(reference.vertexes[0].coordinates);
+      let secondAngle = reference.arcCenter.coordinates.angleWith(reference.vertexes[1].coordinates);
+      if (reference.counterclockwise)
+        [firstAngle, secondAngle] = [secondAngle, firstAngle];
+      if (firstAngle > secondAngle)
+        secondAngle += 2 * Math.PI;
+      if (firstAngle > angle)
+        angle += 2 * Math.PI;
+      ratio = (angle - firstAngle) / (secondAngle - firstAngle);
+      if (reference.counterclockwise)
+        ratio = 1 - ratio;
+    } else {
+      let ratioX = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
+      let ratioY = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
+      ratio = ratioX;
+      if (isNaN(ratio))
+        ratio = ratioY;
+    }
+    if (ratio > 1)
+      ratio = 1;
+    else if (ratio < 0)
+      ratio = 0;
+    shape.points[0].ratio = ratio;
   }
 }
 

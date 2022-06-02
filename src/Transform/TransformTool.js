@@ -260,26 +260,7 @@ export class TransformTool extends Tool {
       if (shape.name == 'PointOnLine') {
         let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
         point.coordinates = reference.projectionOnSegment(point.coordinates);
-        // let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
-        let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
-        let ratioY = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
-        let ratio = ratioX;
-        if (isNaN(ratio))
-          ratio = ratioY;
-
-        if (ratio < 0 && (reference.shape.name.endsWith('SemiStraightLine') || !reference.shape.name.endsWith('StraightLine')))
-          ratio = 0;
-        if (ratio > 1 && !reference.shape.name.endsWith('StraightLine'))
-          ratio = 1;
-        if (reference.shape.name == 'Circle') {
-          let refShape = reference.shape;
-          const angle = refShape.segments[0].arcCenter.coordinates.angleWith(point.coordinates);
-          const refAngle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates);
-          ratio = (angle - refAngle) / Math.PI / 2;
-          if (ratio < 0)
-            ratio += 1;
-        }
-        point.ratio = ratio;
+        computeConstructionSpec(shape);
       }
       computeShapeTransform(shape);
       if (shape.name == 'RightAngleTrapeze2')

@@ -9,6 +9,7 @@ import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem, findObjectById } from '../Core/Tools/general';
+import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -204,24 +205,10 @@ export class CreatePointTool extends Tool {
         geometryObject: new GeometryObject({}),
       });
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
+
+      computeConstructionSpec(shape);
+
       let reference = findObjectById(this.geometryParentObjectId1);
-
-      let ratioX = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
-      let ratioY = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
-      let ratio = ratioX;
-      if (isNaN(ratio))
-        ratio = ratioY;
-      if (reference.shape.name == 'Circle') {
-        let refShape = reference.shape;
-        const angle = refShape.segments[0].arcCenter.coordinates.angleWith(shape.points[0].coordinates);
-        const refAngle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates);
-        ratio = (angle - refAngle) / Math.PI / 2;
-        if (ratio < 0)
-          ratio += 1;
-      }
-
-      shape.points[0].ratio = ratio;
-
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     } else if (app.tool.selectedPoint == 'PointOnShape') {
       if (!this.geometryParentObjectId1) {

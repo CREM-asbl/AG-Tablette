@@ -88,19 +88,6 @@ export class CopyTool extends Tool {
   }
 
   /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  /**
    * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (canvasMouseDown)
    * @param  shape            La figure sélectionnée
    */
