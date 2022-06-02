@@ -234,7 +234,6 @@ export function uniqId(layer, objectType) {
 export function findObjectById(id) {
   if (!id)
     return;
-  console.log(id);
   let layer = layerOrder[id[8]];
   let objectType = objectTypeOrder[id[9]];
   let object = app[layer + 'CanvasLayer'][objectType + 's'].find((obj) => obj.id == id);

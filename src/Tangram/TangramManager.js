@@ -43,9 +43,7 @@ export class TangramManager {
     if (!TangramManager.kit)
       TangramManager.kit = await TangramManager.loadKit();
     const ws = JSON.parse(this.kit);
-    console.log(ws.objects.shapesData[0].id)
     OpenFileManager.transformToNewIdSystem(ws.objects, 'main');
-    console.log(ws.objects.shapesData[0].id)
     WorkspaceManager.setWorkspaceFromObject(ws);
   }
 }

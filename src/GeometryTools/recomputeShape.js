@@ -246,7 +246,6 @@ export function computeShapeTransform(shape, layer = 'upper') {
     let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let angle = seg.getAngleWithHorizontal();
     let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
-    console.log(segLength);
 
     shape.vertexes[1].coordinates = new Coordinates({
       x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),

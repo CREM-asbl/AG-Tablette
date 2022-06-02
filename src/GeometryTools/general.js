@@ -5,7 +5,6 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
   if (app.environment.name != 'Geometrie')
     return;
   shape.geometryObject.geometryChildShapeIds.forEach(ref => {
-    console.log(ref)
     let s = findObjectById(ref);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
