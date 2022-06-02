@@ -416,7 +416,14 @@ export class RegularShape extends Shape {
 
   isCircle() {
     return (
-      this.name == 'Circle' || this.name.startsWith('Disque')
+      this.name == 'Circle' || this.name.startsWith('Disque') ||
+      (
+        this.segments.length == 1 &&
+        this.segments[0].isArc() &&
+        this.segments[0].vertexes[0].coordinates.equal(
+          this.segments[0].vertexes[1].coordinates,
+        )
+      )
     );
   }
   // isCircle() {
