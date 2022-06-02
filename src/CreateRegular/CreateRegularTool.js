@@ -7,7 +7,7 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { createElem } from '../Core/Tools/general';
+import { createElem, findObjectById, removeObjectById } from '../Core/Tools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -195,7 +195,7 @@ export class CreateRegularTool extends Tool {
       );
 
       if (this.shapeDrawnId)
-        app.upperCanvasLayer.removeObjectById(this.shapeDrawnId);
+        removeObjectById(this.shapeDrawnId);
 
       let shape = new RegularShape({
         path: path,
@@ -250,7 +250,7 @@ export class CreateRegularTool extends Tool {
   }
 
   _executeAction() {
-    let shapeDrawn = app.upperCanvasLayer.findObjectById(this.shapeDrawnId);
+    let shapeDrawn = findObjectById(this.shapeDrawnId);
 
     let shape = new RegularShape({
       ...shapeDrawn,

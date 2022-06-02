@@ -1,5 +1,5 @@
 import { app } from '../App';
-import { mod, uniqId } from '../Tools/general';
+import { addInfoToId, findObjectById, mod, uniqId } from '../Tools/general';
 import { Coordinates } from './Coordinates';
 import { Segment } from './Segment';
 
@@ -19,7 +19,7 @@ export class Point {
    * @param {Number}                      ratio -> the ratio of this between the 2 vertexes of the segment
    */
   constructor({
-    id = uniqId(),
+    id,
     layer,
     coordinates = undefined,
     x = 0,
@@ -36,6 +36,10 @@ export class Point {
     reference = null,
     endpointIds = [],
   }) {
+    if (id == undefined)
+      id = uniqId(layer, 'point');
+    else
+      id = addInfoToId(id, layer, 'point');
     this.id = id;
     this.layer = layer;
     this.canvasLayer.points.push(this);
@@ -142,7 +146,7 @@ export class Point {
     //   constraints.isBlocked = true;
     // } else
     if (this.reference) {
-      let refPoint = this.canvasLayer.findObjectById(this.reference, 'point');
+      let refPoint = findObjectById(this.reference);
       refPoint.computeTransformConstraint();
       constraints = refPoint.transformConstraints;
     } else if (this.type == 'divisionPoint' || this.type == 'shapeCenter') {
@@ -340,7 +344,7 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = app.mainCanvasLayer.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
+          let reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
           let referenceAngle = reference.getAngleWithHorizontal();
           let constraintLine = {
             segment: new Segment({
@@ -360,7 +364,7 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = app.mainCanvasLayer.findObjectById(this.shape.geometryObject.geometryParentObjectId1, 'segment');
+          let reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
           let referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2;
           let constraintLine = {
             segment: new Segment({

@@ -8,7 +8,7 @@ import { LineShape } from './Core/Objects/Shapes/LineShape';
 import { SinglePointShape } from './Core/Objects/Shapes/SinglePointShape';
 import { ArrowLineShape } from './Core/Objects/Shapes/ArrowLineShape';
 import { Segment } from './Core/Objects/Segment';
-import { capitalizeFirstLetter, createElem } from './Core/Tools/general';
+import { capitalizeFirstLetter, createElem, findObjectById } from './Core/Tools/general';
 import { Point } from './Core/Objects/Point';
 
 class CanvasLayer extends LitElement {
@@ -162,45 +162,16 @@ class CanvasLayer extends LitElement {
     return svg_data;
   }
 
-  findObjectById(id, objectType = 'shape') {
-    let object = this[objectType + 's'].find((obj) => obj.id == id);
-    return object;
-  }
-
-  findObjectsByName(name, objectType = 'shape') {
-    let objects = this[objectType + 's'].filter((obj) => obj.name == name);
-    return objects;
-  }
-
-  findIndexById(id, objectType = 'shape') {
-    let index = this[objectType + 's'].findIndex((obj) => obj.id == id);
-    return index;
-  }
-
-  removeObjectById(id, objectType = 'shape') {
-    let index = this.findIndexById(id, objectType);
-    if (index != -1) {
-      if (objectType == 'shape') {
-        let object = this.findObjectById(id, objectType);
-        object.segments.forEach((seg) =>
-          this.removeObjectById(seg.id, 'segment'),
-        );
-        object.points.forEach((pt) => this.removeObjectById(pt.id, 'point'));
-      }
-      this[objectType + 's'].splice(index, 1);
-    }
-  }
-
   getCommonSegmentOfTwoPoints(pt1Id, pt2Id) {
-    let pt1 = this.findObjectById(pt1Id, 'point');
-    let pt2 = this.findObjectById(pt2Id, 'point');
+    let pt1 = findObjectById(pt1Id);
+    let pt2 = findObjectById(pt2Id);
     if (pt1.shape.name == 'PointOnLine' || pt2.shape.name == 'PointOnLine') {
       let segId;
       if (pt1.shape.name == 'PointOnLine')
         segId = pt1.shape.geometryObject.geometryParentObjectId1;
       else
         segId = pt2.shape.geometryObject.geometryParentObjectId1;
-      return app.mainCanvasLayer.findObjectById(segId, 'segment');
+      return findObjectById(segId);
     }
     let segmentIds1 = pt1.segmentIds;
     let segmentIds2 = pt2.segmentIds;
@@ -874,22 +845,20 @@ class CanvasLayer extends LitElement {
 
   drawText(
     text,
-    position,
-    color = '#000',
     doSave = true,
   ) {
     if (doSave) this.ctx.save();
 
     const fontSize = 20;
-    let positionCopy = position.add({
-      x: (((-3 * fontSize) / 13) * text.length) / app.workspace.zoomLevel,
+    let position = text.coordinates.add({
+      x: (((-3 * fontSize) / 13) * text.message.length) / app.workspace.zoomLevel,
       y: fontSize / 2 / app.workspace.zoomLevel,
     });
-    positionCopy = positionCopy.toCanvasCoordinates();
+    position = position.toCanvasCoordinates();
 
-    this.ctx.fillStyle = color;
+    this.ctx.fillStyle = text.color;
     this.ctx.font = fontSize + 'px Arial';
-    this.ctx.fillText(text, positionCopy.x, positionCopy.y);
+    this.ctx.fillText(text.message, position.x, position.y);
 
     if (doSave) this.ctx.restore();
   }

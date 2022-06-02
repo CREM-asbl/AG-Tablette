@@ -12,6 +12,7 @@ import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { findObjectById, removeObjectById } from '../Core/Tools/general';
 
 /**
  */
@@ -67,7 +68,7 @@ export class RotationTool extends Tool {
   selectObject() {
     if (this.drawingShapes)
       this.drawingShapes.forEach(s => {
-        app.upperCanvasLayer.removeObjectById(s.id);
+        removeObjectById(s.id)
       })
 
     this.removeListeners();
@@ -258,14 +259,12 @@ export class RotationTool extends Tool {
     );
     this.clockwise = isAngleInside;
     if (this.arcShape0.segments[0].counterclockwise == this.clockwise) {
-      app.upperCanvasLayer.removeObjectById(
-        this.arcShape0.id,
-        'shape',
+      removeObjectById(
+        this.arcShape0.id
       );
     } else {
-      app.upperCanvasLayer.removeObjectById(
-        this.arcShape1.id,
-        'shape',
+      removeObjectById(
+        this.arcShape1.id
       );
     }
 
@@ -382,7 +381,7 @@ export class RotationTool extends Tool {
         if (idx == 1 && this.references[1] instanceof LineShape) {
           objectType = 'shape';
         }
-        let ref = app.mainCanvasLayer.findObjectById(refId, objectType);
+        let ref = findObjectById(refId);
         if (objectType == 'shape') {
           if (!ref.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
             ref.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);

@@ -1,5 +1,5 @@
 import { app } from '../App';
-import { isAlmostInfinite, mod, uniqId } from '../Tools/general';
+import { addInfoToId, isAlmostInfinite, mod, removeObjectById, uniqId } from '../Tools/general';
 import { Bounds } from './Bounds';
 import { Coordinates } from './Coordinates';
 import { Point } from './Point';
@@ -17,7 +17,7 @@ export class Segment {
    * @param {Boolean}                     isSemiInfinite
    */
   constructor({
-    id = uniqId(),
+    id,
     layer,
     shapeId = undefined,
     idx = undefined,
@@ -33,6 +33,10 @@ export class Segment {
     isSemiInfinite = false,
     color = undefined,
   }) {
+    if (id == undefined)
+      id = uniqId(layer, 'segment');
+    else
+      id = addInfoToId(id, layer, 'segment');
     this.id = id;
     this.layer = layer;
     this.canvasLayer.segments.push(this);
@@ -525,8 +529,8 @@ export class Segment {
    */
   sortDivisionPoints(start = 0) {
     this.divisionPointIds.sort((id1, id2) => {
-      let pt1 = this.canvasLayer.findObjectById(id1, 'point');
-      let pt2 = this.canvasLayer.findObjectById(id2, 'point');
+      let pt1 = findObjectById(id1);
+      let pt2 = findObjectById(id2);
       return (pt1.ratio - pt2.ratio) * (-start * 2 + 1);
     });
   }
@@ -549,7 +553,7 @@ export class Segment {
       return null;
     }
     this.shape.pointIds.splice(i, 1);
-    app.mainCanvasLayer.removeObjectById(pointId, 'point');
+    removeObjectById(pointId);
   }
 
   /* #################################################################### */

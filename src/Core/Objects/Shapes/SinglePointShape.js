@@ -1,5 +1,5 @@
 import { app } from '../../App';
-import { getComplementaryColor, mod, uniqId } from '../../Tools/general';
+import { getComplementaryColor, mod, removeObjectById, uniqId } from '../../Tools/general';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
 import { Point } from '../Point';
@@ -13,7 +13,7 @@ import { Shape } from './Shape';
 export class SinglePointShape extends Shape {
 
   constructor({
-    id = uniqId(),
+    id,
     layer,
 
     path = undefined,
@@ -105,7 +105,7 @@ export class SinglePointShape extends Shape {
       });
     } else if (!value && this.isCenterShown) {
       let pointId = this.points.find((pt) => pt.type == 'shapeCenter').id;
-      this.canvasLayer.removeObjectById(pointId, 'point');
+      removeObjectById(pointId);
       let index = this.pointIds.findIndex((pt) => pt.id == pointId);
       this.pointIds.splice(index, 1);
     }
@@ -568,25 +568,23 @@ export class SinglePointShape extends Shape {
         let middlePointId = this.segments[i].vertexIds[1];
         let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
         this.pointIds.splice(ptIdx, 1);
-        this.canvasLayer.removeObjectById(middlePointId, 'point');
+        removeObjectById(middlePointId);
         this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
         let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
           (id) => id == this.segmentIds[nextIdx],
         );
         this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
         if (this.segments[nextIdx].arcCenterId) {
-          this.canvasLayer.removeObjectById(
-            this.segments[nextIdx].arcCenterId,
-            'point',
+          removeObjectById(
+            this.segments[nextIdx].arcCenterId
           );
           idx = this.pointIds.findIndex(
             (id) => id == this.segments[nextIdx].arcCenterId,
           );
           this.pointIds.splice(idx, 1);
         }
-        this.canvasLayer.removeObjectById(
-          this.segmentIds[nextIdx],
-          'segment',
+        removeObjectById(
+          this.segmentIds[nextIdx]
         );
         this.segmentIds.splice(nextIdx, 1);
         i--; // try to merge this new segment again!

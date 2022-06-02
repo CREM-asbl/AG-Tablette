@@ -9,7 +9,7 @@ import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
-import { createElem } from '../Core/Tools/general';
+import { createElem, findObjectById } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
@@ -282,17 +282,15 @@ export class CreateLineTool extends Tool {
   finishShape() {
     let newCoordinates;
     if (app.tool.selectedLine == 'ParalleleStraightLine') {
-      let referenceSegment = app.mainCanvasLayer.findObjectById(
-        this.geometryParentObjectId,
-        'segment',
+      let referenceSegment = findObjectById(
+        this.geometryParentObjectId
       );
       newCoordinates = this.points[0].coordinates
         .substract(referenceSegment.vertexes[0].coordinates)
         .add(referenceSegment.vertexes[1].coordinates);
     } else if (app.tool.selectedLine == 'PerpendicularStraightLine') {
-      let referenceSegment = app.mainCanvasLayer.findObjectById(
-        this.geometryParentObjectId,
-        'segment',
+      let referenceSegment = findObjectById(
+        this.geometryParentObjectId
       );
       let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
       newCoordinates = this.points[0].coordinates.add(new Coordinates({
@@ -319,9 +317,8 @@ export class CreateLineTool extends Tool {
       this.constraints = new GeometryConstraint('isFree');
     } else if (pointNb == 1) {
       if (app.tool.selectedLine.startsWith('Parallele')) {
-        let referenceSegment = app.mainCanvasLayer.findObjectById(
-          this.geometryParentObjectId,
-          'segment',
+        let referenceSegment = findObjectById(
+          this.geometryParentObjectId
         );
         let secondCoordinates = this.points[0].coordinates
           .substract(referenceSegment.vertexes[0].coordinates)
@@ -329,9 +326,8 @@ export class CreateLineTool extends Tool {
         let lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isConstrained', lines);
       } else if (app.tool.selectedLine.startsWith('Perpendicular')) {
-        let referenceSegment = app.mainCanvasLayer.findObjectById(
-          this.geometryParentObjectId,
-          'segment',
+        let referenceSegment = findObjectById(
+          this.geometryParentObjectId
         );
         let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
         let secondCoordinates = this.points[0].coordinates.add(new Coordinates({
@@ -397,7 +393,7 @@ export class CreateLineTool extends Tool {
 
     if (this.geometryParentObjectId) {
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId;
-      let reference = app.mainCanvasLayer.findObjectById(this.geometryParentObjectId, 'segment');
+      let reference = findObjectById(this.geometryParentObjectId);
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }
 

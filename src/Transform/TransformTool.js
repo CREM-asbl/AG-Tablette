@@ -5,6 +5,8 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
+import { addInfoToId, findObjectById } from '../Core/Tools/general';
+import { duplicateShape } from '../Core/Tools/shapesTools';
 import {
   computeAllShapeTransform,
   computeConstructionSpec,
@@ -111,7 +113,7 @@ export class TransformTool extends Tool {
   objectSelected(points) {
     for (let i = 0; i < points.length; i++) {
       if (points[i].reference) {
-        points[i] = app.mainCanvasLayer.findObjectById(points[i].reference, 'point');
+        points[i] = findObjectById(points[i].reference);
         i--;
       } else {
         points[i].computeTransformConstraint();
@@ -145,43 +147,7 @@ export class TransformTool extends Tool {
     let involvedShapes = app.mainCanvasLayer.shapes;
 
     this.drawingShapes = involvedShapes.map(
-      (s) => {
-        let newShape = new s.constructor({
-          ...s,
-          layer: 'upper',
-          path: s.getSVGPath('no scale', false, false),
-          divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
-          }),
-          segmentsColor: s.segments.map((seg) => {
-            return seg.color;
-          }),
-          pointsColor: s.points.map((pt) => {
-            return pt.color;
-          }),
-        });
-        let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
-        let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
-        newShape.segmentIds = [...segIds];
-        newShape.pointIds = [...ptIds];
-        newShape.segments.forEach((seg, idx) => {
-          seg.isInfinite = s.segments[idx].isInfinite;
-          seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
-          seg.vertexIds = [...s.segments[idx].vertexIds];
-          seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
-          seg.arcCenterId = s.segments[idx].arcCenterId;
-        });
-        newShape.points.forEach((pt, idx) => {
-          pt.segmentIds = [...s.points[idx].segmentIds];
-          pt.reference = s.points[idx].reference;
-          pt.visible = s.points[idx].visible;
-          pt.ratio = s.points[idx].ratio;
-          pt.transformConstraints = s.points[idx].transformConstraints;
-          pt.type = s.points[idx].type;
-          pt.endpointIds = [...s.points[idx].endpointIds];
-        });
-        return newShape;
-      }
+      (s) => duplicateShape(s)
     );
 
     app.mainCanvasLayer.editingShapeIds = involvedShapes.map(
@@ -203,21 +169,22 @@ export class TransformTool extends Tool {
 
   _executeAction() {
     app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
-      let s = app.mainCanvasLayer.findObjectById(sId);
+      let s = findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
         pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
         pt.ratio = this.drawingShapes[idxS].points[idxPt].ratio;
       });
+      computeConstructionSpec(s);
     });
   }
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'transform') {
-      let point = app.upperCanvasLayer.findObjectById(this.pointSelectedId, 'point');
+      let point = findObjectById(addInfoToId(this.pointSelectedId, 'upper'));
       let shape = point.shape;
       app.upperCanvasLayer.shapes.forEach(s => {
         s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-          let duplicateChild = app.upperCanvasLayer.findObjectById(duplicateChildId, 'shape');
+          let duplicateChild = findObjectById(duplicateChildId);
           computeConstructionSpec(duplicateChild);
         });
       });
@@ -291,7 +258,7 @@ export class TransformTool extends Tool {
         }
       }
       if (shape.name == 'PointOnLine') {
-        let reference = app.upperCanvasLayer.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+        let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
         point.coordinates = reference.projectionOnSegment(point.coordinates);
         // let ratio = reference.vertexes[0].coordinates.dist(shape.points[0].coordinates) / reference.length;
         let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
@@ -318,7 +285,7 @@ export class TransformTool extends Tool {
       if (shape.name == 'RightAngleTrapeze2')
         computeConstructionSpec(shape);
       if (shape.name == 'PointOnLine') {
-        let reference = app.upperCanvasLayer.findObjectById(shape.geometryObject.geometryParentObjectId1, 'segment');
+        let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
         computeShapeTransform(reference.shape);
         computeAllShapeTransform(reference.shape);
       } else {
@@ -358,7 +325,7 @@ export class TransformTool extends Tool {
     let constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
     if (point.shape.name == 'PointOnLine') {
-      let segment = app.upperCanvasLayer.findObjectById(point.shape.geometryObject.geometryParentObjectId1, 'segment');
+      let segment = findObjectById(point.shape.geometryObject.geometryParentObjectId1);
       constraints.whitelist = [
         { shapeId: segment.shape.id, type: 'divisionPoint', index: segment.idx },
         { shapeId: segment.shape.id, type: 'vertex', index: segment.idx },
@@ -368,7 +335,7 @@ export class TransformTool extends Tool {
       return;
     } else {
       constraints.blacklist = this.drawingShapes.map((s) => {
-        return { shapeId: s.id };
+        return { shapeId: addInfoToId(s.id, 'main') };
       });
     }
     let adjustedCoordinates = SelectManager.selectPoint(

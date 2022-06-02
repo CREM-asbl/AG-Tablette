@@ -8,6 +8,7 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { Tool } from '../Core/States/Tool';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { findObjectById, removeObjectById } from '../Core/Tools/general';
 
 /**
  */
@@ -48,7 +49,7 @@ export class CentralSymetryTool extends Tool {
   selectObject() {
     if (this.drawingShapes)
       this.drawingShapes.forEach(s => {
-        app.upperCanvasLayer.removeObjectById(s.id);
+        removeObjectById(s.id);
       })
     this.removeListeners();
 
@@ -209,7 +210,7 @@ export class CentralSymetryTool extends Tool {
         }),
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      let ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
+      let ref = findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
       if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
         ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       }

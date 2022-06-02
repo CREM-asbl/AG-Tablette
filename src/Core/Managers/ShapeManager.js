@@ -1,4 +1,5 @@
 import { app } from '../App';
+import { findObjectById } from '../Tools/general';
 import { GroupManager } from './GroupManager';
 import { SelectManager } from './SelectManager';
 
@@ -142,21 +143,21 @@ export class ShapeManager {
       let parents = [];
       currentShape.points.forEach(vx => {
         if (vx.reference != null) {
-          parents.push(app.mainCanvasLayer.findObjectById(vx.reference, 'point').shape);
+          parents.push(findObjectById(vx.reference).shape);
         }
       });
       if (currentShape.geometryObject.geometryParentObjectId1) {
-        let seg = app.mainCanvasLayer.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'segment');
-        let s = seg ? seg.shape : app.mainCanvasLayer.findObjectById(currentShape.geometryObject.geometryParentObjectId1, 'shape');
+        let seg = findObjectById(currentShape.geometryObject.geometryParentObjectId1);
+        let s = seg ? seg.shape : findObjectById(currentShape.geometryObject.geometryParentObjectId1);
         parents.push(s);
       }
       if (currentShape.geometryObject.geometryParentObjectId2)
-        parents.push(app.mainCanvasLayer.findObjectById(currentShape.geometryObject.geometryParentObjectId2, 'segment').shape);
+        parents.push(findObjectById(currentShape.geometryObject.geometryParentObjectId2).shape);
       return parents;
     }
     let getChildren = (currentShape) => {
       let children = currentShape.geometryObject.geometryChildShapeIds.map(sId =>
-        app.mainCanvasLayer.findObjectById(sId)
+        findObjectById(sId)
       );
       return children;
     }
@@ -192,7 +193,7 @@ export class ShapeManager {
       let newLinkedShapes = [];
       workingGroups.forEach(group => {
         group.shapesIds.forEach((id) => {
-          let shape = app.mainCanvasLayer.findObjectById(id, 'shape');
+          let shape = findObjectById(id);
           if (allLinkedShapes.every(linkedShape => linkedShape.id != shape.id)) {
             newLinkedShapes.push(shape);
           }

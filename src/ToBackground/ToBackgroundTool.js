@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
+import { findIndexById } from '../Core/Tools/general';
 
 /**
  * Déplacer une figure derrière toutes les autres.
@@ -60,7 +61,7 @@ export class ToBackgroundTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.forEach((s, index) => {
-      let shapeIndex = app.mainCanvasLayer.findIndexById(s.id);
+      let shapeIndex = findIndexById(s.id);
       let shape = app.mainCanvasLayer.shapes.splice(shapeIndex, 1)[0];
       app.mainCanvasLayer.shapes.splice(index, 0, shape);
     });

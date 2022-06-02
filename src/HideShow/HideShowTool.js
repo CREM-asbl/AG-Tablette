@@ -3,6 +3,7 @@ import { app, setState } from '../Core/App';
 import { Tool } from '../Core/States/Tool';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { findObjectById } from '../Core/Tools/general';
 
 /**
  * Cacher & monter des objets.
@@ -105,7 +106,7 @@ export class HideShowTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.map(s => s.id).forEach(id => {
-      let s = app.mainCanvasLayer.findObjectById(id, 'shape');
+      let s = findObjectById(id);
       if (s.geometryObject.geometryIsHidden === true)
         s.geometryObject.geometryIsHidden = false;
       else

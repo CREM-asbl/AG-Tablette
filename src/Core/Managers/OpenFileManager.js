@@ -1,5 +1,5 @@
 import { app, setState } from '../App';
-import { createElem } from '../Tools/general';
+import { addInfoToId, createElem } from '../Tools/general';
 
 export class OpenFileManager {
   static async openFile() {
@@ -43,6 +43,122 @@ export class OpenFileManager {
     reader.readAsText(file);
   }
 
+  static transformToNewIdSystem(objects, layer) {
+    objects.shapesData.forEach(shape => {
+      let oldId = shape.id;
+      shape.id = addInfoToId(shape.id, layer, 'shape');
+      objects.segmentsData.forEach(seg => {
+        if (seg.shapeId == oldId)
+          seg.shapeId = shape.id
+      });
+      objects.pointsData.forEach(pt => {
+        if (pt.shapeId == oldId)
+          pt.shapeId = shape.id
+      });
+      if (app.environment.name == 'Geometrie') {
+        objects.shapesData.forEach(s => {
+          s.geometryObject.geometryChildShapeIds.forEach((childId, idx) => {
+            if (childId == oldId)
+              s.geometryObject.geometryChildShapeIds[idx] = shape.id;
+          });
+          s.geometryObject.geometryTransformationChildShapeIds.forEach((childId, idx) => {
+            if (childId == oldId)
+              s.geometryObject.geometryTransformationChildShapeIds[idx] = shape.id;
+          });
+          if (s.geometryObject.geometryTransformationParentShapeId == oldId)
+            s.geometryObject.geometryTransformationParentShapeId = shape.id;
+          s.geometryObject.geometryDuplicateChildShapeIds.forEach((childId, idx) => {
+            if (childId == oldId)
+              s.geometryObject.geometryDuplicateChildShapeIds[idx] = shape.id;
+          });
+          if (s.geometryObject.geometryDuplicateParentShapeId == oldId)
+            s.geometryObject.geometryDuplicateParentShapeId = shape.id;
+
+          if (s.geometryObject.geometryParentObjectId1 == oldId)
+            s.geometryObject.geometryParentObjectId1 = shape.id;
+          if (s.geometryObject.geometryParentObjectId2 == oldId)
+            s.geometryObject.geometryParentObjectId2 = shape.id;
+          s.geometryObject.geometryTransformationCharacteristicElementIds.forEach((elemId, idx) => {
+            if (elemId == oldId)
+              s.geometryObject.geometryTransformationCharacteristicElementIds[idx] = shape.id;
+          });
+        });
+      }
+    });
+
+    objects.segmentsData.forEach(segment => {
+      let oldId = segment.id;
+      segment.id = addInfoToId(segment.id, layer, 'segment');
+      objects.shapesData.forEach(s => {
+        s.segmentIds.forEach((segId, idx) => {
+          if (segId == oldId)
+            s.segmentIds[idx] = segment.id;
+        });
+      });
+      objects.pointsData.forEach(pt => {
+        pt.segmentIds.forEach((segId, idx) => {
+          if (segId == oldId)
+            pt.segmentIds[idx] = segment.id;
+        });
+      });
+      if (app.environment.name == 'Geometrie') {
+        objects.shapesData.forEach(s => {
+          if (s.geometryObject.geometryParentObjectId1 == oldId)
+            s.geometryObject.geometryParentObjectId1 = segment.id;
+          if (s.geometryObject.geometryParentObjectId2 == oldId)
+            s.geometryObject.geometryParentObjectId2 = segment.id;
+          s.geometryObject.geometryTransformationCharacteristicElementIds.forEach((elemId, idx) => {
+            if (elemId == oldId)
+              s.geometryObject.geometryTransformationCharacteristicElementIds[idx] = segment.id;
+          });
+        });
+      }
+    });
+
+    objects.pointsData.forEach(point => {
+      let oldId = point.id;
+      point.id = addInfoToId(point.id, layer, 'point');
+      objects.shapesData.forEach(s => {
+        s.pointIds.forEach((ptId, idx) => {
+          if (ptId == oldId)
+            s.pointIds[idx] = point.id;
+        });
+      });
+      objects.segmentsData.forEach(seg => {
+        seg.vertexIds.forEach((ptId, idx) => {
+          if (ptId == oldId)
+            seg.vertexIds[idx] = point.id;
+        });
+        seg.divisionPointIds.forEach((ptId, idx) => {
+          if (ptId == oldId)
+            seg.divisionPointIds[idx] = point.id;
+        });
+        if (seg.arcCenterId == oldId)
+          seg.arcCenterId = point.id;
+      });
+      objects.pointsData.forEach(pt => {
+        pt.endpointIds?.forEach((ptId, idx) => {
+          if (ptId == oldId)
+            pt.endpointIds[idx] = point.id;
+        });
+        if (pt.reference == oldId)
+          pt.reference = point.id;
+      });
+      if (app.environment.name == 'Geometrie') {
+        objects.shapesData.forEach(s => {
+          if (s.geometryObject.geometryParentObjectId1 == oldId)
+            s.geometryObject.geometryParentObjectId1 = point.id;
+          if (s.geometryObject.geometryParentObjectId2 == oldId)
+            s.geometryObject.geometryParentObjectId2 = point.id;
+          s.geometryObject.geometryTransformationCharacteristicElementIds.forEach((elemId, idx) => {
+            if (elemId == oldId)
+              s.geometryObject.geometryTransformationCharacteristicElementIds[idx] = point.id;
+          });
+        });
+      }
+    });
+  }
+
   static async parseFile(fileContent) {
     let saveObject;
     if (typeof fileContent == 'string') {
@@ -65,6 +181,8 @@ export class OpenFileManager {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. C\'est un fichier ' + saveObject.envName + '.' } }));
       return;
     }
+
+    OpenFileManager.transformToNewIdSystem(saveObject.wsdata.objects, 'main');
 
     // app.lastFileVersion = saveObject.appVersion;
     const WorkspaceManagerModule = await import('./WorkspaceManager.js');

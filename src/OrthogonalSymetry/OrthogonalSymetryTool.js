@@ -10,6 +10,7 @@ import { Tool } from '../Core/States/Tool';
 import { Segment } from '../Core/Objects/Segment';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { findObjectById, removeObjectById } from '../Core/Tools/general';
 
 /**
  */
@@ -69,7 +70,7 @@ export class OrthogonalSymetryTool extends Tool {
 
     if (this.drawingShapes)
       this.drawingShapes.forEach(s => {
-        app.upperCanvasLayer.removeObjectById(s.id);
+        removeObjectById(s.id);
       })
 
     this.setSelectionConstraints();
@@ -90,7 +91,7 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   get referenceShape() {
-    return app.upperDrawingEnvironment.findObjectById(app.tool.referenceShapeId, 'shape');
+    return findObjectById(app.tool.referenceShapeId);
   }
 
   canvasMouseDown() {
@@ -131,7 +132,7 @@ export class OrthogonalSymetryTool extends Tool {
         vertexIds: this.pointsDrawn.map((pt) => pt.id),
         isInfinite: true,
       });
-      referenceShape = new LineShape({
+      let referenceShape = new LineShape({
         layer: 'upper',
         segmentIds: [segment.id],
         pointIds: this.pointsDrawn.map((pt) => pt.id),
@@ -265,7 +266,7 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   _executeAction() {
-    if (this.firstReference instanceof Point && this.firstReference.canvasLayer.name == 'upper') {
+    if (this.firstReference instanceof Point && this.firstReference.layer == 'upper') {
       let coord = this.firstReference.coordinates;
       this.firstReference = new SinglePointShape({
         layer: 'main',
@@ -275,7 +276,7 @@ export class OrthogonalSymetryTool extends Tool {
         geometryObject: new GeometryObject({}),
       }).points[0];
     }
-    if (this.firstReference instanceof Point && this.secondReference.canvasLayer.name == 'upper') {
+    if (this.firstReference instanceof Point && this.secondReference.layer == 'upper') {
       let coord = this.secondReference.coordinates;
       this.secondReference = new SinglePointShape({
         layer: 'main',
@@ -314,13 +315,13 @@ export class OrthogonalSymetryTool extends Tool {
         newShape.geometryObject.geometryTransformationCharacteristicElementIds.push(this.secondReference.id);
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       if (newShape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-        let ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'segment');
+        let ref = findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
         if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
       } else {
         newShape.geometryObject.geometryTransformationCharacteristicElementIds.forEach(refId => {
-          let ref = app.mainCanvasLayer.findObjectById(refId, 'point');
+          let ref = findObjectById(refId);
           if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
             ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
           }

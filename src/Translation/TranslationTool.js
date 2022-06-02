@@ -11,6 +11,7 @@ import { SelectManager } from '../Core/Managers/SelectManager';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Segment } from '../Core/Objects/Segment';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { findObjectById, removeObjectById } from '../Core/Tools/general';
 
 /**
  */
@@ -70,7 +71,7 @@ export class TranslationTool extends Tool {
 
     if (this.drawingShapes)
       this.drawingShapes.forEach(s => {
-        app.upperCanvasLayer.removeObjectById(s.id);
+        removeObjectById(s.id);
       })
 
     this.setSelectionConstraints();
@@ -263,7 +264,7 @@ export class TranslationTool extends Tool {
   }
 
   _executeAction() {
-    if (this.firstReference instanceof Point && this.firstReference.canvasLayer.name == 'upper') {
+    if (this.firstReference instanceof Point && this.firstReference.layer == 'upper') {
       let coord = this.firstReference.coordinates;
       this.firstReference = new SinglePointShape({
         layer: 'main',
@@ -273,7 +274,7 @@ export class TranslationTool extends Tool {
         geometryObject: new GeometryObject({}),
       }).points[0];
     }
-    if (this.firstReference instanceof Point && this.secondReference.canvasLayer.name == 'upper') {
+    if (this.firstReference instanceof Point && this.secondReference.layer == 'upper') {
       let coord = this.secondReference.coordinates;
       this.secondReference = new SinglePointShape({
         layer: 'main',
@@ -310,17 +311,17 @@ export class TranslationTool extends Tool {
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       if (this.firstReference instanceof Point) {
-        let ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'point');
+        let ref = findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
         if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
-        ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[1], 'point');
+        ref = findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[1]);
         if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
         newShape.translate(this.secondReference.coordinates.substract(this.firstReference.coordinates));
       } else {
-        let ref = app.mainCanvasLayer.findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0], 'shape');
+        let ref = findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
         if (!ref.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }

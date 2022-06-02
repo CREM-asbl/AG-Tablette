@@ -2,6 +2,7 @@ import { getAllChildrenInGeometry } from '../../GeometryTools/general';
 import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
 import { Coordinates } from '../Objects/Coordinates';
+import { addInfoToId } from './general';
 
 function reduceAngle(angle) {
   while (angle < -Math.PI) angle += 2 * Math.PI;
@@ -151,7 +152,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     constr.canSelect = true;
     constr.types = ['vertex', 'divisionPoint', 'shapeCenter'];
     constr.blacklist = shapesAndAllChildren.map((s) => {
-      return { shapeId: s.id };
+      return { shapeId: addInfoToId(s.id, 'main') };
     });
     constr.numberOfObjects = 'allInDistance';
     let pts = SelectManager.selectPoint(point, constr, false);

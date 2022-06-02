@@ -8,7 +8,7 @@ import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
-import { createElem } from '../Core/Tools/general';
+import { createElem, findObjectById } from '../Core/Tools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -204,7 +204,7 @@ export class CreatePointTool extends Tool {
         geometryObject: new GeometryObject({}),
       });
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
-      let reference = app.mainCanvasLayer.findObjectById(this.geometryParentObjectId1, 'segment');
+      let reference = findObjectById(this.geometryParentObjectId1);
 
       let ratioX = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
       let ratioY = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
@@ -236,11 +236,11 @@ export class CreatePointTool extends Tool {
         geometryObject: new GeometryObject({}),
       });
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
-      let reference = app.mainCanvasLayer.findObjectById(this.geometryParentObjectId1, 'shape');
+      let reference = findObjectById(this.geometryParentObjectId1);
       reference.geometryObject.geometryChildShapeIds.push(shape.id);
     } else if (app.tool.selectedPoint == 'PointOnIntersection') {
-      let firstSeg = app.mainCanvasLayer.findObjectById(this.geometryParentObjectId1, 'segment');
-      let secondSeg = app.mainCanvasLayer.findObjectById(this.geometryParentObjectId2, 'segment');
+      let firstSeg = findObjectById(this.geometryParentObjectId1);
+      let secondSeg = findObjectById(this.geometryParentObjectId2);
       let coords =  firstSeg.intersectionWith(secondSeg);
       if (!coords) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Il n\' a pas de point d\'intersection entre les deux objets sélectionnés.' } }));

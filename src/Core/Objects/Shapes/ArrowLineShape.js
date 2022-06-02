@@ -1,5 +1,5 @@
 import { app } from '../../App';
-import { mod, uniqId } from '../../Tools/general';
+import { mod, removeObjectById, uniqId } from '../../Tools/general';
 import { Coordinates } from '../Coordinates';
 import { GeometryObject } from './GeometryObject';
 import { LineShape } from './LineShape';
@@ -10,7 +10,7 @@ import { LineShape } from './LineShape';
 export class ArrowLineShape extends LineShape {
 
   constructor({
-    id = uniqId(),
+    id,
     layer,
 
     path = undefined,
@@ -141,25 +141,23 @@ export class ArrowLineShape extends LineShape {
         let middlePointId = this.segments[i].vertexIds[1];
         let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
         this.pointIds.splice(ptIdx, 1);
-        this.canvasLayer.removeObjectById(middlePointId, 'point');
+        removeObjectById(middlePointId);
         this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
         let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
           (id) => id == this.segmentIds[nextIdx],
         );
         this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
         if (this.segments[nextIdx].arcCenterId) {
-          this.canvasLayer.removeObjectById(
-            this.segments[nextIdx].arcCenterId,
-            'point',
+          removeObjectById(
+            this.segments[nextIdx].arcCenterId
           );
           idx = this.pointIds.findIndex(
             (id) => id == this.segments[nextIdx].arcCenterId,
           );
           this.pointIds.splice(idx, 1);
         }
-        this.canvasLayer.removeObjectById(
-          this.segmentIds[nextIdx],
-          'segment',
+        removeObjectById(
+          this.segmentIds[nextIdx]
         );
         this.segmentIds.splice(nextIdx, 1);
         i--; // try to merge this new segment again!

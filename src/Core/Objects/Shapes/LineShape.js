@@ -13,7 +13,7 @@ import { Shape } from './Shape';
 export class LineShape extends Shape {
 
   constructor({
-    id = uniqId(),
+    id,
     layer,
 
     path = undefined,
@@ -123,7 +123,7 @@ export class LineShape extends Shape {
       });
     } else if (!value && this.isCenterShown) {
       let pointId = this.points.find((pt) => pt.type == 'shapeCenter').id;
-      this.canvasLayer.removeObjectById(pointId, 'point');
+      removeObjectById(pointId);
       let index = this.pointIds.findIndex((pt) => pt.id == pointId);
       this.pointIds.splice(index, 1);
     }
@@ -674,13 +674,11 @@ export class LineShape extends Shape {
         if (this.name == 'Circle' && this.segments[0].radius < 0.001) {
           let coord = this.segments[0].arcCenter.coordinates;
           let counterclockwise = this.segments[0].counterclockwise;
-          this.pointIds.forEach(ptId => this.canvasLayer.removeObjectById(
-            ptId,
-            'point',
+          this.pointIds.forEach(ptId => removeObjectById(
+            ptId
           ));
-          this.segmentIds.forEach(segId => this.canvasLayer.removeObjectById(
-            segId,
-            'segment',
+          this.segmentIds.forEach(segId => removeObjectById(
+            segId
           ));
           this.pointIds = [];
           this.segmentIds = [];
@@ -711,7 +709,7 @@ export class LineShape extends Shape {
           let middlePointId = this.segments[i].vertexIds[1];
           let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
           this.pointIds.splice(ptIdx, 1);
-          this.canvasLayer.removeObjectById(middlePointId, 'point');
+          removeObjectById(middlePointId);
           this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
           if (this.segments[i].vertexes[1]) {
             let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
@@ -722,22 +720,20 @@ export class LineShape extends Shape {
             let secondPointId = this.segments[i].vertexIds[1];
             let ptIdx = this.pointIds.findIndex((ptId) => ptId == secondPointId);
             this.pointIds.splice(ptIdx, 1);
-            this.canvasLayer.removeObjectById(secondPointId, 'point');
+            removeObjectById(secondPointId);
             // this.segments[i].vertexIds.splice(1);
           }
           if (this.segments[nextIdx].arcCenterId) {
-            this.canvasLayer.removeObjectById(
-              this.segments[nextIdx].arcCenterId,
-              'point',
+            removeObjectById(
+              this.segments[nextIdx].arcCenterId
             );
             let idx = this.pointIds.findIndex(
               (id) => id == this.segments[nextIdx].arcCenterId,
             );
             this.pointIds.splice(idx, 1);
           }
-          this.canvasLayer.removeObjectById(
-            this.segmentIds[nextIdx],
-            'segment',
+          removeObjectById(
+            this.segmentIds[nextIdx]
           );
           this.segmentIds.splice(nextIdx, 1);
         }

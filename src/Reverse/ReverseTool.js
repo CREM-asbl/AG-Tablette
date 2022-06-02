@@ -8,6 +8,8 @@ import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Shape } from '../Core/Objects/Shapes/Shape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
+import { findObjectById, removeObjectById } from '../Core/Tools/general';
+import { compareIdBetweenLayers, duplicateShape } from '../Core/Tools/shapesTools';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
 import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
 
@@ -108,43 +110,9 @@ export class ReverseTool extends Tool {
     );
 
     this.drawingShapes = this.shapesToCopy.map(
-      (s) => {
-        let newShape = new s.constructor({
-          ...s,
-          layer: 'upper',
-          path: s.getSVGPath('no scale', false, false),
-          divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
-          }),
-          segmentsColor: s.segments.map((seg) => {
-            return seg.color;
-          }),
-          pointsColor: s.points.map((pt) => {
-            return pt.color;
-          }),
-        });
-        let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
-        let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
-        newShape.segmentIds = [...segIds];
-        newShape.pointIds = [...ptIds];
-        newShape.points.forEach((pt, idx) => {
-          pt.segmentIds = [...s.points[idx].segmentIds];
-          pt.reference = s.points[idx].reference;
-          pt.type = s.points[idx].type;
-          pt.ratio = s.points[idx].ratio;
-          pt.visible = s.points[idx].visible;
-        });
-        newShape.segments.forEach((seg, idx) => {
-          seg.isInfinite = s.segments[idx].isInfinite;
-          seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
-          seg.vertexIds = [...s.segments[idx].vertexIds];
-          seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
-          seg.arcCenterId = s.segments[idx].arcCenterId;
-        });
-        return newShape;
-      }
+      (s) => duplicateShape(s)
     );
-    this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => inShape.id == s.id));
+    this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => compareIdBetweenLayers(inShape.id, s.id)));
 
     app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(
       (s) => s.id,
@@ -208,15 +176,6 @@ export class ReverseTool extends Tool {
             window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être retournées.' } }));
             return;
           }
-          // if (currentShape.name.startsWith('Parallele') || currentShape.name.startsWith('Perpendicular')) {
-          //   window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les lignes parallèles ne peuvent pas être retournées.' } }));
-          //   return;
-          // }
-          // if ((currentShape.points.some(vx => (vx.reference != null && app.mainCanvasLayer.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') ||
-          //   (currentShape.geometryObject.geometryChildShapeIds.length > 0)) {
-          //    window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures liées ne peuvent pas être retournées, mais peuvent être copiées.' } }));
-          //   return;
-          // }
         }
       }
 
@@ -292,7 +251,7 @@ export class ReverseTool extends Tool {
       // });
 
       this.axes.forEach((axis) =>
-        app.upperCanvasLayer.removeObjectById(axis.id, 'shape'),
+        removeObjectById(axis.id)
       );
 
       setState({
@@ -441,8 +400,8 @@ export class ReverseTool extends Tool {
     let selectedAxis = this.createAxis(app.tool.axisAngle).segments[0];
     // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
     // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
-    app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => shapeToMove.id == editingShapeId)).forEach((sId, idxS) => {
-      let s = app.mainCanvasLayer.findObjectById(sId);
+    app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => compareIdBetweenLayers(shapeToMove.id, editingShapeId))).forEach((sId, idxS) => {
+      let s = findObjectById(sId);
     // involvedShapes.forEach((s) => {
       this.reverseShape(s, selectedAxis);
 

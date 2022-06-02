@@ -5,6 +5,8 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { addInfoToId, findObjectById } from '../Core/Tools/general';
+import { compareIdBetweenLayers, duplicateShape } from '../Core/Tools/shapesTools';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
 import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
 
@@ -93,16 +95,11 @@ export class MoveTool extends Tool {
           window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être déplacées.' } }));
           return;
         }
-        // if ((currentShape.points.some(vx => (vx.reference != null && app.mainCanvasLayer.findObjectById(vx.reference, 'point').shape.name != 'Point')) && currentShape.name != 'PointOnLine') ||
-        //   (currentShape.geometryObject.geometryChildShapeIds.length > 0)) {
-        //   window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les figures liées ne peuvent pas être déplacées, mais peuvent être copiées.' } }));
-        //   return;
-        // }
       }
     }
     this.involvedShapes.forEach(s => s.points.forEach(vx => {
       if (vx.reference != null) {
-        let refPoint = app.mainCanvasLayer.findObjectById(vx.reference, 'point')
+        let refPoint = findObjectById(vx.reference)
         if (refPoint.shape.name == 'Point')
         this.involvedShapes.push(refPoint.shape)
       }
@@ -121,43 +118,9 @@ export class MoveTool extends Tool {
     );
 
     this.drawingShapes = this.shapesToCopy.map(
-      (s) => {
-        let newShape = new s.constructor({
-          ...s,
-          layer: 'upper',
-          path: s.getSVGPath('no scale', false, false),
-          divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
-          }),
-          segmentsColor: s.segments.map((seg) => {
-            return seg.color;
-          }),
-          pointsColor: s.points.map((pt) => {
-            return pt.color;
-          }),
-        });
-        let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
-        let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
-        newShape.segmentIds = [...segIds];
-        newShape.pointIds = [...ptIds];
-        newShape.points.forEach((pt, idx) => {
-          pt.segmentIds = [...s.points[idx].segmentIds];
-          pt.reference = s.points[idx].reference;
-          pt.type = s.points[idx].type;
-          pt.ratio = s.points[idx].ratio;
-          pt.visible = s.points[idx].visible;
-        });
-        newShape.segments.forEach((seg, idx) => {
-          seg.isInfinite = s.segments[idx].isInfinite;
-          seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
-          seg.vertexIds = [...s.segments[idx].vertexIds];
-          seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
-          seg.arcCenterId = s.segments[idx].arcCenterId;
-        });
-        return newShape;
-      }
+      (s) => duplicateShape(s)
     );
-    this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => inShape.id == s.id));
+    this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => compareIdBetweenLayers(inShape.id, s.id)));
 
     app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(
       (s) => s.id,
@@ -183,7 +146,7 @@ export class MoveTool extends Tool {
         let s = this.shapesToMove[0];
 
         let point = s.points[0];
-        let reference = app.mainCanvasLayer.findObjectById(s.geometryObject.geometryParentObjectId1, 'segment');
+        let reference = findObjectById(s.geometryObject.geometryParentObjectId1);
         point.coordinates = reference.projectionOnSegment(app.workspace.lastKnownMouseCoordinates);
         // let ratio = reference.vertexes[0].coordinates.dist(point.coordinates) / reference.length;
         let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
@@ -210,7 +173,7 @@ export class MoveTool extends Tool {
         let coord = firstPoint.coordinates.add(part);
         point.coordinates = coord;
       } else {
-        let mainShape = app.upperCanvasLayer.findObjectById(this.selectedShape.id);
+        let mainShape = findObjectById(addInfoToId(this.selectedShape.id, 'upper'));
         let translation = app.workspace.lastKnownMouseCoordinates.substract(
           this.lastKnownMouseCoordinates,
         );
@@ -249,7 +212,7 @@ export class MoveTool extends Tool {
 
   _executeAction() {
     app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
-      let s = app.mainCanvasLayer.findObjectById(sId);
+      let s = findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
         pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
         if (this.pointOnLineRatio)

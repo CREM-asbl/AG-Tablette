@@ -8,6 +8,7 @@ import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { Tool } from '../Core/States/Tool';
+import { findObjectsByName, removeObjectById } from '../Core/Tools/general';
 import { TangramManager } from './TangramManager';
 
 /**
@@ -166,8 +167,9 @@ export class SolutionCheckerTool extends Tool {
   }
 
   eraseSolution() {
-    let solutionShapes = app.mainCanvasLayer.findObjectsByName(
-      'tangramChecker'
+    let solutionShapes = findObjectsByName(
+      'tangramChecker',
+      'main'
     );
 
     if (solutionShapes.length > 1) {
@@ -175,7 +177,7 @@ export class SolutionCheckerTool extends Tool {
       GroupManager.deleteGroup(group);
     }
     solutionShapes.forEach((s) =>
-      app.mainCanvasLayer.removeObjectById(s.id),
+      removeObjectById(s.id),
     );
     this.solutionShapeIds = [];
     window.dispatchEvent(new CustomEvent('refresh'));

@@ -7,7 +7,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
-import { createElem } from '../Core/Tools/general';
+import { createElem, findObjectsByName, removeObjectById } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
@@ -297,7 +297,7 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   getConstraints(pointNb) {
-    app.upperCanvasLayer.findObjectsByName('constraints').forEach(obj => app.upperCanvasLayer.removeObjectById(obj.id));
+    findObjectsByName('constraints', 'upper').forEach(obj => removeObjectById(obj.id));
     this.constraints = this.quadrilateralDef.constraints[pointNb](this.points, this.segments);
   }
 

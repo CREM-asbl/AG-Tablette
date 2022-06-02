@@ -7,7 +7,7 @@ import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
-import { createElem } from '../Core/Tools/general';
+import { createElem, findObjectById, removeObjectById } from '../Core/Tools/general';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -72,9 +72,8 @@ export class DivideTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 
-    let firstPoint = app.mainCanvasLayer.findObjectById(
-      app.tool.firstPointIds[0],
-      'point',
+    let firstPoint = findObjectById(
+      app.tool.firstPointIds[0]
     );
     new Point({
       coordinates: firstPoint.coordinates,
@@ -164,17 +163,15 @@ export class DivideTool extends Tool {
         });
       }
     } else if (app.tool.currentStep == 'selectSecondPoint') {
-      let pt1 = app.mainCanvasLayer.findObjectById(
-        this.firstPointIds[0],
-        'point',
+      let pt1 = findObjectById(
+        this.firstPointIds[0]
       );
       let object1 = object[0];
 
       if (pt1.coordinates.dist(object1.coordinates) < 0.01) {
         // pt1 == object => désélectionner le point.
-        app.upperCanvasLayer.removeObjectById(
-          app.upperCanvasLayer.points[0].id,
-          'point',
+        removeObjectById(
+          app.upperCanvasLayer.points[0].id
         );
 
         setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
@@ -182,9 +179,8 @@ export class DivideTool extends Tool {
       //   window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir à la même figure.' } }));
       } else {
         let pointsToDivide = [];
-        let firstPoints = this.firstPointIds.map(ptId => app.mainCanvasLayer.findObjectById(
-          ptId,
-          'point',
+        let firstPoints = this.firstPointIds.map(ptId => findObjectById(
+          ptId
         ));
         let newObjects = [...object];
         for (let i = 0; i < firstPoints.length; i++) {
@@ -351,16 +347,14 @@ export class DivideTool extends Tool {
           this.pointsModeAddSegPoints();
       });
     } else if (this.mode == 'segment') {
-      this.segment = app.mainCanvasLayer.findObjectById(
-        this.segmentId,
-        'segment',
+      this.segment = findObjectById(
+        this.segmentId
       );
       if (this.segment.arcCenter) this.segmentModeAddArcPoints();
       else this.segmentModeAddSegPoints();
     } else {
-      let vector = app.mainCanvasLayer.findObjectById(
-        this.vectorId,
-        'shape',
+      let vector = findObjectById(
+        this.vectorId
       );
       let secondPointCoordinates = vector.vertexes[0].coordinates.add(
         vector.vertexes[1].coordinates

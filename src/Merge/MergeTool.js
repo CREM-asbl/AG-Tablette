@@ -3,7 +3,7 @@ import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Tool } from '../Core/States/Tool';
-import { getAverageColor } from '../Core/Tools/general';
+import { findObjectById, getAverageColor } from '../Core/Tools/general';
 
 /**
  * Fusionner 2 figures en une nouvelle figure
@@ -125,7 +125,7 @@ export class MergeTool extends Tool {
       } else {
         let group = ShapeManager.getAllBindedShapes(shape);
         if (group.length > 1) {
-          let firstShape = app.mainCanvasLayer.findObjectById(
+          let firstShape = findObjectById(
             this.firstShapeId,
           );
           this.involvedShapes = [...group, firstShape];
@@ -146,10 +146,10 @@ export class MergeTool extends Tool {
         } else {
           this.secondShapeId = shape.id;
 
-          let firstShape = app.mainCanvasLayer.findObjectById(
+          let firstShape = findObjectById(
             this.firstShapeId,
           );
-          let secondShape = app.mainCanvasLayer.findObjectById(
+          let secondShape = findObjectById(
             this.secondShapeId,
           );
 
