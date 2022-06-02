@@ -99,6 +99,8 @@ export class DuplicateTool extends Tool {
     if (app.tool.currentStep != 'listen' && app.tool.currentStep != 'selectSegment') return;
 
     if (object instanceof Segment) {
+      if (object.isInfinite || object.isSemiInfinite)
+        return;
       this.mode = 'point';
       this.segment = object;
       this.executeAction();
