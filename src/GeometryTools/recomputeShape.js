@@ -77,11 +77,9 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
         pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
           findObjectById(refId)
         );
-        console.log(pts[0].shape);
         angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
       }
       angle *= -1;
-      console.log(pts[0].coordinates, child.points[0].coordinates, child.segments[1].arcCenter.coordinates);
       child.rotate(angle, pts[0].coordinates);
     }
     child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
