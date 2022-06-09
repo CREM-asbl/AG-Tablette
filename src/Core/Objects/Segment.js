@@ -32,6 +32,7 @@ export class Segment {
     isInfinite = false,
     isSemiInfinite = false,
     color = undefined,
+    width = 1,
   }) {
     if (id == undefined)
       id = uniqId(layer, 'segment');
@@ -102,6 +103,7 @@ export class Segment {
     this.isInfinite = isInfinite;
     this.isSemiInfinite = isSemiInfinite;
     this.color = color;
+    this.width = width;
   }
 
   /* #################################################################### */
@@ -1076,6 +1078,7 @@ export class Segment {
       isInfinite: this.isInfinite,
       isSemiInfinite: this.isSemiInfinite,
       color: this.color,
+      width: this.width,
     };
     return data;
   }

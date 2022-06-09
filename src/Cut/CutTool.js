@@ -606,6 +606,7 @@ export class CutTool extends Tool {
       let shape1Hidden = new shape.constructor({
         layer: 'main',
         familyName: 'Irregular',
+        name: 'cut',
         path: shape1.getSVGPath('no scale', false),
         fillColor: shape.fillColor,
         fillOpacity: shape.fillOpacity,
@@ -631,6 +632,7 @@ export class CutTool extends Tool {
       let shape2Hidden = new shape.constructor({
         layer: 'main',
         familyName: 'Irregular',
+        name: 'cut',
         path: shape2.getSVGPath('no scale', false),
         fillColor: shape.fillColor,
         fillOpacity: shape.fillOpacity,

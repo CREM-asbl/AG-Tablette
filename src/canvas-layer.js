@@ -812,7 +812,10 @@ class CanvasLayer extends LitElement {
       shape.segments.forEach(seg => {
         let path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
         this.ctx.strokeStyle = seg.color ? seg.color : shape.strokeColor;
+        if (seg.width != 1)
+          this.ctx.lineWidth = seg.width;
         this.ctx.stroke(path);
+        this.ctx.lineWidth = shape.strokeWidth;
       });
     } else
       this.ctx.stroke(path);

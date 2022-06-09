@@ -21,7 +21,7 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
             ptsMoved.push(pt.idx);
           }
         }
-      })
+      });
       computeShapeTransform(sRef, layer);
       computeAllShapeTransform(sRef, layer);
     });
@@ -81,6 +81,9 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
       child.rotate(angle, pts[0].coordinates);
     }
     child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+    if (child.isCenterShown) {
+      child.center.coordinates = child.centerCoordinates;
+    }
     // computeShapeTransform(child);
     computeAllShapeTransform(child, layer);
   });
@@ -112,13 +115,16 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
           pt.coordinates = newPointCoordinates;
         });
         child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+        if (child.isCenterShown) {
+          child.center.coordinates = child.centerCoordinates;
+        }
       }
       computeAllShapeTransform(child, layer);
     });
 }
 
 function reverseShape(shape, selectedAxis) {
-  shape.points.forEach((pt) => {
+  shape.vertexes.forEach((pt) => {
     computePointPosition(pt, selectedAxis);
   });
 }
@@ -450,11 +456,18 @@ function recomputeAllVisibilities(layer) {
     shape.geometryObject.geometryTransformationChildShapeIds.forEach(objId => {
       changeVisibilityRecursively(objId);
     });
+    shape.geometryObject.geometryDuplicateChildShapeIds.forEach(objId => {
+      changeVisibilityRecursively(objId);
+    });
   }
 
   app[layer + 'CanvasLayer'].shapes.forEach(s => {
-    if (s.geometryObject.geometryIsVisibleByChoice === false)
-      changeVisibilityRecursively(s.id)
+    if (s.geometryObject.geometryIsVisibleByChoice === false) {
+      if (s.name != 'cut')
+        changeVisibilityRecursively(s.id);
+      else
+        s.geometryObject.geometryIsVisible = false;
+    }
   });
 }
 

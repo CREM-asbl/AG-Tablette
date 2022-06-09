@@ -212,6 +212,7 @@ export class CreateCircleTool extends Tool {
             vertexIds: [this.points[1].id, this.points[2].id],
             arcCenterId: this.points[0].id,
             color: app.settings.referenceDrawColor,
+            width: 2,
           });
           this.segments.push(seg);
           seg = new Segment({
@@ -219,6 +220,7 @@ export class CreateCircleTool extends Tool {
             vertexIds: [this.points[2].id, this.points[1].id],
             arcCenterId: this.points[0].id,
             color: app.settings.referenceDrawColor2,
+            width: 2,
           });
           this.segments.push(seg);
         }
