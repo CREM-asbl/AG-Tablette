@@ -11,14 +11,12 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
       if (!sRef) {
         return;
       }
-      let ptsMoved = [];
       sRef.points.forEach(pt => {
         if (pt.reference) {
           let ptRef = findObjectById(pt.reference);
           if (!ptRef || ptRef.shape.id != shape.id) {
           } else {
             pt.coordinates = new Coordinates(ptRef.coordinates);
-            ptsMoved.push(pt.idx);
           }
         }
       });
@@ -31,8 +29,12 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
     child.vertexes.forEach((pt, idx) => {
       pt.coordinates = parentShape.vertexes[idx].coordinates;
     });
-    if (child.familyName == "circle-shape") {
-      child.segments[0].arcCenter.coordinates = parentShape.segments[0].arcCenter.coordinates;
+    if (parentShape.familyName == "circle-shape") {
+      if (parentShape.name == 'CirclePart') {
+        child.segments[1].arcCenter.coordinates = parentShape.segments[1].arcCenter.coordinates;
+      } else {
+        child.segments[0].arcCenter.coordinates = parentShape.segments[0].arcCenter.coordinates;
+      }
     }
     let axis;
     if (child.geometryObject.geometryTransformationName == 'orthogonalSymetry') {
@@ -75,16 +77,17 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
         pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
           findObjectById(refId)
         );
+        console.log(pts[0].shape);
         angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
       }
       angle *= -1;
+      console.log(pts[0].coordinates, child.points[0].coordinates, child.segments[1].arcCenter.coordinates);
       child.rotate(angle, pts[0].coordinates);
     }
     child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
     if (child.isCenterShown) {
       child.center.coordinates = child.centerCoordinates;
     }
-    // computeShapeTransform(child);
     computeAllShapeTransform(child, layer);
   });
   if (includeChildren)
