@@ -292,6 +292,7 @@ export class TranslationTool extends Tool {
         ...s,
         layer: 'main',
         id: undefined,
+        familyName: 'transformation',
         path: s.getSVGPath('no scale', false),
         divisionPointInfos: s.divisionPoints.map((dp) => {
           return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };

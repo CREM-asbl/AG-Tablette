@@ -357,6 +357,7 @@ export class RotationTool extends Tool {
       let newShape = new s.constructor({
         ...s,
         layer: 'main',
+        familyName: 'transformation',
         id: undefined,
         path: s.getSVGPath('no scale', false),
         divisionPointInfos: s.divisionPoints.map((dp) => {
