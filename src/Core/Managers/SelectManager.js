@@ -67,6 +67,8 @@ export class SelectManager {
                 éléments de cette liste.
                  */
         blacklist: null,
+        // one, allInDistance
+        numberOfObjects: 'one',
       },
       points: {
         canSelect: false,
@@ -201,8 +203,14 @@ export class SelectManager {
     // if no possibilities
     if (constrainedPoints.length == 0) return null;
 
+    constrainedPoints.sort((pt1, pt2) => {
+      let dist1 = pt1.coordinates.dist(mouseCoordinates);
+      let dist2 = pt2.coordinates.dist(mouseCoordinates);
+      return dist1 - dist2;
+    });
+
     if (constraints.numberOfObjects == "allInDistance") {
-      return constrainedPoints.flat();
+      return constrainedPoints;
     }
 
     let notHiddenPoints = constrainedPoints;
@@ -225,22 +233,6 @@ export class SelectManager {
       // if no possibilities
       if (notHiddenPoints.length == 0) return null;
     }
-
-    notHiddenPoints.sort((pt1, pt2) => {
-      let dist1 = pt1.coordinates.dist(mouseCoordinates);
-      let dist2 = pt2.coordinates.dist(mouseCoordinates);
-      return dist1 - dist2;
-    });
-
-    let bestPoint = notHiddenPoints[0],
-      minDist = notHiddenPoints[0].coordinates.dist(mouseCoordinates);
-    notHiddenPoints.forEach((pt) => {
-      let dist = pt.coordinates.dist(mouseCoordinates);
-      if (dist < minDist) {
-        minDist = dist;
-        bestPoint = pt;
-      }
-    });
 
     if (constraints.numberOfObjects == 'one')
       return notHiddenPoints[0];
@@ -280,14 +272,18 @@ export class SelectManager {
       }
     });
 
+    potentialSegments.sort((segInfo1, segInfo2) => {
+      return segInfo1.dist - segInfo2.dist;
+    });
+    potentialSegments = potentialSegments.map(segInfo => segInfo.segment);
+
     // apply constrains
     const constrainedSegments = potentialSegments.filter((potentialSegment) => {
-      let segment = potentialSegment.segment;
       if (constraints.whitelist != null) {
         if (
           !constraints.whitelist.some((constr) => {
-            if (constr.shapeId != segment.shapeId) return false;
-            if (constr.index !== undefined) return constr.index == segment.idx;
+            if (constr.shapeId != potentialSegment.shapeId) return false;
+            if (constr.index !== undefined) return constr.index == potentialSegment.idx;
             return true;
           })
         )
@@ -296,8 +292,8 @@ export class SelectManager {
       if (constraints.blacklist != null) {
         if (
           constraints.blacklist.some((constr) => {
-            if (constr.shapeId != segment.shapeId) return false;
-            if (constr.index !== undefined) return constr.index == segment.idx;
+            if (constr.shapeId != potentialSegment.shapeId) return false;
+            if (constr.index !== undefined) return constr.index == potentialSegment.idx;
             return true;
           })
         )
@@ -309,6 +305,10 @@ export class SelectManager {
     // if no possibilities
     if (constrainedSegments.length == 0) return null;
 
+    if (constraints.numberOfObjects == "allInDistance") {
+      return constrainedSegments;
+    }
+
     // no possibilities to choose blockHidden constraints
 
     let notHiddenSegments = constrainedSegments;
@@ -318,7 +318,7 @@ export class SelectManager {
         mouseCoordinates,
       );
       constrainedSegments.forEach((seg) => {
-        let shapeIndex = ShapeManager.getShapeIndex(seg.segment.shape);
+        let shapeIndex = ShapeManager.getShapeIndex(seg.shape);
         if (
           shapes.every((s) => {
             let otherShapeIndex = ShapeManager.getShapeIndex(s);
@@ -332,18 +332,7 @@ export class SelectManager {
       if (notHiddenSegments.length == 0) return null;
     }
 
-    let bestSegment = notHiddenSegments[0].segment,
-      minDist = notHiddenSegments[0].dist;
-    notHiddenSegments.forEach((constrainedSegment) => {
-      let segment = constrainedSegment.segment;
-      let dist = constrainedSegment.dist;
-      if (dist < minDist) {
-        minDist = dist;
-        bestSegment = segment;
-      }
-    });
-
-    return bestSegment;
+    return notHiddenSegments[0];
   }
 
   /**

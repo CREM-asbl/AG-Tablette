@@ -95,22 +95,27 @@ export class RotationTool extends Tool {
     if (this.pointsDrawn.length == 1) {
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
-      app.workspace.selectionConstraints.shapes.canSelect = true;
-      let object = SelectManager.selectObject(coord);
-      if (object instanceof LineShape && object.segments[0].isArc()) {
-        this.references.push(object);
-        new ArrowLineShape({
-          path: object.getSVGPath('no scale', true),
-          layer: 'upper',
-          strokeColor: app.settings.referenceDrawColor,
-          strokeWidth: 2,
-          fillOpacity: 0,
-        });
-        this.angle = this.references[1].segments[0].arcCenter.coordinates.angleWith(this.references[1].segments[0].vertexes[0].coordinates) - this.references[1].segments[0].arcCenter.coordinates.angleWith(this.references[1].segments[0].vertexes[1].coordinates);
-        this.angle *= -1;
-        setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
-        return;
-      }
+      app.workspace.selectionConstraints.segments.canSelect = true;
+      app.workspace.selectionConstraints.segments.numberOfObjects = 'allInDistance';
+      let objects = SelectManager.selectObject(coord);
+      if (objects)
+        for (let i = 0; i < objects.length; i++) {
+          let object = objects[i];
+          if (object.isArc() && object.vertexIds[0] != object.vertexIds[1]) {
+            this.references.push(object);
+            new ArrowLineShape({
+              path: object.getSVGPath('no scale', true),
+              layer: 'upper',
+              strokeColor: app.settings.referenceDrawColor,
+              strokeWidth: 2,
+              fillOpacity: 0,
+            });
+            this.angle = this.references[1].arcCenter.coordinates.angleWith(this.references[1].vertexes[0].coordinates) - this.references[1].arcCenter.coordinates.angleWith(this.references[1].vertexes[1].coordinates);
+            this.angle *= -1;
+            setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+            return;
+          }
+        }
     }
     this.pointsDrawn.push(new Point({
       coordinates: coord,
@@ -276,7 +281,6 @@ export class RotationTool extends Tool {
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
   }
 
-
   animate() {
     if (app.tool.currentStep == 'animateRefPoint') {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -377,20 +381,10 @@ export class RotationTool extends Tool {
         }),
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      newShape.geometryObject.geometryTransformationCharacteristicElementIds.map((refId, idx) => {
-        let objectType = 'point';
-        if (idx == 1 && this.references[1] instanceof LineShape) {
-          objectType = 'shape';
-        }
+      newShape.geometryObject.geometryTransformationCharacteristicElementIds.map((refId) => {
         let ref = findObjectById(refId);
-        if (objectType == 'shape') {
-          if (!ref.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
-            ref.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-          }
-        } else {
-          if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
-            ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-          }
+        if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+          ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
       });
       newShape.rotate(this.angle, this.references[0].coordinates);

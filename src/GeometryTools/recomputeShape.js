@@ -71,7 +71,7 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
       let pts;
       if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) {
         let arc = findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[1])
-        angle = arc.segments[0].arcCenter.coordinates.angleWith(arc.segments[0].vertexes[0].coordinates) - arc.segments[0].arcCenter.coordinates.angleWith(arc.segments[0].vertexes[1].coordinates);
+        angle = arc.arcCenter.coordinates.angleWith(arc.vertexes[0].coordinates) - arc.arcCenter.coordinates.angleWith(arc.vertexes[1].coordinates);
         pts = [findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0])];
       } else {
         pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
