@@ -22,7 +22,7 @@ export class DivideTool extends Tool {
 
     this.timeoutRef = null;
 
-    this.drawColor = '#E90CC8';
+    this.drawColors = ['#E90CC8', '#3e6aed', '#21eb53'];
 
     this.numberOfParts = 2;
   }
@@ -78,7 +78,7 @@ export class DivideTool extends Tool {
     new Point({
       coordinates: firstPoint.coordinates,
       layer: 'upper',
-      color: this.drawColor,
+      color: this.drawColors[0],
       size: 2,
     });
     // window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -141,7 +141,7 @@ export class DivideTool extends Tool {
 
           new LineShape({
             layer: 'upper',
-            strokeColor: this.drawColor,
+            strokeColor: this.drawColors[0],
             strokeWidth: 3,
             path: object.getSVGPath('no scale', true),
             id: undefined,
@@ -175,8 +175,6 @@ export class DivideTool extends Tool {
         );
 
         setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
-      // } else if (pt1.shape.id != object.shape.id) {
-      //   window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir à la même figure.' } }));
       } else {
         let pointsToDivide = [];
         let firstPoints = this.firstPointIds.map(ptId => findObjectById(
@@ -185,31 +183,27 @@ export class DivideTool extends Tool {
         let newObjects = [...object];
         for (let i = 0; i < firstPoints.length; i++) {
           for (let j = 0; j < newObjects.length; j++) {
-            for (let k = 0; k < (firstPoints[i].segmentIds.length || 1); k++) {
-              for (let l = 0; l < (newObjects[j].segmentIds.length || 1); l++) {
-                let firstSegmentId, secondSegmentId;
-                if (firstPoints[i].shape.name == 'PointOnLine')
-                  firstSegmentId = firstPoints[i].shape.geometryObject.geometryParentObjectId1;
-                else
-                  firstSegmentId = firstPoints[i].segmentIds[k];
-                if (newObjects[i].shape.name == 'PointOnLine')
-                  secondSegmentId = newObjects[j].shape.geometryObject.geometryParentObjectId1;
-                else
-                  secondSegmentId = newObjects[j].segmentIds[l];
-                if (firstSegmentId == secondSegmentId) {
-                  pointsToDivide.push([firstPoints[i], newObjects[j]]);
-                  firstPoints.splice(i, 1);
-                  newObjects.splice(j, 1);
-                  i = -1;
+            let firstSegmentIds;
+            if (firstPoints[i].shape.name == 'PointOnLine')
+              firstSegmentIds = [firstPoints[i].shape.geometryObject.geometryParentObjectId1];
+            else if (firstPoints[i].shape.name == 'PointOnIntersection')
+              firstSegmentIds = [firstPoints[i].shape.geometryObject.geometryParentObjectId1, firstPoints[i].shape.geometryObject.geometryParentObjectId2];
+            else
+              firstSegmentIds = firstPoints[i].segmentIds;
+            let secondSegmentIds;
+            if (newObjects[j].shape.name == 'PointOnLine')
+              secondSegmentIds = [newObjects[j].shape.geometryObject.geometryParentObjectId1];
+            else if (newObjects[j].shape.name == 'PointOnIntersection')
+              secondSegmentIds = [newObjects[j].shape.geometryObject.geometryParentObjectId1, newObjects[j].shape.geometryObject.geometryParentObjectId2];
+            else
+              secondSegmentIds = newObjects[j].segmentIds;
+            for (let m = 0; m < firstSegmentIds.length; m++) {
+              for (let n = 0; n < secondSegmentIds.length; n++) {
+                if (firstSegmentIds[m] == secondSegmentIds[n]) {
+                  pointsToDivide.push([firstPoints[i], newObjects[j], firstSegmentIds[m]]);
                 }
-                if (i == -1)
-                  break;
               }
-              if (i == -1)
-                break;
             }
-            if (i == -1)
-              break;
           }
         }
         if (pointsToDivide.length == 0) {
@@ -217,99 +211,69 @@ export class DivideTool extends Tool {
           return;
         }
 
-        let pt1 = pointsToDivide[0][0];
-        let pt2 = pointsToDivide[0][1];
-        if (pt1.type == 'vertex' && pt2.type == 'vertex' && pt1.shape.name != 'PointOnLine' && pt2.shape.name != 'PointOnLine') {
-          /*
-              Vérifie s'il y a une ambiguité sur l'action à réaliser: si les 2
-              poins sont reliés par un arc de cercle, et aussi par un segment (la
-              figure est donc constituée uniquement de 2 sommets, un segment et un
-              arc de cercle), on annule l'action.
-                */
-          if (
-            pt1.segmentIds.length == 2 &&
-            pt2.segmentIds.length == 2 &&
-            ((pt1.segmentIds[0] == pt2.segmentIds[0] &&
-              pt1.segmentIds[1] == pt2.segmentIds[1]) ||
-              (pt1.segmentIds[0] == pt2.segmentIds[1] &&
-                pt1.segmentIds[1] == pt2.segmentIds[0]))
-          ) {
-            console.info('ambiguité, ne rien faire');
-          }
-        }
-
         new Point({
-          coordinates: pt2.coordinates,
+          coordinates: pointsToDivide[0][1].coordinates,
           layer: 'upper',
-          color: this.drawColor,
+          color: this.drawColors[0],
           size: 2,
         });
 
-        let firstCoordinates = pt1.coordinates,
-          secondCoordinates = pt2.coordinates;
-        let commonSegment = app.mainCanvasLayer.getCommonSegmentOfTwoPoints(
-          pt1.id,
-          pt2.id,
-        );
-        let shape = pt1.shape;
-        let path = [
-          'M',
-          firstCoordinates.x,
-          firstCoordinates.y,
-          'L',
-          secondCoordinates.x,
-          secondCoordinates.y,
-        ].join(' ');
-        if (commonSegment.isArc()) {
-          if (!shape.isCircle()) {
-            commonSegment.vertexes[0].ratio = 0;
-            commonSegment.vertexes[1].ratio = 1;
-            if ((pt1.ratio > pt2.ratio) ^ commonSegment.counterclockwise) {
-              [pointsToDivide[0][0], pointsToDivide[0][1]] = [
-                pointsToDivide[0][1],
-                pointsToDivide[0][0],
-              ];
-            }
-          }
-          firstCoordinates = pointsToDivide[0][0].coordinates;
-          secondCoordinates = pointsToDivide[0][1].coordinates;
-          let centerCoordinates = commonSegment.arcCenter.coordinates,
-            firstAngle = centerCoordinates.angleWith(firstCoordinates),
-            secondAngle = centerCoordinates.angleWith(secondCoordinates);
-          if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
-          let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
-            sweepFlag = 1;
-          // if (shape.isCircle()) {
-          //   if (this.counterclockwise) {
-          //     sweepFlag = Math.abs(sweepFlag - 1);
-          //     largeArcFlag = Math.abs(largeArcFlag - 1);
-          //   }
-          // }
-          path = [
+        pointsToDivide.forEach((pts, idx) => {
+          let firstCoordinates = pointsToDivide[0][0].coordinates;
+          let secondCoordinates = pointsToDivide[0][1].coordinates;
+          let commonSegment = findObjectById(pts[2]);
+          let shape = commonSegment.shape;
+          let path = [
             'M',
             firstCoordinates.x,
             firstCoordinates.y,
-            'A',
-            commonSegment.radius,
-            commonSegment.radius,
-            0,
-            largeArcFlag,
-            sweepFlag,
+            'L',
             secondCoordinates.x,
             secondCoordinates.y,
           ].join(' ');
-        }
+          if (commonSegment.isArc()) {
+            if (!shape.isCircle()) {
+              commonSegment.vertexes[0].ratio = 0;
+              commonSegment.vertexes[1].ratio = 1;
+              if ((pts[0].ratio > pts[1].ratio) ^ commonSegment.counterclockwise) {
+                [pointsToDivide[idx][0], pointsToDivide[idx][1]] = [
+                  pointsToDivide[idx][1],
+                  pointsToDivide[idx][0],
+                ];
+                [firstCoordinates, secondCoordinates] = [secondCoordinates, firstCoordinates];
+              }
+            }
+            let centerCoordinates = commonSegment.arcCenter.coordinates,
+              firstAngle = centerCoordinates.angleWith(firstCoordinates),
+              secondAngle = centerCoordinates.angleWith(secondCoordinates);
+            if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+            let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+              sweepFlag = 1;
+            path = [
+              'M',
+              firstCoordinates.x,
+              firstCoordinates.y,
+              'A',
+              commonSegment.radius,
+              commonSegment.radius,
+              0,
+              largeArcFlag,
+              sweepFlag,
+              secondCoordinates.x,
+              secondCoordinates.y,
+            ].join(' ');
+          }
+          new LineShape({
+            layer: 'upper',
+            strokeColor: this.drawColors[idx],
+            strokeWidth: 3,
+            path: path,
+            id: undefined,
+          });
+        });
 
         this.mode = 'twoPoints';
         this.pointsToDivide = pointsToDivide;
-
-        new LineShape({
-          layer: 'upper',
-          strokeColor: this.drawColor,
-          strokeWidth: 3,
-          path: path,
-          id: undefined,
-        });
         setState({ tool: { ...app.tool, currentStep: 'divide' } });
       }
     }
@@ -337,10 +301,8 @@ export class DivideTool extends Tool {
       this.pointsToDivide.forEach(pts => {
         this.firstPoint = pts[0];
         this.secondPoint = pts[1];
-        this.segment = app.mainCanvasLayer.getCommonSegmentOfTwoPoints(
-          this.firstPoint.id,
-          this.secondPoint.id,
-        );
+        this.segment = findObjectById(pts[2]);
+        console.log(this.firstPoint, this.secondPoint, this.segment);
         if (this.segment.arcCenter)
           this.pointsModeAddArcPoints();
         else
