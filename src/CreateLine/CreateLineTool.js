@@ -11,6 +11,7 @@ import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem, findObjectById } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -123,8 +124,6 @@ export class CreateLineTool extends Tool {
       strokeColor: app.settings.referenceDrawColor,
       strokeWidth: 2,
     });
-
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
 
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } })
   }
@@ -397,19 +396,10 @@ export class CreateLineTool extends Tool {
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }
 
-    let ref;
-    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
-      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      shape.vertexes[0].reference = ref.id;
+    linkNewlyCreatedPoint(shape, shape.vertexes[0]);
+    if (shape.name == 'Segment' || shape.name == 'SemiStraightLine' || shape.name == 'StraightLine' || shape.name == 'Vector') {
+      linkNewlyCreatedPoint(shape, shape.vertexes[1]);
     }
-    if (shape.name == 'Segment' || shape.name == 'SemiStraightLine' || shape.name == 'StraightLine' || shape.name == 'Vector')
-    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
-      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      shape.vertexes[1].reference = ref.id;
-    }
-
     computeConstructionSpec(shape);
   }
 }

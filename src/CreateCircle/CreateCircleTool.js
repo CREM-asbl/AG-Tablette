@@ -13,6 +13,7 @@ import { Tool } from '../Core/States/Tool';
 import { createElem, findObjectsByName, removeObjectById } from '../Core/Tools/general';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -504,29 +505,12 @@ export class CreateCircleTool extends Tool {
       pt.shapeId = shape.id;
     });
 
-    let ref;
-    if (ref = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
-      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      shape.vertexes[0].reference = ref.id;
-    }
+    linkNewlyCreatedPoint(shape, shape.vertexes[0]);
     if (shape.name == 'CirclePart') {
-      if (ref = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[1].arcCenter.coordinates))) {
-        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-        shape.segments[1].arcCenter.reference = ref.id;
-      }
-      if (ref = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
-        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-        shape.vertexes[1].reference = ref.id;
-      }
+      linkNewlyCreatedPoint(shape, shape.segments[1].arcCenter);
+      linkNewlyCreatedPoint(shape, shape.vertexes[1]);
     } else {
-      if (ref = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(shape.segments[0].arcCenter.coordinates))) {
-        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-        shape.segments[0].arcCenter.reference = ref.id;
-      }
+      linkNewlyCreatedPoint(shape, shape.segments[0].arcCenter);
     }
 
     computeConstructionSpec(shape);

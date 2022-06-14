@@ -80,3 +80,24 @@ export function getAllChildrenInGeometry(shape, involvedShapes) {
     }
   });
 }
+
+function addShapeToChildren(parent, child) {
+  if (parent.geometryObject.geometryChildShapeIds.indexOf(child.id) === -1)
+    parent.geometryObject.geometryChildShapeIds.push(child.id);
+}
+
+export function linkNewlyCreatedPoint(shape, point) {
+  let ref;
+  if (ref = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(point.coordinates))) {
+    if (ref.type == 'divisionPoint') {
+      ref.endpointIds?.forEach(endPointId => {
+        let endPoint = findObjectById(endPointId);
+        let endPointShape = endPoint.shape;
+        if (endPointShape.name == 'PointOnLine' || endPointShape.name == 'PointOnIntersection')
+          addShapeToChildren(endPointShape, shape);
+      })
+    }
+    addShapeToChildren(ref.shape, shape);
+    point.reference = ref.id;
+  }
+}

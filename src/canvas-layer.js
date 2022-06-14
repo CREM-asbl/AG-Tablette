@@ -802,10 +802,11 @@ class CanvasLayer extends LitElement {
         : 'no scale',
       path = new Path2D(shape.getSVGPath(pathScaleMethod, true, false, true));
 
-    //if (shape.name != 'CircleArc')
     this.ctx.fill(path, 'nonzero');
+
     path = new Path2D(shape.getSVGPath(pathScaleMethod, true, true));
     this.ctx.globalAlpha = 1;
+
     if (shape.drawHidden)
       this.ctx.setLineDash([5, 15]);
     if (shape.segments.some(seg => seg.color != undefined)) {

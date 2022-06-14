@@ -9,6 +9,7 @@ import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem, findObjectsByName, removeObjectById } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -240,11 +241,9 @@ export class CreateQuadrilateralTool extends Tool {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.executeAction();
-      app.upperCanvasLayer.removeAllObjects();
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      // window.dispatchEvent(new CustomEvent('refreshUpper'));
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
     }
   }
@@ -325,32 +324,14 @@ export class CreateQuadrilateralTool extends Tool {
       geometryObject: new GeometryObject({}),
     });
 
-    let ref;
-    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
-      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      shape.vertexes[0].reference = ref.id;
-    }
-    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
-      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      shape.vertexes[1].reference = ref.id;
-    }
+    linkNewlyCreatedPoint(shape, shape.vertexes[0]);
+    linkNewlyCreatedPoint(shape, shape.vertexes[1]);
     if (shape.name == 'Parallelogram' || shape.name == 'IsoscelesTrapeze' || shape.name == 'IrregularQuadrilateral') {
-      if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[2].id).find(pt => pt.coordinates.equal(shape.vertexes[2].coordinates))) {
-        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-        shape.vertexes[2].reference = ref.id;
-      }
+      linkNewlyCreatedPoint(shape, shape.vertexes[2]);
     }
     if (shape.name == 'IrregularQuadrilateral') {
-      if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[3].id).find(pt => pt.coordinates.equal(shape.vertexes[3].coordinates))) {
-        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-        shape.vertexes[3].reference = ref.id;
-      }
+      linkNewlyCreatedPoint(shape, shape.vertexes[3]);
     }
     computeConstructionSpec(shape);
-    // window.dispatchEvent(new CustomEvent('refresh'));
   }
 }

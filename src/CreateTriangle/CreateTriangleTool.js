@@ -9,6 +9,7 @@ import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -277,23 +278,10 @@ export class CreateTriangleTool extends Tool {
       geometryObject: new GeometryObject({}),
     });
 
-    let ref;
-    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[0].id).find(pt => pt.coordinates.equal(shape.vertexes[0].coordinates))) {
-      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      shape.vertexes[0].reference = ref.id;
-    }
-    if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[1].id).find(pt => pt.coordinates.equal(shape.vertexes[1].coordinates))) {
-      if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-        ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      shape.vertexes[1].reference = ref.id;
-    }
+    linkNewlyCreatedPoint(shape, shape.vertexes[0]);
+    linkNewlyCreatedPoint(shape, shape.vertexes[1]);
     if (shape.name == 'IrregularTriangle') {
-      if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[2].id).find(pt => pt.coordinates.equal(shape.vertexes[2].coordinates))) {
-        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-        shape.vertexes[2].reference = ref.id;
-      }
+      linkNewlyCreatedPoint(shape, shape.vertexes[2]);
     }
     computeConstructionSpec(shape);
   }

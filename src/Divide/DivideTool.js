@@ -302,7 +302,6 @@ export class DivideTool extends Tool {
         this.firstPoint = pts[0];
         this.secondPoint = pts[1];
         this.segment = findObjectById(pts[2]);
-        console.log(this.firstPoint, this.secondPoint, this.segment);
         if (this.segment.arcCenter)
           this.pointsModeAddArcPoints();
         else

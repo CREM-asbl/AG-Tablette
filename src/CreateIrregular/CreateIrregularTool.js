@@ -7,6 +7,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
+import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -181,13 +182,8 @@ export class CreateIrregularTool extends Tool {
       geometryObject: new GeometryObject({}),
     });
 
-    let ref;
-    shape.vertexes.forEach((vx, i) => {
-      if (ref = app.mainCanvasLayer.points.filter(pt => pt.id != shape.vertexes[i].id).find(pt => pt.coordinates.equal(shape.vertexes[i].coordinates))) {
-        if (ref.shape.geometryObject.geometryChildShapeIds.indexOf(shape.id) === -1)
-          ref.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-        shape.vertexes[i].reference = ref.id;
-      }
+    shape.vertexes.forEach((vx) => {
+      linkNewlyCreatedPoint(shape, vx);
     });
   }
 }

@@ -9,117 +9,21 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
     shape.geometryObject.geometryChildShapeIds.forEach(ref => {
       let sRef = findObjectById(ref);
       if (!sRef) {
+        console.info('child not found');
         return;
       }
-      sRef.points.forEach(pt => {
-        if (pt.reference) {
-          let ptRef = findObjectById(pt.reference);
-          if (!ptRef || ptRef.shape.id != shape.id) {
-          } else {
-            pt.coordinates = new Coordinates(ptRef.coordinates);
-          }
-        }
-      });
       computeShapeTransform(sRef, layer);
       computeAllShapeTransform(sRef, layer);
     });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
     let child = findObjectById(childId);
-    let parentShape = findObjectById(child.geometryObject.geometryTransformationParentShapeId)
-    child.vertexes.forEach((pt, idx) => {
-      pt.coordinates = parentShape.vertexes[idx].coordinates;
-    });
-    if (parentShape.familyName == "circle-shape") {
-      if (parentShape.name == 'CirclePart') {
-        child.segments[1].arcCenter.coordinates = parentShape.segments[1].arcCenter.coordinates;
-      } else {
-        child.segments[0].arcCenter.coordinates = parentShape.segments[0].arcCenter.coordinates;
-      }
-    }
-    let axis;
-    if (child.geometryObject.geometryTransformationName == 'orthogonalSymetry') {
-      if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-        axis = findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0]);
-      } else {
-        let pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-          findObjectById(refId)
-        );
-        let axisShape = new LineShape({
-          layer: 'invisible',
-          path: `M ${pts[0].coordinates.x} ${pts[0].coordinates.y} L ${pts[1].coordinates.x} ${pts[1].coordinates.y}`,
-          borderColor: app.settings.referenceDrawColor,
-          borderSize: 2,
-        });
-        axis = axisShape.segments[0];
-      }
-      reverseShape(child, axis);
-    } else if (child.geometryObject.geometryTransformationName == 'centralSymetry') {
-      let center = findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0]).coordinates;
-      child.rotate(Math.PI, center);
-    } else if (child.geometryObject.geometryTransformationName == 'translation') {
-      let pts;
-      if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-        pts = findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0]).points;
-      } else {
-        pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-          findObjectById(refId)
-        );
-      }
-      child.translate(pts[1].coordinates.substract(pts[0].coordinates));
-    } else if (child.geometryObject.geometryTransformationName == 'rotation') {
-      let angle;
-      let pts;
-      if (child.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) {
-        let arc = findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[1])
-        angle = arc.arcCenter.coordinates.angleWith(arc.vertexes[0].coordinates) - arc.arcCenter.coordinates.angleWith(arc.vertexes[1].coordinates);
-        pts = [findObjectById(child.geometryObject.geometryTransformationCharacteristicElementIds[0])];
-      } else {
-        pts = child.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-          findObjectById(refId)
-        );
-        angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
-      }
-      angle *= -1;
-      child.rotate(angle, pts[0].coordinates);
-    }
-    child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
-    if (child.isCenterShown) {
-      child.center.coordinates = child.centerCoordinates;
-    }
+    computeShapeTransform(child);
     computeAllShapeTransform(child, layer);
   });
   if (includeChildren)
     shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
       let child = findObjectById(childId);
-      if (child.name == 'PointOnLine') {
-        child.points[0].ratio = shape.points[0].ratio;
-        computeShapeTransform(child);
-      } else {
-        let vector = child.geometryObject.geometryConstructionSpec.childFirstPointCoordinates.substract(child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
-        let mustReverse = false,
-          rotationMultiplier = -1;
-        if (shape.isReversed ^ child.isReversed) {
-          mustReverse = true;
-          rotationMultiplier = 1;
-        }
-        child.points.filter(pt => pt.type != 'divisionPoint').forEach((pt, idx) => {
-          let startCoord = shape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
-          if (mustReverse) {
-            startCoord = new Coordinates({
-              x: startCoord.x + 2 * (child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
-              y: startCoord.y,
-            });
-          }
-          let newPointCoordinates = startCoord
-            .rotate(rotationMultiplier * child.geometryObject.geometryConstructionSpec.rotationAngle, child.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates)
-            .add(vector);
-          pt.coordinates = newPointCoordinates;
-        });
-        child.divisionPoints.forEach(pt => computeDivisionPoint(pt));
-        if (child.isCenterShown) {
-          child.center.coordinates = child.centerCoordinates;
-        }
-      }
+      computeShapeTransform(child);
       computeAllShapeTransform(child, layer);
     });
 }
@@ -141,6 +45,16 @@ function computePointPosition(point, selectedAxis) {
 
 export function computeShapeTransform(shape, layer = 'upper') {
   if (app.environment.name != 'Geometrie') return;
+
+  if (shape.geometryObject.geometryTransformationParentShapeId) {
+    computeTransformShape(shape);
+    return;
+  } else if (shape.geometryObject.geometryDuplicateParentShapeId) {
+    computeDuplicateShape(shape);
+    return;
+  }
+
+  computeLinkedShape(shape);
 
   if (shape.familyName == 'Regular') {
     let externalAngle = (Math.PI * 2) / shape.segments.length;
@@ -432,6 +346,110 @@ export function computeShapeTransform(shape, layer = 'upper') {
   shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   if (shape.isCenterShown) {
     shape.center.coordinates = shape.centerCoordinates;
+  }
+}
+
+function computeLinkedShape(shape) {
+  shape.points.forEach(pt => {
+    if (pt.reference) {
+      let ptRef = findObjectById(pt.reference);
+      if (ptRef) {
+        pt.coordinates = new Coordinates(ptRef.coordinates);
+      }
+    }
+  });
+}
+
+function computeTransformShape(shape) {
+  let parentShape = findObjectById(shape.geometryObject.geometryTransformationParentShapeId)
+  shape.vertexes.forEach((pt, idx) => {
+    pt.coordinates = parentShape.vertexes[idx].coordinates;
+  });
+  if (parentShape.name == 'CirclePart') {
+    shape.segments[1].arcCenter.coordinates = parentShape.segments[1].arcCenter.coordinates;
+  } else if (parentShape.name == 'CircleArc') {
+    shape.segments[0].arcCenter.coordinates = parentShape.segments[0].arcCenter.coordinates;
+  }
+  let axis;
+  if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry') {
+    if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
+      axis = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
+    } else {
+      let pts = shape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
+        findObjectById(refId)
+      );
+      let axisShape = new LineShape({
+        layer: 'invisible',
+        path: `M ${pts[0].coordinates.x} ${pts[0].coordinates.y} L ${pts[1].coordinates.x} ${pts[1].coordinates.y}`,
+        borderColor: app.settings.referenceDrawColor,
+        borderSize: 2,
+      });
+      axis = axisShape.segments[0];
+    }
+    reverseShape(shape, axis);
+  } else if (shape.geometryObject.geometryTransformationName == 'centralSymetry') {
+    let center = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0]).coordinates;
+    shape.rotate(Math.PI, center);
+  } else if (shape.geometryObject.geometryTransformationName == 'translation') {
+    let pts;
+    if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
+      pts = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0]).points;
+    } else {
+      pts = shape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
+        findObjectById(refId)
+      );
+    }
+    shape.translate(pts[1].coordinates.substract(pts[0].coordinates));
+  } else if (shape.geometryObject.geometryTransformationName == 'rotation') {
+    let angle;
+    let pts;
+    if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) {
+      let arc = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[1])
+      angle = arc.arcCenter.coordinates.angleWith(arc.vertexes[0].coordinates) - arc.arcCenter.coordinates.angleWith(arc.vertexes[1].coordinates);
+      pts = [findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0])];
+    } else {
+      pts = shape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
+        findObjectById(refId)
+      );
+      angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
+    }
+    angle *= -1;
+    shape.rotate(angle, pts[0].coordinates);
+  }
+  shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+  if (shape.isCenterShown) {
+    shape.center.coordinates = shape.centerCoordinates;
+  }
+}
+
+function computeDuplicateShape(shape) {
+  if (shape.name == 'PointOnLine') {
+    shape.points[0].ratio = shape.points[0].ratio;
+  } else {
+    let vector = shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates.substract(shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
+    let mustReverse = false,
+      rotationMultiplier = -1;
+    if (shape.isReversed ^ shape.isReversed) {
+      mustReverse = true;
+      rotationMultiplier = 1;
+    }
+    shape.points.filter(pt => pt.type != 'divisionPoint').forEach((pt, idx) => {
+      let startCoord = shape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
+      if (mustReverse) {
+        startCoord = new Coordinates({
+          x: startCoord.x + 2 * (shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
+          y: startCoord.y,
+        });
+      }
+      let newPointCoordinates = startCoord
+        .rotate(rotationMultiplier * shape.geometryObject.geometryConstructionSpec.rotationAngle, shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates)
+        .add(vector);
+      pt.coordinates = newPointCoordinates;
+    });
+    shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+    if (shape.isCenterShown) {
+      shape.center.coordinates = shape.centerCoordinates;
+    }
   }
 }
 

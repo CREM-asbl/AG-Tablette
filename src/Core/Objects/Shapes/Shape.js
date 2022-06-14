@@ -68,6 +68,9 @@ export class Shape {
     this.isPointed = isPointed; // used for path, do not move
     if (path) {
       this.setSegmentsFromPath(path);
+      this._isCenterShown = false;
+      if (_isCenterShown === undefined) this.isCenterShown = this.isCircle();
+      else this.isCenterShown = _isCenterShown;
       this.pointIds = [...this.pointIds, ...divisionPointInfos.map((dInfo) => {
         let segment = this.segments[dInfo.segmentIdx];
         let newPoint = new Point({
@@ -88,15 +91,15 @@ export class Shape {
     } else {
       this.pointIds = [...pointIds];
       this.segmentIds = [...segmentIds];
+      this._isCenterShown = false;
+      if (_isCenterShown === undefined) this.isCenterShown = this.isCircle();
+      else this.isCenterShown = _isCenterShown;
     }
 
     this.strokeColor = strokeColor;
     this.strokeWidth = strokeWidth;
 
     this.size = parseInt(size);
-    this._isCenterShown = false;
-    if (_isCenterShown === undefined) this.isCenterShown = this.isCircle();
-    else this.isCenterShown = _isCenterShown;
     this.isReversed = isReversed;
     this.isBiface = isBiface;
 

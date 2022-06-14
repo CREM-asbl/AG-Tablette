@@ -30,6 +30,7 @@ export function duplicateShape(s, layer = 'upper') {
   });
   newShape.points.forEach((pt, idx) => {
     pt.segmentIds = s.points[idx].segmentIds.map(id => addInfoToId(id, layer));
+    // pt.coordinates = new Coordinates(s.points[idx].coordinates);
     pt.reference = addInfoToId(s.points[idx].reference, layer);
     pt.type = s.points[idx].type;
     pt.ratio = s.points[idx].ratio;

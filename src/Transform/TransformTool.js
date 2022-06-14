@@ -8,7 +8,6 @@ import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 import { duplicateShape } from '../Core/Tools/shapesTools';
 import {
-  computeAllShapeTransform,
   computeConstructionSpec,
   computeShapeTransform,
   projectionOnConstraints
@@ -154,8 +153,52 @@ export class TransformTool extends Tool {
       (s) => s.id,
     );
 
+    let startShapeId = addInfoToId(point.shape.id, 'upper');
+    this.tree =  {
+      [startShapeId]: {
+        parents: [],
+        isDone: false,
+      },
+    }
+    this.createTree(0, this.tree);
+
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
     // window.dispatchEvent(new CustomEvent('refresh'));
+  }
+
+  createTree(index, tree) {
+    let currentEntries = Object.entries(tree);
+    if (currentEntries.length == index)
+      return;
+    let currentShapeId = currentEntries[index][0]
+    let currentShape = findObjectById(currentShapeId);
+    let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds];
+    dependenciesIds.forEach(dependenciesId => {
+      if (tree[dependenciesId])
+        tree[dependenciesId].parents.push(currentShapeId)
+      else
+        tree[dependenciesId] = {
+          isDone: false,
+          parents: [currentShapeId],
+        }
+    });
+    tree[currentShapeId].children = dependenciesIds;
+    this.createTree(index + 1, tree);
+  }
+
+  resetTree() {
+    for (const elem in this.tree) {
+      this.tree[elem].isDone = false;
+    }
+  }
+
+  browseTree(currentShapeId, tree) {
+    if (!tree[currentShapeId].isDone && tree[currentShapeId].parents.every(parent => tree[parent].isDone)) {
+      let currentShape = findObjectById(currentShapeId);
+      computeShapeTransform(currentShape);
+      tree[currentShapeId].isDone = true;
+      tree[currentShapeId].children.forEach(child => this.browseTree(child, tree));
+    }
   }
 
   canvasMouseUp() {
@@ -258,10 +301,10 @@ export class TransformTool extends Tool {
         point.coordinates = reference.projectionOnSegment(point.coordinates);
         computeConstructionSpec(shape);
       }
-      computeShapeTransform(shape);
-      if (shape.name == 'RightAngleTrapeze')
-        computeConstructionSpec(shape);
-      computeAllShapeTransform(shape);
+      this.resetTree();
+      this.browseTree(shape.id, this.tree);
+      // if (shape.name == 'RightAngleTrapeze')
+      //   computeConstructionSpec(shape);
     } else if (app.tool.currentStep == 'selectPoint') {
       app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
         let points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];
@@ -281,12 +324,7 @@ export class TransformTool extends Tool {
               coordinates: pt.coordinates,
               size: 2,
               color: color,
-            })
-          // window.dispatchEvent(
-          //   new CustomEvent('draw-point', {
-          //     detail: { point: pt, size: 2, color: color },
-          //   }),
-          // );
+            });
         });
       });
     }
