@@ -265,13 +265,7 @@ export class TransformTool extends Tool {
       computeShapeTransform(shape);
       if (shape.name == 'RightAngleTrapeze2')
         computeConstructionSpec(shape);
-      if (shape.name == 'PointOnLine') {
-        let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
-        computeShapeTransform(reference.shape);
-        computeAllShapeTransform(reference.shape);
-      } else {
-        computeAllShapeTransform(shape);
-      }
+      computeAllShapeTransform(shape);
     } else if (app.tool.currentStep == 'selectPoint') {
       app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
         let points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];

@@ -355,6 +355,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       coord = firstPoint.coordinates.add(part);
     }
     shape.points[0].coordinates = coord;
+    ref.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   } else if (shape.name == 'PointOnShape') {
     let coord = shape.points[0].coordinates;
     let ref = findObjectById(shape.geometryObject.geometryParentObjectId1);
@@ -386,20 +387,14 @@ export function computeShapeTransform(shape, layer = 'upper') {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
       recomputeAllVisibilities(layer);
     }
-    // if (!coords) {
-    //   shape.geometryObject.geometryIsVisibleByChoice = false;
-    // } else {
-    //   shape.geometryObject.geometryIsVisibleByChoice = true;
-    // }
-
-    // recomputeAllVisibilities(layer);
-
     if (shape.geometryObject.geometryIsVisible == false)
       return;
 
     if (coords.length == 1)
       coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y});
     shape.points.forEach((pt, idx) => pt.coordinates = coords[idx]);
+    firstSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+    secondSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   } else if (shape.name == 'CirclePart') {
     shape.segments[1].arcCenter.coordinates = shape.vertexes[0].coordinates;
     let angle = shape.segments[1].arcCenter.coordinates.angleWith(shape.vertexes[1].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
