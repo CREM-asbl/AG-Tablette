@@ -161,35 +161,7 @@ export const Parallelogram = {
   }
 }
 
-// export const RightAngleTrapeze = {
-//   numberOfPointsRequired: 3,
-//   constraints: [
-//     () => new GeometryConstraint('isFree'),
-//     () => new GeometryConstraint('isFree'),
-//     () => new GeometryConstraint('isFree'),
-//   ],
-//   finishShape: (points, segments) => {
-//     let projection = segments[0].projectionOnSegment(
-//       points[2].coordinates,
-//     );
-//     let newCoordinates = points[2].coordinates
-//       .substract(projection)
-//       .add(points[0].coordinates);
-//     if (points.length == 3) {
-//       points[3] = new Point({
-//         layer: 'upper',
-//         coordinates: newCoordinates,
-//         color: app.settings.temporaryDrawColor,
-//         size: 2,
-//       });
-//     } else {
-//       points[3].coordinates = newCoordinates;
-//     }
-//     finishShapeEnd(points, segments, RightAngleTrapeze.numberOfPointsRequired);
-//   }
-// }
-
-export const RightAngleTrapeze2 = {
+export const RightAngleTrapeze = {
   numberOfPointsRequired: 4,
   constraints: [
     () => new GeometryConstraint('isFree'),

@@ -154,8 +154,6 @@ export class TransformTool extends Tool {
       (s) => s.id,
     );
 
-    // if (this.constraints.isConstructed || this.constraints.isBlocked) return;
-
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
     // window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -195,8 +193,7 @@ export class TransformTool extends Tool {
           case 'Rectangle':
           case 'Losange':
           case 'Parallelogram':
-          // case 'RightAngleTrapeze':
-          case 'RightAngleTrapeze2':
+          case 'RightAngleTrapeze':
           case 'IsoscelesTrapeze':
           case 'RightAngleIsoscelesTriangle':
           case 'RightAngleTriangle':
@@ -232,10 +229,9 @@ export class TransformTool extends Tool {
           case 'RightAngleIsoscelesTriangle':
           case 'RightAngleTriangle':
           case 'IsoscelesTriangle':
-          case 'RightAngleTrapeze2':
+          case 'RightAngleTrapeze':
             point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
           case 'Parallelogram':
-          // case 'RightAngleTrapeze':
           case 'IsoscelesTrapeze':
           case 'CirclePart':
             computeConstructionSpec(shape, point.idx);
@@ -263,7 +259,7 @@ export class TransformTool extends Tool {
         computeConstructionSpec(shape);
       }
       computeShapeTransform(shape);
-      if (shape.name == 'RightAngleTrapeze2')
+      if (shape.name == 'RightAngleTrapeze')
         computeConstructionSpec(shape);
       computeAllShapeTransform(shape);
     } else if (app.tool.currentStep == 'selectPoint') {

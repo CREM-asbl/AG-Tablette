@@ -256,13 +256,7 @@ export class Point {
         } else {
           constraints.isConstructed = true;
         }
-      // } else if (this.shape.name == 'RightAngleTrapeze') {
-      //   if (this.idx < 3) {
-      //     constraints.isFree = true;
-      //   } else {
-      //     constraints.isConstructed = true;
-      //   }
-      } else if (this.shape.name == 'RightAngleTrapeze2') {
+      } else if (this.shape.name == 'RightAngleTrapeze') {
         if (this.idx < 2) {
           constraints.isFree = true;
         } else {

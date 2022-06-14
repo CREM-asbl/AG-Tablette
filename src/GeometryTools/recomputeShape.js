@@ -188,12 +188,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
-  // } else if (shape.name == 'RightAngleTrapeze') {
-  //   let projection = shape.segments[0].projectionOnSegment(shape.vertexes[2].coordinates);
-  //   shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
-  //     .substract(projection)
-  //     .add(shape.vertexes[0].coordinates);
-  } else if (shape.name == 'RightAngleTrapeze2') {
+  } else if (shape.name == 'RightAngleTrapeze') {
     let startAngle = shape.segments[0].getAngleWithHorizontal();
     let dx = shape.geometryObject.geometryConstructionSpec.height * Math.cos(startAngle + Math.PI / 2);
     let dy = shape.geometryObject.geometryConstructionSpec.height * Math.sin(startAngle + Math.PI / 2);
@@ -551,11 +546,7 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
   } else if (shape.name == 'Losange') {
     shape.geometryObject.geometryConstructionSpec.angle = shape.vertexes[1].getVertexAngle();
   } else if (shape.name == 'Parallelogram') {
-  // } else if (shape.name == 'RightAngleTrapeze') {
-  //   shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
-  //   shape.constructionSpec.firstSegmentLength = shape.segments[0].length;
-  //   shape.constructionSpec.secondSegmentLength = shape.segments[1].length;
-  } else if (shape.name == 'RightAngleTrapeze2') {
+  } else if (shape.name == 'RightAngleTrapeze') {
     let angle = shape.vertexes[1].getVertexAngle();
     shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);
     if (Math.abs(angle - Math.PI / 2) < .1) {
