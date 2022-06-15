@@ -654,9 +654,9 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
       if (isNaN(ratio))
         ratio = ratioY;
     }
-    if (ratio > 1)
+    if (ratio > 1 && !reference.shape.name.endsWith('StraightLine'))
       ratio = 1;
-    else if (ratio < 0)
+    else if (ratio < 0 && !(reference.shape.name.endsWith('StraightLine') && !reference.shape.name.endsWith('SemiStraightLine')))
       ratio = 0;
     shape.points[0].ratio = ratio;
   }

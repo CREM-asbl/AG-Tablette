@@ -111,11 +111,6 @@ export class DivideTool extends Tool {
           return { shapeId: s.id };
         });
       app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.points.blacklist = app.mainCanvasLayer.shapes
-        .filter((s) => s.isStraightLine() || s.isSemiStraightLine())
-        .map((s) => {
-          return { shapeId: s.id };
-        });
       app.workspace.selectionConstraints.points.numberOfObjects = 'allSuperimposed';
     } else if (app.tool.currentStep == 'selectSecondPoint') {
       app.workspace.selectionConstraints.points.canSelect = true;
