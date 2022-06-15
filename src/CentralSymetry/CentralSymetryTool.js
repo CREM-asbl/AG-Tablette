@@ -96,6 +96,9 @@ export class CentralSymetryTool extends Tool {
 
   objectSelected(object) {
     this.involvedShapes = ShapeManager.getAllBindedShapes(object);
+    if (app.environment.name == 'Geometrie') {
+      this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(object);
+    }
     this.drawingShapes = this.involvedShapes.map(
       (s) =>
       new s.constructor({
