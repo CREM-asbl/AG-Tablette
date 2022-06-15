@@ -824,6 +824,8 @@ class CanvasLayer extends LitElement {
   }
 
   drawPoint(point, color = '#000', doSave = true) {
+    if (point.geometryIsVisible === false)
+      return;
     if (doSave) this.ctx.save();
 
     this.ctx.fillStyle = color;

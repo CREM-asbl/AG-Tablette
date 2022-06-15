@@ -8,9 +8,11 @@ import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 import { duplicateShape } from '../Core/Tools/shapesTools';
 import {
-  computeConstructionSpec,
-  computeShapeTransform,
-  projectionOnConstraints
+    computeConstructionSpec,
+    computeShapeTransform,
+    projectionOnConstraints,
+    recomputeAllVisibilities,
+    computeDivisionPoint
 } from '../GeometryTools/recomputeShape';
 
 /**
@@ -215,8 +217,10 @@ export class TransformTool extends Tool {
         pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
         pt.ratio = this.drawingShapes[idxS].points[idxPt].ratio;
       });
+      s.geometryObject.geometryIsVisibleByChoice =  this.drawingShapes[idxS].geometryObject.geometryIsVisibleByChoice;
       computeConstructionSpec(s);
     });
+    recomputeAllVisibilities('main')
   }
 
   refreshStateUpper() {
@@ -303,6 +307,7 @@ export class TransformTool extends Tool {
       }
       this.resetTree();
       this.browseTree(shape.id, this.tree);
+
       // if (shape.name == 'RightAngleTrapeze')
       //   computeConstructionSpec(shape);
     } else if (app.tool.currentStep == 'selectPoint') {

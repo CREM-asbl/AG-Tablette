@@ -29,7 +29,7 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
 }
 
 function reverseShape(shape, selectedAxis) {
-  shape.vertexes.forEach((pt) => {
+  shape.points.forEach((pt) => {
     computePointPosition(pt, selectedAxis);
   });
 }
@@ -365,13 +365,16 @@ function computeTransformShape(shape) {
   shape.vertexes.forEach((pt, idx) => {
     pt.coordinates = parentShape.vertexes[idx].coordinates;
   });
+  shape.divisionPoints.forEach((pt, idx) => {
+    pt.coordinates = parentShape.divisionPoints[idx].coordinates;
+  });
   if (parentShape.name == 'CirclePart') {
     shape.segments[1].arcCenter.coordinates = parentShape.segments[1].arcCenter.coordinates;
   } else if (parentShape.name == 'CircleArc') {
     shape.segments[0].arcCenter.coordinates = parentShape.segments[0].arcCenter.coordinates;
   }
-  let axis;
   if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry') {
+    let axis;
     if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
       axis = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
     } else {
@@ -416,7 +419,24 @@ function computeTransformShape(shape) {
     angle *= -1;
     shape.rotate(angle, pts[0].coordinates);
   }
-  shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+  if (shape.name == 'PointOnLine') {
+    let firstSeg = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    firstSeg.divisionPoints.forEach(pt => {
+      computeDivisionPoint(pt);
+    });
+    // recomputeAllVisibilities('upper');
+  } else if (shape.name == 'PointOnIntersection') {
+    let firstSeg = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    firstSeg.divisionPoints.forEach(pt => {
+      computeDivisionPoint(pt);
+    });
+    let secondSeg = findObjectById(shape.geometryObject.geometryParentObjectId2);
+    secondSeg.divisionPoints.forEach(pt => {
+      computeDivisionPoint(pt);
+    });
+    recomputeAllVisibilities('upper');
+  }
+
   if (shape.isCenterShown) {
     shape.center.coordinates = shape.centerCoordinates;
   }
@@ -453,12 +473,32 @@ function computeDuplicateShape(shape) {
   }
 }
 
-function recomputeAllVisibilities(layer) {
+export function recomputeAllVisibilities(layer) {
   app[layer + 'CanvasLayer'].shapes.forEach(s => s.geometryObject.geometryIsVisible = true);
+  app[layer + 'CanvasLayer'].points.forEach(pt => pt.geometryIsVisible = true);
 
   let changeVisibilityRecursively = (shapeId) => {
     let shape = findObjectById(shapeId);
     shape.geometryObject.geometryIsVisible = false;
+    if (shape.name == 'PointOnIntersection') {
+      let segment = findObjectById(shape.geometryObject.geometryParentObjectId1);
+      segment.divisionPoints.forEach(divPt => {
+        if (divPt.endpointIds?.some(endPtId => endPtId == shape.points[0].id))
+          divPt.geometryIsVisible = false;
+      });
+      segment = findObjectById(shape.geometryObject.geometryParentObjectId2);
+      segment.divisionPoints.forEach(divPt => {
+        if (divPt.endpointIds?.some(endPtId => endPtId == shape.points[0].id))
+          divPt.geometryIsVisible = false;
+      });
+    }
+    // if (shape.name == 'PointOnLine') {
+    //   let segment = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    //   segment.divisionPoints.forEach(divPt => {
+    //     if (divPt.endpointIds?.some(endPtId => endPtId == shape.points[0].id))
+    //       divPt.geometryIsVisible = false;
+    //   });
+    // }
     shape.geometryObject.geometryChildShapeIds.forEach(objId => {
       changeVisibilityRecursively(objId);
     });

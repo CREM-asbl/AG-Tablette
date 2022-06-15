@@ -37,6 +37,7 @@ export function duplicateShape(s, layer = 'upper') {
     pt.visible = s.points[idx].visible;
     pt.transformConstraints = s.points[idx].transformConstraints;
     pt.endpointIds = s.points[idx].endpointIds?.map(id => addInfoToId(id, layer));
+    pt.geometryIsVisible = s.points[idx].geometryIsVisible;
   });
   if (app.environment.name == 'Geometrie') {
     newShape.geometryObject = new GeometryObject({

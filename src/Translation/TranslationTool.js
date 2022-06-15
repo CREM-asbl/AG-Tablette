@@ -12,6 +12,7 @@ import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Segment } from '../Core/Objects/Segment';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
+import { Shape } from '../Core/Objects/Shapes/Shape';
 
 /**
  */
@@ -289,8 +290,7 @@ export class TranslationTool extends Tool {
     }
     let geometryTransformationCharacteristicElementIds = this.firstReference instanceof Point ? [this.firstReference.id, this.secondReference.id] : [this.firstReference.id];
 
-    let newShapes = [];
-    this.involvedShapes.forEach(s => {
+    let newShapes = this.involvedShapes.map(s => {
       let newShape = new s.constructor({
         ...s,
         layer: 'main',
@@ -311,6 +311,7 @@ export class TranslationTool extends Tool {
           geometryTransformationParentShapeId: s.id,
           geometryTransformationCharacteristicElementIds,
           geometryTransformationName: 'translation',
+          geometryIsVisible: s.geometryObject.geometryIsVisible,
         }),
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
@@ -331,7 +332,46 @@ export class TranslationTool extends Tool {
         }
         newShape.translate(this.firstReference.points[1].coordinates.substract(this.firstReference.points[0].coordinates))
       }
-      newShapes.push(newShape);
+      newShape.points.forEach((pt, idx) => {
+        pt.geometryIsVisible = s.points[idx].geometryIsVisible;
+      });
+      return newShape;
+    });
+    const linkReference = (idx, refName) => {
+      if (this.involvedShapes[idx].geometryObject[refName]) {
+        let reference = findObjectById(this.involvedShapes[idx].geometryObject[refName]);
+        if (reference instanceof Shape) {
+          let shapeIndex = this.involvedShapes.findIndex(s => reference.id == s.id);
+          newShapes[idx].geometryObject[refName] = newShapes[shapeIndex].id;
+        } else {
+          let referenceType = reference instanceof Segment ? 'segments' : 'points';
+          let shapeIndex = this.involvedShapes.findIndex(s => reference.shape.id == s.id);
+          let objectIndex = this.involvedShapes[shapeIndex][referenceType].findIndex(obj => obj.id == reference.id);
+          newShapes[idx].geometryObject[refName] = newShapes[shapeIndex][referenceType][objectIndex].id;
+        }
+      }
+    }
+    newShapes.forEach((newShape, sIdx) => {
+      linkReference(sIdx, 'geometryParentObjectId1');
+      linkReference(sIdx, 'geometryParentObjectId2');
+      newShape.vertexes.forEach((vx, ptIdx) => {
+        let reference = findObjectById(this.involvedShapes[sIdx].vertexes[ptIdx].reference);
+        if (reference) {
+          let shapeIndex = this.involvedShapes.findIndex(s => reference.shape.id == s.id);
+          let pointIndex = this.involvedShapes[shapeIndex].points.findIndex(obj => obj.id == reference.id);
+          newShapes[sIdx].vertexes[ptIdx].reference = newShapes[shapeIndex].points[pointIndex].id;
+        }
+      });
+      newShape.divisionPoints.forEach((divPt, divPtIdx) => {
+        let endpointId1 = findObjectById(this.involvedShapes[sIdx].divisionPoints[divPtIdx].endpointIds[0]);
+        let shapeIndex = this.involvedShapes.findIndex(s => endpointId1.shape.id == s.id);
+        let pointIndex = this.involvedShapes[shapeIndex].points.findIndex(obj => obj.id == endpointId1.id);
+        divPt.endpointIds = [newShapes[shapeIndex].points[pointIndex].id];
+        let endpointId2 = findObjectById(this.involvedShapes[sIdx].divisionPoints[divPtIdx].endpointIds[1]);
+        shapeIndex = this.involvedShapes.findIndex(s => endpointId2.shape.id == s.id);
+        pointIndex = this.involvedShapes[shapeIndex].points.findIndex(obj => obj.id == endpointId2.id);
+        divPt.endpointIds.push(newShapes[shapeIndex].points[pointIndex].id);
+      });
     });
     if (newShapes.length > 1) {
       let group = new ShapeGroup(...newShapes.map(s => s.id));
