@@ -252,6 +252,7 @@ export class CentralSymetryTool extends Tool {
         }
       });
       newShape.divisionPoints.forEach((divPt, divPtIdx) => {
+        divPt.reference = this.involvedShapes[sIdx].divisionPoints[divPtIdx].id;
         let endpointId1 = findObjectById(this.involvedShapes[sIdx].divisionPoints[divPtIdx].endpointIds[0]);
         let shapeIndex = this.involvedShapes.findIndex(s => endpointId1.shape.id == s.id);
         let pointIndex = this.involvedShapes[shapeIndex].points.findIndex(obj => obj.id == endpointId1.id);
@@ -262,10 +263,10 @@ export class CentralSymetryTool extends Tool {
         divPt.endpointIds.push(newShapes[shapeIndex].points[pointIndex].id);
       });
     });
-    if (newShapes.length > 1) {
-      let group = new ShapeGroup(...newShapes.map(s => s.id));
-      GroupManager.addGroup(group);
-    }
+    // if (newShapes.length > 1) {
+    //   let group = new ShapeGroup(...newShapes.map(s => s.id));
+    //   GroupManager.addGroup(group);
+    // }
   }
 
   setSelectionConstraints() {

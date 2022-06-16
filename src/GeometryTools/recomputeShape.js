@@ -366,7 +366,8 @@ function computeTransformShape(shape) {
     pt.coordinates = parentShape.vertexes[idx].coordinates;
   });
   shape.divisionPoints.forEach((pt, idx) => {
-    pt.coordinates = parentShape.divisionPoints[idx].coordinates;
+    if (pt.reference)
+      pt.coordinates = findObjectById(pt.reference).coordinates;
   });
   if (parentShape.name == 'CirclePart') {
     shape.segments[1].arcCenter.coordinates = parentShape.segments[1].arcCenter.coordinates;
@@ -436,6 +437,10 @@ function computeTransformShape(shape) {
     });
     recomputeAllVisibilities('upper');
   }
+  shape.divisionPoints.forEach((pt) => {
+    if (!pt.reference)
+      computeDivisionPoint(pt)
+  });
 
   if (shape.isCenterShown) {
     shape.center.coordinates = shape.centerCoordinates;

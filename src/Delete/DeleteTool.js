@@ -124,13 +124,19 @@ export class DeleteTool extends Tool {
   deleteChildren(shape) {
     if (shape.name == 'PointOnLine' || shape.name == 'PointOnIntersection') {
       let segment = findObjectById(shape.geometryObject.geometryParentObjectId1);
-      let point = shape.points[0];
-      this.deleteSubDivisionPoints(segment, point);
+      if (segment) {
+        // if segment not deleted yet
+        let point = shape.points[0];
+        this.deleteSubDivisionPoints(segment, point);
+      }
     }
     if (shape.name == 'PointOnIntersection') {
       let segment = findObjectById(shape.geometryObject.geometryParentObjectId2);
-      let point = shape.points[0];
-      this.deleteSubDivisionPoints(segment, point);
+      if (segment) {
+        // if segment not deleted yet
+        let point = shape.points[0];
+        this.deleteSubDivisionPoints(segment, point);
+      }
     }
     app.mainCanvasLayer.shapes.forEach(s => {
       s.geometryObject.geometryChildShapeIds = s.geometryObject.geometryChildShapeIds.filter(id => id != shape.id);
@@ -173,6 +179,23 @@ export class DeleteTool extends Tool {
           this.deleteChildren(child);
         removeObjectById(child.id);
       }
+    });
+    shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
+      let child = findObjectById(childId);
+      if (!child)
+        return;
+      child.divisionPoints.forEach(divPt => {
+        if (divPt.reference == point.id) {
+          let segment = divPt.segments[0];
+          if (segment) {
+            // if segment not deleted yet
+            this.deleteSubDivisionPoints(segment, divPt);
+            if (app.environment.name == 'Geometrie')
+              this.deleteChildrenOfDivisionPoint(divPt);
+            segment.deletePoint(divPt);
+          }
+        }
+      });
     });
   }
 }
