@@ -182,7 +182,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
     });
   } else if (shape.name == 'SemiStraightLine') {
-    let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates);
+    let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates, 0.1);
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
       recomputeAllVisibilities(layer);
@@ -206,7 +206,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
     });
   } else if (shape.name == 'StraightLine') {
-    let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates);
+    let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates, 0.1);
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
       recomputeAllVisibilities(layer);
@@ -301,6 +301,10 @@ export function computeShapeTransform(shape, layer = 'upper') {
 
     if (coords.length == 1)
       coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y});
+    let lastCoords = shape.points.map(pt => pt.coordinates);
+    let mustInvertCoord = lastCoords[0].dist(coords[0]) + lastCoords[1].dist(coords[1]) > lastCoords[0].dist(coords[1]) + lastCoords[1].dist(coords[0]);
+    if (mustInvertCoord)
+      coords.reverse();
     shape.points.forEach((pt, idx) => pt.coordinates = coords[idx]);
     firstSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
     secondSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));

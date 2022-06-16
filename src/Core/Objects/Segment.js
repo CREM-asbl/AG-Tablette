@@ -886,7 +886,9 @@ export class Segment {
       const x0 = this.arcCenter.coordinates.x, y0 = this.arcCenter.coordinates.y;
       const x1 = segment.arcCenter.coordinates.x, y1 = segment.arcCenter.coordinates.y;
       const dist2Centers = Math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2);
-      if (dist2Centers > R0 + R1)
+      if (dist2Centers < 1 && Math.abs(R0 - R1) < 1)
+        return null;
+      else if (dist2Centers > R0 + R1)
         return null;
       else if (dist2Centers < Math.abs(R1 - R0))
         return null;
@@ -942,6 +944,11 @@ export class Segment {
     }
     result = result.filter(res => this.isCoordinatesOnSegment(res) &&
       segment.isCoordinatesOnSegment(res));
+    result.sort((r1, r2) => {
+      if (Math.abs(r1.y - r2.y) < 0.001)
+        return r1.x - r2.x;
+      return r1.y - r2.y;
+    });
     if (result.length == 0)
       return null;
     return result;
