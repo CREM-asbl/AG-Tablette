@@ -297,8 +297,8 @@ export class MergeTool extends Tool {
         layer: 'invisible',
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
-        divisionPointInfos: seg.divisionPoints.map((d) => {
-          return { coordinates: d.coordinates, ratio: d.ratio, color: dp.color };
+        divisionPointInfos: seg.divisionPoints.map((dp) => {
+          return { coordinates: dp.coordinates, ratio: dp.ratio, color: dp.color };
         }),
         arcCenterCoordinates: seg.arcCenter?.coordinates,
         counterclockwise: seg.counterclockwise,
@@ -310,8 +310,8 @@ export class MergeTool extends Tool {
         layer: 'invisible',
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
-        divisionPointInfos: seg.divisionPoints.map((d) => {
-          return { coordinates: d.coordinates, ratio: d.ratio, color: dp.color };
+        divisionPointInfos: seg.divisionPoints.map((dp) => {
+          return { coordinates: dp.coordinates, ratio: dp.ratio, color: dp.color };
         }),
         arcCenterCoordinates: seg.arcCenter?.coordinates,
         counterclockwise: seg.counterclockwise,
