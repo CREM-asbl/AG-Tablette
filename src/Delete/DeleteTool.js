@@ -89,11 +89,6 @@ export class DeleteTool extends Tool {
   _executeAction() {
     if (this.mode == 'shape') {
       this.involvedShapes.forEach((s) => {
-        if (s.name == 'PointOnLine') {
-          let segment = findObjectById(s.geometryObject.geometryParentObjectId1);
-          let point = s.points[0];
-          this.deleteSubDivisionPoints(segment, point);
-        }
         if (app.environment.name == 'Geometrie')
           this.deleteChildren(s);
         removeObjectById(s.id);
@@ -127,6 +122,16 @@ export class DeleteTool extends Tool {
   }
 
   deleteChildren(shape) {
+    if (shape.name == 'PointOnLine' || shape.name == 'PointOnIntersection') {
+      let segment = findObjectById(shape.geometryObject.geometryParentObjectId1);
+      let point = shape.points[0];
+      this.deleteSubDivisionPoints(segment, point);
+    }
+    if (shape.name == 'PointOnIntersection') {
+      let segment = findObjectById(shape.geometryObject.geometryParentObjectId2);
+      let point = shape.points[0];
+      this.deleteSubDivisionPoints(segment, point);
+    }
     app.mainCanvasLayer.shapes.forEach(s => {
       s.geometryObject.geometryChildShapeIds = s.geometryObject.geometryChildShapeIds.filter(id => id != shape.id);
     });
@@ -159,7 +164,6 @@ export class DeleteTool extends Tool {
 
   deleteChildrenOfDivisionPoint(point) {
     let shape = point.shape;
-    // let shapesLinked = [];
     shape.geometryObject.geometryChildShapeIds.forEach(childId => {
       let child = findObjectById(childId);
       if (!child)

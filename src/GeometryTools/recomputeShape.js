@@ -454,7 +454,8 @@ function computeDuplicateShape(shape) {
       rotationMultiplier = 1;
     }
     shape.points.filter(pt => pt.type != 'divisionPoint').forEach((pt, idx) => {
-      let startCoord = shape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
+      let parentShape = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
+      let startCoord = parentShape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
       if (mustReverse) {
         startCoord = new Coordinates({
           x: startCoord.x + 2 * (shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
