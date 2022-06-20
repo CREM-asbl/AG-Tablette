@@ -181,30 +181,6 @@ export class Segment {
     return this.arcCenter.coordinates.dist(this.vertexes[1].coordinates);
   }
 
-  /**
-   * @returns conbinaisons de tous les sous-segments possibles
-   * (segment d'un point/vertex à un autre point/vertex)
-   */
-  get subSegments() {
-    console.trace();
-    let result = [];
-    this.allPoints.forEach((point, idx, points) => {
-      points.slice(idx + 1).forEach((pt) => {
-        result.push(
-          new Segment(
-            point,
-            pt,
-            this.shape,
-            this.idx,
-            this.arcCenter,
-            this.counterclockwise,
-          ),
-        );
-      });
-    });
-    return result;
-  }
-
   get length() {
     return this.vertexes[0].coordinates.dist(this.vertexes[1].coordinates);
   }
@@ -594,28 +570,6 @@ export class Segment {
   /* ############################## OTHER ############################### */
   /* #################################################################### */
 
-  copy(full = true) {
-    console.trace();
-    let copy = new Segment(
-      this.vertexes[0],
-      this.vertexes[1],
-      this.shape,
-      this.idx,
-      this.arcCenter,
-      this.counterclockwise,
-      this.isInfinite,
-      this.isSemiInfinite,
-    );
-    if (full) {
-      this.points.forEach((p) => {
-        copy.addPoint(p);
-      });
-    }
-    // if (this.tangentCoord1) copy.tangentCoord1 = new Coordinates(this.tangentCoord1);
-    // if (this.tangentCoord2) copy.tangentCoord2 = new Coordinates(this.tangentCoord2);
-    return copy;
-  }
-
   // saveToObject() {
   //   return this.saveData();
   //   const save = {
@@ -748,16 +702,6 @@ export class Segment {
     }
   }
 
-  static segmentWithAnglePassingThroughPoint(angle, point) {
-    console.trace();
-    let otherPoint = new Point(
-      point.x + Math.cos(angle) * 100,
-      point.y + Math.sin(angle) * 100,
-    );
-    let newSegment = new Segment(point, otherPoint);
-    return newSegment;
-  }
-
   /**
    * say if it is a subsegment (segment inside but no match with segmentPoints)
    * @param {Segment} subseg subsegment
@@ -834,7 +778,7 @@ export class Segment {
    * @param {object} segment
    * @return le point ou null si segments parallèles
    */
-  intersectionWith(segment) {
+  intersectionWith(segment, allowProlongation = false) {
     if (this.isArc() || segment.isArc()) {
       return this.arcIntersectionWith(segment);
     }
@@ -872,7 +816,7 @@ export class Segment {
       result.x = (pb - pa) / (thisSlope - segmentSlope);
       result.y = thisSlope * result.x + pa;
     }
-    if (!this.isCoordinatesOnSegment(result) || !segment.isCoordinatesOnSegment(result)) {
+    if (!allowProlongation && (!this.isCoordinatesOnSegment(result) || !segment.isCoordinatesOnSegment(result))) {
       return null;
     }
     return [result];

@@ -12,7 +12,8 @@ import {
     computeShapeTransform,
     projectionOnConstraints,
     recomputeAllVisibilities,
-    computeDivisionPoint
+    computeDivisionPoint,
+    getRatioWithPosition
 } from '../GeometryTools/recomputeShape';
 
 /**
@@ -114,22 +115,25 @@ export class TransformTool extends Tool {
   objectSelected(points) {
     for (let i = 0; i < points.length; i++) {
       if (points[i].reference) {
-        points[i] = findObjectById(points[i].reference);
-        i--;
-      } else {
-        points[i].computeTransformConstraint();
-        let constraints = points[i].transformConstraints;
-        if (constraints.isBlocked || constraints.isConstructed) {
-          points.splice(i, 1);
+        let reference = findObjectById(points[i].reference);
+        if (reference instanceof Point) {
+          points[i] = findObjectById(points[i].reference);
           i--;
+          continue;
         }
+      }
+      points[i].computeTransformConstraint();
+      let constraints = points[i].transformConstraints;
+      if (constraints.isBlocked || constraints.isConstructed) {
+        points.splice(i, 1);
+        i--;
       }
     }
 
     if (points.length == 0)
       return
 
-    let point = points.find(point => point.shape.name == 'PointOnLine');
+    let point = points.find(point => point.transformConstraints.isConstrained);
     if (!point)
       point = points[0]
 
@@ -265,46 +269,60 @@ export class TransformTool extends Tool {
         }
       }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
-      this.adjustPoint(point);
-      if (shape.name == 'Trapeze' && point.idx >= 3) {
-        point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-        computeConstructionSpec(shape);
-      } else if (point.idx >= 2) {
-        switch (shape.name) {
-          case 'Rectangle':
-          case 'Losange':
-          case 'RightAngleIsoscelesTriangle':
-          case 'RightAngleTriangle':
-          case 'IsoscelesTriangle':
-          case 'RightAngleTrapeze':
-            point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-          case 'Parallelogram':
-          case 'IsoscelesTrapeze':
-          case 'CirclePart':
-            computeConstructionSpec(shape, point.idx);
-            break;
-          default:
-            break;
-        }
-      }
-      if (point.idx == 1) {
-        switch (shape.name) {
-          case 'CircleArc':
-          case 'ParalleleSemiStraightLine':
-          case 'PerpendicularSemiStraightLine':
-          case 'ParalleleSegment':
-          case 'PerpendicularSegment':
-            point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-            computeConstructionSpec(shape);
-          default:
-            break;
-        }
-      }
+      // this.adjustPoint(point);
       if (shape.name == 'PointOnLine') {
         let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
         point.coordinates = reference.projectionOnSegment(point.coordinates);
         computeConstructionSpec(shape);
+      } else if (point.transformConstraints.isConstrained) {
+        point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+        if (point.reference) {
+          point.ratio = getRatioWithPosition(point, findObjectById(point.reference));
+        } else {
+          computeConstructionSpec(shape, point.idx);
+        }
+      } else if (point.idx >= 2) {
+        switch (shape.name) {
+          case 'Parallelogram':
+          case 'IsoscelesTrapeze':
+          case 'CirclePart':
+            computeConstructionSpec(shape, point.idx);
+        }
       }
+      // if (shape.name == 'Trapeze' && point.idx >= 3) {
+      //   point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+      //   computeConstructionSpec(shape);
+      // } else if (point.idx >= 2) {
+      //   switch (shape.name) {
+      //     case 'Rectangle':
+      //     case 'Losange':
+      //     case 'RightAngleIsoscelesTriangle':
+      //     case 'RightAngleTriangle':
+      //     case 'IsoscelesTriangle':
+      //     case 'RightAngleTrapeze':
+      //       point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+      //     case 'Parallelogram':
+      //     case 'IsoscelesTrapeze':
+      //     case 'CirclePart':
+      //       computeConstructionSpec(shape, point.idx);
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // }
+      // if (point.idx == 1) {
+      //   switch (shape.name) {
+      //     case 'CircleArc':
+      //     case 'ParalleleSemiStraightLine':
+      //     case 'PerpendicularSemiStraightLine':
+      //     case 'ParalleleSegment':
+      //     case 'PerpendicularSegment':
+      //       point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+      //       computeConstructionSpec(shape);
+      //     default:
+      //       break;
+      //   }
+      // }
       this.resetTree();
       this.browseTree(shape.id, this.tree);
 

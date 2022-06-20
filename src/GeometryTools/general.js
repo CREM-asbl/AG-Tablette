@@ -1,5 +1,7 @@
 import { app } from '../Core/App';
 import { findObjectById } from '../Core/Tools/general';
+import { Segment } from '../Core/Objects/Segment';
+import { getRatioWithPosition } from './recomputeShape';
 
 export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
   if (app.environment.name != 'Geometrie')
@@ -87,8 +89,8 @@ function addShapeToChildren(parent, child) {
 }
 
 export function linkNewlyCreatedPoint(shape, point) {
-  let ref;
-  if (ref = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(point.coordinates))) {
+  let ref = point.adjustedOn;
+  if (ref) {// = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(point.coordinates))) {
     if (ref.type == 'divisionPoint') {
       ref.endpointIds?.forEach(endPointId => {
         let endPoint = findObjectById(endPointId);
@@ -96,6 +98,9 @@ export function linkNewlyCreatedPoint(shape, point) {
         if (endPointShape.name == 'PointOnLine' || endPointShape.name == 'PointOnIntersection')
           addShapeToChildren(endPointShape, shape);
       })
+    }
+    if (ref instanceof Segment) {
+      point.ratio = getRatioWithPosition(point, ref);
     }
     addShapeToChildren(ref.shape, shape);
     point.reference = ref.id;

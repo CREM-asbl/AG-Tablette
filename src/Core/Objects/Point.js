@@ -144,13 +144,11 @@ export class Point {
       lines: [],
       points: [],
     };
-    // if (this.shape.geometryObject.geometryIsVisible === false || this.shape.geometryObject.geometryIsHidden === true) {
-    //   constraints.isBlocked = true;
-    // } else
-    if (this.reference) {
-      let refPoint = findObjectById(this.reference);
-      refPoint.computeTransformConstraint();
-      constraints = refPoint.transformConstraints;
+    let reference = findObjectById(this.reference);
+    if (reference && reference instanceof Point) {
+      let reference = findObjectById(this.reference);
+      reference.computeTransformConstraint();
+      constraints = reference.transformConstraints;
     } else if (this.type == 'divisionPoint' || this.type == 'shapeCenter') {
       constraints.isConstructed = true;
     } else if (this.shape.geometryObject.geometryTransformationName != null) {
@@ -395,6 +393,25 @@ export class Point {
         } else {
           constraints.isConstructed = true;
         }
+      }
+    }
+    if (reference && reference instanceof Segment) {
+      if (constraints.isFree) {
+        constraints.isFree = false;
+        constraints.isConstrained = true;
+        constraints.lines = [
+          {
+            segment: reference,
+          },
+        ];
+      } else if (constraints.isConstrained) {
+        constraints.isConstrained = false;
+        constraints.isBlocked = true;
+        constraints.lines.push(
+          {
+            segment: reference,
+          },
+        );
       }
     }
     this.transformConstraints = constraints;

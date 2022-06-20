@@ -49,7 +49,7 @@ export class Tool {
    */
   executeAction() {
     this._executeAction();
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(
       new CustomEvent('actions-executed', {

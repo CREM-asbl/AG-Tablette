@@ -1,7 +1,10 @@
 import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
-import { findObjectById, mod } from '../Core/Tools/general';
+import { findObjectById, mod, addInfoToId } from '../Core/Tools/general';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
+import { Shape } from '../Core/Objects/Shapes/Shape';
 
 export function computeAllShapeTransform(shape, layer = 'upper', includeChildren = true) {
   if (app.environment.name != 'Geometrie') return;
@@ -80,7 +83,21 @@ export function computeShapeTransform(shape, layer = 'upper') {
     let dx = shape.geometryObject.geometryConstructionSpec.height * Math.cos(startAngle + Math.PI / 2);
     let dy = shape.geometryObject.geometryConstructionSpec.height * Math.sin(startAngle + Math.PI / 2);
 
-    shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
+    if (shape.vertexes[2].transformConstraints.isBlocked) {
+      let constraintSegment = new Shape({
+        layer: 'invisible',
+        path: `M ${shape.vertexes[1].coordinates.x} ${shape.vertexes[1].coordinates.y} L ${shape.vertexes[1].coordinates.x + dx} ${shape.vertexes[1].coordinates.y + dy}`,
+      }).segments[0];
+      let segmentWhosePointIsOn = findObjectById(addInfoToId(shape.vertexes[2].transformConstraints.lines[1].segment.id, 'upper'));
+      let intersection = constraintSegment.intersectionWith(segmentWhosePointIsOn, true);
+      if (intersection) {
+        shape.vertexes[2].coordinates = intersection[0];
+      } else {
+        shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
+      }
+    } else {
+      shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
+    }
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
@@ -91,10 +108,47 @@ export function computeShapeTransform(shape, layer = 'upper') {
       shape.geometryObject.geometryConstructionSpec.angle;
     let length = firstSegment.length;
 
-    shape.vertexes[2].coordinates = new Coordinates({
-      x: shape.vertexes[1].x + length * Math.cos(angle),
-      y: shape.vertexes[1].y + length * Math.sin(angle),
-    });
+    if (shape.vertexes[2].transformConstraints.isBlocked) {
+      let oppositeCoordinates = shape.vertexes[1].coordinates.multiply(2).substract(shape.vertexes[0].coordinates),
+        radius = shape.vertexes[0].coordinates.dist(shape.vertexes[1].coordinates),
+        path = ['M', shape.vertexes[0].coordinates.x, shape.vertexes[0].coordinates.y]
+          .concat([
+            'A',
+            radius,
+            radius,
+            0,
+            1,
+            0,
+            oppositeCoordinates.x,
+            oppositeCoordinates.y,
+          ])
+          .concat(['A', radius, radius, 0, 1, 0, shape.vertexes[0].coordinates.x, shape.vertexes[0].coordinates.y])
+          .join(' ');
+
+      let constraintSegment = new Shape({
+        layer: 'invisible',
+        path,
+      }).segments[0];
+      let constraintsSegment = findObjectById(addInfoToId(shape.vertexes[2].transformConstraints.lines[1].segment.id, 'upper'));
+      constraintsSegment.isInfinite = true;
+      let intersection = constraintSegment.intersectionWith(constraintsSegment, true);
+      if (intersection) {
+        if (intersection[1] && intersection[0].dist(shape.vertexes[2].coordinates) > intersection[1].dist(shape.vertexes[2].coordinates)) {
+          shape.vertexes[2].coordinates = intersection[1];
+        }
+        shape.vertexes[2].coordinates = intersection[0];
+      } else {
+        shape.vertexes[2].coordinates = new Coordinates({
+          x: shape.vertexes[1].x + length * Math.cos(angle),
+          y: shape.vertexes[1].y + length * Math.sin(angle),
+        });
+      }
+    } else {
+      shape.vertexes[2].coordinates = new Coordinates({
+        x: shape.vertexes[1].x + length * Math.cos(angle),
+        y: shape.vertexes[1].y + length * Math.sin(angle),
+      });
+    }
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
@@ -353,12 +407,88 @@ export function computeShapeTransform(shape, layer = 'upper') {
   }
 }
 
+function getPositionWithRatio(point, referenceSegment) {
+  let coord;
+  if (referenceSegment.shape.name == 'Circle') {
+    let refShape = referenceSegment.shape;
+    let angle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates) + shape.points[0].ratio * Math.PI * 2;
+    coord = refShape.segments[0].arcCenter.coordinates.add({
+      x: refShape.segments[0].radius * Math.cos(angle),
+      y: refShape.segments[0].radius * Math.sin(angle),
+    });
+  } else if (referenceSegment.isArc()) {
+    let firstAngle = referenceSegment.arcCenter.coordinates.angleWith(referenceSegment.vertexes[0].coordinates);
+    let secondAngle = referenceSegment.arcCenter.coordinates.angleWith(referenceSegment.vertexes[1].coordinates);
+    if (secondAngle <= firstAngle) {
+      secondAngle += Math.PI * 2;
+    }
+    let newAngle = firstAngle + point.ratio * (secondAngle - firstAngle);
+    if (referenceSegment.counterclockwise) {
+      newAngle = firstAngle - point.ratio * (2 * Math.PI - secondAngle + firstAngle);
+    }
+    coord = new Coordinates({
+      x: referenceSegment.arcCenter.coordinates.x + referenceSegment.radius * Math.cos(newAngle),
+      y: referenceSegment.arcCenter.coordinates.y + referenceSegment.radius * Math.sin(newAngle),
+    });
+  } else {
+    let firstPoint = referenceSegment.vertexes[0];
+    let secondPoint = referenceSegment.vertexes[1];
+    const segLength = secondPoint.coordinates.substract(
+      firstPoint.coordinates,
+    );
+    const part = segLength.multiply(point.ratio);
+
+    coord = firstPoint.coordinates.add(part);
+  }
+  return coord;
+}
+
+export function getRatioWithPosition(point, referenceSegment) {
+  let ratio;
+  if (referenceSegment.shape.name == 'Circle') {
+    const angle = referenceSegment.arcCenter.coordinates.angleWith(point.coordinates);
+    const refAngle = referenceSegment.arcCenter.coordinates.angleWith(referenceSegment.vertexes[0].coordinates);
+    ratio = (angle - refAngle) / Math.PI / 2;
+    if (ratio < 0)
+      ratio += 1;
+  } else if (referenceSegment.isArc()) {
+    let angle = referenceSegment.arcCenter.coordinates.angleWith(point.coordinates);
+    let firstAngle = referenceSegment.arcCenter.coordinates.angleWith(referenceSegment.vertexes[0].coordinates);
+    let secondAngle = referenceSegment.arcCenter.coordinates.angleWith(referenceSegment.vertexes[1].coordinates);
+    if (referenceSegment.counterclockwise)
+      [firstAngle, secondAngle] = [secondAngle, firstAngle];
+    if (firstAngle > secondAngle)
+      secondAngle += 2 * Math.PI;
+    if (firstAngle > angle)
+      angle += 2 * Math.PI;
+    ratio = (angle - firstAngle) / (secondAngle - firstAngle);
+    if (referenceSegment.counterclockwise)
+      ratio = 1 - ratio;
+  } else {
+    let ratioX = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
+    let ratioY = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
+    ratio = ratioX;
+    if (isNaN(ratio))
+      ratio = ratioY;
+  }
+  if (ratio > 1 && !referenceSegment.shape.name.endsWith('StraightLine'))
+    ratio = 1;
+  else if (ratio < 0 && !(referenceSegment.shape.name.endsWith('StraightLine') && !referenceSegment.shape.name.endsWith('SemiStraightLine')))
+    ratio = 0;
+  return ratio;
+}
+
 function computeLinkedShape(shape) {
   shape.points.forEach(pt => {
     if (pt.reference) {
-      let ptRef = findObjectById(pt.reference);
-      if (ptRef) {
-        pt.coordinates = new Coordinates(ptRef.coordinates);
+      let reference = findObjectById(pt.reference);
+      if (reference) {
+        if (reference instanceof Point) {
+          pt.coordinates = new Coordinates(reference.coordinates);
+        } else {
+          let coord = getPositionWithRatio(pt, reference);
+          pt.coordinates = coord;
+        }
       }
     }
   });
@@ -676,38 +806,8 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
       Math.abs(reference.getAngleWithHorizontal() - shape.segments[0].getAngleWithHorizontal() + Math.PI / 2 - 2 * Math.PI) > 0.1)
       shape.geometryObject.geometryConstructionSpec.segmentLength *= -1;
   } else if (shape.name == 'PointOnLine') {
-    let ratio;
     let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    if (reference.shape.name == 'Circle') {
-      const angle = reference.arcCenter.coordinates.angleWith(shape.points[0].coordinates);
-      const refAngle = reference.arcCenter.coordinates.angleWith(reference.vertexes[0].coordinates);
-      ratio = (angle - refAngle) / Math.PI / 2;
-      if (ratio < 0)
-        ratio += 1;
-    } else if (reference.isArc()) {
-      let angle = reference.arcCenter.coordinates.angleWith(shape.points[0].coordinates);
-      let firstAngle = reference.arcCenter.coordinates.angleWith(reference.vertexes[0].coordinates);
-      let secondAngle = reference.arcCenter.coordinates.angleWith(reference.vertexes[1].coordinates);
-      if (reference.counterclockwise)
-        [firstAngle, secondAngle] = [secondAngle, firstAngle];
-      if (firstAngle > secondAngle)
-        secondAngle += 2 * Math.PI;
-      if (firstAngle > angle)
-        angle += 2 * Math.PI;
-      ratio = (angle - firstAngle) / (secondAngle - firstAngle);
-      if (reference.counterclockwise)
-        ratio = 1 - ratio;
-    } else {
-      let ratioX = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
-      let ratioY = (shape.points[0].coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
-      ratio = ratioX;
-      if (isNaN(ratio))
-        ratio = ratioY;
-    }
-    if (ratio > 1 && !reference.shape.name.endsWith('StraightLine'))
-      ratio = 1;
-    else if (ratio < 0 && !(reference.shape.name.endsWith('StraightLine') && !reference.shape.name.endsWith('SemiStraightLine')))
-      ratio = 0;
+    let ratio = getRatioWithPosition(shape.points[0], reference);
     shape.points[0].ratio = ratio;
   }
 }
