@@ -382,6 +382,8 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   reverseShape(shape, selectedAxis) {
+    shape.reverse();
+
     shape.points.forEach((pt) => {
       this.computePointPosition(pt, selectedAxis);
     });
