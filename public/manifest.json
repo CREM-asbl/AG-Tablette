@@ -22,7 +22,7 @@
   "theme_color": "lightgrey",
   "background_color": "lightgrey",
   "orientation": "landscape",
-  "description": "Version mobile d'Apprenti Géomètre",
+  "description": "Apprenti Géomètre mobile, la version d'Apprenti Géomètre qui peut également s'utiliser sur tablette",
   "lang": "fr-BE",
   "file_handlers": [
     {
