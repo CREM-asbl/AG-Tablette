@@ -79,25 +79,25 @@ export function computeShapeTransform(shape, layer = 'upper') {
       shape.vertexes[i].coordinates = coord;
     }
   } else if (shape.name == 'Rectangle') {
-    let startAngle = shape.segments[0].getAngleWithHorizontal();
-    let dx = shape.geometryObject.geometryConstructionSpec.height * Math.cos(startAngle + Math.PI / 2);
-    let dy = shape.geometryObject.geometryConstructionSpec.height * Math.sin(startAngle + Math.PI / 2);
+    // let startAngle = shape.segments[0].getAngleWithHorizontal();
+    // let dx = shape.geometryObject.geometryConstructionSpec.height * Math.cos(startAngle + Math.PI / 2);
+    // let dy = shape.geometryObject.geometryConstructionSpec.height * Math.sin(startAngle + Math.PI / 2);
 
-    if (shape.vertexes[2].transformConstraints.isBlocked) {
-      let constraintSegment = new Shape({
-        layer: 'invisible',
-        path: `M ${shape.vertexes[1].coordinates.x} ${shape.vertexes[1].coordinates.y} L ${shape.vertexes[1].coordinates.x + dx} ${shape.vertexes[1].coordinates.y + dy}`,
-      }).segments[0];
-      let segmentWhosePointIsOn = findObjectById(addInfoToId(shape.vertexes[2].transformConstraints.lines[1].segment.id, 'upper'));
-      let intersection = constraintSegment.intersectionWith(segmentWhosePointIsOn, true);
-      if (intersection) {
-        shape.vertexes[2].coordinates = intersection[0];
-      } else {
-        shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
-      }
-    } else {
-      shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
-    }
+    // if (shape.vertexes[2].transformConstraints.isBlocked) {
+    //   let constraintSegment = new Shape({
+    //     layer: 'invisible',
+    //     path: `M ${shape.vertexes[1].coordinates.x} ${shape.vertexes[1].coordinates.y} L ${shape.vertexes[1].coordinates.x + dx} ${shape.vertexes[1].coordinates.y + dy}`,
+    //   }).segments[0];
+    //   let segmentWhosePointIsOn = findObjectById(addInfoToId(shape.vertexes[2].transformConstraints.lines[1].segment.id, 'upper'));
+    //   let intersection = constraintSegment.intersectionWith(segmentWhosePointIsOn, true);
+    //   if (intersection) {
+    //     shape.vertexes[2].coordinates = intersection[0];
+    //   } else {
+    //     shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
+    //   }
+    // } else {
+    //   shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
+    // }
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);

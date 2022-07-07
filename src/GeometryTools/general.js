@@ -1,7 +1,12 @@
 import { app } from '../Core/App';
 import { findObjectById } from '../Core/Tools/general';
 import { Segment } from '../Core/Objects/Segment';
-import { getRatioWithPosition } from './recomputeShape';
+import { getRatioWithPosition, computeConstructionSpec } from './recomputeShape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { Point } from '../Core/Objects/Point';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { Coordinates } from '../Core/Objects/Coordinates';
 
 export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
   if (app.environment.name != 'Geometrie')
@@ -90,7 +95,59 @@ function addShapeToChildren(parent, child) {
 
 export function linkNewlyCreatedPoint(shape, point) {
   let ref = point.adjustedOn;
-  if (ref) {// = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(point.coordinates))) {
+  if (point.idx == 2) {
+    let referenceSegment = shape.segments[0];
+    let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+    let newCoordinates = shape.vertexes[1].coordinates.add(new Coordinates({
+      x: 100 * Math.cos(angle),
+      y: 100 * Math.sin(angle),
+    }));
+
+    let path = [
+      'M',
+      shape.vertexes[1].coordinates.x,
+      shape.vertexes[1].coordinates.y,
+      'L',
+      newCoordinates.x,
+      newCoordinates.y,
+    ].join(' ');
+
+    let constraintShape = new LineShape({
+      layer: 'main',
+      path: path,
+      name: 'PerpendicularStraightLine',
+      familyName: 'ContraintLine',
+      geometryObject: new GeometryObject({}),
+    });
+    constraintShape.segments[0].isInfinite = true;
+
+    constraintShape.geometryObject.geometryParentObjectId1 = referenceSegment.id;
+    referenceSegment.shape.geometryObject.geometryChildShapeIds.push(constraintShape.id);
+
+    addShapeToChildren(shape, constraintShape);
+    constraintShape.vertexes[0].reference = shape.vertexes[1].id;
+
+    let newSinglePointShape = new SinglePointShape({
+      layer: 'main',
+      path: `M ${point.coordinates.x} ${point.coordinates.y}`,
+      name: 'PointOnLine',
+      familyName: 'Point',
+      geometryObject: new GeometryObject({}),
+    });
+    newSinglePointShape.geometryObject.geometryParentObjectId1 = constraintShape.segments[0].id;
+    addShapeToChildren(constraintShape, newSinglePointShape);
+
+    if (ref && ref instanceof Segment) {
+      newSinglePointShape.name = 'PointOnIntersection';
+      newSinglePointShape.geometryObject.geometryParentObjectId2 = ref.id;
+
+      addShapeToChildren(ref, newSinglePointShape);
+    }
+    computeConstructionSpec(newSinglePointShape);
+
+    addShapeToChildren(newSinglePointShape, shape);
+    point.reference = newSinglePointShape.vertexes[0].id;
+  } else if (ref && ref instanceof Point) {
     if (ref.type == 'divisionPoint') {
       ref.endpointIds?.forEach(endPointId => {
         let endPoint = findObjectById(endPointId);
@@ -99,10 +156,41 @@ export function linkNewlyCreatedPoint(shape, point) {
           addShapeToChildren(endPointShape, shape);
       })
     }
-    if (ref instanceof Segment) {
-      point.ratio = getRatioWithPosition(point, ref);
-    }
     addShapeToChildren(ref.shape, shape);
     point.reference = ref.id;
+  } else {
+    let newSinglePointShape = new SinglePointShape({
+      layer: 'main',
+      path: `M ${point.coordinates.x} ${point.coordinates.y}`,
+      name: 'Point',
+      familyName: 'Point',
+      geometryObject: new GeometryObject({}),
+    });
+    if (ref && ref instanceof Segment) {
+      newSinglePointShape.name = 'PointOnLine';
+      newSinglePointShape.geometryObject.geometryParentObjectId1 = ref.id;
+
+      computeConstructionSpec(newSinglePointShape);
+      addShapeToChildren(ref, newSinglePointShape);
+      // ref.shape.geometryObject.geometryChildShapeIds.push(newSinglePointShape.id);
+    }
+    addShapeToChildren(newSinglePointShape, shape);
+    point.reference = newSinglePointShape.vertexes[0].id;
   }
+  // if (ref) {// = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(point.coordinates))) {
+
+
+  //   if (ref instanceof Segment) {
+
+  //     shape.geometryObject.geometryParentObjectId1 = ref;
+
+  //     computeConstructionSpec(shape);
+
+  //     let reference = findObjectById(ref);
+  //     reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
+  //     point.ratio = getRatioWithPosition(point, ref);
+  //   }
+  //   addShapeToChildren(ref.shape, shape);
+  //   point.reference = ref.id;
+  // }
 }

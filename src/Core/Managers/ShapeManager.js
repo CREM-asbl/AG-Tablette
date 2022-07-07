@@ -165,7 +165,6 @@ export class ShapeManager {
     let getParentAndChildren = (shape, currentShapeArray) => {
       let parents = getParents(shape);
       let children = getChildren(shape);
-      console.log(parents, children);
       [...parents, ...children].forEach(s => {
         if (allLinkedShapes.every(linkedShape => linkedShape.id != s.id) && currentShapeArray.every(linkedShape => linkedShape.id != s.id)) {
           currentShapeArray.push(s);
