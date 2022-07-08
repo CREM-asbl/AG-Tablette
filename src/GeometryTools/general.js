@@ -89,6 +89,7 @@ export function getAllChildrenInGeometry(shape, involvedShapes) {
 }
 
 function addShapeToChildren(parent, child) {
+  console.log(parent)
   if (parent.geometryObject.geometryChildShapeIds.indexOf(child.id) === -1)
     parent.geometryObject.geometryChildShapeIds.push(child.id);
 }
@@ -116,10 +117,15 @@ export function linkNewlyCreatedPoint(shape, point) {
       layer: 'main',
       path: path,
       name: 'PerpendicularStraightLine',
-      familyName: 'ContraintLine',
-      geometryObject: new GeometryObject({}),
+      familyName: 'Line',
+      strokeColor: app.settings.constraintsDrawColor,
+      strokeWidth: 2,
+      geometryObject: new GeometryObject({
+        geometryIsConstaintDraw: true,
+      }),
     });
     constraintShape.segments[0].isInfinite = true;
+    constraintShape.points[1].visible = false;
 
     constraintShape.geometryObject.geometryParentObjectId1 = referenceSegment.id;
     referenceSegment.shape.geometryObject.geometryChildShapeIds.push(constraintShape.id);
@@ -141,12 +147,13 @@ export function linkNewlyCreatedPoint(shape, point) {
       newSinglePointShape.name = 'PointOnIntersection';
       newSinglePointShape.geometryObject.geometryParentObjectId2 = ref.id;
 
-      addShapeToChildren(ref, newSinglePointShape);
+      addShapeToChildren(ref.shape, newSinglePointShape);
     }
     computeConstructionSpec(newSinglePointShape);
 
     addShapeToChildren(newSinglePointShape, shape);
     point.reference = newSinglePointShape.vertexes[0].id;
+    console.log(constraintShape, newSinglePointShape, shape);
   } else if (ref && ref instanceof Point) {
     if (ref.type == 'divisionPoint') {
       ref.endpointIds?.forEach(endPointId => {
@@ -171,7 +178,7 @@ export function linkNewlyCreatedPoint(shape, point) {
       newSinglePointShape.geometryObject.geometryParentObjectId1 = ref.id;
 
       computeConstructionSpec(newSinglePointShape);
-      addShapeToChildren(ref, newSinglePointShape);
+      addShapeToChildren(ref.shape, newSinglePointShape);
       // ref.shape.geometryObject.geometryChildShapeIds.push(newSinglePointShape.id);
     }
     addShapeToChildren(newSinglePointShape, shape);
