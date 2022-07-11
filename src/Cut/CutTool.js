@@ -171,7 +171,7 @@ export class CutTool extends Tool {
       if (object[0].shape.name == 'PointOnLine') {
         shape = findObjectById(object[0].shape.geometryObject.geometryParentObjectId1).shape;
       }
-      if (object[0].shape.name == 'PointOnIntersection') {
+      if (object[0].shape.name.startsWith('PointOnIntersection')) {
         shape = findObjectById(object[0].shape.geometryObject.geometryParentObjectId1).shape;
         if (shape.isSegment()) {
           shape = findObjectById(object[0].shape.geometryObject.geometryParentObjectId2).shape;
@@ -201,17 +201,17 @@ export class CutTool extends Tool {
       for (let i = 0; i < firstPoints.length; i++) {
         for (let j = 0; j < newObjects.length; j++) {
           let firstShapeIds = [firstPoints[i].shapeId];
-          if (firstPoints[i].shape.name == 'PointOnLine' || firstPoints[i].shape.name == 'PointOnIntersection') {
+          if (firstPoints[i].shape.name == 'PointOnLine' || firstPoints[i].shape.name.startsWith('PointOnIntersection')) {
             firstShapeIds = [findObjectById(firstPoints[i].shape.geometryObject.geometryParentObjectId1).shapeId];
           }
-          if (firstPoints[i].shape.name == 'PointOnIntersection') {
+          if (firstPoints[i].shape.name.startsWith('PointOnIntersection')) {
             firstShapeIds.push(findObjectById(firstPoints[i].shape.geometryObject.geometryParentObjectId2).shapeId);
           }
           let secondShapeIds = [newObjects[j].shapeId];
-          if (newObjects[j].shape.name == 'PointOnLine' || newObjects[j].shape.name == 'PointOnIntersection') {
+          if (newObjects[j].shape.name == 'PointOnLine' || newObjects[j].shape.name.startsWith('PointOnIntersection')) {
             secondShapeIds = [findObjectById(newObjects[j].shape.geometryObject.geometryParentObjectId1).shapeId];
           }
-          if (newObjects[j].shape.name == 'PointOnIntersection') {
+          if (newObjects[j].shape.name.startsWith('PointOnIntersection')) {
             secondShapeIds.push(findObjectById(newObjects[j].shape.geometryObject.geometryParentObjectId2).shapeId);
           }
           for (let k = 0; k < firstShapeIds.length; k++) {
@@ -287,12 +287,12 @@ export class CutTool extends Tool {
         shape = this.centerPoint.shape;
       object.forEach(pt => {
         let pt2Shape = pt.shape;
-        if (pt2Shape.name == 'PointOnLine' || pt2Shape.name == 'PointOnIntersection') {
+        if (pt2Shape.name == 'PointOnLine' || pt2Shape.name.startsWith('PointOnIntersection')) {
           let tmpShape = findObjectById(pt.shape.geometryObject['geometryParentObjectId1']).shape;
           if (shape.id == tmpShape.id) {
             pt2Shape = tmpShape;
             pt.cutSeg = 0;
-          } else if (pt2Shape.name == 'PointOnIntersection') {
+          } else if (pt2Shape.name.startsWith('PointOnIntersection')) {
             pt2Shape = findObjectById(pt.shape.geometryObject['geometryParentObjectId2']).shape;
             pt.cutSeg = 1;
           }
@@ -414,7 +414,7 @@ export class CutTool extends Tool {
             s.isSemiStraightLine() //||
             // (s.isSegment() && app.environment.name == 'Geometrie') ||
             // (
-            //   (s.name == 'PointOnLine' || s.name == 'PointOnIntersection') &&
+            //   (s.name == 'PointOnLine' || s.name.startsWith('PointOnIntersection')) &&
             //   findObjectById(s.geometryObject.geometryParentObjectId1).shape.isSegment()
             // ),
         )
@@ -480,15 +480,15 @@ export class CutTool extends Tool {
       }
 
       // Trier les 2 points:
-      if (pt1.type == 'vertex' && pt1.idx === 0 && pt1.shape.name != 'PointOnLine' && pt1.shape.name != 'PointOnIntersection') {
+      if (pt1.type == 'vertex' && pt1.idx === 0 && pt1.shape.name != 'PointOnLine' && !pt1.shape.name.startsWith('PointOnIntersection')) {
         [pt1, pt2] = [pt2, pt1];
-      } else if (!(pt2.type == 'vertex' && pt2.idx === 0 && pt2.shape.name != 'PointOnLine' && pt2.shape.name != 'PointOnIntersection')) {
+      } else if (!(pt2.type == 'vertex' && pt2.idx === 0 && pt2.shape.name != 'PointOnLine' && !pt2.shape.name.startsWith('PointOnIntersection'))) {
         let pt1Idx = pt1.idx || pt1.segments[0]?.idx;
         let pt2Idx = pt2.idx || pt2.segments[0]?.idx;
-        if (pt1.shape.name == 'PointOnLine' || pt1.shape.name == 'PointOnIntersection') {
+        if (pt1.shape.name == 'PointOnLine' || pt1.shape.name.startsWith('PointOnIntersection')) {
           pt1Idx = findObjectById(pt1.shape.geometryObject['geometryParentObjectId' + (pt1.cutSeg + 1)]).idx;
         }
-        if (pt2.shape.name == 'PointOnLine' || pt2.shape.name == 'PointOnIntersection') {
+        if (pt2.shape.name == 'PointOnLine' || pt2.shape.name.startsWith('PointOnIntersection')) {
           pt2Idx = findObjectById(pt2.shape.geometryObject['geometryParentObjectId' + (pt2.cutSeg + 1)]).idx;
         }
         if (pt1Idx > pt2Idx) {
@@ -513,7 +513,7 @@ export class CutTool extends Tool {
         if (pt1.type === 'divisionPoint' && pt1.segments[0].idx === i) {
           this.addPathElem(firstPath, pt1);
           break;
-        } else if ((pt1.shape.name == 'PointOnLine' || pt1.shape.name == 'PointOnIntersection') && findObjectById(pt1.shape.geometryObject['geometryParentObjectId' + (pt1.cutSeg + 1)]).idx == i) {
+        } else if ((pt1.shape.name == 'PointOnLine' || pt1.shape.name.startsWith('PointOnIntersection')) && findObjectById(pt1.shape.geometryObject['geometryParentObjectId' + (pt1.cutSeg + 1)]).idx == i) {
           this.addPathElem(firstPath, pt1);
           break;
         } else {
@@ -529,7 +529,7 @@ export class CutTool extends Tool {
       }
       this.addPathElem(firstPath, pt2, false);
       let endJunctionIndex = pt2.idx || pt2.segments[0]?.idx;
-      if (pt2.shape.name == 'PointOnLine' || pt2.shape.name == 'PointOnIntersection') {
+      if (pt2.shape.name == 'PointOnLine' || pt2.shape.name.startsWith('PointOnIntersection')) {
         endJunctionIndex = findObjectById(pt2.shape.geometryObject['geometryParentObjectId' + (pt2.cutSeg + 1)]).idx;
       }
       if (!(pt2.type == 'vertex' && pt2.idx === 0 && pt2.shapeId == app.tool.shapeId)) {
@@ -545,14 +545,14 @@ export class CutTool extends Tool {
         this.currentPoint.coordinates.y,
       ];
       endJunctionIndex = pt1.idx || pt1.segments[0]?.idx;
-      if (pt1.shape.name == 'PointOnLine' || pt1.shape.name == 'PointOnIntersection') {
+      if (pt1.shape.name == 'PointOnLine' || pt1.shape.name.startsWith('PointOnIntersection')) {
         endJunctionIndex = findObjectById(pt1.shape.geometryObject['geometryParentObjectId' + (pt1.cutSeg + 1)]).idx;
       }
       for (let i = endJunctionIndex; i < nbOfSegments; i++) {
         if (pt2.type === 'divisionPoint' && pt2.segments[0].idx === i) {
           this.addPathElem(secondPath, pt2);
           break;
-        } else if ((pt2.shape.name == 'PointOnLine' || pt2.shape.name == 'PointOnIntersection') && findObjectById(pt2.shape.geometryObject['geometryParentObjectId' + (pt2.cutSeg + 1)]).idx == i) {
+        } else if ((pt2.shape.name == 'PointOnLine' || pt2.shape.name.startsWith('PointOnIntersection')) && findObjectById(pt2.shape.geometryObject['geometryParentObjectId' + (pt2.cutSeg + 1)]).idx == i) {
           this.addPathElem(secondPath, pt2);
           break;
         } else {
@@ -599,7 +599,7 @@ export class CutTool extends Tool {
     if (app.environment.name == 'Geometrie') {
       let allPointsOfParent = shape.geometryObject.geometryChildShapeIds
         .map(childId => findObjectById(childId))
-        .filter(child => child.name == 'PointOnLine' || child.name == 'PointOnIntersection')
+        .filter(child => child.name == 'PointOnLine' || child.name.startsWith('PointOnIntersection'))
         .map(child => child.vertexes[0]);
       allPointsOfParent = [...allPointsOfParent, ...shape.points];
 
@@ -688,7 +688,7 @@ export class CutTool extends Tool {
   addPathElem(path, nextPoint, mustFollowArc) {
     let segment;
     if (mustFollowArc !== false) {
-      if (this.currentPoint.shape.name == 'PointOnLine' || this.currentPoint.shape.name == 'PointOnIntersection') {
+      if (this.currentPoint.shape.name == 'PointOnLine' || this.currentPoint.shape.name.startsWith('PointOnIntersection')) {
         segment = findObjectById(this.currentPoint.shape.geometryObject['geometryParentObjectId' + (this.currentPoint.cutSeg + 1)]);
       } else {
         let segmentIdx = Number.isInteger(this.currentPoint.idx)

@@ -122,7 +122,7 @@ export class DeleteTool extends Tool {
   }
 
   deleteChildren(shape) {
-    if (shape.name == 'PointOnLine' || shape.name == 'PointOnIntersection') {
+    if (shape.name == 'PointOnLine' || shape.name.startsWith('PointOnIntersection')) {
       let segment = findObjectById(shape.geometryObject.geometryParentObjectId1);
       if (segment) {
         // if segment not deleted yet
@@ -130,7 +130,7 @@ export class DeleteTool extends Tool {
         this.deleteSubDivisionPoints(segment, point);
       }
     }
-    if (shape.name == 'PointOnIntersection') {
+    if (shape.name.startsWith('PointOnIntersection')) {
       let segment = findObjectById(shape.geometryObject.geometryParentObjectId2);
       if (segment) {
         // if segment not deleted yet

@@ -314,6 +314,7 @@ export class OrthogonalSymetryTool extends Tool {
           geometryTransformationCharacteristicElementIds: [this.firstReference.id],
           geometryTransformationName: 'orthogonalSymetry',
           geometryIsVisible: s.geometryObject.geometryIsVisible,
+          geometryIsConstaintDraw: s.geometryObject.geometryIsConstaintDraw,
         }),
       });
       if (this.secondReference)

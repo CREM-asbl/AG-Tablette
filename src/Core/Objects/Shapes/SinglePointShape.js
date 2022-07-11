@@ -118,35 +118,12 @@ export class SinglePointShape extends Shape {
       .filter((element) => element !== '');
     let firstVertex, lastVertex, startVertex;
 
-    let segmentIdx = 0;
     let vertexIdx = 0;
 
     this.pointIds = [];
     this.segmentIds = [];
 
     let nextVertexCoordinates = null;
-
-    let createLineTo = (x, y) => {
-      let coordinates = new Coordinates({ x, y });
-      firstVertex = lastVertex;
-      lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex') {
-        lastVertex = new Point({
-          coordinates: coordinates,
-          shapeId: this.id,
-          layer: this.layer,
-          type: 'vertex',
-          idx: vertexIdx++,
-          visible: this.isPointed,
-        });
-      }
-      new Segment({
-        shapeId: this.id,
-        layer: this.layer,
-        idx: segmentIdx++,
-        vertexIds: [firstVertex.id, lastVertex.id],
-      });
-    };
 
     if (allPathElements[0] != 'M')
       startVertex = lastVertex = new Point({
@@ -169,6 +146,7 @@ export class SinglePointShape extends Shape {
             x: allPathElements.shift(),
             y: allPathElements.shift(),
           });
+          console.log(nextVertexCoordinates)
           startVertex = lastVertex = new Point({
             coordinates: nextVertexCoordinates,
             shapeId: this.id,
@@ -179,78 +157,11 @@ export class SinglePointShape extends Shape {
           });
           break;
 
-        case 'L':
-        case 'l':
-          createLineTo(allPathElements.shift(), allPathElements.shift());
-          break;
-
-        case 'H':
-        case 'h':
-          createLineTo(allPathElements.shift(), lastVertex.y);
-          break;
-
-        case 'V':
-        case 'v':
-          createLineTo(lastVertex.x, allPathElements.shift());
-          break;
-
-        case 'A':
-        case 'a':
-          const rx = allPathElements.shift(),
-            ry = allPathElements.shift(),
-            xAxisRotation = allPathElements.shift(),
-            largeArcFlag = allPathElements.shift(),
-            sweepFlag = allPathElements.shift();
-
-          firstVertex = lastVertex;
-          nextVertexCoordinates = new Coordinates({
-            x: allPathElements.shift(),
-            y: allPathElements.shift(),
-          });
-          lastVertex = this.points.find((pt) =>
-            pt.coordinates.equal(nextVertexCoordinates),
-          );
-          if (lastVertex == undefined || lastVertex.type != 'vertex') {
-            lastVertex = new Point({
-              coordinates: nextVertexCoordinates,
-              shapeId: this.id,
-              layer: this.layer,
-              type: 'vertex',
-              idx: vertexIdx++,
-              visible: this.isPointed,
-            });
-          }
-
-          let arcCenter = this.getArcCenterFromSVG(
-            firstVertex,
-            lastVertex,
-            rx,
-            largeArcFlag,
-            sweepFlag,
-          );
-
-          new Segment({
-            shapeId: this.id,
-            layer: this.layer,
-            idx: segmentIdx++,
-            vertexIds: [firstVertex.id, lastVertex.id],
-            arcCenterId: arcCenter.id,
-            counterclockwise: sweepFlag == 0,
-          });
-
-          this.cleanSameDirectionSegment();
-
-          break;
-
-        case 'Z':
-        case 'z':
-          createLineTo(startVertex.x, startVertex.y);
-          break;
-
         default:
           break;
       }
     }
+    console.log(this.pointIds);
   }
 
   /**

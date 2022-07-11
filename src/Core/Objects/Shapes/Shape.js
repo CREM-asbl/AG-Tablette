@@ -113,6 +113,7 @@ export class Shape {
       segmentsColor.forEach((segColor, idx) => this.segments[idx].color = segColor);
     }
     if (pointsColor) {
+      console.log(this.points, pointsColor, this.name, geometryObject)
       pointsColor.forEach((ptColor, idx) => this.points[idx].color = ptColor);
     }
 

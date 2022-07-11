@@ -362,6 +362,27 @@ export function computeShapeTransform(shape, layer = 'upper') {
     shape.points.forEach((pt, idx) => pt.coordinates = coords[idx]);
     firstSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
     secondSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+  } else if (shape.name == 'PointOnIntersection2') {
+    let firstSeg = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    let secondSeg = findObjectById(shape.geometryObject.geometryParentObjectId2);
+    let coords = firstSeg.intersectionWith(secondSeg);
+    let newValue = !!coords;
+    if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
+      shape.geometryObject.geometryIsVisibleByChoice = newValue;
+      recomputeAllVisibilities(layer);
+    }
+    if (shape.geometryObject.geometryIsVisible == false)
+      return;
+
+    if (coords.length == 1)
+      coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y});
+    let lastCoords = shape.points.map(pt => pt.coordinates);
+    let mustInvertCoord = lastCoords[0].dist(coords[0]) > lastCoords[0].dist(coords[1]);
+    if (mustInvertCoord)
+      coords.reverse();
+    shape.points.forEach((pt, idx) => pt.coordinates = coords[idx]);
+    firstSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
+    secondSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   } else if (shape.name == 'CirclePart') {
     shape.segments[1].arcCenter.coordinates = shape.vertexes[0].coordinates;
     let angle = shape.segments[1].arcCenter.coordinates.angleWith(shape.vertexes[1].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
@@ -560,7 +581,7 @@ function computeTransformShape(shape) {
       computeDivisionPoint(pt);
     });
     // recomputeAllVisibilities('upper');
-  } else if (shape.name == 'PointOnIntersection') {
+  } else if (shape.name.startsWith('PointOnIntersection')) {
     let firstSeg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     firstSeg.divisionPoints.forEach(pt => {
       computeDivisionPoint(pt);
@@ -619,8 +640,11 @@ export function recomputeAllVisibilities(layer) {
 
   let changeVisibilityRecursively = (shapeId) => {
     let shape = findObjectById(shapeId);
+    if (!shape.geometryObject.geometryIsVisible) {
+      return;
+    }
     shape.geometryObject.geometryIsVisible = false;
-    if (shape.name == 'PointOnIntersection') {
+    if (shape.name.startsWith('PointOnIntersection')) {
       let segment = findObjectById(shape.geometryObject.geometryParentObjectId1);
       segment.divisionPoints.forEach(divPt => {
         if (divPt.endpointIds?.some(endPtId => endPtId == shape.points[0].id))

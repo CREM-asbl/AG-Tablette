@@ -312,6 +312,7 @@ export class TranslationTool extends Tool {
           geometryTransformationCharacteristicElementIds,
           geometryTransformationName: 'translation',
           geometryIsVisible: s.geometryObject.geometryIsVisible,
+          geometryIsConstaintDraw: s.geometryObject.geometryIsConstaintDraw,
         }),
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);

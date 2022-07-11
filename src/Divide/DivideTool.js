@@ -181,14 +181,14 @@ export class DivideTool extends Tool {
             let firstSegmentIds;
             if (firstPoints[i].shape.name == 'PointOnLine')
               firstSegmentIds = [firstPoints[i].shape.geometryObject.geometryParentObjectId1];
-            else if (firstPoints[i].shape.name == 'PointOnIntersection')
+            else if (firstPoints[i].shape.name.startsWith('PointOnIntersection'))
               firstSegmentIds = [firstPoints[i].shape.geometryObject.geometryParentObjectId1, firstPoints[i].shape.geometryObject.geometryParentObjectId2];
             else
               firstSegmentIds = firstPoints[i].segmentIds;
             let secondSegmentIds;
             if (newObjects[j].shape.name == 'PointOnLine')
               secondSegmentIds = [newObjects[j].shape.geometryObject.geometryParentObjectId1];
-            else if (newObjects[j].shape.name == 'PointOnIntersection')
+            else if (newObjects[j].shape.name.startsWith('PointOnIntersection'))
               secondSegmentIds = [newObjects[j].shape.geometryObject.geometryParentObjectId1, newObjects[j].shape.geometryObject.geometryParentObjectId2];
             else
               secondSegmentIds = newObjects[j].segmentIds;

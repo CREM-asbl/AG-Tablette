@@ -160,6 +160,7 @@ export class CopyTool extends Tool {
       let newShape = new s.constructor({
         ...s,
         layer: 'main',
+        familyName: 'copy',
         path: s.getSVGPath('no scale', false),
         id: undefined,
         // divisionPointInfos: s.divisionPoints.map((dp) => {

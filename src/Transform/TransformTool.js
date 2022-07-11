@@ -187,7 +187,7 @@ export class TransformTool extends Tool {
     let currentShapeId = currentEntries[index][0]
     let currentShape = findObjectById(currentShapeId);
     let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds];
-    if (currentShape.name == 'PointOnLine') {
+    if (currentShape.name == 'PointOnIntersection2') {
       console.log(dependenciesIds)
     }
     dependenciesIds.forEach(dependenciesId => {

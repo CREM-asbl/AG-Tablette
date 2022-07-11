@@ -144,7 +144,7 @@ export function linkNewlyCreatedPoint(shape, point) {
     addShapeToChildren(constraintShape, newSinglePointShape);
 
     if (ref && ref instanceof Segment) {
-      newSinglePointShape.name = 'PointOnIntersection';
+      newSinglePointShape.name = 'PointOnIntersection2';
       newSinglePointShape.geometryObject.geometryParentObjectId2 = ref.id;
 
       addShapeToChildren(ref.shape, newSinglePointShape);
@@ -159,7 +159,7 @@ export function linkNewlyCreatedPoint(shape, point) {
       ref.endpointIds?.forEach(endPointId => {
         let endPoint = findObjectById(endPointId);
         let endPointShape = endPoint.shape;
-        if (endPointShape.name == 'PointOnLine' || endPointShape.name == 'PointOnIntersection')
+        if (endPointShape.name == 'PointOnLine' || endPointShape.name.startsWith('PointOnIntersection'))
           addShapeToChildren(endPointShape, shape);
       })
     }

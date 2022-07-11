@@ -62,7 +62,6 @@ export class MoveTool extends Tool {
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
     app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
-    // app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s.name == 'PointOnIntersection');
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -97,13 +96,6 @@ export class MoveTool extends Tool {
         }
       }
     }
-    this.involvedShapes.forEach(s => s.points.forEach(vx => {
-      if (vx.reference != null) {
-        let refPoint = findObjectById(vx.reference)
-        if (refPoint.shape.name == 'Point')
-        this.involvedShapes.push(refPoint.shape)
-      }
-    }));
     this.shapesToCopy = [...this.involvedShapes];
     this.shapesToCopy.forEach(s => {
       getAllLinkedShapesInGeometry(s, this.shapesToCopy)
