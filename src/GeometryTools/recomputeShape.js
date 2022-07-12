@@ -102,53 +102,53 @@ export function computeShapeTransform(shape, layer = 'upper') {
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
   } else if (shape.name == 'Losange') {
-    let firstSegment = shape.segments[0];
-    let angle =
-      firstSegment.getAngleWithHorizontal() -
-      shape.geometryObject.geometryConstructionSpec.angle;
-    let length = firstSegment.length;
+    // let firstSegment = shape.segments[0];
+    // let angle =
+    //   firstSegment.getAngleWithHorizontal() -
+    //   shape.geometryObject.geometryConstructionSpec.angle;
+    // let length = firstSegment.length;
 
-    if (shape.vertexes[2].transformConstraints.isBlocked) {
-      let oppositeCoordinates = shape.vertexes[1].coordinates.multiply(2).substract(shape.vertexes[0].coordinates),
-        radius = shape.vertexes[0].coordinates.dist(shape.vertexes[1].coordinates),
-        path = ['M', shape.vertexes[0].coordinates.x, shape.vertexes[0].coordinates.y]
-          .concat([
-            'A',
-            radius,
-            radius,
-            0,
-            1,
-            0,
-            oppositeCoordinates.x,
-            oppositeCoordinates.y,
-          ])
-          .concat(['A', radius, radius, 0, 1, 0, shape.vertexes[0].coordinates.x, shape.vertexes[0].coordinates.y])
-          .join(' ');
+    // if (shape.vertexes[2].transformConstraints.isBlocked) {
+    //   let oppositeCoordinates = shape.vertexes[1].coordinates.multiply(2).substract(shape.vertexes[0].coordinates),
+    //     radius = shape.vertexes[0].coordinates.dist(shape.vertexes[1].coordinates),
+    //     path = ['M', shape.vertexes[0].coordinates.x, shape.vertexes[0].coordinates.y]
+    //       .concat([
+    //         'A',
+    //         radius,
+    //         radius,
+    //         0,
+    //         1,
+    //         0,
+    //         oppositeCoordinates.x,
+    //         oppositeCoordinates.y,
+    //       ])
+    //       .concat(['A', radius, radius, 0, 1, 0, shape.vertexes[0].coordinates.x, shape.vertexes[0].coordinates.y])
+    //       .join(' ');
 
-      let constraintSegment = new Shape({
-        layer: 'invisible',
-        path,
-      }).segments[0];
-      let constraintsSegment = findObjectById(addInfoToId(shape.vertexes[2].transformConstraints.lines[1].segment.id, 'upper'));
-      constraintsSegment.isInfinite = true;
-      let intersection = constraintSegment.intersectionWith(constraintsSegment, true);
-      if (intersection) {
-        if (intersection[1] && intersection[0].dist(shape.vertexes[2].coordinates) > intersection[1].dist(shape.vertexes[2].coordinates)) {
-          shape.vertexes[2].coordinates = intersection[1];
-        }
-        shape.vertexes[2].coordinates = intersection[0];
-      } else {
-        shape.vertexes[2].coordinates = new Coordinates({
-          x: shape.vertexes[1].x + length * Math.cos(angle),
-          y: shape.vertexes[1].y + length * Math.sin(angle),
-        });
-      }
-    } else {
-      shape.vertexes[2].coordinates = new Coordinates({
-        x: shape.vertexes[1].x + length * Math.cos(angle),
-        y: shape.vertexes[1].y + length * Math.sin(angle),
-      });
-    }
+    //   let constraintSegment = new Shape({
+    //     layer: 'invisible',
+    //     path,
+    //   }).segments[0];
+    //   let constraintsSegment = findObjectById(addInfoToId(shape.vertexes[2].transformConstraints.lines[1].segment.id, 'upper'));
+    //   constraintsSegment.isInfinite = true;
+    //   let intersection = constraintSegment.intersectionWith(constraintsSegment, true);
+    //   if (intersection) {
+    //     if (intersection[1] && intersection[0].dist(shape.vertexes[2].coordinates) > intersection[1].dist(shape.vertexes[2].coordinates)) {
+    //       shape.vertexes[2].coordinates = intersection[1];
+    //     }
+    //     shape.vertexes[2].coordinates = intersection[0];
+    //   } else {
+    //     shape.vertexes[2].coordinates = new Coordinates({
+    //       x: shape.vertexes[1].x + length * Math.cos(angle),
+    //       y: shape.vertexes[1].y + length * Math.sin(angle),
+    //     });
+    //   }
+    // } else {
+    //   shape.vertexes[2].coordinates = new Coordinates({
+    //     x: shape.vertexes[1].x + length * Math.cos(angle),
+    //     y: shape.vertexes[1].y + length * Math.sin(angle),
+    //   });
+    // }
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
@@ -365,7 +365,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
   } else if (shape.name == 'PointOnIntersection2') {
     let firstSeg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let secondSeg = findObjectById(shape.geometryObject.geometryParentObjectId2);
-    let coords = firstSeg.intersectionWith(secondSeg);
+    let coords = firstSeg.intersectionWith(secondSeg, false, 0.001);
     let newValue = !!coords;
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
@@ -393,13 +393,13 @@ export function computeShapeTransform(shape, layer = 'upper') {
     });
     shape.vertexes[2].coordinates = thirdPointCoordinates;
   } else if (shape.name == 'CircleArc') {
-    let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
-    let radius = shape.segments[0].arcCenter.coordinates.dist(shape.vertexes[0].coordinates);
-    let thirdPointCoordinates = new Coordinates({
-      x: shape.segments[0].arcCenter.coordinates.x + Math.cos(angle) * radius,
-      y: shape.segments[0].arcCenter.coordinates.y + Math.sin(angle) * radius,
-    });
-    shape.vertexes[1].coordinates = thirdPointCoordinates;
+    // let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
+    // let radius = shape.segments[0].arcCenter.coordinates.dist(shape.vertexes[0].coordinates);
+    // let thirdPointCoordinates = new Coordinates({
+    //   x: shape.segments[0].arcCenter.coordinates.x + Math.cos(angle) * radius,
+    //   y: shape.segments[0].arcCenter.coordinates.y + Math.sin(angle) * radius,
+    // });
+    // shape.vertexes[1].coordinates = thirdPointCoordinates;
   } else if (shape.name == '30degreesArc') {
     let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + Math.PI / 6;
     if (shape.isReversed)

@@ -89,49 +89,131 @@ export function getAllChildrenInGeometry(shape, involvedShapes) {
 }
 
 function addShapeToChildren(parent, child) {
-  console.log(parent)
   if (parent.geometryObject.geometryChildShapeIds.indexOf(child.id) === -1)
     parent.geometryObject.geometryChildShapeIds.push(child.id);
 }
 
 export function linkNewlyCreatedPoint(shape, point) {
   let ref = point.adjustedOn;
-  if (point.idx == 2) {
-    let referenceSegment = shape.segments[0];
-    let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
-    let newCoordinates = shape.vertexes[1].coordinates.add(new Coordinates({
-      x: 100 * Math.cos(angle),
-      y: 100 * Math.sin(angle),
-    }));
+  if (
+    (point.idx == 2
+      && (shape.name == 'Rectangle' || shape.name == 'Losange')
+    ||
+    point.idx == 1
+      && (shape.name == 'CircleArc')
+    )
+  ) {
+    let constraintShape;
+    if (shape.name == "Rectangle") {
+      let referenceSegment = shape.segments[0];
+      let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+      let newCoordinates = shape.vertexes[1].coordinates.add(new Coordinates({
+        x: 100 * Math.cos(angle),
+        y: 100 * Math.sin(angle),
+      }));
 
-    let path = [
-      'M',
-      shape.vertexes[1].coordinates.x,
-      shape.vertexes[1].coordinates.y,
-      'L',
-      newCoordinates.x,
-      newCoordinates.y,
-    ].join(' ');
+      let path = [
+        'M',
+        shape.vertexes[1].coordinates.x,
+        shape.vertexes[1].coordinates.y,
+        'L',
+        newCoordinates.x,
+        newCoordinates.y,
+      ].join(' ');
 
-    let constraintShape = new LineShape({
-      layer: 'main',
-      path: path,
-      name: 'PerpendicularStraightLine',
-      familyName: 'Line',
-      strokeColor: app.settings.constraintsDrawColor,
-      strokeWidth: 2,
-      geometryObject: new GeometryObject({
-        geometryIsConstaintDraw: true,
-      }),
-    });
-    constraintShape.segments[0].isInfinite = true;
-    constraintShape.points[1].visible = false;
+      constraintShape = new LineShape({
+        layer: 'main',
+        path: path,
+        name: 'PerpendicularStraightLine',
+        familyName: 'Line',
+        strokeColor: app.settings.constraintsDrawColor,
+        strokeWidth: 2,
+        geometryObject: new GeometryObject({
+          geometryIsConstaintDraw: true,
+        }),
+      });
+      constraintShape.geometryObject.geometryParentObjectId1 = referenceSegment.id;
+      referenceSegment.shape.geometryObject.geometryChildShapeIds.push(constraintShape.id);
 
-    constraintShape.geometryObject.geometryParentObjectId1 = referenceSegment.id;
-    referenceSegment.shape.geometryObject.geometryChildShapeIds.push(constraintShape.id);
+      addShapeToChildren(shape, constraintShape);
+      constraintShape.vertexes[0].reference = shape.vertexes[1].id;
 
-    addShapeToChildren(shape, constraintShape);
-    constraintShape.vertexes[0].reference = shape.vertexes[1].id;
+      constraintShape.segments[0].isInfinite = true;
+      constraintShape.vertexes[0].visible = false;
+      constraintShape.vertexes[1].visible = false;
+    } else if (shape.name == 'Losange') {
+      let referenceSegment = shape.segments[0];
+      let oppositeCoordinates = referenceSegment.vertexes[1].coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
+          radius = referenceSegment.vertexes[0].coordinates.dist(referenceSegment.vertexes[1].coordinates);
+      let path = ['M', referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y]
+        .concat([
+          'A',
+          radius,
+          radius,
+          0,
+          1,
+          0,
+          oppositeCoordinates.x,
+          oppositeCoordinates.y,
+        ])
+        .concat(['A', radius, radius, 0, 1, 0, referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y])
+        .join(' ');
+
+      constraintShape = new LineShape({
+        layer: 'main',
+        path: path,
+        name: 'Circle',
+        familyName: 'Circle',
+        strokeColor: app.settings.constraintsDrawColor,
+        strokeWidth: 2,
+        geometryObject: new GeometryObject({
+          geometryIsConstaintDraw: true,
+        }),
+      });
+
+      addShapeToChildren(shape, constraintShape);
+      constraintShape.vertexes[0].reference = shape.vertexes[0].id;
+      constraintShape.segments[0].arcCenter.reference = shape.vertexes[1].id;
+
+      constraintShape.vertexes[0].visible = false;
+      constraintShape.segments[0].arcCenter.visible = false;
+    } else if (shape.name == 'CircleArc') {
+      let referenceSegment = shape.segments[0];
+      let oppositeCoordinates = referenceSegment.arcCenter.coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
+          radius = referenceSegment.vertexes[0].coordinates.dist(referenceSegment.arcCenter.coordinates);
+      let path = ['M', referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y]
+        .concat([
+          'A',
+          radius,
+          radius,
+          0,
+          1,
+          0,
+          oppositeCoordinates.x,
+          oppositeCoordinates.y,
+        ])
+        .concat(['A', radius, radius, 0, 1, 0, referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y])
+        .join(' ');
+
+      constraintShape = new LineShape({
+        layer: 'main',
+        path: path,
+        name: 'Circle',
+        familyName: 'Circle',
+        strokeColor: app.settings.constraintsDrawColor,
+        strokeWidth: 2,
+        geometryObject: new GeometryObject({
+          geometryIsConstaintDraw: true,
+        }),
+      });
+
+      addShapeToChildren(shape, constraintShape);
+      constraintShape.vertexes[0].reference = shape.vertexes[0].id;
+      constraintShape.segments[0].arcCenter.reference = shape.segments[0].arcCenter.id;
+
+      constraintShape.vertexes[0].visible = false;
+      constraintShape.segments[0].arcCenter.visible = false;
+    }
 
     let newSinglePointShape = new SinglePointShape({
       layer: 'main',
@@ -153,7 +235,6 @@ export function linkNewlyCreatedPoint(shape, point) {
 
     addShapeToChildren(newSinglePointShape, shape);
     point.reference = newSinglePointShape.vertexes[0].id;
-    console.log(constraintShape, newSinglePointShape, shape);
   } else if (ref && ref instanceof Point) {
     if (ref.type == 'divisionPoint') {
       ref.endpointIds?.forEach(endPointId => {

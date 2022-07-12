@@ -146,7 +146,6 @@ export class SinglePointShape extends Shape {
             x: allPathElements.shift(),
             y: allPathElements.shift(),
           });
-          console.log(nextVertexCoordinates)
           startVertex = lastVertex = new Point({
             coordinates: nextVertexCoordinates,
             shapeId: this.id,
@@ -161,7 +160,6 @@ export class SinglePointShape extends Shape {
           break;
       }
     }
-    console.log(this.pointIds);
   }
 
   /**

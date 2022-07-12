@@ -187,9 +187,6 @@ export class TransformTool extends Tool {
     let currentShapeId = currentEntries[index][0]
     let currentShape = findObjectById(currentShapeId);
     let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds];
-    if (currentShape.name == 'PointOnIntersection2') {
-      console.log(dependenciesIds)
-    }
     dependenciesIds.forEach(dependenciesId => {
       if (tree[dependenciesId])
         tree[dependenciesId].parents.push(currentShapeId)
@@ -214,10 +211,8 @@ export class TransformTool extends Tool {
     // if (!tree[currentShapeId].isDone && tree[currentShapeId].parents.every(parent => tree[parent].isDone) && currentShape.geometryObject.geometryIsConstaintDraw !== false) {
     //   return
     // }
-      console.log(currentShape.geometryObject.geometryIsConstaintDraw, currentShape.geometryObject.geometryIsConstaintDraw !== false)
       if (tree[currentShapeId].isDone >= 2)
         return;
-      console.log(currentShape.name);
       computeShapeTransform(currentShape);
       tree[currentShapeId].isDone++;
       tree[currentShapeId].children.forEach(child => this.browseTree(child, tree));
@@ -340,14 +335,8 @@ export class TransformTool extends Tool {
       //       break;
       //   }
       // }
-      console.log(this.tree)
       this.resetTree();
-      console.log(Object.values(this.tree).map(elem => elem.isDone));
-      console.log('--- start ---');
       this.browseTree(shape.id, this.tree);
-      console.log('---- end ----');
-      console.log(Object.values(this.tree).map(elem => elem.isDone));
-
 
       // if (shape.name == 'RightAngleTrapeze')
       //   computeConstructionSpec(shape);

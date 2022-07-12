@@ -3,7 +3,6 @@ import { GeometryObject } from "../Objects/Shapes/GeometryObject";
 import { addInfoToId } from "./general";
 
 export function duplicateShape(s, layer = 'upper') {
-  console.log(s.getSVGPath('no scale', false, false))
   let newShape = new s.constructor({
     ...s,
     layer,

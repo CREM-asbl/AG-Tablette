@@ -778,9 +778,9 @@ export class Segment {
    * @param {object} segment
    * @return le point ou null si segments parallèles
    */
-  intersectionWith(segment, allowProlongation = false) {
+  intersectionWith(segment, allowProlongation = false, precision = 1) {
     if (this.isArc() || segment.isArc()) {
-      return this.arcIntersectionWith(segment);
+      return this.arcIntersectionWith(segment, precision);
     }
     let result = Coordinates.nullCoordinates,
       thisv0x = this.vertexes[0].x,
@@ -822,7 +822,7 @@ export class Segment {
     return [result];
   }
 
-  arcIntersectionWith(segment) {
+  arcIntersectionWith(segment, precision = 1) {
     let result = [];
     if (this.isArc() && segment.isArc()) { // two circles
       // formules tirées de http://math.15873.pagesperso-orange.fr/IntCercles.html
@@ -868,7 +868,7 @@ export class Segment {
       let hypothenusLength = this.radius;
       if (dist1 > hypothenusLength)
         return null;
-      else if (Math.abs(dist1 - hypothenusLength) < 1) {
+      else if (Math.abs(dist1 - hypothenusLength) < precision) {
         return [projection];
       } else {
         let dist2 = Math.sqrt(Math.pow(hypothenusLength, 2) - Math.pow(dist1, 2));
@@ -884,7 +884,7 @@ export class Segment {
         result = [firstCoord, secondCoord];
       }
     } else if (!this.isArc() && segment.isArc()) {
-      return segment.arcIntersectionWith(this);
+      return segment.arcIntersectionWith(this, precision);
     }
     result = result.filter(res => this.isCoordinatesOnSegment(res) &&
       segment.isCoordinatesOnSegment(res));
