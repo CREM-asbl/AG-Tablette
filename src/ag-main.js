@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import './canvas-container';
 import './color-button';
 import { app, setState } from './Core/App';
 import './Core/Managers/FullHistoryManager';
@@ -11,7 +12,6 @@ import './Core/Managers/SelectManager';
 import './Core/Managers/ShapeManager';
 import './Core/Managers/WorkspaceManager';
 import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
-import './canvas-container';
 import './icon-button';
 import './popups/notification';
 import { TemplateToolbar } from './template-toolbar';

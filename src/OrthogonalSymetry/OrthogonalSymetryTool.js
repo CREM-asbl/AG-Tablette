@@ -1,17 +1,15 @@
 import { app, setState } from '../Core/App';
-import { GroupManager } from '../Core/Managers/GroupManager';
+import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
-import { ShapeGroup } from '../Core/Objects/ShapeGroup';
+import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
-import { Tool } from '../Core/States/Tool';
-import { Segment } from '../Core/Objects/Segment';
-import { SelectManager } from '../Core/Managers/SelectManager';
-import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
-import { findObjectById, removeObjectById } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shapes/Shape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
+import { findObjectById, removeObjectById } from '../Core/Tools/general';
 
 /**
  */

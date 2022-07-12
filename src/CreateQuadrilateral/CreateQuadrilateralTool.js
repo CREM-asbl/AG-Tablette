@@ -8,8 +8,8 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem, findObjectsByName, removeObjectById } from '../Core/Tools/general';
-import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
+import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Ajout de figures sur l'espace de travail

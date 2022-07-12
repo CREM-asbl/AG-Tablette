@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit';
+import './canvas-layer';
 import { app, setState } from './Core/App';
 import { Coordinates } from './Core/Objects/Coordinates';
-import './canvas-layer';
 
 class CanvasContainer extends LitElement {
   constructor() {

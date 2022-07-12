@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit';
+import { app, setState } from '../Core/App';
 import { findFilesByIds } from '../Firebase/firebase-init';
 import './file-elem';
-import { app, setState } from '../Core/App';
 
 class SequenceElem extends LitElement {
   static get properties() {

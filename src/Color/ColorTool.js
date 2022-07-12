@@ -1,12 +1,11 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
-import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { Tool } from '../Core/States/Tool';
 import { SelectManager } from '../Core/Managers/SelectManager';
-import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
-import { Shape } from '../Core/Objects/Shapes/Shape';
-import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { Shape } from '../Core/Objects/Shapes/Shape';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Modifier la couleur

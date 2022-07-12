@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit';
+import { app, setState } from '../Core/App';
 import { findSequencesByIds } from '../Firebase/firebase-init';
 import './sequence-elem';
-import { app, setState } from '../Core/App';
 
 class NotionElem extends LitElement {
   static get properties() {

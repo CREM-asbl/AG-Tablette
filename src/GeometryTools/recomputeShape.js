@@ -1,10 +1,8 @@
 import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { LineShape } from '../Core/Objects/Shapes/LineShape';
-import { findObjectById, mod, addInfoToId } from '../Core/Tools/general';
 import { Point } from '../Core/Objects/Point';
-import { Segment } from '../Core/Objects/Segment';
-import { Shape } from '../Core/Objects/Shapes/Shape';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { findObjectById, mod } from '../Core/Tools/general';
 
 export function computeAllShapeTransform(shape, layer = 'upper', includeChildren = true) {
   if (app.environment.name != 'Geometrie') return;

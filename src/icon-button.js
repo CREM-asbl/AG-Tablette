@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit';
-import { setState, app } from './Core/App';
+import { app, setState } from './Core/App';
 
 class IconButton extends LitElement {
   static get properties() {

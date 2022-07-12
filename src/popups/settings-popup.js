@@ -1,9 +1,9 @@
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 import { Settings } from '../Core/Settings';
+import { createElem } from '../Core/Tools/general';
 import '../version-item';
 import { TemplatePopup } from './template-popup';
-import { createElem } from '../Core/Tools/general';
 
 class SettingsPopup extends LitElement {
   static get properties() {

@@ -1,10 +1,8 @@
 import { app } from '../../App';
 import {
-    addInfoToId,
-    getComplementaryColor,
-    mod,
-    uniqId,
-    removeObjectById
+  addInfoToId,
+  getComplementaryColor,
+  mod, removeObjectById, uniqId
 } from '../../Tools/general';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';

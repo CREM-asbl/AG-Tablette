@@ -8,12 +8,9 @@ import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 import { duplicateShape } from '../Core/Tools/shapesTools';
 import {
-    computeConstructionSpec,
-    computeShapeTransform,
-    projectionOnConstraints,
-    recomputeAllVisibilities,
-    computeDivisionPoint,
-    getRatioWithPosition
+  computeConstructionSpec,
+  computeShapeTransform, getRatioWithPosition, projectionOnConstraints,
+  recomputeAllVisibilities
 } from '../GeometryTools/recomputeShape';
 
 /**

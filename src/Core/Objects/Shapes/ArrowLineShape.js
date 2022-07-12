@@ -1,5 +1,5 @@
 import { app } from '../../App';
-import { mod, removeObjectById, uniqId } from '../../Tools/general';
+import { mod, removeObjectById } from '../../Tools/general';
 import { Coordinates } from '../Coordinates';
 import { GeometryObject } from './GeometryObject';
 import { LineShape } from './LineShape';

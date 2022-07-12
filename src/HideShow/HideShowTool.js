@@ -1,9 +1,9 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
-import { findObjectById, addInfoToId } from '../Core/Tools/general';
+import { Tool } from '../Core/States/Tool';
+import { addInfoToId, findObjectById } from '../Core/Tools/general';
 
 /**
  * Cacher & monter des objets.

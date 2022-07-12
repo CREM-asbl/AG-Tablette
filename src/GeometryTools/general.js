@@ -1,12 +1,12 @@
 import { app } from '../Core/App';
-import { findObjectById } from '../Core/Tools/general';
-import { Segment } from '../Core/Objects/Segment';
-import { getRatioWithPosition, computeConstructionSpec } from './recomputeShape';
-import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
-import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
-import { Point } from '../Core/Objects/Point';
-import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { findObjectById } from '../Core/Tools/general';
+import { computeConstructionSpec } from './recomputeShape';
 
 export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
   if (app.environment.name != 'Geometrie')

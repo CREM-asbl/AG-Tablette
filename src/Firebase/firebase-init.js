@@ -2,7 +2,7 @@ import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from 'firebase/app';
 import { collection, doc, getDoc, getDocs, getFirestore, query } from "firebase/firestore";
 import { getPerformance } from "firebase/performance";
-import { app, setState } from '../Core/App';
+import { setState } from '../Core/App';
 import { loadEnvironnement } from '../Core/Environments/Environment';
 import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import config from './firebase-config.json';

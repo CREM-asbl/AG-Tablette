@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit';
+import { app, setState } from '../Core/App';
 import '../version-item';
 import { TemplatePopup } from './template-popup';
-import { app, setState } from '../Core/App';
 
 class ToolChoicePopup extends LitElement {
   static get properties() {

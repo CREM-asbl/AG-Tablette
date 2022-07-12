@@ -1,19 +1,16 @@
 import { app, setState } from '../Core/App';
-import { GroupManager } from '../Core/Managers/GroupManager';
+import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
-import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
-import { Tool } from '../Core/States/Tool';
-import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
-import { SelectManager } from '../Core/Managers/SelectManager';
-import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
-import { LineShape } from '../Core/Objects/Shapes/LineShape';
-import { findObjectById, removeObjectById } from '../Core/Tools/general';
 import { Shape } from '../Core/Objects/Shapes/Shape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
+import { findObjectById, removeObjectById } from '../Core/Tools/general';
+import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 
 /**
  */

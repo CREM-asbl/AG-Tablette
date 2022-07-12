@@ -10,8 +10,8 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem, findObjectById } from '../Core/Tools/general';
-import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
+import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Ajout de figures sur l'espace de travail

@@ -1,10 +1,10 @@
 import { app } from '../App';
-import { Coordinates } from './Coordinates';
-import { Point } from './Point';
-import { LineShape } from './Shapes/LineShape';
 import { SelectManager } from '../Managers/SelectManager';
 import { findObjectsByName, removeObjectById } from '../Tools/general';
+import { Coordinates } from './Coordinates';
+import { Point } from './Point';
 import { GeometryObject } from './Shapes/GeometryObject';
+import { LineShape } from './Shapes/LineShape';
 
 export class GeometryConstraint {
   /**

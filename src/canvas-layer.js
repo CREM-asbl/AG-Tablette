@@ -2,14 +2,14 @@ import { css, html, LitElement } from 'lit';
 import { app, setState } from './Core/App';
 import { SelectManager } from './Core/Managers/SelectManager';
 import { Coordinates } from './Core/Objects/Coordinates';
-import { Shape } from './Core/Objects/Shapes/Shape';
-import { RegularShape } from './Core/Objects/Shapes/RegularShape';
-import { LineShape } from './Core/Objects/Shapes/LineShape';
-import { SinglePointShape } from './Core/Objects/Shapes/SinglePointShape';
-import { ArrowLineShape } from './Core/Objects/Shapes/ArrowLineShape';
-import { Segment } from './Core/Objects/Segment';
-import { capitalizeFirstLetter, createElem, findObjectById } from './Core/Tools/general';
 import { Point } from './Core/Objects/Point';
+import { Segment } from './Core/Objects/Segment';
+import { ArrowLineShape } from './Core/Objects/Shapes/ArrowLineShape';
+import { LineShape } from './Core/Objects/Shapes/LineShape';
+import { RegularShape } from './Core/Objects/Shapes/RegularShape';
+import { Shape } from './Core/Objects/Shapes/Shape';
+import { SinglePointShape } from './Core/Objects/Shapes/SinglePointShape';
+import { capitalizeFirstLetter, createElem, findObjectById } from './Core/Tools/general';
 
 class CanvasLayer extends LitElement {
   constructor() {
