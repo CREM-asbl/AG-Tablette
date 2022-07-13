@@ -193,16 +193,16 @@ export function computeShapeTransform(shape, layer = 'upper') {
       y: shape.vertexes[1].y + length * Math.sin(angle),
     });
   } else if (shape.name == 'RightAngleTriangle') {
-    let firstSegment = shape.segments[0];
-    let angle =
-      firstSegment.getAngleWithHorizontal() -
-      shape.geometryObject.geometryConstructionSpec.angle;
-    let length = shape.geometryObject.geometryConstructionSpec.secondSegmentLength;
+    // let firstSegment = shape.segments[0];
+    // let angle =
+    //   firstSegment.getAngleWithHorizontal() -
+    //   shape.geometryObject.geometryConstructionSpec.angle;
+    // let length = shape.geometryObject.geometryConstructionSpec.secondSegmentLength;
 
-    shape.vertexes[2].coordinates = new Coordinates({
-      x: shape.vertexes[1].x + length * Math.cos(angle),
-      y: shape.vertexes[1].y + length * Math.sin(angle),
-    });
+    // shape.vertexes[2].coordinates = new Coordinates({
+    //   x: shape.vertexes[1].x + length * Math.cos(angle),
+    //   y: shape.vertexes[1].y + length * Math.sin(angle),
+    // });
   } else if (shape.name == 'IsoscelesTriangle') {
     let firstSegment = shape.segments[0];
     let middle = firstSegment.middle;
@@ -227,6 +227,8 @@ export function computeShapeTransform(shape, layer = 'upper') {
   } else if (shape.name == 'PerpendicularSegment') {
     let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
+    // if (shape.isReversed)
+    //   angle += Math.PI;
     let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
 
     shape.vertexes[1].coordinates = new Coordinates({
@@ -274,6 +276,8 @@ export function computeShapeTransform(shape, layer = 'upper') {
   } else if (shape.name == 'PerpendicularStraightLine') {
     let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
+    if (shape.isReversed)
+      angle += Math.PI;
 
     shape.vertexes[1].coordinates = new Coordinates({
       x: shape.vertexes[0].coordinates.x + 100 * Math.cos(angle),
@@ -484,11 +488,16 @@ export function getRatioWithPosition(point, referenceSegment) {
     if (referenceSegment.counterclockwise)
       ratio = 1 - ratio;
   } else {
-    let ratioX = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
-    let ratioY = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
-    ratio = ratioX;
-    if (isNaN(ratio))
-      ratio = ratioY;
+    if (Math.abs(referenceSegment.vertexes[0].coordinates.x - referenceSegment.vertexes[1].coordinates.x) < 0.001) {
+      ratio = (point.coordinates.y - referenceSegment.vertexes[0].coordinates.y) / (referenceSegment.vertexes[1].coordinates.y - referenceSegment.vertexes[0].coordinates.y);
+    } else {
+      ratio = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
+    }
+    // let ratioX = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
+    // let ratioY = (point.coordinates.y - referenceSegment.vertexes[0].coordinates.y) / (referenceSegment.vertexes[1].coordinates.y - referenceSegment.vertexes[0].coordinates.y);
+    // ratio = ratioX;
+    // if (!isFinite(ratio))
+    // ratio = ratioY;
   }
   if (ratio > 1 && !referenceSegment.shape.name.endsWith('StraightLine'))
     ratio = 1;
@@ -498,7 +507,7 @@ export function getRatioWithPosition(point, referenceSegment) {
 }
 
 function computeLinkedShape(shape) {
-  shape.points.forEach(pt => {
+  shape.points.forEach((pt, idx, points) => {
     if (pt.reference) {
       let reference = findObjectById(pt.reference);
       if (reference) {
@@ -759,10 +768,10 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     let shapeAngle = shape.points[0].coordinates.angleWith(centerCoordinates);
     shape.geometryObject.geometryConstructionSpec.rotationAngle = refShapeAngle - shapeAngle;
   } else if (shape.name == 'Rectangle') {
-    let angle = shape.vertexes[1].getVertexAngle();
-    shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);
-    if (angle < Math.PI / 2 + .1 && angle > Math.PI / 2 - .1)
-      shape.geometryObject.geometryConstructionSpec.height *= -1;
+    // let angle = shape.vertexes[1].getVertexAngle();
+    // shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);
+    // if (angle < Math.PI / 2 + .1 && angle > Math.PI / 2 - .1)
+    //   shape.geometryObject.geometryConstructionSpec.height *= -1;
   } else if (shape.name == 'Losange') {
     shape.geometryObject.geometryConstructionSpec.angle = shape.vertexes[1].getVertexAngle();
   } else if (shape.name == 'Parallelogram') {

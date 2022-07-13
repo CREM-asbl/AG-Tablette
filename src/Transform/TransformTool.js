@@ -184,6 +184,13 @@ export class TransformTool extends Tool {
     let currentShapeId = currentEntries[index][0]
     let currentShape = findObjectById(currentShapeId);
     let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds];
+    dependenciesIds.sort((dp1, dp2) => {
+      if (findObjectById(dp1).geometryObject.geometryIsConstaintDraw) {
+        return -1;
+      } else if (findObjectById(dp2).geometryObject.geometryIsConstaintDraw) {
+        return 1;
+      }
+    })
     dependenciesIds.forEach(dependenciesId => {
       if (tree[dependenciesId])
         tree[dependenciesId].parents.push(currentShapeId)
@@ -208,7 +215,8 @@ export class TransformTool extends Tool {
     // if (!tree[currentShapeId].isDone && tree[currentShapeId].parents.every(parent => tree[parent].isDone) && currentShape.geometryObject.geometryIsConstaintDraw !== false) {
     //   return
     // }
-      if (tree[currentShapeId].isDone >= 2)
+    // console.log(currentShape.name, currentShapeId, tree[currentShapeId].isDone)
+      if (tree[currentShapeId].isDone >= 2 && currentShape.geometryObject.geometryIsConstaintDraw)
         return;
       computeShapeTransform(currentShape);
       tree[currentShapeId].isDone++;
@@ -233,7 +241,7 @@ export class TransformTool extends Tool {
       s.geometryObject.geometryIsVisibleByChoice =  this.drawingShapes[idxS].geometryObject.geometryIsVisibleByChoice;
       computeConstructionSpec(s);
     });
-    recomputeAllVisibilities('main')
+    recomputeAllVisibilities('main');
   }
 
   refreshStateUpper() {
@@ -332,8 +340,13 @@ export class TransformTool extends Tool {
       //       break;
       //   }
       // }
+      // console.log('-- start --');
       this.resetTree();
       this.browseTree(shape.id, this.tree);
+      this.resetTree();
+      this.browseTree(shape.id, this.tree);
+      // console.log('--- end ---');
+
 
       // if (shape.name == 'RightAngleTrapeze')
       //   computeConstructionSpec(shape);

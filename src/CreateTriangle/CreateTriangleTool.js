@@ -8,8 +8,8 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem } from '../Core/Tools/general';
-import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
+import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -208,24 +208,69 @@ export class CreateTriangleTool extends Tool {
     if (this.constraints.isFree) {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;
-      let adjustedCoordinates = SelectManager.selectPoint(
+      let adjustedPoint;
+      if (adjustedPoint = SelectManager.selectPoint(
         point.coordinates,
         constraints,
         false,
-      );
-      if (adjustedCoordinates) {
-        point.coordinates = new Coordinates(adjustedCoordinates);
+      )) {
+        point.coordinates = new Coordinates(adjustedPoint.coordinates);
+        point.adjustedOn = adjustedPoint;
+      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) {
+        point.coordinates = new Coordinates(adjustedPoint.coordinates);
+        point.adjustedOn = adjustedPoint;
       } else {
-        let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
-        if (gridPoint)
-          point.coordinates = new Coordinates(gridPoint.coordinates);
+        constraints = SelectManager.getEmptySelectionConstraints().segments;
+        constraints.canSelect = true;
+        let adjustedSegment = SelectManager.selectSegment(
+          point.coordinates,
+          constraints,
+        );
+        if (adjustedSegment) {
+          point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+          point.adjustedOn = adjustedSegment;
+        }
       }
     } else {
       let adjustedCoordinates = this.constraints.projectionOnConstraints(
         point.coordinates,
       );
+
+      let constraints = SelectManager.getEmptySelectionConstraints().segments;
+      constraints.canSelect = true;
+      let adjustedSegment = SelectManager.selectSegment(
+        adjustedCoordinates,
+        constraints,
+      );
+      if (adjustedSegment) {
+        adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) => {
+          intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1;
+        })[0];
+        point.adjustedOn = adjustedSegment;
+      }
       point.coordinates = new Coordinates(adjustedCoordinates);
     }
+    // if (this.constraints.isFree) {
+    //   let constraints = SelectManager.getEmptySelectionConstraints().points;
+    //   constraints.canSelect = true;
+    //   let adjustedCoordinates = SelectManager.selectPoint(
+    //     point.coordinates,
+    //     constraints,
+    //     false,
+    //   );
+    //   if (adjustedCoordinates) {
+    //     point.coordinates = new Coordinates(adjustedCoordinates);
+    //   } else {
+    //     let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
+    //     if (gridPoint)
+    //       point.coordinates = new Coordinates(gridPoint.coordinates);
+    //   }
+    // } else {
+    //   let adjustedCoordinates = this.constraints.projectionOnConstraints(
+    //     point.coordinates,
+    //   );
+    //   point.coordinates = new Coordinates(adjustedCoordinates);
+    // }
   }
 
   refreshStateUpper() {
@@ -278,9 +323,12 @@ export class CreateTriangleTool extends Tool {
       geometryObject: new GeometryObject({}),
     });
 
+    shape.vertexes[0].adjustedOn = this.points[0].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
+    shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
-    if (shape.name == 'IrregularTriangle') {
+    if (shape.name == 'IrregularTriangle' || shape.name == 'RightAngleTriangle') {
+      shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[2]);
     }
     computeConstructionSpec(shape);

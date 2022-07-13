@@ -11,7 +11,7 @@ import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
 import { compareIdBetweenLayers, duplicateShape } from '../Core/Tools/shapesTools';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
-import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
+import { computeAllShapeTransform, computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Retourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -402,12 +402,13 @@ export class ReverseTool extends Tool {
     // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
     app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => compareIdBetweenLayers(shapeToMove.id, editingShapeId))).forEach((sId, idxS) => {
       let s = findObjectById(sId);
-    // involvedShapes.forEach((s) => {
       this.reverseShape(s, selectedAxis);
 
-      computeAllShapeTransform(s, 'main', false);
+      if (app.environment.name == 'Geometrie') {
+        computeAllShapeTransform(s, 'main', false);
+        computeConstructionSpec(s);
+      }
     });
-    // });
   }
 
   /**

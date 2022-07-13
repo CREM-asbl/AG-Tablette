@@ -97,14 +97,14 @@ export function linkNewlyCreatedPoint(shape, point) {
   let ref = point.adjustedOn;
   if (
     (point.idx == 2
-      && (shape.name == 'Rectangle' || shape.name == 'Losange')
+      && (shape.name == 'Rectangle' || shape.name == 'Losange' || shape.name == 'RightAngleTriangle')
     ||
     point.idx == 1
       && (shape.name == 'CircleArc')
     )
   ) {
     let constraintShape;
-    if (shape.name == "Rectangle") {
+    if (shape.name == 'Rectangle' || shape.name == 'RightAngleTriangle') {
       let referenceSegment = shape.segments[0];
       let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
       let newCoordinates = shape.vertexes[1].coordinates.add(new Coordinates({
@@ -139,8 +139,8 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[0].reference = shape.vertexes[1].id;
 
       constraintShape.segments[0].isInfinite = true;
-      constraintShape.vertexes[0].visible = false;
-      constraintShape.vertexes[1].visible = false;
+      // constraintShape.vertexes[0].visible = false;
+      // constraintShape.vertexes[1].visible = false;
     } else if (shape.name == 'Losange') {
       let referenceSegment = shape.segments[0];
       let oppositeCoordinates = referenceSegment.vertexes[1].coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
