@@ -352,11 +352,11 @@ export class CreateQuadrilateralTool extends Tool {
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
     shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
-    if (shape.name == 'Rectangle' || shape.name == 'Losange' || shape.name == 'Parallelogram' || shape.name == 'IsoscelesTrapeze' || shape.name == 'IrregularQuadrilateral') {
+    if (shape.name == 'Rectangle' || shape.name == 'Losange' || shape.name == 'Parallelogram' || shape.name == 'RightAngleTrapeze' || shape.name == 'IsoscelesTrapeze' || shape.name == 'Trapeze' || shape.name == 'IrregularQuadrilateral') {
       shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[2]);
     }
-    if (shape.name == 'IrregularQuadrilateral') {
+    if (shape.name == 'RightAngleTrapeze' || shape.name == 'Trapeze' || shape.name == 'IrregularQuadrilateral') {
       shape.vertexes[3].adjustedOn = this.points[3].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[3]);
     }

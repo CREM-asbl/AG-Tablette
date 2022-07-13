@@ -327,7 +327,7 @@ export class CreateTriangleTool extends Tool {
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
     shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
-    if (shape.name == 'IrregularTriangle' || shape.name == 'RightAngleTriangle') {
+    if (shape.name == 'RightAngleTriangle' || shape.name == 'IsoscelesTriangle' || shape.name == 'IrregularTriangle') {
       shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[2]);
     }

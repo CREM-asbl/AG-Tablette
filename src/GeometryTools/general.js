@@ -97,14 +97,19 @@ export function linkNewlyCreatedPoint(shape, point) {
   let ref = point.adjustedOn;
   if (
     (point.idx == 2
-      && (shape.name == 'Rectangle' || shape.name == 'Losange' || shape.name == 'RightAngleTriangle')
+      && (shape.name == 'Rectangle' || shape.name == 'Losange' || shape.name == 'RightAngleTriangle' || shape.name == 'RightAngleTrapeze' || shape.name == 'IsoscelesTriangle')
+    )
     ||
-    point.idx == 1
+    (point.idx == 1
       && (shape.name == 'CircleArc')
+    )
+    ||
+    (point.idx == 3
+      && (shape.name == 'Trapeze' || shape.name == 'RightAngleTrapeze')
     )
   ) {
     let constraintShape;
-    if (shape.name == 'Rectangle' || shape.name == 'RightAngleTriangle') {
+    if (shape.name == 'Rectangle' || shape.name == 'RightAngleTriangle' || (shape.name == 'RightAngleTrapeze' && point.idx == 2)) {
       let referenceSegment = shape.segments[0];
       let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
       let newCoordinates = shape.vertexes[1].coordinates.add(new Coordinates({
@@ -139,8 +144,8 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[0].reference = shape.vertexes[1].id;
 
       constraintShape.segments[0].isInfinite = true;
-      // constraintShape.vertexes[0].visible = false;
-      // constraintShape.vertexes[1].visible = false;
+      constraintShape.vertexes[0].visible = false;
+      constraintShape.vertexes[1].visible = false;
     } else if (shape.name == 'Losange') {
       let referenceSegment = shape.segments[0];
       let oppositeCoordinates = referenceSegment.vertexes[1].coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
@@ -213,6 +218,82 @@ export function linkNewlyCreatedPoint(shape, point) {
 
       constraintShape.vertexes[0].visible = false;
       constraintShape.segments[0].arcCenter.visible = false;
+    } else if (shape.name == 'Trapeze' || shape.name == 'RightAngleTrapeze') {
+      let referenceSegment = shape.segments[0];
+      let angle = referenceSegment.getAngleWithHorizontal();
+      let newCoordinates = shape.vertexes[2].coordinates.add(new Coordinates({
+        x: 100 * Math.cos(angle),
+        y: 100 * Math.sin(angle),
+      }));
+
+      let path = [
+        'M',
+        shape.vertexes[2].coordinates.x,
+        shape.vertexes[2].coordinates.y,
+        'L',
+        newCoordinates.x,
+        newCoordinates.y,
+      ].join(' ');
+
+      constraintShape = new LineShape({
+        layer: 'main',
+        path: path,
+        name: 'ParalleleStraightLine',
+        familyName: 'Line',
+        strokeColor: app.settings.constraintsDrawColor,
+        strokeWidth: 2,
+        geometryObject: new GeometryObject({
+          geometryIsConstaintDraw: true,
+        }),
+      });
+      constraintShape.geometryObject.geometryParentObjectId1 = referenceSegment.id;
+      referenceSegment.shape.geometryObject.geometryChildShapeIds.push(constraintShape.id);
+
+      addShapeToChildren(shape, constraintShape);
+      constraintShape.vertexes[0].reference = shape.vertexes[2].id;
+
+      constraintShape.segments[0].isInfinite = true;
+      constraintShape.vertexes[0].visible = false;
+      constraintShape.vertexes[1].visible = false;
+    } else if (shape.name == 'IsoscelesTriangle') {
+      let referenceSegment = shape.segments[0];
+      let referenceSegmentMiddle = referenceSegment.addPoint(referenceSegment.middle, 0.5, referenceSegment.vertexIds[0], referenceSegment.vertexIds[1], false);
+      let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+      let newCoordinates = referenceSegmentMiddle.coordinates.add(new Coordinates({
+        x: 100 * Math.cos(angle),
+        y: 100 * Math.sin(angle),
+      }));
+
+      let path = [
+        'M',
+        referenceSegmentMiddle.coordinates.x,
+        referenceSegmentMiddle.coordinates.y,
+        'L',
+        newCoordinates.x,
+        newCoordinates.y,
+      ].join(' ');
+
+      constraintShape = new LineShape({
+        layer: 'main',
+        path: path,
+        name: 'PerpendicularStraightLine',
+        familyName: 'Line',
+        strokeColor: app.settings.constraintsDrawColor,
+        strokeWidth: 2,
+        geometryObject: new GeometryObject({
+          geometryIsConstaintDraw: true,
+        }),
+      });
+      constraintShape.geometryObject.geometryParentObjectId1 = referenceSegment.id;
+      referenceSegment.shape.geometryObject.geometryChildShapeIds.push(constraintShape.id);
+
+      addShapeToChildren(shape, constraintShape);
+      constraintShape.vertexes[0].reference = referenceSegmentMiddle.id;
+
+      constraintShape.segments[0].isInfinite = true;
+      constraintShape.vertexes[0].visible = false;
+      constraintShape.vertexes[1].visible = false;
+      referenceSegmentMiddle.visible = false;
     }
 
     let newSinglePointShape = new SinglePointShape({

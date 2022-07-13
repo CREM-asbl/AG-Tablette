@@ -479,12 +479,13 @@ export class Segment {
   /* ########################## SEGMENT POINTS ########################## */
   /* #################################################################### */
 
-  addPoint(coordinates, ratio, firstPointId, secondPointId) {
+  addPoint(coordinates, ratio, firstPointId, secondPointId, verifyIfPointExists = true) {
     // TODO: garder les points triés ?
 
     // if doesnt already exist
     if (
-      this.divisionPoints.findIndex(
+      !verifyIfPointExists ||
+      this.divisionPoints.filter(divPt => divPt.visible).findIndex(
         (pt) => pt.coordinates.dist(coordinates) < 0.001,
       ) == -1
     ) {
@@ -498,6 +499,7 @@ export class Segment {
         endpointIds: [firstPointId, secondPointId],
       });
       this.divisionPointIds.push(newPoint.id);
+      return newPoint;
     }
   }
 
