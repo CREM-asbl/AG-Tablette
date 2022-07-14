@@ -128,29 +128,86 @@ export class CreateIrregularTool extends Tool {
 
   adjustPoint(point) {
     if (
-      this.points.length > 2 &&
-      SelectManager.areCoordinatesInMagnetismDistance(
-        this.points[0].coordinates,
-        point.coordinates,
+        this.points.length > 2 &&
+        SelectManager.areCoordinatesInMagnetismDistance(
+          this.points[0].coordinates,
+          point.coordinates,
+        )
       )
-    )
-      point.coordinates = new Coordinates(this.points[0].coordinates);
-    else {
-      let constraints = SelectManager.getEmptySelectionConstraints().points;
-      constraints.canSelect = true;
-      let adjustedCoordinates = SelectManager.selectPoint(
-        point.coordinates,
-        constraints,
-        false,
-      );
-      if (adjustedCoordinates)
-        point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
-      else {
-        let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
-        if (gridPoint)
-          point.coordinates = new Coordinates(gridPoint.coordinates);
-      }
-    }
+        point.coordinates = new Coordinates(this.points[0].coordinates);
+        else {
+          let constraints = SelectManager.getEmptySelectionConstraints().points;
+          constraints.canSelect = true;
+          let adjustedPoint;
+          if (adjustedPoint = SelectManager.selectPoint(
+            point.coordinates,
+            constraints,
+            false,
+          )) {
+            point.coordinates = new Coordinates(adjustedPoint.coordinates);
+            point.adjustedOn = adjustedPoint;
+          } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) {
+            point.coordinates = new Coordinates(adjustedPoint.coordinates);
+            point.adjustedOn = adjustedPoint;
+          } else {
+            constraints = SelectManager.getEmptySelectionConstraints().segments;
+            constraints.canSelect = true;
+            let adjustedSegment = SelectManager.selectSegment(
+              point.coordinates,
+              constraints,
+            );
+            if (adjustedSegment) {
+              point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+              point.adjustedOn = adjustedSegment;
+            }
+          }
+        }
+    // } else {
+    //   let adjustedCoordinates = this.constraints.projectionOnConstraints(
+    //     point.coordinates,
+    //   );
+
+    //   let constraints = SelectManager.getEmptySelectionConstraints().segments;
+    //   constraints.canSelect = true;
+    //   let adjustedSegment = SelectManager.selectSegment(
+    //     adjustedCoordinates,
+    //     constraints,
+    //   );
+    //   if (adjustedSegment) {
+    //     adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) => {
+    //       intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1;
+    //     })[0];
+    //     point.adjustedOn = adjustedSegment;
+    //   }
+    //   point.coordinates = new Coordinates(adjustedCoordinates);
+    // }
+
+
+
+    // if (
+    //   this.points.length > 2 &&
+    //   SelectManager.areCoordinatesInMagnetismDistance(
+    //     this.points[0].coordinates,
+    //     point.coordinates,
+    //   )
+    // )
+    //   point.coordinates = new Coordinates(this.points[0].coordinates);
+    // else {
+    //   let constraints = SelectManager.getEmptySelectionConstraints().points;
+    //   constraints.canSelect = true;
+    //   let adjustedCoordinates = SelectManager.selectPoint(
+    //     point.coordinates,
+    //     constraints,
+    //     false,
+    //   );
+    //   if (adjustedCoordinates)
+    //     point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
+    //   else {
+    //     let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
+    //     if (gridPoint)
+    //       point.coordinates = new Coordinates(gridPoint.coordinates);
+    //   }
+    // }
   }
 
   refreshStateUpper() {
@@ -182,7 +239,8 @@ export class CreateIrregularTool extends Tool {
       geometryObject: new GeometryObject({}),
     });
 
-    shape.vertexes.forEach((vx) => {
+    shape.vertexes.forEach((vx, idx) => {
+      vx.adjustedOn = this.points[idx].adjustedOn;
       linkNewlyCreatedPoint(shape, vx);
     });
   }
