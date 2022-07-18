@@ -77,76 +77,10 @@ export function computeShapeTransform(shape, layer = 'upper') {
       shape.vertexes[i].coordinates = coord;
     }
   } else if (shape.name == 'Rectangle') {
-    // let startAngle = shape.segments[0].getAngleWithHorizontal();
-    // let dx = shape.geometryObject.geometryConstructionSpec.height * Math.cos(startAngle + Math.PI / 2);
-    // let dy = shape.geometryObject.geometryConstructionSpec.height * Math.sin(startAngle + Math.PI / 2);
-
-    // if (shape.vertexes[2].transformConstraints.isBlocked) {
-    //   let constraintSegment = new Shape({
-    //     layer: 'invisible',
-    //     path: `M ${shape.vertexes[1].coordinates.x} ${shape.vertexes[1].coordinates.y} L ${shape.vertexes[1].coordinates.x + dx} ${shape.vertexes[1].coordinates.y + dy}`,
-    //   }).segments[0];
-    //   let segmentWhosePointIsOn = findObjectById(addInfoToId(shape.vertexes[2].transformConstraints.lines[1].segment.id, 'upper'));
-    //   let intersection = constraintSegment.intersectionWith(segmentWhosePointIsOn, true);
-    //   if (intersection) {
-    //     shape.vertexes[2].coordinates = intersection[0];
-    //   } else {
-    //     shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
-    //   }
-    // } else {
-    //   shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
-    // }
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
   } else if (shape.name == 'Losange') {
-    // let firstSegment = shape.segments[0];
-    // let angle =
-    //   firstSegment.getAngleWithHorizontal() -
-    //   shape.geometryObject.geometryConstructionSpec.angle;
-    // let length = firstSegment.length;
-
-    // if (shape.vertexes[2].transformConstraints.isBlocked) {
-    //   let oppositeCoordinates = shape.vertexes[1].coordinates.multiply(2).substract(shape.vertexes[0].coordinates),
-    //     radius = shape.vertexes[0].coordinates.dist(shape.vertexes[1].coordinates),
-    //     path = ['M', shape.vertexes[0].coordinates.x, shape.vertexes[0].coordinates.y]
-    //       .concat([
-    //         'A',
-    //         radius,
-    //         radius,
-    //         0,
-    //         1,
-    //         0,
-    //         oppositeCoordinates.x,
-    //         oppositeCoordinates.y,
-    //       ])
-    //       .concat(['A', radius, radius, 0, 1, 0, shape.vertexes[0].coordinates.x, shape.vertexes[0].coordinates.y])
-    //       .join(' ');
-
-    //   let constraintSegment = new Shape({
-    //     layer: 'invisible',
-    //     path,
-    //   }).segments[0];
-    //   let constraintsSegment = findObjectById(addInfoToId(shape.vertexes[2].transformConstraints.lines[1].segment.id, 'upper'));
-    //   constraintsSegment.isInfinite = true;
-    //   let intersection = constraintSegment.intersectionWith(constraintsSegment, true);
-    //   if (intersection) {
-    //     if (intersection[1] && intersection[0].dist(shape.vertexes[2].coordinates) > intersection[1].dist(shape.vertexes[2].coordinates)) {
-    //       shape.vertexes[2].coordinates = intersection[1];
-    //     }
-    //     shape.vertexes[2].coordinates = intersection[0];
-    //   } else {
-    //     shape.vertexes[2].coordinates = new Coordinates({
-    //       x: shape.vertexes[1].x + length * Math.cos(angle),
-    //       y: shape.vertexes[1].y + length * Math.sin(angle),
-    //     });
-    //   }
-    // } else {
-    //   shape.vertexes[2].coordinates = new Coordinates({
-    //     x: shape.vertexes[1].x + length * Math.cos(angle),
-    //     y: shape.vertexes[1].y + length * Math.sin(angle),
-    //   });
-    // }
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
@@ -155,18 +89,6 @@ export function computeShapeTransform(shape, layer = 'upper') {
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
   } else if (shape.name == 'RightAngleTrapeze') {
-    // let startAngle = shape.segments[0].getAngleWithHorizontal();
-    // let dx = shape.geometryObject.geometryConstructionSpec.height * Math.cos(startAngle + Math.PI / 2);
-    // let dy = shape.geometryObject.geometryConstructionSpec.height * Math.sin(startAngle + Math.PI / 2);
-
-    // shape.vertexes[2].coordinates = shape.vertexes[1].coordinates.add(new Coordinates({x: dx, y: dy}));
-
-    // startAngle = shape.segments[1].getAngleWithHorizontal();
-    // let multiplier = shape.geometryObject.geometryConstructionSpec.height < 0 ? 1 : -1;
-    // dx = shape.geometryObject.geometryConstructionSpec.smallBaseLength * multiplier * Math.cos(startAngle + Math.PI / 2);
-    // dy = shape.geometryObject.geometryConstructionSpec.smallBaseLength * multiplier * Math.sin(startAngle + Math.PI / 2);
-
-    // shape.vertexes[3].coordinates = shape.vertexes[2].coordinates.add(new Coordinates({x: dx, y: dy}));
   } else if (shape.name == 'IsoscelesTrapeze') {
     let projection = shape.segments[0].projectionOnSegment(shape.vertexes[2].coordinates);
     let middleOfSegment = shape.segments[0].middle;
@@ -174,13 +96,6 @@ export function computeShapeTransform(shape, layer = 'upper') {
       .substract(projection.multiply(2))
       .add(middleOfSegment.multiply(2));
   } else if (shape.name == 'Trapeze') {
-    // let length = shape.geometryObject.geometryConstructionSpec.thirdSegmentLength;
-    // let firstSegment = shape.segments[0];
-    // let angle = firstSegment.getAngleWithHorizontal();
-    // shape.vertexes[3].coordinates = new Coordinates({
-    //   x: shape.vertexes[2].x + length * Math.cos(angle),
-    //   y: shape.vertexes[2].y + length * Math.sin(angle),
-    // });
   } else if (shape.name == 'RightAngleIsoscelesTriangle') {
     let firstSegment = shape.segments[0];
     let angle =
@@ -193,48 +108,9 @@ export function computeShapeTransform(shape, layer = 'upper') {
       y: shape.vertexes[1].y + length * Math.sin(angle),
     });
   } else if (shape.name == 'RightAngleTriangle') {
-    // let firstSegment = shape.segments[0];
-    // let angle =
-    //   firstSegment.getAngleWithHorizontal() -
-    //   shape.geometryObject.geometryConstructionSpec.angle;
-    // let length = shape.geometryObject.geometryConstructionSpec.secondSegmentLength;
-
-    // shape.vertexes[2].coordinates = new Coordinates({
-    //   x: shape.vertexes[1].x + length * Math.cos(angle),
-    //   y: shape.vertexes[1].y + length * Math.sin(angle),
-    // });
   } else if (shape.name == 'IsoscelesTriangle') {
-    // let firstSegment = shape.segments[0];
-    // let middle = firstSegment.middle;
-    // let angle =
-    //   firstSegment.getAngleWithHorizontal() -
-    //   Math.PI / 2;
-    // let height = shape.geometryObject.geometryConstructionSpec.height;
-
-    // shape.vertexes[2].coordinates = new Coordinates({
-    //   x: middle.x + height * Math.cos(angle),
-    //   y: middle.y + height * Math.sin(angle),
-    // });
   } else if (shape.name == 'ParalleleSegment') {
-    // let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    // let angle = seg.getAngleWithHorizontal();
-    // let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
-
-    // shape.vertexes[1].coordinates = new Coordinates({
-    //   x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
-    //   y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
-    // });
   } else if (shape.name == 'PerpendicularSegment') {
-    // let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    // let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
-    // // if (shape.isReversed)
-    // //   angle += Math.PI;
-    // let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
-
-    // shape.vertexes[1].coordinates = new Coordinates({
-    //   x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
-    //   y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
-    // });
   } else if (shape.name == 'SemiStraightLine') {
     let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates, 0.1);
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
@@ -242,23 +118,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       recomputeAllVisibilities(layer);
     }
   } else if (shape.name == 'ParalleleSemiStraightLine') {
-    // let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    // let angle = seg.getAngleWithHorizontal();
-    // let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
-
-    // shape.vertexes[1].coordinates = new Coordinates({
-    //   x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
-    //   y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
-    // });
   } else if (shape.name == 'PerpendicularSemiStraightLine') {
-    // let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    // let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
-    // let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
-
-    // shape.vertexes[1].coordinates = new Coordinates({
-    //   x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
-    //   y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
-    // });
   } else if (shape.name == 'StraightLine') {
     let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates, 0.1);
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
@@ -386,22 +246,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
     firstSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
     secondSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   } else if (shape.name == 'CirclePart') {
-    // shape.segments[1].arcCenter.coordinates = shape.vertexes[0].coordinates;
-    // let angle = shape.segments[1].arcCenter.coordinates.angleWith(shape.vertexes[1].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
-    // let radius = shape.segments[1].arcCenter.coordinates.dist(shape.vertexes[1].coordinates);
-    // let thirdPointCoordinates = new Coordinates({
-    //   x: shape.segments[1].arcCenter.coordinates.x + Math.cos(angle) * radius,
-    //   y: shape.segments[1].arcCenter.coordinates.y + Math.sin(angle) * radius,
-    // });
-    // shape.vertexes[2].coordinates = thirdPointCoordinates;
   } else if (shape.name == 'CircleArc') {
-    // let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
-    // let radius = shape.segments[0].arcCenter.coordinates.dist(shape.vertexes[0].coordinates);
-    // let thirdPointCoordinates = new Coordinates({
-    //   x: shape.segments[0].arcCenter.coordinates.x + Math.cos(angle) * radius,
-    //   y: shape.segments[0].arcCenter.coordinates.y + Math.sin(angle) * radius,
-    // });
-    // shape.vertexes[1].coordinates = thirdPointCoordinates;
   } else if (shape.name == '30degreesArc') {
     let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + Math.PI / 6;
     if (shape.isReversed)

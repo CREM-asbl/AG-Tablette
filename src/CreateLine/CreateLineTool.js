@@ -263,28 +263,6 @@ export class CreateLineTool extends Tool {
       }
       point.coordinates = new Coordinates(adjustedCoordinates);
     }
-
-    // if (this.constraints.isFree) {
-    //   let constraints = SelectManager.getEmptySelectionConstraints().points;
-    //   constraints.canSelect = true;
-    //   let adjustedCoordinates = SelectManager.selectPoint(
-    //     point.coordinates,
-    //     constraints,
-    //     false,
-    //   );
-    //   if (adjustedCoordinates) {
-    //     point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
-    //   } else {
-    //     let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
-    //     if (gridPoint)
-    //       point.coordinates = new Coordinates(gridPoint.coordinates);
-    //   }
-    // } else {
-    //   let adjustedCoordinates = this.constraints.projectionOnConstraints(
-    //     point.coordinates,
-    //   );
-    //   point.coordinates = new Coordinates(adjustedCoordinates);
-    // }
   }
 
   refreshStateUpper() {
