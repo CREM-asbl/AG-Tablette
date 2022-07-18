@@ -210,17 +210,55 @@ export class TransformTool extends Tool {
     }
   }
 
-  browseTree(currentShapeId, tree) {
-    let currentShape = findObjectById(currentShapeId);
-    // if (!tree[currentShapeId].isDone && tree[currentShapeId].parents.every(parent => tree[parent].isDone) && currentShape.geometryObject.geometryIsConstaintDraw !== false) {
-    //   return
-    // }
-      if (tree[currentShapeId].isDone >= 2 && currentShape.geometryObject.geometryIsConstaintDraw)
-        return;
-      computeShapeTransform(currentShape);
-      tree[currentShapeId].isDone++;
-      tree[currentShapeId].children.forEach(child => this.browseTree(child, tree));
-    // }
+  browseTree(tree, callNumber) {
+    if (callNumber == 100) {
+      console.error('too much call on browsetree');
+      return;
+    }
+    let elementDone = 0, treeLength = 0;
+    for (const currentShapeId in tree) {
+      if (tree[currentShapeId].isDone == 0) {
+        if (tree[currentShapeId].parents.every(parentId => {
+          if (tree[parentId].isDone > 0) {
+            return true;
+          }
+          let parent = findObjectById(parentId);
+          if (parent.name == 'PointOnLine') {
+            let constraint = findObjectById(parent.geometryObject.geometryParentObjectId1);
+            if (constraint.shape.geometryObject.geometryIsConstaintDraw)
+              return true;
+            else
+              return false;
+          } else {
+            return false
+          }
+        })) {
+          let currentShape = findObjectById(currentShapeId);
+          computeShapeTransform(currentShape);
+          currentShape.geometryObject.geometryChildShapeIds.map(childId => findObjectById(childId)).filter(child => child.geometryObject.geometryIsConstaintDraw).forEach(
+            constraint => {
+              computeShapeTransform(constraint);
+              tree[constraint.id].isDone++;
+              constraint.geometryObject.geometryChildShapeIds.map(childId => findObjectById(childId)).filter(child => child.name == 'PointOnLine').forEach(
+                pointOnLine => {
+                  computeShapeTransform(pointOnLine);
+                  tree[pointOnLine.id].isDone++;
+                }
+              )
+            }
+          )
+          computeShapeTransform(currentShape);
+          tree[currentShapeId].isDone++;
+        }
+      } else {
+        elementDone++;
+      }
+      treeLength++
+    }
+    if (elementDone == treeLength) {
+      return
+    }
+    this.browseTree(tree, callNumber + 1);
   }
 
   canvasMouseUp() {
@@ -338,14 +376,8 @@ export class TransformTool extends Tool {
       //       break;
       //   }
       // }
-      // console.log('-- start --');
       this.resetTree();
-      this.browseTree(shape.id, this.tree);
-      this.resetTree();
-      this.browseTree(shape.id, this.tree);
-      this.resetTree();
-      this.browseTree(shape.id, this.tree);
-      // console.log('--- end ---');
+      this.browseTree(this.tree, 0);
 
 
       // if (shape.name == 'RightAngleTrapeze')
