@@ -303,6 +303,7 @@ export class CreateCircleTool extends Tool {
   }
 
   adjustPoint(point) {
+    point.adjustedOn = undefined;
     if (this.constraints.isFree) {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;
@@ -442,6 +443,7 @@ export class CreateCircleTool extends Tool {
         coordinates: this.points[0].coordinates,
         type: 'arcCenter',
       }));
+      this.points[3].adjustedOn = this.points[0];
     }
     let points = this.points.map(
       pt =>
@@ -474,6 +476,7 @@ export class CreateCircleTool extends Tool {
       points[2].type = 'vertex';
       points[2].idx = 2;
       points[3].type = 'arcCenter';
+      points[3].adjustedOn = points[0];
       let seg = new Segment({
         layer: 'main',
         idx: idx++,
@@ -555,10 +558,11 @@ export class CreateCircleTool extends Tool {
     if (shape.name == 'CirclePart') {
       linkNewlyCreatedPoint(shape, shape.segments[1].arcCenter);
       linkNewlyCreatedPoint(shape, shape.vertexes[1]);
+      linkNewlyCreatedPoint(shape, shape.vertexes[2]);
     } else if (shape.name == 'CircleArc') {
       linkNewlyCreatedPoint(shape, shape.segments[0].arcCenter);
       linkNewlyCreatedPoint(shape, shape.vertexes[1]);
-    } else {
+    } else if (shape.name == 'Circle') {
       linkNewlyCreatedPoint(shape, shape.segments[0].arcCenter);
     }
 

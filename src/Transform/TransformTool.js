@@ -215,7 +215,6 @@ export class TransformTool extends Tool {
     // if (!tree[currentShapeId].isDone && tree[currentShapeId].parents.every(parent => tree[parent].isDone) && currentShape.geometryObject.geometryIsConstaintDraw !== false) {
     //   return
     // }
-    // console.log(currentShape.name, currentShapeId, tree[currentShapeId].isDone)
       if (tree[currentShapeId].isDone >= 2 && currentShape.geometryObject.geometryIsConstaintDraw)
         return;
       computeShapeTransform(currentShape);
@@ -228,7 +227,6 @@ export class TransformTool extends Tool {
     this.stopAnimation();
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } })
-    // this.restart();
   }
 
   _executeAction() {
@@ -345,6 +343,8 @@ export class TransformTool extends Tool {
       this.browseTree(shape.id, this.tree);
       this.resetTree();
       this.browseTree(shape.id, this.tree);
+      this.resetTree();
+      this.browseTree(shape.id, this.tree);
       // console.log('--- end ---');
 
 
@@ -363,13 +363,14 @@ export class TransformTool extends Tool {
           };
           const color = colorPicker[true];
 
-          if (color != '#f00' && color != undefined)
+          if (color != '#f00' && color != undefined) {
             new Point({
               layer: 'upper',
               coordinates: pt.coordinates,
               size: 2,
               color: color,
             });
+          }
         });
       });
     }

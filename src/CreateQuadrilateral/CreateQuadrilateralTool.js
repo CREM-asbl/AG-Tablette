@@ -249,6 +249,7 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   adjustPoint(point) {
+    point.adjustedOn = undefined;
     if (this.constraints.isFree) {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;

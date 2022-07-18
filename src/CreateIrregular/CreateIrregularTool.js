@@ -127,6 +127,7 @@ export class CreateIrregularTool extends Tool {
   }
 
   adjustPoint(point) {
+    point.adjustedOn = undefined;
     if (
         this.points.length > 2 &&
         SelectManager.areCoordinatesInMagnetismDistance(

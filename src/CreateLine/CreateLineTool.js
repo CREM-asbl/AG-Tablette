@@ -217,27 +217,74 @@ export class CreateLineTool extends Tool {
   }
 
   adjustPoint(point) {
+    point.adjustedOn = undefined;
     if (this.constraints.isFree) {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;
-      let adjustedCoordinates = SelectManager.selectPoint(
+      let adjustedPoint;
+      if (adjustedPoint = SelectManager.selectPoint(
         point.coordinates,
         constraints,
         false,
-      );
-      if (adjustedCoordinates) {
-        point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
+      )) {
+        point.coordinates = new Coordinates(adjustedPoint.coordinates);
+        point.adjustedOn = adjustedPoint;
+      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) {
+        point.coordinates = new Coordinates(adjustedPoint.coordinates);
+        point.adjustedOn = adjustedPoint;
       } else {
-        let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
-        if (gridPoint)
-          point.coordinates = new Coordinates(gridPoint.coordinates);
+        constraints = SelectManager.getEmptySelectionConstraints().segments;
+        constraints.canSelect = true;
+        let adjustedSegment = SelectManager.selectSegment(
+          point.coordinates,
+          constraints,
+        );
+        if (adjustedSegment) {
+          point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+          point.adjustedOn = adjustedSegment;
+        }
       }
     } else {
       let adjustedCoordinates = this.constraints.projectionOnConstraints(
         point.coordinates,
       );
+
+      let constraints = SelectManager.getEmptySelectionConstraints().segments;
+      constraints.canSelect = true;
+      let adjustedSegment = SelectManager.selectSegment(
+        adjustedCoordinates,
+        constraints,
+      );
+      if (adjustedSegment) {
+        adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) => {
+          intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1;
+        })[0];
+        point.adjustedOn = adjustedSegment;
+      }
       point.coordinates = new Coordinates(adjustedCoordinates);
     }
+
+    // if (this.constraints.isFree) {
+    //   let constraints = SelectManager.getEmptySelectionConstraints().points;
+    //   constraints.canSelect = true;
+    //   let adjustedCoordinates = SelectManager.selectPoint(
+    //     point.coordinates,
+    //     constraints,
+    //     false,
+    //   );
+    //   if (adjustedCoordinates) {
+    //     point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
+    //   } else {
+    //     let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
+    //     if (gridPoint)
+    //       point.coordinates = new Coordinates(gridPoint.coordinates);
+    //   }
+    // } else {
+    //   let adjustedCoordinates = this.constraints.projectionOnConstraints(
+    //     point.coordinates,
+    //   );
+    //   point.coordinates = new Coordinates(adjustedCoordinates);
+    // }
   }
 
   refreshStateUpper() {
@@ -396,9 +443,11 @@ export class CreateLineTool extends Tool {
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }
 
+    shape.vertexes[0].adjustedOn = this.points[0].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
-    if (shape.name == 'Segment' || shape.name == 'SemiStraightLine' || shape.name == 'StraightLine' || shape.name == 'Vector') {
-      linkNewlyCreatedPoint(shape, shape.vertexes[1]);
+    if (shape.name.endsWith('Segment') || shape.name.endsWith('SemiStraightLine') || shape.name == 'StraightLine' || shape.name == 'Vector') {
+    shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
+    linkNewlyCreatedPoint(shape, shape.vertexes[1]);
     }
     computeConstructionSpec(shape);
   }

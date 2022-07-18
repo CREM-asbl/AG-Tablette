@@ -216,25 +216,25 @@ export function computeShapeTransform(shape, layer = 'upper') {
     //   y: middle.y + height * Math.sin(angle),
     // });
   } else if (shape.name == 'ParalleleSegment') {
-    let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    let angle = seg.getAngleWithHorizontal();
-    let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
+    // let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    // let angle = seg.getAngleWithHorizontal();
+    // let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
 
-    shape.vertexes[1].coordinates = new Coordinates({
-      x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
-      y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
-    });
+    // shape.vertexes[1].coordinates = new Coordinates({
+    //   x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
+    //   y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
+    // });
   } else if (shape.name == 'PerpendicularSegment') {
-    let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
-    // if (shape.isReversed)
-    //   angle += Math.PI;
-    let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
+    // let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    // let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
+    // // if (shape.isReversed)
+    // //   angle += Math.PI;
+    // let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
 
-    shape.vertexes[1].coordinates = new Coordinates({
-      x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
-      y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
-    });
+    // shape.vertexes[1].coordinates = new Coordinates({
+    //   x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
+    //   y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
+    // });
   } else if (shape.name == 'SemiStraightLine') {
     let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates, 0.1);
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
@@ -242,23 +242,23 @@ export function computeShapeTransform(shape, layer = 'upper') {
       recomputeAllVisibilities(layer);
     }
   } else if (shape.name == 'ParalleleSemiStraightLine') {
-    let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    let angle = seg.getAngleWithHorizontal();
-    let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
+    // let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    // let angle = seg.getAngleWithHorizontal();
+    // let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
 
-    shape.vertexes[1].coordinates = new Coordinates({
-      x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
-      y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
-    });
+    // shape.vertexes[1].coordinates = new Coordinates({
+    //   x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
+    //   y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
+    // });
   } else if (shape.name == 'PerpendicularSemiStraightLine') {
-    let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
-    let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
+    // let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    // let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
+    // let segLength = shape.geometryObject.geometryConstructionSpec.segmentLength;
 
-    shape.vertexes[1].coordinates = new Coordinates({
-      x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
-      y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
-    });
+    // shape.vertexes[1].coordinates = new Coordinates({
+    //   x: shape.vertexes[0].coordinates.x + segLength * Math.cos(angle),
+    //   y: shape.vertexes[0].coordinates.y + segLength * Math.sin(angle),
+    // });
   } else if (shape.name == 'StraightLine') {
     let newValue = !shape.vertexes[0].coordinates.equal(shape.vertexes[1].coordinates, 0.1);
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
@@ -386,14 +386,14 @@ export function computeShapeTransform(shape, layer = 'upper') {
     firstSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
     secondSeg.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   } else if (shape.name == 'CirclePart') {
-    shape.segments[1].arcCenter.coordinates = shape.vertexes[0].coordinates;
-    let angle = shape.segments[1].arcCenter.coordinates.angleWith(shape.vertexes[1].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
-    let radius = shape.segments[1].arcCenter.coordinates.dist(shape.vertexes[1].coordinates);
-    let thirdPointCoordinates = new Coordinates({
-      x: shape.segments[1].arcCenter.coordinates.x + Math.cos(angle) * radius,
-      y: shape.segments[1].arcCenter.coordinates.y + Math.sin(angle) * radius,
-    });
-    shape.vertexes[2].coordinates = thirdPointCoordinates;
+    // shape.segments[1].arcCenter.coordinates = shape.vertexes[0].coordinates;
+    // let angle = shape.segments[1].arcCenter.coordinates.angleWith(shape.vertexes[1].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
+    // let radius = shape.segments[1].arcCenter.coordinates.dist(shape.vertexes[1].coordinates);
+    // let thirdPointCoordinates = new Coordinates({
+    //   x: shape.segments[1].arcCenter.coordinates.x + Math.cos(angle) * radius,
+    //   y: shape.segments[1].arcCenter.coordinates.y + Math.sin(angle) * radius,
+    // });
+    // shape.vertexes[2].coordinates = thirdPointCoordinates;
   } else if (shape.name == 'CircleArc') {
     // let angle = shape.segments[0].arcCenter.coordinates.angleWith(shape.vertexes[0].coordinates) + shape.geometryObject.geometryConstructionSpec.angle;
     // let radius = shape.segments[0].arcCenter.coordinates.dist(shape.vertexes[0].coordinates);

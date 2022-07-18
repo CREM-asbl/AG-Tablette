@@ -163,6 +163,7 @@ export class CreateRegularTool extends Tool {
   }
 
   adjustPoint(point) {
+    point.adjustedOn = undefined;
     let constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
     let adjustedPoint;

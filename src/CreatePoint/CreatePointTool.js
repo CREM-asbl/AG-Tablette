@@ -134,6 +134,7 @@ export class CreatePointTool extends Tool {
   }
 
   adjustPoint(point) {
+    point.adjustedOn = undefined;
     let reference, newCoord;
     switch (app.tool.selectedPoint) {
       case 'Point':
