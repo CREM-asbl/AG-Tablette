@@ -223,7 +223,7 @@ export class TransformTool extends Tool {
             return true;
           }
           let parent = findObjectById(parentId);
-          if (parent.name == 'PointOnLine') {
+          if (parent.name == 'PointOnLine' || parent.name == 'PointOnIntersection2') {
             let constraint = findObjectById(parent.geometryObject.geometryParentObjectId1);
             if (constraint.shape.geometryObject.geometryIsConstaintDraw)
               return true;
@@ -239,7 +239,7 @@ export class TransformTool extends Tool {
             constraint => {
               computeShapeTransform(constraint);
               tree[constraint.id].isDone++;
-              constraint.geometryObject.geometryChildShapeIds.map(childId => findObjectById(childId)).filter(child => child.name == 'PointOnLine').forEach(
+              constraint.geometryObject.geometryChildShapeIds.map(childId => findObjectById(childId)).filter(child => child.name == 'PointOnLine' || child.name == 'PointOnIntersection2').forEach(
                 pointOnLine => {
                   computeShapeTransform(pointOnLine);
                   tree[pointOnLine.id].isDone++;

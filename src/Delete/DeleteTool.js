@@ -93,6 +93,15 @@ export class DeleteTool extends Tool {
           this.deleteChildren(s);
         removeObjectById(s.id);
       });
+      if (app.environment.name == 'Geometrie') {
+        for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
+          let s = app.mainCanvasLayer.shapes[i];
+          if (s.geometryObject.pointOnTheFly === true && s.geometryObject.geometryChildShapeIds.length == 0) {
+            removeObjectById(s.id);
+            i--;
+          }
+        };
+      }
 
       if (this.userGroup) {
         GroupManager.deleteGroup(this.userGroup);
