@@ -19,7 +19,7 @@ export class GeometryObject {
     geometryIsHidden = false,
     geometryIsVisibleByChoice = true,
     geometryIsConstaintDraw = false,
-    pointOnTheFly = false,
+    geometryPointOnTheFlyChildId = null,
   }) {
     this.geometryChildShapeIds = [...geometryChildShapeIds];
     this.geometryConstructionSpec = {...geometryConstructionSpec};
@@ -36,7 +36,7 @@ export class GeometryObject {
     this.geometryIsHidden = geometryIsHidden;
     this.geometryIsVisibleByChoice = geometryIsVisibleByChoice;
     this.geometryIsConstaintDraw = geometryIsConstaintDraw;
-    this.pointOnTheFly = pointOnTheFly;
+    this.geometryPointOnTheFlyChildId = geometryPointOnTheFlyChildId;
   }
 
   saveData() {
@@ -56,7 +56,7 @@ export class GeometryObject {
       geometryDuplicateParentShapeId: this.geometryDuplicateParentShapeId,
       geometryDuplicateInfos: {...this.geometryDuplicateInfos},
       geometryIsConstaintDraw: this.geometryIsConstaintDraw,
-      pointOnTheFly: this.pointOnTheFly,
+      geometryPointOnTheFlyChildId: this.geometryPointOnTheFlyChildId,
     };
     return data;
   }

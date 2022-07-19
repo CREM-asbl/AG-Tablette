@@ -415,7 +415,7 @@ export function linkNewlyCreatedPoint(shape, point) {
       name: 'PointOnLine',
       familyName: 'Point',
       geometryObject: new GeometryObject({
-        pointOnTheFly: true,
+        geometryPointOnTheFlyChildId: shape.id,
       }),
     });
     newSinglePointShape.geometryObject.geometryParentObjectId1 = constraintShape.segments[0].id;
@@ -449,7 +449,7 @@ export function linkNewlyCreatedPoint(shape, point) {
       name: 'Point',
       familyName: 'Point',
       geometryObject: new GeometryObject({
-        pointOnTheFly: true,
+        geometryPointOnTheFlyChildId: shape.id,
       }),
     });
     if (ref && ref instanceof Segment) {

@@ -96,8 +96,8 @@ export class DeleteTool extends Tool {
       if (app.environment.name == 'Geometrie') {
         for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
           let s = app.mainCanvasLayer.shapes[i];
-          if (s.geometryObject.pointOnTheFly === true && s.geometryObject.geometryChildShapeIds.length == 0) {
-            removeObjectById(s.id);
+          if (s.geometryObject.geometryPointOnTheFlyChildId && !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)) {
+            this.deleteChildren(s);
             i--;
           }
         };
