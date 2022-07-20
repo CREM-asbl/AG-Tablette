@@ -455,8 +455,47 @@ function computeTransformShape(shape) {
 }
 
 function computeDuplicateShape(shape) {
+  let parentShape = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
   if (shape.name == 'PointOnLine') {
-    shape.points[0].ratio = shape.points[0].ratio;
+    shape.points[0].ratio = parentShape.points[0].ratio;
+
+    let ref = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    let point = shape.points[0];
+
+    let coord;
+    if (ref.shape.name == 'Circle') {
+      let refShape = ref.shape;
+      let angle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates) + shape.points[0].ratio * Math.PI * 2;
+      coord = refShape.segments[0].arcCenter.coordinates.add({
+        x: refShape.segments[0].radius * Math.cos(angle),
+        y: refShape.segments[0].radius * Math.sin(angle),
+      });
+    } else if (ref.isArc()) {
+      let firstAngle = ref.arcCenter.coordinates.angleWith(ref.vertexes[0].coordinates);
+      let secondAngle = ref.arcCenter.coordinates.angleWith(ref.vertexes[1].coordinates);
+      if (secondAngle <= firstAngle) {
+        secondAngle += Math.PI * 2;
+      }
+      let newAngle = firstAngle + point.ratio * (secondAngle - firstAngle);
+      if (ref.counterclockwise) {
+        newAngle = firstAngle - point.ratio * (2 * Math.PI - secondAngle + firstAngle);
+      }
+      coord = new Coordinates({
+        x: ref.arcCenter.coordinates.x + ref.radius * Math.cos(newAngle),
+        y: ref.arcCenter.coordinates.y + ref.radius * Math.sin(newAngle),
+      });
+    } else {
+      let firstPoint = ref.vertexes[0];
+      let secondPoint = ref.vertexes[1];
+      const segLength = secondPoint.coordinates.substract(
+        firstPoint.coordinates,
+      );
+      const part = segLength.multiply(point.ratio);
+
+      coord = firstPoint.coordinates.add(part);
+    }
+    shape.points[0].coordinates = coord;
+    ref.divisionPoints.forEach(pt => computeDivisionPoint(pt));
   } else {
     let vector = shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates.substract(shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
     let mustReverse = false,
@@ -466,7 +505,6 @@ function computeDuplicateShape(shape) {
       rotationMultiplier = 1;
     }
     shape.points.filter(pt => pt.type != 'divisionPoint').forEach((pt, idx) => {
-      let parentShape = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
       let startCoord = parentShape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
       if (mustReverse) {
         startCoord = new Coordinates({

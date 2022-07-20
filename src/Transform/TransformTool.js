@@ -379,6 +379,9 @@ export class TransformTool extends Tool {
       this.resetTree();
       this.browseTree(this.tree, 0);
 
+      this.resetTree();
+      this.browseTree(this.tree, 0);
+
 
       // if (shape.name == 'RightAngleTrapeze')
       //   computeConstructionSpec(shape);
