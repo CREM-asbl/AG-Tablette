@@ -248,6 +248,9 @@ export class CentralSymetryTool extends Tool {
           let shapeIndex = this.involvedShapes.findIndex(s => reference.shape.id == s.id);
           let pointIndex = this.involvedShapes[shapeIndex].points.findIndex(obj => obj.id == reference.id);
           newShapes[sIdx].vertexes[ptIdx].reference = newShapes[shapeIndex].points[pointIndex].id;
+          if (reference.shape.geometryObject.geometryPointOnTheFlyChildId) {
+            newShapes[shapeIndex].geometryObject.geometryPointOnTheFlyChildId = newShapes[sIdx].id;
+          }
         }
       });
       newShape.divisionPoints.forEach((divPt, divPtIdx) => {
