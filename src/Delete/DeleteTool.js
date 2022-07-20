@@ -96,6 +96,10 @@ export class DeleteTool extends Tool {
       if (app.environment.name == 'Geometrie') {
         for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
           let s = app.mainCanvasLayer.shapes[i];
+          s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
+            if (pt.reference && !findObjectById(pt.reference))
+              pt.reference = null;
+          });
           if (s.geometryObject.geometryPointOnTheFlyChildId && !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)) {
             this.deleteChildren(s);
             i--;
