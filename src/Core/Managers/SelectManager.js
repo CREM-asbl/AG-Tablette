@@ -131,10 +131,14 @@ export class SelectManager {
 
     // all points at the correct distance
     let potentialPoints = [];
-    let allPoints = [...app.mainCanvasLayer.points]
-      .filter(pt => pt.shape.geometryObject?.geometryIsVisible !== false)
-      .filter(pt => pt.shape.geometryObject?.geometryIsHidden !== true)
-      .filter(pt => pt.shape.geometryObject?.geometryIsConstaintDraw == false);;
+    let allPoints = [...app.mainCanvasLayer.points];
+
+    if (app.environment.name == 'Geometry') {
+      allPoints = allPoints.filter(pt => pt.shape.geometryObject?.geometryIsVisible !== false)
+        .filter(pt => pt.shape.geometryObject?.geometryIsHidden !== true)
+        .filter(pt => pt.shape.geometryObject?.geometryIsConstaintDraw == false);
+    }
+
     if (constraints.canSelectFromUpper)
       allPoints.push(...app.upperCanvasLayer.points);
     allPoints.forEach((pt) => {
@@ -256,10 +260,14 @@ export class SelectManager {
 
     // all segments at the correct distance
     let potentialSegments = [];
-    let allSegments = [...app.mainCanvasLayer.segments]
-      .filter(seg => seg.shape.geometryObject?.geometryIsVisible !== false)
-      .filter(seg => seg.shape.geometryObject?.geometryIsHidden !== true)
-      .filter(seg => seg.shape.geometryObject?.geometryIsConstaintDraw == false);
+    let allSegments = [...app.mainCanvasLayer.segments];
+
+    if (app.environment.name == 'Geometry') {
+      allSegments = allSegments.filter(seg => seg.shape.geometryObject?.geometryIsVisible !== false)
+        .filter(seg => seg.shape.geometryObject?.geometryIsHidden !== true)
+        .filter(seg => seg.shape.geometryObject?.geometryIsConstaintDraw == false);
+    }
+
     if (constraints.canSelectFromUpper)
       allSegments.push(...app.upperCanvasLayer.segments);
     allSegments.forEach((seg) => {
@@ -349,14 +357,19 @@ export class SelectManager {
    * @return {Shape}
    */
   static selectShape(mouseCoordinates, constraints) {
+    console.log(constraints)
     if (!constraints.canSelect) return null;
 
     let shapes = ShapeManager.shapesThatContainsCoordinates(
       mouseCoordinates,
       constraints,
-    ).filter(s => s.geometryObject?.geometryIsVisible !== false)
-    .filter(s => s.geometryObject?.geometryIsHidden !== true)
-    .filter(s => s.geometryObject?.geometryIsConstaintDraw == false);
+    )
+
+    if (app.environment.name == 'Geometry') {
+      shapes = shapes.filter(s => s.geometryObject?.geometryIsVisible !== false)
+        .filter(s => s.geometryObject?.geometryIsHidden !== true)
+        .filter(s => s.geometryObject?.geometryIsConstaintDraw == false);
+    }
 
     if (constraints.whitelist != null) {
       shapes = shapes.filter((shape) => {
@@ -366,6 +379,8 @@ export class SelectManager {
       });
     }
 
+    console.log(shapes);
+
     if (constraints.blacklist != null) {
       shapes = shapes.filter((shape) => {
         return constraints.blacklist.every((shape2) => {
@@ -373,6 +388,8 @@ export class SelectManager {
         });
       });
     }
+
+    console.log(shapes);
 
     if (shapes.length > 0) {
       if (shapes[0] instanceof RegularShape || (shapes[0] instanceof LineShape && shapes[0].segments[0].isArc()))
@@ -406,6 +423,7 @@ export class SelectManager {
    *          - Pour un point: un objet de type Point;
    */
   static selectObject(mouseCoordinates) {
+    console.log(mouseCoordinates)
     let constr = app.workspace.selectionConstraints,
       calls = {
         points: (mCoord, constr) => {
