@@ -93,8 +93,9 @@ export class ShapeManager {
    */
   static shapesThatContainsCoordinates(coord, constraints = {}) {
     let allShapes = [...app.mainCanvasLayer.shapes];
-    if (constraints.canSelectFromUpper)
+    if (constraints.canSelectFromUpper) {
       allShapes.push(...app.upperCanvasLayer.shapes);
+    }
     let list = allShapes.filter((shape) => {
       if (shape.isSegment() && !shape.segments[0].isArc()) {
         const seg = shape.segments[0];

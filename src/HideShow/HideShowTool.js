@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 
@@ -112,5 +113,12 @@ export class HideShowTool extends Tool {
       else
         s.geometryObject.geometryIsHidden = true;
     });
+    app.mainCanvasLayer.shapes.forEach(s => {
+      if (s instanceof SinglePointShape) {
+        let child = findObjectById(s.geometryObject.geometryPointOnTheFlyChildId);
+        if (child)
+          s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
+      }
+    })
   }
 }

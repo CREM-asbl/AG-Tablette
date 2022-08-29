@@ -807,14 +807,31 @@ class CanvasLayer extends LitElement {
         ? 'scale'
         : 'no scale',
       path = new Path2D(shape.getSVGPath(pathScaleMethod, true, false, true));
+    if (shape.drawHidden) {
+      let canvasPattern = document.createElement("canvas");
+      canvasPattern.width = 10;
+      canvasPattern.height = 10;
+      let contextPattern = canvasPattern.getContext("2d");
 
+      let path = new Path2D(`
+        M 5 0 L 10 5 L 10 10 L 0 0 L 5 0 M 0 5 L 5 10 L 0 10 L 0 5
+      `);
+      contextPattern.fillStyle = this.ctx.fillStyle;
+      contextPattern.fill(path);
+
+      let pattern = this.ctx.createPattern(canvasPattern, "repeat");
+      canvasPattern.remove();
+
+      this.ctx.fillStyle = pattern;
+    }
     this.ctx.fill(path, 'nonzero');
 
     path = new Path2D(shape.getSVGPath(pathScaleMethod, true, true));
     this.ctx.globalAlpha = 1;
 
-    if (shape.drawHidden)
+    if (shape.drawHidden) {
       this.ctx.setLineDash([5, 15]);
+    }
     if (shape.segments.some(seg => seg.color != undefined)) {
       shape.segments.forEach(seg => {
         let path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
