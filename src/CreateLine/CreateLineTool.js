@@ -256,9 +256,9 @@ export class CreateLineTool extends Tool {
         constraints,
       );
       if (adjustedSegment) {
-        adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) => {
-          intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1;
-        })[0];
+        adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) =>
+          intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1
+        )[0];
         point.adjustedOn = adjustedSegment;
       }
       point.coordinates = new Coordinates(adjustedCoordinates);
