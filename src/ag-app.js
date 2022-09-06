@@ -6,7 +6,7 @@ import { app, setState } from './Core/App';
 import { loadEnvironnement } from './Core/Environments/Environment';
 import './Core/Manifest';
 import { Coordinates } from './Core/Objects/Coordinates';
-import { openFileFromId } from './Firebase/firebase-init';
+import { openFileFromServer } from './Firebase/firebase-init';
 
 class AgApp extends LitElement {
   static get properties() {
@@ -36,9 +36,9 @@ class AgApp extends LitElement {
       this.openEnv(part);
       return;
     }
-    let activityId = parsedUrl.searchParams.get("activityId");
-    if (activityId)
-      openFileFromId(activityId);
+    let activityName = parsedUrl.searchParams.get("activityName");
+    if (activityName)
+      openFileFromServer(activityName);
     let generateSVGs = parsedUrl.searchParams.get("generateSVGs");
     if (generateSVGs)
       AgApp.generateSVGs(generateSVGs);

@@ -8,9 +8,7 @@ class FileElem extends LitElement {
   static get properties() {
     return {
       title: String,
-      fileName: String,
-      env: String,
-      fileId: String,
+      environment: String,
     };
   }
 
@@ -37,37 +35,17 @@ class FileElem extends LitElement {
     ];
   }
 
-  firstUpdated() {
-    let extension = this.getExtension(this.title);
-
-    const environmentsByExtensions = {
-      agg: 'Grandeurs',
-      agt: 'Tangram',
-      agc: 'Cubes',
-      agl: 'Geometrie',
-    };
-
-    this.env = environmentsByExtensions[extension];
-  }
-
-  getExtension(fileName) {
-    return fileName.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2);
-  }
-
   render() {
     return html`
-      <div @click="${this.openFile}">${this.title.slice(0, -4)} ${this.env ? '(' + this.env + ')' : ''}</div>
+      <div @click="${this.openFile}">${this.title} ${'(' + this.environment + ')'}</div>
     `;
   }
 
-  /**
-   * event handler principal
-   */
   async openFile() {
-    if (this.env != app.environment.name && confirm('Voulez-vous ouvrir ce fichier dans ' + this.env + '?')) {
-      window.location.href = location.protocol + '//' + location.host + location.pathname + '?activityId=' + this.fileId;
+    if (this.environment != app.environment.name && confirm('Voulez-vous ouvrir ce fichier dans ' + this.environment + '?')) {
+      window.location.href = location.protocol + '//' + location.host + location.pathname + '?activityName=' + this.title;
     }
-    let fileContent = await readFileFromServer(this.fileName);
+    let fileContent = await readFileFromServer(this.title);
     OpenFileManager.parseFile(fileContent);
     window.dispatchEvent(new CustomEvent('close-popup'));
   }

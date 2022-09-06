@@ -1,15 +1,16 @@
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from 'firebase/app';
-import { collection, doc, getDoc, getDocs, getFirestore, query } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
 import { getPerformance } from "firebase/performance";
+import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import { setState } from '../Core/App';
 import { loadEnvironnement } from '../Core/Environments/Environment';
 import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import config from './firebase-config.json';
 
-
 const firebaseApp = initializeApp(config);
 const db = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
 
 if (location.hostname != 'localhost') {
   // firebase.analytics();
@@ -18,117 +19,63 @@ if (location.hostname != 'localhost') {
   const perf = getPerformance(firebaseApp);
 }
 
-async function handleNotionRequest(searchAssociated, query) {
-  const querySnapshot = await getDocs(query);
-
-  let notionInfos = [];
-  querySnapshot.forEach(doc => notionInfos.push({id: doc.id, ...doc.data()}));
-  if (notionInfos.length > 0) {
-    // if (searchAssociated) {
-    //   let notionInfosWithSequences = await findAlsoSequence(notionInfo, false);
-    //   return notionInfosWithSequences;
-    // }
-    return notionInfos;
-  } else {
-    console.info('request error');
-  }
-}
-
-export async function findAllNotions(searchAssociated = true) {
-  // connectDB();
-  let notionInfos = await handleNotionRequest(searchAssociated, query(collection(db, "Notions")));
-  return notionInfos;
-}
-
-async function handleSequenceRequest(searchAssociated, query) {
-  const querySnapshot = await getDocs(query);
-
-  let sequenceInfos = [];
-  querySnapshot.forEach(doc => sequenceInfos.push({id: doc.id, ...doc.data()}));
-  if (sequenceInfos.length > 0) {
-    // if (searchAssociated) {
-    //   let sequenceInfosWithFiles = await findAlsoFile(sequenceInfo, false);
-    //   let sequenceInfosWithNotion = await findAlsoNotion(sequenceInfosWithFiles, false);
-    //   return sequenceInfosWithNotion;
-    // }
-    return sequenceInfos;
-  } else {
-    console.info('request error');
-  }
-}
-
-export async function findSequencesByIds(ids, searchAssociated = true) {
-  // connectDB();
-  let sequenceInfos = await handleSequenceRequest(searchAssociated, query(collection(db, "Sequences")));//, where(FieldPath.documentId(), 'in', ids)));
-  sequenceInfos = sequenceInfos.filter(sequenceInfo => ids.includes(sequenceInfo.id)); // modifier pour en tenir compte dans la requête
-  return sequenceInfos;
-}
-
-async function handleFileRequest(searchAssociated, query) {
-  const querySnapshot = await getDocs(query);
-
-  let fileInfos = [];
-  querySnapshot.forEach(doc => fileInfos.push({id: doc.id, ...doc.data()}));
-  if (fileInfos.length > 0) {
-    // if (searchAssociated) {
-    //   let fileInfosWithFiles = await findAlsoFile(sequenceInfo, false);
-    //   let fileInfosWithNotion = await findAlsoNotion(fileInfosWithFiles, false);
-    //   return fileInfosWithNotion;
-    // }
-    return fileInfos;
-  } else {
-    console.info('request error');
-  }
-}
-
-export async function findFilesByIds(ids, searchAssociated = true) {
-  let fileInfos = await handleFileRequest(searchAssociated, query(collection(db, "Files")));//, where(FieldPath.documentId(), 'in', ids)));
-  fileInfos = fileInfos.filter(fileInfo => ids.includes(fileInfo.id)); // modifier pour en tenir compte dans la requête
-  return fileInfos;
-}
-
-export async function openFileFromId(id) {
-  const data = await getDataFromDocId(id);
+export async function openFileFromServer(activityName) {
+  const data = await getFileDocFromFilename(activityName);
   if (data) {
-    let fileContent = await readFileFromServer(data.URL);
+    let fileContent = await readFileFromServer(data.id);
     window.addEventListener('app-started', () => OpenFileManager.parseFile(fileContent), {once: true});
 
     setState({ appLoading: true });
-    setState({ environment: await loadEnvironnement(data.Environment) });
+    setState({ environment: await loadEnvironnement(data.environment) });
   }
 }
 
-export async function getDataFromDocId(id) {
-  const docRef = doc(db, "Files", id);
+export async function readFileFromServer(filename) {
+  let URL = await getDownloadURL(ref(storage, filename));
+  let fileDownloaded = await fetch(URL);
+  let fileDownloadedObject = await fileDownloaded.json();
+  return fileDownloadedObject;
+}
+
+export async function getFileDocFromFilename(id) {
+  const docRef = doc(db, "files", id);
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
-    return docSnap.data();
+    return {id, ...docSnap.data()};
   } else {
     // doc.data() will be undefined in this case
     console.info("No such document!");
   }
 }
 
-export async function readFileFromServer(filename) {
-  const response = await fetch(filename, { mode: 'cors' });
-  if (response.ok) {
-    let object = await response.json();
-    if (object) return object;
-    else console.error('Failed to parse file', smallFilename);
-  } else {
-    console.error('Failed to get file', smallFilename);
-  }
+export async function findAllThemes() {
+  let themes = await getDocs(collection(db, "themes"));
+  let themesWithId = [];
+  themes.forEach(doc => themesWithId.push({id: doc.id, ...doc.data()}));
+  return themesWithId;
 }
 
-// export function getFilesInfosFromEnvironment() {
-//   app.db.collection("Files").where('Environment', '==', app.environment.name).get().then((querySnapshot) => {
-//     let filesInfos = [];
-//     querySnapshot.forEach(doc => filesInfos.push(doc.data()));
-//     if (filesInfos.length > 0) {
-//       window.dispatchEvent(new CustomEvent('filesInfos-request-done', { detail: { status: 'successful', filesInfos: filesInfos } }));
-//     } else {
-//       console.info('request error');
-//     }
-//   });
-// }
+export function getThemeDocFromThemeName(themeName) {
+  let themeDoc = doc(db, 'themes', themeName);
+  return themeDoc;
+}
+
+export function getModuleDocFromModuleName(moduleName) {
+  let moduleDoc = doc(db, 'modules', moduleName);
+  return moduleDoc;
+}
+
+export async function getModulesDocFromTheme(themeDoc) {
+  let moduleDocs = await getDocs(query(collection(db, "modules"), where("theme", "==", themeDoc)));
+  let moduleDocsWithId = [];
+  moduleDocs.forEach(doc => moduleDocsWithId.push({id:doc.id, ...doc.data()}));
+  return moduleDocsWithId;
+}
+
+export async function getFilesDocFromModule(moduleDoc) {
+  let fileDocs = await getDocs(query(collection(db, "files"), where("module", "==", moduleDoc)));
+  let fileDocsWithId = [];
+  fileDocs.forEach(doc => fileDocsWithId.push({id:doc.id, ...doc.data()}));
+  return fileDocsWithId;
+}
