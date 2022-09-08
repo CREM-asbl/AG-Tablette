@@ -37,7 +37,7 @@ class FileElem extends LitElement {
 
   render() {
     return html`
-      <div @click="${this.openFile}">${this.title} ${'(' + this.environment + ')'}</div>
+      <div @click="${this.openFile}">${this.filenameWithoutExtension(this.title)} ${'(' + this.environment + ')'}</div>
     `;
   }
 
@@ -48,6 +48,10 @@ class FileElem extends LitElement {
     let fileContent = await readFileFromServer(this.title);
     OpenFileManager.parseFile(fileContent);
     window.dispatchEvent(new CustomEvent('close-popup'));
+  }
+
+  filenameWithoutExtension(fileName) {
+    return fileName.slice(0, fileName.lastIndexOf('.'));
   }
 }
 customElements.define('file-elem', FileElem);
