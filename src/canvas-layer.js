@@ -219,7 +219,7 @@ class CanvasLayer extends LitElement {
           shapeData.fillOpacity = parseFloat(shapeData.opacity);
           shapeData.strokeColor = shapeData.borderColor;
           shapeData.strokeWidth = shapeData.borderSize;
-          if (shapeData.segmentIds.length == 1) {
+          if (shapeData.segmentIds.length == 1 && !shapeData.name.startsWith('Disque')) {
             LineShape.loadFromData(shapeData);
           } else {
             RegularShape.loadFromData(shapeData);
