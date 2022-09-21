@@ -334,6 +334,7 @@ class CanvasLayer extends LitElement {
         'mousedown' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
+      this.pressPositionForLongPress = mousePos;
       this.pressTimeoutId = window.setTimeout(() => app.dispatchEv(new CustomEvent('canvasLongPress')), 1000);
       app.dispatchEv(new CustomEvent('canvasMouseDown'));
     });
@@ -358,7 +359,8 @@ class CanvasLayer extends LitElement {
           detail: { mousePos: mousePos },
         }),
       );
-      window.clearTimeout(this.pressTimeoutId);
+      if (this.pressPositionForLongPress?.dist(mousePos) > 5)
+        window.clearTimeout(this.pressTimeoutId);
       app.dispatchEv(new CustomEvent('canvasMouseMove'));
     });
 

@@ -36,6 +36,7 @@ export class ColorTool extends Tool {
   }
 
   listen() {
+    this.mustPreventNextClick = false;
     this.removeListeners();
 
     // this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
