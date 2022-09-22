@@ -118,6 +118,8 @@ export class TemplatePopup extends LitElement {
       }
 
       #template-view {
+        max-height: 100%;
+        overflow: auto;
         display: grid;
         grid-template-columns: 1fr 40px;
         margin: auto;
@@ -125,7 +127,6 @@ export class TemplatePopup extends LitElement {
         box-shadow: 0px 0px 30px rgb(102, 102, 102);
         /* border: 2px solid gray; */
         background-color: var(--theme-color-soft);
-        overflow-y: hidden;
       }
 
       #popup-close {
@@ -134,7 +135,6 @@ export class TemplatePopup extends LitElement {
         cursor: pointer;
         color: #555;
         margin: 8px;
-        /* overflow: hidden; */
         line-height: 40%;
 
         display: grid;

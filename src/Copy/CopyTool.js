@@ -123,7 +123,6 @@ export class CopyTool extends Tool {
   }
 
   refreshStateUpper() {
-
     if (app.tool.currentStep == 'move') {
       this.shapeMoved++;
       if (this.shapeMoved <= 10)

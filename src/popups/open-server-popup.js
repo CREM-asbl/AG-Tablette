@@ -39,10 +39,6 @@ class OpenServerPopup extends LitElement {
   }
 
   updated() {
-    // window.setTimeout(
-    //   () => this.shadowRoot.querySelector('#focus').focus(),
-    //   200,
-    // );
   }
 
   render() {
@@ -60,9 +56,6 @@ class OpenServerPopup extends LitElement {
     this.remove();
   }
 
-  /**
-   * event handler principal
-   */
   _actionHandle(event) {
     switch (event.target.name) {
     }
