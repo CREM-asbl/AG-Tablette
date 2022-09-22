@@ -81,6 +81,7 @@ class ModuleElem extends LitElement {
   async loadFiles() {
     let moduleDocRef = getModuleDocFromModuleName(this.title);
     let filesDoc = await getFilesDocFromModule(moduleDocRef);
+    filesDoc = filesDoc.filter(fileDoc => !fileDoc.hidden);
     this.files = filesDoc;
   }
 }
