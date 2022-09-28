@@ -1,10 +1,15 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
-import { Shape } from '../Core/Objects/Shape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { addInfoToId, findObjectById } from '../Core/Tools/general';
+import { compareIdBetweenLayers, duplicateShape } from '../Core/Tools/shapesTools';
+import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
+import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
 
 /**
  * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -48,21 +53,19 @@ export class RotateTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
 
   listen() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -72,55 +75,63 @@ export class RotateTool extends Tool {
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
   }
 
   /**
    * Appelée par événement du SelectManager quand une figure est sélectionnée (canvasMouseDown)
-   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
     this.selectedShape = shape;
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
+    if (app.environment.name == 'Geometrie') {
+      this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
+      for (let i = 0; i < this.involvedShapes.length; i++) {
+        let currentShape = this.involvedShapes[i];
+        if (currentShape.geometryObject?.geometryTransformationName != null) {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être tournées.' } }));
+          return;
+        }
+      }
+    }
+
+    this.shapesToCopy = [...this.involvedShapes];
+    this.shapesToCopy.forEach(s => {
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy)
+    });
+
+    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+    this.lastKnownMouseCoordinates = this.startClickCoordinates;
+
     this.center = shape.centerCoordinates;
     this.initialAngle = this.center.angleWith(
       app.workspace.lastKnownMouseCoordinates,
     );
     this.lastAngle = this.initialAngle;
 
-    this.involvedShapes.sort(
+    this.shapesToCopy.sort(
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
-    this.drawingShapes = this.involvedShapes.map(
-      (s) =>
-        new Shape({
-          ...s,
-          drawingEnvironment: app.upperDrawingEnvironment,
-          path: s.getSVGPath('no scale'),
-          id: undefined,
-          divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
-          })).flat(),
-        }),
+    this.drawingShapes = this.shapesToCopy.map(
+      (s) => duplicateShape(s)
     );
+    this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => compareIdBetweenLayers(inShape.id, s.id)));
 
-    new Point({
-      coordinates: this.center,
-      drawingEnvironment: app.upperDrawingEnvironment,
-      color: this.drawColor,
-    });
+    if (app.environment.name != 'Cubes')
+      new Point({
+        coordinates: this.center,
+        layer: 'upper',
+        color: this.drawColor,
+      });
 
-    app.mainDrawingEnvironment.editingShapeIds = this.involvedShapes.map(
+    app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(
       (s) => s.id,
     );
     setState({ tool: { ...app.tool, currentStep: 'rotate' } });
@@ -129,36 +140,6 @@ export class RotateTool extends Tool {
 
   canvasMouseUp() {
     if (app.tool.currentStep != 'rotate') return;
-
-    let newAngle = this.center.angleWith(
-      app.workspace.lastKnownMouseCoordinates,
-    );
-    let rotationAngle = newAngle - this.initialAngle;
-    this.adjustedRotationAngle = rotationAngle;
-
-    if (app.environment.name == 'Tangram') {
-      const rotationAngleInDegree = (rotationAngle / Math.PI) * 180;
-      let adjustedRotationAngleInDegree = rotationAngleInDegree;
-      adjustedRotationAngleInDegree = Math.round(rotationAngleInDegree);
-      let sign = rotationAngleInDegree > 0 ? 1 : -1;
-      let absoluteValueRotationAngleInDegree = Math.abs(
-        adjustedRotationAngleInDegree,
-      );
-      if (absoluteValueRotationAngleInDegree % 5 <= 2) {
-        adjustedRotationAngleInDegree =
-          sign *
-          (absoluteValueRotationAngleInDegree -
-            (absoluteValueRotationAngleInDegree % 5));
-      } else {
-        adjustedRotationAngleInDegree =
-          sign *
-          (absoluteValueRotationAngleInDegree +
-            5 -
-            (absoluteValueRotationAngleInDegree % 5));
-      }
-      this.adjustedRotationAngle =
-        (adjustedRotationAngleInDegree * Math.PI) / 180;
-    }
 
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
@@ -174,26 +155,36 @@ export class RotateTool extends Tool {
         ),
         diffAngle = newAngle - this.lastAngle;
 
-      this.drawingShapes.forEach((s) => s.rotate(diffAngle, this.center));
-
       this.lastAngle = newAngle;
+      this.shapesToMove.forEach((s) => {
+        s.rotate(diffAngle, this.center);
+        computeAllShapeTransform(s, 'upper', false);
+      });
     }
+    this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
   }
 
   _executeAction() {
-    let center = this.selectedShape.centerCoordinates;
-
-    this.involvedShapes.forEach((s) => {
-      s.rotate(this.adjustedRotationAngle, center);
-    });
-
-    let transformation = getShapeAdjustment(
-      this.involvedShapes,
+    let centerCoordinates = this.selectedShape.centerCoordinates;
+    let adjustment = getShapeAdjustment(
+      this.shapesToMove,
       this.selectedShape,
     );
-    this.involvedShapes.forEach((s) => {
-      s.rotate(transformation.rotationAngle, center);
-      s.translate(transformation.translation);
+    app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => shapeToMove.id == addInfoToId(editingShapeId, 'upper'))).forEach((sId, idxS) => {
+      let s = findObjectById(sId);
+      s.points.forEach((pt, idxPt) => {
+        pt.coordinates = new Coordinates(this.shapesToMove[idxS].points[idxPt].coordinates);
+        if (this.pointOnLineRatio)
+          pt.ratio = this.pointOnLineRatio;
+      });
+
+      s.rotate(
+        adjustment.rotationAngle,
+        centerCoordinates,
+      );
+      s.translate(adjustment.translation);
+
+      computeAllShapeTransform(s, 'main', false);
     });
   }
 }

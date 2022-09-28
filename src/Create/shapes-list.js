@@ -1,5 +1,5 @@
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit';
 
 class ShapesList extends LitElement {
   static get properties() {
@@ -59,7 +59,7 @@ class ShapesList extends LitElement {
       }
 
       h2 {
-        padding: 4px;
+        padding: 4px 4px 0px 4px;
         margin: 0;
         text-align: center;
         font-size: 1.2rem;
@@ -107,17 +107,18 @@ class ShapesList extends LitElement {
         </h2>
         <div id="list">
           ${this.templateNames.map(
-            (templateName) => html`
-              <canvas-button
+            (templateName) => {
+              return html`
+              <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${templateName.replace(/ \d+$/, '')}"
-                familyName="${this.selectedFamily}"
-                templateName="${templateName}"
-                @click="${this._clickHandle}"
+                name="${templateName}"
+                type="Create"
+                title="${templateName}"
                 ?active="${templateName === this.selectedTemplate}"
+                @click="${this._clickHandle}"
               >
-              </canvas-button>
-            `,
+              </icon-button>
+            `},
           )}
         </div>
       </div>
@@ -128,7 +129,7 @@ class ShapesList extends LitElement {
     setState({
       tool: {
         ...app.tool,
-        selectedTemplate: event.target.templateName,
+        selectedTemplate: event.target.name,
         currentStep: 'listen',
       },
     });

@@ -1,5 +1,5 @@
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit';
 
 class LinesList extends LitElement {
   constructor() {
@@ -14,8 +14,22 @@ class LinesList extends LitElement {
       'StraightLine',
       'ParalleleStraightLine',
       'PerpendicularStraightLine',
+      'Vector',
       // 'Strip',
     ];
+
+    this.lineTitle = {
+      'Segment': 'Segment',
+      'ParalleleSegment': 'Segment parallèle',
+      'PerpendicularSegment': 'Segment perpendiculaire',
+      'SemiStraightLine': 'Demi-droite',
+      'ParalleleSemiStraightLine': 'Demi-droite parallèle',
+      'PerpendicularSemiStraightLine': 'Demi-droite perpendiculaire',
+      'StraightLine': 'Droite',
+      'ParalleleStraightLine': 'Droite parallèle',
+      'PerpendicularStraightLine': 'Droite perpendiculaire',
+      'Vector': 'Vecteur',
+    }
 
     this.updateProperties = () => {
       this.selectedLine = app.tool.selectedLine;
@@ -66,7 +80,7 @@ class LinesList extends LitElement {
       }
 
       h2 {
-        padding: 4px;
+        padding: 4px 4px 0px 4px;
         margin: 0;
         text-align: center;
         font-size: 1.2rem;
@@ -102,13 +116,17 @@ class LinesList extends LitElement {
         }
       </style>
       <div class="container">
-        <h2>Lignes</h2>
+        <h2>
+          ${this.selectedLine
+            ? this.lineTitle[this.selectedLine]
+            : 'Lignes'}
+        </h2>
         <div id="list">
           ${this.linesNames.map(
             (lineName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${lineName}"
+                title="${this.lineTitle[lineName]}"
                 type="Geometry"
                 name="${lineName}"
                 @click="${this._clickHandle}"

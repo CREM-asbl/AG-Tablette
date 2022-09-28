@@ -1,9 +1,9 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from './template-popup';
+import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
 import { createElem } from '../Core/Tools/general';
 import './open-server-popup';
 import './save-warning';
+import { TemplatePopup } from './template-popup';
 
 class OpenPopup extends LitElement {
   static get properties() {
@@ -21,18 +21,12 @@ class OpenPopup extends LitElement {
     return [
       TemplatePopup.template_popup_styles(),
       css`
-        color-button {
-          padding: 8px 0px;
-          margin: 0px;
-          width: 100%;
+        [slot='body'] {
+          padding: 0;
         }
 
-        #focus {
-          margin-bottom: 18px;
-        }
-
-        save-warning {
-          margin-bottom: 18px;
+        [slot='footer'] {
+          padding-top: 16px;
         }
       `,
     ];
@@ -53,9 +47,12 @@ class OpenPopup extends LitElement {
           ${app.stepSinceSave ? html`
             <save-warning></save-warning>
           ` : ''}
-          <color-button id="focus" name="LocalOpenFile" @click="${this._actionHandle}" innerText="Ouvrir en local"></color-button>
+        </div>
 
+        <div slot="footer">
+          <color-button id="focus" name="LocalOpenFile" @click="${this._actionHandle}" innerText="Ouvrir en local"></color-button>
           <color-button name="ServerOpenFile" @click="${this._actionHandle}" innerText="Ouvrir sur le serveur"></color-button>
+          <color-button @click="${this.close}" innerText="Annuler"></color-button>
         </div>
       </template-popup>
     `;

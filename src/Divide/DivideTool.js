@@ -1,11 +1,13 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem } from '../Core/Tools/general';
-import { Segment } from '../Core/Objects/Segment';
-import { Shape } from '../Core/Objects/Shape';
-import { Point } from '../Core/Objects/Point';
+import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
+import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { Tool } from '../Core/States/Tool';
+import { createElem, findObjectById, removeObjectById } from '../Core/Tools/general';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -20,7 +22,7 @@ export class DivideTool extends Tool {
 
     this.timeoutRef = null;
 
-    this.drawColor = '#E90CC8';
+    this.drawColors = ['#E90CC8', '#3e6aed', '#21eb53'];
 
     this.numberOfParts = 2;
   }
@@ -50,9 +52,6 @@ export class DivideTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
@@ -61,7 +60,7 @@ export class DivideTool extends Tool {
   }
 
   selectObject() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 
@@ -73,14 +72,13 @@ export class DivideTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 
-    let firstPoint = app.mainDrawingEnvironment.findObjectById(
-      app.tool.firstPointId,
-      'point',
+    let firstPoint = findObjectById(
+      app.tool.firstPointIds[0]
     );
     new Point({
       coordinates: firstPoint.coordinates,
-      drawingEnvironment: app.upperDrawingEnvironment,
-      color: this.drawColor,
+      layer: 'upper',
+      color: this.drawColors[0],
       size: 2,
     });
     // window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -92,11 +90,8 @@ export class DivideTool extends Tool {
     this.removeListeners();
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
   }
@@ -110,19 +105,16 @@ export class DivideTool extends Tool {
     ];
     if (app.tool.currentStep == 'selectObject') {
       app.workspace.selectionConstraints.segments.canSelect = true;
-      app.workspace.selectionConstraints.segments.blacklist = app.mainDrawingEnvironment.shapes
+      app.workspace.selectionConstraints.segments.blacklist = app.mainCanvasLayer.shapes
         .filter((s) => s.isStraightLine() || s.isSemiStraightLine())
         .map((s) => {
           return { shapeId: s.id };
         });
       app.workspace.selectionConstraints.points.canSelect = true;
-      app.workspace.selectionConstraints.points.blacklist = app.mainDrawingEnvironment.shapes
-        .filter((s) => s.isStraightLine() || s.isSemiStraightLine())
-        .map((s) => {
-          return { shapeId: s.id };
-        });
+      app.workspace.selectionConstraints.points.numberOfObjects = 'allSuperimposed';
     } else if (app.tool.currentStep == 'selectSecondPoint') {
       app.workspace.selectionConstraints.points.canSelect = true;
+      app.workspace.selectionConstraints.points.numberOfObjects = 'allSuperimposed';
     }
   }
 
@@ -135,146 +127,148 @@ export class DivideTool extends Tool {
   objectSelected(object) {
     if (app.tool.currentStep == 'selectObject') {
       if (object instanceof Segment) {
-        this.segmentId = object.id;
+        if (object.shape instanceof ArrowLineShape) {
+          this.vectorId = object.shape.id;
+          this.mode = 'vector';
+          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+        } else {
+          this.segmentId = object.id;
 
-        new Shape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          borderColor: this.drawColor,
-          borderSize: 3,
-          path: object.getSVGPath('no scale', undefined, true),
-          id: undefined,
-          color: '#000',
-          opacity: 0,
-        });
+          new LineShape({
+            layer: 'upper',
+            strokeColor: this.drawColors[0],
+            strokeWidth: 3,
+            path: object.getSVGPath('no scale', true),
+            id: undefined,
+          });
 
-        this.mode = 'segment';
-        setState({ tool: { ...app.tool, currentStep: 'divide' } });
+          this.mode = 'segment';
+          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+        }
       } else {
-        this.firstPointId = object.id;
+        this.firstPointIds = object.map(pt => pt.id);
 
         this.setSelectionConstraints();
         setState({
           tool: {
             ...app.tool,
             currentStep: 'selectSecondPoint',
-            firstPointId: this.firstPointId,
+            firstPointIds: this.firstPointIds,
           },
         });
       }
     } else if (app.tool.currentStep == 'selectSecondPoint') {
-      let pt1 = app.mainDrawingEnvironment.findObjectById(
-        this.firstPointId,
-        'point',
+      let pt1 = findObjectById(
+        this.firstPointIds[0]
       );
+      let object1 = object[0];
 
-      if (pt1.id == object.id) {
+      if (pt1.coordinates.dist(object1.coordinates) < 0.01) {
         // pt1 == object => désélectionner le point.
-        app.upperDrawingEnvironment.removeObjectById(
-          app.upperDrawingEnvironment.points[0].id,
-          'point',
+        removeObjectById(
+          app.upperCanvasLayer.points[0].id
         );
 
-        this.setSelectionConstraints();
         setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
-      } else if (pt1.shape.id != object.shape.id) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir à la même figure.' } }));
-      } else if (!pt1.segments.map(seg => seg.id).some(idPt1 => object.segments.map(seg => seg.id).some(idObject => idObject == idPt1))) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir au même segment' } }));
       } else {
-        if (pt1.type == 'vertex' && object.type == 'vertex') {
-          /*
-              Vérifie s'il y a une ambiguité sur l'action à réaliser: si les 2
-              poins sont reliés par un arc de cercle, et aussi par un segment (la
-              figure est donc constituée uniquement de 2 sommets, un segment et un
-              arc de cercle), on annule l'action.
-                */
-          if (
-            pt1.segmentIds.length == 2 &&
-            object.segmentIds.length == 2 &&
-            ((pt1.segmentIds[0] == object.segmentIds[0] &&
-              pt1.segmentIds[1] == object.segmentIds[1]) ||
-              (pt1.segmentIds[0] == object.segmentIds[1] &&
-                pt1.segmentIds[1] == object.segmentIds[0]))
-          ) {
-            console.warn('ambiguité, ne rien faire');
+        let pointsToDivide = [];
+        let firstPoints = this.firstPointIds.map(ptId => findObjectById(
+          ptId
+        ));
+        let newObjects = [...object];
+        for (let i = 0; i < firstPoints.length; i++) {
+          for (let j = 0; j < newObjects.length; j++) {
+            let firstSegmentIds;
+            if (firstPoints[i].shape.name == 'PointOnLine')
+              firstSegmentIds = [firstPoints[i].shape.geometryObject.geometryParentObjectId1];
+            else if (firstPoints[i].shape.name.startsWith('PointOnIntersection'))
+              firstSegmentIds = [firstPoints[i].shape.geometryObject.geometryParentObjectId1, firstPoints[i].shape.geometryObject.geometryParentObjectId2];
+            else
+              firstSegmentIds = firstPoints[i].segmentIds;
+            let secondSegmentIds;
+            if (newObjects[j].shape.name == 'PointOnLine')
+              secondSegmentIds = [newObjects[j].shape.geometryObject.geometryParentObjectId1];
+            else if (newObjects[j].shape.name.startsWith('PointOnIntersection'))
+              secondSegmentIds = [newObjects[j].shape.geometryObject.geometryParentObjectId1, newObjects[j].shape.geometryObject.geometryParentObjectId2];
+            else
+              secondSegmentIds = newObjects[j].segmentIds;
+            for (let m = 0; m < firstSegmentIds.length; m++) {
+              for (let n = 0; n < secondSegmentIds.length; n++) {
+                if (firstSegmentIds[m] == secondSegmentIds[n]) {
+                  pointsToDivide.push([firstPoints[i], newObjects[j], firstSegmentIds[m]]);
+                }
+              }
+            }
           }
         }
-        this.secondPointId = object.id;
-        this.mode = 'twoPoints';
+        if (pointsToDivide.length == 0) {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir au même segment' } }));
+          return;
+        }
 
         new Point({
-          coordinates: object.coordinates,
-          drawingEnvironment: app.upperDrawingEnvironment,
-          color: this.drawColor,
+          coordinates: pointsToDivide[0][1].coordinates,
+          layer: 'upper',
+          color: this.drawColors[0],
           size: 2,
         });
 
-        let firstCoordinates = pt1.coordinates,
-          secondCoordinates = object.coordinates;
-        let commonSegment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
-          this.firstPointId,
-          this.secondPointId,
-        );
-        let shape = object.shape;
-        let path = [
-          'M',
-          firstCoordinates.x,
-          firstCoordinates.y,
-          'L',
-          secondCoordinates.x,
-          secondCoordinates.y,
-        ].join(' ');
-        if (commonSegment.isArc()) {
-          if (!shape.isCircle()) {
-            commonSegment.vertexes[0].ratio = 0;
-            commonSegment.vertexes[1].ratio = 1;
-            if ((pt1.ratio > object.ratio) ^ commonSegment.counterclockwise) {
-              [this.firstPointId, this.secondPointId] = [
-                this.secondPointId,
-                this.firstPointId,
-              ];
-              [firstCoordinates, secondCoordinates] = [
-                secondCoordinates,
-                firstCoordinates,
-              ];
-            }
-          }
-          let centerCoordinates = commonSegment.arcCenter.coordinates,
-            firstAngle = centerCoordinates.angleWith(firstCoordinates),
-            secondAngle = centerCoordinates.angleWith(secondCoordinates);
-          if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
-          let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
-            sweepFlag = 1;
-          // if (shape.isCircle()) {
-          //   if (this.counterclockwise) {
-          //     sweepFlag = Math.abs(sweepFlag - 1);
-          //     largeArcFlag = Math.abs(largeArcFlag - 1);
-          //   }
-          // }
-          path = [
+        pointsToDivide.forEach((pts, idx) => {
+          let firstCoordinates = pointsToDivide[0][0].coordinates;
+          let secondCoordinates = pointsToDivide[0][1].coordinates;
+          let commonSegment = findObjectById(pts[2]);
+          let shape = commonSegment.shape;
+          let path = [
             'M',
             firstCoordinates.x,
             firstCoordinates.y,
-            'A',
-            commonSegment.radius,
-            commonSegment.radius,
-            0,
-            largeArcFlag,
-            sweepFlag,
+            'L',
             secondCoordinates.x,
             secondCoordinates.y,
           ].join(' ');
-        }
-
-        new Shape({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          borderColor: this.drawColor,
-          borderSize: 3,
-          path: path,
-          id: undefined,
-          color: '#000',
-          opacity: 0,
+          if (commonSegment.isArc()) {
+            if (!shape.isCircle()) {
+              commonSegment.vertexes[0].ratio = 0;
+              commonSegment.vertexes[1].ratio = 1;
+              if ((pts[0].ratio > pts[1].ratio) ^ commonSegment.counterclockwise) {
+                [pointsToDivide[idx][0], pointsToDivide[idx][1]] = [
+                  pointsToDivide[idx][1],
+                  pointsToDivide[idx][0],
+                ];
+                [firstCoordinates, secondCoordinates] = [secondCoordinates, firstCoordinates];
+              }
+            }
+            let centerCoordinates = commonSegment.arcCenter.coordinates,
+              firstAngle = centerCoordinates.angleWith(firstCoordinates),
+              secondAngle = centerCoordinates.angleWith(secondCoordinates);
+            if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
+            let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+              sweepFlag = 1;
+            path = [
+              'M',
+              firstCoordinates.x,
+              firstCoordinates.y,
+              'A',
+              commonSegment.radius,
+              commonSegment.radius,
+              0,
+              largeArcFlag,
+              sweepFlag,
+              secondCoordinates.x,
+              secondCoordinates.y,
+            ].join(' ');
+          }
+          new LineShape({
+            layer: 'upper',
+            strokeColor: this.drawColors[idx],
+            strokeWidth: 3,
+            path: path,
+            id: undefined,
+          });
         });
+
+        this.mode = 'twoPoints';
+        this.pointsToDivide = pointsToDivide;
         setState({ tool: { ...app.tool, currentStep: 'divide' } });
       }
     }
@@ -297,36 +291,52 @@ export class DivideTool extends Tool {
   }
 
   _executeAction() {
-    if (this.mode == 'twoPoints') {
-      this.segment = app.mainDrawingEnvironment.getCommonSegmentOfTwoPoints(
-        this.firstPointId,
-        this.secondPointId,
-      );
-
-      this.firstPoint = app.mainDrawingEnvironment.findObjectById(
-        this.firstPointId,
-        'point',
-      );
-      this.secondPoint = app.mainDrawingEnvironment.findObjectById(
-        this.secondPointId,
-        'point',
-      );
-    } else {
-      this.segment = app.mainDrawingEnvironment.findObjectById(
-        this.segmentId,
-        'segment',
-      );
-    }
     this.numberOfParts = app.settings.numberOfDivisionParts;
-    if (this.mode == 'segment') {
+    if (this.mode == 'twoPoints') {
+      this.pointsToDivide.forEach(pts => {
+        this.firstPoint = pts[0];
+        this.secondPoint = pts[1];
+        this.segment = findObjectById(pts[2]);
+        if (this.segment.arcCenter)
+          this.pointsModeAddArcPoints();
+        else
+          this.pointsModeAddSegPoints();
+      });
+    } else if (this.mode == 'segment') {
+      this.segment = findObjectById(
+        this.segmentId
+      );
       if (this.segment.arcCenter) this.segmentModeAddArcPoints();
       else this.segmentModeAddSegPoints();
     } else {
-      if (this.segment.arcCenter) {
-        this.pointsModeAddArcPoints();
-      } else {
-        this.pointsModeAddSegPoints();
-      }
+      let vector = findObjectById(
+        this.vectorId
+      );
+      let secondPointCoordinates = vector.vertexes[0].coordinates.add(
+        vector.vertexes[1].coordinates
+          .substract(vector.vertexes[0].coordinates)
+          .multiply(1 / this.numberOfParts)
+      );
+      let path = [
+        'M',
+        vector.segments[0].vertexes[0].x,
+        vector.segments[0].vertexes[0].y,
+        'L',
+        secondPointCoordinates.x,
+        secondPointCoordinates.y,
+      ];
+      path = path.join(' ');
+
+      new ArrowLineShape({
+        layer: 'main',
+        path: path,
+        name: vector.name,
+        familyName: vector.familyName,
+        fillColor: vector.fillColor,
+        fillOpacity: vector.fillOpacity,
+        strokeColor: vector.strokeColor,
+        geometryObject: new GeometryObject({}),
+      });
     }
   }
 
@@ -346,7 +356,7 @@ export class DivideTool extends Tool {
 
     // Pour un cercle entier, on ajoute un point de division supplémentaire
     if (shape.isCircle()) {
-      this.segment.addPoint(this.firstPoint.coordinates, this.firstPoint.ratio);
+      this.segment.addPoint(this.firstPoint.coordinates, this.firstPoint.ratio, this.firstPoint.id, this.secondPoint.id);
     }
 
     let ratioCap =
@@ -373,7 +383,7 @@ export class DivideTool extends Tool {
         newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
       coord = new Coordinates({ x: newX, y: newY });
       let ratio = this.firstPoint.ratio + i * ratioCap;
-      this.segment.addPoint(coord, ratio);
+      this.segment.addPoint(coord, ratio, this.firstPoint.id, this.secondPoint.id);
     }
   }
 
@@ -384,12 +394,12 @@ export class DivideTool extends Tool {
   }
 
   pointsModeAddArcPoints() {
-    if (this.firstPoint.coordinates.equal(this.segment.vertexes[0].coordinates))
-      this.firstPoint.ratio = 0;
-    else if (
-      this.secondPoint.coordinates.equal(this.segment.vertexes[1].coordinates)
-    )
-      this.secondPoint.ratio = 1;
+    // if (this.firstPoint.coordinates.equal(this.segment.vertexes[0].coordinates))
+    //   this.firstPoint.ratio = 0;
+    // else if (
+    //   this.secondPoint.coordinates.equal(this.segment.vertexes[1].coordinates)
+    // )
+    //   this.secondPoint.ratio = 1;
     let shape = this.segment.shape,
       centerCoordinates = this.segment.arcCenter.coordinates,
       firstAngle = centerCoordinates.angleWith(this.firstPoint.coordinates),
@@ -398,10 +408,11 @@ export class DivideTool extends Tool {
       secondAngle += Math.PI * 2;
     }
     let ratioCap =
-      (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
-    if (shape.isCircle()) {
-      if (ratioCap < 0) ratioCap += 1 / this.numberOfParts;
-    }
+      // (this.secondPoint.ratio - this.firstPoint.ratio)
+      1 / this.numberOfParts;
+    // if (shape.isCircle()) {
+    //   if (ratioCap < 0) ratioCap += 1 / this.numberOfParts;
+    // }
 
     let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
@@ -416,21 +427,20 @@ export class DivideTool extends Tool {
         newY =
           radius * Math.sin(firstAngle + partAngle * i) + centerCoordinates.y;
       coord = new Coordinates({ x: newX, y: newY });
-      let ratio = this.firstPoint.ratio + i * ratioCap;
+      let ratio = //this.firstPoint.ratio +
+        i * ratioCap;
       if (ratio > 1) ratio--;
-      this.segment.addPoint(coord, ratio);
+      this.segment.addPoint(coord, ratio, this.firstPoint.id, this.secondPoint.id);
     }
   }
 
   pointsModeAddSegPoints() {
-    this.segment.vertexes[0].ratio = 0;
-    this.segment.vertexes[1].ratio = 1;
-
     if (this.firstPoint.ratio > this.secondPoint.ratio)
       [this.firstPoint, this.secondPoint] = [this.secondPoint, this.firstPoint];
 
     const ratioCap =
-      (this.secondPoint.ratio - this.firstPoint.ratio) / this.numberOfParts;
+      //(this.secondPoint.ratio - this.firstPoint.ratio)
+      1 / this.numberOfParts;
 
     const segLength = this.secondPoint.coordinates.substract(
       this.firstPoint.coordinates,
@@ -443,8 +453,9 @@ export class DivideTool extends Tool {
       i++
     ) {
       coord = coord.add(part);
-      let ratio = this.firstPoint.ratio + i * ratioCap;
-      this.segment.addPoint(coord, ratio);
+      let ratio = //this.firstPoint.ratio +
+        i * ratioCap;
+      this.segment.addPoint(coord, ratio, this.firstPoint.id, this.secondPoint.id);
     }
   }
 }

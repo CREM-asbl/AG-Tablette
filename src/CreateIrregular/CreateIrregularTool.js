@@ -1,13 +1,13 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
-import { uniqId } from '../Core/Tools/general';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { Shape } from '../Core/Objects/Shape';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Tool } from '../Core/States/Tool';
+import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -38,10 +38,8 @@ export class CreateIrregularTool extends Tool {
     `;
   }
 
-  /**
-   * (ré-)initialiser l'état
-   */
   start() {
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
 
     this.points = [];
@@ -78,7 +76,7 @@ export class CreateIrregularTool extends Tool {
 
     this.points.push(
       new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -86,18 +84,19 @@ export class CreateIrregularTool extends Tool {
     );
     if (this.points.length > 1) {
       let seg = new Segment({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         vertexIds: [
           this.points[this.points.length - 2].id,
           this.points[this.points.length - 1].id,
         ],
       });
       this.segments.push(seg);
-      new Shape({
-        drawingEnvironment: app.upperDrawingEnvironment,
+      new RegularShape({
+        layer: 'upper',
         segmentIds: [seg.id],
         pointIds: seg.vertexIds,
-        borderColor: app.settings.temporaryDrawColor,
+        strokeColor: app.settings.temporaryDrawColor,
+        fillOpacity: 0,
       });
     }
     setState({
@@ -116,7 +115,7 @@ export class CreateIrregularTool extends Tool {
       this.stopAnimation();
 
       this.executeAction();
-      app.upperDrawingEnvironment.removeAllObjects();
+      app.upperCanvasLayer.removeAllObjects();
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'start' },
       });
@@ -128,6 +127,7 @@ export class CreateIrregularTool extends Tool {
   }
 
   adjustPoint(point) {
+    point.adjustedOn = undefined;
     if (
       this.points.length > 2 &&
       SelectManager.areCoordinatesInMagnetismDistance(
@@ -139,13 +139,29 @@ export class CreateIrregularTool extends Tool {
     else {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;
-      let adjustedCoordinates = SelectManager.selectPoint(
+      let adjustedPoint;
+      if (adjustedPoint = SelectManager.selectPoint(
         point.coordinates,
         constraints,
         false,
-      );
-      if (adjustedCoordinates)
-        point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
+      )) {
+        point.coordinates = new Coordinates(adjustedPoint.coordinates);
+        point.adjustedOn = adjustedPoint;
+      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) {
+        point.coordinates = new Coordinates(adjustedPoint.coordinates);
+        point.adjustedOn = adjustedPoint;
+      } else {
+        constraints = SelectManager.getEmptySelectionConstraints().segments;
+        constraints.canSelect = true;
+        let adjustedSegment = SelectManager.selectSegment(
+          point.coordinates,
+          constraints,
+        );
+        if (adjustedSegment) {
+          point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+          point.adjustedOn = adjustedSegment;
+        }
+      }
     }
   }
 
@@ -166,14 +182,21 @@ export class CreateIrregularTool extends Tool {
       if (i != 0)
         path.push('L', point.coordinates.x, point.coordinates.y);
     })
-    path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
+    // path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');
 
-    let shape = new Shape({
-      drawingEnvironment: app.mainDrawingEnvironment,
+    let shape = new RegularShape({
+      layer: 'main',
       path: path,
       name: app.tool.selectedTriangle,
       familyName: familyName,
+      fillOpacity: 0,
+      geometryObject: new GeometryObject({}),
+    });
+
+    shape.vertexes.forEach((vx, idx) => {
+      vx.adjustedOn = this.points[idx].adjustedOn;
+      linkNewlyCreatedPoint(shape, vx);
     });
   }
 }

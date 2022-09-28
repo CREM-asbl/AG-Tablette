@@ -1,8 +1,8 @@
+import { html, LitElement } from 'lit';
 import { app } from '../Core/App';
-import { LitElement, html } from 'lit';
-import { TemplatePopup } from './template-popup';
 import { SaveFileManager } from '../Core/Managers/SaveFileManager';
 import '../version-item';
+import { TemplatePopup } from './template-popup';
 
 class SavePopup extends LitElement {
   static get properties() {
@@ -16,7 +16,7 @@ class SavePopup extends LitElement {
 
   constructor() {
     super();
-    this.filename = 'untitled';
+    this.filename = 'sans titre';
     this.saveSettings = SaveFileManager.saveSettings;
     this.saveHistory = SaveFileManager.saveHistory;
     this.imageFormat =
@@ -53,12 +53,12 @@ class SavePopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Sauvegarder</h2>
+        <h2 slot="title">Enregistrer</h2>
         <div slot="body" id="body">
           <div class="hideIfHasNativeFS">
-            <label for="save_popup_stateOrImage" style="display:inline"
-              >Méthode de sauvegarde</label
-            >
+            <label for="save_popup_stateOrImage" style="display:inline">
+              Méthode d'enregistrement
+            </label>
             <select
               name="save_popup_stateOrImage"
               id="save_popup_stateOrImage"
@@ -88,7 +88,7 @@ class SavePopup extends LitElement {
                 @change="${this._actionHandle}"
               />
               <label for="save_popup_settings"
-                >Sauvegarder les paramètres</label
+                >Enregistrer les paramètres</label
               >
             </div>
 
@@ -100,7 +100,7 @@ class SavePopup extends LitElement {
                 ?checked="${this.saveHistory}"
                 @change="${this._actionHandle}"
               />
-              <label for="save_popup_history">Sauvegarder l'historique</label>
+              <label for="save_popup_history">Enregistrer l'historique</label>
             </div>
           </div>
 
@@ -171,7 +171,7 @@ class SavePopup extends LitElement {
 
       case 'save_popup_filename':
         this.filename = event.target.value;
-        if (!this.filename) this.filename = 'untitled';
+        if (!this.filename) this.filename = 'sans titre';
         break;
 
       case 'save_popup_submit':
@@ -179,16 +179,20 @@ class SavePopup extends LitElement {
           this.stateOrImage == 'state'
             ? app.environment.extension
             : this.imageFormat;
+        let name = this.filename + '.' + extension,
+          saveSettings = this.saveSettings,
+          saveHistory = this.saveHistory;
+        this.remove();
+        setTimeout(() =>
         window.dispatchEvent(
           new CustomEvent('file-selected', {
             detail: {
-              name: this.filename + '.' + extension,
-              saveSettings: this.saveSettings,
-              saveHistory: this.saveHistory,
+              name,
+              saveSettings,
+              saveHistory,
             },
-          }),
-        );
-        this.close();
+          })
+        ), 300);
         break;
 
       case 'save_popup_format':

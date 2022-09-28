@@ -26,7 +26,7 @@ export class HistoryManager {
    */
   static undo() {
     if (!HistoryManager.canUndo()) {
-      console.warn('Nothing to undo');
+      console.info('Nothing to undo');
       return;
     }
     let index = app.history.index - 1;
@@ -72,7 +72,7 @@ export class HistoryManager {
    */
   static redo() {
     if (!HistoryManager.canRedo()) {
-      console.warn('Nothing to redo');
+      console.info('Nothing to redo');
       return;
     }
     let index = app.history.index + 1;

@@ -1,9 +1,8 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
-import { Text } from '../Core/Objects/Text';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Grouper des figures.
@@ -12,12 +11,11 @@ export class GroupTool extends Tool {
   constructor() {
     super('group', 'Grouper', 'tool');
 
-    // listen-canvas-click -> selecting-second-shape -> filling-group
-    this.currentStep = null;
-
     this.group = null;
 
     this.firstShape = null;
+
+    this.groupsColor = ['#77b5fe', '#096a09', '#f00020', '#03224c', '#34c924', '#d473d4', '#fd3f92', '#ff8400'];
   }
 
   /**
@@ -49,30 +47,33 @@ export class GroupTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
 
-    // setTimeout(() => {
-      app.mainDrawingEnvironment.shapes.map((s) => {
-        if (GroupManager.getShapeGroup(s) != null) {
-          new Text({
-            drawingEnvironment: app.upperDrawingEnvironment,
-            coordinates: s.centerCoordinates,
-            referenceId: s.id,
-            type: 'group',
-          });
-        }
-      });
-      // window.dispatchEvent(new CustomEvent('refreshUpper'));
-    // }, 50);
+    app.mainCanvasLayer.shapes.map((s) => {
+      let currentGroup = GroupManager.getShapeGroup(s);
+      if (currentGroup != null) {
+        new s.constructor({
+          ...s,
+          layer: 'upper',
+          path: s.getSVGPath('no scale', false, false),
+          fillOpacity: 0,
+          strokeColor: currentGroup.color,
+          strokeWidth: 3,
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+          }),
+          pointsColor: s.points.map((pt) => {
+            return pt.color;
+          }),
+        });
+      }
+    });
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
@@ -95,21 +96,12 @@ export class GroupTool extends Tool {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
   }
 
-  /**
-   * Appelée par événement du SelectManager quand une figure est sélectionnée (onClick)
-   * @param  {Shape} shape            La figure sélectionnée
-   */
   objectSelected(shape) {
-    let mustExecuteAction = false;
-
     if (app.tool.currentStep == 'listen') {
       let userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
@@ -117,12 +109,19 @@ export class GroupTool extends Tool {
         setState({ tool: { ...app.tool, currentStep: 'fillGroup' } });
       } else {
         this.firstShapeId = shape.id;
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: shape.centerCoordinates,
-          message: 'Groupe ' + (app.workspace.shapeGroups.length + 1),
-          referenceId: this.firstShapeId,
-          type: 'group',
+        new shape.constructor({
+          ...shape,
+          layer: 'upper',
+          path: shape.getSVGPath('no scale', false, false),
+          fillOpacity: 0,
+          strokeColor: this.groupsColor[app.nextGroupColorIdx % 8],
+          strokeWidth: 3,
+          divisionPointInfos: shape.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+          }),
+          pointsColor: shape.points.map((pt) => {
+            return pt.color;
+          }),
         });
         setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
@@ -139,12 +138,6 @@ export class GroupTool extends Tool {
         this.group = userGroup;
         this.mode = 'add';
       } else {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: shape.centerCoordinates,
-          referenceId: shape.id,
-          type: 'group',
-        });
         this.mode = 'new';
         this.secondShapeId = shape.id;
         this.group = GroupManager.getShapeGroup(shape);
@@ -177,12 +170,6 @@ export class GroupTool extends Tool {
         }
         this.mode = 'merge';
       } else {
-        new Text({
-          drawingEnvironment: app.upperDrawingEnvironment,
-          coordinates: shape.centerCoordinates,
-          referenceId: shape.id,
-          type: 'group',
-        });
         this.mode = 'add';
         this.firstShapeId = shape.id;
       }
@@ -210,5 +197,26 @@ export class GroupTool extends Tool {
       group1.shapesIds = [...group1.shapesIds, ...group2.shapesIds];
       GroupManager.deleteGroup(group2);
     }
+    app.upperCanvasLayer.removeAllObjects();
+    app.mainCanvasLayer.shapes.map((s) => {
+      let currentGroup = GroupManager.getShapeGroup(s);
+      if (currentGroup != null) {
+        new s.constructor({
+          ...s,
+          layer: 'upper',
+          path: s.getSVGPath('no scale', false, false),
+          fillOpacity: 0,
+          strokeColor: currentGroup.color,
+          strokeWidth: 3,
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+          }),
+          pointsColor: s.points.map((pt) => {
+            return pt.color;
+          }),
+        });
+        console.info(s.getSVGPath('no scale', false, false));
+      }
+    });
   }
 }

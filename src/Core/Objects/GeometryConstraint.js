@@ -1,8 +1,10 @@
 import { app } from '../App';
+import { SelectManager } from '../Managers/SelectManager';
+import { findObjectsByName, removeObjectById } from '../Tools/general';
 import { Coordinates } from './Coordinates';
-import { Segment } from './Segment';
-import { Shape } from './Shape';
 import { Point } from './Point';
+import { GeometryObject } from './Shapes/GeometryObject';
+import { LineShape } from './Shapes/LineShape';
 
 export class GeometryConstraint {
   /**
@@ -12,6 +14,7 @@ export class GeometryConstraint {
    * @param {[Point]} points      pout isContructed
    */
   constructor(type, lines = [], points = []) {
+    findObjectsByName('constraints', 'upper').forEach(s => removeObjectById(s.id));
     this.type = type;
     this.segments = lines.map((ln) => {
       let path = '';
@@ -45,18 +48,21 @@ export class GeometryConstraint {
           .concat(['A', radius, radius, 0, 1, 0, ln[1].x, ln[1].y])
           .join(' ');
       }
-      let s = new Shape({
-        drawingEnvironment: app.upperDrawingEnvironment,
+      let s = new LineShape({
+        layer: 'upper',
         path: path,
-        borderColor: app.settings.constraintsDrawColor,
-        opacity: 0,
+        name: 'constraints',
+        strokeColor: app.settings.constraintsDrawColor,
+        fillOpacity: 0,
+        strokeWidth: 2,
+        geometryObject: new GeometryObject({}),
       });
       return s.segments[0];
     });
     this.points = points.map(
       (pt) =>
         new Point({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           coordinates: pt,
           color: app.settings.constraintsDrawColor,
           size: 2,
@@ -80,7 +86,7 @@ export class GeometryConstraint {
     return this.type == 'isConstructed';
   }
 
-  projectionOnConstraints(coordinates) {
+  projectionOnConstraints(coordinates, errorWhenTooFar = false) {
     let projectionsOnContraints = this.segments
       .map((segment) => {
         let projection = segment.projectionOnSegment(coordinates);
@@ -94,6 +100,9 @@ export class GeometryConstraint {
         }),
       );
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
+    if (errorWhenTooFar && !SelectManager.areCoordinatesInSelectionDistance(projectionsOnContraints[0].projection, coordinates)) {
+      return null;
+    }
     return projectionsOnContraints[0].projection;
   }
 }

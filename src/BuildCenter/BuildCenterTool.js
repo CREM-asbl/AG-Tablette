@@ -1,7 +1,7 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Construire le centre d'une figure (l'afficher)
@@ -54,7 +54,11 @@ export class BuildCenterTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
+    if (this.involvedShapes.some(s => s.name.endsWith('StraightLine'))) {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Il n\'y a pas de centre sur les droites et demi-droites' }}));
+      return;
+    }
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }

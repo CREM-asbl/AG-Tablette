@@ -1,13 +1,14 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { Shape } from '../Core/Objects/Shape';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
-import { uniqId, createElem } from '../Core/Tools/general';
+import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { createElem, findObjectById, removeObjectById } from '../Core/Tools/general';
+import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -49,6 +50,7 @@ export class CreateRegularTool extends Tool {
   }
 
   drawFirstPoint() {
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
@@ -61,7 +63,7 @@ export class CreateRegularTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
     this.firstPoint = new Point({
-      drawingEnvironment: app.upperDrawingEnvironment,
+      layer: 'upper',
       coordinates: newCoordinates,
       color: app.settings.temporaryDrawColor,
       size: 2,
@@ -84,7 +86,7 @@ export class CreateRegularTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
     this.secondPoint = new Point({
-      drawingEnvironment: app.upperDrawingEnvironment,
+      layer: 'upper',
       coordinates: newCoordinates,
       color: app.settings.temporaryDrawColor,
       size: 2,
@@ -139,33 +141,53 @@ export class CreateRegularTool extends Tool {
       setState({ tool: { ...app.tool, currentStep: 'drawSecondPoint' } });
     } else {
       this.stopAnimation();
+      if (SelectManager.areCoordinatesInMagnetismDistance(this.firstPoint.coordinates, this.secondPoint.coordinates)) {
+        let firstPointCoordinates = this.firstPoint.coordinates;
+        app.upperCanvasLayer.removeAllObjects();
+        this.firstPoint = new Point({
+          layer: 'upper',
+          coordinates: firstPointCoordinates,
+          color: app.settings.temporaryDrawColor,
+          size: 2,
+        });
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point autre part.' } }));
+        setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawSecondPoint' } });
+        return;
+      }
       this.adjustPoint(this.secondPoint);
-      this.actions = [
-        {
-          name: 'CreateRegularAction',
-          firstCoordinates: this.firstPoint.coordinates,
-          secondCoordinates: this.secondPoint.coordinates,
-          numberOfPoints: this.numberOfPoints,
-          reference: null, //reference,
-        },
-      ];
+      this.executeAction();
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
       });
-      this.executeAction();
     }
   }
 
   adjustPoint(point) {
+    point.adjustedOn = undefined;
     let constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
-    let adjustedCoordinates = SelectManager.selectPoint(
+    let adjustedPoint;
+    if (adjustedPoint = SelectManager.selectPoint(
       point.coordinates,
       constraints,
       false,
-    );
-    if (adjustedCoordinates) {
-      point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
+    )) {
+      point.coordinates = new Coordinates(adjustedPoint.coordinates);
+      point.adjustedOn = adjustedPoint;
+    } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) {
+      point.coordinates = new Coordinates(adjustedPoint.coordinates);
+      point.adjustedOn = adjustedPoint;
+    } else {
+      constraints = SelectManager.getEmptySelectionConstraints().segments;
+      constraints.canSelect = true;
+      let adjustedSegment = SelectManager.selectSegment(
+        point.coordinates,
+        constraints,
+      );
+      if (adjustedSegment) {
+        point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+        point.adjustedOn = adjustedSegment;
+      }
     }
   }
 
@@ -187,13 +209,19 @@ export class CreateRegularTool extends Tool {
       );
 
       if (this.shapeDrawnId)
-        app.upperDrawingEnvironment.removeObjectById(this.shapeDrawnId);
+        removeObjectById(this.shapeDrawnId);
 
-      this.shapeDrawnId = new Shape({
+      let shape = new RegularShape({
         path: path,
-        drawingEnvironment: app.upperDrawingEnvironment,
-        borderColor: app.settings.temporaryDrawColor,
-      }).id;
+        layer: 'upper',
+        strokeColor: app.settings.temporaryDrawColor,
+        fillOpacity: 0,
+      });
+      this.shapeDrawnId = shape.id;
+      shape.vertexes.forEach(vx => {
+        vx.color = app.settings.temporaryDrawColor;
+        vx.size = 2;
+      })
     }
   }
 
@@ -236,22 +264,24 @@ export class CreateRegularTool extends Tool {
   }
 
   _executeAction() {
-    const shapeSize = 1;
+    let shapeDrawn = findObjectById(this.shapeDrawnId);
 
-    let shapeDrawn = app.upperDrawingEnvironment.findObjectById(this.shapeDrawnId);
-
-    let shape = new Shape({
+    let shape = new RegularShape({
       ...shapeDrawn,
-      path: shapeDrawn.getSVGPath(),
-      borderColor: '#000000',
-      size: shapeSize,
-      drawingEnvironment: app.mainDrawingEnvironment,
+      layer: 'main',
+      path: shapeDrawn.getSVGPath('no-scale'),
+      familyName: 'Regular',
+      strokeColor: '#000000',
+      fillOpacity: 0,
+      geometryObject: new GeometryObject({}),
     });
 
     let transformation = getShapeAdjustment([shape], shape);
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
     shape.translate(transformation.translation);
-    app.upperDrawingEnvironment.removeAllObjects();
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    shape.vertexes[0].adjustedOn = this.firstPoint.adjustedOn;
+    shape.vertexes[1].adjustedOn = this.secondPoint.adjustedOn;
+    linkNewlyCreatedPoint(shape, shape.vertexes[0]);
+    linkNewlyCreatedPoint(shape, shape.vertexes[1]);
   }
 }

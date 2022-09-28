@@ -1,17 +1,14 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from './template-popup';
-import './open-server-popup';
-import { findFilesByIds, openFileFromId, readFileFromServer } from '../Firebase/firebase-init';
-import { OpenFileManager } from '../Core/Managers/OpenFileManager';
+import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
+import { OpenFileManager } from '../Core/Managers/OpenFileManager';
+import { readFileFromServer } from '../Firebase/firebase-init';
+import './open-server-popup';
 
 class FileElem extends LitElement {
   static get properties() {
     return {
       title: String,
-      fileName: String,
-      env: String,
-      fileId: String,
+      environment: String,
     };
   }
 
@@ -22,7 +19,6 @@ class FileElem extends LitElement {
   static get styles() {
     return [
       css`
-
         div {
           cursor: pointer;
           text-align: center;
@@ -31,45 +27,31 @@ class FileElem extends LitElement {
           border-radius: 3px;
           box-shadow: 0px 0px 3px var(--menu-shadow-color);
           margin: auto;
-          margin-bottom: 3px;
+          margin-top: 3px;
+          margin-bottom: 5px;
+          padding: 5px;
         }
       `,
     ];
   }
 
-  firstUpdated() {
-    let extension = this.getExtension(this.title);
-
-    const environmentsByExtensions = {
-      agg: 'Grandeurs',
-      agt: 'Tangram',
-      agc: 'Cubes',
-      agl: 'Geometrie',
-    };
-
-    this.env = environmentsByExtensions[extension];
-  }
-
-  getExtension(fileName) {
-    return fileName.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2);
-  }
-
   render() {
     return html`
-      <div @click="${this.openFile}">${this.title.slice(0, -4)} ${this.env ? '(' + this.env + ')' : ''}</div>
+      <div @click="${this.openFile}">${this.filenameWithoutExtension(this.title)} ${'(' + this.environment + ')'}</div>
     `;
   }
 
-  /**
-   * event handler principal
-   */
   async openFile() {
-    if (this.env != app.environment.name && confirm('Voulez-vous ouvrir ce fichier dans ' + this.env + '?')) {
-      window.location.href = location.protocol + '//' + location.host + location.pathname + '?activityId=' + this.fileId;
+    if (this.environment != app.environment.name && confirm('Voulez-vous ouvrir ce fichier dans ' + this.environment + '?')) {
+      window.location.href = location.protocol + '//' + location.host + location.pathname + '?activityName=' + this.title;
     }
-    let fileContent = await readFileFromServer(this.fileName);
+    let fileContent = await readFileFromServer(this.title);
     OpenFileManager.parseFile(fileContent);
     window.dispatchEvent(new CustomEvent('close-popup'));
+  }
+
+  filenameWithoutExtension(fileName) {
+    return fileName.slice(0, fileName.lastIndexOf('.'));
   }
 }
 customElements.define('file-elem', FileElem);

@@ -1,7 +1,7 @@
 {
   "name": "Apprenti Géomètre mobile",
   "short_name": "AG mobile",
-  "version": "1.1.2",
+  "version": "1.1.28",
   "icons": [
     {
       "src": "images/manifest/icon-512.png",
@@ -10,8 +10,8 @@
       "purpose": "any"
     },
     {
-      "src": "images/manifest/maskable_icon.png",
-      "sizes": "640x640",
+      "src": "images/manifest/maskable_icon2.png",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "maskable"
     }

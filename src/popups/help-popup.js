@@ -1,6 +1,6 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from './template-popup';
+import { css, html, LitElement } from 'lit';
 import '../version-item';
+import { TemplatePopup } from './template-popup';
 
 class HelpPopup extends LitElement {
   static get properties() {

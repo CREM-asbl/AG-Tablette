@@ -1,7 +1,7 @@
-import { LitElement, html, css } from 'lit';
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { TemplatePopup } from '../popups/template-popup';
 import { range } from '../Core/Tools/general';
+import { TemplatePopup } from '../popups/template-popup';
 
 class DividePopup extends LitElement {
   constructor() {
@@ -63,7 +63,7 @@ class DividePopup extends LitElement {
                 </option>`,
             )}
           </select>
-          <span>parties</span>
+          <span>parts</span>
         </div>
 
         <div slot="footer">

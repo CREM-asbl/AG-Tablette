@@ -1,8 +1,8 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem } from '../Core/Tools/general';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Tool } from '../Core/States/Tool';
+import { createElem } from '../Core/Tools/general';
 import './opacity-popup';
 
 /**
@@ -66,7 +66,7 @@ export class OpacityTool extends Tool {
   objectSelected(shape) {
     if (app.tool.currentStep != 'selectObject') return;
 
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
     setState({
@@ -76,7 +76,7 @@ export class OpacityTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.forEach((s) => {
-      s.opacity = app.settings.shapeOpacity;
+      s.fillOpacity = app.settings.shapeOpacity;
     });
   }
 }

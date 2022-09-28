@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+         viewBox="0 0 52 52" style="enable-background:new 0 0 52 52;" xml:space="preserve">
+<style type="text/css">
+        path {
+    fill:#f46c2e;
+    stroke:#000;
+    <!-- stroke-width:5; -->
+    stroke-miterlimit:10;
+  }
+</style>
+<path class="st0" d="M 6.0 43.4457630188497 H 33.91322083015953 L 46.0 36.46745781130982 V 8.55423698115029 H 18.086779169840476 L 6.0 15.532542188690176 Z
+            M 33.91322083015953 15.532542188690176 V 43.4457630188497
+            M 33.91322083015953 15.532542188690176 L 46.0 8.55423698115029
+            M 33.91322083015953 15.532542188690176 H 6.0"/>
+</svg>

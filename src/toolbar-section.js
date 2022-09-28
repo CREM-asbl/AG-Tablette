@@ -1,5 +1,5 @@
+import { html, LitElement } from 'lit';
 import { app, setState } from './Core/App';
-import { LitElement, html, css } from 'lit';
 import './icon-button';
 import { TemplateToolbar } from './template-toolbar';
 
@@ -11,6 +11,8 @@ class ToolbarSection extends LitElement {
       this.iconSize = app.menuIconSize;
       this.tools = app.tools.filter(
         (tool) => tool.type === this.toolsType,
+      ).filter(
+        (tool) => tool.isVisible,
       );
     };
     this.updateProperties();
@@ -21,6 +23,7 @@ class ToolbarSection extends LitElement {
 
     window.addEventListener('menuIconSize-changed', this.eventHandler);
     window.addEventListener('tool-changed', this.eventHandler);
+    window.addEventListener('tools-changed', this.eventHandler);
   }
 
   static get properties() {
@@ -60,9 +63,6 @@ class ToolbarSection extends LitElement {
     `;
   }
 
-  /**
-   * Main event handler
-   */
   _actionHandle(event) {
     if (!app.fullHistory.isRunning) {
       setState({ tool: { name: event.target.name, currentStep: 'start' } });

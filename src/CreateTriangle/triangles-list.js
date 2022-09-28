@@ -1,5 +1,5 @@
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit';
 
 class TrianglesList extends LitElement {
   constructor() {
@@ -11,6 +11,14 @@ class TrianglesList extends LitElement {
       'IsoscelesTriangle',
       'IrregularTriangle',
     ];
+
+    this.triangleTitle = {
+      'EquilateralTriangle': 'Triangle équilatéral',
+      'RightAngleIsoscelesTriangle': 'Triangle isocèle rectangle',
+      'RightAngleTriangle': 'Triangle rectangle',
+      'IsoscelesTriangle': 'Triangle isocèle',
+      'IrregularTriangle': 'Triangle',
+    }
 
     this.updateProperties = () => {
       this.selectedTriangle = app.tool.selectedTriangle;
@@ -61,7 +69,7 @@ class TrianglesList extends LitElement {
       }
 
       h2 {
-        padding: 4px;
+        padding: 4px 4px 0px 4px;
         margin: 0;
         text-align: center;
         font-size: 1.2rem;
@@ -97,13 +105,17 @@ class TrianglesList extends LitElement {
         }
       </style>
       <div class="container">
-        <h2>Triangles</h2>
+        <h2>
+          ${this.selectedTriangle
+            ? this.triangleTitle[this.selectedTriangle]
+            : 'Triangles'}
+        </h2>
         <div id="list">
           ${this.trianglesNames.map(
             (triangleName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${triangleName}"
+                title="${this.triangleTitle[triangleName]}"
                 type="Geometry"
                 name="${triangleName}"
                 @click="${this._clickHandle}"

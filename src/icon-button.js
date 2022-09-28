@@ -1,4 +1,5 @@
-import { LitElement, html, css } from 'lit';
+import { css, html, LitElement } from 'lit';
+import { app, setState } from './Core/App';
 
 class IconButton extends LitElement {
   static get properties() {
@@ -6,17 +7,43 @@ class IconButton extends LitElement {
       name: String,
       src: String,
       type: String,
+      // colorPickerValue: String,
     };
   }
 
+  // firstUpdated() {
+  //   if (this.name == 'color') {
+  //     window.addEventListener('tool-changed', () => {
+  //       if (app.fullHistory.isRunning)
+  //         return;
+  //       if (app.tool?.currentStep == 'start') {
+  //           this.shadowRoot.querySelector('#color-picker').value =
+  //             app.settings.drawColor;
+  //           this.colorPickerValue = app.settings.drawColor;
+  //       }
+  //     });
+  //     window.addEventListener('workspace-changed', () => {
+  //       setState({
+  //         settings: {
+  //           ...app.settings,
+  //           drawColor: '#000000',
+  //         },
+  //       });
+  //     });
+  //   }
+  // }
+
   updated() {
     //Todo: Refacto (ce code ne devrait pas se trouver ici)
+    let name = this.name.replaceAll('é', 'e').replaceAll('è', 'e');
     if (this.type == 'State') {
-      this.src = '/images/States/' + this.name + '.svg';
+      this.src = '/images/States/' + name + '.svg';
     } else if (this.type == 'Geometry') {
-      this.src = '/images/Geometry/' + this.name + '.svg';
+      this.src = '/images/Geometry/' + name + '.svg';
+    } else if (this.type == 'Create') {
+      this.src = '/images/Create/' + name + '.svg';
     } else {
-      this.src = '/images/' + this.name + '.svg';
+      this.src = '/images/' + name + '.svg';
     }
   }
 
@@ -36,17 +63,21 @@ class IconButton extends LitElement {
         cursor: pointer;
         display: block;
         border: none;
-        /* box-sizing: border-box; */
         height: 100%;
         width: 100%;
         padding: 0px;
-        /* margin: 2px; */
         background: white;
         outline: none;
         background-repeat: no-repeat;
         background-size: 100% 100%;
         box-shadow: 0px 0px 3px var(--menu-shadow-color);
         border-radius: 3px;
+      }
+
+      input[type='color'] {
+        cursor: pointer;
+        height: 100%;
+        width: 100%;
       }
 
       :host :hover {
@@ -68,6 +99,45 @@ class IconButton extends LitElement {
 
   render() {
     if (!this.src) return;
+    if (this.name == 'color') {
+      return html`
+        <button style="background-image:url('${this.src}');">
+          <input
+            style="opacity: 0;"
+            id="color-picker"
+            type="color"
+            value="${this.colorPickerValue}"
+            @input="${e => {
+              if (app.tool.name == 'backgroundColor') {
+                setState({
+                  settings: {
+                    ...app.settings,
+                    shapeFillColor: e.target.value,
+                  },
+                  tool: { ...app.tool, currentStep: 'listen' },
+                });
+              } else if (app.tool.name == 'borderColor') {
+                setState({
+                  settings: {
+                    ...app.settings,
+                    shapeBorderColor: e.target.value,
+                  },
+                  tool: { ...app.tool, currentStep: 'listen' },
+                });
+              } else if (app.tool.name == 'color') {
+                setState({
+                  settings: {
+                    ...app.settings,
+                    drawColor: e.target.value,
+                  },
+                  tool: { ...app.tool, currentStep: 'listen' },
+                });
+              }
+            }}"
+          />
+        </button>
+      `
+    }
     return html`
       <button style="background-image:url('${this.src}')"></button>
     `;

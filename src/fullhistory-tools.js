@@ -1,6 +1,7 @@
-import { LitElement, html, css } from 'lit';
+import { css, html, LitElement } from 'lit';
 import { app } from './Core/App';
 import { FullHistoryManager } from './Core/Managers/FullHistoryManager';
+import { TemplateToolbar } from './template-toolbar';
 
 class FullHistoryTools extends LitElement {
   static get properties() {
@@ -47,83 +48,108 @@ class FullHistoryTools extends LitElement {
     });
     this.index = 0;
 
-    this.eventHandler = () => {
+    this.updateProperties = () => {
+      this.iconSize = app.menuIconSize;
+    };
+    this.updateProperties();
+    this.eventHandler = (e) => {
       if (app.fullHistory.isRunning) {
-        this.index = app.fullHistory.actionIndex;
-        this.shadowRoot.getElementById( 'b' + this.index )?.parentNode.scrollIntoView();
+        if (e.type == 'fullHistory-changed') {
+          this.index = app.fullHistory.actionIndex;
+          this.shadowRoot.getElementById( 'b' + this.index )?.parentNode.scrollIntoView();
+        } else {
+          this.updateProperties();
+        }
       } else this.close();
     };
     this.close = () => {
       this.remove();
       window.removeEventListener('fullHistory-changed', this.eventHandler);
     };
+
+    window.addEventListener('menuIconSize-changed', this.eventHandler);
     window.addEventListener('fullHistory-changed', this.eventHandler);
   }
 
   static get styles() {
-    return css`
-      :host {
-        display: none;
-      }
+    return [
+      TemplateToolbar.templateToolbarStyles(),
+      css`
+        :host {
+          display: none;
+        }
 
-      button {
-        cursor: pointer;
-      }
+        button {
+          cursor: pointer;
+        }
 
-      nav#sidebar {
-        display: flex;
-        justify-content: start;
-        flex-direction: column;
-        z-index: 10;
-        position: absolute;
-        right: 10px;
-        width: calc(4 * 56px + 7 * 2px);
-        height: 96vh;
-        height: calc(var(--vh, 1vh) * 96);
-        bottom: 2vh;
-        bottom: calc(var(--vh, 1vh) * 2);
-        border: 2px solid black;
-      }
+        nav#sidebar {
+          display: flex;
+          flex-direction: column;
+          justify-content: start;
+          /* padding: 10px; */
+          z-index: 10;
 
-      #command-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-evenly;
-        margin-top: 2px;
-        margin-bottom: 2px;
-      }
+          position: absolute;
 
-      #action-container {
-        overflow: auto;
-      }
+          border-top-left-radius: 10px;
+          border-bottom-left-radius: 10px;
+          box-sizing: border-box;
+          background-color: var(--theme-color);
+          flex: 0 0 ${app.settings.mainMenuWidth}px;
 
-      .action-div {
-        width: calc(100% - 2 * 5px - 2 * 5px);
-        margin: 5px;
-        border-radius: 7px;
-        overflow-y: hidden;
-        box-shadow: 0px 0px 5px var(--menu-shadow-color);
-        padding: 0px 5px;
-      }
+          top: 0vh;
+          width: ${app.settings.mainMenuWidth}px;
+          height: 100vh;
 
-      h2 {
-        text-align: center;
-        font-size: 1.1em;
-        font-weight: bold;
-        margin: 6px 0;
-      }
+          scrollbar-width: thin;
+        }
 
-      .action-button {
-        margin: 5px 2px 5px 2px;
-        width: calc((100% - 2 * 5px - 3 * 2 * 2px) / 3);
-        height: 2vh;
-        height: calc(var(--vh, 1vh) * 5);
-        border-radius: 3px;
-        box-shadow: 0px 0px 5px var(--menu-shadow-color);
-        border: none;
-        padding: 0px;
-      }
-    `;
+        template-toolbar {
+          margin: 10px 10px 0px 10px;
+          z-index: 15;
+        }
+
+        #action-container {
+          overflow: visible;
+          padding: 10px 10px;
+
+          /* scrollbar hidden */
+          /* -ms-overflow-style: none; IE and Edge */
+          /* scrollbar-width: none; Firefox */
+          overflow-y: scroll;
+          overflow-x: hidden;
+        }
+
+        .action-div {
+          width: 100%;
+          border-radius: 7px;
+          overflow-y: hidden;
+          box-shadow: 0px 0px 5px var(--menu-shadow-color);
+          padding: 0px;
+          margin: 0px 0px 5px;
+          background-color: var(--theme-color-soft);
+        }
+
+        h2 {
+          text-align: center;
+          font-size: 1.1em;
+          font-weight: bold;
+          margin: 6px 0;
+        }
+
+        .action-button {
+          margin: 5px 2px 5px 2px;
+          width: calc((100% - 2 * 5px - 3 * 2 * 2px) / 3);
+          height: 2vh;
+          height: calc(var(--vh, 1vh) * 5);
+          border-radius: 3px;
+          box-shadow: 0px 0px 5px var(--menu-shadow-color);
+          border: none;
+          padding: 0px;
+        }
+      `
+    ]
   }
 
   _clickHandler(event) {
@@ -181,32 +207,35 @@ class FullHistoryTools extends LitElement {
         }
       </style>
       <nav id="sidebar">
-        <div id="command-container">
-          <icon-button
-            style="width: 52px; height: 52px;"
-            name="undo"
-            title="étape précédente"
-            @click="${this._clickHandler}"
-          ></icon-button>
-          <icon-button
-            style="width: 52px; height: 52px;"
-            name="stop"
-            title="arrêter"
-            @click="${this._clickHandler}"
-          ></icon-button>
-          <icon-button
-            style="width: 52px; height: 52px;"
-            name="${this.playPauseButton}"
-            title="${this.playPauseButton}"
-            @click="${this._clickHandler}"
-          ></icon-button>
-          <icon-button
-            style="width: 52px; height: 52px;"
-            name="redo"
-            title="étape suivante"
-            @click="${this._clickHandler}"
-          ></icon-button>
-        </div>
+        <template-toolbar>
+          <div slot="body">
+            <icon-button
+              style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
+              name="undo"
+              title="étape précédente"
+              @click="${this._clickHandler}"
+            ></icon-button>
+            <icon-button
+              style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
+              name="stop"
+              title="arrêter"
+              @click="${this._clickHandler}"
+            ></icon-button>
+            <icon-button
+              style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
+              name="${this.playPauseButton}"
+              title="${this.playPauseButton}"
+              @click="${this._clickHandler}"
+            ></icon-button>
+            <icon-button
+              style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
+              name="redo"
+              title="étape suivante"
+              @click="${this._clickHandler}"
+            ></icon-button>
+          </div>
+        </template-toolbar>
+
         <div id="action-container">
           ${this.tools.map((elem, idx) => {
             return html`

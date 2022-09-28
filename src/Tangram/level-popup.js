@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { css, html, LitElement } from 'lit';
 import { TemplatePopup } from '../popups/template-popup';
 
 class LevelPopup extends LitElement {
@@ -92,7 +92,7 @@ class LevelPopup extends LitElement {
               value="5"
               .checked="${this.level == 5}"
             />
-            <label for="level5">5 Echelle avec lignes</label>
+            <label for="level5">5 Echelle différente avec lignes</label>
           </div>
           <div
             class="choice"
@@ -107,7 +107,7 @@ class LevelPopup extends LitElement {
               value="6"
               .checked="${this.level == 6}"
             />
-            <label for="level6">6 Echelle sans ligne</label>
+            <label for="level6">6 Echelle différente sans ligne</label>
           </div>
           <!-- <input
             type="range"

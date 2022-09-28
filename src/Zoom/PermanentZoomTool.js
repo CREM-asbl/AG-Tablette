@@ -1,7 +1,6 @@
 import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
-import { Point } from '../Core/Objects/Point';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Zoomer/Dézoomer le plan
@@ -69,7 +68,7 @@ export class PermanentZoomTool extends Tool {
       }
       clearTimeout(this.timeoutId);
 
-      app.upperDrawingEnvironment.removeAllObjects();
+      app.upperCanvasLayer.removeAllObjects();
       setState({
         tool: { name: this.name, currentStep: 'start', mode: 'touch', title: this.title },
       });

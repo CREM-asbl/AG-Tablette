@@ -1,25 +1,24 @@
-import { LitElement, html, css } from 'lit';
-import './div-main-canvas';
-import { TemplateToolbar } from './template-toolbar';
-import './toolbar-kit';
-import './toolbar-section';
-import './icon-button';
-import './popups/notification';
-import './version-item';
+import { css, html, LitElement } from 'lit';
+import { customElement } from 'lit/decorators.js';
+import './canvas-container';
 import './color-button';
-
 import { app, setState } from './Core/App';
+import './Core/Managers/FullHistoryManager';
+import './Core/Managers/GroupManager';
+import { HistoryManager } from './Core/Managers/HistoryManager';
 import { OpenFileManager } from './Core/Managers/OpenFileManager';
 import './Core/Managers/SaveFileManager';
 import './Core/Managers/SelectManager';
-import './Core/Managers/WorkspaceManager';
-import './Core/Managers/GroupManager';
 import './Core/Managers/ShapeManager';
-import './Core/Managers/DrawManager';
-import './Core/Managers/FullHistoryManager';
-import { HistoryManager } from './Core/Managers/HistoryManager';
-import { createElem } from './Core/Tools/general';
-import { customElement } from 'lit/decorators.js';
+import './Core/Managers/WorkspaceManager';
+import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
+import './icon-button';
+import './popups/notification';
+import { TemplateToolbar } from './template-toolbar';
+import './toolbar-kit';
+import './toolbar-section';
+import './version-item';
+
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
@@ -51,28 +50,8 @@ class AGMain extends LitElement {
       this.canUndo = HistoryManager.canUndo();
       this.canRedo = HistoryManager.canRedo();
     });
-    window.addEventListener('workspace-changed', () => {
-      this.colorPickerValue = '#000000';
-      this.shadowRoot.querySelector('#color-picker').value = '#000000';
-    });
     window.addEventListener('tool-changed', () => {
       this.tool = app.tool;
-      if (app.fullHistory.isRunning)
-        return;
-      if (app.tool?.currentStep == 'start') {
-        if (app.tool.name == 'backgroundColor') {
-          this.shadowRoot.querySelector('#color-picker').value =
-            app.settings.shapeFillColor;
-          this.colorPickerValue = app.settings.shapeFillColor;
-        } else if (app.tool.name == 'borderColor') {
-          this.shadowRoot.querySelector('#color-picker').value =
-            app.settings.shapeBorderColor;
-          this.colorPickerValue = app.settings.shapeBorderColor;
-        } else {
-          return;
-        }
-        this.shadowRoot.querySelector('#color-picker').click();
-      }
     });
 
     // vh error in tablette => custom vh
@@ -112,7 +91,8 @@ class AGMain extends LitElement {
           display: flex;
           flex-direction: column;
           padding: 10px;
-          border-radius: 10px;
+          border-top-left-radius: 10px;
+          border-bottom-left-radius: 10px;
           box-sizing: border-box;
           background-color: var(--theme-color);
           flex: 0 0 ${app.settings.mainMenuWidth}px;
@@ -131,7 +111,7 @@ class AGMain extends LitElement {
           display: none;
         } */
 
-        div-main-canvas {
+        canvas-container {
           width: 100%;
           height: 100%;
         }
@@ -143,30 +123,47 @@ class AGMain extends LitElement {
 
         /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
         input[type='color'] {
-          opacity: 0;
+          /* opacity: 0; */
           position: absolute;
           top: 0;
           left: 21vw;
-          width: 0;
-          height: 0;
+          /* width: 0;
+          height: 0; */
           border: none;
-          background: transparent;
+          /* background: transparent; */
+        }
+
+        h3 {
+          padding: 0;
+          margin: 0 0 10px;
+          text-align: center;
+          font-size: 1em;
+          font-weight: normal;
         }
       `,
     ];
   }
 
-  updated() {
-    if (app.environment?.name == 'Geometrie') {
-      this.shadowRoot
-        .querySelectorAll('.onlyGrandeurs')
-        .forEach((el) => (el.style.display = 'none'));
-    }
-  }
+  // updated() {
+  //   if (app.environment?.name == 'Geometrie') {
+  //     this.shadowRoot
+  //       .querySelectorAll('.onlyGrandeurs')
+  //       .forEach((el) => (el.style.display = 'none'));
+  //   }
+  // }
 
   async firstUpdated() {
     let sectionImport = await import(`./toolbarSectionsDef.js`);
     this.toolbarSections = sectionImport.default.sections;
+    let backgroundColor = rgb2hex(window.getComputedStyle(this.shadowRoot.querySelector('#left-menu'), null).backgroundColor);
+    if (!backgroundColor)
+      backgroundColor = '#ffffff';
+    let rgb = RGBFromColor(backgroundColor);
+    if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114 > 140) {
+      this.textColor = "#000000";
+    } else {
+      this.textColor = "#ffffff";
+    }
     setState({ appLoading: false });
   }
 
@@ -174,16 +171,20 @@ class AGMain extends LitElement {
     return html`
       <div id="app-view">
         <div id="left-menu">
+          <h3 style="color: ${this.textColor}">
+            ${this.tool?.title != undefined
+              ? "mode: " + this.tool.title
+              : "Sélectionnez une fonctionnalité"}
+          </h3>
           <template-toolbar>
-            <h2 slot="title">
-              ${this.tool?.title != undefined
-                ? this.tool.title
-                : app.environment.name}
-            </h2>
+            <!-- <h2 slot="title">
+              ${'Outils généraux'}
+            </h2> -->
+
             <div slot="body">
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                name="new"
+                name="home"
                 title="Accueil"
                 @click="${this._actionHandle}"
               >
@@ -198,7 +199,7 @@ class AGMain extends LitElement {
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="save"
-                title="Sauvegarder"
+                title="Enregistrer"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -227,13 +228,11 @@ class AGMain extends LitElement {
               </icon-button>
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                class="onlyGrandeurs"
                 name="replay"
-                title="replay"
+                title="Rejouer"
                 @click="${this._actionHandle}"
               >
               </icon-button>
-
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="help"
@@ -261,7 +260,7 @@ class AGMain extends LitElement {
                       </icon-button> -->
         </div>
 
-        <div-main-canvas id="div-main-canvas"></div-main-canvas>
+        <canvas-container id="canvas-container"></canvas-container>
       </div>
 
       <notif-center></notif-center>
@@ -280,31 +279,6 @@ class AGMain extends LitElement {
           event.target.value = null;
         }}"
       />
-
-      <input
-        id="color-picker"
-        type="color"
-        value="${this.colorPickerValue}"
-        @input="${e => {
-          if (app.tool.name == 'backgroundColor') {
-            setState({
-              settings: {
-                ...app.settings,
-                shapeFillColor: e.target.value,
-              },
-              tool: { ...app.tool, currentStep: 'listen' },
-            });
-          } else if (app.tool.name == 'borderColor') {
-            setState({
-              settings: {
-                ...app.settings,
-                shapeBorderColor: e.target.value,
-              },
-              tool: { ...app.tool, currentStep: 'listen' },
-            });
-          }
-        }}"
-      />
     `;
   }
 
@@ -313,7 +287,7 @@ class AGMain extends LitElement {
    */
   _actionHandle(event) {
     if (app.fullHistory.isRunning) {
-      console.warn('cannot interact when fullHisto is running');
+      console.info('cannot interact when fullHisto is running');
       return;
     }
     let resetTool = false;
@@ -331,7 +305,7 @@ class AGMain extends LitElement {
         window.dispatchEvent(new CustomEvent('open-file'));
         resetTool = true;
         break;
-      case 'new':
+      case 'home':
         import('./popups/home-popup');
         createElem('home-popup');
         resetTool = true;
@@ -351,7 +325,7 @@ class AGMain extends LitElement {
         window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:
-        console.warn(
+        console.info(
           'unknow event type: ' + event.type + ', with event: ',
           event,
         );

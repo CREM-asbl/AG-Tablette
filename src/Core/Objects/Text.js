@@ -1,7 +1,7 @@
 import { app } from '../App';
+import { GroupManager } from '../Managers/GroupManager';
 import { uniqId } from '../Tools/general';
 import { Coordinates } from './Coordinates';
-import { GroupManager } from '../Managers/GroupManager';
 
 /**
  * Représente un texte affiché à l'écran
@@ -9,7 +9,6 @@ import { GroupManager } from '../Managers/GroupManager';
 export class Text {
   /**
    * @param {String}                      id
-   * @param {DrawingEnvironment}          drawingEnvironment
    * @param {Coordinates}                 coordinates
    * @param {Number}                      x
    * @param {Number}                      y
@@ -19,7 +18,7 @@ export class Text {
    */
   constructor({
     id = uniqId(),
-    drawingEnvironment,
+    layer,
     coordinates = undefined,
     x = 0,
     y = 0,
@@ -30,8 +29,8 @@ export class Text {
     size = 1,
   }) {
     this.id = id;
-    this.drawingEnvironment = drawingEnvironment;
-    this.drawingEnvironment.texts.push(this);
+    this.layer = layer;
+    this.canvasLayer.texts.push(this);
 
     if (coordinates !== undefined)
       this.coordinates = new Coordinates(coordinates);
@@ -58,7 +57,7 @@ export class Text {
 
   updateMessage() {
     if (this.type == 'group') {
-      let shape = app.mainDrawingEnvironment.shapes.find(
+      let shape = app.mainCanvasLayer.shapes.find(
         (s) => s.id == this.referenceId,
       );
       let group = GroupManager.getShapeGroup(shape);
@@ -66,6 +65,10 @@ export class Text {
       let groupIndex = GroupManager.getGroupIndex(group);
       if (groupIndex != -1) this.message = 'Groupe ' + (groupIndex + 1);
     }
+  }
+
+  get canvasLayer() {
+    return app[this.layer + 'CanvasLayer'];
   }
 
   // /**

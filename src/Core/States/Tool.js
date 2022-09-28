@@ -49,7 +49,7 @@ export class Tool {
    */
   executeAction() {
     this._executeAction();
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(
       new CustomEvent('actions-executed', {
@@ -96,6 +96,7 @@ export class Tool {
     // app.removeListener('canvasTouchStart', this.touchStartId);
     app.removeListener('canvasTouchMove', this.touchMoveId);
     app.removeListener('canvasTouchEnd', this.touchEndId);
+    app.removeListener('canvasLongPress', this.longPressId);
     // app.removeListener('canvasMouseWheel', this.mouseWheelId);
   }
 

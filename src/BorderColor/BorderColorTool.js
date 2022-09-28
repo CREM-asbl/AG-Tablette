@@ -1,8 +1,7 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { GroupManager } from '../Core/Managers/GroupManager';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Modifier la couleur des bords d'une figure
@@ -57,7 +56,7 @@ export class BorderColorTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
     setState({
@@ -67,7 +66,7 @@ export class BorderColorTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.forEach((s) => {
-      s.borderColor = app.settings.shapeBorderColor;
+      s.strokeColor = app.settings.shapeBorderColor;
     });
   }
 }

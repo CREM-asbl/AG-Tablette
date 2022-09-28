@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { css, html, LitElement } from 'lit';
 
 export class TemplateToolbar extends LitElement {
   static get properties() {
@@ -15,7 +15,7 @@ export class TemplateToolbar extends LitElement {
       [slot='title'] {
         text-align: center;
         font-size: 1.2em;
-        margin: 12px 0;
+        margin: 6px 0;
         text-overflow: ellipsis;
         overflow: hidden;
         /* white-space: nowrap; */

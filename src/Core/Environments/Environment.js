@@ -9,7 +9,7 @@ export const loadEnvironnement = async (name) => {
 
     return new Environment(config.default, await loadKit(config.default.kit));
   } catch (error) {
-    console.warn(`Environnement ${name} pas encore pris en charge`);
+    console.info(`Environnement ${name} pas encore pris en charge`);
     console.error(error);
   }
 };
@@ -18,14 +18,16 @@ const loadModules = async (list) => {
   const modules = await Promise.all(
     list.map(async (module) => await import(`../../${module}/index.js`)),
   );
+  let tools = modules.map((module) => {
+    return {
+      name: module.default.tool.name,
+      title: module.default.tool.title,
+      type: module.default.tool.type,
+      isVisible: true,
+    };
+  });
   setState({
-    tools: modules.map((module) => {
-      return {
-        name: module.default.tool.name,
-        title: module.default.tool.title,
-        type: module.default.tool.type,
-      };
-    }),
+    tools,
   });
 };
 

@@ -1,7 +1,7 @@
 import { app, setState } from '../App';
-import { SelectManager } from './SelectManager';
-import { createElem } from '../Tools/general';
 import { Coordinates } from '../Objects/Coordinates';
+import { createElem } from '../Tools/general';
+import { SelectManager } from './SelectManager';
 
 /**
  * Représente l'historique complet d'un espace de travail.
@@ -105,8 +105,8 @@ export class FullHistoryManager {
     index++;
     setState({ fullHistory: { ...app.fullHistory, actionIndex, index }, tool: undefined });
 
-    app.upperDrawingEnvironment.removeAllObjects(); // temporary patch
-    app.upperDrawingEnvironment.redraw(); // temporary patch
+    app.upperCanvasLayer.removeAllObjects(); // temporary patch
+    app.upperCanvasLayer.redraw(); // temporary patch
 
     if (startSelectedTool) {
       let tool = null;

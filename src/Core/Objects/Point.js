@@ -1,8 +1,7 @@
-import { ShapeManager } from '../Managers/ShapeManager';
-import { Segment } from './Segment';
-import { mod, uniqId } from '../Tools/general';
-import { Coordinates } from './Coordinates';
 import { app } from '../App';
+import { addInfoToId, findObjectById, mod, uniqId } from '../Tools/general';
+import { Coordinates } from './Coordinates';
+import { Segment } from './Segment';
 
 /**
  * Représente un point du plan
@@ -10,7 +9,6 @@ import { app } from '../App';
 export class Point {
   /**
    * @param {String}                      id
-   * @param {DrawingEnvironment}          drawingEnvironment
    * @param {Coordinates}                 coordinates
    * @param {Number}                      x
    * @param {Number}                      y
@@ -21,8 +19,8 @@ export class Point {
    * @param {Number}                      ratio -> the ratio of this between the 2 vertexes of the segment
    */
   constructor({
-    id = uniqId(),
-    drawingEnvironment,
+    id,
+    layer,
     coordinates = undefined,
     x = 0,
     y = 0,
@@ -35,10 +33,17 @@ export class Point {
     visible = true,
     color = '#000',
     size = 1,
+    reference = null,
+    endpointIds = [],
+    geometryIsVisible = true,
   }) {
+    if (id == undefined)
+      id = uniqId(layer, 'point');
+    else
+      id = addInfoToId(id, layer, 'point');
     this.id = id;
-    this.drawingEnvironment = drawingEnvironment;
-    this.drawingEnvironment.points.push(this);
+    this.layer = layer;
+    this.canvasLayer.points.push(this);
 
     if (coordinates !== undefined)
       this.coordinates = new Coordinates(coordinates);
@@ -50,7 +55,7 @@ export class Point {
 
     this.shapeId = shapeId;
     if (this.shapeId !== undefined)
-      this.drawingEnvironment.shapes
+      this.canvasLayer.shapes
         .find((s) => s.id === this.shapeId)
         .pointIds.push(this.id);
     this.idx = idx;
@@ -61,10 +66,17 @@ export class Point {
     this.visible = visible;
     this.color = color;
     this.size = size;
+    this.reference = reference;
+    this.endpointIds = [...endpointIds];
+    this.geometryIsVisible = geometryIsVisible;
+  }
+
+  get canvasLayer() {
+    return app[this.layer + 'CanvasLayer'];
   }
 
   get shape() {
-    let shape = this.drawingEnvironment.shapes.find(
+    let shape = this.canvasLayer.shapes.find(
       (s) => s.id === this.shapeId,
     );
     return shape;
@@ -72,7 +84,7 @@ export class Point {
 
   get segments() {
     let segments = this.segmentIds.map((segId) =>
-      this.drawingEnvironment.segments.find((seg) => seg.id === segId),
+      this.canvasLayer.segments.find((seg) => seg.id === segId),
     );
     return segments;
   }
@@ -132,243 +144,276 @@ export class Point {
       lines: [],
       points: [],
     };
-    if (this.shape.familyName == 'Regular') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
+    let reference = findObjectById(this.reference);
+    if (reference && reference instanceof Point) {
+      let reference = findObjectById(this.reference);
+      reference.computeTransformConstraint();
+      constraints = reference.transformConstraints;
+    } else if (this.type == 'divisionPoint' || this.type == 'shapeCenter') {
+      constraints.isConstructed = true;
+    } else if (this.shape.geometryObject.geometryTransformationName != null) {
+      constraints.isConstructed = true;
+    } else if (this.shape.geometryObject.geometryDuplicateParentShapeId != null) {
+      constraints.isConstructed = true;
+    } else if (this.shape.familyName == 'copy') {
+      constraints.isConstructed = true;
+    } else {
+      if (this.shape.familyName == 'Regular') {
+        if (this.idx < 2) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstructed = true;
+        }
+      } else if (this.shape.familyName == 'Irregular') {
+        if (this.shape.points.some(pt => pt.type == 'arcCenter')) {
+          constraints.isBlocked = true;
+        } else {
+          constraints.isFree = true;
+        }
+      } else if (this.shape.name == 'RightAngleTriangle') {
+        if (this.idx < 2) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstrained = true;
+          constraints.lines = [
+            {
+              segment: this.shape.segments[1],
+              isInfinite: true,
+            },
+          ];
+        }
+      } else if (this.shape.name == 'IsoscelesTriangle') {
+        if (this.idx < 2) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstrained = true;
+
+          let firstSeg = this.shape.segments[0];
+          let middleOfSegment = firstSeg.middle;
+          constraints.lines = [{
+            segment: new Segment({
+              layer: 'invisible',
+              createFromNothing: true,
+              vertexCoordinates: [this.coordinates, middleOfSegment],
+            }),
+            isInfinite: true,
+          }];
+        }
+      } else if (this.shape.name == 'RightAngleIsoscelesTriangle') {
+        if (this.idx < 2) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstrained = true;
+          let firstSeg = this.shape.segments[0];
+          let segmentLength = firstSeg.length;
+          let angle = firstSeg.getAngleWithHorizontal();
+          let perpendicularAngle = angle + Math.PI / 2;
+          let firstPoint = new Coordinates({
+            x: firstSeg.vertexes[1].x + Math.cos(perpendicularAngle) * segmentLength,
+            y: firstSeg.vertexes[1].y + Math.sin(perpendicularAngle) * segmentLength,
+          });
+          let secondPoint = new Coordinates({
+            x: firstSeg.vertexes[1].x - Math.cos(perpendicularAngle) * segmentLength,
+            y: firstSeg.vertexes[1].y - Math.sin(perpendicularAngle) * segmentLength,
+          });
+          constraints.points.push(firstPoint);
+          constraints.points.push(secondPoint);
+        }
+      } else if (this.shape.name == 'Rectangle') {
+        if (this.idx < 2) {
+          constraints.isFree = true;
+        } else if (this.idx == 2) {
+          constraints.isConstrained = true;
+
+          constraints.lines = [
+            {
+              segment: this.shape.segments[1],
+              isInfinite: true,
+            },
+          ];
+        } else {
+          constraints.isConstructed = true;
+        }
+      } else if (this.shape.name == 'Losange') {
+        if (this.idx < 2) {
+          constraints.isFree = true;
+        } else if (this.idx == 2) {
+          constraints.isConstrained = true;
+          let constraintLine = {
+            segment: new Segment({
+              layer: 'invisible',
+              createFromNothing: true,
+              vertexCoordinates: [this.shape.vertexes[0].coordinates],
+              arcCenterCoordinates: this.shape.vertexes[1].coordinates,
+            }),
+          };
+          constraintLine.segment.vertexIds[1] = constraintLine.segment.vertexIds[0];
+          constraints.lines = [constraintLine];
+        } else {
+          constraints.isConstructed = true;
+        }
+      } else if (this.shape.name == 'Parallelogram') {
+        if (this.idx < 3) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstructed = true;
+        }
+      } else if (this.shape.name == 'RightAngleTrapeze') {
+        if (this.idx < 2) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstrained = true;
+
+          constraints.lines = [
+            {
+              segment: this.shape.segments[this.idx - 1],
+              isInfinite: true,
+            },
+          ];
+        }
+      } else if (this.shape.name == 'IsoscelesTrapeze') {
+        if (this.idx < 3) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstructed = true;
+        }
+      } else if (this.shape.name == 'Trapeze') {
+        if (this.idx < 3) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstrained = true;
+          constraints.lines = [{
+            segment: new Segment({
+              layer: 'invisible',
+              createFromNothing: true,
+              vertexCoordinates: [this.shape.vertexes[2].coordinates, this.shape.vertexes[3].coordinates],
+            }),
+            isInfinite: true,
+          }];
+        }
+      } else if (this.shape.name == 'Circle') {
         constraints.isFree = true;
-      } else {
-        constraints.isConstructed = true;
+      } else if (this.shape.name == 'CirclePart') {
+        if (this.type == 'arcCenter') {
+          constraints.isFree = true;
+        } else if (this.idx <= 1) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstrained = true;
+          constraints.lines = [{
+            segment: new Segment({
+              layer: 'invisible',
+              createFromNothing: true,
+              vertexCoordinates: [this.coordinates, this.coordinates],
+              arcCenterCoordinates: this.segments[0].arcCenter.coordinates,
+            }),
+          }];
+        }
+      } else if (this.shape.name == 'CircleArc') {
+        if (this.type == 'arcCenter') {
+          constraints.isFree = true;
+        } else if (this.idx == 0) {
+          constraints.isFree = true;
+        } else {
+          constraints.isConstrained = true;
+          constraints.lines = [{
+            segment: new Segment({
+              layer: 'invisible',
+              createFromNothing: true,
+              vertexCoordinates: [this.coordinates, this.coordinates],
+              arcCenterCoordinates: this.segments[0].arcCenter.coordinates,
+            }),
+          }];
+        }
+      } else if (this.shape.name == '30degreesArc' || this.shape.name == '45degreesArc') {
+        if (this.type == 'arcCenter') {
+          constraints.isFree = true;
+        } else if (this.idx == 0) {
+          constraints.isFree = true;
+        } else {
+          constraints.isBlocked = true;
+        }
+      }  else if (this.shape.familyName == 'Line') {
+        if (
+          (this.shape.name == 'ParalleleSegment' ||
+            this.shape.name == 'ParalleleSemiStraightLine') &&
+          this.idx == 1
+        ) {
+          constraints.isConstrained = true;
+          let reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
+          let referenceAngle = reference.getAngleWithHorizontal();
+          let constraintLine = {
+            segment: new Segment({
+              layer: 'invisible',
+              createFromNothing: true,
+              vertexCoordinates: [this.shape.vertexes[0], this.shape.vertexes[0].coordinates.add(new Coordinates({
+                x: 100 * Math.cos(referenceAngle),
+                y: 100 * Math.sin(referenceAngle),
+              }))],
+            }),
+            isInfinite: true,
+          };
+          constraints.lines = [constraintLine];
+        } else if (
+          (this.shape.name == 'PerpendicularSegment' ||
+            this.shape.name == 'PerpendicularSemiStraightLine') &&
+          this.idx == 1
+        ) {
+          constraints.isConstrained = true;
+          let reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
+          let referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2;
+          let constraintLine = {
+            segment: new Segment({
+              layer: 'invisible',
+              createFromNothing: true,
+              vertexCoordinates: [this.shape.vertexes[0], this.shape.vertexes[0].coordinates.add(new Coordinates({
+                x: 100 * Math.cos(referenceAngle),
+                y: 100 * Math.sin(referenceAngle),
+              }))],
+            }),
+            isInfinite: true,
+          };
+          constraints.lines = [constraintLine];
+        } else if (this.idx == 0) {
+          constraints.isFree = true;
+        } else if (
+          (this.shape.name == 'Segment' ||
+            this.shape.name == 'SemiStraightLine' ||
+            this.shape.name == 'StraightLine' ||
+            this.shape.name == 'Vector') &&
+          this.idx == 1
+        ) {
+          constraints.isFree = true;
+        } else if (this.idx == 1) {
+          constraints.isConstructed = true;
+        }
+      } else if (this.shape.familyName == 'Point') {
+        if (this.shape.name == 'Point') {
+          constraints.isFree = true;
+        } else if (this.shape.name == 'PointOnLine' || this.shape.name == 'PointOnShape') {
+          constraints.isConstrained = true;
+        } else {
+          constraints.isConstructed = true;
+        }
       }
-    } else if (this.shape.familyName == 'Irregular') {
-      constraints.isFree = true;
-    } else if (this.shape.name == 'RightAngleTriangle') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
-        constraints.isFree = true;
-      } else {
-        console.trace();
-
+    }
+    if (reference && reference instanceof Segment) {
+      if (constraints.isFree) {
+        constraints.isFree = false;
         constraints.isConstrained = true;
-
-        let firstSeg = this.shape.segments[0];
         constraints.lines = [
           {
-            segment: new Segment(this, firstSeg.vertexes[1]),
-            isInfinite: true,
+            segment: reference,
           },
         ];
-      }
-    } else if (this.shape.name == 'IsoscelesTriangle') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
-        constraints.isFree = true;
-      } else {
-        constraints.isConstrained = true;
-
-        let firstSeg = this.shape.segments[0];
-        let middleOfSegment = firstSeg.middle;
-        constraints.lines = [
-          {
-            segment: new Segment(this, middleOfSegment),
-            isInfinite: true,
-          },
-        ];
-      }
-    } else if (this.shape.name == 'RightAngleIsoscelesTriangle') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
-        constraints.isFree = true;
-      } else {
-        constraints.isConstrained = true;
-        let firstSeg = this.shape.segments[0];
-        let segmentLength = firstSeg.length;
-        let angle = firstSeg.getAngleWithHorizontal();
-        let perpendicularAngle = angle + Math.PI / 2;
-        let firstPoint = new Point(
-          firstSeg.vertexes[1].x + Math.cos(perpendicularAngle) * segmentLength,
-          firstSeg.vertexes[1].y + Math.sin(perpendicularAngle) * segmentLength,
-        );
-        let secondPoint = new Point(
-          firstSeg.vertexes[1].x - Math.cos(perpendicularAngle) * segmentLength,
-          firstSeg.vertexes[1].y - Math.sin(perpendicularAngle) * segmentLength,
-        );
-        constraints.points.push(firstPoint);
-        constraints.points.push(secondPoint);
-      }
-    } else if (this.shape.name == 'Rectangle') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
-        constraints.isFree = true;
-      } else if (this.name == 'thirdPoint') {
-        constraints.isConstrained = true;
-
-        let firstSeg = this.shape.segments[0];
-        constraints.lines = [
-          {
-            segment: new Segment(this, firstSeg.vertexes[1]),
-            isInfinite: true,
-          },
-        ];
-      } else {
-        constraints.isConstructed = true;
-      }
-    } else if (this.shape.name == 'Losange') {
-      if (this.name == 'firstPoint' || this.name == 'secondPoint') {
-        constraints.isFree = true;
-      } else if (this.name == 'thirdPoint') {
-        constraints.isConstrained = true;
-        let constraintLine = {
-          segment: new Segment(
-            this.shape.segments[0].vertexes[0],
-            this.shape.segments[0].vertexes[0],
-            null,
-            null,
-            this.shape.segments[0].vertexes[1],
-          ),
-        };
-        constraints.lines = [constraintLine];
-      } else {
-        constraints.isConstructed = true;
-      }
-    } else if (this.shape.name == 'Parallelogram') {
-      if (
-        this.name == 'firstPoint' ||
-        this.name == 'secondPoint' ||
-        this.name == 'thirdPoint'
-      ) {
-        constraints.isFree = true;
-      } else {
-        constraints.isConstructed = true;
-      }
-    } else if (this.shape.name == 'RightAngleTrapeze') {
-      if (
-        this.name == 'firstPoint' ||
-        this.name == 'secondPoint' ||
-        this.name == 'thirdPoint'
-      ) {
-        constraints.isFree = true;
-      } else {
-        constraints.isConstructed = true;
-      }
-    } else if (this.shape.name == 'IsoscelesTrapeze') {
-      if (
-        this.name == 'firstPoint' ||
-        this.name == 'secondPoint' ||
-        this.name == 'thirdPoint'
-      ) {
-        constraints.isFree = true;
-      } else {
-        constraints.isConstructed = true;
-      }
-    } else if (this.shape.name == 'Trapeze') {
-      if (
-        this.name == 'firstPoint' ||
-        this.name == 'secondPoint' ||
-        this.name == 'thirdPoint'
-      ) {
-        constraints.isFree = true;
-      } else {
-        constraints.isConstrained = true;
-        let secondSeg = this.shape.segments[1];
-        constraints.lines = [
-          {
-            segment: new Segment(this, secondSeg.vertexes[1]),
-            isInfinite: true,
-          },
-        ];
-      }
-    } else if (this.shape.name == 'Circle') {
-      if (this.name == 'arcCenter') {
+      } else if (constraints.isConstrained) {
+        constraints.isConstrained = false;
         constraints.isBlocked = true;
-      } else {
-        constraints.isFree = true;
-      }
-    } else if (this.shape.name == 'CirclePart') {
-      if (this.name == 'arcCenter') {
-        constraints.isBlocked = true;
-      } else if (this.name == 'firstPoint') {
-        constraints.isFree = true;
-      } else {
-        constraints.isConstrained = true;
-        let constraintLine = {
-          segment: new Segment(
-            this.shape.segments[0].vertexes[1],
-            this.shape.segments[0].vertexes[1],
-            null,
-            null,
-            this.shape.segments[0].vertexes[0],
-          ),
-        };
-        constraints.lines = [constraintLine];
-      }
-    } else if (this.shape.name == 'CircleArc') {
-      if (this.name == 'firstPoint') constraints.isFree = true;
-      else if (this.name == 'secondPoint') {
-        constraints.isConstrained = true;
-        let constraintLine = {
-          segment: new Segment(
-            this.shape.segments[0].vertexes[1],
-            this.shape.segments[0].vertexes[1],
-            null,
-            null,
-            this.shape.segments[0].arcCenter,
-          ),
-        };
-        constraints.lines = [constraintLine];
-      } else if (this.name == 'arcCenter') {
-        constraints.isConstrained = true;
-        let seg = new Segment(
-          this.shape.segments[0].vertexes[0],
-          this.shape.segments[0].vertexes[1],
+        constraints.lines.push(
+          {
+            segment: reference,
+          },
         );
-        let middle = seg.middle;
-        let constraintLine = {
-          segment: new Segment(
-            this.shape.segments[0].middle,
-            middle,
-            null,
-            null,
-            null,
-            null,
-            true,
-          ),
-        };
-        constraints.lines = [constraintLine];
-      }
-    } else if (this.shape.familyName == 'Line') {
-      if (
-        (this.shape.name == 'ParalleleSegment' ||
-          this.shape.name == 'ParalleleSemiStraightLine') &&
-        this.name == 'secondPoint'
-      ) {
-        constraints.isConstrained = true;
-        let reference = ShapeManager.getShapeById(this.shape.referenceShapeId)
-          .segments[this.shape.referenceSegmentIdx];
-        let referenceAngle = reference.getAngleWithHorizontal();
-        let constraintLine = {
-          segment: new Segment(
-            this.shape.segments[0].vertexes[0],
-            this.shape.segments[0].vertexes[0].addCoordinates(
-              100 * Math.cos(referenceAngle),
-              100 * Math.sin(referenceAngle),
-            ),
-          ),
-          isInfinite: true,
-        };
-        constraints.lines = [constraintLine];
-      } else if (
-        (this.shape.name == 'PerpendicularSegment' ||
-          this.shape.name == 'PerpendicularSemiStraightLine') &&
-        this.name == 'secondPoint'
-      ) {
-        constraints.isConstrained = true;
-        let reference = ShapeManager.getShapeById(this.shape.referenceShapeId)
-          .segments[this.shape.referenceSegmentIdx];
-        let constraintLine = {
-          segment: new Segment(
-            this.shape.segments[0].vertexes[0],
-            reference.projectionOnSegment(this),
-          ),
-          isInfinite: true,
-        };
-        constraints.lines = [constraintLine];
-      } else {
-        constraints.isFree = true;
       }
     }
     this.transformConstraints = constraints;
@@ -398,8 +443,8 @@ export class Point {
    */
   getVertexAngle(reduced = false) {
     let shape = this.shape,
-      segment = this.segment,
-      nextSegment = shape.segments[(segment.idx + 1) % shape.segments.length];
+      segment = this.segments[0],
+      nextSegment = this.segments[1];
 
     let angle1 = segment.getAngleWithHorizontal();
     let angle2 = nextSegment.getAngleWithHorizontal();
@@ -411,16 +456,16 @@ export class Point {
     return resultAngle;
   }
 
-  recomputeSegmentPoint() {
-    let v0 = this.segment.vertexes[0],
-      angle = this.segment.getAngleWithHorizontal(),
-      length = this.segment.length;
+  // recomputeSegmentPoint() {
+  //   let v0 = this.segment.vertexes[0],
+  //     angle = this.segment.getAngleWithHorizontal(),
+  //     length = this.segment.length;
 
-    this.setCoordinates({
-      x: v0.x + Math.cos(angle) * length * this.ratio,
-      y: v0.y + Math.sin(angle) * length * this.ratio,
-    });
-  }
+  //   this.setCoordinates({
+  //     x: v0.x + Math.cos(angle) * length * this.ratio,
+  //     y: v0.y + Math.sin(angle) * length * this.ratio,
+  //   });
+  // }
 
   saveToObject() {
     return this.saveData();
@@ -431,7 +476,7 @@ export class Point {
       id: this.id,
       coordinates: this.coordinates,
       shapeId: this.shapeId,
-      position: this.drawingEnvironment?.name,
+      position: this.layer,
       idx: this.idx,
       segmentIds: [...this.segmentIds],
       type: this.type,
@@ -440,6 +485,10 @@ export class Point {
       visible: this.visible,
       color: this.color,
       size: this.size,
+      reference: this.reference,
+      endpointIds: [...this.endpointIds],
+      transformConstraints: {...this.transformConstraints},
+      geometryIsVisible: this.geometryIsVisible,
     };
     return data;
   }
@@ -449,10 +498,12 @@ export class Point {
       data.position = 'main';
     }
     let point = new Point({
-      drawingEnvironment: app[data.position + 'DrawingEnvironment'],
+      layer: data.position,
     });
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);
     point.segmentIds = [...data.segmentIds];
+    if (data.endpointIds)
+      point.endpointIds = [...data.endpointIds];
   }
 }

@@ -1,9 +1,9 @@
 export default {
   name: 'Grandeurs',
   modules: [
+    'Create',
     'Move',
     'Rotate',
-    'Create',
     'Reverse',
     'BuildCenter',
     'Divide',
@@ -14,8 +14,9 @@ export default {
     'Group',
     'Ungroup',
     'ToBackground',
-    'BackgroundColor',
-    'BorderColor',
+    'Color',
+    // 'BackgroundColor',
+    // 'BorderColor',
     'Opacity',
     'Biface',
     'Translate',

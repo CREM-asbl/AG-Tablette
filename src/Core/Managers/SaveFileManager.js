@@ -109,7 +109,7 @@ export class SaveFileManager {
   }
 
   static saveToPng(handle) {
-    const ctx = app.invisibleDrawingEnvironment.ctx,
+    const ctx = app.invisibleCanvasLayer.ctx,
       canvas = ctx.canvas,
       width = canvas.width,
       height = canvas.height;
@@ -119,14 +119,11 @@ export class SaveFileManager {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, width, height);
 
-    ctx.drawImage(
-      app.backgroundDrawingEnvironment.ctx.canvas,
-      0,
-      0,
-      width,
-      height,
-    );
-    ctx.drawImage(app.mainDrawingEnvironment.ctx.canvas, 0, 0, width, height);
+    if (app.gridCanvasLayer)
+      ctx.drawImage(app.gridCanvasLayer.canvas, 0, 0, width, height);
+    if (app.tangramCanvasLayer)
+      ctx.drawImage(app.tangramCanvasLayer.canvas, 0, 0, width, height);
+    ctx.drawImage(app.mainCanvasLayer.canvas, 0, 0, width, height);
 
     let forbiddenCanvas = document.body.querySelector('forbidden-canvas');
     if (forbiddenCanvas != null) {
@@ -168,7 +165,9 @@ export class SaveFileManager {
     let wsdata = app.workspace.data,
       settings = { ...app.settings },
       history = { ...app.history },
-      fullHistory = { ...app.fullHistory };
+      fullHistory = { ...app.fullHistory },
+      toolsVisible = app.tools.map(tool => { return { name: tool.name, isVisible: tool.isVisible } }),
+      familiesVisible = app.environment.families.map(family => { return { name: family.name, isVisible: family.isVisible } });
 
     SaveFileManager.saveHistory = detail.saveHistory;
     SaveFileManager.saveSettings = detail.saveSettings;
@@ -192,6 +191,8 @@ export class SaveFileManager {
         settings,
         fullHistory,
         history,
+        toolsVisible,
+        familiesVisible,
       },
       json_data = JSON.stringify(saveObject);
 

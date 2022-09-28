@@ -1,7 +1,8 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Tool } from '../Core/States/Tool';
+import { findIndexById } from '../Core/Tools/general';
 
 /**
  * Déplacer une figure derrière toutes les autres.
@@ -27,9 +28,6 @@ export class ToBackgroundTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
@@ -42,9 +40,6 @@ export class ToBackgroundTool extends Tool {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     this.removeListeners();
   }
@@ -54,7 +49,7 @@ export class ToBackgroundTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
     this.involvedShapes.sort(
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
@@ -66,9 +61,9 @@ export class ToBackgroundTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.forEach((s, index) => {
-      let shapeIndex = app.mainDrawingEnvironment.findIndexById(s.id);
-      let shape = app.mainDrawingEnvironment.shapes.splice(shapeIndex, 1)[0];
-      app.mainDrawingEnvironment.shapes.splice(index, 0, shape);
+      let shapeIndex = findIndexById(s.id);
+      let shape = app.mainCanvasLayer.shapes.splice(shapeIndex, 1)[0];
+      app.mainCanvasLayer.shapes.splice(index, 0, shape);
     });
   }
 }

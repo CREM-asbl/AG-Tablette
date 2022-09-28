@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { css, html, LitElement } from 'lit';
 
 export class TemplatePopup extends LitElement {
   static get properties() {
@@ -118,6 +118,8 @@ export class TemplatePopup extends LitElement {
       }
 
       #template-view {
+        max-height: 100%;
+        overflow: auto;
         display: grid;
         grid-template-columns: 1fr 40px;
         margin: auto;
@@ -125,7 +127,6 @@ export class TemplatePopup extends LitElement {
         box-shadow: 0px 0px 30px rgb(102, 102, 102);
         /* border: 2px solid gray; */
         background-color: var(--theme-color-soft);
-        overflow-y: hidden;
       }
 
       #popup-close {
@@ -134,7 +135,6 @@ export class TemplatePopup extends LitElement {
         cursor: pointer;
         color: #555;
         margin: 8px;
-        /* overflow: hidden; */
         line-height: 40%;
 
         display: grid;
@@ -177,7 +177,7 @@ export class TemplatePopup extends LitElement {
   }
 }
 
-addEventListener('keyup', (e) => {
+window.addEventListener('keyup', (e) => {
   e.key === 'Escape' && window.dispatchEvent(new Event('close-popup'));
 });
 

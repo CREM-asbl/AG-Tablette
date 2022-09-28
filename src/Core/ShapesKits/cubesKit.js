@@ -2,12 +2,11 @@ export const cubesKit = {
   name: 'Cubes',
   families: {
     'Cube 1': {
-      color: '#f46c2e',
-      opacity: 1,
+      fillColor: '#f46c2e',
+      fillOpacity: 1,
       shapeTemplates: [
         {
           name: 'Cube 1',
-          new2: `18.30127018 36.60254036`,
           path: `L 43.30127018 25 L 86.60254036 0 V -50 L 43.30127018 -75 L 0 -50 Z
                  M 43.30127018 -25 V 25
                  M 43.30127018 -25 L 86.60254036 -50
@@ -17,8 +16,8 @@ export const cubesKit = {
       ],
     },
     'Cube 2': {
-      color: '#f46c2e',
-      opacity: 1,
+      fillColor: '#f46c2e',
+      fillOpacity: 1,
       shapeTemplates: [
         {
           name: 'Cube 2',

@@ -1,6 +1,6 @@
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from '../popups/template-popup';
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
+import { TemplatePopup } from '../popups/template-popup';
 
 class OpacityPopup extends LitElement {
   constructor() {
@@ -47,7 +47,7 @@ class OpacityPopup extends LitElement {
         <h2 slot="title">Opacité</h2>
         <div slot="body" id="body">
           <div class="field">
-            <label for="opacity_popup_select">Rendre une forme</label>
+            <label for="opacity_popup_select">Rendre une figure</label>
             <select
               name="opacity_popup_select"
               id="opacity_popup_select"
@@ -74,8 +74,9 @@ class OpacityPopup extends LitElement {
   }
 
   changeOpacity(event) {
+    let shapeOpacity = parseFloat(event.target.value);
     setState({
-      settings: { ...app.settings, shapeOpacity: event.target.value },
+      settings: { ...app.settings, shapeOpacity },
     });
   }
 

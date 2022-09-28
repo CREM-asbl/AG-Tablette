@@ -1,8 +1,7 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
-import { Text } from '../Core/Objects/Text';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Supprimer un groupe (ne supprime pas les figures).
@@ -31,30 +30,36 @@ export class UngroupTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
 
-    // setTimeout(() => {
-      app.mainDrawingEnvironment.shapes.map((s) => {
-        if (GroupManager.getShapeGroup(s) != null) {
-          new Text({
-            drawingEnvironment: app.upperDrawingEnvironment,
-            coordinates: s.centerCoordinates,
-            referenceId: s.id,
-            type: 'group',
-          });
-        }
-      });
-      // window.dispatchEvent(new CustomEvent('refreshUpper'));
-    // }, 50);
+    app.mainCanvasLayer.shapes.map((s) => {
+      let currentGroup = GroupManager.getShapeGroup(s);
+      if (currentGroup != null) {
+        new s.constructor({
+          ...s,
+          layer: 'upper',
+          path: s.getSVGPath('no scale', false, false),
+          fillOpacity: 0,
+          strokeColor: currentGroup.color,
+          strokeWidth: 3,
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+          }),
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.points.map((pt) => {
+            return pt.color;
+          }),
+        });
+      }
+    });
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
@@ -65,7 +70,7 @@ export class UngroupTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
   }
 

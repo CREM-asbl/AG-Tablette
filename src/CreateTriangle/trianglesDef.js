@@ -1,8 +1,8 @@
-import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
-import { Coordinates } from '../Core/Objects/Coordinates';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
 import { app } from '../Core/App';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 
 export const EquilateralTriangle = {
   numberOfPointsToRequired: 2,
@@ -28,7 +28,7 @@ export const EquilateralTriangle = {
 
     if (points.length == 2) {
       points[2] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -40,7 +40,7 @@ export const EquilateralTriangle = {
     if (segments.length == 1) {
       segments.push(
         new Segment({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           vertexIds: [points[1].id, points[2].id],
         }),
       );
@@ -75,7 +75,7 @@ export const RightAngleIsoscelesTriangle = {
           }),
         ),
       ];
-      return new GeometryConstraint('isContrained', [], constraintsPoints);
+      return new GeometryConstraint('isConstrained', [], constraintsPoints);
     }
   ],
   finishShape: () => {},
@@ -100,7 +100,7 @@ export const RightAngleTriangle = {
           }),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: () => {},
@@ -128,7 +128,7 @@ export const IsoscelesTriangle = {
           }),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: () => {},

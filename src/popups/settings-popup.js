@@ -1,8 +1,9 @@
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit';
-import { TemplatePopup } from './template-popup';
 import { Settings } from '../Core/Settings';
+import { createElem } from '../Core/Tools/general';
 import '../version-item';
+import { TemplatePopup } from './template-popup';
 
 class SettingsPopup extends LitElement {
   static get properties() {
@@ -15,7 +16,7 @@ class SettingsPopup extends LitElement {
     super();
     this.settings = { ...app.settings };
 
-    addEventListener(
+    window.addEventListener(
       'settings-changed',
       () => (this.settings = { ...app.settings }),
     );
@@ -42,11 +43,11 @@ class SettingsPopup extends LitElement {
 
   render() {
     return html`
-     <template-popup>
-      <h2 slot="title">Paramètres</h2>
-      <div slot="body">
-        <fieldset>
-            <legend>Général</legend>
+      <template-popup>
+        <h2 slot="title">Paramètres</h2>
+        <div slot="body">
+          <fieldset>
+            <legend>Environnement général</legend>
 
             <div class="field">
               <input
@@ -58,18 +59,43 @@ class SettingsPopup extends LitElement {
               />
               <label for="settings_automatic_adjustment">Ajustement automatique</label>
             </div>
+
+            <div class="field" style=${
+              app.environment.name != 'Geometrie'
+                ? 'display:none'
+                : ''
+            }>
+              <input
+                type="checkbox"
+                name="settings_animation_in_geometry_tranformations"
+                id="settings_animation_in_geometry_tranformations"
+                .checked="${this.settings.geometryTransformationAnimation}"
+                @change="${this._actionHandle}"
+              />
+              <label for="settings_animation_in_geometry_tranformations">Animation des tranformations</label>
+            </div>
+
+            <div class="field">
+              <color-button @click="${() => {
+                import('./tool-choice-popup');
+                createElem('tool-choice-popup');
+                this.close();
+              }}" innerText="Choix des outils disponibles"></color-button>
+            </div>
           </fieldset>
 
           <br />
 
           <fieldset style=${
-            app.environment.name == 'Tangram' || app.environment.name == 'Cubes'
+            app.environment.name == 'Tangram'
               ? 'display:none'
               : ''
           }>
             <legend>Figures</legend>
 
-            <div class="field">
+            <div class="field" style=${
+              app.environment.name == 'Grandeurs' ? '' : 'display:none;'
+            }>
               <label for="settings_shapes_size">Taille des figures</label>
               <select
                 name="settings_shapes_size"
@@ -101,14 +127,14 @@ class SettingsPopup extends LitElement {
               <label for="settings_shapes_pointed">Figures pointées</label>
             </div>
           </fieldset>
+          </div>
+          <div slot="footer">
+            <version-item></version-item>
+            <color-button @click="${() => app.resetSettings()}" innerText="Paramètres par défaut"></color-button>
+            <color-button id="focus" @click="${this.close}" innerText="OK"></color-button>
+          </div>
         </div>
-        <div slot="footer">
-          <version-item></version-item>
-          <color-button @click="${() => app.resetSettings()}" innerText="Paramètres par défaut"></color-button>
-          <color-button id="focus" @click="${this.close}" innerText="OK"></color-button>
-        </div>
-      </div>
-     </template-popup>
+      </template-popup>
     `;
   }
 
@@ -126,6 +152,15 @@ class SettingsPopup extends LitElement {
           settings: {
             ...app.settings,
             automaticAdjustment: event.target.checked,
+          },
+        });
+        break;
+
+      case 'settings_animation_in_geometry_tranformations':
+        setState({
+          settings: {
+            ...app.settings,
+            geometryTransformationAnimation: event.target.checked,
           },
         });
         break;

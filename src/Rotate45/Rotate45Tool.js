@@ -1,7 +1,7 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -62,7 +62,7 @@ export class Rotate45Tool extends Tool {
    */
   objectSelected(shape) {
     this.selectedShape = shape;
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);

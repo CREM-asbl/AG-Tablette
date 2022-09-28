@@ -11,7 +11,7 @@ export class Settings {
    */
   get(name) {
     if (this.data[name] === undefined) {
-      console.warn('Settings.get(): Le paramètre ' + name + " n'existe pas.");
+      console.info('Settings.get(): Le paramètre ' + name + " n'existe pas.");
     }
     return this.data[name];
   }

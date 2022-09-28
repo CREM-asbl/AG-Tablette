@@ -1,3 +1,4 @@
+import { app, setState } from '../App';
 import { uniqId } from '../Tools/general';
 
 /**
@@ -21,6 +22,9 @@ export class ShapeGroup {
 
     //Identifiant unique du groupe
     this.id = uniqId();
+
+    this.color = ['#77b5fe', '#096a09', '#f00020', '#03224c', '#34c924', '#d473d4', '#fd3f92', '#ff8400'][app.nextGroupColorIdx];
+    setState({ nextGroupColorIdx: (app.nextGroupColorIdx + 1) % 8 });
   }
 
   saveToObject() {

@@ -1,24 +1,24 @@
-import { Shape } from './Shape';
 import { app } from '../App';
-import { Coordinates } from './Coordinates';
 import { Bounds } from './Bounds';
+import { Coordinates } from './Coordinates';
+import { RegularShape } from './Shapes/RegularShape';
 
 export class Silhouette {
   /**
    *
-   * @param {Shape[]} shapes les shapes représentant la silhouette
+   * @param {RegularShape[]} shapes les shapes représentant la silhouette
    */
   constructor(shapes = [], loadFromSave = false, level = 1) {
     this.level = level;
     this.shapes = shapes.map((shape) => {
-      let shapeCopy = new Shape({
+      let shapeCopy = new RegularShape({
         ...shape,
         path: loadFromSave ? shape.path : shape.getSVGPath(false),
-        drawingEnvironment: app.backgroundDrawingEnvironment,
+        layer: 'tangram',
         name: 'silhouette',
-        color: '#000',
-        borderColor: level % 2 != 0 ? '#fff' : '#000',
-        opacity: 1,
+        fillColor: '#000',
+        strokeColor: level % 2 != 0 ? '#fff' : '#000',
+        fillOpacity: 1,
         isPointed: false,
         size: 1,
       });
@@ -47,7 +47,7 @@ export class Silhouette {
 
   saveToObject() {
     let save = {
-      shapesData: app.backgroundDrawingEnvironment.shapes.map((s) => {
+      shapesData: app.tangramCanvasLayer.shapes.map((s) => {
         let shapeData = s.saveData();
         shapeData.segmentIds = undefined;
         shapeData.pointIds = undefined;

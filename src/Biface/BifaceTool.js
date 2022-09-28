@@ -1,8 +1,8 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Text } from '../Core/Objects/Text';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Rendre une shape biface
@@ -35,14 +35,14 @@ export class BifaceTool extends Tool {
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
 
     // setTimeout(() => {
-      app.mainDrawingEnvironment.shapes.map((s) => {
+      app.mainCanvasLayer.shapes.map((s) => {
         if (s.isBiface) {
           new Text({
-            drawingEnvironment: app.upperDrawingEnvironment,
+            layer: 'upper',
             coordinates: s.centerCoordinates,
             referenceId: s.id,
             message: 'Biface',
@@ -62,7 +62,7 @@ export class BifaceTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
   }
 
@@ -71,7 +71,7 @@ export class BifaceTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });

@@ -1,4 +1,7 @@
 import { app } from '../App';
+import { LineShape } from '../Objects/Shapes/LineShape';
+import { RegularShape } from '../Objects/Shapes/RegularShape';
+import { SinglePointShape } from '../Objects/Shapes/SinglePointShape';
 import { ShapeManager } from './ShapeManager';
 
 /*
@@ -13,7 +16,7 @@ export class SelectManager {
    * @param  {Coordinates}  c2
    */
   static areCoordinatesInSelectionDistance(c1, c2) {
-    let areInSelectionDistance = c1.equal(c2, app.settings.selectionDistance);
+    let areInSelectionDistance = c1.equal(c2, app.settings.selectionDistance / app.workspace.zoomLevel);
     return areInSelectionDistance;
   }
 
@@ -23,7 +26,7 @@ export class SelectManager {
    * @param  {Coordinates}  c2
    */
   static areCoordinatesInMagnetismDistance(c1, c2) {
-    let areInMagnetismDistance = c1.equal(c2, app.settings.magnetismDistance);
+    let areInMagnetismDistance = c1.equal(c2, app.settings.magnetismDistance / app.workspace.zoomLevel);
     return areInMagnetismDistance;
   }
 
@@ -64,12 +67,14 @@ export class SelectManager {
                 éléments de cette liste.
                  */
         blacklist: null,
+        // one, allInDistance
+        numberOfObjects: 'one',
       },
       points: {
         canSelect: false,
         //Indépendamment de whitelist et blacklist, le point doit être
         //d'un des types renseignés dans ce tableau.
-        types: ['shapeCenter', 'vertex', 'divisionPoint', 'modifiablePoint'],
+        types: ['shapeCenter', 'vertex', 'divisionPoint', 'modifiablePoint', 'arcCenter'],
         /*
                 Liste pouvant contenir différents éléments sous la figure:
                     - {'shapeId': shapeId}
@@ -98,6 +103,8 @@ export class SelectManager {
                 éléments de cette liste.
                  */
         blacklist: null,
+        // one, allInDistance, allSuperimposed
+        numberOfObjects: 'one',
       },
     };
   }
@@ -115,7 +122,6 @@ export class SelectManager {
     mouseCoordinates,
     constraints,
     easySelection = true,
-    all = false,
   ) {
     if (!constraints.canSelect) return null;
 
@@ -125,11 +131,18 @@ export class SelectManager {
 
     // all points at the correct distance
     let potentialPoints = [];
-    let allPoints = [...app.mainDrawingEnvironment.points];
+    let allPoints = [...app.mainCanvasLayer.points];
+
+    if (app.environment.name == 'Geometrie') {
+      allPoints = allPoints.filter(pt => pt.shape.geometryObject?.geometryIsVisible !== false)
+        .filter(pt => pt.shape.geometryObject?.geometryIsHidden !== true)
+        .filter(pt => pt.shape.geometryObject?.geometryIsConstaintDraw == false);
+    }
+
     if (constraints.canSelectFromUpper)
-      allPoints.push(...app.upperDrawingEnvironment.points);
+      allPoints.push(...app.upperCanvasLayer.points);
     allPoints.forEach((pt) => {
-      if (pt.visible) {
+      if (pt.visible && pt.geometryIsVisible) {
         if (
           constraints.types.includes(pt.type) &&
           distCheckFunction(pt.coordinates, mouseCoordinates)
@@ -197,8 +210,14 @@ export class SelectManager {
     // if no possibilities
     if (constrainedPoints.length == 0) return null;
 
-    if (all) {
-      return constrainedPoints.flat();
+    constrainedPoints.sort((pt1, pt2) => {
+      let dist1 = pt1.coordinates.dist(mouseCoordinates);
+      let dist2 = pt2.coordinates.dist(mouseCoordinates);
+      return dist1 - dist2;
+    });
+
+    if (constraints.numberOfObjects == "allInDistance") {
+      return constrainedPoints;
     }
 
     let notHiddenPoints = constrainedPoints;
@@ -212,24 +231,28 @@ export class SelectManager {
         if (
           shapes.every((s) => {
             let otherShapeIndex = ShapeManager.getShapeIndex(s);
-            return otherShapeIndex < shapeIndex;
+            return otherShapeIndex <= shapeIndex;
           })
         )
           notHiddenPoints.push(pt);
       });
+
+      // if no possibilities
+      if (notHiddenPoints.length == 0) return null;
     }
 
-    let bestPoint = notHiddenPoints[0],
-      minDist = notHiddenPoints[0].coordinates.dist(mouseCoordinates);
-    notHiddenPoints.forEach((pt) => {
-      let dist = pt.coordinates.dist(mouseCoordinates);
-      if (dist < minDist) {
-        minDist = dist;
-        bestPoint = pt;
+    if (constraints.numberOfObjects == 'one')
+      return notHiddenPoints[0];
+    else if (constraints.numberOfObjects == 'allSuperimposed') {
+      let coordPt1 = notHiddenPoints[0].coordinates;
+      let i = 1;
+      for (; i < notHiddenPoints.length; i++) {
+        if (coordPt1.dist(notHiddenPoints[i]) > 0.01) {
+          return notHiddenPoints.slice(0, i);
+        }
       }
-    });
-
-    return bestPoint;
+      return notHiddenPoints.slice(0, i);
+    }
   }
 
   static selectSegment(mouseCoordinates, constraints) {
@@ -237,9 +260,16 @@ export class SelectManager {
 
     // all segments at the correct distance
     let potentialSegments = [];
-    let allSegments = [...app.mainDrawingEnvironment.segments];
+    let allSegments = [...app.mainCanvasLayer.segments];
+
+    if (app.environment.name == 'Geometrie') {
+      allSegments = allSegments.filter(seg => seg.shape.geometryObject?.geometryIsVisible !== false)
+        .filter(seg => seg.shape.geometryObject?.geometryIsHidden !== true)
+        .filter(seg => seg.shape.geometryObject?.geometryIsConstaintDraw == false);
+    }
+
     if (constraints.canSelectFromUpper)
-      allSegments.push(...app.upperDrawingEnvironment.segments);
+      allSegments.push(...app.upperCanvasLayer.segments);
     allSegments.forEach((seg) => {
       const projection = seg.projectionOnSegment(mouseCoordinates);
       if (
@@ -256,14 +286,18 @@ export class SelectManager {
       }
     });
 
+    potentialSegments.sort((segInfo1, segInfo2) => {
+      return segInfo1.dist - segInfo2.dist;
+    });
+    potentialSegments = potentialSegments.map(segInfo => segInfo.segment);
+
     // apply constrains
     const constrainedSegments = potentialSegments.filter((potentialSegment) => {
-      let segment = potentialSegment.segment;
       if (constraints.whitelist != null) {
         if (
           !constraints.whitelist.some((constr) => {
-            if (constr.shapeId != segment.shapeId) return false;
-            if (constr.index !== undefined) return constr.index == segment.idx;
+            if (constr.shapeId != potentialSegment.shapeId) return false;
+            if (constr.index !== undefined) return constr.index == potentialSegment.idx;
             return true;
           })
         )
@@ -272,8 +306,8 @@ export class SelectManager {
       if (constraints.blacklist != null) {
         if (
           constraints.blacklist.some((constr) => {
-            if (constr.shapeId != segment.shapeId) return false;
-            if (constr.index !== undefined) return constr.index == segment.idx;
+            if (constr.shapeId != potentialSegment.shapeId) return false;
+            if (constr.index !== undefined) return constr.index == potentialSegment.idx;
             return true;
           })
         )
@@ -285,20 +319,34 @@ export class SelectManager {
     // if no possibilities
     if (constrainedSegments.length == 0) return null;
 
+    if (constraints.numberOfObjects == "allInDistance") {
+      return constrainedSegments;
+    }
+
     // no possibilities to choose blockHidden constraints
 
-    let bestSegment = constrainedSegments[0].segment,
-      minDist = constrainedSegments[0].dist;
-    constrainedSegments.forEach((constrainedSegment) => {
-      let segment = constrainedSegment.segment;
-      let dist = constrainedSegment.dist;
-      if (dist < minDist) {
-        minDist = dist;
-        bestSegment = segment;
-      }
-    });
+    let notHiddenSegments = constrainedSegments;
+    if (constraints.blockHidden) {
+      notHiddenSegments = [];
+      const shapes = ShapeManager.shapesThatContainsCoordinates(
+        mouseCoordinates,
+      );
+      constrainedSegments.forEach((seg) => {
+        let shapeIndex = ShapeManager.getShapeIndex(seg.shape);
+        if (
+          shapes.every((s) => {
+            let otherShapeIndex = ShapeManager.getShapeIndex(s);
+            return otherShapeIndex <= shapeIndex;
+          })
+        )
+          notHiddenSegments.push(seg);
+      });
 
-    return bestSegment;
+      // if no possibilities
+      if (notHiddenSegments.length == 0) return null;
+    }
+
+    return notHiddenSegments[0];
   }
 
   /**
@@ -314,7 +362,13 @@ export class SelectManager {
     let shapes = ShapeManager.shapesThatContainsCoordinates(
       mouseCoordinates,
       constraints,
-    );
+    )
+
+    if (app.environment.name == 'Geometrie') {
+      shapes = shapes.filter(s => s.geometryObject?.geometryIsVisible !== false)
+        .filter(s => s.geometryObject?.geometryIsHidden !== true)
+        .filter(s => s.geometryObject?.geometryIsConstaintDraw == false);
+    }
 
     if (constraints.whitelist != null) {
       shapes = shapes.filter((shape) => {
@@ -331,8 +385,25 @@ export class SelectManager {
         });
       });
     }
-    if (shapes.length > 0) return shapes[0];
 
+    if (shapes.length > 0) {
+      if (shapes[0] instanceof RegularShape || (shapes[0] instanceof LineShape && shapes[0].segments[0].isArc()))
+        return shapes[0]
+      let idx = shapes.findIndex(s => s instanceof RegularShape);
+      if (idx != -1)
+        shapes = shapes.slice(0, idx);
+      let dists = shapes.map(s => {
+        if (s instanceof LineShape) {
+          let projection = s.segments[0].projectionOnSegment(mouseCoordinates);
+          return projection.dist(mouseCoordinates);
+        } else if (s instanceof SinglePointShape) {
+          return s.points[0].coordinates.dist(mouseCoordinates) / 10;
+        }
+      });
+      const minDistance = Math.min(...dists);
+      const minDistanceIndex = dists.indexOf(minDistance);
+      return shapes[minDistanceIndex];
+    }
     return null;
   }
 

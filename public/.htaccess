@@ -1,0 +1,5 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+    RewriteCond % ^ag-beta.crem.be$
+    RewriteRule ^robots.txt$ robots-2.txt
+</IfModule>

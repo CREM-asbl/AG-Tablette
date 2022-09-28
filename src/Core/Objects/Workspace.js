@@ -1,10 +1,8 @@
-import { app, setState } from '../App';
-import { uniqId } from '../Tools/general';
-import { Settings } from '../Settings';
-import { ShapeGroup } from './ShapeGroup';
+import { app } from '../App';
 import { Point } from '../Objects/Point';
+import { uniqId } from '../Tools/general';
 import { Coordinates } from './Coordinates';
-import { GridManager } from '../../Grid/GridManager';
+import { ShapeGroup } from './ShapeGroup';
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
@@ -66,17 +64,15 @@ export class Workspace {
     if (!wsdata) {
       this.translateOffset = Coordinates.nullCoordinates;
       this.zoomLevel = 1;
-      app.mainDrawingEnvironment.loadFromData(null);
-      app.backgroundDrawingEnvironment.clear();
+      app.mainCanvasLayer.loadFromData(null);
+      app.tangramCanvasLayer?.clear();
+      app.gridCanvasLayer?.clear();
       return;
     }
     this.id = wsdata.id;
 
-    // this.shapes = wsdata.shapes.map(sData => new Shape(sData));
-    app.mainDrawingEnvironment.loadFromData(wsdata.objects);
-    if (app.environment.name == 'Tangram')
-      app.backgroundDrawingEnvironment.loadFromData(wsdata.backObjects);
-    else app.backgroundDrawingEnvironment.clear();
+    app.mainCanvasLayer.loadFromData(wsdata.objects);
+    app.gridCanvasLayer?.clear();
     this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -125,8 +121,8 @@ export class Workspace {
     // wsdata.shapes = this.shapes.map(s => {
     //   return s.saveToObject();
     // });
-    wsdata.objects = app.mainDrawingEnvironment.saveData();
-    wsdata.backObjects = app.backgroundDrawingEnvironment.saveData();
+    wsdata.objects = app.mainCanvasLayer.saveData();
+    wsdata.backObjects = app.tangramCanvasLayer?.saveData();
     wsdata.shapeGroups = this.shapeGroups.map((group) => {
       return group.saveToObject();
     });
@@ -169,7 +165,8 @@ export class Workspace {
     if (doRefresh) {
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
-      window.dispatchEvent(new CustomEvent('refreshBackground'));
+      window.dispatchEvent(new CustomEvent('refreshGrid'));
+      window.dispatchEvent(new CustomEvent('refreshTangram'));
     }
   }
 
@@ -187,7 +184,8 @@ export class Workspace {
     if (doRefresh) {
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
-      window.dispatchEvent(new CustomEvent('refreshBackground'));
+      window.dispatchEvent(new CustomEvent('refreshGrid'));
+      window.dispatchEvent(new CustomEvent('refreshTangram'));
     }
   }
 
@@ -198,8 +196,11 @@ export class Workspace {
       '" height="' +
       app.canvasHeight +
       '" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n';
-    svg_data += app.backgroundDrawingEnvironment.toSVG();
-    svg_data += app.mainDrawingEnvironment.toSVG();
+    if (app.gridCanvasLayer)
+      svg_data += app.gridCanvasLayer.toSVG();
+    if (app.tangramCanvasLayer)
+      svg_data += app.tangramCanvasLayer.toSVG();
+    svg_data += app.mainCanvasLayer.toSVG();
     if (document.body.querySelector('forbidden-canvas') != null) {
       svg_data +=
         '<rect x="' +

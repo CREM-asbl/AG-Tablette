@@ -1,11 +1,11 @@
-import { uniqId } from '../Core/Tools/general';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Silhouette } from '../Core/Objects/Silhouette';
-import { Shape } from '../Core/Objects/Shape';
+import { uniqId } from '../Core/Tools/general';
 
 export class Tangram {
   /**
    * Constructeur
-   * @param {[Shape]} shapes   Liste des figures nécessaires pour construire le
+   * @param shapes   Liste des figures nécessaires pour construire le
    *                           le tangram.
    * @param {Object} silhouette Liste de polygones (= de tableaux de points)
    */
@@ -33,7 +33,7 @@ export class Tangram {
     this.id = data.id;
     this.name = data.name;
     if (data.shapes) {
-      this.shapes = data.shapes.map((sData) => new Shape(sData));
+      this.shapes = data.shapes.map((sData) => new RegularShape(sData));
     }
     if (data.silhouette) {
       this.silhouette = new Silhouette();

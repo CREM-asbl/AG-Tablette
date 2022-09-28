@@ -1,6 +1,5 @@
+import { html, LitElement } from 'lit';
 import { app, setState } from './Core/App';
-import { LitElement, html, css } from 'lit';
-import './canvas-button';
 import { TemplateToolbar } from './template-toolbar';
 
 class ToolbarKit extends LitElement {
@@ -22,6 +21,7 @@ class ToolbarKit extends LitElement {
 
     this.updateProperties = () => {
       this.iconSize = app.menuIconSize;
+      this.familyNames = app.environment.families.filter(family => family.isVisible).map(family => family.name);
     };
     this.updateProperties();
 
@@ -30,8 +30,8 @@ class ToolbarKit extends LitElement {
     };
 
     window.addEventListener('menuIconSize-changed', this.eventHandler);
+    window.addEventListener('tools-changed', this.eventHandler);
 
-    this.familyNames = app.environment.familyNames || [];
     this.envName = app.environment.kitName;
 
     window.addEventListener('environment-changed', () => {
@@ -50,28 +50,29 @@ class ToolbarKit extends LitElement {
       <template-toolbar>
         <h2 slot="title">${app.environment.kitName}</h2>
         <div slot="body">
-          ${this.familyNames.map((family) => {
+          ${this.familyNames.map((familyName) => {
             return html`
-              <canvas-button
+              <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                familyName="${family}"
-                title="${family}"
-                ?active="${family === this.selectedFamily}"
+                name="${app.environment.families.find(family => family.name == familyName).shapeTemplates[0].name}"
+                type="Create"
+                title="${familyName}"
+                ?active="${familyName === this.selectedFamily}"
                 @click="${() => {
                   if (app.fullHistory.isRunning) {
-                    console.warn('cannot interact when fullHisto is running');
+                    console.info('cannot interact when fullHisto is running');
                     return;
                   }
                   setState({
                     tool: {
                       name: 'create',
-                      selectedFamily: family,
+                      selectedFamily: familyName,
                       currentStep: 'start',
                     },
                   });
                 }}"
               >
-              </canvas-button>
+              </icon-button>
             `;
           })}
         </div>

@@ -8,13 +8,14 @@ export class Family {
   /**
    * Constructeur
    * @param {String} name         Nom de la famille
-   * @param {String} defaultColor Couleur par défaut des figures ("#rrggbb")
+   * @param {String} fillColor Couleur par défaut des figures ("#rrggbb")
    */
-  constructor({ name, color, shapeTemplates, opacity = 0.7 }) {
+  constructor({ name, fillColor, shapeTemplates, fillOpacity = 0.7 }) {
     this.name = name;
-    this.defaultColor = color;
-    this.opacity = opacity;
+    this.defaultFillColor = fillColor;
+    this.defaultFillOpacity = fillOpacity;
     this.id = uniqId();
+    this.isVisible = true;
     this.shapeTemplates = [];
     shapeTemplates.forEach((shapeTemplate) => {
       this.addTemplate(shapeTemplate);
@@ -24,7 +25,7 @@ export class Family {
   /**
    * Ajouter un modèle venant d'un kit à la famille
    */
-  addTemplate({ name, color, path, opacity }) {
+  addTemplate({ name, fillColor, path, fillOpacity }) {
     if (!path) {
       console.error('Family.addTemplate error: no path');
       return;
@@ -34,8 +35,8 @@ export class Family {
       path: path,
       name: name,
       familyName: this.name,
-      color: color ? color : this.defaultColor,
-      opacity: opacity ? opacity : this.opacity,
+      fillColor: fillColor ? fillColor : this.defaultFillColor,
+      fillOpacity: fillOpacity ? fillOpacity : this.defaultFillOpacity,
     });
 
     this.shapeTemplates.push(shapeTemplate);

@@ -17,7 +17,7 @@ export class App {
     this.tools = [];
 
     this.settings = {
-      magnetismDistance: 10,
+      magnetismDistance: 20,
       selectionDistance: 20,
       precision: 1.5,
       maxZoomLevel: 10,
@@ -25,6 +25,11 @@ export class App {
       mainMenuWidth: 250,
       constraintsDrawColor: '#080',
       temporaryDrawColor: '#E90CC8',
+      referenceDrawColor: '#a6dbff',
+      referenceDrawColor2: '#4a88b2',
+
+      geometryTransformationAnimationDuration: 2,
+      geometryTransformationAnimation: false,
 
       automaticAdjustment: true,
       areShapesPointed: true,
@@ -33,6 +38,7 @@ export class App {
       numberOfRegularPoints: 3,
       shapeFillColor: '#000000',
       shapeBorderColor: '#000000',
+      drawColor: '#000000',
       shapeOpacity: 0.7,
 
       gridShown: false,
@@ -65,6 +71,13 @@ export class App {
     this.stepSinceSave = false,
     this.started = false;
     this.appLoading = false;
+    this.nextGroupColorIdx = 0;
+
+    this.notionsOpen = [
+    ];
+
+    this.sequencesOpen = [
+    ];
 
     this.defaultState = {
       tool: null,
@@ -73,6 +86,7 @@ export class App {
       fullHistory: { ...this.fullHistory },
       tangram: { ...this.tangram },
       stepSinceSave: this.stepSinceSave,
+      notionsOpen: {...this.notionsOpen},
     };
 
     // compteur d'écouteurs pour certains event
@@ -143,9 +157,6 @@ export const setState = (update) => {
       app.tool.type = toolInfo.type;
     }
     window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
-    window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
   if ('tangram' in update) {
     window.dispatchEvent(new CustomEvent('tangram-changed', { detail: app }));
@@ -166,6 +177,9 @@ export const setState = (update) => {
   }
   if ('menuIconSize' in update) {
     window.dispatchEvent(new CustomEvent('menuIconSize-changed', { detail: app }));
+  }
+  if ('tools' in update) {
+    window.dispatchEvent(new CustomEvent('tools-changed', { detail: app }));
   }
   if (app.started) {
     // window.dispatchEvent(new CustomEvent('refreshUpper'));

@@ -1,7 +1,7 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Faire translater le plan

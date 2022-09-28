@@ -1,6 +1,5 @@
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit';
-import { Coordinates } from '../Core/Objects/Coordinates';
 
 class ZoomMenu extends LitElement {
   constructor() {
@@ -29,7 +28,7 @@ class ZoomMenu extends LitElement {
   static get properties() {
     return {
       zoomLevel: { type: Number },
-      startPosition: { type: Number },
+      position: { type: Number },
     };
   }
 
@@ -53,18 +52,23 @@ class ZoomMenu extends LitElement {
   }
 
   firstUpdated() {
-    this.startPosition = this.getPositionFromZoom(app.workspace.zoomLevel);
+    this.position = this.getPositionFromZoom(app.workspace.zoomLevel);
   }
 
   render() {
     return html`
       <div class="container">
-        <div style="float: left">-</div>
-        <div style="float: right">+</div>
-        <div style="margin: 0 auto; width: 100px; text-align: center;">1</div>
-        <input type="range" min="0" max="100" value="${this.startPosition}" class="slider" id="myRange" @input="${e => this.showResult(e.target.value)}" @change="${e => this.applyZoom(e.target.value)}">
+        <div style="float: left; cursor: pointer;"><span @click="${() => this.changePosition(this.position - 1)}">-</span></div>
+        <div style="float: right; cursor: pointer;"><span @click="${() => this.changePosition(this.position + 1)}">+</span></div>
+        <div style="margin: 0 auto; width: 100px; text-align: center; cursor: pointer;"><span @click="${() => this.changePosition(50)}">1</span></div>
+        <input type="range" min="0" max="100" value="${this.position}" class="slider" id="myRange" @input="${e => this.showResult(e.target.value)}" @change="${e => this.applyZoom(e.target.value)}">
       </div>
     `;
+  }
+
+  changePosition(position) {
+    this.showResult(position);
+    this.shadowRoot.querySelector("#myRange").value = this.position;
   }
 
   getZoomFromPosition(position) {
@@ -100,6 +104,7 @@ class ZoomMenu extends LitElement {
   }
 
   showResult(sliderPos) {
+    this.position = parseInt(sliderPos);
     let zoom = this.getZoomFromPosition(sliderPos);
 
     setState({

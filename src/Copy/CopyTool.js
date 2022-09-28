@@ -1,13 +1,16 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { uniqId } from '../Core/Tools/general';
+import { app, setState } from '../Core/App';
+import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
-import { Shape } from '../Core/Objects/Shape';
-import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
-import { GroupManager } from '../Core/Managers/GroupManager';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { addInfoToId, findObjectById } from '../Core/Tools/general';
+import { duplicateShape } from '../Core/Tools/shapesTools';
+import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
 
 /**
  * Dupliquer une figure
@@ -28,6 +31,8 @@ export class CopyTool extends Tool {
     this.involvedShapes = [];
 
     this.translateOffset = new Coordinates({ x: -20, y: -20 });
+
+    this.shapeMoved = 0;
   }
 
   /**
@@ -54,20 +59,19 @@ export class CopyTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    this.shapeMoved = 0;
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -77,56 +81,31 @@ export class CopyTool extends Tool {
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
 
-  /**
-   * Main event handler
-   */
-  _actionHandle(event) {
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    } else if (event.type == 'canvasMouseUp') {
-      this.canvasMouseUp();
-    } else {
-      console.error('unsupported event type : ', event.type);
-    }
-  }
-
-  /**
-   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (canvasMouseDown)
-   * @param  {Shape} shape            La figure sélectionnée
-   */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
 
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.selectedShape = shape;
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
+    // sort shape by height
     this.involvedShapes.sort(
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
     this.drawingShapes = this.involvedShapes.map((s) => {
-      let newShape = new Shape({
-        ...s,
-        drawingEnvironment: app.upperDrawingEnvironment,
-        path: s.getSVGPath('no scale'),
-        id: undefined,
-        divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
-          return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
-        })).flat(),
-      });
+      let newShape = duplicateShape(s);
       newShape.translate(this.translateOffset);
       return newShape;
     });
+    this.shapesToMove = this.drawingShapes;
 
     setState({ tool: { ...app.tool, currentStep: 'move' } });
     this.animate();
@@ -143,55 +122,96 @@ export class CopyTool extends Tool {
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
-  /**
-   * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
-   */
   refreshStateUpper() {
     if (app.tool.currentStep == 'move') {
-      let transformation = app.workspace.lastKnownMouseCoordinates.substract(
+      this.shapeMoved++;
+      if (this.shapeMoved <= 10)
+        return;
+      let mainShape = findObjectById(addInfoToId(this.selectedShape.id, 'upper'));
+      let translation = app.workspace.lastKnownMouseCoordinates.substract(
         this.lastKnownMouseCoordinates,
       );
 
-      this.drawingShapes.forEach((s) => s.translate(transformation));
+      this.shapesToMove.forEach((s) => {
+        if (this.lastAdjusment) {
+          s.translate(Coordinates.nullCoordinates.substract(this.lastAdjusment.translation));
+          s.rotate(this.lastAdjusment.rotationAngle * -1, this.lastAdjusment.centerCoord);
+        }
+        s.translate(translation);
+      });
+
+      let adjustment = getShapeAdjustment(
+        this.shapesToMove,
+        mainShape,
+      );
+      this.lastAdjusment = {
+        ...adjustment,
+        centerCoord: new Coordinates(mainShape.centerCoordinates),
+      };
+      this.shapesToMove.forEach((s) => {
+        s.rotate(
+          adjustment.rotationAngle,
+          this.lastAdjusment.centerCoord,
+        );
+        s.translate(adjustment.translation);
+      });
+      this.shapesToMove.forEach(s => {
+        computeAllShapeTransform(s, 'upper', false);
+      });
 
       this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
+
+      // let transformation = app.workspace.lastKnownMouseCoordinates.substract(
+      //   this.lastKnownMouseCoordinates,
+      // );
+
+      // this.drawingShapes.forEach((s) => s.translate(transformation));
+
+      // this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
     }
   }
 
   _executeAction() {
     let shapesList = [];
 
-    // sort shapes by height
-    // this.involvedShapesIds = this.involvedShapesIds
-    //   .map(id => ShapeManager.getShapeById(id))
-    //   .sort((s1, s2) =>
-    //     ShapeManager.getShapeIndex(s1) > ShapeManager.getShapeIndex(s2) ? 1 : -1
-    //   )
-    //   .map(s => s.id);
-
     this.involvedShapes.forEach((s) => {
-      let newShape = new Shape({
+      let newShape = new s.constructor({
         ...s,
-        drawingEnvironment: app.mainDrawingEnvironment,
-        path: s.getSVGPath('no scale'),
+        layer: 'main',
+        familyName: 'copy',
+        path: s.getSVGPath('no scale', false),
         id: undefined,
-        divisionPointInfos: s.segments.map((seg, idx) => seg.divisionPoints.map((dp) => {
-          return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: idx };
-        })).flat(),
+        // divisionPointInfos: s.divisionPoints.map((dp) => {
+        //   return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
+        // }),
+        segmentsColor: s.segments.map((seg) => {
+          return seg.color;
+        }),
+        pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
+          return pt.color;
+        }),
       });
+      if (newShape.name.startsWith('Parallele'))
+        newShape.name = newShape.name.slice('Parallele'.length);
+      if (newShape.name.startsWith('Perpendicular'))
+        newShape.name = newShape.name.slice('Perpendicular'.length);
+      if (newShape.geometryObject)
+        newShape.geometryObject = new GeometryObject({});
       shapesList.push(newShape);
       newShape.translate(this.translation);
     });
 
-    let transformation = getShapeAdjustment(shapesList, shapesList[0]);
+    if (this.shapeMoved > 10) {
+      let transformation = getShapeAdjustment(shapesList, shapesList[0]);
 
-    shapesList.forEach((newShape) => {
-      newShape.rotate(
-        transformation.rotationAngle,
-        shapesList[0].centerCoordinates,
-      );
-      newShape.translate(transformation.translation);
-    });
+      shapesList.forEach((newShape) => {
+        newShape.rotate(
+          transformation.rotationAngle,
+          shapesList[0].centerCoordinates,
+        );
+        newShape.translate(transformation.translation);
+      });
+    }
 
     //Si nécessaire, créer le userGroup
     if (shapesList.length > 1) {

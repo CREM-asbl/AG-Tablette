@@ -1,5 +1,5 @@
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit';
 
 class StateMenu extends LitElement {
   constructor() {
@@ -56,6 +56,7 @@ class StateMenu extends LitElement {
         padding: 4px;
         display: inline-block;
         background-color: #bbb;
+        cursor: pointer;
       }
     `;
   }

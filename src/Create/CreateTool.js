@@ -1,10 +1,11 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { createElem } from '../Core/Tools/general';
-import { Shape } from '../Core/Objects/Shape';
+import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { createElem } from '../Core/Tools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -47,7 +48,7 @@ export class CreateTool extends Tool {
    * @param  {String} family Nom de la famille sélectionnée
    */
   start() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -55,7 +56,7 @@ export class CreateTool extends Tool {
   }
 
   listen() {
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -75,7 +76,7 @@ export class CreateTool extends Tool {
    */
   end() {
     this.shapesList = null;
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
@@ -100,10 +101,17 @@ export class CreateTool extends Tool {
       .getFamily(app.tool.selectedFamily)
       .getTemplate(app.tool.selectedTemplate);
 
-    this.shapeToCreate = new Shape({
-      ...selectedTemplate,
-      drawingEnvironment: app.upperDrawingEnvironment,
-    });
+    if (selectedTemplate.name.startsWith('Segment')) {
+      this.shapeToCreate = new LineShape({
+        ...selectedTemplate,
+        layer: 'upper',
+      });
+    } else {
+      this.shapeToCreate = new RegularShape({
+        ...selectedTemplate,
+        layer: 'upper',
+      });
+    }
     let shapeSize = app.settings.shapesSize;
 
     this.shapeToCreate.size = shapeSize;
@@ -141,11 +149,20 @@ export class CreateTool extends Tool {
       .getFamily(app.tool.selectedFamily)
       .getTemplate(app.tool.selectedTemplate);
 
-    let shape = new Shape({
-      ...selectedTemplate,
-      size: shapeSize,
-      drawingEnvironment: app.mainDrawingEnvironment,
-    });
+    let shape;
+    if (selectedTemplate.name.startsWith('Segment')) {
+       shape = new LineShape({
+        ...selectedTemplate,
+        size: shapeSize,
+        layer: 'main',
+      });
+    } else {
+      shape = new RegularShape({
+        ...selectedTemplate,
+        size: shapeSize,
+        layer: 'main',
+      });
+    }
     shape.scale(shapeSize);
     shape.translate(shapeCoordinates);
 

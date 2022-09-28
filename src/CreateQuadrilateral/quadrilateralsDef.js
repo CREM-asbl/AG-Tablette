@@ -1,22 +1,22 @@
-import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
-import { Coordinates } from '../Core/Objects/Coordinates';
-import { Segment } from '../Core/Objects/Segment';
-import { Point } from '../Core/Objects/Point';
 import { app } from '../Core/App';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 
 const finishShapeEnd = (points, segments, numberOfPointsRequired) => {
   if (segments.length < 4) {
     if (numberOfPointsRequired < 3)
       segments.push(
         new Segment({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           vertexIds: [points[1].id, points[2].id],
         }),
       );
     if (numberOfPointsRequired < 4)
       segments.push(
         new Segment({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           vertexIds: [points[2].id, points[3].id],
         }),
       );
@@ -46,7 +46,7 @@ export const Square = {
       );
       if (points.length == i + 2) {
         points[i + 2] = new Point({
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           coordinates: newCoordinates,
           color: app.settings.temporaryDrawColor,
           size: 2,
@@ -78,7 +78,7 @@ export const Rectangle = {
           }),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: (points, segments) => {
@@ -87,7 +87,7 @@ export const Rectangle = {
       .add(points[0].coordinates);
     if (points.length == 3) {
       points[3] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -112,7 +112,7 @@ export const Losange = {
           points[1].coordinates,
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: (points, segments) => {
@@ -124,7 +124,7 @@ export const Losange = {
       .substract(points[1].coordinates);
     if (points.length == 3) {
       points[3] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -149,7 +149,7 @@ export const Parallelogram = {
       .add(points[0].coordinates);
     if (points.length == 3) {
       points[3] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -162,31 +162,44 @@ export const Parallelogram = {
 }
 
 export const RightAngleTrapeze = {
-  numberOfPointsRequired: 3,
+  numberOfPointsRequired: 4,
   constraints: [
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
-    () => new GeometryConstraint('isFree'),
-  ],
-  finishShape: (points, segments) => {
-    let projection = segments[0].projectionOnSegment(
-      points[2].coordinates,
-    );
-    let newCoordinates = points[2].coordinates
-      .substract(projection)
-      .add(points[0].coordinates);
-    if (points.length == 3) {
-      points[3] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
-        coordinates: newCoordinates,
-        color: app.settings.temporaryDrawColor,
-        size: 2,
-      });
-    } else {
-      points[3].coordinates = newCoordinates;
+    (points) => {
+      let angle = points[0].coordinates.angleWith(
+        points[1].coordinates,
+      );
+      let perpendicularAngle = angle + Math.PI / 2;
+      let lines = [
+        [
+          points[1].coordinates,
+          new Coordinates({
+            x: points[1].x + Math.cos(perpendicularAngle) * 100,
+            y: points[1].y + Math.sin(perpendicularAngle) * 100,
+          }),
+        ],
+      ];
+      return new GeometryConstraint('isConstrained', lines);
+    },
+    (points) => {
+      let angle = points[1].coordinates.angleWith(
+        points[2].coordinates,
+      );
+      let perpendicularAngle = angle + Math.PI / 2;
+      let lines = [
+        [
+          points[2].coordinates,
+          new Coordinates({
+            x: points[2].x + Math.cos(perpendicularAngle) * 100,
+            y: points[2].y + Math.sin(perpendicularAngle) * 100,
+          }),
+        ],
+      ];
+      return new GeometryConstraint('isConstrained', lines);
     }
-    finishShapeEnd(points, segments, RightAngleTrapeze.numberOfPointsRequired);
-  }
+  ],
+  finishShape: () => {}
 }
 
 export const IsoscelesTrapeze = {
@@ -206,7 +219,7 @@ export const IsoscelesTrapeze = {
       .add(middleOfSegment.multiply(2));
     if (points.length == 3) {
       points[3] = new Point({
-        drawingEnvironment: app.upperDrawingEnvironment,
+        layer: 'upper',
         coordinates: newCoordinates,
         color: app.settings.temporaryDrawColor,
         size: 2,
@@ -233,7 +246,7 @@ export const Trapeze = {
             .add(points[0].coordinates),
         ],
       ];
-      return new GeometryConstraint('isContrained', lines);
+      return new GeometryConstraint('isConstrained', lines);
     }
   ],
   finishShape: () => {}

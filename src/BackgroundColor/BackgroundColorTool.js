@@ -1,9 +1,7 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
-import { GroupManager } from '../Core/Managers/GroupManager';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
-import { getComplementaryColor } from '../Core/Tools/general';
+import { Tool } from '../Core/States/Tool';
 
 /**
  * Modifier la couleur de fond d'une figure
@@ -58,7 +56,7 @@ export class BackgroundColorTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
     setState({
@@ -79,9 +77,8 @@ export class BackgroundColorTool extends Tool {
     }
 
     this.involvedShapes.forEach((s) => {
-      if (mustChangeOpacity) s.opacity = 0.7;
-      s.color = app.settings.shapeFillColor;
-      s.second_color = getComplementaryColor(s.color);
+      if (mustChangeOpacity) s.fillOpacity = 0.7;
+      s.fillColor = app.settings.shapeFillColor;
     });
   }
 }

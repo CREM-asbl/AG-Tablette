@@ -1,10 +1,18 @@
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit';
 
 class CirclesList extends LitElement {
   constructor() {
     super();
-    this.circlesNames = ['Circle', 'CirclePart', 'CircleArc'];
+    this.circlesNames = ['Circle', 'CirclePart', 'CircleArc', '30degreesArc', '45degreesArc'];
+
+    this.circleTitle = {
+      'Circle': 'Cercle',
+      'CirclePart': 'Secteur circulaire',
+      'CircleArc': 'Arc de cercle',
+      '30degreesArc': 'Arc de 30°',
+      '45degreesArc': 'Arc de 45°',
+    }
 
     this.updateProperties = () => {
       this.selectedCircle = app.tool.selectedCircle;
@@ -55,7 +63,7 @@ class CirclesList extends LitElement {
       }
 
       h2 {
-        padding: 4px;
+        padding: 4px 4px 0px 4px;
         margin: 0;
         text-align: center;
         font-size: 1.2rem;
@@ -91,13 +99,17 @@ class CirclesList extends LitElement {
         }
       </style>
       <div class="container">
-        <h2>Circles</h2>
+        <h2>
+          ${this.selectedCircle
+            ? this.circleTitle[this.selectedCircle]
+            : 'Arcs'}
+        </h2>
         <div id="list">
           ${this.circlesNames.map(
             (circleName) => html`
             <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${circleName}"
+                title="${this.circleTitle[circleName]}"
                 type="Geometry"
                 name="${circleName}"
                 @click="${this._clickHandle}"

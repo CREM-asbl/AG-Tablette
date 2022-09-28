@@ -1,10 +1,9 @@
-import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { html } from 'lit';
+import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
-import { Shape } from '../Core/Objects/Shape';
-import { getAverageColor } from '../Core/Tools/general';
+import { Tool } from '../Core/States/Tool';
+import { findObjectById, getAverageColor } from '../Core/Tools/general';
 
 /**
  * Fusionner 2 figures en une nouvelle figure
@@ -54,8 +53,8 @@ export class MergeTool extends Tool {
   }
 
   listen() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
@@ -77,20 +76,19 @@ export class MergeTool extends Tool {
    * stopper l'état
    */
   end() {
-    app.mainDrawingEnvironment.editingShapeIds = [];
-    app.upperDrawingEnvironment.removeAllObjects();
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
   }
 
   /**
    * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (onClick)
-   * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
     let mustExecuteAction = false;
     if (app.tool.currentStep == 'listen') {
-      this.involvedShapes = ShapeManager.getAllBindedShapes(shape, true);
+      this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
       if (this.involvedShapes.length > 1) {
         this.path = this.getPathFromGroup();
         if (this.path) {
@@ -100,7 +98,7 @@ export class MergeTool extends Tool {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: {
-                message: 'Le groupe ne peut pas être fusionné',
+                message: 'Le groupe ne peut pas être fusionné.',
               },
             }),
           );
@@ -108,14 +106,14 @@ export class MergeTool extends Tool {
         }
       } else {
         this.firstShapeId = shape.id;
-        app.mainDrawingEnvironment.editingShapeIds = [this.firstShapeId];
-        this.drawingShapes = new Shape({
+        app.mainCanvasLayer.editingShapeIds = [this.firstShapeId];
+        this.drawingShapes = new shape.constructor({
           ...shape,
-          drawingEnvironment: app.upperDrawingEnvironment,
+          layer: 'upper',
           path: shape.getSVGPath('no scale'),
           id: undefined,
-          borderColor: '#E90CC8',
-          borderSize: 3,
+          strokeColor: '#E90CC8',
+          strokeWidth: 3,
         });
         setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
@@ -125,9 +123,9 @@ export class MergeTool extends Tool {
         this.firstShapeId = null;
         setState({ tool: { ...app.tool, currentStep: 'listen' } });
       } else {
-        let group = ShapeManager.getAllBindedShapes(shape, true);
+        let group = ShapeManager.getAllBindedShapes(shape);
         if (group.length > 1) {
-          let firstShape = app.mainDrawingEnvironment.findObjectById(
+          let firstShape = findObjectById(
             this.firstShapeId,
           );
           this.involvedShapes = [...group, firstShape];
@@ -148,10 +146,10 @@ export class MergeTool extends Tool {
         } else {
           this.secondShapeId = shape.id;
 
-          let firstShape = app.mainDrawingEnvironment.findObjectById(
+          let firstShape = findObjectById(
             this.firstShapeId,
           );
-          let secondShape = app.mainDrawingEnvironment.findObjectById(
+          let secondShape = findObjectById(
             this.secondShapeId,
           );
 
@@ -238,11 +236,11 @@ export class MergeTool extends Tool {
       .map((s) =>
         s.segments.map((seg) => {
           return new Segment({
-            drawingEnvironment: app.invisibleDrawingEnvironment,
+            layer: 'invisible',
             createFromNothing: true,
             vertexCoordinates: seg.vertexes.map((vx) => vx.coordinates),
             divisionPointInfos: seg.divisionPoints.map((dp) => {
-              return { coordinates: dp.coordinates, ratio: dp.ratio };
+              return { coordinates: dp.coordinates, ratio: dp.ratio, color: dp.color };
             }),
             arcCenterCoordinates: seg.arcCenter?.coordinates,
           });
@@ -291,18 +289,16 @@ export class MergeTool extends Tool {
 
   /**
    *
-   * @param {Shape} shape1 la premiere figure à fusionner
-   * @param {Shape} shape2 la seconde figure à fusionner
    * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
    */
   createNewSegments(shape1, shape2) {
     let segments1 = shape1.segments.map((seg) => {
       let segmentCopy = new Segment({
-        drawingEnvironment: app.invisibleDrawingEnvironment,
+        layer: 'invisible',
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
-        divisionPointInfos: seg.divisionPoints.map((d) => {
-          return { coordinates: d.coordinates, ratio: d.ratio };
+        divisionPointInfos: seg.divisionPoints.map((dp) => {
+          return { coordinates: dp.coordinates, ratio: dp.ratio, color: dp.color };
         }),
         arcCenterCoordinates: seg.arcCenter?.coordinates,
         counterclockwise: seg.counterclockwise,
@@ -311,11 +307,11 @@ export class MergeTool extends Tool {
     });
     let segments2 = shape2.segments.map((seg) => {
       let segmentCopy = new Segment({
-        drawingEnvironment: app.invisibleDrawingEnvironment,
+        layer: 'invisible',
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
-        divisionPointInfos: seg.divisionPoints.map((d) => {
-          return { coordinates: d.coordinates, ratio: d.ratio };
+        divisionPointInfos: seg.divisionPoints.map((dp) => {
+          return { coordinates: dp.coordinates, ratio: dp.ratio, color: dp.color };
         }),
         arcCenterCoordinates: seg.arcCenter?.coordinates,
         counterclockwise: seg.counterclockwise,
@@ -352,7 +348,7 @@ export class MergeTool extends Tool {
           ) {
             segments1.push(
               new Segment({
-                drawingEnvironment: app.invisibleDrawingEnvironment,
+                layer: 'invisible',
                 createFromNothing: true,
                 vertexCoordinates: [
                   firstSegment.vertexes[0].coordinates,
@@ -368,7 +364,7 @@ export class MergeTool extends Tool {
           ) {
             segments1.push(
               new Segment({
-                drawingEnvironment: app.invisibleDrawingEnvironment,
+                layer: 'invisible',
                 createFromNothing: true,
                 vertexCoordinates: [
                   commonCoordinates[1],
@@ -384,7 +380,7 @@ export class MergeTool extends Tool {
           ) {
             segments2.push(
               new Segment({
-                drawingEnvironment: app.invisibleDrawingEnvironment,
+                layer: 'invisible',
                 createFromNothing: true,
                 vertexCoordinates: [
                   secondSegment.vertexes[0].coordinates,
@@ -400,7 +396,7 @@ export class MergeTool extends Tool {
           ) {
             segments2.push(
               new Segment({
-                drawingEnvironment: app.invisibleDrawingEnvironment,
+                layer: 'invisible',
                 createFromNothing: true,
                 vertexCoordinates: [
                   commonCoordinates[1],
@@ -476,9 +472,9 @@ export class MergeTool extends Tool {
         .filter((seg) => Number.isInteger(seg));
       if (potentialSegmentIdx.length != 1) {
         if (potentialSegmentIdx.length == 0)
-          console.warn('shape cannot be closed (dead end)');
+          console.info('shape cannot be closed (dead end)');
         else
-          console.warn(
+          console.info(
             'shape is dig (a segment has more than one segment for next)',
           );
         return null;
@@ -498,7 +494,7 @@ export class MergeTool extends Tool {
 
     if (segmentUsed != numberOfSegments) {
       // si tous les segments n'ont pas été utilisés, la figure créée est creuse
-      console.warn('shape is dig (not all segments have been used)');
+      console.info('shape is dig (not all segments have been used)');
       return null;
     }
 
@@ -549,21 +545,20 @@ export class MergeTool extends Tool {
   /**
    * crée la figure fusionnée et l'ajoute au workspace
    * @param {String} path
-   * @param {Shape} shapes            les figures a fusionner
    */
   createNewShape(path, ...shapes) {
-    let newShape = new Shape({
-      drawingEnvironment: app.mainDrawingEnvironment,
+    let newShape = new shapes[0].constructor({
+      layer: 'main',
       path: path,
       name: 'Custom',
       familyName: 'Custom',
-      color: getAverageColor(...shapes.map((s) => s.color)),
-      borderColor: getAverageColor(...shapes.map((s) => s.borderColor)),
-      opacity:
-        shapes.map((s) => s.opacity).reduce((acc, value) => acc + value) /
+      fillColor: getAverageColor(...shapes.map((s) => s.fillColor)),
+      strokeColor: getAverageColor(...shapes.map((s) => s.strokeColor)),
+      fillOpacity:
+        shapes.map((s) => s.fillOpacity).reduce((acc, value) => acc + value) /
         shapes.length,
       isBiface: shapes.some((s) => s.isBiface),
-      isReversed: shapes.some((s) => s.isReversed),
+      // isReversed: shapes.some((s) => s.isReversed),
     });
     newShape.cleanSameDirectionSegment();
     newShape.translate({ x: -20, y: -20 });

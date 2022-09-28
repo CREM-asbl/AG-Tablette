@@ -1,5 +1,5 @@
-import { LitElement, html, css } from 'lit';
-import { RGBFromColor, rgb2hex } from './Core/Tools/general';
+import { css, html, LitElement } from 'lit';
+import { rgb2hex, RGBFromColor } from './Core/Tools/general';
 
 class ColorButton extends LitElement {
   static get properties() {

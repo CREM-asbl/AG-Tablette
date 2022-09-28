@@ -1,7 +1,8 @@
+import { getAllChildrenInGeometry } from '../../GeometryTools/general';
 import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
-import { GridManager } from '../../Grid/GridManager';
 import { Coordinates } from '../Objects/Coordinates';
+import { addInfoToId } from './general';
 
 function reduceAngle(angle) {
   while (angle < -Math.PI) angle += 2 * Math.PI;
@@ -90,8 +91,6 @@ function bestPossibility(possibilities) {
     else return rot1 - rot2;
   })[0];
 
-  // console.log(best);
-
   return best;
 }
 
@@ -122,6 +121,11 @@ export function getShapeAdjustment(shapes, mainShape) {
   //   console.error('le Tangram et la Grille ne doivent pas être activés en même temps');
   // }
 
+  let shapesAndAllChildren = [...shapes];
+  if (app.environment.name == 'Geometrie') {
+    shapes.forEach(s => getAllChildrenInGeometry(s, shapesAndAllChildren));
+  }
+
   //Générer la liste des points du groupe de figures
   let ptList = [];
   shapes.forEach((s) => {
@@ -135,7 +139,7 @@ export function getShapeAdjustment(shapes, mainShape) {
     cPtListShape = [];
   ptList.forEach((point) => {
     if (grid) {
-      let gridPoint = GridManager.getClosestGridPoint(point.coordinates);
+      let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
       if (gridPoint) {
         cPtListGrid.push({
           fixed: gridPoint,
@@ -147,10 +151,11 @@ export function getShapeAdjustment(shapes, mainShape) {
     let constr = SelectManager.getEmptySelectionConstraints().points;
     constr.canSelect = true;
     constr.types = ['vertex', 'divisionPoint', 'shapeCenter'];
-    constr.blacklist = shapes.map((s) => {
-      return { shapeId: s.id };
+    constr.blacklist = shapesAndAllChildren.map((s) => {
+      return { shapeId: addInfoToId(s.id, 'main') };
     });
-    let pts = SelectManager.selectPoint(point, constr, false, true);
+    constr.numberOfObjects = 'allInDistance';
+    let pts = SelectManager.selectPoint(point, constr, false);
     if (pts) {
       pts.forEach((pt) => {
         cPtListShape.push({
@@ -161,8 +166,6 @@ export function getShapeAdjustment(shapes, mainShape) {
       });
     }
   });
-
-  console.log(cPtListGrid);
 
   cPtListBorder = cPtListShape.filter(
     (pt) => pt.fixed.type == 'vertex' || pt.fixed.type == 'divisionPoint',
@@ -178,7 +181,6 @@ export function getShapeAdjustment(shapes, mainShape) {
           e2 = cPtListGrid[j];
         if (checkCompatibility(e1, e2)) {
           let t = computeTransformation(e1, e2, shapes, mainShape);
-          console.log(t);
           possibilities.push(t);
         }
       }
@@ -205,7 +207,6 @@ export function getShapeAdjustment(shapes, mainShape) {
   }
 
   if (possibilities.filter(Boolean).length > 0) {
-    console.log('2 points de la grille');
     return bestPossibility(possibilities);
   }
 
@@ -216,7 +217,6 @@ export function getShapeAdjustment(shapes, mainShape) {
         let e1 = cPtListBorder[i],
           e2 = cPtListBorder[j];
         if (checkCompatibility(e1, e2)) {
-          console.log('2 points');
           let t = computeTransformation(e1, e2, shapes, mainShape);
           possibilities.push(t);
         }
@@ -225,7 +225,6 @@ export function getShapeAdjustment(shapes, mainShape) {
   }
 
   if (possibilities.filter(Boolean).length > 0) {
-    console.log("2 points d'une autre figure");
     return bestPossibility(possibilities);
   }
 
@@ -244,7 +243,6 @@ export function getShapeAdjustment(shapes, mainShape) {
       transformation.translation = best.fixed.coordinates.substract(
         best.moving.coordinates,
       );
-      console.log('1 point de la grille');
       return transformation;
     }
   }
@@ -264,12 +262,9 @@ export function getShapeAdjustment(shapes, mainShape) {
       transformation.translation = best.fixed.coordinates.substract(
         best.moving.coordinates,
       );
-      console.log("1 point d'une autre figure");
       return transformation;
     }
   }
-
-  console.log('nothing');
 
   //Rien n'a été trouvé, aucune transformation à faire.
   return transformation;

@@ -31,9 +31,12 @@ window.addEventListener('app-started', () => {
 
 window.addEventListener('new-window', () => {
   // setTimeout(() => {
-  app.mainDrawingEnvironment.removeAllObjects();
-  app.upperDrawingEnvironment.removeAllObjects();
-  app.backgroundDrawingEnvironment.removeAllObjects();
+  app.mainCanvasLayer.removeAllObjects();
+  app.upperCanvasLayer.removeAllObjects();
+  app.tangramCanvasLayer?.removeAllObjects();
+  app.gridCanvasLayer?.removeAllObjects();
+  app.tools.forEach(tool => tool.isVisible = true);
+  app.environment.families.forEach(family => family.isVisible = true);
   setState({
     history: app.defaultState.history,
     fullHistory: app.defaultState.fullHistory,
@@ -44,6 +47,7 @@ window.addEventListener('new-window', () => {
       gridSize: app.defaultState.settings.gridSize,
     },
     stepSinceSave: app.defaultState.stepSinceSave,
+    tools: [...app.tools],
   });
   WorkspaceManager.setWorkspace(new Workspace());
   // }, 0);

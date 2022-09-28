@@ -1,5 +1,5 @@
+import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { LitElement, html, css } from 'lit';
 
 class QuadrilateralsList extends LitElement {
   constructor() {
@@ -14,6 +14,17 @@ class QuadrilateralsList extends LitElement {
       'Trapeze',
       'IrregularQuadrilateral',
     ];
+
+    this.quadrilateralTitle = {
+      'Square': 'Carré',
+      'Rectangle': 'Rectangle',
+      'Losange': 'Losange',
+      'Parallelogram': 'Parallélogramme',
+      'RightAngleTrapeze': 'Trapèze rectangle',
+      'IsoscelesTrapeze': 'Trapèze isocèle',
+      'Trapeze': 'Trapèze',
+      'IrregularQuadrilateral': 'Quadrilatère',
+    }
 
     this.updateProperties = () => {
       this.selectedQuadrilateral = app.tool.selectedQuadrilateral;
@@ -64,7 +75,7 @@ class QuadrilateralsList extends LitElement {
       }
 
       h2 {
-        padding: 4px;
+        padding: 4px 4px 0px 4px;
         margin: 0;
         text-align: center;
         font-size: 1.2rem;
@@ -100,13 +111,17 @@ class QuadrilateralsList extends LitElement {
         }
       </style>
       <div class="container">
-        <h2>Triangles</h2>
+        <h2>
+          ${this.selectedQuadrilateral
+            ? this.quadrilateralTitle[this.selectedQuadrilateral]
+            : 'Quadrilatères'}
+        </h2>
         <div id="list">
           ${this.quadrilateralsNames.map(
             (quadrilateralName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${quadrilateralName}"
+                title="${this.quadrilateralTitle[quadrilateralName]}"
                 type="Geometry"
                 name="${quadrilateralName}"
                 @click="${this._clickHandle}"
