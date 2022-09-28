@@ -15,7 +15,7 @@ export class GroupTool extends Tool {
 
     this.firstShape = null;
 
-    this.groupsColor = ['#77b5fe', '#ff8400', '#096a09', '#f00020', '#03224c', '#34c924', '#d473d4', '#fd3f92'];
+    this.groupsColor = ['#77b5fe', '#096a09', '#f00020', '#03224c', '#34c924', '#d473d4', '#fd3f92', '#ff8400'];
   }
 
   /**
@@ -215,6 +215,7 @@ export class GroupTool extends Tool {
             return pt.color;
           }),
         });
+        console.info(s.getSVGPath('no scale', false, false));
       }
     });
   }

@@ -118,6 +118,7 @@ export class RegularShape extends Shape {
   }
 
   setSegmentsFromPath(path) {
+    console.info(path);
     const allPathElements = path
       .split(/[ \n]/)
       .filter((element) => element !== '');

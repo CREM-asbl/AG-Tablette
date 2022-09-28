@@ -104,10 +104,19 @@ export class ColorTool extends Tool {
     if (this.clickType == 'normal') {
       if (this.object instanceof Shape) {
         let involvedShapes = ShapeManager.getAllBindedShapes(this.object);
+        let mustChangeOpacity = false;
+        if (
+          involvedShapes.some((s) => {
+            return s.fillOpacity != 1;
+          })
+        ) {
+          mustChangeOpacity = true;
+        }
         involvedShapes.forEach(s => {
           if (s instanceof LineShape && !s.segments[0].isArc()) {
             s.strokeColor = app.settings.drawColor;
           } else {
+            if (mustChangeOpacity)
             s.fillOpacity = 0.7;
             s.fillColor = app.settings.drawColor;
           }
