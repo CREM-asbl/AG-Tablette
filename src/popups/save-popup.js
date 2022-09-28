@@ -16,7 +16,7 @@ class SavePopup extends LitElement {
 
   constructor() {
     super();
-    this.filename = 'untitled';
+    this.filename = 'sans titre';
     this.saveSettings = SaveFileManager.saveSettings;
     this.saveHistory = SaveFileManager.saveHistory;
     this.imageFormat =
@@ -171,7 +171,7 @@ class SavePopup extends LitElement {
 
       case 'save_popup_filename':
         this.filename = event.target.value;
-        if (!this.filename) this.filename = 'untitled';
+        if (!this.filename) this.filename = 'sans titre';
         break;
 
       case 'save_popup_submit':

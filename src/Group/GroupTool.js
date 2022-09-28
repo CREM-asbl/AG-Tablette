@@ -47,9 +47,6 @@ export class GroupTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
   }
@@ -99,18 +96,11 @@ export class GroupTool extends Tool {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
   }
 
-  /**
-   * Appelée par événement du SelectManager quand une figure est sélectionnée (onClick)
-   * @param  {Shape} shape            La figure sélectionnée
-   */
   objectSelected(shape) {
     if (app.tool.currentStep == 'listen') {
       let userGroup = GroupManager.getShapeGroup(shape);
