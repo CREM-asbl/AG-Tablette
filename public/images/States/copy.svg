@@ -52,6 +52,24 @@
      id="g824"
      transform="translate(0.10169492,0.40677966)">
     <path
+       transform="matrix(1.4070814,0,0,1.4926885,-0.36806693,-2.3323997)"
+       sodipodi:type="star"
+       style="opacity:1;fill:#b4b4b4;fill-opacity:1;stroke:#000000;stroke-width:1.29999995;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path965"
+       sodipodi:sides="5"
+       sodipodi:cx="10.677966"
+       sodipodi:cy="10.474577"
+       sodipodi:r1="6.1758208"
+       sodipodi:r2="4.9963441"
+       sodipodi:arg1="-0.30092023"
+       sodipodi:arg2="0.3273983"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 16.576271,8.6440685 14.24156,15.51854 6.982083,15.422426 4.8301913,8.4885527 10.759726,4.2992973 Z"
+       inkscape:transform-center-x="-0.025265074"
+       inkscape:transform-center-y="-0.56565823" />
+      <path
        transform="matrix(1.4070814,0,0,1.4926885,-0.57145676,-0.60358614)"
        inkscape:transform-center-y="-0.56565823"
        inkscape:transform-center-x="-0.025265074"
@@ -67,25 +85,7 @@
        sodipodi:cx="7.0169492"
        sodipodi:sides="5"
        id="path963"
-       style="opacity:1;fill:#b4b4b4;fill-opacity:1;stroke:#000000;stroke-width:1.29999995;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       sodipodi:type="star" />
-    <path
-       transform="matrix(1.4070814,0,0,1.4926885,-0.36806693,-2.3323997)"
-       sodipodi:type="star"
        style="opacity:0.75;fill:#b4b4b4;fill-opacity:1;stroke:#000000;stroke-width:1.29999995;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="path965"
-       sodipodi:sides="5"
-       sodipodi:cx="10.677966"
-       sodipodi:cy="10.474577"
-       sodipodi:r1="6.1758208"
-       sodipodi:r2="4.9963441"
-       sodipodi:arg1="-0.30092023"
-       sodipodi:arg2="0.3273983"
-       inkscape:flatsided="true"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="M 16.576271,8.6440685 14.24156,15.51854 6.982083,15.422426 4.8301913,8.4885527 10.759726,4.2992973 Z"
-       inkscape:transform-center-x="-0.025265074"
-       inkscape:transform-center-y="-0.56565823" />
+       sodipodi:type="star" />
   </g>
 </svg>
