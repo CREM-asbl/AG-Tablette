@@ -98,6 +98,8 @@ function addShapeToChildren(parent, child) {
 
 export function linkNewlyCreatedPoint(shape, point) {
   let ref = point.adjustedOn;
+  if (ref.type == 'grid')
+    return;
   if (
     (point.idx == 1
       && (shape.name == 'CircleArc' || shape.name.startsWith('Parallele') || shape.name.startsWith('Perpendicular'))

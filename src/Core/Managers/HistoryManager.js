@@ -39,9 +39,9 @@ export class HistoryManager {
     if (!data) {
       settings = {
         ...app.settings,
-        gridShown: app.settings.gridShown,
-        gridType: app.settings.gridType,
-        gridSize: app.settings.gridSize,
+        gridShown: false,//app.settings.gridShown,
+        gridType: 'none',//app.settings.gridType,
+        gridSize: 1,//app.settings.gridSize,
       };
       tangram = {
         ...app.defaultState.tangram,
