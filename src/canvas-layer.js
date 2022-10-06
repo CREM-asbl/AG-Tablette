@@ -108,24 +108,12 @@ class CanvasLayer extends LitElement {
           )
             return;
           this.drawShape(s, scaling);
-          if (this.mustDrawPoints && app.settings.areShapesPointed) {
-            this.points.forEach((pt) => {
-              if (pt.visible && pt.shapeId === s.id) {
-                this.drawPoint(pt, pt.color);
-              }
-            });
-          } else if (this.mustDrawPoints) {
-            this.points.forEach((pt) => {
-              if (
-                pt.visible &&
-                pt.shapeId === s.id &&
-                (pt.type == 'shapeCenter' ||
-                  pt.type == 'divisionPoint' ||
-                  pt.shape.isCircle())
-              ) {
-                this.drawPoint(pt, pt.color);
-              }
-            });
+          if (this.mustDrawPoints) {
+            if (app.environment.name == 'Geometrie') {
+              this.drawGeometryShapePoint(s);
+            } else {
+              this.drawShapePoint(s);
+            }
           }
         }
       });
@@ -133,13 +121,61 @@ class CanvasLayer extends LitElement {
     if (this.mustDrawPoints) {
       this.points.forEach((pt) => {
         if (pt.visible && pt.shapeId === undefined) {
-          this.drawPoint(pt, pt.color);
+          this.drawPoint(pt);
         }
       });
     }
     this.texts.forEach((text) => {
       this.drawText(text);
     });
+  }
+
+  drawGeometryShapePoint(shape) {
+    if (app.settings.areShapesPointed) {
+      shape.points.forEach((pt) => {
+        if (pt.visible) {
+          this.drawPoint(pt);
+        }
+      });
+    } else if (shape instanceof SinglePointShape) {
+      if (!shape.geometryObject.geometryPointOnTheFlyChildId) {
+        this.drawPoint(shape.points[0]);
+      }
+    } else {
+      shape.points.forEach((pt) => {
+        if (
+          pt.visible &&
+          (
+            pt.type == 'shapeCenter' ||
+            pt.type == 'divisionPoint'// ||
+            // pt.shape.isCircle()
+          )
+        ) {
+          this.drawPoint(pt);
+        }
+      });
+    }
+  }
+
+  drawShapePoint(shape) {
+    if (app.settings.areShapesPointed) {
+      shape.points.forEach((pt) => {
+        if (pt.visible) {
+          this.drawPoint(pt);
+        }
+      });
+    } else {
+      shape.points.forEach((pt) => {
+        if (
+          pt.visible &&
+          (pt.type == 'shapeCenter' ||
+            pt.type == 'divisionPoint' ||
+            pt.shape.isCircle())
+        ) {
+          this.drawPoint(pt);
+        }
+      });
+    }
   }
 
   toSVG() {
@@ -848,12 +884,12 @@ class CanvasLayer extends LitElement {
     this.ctx.setLineDash([]);
   }
 
-  drawPoint(point, color = '#000', doSave = true) {
+  drawPoint(point, justForAgrumentCount, doSave = true) {
     if (point.geometryIsVisible === false)
       return;
     if (doSave) this.ctx.save();
 
-    this.ctx.fillStyle = color;
+    this.ctx.fillStyle = point.color;
     this.ctx.globalAlpha = 1;
 
     const canvasCoodinates = point.coordinates.toCanvasCoordinates();

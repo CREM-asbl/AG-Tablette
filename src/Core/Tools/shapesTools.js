@@ -50,7 +50,6 @@ export function duplicateShape(s, layer = 'upper') {
       geometryTransformationCharacteristicElementIds: s.geometryObject.geometryTransformationCharacteristicElementIds.map(id => addInfoToId(id, layer)),
       geometryDuplicateChildShapeIds: s.geometryObject.geometryDuplicateChildShapeIds.map(id => addInfoToId(id, layer)),
       geometryDuplicateParentShapeId: addInfoToId(s.geometryObject.geometryDuplicateParentShapeId, layer),
-      geometryTransformationName: s.geometryObject.geometryTransformationName,
     });
   }
   return newShape;

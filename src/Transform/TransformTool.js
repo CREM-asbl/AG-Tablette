@@ -144,27 +144,7 @@ export class TransformTool extends Tool {
 
     this.pointSelectedId = point.id;
 
-    // let involvedShapes = [point.shape];
-    // getAllLinkedShapesInGeometry(point.shape, involvedShapes);
-    let involvedShapes = app.mainCanvasLayer.shapes;
-
-    this.drawingShapes = involvedShapes.map(
-      (s) => duplicateShape(s)
-    );
-
-    app.mainCanvasLayer.editingShapeIds = involvedShapes.map(
-      (s) => s.id,
-    );
-
-    if (point.shape.name == 'PointOnLine') {
-      let constraintShape = findObjectById(addInfoToId(
-        point.shape.geometryObject.geometryParentObjectId1
-        , 'upper')
-        ).shape;
-      constraintShape.geometryObject.geometryIsConstaintDraw = 'visible';
-    }
-
-    let startShapeId = addInfoToId(point.shape.id, 'upper');
+    let startShapeId = point.shape.id;
     this.tree =  {
       [startShapeId]: {
         parents: [],
@@ -172,6 +152,56 @@ export class TransformTool extends Tool {
       },
     }
     this.createTree(0, this.tree);
+    let involvedShapeIds = Object.keys(this.tree);
+    let involvedShapes = involvedShapeIds.map(shapeId => findObjectById(shapeId));
+
+    involvedShapeIds.forEach(oldKey => {
+      let newKey = addInfoToId(oldKey, 'upper');
+      delete Object.assign(this.tree, {[newKey]: this.tree[oldKey] })[oldKey];
+      for (let i = 0; i < this.tree[newKey].parents.length; i++) {
+        this.tree[newKey].parents[i] = addInfoToId(this.tree[newKey].parents[i], 'upper');
+      }
+      for (let i = 0; i < this.tree[newKey].children.length; i++) {
+        this.tree[newKey].children[i] = addInfoToId(this.tree[newKey].children[i], 'upper');
+      }
+    });
+
+    this.drawingShapes = involvedShapes.map(
+      (s) => duplicateShape(s)
+    );
+    this.drawingShapes.forEach(s => {
+      if (!findObjectById(s.geometryObject.geometryParentObjectId1)) {
+        s.geometryObject.geometryParentObjectId1 = addInfoToId(s.geometryObject.geometryParentObjectId1, 'main')
+      }
+      if (!findObjectById(s.geometryObject.geometryParentObjectId2)) {
+        s.geometryObject.geometryParentObjectId2 = addInfoToId(s.geometryObject.geometryParentObjectId2, 'main')
+      }
+      if (!findObjectById(s.geometryObject.geometryTransformationParentShapeId)) {
+        s.geometryObject.geometryTransformationParentShapeId = addInfoToId(s.geometryObject.geometryTransformationParentShapeId, 'main')
+      }
+      s.geometryObject.geometryTransformationCharacteristicElementIds.forEach((el, idx) => {
+        if (!findObjectById(el)) {
+          s.geometryObject.geometryTransformationCharacteristicElementIds[idx] = addInfoToId(el, 'main')
+        }
+      });
+      if (!findObjectById(s.geometryObject.geometryDuplicateParentShapeId)) {
+        s.geometryObject.geometryDuplicateParentShapeId = addInfoToId(s.geometryObject.geometryDuplicateParentShapeId, 'main')
+      }
+    });
+
+    app.mainCanvasLayer.editingShapeIds = involvedShapes.map(
+      (s) => s.id,
+    );
+
+    if (point.shape.name == 'PointOnLine') {
+      let constraintShape = findObjectById(
+        addInfoToId(
+          point.shape.geometryObject.geometryParentObjectId1,
+          'upper'
+        )
+      ).shape;
+      constraintShape.geometryObject.geometryIsConstaintDraw = 'visible';
+    }
 
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
     // window.dispatchEvent(new CustomEvent('refresh'));
@@ -181,7 +211,7 @@ export class TransformTool extends Tool {
     let currentEntries = Object.entries(tree);
     if (currentEntries.length == index)
       return;
-    let currentShapeId = currentEntries[index][0]
+    let currentShapeId = currentEntries[index][0];
     let currentShape = findObjectById(currentShapeId);
     let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds];
     dependenciesIds.sort((dp1, dp2) => {
@@ -190,7 +220,7 @@ export class TransformTool extends Tool {
       } else if (findObjectById(dp2).geometryObject.geometryIsConstaintDraw) {
         return 1;
       }
-    })
+    });
     dependenciesIds.forEach(dependenciesId => {
       if (tree[dependenciesId])
         tree[dependenciesId].parents.push(currentShapeId)
@@ -322,7 +352,7 @@ export class TransformTool extends Tool {
         }
       }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
-      // this.adjustPoint(point);
+      this.adjustPoint(point);
       if (shape.name == 'PointOnLine') {
         let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
         point.coordinates = reference.projectionOnSegment(point.coordinates);
