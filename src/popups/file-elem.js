@@ -45,8 +45,9 @@ class FileElem extends LitElement {
     if (this.environment != app.environment.name && confirm('Voulez-vous ouvrir ce fichier dans ' + this.environment + '?')) {
       window.location.href = location.protocol + '//' + location.host + location.pathname + '?activityName=' + this.title;
     }
-    let fileContent = await readFileFromServer(this.title);
-    OpenFileManager.parseFile(fileContent);
+    let fileDownloaded = await readFileFromServer(this.title);
+    let fileDownloadedObject = await fileDownloaded.json();
+    OpenFileManager.parseFile(fileDownloadedObject);
     window.dispatchEvent(new CustomEvent('close-popup'));
   }
 

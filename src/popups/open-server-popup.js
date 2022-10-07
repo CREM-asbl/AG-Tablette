@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit';
-import { findAllThemes } from '../Firebase/firebase-init';
+import { downloadFileZip, findAllFiles, findAllThemes, readFileFromServer } from '../Firebase/firebase-init';
 import { TemplatePopup } from './template-popup';
 import './theme-elem';
 
@@ -29,6 +29,10 @@ class OpenServerPopup extends LitElement {
         #body {
           display: block;
         }
+
+        color-button {
+          margin-bottom: 10px;
+        }
       `,
     ];
   }
@@ -46,10 +50,20 @@ class OpenServerPopup extends LitElement {
       <template-popup>
         <h2 slot="title">Ouvrir un fichier</h2>
         <div slot="body" id="body">
+          <color-button @click="${this.downloadAllFiles}" innerText="Télécharger tous les fichiers"></color-button>
           ${this.allThemes.map(theme => html`<theme-elem title="${theme.id}" moduleNames="${theme.modules.map(module => module.id)}"></theme-elem>`)}
         </div>
       </template-popup>
     `;
+  }
+
+  async downloadAllFiles() {
+    let allFilename = await findAllFiles();
+    allFilename = allFilename.filter(file => !file.hidden).map(filename => filename.id);
+
+    let allFiles = allFilename.map(readFileFromServer);
+
+    downloadFileZip("fichiers_AGm_serveur_crem", allFiles);
   }
 
   close() {

@@ -1,11 +1,10 @@
-import { downloadZip } from "https://cdn.jsdelivr.net/npm/client-zip/index.js";
 import { html, LitElement } from 'lit';
 import './auto-launch';
 import './backbutton-manager';
 import { app, setState } from './Core/App';
 import { loadEnvironnement } from './Core/Environments/Environment';
 import './Core/Manifest';
-import { openFileFromServer } from './Firebase/firebase-init';
+import { downloadFileZip, openFileFromServer } from './Firebase/firebase-init';
 
 class AgApp extends LitElement {
   static get properties() {
@@ -41,7 +40,6 @@ class AgApp extends LitElement {
     let generateSVGs = parsedUrl.searchParams.get("generateSVGs");
     if (generateSVGs)
       AgApp.generateSVGs(generateSVGs);
-      // openFileFromId(activityId);
   }
 
   render() {
@@ -82,17 +80,7 @@ class AgApp extends LitElement {
 
     let files = listImage.map(image => fetch(image));
 
-    AgApp.downloadTestZip(files);
-  }
-
-  static async downloadTestZip(files) {
-    const blob = await downloadZip(files).blob();
-
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "IconesAGm.zip";
-    link.click();
-    link.remove();
+    downloadFileZip("IconesAGm.zip", files);
   }
 }
 customElements.define('ag-app', AgApp);

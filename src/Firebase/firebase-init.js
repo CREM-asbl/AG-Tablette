@@ -1,3 +1,4 @@
+import { downloadZip } from "client-zip";
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from 'firebase/app';
 import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
@@ -22,8 +23,10 @@ if (location.hostname != 'localhost') {
 export async function openFileFromServer(activityName) {
   const data = await getFileDocFromFilename(activityName);
   if (data) {
-    let fileContent = await readFileFromServer(data.id);
-    window.addEventListener('app-started', () => OpenFileManager.parseFile(fileContent), {once: true});
+    let fileDownloaded = await readFileFromServer(data.id);
+    let fileDownloadedObject = await fileDownloaded.json();
+
+    window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject), {once: true});
 
     setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(data.environment) });
@@ -33,8 +36,7 @@ export async function openFileFromServer(activityName) {
 export async function readFileFromServer(filename) {
   let URL = await getDownloadURL(ref(storage, filename));
   let fileDownloaded = await fetch(URL);
-  let fileDownloadedObject = await fileDownloaded.json();
-  return fileDownloadedObject;
+  return fileDownloaded;
 }
 
 export async function getFileDocFromFilename(id) {
@@ -54,6 +56,13 @@ export async function findAllThemes() {
   let themesWithId = [];
   themes.forEach(doc => themesWithId.push({id: doc.id, ...doc.data()}));
   return themesWithId;
+}
+
+export async function findAllFiles() {
+  let files = await getDocs(collection(db, "files"));
+  let filesWithId = [];
+  files.forEach(doc => filesWithId.push({id: doc.id, ...doc.data()}));
+  return filesWithId;
 }
 
 export function getThemeDocFromThemeName(themeName) {
@@ -78,4 +87,14 @@ export async function getFilesDocFromModule(moduleDoc) {
   let fileDocsWithId = [];
   fileDocs.forEach(doc => fileDocsWithId.push({id:doc.id, ...doc.data()}));
   return fileDocsWithId;
+}
+
+export async function downloadFileZip(zipname, files) {
+  const blob = await downloadZip(files).blob();
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = zipname;
+  link.click();
+  link.remove();
 }
