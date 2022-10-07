@@ -199,7 +199,12 @@ export class TransformTool extends Tool {
           point.shape.geometryObject.geometryParentObjectId1,
           'upper'
         )
-      ).shape;
+      )?.shape;
+      if (!constraintShape) {
+        constraintShape = findObjectById(
+          point.shape.geometryObject.geometryParentObjectId1
+        ).shape;
+      }
       constraintShape.geometryObject.geometryIsConstaintDraw = 'visible';
     }
 
