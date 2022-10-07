@@ -1,0 +1,128 @@
+images/Create/Carre.svg
+images/Create/Cube 1.svg
+images/Create/Cube 2.svg
+images/Create/Decagone regulier.svg
+images/Create/Disque 1.svg
+images/Create/Disque 2.svg
+images/Create/Disque 3.svg
+images/Create/Disque 4.svg
+images/Create/Hexagone regulier.svg
+images/Create/Losange.svg
+images/Create/Octogone regulier.svg
+images/Create/Parallelogramme.svg
+images/Create/Pentagone regulier.svg
+images/Create/Petit losange.svg
+images/Create/Segment 1.svg
+images/Create/Segment 2.svg
+images/Create/Segment 3.svg
+images/Create/Trapeze isocele.svg
+images/Create/Trapeze rectangle.svg
+images/Create/Triangle equilateral.svg
+images/Create/Triangle isocele 1.svg
+images/Create/Triangle isocele 2.svg
+images/Create/Triangle isocele.svg
+images/Create/Triangle obtusangle.svg
+images/Create/Triangle rectangle 1.svg
+images/Create/Triangle rectangle 2.svg
+images/Create/Triangle rectangle isocele 1.svg
+images/Create/Triangle rectangle isocele 2.svg
+images/Environnements/logo_cubes.svg
+images/Environnements/logo_geometrie.svg
+images/Environnements/logo_grandeurs.svg
+images/Environnements/logo_tangram.svg
+images/Geometry/30degreesArc.svg
+images/Geometry/45degreesArc.svg
+images/Geometry/Circle.svg
+images/Geometry/CircleArc.svg
+images/Geometry/CirclePart.svg
+images/Geometry/EquilateralTriangle.svg
+images/Geometry/IrregularQuadrilateral.svg
+images/Geometry/IrregularTriangle.svg
+images/Geometry/IsoscelesTrapeze.svg
+images/Geometry/IsoscelesTriangle.svg
+images/Geometry/Losange.svg
+images/Geometry/ParalleleSegment.svg
+images/Geometry/ParalleleSemiStraightLine.svg
+images/Geometry/ParalleleStraightLine.svg
+images/Geometry/Parallelogram.svg
+images/Geometry/PerpendicularSegment.svg
+images/Geometry/PerpendicularSemiStraightLine.svg
+images/Geometry/PerpendicularStraightLine.svg
+images/Geometry/Point.svg
+images/Geometry/PointOnIntersection.svg
+images/Geometry/PointOnLine.svg
+images/Geometry/PointOnShape.svg
+images/Geometry/Rectangle.svg
+images/Geometry/RightAngleIsoscelesTriangle.svg
+images/Geometry/RightAngleTrapeze.svg
+images/Geometry/RightAngleTrapeze2.svg
+images/Geometry/RightAngleTriangle.svg
+images/Geometry/Segment.svg
+images/Geometry/SemiStraightLine.svg
+images/Geometry/Square.svg
+images/Geometry/StraightLine.svg
+images/Geometry/Strip.svg
+images/Geometry/Trapeze.svg
+images/Geometry/Vector.svg
+images/States/backgroundColor.svg
+images/States/biface.svg
+images/States/borderColor.svg
+images/States/buildCenter.svg
+images/States/centralSymetry.svg
+images/States/color.svg
+images/States/copy.svg
+images/States/createCircle.svg
+images/States/createIrregularPolygon.svg
+images/States/createLine.svg
+images/States/createPoint.svg
+images/States/createQuadrilateral.svg
+images/States/createRegularPolygon.svg
+images/States/createRegularPolygon_old.svg
+images/States/createSilhouette.svg
+images/States/createTriangle.svg
+images/States/cut.svg
+images/States/delete.svg
+images/States/divide.svg
+images/States/duplicate.svg
+images/States/grid.svg
+images/States/group.svg
+images/States/hideShow.svg
+images/States/merge.svg
+images/States/move.svg
+images/States/opacity.svg
+images/States/orthogonalSymetry.svg
+images/States/reverse.svg
+images/States/rotate.svg
+images/States/rotate45.svg
+images/States/rotation.svg
+images/States/toBackground.svg
+images/States/transform.svg
+images/States/transform2.svg
+images/States/translate.svg
+images/States/translation.svg
+images/States/ungroup.svg
+images/States/zoom.svg
+images/fake_cursor.png
+images/fake_cursor_small.png
+images/favicon-16x16.png
+images/favicon-32x32.png
+images/favicon.ico
+images/help.svg
+images/home.svg
+images/manifest/icon-512.png
+images/manifest/icon.svg
+images/manifest/maskable_icon.png
+images/manifest/maskable_icon2.png
+images/manifest/maskable_icon_old.png
+images/open.svg
+images/pause.svg
+images/play.svg
+images/redo.svg
+images/replay.svg
+images/save.svg
+images/settings.svg
+images/spinner.gif
+images/spinner.svg
+images/stop.svg
+images/undo.svg
+images/wallpaper.svg

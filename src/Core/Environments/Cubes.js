@@ -10,8 +10,6 @@ export default {
     'Ungroup',
     'ToBackground',
     'Color',
-    // 'BackgroundColor',
-    // 'BorderColor',
     'Translate',
     'Zoom',
     'Grid',

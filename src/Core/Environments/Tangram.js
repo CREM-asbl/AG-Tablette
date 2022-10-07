@@ -8,8 +8,6 @@ export default {
     'Group',
     'Ungroup',
     'Color',
-    // 'BackgroundColor',
-    // 'BorderColor',
     'Tangram',
   ],
   extension: 'agt',

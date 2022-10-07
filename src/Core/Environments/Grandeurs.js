@@ -15,8 +15,6 @@ export default {
     'Ungroup',
     'ToBackground',
     'Color',
-    // 'BackgroundColor',
-    // 'BorderColor',
     'Opacity',
     'Biface',
     'Translate',
