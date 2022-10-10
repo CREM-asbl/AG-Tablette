@@ -6,11 +6,7 @@ import { Point } from '../Point';
 import { GeometryObject } from './GeometryObject';
 import { Shape } from './Shape';
 
-/**
- * Représente une figure classique (rectangle, disque, ...)
- */
 export class SinglePointShape extends Shape {
-
   constructor({
     id,
     layer,

@@ -14,7 +14,7 @@ module.exports = {
     // "bundle": true,
   },
   packageOptions: {
-    source: "remote-next",
+    source: "local",
     knownEntrypoints: [
       "lit-element/lit-element.js",
       "@lit/reactive-element/decorators/custom-element.js",

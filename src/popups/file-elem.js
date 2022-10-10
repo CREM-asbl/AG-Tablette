@@ -44,6 +44,8 @@ class FileElem extends LitElement {
   async openFile() {
     if (this.environment != app.environment.name && confirm('Voulez-vous ouvrir ce fichier dans ' + this.environment + '?')) {
       window.location.href = location.protocol + '//' + location.host + location.pathname + '?activityName=' + this.title;
+    } else {
+      return;
     }
     let fileDownloaded = await readFileFromServer(this.title);
     let fileDownloadedObject = await fileDownloaded.json();
