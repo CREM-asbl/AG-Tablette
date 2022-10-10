@@ -40,6 +40,12 @@
     {
       "action": "/",
       "accept": {
+        "application/agmobile": ".ags"
+      }
+    },
+    {
+      "action": "/",
+      "accept": {
         "application/agmobile": ".agc"
       }
     },
