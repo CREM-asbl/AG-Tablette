@@ -15,7 +15,7 @@ export default {
     'Grid',
   ],
   kit: 'cubesKit',
-  extension: 'agc',
+  extensions: ['.agc'],
   themeColor: '#f46c2e',
   themeColorSoft: '#FED3C2',
 };

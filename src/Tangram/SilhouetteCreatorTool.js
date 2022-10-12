@@ -5,7 +5,7 @@ import { Tool } from '../Core/States/Tool';
 import { TangramManager } from './TangramManager';
 
 /**
- * Créer un tangram
+ * Créer une silhouette
  */
 export class SilhouetteCreatorTool extends Tool {
   constructor() {
@@ -14,9 +14,6 @@ export class SilhouetteCreatorTool extends Tool {
     this.isUserWarnedAboutOverlap = false;
   }
 
-  /**
-   * initialiser l'état
-   */
   async start() {
     this.removeListeners();
 

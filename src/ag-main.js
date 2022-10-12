@@ -267,7 +267,7 @@ class AGMain extends LitElement {
 
       <input
         id="fileSelector"
-        accept=".${app.environment.extension}"
+        accept="${app.environment.extensions.join(',')}"
         type="file"
         style="display: none"
         @change="${(event) => {

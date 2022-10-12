@@ -19,12 +19,6 @@ export class SaveFileManager {
     const opts = {
       types: [
         {
-          description: 'Etat',
-          accept: {
-            'application/agmobile': ['.' + app.environment.extension],
-          },
-        },
-        {
           description: 'Image matricielle (png)',
           accept: {
             'img/png': ['.png'],
@@ -38,9 +32,38 @@ export class SaveFileManager {
         },
       ],
     };
+    if (app.environment.name == 'Tangram') {
+      opts.types = [
+        {
+          description: 'Silhouette',
+          accept: {
+            'application/agmobile': [app.environment.extensions[1]],
+          },
+        },
+        ...opts.types
+      ];
+    }
+    if (app.environment.name != 'Tangram' || app.tangram.buttonValue == 'check') {
+      opts.types = [
+        {
+          description: 'Etat',
+          accept: {
+            'application/agmobile': [app.environment.extensions[0]],
+          },
+        },
+        ...opts.types
+      ];
+    }
     const handle = await window.showSaveFilePicker(opts);
     const extension = SaveFileManager.getExtension(handle.name);
     SaveFileManager.extension = extension;
+    if (extension == 'ags') {
+      SaveFileManager.saveMethod = 'silhouette';
+    } else if (extension == 'png' || extension == 'svg') {
+      SaveFileManager.saveMethod = 'image';
+    } else {
+      SaveFileManager.saveMethod = 'state';
+    }
     switch (extension) {
       case 'png':
         SaveFileManager.saveToPng(handle);
@@ -86,7 +109,9 @@ export class SaveFileManager {
         };
         let detail = { ...handle };
         const extension = SaveFileManager.getExtension(handle.name);
+        const saveMethod = handle.saveMethod;
         SaveFileManager.extension = extension;
+        SaveFileManager.saveMethod = saveMethod;
         switch (extension) {
           case 'png':
             SaveFileManager.saveToPng(handle);
@@ -104,8 +129,8 @@ export class SaveFileManager {
     createElem('save-popup');
   }
 
-  static getExtension(fileName) {
-    return fileName.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2);
+  static getExtension(filename) {
+    return filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
   }
 
   static saveToPng(handle) {

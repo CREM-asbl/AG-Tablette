@@ -50,12 +50,12 @@ const loadKit = async (name) => {
  */
 export class Environment {
   constructor(
-    { name, extension, themeColor, themeColorSoft },
+    { name, extensions, themeColor, themeColorSoft },
     kitContent = null,
   ) {
     this.name = name;
 
-    this.extension = extension;
+    this.extensions = extensions;
 
     this.kitName = this.name;
 

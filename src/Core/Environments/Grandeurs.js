@@ -22,7 +22,7 @@ export default {
     'Grid',
   ],
   kit: 'grandeursKit',
-  extension: 'agg',
+  extensions: ['.agg'],
   themeColor: '#57D99B',
   themeColorSoft: '#C4F1D9',
 };

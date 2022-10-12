@@ -92,6 +92,7 @@ class ToolChoicePopup extends LitElement {
                     name="${tool.name}"
                     type="State"
                     title="${tool.title}"
+                    cantInteract="true"
                     @click="${this._actionHandle}"
                   ></icon-button>
                 `
@@ -122,6 +123,7 @@ class ToolChoicePopup extends LitElement {
                     name="${tool.name}"
                     type="State"
                     title="${tool.title}"
+                    cantInteract="true"
                     ?active="${tool.name === app.tool?.name}"
                     @click="${this._actionHandle}"
                   ></icon-button>

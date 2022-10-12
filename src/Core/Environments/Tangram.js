@@ -10,7 +10,7 @@ export default {
     'Color',
     'Tangram',
   ],
-  extension: 'agt',
+  extensions: ['.agt', '.ags'],
   settings: {
     areShapesPointed: false,
   },

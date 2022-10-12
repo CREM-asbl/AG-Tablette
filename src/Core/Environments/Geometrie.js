@@ -31,7 +31,7 @@ export default {
     'Zoom',
     'Grid',
   ],
-  extension: 'agl',
+  extensions: ['.agl'],
   themeColor: '#888888',
   themeColorSoft: '#B8B8B8',
 };
