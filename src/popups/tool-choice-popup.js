@@ -133,7 +133,7 @@ class ToolChoicePopup extends LitElement {
           </div>
         </div>
         <div slot="footer">
-          <color-button id="focus" @click="${() => this.close()}" innerText="Ok"></color-button>
+          <color-button @click="${() => this.close()}" innerText="Ok"></color-button>
         </div>
       </template-popup>
     `;

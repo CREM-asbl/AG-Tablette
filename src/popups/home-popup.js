@@ -26,13 +26,6 @@ class HomePopup extends LitElement {
     ];
   }
 
-  updated() {
-    window.setTimeout(
-      () => this.shadowRoot.querySelector('#focus').focus(),
-      200,
-    );
-  }
-
   render() {
     return html`
       <template-popup>
@@ -48,7 +41,7 @@ class HomePopup extends LitElement {
         <div slot="footer">
           <color-button @click="${this.goToHomePage}" innerText="Page d'accueil"></color-button>
           <color-button @click="${this.newWindow}" innerText="Espace de travail vide"></color-button>
-          <color-button id="focus" @click="${this.close}" innerText="Annuler"></color-button>
+          <color-button @click="${this.close}" innerText="Annuler"></color-button>
         </div>
       </template-popup>
     `;

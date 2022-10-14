@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit';
+import { app } from '../Core/App';
 import '../version-item';
 import { TemplatePopup } from './template-popup';
 
@@ -18,6 +19,12 @@ class HelpPopup extends LitElement {
       d'aide.
     `;
 
+    if (app.tool?.name) {
+      this.content = html`
+        <img src='images/help/${app.environment.name}/${app.tool.name}.webp'>
+      `;
+    }
+
     window.addEventListener('close-popup', () => this.close());
   }
 
@@ -29,7 +36,8 @@ class HelpPopup extends LitElement {
           margin-right: 8px;
         }
         div#helpPopupBody {
-          max-width: 600px;
+          max-width: 80vw;
+          max-height: calc(70 * var(--vh));
         }
         :host {
           -webkit-touch-callout: text; /* iOS Safari */
@@ -43,20 +51,23 @@ class HelpPopup extends LitElement {
         h3 {
           padding: 0;
         }
+
+        img {
+          width: 100%;
+          background-color: rgba(255, 255, 255, 0.5);
+        }
       `,
     ];
   }
 
-  setText(text) {
-    this.content = text;
-  }
+  // setText(text) {
+  //   this.content = text;
+  // }
 
-  updated() {
-    window.setTimeout(
-      () => this.shadowRoot.querySelector('#focus').focus(),
-      200,
-    );
-  }
+  // connectedCallback() {
+  //   super.connectedCallback();
+  //   window.dispatchEvent(new CustomEvent('get-help-text'));
+  // }
 
   render() {
     return html`
@@ -66,8 +77,8 @@ class HelpPopup extends LitElement {
           ${this.content}
         </div>
         <div slot="footer">
-            <color-button id="focus" @click="${() => this.close()}" innerText="Ok"></color-button>
-          </div>
+          <color-button @click="${() => this.close()}" innerText="Ok"></color-button>
+        </div>
       </template-popup>
     `;
   }

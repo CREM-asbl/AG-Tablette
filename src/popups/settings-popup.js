@@ -34,13 +34,6 @@ class SettingsPopup extends LitElement {
     ];
   }
 
-  updated() {
-    window.setTimeout(
-      () => this.shadowRoot.querySelector('#focus').focus(),
-      200,
-    );
-  }
-
   render() {
     return html`
       <template-popup>
@@ -131,7 +124,7 @@ class SettingsPopup extends LitElement {
           <div slot="footer">
             <version-item></version-item>
             <color-button @click="${() => app.resetSettings()}" innerText="Paramètres par défaut"></color-button>
-            <color-button id="focus" @click="${this.close}" innerText="OK"></color-button>
+            <color-button @click="${this.close}" innerText="OK"></color-button>
           </div>
         </div>
       </template-popup>

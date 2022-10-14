@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "client-zip": "^2.2.2",
+    "cwebp": "^2.0.5",
     "firebase": "^9.9.4",
     "firebase-tools": "^11.8.0",
     "idb": "^7.0.2",

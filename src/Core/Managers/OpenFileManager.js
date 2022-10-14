@@ -1,5 +1,5 @@
 import { app, setState } from '../App';
-import { addInfoToId, createElem } from '../Tools/general';
+import { addInfoToId, createElem, getExtension } from '../Tools/general';
 
 export class OpenFileManager {
   static async openFile() {
@@ -33,13 +33,13 @@ export class OpenFileManager {
   static async newReadFile(fileHandle) {
     const file = await fileHandle.getFile();
     const content = await file.text();
-    OpenFileManager.parseFile(content);
+    OpenFileManager.parseFile(content, fileHandle.name);
   }
 
   static oldReadFile(file) {
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => OpenFileManager.parseFile(reader.result);
+    reader.onload = () => OpenFileManager.parseFile(reader.result, file.name);
     reader.readAsText(file);
   }
 
@@ -159,7 +159,7 @@ export class OpenFileManager {
     });
   }
 
-  static async parseFile(fileContent) {
+  static async parseFile(fileContent, filename) {
     let saveObject;
     if (typeof fileContent == 'string') {
       try {
@@ -171,6 +171,7 @@ export class OpenFileManager {
     } else {
       saveObject = fileContent;
     }
+    saveObject.fileExtension = getExtension(filename)
 
     if (saveObject.appVersion == '1.0.0') {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. La version n\'est plus prise en charge.' } }));
@@ -187,7 +188,8 @@ export class OpenFileManager {
     // app.lastFileVersion = saveObject.appVersion;
     const WorkspaceManagerModule = await import('./WorkspaceManager.js');
     WorkspaceManagerModule.WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
-    if (app.environment.name == 'Tangram')
+
+    if (app.environment.name == 'Tangram' && saveObject.fileExtension == 'ags')
       app.mainCanvasLayer.removeAllObjects();
 
     if (saveObject.settings) {
@@ -205,7 +207,9 @@ export class OpenFileManager {
     }
 
     if (saveObject.history) {
-      setState({ history: { ...saveObject.history } });
+      setState({
+        history: { ...saveObject.history },
+      });
     } else {
       setState({
         history: {
@@ -215,7 +219,7 @@ export class OpenFileManager {
             tangram: {
               isSilhouetteShown: true,
               currentStep: 'start',
-              buttonText: 'Vérifier solution',
+              buttonText: 'Vérifier la solution',
               buttonValue: 'check',
             }
           },
@@ -252,10 +256,6 @@ window.addEventListener('file-opened', (event) => {
   if (event.detail.method == 'old')
     OpenFileManager.oldReadFile(event.detail.file);
   else OpenFileManager.newReadFile(event.detail.file[0]);
-});
-
-window.addEventListener('parse-file', (event) => {
-  OpenFileManager.parseFile(event.detail.fileContent);
 });
 
 // Si ancien ou nouveau systeme de fichier

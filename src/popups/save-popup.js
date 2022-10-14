@@ -32,11 +32,11 @@ class SavePopup extends LitElement {
     if (app.environment.name == 'Tangram') {
       this.saveMethodOptions = [['silhouette', 'silhouette'], ...this.saveMethodOptions];
     }
-    if (app.environment.name != 'Tangram' || app.tangram.buttonValue == 'check') {
+    if (app.environment.name != 'Tangram' || app.tangram.buttonValue.endsWith('check')) {
       this.saveMethodOptions = [['state', 'état'], ...this.saveMethodOptions];
     }
 
-    if (!this.saveMethod) {
+    if (!this.saveMethod || !this.saveMethodOptions.find(opt => opt[0] == this.saveMethod)) {
       this.saveMethod = this.saveMethodOptions[0][0];
     }
 
@@ -155,7 +155,7 @@ class SavePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <color-button id="focus" name="save_popup_submit" @click="${this._actionHandle}" innerText="OK"></color-button>
+          <color-button name="save_popup_submit" @click="${this._actionHandle}" innerText="OK"></color-button>
         </div>
       </template-popup>
     `;
@@ -202,6 +202,8 @@ class SavePopup extends LitElement {
           saveSettings = this.saveSettings,
           saveHistory = this.saveHistory,
           saveMethod = this.saveMethod;
+        if (saveMethod == 'silhouette')
+          saveHistory = false;
         this.remove();
         setTimeout(() =>
           window.dispatchEvent(

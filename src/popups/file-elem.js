@@ -51,7 +51,7 @@ class FileElem extends LitElement {
     }
     let fileDownloaded = await readFileFromServer(this.title);
     let fileDownloadedObject = await fileDownloaded.json();
-    OpenFileManager.parseFile(fileDownloadedObject);
+    OpenFileManager.parseFile(fileDownloadedObject, this.title);
     window.dispatchEvent(new CustomEvent('close-popup'));
   }
 

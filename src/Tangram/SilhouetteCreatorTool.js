@@ -157,6 +157,7 @@ export class SilhouetteCreatorTool extends Tool {
   showStateMenu() {
     setState({
       tangram: {
+        ...app.tangram,
         buttonText: 'Afficher la silhouette',
         buttonValue: 'createSilhouette',
       }

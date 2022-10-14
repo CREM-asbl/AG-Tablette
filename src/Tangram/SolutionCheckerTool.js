@@ -11,12 +11,9 @@ import { Tool } from '../Core/States/Tool';
 import { findObjectsByName, removeObjectById } from '../Core/Tools/general';
 import { TangramManager } from './TangramManager';
 
-/**
- * Créer un tangram
- */
 export class SolutionCheckerTool extends Tool {
   constructor() {
-    super('solveChecker', 'Vérifier solution Tangram', '');
+    super('solveChecker', 'Vérifier la solution d\'un Tangram', '');
 
     this.solutionShapeIds = [];
 
@@ -24,8 +21,9 @@ export class SolutionCheckerTool extends Tool {
       TangramManager.closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();
       const data = e.detail;
-      const level = await TangramManager.selectLevel();
-      await TangramManager.initShapes();
+      const level = await TangramManager.selectLevel(data.tangramLevelSelected);
+      if (data.fileExtension == 'ags')
+        await TangramManager.initShapes();
       if (level == 3 || level == 4) {
         await TangramManager.openForbiddenCanvas();
       }
@@ -45,9 +43,21 @@ export class SolutionCheckerTool extends Tool {
             backObjects: app.tangramCanvasLayer.saveData(),
           },
         },
-        tangram: {...app.defaultState.tangram, isSilhouetteShown },
+        tangram: {...app.defaultState.tangram, isSilhouetteShown, level },
         tool: { name: this.name, currentStep: 'start' }
       });
+      let solutionShapes = findObjectsByName(
+        'tangramChecker',
+        'main'
+      );
+      if (solutionShapes.length > 1) {
+        this.solutionShapeIds = solutionShapes.map(s => s.id);
+        setState({ tangram: {
+          ...app.tangram,
+          buttonText: 'Annuler la vérification',
+          buttonValue: 'uncheck',
+        }})
+      }
     });
   }
 
@@ -68,9 +78,6 @@ export class SolutionCheckerTool extends Tool {
     `;
   }
 
-  /**
-   * initialiser l'état
-   */
   start() {
     this.showStateMenu();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -160,7 +167,8 @@ export class SolutionCheckerTool extends Tool {
   showStateMenu() {
     setState({
       tangram: {
-        buttonText: 'Vérifier solution',
+        ...app.tangram,
+        buttonText: 'Vérifier la solution',
         buttonValue: 'check',
       }
     });

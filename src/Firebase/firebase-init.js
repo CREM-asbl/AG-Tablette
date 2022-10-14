@@ -26,7 +26,7 @@ export async function openFileFromServer(activityName) {
     let fileDownloaded = await readFileFromServer(data.id);
     let fileDownloadedObject = await fileDownloaded.json();
 
-    window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject), {once: true});
+    window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject, activityName), {once: true});
 
     setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(data.environment) });

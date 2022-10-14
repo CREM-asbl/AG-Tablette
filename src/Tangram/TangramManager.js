@@ -3,8 +3,6 @@ import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 import { createElem } from '../Core/Tools/general';
 
-const serverURL = 'https://api.crem.be/';
-
 window.addEventListener('new-window', () => setState({ tangram: {...app.defaultState.tangram } }));
 
 export class TangramManager {
@@ -20,9 +18,11 @@ export class TangramManager {
     window.dispatchEvent(new Event('close-forbidden-canvas'));
   }
 
-  static async selectLevel() {
+  static async selectLevel(level) {
     await import('./level-popup');
-    createElem('level-popup');
+    let elem = createElem('level-popup');
+    if (level)
+      elem.level = level;
     return new Promise((resolve) =>
       window.addEventListener('tangram-level-selected', (e) => resolve(e.detail)),
     );

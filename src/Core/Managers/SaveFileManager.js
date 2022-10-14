@@ -1,5 +1,5 @@
 import { app, setState } from '../App';
-import { createElem } from '../Tools/general';
+import { createElem, getExtension } from '../Tools/general';
 
 export class SaveFileManager {
   static async saveFile() {
@@ -43,7 +43,7 @@ export class SaveFileManager {
         ...opts.types
       ];
     }
-    if (app.environment.name != 'Tangram' || app.tangram.buttonValue == 'check') {
+    if (app.environment.name != 'Tangram' || app.tangram.buttonValue.endsWith('check')) {
       opts.types = [
         {
           description: 'Etat',
@@ -55,7 +55,7 @@ export class SaveFileManager {
       ];
     }
     const handle = await window.showSaveFilePicker(opts);
-    const extension = SaveFileManager.getExtension(handle.name);
+    const extension = getExtension(handle.name);
     SaveFileManager.extension = extension;
     if (extension == 'ags') {
       SaveFileManager.saveMethod = 'silhouette';
@@ -108,7 +108,7 @@ export class SaveFileManager {
           ...event.detail,
         };
         let detail = { ...handle };
-        const extension = SaveFileManager.getExtension(handle.name);
+        const extension = getExtension(handle.name);
         const saveMethod = handle.saveMethod;
         SaveFileManager.extension = extension;
         SaveFileManager.saveMethod = saveMethod;
@@ -127,10 +127,6 @@ export class SaveFileManager {
     );
     import('../../popups/save-popup');
     createElem('save-popup');
-  }
-
-  static getExtension(filename) {
-    return filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
   }
 
   static saveToPng(handle) {
@@ -199,8 +195,8 @@ export class SaveFileManager {
 
     if (!detail.saveHistory) history = undefined;
     if (!detail.saveHistory) fullHistory = undefined;
-    if (app.environment.name == 'Tangram') history = undefined;
-    if (app.environment.name == 'Tangram') fullHistory = undefined;
+    // if (app.environment.name == 'Tangram') history = undefined;
+    // if (app.environment.name == 'Tangram') fullHistory = undefined;
 
     if (!detail.saveSettings) settings = undefined;
 
@@ -209,17 +205,20 @@ export class SaveFileManager {
     //   silhouetteData = app.silhouette.saveToObject();
 
     let saveObject = {
-        appVersion: app.version,
-        timestamp: Date.now(),
-        envName: app.environment.name,
-        wsdata,
-        settings,
-        fullHistory,
-        history,
-        toolsVisible,
-        familiesVisible,
-      },
-      json_data = JSON.stringify(saveObject);
+      appVersion: app.version,
+      timestamp: Date.now(),
+      envName: app.environment.name,
+      wsdata,
+      settings,
+      fullHistory,
+      history,
+      toolsVisible,
+      familiesVisible,
+    };
+    if (app.environment.name == 'Tangram' && detail.saveMethod == 'state') {
+      saveObject.tangramLevelSelected = app.tangram.level;
+    }
+    let json_data = JSON.stringify(saveObject);
 
     if (SaveFileManager.hasNativeFS) {
       SaveFileManager.newWriteFile(handle, json_data);

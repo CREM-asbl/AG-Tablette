@@ -322,7 +322,6 @@ class AGMain extends LitElement {
       case 'help':
         import('./popups/help-popup');
         createElem('help-popup');
-        window.dispatchEvent(new CustomEvent('get-help-text'));
         break;
       default:
         console.info(

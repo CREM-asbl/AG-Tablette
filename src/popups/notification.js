@@ -110,7 +110,6 @@ export class Notification extends LitElement {
   showHelp() {
     import('./help-popup');
     createElem('help-popup');
-    window.dispatchEvent(new CustomEvent('get-help-text'));
   }
 }
 customElements.define('notif-center', Notification);
