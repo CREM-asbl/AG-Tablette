@@ -282,9 +282,6 @@ class AGMain extends LitElement {
     `;
   }
 
-  /**
-   * Main event handler
-   */
   _actionHandle(event) {
     if (app.fullHistory.isRunning) {
       console.info('cannot interact when fullHisto is running');

@@ -130,10 +130,6 @@ export class App {
       },
     });
   }
-
-  start() {
-    window.dispatchEvent(new CustomEvent('app-started'));
-  }
 }
 
 export const app = new App();

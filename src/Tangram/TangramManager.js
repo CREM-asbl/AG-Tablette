@@ -5,6 +5,13 @@ import { createElem } from '../Core/Tools/general';
 
 window.addEventListener('new-window', () => setState({ tangram: {...app.defaultState.tangram } }));
 
+window.addEventListener('app-started', () => {
+  if (!app.fileFromServer) {
+    import('./start-popup.js');
+    createElem('start-popup');
+  }
+}, {once: true});
+
 export class TangramManager {
   static async openForbiddenCanvas() {
     await import('./forbidden-canvas.js');
