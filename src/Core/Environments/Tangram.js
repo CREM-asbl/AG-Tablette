@@ -5,10 +5,10 @@ export default {
     'Rotate',
     'Reverse',
     'Rotate45',
+    'Tangram',
     'Group',
     'Ungroup',
     'Color',
-    'Tangram',
   ],
   extensions: ['.agt', '.ags'],
   settings: {
