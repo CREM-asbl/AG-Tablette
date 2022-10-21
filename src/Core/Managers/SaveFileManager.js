@@ -57,13 +57,6 @@ export class SaveFileManager {
     const handle = await window.showSaveFilePicker(opts);
     const extension = getExtension(handle.name);
     SaveFileManager.extension = extension;
-    if (extension == 'ags') {
-      SaveFileManager.saveMethod = 'silhouette';
-    } else if (extension == 'png' || extension == 'svg') {
-      SaveFileManager.saveMethod = 'image';
-    } else {
-      SaveFileManager.saveMethod = 'state';
-    }
     switch (extension) {
       case 'png':
         SaveFileManager.saveToPng(handle);
@@ -111,7 +104,6 @@ export class SaveFileManager {
         const extension = getExtension(handle.name);
         const saveMethod = handle.saveMethod;
         SaveFileManager.extension = extension;
-        SaveFileManager.saveMethod = saveMethod;
         switch (extension) {
           case 'png':
             SaveFileManager.saveToPng(handle);
@@ -190,9 +182,6 @@ export class SaveFileManager {
       toolsVisible = app.tools.map(tool => { return { name: tool.name, isVisible: tool.isVisible } }),
       familiesVisible = app.environment.families.map(family => { return { name: family.name, isVisible: family.isVisible } });
 
-    SaveFileManager.saveHistory = detail.saveHistory;
-    SaveFileManager.saveSettings = detail.saveSettings;
-
     if (!detail.saveHistory) history = undefined;
     if (!detail.saveHistory) fullHistory = undefined;
     // if (app.environment.name == 'Tangram') history = undefined;
@@ -260,6 +249,4 @@ window.addEventListener('save-file', (event) => {
 // Si ancien ou nouveau systeme de fichier
 SaveFileManager.hasNativeFS = 'showSaveFilePicker' in window;
 
-SaveFileManager.saveSettings = true;
-SaveFileManager.saveHistory = true;
 SaveFileManager.extension = 'agg';

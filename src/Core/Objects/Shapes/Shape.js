@@ -747,6 +747,8 @@ export class Shape {
       _isCenterShown: this.isCenterShown,
       isReversed: this.isReversed,
       isBiface: this.isBiface,
+
+      isOverlappingAnotherInTangram: this.isOverlappingAnotherInTangram,
     };
     if (this.geometryObject) {
       data.geometryObject = this.geometryObject.saveData();

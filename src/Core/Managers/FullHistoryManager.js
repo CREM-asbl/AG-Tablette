@@ -19,6 +19,7 @@ export class FullHistoryManager {
       );
       return;
     }
+    FullHistoryManager.cleanMouseSteps();
     import('../../fullhistory-tools');
     createElem('fullhistory-tools');
     // if called when already running
@@ -34,12 +35,12 @@ export class FullHistoryManager {
         isRunning: true,
       },
     });
+
     FullHistoryManager.saveHistory = { ...app.history };
     FullHistoryManager.setWorkspaceToStartSituation();
 
-    FullHistoryManager.isClicked = false;
+    // FullHistoryManager.isClicked = false;
     FullHistoryManager.nextTime = 0;
-    // FullHistoryManager.executeAllSteps();
   }
 
   static stopBrowsing() {
@@ -74,9 +75,10 @@ export class FullHistoryManager {
 
   static setWorkspaceToStartSituation() {
     app.workspace.initFromObject(app.history.startSituation);
+
     setState({
       settings: { ...app.history.startSettings },
-      history: { ...app.defaultState.history },
+      // history: { ...app.defaultState.history },
     });
   }
 
@@ -85,7 +87,7 @@ export class FullHistoryManager {
 
     let index = app.fullHistory.steps.findIndex(
       (step) => step.detail?.actionIndex === actionIndex - 1,
-      );
+    );
 
     let data = app.fullHistory.steps[index]?.detail.data;
     if (data) {
@@ -150,13 +152,13 @@ export class FullHistoryManager {
       detail.mousePos = new Coordinates(detail.mousePos);
     }
 
-    let nextType = app.fullHistory.steps[index + 1].type;
+    // let nextType = app.fullHistory.steps[index + 1].type;
 
-    if (type == 'canvasMouseUp') {
-      FullHistoryManager.isClicked = false;
-    } else if (type == 'canvasMouseDown') {
-      FullHistoryManager.isClicked = true;
-    }
+    // if (type == 'canvasMouseUp') {
+    //   FullHistoryManager.isClicked = false;
+    // } else if (type == 'canvasMouseDown') {
+    //   FullHistoryManager.isClicked = true;
+    // }
 
     if (type == 'add-fullstep') {
       if (detail.name == 'Retourner') {
@@ -190,12 +192,12 @@ export class FullHistoryManager {
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
-      if (FullHistoryManager.isClicked || nextType == 'objectSelected') {
+      // if (FullHistoryManager.isClicked || nextType == 'objectSelected') {
         window.dispatchEvent(new CustomEvent(type, { detail: detail }));
         window.dispatchEvent(new CustomEvent('show-cursor'));
-      } else {
-        FullHistoryManager.nextTime = -50;
-      }
+      // } else {
+      //   FullHistoryManager.nextTime = -50;
+      // }
     } else if (type == 'setNumberOfParts') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('close-popup'));
@@ -204,6 +206,25 @@ export class FullHistoryManager {
       window.dispatchEvent(new CustomEvent(type));
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+    }
+  }
+
+  static cleanMouseSteps() {
+    let isClicked = false;
+    for (let i = 0; i < app.fullHistory.steps.length - 1; i++) {
+      let { type, _ } = app.fullHistory.steps[i];
+      let nextType = app.fullHistory.steps[i + 1].type;
+
+      if (type == 'canvasMouseUp') {
+        isClicked = false;
+      } else if (type == 'canvasMouseDown') {
+        isClicked = true;
+      }
+
+      if ((type == 'mouse-coordinates-changed' || type == 'canvasMouseMove') && !isClicked && nextType != 'objectSelected') {
+        app.fullHistory.steps.splice(i, 1);
+        i--;
+      }
     }
   }
 

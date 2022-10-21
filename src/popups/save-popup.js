@@ -18,13 +18,10 @@ class SavePopup extends LitElement {
   constructor() {
     super();
     this.filename = 'sans titre';
-    this.saveSettings = SaveFileManager.saveSettings;
-    this.saveHistory = SaveFileManager.saveHistory;
     this.imageFormat =
       SaveFileManager.extension == 'png' || SaveFileManager.extension == 'svg'
         ? SaveFileManager.extension
         : 'png';
-    this.saveMethod = SaveFileManager.saveMethod;
 
     this.saveMethodOptions = [
       ['image', 'image'],
@@ -36,9 +33,10 @@ class SavePopup extends LitElement {
       this.saveMethodOptions = [['state', 'état'], ...this.saveMethodOptions];
     }
 
-    if (!this.saveMethod || !this.saveMethodOptions.find(opt => opt[0] == this.saveMethod)) {
-      this.saveMethod = this.saveMethodOptions[0][0];
-    }
+    this.saveMethod = this.saveMethodOptions[0][0];
+
+    this.saveSettings = true;
+    this.saveHistory = this.saveMethod != 'silhouette';
 
     window.addEventListener('close-popup', () => this.close());
   }

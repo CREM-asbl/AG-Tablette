@@ -133,7 +133,6 @@ export class MoveTool extends Tool {
    */
   refreshStateUpper() {
     if (app.tool.currentStep == 'move') {
-
       if (this.shapesToMove.length == 1 && this.shapesToMove[0].name == 'PointOnLine') {
         let s = this.shapesToMove[0];
 

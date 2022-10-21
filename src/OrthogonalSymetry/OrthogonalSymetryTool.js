@@ -377,10 +377,6 @@ export class OrthogonalSymetryTool extends Tool {
         divPt.endpointIds.push(newShapes[shapeIndex].points[pointIndex].id);
       });
     });
-    // if (newShapes.length > 1) {
-    //   let group = new ShapeGroup(...newShapes.map(s => s.id));
-    //   GroupManager.addGroup(group);
-    // }
   }
 
   reverseShape(shape, selectedAxis) {

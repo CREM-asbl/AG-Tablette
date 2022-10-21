@@ -100,7 +100,7 @@ class FullHistoryTools extends LitElement {
 
           top: 0vh;
           width: ${app.settings.mainMenuWidth}px;
-          height: 100vh;
+          height: calc(100 * var(--vh));
 
           scrollbar-width: thin;
         }
@@ -141,8 +141,8 @@ class FullHistoryTools extends LitElement {
         .action-button {
           margin: 5px 2px 5px 2px;
           width: calc((100% - 2 * 5px - 3 * 2 * 2px) / 3);
-          height: 2vh;
-          height: calc(var(--vh, 1vh) * 5);
+          // height: 2vh;
+          height: 40px;
           border-radius: 3px;
           box-shadow: 0px 0px 5px var(--menu-shadow-color);
           border: none;

@@ -15,8 +15,6 @@ export class SolutionCheckerTool extends Tool {
   constructor() {
     super('solveChecker', 'Vérifier la solution d\'un Tangram', '');
 
-    this.solutionShapeIds = [];
-
     window.addEventListener('file-parsed', async (e) => {
       TangramManager.closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();
@@ -35,14 +33,6 @@ export class SolutionCheckerTool extends Tool {
         isSilhouetteShown = true;
       }
       setState({
-        history: {
-          ...app.history,
-          startSituation: {
-            ...app.history.startSituation,
-            objects: app.mainCanvasLayer.saveData(),
-            backObjects: app.tangramCanvasLayer.saveData(),
-          },
-        },
         tangram: {...app.defaultState.tangram, isSilhouetteShown, level },
         tool: { name: this.name, currentStep: 'start' }
       });
@@ -51,12 +41,29 @@ export class SolutionCheckerTool extends Tool {
         'main'
       );
       if (solutionShapes.length > 1) {
-        this.solutionShapeIds = solutionShapes.map(s => s.id);
         setState({ tangram: {
           ...app.tangram,
           buttonText: 'Annuler la vérification',
           buttonValue: 'uncheck',
         }})
+      }
+
+      if (app.history.startSituation == null) {
+        setState({
+          history: {
+            ...app.defaultState.history,
+            startSituation: {
+              ...app.workspace.data,
+              tangram: {
+                isSilhouetteShown: true,
+                currentStep: 'start',
+                buttonText: 'Vérifier la solution',
+                buttonValue: 'check',
+              }
+            },
+            startSettings: { ...app.settings },
+          },
+        });
       }
     });
   }
@@ -158,7 +165,8 @@ export class SolutionCheckerTool extends Tool {
   }
 
   objectSelected(object) {
-    let index = this.solutionShapeIds.findIndex((id) => object.id == id);
+    let solutionShapes = app.mainCanvasLayer.shapes.filter(shape => shape.name == "tangramChecker");
+    let index = solutionShapes.findIndex((s) => object.id == s.id);
     if (index == -1) {
       setState({ tangram: { ...app.tangram, currentStep: 'uncheck' }})
     }
@@ -187,12 +195,10 @@ export class SolutionCheckerTool extends Tool {
     solutionShapes.forEach((s) =>
       removeObjectById(s.id),
     );
-    this.solutionShapeIds = [];
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   checkSolution() {
-    this.solutionShapeIds = [];
 
     let segmentsList = this.checkGroupMerge(
       app.tangramCanvasLayer.shapes,
@@ -219,7 +225,6 @@ export class SolutionCheckerTool extends Tool {
         y: 0,
       }).multiply(1 / app.workspace.zoomLevel);
       shape.translate(translateOffset);
-      this.solutionShapeIds.push(shape.id);
       shapes.push(shape);
     });
 
@@ -236,9 +241,9 @@ export class SolutionCheckerTool extends Tool {
       shapes.forEach((s) => s.homothety(10 / 6, center));
     }
 
-    if (this.solutionShapeIds.length > 1) {
+    if (shapes.length > 1) {
       let userGroup = new ShapeGroup(0, 1);
-      userGroup.shapesIds = [...this.solutionShapeIds];
+      userGroup.shapesIds = shapes.map(s => s.id);
       GroupManager.addGroup(userGroup);
     }
 

@@ -206,26 +206,47 @@ export class OpenFileManager {
       });
     }
 
-    if (saveObject.history) {
-      setState({
-        history: { ...saveObject.history },
-      });
-    } else {
-      setState({
-        history: {
-          ...app.defaultState.history,
-          startSituation: {
-            ...app.workspace.data,
-            tangram: {
-              isSilhouetteShown: true,
-              currentStep: 'start',
-              buttonText: 'Vérifier la solution',
-              buttonValue: 'check',
-            }
+    if (app.environment.name == 'Tangram') {
+      if (saveObject.history) {
+        setState({
+          history: {
+            ...saveObject.history,
+            startSituation: {
+              ...saveObject.history.startSituation,
+              tangram: {
+                isSilhouetteShown: true,
+                currentStep: 'start',
+                buttonText: 'Vérifier la solution',
+                buttonValue: 'check',
+              }
+            },
           },
-          startSettings: { ...app.settings },
-        },
-      });
+        });
+      } else {
+        setState({
+          history: {
+            ...app.defaultState.history,
+            startSituation: null,
+            startSettings: { ...app.settings },
+          },
+        });
+      }
+    } else {
+      if (saveObject.history) {
+        setState({
+          history: { ...saveObject.history },
+        });
+      } else {
+        setState({
+          history: {
+            ...app.defaultState.history,
+            startSituation: {
+              ...app.workspace.data,
+            },
+            startSettings: { ...app.settings },
+          },
+        });
+      }
     }
 
     if (saveObject.toolsVisible) {
