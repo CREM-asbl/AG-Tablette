@@ -15,7 +15,7 @@ import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
  */
 export class MoveTool extends Tool {
   constructor() {
-    super('move', 'Déplacer', 'move');
+    super('move', 'Glisser', 'move');
 
     // listen-canvas-click -> move
     this.currentStep = null;
