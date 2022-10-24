@@ -9,7 +9,6 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
-import { duplicateShape } from '../Core/Tools/shapesTools';
 import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
 
 /**
@@ -101,7 +100,17 @@ export class CopyTool extends Tool {
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
     this.drawingShapes = this.involvedShapes.map((s) => {
-      let newShape = duplicateShape(s);
+      let newShape = new s.constructor({
+        ...s,
+        layer: 'upper',
+        path: s.getSVGPath('no scale', false),
+        segmentsColor: s.segments.map((seg) => {
+          return seg.color;
+        }),
+        pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
+          return pt.color;
+        }),
+      });
       newShape.translate(this.translateOffset);
       return newShape;
     });
@@ -144,6 +153,7 @@ export class CopyTool extends Tool {
         this.shapesToMove,
         mainShape,
       );
+      console.log(mainShape, mainShape.centerCoordinates)
       this.lastAdjusment = {
         ...adjustment,
         centerCoord: new Coordinates(mainShape.centerCoordinates),
