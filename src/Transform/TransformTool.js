@@ -205,7 +205,15 @@ export class TransformTool extends Tool {
           point.shape.geometryObject.geometryParentObjectId1
         ).shape;
       }
-      constraintShape.geometryObject.geometryIsConstaintDraw = 'visible';
+
+      new constraintShape.constructor({
+        layer: 'upper',
+        path: constraintShape.getSVGPath('no scale', true),
+        id: undefined,
+        isPointed: false,
+        strokeWidth: 2,
+        strokeColor: app.settings.constraintsDrawColor,
+      });
     }
 
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })

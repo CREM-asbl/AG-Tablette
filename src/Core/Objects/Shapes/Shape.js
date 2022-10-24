@@ -28,10 +28,6 @@ export class Shape {
    * @param {Boolean}                     isCenterShown
    * @param {Boolean}                     isReversed
    * @param {Boolean}                     isBiface
-   * @param {*}                           geometryConstructionSpec // à enlever (recalculer si besoin)
-   * @param {*}                           referenceId // temporaire
-   * @param {*}                           referenceSegmentIdx // temporaire
-   * @param {*}                           hasGeometryReferenced // temporaire
    */
   constructor({
     id,
@@ -69,7 +65,7 @@ export class Shape {
     this.name = name;
     this.familyName = familyName;
 
-    this.isPointed = isPointed; // used for path, do not move
+    this.isPointed = isPointed; // used for path construcion, do not move
     if (path) {
       this.setSegmentsFromPath(path);
       this._isCenterShown = false;

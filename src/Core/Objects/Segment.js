@@ -1,5 +1,5 @@
 import { app } from '../App';
-import { addInfoToId, isAlmostInfinite, mod, removeObjectById, uniqId } from '../Tools/general';
+import { addInfoToId, findObjectById, isAlmostInfinite, mod, removeObjectById, uniqId } from '../Tools/general';
 import { Bounds } from './Bounds';
 import { Coordinates } from './Coordinates';
 import { Point } from './Point';
@@ -82,21 +82,19 @@ export class Segment {
     } else {
       this.vertexIds = [...vertexIds];
       this.vertexIds.forEach((vxId) =>
-        this.canvasLayer.points
-          .find((pt) => pt.id === vxId)
+        findObjectById(vxId)
           .segmentIds.push(this.id),
       );
       this.divisionPointIds = [...divisionPointIds];
       this.divisionPointIds.forEach((dptId) =>
-        this.canvasLayer.points
-          .find((pt) => pt.id === dptId)
+        findObjectById(dptId)
           .segmentIds.push(this.id),
       );
       this.shapeId = shapeId;
-      if (this.shapeId !== undefined)
-        this.canvasLayer.shapes
-          .find((s) => s.id === this.shapeId)
+      if (this.shapeId !== undefined) {
+        findObjectById(this.shapeId)
           .segmentIds.push(this.id);
+      }
       this.arcCenterId = arcCenterId;
     }
     this.counterclockwise = counterclockwise;
@@ -115,9 +113,7 @@ export class Segment {
   }
 
   get shape() {
-    let shape = this.canvasLayer.shapes.find(
-      (s) => s.id === this.shapeId,
-    );
+    let shape = findObjectById(this.shapeId);
     return shape;
   }
 
@@ -128,22 +124,20 @@ export class Segment {
 
   get vertexes() {
     let vertexes = this.vertexIds.map((ptId) =>
-      this.canvasLayer.points.find((pt) => pt.id === ptId),
+      findObjectById(ptId)
     );
     return vertexes;
   }
 
   get divisionPoints() {
     let divisionPoints = this.divisionPointIds.map((ptId) =>
-      this.canvasLayer.points.find((pt) => pt.id === ptId),
+      findObjectById(ptId)
     );
     return divisionPoints;
   }
 
   get arcCenter() {
-    let arcCenter = this.canvasLayer.points.find(
-      (pt) => pt.id === this.arcCenterId,
-    );
+    let arcCenter = findObjectById(this.arcCenterId);
     return arcCenter;
   }
 
