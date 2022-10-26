@@ -153,7 +153,6 @@ export class CopyTool extends Tool {
         this.shapesToMove,
         mainShape,
       );
-      console.log(mainShape, mainShape.centerCoordinates)
       this.lastAdjusment = {
         ...adjustment,
         centerCoord: new Coordinates(mainShape.centerCoordinates),

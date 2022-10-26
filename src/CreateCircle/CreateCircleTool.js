@@ -96,9 +96,6 @@ export class CreateCircleTool extends Tool {
     );
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     this.removeListeners();
     this.stopAnimation();
