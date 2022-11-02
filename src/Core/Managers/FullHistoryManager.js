@@ -19,7 +19,7 @@ export class FullHistoryManager {
       );
       return;
     }
-    FullHistoryManager.cleanMouseSteps();
+    FullHistoryManager.cleanHisto();
     import('../../fullhistory-tools');
     createElem('fullhistory-tools');
     // if called when already running
@@ -226,6 +226,26 @@ export class FullHistoryManager {
         i--;
       }
     }
+  }
+
+  static cleanColorMultiplication() {
+    for (let i = 0; i < app.fullHistory.steps.length - 2; i++) {
+      let { type, detail} = app.fullHistory.steps[i];
+      let nextType = app.fullHistory.steps[i + 1].type;
+      let nextNextType = app.fullHistory.steps[i + 2].type;
+      let nextNextDetail = app.fullHistory.steps[i + 2].detail;
+
+      if (type == 'tool-changed' && detail.name == 'color' && detail.currentStep == 'listen' && nextType == 'settings-changed' && nextNextType == 'tool-changed' && nextNextDetail.name == 'color' && nextNextDetail.currentStep == 'listen') {
+        app.fullHistory.steps.splice(i, 1);
+        app.fullHistory.steps.splice(i, 1);
+        i--;
+      }
+    }
+  }
+
+  static cleanHisto() {
+    FullHistoryManager.cleanColorMultiplication();
+    FullHistoryManager.cleanMouseSteps();
   }
 
   /**

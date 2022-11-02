@@ -22,8 +22,8 @@ export class Point {
     id,
     layer,
     coordinates = undefined,
-    x = 0,
-    y = 0,
+    // x = 0,
+    // y = 0,
     shapeId = undefined,
     idx = undefined,
     segmentIds = [],
@@ -49,8 +49,8 @@ export class Point {
       this.coordinates = new Coordinates(coordinates);
     else
       this.coordinates = new Coordinates({
-        x: parseFloat(x),
-        y: parseFloat(y),
+        x: 0,//parseFloat(x),
+        y: 0,//parseFloat(y),
       });
 
     this.shapeId = shapeId;
@@ -479,17 +479,37 @@ export class Point {
       position: this.layer,
       idx: this.idx,
       segmentIds: [...this.segmentIds],
-      type: this.type,
-      name: this.name,
-      ratio: this.ratio,
-      visible: this.visible,
-      color: this.color,
-      size: this.size,
-      reference: this.reference,
-      endpointIds: [...this.endpointIds],
-      transformConstraints: {...this.transformConstraints},
-      geometryIsVisible: this.geometryIsVisible,
+      // type: this.type,
+      // name: this.name,
+      // ratio: this.ratio,
+      // visible: this.visible,
+      // color: this.color,
+      // size: this.size,
+      // reference: this.reference,
+      // endpointIds: [...this.endpointIds],
+      // geometryIsVisible: this.geometryIsVisible,
+      // transformConstraints: {...this.transformConstraints}, // not sure if we can remove from save
     };
+
+    if (this.type != undefined)
+      data.type = this.type;
+    if (this.name != undefined)
+      data.name = this.name;
+    if (this.ratio != undefined)
+      data.ratio = this.ratio;
+    if (this.visible !== true)
+      data.visible = this.visible;
+    if (this.color !== '#000')
+      data.color = this.color;
+    if (this.size !== 1)
+      data.size = this.size;
+    if (this.reference !== null)
+      data.reference = this.reference;
+    if (this.endpointIds.length !== 0)
+      data.endpointIds = [...this.endpointIds];
+
+    if (this.geometryIsVisible !== true)
+      data.geometryIsVisible = this.geometryIsVisible;
     return data;
   }
 

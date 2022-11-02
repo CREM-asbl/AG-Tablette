@@ -41,23 +41,55 @@ export class GeometryObject {
 
   saveData() {
     let data = {
-      geometryChildShapeIds: [...this.geometryChildShapeIds],
-      geometryConstructionSpec: {...this.geometryConstructionSpec},
-      geometryParentObjectId1: this.geometryParentObjectId1,
-      geometryParentObjectId2: this.geometryParentObjectId2,
-      geometryTransformationChildShapeIds: [...this.geometryTransformationChildShapeIds],
-      geometryTransformationParentShapeId: this.geometryTransformationParentShapeId,
-      geometryTransformationCharacteristicElementIds: [...this.geometryTransformationCharacteristicElementIds],
-      geometryTransformationName: this.geometryTransformationName,
-      geometryIsVisible: this.geometryIsVisible,
-      geometryIsHidden: this.geometryIsHidden,
-      geometryIsVisibleByChoice: this.geometryIsVisibleByChoice,
-      geometryDuplicateChildShapeIds: [...this.geometryDuplicateChildShapeIds],
-      geometryDuplicateParentShapeId: this.geometryDuplicateParentShapeId,
-      geometryDuplicateInfos: {...this.geometryDuplicateInfos},
-      geometryIsConstaintDraw: this.geometryIsConstaintDraw,
-      geometryPointOnTheFlyChildId: this.geometryPointOnTheFlyChildId,
+      // geometryChildShapeIds: [...this.geometryChildShapeIds],
+      // geometryConstructionSpec: {...this.geometryConstructionSpec},
+      // geometryParentObjectId1: this.geometryParentObjectId1,
+      // geometryParentObjectId2: this.geometryParentObjectId2,
+      // geometryTransformationChildShapeIds: [...this.geometryTransformationChildShapeIds],
+      // geometryTransformationParentShapeId: this.geometryTransformationParentShapeId,
+      // geometryTransformationCharacteristicElementIds: [...this.geometryTransformationCharacteristicElementIds],
+      // geometryTransformationName: this.geometryTransformationName,
+      // geometryIsVisible: this.geometryIsVisible,
+      // geometryIsHidden: this.geometryIsHidden,
+      // geometryIsVisibleByChoice: this.geometryIsVisibleByChoice,
+      // geometryDuplicateChildShapeIds: [...this.geometryDuplicateChildShapeIds],
+      // geometryDuplicateParentShapeId: this.geometryDuplicateParentShapeId,
+      // geometryDuplicateInfos: {...this.geometryDuplicateInfos},
+      // geometryIsConstaintDraw: this.geometryIsConstaintDraw,
+      // geometryPointOnTheFlyChildId: this.geometryPointOnTheFlyChildId,
     };
+    if (this.geometryChildShapeIds.length !== 0)
+      data.geometryChildShapeIds = [...this.geometryChildShapeIds];
+    if (Object.keys(this.geometryConstructionSpec).length !== 0)
+      data.geometryConstructionSpec = {...this.geometryConstructionSpec};
+    if (this.geometryParentObjectId1 !== null)
+      data.geometryParentObjectId1 = this.geometryParentObjectId1;
+    if (this.geometryParentObjectId2 !== null)
+      data.geometryParentObjectId2 = this.geometryParentObjectId2;
+    if (this.geometryTransformationChildShapeIds.length !== 0)
+      data.geometryTransformationChildShapeIds = [...this.geometryTransformationChildShapeIds];
+    if (this.geometryTransformationParentShapeId !== null)
+      data.geometryTransformationParentShapeId = this.geometryTransformationParentShapeId;
+    if (this.geometryTransformationCharacteristicElementIds.length !== 0)
+      data.geometryTransformationCharacteristicElementIds = [...this.geometryTransformationCharacteristicElementIds];
+    if (this.geometryTransformationName !== null)
+      data.geometryTransformationName = this.geometryTransformationName;
+    if (this.geometryIsVisible !== true)
+      data.geometryIsVisible = this.geometryIsVisible;
+    if (this.geometryIsHidden !== false)
+      data.geometryIsHidden = this.geometryIsHidden;
+    if (this.geometryIsVisibleByChoice !== true)
+      data.geometryIsVisibleByChoice = this.geometryIsVisibleByChoice;
+    if (this.geometryDuplicateChildShapeIds.length !== 0)
+      data.geometryDuplicateChildShapeIds = [...this.geometryDuplicateChildShapeIds];
+    if (this.geometryDuplicateParentShapeId !== null)
+      data.geometryDuplicateParentShapeId = this.geometryDuplicateParentShapeId;
+    if (this.geometryDuplicateInfos.rotationAngle !== null && this.geometryDuplicateInfos.parentFirstPointCoordinates !== null)
+      data.geometryDuplicateInfos = {...this.geometryDuplicateInfos};
+    if (this.geometryIsConstaintDraw !== false)
+      data.geometryIsConstaintDraw = this.geometryIsConstaintDraw;
+    if (this.geometryPointOnTheFlyChildId !== null)
+      data.geometryPointOnTheFlyChildId = this.geometryPointOnTheFlyChildId;
     return data;
   }
 

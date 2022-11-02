@@ -220,9 +220,9 @@ export class SelectManager {
       return constrainedPoints;
     }
 
-    let notHiddenPoints = constrainedPoints;
+    // let notHiddenPoints = constrainedPoints;
     if (constraints.blockHidden) {
-      notHiddenPoints = [];
+      // notHiddenPoints = [];
       const shapes = ShapeManager.shapesThatContainsCoordinates(
         mouseCoordinates,
       );
@@ -233,25 +233,31 @@ export class SelectManager {
             let otherShapeIndex = ShapeManager.getShapeIndex(s);
             return otherShapeIndex <= shapeIndex;
           })
-        )
-          notHiddenPoints.push(pt);
+        ) {
+          pt.isBehindShape = false;
+        } else {
+          pt.isBehindShape = true;
+        }
+          // notHiddenPoints.push(pt);
       });
 
       // if no possibilities
-      if (notHiddenPoints.length == 0) return null;
+      // if (notHiddenPoints.length == 0) return null;
+      if (!constrainedPoints.find(pt => pt.isBehindShape == false)) return false
     }
 
     if (constraints.numberOfObjects == 'one')
-      return notHiddenPoints[0];
+      return constrainedPoints.find(pt => pt.isBehindShape == false);//notHiddenPoints[0];
     else if (constraints.numberOfObjects == 'allSuperimposed') {
-      let coordPt1 = notHiddenPoints[0].coordinates;
-      let i = 1;
-      for (; i < notHiddenPoints.length; i++) {
-        if (coordPt1.dist(notHiddenPoints[i]) > 0.01) {
-          return notHiddenPoints.slice(0, i);
+      let firstPointCoord = constrainedPoints.find(pt => pt.isBehindShape == false).coordinates;
+      // let coordPt1 = constrainedPoints[firstPointIndex].coordinates//notHiddenPoints[0].coordinates;
+      let i = 0;//1;
+      for (; i < constrainedPoints.length; i++) {
+        if (firstPointCoord.dist(constrainedPoints[i]) > 0.01) {
+          return constrainedPoints.slice(0, i);
         }
       }
-      return notHiddenPoints.slice(0, i);
+      return constrainedPoints.slice(0, i);
     }
   }
 

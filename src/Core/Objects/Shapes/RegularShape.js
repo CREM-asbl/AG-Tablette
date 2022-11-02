@@ -722,8 +722,12 @@ export class RegularShape extends Shape {
   saveData() {
     let data = super.saveData();
     data.type = 'RegularShape';
-    data.fillColor = this.fillColor;
-    data.fillOpacity = this.fillOpacity;
+    // data.fillColor = this.fillColor;
+    // data.fillOpacity = this.fillOpacity;
+    if (this.fillColor !== '#aaa')
+      data.fillColor = this.fillColor;
+    if (this.fillOpacity !== 0.7)
+      data.fillOpacity = this.fillOpacity;
     return data;
   }
 

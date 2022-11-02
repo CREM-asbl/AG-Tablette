@@ -1,5 +1,6 @@
 import { app, setState } from '../App';
 import { createElem, getExtension } from '../Tools/general';
+import { FullHistoryManager } from './FullHistoryManager';
 
 export class SaveFileManager {
   static async saveFile() {
@@ -175,6 +176,7 @@ export class SaveFileManager {
   }
 
   static saveState(handle, detail) {
+    FullHistoryManager.cleanHisto();
     let wsdata = app.workspace.data,
       settings = { ...app.settings },
       history = { ...app.history },
@@ -182,8 +184,10 @@ export class SaveFileManager {
       toolsVisible = app.tools.map(tool => { return { name: tool.name, isVisible: tool.isVisible } }),
       familiesVisible = app.environment.families.map(family => { return { name: family.name, isVisible: family.isVisible } });
 
-    if (!detail.saveHistory) history = undefined;
-    if (!detail.saveHistory) fullHistory = undefined;
+    if (!detail.saveHistory)
+      history = undefined;
+    if (!detail.saveHistory)
+      fullHistory = undefined;
     // if (app.environment.name == 'Tangram') history = undefined;
     // if (app.environment.name == 'Tangram') fullHistory = undefined;
 

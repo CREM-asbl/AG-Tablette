@@ -1,9 +1,11 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 import { duplicateShape } from '../Core/Tools/shapesTools';
@@ -166,6 +168,9 @@ export class TransformTool extends Tool {
       }
     });
 
+    involvedShapes.sort((s1, s2) => {
+      return ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2);
+    });
     this.drawingShapes = involvedShapes.map(
       (s) => duplicateShape(s)
     );
@@ -194,21 +199,21 @@ export class TransformTool extends Tool {
     );
 
     if (point.shape.name == 'PointOnLine') {
-      let constraintShape = findObjectById(
+      let constraintSegment = findObjectById(
         addInfoToId(
           point.shape.geometryObject.geometryParentObjectId1,
           'upper'
         )
-      )?.shape;
-      if (!constraintShape) {
-        constraintShape = findObjectById(
+      );
+      if (!constraintSegment) {
+        constraintSegment = findObjectById(
           point.shape.geometryObject.geometryParentObjectId1
-        ).shape;
+        );
       }
 
-      new constraintShape.constructor({
+      new LineShape({
         layer: 'upper',
-        path: constraintShape.getSVGPath('no scale', true),
+        path: constraintSegment.getSVGPath('no scale', true),
         id: undefined,
         isPointed: false,
         strokeWidth: 2,

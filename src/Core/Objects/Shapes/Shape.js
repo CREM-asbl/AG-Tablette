@@ -721,31 +721,51 @@ export class Shape {
     this.vertexes.forEach((vx, idx) => (vx.idx = idx));
   }
 
+  // check if property is different from default value is for save size reduction
   saveData() {
     let data = {
       id: this.id,
       position: this.layer,
-      type: 'newShape',
+      type: 'Shape',
 
       path: this.getSVGPath(false),
       segmentIds: [...this.segmentIds],
       pointIds: [...this.pointIds],
 
-      name: this.name,
-      familyName: this.familyName,
-      color: this.color,
+      // name: this.name,
+      // familyName: this.familyName,
 
-      strokeColor: this.strokeColor,
-      strokeWidth: this.strokeWidth,
+      // strokeColor: this.strokeColor,
+      // strokeWidth: this.strokeWidth,
 
-      isPointed: this.isPointed,
-      size: this.size,
+      // isPointed: this.isPointed,
+      // size: this.size,
       _isCenterShown: this.isCenterShown,
-      isReversed: this.isReversed,
-      isBiface: this.isBiface,
+      // isReversed: this.isReversed,
+      // isBiface: this.isBiface,
 
-      isOverlappingAnotherInTangram: this.isOverlappingAnotherInTangram,
+      // isOverlappingAnotherInTangram: this.isOverlappingAnotherInTangram,
     };
+    if (this.name !== 'Custom')
+      data.name = this.name;
+    if (this.familyName !== 'Custom')
+      data.familyName = this.familyName;
+    if (this.strokeColor !== '#000')
+      data.strokeColor = this.strokeColor;
+    if (this.strokeWidth !== 1)
+      data.strokeWidth = this.strokeWidth;
+    if (this.isPointed !== true)
+      data.isPointed = this.isPointed;
+    if (this.size !== 2)
+      data.size = this.size;
+    if (this.isReversed !== false)
+      data.isReversed = this.isReversed;
+    if (this.isBiface !== false)
+      data.isBiface = this.isBiface;
+
+    if (this.isOverlappingAnotherInTangram)
+      data.isOverlappingAnotherInTangram = this.isOverlappingAnotherInTangram;
+
     if (this.geometryObject) {
       data.geometryObject = this.geometryObject.saveData();
     }

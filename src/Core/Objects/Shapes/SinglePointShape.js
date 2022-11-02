@@ -501,8 +501,8 @@ export class SinglePointShape extends Shape {
   saveData() {
     let data = super.saveData();
     data.type = 'SinglePointShape';
-    data.fillColor = this.fillColor;
-    data.fillOpacity = this.fillOpacity;
+    // data.fillColor = this.fillColor;
+    // data.fillOpacity = this.fillOpacity;
     return data;
   }
 

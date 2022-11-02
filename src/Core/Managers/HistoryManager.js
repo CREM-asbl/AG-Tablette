@@ -116,21 +116,19 @@ export class HistoryManager {
       gridType: app.settings.gridType,
       gridSize: app.settings.gridSize,
     };
-    data.tangram = {
-      isSilhouetteShown: app.tangram?.isSilhouetteShown,
-      buttonText: app.tangram?.buttonText,
-      buttonValue: app.tangram?.buttonValue,
-    };
+    if (app.environment.name == 'Tangram') {
+      data.tangram = {
+        isSilhouetteShown: app.tangram?.isSilhouetteShown,
+        buttonText: app.tangram?.buttonText,
+        buttonValue: app.tangram?.buttonValue,
+      };
+    }
 
     return data;
   }
 }
 
 window.addEventListener('actions-executed', () => HistoryManager.addStep());
-
-window.addEventListener('update-history', (event) =>
-  HistoryManager.updateHistory(event.detail),
-);
 
 window.addEventListener('undo', () => {
   HistoryManager.undo();

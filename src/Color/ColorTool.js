@@ -87,6 +87,7 @@ export class ColorTool extends Tool {
       constraints.segments.blockHidden = true; // sûr ?
       constraints.points.canSelect = true;
       constraints.points.blockHidden = true; // sûr ?
+      constraints.points.numberOfObjects = 'allSuperimposed';
     }
     app.workspace.selectionConstraints = constraints;
   }
@@ -121,8 +122,10 @@ export class ColorTool extends Tool {
             s.fillColor = app.settings.drawColor;
           }
         });
-      } else {
+      } else if (this.object instanceof Segment) {
         this.object.color = app.settings.drawColor;
+      } else {
+        this.object.forEach(obj => obj.color = app.settings.drawColor);
       }
     } else if (this.clickType == 'long') {
       let involvedShapes = ShapeManager.getAllBindedShapes(this.object);

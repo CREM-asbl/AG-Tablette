@@ -1019,14 +1019,29 @@ export class Segment {
       position: this.layer,
       idx: this.idx,
       vertexIds: [...this.vertexIds],
-      divisionPointIds: [...this.divisionPointIds],
-      arcCenterId: this.arcCenterId,
-      counterclockwise: this.counterclockwise,
-      isInfinite: this.isInfinite,
-      isSemiInfinite: this.isSemiInfinite,
-      color: this.color,
-      width: this.width,
+      // divisionPointIds: [...this.divisionPointIds],
+      // arcCenterId: this.arcCenterId,
+      // counterclockwise: this.counterclockwise,
+      // isInfinite: this.isInfinite,
+      // isSemiInfinite: this.isSemiInfinite,
+      // color: this.color,
+      // width: this.width,
     };
+
+    if (this.divisionPointIds.length !== 0)
+      data.divisionPointIds = [...this.divisionPointIds];
+    if (this.arcCenterId != undefined)
+      data.arcCenterId = this.arcCenterId;
+    if (this.counterclockwise !== false)
+      data.counterclockwise = this.counterclockwise;
+    if (this.isInfinite !== false)
+      data.isInfinite = this.isInfinite;
+    if (this.isSemiInfinite !== false)
+      data.isSemiInfinite = this.isSemiInfinite;
+    if (this.color != undefined)
+      data.color = this.color;
+    if (this.width !== 1)
+      data.width = this.width;
     return data;
   }
 
@@ -1039,6 +1054,7 @@ export class Segment {
     });
     Object.assign(segment, data);
     segment.vertexIds = [...data.vertexIds];
-    segment.divisionPointIds = [...data.divisionPointIds];
+    if (data.divisionPointIds)
+      segment.divisionPointIds = [...data.divisionPointIds];
   }
 }
