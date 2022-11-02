@@ -240,6 +240,9 @@ class CanvasLayer extends LitElement {
     this.removeAllObjects();
     if (data != undefined) {
       data.shapesData.forEach((shapeData) => {
+        if (isFinite(shapeData.indexOfReference)) {
+          shapeData = app.history.steps[shapeData.indexOfReference].objects.shapesData.find(s => s.id == shapeData.id);
+        }
         if (shapeData.type == 'Shape')
           Shape.loadFromData(shapeData);
         else if (shapeData.type == 'RegularShape')
@@ -262,10 +265,18 @@ class CanvasLayer extends LitElement {
           }
         }
       });
-      data.segmentsData.forEach((segmentData) =>
-        Segment.loadFromData(segmentData),
-      );
-      data.pointsData.forEach((pointData) => Point.loadFromData(pointData));
+      data.segmentsData.forEach((segmentData) => {
+        if (isFinite(segmentData.indexOfReference)) {
+          segmentData = app.history.steps[segmentData.indexOfReference].objects.segmentsData.find(seg => seg.id == segmentData.id);
+        }
+        Segment.loadFromData(segmentData);
+      });
+      data.pointsData.forEach((pointData) => {
+        if (isFinite(pointData.indexOfReference)) {
+          pointData = app.history.steps[pointData.indexOfReference].objects.pointsData.find(pt => pt.id == pointData.id);
+        }
+        Point.loadFromData(pointData);
+      });
       this.redraw();
     } else {
       console.info('nothing to see here');

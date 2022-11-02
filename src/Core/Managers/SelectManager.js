@@ -221,6 +221,7 @@ export class SelectManager {
     }
 
     // let notHiddenPoints = constrainedPoints;
+    constrainedPoints.forEach(pt => pt.isBehindShape = false);
     if (constraints.blockHidden) {
       // notHiddenPoints = [];
       const shapes = ShapeManager.shapesThatContainsCoordinates(
@@ -229,13 +230,13 @@ export class SelectManager {
       constrainedPoints.forEach((pt) => {
         let shapeIndex = ShapeManager.getShapeIndex(pt.shape);
         if (
-          shapes.every((s) => {
+          !shapes.every((s) => {
             let otherShapeIndex = ShapeManager.getShapeIndex(s);
             return otherShapeIndex <= shapeIndex;
           })
         ) {
-          pt.isBehindShape = false;
-        } else {
+          // pt.isBehindShape = false;
+        // } else {
           pt.isBehindShape = true;
         }
           // notHiddenPoints.push(pt);
