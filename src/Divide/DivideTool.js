@@ -288,7 +288,7 @@ export class DivideTool extends Tool {
               secondCoordinates.y,
             ].join(' ');
           }
-          if (path2) {
+          if (mustChooseArc) {
             this.lines = [new LineShape({
               layer: 'upper',
               strokeColor: this.drawColors[idx + 1],

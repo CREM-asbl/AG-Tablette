@@ -5,12 +5,13 @@ import { Coordinates } from '../Coordinates';
 import { Point } from '../Point';
 import { Segment } from '../Segment';
 import { GeometryObject } from './GeometryObject';
+import { RegularShape } from './RegularShape';
 import { Shape } from './Shape';
 
 /**
- * Représente une figure classique (rectangle, disque, ...)
+ * Représente un cube
  */
-export class RegularShape extends Shape {
+export class CubeShape extends RegularShape {
 
   constructor({
     id,
@@ -135,7 +136,8 @@ export class RegularShape extends Shape {
       let coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex' || allPathElements.length != 0) {
+      let lastPointDrawn = this.points[this.points.length - 1];
+      if (lastVertex == undefined || lastVertex.type != 'vertex' || (lastPointDrawn.coordinates.equal(coordinates) && lastPointDrawn.type == 'vertex')) {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
@@ -718,7 +720,7 @@ export class RegularShape extends Shape {
 
   saveData() {
     let data = super.saveData();
-    data.type = 'RegularShape';
+    data.type = 'CubeShape';
     // data.fillColor = this.fillColor;
     // data.fillOpacity = this.fillOpacity;
     if (this.fillColor !== '#aaa')
@@ -732,7 +734,7 @@ export class RegularShape extends Shape {
     if (!data.position) {
       data.position = 'main';
     }
-    let shape = new RegularShape({
+    let shape = new CubeShape({
       layer: data.position,
     });
     Object.assign(shape, data);

@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { CubeShape } from '../Core/Objects/Shapes/CubeShape';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
@@ -156,8 +157,14 @@ export class CreateTool extends Tool {
         size: shapeSize,
         layer: 'main',
       });
-    } else {
+    } else if (app.environment.name != 'Cubes') {
       shape = new RegularShape({
+        ...selectedTemplate,
+        size: shapeSize,
+        layer: 'main',
+      });
+    } else {
+      shape = new CubeShape({
         ...selectedTemplate,
         size: shapeSize,
         layer: 'main',

@@ -4,8 +4,8 @@ import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
-import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 import { duplicateShape } from '../Core/Tools/shapesTools';
@@ -218,6 +218,7 @@ export class TransformTool extends Tool {
         isPointed: false,
         strokeWidth: 2,
         strokeColor: app.settings.constraintsDrawColor,
+        geometryObject: new GeometryObject({}),
       });
     }
 

@@ -649,7 +649,9 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
       // });
     }
     let shapeAngle = shape.points[0].coordinates.angleWith(centerCoordinates);
-    shape.geometryObject.geometryConstructionSpec.rotationAngle = refShapeAngle - shapeAngle;
+    if (shape.segments[0].length > 0.01) {
+      shape.geometryObject.geometryConstructionSpec.rotationAngle = refShapeAngle - shapeAngle;
+    }
   } else if (shape.name == 'Rectangle') {
     // let angle = shape.vertexes[1].getVertexAngle();
     // shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);
