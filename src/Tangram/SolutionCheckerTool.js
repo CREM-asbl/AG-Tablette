@@ -19,7 +19,7 @@ export class SolutionCheckerTool extends Tool {
       TangramManager.closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();
       const data = e.detail;
-      const level = await TangramManager.selectLevel(data.tangramLevelSelected);
+      const level = data.tangramLevelSelected ? data.tangramLevelSelected : await TangramManager.selectLevel();
       if (data.fileExtension == 'ags')
         await TangramManager.initShapes();
       if (level == 3 || level == 4) {

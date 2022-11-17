@@ -25,11 +25,9 @@ export class TangramManager {
     window.dispatchEvent(new Event('close-forbidden-canvas'));
   }
 
-  static async selectLevel(level) {
+  static async selectLevel() {
     await import('./level-popup');
-    let elem = createElem('level-popup');
-    if (level)
-      elem.level = level;
+    createElem('level-popup');
     return new Promise((resolve) =>
       window.addEventListener('tangram-level-selected', (e) => resolve(e.detail)),
     );
