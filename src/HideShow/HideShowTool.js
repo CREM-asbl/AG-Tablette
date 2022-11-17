@@ -106,12 +106,10 @@ export class HideShowTool extends Tool {
   }
 
   _executeAction() {
-    this.involvedShapes.map(s => s.id).forEach(id => {
-      let s = findObjectById(addInfoToId(id, 'main'));
-      if (s.geometryObject.geometryIsHidden === true)
-        s.geometryObject.geometryIsHidden = false;
-      else
-        s.geometryObject.geometryIsHidden = true;
+    let workingShapes = this.involvedShapes.map((s) => findObjectById(addInfoToId(s.id, 'main')));
+    let mustShow = workingShapes.every(s => s.geometryObject.geometryIsHidden === true);
+    workingShapes.forEach((s) => {
+      s.geometryObject.geometryIsHidden = !mustShow;
     });
     app.mainCanvasLayer.shapes.forEach(s => {
       if (s instanceof SinglePointShape) {
@@ -119,6 +117,13 @@ export class HideShowTool extends Tool {
         if (child)
           s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
       }
-    })
+    });
+    app.mainCanvasLayer.shapes.forEach(s => {
+      if (s.geometryObject.geometryIsConstaintDraw) {
+        let child = findObjectById(s.geometryObject.geometryChildShapeIds[0]);
+        if (child)
+          s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
+      }
+    });
   }
 }
