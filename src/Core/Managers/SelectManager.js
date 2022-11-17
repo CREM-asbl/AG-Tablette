@@ -210,10 +210,19 @@ export class SelectManager {
     // if no possibilities
     if (constrainedPoints.length == 0) return null;
 
+    // sort by distance, by shape height and by index in the shape, taking next criteria when equal
     constrainedPoints.sort((pt1, pt2) => {
       let dist1 = pt1.coordinates.dist(mouseCoordinates);
       let dist2 = pt2.coordinates.dist(mouseCoordinates);
-      return dist1 - dist2;
+      if (Math.abs(dist1 - dist2) > 0.001)
+        return dist1 - dist2;
+      let shapeIndex1 = ShapeManager.getShapeIndex(pt1.shape);
+      let shapeIndex2 = ShapeManager.getShapeIndex(pt2.shape);
+      if (shapeIndex1 != shapeIndex2)
+        return shapeIndex2 - shapeIndex1;
+      if (pt1.type == 'vertex' && pt2.type == 'vertex')
+        return pt2.idx - pt1.idx;
+      return 0;
     });
 
     if (constraints.numberOfObjects == "allInDistance") {

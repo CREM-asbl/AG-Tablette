@@ -100,10 +100,13 @@ export class ShapeManager {
       if (shape.isSegment() && !shape.segments[0].isArc()) {
         const seg = shape.segments[0];
         const projection = seg.projectionOnSegment(coord);
-        return (
-          seg.isCoordinatesOnSegment(projection) &&
-          SelectManager.areCoordinatesInSelectionDistance(projection, coord)
-        );
+        if (seg.isCoordinatesOnSegment(projection) && SelectManager.areCoordinatesInSelectionDistance(projection, coord)) {
+          return true;
+        }
+        if (SelectManager.areCoordinatesInSelectionDistance(seg.vertexes[0].coordinates, coord) || SelectManager.areCoordinatesInSelectionDistance(seg.vertexes[1].coordinates, coord)) {
+          return true;
+        }
+        return false;
       } else if (shape.isPoint()) {
         return SelectManager.areCoordinatesInSelectionDistance(coord, shape.points[0].coordinates);
       } else {

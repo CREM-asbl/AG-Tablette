@@ -95,8 +95,9 @@ export class TranslationTool extends Tool {
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.shapes.canSelect = true;
+      app.workspace.selectionConstraints.shapes.whitelist = app.mainCanvasLayer.shapes.filter(s => s instanceof ArrowLineShape && !s.segments[0].isArc());
       let object = SelectManager.selectObject(coord);
-      if (object instanceof ArrowLineShape && !object.segments[0].isArc()) {
+      if (object) {
         this.firstReference = object;
         new ArrowLineShape({
           path: object.getSVGPath('no scale', true),
@@ -161,10 +162,7 @@ export class TranslationTool extends Tool {
   }
 
   objectSelected(object) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(object);
-    if (app.environment.name == 'Geometrie') {
-      this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(object);
-    }
+    this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(object);
     this.drawingShapes = this.involvedShapes.map(
       (s) =>
         new s.constructor({
@@ -309,6 +307,7 @@ export class TranslationTool extends Tool {
           geometryTransformationCharacteristicElementIds,
           geometryTransformationName: 'translation',
           geometryIsVisible: s.geometryObject.geometryIsVisible,
+          geometryIsHidden: s.geometryObject.geometryIsHidden,
           geometryIsConstaintDraw: s.geometryObject.geometryIsConstaintDraw,
         }),
       });
