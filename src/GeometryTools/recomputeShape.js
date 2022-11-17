@@ -515,6 +515,13 @@ function computeDuplicateShape(shape) {
       let newPointCoordinates = startCoord
         .rotate(rotationMultiplier * shape.geometryObject.geometryConstructionSpec.rotationAngle, shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates)
         .add(vector);
+      if (idx == 1 && shape.geometryObject.geometryConstructionSpec.numberOfParts) {
+        newPointCoordinates = shape.points[0].coordinates.add(
+          newPointCoordinates
+            .substract(shape.points[0].coordinates)
+            .multiply(1 / shape.geometryObject.geometryConstructionSpec.numberOfParts)
+        );
+      }
       pt.coordinates = newPointCoordinates;
     });
     shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));

@@ -139,6 +139,15 @@ export class DivideTool extends Tool {
       if (object instanceof Segment) {
         if (object.shape instanceof ArrowLineShape) {
           this.vectorId = object.shape.id;
+
+          new ArrowLineShape({
+            layer: 'upper',
+            strokeColor: this.drawColors[0],
+            strokeWidth: 3,
+            path: object.getSVGPath('no scale', true),
+            id: undefined,
+          });
+
           this.mode = 'vector';
           setState({ tool: { ...app.tool, currentStep: 'divide' } });
         } else {
@@ -385,16 +394,22 @@ export class DivideTool extends Tool {
       ];
       path = path.join(' ');
 
-      new ArrowLineShape({
+      let newShape = new ArrowLineShape({
         layer: 'main',
         path: path,
         name: vector.name,
-        familyName: vector.familyName,
+        familyName: 'duplicate',
         fillColor: vector.fillColor,
         fillOpacity: vector.fillOpacity,
         strokeColor: vector.strokeColor,
-        geometryObject: new GeometryObject({}),
+        geometryObject: new GeometryObject({
+          geometryDuplicateParentShapeId: vector.id,
+          geometryConstructionSpec: {
+            numberOfParts: this.numberOfParts,
+          }
+        }),
       });
+      vector.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
     }
   }
 
