@@ -191,6 +191,13 @@ export class SaveFileManager {
     // if (app.environment.name == 'Tangram') history = undefined;
     // if (app.environment.name == 'Tangram') fullHistory = undefined;
 
+    if (detail.permanentHide) {
+      wsdata.objects.shapesData.forEach(sData => {
+        if (sData.geometryObject.geometryIsHidden)
+          sData.geometryObject.geometryIsPermanentHidden = true;
+      });
+    }
+
     if (!detail.saveSettings) settings = undefined;
 
     // let silhouetteData;

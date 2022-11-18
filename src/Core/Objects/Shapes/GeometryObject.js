@@ -17,6 +17,7 @@ export class GeometryObject {
     },
     geometryIsVisible = true,
     geometryIsHidden = false,
+    geometryIsPermanentHidden = false,
     geometryIsVisibleByChoice = true,
     geometryIsConstaintDraw = false,
     geometryPointOnTheFlyChildId = null,
@@ -34,6 +35,7 @@ export class GeometryObject {
     this.geometryDuplicateInfos = {...geometryDuplicateInfos};
     this.geometryIsVisible = geometryIsVisible;
     this.geometryIsHidden = geometryIsHidden;
+    this.geometryIsPermanentHidden = geometryIsPermanentHidden;
     this.geometryIsVisibleByChoice = geometryIsVisibleByChoice;
     this.geometryIsConstaintDraw = geometryIsConstaintDraw;
     this.geometryPointOnTheFlyChildId = geometryPointOnTheFlyChildId;
@@ -78,6 +80,8 @@ export class GeometryObject {
       data.geometryIsVisible = this.geometryIsVisible;
     if (this.geometryIsHidden !== false)
       data.geometryIsHidden = this.geometryIsHidden;
+      if (this.geometryIsPermanentHidden !== false)
+        data.geometryIsPermanentHidden = this.geometryIsPermanentHidden;
     if (this.geometryIsVisibleByChoice !== true)
       data.geometryIsVisibleByChoice = this.geometryIsVisibleByChoice;
     if (this.geometryDuplicateChildShapeIds.length !== 0)

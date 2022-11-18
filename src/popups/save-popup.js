@@ -37,6 +37,7 @@ class SavePopup extends LitElement {
 
     this.saveSettings = true;
     this.saveHistory = this.saveMethod != 'silhouette';
+    this.permanentHide = false;
 
     window.addEventListener('close-popup', () => this.close());
   }
@@ -99,6 +100,19 @@ class SavePopup extends LitElement {
                 @change="${this._actionHandle}"
               />
               <label for="save_popup_history">Enregistrer l'historique</label>
+            </div>
+
+            <div class="field">
+              <input
+                type="checkbox"
+                name="save_popup_permanent_hide"
+                id="save_popup_permanent_hide"
+                ?checked="${this.permanentHide}"
+                @change="${this._actionHandle}"
+              />
+              <label for="save_popup_permanent_hide"
+                >Cacher de façon permanente</label
+              >
             </div>
           </div>
 
@@ -178,6 +192,10 @@ class SavePopup extends LitElement {
         this.saveHistory = !this.saveHistory;
         break;
 
+      case 'save_popup_permanent_hide':
+        this.permanentHide = !this.permanentHide;
+        break;
+
       case 'save_popup_filename':
         this.filename = event.target.value;
         if (!this.filename) this.filename = 'sans titre';
@@ -199,7 +217,8 @@ class SavePopup extends LitElement {
         let name = this.filename + extension,
           saveSettings = this.saveSettings,
           saveHistory = this.saveHistory,
-          saveMethod = this.saveMethod;
+          saveMethod = this.saveMethod,
+          permanentHide = this.permanentHide;
         if (saveMethod == 'silhouette')
           saveHistory = false;
         this.remove();
@@ -211,6 +230,7 @@ class SavePopup extends LitElement {
                 saveSettings,
                 saveHistory,
                 saveMethod,
+                permanentHide,
               },
             })
           ),

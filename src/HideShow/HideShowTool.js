@@ -59,6 +59,8 @@ export class HideShowTool extends Tool {
     app.mainCanvasLayer.shapes
       // .filter(s => s.geometryObject.geometryIsHidden === true)
     .forEach(s => {
+      if (s.geometryObject.geometryIsPermanentHidden)
+        return;
       let newShape = new s.constructor({
         ...s,
         layer: 'upper',
