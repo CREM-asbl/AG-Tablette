@@ -68,6 +68,10 @@ class IconButton extends LitElement {
         box-shadow: inset 0px 0px 1px var(--menu-shadow-color);
       }
 
+      :host([helpanimation]) button {
+        background-color: #F3E0BF;
+      }
+
       img {
         height: 100%;
         width: 100%;

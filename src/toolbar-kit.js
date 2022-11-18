@@ -9,6 +9,7 @@ class ToolbarKit extends LitElement {
       selectedFamily: { type: String },
       envName: { type: String },
       iconSize: { type: Number },
+      helpSelected: { type: Boolean },
     };
   }
 
@@ -22,6 +23,7 @@ class ToolbarKit extends LitElement {
     this.updateProperties = () => {
       this.iconSize = app.menuIconSize;
       this.familyNames = app.environment.families.filter(family => family.isVisible).map(family => family.name);
+      this.helpSelected = app.helpSelected;
     };
     this.updateProperties();
 
@@ -42,6 +44,7 @@ class ToolbarKit extends LitElement {
       'tool-changed',
       () => (this.selectedFamily = app.tool?.selectedFamily),
     );
+    window.addEventListener('helpSelected-changed', this.eventHandler);
   }
 
   render() {
@@ -58,19 +61,8 @@ class ToolbarKit extends LitElement {
                 type="Create"
                 title="${familyName}"
                 ?active="${familyName === this.selectedFamily}"
-                @click="${() => {
-                  if (app.fullHistory.isRunning) {
-                    console.info('cannot interact when fullHisto is running');
-                    return;
-                  }
-                  setState({
-                    tool: {
-                      name: 'create',
-                      selectedFamily: familyName,
-                      currentStep: 'start',
-                    },
-                  });
-                }}"
+                ?helpanimation="${this.helpSelected}"
+                @click="${this._actionHandle}"
               >
               </icon-button>
             `;
@@ -78,6 +70,21 @@ class ToolbarKit extends LitElement {
         </div>
       </template-toolbar>
     `;
+  }
+
+  _actionHandle(event) {
+    if (app.helpSelected) {
+      window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: 'create' } }));
+      setState({ helpSelected: false });
+    } else if (!app.fullHistory.isRunning) {
+      setState({
+        tool: {
+          name: 'create',
+          selectedFamily: event.target.title,
+          currentStep: 'start',
+        },
+      });
+    }
   }
 }
 customElements.define('toolbar-kit', ToolbarKit);

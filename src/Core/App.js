@@ -177,6 +177,9 @@ export const setState = (update) => {
   if ('tools' in update) {
     window.dispatchEvent(new CustomEvent('tools-changed', { detail: app }));
   }
+  if ('helpSelected' in update) {
+    window.dispatchEvent(new CustomEvent('helpSelected-changed', { detail: app }));
+  }
   if (app.started) {
     // window.dispatchEvent(new CustomEvent('refreshUpper'));
     // window.dispatchEvent(new CustomEvent('refresh'));

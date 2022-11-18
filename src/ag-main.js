@@ -33,6 +33,7 @@ class AGMain extends LitElement {
       colorPickerValue: String,
       iconSize: Number,
       toolbarSections: Array,
+      helpSelected: Boolean,
     };
   }
 
@@ -64,6 +65,7 @@ class AGMain extends LitElement {
 
     this.updateProperties = () => {
       this.iconSize = app.menuIconSize;
+      this.helpSelected = app.helpSelected;
     };
     this.updateProperties();
 
@@ -72,6 +74,13 @@ class AGMain extends LitElement {
     };
 
     window.addEventListener('menuIconSize-changed', this.eventHandler);
+    window.addEventListener('helpSelected-changed', this.eventHandler);
+
+    window.addEventListener('helpToolChosen', e => {
+      import('./popups/help-popup');
+      let helpElem = createElem('help-popup');
+      helpElem.toolname = e.detail.toolname;
+    });
   }
 
   static get styles() {
@@ -144,14 +153,6 @@ class AGMain extends LitElement {
     ];
   }
 
-  // updated() {
-  //   if (app.environment?.name == 'Geometrie') {
-  //     this.shadowRoot
-  //       .querySelectorAll('.onlyGrandeurs')
-  //       .forEach((el) => (el.style.display = 'none'));
-  //   }
-  // }
-
   async firstUpdated() {
     let sectionImport = await import(`./toolbarSectionsDef.js`);
     this.toolbarSections = sectionImport.default.sections;
@@ -186,6 +187,7 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="home"
                 title="Accueil"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -193,6 +195,7 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="open"
                 title="Ouvrir"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -200,6 +203,7 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="save"
                 title="Enregistrer"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -207,6 +211,7 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="settings"
                 title="Paramètres"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -215,6 +220,7 @@ class AGMain extends LitElement {
                 name="undo"
                 title="Annuler"
                 ?disabled="${!this.canUndo}"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -223,6 +229,7 @@ class AGMain extends LitElement {
                 name="redo"
                 title="Refaire"
                 ?disabled="${!this.canRedo}"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -230,12 +237,14 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="replay"
                 title="Rejouer"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="help"
+                ?active="${this.helpSelected}"
                 title="Aide"
                 @click="${this._actionHandle}"
               >
@@ -288,6 +297,11 @@ class AGMain extends LitElement {
       return;
     }
     let resetTool = false;
+    if (this.helpSelected) {
+      window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: event.target.name } }));
+      setState({ helpSelected: false });
+      return ;
+    }
     switch (event.target.name) {
       case 'settings':
         import('./popups/settings-popup');
@@ -317,8 +331,8 @@ class AGMain extends LitElement {
         window.dispatchEvent(new CustomEvent('start-browsing'));
         break;
       case 'help':
-        import('./popups/help-popup');
-        createElem('help-popup');
+        setState({ helpSelected: true });
+        resetTool = true;
         break;
       default:
         console.info(
@@ -330,13 +344,6 @@ class AGMain extends LitElement {
       setState({ tool: null });
     }
   }
-
-  // setState() {
-  //   console.trace('ag-main setState called');
-  //   this.states = [...app.states];
-  //   this.stateName = app.state;
-  //   this.state = this.states.find((st) => st.name == this.stateName);
-  // }
 
   // // Todo: Placer dans un objet BackgroundImage ?
   // loadBackground() {

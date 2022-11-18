@@ -7,23 +7,12 @@ class HelpPopup extends LitElement {
   static get properties() {
     return {
       content: String,
+      toolname: String,
     };
   }
 
   constructor() {
     super();
-
-    this.content = html`
-      Pour afficher l'aide correspondant à un des outils, opérations ou
-      mouvements, sélectionnez cet élément puis cliquez à nouveau sur le menu
-      d'aide.
-    `;
-
-    if (app.tool?.name) {
-      this.content = html`
-        <img src='images/help/${app.environment.name}/${app.tool.name}.webp'>
-      `;
-    }
 
     window.addEventListener('close-popup', () => this.close());
   }
@@ -36,7 +25,7 @@ class HelpPopup extends LitElement {
           margin-right: 8px;
         }
         div#helpPopupBody {
-          max-width: 80vw;
+          max-width: 70vw;
           max-height: calc(70 * var(--vh));
         }
         :host {
@@ -60,14 +49,11 @@ class HelpPopup extends LitElement {
     ];
   }
 
-  // setText(text) {
-  //   this.content = text;
-  // }
-
-  // connectedCallback() {
-  //   super.connectedCallback();
-  //   window.dispatchEvent(new CustomEvent('get-help-text'));
-  // }
+  firstUpdated() {
+    this.content = html`
+      <img src='images/help/${app.environment.name}/${this.toolname}.webp'>
+    `;
+  }
 
   render() {
     return html`
