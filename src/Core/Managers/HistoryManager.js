@@ -36,6 +36,7 @@ export class HistoryManager {
     } else {
       data = app.history.steps[index];
     }
+    data = {...data};
 
     app.workspace.initFromObject(data);
     let settings, tangram;

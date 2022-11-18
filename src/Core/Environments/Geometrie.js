@@ -26,6 +26,7 @@ export default {
     'Ungroup',
     'ToBackground',
     'Color',
+    'Opacity',
     'HideShow',
     'Translate',
     'Zoom',

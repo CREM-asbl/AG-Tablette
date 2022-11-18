@@ -111,6 +111,7 @@ export class CopyTool extends Tool {
           return pt.color;
         }),
       });
+      newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
       newShape.translate(this.translateOffset);
       return newShape;
     });
@@ -200,6 +201,7 @@ export class CopyTool extends Tool {
           return pt.color;
         }),
       });
+      newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
       if (newShape.name.startsWith('Parallele'))
         newShape.name = newShape.name.slice('Parallele'.length);
       if (newShape.name.startsWith('Perpendicular'))

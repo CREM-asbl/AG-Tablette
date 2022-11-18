@@ -143,7 +143,15 @@ export function computeShapeTransform(shape, layer = 'upper') {
       x: shape.vertexes[0].coordinates.x + 100 * Math.cos(angle),
       y: shape.vertexes[0].coordinates.y + 100 * Math.sin(angle),
     });
-  } else if (shape.name == 'PointOnLine') {
+  } else if (shape.name == 'Strip') {
+    let seg = shape.segments[0];
+    let angle = seg.getAngleWithHorizontal();
+
+    shape.vertexes[3].coordinates = new Coordinates({
+      x: shape.vertexes[2].coordinates.x + 100 * Math.cos(angle),
+      y: shape.vertexes[2].coordinates.y + 100 * Math.sin(angle),
+    });
+  }  else if (shape.name == 'PointOnLine') {
     let ref = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let point = shape.points[0];
 
@@ -338,15 +346,10 @@ export function getRatioWithPosition(point, referenceSegment) {
     } else {
       ratio = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
     }
-    // let ratioX = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
-    // let ratioY = (point.coordinates.y - referenceSegment.vertexes[0].coordinates.y) / (referenceSegment.vertexes[1].coordinates.y - referenceSegment.vertexes[0].coordinates.y);
-    // ratio = ratioX;
-    // if (!isFinite(ratio))
-    // ratio = ratioY;
   }
-  if (ratio > 1 && !referenceSegment.shape.name.endsWith('StraightLine'))
+  if (ratio > 1 && !(referenceSegment.shape.name.endsWith('StraightLine') || referenceSegment.shape.name == 'Strip'))
     ratio = 1;
-  else if (ratio < 0 && !(referenceSegment.shape.name.endsWith('StraightLine') && !referenceSegment.shape.name.endsWith('SemiStraightLine')))
+  else if (ratio < 0 && !((referenceSegment.shape.name.endsWith('StraightLine') && !referenceSegment.shape.name.endsWith('SemiStraightLine')) || referenceSegment.shape.name == 'Strip'))
     ratio = 0;
   return ratio;
 }

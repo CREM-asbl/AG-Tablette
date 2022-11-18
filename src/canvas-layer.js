@@ -9,6 +9,7 @@ import { LineShape } from './Core/Objects/Shapes/LineShape';
 import { RegularShape } from './Core/Objects/Shapes/RegularShape';
 import { Shape } from './Core/Objects/Shapes/Shape';
 import { SinglePointShape } from './Core/Objects/Shapes/SinglePointShape';
+import { StripLineShape } from './Core/Objects/Shapes/StripLineShape';
 import { capitalizeFirstLetter, createElem, findObjectById } from './Core/Tools/general';
 
 class CanvasLayer extends LitElement {
@@ -253,6 +254,8 @@ class CanvasLayer extends LitElement {
           SinglePointShape.loadFromData(shapeData);
         else if (shapeData.type == 'ArrowLineShape')
           ArrowLineShape.loadFromData(shapeData);
+        else if (shapeData.type == 'StripLineShape')
+          StripLineShape.loadFromData(shapeData);
         else {
           shapeData.fillColor = shapeData.color;
           shapeData.fillOpacity = parseFloat(shapeData.opacity);

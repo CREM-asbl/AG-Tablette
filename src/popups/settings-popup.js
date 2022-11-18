@@ -1,6 +1,5 @@
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { Settings } from '../Core/Settings';
 import { createElem } from '../Core/Tools/general';
 import '../version-item';
 import { TemplatePopup } from './template-popup';
@@ -8,7 +7,7 @@ import { TemplatePopup } from './template-popup';
 class SettingsPopup extends LitElement {
   static get properties() {
     return {
-      settings: Settings,
+      settings: { type: Array },
     };
   }
 

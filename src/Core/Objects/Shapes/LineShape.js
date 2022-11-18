@@ -483,14 +483,6 @@ export class LineShape extends Shape {
   /* #################################################################### */
 
   /**
-   * check si this est complètement dans shape
-   * @param {Shape} shape l'autre figure
-   */
-  isInside(shape) {
-    return this.allOutlinePoints.every((pt) => shape.isCoordinatesInPath(pt));
-  }
-
-  /**
    * Vérifie si cette figure se superpose avec une autre figure.
    * @param  {Shape} shape L'autre figure
    * @return {overlap}     true: si les 2 figures se superposent

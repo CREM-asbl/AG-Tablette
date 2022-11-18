@@ -8,6 +8,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { StripLineShape } from '../Core/Objects/Shapes/StripLineShape';
 import { Tool } from '../Core/States/Tool';
 import { createElem, findObjectById } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
@@ -146,7 +147,52 @@ export class CreateLineTool extends Tool {
         size: 2,
       });
       this.numberOfPointsDrawn++;
-      if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+      if (app.tool.selectedLine == 'Strip') {
+        if (this.numberOfPointsDrawn == this.numberOfPointsRequired() - 1) {
+          let seg = new Segment({
+            layer: 'upper',
+            vertexIds: [this.points[0].id, this.points[1].id],
+            isInfinite: true,
+          });
+          this.segments.push(seg);
+          let familyName = 'Line';
+          let name = app.tool.selectedLine;
+          let shape = new LineShape({
+            layer: 'upper',
+            segmentIds: this.segments.map((seg) => seg.id),
+            pointIds: this.points.map((pt) => pt.id),
+            strokeColor: app.settings.temporaryDrawColor,
+            name,
+            familyName,
+          });
+          this.segments.forEach((seg, idx) => {
+            seg.idx = idx;
+            seg.shapeId = shape.id;
+          });
+        } else if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+          this.finishShape();
+          let seg = new Segment({
+            layer: 'upper',
+            vertexIds: [this.points[2].id, this.points[3].id],
+            isInfinite: true,
+          });
+          this.segments.push(seg);
+          let familyName = 'Line';
+          let name = app.tool.selectedLine;
+          let shape = new LineShape({
+            layer: 'upper',
+            segmentIds: this.segments.map((seg) => seg.id),
+            pointIds: this.points.map((pt) => pt.id),
+            strokeColor: app.settings.temporaryDrawColor,
+            name,
+            familyName,
+          });
+          this.segments.forEach((seg, idx) => {
+            seg.idx = idx;
+            seg.shapeId = shape.id;
+          });
+        }
+      } else if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
         if (this.numberOfPointsDrawn < 2) this.finishShape();
         let seg = new Segment({
           layer: 'upper',
@@ -273,7 +319,9 @@ export class CreateLineTool extends Tool {
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
       if (
         this.numberOfPointsDrawn == this.numberOfPointsRequired() &&
-        this.numberOfPointsDrawn < 2
+        (app.tool.selectedLine == 'ParalleleStraightLine' ||
+        app.tool.selectedLine == 'PerpendicularStraightLine' ||
+        app.tool.selectedLine == 'Strip')
       ) {
         this.finishShape();
       }
@@ -298,6 +346,8 @@ export class CreateLineTool extends Tool {
       numberOfPointsRequired = 1;
     else if (app.tool.selectedLine == 'PerpendicularStraightLine')
       numberOfPointsRequired = 1;
+    else if (app.tool.selectedLine == 'Strip')
+      numberOfPointsRequired = 3;
     else if (app.tool.selectedLine == 'Vector')
       numberOfPointsRequired = 2;
     return numberOfPointsRequired;
@@ -321,18 +371,27 @@ export class CreateLineTool extends Tool {
         x: 100 * Math.cos(angle),
         y: 100 * Math.sin(angle),
       }));
+    } else if (app.tool.selectedLine == 'Strip') {
+      let referenceSegment = this.segments[0];
+      newCoordinates = this.points[2].coordinates
+        .substract(referenceSegment.vertexes[0].coordinates)
+        .add(referenceSegment.vertexes[1].coordinates);
     }
 
-    if (this.points.length == 1) {
-      this.points[1] = new Point({
-        layer: 'upper',
-        coordinates: newCoordinates,
-        color: app.settings.temporaryDrawColor,
-        size: 2,
-        visible: false,
-      });
-    } else {
-      this.points[1].coordinates = newCoordinates;
+    switch (this.points.length) {
+      case 1:
+      case 3:
+        this.points[this.points.length] = new Point({
+          layer: 'upper',
+          coordinates: newCoordinates,
+          color: app.settings.temporaryDrawColor,
+          size: 2,
+          visible: false,
+        });
+        break;
+      case 2:
+      case 4:
+        this.points[this.points.length - 1].coordinates = newCoordinates;
     }
   }
 
@@ -360,7 +419,11 @@ export class CreateLineTool extends Tool {
         }));
         let lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isConstrained', lines);
+      } else {
+        this.constraints = new GeometryConstraint('isFree');
       }
+    } else if (pointNb == 2) {
+      this.constraints = new GeometryConstraint('isFree');
     }
   }
 
@@ -372,7 +435,18 @@ export class CreateLineTool extends Tool {
       'L',
       this.points[1].coordinates.x,
       this.points[1].coordinates.y,
-    ].join(' ');
+    ];
+    if (this.points.length > 2) {
+      path.push(
+        'M',
+        this.points[2].coordinates.x,
+        this.points[2].coordinates.y,
+        'L',
+        this.points[3].coordinates.x,
+        this.points[3].coordinates.y,
+      );
+    }
+    path = path.join(' ');
 
     let shape;
     if (app.tool.selectedLine == 'Vector') {
@@ -383,6 +457,16 @@ export class CreateLineTool extends Tool {
         familyName: 'Line',
         geometryObject: new GeometryObject({}),
       });
+    } else if (app.tool.selectedLine == 'Strip') {
+      shape = new StripLineShape({
+        layer: 'main',
+        path: path,
+        name: app.tool.selectedLine,
+        fillOpacity: 0.7,
+        familyName: 'Line',
+        geometryObject: new GeometryObject({}),
+      });
+      shape.points[3].visible = false;
     } else {
       shape = new LineShape({
         layer: 'main',
@@ -421,12 +505,21 @@ export class CreateLineTool extends Tool {
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }
 
-    shape.vertexes[0].adjustedOn = this.points[0].adjustedOn;
-    linkNewlyCreatedPoint(shape, shape.vertexes[0]);
-    if (shape.name.endsWith('Segment') || shape.name.endsWith('SemiStraightLine') || shape.name == 'StraightLine' || shape.name == 'Vector') {
-    shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
-    linkNewlyCreatedPoint(shape, shape.vertexes[1]);
+    for (let i = 0; i < this.numberOfPointsRequired(); i++) {
+      shape.vertexes[i].adjustedOn = this.points[i].adjustedOn;
+      linkNewlyCreatedPoint(shape, shape.vertexes[i]);
     }
+
+    // shape.vertexes[0].adjustedOn = this.points[0].adjustedOn;
+    // linkNewlyCreatedPoint(shape, shape.vertexes[0]);
+    // if (shape.name.endsWith('Segment') || shape.name.endsWith('SemiStraightLine') || shape.name == 'StraightLine' || shape.name == 'Vector' || shape.name == 'Strip') {
+    //   shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
+    //   linkNewlyCreatedPoint(shape, shape.vertexes[1]);
+    // }
+    // if (shape.name == 'Strip') {
+    //   shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
+    //   linkNewlyCreatedPoint(shape, shape.vertexes[2]);
+    // }
     computeConstructionSpec(shape);
   }
 }

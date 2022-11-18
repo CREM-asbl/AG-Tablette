@@ -391,49 +391,12 @@ export class TransformTool extends Tool {
             computeConstructionSpec(shape, point.idx);
         }
       }
-      // if (shape.name == 'Trapeze' && point.idx >= 3) {
-      //   point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-      //   computeConstructionSpec(shape);
-      // } else if (point.idx >= 2) {
-      //   switch (shape.name) {
-      //     case 'Rectangle':
-      //     case 'Losange':
-      //     case 'RightAngleIsoscelesTriangle':
-      //     case 'RightAngleTriangle':
-      //     case 'IsoscelesTriangle':
-      //     case 'RightAngleTrapeze':
-      //       point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-      //     case 'Parallelogram':
-      //     case 'IsoscelesTrapeze':
-      //     case 'CirclePart':
-      //       computeConstructionSpec(shape, point.idx);
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // }
-      // if (point.idx == 1) {
-      //   switch (shape.name) {
-      //     case 'CircleArc':
-      //     case 'ParalleleSemiStraightLine':
-      //     case 'PerpendicularSemiStraightLine':
-      //     case 'ParalleleSegment':
-      //     case 'PerpendicularSegment':
-      //       point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-      //       computeConstructionSpec(shape);
-      //     default:
-      //       break;
-      //   }
-      // }
-      this.resetTree();
-      this.browseTree(this.tree, 0);
 
       this.resetTree();
       this.browseTree(this.tree, 0);
 
-
-      // if (shape.name == 'RightAngleTrapeze')
-      //   computeConstructionSpec(shape);
+      this.resetTree();
+      this.browseTree(this.tree, 0);;
     } else if (app.tool.currentStep == 'selectPoint') {
       app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
         let points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];
