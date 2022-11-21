@@ -703,8 +703,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += 50 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });
@@ -721,8 +720,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += approx * 2 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });
@@ -737,8 +735,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += approx * 2 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });
@@ -755,8 +752,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += 50 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });
@@ -771,8 +767,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += 50 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });

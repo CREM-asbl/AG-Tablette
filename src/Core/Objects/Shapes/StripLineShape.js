@@ -86,8 +86,7 @@ export class StripLineShape extends Shape {
 
     if (allPathElements[0] != 'M')
       startVertex = lastVertex = new Point({
-        x: 0,
-        y: 0,
+        coordinates: new Coordinates({ x: 0, y: 0 }),
         shapeId: this.id,
         layer: this.layer,
         type: 'vertex',
