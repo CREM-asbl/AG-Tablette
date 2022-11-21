@@ -122,7 +122,7 @@ export class SinglePointShape extends Shape {
 
     if (allPathElements[0] != 'M')
       startVertex = lastVertex = new Point({
-        coordinates: new Coordinates({ x: 0, y: 0 }),
+        coordinates: Coordinates.nullCoordinates,
         shapeId: this.id,
         layer: this.layer,
         type: 'vertex',

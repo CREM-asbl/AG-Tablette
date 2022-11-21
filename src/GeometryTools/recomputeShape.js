@@ -235,7 +235,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
   } else if (shape.name == 'PointOnIntersection2') {
     let firstSeg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let secondSeg = findObjectById(shape.geometryObject.geometryParentObjectId2);
-    let coords = firstSeg.intersectionWith(secondSeg, false, 0.001);
+    let coords = firstSeg.intersectionWith(secondSeg, 0.001);
     let newValue = !!coords;
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
