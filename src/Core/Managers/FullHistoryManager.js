@@ -60,9 +60,9 @@ export class FullHistoryManager {
     window.clearTimeout(app.fullHistory.timeoutId);
   }
 
-  static playBrowsing() {
+  static playBrowsing(onlySingleAction = false) {
     let timeoutId = setTimeout(
-      () => FullHistoryManager.executeAllSteps(),
+      () => FullHistoryManager.executeAllSteps(onlySingleAction),
       FullHistoryManager.nextTime + 50,
     );
     setState({
@@ -127,18 +127,21 @@ export class FullHistoryManager {
     }
   }
 
-  static executeAllSteps() {
+  static executeAllSteps(onlySingleAction = false) {
     if (app.fullHistory.index >= app.fullHistory.steps.length - 1) {
       FullHistoryManager.stopBrowsing();
       return;
     }
 
-    FullHistoryManager.executeStep();
+    if (FullHistoryManager.executeStep() && onlySingleAction) {
+      FullHistoryManager.pauseBrowsing();
+      return;
+    }
     if (!app.fullHistory.isRunning) return;
 
     let index = app.fullHistory.index + 1;
     let timeoutId = setTimeout(
-      () => FullHistoryManager.executeAllSteps(),
+      () => FullHistoryManager.executeAllSteps(onlySingleAction),
       FullHistoryManager.nextTime + 50, // nextTime,
     );
     setState({ fullHistory: { ...app.fullHistory, index, timeoutId } });
@@ -184,6 +187,7 @@ export class FullHistoryManager {
           () => FullHistoryManager.stopBrowsing(),
           FullHistoryManager.nextTime,
         );
+      return true;
     } else if (type == 'tool-changed') {
       setState({ tool: { ...detail } });
     } else if (type == 'settings-changed') {
