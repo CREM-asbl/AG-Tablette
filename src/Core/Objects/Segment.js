@@ -698,6 +698,35 @@ export class Segment {
     }
   }
 
+  arcParelleleWith(segment) {
+    if (this.arcCenter.coordinates.equal(segment.arcCenter.coordinates) && this.radius == segment.radius) {
+      return true;
+    }
+    return false;
+  }
+
+  isParalleleWith(segment) {
+    if (this.isArc() && segment.isArc()) {
+      return this.arcParelleleWith(segment);
+    } else if (this.isArc() || segment.isArc()) {
+      return false;
+    }
+    let thisv0x = this.vertexes[0].x,
+    thisv0y = this.vertexes[0].y,
+    thisv1x = this.vertexes[1].x,
+    thisv1y = this.vertexes[1].y,
+    segmentv0x = segment.vertexes[0].x,
+    segmentv0y = segment.vertexes[0].y,
+    segmentv1x = segment.vertexes[1].x,
+    segmentv1y = segment.vertexes[1].y,
+    thisSlope = (thisv0y - thisv1y) / (thisv0x - thisv1x),
+    segmentSlope = (segmentv0y - segmentv1y) / (segmentv0x - segmentv1x);
+    if (Math.abs(thisSlope - segmentSlope) < 0.001) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * point d'intersection de 2 segments (ou prolongation)
    * @param {object} segment
@@ -723,7 +752,7 @@ export class Segment {
     if (Math.abs(thisSlope - segmentSlope) < 0.001) {
       if (coordinatesIfParalleleSegments) {
         if (this.isCoordinatesOnSegment(coordinatesIfParalleleSegments) && segment.isCoordinatesOnSegment(coordinatesIfParalleleSegments)) {
-          return coordinatesIfParalleleSegments;
+          return [coordinatesIfParalleleSegments];
         } else {
           return null;
         }
