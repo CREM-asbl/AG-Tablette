@@ -208,6 +208,7 @@ export class CentralSymetryTool extends Tool {
           geometryTransformationCharacteristicElementIds: [this.reference.id],
           geometryTransformationName: 'centralSymetry',
           geometryIsVisible: s.geometryObject.geometryIsVisible,
+          geometryIsHidden: s.geometryObject.geometryIsHidden,
           geometryIsConstaintDraw: s.geometryObject.geometryIsConstaintDraw,
         }),
       });

@@ -376,6 +376,7 @@ export class RotationTool extends Tool {
           geometryTransformationCharacteristicElementIds: this.references.map(ref => ref.id),
           geometryTransformationName: 'rotation',
           geometryIsVisible: s.geometryObject.geometryIsVisible,
+          geometryIsHidden: s.geometryObject.geometryIsHidden,
           geometryIsConstaintDraw: s.geometryObject.geometryIsConstaintDraw,
         }),
       });
