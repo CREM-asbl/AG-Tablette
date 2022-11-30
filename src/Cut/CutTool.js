@@ -516,11 +516,10 @@ export class CutTool extends Tool {
         } else if ((pt1.shape.name == 'PointOnLine' || pt1.shape.name.startsWith('PointOnIntersection')) && findObjectById(pt1.shape.geometryObject['geometryParentObjectId' + (pt1.cutSeg + 1)]).idx == i) {
           this.addPathElem(firstPath, pt1);
           break;
-        } else {
-          if (shape.vertexes[i + 1])
-            this.addPathElem(firstPath, shape.vertexes[i + 1]);
+        } else if (shape.vertexes[i + 1]) {
+          this.addPathElem(firstPath, shape.vertexes[i + 1]);
         }
-        if (pt1.type === 'vertex' && pt1.idx === i + 1) {
+        if (pt1.type === 'vertex' && !pt1.shape.name.startsWith('PointOn') && pt1.idx === i + 1) {
           break;
         }
       }
@@ -558,7 +557,7 @@ export class CutTool extends Tool {
         } else {
           this.addPathElem(secondPath, shape.vertexes[(i + 1) % nbOfSegments]);
         }
-        if (pt2.type === 'vertex' && pt2.idx === (i + 1) % nbOfSegments) {
+        if (pt2.type === 'vertex' && !pt1.shape.name.startsWith('PointOn') && pt2.idx === (i + 1) % nbOfSegments) {
           break;
         }
       }

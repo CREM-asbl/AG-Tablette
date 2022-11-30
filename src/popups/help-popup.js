@@ -15,6 +15,16 @@ class HelpPopup extends LitElement {
     super();
 
     window.addEventListener('close-popup', () => this.close());
+
+    this.tools = [...app.tools,
+      { name: 'home', title: 'Accueil' },
+      { name: 'save', title: 'Enregistrer' },
+      { name: 'open', title: 'Ouvrir' },
+      { name: 'settings', title: 'Paramètres' },
+      { name: 'undo', title: 'Annuler-refaire' },
+      { name: 'redo', title: 'Annuler-refaire' },
+      { name: 'replay', title: 'Rejouer' },
+    ]
   }
 
   static get styles() {
@@ -58,7 +68,7 @@ class HelpPopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Aide</h2>
+        <h2 slot="title">Aide ${this.toolname ? ' - ' + this.tools.find(tool => tool.name == this.toolname).title : ''}</h2>
         <div id="helpPopupBody" slot="body">
           ${this.content}
         </div>
