@@ -135,7 +135,7 @@ export class Workspace {
 
     if (this.zoomLevel != 1)
       wsdata.zoomLevel = this.zoomLevel;
-    if (this.translateOffset.x != 0 && this.translateOffset.y != 0)
+    if (this.translateOffset.x != 0 || this.translateOffset.y != 0)
       wsdata.translateOffset = this.translateOffset;
 
     wsdata.canvasSize = { width: app.canvasWidth, height: app.canvasHeight };
