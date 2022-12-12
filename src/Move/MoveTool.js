@@ -210,5 +210,9 @@ export class MoveTool extends Tool {
           pt.ratio = this.pointOnLineRatio;
       });
     });
+    app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
+      let s = findObjectById(sId);
+      computeAllShapeTransform(s, 'main', false);
+    });
   }
 }

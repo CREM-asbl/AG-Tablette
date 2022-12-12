@@ -4,9 +4,9 @@ import { Point } from '../Core/Objects/Point';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { findObjectById, mod } from '../Core/Tools/general';
 
-export function computeAllShapeTransform(shape, layer = 'upper', includeChildren = true) {
+export function computeAllShapeTransform(shape, layer = 'upper', includeChildren = true, includePointOnIntersection = true) {
   if (app.environment.name != 'Geometrie') return;
-  if (includeChildren)
+  if (includeChildren) {
     shape.geometryObject.geometryChildShapeIds.forEach(ref => {
       let sRef = findObjectById(ref);
       if (!sRef) {
@@ -16,6 +16,20 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
       computeShapeTransform(sRef, layer);
       computeAllShapeTransform(sRef, layer);
     });
+  } else if (includePointOnIntersection) {
+    shape.geometryObject.geometryChildShapeIds.forEach(ref => {
+      let sRef = findObjectById(ref);
+      if (!sRef) {
+        console.info('child not found');
+        return;
+      }
+      if (sRef.name == 'PointOnIntersection') {
+        computeShapeTransform(sRef, layer);
+        computeAllShapeTransform(sRef, layer);
+      }
+    });
+  }
+
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
     let child = findObjectById(childId);
     computeShapeTransform(child);
