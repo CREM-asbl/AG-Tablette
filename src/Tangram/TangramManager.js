@@ -3,14 +3,18 @@ import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 import { createElem } from '../Core/Tools/general';
 
-window.addEventListener('new-window', () => setState({ tangram: {...app.defaultState.tangram } }));
-
 window.addEventListener('app-started', () => {
   if (!app.fileFromServer) {
     import('./start-popup.js');
     createElem('start-popup');
   }
 }, {once: true});
+
+window.addEventListener('new-window', () => {
+  setState({ tangram: {...app.defaultState.tangram } });
+  import('./start-popup.js');
+  createElem('start-popup');
+});
 
 export class TangramManager {
   static async openForbiddenCanvas() {
