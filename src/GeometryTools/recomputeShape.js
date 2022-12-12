@@ -549,7 +549,10 @@ function computeDuplicateShape(shape) {
 }
 
 export function recomputeAllVisibilities(layer) {
-  app[layer + 'CanvasLayer'].shapes.forEach(s => s.geometryObject.geometryIsVisible = true);
+  app[layer + 'CanvasLayer'].shapes.forEach(s => {
+    if (s.geometryObject)
+    s.geometryObject.geometryIsVisible = true
+  });
   app[layer + 'CanvasLayer'].points.forEach(pt => pt.geometryIsVisible = true);
 
   let changeVisibilityRecursively = (shapeId) => {
@@ -589,7 +592,7 @@ export function recomputeAllVisibilities(layer) {
   }
 
   app[layer + 'CanvasLayer'].shapes.forEach(s => {
-    if (s.geometryObject.geometryIsVisibleByChoice === false) {
+    if (s.geometryObject?.geometryIsVisibleByChoice === false) {
       if (s.name != 'cut')
         changeVisibilityRecursively(s.id);
       else
