@@ -222,6 +222,13 @@ export class TransformTool extends Tool {
       });
     }
 
+    app.upperCanvasLayer.shapes.forEach(s => {
+      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
+        let duplicateChild = findObjectById(duplicateChildId);
+        computeConstructionSpec(duplicateChild);
+      });
+    });
+
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
     // window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -333,12 +340,6 @@ export class TransformTool extends Tool {
     if (app.tool.currentStep == 'transform') {
       let point = findObjectById(addInfoToId(this.pointSelectedId, 'upper'));
       let shape = point.shape;
-      app.upperCanvasLayer.shapes.forEach(s => {
-        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-          let duplicateChild = findObjectById(duplicateChildId);
-          computeConstructionSpec(duplicateChild);
-        });
-      });
       if (shape.name == 'Trapeze' && point.idx < 3) {
         computeConstructionSpec(shape);
       } else if (point.idx < 2 || point.type == 'arcCenter') {

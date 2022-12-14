@@ -25,6 +25,13 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
       getAllLinkedShapesInGeometry(s, involvedShapes);
     }
   });
+  shape.geometryObject.geometryDuplicateChildShapeIds.forEach(sId => {
+    let s = findObjectById(sId);
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+      involvedShapes.push(s);
+      getAllLinkedShapesInGeometry(s, involvedShapes);
+    }
+  });
   if (shape.geometryObject.geometryTransformationParentShapeId) {
     let s = findObjectById(shape.geometryObject.geometryTransformationParentShapeId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
@@ -55,11 +62,11 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
   });
   if (shape.geometryObject.geometryParentObjectId1) {
     let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    let s;
-    if (seg)
-      s = seg.shape;
-    else
-      s = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    let s = seg.shape;
+    // if (seg)
+      // s = seg.shape;
+    // else
+    //   s = findObjectById(shape.geometryObject.geometryParentObjectId1);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id))
       involvedShapes.push(s);
   }

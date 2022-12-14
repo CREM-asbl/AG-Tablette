@@ -162,7 +162,7 @@ export class ShapeManager {
     let getChildren = (currentShape) => {
       let children = currentShape.geometryObject.geometryChildShapeIds.map(sId =>
         findObjectById(sId)
-      ).filter(child => child.name != 'PointOnIntersection');
+      ).filter(child => child.name != 'PointOnIntersection' && child.name != 'cut');
       return children;
     }
 

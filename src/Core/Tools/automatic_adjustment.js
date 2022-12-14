@@ -106,7 +106,7 @@ function bestPossibility(possibilities) {
  *          }
  *
  */
-export function getShapeAdjustment(shapes, mainShape) {
+export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
   let grid = app.settings.gridShown,
     // tangram = app.tangram.isSilhouetteShown,
     automaticAdjustment = app.settings.automaticAdjustment,
@@ -151,9 +151,13 @@ export function getShapeAdjustment(shapes, mainShape) {
     let constr = SelectManager.getEmptySelectionConstraints().points;
     constr.canSelect = true;
     constr.types = ['vertex', 'divisionPoint', 'shapeCenter'];
-    constr.blacklist = shapesAndAllChildren.map((s) => {
-      return { shapeId: addInfoToId(s.id, 'main') };
-    });
+    if (blacklistShapeIds) {
+      constr.blacklist = blacklistShapeIds.map(sId => { return { shapeId: sId }});
+    } else {
+      constr.blacklist = shapesAndAllChildren.map((s) => {
+        return { shapeId: addInfoToId(s.id, 'main') };
+      });
+    }
     constr.numberOfObjects = 'allInDistance';
     let pts = SelectManager.selectPoint(point, constr, false);
     if (pts) {

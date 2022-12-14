@@ -35,12 +35,13 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
     computeShapeTransform(child);
     computeAllShapeTransform(child, layer);
   });
-  if (includeChildren)
+  if (includeChildren) {
     shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
       let child = findObjectById(childId);
       computeShapeTransform(child);
       computeAllShapeTransform(child, layer);
     });
+  }
 }
 
 function reverseShape(shape, selectedAxis) {
