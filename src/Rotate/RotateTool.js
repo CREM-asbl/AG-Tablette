@@ -18,7 +18,7 @@ export class RotateTool extends Tool {
   constructor() {
     super('rotate', 'Tourner', 'move');
 
-    this.drawColor = '#080';
+    this.centerDrawColor = '#080';
 
     this.currentStep = null; // listen-canvas-click -> rotate
 
@@ -128,7 +128,7 @@ export class RotateTool extends Tool {
       new Point({
         coordinates: this.center,
         layer: 'upper',
-        color: this.drawColor,
+        color: this.centerDrawColor,
       });
 
     app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(

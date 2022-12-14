@@ -8,7 +8,14 @@ class IconButton extends LitElement {
       src: String,
       type: String,
       cantInteract: Boolean,
+      colorPickerValue: String,
     };
+  }
+
+  constructor() {
+    super();
+
+    this.colorPickerValue = app.settings.shapesDrawColor;
   }
 
   updated() {
@@ -94,7 +101,7 @@ class IconButton extends LitElement {
                 setState({
                   settings: {
                     ...app.settings,
-                    drawColor: e.target.value,
+                    shapesDrawColor: e.target.value,
                   },
                   tool: { ...app.tool, currentStep: 'listen' },
                 });

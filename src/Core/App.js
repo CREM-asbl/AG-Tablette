@@ -36,9 +36,7 @@ export class App {
       shapesSize: 2,
       numberOfDivisionParts: 2,
       numberOfRegularPoints: 3,
-      shapeFillColor: '#000000',
-      shapeBorderColor: '#000000',
-      drawColor: '#000000',
+      shapesDrawColor: '#ff0000',
       shapeOpacity: 0.7,
 
       gridShown: false,

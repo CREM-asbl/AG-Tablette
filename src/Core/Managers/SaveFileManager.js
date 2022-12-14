@@ -198,7 +198,14 @@ export class SaveFileManager {
       });
     }
 
-    if (!detail.saveSettings) settings = undefined;
+    if (!detail.saveSettings) {
+      settings = undefined;
+    } else {
+      delete settings.numberOfDivisionParts;
+      delete settings.numberOfRegularPoints;
+      delete settings.shapesDrawColor;
+      delete settings.shapeOpacity;
+    }
 
     // let silhouetteData;
     // if (app.environment.name == 'Tangram' && app.silhouette)

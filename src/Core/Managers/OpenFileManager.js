@@ -193,7 +193,7 @@ export class OpenFileManager {
       app.mainCanvasLayer.removeAllObjects();
 
     if (saveObject.settings) {
-      setState({ settings: { ...saveObject.settings } });
+      setState({ settings: { ...saveObject.settings, numberOfDivisionParts: 2, numberOfRegularPoints: 3, shapesDrawColor: '#ff0000', shapeOpacity: 0.7 } });
     } else {
       app.resetSettings();
     }
