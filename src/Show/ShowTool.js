@@ -7,11 +7,11 @@ import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 
 /**
- * Cacher & monter des objets.
+ * Monter des objets.
  */
-export class HideShowTool extends Tool {
+export class ShowTool extends Tool {
   constructor() {
-    super('hideShow', 'Cacher/montrer', 'tool');
+    super('show', 'Montrer', 'tool');
   }
 
   getHelpText() {
@@ -34,6 +34,7 @@ export class HideShowTool extends Tool {
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.map(s => { return { shapeId: s.id } });
     app.workspace.selectionConstraints.shapes.canSelectFromUpper = true;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -45,7 +46,7 @@ export class HideShowTool extends Tool {
   }
 
   objectSelected(shape) {
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
+    this.shapeToShow = shape;
 
     this.executeAction();
     setState({
@@ -108,10 +109,9 @@ export class HideShowTool extends Tool {
   }
 
   _executeAction() {
-    let workingShapes = this.involvedShapes.map((s) => findObjectById(addInfoToId(s.id, 'main')));
-    let mustShow = workingShapes.every(s => s.geometryObject.geometryIsHidden === true);
+    let workingShapes = ShapeManager.getAllBindedShapes(findObjectById(addInfoToId(this.shapeToShow.id, 'main')));
     workingShapes.forEach((s) => {
-      s.geometryObject.geometryIsHidden = !mustShow;
+      s.geometryObject.geometryIsHidden = false;
     });
     app.mainCanvasLayer.shapes.forEach(s => {
       if (s instanceof SinglePointShape) {
