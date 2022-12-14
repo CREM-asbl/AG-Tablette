@@ -217,6 +217,7 @@ export class CentralSymetryTool extends Tool {
       newShape.rotate(Math.PI, this.reference.coordinates);
       newShape.points.forEach((pt, idx) => {
         pt.geometryIsVisible = s.points[idx].geometryIsVisible;
+        pt.geometryIsHidden = s.points[idx].geometryIsHidden;
       });
       return newShape;
     });

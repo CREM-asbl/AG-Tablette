@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { Shape } from '../Core/Objects/Shapes/Shape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
@@ -32,10 +33,20 @@ export class ShowTool extends Tool {
     this.showHidden();
     this.removeListeners();
 
-    app.workspace.selectionConstraints =
-      app.fastSelectionConstraints.click_all_shape;
+
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.map(s => { return { shapeId: s.id } });
+    app.workspace.selectionConstraints.points.canSelect = true;
+    app.workspace.selectionConstraints.points.types = [
+      'divisionPoint',
+    ];
     app.workspace.selectionConstraints.shapes.canSelectFromUpper = true;
+    app.workspace.selectionConstraints.points.canSelectFromUpper = true;
+
+    // il faudrait ne pouvoir sélectionner que les points cachés
+
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -45,8 +56,16 @@ export class ShowTool extends Tool {
     this.removeListeners();
   }
 
-  objectSelected(shape) {
-    this.shapeToShow = shape;
+  objectSelected(object) {
+    console.log(object)
+    if (object instanceof Shape) {
+      this.mode = 'shape';
+      this.shapeToShow = object;
+    } else {
+      // point
+      this.point = object;
+      this.mode = 'divisionPoint';
+    }
 
     this.executeAction();
     setState({
@@ -91,6 +110,8 @@ export class ShowTool extends Tool {
         pt.type = s.points[idx].type;
         pt.ratio = s.points[idx].ratio;
         pt.visible = s.points[idx].visible;
+        if (s.points[idx].geometryIsHidden)
+          pt.color = '#f00';
       });
       newShape.segments.forEach((seg, idx) => {
         seg.isInfinite = s.segments[idx].isInfinite;
@@ -109,23 +130,27 @@ export class ShowTool extends Tool {
   }
 
   _executeAction() {
-    let workingShapes = ShapeManager.getAllBindedShapes(findObjectById(addInfoToId(this.shapeToShow.id, 'main')));
-    workingShapes.forEach((s) => {
-      s.geometryObject.geometryIsHidden = false;
-    });
-    app.mainCanvasLayer.shapes.forEach(s => {
-      if (s instanceof SinglePointShape) {
-        let child = findObjectById(s.geometryObject.geometryPointOnTheFlyChildId);
-        if (child)
-          s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
-      }
-    });
-    app.mainCanvasLayer.shapes.forEach(s => {
-      if (s.geometryObject.geometryIsConstaintDraw) {
-        let child = findObjectById(s.geometryObject.geometryChildShapeIds[0]);
-        if (child)
-          s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
-      }
-    });
+    if (this.mode == 'shape') {
+      let workingShapes = ShapeManager.getAllBindedShapes(findObjectById(addInfoToId(this.shapeToShow.id, 'main')));
+      workingShapes.forEach((s) => {
+        s.geometryObject.geometryIsHidden = false;
+      });
+      app.mainCanvasLayer.shapes.forEach(s => {
+        if (s instanceof SinglePointShape) {
+          let child = findObjectById(s.geometryObject.geometryPointOnTheFlyChildId);
+          if (child)
+            s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
+        }
+      });
+      app.mainCanvasLayer.shapes.forEach(s => {
+        if (s.geometryObject.geometryIsConstaintDraw) {
+          let child = findObjectById(s.geometryObject.geometryChildShapeIds[0]);
+          if (child)
+            s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
+        }
+      });
+    } else if (this.mode == 'divisionPoint') {
+      findObjectById(addInfoToId(this.point.id, 'main')).geometryIsHidden = false;
+    }
   }
 }

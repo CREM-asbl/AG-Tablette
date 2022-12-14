@@ -329,6 +329,7 @@ export class TranslationTool extends Tool {
       }
       newShape.points.forEach((pt, idx) => {
         pt.geometryIsVisible = s.points[idx].geometryIsVisible;
+        pt.geometryIsHidden = s.points[idx].geometryIsHidden;
       });
       return newShape;
     });

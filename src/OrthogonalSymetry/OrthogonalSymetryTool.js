@@ -331,6 +331,7 @@ export class OrthogonalSymetryTool extends Tool {
       this.reverseShape(newShape, selectedAxis);
       newShape.points.forEach((pt, idx) => {
         pt.geometryIsVisible = s.points[idx].geometryIsVisible;
+        pt.geometryIsHidden = s.points[idx].geometryIsHidden;
       });
       return newShape;
     });

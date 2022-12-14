@@ -894,7 +894,7 @@ class CanvasLayer extends LitElement {
   }
 
   drawPoint(point, justForAgrumentCount, doSave = true) {
-    if (point.geometryIsVisible === false)
+    if (point.geometryIsVisible === false || point.geometryIsHidden === true)
       return;
     if (doSave) this.ctx.save();
 

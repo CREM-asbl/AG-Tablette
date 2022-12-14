@@ -388,6 +388,7 @@ export class RotationTool extends Tool {
       newShape.rotate(this.angle, this.references[0].coordinates);
       newShape.points.forEach((pt, idx) => {
         pt.geometryIsVisible = s.points[idx].geometryIsVisible;
+        pt.geometryIsHidden = s.points[idx].geometryIsHidden;
       });
       return newShape;
     });

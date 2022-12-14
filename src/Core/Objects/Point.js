@@ -36,6 +36,7 @@ export class Point {
     reference = null,
     endpointIds = [],
     geometryIsVisible = true,
+    geometryIsHidden = false,
   }) {
     if (id == undefined)
       id = uniqId(layer, 'point');
@@ -69,6 +70,7 @@ export class Point {
     this.reference = reference;
     this.endpointIds = [...endpointIds];
     this.geometryIsVisible = geometryIsVisible;
+    this.geometryIsHidden = geometryIsHidden;
   }
 
   get canvasLayer() {
@@ -510,6 +512,8 @@ export class Point {
 
     if (this.geometryIsVisible !== true)
       data.geometryIsVisible = this.geometryIsVisible;
+    if (this.geometryIsHidden !== false)
+      data.geometryIsHidden = this.geometryIsHidden;
     return data;
   }
 

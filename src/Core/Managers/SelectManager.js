@@ -143,7 +143,7 @@ export class SelectManager {
     if (constraints.canSelectFromUpper)
       allPoints.push(...app.upperCanvasLayer.points);
     allPoints.forEach((pt) => {
-      if (pt.visible && pt.geometryIsVisible) {
+      if (pt.visible && pt.geometryIsVisible && !pt.geometryIsHidden) {
         if (
           constraints.types.includes(pt.type) &&
           distCheckFunction(pt.coordinates, mouseCoordinates)
