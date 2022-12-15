@@ -119,6 +119,7 @@ export class CopyTool extends Tool {
 
       this.drawingShapes = [newShape];
     } else {
+      this.mode = 'shape';
       this.selectedShape = object;
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       for (let i = 0; i < this.involvedShapes.length; i++) {
