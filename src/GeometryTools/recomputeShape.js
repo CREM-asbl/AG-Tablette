@@ -680,9 +680,10 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     let refShape = refObject;
     if (refShape instanceof Segment)
       refShape = refShape.shape;
-    shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refObject.points[0].coordinates;
-    shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.points[0].coordinates;
-    let refShapeAngle = refObject.points[0].coordinates.angleWith(refObject.centerCoordinates ? refObject.centerCoordinates : refObject.vertexes[1].coordinates);
+    console.log(refObject.points);
+    shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refObject.vertexes[0].coordinates;
+    shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.vertexes[0].coordinates;
+    let refShapeAngle = refObject.vertexes[0].coordinates.angleWith(refObject.centerCoordinates ? refObject.centerCoordinates : refObject.vertexes[1].coordinates);
     let centerCoordinates = shape.centerCoordinates;
     // let firstPointCoordinates = shape.points[0].coordinates;
     if (refShape.isReversed ^ shape.isReversed) {
@@ -695,7 +696,7 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
       //   y: shape.points[0].coordinates.y,
       // });
     }
-    let shapeAngle = shape.points[0].coordinates.angleWith(centerCoordinates);
+    let shapeAngle = shape.vertexes[0].coordinates.angleWith(centerCoordinates);
     if (shape.segments[0].length > 0.01) {
       shape.geometryObject.geometryConstructionSpec.rotationAngle = refShapeAngle - shapeAngle;
     }
