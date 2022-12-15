@@ -34,7 +34,6 @@ export class ScalarMultiplicationTool extends Tool {
   }
 
   objectSelected(object) {
-    console.log(object);
     if (object.name != 'Vector') {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
@@ -52,7 +51,6 @@ export class ScalarMultiplicationTool extends Tool {
       path: object.getSVGPath('no scale', true),
       id: undefined,
     });
-    console.log(app.upperCanvasLayer.shapes);
     window.dispatchEvent(new CustomEvent('refreshUpper'));
 
     this.executeAnimation();
@@ -77,8 +75,6 @@ export class ScalarMultiplicationTool extends Tool {
   _executeAction() {
     this.numerator = app.settings.scalarNumerator;
     this.denominator = app.settings.scalarDenominator;
-
-    console.log(this.numerator, this.denominator)
 
     let vector = findObjectById(
       this.vectorId

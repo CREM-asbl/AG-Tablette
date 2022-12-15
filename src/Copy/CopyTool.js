@@ -1,10 +1,13 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
+import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Segment } from '../Core/Objects/Segment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
@@ -68,9 +71,12 @@ export class CopyTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    app.workspace.selectionConstraints =
-      app.fastSelectionConstraints.mousedown_all_shape;
-    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
+    let constraints = SelectManager.getEmptySelectionConstraints();
+    constraints.eventType = 'mousedown';
+    constraints.shapes.canSelect = true;
+    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
+    constraints.segments.canSelect = true;
+    app.workspace.selectionConstraints = constraints;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -86,44 +92,69 @@ export class CopyTool extends Tool {
     this.removeListeners();
   }
 
-  objectSelected(shape) {
+  objectSelected(object) {
     if (app.tool.currentStep != 'listen') return;
 
-    this.selectedShape = shape;
-    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
-    for (let i = 0; i < this.involvedShapes.length; i++) {
-      let currentShape = this.involvedShapes[i];
-      if (currentShape.name == 'Vector') {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs ne peuvent pas être copiés, mais peuvent être multipliés.' } }));
-        return;
-      }
-    }
+    if (object instanceof Segment) {
+      this.mode = 'segment';
 
-    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
-    this.lastKnownMouseCoordinates = this.startClickCoordinates;
+      this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+      this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
-    // sort shape by height
-    this.involvedShapes.sort(
-      (s1, s2) =>
-        ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
-    );
-    this.drawingShapes = this.involvedShapes.map((s) => {
-      let newShape = new s.constructor({
-        ...s,
+      this.involvedSegment = object;
+
+      let newShape = new LineShape({
         layer: 'upper',
-        path: s.getSVGPath('no scale', false),
-        segmentsColor: s.segments.map((seg) => {
-          return seg.color;
-        }),
-        pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
+        path: object.getSVGPath('no scale', true),
+        id: undefined,
+        segmentsColor: [object.color],
+        pointsColor: object.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
           return pt.color;
         }),
+        geometryObject: new GeometryObject({}),
       });
-      newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
+      this.selectedShape = newShape;
+      this.shapesToMove = [this.selectedShape];
       newShape.translate(this.translateOffset);
-      return newShape;
-    });
-    this.shapesToMove = this.drawingShapes;
+
+      this.drawingShapes = [newShape];
+    } else {
+      this.selectedShape = object;
+      this.involvedShapes = ShapeManager.getAllBindedShapes(object);
+      for (let i = 0; i < this.involvedShapes.length; i++) {
+        let currentShape = this.involvedShapes[i];
+        if (currentShape.name == 'Vector') {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs ne peuvent pas être copiés, mais peuvent être multipliés.' } }));
+          return;
+        }
+      }
+
+      this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+      this.lastKnownMouseCoordinates = this.startClickCoordinates;
+
+      // sort shape by height
+      this.involvedShapes.sort(
+        (s1, s2) =>
+          ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
+      );
+      this.drawingShapes = this.involvedShapes.map((s) => {
+        let newShape = new s.constructor({
+          ...s,
+          layer: 'upper',
+          path: s.getSVGPath('no scale', false),
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
+            return pt.color;
+          }),
+        });
+        newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
+        newShape.translate(this.translateOffset);
+        return newShape;
+      });
+      this.shapesToMove = this.drawingShapes;
+    }
 
     setState({ tool: { ...app.tool, currentStep: 'move' } });
     this.animate();
@@ -192,33 +223,50 @@ export class CopyTool extends Tool {
   _executeAction() {
     let shapesList = [];
 
-    this.involvedShapes.forEach((s) => {
-      let newShape = new s.constructor({
-        ...s,
+    if (this.mode == 'segment') {
+      let newShape = new LineShape({
         layer: 'main',
         familyName: 'copy',
-        path: s.getSVGPath('no scale', false),
+        path: this.involvedSegment.getSVGPath('no scale', true),
         id: undefined,
-        // divisionPointInfos: s.divisionPoints.map((dp) => {
-        //   return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
-        // }),
-        segmentsColor: s.segments.map((seg) => {
-          return seg.color;
-        }),
-        pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
+        segmentsColor: [this.involvedSegment.color],
+        pointsColor: this.involvedSegment.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
           return pt.color;
         }),
+        geometryObject: new GeometryObject({}),
       });
-      newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
-      if (newShape.name.startsWith('Parallele'))
-        newShape.name = newShape.name.slice('Parallele'.length);
-      if (newShape.name.startsWith('Perpendicular'))
-        newShape.name = newShape.name.slice('Perpendicular'.length);
-      if (newShape.geometryObject)
-        newShape.geometryObject = new GeometryObject({});
+
       shapesList.push(newShape);
       newShape.translate(this.translation);
-    });
+    } else {
+      this.involvedShapes.forEach((s) => {
+        let newShape = new s.constructor({
+          ...s,
+          layer: 'main',
+          familyName: 'copy',
+          path: s.getSVGPath('no scale', false),
+          id: undefined,
+          // divisionPointInfos: s.divisionPoints.map((dp) => {
+          //   return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
+          // }),
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
+            return pt.color;
+          }),
+        });
+        newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
+        if (newShape.name.startsWith('Parallele'))
+          newShape.name = newShape.name.slice('Parallele'.length);
+        if (newShape.name.startsWith('Perpendicular'))
+          newShape.name = newShape.name.slice('Perpendicular'.length);
+        if (newShape.geometryObject)
+          newShape.geometryObject = new GeometryObject({});
+        shapesList.push(newShape);
+        newShape.translate(this.translation);
+      });
+    }
 
     if (this.shapeMoved > 10) {
       let transformation = getShapeAdjustment(shapesList, shapesList[0]);

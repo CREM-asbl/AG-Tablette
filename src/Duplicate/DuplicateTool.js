@@ -8,6 +8,7 @@ import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
@@ -67,9 +68,12 @@ export class DuplicateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    app.workspace.selectionConstraints =
-      app.fastSelectionConstraints.mousedown_all_shape;
-    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape && s.name != 'PointOnLine');
+    let constraints = SelectManager.getEmptySelectionConstraints();
+    constraints.eventType = 'mousedown';
+    constraints.shapes.canSelect = true;
+    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape && s.name != 'PointOnLine');
+    constraints.segments.canSelect = true;
+    app.workspace.selectionConstraints = constraints;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -98,13 +102,36 @@ export class DuplicateTool extends Tool {
   objectSelected(object) {
     if (app.tool.currentStep != 'listen' && app.tool.currentStep != 'selectSegment') return;
 
-    if (object instanceof Segment) {
+    if (app.tool.currentStep == 'selectSegment' && object instanceof Segment) {
       if (object.isInfinite || object.isSemiInfinite)
         return;
       this.mode = 'point';
       this.segment = object;
       this.executeAction();
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    } else if (object instanceof Segment) {
+      this.mode = 'segment';
+
+      this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+      this.lastKnownMouseCoordinates = this.startClickCoordinates;
+
+      this.involvedSegment = object;
+
+      let newShape = new LineShape({
+        layer: 'upper',
+        path: object.getSVGPath('no scale', true),
+        id: undefined,
+        segmentsColor: [object.color],
+        pointsColor: object.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
+          return pt.color;
+        }),
+      });
+      newShape.translate(this.translateOffset);
+
+      this.drawingShapes = [newShape];
+
+      setState({ tool: { ...app.tool, currentStep: 'move' } });
+      this.animate();
     } else if (object.name == 'PointOnLine') {
       this.involvedPoint = object;
       new Point({
@@ -233,6 +260,35 @@ export class DuplicateTool extends Tool {
 
       segment.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       this.involvedPoint.geometryObject.geometryDuplicateChildShapeIds.push(shape.id);
+    } else if (this.mode == 'segment') {
+      let newShape = new LineShape({
+        layer: 'main',
+        familyName: 'duplicate',
+        path: this.involvedSegment.getSVGPath('no scale', true),
+        id: undefined,
+        segmentsColor: [this.involvedSegment.color],
+        pointsColor: this.involvedSegment.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
+          return pt.color;
+        }),
+        geometryObject: new GeometryObject({}),
+      });
+      newShape.translate(this.translation);
+
+      if (newShape.geometryObject)
+        newShape.geometryObject = new GeometryObject({
+          geometryDuplicateParentShapeId: this.involvedSegment.id
+        });
+      this.involvedSegment.shape.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
+
+      let transformation = getShapeAdjustment([newShape], newShape);
+
+      newShape.rotate(
+        transformation.rotationAngle,
+        newShape.centerCoordinates,
+      );
+      newShape.translate(transformation.translation);
+
+      computeConstructionSpec(newShape);
     } else {
       let shapesList = [];
 

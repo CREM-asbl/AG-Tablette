@@ -57,7 +57,6 @@ export class ShowTool extends Tool {
   }
 
   objectSelected(object) {
-    console.log(object)
     if (object instanceof Shape) {
       this.mode = 'shape';
       this.shapeToShow = object;

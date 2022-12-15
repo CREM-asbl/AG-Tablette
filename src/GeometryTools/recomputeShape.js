@@ -1,6 +1,7 @@
 import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { findObjectById, mod } from '../Core/Tools/general';
 
@@ -481,9 +482,13 @@ function computeTransformShape(shape) {
 }
 
 function computeDuplicateShape(shape) {
-  let parentShape = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
-  if (!parentShape)
-    parentShape = findObjectById(shape.geometryObject.geometryMultipliedParentShapeId);
+  let parentObject = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
+  if (!parentObject)
+    parentObject = findObjectById(shape.geometryObject.geometryMultipliedParentShapeId);
+
+  let parentShape = parentObject;
+  if (parentObject instanceof Segment)
+    parentShape = parentObject.shape;
 
   if (shape.name == 'PointOnLine') {
     shape.points[0].ratio = parentShape.points[0].ratio;
@@ -529,12 +534,12 @@ function computeDuplicateShape(shape) {
     let vector = shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates.substract(shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
     let mustReverse = false,
       rotationMultiplier = -1;
-    if (shape.isReversed ^ shape.isReversed) {
+    if (shape.isReversed ^ parentShape.isReversed) {
       mustReverse = true;
       rotationMultiplier = 1;
     }
     shape.points.filter(pt => pt.type != 'divisionPoint').forEach((pt, idx) => {
-      let startCoord = parentShape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
+      let startCoord = parentObject.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
       if (mustReverse) {
         startCoord = new Coordinates({
           x: startCoord.x + 2 * (shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
@@ -671,10 +676,13 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     if (shape.name == 'PointOnLine') {
       return;
     }
-    let refShape = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
-    shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refShape.points[0].coordinates;
+    let refObject = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
+    let refShape = refObject;
+    if (refShape instanceof Segment)
+      refShape = refShape.shape;
+    shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refObject.points[0].coordinates;
     shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.points[0].coordinates;
-    let refShapeAngle = refShape.points[0].coordinates.angleWith(refShape.centerCoordinates);
+    let refShapeAngle = refObject.points[0].coordinates.angleWith(refObject.centerCoordinates ? refObject.centerCoordinates : refObject.vertexes[1].coordinates);
     let centerCoordinates = shape.centerCoordinates;
     // let firstPointCoordinates = shape.points[0].coordinates;
     if (refShape.isReversed ^ shape.isReversed) {

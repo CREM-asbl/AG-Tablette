@@ -102,7 +102,6 @@ export class ColorTool extends Tool {
   }
 
   _executeAction() {
-    console.log(app.settings.shapesDrawColor)
     if (this.clickType == 'normal') {
       if (this.object instanceof Shape) {
         let involvedShapes = ShapeManager.getAllBindedShapes(this.object);
