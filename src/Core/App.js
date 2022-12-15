@@ -38,6 +38,8 @@ export class App {
       numberOfRegularPoints: 3,
       shapesDrawColor: '#ff0000',
       shapeOpacity: 0.7,
+      scalarNumerator: 1,
+      scalarDenominator: 1,
 
       gridShown: false,
       gridType: 'none',

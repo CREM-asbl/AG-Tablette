@@ -21,6 +21,8 @@ export class GeometryObject {
     geometryIsVisibleByChoice = true,
     geometryIsConstaintDraw = false,
     geometryPointOnTheFlyChildId = null,
+    geometryMultipliedParentShapeId = null,
+    geometryMultipliedChildShapeIds = [],
   }) {
     this.geometryChildShapeIds = [...geometryChildShapeIds];
     this.geometryConstructionSpec = {...geometryConstructionSpec};
@@ -39,6 +41,8 @@ export class GeometryObject {
     this.geometryIsVisibleByChoice = geometryIsVisibleByChoice;
     this.geometryIsConstaintDraw = geometryIsConstaintDraw;
     this.geometryPointOnTheFlyChildId = geometryPointOnTheFlyChildId;
+    this.geometryMultipliedParentShapeId = geometryMultipliedParentShapeId;
+    this.geometryMultipliedChildShapeIds = geometryMultipliedChildShapeIds;
   }
 
   saveData() {
@@ -94,6 +98,10 @@ export class GeometryObject {
       data.geometryIsConstaintDraw = this.geometryIsConstaintDraw;
     if (this.geometryPointOnTheFlyChildId !== null)
       data.geometryPointOnTheFlyChildId = this.geometryPointOnTheFlyChildId;
+    if (this.geometryMultipliedParentShapeId !== null)
+      data.geometryMultipliedParentShapeId = this.geometryMultipliedParentShapeId;
+    if (this.geometryMultipliedChildShapeIds.length !== 0)
+      data.geometryMultipliedChildShapeIds = [...this.geometryMultipliedChildShapeIds];
     return data;
   }
 

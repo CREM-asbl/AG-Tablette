@@ -192,6 +192,9 @@ export class TransformTool extends Tool {
       if (!findObjectById(s.geometryObject.geometryDuplicateParentShapeId)) {
         s.geometryObject.geometryDuplicateParentShapeId = addInfoToId(s.geometryObject.geometryDuplicateParentShapeId, 'main')
       }
+      if (!findObjectById(s.geometryObject.geometryMultipliedParentShapeId)) {
+        s.geometryObject.geometryMultipliedParentShapeId = addInfoToId(s.geometryObject.geometryMultipliedParentShapeId, 'main')
+      }
     });
 
     app.mainCanvasLayer.editingShapeIds = involvedShapes.map(
@@ -227,6 +230,10 @@ export class TransformTool extends Tool {
         let duplicateChild = findObjectById(duplicateChildId);
         computeConstructionSpec(duplicateChild);
       });
+      s.geometryObject?.geometryMultipliedChildShapeIds.forEach(multipliedChildId => {
+        let multipliedChild = findObjectById(multipliedChildId);
+        computeConstructionSpec(multipliedChild);
+      });
     });
 
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
@@ -239,7 +246,7 @@ export class TransformTool extends Tool {
       return;
     let currentShapeId = currentEntries[index][0];
     let currentShape = findObjectById(currentShapeId);
-    let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds];
+    let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds, ...currentShape.geometryObject.geometryMultipliedChildShapeIds];
     dependenciesIds.sort((dp1, dp2) => {
       if (findObjectById(dp1).geometryObject.geometryIsConstaintDraw) {
         return -1;

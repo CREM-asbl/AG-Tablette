@@ -117,6 +117,13 @@ export class DuplicateTool extends Tool {
     } else {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
+      for (let i = 0; i < this.involvedShapes.length; i++) {
+        let currentShape = this.involvedShapes[i];
+        if (currentShape.name == 'Vector') {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs ne peuvent pas être dupliqués, mais peuvent être multipliés.' } }));
+          return;
+        }
+      }
       this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
       this.lastKnownMouseCoordinates = this.startClickCoordinates;
 

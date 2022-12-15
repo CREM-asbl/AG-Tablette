@@ -21,6 +21,7 @@ export default {
     'BuildCenter',
     'Copy',
     'Duplicate',
+    'ScalarMultiplication',
     'Delete',
     'Group',
     'Ungroup',

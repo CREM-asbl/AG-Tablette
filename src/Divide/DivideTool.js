@@ -138,18 +138,8 @@ export class DivideTool extends Tool {
     if (app.tool.currentStep == 'selectObject') {
       if (object instanceof Segment) {
         if (object.shape instanceof ArrowLineShape) {
-          this.vectorId = object.shape.id;
-
-          new ArrowLineShape({
-            layer: 'upper',
-            strokeColor: this.drawColors[0],
-            strokeWidth: 3,
-            path: object.getSVGPath('no scale', true),
-            id: undefined,
-          });
-
-          this.mode = 'vector';
-          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs ne peuvent pas être divisés, mais peuvent être multipliés.' } }));
+          return;
         } else {
           this.segmentId = object.id;
 

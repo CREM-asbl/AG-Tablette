@@ -41,6 +41,11 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
       computeShapeTransform(child);
       computeAllShapeTransform(child, layer);
     });
+    shape.geometryObject.geometryMultipliedChildShapeIds.forEach(childId => {
+      let child = findObjectById(childId);
+      computeShapeTransform(child);
+      computeAllShapeTransform(child, layer);
+    });
   }
 }
 
@@ -66,6 +71,9 @@ export function computeShapeTransform(shape, layer = 'upper') {
     computeTransformShape(shape);
     return;
   } else if (shape.geometryObject.geometryDuplicateParentShapeId) {
+    computeDuplicateShape(shape);
+    return;
+  } else if (shape.geometryObject.geometryMultipliedParentShapeId) {
     computeDuplicateShape(shape);
     return;
   }
@@ -474,6 +482,9 @@ function computeTransformShape(shape) {
 
 function computeDuplicateShape(shape) {
   let parentShape = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
+  if (!parentShape)
+    parentShape = findObjectById(shape.geometryObject.geometryMultipliedParentShapeId);
+
   if (shape.name == 'PointOnLine') {
     shape.points[0].ratio = parentShape.points[0].ratio;
 
@@ -533,11 +544,11 @@ function computeDuplicateShape(shape) {
       let newPointCoordinates = startCoord
         .rotate(rotationMultiplier * shape.geometryObject.geometryConstructionSpec.rotationAngle, shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates)
         .add(vector);
-      if (idx == 1 && shape.geometryObject.geometryConstructionSpec.numberOfParts) {
+      if (idx == 1 && shape.geometryObject.geometryConstructionSpec.numerator) {
         newPointCoordinates = shape.points[0].coordinates.add(
           newPointCoordinates
             .substract(shape.points[0].coordinates)
-            .multiply(1 / shape.geometryObject.geometryConstructionSpec.numberOfParts)
+            .multiply(shape.geometryObject.geometryConstructionSpec.numerator / shape.geometryObject.geometryConstructionSpec.denominator)
         );
       }
       pt.coordinates = newPointCoordinates;
@@ -680,6 +691,11 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     if (shape.segments[0].length > 0.01) {
       shape.geometryObject.geometryConstructionSpec.rotationAngle = refShapeAngle - shapeAngle;
     }
+  } else if (shape.familyName == 'multipliedVector') {
+    let refShape = findObjectById(shape.geometryObject.geometryMultipliedParentShapeId);
+    shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refShape.points[0].coordinates;
+    shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.points[0].coordinates;
+    shape.geometryObject.geometryConstructionSpec.rotationAngle = 0;
   } else if (shape.name == 'Rectangle') {
     // let angle = shape.vertexes[1].getVertexAngle();
     // shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);

@@ -176,7 +176,18 @@ export class ReverseTool extends Tool {
             window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être retournées.' } }));
             return;
           }
+          if (currentShape.familyName == 'multipliedVector') {
+            window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs multipliés ne peuvent pas être retournés, mais peuvent l\'être via leur parent.' } }));
+            return;
+          }
         }
+        let shapesToAdd = [];
+        this.involvedShapes.forEach(s => {
+          s.geometryObject?.geometryMultipliedChildShapeIds.forEach(sId => {
+            shapesToAdd.push(findObjectById(sId));
+          })
+        });
+        this.involvedShapes.push(...shapesToAdd);
       }
 
       setState({

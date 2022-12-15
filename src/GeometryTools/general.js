@@ -39,6 +39,13 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
       getAllLinkedShapesInGeometry(s, involvedShapes);
     }
   }
+  shape.geometryObject.geometryMultipliedChildShapeIds.forEach(sId => {
+    let s = findObjectById(sId);
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+      involvedShapes.push(s);
+      getAllLinkedShapesInGeometry(s, involvedShapes);
+    }
+  });
   shape.geometryObject.geometryTransformationCharacteristicElementIds.forEach((sId, idx) => {
     let objectType = 'point';
     if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry' &&

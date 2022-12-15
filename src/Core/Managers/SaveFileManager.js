@@ -205,6 +205,8 @@ export class SaveFileManager {
       delete settings.numberOfRegularPoints;
       delete settings.shapesDrawColor;
       delete settings.shapeOpacity;
+      delete settings.scalarNumerator;
+      delete settings.scalarDenominator;
     }
 
     // let silhouetteData;
