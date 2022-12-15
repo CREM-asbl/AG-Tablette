@@ -680,7 +680,6 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     let refShape = refObject;
     if (refShape instanceof Segment)
       refShape = refShape.shape;
-    console.log(refObject.points);
     shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refObject.vertexes[0].coordinates;
     shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.vertexes[0].coordinates;
     let refShapeAngle = refObject.vertexes[0].coordinates.angleWith(refObject.centerCoordinates ? refObject.centerCoordinates : refObject.vertexes[1].coordinates);
