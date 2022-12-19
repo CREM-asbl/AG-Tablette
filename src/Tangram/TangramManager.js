@@ -1,5 +1,4 @@
 import { app, setState } from '../Core/App';
-import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 import { createElem } from '../Core/Tools/general';
 
@@ -52,7 +51,7 @@ export class TangramManager {
     if (!TangramManager.kit)
       TangramManager.kit = await TangramManager.loadKit();
     const ws = JSON.parse(this.kit);
-    OpenFileManager.transformToNewIdSystem(ws.objects, 'main');
+    // OpenFileManager.transformToNewIdSystem(ws.objects, 'main');
     WorkspaceManager.setWorkspaceFromObject(ws);
   }
 }
