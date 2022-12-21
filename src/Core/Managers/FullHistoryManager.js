@@ -33,6 +33,7 @@ export class FullHistoryManager {
         actionIndex: 0,
         numberOfActions: numberOfActions,
         isRunning: true,
+        isPlaying: false,
       },
     });
 
@@ -57,6 +58,12 @@ export class FullHistoryManager {
   }
 
   static pauseBrowsing() {
+    setState({
+      fullHistory: {
+        ...app.fullHistory,
+        isPlaying: false,
+      },
+    });
     window.clearTimeout(app.fullHistory.timeoutId);
   }
 
@@ -69,6 +76,7 @@ export class FullHistoryManager {
       fullHistory: {
         ...app.fullHistory,
         timeoutId,
+        isPlaying: true,
       },
     });
   }
@@ -82,14 +90,20 @@ export class FullHistoryManager {
     });
   }
 
-  static moveTo(actionIndex, startSelectedTool = true) {
+  static moveTo(actionIndex, startSelectedTool = true, isForSingleActionPlaying = false) {
     FullHistoryManager.pauseBrowsing();
 
     let index = app.fullHistory.steps.findIndex(
-      (step) => step.detail?.actionIndex === actionIndex - 1,
+      (step) => step.detail?.actionIndex === actionIndex && step.type == 'add-fullstep'
     );
-
     let data = app.fullHistory.steps[index]?.detail.data;
+    if (isForSingleActionPlaying) {
+      index = app.fullHistory.steps.findIndex(
+        (step) => step.detail?.actionIndex === actionIndex
+      );
+      data = app.fullHistory.steps[index - 1]?.detail.data;
+    }
+
     if (data) {
       app.workspace.initFromObject({ ...data });
       let settings = {
@@ -104,8 +118,9 @@ export class FullHistoryManager {
     }
 
     // not to re-execute fullStep
-    index++;
-    setState({ fullHistory: { ...app.fullHistory, actionIndex, index }, tool: undefined });
+    if (!isForSingleActionPlaying)
+      index++;
+    setState({ fullHistory: { ...app.fullHistory, actionIndex: actionIndex, index }, tool: undefined });
 
     app.upperCanvasLayer.removeAllObjects(); // temporary patch
     app.upperCanvasLayer.redraw(); // temporary patch
@@ -128,7 +143,7 @@ export class FullHistoryManager {
   }
 
   static executeAllSteps(onlySingleAction = false) {
-    if (app.fullHistory.index >= app.fullHistory.steps.length - 1) {
+    if (app.fullHistory.index >= app.fullHistory.steps.length) {
       FullHistoryManager.stopBrowsing();
       return;
     }
@@ -155,13 +170,14 @@ export class FullHistoryManager {
       detail.mousePos = new Coordinates(detail.mousePos);
     }
 
-    // let nextType = app.fullHistory.steps[index + 1].type;
-
-    // if (type == 'canvasMouseUp') {
-    //   FullHistoryManager.isClicked = false;
-    // } else if (type == 'canvasMouseDown') {
-    //   FullHistoryManager.isClicked = true;
-    // }
+    if (detail.actionIndex) {
+      setState({
+        fullHistory: {
+          ...app.fullHistory,
+          actionIndex: detail.actionIndex,
+        },
+      });
+    }
 
     if (type == 'add-fullstep') {
       if (detail.name == 'Retourner') {
@@ -175,14 +191,14 @@ export class FullHistoryManager {
         let data = detail.data;
         app.workspace.initFromObject(data);
         setState({
-          fullHistory: {
-            ...app.fullHistory,
-            actionIndex: app.fullHistory.actionIndex + 1,
-          },
+          // fullHistory: {
+          //   ...app.fullHistory,
+          //   actionIndex: app.fullHistory.actionIndex + 1,
+          // },
           tangram: { ...data.tangram },
         });
       }, FullHistoryManager.nextTime + 30);
-      if (app.fullHistory.numberOfActions == app.fullHistory.actionIndex)
+      if (app.fullHistory.numberOfActions + 1 == app.fullHistory.actionIndex)
         setTimeout(
           () => FullHistoryManager.stopBrowsing(),
           FullHistoryManager.nextTime,
@@ -263,13 +279,19 @@ export class FullHistoryManager {
     if (type == 'add-fullstep') {
       detail.actionIndex = app.fullHistory.steps.filter((step) => {
         return step.type == 'add-fullstep';
-      }).length;
+      }).length + 1;
       let data = app.workspace.data;
       data.history = undefined;
       data.settings = { ...app.settings };
       data.tangram = { ...app.tangram };
       detail.data = data;
       setState({ stepSinceSave: true });
+    } else if (app.fullHistory.steps.length <= 1) {
+      detail.actionIndex = app.fullHistory.steps.length;
+    } else if (app.fullHistory.steps[app.fullHistory.steps.length - 1].type == 'add-fullstep') {
+      detail.actionIndex = app.fullHistory.steps.filter((step) => {
+        return step.type == 'add-fullstep';
+      }).length + 1;
     }
     if (type == 'tool-changed' && detail.name == 'solveChecker') {
       return;

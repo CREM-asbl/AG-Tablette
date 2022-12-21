@@ -30,7 +30,7 @@ class FullHistoryTools extends LitElement {
         return { name, time, timeStamp: step.timeStamp, actions: [] };
       });
     let toolIndex = -1;
-    let actionIndex = 0;
+    let actionIndex = 1;
     app.fullHistory.steps
       .filter((step) => step.type == 'add-fullstep')
       .forEach((step) => {
@@ -57,6 +57,7 @@ class FullHistoryTools extends LitElement {
         if (e.type == 'fullHistory-changed') {
           this.index = app.fullHistory.actionIndex;
           this.shadowRoot.getElementById( 'b' + this.index )?.parentNode.scrollIntoView();
+          this.setPlayPause(app.fullHistory.isPlaying ? 'pause' : 'play');
         } else {
           this.updateProperties();
         }
@@ -185,39 +186,33 @@ class FullHistoryTools extends LitElement {
     let idx;
     switch (event.target.name) {
       case 'action-button':
-        this.setPlayPause('play');
         idx = parseInt(event.target.id.substring(1));
         FullHistoryManager.moveTo(idx);
         break;
       case 'play-action-button':
         idx = parseInt(event.target.id.substring(1));
-        FullHistoryManager.moveTo(idx - 1);
-        this.setPlayPause('pause');
+        FullHistoryManager.moveTo(idx, true, true);
         FullHistoryManager.playBrowsing(true);
         break;
       case 'undo':
         if (index == 0) {
           break;
         }
-        this.setPlayPause('play');
         FullHistoryManager.moveTo(index - 1);
         break;
       case 'stop':
         FullHistoryManager.stopBrowsing();
         break;
       case 'pause':
-        this.setPlayPause('play');
         FullHistoryManager.pauseBrowsing();
         break;
       case 'play':
-        this.setPlayPause('pause');
         FullHistoryManager.playBrowsing();
         break;
       case 'redo':
         if (index >= app.fullHistory.numberOfActions) {
           break;
         }
-        this.setPlayPause('play');
         FullHistoryManager.moveTo(index + 1);
         break;
     }
@@ -289,7 +284,7 @@ class FullHistoryTools extends LitElement {
                         class="single-action-div ${idx % 2 ? 'right-single-action-div' : 'left-single-action-div'}"
                       >
                         <button
-                          id="b${action.actionIndex + 1}"
+                          id="b${action.actionIndex}"
                           @click="${this._clickHandler}"
                           name="action-button"
                           class="action-button"
@@ -298,7 +293,7 @@ class FullHistoryTools extends LitElement {
                           (${(Math.floor(action.time / 1000 / 60) > 0 ? Math.floor(action.time / 1000 / 60) + 'm ' : '') + new Number(action.time / 1000 % 60).toFixed(1) + 's'})
                         </button>
                         <button
-                          id="c${action.actionIndex + 1}"
+                          id="c${action.actionIndex}"
                           @click="${this._clickHandler}"
                           name="play-action-button"
                           class="play-action-button"
