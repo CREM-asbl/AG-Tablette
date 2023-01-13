@@ -595,6 +595,16 @@ export class RegularShape extends Shape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
+    if (this.geometryObject &&
+      (
+        this.geometryObject.geometryIsVisible === false ||
+        this.geometryObject.geometryIsHidden === true ||
+        this.geometryObject.geometryIsConstaintDraw === true
+      )
+    ) {
+      return '';
+    }
+
     let path = this.getSVGPath();
 
     let attributes = {
@@ -606,11 +616,32 @@ export class RegularShape extends Shape {
       'stroke-opacity': 1, // toujours à 1 ?
     };
 
-    let path_tag = '<path';
+    let fillPath = '<path';
     for (let [key, value] of Object.entries(attributes)) {
-      path_tag += ' ' + key + '="' + value + '"';
+      fillPath += ' ' + key + '="' + value + '"';
     }
-    path_tag += '/>\n';
+    fillPath += '/>\n';
+
+
+    let strokePath = '';
+    if (this.segments.some(seg => seg.color != undefined)) {
+      this.segments.forEach(seg => {
+        let path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
+        this.ctx.strokeStyle = seg.color ? seg.color : shape.strokeColor;
+        if (seg.width != 1)
+          this.ctx.lineWidth = seg.width;
+        this.ctx.stroke(path);
+        this.ctx.lineWidth = shape.strokeWidth;
+      });
+    } else {
+      strokePath = '<path';
+      for (let [key, value] of Object.entries(attributes)) {
+        fillPath += ' ' + key + '="' + value + '"';
+      }
+      this.ctx.stroke(path);
+      strokePath += '/>';
+    }
+    strokePath += '\n';
 
     let point_tags = '';
     if (app.settings.areShapesPointed && this.name != 'silhouette') {

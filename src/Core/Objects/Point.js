@@ -424,7 +424,7 @@ export class Point {
   /**
    * convertit en balise circle de svg
    */
-  toSVG(color = '#000', size = 1) {
+  toSVG() {
     let canvasCoordinates = this.coordinates.toCanvasCoordinates();
     return (
       '<circle cx="' +
@@ -432,9 +432,9 @@ export class Point {
       '" cy="' +
       canvasCoordinates.y +
       '" r="' +
-      size * 2 + // * app.workspace.zoomLevel +
+      this.size * 2 * app.workspace.zoomLevel +
       '" fill="' +
-      color +
+      this.color +
       '" />\n'
     );
   }
