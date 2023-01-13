@@ -250,7 +250,11 @@ export class OpenFileManager {
     }
 
     if (saveObject.toolsVisible) {
-      saveObject.toolsVisible.forEach(toolVisible => app.tools.find(tool => tool.name == toolVisible.name).isVisible = toolVisible.isVisible)
+      saveObject.toolsVisible.forEach(toolVisible => {
+        let tool = app.tools.find(tool => tool.name == toolVisible.name);
+        if (tool)
+          tool.isVisible = toolVisible.isVisible
+      });
       saveObject.familiesVisible.forEach(familyVisible => app.environment.families.find(family => family.name == familyVisible.name).isVisible = familyVisible.isVisible)
       setState({ tools: [...app.tools] });
     }
