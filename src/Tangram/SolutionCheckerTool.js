@@ -219,7 +219,7 @@ export class SolutionCheckerTool extends Tool {
         isPointed: false,
         name: 'tangramChecker',
       });
-      // shape.cleanSameDirectionSegment();
+      shape.cleanSameDirectionSegment();
       let translateOffset = new Coordinates({
         x: -app.canvasWidth / 2,
         y: 0,
