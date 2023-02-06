@@ -680,7 +680,7 @@ export class Shape {
     if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
 
     let comment =
-      '<!-- ' + this.name.replace('e', 'e').replace('è', 'e') + ' -->\n';
+      '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
   }

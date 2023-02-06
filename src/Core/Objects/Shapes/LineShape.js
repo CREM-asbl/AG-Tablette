@@ -614,6 +614,16 @@ export class LineShape extends Shape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
+    if (this.geometryObject &&
+      (
+        this.geometryObject.geometryIsVisible === false ||
+        this.geometryObject.geometryIsHidden === true ||
+        this.geometryObject.geometryIsConstaintDraw === true
+      )
+    ) {
+      return '';
+    }
+
     let path = this.getSVGPath();
 
     let attributes = {
@@ -631,26 +641,32 @@ export class LineShape extends Shape {
     }
     path_tag += '/>\n';
 
-    let point_tags = '';
+    let pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
       if (this.isSegment())
-        point_tags += this.segments[0].vertexes[0].toSVG('#000', 1);
+      pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
         this.segments.forEach(
-          (seg) => (point_tags += seg.vertexes[1].toSVG('#000', 1)),
+          (seg) => (pointToDraw.push(seg.vertexes[1])),
         );
     }
 
     this.segments.forEach((seg) => {
       //Points sur les segments
       seg.divisionPoints.forEach((pt) => {
-        point_tags += pt.toSVG('#000', 1);
+        pointToDraw.push(pt);
       });
     });
-    if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
+    if (this.isCenterShown) pointToDraw.push(this.center);
+
+    let point_tags = pointToDraw.filter(pt => {
+      pt.visible &&
+      pt.geometryIsVisible &&
+      !pt.geometryIsHidden
+    }).map(pt => pt.svg).join('\n');
 
     let comment =
-      '<!-- ' + this.name.replace('e', 'e').replace('è', 'e') + ' -->\n';
+      '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
   }
