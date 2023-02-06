@@ -10,7 +10,7 @@
       "purpose": "any"
     },
     {
-      "src": "images/manifest/maskable_icon2.png",
+      "src": "images/manifest/maskable_icon.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "maskable"
