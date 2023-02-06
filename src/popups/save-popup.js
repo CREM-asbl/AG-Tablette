@@ -102,7 +102,11 @@ class SavePopup extends LitElement {
               <label for="save_popup_history">Enregistrer l'historique</label>
             </div>
 
-            <div class="field">
+            <div class="field" style=${
+              app.environment.name != 'Geometrie'
+                ? 'display:none'
+                : ''
+            }>
               <input
                 type="checkbox"
                 name="save_popup_permanent_hide"
