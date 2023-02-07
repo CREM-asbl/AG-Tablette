@@ -61,7 +61,7 @@ class HelpPopup extends LitElement {
 
   firstUpdated() {
     this.content = html`
-      <img src='images/help/${app.environment.name}/${this.toolname}.webp'>
+      <img src='images/help/${app.environment.name}/${this.toolname}.webp' onerror='this.src = "images/help/default.png"'>
     `;
   }
 
