@@ -1,11 +1,11 @@
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
-import { Shape } from '../Core/Objects/Shapes/Shape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
@@ -166,7 +166,7 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   objectSelected(object) {
-    this.involvedShapes = [object];//ShapeManager.getAllBindedShapesInGeometry(object);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(object);
     this.drawingShapes = this.involvedShapes.map(
       (s) =>
         new s.constructor({

@@ -1,5 +1,6 @@
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
@@ -92,7 +93,7 @@ export class CentralSymetryTool extends Tool {
   }
 
   objectSelected(object) {
-    this.involvedShapes = [object];//ShapeManager.getAllBindedShapesInGeometry(object);
+    this.involvedShapes = ShapeManager.getAllBindedShapes(object);
     this.drawingShapes = this.involvedShapes.map(
       (s) =>
       new s.constructor({
