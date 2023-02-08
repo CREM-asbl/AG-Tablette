@@ -40,7 +40,7 @@ export class SolutionCheckerTool extends Tool {
         'tangramChecker',
         'main'
       );
-      if (solutionShapes.length > 1) {
+      if (solutionShapes.length > 0) {
         setState({ tangram: {
           ...app.tangram,
           buttonText: 'Annuler la vérification',
@@ -96,6 +96,7 @@ export class SolutionCheckerTool extends Tool {
     this.checkSolution();
     setState({
       tangram: {
+        level: app.tangram.level,
         buttonText: 'Annuler la vérification',
         buttonValue: 'uncheck',
       },
@@ -112,6 +113,7 @@ export class SolutionCheckerTool extends Tool {
     this.eraseSolution();
     setState({
       tangram: {
+        level: app.tangram.level,
         buttonText: 'Vérifier la solution',
         buttonValue: 'check',
       }

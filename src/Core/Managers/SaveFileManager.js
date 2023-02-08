@@ -103,7 +103,7 @@ export class SaveFileManager {
         };
         let detail = { ...handle };
         const extension = getExtension(handle.name);
-        const saveMethod = handle.saveMethod;
+        // const saveMethod = handle.saveMethod;
         SaveFileManager.extension = extension;
         switch (extension) {
           case 'png':
