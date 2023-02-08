@@ -449,15 +449,10 @@ class CanvasLayer extends LitElement {
       app.dispatchEv(new CustomEvent('canvasMouseWheel', { detail: detail }));
     }
 
-    // this.canvas.addEventListener('mousewheel', (event) => {
-    //   event.preventDefault();
-    //   handleWheel(event);
-    // });
     this.canvas.addEventListener('wheel', (event) => {
       event.preventDefault();
       handleWheel(event);
     });
-
 
     this.canvas.addEventListener('touchstart', (event) => {
       event.preventDefault();
@@ -484,6 +479,8 @@ class CanvasLayer extends LitElement {
           }),
         );
       }
+      this.pressPositionForLongPress = mousePos;
+      this.pressTimeoutId = window.setTimeout(() => app.dispatchEv(new CustomEvent('canvasLongPress')), 1000);
       app.dispatchEv(new CustomEvent('canvasMouseDown'));
       app.dispatchEv(new CustomEvent('canvasTouchStart', { detail: detail }));
     });
@@ -509,10 +506,13 @@ class CanvasLayer extends LitElement {
         );
       }
       if (this.isOutsideOfCanvas(mousePos)) {
+        window.clearTimeout(this.pressTimeoutId);
         app.dispatchEv(new CustomEvent('canvasMouseUp'));
         app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
         return;
       }
+      if (this.pressPositionForLongPress?.dist(mousePos) > 20)
+        window.clearTimeout(this.pressTimeoutId);
       app.dispatchEv(new CustomEvent('canvasMouseMove'));
       app.dispatchEv(new CustomEvent('canvasTouchMove', { detail: detail }));
     });
