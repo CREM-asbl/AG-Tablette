@@ -9,7 +9,7 @@ import { TangramManager } from './TangramManager';
  */
 export class SilhouetteCreatorTool extends Tool {
   constructor() {
-    super('createSilhouette', 'Créer une silhouette', 'tool');
+    super('createSilhouette', 'Créer une silhouette', '');
 
     this.isUserWarnedAboutOverlap = false;
   }
