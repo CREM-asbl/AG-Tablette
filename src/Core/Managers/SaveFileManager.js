@@ -209,6 +209,15 @@ export class SaveFileManager {
       delete settings.scalarDenominator;
     }
 
+    if (app.environment.name == 'Tangram' && wsdata.backObjects.shapesData.length == 0) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Certaines figures se superposent.' },
+        }),
+      );
+      return;
+    }
+
     // let silhouetteData;
     // if (app.environment.name == 'Tangram' && app.silhouette)
     //   silhouetteData = app.silhouette.saveToObject();
