@@ -17,7 +17,7 @@ export class SilhouetteCreatorTool extends Tool {
   async start() {
     this.removeListeners();
 
-    let toWait = TangramManager.initShapes();
+    let toWait = TangramManager.initShapes(true);
     TangramManager.removeSilhouette();
 
     this.isUserWarnedAboutOverlap = false;
@@ -26,7 +26,7 @@ export class SilhouetteCreatorTool extends Tool {
     window.addEventListener('new-window', this.handler);
 
     window.addEventListener('tangram-changed', this.handler);
-    this.showStateMenu();
+    // this.showStateMenu();
 
     await toWait;
     window.dispatchEvent(
@@ -36,6 +36,7 @@ export class SilhouetteCreatorTool extends Tool {
     );
     window.addEventListener('actions-executed', this.handler);
     window.addEventListener('add-fullstep', this.handler);
+    window.addEventListener('create-silhouette', () => this.createSilhouette());
   }
 
   end() {
@@ -154,13 +155,13 @@ export class SilhouetteCreatorTool extends Tool {
     });
   }
 
-  showStateMenu() {
-    setState({
-      tangram: {
-        ...app.tangram,
-        buttonText: 'Afficher la silhouette',
-        buttonValue: 'createSilhouette',
-      }
-    });
-  }
+  // showStateMenu() {
+  //   setState({
+  //     tangram: {
+  //       ...app.tangram,
+  //       buttonText: 'Afficher la silhouette',
+  //       buttonValue: 'createSilhouette',
+  //     }
+  //   });
+  // }
 }

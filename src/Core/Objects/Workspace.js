@@ -125,8 +125,17 @@ export class Workspace {
     wsdata.id = this.id;
 
     wsdata.objects = app.mainCanvasLayer.saveData();
-    if (app.tangramCanvasLayer)
+    if (app.tangramCanvasLayer) {
+      let mustEraseShapes = false;
+      if (app.tangramCanvasLayer.shapes.length == 0) {
+        window.dispatchEvent(new CustomEvent('create-silhouette'));
+        mustEraseShapes = true;
+      }
       wsdata.backObjects = app.tangramCanvasLayer.saveData();
+      if (mustEraseShapes) {
+        app.tangramCanvasLayer.removeAllObjects();
+      }
+    }
     if (this.shapeGroups.length != 0) {
       wsdata.shapeGroups = this.shapeGroups.map((group) => {
         return group.saveToObject();

@@ -47,10 +47,17 @@ export class TangramManager {
     return response.text();
   }
 
-  static async initShapes() {
+  static async initShapes(isForCreation = false) {
     if (!TangramManager.kit)
       TangramManager.kit = await TangramManager.loadKit();
     const ws = JSON.parse(this.kit);
+    if (isForCreation) {
+      ws.objects.shapesData.forEach(s => {
+        s.fillColor = '#000';
+        s.strokeColor = '#fff';
+        s.fillOpacity = 1;
+      });
+    }
     // OpenFileManager.transformToNewIdSystem(ws.objects, 'main');
     WorkspaceManager.setWorkspaceFromObject(ws);
   }
