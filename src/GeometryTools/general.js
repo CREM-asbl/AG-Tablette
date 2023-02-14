@@ -114,6 +114,8 @@ export function linkNewlyCreatedPoint(shape, point) {
   let ref = point.adjustedOn;
   if (ref?.type == 'grid')
     return;
+  while (ref && ref instanceof Point && ref.reference)
+    ref = findObjectById(ref.reference);
   if (
     (point.idx == 1
       && (shape.name == 'CircleArc' || shape.name.startsWith('Parallele') || shape.name.startsWith('Perpendicular'))
@@ -479,20 +481,4 @@ export function linkNewlyCreatedPoint(shape, point) {
     addShapeToChildren(newSinglePointShape, shape);
     point.reference = newSinglePointShape.vertexes[0].id;
   }
-  // if (ref) {// = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(point.coordinates))) {
-
-
-  //   if (ref instanceof Segment) {
-
-  //     shape.geometryObject.geometryParentObjectId1 = ref;
-
-  //     computeConstructionSpec(shape);
-
-  //     let reference = findObjectById(ref);
-  //     reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-  //     point.ratio = getRatioWithPosition(point, ref);
-  //   }
-  //   addShapeToChildren(ref.shape, shape);
-  //   point.reference = ref.id;
-  // }
 }
