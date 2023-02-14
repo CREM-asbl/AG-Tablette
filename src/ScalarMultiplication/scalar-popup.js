@@ -65,7 +65,7 @@ class ScalarPopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Multiplier par un scalaire</h2>
+        <h2 slot="title">Multiplier un vecteur par un scalaire</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts">Multiplier par</label>
           <select @change="${this.changeNumerator}">

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve">
+<style type="text/css">
+	.st0 {
+    fill:#fff0;
+    stroke-miterlimit:10;
+    stroke-width:7px;
+  }
+</style>
+<path class="st0" stroke="#b4b4b4" stroke-dasharray="20.42345833,6.35586458" d="M 40 170 L 154 94"/>
+<path class="st0" stroke="#b4b4b4" stroke-dasharray="20.42345833,6.35586458" d="M 160 90 L 122 93 M 160 90 L 145 125"/>
+
+<path class="st0" stroke="#000" d="M 87 82 L 154 44"/>
+<path class="st0" stroke="#000" d="M 160 40 L 122 43 M 160 40 L 145 75"/>
+</svg>
