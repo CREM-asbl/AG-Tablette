@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { Tool } from '../Core/States/Tool';
 import { TangramManager } from './TangramManager';
@@ -111,14 +111,6 @@ export class SilhouetteCreatorTool extends Tool {
     }
 
     new Silhouette(shapes);
-    window.dispatchEvent(new CustomEvent('refreshTangram'));
-    setState({ tangram: {...app.tangram, isSilhouetteShown: true, currentStep: 'start' }, tool: { title: 'Afficher la silhouette', currentStep: 'start' } });
-
-    window.dispatchEvent(
-      new CustomEvent('actions-executed', {
-        detail: { name: 'Afficher la silhouette' },
-      }),
-    );
   }
 
   hasOverlapedShape(shapes) {
