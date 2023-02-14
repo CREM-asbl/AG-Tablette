@@ -88,6 +88,7 @@ export class ColorTool extends Tool {
       constraints.points.canSelect = true;
       constraints.points.blockHidden = true; // sûr ?
       constraints.points.numberOfObjects = 'allSuperimposed';
+      constraints.priority = ['points', 'shapes', 'segments'];
     }
     app.workspace.selectionConstraints = constraints;
   }
