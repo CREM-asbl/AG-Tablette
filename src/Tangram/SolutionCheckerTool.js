@@ -201,7 +201,6 @@ export class SolutionCheckerTool extends Tool {
   }
 
   checkSolution() {
-
     let segmentsList = this.checkGroupMerge(
       app.tangramCanvasLayer.shapes,
     );
@@ -217,7 +216,7 @@ export class SolutionCheckerTool extends Tool {
         color: '#000',
         fillOpacity: 0,
         strokeColor: '#00D084',
-        strokeSize: 2,
+        strokeWidth: 3,
         isPointed: false,
         name: 'tangramChecker',
       });
