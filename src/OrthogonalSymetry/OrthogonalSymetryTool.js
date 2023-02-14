@@ -98,6 +98,7 @@ export class OrthogonalSymetryTool extends Tool {
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.segments.canSelect = true;
+      app.workspace.selectionConstraints.points.canSelect = true;
       let object = SelectManager.selectObject(coord);
       if (object instanceof Segment && !object.isArc()) {
         this.firstReference = object;
