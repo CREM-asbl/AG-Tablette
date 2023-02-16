@@ -10,7 +10,7 @@ import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
  */
 export class ScalarMultiplicationTool extends Tool {
   constructor() {
-    super('scalarMultiplication', 'Multiplication d\'un vecteur par un scalaire', 'operation');
+    super('scalarMultiplication', 'Multiplier un vecteur par un scalaire', 'operation');
 
     this.timeoutRef = null;
 
