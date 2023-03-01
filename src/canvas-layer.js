@@ -374,11 +374,28 @@ class CanvasLayer extends LitElement {
     this.canvas.addEventListener('mousedown', (event) => {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
+
+      let mustExitFunction = false;
+
+      if (app.workspace.lastKnownMouseClickTime && app.workspace.lastKnownMouseClickTime > event.timeStamp - 100 && app.workspace.lastKnownMouseClickCoordinates.dist(mousePos) < 5) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Double clic détecté, le deuxième clic n\'a pas été pris en compte.' } }));
+        mustExitFunction = true;
+      }
+
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
         }),
       );
+      window.dispatchEvent(
+        new CustomEvent('mouse-click-changed', {
+          detail: { mousePos: mousePos },
+        }),
+      );
+
+      if (mustExitFunction)
+        return;
+
       if (
         app.listenerCounter.objectSelected &&
         'mousedown' == app.workspace.selectionConstraints.eventType

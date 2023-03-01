@@ -73,6 +73,13 @@ class CanvasContainer extends LitElement {
       );
     });
 
+    window.addEventListener('mouse-click-changed', (event) => {
+      app.workspace.lastKnownMouseClickCoordinates = new Coordinates(
+        event.detail.mousePos,
+      );
+      app.workspace.lastKnownMouseClickTime = event.timeStamp;
+    });
+
     window.addEventListener('show-cursor', () => {
       let mousePos = app.workspace.lastKnownMouseCoordinates;
       this.cursorPos = mousePos.toCanvasCoordinates();
