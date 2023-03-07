@@ -1,4 +1,3 @@
-import { downloadZip } from "client-zip";
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from 'firebase/app';
 import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
