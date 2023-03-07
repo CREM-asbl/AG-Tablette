@@ -184,6 +184,15 @@ class CanvasLayer extends LitElement {
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
+          if (s.geometryObject &&
+            (
+              s.geometryObject.geometryIsVisible === false ||
+              s.geometryObject.geometryIsHidden === true ||
+              s.geometryObject.geometryIsConstaintDraw === true
+            )
+          ) {
+            return;
+          }
           svg_data += s.toSVG();
           if (this.mustDrawPoints && app.settings.areShapesPointed) {
             this.points.forEach((pt) => {

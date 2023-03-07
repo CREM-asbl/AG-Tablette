@@ -30,6 +30,7 @@ export default {
     'Opacity',
     'Hide',
     'Show',
+    'Biface',
     'Translate',
     'Zoom',
     'Grid',
