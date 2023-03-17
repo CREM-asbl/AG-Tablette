@@ -4,16 +4,30 @@ import { createElem } from '../Core/Tools/general';
 
 window.addEventListener('app-started', () => {
   if (!app.fileFromServer) {
-    import('./start-popup.js');
-    createElem('start-popup');
+    tangramStart();
   }
 }, {once: true});
 
 window.addEventListener('new-window', () => {
   setState({ tangram: {...app.defaultState.tangram } });
+  tangramStart();
+});
+
+const tangramStart = () => {
+  setTimeout(() => {
+    let tool = app.tools.find(tool => tool.name == 'translate');
+    tool.isVisible = false;
+    tool = app.tools.find(tool => tool.name == 'color');
+    tool.isVisible = false;
+
+    setState({
+      tools: [...app.tools],
+    })
+  }, 30);
+
   import('./start-popup.js');
   createElem('start-popup');
-});
+}
 
 export class TangramManager {
   static async openForbiddenCanvas() {

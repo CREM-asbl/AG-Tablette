@@ -17,6 +17,11 @@ export class SilhouetteCreatorTool extends Tool {
   async start() {
     this.removeListeners();
 
+    let tool = app.tools.find(tool => tool.name == 'translate');
+    tool.isVisible = true;
+    tool = app.tools.find(tool => tool.name == 'color');
+    tool.isVisible = false;
+
     let toWait = TangramManager.initShapes(true);
     TangramManager.removeSilhouette();
 
@@ -102,11 +107,6 @@ export class SilhouetteCreatorTool extends Tool {
     const shapes = app.mainCanvasLayer.shapes;
 
     if (this.hasOverlapedShape(shapes)) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: 'Certaines figures se superposent.' },
-        }),
-      );
       return;
     }
 

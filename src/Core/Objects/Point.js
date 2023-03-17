@@ -529,5 +529,8 @@ export class Point {
     point.segmentIds = [...data.segmentIds];
     if (data.endpointIds)
       point.endpointIds = [...data.endpointIds];
+    if (app.environment.name == 'Tangram') {
+      point.startTangramCoordinates = new Coordinates(point.coordinates);
+    }
   }
 }

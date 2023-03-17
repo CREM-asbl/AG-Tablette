@@ -8,7 +8,9 @@ export default {
     'Tangram',
     'Group',
     'Ungroup',
+    'ResetPosition',
     'Color',
+    'Translate',
   ],
   extensions: ['.agt', '.ags'],
   settings: {
