@@ -399,6 +399,9 @@ function computeTransformShape(shape) {
   shape.vertexes.forEach((pt, idx) => {
     pt.coordinates = parentShape.vertexes[idx].coordinates;
   });
+  shape.points.filter((pt) => pt.type === 'arcCenter').forEach((pt, idx) => {
+    pt.coordinates = parentShape.points.filter((pt) => pt.type === 'arcCenter')[idx].coordinates;
+  });
   shape.divisionPoints.forEach((pt, idx) => {
     if (pt.reference)
       pt.coordinates = findObjectById(pt.reference).coordinates;

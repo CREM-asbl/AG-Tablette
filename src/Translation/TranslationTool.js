@@ -334,46 +334,6 @@ export class TranslationTool extends Tool {
       });
       return newShape;
     });
-    // const linkReference = (idx, refName) => {
-    //   if (this.involvedShapes[idx].geometryObject[refName]) {
-    //     let reference = findObjectById(this.involvedShapes[idx].geometryObject[refName]);
-    //     if (reference instanceof Shape) {
-    //       let shapeIndex = this.involvedShapes.findIndex(s => reference.id == s.id);
-    //       newShapes[idx].geometryObject[refName] = newShapes[shapeIndex].id;
-    //     } else {
-    //       let referenceType = reference instanceof Segment ? 'segments' : 'points';
-    //       let shapeIndex = this.involvedShapes.findIndex(s => reference.shape.id == s.id);
-    //       let objectIndex = this.involvedShapes[shapeIndex][referenceType].findIndex(obj => obj.id == reference.id);
-    //       newShapes[idx].geometryObject[refName] = newShapes[shapeIndex][referenceType][objectIndex].id;
-    //     }
-    //   }
-    // }
-    // newShapes.forEach((newShape, sIdx) => {
-    //   linkReference(sIdx, 'geometryParentObjectId1');
-    //   linkReference(sIdx, 'geometryParentObjectId2');
-    //   newShape.vertexes.forEach((vx, ptIdx) => {
-    //     let reference = findObjectById(this.involvedShapes[sIdx].vertexes[ptIdx].reference);
-    //     if (reference) {
-    //       let shapeIndex = this.involvedShapes.findIndex(s => reference.shape.id == s.id);
-    //       let pointIndex = this.involvedShapes[shapeIndex].points.findIndex(obj => obj.id == reference.id);
-    //       newShapes[sIdx].vertexes[ptIdx].reference = newShapes[shapeIndex].points[pointIndex].id;
-    //       if (reference.shape.geometryObject.geometryPointOnTheFlyChildId) {
-    //         newShapes[shapeIndex].geometryObject.geometryPointOnTheFlyChildId = newShapes[sIdx].id;
-    //       }
-    //     }
-    //   });
-    //   newShape.divisionPoints.forEach((divPt, divPtIdx) => {
-    //     divPt.reference = this.involvedShapes[sIdx].divisionPoints[divPtIdx].id;
-    //     let endpointId1 = findObjectById(this.involvedShapes[sIdx].divisionPoints[divPtIdx].endpointIds[0]);
-    //     let shapeIndex = this.involvedShapes.findIndex(s => endpointId1.shape.id == s.id);
-    //     let pointIndex = this.involvedShapes[shapeIndex].points.findIndex(obj => obj.id == endpointId1.id);
-    //     divPt.endpointIds = [newShapes[shapeIndex].points[pointIndex].id];
-    //     let endpointId2 = findObjectById(this.involvedShapes[sIdx].divisionPoints[divPtIdx].endpointIds[1]);
-    //     shapeIndex = this.involvedShapes.findIndex(s => endpointId2.shape.id == s.id);
-    //     pointIndex = this.involvedShapes[shapeIndex].points.findIndex(obj => obj.id == endpointId2.id);
-    //     divPt.endpointIds.push(newShapes[shapeIndex].points[pointIndex].id);
-    //   });
-    // });
   }
 
   setSelectionConstraints() {
