@@ -44,7 +44,7 @@ export class SaveFileManager {
         ...opts.types
       ];
     }
-    if (app.environment.name != 'Tangram' || app.tangram.buttonValue.endsWith('check')) {
+    if (app.environment.name != 'Tangram' || app.tangram.buttonValue) {
       opts.types = [
         {
           description: 'Etat',

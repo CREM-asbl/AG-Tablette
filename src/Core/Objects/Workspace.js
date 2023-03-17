@@ -194,11 +194,7 @@ export class Workspace {
 
   toSVG() {
     let svg_data =
-      '<svg width="' +
-      app.canvasWidth +
-      '" height="' +
-      app.canvasHeight +
-      '" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n';
+    `<svg width="${app.canvasWidth}" height="${app.canvasHeight}" viewBox="0 0 ${app.canvasWidth} ${app.canvasHeight}" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n`;
     if (app.gridCanvasLayer)
       svg_data += app.gridCanvasLayer.toSVG();
     if (app.tangramCanvasLayer)
@@ -206,13 +202,7 @@ export class Workspace {
     svg_data += app.mainCanvasLayer.toSVG();
     if (document.body.querySelector('forbidden-canvas') != null) {
       svg_data +=
-        '<rect x="' +
-        app.canvasWidth / 2 +
-        '" width="' +
-        app.canvasWidth / 2 +
-        '" height="' +
-        app.canvasHeight +
-        '" style="fill:rgb(255,0,0, 0.2);" />';
+        `<rect x="${app.canvasWidth / 2}" width="${app.canvasWidth / 2}" height="${app.canvasHeight}" style="fill:rgb(255,0,0, 0.2);" />`;
     }
     svg_data += '</svg>';
 
