@@ -282,7 +282,6 @@ export class CopyTool extends Tool {
       });
     }
 
-    //Si nécessaire, créer le userGroup
     if (shapesList.length > 1) {
       let userGroup = new ShapeGroup(0, 1);
       userGroup.shapesIds = shapesList.map((s) => s.id);

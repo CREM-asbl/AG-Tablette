@@ -1,9 +1,11 @@
 import { app, setState } from '../Core/App';
+import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
@@ -334,6 +336,12 @@ export class TranslationTool extends Tool {
       });
       return newShape;
     });
+
+    if (newShapes.length > 1) {
+      let userGroup = new ShapeGroup(0, 1);
+      userGroup.shapesIds = newShapes.map((s) => s.id);
+      GroupManager.addGroup(userGroup);
+    }
   }
 
   setSelectionConstraints() {
