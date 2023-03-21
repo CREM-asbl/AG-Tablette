@@ -74,6 +74,7 @@ export class DuplicateTool extends Tool {
     constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape && s.name != 'PointOnLine');
     constraints.segments.canSelect = true;
     constraints.segments.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof LineShape).map(s => { return { shapeId: s.id } });
+    constraints.priority = ['points', 'shapes', 'segments'];
     app.workspace.selectionConstraints = constraints;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
