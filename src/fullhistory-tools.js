@@ -56,7 +56,7 @@ class FullHistoryTools extends LitElement {
       if (app.fullHistory.isRunning) {
         if (e.type == 'fullHistory-changed') {
           this.index = app.fullHistory.actionIndex;
-          this.shadowRoot.getElementById( 'b' + this.index )?.parentNode.scrollIntoView();
+          this.shadowRoot.getElementById( 'b' + this.index )?.parentNode.parentNode.scrollIntoView();
           this.setPlayPause(app.fullHistory.isPlaying ? 'pause' : 'play');
         } else {
           this.updateProperties();
@@ -113,7 +113,7 @@ class FullHistoryTools extends LitElement {
 
         #action-container {
           overflow: visible;
-          padding: 10px 10px;
+          padding: 0px 10px 10px;
 
           /* scrollbar hidden */
           /* -ms-overflow-style: none; IE and Edge */
@@ -128,7 +128,7 @@ class FullHistoryTools extends LitElement {
           overflow-y: hidden;
           box-shadow: 0px 0px 5px var(--menu-shadow-color);
           padding: 0px;
-          margin: 0px 0px 5px;
+          margin: 5px 0px 0px;
           background-color: var(--theme-color-soft);
           font-size: 0;
         }

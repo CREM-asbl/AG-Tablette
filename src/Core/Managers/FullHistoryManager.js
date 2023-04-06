@@ -288,7 +288,7 @@ export class FullHistoryManager {
       setState({ stepSinceSave: true });
     } else if (app.fullHistory.steps.length <= 1) {
       detail.actionIndex = app.fullHistory.steps.length;
-    } else if (app.fullHistory.steps[app.fullHistory.steps.length - 1].type == 'add-fullstep') {
+    } else {//if (app.fullHistory.steps[app.fullHistory.steps.length - 1].type == 'add-fullstep') {
       detail.actionIndex = app.fullHistory.steps.filter((step) => {
         return step.type == 'add-fullstep';
       }).length + 1;
