@@ -1,4 +1,4 @@
-import { downloadZip } from "https://cdn.jsdelivr.net/npm/client-zip/index.js";
+// import { downloadZip } from "https://cdn.jsdelivr.net/npm/client-zip/index.js";
 import { html, LitElement } from 'lit';
 import './auto-launch';
 import './backbutton-manager';
