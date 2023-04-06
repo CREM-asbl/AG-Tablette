@@ -20,7 +20,7 @@ class IconButton extends LitElement {
 
   updated() {
     //Todo: Refacto (ce code ne devrait pas se trouver ici)
-    let name = this.name.replaceAll('é', 'e').replaceAll('è', 'e');
+    let name = this.name.replace(/é/g, 'e').replace(/è/g, 'e');
     if (this.type == 'State') {
       this.src = '/images/States/' + name + '.svg';
     } else if (this.type == 'Geometry') {
