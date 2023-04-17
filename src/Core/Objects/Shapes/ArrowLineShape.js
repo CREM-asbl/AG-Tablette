@@ -57,8 +57,17 @@ export class ArrowLineShape extends LineShape {
       .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
       .join('\n');
     if (forDrawingButInvisible) {
-      if (this.vertexes[1] && this.segments[0].isArc())
-        path += ['M', this.segments[0].arcCenter.coordinates.x, this.segments[0].arcCenter.coordinates.y, 'L', this.vertexes[0].coordinates.x, this.vertexes[0].coordinates.y, 'L', this.vertexes[1].coordinates.x, this.vertexes[1].coordinates.y, 'L', this.segments[0].arcCenter.coordinates.x, this.segments[0].arcCenter.coordinates.y].join(' ');
+      if (this.vertexes[1] && this.segments[0].isArc()) {
+        let arcCenterCoordinates =  this.segments[0].arcCenter.coordinates;
+        let firstVertex =  this.vertexes[0].coordinates;
+        let secondVertex =  this.vertexes[1].coordinates;
+        if (scaling == 'scale') {
+          arcCenterCoordinates = arcCenterCoordinates.toCanvasCoordinates();
+          firstVertex = firstVertex.toCanvasCoordinates();
+          secondVertex = secondVertex.toCanvasCoordinates();
+        }
+        path += ['M', arcCenterCoordinates.x, arcCenterCoordinates.y, 'L', firstVertex.x, firstVertex.y, 'L', secondVertex.x, secondVertex.y, 'L', arcCenterCoordinates.x, arcCenterCoordinates.y].join(' ');
+      }
     }
     if (forDrawing) {
       let seg = this.segments[0];
