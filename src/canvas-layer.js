@@ -311,14 +311,14 @@ class CanvasLayer extends LitElement {
 
     if (this.canvasName == 'upper') {
       this.createListeners();
-      window.addEventListener('tool-changed', () => {
+      window.addEventListener('tool-updated', () => {
         this.redraw();
       });
     } else if (this.canvasName == 'main') {
       window.addEventListener('refresh', () => {
         this.redraw();
       });
-      window.addEventListener('tool-changed', () => {
+      window.addEventListener('tool-updated', () => {
         this.redraw();
       });
     } else if (this.canvasName == 'grid') {

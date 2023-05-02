@@ -32,7 +32,7 @@ class AGMain extends LitElement {
       tool: Object,
       colorPickerValue: String,
       iconSize: Number,
-      toolbarSections: Array,
+      // toolbarSections: Array,
       helpSelected: Boolean,
     };
   }
@@ -66,6 +66,11 @@ class AGMain extends LitElement {
     this.updateProperties = () => {
       this.iconSize = app.menuIconSize;
       this.helpSelected = app.helpSelected;
+      // this.toolbarSections = [];
+      // this.renderRoot?.querySelectorAll('toolbar-section')?.forEach(elem => elem.remove());
+      // this.toolbarSections = this.allSections.filter(section =>
+      //   app.tools.findIndex(tool => tool.isVisible && tool.type == section.name) != -1
+      // );
     };
     this.updateProperties();
 
@@ -75,6 +80,7 @@ class AGMain extends LitElement {
 
     window.addEventListener('menuIconSize-changed', this.eventHandler);
     window.addEventListener('helpSelected-changed', this.eventHandler);
+    // window.addEventListener('tools-changed', this.eventHandler);
 
     window.addEventListener('helpToolChosen', e => {
       import('./popups/help-popup');
@@ -154,8 +160,8 @@ class AGMain extends LitElement {
   }
 
   async firstUpdated() {
-    let sectionImport = await import(`./toolbarSectionsDef.js`);
-    this.toolbarSections = sectionImport.default.sections;
+    // let sectionImport = await import(`./toolbarSectionsDef.js`);
+    // this.toolbarSections = sectionImport.default.sections;
     let backgroundColor = rgb2hex(window.getComputedStyle(this.shadowRoot.querySelector('#left-menu'), null).backgroundColor);
     if (!backgroundColor)
       backgroundColor = '#ffffff';
@@ -254,13 +260,31 @@ class AGMain extends LitElement {
 
           <toolbar-kit></toolbar-kit>
 
-          ${this.toolbarSections?.map(section => html`
-            <toolbar-section
-              title="${section.title}"
-              toolsType="${section.name}"
-            >
-            </toolbar-section>
-          `)}
+          <toolbar-section
+            title="Figures libres"
+            toolsType="geometryCreator"
+          >
+          </toolbar-section>
+          <toolbar-section
+            title="Mouvements"
+            toolsType="move"
+          >
+          </toolbar-section>
+          <toolbar-section
+            title="Transformations"
+            toolsType="transformation"
+          >
+          </toolbar-section>
+          <toolbar-section
+            title="Opérations"
+            toolsType="operation"
+          >
+          </toolbar-section>
+          <toolbar-section
+            title="Outils"
+            toolsType="tool"
+          >
+          </toolbar-section>
 
           <!-- <icon-button src="/images/wallpaper.svg"
                               title="Fond d'écran"

@@ -44,10 +44,10 @@ class LinesList extends LitElement {
     };
     this.close = () => {
       this.remove();
-      window.removeEventListener('tool-changed', this.eventHandler);
+      window.removeEventListener('tool-updated', this.eventHandler);
     };
 
-    window.addEventListener('tool-changed', this.eventHandler);
+    window.addEventListener('tool-updated', this.eventHandler);
     window.addEventListener('menuIconSize-changed', this.eventHandler);
   }
 

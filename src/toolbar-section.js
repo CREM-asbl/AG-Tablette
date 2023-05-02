@@ -10,7 +10,6 @@ class ToolbarSection extends LitElement {
       toolsType: { type: String },
       tools: { type: Array },
       helpSelected: { type: Boolean },
-      toolnumber: { type: Number },
     };
   }
 
@@ -25,12 +24,6 @@ class ToolbarSection extends LitElement {
         (tool) => tool.isVisible,
       );
       this.helpSelected = app.helpSelected;
-      if (this.helpSelected) {
-        this.toolnumber = 0;
-        this.intervalId = setInterval(() => {this.toolnumber++}, 1000);
-      } else {
-        clearInterval(this.intervalId);
-      }
     };
     this.updateProperties();
 
@@ -49,6 +42,9 @@ class ToolbarSection extends LitElement {
   }
 
   render() {
+    if (this.tools[0]?.name == 'create') {
+      setTimeout(() => this.updateProperties(), 100);
+    }
     if (!app.menuIconSize)
       setState({ menuIconSize: (this.offsetWidth - 22) / 4 });
     if (!this.tools.length) return html``;

@@ -132,7 +132,7 @@ export class SolutionCheckerTool extends Tool {
   }
 
   eventHandler(event) {
-    if (event.type == 'tool-changed') {
+    if (event.type == 'tool-updated') {
       if (app.tool?.name == this.name) {
         this[app.tool.currentStep]();
       } else if (app.tool?.currentStep == 'start') {

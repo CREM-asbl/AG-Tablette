@@ -128,7 +128,7 @@ export class FullHistoryManager {
     if (startSelectedTool) {
       let tool = null;
       for (let i = index; i > 0; i--) {
-        if (app.fullHistory.steps[i].type == 'tool-changed') {
+        if (app.fullHistory.steps[i].type == 'tool-changed' || app.fullHistory.steps[i].type == 'tool-updated') {
           let toolInfo = app.fullHistory.steps[i].detail;
           let currentStep = 'start';
           if (toolInfo.name == 'divide' || toolInfo.name == 'opacity') {
@@ -204,7 +204,7 @@ export class FullHistoryManager {
           FullHistoryManager.nextTime,
         );
       return true;
-    } else if (type == 'tool-changed') {
+    } else if (type == 'tool-changed' || type == 'tool-updated') {
       setState({ tool: { ...detail } });
     } else if (type == 'settings-changed') {
       FullHistoryManager.nextTime = 1 * 1000;
@@ -255,7 +255,7 @@ export class FullHistoryManager {
       let nextNextType = app.fullHistory.steps[i + 2].type;
       let nextNextDetail = app.fullHistory.steps[i + 2].detail;
 
-      if (type == 'tool-changed' && detail.name == 'color' && detail.currentStep == 'listen' && nextType == 'settings-changed' && nextNextType == 'tool-changed' && nextNextDetail.name == 'color' && nextNextDetail.currentStep == 'listen') {
+      if (type == 'tool-updated' && detail.name == 'color' && detail.currentStep == 'listen' && nextType == 'settings-changed' && nextNextType == 'tool-updated' && nextNextDetail.name == 'color' && nextNextDetail.currentStep == 'listen') {
         app.fullHistory.steps.splice(i, 1);
         app.fullHistory.steps.splice(i, 1);
         i--;
@@ -293,7 +293,7 @@ export class FullHistoryManager {
         return step.type == 'add-fullstep';
       }).length + 1;
     }
-    if (type == 'tool-changed' && detail.name == 'solveChecker') {
+    if ((type == 'tool-changed' || type == 'tool-updated') && detail.name == 'solveChecker') {
       return;
     }
     let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
@@ -380,6 +380,9 @@ window.addEventListener('close-popup', (event) =>
 
 window.addEventListener('tool-changed', () => {
   FullHistoryManager.addStep('tool-changed', { detail: app.tool });
+});
+window.addEventListener('tool-updated', () => {
+  FullHistoryManager.addStep('tool-updated', { detail: app.tool });
 });
 window.addEventListener('settings-changed', () => {
   FullHistoryManager.addStep('settings-changed', { detail: app.settings });

@@ -366,7 +366,7 @@ export class CutTool extends Tool {
           centerPointId: undefined,
         },
       });
-    }, 500);
+    }, 200);
   }
 
   /**

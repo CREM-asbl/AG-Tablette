@@ -152,7 +152,10 @@ export const setState = (update) => {
       app.tool.title = toolInfo.title;
       app.tool.type = toolInfo.type;
     }
-    window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
+    if (!app.tool || app.tool.currentStep == 'start') {
+      window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
+    }
+    window.dispatchEvent(new CustomEvent('tool-updated', { detail: app }));
   }
   if ('tangram' in update) {
     window.dispatchEvent(new CustomEvent('tangram-changed', { detail: app }));

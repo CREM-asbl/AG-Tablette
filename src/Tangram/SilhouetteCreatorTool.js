@@ -49,12 +49,13 @@ export class SilhouetteCreatorTool extends Tool {
   }
 
   eventHandler(event) {
-    if (event.type == 'tool-changed') {
+    if (event.type == 'tool-updated') {
       if (app.tool?.name == this.name) {
         this[app.tool.currentStep]();
-      } else if (app.tool?.name == 'solveChecker') { // à changer
-        this.end();
       }
+      // else if (app.tool?.name == 'solveChecker') { // à changer
+      //   this.end();
+      // }
     } else if (event.type == 'tangram-changed') {
       if (app.tangram.currentStep == 'createSilhouette') {
         this.createSilhouette();

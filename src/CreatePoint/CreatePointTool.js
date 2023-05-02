@@ -109,7 +109,7 @@ export class CreatePointTool extends Tool {
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
-    }, 500);
+    }, 200);
   }
 
   canvasMouseDown() {

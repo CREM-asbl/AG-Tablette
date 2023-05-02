@@ -69,7 +69,7 @@ export class ScalarMultiplicationTool extends Tool {
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
       });
-    }, 500);
+    }, 200);
   }
 
   _executeAction() {
