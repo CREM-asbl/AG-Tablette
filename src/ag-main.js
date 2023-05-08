@@ -172,6 +172,12 @@ class AGMain extends LitElement {
       this.textColor = "#ffffff";
     }
     setState({ appLoading: false });
+
+    this.renderRoot.querySelector('#left-menu').addEventListener('touchstart', (event) => {
+      if (event.touches.length > 1) {
+        event.preventDefault();
+      }
+    });
   }
 
   render() {
