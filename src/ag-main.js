@@ -189,11 +189,8 @@ class AGMain extends LitElement {
               ? "mode: " + this.tool.title
               : "Sélectionnez une fonctionnalité"}
           </h3>
-          <template-toolbar>
-            <!-- <h2 slot="title">
-              ${'Outils généraux'}
-            </h2> -->
 
+          <template-toolbar>
             <div slot="body">
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"

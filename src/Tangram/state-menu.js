@@ -72,7 +72,9 @@ class StateMenu extends LitElement {
   }
 
   clickHandler(value) {
-    setState({ tangram: { ...app.tangram, currentStep: value }});
+    if (!app.fullHistory.isRunning) {
+      setState({ tangram: { ...app.tangram, currentStep: value }});
+    }
   }
 }
 customElements.define('state-menu', StateMenu);
