@@ -5,6 +5,7 @@ import { Coordinates } from './Core/Objects/Coordinates';
 import { Point } from './Core/Objects/Point';
 import { Segment } from './Core/Objects/Segment';
 import { ArrowLineShape } from './Core/Objects/Shapes/ArrowLineShape';
+import { CubeShape } from './Core/Objects/Shapes/CubeShape';
 import { LineShape } from './Core/Objects/Shapes/LineShape';
 import { RegularShape } from './Core/Objects/Shapes/RegularShape';
 import { Shape } from './Core/Objects/Shapes/Shape';
@@ -257,6 +258,8 @@ class CanvasLayer extends LitElement {
           Shape.loadFromData(shapeData);
         else if (shapeData.type == 'RegularShape')
           RegularShape.loadFromData(shapeData);
+        else if (shapeData.type == 'CubeShape')
+          CubeShape.loadFromData(shapeData);
         else if (shapeData.type == 'LineShape')
           LineShape.loadFromData(shapeData);
         else if (shapeData.type == 'SinglePointShape')

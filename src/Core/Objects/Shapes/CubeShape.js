@@ -25,8 +25,8 @@ export class CubeShape extends RegularShape {
 
     strokeColor = '#000',
     strokeWidth = 1,
-    fillColor = '#aaa',
-    fillOpacity = 0.7,
+    fillColor = '#f46c2e',
+    fillOpacity = 1,
 
     isPointed = true,
     size = 2,
@@ -36,8 +36,8 @@ export class CubeShape extends RegularShape {
   }) {
     super(arguments[0]);
 
-    this.fillColor = fillColor;
-    this.fillOpacity = fillOpacity;
+    // this.fillColor = fillColor;
+    // this.fillOpacity = fillOpacity;
   }
 
   setSegmentsFromPath(path) {
@@ -223,9 +223,9 @@ export class CubeShape extends RegularShape {
     data.type = 'CubeShape';
     // data.fillColor = this.fillColor;
     // data.fillOpacity = this.fillOpacity;
-    if (this.fillColor !== '#aaa')
+    if (this.fillColor !== '#f46c2e')
       data.fillColor = this.fillColor;
-    if (this.fillOpacity !== 0.7)
+    if (this.fillOpacity !== 1)
       data.fillOpacity = this.fillOpacity;
     return data;
   }
