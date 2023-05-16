@@ -46,27 +46,35 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
       getAllLinkedShapesInGeometry(s, involvedShapes);
     }
   });
-  shape.geometryObject.geometryTransformationCharacteristicElementIds.forEach((sId, idx) => {
-    let objectType = 'point';
-    if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry' &&
-      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1)
-        objectType = 'segment';
+  let characteristicElements = shape.geometryObject.geometryTransformationCharacteristicElements;
+  if (characteristicElements) {
+    if (characteristicElements.type == 'symetryCenter') {
+      console.log(shape, shape.geometryObject.geometryTransformationCharacteristicElements);
+      let s = characteristicElements.firstElement.shape;
+      if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+        involvedShapes.push(s);
+        getAllLinkedShapesInGeometry(s, involvedShapes);
+      }
+    }
+  }
 
-    let s;
-    if ((shape.geometryObject.geometryTransformationName == 'translation' &&
-      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) ||
-      (shape.geometryObject.geometryTransformationName == 'rotation' &&
-      idx == 1 &&
-      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) ) {
-        s = findObjectById(sId);
-    } else {
-      s = findObjectById(sId).shape;
-    }
-    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
-      involvedShapes.push(s);
-      getAllLinkedShapesInGeometry(s, involvedShapes);
-    }
-  });
+  // shape.geometryObject.geometryTransformationCharacteristicElementIds.forEach((sId, idx) => {
+  //   let s;
+  //   if ((shape.geometryObject.geometryTransformationName == 'translation' &&
+  //     shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) ||
+  //     (shape.geometryObject.geometryTransformationName == 'rotation' &&
+  //     idx == 1 &&
+  //     shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) ) {
+  //       s = findObjectById(sId);
+  //   } else {
+  //     s = findObjectById(sId).shape;
+  //   }
+  //   if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+  //     involvedShapes.push(s);
+  //     getAllLinkedShapesInGeometry(s, involvedShapes);
+  //   }
+  // });
+
   if (shape.geometryObject.geometryParentObjectId1) {
     let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let s = seg.shape;

@@ -413,12 +413,10 @@ function computeTransformShape(shape) {
   }
   if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry') {
     let axis;
-    if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-      axis = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
+    if (shape.geometryObject.geometryTransformationCharacteristicElements.type == 'axis') {
+      axis = shape.geometryObject.geometryTransformationCharacteristicElements.firstElement;
     } else {
-      let pts = shape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-        findObjectById(refId)
-      );
+      let pts = shape.geometryObject.geometryTransformationCharacteristicElements.elements;
       let axisShape = new LineShape({
         layer: 'invisible',
         path: `M ${pts[0].coordinates.x} ${pts[0].coordinates.y} L ${pts[1].coordinates.x} ${pts[1].coordinates.y}`,
@@ -429,7 +427,7 @@ function computeTransformShape(shape) {
     }
     reverseShape(shape, axis);
   } else if (shape.geometryObject.geometryTransformationName == 'centralSymetry') {
-    let center = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0]).coordinates;
+    let center = shape.geometryObject.geometryTransformationCharacteristicElements.firstElement.coordinates;
     shape.rotate(Math.PI, center);
   } else if (shape.geometryObject.geometryTransformationName == 'translation') {
     let pts;

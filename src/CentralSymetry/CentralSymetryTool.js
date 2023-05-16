@@ -2,6 +2,7 @@ import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { CharacteristicElements } from '../Core/Objects/CharacteristicElements';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
@@ -15,33 +16,37 @@ import { findObjectById, removeObjectById } from '../Core/Tools/general';
 export class CentralSymetryTool extends Tool {
   constructor() {
     super('centralSymetry', 'Symétrie centrale', 'transformation');
+
+    this.lastCharacteristicElements = [];
   }
 
   start() {
     this.removeListeners();
     this.duration = app.settings.geometryTransformationAnimation ? app.settings.geometryTransformationAnimationDuration : 0.001;
 
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);
+    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectCharacteristicElement' } }), 50);
   }
 
-  selectReference() {
+  selectCharacteristicElement() {
     app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
-    this.reference = null;
-    this.pointDrawn = null;
+    this.showLastCharacteristicElements();
 
-    this.setSelectionConstraints();
+    this.pointDrawn = null;
+    this.characteristicElements = null;
+
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
-  animateRefPoint() {
+  animateCharacteristicElement() {
     this.removeListeners();
 
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.points.canSelect = true;
+    // app.workspace.selectionConstraints.points.canSelectFromUpper = true;
     this.animate();
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
@@ -51,6 +56,12 @@ export class CentralSymetryTool extends Tool {
       this.drawingShapes.forEach(s => {
         removeObjectById(s.id);
       })
+    let shapesToDelete = [];
+    app.upperCanvasLayer.shapes.forEach(s => {
+      if (s.geometryObject.geometryIsCharacteristicElements)
+        shapesToDelete.push(s);
+    });
+    shapesToDelete.forEach(s => removeObjectById(s.id));
     this.removeListeners();
 
     this.setSelectionConstraints();
@@ -78,18 +89,28 @@ export class CentralSymetryTool extends Tool {
       color: app.settings.referenceDrawColor,
       size: 2,
     });
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'animateRefPoint' } });
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'animateCharacteristicElement' } });
   }
 
   canvasMouseUp() {
     this.stopAnimation();
 
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.points.canSelect = true;
+    app.workspace.selectionConstraints.points.canSelectFromUpper = true;
+
     let coord = app.workspace.lastKnownMouseCoordinates;
     let object = SelectManager.selectObject(coord);
     if (object) {
-      this.reference = object;
-    } else {
-      this.reference = this.pointDrawn;
+      if (object.shape.geometryObject.geometryIsCharacteristicElements) {
+        this.characteristicElements = new CharacteristicElements(object.shape.geometryObject.geometryTransformationCharacteristicElements);
+      } else {
+        app.workspace.selectionConstraints.points.canSelectFromUpper = false;
+        object = SelectManager.selectObject(coord);
+
+        this.characteristicElements = new CharacteristicElements({ type: 'symetryCenter', elementIds: [object.id] });
+      }
     }
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
   }
@@ -103,9 +124,6 @@ export class CentralSymetryTool extends Tool {
         layer: 'upper',
         path: s.getSVGPath('no scale', false),
         id: undefined,
-        // divisionPointInfos: s.divisionPoints.map((dp) => {
-        //   return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
-        // }),
         segmentsColor: s.segments.map((seg) => {
           return seg.color;
         }),
@@ -123,7 +141,7 @@ export class CentralSymetryTool extends Tool {
   }
 
   animate() {
-    if (app.tool.currentStep == 'animateRefPoint') {
+    if (app.tool.currentStep == 'animateCharacteristicElement') {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
         this.animate(),
@@ -135,8 +153,8 @@ export class CentralSymetryTool extends Tool {
       app.upperCanvasLayer.points.forEach((point) => {
         point.startCoordinates = new Coordinates(point.coordinates);
         point.endCoordinates = new Coordinates({
-          x: point.x + 2 * (this.reference.x - point.x),
-          y: point.y + 2 * (this.reference.y - point.y),
+          x: point.x + 2 * (this.pointDrawn.x - point.x),
+          y: point.y + 2 * (this.pointDrawn.y - point.y),
         });
       });
     }
@@ -164,7 +182,7 @@ export class CentralSymetryTool extends Tool {
               .multiply(this.progress),
           );
       });
-    } else if (app.tool.currentStep == 'animateRefPoint') {
+    } else if (app.tool.currentStep == 'animateCharacteristicElement') {
       let coord = app.workspace.lastKnownMouseCoordinates;
       let object = SelectManager.selectObject(coord);
       if (object) {
@@ -176,15 +194,19 @@ export class CentralSymetryTool extends Tool {
   }
 
   _executeAction() {
-    if (this.reference instanceof Point && this.reference.layer == 'upper') {
-      let coord = this.reference.coordinates;
-      this.reference = new SinglePointShape({
+    if (!this.characteristicElements) {
+      let coord = this.pointDrawn.coordinates;
+      let point = new SinglePointShape({
         layer: 'main',
         path: `M ${coord.x} ${coord.y}`,
         name: 'Point',
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       }).points[0];
+      this.characteristicElements = new CharacteristicElements({ type: 'symetryCenter', elementIds: [point.id] });
+    }
+    if (!this.lastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
+      this.lastCharacteristicElements.push(this.characteristicElements);
     }
     let newShapes = this.involvedShapes.map(s => {
       let newShape = new s.constructor({
@@ -193,9 +215,6 @@ export class CentralSymetryTool extends Tool {
         familyName: 'transformation',
         id: undefined,
         path: s.getSVGPath('no scale', false),
-        // divisionPointInfos: s.divisionPoints.map((dp) => {
-        //   return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
-        // }),
         segmentsColor: s.segments.map((seg) => {
           return seg.color;
         }),
@@ -205,7 +224,7 @@ export class CentralSymetryTool extends Tool {
         geometryObject: new GeometryObject({
           geometryTransformationChildShapeIds: [],
           geometryTransformationParentShapeId: s.id,
-          geometryTransformationCharacteristicElementIds: [this.reference.id],
+          geometryTransformationCharacteristicElements: this.characteristicElements,
           geometryTransformationName: 'centralSymetry',
           geometryIsVisible: s.geometryObject.geometryIsVisible,
           geometryIsHidden: s.geometryObject.geometryIsHidden,
@@ -213,11 +232,11 @@ export class CentralSymetryTool extends Tool {
         }),
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      let ref = findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
-      if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
-        ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+      let symetryCenter = this.characteristicElements.firstElement;
+      if (!symetryCenter.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
+        symetryCenter.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       }
-      newShape.rotate(Math.PI, this.reference.coordinates);
+      newShape.rotate(Math.PI, symetryCenter.coordinates);
       newShape.points.forEach((pt, idx) => {
         pt.geometryIsVisible = s.points[idx].geometryIsVisible;
         pt.geometryIsHidden = s.points[idx].geometryIsHidden;
@@ -233,14 +252,26 @@ export class CentralSymetryTool extends Tool {
   }
 
   setSelectionConstraints() {
-    if (app.tool.currentStep == 'selectReference') {
-      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-      app.workspace.selectionConstraints.eventType = 'click';
-      app.workspace.selectionConstraints.points.canSelect = true;
-    } else {
-      let constraints = app.fastSelectionConstraints.mousedown_all_shape;
-      constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryPointOnTheFlyChildId);
-      app.workspace.selectionConstraints = constraints;
-    }
+    let constraints = app.fastSelectionConstraints.mousedown_all_shape;
+    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryPointOnTheFlyChildId);
+    app.workspace.selectionConstraints = constraints;
+  }
+
+  showLastCharacteristicElements() {
+    this.lastCharacteristicElements.forEach(characteristicElement => {
+      let point = findObjectById(characteristicElement.elementIds[0]);
+      let shape = new SinglePointShape({
+        layer: 'upper',
+        path: `M ${point.coordinates.x} ${point.coordinates.y}`,
+        name: 'Point',
+        familyName: 'Point',
+        geometryObject: new GeometryObject({
+          geometryIsCharacteristicElements: true,
+          geometryTransformationCharacteristicElements: characteristicElement,
+        }),
+      })
+      shape.points[0].color = app.settings.referenceDrawColor;
+      shape.points[0].size = 2;
+    })
   }
 }

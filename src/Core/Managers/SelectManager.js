@@ -42,9 +42,9 @@ export class SelectManager {
       //du + au - prioritaire. Les 3 valeurs doivent se retrouver dans le tableau.
       priority: ['points', 'segments', 'shapes'],
       blockHidden: false,
-      canSelectFromUpper: false,
       shapes: {
         canSelect: false,
+        canSelectFromUpper: false,
         // Liste de Shape. La figure doit être dans ce tableau s'il est non null
         whitelist: null,
         // Liste de Shape. La figure ne doit pas être dans ce tableau s'il est non null
@@ -52,6 +52,7 @@ export class SelectManager {
       },
       segments: {
         canSelect: false,
+        canSelectFromUpper: false,
         /*
                 Liste pouvant contenir différents éléments:
                     - {'shapeId': shapeId}
@@ -73,6 +74,7 @@ export class SelectManager {
       },
       points: {
         canSelect: false,
+        canSelectFromUpper: false,
         //Indépendamment de whitelist et blacklist, le point doit être
         //d'un des types renseignés dans ce tableau.
         types: ['shapeCenter', 'vertex', 'divisionPoint', 'modifiablePoint', 'arcCenter'],
@@ -125,6 +127,8 @@ export class SelectManager {
     easySelection = true,
   ) {
     if (!constraints.canSelect) return null;
+
+    // console.log('in select : ', constraints);
 
     let distCheckFunction = easySelection
       ? SelectManager.areCoordinatesInSelectionDistance
@@ -217,10 +221,17 @@ export class SelectManager {
       let dist2 = pt2.coordinates.dist(mouseCoordinates);
       if (Math.abs(dist1 - dist2) > 0.001)
         return dist1 - dist2;
+
+      if (pt1.shape.layer == 'upper' && pt2.shape.layer == 'main')
+        return -1;
+      if (pt2.shape.layer == 'upper' && pt1.shape.layer == 'main')
+        return 1;
+
       let shapeIndex1 = ShapeManager.getShapeIndex(pt1.shape);
       let shapeIndex2 = ShapeManager.getShapeIndex(pt2.shape);
       if (shapeIndex1 != shapeIndex2)
         return shapeIndex2 - shapeIndex1;
+
       if (pt1.type == 'vertex' && pt2.type == 'vertex')
         return pt2.idx - pt1.idx;
       return 0;
@@ -229,6 +240,8 @@ export class SelectManager {
     if (constraints.numberOfObjects == "allInDistance") {
       return constrainedPoints;
     }
+
+    // console.log(constrainedPoints);
 
     // let notHiddenPoints = constrainedPoints;
     constrainedPoints.forEach(pt => pt.isBehindShape = false);
@@ -457,6 +470,8 @@ export class SelectManager {
       console.error('Bad constr.priority value!');
       return null;
     }
+
+    // console.log(constr);
 
     for (let i = 0; i < constr.priority.length; i++) {
       let f = calls[constr.priority[i]],

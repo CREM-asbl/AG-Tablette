@@ -184,11 +184,20 @@ export class TransformTool extends Tool {
       if (!findObjectById(s.geometryObject.geometryTransformationParentShapeId)) {
         s.geometryObject.geometryTransformationParentShapeId = addInfoToId(s.geometryObject.geometryTransformationParentShapeId, 'main')
       }
-      s.geometryObject.geometryTransformationCharacteristicElementIds.forEach((el, idx) => {
-        if (!findObjectById(el)) {
-          s.geometryObject.geometryTransformationCharacteristicElementIds[idx] = addInfoToId(el, 'main')
-        }
-      });
+      let characteristicElements = s.geometryObject.geometryTransformationCharacteristicElements;
+      if (characteristicElements && characteristicElements.elementIds) {
+        characteristicElements.elementIds = characteristicElements.elementIds.map(elId => {
+          if (!findObjectById(elId)) {
+            return addInfoToId(elId, 'main');
+          }
+          return elId;
+        });
+      }
+      // s.geometryObject.geometryTransformationCharacteristicElementIds.forEach((el, idx) => {
+      //   if (!findObjectById(el)) {
+      //     s.geometryObject.geometryTransformationCharacteristicElementIds[idx] = addInfoToId(el, 'main')
+      //   }
+      // });
       if (!findObjectById(s.geometryObject.geometryDuplicateParentShapeId)) {
         s.geometryObject.geometryDuplicateParentShapeId = addInfoToId(s.geometryObject.geometryDuplicateParentShapeId, 'main')
       }

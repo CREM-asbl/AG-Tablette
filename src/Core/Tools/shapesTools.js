@@ -1,4 +1,5 @@
 import { app } from "../App";
+import { CharacteristicElements } from "../Objects/CharacteristicElements";
 import { GeometryObject } from "../Objects/Shapes/GeometryObject";
 import { addInfoToId } from "./general";
 
@@ -41,6 +42,11 @@ export function duplicateShape(s, layer = 'upper') {
     pt.geometryIsHidden = s.points[idx].geometryIsHidden;
   });
   if (app.environment.name == 'Geometrie') {
+    let newCharacteristicElements = null;
+    let characteristicElements = s.geometryObject.geometryTransformationCharacteristicElements;
+    if (characteristicElements && characteristicElements.elementIds) {
+      newCharacteristicElements = new CharacteristicElements({...characteristicElements, elementIds: characteristicElements.elementIds.map(elId => addInfoToId(elId, layer))});
+    }
     newShape.geometryObject = new GeometryObject({
       ...s.geometryObject,
       geometryChildShapeIds: s.geometryObject.geometryChildShapeIds.map(id => addInfoToId(id, layer)),
@@ -48,7 +54,7 @@ export function duplicateShape(s, layer = 'upper') {
       geometryParentObjectId2: addInfoToId(s.geometryObject.geometryParentObjectId2, layer),
       geometryTransformationChildShapeIds: s.geometryObject.geometryTransformationChildShapeIds.map(id => addInfoToId(id, layer)),
       geometryTransformationParentShapeId: addInfoToId(s.geometryObject.geometryTransformationParentShapeId, layer),
-      geometryTransformationCharacteristicElementIds: s.geometryObject.geometryTransformationCharacteristicElementIds.map(id => addInfoToId(id, layer)),
+      geometryTransformationCharacteristicElements: newCharacteristicElements,
       geometryDuplicateChildShapeIds: s.geometryObject.geometryDuplicateChildShapeIds.map(id => addInfoToId(id, layer)),
       geometryDuplicateParentShapeId: addInfoToId(s.geometryObject.geometryDuplicateParentShapeId, layer),
       geometryMultipliedChildShapeIds: s.geometryObject.geometryMultipliedChildShapeIds.map(id => addInfoToId(id, layer)),
