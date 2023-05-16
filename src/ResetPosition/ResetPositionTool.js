@@ -8,7 +8,7 @@ import { Tool } from '../Core/States/Tool';
  */
 export class ResetPositionTool extends Tool {
   constructor() {
-    super('ResetPosition', 'Remettre à la position initiale', 'tool');
+    super('resetPosition', 'Remettre à la position initiale', 'tool');
   }
 
   start() {
