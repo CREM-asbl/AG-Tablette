@@ -35,8 +35,6 @@ export class SolutionCheckerTool extends Tool {
 
       let tool = app.tools.find(tool => tool.name == 'translate');
       tool.isVisible = false;
-      tool = app.tools.find(tool => tool.name == 'color');
-      tool.isVisible = true;
 
       setState({
         tangram: {...app.defaultState.tangram, isSilhouetteShown, level },

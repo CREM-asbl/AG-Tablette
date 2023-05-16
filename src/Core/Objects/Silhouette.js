@@ -16,7 +16,7 @@ export class Silhouette {
         path: loadFromSave ? shape.path : shape.getSVGPath(false),
         layer: 'tangram',
         name: 'silhouette',
-        fillColor: '#000',
+        // fillColor: '#000',
         strokeColor: level % 2 != 0 ? '#fff' : '#000',
         fillOpacity: 1,
         isPointed: false,

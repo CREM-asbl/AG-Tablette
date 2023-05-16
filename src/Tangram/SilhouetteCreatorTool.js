@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { Tool } from '../Core/States/Tool';
 import { TangramManager } from './TangramManager';
@@ -19,8 +19,8 @@ export class SilhouetteCreatorTool extends Tool {
 
     let tool = app.tools.find(tool => tool.name == 'translate');
     tool.isVisible = true;
-    tool = app.tools.find(tool => tool.name == 'color');
-    tool.isVisible = false;
+
+    setState({ tools: app.tools });
 
     let toWait = TangramManager.initShapes(true);
     TangramManager.removeSilhouette();
@@ -31,7 +31,6 @@ export class SilhouetteCreatorTool extends Tool {
     window.addEventListener('new-window', this.handler);
 
     window.addEventListener('tangram-changed', this.handler);
-    // this.showStateMenu();
 
     await toWait;
     window.dispatchEvent(

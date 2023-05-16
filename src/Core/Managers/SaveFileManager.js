@@ -188,8 +188,6 @@ export class SaveFileManager {
       history = undefined;
     if (!detail.saveHistory)
       fullHistory = undefined;
-    // if (app.environment.name == 'Tangram') history = undefined;
-    // if (app.environment.name == 'Tangram') fullHistory = undefined;
 
     if (detail.permanentHide) {
       wsdata.objects.shapesData.forEach(sData => {
@@ -218,9 +216,9 @@ export class SaveFileManager {
       return;
     }
 
-    // let silhouetteData;
-    // if (app.environment.name == 'Tangram' && app.silhouette)
-    //   silhouetteData = app.silhouette.saveToObject();
+    if (app.environment.name == 'Tangram') {
+      toolsVisible.find(tool => tool.name == 'translate').isVisible = false;
+    }
 
     let saveObject = {
       appVersion: app.version,
