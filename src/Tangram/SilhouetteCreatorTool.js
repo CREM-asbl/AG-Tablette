@@ -29,15 +29,24 @@ export class SilhouetteCreatorTool extends Tool {
     app.workspace.selectionConstraints =
     app.fastSelectionConstraints.mousedown_all_shape;
     window.addEventListener('new-window', this.handler);
-
     window.addEventListener('tangram-changed', this.handler);
 
     await toWait;
-    window.dispatchEvent(
-      new CustomEvent('actions-executed', {
-        detail: { name: 'Créer une silhouette' },
-      }),
-    );
+
+    setState({
+      history: {
+        ...app.history,
+        startSituation: {
+          ...app.workspace.data,
+        },
+      },
+    });
+
+    // window.dispatchEvent(
+    //   new CustomEvent('actions-executed', {
+    //     detail: { name: 'Créer une silhouette' },
+    //   }),
+    // );
     window.addEventListener('actions-executed', this.handler);
     window.addEventListener('add-fullstep', this.handler);
     window.addEventListener('create-silhouette', () => this.createSilhouette());
@@ -52,20 +61,17 @@ export class SilhouetteCreatorTool extends Tool {
       if (app.tool?.name == this.name) {
         this[app.tool.currentStep]();
       }
-      // else if (app.tool?.name == 'solveChecker') { // à changer
-      //   this.end();
-      // }
-    } else if (event.type == 'tangram-changed') {
-      if (app.tangram.currentStep == 'createSilhouette') {
-        this.createSilhouette();
-      }
-      if (app.tangram.buttonValue == "createSilhouette") {
-        if (!document.querySelector('state-menu')) {
-          import('./state-menu');
-          const stateMenu = document.createElement('state-menu');
-          document.querySelector('body').appendChild(stateMenu);
-        }
-      }
+    // } else if (event.type == 'tangram-changed') {
+    //   if (app.tangram.currentStep == 'createSilhouette') {
+    //     this.createSilhouette();
+    //   }
+    //   if (app.tangram.buttonValue == "createSilhouette") {
+    //     if (!document.querySelector('state-menu')) {
+    //       import('./state-menu');
+    //       const stateMenu = document.createElement('state-menu');
+    //       document.querySelector('body').appendChild(stateMenu);
+    //     }
+    //   }
     } else if (event.type == 'actions-executed') {
       this.verifyOverlappingShapes();
     } else if (event.type == 'new-window') {
