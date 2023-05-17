@@ -60,9 +60,15 @@ class HelpPopup extends LitElement {
   }
 
   firstUpdated() {
-    this.content = html`
-      <img src='images/help/${app.environment.name}/${this.toolname}.webp' onerror='this.src = "images/help/default.png"'>
-    `;
+    if (this.tools.find(tool => tool.name == this.toolname)) {
+      this.content = html`
+        <img src='images/help/OutilsGeneraux/${this.toolname}.webp' onerror='this.src = "images/help/default.png"'>
+      `;
+    } else {
+      this.content = html`
+        <img src='images/help/${app.environment.name}/${this.toolname}.webp' onerror='this.src = "images/help/default.png"'>
+      `;
+    }
   }
 
   render() {
