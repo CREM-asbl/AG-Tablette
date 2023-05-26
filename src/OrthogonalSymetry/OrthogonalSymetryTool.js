@@ -350,7 +350,6 @@ export class OrthogonalSymetryTool extends Tool {
     // }
 
     if (!this.lastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
-      console.log('new characteristic elements');
       this.lastCharacteristicElements.push(this.characteristicElements);
     }
 

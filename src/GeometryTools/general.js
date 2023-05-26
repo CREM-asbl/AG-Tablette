@@ -48,14 +48,13 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
   });
   let characteristicElements = shape.geometryObject.geometryTransformationCharacteristicElements;
   if (characteristicElements) {
-    if (characteristicElements.type == 'symetryCenter') {
-      console.log(shape, shape.geometryObject.geometryTransformationCharacteristicElements);
-      let s = characteristicElements.firstElement.shape;
+    characteristicElements.elements.forEach(element => {
+      let s = element.shape;
       if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
         involvedShapes.push(s);
         getAllLinkedShapesInGeometry(s, involvedShapes);
       }
-    }
+    })
   }
 
   // shape.geometryObject.geometryTransformationCharacteristicElementIds.forEach((sId, idx) => {
