@@ -571,6 +571,7 @@ class CanvasLayer extends LitElement {
           }),
         );
       }
+      window.clearTimeout(this.pressTimeoutId);
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
       app.dispatchEv(new CustomEvent('canvasClick'));
       app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
@@ -601,6 +602,7 @@ class CanvasLayer extends LitElement {
           }),
         );
       }
+      window.clearTimeout(this.pressTimeoutId);
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
       app.dispatchEv(new CustomEvent('canvasClick'));
       app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
