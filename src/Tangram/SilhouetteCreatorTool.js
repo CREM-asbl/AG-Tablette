@@ -29,6 +29,7 @@ export class SilhouetteCreatorTool extends Tool {
     app.workspace.selectionConstraints =
     app.fastSelectionConstraints.mousedown_all_shape;
     window.addEventListener('new-window', this.handler);
+    window.addEventListener('file-parsed', this.handler);
     window.addEventListener('tangram-changed', this.handler);
 
     await toWait;
@@ -42,14 +43,9 @@ export class SilhouetteCreatorTool extends Tool {
       },
     });
 
-    // window.dispatchEvent(
-    //   new CustomEvent('actions-executed', {
-    //     detail: { name: 'Créer une silhouette' },
-    //   }),
-    // );
     window.addEventListener('actions-executed', this.handler);
     window.addEventListener('add-fullstep', this.handler);
-    window.addEventListener('create-silhouette', () => this.createSilhouette());
+    window.addEventListener('create-silhouette', this.handler);
   }
 
   end() {
@@ -61,21 +57,12 @@ export class SilhouetteCreatorTool extends Tool {
       if (app.tool?.name == this.name) {
         this[app.tool.currentStep]();
       }
-    // } else if (event.type == 'tangram-changed') {
-    //   if (app.tangram.currentStep == 'createSilhouette') {
-    //     this.createSilhouette();
-    //   }
-    //   if (app.tangram.buttonValue == "createSilhouette") {
-    //     if (!document.querySelector('state-menu')) {
-    //       import('./state-menu');
-    //       const stateMenu = document.createElement('state-menu');
-    //       document.querySelector('body').appendChild(stateMenu);
-    //     }
-    //   }
     } else if (event.type == 'actions-executed') {
       this.verifyOverlappingShapes();
-    } else if (event.type == 'new-window') {
+    } else if (event.type == 'new-window' || event.type == 'file-parsed') {
       this.end();
+    } else if (event.type == 'create-silhouette') {
+      this.createSilhouette();
     } else if (event.type == 'add-fullstep' && (event.detail.name == 'Refaire' || event.detail.name == 'Annuler')) {
       this.verifyOverlappingShapes();
       window.dispatchEvent(new CustomEvent('refresh'));
@@ -87,6 +74,8 @@ export class SilhouetteCreatorTool extends Tool {
     window.removeEventListener('add-fullstep', this.handler);
     window.removeEventListener('tangram-changed', this.handler);
     window.removeEventListener('new-window', this.handler);
+    window.removeEventListener('file-parsed', this.handler);
+    window.removeEventListener('create-silhouette', this.handler);
   }
 
   /**
