@@ -1,7 +1,7 @@
 {
   "name": "Apprenti Géomètre mobile Beta",
   "short_name": "AG mobile Beta",
-  "version": "1.1.39 Beta",
+  "version": "1.1.40 Beta",
   "icons": [
     {
       "src": "images/manifest/icon-512.png",
