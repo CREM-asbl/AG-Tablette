@@ -60,7 +60,8 @@ class HelpPopup extends LitElement {
   }
 
   firstUpdated() {
-    if (this.tools.find(tool => tool.name == this.toolname)) {
+    let tool = this.tools.find(tool => tool.name == this.toolname);
+    if (tool.type == undefined && tool.name != 'create') {
       this.content = html`
         <img src='images/help/OutilsGeneraux/${this.toolname}.webp' onerror='this.src = "images/help/default.png"'>
       `;
