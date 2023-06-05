@@ -75,7 +75,8 @@ class AgEnvironnements extends LitElement {
         background-size: auto 150%;
       }
 
-      .watermark {
+      .watermark
+      {
         position: absolute;
         text-align: center;
         left: 50%;
@@ -90,6 +91,7 @@ class AgEnvironnements extends LitElement {
       }
 
       .rotate {
+
         -ms-transform: translateY(-50%);
         transform: translateY(-50%) translateX(-50%) rotate(-30deg);
       }
@@ -135,9 +137,6 @@ class AgEnvironnements extends LitElement {
         <div class="textTop envText" name="Geometrie">
           Géométrie
         </div>
-        <div class="watermark rotate">
-          En développement
-        </div>
       </div>
       <div class="logo-wrapper">
         <img
@@ -150,10 +149,10 @@ class AgEnvironnements extends LitElement {
   }
 
   async handleClick(e) {
-    if (e != 'Grandeurs' && e != 'Cubes' && e != 'Tangram') {
-      console.log('Only Grandeurs, Tangram & Cubes supported here');
-      return;
-    }
+    // if (e != 'Grandeurs' && e != 'Cubes') {
+    //   console.log('Only Grandeurs & Cubes supported here');
+    //   return;
+    // }
     setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(e) });
   }
