@@ -79,12 +79,13 @@ export class SaveFileManager {
         window.addEventListener(
           'file-selected',
           (event) => {
-            SaveFileManager.saveState(handle, { ...event.detail });
-            window.dispatchEvent(
-              new CustomEvent('show-notif', {
-                detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-              }),
-            );
+            let saveResult = SaveFileManager.saveState(handle, { ...event.detail });
+            if (saveResult != -1)
+              window.dispatchEvent(
+                new CustomEvent('show-notif', {
+                  detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+                }),
+              );
           },
           { once: true },
         );
@@ -213,7 +214,7 @@ export class SaveFileManager {
           detail: { message: 'Certaines figures se superposent.' },
         }),
       );
-      return;
+      return -1;
     }
 
     if (app.environment.name == 'Tangram') {
