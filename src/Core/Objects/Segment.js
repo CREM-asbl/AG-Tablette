@@ -1,5 +1,5 @@
 import { app } from '../App';
-import { addInfoToId, isAlmostInfinite, mod, removeObjectById, uniqId } from '../Tools/general';
+import { addInfoToId, findObjectById, isAlmostInfinite, mod, removeObjectById, uniqId } from '../Tools/general';
 import { Bounds } from './Bounds';
 import { Coordinates } from './Coordinates';
 import { Point } from './Point';
@@ -82,21 +82,19 @@ export class Segment {
     } else {
       this.vertexIds = [...vertexIds];
       this.vertexIds.forEach((vxId) =>
-        this.canvasLayer.points
-          .find((pt) => pt.id === vxId)
+        findObjectById(vxId)
           .segmentIds.push(this.id),
       );
       this.divisionPointIds = [...divisionPointIds];
       this.divisionPointIds.forEach((dptId) =>
-        this.canvasLayer.points
-          .find((pt) => pt.id === dptId)
+        findObjectById(dptId)
           .segmentIds.push(this.id),
       );
       this.shapeId = shapeId;
-      if (this.shapeId !== undefined)
-        this.canvasLayer.shapes
-          .find((s) => s.id === this.shapeId)
+      if (this.shapeId !== undefined) {
+        findObjectById(this.shapeId)
           .segmentIds.push(this.id);
+      }
       this.arcCenterId = arcCenterId;
     }
     this.counterclockwise = counterclockwise;
@@ -115,9 +113,7 @@ export class Segment {
   }
 
   get shape() {
-    let shape = this.canvasLayer.shapes.find(
-      (s) => s.id === this.shapeId,
-    );
+    let shape = findObjectById(this.shapeId);
     return shape;
   }
 
@@ -128,22 +124,20 @@ export class Segment {
 
   get vertexes() {
     let vertexes = this.vertexIds.map((ptId) =>
-      this.canvasLayer.points.find((pt) => pt.id === ptId),
+      findObjectById(ptId)
     );
     return vertexes;
   }
 
   get divisionPoints() {
     let divisionPoints = this.divisionPointIds.map((ptId) =>
-      this.canvasLayer.points.find((pt) => pt.id === ptId),
+      findObjectById(ptId)
     );
     return divisionPoints;
   }
 
   get arcCenter() {
-    let arcCenter = this.canvasLayer.points.find(
-      (pt) => pt.id === this.arcCenterId,
-    );
+    let arcCenter = findObjectById(this.arcCenterId);
     return arcCenter;
   }
 
@@ -547,11 +541,6 @@ export class Segment {
     if (this.arcCenter) this.arcCenter.multiplyWithScalar(scaling, true);
   }
 
-  // rotate(angle, center = { x: 0, y: 0 }) {
-  //   this.allPoints.forEach(pt => pt.rotate(angle, center));
-  //   if (this.arcCenter) this.arcCenter.rotate(angle, center);
-  // }
-
   translate(coordinates) {
     if (this.vertexes)
       this.vertexes.forEach((vertex) => vertex.translate(coordinates));
@@ -571,72 +560,6 @@ export class Segment {
   /* #################################################################### */
   /* ############################## OTHER ############################### */
   /* #################################################################### */
-
-  // saveToObject() {
-  //   return this.saveData();
-  //   const save = {
-  //     vertexes: this.vertexes.map(pt => pt.saveToObject()),
-  //   };
-  //   if (this.points && this.points.length)
-  //     save.points = this.points.map(pt => pt.saveToObject());
-  //   if (this.idx !== undefined) save.idx = this.idx;
-  //   if (this.shape) save.shapeId = this.shape.id;
-  //   if (this.arcCenter) save.arcCenter = this.arcCenter.saveToObject();
-  //   if (this.counterclockwise) save.counterclockwise = this.counterclockwise;
-  //   save.isInfinite = this.isInfinite;
-  //   save.isSemiInfinite = this.isSemiInfinite;
-  //   return save;
-  // }
-
-  // initFromObject(save) {
-  //   if (save.shape) this.shape = save.shape;
-  //   else if (save.shapeId) this.shape = ShapeManager.getShapeById(save.shapeId);
-
-  //   this.vertexes = save.vertexes.map((pt) => {
-  //     let newVertex = new Point(pt, 'vertex', this, this.shape, pt.name);
-  //     return newVertex;
-  //   });
-  //   if (save.points && save.points.length) {
-  //     this.points = save.points.map((pt) => {
-  //       let newPoint = new Point(
-  //         pt,
-  //         'segmentPoint',
-  //         this,
-  //         this.shape,
-  //         pt.name,
-  //         pt.ratio,
-  //       );
-  //       return newPoint;
-  //     });
-  //   }
-  //   if (save.idx !== undefined) this.idx = save.idx;
-  //   if (save.arcCenter) {
-  //     let newPoint = new Point(
-  //       save.arcCenter,
-  //       'arcCenter',
-  //       this,
-  //       this.shape,
-  //       save.arcCenter.name,
-  //     );
-  //     this.arcCenter = newPoint;
-  //   }
-  //   if (save.counterclockwise) this.counterclockwise = save.counterclockwise;
-  //   // if (save.tangentCoord1) this.tangentCoord1 = new Coordinates(save.tangentCoord1);
-  //   // if (save.tangentCoord2) this.tangentCoord2 = new Coordinates(save.tangentCoord2);
-  //   this.isInfinite = save.isInfinite;
-  //   this.isSemiInfinite = save.isSemiInfinite;
-  // }
-
-  // static retrieveFrom(segment) {
-  //   console.trace();
-  //   let newSegmentCopy = new Segment();
-  //   newSegmentCopy.initFromObject(segment);
-  //   return newSegmentCopy.shape.segments[newSegmentCopy.idx];
-  // }
-
-  // isVertex(point) {
-  //   return point.equal(this.vertexes[0]) || point.equal(this.vertexes[1]);
-  // }
 
   /**
    * divide a segment with points and return the subsegments
@@ -775,12 +698,41 @@ export class Segment {
     }
   }
 
+  arcParelleleWith(segment) {
+    if (this.arcCenter.coordinates.equal(segment.arcCenter.coordinates) && this.radius == segment.radius) {
+      return true;
+    }
+    return false;
+  }
+
+  isParalleleWith(segment) {
+    if (this.isArc() && segment.isArc()) {
+      return this.arcParelleleWith(segment);
+    } else if (this.isArc() || segment.isArc()) {
+      return false;
+    }
+    let thisv0x = this.vertexes[0].x,
+    thisv0y = this.vertexes[0].y,
+    thisv1x = this.vertexes[1].x,
+    thisv1y = this.vertexes[1].y,
+    segmentv0x = segment.vertexes[0].x,
+    segmentv0y = segment.vertexes[0].y,
+    segmentv1x = segment.vertexes[1].x,
+    segmentv1y = segment.vertexes[1].y,
+    thisSlope = (thisv0y - thisv1y) / (thisv0x - thisv1x),
+    segmentSlope = (segmentv0y - segmentv1y) / (segmentv0x - segmentv1x);
+    if (Math.abs(thisSlope - segmentSlope) < 0.001) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * point d'intersection de 2 segments (ou prolongation)
    * @param {object} segment
    * @return le point ou null si segments parallèles
    */
-  intersectionWith(segment, allowProlongation = false, precision = 1) {
+  intersectionWith(segment, precision = 1, coordinatesIfParalleleSegments) {
     if (this.isArc() || segment.isArc()) {
       return this.arcIntersectionWith(segment, precision);
     }
@@ -795,6 +747,18 @@ export class Segment {
       segmentv1y = segment.vertexes[1].y,
       thisSlope = (thisv0y - thisv1y) / (thisv0x - thisv1x),
       segmentSlope = (segmentv0y - segmentv1y) / (segmentv0x - segmentv1x);
+
+    // 2 segments parallèles
+    if (Math.abs(thisSlope - segmentSlope) < 0.001) {
+      if (coordinatesIfParalleleSegments) {
+        if (this.isCoordinatesOnSegment(coordinatesIfParalleleSegments) && segment.isCoordinatesOnSegment(coordinatesIfParalleleSegments)) {
+          return [coordinatesIfParalleleSegments];
+        } else {
+          return null;
+        }
+      }
+      return null;
+    }
 
     // 2 segments verticaux
     if (isAlmostInfinite(thisSlope) && isAlmostInfinite(segmentSlope))
@@ -811,14 +775,12 @@ export class Segment {
       result.x = segmentv0x;
       // 2 segments 'normaux'
     } else {
-      // 2 segments parallèles
-      if (Math.abs(thisSlope - segmentSlope) < 0.001) return null;
       let pb = segmentv0y - segmentSlope * segment.vertexes[0].x;
       let pa = thisv0y - thisSlope * this.vertexes[0].x;
       result.x = (pb - pa) / (thisSlope - segmentSlope);
       result.y = thisSlope * result.x + pa;
     }
-    if (!allowProlongation && (!this.isCoordinatesOnSegment(result) || !segment.isCoordinatesOnSegment(result))) {
+    if (!this.isCoordinatesOnSegment(result) || !segment.isCoordinatesOnSegment(result)) {
       return null;
     }
     return [result];
@@ -908,7 +870,6 @@ export class Segment {
   doesIntersect(segment, falseIfEdgePoint = false) {
     let intersections = this.intersectionWith(segment);
     if (intersections == null) return false;
-    // if (allowProlongation) return true;
     if (falseIfEdgePoint) {
       for (let i = 0; i < intersections.length; i++) {
         if ([...this.vertexes, ...segment.vertexes].some((vertex) => vertex.coordinates.equal(intersections[i]))) {
@@ -1025,14 +986,29 @@ export class Segment {
       position: this.layer,
       idx: this.idx,
       vertexIds: [...this.vertexIds],
-      divisionPointIds: [...this.divisionPointIds],
-      arcCenterId: this.arcCenterId,
-      counterclockwise: this.counterclockwise,
-      isInfinite: this.isInfinite,
-      isSemiInfinite: this.isSemiInfinite,
-      color: this.color,
-      width: this.width,
+      // divisionPointIds: [...this.divisionPointIds],
+      // arcCenterId: this.arcCenterId,
+      // counterclockwise: this.counterclockwise,
+      // isInfinite: this.isInfinite,
+      // isSemiInfinite: this.isSemiInfinite,
+      // color: this.color,
+      // width: this.width,
     };
+
+    if (this.divisionPointIds.length !== 0)
+      data.divisionPointIds = [...this.divisionPointIds];
+    if (this.arcCenterId != undefined)
+      data.arcCenterId = this.arcCenterId;
+    if (this.counterclockwise !== false)
+      data.counterclockwise = this.counterclockwise;
+    if (this.isInfinite !== false)
+      data.isInfinite = this.isInfinite;
+    if (this.isSemiInfinite !== false)
+      data.isSemiInfinite = this.isSemiInfinite;
+    if (this.color != undefined)
+      data.color = this.color;
+    if (this.width !== 1)
+      data.width = this.width;
     return data;
   }
 
@@ -1045,6 +1021,7 @@ export class Segment {
     });
     Object.assign(segment, data);
     segment.vertexIds = [...data.vertexIds];
-    segment.divisionPointIds = [...data.divisionPointIds];
+    if (data.divisionPointIds)
+      segment.divisionPointIds = [...data.divisionPointIds];
   }
 }

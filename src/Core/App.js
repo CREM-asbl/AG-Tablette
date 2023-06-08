@@ -36,10 +36,10 @@ export class App {
       shapesSize: 2,
       numberOfDivisionParts: 2,
       numberOfRegularPoints: 3,
-      shapeFillColor: '#000000',
-      shapeBorderColor: '#000000',
-      drawColor: '#000000',
+      shapesDrawColor: '#ff0000',
       shapeOpacity: 0.7,
+      scalarNumerator: 1,
+      scalarDenominator: 1,
 
       gridShown: false,
       gridType: 'none',
@@ -130,10 +130,6 @@ export class App {
       },
     });
   }
-
-  start() {
-    window.dispatchEvent(new CustomEvent('app-started'));
-  }
 }
 
 export const app = new App();
@@ -156,7 +152,10 @@ export const setState = (update) => {
       app.tool.title = toolInfo.title;
       app.tool.type = toolInfo.type;
     }
-    window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
+    if (!app.tool || app.tool.currentStep == 'start') {
+      window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
+    }
+    window.dispatchEvent(new CustomEvent('tool-updated', { detail: app }));
   }
   if ('tangram' in update) {
     window.dispatchEvent(new CustomEvent('tangram-changed', { detail: app }));
@@ -180,6 +179,9 @@ export const setState = (update) => {
   }
   if ('tools' in update) {
     window.dispatchEvent(new CustomEvent('tools-changed', { detail: app }));
+  }
+  if ('helpSelected' in update) {
+    window.dispatchEvent(new CustomEvent('helpSelected-changed', { detail: app }));
   }
   if (app.started) {
     // window.dispatchEvent(new CustomEvent('refreshUpper'));

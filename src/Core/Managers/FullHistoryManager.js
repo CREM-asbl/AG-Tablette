@@ -19,6 +19,7 @@ export class FullHistoryManager {
       );
       return;
     }
+    FullHistoryManager.cleanHisto();
     import('../../fullhistory-tools');
     createElem('fullhistory-tools');
     // if called when already running
@@ -32,14 +33,15 @@ export class FullHistoryManager {
         actionIndex: 0,
         numberOfActions: numberOfActions,
         isRunning: true,
+        isPlaying: false,
       },
     });
+
     FullHistoryManager.saveHistory = { ...app.history };
     FullHistoryManager.setWorkspaceToStartSituation();
 
-    FullHistoryManager.isClicked = false;
+    // FullHistoryManager.isClicked = false;
     FullHistoryManager.nextTime = 0;
-    // FullHistoryManager.executeAllSteps();
   }
 
   static stopBrowsing() {
@@ -56,38 +58,52 @@ export class FullHistoryManager {
   }
 
   static pauseBrowsing() {
+    setState({
+      fullHistory: {
+        ...app.fullHistory,
+        isPlaying: false,
+      },
+    });
     window.clearTimeout(app.fullHistory.timeoutId);
   }
 
-  static playBrowsing() {
+  static playBrowsing(onlySingleAction = false) {
     let timeoutId = setTimeout(
-      () => FullHistoryManager.executeAllSteps(),
+      () => FullHistoryManager.executeAllSteps(onlySingleAction),
       FullHistoryManager.nextTime + 50,
     );
     setState({
       fullHistory: {
         ...app.fullHistory,
         timeoutId,
+        isPlaying: true,
       },
     });
   }
 
   static setWorkspaceToStartSituation() {
     app.workspace.initFromObject(app.history.startSituation);
+
     setState({
       settings: { ...app.history.startSettings },
-      history: { ...app.defaultState.history },
+      // history: { ...app.defaultState.history },
     });
   }
 
-  static moveTo(actionIndex, startSelectedTool = true) {
+  static moveTo(actionIndex, startSelectedTool = true, isForSingleActionPlaying = false) {
     FullHistoryManager.pauseBrowsing();
 
     let index = app.fullHistory.steps.findIndex(
-      (step) => step.detail?.actionIndex === actionIndex - 1,
-      );
-
+      (step) => step.detail?.actionIndex === actionIndex && step.type == 'add-fullstep'
+    );
     let data = app.fullHistory.steps[index]?.detail.data;
+    if (isForSingleActionPlaying) {
+      index = app.fullHistory.steps.findIndex(
+        (step) => step.detail?.actionIndex === actionIndex
+      );
+      data = app.fullHistory.steps[index - 1]?.detail.data;
+    }
+
     if (data) {
       app.workspace.initFromObject({ ...data });
       let settings = {
@@ -102,8 +118,9 @@ export class FullHistoryManager {
     }
 
     // not to re-execute fullStep
-    index++;
-    setState({ fullHistory: { ...app.fullHistory, actionIndex, index }, tool: undefined });
+    if (!isForSingleActionPlaying)
+      index++;
+    setState({ fullHistory: { ...app.fullHistory, actionIndex: actionIndex, index }, tool: undefined });
 
     app.upperCanvasLayer.removeAllObjects(); // temporary patch
     app.upperCanvasLayer.redraw(); // temporary patch
@@ -111,7 +128,7 @@ export class FullHistoryManager {
     if (startSelectedTool) {
       let tool = null;
       for (let i = index; i > 0; i--) {
-        if (app.fullHistory.steps[i].type == 'tool-changed') {
+        if (app.fullHistory.steps[i].type == 'tool-changed' || app.fullHistory.steps[i].type == 'tool-updated') {
           let toolInfo = app.fullHistory.steps[i].detail;
           let currentStep = 'start';
           if (toolInfo.name == 'divide' || toolInfo.name == 'opacity') {
@@ -125,18 +142,21 @@ export class FullHistoryManager {
     }
   }
 
-  static executeAllSteps() {
-    if (app.fullHistory.index >= app.fullHistory.steps.length - 1) {
+  static executeAllSteps(onlySingleAction = false) {
+    if (app.fullHistory.index >= app.fullHistory.steps.length) {
       FullHistoryManager.stopBrowsing();
       return;
     }
 
-    FullHistoryManager.executeStep();
+    if (FullHistoryManager.executeStep() && onlySingleAction) {
+      FullHistoryManager.pauseBrowsing();
+      return;
+    }
     if (!app.fullHistory.isRunning) return;
 
     let index = app.fullHistory.index + 1;
     let timeoutId = setTimeout(
-      () => FullHistoryManager.executeAllSteps(),
+      () => FullHistoryManager.executeAllSteps(onlySingleAction),
       FullHistoryManager.nextTime + 50, // nextTime,
     );
     setState({ fullHistory: { ...app.fullHistory, index, timeoutId } });
@@ -150,12 +170,13 @@ export class FullHistoryManager {
       detail.mousePos = new Coordinates(detail.mousePos);
     }
 
-    let nextType = app.fullHistory.steps[index + 1].type;
-
-    if (type == 'canvasMouseUp') {
-      FullHistoryManager.isClicked = false;
-    } else if (type == 'canvasMouseDown') {
-      FullHistoryManager.isClicked = true;
+    if (detail.actionIndex) {
+      setState({
+        fullHistory: {
+          ...app.fullHistory,
+          actionIndex: detail.actionIndex,
+        },
+      });
     }
 
     if (type == 'add-fullstep') {
@@ -170,19 +191,20 @@ export class FullHistoryManager {
         let data = detail.data;
         app.workspace.initFromObject(data);
         setState({
-          fullHistory: {
-            ...app.fullHistory,
-            actionIndex: app.fullHistory.actionIndex + 1,
-          },
+          // fullHistory: {
+          //   ...app.fullHistory,
+          //   actionIndex: app.fullHistory.actionIndex + 1,
+          // },
           tangram: { ...data.tangram },
         });
       }, FullHistoryManager.nextTime + 30);
-      if (app.fullHistory.numberOfActions == app.fullHistory.actionIndex)
+      if (app.fullHistory.numberOfActions + 1 == app.fullHistory.actionIndex)
         setTimeout(
           () => FullHistoryManager.stopBrowsing(),
           FullHistoryManager.nextTime,
         );
-    } else if (type == 'tool-changed') {
+      return true;
+    } else if (type == 'tool-changed' || type == 'tool-updated') {
       setState({ tool: { ...detail } });
     } else if (type == 'settings-changed') {
       FullHistoryManager.nextTime = 1 * 1000;
@@ -190,12 +212,12 @@ export class FullHistoryManager {
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
-      if (FullHistoryManager.isClicked || nextType == 'objectSelected') {
+      // if (FullHistoryManager.isClicked || nextType == 'objectSelected') {
         window.dispatchEvent(new CustomEvent(type, { detail: detail }));
         window.dispatchEvent(new CustomEvent('show-cursor'));
-      } else {
-        FullHistoryManager.nextTime = -50;
-      }
+      // } else {
+      //   FullHistoryManager.nextTime = -50;
+      // }
     } else if (type == 'setNumberOfParts') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('close-popup'));
@@ -205,6 +227,45 @@ export class FullHistoryManager {
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
     }
+  }
+
+  static cleanMouseSteps() {
+    let isClicked = false;
+    for (let i = 0; i < app.fullHistory.steps.length - 1; i++) {
+      let { type, _ } = app.fullHistory.steps[i];
+      let nextType = app.fullHistory.steps[i + 1].type;
+
+      if (type == 'canvasMouseUp') {
+        isClicked = false;
+      } else if (type == 'canvasMouseDown') {
+        isClicked = true;
+      }
+
+      if ((type == 'mouse-coordinates-changed' || type == 'canvasMouseMove') && !isClicked && nextType != 'objectSelected') {
+        app.fullHistory.steps.splice(i, 1);
+        i--;
+      }
+    }
+  }
+
+  static cleanColorMultiplication() {
+    for (let i = 0; i < app.fullHistory.steps.length - 2; i++) {
+      let { type, detail} = app.fullHistory.steps[i];
+      let nextType = app.fullHistory.steps[i + 1].type;
+      let nextNextType = app.fullHistory.steps[i + 2].type;
+      let nextNextDetail = app.fullHistory.steps[i + 2].detail;
+
+      if (type == 'tool-updated' && detail.name == 'color' && detail.currentStep == 'listen' && nextType == 'settings-changed' && nextNextType == 'tool-updated' && nextNextDetail.name == 'color' && nextNextDetail.currentStep == 'listen') {
+        app.fullHistory.steps.splice(i, 1);
+        app.fullHistory.steps.splice(i, 1);
+        i--;
+      }
+    }
+  }
+
+  static cleanHisto() {
+    FullHistoryManager.cleanColorMultiplication();
+    FullHistoryManager.cleanMouseSteps();
   }
 
   /**
@@ -218,15 +279,21 @@ export class FullHistoryManager {
     if (type == 'add-fullstep') {
       detail.actionIndex = app.fullHistory.steps.filter((step) => {
         return step.type == 'add-fullstep';
-      }).length;
+      }).length + 1;
       let data = app.workspace.data;
       data.history = undefined;
       data.settings = { ...app.settings };
       data.tangram = { ...app.tangram };
       detail.data = data;
       setState({ stepSinceSave: true });
+    } else if (app.fullHistory.steps.length <= 1) {
+      detail.actionIndex = app.fullHistory.steps.length;
+    } else {//if (app.fullHistory.steps[app.fullHistory.steps.length - 1].type == 'add-fullstep') {
+      detail.actionIndex = app.fullHistory.steps.filter((step) => {
+        return step.type == 'add-fullstep';
+      }).length + 1;
     }
-    if (type == 'tool-changed' && detail.name == 'solveChecker') {
+    if ((type == 'tool-changed' || type == 'tool-updated') && detail.name == 'solveChecker') {
       return;
     }
     let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
@@ -313,6 +380,9 @@ window.addEventListener('close-popup', (event) =>
 
 window.addEventListener('tool-changed', () => {
   FullHistoryManager.addStep('tool-changed', { detail: app.tool });
+});
+window.addEventListener('tool-updated', () => {
+  FullHistoryManager.addStep('tool-updated', { detail: app.tool });
 });
 window.addEventListener('settings-changed', () => {
   FullHistoryManager.addStep('settings-changed', { detail: app.settings });

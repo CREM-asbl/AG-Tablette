@@ -73,13 +73,19 @@ export class Workspace {
 
     app.mainCanvasLayer.loadFromData(wsdata.objects);
     app.gridCanvasLayer?.clear();
+    if (!wsdata.shapeGroups)
+      wsdata.shapeGroups = [];
     this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
       return group;
     });
 
+    if (!wsdata.zoomLevel)
+      wsdata.zoomLevel = 1;
     this.zoomLevel = wsdata.zoomLevel;
+    if (!wsdata.translateOffset)
+      wsdata.translateOffset = {x: 0, y: 0};
     this.translateOffset = new Coordinates(wsdata.translateOffset);
 
     if (
@@ -118,30 +124,32 @@ export class Workspace {
 
     wsdata.id = this.id;
 
-    // wsdata.shapes = this.shapes.map(s => {
-    //   return s.saveToObject();
-    // });
     wsdata.objects = app.mainCanvasLayer.saveData();
-    wsdata.backObjects = app.tangramCanvasLayer?.saveData();
-    wsdata.shapeGroups = this.shapeGroups.map((group) => {
-      return group.saveToObject();
-    });
+    if (app.tangramCanvasLayer) {
+      let mustEraseShapes = false;
+      if (app.tangramCanvasLayer.shapes.length == 0) {
+        window.dispatchEvent(new CustomEvent('create-silhouette'));
+        mustEraseShapes = true;
+      }
+      wsdata.backObjects = app.tangramCanvasLayer.saveData();
+      if (mustEraseShapes) {
+        app.tangramCanvasLayer.removeAllObjects();
+      }
+    }
+    if (this.shapeGroups.length != 0) {
+      wsdata.shapeGroups = this.shapeGroups.map((group) => {
+        return group.saveToObject();
+      });
+    }
 
-    wsdata.zoomLevel = this.zoomLevel;
-    wsdata.translateOffset = this.translateOffset;
+    if (this.zoomLevel != 1)
+      wsdata.zoomLevel = this.zoomLevel;
+    if (this.translateOffset.x != 0 || this.translateOffset.y != 0)
+      wsdata.translateOffset = this.translateOffset;
 
     wsdata.canvasSize = { width: app.canvasWidth, height: app.canvasHeight };
 
     return wsdata;
-  }
-
-  /**
-   * Exporter le Workspace en JSON
-   * @return {String} le JSON
-   */
-  saveToJSON() {
-    const json = JSON.stringify(this.data);
-    return json;
   }
 
   /**
@@ -155,11 +163,6 @@ export class Workspace {
     if (newZoomLevel > app.settings.maxZoomLevel)
       newZoomLevel = app.settings.maxZoomLevel;
 
-    // window.dispatchEvent(
-    //   new CustomEvent('scaleView', {
-    //     detail: { scale: newZoomLevel / this.zoomLevel },
-    //   })
-    // );
     this.zoomLevel = newZoomLevel;
 
     if (doRefresh) {
@@ -191,11 +194,7 @@ export class Workspace {
 
   toSVG() {
     let svg_data =
-      '<svg width="' +
-      app.canvasWidth +
-      '" height="' +
-      app.canvasHeight +
-      '" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n';
+    `<svg width="${app.canvasWidth}" height="${app.canvasHeight}" viewBox="0 0 ${app.canvasWidth} ${app.canvasHeight}" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n`;
     if (app.gridCanvasLayer)
       svg_data += app.gridCanvasLayer.toSVG();
     if (app.tangramCanvasLayer)
@@ -203,13 +202,7 @@ export class Workspace {
     svg_data += app.mainCanvasLayer.toSVG();
     if (document.body.querySelector('forbidden-canvas') != null) {
       svg_data +=
-        '<rect x="' +
-        app.canvasWidth / 2 +
-        '" width="' +
-        app.canvasWidth / 2 +
-        '" height="' +
-        app.canvasHeight +
-        '" style="fill:rgb(255,0,0, 0.2);" />';
+        `<rect x="${app.canvasWidth / 2}" width="${app.canvasWidth / 2}" height="${app.canvasHeight}" style="fill:rgb(255,0,0, 0.2);" />`;
     }
     svg_data += '</svg>';
 

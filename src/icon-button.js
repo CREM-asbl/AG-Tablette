@@ -7,31 +7,16 @@ class IconButton extends LitElement {
       name: String,
       src: String,
       type: String,
-      // colorPickerValue: String,
+      cantInteract: Boolean,
+      colorPickerValue: String,
     };
   }
 
-  // firstUpdated() {
-  //   if (this.name == 'color') {
-  //     window.addEventListener('tool-changed', () => {
-  //       if (app.fullHistory.isRunning)
-  //         return;
-  //       if (app.tool?.currentStep == 'start') {
-  //           this.shadowRoot.querySelector('#color-picker').value =
-  //             app.settings.drawColor;
-  //           this.colorPickerValue = app.settings.drawColor;
-  //       }
-  //     });
-  //     window.addEventListener('workspace-changed', () => {
-  //       setState({
-  //         settings: {
-  //           ...app.settings,
-  //           drawColor: '#000000',
-  //         },
-  //       });
-  //     });
-  //   }
-  // }
+  constructor() {
+    super();
+
+    this.colorPickerValue = app.settings.shapesDrawColor;
+  }
 
   updated() {
     //Todo: Refacto (ce code ne devrait pas se trouver ici)
@@ -90,6 +75,10 @@ class IconButton extends LitElement {
         box-shadow: inset 0px 0px 1px var(--menu-shadow-color);
       }
 
+      :host([helpanimation]) button {
+        background-color: #F3E0BF;
+      }
+
       img {
         height: 100%;
         width: 100%;
@@ -99,7 +88,7 @@ class IconButton extends LitElement {
 
   render() {
     if (!this.src) return;
-    if (this.name == 'color') {
+    if (this.name == 'color' && this.cantInteract != 'true') {
       return html`
         <button style="background-image:url('${this.src}');">
           <input
@@ -108,27 +97,11 @@ class IconButton extends LitElement {
             type="color"
             value="${this.colorPickerValue}"
             @input="${e => {
-              if (app.tool.name == 'backgroundColor') {
+              if (app.tool.name == 'color') {
                 setState({
                   settings: {
                     ...app.settings,
-                    shapeFillColor: e.target.value,
-                  },
-                  tool: { ...app.tool, currentStep: 'listen' },
-                });
-              } else if (app.tool.name == 'borderColor') {
-                setState({
-                  settings: {
-                    ...app.settings,
-                    shapeBorderColor: e.target.value,
-                  },
-                  tool: { ...app.tool, currentStep: 'listen' },
-                });
-              } else if (app.tool.name == 'color') {
-                setState({
-                  settings: {
-                    ...app.settings,
-                    drawColor: e.target.value,
+                    shapesDrawColor: e.target.value,
                   },
                   tool: { ...app.tool, currentStep: 'listen' },
                 });

@@ -2,6 +2,7 @@ import { app } from '../App';
 import { LineShape } from '../Objects/Shapes/LineShape';
 import { RegularShape } from '../Objects/Shapes/RegularShape';
 import { SinglePointShape } from '../Objects/Shapes/SinglePointShape';
+import { StripLineShape } from '../Objects/Shapes/StripLineShape';
 import { ShapeManager } from './ShapeManager';
 
 /*
@@ -41,9 +42,9 @@ export class SelectManager {
       //du + au - prioritaire. Les 3 valeurs doivent se retrouver dans le tableau.
       priority: ['points', 'segments', 'shapes'],
       blockHidden: false,
-      canSelectFromUpper: false,
       shapes: {
         canSelect: false,
+        canSelectFromUpper: false,
         // Liste de Shape. La figure doit être dans ce tableau s'il est non null
         whitelist: null,
         // Liste de Shape. La figure ne doit pas être dans ce tableau s'il est non null
@@ -51,6 +52,7 @@ export class SelectManager {
       },
       segments: {
         canSelect: false,
+        canSelectFromUpper: false,
         /*
                 Liste pouvant contenir différents éléments:
                     - {'shapeId': shapeId}
@@ -72,6 +74,7 @@ export class SelectManager {
       },
       points: {
         canSelect: false,
+        canSelectFromUpper: false,
         //Indépendamment de whitelist et blacklist, le point doit être
         //d'un des types renseignés dans ce tableau.
         types: ['shapeCenter', 'vertex', 'divisionPoint', 'modifiablePoint', 'arcCenter'],
@@ -125,6 +128,8 @@ export class SelectManager {
   ) {
     if (!constraints.canSelect) return null;
 
+    // console.log('in select : ', constraints);
+
     let distCheckFunction = easySelection
       ? SelectManager.areCoordinatesInSelectionDistance
       : SelectManager.areCoordinatesInMagnetismDistance;
@@ -142,7 +147,7 @@ export class SelectManager {
     if (constraints.canSelectFromUpper)
       allPoints.push(...app.upperCanvasLayer.points);
     allPoints.forEach((pt) => {
-      if (pt.visible && pt.geometryIsVisible) {
+      if (pt.visible && pt.geometryIsVisible && !pt.geometryIsHidden) {
         if (
           constraints.types.includes(pt.type) &&
           distCheckFunction(pt.coordinates, mouseCoordinates)
@@ -210,48 +215,73 @@ export class SelectManager {
     // if no possibilities
     if (constrainedPoints.length == 0) return null;
 
+    // sort by distance, by shape height and by index in the shape, taking next criteria when equal
     constrainedPoints.sort((pt1, pt2) => {
       let dist1 = pt1.coordinates.dist(mouseCoordinates);
       let dist2 = pt2.coordinates.dist(mouseCoordinates);
-      return dist1 - dist2;
+      if (Math.abs(dist1 - dist2) > 0.001)
+        return dist1 - dist2;
+
+      if (pt1.shape.layer == 'upper' && pt2.shape.layer == 'main')
+        return -1;
+      if (pt2.shape.layer == 'upper' && pt1.shape.layer == 'main')
+        return 1;
+
+      let shapeIndex1 = ShapeManager.getShapeIndex(pt1.shape);
+      let shapeIndex2 = ShapeManager.getShapeIndex(pt2.shape);
+      if (shapeIndex1 != shapeIndex2)
+        return shapeIndex2 - shapeIndex1;
+
+      if (pt1.type == 'vertex' && pt2.type == 'vertex')
+        return pt2.idx - pt1.idx;
+      return 0;
     });
 
     if (constraints.numberOfObjects == "allInDistance") {
       return constrainedPoints;
     }
 
-    let notHiddenPoints = constrainedPoints;
+    // console.log(constrainedPoints);
+
+    // let notHiddenPoints = constrainedPoints;
+    constrainedPoints.forEach(pt => pt.isBehindShape = false);
     if (constraints.blockHidden) {
-      notHiddenPoints = [];
+      // notHiddenPoints = [];
       const shapes = ShapeManager.shapesThatContainsCoordinates(
         mouseCoordinates,
       );
       constrainedPoints.forEach((pt) => {
         let shapeIndex = ShapeManager.getShapeIndex(pt.shape);
         if (
-          shapes.every((s) => {
+          !shapes.every((s) => {
             let otherShapeIndex = ShapeManager.getShapeIndex(s);
             return otherShapeIndex <= shapeIndex;
           })
-        )
-          notHiddenPoints.push(pt);
+        ) {
+          // pt.isBehindShape = false;
+        // } else {
+          pt.isBehindShape = true;
+        }
+          // notHiddenPoints.push(pt);
       });
 
       // if no possibilities
-      if (notHiddenPoints.length == 0) return null;
+      // if (notHiddenPoints.length == 0) return null;
+      if (!constrainedPoints.find(pt => pt.isBehindShape == false)) return false
     }
 
     if (constraints.numberOfObjects == 'one')
-      return notHiddenPoints[0];
+      return constrainedPoints.find(pt => pt.isBehindShape == false);//notHiddenPoints[0];
     else if (constraints.numberOfObjects == 'allSuperimposed') {
-      let coordPt1 = notHiddenPoints[0].coordinates;
-      let i = 1;
-      for (; i < notHiddenPoints.length; i++) {
-        if (coordPt1.dist(notHiddenPoints[i]) > 0.01) {
-          return notHiddenPoints.slice(0, i);
+      let firstPointCoord = constrainedPoints.find(pt => pt.isBehindShape == false).coordinates;
+      // let coordPt1 = constrainedPoints[firstPointIndex].coordinates//notHiddenPoints[0].coordinates;
+      let i = 0;//1;
+      for (; i < constrainedPoints.length; i++) {
+        if (firstPointCoord.dist(constrainedPoints[i]) > 0.01) {
+          return constrainedPoints.slice(0, i);
         }
       }
-      return notHiddenPoints.slice(0, i);
+      return constrainedPoints.slice(0, i);
     }
   }
 
@@ -387,7 +417,7 @@ export class SelectManager {
     }
 
     if (shapes.length > 0) {
-      if (shapes[0] instanceof RegularShape || (shapes[0] instanceof LineShape && shapes[0].segments[0].isArc()))
+      if (shapes[0] instanceof RegularShape || shapes[0] instanceof StripLineShape || (shapes[0] instanceof LineShape && shapes[0].segments[0].isArc()))
         return shapes[0]
       let idx = shapes.findIndex(s => s instanceof RegularShape);
       if (idx != -1)
@@ -440,6 +470,8 @@ export class SelectManager {
       console.error('Bad constr.priority value!');
       return null;
     }
+
+    // console.log(constr);
 
     for (let i = 0; i < constr.priority.length; i++) {
       let f = calls[constr.priority[i]],

@@ -4,6 +4,7 @@ import { loadEnvironnement } from './Core/Environments/Environment';
 export const environmentsByExtensions = {
   agg: 'Grandeurs',
   agt: 'Tangram',
+  ags: 'Tangram',
   agc: 'Cubes',
   agl: 'Geometrie',
 };

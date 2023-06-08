@@ -35,13 +35,6 @@ class SelectMenu extends LitElement {
     ];
   }
 
-  updated() {
-    // window.setTimeout(
-    //   () => this.shadowRoot.querySelector('#focus').focus(),
-    //   200,
-    // );
-  }
-
   render() {
     return html`
       <template-popup>

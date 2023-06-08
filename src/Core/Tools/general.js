@@ -312,3 +312,7 @@ export function goToHomePage() {
 export function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+export function getExtension(filename) {
+  return filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
+}

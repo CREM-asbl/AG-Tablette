@@ -30,18 +30,22 @@ export class HistoryManager {
       return;
     }
     let index = app.history.index - 1;
-    let data = app.history.steps[index];
+    let data;
     if (index == -1) {
       data = app.history.startSituation;
+    } else {
+      data = app.history.steps[index];
     }
+    data = {...data};
+
     app.workspace.initFromObject(data);
     let settings, tangram;
     if (!data) {
       settings = {
         ...app.settings,
-        gridShown: app.settings.gridShown,
-        gridType: app.settings.gridType,
-        gridSize: app.settings.gridSize,
+        gridShown: false,//app.settings.gridShown,
+        gridType: 'none',//app.settings.gridType,
+        gridSize: 1,//app.settings.gridSize,
       };
       tangram = {
         ...app.defaultState.tangram,
@@ -77,16 +81,18 @@ export class HistoryManager {
     }
     let index = app.history.index + 1;
     let data = app.history.steps[index];
-    if (index == -1) {
-      data = app.history.startSituation;
-    }
     app.workspace.initFromObject(data);
     let settings = { ...app.settings, ...data.settings };
-    let tangram = {
-      ...app.defaultState.tangram,
-      isSilhouetteShown: data.tangram.isSilhouetteShown,
-      buttonText: data.tangram.buttonText,
-      buttonValue: data.tangram.buttonValue,
+    let tangram;
+    if (app.environment.name == 'Tangram') {
+      if (data.tangram) {
+        tangram = {
+          ...app.defaultState.tangram,
+          isSilhouetteShown: data.tangram.isSilhouetteShown,
+          buttonText: data.tangram.buttonText,
+          buttonValue: data.tangram.buttonValue,
+        }
+      }
     }
     setState({ tool: null, history: { ...app.history, index }, settings, tangram });
     window.dispatchEvent(
@@ -106,6 +112,8 @@ export class HistoryManager {
       HistoryManager.saveData(),
     );
     let index = steps.length - 1;
+
+    HistoryManager.reduceSize(steps, index);
     setState({ history: { ...app.history, steps, index } });
   }
 
@@ -116,21 +124,64 @@ export class HistoryManager {
       gridType: app.settings.gridType,
       gridSize: app.settings.gridSize,
     };
-    data.tangram = {
-      isSilhouetteShown: app.tangram?.isSilhouetteShown,
-      buttonText: app.tangram?.buttonText,
-      buttonValue: app.tangram?.buttonValue,
-    };
+    if (app.environment.name == 'Tangram') {
+      data.tangram = {
+        isSilhouetteShown: app.tangram?.isSilhouetteShown,
+        buttonText: app.tangram?.buttonText,
+        buttonValue: app.tangram?.buttonValue,
+      };
+    }
 
     return data;
+  }
+
+  static isObjectEqual(object1, object2) {
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+    for (let key of keys1) {
+      if (object1[key] instanceof Object) {
+        if (!HistoryManager.isObjectEqual(object1[key], object2[key])) {
+          return false;
+        }
+      } else if (object1[key] !== object2[key]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  static reduceSizeOfSingleObjectType(objectType, steps, index) {
+    for (let indexOfObject in steps[index].objects[objectType + 'Data']) {
+      let objectData = steps[index].objects[objectType + 'Data'][indexOfObject];
+      let indexOfReference = index - 1;
+      let previousObjectData = steps[index - 1].objects[objectType + 'Data'].find(sData => sData.id == objectData.id);
+      if (previousObjectData) {
+        if (previousObjectData.indexOfReference) {
+          indexOfReference = previousObjectData.indexOfReference;
+          previousObjectData = steps[previousObjectData.indexOfReference].objects[objectType + 'Data'].find(sData => sData.id == objectData.id);
+        }
+        if (HistoryManager.isObjectEqual(objectData, previousObjectData)) {
+          steps[index].objects[objectType + 'Data'][indexOfObject] = { id: objectData.id, indexOfReference };
+        }
+      }
+    }
+  }
+
+  static reduceSize(steps, index) {
+    if (index == 0)
+      return;
+    HistoryManager.reduceSizeOfSingleObjectType('shapes', steps, index);
+    HistoryManager.reduceSizeOfSingleObjectType('segments', steps, index);
+    HistoryManager.reduceSizeOfSingleObjectType('points', steps, index);
   }
 }
 
 window.addEventListener('actions-executed', () => HistoryManager.addStep());
-
-window.addEventListener('update-history', (event) =>
-  HistoryManager.updateHistory(event.detail),
-);
 
 window.addEventListener('undo', () => {
   HistoryManager.undo();

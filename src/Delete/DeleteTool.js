@@ -72,15 +72,8 @@ export class DeleteTool extends Tool {
       this.userGroup = GroupManager.getShapeGroup(object);
     } else {
       // point
-      if (object.type == 'divisionPoint') {
-        this.point = object;
-        this.mode = 'divisionPoint';
-      } else {
-        if (object.shape.isCircle()) {
-          this.point = object;
-          this.mode = 'vertex';
-        }
-      }
+      this.point = object;
+      this.mode = 'divisionPoint';
     }
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
@@ -111,15 +104,11 @@ export class DeleteTool extends Tool {
         GroupManager.deleteGroup(this.userGroup);
       }
     } else if (this.mode == 'divisionPoint') {
-      // point
       let segment = this.point.segments[0];
       this.deleteSubDivisionPoints(segment, this.point);
       if (app.environment.name == 'Geometrie')
         this.deleteChildrenOfDivisionPoint(this.point);
       segment.deletePoint(this.point);
-    } else if (this.mode == 'vertex') {
-      // point
-      this.point.visible = false;
     }
   }
 

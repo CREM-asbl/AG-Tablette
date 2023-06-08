@@ -1,4 +1,4 @@
-import { html, LitElement } from 'lit';
+import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
 import { SaveFileManager } from '../Core/Managers/SaveFileManager';
 import '../version-item';
@@ -11,43 +11,46 @@ class SavePopup extends LitElement {
       saveSettings: { type: Boolean },
       saveHistory: { type: Boolean },
       imageFormat: { type: String },
+      saveMethod: { type: String },
     };
   }
 
   constructor() {
     super();
     this.filename = 'sans titre';
-    this.saveSettings = SaveFileManager.saveSettings;
-    this.saveHistory = SaveFileManager.saveHistory;
     this.imageFormat =
       SaveFileManager.extension == 'png' || SaveFileManager.extension == 'svg'
         ? SaveFileManager.extension
         : 'png';
-    this.stateOrImage =
-      SaveFileManager.extension == 'png' || SaveFileManager.extension == 'svg'
-        ? 'image'
-        : 'state';
+
+    this.saveMethodOptions = [
+      ['image', 'image'],
+    ];
+    if (app.environment.name == 'Tangram') {
+      this.saveMethodOptions = [['silhouette', 'silhouette'], ...this.saveMethodOptions];
+    }
+    if (app.environment.name != 'Tangram' || app.tangram.buttonValue) {
+      this.saveMethodOptions = [['state', 'état'], ...this.saveMethodOptions];
+    }
+
+    this.saveMethod = this.saveMethodOptions[0][0];
+
+    this.saveSettings = true;
+    this.saveHistory = this.saveMethod != 'silhouette';
+    this.permanentHide = false;
 
     window.addEventListener('close-popup', () => this.close());
   }
 
   static get styles() {
-    return TemplatePopup.template_popup_styles();
-  }
-
-  updated() {
-    window.setTimeout(
-      () => this.shadowRoot.querySelector('#focus').focus(),
-      200,
-    );
-    if (app.environment.name == 'Tangram')
-      this.shadowRoot
-        .querySelectorAll('.hideIfTangram')
-        .forEach((el) => (el.style.display = 'none'));
-    if (SaveFileManager.hasNativeFS)
-      this.shadowRoot
-        .querySelectorAll('.hideIfHasNativeFS')
-        .forEach((el) => (el.style.display = 'none'));
+    return [
+      TemplatePopup.template_popup_styles(),
+      css`
+        .invisible {
+          display: none;
+        }
+      `
+    ];
   }
 
   render() {
@@ -55,30 +58,26 @@ class SavePopup extends LitElement {
       <template-popup>
         <h2 slot="title">Enregistrer</h2>
         <div slot="body" id="body">
-          <div class="hideIfHasNativeFS">
-            <label for="save_popup_stateOrImage" style="display:inline">
+          <div class="${SaveFileManager.hasNativeFS ? 'invisible' : ''}"
+          >
+            <label for="save_popup_saveMethod" style="display:inline">
               Méthode d'enregistrement
             </label>
             <select
-              name="save_popup_stateOrImage"
-              id="save_popup_stateOrImage"
+              name="save_popup_saveMethod"
+              id="save_popup_saveMethod"
               @change="${this._actionHandle}"
             >
-              <option value="state" ?selected="${this.stateOrImage == 'state'}">
-                état
-              </option>
-              <option value="image" ?selected="${this.stateOrImage == 'image'}">
-                image
-              </option>
+              ${this.saveMethodOptions.map(option => html`
+                <option value="${option[0]}" ?selected="${this.saveMethod == '${option[0]}'}">
+                  ${option[1]}
+                </option>
+              `)}
             </select>
             <br /><br />
           </div>
 
-          <div
-            class="part"
-            id="state_form"
-            style="display: ${this.stateOrImage == 'state' ? 'block' : 'none'};"
-          >
+          <div class="${this.saveMethod != 'state' ? 'invisible' : ''}">
             <div class="field">
               <input
                 type="checkbox"
@@ -92,7 +91,7 @@ class SavePopup extends LitElement {
               >
             </div>
 
-            <div class="field hideIfTangram">
+            <div class="field">
               <input
                 type="checkbox"
                 name="save_popup_history"
@@ -102,17 +101,45 @@ class SavePopup extends LitElement {
               />
               <label for="save_popup_history">Enregistrer l'historique</label>
             </div>
+
+            <div class="field" style=${
+              app.environment.name != 'Geometrie'
+                ? 'display:none'
+                : ''
+            }>
+              <input
+                type="checkbox"
+                name="save_popup_permanent_hide"
+                id="save_popup_permanent_hide"
+                ?checked="${this.permanentHide}"
+                @change="${this._actionHandle}"
+              />
+              <label for="save_popup_permanent_hide"
+                >Cacher de façon permanente</label
+              >
+            </div>
           </div>
 
-          <div
-            class="part"
-            id="image_form"
-            style="display: ${this.stateOrImage == 'image' ? 'block' : 'none'};"
-          >
-            <label for="save_popup_format" style="display:inline">Format</label>
+          <div class="${this.saveMethod != 'silhouette' ? 'invisible' : ''}">
+            <div class="field">
+              <input
+                type="checkbox"
+                name="save_popup_settings"
+                id="save_popup_settings"
+                ?checked="${this.saveSettings}"
+                @change="${this._actionHandle}"
+              />
+              <label for="save_popup_settings"
+                >Enregistrer les paramètres</label
+              >
+            </div>
+          </div>
+
+          <div class="${this.saveMethod != 'image' ? 'invisible' : ''}">
+            <label for="save_popup_image_format" style="display:inline">Format</label>
             <select
-              name="save_popup_format"
-              id="save_popup_format"
+              name="save_popup_image_format"
+              id="save_popup_image_format"
               @change="${this._actionHandle}"
             >
               <option value="png" ?selected="${this.imageFormat == 'png'}">
@@ -124,7 +151,10 @@ class SavePopup extends LitElement {
             </select>
           </div>
 
-          <div class="field hideIfHasNativeFS">
+          <div class="${SaveFileManager.hasNativeFS ? 'invisible' : ''}">
+          <!-- <div
+            style="display: \${SaveFileManager.hasNativeFS ? 'none': 'block'}"
+          > -->
             <br />
             <label for="save_popup_filename" style="display:inline"
               >Nom du fichier</label
@@ -141,7 +171,7 @@ class SavePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <color-button id="focus" name="save_popup_submit" @click="${this._actionHandle}" innerText="OK"></color-button>
+          <color-button name="save_popup_submit" @click="${this._actionHandle}" innerText="OK"></color-button>
         </div>
       </template-popup>
     `;
@@ -156,9 +186,6 @@ class SavePopup extends LitElement {
     this.remove();
   }
 
-  /**
-   * event handler principal
-   */
   _actionHandle(event) {
     switch (event.target.name) {
       case 'save_popup_settings':
@@ -169,44 +196,58 @@ class SavePopup extends LitElement {
         this.saveHistory = !this.saveHistory;
         break;
 
+      case 'save_popup_permanent_hide':
+        this.permanentHide = !this.permanentHide;
+        break;
+
       case 'save_popup_filename':
         this.filename = event.target.value;
         if (!this.filename) this.filename = 'sans titre';
         break;
 
       case 'save_popup_submit':
-        let extension =
-          this.stateOrImage == 'state'
-            ? app.environment.extension
-            : this.imageFormat;
-        let name = this.filename + '.' + extension,
+        let extension = '';
+        switch(this.saveMethod) {
+          case 'state':
+            extension = app.environment.extensions[0];
+            break;
+          case 'silhouette':
+            extension = app.environment.extensions[1];
+            break;
+          default :
+            extension = '.' + this.imageFormat;
+            break;
+        }
+        let name = this.filename + extension,
           saveSettings = this.saveSettings,
-          saveHistory = this.saveHistory;
+          saveHistory = this.saveHistory,
+          saveMethod = this.saveMethod,
+          permanentHide = this.permanentHide;
+        if (saveMethod == 'silhouette')
+          saveHistory = false;
         this.remove();
         setTimeout(() =>
-        window.dispatchEvent(
-          new CustomEvent('file-selected', {
-            detail: {
-              name,
-              saveSettings,
-              saveHistory,
-            },
-          })
-        ), 300);
+          window.dispatchEvent(
+            new CustomEvent('file-selected', {
+              detail: {
+                name,
+                saveSettings,
+                saveHistory,
+                saveMethod,
+                permanentHide,
+              },
+            })
+          ),
+          300
+        );
         break;
 
-      case 'save_popup_format':
+      case 'save_popup_image_format':
         this.imageFormat = event.target.value;
         break;
 
-      case 'save_popup_stateOrImage':
-        this.stateOrImage = event.target.value;
-        this.shadowRoot
-          .querySelectorAll('.part')
-          .forEach((elem) => (elem.style.display = 'none'));
-        this.shadowRoot.querySelector(
-          '#' + event.target.value + '_form',
-        ).style.display = 'block';
+      case 'save_popup_saveMethod':
+        this.saveMethod = event.target.value;
         break;
 
       default:

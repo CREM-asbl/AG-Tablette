@@ -127,9 +127,6 @@ class AgEnvironnements extends LitElement {
         <div class="textBottom envText" name="Tangram">
           Tangram
         </div>
-        <div class="watermark rotate">
-          En développement
-        </div>
       </div>
       <div id="Cubes" name="Cubes" class="envTile" @click="${() => this.handleClick('Cubes')}" alt="logo Cubes">
         <div class="textTop envText" name="Cubes">
@@ -155,8 +152,8 @@ class AgEnvironnements extends LitElement {
   }
 
   async handleClick(e) {
-    if (e != 'Grandeurs' && e != 'Cubes') {
-      console.log('Only Grandeurs & Cubes supported here');
+    if (e == 'Geometrie') {
+      console.log('Geometrie not supported here');
       return;
     }
     setState({ appLoading: true });

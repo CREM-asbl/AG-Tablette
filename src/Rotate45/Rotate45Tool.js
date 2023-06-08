@@ -8,7 +8,7 @@ import { Tool } from '../Core/States/Tool';
  */
 export class Rotate45Tool extends Tool {
   constructor() {
-    super('rotate45', 'Tourner à 45°', 'move');
+    super('rotate45', 'Tourner de 45°', 'move');
 
     // La figure que l'on déplace
     this.selectedShape = null;

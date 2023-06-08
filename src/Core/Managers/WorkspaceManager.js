@@ -30,7 +30,6 @@ window.addEventListener('app-started', () => {
 }, {once: true});
 
 window.addEventListener('new-window', () => {
-  // setTimeout(() => {
   app.mainCanvasLayer.removeAllObjects();
   app.upperCanvasLayer.removeAllObjects();
   app.tangramCanvasLayer?.removeAllObjects();
@@ -50,5 +49,4 @@ window.addEventListener('new-window', () => {
     tools: [...app.tools],
   });
   WorkspaceManager.setWorkspace(new Workspace());
-  // }, 0);
 });

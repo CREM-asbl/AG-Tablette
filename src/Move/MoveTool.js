@@ -8,14 +8,14 @@ import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 import { compareIdBetweenLayers, duplicateShape } from '../Core/Tools/shapesTools';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
-import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
+import { computeAllShapeTransform, computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
  * Déplacer une figure (ou un ensemble de figures liées) sur l'espace de travail
  */
 export class MoveTool extends Tool {
   constructor() {
-    super('move', 'Déplacer', 'move');
+    super('move', 'Glisser', 'move');
 
     // listen-canvas-click -> move
     this.currentStep = null;
@@ -117,6 +117,14 @@ export class MoveTool extends Tool {
     app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(
       (s) => s.id,
     );
+
+    app.upperCanvasLayer.shapes.forEach(s => {
+      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
+        let duplicateChild = findObjectById(duplicateChildId);
+        computeConstructionSpec(duplicateChild);
+      });
+    });
+
     setState({ tool: { ...app.tool, currentStep: 'move' } });
     this.animate();
   }
@@ -133,7 +141,6 @@ export class MoveTool extends Tool {
    */
   refreshStateUpper() {
     if (app.tool.currentStep == 'move') {
-
       if (this.shapesToMove.length == 1 && this.shapesToMove[0].name == 'PointOnLine') {
         let s = this.shapesToMove[0];
 
@@ -181,6 +188,7 @@ export class MoveTool extends Tool {
         let adjustment = getShapeAdjustment(
           this.shapesToMove,
           mainShape,
+          app.mainCanvasLayer.editingShapeIds,
         );
         this.lastAdjusment = {
           ...adjustment,
@@ -211,5 +219,18 @@ export class MoveTool extends Tool {
           pt.ratio = this.pointOnLineRatio;
       });
     });
+
+    if (app.environment.name == 'Geometrie') {
+      app.mainCanvasLayer.shapes.forEach(s => {
+        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
+          let duplicateChild = findObjectById(duplicateChildId);
+          computeConstructionSpec(duplicateChild);
+        });
+      });
+      app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
+        let s = findObjectById(sId);
+        computeAllShapeTransform(s, 'main', false);
+      });
+    }
   }
 }

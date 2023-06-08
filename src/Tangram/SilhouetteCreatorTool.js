@@ -5,40 +5,49 @@ import { Tool } from '../Core/States/Tool';
 import { TangramManager } from './TangramManager';
 
 /**
- * Créer un tangram
+ * Créer une silhouette
  */
 export class SilhouetteCreatorTool extends Tool {
   constructor() {
-    super('createSilhouette', 'Créer une silhouette', 'tool');
+    super('createSilhouette', 'Créer une silhouette', '');
 
     this.isUserWarnedAboutOverlap = false;
   }
 
-  /**
-   * initialiser l'état
-   */
   async start() {
     this.removeListeners();
 
-    let toWait = TangramManager.initShapes();
+    let tool = app.tools.find(tool => tool.name == 'translate');
+    tool.isVisible = true;
+    tool = app.tools.find(tool => tool.name == 'color');
+    tool.isVisible = false;
+
+    setState({ tools: app.tools });
+
+    let toWait = TangramManager.initShapes(true);
     TangramManager.removeSilhouette();
 
     this.isUserWarnedAboutOverlap = false;
     app.workspace.selectionConstraints =
     app.fastSelectionConstraints.mousedown_all_shape;
     window.addEventListener('new-window', this.handler);
-
+    window.addEventListener('file-parsed', this.handler);
     window.addEventListener('tangram-changed', this.handler);
-    this.showStateMenu();
 
     await toWait;
-    window.dispatchEvent(
-      new CustomEvent('actions-executed', {
-        detail: { name: 'Créer une silhouette' },
-      }),
-    );
+
+    setState({
+      history: {
+        ...app.history,
+        startSituation: {
+          ...app.workspace.data,
+        },
+      },
+    });
+
     window.addEventListener('actions-executed', this.handler);
     window.addEventListener('add-fullstep', this.handler);
+    window.addEventListener('create-silhouette', this.handler);
   }
 
   end() {
@@ -46,27 +55,16 @@ export class SilhouetteCreatorTool extends Tool {
   }
 
   eventHandler(event) {
-    if (event.type == 'tool-changed') {
+    if (event.type == 'tool-updated') {
       if (app.tool?.name == this.name) {
         this[app.tool.currentStep]();
-      } else if (app.tool?.name == 'solveChecker') { // à changer
-        this.end();
-      }
-    } else if (event.type == 'tangram-changed') {
-      if (app.tangram.currentStep == 'createSilhouette') {
-        this.createSilhouette();
-      }
-      if (app.tangram.buttonValue == "createSilhouette") {
-        if (!document.querySelector('state-menu')) {
-          import('./state-menu');
-          const stateMenu = document.createElement('state-menu');
-          document.querySelector('body').appendChild(stateMenu);
-        }
       }
     } else if (event.type == 'actions-executed') {
       this.verifyOverlappingShapes();
-    } else if (event.type == 'new-window') {
+    } else if (event.type == 'new-window' || event.type == 'file-parsed') {
       this.end();
+    } else if (event.type == 'create-silhouette') {
+      this.createSilhouette();
     } else if (event.type == 'add-fullstep' && (event.detail.name == 'Refaire' || event.detail.name == 'Annuler')) {
       this.verifyOverlappingShapes();
       window.dispatchEvent(new CustomEvent('refresh'));
@@ -78,6 +76,8 @@ export class SilhouetteCreatorTool extends Tool {
     window.removeEventListener('add-fullstep', this.handler);
     window.removeEventListener('tangram-changed', this.handler);
     window.removeEventListener('new-window', this.handler);
+    window.removeEventListener('file-parsed', this.handler);
+    window.removeEventListener('create-silhouette', this.handler);
   }
 
   /**
@@ -104,23 +104,10 @@ export class SilhouetteCreatorTool extends Tool {
     const shapes = app.mainCanvasLayer.shapes;
 
     if (this.hasOverlapedShape(shapes)) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: 'Certaines figures se superposent.' },
-        }),
-      );
       return;
     }
 
     new Silhouette(shapes);
-    window.dispatchEvent(new CustomEvent('refreshTangram'));
-    setState({ tangram: {...app.tangram, isSilhouetteShown: true, currentStep: 'start' }, tool: { title: 'Afficher la silhouette', currentStep: 'start' } });
-
-    window.dispatchEvent(
-      new CustomEvent('actions-executed', {
-        detail: { name: 'Afficher la silhouette' },
-      }),
-    );
   }
 
   hasOverlapedShape(shapes) {
@@ -157,12 +144,13 @@ export class SilhouetteCreatorTool extends Tool {
     });
   }
 
-  showStateMenu() {
-    setState({
-      tangram: {
-        buttonText: 'Afficher la silhouette',
-        buttonValue: 'createSilhouette',
-      }
-    });
-  }
+  // showStateMenu() {
+  //   setState({
+  //     tangram: {
+  //       ...app.tangram,
+  //       buttonText: 'Afficher la silhouette',
+  //       buttonValue: 'createSilhouette',
+  //     }
+  //   });
+  // }
 }

@@ -96,9 +96,6 @@ export class CreateCircleTool extends Tool {
     );
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     this.removeListeners();
     this.stopAnimation();
@@ -337,16 +334,34 @@ export class CreateCircleTool extends Tool {
 
       let constraints = SelectManager.getEmptySelectionConstraints().segments;
       constraints.canSelect = true;
-      let adjustedSegment = SelectManager.selectSegment(
+      constraints.numberOfObjects = "allInDistance";
+      let adjustedSegments = SelectManager.selectSegment(
         adjustedCoordinates,
         constraints,
       );
-      if (adjustedSegment) {
-        adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) =>
-          intersection1.dist(point.coordinates) > intersection2.dist(point.coordinates) ? 1 : -1
+      if (adjustedSegments) {
+        let adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
+          seg1.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) > seg2.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) ? 1 : -1
         )[0];
-        point.adjustedOn = adjustedSegment;
+        if (adjustedSegment) {
+          adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) =>
+            intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1
+          )[0];
+          point.adjustedOn = adjustedSegment;
+        }
       }
+      // let constraints = SelectManager.getEmptySelectionConstraints().segments;
+      // constraints.canSelect = true;
+      // let adjustedSegment = SelectManager.selectSegment(
+      //   adjustedCoordinates,
+      //   constraints,
+      // );
+      // if (adjustedSegment) {
+      //   adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) =>
+      //     intersection1.dist(point.coordinates) > intersection2.dist(point.coordinates) ? 1 : -1
+      //   )[0];
+      //   point.adjustedOn = adjustedSegment;
+      // }
       point.coordinates = new Coordinates(adjustedCoordinates);
     }
   }

@@ -1,5 +1,6 @@
 import { app, setState } from '../App';
-import { createElem } from '../Tools/general';
+import { createElem, getExtension } from '../Tools/general';
+import { FullHistoryManager } from './FullHistoryManager';
 
 export class SaveFileManager {
   static async saveFile() {
@@ -19,12 +20,6 @@ export class SaveFileManager {
     const opts = {
       types: [
         {
-          description: 'Etat',
-          accept: {
-            'application/agmobile': ['.' + app.environment.extension],
-          },
-        },
-        {
           description: 'Image matricielle (png)',
           accept: {
             'img/png': ['.png'],
@@ -38,8 +33,30 @@ export class SaveFileManager {
         },
       ],
     };
+    if (app.environment.name == 'Tangram') {
+      opts.types = [
+        {
+          description: 'Silhouette',
+          accept: {
+            'application/agmobile': [app.environment.extensions[1]],
+          },
+        },
+        ...opts.types
+      ];
+    }
+    if (app.environment.name != 'Tangram' || app.tangram.buttonValue) {
+      opts.types = [
+        {
+          description: 'Etat',
+          accept: {
+            'application/agmobile': [app.environment.extensions[0]],
+          },
+        },
+        ...opts.types
+      ];
+    }
     const handle = await window.showSaveFilePicker(opts);
-    const extension = SaveFileManager.getExtension(handle.name);
+    const extension = getExtension(handle.name);
     SaveFileManager.extension = extension;
     switch (extension) {
       case 'png':
@@ -62,12 +79,13 @@ export class SaveFileManager {
         window.addEventListener(
           'file-selected',
           (event) => {
-            SaveFileManager.saveState(handle, { ...event.detail });
-            window.dispatchEvent(
-              new CustomEvent('show-notif', {
-                detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-              }),
-            );
+            let saveResult = SaveFileManager.saveState(handle, { ...event.detail });
+            if (saveResult != -1)
+              window.dispatchEvent(
+                new CustomEvent('show-notif', {
+                  detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+                }),
+              );
           },
           { once: true },
         );
@@ -85,7 +103,8 @@ export class SaveFileManager {
           ...event.detail,
         };
         let detail = { ...handle };
-        const extension = SaveFileManager.getExtension(handle.name);
+        const extension = getExtension(handle.name);
+        // const saveMethod = handle.saveMethod;
         SaveFileManager.extension = extension;
         switch (extension) {
           case 'png':
@@ -102,10 +121,6 @@ export class SaveFileManager {
     );
     import('../../popups/save-popup');
     createElem('save-popup');
-  }
-
-  static getExtension(fileName) {
-    return fileName.slice(((fileName.lastIndexOf('.') - 1) >>> 0) + 2);
   }
 
   static saveToPng(handle) {
@@ -162,6 +177,7 @@ export class SaveFileManager {
   }
 
   static saveState(handle, detail) {
+    FullHistoryManager.cleanHisto();
     let wsdata = app.workspace.data,
       settings = { ...app.settings },
       history = { ...app.history },
@@ -169,32 +185,57 @@ export class SaveFileManager {
       toolsVisible = app.tools.map(tool => { return { name: tool.name, isVisible: tool.isVisible } }),
       familiesVisible = app.environment.families.map(family => { return { name: family.name, isVisible: family.isVisible } });
 
-    SaveFileManager.saveHistory = detail.saveHistory;
-    SaveFileManager.saveSettings = detail.saveSettings;
+    if (!detail.saveHistory)
+      history = undefined;
+    if (!detail.saveHistory)
+      fullHistory = undefined;
 
-    if (!detail.saveHistory) history = undefined;
-    if (!detail.saveHistory) fullHistory = undefined;
-    if (app.environment.name == 'Tangram') history = undefined;
-    if (app.environment.name == 'Tangram') fullHistory = undefined;
+    if (detail.permanentHide) {
+      wsdata.objects.shapesData.forEach(sData => {
+        if (sData.geometryObject.geometryIsHidden)
+          sData.geometryObject.geometryIsPermanentHidden = true;
+      });
+    }
 
-    if (!detail.saveSettings) settings = undefined;
+    if (!detail.saveSettings) {
+      settings = undefined;
+    } else {
+      delete settings.numberOfDivisionParts;
+      delete settings.numberOfRegularPoints;
+      delete settings.shapesDrawColor;
+      delete settings.shapeOpacity;
+      delete settings.scalarNumerator;
+      delete settings.scalarDenominator;
+    }
 
-    // let silhouetteData;
-    // if (app.environment.name == 'Tangram' && app.silhouette)
-    //   silhouetteData = app.silhouette.saveToObject();
+    if (app.environment.name == 'Tangram' && wsdata.backObjects.shapesData.length == 0) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Certaines figures se superposent.' },
+        }),
+      );
+      return -1;
+    }
+
+    if (app.environment.name == 'Tangram') {
+      toolsVisible.find(tool => tool.name == 'translate').isVisible = false;
+    }
 
     let saveObject = {
-        appVersion: app.version,
-        timestamp: Date.now(),
-        envName: app.environment.name,
-        wsdata,
-        settings,
-        fullHistory,
-        history,
-        toolsVisible,
-        familiesVisible,
-      },
-      json_data = JSON.stringify(saveObject);
+      appVersion: app.version,
+      timestamp: Date.now(),
+      envName: app.environment.name,
+      wsdata,
+      settings,
+      fullHistory,
+      history,
+      toolsVisible,
+      familiesVisible,
+    };
+    if (app.environment.name == 'Tangram' && detail.saveMethod == 'state') {
+      saveObject.tangramLevelSelected = app.tangram.level;
+    }
+    let json_data = JSON.stringify(saveObject);
 
     if (SaveFileManager.hasNativeFS) {
       SaveFileManager.newWriteFile(handle, json_data);
@@ -236,6 +277,4 @@ window.addEventListener('save-file', (event) => {
 // Si ancien ou nouveau systeme de fichier
 SaveFileManager.hasNativeFS = 'showSaveFilePicker' in window;
 
-SaveFileManager.saveSettings = true;
-SaveFileManager.saveHistory = true;
 SaveFileManager.extension = 'agg';

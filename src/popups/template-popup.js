@@ -55,8 +55,8 @@ export class TemplatePopup extends LitElement {
         display: grid;
         place-items: center;
         overflow: auto;
-        padding: 16px;
-        padding-top: 3px;
+        padding: 3px 16px;
+        margin-bottom: 13px;
         text-align: center;
       }
 

@@ -4,12 +4,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="google" content="notranslate">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <title>AG mobile</title>
   <meta name="description" content="AG mobile, la version d'Apprenti Géomètre qui peut également s'utiliser sur tablette">
 
   <link rel="icon" href="/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
 
   <!-- pwa data -->
   <link rel="manifest" href="/manifest.json">
@@ -69,6 +70,11 @@
             -ms-user-select: none; /* Internet Explorer/Edge */
                 user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */
+    }
+
+    :root {
+      touch-action: pan-x pan-y;
+      height: 100%
     }
   </style>
 </head>

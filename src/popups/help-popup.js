@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit';
+import { app } from '../Core/App';
 import '../version-item';
 import { TemplatePopup } from './template-popup';
 
@@ -6,19 +7,24 @@ class HelpPopup extends LitElement {
   static get properties() {
     return {
       content: String,
+      toolname: String,
     };
   }
 
   constructor() {
     super();
 
-    this.content = html`
-      Pour afficher l'aide correspondant à un des outils, opérations ou
-      mouvements, sélectionnez cet élément puis cliquez à nouveau sur le menu
-      d'aide.
-    `;
-
     window.addEventListener('close-popup', () => this.close());
+
+    this.tools = [...app.tools,
+      { name: 'home', title: 'Accueil' },
+      { name: 'save', title: 'Enregistrer' },
+      { name: 'open', title: 'Ouvrir' },
+      { name: 'settings', title: 'Paramètres' },
+      { name: 'undo', title: 'Annuler-refaire' },
+      { name: 'redo', title: 'Annuler-refaire' },
+      { name: 'replay', title: 'Rejouer' },
+    ]
   }
 
   static get styles() {
@@ -29,7 +35,8 @@ class HelpPopup extends LitElement {
           margin-right: 8px;
         }
         div#helpPopupBody {
-          max-width: 600px;
+          max-width: 70vw;
+          max-height: calc(70 * var(--vh));
         }
         :host {
           -webkit-touch-callout: text; /* iOS Safari */
@@ -43,31 +50,38 @@ class HelpPopup extends LitElement {
         h3 {
           padding: 0;
         }
+
+        img {
+          width: 100%;
+          background-color: rgba(255, 255, 255, 0.5);
+        }
       `,
     ];
   }
 
-  setText(text) {
-    this.content = text;
-  }
-
-  updated() {
-    window.setTimeout(
-      () => this.shadowRoot.querySelector('#focus').focus(),
-      200,
-    );
+  firstUpdated() {
+    let tool = this.tools.find(tool => tool.name == this.toolname);
+    if (tool.type == undefined && tool.name != 'create') {
+      this.content = html`
+        <img src='images/help/OutilsGeneraux/${this.toolname}.webp' onerror='this.src = "images/help/default.png"'>
+      `;
+    } else {
+      this.content = html`
+        <img src='images/help/${app.environment.name}/${this.toolname}.webp' onerror='this.src = "images/help/default.png"'>
+      `;
+    }
   }
 
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Aide</h2>
+        <h2 slot="title">Aide ${this.toolname ? ' - ' + this.tools.find(tool => tool.name == this.toolname).title : ''}</h2>
         <div id="helpPopupBody" slot="body">
           ${this.content}
         </div>
         <div slot="footer">
-            <color-button id="focus" @click="${() => this.close()}" innerText="Ok"></color-button>
-          </div>
+          <color-button @click="${() => this.close()}" innerText="Ok"></color-button>
+        </div>
       </template-popup>
     `;
   }

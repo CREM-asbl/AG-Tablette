@@ -32,13 +32,6 @@ class OpenPopup extends LitElement {
     ];
   }
 
-  updated() {
-    // window.setTimeout(
-    //   () => this.shadowRoot.querySelector('#focus').focus(),
-    //   200,
-    // );
-  }
-
   render() {
     return html`
       <template-popup>
@@ -50,7 +43,7 @@ class OpenPopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <color-button id="focus" name="LocalOpenFile" @click="${this._actionHandle}" innerText="Ouvrir en local"></color-button>
+          <color-button name="LocalOpenFile" @click="${this._actionHandle}" innerText="Ouvrir en local"></color-button>
           <color-button name="ServerOpenFile" @click="${this._actionHandle}" innerText="Ouvrir sur le serveur"></color-button>
           <color-button @click="${this.close}" innerText="Annuler"></color-button>
         </div>

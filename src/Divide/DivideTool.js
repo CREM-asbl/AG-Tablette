@@ -22,7 +22,7 @@ export class DivideTool extends Tool {
 
     this.timeoutRef = null;
 
-    this.drawColors = ['#E90CC8', '#3e6aed', '#21eb53'];
+    this.drawColors = ['#E90CC8', app.settings.referenceDrawColor, app.settings.referenceDrawColor2, '#3e6aed', '#21eb53'];
 
     this.numberOfParts = 2;
   }
@@ -86,6 +86,12 @@ export class DivideTool extends Tool {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
+  chooseArcDirection() {
+    this.removeListeners();
+    this.setSelectionConstraints();
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
   divide() {
     this.removeListeners();
   }
@@ -115,6 +121,10 @@ export class DivideTool extends Tool {
     } else if (app.tool.currentStep == 'selectSecondPoint') {
       app.workspace.selectionConstraints.points.canSelect = true;
       app.workspace.selectionConstraints.points.numberOfObjects = 'allSuperimposed';
+    } else if (app.tool.currentStep == 'chooseArcDirection') {
+      app.workspace.selectionConstraints.segments.canSelect = true;
+      app.workspace.selectionConstraints.segments.whitelist = this.lines.map(ln => { return { shapeId: ln.id }});
+      app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
     }
   }
 
@@ -128,9 +138,8 @@ export class DivideTool extends Tool {
     if (app.tool.currentStep == 'selectObject') {
       if (object instanceof Segment) {
         if (object.shape instanceof ArrowLineShape) {
-          this.vectorId = object.shape.id;
-          this.mode = 'vector';
-          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs ne peuvent pas être divisés, mais peuvent être multipliés.' } }));
+          return;
         } else {
           this.segmentId = object.id;
 
@@ -213,19 +222,22 @@ export class DivideTool extends Tool {
           size: 2,
         });
 
+        let mustChooseArc = false;
+
         pointsToDivide.forEach((pts, idx) => {
           let firstCoordinates = pointsToDivide[0][0].coordinates;
           let secondCoordinates = pointsToDivide[0][1].coordinates;
           let commonSegment = findObjectById(pts[2]);
           let shape = commonSegment.shape;
-          let path = [
+          let path1 = [
             'M',
             firstCoordinates.x,
             firstCoordinates.y,
             'L',
             secondCoordinates.x,
             secondCoordinates.y,
-          ].join(' ');
+          ].join(' '),
+            path2;
           if (commonSegment.isArc()) {
             if (!shape.isCircle()) {
               commonSegment.vertexes[0].ratio = 0;
@@ -237,6 +249,10 @@ export class DivideTool extends Tool {
                 ];
                 [firstCoordinates, secondCoordinates] = [secondCoordinates, firstCoordinates];
               }
+            } else {
+              if (pointsToDivide.length == 1) {
+                mustChooseArc = true;
+              }
             }
             let centerCoordinates = commonSegment.arcCenter.coordinates,
               firstAngle = centerCoordinates.angleWith(firstCoordinates),
@@ -244,7 +260,7 @@ export class DivideTool extends Tool {
             if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
             let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
               sweepFlag = 1;
-            path = [
+            path1 = [
               'M',
               firstCoordinates.x,
               firstCoordinates.y,
@@ -257,20 +273,61 @@ export class DivideTool extends Tool {
               secondCoordinates.x,
               secondCoordinates.y,
             ].join(' ');
+            path2 = [
+              'M',
+              firstCoordinates.x,
+              firstCoordinates.y,
+              'A',
+              commonSegment.radius,
+              commonSegment.radius,
+              0,
+              1 - largeArcFlag,
+              1 - sweepFlag,
+              secondCoordinates.x,
+              secondCoordinates.y,
+            ].join(' ');
           }
-          new LineShape({
-            layer: 'upper',
-            strokeColor: this.drawColors[idx],
-            strokeWidth: 3,
-            path: path,
-            id: undefined,
-          });
+          if (mustChooseArc) {
+            this.lines = [new LineShape({
+              layer: 'upper',
+              strokeColor: this.drawColors[idx + 1],
+              strokeWidth: 3,
+              path: path1,
+              id: undefined,
+            }), new LineShape({
+              layer: 'upper',
+              strokeColor: this.drawColors[idx + 2],
+              strokeWidth: 3,
+              path: path2,
+              id: undefined,
+            })];
+          } else {
+            new LineShape({
+              layer: 'upper',
+              strokeColor: this.drawColors[idx],
+              strokeWidth: 3,
+              path: path1,
+              id: undefined,
+            })
+          }
         });
 
         this.mode = 'twoPoints';
         this.pointsToDivide = pointsToDivide;
-        setState({ tool: { ...app.tool, currentStep: 'divide' } });
+        if (mustChooseArc) {
+          setState({ tool: { ...app.tool, currentStep: 'chooseArcDirection' } });
+        } else {
+          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+        }
       }
+    } else if (app.tool.currentStep == 'chooseArcDirection') {
+      this.arcDirectionCounterclockwise = object.counterclockwise;
+      setState({ tool: { ...app.tool, currentStep: 'divide' } });
+      this.executeAction();
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+      });
+      return;
     }
 
     if (app.tool.currentStep == 'divide') {
@@ -287,7 +344,7 @@ export class DivideTool extends Tool {
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
       });
-    }, 500);
+    }, 200);
   }
 
   _executeAction() {
@@ -327,16 +384,22 @@ export class DivideTool extends Tool {
       ];
       path = path.join(' ');
 
-      new ArrowLineShape({
+      let newShape = new ArrowLineShape({
         layer: 'main',
         path: path,
         name: vector.name,
-        familyName: vector.familyName,
+        familyName: 'duplicate',
         fillColor: vector.fillColor,
         fillOpacity: vector.fillOpacity,
         strokeColor: vector.strokeColor,
-        geometryObject: new GeometryObject({}),
+        geometryObject: new GeometryObject({
+          geometryDuplicateParentShapeId: vector.id,
+          geometryConstructionSpec: {
+            numberOfParts: this.numberOfParts,
+          }
+        }),
       });
+      vector.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
     }
   }
 
@@ -404,6 +467,9 @@ export class DivideTool extends Tool {
       centerCoordinates = this.segment.arcCenter.coordinates,
       firstAngle = centerCoordinates.angleWith(this.firstPoint.coordinates),
       secondAngle = centerCoordinates.angleWith(this.secondPoint.coordinates);
+    if (this.arcDirectionCounterclockwise) {
+      [firstAngle, secondAngle] = [secondAngle, firstAngle];
+    }
     if (secondAngle < firstAngle) {
       secondAngle += Math.PI * 2;
     }
@@ -418,7 +484,7 @@ export class DivideTool extends Tool {
       radius = this.segment.radius;
 
     for (
-      let i = 1, coord = this.firstPoint.coordinates;
+      let i = 1;//, coord = this.firstPoint.coordinates;
       i < this.numberOfParts;
       i++
     ) {
@@ -426,7 +492,7 @@ export class DivideTool extends Tool {
           radius * Math.cos(firstAngle + partAngle * i) + centerCoordinates.x,
         newY =
           radius * Math.sin(firstAngle + partAngle * i) + centerCoordinates.y;
-      coord = new Coordinates({ x: newX, y: newY });
+      let coord = new Coordinates({ x: newX, y: newY });
       let ratio = //this.firstPoint.ratio +
         i * ratioCap;
       if (ratio > 1) ratio--;

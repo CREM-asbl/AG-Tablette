@@ -4,7 +4,10 @@ import { Family } from '../Objects/Family';
 export const loadEnvironnement = async (name) => {
   try {
     const config = await import(`./${name}.js`);
-    if (config.default.settings) setState({ settings: {...app.settings, ...config.default.settings }, history: { ...app.history, startSettings: { ...app.history.startSettings, ...config.default.settings } } });
+    if (config.default.settings) {
+      setState({ settings: {...app.settings, ...config.default.settings }, history: { ...app.history, startSettings: { ...app.history.startSettings, ...config.default.settings } } });
+      setState({ defaultState: {...app.defaultState, settings: { ...app.settings }}});
+    }
     await loadModules(config.default.modules);
 
     return new Environment(config.default, await loadKit(config.default.kit));
@@ -19,13 +22,14 @@ const loadModules = async (list) => {
     list.map(async (module) => await import(`../../${module}/index.js`)),
   );
   let tools = modules.map((module) => {
-    return {
-      name: module.default.tool.name,
-      title: module.default.tool.title,
-      type: module.default.tool.type,
-      isVisible: true,
-    };
-  });
+    if (module.default)
+      return {
+        name: module.default.tool.name,
+        title: module.default.tool.title,
+        type: module.default.tool.type,
+        isVisible: true,
+      };
+  }).filter(Boolean);
   setState({
     tools,
   });
@@ -50,12 +54,12 @@ const loadKit = async (name) => {
  */
 export class Environment {
   constructor(
-    { name, extension, themeColor, themeColorSoft },
+    { name, extensions, themeColor, themeColorSoft },
     kitContent = null,
   ) {
     this.name = name;
 
-    this.extension = extension;
+    this.extensions = extensions;
 
     this.kitName = this.name;
 

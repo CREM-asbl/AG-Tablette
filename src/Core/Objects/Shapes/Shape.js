@@ -28,10 +28,6 @@ export class Shape {
    * @param {Boolean}                     isCenterShown
    * @param {Boolean}                     isReversed
    * @param {Boolean}                     isBiface
-   * @param {*}                           geometryConstructionSpec // à enlever (recalculer si besoin)
-   * @param {*}                           referenceId // temporaire
-   * @param {*}                           referenceSegmentIdx // temporaire
-   * @param {*}                           hasGeometryReferenced // temporaire
    */
   constructor({
     id,
@@ -69,7 +65,7 @@ export class Shape {
     this.name = name;
     this.familyName = familyName;
 
-    this.isPointed = isPointed; // used for path, do not move
+    this.isPointed = isPointed; // used for path construcion, do not move
     if (path) {
       this.setSegmentsFromPath(path);
       this._isCenterShown = false;
@@ -199,152 +195,152 @@ export class Shape {
     this._isCenterShown = value;
   }
 
-  setSegmentsFromPath(path) {
-    const allPathElements = path
-      .split(/[ \n]/)
-      .filter((element) => element !== '');
-    let firstVertex, lastVertex, startVertex;
+  // setSegmentsFromPath(path) {
+  //   const allPathElements = path
+  //     .split(/[ \n]/)
+  //     .filter((element) => element !== '');
+  //   let firstVertex, lastVertex, startVertex;
 
-    let segmentIdx = 0;
-    let vertexIdx = 0;
+  //   let segmentIdx = 0;
+  //   let vertexIdx = 0;
 
-    this.pointIds = [];
-    this.segmentIds = [];
+  //   this.pointIds = [];
+  //   this.segmentIds = [];
 
-    let nextVertexCoordinates = null;
+  //   let nextVertexCoordinates = null;
 
-    let createLineTo = (x, y) => {
-      let coordinates = new Coordinates({ x, y });
-      firstVertex = lastVertex;
-      lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex') {
-        lastVertex = new Point({
-          coordinates: coordinates,
-          shapeId: this.id,
-          layer: this.layer,
-          type: 'vertex',
-          idx: vertexIdx++,
-          visible: this.isPointed,
-        });
-      }
-      new Segment({
-        shapeId: this.id,
-        layer: this.layer,
-        idx: segmentIdx++,
-        vertexIds: [firstVertex.id, lastVertex.id],
-      });
-    };
+  //   let createLineTo = (x, y) => {
+  //     let coordinates = new Coordinates({ x, y });
+  //     firstVertex = lastVertex;
+  //     lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
+  //     if (lastVertex == undefined || lastVertex.type != 'vertex') {
+  //       lastVertex = new Point({
+  //         coordinates: coordinates,
+  //         shapeId: this.id,
+  //         layer: this.layer,
+  //         type: 'vertex',
+  //         idx: vertexIdx++,
+  //         visible: this.isPointed,
+  //       });
+  //     }
+  //     new Segment({
+  //       shapeId: this.id,
+  //       layer: this.layer,
+  //       idx: segmentIdx++,
+  //       vertexIds: [firstVertex.id, lastVertex.id],
+  //     });
+  //   };
 
-    if (allPathElements[0] != 'M')
-      startVertex = lastVertex = new Point({
-        x: 0,
-        y: 0,
-        shapeId: this.id,
-        layer: this.layer,
-        type: 'vertex',
-        idx: vertexIdx++,
-        visible: this.isPointed,
-      });
+  //   if (allPathElements[0] != 'M')
+  //     startVertex = lastVertex = new Point({
+  //       x: 0,
+  //       y: 0,
+  //       shapeId: this.id,
+  //       layer: this.layer,
+  //       type: 'vertex',
+  //       idx: vertexIdx++,
+  //       visible: this.isPointed,
+  //     });
 
-    while (allPathElements.length) {
-      const element = allPathElements.shift();
+  //   while (allPathElements.length) {
+  //     const element = allPathElements.shift();
 
-      switch (element) {
-        case 'M':
-        case 'm':
-          nextVertexCoordinates = new Coordinates({
-            x: allPathElements.shift(),
-            y: allPathElements.shift(),
-          });
-          if (this.contains(nextVertexCoordinates)) {
-            startVertex = lastVertex = this.points.find((pt) =>
-              pt.coordinates.equal(nextVertexCoordinates),
-            );
-          } else {
-            startVertex = lastVertex = new Point({
-              coordinates: nextVertexCoordinates,
-              shapeId: this.id,
-              layer: this.layer,
-              type: 'vertex',
-              idx: vertexIdx++,
-              visible: this.isPointed,
-            });
-          }
-          break;
+  //     switch (element) {
+  //       case 'M':
+  //       case 'm':
+  //         nextVertexCoordinates = new Coordinates({
+  //           x: allPathElements.shift(),
+  //           y: allPathElements.shift(),
+  //         });
+  //         if (this.contains(nextVertexCoordinates)) {
+  //           startVertex = lastVertex = this.points.find((pt) =>
+  //             pt.coordinates.equal(nextVertexCoordinates),
+  //           );
+  //         } else {
+  //           startVertex = lastVertex = new Point({
+  //             coordinates: nextVertexCoordinates,
+  //             shapeId: this.id,
+  //             layer: this.layer,
+  //             type: 'vertex',
+  //             idx: vertexIdx++,
+  //             visible: this.isPointed,
+  //           });
+  //         }
+  //         break;
 
-        case 'L':
-        case 'l':
-          createLineTo(allPathElements.shift(), allPathElements.shift());
-          break;
+  //       case 'L':
+  //       case 'l':
+  //         createLineTo(allPathElements.shift(), allPathElements.shift());
+  //         break;
 
-        case 'H':
-        case 'h':
-          createLineTo(allPathElements.shift(), lastVertex.y);
-          break;
+  //       case 'H':
+  //       case 'h':
+  //         createLineTo(allPathElements.shift(), lastVertex.y);
+  //         break;
 
-        case 'V':
-        case 'v':
-          createLineTo(lastVertex.x, allPathElements.shift());
-          break;
+  //       case 'V':
+  //       case 'v':
+  //         createLineTo(lastVertex.x, allPathElements.shift());
+  //         break;
 
-        case 'A':
-        case 'a':
-          const rx = allPathElements.shift(),
-            ry = allPathElements.shift(),
-            xAxisRotation = allPathElements.shift(),
-            largeArcFlag = allPathElements.shift(),
-            sweepFlag = allPathElements.shift();
+  //       case 'A':
+  //       case 'a':
+  //         const rx = allPathElements.shift(),
+  //           ry = allPathElements.shift(),
+  //           xAxisRotation = allPathElements.shift(),
+  //           largeArcFlag = allPathElements.shift(),
+  //           sweepFlag = allPathElements.shift();
 
-          firstVertex = lastVertex;
-          nextVertexCoordinates = new Coordinates({
-            x: allPathElements.shift(),
-            y: allPathElements.shift(),
-          });
-          lastVertex = this.points.find((pt) =>
-            pt.coordinates.equal(nextVertexCoordinates),
-          );
-          if (lastVertex == undefined || lastVertex.type != 'vertex') {
-            lastVertex = new Point({
-              coordinates: nextVertexCoordinates,
-              shapeId: this.id,
-              layer: this.layer,
-              type: 'vertex',
-              idx: vertexIdx++,
-              visible: this.isPointed,
-            });
-          }
+  //         firstVertex = lastVertex;
+  //         nextVertexCoordinates = new Coordinates({
+  //           x: allPathElements.shift(),
+  //           y: allPathElements.shift(),
+  //         });
+  //         lastVertex = this.points.find((pt) =>
+  //           pt.coordinates.equal(nextVertexCoordinates),
+  //         );
+  //         if (lastVertex == undefined || lastVertex.type != 'vertex') {
+  //           lastVertex = new Point({
+  //             coordinates: nextVertexCoordinates,
+  //             shapeId: this.id,
+  //             layer: this.layer,
+  //             type: 'vertex',
+  //             idx: vertexIdx++,
+  //             visible: this.isPointed,
+  //           });
+  //         }
 
-          let arcCenter = this.getArcCenterFromSVG(
-            firstVertex,
-            lastVertex,
-            rx,
-            largeArcFlag,
-            sweepFlag,
-          );
+  //         let arcCenter = this.getArcCenterFromSVG(
+  //           firstVertex,
+  //           lastVertex,
+  //           rx,
+  //           largeArcFlag,
+  //           sweepFlag,
+  //         );
 
-          new Segment({
-            shapeId: this.id,
-            layer: this.layer,
-            idx: segmentIdx++,
-            vertexIds: [firstVertex.id, lastVertex.id],
-            arcCenterId: arcCenter.id,
-            counterclockwise: sweepFlag == 0,
-          });
+  //         new Segment({
+  //           shapeId: this.id,
+  //           layer: this.layer,
+  //           idx: segmentIdx++,
+  //           vertexIds: [firstVertex.id, lastVertex.id],
+  //           arcCenterId: arcCenter.id,
+  //           counterclockwise: sweepFlag == 0,
+  //         });
 
-          this.cleanSameDirectionSegment();
+  //         this.cleanSameDirectionSegment();
 
-          break;
+  //         break;
 
-        case 'Z':
-        case 'z':
-          createLineTo(startVertex.x, startVertex.y);
-          break;
+  //       case 'Z':
+  //       case 'z':
+  //         createLineTo(startVertex.x, startVertex.y);
+  //         break;
 
-        default:
-          break;
-      }
-    }
-  }
+  //       default:
+  //         break;
+  //     }
+  //   }
+  // }
 
   /**
    * moyenne des vertexes et medianes, pour l'offset de cut
@@ -684,7 +680,7 @@ export class Shape {
     if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
 
     let comment =
-      '<!-- ' + this.name.replace('e', 'e').replace('è', 'e') + ' -->\n';
+      '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
   }
@@ -725,29 +721,51 @@ export class Shape {
     this.vertexes.forEach((vx, idx) => (vx.idx = idx));
   }
 
+  // check if property is different from default value is for save size reduction
   saveData() {
     let data = {
       id: this.id,
       position: this.layer,
-      type: 'newShape',
+      type: 'Shape',
 
       path: this.getSVGPath(false),
       segmentIds: [...this.segmentIds],
       pointIds: [...this.pointIds],
 
-      name: this.name,
-      familyName: this.familyName,
-      color: this.color,
+      // name: this.name,
+      // familyName: this.familyName,
 
-      strokeColor: this.strokeColor,
-      strokeWidth: this.strokeWidth,
+      // strokeColor: this.strokeColor,
+      // strokeWidth: this.strokeWidth,
 
-      isPointed: this.isPointed,
-      size: this.size,
+      // isPointed: this.isPointed,
+      // size: this.size,
       _isCenterShown: this.isCenterShown,
-      isReversed: this.isReversed,
-      isBiface: this.isBiface,
+      // isReversed: this.isReversed,
+      // isBiface: this.isBiface,
+
+      // isOverlappingAnotherInTangram: this.isOverlappingAnotherInTangram,
     };
+    if (this.name !== 'Custom')
+      data.name = this.name;
+    if (this.familyName !== 'Custom')
+      data.familyName = this.familyName;
+    if (this.strokeColor !== '#000')
+      data.strokeColor = this.strokeColor;
+    if (this.strokeWidth !== 1)
+      data.strokeWidth = this.strokeWidth;
+    if (this.isPointed !== true)
+      data.isPointed = this.isPointed;
+    if (this.size !== 2)
+      data.size = this.size;
+    if (this.isReversed !== false)
+      data.isReversed = this.isReversed;
+    if (this.isBiface !== false)
+      data.isBiface = this.isBiface;
+
+    if (this.isOverlappingAnotherInTangram)
+      data.isOverlappingAnotherInTangram = this.isOverlappingAnotherInTangram;
+
     if (this.geometryObject) {
       data.geometryObject = this.geometryObject.saveData();
     }

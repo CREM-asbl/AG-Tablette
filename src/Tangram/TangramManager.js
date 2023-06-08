@@ -1,11 +1,33 @@
 import { app, setState } from '../Core/App';
-import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 import { createElem } from '../Core/Tools/general';
 
-const serverURL = 'https://api.crem.be/';
+window.addEventListener('app-started', () => {
+  if (!app.fileFromServer) {
+    tangramStart();
+  }
+}, {once: true});
 
-window.addEventListener('new-window', () => setState({ tangram: {...app.defaultState.tangram } }));
+window.addEventListener('new-window', () => {
+  setState({ tangram: {...app.defaultState.tangram } });
+  tangramStart();
+});
+
+const tangramStart = () => {
+  setTimeout(() => {
+    let tool = app.tools.find(tool => tool.name == 'translate');
+    tool.isVisible = false;
+    tool = app.tools.find(tool => tool.name == 'color');
+    tool.isVisible = false;
+
+    setState({
+      tools: [...app.tools],
+    })
+  }, 30);
+
+  import('./start-popup.js');
+  createElem('start-popup');
+}
 
 export class TangramManager {
   static async openForbiddenCanvas() {
@@ -39,11 +61,18 @@ export class TangramManager {
     return response.text();
   }
 
-  static async initShapes() {
+  static async initShapes(isForCreation = false) {
     if (!TangramManager.kit)
       TangramManager.kit = await TangramManager.loadKit();
     const ws = JSON.parse(this.kit);
-    OpenFileManager.transformToNewIdSystem(ws.objects, 'main');
+    if (isForCreation) {
+      ws.objects.shapesData.forEach(s => {
+        s.fillColor = '#000';
+        s.strokeColor = '#fff';
+        s.fillOpacity = 1;
+      });
+    }
+    // OpenFileManager.transformToNewIdSystem(ws.objects, 'main');
     WorkspaceManager.setWorkspaceFromObject(ws);
   }
 }

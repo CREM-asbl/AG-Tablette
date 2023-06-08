@@ -6,11 +6,7 @@ import { Point } from '../Point';
 import { GeometryObject } from './GeometryObject';
 import { Shape } from './Shape';
 
-/**
- * Représente une figure classique (rectangle, disque, ...)
- */
 export class SinglePointShape extends Shape {
-
   constructor({
     id,
     layer,
@@ -126,8 +122,7 @@ export class SinglePointShape extends Shape {
 
     if (allPathElements[0] != 'M')
       startVertex = lastVertex = new Point({
-        x: 0,
-        y: 0,
+        coordinates: Coordinates.nullCoordinates,
         shapeId: this.id,
         layer: this.layer,
         type: 'vertex',
@@ -286,14 +281,6 @@ export class SinglePointShape extends Shape {
   /* #################################################################### */
 
   /**
-   * check si this est complètement dans shape
-   * @param {Shape} shape l'autre figure
-   */
-  isInside(shape) {
-    return this.allOutlinePoints.every((pt) => shape.isCoordinatesInPath(pt));
-  }
-
-  /**
    * Vérifie si cette figure se superpose avec une autre figure.
    * @param  {Shape} shape L'autre figure
    * @return {overlap}     true: si les 2 figures se superposent
@@ -425,6 +412,16 @@ export class SinglePointShape extends Shape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
+    if (this.geometryObject &&
+      (
+        this.geometryObject.geometryIsVisible === false ||
+        this.geometryObject.geometryIsHidden === true ||
+        this.geometryObject.geometryIsConstaintDraw === true
+      )
+    ) {
+      return '';
+    }
+
     let path = this.getSVGPath();
 
     let attributes = {
@@ -442,26 +439,32 @@ export class SinglePointShape extends Shape {
     }
     path_tag += '/>\n';
 
-    let point_tags = '';
+    let pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
       if (this.isSegment())
-        point_tags += this.segments[0].vertexes[0].toSVG('#000', 1);
+      pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
         this.segments.forEach(
-          (seg) => (point_tags += seg.vertexes[1].toSVG('#000', 1)),
+          (seg) => (pointToDraw.push(seg.vertexes[1])),
         );
     }
 
     this.segments.forEach((seg) => {
       //Points sur les segments
       seg.divisionPoints.forEach((pt) => {
-        point_tags += pt.toSVG('#000', 1);
+        pointToDraw.push(pt);
       });
     });
-    if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
+    if (this.isCenterShown) pointToDraw.push(this.center);
+
+    let point_tags = pointToDraw.filter(pt => {
+      pt.visible &&
+      pt.geometryIsVisible &&
+      !pt.geometryIsHidden
+    }).map(pt => pt.svg).join('\n');
 
     let comment =
-      '<!-- ' + this.name.replace('e', 'e').replace('è', 'e') + ' -->\n';
+      '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
   }
@@ -505,8 +508,8 @@ export class SinglePointShape extends Shape {
   saveData() {
     let data = super.saveData();
     data.type = 'SinglePointShape';
-    data.fillColor = this.fillColor;
-    data.fillOpacity = this.fillOpacity;
+    // data.fillColor = this.fillColor;
+    // data.fillOpacity = this.fillOpacity;
     return data;
   }
 

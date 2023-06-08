@@ -11,6 +11,8 @@ class LevelPopup extends LitElement {
   constructor() {
     super();
     this.level = 1;
+
+    window.addEventListener('close-popup', () => this.submit());
   }
 
   static get styles() {
@@ -30,13 +32,6 @@ class LevelPopup extends LitElement {
         }
       `,
     ];
-  }
-
-  updated() {
-    window.setTimeout(
-      () => this.shadowRoot.querySelector('#focus').focus(),
-      200,
-    );
   }
 
   render() {
@@ -127,7 +122,7 @@ class LevelPopup extends LitElement {
           </datalist> -->
         </div>
         <div slot="footer">
-          <color-button id="focus" @click="${this.submit}" innerText="OK"></color-button>
+          <color-button @click="${this.submit}" innerText="OK"></color-button>
         </div>
       </template-popup>
     `;

@@ -24,14 +24,14 @@
     "prettier": "^2.7.1"
   },
   "dependencies": {
-    "client-zip": "^2.2.2",
+    "cwebp": "^2.0.5",
+    "fflate": "^0.7.4",
     "firebase": "^9.9.4",
     "firebase-tools": "^11.8.0",
     "idb": "^7.0.2",
     "lit": "^2.3.1",
     "npm": "^8.19.1",
     "pwa-helpers": "^0.9.1",
-    "snowpack": "^3.8.8",
     "tslib": "^2.4.0",
     "workbox": "^0.0.0",
     "workbox-cli": "^6.5.4"

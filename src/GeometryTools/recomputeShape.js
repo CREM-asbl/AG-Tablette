@@ -1,12 +1,13 @@
 import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { findObjectById, mod } from '../Core/Tools/general';
 
-export function computeAllShapeTransform(shape, layer = 'upper', includeChildren = true) {
+export function computeAllShapeTransform(shape, layer = 'upper', includeChildren = true, includePointOnIntersection = true) {
   if (app.environment.name != 'Geometrie') return;
-  if (includeChildren)
+  if (includeChildren) {
     shape.geometryObject.geometryChildShapeIds.forEach(ref => {
       let sRef = findObjectById(ref);
       if (!sRef) {
@@ -16,17 +17,37 @@ export function computeAllShapeTransform(shape, layer = 'upper', includeChildren
       computeShapeTransform(sRef, layer);
       computeAllShapeTransform(sRef, layer);
     });
+  } else if (includePointOnIntersection) {
+    shape.geometryObject.geometryChildShapeIds.forEach(ref => {
+      let sRef = findObjectById(ref);
+      if (!sRef) {
+        console.info('child not found');
+        return;
+      }
+      if (sRef.name == 'PointOnIntersection') {
+        computeShapeTransform(sRef, layer);
+        computeAllShapeTransform(sRef, layer);
+      }
+    });
+  }
+
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
     let child = findObjectById(childId);
     computeShapeTransform(child);
     computeAllShapeTransform(child, layer);
   });
-  if (includeChildren)
+  if (includeChildren) {
     shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
       let child = findObjectById(childId);
       computeShapeTransform(child);
       computeAllShapeTransform(child, layer);
     });
+    shape.geometryObject.geometryMultipliedChildShapeIds.forEach(childId => {
+      let child = findObjectById(childId);
+      computeShapeTransform(child);
+      computeAllShapeTransform(child, layer);
+    });
+  }
 }
 
 function reverseShape(shape, selectedAxis) {
@@ -51,6 +72,9 @@ export function computeShapeTransform(shape, layer = 'upper') {
     computeTransformShape(shape);
     return;
   } else if (shape.geometryObject.geometryDuplicateParentShapeId) {
+    computeDuplicateShape(shape);
+    return;
+  } else if (shape.geometryObject.geometryMultipliedParentShapeId) {
     computeDuplicateShape(shape);
     return;
   }
@@ -143,7 +167,15 @@ export function computeShapeTransform(shape, layer = 'upper') {
       x: shape.vertexes[0].coordinates.x + 100 * Math.cos(angle),
       y: shape.vertexes[0].coordinates.y + 100 * Math.sin(angle),
     });
-  } else if (shape.name == 'PointOnLine') {
+  } else if (shape.name == 'Strip') {
+    let seg = shape.segments[0];
+    let angle = seg.getAngleWithHorizontal();
+
+    shape.vertexes[3].coordinates = new Coordinates({
+      x: shape.vertexes[2].coordinates.x + 100 * Math.cos(angle),
+      y: shape.vertexes[2].coordinates.y + 100 * Math.sin(angle),
+    });
+  }  else if (shape.name == 'PointOnLine') {
     let ref = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let point = shape.points[0];
 
@@ -227,7 +259,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
   } else if (shape.name == 'PointOnIntersection2') {
     let firstSeg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let secondSeg = findObjectById(shape.geometryObject.geometryParentObjectId2);
-    let coords = firstSeg.intersectionWith(secondSeg, false, 0.001);
+    let coords = firstSeg.intersectionWith(secondSeg, 0.001);
     let newValue = !!coords;
     if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
@@ -338,15 +370,10 @@ export function getRatioWithPosition(point, referenceSegment) {
     } else {
       ratio = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
     }
-    // let ratioX = (point.coordinates.x - referenceSegment.vertexes[0].coordinates.x) / (referenceSegment.vertexes[1].coordinates.x - referenceSegment.vertexes[0].coordinates.x);
-    // let ratioY = (point.coordinates.y - referenceSegment.vertexes[0].coordinates.y) / (referenceSegment.vertexes[1].coordinates.y - referenceSegment.vertexes[0].coordinates.y);
-    // ratio = ratioX;
-    // if (!isFinite(ratio))
-    // ratio = ratioY;
   }
-  if (ratio > 1 && !referenceSegment.shape.name.endsWith('StraightLine'))
+  if (ratio > 1 && !(referenceSegment.shape.name.endsWith('StraightLine') || referenceSegment.shape.name == 'Strip'))
     ratio = 1;
-  else if (ratio < 0 && !(referenceSegment.shape.name.endsWith('StraightLine') && !referenceSegment.shape.name.endsWith('SemiStraightLine')))
+  else if (ratio < 0 && !((referenceSegment.shape.name.endsWith('StraightLine') && !referenceSegment.shape.name.endsWith('SemiStraightLine')) || referenceSegment.shape.name == 'Strip'))
     ratio = 0;
   return ratio;
 }
@@ -372,6 +399,9 @@ function computeTransformShape(shape) {
   shape.vertexes.forEach((pt, idx) => {
     pt.coordinates = parentShape.vertexes[idx].coordinates;
   });
+  shape.points.filter((pt) => pt.type === 'arcCenter').forEach((pt, idx) => {
+    pt.coordinates = parentShape.points.filter((pt) => pt.type === 'arcCenter')[idx].coordinates;
+  });
   shape.divisionPoints.forEach((pt, idx) => {
     if (pt.reference)
       pt.coordinates = findObjectById(pt.reference).coordinates;
@@ -383,12 +413,10 @@ function computeTransformShape(shape) {
   }
   if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry') {
     let axis;
-    if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-      axis = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
+    if (shape.geometryObject.geometryTransformationCharacteristicElements.type == 'axis') {
+      axis = shape.geometryObject.geometryTransformationCharacteristicElements.firstElement;
     } else {
-      let pts = shape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-        findObjectById(refId)
-      );
+      let pts = shape.geometryObject.geometryTransformationCharacteristicElements.elements;
       let axisShape = new LineShape({
         layer: 'invisible',
         path: `M ${pts[0].coordinates.x} ${pts[0].coordinates.y} L ${pts[1].coordinates.x} ${pts[1].coordinates.y}`,
@@ -399,7 +427,7 @@ function computeTransformShape(shape) {
     }
     reverseShape(shape, axis);
   } else if (shape.geometryObject.geometryTransformationName == 'centralSymetry') {
-    let center = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0]).coordinates;
+    let center = shape.geometryObject.geometryTransformationCharacteristicElements.firstElement.coordinates;
     shape.rotate(Math.PI, center);
   } else if (shape.geometryObject.geometryTransformationName == 'translation') {
     let pts;
@@ -455,7 +483,14 @@ function computeTransformShape(shape) {
 }
 
 function computeDuplicateShape(shape) {
-  let parentShape = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
+  let parentObject = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
+  if (!parentObject)
+    parentObject = findObjectById(shape.geometryObject.geometryMultipliedParentShapeId);
+
+  let parentShape = parentObject;
+  if (parentObject instanceof Segment)
+    parentShape = parentObject.shape;
+
   if (shape.name == 'PointOnLine') {
     shape.points[0].ratio = parentShape.points[0].ratio;
 
@@ -500,12 +535,12 @@ function computeDuplicateShape(shape) {
     let vector = shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates.substract(shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates);
     let mustReverse = false,
       rotationMultiplier = -1;
-    if (shape.isReversed ^ shape.isReversed) {
+    if (shape.isReversed ^ parentShape.isReversed) {
       mustReverse = true;
       rotationMultiplier = 1;
     }
     shape.points.filter(pt => pt.type != 'divisionPoint').forEach((pt, idx) => {
-      let startCoord = parentShape.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
+      let startCoord = parentObject.points.filter(pt => pt.type != 'divisionPoint')[idx].coordinates;
       if (mustReverse) {
         startCoord = new Coordinates({
           x: startCoord.x + 2 * (shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates.x - startCoord.x),
@@ -515,6 +550,13 @@ function computeDuplicateShape(shape) {
       let newPointCoordinates = startCoord
         .rotate(rotationMultiplier * shape.geometryObject.geometryConstructionSpec.rotationAngle, shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates)
         .add(vector);
+      if (idx == 1 && shape.geometryObject.geometryConstructionSpec.numerator) {
+        newPointCoordinates = shape.points[0].coordinates.add(
+          newPointCoordinates
+            .substract(shape.points[0].coordinates)
+            .multiply(shape.geometryObject.geometryConstructionSpec.numerator / shape.geometryObject.geometryConstructionSpec.denominator)
+        );
+      }
       pt.coordinates = newPointCoordinates;
     });
     shape.divisionPoints.forEach(pt => computeDivisionPoint(pt));
@@ -525,7 +567,10 @@ function computeDuplicateShape(shape) {
 }
 
 export function recomputeAllVisibilities(layer) {
-  app[layer + 'CanvasLayer'].shapes.forEach(s => s.geometryObject.geometryIsVisible = true);
+  app[layer + 'CanvasLayer'].shapes.forEach(s => {
+    if (s.geometryObject)
+    s.geometryObject.geometryIsVisible = true
+  });
   app[layer + 'CanvasLayer'].points.forEach(pt => pt.geometryIsVisible = true);
 
   let changeVisibilityRecursively = (shapeId) => {
@@ -565,7 +610,7 @@ export function recomputeAllVisibilities(layer) {
   }
 
   app[layer + 'CanvasLayer'].shapes.forEach(s => {
-    if (s.geometryObject.geometryIsVisibleByChoice === false) {
+    if (s.geometryObject?.geometryIsVisibleByChoice === false) {
       if (s.name != 'cut')
         changeVisibilityRecursively(s.id);
       else
@@ -632,10 +677,13 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     if (shape.name == 'PointOnLine') {
       return;
     }
-    let refShape = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
-    shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refShape.points[0].coordinates;
-    shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.points[0].coordinates;
-    let refShapeAngle = refShape.points[0].coordinates.angleWith(refShape.centerCoordinates);
+    let refObject = findObjectById(shape.geometryObject.geometryDuplicateParentShapeId);
+    let refShape = refObject;
+    if (refShape instanceof Segment)
+      refShape = refShape.shape;
+    shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refObject.vertexes[0].coordinates;
+    shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.vertexes[0].coordinates;
+    let refShapeAngle = refObject.vertexes[0].coordinates.angleWith(refObject.centerCoordinates ? refObject.centerCoordinates : refObject.vertexes[1].coordinates);
     let centerCoordinates = shape.centerCoordinates;
     // let firstPointCoordinates = shape.points[0].coordinates;
     if (refShape.isReversed ^ shape.isReversed) {
@@ -648,8 +696,15 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
       //   y: shape.points[0].coordinates.y,
       // });
     }
-    let shapeAngle = shape.points[0].coordinates.angleWith(centerCoordinates);
-    shape.geometryObject.geometryConstructionSpec.rotationAngle = refShapeAngle - shapeAngle;
+    let shapeAngle = shape.vertexes[0].coordinates.angleWith(centerCoordinates);
+    if (shape.segments[0].length > 0.01) {
+      shape.geometryObject.geometryConstructionSpec.rotationAngle = refShapeAngle - shapeAngle;
+    }
+  } else if (shape.familyName == 'multipliedVector') {
+    let refShape = findObjectById(shape.geometryObject.geometryMultipliedParentShapeId);
+    shape.geometryObject.geometryConstructionSpec.parentFirstPointCoordinates = refShape.points[0].coordinates;
+    shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates = shape.points[0].coordinates;
+    shape.geometryObject.geometryConstructionSpec.rotationAngle = 0;
   } else if (shape.name == 'Rectangle') {
     // let angle = shape.vertexes[1].getVertexAngle();
     // shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);

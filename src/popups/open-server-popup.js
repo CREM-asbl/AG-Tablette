@@ -1,5 +1,6 @@
+import * as fflate from 'fflate';
 import { css, html, LitElement } from 'lit';
-import { findAllThemes } from '../Firebase/firebase-init';
+import { findAllFiles, findAllThemes, readFileFromServer } from '../Firebase/firebase-init';
 import { TemplatePopup } from './template-popup';
 import './theme-elem';
 
@@ -29,6 +30,10 @@ class OpenServerPopup extends LitElement {
         #body {
           display: block;
         }
+
+        color-button {
+          margin-bottom: 10px;
+        }
       `,
     ];
   }
@@ -46,10 +51,40 @@ class OpenServerPopup extends LitElement {
       <template-popup>
         <h2 slot="title">Ouvrir un fichier</h2>
         <div slot="body" id="body">
+          <color-button @click="${this.downloadAllFiles}" innerText="Télécharger tous les fichiers"></color-button>
           ${this.allThemes.map(theme => html`<theme-elem title="${theme.id}" moduleNames="${theme.modules.map(module => module.id)}"></theme-elem>`)}
         </div>
       </template-popup>
     `;
+  }
+
+  async downloadAllFiles() {
+    let allFilename = await findAllFiles();
+    allFilename = allFilename.filter(file => !file.hidden);
+    let filesByModules = {};
+
+    await Promise.all(
+      allFilename.map(async file => {
+        let key = file.module.id;
+        let text = await (await readFileFromServer(file.id)).text();
+        text = fflate.strToU8(text);
+        if (key in filesByModules) {
+          filesByModules[key][file.id] = text;
+        } else {
+          filesByModules[key] = { [file.id]: text};
+        }
+      })
+    );
+    const zipped = fflate.zipSync(filesByModules);
+    let blob = new Blob([
+      zipped
+    ]);
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "fichiers_AGm_serveur_crem.zip";
+    link.click();
+    link.remove();
   }
 
   close() {

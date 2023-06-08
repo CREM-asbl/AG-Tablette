@@ -1,8 +1,10 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
@@ -144,27 +146,7 @@ export class TransformTool extends Tool {
 
     this.pointSelectedId = point.id;
 
-    // let involvedShapes = [point.shape];
-    // getAllLinkedShapesInGeometry(point.shape, involvedShapes);
-    let involvedShapes = app.mainCanvasLayer.shapes;
-
-    this.drawingShapes = involvedShapes.map(
-      (s) => duplicateShape(s)
-    );
-
-    app.mainCanvasLayer.editingShapeIds = involvedShapes.map(
-      (s) => s.id,
-    );
-
-    if (point.shape.name == 'PointOnLine') {
-      let constraintShape = findObjectById(addInfoToId(
-        point.shape.geometryObject.geometryParentObjectId1
-        , 'upper')
-        ).shape;
-      constraintShape.geometryObject.geometryIsConstaintDraw = 'visible';
-    }
-
-    let startShapeId = addInfoToId(point.shape.id, 'upper');
+    let startShapeId = point.shape.id;
     this.tree =  {
       [startShapeId]: {
         parents: [],
@@ -172,6 +154,96 @@ export class TransformTool extends Tool {
       },
     }
     this.createTree(0, this.tree);
+    let involvedShapeIds = Object.keys(this.tree);
+    let involvedShapes = involvedShapeIds.map(shapeId => findObjectById(shapeId));
+
+    involvedShapeIds.forEach(oldKey => {
+      let newKey = addInfoToId(oldKey, 'upper');
+      delete Object.assign(this.tree, {[newKey]: this.tree[oldKey] })[oldKey];
+      for (let i = 0; i < this.tree[newKey].parents.length; i++) {
+        this.tree[newKey].parents[i] = addInfoToId(this.tree[newKey].parents[i], 'upper');
+      }
+      for (let i = 0; i < this.tree[newKey].children.length; i++) {
+        this.tree[newKey].children[i] = addInfoToId(this.tree[newKey].children[i], 'upper');
+      }
+    });
+
+    involvedShapes.sort((s1, s2) => {
+      return ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2);
+    });
+    this.drawingShapes = involvedShapes.map(
+      (s) => duplicateShape(s)
+    );
+    this.drawingShapes.forEach(s => {
+      if (!findObjectById(s.geometryObject.geometryParentObjectId1)) {
+        s.geometryObject.geometryParentObjectId1 = addInfoToId(s.geometryObject.geometryParentObjectId1, 'main')
+      }
+      if (!findObjectById(s.geometryObject.geometryParentObjectId2)) {
+        s.geometryObject.geometryParentObjectId2 = addInfoToId(s.geometryObject.geometryParentObjectId2, 'main')
+      }
+      if (!findObjectById(s.geometryObject.geometryTransformationParentShapeId)) {
+        s.geometryObject.geometryTransformationParentShapeId = addInfoToId(s.geometryObject.geometryTransformationParentShapeId, 'main')
+      }
+      let characteristicElements = s.geometryObject.geometryTransformationCharacteristicElements;
+      if (characteristicElements && characteristicElements.elementIds) {
+        characteristicElements.elementIds = characteristicElements.elementIds.map(elId => {
+          if (!findObjectById(elId)) {
+            return addInfoToId(elId, 'main');
+          }
+          return elId;
+        });
+      }
+      // s.geometryObject.geometryTransformationCharacteristicElementIds.forEach((el, idx) => {
+      //   if (!findObjectById(el)) {
+      //     s.geometryObject.geometryTransformationCharacteristicElementIds[idx] = addInfoToId(el, 'main')
+      //   }
+      // });
+      if (!findObjectById(s.geometryObject.geometryDuplicateParentShapeId)) {
+        s.geometryObject.geometryDuplicateParentShapeId = addInfoToId(s.geometryObject.geometryDuplicateParentShapeId, 'main')
+      }
+      if (!findObjectById(s.geometryObject.geometryMultipliedParentShapeId)) {
+        s.geometryObject.geometryMultipliedParentShapeId = addInfoToId(s.geometryObject.geometryMultipliedParentShapeId, 'main')
+      }
+    });
+
+    app.mainCanvasLayer.editingShapeIds = involvedShapes.map(
+      (s) => s.id,
+    );
+
+    if (point.shape.name == 'PointOnLine') {
+      let constraintSegment = findObjectById(
+        addInfoToId(
+          point.shape.geometryObject.geometryParentObjectId1,
+          'upper'
+        )
+      );
+      if (!constraintSegment) {
+        constraintSegment = findObjectById(
+          point.shape.geometryObject.geometryParentObjectId1
+        );
+      }
+
+      new LineShape({
+        layer: 'upper',
+        path: constraintSegment.getSVGPath('no scale', true),
+        id: undefined,
+        isPointed: false,
+        strokeWidth: 2,
+        strokeColor: app.settings.constraintsDrawColor,
+        geometryObject: new GeometryObject({}),
+      });
+    }
+
+    app.upperCanvasLayer.shapes.forEach(s => {
+      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
+        let duplicateChild = findObjectById(duplicateChildId);
+        computeConstructionSpec(duplicateChild);
+      });
+      s.geometryObject?.geometryMultipliedChildShapeIds.forEach(multipliedChildId => {
+        let multipliedChild = findObjectById(multipliedChildId);
+        computeConstructionSpec(multipliedChild);
+      });
+    });
 
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
     // window.dispatchEvent(new CustomEvent('refresh'));
@@ -181,16 +253,16 @@ export class TransformTool extends Tool {
     let currentEntries = Object.entries(tree);
     if (currentEntries.length == index)
       return;
-    let currentShapeId = currentEntries[index][0]
+    let currentShapeId = currentEntries[index][0];
     let currentShape = findObjectById(currentShapeId);
-    let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds];
+    let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds, ...currentShape.geometryObject.geometryMultipliedChildShapeIds];
     dependenciesIds.sort((dp1, dp2) => {
       if (findObjectById(dp1).geometryObject.geometryIsConstaintDraw) {
         return -1;
       } else if (findObjectById(dp2).geometryObject.geometryIsConstaintDraw) {
         return 1;
       }
-    })
+    });
     dependenciesIds.forEach(dependenciesId => {
       if (tree[dependenciesId])
         tree[dependenciesId].parents.push(currentShapeId)
@@ -284,12 +356,6 @@ export class TransformTool extends Tool {
     if (app.tool.currentStep == 'transform') {
       let point = findObjectById(addInfoToId(this.pointSelectedId, 'upper'));
       let shape = point.shape;
-      app.upperCanvasLayer.shapes.forEach(s => {
-        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-          let duplicateChild = findObjectById(duplicateChildId);
-          computeConstructionSpec(duplicateChild);
-        });
-      });
       if (shape.name == 'Trapeze' && point.idx < 3) {
         computeConstructionSpec(shape);
       } else if (point.idx < 2 || point.type == 'arcCenter') {
@@ -322,7 +388,7 @@ export class TransformTool extends Tool {
         }
       }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
-      // this.adjustPoint(point);
+      this.adjustPoint(point);
       if (shape.name == 'PointOnLine') {
         let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
         point.coordinates = reference.projectionOnSegment(point.coordinates);
@@ -342,49 +408,12 @@ export class TransformTool extends Tool {
             computeConstructionSpec(shape, point.idx);
         }
       }
-      // if (shape.name == 'Trapeze' && point.idx >= 3) {
-      //   point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-      //   computeConstructionSpec(shape);
-      // } else if (point.idx >= 2) {
-      //   switch (shape.name) {
-      //     case 'Rectangle':
-      //     case 'Losange':
-      //     case 'RightAngleIsoscelesTriangle':
-      //     case 'RightAngleTriangle':
-      //     case 'IsoscelesTriangle':
-      //     case 'RightAngleTrapeze':
-      //       point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-      //     case 'Parallelogram':
-      //     case 'IsoscelesTrapeze':
-      //     case 'CirclePart':
-      //       computeConstructionSpec(shape, point.idx);
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // }
-      // if (point.idx == 1) {
-      //   switch (shape.name) {
-      //     case 'CircleArc':
-      //     case 'ParalleleSemiStraightLine':
-      //     case 'PerpendicularSemiStraightLine':
-      //     case 'ParalleleSegment':
-      //     case 'PerpendicularSegment':
-      //       point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
-      //       computeConstructionSpec(shape);
-      //     default:
-      //       break;
-      //   }
-      // }
-      this.resetTree();
-      this.browseTree(this.tree, 0);
 
       this.resetTree();
       this.browseTree(this.tree, 0);
 
-
-      // if (shape.name == 'RightAngleTrapeze')
-      //   computeConstructionSpec(shape);
+      this.resetTree();
+      this.browseTree(this.tree, 0);;
     } else if (app.tool.currentStep == 'selectPoint') {
       app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
         let points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];

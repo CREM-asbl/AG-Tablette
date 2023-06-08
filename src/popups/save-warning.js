@@ -25,13 +25,6 @@ class SaveWarning extends LitElement {
     ];
   }
 
-  updated() {
-    // window.setTimeout(
-    //   () => this.shadowRoot.querySelector('#focus').focus(),
-    //   200,
-    // );
-  }
-
   render() {
     return html`
       Voulez-vous partir sans enregistrer votre travail ? <br>

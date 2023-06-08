@@ -17,7 +17,7 @@ class FullHistoryTools extends LitElement {
     this.playPauseButton = 'play';
     let previousStepTimestamp = 0;
     this.tools = app.fullHistory.steps
-      .filter((step) => (step.type == 'tool-changed' && step.detail?.currentStep == 'start') || step.type == 'undo' || step.type == 'redo')
+      .filter((step) => (step.type == 'tool-changed') || step.type == 'undo' || step.type == 'redo')
       .map((step) => {
         let time = step.timeStamp - previousStepTimestamp;
         previousStepTimestamp = step.timeStamp;
@@ -30,7 +30,7 @@ class FullHistoryTools extends LitElement {
         return { name, time, timeStamp: step.timeStamp, actions: [] };
       });
     let toolIndex = -1;
-    let actionIndex = 0;
+    let actionIndex = 1;
     app.fullHistory.steps
       .filter((step) => step.type == 'add-fullstep')
       .forEach((step) => {
@@ -56,7 +56,8 @@ class FullHistoryTools extends LitElement {
       if (app.fullHistory.isRunning) {
         if (e.type == 'fullHistory-changed') {
           this.index = app.fullHistory.actionIndex;
-          this.shadowRoot.getElementById( 'b' + this.index )?.parentNode.scrollIntoView();
+          this.shadowRoot.getElementById( 'b' + this.index )?.parentNode.parentNode.scrollIntoView();
+          this.setPlayPause(app.fullHistory.isPlaying ? 'pause' : 'play');
         } else {
           this.updateProperties();
         }
@@ -100,7 +101,7 @@ class FullHistoryTools extends LitElement {
 
           top: 0vh;
           width: ${app.settings.mainMenuWidth}px;
-          height: 100vh;
+          height: calc(100 * var(--vh));
 
           scrollbar-width: thin;
         }
@@ -112,7 +113,7 @@ class FullHistoryTools extends LitElement {
 
         #action-container {
           overflow: visible;
-          padding: 10px 10px;
+          padding: 0px 10px 10px;
 
           /* scrollbar hidden */
           /* -ms-overflow-style: none; IE and Edge */
@@ -127,26 +128,54 @@ class FullHistoryTools extends LitElement {
           overflow-y: hidden;
           box-shadow: 0px 0px 5px var(--menu-shadow-color);
           padding: 0px;
-          margin: 0px 0px 5px;
+          margin: 5px 0px 0px;
           background-color: var(--theme-color-soft);
+          font-size: 0;
         }
 
         h2 {
           text-align: center;
-          font-size: 1.1em;
+          font-size: 1.1rem;
           font-weight: bold;
           margin: 6px 0;
         }
 
-        .action-button {
-          margin: 5px 2px 5px 2px;
-          width: calc((100% - 2 * 5px - 3 * 2 * 2px) / 3);
-          height: 2vh;
-          height: calc(var(--vh, 1vh) * 5);
+        .single-action-div {
+          background-color: white;
+          width: calc((100% - 3 * 5px) / 2);
+          height: 40px;
           border-radius: 3px;
           box-shadow: 0px 0px 5px var(--menu-shadow-color);
           border: none;
           padding: 0px;
+          display: inline-flex;
+        }
+
+        .left-single-action-div {
+          margin: 5px 2.5px 5px 5px;
+        }
+
+        .right-single-action-div {
+          margin: 5px 5px 5px 2.5px;
+        }
+
+        .action-button {
+          margin: 0px;
+          padding: 0px;
+          border: none;
+          border-radius: 3px;
+
+          width: calc(100% - 40px);
+        }
+
+        .play-action-button {
+          margin: 2.5px 2.5px 2.5px 2.5px;
+          padding: 0px;
+          height: 35px;
+          width: 35px;
+          background: center / contain no-repeat url("images/replay.svg");
+          box-shadow: 0px 0px 3px var(--menu-shadow-color);
+          border: none;
         }
       `
     ]
@@ -154,35 +183,36 @@ class FullHistoryTools extends LitElement {
 
   _clickHandler(event) {
     let index = parseInt(this.index);
+    let idx;
     switch (event.target.name) {
       case 'action-button':
-        this.setPlayPause('play');
-        let idx = parseInt(event.target.id.substring(1));
+        idx = parseInt(event.target.id.substring(1));
         FullHistoryManager.moveTo(idx);
+        break;
+      case 'play-action-button':
+        idx = parseInt(event.target.id.substring(1));
+        FullHistoryManager.moveTo(idx, true, true);
+        FullHistoryManager.playBrowsing(true);
         break;
       case 'undo':
         if (index == 0) {
           break;
         }
-        this.setPlayPause('play');
         FullHistoryManager.moveTo(index - 1);
         break;
       case 'stop':
         FullHistoryManager.stopBrowsing();
         break;
       case 'pause':
-        this.setPlayPause('play');
         FullHistoryManager.pauseBrowsing();
         break;
       case 'play':
-        this.setPlayPause('pause');
         FullHistoryManager.playBrowsing();
         break;
       case 'redo':
-        if (index >= app.fullHistory.numberOfActions - 1) {
+        if (index >= app.fullHistory.numberOfActions) {
           break;
         }
-        this.setPlayPause('play');
         FullHistoryManager.moveTo(index + 1);
         break;
     }
@@ -250,15 +280,26 @@ class FullHistoryTools extends LitElement {
                 ${
                   elem.actions.map((action, idx) => {
                     return html`
-                      <button
-                        id="b${action.actionIndex}"
-                        @click="${this._clickHandler}"
-                        name="action-button"
-                        class="action-button"
+                      <div
+                        class="single-action-div ${idx % 2 ? 'right-single-action-div' : 'left-single-action-div'}"
                       >
-                        ${idx + 1}
-                        (${(Math.floor(action.time / 1000 / 60) > 0 ? Math.floor(action.time / 1000 / 60) + 'm ' : '') + new Number(action.time / 1000 % 60).toFixed(1) + 's'})
-                      </button>
+                        <button
+                          id="b${action.actionIndex}"
+                          @click="${this._clickHandler}"
+                          name="action-button"
+                          class="action-button"
+                        >
+                          ${idx + 1}
+                          (${(Math.floor(action.time / 1000 / 60) > 0 ? Math.floor(action.time / 1000 / 60) + 'm ' : '') + new Number(action.time / 1000 % 60).toFixed(1) + 's'})
+                        </button>
+                        <button
+                          id="c${action.actionIndex}"
+                          @click="${this._clickHandler}"
+                          name="play-action-button"
+                          class="play-action-button"
+                        >
+                        </button>
+                      </div>
                     `;
                   })
                 }

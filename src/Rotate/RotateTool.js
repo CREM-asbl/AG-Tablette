@@ -18,7 +18,7 @@ export class RotateTool extends Tool {
   constructor() {
     super('rotate', 'Tourner', 'move');
 
-    this.drawColor = '#080';
+    this.centerDrawColor = '#080';
 
     this.currentStep = null; // listen-canvas-click -> rotate
 
@@ -98,7 +98,18 @@ export class RotateTool extends Tool {
           window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être tournées.' } }));
           return;
         }
+        if (currentShape.familyName == 'multipliedVector') {
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs multipliés ne peuvent pas être tournés, mais peuvent l\'être via leur parent.' } }));
+          return;
+        }
       }
+      let shapesToAdd = [];
+      this.involvedShapes.forEach(s => {
+        s.geometryObject?.geometryMultipliedChildShapeIds.forEach(sId => {
+          shapesToAdd.push(findObjectById(sId));
+        })
+      });
+      this.involvedShapes.push(...shapesToAdd);
     }
 
     this.shapesToCopy = [...this.involvedShapes];
@@ -128,7 +139,7 @@ export class RotateTool extends Tool {
       new Point({
         coordinates: this.center,
         layer: 'upper',
-        color: this.drawColor,
+        color: this.centerDrawColor,
       });
 
     app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(

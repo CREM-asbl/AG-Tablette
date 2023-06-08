@@ -218,5 +218,6 @@ export class GroupTool extends Tool {
         console.info(s.getSVGPath('no scale', false, false));
       }
     });
+    // window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 }

@@ -18,11 +18,11 @@ class ZoomMenu extends LitElement {
     this.close = () => {
       this.remove();
       window.removeEventListener('new-window', this.eventHandler);
-      window.removeEventListener('tool-changed', this.eventHandler);
+      window.removeEventListener('tool-updated', this.eventHandler);
     };
 
     window.addEventListener('new-window', this.eventHandler);
-    window.addEventListener('tool-changed', this.eventHandler);
+    window.addEventListener('tool-updated', this.eventHandler);
   }
 
   static get properties() {

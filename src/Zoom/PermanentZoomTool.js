@@ -138,11 +138,7 @@ export class PermanentZoomTool extends Tool {
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'init' } });
 
-    this.timeoutId = setTimeout(() => {
-      this.isLastActionZoom = false;
-      if (this.previousUsedTool)
-        setState({ tool: { ...this.previousUsedTool, currentStep: 'start' } });
-    }, 300);
+    this.restorePreviousTool();
   }
 
   canvasMouseWheel(deltaY) {
@@ -185,10 +181,19 @@ export class PermanentZoomTool extends Tool {
 
     this.isLastActionZoom = true;
 
+    this.restorePreviousTool();
+  }
+
+  restorePreviousTool() {
     this.timeoutId = setTimeout(() => {
       this.isLastActionZoom = false;
-      if (this.previousUsedTool)
-        setState({ tool: { ...this.previousUsedTool, currentStep: 'start' } });
+      if (this.previousUsedTool) {
+        let currentStep = 'start';
+        if (this.previousUsedTool.name == 'divide' || this.previousUsedTool.name == 'opacity') {
+          currentStep = 'selectObject';
+        }
+        setState({ tool: { ...this.previousUsedTool, currentStep } });
+      }
     }, 300);
   }
 

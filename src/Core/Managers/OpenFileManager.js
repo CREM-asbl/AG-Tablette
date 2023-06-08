@@ -1,5 +1,5 @@
 import { app, setState } from '../App';
-import { addInfoToId, createElem } from '../Tools/general';
+import { addInfoToId, createElem, getExtension } from '../Tools/general';
 
 export class OpenFileManager {
   static async openFile() {
@@ -9,7 +9,7 @@ export class OpenFileManager {
           {
             description: 'Etat',
             accept: {
-              'app/json': ['.' + app.environment.extension],
+              'app/json': app.environment.extensions,
             },
           },
         ],
@@ -33,13 +33,13 @@ export class OpenFileManager {
   static async newReadFile(fileHandle) {
     const file = await fileHandle.getFile();
     const content = await file.text();
-    OpenFileManager.parseFile(content);
+    OpenFileManager.parseFile(content, fileHandle.name);
   }
 
   static oldReadFile(file) {
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => OpenFileManager.parseFile(reader.result);
+    reader.onload = () => OpenFileManager.parseFile(reader.result, file.name);
     reader.readAsText(file);
   }
 
@@ -159,7 +159,7 @@ export class OpenFileManager {
     });
   }
 
-  static async parseFile(fileContent) {
+  static async parseFile(fileContent, filename) {
     let saveObject;
     if (typeof fileContent == 'string') {
       try {
@@ -171,6 +171,7 @@ export class OpenFileManager {
     } else {
       saveObject = fileContent;
     }
+    saveObject.fileExtension = getExtension(filename)
 
     if (saveObject.appVersion == '1.0.0') {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. La version n\'est plus prise en charge.' } }));
@@ -182,16 +183,17 @@ export class OpenFileManager {
       return;
     }
 
-    OpenFileManager.transformToNewIdSystem(saveObject.wsdata.objects, 'main');
+    // OpenFileManager.transformToNewIdSystem(saveObject.wsdata.objects, 'main');
 
     // app.lastFileVersion = saveObject.appVersion;
     const WorkspaceManagerModule = await import('./WorkspaceManager.js');
     WorkspaceManagerModule.WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
-    if (app.environment.name == 'Tangram')
+
+    if (app.environment.name == 'Tangram' && saveObject.fileExtension == 'ags')
       app.mainCanvasLayer.removeAllObjects();
 
     if (saveObject.settings) {
-      setState({ settings: { ...saveObject.settings } });
+      setState({ settings: { ...saveObject.settings, numberOfDivisionParts: 2, numberOfRegularPoints: 3, shapesDrawColor: '#ff0000', shapeOpacity: 0.7 } });
     } else {
       app.resetSettings();
     }
@@ -204,28 +206,55 @@ export class OpenFileManager {
       });
     }
 
-    if (saveObject.history) {
-      setState({ history: { ...saveObject.history } });
-    } else {
-      setState({
-        history: {
-          ...app.defaultState.history,
-          startSituation: {
-            ...app.workspace.data,
-            tangram: {
-              isSilhouetteShown: true,
-              currentStep: 'start',
-              buttonText: 'Vérifier solution',
-              buttonValue: 'check',
-            }
+    if (app.environment.name == 'Tangram') {
+      if (saveObject.history) {
+        setState({
+          history: {
+            ...saveObject.history,
+            startSituation: {
+              ...saveObject.history.startSituation,
+              tangram: {
+                isSilhouetteShown: true,
+                currentStep: 'start',
+                buttonText: 'Vérifier la solution',
+                buttonValue: 'check',
+              }
+            },
           },
-          startSettings: { ...app.settings },
-        },
-      });
+        });
+      } else {
+        setState({
+          history: {
+            ...app.defaultState.history,
+            startSituation: null,
+            startSettings: { ...app.settings },
+          },
+        });
+      }
+    } else {
+      if (saveObject.history) {
+        setState({
+          history: { ...saveObject.history },
+        });
+      } else {
+        setState({
+          history: {
+            ...app.defaultState.history,
+            startSituation: {
+              ...app.workspace.data,
+            },
+            startSettings: { ...app.settings },
+          },
+        });
+      }
     }
 
     if (saveObject.toolsVisible) {
-      saveObject.toolsVisible.forEach(toolVisible => app.tools.find(tool => tool.name == toolVisible.name).isVisible = toolVisible.isVisible)
+      saveObject.toolsVisible.forEach(toolVisible => {
+        let tool = app.tools.find(tool => tool.name == toolVisible.name);
+        if (tool)
+          tool.isVisible = toolVisible.isVisible
+      });
       saveObject.familiesVisible.forEach(familyVisible => app.environment.families.find(family => family.name == familyVisible.name).isVisible = familyVisible.isVisible)
       setState({ tools: [...app.tools] });
     }
@@ -252,10 +281,6 @@ window.addEventListener('file-opened', (event) => {
   if (event.detail.method == 'old')
     OpenFileManager.oldReadFile(event.detail.file);
   else OpenFileManager.newReadFile(event.detail.file[0]);
-});
-
-window.addEventListener('parse-file', (event) => {
-  OpenFileManager.parseFile(event.detail.fileContent);
 });
 
 // Si ancien ou nouveau systeme de fichier

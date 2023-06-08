@@ -118,7 +118,6 @@ export class RegularShape extends Shape {
   }
 
   setSegmentsFromPath(path) {
-    console.info(path);
     const allPathElements = path
       .split(/[ \n]/)
       .filter((element) => element !== '');
@@ -136,7 +135,7 @@ export class RegularShape extends Shape {
       let coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex' || (this.points[this.points.length - 1].coordinates.equal(coordinates) && this.points[this.points.length - 1].type == 'vertex')) {
+      if (lastVertex == undefined || lastVertex.type != 'vertex' || allPathElements.length != 0) {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
@@ -156,8 +155,6 @@ export class RegularShape extends Shape {
 
     if (allPathElements[0] != 'M')
       startVertex = lastVertex = new Point({
-        x: 0,
-        y: 0,
         shapeId: this.id,
         layer: this.layer,
         type: 'vertex',
@@ -467,14 +464,6 @@ export class RegularShape extends Shape {
   /* #################################################################### */
 
   /**
-   * check si this est complètement dans shape
-   * @param {Shape} shape l'autre figure
-   */
-  isInside(shape) {
-    return this.allOutlinePoints.every((pt) => shape.isCoordinatesInPath(pt));
-  }
-
-  /**
    * Vérifie si cette figure se superpose avec une autre figure.
    * @param  {Shape} shape L'autre figure
    * @return {overlap}     true: si les 2 figures se superposent
@@ -606,45 +595,86 @@ export class RegularShape extends Shape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
-    let path = this.getSVGPath();
+    if (this.geometryObject &&
+      (
+        this.geometryObject.geometryIsVisible === false ||
+        this.geometryObject.geometryIsHidden === true ||
+        this.geometryObject.geometryIsConstaintDraw === true
+      )
+    ) {
+      return '';
+    }
 
-    let attributes = {
-      d: path,
-      stroke: this.strokeColor,
+    let shapePath = this.getSVGPath();
+
+    let fillAttributes = {
+      d: shapePath,
       fill: this.fillColor,
       'fill-opacity': this.fillOpacity,
-      'stroke-width': this.strokeWidth,
-      'stroke-opacity': 1, // toujours à 1 ?
+      'stroke-width': 0,
+      'stroke-opacity': 0,
     };
 
-    let path_tag = '<path';
-    for (let [key, value] of Object.entries(attributes)) {
-      path_tag += ' ' + key + '="' + value + '"';
+    let fillPath = '<path';
+    for (let [key, value] of Object.entries(fillAttributes)) {
+      fillPath += ' ' + key + '="' + value + '"';
     }
-    path_tag += '/>\n';
+    fillPath += '/>\n';
 
-    let point_tags = '';
+    let totalStrokePath = '';
+    this.segments.forEach(seg => {
+      let segmentPath = seg.getSVGPath('scale', true);
+      let segmentColor = seg.color ? seg.color : this.strokeColor;
+      let strokeWidth = 1;
+      if (seg.width != 1)
+        strokeWidth = seg.width;
+      else
+        strokeWidth = this.strokeWidth
+
+      let strokeAttributes = {
+        d: segmentPath,
+        stroke: segmentColor,
+        'fill-opacity': 0,
+        'stroke-width': this.strokeWidth,
+        'stroke-opacity': 1, // toujours à 1 ?
+      };
+
+      let strokePath = '<path';
+      for (let [key, value] of Object.entries(strokeAttributes)) {
+        strokePath += ' ' + key + '="' + value + '"';
+      }
+      strokePath += '/>\n';
+      totalStrokePath += strokePath;
+    });
+
+    let pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
       if (this.isSegment())
-        point_tags += this.segments[0].vertexes[0].toSVG('#000', 1);
+      pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
         this.segments.forEach(
-          (seg) => (point_tags += seg.vertexes[1].toSVG('#000', 1)),
+          (seg) => (pointToDraw.push(seg.vertexes[1])),
         );
     }
 
     this.segments.forEach((seg) => {
       //Points sur les segments
       seg.divisionPoints.forEach((pt) => {
-        point_tags += pt.toSVG('#000', 1);
+        pointToDraw.push(pt);
       });
     });
-    if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
+    if (this.isCenterShown) pointToDraw.push(this.center);
+
+    let point_tags = pointToDraw.filter(pt => {
+      pt.visible &&
+      pt.geometryIsVisible &&
+      !pt.geometryIsHidden
+    }).map(pt => pt.svg).join('\n');
 
     let comment =
-      '<!-- ' + this.name.replace('e', 'e').replace('è', 'e') + ' -->\n';
+      '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
 
-    return comment + path_tag + point_tags + '\n';
+    return comment + fillPath + totalStrokePath + point_tags + '\n';
   }
 
   cleanSameDirectionSegment() {
@@ -722,8 +752,12 @@ export class RegularShape extends Shape {
   saveData() {
     let data = super.saveData();
     data.type = 'RegularShape';
-    data.fillColor = this.fillColor;
-    data.fillOpacity = this.fillOpacity;
+    // data.fillColor = this.fillColor;
+    // data.fillOpacity = this.fillOpacity;
+    if (this.fillColor !== '#aaa')
+      data.fillColor = this.fillColor;
+    if (this.fillOpacity !== 0.7)
+      data.fillOpacity = this.fillOpacity;
     return data;
   }
 

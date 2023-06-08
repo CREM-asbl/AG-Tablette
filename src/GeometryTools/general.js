@@ -25,6 +25,13 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
       getAllLinkedShapesInGeometry(s, involvedShapes);
     }
   });
+  shape.geometryObject.geometryDuplicateChildShapeIds.forEach(sId => {
+    let s = findObjectById(sId);
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+      involvedShapes.push(s);
+      getAllLinkedShapesInGeometry(s, involvedShapes);
+    }
+  });
   if (shape.geometryObject.geometryTransformationParentShapeId) {
     let s = findObjectById(shape.geometryObject.geometryTransformationParentShapeId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
@@ -32,34 +39,48 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
       getAllLinkedShapesInGeometry(s, involvedShapes);
     }
   }
-  shape.geometryObject.geometryTransformationCharacteristicElementIds.forEach((sId, idx) => {
-    let objectType = 'point';
-    if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry' &&
-      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1)
-        objectType = 'segment';
-
-    let s;
-    if ((shape.geometryObject.geometryTransformationName == 'translation' &&
-      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) ||
-      (shape.geometryObject.geometryTransformationName == 'rotation' &&
-      idx == 1 &&
-      shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) ) {
-        s = findObjectById(sId);
-    } else {
-      s = findObjectById(sId).shape;
-    }
+  shape.geometryObject.geometryMultipliedChildShapeIds.forEach(sId => {
+    let s = findObjectById(sId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes);
     }
   });
+  let characteristicElements = shape.geometryObject.geometryTransformationCharacteristicElements;
+  if (characteristicElements) {
+    characteristicElements.elements.forEach(element => {
+      let s = element.shape;
+      if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+        involvedShapes.push(s);
+        getAllLinkedShapesInGeometry(s, involvedShapes);
+      }
+    })
+  }
+
+  // shape.geometryObject.geometryTransformationCharacteristicElementIds.forEach((sId, idx) => {
+  //   let s;
+  //   if ((shape.geometryObject.geometryTransformationName == 'translation' &&
+  //     shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) ||
+  //     (shape.geometryObject.geometryTransformationName == 'rotation' &&
+  //     idx == 1 &&
+  //     shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) ) {
+  //       s = findObjectById(sId);
+  //   } else {
+  //     s = findObjectById(sId).shape;
+  //   }
+  //   if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+  //     involvedShapes.push(s);
+  //     getAllLinkedShapesInGeometry(s, involvedShapes);
+  //   }
+  // });
+
   if (shape.geometryObject.geometryParentObjectId1) {
     let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    let s;
-    if (seg)
-      s = seg.shape;
-    else
-      s = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    let s = seg.shape;
+    // if (seg)
+      // s = seg.shape;
+    // else
+    //   s = findObjectById(shape.geometryObject.geometryParentObjectId1);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id))
       involvedShapes.push(s);
   }
@@ -98,6 +119,10 @@ function addShapeToChildren(parent, child) {
 
 export function linkNewlyCreatedPoint(shape, point) {
   let ref = point.adjustedOn;
+  if (ref?.type == 'grid')
+    return;
+  while (ref && ref instanceof Point && ref.reference)
+    ref = findObjectById(ref.reference);
   if (
     (point.idx == 1
       && (shape.name == 'CircleArc' || shape.name.startsWith('Parallele') || shape.name.startsWith('Perpendicular'))
@@ -463,20 +488,4 @@ export function linkNewlyCreatedPoint(shape, point) {
     addShapeToChildren(newSinglePointShape, shape);
     point.reference = newSinglePointShape.vertexes[0].id;
   }
-  // if (ref) {// = app.mainCanvasLayer.points.filter(pt => pt.shape.id != shape.id).find(pt => pt.coordinates.equal(point.coordinates))) {
-
-
-  //   if (ref instanceof Segment) {
-
-  //     shape.geometryObject.geometryParentObjectId1 = ref;
-
-  //     computeConstructionSpec(shape);
-
-  //     let reference = findObjectById(ref);
-  //     reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-  //     point.ratio = getRatioWithPosition(point, ref);
-  //   }
-  //   addShapeToChildren(ref.shape, shape);
-  //   point.reference = ref.id;
-  // }
 }

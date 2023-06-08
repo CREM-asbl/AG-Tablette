@@ -32,7 +32,8 @@ class AGMain extends LitElement {
       tool: Object,
       colorPickerValue: String,
       iconSize: Number,
-      toolbarSections: Array,
+      // toolbarSections: Array,
+      helpSelected: Boolean,
     };
   }
 
@@ -64,6 +65,12 @@ class AGMain extends LitElement {
 
     this.updateProperties = () => {
       this.iconSize = app.menuIconSize;
+      this.helpSelected = app.helpSelected;
+      // this.toolbarSections = [];
+      // this.renderRoot?.querySelectorAll('toolbar-section')?.forEach(elem => elem.remove());
+      // this.toolbarSections = this.allSections.filter(section =>
+      //   app.tools.findIndex(tool => tool.isVisible && tool.type == section.name) != -1
+      // );
     };
     this.updateProperties();
 
@@ -72,6 +79,14 @@ class AGMain extends LitElement {
     };
 
     window.addEventListener('menuIconSize-changed', this.eventHandler);
+    window.addEventListener('helpSelected-changed', this.eventHandler);
+    // window.addEventListener('tools-changed', this.eventHandler);
+
+    window.addEventListener('helpToolChosen', e => {
+      import('./popups/help-popup');
+      let helpElem = createElem('help-popup');
+      helpElem.toolname = e.detail.toolname;
+    });
   }
 
   static get styles() {
@@ -144,17 +159,9 @@ class AGMain extends LitElement {
     ];
   }
 
-  // updated() {
-  //   if (app.environment?.name == 'Geometrie') {
-  //     this.shadowRoot
-  //       .querySelectorAll('.onlyGrandeurs')
-  //       .forEach((el) => (el.style.display = 'none'));
-  //   }
-  // }
-
   async firstUpdated() {
-    let sectionImport = await import(`./toolbarSectionsDef.js`);
-    this.toolbarSections = sectionImport.default.sections;
+    // let sectionImport = await import(`./toolbarSectionsDef.js`);
+    // this.toolbarSections = sectionImport.default.sections;
     let backgroundColor = rgb2hex(window.getComputedStyle(this.shadowRoot.querySelector('#left-menu'), null).backgroundColor);
     if (!backgroundColor)
       backgroundColor = '#ffffff';
@@ -165,6 +172,12 @@ class AGMain extends LitElement {
       this.textColor = "#ffffff";
     }
     setState({ appLoading: false });
+
+    this.renderRoot.querySelector('#left-menu').addEventListener('touchstart', (event) => {
+      if (event.touches.length > 1) {
+        event.preventDefault();
+      }
+    });
   }
 
   render() {
@@ -176,16 +189,14 @@ class AGMain extends LitElement {
               ? "mode: " + this.tool.title
               : "Sélectionnez une fonctionnalité"}
           </h3>
-          <template-toolbar>
-            <!-- <h2 slot="title">
-              ${'Outils généraux'}
-            </h2> -->
 
+          <template-toolbar>
             <div slot="body">
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="home"
                 title="Accueil"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -193,6 +204,7 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="open"
                 title="Ouvrir"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -200,6 +212,7 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="save"
                 title="Enregistrer"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -207,6 +220,7 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="settings"
                 title="Paramètres"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -215,6 +229,7 @@ class AGMain extends LitElement {
                 name="undo"
                 title="Annuler"
                 ?disabled="${!this.canUndo}"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -223,6 +238,7 @@ class AGMain extends LitElement {
                 name="redo"
                 title="Refaire"
                 ?disabled="${!this.canRedo}"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -230,12 +246,14 @@ class AGMain extends LitElement {
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="replay"
                 title="Rejouer"
+                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="help"
+                ?active="${this.helpSelected}"
                 title="Aide"
                 @click="${this._actionHandle}"
               >
@@ -245,13 +263,31 @@ class AGMain extends LitElement {
 
           <toolbar-kit></toolbar-kit>
 
-          ${this.toolbarSections?.map(section => html`
-            <toolbar-section
-              title="${section.title}"
-              toolsType="${section.name}"
-            >
-            </toolbar-section>
-          `)}
+          <toolbar-section
+            title="Figures libres"
+            toolsType="geometryCreator"
+          >
+          </toolbar-section>
+          <toolbar-section
+            title="Mouvements"
+            toolsType="move"
+          >
+          </toolbar-section>
+          <toolbar-section
+            title="Transformations"
+            toolsType="transformation"
+          >
+          </toolbar-section>
+          <toolbar-section
+            title="Opérations"
+            toolsType="operation"
+          >
+          </toolbar-section>
+          <toolbar-section
+            title="Outils"
+            toolsType="tool"
+          >
+          </toolbar-section>
 
           <!-- <icon-button src="/images/wallpaper.svg"
                               title="Fond d'écran"
@@ -267,7 +303,7 @@ class AGMain extends LitElement {
 
       <input
         id="fileSelector"
-        accept=".${app.environment.extension}"
+        accept="${app.environment.extensions.join(',')}"
         type="file"
         style="display: none"
         @change="${(event) => {
@@ -282,15 +318,17 @@ class AGMain extends LitElement {
     `;
   }
 
-  /**
-   * Main event handler
-   */
   _actionHandle(event) {
     if (app.fullHistory.isRunning) {
       console.info('cannot interact when fullHisto is running');
       return;
     }
     let resetTool = false;
+    if (this.helpSelected) {
+      window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: event.target.name } }));
+      setState({ helpSelected: false });
+      return ;
+    }
     switch (event.target.name) {
       case 'settings':
         import('./popups/settings-popup');
@@ -320,9 +358,8 @@ class AGMain extends LitElement {
         window.dispatchEvent(new CustomEvent('start-browsing'));
         break;
       case 'help':
-        import('./popups/help-popup');
-        createElem('help-popup');
-        window.dispatchEvent(new CustomEvent('get-help-text'));
+        setState({ helpSelected: true });
+        resetTool = true;
         break;
       default:
         console.info(
@@ -334,13 +371,6 @@ class AGMain extends LitElement {
       setState({ tool: null });
     }
   }
-
-  // setState() {
-  //   console.trace('ag-main setState called');
-  //   this.states = [...app.states];
-  //   this.stateName = app.state;
-  //   this.state = this.states.find((st) => st.name == this.stateName);
-  // }
 
   // // Todo: Placer dans un objet BackgroundImage ?
   // loadBackground() {

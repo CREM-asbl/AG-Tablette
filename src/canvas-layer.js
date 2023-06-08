@@ -5,10 +5,12 @@ import { Coordinates } from './Core/Objects/Coordinates';
 import { Point } from './Core/Objects/Point';
 import { Segment } from './Core/Objects/Segment';
 import { ArrowLineShape } from './Core/Objects/Shapes/ArrowLineShape';
+import { CubeShape } from './Core/Objects/Shapes/CubeShape';
 import { LineShape } from './Core/Objects/Shapes/LineShape';
 import { RegularShape } from './Core/Objects/Shapes/RegularShape';
 import { Shape } from './Core/Objects/Shapes/Shape';
 import { SinglePointShape } from './Core/Objects/Shapes/SinglePointShape';
+import { StripLineShape } from './Core/Objects/Shapes/StripLineShape';
 import { capitalizeFirstLetter, createElem, findObjectById } from './Core/Tools/general';
 
 class CanvasLayer extends LitElement {
@@ -108,24 +110,12 @@ class CanvasLayer extends LitElement {
           )
             return;
           this.drawShape(s, scaling);
-          if (this.mustDrawPoints && app.settings.areShapesPointed) {
-            this.points.forEach((pt) => {
-              if (pt.visible && pt.shapeId === s.id) {
-                this.drawPoint(pt, pt.color);
-              }
-            });
-          } else if (this.mustDrawPoints) {
-            this.points.forEach((pt) => {
-              if (
-                pt.visible &&
-                pt.shapeId === s.id &&
-                (pt.type == 'shapeCenter' ||
-                  pt.type == 'divisionPoint' ||
-                  pt.shape.isCircle())
-              ) {
-                this.drawPoint(pt, pt.color);
-              }
-            });
+          if (this.mustDrawPoints) {
+            if (app.environment.name == 'Geometrie') {
+              this.drawGeometryShapePoint(s);
+            } else {
+              this.drawShapePoint(s);
+            }
           }
         }
       });
@@ -133,7 +123,7 @@ class CanvasLayer extends LitElement {
     if (this.mustDrawPoints) {
       this.points.forEach((pt) => {
         if (pt.visible && pt.shapeId === undefined) {
-          this.drawPoint(pt, pt.color);
+          this.drawPoint(pt);
         }
       });
     }
@@ -142,11 +132,68 @@ class CanvasLayer extends LitElement {
     });
   }
 
+  drawGeometryShapePoint(shape) {
+    if (app.settings.areShapesPointed) {
+      shape.points.forEach((pt) => {
+        if (pt.visible) {
+          this.drawPoint(pt);
+        }
+      });
+    } else if (shape instanceof SinglePointShape) {
+      if (!shape.geometryObject.geometryPointOnTheFlyChildId) {
+        this.drawPoint(shape.points[0]);
+      }
+    } else {
+      shape.points.forEach((pt) => {
+        if (
+          pt.visible &&
+          (
+            pt.type == 'shapeCenter' ||
+            pt.type == 'divisionPoint'// ||
+            // pt.shape.isCircle()
+          )
+        ) {
+          this.drawPoint(pt);
+        }
+      });
+    }
+  }
+
+  drawShapePoint(shape) {
+    if (app.settings.areShapesPointed) {
+      shape.points.forEach((pt) => {
+        if (pt.visible) {
+          this.drawPoint(pt);
+        }
+      });
+    } else {
+      shape.points.forEach((pt) => {
+        if (
+          pt.visible &&
+          (pt.type == 'shapeCenter' ||
+            pt.type == 'divisionPoint' ||
+            pt.shape.isCircle())
+        ) {
+          this.drawPoint(pt);
+        }
+      });
+    }
+  }
+
   toSVG() {
     let svg_data = '';
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
+          if (s.geometryObject &&
+            (
+              s.geometryObject.geometryIsVisible === false ||
+              s.geometryObject.geometryIsHidden === true ||
+              s.geometryObject.geometryIsConstaintDraw === true
+            )
+          ) {
+            return;
+          }
           svg_data += s.toSVG();
           if (this.mustDrawPoints && app.settings.areShapesPointed) {
             this.points.forEach((pt) => {
@@ -204,16 +251,23 @@ class CanvasLayer extends LitElement {
     this.removeAllObjects();
     if (data != undefined) {
       data.shapesData.forEach((shapeData) => {
+        if (isFinite(shapeData.indexOfReference)) {
+          shapeData = app.history.steps[shapeData.indexOfReference].objects.shapesData.find(s => s.id == shapeData.id);
+        }
         if (shapeData.type == 'Shape')
           Shape.loadFromData(shapeData);
         else if (shapeData.type == 'RegularShape')
           RegularShape.loadFromData(shapeData);
+        else if (shapeData.type == 'CubeShape')
+          CubeShape.loadFromData(shapeData);
         else if (shapeData.type == 'LineShape')
           LineShape.loadFromData(shapeData);
         else if (shapeData.type == 'SinglePointShape')
           SinglePointShape.loadFromData(shapeData);
         else if (shapeData.type == 'ArrowLineShape')
           ArrowLineShape.loadFromData(shapeData);
+        else if (shapeData.type == 'StripLineShape')
+          StripLineShape.loadFromData(shapeData);
         else {
           shapeData.fillColor = shapeData.color;
           shapeData.fillOpacity = parseFloat(shapeData.opacity);
@@ -226,10 +280,18 @@ class CanvasLayer extends LitElement {
           }
         }
       });
-      data.segmentsData.forEach((segmentData) =>
-        Segment.loadFromData(segmentData),
-      );
-      data.pointsData.forEach((pointData) => Point.loadFromData(pointData));
+      data.segmentsData.forEach((segmentData) => {
+        if (isFinite(segmentData.indexOfReference)) {
+          segmentData = app.history.steps[segmentData.indexOfReference].objects.segmentsData.find(seg => seg.id == segmentData.id);
+        }
+        Segment.loadFromData(segmentData);
+      });
+      data.pointsData.forEach((pointData) => {
+        if (isFinite(pointData.indexOfReference)) {
+          pointData = app.history.steps[pointData.indexOfReference].objects.pointsData.find(pt => pt.id == pointData.id);
+        }
+        Point.loadFromData(pointData);
+      });
       this.redraw();
     } else {
       console.info('nothing to see here');
@@ -252,14 +314,14 @@ class CanvasLayer extends LitElement {
 
     if (this.canvasName == 'upper') {
       this.createListeners();
-      window.addEventListener('tool-changed', () => {
+      window.addEventListener('tool-updated', () => {
         this.redraw();
       });
     } else if (this.canvasName == 'main') {
       window.addEventListener('refresh', () => {
         this.redraw();
       });
-      window.addEventListener('tool-changed', () => {
+      window.addEventListener('tool-updated', () => {
         this.redraw();
       });
     } else if (this.canvasName == 'grid') {
@@ -324,11 +386,28 @@ class CanvasLayer extends LitElement {
     this.canvas.addEventListener('mousedown', (event) => {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
+
+      let mustExitFunction = false;
+
+      if (app.workspace.lastKnownMouseClickTime && app.workspace.lastKnownMouseClickTime > event.timeStamp - 100 && app.workspace.lastKnownMouseClickCoordinates.dist(mousePos) < 5) {
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Double clic détecté, le deuxième clic n\'a pas été pris en compte.' } }));
+        mustExitFunction = true;
+      }
+
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', {
           detail: { mousePos: mousePos },
         }),
       );
+      window.dispatchEvent(
+        new CustomEvent('mouse-click-changed', {
+          detail: { mousePos: mousePos },
+        }),
+      );
+
+      if (mustExitFunction)
+        return;
+
       if (
         app.listenerCounter.objectSelected &&
         'mousedown' == app.workspace.selectionConstraints.eventType
@@ -399,15 +478,10 @@ class CanvasLayer extends LitElement {
       app.dispatchEv(new CustomEvent('canvasMouseWheel', { detail: detail }));
     }
 
-    // this.canvas.addEventListener('mousewheel', (event) => {
-    //   event.preventDefault();
-    //   handleWheel(event);
-    // });
     this.canvas.addEventListener('wheel', (event) => {
       event.preventDefault();
       handleWheel(event);
     });
-
 
     this.canvas.addEventListener('touchstart', (event) => {
       event.preventDefault();
@@ -434,6 +508,8 @@ class CanvasLayer extends LitElement {
           }),
         );
       }
+      this.pressPositionForLongPress = mousePos;
+      this.pressTimeoutId = window.setTimeout(() => app.dispatchEv(new CustomEvent('canvasLongPress')), 1000);
       app.dispatchEv(new CustomEvent('canvasMouseDown'));
       app.dispatchEv(new CustomEvent('canvasTouchStart', { detail: detail }));
     });
@@ -459,10 +535,13 @@ class CanvasLayer extends LitElement {
         );
       }
       if (this.isOutsideOfCanvas(mousePos)) {
+        window.clearTimeout(this.pressTimeoutId);
         app.dispatchEv(new CustomEvent('canvasMouseUp'));
         app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
         return;
       }
+      if (this.pressPositionForLongPress?.dist(mousePos) > 20)
+        window.clearTimeout(this.pressTimeoutId);
       app.dispatchEv(new CustomEvent('canvasMouseMove'));
       app.dispatchEv(new CustomEvent('canvasTouchMove', { detail: detail }));
     });
@@ -492,6 +571,7 @@ class CanvasLayer extends LitElement {
           }),
         );
       }
+      window.clearTimeout(this.pressTimeoutId);
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
       app.dispatchEv(new CustomEvent('canvasClick'));
       app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
@@ -522,6 +602,7 @@ class CanvasLayer extends LitElement {
           }),
         );
       }
+      window.clearTimeout(this.pressTimeoutId);
       app.dispatchEv(new CustomEvent('canvasMouseUp'));
       app.dispatchEv(new CustomEvent('canvasClick'));
       app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
@@ -653,8 +734,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += 50 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });
@@ -671,8 +751,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += approx * 2 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });
@@ -687,8 +766,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += approx * 2 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });
@@ -705,8 +783,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += 50 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });
@@ -721,8 +798,7 @@ class CanvasLayer extends LitElement {
         for (let y = startY; y <= maxCoord.y; y += 50 * size) {
           new Point({
             layer: 'grid',
-            x,
-            y,
+            coordinates: new Coordinates({ x, y }),
             color: '#F00',
             size: 1.5,
           });
@@ -848,12 +924,12 @@ class CanvasLayer extends LitElement {
     this.ctx.setLineDash([]);
   }
 
-  drawPoint(point, color = '#000', doSave = true) {
-    if (point.geometryIsVisible === false)
+  drawPoint(point, justForAgrumentCount, doSave = true) {
+    if (point.geometryIsVisible === false || point.geometryIsHidden === true)
       return;
     if (doSave) this.ctx.save();
 
-    this.ctx.fillStyle = color;
+    this.ctx.fillStyle = point.color;
     this.ctx.globalAlpha = 1;
 
     const canvasCoodinates = point.coordinates.toCanvasCoordinates();

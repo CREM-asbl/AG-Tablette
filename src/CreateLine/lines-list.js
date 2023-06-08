@@ -14,8 +14,8 @@ class LinesList extends LitElement {
       'StraightLine',
       'ParalleleStraightLine',
       'PerpendicularStraightLine',
+      'Strip',
       'Vector',
-      // 'Strip',
     ];
 
     this.lineTitle = {
@@ -28,6 +28,7 @@ class LinesList extends LitElement {
       'StraightLine': 'Droite',
       'ParalleleStraightLine': 'Droite parallèle',
       'PerpendicularStraightLine': 'Droite perpendiculaire',
+      'Strip': 'Bande',
       'Vector': 'Vecteur',
     }
 
@@ -43,10 +44,10 @@ class LinesList extends LitElement {
     };
     this.close = () => {
       this.remove();
-      window.removeEventListener('tool-changed', this.eventHandler);
+      window.removeEventListener('tool-updated', this.eventHandler);
     };
 
-    window.addEventListener('tool-changed', this.eventHandler);
+    window.addEventListener('tool-updated', this.eventHandler);
     window.addEventListener('menuIconSize-changed', this.eventHandler);
   }
 

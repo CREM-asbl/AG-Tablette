@@ -4,6 +4,15 @@ import './icon-button';
 import { TemplateToolbar } from './template-toolbar';
 
 class ToolbarSection extends LitElement {
+  static get properties() {
+    return {
+      title: { type: String },
+      toolsType: { type: String },
+      tools: { type: Array },
+      helpSelected: { type: Boolean },
+    };
+  }
+
   constructor() {
     super();
 
@@ -14,6 +23,7 @@ class ToolbarSection extends LitElement {
       ).filter(
         (tool) => tool.isVisible,
       );
+      this.helpSelected = app.helpSelected;
     };
     this.updateProperties();
 
@@ -22,16 +32,9 @@ class ToolbarSection extends LitElement {
     };
 
     window.addEventListener('menuIconSize-changed', this.eventHandler);
+    window.addEventListener('helpSelected-changed', this.eventHandler);
     window.addEventListener('tool-changed', this.eventHandler);
     window.addEventListener('tools-changed', this.eventHandler);
-  }
-
-  static get properties() {
-    return {
-      title: { type: String },
-      toolsType: { type: String },
-      tools: { type: Array },
-    };
   }
 
   static get styles() {
@@ -39,6 +42,9 @@ class ToolbarSection extends LitElement {
   }
 
   render() {
+    if (this.tools[0]?.name == 'create') {
+      setTimeout(() => this.updateProperties(), 100);
+    }
     if (!app.menuIconSize)
       setState({ menuIconSize: (this.offsetWidth - 22) / 4 });
     if (!this.tools.length) return html``;
@@ -54,6 +60,8 @@ class ToolbarSection extends LitElement {
                 type="State"
                 title="${tool.title}"
                 ?active="${tool.name === app.tool?.name}"
+                ?helpanimation="${this.helpSelected}"
+                cantInteract="${this.helpSelected}"
                 @click="${this._actionHandle}"
               ></icon-button>
             `
@@ -64,7 +72,10 @@ class ToolbarSection extends LitElement {
   }
 
   _actionHandle(event) {
-    if (!app.fullHistory.isRunning) {
+    if (app.helpSelected) {
+      window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: event.target.name } }));
+      setState({ helpSelected: false });
+    } else if (!app.fullHistory.isRunning) {
       setState({ tool: { name: event.target.name, currentStep: 'start' } });
     }
   }

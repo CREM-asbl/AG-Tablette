@@ -1,6 +1,5 @@
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { Settings } from '../Core/Settings';
 import { createElem } from '../Core/Tools/general';
 import '../version-item';
 import { TemplatePopup } from './template-popup';
@@ -8,7 +7,7 @@ import { TemplatePopup } from './template-popup';
 class SettingsPopup extends LitElement {
   static get properties() {
     return {
-      settings: Settings,
+      settings: { type: Array },
     };
   }
 
@@ -32,13 +31,6 @@ class SettingsPopup extends LitElement {
         }
       `,
     ];
-  }
-
-  updated() {
-    window.setTimeout(
-      () => this.shadowRoot.querySelector('#focus').focus(),
-      200,
-    );
   }
 
   render() {
@@ -131,7 +123,7 @@ class SettingsPopup extends LitElement {
           <div slot="footer">
             <version-item></version-item>
             <color-button @click="${() => app.resetSettings()}" innerText="Paramètres par défaut"></color-button>
-            <color-button id="focus" @click="${this.close}" innerText="OK"></color-button>
+            <color-button @click="${this.close}" innerText="OK"></color-button>
           </div>
         </div>
       </template-popup>
