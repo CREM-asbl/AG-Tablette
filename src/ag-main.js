@@ -82,6 +82,21 @@ class AGMain extends LitElement {
     window.addEventListener('helpSelected-changed', this.eventHandler);
     // window.addEventListener('tools-changed', this.eventHandler);
 
+    let preventZoom = (e) => {
+      var t2 = e.timeStamp;
+      var t1 = e.currentTarget.dataset.lastTouch || t2;
+      var dt = t2 - t1;
+      var fingers = e.touches.length;
+      e.currentTarget.dataset.lastTouch = t2;
+
+      if (!dt || dt > 500 || fingers > 1) return; // not double-tap
+      e.currentTarget.dataset.lastTouch = null;
+
+      e.preventDefault();
+    }
+
+    this.addEventListener('touchstart', preventZoom);
+
     window.addEventListener('helpToolChosen', e => {
       import('./popups/help-popup');
       let helpElem = createElem('help-popup');
@@ -119,6 +134,9 @@ class AGMain extends LitElement {
           /* scrollbar-width: none; Firefox */
           overflow-y: scroll;
           overflow-x: hidden;
+
+          touch-action: none;
+          -ms-touch-action: manipulation;
         }
 
         /* scrollbar hidden */

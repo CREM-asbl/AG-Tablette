@@ -84,6 +84,9 @@ class CanvasLayer extends LitElement {
   }
 
   redraw() {
+    if (Date.now() - this.lastUse < 16)
+    return;
+    this.lastUse = Date.now();
     this.clear();
     this.texts.forEach((text) => text.updateMessage());
 
