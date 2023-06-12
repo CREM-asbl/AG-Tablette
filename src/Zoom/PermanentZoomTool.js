@@ -193,6 +193,7 @@ export class PermanentZoomTool extends Tool {
           currentStep = 'selectObject';
         }
         setState({ tool: { ...this.previousUsedTool, currentStep } });
+        window.dispatchEvent(new CustomEvent('tool-changed'));
       }
     }, 300);
   }
