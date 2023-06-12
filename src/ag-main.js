@@ -66,11 +66,6 @@ class AGMain extends LitElement {
     this.updateProperties = () => {
       this.iconSize = app.menuIconSize;
       this.helpSelected = app.helpSelected;
-      // this.toolbarSections = [];
-      // this.renderRoot?.querySelectorAll('toolbar-section')?.forEach(elem => elem.remove());
-      // this.toolbarSections = this.allSections.filter(section =>
-      //   app.tools.findIndex(tool => tool.isVisible && tool.type == section.name) != -1
-      // );
     };
     this.updateProperties();
 

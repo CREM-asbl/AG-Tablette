@@ -16,9 +16,9 @@ window.addEventListener('new-window', () => {
 const tangramStart = () => {
   setTimeout(() => {
     let tool = app.tools.find(tool => tool.name == 'translate');
-    tool.isVisible = false;
+    tool.isDisable = true;
     tool = app.tools.find(tool => tool.name == 'color');
-    tool.isVisible = false;
+    tool.isDisable = true;
 
     setState({
       tools: [...app.tools],

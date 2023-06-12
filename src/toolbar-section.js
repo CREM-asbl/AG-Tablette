@@ -21,7 +21,7 @@ class ToolbarSection extends LitElement {
       this.tools = app.tools.filter(
         (tool) => tool.type === this.toolsType,
       ).filter(
-        (tool) => tool.isVisible,
+        (tool) => tool.isVisible && !tool.isDisable,
       );
       this.helpSelected = app.helpSelected;
     };

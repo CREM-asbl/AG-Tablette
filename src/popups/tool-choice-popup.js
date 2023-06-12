@@ -85,7 +85,7 @@ class ToolChoicePopup extends LitElement {
                   ></icon-button>
                 `
               )}
-              ${this.tools.filter(tool => tool.isVisible).map(
+              ${this.tools.filter(tool => tool.isVisible && !tool.isDisable).map(
                 (tool) => html`
                   <icon-button
                     style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
@@ -116,7 +116,7 @@ class ToolChoicePopup extends LitElement {
                   ></icon-button>
                 `
               )}
-              ${this.tools.filter(tool => !tool.isVisible).map(
+              ${this.tools.filter(tool => !tool.isVisible && !tool.isDisable).map(
                 (tool) => html`
                   <icon-button
                     style="width: ${this.iconSize}px; height: ${this.iconSize}px;"

@@ -18,9 +18,9 @@ export class SilhouetteCreatorTool extends Tool {
     this.removeListeners();
 
     let tool = app.tools.find(tool => tool.name == 'translate');
-    tool.isVisible = true;
+    tool.isDisable = false;
     tool = app.tools.find(tool => tool.name == 'color');
-    tool.isVisible = false;
+    tool.isDisable = true;
 
     setState({ tools: app.tools });
 
