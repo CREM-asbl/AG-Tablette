@@ -137,9 +137,9 @@ class AgEnvironnements extends LitElement {
         <div class="textTop envText" name="Geometrie">
           Géométrie
         </div>
-        <div class="watermark rotate">
+        <!-- <div class="watermark rotate">
           En développement
-        </div>
+        </div> -->
       </div>
       <div class="logo-wrapper">
         <img
@@ -152,10 +152,10 @@ class AgEnvironnements extends LitElement {
   }
 
   async handleClick(e) {
-    if (e == 'Geometrie') {
-      console.log('Geometrie not supported here');
-      return;
-    }
+    // if (e == 'Geometrie') {
+    //   console.log('Geometrie not supported here');
+    //   return;
+    // }
     setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(e) });
   }
