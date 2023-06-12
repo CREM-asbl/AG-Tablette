@@ -11,7 +11,7 @@ class StartPopup extends LitElement {
   constructor() {
     super();
 
-    window.addEventListener('close-popup', () => this.close());
+    // window.addEventListener('close-popup', () => this.close());
   }
 
   static get styles() {
@@ -29,6 +29,8 @@ class StartPopup extends LitElement {
   render() {
     return html`
       <template-popup>
+        <div slot="close" style='display: none;'>
+        </div>
         <h2 slot="title">Bienvenue dans la partie Tangram</h2>
         <div slot="body">
           Que souhaitez-vous faire ?

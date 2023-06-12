@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
 import { getPerformance } from "firebase/performance";
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
-import { setState } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { loadEnvironnement } from '../Core/Environments/Environment';
 import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import config from './firebase-config.json';
@@ -43,6 +43,7 @@ export async function getFileDocFromFilename(id) {
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
+    app.fileFromServer = true;
     return {id, ...docSnap.data()};
   } else {
     // doc.data() will be undefined in this case

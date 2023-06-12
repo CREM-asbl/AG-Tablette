@@ -140,6 +140,10 @@ export class TemplatePopup extends LitElement {
         display: grid;
         text-align: right;
       }
+
+      // #popup-close {
+      //   display: none;
+      // }
     `;
   }
 
@@ -159,12 +163,13 @@ export class TemplatePopup extends LitElement {
     return html`
       <div class="background" style="padding-bottom: ${this.popupHeight}px;">
         <div id="template-view">
-          <div
+          <slot
             id="popup-close"
+            name="close"
             @click="${() => window.dispatchEvent(new Event('close-popup'))}"
           >
             &times;
-          </div>
+          </slot>
 
           <slot name="title"></slot>
 
