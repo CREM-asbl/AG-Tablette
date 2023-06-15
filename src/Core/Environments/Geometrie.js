@@ -1,13 +1,13 @@
 export default {
   name: 'Geometrie',
   modules: [
+    'CreatePoint',
+    'CreateLine',
     'CreateTriangle',
     'CreateQuadrilateral',
     'CreateRegular',
     'CreateIrregular',
     'CreateCircle',
-    'CreateLine',
-    'CreatePoint',
     'Move',
     'Rotate',
     'Reverse',

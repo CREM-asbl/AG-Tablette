@@ -16,7 +16,7 @@ import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
  */
 export class CreatePointTool extends Tool {
   constructor() {
-    super('createPoint', 'Dessiner un point', 'geometryCreator');
+    super('createPoint', 'Construire un point', 'geometryCreator');
 
     // show-lines -> select-reference -> select-points
     this.currentStep = null;

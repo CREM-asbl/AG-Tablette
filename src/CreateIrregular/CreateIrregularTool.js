@@ -16,7 +16,7 @@ export class CreateIrregularTool extends Tool {
   constructor() {
     super(
       'createIrregularPolygon',
-      'Dessiner un polygone irrégulier',
+      'Construire un polygone irrégulier',
       'geometryCreator',
     );
 

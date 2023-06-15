@@ -65,10 +65,10 @@ class RegularPopup extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Dessiner un polygone régulier</h2>
+        <h2 slot="title">Construire un polygone régulier</h2>
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts"
-            >Dessiner un polygone à ${this.points} cotés
+            >Construire un polygone à ${this.points} cotés
           </label>
           <div id="hello">
             <div class="clickable" @click="${this.decrementNumberOfPoints}">

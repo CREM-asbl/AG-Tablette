@@ -17,7 +17,7 @@ export class CreateRegularTool extends Tool {
   constructor() {
     super(
       'createRegularPolygon',
-      'Dessiner un polygone régulier',
+      'Construire un polygone régulier',
       'geometryCreator',
     );
 

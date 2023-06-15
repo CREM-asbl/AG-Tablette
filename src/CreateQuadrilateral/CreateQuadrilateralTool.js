@@ -16,7 +16,7 @@ import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
  */
 export class CreateQuadrilateralTool extends Tool {
   constructor() {
-    super('createQuadrilateral', 'Dessiner un quadrilatère', 'geometryCreator');
+    super('createQuadrilateral', 'Construire un quadrilatère', 'geometryCreator');
 
     // show-quadrilaterals -> select-points
     this.currentStep = null;

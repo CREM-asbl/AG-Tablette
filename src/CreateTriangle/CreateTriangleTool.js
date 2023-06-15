@@ -16,7 +16,7 @@ import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
  */
 export class CreateTriangleTool extends Tool {
   constructor() {
-    super('createTriangle', 'Dessiner un triangle', 'geometryCreator');
+    super('createTriangle', 'Construire un triangle', 'geometryCreator');
 
     // show-triangles -> select-points
     this.currentStep = null;

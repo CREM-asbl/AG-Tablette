@@ -20,7 +20,7 @@ import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
  */
 export class CreateCircleTool extends Tool {
   constructor() {
-    super('createCircle', 'Dessiner un cercle', 'geometryCreator');
+    super('createCircle', 'Construire un arc', 'geometryCreator');
 
     // show-quadrilaterals -> select-points -> select-direction
     this.currentStep = null;
