@@ -54,7 +54,7 @@ export class OrthogonalSymetryTool extends Tool {
       shapesToDelete.forEach(s => removeObjectById(s.id));
     }
 
-    this.setSelectionConstraints();
+    // this.setSelectionConstraints();
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
@@ -328,42 +328,10 @@ export class OrthogonalSymetryTool extends Tool {
         }
       });
     }
-    // if (this.firstReference instanceof Point && this.firstReference.layer == 'upper') {
-    //   let coord = this.firstReference.coordinates;
-    //   this.firstReference = new SinglePointShape({
-    //     layer: 'main',
-    //     path: `M ${coord.x} ${coord.y}`,
-    //     name: 'Point',
-    //     familyName: 'Point',
-    //     geometryObject: new GeometryObject({}),
-    //   }).points[0];
-    // }
-    // if (this.firstReference instanceof Point && this.secondReference.layer == 'upper') {
-    //   let coord = this.secondReference.coordinates;
-    //   this.secondReference = new SinglePointShape({
-    //     layer: 'main',
-    //     path: `M ${coord.x} ${coord.y}`,
-    //     name: 'Point',
-    //     familyName: 'Point',
-    //     geometryObject: new GeometryObject({}),
-    //   }).points[0];
-    // }
 
     if (!this.lastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
       this.lastCharacteristicElements.push(this.characteristicElements);
     }
-
-    // if (this.firstReference.layer != 'upper') {
-    //   let referenceIds;
-    //   if (this.firstReference instanceof Segment) {
-    //     referenceIds = [this.firstReference.points[0].id, this.firstReference.points[1].id];
-    //   } else {
-    //     referenceIds = [this.firstReference.id, this.secondReference.id];
-    //   }
-    //   if (!this.lastCharacteristicElements.find(elIds => elIds[0] == referenceIds[0] && elIds[1] == referenceIds[1])) {
-    //     this.lastCharacteristicElements.push(referenceIds);
-    //   }
-    // }
 
     let selectedAxis = this.referenceShape.segments[0];
 
@@ -393,22 +361,14 @@ export class OrthogonalSymetryTool extends Tool {
           geometryIsConstaintDraw: s.geometryObject.geometryIsConstaintDraw,
         }),
       });
-      // if (this.secondReference)
-      //   newShape.geometryObject.geometryTransformationCharacteristicElementIds.push(this.secondReference.id);
+
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      // if (newShape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-      //   let ref = findObjectById(newShape.geometryObject.geometryTransformationCharacteristicElementIds[0]);
-      //   if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
-      //     ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      //   }
-      // } else {
       newShape.geometryObject.geometryTransformationCharacteristicElements.elementIds.forEach(refId => {
         let ref = findObjectById(refId);
         if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
       });
-      // }
       this.reverseShape(newShape, selectedAxis);
       newShape.points.forEach((pt, idx) => {
         pt.geometryIsVisible = s.points[idx].geometryIsVisible;
@@ -463,7 +423,7 @@ export class OrthogonalSymetryTool extends Tool {
           path: `M ${coordinates[0].x} ${coordinates[0].y} L ${coordinates[1].x} ${coordinates[1].y}`,
           name: 'StraightLine',
           familyName: 'Line',
-          strokeColor: app.settings.referenceDrawColor,
+          strokeColor: app.settings.referenceDrawColor2,
           strokeWidth: 2,
           geometryObject: new GeometryObject({
             geometryIsCharacteristicElements: true,
@@ -480,15 +440,16 @@ export class OrthogonalSymetryTool extends Tool {
           path: `M ${firstPoint.coordinates.x} ${firstPoint.coordinates.y} L ${secondPoint.coordinates.x} ${secondPoint.coordinates.y}`,
           name: 'StraightLine',
           familyName: 'Line',
-          strokeColor: app.settings.referenceDrawColor,
+          strokeColor: app.settings.referenceDrawColor2,
+          strokeWidth: 2,
           geometryObject: new GeometryObject({
             geometryIsCharacteristicElements: true,
             geometryTransformationCharacteristicElements: characteristicElement,
           }),
         });
-        shape.points[0].color = app.settings.referenceDrawColor;
+        shape.points[0].color = app.settings.referenceDrawColor2;
         shape.points[0].size = 2;
-        shape.points[1].color = app.settings.referenceDrawColor;
+        shape.points[1].color = app.settings.referenceDrawColor2;
         shape.points[1].size = 2;
       }
     })

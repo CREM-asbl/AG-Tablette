@@ -431,29 +431,35 @@ function computeTransformShape(shape) {
     shape.rotate(Math.PI, center);
   } else if (shape.geometryObject.geometryTransformationName == 'translation') {
     let pts;
-    if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 1) {
-      pts = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0]).points;
+    if (shape.geometryObject.geometryTransformationCharacteristicElements.type == 'vector') {
+      pts = shape.geometryObject.geometryTransformationCharacteristicElements.firstElement.points;
     } else {
-      pts = shape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-        findObjectById(refId)
-      );
+      pts = shape.geometryObject.geometryTransformationCharacteristicElements.elements;
     }
     shape.translate(pts[1].coordinates.substract(pts[0].coordinates));
   } else if (shape.geometryObject.geometryTransformationName == 'rotation') {
-    let angle;
+    // let angle;
     let pts;
-    if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) {
-      let arc = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[1])
-      angle = arc.arcCenter.coordinates.angleWith(arc.vertexes[0].coordinates) - arc.arcCenter.coordinates.angleWith(arc.vertexes[1].coordinates);
-      pts = [findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0])];
+
+    let rotationCenter = shape.geometryObject.geometryTransformationCharacteristicElements.firstElement;
+    if (shape.geometryObject.geometryTransformationCharacteristicElements.type == 'arc') {
+      let arc = shape.geometryObject.geometryTransformationCharacteristicElements.secondElement;
+      pts = [...arc.vertexes, arc.arcCenter];
     } else {
-      pts = shape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
-        findObjectById(refId)
-      );
-      angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[3].coordinates);
+      pts = shape.geometryObject.geometryTransformationCharacteristicElements.elements.slice(1);
     }
-    angle *= -1;
-    shape.rotate(angle, pts[0].coordinates);
+    let angle = pts[2].coordinates.angleWith(pts[1].coordinates) - pts[2].coordinates.angleWith(pts[0].coordinates);
+
+    // if (shape.geometryObject.geometryTransformationCharacteristicElementIds.length == 2) {
+    //   let arc = findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[1])
+    //   pts = [findObjectById(shape.geometryObject.geometryTransformationCharacteristicElementIds[0])];
+    // } else {
+    //   pts = shape.geometryObject.geometryTransformationCharacteristicElementIds.map(refId =>
+    //     findObjectById(refId)
+    //   );
+    // }
+    // angle *= -1;
+    shape.rotate(angle, rotationCenter.coordinates);
   }
   if (shape.name == 'PointOnLine') {
     let firstSeg = findObjectById(shape.geometryObject.geometryParentObjectId1);

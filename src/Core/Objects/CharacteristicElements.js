@@ -7,13 +7,15 @@ export class CharacteristicElements {
   constructor({
     type = '',
     elementIds = [],
+    clockwise = false,
   }) {
     this.type = type;
     this.elementIds = [...elementIds];
+    this.clockwise = clockwise;
   }
 
   equal(characteristicElements) {
-    if (this.type == characteristicElements.type) {
+    if (this.type == characteristicElements.type && this.clockwise == characteristicElements.clockwise) {
       if (this.elementIds.length == characteristicElements.elementIds.length && this.elementIds.every((elem, index) => elem === characteristicElements.elementIds[index])) {
         return true;
       }

@@ -299,7 +299,7 @@ export class SelectManager {
     }
 
     if (constraints.canSelectFromUpper)
-      allSegments.push(...app.upperCanvasLayer.segments);
+      allSegments = [...app.upperCanvasLayer.segments, ...allSegments];
     allSegments.forEach((seg) => {
       const projection = seg.projectionOnSegment(mouseCoordinates);
       if (

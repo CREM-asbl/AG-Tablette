@@ -270,7 +270,7 @@ export class CentralSymetryTool extends Tool {
           geometryTransformationCharacteristicElements: characteristicElement,
         }),
       })
-      shape.points[0].color = app.settings.referenceDrawColor;
+      shape.points[0].color = app.settings.referenceDrawColor2;
       shape.points[0].size = 2;
     })
   }
