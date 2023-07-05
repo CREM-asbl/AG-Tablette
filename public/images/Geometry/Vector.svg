@@ -4,6 +4,7 @@
 <style type="text/css">
 	.st0 {
     fill:#fff0;
+    fill-opacity:0;
     stroke:#000;
     stroke-miterlimit:10;
     stroke-width:7px;

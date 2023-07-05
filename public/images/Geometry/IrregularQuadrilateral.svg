@@ -4,6 +4,7 @@
 <style type="text/css">
 	path {
     fill:#fff0;
+    fill-opacity:0;
     stroke:#000;
     stroke-width:5;
     stroke-miterlimit:10;
