@@ -92,7 +92,6 @@ export class RotationTool extends Tool {
       if (s.geometryObject?.geometryIsCharacteristicElements)
         shapesToDelete.push(s);
     });
-    // console.log(shapesToDelete)
     shapesToDelete.forEach(s => removeObjectById(s.id));
 
     this.setSelectionConstraints();
@@ -181,7 +180,6 @@ export class RotationTool extends Tool {
         this.angle *= -1;
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject', referenceShapeId: referenceShape.id } });
         this.characteristicElements.elementIds[0] = firstElementId;
-        console.log(this.characteristicElements);
         return;
       }
     }
@@ -552,7 +550,6 @@ export class RotationTool extends Tool {
           let arc = findObjectById(characteristicElement.elementIds[1]);
           points = [...arc.vertexes, arc.arcCenter];
         } else {
-          console.log(characteristicElement);
           points = characteristicElement.elements.slice(1);
           // shape.points[0].color = app.settings.referenceDrawColor;
           // shape.points[0].size = 2;

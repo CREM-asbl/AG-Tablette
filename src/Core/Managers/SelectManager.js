@@ -128,8 +128,6 @@ export class SelectManager {
   ) {
     if (!constraints.canSelect) return null;
 
-    // console.log('in select : ', constraints);
-
     let distCheckFunction = easySelection
       ? SelectManager.areCoordinatesInSelectionDistance
       : SelectManager.areCoordinatesInMagnetismDistance;
@@ -240,8 +238,6 @@ export class SelectManager {
     if (constraints.numberOfObjects == "allInDistance") {
       return constrainedPoints;
     }
-
-    // console.log(constrainedPoints);
 
     // let notHiddenPoints = constrainedPoints;
     constrainedPoints.forEach(pt => pt.isBehindShape = false);
@@ -470,8 +466,6 @@ export class SelectManager {
       console.error('Bad constr.priority value!');
       return null;
     }
-
-    // console.log(constr);
 
     for (let i = 0; i < constr.priority.length; i++) {
       let f = calls[constr.priority[i]],

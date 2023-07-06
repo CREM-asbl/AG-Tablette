@@ -150,6 +150,7 @@ export class TransformTool extends Tool {
     this.tree =  {
       [startShapeId]: {
         parents: [],
+        children: [],
         isDone: 0,
       },
     }
@@ -270,6 +271,7 @@ export class TransformTool extends Tool {
         tree[dependenciesId] = {
           isDone: 0,
           parents: [currentShapeId],
+          children: [],
         }
     });
     tree[currentShapeId].children = dependenciesIds;
