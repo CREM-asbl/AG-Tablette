@@ -552,6 +552,7 @@ export class RotationTool extends Tool {
           let arc = findObjectById(characteristicElement.elementIds[1]);
           points = [...arc.vertexes, arc.arcCenter];
         } else {
+          console.log(characteristicElement);
           points = characteristicElement.elements.slice(1);
           // shape.points[0].color = app.settings.referenceDrawColor;
           // shape.points[0].size = 2;
@@ -592,7 +593,7 @@ export class RotationTool extends Tool {
           idx: 0,
           vertexIds: [firstVertex.id, secondVertex.id],
           arcCenterId: arcCenter.id,
-          counterclockwise: characteristicElement.counterclockwise,
+          counterclockwise: !characteristicElement.clockwise,
         });
         let shapeCenter = new Point({
           coordinates: points[2].coordinates,
