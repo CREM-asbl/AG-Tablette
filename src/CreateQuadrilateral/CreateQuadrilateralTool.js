@@ -80,9 +80,6 @@ export class CreateQuadrilateralTool extends Tool {
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
-  /**
-   * stopper l'état
-   */
   end() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();

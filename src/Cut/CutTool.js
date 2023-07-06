@@ -633,8 +633,9 @@ export class CutTool extends Tool {
           console.info('no parent vertex for ', vertex);
         } else {
           vertex.reference = parentVertex.id;
-          if (!parentVertex.shape.geometryObject.geometryChildShapeIds.find(childId => childId == shape1Hidden.id))
+          if (!parentVertex.shape.geometryObject.geometryChildShapeIds.find(childId => childId == shape1Hidden.id)) {
             parentVertex.shape.geometryObject.geometryChildShapeIds.push(shape1Hidden.id);
+          }
         }
       });
 
