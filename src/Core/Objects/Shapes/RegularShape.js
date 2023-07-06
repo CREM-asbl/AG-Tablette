@@ -1,5 +1,6 @@
+import { deleteChildren } from '../../../GeometryTools/deleteShape';
 import { app } from '../../App';
-import { getComplementaryColor, mod, removeObjectById } from '../../Tools/general';
+import { findObjectById, getComplementaryColor, mod, removeObjectById } from '../../Tools/general';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
 import { Point } from '../Point';
@@ -109,7 +110,33 @@ export class RegularShape extends Shape {
         // visible: this.isPointed,
       });
     } else if (!value && this.isCenterShown) {
-      let pointId = this.points.find((pt) => pt.type == 'shapeCenter').id;
+      let point = this.points.find((pt) => pt.type == 'shapeCenter');
+      if (app.environment.name == 'Geometrie' && point.layer == 'main') {
+        let shapesToDelete = [];
+        this.geometryObject.geometryChildShapeIds.forEach(sId => {
+          let s = findObjectById(sId);
+          if (s && s.points.some(pt => pt.reference == point.id)) {
+            shapesToDelete.push(s);
+          }
+        });
+        shapesToDelete.forEach((s) => {
+          if (app.environment.name == 'Geometrie')
+            deleteChildren(s);
+          removeObjectById(s.id);
+        });
+        for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
+          let s = app.mainCanvasLayer.shapes[i];
+          s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
+            if (pt.reference && !findObjectById(pt.reference))
+              pt.reference = null;
+          });
+          if (s.geometryObject.geometryPointOnTheFlyChildId && !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)) {
+            deleteChildren(s);
+            i--;
+          }
+        }
+      }
+      let pointId = point.id;
       removeObjectById(pointId);
       let index = this.pointIds.findIndex((pt) => pt.id == pointId);
       this.pointIds.splice(index, 1);
