@@ -120,7 +120,7 @@ class AGMain extends LitElement {
         #left-menu {
           display: flex;
           flex-direction: column;
-          padding: 10px;
+          padding: 8px 10px 10px;
           border-top-left-radius: 10px;
           border-bottom-left-radius: 10px;
           box-sizing: border-box;
@@ -168,7 +168,7 @@ class AGMain extends LitElement {
 
         h3 {
           padding: 0;
-          margin: 0 0 3px;
+          margin: 0;
           text-align: center;
           font-size: 1em;
           font-weight: normal;
@@ -176,7 +176,7 @@ class AGMain extends LitElement {
 
         br {
           display: block;
-          margin: 2px 0;
+          margin: 3px 0;
           content: " ";
         }
       `,
@@ -208,7 +208,7 @@ class AGMain extends LitElement {
     return html`
       <div id="app-view">
         <div id="left-menu">
-          <h3 style="color: ${this.textColor}">
+          <h3 style="color: ${this.textColor}; margin-bottom: ${this.filename != "" ? "3px" : "0px"}">
             ${this.filename}
           </h3>
           <h3 style="color: ${this.textColor}">
