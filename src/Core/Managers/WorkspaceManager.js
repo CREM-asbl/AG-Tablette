@@ -37,6 +37,7 @@ window.addEventListener('new-window', () => {
   app.tools.forEach(tool => tool.isVisible = true);
   app.environment.families.forEach(family => family.isVisible = true);
   setState({
+    filename: null,
     history: app.defaultState.history,
     fullHistory: app.defaultState.fullHistory,
     settings: {

@@ -171,7 +171,7 @@ export class OpenFileManager {
     } else {
       saveObject = fileContent;
     }
-    saveObject.fileExtension = getExtension(filename)
+    saveObject.fileExtension = getExtension(filename);
 
     if (saveObject.appVersion == '1.0.0') {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. La version n\'est plus prise en charge.' } }));
@@ -260,6 +260,7 @@ export class OpenFileManager {
       setState({ tools: [...app.tools] });
     }
 
+    setState({ filename });
     window.dispatchEvent(
       new CustomEvent('file-parsed', { detail: saveObject }),
     );

@@ -183,6 +183,9 @@ export const setState = (update) => {
   if ('helpSelected' in update) {
     window.dispatchEvent(new CustomEvent('helpSelected-changed', { detail: app }));
   }
+  if ('filename' in update) {
+    window.dispatchEvent(new CustomEvent('filename-changed', { detail: app }));
+  }
   if (app.started) {
     // window.dispatchEvent(new CustomEvent('refreshUpper'));
     // window.dispatchEvent(new CustomEvent('refresh'));

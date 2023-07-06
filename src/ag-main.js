@@ -34,6 +34,7 @@ class AGMain extends LitElement {
       iconSize: Number,
       // toolbarSections: Array,
       helpSelected: Boolean,
+      filename: String,
     };
   }
 
@@ -43,6 +44,7 @@ class AGMain extends LitElement {
     this.canRedo = false;
     this.tool = app.tool;
     this.colorPickerValue = '#000000';
+    this.filename = '';
 
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();
@@ -66,6 +68,8 @@ class AGMain extends LitElement {
     this.updateProperties = () => {
       this.iconSize = app.menuIconSize;
       this.helpSelected = app.helpSelected;
+      this.filename = app.filename || '';
+      document.title = this.filename != "" ? this.filename : "AG mobile";
     };
     this.updateProperties();
 
@@ -75,6 +79,7 @@ class AGMain extends LitElement {
 
     window.addEventListener('menuIconSize-changed', this.eventHandler);
     window.addEventListener('helpSelected-changed', this.eventHandler);
+    window.addEventListener('filename-changed', this.eventHandler);
     // window.addEventListener('tools-changed', this.eventHandler);
 
     let preventZoom = (e) => {
@@ -163,10 +168,16 @@ class AGMain extends LitElement {
 
         h3 {
           padding: 0;
-          margin: 0 0 10px;
+          margin: 0 0 3px;
           text-align: center;
           font-size: 1em;
           font-weight: normal;
+        }
+
+        br {
+          display: block;
+          margin: 2px 0;
+          content: " ";
         }
       `,
     ];
@@ -198,10 +209,15 @@ class AGMain extends LitElement {
       <div id="app-view">
         <div id="left-menu">
           <h3 style="color: ${this.textColor}">
+            ${this.filename}
+          </h3>
+          <h3 style="color: ${this.textColor}">
             ${this.tool?.title != undefined
               ? "mode: " + this.tool.title
               : "Sélectionnez une fonctionnalité"}
           </h3>
+
+          <br>
 
           <template-toolbar>
             <div slot="body">
