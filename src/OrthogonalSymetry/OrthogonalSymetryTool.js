@@ -18,8 +18,6 @@ import { findObjectById, removeObjectById } from '../Core/Tools/general';
 export class OrthogonalSymetryTool extends Tool {
   constructor() {
     super('orthogonalSymetry', 'Symétrie orthogonale', 'transformation');
-
-    this.lastCharacteristicElements = [];
   }
 
   start() {
@@ -329,8 +327,8 @@ export class OrthogonalSymetryTool extends Tool {
       });
     }
 
-    if (!this.lastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
-      this.lastCharacteristicElements.push(this.characteristicElements);
+    if (!app.workspace.orthogonalSymetryLastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
+      app.workspace.orthogonalSymetryLastCharacteristicElements.push(this.characteristicElements);
     }
 
     let selectedAxis = this.referenceShape.segments[0];
@@ -414,7 +412,7 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   showLastCharacteristicElements() {
-    this.lastCharacteristicElements.forEach(characteristicElement => {
+    app.workspace.orthogonalSymetryLastCharacteristicElements.forEach(characteristicElement => {
       if (characteristicElement.type == 'axis') {
         let axis = findObjectById(characteristicElement.elementIds[0]);
         let coordinates = [axis.points[0].coordinates, axis.points[1].coordinates];

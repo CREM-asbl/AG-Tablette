@@ -18,8 +18,6 @@ import { findObjectById, removeObjectById } from '../Core/Tools/general';
 export class TranslationTool extends Tool {
   constructor() {
     super('translation', 'Translation', 'transformation');
-
-    this.lastCharacteristicElements = [];
   }
 
   start() {
@@ -321,8 +319,8 @@ export class TranslationTool extends Tool {
       });
     }
 
-    if (!this.lastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
-      this.lastCharacteristicElements.push(this.characteristicElements);
+    if (!app.workspace.translationLastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
+      app.workspace.translationLastCharacteristicElements.push(this.characteristicElements);
     }
 
     let vector = this.referenceShape.segments[0];
@@ -383,7 +381,7 @@ export class TranslationTool extends Tool {
   }
 
   showLastCharacteristicElements() {
-    this.lastCharacteristicElements.forEach(characteristicElement => {
+    app.workspace.translationLastCharacteristicElements.forEach(characteristicElement => {
       if (characteristicElement.type == 'vector') {
         let axis = findObjectById(characteristicElement.elementIds[0]);
         let coordinates = [axis.points[0].coordinates, axis.points[1].coordinates];

@@ -16,8 +16,6 @@ import { findObjectById, removeObjectById } from '../Core/Tools/general';
 export class CentralSymetryTool extends Tool {
   constructor() {
     super('centralSymetry', 'Symétrie centrale', 'transformation');
-
-    this.lastCharacteristicElements = [];
   }
 
   start() {
@@ -205,8 +203,8 @@ export class CentralSymetryTool extends Tool {
       }).points[0];
       this.characteristicElements = new CharacteristicElements({ type: 'symetryCenter', elementIds: [point.id] });
     }
-    if (!this.lastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
-      this.lastCharacteristicElements.push(this.characteristicElements);
+    if (!app.workspace.centralSymetryLastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
+      app.workspace.centralSymetryLastCharacteristicElements.push(this.characteristicElements);
     }
     let newShapes = this.involvedShapes.map(s => {
       let newShape = new s.constructor({
@@ -258,7 +256,7 @@ export class CentralSymetryTool extends Tool {
   }
 
   showLastCharacteristicElements() {
-    this.lastCharacteristicElements.forEach(characteristicElement => {
+    app.workspace.centralSymetryLastCharacteristicElements.forEach(characteristicElement => {
       let point = findObjectById(characteristicElement.elementIds[0]);
       let shape = new SinglePointShape({
         layer: 'upper',

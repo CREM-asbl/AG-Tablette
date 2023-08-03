@@ -63,17 +63,6 @@ export class TransformTool extends Tool {
     this.constraints = null;
     this.line = null;
 
-    app.mainCanvasLayer.shapes.forEach((s) => {
-      s.vertexes.forEach((pt) => {
-        pt.computeTransformConstraint();
-      });
-      s.points.filter(pt =>
-        pt.type == 'arcCenter'
-      ).forEach(pt => {
-        pt.computeTransformConstraint();
-      });
-    });
-
     setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } }), 50);
   }
 
@@ -415,8 +404,19 @@ export class TransformTool extends Tool {
       this.browseTree(this.tree, 0);
 
       this.resetTree();
-      this.browseTree(this.tree, 0);;
+      this.browseTree(this.tree, 0);
     } else if (app.tool.currentStep == 'selectPoint') {
+      app.mainCanvasLayer.shapes.forEach((s) => {
+        s.vertexes.forEach((pt) => {
+          pt.computeTransformConstraint();
+        });
+        s.points.filter(pt =>
+          pt.type == 'arcCenter'
+        ).forEach(pt => {
+          pt.computeTransformConstraint();
+        });
+      });
+
       app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
         let points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];
         points.forEach((pt) => {

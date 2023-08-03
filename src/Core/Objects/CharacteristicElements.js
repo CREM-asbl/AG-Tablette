@@ -42,4 +42,13 @@ export class CharacteristicElements {
   get fourthElement() {
     return findObjectById(this.elementIds[3]);
   }
+
+  saveData() {
+    let data = {
+      type: this.type,
+      elementIds: [...this.elementIds],
+      clockwise: this.clockwise,
+    };
+    return data;
+  }
 }

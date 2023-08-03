@@ -19,8 +19,6 @@ import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 export class RotationTool extends Tool {
   constructor() {
     super('rotation', 'Rotation', 'transformation');
-
-    this.lastCharacteristicElements = [];
   }
 
   start() {
@@ -455,8 +453,8 @@ export class RotationTool extends Tool {
       }
     }
 
-    if (!this.lastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
-      this.lastCharacteristicElements.push(this.characteristicElements);
+    if (!app.workspace.rotationLastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
+      app.workspace.rotationLastCharacteristicElements.push(this.characteristicElements);
     }
 
     // let vector = this.referenceShape.segments[0];
@@ -526,7 +524,7 @@ export class RotationTool extends Tool {
 
   showLastCharacteristicElements(typeOfObjectToShow) {
     if (typeOfObjectToShow == 'rotationCenter') {
-      let allRotationCenters = this.lastCharacteristicElements
+      let allRotationCenters = app.workspace.rotationLastCharacteristicElements
         .map(lastElements => lastElements.firstElement)
         .filter((element, index, elements) => elements.indexOf(element) === index);
       allRotationCenters.forEach(point => {
@@ -544,7 +542,7 @@ export class RotationTool extends Tool {
         shape.points[0].size = 2;
       });
     } else {
-      this.lastCharacteristicElements.forEach(characteristicElement => {
+      app.workspace.rotationLastCharacteristicElements.forEach(characteristicElement => {
         let points;
         if (characteristicElement.type == 'arc') {
           let arc = findObjectById(characteristicElement.elementIds[1]);

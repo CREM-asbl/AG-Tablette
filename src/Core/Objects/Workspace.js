@@ -1,6 +1,7 @@
 import { app } from '../App';
 import { Point } from '../Objects/Point';
 import { uniqId } from '../Tools/general';
+import { CharacteristicElements } from './CharacteristicElements';
 import { Coordinates } from './Coordinates';
 import { ShapeGroup } from './ShapeGroup';
 
@@ -50,6 +51,13 @@ export class Workspace {
      * ->Le zoom du plan est appliqué après la translation du plan.
      */
     this.translateOffset = Coordinates.nullCoordinates;
+
+    if (app.environment.name == 'Geometrie') {
+      this.orthogonalSymetryLastCharacteristicElements = [];
+      this.centralSymetryLastCharacteristicElements = [];
+      this.translationLastCharacteristicElements = [];
+      this.rotationLastCharacteristicElements = [];
+    }
   }
 
   set selectionConstraints(value) {
@@ -80,6 +88,10 @@ export class Workspace {
       group.initFromObject(groupData);
       return group;
     });
+
+    if (app.environment.name == 'Geometrie') {
+      this.translationLastCharacteristicElements = wsdata.translationLastCharacteristicElements.map(element => new CharacteristicElements(element));
+    }
 
     if (!wsdata.zoomLevel)
       wsdata.zoomLevel = 1;
@@ -135,6 +147,9 @@ export class Workspace {
       if (mustEraseShapes) {
         app.tangramCanvasLayer.removeAllObjects();
       }
+    }
+    if (app.environment.name == 'Geometrie') {
+      wsdata.translationLastCharacteristicElements = this.translationLastCharacteristicElements.map(element => element.saveData());
     }
     if (this.shapeGroups.length != 0) {
       wsdata.shapeGroups = this.shapeGroups.map((group) => {
