@@ -95,7 +95,7 @@ export class ReverseTool extends Tool {
 
     this.shapesToCopy = [...this.involvedShapes];
     this.shapesToCopy.forEach(s => {
-      getAllLinkedShapesInGeometry(s, this.shapesToCopy)
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy, false)
     });
 
     this.center = selectedShape.centerCoordinates;

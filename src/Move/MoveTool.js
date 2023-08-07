@@ -98,7 +98,7 @@ export class MoveTool extends Tool {
     }
     this.shapesToCopy = [...this.involvedShapes];
     this.shapesToCopy.forEach(s => {
-      getAllLinkedShapesInGeometry(s, this.shapesToCopy)
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy, false)
     });
 
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
@@ -118,12 +118,12 @@ export class MoveTool extends Tool {
       (s) => s.id,
     );
 
-    app.upperCanvasLayer.shapes.forEach(s => {
-      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-        let duplicateChild = findObjectById(duplicateChildId);
-        computeConstructionSpec(duplicateChild);
-      });
-    });
+    // app.upperCanvasLayer.shapes.forEach(s => {
+    //   s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
+    //     let duplicateChild = findObjectById(duplicateChildId);
+    //     computeConstructionSpec(duplicateChild);
+    //   });
+    // });
 
     setState({ tool: { ...app.tool, currentStep: 'move' } });
     this.animate();

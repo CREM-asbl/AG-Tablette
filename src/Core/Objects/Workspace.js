@@ -89,7 +89,7 @@ export class Workspace {
       return group;
     });
 
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name == 'Geometrie' && wsdata.translationLastCharacteristicElements) {
       this.translationLastCharacteristicElements = wsdata.translationLastCharacteristicElements.map(element => new CharacteristicElements(element));
     }
 

@@ -114,7 +114,7 @@ export class RotateTool extends Tool {
 
     this.shapesToCopy = [...this.involvedShapes];
     this.shapesToCopy.forEach(s => {
-      getAllLinkedShapesInGeometry(s, this.shapesToCopy)
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy, false)
     });
 
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;

@@ -8,42 +8,44 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { findObjectById } from '../Core/Tools/general';
 import { computeConstructionSpec } from './recomputeShape';
 
-export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
+export function getAllLinkedShapesInGeometry(shape, involvedShapes, includeDuplicate = true) {
   if (app.environment.name != 'Geometrie')
     return;
   shape.geometryObject.geometryChildShapeIds.forEach(ref => {
     let s = findObjectById(ref);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
-      getAllLinkedShapesInGeometry(s, involvedShapes);
+      getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(sId => {
     let s = findObjectById(sId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
-      getAllLinkedShapesInGeometry(s, involvedShapes);
+      getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
-  shape.geometryObject.geometryDuplicateChildShapeIds.forEach(sId => {
-    let s = findObjectById(sId);
-    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
-      involvedShapes.push(s);
-      getAllLinkedShapesInGeometry(s, involvedShapes);
-    }
-  });
+  if (includeDuplicate) {
+    shape.geometryObject.geometryDuplicateChildShapeIds.forEach(sId => {
+      let s = findObjectById(sId);
+      if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+        involvedShapes.push(s);
+        getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
+      }
+    });
+  }
   if (shape.geometryObject.geometryTransformationParentShapeId) {
     let s = findObjectById(shape.geometryObject.geometryTransformationParentShapeId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
-      getAllLinkedShapesInGeometry(s, involvedShapes);
+      getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   }
   shape.geometryObject.geometryMultipliedChildShapeIds.forEach(sId => {
     let s = findObjectById(sId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
-      getAllLinkedShapesInGeometry(s, involvedShapes);
+      getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
   let characteristicElements = shape.geometryObject.geometryTransformationCharacteristicElements;
@@ -52,7 +54,7 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
       let s = element.shape;
       if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
         involvedShapes.push(s);
-        getAllLinkedShapesInGeometry(s, involvedShapes);
+        getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
       }
     })
   }
@@ -70,7 +72,7 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes) {
   //   }
   //   if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
   //     involvedShapes.push(s);
-  //     getAllLinkedShapesInGeometry(s, involvedShapes);
+  //     getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
   //   }
   // });
 
