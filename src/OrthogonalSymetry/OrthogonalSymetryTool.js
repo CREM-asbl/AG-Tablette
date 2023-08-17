@@ -13,8 +13,6 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
 
-/**
- */
 export class OrthogonalSymetryTool extends Tool {
   constructor() {
     super('orthogonalSymetry', 'Symétrie orthogonale', 'transformation');
@@ -109,7 +107,7 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   get referenceShape() {
-    return findObjectById(app.tool.referenceShapeId);
+    return app.upperDrawingEnvironment.findObjectById(app.tool.referenceShapeId, 'shape');
   }
 
   canvasMouseDown() {
@@ -122,39 +120,15 @@ export class OrthogonalSymetryTool extends Tool {
       app.workspace.selectionConstraints.points.canSelect = true;
       let object = SelectManager.selectObject(coord);
       if (object instanceof Segment && !object.isArc()) {
-        if (object.layer == 'upper') {
-          this.characteristicElements = object.shape.geometryObject.geometryTransformationCharacteristicElements;
-          let referenceShape;
-          if (this.characteristicElements.type == 'axis') {
-            referenceShape = new LineShape({
-              path: this.characteristicElements.firstElement.getSVGPath('no scale', true),
-              layer: 'upper',
-              strokeColor: app.settings.referenceDrawColor,
-              strokeWidth: 2,
-            });
-          } else {
-            let firstPoint = this.characteristicElements.firstElement;
-            let secondPoint = this.characteristicElements.secondElement;
-            referenceShape = new LineShape({
-              path: `M ${firstPoint.coordinates.x} ${firstPoint.coordinates.y} L ${secondPoint.coordinates.x} ${secondPoint.coordinates.y}`,
-              layer: 'upper',
-              strokeColor: app.settings.referenceDrawColor,
-              strokeWidth: 2,
-            });
-          }
-          referenceShape.segments[0].isInfinite = true;
-          setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject', referenceShapeId: referenceShape.id } });
-        } else {
-          this.characteristicElements = new CharacteristicElements({ type: 'axis', elementIds: [object.id] });
-          let referenceShape = new LineShape({
-            path: object.getSVGPath('no scale', true),
-            layer: 'upper',
-            strokeColor: app.settings.referenceDrawColor,
-            strokeWidth: 2,
-          });
-          referenceShape.segments[0].isInfinite = true;
-          setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject', referenceShapeId: referenceShape.id } });
-        }
+        this.firstReference = object;
+        let referenceShape = new LineShape({
+          path: object.getSVGPath('no scale', true),
+          layer: 'upper',
+          strokeColor: app.settings.referenceDrawColor,
+          strokeWidth: 2,
+        });
+        referenceShape.segments[0].isInfinite = true;
+        setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject', referenceShapeId: referenceShape.id } });
       } else {
         this.pointsDrawn.push(new Point({
           coordinates: coord,
@@ -193,22 +167,24 @@ export class OrthogonalSymetryTool extends Tool {
     if (app.tool.currentStep == 'animateFirstRefPoint') {
       let coord = app.workspace.lastKnownMouseCoordinates;
       let object = SelectManager.selectObject(coord);
+      let firstReferenceId;
       if (object) {
-        this.firstReference = object;
+        firstReferenceId = object.id;
       } else {
-        this.firstReference = this.pointsDrawn[0];
+        firstReferenceId = this.pointsDrawn[0].id;
       }
-      this.characteristicElements = new CharacteristicElements({ type: 'two-points', elementIds: [this.firstReference.id] });
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } });
     } else {
       let coord = app.workspace.lastKnownMouseCoordinates;
       let object = SelectManager.selectObject(coord);
+      let secondReferenceId;
       if (object) {
-        this.secondReference = object;
+        secondReferenceId = object.id;
+        // this.secondReference = object;
       } else {
-        this.secondReference = this.pointsDrawn[1];
+        secondReferenceId = this.pointsDrawn[1].id;
+        // this.secondReference = this.pointsDrawn[1];
       }
-      this.characteristicElements.elementIds.push(this.secondReference.id);
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
     }
   }
@@ -312,23 +288,25 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   _executeAction() {
-    if (this.characteristicElements.type == 'two-points') {
-      this.characteristicElements.elementIds.forEach((elemId, idx) => {
-        let element = findObjectById(elemId);
-        if (element.layer == 'upper') {
-          this.characteristicElements.elementIds[idx] = new SinglePointShape({
-            layer: 'main',
-            path: `M ${element.coordinates.x} ${element.coordinates.y}`,
-            name: 'Point',
-            familyName: 'Point',
-            geometryObject: new GeometryObject({}),
-          }).points[0].id;
-        }
-      });
+    if (this.firstReference instanceof Point && this.firstReference.canvasLayer.name == 'upper') {
+      let coord = this.firstReference.coordinates;
+      this.firstReference = new SinglePointShape({
+        layer: 'main',
+        path: `M ${coord.x} ${coord.y}`,
+        name: 'Point',
+        familyName: 'Point',
+        geometryObject: new GeometryObject({}),
+      }).points[0];
     }
-
-    if (!app.workspace.orthogonalSymetryLastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
-      app.workspace.orthogonalSymetryLastCharacteristicElements.push(this.characteristicElements);
+    if (this.firstReference instanceof Point && this.secondReference.canvasLayer.name == 'upper') {
+      let coord = this.secondReference.coordinates;
+      this.secondReference = new SinglePointShape({
+        layer: 'main',
+        path: `M ${coord.x} ${coord.y}`,
+        name: 'Point',
+        familyName: 'Point',
+        geometryObject: new GeometryObject({}),
+      }).points[0];
     }
 
     let selectedAxis = this.referenceShape.segments[0];
