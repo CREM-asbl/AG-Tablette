@@ -118,12 +118,12 @@ export class MoveTool extends Tool {
       (s) => s.id,
     );
 
-    // app.upperCanvasLayer.shapes.forEach(s => {
-    //   s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-    //     let duplicateChild = findObjectById(duplicateChildId);
-    //     computeConstructionSpec(duplicateChild);
-    //   });
-    // });
+    app.upperCanvasLayer.shapes.forEach(s => {
+      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
+        let duplicateChild = findObjectById(duplicateChildId);
+        computeConstructionSpec(duplicateChild);
+      });
+    });
 
     setState({ tool: { ...app.tool, currentStep: 'move' } });
     this.animate();

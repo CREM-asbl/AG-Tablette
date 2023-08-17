@@ -13,8 +13,6 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
 
-/**
- */
 export class OrthogonalSymetryTool extends Tool {
   constructor() {
     super('orthogonalSymetry', 'Symétrie orthogonale', 'transformation');

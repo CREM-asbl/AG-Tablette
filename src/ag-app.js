@@ -51,7 +51,7 @@ class AgApp extends LitElement {
     if (this.environnement_selected) {
       history.pushState({}, "main page");
       const AGmainLoader = import('./ag-main');
-      toRender.push( html`<ag-main></ag-main>`);
+      toRender.push(html`<ag-main></ag-main>`);
     } else if (!this.appLoading) {
       import('./ag-environnements');
       return html` <ag-environnements></ag-environnements> `;
@@ -60,8 +60,6 @@ class AgApp extends LitElement {
   }
 
   async openEnv(e) {
-    if (app?.short_name == "AG mobile" && (e != "Grandeurs" && e != "Cubes"))
-      return;
     setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(e) });
   }
