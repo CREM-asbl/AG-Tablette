@@ -261,6 +261,13 @@ export class ReverseTool extends Tool {
       //   });
       // });
 
+      app.upperCanvasLayer.shapes.forEach(s => {
+        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
+          let duplicateChild = findObjectById(duplicateChildId);
+          computeConstructionSpec(duplicateChild);
+        });
+      });
+
       this.axes.forEach((axis) =>
         removeObjectById(axis.id)
       );
@@ -415,11 +422,23 @@ export class ReverseTool extends Tool {
       let s = findObjectById(sId);
       this.reverseShape(s, selectedAxis);
 
-      if (app.environment.name == 'Geometrie') {
-        computeAllShapeTransform(s, 'main', false);
-        computeConstructionSpec(s);
-      }
+      // if (app.environment.name == 'Geometrie') {
+      //   computeAllShapeTransform(s, 'main', false);
+      //   computeConstructionSpec(s);
+      // }
     });
+    if (app.environment.name == 'Geometrie') {
+      app.mainCanvasLayer.shapes.forEach(s => {
+        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
+          let duplicateChild = findObjectById(duplicateChildId);
+          computeConstructionSpec(duplicateChild);
+        });
+      });
+      app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
+        let s = findObjectById(sId);
+        computeAllShapeTransform(s, 'main', false);
+      });
+    }
   }
 
   /**

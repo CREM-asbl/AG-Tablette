@@ -25,15 +25,13 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes, includeDupli
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
-  if (includeDuplicate) {
-    shape.geometryObject.geometryDuplicateChildShapeIds.forEach(sId => {
-      let s = findObjectById(sId);
-      if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
-        involvedShapes.push(s);
-        getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
-      }
-    });
-  }
+  shape.geometryObject.geometryDuplicateChildShapeIds.forEach(sId => {
+    let s = findObjectById(sId);
+    if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+      involvedShapes.push(s);
+      getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
+    }
+  });
   if (shape.geometryObject.geometryTransformationParentShapeId) {
     let s = findObjectById(shape.geometryObject.geometryTransformationParentShapeId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
