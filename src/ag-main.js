@@ -17,7 +17,6 @@ import './popups/notification';
 import { TemplateToolbar } from './template-toolbar';
 import './toolbar-kit';
 import './toolbar-section';
-import './version-item';
 
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
@@ -55,14 +54,6 @@ class AGMain extends LitElement {
     });
     window.addEventListener('tool-changed', () => {
       this.tool = app.tool;
-    });
-
-    // vh error in tablette => custom vh
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-    window.addEventListener('resize', () => {
-      let vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
     });
 
     this.updateProperties = () => {
@@ -149,10 +140,6 @@ class AGMain extends LitElement {
           height: 100%;
         }
 
-        version-item {
-          position: absolute;
-          bottom: 20px;
-        }
 
         /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
         input[type='color'] {

@@ -60,8 +60,6 @@ class AgApp extends LitElement {
   }
 
   async openEnv(e) {
-    if (app?.short_name == "AG mobile" && (e != "Grandeurs" && e != "Cubes"))
-      return;
     setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(e) });
   }

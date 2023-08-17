@@ -46,7 +46,7 @@ class CirclesList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: 0px;
+        bottom: var(--bottom);
         /* left: calc(300 + 100%); */
         /* right: 0; */
       }

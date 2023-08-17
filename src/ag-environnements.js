@@ -11,7 +11,7 @@ class AgEnvironnements extends LitElement {
         gap: 24px;
         justify-items: center;
         align-items: center;
-        height: 100%;
+        height: calc(100 * var(--vh));
         padding: 24px;
         box-sizing: border-box;
         background: lightgray;
@@ -75,23 +75,7 @@ class AgEnvironnements extends LitElement {
         background-size: auto 150%;
       }
 
-      .watermark
-      {
-        position: absolute;
-        text-align: center;
-        left: 50%;
-        top: 50%;
-        width: 100%;
-        font-size: 1.2em;
-        margin:3px;
-        opacity:1;
-        z-index: 98;
-        background-color: rgba(0, 0, 0, 0.5);
-        color:white;
-      }
-
       .rotate {
-
         -ms-transform: translateY(-50%);
         transform: translateY(-50%) translateX(-50%) rotate(-30deg);
       }
@@ -137,9 +121,6 @@ class AgEnvironnements extends LitElement {
         <div class="textTop envText" name="Geometrie">
           Géométrie
         </div>
-        <!-- <div class="watermark rotate">
-          En développement
-        </div> -->
       </div>
       <div class="logo-wrapper">
         <img
