@@ -44,7 +44,7 @@ class OpenPopup extends LitElement {
 
         <div slot="footer">
           <color-button name="LocalOpenFile" @click="${this._actionHandle}" innerText="Ouvrir en local"></color-button>
-          <color-button name="ServerOpenFile" @click="${this._actionHandle}" innerText="Ouvrir sur le serveur"></color-button>
+          <color-button name="ServerOpenFile" @click="${this._actionHandle}" innerText="Ouvrir en ligne"></color-button>
           <color-button @click="${this.close}" innerText="Annuler"></color-button>
         </div>
       </template-popup>
