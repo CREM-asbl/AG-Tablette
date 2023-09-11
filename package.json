@@ -1,39 +1,29 @@
 {
   "scripts": {
+    "dev": "astro dev",
     "start": "snowpack dev",
     "start-emulators": "firebase emulators:start --only hosting",
-    "build": "snowpack build && workbox generateSW",
-    "format": "prettier --write \"src/**/*.js\"",
-    "lint": "prettier --check \"src/**/*.js\"",
-    "deploy": "npm run build && firebase deploy --only hosting:default",
-    "deploy:beta": "npm run build && firebase deploy --only hosting:beta",
-    "deploy:beta2": "npm run build && firebase hosting:channel:deploy $(cat public/manifest.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | sed 's/[^0-9.]//g') --expires 30d",
+    "build": "astro build",
+    "deploy": "firebase deploy --only hosting:default",
+    "deploy:beta": "firebase deploy --only hosting:beta",
+    "deploy:beta2": "firebase hosting:channel:deploy $(cat public/manifest.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | sed 's/[^0-9.]//g') --expires 30d",
     "test": "[[ -n $npm_config_folder && -d test/$npm_config_folder ]] && { npm run test:folder; exit 0;} || npm run test:all",
     "test:folder": "echo \"running tests in folder $npm_config_folder\" && web-test-runner \"test/$npm_config_folder/*.test.js\" --node-resolve",
     "test:all": "echo \"running all tests\" && web-test-runner \"test/**/*.test.js\" --node-resolve"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.18.6",
-    "@babel/plugin-proposal-decorators": "^7.19.0",
-    "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@esm-bundle/chai": "^4.3.4",
-    "@snowpack/plugin-babel": "^2.1.7",
-    "@snowpack/plugin-dotenv": "^2.2.0",
-    "@web/test-runner": "^0.14.0",
-    "babel-plugin-root-import": "^6.6.0",
-    "prettier": "^2.7.1"
+    "@web/test-runner": "^0.14.0"
   },
   "dependencies": {
+    "@astrojs/lit": "^3.0.0",
+    "astro": "^3.0.12",
+    "astrojs-service-worker": "^1.1.0",
     "cwebp": "^2.0.5",
     "fflate": "^0.7.4",
     "firebase": "^9.9.4",
-    "firebase-tools": "^11.8.0",
     "idb": "^7.0.2",
-    "lit": "^2.3.1",
-    "npm": "^8.19.1",
     "pwa-helpers": "^0.9.1",
-    "tslib": "^2.4.0",
-    "workbox": "^0.0.0",
-    "workbox-cli": "^6.5.4"
+    "tslib": "^2.4.0"
   }
 }

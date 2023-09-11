@@ -1,5 +1,5 @@
 import { updateMetadata } from 'pwa-helpers/metadata';
-import manifest from '../../public/manifest.json';
+import manifest from '../../../public/manifest.json';
 import { app } from './App';
 
 app.version = manifest.version;

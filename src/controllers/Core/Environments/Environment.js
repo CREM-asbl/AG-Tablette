@@ -5,8 +5,8 @@ export const loadEnvironnement = async (name) => {
   try {
     const config = await import(`./${name}.js`);
     if (config.default.settings) {
-      setState({ settings: {...app.settings, ...config.default.settings }, history: { ...app.history, startSettings: { ...app.history.startSettings, ...config.default.settings } } });
-      setState({ defaultState: {...app.defaultState, settings: { ...app.settings }}});
+      setState({ settings: { ...app.settings, ...config.default.settings }, history: { ...app.history, startSettings: { ...app.history.startSettings, ...config.default.settings } } });
+      setState({ defaultState: { ...app.defaultState, settings: { ...app.settings } } });
     }
     await loadModules(config.default.modules);
 

@@ -6,7 +6,7 @@ import { loadEnvironnement } from './Core/Environments/Environment';
 import './Core/Manifest';
 import { downloadFileZip, openFileFromServer } from './Firebase/firebase-init';
 
-class AgApp extends LitElement {
+export class App extends LitElement {
   static get properties() {
     return {
       environnement_selected: { type: Boolean },
@@ -81,4 +81,4 @@ class AgApp extends LitElement {
     downloadFileZip("IconesAGm.zip", files);
   }
 }
-customElements.define('ag-app', AgApp);
+customElements.define('ag-app', App);
