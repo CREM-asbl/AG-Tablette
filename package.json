@@ -1,10 +1,9 @@
 {
   "scripts": {
     "dev": "astro dev",
-    "start": "snowpack dev",
-    "start-emulators": "firebase emulators:start --only hosting",
+    "start-emulators": "firebase emulators:start",
     "build": "astro build",
-    "deploy": "firebase deploy --only hosting:default",
+    "deploy": "firebase deploy",
     "deploy:beta": "firebase deploy --only hosting:beta",
     "deploy:beta2": "firebase hosting:channel:deploy $(cat public/manifest.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | sed 's/[^0-9.]//g') --expires 30d",
     "test": "[[ -n $npm_config_folder && -d test/$npm_config_folder ]] && { npm run test:folder; exit 0;} || npm run test:all",
@@ -12,18 +11,15 @@
     "test:all": "echo \"running all tests\" && web-test-runner \"test/**/*.test.js\" --node-resolve"
   },
   "devDependencies": {
-    "@esm-bundle/chai": "^4.3.4",
-    "@web/test-runner": "^0.14.0"
+    "@esm-bundle/chai": "^4.3.4-fix.0",
+    "@web/test-runner": "^0.17.1"
   },
   "dependencies": {
     "@astrojs/lit": "^3.0.0",
     "astro": "^3.0.12",
     "astrojs-service-worker": "^1.1.0",
-    "cwebp": "^2.0.5",
-    "fflate": "^0.7.4",
-    "firebase": "^9.9.4",
-    "idb": "^7.0.2",
-    "pwa-helpers": "^0.9.1",
-    "tslib": "^2.4.0"
+    "fflate": "^0.8.0",
+    "firebase": "^10.3.1",
+    "pwa-helpers": "^0.9.1"
   }
 }

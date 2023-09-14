@@ -13,8 +13,6 @@ const db = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 
 if (location.hostname != 'localhost') {
-  // firebase.analytics();
-  // firebase.performance();
   const analytics = getAnalytics();
   const perf = getPerformance(firebaseApp);
 }
