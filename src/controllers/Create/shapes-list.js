@@ -42,7 +42,7 @@ class ShapesList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: var(--bottom);
+        bottom: 0;
         /* left: calc(300 + 100%); */
         /* right: 0; */
       }
@@ -102,13 +102,13 @@ class ShapesList extends LitElement {
       <div class="container">
         <h2>
           ${this.selectedTemplate
-            ? this.selectedTemplate.replace(/ \d+$/, '')
-            : this.selectedFamily}
+        ? this.selectedTemplate.replace(/ \d+$/, '')
+        : this.selectedFamily}
         </h2>
         <div id="list">
           ${this.templateNames.map(
-            (templateName) => {
-              return html`
+          (templateName) => {
+            return html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="${templateName}"
@@ -119,7 +119,7 @@ class ShapesList extends LitElement {
               >
               </icon-button>
             `},
-          )}
+        )}
         </div>
       </div>
     `;

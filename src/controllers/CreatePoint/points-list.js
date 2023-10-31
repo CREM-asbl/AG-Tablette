@@ -50,7 +50,7 @@ class PointsList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: var(--bottom);
+        bottom: 0;
         /* left: calc(300 + 100%); */
         /* right: 0; */
       }
@@ -105,12 +105,12 @@ class PointsList extends LitElement {
       <div class="container">
         <h2>
           ${this.selectedPoint
-            ? this.pointTitle[this.selectedPoint]
-            : 'Points'}
+        ? this.pointTitle[this.selectedPoint]
+        : 'Points'}
         </h2>
         <div id="list">
           ${this.pointsNames.map(
-            (pointName) => html`
+          (pointName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 title="${this.pointTitle[pointName]}"
@@ -121,7 +121,7 @@ class PointsList extends LitElement {
               >
               </icon-button>
             `,
-          )}
+        )}
         </div>
       </div>
     `;

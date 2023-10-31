@@ -58,7 +58,7 @@ class QuadrilateralsList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: var(--bottom);
+        bottom: 0;
         /* left: calc(300 + 100%); */
         /* right: 0; */
       }
@@ -113,12 +113,12 @@ class QuadrilateralsList extends LitElement {
       <div class="container">
         <h2>
           ${this.selectedQuadrilateral
-            ? this.quadrilateralTitle[this.selectedQuadrilateral]
-            : 'Quadrilatères'}
+        ? this.quadrilateralTitle[this.selectedQuadrilateral]
+        : 'Quadrilatères'}
         </h2>
         <div id="list">
           ${this.quadrilateralsNames.map(
-            (quadrilateralName) => html`
+          (quadrilateralName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 title="${this.quadrilateralTitle[quadrilateralName]}"
@@ -129,7 +129,7 @@ class QuadrilateralsList extends LitElement {
               >
               </icon-button>
             `,
-          )}
+        )}
         </div>
       </div>
     `;

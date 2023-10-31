@@ -1,119 +1,123 @@
 ---
-import { App } from "@controllers/ag-app";
-
+import { App } from '@controllers/ag-app';
 ---
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="google" content="notranslate" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
 
-<head>
-  <meta charset="utf-8">
-  <meta name="google" content="notranslate">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AG mobile</title>
+    <meta
+      name="description"
+      content="AG mobile, la version d'Apprenti Géomètre qui peut également s'utiliser sur tablette"
+    />
 
-  <title>AG mobile</title>
-  <meta name="description" content="AG mobile, la version d'Apprenti Géomètre qui peut également s'utiliser sur tablette">
+    <link rel="icon" href="/images/favicon.ico" />
+    <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
 
-  <link rel="icon" href="/images/favicon.ico">
-  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+    <!-- pwa data -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta
+      name="theme-color"
+      content="lightgrey"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="lightgrey"
+      media="(prefers-color-scheme: dark)"
+    />
 
-  <!-- pwa data -->
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="lightgrey" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="lightgrey" media="(prefers-color-scheme: dark)">
+    <!-- Default Open graph -->
+    <meta property="og:title" content="Apprenti Géomètre mobile" />
+    <meta property="og:url" content="https://ag.crem.be" />
+    <meta property="og:type" content="application" />
+    <meta property="og:site_name" content="AG mobile" />
+    <meta
+      property="og:image"
+      content="https://ag.crem.be/images/manifest/icon-512.png"
+    />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta
+      property="og:description"
+      content="Logiciel mobile de géométrie dynamique"
+    />
 
-  <!-- Default Open graph -->
-  <meta property="og:title" content="Apprenti Géomètre mobile">
-  <meta property="og:url" content="https://ag.crem.be">
-  <meta property="og:type" content="application">
-  <meta property="og:site_name" content="AG mobile">
-  <meta property="og:image" content="https://ag.crem.be/images/manifest/icon-512.png">
-  <meta property="og:image:width" content="512" />
-  <meta property="og:image:height" content="512" />
-  <meta property="og:description" content="Logiciel mobile de géométrie dynamique">
+    <script type="module">
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', async () => {
+          const sw =
+            await navigator.serviceWorker.register('/service-worker.js');
+          sw.onupdatefound = () => {
+            sw.installing.onstatechange = () => {
+              if (sw.waiting) {
+                sw.waiting.postMessage({ type: 'SKIP_WAITING' });
+              }
+            };
+          };
+        });
 
-  <script type="module">
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', async () => {
-        const sw = await navigator.serviceWorker.register('/service-worker.js')
-        sw.onupdatefound = () => {
-          sw.installing.onstatechange = () => {
-            if (sw.waiting) {
-              sw.waiting.postMessage({ type: "SKIP_WAITING" })
-            }
-          }
-        }
-      });
-
-      navigator.serviceWorker.oncontrollerchange = () => {
-        if (confirm(`Mise à jour disponible.\nMettre à jour ?`))
-          location.reload()
+        navigator.serviceWorker.oncontrollerchange = () => {
+          if (confirm(`Mise à jour disponible.\nMettre à jour ?`))
+            location.reload();
+        };
       }
-    }
 
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-    window.addEventListener('resize', () => {
       let vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
-    });
+      window.addEventListener('resize', () => {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+      });
+    </script>
 
-    function isPwa() {
-      return ["fullscreen", "standalone", "minimal-ui"].some(
-        (displayMode) => window.matchMedia('(display-mode: ' + displayMode + ')').matches
-      );
-    }
+    <style>
+      html,
+      body,
+      ag-main {
+        width: 100dvw;
+        height: 100dvh;
+        margin: 0;
+        padding: 0;
+        overflow-y: hidden;
+      }
 
-    // bug when app is installed, resolved by this
-    document.documentElement.style.setProperty('--bottom', `0px`);
-    if (isPwa()) {
-      vh = (window.innerHeight - 48) * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-      document.documentElement.style.setProperty('--bottom', `48px`);
-    }
-  </script>
-
-  <style>
-    html,
-    body,
-    ag-main {
-      width: 100%;
-      height: calc(100 * var(--vh));
-      margin: 0;
-      padding: 0;
-      overflow-y: hidden;
-    }
-
-    body {
-      --button-selected-background-color: #00ffff;
-      --button-hover-background-color: #a9f4f7;
-      --menu-shadow-color: #000;
-      font-family: Arial, Helvetica, sans-serif;
-      -webkit-touch-callout: none; /* iOS Safari */
+      body {
+        --button-selected-background-color: #00ffff;
+        --button-hover-background-color: #a9f4f7;
+        --menu-shadow-color: #000;
+        font-family: Arial, Helvetica, sans-serif;
+        -webkit-touch-callout: none; /* iOS Safari */
         -webkit-user-select: none; /* Safari */
-         -khtml-user-select: none; /* Konqueror HTML */
-           -moz-user-select: none; /* Old versions of Firefox */
-            -ms-user-select: none; /* Internet Explorer/Edge */
-                user-select: none; /* Non-prefixed version, currently
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */
-    }
+      }
 
-    :root {
-      touch-action: pan-x pan-y;
-      height: calc(100 * var(--vh));
-    }
+      :root {
+        touch-action: pan-x pan-y;
+        height: 100dvh;
+      }
 
-    hmr-error-overlay {
-      display: none;
-    }
-  </style>
-</head>
+      hmr-error-overlay {
+        display: none;
+      }
+    </style>
+  </head>
 
-<body>
-  <App client:only />
+  <body>
+    <App client:only />
     <noscript>
       Veuillez activer javascript afin de profiter de cette application
     </noscript>
-</body>
-
+  </body>
 </html>

@@ -64,7 +64,7 @@ class LinesList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: var(--bottom);
+        bottom: 0;
         /* left: calc(300 + 100%); */
         /* right: 0; */
       }
@@ -119,12 +119,12 @@ class LinesList extends LitElement {
       <div class="container">
         <h2>
           ${this.selectedLine
-            ? this.lineTitle[this.selectedLine]
-            : 'Lignes'}
+        ? this.lineTitle[this.selectedLine]
+        : 'Lignes'}
         </h2>
         <div id="list">
           ${this.linesNames.map(
-            (lineName) => html`
+          (lineName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 title="${this.lineTitle[lineName]}"
@@ -135,7 +135,7 @@ class LinesList extends LitElement {
               >
               </icon-button>
             `,
-          )}
+        )}
         </div>
       </div>
     `;

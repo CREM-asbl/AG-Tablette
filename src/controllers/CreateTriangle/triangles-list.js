@@ -52,7 +52,7 @@ class TrianglesList extends LitElement {
         display: flex;
         justify-content: center;
         position: absolute;
-        bottom: var(--bottom);
+        bottom: 0;
         /* left: calc(300 + 100%); */
         /* right: 0; */
       }
@@ -107,12 +107,12 @@ class TrianglesList extends LitElement {
       <div class="container">
         <h2>
           ${this.selectedTriangle
-            ? this.triangleTitle[this.selectedTriangle]
-            : 'Triangles'}
+        ? this.triangleTitle[this.selectedTriangle]
+        : 'Triangles'}
         </h2>
         <div id="list">
           ${this.trianglesNames.map(
-            (triangleName) => html`
+          (triangleName) => html`
               <icon-button
                 style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 title="${this.triangleTitle[triangleName]}"
@@ -123,7 +123,7 @@ class TrianglesList extends LitElement {
               >
               </icon-button>
             `,
-          )}
+        )}
         </div>
       </div>
     `;
