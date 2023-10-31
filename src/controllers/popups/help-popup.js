@@ -17,13 +17,13 @@ class HelpPopup extends LitElement {
     window.addEventListener('close-popup', () => this.close());
 
     this.tools = [...app.tools,
-      { name: 'home', title: 'Accueil' },
-      { name: 'save', title: 'Enregistrer' },
-      { name: 'open', title: 'Ouvrir' },
-      { name: 'settings', title: 'Paramètres' },
-      { name: 'undo', title: 'Annuler-refaire' },
-      { name: 'redo', title: 'Annuler-refaire' },
-      { name: 'replay', title: 'Rejouer' },
+    { name: 'home', title: 'Accueil' },
+    { name: 'save', title: 'Enregistrer' },
+    { name: 'open', title: 'Ouvrir' },
+    { name: 'settings', title: 'Paramètres' },
+    { name: 'undo', title: 'Annuler-refaire' },
+    { name: 'redo', title: 'Annuler-refaire' },
+    { name: 'replay', title: 'Rejouer' },
     ]
   }
 
@@ -35,8 +35,8 @@ class HelpPopup extends LitElement {
           margin-right: 8px;
         }
         div#helpPopupBody {
-          max-width: 70vw;
-          max-height: calc(70 * var(--vh));
+          max-width: 70dvw;
+          max-height: 7Odvh;
         }
         :host {
           -webkit-touch-callout: text; /* iOS Safari */

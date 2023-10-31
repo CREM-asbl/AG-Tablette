@@ -11,7 +11,7 @@ class AgEnvironnements extends LitElement {
         gap: 24px;
         justify-items: center;
         align-items: center;
-        height: calc(100 * var(--vh));
+        height: 100dvh;
         padding: 24px;
         box-sizing: border-box;
         background: lightgray;

@@ -56,7 +56,7 @@ class FullHistoryTools extends LitElement {
       if (app.fullHistory.isRunning) {
         if (e.type == 'fullHistory-changed') {
           this.index = app.fullHistory.actionIndex;
-          this.shadowRoot.getElementById( 'b' + this.index )?.parentNode.parentNode.scrollIntoView();
+          this.shadowRoot.getElementById('b' + this.index)?.parentNode.parentNode.scrollIntoView();
           this.setPlayPause(app.fullHistory.isPlaying ? 'pause' : 'play');
         } else {
           this.updateProperties();
@@ -101,7 +101,7 @@ class FullHistoryTools extends LitElement {
 
           top: 0vh;
           width: ${app.settings.mainMenuWidth}px;
-          height: calc(100 * var(--vh));
+          height: 100dvh;
 
           scrollbar-width: thin;
         }
@@ -233,7 +233,7 @@ class FullHistoryTools extends LitElement {
         }
         .action-div {
           background-color: ${getComputedStyle(document.documentElement)
-    .getPropertyValue('--theme-color') + '4F'}
+        .getPropertyValue('--theme-color') + '4F'}
         }
       </style>
       <nav id="sidebar">
@@ -268,7 +268,7 @@ class FullHistoryTools extends LitElement {
 
         <div id="action-container">
           ${this.tools.map((elem, idx) => {
-            return html`
+          return html`
               <div
                 name="action-div"
                 class="action-div"
@@ -277,9 +277,8 @@ class FullHistoryTools extends LitElement {
                   ${elem.name}
                   (${(Math.floor(elem.time / 1000 / 60) > 0 ? Math.floor(elem.time / 1000 / 60) + 'm ' : '') + new Number(elem.time / 1000 % 60).toFixed(1) + 's'})
                 </h2>
-                ${
-                  elem.actions.map((action, idx) => {
-                    return html`
+                ${elem.actions.map((action, idx) => {
+            return html`
                       <div
                         class="single-action-div ${idx % 2 ? 'right-single-action-div' : 'left-single-action-div'}"
                       >
@@ -301,11 +300,11 @@ class FullHistoryTools extends LitElement {
                         </button>
                       </div>
                     `;
-                  })
-                }
+          })
+            }
               </div>
             `;
-          })}
+        })}
         </div>
       </nav>
     `;
