@@ -99,7 +99,7 @@ class FullHistoryTools extends LitElement {
           background-color: var(--theme-color);
           flex: 0 0 ${app.settings.mainMenuWidth}px;
 
-          top: 0vh;
+          top: 0;
           width: ${app.settings.mainMenuWidth}px;
           height: 100dvh;
 

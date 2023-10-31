@@ -146,7 +146,7 @@ class AGMain extends LitElement {
           /* opacity: 0; */
           position: absolute;
           top: 0;
-          left: 21vw;
+          left: 21dvw;
           /* width: 0;
           height: 0; */
           border: none;
@@ -200,8 +200,8 @@ class AGMain extends LitElement {
           </h3>
           <h3 style="color: ${this.textColor}">
             ${this.tool?.title != undefined
-              ? "mode: " + this.tool.title
-              : "Sélectionnez une fonctionnalité"}
+        ? "mode: " + this.tool.title
+        : "Sélectionnez une fonctionnalité"}
           </h3>
 
           <br>
@@ -323,13 +323,13 @@ class AGMain extends LitElement {
         type="file"
         style="display: none"
         @change="${(event) => {
-          window.dispatchEvent(
-            new CustomEvent('file-opened', {
-              detail: { method: 'old', file: event.target.files[0] },
-            }),
-          );
-          event.target.value = null;
-        }}"
+        window.dispatchEvent(
+          new CustomEvent('file-opened', {
+            detail: { method: 'old', file: event.target.files[0] },
+          }),
+        );
+        event.target.value = null;
+      }}"
       />
     `;
   }
@@ -343,7 +343,7 @@ class AGMain extends LitElement {
     if (this.helpSelected) {
       window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: event.target.name } }));
       setState({ helpSelected: false });
-      return ;
+      return;
     }
     switch (event.target.name) {
       case 'settings':

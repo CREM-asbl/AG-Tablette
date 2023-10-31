@@ -36,7 +36,7 @@ class HelpPopup extends LitElement {
         }
         div#helpPopupBody {
           max-width: 70dvw;
-          max-height: 7Odvh;
+          max-height: 70dvh;
         }
         :host {
           -webkit-touch-callout: text; /* iOS Safari */
