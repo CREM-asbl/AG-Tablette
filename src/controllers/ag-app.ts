@@ -2,7 +2,7 @@ import { html, LitElement } from 'lit';
 import './auto-launch';
 import './backbutton-manager';
 import { app, setState } from './Core/App';
-import { loadEnvironnement } from './Core/Environments/Environment';
+import { loadEnvironnement } from './Core/Environment';
 import './Core/Manifest';
 import { downloadFileZip, openFileFromServer } from './Firebase/firebase-init';
 

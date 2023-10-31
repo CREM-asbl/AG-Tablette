@@ -1,9 +1,9 @@
-import { app, setState } from '../App';
-import { Family } from '../Objects/Family';
+import { app, setState } from './App';
+import { Family } from './Objects/Family';
 
 export const loadEnvironnement = async (name) => {
   try {
-    const config = await import(`./${name}.js`);
+    const config = await import(`./Environments/${name}.js`);
     if (config.default.settings) {
       setState({ settings: { ...app.settings, ...config.default.settings }, history: { ...app.history, startSettings: { ...app.history.startSettings, ...config.default.settings } } });
       setState({ defaultState: { ...app.defaultState, settings: { ...app.settings } } });
@@ -19,7 +19,7 @@ export const loadEnvironnement = async (name) => {
 
 const loadModules = async (list) => {
   const modules = await Promise.all(
-    list.map(async (module) => await import(`../../${module}/index.js`)),
+    list.map(async (module) => await import(`../${module}/index.js`)),
   );
   let tools = modules.map((module) => {
     if (module.default)
@@ -37,7 +37,7 @@ const loadModules = async (list) => {
 
 const loadKit = async (name) => {
   if (!name) return null;
-  const module = await import(`../ShapesKits/${name}.js`);
+  const module = await import(`./ShapesKits/${name}.js`);
   const kit = module[name];
   let families = [];
   for (let [familyName, familyData] of Object.entries(kit.families)) {

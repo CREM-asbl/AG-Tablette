@@ -4,7 +4,7 @@ import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "fi
 import { getPerformance } from "firebase/performance";
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import { app, setState } from '../Core/App';
-import { loadEnvironnement } from '../Core/Environments/Environment';
+import { loadEnvironnement } from '../Core/Environment';
 import { OpenFileManager } from '../Core/Managers/OpenFileManager';
 import config from './firebase-config.json';
 
@@ -23,7 +23,7 @@ export async function openFileFromServer(activityName) {
     let fileDownloaded = await readFileFromServer(data.id);
     let fileDownloadedObject = await fileDownloaded.json();
 
-    window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject, activityName), {once: true});
+    window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject, activityName), { once: true });
 
     setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(data.environment) });
@@ -42,7 +42,7 @@ export async function getFileDocFromFilename(id) {
 
   if (docSnap.exists()) {
     app.fileFromServer = true;
-    return {id, ...docSnap.data()};
+    return { id, ...docSnap.data() };
   } else {
     // doc.data() will be undefined in this case
     console.info("No such document!");
@@ -52,14 +52,14 @@ export async function getFileDocFromFilename(id) {
 export async function findAllThemes() {
   let themes = await getDocs(collection(db, "themes"));
   let themesWithId = [];
-  themes.forEach(doc => themesWithId.push({id: doc.id, ...doc.data()}));
+  themes.forEach(doc => themesWithId.push({ id: doc.id, ...doc.data() }));
   return themesWithId;
 }
 
 export async function findAllFiles() {
   let files = await getDocs(collection(db, "files"));
   let filesWithId = [];
-  files.forEach(doc => filesWithId.push({id: doc.id, ...doc.data()}));
+  files.forEach(doc => filesWithId.push({ id: doc.id, ...doc.data() }));
   return filesWithId;
 }
 
@@ -76,14 +76,14 @@ export function getModuleDocFromModuleName(moduleName) {
 export async function getModulesDocFromTheme(themeDoc) {
   let moduleDocs = await getDocs(query(collection(db, "modules"), where("theme", "==", themeDoc)));
   let moduleDocsWithId = [];
-  moduleDocs.forEach(doc => moduleDocsWithId.push({id:doc.id, ...doc.data()}));
+  moduleDocs.forEach(doc => moduleDocsWithId.push({ id: doc.id, ...doc.data() }));
   return moduleDocsWithId;
 }
 
 export async function getFilesDocFromModule(moduleDoc) {
   let fileDocs = await getDocs(query(collection(db, "files"), where("module", "==", moduleDoc)));
   let fileDocsWithId = [];
-  fileDocs.forEach(doc => fileDocsWithId.push({id:doc.id, ...doc.data()}));
+  fileDocs.forEach(doc => fileDocsWithId.push({ id: doc.id, ...doc.data() }));
   return fileDocsWithId;
 }
 

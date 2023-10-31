@@ -1,5 +1,5 @@
 import { setState } from './Core/App';
-import { loadEnvironnement } from './Core/Environments/Environment';
+import { loadEnvironnement } from './Core/Environment';
 
 export const environmentsByExtensions = {
   agg: 'Grandeurs',

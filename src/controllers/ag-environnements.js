@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { setState } from './Core/App';
-import { loadEnvironnement } from './Core/Environments/Environment';
+import { loadEnvironnement } from './Core/Environment';
 
 class AgEnvironnements extends LitElement {
   static get styles() {
