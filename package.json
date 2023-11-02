@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@esm-bundle/chai": "^4.3.4-fix.0",
-    "@web/test-runner": "^0.17.1"
+    "@web/test-runner": "^0.18.0"
   },
   "dependencies": {
     "@astrojs/lit": "^3.0.0",

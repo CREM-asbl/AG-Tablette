@@ -34,75 +34,67 @@
   <!-- -310.44 -->
   <!-- -203.125 -->
   <path
-     d="M 1.555691,94.224961 H 66.376203 L 94.444309,75.734977 V 1.7750385 H 29.623797 L 1.555691,20.265023 V 94.224961 M 66.376203,20.265023 H 1.555691 m 64.820512,0 v 73.959938 m 0,-73.959938 28.068106,-18.4899845"
+     d="M 1.555691,88.532702 H 66.376203 L 94.444309,72.327574 V 7.5070633 H 29.623797 L 1.555691,23.712191 V 88.532702 M 66.376203,23.712191 H 1.555691 m 64.820512,0 v 64.820511 m 0,-64.820511 28.068106,-16.2051277"
      stroke="#000000"
      fill="#fff8"
      fill-opacity="1"
-     stroke-width="1.10784"
+     stroke-width="1.03713"
      stroke-opacity="1"
      id="path1" />
-  <ellipse
+  <circle
      cx="1.5556923"
-     cy="94.22496"
+     cy="88.532684"
+     r="1.5556923"
      fill="#000000"
      id="circle1"
-     rx="1.5556923"
-     ry="1.7750385"
-     style="stroke-width:0.553917" />
-  <ellipse
+     style="stroke-width:0.518564" />
+  <circle
      cx="66.376205"
-     cy="94.22496"
+     cy="88.532684"
+     r="1.5556923"
      fill="#000000"
      id="circle2"
-     rx="1.5556923"
-     ry="1.7750385"
-     style="stroke-width:0.553917" />
-  <ellipse
+     style="stroke-width:0.518564" />
+  <circle
      cx="94.444305"
-     cy="75.734978"
+     cy="72.32756"
+     r="1.5556923"
      fill="#000000"
      id="circle3"
-     rx="1.5556923"
-     ry="1.7750385"
-     style="stroke-width:0.553917" />
-  <ellipse
+     style="stroke-width:0.518564" />
+  <circle
      cx="94.444305"
-     cy="1.7750385"
+     cy="7.5070624"
+     r="1.5556923"
      fill="#000000"
      id="circle4"
-     rx="1.5556923"
-     ry="1.7750385"
-     style="stroke-width:0.553917" />
-  <ellipse
+     style="stroke-width:0.518564" />
+  <circle
      cx="29.623796"
-     cy="1.7750385"
+     cy="7.5070624"
+     r="1.5556923"
      fill="#000000"
      id="circle5"
-     rx="1.5556923"
-     ry="1.7750385"
-     style="stroke-width:0.553917" />
-  <ellipse
+     style="stroke-width:0.518564" />
+  <circle
      cx="1.5556923"
-     cy="20.265022"
+     cy="23.712194"
+     r="1.5556923"
      fill="#000000"
      id="circle6"
-     rx="1.5556923"
-     ry="1.7750385"
-     style="stroke-width:0.553917" />
-  <ellipse
+     style="stroke-width:0.518564" />
+  <circle
      cx="1.5556923"
-     cy="94.22496"
+     cy="88.532684"
+     r="1.5556923"
      fill="#000000"
      id="circle7"
-     rx="1.5556923"
-     ry="1.7750385"
-     style="stroke-width:0.553917" />
-  <ellipse
+     style="stroke-width:0.518564" />
+  <circle
      cx="66.376205"
-     cy="20.265022"
+     cy="23.712194"
+     r="1.5556923"
      fill="#000000"
      id="circle8"
-     rx="1.5556923"
-     ry="1.7750385"
-     style="stroke-width:0.553917" />
+     style="stroke-width:0.518564" />
 </svg>

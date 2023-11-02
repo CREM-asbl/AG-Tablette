@@ -16,7 +16,6 @@ export class App extends LitElement {
 
   constructor() {
     super();
-
     this.appLoading = false;
   }
 

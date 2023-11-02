@@ -54,9 +54,14 @@
       "url": "/?interface=Grandeurs",
       "icons": [
         {
+          "src": "images/Environnements/logo_grandeurs.webp",
+          "type": "image/webp",
+          "sizes": "96x96"
+        },
+        {
           "src": "images/Environnements/logo_grandeurs_96x96.svg",
           "type": "image/svg",
-          "sizes": "96x96"
+          "sizes": "any"
         }
       ]
     },

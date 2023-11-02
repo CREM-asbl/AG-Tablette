@@ -237,10 +237,10 @@ export class SaveFileManager {
     }
     let json_data = JSON.stringify(saveObject);
 
+    const file = new Blob([json_data], { type: 'application/agmobile' });
     if (SaveFileManager.hasNativeFS) {
-      SaveFileManager.newWriteFile(handle, json_data);
+      SaveFileManager.newWriteFile(handle, file);
     } else {
-      const file = new Blob([json_data], { type: 'application/agmobile' });
       const encoded_data = window.URL.createObjectURL(file);
       SaveFileManager.downloadFile(handle.name, encoded_data);
     }
@@ -248,6 +248,7 @@ export class SaveFileManager {
   }
 
   static async newWriteFile(fileHandle, contents) {
+    console.log(contents)
     const writer = await fileHandle.createWritable();
     await writer.truncate(0);
     await writer.write(contents);
