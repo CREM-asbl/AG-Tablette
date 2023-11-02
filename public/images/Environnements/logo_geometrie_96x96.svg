@@ -23,8 +23,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.41375"
-     inkscape:cx="400"
-     inkscape:cy="250.04421"
+     inkscape:cx="57.648099"
+     inkscape:cy="246.50752"
      inkscape:window-width="1920"
      inkscape:window-height="974"
      inkscape:window-x="-11"
@@ -33,93 +33,86 @@
      inkscape:current-layer="svg9" />
   <!-- Carré -->
   <path
-     d="M 39.986325,94.429352 H 94.687179 V 28.765876 H 39.986325 v 65.663476"
+     d="M 39.986325,86.444042 H 94.687179 V 31.743188 H 39.986325 v 54.700854"
      stroke="#000000"
      fill="#fff6"
      fill-opacity="1"
-     stroke-width="0.958915"
+     stroke-width="0.875214"
      stroke-opacity="1"
      id="path1" />
   <!-- Carré -->
   <path
-     d="M 39.986325,94.429352 78.659829,48.005274 62.632479,28.765876"
+     d="M 39.986325,86.444042 78.659829,47.770538 62.632479,31.743188"
      stroke="#000000"
      fill="#fff0"
      fill-opacity="1"
-     stroke-width="0.958915"
+     stroke-width="0.875214"
      stroke-opacity="1"
      id="path2" />
   <!-- Carré -->
   <path
-     d="M 39.986325,94.429352 V 28.765876 H 62.632479 L 39.986325,1.5811976 1.3128205,48.005274 Z"
+     d="M 39.986325,86.444042 V 31.743188 H 62.632479 L 39.986325,9.097034 1.3128205,47.770538 Z"
      stroke="#000000"
      fill="#fff6"
      fill-opacity="1"
-     stroke-width="0.958915"
+     stroke-width="0.875214"
      stroke-opacity="1"
      id="path3" />
-  <ellipse
+  <circle
      cx="39.986324"
-     cy="94.429352"
+     cy="86.444046"
      fill="#000000"
      id="circle3"
-     rx="1.3128206"
-     ry="1.5759234"
-     style="stroke-width:0.479456" />
-  <ellipse
+     r="1.3128206"
+     style="stroke-width:0.437607" />
+  <circle
      cx="94.68718"
-     cy="94.429352"
+     cy="86.444046"
      fill="#000000"
      id="circle4"
-     rx="1.3128206"
-     ry="1.5759234"
-     style="stroke-width:0.479456" />
-  <ellipse
+     r="1.3128206"
+     style="stroke-width:0.437607" />
+  <circle
      cx="94.68718"
-     cy="28.765879"
+     cy="31.743191"
      fill="#000000"
      id="circle5"
-     rx="1.3128206"
-     ry="1.5759234"
-     style="stroke-width:0.479456" />
-  <ellipse
+     r="1.3128206"
+     style="stroke-width:0.437607" />
+  <circle
      cx="39.986324"
-     cy="28.765879"
+     cy="31.743191"
      fill="#000000"
      id="circle6"
-     rx="1.3128206"
-     ry="1.5759234"
-     style="stroke-width:0.479456" />
-  <ellipse
+     r="1.3128206"
+     style="stroke-width:0.437607" />
+  <circle
      cx="78.659828"
-     cy="48.00528"
+     cy="47.770542"
      fill="#000000"
      id="circle7"
-     rx="1.3128206"
-     ry="1.5759234"
-     style="stroke-width:0.479456" />
-  <ellipse
+     r="1.3128206"
+     style="stroke-width:0.437607" />
+  <circle
      cx="39.986324"
-     cy="1.5812008"
+     cy="9.0970364"
      fill="#000000"
      id="circle8"
-     rx="1.3128206"
-     ry="1.5759234"
-     style="stroke-width:0.479456" />
-  <ellipse
+     r="1.3128206"
+     style="stroke-width:0.437607" />
+  <circle
      cx="1.3128206"
-     cy="48.00528"
+     cy="47.770542"
      fill="#000000"
      id="circle9"
-     rx="1.3128206"
-     ry="1.5759234"
-     style="stroke-width:0.479456" />
+     r="1.3128206"
+     style="stroke-width:0.437607" />
   <path
-     d="M 94.687179,28.765876 A 54.700855,65.663476 0 0 0 39.986325,1.5811976"
+     d="M 94.687179,31.743188 A 54.700855,54.700855 0 0 0 39.986325,9.097034"
      stroke="#000000"
      fill="#fff0"
      fill-opacity="1"
-     stroke-width="0.958915"
+     stroke-width="0.875214"
      stroke-opacity="1"
      id="path9" />
 </svg>

@@ -8,25 +8,27 @@ class AgEnvironnements extends LitElement {
       :host {
         display: grid;
         grid-template: 1fr 1fr / 1fr 1fr;
-        gap: 24px;
+        gap: 2dvh;
         justify-items: center;
         align-items: center;
         height: 100dvh;
-        padding: 24px;
+        padding: 2dvh;
         box-sizing: border-box;
         background: lightgray;
       }
 
       .envTile {
+        display: grid;
+        place-items: center center;
         width: 100%;
         height: 100%;
+        padding: 16px;
         box-shadow: 0 1px 2px black;
-        font-size: 2.3rem;
         font-weight: bold;
-        /* text-align: center; */
+        font-size: 5dvh;
         background: rgba(0, 0, 0, 0.5);
         border-radius: 4px;
-        position: relative;
+        box-sizing: border-box;
       }
 
       .envTile:hover {
@@ -34,45 +36,38 @@ class AgEnvironnements extends LitElement {
       }
 
       .envText {
-        width: 100%;
         text-align: center;
       }
 
-      .textBottom {
-        position: absolute;
-        bottom: 20px;
-      }
-
-      .textTop {
-        position: absolute;
-        top: 20px;
+      img {
+        display: block;
+        width: auto;
+        height: 100%;
+        object-fit: contain;
       }
 
       #Grandeurs {
-        background: no-repeat url('/images/Environnements/logo_grandeurs.svg') center center #0baf73;
-
-        background-size: auto 150%;
+        background: #0baf73;
       }
 
       #Tangram {
-        background: no-repeat url('/images/Environnements/logo_tangram.svg') center
-          center #006CAA;
+        background: #006CAA;
+      }
 
-        background-size: auto 180%;
+      #Gandeurs, #Tangram {
+        grid-template-rows: "1fr auto";
       }
 
       #Cubes {
-        background: no-repeat url('/images/Environnements/logo_cubes.svg') center center
-        #cf5f2c;
-
-        background-size: auto 150%;
+        background: #cf5f2c;
       }
 
       #Geometrie {
-        background: no-repeat url('/images/Environnements/logo_geometrie.svg') center center
-        #888;
+        background: #888;
+      }
 
-        background-size: auto 150%;
+      #Cubes, #Geometrie {
+        grid-template-rows: "auto 1fr";
       }
 
       .rotate {
@@ -93,7 +88,7 @@ class AgEnvironnements extends LitElement {
         -webkit-filter: drop-shadow( 0px 0px 2px rgba(0, 0, 0));
       }
 
-      img {
+      #logo {
         width: 26vmin;
         height: 26vmin;
       }
@@ -103,27 +98,32 @@ class AgEnvironnements extends LitElement {
   render() {
     return html`
       <div id="Grandeurs" name="Grandeurs" class="envTile" @click="${() => this.handleClick('Grandeurs')}" alt="logo Grandeurs">
-        <div class="textBottom envText" name="Grandeurs">
+      <img src="/images/Environnements/logo_grandeurs_96x96.svg" alt="logo grandeurs"/>
+      <div class="envText" name="Grandeurs">
           Grandeurs
         </div>
       </div>
       <div id="Tangram" name="Tangram" class="envTile" @click="${() => this.handleClick('Tangram')}" alt="logo Tangram">
-        <div class="textBottom envText" name="Tangram">
+      <img src="/images/Environnements/logo_tangram_96x96.svg" alt="logo tangram"/>
+      <div class="envText" name="Tangram">
           Tangram
         </div>
       </div>
       <div id="Cubes" name="Cubes" class="envTile" @click="${() => this.handleClick('Cubes')}" alt="logo Cubes">
-        <div class="textTop envText" name="Cubes">
+        <div class="envText" name="Cubes">
           Cubes
         </div>
+        <img src="/images/Environnements/logo_cubes_96x96.svg" alt="logo cubes"/>
       </div>
       <div id="Geometrie" name="Geometrie" class="envTile" @click="${() => this.handleClick('Geometrie')}" alt="logo Géométrie">
-        <div class="textTop envText" name="Geometrie">
+        <div class="envText" name="Geometrie">
           Géométrie
         </div>
+        <img src="/images/Environnements/logo_geometrie_96x96.svg" alt="logo géométrie"/>
       </div>
       <div class="logo-wrapper">
         <img
+          id="logo"
           src="images/manifest/icon.svg"
           draggable="false"
           alt="logo"
@@ -133,10 +133,6 @@ class AgEnvironnements extends LitElement {
   }
 
   async handleClick(e) {
-    // if (e == 'Geometrie') {
-    //   console.log('Geometrie not supported here');
-    //   return;
-    // }
     setState({ appLoading: true });
     setState({ environment: await loadEnvironnement(e) });
   }
