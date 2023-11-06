@@ -7,10 +7,7 @@ import { App } from '@controllers/ag-app';
   <head>
     <meta charset="utf-8" />
     <meta name="google" content="notranslate" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
 
     <title>AG mobile</title>
     <meta
@@ -72,17 +69,20 @@ import { App } from '@controllers/ag-app';
     </script>
 
     <style>
+      :root {
+        touch-action: pan-x pan-y;
+      }
       * {
         box-sizing: border-box;
       }
       html,
-      body,
-      ag-main {
+      body {
         width: 100dvw;
         height: 100dvh;
         margin: 0;
         padding: 0;
         overflow-y: hidden;
+        position: relative;
       }
 
       body {
@@ -97,11 +97,6 @@ import { App } from '@controllers/ag-app';
         -ms-user-select: none; /* Internet Explorer/Edge */
         user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */
-      }
-
-      :root {
-        touch-action: pan-x pan-y;
-        height: 100dvh;
       }
 
       hmr-error-overlay {
