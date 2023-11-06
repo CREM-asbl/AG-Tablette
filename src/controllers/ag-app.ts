@@ -7,9 +7,9 @@ import './Core/Manifest';
 import { downloadFileZip, openFileFromServer } from './Firebase/firebase-init';
 
 /**
- * fix device-height != screen-height
+ * fix device-height != screen-height on pwa
  **/
-if (document.body.clientHeight != screen.height) {
+if (document.body.clientHeight > screen.height) {
   document.body.style.height = `${screen.height}px`
 }
 
