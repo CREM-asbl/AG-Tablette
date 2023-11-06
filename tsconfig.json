@@ -28,10 +28,10 @@
       "@db/*": [
         "src/firebase/*"
       ],
-      "@config": [
+      "@config/*": [
         "src/config/*"
       ],
-      "@styles": [
+      "@styles/*": [
         "src/styles/*"
       ]
     }

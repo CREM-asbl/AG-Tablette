@@ -2,6 +2,17 @@
   "name": "Apprenti Géomètre mobile",
   "short_name": "AG mobile",
   "version": "1.3.2",
+  "id": "/",
+  "start_url": "/",
+  "display": "fullscreen",
+  "display_override": [
+    "window-controls-overlay"
+  ],
+  "theme_color": "lightgrey",
+  "background_color": "lightgrey",
+  "orientation": "landscape",
+  "description": "Apprenti Géomètre mobile, la version d'Apprenti Géomètre qui peut également s'utiliser sur tablette",
+  "lang": "fr-BE",
   "icons": [
     {
       "src": "images/manifest/icon-512.png",
@@ -16,17 +27,6 @@
       "purpose": "maskable"
     }
   ],
-  "id": "/",
-  "start_url": "/",
-  "display": "fullscreen",
-  "display_override": [
-    "window-controls-overlay"
-  ],
-  "theme_color": "lightgrey",
-  "background_color": "lightgrey",
-  "orientation": "landscape",
-  "description": "Apprenti Géomètre mobile, la version d'Apprenti Géomètre qui peut également s'utiliser sur tablette",
-  "lang": "fr-BE",
   "file_handlers": [
     {
       "action": "/",
@@ -71,9 +71,14 @@
       "url": "/?interface=Tangram",
       "icons": [
         {
+          "src": "images/Environnements/logo_tangram.webp",
+          "type": "image/webp",
+          "sizes": "96x96"
+        },
+        {
           "src": "images/Environnements/logo_tangram_96x96.svg",
           "type": "image/svg",
-          "sizes": "96x96"
+          "sizes": "any"
         }
       ]
     },
@@ -83,9 +88,14 @@
       "url": "/?interface=Cubes",
       "icons": [
         {
+          "src": "images/Environnements/logo_cubes.webp",
+          "type": "image/webp",
+          "sizes": "96x96"
+        },
+        {
           "src": "images/Environnements/logo_cubes_96x96.svg",
           "type": "image/svg",
-          "sizes": "96x96"
+          "sizes": "any"
         }
       ]
     },
@@ -95,9 +105,14 @@
       "url": "/?interface=Geometrie",
       "icons": [
         {
+          "src": "images/Environnements/logo_geometrie.webp",
+          "type": "image/webp",
+          "sizes": "96x96"
+        },
+        {
           "src": "images/Environnements/logo_geometrie_96x96.svg",
           "type": "image/svg",
-          "sizes": "96x96"
+          "sizes": "any"
         }
       ]
     }
