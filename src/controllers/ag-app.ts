@@ -14,12 +14,11 @@ if (document.body.clientHeight > screen.height) {
 }
 
 export class App extends LitElement {
-  static get properties() {
-    return {
-      environnement_selected: { type: Boolean },
-      appLoading: { type: Boolean },
-    };
-  }
+  static properties = {
+    environnement_selected: { type: Boolean },
+    appLoading: { type: Boolean },
+  };
+
 
   constructor() {
     super();

@@ -1,6 +1,6 @@
 import { html, LitElement } from 'lit';
-import { app, setState } from './Core/App';
-import './icon-button';
+import { app, setState } from '../controllers/Core/App';
+import '../controllers/icon-button';
 import { TemplateToolbar } from './template-toolbar';
 
 class ToolbarSection extends LitElement {
@@ -15,9 +15,7 @@ class ToolbarSection extends LitElement {
 
   constructor() {
     super();
-
     this.updateProperties = () => {
-      this.iconSize = app.menuIconSize;
       this.tools = app.tools.filter(
         (tool) => tool.type === this.toolsType,
       ).filter(
@@ -31,31 +29,26 @@ class ToolbarSection extends LitElement {
       this.updateProperties();
     };
 
-    window.addEventListener('menuIconSize-changed', this.eventHandler);
     window.addEventListener('helpSelected-changed', this.eventHandler);
     window.addEventListener('tool-changed', this.eventHandler);
     window.addEventListener('tools-changed', this.eventHandler);
   }
 
-  static get styles() {
-    return [TemplateToolbar.templateToolbarStyles()];
-  }
+  static styles = [TemplateToolbar.templateToolbarStyles()];
 
   render() {
+    console.log('render', this.tools)
     if (this.tools[0]?.name == 'create') {
+      console.log('create')
       setTimeout(() => this.updateProperties(), 100);
     }
-    if (!app.menuIconSize)
-      setState({ menuIconSize: (this.offsetWidth - 22) / 4 });
     if (!this.tools.length) return html``;
     return html`
       <template-toolbar>
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
-          ${this.tools.map(
-            (tool) => html`
+          ${this.tools.map((tool) => html`
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="${tool.name}"
                 type="State"
                 title="${tool.title}"
@@ -63,9 +56,10 @@ class ToolbarSection extends LitElement {
                 ?helpanimation="${this.helpSelected}"
                 cantInteract="${this.helpSelected}"
                 @click="${this._actionHandle}"
-              ></icon-button>
+              >
+            </icon-button>
             `
-          )}
+    )}
         </div>
       </template-toolbar>
     `;

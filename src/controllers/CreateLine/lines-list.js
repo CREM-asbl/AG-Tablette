@@ -65,8 +65,6 @@ class LinesList extends LitElement {
         justify-content: center;
         position: absolute;
         bottom: 0;
-        /* left: calc(300 + 100%); */
-        /* right: 0; */
       }
 
       .container {
@@ -77,7 +75,6 @@ class LinesList extends LitElement {
         overflow: auto;
         border-radius: 7px;
         margin-bottom: 3px;
-        /* padding: 3px; */
       }
 
       h2 {
@@ -88,13 +85,12 @@ class LinesList extends LitElement {
       }
 
       #list {
-        display: flex;
-        margin: 3px;
-        /* padding: 2px; */
+        display: grid;
+        grid-auto-flow: column;
+        gap: 4px;
         list-style: none;
-        justify-content: space-evenly;
-        overflow-x: auto;
-        overflow-y: hidden;
+        overflow: auto hidden;
+        padding: 4px;
       }
 
       @media (max-width: 600px) {

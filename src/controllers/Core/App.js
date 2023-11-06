@@ -69,7 +69,7 @@ export class App {
     }
 
     this.stepSinceSave = false,
-    this.started = false;
+      this.started = false;
     this.appLoading = false;
     this.nextGroupColorIdx = 0;
 
@@ -86,7 +86,7 @@ export class App {
       fullHistory: { ...this.fullHistory },
       tangram: { ...this.tangram },
       stepSinceSave: this.stepSinceSave,
-      notionsOpen: {...this.notionsOpen},
+      notionsOpen: { ...this.notionsOpen },
     };
 
     // compteur d'écouteurs pour certains event
@@ -116,7 +116,7 @@ export class App {
 
   dispatchEv(event) {
     // if (app.listenerCounter[event.type]) {
-      window.dispatchEvent(event);
+    window.dispatchEvent(event);
     // }
   }
 
@@ -178,6 +178,7 @@ export const setState = (update) => {
     window.dispatchEvent(new CustomEvent('menuIconSize-changed', { detail: app }));
   }
   if ('tools' in update) {
+    console.log('tools changed')
     window.dispatchEvent(new CustomEvent('tools-changed', { detail: app }));
   }
   if ('helpSelected' in update) {

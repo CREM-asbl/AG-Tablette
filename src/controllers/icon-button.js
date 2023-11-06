@@ -14,7 +14,6 @@ class IconButton extends LitElement {
 
   constructor() {
     super();
-
     this.colorPickerValue = app.settings.shapesDrawColor;
   }
 
@@ -32,11 +31,11 @@ class IconButton extends LitElement {
     }
   }
 
-  static get styles() {
-    return css`
+  static styles = css`
       :host {
         display: block;
-        margin: 2px;
+        width: 50px;
+        height: 50px;
       }
 
       :host([disabled]) {
@@ -56,7 +55,7 @@ class IconButton extends LitElement {
         background-repeat: no-repeat;
         background-size: 100% 100%;
         box-shadow: 0px 0px 3px var(--menu-shadow-color);
-        border-radius: 3px;
+        border-radius: 4px;
       }
 
       input[type='color'] {
@@ -78,13 +77,7 @@ class IconButton extends LitElement {
       :host([helpanimation]) button {
         background-color: #F3E0BF;
       }
-
-      img {
-        height: 100%;
-        width: 100%;
-      }
-    `;
-  }
+    `
 
   render() {
     if (!this.src) return;
@@ -97,16 +90,16 @@ class IconButton extends LitElement {
             type="color"
             value="${this.colorPickerValue}"
             @input="${e => {
-              if (app.tool.name == 'color') {
-                setState({
-                  settings: {
-                    ...app.settings,
-                    shapesDrawColor: e.target.value,
-                  },
-                  tool: { ...app.tool, currentStep: 'listen' },
-                });
-              }
-            }}"
+          if (app.tool.name == 'color') {
+            setState({
+              settings: {
+                ...app.settings,
+                shapesDrawColor: e.target.value,
+              },
+              tool: { ...app.tool, currentStep: 'listen' },
+            });
+          }
+        }}"
           />
         </button>
       `

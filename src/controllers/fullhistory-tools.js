@@ -1,7 +1,7 @@
 import { css, html, LitElement } from 'lit';
+import { TemplateToolbar } from '../components/template-toolbar';
 import { app } from './Core/App';
 import { FullHistoryManager } from './Core/Managers/FullHistoryManager';
-import { TemplateToolbar } from './template-toolbar';
 
 class FullHistoryTools extends LitElement {
   static get properties() {

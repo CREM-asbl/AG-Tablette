@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit';
+import '../../components/flex-grid';
 import { app, setState } from '../Core/App';
 
 class PointsList extends LitElement {
@@ -51,8 +52,6 @@ class PointsList extends LitElement {
         justify-content: center;
         position: absolute;
         bottom: 0;
-        /* left: calc(300 + 100%); */
-        /* right: 0; */
       }
 
       .container {
@@ -63,7 +62,6 @@ class PointsList extends LitElement {
         overflow: auto;
         border-radius: 7px;
         margin-bottom: 3px;
-        /* padding: 3px; */
       }
 
       h2 {
@@ -74,13 +72,12 @@ class PointsList extends LitElement {
       }
 
       #list {
-        display: flex;
-        margin: 3px;
-        /* padding: 2px; */
+        display: grid;
+        grid-auto-flow: column;
+        gap: 4px;
         list-style: none;
-        justify-content: space-evenly;
-        overflow-x: auto;
-        overflow-y: hidden;
+        overflow: auto hidden;
+        padding: 4px;
       }
 
       @media (max-width: 600px) {
@@ -108,7 +105,7 @@ class PointsList extends LitElement {
         ? this.pointTitle[this.selectedPoint]
         : 'Points'}
         </h2>
-        <div id="list">
+        <flex-grid>
           ${this.pointsNames.map(
           (pointName) => html`
               <icon-button
@@ -122,7 +119,7 @@ class PointsList extends LitElement {
               </icon-button>
             `,
         )}
-        </div>
+        </flex-grid>
       </div>
     `;
   }

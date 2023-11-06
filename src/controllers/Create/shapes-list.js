@@ -36,15 +36,12 @@ class ShapesList extends LitElement {
     window.addEventListener('menuIconSize-changed', this.eventHandler);
   }
 
-  static get styles() {
-    return css`
+  static styles = css`
       :host {
         display: flex;
         justify-content: center;
         position: absolute;
         bottom: 0;
-        /* left: calc(300 + 100%); */
-        /* right: 0; */
       }
 
       .container {
@@ -55,7 +52,6 @@ class ShapesList extends LitElement {
         overflow: auto;
         border-radius: 7px;
         margin-bottom: 3px;
-        /* padding: 3px; */
       }
 
       h2 {
@@ -66,20 +62,13 @@ class ShapesList extends LitElement {
       }
 
       #list {
-        display: flex;
-        margin: 3px;
-        /* padding: 2px; */
-        list-style: none;
-        justify-content: space-evenly;
-        overflow-x: auto;
-        overflow-y: hidden;
+        display: grid;
+        grid-auto-flow: column;
+        gap: 4px;
+        overflow: auto hidden;
+        padding: 4px;
       }
 
-      /* li {
-        margin: 0;
-        padding: 0;
-        height: 56px;
-      } */
       @media (max-width: 600px) {
         :host {
           right: 0;
@@ -87,7 +76,6 @@ class ShapesList extends LitElement {
         }
       }
     `;
-  }
 
   render() {
     return html`

@@ -1,27 +1,21 @@
 import { html, LitElement } from 'lit';
-import { app, setState } from './Core/App';
+import { app, setState } from '../controllers/Core/App';
 import { TemplateToolbar } from './template-toolbar';
 
 class ToolbarKit extends LitElement {
-  static get properties() {
-    return {
-      familyNames: { type: Array },
-      selectedFamily: { type: String },
-      envName: { type: String },
-      iconSize: { type: Number },
-      helpSelected: { type: Boolean },
-    };
+  static properties = {
+    familyNames: { type: Array },
+    selectedFamily: { type: String },
+    envName: { type: String },
+    helpSelected: { type: Boolean },
   }
 
-  static get styles() {
-    return [TemplateToolbar.templateToolbarStyles()];
-  }
+
+  static styles = [TemplateToolbar.templateToolbarStyles()];
 
   constructor() {
     super();
-
     this.updateProperties = () => {
-      this.iconSize = app.menuIconSize;
       this.familyNames = app.environment.families.filter(family => family.isVisible).map(family => family.name);
       this.helpSelected = app.helpSelected;
     };
@@ -30,8 +24,6 @@ class ToolbarKit extends LitElement {
     this.eventHandler = () => {
       this.updateProperties();
     };
-
-    window.addEventListener('menuIconSize-changed', this.eventHandler);
     window.addEventListener('tools-changed', this.eventHandler);
 
     this.envName = app.environment.kitName;
@@ -48,15 +40,16 @@ class ToolbarKit extends LitElement {
   }
 
   render() {
+    console.log(app.environment)
+    console.log('render toolbar-kit', this.familyNames)
     if (!this.familyNames.length) return html``;
     return html`
       <template-toolbar>
         <h2 slot="title">${app.environment.kitName}</h2>
         <div slot="body">
           ${this.familyNames.map((familyName) => {
-            return html`
+      return html`
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="${app.environment.families.find(family => family.name == familyName).shapeTemplates[0].name}"
                 type="Create"
                 title="${familyName}"
@@ -66,7 +59,7 @@ class ToolbarKit extends LitElement {
               >
               </icon-button>
             `;
-          })}
+    })}
         </div>
       </template-toolbar>
     `;

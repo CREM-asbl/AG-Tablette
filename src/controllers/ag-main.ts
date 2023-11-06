@@ -1,5 +1,8 @@
+import { TemplateToolbar } from '@components/template-toolbar';
 import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import '../components/toolbar-kit';
+import '../components/toolbar-section';
 import './canvas-container';
 import './color-button';
 import { app, setState } from './Core/App';
@@ -14,28 +17,22 @@ import './Core/Managers/WorkspaceManager';
 import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
 import './icon-button';
 import './popups/notification';
-import { TemplateToolbar } from './template-toolbar';
-import './toolbar-kit';
-import './toolbar-section';
 
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
 @customElement('ag-main')
 class AGMain extends LitElement {
-  static get properties() {
-    return {
-      canUndo: Boolean,
-      canRedo: Boolean,
-      background: String,
-      tool: Object,
-      colorPickerValue: String,
-      iconSize: Number,
-      // toolbarSections: Array,
-      helpSelected: Boolean,
-      filename: String,
-    };
-  }
+
+  static properties = {
+    canUndo: Boolean,
+    canRedo: Boolean,
+    background: String,
+    tool: Object,
+    colorPickerValue: String,
+    helpSelected: Boolean,
+    filename: String,
+  };
 
   constructor() {
     super();
@@ -57,7 +54,6 @@ class AGMain extends LitElement {
     });
 
     this.updateProperties = () => {
-      this.iconSize = app.menuIconSize;
       this.helpSelected = app.helpSelected;
       this.filename = app.filename || '';
       document.title = this.filename != "" ? this.filename : "AG mobile";
@@ -71,7 +67,6 @@ class AGMain extends LitElement {
     window.addEventListener('menuIconSize-changed', this.eventHandler);
     window.addEventListener('helpSelected-changed', this.eventHandler);
     window.addEventListener('filename-changed', this.eventHandler);
-    // window.addEventListener('tools-changed', this.eventHandler);
 
     let preventZoom = (e) => {
       var t2 = e.timeStamp;
@@ -95,10 +90,9 @@ class AGMain extends LitElement {
     });
   }
 
-  static get styles() {
-    return [
-      TemplateToolbar.templateToolbarStyles(),
-      css`
+  static styles = [
+    TemplateToolbar.templateToolbarStyles(),
+    css`
         #app-view {
           background-color: var(--theme-color-soft);
           display: flex;
@@ -117,23 +111,12 @@ class AGMain extends LitElement {
           box-sizing: border-box;
           background-color: var(--theme-color);
           flex: 0 0 ${app.settings.mainMenuWidth}px;
-
           scrollbar-width: thin;
-
-          /* scrollbar hidden */
-          /* -ms-overflow-style: none; IE and Edge */
-          /* scrollbar-width: none; Firefox */
           overflow-y: scroll;
           overflow-x: hidden;
-
           touch-action: none;
           -ms-touch-action: manipulation;
         }
-
-        /* scrollbar hidden */
-        /* #left-menu::-webkit-scrollbar {
-          display: none;
-        } */
 
         canvas-container {
           width: 100%;
@@ -143,14 +126,10 @@ class AGMain extends LitElement {
 
         /* Fix Safari le input ne peut pas être caché et doit se trouver dans le viewport */
         input[type='color'] {
-          /* opacity: 0; */
           position: absolute;
           top: 0;
           left: 21dvw;
-          /* width: 0;
-          height: 0; */
           border: none;
-          /* background: transparent; */
         }
 
         h3 {
@@ -167,12 +146,9 @@ class AGMain extends LitElement {
           content: " ";
         }
       `,
-    ];
-  }
+  ]
 
   async firstUpdated() {
-    // let sectionImport = await import(`./toolbarSectionsDef.js`);
-    // this.toolbarSections = sectionImport.default.sections;
     let backgroundColor = rgb2hex(window.getComputedStyle(this.shadowRoot.querySelector('#left-menu'), null).backgroundColor);
     if (!backgroundColor)
       backgroundColor = '#ffffff';
@@ -192,6 +168,7 @@ class AGMain extends LitElement {
   }
 
   render() {
+    console.log(app)
     return html`
       <div id="app-view">
         <div id="left-menu">
@@ -209,7 +186,6 @@ class AGMain extends LitElement {
           <template-toolbar>
             <div slot="body">
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="home"
                 title="Accueil"
                 ?helpanimation="${this.helpSelected}"
@@ -217,7 +193,6 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="open"
                 title="Ouvrir"
                 ?helpanimation="${this.helpSelected}"
@@ -225,7 +200,6 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="save"
                 title="Enregistrer"
                 ?helpanimation="${this.helpSelected}"
@@ -233,7 +207,6 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="settings"
                 title="Paramètres"
                 ?helpanimation="${this.helpSelected}"
@@ -241,7 +214,6 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="undo"
                 title="Annuler"
                 ?disabled="${!this.canUndo}"
@@ -250,7 +222,6 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="redo"
                 title="Refaire"
                 ?disabled="${!this.canRedo}"
@@ -259,7 +230,6 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="replay"
                 title="Rejouer"
                 ?helpanimation="${this.helpSelected}"
@@ -267,7 +237,6 @@ class AGMain extends LitElement {
               >
               </icon-button>
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 name="help"
                 ?active="${this.helpSelected}"
                 title="Aide"
@@ -277,7 +246,7 @@ class AGMain extends LitElement {
             </div>
           </template-toolbar>
 
-          <toolbar-kit></toolbar-kit>
+          <toolbar-kit .familyNames=${app.environment.families.filter(family => family.isVisible).map(family => family.name)}></toolbar-kit>
 
           <toolbar-section
             title="Figures libres"
