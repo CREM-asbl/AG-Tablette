@@ -53,8 +53,6 @@ class TrianglesList extends LitElement {
         justify-content: center;
         position: absolute;
         bottom: 0;
-        /* left: calc(300 + 100%); */
-        /* right: 0; */
       }
 
       .container {
@@ -65,7 +63,6 @@ class TrianglesList extends LitElement {
         overflow: auto;
         border-radius: 7px;
         margin-bottom: 3px;
-        /* padding: 3px; */
       }
 
       h2 {
@@ -73,16 +70,6 @@ class TrianglesList extends LitElement {
         margin: 0;
         text-align: center;
         font-size: 1.2rem;
-      }
-
-      #list {
-        display: flex;
-        margin: 3px;
-        /* padding: 2px; */
-        list-style: none;
-        justify-content: space-evenly;
-        overflow-x: auto;
-        overflow-y: hidden;
       }
 
       @media (max-width: 600px) {
@@ -110,7 +97,7 @@ class TrianglesList extends LitElement {
         ? this.triangleTitle[this.selectedTriangle]
         : 'Triangles'}
         </h2>
-        <div id="list">
+        <flex-grid>
           ${this.trianglesNames.map(
           (triangleName) => html`
               <icon-button
@@ -124,7 +111,7 @@ class TrianglesList extends LitElement {
               </icon-button>
             `,
         )}
-        </div>
+        </flex-grid>
       </div>
     `;
   }

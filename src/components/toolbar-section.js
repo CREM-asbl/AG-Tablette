@@ -13,41 +13,18 @@ class ToolbarSection extends LitElement {
     };
   }
 
-  constructor() {
-    super();
-    this.updateProperties = () => {
-      this.tools = app.tools.filter(
-        (tool) => tool.type === this.toolsType,
-      ).filter(
-        (tool) => tool.isVisible && !tool.isDisable,
-      );
-      this.helpSelected = app.helpSelected;
-    };
-    this.updateProperties();
-
-    this.eventHandler = () => {
-      this.updateProperties();
-    };
-
-    window.addEventListener('helpSelected-changed', this.eventHandler);
-    window.addEventListener('tool-changed', this.eventHandler);
-    window.addEventListener('tools-changed', this.eventHandler);
-  }
-
   static styles = [TemplateToolbar.templateToolbarStyles()];
 
   render() {
-    console.log('render', this.tools)
-    if (this.tools[0]?.name == 'create') {
-      console.log('create')
-      setTimeout(() => this.updateProperties(), 100);
-    }
-    if (!this.tools.length) return html``;
+    const tools = app.tools.filter(
+      (tool) => tool.type === this.toolsType && tool.isVisible && !tool.isDisable
+    )
+    if (!tools.length) return html``;
     return html`
       <template-toolbar>
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
-          ${this.tools.map((tool) => html`
+          ${tools.map((tool) => html`
               <icon-button
                 name="${tool.name}"
                 type="State"
@@ -66,7 +43,7 @@ class ToolbarSection extends LitElement {
   }
 
   _actionHandle(event) {
-    if (app.helpSelected) {
+    if (this.helpSelected) {
       window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: event.target.name } }));
       setState({ helpSelected: false });
     } else if (!app.fullHistory.isRunning) {

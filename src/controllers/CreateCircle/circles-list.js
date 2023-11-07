@@ -1,3 +1,4 @@
+import '@components/flex-grid';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 
@@ -40,8 +41,7 @@ class CirclesList extends LitElement {
     };
   }
 
-  static get styles() {
-    return css`
+  static styles = css`
       :host {
         display: flex;
         justify-content: center;
@@ -66,23 +66,13 @@ class CirclesList extends LitElement {
         font-size: 1.2rem;
       }
 
-      #list {
-        display: grid;
-        grid-auto-flow: column;
-        gap: 4px;
-        list-style: none;
-        overflow: auto hidden;
-        padding: 4px;
-      }
-
       @media (max-width: 600px) {
         :host {
           right: 0;
           left: auto;
         }
       }
-    `;
-  }
+    `
 
   render() {
     return html`
@@ -100,21 +90,6 @@ class CirclesList extends LitElement {
         ? this.circleTitle[this.selectedCircle]
         : 'Arcs'}
         </h2>
-        <div id="list">
-          ${this.circlesNames.map(
-          (circleName) => html`
-            <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
-                title="${this.circleTitle[circleName]}"
-                type="Geometry"
-                name="${circleName}"
-                @click="${this._clickHandle}"
-                ?active="${circleName === this.selectedCircle}"
-              >
-              </icon-button>
-            `,
-        )}
-        </div>
         <flex-grid>
           ${this.circlesNames.map((circleName) => html`
               <icon-button

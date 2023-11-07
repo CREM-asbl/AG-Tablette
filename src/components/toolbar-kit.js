@@ -4,53 +4,25 @@ import { TemplateToolbar } from './template-toolbar';
 
 class ToolbarKit extends LitElement {
   static properties = {
-    familyNames: { type: Array },
+    environment: { type: Object },
     selectedFamily: { type: String },
-    envName: { type: String },
     helpSelected: { type: Boolean },
   }
 
 
   static styles = [TemplateToolbar.templateToolbarStyles()];
 
-  constructor() {
-    super();
-    this.updateProperties = () => {
-      this.familyNames = app.environment.families.filter(family => family.isVisible).map(family => family.name);
-      this.helpSelected = app.helpSelected;
-    };
-    this.updateProperties();
-
-    this.eventHandler = () => {
-      this.updateProperties();
-    };
-    window.addEventListener('tools-changed', this.eventHandler);
-
-    this.envName = app.environment.kitName;
-
-    window.addEventListener('environment-changed', () => {
-      this.familyNames = app.environment.familyNames;
-      this.envName = app.environment.kitName;
-    });
-    window.addEventListener(
-      'tool-changed',
-      () => (this.selectedFamily = app.tool?.selectedFamily),
-    );
-    window.addEventListener('helpSelected-changed', this.eventHandler);
-  }
-
   render() {
-    console.log(app.environment)
-    console.log('render toolbar-kit', this.familyNames)
-    if (!this.familyNames.length) return html``;
+    const familyNames = this.environment.families.filter(family => family.isVisible).map(family => family.name);
+    if (!familyNames.length) return html``;
     return html`
       <template-toolbar>
-        <h2 slot="title">${app.environment.kitName}</h2>
+        <h2 slot="title">${this.environment.kitName}</h2>
         <div slot="body">
-          ${this.familyNames.map((familyName) => {
+          ${familyNames.map((familyName) => {
       return html`
               <icon-button
-                name="${app.environment.families.find(family => family.name == familyName).shapeTemplates[0].name}"
+                name="${this.environment.families.find(family => family.name == familyName).shapeTemplates[0].name}"
                 type="Create"
                 title="${familyName}"
                 ?active="${familyName === this.selectedFamily}"

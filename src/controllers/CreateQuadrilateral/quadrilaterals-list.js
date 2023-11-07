@@ -1,3 +1,4 @@
+import '@components/flex-grid';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 
@@ -59,8 +60,6 @@ class QuadrilateralsList extends LitElement {
         justify-content: center;
         position: absolute;
         bottom: 0;
-        /* left: calc(300 + 100%); */
-        /* right: 0; */
       }
 
       .container {
@@ -71,7 +70,6 @@ class QuadrilateralsList extends LitElement {
         overflow: auto;
         border-radius: 7px;
         margin-bottom: 3px;
-        /* padding: 3px; */
       }
 
       h2 {
@@ -79,16 +77,6 @@ class QuadrilateralsList extends LitElement {
         margin: 0;
         text-align: center;
         font-size: 1.2rem;
-      }
-
-      #list {
-        display: flex;
-        margin: 3px;
-        /* padding: 2px; */
-        list-style: none;
-        justify-content: space-evenly;
-        overflow-x: auto;
-        overflow-y: hidden;
       }
 
       @media (max-width: 600px) {
@@ -116,7 +104,7 @@ class QuadrilateralsList extends LitElement {
         ? this.quadrilateralTitle[this.selectedQuadrilateral]
         : 'Quadrilatères'}
         </h2>
-        <div id="list">
+        <flex-grid>
           ${this.quadrilateralsNames.map(
           (quadrilateralName) => html`
               <icon-button
@@ -130,7 +118,7 @@ class QuadrilateralsList extends LitElement {
               </icon-button>
             `,
         )}
-        </div>
+        </flex-grid>
       </div>
     `;
   }

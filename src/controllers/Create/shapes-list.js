@@ -1,3 +1,4 @@
+import '@components/flex-grid';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 
@@ -61,14 +62,6 @@ class ShapesList extends LitElement {
         font-size: 1.2rem;
       }
 
-      #list {
-        display: grid;
-        grid-auto-flow: column;
-        gap: 4px;
-        overflow: auto hidden;
-        padding: 4px;
-      }
-
       @media (max-width: 600px) {
         :host {
           right: 0;
@@ -93,7 +86,7 @@ class ShapesList extends LitElement {
         ? this.selectedTemplate.replace(/ \d+$/, '')
         : this.selectedFamily}
         </h2>
-        <div id="list">
+        <flex-grid>
           ${this.templateNames.map(
           (templateName) => {
             return html`
@@ -108,7 +101,7 @@ class ShapesList extends LitElement {
               </icon-button>
             `},
         )}
-        </div>
+        </flex-grid>
       </div>
     `;
   }

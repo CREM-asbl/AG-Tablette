@@ -1,8 +1,8 @@
 import { LitElement, css, html } from 'lit';
-import { customElement } from 'lit/decorators/customElement.js';
+import { customElement } from 'lit/decorators/custom-element.js';
 
 @customElement('flex-grid')
-class FlexGrid extends LitElement {
+export class FlexGrid extends LitElement {
 
   static styles = css`
     :host {
@@ -14,6 +14,7 @@ class FlexGrid extends LitElement {
       padding: 4px;
     }
   `
+
   render() {
     return html`
       <slot>Aucun élément</slot>

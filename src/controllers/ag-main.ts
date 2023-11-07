@@ -168,7 +168,6 @@ class AGMain extends LitElement {
   }
 
   render() {
-    console.log(app)
     return html`
       <div id="app-view">
         <div id="left-menu">
@@ -246,33 +245,12 @@ class AGMain extends LitElement {
             </div>
           </template-toolbar>
 
-          <toolbar-kit .familyNames=${app.environment.families.filter(family => family.isVisible).map(family => family.name)}></toolbar-kit>
-
-          <toolbar-section
-            title="Figures libres"
-            toolsType="geometryCreator"
-          >
-          </toolbar-section>
-          <toolbar-section
-            title="Mouvements"
-            toolsType="move"
-          >
-          </toolbar-section>
-          <toolbar-section
-            title="Transformations"
-            toolsType="transformation"
-          >
-          </toolbar-section>
-          <toolbar-section
-            title="Opérations"
-            toolsType="operation"
-          >
-          </toolbar-section>
-          <toolbar-section
-            title="Outils"
-            toolsType="tool"
-          >
-          </toolbar-section>
+          <toolbar-kit .environment=${app.environment} selectedFamily="${app.tool?.selectedFamily}" ?helpSelected="${this.helpSelected}"></toolbar-kit>
+          <toolbar-section title="Figures libres" .tools="${app.tools}" toolsType="geometryCreator" ?helpSelected="${this.helpSelected}"></toolbar-section>
+          <toolbar-section title="Mouvements" .tools="${app.tools}" toolsType="move" ?helpSelected="${this.helpSelected}"></toolbar-section>
+          <toolbar-section title="Transformations" .tools="${app.tools}" toolsType="transformation" ?helpSelected="${this.helpSelected}"></toolbar-section>
+          <toolbar-section title="Opérations" .tools="${app.tools}" toolsType="operation" ?helpSelected="${this.helpSelected}"></toolbar-section>
+          <toolbar-section title="Outils" .tools="${app.tools}" toolsType="tool" ?helpSelected="${this.helpSelected}"></toolbar-section>
 
           <!-- <icon-button src="/images/wallpaper.svg"
                               title="Fond d'écran"

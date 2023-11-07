@@ -1,3 +1,4 @@
+import '@components/flex-grid';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 
@@ -84,15 +85,6 @@ class LinesList extends LitElement {
         font-size: 1.2rem;
       }
 
-      #list {
-        display: grid;
-        grid-auto-flow: column;
-        gap: 4px;
-        list-style: none;
-        overflow: auto hidden;
-        padding: 4px;
-      }
-
       @media (max-width: 600px) {
         :host {
           right: 0;
@@ -118,11 +110,10 @@ class LinesList extends LitElement {
         ? this.lineTitle[this.selectedLine]
         : 'Lignes'}
         </h2>
-        <div id="list">
+        <flex-grid>
           ${this.linesNames.map(
           (lineName) => html`
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 title="${this.lineTitle[lineName]}"
                 type="Geometry"
                 name="${lineName}"
@@ -132,7 +123,7 @@ class LinesList extends LitElement {
               </icon-button>
             `,
         )}
-        </div>
+        </flex-grid>
       </div>
     `;
   }

@@ -1,5 +1,5 @@
+import '@components/flex-grid';
 import { css, html, LitElement } from 'lit';
-import '../../components/flex-grid';
 import { app, setState } from '../Core/App';
 
 class PointsList extends LitElement {
@@ -71,15 +71,6 @@ class PointsList extends LitElement {
         font-size: 1.2rem;
       }
 
-      #list {
-        display: grid;
-        grid-auto-flow: column;
-        gap: 4px;
-        list-style: none;
-        overflow: auto hidden;
-        padding: 4px;
-      }
-
       @media (max-width: 600px) {
         :host {
           right: 0;
@@ -109,7 +100,6 @@ class PointsList extends LitElement {
           ${this.pointsNames.map(
           (pointName) => html`
               <icon-button
-                style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                 title="${this.pointTitle[pointName]}"
                 type="Geometry"
                 name="${pointName}"
