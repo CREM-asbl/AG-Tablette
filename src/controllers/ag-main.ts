@@ -175,11 +175,8 @@ class AGMain extends LitElement {
             ${this.filename}
           </h3>
           <h3 style="color: ${this.textColor}">
-            ${this.tool?.title != undefined
-        ? "mode: " + this.tool.title
-        : "Sélectionnez une fonctionnalité"}
+            ${this.tool?.title != undefined ? "mode: " + this.tool.title : "Sélectionnez une fonctionnalité"}
           </h3>
-
           <br>
 
           <template-toolbar>
@@ -245,12 +242,12 @@ class AGMain extends LitElement {
             </div>
           </template-toolbar>
 
-          <toolbar-kit .environment=${app.environment} selectedFamily="${app.tool?.selectedFamily}" ?helpSelected="${this.helpSelected}"></toolbar-kit>
-          <toolbar-section title="Figures libres" .tools="${app.tools}" toolsType="geometryCreator" ?helpSelected="${this.helpSelected}"></toolbar-section>
-          <toolbar-section title="Mouvements" .tools="${app.tools}" toolsType="move" ?helpSelected="${this.helpSelected}"></toolbar-section>
-          <toolbar-section title="Transformations" .tools="${app.tools}" toolsType="transformation" ?helpSelected="${this.helpSelected}"></toolbar-section>
-          <toolbar-section title="Opérations" .tools="${app.tools}" toolsType="operation" ?helpSelected="${this.helpSelected}"></toolbar-section>
-          <toolbar-section title="Outils" .tools="${app.tools}" toolsType="tool" ?helpSelected="${this.helpSelected}"></toolbar-section>
+          <toolbar-kit .environment=${app.environment} selectedFamily="${app.tool?.selectedFamily}" ?helpSelected="${this.helpSelected}" selected="${app.tool?.name}"></toolbar-kit>
+          <toolbar-section title="Figures libres" .tools="${app.tools}" toolsType="geometryCreator" ?helpSelected="${this.helpSelected}" selected="${app.tool?.name}"></toolbar-section>
+          <toolbar-section title="Mouvements" .tools="${app.tools}" toolsType="move" ?helpSelected="${this.helpSelected}" selected="${app.tool?.name}"></toolbar-section>
+          <toolbar-section title="Transformations" .tools="${app.tools}" toolsType="transformation" ?helpSelected="${this.helpSelected}" selected="${app.tool?.name}"></toolbar-section>
+          <toolbar-section title="Opérations" .tools="${app.tools}" toolsType="operation" ?helpSelected="${this.helpSelected}" selected="${app.tool?.name}"></toolbar-section>
+          <toolbar-section title="Outils" .tools="${app.tools}" toolsType="tool" ?helpSelected="${this.helpSelected}" selected="${app.tool?.name}"></toolbar-section>
 
           <!-- <icon-button src="/images/wallpaper.svg"
                               title="Fond d'écran"

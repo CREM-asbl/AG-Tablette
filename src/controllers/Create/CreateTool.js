@@ -6,7 +6,6 @@ import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { createElem } from '../Core/Tools/general';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -88,10 +87,22 @@ export class CreateTool extends Tool {
     ).templateNames;
     if (templateNames.length == 1) {
       let selectedTemplate = templateNames[0];
-      setTimeout(() => setState({ tool: { ...app.tool, currentStep: 'listen', selectedTemplate }}), 50);
+      setTimeout(() => setState({ tool: { ...app.tool, currentStep: 'listen', selectedTemplate } }), 50);
     } else if (!this.shapesList) {
-      import('./shapes-list');
-      this.shapesList = createElem('shapes-list');
+      import('../../components/shape-selector');
+      const elem = document.createElement('shape-selector');
+      elem.family = app.tool.selectedFamily;
+      elem.templatesNames = app.environment.getFamily(app.tool.selectedFamily).templateNames;
+      elem.selectedTemplate = app.tool.selectedTemplate;
+      elem.type = "Create"
+      elem.onclick = event => setState({
+        tool: {
+          ...app.tool,
+          selectedTemplate: event.target.selectedTemplate,
+          currentStep: 'listen'
+        }
+      });
+      document.querySelector('body').appendChild(elem);
     }
   }
 
@@ -152,7 +163,7 @@ export class CreateTool extends Tool {
 
     let shape;
     if (selectedTemplate.name.startsWith('Segment')) {
-       shape = new LineShape({
+      shape = new LineShape({
         ...selectedTemplate,
         size: shapeSize,
         layer: 'main',

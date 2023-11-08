@@ -178,7 +178,6 @@ export const setState = (update) => {
     window.dispatchEvent(new CustomEvent('menuIconSize-changed', { detail: app }));
   }
   if ('tools' in update) {
-    console.log('tools changed')
     window.dispatchEvent(new CustomEvent('tools-changed', { detail: app }));
   }
   if ('helpSelected' in update) {
@@ -186,10 +185,5 @@ export const setState = (update) => {
   }
   if ('filename' in update) {
     window.dispatchEvent(new CustomEvent('filename-changed', { detail: app }));
-  }
-  if (app.started) {
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
-    // window.dispatchEvent(new CustomEvent('refresh'));
-    // window.dispatchEvent(new CustomEvent('refreshBackground'));
   }
 };

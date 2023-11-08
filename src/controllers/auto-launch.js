@@ -20,9 +20,7 @@ if ('launchQueue' in window) {
       const pathArray = fileHandle.name.split('.');
       const extension = pathArray[pathArray.length - 1];
       setState({
-        environment: await loadEnvironnement(
-          environmentsByExtensions[extension],
-        ),
+        environment: await loadEnvironnement(environmentsByExtensions[extension]),
         fileToOpen: fileHandle,
       });
     }

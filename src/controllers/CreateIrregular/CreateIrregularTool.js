@@ -188,7 +188,7 @@ export class CreateIrregularTool extends Tool {
     let shape = new RegularShape({
       layer: 'main',
       path: path,
-      name: app.tool.selectedTriangle,
+      name: app.tool.selectedTemplate,
       familyName: familyName,
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),

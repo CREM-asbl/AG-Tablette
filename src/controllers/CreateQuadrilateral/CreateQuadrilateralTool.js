@@ -1,3 +1,4 @@
+import quadrilateres from '@controllers/Core/ShapesKits/quadrilateres.json';
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -7,7 +8,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
-import { createElem, findObjectsByName, removeObjectById } from '../Core/Tools/general';
+import { findObjectsByName, removeObjectById } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
@@ -48,14 +49,26 @@ export class CreateQuadrilateralTool extends Tool {
     this.removeListeners();
     this.stopAnimation();
 
-    import('./quadrilaterals-list');
-    createElem('quadrilaterals-list');
+    import('@components/shape-selector');
+    const elem = document.createElement('shape-selector');
+    elem.family = 'Quadrilatères';
+    elem.templatesNames = quadrilateres;
+    elem.selectedTemplate = app.tool.selectedTemplate;
+    elem.type = "Geometry"
+    elem.onclick = event => setState({
+      tool: {
+        ...app.tool,
+        selectedTemplate: event.target.selectedTemplate,
+        currentStep: 'drawFirstPoint',
+      },
+    });
+    document.querySelector('body').appendChild(elem);
   }
 
   async drawFirstPoint() {
     app.upperCanvasLayer.removeAllObjects();
     let quadrilateralsDef = await import(`./quadrilateralsDef.js`);
-    this.quadrilateralDef = quadrilateralsDef[app.tool.selectedQuadrilateral];
+    this.quadrilateralDef = quadrilateralsDef[app.tool.selectedTemplate];
 
     this.points = [];
     this.segments = [];
@@ -330,9 +343,9 @@ export class CreateQuadrilateralTool extends Tool {
 
   _executeAction() {
     let familyName = '4-corner-shape';
-    if (app.tool.selectedQuadrilateral == 'Square') {
+    if (app.tool.selectedTemplate == 'Square') {
       familyName = 'Regular';
-    } else if (app.tool.selectedQuadrilateral == 'IrregularQuadrilateral') {
+    } else if (app.tool.selectedTemplate == 'IrregularQuadrilateral') {
       familyName = 'Irregular';
     }
 
@@ -346,7 +359,7 @@ export class CreateQuadrilateralTool extends Tool {
     let shape = new RegularShape({
       layer: 'main',
       path: path,
-      name: app.tool.selectedQuadrilateral,
+      name: app.tool.selectedTemplate,
       familyName: familyName,
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),

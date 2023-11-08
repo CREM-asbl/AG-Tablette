@@ -248,7 +248,6 @@ export class SaveFileManager {
   }
 
   static async newWriteFile(fileHandle, contents) {
-    console.log(contents)
     const writer = await fileHandle.createWritable();
     await writer.truncate(0);
     await writer.write(contents);

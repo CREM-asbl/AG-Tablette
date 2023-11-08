@@ -10,6 +10,7 @@ class ToolbarSection extends LitElement {
       toolsType: { type: String },
       tools: { type: Array },
       helpSelected: { type: Boolean },
+      selected: { type: String }
     };
   }
 
@@ -29,13 +30,11 @@ class ToolbarSection extends LitElement {
                 name="${tool.name}"
                 type="State"
                 title="${tool.title}"
-                ?active="${tool.name === app.tool?.name}"
+                ?active="${tool.name === this.selected}"
                 ?helpanimation="${this.helpSelected}"
                 cantInteract="${this.helpSelected}"
-                @click="${this._actionHandle}"
-              >
-            </icon-button>
-            `
+                @click="${this._actionHandle}">
+              </icon-button>`
     )}
         </div>
       </template-toolbar>

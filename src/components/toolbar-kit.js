@@ -38,7 +38,7 @@ class ToolbarKit extends LitElement {
   }
 
   _actionHandle(event) {
-    if (app.helpSelected) {
+    if (this.helpSelected) {
       window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: 'create' } }));
       setState({ helpSelected: false });
     } else if (!app.fullHistory.isRunning) {

@@ -1,3 +1,4 @@
+import triangles from '@controllers/Core/ShapesKits/triangles.json';
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -7,7 +8,6 @@ import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
-import { createElem } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
@@ -47,14 +47,28 @@ export class CreateTriangleTool extends Tool {
     this.removeListeners();
     this.stopAnimation();
 
-    import('./triangles-list');
-    createElem('triangles-list');
+    import('@components/shape-selector');
+    const elem = document.createElement('shape-selector');
+    elem.family = 'Triangles';
+    elem.templatesNames = triangles;
+    elem.selectedTemplate = app.tool.selectedTemplate;
+    elem.type = "Geometry"
+    elem.onclick = event => {
+      setState({
+        tool: {
+          ...app.tool,
+          selectedTemplate: event.target.selectedTemplate,
+          currentStep: 'drawFirstPoint',
+        },
+      });
+    }
+    document.querySelector('body').appendChild(elem);
   }
 
   async drawFirstPoint() {
     app.upperCanvasLayer.removeAllObjects();
     let triangleDef = await import(`./trianglesDef.js`);
-    this.triangleDef = triangleDef[app.tool.selectedTriangle];
+    this.triangleDef = triangleDef[app.tool.selectedTemplate];
 
     this.points = [];
     this.segments = [];
@@ -300,9 +314,9 @@ export class CreateTriangleTool extends Tool {
 
   _executeAction() {
     let familyName = '3-corner-shape';
-    if (app.tool.selectedTriangle == 'EquilateralTriangle') {
+    if (app.tool.selectedTemplate == 'EquilateralTriangle') {
       familyName = 'Regular';
-    } else if (app.tool.selectedTriangle == 'IrregularTriangle') {
+    } else if (app.tool.selectedTemplate == 'IrregularTriangle') {
       familyName = 'Irregular';
     }
 
@@ -315,7 +329,7 @@ export class CreateTriangleTool extends Tool {
     let shape = new RegularShape({
       layer: 'main',
       path: path,
-      name: app.tool.selectedTriangle,
+      name: app.tool.selectedTemplate,
       familyName: familyName,
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),
