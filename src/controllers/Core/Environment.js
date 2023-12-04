@@ -39,10 +39,7 @@ const loadKit = async (name) => {
   if (!name) return null;
   const module = await import(`./ShapesKits/${name}.js`);
   const kit = module[name];
-  let families = [];
-  for (let [familyName, familyData] of Object.entries(kit.families)) {
-    families.push(new Family({ name: familyName, ...familyData }));
-  }
+  const families = kit.families.map(family => new Family(family));
   const kitContent = { name: kit.name, families };
   return kitContent;
 };
@@ -63,7 +60,6 @@ export class Environment {
     document.documentElement.style.setProperty('--theme-color', themeColor);
     document.documentElement.style.setProperty('--theme-color-soft', themeColorSoft);
 
-    this.families = [];
     if (kitContent) {
       this.kitName = kitContent.name;
       this.families = kitContent.families;

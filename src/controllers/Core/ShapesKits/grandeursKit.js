@@ -1,7 +1,8 @@
 export const grandeursKit = {
   name: 'Figures standard',
-  families: {
-    'Famille du triangle équilatéral': {
+  families: [
+    {
+      name: 'Famille du triangle équilatéral',
       fillColor: '#ffff00',
       shapeTemplates: [
         {
@@ -103,7 +104,8 @@ export const grandeursKit = {
       ],
     },
 
-    'Famille du carré': {
+    {
+      name: 'Famille du carré',
       fillColor: '#ff0000',
       shapeTemplates: [
         {
@@ -170,7 +172,8 @@ export const grandeursKit = {
       ],
     },
 
-    'Famille du pentagone régulier': {
+    {
+      name: 'Famille du pentagone régulier',
       fillColor: '#00D084',
       shapeTemplates: [
         {
@@ -204,7 +207,6 @@ export const grandeursKit = {
           path:
             'L 50 0 L 90.4508497187 -29.3892626146 L 40.4508497187 -29.3892626146 Z',
         },
-
         {
           name: 'Décagone régulier',
           title: 'Décagone régulier',
@@ -215,12 +217,13 @@ export const grandeursKit = {
     },
 
     /*
-      Attention: le dessin du cercle commence auéro trigonométrique. Lorsque
+      Attention: le dessin du cercle commence au zéro trigonométrique. Lorsque
       l'on divise le contour du cercle (via l'outil diviser), il y a d'office un
       point qui est placé là où le cercle commence!
       Les cercles doivent également être dessinés dans le sens trigonométrique.
       */
-    'Disques et segments': {
+    {
+      name: 'Disques et segments',
       fillColor: '#CCC',
       shapeTemplates: [
         {
@@ -280,5 +283,5 @@ export const grandeursKit = {
         },
       ],
     },
-  },
+  ]
 };

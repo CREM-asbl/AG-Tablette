@@ -168,6 +168,7 @@ class AGMain extends LitElement {
   }
 
   render() {
+    console.log(app)
     return html`
       <div id="app-view">
         <div id="left-menu">

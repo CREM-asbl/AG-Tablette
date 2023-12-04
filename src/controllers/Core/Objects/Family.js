@@ -1,5 +1,4 @@
 import { uniqId } from '../Tools/general';
-import { ShapeTemplate } from './ShapeTemplate';
 
 /**
  * Une famille de figures.
@@ -16,30 +15,15 @@ export class Family {
     this.defaultFillOpacity = fillOpacity;
     this.id = uniqId();
     this.isVisible = true;
-    this.shapeTemplates = [];
-    shapeTemplates.forEach((shapeTemplate) => {
-      this.addTemplate(shapeTemplate);
+    this.shapeTemplates = shapeTemplates.map(template => {
+      return {
+        name: 'Custom',
+        familyName: 'Custom',
+        fillColor: fillColor || '#aaa',
+        fillOpacity: fillOpacity || 0.7,
+        ...template
+      }
     });
-  }
-
-  /**
-   * Ajouter un modèle venant d'un kit à la famille
-   */
-  addTemplate({ name, fillColor, path, fillOpacity }) {
-    if (!path) {
-      console.error('Family.addTemplate error: no path');
-      return;
-    }
-
-    let shapeTemplate = new ShapeTemplate({
-      path: path,
-      name: name,
-      familyName: this.name,
-      fillColor: fillColor ? fillColor : this.defaultFillColor,
-      fillOpacity: fillOpacity ? fillOpacity : this.defaultFillOpacity,
-    });
-
-    this.shapeTemplates.push(shapeTemplate);
   }
 
   /**

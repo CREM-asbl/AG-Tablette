@@ -1,10 +1,12 @@
 export const geometryKit = {
   name: 'Figures libres',
-  families: {
-    'Points': {
+  families: [
+    {
+      name: 'Points',
       shapesTemplates: []
     },
-    'Lignes': {
+    {
+      name: 'Lignes',
       shapesTemplates: [
         { name: 'Segment', title: 'Segment' },
         { name: 'ParalleleSegment', title: 'Segment parallèle' },
@@ -19,14 +21,17 @@ export const geometryKit = {
         { name: 'Vector', title: 'Vecteur' }
       ]
     },
-    'Triangles': {
+    {
+      name: 'Triangles',
       shapesTemplates: []
     },
-    'Quadrilatères': {
+    {
+      name: 'Quadrilatères',
       shapesTemplates: []
     },
-    'Arcs': {
+    {
+      name: 'Arcs',
       shapesTemplates: []
     }
-  }
+  ]
 }
