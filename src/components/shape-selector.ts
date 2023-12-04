@@ -1,4 +1,5 @@
 import '@components/flex-grid';
+import '@components/icon-button';
 import { app } from '@controllers/Core/App';
 import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators/custom-element.js';

@@ -1,3 +1,4 @@
+import '@components/icon-button';
 import { html, LitElement } from 'lit';
 import { app, setState } from '../controllers/Core/App';
 import { TemplateToolbar } from './template-toolbar';

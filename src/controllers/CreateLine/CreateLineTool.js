@@ -54,7 +54,7 @@ export class CreateLineTool extends Tool {
 
     import('@components/shape-selector');
     const elem = document.createElement('shape-selector');
-    elem.family = 'Lines';
+    elem.family = 'Lignes';
     elem.templatesNames = lines;
     elem.selectedTemplate = app.tool.selectedTemplate;
     elem.type = "Geometry"

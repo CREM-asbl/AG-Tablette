@@ -1,6 +1,7 @@
 import { TemplateToolbar } from '@components/template-toolbar';
 import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import '../components/icon-button';
 import '../components/toolbar-kit';
 import '../components/toolbar-section';
 import './canvas-container';
@@ -15,7 +16,6 @@ import './Core/Managers/SelectManager';
 import './Core/Managers/ShapeManager';
 import './Core/Managers/WorkspaceManager';
 import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
-import './icon-button';
 import './popups/notification';
 
 

@@ -1,3 +1,4 @@
+import '@components/icon-button';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 import '../version-item';
@@ -75,7 +76,7 @@ class ToolChoicePopup extends LitElement {
             </span>
             <div class="toolContainer">
               ${this.families.filter(family => family.isVisible).map(
-                (family) => html`
+      (family) => html`
                   <icon-button
                     style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                     name="${family.shapeTemplates[0].name}"
@@ -84,9 +85,9 @@ class ToolChoicePopup extends LitElement {
                     @click="${this._actionHandle}"
                   ></icon-button>
                 `
-              )}
+    )}
               ${this.tools.filter(tool => tool.isVisible && !tool.isDisable).map(
-                (tool) => html`
+      (tool) => html`
                   <icon-button
                     style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                     name="${tool.name}"
@@ -96,7 +97,7 @@ class ToolChoicePopup extends LitElement {
                     @click="${this._actionHandle}"
                   ></icon-button>
                 `
-              )}
+    )}
             </div>
           </div>
           <div>
@@ -106,7 +107,7 @@ class ToolChoicePopup extends LitElement {
             </span>
             <div class="toolContainer">
               ${this.families.filter(family => !family.isVisible).map(
-                (family) => html`
+      (family) => html`
                   <icon-button
                     style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                     name="${family.shapeTemplates[0].name}"
@@ -115,9 +116,9 @@ class ToolChoicePopup extends LitElement {
                     @click="${this._actionHandle}"
                   ></icon-button>
                 `
-              )}
+    )}
               ${this.tools.filter(tool => !tool.isVisible && !tool.isDisable).map(
-                (tool) => html`
+      (tool) => html`
                   <icon-button
                     style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                     name="${tool.name}"
@@ -128,7 +129,7 @@ class ToolChoicePopup extends LitElement {
                     @click="${this._actionHandle}"
                   ></icon-button>
                 `
-              )}
+    )}
             </div>
           </div>
         </div>
