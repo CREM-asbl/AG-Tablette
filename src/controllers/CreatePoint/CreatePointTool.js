@@ -70,7 +70,7 @@ export class CreatePointTool extends Tool {
     this.removeListeners();
     this.stopAnimation();
 
-    if (app.tool.selectedTemplate == 'PointOnIntersection') {
+    if (app.tool.selectedTemplate.name == 'PointOnIntersection') {
       app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_segments;
       this.objectSelectedId = app.addListener('objectSelected', this.handler);
     } else {
@@ -149,7 +149,7 @@ export class CreatePointTool extends Tool {
   adjustPoint(point) {
     point.adjustedOn = undefined;
     let reference, newCoord;
-    switch (app.tool.selectedTemplate) {
+    switch (app.tool.selectedTemplate.name) {
       case 'Point':
         let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
         if (gridPoint)
@@ -198,15 +198,15 @@ export class CreatePointTool extends Tool {
 
   _executeAction() {
     let shape;
-    if (app.tool.selectedTemplate == 'Point') {
+    if (app.tool.selectedTemplate.name == 'Point') {
       shape = new SinglePointShape({
         layer: 'main',
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
-        name: app.tool.selectedTemplate,
+        name: app.tool.selectedTemplate.name,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });
-    } else if (app.tool.selectedTemplate == 'PointOnLine') {
+    } else if (app.tool.selectedTemplate.name == 'PointOnLine') {
       if (!this.geometryParentObjectId1) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une ligne pour placer le point.' } }));
         return;
@@ -214,7 +214,7 @@ export class CreatePointTool extends Tool {
       shape = new SinglePointShape({
         layer: 'main',
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
-        name: app.tool.selectedTemplate,
+        name: app.tool.selectedTemplate.name,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });
@@ -224,7 +224,7 @@ export class CreatePointTool extends Tool {
 
       let reference = findObjectById(this.geometryParentObjectId1);
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-    } else if (app.tool.selectedTemplate == 'PointOnShape') {
+    } else if (app.tool.selectedTemplate.name == 'PointOnShape') {
       if (!this.geometryParentObjectId1) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez choisir une figure pour placer le point.' } }));
         return;
@@ -232,14 +232,14 @@ export class CreatePointTool extends Tool {
       shape = new RegularShape({
         layer: 'main',
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
-        name: app.tool.selectedTemplate,
+        name: app.tool.selectedTemplate.name,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
       let reference = findObjectById(this.geometryParentObjectId1);
       reference.geometryObject.geometryChildShapeIds.push(shape.id);
-    } else if (app.tool.selectedTemplate == 'PointOnIntersection') {
+    } else if (app.tool.selectedTemplate.name == 'PointOnIntersection') {
       let firstSeg = findObjectById(this.geometryParentObjectId1);
       let secondSeg = findObjectById(this.geometryParentObjectId2);
       let coords = firstSeg.intersectionWith(secondSeg);
@@ -252,7 +252,7 @@ export class CreatePointTool extends Tool {
       shape = new SinglePointShape({
         layer: 'main',
         path: coords.map(coord => `M ${coord.x} ${coord.y}`).join(' '),
-        name: app.tool.selectedTemplate,
+        name: app.tool.selectedTemplate.name,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });

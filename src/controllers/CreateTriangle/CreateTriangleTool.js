@@ -68,7 +68,7 @@ export class CreateTriangleTool extends Tool {
   async drawFirstPoint() {
     app.upperCanvasLayer.removeAllObjects();
     let triangleDef = await import(`./trianglesDef.js`);
-    this.triangleDef = triangleDef[app.tool.selectedTemplate];
+    this.triangleDef = triangleDef[app.tool.selectedTemplate.name];
 
     this.points = [];
     this.segments = [];
@@ -314,9 +314,9 @@ export class CreateTriangleTool extends Tool {
 
   _executeAction() {
     let familyName = '3-corner-shape';
-    if (app.tool.selectedTemplate == 'EquilateralTriangle') {
+    if (app.tool.selectedTemplate.name == 'EquilateralTriangle') {
       familyName = 'Regular';
-    } else if (app.tool.selectedTemplate == 'IrregularTriangle') {
+    } else if (app.tool.selectedTemplate.name == 'IrregularTriangle') {
       familyName = 'Irregular';
     }
 
@@ -329,7 +329,7 @@ export class CreateTriangleTool extends Tool {
     let shape = new RegularShape({
       layer: 'main',
       path: path,
-      name: app.tool.selectedTemplate,
+      name: app.tool.selectedTemplate.name,
       familyName: familyName,
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),

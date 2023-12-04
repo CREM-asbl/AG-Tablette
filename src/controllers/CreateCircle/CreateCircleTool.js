@@ -131,7 +131,7 @@ export class CreateCircleTool extends Tool {
       });
       this.numberOfPointsDrawn++;
       if (this.numberOfPointsDrawn == 2) {
-        if (app.tool.selectedTemplate == 'Circle') {
+        if (app.tool.selectedTemplate.name == 'Circle') {
           let seg = new Segment({
             layer: 'upper',
             vertexIds: [this.points[1].id, this.points[1].id],
@@ -145,7 +145,7 @@ export class CreateCircleTool extends Tool {
             strokeColor: app.settings.temporaryDrawColor,
             fillOpacity: 0,
           });
-        } else if (app.tool.selectedTemplate == 'CirclePart') {
+        } else if (app.tool.selectedTemplate.name == 'CirclePart') {
           let seg = new Segment({
             layer: 'upper',
             vertexIds: [this.points[0].id, this.points[1].id],
@@ -158,7 +158,7 @@ export class CreateCircleTool extends Tool {
             strokeColor: app.settings.temporaryDrawColor,
             fillOpacity: 0,
           });
-        } else if (app.tool.selectedTemplate == '30degreesArc') {
+        } else if (app.tool.selectedTemplate.name == '30degreesArc') {
           let angle = this.points[0].coordinates.angleWith(this.points[1].coordinates) + Math.PI / 6;
           let radius = this.points[0].coordinates.dist(this.points[1].coordinates);
           let thirdPointCoordinates = new Coordinates({
@@ -184,7 +184,7 @@ export class CreateCircleTool extends Tool {
             strokeColor: app.settings.temporaryDrawColor,
             fillOpacity: 0,
           });
-        } else if (app.tool.selectedTemplate == '45degreesArc') {
+        } else if (app.tool.selectedTemplate.name == '45degreesArc') {
           let angle = this.points[0].coordinates.angleWith(this.points[1].coordinates) + Math.PI / 4;
           let radius = this.points[0].coordinates.dist(this.points[1].coordinates);
           let thirdPointCoordinates = new Coordinates({
@@ -213,8 +213,8 @@ export class CreateCircleTool extends Tool {
         }
       } else if (this.numberOfPointsDrawn == 3) {
         if (
-          app.tool.selectedTemplate == 'CirclePart' ||
-          app.tool.selectedTemplate == 'CircleArc'
+          app.tool.selectedTemplate.name == 'CirclePart' ||
+          app.tool.selectedTemplate.name == 'CircleArc'
         ) {
           let seg = new Segment({
             layer: 'upper',
@@ -233,7 +233,7 @@ export class CreateCircleTool extends Tool {
           });
           this.segments.push(seg);
         }
-        if (app.tool.selectedTemplate == 'CirclePart') {
+        if (app.tool.selectedTemplate.name == 'CirclePart') {
           let seg = new Segment({
             layer: 'upper',
             vertexIds: [this.points[2].id, this.points[0].id],

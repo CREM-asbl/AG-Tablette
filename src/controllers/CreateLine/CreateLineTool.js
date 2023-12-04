@@ -77,8 +77,8 @@ export class CreateLineTool extends Tool {
     this.numberOfPointsDrawn = 0;
 
     if (
-      !app.tool.selectedTemplate.startsWith('Parallele') &&
-      !app.tool.selectedTemplate.startsWith('Perpendicular')
+      !app.tool.selectedTemplate.name.startsWith('Parallele') &&
+      !app.tool.selectedTemplate.name.startsWith('Perpendicular')
     ) {
       app.upperCanvasLayer.removeAllObjects();
       // this.getConstraints(this.numberOfPointsDrawn);
@@ -160,7 +160,7 @@ export class CreateLineTool extends Tool {
         size: 2,
       });
       this.numberOfPointsDrawn++;
-      if (app.tool.selectedTemplate == 'Strip') {
+      if (app.tool.selectedTemplate.name == 'Strip') {
         if (this.numberOfPointsDrawn == this.numberOfPointsRequired() - 1) {
           let seg = new Segment({
             layer: 'upper',
@@ -169,7 +169,7 @@ export class CreateLineTool extends Tool {
           });
           this.segments.push(seg);
           let familyName = 'Line';
-          let name = app.tool.selectedTemplate;
+          let name = app.tool.selectedTemplate.name;
           let shape = new LineShape({
             layer: 'upper',
             segmentIds: this.segments.map((seg) => seg.id),
@@ -191,7 +191,7 @@ export class CreateLineTool extends Tool {
           });
           this.segments.push(seg);
           let familyName = 'Line';
-          let name = app.tool.selectedTemplate;
+          let name = app.tool.selectedTemplate.name;
           let shape = new LineShape({
             layer: 'upper',
             segmentIds: this.segments.map((seg) => seg.id),
@@ -212,14 +212,14 @@ export class CreateLineTool extends Tool {
           vertexIds: [this.points[0].id, this.points[1].id],
           // isInfinite: app.tool.selectedTemplate.endsWith('Parallele')
         });
-        if (app.tool.selectedTemplate.endsWith('SemiStraightLine')) {
+        if (app.tool.selectedTemplate.name.endsWith('SemiStraightLine')) {
           seg.isSemiInfinite = true;
-        } else if (app.tool.selectedTemplate.endsWith('StraightLine')) {
+        } else if (app.tool.selectedTemplate.name.endsWith('StraightLine')) {
           seg.isInfinite = true;
         }
         this.segments.push(seg);
         let familyName = 'Line';
-        let name = app.tool.selectedTemplate;
+        let name = app.tool.selectedTemplate.name;
         let shape = new LineShape({
           layer: 'upper',
           segmentIds: this.segments.map((seg) => seg.id),
@@ -228,7 +228,7 @@ export class CreateLineTool extends Tool {
           name,
           familyName,
         });
-        if (app.tool.selectedTemplate == 'Vector') {
+        if (app.tool.selectedTemplate.name == 'Vector') {
           shape = new ArrowLineShape({
             layer: 'upper',
             segmentIds: this.segments.map((seg) => seg.id),
@@ -338,9 +338,9 @@ export class CreateLineTool extends Tool {
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
       if (
         this.numberOfPointsDrawn == this.numberOfPointsRequired() &&
-        (app.tool.selectedTemplate == 'ParalleleStraightLine' ||
-          app.tool.selectedTemplate == 'PerpendicularStraightLine' ||
-          app.tool.selectedTemplate == 'Strip')
+        (app.tool.selectedTemplate.name == 'ParalleleStraightLine' ||
+          app.tool.selectedTemplate.name == 'PerpendicularStraightLine' ||
+          app.tool.selectedTemplate.name == 'Strip')
       ) {
         this.finishShape();
       }
@@ -349,39 +349,39 @@ export class CreateLineTool extends Tool {
 
   numberOfPointsRequired() {
     let numberOfPointsRequired = 0;
-    if (app.tool.selectedTemplate == 'Segment') numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate == 'ParalleleSegment')
+    if (app.tool.selectedTemplate.name == 'Segment') numberOfPointsRequired = 2;
+    else if (app.tool.selectedTemplate.name == 'ParalleleSegment')
       numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate == 'PerpendicularSegment')
+    else if (app.tool.selectedTemplate.name == 'PerpendicularSegment')
       numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate == 'SemiStraightLine')
+    else if (app.tool.selectedTemplate.name == 'SemiStraightLine')
       numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate == 'ParalleleSemiStraightLine')
+    else if (app.tool.selectedTemplate.name == 'ParalleleSemiStraightLine')
       numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate == 'PerpendicularSemiStraightLine')
+    else if (app.tool.selectedTemplate.name == 'PerpendicularSemiStraightLine')
       numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate == 'StraightLine') numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate == 'ParalleleStraightLine')
+    else if (app.tool.selectedTemplate.name == 'StraightLine') numberOfPointsRequired = 2;
+    else if (app.tool.selectedTemplate.name == 'ParalleleStraightLine')
       numberOfPointsRequired = 1;
-    else if (app.tool.selectedTemplate == 'PerpendicularStraightLine')
+    else if (app.tool.selectedTemplate.name == 'PerpendicularStraightLine')
       numberOfPointsRequired = 1;
-    else if (app.tool.selectedTemplate == 'Strip')
+    else if (app.tool.selectedTemplate.name == 'Strip')
       numberOfPointsRequired = 3;
-    else if (app.tool.selectedTemplate == 'Vector')
+    else if (app.tool.selectedTemplate.name == 'Vector')
       numberOfPointsRequired = 2;
     return numberOfPointsRequired;
   }
 
   finishShape() {
     let newCoordinates;
-    if (app.tool.selectedTemplate == 'ParalleleStraightLine') {
+    if (app.tool.selectedTemplate.name == 'ParalleleStraightLine') {
       let referenceSegment = findObjectById(
         this.geometryParentObjectId
       );
       newCoordinates = this.points[0].coordinates
         .substract(referenceSegment.vertexes[0].coordinates)
         .add(referenceSegment.vertexes[1].coordinates);
-    } else if (app.tool.selectedTemplate == 'PerpendicularStraightLine') {
+    } else if (app.tool.selectedTemplate.name == 'PerpendicularStraightLine') {
       let referenceSegment = findObjectById(
         this.geometryParentObjectId
       );
@@ -390,7 +390,7 @@ export class CreateLineTool extends Tool {
         x: 100 * Math.cos(angle),
         y: 100 * Math.sin(angle),
       }));
-    } else if (app.tool.selectedTemplate == 'Strip') {
+    } else if (app.tool.selectedTemplate.name == 'Strip') {
       let referenceSegment = this.segments[0];
       newCoordinates = this.points[2].coordinates
         .substract(referenceSegment.vertexes[0].coordinates)
@@ -418,7 +418,7 @@ export class CreateLineTool extends Tool {
     if (pointNb == 0) {
       this.constraints = new GeometryConstraint('isFree');
     } else if (pointNb == 1) {
-      if (app.tool.selectedTemplate.startsWith('Parallele')) {
+      if (app.tool.selectedTemplate.name.startsWith('Parallele')) {
         let referenceSegment = findObjectById(
           this.geometryParentObjectId
         );
@@ -427,7 +427,7 @@ export class CreateLineTool extends Tool {
           .add(referenceSegment.vertexes[1].coordinates);
         let lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isConstrained', lines);
-      } else if (app.tool.selectedTemplate.startsWith('Perpendicular')) {
+      } else if (app.tool.selectedTemplate.name.startsWith('Perpendicular')) {
         let referenceSegment = findObjectById(
           this.geometryParentObjectId
         );
@@ -468,19 +468,19 @@ export class CreateLineTool extends Tool {
     path = path.join(' ');
 
     let shape;
-    if (app.tool.selectedTemplate == 'Vector') {
+    if (app.tool.selectedTemplate.name == 'Vector') {
       shape = new ArrowLineShape({
         layer: 'main',
         path: path,
-        name: app.tool.selectedTemplate,
+        name: app.tool.selectedTemplate.name,
         familyName: 'Line',
         geometryObject: new GeometryObject({}),
       });
-    } else if (app.tool.selectedTemplate == 'Strip') {
+    } else if (app.tool.selectedTemplate.name == 'Strip') {
       shape = new StripLineShape({
         layer: 'main',
         path: path,
-        name: app.tool.selectedTemplate,
+        name: app.tool.selectedTemplate.name,
         fillOpacity: 0.7,
         familyName: 'Line',
         geometryObject: new GeometryObject({}),
@@ -490,30 +490,30 @@ export class CreateLineTool extends Tool {
       shape = new LineShape({
         layer: 'main',
         path: path,
-        name: app.tool.selectedTemplate,
+        name: app.tool.selectedTemplate.name,
         familyName: 'Line',
         geometryObject: new GeometryObject({}),
       });
       if (
-        app.tool.selectedTemplate == 'StraightLine' ||
-        app.tool.selectedTemplate == 'ParalleleStraightLine' ||
-        app.tool.selectedTemplate == 'PerpendicularStraightLine'
+        app.tool.selectedTemplate.name == 'StraightLine' ||
+        app.tool.selectedTemplate.name == 'ParalleleStraightLine' ||
+        app.tool.selectedTemplate.name == 'PerpendicularStraightLine'
       ) {
         shape.segments[0].isInfinite = true;
-        if (app.tool.selectedTemplate == 'ParalleleStraightLine' ||
-          app.tool.selectedTemplate == 'PerpendicularStraightLine') {
+        if (app.tool.selectedTemplate.name == 'ParalleleStraightLine' ||
+          app.tool.selectedTemplate.name == 'PerpendicularStraightLine') {
           shape.points[1].visible = false;
         }
       } else if (
-        app.tool.selectedTemplate == 'SemiStraightLine' ||
-        app.tool.selectedTemplate == 'ParalleleSemiStraightLine' ||
-        app.tool.selectedTemplate == 'PerpendicularSemiStraightLine'
+        app.tool.selectedTemplate.name == 'SemiStraightLine' ||
+        app.tool.selectedTemplate.name == 'ParalleleSemiStraightLine' ||
+        app.tool.selectedTemplate.name == 'PerpendicularSemiStraightLine'
       ) {
         shape.segments[0].isSemiInfinite = true;
       } else if (
-        app.tool.selectedTemplate == 'Segment' ||
-        app.tool.selectedTemplate == 'ParalleleSegment' ||
-        app.tool.selectedTemplate == 'PerpendicularSegment'
+        app.tool.selectedTemplate.name == 'Segment' ||
+        app.tool.selectedTemplate.name == 'ParalleleSegment' ||
+        app.tool.selectedTemplate.name == 'PerpendicularSegment'
       ) {
       }
     }

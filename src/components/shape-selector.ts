@@ -11,7 +11,7 @@ export class ShapeSelector extends LitElement {
   @property({ type: String }) type;
   @property({ type: Array }) templatesNames = [];
   @property({ type: Array }) titles = [];
-  @property({ type: String }) selectedTemplate;
+  @property({ type: Object }) selectedTemplate;
 
 
   static styles = css`
@@ -50,21 +50,19 @@ export class ShapeSelector extends LitElement {
     </style>
     <div class="container">
       <h2>
-        ${this.selectedTemplate ? this.selectedTemplate.replace(/ \d+$/, '') : this.family}
+        ${this.selectedTemplate?.title || this.family}
       </h2>
       <flex-grid>
-        ${this.templatesNames.map(name => {
-      const nameString = name.name || name
-      return html`
+        ${this.templatesNames.map(template => html`
                 <icon-button
-                  name="${nameString}"
+                  name="${template.name}"
                   type="${this.type}"
-                  title="${name.title || name}"
-                  ?active="${nameString === this.selectedTemplate}"
+                  title="${template.title}"
+                  ?active="${template.name === this.selectedTemplate?.name}"
                   @click="${this._clickHandle}"
                 >
                 </icon-button>
-              `}
+              `
     )}
       </flex-grid>
     </div>
@@ -72,7 +70,7 @@ export class ShapeSelector extends LitElement {
   }
 
   _clickHandle(event) {
-    this.selectedTemplate = event.target.name
+    this.selectedTemplate = this.templatesNames.find(template => template.name === event.target.name)
   }
 
   firstUpdated() {

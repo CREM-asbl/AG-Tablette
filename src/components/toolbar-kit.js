@@ -13,8 +13,8 @@ class ToolbarKit extends LitElement {
   static styles = [TemplateToolbar.templateToolbarStyles()];
 
   render() {
+    if (!this.environment.families) return html``;
     const familyNames = this.environment.families.filter(family => family.isVisible).map(family => family.name);
-    if (!familyNames.length) return html``;
     return html`
       <template-toolbar>
         <h2 slot="title">${this.environment.kitName}</h2>

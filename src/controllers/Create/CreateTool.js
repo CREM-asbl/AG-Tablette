@@ -82,17 +82,15 @@ export class CreateTool extends Tool {
   }
 
   openShapeList() {
-    let templateNames = app.environment.getFamily(
-      app.tool.selectedFamily,
-    ).templateNames;
-    if (templateNames.length == 1) {
-      let selectedTemplate = templateNames[0];
+    const shapeTemplates = app.environment.getFamily(app.tool.selectedFamily).shapeTemplates;
+    if (shapeTemplates.length == 1) {
+      let selectedTemplate = shapeTemplates[0];
       setTimeout(() => setState({ tool: { ...app.tool, currentStep: 'listen', selectedTemplate } }), 50);
     } else if (!this.shapesList) {
       import('../../components/shape-selector');
       const elem = document.createElement('shape-selector');
       elem.family = app.tool.selectedFamily;
-      elem.templatesNames = app.environment.getFamily(app.tool.selectedFamily).templateNames;
+      elem.templatesNames = app.environment.getFamily(app.tool.selectedFamily).shapeTemplates;
       elem.selectedTemplate = app.tool.selectedTemplate;
       elem.type = "Create"
       elem.onclick = event => setState({
@@ -109,11 +107,9 @@ export class CreateTool extends Tool {
   canvasMouseDown() {
     if (app.tool.currentStep != 'listen') return;
 
-    const selectedTemplate = app.environment
-      .getFamily(app.tool.selectedFamily)
-      .getTemplate(app.tool.selectedTemplate);
+    const selectedTemplate = app.tool.selectedTemplate;
 
-    if (selectedTemplate.name.startsWith('Segment')) {
+    if (selectedTemplate?.name.startsWith('Segment')) {
       this.shapeToCreate = new LineShape({
         ...selectedTemplate,
         layer: 'upper',
@@ -157,9 +153,7 @@ export class CreateTool extends Tool {
     const shapeSize = app.settings.shapesSize,
       shapeCoordinates = app.workspace.lastKnownMouseCoordinates;
 
-    const selectedTemplate = app.environment
-      .getFamily(app.tool.selectedFamily)
-      .getTemplate(app.tool.selectedTemplate);
+    const selectedTemplate = app.tool.selectedTemplate;
 
     let shape;
     if (selectedTemplate.name.startsWith('Segment')) {
