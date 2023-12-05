@@ -69,7 +69,6 @@ class FullHistoryTools extends LitElement {
       window.removeEventListener('fullHistory-changed', this.eventHandler);
     };
 
-    window.addEventListener('menuIconSize-changed', this.eventHandler);
     window.addEventListener('fullHistory-changed', this.eventHandler);
   }
 

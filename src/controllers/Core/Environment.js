@@ -55,16 +55,11 @@ export class Environment {
 
     this.extensions = extensions;
 
-    this.kitName = this.name;
+    this.kitName = kitContent ? kitContent.name : this.name;
+    this.families = kitContent ? kitContent.families : []
 
     document.documentElement.style.setProperty('--theme-color', themeColor);
     document.documentElement.style.setProperty('--theme-color-soft', themeColorSoft);
-
-    if (kitContent) {
-      this.kitName = kitContent.name;
-      this.families = kitContent.families;
-    }
-
     document.querySelector('meta[name="theme-color"]').setAttribute("content", document.documentElement.style.getPropertyValue('--theme-color-soft'));
   }
 

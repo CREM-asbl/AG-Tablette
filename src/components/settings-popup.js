@@ -1,8 +1,8 @@
 import { css, html, LitElement } from 'lit';
-import { app, setState } from '../Core/App';
-import { createElem } from '../Core/Tools/general';
-import '../version-item';
-import { TemplatePopup } from './template-popup';
+import { app, setState } from '../controllers/Core/App';
+import { createElem } from '../controllers/Core/Tools/general';
+import { TemplatePopup } from '../controllers/popups/template-popup';
+import '../controllers/version-item';
 
 class SettingsPopup extends LitElement {
   static get properties() {
@@ -22,16 +22,14 @@ class SettingsPopup extends LitElement {
     window.addEventListener('close-popup', () => this.close());
   }
 
-  static get styles() {
-    return [
-      TemplatePopup.template_popup_styles(),
-      css`
+  static styles = [
+    TemplatePopup.template_popup_styles(),
+    css`
         version-item {
           margin-right: 8px;
         }
       `,
-    ];
-  }
+  ]
 
   render() {
     return html`
@@ -52,11 +50,10 @@ class SettingsPopup extends LitElement {
               <label for="settings_automatic_adjustment">Ajustement automatique</label>
             </div>
 
-            <div class="field" style=${
-              app.environment.name != 'Geometrie'
-                ? 'display:none'
-                : ''
-            }>
+            <div class="field" style=${app.environment.name != 'Geometrie'
+        ? 'display:none'
+        : ''
+      }>
               <input
                 type="checkbox"
                 name="settings_animation_in_geometry_tranformations"
@@ -69,25 +66,23 @@ class SettingsPopup extends LitElement {
 
             <div class="field">
               <color-button @click="${() => {
-                import('./tool-choice-popup');
-                createElem('tool-choice-popup');
-                this.close();
-              }}" innerText="Choix des outils disponibles"></color-button>
+        import('./tool-choice-popup');
+        createElem('tool-choice-popup');
+        this.close();
+      }}" innerText="Choix des outils disponibles"></color-button>
             </div>
           </fieldset>
 
           <br />
 
-          <fieldset style=${
-            app.environment.name == 'Tangram'
-              ? 'display:none'
-              : ''
-          }>
+          <fieldset style=${app.environment.name == 'Tangram'
+        ? 'display:none'
+        : ''
+      }>
             <legend>Figures</legend>
 
-            <div class="field" style=${
-              app.environment.name == 'Grandeurs' ? '' : 'display:none;'
-            }>
+            <div class="field" style=${app.environment.name == 'Grandeurs' ? '' : 'display:none;'
+      }>
               <label for="settings_shapes_size">Taille des figures</label>
               <select
                 name="settings_shapes_size"
@@ -106,9 +101,8 @@ class SettingsPopup extends LitElement {
               </select>
             </div>
 
-            <div class="field" style=${
-              app.environment.name == 'Tangram' ? 'display:none;' : ''
-            }>
+            <div class="field" style=${app.environment.name == 'Tangram' ? 'display:none;' : ''
+      }>
               <input
                 type="checkbox"
                 name="settings_shapes_pointed"
@@ -179,11 +173,11 @@ class SettingsPopup extends LitElement {
       default:
         console.error(
           'Settings: paramètre inconnu: ' +
-            event.target.name +
-            ' ' +
-            event.target.value +
-            ' ' +
-            event.target.checked,
+          event.target.name +
+          ' ' +
+          event.target.value +
+          ' ' +
+          event.target.checked,
         );
     }
     this.settings = { ...this.settings };

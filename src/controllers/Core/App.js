@@ -142,7 +142,6 @@ export const setState = (update) => {
   for (const [key, value] of Object.entries(update)) {
     app[key] = value;
   }
-  window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   if ('environment' in update) {
     window.dispatchEvent(new CustomEvent('environment-changed', { detail: app }));
   }
@@ -174,16 +173,8 @@ export const setState = (update) => {
   if ('started' in update) {
     window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
   }
-  if ('menuIconSize' in update) {
-    window.dispatchEvent(new CustomEvent('menuIconSize-changed', { detail: app }));
-  }
   if ('tools' in update) {
     window.dispatchEvent(new CustomEvent('tools-changed', { detail: app }));
   }
-  if ('helpSelected' in update) {
-    window.dispatchEvent(new CustomEvent('helpSelected-changed', { detail: app }));
-  }
-  if ('filename' in update) {
-    window.dispatchEvent(new CustomEvent('filename-changed', { detail: app }));
-  }
+  window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
 };

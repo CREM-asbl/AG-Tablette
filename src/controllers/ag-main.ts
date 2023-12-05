@@ -64,10 +64,6 @@ class AGMain extends LitElement {
       this.updateProperties();
     };
 
-    window.addEventListener('menuIconSize-changed', this.eventHandler);
-    window.addEventListener('helpSelected-changed', this.eventHandler);
-    window.addEventListener('filename-changed', this.eventHandler);
-
     let preventZoom = (e) => {
       var t2 = e.timeStamp;
       var t1 = e.currentTarget.dataset.lastTouch || t2;
@@ -88,6 +84,10 @@ class AGMain extends LitElement {
       let helpElem = createElem('help-popup');
       helpElem.toolname = e.detail.toolname;
     });
+
+    window.addEventListener('state-changed', () => {
+      this.requestUpdate()
+    })
   }
 
   static styles = [
@@ -292,7 +292,7 @@ class AGMain extends LitElement {
     }
     switch (event.target.name) {
       case 'settings':
-        import('./popups/settings-popup');
+        import('../components/settings-popup');
         createElem('settings-popup');
         resetTool = true;
         break;

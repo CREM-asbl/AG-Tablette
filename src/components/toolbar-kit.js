@@ -14,8 +14,8 @@ class ToolbarKit extends LitElement {
   static styles = [TemplateToolbar.templateToolbarStyles()];
 
   render() {
-    if (!this.environment.families) return html``;
-    const familyNames = this.environment.families.filter(family => family.isVisible).map(family => family.name);
+    const familyNames = this.environment.families.filter(family => family.isVisible).map(family => family.name)
+    if (!familyNames.length) return html``
     return html`
       <template-toolbar>
         <h2 slot="title">${this.environment.kitName}</h2>
@@ -31,8 +31,7 @@ class ToolbarKit extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-            `;
-    })}
+            `})}
         </div>
       </template-toolbar>
     `;
