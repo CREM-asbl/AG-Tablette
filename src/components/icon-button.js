@@ -2,14 +2,12 @@ import { css, html, LitElement } from 'lit';
 import { app, setState } from '../controllers/Core/App';
 
 class IconButton extends LitElement {
-  static get properties() {
-    return {
-      name: String,
-      src: String,
-      type: String,
-      cantInteract: Boolean,
-      colorPickerValue: String,
-    };
+  static properties = {
+    name: String,
+    src: String,
+    type: String,
+    cantInteract: Boolean,
+    colorPickerValue: String
   }
 
   constructor() {
@@ -17,19 +15,19 @@ class IconButton extends LitElement {
     this.colorPickerValue = app.settings.shapesDrawColor;
   }
 
-  updated() {
-    //Todo: Refacto (ce code ne devrait pas se trouver ici)
-    let name = this.name.replace(/é/g, 'e').replace(/è/g, 'e');
-    if (this.type == 'State') {
-      this.src = '/images/States/' + name + '.svg';
-    } else if (this.type == 'Geometry') {
-      this.src = '/images/Geometry/' + name + '.svg';
-    } else if (this.type == 'Create') {
-      this.src = '/images/Create/' + name + '.svg';
-    } else {
-      this.src = '/images/' + name + '.svg';
-    }
-  }
+  // firstUpdated() {
+  //   //Todo: Refacto (ce code ne devrait pas se trouver ici)
+  //   let name = this.name.replace(/é/g, 'e').replace(/è/g, 'e');
+  //   if (this.type == 'State') {
+  //     this.src = '/images/States/' + name + '.svg';
+  //   } else if (this.type == 'Geometry') {
+  //     this.src = '/images/Geometry/' + name + '.svg';
+  //   } else if (this.type == 'Create') {
+  //     this.src = '/images/Create/' + name + '.svg';
+  //   } else {
+  //     this.src = '/images/' + name + '.svg';
+  //   }
+  // }
 
   static styles = css`
       :host {
@@ -80,10 +78,11 @@ class IconButton extends LitElement {
     `
 
   render() {
-    if (!this.src) return;
+    const name = this.name.replace(/é/g, 'e').replace(/è/g, 'e');
+    const src = this.type ? `/images/${this.type}/${name}.svg` : `/images/${name}.svg`
     if (this.name == 'color' && this.cantInteract != 'true') {
       return html`
-        <button style="background-image:url('${this.src}');">
+        <button style="background-image:url('${src}');">
           <input
             style="opacity: 0;"
             id="color-picker"
@@ -105,7 +104,7 @@ class IconButton extends LitElement {
       `
     }
     return html`
-      <button style="background-image:url('${this.src}')"></button>
+      <button style="background-image:url('${src}')"></button>
     `;
   }
 }
