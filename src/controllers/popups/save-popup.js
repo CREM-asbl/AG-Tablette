@@ -1,3 +1,4 @@
+import '@components/color-button';
 import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
 import { SaveFileManager } from '../Core/Managers/SaveFileManager';
@@ -102,11 +103,10 @@ class SavePopup extends LitElement {
               <label for="save_popup_history">Enregistrer l'historique</label>
             </div>
 
-            <div class="field" style=${
-              app.environment.name != 'Geometrie'
-                ? 'display:none'
-                : ''
-            }>
+            <div class="field" style=${app.environment.name != 'Geometrie'
+        ? 'display:none'
+        : ''
+      }>
               <input
                 type="checkbox"
                 name="save_popup_permanent_hide"
@@ -207,14 +207,14 @@ class SavePopup extends LitElement {
 
       case 'save_popup_submit':
         let extension = '';
-        switch(this.saveMethod) {
+        switch (this.saveMethod) {
           case 'state':
             extension = app.environment.extensions[0];
             break;
           case 'silhouette':
             extension = app.environment.extensions[1];
             break;
-          default :
+          default:
             extension = '.' + this.imageFormat;
             break;
         }
@@ -253,11 +253,11 @@ class SavePopup extends LitElement {
       default:
         console.error(
           'SavePopup: paramètre inconnu: ' +
-            event.target.name +
-            ' ' +
-            event.target.value +
-            ' ' +
-            event.target.checked,
+          event.target.name +
+          ' ' +
+          event.target.value +
+          ' ' +
+          event.target.checked,
         );
     }
   }

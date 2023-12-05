@@ -1,3 +1,4 @@
+import '@components/color-button';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../controllers/Core/App';
 import { createElem } from '../controllers/Core/Tools/general';

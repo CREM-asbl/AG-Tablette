@@ -1,3 +1,4 @@
+import '@components/color-button';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 import { range } from '../Core/Tools/general';
@@ -57,11 +58,11 @@ class DividePopup extends LitElement {
           <label for="settings_divide_number_of_parts">Diviser en</label>
           <select @change="${this.changeNumberOfParts}">
             ${range(2, 9).map(
-              (x) =>
-                html`<option value="${x}" ?selected="${this.parts == x}">
+      (x) =>
+        html`<option value="${x}" ?selected="${this.parts == x}">
                   ${x}
                 </option>`,
-            )}
+    )}
           </select>
           <span>parts</span>
         </div>

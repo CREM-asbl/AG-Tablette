@@ -1,11 +1,10 @@
 import { TemplateToolbar } from '@components/template-toolbar';
 import { css, html, LitElement } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
 import '../components/icon-button';
 import '../components/toolbar-kit';
 import '../components/toolbar-section';
 import './canvas-container';
-import './color-button';
 import { app, setState } from './Core/App';
 import './Core/Managers/FullHistoryManager';
 import './Core/Managers/GroupManager';
@@ -24,71 +23,13 @@ if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 @customElement('ag-main')
 class AGMain extends LitElement {
 
-  static properties = {
-    canUndo: Boolean,
-    canRedo: Boolean,
-    background: String,
-    tool: Object,
-    colorPickerValue: String,
-    helpSelected: Boolean,
-    filename: String,
-  };
-
-  constructor() {
-    super();
-    this.canUndo = false;
-    this.canRedo = false;
-    this.tool = app.tool;
-    this.colorPickerValue = '#000000';
-    this.filename = '';
-
-    window.addEventListener('show-file-selector', () => {
-      this.shadowRoot.querySelector('#fileSelector').click();
-    });
-    window.addEventListener('history-changed', () => {
-      this.canUndo = HistoryManager.canUndo();
-      this.canRedo = HistoryManager.canRedo();
-    });
-    window.addEventListener('tool-changed', () => {
-      this.tool = app.tool;
-    });
-
-    this.updateProperties = () => {
-      this.helpSelected = app.helpSelected;
-      this.filename = app.filename || '';
-      document.title = this.filename != "" ? this.filename : "AG mobile";
-    };
-    this.updateProperties();
-
-    this.eventHandler = () => {
-      this.updateProperties();
-    };
-
-    let preventZoom = (e) => {
-      var t2 = e.timeStamp;
-      var t1 = e.currentTarget.dataset.lastTouch || t2;
-      var dt = t2 - t1;
-      var fingers = e.touches.length;
-      e.currentTarget.dataset.lastTouch = t2;
-
-      if (!dt || dt > 500 || fingers > 1) return; // not double-tap
-      e.currentTarget.dataset.lastTouch = null;
-
-      e.preventDefault();
-    }
-
-    this.addEventListener('touchstart', preventZoom);
-
-    window.addEventListener('helpToolChosen', e => {
-      import('./popups/help-popup');
-      let helpElem = createElem('help-popup');
-      helpElem.toolname = e.detail.toolname;
-    });
-
-    window.addEventListener('state-changed', () => {
-      this.requestUpdate()
-    })
-  }
+  @property({ type: Boolean }) canUndo
+  @property({ type: Boolean }) canRedo
+  @property({ type: String }) background
+  @property({ type: Object }) tool
+  @property({ type: String }) colorPickerValue = '#000000'
+  @property({ type: Boolean }) helpSelected
+  @property({ type: String }) filename
 
   static styles = [
     TemplateToolbar.templateToolbarStyles(),
@@ -148,27 +89,7 @@ class AGMain extends LitElement {
       `,
   ]
 
-  async firstUpdated() {
-    let backgroundColor = rgb2hex(window.getComputedStyle(this.shadowRoot.querySelector('#left-menu'), null).backgroundColor);
-    if (!backgroundColor)
-      backgroundColor = '#ffffff';
-    let rgb = RGBFromColor(backgroundColor);
-    if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114 > 140) {
-      this.textColor = "#000000";
-    } else {
-      this.textColor = "#ffffff";
-    }
-    setState({ appLoading: false });
-
-    this.renderRoot.querySelector('#left-menu').addEventListener('touchstart', (event) => {
-      if (event.touches.length > 1) {
-        event.preventDefault();
-      }
-    });
-  }
-
   render() {
-    console.log(app)
     return html`
       <div id="app-view">
         <div id="left-menu">
@@ -333,6 +254,25 @@ class AGMain extends LitElement {
     }
   }
 
+  updateProperties() {
+    this.helpSelected = app.helpSelected;
+    this.filename = app.filename || '';
+    document.title = this.filename != "" ? this.filename : "AG mobile";
+  }
+
+  preventZoom(e) {
+    var t2 = e.timeStamp;
+    var t1 = e.currentTarget.dataset.lastTouch || t2;
+    var dt = t2 - t1;
+    var fingers = e.touches.length;
+    e.currentTarget.dataset.lastTouch = t2;
+
+    if (!dt || dt > 500 || fingers > 1) return; // not double-tap
+    e.currentTarget.dataset.lastTouch = null;
+
+    e.preventDefault();
+  }
+
   // // Todo: Placer dans un objet BackgroundImage ?
   // loadBackground() {
   //   const imageSelector = document.createElement('input');
@@ -348,4 +288,46 @@ class AGMain extends LitElement {
   //   reader.onload = e => (this.background = e.target.result);
   //   reader.readAsDataURL(file);
   // }
+
+  async firstUpdated() {
+    let backgroundColor = rgb2hex(window.getComputedStyle(this.shadowRoot.querySelector('#left-menu'), null).backgroundColor);
+    if (!backgroundColor)
+      backgroundColor = '#ffffff';
+    let rgb = RGBFromColor(backgroundColor);
+    if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114 > 140) {
+      this.textColor = "#000000";
+    } else {
+      this.textColor = "#ffffff";
+    }
+    setState({ appLoading: false });
+
+    this.renderRoot.querySelector('#left-menu').addEventListener('touchstart', (event) => {
+      if (event.touches.length > 1) {
+        event.preventDefault();
+      }
+    });
+    window.addEventListener('show-file-selector', () => {
+      this.shadowRoot.querySelector('#fileSelector').click();
+    });
+    window.addEventListener('history-changed', () => {
+      this.canUndo = HistoryManager.canUndo();
+      this.canRedo = HistoryManager.canRedo();
+    });
+    window.addEventListener('tool-changed', () => {
+      this.tool = app.tool;
+    });
+
+    this.addEventListener('touchstart', this.preventZoom);
+
+    window.addEventListener('helpToolChosen', e => {
+      import('./popups/help-popup');
+      let helpElem = createElem('help-popup');
+      helpElem.toolname = e.detail.toolname;
+    });
+
+    window.addEventListener('state-changed', () => {
+      this.updateProperties()
+      this.requestUpdate()
+    })
+  }
 }

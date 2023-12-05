@@ -1,3 +1,4 @@
+import '@components/color-button';
 import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
 import { goToHomePage } from '../Core/Tools/general';

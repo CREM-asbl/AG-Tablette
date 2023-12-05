@@ -1,3 +1,4 @@
+import '@components/color-button';
 import { css, html, LitElement } from 'lit';
 import { TemplatePopup } from '../popups/template-popup';
 
@@ -92,8 +93,8 @@ class LevelPopup extends LitElement {
           <div
             class="choice"
             @click="${() => {
-              this.level = 6;
-            }}"
+        this.level = 6;
+      }}"
           >
             <input
               type="radio"

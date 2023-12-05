@@ -1,3 +1,4 @@
+import '@components/color-button';
 import { html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 import { TemplatePopup } from './template-popup';
@@ -67,13 +68,13 @@ class GridPopup extends LitElement {
                 ?selected=${this.gridType === 'horizontal-triangle'}
               >
                 ${app.environment.name == 'Geometrie'
-                  ? 'Triangles'
-                  : 'Triangles 1'}
+        ? 'Triangles'
+        : 'Triangles 1'}
               </option>
               <option
                 style=${app.environment.name == 'Geometrie'
-                  ? 'display:none'
-                  : ''}
+        ? 'display:none'
+        : ''}
                 value="vertical-triangle"
                 ?selected=${this.gridType === 'vertical-triangle'}
               >
@@ -163,11 +164,11 @@ class GridPopup extends LitElement {
       default:
         console.error(
           'Grid popup: paramètre inconnu: ' +
-            event.target.name +
-            ' ' +
-            event.target.value +
-            ' ' +
-            event.target.checked,
+          event.target.name +
+          ' ' +
+          event.target.value +
+          ' ' +
+          event.target.checked,
         );
     }
   }

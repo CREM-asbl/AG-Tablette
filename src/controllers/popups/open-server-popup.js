@@ -1,3 +1,4 @@
+import '@components/color-button';
 import * as fflate from 'fflate';
 import { css, html, LitElement } from 'lit';
 import { findAllFiles, findAllThemes, readFileFromServer } from '../Firebase/firebase-init';
@@ -71,7 +72,7 @@ class OpenServerPopup extends LitElement {
         if (key in filesByModules) {
           filesByModules[key][file.id] = text;
         } else {
-          filesByModules[key] = { [file.id]: text};
+          filesByModules[key] = { [file.id]: text };
         }
       })
     );

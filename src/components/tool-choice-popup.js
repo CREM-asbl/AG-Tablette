@@ -1,3 +1,4 @@
+import '@components/color-button';
 import '@components/icon-button';
 import { app, setState } from '@controllers/Core/App';
 import { TemplatePopup } from '@controllers/popups/template-popup';

@@ -1,6 +1,7 @@
 import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { TemplatePopup } from '../popups/template-popup';
+import '@components/color-button';
 
 @customElement('select-menu')
 class SelectMenu extends LitElement {

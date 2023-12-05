@@ -1,3 +1,4 @@
+import '@components/color-button';
 import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
 import { createElem } from '../Core/Tools/general';
@@ -73,11 +74,11 @@ class OpenPopup extends LitElement {
       default:
         console.error(
           'OpenPopup: paramètre inconnu: ' +
-            event.target.name +
-            ' ' +
-            event.target.value +
-            ' ' +
-            event.target.checked,
+          event.target.name +
+          ' ' +
+          event.target.value +
+          ' ' +
+          event.target.checked,
         );
     }
   }
