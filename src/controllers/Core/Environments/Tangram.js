@@ -18,4 +18,5 @@ export default {
   },
   themeColor: '#006CAA',
   themeColorSoft: '#BCD3E6',
+  textColor: '#FFF'
 };

@@ -38,4 +38,5 @@ export default {
   extensions: ['.agl'],
   themeColor: '#888888',
   themeColorSoft: '#B8B8B8',
+  textColor: '#FFF'
 };

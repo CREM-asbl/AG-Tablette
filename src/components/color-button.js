@@ -1,45 +1,32 @@
-import { css, html, LitElement } from 'lit';
-import { rgb2hex, RGBFromColor } from '../controllers/Core/Tools/general';
+import { html, LitElement } from 'lit';
 
 class ColorButton extends LitElement {
-  static get properties() {
-    return {
-      innerText: String,
-      textColor: String,
-      name: String,
-    };
-  }
-
-  static get styles() {
-    return css`
-    `;
-  }
-
-  constructor() {
-    super();
+  static properties = {
+    innerText: String,
+    textColor: String
   }
 
   render() {
     return html`
       <style>
         :host {
-          color: ${this.textColor};
+          color: var(--text-color);
         }
       </style>
       ${this.innerText}
     `;
   }
 
-  firstUpdated() {
-    let backgroundColor = rgb2hex(window.getComputedStyle(this, null).backgroundColor);
-    if (!backgroundColor)
-      backgroundColor = '#ffffff';
-    let rgb = RGBFromColor(backgroundColor);
-    if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114 > 140) {
-      this.textColor = "#000000";
-    } else {
-      this.textColor = "#ffffff";
-    }
-  }
+  // firstUpdated() {
+  //   let backgroundColor = rgb2hex(window.getComputedStyle(this, null).backgroundColor);
+  //   if (!backgroundColor)
+  //     backgroundColor = '#ffffff';
+  //   let rgb = RGBFromColor(backgroundColor);
+  //   if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114 > 140) {
+  //     this.textColor = "#000000";
+  //   } else {
+  //     this.textColor = "#ffffff";
+  //   }
+  // }
 }
 customElements.define('color-button', ColorButton);

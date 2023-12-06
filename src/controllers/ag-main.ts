@@ -226,7 +226,7 @@ class AGMain extends LitElement {
         resetTool = true;
         break;
       case 'home':
-        import('./popups/home-popup');
+        import('../components/home-popup');
         createElem('home-popup');
         resetTool = true;
         break;

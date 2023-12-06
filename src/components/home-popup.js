@@ -1,14 +1,12 @@
 import '@components/color-button';
 import { css, html, LitElement } from 'lit';
-import { app } from '../Core/App';
-import { goToHomePage } from '../Core/Tools/general';
-import './save-warning';
-import { TemplatePopup } from './template-popup';
+import { app } from '../controllers/Core/App';
+import { goToHomePage } from '../controllers/Core/Tools/general';
+import '../controllers/popups/save-warning';
+import { TemplatePopup } from '../controllers/popups/template-popup';
 
 class HomePopup extends LitElement {
-  constructor() {
-    super();
-
+  firstUpdated() {
     window.addEventListener('close-popup', () => this.close());
   }
 
