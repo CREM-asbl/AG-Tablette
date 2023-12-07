@@ -57,9 +57,8 @@ class DividePopup extends LitElement {
         <div slot="body" id="body">
           <label for="settings_divide_number_of_parts">Diviser en</label>
           <select @change="${this.changeNumberOfParts}">
-            ${range(2, 9).map(
-      (x) =>
-        html`<option value="${x}" ?selected="${this.parts == x}">
+            ${range(2, 9).map((x) =>
+      html`<option value="${x}" ?selected="${this.parts == x}">
                   ${x}
                 </option>`,
     )}

@@ -10,10 +10,9 @@ class HomePopup extends LitElement {
     window.addEventListener('close-popup', () => this.close());
   }
 
-  static get styles() {
-    return [
-      TemplatePopup.template_popup_styles(),
-      css`
+  static styles = [
+    TemplatePopup.template_popup_styles(),
+    css`
         [slot='body'] {
           padding: 0;
         }
@@ -22,8 +21,7 @@ class HomePopup extends LitElement {
           padding-top: 16px;
         }
       `,
-    ];
-  }
+  ]
 
   render() {
     return html`

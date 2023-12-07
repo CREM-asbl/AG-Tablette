@@ -11,6 +11,7 @@
     "isolatedModules": true,
     // Add type definitions for our Vite runtime.
     "useDefineForClassFields": false,
+    "experimentalDecorators": true,
     "types": [
       "vite/client"
     ],
