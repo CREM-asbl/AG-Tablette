@@ -68,7 +68,7 @@ export class CreateQuadrilateralTool extends Tool {
   async drawFirstPoint() {
     app.upperCanvasLayer.removeAllObjects();
     let quadrilateralsDef = await import(`./quadrilateralsDef.js`);
-    this.quadrilateralDef = quadrilateralsDef[app.tool.selectedTemplate];
+    this.quadrilateralDef = quadrilateralsDef[app.tool.selectedTemplate.name];
 
     this.points = [];
     this.segments = [];
@@ -343,9 +343,9 @@ export class CreateQuadrilateralTool extends Tool {
 
   _executeAction() {
     let familyName = '4-corner-shape';
-    if (app.tool.selectedTemplate == 'Square') {
+    if (app.tool.selectedTemplate.name == 'Square') {
       familyName = 'Regular';
-    } else if (app.tool.selectedTemplate == 'IrregularQuadrilateral') {
+    } else if (app.tool.selectedTemplate.name == 'IrregularQuadrilateral') {
       familyName = 'Irregular';
     }
 
@@ -359,7 +359,7 @@ export class CreateQuadrilateralTool extends Tool {
     let shape = new RegularShape({
       layer: 'main',
       path: path,
-      name: app.tool.selectedTemplate,
+      name: app.tool.selectedTemplate.name,
       familyName: familyName,
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),

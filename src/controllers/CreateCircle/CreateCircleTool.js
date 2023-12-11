@@ -271,8 +271,8 @@ export class CreateCircleTool extends Tool {
 
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       if (
-        app.tool.selectedTemplate == 'CirclePart' ||
-        app.tool.selectedTemplate == 'CircleArc'
+        app.tool.selectedTemplate.name == 'CirclePart' ||
+        app.tool.selectedTemplate.name == 'CircleArc'
       ) {
         this.stopAnimation();
         setState({ tool: { ...app.tool, name: this.name, currentStep: 'showArrow' } });
@@ -383,7 +383,7 @@ export class CreateCircleTool extends Tool {
         app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
-      if (app.tool.selectedTemplate == '30degreesArc' && this.numberOfPointsDrawn == 2) {
+      if (app.tool.selectedTemplate.name == '30degreesArc' && this.numberOfPointsDrawn == 2) {
         let angle = this.points[0].coordinates.angleWith(this.points[1].coordinates) + Math.PI / 6;
         let radius = this.points[0].coordinates.dist(this.points[1].coordinates);
         let thirdPointCoordinates = new Coordinates({
@@ -391,7 +391,7 @@ export class CreateCircleTool extends Tool {
           y: this.points[0].coordinates.y + Math.sin(angle) * radius,
         });
         this.points[this.numberOfPointsDrawn].coordinates = thirdPointCoordinates;
-      } else if (app.tool.selectedTemplate == '45degreesArc' && this.numberOfPointsDrawn == 2) {
+      } else if (app.tool.selectedTemplate.name == '45degreesArc' && this.numberOfPointsDrawn == 2) {
         let angle = this.points[0].coordinates.angleWith(this.points[1].coordinates) + Math.PI / 4;
         let radius = this.points[0].coordinates.dist(this.points[1].coordinates);
         let thirdPointCoordinates = new Coordinates({
@@ -405,11 +405,11 @@ export class CreateCircleTool extends Tool {
 
   numberOfPointsRequired() {
     let numberOfPointsRequired = 0;
-    if (app.tool.selectedTemplate == 'Circle') numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate == 'CirclePart') numberOfPointsRequired = 3;
-    else if (app.tool.selectedTemplate == 'CircleArc') numberOfPointsRequired = 3;
-    else if (app.tool.selectedTemplate == '30degreesArc') numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate == '45degreesArc') numberOfPointsRequired = 2;
+    if (app.tool.selectedTemplate.name == 'Circle') numberOfPointsRequired = 2;
+    else if (app.tool.selectedTemplate.name == 'CirclePart') numberOfPointsRequired = 3;
+    else if (app.tool.selectedTemplate.name == 'CircleArc') numberOfPointsRequired = 3;
+    else if (app.tool.selectedTemplate.name == '30degreesArc') numberOfPointsRequired = 2;
+    else if (app.tool.selectedTemplate.name == '45degreesArc') numberOfPointsRequired = 2;
     return numberOfPointsRequired;
   }
 
@@ -419,7 +419,7 @@ export class CreateCircleTool extends Tool {
     } else if (pointNb == 1) {
       this.constraints = new GeometryConstraint('isFree');
     } else if (pointNb == 2) {
-      if (app.tool.selectedTemplate == 'CirclePart') {
+      if (app.tool.selectedTemplate.name == 'CirclePart') {
         let lines = [
           [
             this.points[1].coordinates,
@@ -428,7 +428,7 @@ export class CreateCircleTool extends Tool {
           ],
         ];
         this.constraints = new GeometryConstraint('isConstrained', lines);
-      } else if (app.tool.selectedTemplate == 'CircleArc') {
+      } else if (app.tool.selectedTemplate.name == 'CircleArc') {
         let lines = [
           [
             this.points[1].coordinates,
@@ -442,7 +442,7 @@ export class CreateCircleTool extends Tool {
   }
 
   _executeAction() {
-    if (app.tool.selectedTemplate == 'CirclePart') {
+    if (app.tool.selectedTemplate.name == 'CirclePart') {
       this.points.push(new Point({
         layer: 'upper',
         coordinates: this.points[0].coordinates,
@@ -462,7 +462,7 @@ export class CreateCircleTool extends Tool {
     let segments = [];
 
     let idx = 0;
-    if (app.tool.selectedTemplate == 'Circle') {
+    if (app.tool.selectedTemplate.name == 'Circle') {
       points[0].type = 'arcCenter';
       points[1].idx = 0;
       [points[0], points[1]] = [points[1], points[0]];
@@ -473,7 +473,7 @@ export class CreateCircleTool extends Tool {
         arcCenterId: points[1].id,
       });
       segments.push(seg);
-    } else if (app.tool.selectedTemplate == 'CirclePart') {
+    } else if (app.tool.selectedTemplate.name == 'CirclePart') {
       points[0].type = 'vertex';
       points[0].idx = 0;
       points[1].type = 'vertex';
@@ -502,7 +502,7 @@ export class CreateCircleTool extends Tool {
         vertexIds: [points[2].id, points[0].id],
       });
       segments.push(seg);
-    } else if (app.tool.selectedTemplate == 'CircleArc') {
+    } else if (app.tool.selectedTemplate.name == 'CircleArc') {
       [points[0], points[1], points[2]] = [points[1], points[2], points[0]];
       points[0].type = 'vertex';
       points[0].idx = 0;
@@ -535,16 +535,16 @@ export class CreateCircleTool extends Tool {
     }
 
     let constructor = RegularShape;
-    if (app.tool.selectedTemplate == 'CircleArc')
+    if (app.tool.selectedTemplate.name == 'CircleArc')
       constructor = LineShape;
-    else if (app.tool.selectedTemplate.endsWith('degreesArc'))
+    else if (app.tool.selectedTemplate.name.endsWith('degreesArc'))
       constructor = ArrowLineShape;
 
     let shape = new constructor({
       layer: 'main',
       segmentIds: segments.map(seg => seg.id),
       pointIds: points.map(pt => pt.id),
-      name: app.tool.selectedTemplate,
+      name: app.tool.selectedTemplate.name,
       familyName: 'circle-shape',
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),
