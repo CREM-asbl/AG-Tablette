@@ -1,19 +1,17 @@
 import '@components/color-button';
+import { app } from '@controllers/Core/App';
+import { SaveFileManager } from '@controllers/Core/Managers/SaveFileManager';
+import '@controllers/version-item';
 import { css, html, LitElement } from 'lit';
-import { app } from '../Core/App';
-import { SaveFileManager } from '../Core/Managers/SaveFileManager';
-import '../version-item';
 import { TemplatePopup } from './template-popup';
 
 class SavePopup extends LitElement {
-  static get properties() {
-    return {
-      filename: { type: String },
-      saveSettings: { type: Boolean },
-      saveHistory: { type: Boolean },
-      imageFormat: { type: String },
-      saveMethod: { type: String },
-    };
+  static properties = {
+    filename: { type: String },
+    saveSettings: { type: Boolean },
+    saveHistory: { type: Boolean },
+    imageFormat: { type: String },
+    saveMethod: { type: String },
   }
 
   constructor() {
@@ -43,16 +41,14 @@ class SavePopup extends LitElement {
     window.addEventListener('close-popup', () => this.close());
   }
 
-  static get styles() {
-    return [
-      TemplatePopup.template_popup_styles(),
-      css`
+  static styles = [
+    TemplatePopup.template_popup_styles(),
+    css`
         .invisible {
           display: none;
         }
       `
-    ];
-  }
+  ]
 
   render() {
     return html`

@@ -6,6 +6,7 @@ import { customElement, property } from 'lit/decorators.js';
 export class ColorButton extends LitElement {
 
   @property({ type: String }) innerText
+  @property({ type: String }) name
 
   static styles = css`
     button {
