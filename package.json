@@ -16,7 +16,7 @@
     "@web/test-runner": "^0.18.0"
   },
   "dependencies": {
-    "@astrojs/lit": "^3.0.0",
+    "@astrojs/lit": "^3.0.3",
     "astro": "^4.0.3",
     "astrojs-service-worker": "^2.0.0",
     "fflate": "^0.8.0",

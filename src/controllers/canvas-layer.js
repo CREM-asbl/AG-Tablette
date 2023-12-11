@@ -361,7 +361,7 @@ class CanvasLayer extends LitElement {
               );
             }
           } else {
-            import('./popups/grid-popup');
+            import('@components/popups/grid-popup');
             createElem('grid-popup');
           }
         }
@@ -885,8 +885,8 @@ class CanvasLayer extends LitElement {
     this.ctx.miterLimit = 1;
 
     let pathScaleMethod = this.mustScaleShapes
-        ? 'scale'
-        : 'no scale',
+      ? 'scale'
+      : 'no scale',
       path = new Path2D(shape.getSVGPath(pathScaleMethod, true, false, true));
     if (shape.drawHidden) {
       let canvasPattern = document.createElement("canvas");

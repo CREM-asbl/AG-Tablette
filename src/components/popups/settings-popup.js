@@ -1,9 +1,9 @@
 import '@components/color-button';
+import { app, setState } from '@controllers/Core/App';
+import { createElem } from '@controllers/Core/Tools/general';
+import '@controllers/version-item';
 import { css, html, LitElement } from 'lit';
-import { app, setState } from '../controllers/Core/App';
-import { createElem } from '../controllers/Core/Tools/general';
-import { TemplatePopup } from '../controllers/popups/template-popup';
-import '../controllers/version-item';
+import { TemplatePopup } from './template-popup';
 
 class SettingsPopup extends LitElement {
   static get properties() {

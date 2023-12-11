@@ -164,7 +164,7 @@ export class OpenFileManager {
     if (typeof fileContent == 'string') {
       try {
         saveObject = JSON.parse(fileContent);
-      } catch(e) {
+      } catch (e) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier.' } }));
         return;
       }
@@ -271,7 +271,7 @@ export class OpenFileManager {
 }
 
 window.addEventListener('open-file', async () => {
-  await import('../../popups/open-popup');
+  await import('../../../components/popups/open-popup');
   createElem('open-popup');
 });
 

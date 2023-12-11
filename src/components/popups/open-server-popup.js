@@ -1,7 +1,7 @@
 import '@components/color-button';
+import { findAllFiles, findAllThemes, readFileFromServer } from '@db/firebase-init';
 import * as fflate from 'fflate';
 import { css, html, LitElement } from 'lit';
-import { findAllFiles, findAllThemes, readFileFromServer } from '../Firebase/firebase-init';
 import { TemplatePopup } from './template-popup';
 import './theme-elem';
 

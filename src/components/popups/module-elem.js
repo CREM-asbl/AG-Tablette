@@ -1,6 +1,6 @@
+import { app, setState } from '@controllers/Core/App';
+import { getFilesDocFromModule, getModuleDocFromModuleName } from '@db/firebase-init';
 import { css, html, LitElement } from 'lit';
-import { app, setState } from '../Core/App';
-import { getFilesDocFromModule, getModuleDocFromModuleName } from '../Firebase/firebase-init';
 import './file-elem';
 
 class ModuleElem extends LitElement {

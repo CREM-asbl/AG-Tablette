@@ -89,7 +89,7 @@ export class SaveFileManager {
           },
           { once: true },
         );
-        import('../../popups/save-popup');
+        import('@components/popups/save-popup');
         createElem('save-popup');
     }
   }
@@ -119,7 +119,7 @@ export class SaveFileManager {
       },
       { once: true },
     );
-    import('../../popups/save-popup');
+    import('@components/popups/save-popup');
     createElem('save-popup');
   }
 

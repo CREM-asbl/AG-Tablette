@@ -1,5 +1,5 @@
+import { createElem } from '@controllers/Core/Tools/general';
 import { css, html, LitElement } from 'lit';
-import { createElem } from '../Core/Tools/general';
 
 export class Notification extends LitElement {
   static get properties() {

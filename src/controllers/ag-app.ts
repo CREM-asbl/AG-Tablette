@@ -1,10 +1,10 @@
 import { html, LitElement } from 'lit';
+import { downloadFileZip, openFileFromServer } from '../firebase/firebase-init';
 import './auto-launch';
 import './backbutton-manager';
 import { app, setState } from './Core/App';
 import { loadEnvironnement } from './Core/Environment';
 import './Core/Manifest';
-import { downloadFileZip, openFileFromServer } from './Firebase/firebase-init';
 
 /**
  * fix device-height != screen-height on pwa

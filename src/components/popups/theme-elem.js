@@ -1,6 +1,6 @@
-import { css, html, LitElement } from 'lit';
-import { app, setState } from '../Core/App';
-import { getModulesDocFromTheme, getThemeDocFromThemeName } from '../Firebase/firebase-init';
+import { app, setState } from '@controllers/Core/App';
+import { getModulesDocFromTheme, getThemeDocFromThemeName } from '@db/firebase-init';
+import { LitElement, css, html } from 'lit';
 import './module-elem';
 
 class ThemeElem extends LitElement {

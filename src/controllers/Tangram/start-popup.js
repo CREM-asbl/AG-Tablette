@@ -1,7 +1,7 @@
 import '@components/color-button';
+import { TemplatePopup } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
 import { setState } from '../Core/App';
-import { TemplatePopup } from '../popups/template-popup';
 
 class StartPopup extends LitElement {
   static get properties() {
@@ -15,17 +15,15 @@ class StartPopup extends LitElement {
     // window.addEventListener('close-popup', () => this.close());
   }
 
-  static get styles() {
-    return [
-      TemplatePopup.template_popup_styles(),
-      css`
+  static styles = [
+    TemplatePopup.template_popup_styles(),
+    css`
         #button-container {
           margin-top: 10px;
           display: flex;
         }
       `,
-    ];
-  }
+  ]
 
   render() {
     return html`

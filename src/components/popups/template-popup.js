@@ -1,29 +1,16 @@
 import { css, html, LitElement } from 'lit';
 
 export class TemplatePopup extends LitElement {
-  static get properties() {
-    return {
-      title: { type: String },
-      popupHeight: { type: Number }
-    };
-  }
-
-  constructor() {
-    super();
-
-    this.popupHeight = 70;
-    this.movementSpeed = 7;
-  }
+  static properties = {
+    title: { type: String },
+    popupHeight: { type: Number }
+  };
 
   /**
    * default styles for popup
    */
   static template_popup_styles() {
     return css`
-      :host {
-        display: none;
-      }
-
       h2, h3 {
         padding: 16px;
         margin: 0;
@@ -88,28 +75,18 @@ export class TemplatePopup extends LitElement {
     `;
   }
 
-  static get styles() {
-    return css`
-      .background {
-        display: flex;
+  static styles = css`
+      dialog::backdrop {
         background-color: rgba(102, 102, 102, 0.5);
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 100;
       }
 
-      #template-view {
-        max-height: 100%;
+      dialog {
         overflow: auto;
         display: grid;
         grid-template-columns: 1fr 40px;
-        margin: auto;
-        border-radius: 7px;
+        border-radius: 8px;
         box-shadow: 0px 0px 30px rgb(102, 102, 102);
-        /* border: 2px solid gray; */
+        border: 2px solid gray;
         background-color: var(--theme-color-soft);
       }
 
@@ -120,33 +97,15 @@ export class TemplatePopup extends LitElement {
         color: #555;
         margin: 8px;
         line-height: 40%;
-
         display: grid;
         text-align: right;
       }
-    `;
-  }
-
-  updateHeight() {
-    if (this.popupHeight > 0) {
-      this.popupHeight -= this.movementSpeed;
-      window.requestAnimationFrame(() => this.updateHeight());
-    }
-  }
-
-  firstUpdated() {
-    window.requestAnimationFrame(() => this.updateHeight());
-  }
-
+  `
   render() {
     return html`
-      <div class="background" style="padding-bottom: ${this.popupHeight}px;">
-        <div id="template-view">
-          <slot
-            id="popup-close"
-            name="close"
-            @click="${() => window.dispatchEvent(new Event('close-popup'))}"
-          >
+      <dialog>
+          <slot id="popup-close" name="close"
+            @click="${() => window.dispatchEvent(new Event('close-popup'))}">
             &times;
           </slot>
 
@@ -155,14 +114,16 @@ export class TemplatePopup extends LitElement {
           <slot name="body"></slot>
 
           <slot name="footer"></slot>
-        </div>
-      </div>
+      </dialog>
     `;
   }
+
+
+  firstUpdated() {
+    this.shadowRoot?.querySelector('dialog')?.showModal()
+    window.addEventListener('keyup', (e) => {
+      e.key === 'Escape' && window.dispatchEvent(new Event('close-popup'));
+    });
+  }
 }
-
-window.addEventListener('keyup', (e) => {
-  e.key === 'Escape' && window.dispatchEvent(new Event('close-popup'));
-});
-
 customElements.define('template-popup', TemplatePopup);

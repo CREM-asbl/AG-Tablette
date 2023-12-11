@@ -1,15 +1,11 @@
 import '@components/color-button';
+import { app } from '@controllers/Core/App';
+import { goToHomePage } from '@controllers/Core/Tools/general';
 import { css, html, LitElement } from 'lit';
-import { app } from '../controllers/Core/App';
-import { goToHomePage } from '../controllers/Core/Tools/general';
-import '../controllers/popups/save-warning';
-import { TemplatePopup } from '../controllers/popups/template-popup';
+import './save-warning';
+import { TemplatePopup } from './template-popup';
 
 class HomePopup extends LitElement {
-  firstUpdated() {
-    window.addEventListener('close-popup', () => this.close());
-  }
-
   static styles = [
     TemplatePopup.template_popup_styles(),
     css`
@@ -30,9 +26,7 @@ class HomePopup extends LitElement {
           ${'Accueil'}
         </h2>
         <div slot="body" id="body">
-          ${app.stepSinceSave ? html`
-            <save-warning></save-warning>
-          ` : ''}
+          ${app.stepSinceSave ? html`<save-warning></save-warning>` : ''}
         </div>
 
         <div slot="footer">
@@ -42,6 +36,10 @@ class HomePopup extends LitElement {
         </div>
       </template-popup>
     `;
+  }
+
+  firstUpdated() {
+    window.addEventListener('close-popup', () => this.close());
   }
 
   goToHomePage() {

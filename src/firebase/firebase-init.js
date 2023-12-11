@@ -3,9 +3,9 @@ import { initializeApp } from 'firebase/app';
 import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
 import { getPerformance } from "firebase/performance";
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
-import { app, setState } from '../Core/App';
-import { loadEnvironnement } from '../Core/Environment';
-import { OpenFileManager } from '../Core/Managers/OpenFileManager';
+import { app, setState } from '../controllers/Core/App';
+import { loadEnvironnement } from '../controllers/Core/Environment';
+import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import config from './firebase-config.json';
 
 const firebaseApp = initializeApp(config);

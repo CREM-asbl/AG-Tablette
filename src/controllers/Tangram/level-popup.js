@@ -1,6 +1,6 @@
 import '@components/color-button';
+import { TemplatePopup } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
-import { TemplatePopup } from '../popups/template-popup';
 
 class LevelPopup extends LitElement {
   static get properties() {

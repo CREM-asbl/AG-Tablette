@@ -1,9 +1,9 @@
 import '@components/color-button';
 import '@components/icon-button';
 import { app, setState } from '@controllers/Core/App';
-import { TemplatePopup } from '@controllers/popups/template-popup';
 import '@controllers/version-item';
 import { LitElement, css, html } from 'lit';
+import { TemplatePopup } from './template-popup';
 
 class ToolChoicePopup extends LitElement {
   static properties = {

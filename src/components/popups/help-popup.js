@@ -1,7 +1,7 @@
 import '@components/color-button';
+import { app } from '@controllers/Core/App';
+import '@controllers/version-item';
 import { css, html, LitElement } from 'lit';
-import { app } from '../Core/App';
-import '../version-item';
 import { TemplatePopup } from './template-popup';
 
 class HelpPopup extends LitElement {

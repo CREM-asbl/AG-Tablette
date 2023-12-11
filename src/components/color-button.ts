@@ -16,7 +16,7 @@ export class ColorButton extends LitElement {
     color: var(--text-color);
     border: none;
     box-shadow: 0px 0px 3px var(--menu-shadow-color);
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
   }
 

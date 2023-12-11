@@ -1,9 +1,10 @@
+import '@components/icon-button';
+import '@components/popups/notification';
 import { TemplateToolbar } from '@components/template-toolbar';
+import '@components/toolbar-kit';
+import '@components/toolbar-section';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import '../components/icon-button';
-import '../components/toolbar-kit';
-import '../components/toolbar-section';
 import './canvas-container';
 import { app, setState } from './Core/App';
 import './Core/Managers/FullHistoryManager';
@@ -15,7 +16,6 @@ import './Core/Managers/SelectManager';
 import './Core/Managers/ShapeManager';
 import './Core/Managers/WorkspaceManager';
 import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
-import './popups/notification';
 
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
@@ -213,7 +213,7 @@ class AGMain extends LitElement {
     }
     switch (event.target.name) {
       case 'settings':
-        import('../components/settings-popup');
+        import('../components/popups/settings-popup');
         createElem('settings-popup');
         resetTool = true;
         break;
@@ -226,7 +226,7 @@ class AGMain extends LitElement {
         resetTool = true;
         break;
       case 'home':
-        import('../components/home-popup');
+        import('../components/popups/home-popup');
         createElem('home-popup');
         resetTool = true;
         break;
@@ -320,7 +320,7 @@ class AGMain extends LitElement {
     this.addEventListener('touchstart', this.preventZoom);
 
     window.addEventListener('helpToolChosen', e => {
-      import('./popups/help-popup');
+      import('@components/popups/help-popup');
       let helpElem = createElem('help-popup');
       helpElem.toolname = e.detail.toolname;
     });

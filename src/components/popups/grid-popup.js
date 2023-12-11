@@ -1,6 +1,6 @@
 import '@components/color-button';
+import { app, setState } from '@controllers/Core/App';
 import { html, LitElement } from 'lit';
-import { app, setState } from '../Core/App';
 import { TemplatePopup } from './template-popup';
 
 class GridPopup extends LitElement {
