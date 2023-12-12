@@ -17,7 +17,6 @@ class ToolChoicePopup extends LitElement {
       this.iconSize = app.menuIconSize;
       this.families = app.environment.families || [];
       this.tools = [...app.tools.filter(tool => tool.name != 'create')];
-      // this.deletedTools = app.defaultTools.filter(defaultTool => this.tools.every(tool => tool.name != defaultTool.name));
     };
     this.updateProperties();
 
@@ -37,16 +36,15 @@ class ToolChoicePopup extends LitElement {
         }
 
         .toolContainer {
+          display: grid;
+          grid-template-columns : repeat(4, 1fr);
+          gap: 2px;
+          width: 208px;
+          place-content: baseline;
           background-color: white;
-          border-radius: 5px;
+          border-radius: 4px;
           margin: 5px;
           box-shadow: 0px 0px 5px rgb(102, 102, 102);
-          width: calc(4 * (52px + 2px + 2px));
-
-          display: flex;
-          flex-wrap: wrap;
-          align-content: flex-start;
-          box-sizing: border-box;
         }
 
         span {
@@ -59,7 +57,7 @@ class ToolChoicePopup extends LitElement {
     return html`
       <style>
         .toolContainer {
-          height: ${(parseInt((this.tools.length + this.families.length) / 4) + ((this.tools.length + this.families.length) % 4 ? 1 : 0)) * (52 + 2 + 2)}px;
+          height: ${(parseInt((this.tools.length + this.families.length) / 4) + ((this.tools.length + this.families.length) % 4 ? 1 : 0)) * (52)}px;
         }
       </style>
       <template-popup>
@@ -73,7 +71,6 @@ class ToolChoicePopup extends LitElement {
             <div class="toolContainer">
               ${this.families.filter(family => family.isVisible).map((family) => html`
                   <icon-button
-                    style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                     name="${family.shapeTemplates[0].name}"
                     type="Create"
                     title="${family.name}"
@@ -81,7 +78,6 @@ class ToolChoicePopup extends LitElement {
                   ></icon-button>`)}
               ${this.tools.filter(tool => tool.isVisible && !tool.isDisable).map(tool => html`
                   <icon-button
-                    style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                     name="${tool.name}"
                     type="State"
                     title="${tool.title}"
@@ -99,7 +95,6 @@ class ToolChoicePopup extends LitElement {
             <div class="toolContainer">
               ${this.families.filter(family => !family.isVisible).map((family) => html`
                   <icon-button
-                    style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                     name="${family.shapeTemplates[0].name}"
                     type="Create"
                     title="${family.name}"
@@ -107,7 +102,6 @@ class ToolChoicePopup extends LitElement {
                   ></icon-button>`)}
               ${this.tools.filter(tool => !tool.isVisible && !tool.isDisable).map((tool) => html`
                   <icon-button
-                    style="width: ${this.iconSize}px; height: ${this.iconSize}px;"
                     name="${tool.name}"
                     type="State"
                     title="${tool.title}"

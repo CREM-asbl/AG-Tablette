@@ -17,7 +17,6 @@ export class ResetPositionTool extends Tool {
 
   listen() {
     this.removeListeners();
-
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.shapes.canSelect = true;
