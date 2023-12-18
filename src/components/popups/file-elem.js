@@ -1,24 +1,19 @@
 import { app } from '@controllers/Core/App';
+import { loadEnvironnement } from '@controllers/Core/Environment';
 import { OpenFileManager } from '@controllers/Core/Managers/OpenFileManager';
 import { readFileFromServer } from '@db/firebase-init';
 import { css, html, LitElement } from 'lit';
+import { setState } from '../../controllers/Core/App';
 import './open-server-popup';
 
 class FileElem extends LitElement {
-  static get properties() {
-    return {
-      title: String,
-      environment: String,
-    };
-  }
+  static properties = {
+    title: String,
+    environment: String,
+  };
 
-  constructor() {
-    super();
-  }
-
-  static get styles() {
-    return [
-      css`
+  static styles = [
+    css`
         div {
           cursor: pointer;
           text-align: center;
@@ -32,8 +27,7 @@ class FileElem extends LitElement {
           padding: 5px;
         }
       `,
-    ];
-  }
+  ];
 
   render() {
     return html`
@@ -44,7 +38,8 @@ class FileElem extends LitElement {
   async openFile() {
     if (this.environment != app.environment.name) {
       if (confirm('Voulez-vous ouvrir ce fichier dans ' + this.environment + '?')) {
-        window.location.href = location.protocol + '//' + location.host + location.pathname + '?activityName=' + this.title;
+        // window.location.href = '/?activityName=' + this.title;
+        setState({ environment: await loadEnvironnement(this.environment) });
       } else {
         return;
       }

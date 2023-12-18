@@ -1,29 +1,18 @@
 import '@components/color-button';
 import { findAllFiles, findAllThemes, readFileFromServer } from '@db/firebase-init';
 import * as fflate from 'fflate';
-import { css, html, LitElement } from 'lit';
+import { LitElement, css, html } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 import { TemplatePopup } from './template-popup';
 import './theme-elem';
 
+@customElement('open-server-popup')
 class OpenServerPopup extends LitElement {
-  static get properties() {
-    return {
-      allThemes: Array,
-    };
-  }
+  @property({ type: Array }) allThemes = []
 
-  constructor() {
-    super();
-
-    this.allThemes = [];
-
-    window.addEventListener('close-popup', () => this.close());
-  }
-
-  static get styles() {
-    return [
-      TemplatePopup.template_popup_styles(),
-      css`
+  static styles = [
+    TemplatePopup.template_popup_styles(),
+    css`
         :host {
           display: block;
         }
@@ -35,16 +24,13 @@ class OpenServerPopup extends LitElement {
         color-button {
           margin-top: 10px;
         }
-      `,
-    ];
-  }
+      `
+  ]
 
   async firstUpdated() {
     let allThemes = await findAllThemes();
     this.allThemes = allThemes;
-  }
-
-  updated() {
+    window.addEventListener('close-popup', () => this.close());
   }
 
   render() {
@@ -97,4 +83,3 @@ class OpenServerPopup extends LitElement {
     }
   }
 }
-customElements.define('open-server-popup', OpenServerPopup);

@@ -10,6 +10,12 @@
     "cleanUrls": true,
     "frameworksBackend": {
       "region": "europe-west1"
-    }
+    },
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }

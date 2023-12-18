@@ -1,27 +1,17 @@
 import { app, setState } from '@controllers/Core/App';
 import { getFilesDocFromModule, getModuleDocFromModuleName } from '@db/firebase-init';
-import { css, html, LitElement } from 'lit';
+import { LitElement, css, html } from 'lit';
+import { property } from 'lit/decorators.js';
 import './file-elem';
 
 class ModuleElem extends LitElement {
-  static get properties() {
-    return {
-      title: String,
-      fileNames: Array,
-      files: Array,
-    };
-  }
+  @property({ type: String }) title
+  @property({ type: Array }) files = []
+  @property({ type: Array }) fileNames = []
 
-  constructor() {
-    super();
 
-    this.files = [];
-    this.fileNames = [];
-  }
-
-  static get styles() {
-    return [
-      css`
+  static styles = [
+    css`
 
         details {
           cursor: pointer;
@@ -36,8 +26,7 @@ class ModuleElem extends LitElement {
           padding: 5px;
         }
       `,
-    ];
-  }
+  ];
 
   firstUpdated() {
     this.isOpen = app.sequencesOpen.some(sequence => {

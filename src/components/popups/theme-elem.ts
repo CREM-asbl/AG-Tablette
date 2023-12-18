@@ -1,27 +1,16 @@
 import { app, setState } from '@controllers/Core/App';
 import { getModulesDocFromTheme, getThemeDocFromThemeName } from '@db/firebase-init';
 import { LitElement, css, html } from 'lit';
+import { property } from 'lit/decorators.js'
 import './module-elem';
 
 class ThemeElem extends LitElement {
-  static get properties() {
-    return {
-      title: String,
-      moduleNames: Array,
-      modules: Array,
-    };
-  }
+  @property({ type: String }) title
+  @property({ type: Array }) modules = []
+  @property({ type: Array }) moduleNames = []
 
-  constructor() {
-    super();
-
-    this.modules = [];
-    this.moduleNames = [];
-  }
-
-  static get styles() {
-    return [
-      css`
+  static styles = [
+    css`
         :host {
           width: 100%;
         }
@@ -36,8 +25,7 @@ class ThemeElem extends LitElement {
           margin-bottom: 5px;
         }
       `,
-    ];
-  }
+  ];
 
   firstUpdated() {
     this.isOpen = app.notionsOpen.some(notion => {
