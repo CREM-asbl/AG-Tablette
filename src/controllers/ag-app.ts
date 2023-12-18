@@ -1,4 +1,5 @@
 import { html, LitElement } from 'lit';
+import { property } from 'lit/decorators.js';
 import { downloadFileZip, openFileFromServer } from '../firebase/firebase-init';
 import './auto-launch';
 import './backbutton-manager';
@@ -14,16 +15,8 @@ if (document.body.clientHeight > screen.height) {
 }
 
 export class App extends LitElement {
-  static properties = {
-    environnement_selected: { type: Boolean },
-    appLoading: { type: Boolean },
-  };
-
-
-  constructor() {
-    super();
-    this.appLoading = false;
-  }
+  @property({ type: Boolean }) appLoading
+  @property({ type: Boolean }) environnement_selected
 
   connectedCallback() {
     super.connectedCallback();
@@ -48,9 +41,10 @@ export class App extends LitElement {
   }
 
   render() {
+    console.log(this.appLoading)
     let toRender = [];
     if (this.appLoading) {
-      import('./loading-elem');
+      import('../components/loading-elem');
       toRender.push(html`<loading-elem></loading-elem>`);
     }
     if (this.environnement_selected) {
@@ -65,14 +59,11 @@ export class App extends LitElement {
   }
 
   async openEnv(e) {
-    setState({ appLoading: true });
-    setState({ environment: await loadEnvironnement(e) });
+    setState({ appLoading: true, environment: await loadEnvironnement(e) });
   }
 
   setState() {
-    if (app.appLoading) {
-      this.appLoading = true;
-    }
+    this.appLoading = app.appLoading;
     this.environnement_selected = app.environment !== undefined;
   }
 

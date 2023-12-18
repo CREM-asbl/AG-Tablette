@@ -6,7 +6,7 @@
     "deploy": "firebase deploy",
     "deploy:beta": "firebase deploy --only hosting:beta",
     "deploy:beta2": "firebase hosting:channel:deploy $(cat public/manifest.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | sed 's/[^0-9.]//g') --expires 30d",
-    "deploy:beta3": "firebase hosting:channel:deploy beta",
+    "deploy:beta3": "firebase hosting:channel:deploy beta --expires 30d",
     "test": "[[ -n $npm_config_folder && -d test/$npm_config_folder ]] && { npm run test:folder; exit 0;} || npm run test:all",
     "test:folder": "echo \"running tests in folder $npm_config_folder\" && web-test-runner \"test/$npm_config_folder/*.test.js\" --node-resolve",
     "test:all": "echo \"running all tests\" && web-test-runner \"test/**/*.test.js\" --node-resolve"
