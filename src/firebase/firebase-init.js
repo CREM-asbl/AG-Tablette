@@ -1,6 +1,6 @@
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from 'firebase/app';
-import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, initializeFirestore, persistentLocalCache, query, where } from "firebase/firestore";
 import { getPerformance } from "firebase/performance";
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import { app, setState } from '../controllers/Core/App';
@@ -9,7 +9,7 @@ import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import config from './firebase-config.json';
 
 const firebaseApp = initializeApp(config);
-const db = getFirestore(firebaseApp);
+const db = initializeFirestore(firebaseApp, { localCache: persistentLocalCache() });
 const storage = getStorage(firebaseApp);
 
 if (location.hostname != 'localhost') {
