@@ -5,7 +5,7 @@ import '@components/toolbar-kit';
 import '@components/toolbar-section';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import './canvas-container';
+import '../components/canvas-container';
 import { app, setState } from './Core/App';
 import './Core/Managers/FullHistoryManager';
 import './Core/Managers/GroupManager';

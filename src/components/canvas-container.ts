@@ -1,30 +1,13 @@
-import { css, html, LitElement } from 'lit';
-import './canvas-layer';
-import { app, setState } from './Core/App';
-import { Coordinates } from './Core/Objects/Coordinates';
+import { html, LitElement } from 'lit';
+import { property } from 'lit/decorators.js';
+import '../controllers/canvas-layer';
+import { app, setState } from '../controllers/Core/App';
+import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 
 class CanvasContainer extends LitElement {
-  constructor() {
-    super();
-
-    this.cursorPos = Coordinates.nullCoordinates;
-    this.cursorSize = 20;
-    this.cursorShow = false;
-  }
-
-  static get properties() {
-    return {
-      background: String, // utile ?
-      cursorPos: Object,
-      cursorSize: Number,
-      cursorShow: Boolean,
-    };
-  }
-
-  static get styles() {
-    return css`
-    `;
-  }
+  @property({ type: Object }) cursorPos = Coordinates.nullCoordinates
+  @property({ type: Number }) cursorSize = 20
+  @property({ type: Boolean }) cursorShow = false
 
   render() {
     return html`
@@ -47,12 +30,10 @@ class CanvasContainer extends LitElement {
         src="/images/fake_cursor.png"
         height="${this.cursorSize}"
         width="${this.cursorSize}"
-        style="margin-left: ${this.cursorPos.x}px; z-index: 50; position: relative; margin-top: ${
-          this.cursorPos.y
-        }px; display: ${this.cursorShow ? 'block' : 'none'}"
-      >
-      </img>
-    `;
+        style="margin-left: ${this.cursorPos.x}px; z-index: 50; position: relative; margin-top: ${this.cursorPos.y
+      }px; display: ${this.cursorShow ? 'block' : 'none'}"
+      />
+    `
   }
 
   firstUpdated() {
