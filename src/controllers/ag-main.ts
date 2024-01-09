@@ -299,7 +299,6 @@ class AGMain extends LitElement {
     } else {
       this.textColor = "#ffffff";
     }
-    setState({ appLoading: false });
 
     this.renderRoot.querySelector('#left-menu').addEventListener('touchstart', (event) => {
       if (event.touches.length > 1) {

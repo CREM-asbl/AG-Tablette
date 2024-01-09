@@ -41,21 +41,19 @@ export class App extends LitElement {
   }
 
   render() {
-    console.log(this.appLoading)
-    let toRender = [];
-    if (this.appLoading) {
-      import('../components/loading-elem');
-      toRender.push(html`<loading-elem></loading-elem>`);
-    }
     if (this.environnement_selected) {
       history.pushState({}, "main page");
       const AGmainLoader = import('./ag-main');
-      toRender.push(html`<ag-main></ag-main>`);
+      app.appLoading = false
+      return html`<ag-main></ag-main>`;
     } else if (!this.appLoading) {
       import('./ag-environnements');
-      return html` <ag-environnements></ag-environnements> `;
+      return html`<ag-environnements></ag-environnements>`;
     }
-    return toRender;
+    if (this.appLoading) {
+      import('../components/loading-elem');
+      return html`<loading-elem></loading-elem>`;
+    }
   }
 
   async openEnv(e) {

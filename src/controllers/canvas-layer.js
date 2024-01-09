@@ -1,4 +1,4 @@
-import { css, html, LitElement } from 'lit';
+import { html, LitElement } from 'lit';
 import { app, setState } from './Core/App';
 import { SelectManager } from './Core/Managers/SelectManager';
 import { Coordinates } from './Core/Objects/Coordinates';
@@ -30,16 +30,6 @@ class CanvasLayer extends LitElement {
     this.mustDrawGrid = false;
 
     this.mustScaleShapes = true;
-  }
-
-  static get properties() {
-    return {
-    };
-  }
-
-  static get styles() {
-    return css`
-    `;
   }
 
   render() {
@@ -84,9 +74,6 @@ class CanvasLayer extends LitElement {
   }
 
   redraw() {
-    // if (Date.now() - this.lastUse < 16)
-    //   return;
-    // this.lastUse = Date.now();
     this.clear();
     this.texts.forEach((text) => text.updateMessage());
 
