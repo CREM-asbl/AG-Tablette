@@ -1,0 +1,22 @@
+[
+  {
+    "name": "EquilateralTriangle",
+    "title": "Triangle équilatéral"
+  },
+  {
+    "name": "RightAngleIsoscelesTriangle",
+    "title": "Triangle isocèle rectangle"
+  },
+  {
+    "name": "RightAngleTriangle",
+    "title": "Triangle rectangle"
+  },
+  {
+    "name": "IsoscelesTriangle",
+    "title": "Triangle isocèle"
+  },
+  {
+    "name": "IrregularTriangle",
+    "title": "Triangle"
+  }
+]

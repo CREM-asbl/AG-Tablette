@@ -1,32 +1,21 @@
 {
-  "hosting": [
-    {
-      "target": "default",
-      "public": "build",
-      "ignore": [
-        "firebase.json",
-        "**/.*"
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ]
+  "hosting": {
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      ".env"
+    ],
+    "cleanUrls": true,
+    "frameworksBackend": {
+      "region": "europe-west1"
     },
-    {
-      "target": "beta",
-      "public": "build",
-      "ignore": [
-        "firebase.json",
-        "**/.*"
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ]
-    }
-  ]
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
 }
