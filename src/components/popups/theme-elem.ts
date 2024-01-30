@@ -1,7 +1,7 @@
 import { app, setState } from '@controllers/Core/App';
 import { getModulesDocFromTheme, getThemeDocFromThemeName } from '@db/firebase-init';
 import { LitElement, css, html } from 'lit';
-import { property } from 'lit/decorators.js'
+import { property } from 'lit/decorators.js';
 import './module-elem';
 
 class ThemeElem extends LitElement {
@@ -15,14 +15,14 @@ class ThemeElem extends LitElement {
           width: 100%;
         }
 
+        summary {
+          font-weight: bold;
+        }
+
         details {
-          cursor: pointer;
-          text-align: left;
-          background-color: var(--theme-color-soft);
-          border-radius: 3px;
-          box-shadow: 0px 0px 3px var(--menu-shadow-color);
-          padding: 5px;
-          margin-bottom: 5px;
+          padding: 4px;
+          background-color: rgba(0, 0, 0, .1);
+          border-radius: 4px;
         }
       `,
   ];

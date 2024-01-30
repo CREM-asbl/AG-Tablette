@@ -11,14 +11,15 @@ export class ColorButton extends LitElement {
   static styles = css`
     button {
     display: block;
+    width: 100%;
     padding: 8px 16px;
-    margin: 0 4px;
     background-color: var(--theme-color);
     color: var(--text-color);
     border: none;
     box-shadow: 0px 0px 3px var(--menu-shadow-color);
     border-radius: 4px;
     cursor: pointer;
+    box-sizing: border-box;
   }
 
   button:hover {
@@ -28,6 +29,6 @@ export class ColorButton extends LitElement {
   `
 
   render() {
-    return html`<button>${this.innerText}</button>`;
+    return html`<button><slot>${this.innerText}</slot></button>`;
   }
 }

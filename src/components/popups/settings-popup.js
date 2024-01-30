@@ -2,15 +2,13 @@ import '@components/color-button';
 import { app, setState } from '@controllers/Core/App';
 import { createElem } from '@controllers/Core/Tools/general';
 import '@controllers/version-item';
-import { css, html, LitElement } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { TemplatePopup } from './template-popup';
 
 class SettingsPopup extends LitElement {
-  static get properties() {
-    return {
-      settings: { type: Array },
-    };
-  }
+  static properties = {
+    settings: { type: Array }
+  };
 
   constructor() {
     super();
@@ -29,6 +27,12 @@ class SettingsPopup extends LitElement {
         version-item {
           margin-right: 8px;
         }
+
+        fieldset {
+          width: 100%;
+          box-sizing: border-box;
+          border-radius: 4px;
+        }
       `,
   ]
 
@@ -39,7 +43,6 @@ class SettingsPopup extends LitElement {
         <div slot="body">
           <fieldset>
             <legend>Environnement général</legend>
-
             <div class="field">
               <input
                 type="checkbox"
@@ -51,10 +54,7 @@ class SettingsPopup extends LitElement {
               <label for="settings_automatic_adjustment">Ajustement automatique</label>
             </div>
 
-            <div class="field" style=${app.environment.name != 'Geometrie'
-        ? 'display:none'
-        : ''
-      }>
+            <div class="field" style=${app.environment.name != 'Geometrie' ? 'display:none' : ''}>
               <input
                 type="checkbox"
                 name="settings_animation_in_geometry_tranformations"

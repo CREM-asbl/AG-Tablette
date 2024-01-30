@@ -1,44 +1,34 @@
+import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import { loadEnvironnement } from '@controllers/Core/Environment';
 import { OpenFileManager } from '@controllers/Core/Managers/OpenFileManager';
 import { readFileFromServer } from '@db/firebase-init';
-import { css, html, LitElement } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { setState } from '../../controllers/Core/App';
 import './open-server-popup';
 
 class FileElem extends LitElement {
   static properties = {
-    title: String,
-    environment: String,
+    title: { type: String },
+    environment: { type: String },
   };
 
-  static styles = [
-    css`
-        div {
-          cursor: pointer;
-          text-align: center;
-          width: 90%;
-          background-color: var(--theme-color);
-          border-radius: 3px;
-          box-shadow: 0px 0px 3px var(--menu-shadow-color);
-          margin: auto;
-          margin-top: 3px;
-          margin-bottom: 5px;
-          padding: 5px;
-        }
-      `,
-  ];
+  static styles = css`
+    :host {
+      display: block;
+      box-sizing: border-box;
+    }
+  `
 
   render() {
     return html`
-      <div @click="${this.openFile}">${this.filenameWithoutExtension(this.title)} ${'(' + this.environment + ')'}</div>
+      <color-button @click="${this.openFile}">${this.filenameWithoutExtension(this.title)} ${'(' + this.environment + ')'}</color-button>
     `;
   }
 
   async openFile() {
     if (this.environment != app.environment.name) {
       if (confirm('Voulez-vous ouvrir ce fichier dans ' + this.environment + '?')) {
-        // window.location.href = '/?activityName=' + this.title;
         setState({ environment: await loadEnvironnement(this.environment) });
       } else {
         return;

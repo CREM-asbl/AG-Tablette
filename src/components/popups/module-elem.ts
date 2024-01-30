@@ -14,16 +14,13 @@ class ModuleElem extends LitElement {
     css`
 
         details {
-          cursor: pointer;
-          width: 90%;
-          text-align: left;
-          background-color: var(--theme-color-soft);
-          border-radius: 3px;
-          box-shadow: 0px 0px 3px var(--menu-shadow-color);
-          margin: auto;
-          margin-top: 3px;
-          margin-bottom: 5px;
-          padding: 5px;
+          padding: 8px 16px;
+        }
+
+        .grid {
+          display: grid;
+          gap: 4px;
+          padding: 8px;
         }
       `,
   ];
@@ -50,7 +47,9 @@ class ModuleElem extends LitElement {
     return html`
       <details name="summary">
         <summary name="summary" @click="${this.summaryClick}">${this.title}</summary>
-        ${this.files.map(info => html`<file-elem title="${info.id}" environment="${info.environment}"></file-elem>`)}
+        <div class="grid">
+          ${this.files.map(info => html`<file-elem title="${info.id}" environment="${info.environment}"></file-elem>`)}
+        </div>
       </details>
     `;
   }

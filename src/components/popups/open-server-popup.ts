@@ -18,11 +18,8 @@ class OpenServerPopup extends LitElement {
         }
 
         #body {
-          display: block;
-        }
-
-        color-button {
-          margin-top: 10px;
+          display: grid;
+          gap: 4px;
         }
       `
   ]
@@ -40,7 +37,9 @@ class OpenServerPopup extends LitElement {
         <div slot="body" id="body">
           <progress style="display: ${this.allThemes.length ? 'none' : 'block'}"></progress>
           ${this.allThemes.map(theme => html`<theme-elem title="${theme.id}" moduleNames="${theme.modules.map(module => module.id)}"></theme-elem>`)}
-          <color-button style="display: ${this.allThemes.length > 0 ? 'block' : 'none'}" @click="${this.downloadAllFiles}" innerText="Télécharger tous les fichiers"></color-button>
+        </div>
+        <div slot="footer">
+          <color-button @click="${this.downloadAllFiles}">Télécharger tous les fichiers</color-button>
         </div>
       </template-popup>
     `;
@@ -64,9 +63,7 @@ class OpenServerPopup extends LitElement {
       })
     );
     const zipped = fflate.zipSync(filesByModules);
-    let blob = new Blob([
-      zipped
-    ]);
+    let blob = new Blob([zipped]);
 
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -77,10 +74,5 @@ class OpenServerPopup extends LitElement {
 
   close() {
     this.remove();
-  }
-
-  _actionHandle(event) {
-    switch (event.target.name) {
-    }
   }
 }

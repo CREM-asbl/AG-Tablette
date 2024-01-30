@@ -44,7 +44,6 @@ export async function getFileDocFromFilename(id) {
     app.fileFromServer = true;
     return { id, ...docSnap.data() };
   } else {
-    // doc.data() will be undefined in this case
     console.info("No such document!");
   }
 }

@@ -11,8 +11,12 @@ export class TemplatePopup extends LitElement {
    */
   static template_popup_styles() {
     return css`
+      :host {
+        position: relative
+      }
+
       h2, h3 {
-        padding: 16px;
+        padding: 0;
         margin: 0;
         font-size: 1.5em;
       }
@@ -38,22 +42,20 @@ export class TemplatePopup extends LitElement {
       }
 
       [slot='body'] {
-        grid-area: 2 / 1 / 3 / 3;
+        grid-area: 2 / 1 / 3 / 2;
         display: grid;
         place-items: center;
         overflow: auto;
-        padding: 3px 16px;
-        margin-bottom: 13px;
-        text-align: center;
+        scrollbar-width: thin;
       }
 
       [slot='footer'] {
-        grid-area: 3 / 1 / 4 / 3;
-        display: flex;
-        justify-content: space-evenly;
+        grid-area: 3 / 1 / 4 / 2;
+        display: grid;
+        grid-auto-flow: column;
+        gap: 8px;
         align-items: center;
-        padding: 16px;
-        padding-top: 0px;
+        box-sizing: border-box;
       }
 
       label {
@@ -83,7 +85,8 @@ export class TemplatePopup extends LitElement {
       dialog {
         overflow: auto;
         display: grid;
-        grid-template-columns: 1fr 40px;
+        gap: 16px;
+        grid-template: auto 1fr auto / 1fr;
         border-radius: 8px;
         box-shadow: 0px 0px 30px rgb(102, 102, 102);
         border: 2px solid gray;
@@ -91,7 +94,9 @@ export class TemplatePopup extends LitElement {
       }
 
       #popup-close {
-        grid-area: 1 / 2;
+        position: absolute;
+        top: 0;
+        right: 0;
         font-size: 40px;
         cursor: pointer;
         color: #555;

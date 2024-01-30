@@ -1,28 +1,12 @@
 import '@components/color-button';
 import { TemplatePopup } from '@components/popups/template-popup';
-import { css, html, LitElement } from 'lit';
+import { html, LitElement } from 'lit';
 import { setState } from '../Core/App';
 
 class StartPopup extends LitElement {
-  static get properties() {
-    return {
-    };
-  }
-
-  constructor() {
-    super();
-
-    // window.addEventListener('close-popup', () => this.close());
-  }
 
   static styles = [
-    TemplatePopup.template_popup_styles(),
-    css`
-        #button-container {
-          margin-top: 10px;
-          display: flex;
-        }
-      `,
+    TemplatePopup.template_popup_styles()
   ]
 
   render() {
@@ -31,12 +15,10 @@ class StartPopup extends LitElement {
         <div slot="close" style='display: none;'>
         </div>
         <h2 slot="title">Bienvenue dans la partie Tangram</h2>
-        <div slot="body">
-          Que souhaitez-vous faire ?
-          <div id="button-container">
-            <color-button @click="${this.createSilhouette}" innerText='Créer une silhouette'></color-button>
-            <color-button @click="${this.reproduceSilhouette}" innerText='Reproduire une silhouette'></color-button>
-          </div>
+        <div slot="body">Que souhaitez-vous faire ?</div>
+        <div slot="footer" id="button-container">
+          <color-button @click="${this.createSilhouette}" innerText='Créer une silhouette'></color-button>
+          <color-button @click="${this.reproduceSilhouette}" innerText='Reproduire une silhouette'></color-button>
         </div>
       </template-popup>
     `;
