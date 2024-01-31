@@ -1,26 +1,12 @@
 import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import { createElem } from '@controllers/Core/Tools/general';
-import { css, html, LitElement } from 'lit';
+import { html, LitElement } from 'lit';
 import './open-server-popup';
 import './save-warning';
-import { TemplatePopup } from './template-popup';
+import './template-popup';
 
 class OpenPopup extends LitElement {
-
-  static styles = [
-    TemplatePopup.template_popup_styles(),
-    css`
-        [slot='body'] {
-          padding: 0;
-        }
-
-        [slot='footer'] {
-          padding-top: 16px;
-        }
-      `,
-  ]
-
   render() {
     return html`
       <template-popup>

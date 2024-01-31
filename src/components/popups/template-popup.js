@@ -11,16 +11,6 @@ export class TemplatePopup extends LitElement {
    */
   static template_popup_styles() {
     return css`
-      :host {
-        position: relative
-      }
-
-      h2, h3 {
-        padding: 0;
-        margin: 0;
-        font-size: 1.5em;
-      }
-
       .field {
         display: flex;
         align-items: center;
@@ -37,47 +27,20 @@ export class TemplatePopup extends LitElement {
         width: 24px;
       }
 
-      [slot='title'] {
-        grid-area: 1 / 1 / 2 / 2;
-      }
-
-      [slot='body'] {
-        grid-area: 2 / 1 / 3 / 2;
-        display: grid;
-        place-items: center;
-        overflow: auto;
-        scrollbar-width: thin;
-      }
-
-      [slot='footer'] {
-        grid-area: 3 / 1 / 4 / 2;
-        display: grid;
-        grid-auto-flow: column;
-        gap: 8px;
-        align-items: center;
-        box-sizing: border-box;
-      }
-
       label {
         display: inline-block;
         font-weight: normal;
         margin: 0 4px;
         font-size: 1rem;
       }
-
-      button {
-        display: block;
-        padding: 8px 16px;
-        margin: 0 4px;
-        background-color: var(--theme-color);
-        border: none;
-        box-shadow: 0px 0px 3px var(--menu-shadow-color);
-        border-radius: 3px;
-      }
     `;
   }
 
   static styles = css`
+      :host {
+        position: relative
+      }
+
       dialog::backdrop {
         background-color: rgba(102, 102, 102, 0.5);
       }
@@ -105,14 +68,35 @@ export class TemplatePopup extends LitElement {
         display: grid;
         text-align: right;
       }
+
+      ::slotted([slot=title]) {
+        padding: 0;
+        margin: 0;
+        font-size: 1.5em;
+      }
+
+      ::slotted([slot=body]) {
+        display: grid;
+        place-items: center;
+        overflow: auto;
+        scrollbar-width: thin;
+      }
+
+      ::slotted([slot=footer]) {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 8px;
+        align-items: center;
+        box-sizing: border-box;
+      }
   `
   render() {
     return html`
       <dialog>
-          <slot id="popup-close" name="close"
+          <div id="popup-close" name="close"
             @click="${() => window.dispatchEvent(new Event('close-popup'))}">
             &times;
-          </slot>
+          </div>
 
           <slot name="title"></slot>
 
@@ -122,7 +106,6 @@ export class TemplatePopup extends LitElement {
       </dialog>
     `;
   }
-
 
   firstUpdated() {
     this.shadowRoot?.querySelector('dialog')?.showModal()

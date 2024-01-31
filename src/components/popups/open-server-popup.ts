@@ -3,25 +3,18 @@ import { findAllFiles, findAllThemes, readFileFromServer } from '@db/firebase-in
 import * as fflate from 'fflate';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { TemplatePopup } from './template-popup';
 import './theme-elem';
 
 @customElement('open-server-popup')
 class OpenServerPopup extends LitElement {
   @property({ type: Array }) allThemes = []
 
-  static styles = [
-    TemplatePopup.template_popup_styles(),
-    css`
-    :host {
-          display: block;
-        }
+  static styles = css`
     #body {
           display: grid;
           gap: 4px;
     }
-    `
-  ]
+  `
 
   render() {
     return html`
