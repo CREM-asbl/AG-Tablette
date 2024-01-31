@@ -13,22 +13,15 @@ class OpenServerPopup extends LitElement {
   static styles = [
     TemplatePopup.template_popup_styles(),
     css`
-        :host {
+    :host {
           display: block;
         }
-
-        #body {
+    #body {
           display: grid;
           gap: 4px;
-        }
-      `
+    }
+    `
   ]
-
-  async firstUpdated() {
-    let allThemes = await findAllThemes();
-    this.allThemes = allThemes;
-    window.addEventListener('close-popup', () => this.close());
-  }
 
   render() {
     return html`
@@ -43,6 +36,12 @@ class OpenServerPopup extends LitElement {
         </div>
       </template-popup>
     `;
+  }
+
+  async firstUpdated() {
+    let allThemes = await findAllThemes();
+    this.allThemes = allThemes;
+    window.addEventListener('close-popup', () => this.close());
   }
 
   async downloadAllFiles() {
@@ -73,6 +72,6 @@ class OpenServerPopup extends LitElement {
   }
 
   close() {
-    this.remove();
+    this.remove()
   }
 }

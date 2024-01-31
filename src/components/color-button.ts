@@ -7,6 +7,7 @@ export class ColorButton extends LitElement {
 
   @property({ type: String }) innerText
   @property({ type: String }) name
+  @property({ type: Boolean }) disabled
 
   static styles = css`
     button {
@@ -29,6 +30,6 @@ export class ColorButton extends LitElement {
   `
 
   render() {
-    return html`<button><slot>${this.innerText}</slot></button>`;
+    return html`<button ?disabled="${this.disabled}"><slot>${this.innerText}</slot></button>`;
   }
 }

@@ -8,22 +8,14 @@ class ModuleElem extends LitElement {
   @property({ type: String }) title
   @property({ type: Array }) files = []
   @property({ type: Array }) fileNames = []
+  @property({ type: Boolean }) loaded
 
-
-  static styles = [
-    css`
-
-        details {
-          padding: 8px 16px;
-        }
-
-        .grid {
-          display: grid;
-          gap: 4px;
-          padding: 8px;
-        }
-      `,
-  ];
+  static styles = css`
+    summary { cursor: pointer; }
+    details { padding: 8px 16px; }
+    .grid { display: grid; gap: 4px; padding: 8px; }
+    progress { width: 100%; }
+  `
 
   firstUpdated() {
     this.isOpen = app.sequencesOpen.some(sequence => {
@@ -47,6 +39,7 @@ class ModuleElem extends LitElement {
     return html`
       <details name="summary">
         <summary name="summary" @click="${this.summaryClick}">${this.title}</summary>
+        ${!this.loaded ? html`<progress></progress>` : html``}
         <div class="grid">
           ${this.files.map(info => html`<file-elem title="${info.id}" environment="${info.environment}"></file-elem>`)}
         </div>
@@ -59,18 +52,20 @@ class ModuleElem extends LitElement {
     let sequencesOpen = [...app.sequencesOpen];
     if (this.isOpen) {
       sequencesOpen.push(this.title);
+      this.loadFiles();
     } else {
       sequencesOpen = sequencesOpen.filter(notion => notion != this.title);
     }
     setState({ sequencesOpen });
-    this.loadFiles();
   }
 
   async loadFiles() {
+    if (this.loaded) return
     let moduleDocRef = getModuleDocFromModuleName(this.title);
     let filesDoc = await getFilesDocFromModule(moduleDocRef);
     filesDoc = filesDoc.filter(fileDoc => !fileDoc.hidden);
     this.files = filesDoc;
+    this.loaded = true
   }
 }
 customElements.define('module-elem', ModuleElem);
