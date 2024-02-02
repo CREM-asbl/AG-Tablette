@@ -370,7 +370,7 @@ class CanvasLayer extends LitElement {
         'click' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
-      app.dispatchEv(new CustomEvent('canvasClick'));
+      window.dispatchEvent(new CustomEvent('canvasClick'));
     });
 
     this.canvas.addEventListener('mousedown', (event) => {
@@ -404,8 +404,8 @@ class CanvasLayer extends LitElement {
       )
         SelectManager.selectObject(mousePos);
       this.pressPositionForLongPress = mousePos;
-      this.pressTimeoutId = window.setTimeout(() => app.dispatchEv(new CustomEvent('canvasLongPress')), 1000);
-      app.dispatchEv(new CustomEvent('canvasMouseDown'));
+      this.pressTimeoutId = window.setTimeout(() => window.dispatchEvent(new CustomEvent('canvasLongPress')), 1000);
+      window.dispatchEvent(new CustomEvent('canvasMouseDown'));
     });
 
     this.canvas.addEventListener('mouseup', (event) => {
@@ -417,7 +417,7 @@ class CanvasLayer extends LitElement {
         }),
       );
       window.clearTimeout(this.pressTimeoutId);
-      app.dispatchEv(new CustomEvent('canvasMouseUp'));
+      window.dispatchEvent(new CustomEvent('canvasMouseUp'));
     });
 
     this.canvas.addEventListener('mousemove', (event) => {
@@ -430,7 +430,7 @@ class CanvasLayer extends LitElement {
       );
       if (this.pressPositionForLongPress?.dist(mousePos) > 5)
         window.clearTimeout(this.pressTimeoutId);
-      app.dispatchEv(new CustomEvent('canvasMouseMove'));
+      window.dispatchEvent(new CustomEvent('canvasMouseMove'));
     });
 
     this.canvas.addEventListener('mouseout', (event) => {
@@ -442,7 +442,7 @@ class CanvasLayer extends LitElement {
           detail: { mousePos: mousePos },
         }),
       );
-      app.dispatchEv(new CustomEvent('canvasMouseUp'));
+      window.dispatchEvent(new CustomEvent('canvasMouseUp'));
     });
 
     let handleWheel = (event) => {
@@ -465,7 +465,7 @@ class CanvasLayer extends LitElement {
       let detail = {
         deltaY: correctedDeltaY,
       };
-      app.dispatchEv(new CustomEvent('canvasMouseWheel', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasMouseWheel', { detail: detail }));
     }
 
     this.canvas.addEventListener('wheel', (event) => {
@@ -499,9 +499,9 @@ class CanvasLayer extends LitElement {
         );
       }
       this.pressPositionForLongPress = mousePos;
-      this.pressTimeoutId = window.setTimeout(() => app.dispatchEv(new CustomEvent('canvasLongPress')), 1000);
-      app.dispatchEv(new CustomEvent('canvasMouseDown'));
-      app.dispatchEv(new CustomEvent('canvasTouchStart', { detail: detail }));
+      this.pressTimeoutId = window.setTimeout(() => window.dispatchEvent(new CustomEvent('canvasLongPress')), 1000);
+      window.dispatchEvent(new CustomEvent('canvasMouseDown'));
+      window.dispatchEvent(new CustomEvent('canvasTouchStart', { detail: detail }));
     });
 
     this.canvas.addEventListener('touchmove', (event) => {
@@ -526,14 +526,14 @@ class CanvasLayer extends LitElement {
       }
       if (this.isOutsideOfCanvas(mousePos)) {
         window.clearTimeout(this.pressTimeoutId);
-        app.dispatchEv(new CustomEvent('canvasMouseUp'));
-        app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
+        window.dispatchEvent(new CustomEvent('canvasMouseUp'));
+        window.dispatchEvent(new CustomEvent('canvasTouchEnd', { detail: detail }));
         return;
       }
       if (this.pressPositionForLongPress?.dist(mousePos) > 20)
         window.clearTimeout(this.pressTimeoutId);
-      app.dispatchEv(new CustomEvent('canvasMouseMove'));
-      app.dispatchEv(new CustomEvent('canvasTouchMove', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasMouseMove'));
+      window.dispatchEvent(new CustomEvent('canvasTouchMove', { detail: detail }));
     });
 
     this.canvas.addEventListener('touchend', (event) => {
@@ -562,9 +562,9 @@ class CanvasLayer extends LitElement {
         );
       }
       window.clearTimeout(this.pressTimeoutId);
-      app.dispatchEv(new CustomEvent('canvasMouseUp'));
-      app.dispatchEv(new CustomEvent('canvasClick'));
-      app.dispatchEv(new CustomEvent('canvasTouchEnd', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasMouseUp'));
+      window.dispatchEvent(new CustomEvent('canvasClick'));
+      window.dispatchEvent(new CustomEvent('canvasTouchEnd', { detail: detail }));
     });
 
     this.canvas.addEventListener('touchcancel', (event) => {
@@ -593,9 +593,9 @@ class CanvasLayer extends LitElement {
         );
       }
       window.clearTimeout(this.pressTimeoutId);
-      app.dispatchEv(new CustomEvent('canvasMouseUp'));
-      app.dispatchEv(new CustomEvent('canvasClick'));
-      app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasMouseUp'));
+      window.dispatchEvent(new CustomEvent('canvasClick'));
+      window.dispatchEvent(new CustomEvent('canvastouchcancel', { detail: detail }));
     });
 
     this.canvas.addEventListener('touchcancel', (event) => {
@@ -623,9 +623,9 @@ class CanvasLayer extends LitElement {
           }),
         );
       }
-      app.dispatchEv(new CustomEvent('canvasMouseUp'));
-      app.dispatchEv(new CustomEvent('canvasClick'));
-      app.dispatchEv(new CustomEvent('canvastouchcancel', { detail: detail }));
+      window.dispatchEvent(new CustomEvent('canvasMouseUp'));
+      window.dispatchEvent(new CustomEvent('canvasClick'));
+      window.dispatchEvent(new CustomEvent('canvastouchcancel', { detail: detail }));
     });
   }
 

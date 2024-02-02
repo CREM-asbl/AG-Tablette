@@ -114,12 +114,6 @@ export class App {
     this.listenerCounter[listenerName][id] = null;
   }
 
-  dispatchEv(event) {
-    // if (app.listenerCounter[event.type]) {
-    window.dispatchEvent(event);
-    // }
-  }
-
   resetSettings() {
     setState({
       settings: {

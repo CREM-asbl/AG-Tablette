@@ -3,6 +3,7 @@ import '@components/popups/notification';
 import { TemplateToolbar } from '@components/template-toolbar';
 import '@components/toolbar-kit';
 import '@components/toolbar-section';
+import { bugSend } from '@controllers/Bugs';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import '../components/canvas-container';
@@ -328,5 +329,11 @@ class AGMain extends LitElement {
       this.updateProperties()
       this.requestUpdate()
     })
+
+    window.onerror = (a, b, c, d, e) => {
+      bugSend(a, b, c, d, e)
+      if (location.hostname === 'localhost') return false
+      return true
+    };
   }
 }
