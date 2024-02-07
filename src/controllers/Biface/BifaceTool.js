@@ -38,20 +38,17 @@ export class BifaceTool extends Tool {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
 
-    // setTimeout(() => {
-      app.mainCanvasLayer.shapes.map((s) => {
-        if (s.isBiface) {
-          new Text({
-            layer: 'upper',
-            coordinates: s.centerCoordinates,
-            referenceId: s.id,
-            message: 'Biface',
-            type: 'biface',
-          });
-        }
-      });
-      // window.dispatchEvent(new CustomEvent('refreshUpper'));
-    // }, 50);
+    app.mainCanvasLayer.shapes.map((s) => {
+      if (s.isBiface) {
+        new Text({
+          layer: 'upper',
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          message: 'Biface',
+          type: 'biface',
+        });
+      }
+    });
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;

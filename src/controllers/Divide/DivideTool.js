@@ -81,7 +81,7 @@ export class DivideTool extends Tool {
       color: this.drawColors[0],
       size: 2,
     });
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
+
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -123,7 +123,7 @@ export class DivideTool extends Tool {
       app.workspace.selectionConstraints.points.numberOfObjects = 'allSuperimposed';
     } else if (app.tool.currentStep == 'chooseArcDirection') {
       app.workspace.selectionConstraints.segments.canSelect = true;
-      app.workspace.selectionConstraints.segments.whitelist = this.lines.map(ln => { return { shapeId: ln.id }});
+      app.workspace.selectionConstraints.segments.whitelist = this.lines.map(ln => { return { shapeId: ln.id } });
       app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
     }
   }
@@ -211,7 +211,7 @@ export class DivideTool extends Tool {
           }
         }
         if (pointsToDivide.length == 0) {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail : { message : 'Les points de la division doivent appartenir au même segment' } }));
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les points de la division doivent appartenir au même segment' } }));
           return;
         }
 
@@ -334,7 +334,7 @@ export class DivideTool extends Tool {
       this.executeAnimation();
     }
     // window.dispatchEvent(new CustomEvent('refresh'));
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
+
   }
 
   executeAnimation() {
@@ -489,7 +489,7 @@ export class DivideTool extends Tool {
       i++
     ) {
       const newX =
-          radius * Math.cos(firstAngle + partAngle * i) + centerCoordinates.x,
+        radius * Math.cos(firstAngle + partAngle * i) + centerCoordinates.x,
         newY =
           radius * Math.sin(firstAngle + partAngle * i) + centerCoordinates.y;
       let coord = new Coordinates({ x: newX, y: newY });

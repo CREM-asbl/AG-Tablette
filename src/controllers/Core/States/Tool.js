@@ -42,14 +42,14 @@ export class Tool {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  refreshStateUpper() {}
+  refreshStateUpper() { }
 
   /**
    * Exécuter les actions liée à l'état.
    */
   executeAction() {
     this._executeAction();
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
+
     window.dispatchEvent(new CustomEvent('refresh'));
     window.dispatchEvent(
       new CustomEvent('actions-executed', {

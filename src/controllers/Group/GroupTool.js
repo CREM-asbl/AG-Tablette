@@ -178,9 +178,6 @@ export class GroupTool extends Tool {
         tool: { ...app.tool, name: this.name, currentStep: 'fillGroup' },
       });
     }
-
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
-    // window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   _executeAction() {
@@ -218,6 +215,6 @@ export class GroupTool extends Tool {
         console.info(s.getSVGPath('no scale', false, false));
       }
     });
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
+
   }
 }

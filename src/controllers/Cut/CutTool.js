@@ -71,7 +71,7 @@ export class CutTool extends Tool {
       color: this.drawColor,
       size: 2,
     });
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
+
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -94,7 +94,7 @@ export class CutTool extends Tool {
       color: this.drawColor,
       size: 2,
     });
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
+
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -128,7 +128,7 @@ export class CutTool extends Tool {
         size: 2,
       });
     }
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
+
   }
 
   end() {
@@ -251,7 +251,7 @@ export class CutTool extends Tool {
       }
 
       if (cutPoints.length == 0) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les points de découpe doivent appartenir à la même figure.' } }));
         return;
       }
 
@@ -272,7 +272,7 @@ export class CutTool extends Tool {
           }
         }
         if (cutPoints.length == 0) {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent pouvoir être reliés.' } }));
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les points de découpe doivent pouvoir être reliés.' } }));
           return;
         }
         if (pt2.type == 'shapeCenter') {
@@ -314,7 +314,7 @@ export class CutTool extends Tool {
         }
       });
       if (!pt2) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent appartenir à la même figure.' } }));
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les points de découpe doivent appartenir à la même figure.' } }));
       } else if (pt2.type == 'shapeCenter') {
         // Désélectionner le centre
         setState({
@@ -340,7 +340,7 @@ export class CutTool extends Tool {
             tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
           });
         } else {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail : {message : 'Les points de découpe doivent pouvoir être reliés.' } }));
+          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les points de découpe doivent pouvoir être reliés.' } }));
         }
       }
     }
@@ -349,7 +349,7 @@ export class CutTool extends Tool {
       this.executeAnimation();
     }
     // window.dispatchEvent(new CustomEvent('refresh'));
-    // window.dispatchEvent(new CustomEvent('refreshUpper'));
+
   }
 
   executeAnimation() {
@@ -422,9 +422,9 @@ export class CutTool extends Tool {
       app.workspace.selectionConstraints.points.blacklist = app.mainCanvasLayer.shapes
         .filter(
           (s) =>
-            (s.isStraightLine() ||
+          (s.isStraightLine() ||
             s.isSemiStraightLine())
-            // && (app.environment.name != 'Geometrie' || !s.geometryObject.geometryIsConstaintDraw)
+          // && (app.environment.name != 'Geometrie' || !s.geometryObject.geometryIsConstaintDraw)
         )
         .map((s) => {
           return { shapeId: s.id };
@@ -567,7 +567,7 @@ export class CutTool extends Tool {
         }
         // je ne sais pas pourquoi mais ça a l'air de marcher
         if (pt2.type === 'vertex' //&& !pt1.shape.name.startsWith('PointOn')
-        && pt2.idx === (i + 1) % nbOfSegments) {
+          && pt2.idx === (i + 1) % nbOfSegments) {
           break;
         }
       }

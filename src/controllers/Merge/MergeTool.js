@@ -184,9 +184,6 @@ export class MergeTool extends Tool {
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'listen' },
       });
-    } else {
-      // window.dispatchEvent(new CustomEvent('refresh'));
-      // window.dispatchEvent(new CustomEvent('refreshUpper'));
     }
   }
 
@@ -331,7 +328,7 @@ export class MergeTool extends Tool {
         if (
           Math.abs(
             firstSegment.getAngleWithHorizontal() -
-              secondSegment.getAngleWithHorizontal(),
+            secondSegment.getAngleWithHorizontal(),
           ) > 0.01
         ) {
           secondSegment.reverse();
