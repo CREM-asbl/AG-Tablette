@@ -22,7 +22,7 @@ export class TemplatePopup extends LitElement {
         width: 150px;
       }
 
-      input[type='checkbox'] {
+      input[type=checkbox] {
         height: 24px;
         width: 24px;
       }

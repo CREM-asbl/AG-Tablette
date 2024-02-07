@@ -71,23 +71,18 @@ export class TransformTool extends Tool {
     this.constraintsDrawn = false;
     app.mainCanvasLayer.editingShapeIds = [];
     app.upperCanvasLayer.removeAllObjects();
-
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'mousedown';
     app.workspace.selectionConstraints.points.canSelect = true;
-
     app.workspace.selectionConstraints.points.types = ['vertex', 'arcCenter'];
     app.workspace.selectionConstraints.points.whitelist = null;
     app.workspace.selectionConstraints.points.blacklist = null;
     app.workspace.selectionConstraints.points.numberOfObjects = 'allInDistance';
-
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   transform() {
     this.removeListeners();
-
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
     this.animate();
   }
@@ -111,12 +106,10 @@ export class TransformTool extends Tool {
         }
       }
       points[i].computeTransformConstraint();
-      let constraints = points[i].transformConstraints;
-      if (constraints.isBlocked || constraints.isConstructed) {
-        points.splice(i, 1);
-        i--;
-      }
     }
+    points = points.filter(point => point.transformConstraints.isFree
+      && !point.transformConstraints.isBlocked
+      && !point.transformConstraints.isConstructed)
 
     if (points.length == 0)
       return
@@ -136,7 +129,7 @@ export class TransformTool extends Tool {
     this.pointSelectedId = point.id;
 
     let startShapeId = point.shape.id;
-    this.tree =  {
+    this.tree = {
       [startShapeId]: {
         parents: [],
         children: [],
@@ -149,7 +142,7 @@ export class TransformTool extends Tool {
 
     involvedShapeIds.forEach(oldKey => {
       let newKey = addInfoToId(oldKey, 'upper');
-      delete Object.assign(this.tree, {[newKey]: this.tree[oldKey] })[oldKey];
+      delete Object.assign(this.tree, { [newKey]: this.tree[oldKey] })[oldKey];
       for (let i = 0; i < this.tree[newKey].parents.length; i++) {
         this.tree[newKey].parents[i] = addInfoToId(this.tree[newKey].parents[i], 'upper');
       }
@@ -337,7 +330,7 @@ export class TransformTool extends Tool {
         pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
         pt.ratio = this.drawingShapes[idxS].points[idxPt].ratio;
       });
-      s.geometryObject.geometryIsVisibleByChoice =  this.drawingShapes[idxS].geometryObject.geometryIsVisibleByChoice;
+      s.geometryObject.geometryIsVisibleByChoice = this.drawingShapes[idxS].geometryObject.geometryIsVisibleByChoice;
       computeConstructionSpec(s);
     });
     recomputeAllVisibilities('main');
