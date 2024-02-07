@@ -61,7 +61,6 @@ export class ShowTool extends Tool {
       this.mode = 'shape';
       this.shapeToShow = object;
     } else {
-      // point
       this.point = object;
       this.mode = 'divisionPoint';
     }
@@ -77,50 +76,50 @@ export class ShowTool extends Tool {
 
     app.mainCanvasLayer.shapes
       // .filter(s => s.geometryObject.geometryIsHidden === true)
-    .forEach(s => {
-      if (s.geometryObject.geometryIsPermanentHidden)
-        return;
-      let newShape = new s.constructor({
-        ...s,
-        layer: 'upper',
-        path: s.getSVGPath('no scale', false, false),
-        strokeColor: s.strokeColor,
-        divisionPointInfos: s.divisionPoints.map((dp) => {
-          return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
-        }),
-        segmentsColor: s.segments.map((seg) => {
-          return seg.color;
-        }),
-        pointsColor: s.points.map((pt) => {
-          return s.geometryObject.geometryIsHidden === true ? '#f00' : pt.color;
-        }),
-        geometryObject: new GeometryObject({...s.geometryObject, geometryIsHidden: false}),
+      .forEach(s => {
+        if (s.geometryObject.geometryIsPermanentHidden)
+          return;
+        let newShape = new s.constructor({
+          ...s,
+          layer: 'upper',
+          path: s.getSVGPath('no scale', false, false),
+          strokeColor: s.strokeColor,
+          divisionPointInfos: s.divisionPoints.map((dp) => {
+            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+          }),
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.points.map((pt) => {
+            return s.geometryObject.geometryIsHidden === true ? '#f00' : pt.color;
+          }),
+          geometryObject: new GeometryObject({ ...s.geometryObject, geometryIsHidden: false }),
+        });
+        if (s.geometryObject.geometryIsHidden === true) {
+          newShape.drawHidden = true;
+        }
+        let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
+        let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
+        newShape.segmentIds = [...segIds];
+        newShape.pointIds = [...ptIds];
+        newShape.points.forEach((pt, idx) => {
+          pt.segmentIds = [...s.points[idx].segmentIds];
+          pt.reference = s.points[idx].reference;
+          pt.type = s.points[idx].type;
+          pt.ratio = s.points[idx].ratio;
+          pt.visible = s.points[idx].visible;
+          if (s.points[idx].geometryIsHidden)
+            pt.color = '#f00';
+        });
+        newShape.segments.forEach((seg, idx) => {
+          seg.isInfinite = s.segments[idx].isInfinite;
+          seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
+          seg.vertexIds = [...s.segments[idx].vertexIds];
+          seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
+          seg.arcCenterId = s.segments[idx].arcCenterId;
+        });
+        return newShape;
       });
-      if (s.geometryObject.geometryIsHidden === true) {
-        newShape.drawHidden = true;
-      }
-      let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
-      let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
-      newShape.segmentIds = [...segIds];
-      newShape.pointIds = [...ptIds];
-      newShape.points.forEach((pt, idx) => {
-        pt.segmentIds = [...s.points[idx].segmentIds];
-        pt.reference = s.points[idx].reference;
-        pt.type = s.points[idx].type;
-        pt.ratio = s.points[idx].ratio;
-        pt.visible = s.points[idx].visible;
-        if (s.points[idx].geometryIsHidden)
-          pt.color = '#f00';
-      });
-      newShape.segments.forEach((seg, idx) => {
-        seg.isInfinite = s.segments[idx].isInfinite;
-        seg.isSemiInfinite = s.segments[idx].isSemiInfinite;
-        seg.vertexIds = [...s.segments[idx].vertexIds];
-        seg.divisionPointIds = [...s.segments[idx].divisionPointIds];
-        seg.arcCenterId = s.segments[idx].arcCenterId;
-      });
-      return newShape;
-    });
     app.mainCanvasLayer.editingShapeIds = app.mainCanvasLayer.shapes
       // .filter(s => s.geometryObject.geometryIsHidden === true)
       .map(s => s.id);

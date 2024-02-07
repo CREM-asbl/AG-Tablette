@@ -176,11 +176,6 @@ export class TransformTool extends Tool {
           return elId;
         });
       }
-      // s.geometryObject.geometryTransformationCharacteristicElementIds.forEach((el, idx) => {
-      //   if (!findObjectById(el)) {
-      //     s.geometryObject.geometryTransformationCharacteristicElementIds[idx] = addInfoToId(el, 'main')
-      //   }
-      // });
       if (!findObjectById(s.geometryObject.geometryDuplicateParentShapeId)) {
         s.geometryObject.geometryDuplicateParentShapeId = addInfoToId(s.geometryObject.geometryDuplicateParentShapeId, 'main')
       }
@@ -229,7 +224,6 @@ export class TransformTool extends Tool {
     });
 
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
-    // window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   createTree(index, tree) {
