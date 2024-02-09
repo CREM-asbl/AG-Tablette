@@ -122,9 +122,8 @@ export class TransformTool extends Tool {
 
     app.upperCanvasLayer.removeAllObjects();
 
-    if (!this.constraintsDrawn) {
+    if (!this.constraintsDrawn)
       this.drawConstraints(point);
-    }
 
     this.pointSelectedId = point.id;
 
@@ -154,9 +153,7 @@ export class TransformTool extends Tool {
     involvedShapes.sort((s1, s2) => {
       return ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2);
     });
-    this.drawingShapes = involvedShapes.map(
-      (s) => duplicateShape(s)
-    );
+    this.drawingShapes = involvedShapes.map(s => duplicateShape(s));
     this.drawingShapes.forEach(s => {
       if (!findObjectById(s.geometryObject.geometryParentObjectId1)) {
         s.geometryObject.geometryParentObjectId1 = addInfoToId(s.geometryObject.geometryParentObjectId1, 'main')
@@ -184,9 +181,7 @@ export class TransformTool extends Tool {
       }
     });
 
-    app.mainCanvasLayer.editingShapeIds = involvedShapes.map(
-      (s) => s.id,
-    );
+    app.mainCanvasLayer.editingShapeIds = involvedShapes.map(s => s.id);
 
     if (point.shape.name == 'PointOnLine') {
       let constraintSegment = findObjectById(
@@ -421,7 +416,7 @@ export class TransformTool extends Tool {
               layer: 'upper',
               coordinates: pt.coordinates,
               size: 2,
-              color: color,
+              color: color
             });
           }
         });

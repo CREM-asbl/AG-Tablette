@@ -1,14 +1,22 @@
-import { html, LitElement } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
-import '../controllers/canvas-layer';
 import { app, setState } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
+import '../controllers/canvas-layer';
 
 class CanvasContainer extends LitElement {
   @property({ type: Object }) cursorPos = Coordinates.nullCoordinates
   @property({ type: Number }) cursorSize = 20
   @property({ type: Boolean }) cursorShow = false
 
+  static styles = css`
+    :host {
+      display: block;
+      position: relative;
+      background-color: white;
+      box-sizing: border-box;
+    }
+  `
   render() {
     return html`
       <!-- for background tasks (invisible canvas) -->
@@ -38,12 +46,8 @@ class CanvasContainer extends LitElement {
 
   firstUpdated() {
     this.setCanvasSize();
-    window.onresize = () => {
-      this.setCanvasSize();
-    };
-    window.onorientationchange = () => {
-      this.setCanvasSize();
-    };
+    window.onresize = () => { this.setCanvasSize(); };
+
     window.addEventListener('workspace-changed', () => this.setCanvasSize());
 
     setState({ started: true });
@@ -76,10 +80,9 @@ class CanvasContainer extends LitElement {
   setCanvasSize() {
     app.canvasWidth = this.clientWidth;
     app.canvasHeight = this.clientHeight;
-
-    window.dispatchEvent(new CustomEvent('resize-canvas'));
-
     setState({ settings: { ...app.settings, selectionDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60, magnetismDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60 } });
+    const layers = this.shadowRoot.querySelectorAll('canvas-layer')
+    layers.forEach(layer => layer.requestUpdate())
   }
 
   isOutsideOfCanvas(mousePos) {
@@ -94,6 +97,8 @@ class CanvasContainer extends LitElement {
       return true;
     return false;
   }
+
+
 
   // Ajout d'un fond d'écran fixé à droite
   set background(touch) {

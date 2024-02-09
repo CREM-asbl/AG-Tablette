@@ -81,7 +81,6 @@ export class CreateLineTool extends Tool {
       !app.tool.selectedTemplate.name.startsWith('Perpendicular')
     ) {
       app.upperCanvasLayer.removeAllObjects();
-      // this.getConstraints(this.numberOfPointsDrawn);
       setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
     } else {
       setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);

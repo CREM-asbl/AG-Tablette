@@ -1,4 +1,4 @@
-import { html, LitElement } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { app, setState } from './Core/App';
 import { SelectManager } from './Core/Managers/SelectManager';
 import { Coordinates } from './Core/Objects/Coordinates';
@@ -32,31 +32,27 @@ class CanvasLayer extends LitElement {
     this.mustScaleShapes = true;
   }
 
-  render() {
-    if (this.id == 'backgroundCanvas') {
-      return html`
-        <style>
-          canvas {
-            border-top-right-radius: 10px;
-            border-bottom-right-radius: 10px;
-            background-color: #fff;
-            position: absolute;
-            top: 0px;
-          }
-        </style>
-        <canvas></canvas>
-      `
+  static styles = css`
+    :host {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0 , 0);
+      box-sizing: border-box;
     }
-    return html`
-      <style>
-        canvas {
-          background-color: rgba(0, 0, 0, 0);
-          position: absolute;
-          top: 0px;
-        }
-      </style>
-      <canvas></canvas>
-    `;
+    canvas {
+      box-sizing: border-box;
+      background-color: rgba(0, 0, 0 , 0);
+    }
+  `
+
+  render() {
+    return html`<canvas width="${this.clientWidth}" height="${this.clientHeight}"></canvas>`;
+  }
+
+  updated() {
+    this.redraw()
   }
 
   removeAllObjects() {
@@ -139,8 +135,7 @@ class CanvasLayer extends LitElement {
           pt.visible &&
           (
             pt.type == 'shapeCenter' ||
-            pt.type == 'divisionPoint'// ||
-            // pt.shape.isCircle()
+            pt.type == 'divisionPoint'
           )
         ) {
           this.drawPoint(pt);
@@ -292,18 +287,14 @@ class CanvasLayer extends LitElement {
     this.canvas = this.shadowRoot.querySelector('canvas');
     this.canvasName = this.id.substring(0, this.id.lastIndexOf('C'));
     this.ctx = this.canvas.getContext('2d');
-
     app[this.canvasName + 'CanvasLayer'] = this;
-
-    this.setCanvasSize();
-    window.addEventListener('resize-canvas', () => this.setCanvasSize());
 
     window.addEventListener('refresh' + capitalizeFirstLetter(this.canvasName), () => {
       this.redraw();
     });
 
     if (this.canvasName == 'upper') {
-      this.createListeners();
+      this.createListeners()
       window.addEventListener('tool-updated', () => {
         this.redraw();
       });
@@ -923,7 +914,6 @@ class CanvasLayer extends LitElement {
     this.ctx.globalAlpha = 1;
 
     const canvasCoodinates = point.coordinates.toCanvasCoordinates();
-
     this.ctx.beginPath();
     this.ctx.moveTo(canvasCoodinates.x, canvasCoodinates.y);
     this.ctx.arc(
