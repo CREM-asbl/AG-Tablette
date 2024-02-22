@@ -96,6 +96,7 @@ export class TransformTool extends Tool {
   }
 
   objectSelected(points) {
+    console.log(points)
     for (let i = 0; i < points.length; i++) {
       if (points[i].reference) {
         let reference = findObjectById(points[i].reference);
@@ -107,7 +108,8 @@ export class TransformTool extends Tool {
       }
       points[i].computeTransformConstraint();
     }
-    points = points.filter(point => point.transformConstraints.isFree
+    points = points.filter(point => (point.transformConstraints.isFree
+      || point.transformConstraints.isConstrained)
       && !point.transformConstraints.isBlocked
       && !point.transformConstraints.isConstructed)
 
