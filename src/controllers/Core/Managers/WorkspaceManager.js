@@ -27,13 +27,14 @@ window.addEventListener('app-started', () => {
   if (!app.fileFromServer) {
     WorkspaceManager.setWorkspace(new Workspace());
   }
-}, {once: true});
+}, { once: true });
 
 window.addEventListener('new-window', () => {
   app.mainCanvasLayer.removeAllObjects();
   app.upperCanvasLayer.removeAllObjects();
   app.tangramCanvasLayer?.removeAllObjects();
   app.gridCanvasLayer?.removeAllObjects();
+  app.invisibleCanvasLayer?.removeAllObjects();
   app.tools.forEach(tool => tool.isVisible = true);
   app.environment.families.forEach(family => family.isVisible = true);
   setState({

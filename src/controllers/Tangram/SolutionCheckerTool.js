@@ -309,7 +309,7 @@ export class SolutionCheckerTool extends Tool {
       if (segs.length == 1) newSegments.push(seg);
       else segs.forEach((seg) => (seg.used = true));
     });
-
+    app.invisibleCanvasLayer.shapes = []
     return newSegments;
   }
 
