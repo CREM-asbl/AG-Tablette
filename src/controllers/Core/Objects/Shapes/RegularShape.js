@@ -373,15 +373,15 @@ export class RegularShape extends Shape {
     sweepFlag,
   ) {
     let middle = firstVertex.coordinates
-        .add(lastVertex.coordinates)
-        .multiply(1 / 2),
+      .add(lastVertex.coordinates)
+      .multiply(1 / 2),
       isHorizontal = Math.abs(firstVertex.y - lastVertex.y) < 0.01,
       isVertical = Math.abs(firstVertex.x - lastVertex.x) < 0.01,
       distanceMiddleArcCenter = Math.sqrt(
         Math.pow(radius, 2) -
-          (Math.pow(firstVertex.x - lastVertex.x, 2) +
-            Math.pow(firstVertex.y - lastVertex.y, 2)) /
-            4,
+        (Math.pow(firstVertex.x - lastVertex.x, 2) +
+          Math.pow(firstVertex.y - lastVertex.y, 2)) /
+        4,
       );
 
     if (isNaN(distanceMiddleArcCenter)) distanceMiddleArcCenter = 0;
@@ -451,16 +451,6 @@ export class RegularShape extends Shape {
       )
     );
   }
-  // isCircle() {
-  //   return (
-  //     this.segments.length == 1 &&
-  //     this.segments[0].isArc() &&
-  //     this.segments[0].vertexes[0].coordinates.equal(
-  //       this.segments[0].vertexes[1].coordinates,
-  //     ) &&
-  //     this.name != 'CircleArc'
-  //   );
-  // }
 
   isCoordinatesInPath(coordinates) {
     const ctx = app.invisibleCanvasLayer.ctx;
@@ -677,7 +667,7 @@ export class RegularShape extends Shape {
     let pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
       if (this.isSegment())
-      pointToDraw.push(this.segments[0].vertexes[0]);
+        pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
         this.segments.forEach(
           (seg) => (pointToDraw.push(seg.vertexes[1])),
@@ -694,8 +684,8 @@ export class RegularShape extends Shape {
 
     let point_tags = pointToDraw.filter(pt => {
       pt.visible &&
-      pt.geometryIsVisible &&
-      !pt.geometryIsHidden
+        pt.geometryIsVisible &&
+        !pt.geometryIsHidden
     }).map(pt => pt.svg).join('\n');
 
     let comment =

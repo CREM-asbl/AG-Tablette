@@ -2,39 +2,13 @@ import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 
 class StateMenu extends LitElement {
-  constructor() {
-    super();
-    this.updateProperties = () => {
-      if (app.tangram?.buttonText == undefined)
-        this.remove();
-      this.buttonText = app.tangram.buttonText;
-      this.buttonValue = app.tangram.buttonValue;
-    };
-    this.updateProperties();
 
-    this.eventHandler = e => {
-      if (e.type == 'tangram-changed') this.updateProperties();
-      else if (e.type == 'new-window') this.close();
-    };
-    this.close = () => {
-      this.remove();
-      window.removeEventListener('tangram-changed', this.eventHandler);
-      window.removeEventListener('new-window', this.eventHandler);
-    };
-
-    window.addEventListener('tangram-changed', this.eventHandler);
-    window.addEventListener('new-window', this.eventHandler);
+  static properties = {
+    buttonValue: { type: String },
+    buttonText: { type: String }
   }
 
-  static get properties() {
-    return {
-      buttonValue: { type: String },
-      buttonText: { type: String },
-    };
-  }
-
-  static get styles() {
-    return css`
+  static styles = css`
       :host {
         position: absolute;
         top: 5px;
@@ -49,6 +23,7 @@ class StateMenu extends LitElement {
         max-height: 30%;
         left: ${app.settings.mainMenuWidth + 5}px;
       }
+
       div#state-menu-buttons-list > button {
         font-size: 20px;
         border-radius: 5px;
@@ -58,8 +33,7 @@ class StateMenu extends LitElement {
         background-color: #bbb;
         cursor: pointer;
       }
-    `;
-  }
+    `
 
   render() {
     return html`
@@ -71,10 +45,28 @@ class StateMenu extends LitElement {
     `;
   }
 
+  firstUpdated() {
+    window.addEventListener('tangram-changed', this.updateProperties);
+    window.addEventListener('new-window', this.close);
+  }
+
   clickHandler(value) {
     if (!app.fullHistory.isRunning) {
-      setState({ tangram: { ...app.tangram, currentStep: value }});
+      setState({ tangram: { ...app.tangram, currentStep: value } });
     }
   }
+
+  updateProperties = () => {
+    if (app.tangram?.buttonText == undefined)
+      this.remove();
+    this.buttonText = app.tangram.buttonText;
+    this.buttonValue = app.tangram.buttonValue;
+  };
+
+  close = () => {
+    this.remove();
+    window.removeEventListener('tangram-changed', this.updateProperties);
+    window.removeEventListener('new-window', this.close);
+  };
 }
 customElements.define('state-menu', StateMenu);

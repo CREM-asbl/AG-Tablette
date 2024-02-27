@@ -96,7 +96,6 @@ export class TransformTool extends Tool {
   }
 
   objectSelected(points) {
-    console.log(points)
     for (let i = 0; i < points.length; i++) {
       if (points[i].reference) {
         let reference = findObjectById(points[i].reference);

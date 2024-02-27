@@ -16,6 +16,9 @@ class CanvasContainer extends LitElement {
       background-color: white;
       box-sizing: border-box;
     }
+    #invisibleCanvas {
+      opacity: 0;
+    }
   `
   render() {
     return html`

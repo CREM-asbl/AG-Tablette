@@ -213,8 +213,8 @@ export class FullHistoryManager {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
       // if (FullHistoryManager.isClicked || nextType == 'objectSelected') {
-        window.dispatchEvent(new CustomEvent(type, { detail: detail }));
-        window.dispatchEvent(new CustomEvent('show-cursor'));
+      window.dispatchEvent(new CustomEvent(type, { detail: detail }));
+      window.dispatchEvent(new CustomEvent('show-cursor'));
       // } else {
       //   FullHistoryManager.nextTime = -50;
       // }
@@ -250,7 +250,7 @@ export class FullHistoryManager {
 
   static cleanColorMultiplication() {
     for (let i = 0; i < app.fullHistory.steps.length - 2; i++) {
-      let { type, detail} = app.fullHistory.steps[i];
+      let { type, detail } = app.fullHistory.steps[i];
       let nextType = app.fullHistory.steps[i + 1].type;
       let nextNextType = app.fullHistory.steps[i + 2].type;
       let nextNextDetail = app.fullHistory.steps[i + 2].detail;
@@ -356,11 +356,6 @@ window.addEventListener('actions-executed', (event) =>
     }),
   ),
 );
-
-// tangram
-// window.addEventListener('state-menu-button-click', event =>
-//   FullHistoryManager.addStep('state-menu-button-click', event),
-// );
 
 window.addEventListener('create-silhouette', (event) =>
   FullHistoryManager.addStep('create-silhouette', event),

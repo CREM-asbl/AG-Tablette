@@ -131,7 +131,6 @@ export class Shape {
   }
 
   get points() {
-    // if (this.isCircle() && app.environment.name !== 'Geometrie') => doit-on inclure le point du cercle dans Grandeurs et Cubes ?
     let points = this.pointIds.map((ptId) =>
       this.canvasLayer.points.find((pt) => pt.id === ptId),
     );
@@ -420,15 +419,15 @@ export class Shape {
     sweepFlag,
   ) {
     let middle = firstVertex.coordinates
-        .add(lastVertex.coordinates)
-        .multiply(1 / 2),
+      .add(lastVertex.coordinates)
+      .multiply(1 / 2),
       isHorizontal = Math.abs(firstVertex.y - lastVertex.y) < 0.01,
       isVertical = Math.abs(firstVertex.x - lastVertex.x) < 0.01,
       distanceMiddleArcCenter = Math.sqrt(
         Math.pow(radius, 2) -
-          (Math.pow(firstVertex.x - lastVertex.x, 2) +
-            Math.pow(firstVertex.y - lastVertex.y, 2)) /
-            4,
+        (Math.pow(firstVertex.x - lastVertex.x, 2) +
+          Math.pow(firstVertex.y - lastVertex.y, 2)) /
+        4,
       );
 
     if (isNaN(distanceMiddleArcCenter)) distanceMiddleArcCenter = 0;
@@ -568,8 +567,8 @@ export class Shape {
         shape.isCoordinatesInPath(s1_segment.vertexes[1].coordinates) &&
         shape.isCoordinatesInPath(s1_segment.middle) &&
         !(shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
-        shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
-        shape.isCoordinatesOnBorder(s1_segment.middle))
+          shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
+          shape.isCoordinatesOnBorder(s1_segment.middle))
       ) {
         console.info('shape inside another');
         return true;
@@ -660,8 +659,8 @@ export class Shape {
     //   path = `M ${this.points[0].coordinates.x} ${this.points[0].coordinates.y}`
     // } else {
     let path = this.segments
-        .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
-        .join('\n');
+      .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
+      .join('\n');
     // }
     return path;
   }

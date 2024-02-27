@@ -48,6 +48,7 @@ class CanvasLayer extends LitElement {
   `
 
   render() {
+    console.log('render', this.canvasName, this.shapes, this.points)
     return html`<canvas width="${this.clientWidth}" height="${this.clientHeight}"></canvas>`;
   }
 
