@@ -14,12 +14,6 @@ export class Tool {
     this.title = title;
     this.type = type;
 
-    window.addEventListener('get-help-text', () => {
-      if (app.tool?.name == this.name) {
-        const popup = document.querySelector('help-popup');
-        popup.setText(this.getHelpText());
-      }
-    });
 
     window.addEventListener('refreshStateUpper', () => {
       if (this.name == app.tool?.name) this.refreshStateUpper();
@@ -37,6 +31,10 @@ export class Tool {
   getHelpText() {
     console.error('getHelpText() not implemented');
     return "Aucune aide n'est actuellement disponible pour l'élément sélectionné.";
+  }
+
+  get help() {
+    return null
   }
 
   /**
