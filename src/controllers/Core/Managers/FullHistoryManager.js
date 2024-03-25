@@ -190,13 +190,7 @@ export class FullHistoryManager {
       setTimeout(() => {
         let data = detail.data;
         app.workspace.initFromObject(data);
-        setState({
-          // fullHistory: {
-          //   ...app.fullHistory,
-          //   actionIndex: app.fullHistory.actionIndex + 1,
-          // },
-          tangram: { ...data.tangram },
-        });
+        setState({ tangram: { ...data.tangram } });
       }, FullHistoryManager.nextTime + 30);
       if (app.fullHistory.numberOfActions + 1 == app.fullHistory.actionIndex)
         setTimeout(
@@ -212,17 +206,12 @@ export class FullHistoryManager {
     } else if (type == 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type == 'mouse-coordinates-changed') {
-      // if (FullHistoryManager.isClicked || nextType == 'objectSelected') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('show-cursor'));
-      // } else {
-      //   FullHistoryManager.nextTime = -50;
-      // }
     } else if (type == 'setNumberOfParts') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('close-popup'));
     } else if (type == 'canvasMouseUp') {
-      // window.dispatchEvent(new CustomEvent('click-cursor', { detail: detail }));
       window.dispatchEvent(new CustomEvent(type));
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));

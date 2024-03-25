@@ -1,3 +1,6 @@
+//ce fichier est un peu trop fourre-tout
+//par exemple: faudrait séparer les fonctions sur le couleurs dans un autre fichier
+
 import { app } from "../App";
 
 const layerOrder = ['upper', 'main', 'tangram', 'grid', 'background', 'invisible'];
@@ -187,7 +190,7 @@ export function RGBFromColor(color) {
     green = hexTodec(color[3] + color[4]),
     blue = hexTodec(color[5] + color[6]);
 
-  return {red, green, blue};
+  return { red, green, blue };
 }
 
 export function rgb2hex(rgb) {
@@ -197,10 +200,12 @@ export function rgb2hex(rgb) {
 
 export function hex(x) {
   let hexDigits = new Array
-    ("0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f");
+    ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
   return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
 }
 
+// je trouve cette fonction pas très utile et je me demande comment
+// le changement de layer est tenu en compte
 export function addInfoToId(id, layer, objectType = undefined) {
   if (!id)
     return;

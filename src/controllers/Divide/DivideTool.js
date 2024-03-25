@@ -7,7 +7,7 @@ import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
-import { createElem, findObjectById, removeObjectById } from '../Core/Tools/general';
+import { findObjectById, removeObjectById } from '../Core/Tools/general';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -55,8 +55,9 @@ export class DivideTool extends Tool {
   start() {
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
-
-    createElem('divide-popup');
+    const popup = document.createElement('divide-popup');
+    popup.parts = app.settings.numberOfDivisionParts
+    document.querySelector('body').appendChild(popup);
   }
 
   selectObject() {
