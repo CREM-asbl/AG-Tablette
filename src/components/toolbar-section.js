@@ -1,5 +1,5 @@
 import '@components/icon-button';
-import { html, LitElement } from 'lit';
+import { LitElement, html } from 'lit';
 import { app, setState } from '../controllers/Core/App';
 import { TemplateToolbar } from './template-toolbar';
 
@@ -20,7 +20,10 @@ class ToolbarSection extends LitElement {
     const tools = app.tools.filter(
       (tool) => tool.type === this.toolsType && tool.isVisible && !tool.isDisable
     )
-    if (!tools.length) return html``;
+    if (!tools.length) {
+      this.style.display = 'none'
+      return
+    };
     return html`
       <template-toolbar>
         <h2 slot="title">${this.title}</h2>

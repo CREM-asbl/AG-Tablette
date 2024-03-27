@@ -37,7 +37,8 @@ class AGMain extends LitElement {
     css`
         #app-view {
           background-color: var(--theme-color-soft);
-          display: flex;
+          display: grid;
+          grid-template-columns : ${app.settings.mainMenuWidth}px 1fr;
           width: 100%;
           margin: 0;
           padding: 0;
@@ -46,13 +47,10 @@ class AGMain extends LitElement {
 
         #left-menu {
           display: flex;
+          gap: 8px;
           flex-direction: column;
-          padding: 8px 10px 10px;
-          border-top-left-radius: 10px;
-          border-bottom-left-radius: 10px;
-          box-sizing: border-box;
+          padding: 8px;
           background-color: var(--theme-color);
-          flex: 0 0 ${app.settings.mainMenuWidth}px;
           scrollbar-width: thin;
           overflow-y: scroll;
           overflow-x: hidden;
@@ -78,14 +76,11 @@ class AGMain extends LitElement {
           padding: 0;
           margin: 0;
           text-align: center;
-          font-size: 1em;
-          font-weight: normal;
-        }
-
-        br {
-          display: block;
-          margin: 3px 0;
-          content: " ";
+          font-size: 14px;
+          font-weight: bold;
+          padding: 8px 0;
+          border-radius: 4px;
+          background-color: var(--theme-color-soft);
         }
       `,
   ]
@@ -94,14 +89,9 @@ class AGMain extends LitElement {
     return html`
       <div id="app-view">
         <div id="left-menu">
-          <h3 style="color: ${this.textColor}; margin-bottom: ${this.filename != "" ? "3px" : "0px"}">
-            ${this.filename}
-          </h3>
-          <h3 style="color: ${this.textColor}">
+          <h3 style="color: ${this.textColor};">
             ${this.tool?.title != undefined ? "mode: " + this.tool.title : "Sélectionnez une fonctionnalité"}
           </h3>
-          <br>
-
           <template-toolbar>
             <div slot="body">
               <icon-button

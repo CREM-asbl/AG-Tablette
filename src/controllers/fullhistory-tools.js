@@ -88,21 +88,14 @@ class FullHistoryTools extends LitElement {
           display: flex;
           flex-direction: column;
           justify-content: start;
-          /* padding: 10px; */
           z-index: 10;
-
           position: absolute;
-
-          border-top-left-radius: 10px;
-          border-bottom-left-radius: 10px;
           box-sizing: border-box;
           background-color: var(--theme-color);
           flex: 0 0 ${app.settings.mainMenuWidth}px;
-
           top: 0;
           width: ${app.settings.mainMenuWidth}px;
           height: 100dvh;
-
           scrollbar-width: thin;
         }
 
