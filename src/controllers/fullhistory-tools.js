@@ -111,11 +111,9 @@ class FullHistoryTools extends LitElement {
         let time = step.timeStamp - previousStepTimestamp;
         previousStepTimestamp = step.timeStamp;
         let name = step.detail.title;
-        if (step.type == 'undo') {
-          name = 'Annuler';
-        } else if (step.type == 'redo') {
-          name = 'Refaire';
-        }
+        if (step.type == 'undo') name = 'Annuler';
+        if (step.type == 'redo') name = 'Refaire';
+        if (!name) console.log(step)
         return { name, time, timeStamp: step.timeStamp, actions: [] };
       });
     let toolIndex = -1;

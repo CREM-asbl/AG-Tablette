@@ -8,9 +8,7 @@ import { SelectManager } from './SelectManager';
  */
 export class FullHistoryManager {
   static startBrowsing() {
-    let numberOfActions = app.fullHistory.steps.filter((step) => {
-      return step.type == 'add-fullstep';
-    }).length;
+    let numberOfActions = app.fullHistory.steps.filter((step) => step.type == 'add-fullstep').length;
     if (numberOfActions == 0) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
@@ -39,8 +37,6 @@ export class FullHistoryManager {
 
     FullHistoryManager.saveHistory = { ...app.history };
     FullHistoryManager.setWorkspaceToStartSituation();
-
-    // FullHistoryManager.isClicked = false;
     FullHistoryManager.nextTime = 0;
   }
 
@@ -86,7 +82,6 @@ export class FullHistoryManager {
 
     setState({
       settings: { ...app.history.startSettings },
-      // history: { ...app.defaultState.history },
     });
   }
 
@@ -94,8 +89,7 @@ export class FullHistoryManager {
     FullHistoryManager.pauseBrowsing();
 
     let index = app.fullHistory.steps.findIndex(
-      (step) => step.detail?.actionIndex === actionIndex && step.type == 'add-fullstep'
-    );
+      (step) => step.detail?.actionIndex === actionIndex && step.type == 'add-fullstep');
     let data = app.fullHistory.steps[index]?.detail.data;
     if (isForSingleActionPlaying) {
       index = app.fullHistory.steps.findIndex(
@@ -277,12 +271,12 @@ export class FullHistoryManager {
       setState({ stepSinceSave: true });
     } else if (app.fullHistory.steps.length <= 1) {
       detail.actionIndex = app.fullHistory.steps.length;
-    } else {//if (app.fullHistory.steps[app.fullHistory.steps.length - 1].type == 'add-fullstep') {
+    } else {
       detail.actionIndex = app.fullHistory.steps.filter((step) => {
         return step.type == 'add-fullstep';
       }).length + 1;
     }
-    if ((type == 'tool-changed' || type == 'tool-updated') && detail.name == 'solveChecker') {
+    if ((type == 'tool-changed' || type == 'tool-updated') && (!detail.name || detail.name == 'solveChecker')) {
       return;
     }
     let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
@@ -324,14 +318,6 @@ window.addEventListener('canvastouchcancel', (event) =>
 window.addEventListener('objectSelected', (event) =>
   FullHistoryManager.addStep('objectSelected', event),
 );
-
-// create events
-// window.addEventListener('family-selected', event =>
-//   FullHistoryManager.addStep('family-selected', event)
-// );
-// window.addEventListener('select-template', event =>
-//   FullHistoryManager.addStep('select-template', event)
-// );
 
 // use for animation states
 window.addEventListener('mouse-coordinates-changed', (event) =>
