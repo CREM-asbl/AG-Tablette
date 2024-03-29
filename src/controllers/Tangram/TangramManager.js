@@ -1,6 +1,7 @@
 import { app, setState } from '../Core/App';
 import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
 import { createElem } from '../Core/Tools/general';
+import kit from './tangramShapeKit.json';
 
 window.addEventListener('app-started', () => {
   if (!app.fileFromServer) {
@@ -19,10 +20,7 @@ const tangramStart = () => {
     tool.isDisable = true;
     tool = app.tools.find(tool => tool.name == 'color');
     tool.isDisable = true;
-
-    setState({
-      tools: [...app.tools],
-    })
+    setState({ tools: [...app.tools], })
   }, 30);
 
   import('./start-popup.js');
@@ -56,15 +54,9 @@ export class TangramManager {
     window.dispatchEvent(new CustomEvent('refresh-background'));
   }
 
-  static async loadKit() {
-    const response = await fetch('data/Tangram/tangramShapeKit.json');
-    return response.text();
-  }
-
   static async initShapes(isForCreation = false) {
-    if (!TangramManager.kit)
-      TangramManager.kit = await TangramManager.loadKit();
-    const ws = JSON.parse(this.kit);
+    const ws = kit;
+    console.log(ws)
     if (isForCreation) {
       ws.objects.shapesData.forEach(s => {
         s.fillColor = '#000';

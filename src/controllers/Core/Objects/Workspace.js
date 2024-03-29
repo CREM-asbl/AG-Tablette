@@ -69,6 +69,7 @@ export class Workspace {
   }
 
   initFromObject(wsdata) {
+    console.log(wsdata)
     if (!wsdata) {
       this.translateOffset = Coordinates.nullCoordinates;
       this.zoomLevel = 1;
@@ -78,7 +79,6 @@ export class Workspace {
       return;
     }
     this.id = wsdata.id;
-
     app.mainCanvasLayer.loadFromData(wsdata.objects);
     app.gridCanvasLayer?.clear();
     if (!wsdata.shapeGroups)
@@ -96,8 +96,9 @@ export class Workspace {
     if (!wsdata.zoomLevel)
       wsdata.zoomLevel = 1;
     this.zoomLevel = wsdata.zoomLevel;
+
     if (!wsdata.translateOffset)
-      wsdata.translateOffset = {x: 0, y: 0};
+      wsdata.translateOffset = { x: 0, y: 0 };
     this.translateOffset = new Coordinates(wsdata.translateOffset);
 
     if (
@@ -106,10 +107,10 @@ export class Workspace {
         wsdata.canvasSize.height != app.canvasHeight)
     ) {
       let scaleOffset =
-          wsdata.canvasSize.width / app.canvasWidth <
+        wsdata.canvasSize.width / app.canvasWidth <
           wsdata.canvasSize.height / app.canvasHeight
-            ? app.canvasHeight / wsdata.canvasSize.height
-            : app.canvasWidth / wsdata.canvasSize.width,
+          ? app.canvasHeight / wsdata.canvasSize.height
+          : app.canvasWidth / wsdata.canvasSize.width,
         originalZoom = this.zoomLevel,
         newZoom = originalZoom * scaleOffset,
         originalTranslateOffset = this.translateOffset,
@@ -159,8 +160,10 @@ export class Workspace {
 
     if (this.zoomLevel != 1)
       wsdata.zoomLevel = this.zoomLevel;
-    if (this.translateOffset.x != 0 || this.translateOffset.y != 0)
+    if (this.translateOffset.x != 0 || this.translateOffset.y != 0) {
+      console.log('translate', this.translateOffset)
       wsdata.translateOffset = this.translateOffset;
+    }
 
     wsdata.canvasSize = { width: app.canvasWidth, height: app.canvasHeight };
 
@@ -209,7 +212,7 @@ export class Workspace {
 
   toSVG() {
     let svg_data =
-    `<svg width="${app.canvasWidth}" height="${app.canvasHeight}" viewBox="0 0 ${app.canvasWidth} ${app.canvasHeight}" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n`;
+      `<svg width="${app.canvasWidth}" height="${app.canvasHeight}" viewBox="0 0 ${app.canvasWidth} ${app.canvasHeight}" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n`;
     if (app.gridCanvasLayer)
       svg_data += app.gridCanvasLayer.toSVG();
     if (app.tangramCanvasLayer)
