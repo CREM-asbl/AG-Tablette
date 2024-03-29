@@ -161,7 +161,7 @@ export class SolutionCheckerTool extends Tool {
           const stateMenu = document.createElement('state-menu');
           stateMenu.buttonText = app.tangram.buttonText
           stateMenu.buttonValue = app.tangram.buttonValue
-          document.querySelector('body').appendChild(stateMenu);
+          document.body.appendChild(stateMenu);
         }
       }
     } else if (event.type == 'objectSelected') {

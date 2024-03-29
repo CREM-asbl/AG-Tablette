@@ -56,7 +56,6 @@ export class TangramManager {
 
   static async initShapes(isForCreation = false) {
     const ws = kit;
-    console.log(ws)
     if (isForCreation) {
       ws.objects.shapesData.forEach(s => {
         s.fillColor = '#000';

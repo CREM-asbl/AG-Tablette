@@ -52,8 +52,7 @@ class AGMain extends LitElement {
           padding: 8px;
           background-color: var(--theme-color);
           scrollbar-width: thin;
-          overflow-y: scroll;
-          overflow-x: hidden;
+          overflow: auto;
           touch-action: none;
           -ms-touch-action: manipulation;
         }
@@ -86,6 +85,7 @@ class AGMain extends LitElement {
   ]
 
   render() {
+    console.log(app)
     return html`
       <div id="app-view">
         <div id="left-menu">

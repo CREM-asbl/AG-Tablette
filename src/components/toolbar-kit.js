@@ -15,7 +15,10 @@ class ToolbarKit extends LitElement {
 
   render() {
     const familyNames = this.environment.families.filter(family => family.isVisible).map(family => family.name)
-    if (!familyNames.length) return html``
+    if (!familyNames.length) {
+      this.style.display = 'none'
+      return
+    }
     return html`
       <template-toolbar>
         <h2 slot="title">${this.environment.kitName}</h2>

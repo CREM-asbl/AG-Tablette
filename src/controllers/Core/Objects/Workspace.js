@@ -69,7 +69,6 @@ export class Workspace {
   }
 
   initFromObject(wsdata) {
-    console.log(wsdata)
     if (!wsdata) {
       this.translateOffset = Coordinates.nullCoordinates;
       this.zoomLevel = 1;
