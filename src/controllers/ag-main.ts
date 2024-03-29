@@ -89,7 +89,7 @@ class AGMain extends LitElement {
     return html`
       <div id="app-view">
         <div id="left-menu">
-          <h3 style="color: ${this.textColor};">
+          <h3>
             ${this.tool?.title != undefined ? "mode: " + this.tool.title : "Sélectionnez une fonctionnalité"}
           </h3>
           <template-toolbar>

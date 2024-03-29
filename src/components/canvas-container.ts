@@ -2,7 +2,7 @@ import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
 import { app, setState } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
-import '../controllers/canvas-layer';
+import './canvas-layer';
 
 class CanvasContainer extends LitElement {
   @property({ type: Object }) cursorPos = Coordinates.nullCoordinates
@@ -100,8 +100,6 @@ class CanvasContainer extends LitElement {
       return true;
     return false;
   }
-
-
 
   // Ajout d'un fond d'écran fixé à droite
   set background(touch) {

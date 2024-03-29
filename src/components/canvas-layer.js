@@ -1,17 +1,17 @@
 import { LitElement, css, html } from 'lit';
-import { app, setState } from './Core/App';
-import { SelectManager } from './Core/Managers/SelectManager';
-import { Coordinates } from './Core/Objects/Coordinates';
-import { Point } from './Core/Objects/Point';
-import { Segment } from './Core/Objects/Segment';
-import { ArrowLineShape } from './Core/Objects/Shapes/ArrowLineShape';
-import { CubeShape } from './Core/Objects/Shapes/CubeShape';
-import { LineShape } from './Core/Objects/Shapes/LineShape';
-import { RegularShape } from './Core/Objects/Shapes/RegularShape';
-import { Shape } from './Core/Objects/Shapes/Shape';
-import { SinglePointShape } from './Core/Objects/Shapes/SinglePointShape';
-import { StripLineShape } from './Core/Objects/Shapes/StripLineShape';
-import { capitalizeFirstLetter, createElem, findObjectById } from './Core/Tools/general';
+import { app, setState } from '../controllers/Core/App';
+import { SelectManager } from '../controllers/Core/Managers/SelectManager';
+import { Coordinates } from '../controllers/Core/Objects/Coordinates';
+import { Point } from '../controllers/Core/Objects/Point';
+import { Segment } from '../controllers/Core/Objects/Segment';
+import { ArrowLineShape } from '../controllers/Core/Objects/Shapes/ArrowLineShape';
+import { CubeShape } from '../controllers/Core/Objects/Shapes/CubeShape';
+import { LineShape } from '../controllers/Core/Objects/Shapes/LineShape';
+import { RegularShape } from '../controllers/Core/Objects/Shapes/RegularShape';
+import { Shape } from '../controllers/Core/Objects/Shapes/Shape';
+import { SinglePointShape } from '../controllers/Core/Objects/Shapes/SinglePointShape';
+import { StripLineShape } from '../controllers/Core/Objects/Shapes/StripLineShape';
+import { capitalizeFirstLetter, createElem, findObjectById } from '../controllers/Core/Tools/general';
 
 class CanvasLayer extends LitElement {
   constructor() {

@@ -2,16 +2,8 @@ import { css, html, LitElement } from 'lit';
 import { app } from '../Core/App';
 
 class ForbiddenCanvas extends LitElement {
-  constructor() {
-    super();
 
-    window.addEventListener('close-forbidden-canvas', () => this.close(), {
-      once: true,
-    });
-  }
-
-  static get styles() {
-    return css`
+  static styles = css`
       canvas#unreachableCanvas {
         background-color: rgba(255, 0, 0, 0.2);
         position: absolute;
@@ -20,8 +12,7 @@ class ForbiddenCanvas extends LitElement {
         width: ${app.canvasWidth / 2}px;
         height: 100%;
       }
-    `;
-  }
+    `
 
   firstUpdated() {
     this.unreachableCanvas = this.shadowRoot.querySelector(
@@ -40,6 +31,9 @@ class ForbiddenCanvas extends LitElement {
     app.forbiddenCtx = this.unreachableCanvas.getContext('2d');
 
     window.dispatchEvent(new Event('forbidden-canvas-drawn'));
+    window.addEventListener('close-forbidden-canvas', () => this.close(), {
+      once: true,
+    })
   }
 
   render() {

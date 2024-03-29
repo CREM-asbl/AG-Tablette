@@ -11,25 +11,19 @@ class StateMenu extends LitElement {
   static styles = css`
       :host {
         position: absolute;
-        top: 5px;
-        padding: 10px;
-        font-size: 20px;
+        bottom: 5px;
+        text-align: center;
+        padding: 8px;
         border-radius: 5px;
         border: 2px solid gray;
         background-color: rgba(0, 0, 0, 0.15);
-        width: auto;
-        max-width: calc(100% - 230px);
-        overflow-y: auto;
-        max-height: 30%;
-        left: ${app.settings.mainMenuWidth + 5}px;
+        width: 218px;
       }
 
       div#state-menu-buttons-list > button {
         font-size: 20px;
-        border-radius: 5px;
-        margin: 5px;
-        padding: 4px;
-        display: inline-block;
+        border-radius: 4px;
+        padding: 8px;
         background-color: #bbb;
         cursor: pointer;
       }

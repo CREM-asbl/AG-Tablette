@@ -3,23 +3,18 @@ import { TemplatePopup } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
 
 class LevelPopup extends LitElement {
-  static get properties() {
-    return {
-      level: { type: Number },
-    };
-  }
+  static properties = {
+    level: { type: Number }
+  };
 
   constructor() {
     super();
     this.level = 1;
-
-    window.addEventListener('close-popup', () => this.submit());
   }
 
-  static get styles() {
-    return [
-      TemplatePopup.template_popup_styles(),
-      css`
+  static styles = [
+    TemplatePopup.template_popup_styles(),
+    css`
         .choice {
           width: 100%;
           text-align: left;
@@ -32,8 +27,7 @@ class LevelPopup extends LitElement {
           display: inline;
         }
       `,
-    ];
-  }
+  ]
 
   render() {
     return html`
@@ -90,12 +84,7 @@ class LevelPopup extends LitElement {
             />
             <label for="level5">5 Echelle différente avec lignes</label>
           </div>
-          <div
-            class="choice"
-            @click="${() => {
-        this.level = 6;
-      }}"
-          >
+          <div class="choice" @click="${() => { this.level = 6 }}">
             <input
               type="radio"
               id="level6"
@@ -105,28 +94,16 @@ class LevelPopup extends LitElement {
             />
             <label for="level6">6 Echelle différente sans ligne</label>
           </div>
-          <!-- <input
-            type="range"
-            min="1"
-            max="6"
-            value="\${this.level}"
-            list="level"
-            @change="\${e => (this.level = e.target.value)}"
-          />
-          <datalist id="level">
-            <option value="1" label="1">1</option>
-            <option value="2" label="2">2</option>
-            <option value="3" label="3">3</option>
-            <option value="4" label="4">4</option>
-            <option value="5" label="5">5</option>
-            <option value="6" label="6">6</option>
-          </datalist> -->
         </div>
         <div slot="footer">
           <color-button @click="${this.submit}" innerText="OK"></color-button>
         </div>
       </template-popup>
     `;
+  }
+
+  firstUpdated() {
+    window.addEventListener('close-popup', () => this.submit());
   }
 
   submit() {

@@ -16,7 +16,6 @@ export class Silhouette {
         path: loadFromSave ? shape.path : shape.getSVGPath(false),
         layer: 'tangram',
         name: 'silhouette',
-        // fillColor: '#000',
         strokeColor: level % 2 != 0 ? '#fff' : '#000',
         fillOpacity: 1,
         isPointed: false,
@@ -30,16 +29,15 @@ export class Silhouette {
     });
 
     const bounds = this.bounds;
-    let silhouetteCenter = new Coordinates({
-        x: (bounds.maxX + bounds.minX) / 2,
-        y: (bounds.maxY + bounds.minY) / 2,
-      }),
+    let silhouetteMaxX = new Coordinates({
+      x: bounds.maxX,
+      y: (bounds.maxY + bounds.minY) / 2,
+    }),
       width = app.canvasWidth,
       height = app.canvasHeight,
-      expectedCenter = new Coordinates({ x: (3 * width) / 4, y: height / 2 });
-    silhouetteCenter = silhouetteCenter.toCanvasCoordinates();
-    let translation = expectedCenter.substract(silhouetteCenter);
-    translation = translation.multiply(1 / app.workspace.zoomLevel);
+      expectedCoord = new Coordinates({ x: (width - 16), y: height / 2 });
+    silhouetteMaxX = silhouetteMaxX.toCanvasCoordinates();
+    let translation = expectedCoord.substract(silhouetteMaxX);
     this.shapes.forEach((s) => {
       s.translate(translation);
     });

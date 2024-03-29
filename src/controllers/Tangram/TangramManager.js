@@ -6,10 +6,10 @@ window.addEventListener('app-started', () => {
   if (!app.fileFromServer) {
     tangramStart();
   }
-}, {once: true});
+}, { once: true });
 
 window.addEventListener('new-window', () => {
-  setState({ tangram: {...app.defaultState.tangram } });
+  setState({ tangram: { ...app.defaultState.tangram } });
   tangramStart();
 });
 
@@ -72,7 +72,6 @@ export class TangramManager {
         s.fillOpacity = 1;
       });
     }
-    // OpenFileManager.transformToNewIdSystem(ws.objects, 'main');
     WorkspaceManager.setWorkspaceFromObject(ws);
   }
 }
