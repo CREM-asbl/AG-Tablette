@@ -1,3 +1,4 @@
+import '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 
@@ -10,17 +11,15 @@ class StateMenu extends LitElement {
 
   static styles = css`
       :host {
-        position: absolute;
-        bottom: 5px;
         text-align: center;
         padding: 8px;
         border-radius: 5px;
-        border: 2px solid gray;
-        background-color: rgba(0, 0, 0, 0.15);
-        width: 218px;
+        /* border: 2px solid gray; */
+        /* background-color: rgba(0, 0, 0, 0.15); */
+        background-color: var(--theme-color-soft);
       }
 
-      div#state-menu-buttons-list > button {
+      button {
         font-size: 20px;
         border-radius: 4px;
         padding: 8px;
@@ -31,12 +30,9 @@ class StateMenu extends LitElement {
 
   render() {
     return html`
-      <div id="state-menu-buttons-list">
         <button @click="${() => this.clickHandler(this.buttonValue)}">
           ${this.buttonText}
-        </button>
-      </div>
-    `;
+        </button>`
   }
 
   firstUpdated() {

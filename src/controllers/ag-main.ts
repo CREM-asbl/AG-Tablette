@@ -85,7 +85,6 @@ class AGMain extends LitElement {
   ]
 
   render() {
-    console.log(app)
     return html`
       <div id="app-view">
         <div id="left-menu">
@@ -291,6 +290,7 @@ class AGMain extends LitElement {
       this.textColor = "#ffffff";
     }
 
+    app.left_menu = this.shadowRoot.querySelector('#left-menu')
     this.renderRoot.querySelector('#left-menu').addEventListener('touchstart', (event) => {
       if (event.touches.length > 1) {
         event.preventDefault();

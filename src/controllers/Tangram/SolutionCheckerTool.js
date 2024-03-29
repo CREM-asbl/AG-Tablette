@@ -156,12 +156,12 @@ export class SolutionCheckerTool extends Tool {
         this[app.tangram.currentStep]();
       }
       if (app.tangram.buttonValue == "check" || app.tangram.buttonValue == "uncheck") {
-        if (!document.querySelector('state-menu')) {
+        if (!app.left_menu.querySelector('state-menu')) {
           import('./state-menu');
           const stateMenu = document.createElement('state-menu');
           stateMenu.buttonText = app.tangram.buttonText
           stateMenu.buttonValue = app.tangram.buttonValue
-          document.body.appendChild(stateMenu);
+          app.left_menu.appendChild(stateMenu)
         }
       }
     } else if (event.type == 'objectSelected') {
