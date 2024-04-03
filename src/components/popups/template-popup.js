@@ -65,7 +65,7 @@ export class TemplatePopup extends LitElement {
         color: #555;
         margin: 8px;
         line-height: 40%;
-        display: grid;
+        display: var(--display-close, grid);
         text-align: right;
       }
 
@@ -93,10 +93,10 @@ export class TemplatePopup extends LitElement {
   render() {
     return html`
       <dialog>
-          <div id="popup-close" name="close"
+          <slot id="popup-close" name="close"
             @click="${() => window.dispatchEvent(new Event('close-popup'))}">
             &times;
-          </div>
+          </slot>
 
           <slot name="title"></slot>
 
