@@ -1,6 +1,6 @@
 import '@components/icon-button';
+import '@components/template-toolbar';
 import { css, html, LitElement } from 'lit';
-import { TemplateToolbar } from '../components/template-toolbar';
 import { app } from './Core/App';
 import { FullHistoryManager } from './Core/Managers/FullHistoryManager';
 
@@ -12,9 +12,7 @@ class FullHistoryTools extends LitElement {
     playPauseButton: String,
   }
 
-  static styles = [
-    TemplateToolbar.templateToolbarStyles(),
-    css`
+  static styles = css`
         :host {
           display: none;
           position: absolute;
@@ -98,8 +96,7 @@ class FullHistoryTools extends LitElement {
           box-shadow: 0px 0px 3px var(--menu-shadow-color);
           border: none;
         }
-      `
-  ]
+  `
 
   constructor() {
     super();

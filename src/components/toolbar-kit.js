@@ -1,7 +1,7 @@
 import '@components/icon-button';
 import { html, LitElement } from 'lit';
 import { app, setState } from '../controllers/Core/App';
-import { TemplateToolbar } from './template-toolbar';
+import './template-toolbar';
 
 class ToolbarKit extends LitElement {
   static properties = {
@@ -9,9 +9,6 @@ class ToolbarKit extends LitElement {
     selectedFamily: { type: String },
     helpSelected: { type: Boolean },
   }
-
-
-  static styles = [TemplateToolbar.templateToolbarStyles()];
 
   render() {
     const familyNames = this.environment.families.filter(family => family.isVisible).map(family => family.name)

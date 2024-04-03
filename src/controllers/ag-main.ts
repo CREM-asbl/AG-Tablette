@@ -1,6 +1,6 @@
 import '@components/icon-button';
 import '@components/popups/notification';
-import { TemplateToolbar } from '@components/template-toolbar';
+import '@components/template-toolbar';
 import '@components/toolbar-kit';
 import '@components/toolbar-section';
 import { bugSend } from '@controllers/Bugs';
@@ -32,8 +32,7 @@ class AGMain extends LitElement {
   @property({ type: Boolean }) helpSelected
   @property({ type: String }) filename
 
-  static styles = [
-    TemplateToolbar.templateToolbarStyles(),
+  static styles =
     css`
         #app-view {
           background-color: var(--theme-color-soft);
@@ -81,8 +80,7 @@ class AGMain extends LitElement {
           border-radius: 4px;
           background-color: var(--theme-color-soft);
         }
-      `,
-  ]
+      `
 
   render() {
     return html`

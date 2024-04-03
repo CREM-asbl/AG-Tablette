@@ -1,7 +1,7 @@
 import '@components/icon-button';
 import { LitElement, html } from 'lit';
 import { app, setState } from '../controllers/Core/App';
-import { TemplateToolbar } from './template-toolbar';
+import './template-toolbar';
 
 class ToolbarSection extends LitElement {
   static get properties() {
@@ -13,8 +13,6 @@ class ToolbarSection extends LitElement {
       selected: { type: String }
     };
   }
-
-  static styles = [TemplateToolbar.templateToolbarStyles()];
 
   render() {
     const tools = app.tools.filter(
