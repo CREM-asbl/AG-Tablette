@@ -16,6 +16,7 @@ class ToolbarKit extends LitElement {
       this.style.display = 'none'
       return
     }
+    this.style.display = 'block'
     return html`
       <template-toolbar>
         <h2 slot="title">${this.environment.kitName}</h2>

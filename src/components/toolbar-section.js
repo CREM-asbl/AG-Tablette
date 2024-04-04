@@ -4,14 +4,12 @@ import { app, setState } from '../controllers/Core/App';
 import './template-toolbar';
 
 class ToolbarSection extends LitElement {
-  static get properties() {
-    return {
-      title: { type: String },
-      toolsType: { type: String },
-      tools: { type: Array },
-      helpSelected: { type: Boolean },
-      selected: { type: String }
-    };
+  static properties = {
+    title: { type: String },
+    toolsType: { type: String },
+    tools: { type: Array },
+    helpSelected: { type: Boolean },
+    selected: { type: String }
   }
 
   render() {
@@ -22,6 +20,7 @@ class ToolbarSection extends LitElement {
       this.style.display = 'none'
       return
     };
+    this.style.display = 'block'
     return html`
       <template-toolbar>
         <h2 slot="title">${this.title}</h2>
@@ -35,8 +34,7 @@ class ToolbarSection extends LitElement {
                 ?helpanimation="${this.helpSelected}"
                 cantInteract="${this.helpSelected}"
                 @click="${this._actionHandle}">
-              </icon-button>`
-    )}
+              </icon-button>`)}
         </div>
       </template-toolbar>
     `;
