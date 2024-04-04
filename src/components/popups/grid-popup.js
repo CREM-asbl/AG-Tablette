@@ -1,45 +1,26 @@
 import '@components/color-button';
 import { app, setState } from '@controllers/Core/App';
-import { html, LitElement } from 'lit';
+import { LitElement, css, html } from 'lit';
 import { TemplatePopup } from './template-popup';
 
 class GridPopup extends LitElement {
+
+  static properties = {
+    gridShown: Boolean,
+    gridType: String,
+    gridSize: Number,
+  }
+
+  static styles = [
+    TemplatePopup.template_popup_styles(),
+    css`
+      .field { display: grid; grid-template-columns: 1fr 1fr; text-align: left; }
+      label { margin: 0;}
+    `]
+
   constructor() {
-    super();
-
-    window.addEventListener(
-      'close-popup',
-      () => {
-        this.submitAndClose();
-      },
-      {
-        once: true,
-      },
-    );
-
-    this.updateProperties = () => {
-      this.gridType = app.settings.gridType;
-      this.gridSize = app.settings.gridSize;
-      this.gridShown = app.settings.gridType !== 'none';
-    };
+    super()
     this.updateProperties();
-
-    this.eventHandler = () => {
-      this.updateProperties();
-    };
-    window.addEventListener('settings-changed', this.eventHandler);
-  }
-
-  static get properties() {
-    return {
-      gridShown: Boolean,
-      gridType: String,
-      gridSize: Number,
-    };
-  }
-
-  static get styles() {
-    return TemplatePopup.template_popup_styles();
   }
 
   render() {
@@ -47,7 +28,7 @@ class GridPopup extends LitElement {
       <template-popup>
         <h2 slot="title">Grille</h2>
         <div slot="body" id="body">
-          <div class="field" style="margin-left:8px">
+          <div class="field">
             <label for="grid_popup_grid_type">Type de grille </label>
             <select
               name="grid_popup_grid_type"
@@ -85,7 +66,7 @@ class GridPopup extends LitElement {
 
           <br />
 
-          <div class="field" style="margin-left:8px">
+          <div class="field">
             <label for="grid_popup_grid_size">Taille de la grille </label>
             <select
               name="grid_popup_grid_size"
@@ -114,6 +95,11 @@ class GridPopup extends LitElement {
         </div>
       </template-popup>
     `;
+  }
+
+  firstUpdated() {
+    window.addEventListener('close-popup', () => { this.submitAndClose() }, { once: true });
+    window.addEventListener('settings-changed', this.updateProperties.bind(this));
   }
 
   submit() {
@@ -171,6 +157,12 @@ class GridPopup extends LitElement {
           event.target.checked,
         );
     }
+  }
+
+  updateProperties = () => {
+    this.gridType = app.settings.gridType;
+    this.gridSize = app.settings.gridSize;
+    this.gridShown = app.settings.gridType !== 'none';
   }
 }
 customElements.define('grid-popup', GridPopup);

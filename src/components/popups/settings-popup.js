@@ -13,11 +13,7 @@ class SettingsPopup extends LitElement {
   constructor() {
     super();
     this.settings = { ...app.settings };
-
-    window.addEventListener(
-      'settings-changed',
-      () => (this.settings = { ...app.settings }),
-    );
+    window.addEventListener('settings-changed', () => (this.settings = { ...app.settings }));
     window.addEventListener('close-popup', () => this.close());
   }
 
@@ -32,6 +28,10 @@ class SettingsPopup extends LitElement {
           width: 100%;
           box-sizing: border-box;
           border-radius: 4px;
+        }
+
+        [slot=body] {
+          gap: 8px;
         }
       `,
   ]
@@ -54,7 +54,8 @@ class SettingsPopup extends LitElement {
               <label for="settings_automatic_adjustment">Ajustement automatique</label>
             </div>
 
-            <div class="field" style=${app.environment.name != 'Geometrie' ? 'display:none' : ''}>
+            ${app.environment.name === 'Geometrie' ? html`
+            <div class="field">
               <input
                 type="checkbox"
                 name="settings_animation_in_geometry_tranformations"
@@ -63,33 +64,25 @@ class SettingsPopup extends LitElement {
                 @change="${this._actionHandle}"
               />
               <label for="settings_animation_in_geometry_tranformations">Animation des tranformations</label>
-            </div>
+            </div>` : ''
+      }
 
             <div class="field">
-              <color-button @click="${() => {
-        import('./tool-choice-popup');
-        createElem('tool-choice-popup');
-        this.close();
-      }}" innerText="Choix des outils disponibles"></color-button>
+              <color-button @click="${this.openToolChoicePopup}">
+                Choix des outils disponibles
+              </color-button>
             </div>
           </fieldset>
 
-          <br />
-
-          <fieldset style=${app.environment.name == 'Tangram'
-        ? 'display:none'
-        : ''
-      }>
+          ${app.environment.name != 'Tangram' ? html`
+          <fieldset>
             <legend>Figures</legend>
-
-            <div class="field" style=${app.environment.name == 'Grandeurs' ? '' : 'display:none;'
-      }>
+            ${app.environment.name === 'Grandeurs' ? html`
+            <div class="field">
               <label for="settings_shapes_size">Taille des figures</label>
-              <select
-                name="settings_shapes_size"
-                id="settings_shapes_size"
-                @change="${this._actionHandle}"
-              >
+              <select name="settings_shapes_size"
+                      id="settings_shapes_size"
+                      @change="${this._actionHandle}" >
                 <option value="1" ?selected="${this.settings.shapesSize === 1}">
                   1
                 </option>
@@ -100,26 +93,24 @@ class SettingsPopup extends LitElement {
                   3
                 </option>
               </select>
-            </div>
+            </div>`: ''}
 
-            <div class="field" style=${app.environment.name == 'Tangram' ? 'display:none;' : ''
-      }>
-              <input
-                type="checkbox"
-                name="settings_shapes_pointed"
-                id="settings_shapes_pointed"
-                .checked="${this.settings.areShapesPointed}"
-                @change="${this._actionHandle}"
-              />
+            <div class="field">
+              <input type="checkbox"
+                     name="settings_shapes_pointed"
+                     id="settings_shapes_pointed"
+                     .checked="${this.settings.areShapesPointed}"
+                     @change="${this._actionHandle}" />
               <label for="settings_shapes_pointed">Figures pointées</label>
             </div>
-          </fieldset>
+          </fieldset>` : ''}
           </div>
-          <div slot="footer">
+
+          <footer slot="footer">
             <version-item></version-item>
-            <color-button @click="${() => app.resetSettings()}" innerText="Paramètres par défaut"></color-button>
-            <color-button @click="${this.close}" innerText="OK"></color-button>
-          </div>
+            <color-button @click="${() => app.resetSettings()}">Paramètres par défaut</color-button>
+            <color-button @click="${this.close}">OK</color-button>
+          </footer>
         </div>
       </template-popup>
     `;
@@ -182,6 +173,12 @@ class SettingsPopup extends LitElement {
         );
     }
     this.settings = { ...this.settings };
+  }
+
+  openToolChoicePopup() {
+    import('./tool-choice-popup');
+    createElem('tool-choice-popup');
+    this.close();
   }
 }
 customElements.define('settings-popup', SettingsPopup);

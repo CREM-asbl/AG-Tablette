@@ -2,8 +2,7 @@ import { css, html, LitElement } from 'lit';
 
 export class TemplatePopup extends LitElement {
   static properties = {
-    title: { type: String },
-    popupHeight: { type: Number }
+    title: { type: String }
   };
 
   /**
@@ -20,6 +19,7 @@ export class TemplatePopup extends LitElement {
       select {
         height: 32px;
         width: 150px;
+        border-radius: 4px;
       }
 
       input[type=checkbox] {
@@ -28,9 +28,8 @@ export class TemplatePopup extends LitElement {
       }
 
       label {
-        display: inline-block;
         font-weight: normal;
-        margin: 0 4px;
+        margin: 0 8px;
         font-size: 1rem;
       }
     `;

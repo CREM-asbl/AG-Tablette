@@ -98,11 +98,8 @@ class SavePopup extends LitElement {
               />
               <label for="save_popup_history">Enregistrer l'historique</label>
             </div>
-
-            <div class="field" style=${app.environment.name != 'Geometrie'
-        ? 'display:none'
-        : ''
-      }>
+            ${app.environment.name === 'Geometrie' ? html`
+            <div class="field">
               <input
                 type="checkbox"
                 name="save_popup_permanent_hide"
@@ -110,10 +107,8 @@ class SavePopup extends LitElement {
                 ?checked="${this.permanentHide}"
                 @change="${this._actionHandle}"
               />
-              <label for="save_popup_permanent_hide"
-                >Cacher de façon permanente</label
-              >
-            </div>
+              <label for="save_popup_permanent_hide">Cacher de façon permanente</label>
+            </div>` : ''}
           </div>
 
           <div class="${this.saveMethod != 'silhouette' ? 'invisible' : ''}">
@@ -133,11 +128,9 @@ class SavePopup extends LitElement {
 
           <div class="${this.saveMethod != 'image' ? 'invisible' : ''}">
             <label for="save_popup_image_format" style="display:inline">Format</label>
-            <select
-              name="save_popup_image_format"
-              id="save_popup_image_format"
-              @change="${this._actionHandle}"
-            >
+            <select name="save_popup_image_format"
+                    id="save_popup_image_format"
+                    @change="${this._actionHandle}">
               <option value="png" ?selected="${this.imageFormat == 'png'}">
                 png
               </option>
@@ -148,13 +141,8 @@ class SavePopup extends LitElement {
           </div>
 
           <div class="${SaveFileManager.hasNativeFS ? 'invisible' : ''}">
-          <!-- <div
-            style="display: \${SaveFileManager.hasNativeFS ? 'none': 'block'}"
-          > -->
             <br />
-            <label for="save_popup_filename" style="display:inline"
-              >Nom du fichier</label
-            >
+            <label for="save_popup_filename" style="display:inline">Nom du fichier</label>
             <input
               type="text"
               name="save_popup_filename"
@@ -167,7 +155,9 @@ class SavePopup extends LitElement {
         </div>
 
         <div slot="footer">
-          <color-button name="save_popup_submit" @click="${this._actionHandle}" innerText="OK"></color-button>
+          <color-button name="save_popup_submit" @click="${this._actionHandle}">
+            OK
+          </color-button>
         </div>
       </template-popup>
     `;
