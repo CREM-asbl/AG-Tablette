@@ -93,13 +93,7 @@ export class CreateTool extends Tool {
       elem.templatesNames = app.environment.getFamily(app.tool.selectedFamily).shapeTemplates;
       elem.selectedTemplate = app.tool.selectedTemplate;
       elem.type = "Create"
-      elem.onclick = event => setState({
-        tool: {
-          ...app.tool,
-          selectedTemplate: event.target.selectedTemplate,
-          currentStep: 'listen'
-        }
-      });
+      elem.nextStep = 'listen'
       document.querySelector('body').appendChild(elem);
     }
   }

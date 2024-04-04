@@ -53,15 +53,7 @@ export class CreateTriangleTool extends Tool {
     elem.templatesNames = triangles;
     elem.selectedTemplate = app.tool.selectedTemplate;
     elem.type = "Geometry"
-    elem.onclick = event => {
-      setState({
-        tool: {
-          ...app.tool,
-          selectedTemplate: event.target.selectedTemplate,
-          currentStep: 'drawFirstPoint',
-        },
-      });
-    }
+    elem.nextStep = 'drawFirstPoint'
     document.querySelector('body').appendChild(elem);
   }
 

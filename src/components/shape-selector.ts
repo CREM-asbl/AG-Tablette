@@ -1,6 +1,6 @@
 import '@components/flex-grid';
 import '@components/icon-button';
-import { app } from '@controllers/Core/App';
+import { app, setState } from '@controllers/Core/App';
 import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators/custom-element.js';
 import { property } from 'lit/decorators/property.js';
@@ -13,6 +13,7 @@ export class ShapeSelector extends LitElement {
   @property({ type: Array }) templatesNames = [];
   @property({ type: Array }) titles = [];
   @property({ type: Object }) selectedTemplate;
+  @property({ type: String }) nextStep
 
 
   static styles = css`
@@ -22,6 +23,7 @@ export class ShapeSelector extends LitElement {
         position: absolute;
         bottom: 0;
         right: 0;
+        left: 250px;
         padding: 4px;
       }
 
@@ -40,31 +42,20 @@ export class ShapeSelector extends LitElement {
         text-align: center;
         font-size: 1.2rem;
       }
-    `;
+    `
 
   render() {
     return html`
-    <style>
-      :host {
-        left: ${app.settings.mainMenuWidth}px
-      }
-    </style>
     <div class="container">
-      <h2>
-        ${this.selectedTemplate?.title || this.family}
-      </h2>
+      <h2>${this.selectedTemplate?.title || this.family}</h2>
       <flex-grid>
         ${this.templatesNames.map(template => html`
-                <icon-button
-                  name="${template.name}"
-                  type="${this.type}"
-                  title="${template.title}"
-                  ?active="${template.name === this.selectedTemplate?.name}"
-                  @click="${this._clickHandle}"
-                >
-                </icon-button>
-              `
-    )}
+          <icon-button name="${template.name}"
+                       type="${this.type}"
+                       title="${template.title}"
+                       ?active="${template.name === this.selectedTemplate?.name}"
+                       @click="${this._clickHandle}">
+          </icon-button>`)}
       </flex-grid>
     </div>
   `;
@@ -72,6 +63,13 @@ export class ShapeSelector extends LitElement {
 
   _clickHandle(event) {
     this.selectedTemplate = this.templatesNames.find(template => template.name === event.target.name)
+    setState({
+      tool: {
+        ...app.tool,
+        selectedTemplate: this.selectedTemplate,
+        currentStep: this.nextStep
+      }
+    })
   }
 
   firstUpdated() {

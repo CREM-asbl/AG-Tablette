@@ -55,13 +55,7 @@ export class CreatePointTool extends Tool {
     elem.templatesNames = points;
     elem.selectedTemplate = app.tool.selectedTemplate;
     elem.type = "Geometry"
-    elem.onclick = event => setState({
-      tool: {
-        ...app.tool,
-        selectedTemplate: event.target.selectedTemplate,
-        currentStep: 'drawPoint',
-      },
-    });
+    elem.nextStep = 'drawPoint'
     document.querySelector('body').appendChild(elem);
   }
 
