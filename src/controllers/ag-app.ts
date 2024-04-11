@@ -1,6 +1,6 @@
 import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
-import { downloadFileZip, openFileFromServer } from '../firebase/firebase-init';
+import { openFileFromServer } from '../firebase/firebase-init';
 import './auto-launch';
 import './backbutton-manager';
 import { app, setState } from './Core/App';
@@ -26,8 +26,10 @@ export class App extends LitElement {
   }
 
   parseURL() {
+    console.log('parsedUrl')
     let parsedUrl = new URL(window.location.href);
     let part = parsedUrl.searchParams.get("interface");
+
     if (['Grandeurs', 'Tangram', 'Cubes', 'Geometrie'].includes(part)) {
       this.openEnv(part);
       return;
@@ -35,9 +37,6 @@ export class App extends LitElement {
     let activityName = parsedUrl.searchParams.get("activityName");
     if (activityName)
       openFileFromServer(activityName);
-    let generateSVGs = parsedUrl.searchParams.get("generateSVGs");
-    if (generateSVGs)
-      AgApp.generateSVGs(generateSVGs);
   }
 
   render() {
@@ -63,16 +62,6 @@ export class App extends LitElement {
   setState() {
     this.appLoading = app.appLoading;
     this.environnement_selected = app.environment !== undefined;
-  }
-
-  static async generateSVGs() {
-    let listImage = await fetch('listImages.txt');
-    listImage = await listImage.text();
-    listImage = listImage.split('\n').filter(name => name != '');
-
-    let files = listImage.map(image => fetch(image));
-
-    downloadFileZip("IconesAGm.zip", files);
   }
 }
 customElements.define('ag-app', App);
