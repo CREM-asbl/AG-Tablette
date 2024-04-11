@@ -224,7 +224,7 @@ class FullHistoryTools extends LitElement {
         break;
       case 'play-action-button':
         idx = parseInt(event.target.id.substring(1));
-        FullHistoryManager.moveTo(idx, true, true);
+        FullHistoryManager.moveTo(idx, true);
         FullHistoryManager.playBrowsing(true);
         break;
       case 'undo':

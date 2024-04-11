@@ -41,7 +41,6 @@ class ToolChoicePopup extends LitElement {
           place-content: baseline;
           background-color: white;
           border-radius: 4px;
-          box-shadow: 0px 0px 5px rgb(102, 102, 102);
           overflow: auto;
           scrollbar-width: thin;
         }

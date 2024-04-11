@@ -42,7 +42,7 @@ export class FullHistoryManager {
 
   static stopBrowsing() {
     window.clearTimeout(app.fullHistory.timeoutId);
-    FullHistoryManager.moveTo(app.fullHistory.numberOfActions, false);
+    FullHistoryManager.moveTo(app.fullHistory.numberOfActions);
     setState({
       tool: null,
       fullHistory: {
@@ -85,11 +85,11 @@ export class FullHistoryManager {
     });
   }
 
-  static moveTo(actionIndex, startSelectedTool = true, isForSingleActionPlaying = false) {
+  static moveTo(actionIndex, isForSingleActionPlaying = false) {
     FullHistoryManager.pauseBrowsing();
-
     let index = app.fullHistory.steps.findIndex(
       (step) => step.detail?.actionIndex === actionIndex && step.type == 'add-fullstep');
+    console.log(app.fullHistory.steps[index])
     let data = app.fullHistory.steps[index]?.detail.data;
     if (isForSingleActionPlaying) {
       index = app.fullHistory.steps.findIndex(
@@ -118,22 +118,6 @@ export class FullHistoryManager {
 
     app.upperCanvasLayer.removeAllObjects(); // temporary patch
     app.upperCanvasLayer.redraw(); // temporary patch
-
-    if (startSelectedTool) {
-      let tool = null;
-      for (let i = index; i > 0; i--) {
-        if (app.fullHistory.steps[i].type == 'tool-changed' || app.fullHistory.steps[i].type == 'tool-updated') {
-          let toolInfo = app.fullHistory.steps[i].detail;
-          let currentStep = 'start';
-          if (toolInfo.name == 'divide' || toolInfo.name == 'opacity') {
-            currentStep = 'selectObject';
-          }
-          tool = { ...toolInfo, currentStep };
-          break;
-        }
-      }
-      setState({ tool });
-    }
   }
 
   static executeAllSteps(onlySingleAction = false) {
