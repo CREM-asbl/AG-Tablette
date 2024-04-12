@@ -183,9 +183,6 @@ export class OpenFileManager {
       return;
     }
 
-    // OpenFileManager.transformToNewIdSystem(saveObject.wsdata.objects, 'main');
-
-    // app.lastFileVersion = saveObject.appVersion;
     const WorkspaceManagerModule = await import('./WorkspaceManager.js');
     WorkspaceManagerModule.WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
 

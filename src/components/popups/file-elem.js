@@ -4,7 +4,6 @@ import { loadEnvironnement } from '@controllers/Core/Environment';
 import { OpenFileManager } from '@controllers/Core/Managers/OpenFileManager';
 import { readFileFromServer } from '@db/firebase-init';
 import { LitElement, css, html } from 'lit';
-import { setState } from '../../controllers/Core/App';
 import './open-server-popup';
 
 class FileElem extends LitElement {
@@ -40,11 +39,8 @@ class FileElem extends LitElement {
 
   async openFile() {
     if (this.environment != app.environment.name) {
-      if (confirm('Voulez-vous ouvrir ce fichier dans ' + this.environment + '?')) {
-        setState({ environment: await loadEnvironnement(this.environment) });
-      } else {
-        return;
-      }
+      if (!confirm('Voulez-vous ouvrir ce fichier dans ' + this.environment + '?')) return
+      loadEnvironnement(this.environment);
     }
     const button = this.shadowRoot?.querySelector('color-button')
     button?.setAttribute('loading', 'true')
