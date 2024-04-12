@@ -26,7 +26,6 @@ export class App extends LitElement {
   }
 
   parseURL() {
-    console.log('parsedUrl')
     let parsedUrl = new URL(window.location.href);
     let part = parsedUrl.searchParams.get("interface");
 
