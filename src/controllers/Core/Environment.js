@@ -3,14 +3,21 @@ import { Family } from './Objects/Family';
 
 export const loadEnvironnement = async (name) => {
   try {
+    setState({ appLoading: true })
     const config = await import(`./Environments/${name}.js`);
     if (config.default.settings) {
-      setState({ settings: { ...app.settings, ...config.default.settings }, history: { ...app.history, startSettings: { ...app.history.startSettings, ...config.default.settings } } });
-      setState({ defaultState: { ...app.defaultState, settings: { ...app.settings } } });
+      setState({
+        settings: { ...app.settings, ...config.default.settings },
+        history: { ...app.history, startSettings: { ...app.history.startSettings, ...config.default.settings } },
+        defaultState: { ...app.defaultState, settings: { ...app.settings } }
+      });
     }
     await loadModules(config.default.modules);
 
-    return new Environment(config.default, await loadKit(config.default.kit));
+    setState({
+      appLoading: false,
+      environment: new Environment(config.default, await loadKit(config.default.kit))
+    });
   } catch (error) {
     console.info(`Environnement ${name} pas encore pris en charge`);
     console.error(error);
