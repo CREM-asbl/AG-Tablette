@@ -14,8 +14,9 @@ import { TangramManager } from './TangramManager';
 export class SolutionCheckerTool extends Tool {
   constructor() {
     super('solveChecker', 'Vérifier la solution d\'un Tangram', '');
-
+    console.log('construct solutionChecker')
     window.addEventListener('file-parsed', async (e) => {
+      console.log('solutionChecker file-parsed')
       TangramManager.closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();
       const data = e.detail;
