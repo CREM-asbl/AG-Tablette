@@ -14,6 +14,7 @@ export class SilhouetteCreatorTool extends Tool {
   }
 
   async start() {
+
     this.removeListeners();
 
     let tool = app.tools.find(tool => tool.name == 'translate');
@@ -54,11 +55,9 @@ export class SilhouetteCreatorTool extends Tool {
   }
 
   eventHandler(event) {
-    console.log('createSilhouette handler')
+    console.log('createSilhouette handler', event.type)
     if (event.type == 'tool-updated') {
-      if (app.tool?.name == this.name) {
-        this[app.tool.currentStep]();
-      }
+      if (app.tool?.name == this.name) { this[app.tool.currentStep](); }
     } else if (event.type == 'actions-executed') {
       this.verifyOverlappingShapes();
     } else if (event.type == 'new-window' || event.type == 'file-parsed') {
@@ -103,9 +102,7 @@ export class SilhouetteCreatorTool extends Tool {
     app.tangramCanvasLayer.removeAllObjects();
     const shapes = app.mainCanvasLayer.shapes;
 
-    if (this.hasOverlapedShape(shapes)) {
-      return;
-    }
+    if (this.hasOverlapedShape(shapes)) return
 
     new Silhouette(shapes);
   }

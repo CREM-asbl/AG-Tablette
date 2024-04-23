@@ -1,6 +1,11 @@
 import { app, setState } from '../App';
 import { addInfoToId, createElem, getExtension } from '../Tools/general';
 
+export const openPopupFile = async () => {
+  await import('../../../components/popups/open-popup');
+  createElem('open-popup');
+}
+
 export class OpenFileManager {
   static async openFile() {
     if (OpenFileManager.hasNativeFS) {
@@ -267,10 +272,7 @@ export class OpenFileManager {
   }
 }
 
-window.addEventListener('open-file', async () => {
-  await import('../../../components/popups/open-popup');
-  createElem('open-popup');
-});
+window.addEventListener('open-file', openPopupFile);
 
 window.addEventListener('local-open-file', () => {
   OpenFileManager.openFile();
