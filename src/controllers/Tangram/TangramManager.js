@@ -49,9 +49,9 @@ export class TangramManager {
     const ws = kit;
     if (!app.tangram.defaultColor) app.tangram.defaultColor = '#006CAA';
     ws.objects.shapesData.forEach(s => {
-      s.fillColor = isForCreation ? '000' : app.tangram.defaultColor;
-      s.strokeColor = '#fff';
-      s.fillOpacity = 1;
+      s.fillColor = isForCreation ? '#000' : app.tangram.defaultColor;
+      s.strokeColor = isForCreation ? '#fff' : '#000';
+      s.fillOpacity = isForCreation ? 1 : 0.5;
     });
     WorkspaceManager.setWorkspaceFromObject(ws);
   }
