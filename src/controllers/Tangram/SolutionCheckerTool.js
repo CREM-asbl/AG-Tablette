@@ -6,23 +6,62 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Segment } from '../Core/Objects/Segment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { Silhouette } from '../Core/Objects/Silhouette';
 import { Tool } from '../Core/States/Tool';
 import { TangramManager } from './TangramManager';
+
+
 
 export class SolutionCheckerTool extends Tool {
   constructor() {
     super('solveChecker', 'Vérifier la solution d\'un Tangram', '');
     console.log('construct solutionChecker')
-    setState({
-      tool: { name: this.name, currentStep: 'start' }
-    })
-    this.stateMenu = app.left_menu.querySelector('state-menu')
-    if (!this.stateMenu) {
-      console.log('addMenu')
-      import('./state-menu');
-      this.stateMenu = document.createElement('state-menu');
-      app.left_menu.appendChild(this.stateMenu)
-    }
+    window.addEventListener('file-parsed', async (e) => {
+      console.log('tangram file-parsed')
+      const data = e.detail;
+      TangramManager.closeForbiddenCanvas();
+      app.tangramCanvasLayer.removeAllObjects();
+      if (data.envName != 'Tangram') return
+      const level = data.tangramLevelSelected ? data.tangramLevelSelected : await TangramManager.selectLevel();
+      if (data.fileExtension == 'ags')
+        await TangramManager.initShapes();
+      if (level == 3 || level == 4) {
+        await TangramManager.openForbiddenCanvas();
+      }
+      let backObjects = data.wsdata.backObjects,
+        isSilhouetteShown = false;
+      if (backObjects) {
+        Silhouette.initFromObject(backObjects, level);
+        app.tangramCanvasLayer.redraw();
+        isSilhouetteShown = true;
+      }
+
+      let tool = app.tools.find(tool => tool.name == 'translate');
+      tool.isDisable = true;
+      tool = app.tools.find(tool => tool.name == 'color');
+      tool.isDisable = false;
+
+      setState({
+        tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
+      });
+
+      if (app.history.startSituation == null) {
+        setState({
+          history: {
+            ...app.defaultState.history,
+            startSituation: {
+              ...app.workspace.data,
+              tangram: {
+                isSilhouetteShown: true,
+                currentStep: 'start'
+              }
+            },
+            startSettings: { ...app.settings },
+          },
+        });
+      }
+      this.start()
+    });
   }
 
   /**
@@ -44,6 +83,12 @@ export class SolutionCheckerTool extends Tool {
 
   start() {
     console.log('solution start')
+    this.stateMenu = app.left_menu.querySelector('state-menu')
+    if (!this.stateMenu) {
+      import('./state-menu');
+      this.stateMenu = document.createElement('state-menu');
+      app.left_menu.appendChild(this.stateMenu)
+    }
     this.solutionShapes = null
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('tangram-changed', this.handler);
@@ -51,15 +96,12 @@ export class SolutionCheckerTool extends Tool {
   }
 
   check() {
-    console.log('check')
     this.checkSolution();
     setState({
       tool: { name: 'verifySolution', title: 'Vérifier la solution', currentStep: 'start' }
     });
     window.dispatchEvent(
-      new CustomEvent('actions-executed', {
-        detail: { name: 'Vérifier la solution' },
-      }),
+      new CustomEvent('actions-executed', { detail: { name: 'Vérifier la solution' } })
     );
   }
 
@@ -75,11 +117,11 @@ export class SolutionCheckerTool extends Tool {
   }
 
   eventHandler(event) {
-    console.log('SolutionCheckerTool handler')
+    console.log('SolutionCheckerTool handler', event.type)
+    this.stateMenu.check = app.tangram.currentStep === 'check'
     if (event.type == 'tool-updated') {
-      if (app.tool?.name == this.name) {
-        this[app.tool.currentStep]();
-      } else if (app.tool?.currentStep == 'start') {
+      if (app.tool?.name == this.name) { this[app.tool.currentStep](); }
+      else if (app.tool?.currentStep == 'start') {
         if (app.tool.name == 'createSilhouette') {
           this.end();
         } else if (
@@ -118,13 +160,11 @@ export class SolutionCheckerTool extends Tool {
   }
 
   eraseSolution() {
-    this.stateMenu.check = false
     app.mainCanvasLayer.shapes = app.mainCanvasLayer.shapes.filter(shape => shape.name != 'tangramChecker')
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   checkSolution() {
-    this.stateMenu.check = true
     if (this.solutionShapes) {
       this.solutionShapes.forEach(shape =>
         app.mainCanvasLayer.shapes.push(shape))

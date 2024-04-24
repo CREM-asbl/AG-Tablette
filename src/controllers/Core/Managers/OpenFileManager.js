@@ -27,7 +27,6 @@ export class OpenFileManager {
           }),
         );
       } catch (error) {
-        // user closed open prompt
         console.error(error);
       }
     } else {
@@ -217,9 +216,7 @@ export class OpenFileManager {
               ...saveObject.history.startSituation,
               tangram: {
                 isSilhouetteShown: true,
-                currentStep: 'start',
-                buttonText: 'Vérifier la solution',
-                buttonValue: 'check',
+                currentStep: 'start'
               }
             },
           },

@@ -3,7 +3,6 @@ import '@components/popups/template-popup';
 import { html, LitElement } from 'lit';
 import { setState } from '../Core/App';
 import { openPopupFile } from '../Core/Managers/OpenFileManager';
-import { SilhouetteCreatorTool } from './SilhouetteCreatorTool';
 
 class StartPopup extends LitElement {
 
@@ -23,7 +22,6 @@ class StartPopup extends LitElement {
 
   createSilhouette() {
     this.close();
-    new SilhouetteCreatorTool()
     setState({ tool: { name: 'createSilhouette', currentStep: 'start' } });
   }
 

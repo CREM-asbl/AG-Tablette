@@ -29,8 +29,6 @@ const loadModules = async (list) => {
     list.map(async (module) => await import(`../${module}/index.js`)),
   );
   let tools = modules.map((module) => {
-    // module.default.tool.isVisible = true
-    // return module.default.tool
     if (module.default)
       return {
         name: module.default.tool.name,
