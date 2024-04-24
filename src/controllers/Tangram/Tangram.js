@@ -2,6 +2,8 @@ import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Silhouette } from '../Core/Objects/Silhouette';
 import { uniqId } from '../Core/Tools/general';
 
+// cette classe est-elle utilisée ?
+
 export class Tangram {
   /**
    * Constructeur

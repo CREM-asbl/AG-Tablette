@@ -1,8 +1,7 @@
 import { app, setState } from '../Core/App';
-import { WorkspaceManager } from '../Core/Managers/WorkspaceManager';
+import { WorkspaceManager } from '../Core/Managers/WorkspaceManager.js';
 import { createElem } from '../Core/Tools/general';
 import kit from './tangramShapeKit.json';
-
 
 window.addEventListener('new-window', () => {
   setState({ tangram: { ...app.defaultState.tangram } });
@@ -48,13 +47,12 @@ export class TangramManager {
 
   static async initShapes(isForCreation = false) {
     const ws = kit;
-    if (isForCreation) {
-      ws.objects.shapesData.forEach(s => {
-        s.fillColor = '#000';
-        s.strokeColor = '#fff';
-        s.fillOpacity = 1;
-      });
-    }
+    if (!app.tangram.defaultColor) app.tangram.defaultColor = '#006CAA';
+    ws.objects.shapesData.forEach(s => {
+      s.fillColor = isForCreation ? '000' : app.tangram.defaultColor;
+      s.strokeColor = '#fff';
+      s.fillOpacity = 1;
+    });
     WorkspaceManager.setWorkspaceFromObject(ws);
   }
 }

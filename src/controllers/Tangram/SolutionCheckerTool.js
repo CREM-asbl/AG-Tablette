@@ -16,52 +16,7 @@ export class SolutionCheckerTool extends Tool {
   constructor() {
     super('solveChecker', 'Vérifier la solution d\'un Tangram', '');
     console.log('construct solutionChecker')
-    window.addEventListener('file-parsed', async (e) => {
-      console.log('tangram file-parsed')
-      const data = e.detail;
-      TangramManager.closeForbiddenCanvas();
-      app.tangramCanvasLayer.removeAllObjects();
-      if (data.envName != 'Tangram') return
-      const level = data.tangramLevelSelected ? data.tangramLevelSelected : await TangramManager.selectLevel();
-      if (data.fileExtension == 'ags')
-        await TangramManager.initShapes();
-      if (level == 3 || level == 4) {
-        await TangramManager.openForbiddenCanvas();
-      }
-      let backObjects = data.wsdata.backObjects,
-        isSilhouetteShown = false;
-      if (backObjects) {
-        Silhouette.initFromObject(backObjects, level);
-        app.tangramCanvasLayer.redraw();
-        isSilhouetteShown = true;
-      }
-
-      let tool = app.tools.find(tool => tool.name == 'translate');
-      tool.isDisable = true;
-      tool = app.tools.find(tool => tool.name == 'color');
-      tool.isDisable = false;
-
-      setState({
-        tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
-      });
-
-      if (app.history.startSituation == null) {
-        setState({
-          history: {
-            ...app.defaultState.history,
-            startSituation: {
-              ...app.workspace.data,
-              tangram: {
-                isSilhouetteShown: true,
-                currentStep: 'start'
-              }
-            },
-            startSettings: { ...app.settings },
-          },
-        });
-      }
-      this.start()
-    });
+    window.addEventListener('file-parsed', this.handler)
   }
 
   /**
@@ -81,14 +36,60 @@ export class SolutionCheckerTool extends Tool {
     `;
   }
 
-  start() {
-    console.log('solution start')
+  showMenu() {
     this.stateMenu = app.left_menu.querySelector('state-menu')
     if (!this.stateMenu) {
       import('./state-menu');
       this.stateMenu = document.createElement('state-menu');
       app.left_menu.appendChild(this.stateMenu)
     }
+  }
+
+  async initData() {
+    const level = this.data.tangramLevelSelected ? this.data.tangramLevelSelected : await TangramManager.selectLevel();
+    if (this.data.fileExtension == 'ags')
+      await TangramManager.initShapes();
+    if (level == 3 || level == 4) {
+      await TangramManager.openForbiddenCanvas();
+    }
+    let backObjects = this.data.wsdata.backObjects,
+      isSilhouetteShown = false;
+    if (backObjects) {
+      Silhouette.initFromObject(backObjects, level);
+      app.tangramCanvasLayer.redraw();
+      isSilhouetteShown = true;
+    }
+
+    let tool = app.tools.find(tool => tool.name == 'translate');
+    tool.isDisable = true;
+    tool = app.tools.find(tool => tool.name == 'color');
+    tool.isDisable = false;
+
+    setState({
+      tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
+    });
+
+    if (app.history.startSituation == null) {
+      setState({
+        history: {
+          ...app.defaultState.history,
+          startSituation: {
+            ...app.workspace.data,
+            tangram: {
+              isSilhouetteShown: true,
+              currentStep: 'start'
+            }
+          },
+          startSettings: { ...app.settings },
+        },
+      });
+    }
+  }
+
+  start() {
+    console.log('solution start')
+    this.initData()
+    this.showMenu()
     this.solutionShapes = null
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('tangram-changed', this.handler);
@@ -111,14 +112,17 @@ export class SolutionCheckerTool extends Tool {
 
   end() {
     console.log("solutionChecker end")
-    this.stateMenu.close()
+    if (this.stateMenu) this.stateMenu.close()
     TangramManager.closeForbiddenCanvas();
     this.removeListeners();
   }
 
   eventHandler(event) {
     console.log('SolutionCheckerTool handler', event.type)
-    this.stateMenu.check = app.tangram.currentStep === 'check'
+
+    if (this.stateMenu)
+      this.stateMenu.check = app.tangram.currentStep === 'check'
+
     if (event.type == 'tool-updated') {
       if (app.tool?.name == this.name) { this[app.tool.currentStep](); }
       else if (app.tool?.currentStep == 'start') {
@@ -134,14 +138,27 @@ export class SolutionCheckerTool extends Tool {
           setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
         }
       }
-    } else if (event.type == 'tangram-changed') {
+    }
+
+    if (event.type == 'tangram-changed') {
       if (['check', 'uncheck'].includes(app.tangram.currentStep)) {
         this[app.tangram.currentStep]();
       }
-    } else if (event.type == 'objectSelected') {
+    }
+    if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
-    } else if (event.type == 'new-window') {
+    }
+    if (event.type == 'new-window') {
       this.end();
+    }
+
+    if (event.type == 'file-parsed') {
+      const data = event.detail;
+      TangramManager.closeForbiddenCanvas();
+      app.tangramCanvasLayer.removeAllObjects();
+      if (data.envName != 'Tangram') return
+      this.data = data;
+      this.start();
     }
   }
 
