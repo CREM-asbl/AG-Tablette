@@ -15,7 +15,6 @@ import { TangramManager } from './TangramManager';
 export class SolutionCheckerTool extends Tool {
   constructor() {
     super('solveChecker', 'Vérifier la solution d\'un Tangram', '');
-    console.log('construct solutionChecker')
     window.addEventListener('file-parsed', this.handler)
   }
 
@@ -56,6 +55,10 @@ export class SolutionCheckerTool extends Tool {
       isSilhouetteShown = false;
     if (backObjects) {
       Silhouette.initFromObject(backObjects, level);
+      // const paths = backObjects.shapesData.map(object => object.path + ' Z');
+      // app.svgLayer.width = this.data.wsdata.canvasSize.width;
+      // app.svgLayer.height = this.data.wsdata.canvasSize.height;
+      // setState({ paths: paths })
       app.tangramCanvasLayer.redraw();
       isSilhouetteShown = true;
     }
@@ -87,7 +90,6 @@ export class SolutionCheckerTool extends Tool {
   }
 
   start() {
-    console.log('solution start')
     this.initData()
     this.showMenu()
     this.solutionShapes = null
@@ -111,15 +113,12 @@ export class SolutionCheckerTool extends Tool {
   }
 
   end() {
-    console.log("solutionChecker end")
     if (this.stateMenu) this.stateMenu.close()
     TangramManager.closeForbiddenCanvas();
     this.removeListeners();
   }
 
   eventHandler(event) {
-    console.log('SolutionCheckerTool handler', event.type)
-
     if (this.stateMenu)
       this.stateMenu.check = app.tangram.currentStep === 'check'
 
@@ -145,9 +144,11 @@ export class SolutionCheckerTool extends Tool {
         this[app.tangram.currentStep]();
       }
     }
+
     if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
     }
+
     if (event.type == 'new-window') {
       this.end();
     }

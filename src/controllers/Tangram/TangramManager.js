@@ -46,6 +46,7 @@ export class TangramManager {
   }
 
   static async initShapes(isForCreation = false) {
+    console.log('initShapes')
     const ws = kit;
     if (!app.tangram.defaultColor) app.tangram.defaultColor = '#006CAA';
     ws.objects.shapesData.forEach(s => {

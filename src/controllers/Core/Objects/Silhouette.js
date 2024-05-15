@@ -19,11 +19,10 @@ export class Silhouette {
         strokeColor: level % 2 != 0 ? '#fff' : '#000',
         fillOpacity: 1,
         isPointed: false,
-        size: 1,
+        size: level < 5 ? 1 : 0.6,
       });
-      if (level == 5 || level == 6) {
+      if (level > 4) {
         shapeCopy.scale(0.6);
-        shapeCopy.size = 0.6;
       }
       return shapeCopy;
     });
@@ -38,12 +37,11 @@ export class Silhouette {
       expectedCoord = new Coordinates({ x: (width - 16), y: height / 2 });
     silhouetteMaxX = silhouetteMaxX.toCanvasCoordinates();
     let translation = expectedCoord.substract(silhouetteMaxX);
-    this.shapes.forEach((s) => {
-      s.translate(translation);
-    });
+    this.shapes.forEach((s) => s.translate(translation));
   }
 
   saveToObject() {
+    console.log('silhouette save')
     let save = {
       shapesData: app.tangramCanvasLayer.shapes.map((s) => {
         let shapeData = s.saveData();

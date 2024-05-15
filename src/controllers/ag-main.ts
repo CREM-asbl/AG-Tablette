@@ -23,7 +23,6 @@ if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
 @customElement('ag-main')
 class AGMain extends LitElement {
-
   @property({ type: Boolean }) canUndo
   @property({ type: Boolean }) canRedo
   @property({ type: String }) background
@@ -166,7 +165,7 @@ class AGMain extends LitElement {
                       </icon-button> -->
         </div>
 
-        <canvas-container id="canvas-container"></canvas-container>
+        <canvas-container id="canvas-container" .paths="${app.paths}"></canvas-container>
       </div>
 
       <notif-center></notif-center>

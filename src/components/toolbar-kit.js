@@ -21,8 +21,7 @@ class ToolbarKit extends LitElement {
       <template-toolbar>
         <h2 slot="title">${this.environment.kitName}</h2>
         <div slot="body">
-          ${familyNames.map((familyName) => {
-      return html`
+          ${familyNames.map((familyName) => html`
               <icon-button
                 name="${this.environment.families.find(family => family.name == familyName).shapeTemplates[0].name}"
                 type="Create"
@@ -32,7 +31,7 @@ class ToolbarKit extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-            `})}
+            `)}
         </div>
       </template-toolbar>
     `;

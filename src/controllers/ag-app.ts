@@ -15,6 +15,7 @@ if (document.body.clientHeight > screen.height) {
 }
 
 export class App extends LitElement {
+
   @property({ type: Boolean }) appLoading
   @property({ type: Boolean }) environnement_selected
 
@@ -42,6 +43,7 @@ export class App extends LitElement {
   }
 
   render() {
+    // console.log('test', this._test.value)
     if (this.environnement_selected) {
       history.pushState({}, "main page");
       const AGmainLoader = import('./ag-main');
