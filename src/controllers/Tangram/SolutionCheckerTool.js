@@ -10,8 +10,6 @@ import { Silhouette } from '../Core/Objects/Silhouette';
 import { Tool } from '../Core/States/Tool';
 import { TangramManager } from './TangramManager';
 
-
-
 export class SolutionCheckerTool extends Tool {
   constructor() {
     super('solveChecker', 'Vérifier la solution d\'un Tangram', '');
@@ -48,17 +46,15 @@ export class SolutionCheckerTool extends Tool {
     const level = this.data.tangramLevelSelected ? this.data.tangramLevelSelected : await TangramManager.selectLevel();
     if (this.data.fileExtension == 'ags')
       await TangramManager.initShapes();
-    if (level == 3 || level == 4) {
-      await TangramManager.openForbiddenCanvas();
-    }
     let backObjects = this.data.wsdata.backObjects,
       isSilhouetteShown = false;
     if (backObjects) {
-      new Silhouette(backObjects.shapesData, true, level)
+      const silhouette = new Silhouette(backObjects.shapesData, true, level)
       // const paths = backObjects.shapesData.map(object => object.path + ' Z');
       // app.svgLayer.width = this.data.wsdata.canvasSize.width;
       // app.svgLayer.height = this.data.wsdata.canvasSize.height;
       // setState({ paths: paths })
+      if (level == 3 || level == 4) app.forbiddenCanvasLeft = silhouette.minX - 16
       app.tangramCanvasLayer.draw();
       isSilhouetteShown = true;
     }
@@ -114,7 +110,7 @@ export class SolutionCheckerTool extends Tool {
 
   end() {
     if (this.stateMenu) this.stateMenu.close()
-    TangramManager.closeForbiddenCanvas();
+    closeForbiddenCanvas();
     this.removeListeners();
   }
 
@@ -154,7 +150,7 @@ export class SolutionCheckerTool extends Tool {
     if (event.type == 'file-parsed') {
       console.log('file-parsed')
       const data = event.detail;
-      TangramManager.closeForbiddenCanvas();
+      closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();
       if (data.envName != 'Tangram') return
       this.data = data;
@@ -378,3 +374,5 @@ export class SolutionCheckerTool extends Tool {
     }
   }
 }
+
+export const closeForbiddenCanvas = () => app.forbiddenCanvasLeft = null

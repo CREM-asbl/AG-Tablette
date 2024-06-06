@@ -20,29 +20,12 @@ const tangramStart = () => {
 
 export class TangramManager {
 
-  static async openForbiddenCanvas() {
-    await import('./forbidden-canvas.js');
-    this.forbiddenCanvas = createElem('forbidden-canvas');
-  }
-
-  static closeForbiddenCanvas() {
-    if (!this.forbiddenCanvas) return;
-    this.forbiddenCanvas.remove()
-    this.forbiddenCanvas = null;
-  }
-
   static async selectLevel() {
     await import('./level-popup');
     createElem('level-popup');
     return new Promise((resolve) =>
       window.addEventListener('tangram-level-selected', (e) => resolve(e.detail)),
     );
-  }
-
-  static removeSilhouette() {
-    app.tangramCanvasLayer.removeAllObjects();
-    TangramManager.closeForbiddenCanvas();
-    window.dispatchEvent(new CustomEvent('refresh-background'));
   }
 
   static async initShapes(isForCreation = false) {

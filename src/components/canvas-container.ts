@@ -4,12 +4,14 @@ import { app, setState } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 import './canvas-layer';
 // import './svg-layer';
+import '@controllers/Tangram/forbidden-canvas';
+
 
 class CanvasContainer extends LitElement {
   @property({ type: Object }) cursorPos = Coordinates.nullCoordinates
   @property({ type: Number }) cursorSize = 20
   @property({ type: Boolean }) cursorShow = false
-  @property({ type: Array }) paths = []
+  @property({ type: Number }) forbiddenCanvasLeft
 
   static styles = css`
     :host {
@@ -49,6 +51,8 @@ class CanvasContainer extends LitElement {
 
       <!-- for the current event (ex: moving shape) -->
       <canvas-layer id="upperCanvas"></canvas-layer>
+
+      <forbidden-canvas id="forbiddenCanvas" left=${this.forbiddenCanvasLeft}></forbidden-canvas>
 
       <img
         src="/images/fake_cursor.png"

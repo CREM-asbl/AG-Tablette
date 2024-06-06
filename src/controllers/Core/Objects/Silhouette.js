@@ -33,7 +33,7 @@ export class Silhouette {
       height = app.canvasHeight,
       expectedCoord = new Coordinates({ x: (width - app.workspace.translateOffset.x - 16), y: height / 2 });
     console.log(silhouetteMax, width, app.workspace.translateOffset, expectedCoord)
-    silhouetteMax = silhouetteMax.toCanvasCoordinates();
+    silhouetteMax = silhouetteMax.multiply(app.workspace.zoomLevel);
     let translation = expectedCoord.substract(silhouetteMax);
     console.log(silhouetteMax, translation)
     this.translate(translation);
@@ -64,4 +64,13 @@ export class Silhouette {
     const bounds = this.bounds;
     return new Coordinates({ x: bounds.maxX, y: (bounds.maxY + bounds.minY) / 2 })
   }
+
+  get minX() {
+    return this.bounds.minX * app.workspace.zoomLevel + app.workspace.translateOffset.x;
+  }
+
+  get maxX() {
+    return this.bounds.maxX;
+  }
+
 }

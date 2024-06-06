@@ -1,20 +1,22 @@
 import { css, html, LitElement } from 'lit';
-import { app } from '../Core/App';
 
 class ForbiddenCanvas extends LitElement {
 
+  static properties = {
+    left: { type: Number }
+  };
+
   static styles = css`
-      div {
+      :host {
         background-color: rgba(255, 0, 0, 0.2);
         position: absolute;
         top: 0px;
         right: 0px;
-        width: ${app.canvasWidth / 2}px;
         height: 100%;
       }
     `
-
   render() {
+    this.style.left = this.left ? `${this.left}px` : null;
     return html` <div></div> `;
   }
 }

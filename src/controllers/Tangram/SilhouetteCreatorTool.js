@@ -25,7 +25,8 @@ export class SilhouetteCreatorTool extends Tool {
     setState({ tools: app.tools });
 
     let toWait = TangramManager.initShapes(true);
-    TangramManager.removeSilhouette();
+    app.tangramCanvasLayer.removeAllObjects();
+    window.dispatchEvent(new CustomEvent('refresh-background'));
 
     this.isUserWarnedAboutOverlap = false;
     app.workspace.selectionConstraints =
