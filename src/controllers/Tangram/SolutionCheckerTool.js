@@ -54,12 +54,12 @@ export class SolutionCheckerTool extends Tool {
     let backObjects = this.data.wsdata.backObjects,
       isSilhouetteShown = false;
     if (backObjects) {
-      Silhouette.initFromObject(backObjects, level);
+      new Silhouette(backObjects.shapesData, true, level)
       // const paths = backObjects.shapesData.map(object => object.path + ' Z');
       // app.svgLayer.width = this.data.wsdata.canvasSize.width;
       // app.svgLayer.height = this.data.wsdata.canvasSize.height;
       // setState({ paths: paths })
-      app.tangramCanvasLayer.redraw();
+      app.tangramCanvasLayer.draw();
       isSilhouetteShown = true;
     }
 
@@ -149,11 +149,10 @@ export class SolutionCheckerTool extends Tool {
       this.objectSelected(event.detail.object);
     }
 
-    if (event.type == 'new-window') {
-      this.end();
-    }
+    if (event.type == 'new-window') this.end();
 
     if (event.type == 'file-parsed') {
+      console.log('file-parsed')
       const data = event.detail;
       TangramManager.closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();

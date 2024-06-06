@@ -108,10 +108,6 @@ export class Workspace {
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
     }
-
-    if (wsdata.backObjects) {
-      app.tangramCanvasLayer?.loadFromData(wsdata.backObjects);
-    }
   }
 
   get data() {

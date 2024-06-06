@@ -64,8 +64,6 @@ class CanvasContainer extends LitElement {
     this.setCanvasSize();
     window.onresize = () => { this.setCanvasSize(); };
 
-    window.addEventListener('workspace-changed', () => this.setCanvasSize());
-
     setState({ started: true });
 
     window.addEventListener('mouse-coordinates-changed', (event) => {

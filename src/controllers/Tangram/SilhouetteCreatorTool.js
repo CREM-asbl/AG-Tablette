@@ -101,9 +101,7 @@ export class SilhouetteCreatorTool extends Tool {
   createSilhouette() {
     app.tangramCanvasLayer.removeAllObjects();
     const shapes = app.mainCanvasLayer.shapes;
-
     if (this.hasOverlapedShape(shapes)) return
-
     new Silhouette(shapes);
   }
 

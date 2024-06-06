@@ -49,7 +49,6 @@ class CanvasLayer extends LitElement {
   `
 
   render() {
-    console.log('render', this.canvasName, this.shapes, this.points)
     return html`<canvas width="${this.clientWidth}" height="${this.clientHeight}"></canvas>`;
   }
 
@@ -86,6 +85,7 @@ class CanvasLayer extends LitElement {
   }
 
   draw(scaling = 'scale') {
+    console.log('draw', this.canvasName, this.shapes, this.points)
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
@@ -235,6 +235,7 @@ class CanvasLayer extends LitElement {
   }
 
   loadFromData(data) {
+    console.log(this, data)
     this.removeAllObjects();
     if (data != undefined) {
       data.shapesData.forEach((shapeData) => {

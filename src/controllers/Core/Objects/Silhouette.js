@@ -10,6 +10,7 @@ export class Silhouette {
    */
   constructor(shapes = [], loadFromSave = false, level = 1) {
     this.level = level;
+    console.log(app.mainCanvasLayer.shapes)
     this.shapes = shapes.map((shape) => {
       let shapeCopy = new RegularShape({
         ...shape,
@@ -27,21 +28,22 @@ export class Silhouette {
       return shapeCopy;
     });
 
-    const bounds = this.bounds;
-    let silhouetteMaxX = new Coordinates({
-      x: bounds.maxX,
-      y: (bounds.maxY + bounds.minY) / 2,
-    }),
+    let silhouetteMax = this.silouhetteMax,
       width = app.canvasWidth,
       height = app.canvasHeight,
-      expectedCoord = new Coordinates({ x: (width - 16), y: height / 2 });
-    silhouetteMaxX = silhouetteMaxX.toCanvasCoordinates();
-    let translation = expectedCoord.substract(silhouetteMaxX);
+      expectedCoord = new Coordinates({ x: (width - app.workspace.translateOffset.x - 16), y: height / 2 });
+    console.log(silhouetteMax, width, app.workspace.translateOffset, expectedCoord)
+    silhouetteMax = silhouetteMax.toCanvasCoordinates();
+    let translation = expectedCoord.substract(silhouetteMax);
+    console.log(silhouetteMax, translation)
+    this.translate(translation);
+  }
+
+  translate(translation) {
     this.shapes.forEach((s) => s.translate(translation));
   }
 
   saveToObject() {
-    console.log('silhouette save')
     let save = {
       shapesData: app.tangramCanvasLayer.shapes.map((s) => {
         let shapeData = s.saveData();
@@ -53,12 +55,13 @@ export class Silhouette {
     return save;
   }
 
-  static initFromObject(save, level) {
-    return new Silhouette(save.shapesData, true, level);
-  }
-
   get bounds() {
     let bounds = Bounds.getOuterBounds(...this.shapes.map((s) => s.bounds));
     return bounds;
+  }
+
+  get silouhetteMax() {
+    const bounds = this.bounds;
+    return new Coordinates({ x: bounds.maxX, y: (bounds.maxY + bounds.minY) / 2 })
   }
 }

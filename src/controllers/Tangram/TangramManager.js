@@ -19,16 +19,16 @@ const tangramStart = () => {
 }
 
 export class TangramManager {
+
   static async openForbiddenCanvas() {
     await import('./forbidden-canvas.js');
-    createElem('forbidden-canvas');
-    return new Promise((resolve) =>
-      window.addEventListener('forbidden-canvas-drawn', (e) => resolve(e.detail)),
-    );
+    this.forbiddenCanvas = createElem('forbidden-canvas');
   }
 
   static closeForbiddenCanvas() {
-    window.dispatchEvent(new Event('close-forbidden-canvas'));
+    if (!this.forbiddenCanvas) return;
+    this.forbiddenCanvas.remove()
+    this.forbiddenCanvas = null;
   }
 
   static async selectLevel() {
@@ -46,7 +46,6 @@ export class TangramManager {
   }
 
   static async initShapes(isForCreation = false) {
-    console.log('initShapes')
     const ws = kit;
     if (!app.tangram.defaultColor) app.tangram.defaultColor = '#006CAA';
     ws.objects.shapesData.forEach(s => {
