@@ -188,7 +188,7 @@ export class OpenFileManager {
     }
 
     const WorkspaceManagerModule = await import('./WorkspaceManager.js');
-    WorkspaceManagerModule.WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
+    WorkspaceManagerModule.setWorkspaceFromObject(saveObject.wsdata);
 
     if (app.environment.name == 'Tangram' && saveObject.fileExtension == 'ags')
       app.mainCanvasLayer.removeAllObjects();

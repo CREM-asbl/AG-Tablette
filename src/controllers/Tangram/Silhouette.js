@@ -1,7 +1,7 @@
-import { app } from '../App';
-import { Bounds } from './Bounds';
-import { Coordinates } from './Coordinates';
-import { RegularShape } from './Shapes/RegularShape';
+import { app } from '../Core/App';
+import { Bounds } from '../Core/Objects/Bounds';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 
 export class Silhouette {
   /**
@@ -31,7 +31,7 @@ export class Silhouette {
     let silhouetteMax = this.silouhetteMax,
       width = app.canvasWidth,
       height = app.canvasHeight,
-      expectedCoord = new Coordinates({ x: (width - app.workspace.translateOffset.x - 16), y: height / 2 });
+      expectedCoord = new Coordinates({ x: width, y: height / 2 });
     console.log(silhouetteMax, width, app.workspace.translateOffset, expectedCoord)
     silhouetteMax = silhouetteMax.multiply(app.workspace.zoomLevel);
     let translation = expectedCoord.substract(silhouetteMax);
@@ -66,7 +66,7 @@ export class Silhouette {
   }
 
   get minX() {
-    return this.bounds.minX * app.workspace.zoomLevel + app.workspace.translateOffset.x;
+    return this.bounds.minX * app.workspace.zoomLevel;
   }
 
   get maxX() {

@@ -1,5 +1,5 @@
 import { app, setState } from '../Core/App';
-import { WorkspaceManager } from '../Core/Managers/WorkspaceManager.js';
+import { setWorkspaceFromObject } from '../Core/Managers/WorkspaceManager.js';
 import { createElem } from '../Core/Tools/general';
 import kit from './tangramShapeKit.json';
 
@@ -36,7 +36,7 @@ export class TangramManager {
       s.strokeColor = isForCreation ? '#fff' : '#000';
       s.fillOpacity = isForCreation ? 1 : 0.5;
     });
-    WorkspaceManager.setWorkspaceFromObject(ws);
+    setWorkspaceFromObject(ws, false);
   }
 }
 

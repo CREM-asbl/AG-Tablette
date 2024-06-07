@@ -912,7 +912,6 @@ class CanvasLayer extends LitElement {
 
     const canvasCoodinates = point.coordinates.toCanvasCoordinates();
     this.ctx.beginPath();
-    this.ctx.moveTo(canvasCoodinates.x, canvasCoodinates.y);
     this.ctx.arc(
       canvasCoodinates.x,
       canvasCoodinates.y,

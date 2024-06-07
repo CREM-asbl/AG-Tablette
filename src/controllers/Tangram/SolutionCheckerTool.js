@@ -6,8 +6,8 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Segment } from '../Core/Objects/Segment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
-import { Silhouette } from '../Core/Objects/Silhouette';
 import { Tool } from '../Core/States/Tool';
+import { Silhouette } from './Silhouette';
 import { TangramManager } from './TangramManager';
 
 export class SolutionCheckerTool extends Tool {
@@ -149,6 +149,7 @@ export class SolutionCheckerTool extends Tool {
 
     if (event.type == 'file-parsed') {
       console.log('file-parsed')
+      console.log(app.mainCanvasLayer.shapes)
       const data = event.detail;
       closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();

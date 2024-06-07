@@ -68,7 +68,7 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
-  initFromObject(wsdata) {
+  initFromObject(wsdata, center = true) {
     this.zoomLevel = wsdata.zoomLevel || 1;
     if (!wsdata) {
       this.translateOffset = Coordinates.nullCoordinates;
@@ -104,7 +104,7 @@ export class Workspace {
           .substract(originalTranslateOffset)
           .multiply(newZoom / originalZoom),
         newCenter = new Coordinates({ x: app.canvasWidth, y: app.canvasHeight }).multiply(1 / 2),
-        newTranslateoffset = newCenter.substract(actualCenter);
+        newTranslateoffset = center ? newCenter.substract(actualCenter) : originalTranslateOffset;
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
     }
