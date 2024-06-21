@@ -108,15 +108,11 @@ export class Coordinates {
   }
 
   toCanvasCoordinates() {
-    return this.multiply(app.workspace.zoomLevel).add(
-      app.workspace.translateOffset,
-    );
+    return this.multiply(app.workspace.zoomLevel).add(app.workspace.translateOffset);
   }
 
   fromCanvasCoordinates() {
-    return this.substract(app.workspace.translateOffset).multiply(
-      1 / app.workspace.zoomLevel,
-    );
+    return this.substract(app.workspace.translateOffset).multiply(1 / app.workspace.zoomLevel);
   }
 
   static get nullCoordinates() {

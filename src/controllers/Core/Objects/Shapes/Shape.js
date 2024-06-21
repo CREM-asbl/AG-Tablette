@@ -651,12 +651,8 @@ export class Shape {
   }
 
   static loadFromData(data) {
-    if (!data.position) {
-      data.position = 'main';
-    }
-    let shape = new Shape({
-      layer: data.position,
-    });
+    if (!data.position) data.position = 'main'
+    let shape = new Shape({ layer: data.position });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];
     shape.pointIds = [...data.pointIds];

@@ -78,8 +78,13 @@ export class Workspace {
       return;
     }
     this.id = wsdata.id;
+    // app.mainCanvasLayer.canvas.width = wsdata.canvasSize.width;
+    // app.mainCanvasLayer.canvas.height = wsdata.canvasSize.height;
+    // app.upperCanvasLayer.canvas.width = wsdata.canvasSize.width;
+    // app.upperCanvasLayer.canvas.height = wsdata.canvasSize.height;
+    this.setZoomLevel(Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height))
+    // console.log(app.canvasWidth / (2 * wsdata.canvasSize.width), this.zoomLevel)
     app.mainCanvasLayer.loadFromData(wsdata.objects);
-    app.gridCanvasLayer?.clear();
     if (!wsdata.shapeGroups) wsdata.shapeGroups = [];
     this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
@@ -91,23 +96,23 @@ export class Workspace {
       this.translationLastCharacteristicElements = wsdata.translationLastCharacteristicElements.map(element => new CharacteristicElements(element));
     }
 
-    this.translateOffset = new Coordinates(wsdata.translateOffset || { x: 0, y: 0 });
-    if (wsdata.canvasSize &&
-      (wsdata.canvasSize.width != app.canvasWidth ||
-        wsdata.canvasSize.height != app.canvasHeight)) {
-      const scaleOffset = Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height),
-        originalZoom = this.zoomLevel,
-        newZoom = originalZoom * scaleOffset,
-        originalTranslateOffset = this.translateOffset,
-        actualCenter = new Coordinates({ x: wsdata.canvasSize.width, y: wsdata.canvasSize.height })
-          .multiply(1 / 2)
-          .substract(originalTranslateOffset)
-          .multiply(newZoom / originalZoom),
-        newCenter = new Coordinates({ x: app.canvasWidth, y: app.canvasHeight }).multiply(1 / 2),
-        newTranslateoffset = center ? newCenter.substract(actualCenter) : originalTranslateOffset;
-      this.setZoomLevel(newZoom, false);
-      this.setTranslateOffset(newTranslateoffset);
-    }
+    // this.translateOffset = new Coordinates(wsdata.translateOffset || { x: 0, y: 0 });
+    // if (wsdata.canvasSize &&
+    //   (wsdata.canvasSize.width != app.canvasWidth ||
+    //     wsdata.canvasSize.height != app.canvasHeight)) {
+    //   const scaleOffset = Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height),
+    //     originalZoom = this.zoomLevel,
+    //     newZoom = originalZoom * scaleOffset,
+    //     originalTranslateOffset = this.translateOffset,
+    //     actualCenter = new Coordinates({ x: wsdata.canvasSize.width, y: wsdata.canvasSize.height })
+    //       .multiply(1 / 2)
+    //       .substract(originalTranslateOffset)
+    //       .multiply(newZoom / originalZoom),
+    //     newCenter = new Coordinates({ x: app.canvasWidth, y: app.canvasHeight }).multiply(1 / 2),
+    //     newTranslateoffset = center ? newCenter.substract(actualCenter) : originalTranslateOffset;
+    //   this.setZoomLevel(newZoom, false);
+    //   this.setTranslateOffset(newTranslateoffset);
+    // }
   }
 
   get data() {

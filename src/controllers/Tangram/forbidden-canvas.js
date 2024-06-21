@@ -13,6 +13,7 @@ class ForbiddenCanvas extends LitElement {
         top: 0px;
         right: 0px;
         height: 100%;
+        z-index: 100;
       }
     `
   render() {

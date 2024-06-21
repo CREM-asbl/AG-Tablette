@@ -568,7 +568,7 @@ export class Segment {
   divideWith(points) {
     points.sort((pt1, pt2) =>
       pt1.coordinates.dist(this.vertexes[0].coordinates) >
-      pt2.coordinates.dist(this.vertexes[0].coordinates)
+        pt2.coordinates.dist(this.vertexes[0].coordinates)
         ? 1
         : -1,
     );
@@ -577,10 +577,10 @@ export class Segment {
         idx == 0
           ? undefined
           : new Segment({
-              layer: this.layer,
-              createFromNothing: true,
-              vertexCoordinates: [pts[idx - 1].coordinates, pt.coordinates],
-            }),
+            layer: this.layer,
+            createFromNothing: true,
+            vertexCoordinates: [pts[idx - 1].coordinates, pt.coordinates],
+          }),
       )
       .slice(1);
     return newSegments;
@@ -712,15 +712,15 @@ export class Segment {
       return false;
     }
     let thisv0x = this.vertexes[0].x,
-    thisv0y = this.vertexes[0].y,
-    thisv1x = this.vertexes[1].x,
-    thisv1y = this.vertexes[1].y,
-    segmentv0x = segment.vertexes[0].x,
-    segmentv0y = segment.vertexes[0].y,
-    segmentv1x = segment.vertexes[1].x,
-    segmentv1y = segment.vertexes[1].y,
-    thisSlope = (thisv0y - thisv1y) / (thisv0x - thisv1x),
-    segmentSlope = (segmentv0y - segmentv1y) / (segmentv0x - segmentv1x);
+      thisv0y = this.vertexes[0].y,
+      thisv1x = this.vertexes[1].x,
+      thisv1y = this.vertexes[1].y,
+      segmentv0x = segment.vertexes[0].x,
+      segmentv0y = segment.vertexes[0].y,
+      segmentv1x = segment.vertexes[1].x,
+      segmentv1y = segment.vertexes[1].y,
+      thisSlope = (thisv0y - thisv1y) / (thisv0x - thisv1x),
+      segmentSlope = (segmentv0y - segmentv1y) / (segmentv0x - segmentv1x);
     if (Math.abs(thisSlope - segmentSlope) < 0.001) {
       return true;
     }
@@ -802,7 +802,7 @@ export class Segment {
         return null;
       else if (Math.abs(dist2Centers - R0 - R1) < 1) {
         const angleBetweenCenter = this.arcCenter.coordinates.angleWith(segment.arcCenter.coordinates);
-        return  [this.centerProjectionOnSegment(angleBetweenCenter)];
+        return [this.centerProjectionOnSegment(angleBetweenCenter)];
       } else if (dist2Centers - Math.abs(R0 - R1) < 1) {
         if (R0 > R1) {
           const angleBetweenCenter = this.arcCenter.coordinates.angleWith(segment.arcCenter.coordinates);
@@ -812,11 +812,11 @@ export class Segment {
           return [segment.centerProjectionOnSegment(angleBetweenCenter)];
         }
       } else if (y0 == y1) {
-        const x =  (R1 ** 2 - R0 ** 2 - x1 ** 2 + x0 ** 2) / (2 * (x0 - x1));
+        const x = (R1 ** 2 - R0 ** 2 - x1 ** 2 + x0 ** 2) / (2 * (x0 - x1));
         const A = 1, B = -2 * y1, C = x1 ** 2 + x ** 2 - 2 * x1 * x + y1 ** 2 - R1 ** 2;
         const delta = Math.sqrt((B ** 2) - 4 * A * C);
         const resulty0 = (-B + delta) / (2 * A), resulty1 = (-B - delta) / (2 * A);
-        result = [new Coordinates({ x, y: resulty0}), new Coordinates({ x, y: resulty1})];
+        result = [new Coordinates({ x, y: resulty0 }), new Coordinates({ x, y: resulty1 })];
       } else {
         const N = (R1 ** 2 - R0 ** 2 - x1 ** 2 + x0 ** 2 - y1 ** 2 + y0 ** 2) / (2 * (y0 - y1));
         const quotien = (x0 - x1) / (y0 - y1);
@@ -824,7 +824,7 @@ export class Segment {
         const delta = Math.sqrt((B ** 2) - 4 * A * C);
         const resultx0 = (-B + delta) / (2 * A), resultx1 = (-B - delta) / (2 * A);
         const resulty0 = N - resultx0 * quotien, resulty1 = N - resultx1 * quotien;
-        result = [new Coordinates({ x: resultx0, y: resulty0}), new Coordinates({ x: resultx1, y: resulty1})];
+        result = [new Coordinates({ x: resultx0, y: resulty0 }), new Coordinates({ x: resultx1, y: resulty1 })];
       }
     } else if (this.isArc() && !segment.isArc()) { // a circle and a right line
       let projection = segment.projectionOnSegment(this.arcCenter.coordinates);
@@ -931,7 +931,7 @@ export class Segment {
         return (
           this.arcCenter.coordinates.equal(segment.arcCenter.coordinates) &&
           (this.counterclockwise != segment.counterclockwise) ^
-            this.vertexes[1].coordinates.equal(segment.vertexes[1].coordinates)
+          this.vertexes[1].coordinates.equal(segment.vertexes[1].coordinates)
         );
       } else return true;
     } else {
@@ -1013,12 +1013,8 @@ export class Segment {
   }
 
   static loadFromData(data) {
-    if (!data.position) {
-      data.position = 'main';
-    }
-    let segment = new Segment({
-      layer: data.position,
-    });
+    if (!data.position) data.position = 'main';
+    let segment = new Segment({ layer: data.position });
     Object.assign(segment, data);
     segment.vertexIds = [...data.vertexIds];
     if (data.divisionPointIds)

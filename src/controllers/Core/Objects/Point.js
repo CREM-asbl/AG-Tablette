@@ -335,7 +335,7 @@ export class Point {
         } else {
           constraints.isBlocked = true;
         }
-      }  else if (this.shape.familyName == 'Line') {
+      } else if (this.shape.familyName == 'Line') {
         if (
           (this.shape.name == 'ParalleleSegment' ||
             this.shape.name == 'ParalleleSemiStraightLine') &&
@@ -458,17 +458,6 @@ export class Point {
     return resultAngle;
   }
 
-  // recomputeSegmentPoint() {
-  //   let v0 = this.segment.vertexes[0],
-  //     angle = this.segment.getAngleWithHorizontal(),
-  //     length = this.segment.length;
-
-  //   this.setCoordinates({
-  //     x: v0.x + Math.cos(angle) * length * this.ratio,
-  //     y: v0.y + Math.sin(angle) * length * this.ratio,
-  //   });
-  // }
-
   saveToObject() {
     return this.saveData();
   }
@@ -481,16 +470,6 @@ export class Point {
       position: this.layer,
       idx: this.idx,
       segmentIds: [...this.segmentIds],
-      // type: this.type,
-      // name: this.name,
-      // ratio: this.ratio,
-      // visible: this.visible,
-      // color: this.color,
-      // size: this.size,
-      // reference: this.reference,
-      // endpointIds: [...this.endpointIds],
-      // geometryIsVisible: this.geometryIsVisible,
-      // transformConstraints: {...this.transformConstraints}, // not sure if we can remove from save
     };
 
     if (this.type != undefined)
@@ -509,7 +488,6 @@ export class Point {
       data.reference = this.reference;
     if (this.endpointIds.length !== 0)
       data.endpointIds = [...this.endpointIds];
-
     if (this.geometryIsVisible !== true)
       data.geometryIsVisible = this.geometryIsVisible;
     if (this.geometryIsHidden !== false)
@@ -518,17 +496,12 @@ export class Point {
   }
 
   static loadFromData(data) {
-    if (!data.position) {
-      data.position = 'main';
-    }
-    let point = new Point({
-      layer: data.position,
-    });
+    if (!data.position) data.position = 'main'
+    let point = new Point({ layer: data.position });
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);
     point.segmentIds = [...data.segmentIds];
-    if (data.endpointIds)
-      point.endpointIds = [...data.endpointIds];
+    if (data.endpointIds) point.endpointIds = [...data.endpointIds];
     if (app.environment.name == 'Tangram') {
       point.startTangramCoordinates = new Coordinates(point.coordinates);
     }

@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { collection, doc, getDoc, getDocs, initializeFirestore, persistentLocalCache, query, where } from "firebase/firestore";
 import { getPerformance } from "firebase/performance";
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
-import { app, setState } from '../controllers/Core/App';
+import { app } from '../controllers/Core/App';
 import { loadEnvironnement } from '../controllers/Core/Environment';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import config from './firebase-config.json';
@@ -22,7 +22,6 @@ export async function openFileFromServer(activityName) {
   if (data) {
     let fileDownloaded = await readFileFromServer(data.id);
     let fileDownloadedObject = await fileDownloaded.json();
-
     window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject, activityName), { once: true });
     loadEnvironnement(data.environment);
   }
