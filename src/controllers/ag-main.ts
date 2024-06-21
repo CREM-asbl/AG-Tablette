@@ -51,8 +51,6 @@ class AGMain extends LitElement {
           background-color: var(--theme-color);
           scrollbar-width: thin;
           overflow: auto;
-          touch-action: none;
-          -ms-touch-action: manipulation;
         }
 
         canvas-container {
