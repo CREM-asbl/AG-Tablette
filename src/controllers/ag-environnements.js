@@ -1,5 +1,4 @@
 import { css, html, LitElement } from 'lit';
-import { setState } from './Core/App';
 import { loadEnvironnement } from './Core/Environment';
 
 class AgEnvironnements extends LitElement {

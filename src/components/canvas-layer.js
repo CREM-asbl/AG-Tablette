@@ -17,19 +17,15 @@ class CanvasLayer extends LitElement {
 
   constructor() {
     super();
-
     this.shapes = [];
     this.segments = [];
     this.points = [];
     this.texts = [];
-
     this.editingShapeIds = [];
-
     this.mustDrawShapes = true;
     this.mustDrawSegments = true;
     this.mustDrawPoints = true;
     this.mustDrawGrid = false;
-
     this.mustScaleShapes = true;
   }
 
@@ -45,6 +41,9 @@ class CanvasLayer extends LitElement {
     canvas {
       box-sizing: border-box;
       background-color: rgba(0, 0, 0 , 0);
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
   `
 
@@ -66,21 +65,19 @@ class CanvasLayer extends LitElement {
 
   clear() {
     if (this.ctx) {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.clearRect(0, 0, this.clientWidth, this.canvas.height);
     }
   }
 
   redraw() {
     this.clear();
     this.texts.forEach((text) => text.updateMessage());
-
     if (this.canvasName == 'upper')
       window.dispatchEvent(new CustomEvent('refreshStateUpper'));
     else if (this.canvasName == 'grid') {
       this.removeAllObjects();
       if (app.settings.gridShown) this.drawGridPoints();
     }
-
     this.draw();
   }
 
@@ -133,15 +130,8 @@ class CanvasLayer extends LitElement {
       }
     } else {
       shape.points.forEach((pt) => {
-        if (
-          pt.visible &&
-          (
-            pt.type == 'shapeCenter' ||
-            pt.type == 'divisionPoint'
-          )
-        ) {
+        if (pt.visible && (pt.type == 'shapeCenter' || pt.type == 'divisionPoint'))
           this.drawPoint(pt);
-        }
       });
     }
   }
@@ -671,11 +661,9 @@ class CanvasLayer extends LitElement {
     return response;
   }
 
-  setCanvasSize() {
-    this.canvas.setAttribute('width', app.canvasWidth);
-    this.canvas.setAttribute('height', app.canvasHeight);
-    this.redraw();
-  }
+  // setCanvasSize() {
+  //   this.redraw();
+  // }
 
   isOutsideOfCanvas(mousePos) {
     mousePos = mousePos.toCanvasCoordinates();

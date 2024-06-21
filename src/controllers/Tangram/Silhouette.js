@@ -28,15 +28,15 @@ export class Silhouette {
       return shapeCopy;
     });
 
-    let silhouetteMax = this.silouhetteMax,
-      width = app.canvasWidth,
-      height = app.canvasHeight,
-      expectedCoord = new Coordinates({ x: width, y: height / 2 });
-    console.log(silhouetteMax, width, app.workspace.translateOffset, expectedCoord)
-    silhouetteMax = silhouetteMax.multiply(app.workspace.zoomLevel);
-    let translation = expectedCoord.substract(silhouetteMax);
-    console.log(silhouetteMax, translation)
-    this.translate(translation);
+    // let silhouetteMax = this.silouhetteMax,
+    //   width = app.canvasWidth,
+    //   height = app.canvasHeight,
+    //   expectedCoord = new Coordinates({ x: width - 16, y: height / 2 });
+    // console.log(silhouetteMax, width, app.workspace.translateOffset, expectedCoord)
+    // silhouetteMax = silhouetteMax.multiply(app.workspace.zoomLevel);
+    // let translation = expectedCoord.substract(silhouetteMax);
+    // console.log(silhouetteMax, translation)
+    // this.translate(translation);
   }
 
   translate(translation) {
@@ -71,6 +71,13 @@ export class Silhouette {
 
   get maxX() {
     return this.bounds.maxX;
+  }
+
+  get center() {
+    return {
+      x: (this.bounds.maxX + this.bounds.minX) / 2,
+      y: (this.bounds.maxY + this.bounds.minY) / 2
+    };
   }
 
 }

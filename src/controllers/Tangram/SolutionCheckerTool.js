@@ -44,17 +44,24 @@ export class SolutionCheckerTool extends Tool {
 
   async initData() {
     const level = this.data.tangramLevelSelected ? this.data.tangramLevelSelected : await TangramManager.selectLevel();
-    if (this.data.fileExtension == 'ags')
-      await TangramManager.initShapes();
-    let backObjects = this.data.wsdata.backObjects,
-      isSilhouetteShown = false;
+    if (this.data.fileExtension == 'ags') await TangramManager.initShapes();
+    const backObjects = this.data.wsdata.backObjects
+    let isSilhouetteShown = false;
+    console.log(this.data.wsdata)
     if (backObjects) {
+      console.log(app.tangramCanvasLayer)
+      if (level == 3 || level == 4) {
+        // app.mainCanvasLayer.style = `position: absolute; top:50%; right: 0; left: 0; height: 50%;`
+        app.tangramCanvasLayer.style = `position: absolute; top:0; right: 0; bottom: 0; width: 50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`
+      }
+      // app.tangramCanvasLayer.ctx.scale(Math.min(app.canvasWidth / this.data.wsdata.canvasSize.width, app.canvasHeight / this.data.wsdata.canvasSize.height))
+      // app.tangramCanvasLayer.canvas.width = this.data.wsdata.canvasSize.width
+      // app.tangramCanvasLayer.canvas.height = this.data.wsdata.canvasSize.height
       const silhouette = new Silhouette(backObjects.shapesData, true, level)
       // const paths = backObjects.shapesData.map(object => object.path + ' Z');
       // app.svgLayer.width = this.data.wsdata.canvasSize.width;
       // app.svgLayer.height = this.data.wsdata.canvasSize.height;
       // setState({ paths: paths })
-      if (level == 3 || level == 4) app.forbiddenCanvasLeft = silhouette.minX - 16
       app.tangramCanvasLayer.draw();
       isSilhouetteShown = true;
     }
@@ -218,8 +225,7 @@ export class SolutionCheckerTool extends Tool {
       shapes.push(shape);
     });
 
-    let areShapeScaled =
-      app.tangramCanvasLayer.shapes[0].size == 0.6;
+    let areShapeScaled = app.tangramCanvasLayer.shapes[0].size == 0.6;
     if (areShapeScaled) {
       let silhouetteBounds = Bounds.getOuterBounds(
         ...shapes.map((s) => s.bounds),
@@ -376,4 +382,8 @@ export class SolutionCheckerTool extends Tool {
   }
 }
 
-export const closeForbiddenCanvas = () => app.forbiddenCanvasLeft = null
+export const closeForbiddenCanvas = () => {
+  app.forbiddenCanvasLeft = null
+  // app.tangramCanvasLayer.style.width = '100%'
+  app.tangramCanvasLayer.style.backgroundColor = 'transparent'
+}

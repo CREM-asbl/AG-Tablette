@@ -12,7 +12,7 @@ export class ResetPositionTool extends Tool {
   }
 
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } })
   }
 
   listen() {

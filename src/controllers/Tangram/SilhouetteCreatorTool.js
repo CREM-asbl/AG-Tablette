@@ -31,8 +31,6 @@ export class SilhouetteCreatorTool extends Tool {
     this.isUserWarnedAboutOverlap = false;
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
-    window.addEventListener('new-window', this.handler);
-    window.addEventListener('file-parsed', this.handler);
     window.addEventListener('tangram-changed', this.handler);
 
     await toWait;
@@ -61,8 +59,6 @@ export class SilhouetteCreatorTool extends Tool {
       if (app.tool?.name == this.name) { this[app.tool.currentStep](); }
     } else if (event.type == 'actions-executed') {
       this.verifyOverlappingShapes();
-    } else if (event.type == 'new-window' || event.type == 'file-parsed') {
-      this.end();
     } else if (event.type == 'create-silhouette') {
       this.createSilhouette();
     } else if (event.type == 'add-fullstep' && (event.detail.name == 'Refaire' || event.detail.name == 'Annuler')) {
@@ -75,8 +71,6 @@ export class SilhouetteCreatorTool extends Tool {
     window.removeEventListener('actions-executed', this.handler);
     window.removeEventListener('add-fullstep', this.handler);
     window.removeEventListener('tangram-changed', this.handler);
-    window.removeEventListener('new-window', this.handler);
-    window.removeEventListener('file-parsed', this.handler);
     window.removeEventListener('create-silhouette', this.handler);
   }
 
