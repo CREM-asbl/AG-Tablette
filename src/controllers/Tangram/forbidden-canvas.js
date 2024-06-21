@@ -1,47 +1,23 @@
 import { css, html, LitElement } from 'lit';
-import { app } from '../Core/App';
 
 class ForbiddenCanvas extends LitElement {
 
+  static properties = {
+    left: { type: Number }
+  };
+
   static styles = css`
-      canvas#unreachableCanvas {
+      :host {
         background-color: rgba(255, 0, 0, 0.2);
         position: absolute;
         top: 0px;
         right: 0px;
-        width: ${app.canvasWidth / 2}px;
         height: 100%;
       }
     `
-
-  firstUpdated() {
-    this.unreachableCanvas = this.shadowRoot.querySelector(
-      '#unreachableCanvas',
-    );
-
-    this.unreachableCanvas.setAttribute(
-      'height',
-      this.unreachableCanvas.clientHeight,
-    );
-    this.unreachableCanvas.setAttribute(
-      'width',
-      this.unreachableCanvas.clientWidth,
-    );
-
-    app.forbiddenCtx = this.unreachableCanvas.getContext('2d');
-
-    window.dispatchEvent(new Event('forbidden-canvas-drawn'));
-    window.addEventListener('close-forbidden-canvas', () => this.close(), {
-      once: true,
-    })
-  }
-
   render() {
-    return html` <canvas id="unreachableCanvas"></canvas> `;
-  }
-
-  close() {
-    this.remove();
+    this.style.left = this.left ? `${this.left}px` : null;
+    return html` <div></div> `;
   }
 }
 customElements.define('forbidden-canvas', ForbiddenCanvas);

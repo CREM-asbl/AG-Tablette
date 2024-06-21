@@ -68,10 +68,10 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
-  initFromObject(wsdata) {
+  initFromObject(wsdata, center = true) {
+    this.zoomLevel = wsdata.zoomLevel || 1;
     if (!wsdata) {
       this.translateOffset = Coordinates.nullCoordinates;
-      this.zoomLevel = 1;
       app.mainCanvasLayer.loadFromData(null);
       app.tangramCanvasLayer?.clear();
       app.gridCanvasLayer?.clear();
@@ -80,8 +80,7 @@ export class Workspace {
     this.id = wsdata.id;
     app.mainCanvasLayer.loadFromData(wsdata.objects);
     app.gridCanvasLayer?.clear();
-    if (!wsdata.shapeGroups)
-      wsdata.shapeGroups = [];
+    if (!wsdata.shapeGroups) wsdata.shapeGroups = [];
     this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
       group.initFromObject(groupData);
@@ -92,40 +91,20 @@ export class Workspace {
       this.translationLastCharacteristicElements = wsdata.translationLastCharacteristicElements.map(element => new CharacteristicElements(element));
     }
 
-    if (!wsdata.zoomLevel)
-      wsdata.zoomLevel = 1;
-    this.zoomLevel = wsdata.zoomLevel;
-
-    if (!wsdata.translateOffset)
-      wsdata.translateOffset = { x: 0, y: 0 };
-    this.translateOffset = new Coordinates(wsdata.translateOffset);
-
-    if (
-      wsdata.canvasSize &&
+    this.translateOffset = new Coordinates(wsdata.translateOffset || { x: 0, y: 0 });
+    if (wsdata.canvasSize &&
       (wsdata.canvasSize.width != app.canvasWidth ||
-        wsdata.canvasSize.height != app.canvasHeight)
-    ) {
-      let scaleOffset =
-        wsdata.canvasSize.width / app.canvasWidth <
-          wsdata.canvasSize.height / app.canvasHeight
-          ? app.canvasHeight / wsdata.canvasSize.height
-          : app.canvasWidth / wsdata.canvasSize.width,
+        wsdata.canvasSize.height != app.canvasHeight)) {
+      const scaleOffset = Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height),
         originalZoom = this.zoomLevel,
         newZoom = originalZoom * scaleOffset,
         originalTranslateOffset = this.translateOffset,
-        actualCenter = new Coordinates({
-          x: wsdata.canvasSize.width,
-          y: wsdata.canvasSize.height,
-        })
+        actualCenter = new Coordinates({ x: wsdata.canvasSize.width, y: wsdata.canvasSize.height })
           .multiply(1 / 2)
           .substract(originalTranslateOffset)
           .multiply(newZoom / originalZoom),
-        newCenter = new Coordinates({
-          x: app.canvasWidth,
-          y: app.canvasHeight,
-        }).multiply(1 / 2),
-        newTranslateoffset = newCenter.substract(actualCenter);
-
+        newCenter = new Coordinates({ x: app.canvasWidth, y: app.canvasHeight }).multiply(1 / 2),
+        newTranslateoffset = center ? newCenter.substract(actualCenter) : originalTranslateOffset;
       this.setZoomLevel(newZoom, false);
       this.setTranslateOffset(newTranslateoffset);
     }
@@ -197,7 +176,6 @@ export class Workspace {
   setTranslateOffset(newOffset, doRefresh = true) {
     //TODO: limiter la translation à une certaine zone? (ex 4000 sur 4000?)
     //TODO: bouton pour revenir au "centre" ?
-
     this.translateOffset = newOffset;
 
     if (doRefresh) {

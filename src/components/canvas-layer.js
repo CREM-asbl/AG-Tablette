@@ -14,6 +14,7 @@ import { StripLineShape } from '../controllers/Core/Objects/Shapes/StripLineShap
 import { capitalizeFirstLetter, createElem, findObjectById } from '../controllers/Core/Tools/general';
 
 class CanvasLayer extends LitElement {
+
   constructor() {
     super();
 
@@ -48,7 +49,6 @@ class CanvasLayer extends LitElement {
   `
 
   render() {
-    console.log('render', this.canvasName, this.shapes, this.points)
     return html`<canvas width="${this.clientWidth}" height="${this.clientHeight}"></canvas>`;
   }
 
@@ -85,6 +85,7 @@ class CanvasLayer extends LitElement {
   }
 
   draw(scaling = 'scale') {
+    console.log('draw', this.canvasName, this.shapes, this.points)
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
@@ -234,6 +235,7 @@ class CanvasLayer extends LitElement {
   }
 
   loadFromData(data) {
+    console.log(this, data)
     this.removeAllObjects();
     if (data != undefined) {
       data.shapesData.forEach((shapeData) => {
@@ -863,19 +865,14 @@ class CanvasLayer extends LitElement {
     shape.setCtxForDrawing(this.ctx, scaling);
     this.ctx.miterLimit = 1;
 
-    let pathScaleMethod = this.mustScaleShapes
-      ? 'scale'
-      : 'no scale',
+    let pathScaleMethod = this.mustScaleShapes ? 'scale' : 'no scale',
       path = new Path2D(shape.getSVGPath(pathScaleMethod, true, false, true));
     if (shape.drawHidden) {
       let canvasPattern = document.createElement("canvas");
       canvasPattern.width = 10;
       canvasPattern.height = 10;
       let contextPattern = canvasPattern.getContext("2d");
-
-      let path = new Path2D(`
-        M 5 0 L 10 5 L 10 10 L 0 0 L 5 0 M 0 5 L 5 10 L 0 10 L 0 5
-      `);
+      let path = new Path2D(`M 5 0 L 10 5 L 10 10 L 0 0 L 5 0 M 0 5 L 5 10 L 0 10 L 0 5`);
       contextPattern.fillStyle = this.ctx.fillStyle;
       contextPattern.fill(path);
 
@@ -896,8 +893,7 @@ class CanvasLayer extends LitElement {
       shape.segments.forEach(seg => {
         let path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
         this.ctx.strokeStyle = seg.color ? seg.color : shape.strokeColor;
-        if (seg.width != 1)
-          this.ctx.lineWidth = seg.width;
+        if (seg.width != 1) this.ctx.lineWidth = seg.width;
         this.ctx.stroke(path);
         this.ctx.lineWidth = shape.strokeWidth;
       });
@@ -916,14 +912,13 @@ class CanvasLayer extends LitElement {
 
     const canvasCoodinates = point.coordinates.toCanvasCoordinates();
     this.ctx.beginPath();
-    this.ctx.moveTo(canvasCoodinates.x, canvasCoodinates.y);
     this.ctx.arc(
       canvasCoodinates.x,
       canvasCoodinates.y,
       point.size * 2 * app.workspace.zoomLevel,
       0,
       2 * Math.PI,
-      0,
+      0
     );
     this.ctx.closePath();
     this.ctx.fill();

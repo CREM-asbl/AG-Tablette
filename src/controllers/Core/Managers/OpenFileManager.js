@@ -1,6 +1,11 @@
 import { app, setState } from '../App';
 import { addInfoToId, createElem, getExtension } from '../Tools/general';
 
+export const openPopupFile = async () => {
+  await import('../../../components/popups/open-popup');
+  createElem('open-popup');
+}
+
 export class OpenFileManager {
   static async openFile() {
     if (OpenFileManager.hasNativeFS) {
@@ -22,7 +27,6 @@ export class OpenFileManager {
           }),
         );
       } catch (error) {
-        // user closed open prompt
         console.error(error);
       }
     } else {
@@ -183,11 +187,8 @@ export class OpenFileManager {
       return;
     }
 
-    // OpenFileManager.transformToNewIdSystem(saveObject.wsdata.objects, 'main');
-
-    // app.lastFileVersion = saveObject.appVersion;
     const WorkspaceManagerModule = await import('./WorkspaceManager.js');
-    WorkspaceManagerModule.WorkspaceManager.setWorkspaceFromObject(saveObject.wsdata);
+    WorkspaceManagerModule.setWorkspaceFromObject(saveObject.wsdata);
 
     if (app.environment.name == 'Tangram' && saveObject.fileExtension == 'ags')
       app.mainCanvasLayer.removeAllObjects();
@@ -215,9 +216,7 @@ export class OpenFileManager {
               ...saveObject.history.startSituation,
               tangram: {
                 isSilhouetteShown: true,
-                currentStep: 'start',
-                buttonText: 'Vérifier la solution',
-                buttonValue: 'check',
+                currentStep: 'start'
               }
             },
           },
@@ -270,10 +269,7 @@ export class OpenFileManager {
   }
 }
 
-window.addEventListener('open-file', async () => {
-  await import('../../../components/popups/open-popup');
-  createElem('open-popup');
-});
+window.addEventListener('open-file', openPopupFile);
 
 window.addEventListener('local-open-file', () => {
   OpenFileManager.openFile();

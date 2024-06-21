@@ -427,12 +427,10 @@ export class RegularShape extends Shape {
   setCtxForDrawing(ctx, scaling) {
     ctx.strokeStyle = this.strokeColor;
     ctx.fillStyle = this.fillColor;
-    if (this.isOverlappingAnotherInTangram)
-      ctx.fillStyle = '#F00';
+    if (this.isOverlappingAnotherInTangram) ctx.fillStyle = '#F00';
     ctx.globalAlpha = this.fillOpacity;
     ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
-    if (scaling == 'no scale')
-      ctx.lineWidth = this.strokeWidth;
+    if (scaling == 'no scale') ctx.lineWidth = this.strokeWidth;
   }
 
   /* #################################################################### */

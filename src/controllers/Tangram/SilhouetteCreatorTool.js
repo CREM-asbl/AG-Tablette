@@ -1,7 +1,7 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
-import { Silhouette } from '../Core/Objects/Silhouette';
 import { Tool } from '../Core/States/Tool';
+import { Silhouette } from './Silhouette';
 import { TangramManager } from './TangramManager';
 
 /**
@@ -10,11 +10,11 @@ import { TangramManager } from './TangramManager';
 export class SilhouetteCreatorTool extends Tool {
   constructor() {
     super('createSilhouette', 'Créer une silhouette', '');
-
     this.isUserWarnedAboutOverlap = false;
   }
 
   async start() {
+
     this.removeListeners();
 
     let tool = app.tools.find(tool => tool.name == 'translate');
@@ -25,11 +25,12 @@ export class SilhouetteCreatorTool extends Tool {
     setState({ tools: app.tools });
 
     let toWait = TangramManager.initShapes(true);
-    TangramManager.removeSilhouette();
+    app.tangramCanvasLayer.removeAllObjects();
+    window.dispatchEvent(new CustomEvent('refresh-background'));
 
     this.isUserWarnedAboutOverlap = false;
     app.workspace.selectionConstraints =
-    app.fastSelectionConstraints.mousedown_all_shape;
+      app.fastSelectionConstraints.mousedown_all_shape;
     window.addEventListener('new-window', this.handler);
     window.addEventListener('file-parsed', this.handler);
     window.addEventListener('tangram-changed', this.handler);
@@ -55,10 +56,9 @@ export class SilhouetteCreatorTool extends Tool {
   }
 
   eventHandler(event) {
+    console.log('createSilhouette handler', event.type)
     if (event.type == 'tool-updated') {
-      if (app.tool?.name == this.name) {
-        this[app.tool.currentStep]();
-      }
+      if (app.tool?.name == this.name) { this[app.tool.currentStep](); }
     } else if (event.type == 'actions-executed') {
       this.verifyOverlappingShapes();
     } else if (event.type == 'new-window' || event.type == 'file-parsed') {
@@ -102,11 +102,7 @@ export class SilhouetteCreatorTool extends Tool {
   createSilhouette() {
     app.tangramCanvasLayer.removeAllObjects();
     const shapes = app.mainCanvasLayer.shapes;
-
-    if (this.hasOverlapedShape(shapes)) {
-      return;
-    }
-
+    if (this.hasOverlapedShape(shapes)) return
     new Silhouette(shapes);
   }
 
@@ -143,14 +139,4 @@ export class SilhouetteCreatorTool extends Tool {
       }
     });
   }
-
-  // showStateMenu() {
-  //   setState({
-  //     tangram: {
-  //       ...app.tangram,
-  //       buttonText: 'Afficher la silhouette',
-  //       buttonValue: 'createSilhouette',
-  //     }
-  //   });
-  // }
 }

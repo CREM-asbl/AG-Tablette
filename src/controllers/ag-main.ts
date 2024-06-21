@@ -23,7 +23,6 @@ if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
 @customElement('ag-main')
 class AGMain extends LitElement {
-
   @property({ type: Boolean }) canUndo
   @property({ type: Boolean }) canRedo
   @property({ type: String }) background
@@ -52,8 +51,6 @@ class AGMain extends LitElement {
           background-color: var(--theme-color);
           scrollbar-width: thin;
           overflow: auto;
-          touch-action: none;
-          -ms-touch-action: manipulation;
         }
 
         canvas-container {
@@ -166,7 +163,7 @@ class AGMain extends LitElement {
                       </icon-button> -->
         </div>
 
-        <canvas-container id="canvas-container"></canvas-container>
+        <canvas-container id="canvas-container" forbiddenCanvasLeft="${app.forbiddenCanvasLeft}"</canvas-container>
       </div>
 
       <notif-center></notif-center>

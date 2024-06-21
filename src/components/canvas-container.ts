@@ -3,11 +3,15 @@ import { property } from 'lit/decorators.js';
 import { app, setState } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 import './canvas-layer';
+// import './svg-layer';
+import '@controllers/Tangram/forbidden-canvas';
+
 
 class CanvasContainer extends LitElement {
   @property({ type: Object }) cursorPos = Coordinates.nullCoordinates
   @property({ type: Number }) cursorSize = 20
   @property({ type: Boolean }) cursorShow = false
+  @property({ type: Number }) forbiddenCanvasLeft
 
   static styles = css`
     :host {
@@ -19,9 +23,20 @@ class CanvasContainer extends LitElement {
     #invisibleCanvas {
       opacity: 0;
     }
+    svg-layer {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0 , 0);
+      box-sizing: border-box;
+    }
   `
   render() {
     return html`
+      <!-- for the paths -->
+      <!-- <svg-layer id="svgLayer" .paths='\${this.paths}'></svg-layer> -->
+
       <!-- for background tasks (invisible canvas) -->
       <canvas-layer id="invisibleCanvas"></canvas-layer>
 
@@ -37,6 +52,8 @@ class CanvasContainer extends LitElement {
       <!-- for the current event (ex: moving shape) -->
       <canvas-layer id="upperCanvas"></canvas-layer>
 
+      <forbidden-canvas id="forbiddenCanvas" left=${this.forbiddenCanvasLeft}></forbidden-canvas>
+
       <img
         src="/images/fake_cursor.png"
         height="${this.cursorSize}"
@@ -50,8 +67,6 @@ class CanvasContainer extends LitElement {
   firstUpdated() {
     this.setCanvasSize();
     window.onresize = () => { this.setCanvasSize(); };
-
-    window.addEventListener('workspace-changed', () => this.setCanvasSize());
 
     setState({ started: true });
 

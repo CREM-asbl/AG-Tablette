@@ -3,7 +3,7 @@ import { property } from 'lit/decorators.js';
 import { openFileFromServer } from '../firebase/firebase-init';
 import './auto-launch';
 import './backbutton-manager';
-import { app, setState } from './Core/App';
+import { app } from './Core/App';
 import { loadEnvironnement } from './Core/Environment';
 import './Core/Manifest';
 
@@ -15,22 +15,26 @@ if (document.body.clientHeight > screen.height) {
 }
 
 export class App extends LitElement {
+
   @property({ type: Boolean }) appLoading
   @property({ type: Boolean }) environnement_selected
 
-  connectedCallback() {
-    super.connectedCallback();
-    this.setState();
-    window.addEventListener('state-changed', () => this.setState());
-    this.parseURL();
+  constructor() {
+    super()
+    this.parseURL()
+    this.setState()
   }
 
-  parseURL() {
+  firstUpdated() {
+    window.addEventListener('state-changed', () => this.setState());
+  }
+
+  async parseURL() {
     let parsedUrl = new URL(window.location.href);
     let part = parsedUrl.searchParams.get("interface");
 
     if (['Grandeurs', 'Tangram', 'Cubes', 'Geometrie'].includes(part)) {
-      this.openEnv(part);
+      loadEnvironnement(part);
       return;
     }
     let activityName = parsedUrl.searchParams.get("activityName");
@@ -39,6 +43,7 @@ export class App extends LitElement {
   }
 
   render() {
+    // console.log('test', this._test.value)
     if (this.environnement_selected) {
       history.pushState({}, "main page");
       const AGmainLoader = import('./ag-main');
@@ -52,10 +57,6 @@ export class App extends LitElement {
       import('../components/loading-elem');
       return html`<loading-elem></loading-elem>`;
     }
-  }
-
-  async openEnv(e) {
-    setState({ appLoading: true, environment: await loadEnvironnement(e) });
   }
 
   setState() {

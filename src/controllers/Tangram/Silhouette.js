@@ -1,7 +1,7 @@
-import { app } from '../App';
-import { Bounds } from './Bounds';
-import { Coordinates } from './Coordinates';
-import { RegularShape } from './Shapes/RegularShape';
+import { app } from '../Core/App';
+import { Bounds } from '../Core/Objects/Bounds';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 
 export class Silhouette {
   /**
@@ -10,6 +10,7 @@ export class Silhouette {
    */
   constructor(shapes = [], loadFromSave = false, level = 1) {
     this.level = level;
+    console.log(app.mainCanvasLayer.shapes)
     this.shapes = shapes.map((shape) => {
       let shapeCopy = new RegularShape({
         ...shape,
@@ -19,28 +20,27 @@ export class Silhouette {
         strokeColor: level % 2 != 0 ? '#fff' : '#000',
         fillOpacity: 1,
         isPointed: false,
-        size: 1,
+        size: level < 5 ? 1 : 0.6,
       });
-      if (level == 5 || level == 6) {
+      if (level > 4) {
         shapeCopy.scale(0.6);
-        shapeCopy.size = 0.6;
       }
       return shapeCopy;
     });
 
-    const bounds = this.bounds;
-    let silhouetteMaxX = new Coordinates({
-      x: bounds.maxX,
-      y: (bounds.maxY + bounds.minY) / 2,
-    }),
+    let silhouetteMax = this.silouhetteMax,
       width = app.canvasWidth,
       height = app.canvasHeight,
-      expectedCoord = new Coordinates({ x: (width - 16), y: height / 2 });
-    silhouetteMaxX = silhouetteMaxX.toCanvasCoordinates();
-    let translation = expectedCoord.substract(silhouetteMaxX);
-    this.shapes.forEach((s) => {
-      s.translate(translation);
-    });
+      expectedCoord = new Coordinates({ x: width, y: height / 2 });
+    console.log(silhouetteMax, width, app.workspace.translateOffset, expectedCoord)
+    silhouetteMax = silhouetteMax.multiply(app.workspace.zoomLevel);
+    let translation = expectedCoord.substract(silhouetteMax);
+    console.log(silhouetteMax, translation)
+    this.translate(translation);
+  }
+
+  translate(translation) {
+    this.shapes.forEach((s) => s.translate(translation));
   }
 
   saveToObject() {
@@ -55,12 +55,22 @@ export class Silhouette {
     return save;
   }
 
-  static initFromObject(save, level) {
-    return new Silhouette(save.shapesData, true, level);
-  }
-
   get bounds() {
     let bounds = Bounds.getOuterBounds(...this.shapes.map((s) => s.bounds));
     return bounds;
   }
+
+  get silouhetteMax() {
+    const bounds = this.bounds;
+    return new Coordinates({ x: bounds.maxX, y: (bounds.maxY + bounds.minY) / 2 })
+  }
+
+  get minX() {
+    return this.bounds.minX * app.workspace.zoomLevel;
+  }
+
+  get maxX() {
+    return this.bounds.maxX;
+  }
+
 }

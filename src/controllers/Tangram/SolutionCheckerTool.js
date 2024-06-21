@@ -6,74 +6,14 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Segment } from '../Core/Objects/Segment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
-import { Silhouette } from '../Core/Objects/Silhouette';
 import { Tool } from '../Core/States/Tool';
-import { findObjectsByName } from '../Core/Tools/general';
+import { Silhouette } from './Silhouette';
 import { TangramManager } from './TangramManager';
 
 export class SolutionCheckerTool extends Tool {
   constructor() {
     super('solveChecker', 'Vérifier la solution d\'un Tangram', '');
-
-    window.addEventListener('file-parsed', async (e) => {
-      TangramManager.closeForbiddenCanvas();
-      app.tangramCanvasLayer.removeAllObjects();
-      const data = e.detail;
-      const level = data.tangramLevelSelected ? data.tangramLevelSelected : await TangramManager.selectLevel();
-      if (data.fileExtension == 'ags')
-        await TangramManager.initShapes();
-      if (level == 3 || level == 4) {
-        await TangramManager.openForbiddenCanvas();
-      }
-      let backObjects = data.wsdata.backObjects,
-        isSilhouetteShown = false;
-      if (backObjects) {
-        Silhouette.initFromObject(backObjects, level);
-        app.tangramCanvasLayer.redraw();
-        isSilhouetteShown = true;
-      }
-
-      let tool = app.tools.find(tool => tool.name == 'translate');
-      tool.isDisable = true;
-      tool = app.tools.find(tool => tool.name == 'color');
-      tool.isDisable = false;
-
-      setState({
-        tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
-        tool: { name: this.name, currentStep: 'start' }
-      });
-      let solutionShapes = findObjectsByName(
-        'tangramChecker',
-        'main'
-      );
-      if (solutionShapes.length > 0) {
-        setState({
-          tangram: {
-            ...app.tangram,
-            buttonText: 'Annuler la vérification',
-            buttonValue: 'uncheck',
-          }
-        })
-      }
-
-      if (app.history.startSituation == null) {
-        setState({
-          history: {
-            ...app.defaultState.history,
-            startSituation: {
-              ...app.workspace.data,
-              tangram: {
-                isSilhouetteShown: true,
-                currentStep: 'start',
-                buttonText: 'Vérifier la solution',
-                buttonValue: 'check',
-              }
-            },
-            startSettings: { ...app.settings },
-          },
-        });
-      }
-    });
+    window.addEventListener('file-parsed', this.handler)
   }
 
   /**
@@ -93,9 +33,62 @@ export class SolutionCheckerTool extends Tool {
     `;
   }
 
+  showMenu() {
+    this.stateMenu = app.left_menu.querySelector('state-menu')
+    if (!this.stateMenu) {
+      import('./state-menu');
+      this.stateMenu = document.createElement('state-menu');
+      app.left_menu.appendChild(this.stateMenu)
+    }
+  }
+
+  async initData() {
+    const level = this.data.tangramLevelSelected ? this.data.tangramLevelSelected : await TangramManager.selectLevel();
+    if (this.data.fileExtension == 'ags')
+      await TangramManager.initShapes();
+    let backObjects = this.data.wsdata.backObjects,
+      isSilhouetteShown = false;
+    if (backObjects) {
+      const silhouette = new Silhouette(backObjects.shapesData, true, level)
+      // const paths = backObjects.shapesData.map(object => object.path + ' Z');
+      // app.svgLayer.width = this.data.wsdata.canvasSize.width;
+      // app.svgLayer.height = this.data.wsdata.canvasSize.height;
+      // setState({ paths: paths })
+      if (level == 3 || level == 4) app.forbiddenCanvasLeft = silhouette.minX - 16
+      app.tangramCanvasLayer.draw();
+      isSilhouetteShown = true;
+    }
+
+    let tool = app.tools.find(tool => tool.name == 'translate');
+    tool.isDisable = true;
+    tool = app.tools.find(tool => tool.name == 'color');
+    tool.isDisable = false;
+
+    setState({
+      tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
+    });
+
+    if (app.history.startSituation == null) {
+      setState({
+        history: {
+          ...app.defaultState.history,
+          startSituation: {
+            ...app.workspace.data,
+            tangram: {
+              isSilhouetteShown: true,
+              currentStep: 'start'
+            }
+          },
+          startSettings: { ...app.settings },
+        },
+      });
+    }
+  }
+
   start() {
+    this.initData()
+    this.showMenu()
     this.solutionShapes = null
-    this.showStateMenu();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
     window.addEventListener('tangram-changed', this.handler);
     window.addEventListener('new-window', this.handler);
@@ -104,41 +97,30 @@ export class SolutionCheckerTool extends Tool {
   check() {
     this.checkSolution();
     setState({
-      tangram: {
-        level: app.tangram.level,
-        buttonText: 'Annuler la vérification',
-        buttonValue: 'uncheck',
-      },
       tool: { name: 'verifySolution', title: 'Vérifier la solution', currentStep: 'start' }
     });
     window.dispatchEvent(
-      new CustomEvent('actions-executed', {
-        detail: { name: 'Vérifier la solution' },
-      }),
+      new CustomEvent('actions-executed', { detail: { name: 'Vérifier la solution' } })
     );
   }
 
   uncheck() {
     this.eraseSolution();
-    setState({
-      tangram: {
-        level: app.tangram.level,
-        buttonText: 'Vérifier la solution',
-        buttonValue: 'check',
-      }
-    });
   }
 
   end() {
-    TangramManager.closeForbiddenCanvas();
+    if (this.stateMenu) this.stateMenu.close()
+    closeForbiddenCanvas();
     this.removeListeners();
   }
 
   eventHandler(event) {
+    if (this.stateMenu)
+      this.stateMenu.check = app.tangram.currentStep === 'check'
+
     if (event.type == 'tool-updated') {
-      if (app.tool?.name == this.name) {
-        this[app.tool.currentStep]();
-      } else if (app.tool?.currentStep == 'start') {
+      if (app.tool?.name == this.name) { this[app.tool.currentStep](); }
+      else if (app.tool?.currentStep == 'start') {
         if (app.tool.name == 'createSilhouette') {
           this.end();
         } else if (
@@ -151,23 +133,29 @@ export class SolutionCheckerTool extends Tool {
           setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
         }
       }
-    } else if (event.type == 'tangram-changed') {
+    }
+
+    if (event.type == 'tangram-changed') {
       if (['check', 'uncheck'].includes(app.tangram.currentStep)) {
         this[app.tangram.currentStep]();
       }
-      if (app.tangram.buttonValue == "check" || app.tangram.buttonValue == "uncheck") {
-        if (!app.left_menu.querySelector('state-menu')) {
-          import('./state-menu');
-          const stateMenu = document.createElement('state-menu');
-          stateMenu.buttonText = app.tangram.buttonText
-          stateMenu.buttonValue = app.tangram.buttonValue
-          app.left_menu.appendChild(stateMenu)
-        }
-      }
-    } else if (event.type == 'objectSelected') {
+    }
+
+    if (event.type == 'objectSelected') {
       this.objectSelected(event.detail.object);
-    } else if (event.type == 'new-window') {
-      this.end();
+    }
+
+    if (event.type == 'new-window') this.end();
+
+    if (event.type == 'file-parsed') {
+      console.log('file-parsed')
+      console.log(app.mainCanvasLayer.shapes)
+      const data = event.detail;
+      closeForbiddenCanvas();
+      app.tangramCanvasLayer.removeAllObjects();
+      if (data.envName != 'Tangram') return
+      this.data = data;
+      this.start();
     }
   }
 
@@ -183,16 +171,6 @@ export class SolutionCheckerTool extends Tool {
     if (index == -1) {
       setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } })
     }
-  }
-
-  showStateMenu() {
-    setState({
-      tangram: {
-        ...app.tangram,
-        buttonText: 'Vérifier la solution',
-        buttonValue: 'check',
-      }
-    });
   }
 
   eraseSolution() {
@@ -397,3 +375,5 @@ export class SolutionCheckerTool extends Tool {
     }
   }
 }
+
+export const closeForbiddenCanvas = () => app.forbiddenCanvasLeft = null

@@ -38,8 +38,6 @@ export class ColorTool extends Tool {
   listen() {
     this.mustPreventNextClick = false;
     this.removeListeners();
-
-    // this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
     this.longPressId = app.addListener('canvasLongPress', this.handler);
     this.mouseClickId = app.addListener('canvasClick', this.handler);
   }
@@ -119,7 +117,7 @@ export class ColorTool extends Tool {
             s.strokeColor = app.settings.shapesDrawColor;
           } else {
             if (mustChangeOpacity)
-            s.fillOpacity = 0.7;
+              s.fillOpacity = 0.7;
             s.fillColor = app.settings.shapesDrawColor;
           }
         });
@@ -132,7 +130,6 @@ export class ColorTool extends Tool {
       let involvedShapes = ShapeManager.getAllBindedShapes(this.object);
       involvedShapes.forEach(s => {
         s.strokeColor = app.settings.shapesDrawColor;
-        // s.segments.forEach(seg => seg.color = app.settings.shapesDrawColor);
       });
     }
   }
