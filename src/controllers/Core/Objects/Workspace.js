@@ -70,21 +70,17 @@ export class Workspace {
 
   initFromObject(wsdata, center = true) {
     this.zoomLevel = wsdata.zoomLevel || 1;
+
     if (!wsdata) {
-      this.translateOffset = Coordinates.nullCoordinates;
-      app.mainCanvasLayer.loadFromData(null);
-      app.tangramCanvasLayer?.clear();
-      app.gridCanvasLayer?.clear();
+      this.resetWorkspace()
       return;
     }
+
     this.id = wsdata.id;
-    // app.mainCanvasLayer.canvas.width = wsdata.canvasSize.width;
-    // app.mainCanvasLayer.canvas.height = wsdata.canvasSize.height;
-    // app.upperCanvasLayer.canvas.width = wsdata.canvasSize.width;
-    // app.upperCanvasLayer.canvas.height = wsdata.canvasSize.height;
-    this.setZoomLevel(Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height))
-    // console.log(app.canvasWidth / (2 * wsdata.canvasSize.width), this.zoomLevel)
+    const scale = Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height)
     app.mainCanvasLayer.loadFromData(wsdata.objects);
+    this.setZoomLevel(scale)
+
     if (!wsdata.shapeGroups) wsdata.shapeGroups = [];
     this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
@@ -206,5 +202,12 @@ export class Workspace {
     svg_data += '</svg>';
 
     return svg_data;
+  }
+
+  resetWorkspace() {
+    this.translateOffset = Coordinates.nullCoordinates;
+    app.mainCanvasLayer.loadFromData(null);
+    app.tangramCanvasLayer?.clear();
+    app.gridCanvasLayer?.clear();
   }
 }

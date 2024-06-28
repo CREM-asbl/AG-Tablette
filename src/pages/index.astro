@@ -99,15 +99,11 @@ import { App } from '@controllers/ag-app';
         user-select: none; /* Non-prefixed version, currently
                                 supported by Chrome, Edge, Opera and Firefox */
       }
-
-      hmr-error-overlay {
-        display: none;
-      }
     </style>
   </head>
 
   <body>
-    <App client:only />
+    <App client:only="lit" />
     <noscript>
       Veuillez activer javascript afin de profiter de cette application
     </noscript>

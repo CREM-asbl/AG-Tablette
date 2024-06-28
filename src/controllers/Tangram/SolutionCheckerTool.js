@@ -46,22 +46,16 @@ export class SolutionCheckerTool extends Tool {
     const level = this.data.tangramLevelSelected ? this.data.tangramLevelSelected : await TangramManager.selectLevel();
     if (this.data.fileExtension == 'ags') await TangramManager.initShapes();
     const backObjects = this.data.wsdata.backObjects
+    const canvasSize = this.data.wsdata.canvasSize
     let isSilhouetteShown = false;
-    console.log(this.data.wsdata)
     if (backObjects) {
-      console.log(app.tangramCanvasLayer)
+      this.scale = Math.min(app.canvasWidth / canvasSize.width, app.canvasHeight / canvasSize.height)
       if (level == 3 || level == 4) {
-        // app.mainCanvasLayer.style = `position: absolute; top:50%; right: 0; left: 0; height: 50%;`
-        app.tangramCanvasLayer.style = `position: absolute; top:0; right: 0; bottom: 0; width: 50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`
+        app.workspace.limited = true;
+        app.tangramCanvasLayer.style = `top:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`
       }
-      // app.tangramCanvasLayer.ctx.scale(Math.min(app.canvasWidth / this.data.wsdata.canvasSize.width, app.canvasHeight / this.data.wsdata.canvasSize.height))
-      // app.tangramCanvasLayer.canvas.width = this.data.wsdata.canvasSize.width
-      // app.tangramCanvasLayer.canvas.height = this.data.wsdata.canvasSize.height
       const silhouette = new Silhouette(backObjects.shapesData, true, level)
-      // const paths = backObjects.shapesData.map(object => object.path + ' Z');
-      // app.svgLayer.width = this.data.wsdata.canvasSize.width;
-      // app.svgLayer.height = this.data.wsdata.canvasSize.height;
-      // setState({ paths: paths })
+      app.workspace.setZoomLevel(app.workspace.zoomLevel * 0.5)
       app.tangramCanvasLayer.draw();
       isSilhouetteShown = true;
     }
@@ -155,8 +149,6 @@ export class SolutionCheckerTool extends Tool {
     if (event.type == 'new-window') this.end();
 
     if (event.type == 'file-parsed') {
-      console.log('file-parsed')
-      console.log(app.mainCanvasLayer.shapes)
       const data = event.detail;
       closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();
@@ -186,23 +178,16 @@ export class SolutionCheckerTool extends Tool {
   }
 
   checkSolution() {
-    if (this.solutionShapes) {
-      this.solutionShapes.forEach(shape =>
-        app.mainCanvasLayer.shapes.push(shape))
-    }
-    else {
+    if (this.solutionShapes)
+      this.solutionShapes.forEach(shape => app.mainCanvasLayer.shapes.push(shape))
+    else
       this.solutionShapes = this.solution
-    }
     window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   get solution() {
-    let segmentsList = this.checkGroupMerge(
-      app.tangramCanvasLayer.shapes
-    );
-
+    let segmentsList = this.checkGroupMerge(app.tangramCanvasLayer.shapes);
     let paths = this.linkNewSegments(segmentsList);
-
     const shapes = [];
 
     paths.forEach((path) => {
@@ -217,11 +202,11 @@ export class SolutionCheckerTool extends Tool {
         name: 'tangramChecker',
       });
       shape.cleanSameDirectionSegment();
-      let translateOffset = new Coordinates({
-        x: -app.canvasWidth / 2,
-        y: 0,
-      }).multiply(1 / app.workspace.zoomLevel);
-      shape.translate(translateOffset);
+      // let translateOffset = new Coordinates({
+      //   x: -app.canvasWidth / 2,
+      //   y: -app.canvasHeight / 4,
+      // }).multiply(1 / app.workspace.zoomLevel);
+      // shape.translate(translateOffset);
       shapes.push(shape);
     });
 
@@ -242,46 +227,43 @@ export class SolutionCheckerTool extends Tool {
       userGroup.shapesIds = shapes.map(s => s.id);
       GroupManager.addGroup(userGroup);
     }
+
+    // shapes.forEach(shape => shape.scale(.5))
     return shapes
   }
 
   checkGroupMerge(shapes) {
     let oldSegments = shapes
-      .map((s) =>
+      .flatMap((s) =>
         s.segments.map((seg) => {
           return new Segment({
             layer: 'invisible',
             createFromNothing: true,
-            vertexCoordinates: seg.vertexes.map((vx) => vx.coordinates),
+            vertexCoordinates: seg.points.map((vx) => vx.coordinates),
           });
         }),
-      )
-      .flat();
+      );
 
     let cutSegments = oldSegments
-      .map((segment, idx, segments) => {
+      .flatMap((segment, idx, segments) => {
         let vertexesInside = segments
           .filter((seg, i) => i != idx)
-          .map((seg) =>
-            seg.vertexes.filter(
-              (vertex) =>
-                segment.isCoordinatesOnSegment(vertex.coordinates) &&
-                !segment.vertexes.some((vert) =>
-                  vert.coordinates.equal(vertex.coordinates),
-                ),
-            ),
+          .flatMap((seg) =>
+            seg.vertexes.filter((vertex) =>
+              segment.isCoordinatesOnSegment(vertex.coordinates) &&
+              !segment.vertexes.some((vert) =>
+                vert.coordinates.equal(vertex.coordinates),
+              )
+            )
           )
-          .flat()
-          .filter(
-            (vertex, idx, vertexes) =>
-              vertexes.findIndex((v) =>
-                v.coordinates.equal(vertex.coordinates),
-              ) == idx,
+          .filter((vertex, idx, vertexes) =>
+            vertexes.findIndex((v) =>
+              v.coordinates.equal(vertex.coordinates),
+            ) == idx,
           );
         if (vertexesInside.length) return segment.divideWith(vertexesInside);
         else return segment;
       })
-      .flat();
 
     // delete common segments
     let newSegments = [];
@@ -306,12 +288,7 @@ export class SolutionCheckerTool extends Tool {
     while (segmentUsed != numberOfSegments) {
       let startCoordinates = segmentsList[0].vertexes[0].coordinates;
       paths.push([]);
-      paths[numberOfPathCreated].push(
-        'M',
-        startCoordinates.x,
-        startCoordinates.y,
-      );
-
+      paths[numberOfPathCreated].push('M', startCoordinates.x, startCoordinates.y);
       let nextSegmentIndex = 0;
       this.addPathElem(paths[numberOfPathCreated], segmentsList[0]);
       this.lastUsedCoordinates = segmentsList[0].vertexes[1].coordinates;
@@ -383,7 +360,8 @@ export class SolutionCheckerTool extends Tool {
 }
 
 export const closeForbiddenCanvas = () => {
-  app.forbiddenCanvasLeft = null
-  // app.tangramCanvasLayer.style.width = '100%'
+  app.workspace.limited = true
+  // app.forbiddenCanvasLeft = null
   app.tangramCanvasLayer.style.backgroundColor = 'transparent'
+  app.tangramCanvasLayer.style.zIndex = 0
 }
