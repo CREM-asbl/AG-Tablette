@@ -37,6 +37,9 @@ export class TangramManager {
       s.fillOpacity = isForCreation ? 1 : 0.5;
     });
     setWorkspaceFromObject(ws, false);
+    // app.mainCanvasLayer.shapes.forEach(shape => shape.scale(.5))
+    window.dispatchEvent(new CustomEvent('refresh'));
+
   }
 }
 

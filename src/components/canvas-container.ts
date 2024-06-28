@@ -44,7 +44,7 @@ class CanvasContainer extends LitElement {
       <canvas-layer id="backgroundCanvas"></canvas-layer>
 
       <!-- for grid points or tangram outline -->
-      ${app.environment.name !== 'Tangram' ? html`<canvas-layer id="gridCanvas"></canvas-layer>` : html`<canvas-layer id="tangramCanvas"></canvas-layer>`}
+      ${app.environment.name !== 'Tangram' ? html`<canvas-layer id="gridCanvas"></canvas-layer>` : html`<canvas-layer id="tangramCanvas" style="top:50%"></canvas-layer>`}
 
       <!-- for the shapes -->
       <canvas-layer id="mainCanvas"></canvas-layer>
@@ -52,7 +52,7 @@ class CanvasContainer extends LitElement {
       <!-- for the current event (ex: moving shape) -->
       <canvas-layer id="upperCanvas"></canvas-layer>
 
-      <forbidden-canvas id="forbiddenCanvas" left=${this.forbiddenCanvasLeft}></forbidden-canvas>
+      <!-- <forbidden-canvas id="forbiddenCanvas" left=${this.forbiddenCanvasLeft}></forbidden-canvas> -->
 
       <img
         src="/images/fake_cursor.png"

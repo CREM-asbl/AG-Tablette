@@ -32,12 +32,13 @@ class CanvasLayer extends LitElement {
   static styles = css`
     :host {
       position: absolute;
-      top: 0;
+      bottom: 0;
       width: 100%;
       height: 100%;
       background-color: rgba(0, 0, 0 , 0);
       box-sizing: border-box;
     }
+
     canvas {
       box-sizing: border-box;
       background-color: rgba(0, 0, 0 , 0);
@@ -82,7 +83,6 @@ class CanvasLayer extends LitElement {
   }
 
   draw(scaling = 'scale') {
-    console.log('draw', this.canvasName, this.shapes, this.points)
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
@@ -288,20 +288,14 @@ class CanvasLayer extends LitElement {
 
     if (this.canvasName == 'upper') {
       this.createListeners()
-      window.addEventListener('tool-updated', () => {
-        this.redraw();
-      });
+      window.addEventListener('tool-updated', () => this.redraw());
     } else if (this.canvasName == 'main') {
       window.addEventListener('refresh', () => {
         this.redraw();
       });
-      window.addEventListener('tool-updated', () => {
-        this.redraw();
-      });
+      window.addEventListener('tool-updated', () => this.redraw());
     } else if (this.canvasName == 'grid') {
-      window.addEventListener('settings-changed', () => {
-        this.redraw();
-      });
+      window.addEventListener('settings-changed', () => this.redraw());
       window.addEventListener('tool-changed', () => {
         if (app.tool?.name === 'grid') {
           if (app.environment.name == 'Cubes') {
@@ -364,7 +358,7 @@ class CanvasLayer extends LitElement {
       let mustExitFunction = false;
 
       if (app.workspace.lastKnownMouseClickTime && app.workspace.lastKnownMouseClickTime > event.timeStamp - 100 && app.workspace.lastKnownMouseClickCoordinates.dist(mousePos) < 5) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Double clic détecté, le deuxième clic n\'a pas été pris en compte.' } }));
+        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: "Double clic détecté, le deuxième clic n'a pas été pris en compte." } }));
         mustExitFunction = true;
       }
 
@@ -429,7 +423,8 @@ class CanvasLayer extends LitElement {
       window.dispatchEvent(new CustomEvent('canvasMouseUp'));
     });
 
-    let handleWheel = (event) => {
+    const handleWheel = (event) => {
+      event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = new Coordinates({
         x: event.clientX - app.settings.mainMenuWidth,
@@ -452,11 +447,7 @@ class CanvasLayer extends LitElement {
       window.dispatchEvent(new CustomEvent('canvasMouseWheel', { detail: detail }));
     }
 
-    this.canvas.addEventListener('wheel', (event) => {
-      event.preventDefault();
-      handleWheel(event);
-    });
-
+    this.canvas.addEventListener('wheel', handleWheel);
     this.canvas.addEventListener('touchstart', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
@@ -509,6 +500,7 @@ class CanvasLayer extends LitElement {
         );
       }
       if (this.isOutsideOfCanvas(mousePos)) {
+        event.stopPropagation();
         window.clearTimeout(this.pressTimeoutId);
         window.dispatchEvent(new CustomEvent('canvasMouseUp'));
         window.dispatchEvent(new CustomEvent('canvasTouchEnd', { detail: detail }));
@@ -518,7 +510,7 @@ class CanvasLayer extends LitElement {
         window.clearTimeout(this.pressTimeoutId);
       window.dispatchEvent(new CustomEvent('canvasMouseMove'));
       window.dispatchEvent(new CustomEvent('canvasTouchMove', { detail: detail }));
-    });
+    }, false);
 
     this.canvas.addEventListener('touchend', (event) => {
       event.preventDefault();
@@ -555,58 +547,20 @@ class CanvasLayer extends LitElement {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
-      window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
-      );
-      if (
-        app.listenerCounter.objectSelected &&
-        'click' == app.workspace.selectionConstraints.eventType
-      )
+      window.dispatchEvent(new CustomEvent('mouse-coordinates-changed',
+        { detail: { mousePos: mousePos } }));
+      if (app.listenerCounter.objectSelected && 'click' == app.workspace.selectionConstraints.eventType)
         SelectManager.selectObject(mousePos);
-      let detail = {
-        touches: [],
-      };
+
+      let detail = { touches: [] };
       for (let touch of event.changedTouches) {
-        detail.touches.push(
-          new Coordinates({
-            x: touch.clientX - app.settings.mainMenuWidth,
-            y: touch.clientY,
-          }),
+        detail.touches.push(new Coordinates({
+          x: touch.clientX - app.settings.mainMenuWidth,
+          y: touch.clientY
+        })
         );
       }
       window.clearTimeout(this.pressTimeoutId);
-      window.dispatchEvent(new CustomEvent('canvasMouseUp'));
-      window.dispatchEvent(new CustomEvent('canvasClick'));
-      window.dispatchEvent(new CustomEvent('canvastouchcancel', { detail: detail }));
-    });
-
-    this.canvas.addEventListener('touchcancel', (event) => {
-      event.preventDefault();
-      if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
-      window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
-      );
-      if (
-        app.listenerCounter.objectSelected &&
-        'click' == app.workspace.selectionConstraints.eventType
-      )
-        SelectManager.selectObject(mousePos);
-      let detail = {
-        touches: [],
-      };
-      for (let touch of event.changedTouches) {
-        detail.touches.push(
-          new Coordinates({
-            x: touch.clientX - app.settings.mainMenuWidth,
-            y: touch.clientY,
-          }),
-        );
-      }
       window.dispatchEvent(new CustomEvent('canvasMouseUp'));
       window.dispatchEvent(new CustomEvent('canvasClick'));
       window.dispatchEvent(new CustomEvent('canvastouchcancel', { detail: detail }));
@@ -668,13 +622,12 @@ class CanvasLayer extends LitElement {
   isOutsideOfCanvas(mousePos) {
     mousePos = mousePos.toCanvasCoordinates();
     if (mousePos.x < 0 || mousePos.y < 0) return true;
-    else if (mousePos.x > app.canvasWidth || mousePos.y > app.canvasHeight)
+    if (mousePos.x > app.canvasWidth || mousePos.y > app.canvasHeight)
       return true;
-    else if (
-      document.body.querySelector('forbidden-canvas') != null &&
-      mousePos.x > app.canvasWidth / 2
-    )
-      return true;
+    if (app.workspace.limited && mousePos.y > app.canvasHeight / 2) return true
+    // if (document.body.querySelector('forbidden-canvas') != null &&
+    //   mousePos.x > app.canvasHeight / 2)
+    //   return true;
     return false;
   }
 
