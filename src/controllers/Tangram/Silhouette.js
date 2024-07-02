@@ -10,7 +10,6 @@ export class Silhouette {
    */
   constructor(shapes = [], loadFromSave = false, level = 1) {
     this.level = level;
-    console.log(app.mainCanvasLayer.shapes)
     this.shapes = shapes.map((shape) => {
       let shapeCopy = new RegularShape({
         ...shape,
@@ -37,6 +36,8 @@ export class Silhouette {
     // let translation = expectedCoord.substract(silhouetteMax);
     // console.log(silhouetteMax, translation)
     // this.translate(translation);
+    console.log((app.canvasWidth / 2), this.largeur)
+    this.translate({ x: -this.bounds.minX + ((app.canvasWidth - this.largeur) / 8), y: (app.canvasHeight / 2) - this.center.y })
   }
 
   translate(translation) {
@@ -70,14 +71,26 @@ export class Silhouette {
   }
 
   get maxX() {
-    return this.bounds.maxX;
+    return this.bounds.maxX * app.workspace.zoomLevel;
+  }
+
+  get minY() {
+    return this.bounds.minY * app.workspace.zoomLevel;
+  }
+
+  get maxY() {
+    return this.bounds.maxY * app.workspace.zoomLevel;
   }
 
   get center() {
     return {
-      x: (this.bounds.maxX + this.bounds.minX) / 2,
-      y: (this.bounds.maxY + this.bounds.minY) / 2
+      x: (this.bounds.maxX + this.bounds.minX) * app.workspace.zoomLevel / 2,
+      y: (this.bounds.maxY + this.bounds.minY) * app.workspace.zoomLevel / 2
     };
   }
+
+  get largeur() { return Math.ceil(this.maxX - this.minX) }
+
+  get hauteur() { return Math.ceil(this.maxY - this.minY) }
 
 }

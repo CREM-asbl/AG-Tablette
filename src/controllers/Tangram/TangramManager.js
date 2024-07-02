@@ -30,6 +30,7 @@ export class TangramManager {
 
   static async initShapes(isForCreation = false) {
     const ws = kit;
+    const zoom = app.workspace.zoomLevel
     if (!app.tangram.defaultColor) app.tangram.defaultColor = '#006CAA';
     ws.objects.shapesData.forEach(s => {
       s.fillColor = isForCreation ? '#000' : app.tangram.defaultColor;
@@ -37,7 +38,8 @@ export class TangramManager {
       s.fillOpacity = isForCreation ? 1 : 0.5;
     });
     setWorkspaceFromObject(ws, false);
-    // app.mainCanvasLayer.shapes.forEach(shape => shape.scale(.5))
+    if (zoom < app.workspace.zoomLevel) app.workspace.zoomLevel = zoom;
+    console.log(app.workspace.zoomLevel)
     window.dispatchEvent(new CustomEvent('refresh'));
 
   }

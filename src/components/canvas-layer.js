@@ -33,8 +33,9 @@ class CanvasLayer extends LitElement {
     :host {
       position: absolute;
       bottom: 0;
-      width: 100%;
-      height: 100%;
+      left: 0;
+      right: 0;
+      top: 0;
       background-color: rgba(0, 0, 0 , 0);
       box-sizing: border-box;
     }
@@ -83,6 +84,7 @@ class CanvasLayer extends LitElement {
   }
 
   draw(scaling = 'scale') {
+    console.log('draw', this.canvasName)
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
@@ -225,7 +227,6 @@ class CanvasLayer extends LitElement {
   }
 
   loadFromData(data) {
-    console.log(this, data)
     this.removeAllObjects();
     if (data != undefined) {
       data.shapesData.forEach((shapeData) => {
@@ -624,10 +625,7 @@ class CanvasLayer extends LitElement {
     if (mousePos.x < 0 || mousePos.y < 0) return true;
     if (mousePos.x > app.canvasWidth || mousePos.y > app.canvasHeight)
       return true;
-    if (app.workspace.limited && mousePos.y > app.canvasHeight / 2) return true
-    // if (document.body.querySelector('forbidden-canvas') != null &&
-    //   mousePos.x > app.canvasHeight / 2)
-    //   return true;
+    if (app.workspace.limited && mousePos.x > (app.canvasWidth / 2) - 16) return true
     return false;
   }
 

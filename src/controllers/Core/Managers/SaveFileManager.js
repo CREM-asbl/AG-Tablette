@@ -140,11 +140,11 @@ export class SaveFileManager {
       ctx.drawImage(app.tangramCanvasLayer.canvas, 0, 0, width, height);
     ctx.drawImage(app.mainCanvasLayer.canvas, 0, 0, width, height);
 
-    let forbiddenCanvas = document.body.querySelector('forbidden-canvas');
-    if (forbiddenCanvas != null) {
-      ctx.fillStyle = '#ff000033';
-      ctx.fillRect(width / 2, 0, width / 2, height);
-    }
+    // let forbiddenCanvas = document.body.querySelector('forbidden-canvas');
+    // if (forbiddenCanvas != null) {
+    //   ctx.fillStyle = '#ff000033';
+    //   ctx.fillRect(width / 2, 0, width / 2, height);
+    // }
 
     if (SaveFileManager.hasNativeFS) {
       // edge support for toBlob ?

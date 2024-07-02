@@ -3,9 +3,6 @@ import { property } from 'lit/decorators.js';
 import { app, setState } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 import './canvas-layer';
-// import './svg-layer';
-import '@controllers/Tangram/forbidden-canvas';
-
 
 class CanvasContainer extends LitElement {
   @property({ type: Object }) cursorPos = Coordinates.nullCoordinates
@@ -44,15 +41,13 @@ class CanvasContainer extends LitElement {
       <canvas-layer id="backgroundCanvas"></canvas-layer>
 
       <!-- for grid points or tangram outline -->
-      ${app.environment.name !== 'Tangram' ? html`<canvas-layer id="gridCanvas"></canvas-layer>` : html`<canvas-layer id="tangramCanvas" style="top:50%"></canvas-layer>`}
+      ${app.environment.name !== 'Tangram' ? html`<canvas-layer id="gridCanvas"></canvas-layer>` : html`<canvas-layer id="tangramCanvas" style="left:50%"></canvas-layer>`}
 
       <!-- for the shapes -->
       <canvas-layer id="mainCanvas"></canvas-layer>
 
       <!-- for the current event (ex: moving shape) -->
       <canvas-layer id="upperCanvas"></canvas-layer>
-
-      <!-- <forbidden-canvas id="forbiddenCanvas" left=${this.forbiddenCanvasLeft}></forbidden-canvas> -->
 
       <img
         src="/images/fake_cursor.png"
@@ -101,19 +96,6 @@ class CanvasContainer extends LitElement {
     setState({ settings: { ...app.settings, selectionDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60, magnetismDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60 } });
     const layers = this.shadowRoot.querySelectorAll('canvas-layer')
     layers.forEach(layer => layer.requestUpdate())
-  }
-
-  isOutsideOfCanvas(mousePos) {
-    mousePos = mousePos.toCanvasCoordinates();
-    if (mousePos.x < 0 || mousePos.y < 0) return true;
-    else if (mousePos.x > app.canvasWidth || mousePos.y > app.canvasHeight)
-      return true;
-    else if (
-      document.body.querySelector('forbidden-canvas') != null &&
-      mousePos.x > app.canvasWidth / 2
-    )
-      return true;
-    return false;
   }
 
   // Ajout d'un fond d'écran fixé à droite

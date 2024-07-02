@@ -46,16 +46,17 @@ export class SolutionCheckerTool extends Tool {
     const level = this.data.tangramLevelSelected ? this.data.tangramLevelSelected : await TangramManager.selectLevel();
     if (this.data.fileExtension == 'ags') await TangramManager.initShapes();
     const backObjects = this.data.wsdata.backObjects
-    const canvasSize = this.data.wsdata.canvasSize
     let isSilhouetteShown = false;
     if (backObjects) {
-      this.scale = Math.min(app.canvasWidth / canvasSize.width, app.canvasHeight / canvasSize.height)
       if (level == 3 || level == 4) {
         app.workspace.limited = true;
-        app.tangramCanvasLayer.style = `top:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`
+        app.tangramCanvasLayer.style = `left:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`
       }
       const silhouette = new Silhouette(backObjects.shapesData, true, level)
-      app.workspace.setZoomLevel(app.workspace.zoomLevel * 0.5)
+      console.log(Math.ceil(silhouette.minX), Math.ceil(silhouette.maxX), Math.ceil(silhouette.minY), Math.ceil(silhouette.maxY))
+      console.log(silhouette.maxX - silhouette.minX, silhouette.maxY - silhouette.minY)
+      console.log(silhouette.largeur, silhouette.hauteur)
+      app.workspace.setZoomLevel(.5)
       app.tangramCanvasLayer.draw();
       isSilhouetteShown = true;
     }

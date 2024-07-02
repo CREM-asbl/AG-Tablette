@@ -154,6 +154,7 @@ export class Workspace {
    * @param {Boolean} [doRefresh=true] false: ne pas rafraichir les canvas
    */
   setZoomLevel(newZoomLevel, doRefresh = true) {
+    console.log('setZoomLevel', newZoomLevel)
     if (newZoomLevel < app.settings.minZoomLevel)
       newZoomLevel = app.settings.minZoomLevel;
     if (newZoomLevel > app.settings.maxZoomLevel)
@@ -195,10 +196,10 @@ export class Workspace {
     if (app.tangramCanvasLayer)
       svg_data += app.tangramCanvasLayer.toSVG();
     svg_data += app.mainCanvasLayer.toSVG();
-    if (document.body.querySelector('forbidden-canvas') != null) {
-      svg_data +=
-        `<rect x="${app.canvasWidth / 2}" width="${app.canvasWidth / 2}" height="${app.canvasHeight}" style="fill:rgb(255,0,0, 0.2);" />`;
-    }
+    // if (document.body.querySelector('forbidden-canvas') != null) {
+    //   svg_data +=
+    //     `<rect x="${app.canvasWidth / 2}" width="${app.canvasWidth / 2}" height="${app.canvasHeight}" style="fill:rgb(255,0,0, 0.2);" />`;
+    // }
     svg_data += '</svg>';
 
     return svg_data;
