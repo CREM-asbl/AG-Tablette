@@ -321,12 +321,8 @@ window.addEventListener('create-silhouette', (event) =>
 );
 
 // undo - redo
-window.addEventListener('undo', (event) =>
-  FullHistoryManager.addStep('undo', event),
-);
-window.addEventListener('redo', (event) => {
-  FullHistoryManager.addStep('redo', event);
-});
+window.addEventListener('undo', (event) => FullHistoryManager.addStep('undo', event));
+window.addEventListener('redo', (event) => FullHistoryManager.addStep('redo', event));
 
 window.addEventListener('close-popup', (event) =>
   FullHistoryManager.addStep('close-popup', event)

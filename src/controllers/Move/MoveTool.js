@@ -147,7 +147,6 @@ export class MoveTool extends Tool {
         let point = s.points[0];
         let reference = findObjectById(s.geometryObject.geometryParentObjectId1);
         point.coordinates = reference.projectionOnSegment(app.workspace.lastKnownMouseCoordinates);
-        // let ratio = reference.vertexes[0].coordinates.dist(point.coordinates) / reference.length;
         let ratioX = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
         let ratioY = (point.coordinates.x - reference.vertexes[0].coordinates.x) / (reference.vertexes[1].coordinates.x - reference.vertexes[0].coordinates.x);
         let ratio = ratioX;

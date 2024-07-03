@@ -79,7 +79,7 @@ export class Workspace {
     this.id = wsdata.id;
     const scale = Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height)
     app.mainCanvasLayer.loadFromData(wsdata.objects);
-    this.setZoomLevel(scale)
+    if (scale != 1) this.setZoomLevel(scale)
 
     if (!wsdata.shapeGroups) wsdata.shapeGroups = [];
     this.shapeGroups = wsdata.shapeGroups.map((groupData) => {

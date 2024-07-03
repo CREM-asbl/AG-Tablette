@@ -275,21 +275,18 @@ class AGMain extends LitElement {
   // }
 
   async firstUpdated() {
-    let backgroundColor = rgb2hex(window.getComputedStyle(this.shadowRoot.querySelector('#left-menu'), null).backgroundColor);
-    if (!backgroundColor)
-      backgroundColor = '#ffffff';
-    let rgb = RGBFromColor(backgroundColor);
-    if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114 > 140) {
+    const backgroundColor = rgb2hex(window.getComputedStyle(this.shadowRoot.querySelector('#left-menu'), null).backgroundColor);
+    if (!backgroundColor) backgroundColor = '#ffffff';
+    const rgb = RGBFromColor(backgroundColor);
+    if (rgb.red * 0.299 + rgb.green * 0.587 + rgb.blue * 0.114 > 140)
       this.textColor = "#000000";
-    } else {
+    else
       this.textColor = "#ffffff";
-    }
+
 
     app.left_menu = this.shadowRoot.querySelector('#left-menu')
     this.renderRoot.querySelector('#left-menu').addEventListener('touchstart', (event) => {
-      if (event.touches.length > 1) {
-        event.preventDefault();
-      }
+      if (event.touches.length > 1) event.preventDefault();
     });
     window.addEventListener('show-file-selector', () => {
       this.shadowRoot.querySelector('#fileSelector').click();

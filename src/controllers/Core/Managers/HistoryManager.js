@@ -36,7 +36,7 @@ export class HistoryManager {
     } else {
       data = app.history.steps[index];
     }
-    data = {...data};
+    data = { ...data };
 
     app.workspace.initFromObject(data);
     let settings, tangram;
@@ -182,10 +182,5 @@ export class HistoryManager {
 }
 
 window.addEventListener('actions-executed', () => HistoryManager.addStep());
-
-window.addEventListener('undo', () => {
-  HistoryManager.undo();
-});
-window.addEventListener('redo', () => {
-  HistoryManager.redo();
-});
+window.addEventListener('undo', () => HistoryManager.undo());
+window.addEventListener('redo', () => HistoryManager.redo());
