@@ -43,28 +43,34 @@ export class SolutionCheckerTool extends Tool {
   }
 
   async initData() {
-    const level = this.data.tangramLevelSelected ? this.data.tangramLevelSelected : await TangramManager.selectLevel();
+    const level = this.data.tangramLevelSelected || await TangramManager.selectLevel();
     if (this.data.fileExtension == 'ags') await TangramManager.initShapes();
+
     const backObjects = this.data.wsdata.backObjects
     let isSilhouetteShown = false;
+
     if (backObjects) {
+      isSilhouetteShown = true;
+
       if (level == 3 || level == 4) {
         app.workspace.limited = true;
         app.tangramCanvasLayer.style = `left:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`
       }
+
       const silhouette = new Silhouette(backObjects.shapesData, true, level)
-      console.log(Math.ceil(silhouette.minX), Math.ceil(silhouette.maxX), Math.ceil(silhouette.minY), Math.ceil(silhouette.maxY))
-      console.log(silhouette.maxX - silhouette.minX, silhouette.maxY - silhouette.minY)
-      console.log(silhouette.largeur, silhouette.hauteur)
-      app.workspace.setZoomLevel(.5)
+      const tangramCanvasLayerWidth = app.canvasWidth / 2
+      const diff = (tangramCanvasLayerWidth - silhouette.largeur) / 2
+
+      if (silhouette.largeur > tangramCanvasLayerWidth) {
+        silhouette.translate({ x: 16, y: 0 })
+        app.workspace.setZoomLevel(app.workspace.zoomLevel * (app.canvasWidth / (2 * (silhouette.largeur + 32))))
+      }
+      else silhouette.translate({ x: diff / app.workspace.zoomLevel, y: 0 })
       app.tangramCanvasLayer.draw();
-      isSilhouetteShown = true;
     }
 
-    let tool = app.tools.find(tool => tool.name == 'translate');
-    tool.isDisable = true;
-    tool = app.tools.find(tool => tool.name == 'color');
-    tool.isDisable = false;
+    app.tools.find(tool => tool.name == 'translate').isDisable = true;
+    app.tools.find(tool => tool.name == 'color').isDisable = false;
 
     setState({
       tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
@@ -361,8 +367,7 @@ export class SolutionCheckerTool extends Tool {
 }
 
 export const closeForbiddenCanvas = () => {
-  app.workspace.limited = true
-  // app.forbiddenCanvasLeft = null
+  app.workspace.limited = false
   app.tangramCanvasLayer.style.backgroundColor = 'transparent'
   app.tangramCanvasLayer.style.zIndex = 0
 }

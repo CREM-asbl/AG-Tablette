@@ -26,18 +26,7 @@ export class Silhouette {
       }
       return shapeCopy;
     });
-
-    // let silhouetteMax = this.silouhetteMax,
-    //   width = app.canvasWidth,
-    //   height = app.canvasHeight,
-    //   expectedCoord = new Coordinates({ x: width - 16, y: height / 2 });
-    // console.log(silhouetteMax, width, app.workspace.translateOffset, expectedCoord)
-    // silhouetteMax = silhouetteMax.multiply(app.workspace.zoomLevel);
-    // let translation = expectedCoord.substract(silhouetteMax);
-    // console.log(silhouetteMax, translation)
-    // this.translate(translation);
-    console.log((app.canvasWidth / 2), this.largeur)
-    this.translate({ x: -this.bounds.minX + ((app.canvasWidth - this.largeur) / 8), y: (app.canvasHeight / 2) - this.center.y })
+    this.translate({ x: -this.bounds.minX, y: (app.canvasHeight / 2) - this.center.y })
   }
 
   translate(translation) {
