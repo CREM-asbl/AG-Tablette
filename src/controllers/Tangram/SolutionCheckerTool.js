@@ -209,16 +209,10 @@ export class SolutionCheckerTool extends Tool {
         name: 'tangramChecker',
       });
       shape.cleanSameDirectionSegment();
-      // let translateOffset = new Coordinates({
-      //   x: -app.canvasWidth / 2,
-      //   y: -app.canvasHeight / 4,
-      // }).multiply(1 / app.workspace.zoomLevel);
-      // shape.translate(translateOffset);
       shapes.push(shape);
     });
 
-    let areShapeScaled = app.tangramCanvasLayer.shapes[0].size == 0.6;
-    if (areShapeScaled) {
+    if (app.tangram.level > 4) {
       let silhouetteBounds = Bounds.getOuterBounds(
         ...shapes.map((s) => s.bounds),
       );
@@ -234,8 +228,6 @@ export class SolutionCheckerTool extends Tool {
       userGroup.shapesIds = shapes.map(s => s.id);
       GroupManager.addGroup(userGroup);
     }
-
-    // shapes.forEach(shape => shape.scale(.5))
     return shapes
   }
 
