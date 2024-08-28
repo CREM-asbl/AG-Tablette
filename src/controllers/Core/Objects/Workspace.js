@@ -154,7 +154,6 @@ export class Workspace {
    * @param {Boolean} [doRefresh=true] false: ne pas rafraichir les canvas
    */
   setZoomLevel(newZoomLevel, doRefresh = true) {
-    console.log('setZoomLevel', newZoomLevel)
     if (newZoomLevel < app.settings.minZoomLevel)
       newZoomLevel = app.settings.minZoomLevel;
     if (newZoomLevel > app.settings.maxZoomLevel)
