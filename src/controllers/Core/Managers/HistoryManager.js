@@ -56,9 +56,7 @@ export class HistoryManager {
         if (data.tangram) {
           tangram = {
             ...app.defaultState.tangram,
-            isSilhouetteShown: data.tangram.isSilhouetteShown,
-            buttonText: data.tangram.buttonText,
-            buttonValue: data.tangram.buttonValue,
+            isSilhouetteShown: data.tangram.isSilhouetteShown
           }
         }
       }
@@ -88,9 +86,7 @@ export class HistoryManager {
       if (data.tangram) {
         tangram = {
           ...app.defaultState.tangram,
-          isSilhouetteShown: data.tangram.isSilhouetteShown,
-          buttonText: data.tangram.buttonText,
-          buttonValue: data.tangram.buttonValue,
+          isSilhouetteShown: data.tangram.isSilhouetteShown
         }
       }
     }
@@ -126,9 +122,7 @@ export class HistoryManager {
     };
     if (app.environment.name == 'Tangram') {
       data.tangram = {
-        isSilhouetteShown: app.tangram?.isSilhouetteShown,
-        buttonText: app.tangram?.buttonText,
-        buttonValue: app.tangram?.buttonValue,
+        isSilhouetteShown: app.tangram?.isSilhouetteShown
       };
     }
 

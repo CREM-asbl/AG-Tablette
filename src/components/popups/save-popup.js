@@ -28,7 +28,7 @@ class SavePopup extends LitElement {
     if (app.environment.name == 'Tangram') {
       this.saveMethodOptions = [['silhouette', 'silhouette'], ...this.saveMethodOptions];
     }
-    if (app.environment.name != 'Tangram' || app.tangram.buttonValue) {
+    if (app.environment.name != 'Tangram') {
       this.saveMethodOptions = [['state', 'état'], ...this.saveMethodOptions];
     }
 
