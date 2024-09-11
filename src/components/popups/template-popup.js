@@ -14,11 +14,18 @@ export class TemplatePopup extends LitElement {
         display: flex;
         align-items: center;
         padding: 8px 0;
+        width : 100%;
       }
 
       select {
         height: 32px;
-        width: 150px;
+        width: auto;
+        border-radius: 4px;
+      }
+
+      input {
+        height: 24px;
+        width: auto;
         border-radius: 4px;
       }
 

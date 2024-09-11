@@ -4,39 +4,31 @@ import { FullHistoryManager } from './FullHistoryManager';
 
 export class SaveFileManager {
   static async saveFile() {
-    if (SaveFileManager.hasNativeFS) {
-      try {
-        await SaveFileManager.newSaveFile();
-      } catch (error) {
-        console.error(error);
-        // user closed save prompt
-      }
-    } else {
-      SaveFileManager.oldSaveFile();
+    if (app.environment.name == 'Tangram' && app.workspace.data.backObjects.shapesData.length == 0) {
+      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Certaines figures se superposent.' } }));
+      return;
     }
-  }
-
-  static async newSaveFile() {
     const opts = {
+      suggestedName: 'sans titre',
       types: [
         {
-          description: 'Image matricielle (png)',
+          description: 'Image matricielle (*.png)',
           accept: {
             'img/png': ['.png'],
           },
         },
         {
-          description: 'Image vectorielle (svg)',
+          description: 'Image vectorielle (*.svg)',
           accept: {
             'image/svg+xml': ['.svg'],
           },
         },
       ],
     };
-    if (app.environment.name == 'Tangram') {
+    if (app.environment.name == 'Tangram' && !app.tangram.isSilhouetteShown) {
       opts.types = [
         {
-          description: 'Silhouette',
+          description: `Silhouette (*${app.environment.extensions[1]})`,
           accept: {
             'application/agmobile': [app.environment.extensions[1]],
           },
@@ -44,10 +36,10 @@ export class SaveFileManager {
         ...opts.types
       ];
     }
-    if (app.environment.name != 'Tangram') {
+    if (app.environment.name != 'Tangram' || app.tangram.isSilhouetteShown) {
       opts.types = [
         {
-          description: 'Etat',
+          description: `Etat (*${app.environment.extensions[0]})`,
           accept: {
             'application/agmobile': [app.environment.extensions[0]],
           },
@@ -55,72 +47,49 @@ export class SaveFileManager {
         ...opts.types
       ];
     }
-    const handle = await window.showSaveFilePicker(opts);
-    const extension = getExtension(handle.name);
-    SaveFileManager.extension = extension;
-    switch (extension) {
-      case 'png':
-        SaveFileManager.saveToPng(handle);
-        window.dispatchEvent(
-          new CustomEvent('show-notif', {
-            detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-          }),
-        );
-        break;
-      case 'svg':
-        SaveFileManager.saveToSvg(handle);
-        window.dispatchEvent(
-          new CustomEvent('show-notif', {
-            detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-          }),
-        );
-        break;
-      default:
-        window.addEventListener(
-          'file-selected',
-          (event) => {
-            let saveResult = SaveFileManager.saveState(handle, { ...event.detail });
-            if (saveResult != -1)
-              window.dispatchEvent(
-                new CustomEvent('show-notif', {
-                  detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
-                }),
-              );
-          },
-          { once: true },
-        );
-        import('@components/popups/save-popup');
-        createElem('save-popup');
-    }
-  }
-
-  static oldSaveFile() {
-    window.addEventListener(
-      'file-selected',
-      (event) => {
-        if (event.detail.name === undefined) return;
-        const handle = {
-          ...event.detail,
-        };
-        let detail = { ...handle };
-        const extension = getExtension(handle.name);
-        // const saveMethod = handle.saveMethod;
-        SaveFileManager.extension = extension;
-        switch (extension) {
-          case 'png':
-            SaveFileManager.saveToPng(handle);
-            break;
-          case 'svg':
-            SaveFileManager.saveToSvg(handle);
-            break;
-          default:
-            SaveFileManager.saveState(handle, detail);
+    await import('@components/popups/save-popup');
+    const popup = createElem('save-popup');
+    popup.opts = opts
+    popup.addEventListener('selected', async event => {
+      let handle
+      if (SaveFileManager.hasNativeFS) {
+        try {
+          opts.suggestedName = event.detail.name;
+          opts.types = event.detail.types
+          handle = await window.showSaveFilePicker(opts);
+        } catch (error) {
+          console.error(error);
+          // user closed save prompt
         }
-      },
-      { once: true },
-    );
-    import('@components/popups/save-popup');
-    createElem('save-popup');
+      } else {
+        handle = { ...event.detail };
+      }
+      if (!handle) return
+      const extension = getExtension(handle.name);
+      SaveFileManager.extension = extension;
+      switch (extension) {
+        case 'png':
+          SaveFileManager.saveToPng(handle);
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+            }),
+          );
+          break;
+        case 'svg':
+          SaveFileManager.saveToSvg(handle);
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: { message: 'Sauvegardé vers ' + handle.name + '.' },
+            }),
+          );
+          break;
+        default:
+          let saveResult = SaveFileManager.saveState(handle, { ...event.detail });
+          if (saveResult != -1)
+            window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Sauvegardé vers ' + handle.name + '.' } }))
+      }
+    })
   }
 
   static saveToPng(handle) {
@@ -165,8 +134,7 @@ export class SaveFileManager {
       SaveFileManager.newWriteFile(handle, svg_data);
     } else {
       // should fix unicode encoding
-      svg_data = encodeURIComponent(svg_data).replace(
-        /%([0-9A-F]{2})/g,
+      svg_data = encodeURIComponent(svg_data).replace(/%([0-9A-F]{2})/g,
         function toSolidBytes(match, p1) {
           return String.fromCharCode('0x' + p1);
         },
@@ -180,15 +148,10 @@ export class SaveFileManager {
     FullHistoryManager.cleanHisto();
     let wsdata = app.workspace.data,
       settings = { ...app.settings },
-      history = { ...app.history },
-      fullHistory = { ...app.fullHistory },
+      history = detail.saveHistory ? { ...app.history } : undefined,
+      fullHistory = detail.saveHistory ? { ...app.fullHistory } : undefined,
       toolsVisible = app.tools.map(tool => { return { name: tool.name, isVisible: tool.isVisible } }),
       familiesVisible = app.environment.families.map(family => { return { name: family.name, isVisible: family.isVisible } });
-
-    if (!detail.saveHistory)
-      history = undefined;
-    if (!detail.saveHistory)
-      fullHistory = undefined;
 
     if (detail.permanentHide) {
       wsdata.objects.shapesData.forEach(sData => {
@@ -197,9 +160,8 @@ export class SaveFileManager {
       });
     }
 
-    if (!detail.saveSettings) {
-      settings = undefined;
-    } else {
+    if (!detail.saveSettings) settings = undefined;
+    else {
       delete settings.numberOfDivisionParts;
       delete settings.numberOfRegularPoints;
       delete settings.shapesDrawColor;
@@ -208,18 +170,8 @@ export class SaveFileManager {
       delete settings.scalarDenominator;
     }
 
-    if (app.environment.name == 'Tangram' && wsdata.backObjects.shapesData.length == 0) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: 'Certaines figures se superposent.' },
-        }),
-      );
-      return -1;
-    }
+    if (app.environment.name == 'Tangram') toolsVisible.find(tool => tool.name == 'translate').isVisible = false;
 
-    if (app.environment.name == 'Tangram') {
-      toolsVisible.find(tool => tool.name == 'translate').isVisible = false;
-    }
 
     let saveObject = {
       appVersion: app.version,
@@ -231,8 +183,9 @@ export class SaveFileManager {
       history,
       toolsVisible,
       familiesVisible,
-    };
-    if (app.environment.name == 'Tangram' && detail.saveMethod == 'state') {
+    }
+
+    if (app.environment.name == 'Tangram' && app.tangram.level) {
       saveObject.tangramLevelSelected = app.tangram.level;
     }
     let json_data = JSON.stringify(saveObject);

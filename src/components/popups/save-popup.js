@@ -1,51 +1,42 @@
 import '@components/color-button';
 import { app } from '@controllers/Core/App';
-import { SaveFileManager } from '@controllers/Core/Managers/SaveFileManager';
 import '@controllers/version-item';
 import { css, html, LitElement } from 'lit';
 import { TemplatePopup } from './template-popup';
 
 class SavePopup extends LitElement {
   static properties = {
+    opts: { type: Object },
     filename: { type: String },
     saveSettings: { type: Boolean },
-    saveHistory: { type: Boolean },
-    imageFormat: { type: String },
-    saveMethod: { type: String },
+    saveHistory: { type: Boolean }
   }
 
   constructor() {
     super();
     this.filename = 'sans titre';
-    this.imageFormat =
-      SaveFileManager.extension == 'png' || SaveFileManager.extension == 'svg'
-        ? SaveFileManager.extension
-        : 'png';
-
-    this.saveMethodOptions = [
-      ['image', 'image'],
-    ];
-    if (app.environment.name == 'Tangram') {
-      this.saveMethodOptions = [['silhouette', 'silhouette'], ...this.saveMethodOptions];
-    }
-    if (app.environment.name != 'Tangram') {
-      this.saveMethodOptions = [['state', 'état'], ...this.saveMethodOptions];
-    }
-
-    this.saveMethod = this.saveMethodOptions[0][0];
-
     this.saveSettings = true;
-    this.saveHistory = this.saveMethod != 'silhouette';
+    this.saveHistory = true;
     this.permanentHide = false;
 
     window.addEventListener('close-popup', () => this.close());
   }
 
-  static styles = [
-    TemplatePopup.template_popup_styles(),
-    css`
-        .invisible {
-          display: none;
+  static styles = [TemplatePopup.template_popup_styles(),
+  css`
+        #body {
+          display: grid;
+          grid-template-columns: auto 1fr;
+          gap: 16px;
+          justify-content: center;
+        }
+
+        label {
+          text-align: right;
+        }
+
+        fieldset {
+          grid-column: 1 / 3;
         }
       `
   ]
@@ -54,121 +45,75 @@ class SavePopup extends LitElement {
     return html`
       <template-popup>
         <h2 slot="title">Enregistrer</h2>
-        <div slot="body" id="body">
-          <div class="${SaveFileManager.hasNativeFS ? 'invisible' : ''}"
-          >
-            <label for="save_popup_saveMethod" style="display:inline">
-              Méthode d'enregistrement
-            </label>
-            <select
-              name="save_popup_saveMethod"
-              id="save_popup_saveMethod"
-              @change="${this._actionHandle}"
-            >
-              ${this.saveMethodOptions.map(option => html`
-                <option value="${option[0]}" ?selected="${this.saveMethod == '${option[0]}'}">
-                  ${option[1]}
-                </option>
-              `)}
-            </select>
-            <br /><br />
-          </div>
+        <form slot="body" id="body">
 
-          <div class="${this.saveMethod != 'state' ? 'invisible' : ''}">
-            <div class="field">
-              <input
-                type="checkbox"
-                name="save_popup_settings"
-                id="save_popup_settings"
-                ?checked="${this.saveSettings}"
-                @change="${this._actionHandle}"
-              />
-              <label for="save_popup_settings"
-                >Enregistrer les paramètres</label
-              >
-            </div>
-
-            <div class="field">
-              <input
-                type="checkbox"
-                name="save_popup_history"
-                id="save_popup_history"
-                ?checked="${this.saveHistory}"
-                @change="${this._actionHandle}"
-              />
-              <label for="save_popup_history">Enregistrer l'historique</label>
-            </div>
-            ${app.environment.name === 'Geometrie' ? html`
-            <div class="field">
-              <input
-                type="checkbox"
-                name="save_popup_permanent_hide"
-                id="save_popup_permanent_hide"
-                ?checked="${this.permanentHide}"
-                @change="${this._actionHandle}"
-              />
-              <label for="save_popup_permanent_hide">Cacher de façon permanente</label>
-            </div>` : ''}
-          </div>
-
-          <div class="${this.saveMethod != 'silhouette' ? 'invisible' : ''}">
-            <div class="field">
-              <input
-                type="checkbox"
-                name="save_popup_settings"
-                id="save_popup_settings"
-                ?checked="${this.saveSettings}"
-                @change="${this._actionHandle}"
-              />
-              <label for="save_popup_settings"
-                >Enregistrer les paramètres</label
-              >
-            </div>
-          </div>
-
-          <div class="${this.saveMethod != 'image' ? 'invisible' : ''}">
-            <label for="save_popup_image_format" style="display:inline">Format</label>
-            <select name="save_popup_image_format"
-                    id="save_popup_image_format"
-                    @change="${this._actionHandle}">
-              <option value="png" ?selected="${this.imageFormat == 'png'}">
-                png
-              </option>
-              <option value="svg" ?selected="${this.imageFormat == 'svg'}">
-                svg
-              </option>
-            </select>
-          </div>
-
-          <div class="${SaveFileManager.hasNativeFS ? 'invisible' : ''}">
-            <br />
-            <label for="save_popup_filename" style="display:inline">Nom du fichier</label>
-            <input
-              type="text"
+          <label for="save_popup_filename">Nom du fichier</label>
+          <input type="text"
               name="save_popup_filename"
               id="save_popup_filename"
-              onFocus="this.select()"
-              value="${this.filename}"
+              value="${this.opts.suggestedName || this.filename}"
               @change="${this._actionHandle}"
-            />
-          </div>
-        </div>
+             onfocus="this.select()" />
 
-        <div slot="footer">
+          <label for="save_popup_format">Format</label>
+          <select name="save_popup_format" id="save_popup_format">
+            ${this.opts.types.map(type => html`<option value="${type.description}">${type.description}</option>`)}
+          </select>
+
+          <fieldset>
+            <legend>Options</legend>
+
+            <div class="field">
+              <input type="checkbox"
+                    name="save_popup_settings"
+                    id="save_popup_settings"
+                    ?checked="${this.saveSettings}"
+                    @change="${this._actionHandle}" />
+              <label for="save_popup_settings">Enregistrer les paramètres</label>
+            </div>
+
+            ${this.renderHistoryField()}
+
+            ${this.renderGeometryField()}
+          </fieldset>
+        </form>
+
+        <footer slot="footer">
           <color-button name="save_popup_submit" @click="${this._actionHandle}">
             OK
           </color-button>
-        </div>
+        </footer>
       </template-popup>
     `;
   }
 
+  renderHistoryField() {
+    if (app.environment.name != "Tangram" || app.tangram.isSilhouetteShown) return html`
+    <div class="field">
+      <input type="checkbox"
+             name="save_popup_history"
+             id="save_popup_history"
+             ?checked="${this.saveHistory}"
+             @change="${this._actionHandle}" />
+      <label for="save_popup_history">Enregistrer l'historique</label>
+    </div>
+    `
+  }
+
+  renderGeometryField() {
+    if (app.environment.name === 'Geometrie') return html`
+      <div class="field">
+          <input type="checkbox"
+                     name="save_popup_permanent_hide"
+                     id="save_popup_permanent_hide"
+                     ?checked="${this.permanentHide}"
+                     @change="${this._actionHandle}" />
+          <label for="save_popup_permanent_hide">Cacher de façon permanente</label>
+      </div>
+    `
+  }
+
   close() {
-    window.dispatchEvent(
-      new CustomEvent('file-selected', {
-        detail: {},
-      }),
-    );
     this.remove();
   }
 
@@ -192,48 +137,23 @@ class SavePopup extends LitElement {
         break;
 
       case 'save_popup_submit':
-        let extension = '';
-        switch (this.saveMethod) {
-          case 'state':
-            extension = app.environment.extensions[0];
-            break;
-          case 'silhouette':
-            extension = app.environment.extensions[1];
-            break;
-          default:
-            extension = '.' + this.imageFormat;
-            break;
-        }
+        const ele = this.shadowRoot?.querySelector('#save_popup_format').value
+        const extension = ele.slice(ele.indexOf('.'), -1);
         let name = this.filename + extension,
           saveSettings = this.saveSettings,
           saveHistory = this.saveHistory,
-          saveMethod = this.saveMethod,
           permanentHide = this.permanentHide;
-        if (saveMethod == 'silhouette')
-          saveHistory = false;
+        if (!app?.tangram.isSilhouetteShown) saveHistory = false;
+        this.dispatchEvent(new CustomEvent('selected', {
+          detail: {
+            name,
+            types: this.opts.types.filter(type => type.description === ele),
+            saveSettings,
+            saveHistory,
+            permanentHide
+          },
+        }))
         this.remove();
-        setTimeout(() =>
-          window.dispatchEvent(
-            new CustomEvent('file-selected', {
-              detail: {
-                name,
-                saveSettings,
-                saveHistory,
-                saveMethod,
-                permanentHide,
-              },
-            })
-          ),
-          300
-        );
-        break;
-
-      case 'save_popup_image_format':
-        this.imageFormat = event.target.value;
-        break;
-
-      case 'save_popup_saveMethod':
-        this.saveMethod = event.target.value;
         break;
 
       default:

@@ -16,14 +16,11 @@ class LevelPopup extends LitElement {
     TemplatePopup.template_popup_styles(),
     css`
         .choice {
+          display: flex;
+          align-items: center;
           width: 100%;
-          text-align: left;
-          margin-bottom: 3px;
         }
         input[type='radio'] {
-          display: inline;
-        }
-        label {
           display: inline;
         }
       `,
