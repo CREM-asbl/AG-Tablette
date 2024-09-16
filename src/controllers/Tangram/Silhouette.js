@@ -72,6 +72,7 @@ export class Silhouette {
   }
 
   get center() {
+    console.log(app.workspace.zoomLevel)
     return {
       x: (this.bounds.maxX + this.bounds.minX) * app.workspace.zoomLevel / 2,
       y: (this.bounds.maxY + this.bounds.minY) * app.workspace.zoomLevel / 2

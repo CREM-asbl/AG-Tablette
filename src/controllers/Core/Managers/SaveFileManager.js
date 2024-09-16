@@ -105,15 +105,14 @@ export class SaveFileManager {
 
     if (app.gridCanvasLayer)
       ctx.drawImage(app.gridCanvasLayer.canvas, 0, 0, width, height);
-    if (app.tangramCanvasLayer)
-      ctx.drawImage(app.tangramCanvasLayer.canvas, 0, 0, width, height);
+    if (app.tangramCanvasLayer) {
+      if (app.tangram.level > 2 && app.tangram.level < 5) {
+        ctx.fillStyle = "#ff000020";
+        ctx.fillRect(width / 2, 0, width, height);
+      }
+      ctx.drawImage(app.tangramCanvasLayer.canvas, width / 2, 0, width / 2, height);
+    }
     ctx.drawImage(app.mainCanvasLayer.canvas, 0, 0, width, height);
-
-    // let forbiddenCanvas = document.body.querySelector('forbidden-canvas');
-    // if (forbiddenCanvas != null) {
-    //   ctx.fillStyle = '#ff000033';
-    //   ctx.fillRect(width / 2, 0, width / 2, height);
-    // }
 
     if (SaveFileManager.hasNativeFS) {
       // edge support for toBlob ?

@@ -44,7 +44,7 @@ class SavePopup extends LitElement {
     return html`
       <template-popup>
         <h2 slot="title">Enregistrer</h2>
-        <form slot="body" id="body">
+        <form slot="body" id="body" @submit="${this._actionHandle}">
 
           <label for="save_popup_filename">Nom du fichier</label>
           <input type="text"
@@ -78,9 +78,7 @@ class SavePopup extends LitElement {
         </form>
 
         <footer slot="footer">
-          <color-button name="save_popup_submit" @click="${this._actionHandle}">
-            OK
-          </color-button>
+          <color-button @click="${this._actionHandle}"> OK </color-button>
         </footer>
       </template-popup>
     `;
@@ -118,6 +116,7 @@ class SavePopup extends LitElement {
   }
 
   _actionHandle(event) {
+    event.preventDefault();
     switch (event.target.name) {
       case 'save_popup_settings':
         this.saveSettings = !this.saveSettings;
@@ -136,7 +135,7 @@ class SavePopup extends LitElement {
         if (!this.filename) this.filename = 'sans titre';
         break;
 
-      case 'save_popup_submit':
+      default:
         const ele = this.shadowRoot?.querySelector('#save_popup_format').value
         const extension = ele.slice(ele.indexOf('.'), -1);
         let name = this.filename + extension,
@@ -154,16 +153,6 @@ class SavePopup extends LitElement {
         }))
         this.remove();
         break;
-
-      default:
-        console.error(
-          'SavePopup: paramètre inconnu: ' +
-          event.target.name +
-          ' ' +
-          event.target.value +
-          ' ' +
-          event.target.checked,
-        );
     }
   }
 }
