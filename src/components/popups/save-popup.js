@@ -18,7 +18,6 @@ class SavePopup extends LitElement {
     this.saveSettings = true;
     this.saveHistory = true;
     this.permanentHide = false;
-
     window.addEventListener('close-popup', () => this.close());
   }
 
@@ -53,7 +52,7 @@ class SavePopup extends LitElement {
               id="save_popup_filename"
               value="${this.opts.suggestedName || this.filename}"
               @change="${this._actionHandle}"
-             onfocus="this.select()" />
+              onfocus="this.select()" />
 
           <label for="save_popup_format">Format</label>
           <select name="save_popup_format" id="save_popup_format">
@@ -98,6 +97,7 @@ class SavePopup extends LitElement {
       <label for="save_popup_history">Enregistrer l'historique</label>
     </div>
     `
+    else this.saveHistory = false;
   }
 
   renderGeometryField() {
@@ -143,7 +143,6 @@ class SavePopup extends LitElement {
           saveSettings = this.saveSettings,
           saveHistory = this.saveHistory,
           permanentHide = this.permanentHide;
-        if (!app?.tangram.isSilhouetteShown) saveHistory = false;
         this.dispatchEvent(new CustomEvent('selected', {
           detail: {
             name,

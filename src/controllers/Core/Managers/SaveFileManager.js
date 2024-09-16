@@ -188,6 +188,7 @@ export class SaveFileManager {
     if (app.environment.name == 'Tangram' && app.tangram.level) {
       saveObject.tangramLevelSelected = app.tangram.level;
     }
+
     let json_data = JSON.stringify(saveObject);
 
     const file = new Blob([json_data], { type: 'application/agmobile' });
