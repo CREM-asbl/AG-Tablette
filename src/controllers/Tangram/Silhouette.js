@@ -21,17 +21,18 @@ export class Silhouette {
         isPointed: false,
         size: level < 5 ? 1 : 0.6,
       });
-      if (level > 4) {
-        shapeCopy.scale(0.6);
-      }
       return shapeCopy;
     });
-    this.translate({ x: -this.bounds.minX, y: (app.canvasHeight / 2) - this.center.y })
   }
 
   translate(translation) {
     this.shapes.forEach((s) => s.translate(translation));
   }
+
+  scale(scale) {
+    this.shapes.forEach((s) => s.scale(scale));
+  }
+
 
   saveToObject() {
     let save = {
@@ -72,7 +73,6 @@ export class Silhouette {
   }
 
   get center() {
-    console.log(app.workspace.zoomLevel)
     return {
       x: (this.bounds.maxX + this.bounds.minX) * app.workspace.zoomLevel / 2,
       y: (this.bounds.maxY + this.bounds.minY) * app.workspace.zoomLevel / 2

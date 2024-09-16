@@ -61,11 +61,15 @@ export class SolutionCheckerTool extends Tool {
       const tangramCanvasLayerWidth = app.canvasWidth / 2
       const diff = (tangramCanvasLayerWidth - silhouette.largeur) / 2
 
-      if (silhouette.largeur > tangramCanvasLayerWidth) {
-        silhouette.translate({ x: 16, y: 0 })
-        app.workspace.setZoomLevel(app.workspace.zoomLevel * (app.canvasWidth / (2 * (silhouette.largeur + 32))))
+      if (this.data.fileExtension != 'agt') {
+        if (level > 4) { silhouette.scale(0.6) }
+        silhouette.translate({ x: -silhouette.bounds.minX, y: (app.canvasHeight / 2) - silhouette.center.y })
+        if (silhouette.largeur > tangramCanvasLayerWidth) {
+          silhouette.translate({ x: 16, y: 0 })
+          app.workspace.setZoomLevel(app.workspace.zoomLevel * (app.canvasWidth / (2 * (silhouette.largeur + 32))))
+        }
+        else silhouette.translate({ x: diff / app.workspace.zoomLevel, y: 0 })
       }
-      else silhouette.translate({ x: diff / app.workspace.zoomLevel, y: 0 })
       app.tangramCanvasLayer.draw();
     }
 
