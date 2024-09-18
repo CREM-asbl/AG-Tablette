@@ -1,7 +1,7 @@
 {
   "name": "Apprenti Géomètre mobile",
   "short_name": "AG mobile",
-  "version": "1.4.4 beta 3",
+  "version": "1.4.4",
   "id": "/",
   "start_url": "/",
   "display": "fullscreen",
@@ -13,10 +13,15 @@
   "orientation": "landscape",
   "description": "Apprenti Géomètre mobile, la version d'Apprenti Géomètre qui peut également s'utiliser sur tablette",
   "lang": "fr-BE",
+  "dir": "ltr",
+  "scope": "/",
+  "scope_extensions": [],
+  "prefer_related_applications": false,
+  "handle_links": "auto",
   "icons": [
     {
-      "src": "images/manifest/icon-512.png",
-      "sizes": "512x512",
+      "src": "images/manifest/maskable_icon.png",
+      "sizes": "640x640",
       "type": "image/png",
       "purpose": "any"
     },
@@ -54,14 +59,12 @@
       "url": "/?interface=Grandeurs",
       "icons": [
         {
-          "src": "images/Environnements/logo_grandeurs.webp",
-          "type": "image/webp",
-          "sizes": "96x96"
+          "src": "images/Environnements/logo_grandeurs_96x96.svg",
+          "sizes": "any"
         },
         {
           "src": "images/Environnements/logo_grandeurs_96x96.svg",
-          "type": "image/svg",
-          "sizes": "any"
+          "sizes": "96x96"
         }
       ]
     },
@@ -71,13 +74,11 @@
       "url": "/?interface=Tangram",
       "icons": [
         {
-          "src": "images/Environnements/logo_tangram.webp",
-          "type": "image/webp",
+          "src": "images/Environnements/logo_tangram_96x96.svg",
           "sizes": "96x96"
         },
         {
           "src": "images/Environnements/logo_tangram_96x96.svg",
-          "type": "image/svg",
           "sizes": "any"
         }
       ]
@@ -88,14 +89,12 @@
       "url": "/?interface=Cubes",
       "icons": [
         {
-          "src": "images/Environnements/logo_cubes.webp",
-          "type": "image/webp",
-          "sizes": "96x96"
+          "src": "images/Environnements/logo_cubes_96x96.svg",
+          "sizes": "any"
         },
         {
           "src": "images/Environnements/logo_cubes_96x96.svg",
-          "type": "image/svg",
-          "sizes": "any"
+          "sizes": "96x96"
         }
       ]
     },
@@ -105,14 +104,12 @@
       "url": "/?interface=Geometrie",
       "icons": [
         {
-          "src": "images/Environnements/logo_geometrie.webp",
-          "type": "image/webp",
-          "sizes": "96x96"
+          "src": "images/Environnements/logo_geometrie_96x96.svg",
+          "sizes": "any"
         },
         {
           "src": "images/Environnements/logo_geometrie_96x96.svg",
-          "type": "image/svg",
-          "sizes": "any"
+          "sizes": "96x96"
         }
       ]
     }
@@ -147,5 +144,17 @@
     "education",
     "kids",
     "utilities"
-  ]
+  ],
+  "edge_side_panel": {
+    "preferred_width": 600
+  },
+  "web_apps": [
+    {
+      "web_app_identity": "https://ag.crem.be"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "auto"
+  },
+  "widgets": []
 }
