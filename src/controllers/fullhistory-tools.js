@@ -209,7 +209,7 @@ class FullHistoryTools extends LitElement {
   eventHandler(e) {
     if (app.fullHistory.isRunning && e.type == 'fullHistory-changed') {
       this.index = app.fullHistory.actionIndex;
-      this.shadowRoot.getElementById('b' + this.index)?.parentNode.parentNode.scrollIntoView();
+      this.shadowRoot.getElementById('b' + this.index)?.parentNode.scrollIntoView();
       this.setPlayPause(app.fullHistory.isPlaying ? 'pause' : 'play');
     } else this.close();
   };
@@ -256,8 +256,8 @@ class FullHistoryTools extends LitElement {
   }
 
   close() {
-    this.remove();
     window.removeEventListener('fullHistory-changed', this.eventHandler);
+    this.remove();
   };
 }
 customElements.define('fullhistory-tools', FullHistoryTools);

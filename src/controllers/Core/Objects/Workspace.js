@@ -69,8 +69,8 @@ export class Workspace {
   }
 
   initFromObject(wsdata, center = true) {
-    this.zoomLevel = wsdata.zoomLevel || 1;
-
+    this.zoomLevel = wsdata?.zoomLevel || 1;
+    console.log(this.zoomLevel)
     if (!wsdata) {
       this.resetWorkspace()
       return;

@@ -1,4 +1,5 @@
 import { app, setState } from '../App';
+import { FullHistoryManager } from './FullHistoryManager';
 
 /**
  * Représente l'historique d'un espace de travail.
@@ -63,9 +64,7 @@ export class HistoryManager {
     }
 
     setState({ tool: null, history: { ...app.history, index }, settings, tangram });
-    window.dispatchEvent(
-      new CustomEvent('add-fullstep', { detail: { name: 'Annuler' } }),
-    );
+    FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Annuler' } })
   }
 
   /**
@@ -91,9 +90,7 @@ export class HistoryManager {
       }
     }
     setState({ tool: null, history: { ...app.history, index }, settings, tangram });
-    window.dispatchEvent(
-      new CustomEvent('add-fullstep', { detail: { name: 'Refaire' } }),
-    );
+    FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Refaire' } })
   }
 
   /**

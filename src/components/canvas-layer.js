@@ -84,7 +84,7 @@ class CanvasLayer extends LitElement {
   }
 
   draw(scaling = 'scale') {
-    console.log('draw', this.canvasName)
+    // console.log('draw', this.canvasName)
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {

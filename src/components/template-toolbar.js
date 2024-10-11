@@ -22,6 +22,7 @@ export class TemplateToolbar extends LitElement {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         place-content: center;
+        place-items: center;
         gap: 4px;
         box-sizing: border-box;
         padding: 4px;

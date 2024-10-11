@@ -294,7 +294,7 @@ export function mod(x, n) {
 export function createElem(name) {
   const elem = document.createElement(name);
   elem.style.display = 'block';
-  document.querySelector('body').appendChild(elem);
+  document.body.appendChild(elem);
   return elem;
 }
 

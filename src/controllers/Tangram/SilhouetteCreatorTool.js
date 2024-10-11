@@ -45,7 +45,6 @@ export class SilhouetteCreatorTool extends Tool {
     });
 
     window.addEventListener('actions-executed', this.handler);
-    window.addEventListener('add-fullstep', this.handler);
     window.addEventListener('create-silhouette', this.handler);
     window.addEventListener('file-parsed', this.end.bind(this))
   }
@@ -56,21 +55,13 @@ export class SilhouetteCreatorTool extends Tool {
 
   eventHandler(event) {
     console.log('createSilhouette handler', event.type)
+    this.verifyOverlappingShapes();
     if (event.type == 'tool-updated' && app.tool?.name == this.name) this[app.tool.currentStep]();
-
-    if (event.type == 'actions-executed') this.verifyOverlappingShapes();
-
     if (event.type == 'create-silhouette') this.createSilhouette();
-
-    if (event.type == 'add-fullstep' && (event.detail.name == 'Refaire' || event.detail.name == 'Annuler')) {
-      this.verifyOverlappingShapes();
-      window.dispatchEvent(new CustomEvent('refresh'));
-    }
   }
 
   removeListeners() {
     window.removeEventListener('actions-executed', this.handler);
-    window.removeEventListener('add-fullstep', this.handler);
     window.removeEventListener('tangram-changed', this.handler);
     window.removeEventListener('create-silhouette', this.handler);
     window.removeEventListener('file-parsed', this.end.bind(this))

@@ -8,6 +8,7 @@ import { SelectManager } from './SelectManager';
  */
 export class FullHistoryManager {
   static startBrowsing() {
+    console.log(app.workspace.zoomLevel)
     let numberOfActions = app.fullHistory.steps.filter((step) => step.type == 'add-fullstep').length;
     if (numberOfActions == 0) {
       window.dispatchEvent(
@@ -20,6 +21,7 @@ export class FullHistoryManager {
     FullHistoryManager.cleanHisto();
     import('../../fullhistory-tools');
     createElem('fullhistory-tools');
+
     // if called when already running
     window.clearTimeout(app.fullHistory.timeoutId);
 
@@ -79,17 +81,16 @@ export class FullHistoryManager {
 
   static setWorkspaceToStartSituation() {
     app.workspace.initFromObject(app.history.startSituation);
-
     setState({
       settings: { ...app.history.startSettings },
     });
   }
 
   static moveTo(actionIndex, isForSingleActionPlaying = false) {
+    console.log(actionIndex)
     FullHistoryManager.pauseBrowsing();
     let index = app.fullHistory.steps.findIndex(
       (step) => step.detail?.actionIndex === actionIndex && step.type == 'add-fullstep');
-    console.log(app.fullHistory.steps[index])
     let data = app.fullHistory.steps[index]?.detail.data;
     if (isForSingleActionPlaying) {
       index = app.fullHistory.steps.findIndex(
@@ -97,8 +98,10 @@ export class FullHistoryManager {
       );
       data = app.fullHistory.steps[index - 1]?.detail.data;
     }
-
+    console.log(index)
     if (data) {
+      console.log(app.fullHistory)
+      console.log(data)
       app.workspace.initFromObject({ ...data });
       let settings = {
         ...app.settings,
@@ -309,11 +312,7 @@ window.addEventListener('mouse-coordinates-changed', (event) =>
 );
 
 window.addEventListener('actions-executed', (event) =>
-  window.dispatchEvent(
-    new CustomEvent('add-fullstep', {
-      detail: { name: event.detail.name },
-    }),
-  ),
+  FullHistoryManager.addStep('add-fullstep', { detail: { name: event.detail.name } })
 );
 
 window.addEventListener('create-silhouette', (event) =>
@@ -336,10 +335,6 @@ window.addEventListener('tool-updated', () => {
 });
 window.addEventListener('settings-changed', () => {
   FullHistoryManager.addStep('settings-changed', { detail: app.settings });
-});
-
-window.addEventListener('add-fullstep', (event) => {
-  FullHistoryManager.addStep('add-fullstep', event);
 });
 
 window.addEventListener('start-browsing', () => {
