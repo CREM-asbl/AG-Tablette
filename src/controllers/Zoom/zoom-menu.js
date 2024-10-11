@@ -16,6 +16,7 @@ class ZoomMenu extends LitElement {
       else this.close();
     };
     this.close = () => {
+      window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: 'Zoomer' } }))
       this.remove();
       window.removeEventListener('new-window', this.eventHandler);
       window.removeEventListener('tool-updated', this.eventHandler);

@@ -46,6 +46,16 @@ export class PermanentZoomTool extends Tool {
     this.removeListeners();
   }
 
+  savePreviousTool() {
+    if (app.tool) {
+      if (app.tool.name != this.name)
+        this.previousUsedTool = { name: app.tool.name, selectedFamily: app.tool.selectedFamily };
+    } else {
+      this.previousUsedTool = null;
+    }
+
+  }
+
   canvasTouchStart(touches) {
     if (touches.length == 2) {
       let point1 = touches[0],
@@ -60,13 +70,7 @@ export class PermanentZoomTool extends Tool {
       this.originalTranslateOffset = app.workspace.translateOffset;
       this.originalZoom = app.workspace.zoomLevel;
 
-      if (app.tool) {
-        if (app.tool.name != this.name)
-          this.previousUsedTool = { name: app.tool.name, selectedFamily: app.tool.selectedFamily };
-      } else {
-        this.previousUsedTool = null;
-      }
-      clearTimeout(this.timeoutId);
+      this.savePreviousTool()
 
       app.upperCanvasLayer.removeAllObjects();
       setState({
@@ -89,7 +93,6 @@ export class PermanentZoomTool extends Tool {
         minZoom = app.settings.minZoomLevel,
         maxZoom = app.settings.maxZoomLevel;
       if (scaleOffset * this.originalZoom > maxZoom) {
-        // -> scaleOffset*originalZoom = maxZoom
         scaleOffset = maxZoom / this.originalZoom - 0.001;
       }
       if (scaleOffset * this.originalZoom < minZoom) {
@@ -126,7 +129,6 @@ export class PermanentZoomTool extends Tool {
       maxZoom = app.settings.maxZoomLevel;
 
     if (offset * actualZoom > maxZoom) {
-      // -> offset*actualZoom = maxZoom
       offset = maxZoom / actualZoom - 0.001;
     }
     if (offset * actualZoom < minZoom) {
@@ -142,12 +144,7 @@ export class PermanentZoomTool extends Tool {
   }
 
   canvasMouseWheel(deltaY) {
-    if (app.tool) {
-      if (app.tool.name != this.name)
-        this.previousUsedTool = { name: app.tool.name, selectedFamily: app.tool.selectedFamily };
-    } else {
-      this.previousUsedTool = null;
-    }
+    this.savePreviousTool()
     clearTimeout(this.timeoutId);
 
     this.originalTranslateOffset = app.workspace.translateOffset;
@@ -159,7 +156,6 @@ export class PermanentZoomTool extends Tool {
       mousePos = app.workspace.lastKnownMouseCoordinates;
 
     if (offset * this.originalZoom > maxZoom) {
-      // -> offset*originalZoom = maxZoom
       offset = maxZoom / this.originalZoom - 0.001;
     }
     if (offset * this.originalZoom < minZoom) {
@@ -172,30 +168,27 @@ export class PermanentZoomTool extends Tool {
       1 / app.canvasHeight,
     );
 
-    if (this.isLastActionZoom)
-      this.applyZoom();
-    else {
+    if (!this.isLastActionZoom)
       setState({ tool: { name: this.name, currentStep: 'start', mode: 'wheel', title: this.title } });
-      this.executeAction();
-    }
 
+    this.applyZoom();
     this.isLastActionZoom = true;
-
-    this.restorePreviousTool();
+    this.timeoutId = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: this.title } }))
+      this.isLastActionZoom = false;
+      this.restorePreviousTool();
+    }, 300)
   }
 
   restorePreviousTool() {
-    this.timeoutId = setTimeout(() => {
-      this.isLastActionZoom = false;
-      if (this.previousUsedTool) {
-        let currentStep = 'start';
-        if (this.previousUsedTool.name == 'divide' || this.previousUsedTool.name == 'opacity') {
-          currentStep = 'selectObject';
-        }
-        setState({ tool: { ...this.previousUsedTool, currentStep } });
-        window.dispatchEvent(new CustomEvent('tool-changed'));
+    if (this.previousUsedTool) {
+      let currentStep = 'start';
+      if (this.previousUsedTool.name == 'divide' || this.previousUsedTool.name == 'opacity') {
+        currentStep = 'selectObject';
       }
-    }, 300);
+      setState({ tool: { ...this.previousUsedTool, currentStep } });
+      window.dispatchEvent(new CustomEvent('tool-changed'));
+    }
   }
 
   _executeAction() {

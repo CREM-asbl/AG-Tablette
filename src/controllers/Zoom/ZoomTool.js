@@ -1,4 +1,3 @@
-import { html } from 'lit';
 import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
@@ -17,24 +16,6 @@ export class ZoomTool extends Tool {
   }
 
   /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    let toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez l'écran n'importe où dans la zone de dessin, et faites glissez
-        votre doigt sans le relacher, pour zoomer ou dézoomer le plan entier.<br />
-        Le zoom se fait par rapport au centre de l'écran: écartez votre doigt du
-        centre pour zoomer, et rapprochez-le du centre pour dézoomer.
-      </p>
-    `;
-  }
-
-  /**
    * initialiser l'état
    */
   start() {
@@ -46,6 +27,7 @@ export class ZoomTool extends Tool {
   }
 
   execute() {
+    console.log('execute')
     this.executeAction();
   }
 
@@ -53,6 +35,7 @@ export class ZoomTool extends Tool {
    * stopper l'état
    */
   end() {
+    console.log('end')
     this.zoomMenu = null;
   }
 
@@ -64,6 +47,7 @@ export class ZoomTool extends Tool {
   }
 
   applyZoom(newZoom) {
+    console.log(newZoom)
     let originalTranslateOffset = app.workspace.translateOffset,
       originalZoom = app.workspace.zoomLevel,
       scaleOffset = newZoom / originalZoom,
