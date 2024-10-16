@@ -1,8 +1,15 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "be.crem.ag.twa",
-        "sha256_cert_fingerprints": ["6D:58:92:83:FA:E7:33:60:B8:AB:BF:99:B1:50:F9:25:FE:0F:49:9B:70:8A:BB:C9:DF:06:43:19:D7:A4:AB:D4"]
-      }
-    }]
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "be.crem.ag.twa",
+      "sha256_cert_fingerprints": [
+        "6D:58:92:83:FA:E7:33:60:B8:AB:BF:99:B1:50:F9:25:FE:0F:49:9B:70:8A:BB:C9:DF:06:43:19:D7:A4:AB:D4",
+        "CC:1C:DD:8E:70:74:31:80:B4:18:49:EF:10:83:6E:42:12:ED:39:F8:C7:3A:42:32:C2:DD:B6:D4:77:23:19:0D"
+      ]
+    }
+  }
+]

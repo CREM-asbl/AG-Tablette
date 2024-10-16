@@ -27,7 +27,6 @@ export class ZoomTool extends Tool {
   }
 
   execute() {
-    console.log('execute')
     this.executeAction();
   }
 
@@ -35,7 +34,6 @@ export class ZoomTool extends Tool {
    * stopper l'état
    */
   end() {
-    console.log('end')
     this.zoomMenu = null;
   }
 

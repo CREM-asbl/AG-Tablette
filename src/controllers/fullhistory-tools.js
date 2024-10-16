@@ -63,7 +63,7 @@ class FullHistoryTools extends LitElement {
         h2 {
           grid-area: auto / span 2;
           text-align: center;
-          font-size: 1.1rem;
+          font-size: 1rem;
           font-weight: bold;
           margin: 0;
         }
