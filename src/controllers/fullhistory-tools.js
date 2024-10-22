@@ -207,6 +207,7 @@ class FullHistoryTools extends LitElement {
   }
 
   eventHandler(e) {
+    console.log('fullhistory-tools handler')
     if (app.fullHistory.isRunning && e.type == 'fullHistory-changed') {
       this.index = app.fullHistory.actionIndex;
       this.shadowRoot.getElementById('b' + this.index)?.parentNode.scrollIntoView();
@@ -256,7 +257,7 @@ class FullHistoryTools extends LitElement {
   }
 
   close() {
-    window.removeEventListener('fullHistory-changed', this.eventHandler);
+    window.removeEventListener('fullHistory-changed', this.eventHandler.bind(this));
     this.remove();
   };
 }

@@ -1,6 +1,7 @@
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
+import { createElem } from '../Core/Tools/general';
 
 /**
  * Zoomer/Dézoomer le plan
@@ -145,6 +146,7 @@ export class PermanentZoomTool extends Tool {
 
   canvasMouseWheel(deltaY) {
     this.savePreviousTool()
+    // this.openZoomMenu()
     clearTimeout(this.timeoutId);
 
     this.originalTranslateOffset = app.workspace.translateOffset;
@@ -181,14 +183,14 @@ export class PermanentZoomTool extends Tool {
   }
 
   restorePreviousTool() {
-    if (this.previousUsedTool) {
-      let currentStep = 'start';
-      if (this.previousUsedTool.name == 'divide' || this.previousUsedTool.name == 'opacity') {
-        currentStep = 'selectObject';
-      }
-      setState({ tool: { ...this.previousUsedTool, currentStep } });
-      window.dispatchEvent(new CustomEvent('tool-changed'));
-    }
+    // if (this.previousUsedTool) {
+    //   let currentStep = 'start';
+    //   if (this.previousUsedTool.name == 'divide' || this.previousUsedTool.name == 'opacity') {
+    //     currentStep = 'selectObject';
+    //   }
+    //   setState({ tool: { ...this.previousUsedTool, currentStep } });
+    //   window.dispatchEvent(new CustomEvent('tool-changed'));
+    // }
   }
 
   _executeAction() {
@@ -218,5 +220,12 @@ export class PermanentZoomTool extends Tool {
 
     app.workspace.setZoomLevel(newZoom, false);
     app.workspace.setTranslateOffset(newTranslateoffset);
+  }
+
+  openZoomMenu() {
+    if (!this.zoomMenu) {
+      import('./zoom-menu');
+      this.zoomMenu = createElem('zoom-menu');
+    }
   }
 }
