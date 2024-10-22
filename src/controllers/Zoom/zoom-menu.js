@@ -1,30 +1,8 @@
+import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
-import { app, setState } from '../Core/App';
+import { app, changes, setState } from '../Core/App';
 
-class ZoomMenu extends LitElement {
-  constructor() {
-    super();
-    this.updateProperties = () => {
-      this.zoomLevel = app.tool.zoomLevel;
-    };
-    this.updateProperties();
-    this.zoomLevel = app.workspace.zoomLevel;
-
-    this.eventHandler = e => {
-      if (e.type == 'new-window') this.close();
-      else if (app.tool?.name == 'zoom') this.updateProperties();
-      else this.close();
-    };
-    this.close = () => {
-      window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: 'Zoomer' } }))
-      this.remove();
-      window.removeEventListener('new-window', this.eventHandler);
-      window.removeEventListener('tool-updated', this.eventHandler);
-    };
-
-    window.addEventListener('new-window', this.eventHandler);
-    window.addEventListener('tool-updated', this.eventHandler);
-  }
+class ZoomMenu extends SignalWatcher(LitElement) {
 
   static get properties() {
     return {
@@ -33,8 +11,7 @@ class ZoomMenu extends LitElement {
     };
   }
 
-  static get styles() {
-    return css`
+  static styles = css`
       :host {
         position: absolute;
         top: 5px;
@@ -49,27 +26,43 @@ class ZoomMenu extends LitElement {
         max-height: 30%;
         left: ${app.settings.mainMenuWidth + 5}px;
       }
-    `;
-  }
 
-  firstUpdated() {
+      div {
+        cursor: pointer;
+        text-align: center;
+      }
+    `;
+
+  constructor() {
+    super()
     this.position = this.getPositionFromZoom(app.workspace.zoomLevel);
   }
 
   render() {
+    changes.get()
+    this.updateProperties();
     return html`
       <div class="container">
-        <div style="float: left; cursor: pointer;"><span @click="${() => this.changePosition(this.position - 1)}">-</span></div>
-        <div style="float: right; cursor: pointer;"><span @click="${() => this.changePosition(this.position + 1)}">+</span></div>
-        <div style="margin: 0 auto; width: 100px; text-align: center; cursor: pointer;"><span @click="${() => this.changePosition(50)}">1</span></div>
-        <input type="range" min="0" max="100" value="${this.position}" class="slider" id="myRange" @input="${e => this.showResult(e.target.value)}" @change="${e => this.applyZoom(e.target.value)}">
+        <div style="float: left;"><span @click="${() => this.changePosition(this.position - 1)}">-</span></div>
+        <div style="float: right;"><span @click="${() => this.changePosition(this.position + 1)}">+</span></div>
+        <div style="margin: 0 auto; width: 100px;"><span @click="${() => this.changePosition(50)}">1</span></div>
+        <input type="range" min="0" max="100" .value="${this.position}"
+         id="myRange" @change="${e => this.showResult(e.target.value)}">
       </div>
     `;
   }
 
+  updateProperties() {
+    if (app.tool?.name != 'zoom') return this.close();
+    this.zoomLevel = app.tool.zoomLevel;
+  };
+
+  close() {
+    this.remove();
+  };
+
   changePosition(position) {
     this.showResult(position);
-    this.shadowRoot.querySelector("#myRange").value = this.position;
   }
 
   getZoomFromPosition(position) {
@@ -106,18 +99,6 @@ class ZoomMenu extends LitElement {
 
   showResult(sliderPos) {
     this.position = parseInt(sliderPos);
-    let zoom = this.getZoomFromPosition(sliderPos);
-
-    setState({
-      tool: {
-        ...app.tool,
-        currentStep: 'zoom',
-        zoomLevel: zoom,
-      },
-    });
-  }
-
-  applyZoom(sliderPos) {
     let zoom = this.getZoomFromPosition(sliderPos);
 
     setState({

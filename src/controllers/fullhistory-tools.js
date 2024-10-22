@@ -1,10 +1,12 @@
 import '@components/icon-button';
 import '@components/template-toolbar';
+import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
-import { app } from './Core/App';
+import { app, changes } from './Core/App';
 import { FullHistoryManager } from './Core/Managers/FullHistoryManager';
 
-class FullHistoryTools extends LitElement {
+
+class FullHistoryTools extends SignalWatcher(LitElement) {
 
   static properties = {
     tools: Array,
@@ -134,6 +136,8 @@ class FullHistoryTools extends LitElement {
   }
 
   render() {
+    changes.get()
+    this.updateProperties();
     return html`
       <style>
         button#b${this.index} {
@@ -202,17 +206,17 @@ class FullHistoryTools extends LitElement {
     `;
   }
 
-  firstUpdated() {
-    window.addEventListener('fullHistory-changed', this.eventHandler.bind(this));
-  }
 
-  eventHandler(e) {
-    console.log('fullhistory-tools handler')
-    if (app.fullHistory.isRunning && e.type == 'fullHistory-changed') {
+  updateProperties() {
+    if (!app.fullHistory.isRunning) {
+      this.close()
+      return
+    }
+    if (app.fullHistory.index != this.index) {
       this.index = app.fullHistory.actionIndex;
       this.shadowRoot.getElementById('b' + this.index)?.parentNode.scrollIntoView();
       this.setPlayPause(app.fullHistory.isPlaying ? 'pause' : 'play');
-    } else this.close();
+    }
   };
 
   _clickHandler(event) {
@@ -257,7 +261,6 @@ class FullHistoryTools extends LitElement {
   }
 
   close() {
-    window.removeEventListener('fullHistory-changed', this.eventHandler.bind(this));
     this.remove();
   };
 }

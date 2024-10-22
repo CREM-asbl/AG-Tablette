@@ -45,7 +45,7 @@ export class ZoomTool extends Tool {
   }
 
   applyZoom(newZoom) {
-    console.log(newZoom)
+    console.log('apply', newZoom)
     let originalTranslateOffset = app.workspace.translateOffset,
       originalZoom = app.workspace.zoomLevel,
       scaleOffset = newZoom / originalZoom,

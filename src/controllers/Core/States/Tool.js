@@ -48,11 +48,7 @@ export class Tool {
   executeAction() {
     this._executeAction();
     window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(
-      new CustomEvent('actions-executed', {
-        detail: { name: this.title },
-      }),
-    );
+    window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: this.title } }));
   }
 
   /**

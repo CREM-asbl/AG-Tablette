@@ -1,6 +1,9 @@
+import { signal } from '@lit-labs/signals';
 import { uniqId } from './Tools/general';
 
 window.dev_mode = location.hostname === 'localhost';
+
+export const changes = signal({})
 
 /**
  * Classe principale de l'application
@@ -152,11 +155,6 @@ export const setState = (update) => {
   if ('settings' in update) {
     window.dispatchEvent(new CustomEvent('settings-changed', { detail: app }));
   }
-  if ('fullHistory' in update) {
-    window.dispatchEvent(
-      new CustomEvent('fullHistory-changed', { detail: app }),
-    );
-  }
   if ('history' in update) {
     window.dispatchEvent(new CustomEvent('history-changed', { detail: app }));
   }
@@ -167,4 +165,5 @@ export const setState = (update) => {
     window.dispatchEvent(new CustomEvent('tools-changed', { detail: app }));
   }
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+  changes.set(update)
 };
