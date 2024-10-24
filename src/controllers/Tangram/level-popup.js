@@ -104,13 +104,7 @@ class LevelPopup extends LitElement {
   }
 
   submit() {
-    this.dispatchEvent(
-      new CustomEvent('tangram-level-selected', {
-        detail: this.level,
-        bubbles: true,
-        composed: true,
-      }),
-    );
+    this.dispatchEvent(new CustomEvent('select', { detail: this.level }));
     this.close();
   }
 

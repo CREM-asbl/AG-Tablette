@@ -520,10 +520,7 @@ export class RegularShape extends Shape {
           !shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates)) ||
         (shape.isCoordinatesInPath(s1_segment.middle) &&
           !shape.isCoordinatesOnBorder(s1_segment.middle))
-      ) {
-        console.info('shape inside another');
-        return true;
-      }
+      ) return true;
     }
     return false;
   }
@@ -767,8 +764,6 @@ export class RegularShape extends Shape {
   saveData() {
     let data = super.saveData();
     data.type = 'RegularShape';
-    // data.fillColor = this.fillColor;
-    // data.fillOpacity = this.fillOpacity;
     if (this.fillColor !== '#aaa')
       data.fillColor = this.fillColor;
     if (this.fillOpacity !== 0.7)

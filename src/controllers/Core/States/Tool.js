@@ -25,19 +25,6 @@ export class Tool {
   }
 
   /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    console.error('getHelpText() not implemented');
-    return "Aucune aide n'est actuellement disponible pour l'élément sélectionné.";
-  }
-
-  get help() {
-    return null
-  }
-
-  /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() { }
@@ -93,13 +80,9 @@ export class Tool {
 
   eventHandler(event) {
     if (event.type == 'tool-updated') {
-      if (!app.tool) {
-        this.end();
-      } else if (app.tool.name == this.name) {
-        this[app.tool.currentStep]();
-      } else if (app.tool.currentStep == 'start') {
-        this.end();
-      }
+      if (!app.tool) { this.end(); }
+      else if (app.tool.name == this.name) { this[app.tool.currentStep](); }
+      else if (app.tool.currentStep == 'start') { this.end(); }
     } else {
       if (event.type == 'objectSelected') {
         this.objectSelected(event.detail.object);

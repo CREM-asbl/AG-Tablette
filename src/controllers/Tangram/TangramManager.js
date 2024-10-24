@@ -22,10 +22,9 @@ export class TangramManager {
 
   static async selectLevel() {
     await import('./level-popup');
-    createElem('level-popup');
-    return new Promise((resolve) =>
-      window.addEventListener('tangram-level-selected', (e) => resolve(e.detail)),
-    );
+    const popup = createElem('level-popup');
+    return new Promise((resolve) => popup.onselect = e => resolve(e.detail))
+
   }
 
   static async initShapes(isForCreation = false) {

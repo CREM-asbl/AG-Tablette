@@ -1,7 +1,6 @@
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
-import { createElem } from '../Core/Tools/general';
 
 /**
  * Zoomer/Dézoomer le plan
@@ -146,7 +145,6 @@ export class PermanentZoomTool extends Tool {
 
   canvasMouseWheel(deltaY) {
     this.savePreviousTool()
-    // this.openZoomMenu()
     clearTimeout(this.timeoutId);
 
     this.originalTranslateOffset = app.workspace.translateOffset;
@@ -220,12 +218,5 @@ export class PermanentZoomTool extends Tool {
 
     app.workspace.setZoomLevel(newZoom, false);
     app.workspace.setTranslateOffset(newTranslateoffset);
-  }
-
-  openZoomMenu() {
-    if (!this.zoomMenu) {
-      import('./zoom-menu');
-      this.zoomMenu = createElem('zoom-menu');
-    }
   }
 }

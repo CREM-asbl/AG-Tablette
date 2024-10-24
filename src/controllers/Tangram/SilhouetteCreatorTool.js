@@ -1,22 +1,27 @@
-import { html } from 'lit';
+import { LitElement } from 'lit';
 import { app, setState } from '../Core/App';
-import { Tool } from '../Core/States/Tool';
 import { Silhouette } from './Silhouette';
 import { TangramManager } from './TangramManager';
+
+const hasOverlapedShape = (shapes) => {
+  return shapes.some((shape) =>
+    shapes.some((s) => {
+      if (s.id == shape.id) return false;
+      else return s.overlapsWith(shape);
+    }));
+}
 
 /**
  * Créer une silhouette
  */
-export class SilhouetteCreatorTool extends Tool {
+export class SilhouetteCreatorTool extends LitElement {
   constructor() {
-    super('createSilhouette', 'Créer une silhouette', '');
+    super()
     this.isUserWarnedAboutOverlap = false;
   }
 
-  async start() {
-
-    this.removeListeners();
-
+  async connectedCallback() {
+    console.log('start')
     let tool = app.tools.find(tool => tool.name == 'translate');
     tool.isDisable = false;
     tool = app.tools.find(tool => tool.name == 'color');
@@ -24,16 +29,13 @@ export class SilhouetteCreatorTool extends Tool {
 
     setState({ tools: app.tools });
 
-    let toWait = TangramManager.initShapes(true);
     app.tangramCanvasLayer.removeAllObjects();
     window.dispatchEvent(new CustomEvent('refresh-background'));
 
     this.isUserWarnedAboutOverlap = false;
-    app.workspace.selectionConstraints =
-      app.fastSelectionConstraints.mousedown_all_shape;
-    window.addEventListener('tangram-changed', this.handler);
+    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
 
-    await toWait;
+    await TangramManager.initShapes(true);
 
     setState({
       history: {
@@ -43,63 +45,23 @@ export class SilhouetteCreatorTool extends Tool {
         },
       },
     });
-
-    window.addEventListener('actions-executed', this.handler);
-    window.addEventListener('create-silhouette', this.handler);
-    window.addEventListener('file-parsed', this.end.bind(this))
+    window.addEventListener('actions-executed', this.verifyOverlappingShapes);
+    window.addEventListener('create-silhouette', this.createSilhouette);
+    window.addEventListener('file-parsed', this.remove.bind(this))
+    window.addEventListener('new-window', this.remove.bind(this))
   }
 
-  end() {
-    this.removeListeners();
-  }
-
-  eventHandler(event) {
-    console.log('createSilhouette handler', event.type)
-    this.verifyOverlappingShapes();
-    if (event.type == 'tool-updated' && app.tool?.name == this.name) this[app.tool.currentStep]();
-    if (event.type == 'create-silhouette') this.createSilhouette();
-  }
-
-  removeListeners() {
-    window.removeEventListener('actions-executed', this.handler);
-    window.removeEventListener('tangram-changed', this.handler);
-    window.removeEventListener('create-silhouette', this.handler);
-    window.removeEventListener('file-parsed', this.end.bind(this))
-  }
-
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    let toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour créer une nouvelle silhouette, disposez les figures comme vous le
-        désirez, <br />
-        en veillant à ce qu'aucunes figures ne se supersopent. <br />
-        Cliquez sur le bouton "Afficher la silhouette" une fois que vous avez terminé.
-        <br />
-      </p>
-    `;
+  disconnectedCallback() {
+    window.removeEventListener('actions-executed', this.verifyOverlappingShapes);
+    window.removeEventListener('create-silhouette', this.createSilhouette);
+    window.removeEventListener('file-parsed', this.remove.bind(this))
+    window.removeEventListener('new-window', this.remove.bind(this))
   }
 
   createSilhouette() {
     app.tangramCanvasLayer.removeAllObjects();
     const shapes = app.mainCanvasLayer.shapes;
-    if (this.hasOverlapedShape(shapes)) return
-    new Silhouette(shapes);
-  }
-
-  hasOverlapedShape(shapes) {
-    return shapes.some((shape) =>
-      shapes.some((s) => {
-        if (s.id == shape.id) return false;
-        else return s.overlapsWith(shape);
-      }),
-    );
+    if (!hasOverlapedShape(shapes)) return new Silhouette(shapes);
   }
 
   verifyOverlappingShapes() {
@@ -127,3 +89,4 @@ export class SilhouetteCreatorTool extends Tool {
     });
   }
 }
+customElements.define('silhouette-creator-tool', SilhouetteCreatorTool);

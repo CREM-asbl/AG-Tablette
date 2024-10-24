@@ -1,4 +1,4 @@
-import { html } from 'lit';
+import { LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Bounds } from '../Core/Objects/Bounds';
@@ -6,33 +6,10 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Segment } from '../Core/Objects/Segment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
-import { Tool } from '../Core/States/Tool';
 import { Silhouette } from './Silhouette';
 import { TangramManager } from './TangramManager';
 
-export class SolutionCheckerTool extends Tool {
-  constructor() {
-    super('solveChecker', 'Vérifier la solution d\'un Tangram', '');
-    window.addEventListener('file-parsed', this.handler)
-  }
-
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    let toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Vous pouvez réaliser le puzzle et vérifier votre solution en appuyant
-        sur le bouton "Vérifier la solution".<br />
-        Le contour de la silhouette apparait et peut se superposer avec les figures.
-      </p>
-    `;
-  }
-
+export class SolutionCheckerTool extends LitElement {
   showMenu() {
     this.stateMenu = app.left_menu.querySelector('state-menu')
     if (!this.stateMenu) {
@@ -99,13 +76,17 @@ export class SolutionCheckerTool extends Tool {
     }
   }
 
+  connectedCallback() {
+    window.addEventListener('file-parsed', this.handler.bind(this))
+  }
+
   start() {
     this.initData()
     this.showMenu()
     this.solutionShapes = null
-    this.objectSelectedId = app.addListener('objectSelected', this.handler);
-    window.addEventListener('tangram-changed', this.handler);
-    window.addEventListener('new-window', this.handler);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler.bind(this));
+    window.addEventListener('tangram-changed', this.handler.bind(this));
+    window.addEventListener('new-window', this.remove.bind(this));
   }
 
   check() {
@@ -122,22 +103,22 @@ export class SolutionCheckerTool extends Tool {
     this.eraseSolution();
   }
 
-  end() {
+  disconnectedCallback() {
     if (this.stateMenu) this.stateMenu.close()
     closeForbiddenCanvas();
     this.removeListeners();
   }
 
-  eventHandler(event) {
+  handler(event) {
+    console.log('checker handler')
     if (this.stateMenu)
       this.stateMenu.check = app.tangram.currentStep === 'check'
 
     if (event.type == 'tool-updated') {
       if (app.tool?.name == this.name) { this[app.tool.currentStep](); }
       else if (app.tool?.currentStep == 'start') {
-        if (app.tool.name == 'createSilhouette') {
-          this.end();
-        } else if (
+        if (app.tool.name == 'createSilhouette') { this.end(); }
+        else if (
           app.tool.name != 'rotate' &&
           app.tool.name != 'rotate45' &&
           app.tool.name != 'move' &&
@@ -162,6 +143,7 @@ export class SolutionCheckerTool extends Tool {
     if (event.type == 'new-window') this.end();
 
     if (event.type == 'file-parsed') {
+      console.log('file-parsed')
       const data = event.detail;
       closeForbiddenCanvas();
       app.tangramCanvasLayer.removeAllObjects();
@@ -173,8 +155,8 @@ export class SolutionCheckerTool extends Tool {
 
   removeListeners() {
     app.removeListener('objectSelected', this.objectSelectedId);
-    window.removeEventListener('tangram-changed', this.handler);
-    window.removeEventListener('new-window', this.handler);
+    window.removeEventListener('tangram-changed', this.handler.bind(this));
+    window.removeEventListener('new-window', this.remove.bind(this));
   }
 
   objectSelected(object) {
@@ -363,6 +345,8 @@ export class SolutionCheckerTool extends Tool {
     }
   }
 }
+customElements.define('solution-checker-tool', SolutionCheckerTool);
+
 
 export const closeForbiddenCanvas = () => {
   app.workspace.limited = false
