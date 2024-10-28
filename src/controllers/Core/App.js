@@ -69,8 +69,8 @@ export class App {
       currentStep: null
     }
 
-    this.stepSinceSave = false,
-      this.started = false;
+    this.stepSinceSave = false
+    this.started = false;
     this.appLoading = false;
     this.nextGroupColorIdx = 0;
 

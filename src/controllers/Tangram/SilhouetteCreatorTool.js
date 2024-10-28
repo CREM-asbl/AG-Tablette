@@ -21,7 +21,6 @@ export class SilhouetteCreatorTool extends LitElement {
   }
 
   async connectedCallback() {
-    console.log('start')
     let tool = app.tools.find(tool => tool.name == 'translate');
     tool.isDisable = false;
     tool = app.tools.find(tool => tool.name == 'color');

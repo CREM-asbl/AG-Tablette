@@ -3,11 +3,6 @@ import { setWorkspaceFromObject } from '../Core/Managers/WorkspaceManager.js';
 import { createElem } from '../Core/Tools/general';
 import kit from './tangramShapeKit.json';
 
-window.addEventListener('new-window', () => {
-  setState({ tangram: { ...app.defaultState.tangram } });
-  tangramStart();
-});
-
 const tangramStart = () => {
   let tool = app.tools.find(tool => tool.name == 'translate');
   tool.isDisable = true;
@@ -18,13 +13,19 @@ const tangramStart = () => {
   createElem('start-popup');
 }
 
+window.addEventListener('app-started', tangramStart, { once: true });
+window.addEventListener('new-window', () => {
+  console.log('new-window tangramManager')
+  setState({ tangram: { ...app.defaultState.tangram } });
+  tangramStart();
+});
+
 export class TangramManager {
 
   static async selectLevel() {
     await import('./level-popup');
     const popup = createElem('level-popup');
     return new Promise((resolve) => popup.onselect = e => resolve(e.detail))
-
   }
 
   static async initShapes(isForCreation = false) {
@@ -38,10 +39,6 @@ export class TangramManager {
     });
     setWorkspaceFromObject(ws, false);
     if (zoom < app.workspace.zoomLevel) app.workspace.zoomLevel = zoom;
-    console.log(app.workspace.zoomLevel)
     window.dispatchEvent(new CustomEvent('refresh'));
-
   }
 }
-
-window.addEventListener('app-started', tangramStart, { once: true });

@@ -1,7 +1,6 @@
 import '@components/color-button';
 import '@components/popups/template-popup';
 import { html, LitElement } from 'lit';
-import { setState } from '../Core/App';
 import { openPopupFile } from '../Core/Managers/OpenFileManager';
 import { createElem } from '../Core/Tools/general';
 
@@ -25,7 +24,6 @@ class StartPopup extends LitElement {
     this.close();
     import('./SilhouetteCreatorTool')
     createElem('silhouette-creator-tool')
-    setState({ tool: { name: 'createSilhouette', currentStep: 'start' } });
   }
 
   async reproduceSilhouette() {

@@ -22,8 +22,6 @@
     "astro": "^4.11.3",
     "astrojs-service-worker": "^2.0.0",
     "fflate": "^0.8.0",
-    "firebase": "^11.0.0",
-    "i": "^0.3.7",
-    "npm": "^10.9.0"
+    "firebase": "^11.0.0"
   }
 }

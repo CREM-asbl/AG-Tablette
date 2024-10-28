@@ -10,8 +10,9 @@ import { Silhouette } from './Silhouette';
 import { TangramManager } from './TangramManager';
 
 export class SolutionCheckerTool extends LitElement {
+
   showMenu() {
-    this.stateMenu = app.left_menu.querySelector('state-menu')
+    this.stateMenu = app.left_menu.querySelector('state-menu');
     if (!this.stateMenu) {
       import('./state-menu');
       this.stateMenu = document.createElement('state-menu');
@@ -77,16 +78,25 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   connectedCallback() {
-    window.addEventListener('file-parsed', this.handler.bind(this))
+    this.fileListener = app.addListener('file-parsed', this.readFile.bind(this))
+    this.tangramListener = app.addListener('tangram-changed', this.handler.bind(this));
+    this.newWindowListener = app.addListener('new-window', this.remove.bind(this));
+    this.objectSelectedId = app.addListener('objectSelected', this.handler.bind(this));
+  }
+
+  disconnectedCallback() {
+    this.stateMenu.close()
+    closeForbiddenCanvas();
+    app.removeListener('file-parsed', this.fileListener)
+    app.removeListener('objectSelected', this.objectSelectedId);
+    app.removeListener('tangram-changed', this.tangramListener);
+    app.removeListener('new-window', this.newWindowListener);
   }
 
   start() {
     this.initData()
     this.showMenu()
     this.solutionShapes = null
-    this.objectSelectedId = app.addListener('objectSelected', this.handler.bind(this));
-    window.addEventListener('tangram-changed', this.handler.bind(this));
-    window.addEventListener('new-window', this.remove.bind(this));
   }
 
   check() {
@@ -99,26 +109,29 @@ export class SolutionCheckerTool extends LitElement {
     );
   }
 
-  uncheck() {
-    this.eraseSolution();
+  uncheck() { this.eraseSolution(); }
+
+
+  readFile(event) {
+    console.log("readFile")
+    this.data = event.detail;
+    if (this.data.envName != 'Tangram') return
+    closeForbiddenCanvas();
+    app.tangramCanvasLayer.removeAllObjects();
+    this.start();
   }
 
-  disconnectedCallback() {
-    if (this.stateMenu) this.stateMenu.close()
-    closeForbiddenCanvas();
-    this.removeListeners();
-  }
 
   handler(event) {
     console.log('checker handler')
+    console.log(this.stateMenu)
     if (this.stateMenu)
       this.stateMenu.check = app.tangram.currentStep === 'check'
 
     if (event.type == 'tool-updated') {
       if (app.tool?.name == this.name) { this[app.tool.currentStep](); }
       else if (app.tool?.currentStep == 'start') {
-        if (app.tool.name == 'createSilhouette') { this.end(); }
-        else if (
+        if (
           app.tool.name != 'rotate' &&
           app.tool.name != 'rotate45' &&
           app.tool.name != 'move' &&
@@ -136,27 +149,7 @@ export class SolutionCheckerTool extends LitElement {
       }
     }
 
-    if (event.type == 'objectSelected') {
-      this.objectSelected(event.detail.object);
-    }
-
-    if (event.type == 'new-window') this.end();
-
-    if (event.type == 'file-parsed') {
-      console.log('file-parsed')
-      const data = event.detail;
-      closeForbiddenCanvas();
-      app.tangramCanvasLayer.removeAllObjects();
-      if (data.envName != 'Tangram') return
-      this.data = data;
-      this.start();
-    }
-  }
-
-  removeListeners() {
-    app.removeListener('objectSelected', this.objectSelectedId);
-    window.removeEventListener('tangram-changed', this.handler.bind(this));
-    window.removeEventListener('new-window', this.remove.bind(this));
+    if (event.type == 'objectSelected') this.objectSelected(event.detail.object);
   }
 
   objectSelected(object) {
