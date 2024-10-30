@@ -596,9 +596,7 @@ export class RegularShape extends Shape {
    */
   getSVGPath(scaling = 'scale') {
     let path = this.segments
-      .map((seg) => {
-        return seg.getSVGPath(scaling, false, false)
-      })
+      .map((seg) => seg.getSVGPath(scaling, false, false))
       .join('\n');
     return path;
   }

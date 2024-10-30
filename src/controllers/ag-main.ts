@@ -18,7 +18,6 @@ import './Core/Managers/ShapeManager';
 import './Core/Managers/WorkspaceManager';
 import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
 
-
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
 @customElement('ag-main')
@@ -181,9 +180,18 @@ class AGMain extends LitElement {
         );
         event.target.value = null;
       }}"
-
       />
+
+      ${this.addModules()}
     `;
+  }
+
+  addModules() {
+    if (app.environment.name === 'Tangram') {
+      import('./Tangram/TangramManager');
+      return html`<tangram-manager></tangram-manager>`
+    }
+    return
   }
 
   _actionHandle(event) {

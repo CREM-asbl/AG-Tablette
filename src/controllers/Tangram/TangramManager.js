@@ -1,31 +1,27 @@
-import { app, setState } from '../Core/App';
+import { html, LitElement } from 'lit';
+import { app, setState } from '../Core/App.js';
 import { setWorkspaceFromObject } from '../Core/Managers/WorkspaceManager.js';
-import { createElem } from '../Core/Tools/general';
 import kit from './tangramShapeKit.json';
 
-const tangramStart = () => {
-  let tool = app.tools.find(tool => tool.name == 'translate');
-  tool.isDisable = true;
-  tool = app.tools.find(tool => tool.name == 'color');
-  tool.isDisable = true;
-  setState({ tools: [...app.tools] })
-  import('./start-popup.js');
-  createElem('start-popup');
-}
 
-window.addEventListener('app-started', tangramStart, { once: true });
-window.addEventListener('new-window', () => {
-  console.log('new-window tangramManager')
-  setState({ tangram: { ...app.defaultState.tangram } });
-  tangramStart();
-});
 
-export class TangramManager {
+export class TangramManager extends LitElement {
 
-  static async selectLevel() {
-    await import('./level-popup');
-    const popup = createElem('level-popup');
-    return new Promise((resolve) => popup.onselect = e => resolve(e.detail))
+  static properties = {
+    mode: { type: String }
+  }
+
+  tangramStart = async () => {
+    let tool = app.tools.find(tool => tool.name == 'translate');
+    tool.isDisable = true;
+    tool = app.tools.find(tool => tool.name == 'color');
+    tool.isDisable = true;
+    setState({ tools: [...app.tools] })
+    // import('./start-popup.js');
+    // const popup = createElem('start-popup');
+    // console.log('popup start')
+    // this.mode = await new Promise(resolve => popup.onclose = () => resolve(popup.mode))
+    // console.log(this.mode)
   }
 
   static async initShapes(isForCreation = false) {
@@ -41,4 +37,49 @@ export class TangramManager {
     if (zoom < app.workspace.zoomLevel) app.workspace.zoomLevel = zoom;
     window.dispatchEvent(new CustomEvent('refresh'));
   }
+
+  readFile(event) {
+    this.data = event.detail;
+    if (this.data.envName != 'Tangram') return
+    this.mode = 'reproduction'
+    this.requestUpdate()
+  }
+
+  reset() {
+    console.log('reset')
+    setState({ tangram: { ...app.defaultState.tangram } });
+    this.tangramStart();
+    this.mode = null;
+  }
+
+  render() {
+    if (this.mode === 'reproduction') {
+      import('./SolutionCheckerTool.js');
+      return html`<solution-checker-tool .data="${this.data}"></solution-checker-tool>`
+    }
+    if (this.mode === 'creation') {
+      import('./SilhouetteCreatorTool.js');
+      return html`<silhouette-creator-tool></silhouette-creator-tool>`
+    }
+    import('./start-popup.js');
+    return html`<start-popup @close="${event => this.mode = event.target.mode}"></start-popup>`
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    console.log('tangramManager connected', this.mode)
+    this.tangramStart()
+    this.resetListener = app.addListener('new-window', this.reset.bind(this));
+    this.fileListener = app.addListener('file-parsed', this.readFile.bind(this))
+    console.log(app.workspace.data, app.tangram)
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    console.log('tangramManager disconnected')
+    app.tangramCanvasLayer.removeAllObjects();
+    app.removeListener('new-window', this.resetListener);
+    app.removeListener('file-parsed', this.fileListener)
+  }
 }
+customElements.define('tangram-manager', TangramManager);

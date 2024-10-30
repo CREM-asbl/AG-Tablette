@@ -21,6 +21,7 @@ export class SilhouetteCreatorTool extends LitElement {
   }
 
   async connectedCallback() {
+    super.connectedCallback();
     let tool = app.tools.find(tool => tool.name == 'translate');
     tool.isDisable = false;
     tool = app.tools.find(tool => tool.name == 'color');
@@ -51,6 +52,7 @@ export class SilhouetteCreatorTool extends LitElement {
   }
 
   disconnectedCallback() {
+    super.disconnectedCallback();
     window.removeEventListener('actions-executed', this.verifyOverlappingShapes);
     window.removeEventListener('create-silhouette', this.createSilhouette);
     window.removeEventListener('file-parsed', this.remove.bind(this))

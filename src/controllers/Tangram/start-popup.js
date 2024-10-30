@@ -1,10 +1,12 @@
 import '@components/color-button';
 import '@components/popups/template-popup';
 import { html, LitElement } from 'lit';
-import { openPopupFile } from '../Core/Managers/OpenFileManager';
-import { createElem } from '../Core/Tools/general';
 
 class StartPopup extends LitElement {
+
+  static properties = {
+    mode: { type: String }
+  }
 
   render() {
     return html`
@@ -21,19 +23,17 @@ class StartPopup extends LitElement {
   }
 
   createSilhouette() {
+    this.mode = 'creation'
     this.close();
-    import('./SilhouetteCreatorTool')
-    createElem('silhouette-creator-tool')
   }
 
   async reproduceSilhouette() {
+    this.mode = 'reproduction'
     this.close();
-    import('./SolutionCheckerTool')
-    createElem('solution-checker-tool')
-    await openPopupFile()
   }
 
   close() {
+    this.dispatchEvent(new CustomEvent('close'));
     this.remove();
   }
 }

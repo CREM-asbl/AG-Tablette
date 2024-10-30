@@ -1,4 +1,4 @@
-import { LitElement } from 'lit';
+import { html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Bounds } from '../Core/Objects/Bounds';
@@ -6,10 +6,41 @@ import { Coordinates } from '../Core/Objects/Coordinates';
 import { Segment } from '../Core/Objects/Segment';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import { createElem } from '../Core/Tools/general.js';
 import { Silhouette } from './Silhouette';
 import { TangramManager } from './TangramManager';
 
+export const closeForbiddenCanvas = () => {
+  app.workspace.limited = false
+  app.tangramCanvasLayer.style.backgroundColor = 'transparent'
+  app.tangramCanvasLayer.style.zIndex = 0
+}
+
 export class SolutionCheckerTool extends LitElement {
+
+  static properties = {
+    data: { type: Object }
+  }
+
+  render() {
+    if (window.dev_mode) console.log(this.data)
+    if (!this.data) return this.renderOpenPopup();
+  }
+
+  renderOpenPopup() {
+    import('@components/popups/open-popup');
+    return html`<open-popup></open-popup>`
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('data')) {
+      closeForbiddenCanvas()
+      app.tangramCanvasLayer.removeAllObjects();
+      this.initData()
+      this.resetMenu()
+      this.solutionShapes = null
+    }
+  }
 
   showMenu() {
     this.stateMenu = app.left_menu.querySelector('state-menu');
@@ -20,8 +51,18 @@ export class SolutionCheckerTool extends LitElement {
     }
   }
 
+  resetMenu() {
+    setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } })
+  }
+
+  static async selectLevel() {
+    await import('./level-popup.js');
+    const popup = createElem('level-popup');
+    return new Promise((resolve) => popup.onselect = e => resolve(e.detail))
+  }
+
   async initData() {
-    const level = this.data.tangramLevelSelected || await TangramManager.selectLevel();
+    const level = this.data.tangramLevelSelected || await SolutionCheckerTool.selectLevel();
     if (this.data.fileExtension == 'ags') await TangramManager.initShapes();
 
     const backObjects = this.data.wsdata.backObjects
@@ -75,28 +116,21 @@ export class SolutionCheckerTool extends LitElement {
         },
       });
     }
+    this.showMenu()
   }
 
   connectedCallback() {
-    this.fileListener = app.addListener('file-parsed', this.readFile.bind(this))
+    super.connectedCallback();
     this.tangramListener = app.addListener('tangram-changed', this.handler.bind(this));
-    this.newWindowListener = app.addListener('new-window', this.remove.bind(this));
     this.objectSelectedId = app.addListener('objectSelected', this.handler.bind(this));
   }
 
   disconnectedCallback() {
+    super.disconnectedCallback()
     this.stateMenu.close()
     closeForbiddenCanvas();
-    app.removeListener('file-parsed', this.fileListener)
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('tangram-changed', this.tangramListener);
-    app.removeListener('new-window', this.newWindowListener);
-  }
-
-  start() {
-    this.initData()
-    this.showMenu()
-    this.solutionShapes = null
   }
 
   check() {
@@ -111,20 +145,7 @@ export class SolutionCheckerTool extends LitElement {
 
   uncheck() { this.eraseSolution(); }
 
-
-  readFile(event) {
-    console.log("readFile")
-    this.data = event.detail;
-    if (this.data.envName != 'Tangram') return
-    closeForbiddenCanvas();
-    app.tangramCanvasLayer.removeAllObjects();
-    this.start();
-  }
-
-
   handler(event) {
-    console.log('checker handler')
-    console.log(this.stateMenu)
     if (this.stateMenu)
       this.stateMenu.check = app.tangram.currentStep === 'check'
 
@@ -170,7 +191,6 @@ export class SolutionCheckerTool extends LitElement {
       this.solutionShapes.forEach(shape => app.mainCanvasLayer.shapes.push(shape))
     else
       this.solutionShapes = this.solution
-    window.dispatchEvent(new CustomEvent('refresh'));
   }
 
   get solution() {
@@ -339,10 +359,3 @@ export class SolutionCheckerTool extends LitElement {
   }
 }
 customElements.define('solution-checker-tool', SolutionCheckerTool);
-
-
-export const closeForbiddenCanvas = () => {
-  app.workspace.limited = false
-  app.tangramCanvasLayer.style.backgroundColor = 'transparent'
-  app.tangramCanvasLayer.style.zIndex = 0
-}
