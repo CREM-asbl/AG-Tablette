@@ -15,10 +15,6 @@ const hasOverlapedShape = (shapes) => {
  * Créer une silhouette
  */
 export class SilhouetteCreatorTool extends LitElement {
-  constructor() {
-    super()
-    this.isUserWarnedAboutOverlap = false;
-  }
 
   async connectedCallback() {
     super.connectedCallback();
@@ -26,18 +22,13 @@ export class SilhouetteCreatorTool extends LitElement {
     tool.isDisable = false;
     tool = app.tools.find(tool => tool.name == 'color');
     tool.isDisable = true;
-
-    setState({ tools: app.tools });
-
-    app.tangramCanvasLayer.removeAllObjects();
-    window.dispatchEvent(new CustomEvent('refresh-background'));
-
-    this.isUserWarnedAboutOverlap = false;
+    app.isUserWarnedAboutOverlap = false;
     app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
 
     await TangramManager.initShapes(true);
 
     setState({
+      tools: [...app.tools],
       history: {
         ...app.history,
         startSituation: {
@@ -47,28 +38,22 @@ export class SilhouetteCreatorTool extends LitElement {
     });
     window.addEventListener('actions-executed', this.verifyOverlappingShapes);
     window.addEventListener('create-silhouette', this.createSilhouette);
-    window.addEventListener('file-parsed', this.remove.bind(this))
-    window.addEventListener('new-window', this.remove.bind(this))
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     window.removeEventListener('actions-executed', this.verifyOverlappingShapes);
     window.removeEventListener('create-silhouette', this.createSilhouette);
-    window.removeEventListener('file-parsed', this.remove.bind(this))
-    window.removeEventListener('new-window', this.remove.bind(this))
   }
 
   createSilhouette() {
-    app.tangramCanvasLayer.removeAllObjects();
     const shapes = app.mainCanvasLayer.shapes;
     if (!hasOverlapedShape(shapes)) return new Silhouette(shapes);
   }
 
   verifyOverlappingShapes() {
-    app.mainCanvasLayer.shapes.forEach((s) => {
-      s.isOverlappingAnotherInTangram = false;
-    });
+    let overlap = false
+    app.mainCanvasLayer.shapes.forEach((s) => { s.isOverlappingAnotherInTangram = false });
     app.mainCanvasLayer.shapes.forEach((s, idx, shapes) => {
       let index = app.mainCanvasLayer.shapes.findIndex((s2) => {
         if (s.id == s2.id) return false;
@@ -76,18 +61,20 @@ export class SilhouetteCreatorTool extends LitElement {
         return false;
       });
       if (index != -1) {
-        if (!this.isUserWarnedAboutOverlap) {
-          window.dispatchEvent(
-            new CustomEvent('show-notif', {
-              detail: { message: 'Certaines figures se superposent.' },
-            }),
-          );
-          this.isUserWarnedAboutOverlap = true;
-        }
+        overlap = true
         s.isOverlappingAnotherInTangram = true;
         shapes[index].isOverlappingAnotherInTangram = true;
       }
     });
+
+    if (overlap && !app.isUserWarnedAboutOverlap) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Certaines figures se superposent.' },
+        }),
+      );
+      app.isUserWarnedAboutOverlap = true;
+    }
   }
 }
 customElements.define('silhouette-creator-tool', SilhouetteCreatorTool);

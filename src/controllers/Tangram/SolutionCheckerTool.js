@@ -98,6 +98,7 @@ export class SolutionCheckerTool extends LitElement {
     app.tools.find(tool => tool.name == 'color').isDisable = false;
 
     setState({
+      tools: [...app.tools],
       tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
     });
 

@@ -17,11 +17,6 @@ export class TangramManager extends LitElement {
     tool = app.tools.find(tool => tool.name == 'color');
     tool.isDisable = true;
     setState({ tools: [...app.tools] })
-    // import('./start-popup.js');
-    // const popup = createElem('start-popup');
-    // console.log('popup start')
-    // this.mode = await new Promise(resolve => popup.onclose = () => resolve(popup.mode))
-    // console.log(this.mode)
   }
 
   static async initShapes(isForCreation = false) {
@@ -46,7 +41,6 @@ export class TangramManager extends LitElement {
   }
 
   reset() {
-    console.log('reset')
     setState({ tangram: { ...app.defaultState.tangram } });
     this.tangramStart();
     this.mode = null;
@@ -67,7 +61,6 @@ export class TangramManager extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    console.log('tangramManager connected', this.mode)
     this.tangramStart()
     this.resetListener = app.addListener('new-window', this.reset.bind(this));
     this.fileListener = app.addListener('file-parsed', this.readFile.bind(this))
@@ -76,7 +69,6 @@ export class TangramManager extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    console.log('tangramManager disconnected')
     app.tangramCanvasLayer.removeAllObjects();
     app.removeListener('new-window', this.resetListener);
     app.removeListener('file-parsed', this.fileListener)
