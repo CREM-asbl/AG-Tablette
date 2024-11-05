@@ -162,7 +162,7 @@ class AGMain extends LitElement {
                       </icon-button> -->
         </div>
 
-        <canvas-container id="canvas-container" forbiddenCanvasLeft="${app.forbiddenCanvasLeft}"</canvas-container>
+        <canvas-container id="canvas-container" .environment=${app.environment}></canvas-container>
       </div>
 
       <notif-center></notif-center>

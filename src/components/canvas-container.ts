@@ -8,7 +8,8 @@ class CanvasContainer extends LitElement {
   @property({ type: Object }) cursorPos = Coordinates.nullCoordinates
   @property({ type: Number }) cursorSize = 20
   @property({ type: Boolean }) cursorShow = false
-  @property({ type: Number }) forbiddenCanvasLeft
+  @property({ type: Object }) environment
+
 
   static styles = css`
     :host {
@@ -41,7 +42,7 @@ class CanvasContainer extends LitElement {
       <canvas-layer id="backgroundCanvas"></canvas-layer>
 
       <!-- for grid points or tangram outline -->
-      ${app.environment.name !== 'Tangram' ? html`<canvas-layer id="gridCanvas"></canvas-layer>` : html`<canvas-layer id="tangramCanvas" style="left:50%"></canvas-layer>`}
+      ${this.environment.name !== 'Tangram' ? html`<canvas-layer id="gridCanvas"></canvas-layer>` : html`<canvas-layer id="tangramCanvas" style="left:50%"></canvas-layer>`}
 
       <!-- for the shapes -->
       <canvas-layer id="mainCanvas"></canvas-layer>

@@ -44,6 +44,7 @@ export class TangramManager extends LitElement {
     setState({ tangram: { ...app.defaultState.tangram } });
     this.tangramStart();
     this.mode = null;
+    this.data = null;
   }
 
   render() {
@@ -55,6 +56,7 @@ export class TangramManager extends LitElement {
       import('./SilhouetteCreatorTool.js');
       return html`<silhouette-creator-tool></silhouette-creator-tool>`
     }
+    if (app.dataLoading) return
     import('./start-popup.js');
     return html`<start-popup @close="${event => this.mode = event.target.mode}"></start-popup>`
   }

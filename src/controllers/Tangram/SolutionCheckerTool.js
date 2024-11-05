@@ -23,23 +23,18 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   render() {
-    if (window.dev_mode) console.log(this.data)
+    if (window.dev_mode) console.log('render', this.data)
     if (!this.data) return this.renderOpenPopup();
+    closeForbiddenCanvas()
+    app.tangramCanvasLayer.removeAllObjects();
+    this.eraseSolution()
+    this.solutionShapes = null
+    this.initData(this.data)
   }
 
   renderOpenPopup() {
     import('@components/popups/open-popup');
     return html`<open-popup></open-popup>`
-  }
-
-  updated(changedProperties) {
-    if (changedProperties.has('data')) {
-      closeForbiddenCanvas()
-      app.tangramCanvasLayer.removeAllObjects();
-      this.initData()
-      this.resetMenu()
-      this.solutionShapes = null
-    }
   }
 
   showMenu() {
@@ -51,21 +46,17 @@ export class SolutionCheckerTool extends LitElement {
     }
   }
 
-  resetMenu() {
-    setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } })
-  }
-
   static async selectLevel() {
     await import('./level-popup.js');
     const popup = createElem('level-popup');
     return new Promise((resolve) => popup.onselect = e => resolve(e.detail))
   }
 
-  async initData() {
-    const level = this.data.tangramLevelSelected || await SolutionCheckerTool.selectLevel();
-    if (this.data.fileExtension == 'ags') await TangramManager.initShapes();
+  async initData(data) {
+    const level = data.tangramLevelSelected || await SolutionCheckerTool.selectLevel();
+    if (data.fileExtension == 'ags') await TangramManager.initShapes();
 
-    const backObjects = this.data.wsdata.backObjects
+    const backObjects = data.wsdata.backObjects
     let isSilhouetteShown = false;
 
     if (backObjects) {
@@ -78,7 +69,7 @@ export class SolutionCheckerTool extends LitElement {
 
       const silhouette = new Silhouette(backObjects.shapesData, true, level)
 
-      if (this.data.fileExtension != 'agt') {
+      if (data.fileExtension != 'agt') {
         if (level > 4) { silhouette.scale(0.6) }
         silhouette.translate({ x: -silhouette.bounds.minX, y: (app.canvasHeight / 2) - silhouette.center.y })
         const tangramCanvasLayerWidth = app.canvasWidth / 2
@@ -165,10 +156,8 @@ export class SolutionCheckerTool extends LitElement {
       }
     }
 
-    if (event.type == 'tangram-changed') {
-      if (['check', 'uncheck'].includes(app.tangram.currentStep)) {
-        this[app.tangram.currentStep]();
-      }
+    if (event.type == 'tangram-changed' && ['check', 'uncheck'].includes(app.tangram.currentStep)) {
+      this[app.tangram.currentStep]();
     }
 
     if (event.type == 'objectSelected') this.objectSelected(event.detail.object);

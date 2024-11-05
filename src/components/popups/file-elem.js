@@ -4,6 +4,7 @@ import { loadEnvironnement } from '@controllers/Core/Environment';
 import { OpenFileManager } from '@controllers/Core/Managers/OpenFileManager';
 import { readFileFromServer } from '@db/firebase-init';
 import { LitElement, css, html } from 'lit';
+import { setState } from '../../controllers/Core/App';
 import './open-server-popup';
 
 class FileElem extends LitElement {
@@ -42,6 +43,7 @@ class FileElem extends LitElement {
       if (!confirm('Voulez-vous ouvrir ce fichier dans ' + this.environment + '?')) return
       loadEnvironnement(this.environment);
     }
+    setState({ dataLoading: true })
     const button = this.shadowRoot?.querySelector('color-button')
     button?.setAttribute('loading', 'true')
     button.disabled = true
@@ -54,6 +56,7 @@ class FileElem extends LitElement {
     OpenFileManager.parseFile(fileDownloadedObject, this.title);
     console.log('file opened', performance.now() - t)
     window.dispatchEvent(new CustomEvent('close-popup'));
+    setState({ dataLoading: false })
   }
 
   filenameWithoutExtension(fileName) {
