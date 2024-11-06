@@ -69,6 +69,7 @@ export class Workspace {
   }
 
   initFromObject(wsdata, center = true) {
+    console.log(wsdata)
     this.zoomLevel = wsdata?.zoomLevel || 1;
     if (!wsdata) {
       this.resetWorkspace()
@@ -91,11 +92,17 @@ export class Workspace {
       this.translationLastCharacteristicElements = wsdata.translationLastCharacteristicElements.map(element => new CharacteristicElements(element));
     }
 
+    const scaleOffset = Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height)
+    this.setTranslateOffset(new Coordinates({
+      x: wsdata.translateOffset ? wsdata.translateOffset.x * scaleOffset : 0,
+      y: wsdata.translateOffset ? wsdata.translateOffset.y * scaleOffset : 0
+    }))
+    this.setZoomLevel(wsdata.zoomLevel * scaleOffset || scaleOffset, false)
+
     // this.translateOffset = new Coordinates(wsdata.translateOffset || { x: 0, y: 0 });
     // if (wsdata.canvasSize &&
     //   (wsdata.canvasSize.width != app.canvasWidth ||
     //     wsdata.canvasSize.height != app.canvasHeight)) {
-    //   const scaleOffset = Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height),
     //     originalZoom = this.zoomLevel,
     //     newZoom = originalZoom * scaleOffset,
     //     originalTranslateOffset = this.translateOffset,
