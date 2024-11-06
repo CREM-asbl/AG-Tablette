@@ -44,7 +44,6 @@ export class CentralSymetryTool extends Tool {
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.points.canSelect = true;
-    // app.workspace.selectionConstraints.points.canSelectFromUpper = true;
     this.animate();
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
@@ -117,18 +116,18 @@ export class CentralSymetryTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(object);
     this.drawingShapes = this.involvedShapes.map(
       (s) =>
-      new s.constructor({
-        ...s,
-        layer: 'upper',
-        path: s.getSVGPath('no scale', false),
-        id: undefined,
-        segmentsColor: s.segments.map((seg) => {
-          return seg.color;
+        new s.constructor({
+          ...s,
+          layer: 'upper',
+          path: s.getSVGPath('no scale', false),
+          id: undefined,
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.vertexes.map((pt) => {
+            return pt.color;
+          }),
         }),
-        pointsColor: s.vertexes.map((pt) => {
-          return pt.color;
-        }),
-      }),
     );
     setState({
       tool: {

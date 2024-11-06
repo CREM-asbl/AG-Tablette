@@ -166,9 +166,7 @@ export class SolutionCheckerTool extends LitElement {
   objectSelected(object) {
     let solutionShapes = app.mainCanvasLayer.shapes.filter(shape => shape.name == "tangramChecker");
     let index = solutionShapes.findIndex((s) => object.id == s.id);
-    if (index == -1) {
-      setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } })
-    }
+    if (index == -1) setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } })
   }
 
   eraseSolution() {

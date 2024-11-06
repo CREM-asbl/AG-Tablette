@@ -453,19 +453,16 @@ class CanvasLayer extends LitElement {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
-      window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
-      );
+      if (event.touches.length === 1)
+        window.dispatchEvent(
+          new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+        );
       if (
         app.listenerCounter.objectSelected &&
         'mousedown' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
-      let detail = {
-        touches: [],
-      };
+      let detail = { touches: [] };
       for (let touch of event.touches) {
         detail.touches.push(
           new Coordinates({
@@ -484,14 +481,11 @@ class CanvasLayer extends LitElement {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
-      window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
-      );
-      let detail = {
-        touches: [],
-      };
+      if (event.touches.length === 1)
+        window.dispatchEvent(
+          new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+        );
+      const detail = { touches: [] };
       for (let touch of event.touches) {
         detail.touches.push(
           new Coordinates({
@@ -517,19 +511,16 @@ class CanvasLayer extends LitElement {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
-      window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
-      );
+      if (event.touches.length === 1)
+        window.dispatchEvent(
+          new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+        );
       if (
         app.listenerCounter.objectSelected &&
         'click' == app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
-      let detail = {
-        touches: [],
-      };
+      let detail = { touches: [] }
       for (let touch of event.changedTouches) {
         detail.touches.push(
           new Coordinates({

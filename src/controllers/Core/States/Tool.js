@@ -87,9 +87,7 @@ export class Tool {
       if (event.type == 'objectSelected') {
         this.objectSelected(event.detail.object);
       } else if (
-        ['canvasTouchStart', 'canvasTouchMove', 'canvasTouchEnd'].includes(
-          event.type,
-        )
+        ['canvasTouchStart', 'canvasTouchMove', 'canvasTouchEnd'].includes(event.type)
       ) {
         this[event.type](event.detail.touches);
       } else if (event.type == 'canvasMouseWheel') {

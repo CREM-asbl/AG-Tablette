@@ -54,8 +54,7 @@ class CanvasContainer extends LitElement {
         src="/images/fake_cursor.png"
         height="${this.cursorSize}"
         width="${this.cursorSize}"
-        style="margin-left: ${this.cursorPos.x}px; z-index: 50; position: relative; margin-top: ${this.cursorPos.y
-      }px; display: ${this.cursorShow ? 'block' : 'none'}"
+        style="margin-left: ${this.cursorPos.x}px; z-index: 50; position: relative; margin-top: ${this.cursorPos.y}px; display: ${this.cursorShow ? 'block' : 'none'}"
       />
     `
   }
@@ -67,15 +66,11 @@ class CanvasContainer extends LitElement {
     setState({ started: true });
 
     window.addEventListener('mouse-coordinates-changed', (event) => {
-      app.workspace.lastKnownMouseCoordinates = new Coordinates(
-        event.detail.mousePos,
-      );
+      app.workspace.lastKnownMouseCoordinates = new Coordinates(event.detail.mousePos);
     });
 
     window.addEventListener('mouse-click-changed', (event) => {
-      app.workspace.lastKnownMouseClickCoordinates = new Coordinates(
-        event.detail.mousePos,
-      );
+      app.workspace.lastKnownMouseClickCoordinates = new Coordinates(event.detail.mousePos);
       app.workspace.lastKnownMouseClickTime = event.timeStamp;
     });
 
@@ -83,7 +78,7 @@ class CanvasContainer extends LitElement {
       let mousePos = app.workspace.lastKnownMouseCoordinates;
       this.cursorPos = mousePos.toCanvasCoordinates();
       this.cursorPos = this.cursorPos.substract(
-        new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 }),
+        new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 })
       );
       this.cursorShow = true;
       window.clearTimeout(this.timeoutId);

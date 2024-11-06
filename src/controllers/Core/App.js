@@ -65,8 +65,7 @@ export class App {
     };
 
     this.tangram = {
-      isSilhouetteShown: false,
-      currentStep: null
+      isSilhouetteShown: false
     }
 
     this.stepSinceSave = false

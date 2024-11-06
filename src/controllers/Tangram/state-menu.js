@@ -26,10 +26,10 @@ class StateMenu extends LitElement {
 
   render() {
     const text = this.check ? 'Annuler la vérification' : 'Vérifier la solution';
-    return html`<button @click="${() => this.clickHandler()}">${text}</button>`
+    return html`<button @click="${this.clickHandler}">${text}</button>`
   }
 
-  clickHandler(value) {
+  clickHandler() {
     if (!app.fullHistory.isRunning) {
       const value = this.check ? 'uncheck' : 'check'
       setState({ tangram: { ...app.tangram, currentStep: value } });
