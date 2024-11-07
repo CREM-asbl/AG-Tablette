@@ -1,7 +1,7 @@
 {
   "name": "Apprenti Géomètre mobile",
   "short_name": "AG mobile",
-  "version": "1.4.6 beta 2",
+  "version": "1.4.6",
   "id": "/",
   "start_url": "/",
   "display": "fullscreen",
