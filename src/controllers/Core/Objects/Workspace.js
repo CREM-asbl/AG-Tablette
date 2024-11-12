@@ -68,8 +68,7 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
-  initFromObject(wsdata, center = true) {
-    console.log(wsdata)
+  initFromObject(wsdata) {
     this.zoomLevel = wsdata?.zoomLevel || 1;
     if (!wsdata) {
       this.resetWorkspace()
@@ -171,7 +170,6 @@ export class Workspace {
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       window.dispatchEvent(new CustomEvent('refreshGrid'));
-      window.dispatchEvent(new CustomEvent('refreshTangram'));
     }
   }
 
@@ -189,7 +187,6 @@ export class Workspace {
       window.dispatchEvent(new CustomEvent('refresh'));
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       window.dispatchEvent(new CustomEvent('refreshGrid'));
-      window.dispatchEvent(new CustomEvent('refreshTangram'));
     }
   }
 

@@ -255,10 +255,10 @@ export class SelectManager {
           })
         ) {
           // pt.isBehindShape = false;
-        // } else {
+          // } else {
           pt.isBehindShape = true;
         }
-          // notHiddenPoints.push(pt);
+        // notHiddenPoints.push(pt);
       });
 
       // if no possibilities

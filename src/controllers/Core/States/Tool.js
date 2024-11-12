@@ -58,9 +58,7 @@ export class Tool {
    */
   animate() {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
-    this.requestAnimFrameId = window.requestAnimationFrame(() =>
-      this.animate(),
-    );
+    this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
   }
 
   stopAnimation() {

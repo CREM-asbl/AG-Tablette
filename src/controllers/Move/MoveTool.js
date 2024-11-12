@@ -67,7 +67,6 @@ export class MoveTool extends Tool {
 
   move() {
     this.removeListeners();
-
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -83,7 +82,6 @@ export class MoveTool extends Tool {
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
-
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
     if (app.environment.name == 'Geometrie') {
@@ -105,18 +103,13 @@ export class MoveTool extends Tool {
     this.lastKnownMouseCoordinates = this.startClickCoordinates;
 
     this.shapesToCopy.sort(
-      (s1, s2) =>
-        ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
+      (s1, s2) => ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2)
     );
 
-    this.drawingShapes = this.shapesToCopy.map(
-      (s) => duplicateShape(s)
-    );
+    this.drawingShapes = this.shapesToCopy.map((s) => duplicateShape(s));
     this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => compareIdBetweenLayers(inShape.id, s.id)));
 
-    app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(
-      (s) => s.id,
-    );
+    app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map((s) => s.id);
 
     app.upperCanvasLayer.shapes.forEach(s => {
       s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
@@ -131,7 +124,6 @@ export class MoveTool extends Tool {
 
   canvasMouseUp() {
     if (app.tool.currentStep != 'move') return;
-
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
@@ -143,7 +135,6 @@ export class MoveTool extends Tool {
     if (app.tool.currentStep == 'move') {
       if (this.shapesToMove.length == 1 && this.shapesToMove[0].name == 'PointOnLine') {
         let s = this.shapesToMove[0];
-
         let point = s.points[0];
         let reference = findObjectById(s.geometryObject.geometryParentObjectId1);
         point.coordinates = reference.projectionOnSegment(app.workspace.lastKnownMouseCoordinates);

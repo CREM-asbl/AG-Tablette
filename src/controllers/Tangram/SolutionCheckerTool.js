@@ -126,6 +126,7 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   check() {
+    console.log('check')
     this.checkSolution();
     setState({
       tool: { name: 'verifySolution', title: 'Vérifier la solution', currentStep: 'start' }
@@ -156,7 +157,9 @@ export class SolutionCheckerTool extends LitElement {
       }
     }
 
-    if (event.type == 'tangram-changed' && ['check', 'uncheck'].includes(app.tangram.currentStep)) {
+    if (event.type == 'tangram-changed' &&
+      ['check', 'uncheck'].includes(app.tangram.currentStep) &&
+      !app.fullHistory.isRunning) {
       this[app.tangram.currentStep]();
     }
 

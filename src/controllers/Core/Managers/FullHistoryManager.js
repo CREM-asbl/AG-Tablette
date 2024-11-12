@@ -8,13 +8,10 @@ import { SelectManager } from './SelectManager';
  */
 export class FullHistoryManager {
   static startBrowsing() {
-    console.log(app.workspace.zoomLevel)
     let numberOfActions = app.fullHistory.steps.filter((step) => step.type == 'add-fullstep').length;
     if (numberOfActions == 0) {
       window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: "L'historique est vide." },
-        }),
+        new CustomEvent('show-notif', { detail: { message: "L'historique est vide." } })
       );
       return;
     }
@@ -81,13 +78,10 @@ export class FullHistoryManager {
 
   static setWorkspaceToStartSituation() {
     app.workspace.initFromObject(app.history.startSituation);
-    setState({
-      settings: { ...app.history.startSettings },
-    });
+    setState({ settings: { ...app.history.startSettings } });
   }
 
   static moveTo(actionIndex, isForSingleActionPlaying = false) {
-    console.log(actionIndex)
     FullHistoryManager.pauseBrowsing();
     let index = app.fullHistory.steps.findIndex(
       (step) => step.detail?.actionIndex === actionIndex && step.type == 'add-fullstep');
@@ -98,10 +92,7 @@ export class FullHistoryManager {
       );
       data = app.fullHistory.steps[index - 1]?.detail.data;
     }
-    console.log(index)
     if (data) {
-      console.log(app.fullHistory)
-      console.log(data)
       app.workspace.initFromObject({ ...data });
       let settings = {
         ...app.settings,
@@ -118,9 +109,6 @@ export class FullHistoryManager {
     if (!isForSingleActionPlaying)
       index++;
     setState({ fullHistory: { ...app.fullHistory, actionIndex: actionIndex, index }, tool: undefined });
-
-    app.upperCanvasLayer.removeAllObjects(); // temporary patch
-    app.upperCanvasLayer.redraw(); // temporary patch
   }
 
   static executeAllSteps(onlySingleAction = false) {
@@ -138,25 +126,22 @@ export class FullHistoryManager {
     let index = app.fullHistory.index + 1;
     let timeoutId = setTimeout(
       () => FullHistoryManager.executeAllSteps(onlySingleAction),
-      FullHistoryManager.nextTime + 50, // nextTime,
+      FullHistoryManager.nextTime + 50 // nextTime,
     );
     setState({ fullHistory: { ...app.fullHistory, index, timeoutId } });
-
     FullHistoryManager.nextTime = 0;
   }
 
   static executeStep(index = app.fullHistory.index) {
     let { type, detail } = app.fullHistory.steps[index];
-    if (detail && detail.mousePos) {
-      detail.mousePos = new Coordinates(detail.mousePos);
-    }
+    if (detail && detail.mousePos) { detail.mousePos = new Coordinates(detail.mousePos) }
 
     if (detail.actionIndex) {
       setState({
         fullHistory: {
           ...app.fullHistory,
           actionIndex: detail.actionIndex,
-        },
+        }
       });
     }
 
@@ -174,10 +159,7 @@ export class FullHistoryManager {
         setState({ tangram: { ...data.tangram } });
       }, FullHistoryManager.nextTime + 30);
       if (app.fullHistory.numberOfActions + 1 == app.fullHistory.actionIndex)
-        setTimeout(
-          () => FullHistoryManager.stopBrowsing(),
-          FullHistoryManager.nextTime,
-        );
+        setTimeout(() => FullHistoryManager.stopBrowsing(), FullHistoryManager.nextTime)
       return true;
     } else if (type == 'tool-changed' || type == 'tool-updated') {
       setState({ tool: { ...detail } });

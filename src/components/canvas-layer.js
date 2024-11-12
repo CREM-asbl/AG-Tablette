@@ -84,7 +84,6 @@ class CanvasLayer extends LitElement {
   }
 
   draw(scaling = 'scale') {
-    // console.log('draw', this.canvasName)
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id == id) == -1) {
@@ -291,9 +290,7 @@ class CanvasLayer extends LitElement {
       this.createListeners()
       window.addEventListener('tool-updated', () => this.redraw());
     } else if (this.canvasName == 'main') {
-      window.addEventListener('refresh', () => {
-        this.redraw();
-      });
+      window.addEventListener('refresh', () => this.redraw());
       window.addEventListener('tool-updated', () => this.redraw());
     } else if (this.canvasName == 'grid') {
       window.addEventListener('settings-changed', () => this.redraw());
@@ -340,9 +337,7 @@ class CanvasLayer extends LitElement {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
       if (
         app.listenerCounter.objectSelected &&
@@ -364,18 +359,13 @@ class CanvasLayer extends LitElement {
       }
 
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
       window.dispatchEvent(
-        new CustomEvent('mouse-click-changed', {
-          detail: { mousePos: mousePos },
-        }),
+        new CustomEvent('mouse-click-changed', { detail: { mousePos: mousePos } })
       );
 
-      if (mustExitFunction)
-        return;
+      if (mustExitFunction) return
 
       if (
         app.listenerCounter.objectSelected &&
@@ -391,9 +381,7 @@ class CanvasLayer extends LitElement {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
       window.clearTimeout(this.pressTimeoutId);
       window.dispatchEvent(new CustomEvent('canvasMouseUp'));
@@ -403,9 +391,7 @@ class CanvasLayer extends LitElement {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
       if (this.pressPositionForLongPress?.dist(mousePos) > 5)
         window.clearTimeout(this.pressTimeoutId);
@@ -417,9 +403,7 @@ class CanvasLayer extends LitElement {
       if (app.fullHistory.isRunning) return;
       let mousePos = this.getMousePos(event);
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
       window.dispatchEvent(new CustomEvent('canvasMouseUp'));
     });
@@ -432,9 +416,7 @@ class CanvasLayer extends LitElement {
         y: event.clientY,
       });
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', {
-          detail: { mousePos: mousePos },
-        }),
+        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
       let correctedDeltaY = event.deltaY;
       if (event.deltaY > 0) {
