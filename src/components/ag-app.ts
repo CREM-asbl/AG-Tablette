@@ -1,11 +1,11 @@
 import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
+import '../controllers/auto-launch';
+import '../controllers/backbutton-manager';
+import { app } from '../controllers/Core/App';
+import { loadEnvironnement } from '../controllers/Core/Environment';
+import '../controllers/Core/Manifest';
 import { openFileFromServer } from '../firebase/firebase-init';
-import './auto-launch';
-import './backbutton-manager';
-import { app } from './Core/App';
-import { loadEnvironnement } from './Core/Environment';
-import './Core/Manifest';
 
 /**
  * fix device-height != screen-height on pwa
@@ -53,7 +53,7 @@ export class App extends LitElement {
       return html`<ag-environnements></ag-environnements>`;
     }
     if (this.appLoading) {
-      import('../components/loading-elem');
+      import('./loading-elem');
       return html`<loading-elem></loading-elem>`;
     }
   }

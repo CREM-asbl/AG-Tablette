@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit';
-import { loadEnvironnement } from './Core/Environment';
+import { loadEnvironnement } from '../controllers/Core/Environment';
 
 class AgEnvironnements extends LitElement {
   static get styles() {

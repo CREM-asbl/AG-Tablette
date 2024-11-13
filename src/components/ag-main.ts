@@ -6,17 +6,17 @@ import '@components/toolbar-section';
 import { bugSend } from '@controllers/Bugs';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import '../components/canvas-container';
-import { app, setState } from './Core/App';
-import './Core/Managers/FullHistoryManager';
-import './Core/Managers/GroupManager';
-import { HistoryManager } from './Core/Managers/HistoryManager';
-import { OpenFileManager } from './Core/Managers/OpenFileManager';
-import './Core/Managers/SaveFileManager';
-import './Core/Managers/SelectManager';
-import './Core/Managers/ShapeManager';
-import './Core/Managers/WorkspaceManager';
-import { createElem, rgb2hex, RGBFromColor } from './Core/Tools/general';
+import { app, setState } from '../controllers/Core/App';
+import '../controllers/Core/Managers/FullHistoryManager';
+import '../controllers/Core/Managers/GroupManager';
+import { HistoryManager } from '../controllers/Core/Managers/HistoryManager';
+import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
+import '../controllers/Core/Managers/SaveFileManager';
+import '../controllers/Core/Managers/SelectManager';
+import '../controllers/Core/Managers/ShapeManager';
+import '../controllers/Core/Managers/WorkspaceManager';
+import { createElem, rgb2hex, RGBFromColor } from '../controllers/Core/Tools/general';
+import './canvas-container';
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 
@@ -188,7 +188,7 @@ class AGMain extends LitElement {
 
   addModules() {
     if (app.environment.name === 'Tangram') {
-      import('./Tangram/TangramManager');
+      import('../controllers/Tangram/TangramManager');
       return html`<tangram-manager></tangram-manager>`
     }
     return
@@ -207,7 +207,7 @@ class AGMain extends LitElement {
     }
     switch (event.target.name) {
       case 'settings':
-        import('../components/popups/settings-popup');
+        import('./popups/settings-popup');
         createElem('settings-popup');
         resetTool = true;
         break;
@@ -220,7 +220,7 @@ class AGMain extends LitElement {
         resetTool = true;
         break;
       case 'home':
-        import('../components/popups/home-popup');
+        import('./popups/home-popup');
         createElem('home-popup');
         resetTool = true;
         break;
