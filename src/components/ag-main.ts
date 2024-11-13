@@ -207,54 +207,55 @@ class AGMain extends LitElement {
       console.info('cannot interact when fullHisto is running');
       return;
     }
-    let resetTool = false;
+
     if (this.helpSelected) {
       window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: event.target.name } }));
       setState({ helpSelected: false });
       return;
     }
-    switch (event.target.name) {
-      case 'settings':
+
+    const actions = {
+      'settings': () => {
         import('./popups/settings-popup');
         createElem('settings-popup');
-        resetTool = true;
-        break;
-      case 'save':
+        return true; // Indique que l'outil doit être réinitialisé
+      },
+      'save': () => {
         window.dispatchEvent(new CustomEvent('save-file'));
-        resetTool = true;
-        break;
-      case 'open':
+        return true;
+      },
+      'open': () => {
         window.dispatchEvent(new CustomEvent('open-file'));
-        resetTool = true;
-        break;
-      case 'home':
+        return true;
+      },
+      'home': () => {
         import('./popups/home-popup');
         createElem('home-popup');
-        resetTool = true;
-        break;
-      case 'undo':
-        window.dispatchEvent(new CustomEvent('undo'));
-        break;
-      case 'redo':
-        window.dispatchEvent(new CustomEvent('redo'));
-        break;
-      case 'replay':
-        window.dispatchEvent(new CustomEvent('start-browsing'));
-        break;
-      case 'help':
+        return true;
+      },
+      'undo': () => window.dispatchEvent(new CustomEvent('undo')),
+      'redo': () => window.dispatchEvent(new CustomEvent('redo')),
+      'replay': () => window.dispatchEvent(new CustomEvent('start-browsing')),
+      'help': () => {
         setState({ helpSelected: true });
-        resetTool = true;
-        break;
-      default:
-        console.info(
-          'unknow event type: ' + event.type + ', with event: ',
-          event,
-        );
-    }
-    if (resetTool) {
-      setState({ tool: null });
+        return true;
+      },
+    };
+
+    const action = actions[event.target.name];
+    if (action) {
+      const resetTool = action();
+      if (resetTool) {
+        setState({ tool: null });
+      }
+    } else {
+      console.info(
+        'unknow event type: ' + event.type + ', with event: ',
+        event,
+      );
     }
   }
+
 
   updateProperties() {
     this.helpSelected = app.helpSelected;
