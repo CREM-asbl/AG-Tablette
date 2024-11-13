@@ -183,6 +183,8 @@ class AGMain extends LitElement {
       />
 
       ${this.addModules()}
+
+      ${this.showZoom()}
     `;
   }
 
@@ -192,6 +194,12 @@ class AGMain extends LitElement {
       return html`<tangram-manager></tangram-manager>`
     }
     return
+  }
+
+  showZoom() {
+    if (app.tool?.name != "zoom") return
+    import('../controllers/Zoom/zoom-menu')
+    return html`<zoom-menu></zoom-menu>`
   }
 
   _actionHandle(event) {

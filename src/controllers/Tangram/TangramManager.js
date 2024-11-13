@@ -66,7 +66,6 @@ export class TangramManager extends LitElement {
     this.tangramStart()
     this.resetListener = app.addListener('new-window', this.reset.bind(this));
     this.fileListener = app.addListener('file-parsed', this.readFile.bind(this))
-    console.log(app.workspace.data, app.tangram)
   }
 
   disconnectedCallback() {

@@ -1,7 +1,6 @@
 import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
-import { createElem } from '../Core/Tools/general';
 
 /**
  * Zoomer/Dézoomer le plan
@@ -19,7 +18,7 @@ export class ZoomTool extends Tool {
    * initialiser l'état
    */
   start() {
-    this.openZoomMenu();
+    // this.openZoomMenu();
   }
 
   zoom() {
@@ -37,12 +36,12 @@ export class ZoomTool extends Tool {
     this.zoomMenu = null;
   }
 
-  openZoomMenu() {
-    if (!this.zoomMenu) {
-      import('./zoom-menu');
-      this.zoomMenu = createElem('zoom-menu');
-    }
-  }
+  // openZoomMenu() {
+  //   if (!this.zoomMenu) {
+  //     import('./zoom-menu');
+  //     this.zoomMenu = createElem('zoom-menu');
+  //   }
+  // }
 
   applyZoom(newZoom) {
     let originalTranslateOffset = app.workspace.translateOffset,

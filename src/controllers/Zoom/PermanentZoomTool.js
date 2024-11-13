@@ -7,7 +7,7 @@ import { Tool } from '../Core/States/Tool';
  */
 export class PermanentZoomTool extends Tool {
   constructor() {
-    super('permanent_zoom', 'Zoomer');
+    super('zoom', 'Zoomer');
 
     this.currentStep = null; // listen-canvas-click -> zooming-plane
 

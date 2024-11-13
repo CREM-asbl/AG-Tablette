@@ -13,10 +13,13 @@ class ZoomMenu extends SignalWatcher(LitElement) {
 
   static styles = css`
       :host {
+        display: grid;
+        grid-template: auto / auto 1fr auto;
+        justify-items: center;
         position: absolute;
         top: 5px;
         padding: 10px;
-        font-size: 20px;
+        font-size: 28px;
         border-radius: 5px;
         border: 2px solid gray;
         background-color: rgba(0, 0, 0, 0.15);
@@ -27,9 +30,17 @@ class ZoomMenu extends SignalWatcher(LitElement) {
         left: ${app.settings.mainMenuWidth + 5}px;
       }
 
-      div {
+      div > * {
         cursor: pointer;
         text-align: center;
+      }
+
+      /* span {
+        font-size: 32px;
+      } */
+
+      input, .info {
+        grid-area: auto / span 3;
       }
 
       .info {
@@ -42,20 +53,18 @@ class ZoomMenu extends SignalWatcher(LitElement) {
     changes.get()
     this.updateProperties();
     return html`
-      <div class="container">
-        <div style="float: left;"><span @click="${() => this.showResult(this.position - 1)}">-</span></div>
-        <div style="float: right;"><span @click="${() => this.showResult(this.position + 1)}">+</span></div>
-        <div style="margin: 0 auto; width: 100px;"><span @click="${() => this.showResult(50)}">100%</span></div>
+        <div><span @click="${() => this.showResult(this.position - 1)}">-</span></div>
+        <div><span @click="${() => this.showResult(50)}">100%</span></div>
+        <div><span @click="${() => this.showResult(this.position + 1)}">+</span></div>
         <input type="range" min="0" max="100" .value="${this.position}"
          id="myRange" @change="${e => this.showResult(e.target.value)}"
          @input="${e => this.showResult(e.target.value, false)}" aria-label="Zoom">
          <div class="info">Zoom: ${(this.zoomLevel * 100).toFixed(2)}%</div>
-      </div>
     `;
   }
 
   updateProperties() {
-    if (app.tool?.name != 'zoom') return this.close();
+    // if (app.tool?.name != 'zoom') return this.close();
     this.zoomLevel = app.tool.zoomLevel || app.workspace.zoomLevel;
     this.position = this.getPositionFromZoom(app.workspace.zoomLevel);
   };
