@@ -171,6 +171,6 @@ class AGMenu extends LitElement {
     this.addEventListener('touchstart', (event) => {
       if (event.touches.length > 1) event.preventDefault();
     });
-
+    this.addEventListener('mousewheel', event => event.preventDefault())
   }
 }
