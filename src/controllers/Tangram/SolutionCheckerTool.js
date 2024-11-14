@@ -126,7 +126,6 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   check() {
-    console.log('check')
     this.checkSolution();
     setState({
       tool: { name: 'verifySolution', title: 'Vérifier la solution', currentStep: 'start' }

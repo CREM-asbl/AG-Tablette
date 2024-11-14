@@ -45,7 +45,7 @@ export class App extends LitElement {
   render() {
     if (this.environnement_selected) {
       history.pushState({}, "main page");
-      import('./ag-main');
+      import('@layouts/ag-main');
       app.appLoading = false
       return html`<ag-main></ag-main>`;
     } else if (!this.appLoading) {
