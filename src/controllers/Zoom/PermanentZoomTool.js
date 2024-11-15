@@ -1,7 +1,24 @@
 import { app, setState } from '../Core/App';
-import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
 import { applyZoom } from './ZoomTool';
+
+
+/**
+ * Calcule le niveau de zoom en appliquant les limites min et max.
+ *
+ * @param {number} currentZoom - Le niveau de zoom actuel.
+ * @param {number} zoomOffset - Le facteur de zoom à appliquer (ex: 1.1 pour zoomer, 0.9 pour dézoomer).
+ * @param {number} minZoom - Le niveau de zoom minimum autorisé.
+ * @param {number} maxZoom - Le niveau de zoom maximum autorisé.
+ * @returns {number} Le nouveau niveau de zoom, en respectant les limites.
+ */
+const calculateZoomWithLimits = (currentZoom, zoomOffset, minZoom, maxZoom) => {
+  let newZoom = currentZoom * zoomOffset
+  if (newZoom > maxZoom) newZoom = maxZoom
+  if (newZoom < minZoom) newZoom = minZoom
+  return newZoom;
+}
+
 
 /**
  * Zoomer/Dézoomer le plan
@@ -43,17 +60,9 @@ export class PermanentZoomTool extends Tool {
     this.running = true
     if (touches.length == 2) {
       const point1 = touches[0], point2 = touches[1];
-      const centerProp = new Coordinates({
-        x: (point1.x + point2.x) / 2 / app.canvasWidth,
-        y: (point1.y + point2.y) / 2 / app.canvasHeight
-      });
       this.baseDist = point1.dist(point2);
       if (this.baseDist == 0) this.baseDist = 0.001;
-
-      this.originalTranslateOffset = app.workspace.translateOffset;
       this.originalZoom = app.workspace.zoomLevel;
-
-
       app.upperCanvasLayer.removeAllObjects();
       setState({
         tool: { name: this.name, currentStep: 'start', mode: 'touch', title: this.title },
@@ -63,22 +72,13 @@ export class PermanentZoomTool extends Tool {
 
   canvasTouchMove(touches) {
     if (touches.length !== 2) return;
-
     if (app.tool.currentStep == 'start') {
       const point1 = touches[0], point2 = touches[1]
       let newDist = point1.dist(point2);
       if (newDist == 0) newDist = 0.001;
-
-      let scaleOffset = newDist / this.baseDist,
-        minZoom = app.settings.minZoomLevel,
-        maxZoom = app.settings.maxZoomLevel;
-      if (scaleOffset * this.originalZoom > maxZoom) {
-        scaleOffset = maxZoom / this.originalZoom - 0.001;
-      }
-      if (scaleOffset * this.originalZoom < minZoom) {
-        scaleOffset = minZoom / this.originalZoom + 0.001;
-      }
-      applyZoom(this.originalZoom * scaleOffset)
+      const scaleOffset = newDist / this.baseDist
+      const newZoom = calculateZoomWithLimits(this.originalZoom, scaleOffset, app.settings.minZoomLevel, app.settings.maxZoomLevel)
+      applyZoom(newZoom)
     }
   }
 
@@ -89,33 +89,13 @@ export class PermanentZoomTool extends Tool {
   }
 
   canvasMouseWheel(deltaY) {
-    clearTimeout(this.timeoutId);
-
-    this.originalTranslateOffset = app.workspace.translateOffset;
-    this.originalZoom = app.workspace.zoomLevel;
-
-    let minZoom = app.settings.minZoomLevel,
-      maxZoom = app.settings.maxZoomLevel,
-      offset = (this.originalZoom - deltaY / 100) / this.originalZoom,
-      mousePos = app.workspace.lastKnownMouseCoordinates;
-
-    if (offset * this.originalZoom > maxZoom) {
-      offset = maxZoom / this.originalZoom - 0.001;
-    }
-    if (offset * this.originalZoom < minZoom) {
-      offset = minZoom / this.originalZoom + 0.001;
-    }
-
-    this.scaleOffset = offset;
-    const centerProp = mousePos.multiply(
-      1 / app.canvasWidth,
-      1 / app.canvasHeight,
-    );
-
     if (!this.isLastActionZoom)
       setState({ tool: { name: this.name, currentStep: 'start', mode: 'wheel', title: this.title } });
-
-    applyZoom(this.originalZoom * offset);
+    clearTimeout(this.timeoutId);
+    this.originalZoom = app.workspace.zoomLevel;
+    const scaleOffset = (this.originalZoom - deltaY / 100) / this.originalZoom
+    const newZoom = calculateZoomWithLimits(this.originalZoom, scaleOffset, app.settings.minZoomLevel, app.settings.maxZoomLevel)
+    applyZoom(newZoom);
     this.isLastActionZoom = true;
     this.timeoutId = setTimeout(() => {
       window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: this.title } }))
