@@ -12,8 +12,6 @@ export class PermanentZoomTool extends Tool {
 
     this.currentStep = null; // listen-canvas-click -> zooming-plane
 
-    this.baseDist = null;
-
     this.init();
   }
 
@@ -21,14 +19,12 @@ export class PermanentZoomTool extends Tool {
    * initialiser l'état
    */
   init() {
-    console.log('init')
     this.removeListeners();
     this.touchStartId = app.addListener('canvasTouchStart', this.handler);
     this.mouseWheelId = app.addListener('canvasMouseWheel', this.handler);
   }
 
   start() {
-    console.log('start')
     this.removeListeners();
     if (app.tool.mode == 'touch') {
       this.touchMoveId = app.addListener('canvasTouchMove', this.handler);
@@ -40,11 +36,11 @@ export class PermanentZoomTool extends Tool {
    * stopper l'état
    */
   end() {
-    console.log('end')
     this.removeListeners();
   }
 
   canvasTouchStart(touches) {
+    this.running = true
     if (touches.length == 2) {
       const point1 = touches[0], point2 = touches[1];
       const centerProp = new Coordinates({
@@ -87,8 +83,9 @@ export class PermanentZoomTool extends Tool {
   }
 
   canvasTouchEnd() {
+    if (!this.running) return;
+    this.running = false;
     window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: this.title } }));
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'init' } });
   }
 
   canvasMouseWheel(deltaY) {

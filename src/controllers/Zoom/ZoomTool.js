@@ -26,18 +26,13 @@ export const applyZoom = newZoom => {
 export class ZoomTool extends Tool {
   constructor() {
     super('zoom', 'Zoomer', 'tool');
-
     this.currentStep = null; // listen-canvas-click -> zooming-plane
-
-    this.baseDist = null;
   }
 
   /**
    * initialiser l'état
    */
-  start() {
-    // this.openZoomMenu();
-  }
+  start() { }
 
   zoom() {
     applyZoom(app.tool.zoomLevel);
@@ -50,14 +45,9 @@ export class ZoomTool extends Tool {
   /**
    * stopper l'état
    */
-  end() {
-    this.zoomMenu = null;
-  }
-
-
+  end() { }
 
   _executeAction() {
-    let newZoom = app.tool.zoomLevel;
-    applyZoom(newZoom);
+    applyZoom(app.tool.zoomLevel);
   }
 }

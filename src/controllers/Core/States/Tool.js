@@ -79,7 +79,9 @@ export class Tool {
   eventHandler(event) {
     if (event.type == 'tool-updated') {
       if (!app.tool) { this.end(); }
-      else if (app.tool.name == this.name) { this[app.tool.currentStep](); }
+      else if (app.tool.name == this.name) {
+        this[app.tool.currentStep]();
+      }
       else if (app.tool.currentStep == 'start') { this.end(); }
     } else {
       if (event.type == 'objectSelected') {

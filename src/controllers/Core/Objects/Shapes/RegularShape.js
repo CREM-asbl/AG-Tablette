@@ -566,7 +566,6 @@ export class RegularShape extends Shape {
    * @param {Number}    scaleRatio
    */
   scale(scaleRatio) {
-    console.log(scaleRatio)
     this.points.forEach((pt) => pt.multiply(scaleRatio));
   }
 
