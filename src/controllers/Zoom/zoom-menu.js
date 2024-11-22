@@ -35,10 +35,6 @@ class ZoomMenu extends SignalWatcher(LitElement) {
         text-align: center;
       }
 
-      /* span {
-        font-size: 32px;
-      } */
-
       input, .info {
         grid-area: auto / span 3;
       }
@@ -64,8 +60,7 @@ class ZoomMenu extends SignalWatcher(LitElement) {
   }
 
   updateProperties() {
-    // if (app.tool?.name != 'zoom') return this.close();
-    this.zoomLevel = app.tool.zoomLevel || app.workspace.zoomLevel;
+    this.zoomLevel = app.tool?.zoomLevel || app.workspace.zoomLevel;
     this.position = this.getPositionFromZoom(app.workspace.zoomLevel);
   };
 
