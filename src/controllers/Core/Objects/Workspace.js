@@ -76,7 +76,10 @@ export class Workspace {
     }
 
     this.id = wsdata.id;
-    const scale = Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height)
+
+    const scale = wsdata.canvasSize ?
+      Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height) :
+      1
     app.mainCanvasLayer.loadFromData(wsdata.objects);
     if (scale != 1) this.setZoomLevel(scale)
 
@@ -91,19 +94,18 @@ export class Workspace {
       this.translationLastCharacteristicElements = wsdata.translationLastCharacteristicElements.map(element => new CharacteristicElements(element));
     }
 
-    const scaleOffset = Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height)
     this.setTranslateOffset(new Coordinates({
-      x: wsdata.translateOffset ? wsdata.translateOffset.x * scaleOffset : 0,
-      y: wsdata.translateOffset ? wsdata.translateOffset.y * scaleOffset : 0
+      x: wsdata.translateOffset ? wsdata.translateOffset.x * scale : 0,
+      y: wsdata.translateOffset ? wsdata.translateOffset.y * scale : 0
     }))
-    this.setZoomLevel(wsdata.zoomLevel * scaleOffset || scaleOffset, false)
+    this.setZoomLevel(wsdata.zoomLevel * scale || scale, false)
 
     // this.translateOffset = new Coordinates(wsdata.translateOffset || { x: 0, y: 0 });
     // if (wsdata.canvasSize &&
     //   (wsdata.canvasSize.width != app.canvasWidth ||
     //     wsdata.canvasSize.height != app.canvasHeight)) {
     //     originalZoom = this.zoomLevel,
-    //     newZoom = originalZoom * scaleOffset,
+    //     newZoom = originalZoom * scale,
     //     originalTranslateOffset = this.translateOffset,
     //     actualCenter = new Coordinates({ x: wsdata.canvasSize.width, y: wsdata.canvasSize.height })
     //       .multiply(1 / 2)
