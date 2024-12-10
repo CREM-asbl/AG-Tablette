@@ -33,32 +33,17 @@ class GridPopup extends LitElement {
             <select
               name="grid_popup_grid_type"
               id="grid_popup_grid_type"
-              @change="${this._actionHandle}"
-            >
+              @change="${this._actionHandle}">
               <option value="none" ?selected="${this.gridType === 'none'}">
                 Aucune
               </option>
-              <option
-                value="square"
-                ?selected=${this.gridType === 'square'}
-              >
+              <option value="square" ?selected=${this.gridType === 'square'} >
                 Carrés
               </option>
-              <option
-                value="horizontal-triangle"
-                ?selected=${this.gridType === 'horizontal-triangle'}
-              >
-                ${app.environment.name == 'Geometrie'
-        ? 'Triangles'
-        : 'Triangles 1'}
+              <option value="horizontal-triangle" ?selected=${this.gridType === 'horizontal-triangle'} >
+                Triangles 1
               </option>
-              <option
-                style=${app.environment.name == 'Geometrie'
-        ? 'display:none'
-        : ''}
-                value="vertical-triangle"
-                ?selected=${this.gridType === 'vertical-triangle'}
-              >
+              <option value="vertical-triangle" ?selected=${this.gridType === 'vertical-triangle'}>
                 Triangles 2
               </option>
             </select>
@@ -72,12 +57,8 @@ class GridPopup extends LitElement {
               name="grid_popup_grid_size"
               id="grid_popup_grid_size"
               @change="${this._actionHandle}"
-              ?disabled="${this.gridType === 'none'}"
-            >
-              <option
-                value="0.333333333333333"
-                ?selected="${this.gridSize == 0.333333333333333}"
-              >
+              ?disabled="${this.gridType === 'none'}" >
+              <option value="0.333333333333333" ?selected="${this.gridSize == 0.333333333333333}">
                 1/3
               </option>
               <option value="0.5" ?selected="${this.gridSize == 0.5}">
@@ -115,11 +96,7 @@ class GridPopup extends LitElement {
     this.submit();
     this.close();
     if (!app.fullHistory.isRunning) {
-      window.dispatchEvent(
-        new CustomEvent('actions-executed', {
-          detail: { name: 'Grille' },
-        }),
-      );
+      window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: 'Grille' } }));
     }
   }
 
