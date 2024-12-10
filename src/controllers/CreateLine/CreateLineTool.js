@@ -341,43 +341,32 @@ export class CreateLineTool extends Tool {
   }
 
   numberOfPointsRequired() {
-    let numberOfPointsRequired = 0;
-    if (app.tool.selectedTemplate.name == 'Segment') numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate.name == 'ParalleleSegment')
-      numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate.name == 'PerpendicularSegment')
-      numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate.name == 'SemiStraightLine')
-      numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate.name == 'ParalleleSemiStraightLine')
-      numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate.name == 'PerpendicularSemiStraightLine')
-      numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate.name == 'StraightLine') numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate.name == 'ParalleleStraightLine')
-      numberOfPointsRequired = 1;
-    else if (app.tool.selectedTemplate.name == 'PerpendicularStraightLine')
-      numberOfPointsRequired = 1;
-    else if (app.tool.selectedTemplate.name == 'Strip')
-      numberOfPointsRequired = 3;
-    else if (app.tool.selectedTemplate.name == 'Vector')
-      numberOfPointsRequired = 2;
-    return numberOfPointsRequired;
+    const pointsRequired = {
+      'Segment': 2,
+      'ParalleleSegment': 2,
+      'PerpendicularSegment': 2,
+      'SemiStraightLine': 2,
+      'ParalleleSemiStraightLine': 2,
+      'PerpendicularSemiStraightLine': 2,
+      'StraightLine': 2,
+      'ParalleleStraightLine': 1,
+      'PerpendicularStraightLine': 1,
+      'Strip': 3,
+      'Vector': 2,
+    };
+    return pointsRequired[app.tool.selectedTemplate.name];
+
   }
 
   finishShape() {
     let newCoordinates;
     if (app.tool.selectedTemplate.name == 'ParalleleStraightLine') {
-      let referenceSegment = findObjectById(
-        this.geometryParentObjectId
-      );
+      let referenceSegment = findObjectById(this.geometryParentObjectId);
       newCoordinates = this.points[0].coordinates
         .substract(referenceSegment.vertexes[0].coordinates)
         .add(referenceSegment.vertexes[1].coordinates);
     } else if (app.tool.selectedTemplate.name == 'PerpendicularStraightLine') {
-      let referenceSegment = findObjectById(
-        this.geometryParentObjectId
-      );
+      let referenceSegment = findObjectById(this.geometryParentObjectId);
       let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
       newCoordinates = this.points[0].coordinates.add(new Coordinates({
         x: 100 * Math.cos(angle),
