@@ -5,13 +5,18 @@ import { css, html, LitElement } from 'lit';
 import { app, changes } from './Core/App';
 import { FullHistoryManager } from './Core/Managers/FullHistoryManager';
 
+const formatTime = (milliseconds) => {
+  const minutes = Math.floor(milliseconds / 1000 / 60);
+  const seconds = (milliseconds / 1000 % 60).toFixed(1);
+  return (minutes > 0 ? minutes + 'm ' : '') + seconds + 's';
+}
 
 class FullHistoryTools extends SignalWatcher(LitElement) {
 
   static properties = {
     tools: Array,
     index: Number,
-    playPauseButton: String,
+    playPauseButton: String
   }
 
   static styles = css`
@@ -26,7 +31,6 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
           padding: 8px;
           box-sizing: border-box;
         }
-
 
         nav#sidebar {
           display: grid;
@@ -85,6 +89,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
           cursor: pointer;
           background-color: #fff;
         }
+
         .action-button {
           border: none;
         }
@@ -112,7 +117,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
         let name = step.detail.title;
         if (step.type == 'undo') name = 'Annuler';
         if (step.type == 'redo') name = 'Refaire';
-        if (!name) console.log(step)
+        console.log(step)
         return { name, time, timeStamp: step.timeStamp, actions: [] };
       });
     let toolIndex = -1;
@@ -176,7 +181,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
               <div name="action-div" class="action-div">
                 <h2>
                   ${elem.name}
-                  (${(Math.floor(elem.time / 1000 / 60) > 0 ? Math.floor(elem.time / 1000 / 60) + 'm ' : '') + new Number(elem.time / 1000 % 60).toFixed(1) + 's'})
+                  (${formatTime(elem.time)})
                 </h2>
                 ${elem.actions.map((action, idx) => {
             return html`
@@ -187,7 +192,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
                           name="action-button"
                           class="action-button">
                           ${idx + 1}
-                          (${(Math.floor(action.time / 1000 / 60) > 0 ? Math.floor(action.time / 1000 / 60) + 'm ' : '') + new Number(action.time / 1000 % 60).toFixed(1) + 's'})
+                          (${formatTime(action.time)})
                         </button>
                         <button id="c${action.actionIndex}"
                                 @click="${this._clickHandler}"
@@ -215,7 +220,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
     if (app.fullHistory.index != this.index) {
       this.index = app.fullHistory.actionIndex;
       this.shadowRoot.getElementById('b' + this.index)?.parentNode.scrollIntoView();
-      this.setPlayPause(app.fullHistory.isPlaying ? 'pause' : 'play');
+      this.playPauseButton = app.fullHistory.isPlaying ? 'pause' : 'play';
     }
   };
 
@@ -254,10 +259,6 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
         FullHistoryManager.moveTo(index + 1);
         break;
     }
-  }
-
-  setPlayPause(state) {
-    this.playPauseButton = state;
   }
 
   close() {

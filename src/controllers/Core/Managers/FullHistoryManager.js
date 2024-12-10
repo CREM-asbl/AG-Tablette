@@ -294,7 +294,7 @@ window.addEventListener('mouse-coordinates-changed', (event) =>
 );
 
 window.addEventListener('actions-executed', (event) =>
-  FullHistoryManager.addStep('add-fullstep', { detail: { name: event.detail.name } })
+  FullHistoryManager.addStep('add-fullstep', { detail: event.detail })
 );
 
 window.addEventListener('create-silhouette', (event) =>

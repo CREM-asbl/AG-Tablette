@@ -15,20 +15,6 @@ class IconButton extends LitElement {
     this.colorPickerValue = app.settings.shapesDrawColor;
   }
 
-  // firstUpdated() {
-  //   //Todo: Refacto (ce code ne devrait pas se trouver ici)
-  //   let name = this.name.replace(/é/g, 'e').replace(/è/g, 'e');
-  //   if (this.type == 'State') {
-  //     this.src = '/images/States/' + name + '.svg';
-  //   } else if (this.type == 'Geometry') {
-  //     this.src = '/images/Geometry/' + name + '.svg';
-  //   } else if (this.type == 'Create') {
-  //     this.src = '/images/Create/' + name + '.svg';
-  //   } else {
-  //     this.src = '/images/' + name + '.svg';
-  //   }
-  // }
-
   static styles = css`
       :host {
         display: block;
