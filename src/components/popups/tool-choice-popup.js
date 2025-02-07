@@ -2,10 +2,12 @@ import '@components/color-button';
 import '@components/icon-button';
 import { app, setState } from '@controllers/Core/App';
 import '@controllers/version-item';
+import { SignalWatcher } from '@lit-labs/signals';
+import { tools } from '@store/tools';
 import { LitElement, css, html } from 'lit';
 import { TemplatePopup } from './template-popup';
 
-class ToolChoicePopup extends LitElement {
+class ToolChoicePopup extends SignalWatcher(LitElement) {
   static properties = {
     tools: Array
   };
@@ -63,6 +65,8 @@ class ToolChoicePopup extends LitElement {
   ]
 
   render() {
+    this.tools = tools.get().filter(tool => tool.name != 'create')
+    console.log("render tool-choice-popup", this.tools)
     return html`
       <template-popup>
         <h2 slot="title">Choix des outils disponibles</h2>
@@ -136,18 +140,16 @@ class ToolChoicePopup extends LitElement {
         }
       }
       setState({ environment: { ...app.environment }, tools: [...app.tools] });
+      tools.set([...app.tools])
     }
   }
 
   firstUpdated() {
-    window.addEventListener('tools-changed', this.updateProperties.bind(this));
     window.addEventListener('close-popup', () => this.close());
   }
 
   updateProperties() {
-    this.iconSize = app.menuIconSize;
     this.families = app.environment.families || [];
-    this.tools = [...app.tools.filter(tool => tool.name != 'create')];
   };
 
   close() {

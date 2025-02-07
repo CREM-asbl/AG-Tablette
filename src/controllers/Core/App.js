@@ -160,9 +160,6 @@ export const setState = (update) => {
   if ('started' in update) {
     window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
   }
-  if ('tools' in update) {
-    window.dispatchEvent(new CustomEvent('tools-changed', { detail: app }));
-  }
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   changes.set(update)
 };

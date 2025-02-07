@@ -2,13 +2,15 @@ import '@components/icon-button';
 import '@components/template-toolbar';
 import '@components/toolbar-kit';
 import '@components/toolbar-section';
+import { SignalWatcher } from '@lit-labs/signals';
+import { tools } from '@store/tools';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { app, setState } from '../controllers/Core/App';
 import { createElem } from '../controllers/Core/Tools/general';
 
 @customElement('ag-menu')
-class AGMenu extends LitElement {
+class AGMenu extends SignalWatcher(LitElement) {
   @property({ type: Boolean }) helpSelected = false;
   @property({ type: Object }) tool;
   @property({ type: Boolean }) canUndo = false;
@@ -38,6 +40,7 @@ class AGMenu extends LitElement {
   `;
 
   render() {
+    console.log("rendering menu", tools.get())
     return html`
         <h3>
           ${this.tool?.title != undefined

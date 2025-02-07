@@ -1,3 +1,4 @@
+import { tools } from '@store/tools';
 import { app, setState } from './App';
 import { Family } from './Objects/Family';
 
@@ -28,7 +29,7 @@ const loadModules = async (list) => {
   const modules = await Promise.all(
     list.map(async (module) => await import(`../${module}/index.js`)),
   );
-  let tools = modules.map((module) => {
+  const toolsData = modules.map((module) => {
     if (module.default)
       return {
         name: module.default.tool.name,
@@ -37,7 +38,9 @@ const loadModules = async (list) => {
         isVisible: true,
       };
   }).filter(Boolean);
-  setState({ tools });
+  console.log(toolsData)
+  setState({ tools: toolsData });
+  tools.set(toolsData)
 };
 
 const loadKit = async (name) => {

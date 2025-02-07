@@ -19,7 +19,7 @@
   "dependencies": {
     "@astrojs/lit": "^4.3.0",
     "@lit-labs/signals": "^0.1.1",
-    "astro": "^4.16.18",
+    "astro": "^5.2.5",
     "astrojs-service-worker": "^2.0.0",
     "fflate": "^0.8.0",
     "firebase": "^11.0.0"
