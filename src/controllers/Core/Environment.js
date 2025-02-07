@@ -38,8 +38,6 @@ const loadModules = async (list) => {
         isVisible: true,
       };
   }).filter(Boolean);
-  console.log(toolsData)
-  setState({ tools: toolsData });
   tools.set(toolsData)
 };
 

@@ -40,7 +40,6 @@ class AGMenu extends SignalWatcher(LitElement) {
   `;
 
   render() {
-    console.log("rendering menu", tools.get())
     return html`
         <h3>
           ${this.tool?.title != undefined
@@ -102,7 +101,7 @@ class AGMenu extends SignalWatcher(LitElement) {
       (section) => html`
         <toolbar-section
           title="${section.title}"
-          .tools="${app.tools}"
+          .tools="${tools.get()}"
           toolsType="${section.toolsType}"
           ?helpSelected="${this.helpSelected}"
           selected="${this.tool?.name}"

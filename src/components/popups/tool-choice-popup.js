@@ -65,8 +65,7 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
   ]
 
   render() {
-    this.tools = tools.get().filter(tool => tool.name != 'create')
-    console.log("render tool-choice-popup", this.tools)
+    this.tools = tools.get()
     return html`
       <template-popup>
         <h2 slot="title">Choix des outils disponibles</h2>
@@ -81,7 +80,7 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
                       title="${family.name}"
                       @click="${this._actionHandle}"
                     ></icon-button>`)}
-                ${this.tools.filter(tool => tool.isVisible && !tool.isDisable).map(tool => html`
+                ${this.tools.filter(tool => tool.name != 'create' && tool.isVisible && !tool.isDisable).map(tool => html`
                     <icon-button
                       name="${tool.name}"
                       type="State"
@@ -123,10 +122,10 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
   _actionHandle(event) {
     if (!app.fullHistory.isRunning) {
       if (event.target.id == 'allHide') {
-        app.tools.forEach(tool => tool.isVisible = false);
+        this.tools.forEach(tool => tool.isVisible = false);
         app.environment.families.forEach(family => family.isVisible = false);
       } else if (event.target.id == 'allShow') {
-        app.tools.forEach(tool => tool.isVisible = true);
+        this.tools.forEach(tool => tool.isVisible = true);
         app.environment.families.forEach(family => family.isVisible = true);
       } else {
         if (event.target.type == 'Create') {
@@ -135,12 +134,12 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
           family.isVisible = !family.isVisible;
         } else {
           let elementName = event.target.name;
-          let tool = app.tools.find(tool => tool.name == elementName);
+          let tool = this.tools.find(tool => tool.name == elementName);
           tool.isVisible = !tool.isVisible;
         }
       }
-      setState({ environment: { ...app.environment }, tools: [...app.tools] });
-      tools.set([...app.tools])
+      setState({ environment: { ...app.environment });
+      tools.set([...this.tools])
     }
   }
 

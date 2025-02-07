@@ -1,4 +1,5 @@
 import { html, LitElement } from 'lit';
+import { tools } from '../../store/tools.js';
 import { app, setState } from '../Core/App.js';
 import { setWorkspaceFromObject } from '../Core/Managers/WorkspaceManager.js';
 import kit from './tangramShapeKit.json';
@@ -12,11 +13,10 @@ export class TangramManager extends LitElement {
   }
 
   tangramStart = async () => {
-    let tool = app.tools.find(tool => tool.name == 'translate');
-    tool.isDisable = true;
-    tool = app.tools.find(tool => tool.name == 'color');
-    tool.isDisable = true;
-    setState({ tools: [...app.tools] })
+    const currentTools = tools.get()
+    currentTools.find(tool => tool.name == 'translate').isDisable = true;
+    currentTools.find(tool => tool.name == 'color').isDisable = true;
+    tools.set([...currentTools]);
   }
 
   static async initShapes(isForCreation = false) {

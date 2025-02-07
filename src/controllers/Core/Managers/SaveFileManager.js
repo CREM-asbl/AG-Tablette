@@ -1,6 +1,8 @@
+import { tools } from '@store/tools';
 import { app, setState } from '../App';
 import { createElem, getExtension } from '../Tools/general';
 import { FullHistoryManager } from './FullHistoryManager';
+
 
 export class SaveFileManager {
   static async saveFile() {
@@ -149,7 +151,7 @@ export class SaveFileManager {
       settings = { ...app.settings },
       history = detail.saveHistory ? { ...app.history } : undefined,
       fullHistory = detail.saveHistory ? { ...app.fullHistory } : undefined,
-      toolsVisible = app.tools.map(tool => { return { name: tool.name, isVisible: tool.isVisible } }),
+      toolsVisible = tools.get().map(tool => { return { name: tool.name, isVisible: tool.isVisible } }),
       familiesVisible = app.environment.families.map(family => { return { name: family.name, isVisible: family.isVisible } });
 
     if (detail.permanentHide) {

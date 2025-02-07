@@ -1,4 +1,5 @@
 import { signal } from '@lit-labs/signals';
+import { tools } from '@store/tools';
 import { uniqId } from './Tools/general';
 
 window.dev_mode = location.hostname === 'localhost';
@@ -138,7 +139,7 @@ export const setState = (update) => {
     window.dispatchEvent(new CustomEvent('environment-changed', { detail: app }));
   }
   if ('tool' in update) {
-    let toolInfo = app.tools.find((tool) => tool.name == app.tool?.name);
+    const toolInfo = tools.get().find((tool) => tool.name == app.tool?.name);
     if (toolInfo) {
       app.tool.title = toolInfo.title;
       app.tool.type = toolInfo.type;

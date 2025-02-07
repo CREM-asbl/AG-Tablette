@@ -1,4 +1,5 @@
 import { html, LitElement } from 'lit';
+import { tools } from '../../store/tools';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Bounds } from '../Core/Objects/Bounds';
@@ -84,12 +85,11 @@ export class SolutionCheckerTool extends LitElement {
       }
       app.tangramCanvasLayer.draw();
     }
-
-    app.tools.find(tool => tool.name == 'translate').isDisable = true;
-    app.tools.find(tool => tool.name == 'color').isDisable = false;
-
+    const currentTools = tools.get()
+    currentTools.find(tool => tool.name == 'translate').isDisable = true;
+    currentTools.find(tool => tool.name == 'color').isDisable = false;
+    tools.set([...currentTools]);
     setState({
-      tools: [...app.tools],
       tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
     });
 

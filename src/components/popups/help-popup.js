@@ -1,6 +1,7 @@
 import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import { css, html, LitElement } from 'lit';
+import { tools } from '../../store/tools';
 import { TemplatePopup } from './template-popup';
 
 class HelpPopup extends LitElement {
@@ -59,7 +60,7 @@ class HelpPopup extends LitElement {
   }
 
   get tools() {
-    return [...app.tools,
+    return [...tools.get(),
     { name: 'home', title: 'Accueil' },
     { name: 'save', title: 'Enregistrer' },
     { name: 'open', title: 'Ouvrir' },

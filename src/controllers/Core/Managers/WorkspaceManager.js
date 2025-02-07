@@ -1,3 +1,4 @@
+import { resetToolsVisibility } from '../../../store/tools';
 import { app, setState } from '../App';
 import { Workspace } from '../Objects/Workspace';
 
@@ -28,7 +29,7 @@ window.addEventListener('new-window', () => {
   app.tangramCanvasLayer?.removeAllObjects();
   app.gridCanvasLayer?.removeAllObjects();
   app.invisibleCanvasLayer?.removeAllObjects();
-  app.tools.forEach(tool => tool.isVisible = true);
+  resetToolsVisibility();
   app.environment.families.forEach(family => family.isVisible = true);
   setState({
     filename: null,
@@ -41,7 +42,7 @@ window.addEventListener('new-window', () => {
       gridSize: app.defaultState.settings.gridSize,
     },
     stepSinceSave: app.defaultState.stepSinceSave,
-    tools: [...app.tools],
+    environment: { ...app.environment }
   });
   setWorkspace(new Workspace());
 });

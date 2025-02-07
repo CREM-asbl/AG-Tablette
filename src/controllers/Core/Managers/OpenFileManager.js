@@ -1,3 +1,4 @@
+import { tools } from '@store/tools';
 import { app, setState } from '../App';
 import { addInfoToId, createElem, getExtension } from '../Tools/general';
 
@@ -249,14 +250,14 @@ export class OpenFileManager {
     }
 
     if (saveObject.toolsVisible) {
+      const currentTools = tools.get();
       saveObject.toolsVisible.forEach(toolVisible => {
-        let tool = app.tools.find(tool => tool.name == toolVisible.name);
-        if (tool) {
-          tool.isVisible = toolVisible.isVisible;
-        }
+        const tool = currentTools.find(tool => tool.name == toolVisible.name);
+        if (tool) tool.isVisible = toolVisible.isVisible
       });
       saveObject.familiesVisible.forEach(familyVisible => app.environment.families.find(family => family.name == familyVisible.name).isVisible = familyVisible.isVisible)
-      setState({ tools: [...app.tools] });
+      setState({ environment: { ...app.environment } });
+      tools.set([...currentTools]);
     }
 
     setState({ filename });

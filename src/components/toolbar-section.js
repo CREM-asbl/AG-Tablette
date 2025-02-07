@@ -13,14 +13,10 @@ class ToolbarSection extends LitElement {
   }
 
   render() {
-    const tools = app.tools.filter(
+    const tools = this.tools.filter(
       (tool) => tool.type === this.toolsType && tool.isVisible && !tool.isDisable
     )
-    if (!tools.length) {
-      this.style.display = 'none'
-      return
-    };
-    this.style.display = 'block'
+    if (!tools.length) return
     return html`
       <template-toolbar>
         <h2 slot="title">${this.title}</h2>
