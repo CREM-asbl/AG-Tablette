@@ -1,7 +1,6 @@
 import '@components/color-button';
 import '@components/icon-button';
 import { app, setState } from '@controllers/Core/App';
-import '@controllers/version-item';
 import { SignalWatcher } from '@lit-labs/signals';
 import { tools } from '@store/tools';
 import { LitElement, css, html } from 'lit';

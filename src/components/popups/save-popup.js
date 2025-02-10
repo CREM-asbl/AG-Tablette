@@ -1,6 +1,5 @@
 import '@components/color-button';
 import { app } from '@controllers/Core/App';
-import '@controllers/version-item';
 import { css, html, LitElement } from 'lit';
 import { TemplatePopup } from './template-popup';
 
