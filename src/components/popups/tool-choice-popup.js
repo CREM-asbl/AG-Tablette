@@ -8,13 +8,10 @@ import { LitElement, css, html } from 'lit';
 import { TemplatePopup } from './template-popup';
 
 class ToolChoicePopup extends SignalWatcher(LitElement) {
-  static properties = {
-    tools: Array
-  };
 
   constructor() {
     super();
-    this.updateProperties()
+    this.families = app.environment.families || [];
   }
 
   static styles = [
@@ -100,7 +97,7 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
                       title="${family.name}"
                       @click="${this._actionHandle}"
                     ></icon-button>`)}
-                ${this.tools.filter(tool => !tool.isVisible && !tool.isDisable).map((tool) => html`
+                ${this.tools.filter(tool => tool.name != 'create' && !tool.isVisible && !tool.isDisable).map((tool) => html`
                     <icon-button
                       name="${tool.name}"
                       type="State"
@@ -138,7 +135,7 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
           tool.isVisible = !tool.isVisible;
         }
       }
-      setState({ environment: { ...app.environment });
+      setState({ environment: { ...app.environment } });
       tools.set([...this.tools])
     }
   }
@@ -146,10 +143,6 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
   firstUpdated() {
     window.addEventListener('close-popup', () => this.close());
   }
-
-  updateProperties() {
-    this.families = app.environment.families || [];
-  };
 
   close() {
     this.remove();
