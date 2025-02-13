@@ -256,7 +256,6 @@ export class OpenFileManager {
         if (tool) tool.isVisible = toolVisible.isVisible
       });
       saveObject.familiesVisible.forEach(familyVisible => app.environment.families.find(family => family.name == familyVisible.name).isVisible = familyVisible.isVisible)
-      setState({ environment: { ...app.environment } });
       tools.set([...currentTools]);
     }
 

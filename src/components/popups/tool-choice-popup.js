@@ -1,6 +1,6 @@
 import '@components/color-button';
 import '@components/icon-button';
-import { app, setState } from '@controllers/Core/App';
+import { app } from '@controllers/Core/App';
 import { SignalWatcher } from '@lit-labs/signals';
 import { tools } from '@store/tools';
 import { LitElement, css, html } from 'lit';
@@ -134,7 +134,6 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
           tool.isVisible = !tool.isVisible;
         }
       }
-      setState({ environment: { ...app.environment } });
       tools.set([...this.tools])
     }
   }

@@ -1,9 +1,5 @@
 import '@components/canvas-container';
-import '@components/icon-button';
 import '@components/popups/notification';
-import '@components/template-toolbar';
-import '@components/toolbar-kit';
-import '@components/toolbar-section';
 import { bugSend } from '@controllers/Bugs';
 import '@layouts/ag-menu';
 import { css, html, LitElement } from 'lit';

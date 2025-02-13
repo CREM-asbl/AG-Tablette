@@ -1,5 +1,5 @@
 import { signal } from '@lit-labs/signals';
-import { tools } from '@store/tools';
+import { resetToolsVisibility, tools } from '@store/tools';
 import { uniqId } from './Tools/general';
 
 window.dev_mode = location.hostname === 'localhost';
@@ -116,6 +116,8 @@ export class App {
   }
 
   resetSettings() {
+    resetToolsVisibility();
+    app.environment.families.forEach(family => family.isVisible = true);
     setState({
       settings: {
         ...app.defaultState.settings,

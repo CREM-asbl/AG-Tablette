@@ -368,11 +368,11 @@ export class ReverseTool extends Tool {
       this.shapesToMove.forEach((s) => {
         s.points.forEach(point => {
           if (point.startCoordinates)
-          point.coordinates = point.startCoordinates.substract(
-            point.startCoordinates
-              .substract(point.endCoordinates)
-              .multiply(progressInAnimation),
-          );
+            point.coordinates = point.startCoordinates.substract(
+              point.startCoordinates
+                .substract(point.endCoordinates)
+                .multiply(progressInAnimation),
+            );
         })
         s.segments.forEach(seg => {
           if (seg.arcCenter) {
@@ -416,16 +416,9 @@ export class ReverseTool extends Tool {
 
   _executeAction() {
     let selectedAxis = this.createAxis(app.tool.axisAngle).segments[0];
-    // let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
-    // let involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
     app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => compareIdBetweenLayers(shapeToMove.id, editingShapeId))).forEach((sId, idxS) => {
       let s = findObjectById(sId);
       this.reverseShape(s, selectedAxis);
-
-      // if (app.environment.name == 'Geometrie') {
-      //   computeAllShapeTransform(s, 'main', false);
-      //   computeConstructionSpec(s);
-      // }
     });
     if (app.environment.name == 'Geometrie') {
       app.mainCanvasLayer.shapes.forEach(s => {
