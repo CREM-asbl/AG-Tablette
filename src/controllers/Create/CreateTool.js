@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { getFamily } from '../../store/kit';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { CubeShape } from '../Core/Objects/Shapes/CubeShape';
@@ -82,7 +83,8 @@ export class CreateTool extends Tool {
   }
 
   openShapeList() {
-    const shapeTemplates = app.environment.getFamily(app.tool.selectedFamily).shapeTemplates;
+    console.log(this.openShapeList)
+    const shapeTemplates = getFamily(app.tool.selectedFamily).shapeTemplates;
     if (shapeTemplates.length == 1) {
       let selectedTemplate = shapeTemplates[0];
       setTimeout(() => setState({ tool: { ...app.tool, currentStep: 'listen', selectedTemplate } }), 50);
@@ -90,7 +92,7 @@ export class CreateTool extends Tool {
       import('../../components/shape-selector');
       const elem = document.createElement('shape-selector');
       elem.family = app.tool.selectedFamily;
-      elem.templatesNames = app.environment.getFamily(app.tool.selectedFamily).shapeTemplates;
+      elem.templatesNames = getFamily(app.tool.selectedFamily).shapeTemplates;
       elem.selectedTemplate = app.tool.selectedTemplate;
       elem.type = "Create"
       elem.nextStep = 'listen'

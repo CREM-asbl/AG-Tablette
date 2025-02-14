@@ -1,0 +1,166 @@
+{
+  "name": "Figures standard",
+  "families": [
+    {
+      "name": "Famille du triangle équilatéral",
+      "fillColor": "#ffff00",
+      "shapeTemplates": [
+        {
+          "name": "Triangle équilatéral",
+          "title": "Triangle équilatéral",
+          "path": "M 0 0 L 50 0 L 25 -43.3012701892 Z"
+        },
+        {
+          "name": "Triangle isocèle",
+          "title": "Triangle isocèle",
+          "path": "M 0 0 L 50 0 L 25 -14.433756729747 Z"
+        },
+        {
+          "name": "Triangle rectangle 1",
+          "title": "Triangle rectangle",
+          "path": "M 0 0 L 25 0 L 0 -43.3012701892 Z"
+        },
+        {
+          "name": "Losange",
+          "title": "Losange",
+          "path": "M 0 0 L 50 0 L 25 -43.3012701892 L -25 -43.3012701892 Z"
+        },
+        {
+          "name": "Trapèze rectangle",
+          "title": "Trapèze rectangle",
+          "path": "M 0 0 L 50 0 L 25 -43.3012701892 L 0 -43.3012701892 Z"
+        },
+        {
+          "name": "Trapèze isocèle",
+          "title": "Trapèze isocèle",
+          "path": "M 0 0 L 100 0 L 75 -43.3012701892 L 25 -43.3012701892 Z"
+        },
+        {
+          "name": "Hexagone régulier",
+          "title": "Hexagone régulier",
+          "path": "M 0 0 L 50 0 L 75 -43.3012701892 L 50 -86.6025403784 L 0 -86.6025403784 L -25 -43.3012701892 Z"
+        }
+      ]
+    },
+    {
+      "name": "Famille du carré",
+      "fillColor": "#ff0000",
+      "shapeTemplates": [
+        {
+          "name": "Carré",
+          "title": "Carré",
+          "path": "M 0 0 L 50 0 L 50 -50 L 0 -50 Z"
+        },
+        {
+          "name": "Triangle rectangle isocèle 1",
+          "title": "Triangle rectangle isocèle",
+          "path": "M 0 0 L 50 0 L 25 -25 Z"
+        },
+        {
+          "name": "Triangle rectangle isocèle 2",
+          "title": "Triangle rectangle isocèle",
+          "path": "M 0 0 L 50 0 L 0 -50 Z"
+        },
+        {
+          "name": "Triangle rectangle 2",
+          "title": "Triangle rectangle",
+          "path": "M 0 0 L 25 0 L 25 -50 Z"
+        },
+        {
+          "name": "Parallélogramme",
+          "title": "Parallélogramme",
+          "path": "M 0 0 L 50 0 L 0 -50 L -50 -50 Z"
+        },
+        {
+          "name": "Octogone régulier",
+          "title": "Octogone régulier",
+          "path": "M 0 0 L 50 0 L 85.355339059329 -35.355339059329 L 85.355339059329 -85.355339059329 L 50 -120.710678118658 L 0 -120.710678118658 L -35.355339059329 -85.355339059329 L -35.355339059329 -35.355339059329 Z"
+        }
+      ]
+    },
+    {
+      "name": "Famille du pentagone régulier",
+      "fillColor": "#00D084",
+      "shapeTemplates": [
+        {
+          "name": "Pentagone régulier",
+          "title": "Pentagone régulier",
+          "path": "M 0 0 L 50 0 L 65.450849718737 -47.55282581475 L 25 -76.94208842935 L -15.450849718737 -47.55282581475 Z"
+        },
+        {
+          "name": "Triangle isocèle 1",
+          "title": "Triangle isocèle",
+          "path": "M 0 0 L 50 0 L 25 -34.40954801175 Z"
+        },
+        {
+          "name": "Triangle isocèle 2",
+          "title": "Triangle isocèle",
+          "path": "M 0 0 L 50 0 L 25 -76.9420884294 Z"
+        },
+        {
+          "name": "Triangle obtusangle",
+          "title": "Triangle obtusangle",
+          "path": "M 0 0 L 80.9016994375 0 L 40.4508497187 -29.3892626146 Z"
+        },
+        {
+          "name": "Petit losange",
+          "title": "Petit losange",
+          "path": "M 0 0 L 50 0 L 90.4508497187 -29.3892626146 L 40.4508497187 -29.3892626146 Z"
+        },
+        {
+          "name": "Décagone régulier",
+          "title": "Décagone régulier",
+          "path": "M 0 0 L 50 0 L 90.4508497187 -29.3892626146 L 105.9016994374 -76.9420884294 L 90.4508497187 -124.4949142442 L 50 -153.8841768588 L 0 -153.8841768588 L -40.4508497187 -124.4949142442 L -55.9016994374 -76.9420884294 L -40.4508497187 -29.3892626146 Z"
+        }
+      ]
+    },
+    {
+      "name": "Disques et segments",
+      "fillColor": "#CCC",
+      "shapeTemplates": [
+        {
+          "name": "Disque 1",
+          "title": "Disque",
+          "fillColor": "#FF0",
+          "path": "M 50 0 A 50 50 0 1 0 -50 0 A 50 50 0 1 0 50 0"
+        },
+        {
+          "name": "Disque 2",
+          "title": "Disque",
+          "fillColor": "#00D084",
+          "path": "M 42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 -42.53254041760199 0 A 42.53254041760199 42.53254041760199 0 1 0 42.53254041760199 0"
+        },
+        {
+          "name": "Disque 3",
+          "title": "Disque",
+          "fillColor": "#ff0000",
+          "path": "M 35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 -35.35533905932738 0 A 35.35533905932738 35.35533905932738 0 1 0 35.35533905932738 0"
+        },
+        {
+          "name": "Disque 4",
+          "title": "Disque",
+          "fillColor": "#FF0",
+          "path": "M 28.86751345948129 0 A 28.86751345948129 28.86751345948129 0 1 0 -28.86751345948129 0 A 28.86751345948129 28.86751345948129 0 1 0 28.86751345948129 0"
+        },
+        {
+          "name": "Segment 1",
+          "title": "Segment",
+          "fillColor": "#0F0",
+          "path": "M 0 0 L 50 0"
+        },
+        {
+          "name": "Segment 2",
+          "title": "Segment",
+          "fillColor": "#0F0",
+          "path": "M 0 0 L 50 50"
+        },
+        {
+          "name": "Segment 3",
+          "title": "Segment",
+          "fillColor": "#0F0",
+          "path": "M 0 0 L 0 -43.3012701892"
+        }
+      ]
+    }
+  ]
+}

@@ -2,16 +2,14 @@ import '@components/color-button';
 import '@components/icon-button';
 import { app } from '@controllers/Core/App';
 import { SignalWatcher } from '@lit-labs/signals';
+import { kit } from '@store/kit';
 import { tools } from '@store/tools';
 import { LitElement, css, html } from 'lit';
+import { toggleAllFamiliesVisibility, toggleFamilyVisibility } from '../../store/kit';
+import { toggleAllToolsVisibility, toggleToolVisibility } from '../../store/tools';
 import { TemplatePopup } from './template-popup';
 
 class ToolChoicePopup extends SignalWatcher(LitElement) {
-
-  constructor() {
-    super();
-    this.families = app.environment.families || [];
-  }
 
   static styles = [
     TemplatePopup.template_popup_styles(),
@@ -62,6 +60,7 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
 
   render() {
     this.tools = tools.get()
+    this.families = kit.get().families
     return html`
       <template-popup>
         <h2 slot="title">Choix des outils disponibles</h2>
@@ -118,23 +117,18 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
   _actionHandle(event) {
     if (!app.fullHistory.isRunning) {
       if (event.target.id == 'allHide') {
-        this.tools.forEach(tool => tool.isVisible = false);
-        app.environment.families.forEach(family => family.isVisible = false);
+        toggleAllToolsVisibility(false);
+        toggleAllFamiliesVisibility(false);
       } else if (event.target.id == 'allShow') {
-        this.tools.forEach(tool => tool.isVisible = true);
-        app.environment.families.forEach(family => family.isVisible = true);
+        toggleAllToolsVisibility(true);
+        toggleAllFamiliesVisibility(true);
       } else {
         if (event.target.type == 'Create') {
-          let elementName = event.target.title;
-          let family = app.environment.families.find(family => family.name == elementName);
-          family.isVisible = !family.isVisible;
+          toggleFamilyVisibility(event.target.title);
         } else {
-          let elementName = event.target.name;
-          let tool = this.tools.find(tool => tool.name == elementName);
-          tool.isVisible = !tool.isVisible;
+          toggleToolVisibility(event.target.name);
         }
       }
-      tools.set([...this.tools])
     }
   }
 

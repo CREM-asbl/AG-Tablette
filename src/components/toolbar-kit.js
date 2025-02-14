@@ -5,25 +5,21 @@ import './template-toolbar';
 
 class ToolbarKit extends LitElement {
   static properties = {
-    environment: { type: Object },
+    kit: { type: Object },
     selectedFamily: { type: String },
     helpSelected: { type: Boolean },
   }
 
   render() {
-    const familyNames = this.environment.families.filter(family => family.isVisible).map(family => family.name)
-    if (!familyNames.length) {
-      this.style.display = 'none'
-      return
-    }
-    this.style.display = 'block'
+    const familyNames = this.kit.families.filter(family => family.isVisible).map(family => family.name)
+    if (!familyNames.length) return
     return html`
       <template-toolbar>
-        <h2 slot="title">${this.environment.kitName}</h2>
+        <h2 slot="title">${this.kit.name}</h2>
         <div slot="body">
           ${familyNames.map((familyName) => html`
               <icon-button
-                name="${this.environment.families.find(family => family.name == familyName).shapeTemplates[0].name}"
+                name="${this.kit.families.find(family => family.name == familyName).shapeTemplates[0].name}"
                 type="Create"
                 title="${familyName}"
                 ?active="${familyName === this.selectedFamily}"

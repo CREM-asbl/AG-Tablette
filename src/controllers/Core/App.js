@@ -1,5 +1,6 @@
 import { signal } from '@lit-labs/signals';
 import { resetToolsVisibility, tools } from '@store/tools';
+import { resetKitVisibility } from '../../store/kit';
 import { uniqId } from './Tools/general';
 
 window.dev_mode = location.hostname === 'localhost';
@@ -117,7 +118,7 @@ export class App {
 
   resetSettings() {
     resetToolsVisibility();
-    app.environment.families.forEach(family => family.isVisible = true);
+    resetKitVisibility()
     setState({
       settings: {
         ...app.defaultState.settings,
@@ -137,6 +138,7 @@ export const setState = (update) => {
   for (const [key, value] of Object.entries(update)) {
     app[key] = value;
   }
+  //TODO: à supprimer car pas utilisé
   if ('environment' in update) {
     window.dispatchEvent(new CustomEvent('environment-changed', { detail: app }));
   }

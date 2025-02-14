@@ -1,4 +1,5 @@
-import { tools } from '@store/tools';
+import { setFamiliesVisibility } from '@store/kit';
+import { setToolsVisibility } from '../../../store/tools';
 import { app, setState } from '../App';
 import { addInfoToId, createElem, getExtension } from '../Tools/general';
 
@@ -249,15 +250,8 @@ export class OpenFileManager {
       }
     }
 
-    if (saveObject.toolsVisible) {
-      const currentTools = tools.get();
-      saveObject.toolsVisible.forEach(toolVisible => {
-        const tool = currentTools.find(tool => tool.name == toolVisible.name);
-        if (tool) tool.isVisible = toolVisible.isVisible
-      });
-      saveObject.familiesVisible.forEach(familyVisible => app.environment.families.find(family => family.name == familyVisible.name).isVisible = familyVisible.isVisible)
-      tools.set([...currentTools]);
-    }
+    if (saveObject.toolsVisible) setToolsVisibility(saveObject.toolsVisible);
+    if (saveObject.familiesVisible) setFamiliesVisibility(saveObject.familiesVisible);
 
     setState({ filename });
     window.dispatchEvent(new CustomEvent('file-parsed', { detail: saveObject }));

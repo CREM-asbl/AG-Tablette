@@ -3,6 +3,7 @@ import '@components/template-toolbar';
 import '@components/toolbar-kit';
 import '@components/toolbar-section';
 import { SignalWatcher } from '@lit-labs/signals';
+import { kit } from '@store/kit';
 import { tools } from '@store/tools';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
@@ -53,11 +54,12 @@ class AGMenu extends SignalWatcher(LitElement) {
         </template-toolbar>
 
         <toolbar-kit
-          .environment=${app.environment}
+          .kit=${kit.get()}
           selectedFamily="${this.tool?.selectedFamily}"
           ?helpSelected="${this.helpSelected}"
           selected="${this.tool?.name}"
-        ></toolbar-kit>
+        >
+      </toolbar-kit>
         ${this._renderToolbarSections()}
     `;
   }

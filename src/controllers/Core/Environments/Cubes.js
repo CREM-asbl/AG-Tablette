@@ -14,7 +14,7 @@ export default {
     'Zoom',
     'Grid',
   ],
-  kit: 'cubesKit',
+  kit: true,
   extensions: ['.agc'],
   themeColor: '#f46c2e',
   themeColorSoft: '#FED3C2',
