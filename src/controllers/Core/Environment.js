@@ -1,5 +1,5 @@
 import { tools } from '@store/tools';
-import { loadKit } from '../../store/kit';
+import { loadKit, resetKit } from '../../store/kit';
 import { app, setState } from './App';
 
 export const loadEnvironnement = async (name) => {
@@ -14,7 +14,7 @@ export const loadEnvironnement = async (name) => {
       });
     }
 
-    if (config.default.kit) await loadKit(name);
+    config.default.kit ? await loadKit(name) : resetKit();
     await loadModules(config.default.modules);
 
     setState({

@@ -1,6 +1,6 @@
 import { signal } from '@lit-labs/signals';
 
-export const kit = signal({})
+export const kit = signal()
 
 export const getFamily = (name) => {
   return kit.get().families.find(family => family.name === name)
@@ -23,6 +23,10 @@ export const loadKit = async (name) => {
   kitInitial.families.forEach(family => initTemplates(family))
   kit.set(kitInitial);
   resetKitVisibility()
+}
+
+export const resetKit = () => {
+  kit.set(null)
 }
 
 export const resetKitVisibility = () => {

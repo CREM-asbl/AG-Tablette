@@ -60,7 +60,7 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
 
   render() {
     this.tools = tools.get()
-    this.families = kit.get().families || []
+    this.families = kit.get()?.families || []
     return html`
       <template-popup>
         <h2 slot="title">Choix des outils disponibles</h2>
