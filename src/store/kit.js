@@ -27,6 +27,7 @@ export const loadKit = async (name) => {
 
 export const resetKitVisibility = () => {
   const current = kit.get()
+  if (!current.families) return
   current.families.forEach(family => family.isVisible = true)
   kit.set({ ...current })
 }

@@ -251,7 +251,7 @@ export class OpenFileManager {
     }
 
     if (saveObject.toolsVisible) setToolsVisibility(saveObject.toolsVisible);
-    if (saveObject.familiesVisible) setFamiliesVisibility(saveObject.familiesVisible);
+    if (saveObject.familiesVisible?.length) setFamiliesVisibility(saveObject.familiesVisible);
 
     setState({ filename });
     window.dispatchEvent(new CustomEvent('file-parsed', { detail: saveObject }));

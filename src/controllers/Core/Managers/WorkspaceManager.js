@@ -26,18 +26,11 @@ window.addEventListener('new-window', () => {
   app.mainCanvasLayer.removeAllObjects();
   app.upperCanvasLayer.removeAllObjects();
   app.tangramCanvasLayer?.removeAllObjects();
-  app.gridCanvasLayer?.removeAllObjects();
   app.invisibleCanvasLayer?.removeAllObjects();
   setState({
     filename: null,
     history: app.defaultState.history,
     fullHistory: app.defaultState.fullHistory,
-    settings: {
-      ...app.settings,
-      gridShown: app.defaultState.settings.gridShown,
-      gridType: app.defaultState.settings.gridType,
-      gridSize: app.defaultState.settings.gridSize,
-    },
     stepSinceSave: app.defaultState.stepSinceSave,
   });
   setWorkspace(new Workspace());
