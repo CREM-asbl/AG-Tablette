@@ -60,15 +60,11 @@ export class CreateTool extends Tool {
     app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
-
-    // this.openShapeList();
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
   move() {
-    // this.stopAnimation();
     this.removeListeners();
-
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -83,11 +79,10 @@ export class CreateTool extends Tool {
   }
 
   openShapeList() {
-    console.log(this.openShapeList)
     const shapeTemplates = getFamily(app.tool.selectedFamily).shapeTemplates;
     if (shapeTemplates.length == 1) {
-      let selectedTemplate = shapeTemplates[0];
-      setTimeout(() => setState({ tool: { ...app.tool, currentStep: 'listen', selectedTemplate } }), 50);
+      const selectedTemplate = shapeTemplates[0];
+      setState({ tool: { ...app.tool, currentStep: 'listen', selectedTemplate } });
     } else if (!this.shapesList) {
       import('../../components/shape-selector');
       const elem = document.createElement('shape-selector');

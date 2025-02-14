@@ -11,6 +11,7 @@ class ToolbarKit extends LitElement {
   }
 
   render() {
+    if (!this.kit.families) return
     const familyNames = this.kit.families.filter(family => family.isVisible).map(family => family.name)
     if (!familyNames.length) return
     return html`

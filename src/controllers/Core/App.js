@@ -138,10 +138,7 @@ export const setState = (update) => {
   for (const [key, value] of Object.entries(update)) {
     app[key] = value;
   }
-  //TODO: à supprimer car pas utilisé
-  if ('environment' in update) {
-    window.dispatchEvent(new CustomEvent('environment-changed', { detail: app }));
-  }
+
   if ('tool' in update) {
     const toolInfo = tools.get().find((tool) => tool.name == app.tool?.name);
     if (toolInfo) {
