@@ -1,10 +1,11 @@
-import { app, setState } from '@controllers/Core/App';
+import { SignalWatcher } from '@lit-labs/signals';
 import { getFilesDocFromModule, getModuleDocFromModuleName } from '@db/firebase-init';
 import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
+import { sequences, toggleSequence } from '@store/notions';
 import './file-elem';
 
-class ModuleElem extends LitElement {
+class ModuleElem extends SignalWatcher(LitElement) {
   @property({ type: String }) title
   @property({ type: Array }) files = []
   @property({ type: Array }) fileNames = []
@@ -18,9 +19,7 @@ class ModuleElem extends LitElement {
   `
 
   firstUpdated() {
-    this.isOpen = app.sequencesOpen.some(sequence => {
-      return sequence == this.title
-    });
+    this.isOpen = sequences.get().some(sequence => sequence === this.title);
     if (this.isOpen) {
       this.shadowRoot.querySelector('details').open = true;
       this.loadFiles();
@@ -49,14 +48,10 @@ class ModuleElem extends LitElement {
 
   async summaryClick() {
     this.isOpen = !this.isOpen;
-    let sequencesOpen = [...app.sequencesOpen];
     if (this.isOpen) {
-      sequencesOpen.push(this.title);
       this.loadFiles();
-    } else {
-      sequencesOpen = sequencesOpen.filter(notion => notion != this.title);
     }
-    setState({ sequencesOpen });
+    toggleSequence(this.title);
   }
 
   async loadFiles() {

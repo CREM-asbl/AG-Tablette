@@ -18,8 +18,6 @@ export class App {
     // L'outil sélectionné
     this.tool = null;
 
-    // Les outils possibles
-    this.tools = [];
 
     this.settings = {
       magnetismDistance: 20,
@@ -74,12 +72,6 @@ export class App {
     this.started = false;
     this.appLoading = false;
     this.nextGroupColorIdx = 0;
-
-    this.notionsOpen = [
-    ];
-
-    this.sequencesOpen = [
-    ];
 
     this.defaultState = {
       tool: null,
