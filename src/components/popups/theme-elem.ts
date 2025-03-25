@@ -1,9 +1,8 @@
-import { SignalWatcher } from '@lit-labs/signals';
-import { app } from '@controllers/Core/App';
 import { getModulesDocFromTheme, getThemeDocFromThemeName } from '@db/firebase-init';
+import { SignalWatcher } from '@lit-labs/signals';
+import { notions, toggleNotion } from '@store/notions';
 import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
-import { notions, toggleNotion } from '@store/notions';
 import './module-elem';
 
 class ThemeElem extends SignalWatcher(LitElement) {

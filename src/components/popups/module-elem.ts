@@ -1,8 +1,8 @@
-import { SignalWatcher } from '@lit-labs/signals';
 import { getFilesDocFromModule, getModuleDocFromModuleName } from '@db/firebase-init';
+import { SignalWatcher } from '@lit-labs/signals';
+import { sequences, toggleSequence } from '@store/notions';
 import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
-import { sequences, toggleSequence } from '@store/notions';
 import './file-elem';
 
 class ModuleElem extends SignalWatcher(LitElement) {
