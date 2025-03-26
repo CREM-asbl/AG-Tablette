@@ -100,7 +100,7 @@ export class CreateTool extends Tool {
 
     const selectedTemplate = app.tool.selectedTemplate;
 
-    if (selectedTemplate?.name.startsWith('Segment')) {
+    if (selectedTemplate?.name && selectedTemplate.name.startsWith('Segment')) {
       this.shapeToCreate = new LineShape({
         ...selectedTemplate,
         layer: 'upper',
@@ -141,10 +141,14 @@ export class CreateTool extends Tool {
   }
 
   _executeAction() {
+    const selectedTemplate = app.tool.selectedTemplate;
+    if (!selectedTemplate?.name) {
+      console.warn('No template selected');
+      return;
+    }
+
     const shapeSize = app.settings.shapesSize,
       shapeCoordinates = app.workspace.lastKnownMouseCoordinates;
-
-    const selectedTemplate = app.tool.selectedTemplate;
 
     let shape;
     if (selectedTemplate.name.startsWith('Segment')) {

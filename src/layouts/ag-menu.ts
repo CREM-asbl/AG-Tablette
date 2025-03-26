@@ -98,7 +98,7 @@ class AGMenu extends SignalWatcher(LitElement) {
       { title: 'Opérations', toolsType: 'operation' },
       { title: 'Outils', toolsType: 'tool' },
     ];
-    console.log(tools.get())
+
     return sections.map(
       (section) => html`
         <toolbar-section
