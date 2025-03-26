@@ -1,3 +1,4 @@
+import { kit } from '@store/kit';
 import { tools } from '@store/tools';
 import { app, setState } from '../App';
 import { createElem, getExtension } from '../Tools/general';
