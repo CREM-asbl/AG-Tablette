@@ -1,6 +1,6 @@
 import '@styles/button.css';
 import { LitElement, css, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 
 @customElement('color-button')
 export class ColorButton extends LitElement {
@@ -8,6 +8,8 @@ export class ColorButton extends LitElement {
   @property({ type: String }) innerText
   @property({ type: String }) name
   @property({ type: Boolean }) disabled
+  @property({ type: Boolean, attribute: 'loading', reflect: true }) loading = false
+  @state() private displayText: string = '';
 
   static styles = css`
     button {
@@ -27,9 +29,31 @@ export class ColorButton extends LitElement {
     opacity: 0.8;
     box-shadow: 0px 0px 5px var(--menu-shadow-color);
   }
+
+  :host([loading]) button {
+    animation: blink 1.5s infinite;
+  }
+
+  @keyframes blink {
+    0% { opacity: .5 }
+    50% { opacity: 1 }
+    100% { opacity: .5 }
+  }
   `
 
+  constructor() {
+    super();
+    this.displayText = '';
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('innerText') || !this.displayText) {
+      this.displayText = this.innerText;
+    }
+  }
+
   render() {
-    return html`<button ?disabled="${this.disabled}"><slot>${this.innerText}</slot></button>`;
+    const text = this.loading ? "Téléchargement en cours..." : this.displayText || this.innerText;
+    return html`<button ?disabled="${this.disabled}"><slot>${text}</slot></button>`;
   }
 }

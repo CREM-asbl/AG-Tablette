@@ -1,132 +1,228 @@
 import '@components/color-button';
-import { findAllFiles, findAllThemes, readFileFromServer } from '@db/firebase-init';
-import * as fflate from 'fflate';
+import '@components/popups/template-popup';
+import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { downloadFileZip, findAllFiles, findAllThemes } from '../../firebase/firebase-init';
+import { cachedThemes } from '../../store/notions';
 import './theme-elem';
 
 @customElement('open-server-popup')
-class OpenServerPopup extends LitElement {
+class OpenServerPopup extends SignalWatcher(LitElement) {
   @property({ type: Array }) allThemes = []
   @property({ type: Boolean }) isDownloading = false;
+  @property({ type: String }) errorMessage = '';
+
+  constructor() {
+    super();
+    window.addEventListener('close-popup', () => this.close());
+  }
+
+  close() {
+    this.dispatchEvent(new CustomEvent('closed', {
+      bubbles: true,
+      composed: true
+    }));
+    // Retirer l'élément du DOM si nécessaire
+    if (this.parentNode) {
+      this.parentNode.removeChild(this);
+    }
+  }
 
   static styles = css`
     .popup-content {
       display: grid;
-      gap: 4px;
+      gap: 16px;
+      width: 100%;
+      padding: 8px;
     }
 
     .loading-indicator {
       width: 100%;
-      margin: 1rem 0;
+      height: 8px;
+      margin: 0.5rem 0;
+      border-radius: 4px;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { opacity: 0.6; }
     }
 
     .theme-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
+      max-height: 50vh;
+      overflow-y: auto;
+      padding: 8px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .theme-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .theme-list::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+    }
+
+    .theme-list::-webkit-scrollbar-thumb {
+      background-color: var(--theme-color);
+      border-radius: 4px;
     }
 
     .download-progress {
-      margin-top: 1rem;
-      width: 100%;
+      height: 6px;
+      margin: 0.5rem 0;
+      border-radius: 4px;
     }
 
     .error-message {
-      color: red;
+      color: #e74c3c;
       font-size: 0.9em;
       margin-top: 0.5rem;
+      padding: 8px;
+      background-color: rgba(231, 76, 60, 0.1);
+      border-radius: 4px;
+      border-left: 3px solid #e74c3c;
+    }
+
+    .download-all {
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .download-all color-button {
+      width: 100%;
+      max-width: 300px;
+      transition: transform 0.2s ease;
+    }
+
+    .download-all color-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .section-title {
+      font-size: 1.1em;
+      font-weight: 500;
+      margin: 0;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
   `
+
+  async connectedCallback() {
+    super.connectedCallback();
+    await this.loadThemes();
+  }
+
+  async loadThemes() {
+    try {
+      this.errorMessage = '';
+      this.allThemes = [];
+
+      // Vérifier d'abord si des thèmes sont déjà en cache
+      if (cachedThemes.value && cachedThemes.value.length > 0) {
+        console.log('Utilisation des thèmes en cache:', cachedThemes.value);
+        this.allThemes = cachedThemes.value;
+        return;
+      }
+
+      // Sinon charger depuis le serveur
+      const themes = await findAllThemes();
+      console.log('Thèmes récupérés du serveur:', themes);
+      this.allThemes = themes;
+
+      // Mise à jour du cache des thèmes
+      if (themes && themes.length > 0) {
+        cachedThemes.value = themes;
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des thèmes:', error);
+      this.errorMessage = `Erreur lors du chargement des thèmes: ${error.message}`;
+    }
+  }
+
+  /**
+   * Gère l'état du bouton de téléchargement
+   * @param {string} selector - Le sélecteur CSS du bouton
+   * @param {boolean} loading - Indique si le bouton doit afficher l'état de chargement
+   * @param {boolean} disabled - Indique si le bouton doit être désactivé
+   */
+  setButtonState(selector, loading, disabled) {
+    const button = this.shadowRoot?.querySelector(selector);
+    if (button) {
+      if (loading) {
+        button.setAttribute('loading', 'true');
+      } else {
+        button.removeAttribute('loading');
+      }
+      button.disabled = disabled;
+    }
+  }
+
+  async downloadAllFiles() {
+    try {
+      this.isDownloading = true;
+      this.errorMessage = '';
+
+      // Mettre le bouton en état de chargement
+      this.setButtonState('.download-all color-button', true, true);
+
+      const files = await findAllFiles();
+      if (files && files.length > 0) {
+        await downloadFileZip('tous_les_fichiers.zip', files.map(file => file.id));
+        console.log('Téléchargement de tous les fichiers terminé');
+      } else {
+        this.errorMessage = 'Aucun fichier disponible pour le téléchargement';
+      }
+    } catch (error) {
+      console.error('Erreur lors du téléchargement des fichiers:', error);
+      this.errorMessage = `Erreur lors du téléchargement: ${error.message}`;
+    } finally {
+      this.isDownloading = false;
+      // Réinitialiser le bouton
+      this.setButtonState('.download-all color-button', false, false);
+    }
+  }
 
   render() {
     return html`
       <template-popup>
         <h2 slot="title">Ouvrir un fichier</h2>
         <div slot="body" class="popup-content">
-          <progress class="loading-indicator" style="display: ${this.allThemes.length ? 'none' : 'block'}"></progress>
-          <div class="theme-list">
-            ${this.allThemes.map(theme => html`<theme-elem .title="${theme.id}" .moduleNames="${theme.modules.map(module => module.id)}"></theme-elem>`)}
+          ${this.allThemes.length === 0 ?
+        html`
+              <div class="loading-container">
+                <p>Chargement des thèmes...</p>
+                <progress class="loading-indicator"></progress>
+              </div>
+            ` :
+        html`
+              <h3 class="section-title">Thèmes disponibles</h3>
+              <div class="theme-list">
+                ${this.allThemes.map(theme => html`<theme-elem .theme=${theme}></theme-elem>`)}
+              </div>
+            `
+      }
+
+          <div class="download-all">
+            <color-button @click="${this.downloadAllFiles}">
+              ${this.isDownloading ? 'Téléchargement en cours...' : 'Télécharger tous les fichiers'}
+            </color-button>
           </div>
-          ${this.isDownloading ? html`
-            <progress class="download-progress"></progress>
-            <div>Téléchargement en cours...</div>
-          ` : ''}
-        </div>
-        <div slot="footer">
-          <color-button
-            @click="${this.downloadAllFiles}"
-            ?disabled="${this.isDownloading}">
-            ${this.isDownloading ? 'Téléchargement...' : 'Télécharger tous les fichiers'}
-          </color-button>
+
+          ${this.isDownloading ? html`<progress class="download-progress"></progress>` : ''}
+          ${this.errorMessage ? html`<div class="error-message">${this.errorMessage}</div>` : ''}
         </div>
       </template-popup>
     `;
-  }
-
-  async firstUpdated() {
-    let allThemes = await findAllThemes();
-    this.allThemes = allThemes;
-    window.addEventListener('close-popup', () => this.close());
-  }
-
-  async downloadAllFiles() {
-    if (this.isDownloading) return;
-
-    try {
-      this.isDownloading = true;
-      let allFilename = await findAllFiles();
-      allFilename = allFilename.filter(file => !file.hidden);
-
-      const MAX_SIZE = 100 * 1024 * 1024; // 100 Mo
-      let totalSize = 0;
-      let filesByModules = {};
-
-      await Promise.all(
-        allFilename.map(async file => {
-          let key = file.module.id;
-          let response = await readFileFromServer(file.id);
-          let text = await response.text();
-          totalSize += text.length;
-
-          if (totalSize > MAX_SIZE) {
-            throw new Error("La taille totale des fichiers dépasse la limite autorisée (100 Mo)");
-          }
-
-          text = fflate.strToU8(text);
-          if (key in filesByModules) {
-            filesByModules[key][file.id] = text;
-          } else {
-            filesByModules[key] = { [file.id]: text };
-          }
-        })
-      );
-
-      const zipped = fflate.zipSync(filesByModules);
-      let blob = new Blob([zipped]);
-
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      try {
-        link.href = url;
-        link.download = "fichiers_AGm_serveur_crem.zip";
-        link.click();
-      } finally {
-        URL.revokeObjectURL(url);
-        link.remove();
-      }
-    } catch (error) {
-      console.error("Erreur lors du téléchargement des fichiers :", error);
-      const errorDiv = document.createElement("div");
-      errorDiv.className = "error-message";
-      errorDiv.textContent = error.message || "Une erreur est survenue lors du téléchargement";
-      this.shadowRoot.querySelector('.popup-content').appendChild(errorDiv);
-    } finally {
-      this.isDownloading = false;
-    }
-  }
-
-  close() {
-    this.remove()
   }
 }

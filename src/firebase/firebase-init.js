@@ -1,3 +1,4 @@
+import { zip } from 'fflate';
 import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from 'firebase/app';
 import { collection, doc, getDoc, getDocs, initializeFirestore, persistentLocalCache, query, where } from "firebase/firestore";
@@ -84,11 +85,72 @@ export async function getFilesDocFromModule(moduleDoc) {
 }
 
 export async function downloadFileZip(zipname, files) {
-  const blob = await downloadZip(files).blob();
+  try {
+    // Vérifier si la liste des fichiers est vide
+    if (!files || files.length === 0) {
+      throw new Error("Aucun fichier à télécharger");
+    }
 
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = zipname;
-  link.click();
-  link.remove();
+    // Télécharger les fichiers depuis le stockage Firebase
+    const filePromises = files.map(async (fileId) => {
+      try {
+        const fileURL = await getDownloadURL(ref(storage, fileId));
+        const response = await fetch(fileURL);
+
+        if (!response.ok) {
+          throw new Error(`Erreur lors du téléchargement du fichier ${fileId}`);
+        }
+
+        const fileData = await response.arrayBuffer();
+        return {
+          name: fileId,
+          data: new Uint8Array(fileData)
+        };
+      } catch (error) {
+        console.error(`Erreur pour le fichier ${fileId}:`, error);
+        return null;
+      }
+    });
+
+    // Attendre le téléchargement de tous les fichiers
+    const downloadedFiles = await Promise.all(filePromises);
+
+    // Filtrer les fichiers qui n'ont pas pu être téléchargés
+    const validFiles = downloadedFiles.filter(file => file !== null);
+
+    if (validFiles.length === 0) {
+      throw new Error("Aucun fichier n'a pu être téléchargé");
+    }
+
+    // Créer un objet avec les fichiers à compresser
+    const zipData = {};
+    validFiles.forEach(file => {
+      zipData[file.name] = file.data;
+    });
+
+    // Créer le fichier ZIP avec fflate
+    return new Promise((resolve, reject) => {
+      zip(zipData, (err, data) => {
+        if (err) {
+          reject(new Error("Erreur lors de la création du ZIP: " + err.message));
+          return;
+        }
+
+        // Créer un Blob à partir des données compressées
+        const blob = new Blob([data], { type: 'application/zip' });
+
+        // Télécharger le fichier
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = zipname;
+        link.click();
+        link.remove();
+
+        resolve();
+      });
+    });
+  } catch (error) {
+    console.error("Erreur lors de la création du fichier ZIP:", error);
+    throw error;
+  }
 }

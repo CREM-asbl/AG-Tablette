@@ -1,30 +1,36 @@
 import { signal } from '@lit-labs/signals';
 
-export const notions = signal([]);
-export const sequences = signal([]);
+// Signal pour le thème sélectionné
+export const selectedNotion = signal(null);
 
-export const toggleNotion = (notionTitle: string) => {
-  const current = notions.get();
-  const notionIndex = current.findIndex(notion => notion === notionTitle);
+// Signal pour stocker les thèmes en cache
+export const cachedThemes = signal([]);
 
-  if (notionIndex === -1) {
-    notions.set([...current, notionTitle]);
+// Signal pour stocker les séquences en cache
+export const cachedSequences = signal([]);
+
+// Signal pour stocker les fichiers en cache
+export const cachedFiles = signal([]);
+
+// Fonction pour basculer la sélection d'un thème
+export const toggleNotion = (notionName) => {
+  if (selectedNotion.get() === notionName) {
+    selectedNotion.set(null);
   } else {
-    const newNotions = [...current];
-    newNotions.splice(notionIndex, 1);
-    notions.set(newNotions);
+    selectedNotion.set(notionName);
   }
-}
+};
+
+export const selectedSequence = signal('');
 
 export const toggleSequence = (sequenceTitle: string) => {
-  const current = sequences.get();
-  const sequenceIndex = current.findIndex(sequence => sequence === sequenceTitle);
+  const current = selectedSequence.get();
 
-  if (sequenceIndex === -1) {
-    sequences.set([...current, sequenceTitle]);
+  if (current !== sequenceTitle) {
+    // Sélectionner la nouvelle séquence
+    selectedSequence.set(sequenceTitle);
   } else {
-    const newSequences = [...current];
-    newSequences.splice(sequenceIndex, 1);
-    sequences.set(newSequences);
+    // Si on clique sur l'élément déjà sélectionné, on le désélectionne
+    selectedSequence.set('');
   }
 }
