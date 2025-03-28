@@ -175,7 +175,7 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       if (themes && themes.length > 0) {
         cachedThemes.value = themes;
       }
-      
+
       this.scrollToOpenModule();
     } catch (error) {
       console.error('Erreur lors du chargement des thèmes:', error);
