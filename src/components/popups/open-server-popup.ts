@@ -4,7 +4,7 @@ import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { downloadFileZip, findAllFiles, findAllThemes } from '../../firebase/firebase-init';
-import { cachedThemes } from '../../store/notions';
+import { cachedThemes, selectedSequence } from '../../store/notions';
 import './theme-elem';
 
 @customElement('open-server-popup')
@@ -12,6 +12,7 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
   @property({ type: Array }) allThemes = []
   @property({ type: Boolean }) isDownloading = false;
   @property({ type: String }) errorMessage = '';
+  @property({ type: String }) successMessage = '';
 
   constructor() {
     super();
@@ -93,6 +94,16 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       border-left: 3px solid #e74c3c;
     }
 
+    .success-message {
+      color: #2ecc71;
+      font-size: 0.9em;
+      margin-top: 0.5rem;
+      padding: 8px;
+      background-color: rgba(46, 204, 113, 0.1);
+      border-radius: 4px;
+      border-left: 3px solid #2ecc71;
+    }
+
     .download-all {
       margin-top: 0.5rem;
       display: flex;
@@ -121,6 +132,25 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
   async connectedCallback() {
     super.connectedCallback();
     await this.loadThemes();
+    this.addEventListener('state-changed', this.scrollToOpenModule);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener('state-changed', this.scrollToOpenModule);
+  }
+
+  // Méthode pour faire défiler vers le module ouvert
+  scrollToOpenModule() {
+    setTimeout(() => {
+      const currentSequence = selectedSequence.get();
+      if (currentSequence) {
+        const moduleElement = this.shadowRoot?.querySelector(`module-elem[title="${currentSequence}"]`);
+        if (moduleElement) {
+          moduleElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }, 100); // Petit délai pour laisser le temps au DOM de se mettre à jour
   }
 
   async loadThemes() {
@@ -132,6 +162,7 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       if (cachedThemes.value && cachedThemes.value.length > 0) {
         console.log('Utilisation des thèmes en cache:', cachedThemes.value);
         this.allThemes = cachedThemes.value;
+        this.scrollToOpenModule();
         return;
       }
 
@@ -144,6 +175,8 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       if (themes && themes.length > 0) {
         cachedThemes.value = themes;
       }
+      
+      this.scrollToOpenModule();
     } catch (error) {
       console.error('Erreur lors du chargement des thèmes:', error);
       this.errorMessage = `Erreur lors du chargement des thèmes: ${error.message}`;
@@ -172,6 +205,7 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
     try {
       this.isDownloading = true;
       this.errorMessage = '';
+      this.successMessage = '';
 
       // Mettre le bouton en état de chargement
       this.setButtonState('.download-all color-button', true, true);
@@ -179,7 +213,7 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       const files = await findAllFiles();
       if (files && files.length > 0) {
         await downloadFileZip('tous_les_fichiers.zip', files.map(file => file.id));
-        console.log('Téléchargement de tous les fichiers terminé');
+        this.successMessage = 'Téléchargement terminé avec succès';
       } else {
         this.errorMessage = 'Aucun fichier disponible pour le téléchargement';
       }
@@ -188,7 +222,6 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       this.errorMessage = `Erreur lors du téléchargement: ${error.message}`;
     } finally {
       this.isDownloading = false;
-      // Réinitialiser le bouton
       this.setButtonState('.download-all color-button', false, false);
     }
   }
@@ -200,27 +233,28 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
         <div slot="body" class="popup-content">
           ${this.allThemes.length === 0 ?
         html`
-              <div class="loading-container">
+              <div class="loading-container" role="status" aria-live="polite">
                 <p>Chargement des thèmes...</p>
                 <progress class="loading-indicator"></progress>
               </div>
             ` :
         html`
               <h3 class="section-title">Thèmes disponibles</h3>
-              <div class="theme-list">
-                ${this.allThemes.map(theme => html`<theme-elem .theme=${theme}></theme-elem>`)}
+              <div class="theme-list" role="list">
+                ${this.allThemes.map(theme => html`<theme-elem role="listitem" .theme=${theme}></theme-elem>`)}
               </div>
             `
       }
 
           <div class="download-all">
-            <color-button @click="${this.downloadAllFiles}">
+            <color-button @click="${this.downloadAllFiles}" aria-busy="${this.isDownloading}">
               ${this.isDownloading ? 'Téléchargement en cours...' : 'Télécharger tous les fichiers'}
             </color-button>
           </div>
 
-          ${this.isDownloading ? html`<progress class="download-progress"></progress>` : ''}
-          ${this.errorMessage ? html`<div class="error-message">${this.errorMessage}</div>` : ''}
+          ${this.isDownloading ? html`<progress class="download-progress" role="progressbar"></progress>` : ''}
+          ${this.errorMessage ? html`<div class="error-message" role="alert">${this.errorMessage}</div>` : ''}
+          ${this.successMessage ? html`<div class="success-message" role="status">${this.successMessage}</div>` : ''}
         </div>
       </template-popup>
     `;

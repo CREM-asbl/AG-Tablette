@@ -94,12 +94,22 @@ class ModuleElem extends SignalWatcher(LitElement) {
 
     if (this.isOpen) {
       this.loadFiles();
+      this.scrollIntoViewIfNeeded();
     }
 
     if (Array.isArray(this.fileNames)) {
       // fileNames est déjà un tableau, rien à faire
     } else if (typeof this.fileNames === "string") {
       this.fileNamesList = this.fileNames.split(',');
+    }
+  }
+
+  // Méthode pour faire défiler vers cet élément s'il est ouvert
+  scrollIntoViewIfNeeded() {
+    if (this.isOpen) {
+      setTimeout(() => {
+        this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
     }
   }
 
@@ -149,6 +159,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
       this.loadFiles();
+      this.scrollIntoViewIfNeeded();
     }
     toggleSequence(this.title);
 
@@ -219,6 +230,9 @@ class ModuleElem extends SignalWatcher(LitElement) {
     // Ne mettre à jour isOpen que si sa valeur a changé
     if (this.isOpen !== isSelected) {
       this.isOpen = isSelected;
+      if (this.isOpen) {
+        this.scrollIntoViewIfNeeded();
+      }
     }
 
     if (isSelected && !this.loaded) {
