@@ -21,10 +21,18 @@ if (location.hostname != 'localhost') {
 export async function openFileFromServer(activityName) {
   const data = await getFileDocFromFilename(activityName);
   if (data) {
+    loadEnvironnement(data.environment);
     let fileDownloaded = await readFileFromServer(data.id);
     let fileDownloadedObject = await fileDownloaded.json();
-    window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject, activityName), { once: true });
-    loadEnvironnement(data.environment);
+
+    // Si l'application est déjà démarrée, on parse directement le fichier
+    // sinon on attend l'événement app-started
+    if (app.started) {
+      OpenFileManager.parseFile(fileDownloadedObject, activityName);
+    } else {
+      window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject, activityName), { once: true });
+    }
+
   }
 }
 
