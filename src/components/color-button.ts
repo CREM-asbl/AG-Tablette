@@ -5,11 +5,25 @@ import { customElement, property, state } from 'lit/decorators.js';
 @customElement('color-button')
 export class ColorButton extends LitElement {
 
-  @property({ type: String }) innerText
-  @property({ type: String }) name
+  @state() private _displayText: string = '';
+
   @property({ type: Boolean }) disabled
   @property({ type: Boolean, attribute: 'loading', reflect: true }) loading = false
-  @state() private displayText: string = '';
+  @property({ type: String }) name
+
+  private _innerText: string = '';
+
+  @property({ type: String })
+  get innerText() {
+    return this._innerText;
+  }
+
+  set innerText(value: string) {
+    const oldValue = this._innerText;
+    this._innerText = value;
+    this._displayText = value;
+    this.requestUpdate('innerText', oldValue);
+  }
 
   static styles = css`
     button {
@@ -41,19 +55,8 @@ export class ColorButton extends LitElement {
   }
   `
 
-  constructor() {
-    super();
-    this.displayText = '';
-  }
-
-  updated(changedProperties) {
-    if (changedProperties.has('innerText') || !this.displayText) {
-      this.displayText = this.innerText;
-    }
-  }
-
   render() {
-    const text = this.loading ? "Téléchargement en cours..." : this.displayText || this.innerText;
+    const text = this.loading ? "Téléchargement en cours..." : this._displayText || this._innerText;
     return html`<button ?disabled="${this.disabled}"><slot>${text}</slot></button>`;
   }
 }

@@ -10,10 +10,39 @@ class ToolbarKit extends LitElement {
     helpSelected: { type: Boolean },
   }
 
+  constructor() {
+    super();
+    this._filteredFamilies = [];
+    this._lastKit = null;
+    this._pendingUpdate = false;
+  }
+
+  shouldUpdate(changedProperties) {
+    // Optimiser les rendus en ne mettant à jour que si les propriétés pertinentes changent
+    if (changedProperties.has('kit') || changedProperties.has('selectedFamily') ||
+      changedProperties.has('helpSelected')) {
+      return true;
+    }
+    return super.shouldUpdate(changedProperties);
+  }
+
+  // Memoize les familles filtrées pour éviter les calculs inutiles
+  _getFilteredFamilies() {
+    if (this._lastKit !== this.kit || !this._filteredFamilies.length) {
+      this._filteredFamilies = this.kit?.families?.filter(family => family.isVisible) || [];
+      this._lastKit = this.kit;
+    }
+    return this._filteredFamilies;
+  }
+
   render() {
-    if (!this.kit) return
-    const familyNames = this.kit.families.filter(family => family.isVisible).map(family => family.name)
-    if (!familyNames.length) return
+    if (!this.kit) return null;
+
+    const families = this._getFilteredFamilies();
+    if (!families.length) return null;
+
+    const familyNames = families.map(family => family.name);
+
     return html`
       <template-toolbar>
         <h2 slot="title">${this.kit.name}</h2>
@@ -35,6 +64,14 @@ class ToolbarKit extends LitElement {
   }
 
   _actionHandle(event) {
+    if (this._pendingUpdate) return;
+
+    // Limiter la fréquence des mises à jour
+    this._pendingUpdate = true;
+    requestAnimationFrame(() => {
+      this._pendingUpdate = false;
+    });
+
     if (this.helpSelected) {
       window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: 'create' } }));
       setState({ helpSelected: false });
