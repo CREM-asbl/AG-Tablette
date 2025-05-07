@@ -1,0 +1,34 @@
+name: CI AG-Tablette
+
+on:
+  push:
+    branches: [ main, develop ] # Adaptez selon vos branches principales
+  pull_request:
+    branches: [ main, develop ] # Adaptez selon vos branches principales
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x] # Testez sur plusieurs versions de Node.js pertinentes
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm' # Active le cache pour npm
+
+    - name: Install dependencies
+      run: npm ci # Utilise npm ci pour des installations plus rapides et fiables en CI
+
+    - name: Run build
+      run: npm run build --if-present # Exécute le build si le script existe
+
+    - name: Run tests
+      run: npm run test:all
