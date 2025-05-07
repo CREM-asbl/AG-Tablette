@@ -2,9 +2,9 @@ name: CI AG-Tablette
 
 on:
   push:
-    branches: [ main, develop ] # Adaptez selon vos branches principales
+    branches: [ master, develop ] # Adaptez selon vos branches principales
   pull_request:
-    branches: [ main, develop ] # Adaptez selon vos branches principales
+    branches: [ master, develop ] # Adaptez selon vos branches principales
 
 jobs:
   build-and-test:
@@ -26,6 +26,9 @@ jobs:
 
     - name: Install dependencies
       run: npm ci # Utilise npm ci pour des installations plus rapides et fiables en CI
+
+    - name: Run linters
+      run: npm run lint
 
     - name: Run build
       run: npm run build --if-present # Exécute le build si le script existe
