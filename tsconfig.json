@@ -13,7 +13,8 @@
     "useDefineForClassFields": false,
     "experimentalDecorators": true,
     "types": [
-      "vite/client"
+      "vite/client",
+      "mocha"
     ],
     "baseUrl": ".",
     "paths": {

@@ -1,5 +1,5 @@
 import '@components/color-button';
-import { app, setState } from '@controllers/Core/App';
+import { app, setState } from '@controllers/Core/App.js';
 import { LitElement, css, html } from 'lit';
 import { TemplatePopup } from './template-popup';
 

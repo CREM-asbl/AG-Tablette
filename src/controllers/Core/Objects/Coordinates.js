@@ -51,7 +51,7 @@ export class Coordinates {
 
   equal(coordinates, precision = 0.001) {
     let dist = this.dist(coordinates);
-    let isEqual = dist < precision;
+    let isEqual = dist <= precision; // Changé de < à <=
     return isEqual;
   }
 
