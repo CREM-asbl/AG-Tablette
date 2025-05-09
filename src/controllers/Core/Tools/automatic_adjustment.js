@@ -1,3 +1,4 @@
+import { gridStore } from '../../../store/gridStore.js';
 import { getAllChildrenInGeometry } from '../../GeometryTools/general';
 import { app } from '../App';
 import { SelectManager } from '../Managers/SelectManager';
@@ -107,7 +108,7 @@ function bestPossibility(possibilities) {
  *
  */
 export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
-  let grid = app.settings.gridShown,
+  let grid = gridStore.getState().isVisible,
     // tangram = app.tangram.isSilhouetteShown,
     automaticAdjustment = app.settings.automaticAdjustment,
     transformation = {
@@ -139,12 +140,25 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
     cPtListShape = [];
   ptList.forEach((point) => {
     if (grid) {
-      let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
-      if (gridPoint) {
+      // point.coordinates sont en espace "monde"
+      const checkingCoordsInWorldSpace = point.coordinates;
+      // Convertir les coordonnées du point de la figure en espace canevas pour getClosestGridPoint
+      const checkingCoordsInCanvasSpace = checkingCoordsInWorldSpace.toCanvasCoordinates();
+
+      // getClosestGridPoint attend des coordonnées canevas et renvoie des coordonnées canevas
+      let closestGridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(checkingCoordsInCanvasSpace);
+
+      if (closestGridPointInCanvasSpace) {
+        // Reconvertir le point de grille trouvé en espace "monde" pour la cohérence
+        const closestGridPointInWorldSpace = closestGridPointInCanvasSpace.fromCanvasCoordinates();
+
         cPtListGrid.push({
-          fixed: gridPoint,
-          moving: point,
-          dist: gridPoint.coordinates.dist(point.coordinates),
+          fixed: { // Assurer une structure compatible avec ce qu'attendent les fonctions consommatrices
+            coordinates: closestGridPointInWorldSpace, // Coordonnées en espace monde
+            type: 'grid',
+          },
+          moving: point, // point.coordinates est déjà en espace monde
+          dist: closestGridPointInWorldSpace.dist(checkingCoordsInWorldSpace), // Distance calculée en espace monde
         });
       }
     }
@@ -152,7 +166,7 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
     constr.canSelect = true;
     constr.types = ['vertex', 'divisionPoint', 'shapeCenter'];
     if (blacklistShapeIds) {
-      constr.blacklist = blacklistShapeIds.map(sId => { return { shapeId: sId }});
+      constr.blacklist = blacklistShapeIds.map(sId => { return { shapeId: sId } });
     } else {
       constr.blacklist = shapesAndAllChildren.map((s) => {
         return { shapeId: addInfoToId(s.id, 'main') };

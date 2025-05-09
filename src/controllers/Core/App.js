@@ -102,9 +102,9 @@ export class App {
       scalarNumerator: 1,
       scalarDenominator: 1,
 
-      gridShown: false,
-      gridType: 'none',
-      gridSize: 1,
+      // gridShown: false, // Supprimé
+      // gridType: 'none', // Supprimé
+      // gridSize: 1, // Supprimé
     };
 
     /** @type {HistoryState} Historique des actions de l'utilisateur */
@@ -202,9 +202,10 @@ export class App {
     setState({
       settings: {
         ...app.defaultState.settings,
-        gridShown: app.settings.gridShown,
-        gridType: app.settings.gridType,
-        gridSize: app.settings.gridSize,
+        // Les lignes suivantes sont supprimées car l'état de la grille est géré par gridStore
+        // gridShown: app.settings.gridShown,
+        // gridType: app.settings.gridType,
+        // gridSize: app.settings.gridSize,
       },
     });
   }

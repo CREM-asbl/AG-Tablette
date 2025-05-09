@@ -1,5 +1,7 @@
 import '@components/color-button';
-import { app, setState } from '@controllers/Core/App.js';
+// import { app, setState } from '@controllers/Core/App.js'; // setState sera supprimé plus tard, app potentiellement aussi
+import { app } from '@controllers/Core/App.js'; // Garder app pour l'instant pour app.fullHistory.isRunning
+import { gridStore } from '@store/gridStore';
 import { LitElement, css, html } from 'lit';
 import { TemplatePopup } from './template-popup';
 
@@ -19,8 +21,36 @@ class GridPopup extends LitElement {
     `]
 
   constructor() {
-    super()
-    this.updateProperties();
+    super();
+    // Initialiser les propriétés à partir du store
+    const storeState = gridStore.getState();
+    this.gridType = storeState.gridType;
+    this.gridSize = storeState.gridSize;
+    // gridShown n'est plus une propriété directe du store, mais dérivée de isVisible et gridType
+    this.gridShown = storeState.isVisible && storeState.gridType !== 'none';
+    this._unsubscribe = null;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._unsubscribe = gridStore.subscribe(state => {
+      this.gridType = state.gridType;
+      this.gridSize = state.gridSize;
+      this.gridShown = state.isVisible && state.gridType !== 'none';
+      // requestUpdate est implicitement appelé par LitElement lors de la modification des propriétés déclarées
+    });
+    // Initialiser l'état une fois connecté, au cas où il aurait changé entre le constructeur et la connexion
+    const currentState = gridStore.getState();
+    this.gridType = currentState.gridType;
+    this.gridSize = currentState.gridSize;
+    this.gridShown = currentState.isVisible && currentState.gridType !== 'none';
+  }
+
+  disconnectedCallback() {
+    if (this._unsubscribe) {
+      this._unsubscribe();
+    }
+    super.disconnectedCallback();
   }
 
   render() {
@@ -80,16 +110,16 @@ class GridPopup extends LitElement {
 
   firstUpdated() {
     window.addEventListener('close-popup', () => { this.submitAndClose() }, { once: true });
-    window.addEventListener('settings-changed', this.updateProperties.bind(this));
+    // window.addEventListener('settings-changed', this.updateProperties.bind(this)); // Supprimé
   }
 
   submit() {
-    setState({ tool: null });
+    // setState({ tool: null }); // Sera géré différemment ou supprimé si plus pertinent
   }
 
   close() {
     this.remove();
-    window.removeEventListener('settings-changed', this.eventHandler);
+    // window.removeEventListener('settings-changed', this.eventHandler); // Supprimé (eventHandler n'existe pas, probablement une typo pour updateProperties)
   }
 
   submitAndClose() {
@@ -106,22 +136,27 @@ class GridPopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'grid_popup_grid_type':
-        setState({
-          settings: {
-            ...app.settings,
-            gridType: event.target.value,
-            gridShown: event.target.value !== 'none',
-          },
-        });
+        // setState remplacé par l'action du store
+        gridStore.setGridType(event.target.value);
+        // La logique de gridShown est maintenant gérée par le store via setGridType
+        // setState({
+        //   settings: {
+        //     ...app.settings,
+        //     gridType: event.target.value,
+        //     gridShown: event.target.value !== 'none',
+        //   },
+        // });
         break;
 
       case 'grid_popup_grid_size':
-        setState({
-          settings: {
-            ...app.settings,
-            gridSize: event.target.value,
-          },
-        });
+        // setState remplacé par l'action du store
+        gridStore.setGridSize(parseFloat(event.target.value));
+        // setState({
+        //   settings: {
+        //     ...app.settings,
+        //     gridSize: event.target.value,
+        //   },
+        // });
         break;
 
       default:
@@ -134,12 +169,6 @@ class GridPopup extends LitElement {
           event.target.checked,
         );
     }
-  }
-
-  updateProperties = () => {
-    this.gridType = app.settings.gridType;
-    this.gridSize = app.settings.gridSize;
-    this.gridShown = app.settings.gridType !== 'none';
   }
 }
 customElements.define('grid-popup', GridPopup);

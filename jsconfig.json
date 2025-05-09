@@ -1,6 +1,25 @@
 {
   "compilerOptions": {
     "experimentalDecorators": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": [
+        "src/components/*"
+      ],
+      "@controllers/*": [
+        "src/controllers/*"
+      ],
+      // "@services/*": ["src/services/*"], // Commented out as src/services does not exist
+      "@store/*": [
+        "src/store/*"
+      ],
+      "@styles/*": [
+        "src/styles/*"
+      ],
+      "@utils/*": [
+        "src/utils/*"
+      ]
+    }
   }
 }
