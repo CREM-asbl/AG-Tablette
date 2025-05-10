@@ -612,10 +612,6 @@ class CanvasLayer extends LitElement {
   }
 
   drawGridPoints() {
-    if (!this.canvas) {
-      // console.warn("drawGridPoints: canvas is not initialized");
-      return;
-    }
     const ctx = this.canvas.getContext('2d');
     if (!ctx) {
       // console.warn("drawGridPoints: context is not available");
@@ -623,8 +619,8 @@ class CanvasLayer extends LitElement {
     }
 
     const gridState = gridStore.getState();
-    const canvasWidth = parseInt(this.canvas.width, 10) || 0;
-    const canvasHeight = parseInt(this.canvas.height, 10) || 0;
+    const canvasWidth = app.canvasWidth;
+    const canvasHeight = app.canvasHeight;
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -702,11 +698,6 @@ class CanvasLayer extends LitElement {
    * @return { Coordinates | undefined } Les coordonnées du point de la grille le plus proche ou undefined
    */
   getClosestGridPoint(checkingCoordinates) {
-    // Validation initiale des entrées et de l'état du canvas
-    if (!this.canvas) {
-      // console.warn("getClosestGridPoint: canvas is not initialized");
-      return undefined;
-    }
     if (!checkingCoordinates || typeof checkingCoordinates.x !== 'number' || typeof checkingCoordinates.y !== 'number' || !isFinite(checkingCoordinates.x) || !isFinite(checkingCoordinates.y)) {
       // console.warn("getClosestGridPoint: checkingCoordinates are invalid", checkingCoordinates);
       return undefined;
@@ -717,13 +708,8 @@ class CanvasLayer extends LitElement {
       return undefined;
     }
 
-    const canvasWidth = parseInt(this.canvas.width, 10) || 0;
-    const canvasHeight = parseInt(this.canvas.height, 10) || 0;
-
-    if (canvasWidth === 0 || canvasHeight === 0) {
-      // console.warn("getClosestGridPoint: canvas dimensions are zero");
-      return undefined;
-    }
+    const canvasWidth = app.canvasWidth;
+    const canvasHeight = app.canvasHeight;
 
     let zoomLevel = app.workspace.zoomLevel;
     if (typeof zoomLevel !== 'number' || !isFinite(zoomLevel) || zoomLevel <= 0) {
