@@ -10,7 +10,12 @@ export const resetToolsVisibility = () => {
 
 export const setToolsVisibility = (toolsVisibility) => {
   const current = tools.get()
-  current.forEach(tool => tool.isVisible = toolsVisibility.find(t => t.name == tool.name).isVisible)
+  current.forEach(tool => {
+    const toolVisibility = toolsVisibility.find(t => t.name == tool.name);
+    if (toolVisibility) {
+      tool.isVisible = toolVisibility.isVisible;
+    }
+  });
   tools.set([...current])
 }
 

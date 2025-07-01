@@ -31,7 +31,7 @@ export const resetKit = () => {
 
 export const resetKitVisibility = () => {
   const current = kit.get()
-  if (!current.families) return
+  if (!current || !current.families) return
   current.families.forEach(family => family.isVisible = true)
   kit.set({ ...current })
 }
