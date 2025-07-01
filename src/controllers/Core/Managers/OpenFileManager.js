@@ -190,7 +190,7 @@ export class OpenFileManager {
     }
 
     const WorkspaceManagerModule = await import('./WorkspaceManager.js');
-    WorkspaceManagerModule.setWorkspaceFromObject(saveObject.wsdata);
+    WorkspaceManagerModule.setWorkspaceFromObject(saveObject.workspaceData || saveObject.wsdata);
 
     if (app.environment.name == 'Tangram' && saveObject.fileExtension == 'ags')
       app.mainCanvasLayer.removeAllObjects();
@@ -250,8 +250,11 @@ export class OpenFileManager {
       }
     }
 
-    if (saveObject.toolsVisible) setToolsVisibility(saveObject.toolsVisible);
-    if (saveObject.familiesVisible?.length) setFamiliesVisibility(saveObject.familiesVisible);
+    const toolsVisibility = saveObject.toolsVisibility || saveObject.toolsVisible;
+    if (toolsVisibility) setToolsVisibility(toolsVisibility);
+
+    const familiesVisibility = saveObject.familiesVisibility || saveObject.familiesVisible;
+    if (familiesVisibility?.length) setFamiliesVisibility(familiesVisibility);
 
     setState({ filename });
     window.dispatchEvent(new CustomEvent('file-parsed', { detail: saveObject }));

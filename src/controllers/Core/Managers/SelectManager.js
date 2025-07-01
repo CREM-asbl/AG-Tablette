@@ -483,21 +483,23 @@ export class SelectManager {
   }
 }
 
-window.addEventListener('reset-selection-constraints', () => {
-  app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
-});
+export function initSelectManager(app) {
+  window.addEventListener('reset-selection-constraints', () => {
+    app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
+  });
 
-let click_all_shape_constr = SelectManager.getEmptySelectionConstraints();
-click_all_shape_constr.eventType = 'click';
-click_all_shape_constr.shapes.canSelect = true;
-let mousedown_all_shape_constr = SelectManager.getEmptySelectionConstraints();
-mousedown_all_shape_constr.eventType = 'mousedown';
-mousedown_all_shape_constr.shapes.canSelect = true;
-let click_all_segments_constr = SelectManager.getEmptySelectionConstraints();
-click_all_segments_constr.eventType = 'click';
-click_all_segments_constr.segments.canSelect = true;
-app.fastSelectionConstraints = {
-  click_all_shape: click_all_shape_constr,
-  mousedown_all_shape: mousedown_all_shape_constr,
-  click_all_segments: click_all_segments_constr,
-};
+  let click_all_shape_constr = SelectManager.getEmptySelectionConstraints();
+  click_all_shape_constr.eventType = 'click';
+  click_all_shape_constr.shapes.canSelect = true;
+  let mousedown_all_shape_constr = SelectManager.getEmptySelectionConstraints();
+  mousedown_all_shape_constr.eventType = 'mousedown';
+  mousedown_all_shape_constr.shapes.canSelect = true;
+  let click_all_segments_constr = SelectManager.getEmptySelectionConstraints();
+  click_all_segments_constr.eventType = 'click';
+  click_all_segments_constr.segments.canSelect = true;
+  app.fastSelectionConstraints = {
+    click_all_shape: click_all_shape_constr,
+    mousedown_all_shape: mousedown_all_shape_constr,
+    click_all_segments: click_all_segments_constr,
+  };
+}

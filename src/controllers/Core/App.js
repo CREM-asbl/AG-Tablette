@@ -1,6 +1,8 @@
 import { signal } from '@lit-labs/signals';
 import { resetToolsVisibility, tools } from '@store/tools';
 import { resetKitVisibility } from '../../store/kit';
+import { initSaveFileEventListener } from './Managers/SaveFileManager';
+import { initSelectManager } from './Managers/SelectManager';
 import { uniqId } from './Tools/general';
 
 window.dev_mode = location.hostname === 'localhost';
@@ -155,6 +157,9 @@ export class App {
      * La clé externe est le nom de l'événement, la clé interne est un ID unique pour l'écouteur.
      */
     this.listenerCounter = {};
+
+    initSaveFileEventListener(this);
+    initSelectManager(this);
   }
 
   /**
