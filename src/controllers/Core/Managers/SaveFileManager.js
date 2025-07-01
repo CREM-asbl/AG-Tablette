@@ -152,8 +152,15 @@ export class SaveFileManager {
       settings = { ...app.settings },
       history = detail.saveHistory ? { ...app.history } : undefined,
       fullHistory = detail.saveHistory ? { ...app.fullHistory } : undefined,
-      toolsVisible = tools.get().map(tool => { return { name: tool.name, isVisible: tool.isVisible } }),
+      toolsVisible = tools.get().map(tool => { return { name: tool.name, isVisible: tool.isVisible } });
+
+    console.log('DEBUG: kit value in saveState', kit.get());
+    let familiesVisible = [];
+    if (kit.get()) {
       familiesVisible = kit.get().families.map(family => { return { name: family.name, isVisible: family.isVisible } });
+    } else {
+      console.warn('DEBUG: kit is null, cannot save families visibility.');
+    }
 
     if (detail.permanentHide) {
       wsdata.objects.shapesData.forEach(sData => {
