@@ -64,13 +64,24 @@ const prepareSaveData = (app, workspace, { saveHistory, permanentHide, saveSetti
     if (translateTool) translateTool.isVisible = false;
   }
 
-  const currentKit = kit.get();
-  if (!currentKit) {
-    console.error("Le kit de formes n'est pas chargé, la sauvegarde est annulée.");
-    window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Erreur : Kit de formes non disponible.' } }));
+  // Vérifie si l'environnement est prêt pour la sauvegarde et si le kit est chargé si nécessaire
+  if (!app.environment) {
+    console.error("L'environnement n'est pas chargé, la sauvegarde est annulée.");
+    window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: "Erreur : L'environnement n'est pas prêt." } }));
     return null;
   }
-  const familiesVisibility = currentKit.families.map(family => ({ name: family.name, isVisible: family.isVisible }));
+
+  if (app.environment.kit && !kit.get()) {
+    console.error("Le kit de formes requis n'est pas chargé, la sauvegarde est annulée.");
+    window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: "Erreur : Le kit de formes requis n'est pas chargé." } }));
+    return null;
+  }
+
+  let familiesVisibility = [];
+  if (app.environment.kit) {
+    const currentKit = kit.get();
+    familiesVisibility = currentKit.families.map(family => ({ name: family.name, isVisible: family.isVisible }));
+  }
 
   if (permanentHide) {
     workspaceData.objects.shapesData.forEach(sData => {

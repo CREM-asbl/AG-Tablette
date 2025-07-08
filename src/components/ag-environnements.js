@@ -132,7 +132,7 @@ class AgEnvironnements extends LitElement {
   }
 
   async handleClick(e) {
-    loadEnvironnement(e)
+    await loadEnvironnement(e)
   }
 }
 customElements.define('ag-environnements', AgEnvironnements);

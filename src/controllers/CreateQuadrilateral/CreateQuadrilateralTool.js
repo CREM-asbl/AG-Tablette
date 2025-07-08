@@ -265,7 +265,7 @@ export class CreateQuadrilateralTool extends Tool {
       )) {
         point.coordinates = new Coordinates(adjustedPoint.coordinates);
         point.adjustedOn = adjustedPoint;
-      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) {
+      } else if ((adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) && adjustedPoint.coordinates) {
         point.coordinates = new Coordinates(adjustedPoint.coordinates);
         point.adjustedOn = adjustedPoint;
       } else {
@@ -280,7 +280,7 @@ export class CreateQuadrilateralTool extends Tool {
           point.adjustedOn = adjustedSegment;
         }
       }
-    } else {
+    } else { // This is the correct else for if (this.constraints.isFree)
       let adjustedCoordinates = this.constraints.projectionOnConstraints(
         point.coordinates,
       );

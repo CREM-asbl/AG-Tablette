@@ -21,7 +21,7 @@ if (location.hostname != 'localhost') {
 export async function openFileFromServer(activityName) {
   const data = await getFileDocFromFilename(activityName);
   if (data) {
-    loadEnvironnement(data.environment);
+    await loadEnvironnement(data.environment);
     let fileDownloaded = await readFileFromServer(data.id);
     let fileDownloadedObject = await fileDownloaded.json();
 
