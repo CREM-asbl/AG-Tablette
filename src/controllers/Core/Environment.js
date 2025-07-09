@@ -1,15 +1,26 @@
 import { tools } from '@store/tools';
 import { loadKit, resetKit } from '../../store/kit';
 import { app, setState } from './App';
+import { appActions } from '../../store/appState.js';
+import { eventUtils, moduleUtils, validator } from '../../core/index.js';
 
 export const loadEnvironnement = async (name) => {
   try {
-    // Validation du nom d'environnement
-    if (!name || typeof name !== 'string') {
-      throw new Error('Nom d\'environnement invalide');
+    // Validation avec le nouveau système
+    const validationResult = validator.validate(name, [
+      { type: 'required' },
+      { type: 'type', options: { expectedType: 'string' } }
+    ], 'environmentName');
+
+    if (!validationResult.isValid) {
+      throw new Error(`Nom d'environnement invalide: ${validationResult.getAllMessages().join(', ')}`);
     }
 
-    setState({ appLoading: true });
+    // Utiliser les signaux Lit pour gérer l'état
+    appActions.setLoading(true);
+    
+    // Émettre événement de début de chargement
+    eventUtils.emit('environment:loading', { name });
     
     const config = await import(`./Environments/${name}.js`);
     
@@ -17,9 +28,10 @@ export const loadEnvironnement = async (name) => {
       throw new Error(`Configuration d'environnement non trouvée pour "${name}"`);
     }
 
-    // Validation de la structure de configuration
-    if (!config.default.name) {
-      throw new Error(`Nom manquant dans la configuration de l'environnement "${name}"`);
+    // Validation de la configuration avec le système de validation
+    const configValidation = validator.validateSchema(config.default, 'environment');
+    if (!configValidation.isValid) {
+      throw new Error(`Configuration invalide: ${configValidation.getAllMessages().join(', ')}`);
     }
 
     if (config.default.settings) {
@@ -28,6 +40,9 @@ export const loadEnvironnement = async (name) => {
         history: { ...app.history, startSettings: { ...app.history.startSettings, ...config.default.settings } },
         defaultState: { ...app.defaultState, settings: { ...app.settings } }
       });
+
+      // Synchroniser avec les signaux Lit
+      appActions.updateSettings(config.default.settings);
     }
 
     // Chargement conditionnel du kit avec gestion d'erreur
@@ -35,21 +50,42 @@ export const loadEnvironnement = async (name) => {
       config.default.kit ? await loadKit(name) : resetKit();
     } catch (kitError) {
       console.warn(`Erreur lors du chargement du kit pour ${name}:`, kitError);
-      // Continuer sans kit si échec
+      eventUtils.emit('environment:kit-error', { name, error: kitError });
       resetKit();
     }
 
     await loadModules(config.default.modules);
 
+    const environment = new Environment(config.default);
+    
     setState({
       appLoading: false,
-      environment: new Environment(config.default)
+      environment
+    });
+
+    // Synchroniser avec les signaux Lit
+    appActions.setLoading(false);
+    appActions.setEnvironment(environment);
+    appActions.setEnvironmentConfig(config.default);
+    appActions.setEnvironmentModules(config.default.modules);
+
+    // Émettre événement de succès
+    eventUtils.emit('environment:loaded', { 
+      name, 
+      environment,
+      modules: config.default.modules 
     });
 
     console.log(`Environnement "${name}" chargé avec succès`);
   } catch (error) {
     console.error(`Erreur lors du chargement de l'environnement "${name}":`, error);
+    
     setState({ appLoading: false });
+    appActions.setLoading(false);
+    appActions.setError(error.message);
+    
+    // Émettre événement d'erreur
+    eventUtils.emit('environment:error', { name, error });
     
     // Notifier l'utilisateur
     window.dispatchEvent(new CustomEvent('show-notif', { 
@@ -62,9 +98,14 @@ export const loadEnvironnement = async (name) => {
 
 const loadModules = async (list) => {
   try {
-    // Validation de la liste des modules
-    if (!Array.isArray(list)) {
-      throw new Error('La liste des modules doit être un tableau');
+    // Validation avec le nouveau système
+    const validationResult = validator.validate(list, [
+      { type: 'required' },
+      { type: 'type', options: { expectedType: 'array' } }
+    ], 'moduleList');
+
+    if (!validationResult.isValid) {
+      throw new Error(`Liste de modules invalide: ${validationResult.getAllMessages().join(', ')}`);
     }
 
     if (list.length === 0) {
@@ -73,40 +114,85 @@ const loadModules = async (list) => {
       return;
     }
 
-    const modules = await Promise.all(
-      list.map(async (module) => {
+    // Émettre événement de début de chargement des modules
+    eventUtils.emit('modules:loading', { modules: list });
+
+    const loadedModules = [];
+    const failedModules = [];
+
+    for (const moduleName of list) {
+      try {
+        // Validation du nom de module
+        const moduleValidation = validator.validate(moduleName, [
+          { type: 'required' },
+          { type: 'type', options: { expectedType: 'string' } }
+        ], 'moduleName');
+
+        if (!moduleValidation.isValid) {
+          failedModules.push({ 
+            name: moduleName, 
+            error: `Nom invalide: ${moduleValidation.getAllMessages().join(', ')}` 
+          });
+          continue;
+        }
+
+        // Charger le module via les utilitaires
+        let module;
         try {
-          if (!module || typeof module !== 'string') {
-            throw new Error(`Nom de module invalide: ${module}`);
-          }
-          return await import(`../${module}/index.js`);
-        } catch (error) {
-          console.error(`Erreur lors du chargement du module "${module}":`, error);
-          return null; // Continuer avec les autres modules
+          module = await moduleUtils.loadModule(`../controllers/${moduleName}/index.js`);
+        } catch (moduleError) {
+          failedModules.push({ 
+            name: moduleName, 
+            error: moduleError.message 
+          });
+          continue;
         }
-      }),
-    );
 
-    const toolsData = modules
-      .filter(module => module !== null) // Filtrer les modules qui ont échoué
-      .map((module) => {
-        if (module.default && module.default.tool) {
-          return {
-            name: module.default.tool.name,
-            title: module.default.tool.title,
-            type: module.default.tool.type,
-            isVisible: true,
-          };
+        const toolMetadata = moduleUtils.extractToolMetadata(module);
+        if (toolMetadata) {
+          loadedModules.push(toolMetadata);
+        } else {
+          failedModules.push({ 
+            name: moduleName, 
+            error: 'Structure de module invalide' 
+          });
         }
-        return null;
-      })
-      .filter(Boolean); // Supprimer les entrées null
+      } catch (error) {
+        console.error(`Erreur lors du chargement du module "${moduleName}":`, error);
+        failedModules.push({ 
+          name: moduleName, 
+          error: error.message 
+        });
+      }
+    }
 
-    tools.set(toolsData);
-    console.log(`${toolsData.length} modules chargés avec succès sur ${list.length} demandés`);
+    tools.set(loadedModules);
+
+    // Émettre événements de résultat
+    if (loadedModules.length > 0) {
+      eventUtils.emit('modules:loaded', { 
+        modules: loadedModules,
+        total: list.length,
+        loaded: loadedModules.length 
+      });
+    }
+
+    if (failedModules.length > 0) {
+      eventUtils.emit('modules:failed', { 
+        failed: failedModules,
+        total: list.length 
+      });
+    }
+
+    console.log(`${loadedModules.length} modules chargés avec succès sur ${list.length} demandés`);
+    
+    if (failedModules.length > 0) {
+      console.warn('Modules ayant échoué:', failedModules);
+    }
   } catch (error) {
     console.error('Erreur lors du chargement des modules:', error);
-    tools.set([]); // S'assurer qu'on a au moins un tableau vide
+    tools.set([]);
+    eventUtils.emit('modules:error', { error });
     throw error;
   }
 };
@@ -119,15 +205,100 @@ const loadModules = async (list) => {
  */
 export class Environment {
   constructor({ name, extensions, themeColor, themeColorSoft, textColor }) {
+    // Validation des paramètres avec le nouveau système
+    const validationResult = validator.validateSchema({
+      name,
+      themeColor,
+      themeColorSoft,
+      textColor
+    }, {
+      name: [
+        { type: 'required' },
+        { type: 'type', options: { expectedType: 'string' } }
+      ],
+      themeColor: [
+        { type: 'color' }
+      ],
+      themeColorSoft: [
+        { type: 'color' }
+      ],
+      textColor: [
+        { type: 'color' }
+      ]
+    });
+
+    if (!validationResult.isValid) {
+      console.warn('Paramètres d\'environnement invalides:', validationResult.getAllMessages());
+    }
+
     this.name = name;
     this.extensions = extensions;
 
-    // this.kitName = kitContent ? kitContent.name : this.name;
-    // this.families = kitContent ? kitContent.families : []
+    // Appliquer le thème avec validation
+    this.applyTheme(themeColor, themeColorSoft, textColor);
 
-    document.documentElement.style.setProperty('--theme-color', themeColor);
-    document.documentElement.style.setProperty('--theme-color-soft', themeColorSoft);
-    document.documentElement.style.setProperty('--text-color', textColor);
-    document.querySelector('meta[name="theme-color"]').setAttribute("content", document.documentElement.style.getPropertyValue('--theme-color-soft'));
+    // Émettre événement de création d'environnement
+    eventUtils.emit('environment:created', {
+      name: this.name,
+      extensions: this.extensions,
+      theme: { themeColor, themeColorSoft, textColor }
+    });
+  }
+
+  /**
+   * Appliquer le thème à l'environnement
+   * @param {string} themeColor - Couleur principale
+   * @param {string} themeColorSoft - Couleur secondaire
+   * @param {string} textColor - Couleur du texte
+   */
+  applyTheme(themeColor, themeColorSoft, textColor) {
+    try {
+      if (themeColor) {
+        document.documentElement.style.setProperty('--theme-color', themeColor);
+      }
+      if (themeColorSoft) {
+        document.documentElement.style.setProperty('--theme-color-soft', themeColorSoft);
+        // Mettre à jour la meta theme-color
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+          metaThemeColor.setAttribute("content", themeColorSoft);
+        }
+      }
+      if (textColor) {
+        document.documentElement.style.setProperty('--text-color', textColor);
+      }
+
+      eventUtils.emit('environment:theme-applied', {
+        themeColor,
+        themeColorSoft,
+        textColor
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'application du thème:', error);
+      eventUtils.emit('environment:theme-error', { error });
+    }
+  }
+
+  /**
+   * Obtenir les informations de l'environnement
+   * @returns {object}
+   */
+  getInfo() {
+    return {
+      name: this.name,
+      extensions: this.extensions,
+      theme: {
+        themeColor: document.documentElement.style.getPropertyValue('--theme-color'),
+        themeColorSoft: document.documentElement.style.getPropertyValue('--theme-color-soft'),
+        textColor: document.documentElement.style.getPropertyValue('--text-color')
+      }
+    };
+  }
+
+  /**
+   * Nettoyer l'environnement
+   */
+  cleanup() {
+    eventUtils.emit('environment:cleanup', { name: this.name });
   }
 }

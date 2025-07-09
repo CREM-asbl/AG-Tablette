@@ -53,7 +53,7 @@ class AgEnvironnements extends LitElement {
         background: #006CAA;
       }
 
-      #Grandeurs, #Tangram {
+      #Gandeurs, #Tangram {
         grid-template-rows: "1fr auto";
       }
 

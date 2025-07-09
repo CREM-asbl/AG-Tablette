@@ -1,4 +1,4 @@
-import triangles from '@controllers/Core/ShapesKits/triangles.json';
+import triangles from '../Core/ShapesKits/triangles.json';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
@@ -24,13 +24,6 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     if (!this.triangleDef) {
       throw new Error(`Définition non trouvée pour ${app.tool.selectedTemplate.name}`);
     }
-  }
-    elem.family = 'Triangles';
-    elem.templatesNames = triangles;
-    elem.selectedTemplate = app.tool.selectedTemplate;
-    elem.type = "Geometry"
-    elem.nextStep = 'drawFirstPoint'
-    document.querySelector('body').appendChild(elem);
   }
 
   async drawFirstPoint() {
