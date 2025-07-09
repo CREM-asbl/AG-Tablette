@@ -658,7 +658,6 @@ class CanvasLayer extends LitElement {
       response.y = event.y;
     } else {
       console.error('Navigator not compatible - unable to get mouse position');
-      //TODO: envoyer un rapport d'erreur...
       let str = event.type;
       for (let property1 in event) {
         str += ' | ' + property1 + ' : ' + event[property1];

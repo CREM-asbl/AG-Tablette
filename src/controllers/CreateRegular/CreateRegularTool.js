@@ -112,10 +112,7 @@ export class CreateRegularTool extends Tool {
   //     this.canvasMouseDown();
   //   } else if (event.type == 'canvasMouseUp') {
   //     this.canvasMouseUp();
-  //   } else {
-  //     console.error('unsupported event type : ', event.type);
-  //   }
-  // }
+  }
 
   // setNumberOfPoints(points) {
   //   this.numberOfPoints = parseInt(points);

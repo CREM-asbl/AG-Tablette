@@ -48,7 +48,7 @@ export class TangramManager extends LitElement {
   }
 
   render() {
-    // if (window.dev_mode) console.log('render', this.mode)
+    if (window.dev_mode) console.log('render', this.mode);
     if (this.mode === 'reproduction') {
       import('./SolutionCheckerTool.js');
       return html`<solution-checker-tool .data="${this.data}"></solution-checker-tool>`

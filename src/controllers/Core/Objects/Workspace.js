@@ -181,8 +181,6 @@ export class Workspace {
    * @param {Boolean} [doRefresh=true] false: ne pas rafraichir les canvas
    */
   setTranslateOffset(newOffset, doRefresh = true) {
-    //TODO: limiter la translation à une certaine zone? (ex 4000 sur 4000?)
-    //TODO: bouton pour revenir au "centre" ?
     this.translateOffset = newOffset;
 
     if (doRefresh) {

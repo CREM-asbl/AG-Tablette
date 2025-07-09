@@ -853,8 +853,6 @@ describe('CanvasLayer', () => {
       });
     });
 
-    // TODO: Add similar describe blocks for drawing:
-    // - 'horizontal-triangle' // This is now being added
   });
 
 });

@@ -1,1 +1,1 @@
-// import './TangramManager'
+import './TangramManager';

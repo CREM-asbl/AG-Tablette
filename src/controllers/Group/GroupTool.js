@@ -212,7 +212,7 @@ export class GroupTool extends Tool {
             return pt.color;
           }),
         });
-        console.info(s.getSVGPath('no scale', false, false));
+        if (window.dev_mode) console.info(s.getSVGPath('no scale', false, false));
       }
     });
 

@@ -474,8 +474,6 @@ export class Segment {
   /* #################################################################### */
 
   addPoint(coordinates, ratio, firstPointId, secondPointId, verifyIfPointExists = true) {
-    // TODO: garder les points triés ?
-
     // if doesnt already exist
     if (
       !verifyIfPointExists ||

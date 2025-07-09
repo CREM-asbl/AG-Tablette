@@ -307,7 +307,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
         let name = step.detail.title;
         if (step.type == 'undo') name = 'Annuler';
         if (step.type == 'redo') name = 'Refaire';
-        console.log(step)
+        if (window.dev_mode) console.log(step);
         return { name, time, timeStamp: step.timeStamp, actions: [] };
       });
     let toolIndex = -1;

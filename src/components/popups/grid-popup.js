@@ -1,6 +1,5 @@
 import '@components/color-button';
-// import { app, setState } from '@controllers/Core/App.js'; // setState sera supprimé plus tard, app potentiellement aussi
-import { app } from '@controllers/Core/App.js'; // Garder app pour l'instant pour app.fullHistory.isRunning
+import { app } from '@controllers/Core/App.js';
 import { gridStore } from '@store/gridStore';
 import { LitElement, css, html } from 'lit';
 import { TemplatePopup } from './template-popup';

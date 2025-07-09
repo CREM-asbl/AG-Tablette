@@ -145,7 +145,6 @@ class AGMain extends LitElement {
     e.preventDefault();
   }
 
-  // // Todo: Placer dans un objet BackgroundImage ?
   // loadBackground() {
   //   const imageSelector = document.createElement('input');
   //   imageSelector.type = 'file';

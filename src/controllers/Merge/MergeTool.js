@@ -338,7 +338,6 @@ export class MergeTool extends Tool {
           secondSegment,
         );
         if (commonCoordinates) {
-          // todo: quand on crée un nouveau segment, copier les points de division de son modele
           // si on veut faire la fusion d'un groupe
           if (
             !firstSegment.vertexes[0].coordinates.equal(commonCoordinates[0])
@@ -416,7 +415,6 @@ export class MergeTool extends Tool {
   }
 
   getCommonCoordinates(firstSegment, secondSegment) {
-    // todo à changer si on peut faire des arcs de cercles concaves
     if (firstSegment.isArc() || secondSegment.isArc()) return null;
     let firstCommonCoordinates = null;
     let secondCommonCoordinates = null;

@@ -10,7 +10,6 @@
       "@controllers/*": [
         "src/controllers/*"
       ],
-      // "@services/*": ["src/services/*"], // Commented out as src/services does not exist
       "@store/*": [
         "src/store/*"
       ],
