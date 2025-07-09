@@ -1,54 +1,30 @@
 import triangles from '@controllers/Core/ShapesKits/triangles.json';
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
-import { SelectManager } from '../Core/Managers/SelectManager';
-import { Coordinates } from '../Core/Objects/Coordinates';
-import { Point } from '../Core/Objects/Point';
-import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
-import { Tool } from '../Core/States/Tool';
+import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 
 /**
- * Ajout de figures sur l'espace de travail
+ * Outil de création de triangles - Refactorisé avec BaseShapeCreationTool
  */
-export class CreateTriangleTool extends Tool {
+export class CreateTriangleTool extends BaseShapeCreationTool {
   constructor() {
-    super('createTriangle', 'Construire un triangle', 'geometryCreator');
-
-    // show-triangles -> select-points
-    this.currentStep = null;
-
-    // points of the shape to create
-    this.points = [];
-
-    // points drawn by the user
-    this.numberOfPointsDrawn = 0;
-
-    // Le tyle de figure que l'on va créer (rectangle, IsoscelesTriangle, RightAngleIsoscelesTriangle, trapèze)
-    this.triangleSelected = null;
+    super('createTriangle', 'Construire un triangle', 'Triangles', triangles);
+    this.triangleDef = null;
   }
 
   /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
+   * Chargement de la définition du triangle sélectionné
    */
-  getHelpText() {
-    let toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
-    `;
+  async loadShapeDefinition() {
+    const triangleDef = await import(`./trianglesDef.js`);
+    this.triangleDef = triangleDef[app.tool.selectedTemplate.name];
+    
+    if (!this.triangleDef) {
+      throw new Error(`Définition non trouvée pour ${app.tool.selectedTemplate.name}`);
+    }
   }
-
-  start() {
-    this.removeListeners();
-    this.stopAnimation();
-
-    import('@components/shape-selector');
-    const elem = document.createElement('shape-selector');
     elem.family = 'Triangles';
     elem.templatesNames = triangles;
     elem.selectedTemplate = app.tool.selectedTemplate;

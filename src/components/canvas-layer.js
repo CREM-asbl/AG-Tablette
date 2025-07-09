@@ -37,6 +37,12 @@ class CanvasLayer extends LitElement {
     this.mustDrawPoints = true;
     this.mustScaleShapes = true;
     this.unsubscribeGridStore = null;
+    
+    // Optimisation des performances
+    this._lastRedrawTime = 0;
+    this._redrawThrottle = 16; // ~60fps
+    this._pendingRedraw = false;
+    this._redrawRequestId = null;
   }
 
   static styles = css`
@@ -64,7 +70,32 @@ class CanvasLayer extends LitElement {
   }
 
   updated() {
-    this.redraw()
+    this.throttledRedraw();
+  }
+
+  /**
+   * Redraw avec throttling pour améliorer les performances
+   */
+  throttledRedraw() {
+    const now = performance.now();
+    
+    // Si un redraw est déjà en attente, l'annuler
+    if (this._redrawRequestId) {
+      cancelAnimationFrame(this._redrawRequestId);
+    }
+    
+    // Si assez de temps s'est écoulé depuis le dernier redraw
+    if (now - this._lastRedrawTime >= this._redrawThrottle) {
+      this.redraw();
+      this._lastRedrawTime = now;
+    } else {
+      // Programmer le redraw pour plus tard
+      this._redrawRequestId = requestAnimationFrame(() => {
+        this.redraw();
+        this._lastRedrawTime = performance.now();
+        this._redrawRequestId = null;
+      });
+    }
   }
 
   removeAllObjects() {
@@ -77,24 +108,34 @@ class CanvasLayer extends LitElement {
 
   clear() {
     if (this.ctx) {
-      this.ctx.clearRect(0, 0, this.clientWidth, this.canvas.height);
+      // Optimisation: utiliser la largeur réelle du canvas
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
   }
 
   redraw() {
-    this.clear();
-    this.texts.forEach((text) => text.updateMessage());
-    if (this.canvasName === 'upper')
-      window.dispatchEvent(new CustomEvent('refreshStateUpper'));
-    else if (this.canvasName === 'grid') {
-      this.removeAllObjects(); // This clears shapes/segments/points arrays, which are not used for drawing the grid itself.
-      // The actual grid drawing is controlled by drawGridPoints based on gridStore state.
-      const gridState = gridStore.getState();
-      if (gridState.isVisible) {
-        this.drawGridPoints();
+    // Éviter les redraws inutiles
+    if (this._pendingRedraw) return;
+    this._pendingRedraw = true;
+    
+    try {
+      this.clear();
+      this.texts.forEach((text) => text.updateMessage());
+      
+      if (this.canvasName === 'upper') {
+        window.dispatchEvent(new CustomEvent('refreshStateUpper'));
+      } else if (this.canvasName === 'grid') {
+        this.removeAllObjects();
+        const gridState = gridStore.getState();
+        if (gridState.isVisible) {
+          this.drawGridPoints();
+        }
       }
+      
+      this.draw();
+    } finally {
+      this._pendingRedraw = false;
     }
-    this.draw(); // This draws shapes, points, texts from the arrays. For 'grid' canvas, these arrays should be empty.
   }
 
   draw(scaling = 'scale') {
@@ -341,12 +382,44 @@ class CanvasLayer extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
+    
+    // Nettoyage des ressources et listeners
+    this.cleanupResources();
+    
     if (this.unsubscribeGridStore) {
       this.unsubscribeGridStore();
+      this.unsubscribeGridStore = null;
     }
     // Consider removing other window event listeners if they were added uniquely for this instance
     // and are not cleaned up automatically. For example, if 'refresh' + capitalizeFirstLetter(this.canvasName)
     // was added with a bound function. For now, standard window listeners are usually fine.
+  }
+
+  /**
+   * Nettoyage complet des ressources pour éviter les fuites mémoire
+   */
+  cleanupResources() {
+    // Annuler les requêtes d'animation en attente
+    if (this._redrawRequestId) {
+      cancelAnimationFrame(this._redrawRequestId);
+      this._redrawRequestId = null;
+    }
+    
+    // Nettoyer les tableaux d'objets
+    this.shapes = [];
+    this.segments = [];
+    this.points = [];
+    this.texts = [];
+    this.editingShapeIds = [];
+    
+    // Nettoyer le contexte canvas si nécessaire
+    if (this.ctx) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    
+    // Réinitialiser les flags de performance
+    this._lastRedrawTime = 0;
+    this._pendingRedraw = false;
   }
 
   createListeners() {

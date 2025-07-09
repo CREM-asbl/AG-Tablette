@@ -49,6 +49,27 @@ export async function openFileFromServer(activityName) {
   }
 }
 
+// Cache pour les fichiers téléchargés
+const fileCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Utilitaire de retry avec backoff exponentiel
+ */
+async function retryWithBackoff(fn, maxAttempts = 3, baseDelay = 1000) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempt === maxAttempts) throw error;
+      
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.warn(`Tentative ${attempt} échouée, retry dans ${delay}ms:`, error.message);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
+
 export async function readFileFromServer(filename) {
   try {
     // Validation du nom de fichier
@@ -56,29 +77,77 @@ export async function readFileFromServer(filename) {
       throw new Error('Nom de fichier invalide');
     }
 
-    let URL = await getDownloadURL(ref(storage, filename));
-    let fileDownloaded = await fetch(URL);
-    
-    if (!fileDownloaded.ok) {
-      throw new Error(`Erreur HTTP: ${fileDownloaded.status} - ${fileDownloaded.statusText}`);
+    // Vérifier le cache
+    const cacheKey = `file_${filename}`;
+    const cachedData = fileCache.get(cacheKey);
+    if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
+      console.log(`Fichier ${filename} récupéré depuis le cache`);
+      return cachedData.data;
     }
+
+    // Télécharger avec retry
+    const fileDownloaded = await retryWithBackoff(async () => {
+      const URL = await getDownloadURL(ref(storage, filename));
+      const response = await fetch(URL);
+      
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
+      }
+      
+      return response;
+    }, 3, 1000);
+    
+    // Mettre en cache si succès
+    fileCache.set(cacheKey, {
+      data: fileDownloaded,
+      timestamp: Date.now()
+    });
     
     return fileDownloaded;
   } catch (error) {
     console.error('Erreur lors de la lecture du fichier depuis le serveur:', error);
-    throw error; // Re-lancer l'erreur pour permettre la gestion en amont
+    throw error;
   }
 }
 
 export async function getFileDocFromFilename(id) {
-  const docRef = doc(db, "files", id);
-  const docSnap = await getDoc(docRef);
+  try {
+    // Validation de l'ID
+    if (!id || typeof id !== 'string') {
+      throw new Error('ID de document invalide');
+    }
 
-  if (docSnap.exists()) {
-    app.fileFromServer = true;
-    return { id, ...docSnap.data() };
-  } else {
-    console.info("No such document!");
+    // Vérifier le cache pour les métadonnées
+    const cacheKey = `metadata_${id}`;
+    const cachedMetadata = fileCache.get(cacheKey);
+    if (cachedMetadata && Date.now() - cachedMetadata.timestamp < CACHE_DURATION) {
+      console.log(`Métadonnées ${id} récupérées depuis le cache`);
+      return cachedMetadata.data;
+    }
+
+    // Récupérer avec retry
+    const result = await retryWithBackoff(async () => {
+      const docRef = doc(db, "files", id);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        app.fileFromServer = true;
+        return { id, ...docSnap.data() };
+      } else {
+        throw new Error(`Document non trouvé: ${id}`);
+      }
+    }, 3, 1000);
+
+    // Mettre en cache
+    fileCache.set(cacheKey, {
+      data: result,
+      timestamp: Date.now()
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du document:', error);
+    return null;
   }
 }
 
