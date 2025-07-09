@@ -265,8 +265,8 @@ export class CreateQuadrilateralTool extends Tool {
       )) {
         point.coordinates = new Coordinates(adjustedPoint.coordinates);
         point.adjustedOn = adjustedPoint;
-      } else if ((adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) && adjustedPoint.coordinates) {
-        point.coordinates = new Coordinates(adjustedPoint.coordinates);
+      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) {
+        point.coordinates = new Coordinates(adjustedPoint);
         point.adjustedOn = adjustedPoint;
       } else {
         constraints = SelectManager.getEmptySelectionConstraints().segments;

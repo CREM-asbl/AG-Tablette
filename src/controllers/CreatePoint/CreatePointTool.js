@@ -145,8 +145,10 @@ export class CreatePointTool extends Tool {
     let reference, newCoord;
     if (app.tool.selectedTemplate.name == 'Point' || app.environment.name == 'Geometrie') {
       let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
-      if (gridPoint && gridPoint.coordinates)
-        point.coordinates = new Coordinates(gridPoint.coordinates);
+      if (gridPoint) {
+        point.coordinates = new Coordinates(gridPoint);
+        point.adjustedOn = gridPoint;
+      }
     }
     switch (app.tool.selectedTemplate.name) {
       case 'PointOnLine':
