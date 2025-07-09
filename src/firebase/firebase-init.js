@@ -19,27 +19,55 @@ if (location.hostname != 'localhost') {
 }
 
 export async function openFileFromServer(activityName) {
-  const data = await getFileDocFromFilename(activityName);
-  if (data) {
-    await loadEnvironnement(data.environment);
-    let fileDownloaded = await readFileFromServer(data.id);
-    let fileDownloadedObject = await fileDownloaded.json();
-
-    // Si l'application est déjà démarrée, on parse directement le fichier
-    // sinon on attend l'événement app-started
-    if (app.started) {
-      OpenFileManager.parseFile(fileDownloadedObject, activityName);
-    } else {
-      window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject, activityName), { once: true });
+  try {
+    // Validation des paramètres
+    if (!activityName || typeof activityName !== 'string') {
+      throw new Error('Nom d\'activité invalide');
     }
 
+    const data = await getFileDocFromFilename(activityName);
+    if (data) {
+      await loadEnvironnement(data.environment);
+      let fileDownloaded = await readFileFromServer(data.id);
+      let fileDownloadedObject = await fileDownloaded.json();
+
+      // Si l'application est déjà démarrée, on parse directement le fichier
+      // sinon on attend l'événement app-started
+      if (app.started) {
+        OpenFileManager.parseFile(fileDownloadedObject, activityName);
+      } else {
+        window.addEventListener('app-started', () => OpenFileManager.parseFile(fileDownloadedObject, activityName), { once: true });
+      }
+    } else {
+      throw new Error(`Fichier non trouvé: ${activityName}`);
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'ouverture du fichier depuis le serveur:', error);
+    window.dispatchEvent(new CustomEvent('show-notif', { 
+      detail: { message: `Erreur lors du chargement: ${error.message}` } 
+    }));
   }
 }
 
 export async function readFileFromServer(filename) {
-  let URL = await getDownloadURL(ref(storage, filename));
-  let fileDownloaded = await fetch(URL);
-  return fileDownloaded;
+  try {
+    // Validation du nom de fichier
+    if (!filename || typeof filename !== 'string') {
+      throw new Error('Nom de fichier invalide');
+    }
+
+    let URL = await getDownloadURL(ref(storage, filename));
+    let fileDownloaded = await fetch(URL);
+    
+    if (!fileDownloaded.ok) {
+      throw new Error(`Erreur HTTP: ${fileDownloaded.status} - ${fileDownloaded.statusText}`);
+    }
+    
+    return fileDownloaded;
+  } catch (error) {
+    console.error('Erreur lors de la lecture du fichier depuis le serveur:', error);
+    throw error; // Re-lancer l'erreur pour permettre la gestion en amont
+  }
 }
 
 export async function getFileDocFromFilename(id) {

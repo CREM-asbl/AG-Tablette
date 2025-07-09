@@ -18,11 +18,44 @@ const initTemplates = (families) => {
 }
 
 export const loadKit = async (name) => {
-  const module = await import(`./kits/${name}.json`);
-  const kitInitial = module.default
-  kitInitial.families.forEach(family => initTemplates(family))
-  kit.set(kitInitial);
-  resetKitVisibility()
+  try {
+    // Validation du nom de kit
+    if (!name || typeof name !== 'string') {
+      throw new Error('Nom de kit invalide');
+    }
+
+    const module = await import(`./kits/${name}.json`);
+    
+    if (!module.default) {
+      throw new Error(`Kit "${name}" non trouvé ou invalide`);
+    }
+
+    const kitInitial = module.default;
+    
+    // Validation de la structure du kit
+    if (!kitInitial.families || !Array.isArray(kitInitial.families)) {
+      throw new Error(`Structure de kit invalide pour "${name}"`);
+    }
+
+    kitInitial.families.forEach(family => {
+      if (!family || typeof family !== 'object') {
+        throw new Error(`Famille invalide dans le kit "${name}"`);
+      }
+      initTemplates(family);
+    });
+    
+    kit.set(kitInitial);
+    resetKitVisibility();
+    
+    console.log(`Kit "${name}" chargé avec succès`);
+  } catch (error) {
+    console.error('Erreur lors du chargement du kit:', error);
+    // Notifier l'utilisateur de l'erreur
+    window.dispatchEvent(new CustomEvent('show-notif', { 
+      detail: { message: `Erreur lors du chargement du kit: ${error.message}` } 
+    }));
+    throw error; // Re-lancer pour permettre la gestion en amont
+  }
 }
 
 export const resetKit = () => {

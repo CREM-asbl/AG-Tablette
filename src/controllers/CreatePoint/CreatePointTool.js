@@ -120,6 +120,12 @@ export class CreatePointTool extends Tool {
   }
 
   canvasMouseDown() {
+    // Validation des coordonnées
+    if (!app.workspace.lastKnownMouseCoordinates) {
+      console.error('Coordonnées de souris non disponibles');
+      return;
+    }
+
     let newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
@@ -141,6 +147,12 @@ export class CreatePointTool extends Tool {
   }
 
   adjustPoint(point) {
+    // Validation des paramètres d'entrée
+    if (!point || !point.coordinates) {
+      console.error('Point invalide fourni à adjustPoint');
+      return;
+    }
+
     point.adjustedOn = undefined;
     let reference, newCoord;
     if (app.tool.selectedTemplate.name == 'Point' || app.environment.name == 'Geometrie') {
