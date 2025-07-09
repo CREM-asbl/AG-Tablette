@@ -450,9 +450,11 @@ export class TransformTool extends Tool {
     if (adjustedCoordinates) {
       point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
     } else if (point.shape.name != 'PointOnLine') {
-      let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
-      if (gridPoint)
-        point.coordinates = new Coordinates(gridPoint.coordinates);
+      let gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates());
+      if (gridPointInCanvasSpace) {
+        const gridPointInWorldSpace = gridPointInCanvasSpace.fromCanvasCoordinates();
+        point.coordinates = new Coordinates(gridPointInWorldSpace);
+      }
     }
   }
 

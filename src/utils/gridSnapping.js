@@ -3,9 +3,13 @@ import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 
 export function snapCoordinatesToGrid(coordinates) {
   if (app.settings.gridShown && app.gridCanvasLayer) {
-    const gridPoint = app.gridCanvasLayer.getClosestGridPoint(coordinates);
-    if (gridPoint) {
-      return new Coordinates(gridPoint.coordinates);
+    // Convertir les coordonnées en espace canvas pour getClosestGridPoint
+    const coordinatesInCanvasSpace = new Coordinates(coordinates).toCanvasCoordinates();
+    const gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(coordinatesInCanvasSpace);
+    if (gridPointInCanvasSpace) {
+      // Reconvertir le point de grille trouvé en espace monde
+      const gridPointInWorldSpace = gridPointInCanvasSpace.fromCanvasCoordinates();
+      return new Coordinates(gridPointInWorldSpace);
     }
   }
   return new Coordinates(coordinates);

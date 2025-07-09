@@ -317,9 +317,10 @@ export class CreateCircleTool extends Tool {
       )) {
         point.coordinates = new Coordinates(adjustedPoint.coordinates);
         point.adjustedOn = adjustedPoint;
-      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates)) {
-        point.coordinates = new Coordinates(adjustedPoint.coordinates);
-        point.adjustedOn = adjustedPoint;
+      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates())) {
+        const adjustedPointInWorldSpace = adjustedPoint.fromCanvasCoordinates();
+        point.coordinates = new Coordinates(adjustedPointInWorldSpace);
+        point.adjustedOn = adjustedPointInWorldSpace;
       } else {
         constraints = SelectManager.getEmptySelectionConstraints().segments;
         constraints.canSelect = true;

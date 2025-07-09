@@ -144,10 +144,14 @@ export class CreatePointTool extends Tool {
     point.adjustedOn = undefined;
     let reference, newCoord;
     if (app.tool.selectedTemplate.name == 'Point' || app.environment.name == 'Geometrie') {
-      let gridPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates);
-      if (gridPoint) {
-        point.coordinates = new Coordinates(gridPoint);
-        point.adjustedOn = gridPoint;
+      // Convertir les coordonnées du point en espace canvas pour getClosestGridPoint
+      const pointInCanvasSpace = point.coordinates.toCanvasCoordinates();
+      let gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(pointInCanvasSpace);
+      if (gridPointInCanvasSpace) {
+        // Reconvertir le point de grille trouvé en espace monde
+        const gridPointInWorldSpace = gridPointInCanvasSpace.fromCanvasCoordinates();
+        point.coordinates = new Coordinates(gridPointInWorldSpace);
+        point.adjustedOn = gridPointInWorldSpace;
       }
     }
     switch (app.tool.selectedTemplate.name) {
