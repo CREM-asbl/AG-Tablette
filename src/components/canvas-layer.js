@@ -634,13 +634,11 @@ class CanvasLayer extends LitElement {
     }
 
     const gridSize = gridState.gridSize; // in cm
-    const PIXELS_PER_CM = 37.8; // As per drawGridPoints tests
+    const PIXELS_PER_CM = 37.8;
     const baseGridStep = gridSize * PIXELS_PER_CM; // Pas de grille en espace monde
     
     // Utiliser la même transformation que toCanvasCoordinates pour la cohérence
     const translateOffset = app.workspace.translateOffset || new Coordinates({ x: 0, y: 0 });
-    
-    // Tests pour éviter les erreurs si translateOffset n'existe pas
     const offsetX = (translateOffset && typeof translateOffset.x === 'number') ? translateOffset.x : 0;
     const offsetY = (translateOffset && typeof translateOffset.y === 'number') ? translateOffset.y : 0;
     
@@ -741,7 +739,7 @@ class CanvasLayer extends LitElement {
     }
 
     const gridSize = gridState.gridSize; // en cm
-    const PIXELS_PER_CM = 37.8; // Harmonisé avec drawGridPoints pour éviter les décalages
+    const PIXELS_PER_CM = 37.8;
     const baseGridStep = gridSize * PIXELS_PER_CM; // Pas de grille en espace monde
 
     // Convertir les coordonnées canvas en coordonnées monde (inverse de toCanvasCoordinates)
@@ -884,7 +882,7 @@ class CanvasLayer extends LitElement {
     this.ctx.arc(
       canvasCoodinates.x,
       canvasCoodinates.y,
-      point.size * 2, // Enlever * app.workspace.zoomLevel car toCanvasCoordinates() gère déjà le zoom
+      point.size * 2, // Coordonnées déjà converties par toCanvasCoordinates()
       0,
       2 * Math.PI,
       0
