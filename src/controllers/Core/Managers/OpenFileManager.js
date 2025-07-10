@@ -2,6 +2,7 @@ import { setFamiliesVisibility } from '@store/kit';
 import { setToolsVisibility } from '../../../store/tools';
 import { app, setState } from '../App';
 import { addInfoToId, createElem, getExtension } from '../Tools/general';
+import { applyMigrations } from '../Tools/version-migration';
 
 export const openPopupFile = async () => {
   await import('../../../components/popups/open-popup');
@@ -188,6 +189,9 @@ export class OpenFileManager {
       window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Impossible d\'ouvrir ce fichier. C\'est un fichier ' + saveObject.envName + '.' } }));
       return;
     }
+
+    // Appliquer les migrations nécessaires pour la compatibilité entre versions
+    applyMigrations(saveObject);
 
     const WorkspaceManagerModule = await import('./WorkspaceManager.js');
     WorkspaceManagerModule.setWorkspaceFromObject(saveObject.workspaceData || saveObject.wsdata);
